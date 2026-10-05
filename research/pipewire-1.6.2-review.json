@@ -1,0 +1,40 @@
+{
+  "version": "1.6.2",
+  "scope": "API/lifecycle/clock source inspection; source not redistributed or compiled here",
+  "documents": [
+    {
+      "url": "https://raw.githubusercontent.com/PipeWire/pipewire/1.6.2/src/pipewire/filter.c",
+      "sha256": "88f725e7b55a569c21ed7f188ecba027f9779cb6533ce6e6ebd8fd2ab1bf1cf4",
+      "bytes": 57150
+    },
+    {
+      "url": "https://raw.githubusercontent.com/PipeWire/pipewire/1.6.2/src/pipewire/context.c",
+      "sha256": "e10f10ea688a3c42905c44328706e1ad7c5a9a92e30d0dd812e3dce5c79f7b7b",
+      "bytes": 58547
+    },
+    {
+      "url": "https://raw.githubusercontent.com/PipeWire/pipewire/1.6.2/src/pipewire/impl-node.c",
+      "sha256": "05e67c4630a2d23bb681eab05d3586eab7e5385c83ed7658cf07bfd8bd45cbf5",
+      "bytes": 86017
+    },
+    {
+      "url": "https://raw.githubusercontent.com/PipeWire/pipewire/1.6.2/spa/plugins/support/node-driver.c",
+      "sha256": "b2751d91d1c16e3c9b4cb925a390bdcf5750f7112e158eade44025ecb4e463f1",
+      "bytes": 29430
+    },
+    {
+      "url": "https://raw.githubusercontent.com/PipeWire/pipewire/1.6.2/src/pipewire/pipewire.c",
+      "sha256": "d185c6e23c0f9be102bbae1edf29727b5c53d5ac0e99e8fbbf62f47883570245",
+      "bytes": 19012
+    }
+  ],
+  "findings": {
+    "filter_destroy": "Data-loop callback listener removal synchronized by PipeWire before returning; context stop joins owned data loops",
+    "context_destroy": "Owned data loops stopped/joined before context resources are freed",
+    "clock_cycle": "impl-node.c line2228 increments clock.cycle on every driver processing cycle; not a device generation",
+    "device_timing": "Clock origin/monotonic time/driver delay are diagnostic until latency/alignment measured",
+    "minimum_api": "1.6.2 required by current adapter; earlier releases not qualified",
+    "init_deinit": "pw_init/pw_deinit reference-counted since0.3.49; adapter balances its reference after its loops/resources stop",
+    "native_lsan": "Default installed1.6.2 context loader reports leaks at shutdown, reproduced without DAW; retained-module diagnostic passes but normal unload leak qualification remains open"
+  }
+}

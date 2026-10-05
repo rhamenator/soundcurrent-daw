@@ -2,7 +2,7 @@
 
 Linux-first professional digital audio workstation and recording suite, planned in C++20 with CMake and Qt 6. Licensed GPL-3.0-only by the owner's decision on 2026-10-05.
 
-**Status: early implementation.** Qt-free session/state, prepared in-process EQ and headless recording/recovery components build on Linux and cross-compile for Windows. A developer command records synthetic input; the desktop/native-device application and release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
+**Status: early implementation.** Qt-free session/state, prepared in-process EQ, headless recording/recovery and the shared audio bridge build on Linux and cross-compile for Windows. A developer command records synthetic input; an opt-in native PipeWire fixture now records and monitors between owned nodes. The desktop application and release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
 
 `soundcurrent-studio` already contains the premium equalizer. This separate repository is named `soundcurrent-daw` to preserve that work. It is local, has no remote, and has not been published or pushed.
 
@@ -22,16 +22,17 @@ Linux-first professional digital audio workstation and recording suite, planned 
 12. [Other-suite native project and exchange imports](docs/10-project-import.md)
 13. [Prepared EQ and real-time transport](docs/11-engine-contract.md)
 14. [Capture, disk worker and recovery](docs/13-recording-contract.md)
+15. [Shared audio bridge and native PipeWire](docs/14-native-audio-contract.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
 ## Next implementation task
 
-Continue **M1 / SLICE-001** with **S5: PipeWire adapter and owned virtual-source capture**. S1/S2 state, S3 processor and S4 headless capture/disk/recovery foundations are implemented; S4 native Windows, physical filesystem faults and >4 GiB qualification remain open. Native audio, UI and offline WAV export remain ahead. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M1 / SLICE-001** with **S6a: bounded read-ahead and take playback**, then the Qt UI and offline WAV export. S5's shared bridge and Linux owned-source capture/monitor/disconnect foundation is implemented. S5 hardware latency, reprepare/reconnect and native Windows audio remain open, alongside S4 filesystem/>4 GiB gates. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Build and test the current core
 
-Requires C++20, CMake ≥3.20, OpenSSL 3 Crypto development files and a libsndfile1.2.2 runtime/library on Linux. JSON and the libsndfile API header are vendored with notices. No Qt/device is required. Use `-DSC_BUILD_MEDIA=OFF` explicitly for state/engine/capture transport without disk writing.
+Requires C++20, CMake ≥3.20, OpenSSL 3 Crypto development files and a libsndfile1.2.2 runtime/library on Linux. JSON and the libsndfile API header are vendored with notices. The default Linux build also needs pkg-config and PipeWire development headers ≥1.6.2; it opens no audio device during CTest. Use `-DSC_BUILD_PIPEWIRE=OFF` for a headless build without that dependency, and `-DSC_BUILD_MEDIA=OFF` explicitly for state/engine/capture transport without disk writing.
 
 ```sh
 cmake -S . -B .cache/build-core -DCMAKE_BUILD_TYPE=Debug
@@ -51,6 +52,14 @@ python3 tests/verify_record_cli.py
 ```
 
 Use the actual asset UUID created under `media/`. Synthetic refuses an existing project directory. Recovery copies a verified checkpoint into a new asset and saves it in the matching project. Inspect before explicitly requesting recovery.
+
+The native integration test is opt-in and uses an existing user PipeWire daemon. It selects only owned source/track/sink ports and checks existing links and defaults before/during/after:
+
+```sh
+python3 tests/verify_pipewire_fixture.py
+```
+
+It records ten seconds of synthetic audio through real PipeWire, then tests source removal. No physical input/output link is created. This is separate from device latency, deadline and Windows qualification.
 
 Windows state/engine/transport-only cross-build:
 

@@ -37,11 +37,11 @@ Use [Qt Linguist](https://doc.qt.io/qt-6/qtlinguist-index.html), `QTranslator`, 
 
 | ID | Workflow | Required evidence | Current gap |
 |---|---|---|---|
-| X001 | Run the full frozen-reference acceptance corpus on Linux and Windows; move a project between them | Per-OS functional/quality results and portable media/plugin report | Only core cross-build; no native Windows DAW execution |
+| X001 | Run the full frozen-reference acceptance corpus on Linux and Windows; move a project between them | Per-OS functional/quality results and portable media/plugin report | Shared state/DSP/capture/media/audio bridge cross-build; no native Windows DAW execution |
 | X002 | Select each registered language, record/edit/export, trigger recovery and reopen in another language | Translation completeness, native review, layout/accessibility and invariant project tests for each locale | Registry and Unicode state tests only; GUI/catalogs not implemented |
 | X003 | Adapt borrowed DSP, then isolate a candidate improvement for later upstream adoption | Pinned origin/notices/hash manifest, documented divergence and independent fixture results | Audited peaking subset now adapted in the DAW with source snapshots and fixtures; returning changes to equalizers remains later work |
 | X004 | Import other suites' native work files and exchange formats | Versioned source corpus, property/render comparisons and persistent preservation/loss reports | Native/exchange adapters pending; see [import contract](10-project-import.md) |
 
 ## Next implementation task
 
-S5: integrate the native PipeWire adapter with an owned virtual source. S3 prepared EQ/events/lifetime and S4 capture/disk/journal/recovery foundations are tested; physical filesystem faults, >4 GiB, native Windows runtime and the full graph remain unqualified. Preserve the full DAW, Windows, localization and import scope while delivering the first recording slice.
+S6a: add bounded read-ahead and take playback, then Qt UI and export. S5 owned PipeWire capture/monitor/source-removal fixtures now pass; physical latency/reprepare and native Windows audio remain open. S3 prepared EQ/events/lifetime and S4 capture/disk/journal/recovery foundations are tested; physical filesystem faults, >4 GiB, native Windows runtime and the full graph remain unqualified. Preserve the full DAW, Windows, localization and import scope while delivering the first recording slice.

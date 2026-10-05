@@ -28,6 +28,27 @@ enum class CaptureStatus : std::uint32_t {
     TimingError,
     WriterFailed
 };
+enum class CaptureBackend : std::uint32_t { Unknown, Synthetic, PipeWire, Jack, Wasapi, Asio };
+enum class CaptureEndReason : std::uint32_t {
+    Unknown,
+    UserStop,
+    RangeComplete,
+    DeviceLost,
+    RateChanged,
+    QuantumExceeded,
+    ClockDiscontinuity,
+    CaptureFailed,
+    ProcessorFailed,
+    WriterFailed,
+    RecoveredCheckpoint
+};
+struct CaptureTimingOrigin {
+    CaptureBackend backend = CaptureBackend::Unknown;
+    std::uint64_t devicePosition = 0, monotonicNs = 0, generation = 0;
+    std::uint32_t clockId = 0, cycle = 0, rateNumerator = 1, rateDenominator = 48000;
+    std::int64_t driverDelay = 0; // Diagnostic, never substituted for input latency.
+    bool operator==(const CaptureTimingOrigin &) const = default;
+};
 struct CaptureReport {
     CaptureStatus status = CaptureStatus::Running;
     std::uint32_t acceptedFrames = 0;
@@ -62,7 +83,11 @@ class CapturePipe {
     CaptureReport push(std::span<const float *const> input, std::uint32_t frames,
                        Frame firstFrame) noexcept;
     // Audio owner, or control after callback shutdown transfers ownership.
-    void finish() noexcept;
+    void finish(CaptureEndReason = CaptureEndReason::UserStop) noexcept;
+    // Audio owner once, before its first push. Release-published immutable data.
+    bool setTimingOrigin(const CaptureTimingOrigin &) noexcept;
+    std::optional<CaptureTimingOrigin> timingOrigin() const noexcept;
+    CaptureEndReason endReason() const noexcept;
     Frame nextFrame() const noexcept {
         return nextFrame_;
     } // Audio owner only.
@@ -88,6 +113,8 @@ class CapturePipe {
     CapturePacket acquiredPacket_;
     alignas(64) std::atomic<std::uint32_t> status_{0}, done_{0}, writerFailed_{0};
     std::atomic<std::uint64_t> rejected_{0}, invalid_{0};
+    CaptureTimingOrigin timing_{};
+    std::atomic<std::uint32_t> originReady_{0}, endReason_{0};
     void publishCurrent() noexcept;
 };
 } // namespace soundcurrent::daw

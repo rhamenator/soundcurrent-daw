@@ -1,0 +1,430 @@
+{
+  "date": "2026-10-05",
+  "scope": "S5 shared bridge/native owned PipeWire foundation and recording journal1.1; S5 hardware/reprepare/Windows and full slice/suite incomplete",
+  "host": {
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "compiler": "GCC15.2.0",
+    "cmake": "4.2.3",
+    "pipewire_api": "1.6.2",
+    "pw_daemon": "Installed1.6.2 user daemon, existing graph retained",
+    "libsndfile": "Linux1.2.2-4; Windows pinned minimal1.2.2 DLL"
+  },
+  "builds": {
+    "linux_debug": {
+      "ctest_groups": 5,
+      "status": "passed",
+      "results": {
+        "session-state": {
+          "status": "passed",
+          "measurements": {
+            "session_checks": 54
+          }
+        },
+        "capture-transport": {
+          "status": "passed",
+          "measurements": {
+            "checks": 14960005,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "pool_slabs": 32,
+            "default_reserve_seconds": 2
+          }
+        },
+        "audio-bridge": {
+          "status": "passed",
+          "measurements": {
+            "checks": 102406,
+            "live_offline_sample_difference": 0,
+            "exact_capture_frames": 10003,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "faults": 9
+          }
+        },
+        "recording-recovery": {
+          "status": "passed",
+          "measurements": {
+            "checks": 157,
+            "synthetic_recorded_frames": 480000,
+            "rate_hz": 48000,
+            "concurrent_disk_worker": true,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "raw_overs_preserved": true,
+            "prefix_recovery": true,
+            "native_audio_device": false
+          }
+        },
+        "prepared-eq": {
+          "status": "passed",
+          "measurements": {
+            "checks": 231126,
+            "gain_error_db": 0.000315653,
+            "partition_error": 0,
+            "float_overs_peak": 1.79575,
+            "rt_cpp_allocations": 0,
+            "rt_cpp_frees": 0,
+            "rt_c_allocations": 0,
+            "rt_c_frees": 0,
+            "rt_blocking_locks": 0,
+            "queue_packets": 1000000
+          }
+        }
+      },
+      "log": {
+        "bytes": 3657,
+        "sha256": "e884634f1350822b34d770c7b2e405dd3b2e4f8e84d7f8fa744900a51b13ac5d"
+      }
+    },
+    "linux_headless_asan_ubsan": {
+      "ctest_groups": 5,
+      "status": "passed",
+      "results": {
+        "session-state": {
+          "status": "passed",
+          "measurements": {
+            "session_checks": 54
+          }
+        },
+        "capture-transport": {
+          "status": "passed",
+          "measurements": {
+            "checks": 14960005,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "pool_slabs": 32,
+            "default_reserve_seconds": 2
+          }
+        },
+        "audio-bridge": {
+          "status": "passed",
+          "measurements": {
+            "checks": 102406,
+            "live_offline_sample_difference": 0,
+            "exact_capture_frames": 10003,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "faults": 9
+          }
+        },
+        "recording-recovery": {
+          "status": "passed",
+          "measurements": {
+            "checks": 157,
+            "synthetic_recorded_frames": 480000,
+            "rate_hz": 48000,
+            "concurrent_disk_worker": true,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "raw_overs_preserved": true,
+            "prefix_recovery": true,
+            "native_audio_device": false
+          }
+        },
+        "prepared-eq": {
+          "status": "passed",
+          "measurements": {
+            "checks": 231126,
+            "gain_error_db": 0.000315653,
+            "partition_error": 0,
+            "float_overs_peak": 1.79575,
+            "rt_cpp_allocations": 0,
+            "rt_cpp_frees": 0,
+            "rt_c_allocations": 0,
+            "rt_c_frees": 0,
+            "rt_blocking_locks": 0,
+            "queue_packets": 1000000
+          }
+        }
+      },
+      "log": {
+        "bytes": 3707,
+        "sha256": "52d1dd25bade921ed9c8c39e24fcd5b025c9a4a7a1e1c6bace7629bc527da426"
+      }
+    }
+  },
+  "native_linux": {
+    "debug": [
+      {
+        "mode": "normal",
+        "frames": 480000,
+        "sample_rate": 48000,
+        "first_quantum": 1024,
+        "device_clock_id": 35,
+        "first_device_position": 3566074880,
+        "last_device_position": 3566554112,
+        "first_monotonic_ns": 83075413279569,
+        "last_monotonic_ns": 83085397248088,
+        "live_offline_difference": 0,
+        "independent_native_sink_difference": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "source_callbacks": 470,
+        "track_callbacks": 469,
+        "sink_callbacks": 469,
+        "bridge_status": 2,
+        "stale_wrong_direction_repeat_rejected": true,
+        "owned_nodes_only": true,
+        "input_latency_measured": false,
+        "memory_locked": false,
+        "routing_observations": {
+          "graph_snapshots_during_run": 77,
+          "snapshots_with_owned_links": 74,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "Native state 2; raw/tap/sink frames 480000/480000/480000; diagnostic ; first/last position 3566074880/3566554112; first quantum 1024\nClock IDs/cycles 35/35 4749449/4749917; xrun/discontinuity 0/0"
+      },
+      {
+        "mode": "disconnect",
+        "frames": 48128,
+        "sample_rate": 48000,
+        "first_quantum": 1024,
+        "device_clock_id": 35,
+        "first_device_position": 3566573568,
+        "last_device_position": 3566620672,
+        "first_monotonic_ns": 83085802580123,
+        "last_monotonic_ns": 83086783910267,
+        "live_offline_difference": 0,
+        "independent_native_sink_difference": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "source_callbacks": 48,
+        "track_callbacks": 47,
+        "sink_callbacks": 47,
+        "bridge_status": 8,
+        "stale_wrong_direction_repeat_rejected": true,
+        "owned_nodes_only": true,
+        "input_latency_measured": false,
+        "memory_locked": false,
+        "routing_observations": {
+          "graph_snapshots_during_run": 9,
+          "snapshots_with_owned_links": 7,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "Native state 8; raw/tap/sink frames 48128/48128/48128; diagnostic Selected audio route disconnected; first/last position 3566573568/3566620672; first quantum 1024\nClock IDs/cycles 35/35 4749936/4749982; xrun/discontinuity 0/0"
+      }
+    ],
+    "asan_ubsan_retained_modules": {
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=1",
+        "PIPEWIRE_DLCLOSE": "false"
+      },
+      "status": "passed under retained-module diagnostic only",
+      "results": [
+        {
+          "mode": "normal",
+          "frames": 480000,
+          "sample_rate": 48000,
+          "first_quantum": 1024,
+          "device_clock_id": 35,
+          "first_device_position": 3564110848,
+          "last_device_position": 3564590080,
+          "first_monotonic_ns": 83034496060964,
+          "last_monotonic_ns": 83044480035080,
+          "live_offline_difference": 0,
+          "independent_native_sink_difference": 0,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "source_callbacks": 470,
+          "track_callbacks": 469,
+          "sink_callbacks": 469,
+          "bridge_status": 2,
+          "stale_wrong_direction_repeat_rejected": true,
+          "owned_nodes_only": true,
+          "input_latency_measured": false,
+          "memory_locked": false,
+          "routing_observations": {
+            "graph_snapshots_during_run": 80,
+            "snapshots_with_owned_links": 75,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Native state 2; raw/tap/sink frames 480000/480000/480000; diagnostic ; first/last position 3564110848/3564590080; first quantum 1024\nClock IDs/cycles 35/35 4747531/4747999; xrun/discontinuity 0/0"
+        },
+        {
+          "mode": "disconnect",
+          "frames": 48128,
+          "sample_rate": 48000,
+          "first_quantum": 1024,
+          "device_clock_id": 35,
+          "first_device_position": 3564626944,
+          "last_device_position": 3564674048,
+          "first_monotonic_ns": 83045248033029,
+          "last_monotonic_ns": 83046229363725,
+          "live_offline_difference": 0,
+          "independent_native_sink_difference": 0,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "source_callbacks": 48,
+          "track_callbacks": 47,
+          "sink_callbacks": 47,
+          "bridge_status": 8,
+          "stale_wrong_direction_repeat_rejected": true,
+          "owned_nodes_only": true,
+          "input_latency_measured": false,
+          "memory_locked": false,
+          "routing_observations": {
+            "graph_snapshots_during_run": 10,
+            "snapshots_with_owned_links": 8,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Native state 8; raw/tap/sink frames 48128/48128/48128; diagnostic Selected audio route disconnected; first/last position 3564626944/3564674048; first quantum 1024\nClock IDs/cycles 35/35 4748035/4748081; xrun/discontinuity 0/0"
+        }
+      ]
+    },
+    "default_module_unload_lsan": {
+      "status": "failed; gate remains open",
+      "summary": "4084 bytes leaked in34 allocations",
+      "log": {
+        "bytes": 30823,
+        "sha256": "4b4505321d1e2b6bca6b98b16f44e1b79c24c8b1755d48d3441f0529eac927ca"
+      },
+      "independent_context_only_probe": [
+        {
+          "case": "init_only",
+          "exit_code": 0,
+          "summary": "no sanitizer report",
+          "log_sha256": "ac0cdbbf602b173325b22f8740245887fbaf4c64aa45873c7b247b91fcaa070b"
+        },
+        {
+          "case": "normal_contexts",
+          "exit_code": 1,
+          "summary": "SUMMARY: AddressSanitizer: 11031 byte(s) leaked in 102 allocation(s).",
+          "log_sha256": "1681d9012b373561b43a82a023e6125834dd023723f7d9e6c883d576a1f83dfc"
+        },
+        {
+          "case": "retained_contexts",
+          "exit_code": 0,
+          "summary": "no sanitizer report",
+          "log_sha256": "ac0cdbbf602b173325b22f8740245887fbaf4c64aa45873c7b247b91fcaa070b"
+        }
+      ],
+      "interpretation": "Reproduced in system PipeWire context initialization/destruction without DAW/ports/routes. Retained-module pass is not proof of normal-unload leak freedom; no suppression applied."
+    }
+  },
+  "recording_journal": {
+    "written_version": "1.1",
+    "reads_versions": [
+      "1.0",
+      "1.1"
+    ],
+    "origin_and_reason_persisted": true,
+    "large_device_position_signed_delay_typed_validation": true,
+    "recovery_preserves_origin_new_copy_identity": true,
+    "project_schema_unchanged": "1.0",
+    "input_latency_measured": false,
+    "independent_rf64_reader": {
+      "synthetic_cli": "Recorded and saved 480000 raw frames at 48000 Hz; SHA-256 556d098f2fb226a534e31dc5387af635d5009e668456ef33994c7fc681cb1fed",
+      "inspect_cli": "Project 06a4b614-5d8a-4d1f-8207-c43c82773ac4; track ae7e95e0-dbb4-4dac-b5ee-dccd716e72a9; asset 0f409635-3348-49ed-8927-d98239bb31f2\nVerified checkpoint: 480000 frames; observed file: 480000 frames; sample SHA-256 350871e2fce11607360789db89c35613b9e6943d2639f3cd786ba7640b8bf8fd\nFinalized: yes\nRejected frames: 0; observed invalid samples: 0",
+      "refuses_existing_project": true,
+      "unicode_path": "Enregistrement – Δοκιμή",
+      "independent_python_rf64_reader": {
+        "frames": 480000,
+        "rate": 48000,
+        "channels": 1,
+        "bits": 32,
+        "raw_sample_comparison": "all 480000 float values exact"
+      },
+      "physical_device": false
+    }
+  },
+  "windows": {
+    "status": "cross_compile_and_link_passed",
+    "native_execution": "not_run",
+    "native_audio_adapter": "not_implemented",
+    "compiler": "MinGWx86_64GCC13-win32",
+    "shared_bridge_imports": [
+      "bcrypt.dll",
+      "KERNEL32.dll",
+      "msvcrt.dll",
+      "libgcc_s_seh-1.dll",
+      "libstdc++-6.dll"
+    ],
+    "artifacts": {
+      ".cache/build-windows-core/sc-audio-bridge-tests.exe": {
+        "bytes": 276498,
+        "sha256": "7ea53e5df2c71ff54a85d49ac571e31ca7d199b8981f90f22e1f4576ae9ebe89"
+      },
+      ".cache/build-windows-core/sc-recording-tests.exe": {
+        "bytes": 1052803,
+        "sha256": "ec9149b622ad9cf37a7af1b7a1e26cf8d2ae92ea98c00f5e4971d3f478d7f51a"
+      },
+      ".cache/build-windows-core/sc-record-tool.exe": {
+        "bytes": 869715,
+        "sha256": "546de0d8196646cced70f89d7c0d319c1ec4c4c4e5e55ba6daa69c2ce96602eb"
+      },
+      ".cache/build-windows-core/libsndfile.dll": {
+        "bytes": 1065450,
+        "sha256": "720eb54fb26b13bd571c004841ed6d920a6c93dcb5d5b8201af97e6d47bf16eb"
+      }
+    }
+  },
+  "callback_audit": {
+    "marked_host_allocations_frees_direct_blocking_mutexes": 0,
+    "scope": "Host marked regions/direct wrapped symbols; not complete shared-library/syscall interception or deadline qualification",
+    "memory_locked": false
+  },
+  "development_corrections": [
+    "Initial normal fixture stopped after one block because clock.cycle was mistaken for a device generation. Corrected from upstream1.6.2 scheduler: cycle advances every graph processing cycle.",
+    "Adapter now balances per-instance reference-counted pw_init/pw_deinit after resource/loop shutdown.",
+    "Native fixture harnesses must run serially on the shared daemon; guard rejected an overlapping invocation before it started nodes."
+  ],
+  "protected_workspace": {
+    "snapshot": "research/workspace-after-native-audio.json",
+    "matches_original_heads_branches_status": true,
+    "baseline_parity_source_register_unchanged": true
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "4e93f229102ea849ffd2c55b9f27bdb48d69b4bc4b3785f080fb2f6b3ba3ca1a",
+    "include/soundcurrent/audio_bridge.hpp": "085644f1bc09c21760b598ff94cc1064ee8768784960d98857d0431e4053ba5a",
+    "include/soundcurrent/pipewire_filter.hpp": "11730a4114029a5235ba5a1b8f2f5bd3ce2b6d0c1d52e1e23a240d2832ecc651",
+    "include/soundcurrent/capture.hpp": "8ac81e48d4ec7a9fd309b9f9e09ff38361f3a6349979a70b86a87b1d7b0536af",
+    "include/soundcurrent/recording.hpp": "d4d4610c76b7c5c808f2c772fe7fe3ec652797dc4fccf6268c661728106f3778",
+    "src/audio_bridge.cpp": "8112d598a07524204abd53d91eed76f2759dd09a909d91f1a150a1c5078701fc",
+    "src/pipewire_filter.cpp": "4b7eca45417e3d8c2777dbbc52ad5adf213b5559057c63c0e4dae4b400c9530a",
+    "src/capture.cpp": "ba890b1e79572c4f3e5a1951f031ca1246fd14f4bd6a19457f40c519802e9b5e",
+    "src/recording.cpp": "b33d96d1f80a0881d42c04824280c0446815c37a47f627924048585c625a2248",
+    "tests/audio_bridge_tests.cpp": "ecff3999ccddb83b734e5ace7c538426c3987fa6fb17e3fe0e30abbc8dcb67b8",
+    "tests/pipewire_fixture.cpp": "e82519a219fb527091c438ed0731014add029d2d7c34e3c2243c17cf5b0196f0",
+    "tests/verify_pipewire_fixture.py": "f64a94e1ad376f3e9baa2f1b206d7d140d229b13a892d137c31d36c5e09decc1",
+    "tests/recording_tests.cpp": "249c4e85bc1a4e86cddb10999ceb576fc8907c8a45d48e2144b3c670bdd3fd00",
+    "experiments/pipewire-lifecycle-probe.cpp": "ac017d1cea86ee8dca03eba44e645861399d4f8317f4f624181aedca478dcfa6"
+  },
+  "limitations": [
+    "Normal PipeWire module unload has unresolved independently reproduced LeakSanitizer reports; retained-module sanitizer result must be qualified",
+    "Native tests mono48kHz/1024 quantum on owned source/track/sink only; no physical input/output links or hardware latency measured",
+    "Native rate/quantum renegotiation, automatic reprepare/reconnect, all-channel/multitrack/hardware routes unqualified; shared fault simulation is separate",
+    "No native Windows audio/runtime/UI qualification",
+    "No memory locking or30-minute combined deadline/load evidence",
+    "No playback/read-ahead/desktop UI/offline export yet; first recording slice incomplete",
+    "Physical ENOSPC/power loss/>4GiB/filesystem matrix and recovery discovery/UI remain open",
+    "Full frozen-reference workflows, quality/content/native-project import and all-Europe translated/reviewed/UI-qualified coverage remain incomplete",
+    "Runtime/transitive licensing/packaging/source delivery remain release gates"
+  ],
+  "next_task": "S6a bounded read-ahead/take playback, then Qt UI and transactional offline WAV export; retain open S5 qualification gates"
+}

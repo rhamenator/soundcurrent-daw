@@ -1,6 +1,6 @@
 # Architecture, threading and data flow
 
-Status: broad architecture proposed; session/snapshot state, prepared EQ, bounded event queue and single-audio-owner object retirement and S4 capture/disk/journal recovery foundations are implemented. See the [state](09-session-state-contract.md) [engine](11-engine-contract.md) and [recording](13-recording-contract.md) contracts for their exact limits. The full graph, native backend, playback/read-ahead workers and plugin host remain staged. Budgets must be measured and versioned.
+Status: broad architecture proposed; session/snapshot state, prepared EQ, bounded event queue and single-audio-owner object retirement and S4 capture/disk/journal recovery foundations are implemented. See the [state](09-session-state-contract.md) [engine](11-engine-contract.md) and [recording](13-recording-contract.md) contracts for their exact limits. S5 adds a framework-free audio bridge and Linux native PipeWire foundation with owned-source/monitor/disconnect fixtures. The full graph, playback/read-ahead, plugin host and native Windows backend remain staged; see [native audio](14-native-audio-contract.md). Budgets must be measured and versioned.
 
 ## Boundaries
 
@@ -51,7 +51,7 @@ flowchart LR
 | Plugin children + supervisor | Plugin DSP/main-thread lifecycle, windows, state and scan operations | Deadline-bounded IPC; engine never waits for a dead child |
 | Offline render thread | Private graph instance and cursor | May wait for read-ahead/plugins; must not reuse or mutate the live graph |
 
-PipeWire `pw_filter` is preferred for synchronous multitrack ports and server quantum. Evaluate `PW_FILTER_FLAG_RT_PROCESS`, negotiated planar float buffers and data-loop ownership before implementation. Control operations run on a non-RT loop. JACK offers a callback adapter; use the installed JACK server or PipeWire JACK compatibility. Never overwrite the user's default sink as a DAW startup side effect. See [PipeWire filters](https://docs.pipewire.org/group__pw__filter.html) and [JACK callback rules](https://jackaudio.org/api/group__ClientCallbacks.html).
+PipeWire `pw_filter` is preferred for synchronous multitrack ports and server quantum. The S5 adapter uses `PW_FILTER_FLAG_RT_PROCESS`, mapped planar float buffers, an off-RT control loop and audited context/data-loop shutdown. Actual hardware latency and reprepare qualification remain open. Control operations run on a non-RT loop. JACK offers a callback adapter; use the installed JACK server or PipeWire JACK compatibility. Never overwrite the user's default sink as a DAW startup side effect. See [PipeWire filters](https://docs.pipewire.org/group__pw__filter.html) and [JACK callback rules](https://jackaudio.org/api/group__ClientCallbacks.html).
 
 ## Bounded communication contracts
 

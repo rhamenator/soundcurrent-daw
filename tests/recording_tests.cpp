@@ -351,6 +351,40 @@ void invalidRecoveryAndNoOverwrite() {
         std::ofstream(job / "journal.json", std::ios::binary | std::ios::trunc) << bytes;
     };
     const auto good = j.dump();
+    j["schemaMinor"] = 0;
+    j.erase("timingOrigin");
+    j.erase("endReason");
+    write(j.dump());
+    check(inspectRecording(job).committedFrames == 256 && !inspectRecording(job).timingOrigin,
+          "Legacy 1.0 journal recovery unsupported");
+    j = nlohmann::json::parse(good);
+    j["timingOrigin"] = {{"backend", 2},
+                         {"devicePosition", 10000000000ULL},
+                         {"monotonicNs", 20000000000ULL},
+                         {"generation", 7},
+                         {"clockId", 35},
+                         {"cycle", UINT32_MAX},
+                         {"rateNumerator", 1},
+                         {"rateDenominator", 48000},
+                         {"driverDelay", -17}};
+    j["endReason"] = static_cast<std::uint32_t>(CaptureEndReason::DeviceLost);
+    write(j.dump());
+    const auto nativeOrigin = inspectRecording(job);
+    check(nativeOrigin.timingOrigin &&
+              nativeOrigin.timingOrigin->devicePosition == 10000000000ULL &&
+              nativeOrigin.timingOrigin->driverDelay == -17 &&
+              nativeOrigin.endReason == CaptureEndReason::DeviceLost,
+          "Versioned native clock origin differs");
+    const auto recovered = recoverRecording(temp.root, job);
+    const auto recoveredInfo =
+        inspectRecording(temp.root / utf8Path(recovered.asset.relativePath).parent_path());
+    check(recoveredInfo.timingOrigin == nativeOrigin.timingOrigin &&
+              recoveredInfo.endReason == CaptureEndReason::RecoveredCheckpoint,
+          "Recovered prefix lost its original clock metadata");
+    j["timingOrigin"]["rateNumerator"] = 1.5;
+    write(j.dump());
+    rejects([&] { inspectRecording(job); });
+    j = nlohmann::json::parse(good);
     j["committedFrames"] = 1000000;
     write(j.dump());
     rejects([&] { inspectRecording(job); });

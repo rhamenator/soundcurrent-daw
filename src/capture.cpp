@@ -128,7 +128,25 @@ CaptureReport CapturePipe::push(std::span<const float *const> input, std::uint32
     add(invalid_, report.invalidInputSamples);
     return report;
 }
-void CapturePipe::finish() noexcept {
+bool CapturePipe::setTimingOrigin(const CaptureTimingOrigin &o) noexcept {
+    if (originReady_.load(std::memory_order_relaxed) || nextFrame_ != config_.startFrame ||
+        producerDone() || status() != CaptureStatus::Running || o.backend > CaptureBackend::Asio ||
+        o.rateNumerator != 1 || o.rateDenominator < 8000 || o.rateDenominator > 384000 ||
+        !o.generation)
+        return false;
+    timing_ = o;
+    originReady_.store(1, std::memory_order_release);
+    return true;
+}
+std::optional<CaptureTimingOrigin> CapturePipe::timingOrigin() const noexcept {
+    if (!originReady_.load(std::memory_order_acquire))
+        return {};
+    return timing_;
+}
+CaptureEndReason CapturePipe::endReason() const noexcept {
+    return static_cast<CaptureEndReason>(endReason_.load(std::memory_order_acquire));
+}
+void CapturePipe::finish(CaptureEndReason reason) noexcept {
     if (producerDone())
         return;
     publishCurrent();
@@ -137,6 +155,11 @@ void CapturePipe::finish() noexcept {
         state = writerFailed_.load(std::memory_order_acquire) ? CaptureStatus::WriterFailed
                                                               : CaptureStatus::Stopped;
     status_.store(static_cast<std::uint32_t>(state), std::memory_order_release);
+    if (reason == CaptureEndReason::UserStop && state == CaptureStatus::WriterFailed)
+        reason = CaptureEndReason::WriterFailed;
+    else if (reason == CaptureEndReason::UserStop && state != CaptureStatus::Stopped)
+        reason = CaptureEndReason::CaptureFailed;
+    endReason_.store(static_cast<std::uint32_t>(reason), std::memory_order_release);
     done_.store(1, std::memory_order_release);
 }
 bool CapturePipe::acquire(CapturedSlab &slab) noexcept {

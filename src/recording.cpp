@@ -56,9 +56,23 @@ void validateSpec(RecordingSpec &s) {
 Json journal(const RecordingSpec &s, Frame frames, std::uint64_t sequence,
              const std::string &digest, bool finalized, CaptureStatus status,
              const CapturePipe *pipe = nullptr) {
+    Json origin = nullptr;
+    const auto timing = pipe ? pipe->timingOrigin() : std::optional<CaptureTimingOrigin>{};
+    if (timing) {
+        const auto &o = *timing;
+        origin = {{"backend", static_cast<std::uint32_t>(o.backend)},
+                  {"devicePosition", o.devicePosition},
+                  {"monotonicNs", o.monotonicNs},
+                  {"generation", o.generation},
+                  {"clockId", o.clockId},
+                  {"cycle", o.cycle},
+                  {"rateNumerator", o.rateNumerator},
+                  {"rateDenominator", o.rateDenominator},
+                  {"driverDelay", o.driverDelay}};
+    }
     return {{"format", "soundcurrent-recording"},
             {"schemaMajor", 1},
-            {"schemaMinor", 0},
+            {"schemaMinor", 1},
             {"projectId", s.projectId.str()},
             {"trackId", s.trackId.str()},
             {"assetId", s.assetId.str()},
@@ -75,6 +89,8 @@ Json journal(const RecordingSpec &s, Frame frames, std::uint64_t sequence,
             {"captureStatus", static_cast<std::uint32_t>(status)},
             {"rejectedFrames", pipe ? pipe->rejectedFrames() : 0},
             {"observedInvalidInputSamples", pipe ? pipe->invalidInputSamples() : 0},
+            {"timingOrigin", origin},
+            {"endReason", pipe ? static_cast<std::uint32_t>(pipe->endReason()) : 0},
             {"recoveredFrom", s.recoveredFrom ? Json(s.recoveredFrom->str()) : Json(nullptr)}};
 }
 Frame integer(const Json &j) {
@@ -83,6 +99,11 @@ Frame integer(const Json &j) {
                  j.get<std::uint64_t>() <= std::uint64_t(std::numeric_limits<Frame>::max())),
             "Invalid recording journal integer");
     return j.get<Frame>();
+}
+std::uint64_t unsignedInteger(const Json &j) {
+    require(j.is_number_integer() && (j.is_number_unsigned() || j.get<Frame>() >= 0),
+            "Invalid unsigned recording journal integer");
+    return j.get<std::uint64_t>();
 }
 std::string text(const Json &j) {
     require(j.is_string() && j.get_ref<const std::string &>().size() <= 128,
@@ -104,9 +125,10 @@ RecordingRecovery decodeJournal(std::string_view bytes) {
                     keys.pop_back();
                 return true;
             });
-        require(j.is_object() && j.size() == 20 &&
+        const auto minor = integer(j.at("schemaMinor"));
+        require(j.is_object() && (minor == 0 || minor == 1) && j.size() == (minor ? 22 : 20) &&
                     text(j.at("format")) == "soundcurrent-recording" &&
-                    integer(j.at("schemaMajor")) == 1 && integer(j.at("schemaMinor")) == 0 &&
+                    integer(j.at("schemaMajor")) == 1 &&
                     text(j.at("timingDomain")) == "engine-frames",
                 "Unsupported recording journal");
         RecordingRecovery r;
@@ -159,6 +181,36 @@ RecordingRecovery decodeJournal(std::string_view bytes) {
         }
         r.rejectedFrames = j.at("rejectedFrames").get<std::uint64_t>();
         r.observedInvalidInputSamples = j.at("observedInvalidInputSamples").get<std::uint64_t>();
+        if (minor == 1) {
+            const auto reason = integer(j.at("endReason"));
+            require(reason >= 0 &&
+                        reason <= static_cast<Frame>(CaptureEndReason::RecoveredCheckpoint),
+                    "Invalid recording end reason");
+            r.endReason = static_cast<CaptureEndReason>(reason);
+            const auto &o = j.at("timingOrigin");
+            if (!o.is_null()) {
+                require(o.is_object() && o.size() == 9, "Invalid capture timing origin fields");
+                const auto backend = unsignedInteger(o.at("backend"));
+                const auto clock = unsignedInteger(o.at("clockId")),
+                           cycle = unsignedInteger(o.at("cycle"));
+                const auto numerator = unsignedInteger(o.at("rateNumerator")),
+                           denominator = unsignedInteger(o.at("rateDenominator"));
+                const auto generation = unsignedInteger(o.at("generation"));
+                require(backend <= static_cast<std::uint32_t>(CaptureBackend::Asio) &&
+                            clock <= UINT32_MAX && cycle <= UINT32_MAX && numerator == 1 &&
+                            denominator >= 8000 && denominator <= 384000 && generation != 0,
+                        "Invalid capture timing origin");
+                r.timingOrigin = CaptureTimingOrigin{static_cast<CaptureBackend>(backend),
+                                                     unsignedInteger(o.at("devicePosition")),
+                                                     unsignedInteger(o.at("monotonicNs")),
+                                                     generation,
+                                                     static_cast<std::uint32_t>(clock),
+                                                     static_cast<std::uint32_t>(cycle),
+                                                     1,
+                                                     static_cast<std::uint32_t>(denominator),
+                                                     integer(o.at("driverDelay"))};
+            }
+        }
         return r;
     } catch (const Json::exception &) {
         throw ProjectError(ErrorCode::InvalidState, "Malformed recording journal");
@@ -345,6 +397,8 @@ RecordingResult recoverRecording(const std::filesystem::path &root,
     spec.recoveredFrom = spec.assetId;
     spec.assetId = Id::generate();
     CapturePipe pipe(spec.capture);
+    if (r.timingOrigin)
+        require(pipe.setTimingOrigin(*r.timingOrigin), "Cannot preserve recovered device origin");
     spec.capture = pipe.config();
     CaptureWriter writer(root, spec);
     AudioFile input(r.source);
@@ -372,7 +426,7 @@ RecordingResult recoverRecording(const std::filesystem::path &root,
         copied += n;
     }
     require(hash.digest() == r.sampleSha256, "Recovery source changed after inspection");
-    pipe.finish();
+    pipe.finish(CaptureEndReason::RecoveredCheckpoint);
     while (writer.drainOne(pipe)) {
     }
     return writer.finalize(pipe);

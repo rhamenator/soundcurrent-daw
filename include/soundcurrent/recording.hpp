@@ -84,6 +84,8 @@ struct RecordingRecovery {
     CaptureStatus captureStatus = CaptureStatus::Running;
     std::uint64_t rejectedFrames = 0;
     std::uint64_t observedInvalidInputSamples = 0;
+    std::optional<CaptureTimingOrigin> timingOrigin;
+    CaptureEndReason endReason = CaptureEndReason::Unknown;
 };
 // Worker/control-only. Bounded parse and streaming prefix verification.
 RecordingRecovery inspectRecording(const std::filesystem::path &jobDirectory);

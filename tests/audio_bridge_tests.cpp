@@ -1,0 +1,198 @@
+// SPDX-License-Identifier: GPL-3.0-only
+#include "rt_audit.hpp"
+#include <soundcurrent/audio_bridge.hpp>
+#include <algorithm>
+#include <array>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+using namespace soundcurrent::daw;
+namespace {
+std::uint64_t checks = 0;
+void check(bool ok, const char *s) {
+    ++checks;
+    if (!ok)
+        throw std::runtime_error(s);
+}
+struct Fixture {
+    Session session = makeOneTrackSession("Bridge", "Raw");
+    CaptureConfig config;
+    std::array<float, 4096> input{}, output{};
+    std::array<const float *, 1> inputs{input.data()};
+    std::array<float *, 1> outputs{output.data()};
+    DeviceBlockClock clock{1000000, 127, 1000000000, 30, 1, 1, 48000, 48};
+    Fixture() {
+        config.maximumCallbackFrames = 2048;
+        config.slabFrames = 256;
+        for (std::size_t n = 0; n < input.size(); ++n)
+            input[n] = float((double(n % 101) - 50) * .04);
+        output.fill(123);
+    }
+};
+void captureAndEvents() {
+    for (auto q : {16u, 64u, 127u, 512u, 2048u}) {
+        Fixture f;
+        CapturePipe raw(f.config), wet(f.config);
+        f.session.tracks.front().eq.bands.front().gainDb = 6;
+        AudioBridge bridge(f.session, f.session.tracks.front().id, raw, {2048, 1, 10003}, &wet);
+        PreparedEq offline(f.session, f.session.tracks.front().id, 2048, 1);
+        std::array<float, 4096> expected{};
+        const std::array<float *, 1> expectedView{expected.data()};
+        std::vector<float> rawCapture, wetCapture;
+        BackendObservation o;
+        auto drain = [&](CapturePipe &pipe, std::vector<float> &samples) {
+            CapturedSlab slab;
+            while (pipe.acquire(slab)) {
+                samples.insert(samples.end(), slab.interleaved.begin(), slab.interleaved.end());
+                pipe.release(slab);
+            }
+        };
+        Frame frame = 0;
+        while (bridge.status() == AudioBridgeStatus::Ready ||
+               bridge.status() == AudioBridgeStatus::Running) {
+            f.clock.duration = q;
+            for (std::uint32_t n = 0; n < q; ++n)
+                f.input[n] = float((double((frame + n) % 101) - 50) * .04);
+            offline.process(f.inputs, expectedView, q, frame);
+            AudioBridgeStatus state;
+            {
+                rt_audit::Guard guard;
+                state = bridge.process(f.clock, f.inputs, f.outputs, q);
+            }
+            check(state == AudioBridgeStatus::Running || state == AudioBridgeStatus::Complete,
+                  "Valid clock stopped bridge");
+            for (std::uint32_t n = 0; n < q; ++n)
+                check(expected[n] == f.output[n], "Native-shared bridge differs from offline EQ");
+            drain(raw, rawCapture);
+            drain(wet, wetCapture);
+            check(bridge.observation(o) && o.engineFrame == frame &&
+                      o.device.position == f.clock.position,
+                  "Device/engine clock observation differs");
+            frame += q;
+            f.clock.position += q;
+            ++f.clock.cycle;
+        }
+        check(bridge.capturedFrames() == 10003 && rawCapture.size() == 10003 &&
+                  wetCapture.size() == 10003 && raw.drained() && wet.drained(),
+              "Exact recording range or final partial slab differs");
+        check(raw.timingOrigin() && raw.timingOrigin()->devicePosition == 1000000 &&
+                  raw.endReason() == CaptureEndReason::RangeComplete,
+              "Device origin/range completion lost");
+        for (std::size_t n = 0; n < rawCapture.size(); ++n)
+            check(rawCapture[n] == float((double(n % 101) - 50) * .04), "EQ altered raw capture");
+        check(std::any_of(wetCapture.begin(), wetCapture.end(),
+                          [](float v) { return std::abs(v) > 2.f; }),
+              "Internal float headroom lost");
+        bridge.requestFault(AudioBridgeStatus::DeviceLost);
+        check(bridge.status() == AudioBridgeStatus::Complete,
+              "Late device event overwrote completed take");
+    }
+    Fixture f;
+    CapturePipe pipe(f.config);
+    AudioBridge bridge(f.session, f.session.tracks.front().id, pipe);
+    auto changed = f.session;
+    changed.tracks.front().eq.bands.front().gainDb = 6;
+    ParameterAddress address{changed.tracks.front().id, changed.tracks.front().eq.id,
+                             changed.tracks.front().eq.bands.front().id, BandParameter::GainDb};
+    check(bridge.submit(bridge.prepared().parameterEvent(changed, address, 97)) ==
+              SubmitStatus::Accepted,
+          "Bridge parameter event rejected");
+    {
+        rt_audit::Guard guard;
+        bridge.process(f.clock, f.inputs, f.outputs, 127);
+    }
+    check(f.output[0] == f.input[0] && f.output[98] != f.input[98],
+          "Sample-timed bridge control did not apply");
+    bridge.requestStop();
+    {
+        rt_audit::Guard guard;
+        bridge.process(f.clock, f.inputs, f.outputs, 127);
+    }
+    check(pipe.producerDone() && bridge.status() == AudioBridgeStatus::Stopped && f.output[0] == 0,
+          "Stop command did not finish/silence");
+}
+void faults() {
+    for (auto expected : {AudioBridgeStatus::RateChanged, AudioBridgeStatus::QuantumExceeded,
+                          AudioBridgeStatus::ClockDiscontinuity,
+                          AudioBridgeStatus::BufferUnavailable, AudioBridgeStatus::DeviceLost}) {
+        Fixture f;
+        CapturePipe pipe(f.config);
+        AudioBridge bridge(f.session, f.session.tracks.front().id, pipe);
+        if (expected == AudioBridgeStatus::RateChanged)
+            f.clock.rateDenominator = 44100;
+        if (expected == AudioBridgeStatus::QuantumExceeded)
+            f.clock.duration = 4096;
+        if (expected == AudioBridgeStatus::ClockDiscontinuity)
+            f.clock.xrun = true;
+        if (expected == AudioBridgeStatus::BufferUnavailable)
+            f.inputs[0] = nullptr;
+        if (expected == AudioBridgeStatus::DeviceLost)
+            bridge.requestFault(expected);
+        AudioBridgeStatus state;
+        {
+            rt_audit::Guard guard;
+            state = bridge.process(f.clock, f.inputs, f.outputs, 4096);
+        }
+        check(state == expected && pipe.producerDone() && bridge.capturedFrames() == 0,
+              "Adapter fault accepted samples or failed to stop");
+        check(std::all_of(f.output.begin(), f.output.end(), [](float v) { return v == 0; }),
+              "Failure did not silence capacity-certified outputs");
+    }
+    for (int change = 0; change < 4; ++change) {
+        Fixture f;
+        CapturePipe pipe(f.config);
+        AudioBridge bridge(f.session, f.session.tracks.front().id, pipe);
+        bridge.process(f.clock, f.inputs, f.outputs, 127);
+        f.clock.position += 127;
+        if (change == 0)
+            ++f.clock.position;
+        if (change == 1)
+            ++f.clock.id;
+        if (change == 2)
+            f.clock.xrun = true;
+        if (change == 3)
+            f.clock.discontinuity = true;
+        AudioBridgeStatus state;
+        {
+            rt_audit::Guard guard;
+            state = bridge.process(f.clock, f.inputs, f.outputs, 127);
+        }
+        check(state == AudioBridgeStatus::ClockDiscontinuity && bridge.capturedFrames() == 127,
+              "Device generation/clock gap lost");
+    }
+    Fixture f;
+    CapturePipe pipe(f.config);
+    AudioBridge bridge(f.session, f.session.tracks.front().id, pipe);
+    for (int n = 0; n < 100; ++n) {
+        AudioBridgeStatus state;
+        {
+            rt_audit::Guard guard;
+            state = bridge.process(f.clock, f.inputs, f.outputs, 127);
+        }
+        f.clock.position += 127;
+        if (state == AudioBridgeStatus::CaptureFailed)
+            break;
+    }
+    check(bridge.status() == AudioBridgeStatus::CaptureFailed &&
+              pipe.status() == CaptureStatus::QueueFull && pipe.producerDone(),
+          "Backend capture exhaustion not surfaced");
+    check(bridge.droppedObservations() > 0, "Meter backpressure did not drop work");
+}
+} // namespace
+int main() {
+    try {
+        rt_audit::reset();
+        captureAndEvents();
+        faults();
+        auto a = rt_audit::counts;
+        check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,
+              "Bridge RT allocation/free/lock detected");
+        std::cout << "{\"checks\":" << checks
+                  << ",\"live_offline_sample_difference\":0,\"exact_capture_frames\":10003,"
+                     "\"rt_allocations\":0,\"rt_frees\":0,\"rt_blocking_locks\":0,\"faults\":9}\n";
+        return 0;
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+}
