@@ -1,0 +1,27 @@
+{
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "date": "2026-10-05",
+  "requirements": [
+    {
+      "id": "X001",
+      "requirement": "Windows functional parity",
+      "source": "Owner request 2026-10-05",
+      "acceptance": "docs/08-platforms-and-localization.md",
+      "status": "core cross-build only"
+    },
+    {
+      "id": "X002",
+      "requirement": "Localization: all of Europe",
+      "source": "Owner clarification 2026-10-05",
+      "acceptance": "docs/08-platforms-and-localization.md",
+      "status": "language inventory and invariant UTF-8 state foundation; no translated UI"
+    },
+    {
+      "id": "X003",
+      "requirement": "Adapt borrowed equalizer code here; return improvements later",
+      "source": "Owner clarification 2026-10-05",
+      "acceptance": "docs/decisions/007-windows-localization-and-reuse.md",
+      "status": "policy recorded; no borrowed DSP in root build"
+    }
+  ]
+}

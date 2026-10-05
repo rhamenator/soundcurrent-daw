@@ -2,7 +2,7 @@
 
 Linux-first professional digital audio workstation and recording suite, planned in C++20 with CMake and Qt 6. Licensed GPL-3.0-only by the owner's decision on 2026-10-05.
 
-**Status: planning and bounded feasibility only. No DAW application or release exists yet.** The product goal is the combined functional capabilities of full Bitwig Studio and Cubase Pro. Completing the first recording slice will not establish that parity.
+**Status: early implementation.** The Qt-free session/state foundation builds on Linux and cross-compiles for Windows. No recording application or release exists yet. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows and all-Europe localization requirements. Completing the first recording slice will not establish that parity.
 
 `soundcurrent-studio` already contains the premium equalizer. This separate repository is named `soundcurrent-daw` to preserve that work. It is local, has no remote, and has not been published or pushed.
 
@@ -17,12 +17,36 @@ Linux-first professional digital audio workstation and recording suite, planned 
 7. [Equalizer reuse audit](docs/06-reuse-audit.md)
 8. [Feasibility evidence and limitations](docs/07-feasibility.md)
 9. [Decision records](docs/decisions/)
+10. [Windows and all-Europe localization](docs/08-platforms-and-localization.md)
+11. [Implemented session-state contract](docs/09-session-state-contract.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
 ## Next implementation task
 
-Implement **M1 / SLICE-001: one mono track, PipeWire capture, in-process EQ, atomic save/reopen, and WAV export**, following [the acceptance contract](docs/05-first-slice.md). Begin with the framework-independent session model and a synthetic capture fixture, then the disk worker and native adapter. No clip launcher, plugin host, or broad effects work belongs in this slice.
+Continue **M1 / SLICE-001** with **S3: the prepared in-process EQ**, audited GPL provenance, float headroom, bounded parameter events and smoothing, with deterministic live/offline fixtures. Session/parameter state and snapshot round-trip foundations are implemented; actual recording, UI and WAV export remain ahead. See [the acceptance contract](docs/05-first-slice.md).
+
+## Build and test the current core
+
+Requires C++20, CMake ≥3.20 and OpenSSL 3 Crypto development files on Linux. JSON 3.12.0 is vendored with its MIT notice. No Qt or audio device dependency enters this build.
+
+```sh
+cmake -S . -B .cache/build-core -DCMAKE_BUILD_TYPE=Debug
+cmake --build .cache/build-core
+ctest --test-dir .cache/build-core --output-on-failure
+.cache/build-core/sc-project-tool new .cache/example-project
+.cache/build-core/sc-project-tool inspect .cache/example-project
+```
+
+The developer tool creates an empty one-track session; it does not record. Windows cross-build:
+
+```sh
+cmake -S . -B .cache/build-windows-core \
+  -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-mingw.cmake
+cmake --build .cache/build-windows-core
+```
+
+This requires the installed x86_64 MinGW toolchain. The resulting `.exe` files have not yet been run on Windows. Test evidence is in [SLICE-001 results](tests/results/SLICE-001/). See [third-party notices](THIRD-PARTY-NOTICES.md).
 
 ## Reproduce the bounded experiment
 

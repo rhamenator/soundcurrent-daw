@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-05",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "scope": "S1/S2 control-thread session and snapshot foundation; not whole SLICE-001",
+  "linux": {
+    "compiler": "GCC 15.2.0",
+    "openssl": "3.5.5",
+    "build": "passed",
+    "ctest": "1/1 passed",
+    "assertion_checks": 54,
+    "cli_unicode_directory_and_existing_project_guard": "passed",
+    "address_undefined_sanitizers": "1/1 CTest passed"
+  },
+  "windows": {
+    "compiler": "MinGW GCC 13.0.0, x86_64",
+    "core_tool_and_tests_cross_build": "passed",
+    "native_runtime": "not run",
+    "audio_ui_installer": "not implemented"
+  },
+  "coverage": [
+    "stable parameter identity after band reorder/track rename",
+    "immediate control-model change; semantic grouped undo/redo/cancel",
+    "rejected NaN/out-of-range edit preserves model",
+    "UUID/UTF-8/path/JSON bounds and type validation",
+    "future schema, unknown fields, duplicate JSON keys rejected",
+    "locale-independent numeric serialization",
+    "SHA-256 known vector; save/reopen; previous snapshot",
+    "cancellation cleans owned temp and preserves current",
+    "cooperative writer contention and unrelated project identity refusal",
+    "portable relative media after directory move",
+    "wrong/missing/linked media rejected",
+    "corrupt current file explicitly recoverable from previous generation",
+    "timeline overflow rejected"
+  ],
+  "not_verified": [
+    "actual capture/playback or WAV decode",
+    "real-time graph/events/processing allocation",
+    "disk-full, kill, filesystem corruption or power-loss recovery",
+    "Windows native runtime/NTFS faults",
+    "translated UI/catalog/native-speaker review",
+    "complete European language inventory",
+    "complete frozen-reference DAW parity"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "2a23e34ae3159d75e1bcabc720f59186118d59bff2d7efd1541997cbbc08c16f",
+    "cmake/toolchains/windows-mingw.cmake": "2e27174cc5dd5c9568433eb5a2d6a33d3e0aa1b3fe4e6725680387b1fdee42dd",
+    "include/soundcurrent/session.hpp": "282282cf93e25c47b05454997448081ce629afe52034b5ba1c5c5e24c8353da3",
+    "include/soundcurrent/project_store.hpp": "868d13356666b6c1aa310746b18eca36244beb85b05b3cfcf60ddbd95d47246b",
+    "src/session.cpp": "65985b8539bbbc0a106b530ed6108a27ec636de62438290011fb822d5c03b078",
+    "src/project_store.cpp": "b00b137c238b41688b7a169a5402fc3c667f96ff14b281e53f30a062768e0202",
+    "tools/project_tool.cpp": "ecf5e668309359a0e78bfd801e6bc346b2833726987144d92467dff6a980b286",
+    "tests/session_tests.cpp": "1583bf4f509edb3f267bf39c93bbb3b2b8c5afdcf1b6f40cd7cb67d4e2d68a04",
+    "third_party/manifest.json": "2dee18f539502e38a1af20e5adb7d49f00b8a3c5e2f478e802cb2b32a916aec0"
+  },
+  "protected_repositories": "research/workspace-after-core.json",
+  "publication": "local only; no remote configured"
+}

@@ -1,0 +1,1226 @@
+{
+  "scope": "All Europe: national, non-EU, regional/minority and relevant cross-border communities; extensible, not exhaustive",
+  "date": "2026-10-05",
+  "translation_policy": "Planned is not translated. Family tags require individual language catalogs; region/script candidates need independent review.",
+  "languages": [
+    {
+      "tag": "en",
+      "name": "English",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "en-GB",
+        "en-IE"
+      ]
+    },
+    {
+      "tag": "sq",
+      "name": "Albanian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "hy",
+      "name": "Armenian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "az",
+      "name": "Azerbaijani",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "az-Latn",
+        "az-Cyrl"
+      ]
+    },
+    {
+      "tag": "be",
+      "name": "Belarusian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "bs",
+      "name": "Bosnian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "bs-Latn",
+        "bs-Cyrl"
+      ]
+    },
+    {
+      "tag": "bg",
+      "name": "Bulgarian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ca",
+      "name": "Catalan",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "hr",
+      "name": "Croatian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "cs",
+      "name": "Czech",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "da",
+      "name": "Danish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "nl",
+      "name": "Dutch",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "nl-NL",
+        "nl-BE"
+      ]
+    },
+    {
+      "tag": "et",
+      "name": "Estonian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "fi",
+      "name": "Finnish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "fr",
+      "name": "French",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "fr-FR",
+        "fr-BE",
+        "fr-CH",
+        "fr-LU"
+      ]
+    },
+    {
+      "tag": "de",
+      "name": "German",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "de-DE",
+        "de-AT",
+        "de-CH",
+        "de-LI"
+      ]
+    },
+    {
+      "tag": "ka",
+      "name": "Georgian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "el",
+      "name": "Greek",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "hu",
+      "name": "Hungarian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "is",
+      "name": "Icelandic",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ga",
+      "name": "Irish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "it",
+      "name": "Italian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "it-IT",
+        "it-CH"
+      ]
+    },
+    {
+      "tag": "lv",
+      "name": "Latvian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "lt",
+      "name": "Lithuanian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "lb",
+      "name": "Luxembourgish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "mk",
+      "name": "Macedonian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "mt",
+      "name": "Maltese",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "cnr",
+      "name": "Montenegrin",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "nb",
+      "name": "Norwegian Bokmål",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "nn",
+      "name": "Norwegian Nynorsk",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "pl",
+      "name": "Polish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "pt",
+      "name": "Portuguese",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "pt-PT"
+      ]
+    },
+    {
+      "tag": "ro",
+      "name": "Romanian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "ro-RO",
+        "ro-MD"
+      ]
+    },
+    {
+      "tag": "rm",
+      "name": "Romansh",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ru",
+      "name": "Russian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sr-Cyrl",
+      "name": "Serbian (Cyrillic)",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sr-Latn",
+      "name": "Serbian (Latin)",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sk",
+      "name": "Slovak",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sl",
+      "name": "Slovenian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "es",
+      "name": "Spanish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "es-ES"
+      ]
+    },
+    {
+      "tag": "sv",
+      "name": "Swedish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "sv-SE",
+        "sv-FI"
+      ]
+    },
+    {
+      "tag": "tr",
+      "name": "Turkish",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "uk",
+      "name": "Ukrainian",
+      "group": "national",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ab",
+      "name": "Abkhaz",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ady",
+      "name": "Adyghe",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "av",
+      "name": "Avar",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "an",
+      "name": "Aragonese",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ast",
+      "name": "Asturian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "eu",
+      "name": "Basque",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ba",
+      "name": "Bashkir",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "br",
+      "name": "Breton",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ce",
+      "name": "Chechen",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "cv",
+      "name": "Chuvash",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kw",
+      "name": "Cornish",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "crh",
+      "name": "Crimean Tatar",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "crh-Latn",
+        "crh-Cyrl"
+      ]
+    },
+    {
+      "tag": "fo",
+      "name": "Faroese",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "fy",
+      "name": "Western Frisian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "frr",
+      "name": "Northern Frisian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "stq",
+      "name": "Saterland Frisian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "fur",
+      "name": "Friulian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "gag",
+      "name": "Gagauz",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "gl",
+      "name": "Galician",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kl",
+      "name": "Kalaallisut",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "inh",
+      "name": "Ingush",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "krc",
+      "name": "Karachay-Balkar",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "krl",
+      "name": "Karelian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "csb",
+      "name": "Kashubian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kv",
+      "name": "Komi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "koi",
+      "name": "Komi-Permyak",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kum",
+      "name": "Kumyk",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "lld",
+      "name": "Ladin",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "lbe",
+      "name": "Lak",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "lez",
+      "name": "Lezghian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "li",
+      "name": "Limburgish",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "nds",
+      "name": "Low German",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "dsb",
+      "name": "Lower Sorbian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "hsb",
+      "name": "Upper Sorbian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "gv",
+      "name": "Manx",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "chm",
+      "name": "Mari",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "mrj",
+      "name": "Western Mari",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "mhr",
+      "name": "Eastern Mari",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "mdf",
+      "name": "Moksha",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "myv",
+      "name": "Erzya",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "nog",
+      "name": "Nogai",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "oc",
+      "name": "Occitan",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "os",
+      "name": "Ossetian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "pms",
+      "name": "Piedmontese",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "rom",
+      "name": "Romani",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "rom-Latn"
+      ]
+    },
+    {
+      "tag": "rue",
+      "name": "Rusyn",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "smi",
+      "name": "Sámi languages (family; requires individual catalogs)",
+      "group": "family",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "se",
+      "name": "Northern Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "smn",
+      "name": "Inari Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sms",
+      "name": "Skolt Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "smj",
+      "name": "Lule Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sma",
+      "name": "Southern Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sje",
+      "name": "Pite Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sju",
+      "name": "Ume Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sjd",
+      "name": "Kildin Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sjt",
+      "name": "Ter Sámi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sc",
+      "name": "Sardinian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sco",
+      "name": "Scots",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "gd",
+      "name": "Scottish Gaelic",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "scn",
+      "name": "Sicilian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "szl",
+      "name": "Silesian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "tt",
+      "name": "Tatar",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "tt-Cyrl",
+        "tt-Latn"
+      ]
+    },
+    {
+      "tag": "udm",
+      "name": "Udmurt",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "vec",
+      "name": "Venetian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "vep",
+      "name": "Veps",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "wa",
+      "name": "Walloon",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "cy",
+      "name": "Welsh",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "yi",
+      "name": "Yiddish",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "yi-Hebr"
+      ]
+    },
+    {
+      "tag": "rup",
+      "name": "Aromanian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ruq",
+      "name": "Megleno Romanian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "ruo",
+      "name": "Istro Romanian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "vot",
+      "name": "Votic",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "liv",
+      "name": "Livonian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "izh",
+      "name": "Ingrian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kca",
+      "name": "Khanty",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "mns",
+      "name": "Mansi",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "xal",
+      "name": "Kalmyk",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kbd",
+      "name": "Kabardian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "abq",
+      "name": "Abaza",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kjh",
+      "name": "Khakas",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "sah",
+      "name": "Sakha",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "tyv",
+      "name": "Tuvinian",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "bua",
+      "name": "Buriat",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kk",
+      "name": "Kazakh",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "kk-Cyrl"
+      ]
+    },
+    {
+      "tag": "he",
+      "name": "Hebrew",
+      "group": "community",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "he-Hebr"
+      ]
+    },
+    {
+      "tag": "jct",
+      "name": "Krymchak",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    },
+    {
+      "tag": "kdr",
+      "name": "Karaim",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": []
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-05",
+  "unchanged_from_planning": true,
+  "repositories": [
+    {
+      "path": "/home/rich/dev/soundcurrent-eq",
+      "head": "42af7c68a195c2bfc2a5de4f290005d85a3db567",
+      "branch": "main",
+      "status": ""
+    },
+    {
+      "path": "/home/rich/dev/soundcurrent-eq-windows",
+      "head": "f267f1f2c2f963b94f2aa74a539257064abd469e",
+      "branch": "windows-port",
+      "status": ""
+    },
+    {
+      "path": "/home/rich/dev/soundcurrent-studio",
+      "head": "65151a8fec1aa4b4e6c283e4514d7f3d9166fe2b",
+      "branch": "main",
+      "status": ""
+    }
+  ]
+}

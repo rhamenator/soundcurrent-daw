@@ -1,5 +1,7 @@
 # Existing equalizer work: read-only reuse audit
 
+2026-10-05 owner clarification: code may be copied into the DAW and modified as needed, then useful improvements may return to the equalizer projects later. Preserve source revision, file hashes, notices and documented divergence. Existing repositories remain untouched in this implementation turn. See [ADR-007](decisions/007-windows-localization-and-reuse.md).
+
 Inspection date: 2026-10-05. Workspace fingerprints before and after the task are in `research/workspace-before.json` and `research/workspace-after.json`. Applicable ancestry AGENTS.md files and repository AGENTS.md files were checked; none were present in these checkouts. User-provided Copperfin VM instructions remain applicable to future VM tests; this planning task uses no VM.
 
 ## Inspected repositories

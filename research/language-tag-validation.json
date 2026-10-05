@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-05",
+  "source": "https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry",
+  "sha256": "755fad43283be7b41ebe3c89ad054b6eaf928f404f9c0edb74799e0eab74beb1",
+  "work_items": 130,
+  "unknown_tags": [],
+  "preferred_value_aliases": [],
+  "notes": "Identifier verification only; not a translation or locale-data coverage claim."
+}

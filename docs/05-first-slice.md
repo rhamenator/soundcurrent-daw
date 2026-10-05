@@ -1,6 +1,6 @@
 # SLICE-001: record one track → in-process EQ → save/reopen → WAV
 
-Status: **next implementation task, not implemented**. The planning task built an isolated synthetic EQ/WAV probe only. This document defines the first implementation contract.
+Status: **S1/S2 state foundation implemented, whole slice incomplete** (2026-10-05). Qt-free session and project-store targets provide stable IDs, scalar EQ gesture undo, version1.0 JSON, relative hashed media, writer locking, current/previous snapshots and Unicode round-trip fixtures. Linux tests run; Windows core/test executable cross-compiles. `sc-engine`, actual recording, DSP event/smoothing path, UI and export are not implemented. See [state contract](09-session-state-contract.md) and [results](../tests/results/SLICE-001/). Cancellation and cooperative-writer fixtures pass; native filesystem I/O/power-loss faults and Windows execution remain unverified.
 
 ## User workflow
 
@@ -51,7 +51,7 @@ No clip launcher, VST host, notation, new effects catalog, arbitrary-channel UI 
 }
 ```
 
-This example illustrates identity and timing; it is not an approved complete schema. Transport/routing IDs, monitor output intent, three band descriptors, processor enable/tail metadata, capture timestamp/latency and journal schema are added in S1/S2. Device numeric IDs are ephemeral and must not be used as persistent identities.
+This original example illustrates identity and timing. The implemented v1.0 encoding additionally includes session/track names, playhead/export range, output intent, processor enable and structured asset layout; route keys are `backendId`/`portIdentity`. [State contract](09-session-state-contract.md) describes strict decoding. Processor tail metadata, capture timestamp/latency, monitoring modes and journal state remain later schema work. Device numeric IDs are ephemeral and must not be used as persistent identities.
 
 ## Required gates
 
@@ -64,4 +64,4 @@ This example illustrates identity and timing; it is not an approved complete sch
 - Input removal, callback quantum increase, writer queue exhaustion and disk-full have explicit recoverable states, gap counters and durable-prefix recovery. A synthetic failure test passes before physical recording is offered.
 - GUI/audio setup can be closed without corrupting a take; quit drains/finalizes disk writer after stopping callbacks. Desktop launcher uses normal privileges.
 
-Completion evidence goes in `tests/results/SLICE-001/` with build/hardware/source manifest. This initial evidence is not a full-parity certification. The concrete next coding action is **S1+S2: create the Qt-free one-track session/parameter model and atomic state round-trip fixtures**, then add S3/S4 before device playback.
+Completion evidence goes in `tests/results/SLICE-001/` with build/hardware/source manifest. Foundation evidence is not a full-parity certification. The concrete next coding action is **S3: prepared in-process EQ with auditable borrowed-code provenance, float headroom, bounded events and smoothing**, then S4 before device playback. Windows and localization foundations remain alongside these milestones as [ADR-007](decisions/007-windows-localization-and-reuse.md) specifies.
