@@ -1,0 +1,202 @@
+[
+  {
+    "repo": "steinbergmedia/vst3sdk",
+    "accessed": "2026-10-05",
+    "head": "3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96",
+    "last_commit_date": "2026-08-11T14:14:52Z",
+    "license_detected": "MIT",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/steinbergmedia/vst3sdk/commits/master"
+  },
+  {
+    "repo": "free-audio/clap",
+    "accessed": "2026-10-05",
+    "head": "a47f6badb49d948fd009998f28309cdab78979c9",
+    "last_commit_date": "2026-07-28T21:29:46Z",
+    "license_detected": "MIT",
+    "archived": false,
+    "default_branch": "main",
+    "api_url": "https://api.github.com/repos/free-audio/clap/commits/main"
+  },
+  {
+    "repo": "free-audio/clap-host",
+    "accessed": "2026-10-05",
+    "head": "c8ce3ee3800fc605d31ffb077991004f26e8cb03",
+    "last_commit_date": "2026-06-18T08:52:22Z",
+    "license_detected": "MIT",
+    "archived": false,
+    "default_branch": "main",
+    "api_url": "https://api.github.com/repos/free-audio/clap-host/commits/main"
+  },
+  {
+    "repo": "libsndfile/libsndfile",
+    "accessed": "2026-10-05",
+    "head": "b9103bd48b6c8fb517ae737fe3baee0c718b804c",
+    "last_commit_date": "2026-09-01T09:08:11Z",
+    "license_detected": "LGPL-2.1",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/libsndfile/libsndfile/commits/master"
+  },
+  {
+    "repo": "libsndfile/libsamplerate",
+    "accessed": "2026-10-05",
+    "head": "0844c208f683527c08ea8a80acc13b398aa9c8bf",
+    "last_commit_date": "2026-08-13T02:47:19Z",
+    "license_detected": "BSD-2-Clause",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/libsndfile/libsamplerate/commits/master"
+  },
+  {
+    "repo": "breakfastquay/rubberband",
+    "accessed": "2026-10-05",
+    "head": "e4296ac80b1170018a110bc326fd0d45a0eb27d6",
+    "last_commit_date": "2025-02-27T11:04:40Z",
+    "license_detected": "GPL-2.0",
+    "archived": false,
+    "default_branch": "default",
+    "api_url": "https://api.github.com/repos/breakfastquay/rubberband/commits/default"
+  },
+  {
+    "repo": "mborgerding/kissfft",
+    "accessed": "2026-10-05",
+    "head": "e5e3fac46e0d94a8f8170c06706b7a4218828333",
+    "last_commit_date": "2026-08-12T14:54:37Z",
+    "license_detected": "NOASSERTION",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/mborgerding/kissfft/commits/master"
+  },
+  {
+    "repo": "jiixyj/libebur128",
+    "accessed": "2026-10-05",
+    "head": "67b33abe1558160ed76ada1322329b0e9e058b02",
+    "last_commit_date": "2021-02-14T14:31:05Z",
+    "license_detected": "MIT",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/jiixyj/libebur128/commits/master"
+  },
+  {
+    "repo": "nlohmann/json",
+    "accessed": "2026-10-05",
+    "head": "23d3b373e1a41db5adde1081b409e66de1d65030",
+    "last_commit_date": "2026-10-04T20:11:34Z",
+    "license_detected": "MIT",
+    "archived": false,
+    "default_branch": "develop",
+    "api_url": "https://api.github.com/repos/nlohmann/json/commits/develop"
+  },
+  {
+    "repo": "juce-framework/JUCE",
+    "accessed": "2026-10-05",
+    "head": "be29c81492b6151c8ea8d14c840e1311963b3a83",
+    "last_commit_date": "2026-09-28T08:01:33Z",
+    "license_detected": "NOASSERTION",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/juce-framework/JUCE/commits/master"
+  },
+  {
+    "repo": "Tracktion/tracktion_engine",
+    "accessed": "2026-10-05",
+    "head": "2b99bded6094f8f2239addab66c0356db597a091",
+    "last_commit_date": "2026-10-03T13:07:23Z",
+    "license_detected": "NOASSERTION",
+    "archived": false,
+    "default_branch": "develop",
+    "api_url": "https://api.github.com/repos/Tracktion/tracktion_engine/commits/develop"
+  },
+  {
+    "repo": "rncbc/qtractor",
+    "accessed": "2026-10-05",
+    "head": "82269522aae781fae5381c56891154db38022e3c",
+    "last_commit_date": "2026-09-30T14:17:37Z",
+    "license_detected": "GPL-2.0",
+    "archived": false,
+    "default_branch": "main",
+    "api_url": "https://api.github.com/repos/rncbc/qtractor/commits/main"
+  },
+  {
+    "repo": "Ardour/ardour",
+    "accessed": "2026-10-05",
+    "head": "12b2f2ffe3dc79460fe7efb0f4d656fbf8ad63a9",
+    "last_commit_date": "2026-10-05T07:18:03Z",
+    "license_detected": "NOASSERTION",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/Ardour/ardour/commits/master"
+  },
+  {
+    "repo": "FluidSynth/fluidsynth",
+    "accessed": "2026-10-05",
+    "head": "04536b055bdd3f26edd65c573a8ed8e516caa284",
+    "last_commit_date": "2026-10-04T09:02:30Z",
+    "license_detected": "LGPL-2.1",
+    "archived": false,
+    "default_branch": "master",
+    "api_url": "https://api.github.com/repos/FluidSynth/fluidsynth/commits/master"
+  },
+  {
+    "repo": "sfztools/sfizz",
+    "accessed": "2026-10-05",
+    "head": "f5c6e29f23b8057867c08e88f5f6ac6738baa30b",
+    "last_commit_date": "2025-03-17T20:18:36Z",
+    "license_detected": "BSD-2-Clause",
+    "archived": true,
+    "default_branch": "develop",
+    "api_url": "https://api.github.com/repos/sfztools/sfizz/commits/develop"
+  },
+  {
+    "repo": "rism-digital/verovio",
+    "accessed": "2026-10-05",
+    "head": "723b671e192a08db70e48536634f46467a3fe49e",
+    "last_commit_date": "2026-10-02T11:17:51Z",
+    "license_detected": "LGPL-3.0",
+    "archived": false,
+    "default_branch": "develop",
+    "api_url": "https://api.github.com/repos/rism-digital/verovio/commits/develop"
+  },
+  {
+    "repo": "microsoft/onnxruntime",
+    "accessed": "2026-10-05",
+    "head": "ba9d03207d2ca4a79d36742db6d4fcd72c3c6023",
+    "last_commit_date": "2026-10-05T06:08:00Z",
+    "license_detected": "MIT",
+    "archived": false,
+    "default_branch": "main",
+    "api_url": "https://api.github.com/repos/microsoft/onnxruntime/commits/main"
+  },
+  {
+    "repo": "bitwig/dawproject",
+    "accessed": "2026-10-05",
+    "head": "ee4dcdde75940f30e14e55401a26955a58b8322b",
+    "last_commit_date": "2025-07-12T10:16:49Z",
+    "license_detected": "MIT",
+    "archived": false,
+    "default_branch": "main",
+    "api_url": "https://api.github.com/repos/bitwig/dawproject/commits/main"
+  },
+  {
+    "repo": "xiph/rnnoise",
+    "accessed": "2026-10-05",
+    "head": "70f1d256acd4b34a572f999a05c87bf00b67730d",
+    "last_commit_date": "2025-02-22T23:58:18Z",
+    "license_detected": "BSD-3-Clause",
+    "archived": false,
+    "default_branch": "main",
+    "api_url": "https://api.github.com/repos/xiph/rnnoise/commits/main"
+  },
+  {
+    "repo": "AcademySoftwareFoundation/OpenTimelineIO",
+    "accessed": "2026-10-05",
+    "head": "fc5c58e16f6832972cdb5c656dd8a6d87a4e5b02",
+    "last_commit_date": "2026-10-01T20:06:50Z",
+    "license_detected": "Apache-2.0",
+    "archived": false,
+    "default_branch": "main",
+    "api_url": "https://api.github.com/repos/AcademySoftwareFoundation/OpenTimelineIO/commits/main"
+  }
+]

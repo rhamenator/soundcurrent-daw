@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-05",
+  "sdk_commit": "65151a8fec1aa4b4e6c283e4514d7f3d9166fe2b",
+  "toolchain": {
+    "compiler": "GCC 15.2.0",
+    "cmake": "4.2.3",
+    "qt6core": "6.10.2",
+    "pipewire": "1.6.2"
+  },
+  "eq_probe": {
+    "partition_max_error": 0,
+    "eq_gain_error_db": 4.53215e-08,
+    "ordinary_new_calls_during_process": 0,
+    "immediate_gain": true,
+    "clipping_report": true,
+    "wav_reopened_frames": 48000,
+    "tested_rates": [
+      44100,
+      48000,
+      96000
+    ],
+    "tested_channels": [
+      1,
+      2,
+      8,
+      32,
+      256
+    ]
+  },
+  "existing_sdk_ctest": {
+    "passed": 3,
+    "total": 3,
+    "names": [
+      "dsp-response",
+      "studio-engine",
+      "studio-wave"
+    ]
+  },
+  "pipewire_api_probe": {
+    "library": "1.6.2",
+    "rt_flag": 4,
+    "filter_events_bytes": 80,
+    "uint64_atomic_lock_free": true,
+    "connected": false
+  },
+  "limitations": [
+    "synthetic input only",
+    "no project save/reopen implementation",
+    "no native capture or output",
+    "ordinary new hooks only; not complete allocation/locking audit",
+    "no reference app behavior or listening comparison",
+    "no RT deadline benchmarks",
+    "no plugin hosting",
+    "no libsndfile integration"
+  ],
+  "server_read_only": {
+    "objects": 83,
+    "nodes": 9
+  }
+}

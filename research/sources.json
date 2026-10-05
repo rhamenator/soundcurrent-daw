@@ -1,0 +1,1271 @@
+[
+  {
+    "id": "e8197fc5fbd89a78",
+    "title": "Stopping Recording Automatically with Punch Out",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_stopping_automatically_with_punch_out_t.html?contentId=AEYzYZAVOduo2XfpBAp3yQ",
+    "accessed": "2026-10-05",
+    "sha256": "e732741031d56863a557c0ffc470d40af0e06e60876c7dc4a3254ff18daf5eb4",
+    "bytes": 4347,
+    "retrieved": true
+  },
+  {
+    "id": "424cf743afd80bdd",
+    "title": "Lanes, Takes, and Overlapping Events",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/track_handling/track_handling_lanes_working_with_c.html?contentId=qbKWfjGb~C451jXw1Dsk2w",
+    "accessed": "2026-10-05",
+    "sha256": "25010531ec163421299db4fa147bc891c3f144fa03d8b0f625404d7c7665dd71",
+    "bytes": 11591,
+    "retrieved": true
+  },
+  {
+    "id": "dee77e035377364f",
+    "title": "Group Editing Mode",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/parts_events/parts_and_events_group_editing_mode_c.html?contentId=66hmyonQqPz8EmJo9uNsKA",
+    "accessed": "2026-10-05",
+    "sha256": "b0718170dcd16476e5f2e53907d9b64005edf79a8d5c3d51a515a329598f5470",
+    "bytes": 7428,
+    "retrieved": true
+  },
+  {
+    "id": "81f6e3a04a5f00d5",
+    "title": "Pitch Editing and Time Correction with VariAudio",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_variaudio/sample_editor_variaudio_c.html?contentId=5yUrlQRlm0KjuaiN1feyWQ",
+    "accessed": "2026-10-05",
+    "sha256": "de480e68988bcf80e3422add4ee318fe82f8f37c3429b52ef550bb5e92aa3906",
+    "bytes": 4484,
+    "retrieved": true
+  },
+  {
+    "id": "6d86024752d7e52f",
+    "title": "MixConsole",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/mixconsole/mixconsole_c.html?contentId=wWR~YlUY64cJizp82BwY8Q",
+    "accessed": "2026-10-05",
+    "sha256": "40a5fe63bc13c783d439c2b9d103acca8f74d99269c9b720a02e5acb2d271f11",
+    "bytes": 5025,
+    "retrieved": true
+  },
+  {
+    "id": "195bea8eb3f3029f",
+    "title": "VCA Fader Track",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/tracks_about/tracks_about_vca_fader_track_c.html?contentId=mdfaF_syFuyRMZkk6iFZsw",
+    "accessed": "2026-10-05",
+    "sha256": "ce1ddae131b87b414460cbb8984dcc892518a54025f46a57b704dee1ea84a217",
+    "bytes": 3871,
+    "retrieved": true
+  },
+  {
+    "id": "3f782144382266d9",
+    "title": "Side-Chain Inputs",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_side_chain_inputs_c.html?contentId=CRRqoO04oy95M5I5U9FmOg",
+    "accessed": "2026-10-05",
+    "sha256": "13f2006c2edc19574b4dbc6c6de55fb6a4693ababb119263565b04b437402073",
+    "bytes": 3419,
+    "retrieved": true
+  },
+  {
+    "id": "7355be722b70c6c8",
+    "title": "Plug-In Delay Compensation",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_plugin_delay_compensation_c.html?contentId=OcQXl_GPEhw3KGP1RTVGRw",
+    "accessed": "2026-10-05",
+    "sha256": "77cefb0af2d0c85d266efd86734d845048a9855d940fcdafcc181ee5fdcebf7f",
+    "bytes": 4162,
+    "retrieved": true
+  },
+  {
+    "id": "1a507d0099233b1e",
+    "title": "Automation Modes",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/automation/automation_automation_modes_c.html?contentId=t9FpB2HDNQYAZ_3ZZ4U51g",
+    "accessed": "2026-10-05",
+    "sha256": "c7aa23bf45dd4f7f12932a0714cbee3c3457eafe9c9cc4aadc686204b13b692c",
+    "bytes": 12095,
+    "retrieved": true
+  },
+  {
+    "id": "75fc96f8c870e24e",
+    "title": "Editing Tempo and Time Signature",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/editing_tempo_and_signature/editing_tempo_and_signature_c.html?contentId=sBTN1Gq7uKzN8r6htftCRA",
+    "accessed": "2026-10-05",
+    "sha256": "88b35b76e133bb0faae860e25674a30c044e2ac6b50a1e78feaa176db20eb2b2",
+    "bytes": 2119,
+    "retrieved": true
+  },
+  {
+    "id": "851b10a784c8c957",
+    "title": "Note Expression",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/note_expression/note_expression_c.html?contentId=ujcT_U6IBtb30PTWx7ZfIQ",
+    "accessed": "2026-10-05",
+    "sha256": "b42247028553dc9bc2ca91fa469a6953ae58374ba4e1cf290d45309ce2724452",
+    "bytes": 5575,
+    "retrieved": true
+  },
+  {
+    "id": "7b459ae8bb3098e9",
+    "title": "Expression Maps",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/expression_maps/expression_maps_c.html?contentId=z2zpmPvCd7L6DuE1MD6s9Q",
+    "accessed": "2026-10-05",
+    "sha256": "2e87f234de1c3b2292f1e5f2da911f12ba7f2ce694f97e7f9c7c2ea87f873364",
+    "bytes": 8905,
+    "retrieved": true
+  },
+  {
+    "id": "5fb1320a372ba1da",
+    "title": "MIDI Remote Page",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/setting_up/setting_up_midi_remote_setup_page_r.html?contentId=LJoKsImtlhGrYb2xjNaK6g",
+    "accessed": "2026-10-05",
+    "sha256": "b39f60680c4675e16e5af1d963392a5bd404f767de2b2702a942fe4396c324e1",
+    "bytes": 6377,
+    "retrieved": true
+  },
+  {
+    "id": "fad3397aae04451a",
+    "title": "Control Room",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/control_room/control_room_c.html?contentId=kVDlGbsU8Jv4SQcU1csP5g",
+    "accessed": "2026-10-05",
+    "sha256": "2e18fd4774e8feb445d1742485c2d7873017bf1e8600cba031bea445fdea4360",
+    "bytes": 5053,
+    "retrieved": true
+  },
+  {
+    "id": "d381a9b1bdd92796",
+    "title": "Setting up a Cue Mix",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/control_room/control_room_cue_mix_setting_up_t.html?contentId=Lac7cKZm1kcoTtE_XZ8KeQ",
+    "accessed": "2026-10-05",
+    "sha256": "070383a739eecb0fee18a2aef31e418e3c558d7b2a700d4cb9526e99889388b5",
+    "bytes": 4268,
+    "retrieved": true
+  },
+  {
+    "id": "ac191edae9c31660",
+    "title": "Loudness Measurement",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/loudness/loudness_loudness_measurement_c.html?contentId=JOiizxAXp2LaFFG4J7v6jQ",
+    "accessed": "2026-10-05",
+    "sha256": "194e411456191076b47bda4c229309cb1d23a2beb2042738bd99cfcf075585c1",
+    "bytes": 5513,
+    "retrieved": true
+  },
+  {
+    "id": "43a2061c5f6b4c19",
+    "title": "Stem Separation",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_functions/audio_functions_stem_separation_r.html?contentId=pgiv7J4hKSHueU1988uxrg",
+    "accessed": "2026-10-05",
+    "sha256": "8c73288a205b6f61bca31f22eb18eedacd9fbf128949d237332ec2fb35f20d0e",
+    "bytes": 5510,
+    "retrieved": true
+  },
+  {
+    "id": "b9f81139f402b9f1",
+    "title": "Ambisonics Mixes",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/surround_sound/surround_sound_ambisonics_c.html?contentId=_lgGQCLfnBLA8ZIVACl0kQ",
+    "accessed": "2026-10-05",
+    "sha256": "89bc3f43b47576a40ad57005d53146434df6d7c424dcdfbeef02330e5969b097",
+    "bytes": 10343,
+    "retrieved": true
+  },
+  {
+    "id": "2ccfcf2780c5a078",
+    "title": "Surround Sound",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/surround_sound/surround_sound_c.html?contentId=_BJ~~Il9MggkU0OlQJh_mA",
+    "accessed": "2026-10-05",
+    "sha256": "2209315c14dbe91e6a921f57a8971336950afbda860a084559fca7fa0315224d",
+    "bytes": 9874,
+    "retrieved": true
+  },
+  {
+    "id": "a68b84076a077646",
+    "title": "Timecode Formats",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/synchronization/synchronization_timecode_positional_references_c.html?contentId=2NWjFKS6cO8JOLbEsSye8Q",
+    "accessed": "2026-10-05",
+    "sha256": "07e47beb4295a8aebb5103d95bbbad669357119a96a5f5ddbfc77b935fa17bc0",
+    "bytes": 4157,
+    "retrieved": true
+  },
+  {
+    "id": "8e9b43307ed9bafa",
+    "title": "Export Audio Mixdown",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/export_audio_mixdown/export_audio_mixdown_r.html?contentId=OKShvLxj2gHdwDaTtLR_MA",
+    "accessed": "2026-10-05",
+    "sha256": "e55b2bef46ca4ceb35e7b93b199fc45a9d80e583e2ddd4bf2ee298f69b9e7ffc",
+    "bytes": 3725,
+    "retrieved": true
+  },
+  {
+    "id": "1910d450a41c9905",
+    "title": "AAF Files",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/exchanging_files_with_other_applications/exchanging_files_with_other_applications_aaf_files_c.html?contentId=6v6aG0HOmcnqoXLmTHSP1A",
+    "accessed": "2026-10-05",
+    "sha256": "bb2bb1211ace12d07a7929d033796ee20d09cb9e57f4f1cf6f32f43e743be749",
+    "bytes": 2930,
+    "retrieved": true
+  },
+  {
+    "id": "29120ee9069e5051",
+    "title": "Re-Routing Missing Ports",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_handling/project_handling_missing_ports_rerouting_c.html?contentId=DTsd_H83o8Y27Q9aSTOlrg",
+    "accessed": "2026-10-05",
+    "sha256": "026354de69df16550eee5359e039a0cfb7373df729962641d271ec97a2af2476",
+    "bytes": 3743,
+    "retrieved": true
+  },
+  {
+    "id": "781daac00847250d",
+    "title": "Auto Save",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_handling/project_handling_about_the_auto_save_option_c.html?contentId=~Njn3u1Me1nWNc6L2ZQXWg",
+    "accessed": "2026-10-05",
+    "sha256": "a463e986abdf5a8950e0ed0a99bd78934b9d7687f888444390f94e40030c7c38",
+    "bytes": 5468,
+    "retrieved": true
+  },
+  {
+    "id": "febdff9c7dbcc9a7",
+    "title": "Edit History Dialog",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_window/project_window_edit_history_dialog_r.html?contentId=XIhCJ5tkegYZHqfktwVUVA",
+    "accessed": "2026-10-05",
+    "sha256": "eb4d6ad52c0a8b57d1f68ad3dae3d642a9c1a47aeccbcc8bc479ad7e81509ec3",
+    "bytes": 7737,
+    "retrieved": true
+  },
+  {
+    "id": "113fe816e9cb39a7",
+    "title": "Modulators Section",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/mixconsole/mixconsole_modulators_c.html?contentId=lW~7c_wh4JtWaoF43T79UA",
+    "accessed": "2026-10-05",
+    "sha256": "a84b7fe041542c0ebd5441043b5d585861c69a081198e27780f84c024842b7b0",
+    "bytes": 3889,
+    "retrieved": true
+  },
+  {
+    "id": "21a3d748b6f0915b",
+    "title": "Chord Track",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/tracks_about/tracks_about_chord_track_c.html?contentId=we~pZ4ip_y9s7tlLaMG4sw",
+    "accessed": "2026-10-05",
+    "sha256": "3caa36230100cf1c68d657adfa1fdcd6ea68a6e1904747c4dd8917a025240b40",
+    "bytes": 2962,
+    "retrieved": true
+  },
+  {
+    "id": "d475287db01dc404",
+    "title": "Direct Offline Processing",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/direct_offline_processing/direct_offline_processing_c.html?contentId=eoBFXfKUZ7ar8sN_n2AFhw",
+    "accessed": "2026-10-05",
+    "sha256": "68a6d7804feccbe97278f487852ea83e58273291914f3a8294ed971566bd3bc1",
+    "bytes": 8605,
+    "retrieved": true
+  },
+  {
+    "id": "b8d16e447761fe8a",
+    "title": "Audio Alignment",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/parts_events/parts_and_events_tempo_matching_audio_alignment_c.html?contentId=BjipPkeFamSw1BkIL8oTCQ",
+    "accessed": "2026-10-05",
+    "sha256": "c854b89238154d94c6a376ed05d581e546b7539374bc68a6fdd673f95fe1dd02",
+    "bytes": 6323,
+    "retrieved": true
+  },
+  {
+    "id": "c3ee76a99b8d05a3",
+    "title": "Inserting a Retrospective Track Recording",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recovering_a_track_specific_midi_recording_t.html?contentId=1K~aBGYDRelVUfpxuHqGKw",
+    "accessed": "2026-10-05",
+    "sha256": "182ba0438ad333d63b58298f4d6ad1b6ae55959071e02154bd6b7447344dc70c",
+    "bytes": 5480,
+    "retrieved": true
+  },
+  {
+    "id": "6a8974bb1206c181",
+    "title": "Project Logical Editor",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_logical_editor/project_logical_editor_c.html?contentId=FVF4NL444Mvo0LLMmMh3Pg",
+    "accessed": "2026-10-05",
+    "sha256": "2026463fcb7551fe14beba69187b906ad5357a20eb3f2a99c0d4be779611ca3f",
+    "bytes": 3698,
+    "retrieved": true
+  },
+  {
+    "id": "fe4ab6758e2e1e39",
+    "title": "VST Plug-in Manager Window",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/installing_and_managing_plugins/installing_and_managing_plugins_plugin_manager_window_r.html?contentId=CSuCbpQNLWQS1WqNxVHVEw",
+    "accessed": "2026-10-05",
+    "sha256": "e073af7a508ce46f85e5212d7ded7edd577357265b90bc93afb3f8ab7448e96e",
+    "bytes": 15801,
+    "retrieved": true
+  },
+  {
+    "id": "95f3125a27cbebbe",
+    "title": "Master Recording, to Directly Capture Audio",
+    "url": "https://www.bitwig.com/userguide/latest/master_recording",
+    "accessed": "2026-10-05",
+    "sha256": "90b3bcbc7e6e5a730f7c7c0cc678b7f07f6a57c380e5468e025d5937fcebce08",
+    "bytes": 40948,
+    "retrieved": true
+  },
+  {
+    "id": "a520e4fdae356e4e",
+    "title": "The Dashboard",
+    "url": "https://www.bitwig.com/userguide/latest/the_dashboard",
+    "accessed": "2026-10-05",
+    "sha256": "87ba61781efaa79e0880861918f7eb7b1150ce74f778deea8dedc6cf287df35e",
+    "bytes": 70664,
+    "retrieved": true
+  },
+  {
+    "id": "195d642f11e92105",
+    "title": "4. Browsers in Bitwig Studio",
+    "url": "https://www.bitwig.com/userguide/latest/browsers",
+    "accessed": "2026-10-05",
+    "sha256": "53f5519502b7e20a9ad05a6b5e35b51feb6f8709ab2b0ca88cd75ed3fa137116",
+    "bytes": 57437,
+    "retrieved": true
+  },
+  {
+    "id": "89a1f19fc950edb9",
+    "title": "6. The Clip Launcher",
+    "url": "https://www.bitwig.com/userguide/latest/the_clip_launcher",
+    "accessed": "2026-10-05",
+    "sha256": "55325ea9a5c2c751ee7541ca126c0eb5096daa6eb13160c3084f9aa07f9ac7a5",
+    "bytes": 46811,
+    "retrieved": true
+  },
+  {
+    "id": "92e5dd2e62070dc4",
+    "title": "7. The Mix View",
+    "url": "https://www.bitwig.com/userguide/latest/the_mix_view",
+    "accessed": "2026-10-05",
+    "sha256": "0d26269da21582e655b9954686602a46b6c936639025e541c48cfd616bb5cd13",
+    "bytes": 62230,
+    "retrieved": true
+  },
+  {
+    "id": "f955ba7ad77ffa62",
+    "title": "9. Automation",
+    "url": "https://www.bitwig.com/userguide/latest/automation",
+    "accessed": "2026-10-05",
+    "sha256": "3c9c5608f46f9921a06f85078f46fc159656da2d8a43a415e17ab0ac4092fd55",
+    "bytes": 60792,
+    "retrieved": true
+  },
+  {
+    "id": "7165879928ab22b7",
+    "title": "10. Working with Audio Events",
+    "url": "https://www.bitwig.com/userguide/latest/working_with_audio_events",
+    "accessed": "2026-10-05",
+    "sha256": "6b108dfcf6e636f558458ff43a590a649693c97d3130f30b9fee9ebbfd9bfce0",
+    "bytes": 81273,
+    "retrieved": true
+  },
+  {
+    "id": "b073c19d96494b14",
+    "title": "11. Working with Note Events",
+    "url": "https://www.bitwig.com/userguide/latest/working_with_note_events",
+    "accessed": "2026-10-05",
+    "sha256": "44665cfe2414dc7fb9977d6cc48a9d8cbd6642bfc0f95a9c08991ee8ef1634bc",
+    "bytes": 86952,
+    "retrieved": true
+  },
+  {
+    "id": "3fe2ee42fffbedea",
+    "title": "12. Operators, for Animating Musical Sequences",
+    "url": "https://www.bitwig.com/userguide/latest/operators",
+    "accessed": "2026-10-05",
+    "sha256": "7e30c4c8ebe2207a473080f98fb5d29924cba901c0b1b3d89051857cac2ae4d1",
+    "bytes": 55840,
+    "retrieved": true
+  },
+  {
+    "id": "430210817e7f00f9",
+    "title": "14. Working with Projects and Exporting",
+    "url": "https://www.bitwig.com/userguide/latest/working_with_projects_and_exporting",
+    "accessed": "2026-10-05",
+    "sha256": "facc99513ac29cea0f2171cf2eec0154ef5d3cc2638ad9175e18d563599461da",
+    "bytes": 42022,
+    "retrieved": true
+  },
+  {
+    "id": "84405f114a558ff0",
+    "title": "15. MIDI Controllers",
+    "url": "https://www.bitwig.com/userguide/latest/midi_controllers",
+    "accessed": "2026-10-05",
+    "sha256": "3b8645627ffef9a4ef53e5803df4f75d2e0b3a2cca27504f0a246dc9c6df288a",
+    "bytes": 48113,
+    "retrieved": true
+  },
+  {
+    "id": "c068ea40c0132252",
+    "title": "16. Modulators, Device Nesting, and More",
+    "url": "https://www.bitwig.com/userguide/latest/advanced_device_concepts",
+    "accessed": "2026-10-05",
+    "sha256": "16b446535ff787aadd53b091aa7ebe028f07cfdb6663039aa68212a4bea374ef",
+    "bytes": 55782,
+    "retrieved": true
+  },
+  {
+    "id": "77e64a31bae762e9",
+    "title": "17. Welcome to The Grid",
+    "url": "https://www.bitwig.com/userguide/latest/welcome_to_the_grid",
+    "accessed": "2026-10-05",
+    "sha256": "48ef155386c22b25c4656a9727c88c4cd94ac0aa831679493eb0909cc48b9a62",
+    "bytes": 69164,
+    "retrieved": true
+  },
+  {
+    "id": "4a6d53e5e2b95072",
+    "title": "18. Working on a Tablet Computer",
+    "url": "https://www.bitwig.com/userguide/latest/working_on_a_tablet_computer",
+    "accessed": "2026-10-05",
+    "sha256": "3ca1f9aca35e0b5afccc54b3cd4b1ce7f0630f90b66990de4cf35180e31d67bc",
+    "bytes": 45010,
+    "retrieved": true
+  },
+  {
+    "id": "5e3f8c0c5c2d1ad4",
+    "title": "19. Device Descriptions",
+    "url": "https://www.bitwig.com/userguide/latest/device_descriptions",
+    "accessed": "2026-10-05",
+    "sha256": "ff4aea8c4ebac4edbcd63dba0d4b20181ed9a2ed681e40b59bf28a7c6abfd4ae",
+    "bytes": 96677,
+    "retrieved": true
+  },
+  {
+    "id": "0cbe36169752a815",
+    "title": "Bitwig release downloads",
+    "url": "https://www.bitwig.com/download/",
+    "accessed": "2026-10-05",
+    "sha256": "8c90f779b499d37d823c839d57e7cae01c90fe4734f7d8d8f07262e7e7dfb4e0",
+    "bytes": 41621,
+    "retrieved": true
+  },
+  {
+    "id": "f223318bb843b8d1",
+    "title": "Bitwig 6.1.3 release notes",
+    "url": "https://www.bitwig.com/dl/Bitwig%20Studio/6.1.3/release_notes/",
+    "accessed": "2026-10-05",
+    "sha256": "1dd79ca8acc0a9dee8412d5be9a080afa0fbcc4f754e677d5ace001e90c7ac15",
+    "bytes": 69212,
+    "retrieved": true
+  },
+  {
+    "id": "3440c86dbe452510",
+    "title": "Bitwig 6.1 and 6.0 documentation",
+    "url": "https://downloads.bitwig.com/6.1/Release-Notes-6.1.pdf",
+    "accessed": "2026-10-05",
+    "sha256": "dccd1e1e60653ceb07086e57ad763b9b9a102135a3ce1bf02e89b286a74f9685",
+    "bytes": 510244,
+    "retrieved": true
+  },
+  {
+    "id": "7ddc4671d6f91921",
+    "title": "Cubase 15 release downloads",
+    "url": "https://o.steinberg.net/en/support/downloads/cubase_15.html",
+    "accessed": "2026-10-05",
+    "sha256": "c5ca53a5e39fa282304bbbf1e847170004dac62aaf70383a89b122e85caa8b23",
+    "bytes": 55880,
+    "retrieved": true
+  },
+  {
+    "id": "bb454d01ddfbbc68",
+    "title": "Cubase Pro 15 manual index",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en",
+    "accessed": "2026-10-05",
+    "sha256": "62a55e1c9f1e79514cd4ce2a25ac895fb7a9b021c848d3366645372101bd33a7",
+    "bytes": 630176,
+    "retrieved": true
+  },
+  {
+    "id": "c9be5dc91d04bae7",
+    "title": "Bitwig general manual 5.3 index",
+    "url": "https://www.bitwig.com/userguide/latest/",
+    "accessed": "2026-10-05",
+    "sha256": "6b1b2dee2a5935c6bd1f33edd737c3710952d3b5e7f64f081cd89c3b5ffe4d12",
+    "bytes": 55685,
+    "retrieved": true
+  },
+  {
+    "id": "a0bc197c2f59498e",
+    "title": "Cubase Pro 15 manual PDF",
+    "url": "https://www.steinberg.help/api/khub/documents/O4PvzgK5U8lOyn4ANi_gKg/content",
+    "accessed": "2026-10-05",
+    "sha256": "59760cfc92d9c165cd0b2e7cad9c78f4dc9b04be4d70c11e77b0ff76126235b2",
+    "bytes": 35997340,
+    "retrieved": true
+  },
+  {
+    "id": "f7a3031d33e3e99a",
+    "url": "https://doc.qt.io/qt-6/licensing.html",
+    "title": "Qt Licensing | Qt 6.12",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "4e44ffea2f2a76d6a80d8d223b97fae88defcffa1c40e1a78ae418763c61a9f3",
+    "bytes": 24587
+  },
+  {
+    "id": "dd2d0015a7f31593",
+    "url": "https://docs.pipewire.org/group__pw__filter.html",
+    "title": "PipeWire: Filter",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "5418f068ac4df0047a58a51a6c11d3f587184b3a08acfe99691fc7b2cdee47af",
+    "bytes": 73580
+  },
+  {
+    "id": "e7f93d1b243284a1",
+    "url": "https://drobilla.net/software/lilv",
+    "title": "LV2 / lilv \u00b7 GitLab",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "2ada42227fa47b2146cd817858bda90dadc50b951974b26c96d941c2ef7080d8",
+    "bytes": 54336
+  },
+  {
+    "id": "7a1b8d9c335e8485",
+    "url": "https://ffmpeg.org/legal.html",
+    "title": "FFmpeg License and Legal Considerations",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "cd51dc25f9e3200b1e3953aee036f499ed51f01f7ba30563873186cb3f870eda",
+    "bytes": 10686
+  },
+  {
+    "id": "44920e51b26422b9",
+    "url": "https://github.com/AcademySoftwareFoundation/OpenTimelineIO",
+    "title": "GitHub - AcademySoftwareFoundation/OpenTimelineIO: Open Source API and interchange format for editorial timeline information. \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "e487739647f64aba70c3ec92b424773676649c075aeacac78dee7e9013754cf5",
+    "bytes": 400590
+  },
+  {
+    "id": "288a7b2d6bb0bcaa",
+    "url": "https://github.com/Ardour/ardour",
+    "title": "GitHub - Ardour/ardour: Mirror of Ardour Source Code \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "3c3a0f3e2e8fdb15f936949b3ceadf15dba51f81c844c86199afdb909b07285b",
+    "bytes": 279762
+  },
+  {
+    "id": "9f5e8d15998d0d23",
+    "url": "https://github.com/FluidSynth/fluidsynth",
+    "title": "GitHub - FluidSynth/fluidsynth: Software synthesizer based on the SoundFont 2 specifications \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "439b518ecd62517ddd9f5243b3507827954063d101015c9373e8a95220c77e78",
+    "bytes": 383297
+  },
+  {
+    "id": "efb2671a315d7737",
+    "url": "https://github.com/Tracktion/tracktion_engine",
+    "title": "GitHub - Tracktion/tracktion_engine: Tracktion Engine module \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "d03eb47543926732d063f8ba2910175d555486c9c9852a9a60ccb87fab4dd612",
+    "bytes": 338212
+  },
+  {
+    "id": "8f7bc1c4dcdd44e8",
+    "url": "https://github.com/bitwig/dawproject",
+    "title": "GitHub - bitwig/dawproject: Open exchange format for DAWs \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "f742e6d6c323df08df9cd4470c32455d72eacf13c8572527564f9d98c60860af",
+    "bytes": 407177
+  },
+  {
+    "id": "1e82f098125b2ed7",
+    "url": "https://github.com/breakfastquay/rubberband",
+    "title": "GitHub - breakfastquay/rubberband: Official mirror of Rubber Band Library, an audio time-stretching and pitch-shifting library. \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "c34a963a5cb601caea14c0e2123dd276bc5d8ff701204986ec5b31cac8f21f36",
+    "bytes": 328372
+  },
+  {
+    "id": "9bf71da601bbc962",
+    "url": "https://github.com/free-audio/clap",
+    "title": "GitHub - free-audio/clap: Audio Plugin API \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "3865e971614c03452f8c2c19a6b7ff4848a60a1092bde9480f55b7db7e439e02",
+    "bytes": 327198
+  },
+  {
+    "id": "490d0a6eb6c99d2d",
+    "url": "https://github.com/free-audio/clap-host",
+    "title": "GitHub - free-audio/clap-host: Reference Host \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "04d3b9005ab8db01ec1353762f5a3fce39ce77352a80ceeb64659dcf04e22f46",
+    "bytes": 318690
+  },
+  {
+    "id": "f1cbf409c282e89a",
+    "url": "https://github.com/jiixyj/libebur128",
+    "title": "GitHub - jiixyj/libebur128: A library implementing the EBU R128 loudness standard. \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "3d45a9e599518b579218dd2b8f553f49f94dee81949ee483e007d405a3c2d534",
+    "bytes": 274356
+  },
+  {
+    "id": "efd1a19356c21f1b",
+    "url": "https://github.com/juce-framework/JUCE",
+    "title": "GitHub - juce-framework/JUCE: JUCE is an open-source cross-platform C++ application framework for desktop and mobile applications, including VST, VST3, AU, AUv3, LV2 and AAX audio plug-ins. \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "0354971597327da9ff21db7656e8889ea1b66c4b5e464096c927c29f26d44a4d",
+    "bytes": 333985
+  },
+  {
+    "id": "d53c196060983115",
+    "url": "https://github.com/libsndfile/libsamplerate",
+    "title": "GitHub - libsndfile/libsamplerate: An audio Sample Rate Conversion library \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "67a5294feade6775d0f6ccfff2e292d8cbd1c36a0deb80bd4c658b76a23f7116",
+    "bytes": 313775
+  },
+  {
+    "id": "11636121cd5ca218",
+    "url": "https://github.com/libsndfile/libsndfile",
+    "title": "GitHub - libsndfile/libsndfile: A C library for reading and writing sound files containing sampled audio data. \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "cef25850eb426d405a14886b1ccb0c58c7a60dcefde77a6987f6d7f9c75ba913",
+    "bytes": 394306
+  },
+  {
+    "id": "e25d552f5ada7d1c",
+    "url": "https://github.com/mborgerding/kissfft",
+    "title": "GitHub - mborgerding/kissfft: a Fast Fourier Transform (FFT) library that tries to Keep it Simple, Stupid \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "b17727f44e6c754f078e937afa657773688ddfb74b4aba646ab527fa7163cd3d",
+    "bytes": 355288
+  },
+  {
+    "id": "92e08c29ab943006",
+    "url": "https://github.com/microsoft/onnxruntime",
+    "title": "GitHub - microsoft/onnxruntime: ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "3792ad2cd026b7daea77a5ac67798dfc45ad6ec357cf77027bcb85f3dd77a99c",
+    "bytes": 407350
+  },
+  {
+    "id": "0aa6c8de225b4322",
+    "url": "https://github.com/nlohmann/json",
+    "title": "GitHub - nlohmann/json: JSON for Modern C++ \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "5907ca29be307b379e11966fd0e5287541ae39d1f3224fc3e95f1be6cd08be77",
+    "bytes": 967587
+  },
+  {
+    "id": "e877f4e2a085b783",
+    "url": "https://github.com/rism-digital/verovio",
+    "title": "GitHub - rism-digital/verovio: \ud83c\udfb5 Music notation engraving library for MEI with MusicXML and Humdrum support and various toolkits (JavaScript, Python) \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "fdb75095c1e248e538a2f9fb8c0fe39125b2b62d4756416b987663d4f45343da",
+    "bytes": 333597
+  },
+  {
+    "id": "a8052fcaf98edb0d",
+    "url": "https://github.com/rncbc/qtractor",
+    "title": "GitHub - rncbc/qtractor: Qtractor - An Audio/MIDI multi-track sequencer \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "44d67f16d3ec9a929abbc2126a53e3229ac16e556332f4504b1e057154fd482a",
+    "bytes": 285764
+  },
+  {
+    "id": "b3d8fbe322ec306f",
+    "url": "https://github.com/sfztools/sfizz",
+    "title": "GitHub - sfztools/sfizz: SFZ parser and synth c++ library, providing a JACK standalone client \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "5ed79ab0ec90c913f2a9be59c2b4193b73658191e608e37bf2ef8ee9447201fa",
+    "bytes": 334766
+  },
+  {
+    "id": "298ba08e6d06b27f",
+    "url": "https://github.com/steinbergmedia/vst3sdk",
+    "title": "GitHub - steinbergmedia/vst3sdk: VST 3 Plug-In SDK \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "d1993218a60ee3289b8840fea4f45ed709e54fc492e39673a9742cc4fbb663dc",
+    "bytes": 386966
+  },
+  {
+    "id": "43b09f7b7288d0d4",
+    "url": "https://jackaudio.org/api/group__ClientCallbacks.html",
+    "title": "JACK-AUDIO-CONNECTION-KIT: Setting Client Callbacks",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "2a93ba83545249d408be775fb2a4b9396ad5456cb0f9bfd22f795fc364a8fc58",
+    "bytes": 40879
+  },
+  {
+    "id": "3f7752efe7748f0e",
+    "url": "https://lv2plug.in/",
+    "title": "LV2",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "21d1c64f8a4e03395e0bcc9b52e94c7708e82e4ccf24ed51a63f6a14529ac7ee",
+    "bytes": 2360
+  },
+  {
+    "id": "3f20efce3a90e337",
+    "url": "https://www.bitwig.com/userguide/latest/intro_to_tracks/",
+    "title": "Userguide | Bitwig",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "54516a59ecac1f0e612de824066bb48272defe1890eef5f781331fe93a191ba5",
+    "bytes": 51166
+  },
+  {
+    "id": "29952e7064892724",
+    "url": "https://www.bitwig.com/userguide/latest/recording_clips/",
+    "title": "Userguide | Bitwig",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "b386d53a420c8515c4072c0a07b8e596296d322da00326e5bba7c8fda5711ce6",
+    "bytes": 55120
+  },
+  {
+    "id": "eb1e5097b94d6a63",
+    "url": "https://www.bitwig.com/userguide/latest/recording_launcher_clips/",
+    "title": "Userguide | Bitwig",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "a2958515607feccb64d14a5772ee79c66db68b6b0f825740bfa20d381d780a4c",
+    "bytes": 42349
+  },
+  {
+    "id": "1e35d80edfe2fa7f",
+    "url": "https://www.bitwig.com/userguide/latest/the_unified_modulation_system/",
+    "title": "Userguide | Bitwig",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "6e35634e5acc4d1b88b6d118d9b3c9f313b9694eb55a28217f8619a08749a508",
+    "bytes": 98807
+  },
+  {
+    "id": "c2c5f15e2102a1a7",
+    "url": "https://www.bitwig.com/userguide/latest/triggering_launcher_clips_0/",
+    "title": "Userguide | Bitwig",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "500299abe7d31dcdbc9c2dfc4d5afd6723cd0c90462e662b85b5fd881c1707ed",
+    "bytes": 47018
+  },
+  {
+    "id": "5009c5dc074f9487",
+    "url": "https://www.bitwig.com/userguide/latest/vst_plug-in_handling_and_options/",
+    "title": "Userguide | Bitwig",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "7f6073e5a7ff8f9287e9b24d73c92e7c4e67565efa879910d20aa49f6034496e",
+    "bytes": 39702
+  },
+  {
+    "id": "75d0574743b504ca",
+    "url": "https://www.sqlite.org/copyright.html",
+    "title": "SQLite Copyright",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "44ca9f793055c8e32fc65f65a4f5bcf813a33f5bdaaa084067dd617a4ed3cc70",
+    "bytes": 8351
+  },
+  {
+    "id": "dbb0572e2ea166a5",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_external_effects_c.html?contentId=1L2LaWBT2NBSFeTzYlT07Q",
+    "title": "External Effects - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "13a1100886db65953af24a3f5a391546b0f0299a06c9acdbbb4c58822735228c",
+    "bytes": 3791
+  },
+  {
+    "id": "d46b006bd9bd9186",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_vst_3_standard_c.html?contentId=YGoJ2ZkdFZyrJI~UJu~mOA",
+    "title": "VST Standard - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "c510dc6193e9880f858f157dbf49a1336114e1884695987570eed0d061bd363d",
+    "bytes": 2568
+  },
+  {
+    "id": "402b699cc248e462",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/exchanging_files_with_other_applications/exchanging_files_with_other_applications_dawproject_files_c.html?contentId=RGoAWE2opX7pZFS9SoYUWg",
+    "title": "DAWproject Files - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "75fb23d8dc7da559a4d0c450a17bbce068c55edd9695335de51812ba4f86328b",
+    "bytes": 3802
+  },
+  {
+    "id": "f6cf655d88b7bca4",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/exchanging_files_with_other_applications/exchanging_files_with_other_applications_exporting_adm_files_t.html?contentId=06fUEzNewax7nfeV5dNt4g",
+    "title": "Exporting ADM Files - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "461d7e8c421c14f0da04e69246b9e80848a4b95ab70beb0c96d170be25d01631",
+    "bytes": 4986
+  },
+  {
+    "id": "07737beea13bae7c",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw",
+    "title": "Audio Recording - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "219a946091903cabcac9af9191a79d22fdbdc793277bfd600249b1718f3e6d6f",
+    "bytes": 4127
+  },
+  {
+    "id": "e418ec6a79bd1d29",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_midi_c.html?contentId=zMkluR0omNKWXwZYqXajlg",
+    "title": "MIDI Recording - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "aca0867191598b440367e1e5b34409399bd3a450fab24a5fa6f754ac807349f5",
+    "bytes": 5087
+  },
+  {
+    "id": "8ef3dbcdc061b8f1",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/surround_sound/surround_sound_ambisonics_head_tracking_data_c.html?contentId=VriSfIpHxRtLRV9wfeR7~A",
+    "title": "Head-Tracking Data from VR Controller Devices - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "8175767c6c0909edeca7598381f70ea324faab2d4a1aa0114701ac9bda62cbfe",
+    "bytes": 5114
+  },
+  {
+    "id": "f26332c9f5d0d187",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/track_handling/track_handling_trackversions_c.html?contentId=1gfDo1EXoVP~tQtYSUXjYw",
+    "title": "Track Versions - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "5eb2cc6cbbe3ab46df9bd4f66f7d2e92d65abc9acf04f5ce1df0fbcc41fd0f30",
+    "bytes": 3477
+  },
+  {
+    "id": "6b03acda9dc5e9ee",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_instruments_external_c.html?contentId=GgfcH3Ew5uNUW3QtpTfjpw",
+    "title": "External Instruments - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "d7f94222a457b94d5510cc0cca7cce1119f5915b0d19e1ce832c1661976538bd",
+    "bytes": 3611
+  },
+  {
+    "id": "b628590fa52eef1b",
+    "url": "https://www.steinberg.help/r/cubase-pro/cubasescore/15.0/en",
+    "title": "Cubase Pro Score Editor Help - Cubase Pro - 15.0",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "5fbbe5ed2d99566447bc38377be4f0251b5437b098fc6664991ab1b3620346ae",
+    "bytes": 50336
+  },
+  {
+    "id": "92b00d6d4922494f",
+    "title": "Monitoring via Cubase",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_monitoring_via_cubase_t.html?contentId=2rERCFeCKHh9rlr9ISc9og",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "a9181a7bbe3504de429b3b77c2d42e2f9ed2533e9303546dcdbbfaff8bbb1bd0",
+    "bytes": 15878
+  },
+  {
+    "id": "017a8b9f608a1aff",
+    "title": "Crossfades",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/fades_crossfades_and_envelopes/fades_crossfades_c.html?contentId=iNGCanNPEOt7kqsEB6nWjA",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "81c93178e1eb756498c613dbb1cf4382889d182029df816da5c47e0e7174d7ed",
+    "bytes": 5163
+  },
+  {
+    "id": "653e48fd8714613b",
+    "title": "AudioWarp Section",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_window/sample_editor_inspector_audiowarp_r.html?contentId=AkpkpXrJu3zK1xrNBilJzg",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "07c46166c55e3132391d347db4f6d48dd4777d446424040143d7b0dfa82f442c",
+    "bytes": 13965
+  },
+  {
+    "id": "72d4afb888d2bffb",
+    "title": "bouncing_to_audio",
+    "url": "https://www.bitwig.com/userguide/latest/bouncing_to_audio/",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "b47cc61b424bf881ed6c4fc4c70e607b4752bda8ae94dbc78807f8a2f486f1f4",
+    "bytes": 41901
+  },
+  {
+    "id": "8ef26baea0c1b3a9",
+    "title": "audio_fx",
+    "url": "https://www.bitwig.com/userguide/latest/audio_fx/",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "147b4d8ea97d7e924121e05d373bd4ff0042394926bf932f92f1dd4ab48c1d64",
+    "bytes": 99887
+  },
+  {
+    "id": "225eba86cc198976",
+    "title": "Group Channel Tracks",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/tracks_about/tracks_about_group_channel_tracks_c.html?contentId=9av~TuFoeRdSwAFgXHla2A",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "f3cd1d010b8c2bdf20df6206b25a8da4cd67ba0d554c8b92a47563933e3aaa55",
+    "bytes": 3355
+  },
+  {
+    "id": "2711637f563a040c",
+    "title": "Pre/Post Fader Sends",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_send_effects_fx_channel_tracks_pre_post_fader_sends_c.html?contentId=QmRKEmjaSdo6z3O4dDC3PQ",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "2f27c19dad4fca4bfd7318c10257b92dfeaebea257b34b65b00d35727c5a3447",
+    "bytes": 24648
+  },
+  {
+    "id": "170bf7f14f285b2b",
+    "title": "Record - Audio",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/preferences/preferences_record_audio_r.html?contentId=LNjkqIW3BqWzy5q1Vmrkzw",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "2eaba86b20ab42f4da3ea1fb8638c5774a0f1f610d17855c400c30a4caf12794",
+    "bytes": 4269
+  },
+  {
+    "id": "d0ee72e4ee39aace",
+    "title": "vst_plug-ins",
+    "url": "https://www.bitwig.com/userguide/latest/vst_plug-ins/",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "714f8699bd5ef747aba58fd79528c2d40ea5874e7179b8c80a61e111c6438317",
+    "bytes": 40905
+  },
+  {
+    "id": "02d513be3c6580d7",
+    "title": "Constrain Delay Compensation",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_constrain_delay_compensation_c.html?contentId=UXLOL4kPMMkzZzPmbT0fTg",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "399f85632e2866d4dbbcabfd505c64021085ff7deae7bbd807f93e6b662e6890",
+    "bytes": 4919
+  },
+  {
+    "id": "b9d299a53e840085",
+    "title": "Freezing Instruments",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_freezing_t.html?contentId=Ygvbo9TwnBgwE2mFmhsK6w",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "68f27e1f6f3d9358206623367cb15317b55012071f9fdd85c1e6be6c8aab794b",
+    "bytes": 6932
+  },
+  {
+    "id": "cbb817dad32afcd6",
+    "title": "Automation Curves",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/automation/automation_automation_curves_c.html?contentId=XEwV~CApzzjSLDosRkbhOg",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "3a0d5e6d7aef84c8c9250dfd6d2ce350c66bed9fe14535b19210d98a63b00755",
+    "bytes": 3410
+  },
+  {
+    "id": "26f5923b20f4ec13",
+    "title": "Basic Concepts@score",
+    "url": "https://www.steinberg.help/r/cubase-pro/cubasescore/15.0/en/cubase_nuendo_score_editor/topics/basic_concepts/basic_concepts_c.html?contentId=CO336cFZJdj7mKsqcK5TBA",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "0c633162497f7d882b18024de932b3dd2877742aaa3e82810511af65989944fb",
+    "bytes": 54230
+  },
+  {
+    "id": "fe2352996754cfc3",
+    "title": "Page Formatting and Printing@score",
+    "url": "https://www.steinberg.help/r/cubase-pro/cubasescore/15.0/en/cubase_nuendo_score_editor/topics/printing/printing_page_formatting_c.html?contentId=KGBMt3z7JBNM4wjUh1p7tg",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "7c98e42f871432ec46fee0d65bcd86796aefaab611fa20e1cd05e3ff9aac2ca0",
+    "bytes": 52703
+  },
+  {
+    "id": "f94d46da5a6d3fdf",
+    "title": "Importing and Exporting@score",
+    "url": "https://www.steinberg.help/r/cubase-pro/cubasescore/15.0/en/cubase_nuendo_score_editor/topics/importing_exporting/importing_and_exporting_c.html?contentId=exem9Erhgej8FzDQm_EiOw",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "262b55d324df23d738dce9706b878f4720b869e387dd1a644d7475a6589bd5f6",
+    "bytes": 51669
+  },
+  {
+    "id": "c87bcb05a1e2f96e",
+    "title": "Pattern Editor",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/pattern_editor/pattern_editor_r.html?contentId=J82DLmc0AmIby9z0Gpza7A",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "e3cefd310a860be811f0eaaa47a27ec0c21c99f1d331398a219ce2997ef1f2f7",
+    "bytes": 12822
+  },
+  {
+    "id": "2d2f416540caa6c5",
+    "title": "Saving VST Presets",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_saving_vst_presets_t.html?contentId=kAZAkKFsPc5Pud9mC6QLLA",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "16b2303d0548eddd1a9616a380c3ea0741d55458f74113452147f9ba4c0ce7e5",
+    "bytes": 3749
+  },
+  {
+    "id": "5a7ba88e21f51e8f",
+    "title": "General Plug-in Controls",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/surround_sound/surround_sound_general_plug_in_controls_r.html?contentId=mIo5XHyDpXMMQtynxnOB4A",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "016ba43b29299369e7c44d2847c1164e0915dec03f7e2ca126e125fbe09e5c35",
+    "bytes": 11814
+  },
+  {
+    "id": "19a44431d238318c",
+    "title": "VST 2 Plug-in Path Settings",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/installing_and_managing_plugins/installing_and_managing_plugins_vst_plug_in_manager_settings_r.html?contentId=m4enWQRJ4YL5~jTPZZEVwQ",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "00c8ecb6dc8c66f6da14a78a216702e9c8d14c6b5a459b396523d6289253953a",
+    "bytes": 7367
+  },
+  {
+    "id": "1459a38172311cc0",
+    "title": "master_track_routing",
+    "url": "https://www.bitwig.com/userguide/latest/master_track_routing/",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "9043382c388abeaf48751b4849ceee9b514bed06c3593a86a6353b3ecde53c3f",
+    "bytes": 49281
+  },
+  {
+    "id": "1ade020190a14057",
+    "title": "Control Room - Inserts Tab",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/control_room/control_room_setup_c.html?contentId=7nVNLNSjAdAIYrncMC4_4A",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "76ecee6f521d9a5bb6fa4377449b54b42efcd04974ed68412cd579a4ca5159fb",
+    "bytes": 3052
+  },
+  {
+    "id": "0f10139230a04a5f",
+    "title": "Metering and Loudness",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/loudness/loudness_c.html?contentId=0DfMzEFbtJutmsXzXcO_Fg",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "091eccc6d75b601998e22e2c04325bbcab8e28dace054021d3d0c7742382475c",
+    "bytes": 2946
+  },
+  {
+    "id": "abd35a5b3b4b4dd5",
+    "title": "VST Instruments",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_c.html?contentId=EVbLv0Swpuviom5wfvZKKA",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "8c331222fb3d66e15a9510bbc48593710d2530454eead760d6a173b7c2d74ae0",
+    "bytes": 3815
+  },
+  {
+    "id": "473b62176c681dc6",
+    "title": "Sampler Tracks",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sampler_track/sampler_track_sample_editing_with_the_c.html?contentId=XgjsPM0gkdM_D6kPkaUezA",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "246915f17515e28307be091850db4bee88b1626487a92113ec60944056dd6dad",
+    "bytes": 4241
+  },
+  {
+    "id": "3c67ad476f76d1a8",
+    "title": "percussion",
+    "url": "https://www.bitwig.com/userguide/latest/percussion/",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "e6156544729ee4d4cc06d367beaf00fdf23747d788846ea77e300dbfc098082b",
+    "bytes": 103744
+  },
+  {
+    "id": "09099212112d93b3",
+    "title": "Drum Tracks",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/tracks_about/drum_tracks_and_channels_c.html?contentId=LSHfCRBP65JrfcMs5Bohfw",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "49ab9f15922276a86e516a7d7bb3c8fae55d3abf922cd39c0478f38134d9cef1",
+    "bytes": 2709
+  },
+  {
+    "id": "2f99d5f3da3646c7",
+    "title": "Audio Effects",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_c.html?contentId=xgyunYTqM8NrTADOT_Giug",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "5d7e335a98ca3880a0ee8e885daf8dd734fb9ba57407952cd50269e5647ffefd",
+    "bytes": 2371
+  },
+  {
+    "id": "adf223cd4b69e212",
+    "title": "MediaBay",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/preferences/preferences_mediabay_r.html?contentId=OlAvIWmj0MhHZ_9zNKgufQ",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "b64ea423f9005c3bf88c9b7fc3189552fdf1d6ecbcf389a777a2cd38c5dc1a4e",
+    "bytes": 3997
+  },
+  {
+    "id": "5d1018890f877c8d",
+    "title": "Instrument Presets Results Browser",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_instrument_presets_results_browser_r.html?contentId=iwIyyjIW0xX5_iS7T4wRMg",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "f3ba6ab73e440488e7f28bf6da859a849ae5ec82dff22046da24f94f6d12aae6",
+    "bytes": 4170
+  },
+  {
+    "id": "17e61c2a2373aac7",
+    "title": "New Features",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/new_features/new_features.html?contentId=T1YuhgdTxcFiPPfmpYLVVQ",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "ce1b2b7382cf3cb5ceb86aa137892c14ce55e862939f92522382e024b64f261e",
+    "bytes": 20857
+  },
+  {
+    "id": "ebe6a5a357c0ad3b",
+    "title": "Video",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/video/video_introduction_c.html?contentId=OkWvFmzgFVJEGcm7DYDcww",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "dd7987ce7499dbeb179497479e7c68e03f6bd0a9581cb2117e02121d209add27",
+    "bytes": 4929
+  },
+  {
+    "id": "5048f64dd0264e5e",
+    "title": "VST System Link",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_system_link/vst_system_link_c.html?contentId=5ABPKTNvpncQdcm_X6Pw1A",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "ab10f4097a4b05db1c1de86934613207a8fef8f3d93406f2f77c6a3c56fdac0a",
+    "bytes": 3920
+  },
+  {
+    "id": "af7c486b77aacff8",
+    "title": "Export Queue Section",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/export_audio_mixdown/export_audio_mixdown_export_queue_section_r.html?contentId=hMbXA25PgnEi47AT_1umwA",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "058648d17663b2dc9101e14a6468df55b9c069b9aa95e89d6aa215f35f593f5f",
+    "bytes": 9227
+  },
+  {
+    "id": "d3096a276481ffee",
+    "title": "File Formats",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/export_audio_mixdown/export_audio_mixdown_file_format_r.html?contentId=Mk2Uj64Fg8XYsNmzulXy3w",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "cccbc05b73cc0b41754e929f51c2815a88acc7a1062ac4d8b274a92e4845fd9d",
+    "bytes": 6826
+  },
+  {
+    "id": "53f86c686b2f0832",
+    "title": "Exporting Instrument Tracks as MIDI Files",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_exporting_instrument_tracks_as_midi_files_c.html?contentId=sPd~2ieh4OgWcvbLVgHJfw",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "31f5739b73d546d68d77e481ae2c1f5d728e916ccfc44273d005823c2b05f28c",
+    "bytes": 5016
+  },
+  {
+    "id": "b4897509893637ab",
+    "title": "Self-Contained Projects",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_handling/project_handling_creating_selfcontained_projects_c.html?contentId=bnN~qos7ZkNU_NskiyTwvw",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "e76ddb6fc24f89cdab8f5e6d1bcafd4237be0f0bf2c0e2cab1e27b53cd8e8c50",
+    "bytes": 4450
+  },
+  {
+    "id": "a4cd242bd532234a",
+    "title": "Updating from a Previous Version of Cubase",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/customizing/customizing_updating_from_previous_version_c.html?contentId=2PBY3UhsyKVA99amy5yo~g",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "7f22d494763c32065fc47f232168122ef55b02722ec74dd8e26595da57527766",
+    "bytes": 2808
+  },
+  {
+    "id": "30a13f60e9c28031",
+    "title": "Audio Performance Monitor Panel",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/optimizing/optimizing_vst_performance_window_r.html?contentId=YBgOq0ZeI3f5AR8pWF4Z6A",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "069274942e99c7d4f677746190434862b3377f5042a1873ca91989b593ba01e3",
+    "bytes": 15265
+  },
+  {
+    "id": "dac5e896e94b6062",
+    "title": "Backups",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_handling/project_handling_back_up_project_options_r.html?contentId=5m3wCcXff38G1Io_UB2mpg",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "10aef1f91eb80dd27b60870637a3d0a83cb24853ae874fcb09abc8a3defcb4aa",
+    "bytes": 6827
+  },
+  {
+    "id": "4aaaa157dc9a0942",
+    "title": "Project Files",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_handling/project_handling_about_project_files_c.html?contentId=66HDiYf533RmOHa5jPtJJw",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "890d1951c80f74aab8f325903f818c7f2f077a7a58d494a3dfc79c026c3f73df",
+    "bytes": 5060
+  },
+  {
+    "id": "0f85b3f0bd2a4a01",
+    "title": "Channel EQ Section",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/mixconsole/mixconsole_equalizers_c.html?contentId=7E_rFOjljxbIt93k90ctLA",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "43fd5a6facde1aaa16c555edde52ce06e602898ba635274a2c993ca218760fdc",
+    "bytes": 2153
+  },
+  {
+    "id": "fd70e3044754cbf0",
+    "title": "Finding Missing Files",
+    "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/pool/pool_files_missing_locating_t.html?contentId=1XUUzmHYq1npHAmvzgHkpw",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "ff836e3949bdd62714187b0511cb5848d67d3c5e1c0c137f009bf18d3ab47824",
+    "bytes": 4142
+  },
+  {
+    "id": "43a0f80913d4e9f9",
+    "url": "https://github.com/rhamenator/soundcurrent-eq",
+    "title": "GitHub - rhamenator/soundcurrent-eq: Native C++ equalizer for Linux and Windows: 5\u201331 adjustable bands, presets, live meters, speaker profiles, microphone EQ and room sweep calibration. \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "f1ba93d8e763470e569634c3b5180bd50387d613117b992d6d47a2c8c45e3258",
+    "bytes": 366355
+  },
+  {
+    "id": "cff3ded307e2ee38",
+    "url": "https://github.com/Tracktion/tracktion_engine/blob/develop/LICENSE.md",
+    "title": "tracktion_engine/LICENSE.md at develop \u00b7 Tracktion/tracktion_engine \u00b7 GitHub",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "536314d76a0560b11fa128131f165ffb046a446cf09c8a4ad016b3f36ff5b1cd",
+    "bytes": 236283
+  },
+  {
+    "id": "494e97282e72a847",
+    "url": "https://www.fftw.org/",
+    "title": "FFTW Home Page",
+    "accessed": "2026-10-05",
+    "retrieved": true,
+    "sha256": "3cd774a0ffdc48494792d76f06a62c10dd5f12104b10b27efc662b3598d0bd91",
+    "bytes": 13624
+  }
+]

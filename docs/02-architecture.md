@@ -1,0 +1,123 @@
+# Architecture, threading and data flow
+
+Status: proposed design, except for the limited EQ feasibility probe. All numbers are initial budgets that must be measured and versioned.
+
+## Boundaries
+
+The reusable C++ core owns session semantics, processing contracts, timing and graph execution. It includes no Qt classes, device names, GUI handles, `QProcess`, or global audio-route management. The same graph compiler and processors serve live playback and offline rendering. Adapters expose PipeWire/JACK, file rendering and eventually Windows device APIs. Keep the existing PipeWire daemon and its scheduling/session services; do not fork or recreate it.
+
+```mermaid
+flowchart LR
+  GUI[Qt GUI] -->|commands| CTRL[Session control owner]
+  CTRL -->|immutable snapshot| BUILD[Graph compiler]
+  BUILD -->|prepared graph handle| RT[Audio callback]
+  PW[PipeWire or JACK ports] --> RT
+  RT --> PW
+  RT -->|capture slabs| DISK[Disk writer]
+  DISK --> JOURNAL[Media and recovery journal]
+  READ[Read ahead worker] -->|decoded slabs| RT
+  RT -->|lossy meter summaries| ANALYSIS[Analysis worker]
+  ANALYSIS --> GUI
+  CTRL --> EXPORT[Offline driver]
+  EXPORT --> CORE[Same compiled graph and processors]
+  CORE --> FILE[WAV and other exports]
+  RT <-->|bounded shared memory| HOST[Plugin child process]
+```
+
+## Modules
+
+| Module | Responsibility | Allowed dependencies |
+|---|---|---|
+| `sc::session` | ID-based tracks/clips/takes/automation/tempo/arrangements, command history, migrations | C++/JSON; no device/GUI |
+| `sc::engine` | Prepared graph, routing/PDC, voices/events, processor execution, buffer arena | C++/DSP adapters only |
+| `sc::media` | Streaming reader/writer, cache, hashes, pool, journal and recovery | libsndfile/SQLite on workers |
+| `sc::host` | VST3/CLAP/LV2 lifecycle and IPC ABI | SDK adapters in child; no GUI ownership in engine |
+| `sc::analysis` | Waveforms, FFT/loudness/pitch/transients/AI jobs | Workers; dependency-specific adapters |
+| `sc::backend` | Port selection and lifecycle, hardware time/latency, device loss | PipeWire first; JACK later |
+| `sc::ui` | Qt editors, meters, browser, accessible controls | Immutable read model + asynchronous commands |
+| `sc::render` | Offline time driver and export transactions | Same engine; no device backend |
+
+## Thread ownership
+
+| Execution domain | Owns | Prohibited operations / communication |
+|---|---|---|
+| Qt main thread | Widgets, view state, plugin window integration, user command submission | Never mutates DSP state; never blocks on audio or disk |
+| Session control thread | Canonical editable model, command/undo transactions, state validation, port/config requests | Never acquires a callback-held mutex; coalesces GUI gestures |
+| Graph preparation thread | Allocation, processor preparation, coefficient tables, layout validation, buffer/latency plan | Never edits an active processor; publishes ready tokens |
+| Device RT callback | Active graph state, event application, slab transfer, transport sample cursor | No GUI, disk/network I/O, malloc/free/new/delete, blocking locks, unbounded waits, logging or object destruction |
+| Prefaulted DSP workers (later) | Scheduled independent subgraphs using fixed task arrays | No callback dispatch allocations; bounded deadline, no mutex barrier; single callback execution first |
+| Disk/read workers | File handles, media IO, durable journal, decoding, read-ahead | Queue transfer; no RT memory ownership races |
+| Analysis/index workers | FFT/peaks/loudness, content databases, offline AI | Drop meter work under pressure, never delay capture |
+| Plugin children + supervisor | Plugin DSP/main-thread lifecycle, windows, state and scan operations | Deadline-bounded IPC; engine never waits for a dead child |
+| Offline render thread | Private graph instance and cursor | May wait for read-ahead/plugins; must not reuse or mutate the live graph |
+
+PipeWire `pw_filter` is preferred for synchronous multitrack ports and server quantum. Evaluate `PW_FILTER_FLAG_RT_PROCESS`, negotiated planar float buffers and data-loop ownership before implementation. Control operations run on a non-RT loop. JACK offers a callback adapter; use the installed JACK server or PipeWire JACK compatibility. Never overwrite the user's default sink as a DAW startup side effect. See [PipeWire filters](https://docs.pipewire.org/group__pw__filter.html) and [JACK callback rules](https://jackaudio.org/api/group__ClientCallbacks.html).
+
+## Bounded communication contracts
+
+Single producer/single consumer per queue. Serialize GUI producers through the session owner; do not assume an MPSC library is RT-safe. Use release/acquire publication, cache-line separation and verified lock-free fixed-width atomics on supported targets. No shared_ptr reference decrement/destructor on RT. Buffers are allocated, page touched and where permitted locked before activation; mlock failure is reported on control thread with a degraded-performance indicator.
+
+| Channel | Initial bound | Full/late behavior |
+|---|---|---|
+| Control → RT scalar events | 4096 fixed records; each record ≤64 bytes | GUI coalesces continuous gestures by stable ID; capacity preflight reserves note-off/stop slots. Preserve accepted ordered automation, fail/retry unaccepted edits visibly. RT processes ≤1024 events per block; event density exceeding the declared budget stops/flags offline prep, not an unbounded loop. |
+| Prepared graph → RT | 2 queued graph tokens | Back-pressure the compiler; do not leak or destroy discarded graph objects on RT |
+| RT → retirement owner | 8 fixed tokens, with slot credits reserved before publishing | RT swaps only when a retirement credit exists; otherwise retain old graph. Never free to relieve pressure. |
+| Capture RT → disk | Pool sized for **2 seconds**, all armed channels, at declared rate/quantum | Whole sequence-numbered slabs only. On exhaustion latch a dropout timestamp, stop the affected recording cleanly using reserved event space, retain already captured media. Never overwrite unread capture. |
+| Disk → playback | 2 seconds read-ahead, separate pool | Underflow emits bounded silence + timestamped gap counter; recording continues unless its own queue fails |
+| RT → meter/analysis | 64 summaries + 32 downsampled spectrum slabs | Drop older visualization work; peak/clipping counts separately monotonic; GUI consumes 30–60 Hz |
+| MIDI/event ingress | 4096 events/period, reserved note-off/reset capacity | Reject oversized bursts, issue bounded all-notes-off for affected port; identify overload after callback |
+| Host IPC | Triple-buffered slabs, fixed event/state descriptors | Sequence mismatch/deadline missed → policy-controlled wet-path silence or latency-aligned bypass; report and restart from last checkpoint |
+
+For 256 channels at 96 kHz, float32 capture alone needs roughly **197 MB** for two seconds. Limits are admission control based on explicit memory budget, not a promise of unlimited tracks. The 256-channel Studio cap is not a DAW format ceiling. Version1 targets up to 256 channels per bus with checked graph memory; later limits may grow. Quantum changes exceeding prepared capacity request an orderly reprepare and output silence until ready; never resize in a callback.
+
+## Safe graph replacement and retirement
+
+1. Control makes a validated immutable session snapshot with generation `g`.
+2. Compiler creates graph `g` in a separate arena; allocates buffers, delay lines and coefficients; validates cycles, latency limits and port adapters; warms processors off the active path.
+3. Reserve retire credits; publish a generation/slot token in a release queue.
+4. At a block boundary RT acquires at most one ready graph. Reject stale generations using the control retirement route. Retain the old graph while its processing/tail references are live.
+5. Preserve unchanged processor instances through explicit ownership transfer only after the old graph's RT epoch ends. State that must migrate is bounded: small filter histories copy through fixed slots; large delays remain in separately owned nodes. Do not snapshot arbitrary plugin state on RT.
+6. Crossfade changed wet paths using preallocated mixers for a declared transition window (default 128 frames). If doubled processing would exceed the admitted budget, transition a bounded subgraph or perform a visible stopped reconfiguration. Transport and recording state do not reset accidentally.
+7. Retirement worker destroys old objects only after callbacks and any DSP jobs acknowledge the retired epoch. Shutdown stops device callbacks first, drains worker epochs, then frees pools.
+
+An atomic pointer swap alone is insufficient: object lifetime, old tails, graph buffers, worker readers and plugin children must be accounted for. The existing Studio `configure()` requires stopped processing; wrapper preparation therefore creates a distinct instance. Ordinary scalar changes are delivered to the audio owner. Full coefficient/profile changes need a prepared replacement and smoothing; existing scalar immediacy does not prove click-free automation.
+
+## Processing contract
+
+`prepare(sampleRate, maxFrames, layout, mode)` runs off RT. `process(ProcessContext&, AudioBusView, EventSpan) noexcept` uses caller-owned planar float32 buffers and bounded scratch. Internal summing may use float64 where tested; keep overs above 0 dBFS through the mix graph. Clamp only a deliberate protection/output stage. A DAW EQ wrapper must remove/bypass Studio's forced output clipping and automatic headroom behavior under a tested adapter or a separately maintained GPL DSP module; never change the premium EQ during this task.
+
+Processor metadata includes stable type/version/instance IDs, port layouts, parameter descriptor IDs, latency in samples, maximum tail (`finite`, `until-silent`, or `infinite`), in-place permissions, silence handling, determinism/seed, offline support and thread requirements. Sample-offset events order by timestamp then stable ingress sequence. Partition at event offsets when an API lacks sample-accurate events; reject densities exceeding prepared scratch. Latency changes signal control to recompile PDC; until prepared, use a documented bounded fallback rather than unsafe delay-line resizing.
+
+Graph compiler sorts a DAG, allocates reused buffers by lifetimes, and explicitly breaks permitted feedback loops with ≥1 sample/block delay nodes. Undeclared zero-delay cycles fail validation. Compute cumulative latency across main and sidechain paths, insert alignment delays at joins, and propagate through sends/buses/containers/plugin IPC. Monitoring policy may bypass high-latency processors, but saved/rendered state stays intact. External inserts use measured round-trip latency and real-time export only; offline export must offer skip or cached print with a visible warning. Rendering includes tails, preroll, automation, deterministic seeds and the identical routing graph.
+
+Plugin IPC defaults to a one-quantum pipeline: callback submits block N and consumes the ready, matching sequence for block N-1. It checks readiness once and never spins or waits. Missing output invokes the declared latency-aligned fallback and latches a supervisor error. Changes in quantum rebuild the pipeline/PDC off RT. Offline rendering may wait for child completion and then trims the explicitly reported pipeline delay; plugin offline mode can legitimately alter sonic behavior, which requires separate fixtures rather than a blanket null-test claim.
+
+## Timing domains
+
+- **Device frame clock**: monotonic per device generation; supplied by PipeWire/JACK along with capture/playback latency. Device restart creates a new generation.
+- **Engine frame clock**: signed 64-bit project-rate frames. Scheduling/recording alignment use exact integer sample offsets; track timestamp origin and capture latency separately. Store raw recording timestamps before applying user offsets.
+- **Musical time**: rational beat positions or fixed ticks (960,000 ticks/quarter); compiled immutable piecewise tempo/signature map converts to frames with specified rounding. Tempo ramps integrate analytically/numerically with bounded precomputed segments. Tests require ≤1 frame error.
+- **Wall time**: monotonic clock for UI/supervision; never authoritative for sample scheduling. File timestamps are metadata.
+- **Video/timecode**: rational frame rates, explicit drop-frame rules, SMPTE offsets; MTC/LTC/clock synchronization maps to engine time without rounding the audio clock to video frames.
+
+Independent device clocks need explicit resampling/drift tracking on prepared adapters; do not aggregate two interfaces by assuming they run at identical rates. JACK/PipeWire transport synchronization is an adapter to the project clock, not the session state owner. Launcher transitions, loop/punch boundaries and performance capture are sample-timestamped in engine time with musical quantization from the same map.
+
+## Channel and parameter identity
+
+Layouts carry channel count **and meaning**: mono/stereo, named speaker positions, discrete numbered channels, or Ambisonics order/ACN ordering/SN3D-N3D normalization. Preserve FuMa conversion explicitly, never relabel without conversion. All sidechains and channel maps have their own layout. Downmix/upmix uses an explicit user-visible matrix and normalization; no implicit stereo truncation. Store port symbolic identity separately from transient device object IDs.
+
+Session objects use immutable UUIDs. Parameters use processor-type UUID + stable symbolic parameter ID + instance UUID; band ID survives reorder and frequency change. Units, ranges, interpolation/smoothing and schema version are descriptors. Plugin native parameter IDs are namespaced by format/vendor/class ID; mappings retain unknown IDs. Preset application is one undo transaction, never an index-dependent replacement of all user identities. Automation and modulation combine through an explicit order (base → automation → modulation → safety bounds), with voice scope and note identity.
+
+## Project durability and defensive boundaries
+
+Project directory: `project.json`, `media/`, `states/`, `recovery/`, `backups/`. JSON is versioned (`format`, `schemaMajor`, `schemaMinor`, creator build, IDs, tempo, routes, assets, edits, parameters). Opaque plugin state blobs have format/version/length/hash metadata and independent bounded limits. Media uses project-relative paths + content hashes, original names and source format/layout, not absolute-only paths. Unknown plugin nodes preserve full state/routes/automation and offer missing-plugin placeholders. Missing-media search is user initiated with hash verification; never silently substitute a same-named file.
+
+Save snapshots on control thread, write temp files on disk worker, flush files and project directory, then atomic rename on the same filesystem. Keep last valid generation, backup rotation and per-recording journal; autosave never deletes media to enforce count limits. Command undo stores semantic inverse transactions/reference IDs, not entire audio buffers. Migrations transform copies, validate and keep original; newer unknown versions open read-only or fail clearly. Undo is not a backup strategy.
+
+Recording writer appends sequence-checked slabs and periodically commits durable frame extent (target 1 second). RF64/BW64 or bounded segments avoid the RIFF 4 GiB limit. Recovery scans journals, validates actual media extent, finalizes headers and offers recovered takes with explicit gaps. Crash/power-loss durability depends on the filesystem and storage flush behavior; acceptance must distinguish process kill from power loss.
+
+Plugins and imported projects are untrusted inputs. Validate sizes/counts/paths/UTF-8; reject traversal and expansion bombs before loading assets. Discovery runs in timeout-limited children, without root privileges or shell command construction. Plugin process separation initially contains crashes; it is **not automatically a security sandbox**. Add optional Linux namespaces/seccomp/filesystem grants only after compatibility tests. No upload of sessions or background download of code/models. Publish an SBOM and notices for actual release builds. Bounded parser fuzzing, fault injection and malformed fixtures are defensive tests in later gates.
+
+## Monitor versus print paths
+
+Master/track exports branch before control-room correction, monitor gain, dim, talkback and headphone transforms. Cue buses are distinct routes. Store monitor calibration globally with device/profile version, and make printing a correction an explicit export choice that defaults off. Imported EQ speaker profiles are approximations from measurements, not proof of room correction. Analysis must not feed GUI repaint rates back into sample processing.
