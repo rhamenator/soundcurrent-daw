@@ -44,4 +44,4 @@ Use [Qt Linguist](https://doc.qt.io/qt-6/qtlinguist-index.html), `QTranslator`, 
 
 ## Next implementation task
 
-S4: build capture slabs, worker-side RF64/WAV and durable journals with bounded overload/recovery behavior. S3's prepared EQ/event and lifetime transport foundations are tested; native Windows runtime and the full graph remain unqualified. Preserve the full DAW, Windows, localization and import scope while delivering the first recording slice.
+S5: integrate the native PipeWire adapter with an owned virtual source. S3 prepared EQ/events/lifetime and S4 capture/disk/journal/recovery foundations are tested; physical filesystem faults, >4 GiB, native Windows runtime and the full graph remain unqualified. Preserve the full DAW, Windows, localization and import scope while delivering the first recording slice.

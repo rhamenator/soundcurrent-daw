@@ -1,6 +1,6 @@
 # SLICE-001: record one track → in-process EQ → save/reopen → WAV
 
-Status: **S1/S2 state and S3 prepared EQ/transport foundations implemented; whole slice incomplete** (2026-10-05). State includes stable IDs, scalar EQ gesture undo, v1.0 snapshots and hashed relative media. `sc-engine` supplies prepared peaking EQ, sample-timed events, smoothing, float headroom and shared live/offline processing; bounded queue and retirement infrastructure have fixtures. See [state](09-session-state-contract.md), [engine](11-engine-contract.md) and [results](../tests/results/SLICE-001/). Linux tests/sanitizers run; Windows core/tests cross-compile. Actual recording, full graph transitions, native audio, UI and export are not implemented. Filesystem/power-loss faults and native Windows execution remain unverified.
+Status: **S1/S2 state, S3 prepared EQ/transport and S4 headless recording/recovery foundations implemented; whole slice incomplete** (2026-10-05). State includes stable IDs, scalar EQ gesture undo, v1.0 snapshots and hashed relative media. `sc-engine` supplies prepared peaking EQ, sample-timed events, smoothing, float headroom and shared live/offline processing; bounded queue and retirement infrastructure have fixtures. See [state](09-session-state-contract.md), [engine](11-engine-contract.md) and [results](../tests/results/SLICE-001/). Linux tests/sanitizers run; Windows core/tests cross-compile. A concurrent synthetic source records RF64 raw takes, checkpoints/recovery and project attachment; see [recording contract](13-recording-contract.md). Full graph transitions, native audio, UI and export are not implemented. Physical disk-full/power-loss, >4 GiB and native Windows execution remain unverified.
 
 ## User workflow
 
@@ -10,7 +10,7 @@ Status: **S1/S2 state and S3 prepared EQ/transport foundations implemented; whol
 4. Save the project. Close and reopen it. Restore media, track/routing intent, EQ parameters, sample position and rates. Missing devices show a clear placeholder rather than an arbitrary default output.
 5. Export the selected range as48 kHz mono float32 WAV through the same EQ graph, with optional PCM24 as a follow-up within the slice only if format fixtures pass. Reopen exported WAV and compare it with deterministic live-engine capture. Correction/dim/talkback remain outside the export path as architecture defaults even before those controls exist.
 
-Acceptance first uses a **synthetic PipeWire test source** owned by the test, without physical output links. Physical microphone/speaker testing is scheduled separately when music/background noise permit it. Current authorization from earlier EQ testing is not a reason to interrupt today's playback during a planning-only task.
+Acceptance first uses a **synthetic PipeWire test source** owned by the test, without physical output links. Physical microphone/speaker testing is scheduled separately when music/background noise permit it. Current authorization from earlier EQ testing is not a reason to interrupt today's playback during unrelated work.
 
 ## Implement in dependency order
 
@@ -64,4 +64,4 @@ This original example illustrates identity and timing. The implemented v1.0 enco
 - Input removal, callback quantum increase, writer queue exhaustion and disk-full have explicit recoverable states, gap counters and durable-prefix recovery. A synthetic failure test passes before physical recording is offered.
 - GUI/audio setup can be closed without corrupting a take; quit drains/finalizes disk writer after stopping callbacks. Desktop launcher uses normal privileges.
 
-Completion evidence goes in `tests/results/SLICE-001/` with build/hardware/source manifest. Foundation evidence is not a full-parity certification. The concrete next coding action is **S4: capture slab pool, worker-side RF64/WAV writer and durable journal**, followed by the native adapter, UI and export gates. Windows/localization remain alongside these milestones; other-suite native import is now explicit X004 with its own [contract](10-project-import.md).
+Completion evidence goes in `tests/results/SLICE-001/` with build/hardware/source manifest. Foundation evidence is not a full-parity certification. The concrete next coding action is **S5: PipeWire adapter with an owned virtual source**, followed by UI and export gates; remaining S4 filesystem/native Windows/>4 GiB gates stay open. Windows/localization remain alongside these milestones; other-suite native import is now explicit X004 with its own [contract](10-project-import.md).

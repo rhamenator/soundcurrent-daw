@@ -1,0 +1,202 @@
+{
+  "date": "2026-10-05",
+  "scope": "S4 headless capture/disk worker/journal/verified-prefix recovery; first recording slice and full DAW remain incomplete",
+  "host": {
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "compiler": "GCC 15.2.0",
+    "cmake": "4.2.3",
+    "linux_libsndfile_package": "1.2.2-4"
+  },
+  "builds": {
+    "linux_debug": {
+      "ctest_cases": 4,
+      "status": "passed",
+      "capture": {
+        "checks": 14960005,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "pool_slabs": 32,
+        "default_reserve_seconds": 2
+      },
+      "recording": {
+        "checks": 153,
+        "synthetic_recorded_frames": 480000,
+        "rate_hz": 48000,
+        "concurrent_disk_worker": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "raw_overs_preserved": true,
+        "prefix_recovery": true,
+        "native_audio_device": false
+      },
+      "prepared_eq": {
+        "checks": 231126,
+        "gain_error_db": 0.000315653,
+        "partition_error": 0,
+        "float_overs_peak": 1.79575,
+        "rt_cpp_allocations": 0,
+        "rt_cpp_frees": 0,
+        "rt_c_allocations": 0,
+        "rt_c_frees": 0,
+        "rt_blocking_locks": 0,
+        "queue_packets": 1000000
+      },
+      "log_sha256": "6fe674496c880f3d8f46310ead8e9345c75792f457d691de008743b7863f8475"
+    },
+    "linux_asan_ubsan": {
+      "ctest_cases": 4,
+      "status": "passed",
+      "capture": {
+        "checks": 14960005,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "pool_slabs": 32,
+        "default_reserve_seconds": 2
+      },
+      "recording": {
+        "checks": 153,
+        "synthetic_recorded_frames": 480000,
+        "rate_hz": 48000,
+        "concurrent_disk_worker": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "raw_overs_preserved": true,
+        "prefix_recovery": true,
+        "native_audio_device": false
+      },
+      "prepared_eq": {
+        "checks": 231126,
+        "gain_error_db": 0.000315653,
+        "partition_error": 0,
+        "float_overs_peak": 1.79575,
+        "rt_cpp_allocations": 0,
+        "rt_cpp_frees": 0,
+        "rt_c_allocations": 0,
+        "rt_c_frees": 0,
+        "rt_blocking_locks": 0,
+        "queue_packets": 1000000
+      },
+      "log_sha256": "ad181f1c748d85dc0323963c42c71994acf12d72f26322281417fafb1cb1ab39"
+    }
+  },
+  "windows": {
+    "status": "cross_compile_and_link_passed",
+    "native_execution": "not_run",
+    "compiler": "MinGW x86_64 GCC 13-win32",
+    "dependency": {
+      "version": "1.2.2",
+      "source": "https://codeload.github.com/libsndfile/libsndfile/tar.gz/refs/tags/1.2.2",
+      "sha256": "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121",
+      "bytes": 684875,
+      "build_flags": {
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc",
+        "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++",
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_SHARED_LIBS": "ON",
+        "ENABLE_EXTERNAL_LIBS": "OFF",
+        "ENABLE_MPEG": "OFF",
+        "BUILD_PROGRAMS": "OFF",
+        "BUILD_EXAMPLES": "OFF",
+        "BUILD_TESTING": "OFF",
+        "BUILD_REGTEST": "OFF",
+        "ENABLE_EXPERIMENTAL": "OFF",
+        "INSTALL_PKGCONFIG_MODULE": "OFF",
+        "PYTHON_EXECUTABLE": "/usr/bin/python3",
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.5"
+      }
+    },
+    "dependency_imports": [
+      "KERNEL32.dll",
+      "msvcrt.dll"
+    ],
+    "artifacts": {
+      ".cache/windows-sndfile/build/libsndfile.dll": {
+        "bytes": 1065450,
+        "sha256": "720eb54fb26b13bd571c004841ed6d920a6c93dcb5d5b8201af97e6d47bf16eb"
+      },
+      ".cache/build-windows-core/libsndfile.dll": {
+        "bytes": 1065450,
+        "sha256": "720eb54fb26b13bd571c004841ed6d920a6c93dcb5d5b8201af97e6d47bf16eb"
+      },
+      ".cache/build-windows-core/sc-record-tool.exe": {
+        "bytes": 862833,
+        "sha256": "e4cc8072de067c2a896af1535d6f48844cd1a394c7a96739211fe2561ea0e88b"
+      },
+      ".cache/build-windows-core/sc-recording-tests.exe": {
+        "bytes": 1033477,
+        "sha256": "a15d6538ab04f2475a0ebcde40d175cab65c19256364d71e147947fe87aebb73"
+      },
+      ".cache/build-windows-core/sc-capture-tests.exe": {
+        "bytes": 151940,
+        "sha256": "b0e191f541cd212bbcf064e08ea86f6514e51a0f1da7a135da0c319b0ca78b6b"
+      }
+    }
+  },
+  "acceptance": {
+    "synthetic_take": {
+      "frames": 480000,
+      "sample_rate": 48000,
+      "channels": 1,
+      "concurrent_production_disk_worker": true,
+      "raw_sample_equality": true,
+      "save_reopen_and_relocate": true
+    },
+    "capture_layouts": [
+      1,
+      2,
+      8,
+      32,
+      256
+    ],
+    "quantums": [
+      16,
+      64,
+      127,
+      512,
+      2048
+    ],
+    "faults_passed": [
+      "pool exhaustion and exact rejected suffix/cumulative count",
+      "background worker cancel and join",
+      "injected audio-write/audio-flush/journal/media publication interruption",
+      "SIGKILL after durable checkpoint with further queued data",
+      "kernel RLIMIT_FSIZE short-write/EFBIG preserving checkpoint",
+      "duplicate/oversized/unknown-version/corrupt/truncated-prefix rejection",
+      "existing media/project refused without overwrite",
+      "verified-prefix recovery creates new identity and leaves source unchanged"
+    ],
+    "alignment": "supplied numeric latency shifts or trims clip non-destructively; native device measurement not qualified",
+    "nonfinite": "sanitized and journal count persisted"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "35b3d53ab94bfcdcbe712179eafb8bd1b055db605f080fa2621f1542f8be8aad",
+    "include/soundcurrent/capture.hpp": "ba1358a619db4b6b51a2b129b4ab8171249f4c95646b3824834a3caa3910659e",
+    "include/soundcurrent/recording.hpp": "12d965a9981af4012edff95d42dae6bcde599ccd0c77445ab233379afc9c9876",
+    "src/capture.cpp": "9f6ef4517a1e3cdec6b2c2bb951807510ca9538dac79e5b595580984252e17df",
+    "src/media_io.hpp": "4fac41cecc12d2d1a0b7bbe5927cea5f83703abb19eb3a89abe92dd14bc81139",
+    "src/media_io.cpp": "c08e67016bdaf71e5189aa4dd12a2431ecdd73b9a92261afac51bcb04c7c4fe0",
+    "src/recording.cpp": "edf11c2c66fc3f47c74540c2b304695c56cb27b576ba8f0237a1059964ced627",
+    "src/recording_worker.cpp": "6d56b8d84b23f809999cac1ecb032810687c21abf5ac2adefa33f93105b5809d",
+    "tests/capture_tests.cpp": "955a4060beaeb9e997a8b6a67bd925bdf17ea6492b51faf57a859ea3fff1f763",
+    "tests/recording_tests.cpp": "fd741e7a4703eaf44265de86f132e2597e03c0b36917287b83b33f8428923294",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tools/record_tool.cpp": "4beebf243a0d0b609f0e50fe8b6f063f998b75082b4feef0818a325a9b617c5e",
+    "scripts/build_windows_media.py": "bf18d9a0fc4cf59a81dde57879b1f21d945859ff94f011aa31669a24e92f52bf",
+    "tests/verify_record_cli.py": "05c84063add4f313c7a350fbccaf92e9a937bade539bab0f2a6f836f5c7c96cb"
+  },
+  "limitations": [
+    "Synthetic generated buffers; no PipeWire or physical audio opened",
+    "RT instrumentation covers marked host regions, not every transitive syscall",
+    "Per-sample assertion counts are not distinct parity workflows",
+    "Physical ENOSPC, actual power loss, >4 GiB RF64 files and filesystem matrix remain unverified",
+    "Native Windows execution/runtime deployment and file/thread faults remain unverified",
+    "No multitrack combined admission/deadline, native clock/alignment/disconnect, read-ahead/playback, GUI, offline export or recovery discovery qualification",
+    "All-Europe translation and broad native-project import remain pending",
+    "Dependency/transitive/embedded notices/source delivery remain packaging gates"
+  ]
+}

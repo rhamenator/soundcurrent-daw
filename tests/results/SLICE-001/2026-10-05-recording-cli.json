@@ -1,0 +1,19 @@
+{
+  "synthetic_cli": "Recorded and saved 480000 raw frames at 48000 Hz; SHA-256 556d098f2fb226a534e31dc5387af635d5009e668456ef33994c7fc681cb1fed",
+  "inspect_cli": "Project 32d8b899-611a-4272-b512-96202f0228fa; track d91d8381-ee09-4a9c-aa1f-ba6db6a0b718; asset c2b514be-a252-4763-b84f-3a8ceee2fee8\nVerified checkpoint: 480000 frames; observed file: 480000 frames; sample SHA-256 350871e2fce11607360789db89c35613b9e6943d2639f3cd786ba7640b8bf8fd\nFinalized: yes\nRejected frames: 0; observed invalid samples: 0",
+  "refuses_existing_project": true,
+  "unicode_path": "Enregistrement – Δοκιμή",
+  "independent_python_rf64_reader": {
+    "frames": 480000,
+    "rate": 48000,
+    "channels": 1,
+    "bits": 32,
+    "raw_sample_comparison": "all 480000 float values exact"
+  },
+  "physical_device": false,
+  "date": "2026-10-05",
+  "source_sha256": {
+    "tools/record_tool.cpp": "4beebf243a0d0b609f0e50fe8b6f063f998b75082b4feef0818a325a9b617c5e",
+    "tests/verify_record_cli.py": "05c84063add4f313c7a350fbccaf92e9a937bade539bab0f2a6f836f5c7c96cb"
+  }
+}

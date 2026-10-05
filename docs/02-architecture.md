@@ -1,6 +1,6 @@
 # Architecture, threading and data flow
 
-Status: broad architecture proposed; session/snapshot state, prepared EQ, bounded event queue and single-audio-owner object retirement foundations are implemented. See the [state](09-session-state-contract.md) and [engine](11-engine-contract.md) contracts for their exact limits. The full graph, backend, media workers and plugin host remain staged. Budgets must be measured and versioned.
+Status: broad architecture proposed; session/snapshot state, prepared EQ, bounded event queue and single-audio-owner object retirement and S4 capture/disk/journal recovery foundations are implemented. See the [state](09-session-state-contract.md) [engine](11-engine-contract.md) and [recording](13-recording-contract.md) contracts for their exact limits. The full graph, native backend, playback/read-ahead workers and plugin host remain staged. Budgets must be measured and versioned.
 
 ## Boundaries
 

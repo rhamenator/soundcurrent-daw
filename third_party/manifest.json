@@ -18,7 +18,7 @@
   "libsndfile_api": {
     "version": "1.2.2",
     "license": "LGPL-2.1-or-later",
-    "scope": "Header only for S4 API feasibility; full runtime not vendored",
+    "scope": "Public API header for worker-side media and isolated feasibility; RT engine does not link libsndfile",
     "files": {
       "sndfile.h": {
         "source": "https://raw.githubusercontent.com/libsndfile/libsndfile/1.2.2/include/sndfile.h",
@@ -31,5 +31,27 @@
         "bytes": 26518
       }
     }
+  },
+  "libsndfile_runtime": {
+    "version": "1.2.2",
+    "license": "LGPL-2.1-or-later; embedded module notices separately required",
+    "archive": {
+      "version": "1.2.2",
+      "source": "https://codeload.github.com/libsndfile/libsndfile/tar.gz/refs/tags/1.2.2",
+      "sha256": "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121",
+      "bytes": 684875
+    },
+    "vendored": false,
+    "windows_flags": {
+      "BUILD_SHARED_LIBS": "ON",
+      "ENABLE_EXTERNAL_LIBS": "OFF",
+      "ENABLE_MPEG": "OFF",
+      "BUILD_TESTING": "OFF",
+      "BUILD_PROGRAMS": "OFF",
+      "BUILD_EXAMPLES": "OFF"
+    },
+    "linux_package": "libsndfile1:amd64 1.2.2-4",
+    "script": "scripts/build_windows_media.py",
+    "distribution_inventory": "Incomplete: exact transitives/compiler runtimes/embedded notices/source delivery remain release gates"
   }
 }

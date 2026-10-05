@@ -30,3 +30,11 @@ python3 experiments/media/verify_rf64.py .cache/new-capture-probe.wav
 ```
 
 Supply a new path; the probe exclusively creates it and refuses overwrite. It writes synthetic samples only and opens no audio device. The format-signature/known-sample verifier is deliberately limited to this fixture.
+
+## Headless capture and recording recovery
+
+[S4 evidence](2026-10-05-recording.json): Linux Debug and ASan/UBSan gates, fixed pool transport, concurrent production disk supervisor, exact ten-second raw RF64 take, project attach/save/reopen/relocation, persistent queue-gap/invalid-input diagnostics, cancellation, verified-prefix copy recovery, injected publication interruptions, SIGKILL and kernel RLIMIT_FSIZE short-write/EFBIG. Windows media/tools/tests cross-link against a locally built pinned libsndfile1.2.2 DLL. Native Windows execution remains unverified.
+
+[CLI/independent-reader evidence](2026-10-05-recording-cli.json) is reproduced by `python3 tests/verify_record_cli.py` after the Linux core build. This generates/inspects an owned synthetic project on a Unicode path, rejects overwrite, checks RF64 chunks/GUID/frame counts and independently compares all480000 float samples. Fixtures clean up their owned files.
+
+The large capture assertion count includes per-sample equality at multiple channel layouts/quantums, not millions of distinct parity workflows. No PipeWire/device/default route is exercised. Physical ENOSPC, actual power loss, >4 GiB RF64, native deadlines, and Windows runtime/filesystem qualification remain open. See [recording contract](../../../docs/13-recording-contract.md).

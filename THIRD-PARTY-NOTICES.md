@@ -6,7 +6,7 @@
 
 **JSON for Modern C++ 3.12.0**, copyright Niels Lohmann, MIT license. The original copyright and permission text is retained in [LICENSE.MIT](third_party/nlohmann/LICENSE.MIT) and the vendored header. Exact source URLs and SHA-256 hashes are in [the manifest](third_party/manifest.json). Used only on control/worker threads; no JSON code enters a real-time callback.
 
-**libsndfile 1.2.2 public API header**, copyright1999–2016 Erik de Castro Lopo, LGPL-2.1-or-later. Unmodified header/notices and COPYING are in `third_party/libsndfile`, with exact source hashes in the manifest. Currently used by the isolated Linux media feasibility probe, not the root engine. The probe dynamically links the installed libsndfile1.2.2 runtime; library code is not vendored. Actual library/codec transitive packaging notices must be inventoried before distribution.
+**libsndfile 1.2.2 public API header**, copyright1999–2016 Erik de Castro Lopo, LGPL-2.1-or-later. Unmodified header/notices and COPYING are in `third_party/libsndfile`, with exact source hashes in the manifest. Used by root disk-side recording and the isolated feasibility probe, outside the real-time engine. Linux dynamically links distribution libsndfile1.2.2-4. Windows development cross-build dynamically links upstream1.2.2 with external/MPEG codecs disabled; archive/build pin is in the manifest, full source stays in ignored cache. Actual library/codec transitive packaging notices must be inventoried before distribution.
 
 ## Linked system dependencies of the current core
 
@@ -14,4 +14,4 @@
 - Windows: operating-system BCrypt and Win32 file APIs. No additional crypto DLL distributed. The current MinGW cross-build also uses its C++ runtime; runtime deployment/license notices must be audited before packaging.
 - C++ standard/compiler runtimes: system components for development; exact binary runtime dependencies require platform package inventory before release.
 
-Qt, PipeWire, JACK, plugin SDKs and other planned libraries are not linked by the current root build. Test-thread runtimes/Win32 test thread APIs are used only by the headless test harness. The isolated `experiments/` build has separate dependencies described in the [inventory](docs/03-dependencies.md). There is no installable DAW package yet.
+Qt, PipeWire, JACK and plugin SDKs are not linked by the current root build. Standard/Win32 thread APIs now also run the production disk supervisor. libsndfile transitive codecs linked by the Linux distribution library (FLAC/Vorbis/Opus/Ogg/mpg123/LAME, and compression/runtime libraries) require their exact package notices before distribution; the Windows minimal DLL imports only KERNEL32/msvcrt in this build, while embedded GSM/ALAC and compiler components retain separate source notices and still require complete package inventory. The isolated `experiments/` build has separate dependencies described in the [inventory](docs/03-dependencies.md). There is no installable DAW package yet.
