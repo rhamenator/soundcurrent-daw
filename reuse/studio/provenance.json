@@ -1,0 +1,40 @@
+{
+  "origin": "soundcurrent-studio",
+  "local_origin": "/home/rich/dev/soundcurrent-studio",
+  "revision": "65151a8fec1aa4b4e6c283e4514d7f3d9166fe2b",
+  "license": "GPL-3.0-only",
+  "date": "2026-10-05",
+  "files": {
+    "src/dsp.cpp": {
+      "sha256": "53a2bbf019a7bef78b95085a99a42410ad1a21294a8b9358cf85020f51368fd0",
+      "snapshot": "reuse/studio/upstream/dsp.cpp",
+      "upstream_notices": "SPDX-License-Identifier: GPL-3.0-only; no separate file-level copyright declaration"
+    },
+    "src/dsp.h": {
+      "sha256": "66bd0f05d4e2d4f35f432bcb871457d048e32dee2a48ce122b8ec10ced523b6f",
+      "snapshot": "reuse/studio/upstream/dsp.h",
+      "upstream_notices": "SPDX-License-Identifier: GPL-3.0-only; no separate file-level copyright declaration"
+    }
+  },
+  "adapted_files": [
+    "src/eq_coefficients.cpp",
+    "src/eq.cpp"
+  ],
+  "reused_subset": [
+    "Peaking biquad coefficient calculation",
+    "Transposed direct-form II processing equations and tiny-history zeroing"
+  ],
+  "changes": [
+    "DAW namespace/types and strict coefficient validation",
+    "Planar arbitrary-channel prepared state",
+    "No automatic EQ headroom or final \u00b11 sample clamp",
+    "Sample-timestamped fixed-size events and coefficient/wet-dry ramps",
+    "GUI/device-independent immutable mapping and latency/tail metadata"
+  ],
+  "upstream_candidates": [
+    "Explicit float headroom/output policy",
+    "Prepared coefficient event transport and persistent band identity",
+    "Sample-partition-invariant parameter smoothing"
+  ],
+  "snapshot_compiled": false
+}

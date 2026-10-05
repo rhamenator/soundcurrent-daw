@@ -1,0 +1,27 @@
+{
+  "runtime": "libsndfile-1.2.2",
+  "checkpoint_frames": 1024,
+  "final_frames": 1536,
+  "float_overs_preserved": true,
+  "active_writer_prefix_reopened": true,
+  "signature": "RF64",
+  "header": {
+    "riff_bytes": 6240,
+    "audio_bytes": 6144,
+    "frames": 1536,
+    "format_tag": 65534,
+    "subtype": "IEEE_FLOAT",
+    "channels": 1,
+    "rate": 48000,
+    "bits": 32
+  },
+  "independent_rf64_chunk_and_float_reader": "passed",
+  "scope": "Linux off-RT API probe; not capture worker or crash/power-loss recovery",
+  "date": "2026-10-05",
+  "source_sha256": {
+    "experiments/media/CMakeLists.txt": "79d35b038b572ea82bacc538b1666c62d4ab2f2cafc4027660b9a7e0d46ea27f",
+    "experiments/media/sndfile_feasibility.cpp": "e672384ec69903616c00a91702b501af80d706163523cbcd3e5217486f0b2f37",
+    "experiments/media/verify_rf64.py": "c91f17f6c994609111bff1c88b40afdaf10e06b9391b37b619ae6728b949acfe",
+    "third_party/libsndfile/sndfile.h": "911098ea4b66f0c5ad59785b176f2b19f6e657042c15c93791edb53467efd6c0"
+  }
+}

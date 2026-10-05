@@ -2,7 +2,7 @@
 
 Linux-first professional digital audio workstation and recording suite, planned in C++20 with CMake and Qt 6. Licensed GPL-3.0-only by the owner's decision on 2026-10-05.
 
-**Status: early implementation.** The Qt-free session/state foundation builds on Linux and cross-compiles for Windows. No recording application or release exists yet. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows and all-Europe localization requirements. Completing the first recording slice will not establish that parity.
+**Status: early implementation.** Qt-free session/state and prepared in-process EQ foundations build on Linux and cross-compile for Windows. No recording application or release exists yet. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
 
 `soundcurrent-studio` already contains the premium equalizer. This separate repository is named `soundcurrent-daw` to preserve that work. It is local, has no remote, and has not been published or pushed.
 
@@ -19,12 +19,14 @@ Linux-first professional digital audio workstation and recording suite, planned 
 9. [Decision records](docs/decisions/)
 10. [Windows and all-Europe localization](docs/08-platforms-and-localization.md)
 11. [Implemented session-state contract](docs/09-session-state-contract.md)
+12. [Other-suite native project and exchange imports](docs/10-project-import.md)
+13. [Prepared EQ and real-time transport](docs/11-engine-contract.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
 ## Next implementation task
 
-Continue **M1 / SLICE-001** with **S3: the prepared in-process EQ**, audited GPL provenance, float headroom, bounded parameter events and smoothing, with deterministic live/offline fixtures. Session/parameter state and snapshot round-trip foundations are implemented; actual recording, UI and WAV export remain ahead. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M1 / SLICE-001** with **S4: capture slabs, disk worker, RF64/WAV and recording journal**, including queue/disk failure and durable-prefix recovery fixtures. S1/S2 state and S3 processor foundations are implemented. Actual recording, native audio, UI and WAV export remain ahead. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Build and test the current core
 

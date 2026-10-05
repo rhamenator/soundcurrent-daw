@@ -14,5 +14,22 @@
         "bytes": 1076
       }
     }
+  },
+  "libsndfile_api": {
+    "version": "1.2.2",
+    "license": "LGPL-2.1-or-later",
+    "scope": "Header only for S4 API feasibility; full runtime not vendored",
+    "files": {
+      "sndfile.h": {
+        "source": "https://raw.githubusercontent.com/libsndfile/libsndfile/1.2.2/include/sndfile.h",
+        "sha256": "911098ea4b66f0c5ad59785b176f2b19f6e657042c15c93791edb53467efd6c0",
+        "bytes": 29558
+      },
+      "COPYING": {
+        "source": "https://raw.githubusercontent.com/libsndfile/libsndfile/1.2.2/COPYING",
+        "sha256": "ad01ea5cd2755f6048383c8d54c88459cd6fcb17757c5c8892f8c5ea060f6140",
+        "bytes": 26518
+      }
+    }
   }
 }

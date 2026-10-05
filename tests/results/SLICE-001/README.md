@@ -13,3 +13,20 @@ ctest --test-dir .cache/build-sanitized --output-on-failure
 ```
 
 The state fixture is three arbitrary bytes with a known SHA-256, not an audio recording. Tests exercise snapshots and semantic parameters; they do not establish playback, in-process EQ response, capture, exports, full interrupted-recording recovery or DAW parity. No user audio device was opened or rerouted. Full slice gates remain in `docs/05-first-slice.md`.
+
+## Prepared EQ and transport
+
+[S3 evidence](2026-10-05-prepared-eq.json): Linux state + engine tests and sanitizer gates; Windows core/tests cross-build only. Measured peaking response, float overs, exact block partition/live-offline agreement, sample-timed smoothing/bypass history, bounded overload/failure, concurrent SPSC wrap and retirement credits. These are host-owned processor/transport tests, not native recording or full graph qualification. See the exact [contract](../../../docs/11-engine-contract.md).
+
+## RF64 API feasibility
+
+[RF64 probe](2026-10-05-rf64-probe.json): Linux installed libsndfile1.2.2, active-writer prefix header/flush/reopen and final float-overs retention. Independent RF64 chunk/GUID/sample reader passes. No capture thread, recording journal, process-kill/power-loss or >4 GiB file is exercised.
+
+```sh
+cmake -S experiments/media -B .cache/media-probe -DCMAKE_BUILD_TYPE=Debug
+cmake --build .cache/media-probe
+.cache/media-probe/sndfile-feasibility .cache/new-capture-probe.wav
+python3 experiments/media/verify_rf64.py .cache/new-capture-probe.wav
+```
+
+Supply a new path; the probe exclusively creates it and refuses overwrite. It writes synthetic samples only and opens no audio device. The format-signature/known-sample verifier is deliberately limited to this fixture.

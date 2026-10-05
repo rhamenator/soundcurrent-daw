@@ -39,8 +39,9 @@ Use [Qt Linguist](https://doc.qt.io/qt-6/qtlinguist-index.html), `QTranslator`, 
 |---|---|---|---|
 | X001 | Run the full frozen-reference acceptance corpus on Linux and Windows; move a project between them | Per-OS functional/quality results and portable media/plugin report | Only core cross-build; no native Windows DAW execution |
 | X002 | Select each registered language, record/edit/export, trigger recovery and reopen in another language | Translation completeness, native review, layout/accessibility and invariant project tests for each locale | Registry and Unicode state tests only; GUI/catalogs not implemented |
-| X003 | Adapt borrowed DSP, then isolate a candidate improvement for later upstream adoption | Pinned origin/notices/hash manifest, documented divergence and independent fixture results | No borrowed DSP shipped by current core; earlier feasibility probe references Studio read-only |
+| X003 | Adapt borrowed DSP, then isolate a candidate improvement for later upstream adoption | Pinned origin/notices/hash manifest, documented divergence and independent fixture results | Audited peaking subset now adapted in the DAW with source snapshots and fixtures; returning changes to equalizers remains later work |
+| X004 | Import other suites' native work files and exchange formats | Versioned source corpus, property/render comparisons and persistent preservation/loss reports | Native/exchange adapters pending; see [import contract](10-project-import.md) |
 
 ## Next implementation task
 
-S3: vendor an audited GPL EQ subset with provenance, prepare its state off the audio thread, preserve floating-point headroom, and add sample-offset parameter events plus ≤20 ms smoothing. Verify response, block partitioning, no process-time allocation and live/offline equivalence before S4 capture work. This keeps progress toward the full DAW target measurable.
+S4: build capture slabs, worker-side RF64/WAV and durable journals with bounded overload/recovery behavior. S3's prepared EQ/event and lifetime transport foundations are tested; native Windows runtime and the full graph remain unqualified. Preserve the full DAW, Windows, localization and import scope while delivering the first recording slice.

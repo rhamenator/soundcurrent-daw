@@ -1,6 +1,6 @@
 # Architecture, threading and data flow
 
-Status: proposed design, except for the limited EQ feasibility probe. All numbers are initial budgets that must be measured and versioned.
+Status: broad architecture proposed; session/snapshot state, prepared EQ, bounded event queue and single-audio-owner object retirement foundations are implemented. See the [state](09-session-state-contract.md) and [engine](11-engine-contract.md) contracts for their exact limits. The full graph, backend, media workers and plugin host remain staged. Budgets must be measured and versioned.
 
 ## Boundaries
 

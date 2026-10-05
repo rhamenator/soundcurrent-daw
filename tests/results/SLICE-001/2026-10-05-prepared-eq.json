@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-05",
+  "scope": "S3 prepared EQ and host transport only; full first slice and full DAW remain incomplete",
+  "platforms": {
+    "linux_debug": {
+      "status": "passed",
+      "ctest_cases": 2,
+      "session_checks": 54,
+      "engine_metrics": {
+        "checks": 231126,
+        "gain_error_db": 0.000315653,
+        "partition_error": 0,
+        "float_overs_peak": 1.79575,
+        "rt_cpp_allocations": 0,
+        "rt_cpp_frees": 0,
+        "rt_c_allocations": 0,
+        "rt_c_frees": 0,
+        "rt_blocking_locks": 0,
+        "queue_packets": 1000000
+      },
+      "log_sha256": "f9f644a3c42d3c1588423f0964f8cbb3b03782e31429fdc4beebd2b11a183f4a"
+    },
+    "linux_asan_ubsan": {
+      "status": "passed",
+      "ctest_cases": 2,
+      "session_checks": 54,
+      "engine_metrics": {
+        "checks": 231126,
+        "gain_error_db": 0.000315653,
+        "partition_error": 0,
+        "float_overs_peak": 1.79575,
+        "rt_cpp_allocations": 0,
+        "rt_cpp_frees": 0,
+        "rt_c_allocations": 0,
+        "rt_c_frees": 0,
+        "rt_blocking_locks": 0,
+        "queue_packets": 1000000
+      },
+      "log_sha256": "cfbe563acc663c70bfd6d7a737e648afda47f1d414efd03f2009aa1f72baae9c"
+    }
+  },
+  "windows": {
+    "status": "cross_compile_passed",
+    "native_execution": "not_run",
+    "compiler": "MinGW x86_64 GCC 13-win32",
+    "artifacts": [
+      "sc-project-tool.exe",
+      "sc-session-tests.exe",
+      "sc-engine-tests.exe"
+    ]
+  },
+  "fixtures": {
+    "rates_hz": [
+      8000,
+      44100,
+      48000,
+      96000,
+      384000
+    ],
+    "partition_rates_hz": [
+      44100,
+      48000,
+      96000
+    ],
+    "partition_frames": [
+      16,
+      64,
+      127,
+      512,
+      2048
+    ],
+    "channels": [
+      1,
+      2,
+      8,
+      32,
+      256
+    ],
+    "peaking_centers_hz": [
+      20,
+      100,
+      1000,
+      10000,
+      20000
+    ],
+    "nyquist_policy": "strictly below Nyquist; incompatible cases skipped",
+    "gains_db": [
+      -6,
+      6,
+      24
+    ],
+    "extreme_q": [
+      0.1,
+      18
+    ],
+    "events": [
+      "gain",
+      "frequency",
+      "Q",
+      "enable",
+      "bypass"
+    ],
+    "queue_packets": 1000000,
+    "queue_rollover": "uint32 concurrent FIFO",
+    "retirement": "credit exhaustion, retained previous object, off-RT destruction"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "e6e4217eb3a35d8d0f0d41f69f2093971a87080128be92e1b05caa0fafcb723c",
+    "include/soundcurrent/eq.hpp": "27e82ad902d4a837828b35a5ced48579d22fad75a2d5546390db85106653901e",
+    "include/soundcurrent/spsc_queue.hpp": "7067d83cf28a0b28c4fcf864d4d2d38b5401dddf928891d184e3fc0599e8602e",
+    "include/soundcurrent/rt_object_exchange.hpp": "eda689a08bdaf92047d42881770d5ae5dc4b54b43e8066f2ebe7d6edf98ebb41",
+    "src/eq.cpp": "2323773023037bdec45410eac86bec4d07a2c8f76c5d6e413abc73f6921eebab",
+    "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+    "tests/engine_tests.cpp": "3d28b866820b8f70f99e48a83af9de63c2ede03fc2d83ee34f17559021204e40",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996"
+  },
+  "limitations": [
+    "Synthetic host-owned buffers only; no audio device opened",
+    "RT counters instrument marked C++ and direct linked C allocations/frees and pthread mutex calls, not every transitive syscall",
+    "Assertion count includes per-sample checks, not distinct parity workflows",
+    "No full graph, crossfade/state migration, native backend or GUI event integration",
+    "No native Windows execution, deadline/stress, power-loss or subjective quality qualification"
+  ]
+}
