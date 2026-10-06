@@ -1266,7 +1266,11 @@
           "sanitized_29_tests": 67254,
           "final_fixture_build": 82304
         },
-        "frozen_executable": ".cache/input-latency-native-frozen-5a33b7e/sc-pipewire-punch-ui-fixture"
+        "frozen_executable": ".cache/input-latency-native-frozen-5a33b7e/sc-pipewire-punch-ui-fixture-final",
+        "original_failed_fixture_frozen_executable": ".cache/input-latency-native-frozen-5a33b7e/sc-pipewire-punch-ui-fixture",
+        "original_failed_fixture_sha256": "69448fb0d790ffdb90a9560c9a9ecc93f4bc0e39d293d522ec9103e742ba80f2",
+        "frozen_executable_sha256": "0878f463548e15397f8cedbddfb4b5fcb30ba9a96ddc320d693bec22f2840516",
+        "frozen_executable_copy_verified_after_native_terminal": true
       },
       "source_pins_verified_after_terminal": true,
       "screenshot_visually_checked": {
