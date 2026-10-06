@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-06",
+  "utc": "2026-10-06T20:37:55.817708+00:00",
+  "owner_authorization": "Public GPL-3.0 repository publication and Windows source copy",
+  "repository": "rhamenator/soundcurrent-daw",
+  "local_ci_configuration": {
+    "linux": "Debug Qt desktop, PipeWire OFF; synthetic only",
+    "build_handle": "18085 terminal0",
+    "tests_handle": "87341 terminal0",
+    "test_groups_passed": 29,
+    "test_groups_total": 29,
+    "test_seconds": 26.33
+  },
+  "windows_core": "MinGW core state/engine/transport build terminal0; no native runtime qualification",
+  "warnings_errors": 0,
+  "yaml_parsed": true,
+  "relative_document_links_checked": true,
+  "secret_signature_scan": {
+    "committed_blobs_checked": 927,
+    "findings": [],
+    "scope": "Private-key and known provider token signatures in all reachable Git blobs plus untracked publishable files; not a comprehensive security assessment"
+  },
+  "action_pins_verified_against_official_upstream_tags": {
+    "actions/checkout@v6.0.3": "9f698171ed81b15d1823a05fc7211befd50c8ae0",
+    "actions/upload-artifact@v4.6.2": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+  },
+  "artifacts": [
+    {
+      "path": ".cache/publication-ci-configure.log",
+      "bytes": 883,
+      "sha256": "4ba68c1f334498c7d36aa3607feee03053c95d4178b6b1f2589b920d57c81a84"
+    },
+    {
+      "path": ".cache/publication-ci-build.log",
+      "bytes": 10156,
+      "sha256": "35ce793546f0b1ff4f435c5caf72ce10e8ac1c38e02a8544ddf0146e03a27973"
+    },
+    {
+      "path": ".cache/publication-ci-tests.log",
+      "bytes": 3265,
+      "sha256": "437c5267846f4bc753534c7c8393ea6ba89e2bef1fb14e1cb9a8ff45d511bf3e"
+    },
+    {
+      "path": ".cache/publication-windows-core-configure.log",
+      "bytes": 148,
+      "sha256": "ea33de70d2858b921b1d3c90ef2a017222da402eaa1df821086046b9516ff316"
+    },
+    {
+      "path": ".cache/publication-windows-core-build.log",
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    }
+  ],
+  "scope": "Source/history backup and development scaffolding; not a qualified release, Windows installer or backup of ignored audio/build caches"
+}

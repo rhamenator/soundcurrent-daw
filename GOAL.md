@@ -72,6 +72,11 @@ Before local Copperfin VM testing, read `/home/rich/Documents/Codex/2026-10-03/s
 
 Do not publish, push, or upload releases without explicit authorization. Prepare reviewable release artifacts locally.
 
+2026-10-06 authorization: publish `soundcurrent-daw` as a public GPL-3.0 GitHub
+repository for source/history backup and prepare a copy for the owner's Windows
+machine. This authorizes repository creation and source pushes; it does not claim
+a qualified release or installer. See docs/57-repository-backup.md.
+
 #### Completion criteria
 
 Do not declare completion until:

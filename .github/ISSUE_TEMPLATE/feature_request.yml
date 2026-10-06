@@ -1,0 +1,22 @@
+name: Workflow or feature request
+description: Propose a workflow with measurable acceptance criteria.
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow and need
+      description: Link a parity requirement or explain a new user need.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Describe concrete steps, expected behavior, platforms and quality requirements.
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References and alternatives
+      description: Prefer official documentation. Mark uncertainty and licensing constraints.

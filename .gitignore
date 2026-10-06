@@ -3,3 +3,11 @@ build/
 __pycache__/
 *.wav
 *.partial
+*.bundle
+.env
+.env.*
+*.pfx
+*.p12
+CMakeUserPresets.json
+.vs/
+.idea/

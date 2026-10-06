@@ -1,0 +1,51 @@
+name: Development checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: development-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  linux-desktop:
+    name: Linux desktop and synthetic tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build libssl-dev libsndfile1-dev qt6-base-dev
+      - name: Configure without a native audio daemon
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSC_BUILD_DESKTOP=ON -DSC_BUILD_PIPEWIRE=OFF
+      - name: Build
+        run: cmake --build build --parallel 2
+      - name: Test synthetic workflows
+        run: ctest --test-dir build --output-on-failure --parallel 1
+      - name: Retain test log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: linux-synthetic-test-log
+          path: build/Testing/Temporary/*.log
+          if-no-files-found: ignore
+  windows-core-cross-build:
+    name: Windows core cross-build (no native runtime claim)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Install cross compiler
+        run: sudo apt-get update && sudo apt-get install -y ninja-build g++-mingw-w64-x86-64
+      - name: Configure state, engine and transport
+        run: cmake -S . -B build-windows -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-mingw.cmake -DSC_BUILD_MEDIA=OFF -DCMAKE_BUILD_TYPE=Release
+      - name: Compile
+        run: cmake --build build-windows --parallel 2

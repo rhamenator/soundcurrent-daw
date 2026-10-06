@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible development problem.
+body:
+  - type: markdown
+    attributes:
+      value: "For vulnerabilities, use Security → Report a vulnerability. Remove private audio and credentials from attachments."
+  - type: input
+    id: revision
+    attributes:
+      label: Version or commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, build options, audio backend, device and channel layout if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction, expected result and actual result
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs and minimal project
+      description: Include a shareable minimal example and whether the issue occurs with synthetic or native audio.
