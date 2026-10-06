@@ -17,6 +17,7 @@ struct DuplexRecordingOptions {
     CaptureBackend backend = CaptureBackend::Unknown;
     ReadAheadOptions reader;
     bool staggerCheckpoints = true;
+    std::optional<PunchRange> punch;
 };
 struct DuplexCaptureSnapshot {
     Frame captured = 0, written = 0;

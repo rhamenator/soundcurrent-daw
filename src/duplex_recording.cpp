@@ -16,6 +16,10 @@ void directoryMatches(const std::filesystem::path &root, const Session &s) {
 void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLane> &lanes,
            const DuplexRecordingOptions &o) {
     validate(s);
+    if (o.punch && (o.punch->begin < o.playback.graph.startFrame ||
+                    o.punch->begin >= o.punch->end || o.punch->end > o.playback.endFrame))
+        throw ProjectError(ErrorCode::InvalidState, "Invalid prepared punch range");
+    const auto captureStart = o.punch ? o.punch->begin : o.playback.graph.startFrame;
     if (lanes.empty() || lanes.size() > 256 || !o.nativeInputs || o.nativeInputs > 256 ||
         o.backend > CaptureBackend::Asio || !o.memoryBudgetBytes ||
         o.memoryBudgetBytes > 256 * 1024 * 1024 ||
@@ -42,7 +46,7 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
         const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                     [&](const auto &t) { return t.id == r.trackId; });
         if (r.projectId != s.id || r.capture.sampleRate != s.sampleRate || t == s.tracks.end() ||
-            r.capture.layout != t->layout || r.capture.startFrame != o.playback.graph.startFrame ||
+            r.capture.layout != t->layout || r.capture.startFrame != captureStart ||
             r.capture.maximumCallbackFrames < o.playback.graph.maximumFrames ||
             r.inputLatencyFrames < 0 || r.inputLatencyFrames > Frame(s.sampleRate) * 60 ||
             r.recoveredFrom || !occupied.insert(r.assetId.str()).second ||
@@ -113,9 +117,9 @@ struct DuplexRecordingRun::State {
                                 lane->binding.inputChannels, lane->binding.monitoring});
             lanes.push_back(std::move(lane));
         }
-        bridge =
-            std::make_unique<DuplexBridge>(*playback, s, std::move(bindings), options.nativeInputs,
-                                           options.backend, options.memoryBudgetBytes);
+        bridge = std::make_unique<DuplexBridge>(*playback, s, std::move(bindings),
+                                                options.nativeInputs, options.backend,
+                                                options.memoryBudgetBytes, options.punch);
     }
     Lane &lane(std::size_t n) const {
         if (n >= lanes.size())

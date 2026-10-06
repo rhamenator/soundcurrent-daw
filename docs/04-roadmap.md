@@ -205,3 +205,12 @@ timeline alignment, raw-media preservation and failure/recovery before connectin
 UI and native routes. Loop recording, take lanes, comping and the full M2 remain
 required. Continue sustained native diagnosis independently without waiving its
 current full-sample, elapsed/current-period or durability gates.
+
+M2 now has a [prepared raw-frame punch foundation](51-punch-capture-foundation.md).
+Boundary/partition, raw/aliased monitor, origin/alignment, Save/reopen/undo and
+interrupted durable-prefix fixtures pass in Debug and optimized builds. The full
+sanitized run retains a timeline selection/preparation failure (28/29 pass),
+without assuming its cause. Windows core compile is not runtime qualification.
+Next fix/reproduce pre-poll selection admission, then prepare latency-aware
+musical locators and add persistent UI/native punch workflows. Full punch,
+Auto monitoring, loop/take lanes/comping and the sustained native gate remain open.

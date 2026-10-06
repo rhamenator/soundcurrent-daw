@@ -6,6 +6,12 @@
 namespace soundcurrent::daw {
 // Control-side capture-pool and binding reservation; normalizes/validates config.
 std::size_t armedCapturePayloadBytes(CaptureConfig, std::size_t inputChannels);
+// Immutable half-open engine-frame range within the prepared playback range.
+// Capture pipes start at begin; playback and explicit monitoring keep running.
+struct PunchRange {
+    Frame begin = 0, end = 0;
+    bool operator==(const PunchRange &) const = default;
+};
 struct ArmedCapture {
     Id track;
     CapturePipe *pipe = nullptr; // Must outlive the bridge and callback owner.
@@ -49,7 +55,7 @@ class DuplexBridge {
   public:
     DuplexBridge(MixPlaybackRun &, const Session &, std::vector<ArmedCapture>,
                  std::uint32_t nativeInputs, CaptureBackend = CaptureBackend::Unknown,
-                 std::size_t memoryBudgetBytes = 256 * 1024 * 1024);
+                 std::size_t memoryBudgetBytes = 256 * 1024 * 1024, std::optional<PunchRange> = {});
     ~DuplexBridge();
     DuplexBridge(const DuplexBridge &) = delete;
     DuplexBridge &operator=(const DuplexBridge &) = delete;
@@ -61,6 +67,8 @@ class DuplexBridge {
     DuplexStatus status() const noexcept;
     Frame capturedFrames(std::size_t) const; // Control-side atomic read.
     std::optional<DuplexCallbackFault> callbackFault() const noexcept;
+    // First captured sample, not preroll's first playback block. Unknown until
+    // capture starts; cycle/delay identify the containing native callback.
     std::optional<CaptureTimingOrigin> timingOrigin() const noexcept;
     bool observation(DuplexObservation &) noexcept;
     std::uint64_t droppedObservations() const noexcept;

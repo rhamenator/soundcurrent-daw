@@ -113,13 +113,17 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_stopping_automatically_with_punch_out_t.html?contentId=AEYzYZAVOduo2XfpBAp3yQ",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Partial: immutable raw engine-frame capture window inside continuous duplex playback; exact nonaligned/one-sample boundary, partition, raw mono/stereo, aliased full monitor/file, origin/alignment, Save-reopen/undo and interrupted durable-prefix fixtures. Musical locator latency preparation/persistence, UI/native punch workflows, Auto monitoring, manual punch, take audition/comping and native/Windows quality remain unqualified. Full sanitized suite retains independent timeline selection/preparation refusal (28/29 pass); no cause/parity claim.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "bitwig_source_id": "29952e7064892724",
-      "cubase_source_id": "e8197fc5fbd89a78"
+      "cubase_source_id": "e8197fc5fbd89a78",
+      "implementation_evidence": [
+        "docs/51-punch-capture-foundation.md",
+        "tests/results/M2/2026-10-06-punch-capture-foundation.json"
+      ]
     },
     {
       "id": "P005",

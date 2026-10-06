@@ -1,0 +1,324 @@
+{
+  "date": "2026-10-06",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "14b1eff39e7eaa984ad0435db6f7a18beb39196b",
+  "previous_goal_turn_classification": "progress: f2763e3 retained sustained failure/signing budget and14b1eff reproduced/fixed historical-error close cancellation",
+  "classification": "Progress: bounded punch capture foundation; full punch/native/parity gates remain open",
+  "source_sha256": {
+    "CMakeLists.txt": "bff8bb31ec7f4a7712c839ed3c2d781e8f347006dab365dcd19cd8db032296bb",
+    "include/soundcurrent/duplex_bridge.hpp": "fb91baf1ecf5f04764a394b6044e3243b82ecc5763926ad9bab9563c9797087e",
+    "include/soundcurrent/duplex_recording.hpp": "20c0398321f4737599342bb2d9a31d1120ddb31836a7e4b3ff41c9a308379419",
+    "src/duplex_bridge.cpp": "01f4c2d5c2f9295188100e7b3ca57fe5f61bc8e103d03aa21dbe459bc2abd962",
+    "src/duplex_recording.cpp": "8f3296d4b5fe63088e107cfba4b33e4e23c0c4c27c6cdfbf69a4c8b7ea9a67cb",
+    "tests/punch_tests.cpp": "d8f8a9133559c328360aaed267b845840284128cb28c34a5059b6876dd6e7925",
+    "ui/studio_window.cpp": "abf1fea556b59775c6f6ae553cd345ec9e550a11af35f24397846379ec726329",
+    "ui/studio_window.hpp": "9634df35fa7248d520bc97144110a0e63c45bbcbd210309afa658ab4f2a25166",
+    "tests/timeline_ui_tests.cpp": "971f2e6783547f0704e110a51f59ed35c0d83e8f02db5cc69dc000830a4074f3"
+  },
+  "implementation": {
+    "half_open_raw_engine_frame_window": true,
+    "pre_post_roll_playback_continues": true,
+    "raw_before_aliased_output": true,
+    "offset_capture_pointers_separate_from_full_monitor": true,
+    "first_captured_sample_origin": true,
+    "unknown_timestamp_preserved_overflow_rejected": true,
+    "punch_out_finishes_pipes_before_transport_end": true,
+    "control_budget_accounts_extra_pointer_storage": true,
+    "no_rt_allocation_free_blocking_disk_logging": true,
+    "project_or_journal_schema_changed": false,
+    "ui_locator_controls_delivered": false,
+    "per_lane_latency_compensated_locator_geometry": false,
+    "auto_monitoring": false,
+    "loop_take_comping": false
+  },
+  "acceptance": {
+    "partition_sizes": [
+      1,
+      7,
+      127,
+      256,
+      [
+        3,
+        127,
+        17,
+        256,
+        1
+      ]
+    ],
+    "ranges": [
+      [
+        503,
+        1291
+      ],
+      [
+        139,
+        140
+      ],
+      [
+        137,
+        4099
+      ],
+      [
+        137,
+        503
+      ],
+      [
+        503,
+        4099
+      ]
+    ],
+    "playback_range": [
+      137,
+      4099
+    ],
+    "raw_mono_stereo_mapping_exact": true,
+    "full_aliased_live_file_matrix_oracle": true,
+    "clipped_last_callback_and_silent_slack": true,
+    "nonfinite_counts_only_inside_window": true,
+    "no_preroll_capture_origin": true,
+    "same_prepared_offset_origin_in_journal": true,
+    "near_INT64_MAX_frames": true,
+    "whole_worker_owner_early_completion": true,
+    "preparation_validation_and_no_jobs": true,
+    "save_reopen_grouped_undo_underlying_media": true,
+    "interrupted_prefix_recovery": {
+      "preroll": {
+        "captured": 0,
+        "durable": 0,
+        "capture_reason": "ClockDiscontinuity",
+        "journal_reason": "Unknown",
+        "recovery_rejected_empty": true
+      },
+      "in_range": {
+        "captured": 182,
+        "durable": 182,
+        "journal_reason": "ClockDiscontinuity"
+      },
+      "postroll": {
+        "captured": 568,
+        "durable": 512,
+        "uncommitted_suffix_preserved": 56,
+        "capture_reason": "RangeComplete",
+        "journal_reason": "Unknown"
+      }
+    }
+  },
+  "tests": {
+    "linux_debug_all": {
+      "passed": 29,
+      "total": 29,
+      "seconds": 46.81
+    },
+    "linux_sanitized_all": {
+      "passed": 28,
+      "total": 29,
+      "seconds": 91.61,
+      "failed": "desktop-timeline; Selected playback prepare refused",
+      "new_punch_test_passed": true,
+      "no_memory_diagnostic_reported": true
+    },
+    "linux_release_oracle": {
+      "checks": 6081564,
+      "boundary_partition_workflows": 25,
+      "raw_sample_oracle": true,
+      "aliased_monitor_file_oracle": true,
+      "origin_alignment_save_reopen_undo": true,
+      "interrupted_prefix_recovery": true,
+      "rt_violations": 0,
+      "native_audio": false
+    },
+    "all_linux_debug_sanitized_release_built": true,
+    "windows_headless_all_compile_link": true,
+    "windows_native_qt_device_installer_runtime_qualified": false
+  },
+  "development_failure": {
+    "initial_fixture": "Incorrect assumption that an empty/incomplete journal already contains final reason and all written frames. Exact68412 terminates before fixture-only correction; checkpoint behavior inspected, capture568/durable512 asserted, actual pipe reason separate from journal.",
+    "corrected_71296": "terminal exit0 before near-frame-limit test and later builds",
+    "not_a_new_unknown_native_observation": true
+  },
+  "live_handle_discipline": {
+    "builds": [
+      "46048",
+      "71296",
+      "10236",
+      "99585",
+      "6667",
+      "49559"
+    ],
+    "tests": [
+      "68412",
+      "18184",
+      "97512"
+    ],
+    "all_terminal_before_new_source_edits": true,
+    "native_callbacks_started": false
+  },
+  "unresolved_observations": {
+    "prior_evidence": {
+      "path": "tests/results/M2/2026-10-06-individual-stage-sustained-failure.json",
+      "bytes": 144591,
+      "sha256": "47499008382d408cc244a555d1e1527f0b9f12d156a3b8a5eb005f89d6a1bd47"
+    },
+    "prior_count": 20,
+    "new": {
+      "index": 21,
+      "failure": "SAN full suite desktop-timeline selected transport prepare refused",
+      "diagnostic": "Combined selectTrack&&preparePlayback assertion; original branch/admission snapshot not retained. No memory diagnostic; no inference of punch cause. All other28groups including punch pass.",
+      "artifacts": [
+        {
+          "path": ".cache/m2-punch-sanitized-all-tests.log",
+          "bytes": 3603,
+          "sha256": "5cee757479313e68b72d4772f9986ad0dcaeee4ee1a3cfead723254338a9e79d"
+        },
+        {
+          "path": ".cache/m2-punch-sanitized-original-LastTest.log",
+          "bytes": 25080,
+          "sha256": "3f3a8c756064d75e6f0cc4713cb1d03d5101c8562ca98f148cf92c98452f51be"
+        },
+        {
+          "path": ".cache/m2-punch-sanitized-original-LastTestsFailed.log",
+          "bytes": 19,
+          "sha256": "99a471cc37ceab604c47fa79dd6fda47fdf25e1377e80cb17f40176422c4f9f3"
+        },
+        {
+          "path": ".cache/punch-timeline-frozen-14b1eff/sc-timeline-ui-tests",
+          "bytes": 106897504,
+          "sha256": "ff56f62606cc7e39c367a3046f505d842604ad714fde30e7e59854d4cdce0706"
+        }
+      ]
+    },
+    "count": 21,
+    "all_prior_observations_retained": true,
+    "original_native_receipts_match": true
+  },
+  "artifacts": [
+    {
+      "path": ".cache/m2-punch-debug-all-build.log",
+      "bytes": 4172,
+      "sha256": "c9dedda7f10cad73f4aa27dd2dda26bea9a4e4d868434c395acd46c1400ab7a9"
+    },
+    {
+      "path": ".cache/m2-punch-debug-all-tests.log",
+      "bytes": 3270,
+      "sha256": "5287603cdb6951c7d653c5fa5fc282a9f53e610c108601513a7e0d547c55ec79"
+    },
+    {
+      "path": ".cache/m2-punch-debug-build.log",
+      "bytes": 863,
+      "sha256": "6178b0952fc529628794cbbc4a9d53ecac803fbc883e99c513fccb8876ff84c5"
+    },
+    {
+      "path": ".cache/m2-punch-debug-corrected.log",
+      "bytes": 228,
+      "sha256": "8d5cc7045ad48ff9e6479eb126ebe225db15e8f29e77c65147344769e26c20ae"
+    },
+    {
+      "path": ".cache/m2-punch-debug-rebuild.log",
+      "bytes": 124,
+      "sha256": "ed35ffd65731a643723c7eb6c14b6fc4767a0b5789749a2d151aaad03bc5f788"
+    },
+    {
+      "path": ".cache/m2-punch-debug-tests.log",
+      "bytes": 624,
+      "sha256": "4e46273eec4c07a8473c9d202d0b57ae187d50abbc34d460a02fb7bbc12aa305"
+    },
+    {
+      "path": ".cache/m2-punch-release-all-build.log",
+      "bytes": 4834,
+      "sha256": "a66c18392c0baae6d53db61e00345e4ed471f000f22edf7247c47aa2719b0a2c"
+    },
+    {
+      "path": ".cache/m2-punch-release-oracle.log",
+      "bytes": 228,
+      "sha256": "84e553787d776f612e573fc738aec2c72af8dd0d8ccf8f3ee2a1db378a4aff3d"
+    },
+    {
+      "path": ".cache/m2-punch-sanitized-all-build.log",
+      "bytes": 4926,
+      "sha256": "4d2db7aecb5cb9e1a798b06f4f4bd10dc9c823193ead45938e00ee1baed9299a"
+    },
+    {
+      "path": ".cache/m2-punch-sanitized-all-tests.log",
+      "bytes": 3603,
+      "sha256": "5cee757479313e68b72d4772f9986ad0dcaeee4ee1a3cfead723254338a9e79d"
+    },
+    {
+      "path": ".cache/m2-punch-sanitized-original-LastTest.log",
+      "bytes": 25080,
+      "sha256": "3f3a8c756064d75e6f0cc4713cb1d03d5101c8562ca98f148cf92c98452f51be"
+    },
+    {
+      "path": ".cache/m2-punch-sanitized-original-LastTestsFailed.log",
+      "bytes": 19,
+      "sha256": "99a471cc37ceab604c47fa79dd6fda47fdf25e1377e80cb17f40176422c4f9f3"
+    },
+    {
+      "path": ".cache/m2-punch-windows-core-build.log",
+      "bytes": 1597,
+      "sha256": "86d524f6780a26aa7eb7eed2e37855c32618d0d0c00407b8e3ee9781ab7808fa"
+    },
+    {
+      "path": ".cache/m2-punch-reuse-before.json",
+      "bytes": 7217,
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    }
+  ],
+  "binaries": [
+    {
+      "path": ".cache/build-desktop/sc-punch-tests",
+      "bytes": 14150904,
+      "sha256": "37ac8422981edaaa885284860eed4766eb3068eb6bbaaa8f3dee99aef1c4d0dd"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-punch-tests",
+      "bytes": 45324456,
+      "sha256": "2d4df45132487b7eac90f4b3870a7756421bee8e2ecb1f3c1cd8e8d7514aca05"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-punch-tests",
+      "bytes": 933720,
+      "sha256": "f40899fe88a75473347bf546b81261e2565d05c652681ad5044a0c185cf1061c"
+    },
+    {
+      "path": ".cache/build-windows-core/sc-punch-tests.exe",
+      "bytes": 1300625,
+      "sha256": "916f8614f09861e2acd4b08e8c1bdc18ba11c3ea8c9f0856f58ab541a22aef16"
+    }
+  ],
+  "parity": {
+    "family_count": 92,
+    "acceptance_quality_references_axes_unchanged": true,
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "no_FQCN_status_promoted": true
+  },
+  "equalizer_audit": {
+    "inputs": 24,
+    "all_match": true,
+    "heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    },
+    "repository_writes": false
+  },
+  "pushed_or_published": false,
+  "full_goal_status": "active and incomplete",
+  "next_task": "Reproduce controller-published track selection before the GUI poll, fix authoritative snapshot/selection admission, then latency-aware musical locator preparation and punch UI/native qualification."
+}

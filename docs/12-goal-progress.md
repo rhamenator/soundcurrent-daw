@@ -1292,3 +1292,47 @@ monotonic duplex capture with partition/overdub/raw-media/failure tests. Then UI
 and native integration; loop/take lanes/comping and all remaining M2/full product
 requirements stay in scope. Sustained native quality remains independently open.
 Full goal active and incomplete; Windows and all-Europe delivery remain required.
+
+## 2026-10-06 continuation: prepared raw punch range
+
+Previous goal turn made progress as f2763e3 and14b1eff. No prior native/build/test/
+reader handle remains live. The unchanged goal, current worktree and contracts
+were reread before M2 implementation.
+
+Optional immutable raw-engine `[begin,end)` capture range is admitted inside
+playback and requires matching pipe start frames before pools/jobs. Callback
+intersection and separate prepared offset pointers preserve full-block playback/
+Off/Post-EQ monitoring and aliased raw safety. Exact punch-out finishes pipes
+without stopping playback; first captured sample, not preroll, defines origin.
+Unknown timestamps remain unknown; overflow faults before capture. Existing
+alignment, schemas, durability and worker retirement policy remain unchanged.
+
+Five ranges/five partitions qualify exact mono/stereo samples, one-frame/edge
+boundaries, file/live matrix/headroom/slack, nonfinite counts, origin/journal,
+Save/reopen/grouped undo/underlying media and worker-owner early completion.
+INT64_MAX-adjacent positions, timestamp limits and interruption/recovery are
+checked. Initial fixture68412 failed on incorrect journal assumptions; exact
+handle terminated before inspecting/correcting expectations. Written568/committed
+512 and retained56-frame suffix are now explicit, with capture reason separate
+from checkpoint reason. No durability implementation/threshold was changed.
+
+All build handles46048/71296/10236/99585/6667/49559 and tests68412/18184/97512 are
+terminal before subsequent source changes. Full Linux Debug29/29 passes46.81s;
+Release oracle passes25partition/boundary workflows and zero RT violations.
+Linux Debug/SAN/Release and Windows headless core/tests all compile/link.
+SAN28/29passes91.61s, including punch; timeline's combined select/prepare refusal
+is preserved with actual executable/full logs/source hashes as observation21.
+Original branch/snapshot unknown; no memory diagnostic or punch-cause inference.
+
+[Contract](51-punch-capture-foundation.md),[ADR-039](decisions/039-prepared-punch-capture-range.md)
+and[evidence](../tests/results/M2/2026-10-06-punch-capture-foundation.json) retain
+all21observations and original native receipts. All24borrowed inputs/heads and
+92frozencontracts match, no F/Q/C/N promotion, equalizer writes, dependency/license
+addition, native/VM test, host-policy change, purchase or publication.
+
+Next reproduce controller-published selection before GUI poll, then latency-aware
+musical locator preparation/persistence and UI/native punch acceptance. Raw-frame
+capture is not a full musical-locator or overlapping-take workflow. Auto monitoring,
+loop/take lanes/comping and allremaining M2/full DAW/X004/X005/Windows/all-Europe
+requirements stay in scope. Sustained native gate remains independently open;
+full goal active/incomplete.
