@@ -15,14 +15,14 @@ import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-PREFIX = 'sc-daw-fixture-'
+PREFIXES = ('sc-daw-fixture-', 'sc-daw-playback-')
 
 
 def snapshot():
     objects = json.loads(subprocess.run(['pw-dump'], check=True, capture_output=True,
                                         text=True, timeout=5).stdout)
     owned = {o['id'] for o in objects if o['type'] == 'PipeWire:Interface:Node' and
-             o.get('info', {}).get('props', {}).get('node.name', '').startswith(PREFIX)}
+             o.get('info', {}).get('props', {}).get('node.name', '').startswith(PREFIXES)}
     defaults = []
     links = {}
     owned_edges = []
@@ -61,7 +61,10 @@ def run_fixture(binary, mode):
         try:
             deadline = time.monotonic() + 30
             while child.poll() is None:
-                assert time.monotonic() < deadline, 'Native fixture timed out'
+                if time.monotonic() >= deadline:
+                    child.kill()
+                    stdout, stderr = child.communicate(timeout=5)
+                    raise AssertionError(f'Native fixture timed out: {stderr}; stdout: {stdout}')
                 current = snapshot()
                 unchanged(before, current)
                 observed_graphs += 1

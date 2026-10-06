@@ -45,3 +45,5 @@ The Windows **headless** regression build passes. The new Qt controller/window h
 ## Next task
 
 Continue S6 with a production transport/preparation owner: explicit native input/output inventory, record/stop/arm/monitor, clock-validated file playback/seek, retirement, immediate edit reconciliation, meters and recovery states. Keep media preparation/device joins outside GUI/audio callbacks, and qualify owned PipeWire routes before audible tests. Then S7 transactional export and S8 end-to-end acceptance. X005 equipment profiles/editor remains required alongside the full frozen parity, Windows and all-Europe localization work.
+
+S6d supplies the [production native playback owner](19-native-playback-owner.md). The desktop editor still has no audio binding; invoke that owner from a separate preparation/transport worker, not widgets or the canonical session worker during blocking file work.

@@ -27,6 +27,7 @@ Linux-first professional digital audio workstation and recording suite, planned 
 17. [Immediate controls and applied-frame receipts](docs/16-immediate-controls.md)
 18. [Equipment profiles and profile editor requirement](docs/17-equipment-profiles.md)
 19. [Desktop project controller and editor](docs/18-desktop-controller.md)
+20. [Native playback owner and clock bridge](docs/19-native-playback-owner.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
@@ -34,7 +35,7 @@ Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, fro
 
 The owner added expanded equipment profiles/import and a profile editor as **X005**; [its contract](docs/17-equipment-profiles.md) includes source/rights, editable curves, save-copy prompts and monitor-versus-print routing. That feature remains to be implemented in the DAW.
 
-Continue **M1 / SLICE-001** with **S6: native transport/preparation integration with the Qt recording/playback/EQ UI**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S6b adds bounded immediate edits and applied-frame receipts through recording/playback; S6c adds the asynchronous Qt project controller/editor; native transport binding remains to be implemented. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M1 / SLICE-001** with **S6: native transport/preparation integration with the Qt recording/playback/EQ UI**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S6b adds bounded immediate edits and applied-frame receipts through recording/playback; S6c adds the asynchronous Qt project controller/editor and S6d adds a production native playback owner/clock gate; the asynchronous GUI transport binding remains to be implemented. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Desktop development preview
 

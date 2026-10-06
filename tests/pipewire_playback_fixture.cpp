@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <sndfile.h>
 #include "rt_audit.hpp"
-#include <soundcurrent/pipewire_filter.hpp>
+#include <soundcurrent/pipewire_playback.hpp>
 #include <soundcurrent/playback_reader.hpp>
 #include <soundcurrent/recording.hpp>
 #include <algorithm>
@@ -35,47 +35,22 @@ struct Audit {
     }
 };
 struct Player : Audit {
-    PlaybackRun &run;
-    std::atomic<std::uint64_t> origin{UINT64_MAX};
-    std::atomic<std::uint32_t> nativeFault{0},
-        status{static_cast<std::uint32_t>(PlaybackStatus::Running)};
-    DeviceBlockClock previous{};
-    std::uint32_t minimumFrames = UINT32_MAX, maximumFrames = 0; // Audio owner; read after stop.
-    explicit Player(PlaybackRun &r) : run(r) {}
-    static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const>,
-                        std::span<float *const> out, std::uint32_t capacity) noexcept {
-        auto &s = *static_cast<Player *>(p);
-        const bool started = s.origin.load(std::memory_order_relaxed) != UINT64_MAX;
-        // Inactive/unlinked startup has no mapped output; retain file frame0.
-        if (!started && out.size() == 1 && !out[0])
-            return;
-        const bool valid =
-            out.size() == 1 && out[0] && clock.duration && clock.duration <= capacity &&
-            clock.duration <= s.run.config().maximumCallbackFrames && clock.rateNumerator == 1 &&
-            clock.rateDenominator == s.run.config().sampleRate && !clock.xrun &&
-            !clock.discontinuity &&
-            (!started || (clock.id == s.previous.id &&
-                          clock.position == s.previous.position + s.previous.duration));
-        if (!valid) {
-            s.nativeFault.store(1, std::memory_order_release);
-            s.run.requestStop();
-            for (auto *v : out)
-                if (v)
-                    std::fill_n(v, capacity, 0.f);
-            return;
+    PipeWirePlayback *playback = nullptr;
+    std::uint32_t minimumFrames = UINT32_MAX, maximumFrames = 0;
+    void drain() {
+        PlaybackObservation observation;
+        while (playback->observation(observation)) {
+            minimumFrames =
+                std::min(minimumFrames, static_cast<std::uint32_t>(observation.device.duration));
+            maximumFrames =
+                std::max(maximumFrames, static_cast<std::uint32_t>(observation.device.duration));
         }
-        s.minimumFrames = std::min(s.minimumFrames, static_cast<std::uint32_t>(clock.duration));
-        s.maximumFrames = std::max(s.maximumFrames, static_cast<std::uint32_t>(clock.duration));
-        const auto r = s.run.process(out, static_cast<std::uint32_t>(clock.duration));
-        if (!started && r.timelineFrames)
-            s.origin.store(clock.position, std::memory_order_release);
-        s.previous = clock;
-        s.status.store(static_cast<std::uint32_t>(r.status), std::memory_order_release);
     }
-    static void unavailable(void *p, AudioBridgeStatus) noexcept {
-        auto &s = *static_cast<Player *>(p);
-        s.nativeFault.store(1, std::memory_order_release);
-        s.run.requestStop();
+    bool fault() const {
+        const auto status = playback->status();
+        return status != PlaybackBridgeStatus::Ready && status != PlaybackBridgeStatus::Running &&
+               status != PlaybackBridgeStatus::Underflow &&
+               status != PlaybackBridgeStatus::Complete;
     }
     static void after(void *p) noexcept {
         static_cast<Player *>(p)->end();
@@ -93,10 +68,11 @@ struct Sink : Audit {
     static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const> in,
                         std::span<float *const>, std::uint32_t capacity) noexcept {
         auto &s = *static_cast<Sink *>(p);
-        const auto origin = s.player.origin.load(std::memory_order_acquire);
-        if (s.complete.load(std::memory_order_relaxed) || origin == UINT64_MAX ||
-            clock.position < origin)
+        const auto timing = s.player.playback->timingOrigin();
+        if (s.complete.load(std::memory_order_relaxed) || !timing ||
+            clock.position < timing->devicePosition)
             return;
+        const auto origin = timing->devicePosition;
         if (in.size() != 1 || !in[0] || clock.duration > capacity ||
             clock.position != origin + static_cast<std::uint64_t>(s.count)) {
             s.gapPosition = clock.position;
@@ -118,7 +94,7 @@ struct Sink : Audit {
         static_cast<Sink *>(p)->end();
     }
 };
-PipeWirePort sinkPort(PipeWireFilter &client, std::uint32_t id) {
+PipeWirePort sinkPort(PipeWirePlayback &client, std::uint32_t id) {
     const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(3);
     while (std::chrono::steady_clock::now() < end) {
         for (const auto &p : client.ports())
@@ -163,18 +139,22 @@ int main(int argc, char **argv) {
         require(disconnect || std::string_view(argv[2]) == "normal", "Unknown fixture mode");
         const auto root = utf8Path(argv[1]);
         require(std::filesystem::create_directory(root), "Fixture project already exists");
+        std::cerr << "Preparing owned file source\n";
         auto s = prepareProject(root);
         const auto before = hashMediaFile(root / "project.json");
         PlaybackConfig config;
         config.endFrame = 480000;
-        PlaybackRun run(root, s, s.tracks.front().id, config);
+        Player player;
+        PipeWirePlayback run(root, s, s.tracks.front().id, config, {}, std::chrono::seconds(3),
+                             {&player, Audit::begin, Player::after});
+        player.playback = &run;
+        std::cerr << "Native playback owner prepared\n";
         auto edited = s;
         edited.tracks.front().eq.bands.front().gainDb = -3;
         const auto &track = edited.tracks.front();
         const ParameterAddress address{track.id, track.eq.id, track.eq.bands.front().id,
                                        BandParameter::GainDb};
         auto manual = run.prepared().parameterEvent(edited, address, 0);
-        Player player(run);
         CapturePipe captured({});
         Sink sink(captured, player);
         RecordingSpec spec;
@@ -183,17 +163,31 @@ int main(int argc, char **argv) {
         spec.capture = captured.config();
         RecordingWorker writer(captured, root, spec);
         const auto prefix = "sc-daw-fixture-" + Id::generate().str();
-        PipeWireFilter output(
-            {prefix + "-playback", 0, 1, 65536, true},
-            {&player, Player::process, Player::unavailable, Audit::begin, Player::after});
-        PipeWireFilter monitor({prefix + "-sink", 1, 0},
+        auto &output = run;
+        PipeWireFilter monitor({prefix + "-sink", 1, 0, 65536, true},
                                {&sink, Sink::process, nullptr, Audit::begin, Sink::after});
-        require(output.waitReady(std::chrono::seconds(3)) &&
-                    monitor.waitReady(std::chrono::seconds(3)),
-                "Playback ports not ready");
-        output.connectOutputs({sinkPort(output, monitor.nodeId())});
+        require(monitor.waitReady(std::chrono::seconds(3)), "Playback sink ports not ready");
+        bool earlyActivationRejected = false;
+        try {
+            output.activate();
+        } catch (const ProjectError &) {
+            earlyActivationRejected = true;
+        }
+        require(earlyActivationRejected, "Unrouted playback was activated");
+        auto selected = sinkPort(output, monitor.nodeId());
+        auto stale = selected;
+        ++stale.nodeSerial;
+        bool staleRejected = false;
+        try {
+            output.connectOutputs({stale});
+        } catch (const ProjectError &) {
+            staleRejected = true;
+        }
+        require(staleRejected, "Stale playback output admitted");
+        output.connectOutputs({selected});
         monitor.activate();
         output.activate();
+        std::cerr << "Owned output/sink activated\n";
         bool removed = false;
         bool submitted = false, received = false;
         Frame submittedPosition = 0;
@@ -220,26 +214,33 @@ int main(int argc, char **argv) {
                 monitor.stop();
                 removed = true;
             }
-            if (player.nativeFault.load(std::memory_order_acquire) ||
-                sink.gap.load(std::memory_order_acquire) ||
+            player.drain();
+            if (player.fault() || sink.gap.load(std::memory_order_acquire) ||
                 sink.complete.load(std::memory_order_acquire))
                 break;
-            const auto status =
-                static_cast<PlaybackStatus>(player.status.load(std::memory_order_acquire));
-            if (status != PlaybackStatus::Running && status != PlaybackStatus::Underflow &&
-                status != PlaybackStatus::Complete)
+            const auto status = run.status();
+            if (status != PlaybackBridgeStatus::Ready && status != PlaybackBridgeStatus::Running &&
+                status != PlaybackBridgeStatus::Underflow &&
+                status != PlaybackBridgeStatus::Complete)
                 break;
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
+        std::cerr << "Stopping output; position/status " << run.position() << '/'
+                  << static_cast<std::uint32_t>(run.status()) << "\n";
         output.stop();
+        std::cerr << "Output callbacks and reader joined; stopping sink\n";
         monitor.stop();
-        run.cancelReader();
-        run.waitReader();
+        output.stop(); // Repeated stop is idempotent.
+        std::cerr << "Sink joined; checking reader result\n";
+        run.checkReader();
+        require(run.submitImmediate(manual, 2) == SubmitStatus::Invalid,
+                "Stopped playback accepted an unappliable edit");
+        player.drain();
         captured.finish();
         const auto result = writer.wait();
         std::cerr << "Native playback: player frames " << run.position() << "; captured frames "
-                  << result.asset.frames << "; removed/fault " << removed << '/'
-                  << player.nativeFault << "; status " << player.status << "; missing frames "
+                  << result.asset.frames << "; removed/fault " << removed << '/' << player.fault()
+                  << "; status " << static_cast<std::uint32_t>(run.status()) << "; missing frames "
                   << run.missingFrames() << "; sink gap " << sink.gap
                   << "; sink gap position/expected/capacity " << sink.gapPosition << '/'
                   << sink.expectedPosition << '/' << sink.gapCapacity << "; native frames min/max "
@@ -251,12 +252,11 @@ int main(int argc, char **argv) {
                 "Native manual edit applied-frame receipt missing or inconsistent");
         manual.frame = receipt.frame;
         if (disconnect)
-            require(removed && player.nativeFault && result.asset.frames >= 48000 &&
+            require(removed && player.fault() && result.asset.frames >= 48000 &&
                         result.asset.frames < 480000,
                     "Monitor removal not surfaced");
         else
-            require(!player.nativeFault && result.asset.frames == 480000 &&
-                        run.position() == 480000,
+            require(!player.fault() && result.asset.frames == 480000 && run.position() == 480000,
                     "Native file playback incomplete");
         SF_INFO info{};
         auto *file = sf_open((root / utf8Path(result.asset.relativePath)).c_str(), SFM_READ, &info);
@@ -300,8 +300,10 @@ int main(int argc, char **argv) {
             << ",\"immediate_applied_frame\":" << receipt.frame
             << ",\"immediate_submit_position\":" << submittedPosition
             << ",\"submit_to_receipt_poll_ms\":" << receiptDelayMs
-            << ",\"minimum_native_frames\":" << player.minimumFrames
-            << ",\"maximum_native_frames\":" << player.maximumFrames << "}\n";
+            << ",\"production_playback_owner\":true,\"unrouted_activation_rejected\":true,\"stale_"
+               "output_rejected\":true,\"minimum_native_frames\":"
+            << player.minimumFrames << ",\"maximum_native_frames\":" << player.maximumFrames
+            << "}\n";
         return 0;
     } catch (const std::exception &e) {
         std::cerr << e.what() << '\n';
