@@ -1,0 +1,179 @@
+{
+  "date": "2026-10-06",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "f2763e3bfdcc37915ddb176ecc238dc1f7c54125",
+  "classification": "Progress: reproducible non-RT desktop close fix, no sustained native pass",
+  "source_sha256": {
+    "ui/studio_window.cpp": "abf1fea556b59775c6f6ae553cd345ec9e550a11af35f24397846379ec726329",
+    "ui/studio_window.hpp": "9634df35fa7248d520bc97144110a0e63c45bbcbd210309afa658ab4f2a25166",
+    "tests/ui_tests.cpp": "d01f9a76163b3f2045aa9fe12451c229ab8667eb22c91e7b2a7a6e44b4cd46ab"
+  },
+  "source_changes": "Only GUI close baseline and targeted acceptance workflows; no engine/backend/project schema/durability/audio arithmetic change",
+  "reproduction": {
+    "production_source_revision": "f2763e3",
+    "production_source_sha256": {
+      "ui/studio_window.cpp": "7fec465ebe1dc4158dfbbf2177d648f19769be013e8ff82a2d71331472349640",
+      "ui/studio_window.hpp": "2d68662b76067def9e780d79c1d6ed8ab680e009e84425f064aaf5d60f8c51db"
+    },
+    "fixture": "Publish invalid parameter rejection without Qt event processing, then request Close. Product has old errorSerial in close snapshot but GUI lastError has not consumed it. Original clean Close fails bounded await at line136.",
+    "original_executable_retained": false,
+    "known_repro_failure": "Recorded expected timeout, not a new unknown native observation"
+  },
+  "acceptance": {
+    "historical_rejection_clean_close": true,
+    "historical_rejection_dirty_save_close": true,
+    "old_error_still_displayed": true,
+    "new_save_failure_keeps_dirty_window_open": true,
+    "saved_project_unchanged_on_failure": true,
+    "retry_after_owned_fault_removed_saves_exact_model": true,
+    "all_five_workers_retired_before_window_hidden": true,
+    "injection": "Directory at owned temporary-project .save.lock path, no permissions changes or real project edits"
+  },
+  "tests": {
+    "debug_five_desktop_groups": true,
+    "sanitized_five_desktop_groups": true,
+    "sanitizers": [
+      "ASan",
+      "UBSan",
+      "LSan"
+    ],
+    "release_three_close_workflows": true,
+    "release_app_build": true,
+    "native_windows_runtime": false
+  },
+  "artifacts": [
+    {
+      "path": ".cache/m2-close-error-after.log",
+      "bytes": 434,
+      "sha256": "5769caaec9f2a7ab3b972b920d1098f7181f0f28cc9a658e10264bf04d04b00a"
+    },
+    {
+      "path": ".cache/m2-close-error-before.log",
+      "bytes": 99,
+      "sha256": "b90f24e8911009fc368a4067b161c0ecd064a313d8e2e39278b39b8a7da176a2"
+    },
+    {
+      "path": ".cache/m2-close-error-debug-build.log",
+      "bytes": 191,
+      "sha256": "59b13778aae1c2184066bdfc867d0f03d217eb3f2683ac0107af7b2d772af9d4"
+    },
+    {
+      "path": ".cache/m2-close-error-debug-tests.log",
+      "bytes": 660,
+      "sha256": "045c047249e1ee29e96072a76d9447d5cab1f9531f83503f0540498ad018ab47"
+    },
+    {
+      "path": ".cache/m2-close-error-release-build.log",
+      "bytes": 390,
+      "sha256": "9b9dde152945505100e2353984c456801b8024f3cb892a222dd6609c359df954"
+    },
+    {
+      "path": ".cache/m2-close-error-release-tests.log",
+      "bytes": 434,
+      "sha256": "5769caaec9f2a7ab3b972b920d1098f7181f0f28cc9a658e10264bf04d04b00a"
+    },
+    {
+      "path": ".cache/m2-close-error-reproduction-build.log",
+      "bytes": 115,
+      "sha256": "f524d274a86459ba2ef3a7f0e380ab1214304413f38a27579fd23ec9e486f2d8"
+    },
+    {
+      "path": ".cache/m2-close-error-sanitized-build.log",
+      "bytes": 410,
+      "sha256": "0c0b09391cdbde5bc55f6467e12a0f4ffbf7262523e9bd138cacddd1e2d448ce"
+    },
+    {
+      "path": ".cache/m2-close-error-sanitized-tests.log",
+      "bytes": 670,
+      "sha256": "9acec8b45e4791e0330f56415fa9e7674e33b63663308ce19950654e5252ae18"
+    },
+    {
+      "path": ".cache/m2-close-error-reuse-audit.json",
+      "bytes": 7217,
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    }
+  ],
+  "binaries": [
+    {
+      "path": ".cache/build-desktop/sc-ui-tests",
+      "bytes": 32411744,
+      "sha256": "e15a92e578a9452a8bb0008239793a5948fb3857fc3e479ec461d17dfbd48ae3"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-ui-tests",
+      "bytes": 107878248,
+      "sha256": "2a4974efb4395ca69f5e623d09e8fcf353e20643e8458d7e4ff71724895b2416"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-ui-tests",
+      "bytes": 2642504,
+      "sha256": "f0bdb94dfa90b6f4e2768e070bf194d698f1b34e48578187e8ce424e9aa76abc"
+    },
+    {
+      "path": ".cache/build-desktop-release/soundcurrent-daw",
+      "bytes": 2297384,
+      "sha256": "75509361745fd47cf5ec2b58529c270a3f310a2e524da6711e1f8aafdae8118a"
+    }
+  ],
+  "prior_native_evidence": {
+    "evidence": {
+      "path": "tests/results/M2/2026-10-06-individual-stage-sustained-failure.json",
+      "bytes": 144591,
+      "sha256": "47499008382d408cc244a555d1e1527f0b9f12d156a3b8a5eb005f89d6a1bd47"
+    },
+    "unresolved_observation_count": 20,
+    "original_fourteenth_UI_close_failure_mode_and_snapshot_unknown": true,
+    "new_reproduction_does_not_prove_original_failure_cause": true,
+    "sustained_native_gate_open": true,
+    "all_original_artifact_hashes_match": true,
+    "production_processing_libraries_unchanged": {
+      ".cache/build-desktop-release/libsc-pipewire-recording.a": "8d86cae666d62e92288cab6d27ce50e4fcbe2eeee42d00eb1675bf096a5f66d7",
+      ".cache/build-desktop-release/libsc-playback.a": "b1279ff6761b6c8629c83e1afff07d7b37dea048c4b66c533a0ac80e025e2ca8",
+      ".cache/build-desktop-release/libsc-media.a": "aead609fa5b73f167d7ba861ef31b26bae5c4a6355a7942a33418c7bf2b5e738",
+      ".cache/build-desktop-release/libsc-engine.a": "24729fcd399fdf179d6022b8cc14e2a446a59cbe983960bddcae589bd8f99daa",
+      ".cache/build-desktop-release/libsc-capture.a": "6466f73612b746796a3990e674c37d2bad89b0c4b14a85d8320ab19ed23fa947",
+      ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+      ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "79fe3867be05869ec7a855a22740919d51c61846bdcfa9faa1bd6e2ca58f3b61",
+      ".cache/build-desktop-release/libsc-project-store.a": "4b75e620459c9cc67e9d47b731f86269918c4e6ece5be321f0b09450ec275e04",
+      ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+      ".cache/build-desktop-release/libsc-session.a": "091920694f08128e7bfe977d0af2a772da3e555670b3a6a650850d82e3d96a45",
+      ".cache/build-desktop-release/libsc-audio-bridge.a": "d853effc07677a0684b5e62a6621c9e2b452d6741c02a0260c34926324260a7e"
+    }
+  },
+  "equalizer_review": {
+    "borrowed_input_count": 24,
+    "all_match": true,
+    "heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    },
+    "repository_writes": false
+  },
+  "parity": {
+    "family_count": 92,
+    "acceptance_quality_references_axes_unchanged": true,
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "no_FQCN_status_promoted": true
+  },
+  "full_goal_status": "active and incomplete",
+  "pushed_or_published": false,
+  "next_task": "M2 sample-accurate punch-range preparation and boundary splitting for monotonic duplex capture, with deterministic partition/overdub/raw-media tests; sustained native timing remains a required independent gate."
+}

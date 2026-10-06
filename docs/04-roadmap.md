@@ -191,3 +191,17 @@ all production libraries remain unchanged; short sample/RT/timing and explicit
 pairing/ranking/unknown tests qualify only the helper. Next matching long-run
 individual-call evidence precedes a justified processing/placement experiment;
 sustained native/physical/Windows and all remaining M2/full-suite gates stay open.
+
+The sustained individual-call diagnostic now retains a twentieth failure with
+matching raw/EQ intervals, exact media and unchanged originals; see
+[the retained facts](48-individual-native-processing-calls.md). Its deadline gate
+remains open. An independent [desktop-close fix](50-desktop-close-error-baseline.md)
+qualifies historical-error handling and new Save failure/retry in Linux UI tests;
+it does not resolve an unknown earlier close timeout or native audio performance.
+
+Next M2 implementation: prepared punch ranges and sample-exact boundary splitting
+for monotonic duplex capture. Verify partition-independent start/end, overdub
+timeline alignment, raw-media preservation and failure/recovery before connecting
+UI and native routes. Loop recording, take lanes, comping and the full M2 remain
+required. Continue sustained native diagnosis independently without waiving its
+current full-sample, elapsed/current-period or durability gates.

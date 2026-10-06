@@ -18,6 +18,12 @@ Shutdown uses a priority atomic flag, independent of FIFO capacity. The control 
 
 A window close first queues a barrier behind all accepted widget edits, commits their gesture, and waits for that snapshot **before** inspecting dirty state. Save/Discard/Cancel then operates on the actual accepted prefix. Save-before-close is single-flight and waits for publication; Discard cancels outstanding I/O before its cooperative publication boundary. Cancel keeps the window and edits. This barrier avoids losing a freshly enqueued edit just because the previous displayed snapshot was clean.
 
+Close also snapshots the already-published controller error serial. A historical
+error arriving at the GUI afterward is displayed without canceling that request.
+A newer error during drain/barrier/save cancels closing and preserves dirty state.
+The [reproduction and failure tests](50-desktop-close-error-baseline.md) cover
+clean close, Save/close, a new Save failure, and explicit retry after repair.
+
 Creation refuses an existing folder. If initial save fails/cancels, an owned newly created empty/temporary directory may remain; no automatic recursive deletion occurs. Writer-lock, media verification and snapshot backup behavior are inherited from the project-store contract. Error details currently include core English diagnostics under a contextual translatable message; complete translated error/help/installer catalogs and native reviews remain open.
 
 ## Desktop editor

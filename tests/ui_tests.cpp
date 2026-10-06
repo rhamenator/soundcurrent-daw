@@ -16,6 +16,7 @@
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTimer>
+#include <QThread>
 #include <QWheelEvent>
 #include <QComboBox>
 #include <QListWidget>
@@ -29,6 +30,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <source_location>
+#include <limits>
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
@@ -70,6 +72,80 @@ struct PromptChoice {
         timer.start(1);
     }
 };
+void closeErrorWorkflow(const std::filesystem::path &root, bool dirty, bool failSave) {
+    auto initial = makeOneTrackSession("Close errors — Δοκιμή", "Audio");
+    ProjectStore(root).save(initial);
+    StudioWindow window;
+    window.show();
+    window.openProject(root);
+    await([&] {
+        return window.snapshot()->session && window.snapshot()->io == IoOperation::None &&
+               window.findChild<QSlider *>("gainSlider0");
+    });
+    if (dirty) {
+        window.findChild<QSlider *>("gainSlider0")->setValue(60);
+        await([&] { return window.snapshot()->dirty; });
+    }
+    const auto expected = *window.snapshot()->session;
+    auto *notice = window.findChild<QLabel *>("previewNotice");
+    const auto previousNotice = notice->text();
+    const auto oldSerial = window.snapshot()->errorSerial;
+    const auto &track = expected.tracks.front();
+    ProjectCommand invalid{CommandKind::Parameter};
+    invalid.address =
+        ParameterAddress{track.id, track.eq.id, track.eq.bands.front().id, BandParameter::GainDb};
+    invalid.value = std::numeric_limits<double>::quiet_NaN();
+    check(window.submitEdit(std::move(invalid)), "Close-error fixture command refused");
+    // Publish the rejection without letting the GUI's timer consume it. This is
+    // a deliberate event-order fixture, not a sleep-based guess at the race.
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+    while (window.snapshot()->errorSerial == oldSerial) {
+        check(std::chrono::steady_clock::now() < deadline,
+              "Close-error fixture controller failed to publish rejection");
+        QThread::msleep(1);
+    }
+    check(window.snapshot()->errorCode == ErrorCode::InvalidParameter &&
+              *window.snapshot()->session == expected && notice->text() == previousNotice,
+          "Old-error fixture changed model or unexpectedly consumed GUI events");
+    const auto rejectedSerial = window.snapshot()->errorSerial;
+    if (failSave) {
+        check(dirty, "Save-failure fixture must have unsaved edits");
+        // A directory at the ordinary lock-file path fails on both OS APIs,
+        // even for privileged users. Only this temporary project is affected.
+        std::filesystem::remove(root / ".save.lock");
+        check(std::filesystem::create_directory(root / ".save.lock"),
+              "Cannot inject owned-project save failure");
+    }
+    PromptChoice save(QMessageBox::Save);
+    window.close();
+    if (failSave) {
+        await([&] {
+            return window.snapshot()->errorSerial > rejectedSerial &&
+                   notice->text().contains(QString::fromUtf8(window.snapshot()->diagnostic)) &&
+                   window.findChild<QAction *>("saveAction")->isEnabled();
+        });
+        save.timer.stop();
+        check(save.prompts == 1 && window.isVisible() && !window.snapshot()->closed &&
+                  window.snapshot()->dirty && *window.snapshot()->session == expected &&
+                  ProjectStore(root).load() == initial,
+              "New save failure closed app, retried automatically or lost dirty/saved state");
+        check(std::filesystem::remove(root / ".save.lock"), "Cannot clear owned save failure");
+        save.timer.start(1);
+        window.close();
+    }
+    await([&] {
+        return window.snapshot()->closed && window.playbackSnapshot()->closed &&
+               window.recordingSnapshot()->closed && window.exportSnapshot()->closed &&
+               window.recoverySnapshot()->closed && !window.isVisible();
+    });
+    check(save.prompts == (failSave ? 2
+                           : dirty  ? 1
+                                    : 0) &&
+              ProjectStore(root).load() == expected,
+          "Close with historical rejection lost save/prompt/worker retirement");
+    check(notice->text().contains("The operation could not be completed:"),
+          "Historical error was suppressed instead of being displayed");
+}
 void workflows(const std::filesystem::path &root) {
     auto session = makeOneTrackSession("Séance – Δοκιμή", "Audio 1");
     // Numerous bands exercise scroll-fit and focus-safe controls.
@@ -1197,6 +1273,16 @@ int main(int argc, char **argv) {
     try {
         QTemporaryDir temp;
         check(temp.isValid(), "Cannot create UI fixture directory");
+        const auto closeRoot = utf8Path(temp.path().toUtf8().toStdString());
+        closeErrorWorkflow(closeRoot / "close-clean-error", false, false);
+        closeErrorWorkflow(closeRoot / "close-dirty-error", true, false);
+        closeErrorWorkflow(closeRoot / "close-new-save-error", true, true);
+        if (argc == 2 && std::string_view(argv[1]) == "--close-errors-only") {
+            std::cout << "{\"historical_error_clean_close\":true,"
+                         "\"historical_error_dirty_save_close\":true,"
+                         "\"new_save_error_cancels_close\":true,\"retry_saves\":true}\n";
+            return 0;
+        }
         workflows(utf8Path(temp.path().toUtf8().toStdString()) / "project");
         playbackWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "playback");
         portableOutputRoutes(utf8Path(temp.path().toUtf8().toStdString()) / "portable-routes");

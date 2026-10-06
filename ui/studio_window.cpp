@@ -1982,10 +1982,15 @@ void StudioWindow::poll() {
     }
     if (view->errorSerial != lastError_) {
         lastError_ = view->errorSerial;
-        closeAfterSave_ = false;
-        closeSaveSubmitted_ = false;
-        closeRequested_ = false;
-        closeBarrier_ = 0;
+        // A rejection already published when Close was requested must still be
+        // displayed, but must not cancel that newer request. Errors from the
+        // close/drain/barrier/save workflow keep the app and dirty model open.
+        if (closeRequested_ && view->errorSerial > closeErrorSerial_) {
+            closeAfterSave_ = false;
+            closeSaveSubmitted_ = false;
+            closeRequested_ = false;
+            closeBarrier_ = 0;
+        }
         exportBarrier_ = 0;
         exportSelection_.reset();
         notice_->setText(
@@ -2089,6 +2094,7 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     event->ignore();
     if (closing_ || closeAfterSave_ || closeRequested_)
         return;
+    closeErrorSerial_ = view->errorSerial;
     if (auto *focused = focusWidget())
         focused->clearFocus();
     closeRequested_ = true;

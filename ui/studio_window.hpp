@@ -148,6 +148,7 @@ class StudioWindow : public QMainWindow {
     bool closing_ = false, closeAfterSave_ = false, closeRequested_ = false;
     bool closeSaveSubmitted_ = false, closePromptActive_ = false;
     std::uint64_t closeBarrier_ = 0;
+    std::uint64_t closeErrorSerial_ = 0;
     void poll();
     void pollPlayback();
     void playSelected();

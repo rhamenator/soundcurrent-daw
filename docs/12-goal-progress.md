@@ -1261,3 +1261,34 @@ deterministic desktop-close stale-error reproduction/fix while sustained native
 performance, physical/durability/Windows and allremaining full DAW/X004/X005/
 all-Europe workflows remain open. A different workflow's pass cannot erase any
 of the20retained observations.
+
+## 2026-10-06 continuation: desktop close error baseline
+
+After native11110 and reader35316 terminated, the bounded fixture at f2763e3
+published a parameter rejection without Qt event processing, then requested
+Close. Exact40017 terminated with the expected clean-close timeout before the
+product fix. Each accepted Close now snapshots its published error serial before
+committing focused edits. Historical errors remain displayed; only newer errors
+cancel an active close. A retry captures a fresh baseline.
+
+Exact99860 targeted Debug workflows pass. Debug five-group handle13965 and separate
+sanitized build64080/Release build64019 terminate before further execution.
+Sanitized five-group18197 and the Release targeted execution also terminate
+successfully. Debug five groups pass7.46s; ASan/UBSan/LSan five groups pass15.11s.
+Clean/dirty historical rejection and new Save failure/retry preserve exact state,
+prompt counts and all five worker retirement ordering. Optimized desktop builds.
+No engine/backend/schema/durability/library change, no native audio/VM execution.
+
+[Contract](50-desktop-close-error-baseline.md),
+[ADR-038](decisions/038-close-error-request-baseline.md) and
+[evidence](../tests/results/M2/2026-10-06-desktop-close-error-baseline.json) preserve
+all20observations, including the earlier unknown-mode UI timeout. The deterministic
+bug does not prove that original failure's cause. Original native artifact hashes,
+all24borrowed inputs/heads and92frozen contracts match, no parity promoted. No
+equalizer writes, new dependencies, signing expense, publication or host changes.
+
+Next implement M2 prepared punch ranges and sample-exact boundary splitting in
+monotonic duplex capture with partition/overdub/raw-media/failure tests. Then UI
+and native integration; loop/take lanes/comping and all remaining M2/full product
+requirements stay in scope. Sustained native quality remains independently open.
+Full goal active and incomplete; Windows and all-Europe delivery remain required.
