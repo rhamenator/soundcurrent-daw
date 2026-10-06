@@ -21,6 +21,12 @@ The [Council of Europe language charter](https://www.coe.int/en/web/european-cha
 
 Each locale moves through **planned → translated → native-reviewed → UI-qualified**. These states are independent of whether the toolkit can display its script. Current translations/reviews/UI qualifications: **none**; the current command-line developer tool has English diagnostics. Every empty/missing catalog falls back to source English and is shown as incomplete; it never counts as language support in release notes.
 
+The [2026-10-06 bounded audit](47-europe-language-inventory-audit.md) expands the
+register from 130 to 143 planned language work items, adds two variant candidates
+and retains four unresolved named-community catalog decisions. All identifiers
+are checked against the same pinned IANA file; no qualification status changes.
+Non-ratifying states, other communities and accessibility needs remain in scope.
+
 ## UI implementation contract
 
 Use [Qt Linguist](https://doc.qt.io/qt-6/qtlinguist-index.html), `QTranslator`, contextual source strings, numerus/plurals, translator comments and `.ts`/`.qm` catalogs. Add catalogs when S6 introduces real UI strings; no placeholder catalogs to inflate coverage.
@@ -38,7 +44,7 @@ Use [Qt Linguist](https://doc.qt.io/qt-6/qtlinguist-index.html), `QTranslator`, 
 | ID | Workflow | Required evidence | Current gap |
 |---|---|---|---|
 | X001 | Run the full frozen-reference acceptance corpus on Linux and Windows; move a project between them | Per-OS functional/quality results and portable media/plugin report | Shared state/DSP/capture/media/audio bridge cross-build; no native Windows DAW execution |
-| X002 | Select each registered language, record/edit/export, trigger recovery and reopen in another language | Translation completeness, native review, layout/accessibility and invariant project tests for each locale | Registry and Unicode state tests only; GUI/catalogs not implemented |
+| X002 | Select each registered language, record/edit/export, trigger recovery and reopen in another language | Translation completeness, native review, layout/accessibility and invariant project tests for each locale | Registry/identifier audits and Unicode state tests; desktop exists, language selection/catalogs and per-locale workflows unqualified |
 | X003 | Adapt borrowed DSP, then isolate a candidate improvement for later upstream adoption | Pinned origin/notices/hash manifest, documented divergence and independent fixture results | Audited peaking subset now adapted in the DAW with source snapshots and fixtures; returning changes to equalizers remains later work |
 | X004 | Import other suites' native work files and exchange formats | Versioned source corpus, property/render comparisons and persistent preservation/loss reports | Native/exchange adapters pending; see [import contract](10-project-import.md) |
 

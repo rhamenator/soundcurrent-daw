@@ -1,6 +1,6 @@
 {
   "scope": "All Europe: national, non-EU, regional/minority and relevant cross-border communities; extensible, not exhaustive",
-  "date": "2026-10-05",
+  "date": "2026-10-06",
   "translation_policy": "Planned is not translated. Family tags require individual language catalogs; region/script candidates need independent review.",
   "languages": [
     {
@@ -804,7 +804,9 @@
       "catalog_status": "planned",
       "native_review": false,
       "ui_qualified": false,
-      "variant_candidates": []
+      "variant_candidates": [
+        "oc-aranes"
+      ]
     },
     {
       "tag": "os",
@@ -950,7 +952,9 @@
       "catalog_status": "planned",
       "native_review": false,
       "ui_qualified": false,
-      "variant_candidates": []
+      "variant_candidates": [
+        "sco-ulster"
+      ]
     },
     {
       "tag": "gd",
@@ -1221,6 +1225,270 @@
       "native_review": false,
       "ui_qualified": false,
       "variant_candidates": []
+    },
+    {
+      "tag": "aii",
+      "name": "Assyrian Neo-Aramaic",
+      "group": "community",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "aii-Syrc"
+      ],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Assyrian",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Candidate mapping; community and orthography review required."
+    },
+    {
+      "tag": "ku",
+      "name": "Kurdish (macrolanguage; requires individual catalogs)",
+      "group": "family",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "macrolanguage",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Kurdish",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Umbrella inventory item; never qualifies its member catalogs."
+    },
+    {
+      "tag": "kmr",
+      "name": "Northern Kurdish",
+      "group": "community",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "kmr-Latn",
+        "kmr-Cyrl",
+        "kmr-Arab"
+      ],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Kurdish / Yezidi",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Individual Kurdish work item; the Yezidi community label is not automatically interchangeable with this catalog."
+    },
+    {
+      "tag": "lad",
+      "name": "Ladino",
+      "group": "community",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "lad-Latn",
+        "lad-Hebr"
+      ],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Ladino",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Catalog scripts require separate review."
+    },
+    {
+      "tag": "pap",
+      "name": "Papiamento",
+      "group": "community",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Papiamento / Papiamentu",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Orthographic/regional communities need separate review; no shared catalog assumed."
+    },
+    {
+      "tag": "fkv",
+      "name": "Kven Finnish",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Kven/Finnish",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Kven is a separate planned work item; Finnish coverage does not qualify it."
+    },
+    {
+      "tag": "fit",
+      "name": "Meänkieli",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Meänkieli",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "A separate planned work item; Finnish coverage does not qualify it."
+    },
+    {
+      "tag": "frp",
+      "name": "Francoprovençal / Arpitan",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Franco-Provençal",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Candidate label mapping; local varieties require review."
+    },
+    {
+      "tag": "yec",
+      "name": "Yenish",
+      "group": "community",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Yenish",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "IANA describes yec as Yeniche; community/catalog review required."
+    },
+    {
+      "tag": "fax",
+      "name": "Fala",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Fala",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Separate planned work item."
+    },
+    {
+      "tag": "ext",
+      "name": "Extremaduran",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Extremaduran",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Separate planned work item."
+    },
+    {
+      "tag": "ary",
+      "name": "Moroccan Arabic",
+      "group": "community",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [
+        "ary-Arab",
+        "ary-Latn"
+      ],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Darija",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Candidate mapping to the named community; no automatic Arabic catalog fallback."
+    },
+    {
+      "tag": "acy",
+      "name": "Cypriot Arabic",
+      "group": "regional",
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "variant_candidates": [],
+      "iana_scope": "individual",
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_label": "Cypriot Maronite Arabic",
+      "mapping_status": "planned; native/community review pending",
+      "notes": "Candidate mapping; script/orthography review required."
+    }
+  ],
+  "community_mapping_work_items": [
+    {
+      "id": "X002-COMM-BUNJEVAC",
+      "name": "Bunjevac",
+      "candidate_language_tags": [
+        "hr"
+      ],
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "mapping_status": "unresolved; specialist/community and identifier review required",
+      "notes": "Candidate base is not an approved catalog identity; no automatic Croatian substitution."
+    },
+    {
+      "id": "X002-COMM-BOYASH",
+      "name": "Boyash",
+      "candidate_language_tags": [
+        "ro"
+      ],
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "mapping_status": "unresolved; specialist/community and identifier review required",
+      "notes": "Named community/varieties need an explicit catalog decision; Romanian is not a qualified substitute."
+    },
+    {
+      "id": "X002-COMM-LEONESE",
+      "name": "Leonese",
+      "candidate_language_tags": [
+        "ast"
+      ],
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "mapping_status": "unresolved; specialist/community and identifier review required",
+      "notes": "No leonese variant exists in this pinned IANA register; resolve an appropriate identifier with community review."
+    },
+    {
+      "id": "X002-COMM-YEZIDI",
+      "name": "Yezidi",
+      "candidate_language_tags": [
+        "kmr"
+      ],
+      "catalog_status": "planned",
+      "native_review": false,
+      "ui_qualified": false,
+      "coverage_source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "mapping_status": "unresolved; specialist/community and identifier review required",
+      "notes": "Community self-designation and catalog identity remain unresolved; Northern Kurdish is a research candidate only."
+    }
+  ],
+  "coverage_audits": [
+    {
+      "id": "X002-ECRML-2026-10-06",
+      "review_date": "2026-10-06",
+      "source": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "source_document_status_date": "2025-12-09",
+      "scope": "Bounded cross-check, not all-European completeness; treaty coverage does not define product scope.",
+      "identifier_source": "https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry",
+      "identifier_file_date": "2026-09-17",
+      "identifier_sha256": "755fad43283be7b41ebe3c89ad054b6eaf928f404f9c0edb74799e0eab74beb1",
+      "new_language_work_items": 13,
+      "new_variant_candidates": 2,
+      "unresolved_named_community_work_items": 4,
+      "translation_or_review_or_ui_status_promoted": false
     }
   ]
 }

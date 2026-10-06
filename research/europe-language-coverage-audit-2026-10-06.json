@@ -1,0 +1,92 @@
+{
+  "id": "X002-ECRML-2026-10-06",
+  "date": "2026-10-06",
+  "parent_commit": "5e13406b67fa9a54228ca4f8f3a72b633571ea36",
+  "scope": "Independent localization planning data; no compiled engine/UI/backend/package modification. All-Europe scope remains broader than this cross-check.",
+  "sources": [
+    {
+      "url": "https://rm.coe.int/november-2022-revised-table-languages-covered-english-/1680a8fef4",
+      "access_date": "2026-10-06",
+      "document_status_date": "2025-12-09",
+      "limitation": "Treaty-defined subset with a recorded document status date; not a complete European language inventory."
+    },
+    {
+      "url": "https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry",
+      "access_date": "2026-10-06",
+      "file_date": "2026-09-17",
+      "sha256": "755fad43283be7b41ebe3c89ad054b6eaf928f404f9c0edb74799e0eab74beb1",
+      "limitation": "Identifiers/macrolanguage membership only; not toolkit, community or translation approval."
+    }
+  ],
+  "before_work_items": 130,
+  "after_work_items": 143,
+  "added_tags": [
+    "aii",
+    "ku",
+    "kmr",
+    "lad",
+    "pap",
+    "fkv",
+    "fit",
+    "frp",
+    "yec",
+    "fax",
+    "ext",
+    "ary",
+    "acy"
+  ],
+  "added_variant_candidates": [
+    "sco-ulster",
+    "oc-aranes"
+  ],
+  "unresolved_communities": [
+    "X002-COMM-BUNJEVAC",
+    "X002-COMM-BOYASH",
+    "X002-COMM-LEONESE",
+    "X002-COMM-YEZIDI"
+  ],
+  "identifier_validation": {
+    "date": "2026-10-06",
+    "source": "https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry",
+    "file_date": "2026-09-17",
+    "sha256": "755fad43283be7b41ebe3c89ad054b6eaf928f404f9c0edb74799e0eab74beb1",
+    "work_items": 143,
+    "registered_variant_candidates": 42,
+    "unresolved_community_work_items": 4,
+    "unknown_tags": [],
+    "preferred_value_aliases": [],
+    "variant_prefix_errors": [],
+    "register_sha256": "91b11714f89a7a43302ad3b057762ba1741a4de1e67819ea173133653f29b9a9",
+    "notes": "Identifier validation only. Candidate mapping does not approve catalog identity/fallback. No translation, locale-data, native review or UI coverage qualified."
+  },
+  "original130identities_and_qualification_preserved": true,
+  "validated_native_source_and_binary_pin_count": 62,
+  "running_native_launch_commit": "5e13406b67fa9a54228ca4f8f3a72b633571ea36",
+  "native_handle": "5818 confirmed live immediately before independent audit; never treated as stopped/restarted",
+  "translation_status": "All planned; zero translated/native-reviewed/UI-qualified catalogs; no supported language count.",
+  "coverage_remaining": [
+    "Non-ratifying states and communities outside treaty scope",
+    "Independent review of community/variety/script/orthography mappings and identifiers",
+    "Specific Romani and other macrolanguage members; umbrella is not qualified coverage",
+    "All-Europe/community/territory register audit including accessibility and non-written-language needs",
+    "Real catalogs for UI/errors/recovery/help/installer, native reviews and per-OS workflow/UI qualification"
+  ],
+  "equalizer_writes": false,
+  "push_or_publication": false,
+  "full_goal_status": "active and incomplete",
+  "equalizer_audit": {
+    "inputs": 24,
+    "all_sources_and_heads_match": true,
+    "heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    },
+    "artifact": ".cache/europe-language-audit-equalizer-reuse.json",
+    "artifact_sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+  },
+  "parity": {
+    "family_count": 92,
+    "frozen_contract_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "acceptance_quality_references_FQCN_statuses_unchanged": true
+  }
+}

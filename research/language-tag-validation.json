@@ -1,9 +1,14 @@
 {
-  "date": "2026-10-05",
+  "date": "2026-10-06",
   "source": "https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry",
+  "file_date": "2026-09-17",
   "sha256": "755fad43283be7b41ebe3c89ad054b6eaf928f404f9c0edb74799e0eab74beb1",
-  "work_items": 130,
+  "work_items": 143,
+  "registered_variant_candidates": 42,
+  "unresolved_community_work_items": 4,
   "unknown_tags": [],
   "preferred_value_aliases": [],
-  "notes": "Identifier verification only; not a translation or locale-data coverage claim."
+  "variant_prefix_errors": [],
+  "register_sha256": "91b11714f89a7a43302ad3b057762ba1741a4de1e67819ea173133653f29b9a9",
+  "notes": "Identifier validation only. Candidate mapping does not approve catalog identity/fallback. No translation, locale-data, native review or UI coverage qualified."
 }

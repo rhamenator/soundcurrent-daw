@@ -1138,3 +1138,36 @@ retain interval facts at an actual missed cycle. If aggregation is insufficient,
 retain longest individual capture/EQ-call interval/prepared ordinal in that same
 snapshot; choose a production change from that evidence. Do not substitute short
 passes, CPU accounting or unrelated maximum/average intervals for the real gate.
+
+
+## 2026-10-06 X002 bounded European inventory audit
+
+Previous goal turn was progress as5e13406. The exact long native handle5818 was
+confirmed live before independent localization research/data work; no related
+engine source/build or CPU benchmark changed during that run. All62pinned native
+source files/binaries/processing libraries remain unchanged. Language inventory
+is not a compiled input to the running fixture. Its later failure is separately
+retained, not resolved by this language work.
+
+The Council of Europe table has document status2025-12-09 despite an older URL
+filename. It is a bounded minority-language cross-check, not the product's entire
+European scope. The IANA snapshot is2026-09-17, unchanged SHA from the initial
+identifier audit. Thirteen planned language work items raise the register130to143;
+registered sco-ulster/oc-aranes variant candidates and four unresolved named
+community/catalog decisions become explicit. All original130identities and
+qualification states remain, with only two variant-list additions. Every proposed
+language/script/region/variant/prefix is registered; unresolved community IDs are
+work items, not fabricated BCP47 codes or approved base-language fallbacks.
+
+[Audit](47-europe-language-inventory-audit.md) and
+[evidence](../research/europe-language-coverage-audit-2026-10-06.json) distinguish
+identifier checks from community mappings, translation, formatting/toolkit and
+platform/UI evidence. Every catalog remains planned, native-review/UI-qualified
+false; no empty catalog counts as support. No runtime dependency/font/CLDR bundle
+or language picker is added. Wider European community/member-language/script/
+accessibility coverage and real UI/errors/recovery/help/installer catalogs/reviews/
+Linux-Windows workflows remain required. All24borrowed EQ inputs and heads match;
+no equalizer write/push/publication; all92frozen contracts remain unpromoted.
+Full DAW goal is active/incomplete. Next X002 task is community and actual desktop
+string/catalog auditing with reviewed language/formatting selection; sustained
+native recording and every other full-product gate remain open.
