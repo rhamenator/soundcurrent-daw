@@ -95,6 +95,11 @@ std::optional<CaptureTimingOrigin> PlaybackBridge::timingOrigin() const noexcept
         return {};
     return origin_;
 }
+std::optional<PlaybackCallbackFault> PlaybackBridge::callbackFault() const noexcept {
+    if (!faultReady_.load(std::memory_order_acquire))
+        return {};
+    return fault_; // One audio writer publishes once; payload is never replaced.
+}
 PlaybackBridgeStatus PlaybackBridge::process(const DeviceBlockClock &clock,
                                              std::span<float *const> output,
                                              std::uint32_t capacity) noexcept {
@@ -131,6 +136,20 @@ PlaybackBridgeStatus PlaybackBridge::process(const DeviceBlockClock &clock,
         next = PlaybackBridgeStatus::BufferUnavailable;
     }
     if (!active(next)) {
+        // Record before publishing the terminal status. No queue capacity or
+        // consumer scheduling can lose the first invalid callback's facts.
+        fault_ = {clock,
+                  previous_,
+                  next,
+                  c.generation,
+                  std::visit([](auto *run) { return run->position(); }, run_),
+                  c.sampleRate,
+                  c.maximumCallbackFrames,
+                  capacity,
+                  channels,
+                  output.size(),
+                  started_};
+        faultReady_.store(1, std::memory_order_release);
         silence();
         finish(next);
         return status();

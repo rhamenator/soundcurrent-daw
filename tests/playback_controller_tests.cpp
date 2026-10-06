@@ -196,6 +196,30 @@ void silentEditAndComplete() {
     await([&] { return controller.snapshot()->closed; });
     check(c->destroyed == 1, "Close did not release retained terminal owner");
 }
+void retainedClockFacts() {
+    auto counters = std::make_shared<Counters>();
+    PlaybackController controller(options(counters));
+    auto s = session();
+    controller.submit(prepare(s));
+    await([&] { return controller.snapshot()->phase == PlaybackPhase::Ready; });
+    const auto generation = controller.snapshot()->generation;
+    play(controller, counters);
+    counters->forcedStatus.store(std::uint32_t(PlaybackBridgeStatus::ClockDiscontinuity));
+    await([&] { return controller.snapshot()->phase == PlaybackPhase::Fault; });
+    auto old = controller.snapshot();
+    check(old->callbackFault && old->callbackFault->generation == generation &&
+              old->callbackFault->received.position == 1234 && old->callbackFault->received.xrun &&
+              counters->destroyed == 1,
+          "Worker retirement lost copied callback fault facts");
+    counters->forcedStatus.store(0);
+    controller.submit(prepare(s, 2));
+    await([&] { return controller.snapshot()->phase == PlaybackPhase::Ready; });
+    check(!controller.snapshot()->callbackFault && controller.snapshot()->generation > generation &&
+              old->callbackFault && old->callbackFault->received.xrun,
+          "New generation retained old clock facts or mutated an old published snapshot");
+    controller.requestShutdown();
+    await([&] { return controller.snapshot()->closed; });
+}
 
 void partialBundle() {
     auto c = std::make_shared<Counters>();
@@ -327,6 +351,7 @@ int main(int argc, char **argv) {
         priorityCloseAndCancellation();
         faultsAndGenerations();
         silentEditAndComplete();
+        retainedClockFacts();
         partialBundle();
         multitrackReceipts();
         masterCompatibility();

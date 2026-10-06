@@ -51,6 +51,39 @@ PlaybackBridgeStatus process(PlaybackBridge &b, Fixture &f) {
     rt_audit::Guard guard;
     return b.process(f.clock, f.views, 2048);
 }
+void retainedFault(PlaybackBridge &bridge, Fixture &f, unsigned fault,
+                   PlaybackBridgeStatus expected, Frame position) {
+    const auto diagnostic = bridge.callbackFault();
+    if (fault >= 10) {
+        check(!diagnostic, "Control-side fault invented callback clock evidence");
+        return;
+    }
+    check(diagnostic && diagnostic->detected == expected && diagnostic->hadPrevious &&
+              diagnostic->enginePosition == position && diagnostic->generation == 1 &&
+              diagnostic->received.position == f.clock.position &&
+              diagnostic->received.id == f.clock.id &&
+              diagnostic->received.duration == f.clock.duration &&
+              diagnostic->received.xrun == f.clock.xrun &&
+              diagnostic->received.discontinuity == f.clock.discontinuity &&
+              diagnostic->received.rateNumerator == f.clock.rateNumerator &&
+              diagnostic->received.rateDenominator == f.clock.rateDenominator &&
+              diagnostic->previous.position == 10000000000ULL &&
+              diagnostic->expectedRate == 48000 && diagnostic->maximumFrames == 2048 &&
+              diagnostic->capacity == 2048 && diagnostic->expectedChannels == 1,
+          "Callback validation lost exact received/previous clock or preparation facts");
+    auto later = f.clock;
+    later.position = 999;
+    later.duration = 1;
+    {
+        rt_audit::Guard guard;
+        bridge.process(later, f.views, 2048);
+    }
+    const auto retained = bridge.callbackFault();
+    check(retained && retained->received.position == diagnostic->received.position &&
+              retained->received.duration == diagnostic->received.duration &&
+              retained->detected == diagnostic->detected,
+          "Later terminal callback replaced first fault facts");
+}
 void clocksAndFaults() {
     for (unsigned fault = 0; fault < 12; ++fault) {
         Fixture f;
@@ -109,6 +142,7 @@ void clocksAndFaults() {
         }
         check(process(bridge, f) == expected && run.position() == priorPosition,
               "Fault consumed file frames or wrong terminal reason");
+        retainedFault(bridge, f, fault, expected, priorPosition);
         if (f.views[0]) {
             check(std::all_of(f.output.begin(), f.output.begin() + 2048,
                               [](float v) { return v == 0; }),
@@ -126,7 +160,7 @@ void clocksAndFaults() {
     PlaybackBridge bridge(run, CaptureBackend::PipeWire);
     std::array<float *, 1> unmapped{nullptr};
     check(bridge.process(f.clock, unmapped, 2048) == PlaybackBridgeStatus::Ready &&
-              !run.position() && !bridge.timingOrigin(),
+              !run.position() && !bridge.timingOrigin() && !bridge.callbackFault(),
           "Priming consumed file frames or published an origin");
     check(process(bridge, f) == PlaybackBridgeStatus::Complete && run.position() == 5,
           "Final partial playback range differs");
@@ -205,6 +239,7 @@ void mixedClocksAndFaults() {
         }
         check(process(bridge, f) == expected && run.position() == at,
               "Mixed native fault advanced shared cursor or lost reason");
+        retainedFault(bridge, f, fault, expected, at);
         if (f.views[0])
             check(std::all_of(f.output.begin(), f.output.begin() + 2048,
                               [](float v) { return v == 0; }),
@@ -266,6 +301,12 @@ void layoutsAndDiagnostics() {
     }
     check(run.position() == 100 && bridge.droppedObservations() == 36,
           "Full lossy meter queue stalled transport");
+    f.clock.xrun = true;
+    process(bridge, f);
+    const auto callback = bridge.callbackFault();
+    check(callback && callback->received.xrun && callback->enginePosition == 100 &&
+              bridge.droppedObservations() == 36,
+          "Lossy meter overflow lost the independent fatal clock record");
     PlaybackObservation observation;
     unsigned n = 0;
     while (bridge.observation(observation))
@@ -283,6 +324,10 @@ void layoutsAndDiagnostics() {
                   PlaybackBridgeStatus::BufferUnavailable &&
               !stereoRun.position(),
           "Partially mapped route was silently admitted");
+    check(stereoBridge.callbackFault() && !stereoBridge.callbackFault()->hadPrevious &&
+              stereoBridge.callbackFault()->outputChannels == 2 &&
+              stereoBridge.callbackFault()->capacity == 127,
+          "First malformed startup did not retain bounded callback diagnostics");
     Fixture wrong;
     PlaybackRun wrongRun(wrong.directory.root, wrong.session, wrong.session.tracks.front().id,
                          wrong.config);

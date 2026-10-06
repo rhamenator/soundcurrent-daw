@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
 #include "rt_audit.hpp"
+#include "native_timing.hpp"
 #include <soundcurrent/recording.hpp>
 #include <sndfile.h>
 #include <QApplication>
@@ -20,6 +21,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <exception>
 #include <iostream>
 #include <source_location>
 using namespace soundcurrent::daw;
@@ -43,14 +45,17 @@ void await(F predicate, std::source_location at = std::source_location::current(
     }
 }
 struct Audit {
+    native_fixture::CallbackTiming timing;
     std::atomic<std::uint64_t> allocations{0}, frees{0}, locks{0}, calls{0};
-    static void begin(void *) noexcept {
+    static void begin(void *p) noexcept {
         rt_audit::reset();
         rt_audit::active = true;
+        static_cast<Audit *>(p)->timing.begin();
     }
     static void end(void *p) noexcept {
-        rt_audit::active = false;
         auto &a = *static_cast<Audit *>(p);
+        a.timing.end();
+        rt_audit::active = false;
         const auto c = rt_audit::counts;
         a.allocations.fetch_add(c.cppAllocate + c.cAllocate);
         a.frees.fetch_add(c.cppFree + c.cFree);
@@ -61,11 +66,14 @@ struct Audit {
 struct Sink : Audit {
     CapturePipe &pipe;
     bool started = false;
+    bool injectGap = false, injected = false;
     std::uint64_t origin = 0;
     Frame count = 0;
     std::atomic<Frame> published{0};
     std::atomic<bool> gap{false}, complete{false};
     std::atomic<std::uint64_t> gapExpected{0}, gapObserved{0}, gapDuration{0}, unavailableInputs{0};
+    std::atomic<std::uint64_t> unavailableAfterStart{0}, lastUnavailablePosition{0};
+    std::uint64_t minimumDuration = UINT64_MAX, maximumDuration = 0;
     explicit Sink(CapturePipe &p) : pipe(p) {}
     static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const> input,
                         std::span<float *const>, std::uint32_t capacity) noexcept {
@@ -74,8 +82,14 @@ struct Sink : Audit {
             return;
         if (input.size() != 1 || !input[0] || !clock.duration || clock.duration > capacity) {
             ++s.unavailableInputs;
+            if (s.started) {
+                ++s.unavailableAfterStart;
+                s.lastUnavailablePosition.store(clock.position);
+            }
             return;
         }
+        s.minimumDuration = std::min(s.minimumDuration, clock.duration);
+        s.maximumDuration = std::max(s.maximumDuration, clock.duration);
         if (!s.started) {
             bool nonzero = false;
             for (std::uint32_t f = 0; f < clock.duration; ++f)
@@ -84,6 +98,10 @@ struct Sink : Audit {
                 return; // Owned known waveform starts nonzero, no other linked source.
             s.origin = clock.position;
             s.started = true;
+        }
+        if (s.injectGap && !s.injected && s.count >= 24000) {
+            s.injected = true;
+            return; // Deliberate fixture-only downstream loss; the next clock must refuse it.
         }
         if (clock.position != s.origin + static_cast<std::uint64_t>(s.count)) {
             if (!s.gap.load()) {
@@ -102,6 +120,71 @@ struct Sink : Audit {
         if (s.count == 480000 || r.status != CaptureStatus::Running) {
             s.pipe.finish();
             s.complete.store(true);
+        }
+    }
+};
+struct FailureTiming {
+    StudioWindow &window;
+    PipeWireFilter &monitor;
+    Audit &player;
+    Sink &sink;
+    int exceptions = std::uncaught_exceptions();
+    ~FailureTiming() noexcept {
+        if (std::uncaught_exceptions() <= exceptions)
+            return;
+        try {
+            const auto before = window.playbackSnapshot();
+            std::cerr << "Failure playback phase/status/position/sink " << unsigned(before->phase)
+                      << '/' << unsigned(before->nativeStatus) << '/' << before->position << '/'
+                      << sink.published.load() << '\n';
+            if (before->callbackFault) {
+                const auto &f = *before->callbackFault;
+                std::cerr << "Native callback validation diagnostic {\"detected\":"
+                          << unsigned(f.detected) << ",\"generation\":" << f.generation
+                          << ",\"engine_position\":" << f.enginePosition
+                          << ",\"received_position\":" << f.received.position
+                          << ",\"previous_position\":" << f.previous.position
+                          << ",\"previous_duration\":" << f.previous.duration
+                          << ",\"received_id\":" << f.received.id
+                          << ",\"previous_id\":" << f.previous.id
+                          << ",\"received_duration\":" << f.received.duration
+                          << ",\"xrun\":" << (f.received.xrun ? "true" : "false")
+                          << ",\"discontinuity\":" << (f.received.discontinuity ? "true" : "false")
+                          << ",\"rate_numerator\":" << f.received.rateNumerator
+                          << ",\"rate_denominator\":" << f.received.rateDenominator
+                          << ",\"had_previous\":" << (f.hadPrevious ? "true" : "false") << "}\n";
+            }
+            auto quiescent = [&] {
+                const auto model = window.playbackSnapshot();
+                const auto phase = model->phase;
+                // The controller publishes Fault only after endpoint stop/join.
+                return model->closed || phase == PlaybackPhase::Fault ||
+                       phase == PlaybackPhase::Idle;
+            };
+            if (!quiescent()) {
+                window.findChild<QPushButton *>("stopButton")->click();
+                const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+                while (!quiescent() && std::chrono::steady_clock::now() < deadline)
+                    QTest::qWait(2);
+            }
+            monitor.stop();
+            if (!quiescent()) {
+                std::cerr << "Timing unavailable: player stop/join not acknowledged\n";
+                return; // Never read audio-owned storage while its writer is live.
+            }
+            std::cerr << "Native callback timing diagnostic {\"player\":";
+            player.timing.write(std::cerr);
+            std::cerr << ",\"sink\":";
+            sink.timing.write(std::cerr);
+            std::cerr << ",\"unavailable_after_start\":" << sink.unavailableAfterStart.load()
+                      << ",\"last_unavailable_position\":" << sink.lastUnavailablePosition.load()
+                      << ",\"minimum_quantum_frames\":" << sink.minimumDuration
+                      << ",\"maximum_quantum_frames\":" << sink.maximumDuration
+                      << ",\"gap_expected\":" << sink.gapExpected.load()
+                      << ",\"gap_observed\":" << sink.gapObserved.load()
+                      << ",\"injected_sink_gap\":" << (sink.injected ? "true" : "false") << "}\n";
+        } catch (...) {
+            std::cerr << "Native timing diagnostic failed; original workflow failure retained\n";
         }
     }
 };
@@ -155,8 +238,9 @@ int main(int argc, char **argv) {
     QApplication app(argc, argv);
     try {
         require(argc == 3, "Supply new owned project folder and normal/disconnect");
-        const bool mix =
-            std::string_view(argv[2]) == "mix" || std::string_view(argv[2]) == "mix-disconnect";
+        const bool injectGap = std::string_view(argv[2]) == "mix-gap";
+        const bool mix = injectGap || std::string_view(argv[2]) == "mix" ||
+                         std::string_view(argv[2]) == "mix-disconnect";
         const bool disconnect = std::string_view(argv[2]) == "disconnect" ||
                                 std::string_view(argv[2]) == "mix-disconnect";
         const bool exporting = std::string_view(argv[2]) == "export";
@@ -170,6 +254,7 @@ int main(int argc, char **argv) {
         const auto projectHash = hashMediaFile(root / "project.json");
         CapturePipe captured({});
         Sink sink(captured);
+        sink.injectGap = injectGap;
         RecordingSpec spec;
         spec.projectId = s.id;
         spec.trackId = s.tracks.front().id;
@@ -245,10 +330,11 @@ int main(int argc, char **argv) {
         auto *play = window.findChild<QPushButton *>(QStringLiteral("playButton"));
         await([&] { return play && play->isEnabled(); });
         QTest::mouseClick(play, Qt::LeftButton);
+        FailureTiming failureTiming{window, monitor, player, sink};
         std::cerr << "GUI-selected owned playback activated\n";
         await([&] {
             return sink.published.load() >= 24000 ||
-                   window.playbackSnapshot()->phase == PlaybackPhase::Fault;
+                   window.playbackSnapshot()->phase == PlaybackPhase::Fault || sink.gap;
         });
         require(window.playbackSnapshot()->phase == PlaybackPhase::Playing && !sink.gap,
                 "GUI native playback fault/gap");
@@ -343,7 +429,13 @@ int main(int argc, char **argv) {
             require(window.playbackSnapshot()->nativeStatus == PlaybackBridgeStatus::DeviceLost,
                     "Removed GUI output not identified");
         } else {
-            await([&] { return sink.published.load() >= 96000; });
+            await([&] {
+                return sink.published.load() >= 96000 || sink.gap ||
+                       window.playbackSnapshot()->phase == PlaybackPhase::Fault ||
+                       window.playbackSnapshot()->phase == PlaybackPhase::Complete;
+            });
+            require(sink.published.load() >= 96000 && !sink.gap,
+                    "Native sink cannot reach Undo checkpoint without gaps");
             // After the export dialog, invoke the project menu action explicitly;
             // a focused numeric editor can consume Ctrl+Z as its local text undo.
             if (exporting || mix)
@@ -484,7 +576,14 @@ int main(int argc, char **argv) {
                   << ",\"explicit_output_selection\":true,\"gui_meter\":true,\"asynchronous_"
                      "close\":true,\"project_unchanged\":true,\"rt_allocations\":0,\"rt_frees\":0,"
                      "\"rt_blocking_locks\":0,\"first_applied_frame\":"
-                  << firstReceipt.appliedFrame << ",\"applied_events\":" << events.size() << "}\n";
+                  << firstReceipt.appliedFrame << ",\"applied_events\":" << events.size()
+                  << ",\"callback_timing\":{\"player\":";
+        player.timing.write(std::cout);
+        std::cout << ",\"sink\":";
+        sink.timing.write(std::cout);
+        std::cout << ",\"unavailable_after_start\":" << sink.unavailableAfterStart.load()
+                  << ",\"minimum_quantum_frames\":" << sink.minimumDuration
+                  << ",\"maximum_quantum_frames\":" << sink.maximumDuration << "}}\n";
         return 0;
     } catch (const std::exception &e) {
         std::cerr << e.what() << '\n';

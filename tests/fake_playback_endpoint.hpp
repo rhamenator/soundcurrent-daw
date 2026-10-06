@@ -126,9 +126,20 @@ class Endpoint : public PlaybackEndpoint {
         telemetry_.receipts.clear();
         if (active_ && !stopped_) {
             const auto forced = counters_->forcedStatus.load();
-            if (forced)
+            if (forced) {
                 telemetry_.status = static_cast<PlaybackBridgeStatus>(forced);
-            else {
+                if (telemetry_.status == PlaybackBridgeStatus::ClockDiscontinuity &&
+                    !telemetry_.callbackFault) {
+                    PlaybackCallbackFault f;
+                    f.detected = telemetry_.status;
+                    f.generation = graph_.config().generation;
+                    f.enginePosition = telemetry_.position;
+                    f.received.position = 1234;
+                    f.received.xrun = true;
+                    f.expectedRate = 48000;
+                    telemetry_.callbackFault = f;
+                }
+            } else {
                 auto report = graph_.process(buses_, outputs_, 128);
                 telemetry_.peak = report.peak;
                 telemetry_.position = graph_.position();

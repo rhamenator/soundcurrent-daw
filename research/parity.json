@@ -371,7 +371,9 @@
         "docs/32-native-mix-playback.md",
         "tests/results/M2/2026-10-06-native-mix-playback.json",
         "docs/33-master-matrix.md",
-        "tests/results/M2/2026-10-06-master-matrix.json"
+        "tests/results/M2/2026-10-06-master-matrix.json",
+        "docs/34-native-timing.md",
+        "tests/results/M2/2026-10-06-native-timing.json"
       ]
     },
     {

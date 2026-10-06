@@ -26,6 +26,7 @@ struct PlaybackTelemetry {
         ImmediateAcknowledgement applied;
     };
     std::vector<Receipt> receipts;
+    std::optional<PlaybackCallbackFault> callbackFault;
 };
 // Control-worker adapter seam. No virtual dispatch occurs in an audio callback.
 // Test endpoints qualify controller/UI state, not native audio behavior.
@@ -69,6 +70,7 @@ struct PlaybackSnapshot {
                   droppedReceipts = 0;
     double peak = 0;
     bool supported = false, pending = false, closed = false;
+    std::optional<PlaybackCallbackFault> callbackFault;
 };
 struct PlaybackControllerOptions {
     std::function<std::unique_ptr<PlaybackEndpoint>(const PlaybackPreparation &)> factory;

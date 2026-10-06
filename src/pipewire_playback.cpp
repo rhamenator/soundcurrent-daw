@@ -163,4 +163,7 @@ std::uint64_t PipeWirePlayback::droppedObservations() const noexcept {
 std::optional<CaptureTimingOrigin> PipeWirePlayback::timingOrigin() const noexcept {
     return state_->bridge.timingOrigin();
 }
+std::optional<PlaybackCallbackFault> PipeWirePlayback::callbackFault() const noexcept {
+    return state_->bridge.callbackFault();
+}
 } // namespace soundcurrent::daw

@@ -1,0 +1,927 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2c4 retained callback faults and bounded owned native timing evidence",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "46437b5ca645dfcbbf1d5d87e36934d987d04c61",
+  "status": "Listed finite checks and final serial native oracles passed; concurrent UI failure, historical native failures and sanitizer native deadline qualification remain unresolved; full M2/full goal incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "5424d334b1873e37b3cd4bf8e43f7aa1fbd7fb2dc21b359ee89b8b45a8e1e3d8",
+    "include/soundcurrent/pipewire_playback.hpp": "5351a52b17c97b78edff712ad979c125cba453c84c0a91bdd08be449cf50a2a8",
+    "include/soundcurrent/playback_bridge.hpp": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910",
+    "research/parity.json": "f44b3587dc4f1250b0957bc3a3979a18c76f9f78042591dd7aaac5e6df1b2593",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+    "src/mix_run.cpp": "1fa6d726c34bd7fa799ff54e96a86fa41ef3596c0cd0898dde772e0e2d3e11d0",
+    "src/pipewire_filter.cpp": "7ed6b5f654487b00619fcc366d6628b699403ab7f379bcc752db6f2912d04d8f",
+    "src/pipewire_playback.cpp": "31b54cc7d61f91587eb615e3feac394242b47ccf87a77b20eccdcfc985699ef7",
+    "src/playback_bridge.cpp": "1092567581e8d7482918d6a89f41449cc1bf66366079e2c0290635f1d1848677",
+    "tests/fake_playback_endpoint.hpp": "21903b5721a8c1713050069fd1158445a335dc952781cfddd921b8bd4eafb0af",
+    "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+    "tests/pipewire_ui_fixture.cpp": "7f177c3c25464fa71c2cfcf34ac53fdf90d26649e56d6dfeda1bad4746228118",
+    "tests/playback_bridge_tests.cpp": "a13004d432690fd1676c1d26b428cb287d5c8a4a858411fe4b630da25440e070",
+    "tests/playback_controller_tests.cpp": "d3d4389d66f8de24e01319bb26968e54b13fbdb73b93e8dbd9bc14c432dc6e02",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+    "tests/verify_timing_reports.py": "98895fb343b48ed84681581319be7539299b9bdfff7efe8ef82f9e247a5022cd",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "ui/playback_controller.cpp": "25950d0e8141951a4d200598ba40f2eda01a446d091ed6391d18e9d31d7678fd",
+    "ui/playback_controller.hpp": "6df09ab03ede5b7b46afa7bf359e76f2f1636766afd0d67c6c0abef7d1f0c097"
+  },
+  "workflows": [
+    "First callback validation fault retains plain received/previous clocks, preparation generation/limits/layout, buffer capacity/channel count and engine position outside lossy meter queue; published once with release/acquire, no heap/locks/logging",
+    "Single and 32-track bridge validation faults preserve cursor and certified silence; later terminal callbacks cannot replace first facts; control faults do not invent callback clocks; full 64-slot observation queue cannot lose fatal record",
+    "Native owner forwards optional diagnostic; worker copies it before endpoint destruction; successful preparation clears current-generation facts while old snapshots stay immutable",
+    "PipeWire unsupported-quantum dispatch now preserves full received clock without mapping uncertified native buffers; rate/quantum/buffer refusal remains unchanged",
+    "Opt-in fixture fixed 8192-duration storage, overflow/error counters, after-join sorting and wall-elapsed p50/p95/p99/max; no production callback timestamp acquisition",
+    "Owned PID scheduler policy/priority/nice observations, failed stdout/stderr/exit-code retention and default/owned-graph cleanup capture without turning failures into successes",
+    "Final optimized 32-track saved matrix, lane17 live EQ/Undo, exact 480000-sample source-coordinate replay; exact disconnect prefix and selected-track export during native playback",
+    "Final debug owned 32-track 480000 samples exact; finite timing only, host load uncontrolled",
+    "Deliberately skip one sink consume; next expected/observed positions differ by 1024 and Undo checkpoint fails promptly; owned cleanup/defaults preserved",
+    "Final sanitized native attempt rejected one skipped native clock block before injection and retained exact values; callback duration above block period recorded; no performance qualification claimed"
+  ],
+  "qualification": {
+    "linux_debug_serial": {
+      "result": "passed",
+      "groups": 23,
+      "seconds": 21.09,
+      "log": {
+        "path": ".cache/m2-timing-serial-debug-tests.log",
+        "sha256": "099478b123c8ecfe92137655120f9c347a7f396d1b402cc375cc8ec851426f8d"
+      },
+      "details": {
+        "path": ".cache/m2-timing-serial-debug-details.log",
+        "sha256": "ea1ba986c8e69d30bf58252422650c3dfb98affb45601149be102c2f2f900291"
+      },
+      "native_clock_bridge": {
+        "checks": 4321,
+        "native_clock_faults": 12,
+        "layouts": [
+          1,
+          2,
+          8,
+          32,
+          256
+        ],
+        "file_offline_exact": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0
+      },
+      "playback_controller": {
+        "checks": 65,
+        "dsp_backpressure_retry": true,
+        "accepted_applied_distinct": true,
+        "latest_model_reconciled": true,
+        "priority_shutdown": true,
+        "native_audio": false
+      }
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 23,
+      "seconds": 60.59,
+      "log": {
+        "path": ".cache/m2-timing-qualified-sanitized-tests.log",
+        "sha256": "dd21e3c1274dfa6364472386b69f24d025cf571733ee1906b9529fc048ae471b"
+      },
+      "details": {
+        "path": ".cache/m2-timing-qualified-sanitized-details.log",
+        "sha256": "426b5215aaa85f7a14cd64426f8dfb03c655cba86bd5763b340d4e6fd12a9ee7"
+      },
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ],
+      "native_clock_bridge": {
+        "checks": 4321,
+        "native_clock_faults": 12,
+        "layouts": [
+          1,
+          2,
+          8,
+          32,
+          256
+        ],
+        "file_offline_exact": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0
+      },
+      "playback_controller": {
+        "checks": 65,
+        "dsp_backpressure_retry": true,
+        "accepted_applied_distinct": true,
+        "latest_model_reconciled": true,
+        "priority_shutdown": true,
+        "native_audio": false
+      }
+    },
+    "linux_release_core_subset": {
+      "result": "passed",
+      "groups": 3,
+      "seconds": 0.82,
+      "log": {
+        "path": ".cache/m2-timing-qualified-release-core-tests.log",
+        "sha256": "24e331ad376a18f56bc268e4beea24c281855c866213dd6ec19507e90224cc2c"
+      },
+      "details": {
+        "path": ".cache/m2-timing-qualified-release-core-details.log",
+        "sha256": "e5a2adae97264591ed4b80fcfef47f18bbfd02bf88ea903d3f90c0af11197c90"
+      },
+      "groups_selected": [
+        "multitrack-mix-playback",
+        "playback-native-clock",
+        "prepared-eq"
+      ],
+      "native_clock_bridge": {
+        "checks": 4321,
+        "native_clock_faults": 12,
+        "layouts": [
+          1,
+          2,
+          8,
+          32,
+          256
+        ],
+        "file_offline_exact": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0
+      }
+    },
+    "builds": {
+      "linux_debug": {
+        "path": ".cache/m2-timing-final-debug-build.log",
+        "sha256": "fedf13ce78170241e76be94239a71e17fc8e1b129cc265a0a7fbf7c298c822f1"
+      },
+      "linux_sanitized": {
+        "path": ".cache/m2-timing-final-sanitized-build.log",
+        "sha256": "6df04ebf0ac7274eefa14da67c3eb712ac125a7f4e1e7903a8fab91e1201ed3e"
+      },
+      "linux_release_native_and_clock": {
+        "path": ".cache/m2-timing-final-release-build.log",
+        "sha256": "4c97e65f59b05b7cb89bb999fb9483238a585a1908f5336a39149687662c9ab4"
+      },
+      "windows_core": {
+        "result": "12 incremental Ninja steps compiled; executables not run",
+        "desktop_or_native_windows_qualified": false,
+        "log": {
+          "path": ".cache/m2-timing-fault-windows-build.log",
+          "sha256": "6194f06fc280fc918e30832249567214f5c614aeb5be13f7f572d9ab75066353"
+        }
+      }
+    },
+    "native_pipewire": {
+      "linux_debug": {
+        "report": {
+          "path": ".cache/m2-timing-qualified-debug-native.json",
+          "sha256": "11d21fdd92b34fe249ff9132cb00be09848cbc82839a4b38e6d0fd7f002bccdc"
+        },
+        "results": [
+          {
+            "mode": "mix",
+            "frames": 480000,
+            "tracks": 32,
+            "saved_master": true,
+            "gui_export_during_playback": false,
+            "export_live_prefix_frames": 0,
+            "export_live_prefix_difference": 0,
+            "live_offline_difference": 0,
+            "missing_frames": 0,
+            "owned_nodes_only": true,
+            "gui_playback": true,
+            "gui_live_edit": true,
+            "gui_undo": true,
+            "explicit_output_selection": true,
+            "gui_meter": true,
+            "asynchronous_close": true,
+            "project_unchanged": true,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "first_applied_frame": 24576,
+            "applied_events": 2,
+            "callback_timing": {
+              "player": {
+                "samples": 469,
+                "calls": 469,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 6770097,
+                "p95_ns": 11375768,
+                "p99_ns": 11803645,
+                "maximum_ns": 16298400
+              },
+              "sink": {
+                "samples": 470,
+                "calls": 470,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 28875,
+                "p95_ns": 64579,
+                "p99_ns": 75764,
+                "maximum_ns": 106915
+              },
+              "unavailable_after_start": 0,
+              "minimum_quantum_frames": 1024,
+              "maximum_quantum_frames": 1024
+            },
+            "routing_observations": {
+              "graph_snapshots_during_run": 113,
+              "snapshots_with_owned_links": 76,
+              "no_observed_owned_to_unowned_links": true,
+              "pre_existing_links_preserved": 0,
+              "default_metadata_unchanged": true,
+              "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+              "owned_nodes_and_links_removed": true
+            },
+            "data_loop_scheduler_samples": [
+              {
+                "tid": 1389780,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              },
+              {
+                "tid": 1389807,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              }
+            ]
+          }
+        ]
+      },
+      "linux_release": {
+        "report": {
+          "path": ".cache/m2-timing-qualified-release-native.json",
+          "sha256": "0bf6e9a622f7ad7e6bd85cb7ad7443f2e87a71f0905da8dece040e6602dd0e36"
+        },
+        "results": [
+          {
+            "mode": "mix",
+            "frames": 480000,
+            "tracks": 32,
+            "saved_master": true,
+            "gui_export_during_playback": false,
+            "export_live_prefix_frames": 0,
+            "export_live_prefix_difference": 0,
+            "live_offline_difference": 0,
+            "missing_frames": 0,
+            "owned_nodes_only": true,
+            "gui_playback": true,
+            "gui_live_edit": true,
+            "gui_undo": true,
+            "explicit_output_selection": true,
+            "gui_meter": true,
+            "asynchronous_close": true,
+            "project_unchanged": true,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "first_applied_frame": 24576,
+            "applied_events": 2,
+            "callback_timing": {
+              "player": {
+                "samples": 469,
+                "calls": 469,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 2260195,
+                "p95_ns": 2999728,
+                "p99_ns": 3119175,
+                "maximum_ns": 5388518
+              },
+              "sink": {
+                "samples": 470,
+                "calls": 470,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 7111,
+                "p95_ns": 38889,
+                "p99_ns": 51213,
+                "maximum_ns": 66639
+              },
+              "unavailable_after_start": 0,
+              "minimum_quantum_frames": 1024,
+              "maximum_quantum_frames": 1024
+            },
+            "routing_observations": {
+              "graph_snapshots_during_run": 85,
+              "snapshots_with_owned_links": 77,
+              "no_observed_owned_to_unowned_links": true,
+              "pre_existing_links_preserved": 0,
+              "default_metadata_unchanged": true,
+              "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+              "owned_nodes_and_links_removed": true
+            },
+            "data_loop_scheduler_samples": [
+              {
+                "tid": 1386921,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              },
+              {
+                "tid": 1386947,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              }
+            ]
+          },
+          {
+            "mode": "mix-disconnect",
+            "frames": 25600,
+            "tracks": 32,
+            "saved_master": true,
+            "gui_export_during_playback": false,
+            "export_live_prefix_frames": 0,
+            "export_live_prefix_difference": 0,
+            "live_offline_difference": 0,
+            "missing_frames": 0,
+            "owned_nodes_only": true,
+            "gui_playback": true,
+            "gui_live_edit": true,
+            "gui_undo": false,
+            "explicit_output_selection": true,
+            "gui_meter": true,
+            "asynchronous_close": true,
+            "project_unchanged": true,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "first_applied_frame": 24576,
+            "applied_events": 1,
+            "callback_timing": {
+              "player": {
+                "samples": 25,
+                "calls": 25,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 1613507,
+                "p95_ns": 2748433,
+                "p99_ns": 3221678,
+                "maximum_ns": 4568168
+              },
+              "sink": {
+                "samples": 26,
+                "calls": 26,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 6621,
+                "p95_ns": 7509,
+                "p99_ns": 7534,
+                "maximum_ns": 8311
+              },
+              "unavailable_after_start": 0,
+              "minimum_quantum_frames": 1024,
+              "maximum_quantum_frames": 1024
+            },
+            "routing_observations": {
+              "graph_snapshots_during_run": 9,
+              "snapshots_with_owned_links": 4,
+              "no_observed_owned_to_unowned_links": true,
+              "pre_existing_links_preserved": 0,
+              "default_metadata_unchanged": true,
+              "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+              "owned_nodes_and_links_removed": true
+            },
+            "data_loop_scheduler_samples": [
+              {
+                "tid": 1387169,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              },
+              {
+                "tid": 1387192,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              }
+            ]
+          },
+          {
+            "mode": "export",
+            "frames": 480000,
+            "tracks": 1,
+            "saved_master": false,
+            "gui_export_during_playback": true,
+            "export_live_prefix_frames": 26624,
+            "export_live_prefix_difference": 0,
+            "live_offline_difference": 0,
+            "missing_frames": 0,
+            "owned_nodes_only": true,
+            "gui_playback": true,
+            "gui_live_edit": true,
+            "gui_undo": true,
+            "explicit_output_selection": true,
+            "gui_meter": true,
+            "asynchronous_close": true,
+            "project_unchanged": true,
+            "rt_allocations": 0,
+            "rt_frees": 0,
+            "rt_blocking_locks": 0,
+            "first_applied_frame": 26624,
+            "applied_events": 2,
+            "callback_timing": {
+              "player": {
+                "samples": 469,
+                "calls": 469,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 100110,
+                "p95_ns": 110999,
+                "p99_ns": 165575,
+                "maximum_ns": 4206765
+              },
+              "sink": {
+                "samples": 470,
+                "calls": 470,
+                "dropped_samples": 0,
+                "clock_failures": 0,
+                "p50_ns": 7143,
+                "p95_ns": 39266,
+                "p99_ns": 52395,
+                "maximum_ns": 68256
+              },
+              "unavailable_after_start": 0,
+              "minimum_quantum_frames": 1024,
+              "maximum_quantum_frames": 1024
+            },
+            "routing_observations": {
+              "graph_snapshots_during_run": 80,
+              "snapshots_with_owned_links": 77,
+              "no_observed_owned_to_unowned_links": true,
+              "pre_existing_links_preserved": 0,
+              "default_metadata_unchanged": true,
+              "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+              "owned_nodes_and_links_removed": true
+            },
+            "data_loop_scheduler_samples": [
+              {
+                "tid": 1387217,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              },
+              {
+                "tid": 1387271,
+                "name": "data-loop.0",
+                "policy": 1073741826,
+                "base_policy": 2,
+                "reset_on_fork": true,
+                "priority": 20,
+                "nice": 0
+              }
+            ]
+          }
+        ]
+      },
+      "logs": [
+        {
+          "path": ".cache/m2-timing-qualified-debug-native.log",
+          "sha256": "11d21fdd92b34fe249ff9132cb00be09848cbc82839a4b38e6d0fd7f002bccdc"
+        },
+        {
+          "path": ".cache/m2-timing-qualified-release-native.log",
+          "sha256": "0bf6e9a622f7ad7e6bd85cb7ad7443f2e87a71f0905da8dece040e6602dd0e36"
+        }
+      ],
+      "measurement_contract": {
+        "rate_hz": 48000,
+        "observed_quantum_frames": 1024,
+        "period_ns": 21333333.333333332,
+        "maximum_duration_slots_per_audited_node": 8192,
+        "duration_storage_bytes_per_node": 65536,
+        "elapsed_wall_time_includes_preemption_and_instrumentation": true,
+        "whole_graph_deadline_or_dsp_cpu_time": false,
+        "host_load_controlled": false,
+        "physical_devices_or_long_duration_qualified": false,
+        "production_timing_instrumentation": false
+      },
+      "controlled_sink_gap": {
+        "result": "Expected nonzero failure; exact one-block sink gap rejected promptly; cleanup verified",
+        "report": {
+          "path": ".cache/m2-timing-qualified-injected-gap.json",
+          "sha256": "5c479ad4d35988eef65895fbdf1bc7861b2d3107be8ce3542a0ebfbf4beabceb"
+        },
+        "log": {
+          "path": ".cache/m2-timing-qualified-injected-gap.log",
+          "sha256": "0458322848984c87eb2af3fd0f4ab9375c37aa0db7e938272d5de427d308c0d2"
+        },
+        "exit_code": 1,
+        "diagnostic": {
+          "player": {
+            "samples": 26,
+            "calls": 26,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 2214515,
+            "p95_ns": 2709539,
+            "p99_ns": 2710069,
+            "maximum_ns": 2712076
+          },
+          "sink": {
+            "samples": 27,
+            "calls": 27,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 4276,
+            "p95_ns": 7800,
+            "p99_ns": 8163,
+            "maximum_ns": 8810
+          },
+          "unavailable_after_start": 0,
+          "last_unavailable_position": 0,
+          "minimum_quantum_frames": 1024,
+          "maximum_quantum_frames": 1024,
+          "gap_expected": 5859903056,
+          "gap_observed": 5859904080,
+          "injected_sink_gap": true
+        },
+        "cleanup": {
+          "default_metadata_unchanged": true,
+          "pre_existing_links_preserved": 0,
+          "owned_nodes_remaining": 0,
+          "owned_links_remaining": 0
+        },
+        "historical_cause_resolved": false
+      },
+      "offline_report_check": {
+        "result": "passed",
+        "report": {
+          "path": ".cache/m2-timing-qualified-report-check.json",
+          "sha256": "4042a280f29b15642a6b35ebda7729a389b1e1c2ae63bdfb7cc4f10a9b5e4295"
+        }
+      },
+      "sanitized_native_observation": {
+        "result": "Failed before intended injection; observed clock gap retained; not a qualified native pass",
+        "report": {
+          "path": ".cache/m2-timing-qualified-sanitized-gap.json",
+          "sha256": "861895c7195b4b0dda085ff22a884e31930c9ebae2d649728aed5e5ec2ad65e7"
+        },
+        "log": {
+          "path": ".cache/m2-timing-qualified-sanitized-gap.log",
+          "sha256": "aa1669cb1907fdc82f2e47185ad9d660b540e5d03864b7c9a4c49d8acd56f831"
+        },
+        "exit_code": 1,
+        "callback_validation": {
+          "detected": 7,
+          "generation": 1,
+          "engine_position": 6144,
+          "received_position": 5861647165,
+          "previous_position": 5861645117,
+          "previous_duration": 1024,
+          "received_id": 30,
+          "previous_id": 30,
+          "received_duration": 1024,
+          "xrun": false,
+          "discontinuity": false,
+          "rate_numerator": 1,
+          "rate_denominator": 48000,
+          "had_previous": true
+        },
+        "callback_timing": {
+          "player": {
+            "samples": 7,
+            "calls": 7,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 25014820,
+            "p95_ns": 26042837,
+            "p99_ns": 26042837,
+            "maximum_ns": 26483823
+          },
+          "sink": {
+            "samples": 2,
+            "calls": 2,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 23896,
+            "p95_ns": 23896,
+            "p99_ns": 23896,
+            "maximum_ns": 44794
+          },
+          "unavailable_after_start": 0,
+          "last_unavailable_position": 0,
+          "minimum_quantum_frames": 1024,
+          "maximum_quantum_frames": 1024,
+          "gap_expected": 0,
+          "gap_observed": 0,
+          "injected_sink_gap": false
+        },
+        "cleanup": {
+          "default_metadata_unchanged": true,
+          "pre_existing_links_preserved": 0,
+          "owned_nodes_remaining": 0,
+          "owned_links_remaining": 0
+        },
+        "sanitizer_error_reported": false,
+        "controlled_injection_reached": false,
+        "native_memory_or_deadline_qualification": false,
+        "interpretation": "Elapsed callbacks exceeding period are consistent with deadline pressure; no historical cause or general performance fix established"
+      }
+    }
+  },
+  "unresolved_observations": [
+    {
+      "failure": "First native GUI 32-track attempt timed out after acknowledged Undo while waiting for Complete and sink delivery",
+      "cause": "Unknown; original failure has no terminal state snapshot. No cause or production fix is claimed.",
+      "log": {
+        "path": ".cache/m2-native-mix-gui-failure1.log",
+        "sha256": "d956dd61e21d9f62c87566d03440465ede6a8a42f4b5f8367ef864042b76aab1"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI workflow timed out at line 335\n\n",
+      "action": "Fixture now also wakes on sink gap and emits terminal phase/status/position/missing/sink/gap; isolated mix and final mix/mix-disconnect/export cases passed",
+      "remaining": "Long-duration/deadline/native completion/shutdown reliability qualification remains open; no suppression/waived gate"
+    },
+    {
+      "failure": "First saved-master native GUI 32-track run detected downstream sink clock gap with player still Running",
+      "terminal_state": {
+        "playback_phase": 4,
+        "bridge_status": 1,
+        "player_position": 110592,
+        "missing_track_frames": 0,
+        "sink_prefix": 108544,
+        "sink_gap": true
+      },
+      "cause": "Unknown; no failing-run pw-top/callback timing or first-gap positions captured. No production fix claimed.",
+      "log": {
+        "path": ".cache/m2-master-native.log",
+        "sha256": "024ae0f87b066f4d5e67ff79dfdbd0b3ef5f73d1e732d18ecb29a26480a9a0e3"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nGUI mix terminal phase/status/position/missing/sink/gap 4/1/110592/0/108544/1\nGUI file playback did not complete\n\n",
+      "action": "Fixture now records first expected/observed/duration/unavailable-input count without RT logging; next isolated full/disconnect/export run exact",
+      "remaining": "Characterized native graph/sink deadline/load/clock/delivery reliability; failure is not suppressed or waived"
+    },
+    {
+      "failure": "Legacy CLI synthetic source capture stopped while independent CPU builds/tests were active",
+      "cause": "Exact underlying stop reason not retained by this CLI test output; concurrent activity is observed context, not a proven cause",
+      "log": {
+        "path": ".cache/m2-master-legacy-cli.log",
+        "sha256": "26f8ede9a446d9db0a47f3cdcb9171ed072a1be94f51d74a9271bed62ff4896d"
+      },
+      "action": "Next serial run after CPU/native jobs passed recording and independent export sample/hash oracle; no production change or waived pressure gate"
+    },
+    {
+      "failure": "Concurrent debug full CTest timed out awaiting synthetic recording capture at tests/ui_tests.cpp:368",
+      "result": "22 of 23 groups passed; failed desktop-ui",
+      "cause": "Unknown; unchanged serial debug and concurrent sanitizer suites passed; not waived",
+      "seconds": 31.19,
+      "log": {
+        "path": ".cache/m2-timing-qualified-debug-tests.log",
+        "sha256": "660250e96cecb78bf52f22023b1004b760665fac3af9c89bd6b0837a18bcaa42"
+      },
+      "details": {
+        "path": ".cache/m2-timing-concurrent-debug-details.log",
+        "sha256": "1b1d6d67b0219b70ca7534237b1d9092dd7024939cf0cf2087b53bcfe4843f6d"
+      },
+      "next": "Retain state/admission/route diagnostics and reproduce asynchronous recording route/start behavior under declared load"
+    },
+    {
+      "failure": "Sanitized native callback clock gap occurred before controlled sink injection",
+      "cause": "Measured elapsed above period; consistent with deadline pressure but not proof of old failures",
+      "qualification_remains_open": true,
+      "report": {
+        "path": ".cache/m2-timing-qualified-sanitized-gap.json",
+        "sha256": "861895c7195b4b0dda085ff22a884e31930c9ebae2d649728aed5e5ec2ad65e7"
+      }
+    }
+  ],
+  "fixture_corrections": [
+    {
+      "failure": "Controlled gap initially detected but Undo checkpoint waited 20 seconds",
+      "correction": "Wait also wakes on sink gap/player Fault/Complete and then asserts required gap-free prefix; prompt failure in final controlled run",
+      "production_fault_policy_changed": false,
+      "initial_report": {
+        "path": ".cache/m2-timing-injected-gap.json",
+        "sha256": "c5194b947d73250e60ba925f89d8b09a350dd1ade3ee04e50aa9fa1e02b0285d"
+      },
+      "initial_log": {
+        "path": ".cache/m2-timing-injected-gap.log",
+        "sha256": "2fd5f01e64f534713bbe5832e922b4aea8b9a421d8cee858c031ee9ac6a930a2"
+      },
+      "post_correction_pre_final_api_report": {
+        "path": ".cache/m2-timing-injected-gap-final.json",
+        "sha256": "dde184178986c839906005ee7f9fab9890f5da145d3cad3ad864c3bd83f97ee6"
+      }
+    }
+  ],
+  "prior_measurements_not_final_source_qualification": [
+    {
+      "report": {
+        "path": ".cache/m2-timing-debug-native.json",
+        "sha256": "d8ce0848035fc8813d95de19042bb778f84bdba7e45efd68cef4c4f59acf1e9d"
+      },
+      "source_scope": "Before final production callback-fault retention changes; timing observations only",
+      "player_measurements": [
+        {
+          "mode": "mix",
+          "timing": {
+            "samples": 469,
+            "calls": 469,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 6187607,
+            "p95_ns": 12608108,
+            "p99_ns": 13400469,
+            "maximum_ns": 15337987
+          }
+        }
+      ]
+    },
+    {
+      "report": {
+        "path": ".cache/m2-timing-debug-final-native.json",
+        "sha256": "4a45292a8f5468d214aa4f792adf7d34d6d743606dcc0c193d1cda2ee0742472"
+      },
+      "source_scope": "Before final production callback-fault retention changes; timing observations only",
+      "player_measurements": [
+        {
+          "mode": "mix",
+          "timing": {
+            "samples": 469,
+            "calls": 469,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 6194525,
+            "p95_ns": 12485950,
+            "p99_ns": 13225815,
+            "maximum_ns": 15656556
+          }
+        }
+      ]
+    },
+    {
+      "report": {
+        "path": ".cache/m2-timing-release-native.json",
+        "sha256": "1c0834ea1ddef330bad2a69ceb546daa2e716c15135db46ee8a9e323b504b2e6"
+      },
+      "source_scope": "Before final production callback-fault retention changes; timing observations only",
+      "player_measurements": [
+        {
+          "mode": "mix",
+          "timing": {
+            "samples": 469,
+            "calls": 469,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 1800469,
+            "p95_ns": 2752599,
+            "p99_ns": 3083115,
+            "maximum_ns": 12179129
+          }
+        },
+        {
+          "mode": "mix-disconnect",
+          "timing": {
+            "samples": 25,
+            "calls": 25,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 2607793,
+            "p95_ns": 2662944,
+            "p99_ns": 2668297,
+            "maximum_ns": 2756934
+          }
+        },
+        {
+          "mode": "export",
+          "timing": {
+            "samples": 469,
+            "calls": 469,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 60332,
+            "p95_ns": 129576,
+            "p99_ns": 205917,
+            "maximum_ns": 307078
+          }
+        }
+      ]
+    },
+    {
+      "report": {
+        "path": ".cache/m2-timing-release-final-native.json",
+        "sha256": "e009fbd145cab3b360be6c25ee2832b8e7b56b9330f445c44fb7402e3c77c442"
+      },
+      "source_scope": "Before final production callback-fault retention changes; timing observations only",
+      "player_measurements": [
+        {
+          "mode": "mix",
+          "timing": {
+            "samples": 469,
+            "calls": 469,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 2228439,
+            "p95_ns": 2904703,
+            "p99_ns": 3611747,
+            "maximum_ns": 5966274
+          }
+        },
+        {
+          "mode": "mix-disconnect",
+          "timing": {
+            "samples": 25,
+            "calls": 25,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 2507271,
+            "p95_ns": 2681122,
+            "p99_ns": 2684318,
+            "maximum_ns": 4007234
+          }
+        },
+        {
+          "mode": "export",
+          "timing": {
+            "samples": 469,
+            "calls": 469,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 96363,
+            "p95_ns": 143524,
+            "p99_ns": 156428,
+            "maximum_ns": 210073
+          }
+        }
+      ]
+    }
+  ],
+  "prior_sanitized_native_observation": {
+    "report": {
+      "path": ".cache/m2-timing-sanitized-gap.json",
+      "sha256": "f9f35665e8674f475f9415cf205adaed949a856e3ea5e6019051bd6d5bc98b9c"
+    },
+    "log": {
+      "path": ".cache/m2-timing-sanitized-gap.log",
+      "sha256": "ab25faf1d46e2c3bbf071f24c1917c5a99eeb201c877ded62b7d329ca2e3e823"
+    },
+    "source_scope": "Before production callback fault record; early ClockDiscontinuity, intended injection not reached, exact rejected clock then unavailable",
+    "performance_qualified": false
+  },
+  "equalizer_audit": {
+    "result": "24 reviewed inputs and retained snapshots match; read-only; no checkout writes",
+    "report": {
+      "path": ".cache/m2-timing-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "registered_inputs": 24,
+    "reviewed_heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    }
+  },
+  "parity": {
+    "families": 92,
+    "acceptance_quality_and_F_Q_C_N_unchanged": true,
+    "F_Q_C_N_reference_equivalence_claimed": false,
+    "baseline_changed": false
+  },
+  "dependency_or_license_changes": false,
+  "equalizer_writes": false,
+  "published_or_pushed": false,
+  "remaining": [
+    "Shared native playback/capture owner, simultaneous armed tracks and overdub; common project origin, raw per-track capture, alignment/gaps/finalization/recovery",
+    "Historical completion/sink gap and concurrent synthetic recording UI timeout remain unresolved; retained evidence and diagnostic/load investigation required",
+    "Native optimized declared CPU/disk load, duration, quantum/device changes, deadline reliability, physical and normal module-unload memory qualification",
+    "Native Windows GUI/audio/installers, filesystems, independent M1 gates and full M2 workflows",
+    "General buses/sends/sidechains/PDC/VCA, desktop master export and larger editor qualification",
+    "All frozen F/Q/C/N families, X004 imports, X005 monitoring/print/portable profiles/rights and all-Europe translation/review/UI coverage"
+  ],
+  "reproduction": [
+    "ctest --test-dir .cache/build-desktop --output-on-failure",
+    "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir .cache/build-desktop-sanitized --output-on-failure",
+    "ctest --test-dir .cache/build-desktop-release --output-on-failure -R '^(prepared-eq|multitrack-mix-playback|playback-native-clock)$'",
+    "QT_QPA_PLATFORM=offscreen python3 tests/verify_pipewire_fixture.py --binary .cache/build-desktop-release/sc-pipewire-ui-fixture --modes mix mix-disconnect export --output REPORT.json --failure-output FAILURE.json",
+    "QT_QPA_PLATFORM=offscreen python3 tests/verify_pipewire_fixture.py --binary .cache/build-desktop/sc-pipewire-ui-fixture --modes mix --output DEBUG.json --failure-output FAILURE.json",
+    "QT_QPA_PLATFORM=offscreen python3 tests/verify_pipewire_fixture.py --binary .cache/build-desktop-release/sc-pipewire-ui-fixture --modes mix-gap --failure-output INJECTED.json # expect exit 1",
+    "python3 tests/verify_timing_reports.py --debug DEBUG.json --release REPORT.json --injected INJECTED.json",
+    "QT_QPA_PLATFORM=offscreen ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/verify_pipewire_fixture.py --binary .cache/build-desktop-sanitized/sc-pipewire-ui-fixture --modes mix-gap --failure-output SANITIZED.json # failed before injection; not a native performance pass"
+  ]
+}

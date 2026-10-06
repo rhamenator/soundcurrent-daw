@@ -39,6 +39,9 @@ Linux-first professional digital audio workstation and recording suite, planned 
 29. [Transactional track and clip edits](docs/29-multitrack-edits.md)
 30. [Desktop timeline and selected-track workflow](docs/30-desktop-timeline.md)
 31. [Shared-clock multitrack EQ and mix](docs/31-multitrack-mix.md)
+32. [Native shared-clock mix playback](docs/32-native-mix-playback.md)
+33. [Saved master layout and matrix](docs/33-master-matrix.md)
+34. [Retained callback faults and timing evidence](docs/34-native-timing.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix family remains unqualified, with explicit reference uncertainty and scoped evidence for partial workflows. None is reported as equivalent.
 
@@ -46,7 +49,7 @@ Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, fro
 
 The owner added expanded equipment profiles/import and a profile editor as **X005**; [its contract](docs/17-equipment-profiles.md) includes source/rights, editable curves, save-copy prompts and monitor-versus-print routing. The Qt preview now includes **Equipment → Profile library and editor…**, a searchable pinned 1,092-speaker catalog with subtype and active/passive filters, JSON/response imports, curve/filter editing, local undo/redo and saved custom copies. Monitoring/print routing and portable project profile pins remain required.
 
-Continue **M2 multitrack foundations**. [M2a typed editing](docs/29-multitrack-edits.md) now supplies grouped track/clip operations, bounded mixed Undo/Redo and verified take-admission Undo; developer CLI commands expose persisted edits. [M2b](docs/30-desktop-timeline.md) exposes desktop track/clip selection, exact-range/split/move edits and selected single-track preparation without changing canonical order. [M2c1](docs/31-multitrack-mix.md) adds the Qt-free shared-clock EQ/matrix graph, fair read-ahead worker and static multitrack WAV/CLI export. Next: native owner/desktop master-output integration, then one playback/capture clock for simultaneous overdub. Punch/loop, takes/comping, fades and the remaining M2 workflows stay required. **M1 / SLICE-001** remains incomplete on its independent native Windows, physical, filesystem, load/deadline and normal module-unload gates; S8 routing, native corpus, monitoring persistence and recovery discovery now have scoped evidence. [S7b desktop export](docs/24-desktop-export.md) now connects immutable accepted-prefix capture, track/range/tail/RF64 selection, worker-side destination inspection/consent, progress/cancel and safe close. [S7a](docs/23-offline-export.md) now exports selected ranges through a private shared EQ instance with preroll, tails, cancellation and completed-file publication. S6g connects Linux desktop input/arm/record/monitoring, verified take attachment and manual recovery; [the desktop recording contract](docs/22-desktop-recording.md) records evidence and limitations. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M2 multitrack foundations**. [M2a typed editing](docs/29-multitrack-edits.md) now supplies grouped track/clip operations, bounded mixed Undo/Redo and verified take-admission Undo; developer CLI commands expose persisted edits. [M2b](docs/30-desktop-timeline.md) exposes desktop track/clip selection, exact-range/split/move edits and selected single-track preparation without changing canonical order. [M2c1](docs/31-multitrack-mix.md) adds the Qt-free shared-clock EQ/matrix graph, fair read-ahead worker and static multitrack WAV/CLI export. Native/desktop playback and saved master layout/matrix/output intent are now connected. [M2c4](docs/34-native-timing.md) retains callback validation facts and bounded timing evidence. Next: one native playback/capture clock for simultaneous armed tracks and overdub, with independent raw/alignment/gap/finalization/recovery tests. Native timing and intermittent UI failure qualification remain open. Punch/loop, takes/comping, fades and the remaining M2 workflows stay required. **M1 / SLICE-001** remains incomplete on its independent native Windows, physical, filesystem, load/deadline and normal module-unload gates; S8 routing, native corpus, monitoring persistence and recovery discovery now have scoped evidence. [S7b desktop export](docs/24-desktop-export.md) now connects immutable accepted-prefix capture, track/range/tail/RF64 selection, worker-side destination inspection/consent, progress/cancel and safe close. [S7a](docs/23-offline-export.md) now exports selected ranges through a private shared EQ instance with preroll, tails, cancellation and completed-file publication. S6g connects Linux desktop input/arm/record/monitoring, verified take attachment and manual recovery; [the desktop recording contract](docs/22-desktop-recording.md) records evidence and limitations. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Desktop development preview
 
@@ -61,9 +64,10 @@ Requires Qt6 Core/Gui/Widgets development files (Test for fixtures), in addition
 
 ## Offline export developer workflow
 
-The new `render-mix` command exports every saved track with matching-layout unity
-routes through the shared multitrack graph. Custom channel matrices are available
-in the core API; mixed-layout GUI routing is still required.
+The `render-mix` command uses the saved master layout and sparse channel matrix
+when present; otherwise it exports every saved track with matching-layout unity
+routes. The desktop master editor supports explicit mixed layouts within its
+current bounds; desktop master export remains required.
 
 ```sh
 .cache/build-desktop/sc-export-tool render PROJECT_DIRECTORY OUTPUT.wav
@@ -160,4 +164,4 @@ The Linux desktop now has **Prepare recording / Arm / Record / Stop**, explicit 
 
 M2c2 connects the [shared-clock mix to native Linux playback and desktop controls](docs/32-native-mix-playback.md). Enable **Play project mix**, prepare, explicitly select outputs, then Play. The inspector can edit any mixed track without retargeting audio. The M2c3 master below extends that foundation; simultaneous recording/overdub and full parity remain unqualified.
 
-Saved master layout/matrix/output intent is available in schema 1.3 with a desktop editor and semantic Undo/Redo; [workflow and current bounds](docs/33-master-matrix.md). `render-mix` uses that saved plan. Simultaneous recording/overdub remains next.
+Saved master layout/matrix/output intent is available in schema 1.3 with a desktop editor and semantic Undo/Redo; [workflow and current bounds](docs/33-master-matrix.md). `render-mix` uses that saved plan. Simultaneous recording/overdub remains next. [Callback fault retention and measured native timing](docs/34-native-timing.md) now supply bounded diagnostics; unexplained prior failures and general deadline qualification remain open.

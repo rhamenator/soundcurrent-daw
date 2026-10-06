@@ -46,6 +46,7 @@ class PipeWirePlayback {
     bool observation(PlaybackObservation &) noexcept;
     std::uint64_t droppedObservations() const noexcept;
     std::optional<CaptureTimingOrigin> timingOrigin() const noexcept;
+    std::optional<PlaybackCallbackFault> callbackFault() const noexcept;
 
   private:
     struct State;

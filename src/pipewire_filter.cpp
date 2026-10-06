@@ -153,20 +153,6 @@ struct PipeWireFilter::State {
             return;
         }
         const auto &clock = position->clock;
-        if (clock.duration == 0 || clock.duration > s.options.maximumNativeFrames) {
-            // No capacity-certified views exist for this unsupported native
-            // quantum. Signal outside the callback through the user's bridge.
-            DeviceBlockClock invalid;
-            invalid.duration = clock.duration;
-            s.callbacks.process(s.callbacks.context, invalid, {}, {}, 0);
-            end();
-            return;
-        }
-        const auto n = static_cast<std::uint32_t>(clock.duration);
-        for (std::uint32_t c = 0; c < s.options.inputs; ++c)
-            s.inputViews[c] = static_cast<const float *>(pw_filter_get_dsp_buffer(s.inputs[c], n));
-        for (std::uint32_t c = 0; c < s.options.outputs; ++c)
-            s.outputViews[c] = static_cast<float *>(pw_filter_get_dsp_buffer(s.outputs[c], n));
         const DeviceBlockClock timing{clock.position,
                                       clock.duration,
                                       clock.nsec,
@@ -177,6 +163,18 @@ struct PipeWireFilter::State {
                                       clock.delay,
                                       (clock.flags & SPA_IO_CLOCK_FLAG_XRUN_RECOVER) != 0,
                                       (clock.flags & SPA_IO_CLOCK_FLAG_DISCONT) != 0};
+        if (clock.duration == 0 || clock.duration > s.options.maximumNativeFrames) {
+            // No capacity-certified views exist for this unsupported native
+            // quantum. Signal outside the callback through the user's bridge.
+            s.callbacks.process(s.callbacks.context, timing, {}, {}, 0);
+            end();
+            return;
+        }
+        const auto n = static_cast<std::uint32_t>(clock.duration);
+        for (std::uint32_t c = 0; c < s.options.inputs; ++c)
+            s.inputViews[c] = static_cast<const float *>(pw_filter_get_dsp_buffer(s.inputs[c], n));
+        for (std::uint32_t c = 0; c < s.options.outputs; ++c)
+            s.outputViews[c] = static_cast<float *>(pw_filter_get_dsp_buffer(s.outputs[c], n));
         s.callbacks.process(s.callbacks.context, timing, {s.inputViews.data(), s.options.inputs},
                             {s.outputViews.data(), s.options.outputs}, n);
         end();

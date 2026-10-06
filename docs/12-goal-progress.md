@@ -321,3 +321,47 @@ shared native playback/capture owner for simultaneous armed tracks and
 overdub, preserving raw takes, one project origin, counted gaps and verified
 finalization/recovery. Independent M1/native Windows/physical/filesystem/module-
 unload/deadline gates remain open.
+
+
+## M2c4 callback-fault and timing checkpoint (2026-10-06)
+
+Previous goal turn was **progress**, committed saved master state/editor as
+`46437b5`. This turn retains the first callback validation record independently
+of the lossy meter queue, forwards it through the native owner and copies it
+before worker retirement. New preparation clears current-generation facts while
+old snapshots remain immutable. Invalid callbacks still leave the cursor intact
+and silence certified buffers; no callback logging or heap/lock work was added.
+The PipeWire unsupported-quantum path now carries its complete received clock.
+
+[Contract](34-native-timing.md) and
+[evidence](../tests/results/M2/2026-10-06-native-timing.json) separate backend-free
+4321 clock checks, 65 synthetic controller checks, 23-group serial debug and
+ASan/UBSan/LSan suites, three optimized core groups, Windows compilation-only,
+owned native sample oracles, scheduler observations and deliberately rejected
+sink loss. Bounded fixture timing is sorted only after join. Final 32-track
+480000-sample debug and Release runs are exact with no observed missing frames
+or callback allocations/frees/blocking locks; no universal deadline claim follows.
+
+A concurrent debug run failed awaiting synthetic recording capture at UI line
+368; its cause remains unknown even though serial debug and sanitizer suites
+passed. Original failure evidence is retained. The controlled sink-gap fixture
+initially waited 20 seconds at its Undo checkpoint after detecting the deliberate
+gap; that wait now wakes and fails promptly. This is a test correction. The final
+sanitized native attempt faulted before injection at engine frame 6144. Retained
+clock facts show one missing 1024-frame block with matching ID/rate and no flags;
+measured callback elapsed time exceeded the 21.333-ms period. No cause for the
+historical completion/sink-gap failures or general performance fix is claimed.
+All failures remain visible; no fault was suppressed to pass.
+
+The read-only equalizer audit still matches all 24 registered inputs; checkouts
+remain untouched. No dependencies/license choices/publication changed. All 92
+frozen family acceptance/quality/F/Q/C/N values remain unchanged. Native Windows,
+physical/filesystem/deadline/load/duration/module-unload, X004 project imports,
+X005 monitoring/print/portable profiles/rights and all-Europe localization gates
+remain open. Full M2/full goal stays active and incomplete.
+
+Next: one shared native playback/capture owner for simultaneous armed tracks and
+overdub, explicit channel maps, common timing origin, raw bounded capture pipes
+and off-RT writers. Qualify timestamp/alignment, counted gaps, stop/finalization
+and interrupted-recording recovery with independent sources; retain diagnostics
+and investigate the open timing/UI observations under declared optimized load.

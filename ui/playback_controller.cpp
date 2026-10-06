@@ -73,6 +73,7 @@ class NativeEndpoint : public PlaybackEndpoint {
         latest_.missingFrames = owner_.missingFrames();
         latest_.droppedMeters = owner_.droppedObservations();
         latest_.droppedReceipts = owner_.droppedAcknowledgements();
+        latest_.callbackFault = owner_.callbackFault();
         return latest_;
     }
 };
@@ -204,6 +205,7 @@ struct PlaybackController::State : QThread {
         view.missingFrames = t.missingFrames;
         view.droppedMeters = t.droppedMeters;
         view.droppedReceipts = t.droppedReceipts;
+        view.callbackFault = t.callbackFault;
         processed = processed || t.processed;
         for (const auto &receipt : t.receipts)
             if (receipt.track < appliedByLane.size() &&
@@ -362,6 +364,7 @@ struct PlaybackController::State : QThread {
         view.ports = std::make_shared<const std::vector<PipeWirePort>>(endpoint->ports());
         nextInventory = std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
         view.nativeStatus = PlaybackBridgeStatus::Ready;
+        view.callbackFault.reset();
         view.phase = PlaybackPhase::Ready;
     }
     void execute(Queued &q) {
