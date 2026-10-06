@@ -68,3 +68,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Saved per-track input latency controls](60-input-latency-controls.md)
 
 - [Recording-only Auto monitoring](61-auto-recording-monitoring.md)
+- [Deferred capture start for manual punch](62-deferred-capture-start.md)

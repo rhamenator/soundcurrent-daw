@@ -150,6 +150,8 @@ Saved per-track [input-latency controls](docs/60-input-latency-controls.md) now 
 canonical project state to accepted recording preparation and take alignment.
 Saved [recording-only Auto monitoring](docs/61-auto-recording-monitoring.md) selects live
 input inside desired punch boundaries while preserving continuous EQ history.
+Prepared [deferred capture starts](docs/62-deferred-capture-start.md) now let audio
+publish an exact one-shot origin before disk startup, with immutable worker binding.
 Next implementation: manual punch while playback continues, additional monitor
 policies, tempo/loop/take lanes and comping. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill

@@ -9,9 +9,10 @@ RecordingSpec checked(const Session &session, RecordingSpec spec) {
     spec.capture = prepareCaptureConfig(spec.capture);
     auto track = std::find_if(session.tracks.begin(), session.tracks.end(),
                               [&](const auto &t) { return t.id == spec.trackId; });
-    if (session.id != spec.projectId || session.sampleRate != spec.capture.sampleRate ||
-        track == session.tracks.end() || track->layout != spec.capture.layout ||
-        spec.inputLatencyFrames < 0 || spec.inputLatencyFrames > Frame(session.sampleRate) * 60 ||
+    if (spec.capture.deferredStart || session.id != spec.projectId ||
+        session.sampleRate != spec.capture.sampleRate || track == session.tracks.end() ||
+        track->layout != spec.capture.layout || spec.inputLatencyFrames < 0 ||
+        spec.inputLatencyFrames > Frame(session.sampleRate) * 60 ||
         std::any_of(session.assets.begin(), session.assets.end(),
                     [&](const auto &a) { return a.id == spec.assetId; }))
         throw ProjectError(ErrorCode::InvalidState,

@@ -11,8 +11,8 @@ AudioBridge::AudioBridge(const Session &s, const Id &track, CapturePipe &capture
       driver_(eq_, capture.config().startFrame), capture_(capture), tap_(tap), options_(options) {
     const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                 [&](const auto &item) { return item.id == track; });
-    if (capture.config().sampleRate != eq_.sampleRate() || t == s.tracks.end() ||
-        capture.config().layout != t->layout ||
+    if (capture.config().deferredStart || capture.config().sampleRate != eq_.sampleRate() ||
+        t == s.tracks.end() || capture.config().layout != t->layout ||
         capture.config().maximumCallbackFrames < options.maximumFrames ||
         options.stopAfterFrames < 0 ||
         options.stopAfterFrames > std::numeric_limits<Frame>::max() - capture.config().startFrame ||

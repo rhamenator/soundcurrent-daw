@@ -69,7 +69,8 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
         r.capture = prepareCaptureConfig(r.capture);
         const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                     [&](const auto &t) { return t.id == r.trackId; });
-        if (r.projectId != s.id || r.capture.sampleRate != s.sampleRate || t == s.tracks.end() ||
+        if (r.capture.deferredStart || r.projectId != s.id ||
+            r.capture.sampleRate != s.sampleRate || t == s.tracks.end() ||
             r.capture.layout != t->layout || r.capture.startFrame != captureStart ||
             r.capture.maximumCallbackFrames < o.playback.graph.maximumFrames ||
             r.inputLatencyFrames < 0 || r.inputLatencyFrames > Frame(s.sampleRate) * 60 ||

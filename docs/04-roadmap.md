@@ -305,3 +305,16 @@ punch boundaries, independently of delayed raw capture, before continuous track 
 [Contract](61-auto-recording-monitoring.md). Next: sample-boundary manual punch while
 playback continues, then armed/stopped/tape monitoring and loop/take/comp workflows.
 The full frozen scope, independent Windows and all-Europe gates remain required.
+
+
+## M2 manual-punch capture prerequisite (2026-10-06)
+
+[Deferred capture starts](62-deferred-capture-start.md) reserve pools before audio
+activation and publish an immutable exact one-shot raw start. Late disk workers
+bind to that start; unresolved and mismatched specifications are refused before
+job creation. This supplies the capture primitive for manual punch during playback.
+Next implement reliable sample-boundary command admission, ready take-slot credits,
+per-lane delayed capture/postroll, continuous mix/EQ and safe writer/group retirement.
+The current fixed-start native regression does not qualify a deferred native owner.
+Repeated takes, desktop controls, ordered Stop/fault recovery and all frozen
+reference, sustained, Windows and localization gates remain required.

@@ -20,6 +20,9 @@ struct CaptureConfig {
     Frame startFrame = 0;
     // Runtime pool admission. Playback retains its separate fixed 32-slab pool.
     std::uint32_t poolSlabs = captureSlabs;
+    // Reserve only; audio chooses one actual start later. Placeholder start must
+    // be zero. This is a runtime option, never a recording-journal field.
+    bool deferredStart = false;
     bool operator==(const CaptureConfig &) const = default;
 };
 CaptureConfig prepareCaptureConfig(CaptureConfig); // Validates/admission off RT.
@@ -90,6 +93,12 @@ class CapturePipe {
     const CaptureConfig &config() const noexcept {
         return config_;
     }
+    // Audio owner once, before origin/push. No reset/reuse of an existing take.
+    // False leaves an invalid/repeated start unchanged. Stop prevents activation.
+    bool beginAt(Frame) noexcept;
+    // Acquire-published immutable recording config, absent before deferred start.
+    // Safe for a worker to inspect while audio fills the already prepared pool.
+    std::optional<CaptureConfig> recordingConfig() const noexcept;
     // Audio owner; input backing capacity/independent channel pointers are the
     // caller's contract. No allocation, locks, logging or disk calls.
     CaptureReport push(std::span<const float *const> input, std::uint32_t frames,
@@ -122,6 +131,8 @@ class CapturePipe {
     std::uint32_t current_ = maximumCaptureSlabs, used_ = 0;
     std::uint64_t sequence_ = 0;
     Frame nextFrame_ = 0, slabStart_ = 0;
+    Frame recordingStart_ = 0; // Published once by startReady_; never edited after.
+    std::atomic<std::uint32_t> startReady_{0};
     std::uint32_t acquired_ = maximumCaptureSlabs;
     CapturePacket acquiredPacket_;
     alignas(64) std::atomic<std::uint32_t> status_{0}, done_{0}, writerFailed_{0};
