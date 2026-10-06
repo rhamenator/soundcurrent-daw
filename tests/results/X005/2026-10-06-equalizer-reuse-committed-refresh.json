@@ -1,0 +1,183 @@
+{
+  "requirement": "X005 / X003 continuing equalizer reuse updates",
+  "date": "2026-10-06",
+  "status": "Reviewed current committed inputs; no changes to borrowed source bytes; expanded independent premium input tracking.",
+  "base_revision": "5436ad482c66cea1fe802b7a88c748d6cb7fdf6d",
+  "review_manifest": "reuse/upstream-review.json",
+  "previous_review": "reuse/reviews/2026-10-06/upstream-review-before-committed-refresh.json",
+  "registered_input_count": 24,
+  "current_input_audit": {
+    "snapshot_errors": [],
+    "sources": {
+      "soundcurrent-eq": {
+        "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+        "files": {
+          "src/dsp.cpp": {
+            "reviewed_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+            "current_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+            "review_required": false
+          },
+          "src/dsp.h": {
+            "reviewed_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+            "current_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+            "review_required": false
+          },
+          "src/equipment_profiles.cpp": {
+            "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+            "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+            "review_required": false
+          },
+          "src/accelerating_spinbox.h": {
+            "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+            "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+            "review_required": false
+          },
+          "tests/spin_acceleration.cpp": {
+            "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+            "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+            "review_required": false
+          },
+          "src/equipment_profiles.h": {
+            "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+            "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+            "review_required": false
+          },
+          "scripts/collect-equipment-profiles.py": {
+            "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+            "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+            "review_required": false
+          },
+          "data/equipment/spinorama.json": {
+            "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+            "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+            "review_required": false
+          },
+          "data/equipment/LICENSE": {
+            "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+            "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+            "review_required": false
+          },
+          "data/equipment/collection-report.json": {
+            "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+            "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+            "review_required": false
+          },
+          "data/equipment/measurement-sources.json": {
+            "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+            "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+            "review_required": false
+          },
+          "tests/equipment_profiles.cpp": {
+            "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+            "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+            "review_required": false
+          }
+        },
+        "current_head": "080195a85be163cf8e4b1516745c63f43f317700",
+        "head_changed": false
+      },
+      "soundcurrent-studio": {
+        "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+        "files": {
+          "src/dsp.cpp": {
+            "reviewed_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+            "current_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+            "review_required": false
+          },
+          "src/dsp.h": {
+            "reviewed_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+            "current_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+            "review_required": false
+          },
+          "src/equipment_profiles.cpp": {
+            "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+            "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+            "review_required": false
+          },
+          "src/accelerating_spinbox.h": {
+            "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+            "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+            "review_required": false
+          },
+          "tests/spin_acceleration.cpp": {
+            "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+            "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+            "review_required": false
+          },
+          "src/equipment_profiles.h": {
+            "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+            "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+            "review_required": false
+          },
+          "scripts/collect-equipment-profiles.py": {
+            "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+            "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+            "review_required": false
+          },
+          "data/equipment/spinorama.json": {
+            "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+            "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+            "review_required": false
+          },
+          "data/equipment/LICENSE": {
+            "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+            "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+            "review_required": false
+          },
+          "data/equipment/collection-report.json": {
+            "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+            "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+            "review_required": false
+          },
+          "data/equipment/measurement-sources.json": {
+            "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+            "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+            "review_required": false
+          },
+          "tests/equipment_profiles.cpp": {
+            "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+            "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+            "review_required": false
+          }
+        },
+        "current_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+        "head_changed": false
+      }
+    },
+    "review_required": false
+  },
+  "committed_blob_verification": "All 24 observed input files equal git show at their per-repository observed HEAD and the retained review snapshots.",
+  "commands": [
+    {
+      "command": "python3 tools/check_equalizer_reuse.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tools/check_equalizer_reuse.py --verify-snapshots",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tests/verify_reuse_audit.py",
+      "exit_code": 0
+    }
+  ],
+  "checks": [
+    "Matching source inputs and standalone retained snapshot integrity.",
+    "Unrelated HEAD advancement is reported but does not require adoption when registered bytes match.",
+    "Each of seven premium equipment header/collector/catalog/license/report/source-registry/test changes independently requires review.",
+    "The audit preserves owned source HEAD/status and modified input bytes.",
+    "Missing source and corrupt snapshot have distinct review/error exits."
+  ],
+  "tested_files_sha256": {
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "tests/verify_reuse_audit.py": "58066f64cf453583017cc8cda7a88afab89831bafecdaffef15b31578a9ceb10",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3"
+  },
+  "limitations": [
+    "This refresh qualifies the input audit, not new DSP/audio/backend behavior.",
+    "Separate uncommitted per-channel routing implementation is excluded; no C++ build or whole-working-tree qualification performed.",
+    "Equalizer native Windows APO/guardian/virtual-driver additions are not borrowed DAW components; native Windows parity remains open.",
+    "Registered hashes do not automatically discover new source features; an impact review remains required at subsequent reuse-dependent milestones.",
+    "No source equalizer edits, branch changes, automatic merge, monitoring automation or publication."
+  ]
+}

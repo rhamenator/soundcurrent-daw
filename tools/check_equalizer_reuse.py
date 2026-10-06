@@ -42,6 +42,8 @@ def main():
                 result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=source_root / name,
                                         text=True, capture_output=True, check=False)
                 status["current_head"] = result.stdout.strip() if result.returncode == 0 else None
+                status["head_changed"] = (status["current_head"] != status["reviewed_head"]
+                                          if status["current_head"] is not None else None)
             for relative, value in repository["files"].items():
                 if digest(root / value["snapshot"]) != value["sha256"]:
                     report["snapshot_errors"].append(value["snapshot"])

@@ -66,3 +66,18 @@ Previous goal turn was **progress**: `091d513` connected desktop recording and v
 ## S7a offline export core checkpoint
 
 Previous goal turn was **progress**: `df920a5` updated the equipment catalog/editor taxonomy. This turn adds the framework-independent selected-track float WAV/RF64 export API and developer CLI using the existing reader/private EQ, selected-range preroll and disclosed bounded tails. Complete-file flush/hash/source/overwrite revalidation precedes publication; cancellation/failures preserve destinations and clean owned temporary files. Postpublication durability errors report the complete file explicitly. [Contract](23-offline-export.md) and [manifest](../tests/results/SLICE-001/2026-10-05-offline-export-core.json) distinguish Linux debug/sanitizers, independent chunks/direct-form-I sample oracle, actual active-writer SIGTERM and Windows headless cross-build. Equalizer checkouts and user audio remain untouched; no push. Next S7b desktop export worker/dialog, then S8 and remaining route/record/platform gates. Full frozen parity, X004/X005 processing/portability, Windows runtime and European localization remain incomplete.
+
+
+## Continuing equalizer source refresh (2026-10-06)
+
+The owner reported further equalizer changes. The read-only review now observes public
+`080195a` and premium `a63cb44`; prior draft borrowed inputs are committed unchanged.
+The inventory covers all 12 inputs independently in both repositories, including the
+premium equipment header, collector, catalog, license, report, source registry and tests.
+[Audit evidence](../tests/results/X005/2026-10-06-equalizer-reuse-committed-refresh.json)
+records matching hashes/committed blobs, retained integrity, independent premium edits,
+informational HEAD changes and source preservation. No compiled DAW behavior changes
+are warranted by this refresh. Separate per-channel project routing work is ongoing
+and unqualified; next implementation work resumes that S8 persistence/migration and
+portability acceptance. Full parity, X004/X005 routing/printing/portable pins, Windows
+runtime and European localization remain incomplete.

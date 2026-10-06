@@ -14,8 +14,10 @@ inputs without either source checkout, suitable for a standalone source distribu
 
 Exit codes: 0 means these reviewed inputs match; 2 means one or more current inputs
 need review; 1 means an audit/snapshot error. JSON names the affected files and hashes.
-A changed HEAD alone is informational: unrelated commits need not change an adopted
-component. This is a read-only check, not a background monitor or an automatic merger.
+A changed HEAD alone is informational (`head_changed` in the JSON): unrelated commits
+need not change an adopted component. If HEAD cannot be read, this field is null;
+file hashes still determine whether registered inputs match. This is a read-only
+check, not a background monitor or an automatic merger.
 It covers registered reused inputs; newly introduced dependencies and source features
 still need a human-readable impact review and expanded input inventory.
 
@@ -57,3 +59,33 @@ Qualification is scoped to this update: [X005 evidence](../tests/results/X005/20
 not establish Windows execution, delivered localization, measurement quality or full
 X005 routing/portable-project support. These remain required product work. Current
 sources can change again after this review; the next audit must detect that honestly.
+
+## Committed-source refresh: 2026-10-06
+
+The owner reported additional equalizer development. Rechecked public EQ
+`080195a85be163cf8e4b1516745c63f43f317700` and premium EQ
+`a63cb44ab4f166dc101cb5e93f8336d33d7e6b26`. All previously registered source bytes
+remain identical to the retained review snapshots; the earlier draft DSP/editor/spin
+changes are now committed. The original draft observation remains in
+[the historical inventory](../reuse/reviews/2026-10-06/upstream-review-before-committed-refresh.json).
+Per-file `source_revision` in the current inventory identifies the committed bytes.
+
+The inventory now independently tracks all 12 inputs in **each** equalizer repository:
+DSP source/header, profile editor source/header, accelerated control/test, collector,
+catalog, catalog license/report/source registry and profile tests. The seven newly
+registered premium inputs match the retained public GPL snapshots exactly. Independent
+premium header, collector, catalog, license, report, source-registry and test edits
+each trigger a review, even when the public copy remains unchanged.
+
+Reviewed the changed-file inventory and new native Windows APO processor; recorded
+ongoing guardian/virtual-driver work as context. These do not alter the borrowed EQ equations,
+profile editor or data. They do not establish a DAW backend, Windows qualification or
+new DAW effects. No compiled DAW source change is warranted by this refresh.
+
+[Refresh evidence](../tests/results/X005/2026-10-06-equalizer-reuse-committed-refresh.json)
+records the 24 matching inputs, retained snapshot integrity and the actual audit CLI's
+isolated changed/missing/corrupt-input, informational-HEAD and source-preservation
+checks. No C++ build or routing qualification is claimed for this metadata/tool update;
+separate per-channel project routing work remains in progress. Continue this review
+before each milestone that depends on reused components. Newly introduced features
+still require an impact review, not just these registered-file hashes.

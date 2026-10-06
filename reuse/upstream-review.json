@@ -5,122 +5,191 @@
   "policy": "Read-only working snapshots; uncommitted source is identified by HEAD plus exact content hash. Archived reference C++ is not compiled. No automatic source adoption or upstream writes.",
   "repositories": {
     "soundcurrent-eq": {
-      "observed_head": "20e22515aad5b0aa4851b55a69948d27fc7345df",
+      "observed_head": "080195a85be163cf8e4b1516745c63f43f317700",
       "files": {
         "src/dsp.cpp": {
           "sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/src/dsp.cpp",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "src/dsp.h": {
           "sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/src/dsp.h",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "src/equipment_profiles.cpp": {
           "sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/src/equipment_profiles.cpp",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "src/accelerating_spinbox.h": {
           "sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/src/accelerating_spinbox.h",
-          "source_state": "uncommitted",
-          "disposition": "Adopt held-step UI behavior with focus guards and bounded integer multiplication"
+          "source_state": "committed",
+          "disposition": "Adopt held-step UI behavior with focus guards and bounded integer multiplication",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "tests/spin_acceleration.cpp": {
           "sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/tests/spin_acceleration.cpp",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "src/equipment_profiles.h": {
           "sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
           "snapshot": "reuse/equipment/upstream/src/equipment_profiles.h",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "scripts/collect-equipment-profiles.py": {
           "sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
           "snapshot": "reuse/equipment/upstream/scripts/collect-equipment-profiles.py",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "data/equipment/spinorama.json": {
           "sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
           "snapshot": "reuse/equipment/upstream/data/equipment/spinorama.json",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "data/equipment/LICENSE": {
           "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
           "snapshot": "reuse/equipment/upstream/data/equipment/LICENSE",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "data/equipment/collection-report.json": {
           "sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
           "snapshot": "reuse/equipment/upstream/data/equipment/collection-report.json",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "data/equipment/measurement-sources.json": {
           "sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
           "snapshot": "reuse/equipment/upstream/data/equipment/measurement-sources.json",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         },
         "tests/equipment_profiles.cpp": {
           "sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
           "snapshot": "reuse/equipment/upstream/tests/equipment_profiles.cpp",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         }
-      }
+      },
+      "previous_observed_head": "20e22515aad5b0aa4851b55a69948d27fc7345df"
     },
     "soundcurrent-studio": {
-      "observed_head": "6cf149f5776ff799dcada3bff75ebdc334958386",
+      "observed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
       "files": {
         "src/dsp.cpp": {
           "sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/src/dsp.cpp",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
         },
         "src/dsp.h": {
           "sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/src/dsp.h",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
         },
         "src/equipment_profiles.cpp": {
           "sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/src/equipment_profiles.cpp",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
         },
         "src/accelerating_spinbox.h": {
           "sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/src/accelerating_spinbox.h",
-          "source_state": "uncommitted",
-          "disposition": "Adopt held-step UI behavior with focus guards and bounded integer multiplication"
+          "source_state": "committed",
+          "disposition": "Adopt held-step UI behavior with focus guards and bounded integer multiplication",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
         },
         "tests/spin_acceleration.cpp": {
           "sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
           "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/tests/spin_acceleration.cpp",
-          "source_state": "uncommitted",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently"
+          "source_state": "committed",
+          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "src/equipment_profiles.h": {
+          "sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+          "snapshot": "reuse/equipment/upstream/src/equipment_profiles.h",
+          "source_state": "committed",
+          "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "scripts/collect-equipment-profiles.py": {
+          "sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+          "snapshot": "reuse/equipment/upstream/scripts/collect-equipment-profiles.py",
+          "source_state": "committed",
+          "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "data/equipment/spinorama.json": {
+          "sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+          "snapshot": "reuse/equipment/upstream/data/equipment/spinorama.json",
+          "source_state": "committed",
+          "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "data/equipment/LICENSE": {
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+          "snapshot": "reuse/equipment/upstream/data/equipment/LICENSE",
+          "source_state": "committed",
+          "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "data/equipment/collection-report.json": {
+          "sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+          "snapshot": "reuse/equipment/upstream/data/equipment/collection-report.json",
+          "source_state": "committed",
+          "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "data/equipment/measurement-sources.json": {
+          "sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+          "snapshot": "reuse/equipment/upstream/data/equipment/measurement-sources.json",
+          "source_state": "committed",
+          "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "tests/equipment_profiles.cpp": {
+          "sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+          "snapshot": "reuse/equipment/upstream/tests/equipment_profiles.cpp",
+          "source_state": "committed",
+          "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
+          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
         }
-      }
+      },
+      "previous_observed_head": "6cf149f5776ff799dcada3bff75ebdc334958386"
     }
   },
   "impact": [
     "Equipment editor changes only the numeric widget class; adopt held-step acceleration. Catalog, schema, source registry and fitting code are unchanged from the adopted equipment revision.",
     "Studio filterCoefficients, filterResponseDb and StereoEqualizer::Biquad::process are byte-identical to the original DAW DSP reuse snapshot. Profile preparation now has an off-thread prepared structure, already provided by the DAW engine; retain DAW validation, events, arbitrary channels and unclamped headroom.",
-    "New equalizer enhancements and native Windows endpoint deployment plans do not change a reused DSP subset; they are not imported as DAW processors or a DAW audio backend."
+    "New equalizer enhancements and native Windows endpoint deployment plans do not change a reused DSP subset; they are not imported as DAW processors or a DAW audio backend.",
+    "At the committed-head refresh, all 24 registered inputs match retained reviewed bytes. New APO/native routing and ongoing guardian/virtual-driver work are outside the borrowed DSP/editor subset; no DAW backend or processor changes are justified by those additions."
   ],
   "adapted_files": [
     "ui/accelerating_spinbox.hpp",
@@ -129,5 +198,7 @@
   ],
   "upstream_candidates": [
     "Overflow-bounded scaled step multiplication; retain focused-only wheel behavior in editors."
-  ]
+  ],
+  "previous_review": "reuse/reviews/2026-10-06/upstream-review-before-committed-refresh.json",
+  "review_note": "Rechecked after the owner reported further equalizer changes. Previously reviewed draft bytes are now committed unchanged; expand both repositories to the complete shared equipment input inventory."
 }
