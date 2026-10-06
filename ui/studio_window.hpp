@@ -3,6 +3,9 @@
 #include "project_controller.hpp"
 #include "playback_controller.hpp"
 #include "recording_controller.hpp"
+#include "export_controller.hpp"
+#include "export_dialog.hpp"
+#include <QPointer>
 #include <QMainWindow>
 #include <QCoreApplication>
 #include <vector>
@@ -17,11 +20,12 @@ class QPushButton;
 class QProgressBar;
 class QGridLayout;
 class QCheckBox;
+class QMessageBox;
 namespace soundcurrent::daw::ui {
 class StudioWindow : public QMainWindow {
   public:
     explicit StudioWindow(QWidget *parent = nullptr, PlaybackControllerOptions = {},
-                          RecordingControllerOptions = {});
+                          RecordingControllerOptions = {}, ExportControllerOptions = {});
     void openProject(const std::filesystem::path &);
     bool submitEdit(ProjectCommand); // Shared entry for bindings/UI acceptance.
     std::shared_ptr<const ControllerSnapshot> snapshot() const;
@@ -30,6 +34,8 @@ class StudioWindow : public QMainWindow {
     bool prepareRecording();
     bool inspectTake(const std::filesystem::path &);
     std::shared_ptr<const RecordingSnapshot> recordingSnapshot() const;
+    std::shared_ptr<const ExportSnapshot> exportSnapshot() const;
+    bool requestExport();
     static QString tr(const char *source, const char *comment = nullptr, int count = -1) {
         return QCoreApplication::translate("StudioWindow", source, comment, count);
     }
@@ -41,6 +47,17 @@ class StudioWindow : public QMainWindow {
     ProjectController controller_;
     PlaybackController playback_;
     RecordingController recording_;
+    ExportController exporter_;
+    QAction *exportAction_, *cancelExportAction_;
+    QLabel *exportState_;
+    QProgressBar *exportProgress_;
+    QPushButton *exportButton_, *cancelExportButton_;
+    QPointer<QDialog> exportDialog_;
+    QPointer<QMessageBox> exportPrompt_;
+    std::uint64_t exportBarrier_ = 0, exportPromptJob_ = 0;
+    std::optional<ExportSelection> exportSelection_;
+    bool exportWorkflowBusy() const;
+    void pollExport();
     QAction *prepareRecordAction_, *recordAction_, *recoverAction_;
     QPushButton *prepareRecordButton_, *recordButton_, *recordStopButton_;
     QPushButton *retryTakeButton_, *keepTakeButton_;

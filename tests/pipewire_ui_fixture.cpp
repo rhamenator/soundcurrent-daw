@@ -4,10 +4,13 @@
 #include <soundcurrent/recording.hpp>
 #include <sndfile.h>
 #include <QApplication>
+#include <QAction>
 #include <QAbstractButton>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
+#include <QLineEdit>
+#include <QThread>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTest>
@@ -17,6 +20,7 @@
 #include <atomic>
 #include <chrono>
 #include <iostream>
+#include <source_location>
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
@@ -27,11 +31,13 @@ void require(bool ok, const char *message) {
 float signal(Frame f) {
     return float((double(f % 101) - 50) * .04);
 }
-template <class F> void await(F predicate) {
+template <class F>
+void await(F predicate, std::source_location at = std::source_location::current()) {
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
     while (!predicate()) {
         if (std::chrono::steady_clock::now() >= deadline)
-            throw std::runtime_error("Native GUI workflow timed out");
+            throw std::runtime_error("Native GUI workflow timed out at line " +
+                                     std::to_string(at.line()));
         QTest::qWait(2);
     }
 }
@@ -121,7 +127,9 @@ int main(int argc, char **argv) {
     try {
         require(argc == 3, "Supply new owned project folder and normal/disconnect");
         const bool disconnect = std::string_view(argv[2]) == "disconnect";
-        require(disconnect || std::string_view(argv[2]) == "normal", "Unknown native GUI mode");
+        const bool exporting = std::string_view(argv[2]) == "export";
+        require(disconnect || exporting || std::string_view(argv[2]) == "normal",
+                "Unknown native GUI mode");
         const auto root = utf8Path(argv[1]);
         require(std::filesystem::create_directory(root), "Owned project already exists");
         std::cerr << "Preparing owned GUI file source\n";
@@ -141,7 +149,24 @@ int main(int argc, char **argv) {
         Audit player;
         PlaybackControllerOptions options;
         options.nativeAudit = {&player, Audit::begin, Audit::end};
-        StudioWindow window(nullptr, std::move(options));
+        std::atomic<bool> exportEntered{false}, exportReleased{false};
+        std::shared_ptr<const Session> exportedModel;
+        ExportControllerOptions exportOptions;
+        if (exporting)
+            exportOptions.beforeRender = [&](const ExportRequest &request) {
+                exportedModel = request.session;
+                exportEntered.store(true);
+                while (!exportReleased.load())
+                    QThread::msleep(1);
+            };
+        StudioWindow window(nullptr, std::move(options), {}, exportOptions);
+        struct ReleaseExport {
+            std::atomic<bool> &flag;
+            ~ReleaseExport() {
+                flag.store(true);
+            }
+        } releaseExport{exportReleased};
+        const auto exportedPath = root.parent_path() / "native-gui-export.wav";
         window.show();
         window.activateWindow();
         window.openProject(root);
@@ -176,6 +201,30 @@ int main(int argc, char **argv) {
         });
         require(window.playbackSnapshot()->phase == PlaybackPhase::Playing && !sink.gap,
                 "GUI native playback fault/gap");
+        if (exporting) {
+            QTimer configure;
+            configure.setInterval(2);
+            QObject::connect(&configure, &QTimer::timeout, [&] {
+                auto *dialog = dynamic_cast<ExportDialog *>(QApplication::activeModalWidget());
+                if (!dialog)
+                    return;
+                configure.stop();
+                dialog->findChild<QLineEdit *>("exportDestination")
+                    ->setText(QString::fromUtf8(exportedPath.string()));
+                dialog->findChild<QLineEdit *>("exportStartFrame")->setText("0");
+                dialog->findChild<QLineEdit *>("exportEndFrame")->setText("480000");
+                dialog->findChild<QPushButton *>("startExportJob")->click();
+            });
+            configure.start();
+            require(window.requestExport(), "Native GUI export was not admitted");
+            await([&] {
+                return exportEntered.load() || window.exportSnapshot()->phase == ExportPhase::Fault;
+            });
+            require(exportEntered.load(), window.exportSnapshot()->diagnostic.c_str());
+            require(exportedModel && exportedModel->tracks.front().eq.bands.front().gainDb == 6 &&
+                        window.playbackSnapshot()->phase == PlaybackPhase::Playing,
+                    "Export snapshot or continuing native playback invalid");
+        }
         auto *gain = window.findChild<QDoubleSpinBox *>(QStringLiteral("gain_db0"));
         require(gain, "Gain control unavailable");
         gain->setValue(-3);
@@ -190,6 +239,20 @@ int main(int argc, char **argv) {
         require(window.playbackSnapshot()->appliedRevision == editedRevision,
                 "GUI scalar edit lacked native receipt");
         const auto firstReceipt = *window.playbackSnapshot();
+        if (exporting) {
+            require(window.exportSnapshot()->busy &&
+                        exportedModel->tracks.front().eq.bands.front().gainDb == 6,
+                    "Native live edit changed the offline snapshot");
+            exportReleased.store(true);
+            await([&] { return !window.exportSnapshot()->busy; });
+            const auto exported = window.exportSnapshot();
+            require(exported->phase == ExportPhase::Complete && exported->result &&
+                        exported->result->frames == 480000 &&
+                        exported->result->overFullScaleSamples &&
+                        window.playbackSnapshot()->phase == PlaybackPhase::Playing,
+                    "Native GUI export failed or interrupted playback");
+        }
+
         auto edited = s;
         edited.tracks.front().eq.bands.front().gainDb = -3;
         PreparedEq offline(s, s.tracks.front().id, 2048, firstReceipt.generation);
@@ -214,7 +277,12 @@ int main(int argc, char **argv) {
                     "Removed GUI output not identified");
         } else {
             await([&] { return sink.published.load() >= 96000; });
-            QTest::keyClick(&window, Qt::Key_Z, Qt::ControlModifier);
+            // After the export dialog, invoke the project menu action explicitly;
+            // a focused numeric editor can consume Ctrl+Z as its local text undo.
+            if (exporting)
+                window.findChild<QAction *>("undoAction")->trigger();
+            else
+                QTest::keyClick(&window, Qt::Key_Z, Qt::ControlModifier);
             await([&] {
                 return window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 6;
             });
@@ -262,7 +330,15 @@ int main(int argc, char **argv) {
         std::array<float, 127> input{}, expected{}, observed{};
         std::array<const float *, 1> in{input.data()};
         std::array<float *, 1> out{expected.data()};
-        double difference = 0;
+        double difference = 0, exportPrefixDifference = 0;
+        SF_INFO exportInfo{};
+        SNDFILE *exportFile =
+            exporting ? sf_open(exportedPath.c_str(), SFM_READ, &exportInfo) : nullptr;
+        if (exporting)
+            require(exportFile && exportInfo.frames == 480000 && exportInfo.channels == 1 &&
+                        exportInfo.samplerate == 48000,
+                    "Native GUI export header invalid");
+        std::array<float, 127> exportedSamples{};
         for (Frame f = 0; f < result.asset.frames;) {
             const auto n =
                 static_cast<std::uint32_t>(std::min<Frame>(127, result.asset.frames - f));
@@ -278,8 +354,19 @@ int main(int argc, char **argv) {
             require(sf_readf_float(file, observed.data(), n) == n, "GUI sink asset read failed");
             for (std::uint32_t k = 0; k < n; ++k)
                 difference = std::max(difference, std::abs(double(observed[k]) - expected[k]));
+            if (exporting) {
+                require(sf_readf_float(exportFile, exportedSamples.data(), n) == n,
+                        "Native GUI export cannot be read");
+                for (std::uint32_t k = 0; k < n && f + k < firstReceipt.appliedFrame; ++k)
+                    exportPrefixDifference = std::max(
+                        exportPrefixDifference, std::abs(double(exportedSamples[k]) - observed[k]));
+            }
             f += n;
         }
+        if (exporting)
+            require(sf_close(exportFile) == 0 && exportPrefixDifference <= 1e-7 &&
+                        firstReceipt.appliedFrame > 0,
+                    "Export differs from matching native live snapshot prefix");
         require(sf_close(file) == 0 && difference <= 1e-7,
                 "GUI native signal differs from applied-frame offline replay");
         require(!player.allocations && !player.frees && !player.locks && !sink.allocations &&
@@ -289,6 +376,10 @@ int main(int argc, char **argv) {
                     ProjectStore(root).load() == s,
                 "GUI playback/discard modified saved project");
         std::cout << "{\"mode\":\"" << argv[2] << "\",\"frames\":" << result.asset.frames
+                  << ",\"gui_export_during_playback\":" << (exporting ? "true" : "false")
+                  << ",\"export_live_prefix_frames\":"
+                  << (exporting ? firstReceipt.appliedFrame : 0)
+                  << ",\"export_live_prefix_difference\":" << exportPrefixDifference
                   << ",\"live_offline_difference\":" << difference
                   << ",\"missing_frames\":0,\"owned_nodes_only\":true,\"gui_playback\":true,\"gui_"
                      "live_edit\":true,\"gui_undo\":"

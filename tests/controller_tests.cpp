@@ -330,6 +330,36 @@ void queuePressure(const std::filesystem::path &root) {
     check(*closed->session == *created->session && !closed->dirty,
           "Shutdown executed pending commands after the priority flag");
 }
+void exactBarrierReceipt(const std::filesystem::path &root) {
+    Gate gate;
+    ProjectController controller({{}, {}, [&] { gate.block(); }});
+    ReleaseGate release{gate};
+    const auto initial = create(controller, root);
+    gate.armed.store(true, std::memory_order_release);
+    submit(controller, parameter(*initial, 5, 101, false));
+    await(controller, [&](auto &) { return gate.entered.load(); });
+    ProjectCommand barrier{CommandKind::Barrier};
+    barrier.barrier = 9001;
+    submit(controller, barrier);
+    submit(controller, parameter(*initial, -4, 102));
+    gate.release();
+    auto latest = await(controller, [](const auto &v) {
+        return v.lastBarrier == 9001 && v.session->tracks.front().eq.bands.front().gainDb == -4;
+    });
+    check(latest->barrierSession && latest->barrierRoot == root &&
+              latest->barrierRevision + 1 == latest->modelRevision &&
+              latest->barrierSession->tracks.front().eq.bands.front().gainDb == 5,
+          "Barrier receipt did not retain the exact accepted edit prefix");
+    const auto receipt = latest->barrierSession;
+    submit(controller, parameter(*latest, 7, 103));
+    latest = await(controller, [](const auto &v) {
+        return v.session->tracks.front().eq.bands.front().gainDb == 7;
+    });
+    check(latest->barrierSession == receipt &&
+              receipt->tracks.front().eq.bands.front().gainDb == 5 &&
+              ProjectStore(root).load() == *initial->session,
+          "Later edit changed barrier model or implicitly saved it");
+}
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -343,6 +373,7 @@ int main(int argc, char **argv) {
         queuePressure(root / "queue-pressure");
         recordedTakeAttachment(root / "recorded-takes");
         closeDuringAttachment(root / "cancel-attachment");
+        exactBarrierReceipt(root / "barrier-prefix");
         std::cout << "{\"checks\":" << checks
                   << ",\"asynchronous_io\":true,\"save_revision_checked\":true,\"shutdown_join_"
                      "checked\":true}\n";

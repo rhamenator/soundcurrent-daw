@@ -79,8 +79,10 @@ class FocusSlider : public QSlider {
 };
 } // namespace
 StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
-                           RecordingControllerOptions recordingOptions)
-    : QMainWindow(parent), playback_(std::move(options)), recording_(std::move(recordingOptions)) {
+                           RecordingControllerOptions recordingOptions,
+                           ExportControllerOptions exportOptions)
+    : QMainWindow(parent), playback_(std::move(options)), recording_(std::move(recordingOptions)),
+      exporter_(std::move(exportOptions)) {
     setObjectName(QStringLiteral("studioWindow"));
     setWindowTitle(tr("SoundCurrent DAW"));
     auto *file = menuBar()->addMenu(tr("&File"));
@@ -93,6 +95,13 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     save_ = file->addAction(tr("&Save"), QKeySequence::Save, this,
                             [this] { submitEdit({CommandKind::Save}); });
     save_->setObjectName(QStringLiteral("saveAction"));
+    exportAction_ =
+        file->addAction(tr("&Export WAV…"), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E), this,
+                        [this] { requestExport(); });
+    exportAction_->setObjectName("exportAudioAction");
+    cancelExportAction_ =
+        file->addAction(tr("Cancel export"), this, [this] { exporter_.requestCancel(); });
+    cancelExportAction_->setObjectName("cancelExportAction");
     file->addSeparator();
     file->addAction(tr("&Quit"), QKeySequence::Quit, this, &QWidget::close);
     auto *editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -279,10 +288,33 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     track_ = new QLabel(body);
     track_->setWordWrap(true);
     layout->addWidget(track_);
+    auto *exportGroup = new QGroupBox(tr("Audio export"), body);
+    exportGroup->setObjectName("exportGroup");
+    auto *exportLayout = new QVBoxLayout(exportGroup);
+    auto *exportButtons = new QHBoxLayout;
+    exportButton_ = new QPushButton(tr("Export WAV…"));
+    cancelExportButton_ = new QPushButton(tr("Cancel export"));
+    exportButton_->setObjectName("exportAudioButton");
+    cancelExportButton_->setObjectName("cancelExportButton");
+    exportButtons->addWidget(exportButton_);
+    exportLayout->addLayout(exportButtons);
+    exportState_ = new QLabel;
+    exportState_->setObjectName("exportStatus");
+    exportState_->setWordWrap(true);
+    exportState_->setTextFormat(Qt::PlainText);
+    exportState_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    exportProgress_ = new QProgressBar;
+    exportProgress_->setObjectName("exportProgress");
+    exportProgress_->setAccessibleName(tr("Audio export progress"));
+    exportProgress_->setRange(0, 1000);
+    exportLayout->addWidget(exportState_);
+    layout->addWidget(exportGroup);
+    connect(exportButton_, &QPushButton::clicked, this, [this] { requestExport(); });
+    connect(cancelExportButton_, &QPushButton::clicked, this,
+            [this] { exporter_.requestCancel(); });
     notice_ = new QLabel(
         tr("Development preview: first-track recording and playback are available on Linux. "
-           "Captured audio stays raw; track EQ affects monitoring and playback. Export is being "
-           "integrated."),
+           "Captured audio stays raw; track EQ affects monitoring, playback and WAV export."),
         body);
     notice_->setObjectName(QStringLiteral("previewNotice"));
     notice_->setWordWrap(true);
@@ -293,6 +325,9 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     state_ = new QLabel(this);
     state_->setObjectName(QStringLiteral("operationStatus"));
     statusBar()->addWidget(state_, 1);
+    exportProgress_->setFixedWidth(150);
+    statusBar()->addPermanentWidget(exportProgress_);
+    statusBar()->addPermanentWidget(cancelExportButton_);
     const auto available = screen()->availableGeometry();
     resize(std::min(1000, available.width()), std::min(640, available.height()));
     for (auto *label : {project_, track_, state_, notice_, playbackState_, level_, recordingState_,
@@ -307,6 +342,158 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
 std::shared_ptr<const ControllerSnapshot> StudioWindow::snapshot() const {
     return controller_.snapshot();
 }
+std::shared_ptr<const ExportSnapshot> StudioWindow::exportSnapshot() const {
+    return exporter_.snapshot();
+}
+bool StudioWindow::exportWorkflowBusy() const {
+    return exportBarrier_ || exportSelection_ || exportDialog_ || exporter_.snapshot()->busy;
+}
+bool StudioWindow::requestExport() {
+    const auto m = controller_.snapshot();
+    if (exportWorkflowBusy() || closing_ || closeRequested_ || closeAfterSave_ || !m->session ||
+        m->session->tracks.empty() || m->io == IoOperation::Create || m->io == IoOperation::Open ||
+        attachingTake_)
+        return false;
+    if (auto *focused = focusWidget())
+        focused->clearFocus();
+    ProjectCommand barrier{CommandKind::Barrier};
+    barrier.barrier = nextGesture_++;
+    const auto token = barrier.barrier;
+    if (!submitEdit(std::move(barrier)))
+        return false;
+    exportBarrier_ = token;
+    return true;
+}
+void StudioWindow::pollExport() {
+    const auto m = controller_.snapshot();
+    if (exportBarrier_ && m->lastBarrier == exportBarrier_ && !closing_ && !closeRequested_) {
+        exportBarrier_ = 0;
+        if (m->barrierSession && !m->barrierSession->tracks.empty()) {
+            if (exportSelection_) {
+                ExportRequest request(exportSelection_->spec);
+                request.destination = exportSelection_->destination;
+                request.session = m->barrierSession;
+                request.root = m->barrierRoot;
+                request.modelRevision = m->barrierRevision;
+                exportSelection_.reset();
+                if (exporter_.submit(std::move(request)) != Admission::Accepted)
+                    notice_->setText(tr("An export is already running or closing. Please retry."));
+            } else {
+                ExportDialog dialog(m->barrierRoot, m->barrierSession, this);
+                exportDialog_ = &dialog;
+                const auto answer = dialog.exec();
+                exportDialog_.clear();
+                if (answer == QDialog::Accepted && dialog.selection() && !closing_ &&
+                    !closeRequested_) {
+                    exportSelection_ = *dialog.selection();
+                    ProjectCommand capture{CommandKind::Barrier};
+                    capture.barrier = nextGesture_++;
+                    const auto token = capture.barrier;
+                    if (submitEdit(std::move(capture)))
+                        exportBarrier_ = token;
+                    else
+                        exportSelection_.reset();
+                }
+            }
+        } else
+            exportSelection_.reset();
+    }
+    const auto e = exporter_.snapshot();
+    if (e->phase == ExportPhase::AwaitingConfirmation && e->replacement &&
+        exportPromptJob_ != e->job && !exportPrompt_ && !closeRequested_ && !closing_) {
+        exportPromptJob_ = e->job;
+        auto *box = new QMessageBox(
+            QMessageBox::Question, tr("Replace existing file?"),
+            tr("Replace this file with the new audio export?\n%1\nCurrent size: %2 bytes")
+                .arg(text(pathUtf8(e->replacement->path)),
+                     QLocale().toString(static_cast<qulonglong>(e->replacement->bytes))),
+            QMessageBox::Yes | QMessageBox::No, this);
+        box->setObjectName("exportOverwritePrompt");
+        box->setTextFormat(Qt::PlainText);
+        box->setDefaultButton(QMessageBox::No);
+        box->setWindowModality(Qt::WindowModal);
+        box->setAttribute(Qt::WA_DeleteOnClose);
+        exportPrompt_ = box;
+        connect(box, &QMessageBox::finished, this, [this, job = e->job](int answer) {
+            exporter_.confirm(job, answer == QMessageBox::Yes && !closeRequested_ && !closing_);
+        });
+        box->open();
+    }
+    if (exportPrompt_ &&
+        (e->phase != ExportPhase::AwaitingConfirmation || closeRequested_ || e->cancelRequested))
+        exportPrompt_->done(QMessageBox::No);
+    const bool allow = !closing_ && !closeRequested_ && !closeAfterSave_ && !exportWorkflowBusy() &&
+                       m->session && !m->session->tracks.empty() && m->io != IoOperation::Create &&
+                       m->io != IoOperation::Open && !attachingTake_;
+    exportAction_->setEnabled(allow);
+    exportButton_->setEnabled(allow);
+    cancelExportAction_->setEnabled(e->busy && !closing_ && !closeRequested_);
+    cancelExportButton_->setEnabled(cancelExportAction_->isEnabled());
+    exportProgress_->setVisible(e->busy);
+    cancelExportButton_->setVisible(e->busy);
+    if (e->busy && e->maximum <= 0)
+        exportProgress_->setRange(0, 0);
+    else {
+        exportProgress_->setRange(0, 1000);
+        exportProgress_->setValue(
+            e->maximum > 0 ? int(std::clamp(double(e->written) / double(e->maximum), 0., 1.) * 1000)
+                           : 0);
+    }
+    QString status;
+    switch (e->phase) {
+    case ExportPhase::Idle:
+        status = tr("Export a track through its EQ to float32 WAV.");
+        break;
+    case ExportPhase::Queued:
+        status = tr("Export queued…");
+        break;
+    case ExportPhase::Inspecting:
+        status = tr("Checking the export destination…");
+        break;
+    case ExportPhase::AwaitingConfirmation:
+        status = tr("Waiting for replacement confirmation.");
+        break;
+    case ExportPhase::Rendering:
+        status = tr("Rendering snapshot %1 — %2 frames written")
+                     .arg(QLocale().toString(static_cast<qulonglong>(e->modelRevision)),
+                          QLocale().toString(static_cast<qlonglong>(e->written)));
+        break;
+    case ExportPhase::Complete:
+        status = tr("Export complete: %1").arg(text(pathUtf8(e->destination)));
+        if (e->result) {
+            const auto &r = *e->result;
+            status += tr("\n%1 frames · peak %2 dBFS")
+                          .arg(QLocale().toString(static_cast<qlonglong>(r.frames)),
+                               r.peak > 0 ? QLocale().toString(20 * std::log10(r.peak), 'f', 1)
+                                          : tr("−∞"));
+            if (r.overFullScaleSamples)
+                status += tr("\nFloat levels exceed 0 dBFS; they were preserved.");
+            if (r.tailTruncated)
+                status += tr("\nThe tail reached its time limit.");
+            if (r.durability == Durability::FileFlushed)
+                status += tr("\nFile flushed; directory durability is not confirmed.");
+            if (!r.publicationWarning.empty())
+                status += tr("\nThe complete file was published with a warning: %1")
+                              .arg(text(r.publicationWarning));
+        }
+        break;
+    case ExportPhase::Canceled:
+        status = tr("Export canceled; no new file was published.");
+        break;
+    case ExportPhase::Fault:
+        status = tr("Export failed: %1").arg(text(e->diagnostic));
+        break;
+    case ExportPhase::Closing:
+        status = tr("Closing export…");
+        break;
+    case ExportPhase::Closed:
+        status = tr("Export worker closed.");
+        break;
+    }
+    if (e->busy && e->cancelRequested)
+        status = tr("Canceling export; waiting for the current file operation…");
+    exportState_->setText(status);
+}
 bool StudioWindow::submitEdit(ProjectCommand command) {
     const auto admission = controller_.submit(std::move(command));
     if (admission != Admission::Accepted) {
@@ -317,9 +504,9 @@ bool StudioWindow::submitEdit(ProjectCommand command) {
     return true;
 }
 void StudioWindow::openProject(const std::filesystem::path &root) {
-    if (recordingBusy() || attachingTake_) {
-        notice_->setText(
-            tr("Stop recording and resolve the pending take before opening another project."));
+    if (recordingBusy() || attachingTake_ || exportWorkflowBusy()) {
+        notice_->setText(tr("Finish recording, pending take attachment and export before opening "
+                            "another project."));
         return;
     }
     ProjectCommand command;
@@ -329,7 +516,7 @@ void StudioWindow::openProject(const std::filesystem::path &root) {
     submitEdit(std::move(command));
 }
 void StudioWindow::newProject() {
-    if (recordingBusy() || attachingTake_)
+    if (recordingBusy() || attachingTake_ || exportWorkflowBusy())
         return;
     const auto parent =
         QFileDialog::getExistingDirectory(this, tr("Choose a folder for the new project"));
@@ -825,6 +1012,7 @@ void StudioWindow::pollRecording() {
 }
 
 void StudioWindow::shutdownWorkers() {
+    exporter_.requestShutdown();
     playback_.requestShutdown();
     recording_.requestShutdown();
     controller_.requestShutdown();
@@ -951,7 +1139,9 @@ void StudioWindow::poll() {
     const auto view = controller_.snapshot();
     pollRecording();
     pollPlayback();
-    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed && closing_) {
+    pollExport();
+    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
+        exporter_.snapshot()->closed && closing_) {
         close();
         return;
     }
@@ -961,6 +1151,8 @@ void StudioWindow::poll() {
         closeSaveSubmitted_ = false;
         closeRequested_ = false;
         closeBarrier_ = 0;
+        exportBarrier_ = 0;
+        exportSelection_.reset();
         notice_->setText(
             tr("The operation could not be completed: %1").arg(text(view->diagnostic)));
     }
@@ -988,10 +1180,12 @@ void StudioWindow::poll() {
     const bool replacing = view->io == IoOperation::Create || view->io == IoOperation::Open;
     eq_->setEnabled(bool(view->session) && !replacing && !closing_ && !closeAfterSave_ &&
                     !closeRequested_);
-    new_->setEnabled(!recordingBusy() && !attachingTake_ && view->io == IoOperation::None &&
-                     !view->dirty && !closing_ && !closeRequested_);
-    open_->setEnabled(!recordingBusy() && !attachingTake_ && view->io == IoOperation::None &&
-                      !view->dirty && !closing_ && !closeRequested_);
+    new_->setEnabled(!recordingBusy() && !attachingTake_ && !exportWorkflowBusy() &&
+                     view->io == IoOperation::None && !view->dirty && !closing_ &&
+                     !closeRequested_);
+    open_->setEnabled(!recordingBusy() && !attachingTake_ && !exportWorkflowBusy() &&
+                      view->io == IoOperation::None && !view->dirty && !closing_ &&
+                      !closeRequested_);
     save_->setEnabled(bool(view->session) && view->io == IoOperation::None && !closing_ &&
                       !closeRequested_ && !closeAfterSave_);
     undo_->setEnabled(bool(view->session) && !replacing && !closing_ && !closeRequested_);
@@ -1006,7 +1200,8 @@ void StudioWindow::poll() {
         } else
             track_->setText(tr("This project has no audio tracks."));
     }
-    state_->setText(closing_                                   ? tr("Closing project…")
+    state_->setText(closing_                     ? tr("Closing project…")
+                    : exporter_.snapshot()->busy ? tr("Exporting an immutable project snapshot…")
                     : view->io == IoOperation::AttachRecording ? tr("Verifying recorded take…")
                     : view->io == IoOperation::Save            ? tr("Saving project…")
                     : view->io == IoOperation::Open            ? tr("Opening project…")
@@ -1022,7 +1217,8 @@ void StudioWindow::poll() {
     shown_ = view;
     if (closeRequested_ && !closing_ && !closeAfterSave_ && !closePromptActive_ && !closeBarrier_ &&
         recording_.snapshot()->stopAcknowledged >= closeDrainToken_ &&
-        !recording_.snapshot()->take && !attachingTake_ && view->io == IoOperation::None) {
+        !recording_.snapshot()->take && !attachingTake_ && !exporter_.snapshot()->busy &&
+        view->io == IoOperation::None) {
         ProjectCommand barrier{CommandKind::Barrier};
         barrier.barrier = nextGesture_++;
         const auto token = barrier.barrier;
@@ -1045,7 +1241,8 @@ void StudioWindow::poll() {
 }
 void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = controller_.snapshot();
-    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed) {
+    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
+        exporter_.snapshot()->closed) {
         event->accept();
         return;
     }
@@ -1055,6 +1252,13 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     if (auto *focused = focusWidget())
         focused->clearFocus();
     closeRequested_ = true;
+    exportBarrier_ = 0;
+    exportSelection_.reset();
+    if (exportDialog_)
+        exportDialog_->reject();
+    if (exportPrompt_)
+        exportPrompt_->done(QMessageBox::No);
+    exporter_.requestCancel();
     playback_.requestStop();
     closeDrainToken_ = recording_.requestStop();
 }

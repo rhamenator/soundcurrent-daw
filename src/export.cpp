@@ -25,6 +25,9 @@ void require(bool ok, const char *message, ErrorCode code = ErrorCode::InvalidSt
 }
 std::filesystem::path fullPath(const std::filesystem::path &path) {
     require(!path.empty(), "Export path is empty");
+    require(path.native().find(std::filesystem::path::value_type(0)) ==
+                std::filesystem::path::string_type::npos,
+            "Export path contains a NUL character");
     return std::filesystem::absolute(path).lexically_normal();
 }
 void plainAncestors(const std::filesystem::path &path) {
@@ -93,6 +96,28 @@ struct Audio {
     }
 };
 } // namespace
+ExportDestination inspectExportDestination(const std::filesystem::path &projectRoot,
+                                           const std::filesystem::path &destination,
+                                           const std::function<void()> &beforeRead) {
+    if (beforeRead)
+        beforeRead();
+    const auto root = fullPath(projectRoot), dest = fullPath(destination);
+    plainAncestors(root);
+    plainAncestors(dest.parent_path());
+    require(!inside(dest, root) || inside(dest, root / "exports"),
+            "Exports inside a project must be in its exports directory");
+    ExportDestination result;
+    result.path = dest;
+    result.exists = std::filesystem::exists(std::filesystem::symlink_status(dest));
+    if (result.exists) {
+        media_io::plainFile(dest);
+        require(std::filesystem::hard_link_count(dest) == 1,
+                "Linked export replacement target refused", ErrorCode::Io);
+        result.bytes = std::filesystem::file_size(dest);
+        result.sha256 = hashMediaFile(dest, beforeRead);
+    }
+    return result;
+}
 ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Session &session,
                             const std::filesystem::path &destination, const ExportSpec &spec,
                             const ExportOptions &options) {

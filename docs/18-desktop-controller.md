@@ -53,3 +53,7 @@ S6e now [connects Linux desktop playback](20-desktop-playback.md) through a sepa
 S6f adds [typed asynchronous take attachment](21-native-recording-owner.md): finalized-journal and media-hash verification runs on the I/O worker, then publication preserves intervening scalar edits. S6g now wires Record and finalization before the close barrier. Clip/asset undo and automatic recovery discovery remain required.
 
 S6g now [connects recording result handoff and close choreography](22-desktop-recording.md). Recording finalization and verified attachment precede the canonical barrier/dirty decision. The project worker remains the sole canonical editor; its I/O worker performs verification. General clip/asset undo and automatic recovery discovery remain open.
+
+## Export prefix receipt, 2026-10-06
+
+A Barrier now retains one immutable session/root/revision at its exact accepted-command prefix. Later publications can contain newer parameter edits while that receipt remains unchanged. S7b uses a defaults receipt when configuring and a new receipt at Start. The controller fixture queues edits on both sides of a barrier and verifies prefix identity/content/revision and unchanged saved state. No snapshot publication or barrier implicitly saves the project. [Desktop export](24-desktop-export.md) owns inspection/render separately.

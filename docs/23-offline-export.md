@@ -1,7 +1,7 @@
 # S7a: shared-engine offline float WAV export
 
 Status: **worker API and developer CLI implemented, 2026-10-05**. This is the export
-core, not the completed desktop export workflow, complete SLICE-001 or DAW parity.
+core; [S7b desktop binding](24-desktop-export.md) now exists. Complete SLICE-001 and DAW parity remain unproven.
 Previous goal checkpoint was progress: `df920a5` adopted the equipment catalog update.
 
 ## Current workflow
@@ -28,8 +28,8 @@ Existing files are refused by default. An explicit replacement request supplies 
 SHA-256 of the approved current file with `--replace-sha256 CONFIRMED_HASH`. The core
 checks it before preparation and immediately before publication, refusing a changed
 or missing target. A caller must obtain real user approval for that file/content;
-automatically fingerprinting and replacing it is not confirmation. The desktop must
-present the destination/overwrite choice in S7b. This is content revalidation under
+automatically fingerprinting and replacing it is not confirmation. The desktop
+presents a worker-inspected, explicit destination/overwrite choice in S7b. This is content revalidation under
 an owned-filesystem contract, not an atomic compare-and-swap against hostile writers
 between the final hash and rename. General adversarial filesystem containment remains
 an independent security gate.
@@ -41,7 +41,7 @@ an independent security gate.
 **private `PreparedEq` instance from `sc-engine`**. No live graph, audio device, GUI,
 equipment library or canonical model is changed. Reader I/O, hashing, buffers, file
 creation and publication stay outside realtime callbacks. The calling desktop must
-dispatch the complete job to a worker; it is not yet connected to the window.
+dispatch the complete job to a worker; S7b now connects an independent job owner to the window.
 
 Preparation checks the existing session/channel/rate/EQ/media contracts. Matching
 source rates are required; resampling is unimplemented. The source handles are
@@ -131,10 +131,8 @@ sample preservation, and cancels a genuine large RF64 writer using SIGTERM. No p
 audio or native Windows execution is involved. The Windows headless export/core/tests
 cross-build passes; it is not a runtime or Qt qualification.
 
-**Next implementation: S7b asynchronous desktop Export dialog and job owner.** Capture
-the canonical immutable session/revision (including unsaved edits), choose track/range/
-tail/destination, inspect a replacement for user approval, expose progress/cancel and
-complete-file durability warnings, preserve live transport, and wait/cancel the worker
-safely at close. Add real UI tests for those choices, overload, edits during export and
-close/cancel. Then qualify S8 and the remaining recording/native/routing/platform gates.
+**S7b binding now exists:** [desktop snapshot export](24-desktop-export.md) captures
+the immutable accepted session/revision, exposes track/range/tail/destination and
+worker-inspected overwrite consent, preserves live transport and joins at close.
+The next task is S8 and remaining recording/native/routing/platform acceptance.
 All 92 frozen parity rows, X004/X005 processing/portability and localization remain open.

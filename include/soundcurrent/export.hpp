@@ -6,6 +6,16 @@
 namespace soundcurrent::daw {
 enum class ExportTail { ExactRange, UntilSilent };
 enum class ExportBoundary { Prepared, BlockWritten, BeforeFlush, BeforePublish, DirectoryFlush };
+struct ExportDestination {
+    std::filesystem::path path;
+    bool exists = false;
+    std::uintmax_t bytes = 0;
+    std::string sha256;
+};
+// Worker-side safe path/content inspection for a user confirmation receipt.
+ExportDestination inspectExportDestination(const std::filesystem::path &projectRoot,
+                                           const std::filesystem::path &destination,
+                                           const std::function<void()> &beforeRead = {});
 struct ExportSpec {
     explicit ExportSpec(const Id &track) : trackId(track) {}
     Id trackId;

@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "scope": "S7b desktop selected-track EQ WAV export; full SLICE-001 and DAW parity incomplete",
+  "baseline": "SC-DAW-BASELINE-2026-10-05; unchanged",
+  "parent_commit": "b1b878b8989e4a06fc438edf7cbbc0d389bb8a66",
+  "previous_goal_turn": "progress: b1b878b reviewed equalizer updates and adopted held-step equipment controls",
+  "source_sha256": {
+    "CMakeLists.txt": "f6f31ceb5155237a9afc291d10c822e756896803804d97e2654bf146e366063a",
+    "include/soundcurrent/export.hpp": "24533bfee1efc47c4022d8cea715023e726fd2903738e7ef0f5dfdee60e44483",
+    "src/export.cpp": "25d0882ad27ce253f58ccd2dae4c403ba452b2e8525e765a0eebe7416147fb97",
+    "ui/export_controller.hpp": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e",
+    "ui/export_controller.cpp": "51a2de241a5f5b4d1fbaf2c1bed6fb0345f49bd602e2cf3f9be1efba2f546085",
+    "ui/export_dialog.hpp": "48d028c61a322ee1f815ab2b515cfa2db633954c6cf78774a7f68b35beae961a",
+    "ui/export_dialog.cpp": "8b22072ebba18649bd2bac9a8d37de70589eec8fca5c03bb099a2a2714b2448b",
+    "ui/project_controller.hpp": "a1f1971515ec562f96cbc4d8124048712b366577832786d5ca7c0b79e5cd6b62",
+    "ui/project_controller.cpp": "a57b3cfc9b0a929611e2a11634f4d0bcaaf7db375859013f67bd8b9463cfe0f6",
+    "ui/studio_window.hpp": "e35a9734dab3362f2713a324ccb34bef298f57ea6c7a918d75654f6fa5d08b76",
+    "ui/studio_window.cpp": "0aa09f6c0741a44a3c339732ea1b291355ae82f812eb9f51741cf43ba456279e",
+    "tests/export_fixture.hpp": "652990110040112977a4c6de1eb824c0a842d873faec7211392185e878bc3717",
+    "tests/export_controller_tests.cpp": "3d8c123384caa11bfd108e7863721cfcc5df288b47d5fffabf03fe19a13f299a",
+    "tests/export_ui_tests.cpp": "c7536b3dc53f1c64f59104f909d869436561fd8f2fb37196dbdc7af3431ff3ca",
+    "tests/controller_tests.cpp": "e48205c4d894e84fecf0ffd28be4446102b7c8a15e6e7a05d0be8f5f68cb5544",
+    "tests/pipewire_ui_fixture.cpp": "23b5fd463eb9d8b3103e555e77428862f843af2969268090399997cc7cf3c0d8"
+  },
+  "linux_debug": {
+    "groups": 16,
+    "status": "passed",
+    "log_sha256": "387df84c41ab2a333fe0b29e970e9972d9fa19d09fa0c0ef673cd823f13e5b42",
+    "final_affected_groups": 2,
+    "final_affected_status": "passed after moving progress/cancel outside scroll area",
+    "final_log_sha256": "6a1a0797eafc5ed12ef581058e2a24e972968555406419906530d232ffda6d5e"
+  },
+  "linux_asan_ubsan_lsan": {
+    "groups": 16,
+    "status": "passed",
+    "log_sha256": "ba0491c7f86c71a49d4d749488792fb818c3746fc146ce36c6d17b5e3b4d57f5",
+    "final_affected_groups": 2,
+    "final_affected_status": "passed after UI visibility change",
+    "final_log_sha256": "90ab9cc25f3a04db0d47963493e0c2c51350d2c4dc828be7e4baf8c91393d1e4",
+    "leak_detection": true
+  },
+  "windows_headless": {
+    "cross_build": "passed",
+    "Qt_desktop": false,
+    "native_execution": false,
+    "log_sha256": "efc5dce17734e2d463d149e7bd28e7fce5d87cf26f1b642fe75d4d3c2946f81c"
+  },
+  "acceptance": [
+    "Exact canonical barrier prefix retained independently of later queued edits, with stable root/revision/IDs and no implicit save.",
+    "Actual dialog Start captures accepted unsaved EQ edit; later edit reaches live controller receipts without mutating exported snapshot.",
+    "Actual WAV bytes and sample/file hashes match a shared-engine render of the captured snapshot; float overs retained.",
+    "One export admitted through inspection/consent/render; Full never replaces job. Stale/duplicate consent and caller-supplied hash cannot bypass worker-owned inspection.",
+    "No preserves existing bytes; Yes replaces confirmed bytes; changed destination after preview refuses overwrite.",
+    "GUI track ID, selected half-open range, optional quiet-tail cap and RF64 flow to real core writes.",
+    "Locale frame parsing/formatting, Unicode names/path, dialog screen fit, unfocused track/tail wheel guards.",
+    "Progress/cancel stay in status bar outside scrolling EQ controls; real partial writer cancels, cleans temp and never publishes.",
+    "Hash read cancellation, blocked render/shutdown join, before-publication cancellation and published-file warning/late-cancel success semantics.",
+    "Close waits worker cleanup before dirty Save/Discard/Cancel; Cancel retains edits; unanswered overwrite close keeps original; final exit waits all four owners.",
+    "Saved project and raw asset hash remain unchanged through export; New/Open GUI admission gated during configuration/job."
+  ],
+  "fixtures": {
+    "export_controller_and_inspection": "1162 checks in debug regression, including three real owned capture projects; count includes capture-block assertions",
+    "desktop_export_ui": "2008 checks in final screenshot run, including five owned capture projects and real modal/nonmodal UI/export writes; loop/capture assertions included",
+    "project_controller": "138 checks including exact barrier-prefix workflow",
+    "prior_core_export": "937 existing core checks, 1/2/8/32/256 channel and live/oracle/transaction corpus"
+  },
+  "native_debug": {
+    "mode": "export",
+    "frames": 480000,
+    "gui_export_during_playback": true,
+    "export_live_prefix_frames": 26624,
+    "export_live_prefix_difference": 0,
+    "live_offline_difference": 0,
+    "missing_frames": 0,
+    "owned_nodes_only": true,
+    "gui_playback": true,
+    "gui_live_edit": true,
+    "gui_undo": true,
+    "explicit_output_selection": true,
+    "gui_meter": true,
+    "asynchronous_close": true,
+    "project_unchanged": true,
+    "rt_allocations": 0,
+    "rt_frees": 0,
+    "rt_blocking_locks": 0,
+    "first_applied_frame": 26624,
+    "applied_events": 2,
+    "routing_observations": {
+      "graph_snapshots_during_run": 81,
+      "snapshots_with_owned_links": 76,
+      "no_observed_owned_to_unowned_links": true,
+      "pre_existing_links_preserved": 0,
+      "default_metadata_unchanged": true,
+      "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+      "owned_nodes_and_links_removed": true
+    },
+    "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nThis plugin does not support propagateSizeHints()\nNative GUI terminal; closing window"
+  },
+  "native_asan_ubsan_diagnostic": {
+    "result": {
+      "mode": "export",
+      "frames": 480000,
+      "gui_export_during_playback": true,
+      "export_live_prefix_frames": 25600,
+      "export_live_prefix_difference": 0,
+      "live_offline_difference": 0,
+      "missing_frames": 0,
+      "owned_nodes_only": true,
+      "gui_playback": true,
+      "gui_live_edit": true,
+      "gui_undo": true,
+      "explicit_output_selection": true,
+      "gui_meter": true,
+      "asynchronous_close": true,
+      "project_unchanged": true,
+      "rt_allocations": 0,
+      "rt_frees": 0,
+      "rt_blocking_locks": 0,
+      "first_applied_frame": 25600,
+      "applied_events": 2,
+      "routing_observations": {
+        "graph_snapshots_during_run": 85,
+        "snapshots_with_owned_links": 77,
+        "no_observed_owned_to_unowned_links": true,
+        "pre_existing_links_preserved": 0,
+        "default_metadata_unchanged": true,
+        "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+        "owned_nodes_and_links_removed": true
+      },
+      "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nThis plugin does not support propagateSizeHints()\nNative GUI terminal; closing window"
+    },
+    "environment": "QT_QPA_PLATFORM=offscreen PIPEWIRE_DLCLOSE=false ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1",
+    "limitation": "Diagnostic module-lifetime setting only; does not qualify normal PipeWire dlclose LSan/unload-memory gate."
+  },
+  "visual_review": {
+    "files": {
+      ".cache/export-dialog.png": "9b90ca1d3f247f3140f6691cfae5338e48443d67a881d8b621779abb4a003da7",
+      ".cache/export-rendering.png": "2d16b2fe7dfaea14bec6e348583002190648f200958939258de3e8183db56a9e"
+    },
+    "review": "Dialog fields/buttons fit; status-bar progress and cancellation remain visible during live EQ edit; offscreen only, no native accessibility/HiDPI claim."
+  },
+  "resolved_findings": [
+    "Progress/cancel initially below scroll viewport; moved to persistent status bar and qualified visibility.",
+    "Native export fixture initially timed out after completed export because focused editor consumed synthetic Ctrl+Z as local text undo. Line diagnostics located the wait; export mode now invokes real project Undo QAction. Native signal sample/routing criteria unchanged."
+  ],
+  "reuse_audit": "tools/check_equalizer_reuse.py returned 0 at milestone start; no input changes and no equalizer edits performed.",
+  "gaps": [
+    "All 92 frozen parity families remain incomplete; no processor-quality/content/native-project equivalence inferred.",
+    "S8 consolidated native record/save/reopen/export/relocation/route corpus and remaining M1 gates.",
+    "Windows native Qt/audio execution, installers and full Windows capability parity.",
+    "Delivered all-Europe translations, native reviews, errors/help/installer coverage and accessibility/HiDPI/X11/Wayland qualification.",
+    "Physical disk-full/power-loss, complete >4 GiB output, process-crash temp discovery, syscall failures and adversarial filesystem/CAS containment.",
+    "Hardware latency/alignment, memory locking, load/deadline guarantees, device reconnect/reprepare, normal PipeWire module-unload LSan and old overlapping-qualification timeout.",
+    "Bus/master/stem/automation/delayed graph export, resampling, other output formats and missing/unused-media policies.",
+    "X004 native project import and X005 correction routing/project pins/measurement/rights gates."
+  ],
+  "next_task": "S8 end-to-end native recording/save/reopen/export and relocation corpus; close remaining M1 route/filesystem/platform gates, then M2 dependable multitrack development."
+}

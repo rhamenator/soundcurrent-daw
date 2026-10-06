@@ -275,6 +275,9 @@ struct ProjectController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState, "Barrier token is missing");
             commitGesture();
             view.lastBarrier = command.barrier;
+            view.barrierSession = model ? std::make_shared<const Session>(*model) : nullptr;
+            view.barrierRoot = view.root;
+            view.barrierRevision = view.modelRevision;
             break;
         }
         ++view.completedCommands;

@@ -35,6 +35,10 @@ struct ControllerSnapshot {
     std::filesystem::path root;
     std::uint64_t modelRevision = 0, savedRevision = 0, completedCommands = 0, errorSerial = 0;
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;
+    // One retained immutable receipt at the exact accepted-command prefix.
+    std::shared_ptr<const Session> barrierSession;
+    std::filesystem::path barrierRoot;
+    std::uint64_t barrierRevision = 0;
     std::optional<Id> lastAttachedAsset;
     std::optional<ErrorCode> errorCode;
     std::string diagnostic;
