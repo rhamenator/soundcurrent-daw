@@ -2,7 +2,7 @@
 
 Linux-first professional digital audio workstation and recording suite, planned in C++20 with CMake and Qt 6. Licensed GPL-3.0-only by the owner's decision on 2026-10-05.
 
-**Status: early implementation.** Qt-free session/state, prepared in-process EQ, headless recording/recovery and the shared audio bridge build on Linux and cross-compile for Windows. A developer command records synthetic input; an opt-in native PipeWire fixture now records and monitors between owned nodes. The desktop application and release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
+**Status: early implementation.** Qt-free session/state, prepared in-process EQ, headless recording/recovery, shared audio bridge and bounded file playback build on Linux and cross-compile for Windows. A developer command records synthetic input; an opt-in native PipeWire fixture now records and monitors between owned nodes. The desktop application and release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
 
 `soundcurrent-studio` already contains the premium equalizer. This separate repository is named `soundcurrent-daw` to preserve that work. It is local, has no remote, and has not been published or pushed.
 
@@ -23,12 +23,13 @@ Linux-first professional digital audio workstation and recording suite, planned 
 13. [Prepared EQ and real-time transport](docs/11-engine-contract.md)
 14. [Capture, disk worker and recovery](docs/13-recording-contract.md)
 15. [Shared audio bridge and native PipeWire](docs/14-native-audio-contract.md)
+16. [Read-ahead and take playback](docs/15-playback-contract.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
 ## Next implementation task
 
-Continue **M1 / SLICE-001** with **S6a: bounded read-ahead and take playback**, then the Qt UI and offline WAV export. S5's shared bridge and Linux owned-source capture/monitor/disconnect foundation is implemented. S5 hardware latency, reprepare/reconnect and native Windows audio remain open, alongside S4 filesystem/>4 GiB gates. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M1 / SLICE-001** with **S6: the first Qt recording/playback/EQ UI**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Build and test the current core
 
@@ -60,6 +61,17 @@ python3 tests/verify_pipewire_fixture.py
 ```
 
 It records ten seconds of synthetic audio through real PipeWire, then tests source removal. No physical input/output link is created. This is separate from device latency, deadline and Windows qualification.
+
+The playback command reopens and checks the first track without audible output, writes or export:
+
+```sh
+.cache/build-core/sc-play-tool verify PROJECT_DIRECTORY
+python3 tests/verify_play_cli.py
+python3 tests/verify_pipewire_fixture.py \
+  --binary .cache/build-core/sc-pipewire-playback-fixture
+```
+
+The last command is an opt-in, owned PipeWire file-playback/sink-removal test; run native fixtures serially. [Playback contract](docs/15-playback-contract.md) explains range selection, underflow and seek/worker limits.
 
 Windows state/engine/transport-only cross-build:
 

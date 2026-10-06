@@ -42,8 +42,8 @@ The five headless CTest groups pass with ASan/UBSan and leak detection. Native A
 
 To reproduce the independent diagnostic, compile the probe separately with installed PipeWire headers/libraries and `-fsanitize=address,undefined`; run it normally and with `--init-only`, then compare `PIPEWIRE_DLCLOSE=false`. It changes no audio routes and is not an automatic CTest or a production runtime setting.
 
-Windows cross-compiles the shared bridge and journal1.1 recovery fixtures. No native WASAPI/ASIO adapter or native Windows runtime evidence exists yet. Hardware round-trip alignment, native deadline/load tests, mlock/degraded UI, multitrack admission, playback/read-ahead, GUI, offline export and full frozen-reference parity remain open.
+Windows cross-compiles the shared bridge and journal1.1 recovery fixtures. No native WASAPI/ASIO adapter or native Windows runtime evidence exists yet. Hardware round-trip alignment, native deadline/load tests, mlock/degraded UI, multitrack admission, production playback controller/GUI, offline export and full frozen-reference parity remain open.
 
 ## Next implementation task
 
-Implement **S6a: bounded disk read-ahead and non-destructive take playback** through a private live EQ instance. Prove exact source/timeline extents, underflow reporting/silence, seek generation retirement and no callback I/O/allocations. Then connect the first Qt recording/playback/EQ UI (S6), followed by transactional offline WAV export (S7). None of these tasks removes later native import, Windows or localization requirements.
+S6a's bounded disk read-ahead, non-destructive take playback and off-RT seek retirement now exist; see [the playback contract](15-playback-contract.md). Next connect the first Qt recording/playback/EQ UI (S6), followed by transactional offline WAV export (S7). These tasks retain the native import, Windows, localization and outstanding S4/S5 qualification requirements.

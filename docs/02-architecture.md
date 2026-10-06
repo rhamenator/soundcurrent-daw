@@ -1,6 +1,6 @@
 # Architecture, threading and data flow
 
-Status: broad architecture proposed; session/snapshot state, prepared EQ, bounded event queue and single-audio-owner object retirement and S4 capture/disk/journal recovery foundations are implemented. See the [state](09-session-state-contract.md) [engine](11-engine-contract.md) and [recording](13-recording-contract.md) contracts for their exact limits. S5 adds a framework-free audio bridge and Linux native PipeWire foundation with owned-source/monitor/disconnect fixtures. The full graph, playback/read-ahead, plugin host and native Windows backend remain staged; see [native audio](14-native-audio-contract.md). Budgets must be measured and versioned.
+Status: broad architecture proposed; session/snapshot state, prepared EQ, bounded event queue and single-audio-owner object retirement and S4 capture/disk/journal recovery foundations are implemented. See the [state](09-session-state-contract.md) [engine](11-engine-contract.md) and [recording](13-recording-contract.md) contracts for their exact limits. S5 adds a framework-free audio bridge and Linux native PipeWire foundation with owned-source/monitor/disconnect fixtures. S6a adds bounded read-ahead and private live-EQ playback with worker/seek retirement. The full graph, production playback UI/controller, plugin host and native Windows backend remain staged; see [native audio](14-native-audio-contract.md) and [playback](15-playback-contract.md). Budgets must be measured and versioned.
 
 ## Boundaries
 

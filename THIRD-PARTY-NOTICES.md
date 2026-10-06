@@ -6,7 +6,7 @@
 
 **JSON for Modern C++ 3.12.0**, copyright Niels Lohmann, MIT license. The original copyright and permission text is retained in [LICENSE.MIT](third_party/nlohmann/LICENSE.MIT) and the vendored header. Exact source URLs and SHA-256 hashes are in [the manifest](third_party/manifest.json). Used only on control/worker threads; no JSON code enters a real-time callback.
 
-**libsndfile 1.2.2 public API header**, copyright1999–2016 Erik de Castro Lopo, LGPL-2.1-or-later. Unmodified header/notices and COPYING are in `third_party/libsndfile`, with exact source hashes in the manifest. Used by root disk-side recording and the isolated feasibility probe, outside the real-time engine. Linux dynamically links distribution libsndfile1.2.2-4. Windows development cross-build dynamically links upstream1.2.2 with external/MPEG codecs disabled; archive/build pin is in the manifest, full source stays in ignored cache. Actual library/codec transitive packaging notices must be inventoried before distribution.
+**libsndfile 1.2.2 public API header**, copyright1999–2016 Erik de Castro Lopo, LGPL-2.1-or-later. Unmodified header/notices and COPYING are in `third_party/libsndfile`, with exact source hashes in the manifest. Used by root disk-side recording/read-ahead and the isolated feasibility probe, outside the real-time engine. Linux dynamically links distribution libsndfile1.2.2-4. Windows development cross-build dynamically links upstream1.2.2 with external/MPEG codecs disabled; archive/build pin is in the manifest, full source stays in ignored cache. Actual library/codec transitive packaging notices must be inventoried before distribution.
 
 ## Linked system dependencies of the current core
 
