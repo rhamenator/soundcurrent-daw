@@ -349,7 +349,7 @@ mix/EQ generation. Real reader/writer synthetic cases cover late startup,
 interruptions, queue pressure and twenty concurrent audio/control retirements.
 
 Next implement and qualify the owned PipeWire manual recording adapter, then
-canonical Qt manual controls and their fast-edit/Undo binding checks. All28 retained
+canonical Qt manual controls and their fast-edit/Undo binding checks. All29 retained
 observations and92 frozen contracts remain retained/unpromoted; native sustained,
 physical, Windows runtime/installers, complete monitoring, indefinite/loop/seek,
 takes/comping, X004/X005 and all-Europe qualification remain required.

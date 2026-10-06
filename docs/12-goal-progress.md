@@ -1705,3 +1705,20 @@ goal remains active and incomplete.
 Final Debug31/31 (28.86 s), ASan/UBSan/LSan31/31 (94.26 s) and Windows media
 cross-compilation pass. No native, desktop manual-control, sustained or physical
 qualification is inferred from these functional checks.
+
+Observation29 retains the first protected PR9 Linux CI failure (30/31 pass),
+tested commit4bd9606, downloaded test logs and exact source. The concurrent test
+logged only a failure flag, so its original callback/oracle status is unknown.
+Remote executable and test project were not uploaded by that workflow and are
+unavailable; do not claim they were retained. A separate local diagnostic under
+one-CPU affinity passed and does not identify the remote cause. Source inspection
+found a 0.2ms callback sleep for256 frames at48kHz (about27x accelerated) and a
+200000-frame finite horizon. The functional fixture now uses nominal256/48000
+cadence and a2000000-frame horizon, with first-status diagnostics and unchanged
+strict Running/output/zero-RT checks. This corrects an unsuitable functional
+workload; the exact original remote failure subtype remains unproven. All29
+observations remain retained, and native sustained timing gates remain open.
+
+Current cadence-qualified Debug31/31 (28.86 s), ASan/UBSan/LSan31/31 (77.09 s)
+and Windows acceptance compile pass. Earlier results and CI failure remain in
+the dated receipt; neither observation28 nor29 is erased.

@@ -612,10 +612,12 @@ void concurrentOwner() {
     ProjectStore(f.directory.root).save(f.s);
     auto a = arms(f.s, false);
     a[0].binding.monitoring = RecordingMonitor::PostEq;
-    f.prepare(std::move(a), 200000);
-    auto cfg = config(0, 200000);
+    f.prepare(std::move(a), 2000000);
+    auto cfg = config(0, 2000000);
     PreparedMixGraph oracle(f.s, plan(f.s), cfg.graph);
     std::atomic<bool> failed{false};
+    std::atomic<int> firstCallbackStatus{-1}, firstOracleStatus{-1};
+    std::atomic<Frame> firstFailureAt{-1};
     rt_audit::Counts audioCounts;
     double difference = 0;
     std::jthread audioOwner([&](std::stop_token stop) {
@@ -631,18 +633,29 @@ void concurrentOwner() {
             {
                 rt_audit::Guard g;
                 status = f.run->process(f.clock, {f.in.data(), 1}, {&f.out, 1}, 256);
-                if (oracle.process({&oracleInput, 1}, {&expectedOut, 1}, 256).status !=
-                    ProcessStatus::Ok)
+                const auto oracleStatus =
+                    oracle.process({&oracleInput, 1}, {&expectedOut, 1}, 256).status;
+                if (oracleStatus != ProcessStatus::Ok) {
+                    int absent = -1;
+                    firstOracleStatus.compare_exchange_strong(absent, int(oracleStatus));
+                    firstFailureAt.store(at);
                     failed.store(true);
+                }
             }
-            if (status != DuplexStatus::Running)
+            if (status != DuplexStatus::Running) {
+                int absent = -1;
+                if (firstCallbackStatus.compare_exchange_strong(absent, int(status)))
+                    firstFailureAt.store(at);
                 failed.store(true);
+            }
             for (unsigned n = 0; n < 256; ++n)
                 difference = std::max(difference, std::abs(double(f.out[n]) - expected[n]));
             f.clock.position += 256;
             f.clock.monotonicNs += 256000000000ULL / 48000;
             ++f.clock.cycle;
-            std::this_thread::sleep_for(std::chrono::microseconds(200));
+            // Functional ownership uses the stated sample clock cadence, not
+            // an accelerated disk-throughput benchmark. Native timing is separate.
+            std::this_thread::sleep_for(std::chrono::microseconds(256000000ULL / 48000));
         }
         audioCounts = rt_audit::counts;
     });
@@ -676,6 +689,10 @@ void concurrentOwner() {
             check(data[std::size_t(n)] == raw(group.beginFrame + n, 0),
                   "Concurrent control owner raw sample differs");
         f.run->checkError();
+        if (failed.load())
+            std::cerr << "concurrent first_callback_status=" << firstCallbackStatus.load()
+                      << " first_oracle_status=" << firstOracleStatus.load()
+                      << " first_failure_frame=" << firstFailureAt.load() << '\n';
         check(!failed.load(), "Concurrent control owner stopped/reset active playback");
     }
     audioOwner.request_stop();
