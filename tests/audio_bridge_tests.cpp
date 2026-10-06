@@ -6,6 +6,7 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <thread>
 using namespace soundcurrent::daw;
 namespace {
 std::uint64_t checks = 0;
@@ -139,6 +140,102 @@ void captureAndEvents() {
     check(pipe.producerDone() && bridge.status() == AudioBridgeStatus::Stopped && f.output[0] == 0,
           "Stop command did not finish/silence");
 }
+void aliasedRawCapture() {
+    for (auto channels : {1u, 2u, 8u, 32u, 256u}) {
+        auto session = makeOneTrackSession("Raw alias fixture", "Input");
+        auto &track = session.tracks.front();
+        track.layout = {channels == 1   ? LayoutKind::Mono
+                        : channels == 2 ? LayoutKind::Stereo
+                                        : LayoutKind::Discrete,
+                        channels};
+        track.eq.bands.front().gainDb = 6;
+        CaptureConfig config;
+        config.layout = track.layout;
+        config.slabFrames = 256;
+        CapturePipe raw(config);
+        AudioBridge bridge(session, track.id, raw);
+        std::vector<float> data(std::size_t(channels) * 127);
+        std::vector<const float *> input(channels);
+        std::vector<float *> output(channels);
+        for (std::uint32_t c = 0; c < channels; ++c) {
+            output[c] = data.data() + std::size_t(c) * 127;
+            input[c] = output[c];
+            for (int f = 0; f < 127; ++f)
+                output[c][f] = float((f % 11 - 5) * .25 + c * .001);
+        }
+        const auto original = data;
+        DeviceBlockClock clock;
+        clock.duration = 127;
+        {
+            rt_audit::Guard guard;
+            check(bridge.process(clock, input, output, 127) == AudioBridgeStatus::Running,
+                  "In-place recording stopped");
+            bridge.requestStop();
+            bridge.finishQuiescent();
+        }
+        CapturedSlab slab;
+        check(raw.acquire(slab) && slab.packet.frames == 127, "In-place raw slab missing");
+        for (std::uint32_t c = 0; c < channels; ++c)
+            for (std::uint32_t f = 0; f < 127; ++f)
+                check(slab.interleaved[std::size_t(f) * channels + c] ==
+                          original[std::size_t(c) * 127 + f],
+                      "Aliased monitor output contaminated raw take");
+        check(data != original, "In-place EQ was not processed");
+        raw.release(slab);
+        BackendObservation observation;
+        check(bridge.observation(observation), "Aliased input observation missing");
+        float peak = 0;
+        for (auto sample : original)
+            peak = std::max(peak, std::abs(sample));
+        check(observation.inputPeak == peak, "Input peak measured after aliased processing");
+    }
+}
+std::uint32_t concurrentFaultWinners = 0;
+void concurrentFaultPublication() {
+    for (int iteration = 0; iteration < 16; ++iteration) {
+        auto session = makeOneTrackSession("Terminal race", "Input");
+        session.tracks.front().layout = {LayoutKind::Discrete, 32};
+        CaptureConfig config;
+        config.layout = session.tracks.front().layout;
+        config.slabFrames = 2048;
+        CapturePipe raw(config);
+        AudioBridge bridge(session, session.tracks.front().id, raw, {2048, 1, 2048});
+        std::vector<float> inputStorage(32 * 2048, .25f), outputStorage(inputStorage.size());
+        std::array<const float *, 32> input;
+        std::array<float *, 32> output;
+        for (int c = 0; c < 32; ++c) {
+            input[c] = inputStorage.data() + c * 2048;
+            output[c] = outputStorage.data() + c * 2048;
+        }
+        bool won = false;
+        std::atomic<bool> done{false};
+        std::thread fault([&] {
+            while (!bridge.capturedFrames() && !done.load(std::memory_order_acquire))
+                std::this_thread::yield();
+            bridge.requestFault(AudioBridgeStatus::DeviceLost);
+            won = bridge.status() == AudioBridgeStatus::DeviceLost;
+        });
+        DeviceBlockClock clock;
+        clock.duration = 2048;
+        {
+            rt_audit::Guard guard;
+            bridge.process(clock, input, output, 2048);
+        }
+        done.store(true, std::memory_order_release);
+        fault.join();
+        bridge.finishQuiescent();
+        if (won) {
+            ++concurrentFaultWinners;
+            check(bridge.status() == AudioBridgeStatus::DeviceLost &&
+                      raw.endReason() == CaptureEndReason::DeviceLost,
+                  "Completed audio overwrote an admitted device fault");
+        } else
+            check(bridge.status() == AudioBridgeStatus::Complete &&
+                      raw.endReason() == CaptureEndReason::RangeComplete,
+                  "Late device fault overwrote completed audio");
+        check(raw.producerDone(), "Terminal race did not finish raw pipe");
+    }
+}
 void faults() {
     for (auto expected : {AudioBridgeStatus::RateChanged, AudioBridgeStatus::QuantumExceeded,
                           AudioBridgeStatus::ClockDiscontinuity,
@@ -212,11 +309,15 @@ int main() {
         rt_audit::reset();
         captureAndEvents();
         faults();
+        aliasedRawCapture();
+        concurrentFaultPublication();
         auto a = rt_audit::counts;
         check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,
               "Bridge RT allocation/free/lock detected");
         std::cout << "{\"checks\":" << checks
-                  << ",\"live_offline_sample_difference\":0,\"exact_capture_frames\":10003,"
+                  << ",\"concurrent_fault_winners\":" << concurrentFaultWinners
+                  << ",\"raw_alias_layouts\":5,\"live_offline_sample_difference\":0,\"exact_"
+                     "capture_frames\":10003,"
                      "\"rt_allocations\":0,\"rt_frees\":0,\"rt_blocking_locks\":0,\"faults\":9}\n";
         return 0;
     } catch (const std::exception &e) {

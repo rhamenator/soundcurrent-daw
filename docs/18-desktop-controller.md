@@ -49,3 +49,5 @@ Continue S6 with a production transport/preparation owner: explicit native input
 S6d supplies the [production native playback owner](19-native-playback-owner.md). The desktop editor still has no audio binding; invoke that owner from a separate preparation/transport worker, not widgets or the canonical session worker during blocking file work.
 
 S6e now [connects Linux desktop playback](20-desktop-playback.md) through a separate transport/preparation worker; the original S6c evidence above describes its earlier editor-only checkpoint. Recording/export and general undo remain open.
+
+S6f adds [typed asynchronous take attachment](21-native-recording-owner.md): finalized-journal and media-hash verification runs on the I/O worker, then publication preserves intervening scalar edits. This does not yet wire Record into the GUI. Clip/asset undo, recording finalization before the close barrier, and recovery discovery remain required.

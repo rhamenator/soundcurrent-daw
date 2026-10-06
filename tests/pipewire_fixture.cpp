@@ -2,7 +2,7 @@
 // Owned PipeWire source -> real track adapter -> owned monitor sink. No hardware.
 #include <sndfile.h>
 #include "rt_audit.hpp"
-#include <soundcurrent/pipewire_filter.hpp>
+#include <soundcurrent/pipewire_recording.hpp>
 #include <soundcurrent/recording.hpp>
 #include <algorithm>
 #include <array>
@@ -51,34 +51,21 @@ struct Source : Audit {
     }
 };
 struct TrackFixture : Audit {
-    AudioBridge &bridge;
     std::uint64_t firstPosition = 0, lastPosition = 0, firstMonotonicNs = 0, lastMonotonicNs = 0;
-    std::uint32_t firstQuantum = 0, clockId = 0;
-    std::uint32_t firstCycle = 0, lastCycle = 0, lastClockId = 0;
-    bool lastXrun = false, lastDiscontinuity = false;
+    std::uint32_t firstQuantum = 0, clockId = 0, firstCycle = 0, lastCycle = 0;
     bool started = false;
-    explicit TrackFixture(AudioBridge &b) : bridge(b) {}
-    static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const> in,
-                        std::span<float *const> out, std::uint32_t capacity) noexcept {
-        auto &s = *static_cast<TrackFixture *>(p);
-        if (!s.started) {
-            s.started = true;
-            s.firstPosition = clock.position;
-            s.firstMonotonicNs = clock.monotonicNs;
-            s.firstQuantum = static_cast<std::uint32_t>(clock.duration);
-            s.clockId = clock.id;
-            s.firstCycle = clock.cycle;
+    void observe(const BackendObservation &o) {
+        if (!started) {
+            started = true;
+            firstPosition = o.device.position;
+            firstMonotonicNs = o.device.monotonicNs;
+            firstQuantum = o.frames;
+            clockId = o.device.id;
+            firstCycle = o.device.cycle;
         }
-        s.lastPosition = clock.position;
-        s.lastMonotonicNs = clock.monotonicNs;
-        s.lastCycle = clock.cycle;
-        s.lastClockId = clock.id;
-        s.lastXrun = clock.xrun;
-        s.lastDiscontinuity = clock.discontinuity;
-        s.bridge.process(clock, in, out, capacity);
-    }
-    static void unavailable(void *p, AudioBridgeStatus status) noexcept {
-        static_cast<TrackFixture *>(p)->bridge.requestFault(status);
+        lastPosition = o.device.position;
+        lastMonotonicNs = o.device.monotonicNs;
+        lastCycle = o.device.cycle;
     }
     static void after(void *p) noexcept {
         static_cast<TrackFixture *>(p)->end();
@@ -132,7 +119,7 @@ std::vector<float> read(const std::filesystem::path &p, Frame count) {
     require(ok && closed, "Native recording read failed");
     return values;
 }
-PipeWirePort port(PipeWireFilter &client, std::uint32_t node, bool input) {
+template <class Client> PipeWirePort port(Client &client, std::uint32_t node, bool input) {
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
     while (std::chrono::steady_clock::now() < deadline) {
         for (const auto &p : client.ports())
@@ -145,40 +132,45 @@ PipeWirePort port(PipeWireFilter &client, std::uint32_t node, bool input) {
 } // namespace
 int main(int argc, char **argv) {
     try {
-        require(argc == 3, "Supply new project directory and normal/disconnect test mode");
+        require(argc == 3, "Supply new project directory and recording fixture mode");
         const std::filesystem::path root = utf8Path(argv[1]);
-        const bool disconnect = std::string_view(argv[2]) == "disconnect";
-        require(disconnect || std::string_view(argv[2]) == "normal", "Unknown fixture mode");
+        const std::string mode = argv[2];
+        const bool disconnect = mode == "disconnect", monitor = mode == "normal" || disconnect,
+                   cancel = mode == "cancel", failure = mode == "writer-failure",
+                   manual = mode == "stop";
+        const bool destruction = mode == "destructor",
+                   activationFailure = mode == "activation-failure";
+        require(monitor || mode == "off" || cancel || failure || manual || destruction ||
+                    activationFailure,
+                "Unknown fixture mode");
         require(std::filesystem::create_directory(root), "Fixture project already exists");
         auto session = makeOneTrackSession("Owned PipeWire recording", "Native raw capture");
         session.tracks.front().eq.bands.front().gainDb = 6;
         ProjectStore store(root);
         store.save(session);
-        CapturePipe raw({}), tap({}), observed({});
+        CapturePipe observed({});
         const Frame target = 480000;
-        const auto rawSpec = specFor(session, raw), tapSpec = specFor(session, tap),
-                   sinkSpec = specFor(session, observed);
-        RecordingWorker rawWriter(raw, root, rawSpec), tapWriter(tap, root, tapSpec),
-            sinkWriter(observed, root, sinkSpec);
-        AudioBridge bridge(session, session.tracks.front().id, raw,
-                           {2048, 1, target, CaptureBackend::PipeWire}, &tap);
-        Source source;
-        TrackFixture track(bridge);
-        Sink sink(observed, target);
-        const auto prefix = "sc-daw-fixture-" + Id::generate().str();
-        PipeWireFilter sourceNode({prefix + "-source", 0, 1, 65536, true},
-                                  {&source, Source::process, nullptr, Audit::begin, Source::after});
-        PipeWireFilter trackNode({prefix + "-track", 1, 1},
-                                 {&track, TrackFixture::process, TrackFixture::unavailable,
-                                  Audit::begin, TrackFixture::after});
-        PipeWireFilter sinkNode({prefix + "-sink", 1, 0},
-                                {&sink, Sink::process, nullptr, Audit::begin, Sink::after});
-        require(sourceNode.waitReady(std::chrono::seconds(3)) &&
-                    trackNode.waitReady(std::chrono::seconds(3)) &&
-                    sinkNode.waitReady(std::chrono::seconds(3)),
-                "Native ports not ready");
-        const auto sourcePort = port(trackNode, sourceNode.nodeId(), false);
-        const auto sinkPort = port(trackNode, sinkNode.nodeId(), true);
+        TrackFixture track;
+        PipeWireRecordingOptions options;
+        options.monitoring = monitor ? RecordingMonitor::PostEq : RecordingMonitor::Off;
+        options.bridge.stopAfterFrames = target;
+        options.writer.checkpointFrames = 4096;
+        options.audit = {&track, Audit::begin, TrackFixture::after};
+        if (failure)
+            options.writer.boundary = [](RecordingBoundary boundary, Frame written) {
+                if (boundary == RecordingBoundary::BeforeAudioWrite && written >= 8192)
+                    throw ProjectError(ErrorCode::Io, "Injected disk failure");
+            };
+        if (activationFailure)
+            options.writer.boundary = [](RecordingBoundary boundary, Frame written) {
+                if (boundary == RecordingBoundary::BeforeJournalPublish && written == 0)
+                    throw ProjectError(ErrorCode::Io, "Injected initial journal failure");
+            };
+        auto rawSpec = specFor(session, observed);
+        std::cerr << "Preparing native recording owner; monitor " << monitor << '\n';
+        auto recordingOwner = std::make_unique<PipeWireRecording>(root, session, rawSpec, options);
+        auto &recording = *recordingOwner;
+        require(!recording.jobDirectory(), "Preparation created a phantom recording job");
         const auto rejected = [&](auto &&operation) {
             bool threw = false;
             try {
@@ -186,124 +178,235 @@ int main(int argc, char **argv) {
             } catch (const ProjectError &) {
                 threw = true;
             }
-            require(threw, "Invalid native route unexpectedly accepted");
+            require(threw, "Invalid recording operation unexpectedly accepted");
         };
+        rejected([&] { recording.activate(); });
+        rejected([&] { recording.result(); });
+        Source source;
+        Sink sink(observed, target);
+        const auto prefix = "sc-daw-fixture-" + Id::generate().str();
+        PipeWireFilter sourceNode({prefix + "-source", 0, 1, 65536, true},
+                                  {&source, Source::process, nullptr, Audit::begin, Source::after});
+        std::unique_ptr<PipeWireFilter> sinkNode;
+        std::unique_ptr<RecordingWorker> sinkWriter;
+        if (monitor) {
+            sinkNode = std::make_unique<PipeWireFilter>(
+                PipeWireFilterOptions{prefix + "-sink", 1, 0},
+                PipeWireCallbacks{&sink, Sink::process, nullptr, Audit::begin, Sink::after});
+            sinkWriter =
+                std::make_unique<RecordingWorker>(observed, root, specFor(session, observed));
+            require(sinkNode->waitReady(std::chrono::seconds(3)), "Native sink not ready");
+        }
+        require(sourceNode.waitReady(std::chrono::seconds(3)), "Native source not ready");
+        const auto sourcePort = port(recording, sourceNode.nodeId(), false);
         auto stale = sourcePort;
         ++stale.nodeSerial;
-        rejected([&] { trackNode.connectInputs({stale}); });
-        rejected([&] { trackNode.connectInputs({sinkPort}); });
-        trackNode.connectInputs({sourcePort});
-        rejected([&] { trackNode.connectInputs({sourcePort}); });
-        trackNode.connectOutputs({sinkPort});
-        session.tracks.front().input = {"pipewire", prefix + "-source/output_1"};
-        session.tracks.front().output = {"pipewire", prefix + "-sink/input_1"};
-        sinkNode.activate();
+        rejected([&] { recording.connectInputs({stale}); });
+        if (monitor)
+            rejected([&] { recording.connectInputs({port(recording, sinkNode->nodeId(), true)}); });
+        recording.connectInputs({sourcePort});
+        rejected([&] { recording.connectInputs({sourcePort}); });
+        if (monitor) {
+            rejected([&] { recording.activate(); });
+            recording.connectOutputs({port(recording, sinkNode->nodeId(), true)});
+            sinkNode->activate();
+        } else {
+            rejected([&] { recording.connectOutputs({sourcePort}); });
+            const auto inventory = recording.ports();
+            require(std::none_of(
+                        inventory.begin(), inventory.end(),
+                        [&](const auto &p) { return p.nodeId == recording.nodeId() && !p.input; }),
+                    "Monitor-Off owner exposes an audio output port");
+        }
         sourceNode.activate();
-        trackNode.activate();
+        if (activationFailure) {
+            bool activationError = false, retainedError = false;
+            try {
+                recording.activate();
+            } catch (const ProjectError &error) {
+                activationError = error.code() == ErrorCode::Io;
+            }
+            try {
+                recording.result();
+            } catch (const ProjectError &error) {
+                retainedError = error.code() == ErrorCode::Io;
+            }
+            require(activationError && retainedError &&
+                        recording.status() == AudioBridgeStatus::CaptureFailed &&
+                        recording.capturedFrames() == 0 && track.calls == 0 &&
+                        store.load() == session,
+                    "Failed activation lost its error, captured audio or changed the project");
+            recording.stop();
+            sourceNode.stop();
+            std::cout << "{\"mode\":\"activation-failure\",\"frames\":0,\"activation_failed\":true,"
+                         "\"production_recording_owner\":true,\"monitoring_off\":true,\"owned_"
+                         "nodes_only\":true,"
+                         "\"rt_allocations\":0,\"rt_frees\":0,\"rt_blocking_locks\":0}\n";
+            return 0;
+        }
+        recording.activate();
+        rejected([&] { recording.activate(); });
+        rejected([&] { recording.connectInputs({sourcePort}); });
+        std::cerr << "Native recording source/owner activated\n";
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
         bool removed = false;
         while (std::chrono::steady_clock::now() < deadline) {
-            BackendObservation o;
-            while (bridge.observation(o)) {
-            }
-            if (disconnect && !removed && bridge.capturedFrames() >= 48000) {
+            BackendObservation observation;
+            while (recording.observation(observation))
+                track.observe(observation);
+            if (disconnect && !removed && recording.capturedFrames() >= 48000) {
                 sourceNode.stop();
                 removed = true;
             }
-            const auto state = bridge.status();
+            if ((cancel || manual || destruction) && recording.capturedFrames() >= 48000)
+                break;
+            const auto state = recording.status();
             if (state != AudioBridgeStatus::Ready && state != AudioBridgeStatus::Running) {
-                if (state != AudioBridgeStatus::Complete ||
+                if (state != AudioBridgeStatus::Complete || !monitor ||
                     sink.complete.load(std::memory_order_acquire))
                     break;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
-        // All native callbacks quiesce before transferring pipe/bridge ownership.
-        trackNode.stop();
+        std::cerr << "Stopping native recording owner; frames/status " << recording.capturedFrames()
+                  << '/' << static_cast<std::uint32_t>(recording.status()) << '\n';
+        if (destruction) {
+            const auto job = *recording.jobDirectory();
+            recordingOwner
+                .reset(); // Implicit stop must finalize/join before native state/pool destruction.
+            sourceNode.stop();
+            const auto retained = inspectRecording(job);
+            require(retained.finalized && retained.committedFrames >= 48000 &&
+                        retained.timingOrigin && retained.endReason == CaptureEndReason::UserStop,
+                    "Destructor did not finalize raw take");
+            const auto recovered = recoverRecording(root, job);
+            const auto values =
+                read(root / utf8Path(recovered.asset.relativePath), recovered.asset.frames);
+            for (std::size_t f = 0; f < values.size(); ++f)
+                require(values[f] == signal(retained.timingOrigin->devicePosition + f),
+                        "Destructor raw prefix differs");
+            require(!source.allocations && !source.frees && !source.locks && !track.allocations &&
+                        !track.frees && !track.locks,
+                    "Destructor fixture callback allocation/free/lock detected");
+            attachRecording(session, recovered);
+            store.save(session);
+            require(store.load() == session, "Destructor retained take cannot be reopened");
+            std::cout << "{\"mode\":\"destructor\",\"frames\":" << recovered.asset.frames
+                      << ",\"production_recording_owner\":true,\"monitoring_off\":true,"
+                         "\"destructor_finalized\":true,"
+                         "\"owned_nodes_only\":true,\"rt_allocations\":0,\"rt_frees\":0,\"rt_"
+                         "blocking_locks\":0}\n";
+            return 0;
+        }
+        if (cancel)
+            recording.cancel();
+        else
+            recording.stop();
+        recording.stop(); // Idempotent, including after cancel/failure.
         sourceNode.stop();
-        sinkNode.stop();
-        bridge.finishQuiescent();
+        if (sinkNode)
+            sinkNode->stop();
         observed.finish();
-        const auto rawResult = rawWriter.wait(), tapResult = tapWriter.wait(),
-                   sinkResult = sinkWriter.wait();
-        const auto checkpoint = inspectRecording(rawWriter.jobDirectory());
+        BackendObservation observation;
+        while (recording.observation(observation))
+            track.observe(observation);
+        require(recording.writerComplete() && recording.jobDirectory(), "Disk owner not joined");
+        const auto checkpoint = inspectRecording(*recording.jobDirectory());
         require(checkpoint.timingOrigin &&
                     checkpoint.timingOrigin->backend == CaptureBackend::PipeWire &&
-                    checkpoint.timingOrigin->devicePosition == track.firstPosition &&
-                    checkpoint.endReason == (disconnect ? CaptureEndReason::DeviceLost
-                                                        : CaptureEndReason::RangeComplete),
-                "Native device origin/end reason not persisted");
-        std::cerr << "Native state " << static_cast<std::uint32_t>(bridge.status())
-                  << "; raw/tap/sink frames " << rawResult.asset.frames << '/'
-                  << tapResult.asset.frames << '/' << sinkResult.asset.frames << "; diagnostic "
-                  << trackNode.diagnostic() << "; first/last position " << track.firstPosition
-                  << '/' << track.lastPosition << "; first quantum " << track.firstQuantum << '\n';
-        std::cerr << "Clock IDs/cycles " << track.clockId << '/' << track.lastClockId << ' '
-                  << track.firstCycle << '/' << track.lastCycle << "; xrun/discontinuity "
-                  << track.lastXrun << '/' << track.lastDiscontinuity << '\n';
+                    checkpoint.timingOrigin->devicePosition == track.firstPosition,
+                "Native device origin not persisted");
+        if (cancel || failure) {
+            bool correct = false;
+            try {
+                recording.result();
+            } catch (const ProjectError &error) {
+                correct = error.code() == (cancel ? ErrorCode::Canceled : ErrorCode::Io);
+            }
+            require(correct && !checkpoint.finalized && checkpoint.committedFrames > 0,
+                    "Disk cancellation/failure lost its error or recoverable prefix");
+        }
+        const auto rawResult = cancel || failure ? recoverRecording(root, *recording.jobDirectory())
+                                                 : recording.result();
+        require(rawResult.asset.frames > 0, "No recorded/recovered frames");
+        const auto origin = recording.timingOrigin();
+        require(origin && origin->devicePosition == track.firstPosition, "Live origin differs");
         if (disconnect)
-            require(removed && bridge.status() == AudioBridgeStatus::DeviceLost &&
+            require(removed && recording.status() == AudioBridgeStatus::DeviceLost &&
+                        recording.endReason() == CaptureEndReason::DeviceLost &&
                         rawResult.asset.frames >= 48000 && rawResult.asset.frames < target,
-                    "Input removal did not surface an incomplete stopped take");
+                    "Input removal did not surface an incomplete take");
+        else if (manual || cancel)
+            require(recording.status() == AudioBridgeStatus::Stopped &&
+                        rawResult.asset.frames < target,
+                    "User stop/cancel did not retain a prefix");
+        else if (failure)
+            require(recording.status() == AudioBridgeStatus::CaptureFailed &&
+                        recording.endReason() == CaptureEndReason::WriterFailed,
+                    "Writer failure hidden by native owner");
         else
-            require(bridge.status() == AudioBridgeStatus::Complete &&
-                        rawResult.asset.frames == target && tapResult.asset.frames == target &&
-                        sinkResult.asset.frames == target,
+            require(recording.status() == AudioBridgeStatus::Complete &&
+                        rawResult.asset.frames == target &&
+                        recording.endReason() == CaptureEndReason::RangeComplete,
                     "Native ten-second take incomplete");
         const auto rawValues =
             read(root / utf8Path(rawResult.asset.relativePath), rawResult.asset.frames);
-        const auto wetValues =
-            read(root / utf8Path(tapResult.asset.relativePath), tapResult.asset.frames);
-        const auto sinkValues =
-            read(root / utf8Path(sinkResult.asset.relativePath), sinkResult.asset.frames);
-        require(rawValues.size() == wetValues.size() && sinkValues.size() >= wetValues.size(),
-                "Native raw/tap/sink extents differ");
-        PreparedEq offline(session, session.tracks.front().id, 2048, 1);
-        std::vector<float> expected(rawValues.size());
-        double error = 0, sinkError = 0;
-        for (std::size_t f = 0; f < rawValues.size();) {
-            const auto n =
-                static_cast<std::uint32_t>(std::min<std::size_t>(127, rawValues.size() - f));
-            const std::array<const float *, 1> in{rawValues.data() + f};
-            const std::array<float *, 1> out{expected.data() + f};
-            require(offline.process(in, out, n, static_cast<Frame>(f)).status == ProcessStatus::Ok,
-                    "Offline comparison failed");
-            f += n;
+        double error = 0;
+        if (monitor) {
+            const auto sinkResult = sinkWriter->wait();
+            const auto sinkValues =
+                read(root / utf8Path(sinkResult.asset.relativePath), sinkResult.asset.frames);
+            require(sinkValues.size() >= rawValues.size(),
+                    "Native monitor extent shorter than raw input");
+            PreparedEq offline(session, session.tracks.front().id, 2048, 1);
+            std::vector<float> expected(rawValues.size());
+            for (std::size_t f = 0; f < rawValues.size();) {
+                const auto n =
+                    static_cast<std::uint32_t>(std::min<std::size_t>(127, rawValues.size() - f));
+                const std::array<const float *, 1> input{rawValues.data() + f};
+                const std::array<float *, 1> output{expected.data() + f};
+                require(offline.process(input, output, n, static_cast<Frame>(f)).status ==
+                            ProcessStatus::Ok,
+                        "Offline comparison failed");
+                f += n;
+            }
+            for (std::size_t f = 0; f < rawValues.size(); ++f)
+                error = std::max(error, std::abs(double(sinkValues[f]) - expected[f]));
+            require(error <= 1e-7, "Independent native monitor/offline samples differ");
         }
-        for (std::size_t f = 0; f < rawValues.size(); ++f) {
+        for (std::size_t f = 0; f < rawValues.size(); ++f)
             require(rawValues[f] == signal(track.firstPosition + f),
-                    "PipeWire input does not match source clock waveform");
-            error = std::max(error, std::abs(double(wetValues[f]) - expected[f]));
-            sinkError = std::max(sinkError, std::abs(double(sinkValues[f]) - wetValues[f]));
-        }
-        require(error <= 1e-7 && sinkError <= 1e-7,
-                "Native processing/offline/monitor sink samples differ");
+                    "Raw EQ-free source samples differ");
         require(!source.allocations && !source.frees && !source.locks && !track.allocations &&
                     !track.frees && !track.locks && !sink.allocations && !sink.frees && !sink.locks,
                 "Native host callback allocation/free/lock detected");
+        session.tracks.front().input = {"pipewire", prefix + "-source/output_1"};
+        if (monitor)
+            session.tracks.front().output = {"pipewire", prefix + "-sink/input_1"};
         attachRecording(session, rawResult);
         store.save(session);
-        require(store.load() == session, "Native project save/reopen failed");
+        require(store.load() == session, "Native raw take save/reopen failed");
+        auto postTerminal = recording.prepared().enableEvent(false, 0);
+        require(recording.submitImmediate(postTerminal, 1) == SubmitStatus::Invalid,
+                "Terminal recording accepted a stale edit");
         std::cout
-            << "{\"mode\":\"" << argv[2] << "\",\"frames\":" << rawResult.asset.frames
-            << ",\"sample_rate\":48000,\"first_quantum\":" << track.firstQuantum
-            << ",\"device_clock_id\":" << track.clockId
-            << ",\"first_device_position\":" << track.firstPosition
-            << ",\"last_device_position\":" << track.lastPosition
-            << ",\"first_monotonic_ns\":" << track.firstMonotonicNs
-            << ",\"last_monotonic_ns\":" << track.lastMonotonicNs
-            << ",\"live_offline_difference\":" << error
-            << ",\"independent_native_sink_difference\":" << sinkError
+            << "{\"mode\":\"" << mode << "\",\"frames\":" << rawResult.asset.frames
+            << ",\"sample_rate\":48000,\"live_offline_difference\":" << error
+            << ",\"independent_native_sink_difference\":" << error
+            << ",\"production_recording_owner\":true,\"monitoring_off\":"
+            << (!monitor ? "true" : "false")
+            << ",\"recovered_disk_prefix\":" << (cancel || failure ? "true" : "false")
             << ",\"rt_allocations\":0,\"rt_frees\":0,\"rt_blocking_locks\":0,\"source_callbacks\":"
             << source.calls << ",\"track_callbacks\":" << track.calls
             << ",\"sink_callbacks\":" << sink.calls
-            << ",\"bridge_status\":" << static_cast<std::uint32_t>(bridge.status())
-            << ",\"stale_wrong_direction_repeat_rejected\":true,\"owned_nodes_only\":true,\"input_"
-               "latency_measured\":false,\"memory_locked\":"
-               "false}\n";
+            << ",\"bridge_status\":" << static_cast<std::uint32_t>(recording.status())
+            << ",\"stale_wrong_direction_repeat_rejected\":true,\"unrouted_activation_rejected\":"
+               "true,\"no_job_before_activation\":true,"
+            << "\"owned_nodes_only\":true,\"input_latency_measured\":false,\"memory_locked\":false}"
+               "\n";
         return 0;
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << '\n';
+    } catch (const std::exception &error) {
+        std::cerr << error.what() << '\n';
         return 1;
     }
 }

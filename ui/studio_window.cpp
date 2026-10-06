@@ -571,12 +571,13 @@ void StudioWindow::poll() {
         } else
             track_->setText(tr("This project has no audio tracks."));
     }
-    state_->setText(closing_                          ? tr("Closing project…")
-                    : view->io == IoOperation::Save   ? tr("Saving project…")
-                    : view->io == IoOperation::Open   ? tr("Opening project…")
-                    : view->io == IoOperation::Create ? tr("Creating project…")
-                    : view->dirty                     ? tr("Unsaved changes")
-                                                      : tr("Ready"));
+    state_->setText(closing_                                   ? tr("Closing project…")
+                    : view->io == IoOperation::AttachRecording ? tr("Verifying recorded take…")
+                    : view->io == IoOperation::Save            ? tr("Saving project…")
+                    : view->io == IoOperation::Open            ? tr("Opening project…")
+                    : view->io == IoOperation::Create          ? tr("Creating project…")
+                    : view->dirty                              ? tr("Unsaved changes")
+                                                               : tr("Ready"));
     setWindowTitle(tr("SoundCurrent DAW") +
                    (view->session ? QStringLiteral(" — ") + text(view->session->name) : QString()));
     if (view->session && view->modelRevision > followedRevision_) {

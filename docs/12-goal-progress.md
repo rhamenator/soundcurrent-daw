@@ -10,7 +10,7 @@ The owner activated the complete [goal](../GOAL.md) on 2026-10-05 and added X004
 | State/reliability | S1/S2 snapshots/identity/gestures; S4 verified-prefix recording recovery/SIGKILL/short-write fixtures | General edits, autosave, recovery discovery/UI and broader faults, migrations, backups, missing-media/plugin UI |
 | Shared processing | S3 prepared peaking EQ, sample events, float headroom, private live/offline fixtures | Full graph/routing/PDC/timing domains/latency/tails; devices and advanced processors |
 | RT transport/lifetime | Bounded scheduled/immediate queues and applied-frame receipts; concurrent/wrap/replay fixtures; retirement-credit and off-RT destruction fixtures | Full native device/deadline qualification, full graph crossfades/state migration/epochs, deadline/stress qualification |
-| Recording/editing/mixing | S4 RF64 recovery plus S5 native owned-source ten-second raw capture/EQ/monitor/save-reopen and source removal; S6a bounded read-ahead/playback/seek retirement and native file playback/sink removal | S5 hardware timing/alignment/reprepare/Windows, production S6 playback/UI, then M2/M4 full workflows |
+| Recording/editing/mixing | S4 RF64 recovery plus S5 native owned-source ten-second raw capture/EQ/monitor/save-reopen and source removal; S6a bounded read-ahead/playback/seek retirement and native file playback/sink removal | S5 hardware timing/alignment/reprepare/Windows, Record/arm/input/monitor/recovery desktop integration and export, then M2/M4 full workflows |
 | MIDI/automation/performance/modular | Full requirements remain in M3/M5/M7 matrix | Destination models, implementation and workflow/quality evidence |
 | Plugins/instruments/content/analysis | License/dependency inventory and M6/M7/M8 requirements | Actual adapters, catalog/content rights, sound quality and failure qualification |
 | Notation/immersive/video | M9/M10 requirements remain intact | Models, rendering/routing/synchronization and hardware/quality qualification |
@@ -50,3 +50,7 @@ control-room/print routing and portable pins remain open, as do native Windows,
 localization and release-rights gates. The full goal remains active and incomplete.
 Next primary slice task remains native recording ownership, input/arm/record/monitor,
 raw take attachment and recovery UI, followed by S7 export. Profile routing joins M4.
+
+## S6f checkpoint (2026-10-05)
+
+Previous goal turn was **progress**: `42e259d` added the X005 pinned offline equipment library/editor. Production Linux recording now owns inactive input/monitor setup, activation-time disk jobs, raw-before-DSP capture, bounded sticky terminal causes, native-before-writer shutdown and failure recovery. The canonical controller admits finalized takes only after separate journal/hash verification while preserving intervening EQ edits. [Contract](21-native-recording-owner.md) and [evidence](../tests/results/SLICE-001/2026-10-05-native-recording-owner.json) separate native synthetic, controller, sanitizer and Windows headless results. Input/arm/record/monitor/recovery desktop controls and close choreography are next, then S7 export. Native Windows/hardware/deadline/unload gates remain open. All 92 frozen parity rows, X004, profile processing/portability and European localization remain incomplete.

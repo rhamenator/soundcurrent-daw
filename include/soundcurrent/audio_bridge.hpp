@@ -81,10 +81,11 @@ class AudioBridge {
     bool clockStarted_ = false;
     Frame captured_ = 0;
     SpscQueue<BackendObservation, 64> observations_;
-    std::atomic<std::uint32_t> state_{0}, requested_{0};
+    std::atomic<std::uint32_t> state_{0};
     std::atomic<Frame> publishedFrames_{0};
     std::atomic<std::uint64_t> dropped_{0};
     std::array<const float *, 256> tapPointers_{};
-    void finish(AudioBridgeStatus) noexcept;
+    AudioBridgeStatus publish(AudioBridgeStatus) noexcept;
+    AudioBridgeStatus finish(AudioBridgeStatus) noexcept;
 };
 } // namespace soundcurrent::daw

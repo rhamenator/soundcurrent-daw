@@ -15,7 +15,7 @@ import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-PREFIXES = ('sc-daw-fixture-', 'sc-daw-playback-')
+PREFIXES = ('sc-daw-fixture-', 'sc-daw-playback-', 'sc-daw-recording-')
 
 
 def snapshot():
@@ -75,7 +75,8 @@ def run_fixture(binary, mode):
                 raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')
             result = json.loads(stdout)
             assert result['mode'] == mode and result['owned_nodes_only']
-            assert linked_graphs > 0, 'No active owned links observed'
+            if not result.get('activation_failed', False):
+                assert linked_graphs > 0, 'No active owned links observed'
             deadline = time.monotonic() + 3
             while True:
                 after = snapshot()
@@ -108,9 +109,10 @@ def main():
     parser.add_argument('--binary', type=Path,
                         default=ROOT / '.cache/build-core/sc-pipewire-fixture')
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--modes', nargs='+', default=['normal', 'disconnect'])
     args = parser.parse_args()
     (ROOT / '.cache').mkdir(exist_ok=True)
-    results = [run_fixture(args.binary.resolve(), m) for m in ('normal', 'disconnect')]
+    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]
     encoded = json.dumps(results, indent=2, ensure_ascii=False) + '\n'
     if args.output:
         args.output.write_text(encoded)

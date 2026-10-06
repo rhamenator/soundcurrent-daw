@@ -443,6 +443,7 @@ std::string hashMediaFile(const std::filesystem::path &p) {
     return out;
 }
 void ProjectStore::verifyMedia(const Session &s) const {
+    validate(s);
     noLink(root_);
     require(std::filesystem::is_directory(root_), "Project directory unavailable", ErrorCode::Io);
     for (const auto &a : s.assets) {

@@ -15,6 +15,7 @@ struct IoJob {
     std::filesystem::path root;
     std::shared_ptr<const Session> session;
     std::uint64_t revision = 0;
+    std::shared_ptr<const RecordingResult> recording = nullptr;
 };
 struct IoResult {
     IoJob job;
@@ -80,7 +81,33 @@ class IoWorker : public QThread {
                 ProjectStore store(next.root);
                 if (next.operation == IoOperation::Open)
                     finished.loaded = store.load();
-                else {
+                else if (next.operation == IoOperation::AttachRecording) {
+                    const auto &r = *next.recording;
+                    const auto job = next.root / "media" / ("capture-" + r.spec.assetId.str());
+                    const auto verified = inspectRecording(job);
+                    const auto &a = verified.spec, &b = r.spec;
+                    // Journals persist recording identity/timing, not the run's pool
+                    // sizing, memory budget or callback bound. Recovery uses its own pool.
+                    const bool sameIdentity = a.projectId == b.projectId &&
+                                              a.trackId == b.trackId && a.assetId == b.assetId &&
+                                              a.capture.sampleRate == b.capture.sampleRate &&
+                                              a.capture.layout == b.capture.layout &&
+                                              a.capture.startFrame == b.capture.startFrame &&
+                                              a.inputLatencyFrames == b.inputLatencyFrames &&
+                                              a.recoveredFrom == b.recoveredFrom;
+                    if (!verified.finalized || !sameIdentity ||
+                        verified.committedFrames != r.asset.frames ||
+                        verified.captureStatus != r.captureStatus ||
+                        r.asset.relativePath !=
+                            "media/capture-" + r.spec.assetId.str() + "/take.wav")
+                        throw ProjectError(ErrorCode::MediaMismatch,
+                                           "Recorded take does not match its finalized journal");
+                    store.verifyMedia(*next.session);
+                    if (closing.load(std::memory_order_acquire))
+                        throw ProjectError(
+                            ErrorCode::Canceled,
+                            "Take attachment canceled; recording remains recoverable");
+                } else {
                     if (next.operation == IoOperation::Create &&
                         !std::filesystem::create_directory(next.root))
                         throw ProjectError(ErrorCode::Io, "New project folder already exists");
@@ -227,6 +254,22 @@ struct ProjectController::State : QThread {
             if (command.kind == CommandKind::Undo ? history->undo() : history->redo())
                 revised();
             break;
+        case CommandKind::AttachRecording: {
+            requireModel();
+            if (view.io != IoOperation::None || !command.recording || command.path != view.root)
+                throw ProjectError(ErrorCode::InvalidState,
+                                   "Take attachment needs the current project and idle I/O owner");
+            // Shape/identity validation is transactional; disk/journal verification belongs
+            // to the I/O worker. No speculative asset is published to the canonical model.
+            auto proposed = std::make_shared<Session>(*model);
+            attachRecording(*proposed, *command.recording);
+            commitGesture();
+            IoJob job{IoOperation::AttachRecording, view.root, std::move(proposed),
+                      view.modelRevision, command.recording};
+            io.startJob(std::move(job));
+            view.io = IoOperation::AttachRecording;
+            break;
+        }
         case CommandKind::Barrier:
             if (!command.barrier)
                 throw ProjectError(ErrorCode::InvalidState, "Barrier token is missing");
@@ -247,7 +290,26 @@ struct ProjectController::State : QThread {
             error(*result.error, std::move(result.diagnostic));
             return;
         }
-        if (result.job.operation == IoOperation::Save) {
+        if (result.job.operation == IoOperation::AttachRecording) {
+            try {
+                if (!model || view.root != result.job.root ||
+                    model->id != result.job.recording->spec.projectId)
+                    throw ProjectError(ErrorCode::InvalidState,
+                                       "Recording project changed before attachment");
+                if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
+                    throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
+                // Preserve scalar edits accepted while files were verified.
+                commitGesture();
+                attachRecording(*model, *result.job.recording);
+                revised();
+                ++view.attachedRecordings;
+                view.lastAttachedAsset = result.job.recording->asset.id;
+            } catch (const ProjectError &e) {
+                error(e.code(), e.what());
+            } catch (const std::exception &e) {
+                error(ErrorCode::InvalidState, e.what());
+            }
+        } else if (result.job.operation == IoOperation::Save) {
             // Edits continue during disk I/O. Only the captured revision was saved.
             view.savedRevision = result.job.revision;
             savedModel = result.job.session;
@@ -257,6 +319,8 @@ struct ProjectController::State : QThread {
             history = std::make_unique<EditHistory>(*model);
             activeGesture = 0;
             activeAddress.reset();
+            view.attachedRecordings = 0;
+            view.lastAttachedAsset.reset();
             view.root = std::move(result.job.root);
             revised();
             view.savedRevision = view.modelRevision;

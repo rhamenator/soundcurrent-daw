@@ -27,3 +27,5 @@ Before replacing the current generation, publish its validated JSON as `project.
 Cancellation before publication leaves the current project unchanged and removes only this save's temporary file. Recovery from `project.previous.json` is explicit (`loadPrevious`), never an invisible substitution. A directory-flush failure after publication reports reduced durability, not a false rollback. This is a snapshot foundation, separate from the S4 versioned checkpoint journal and verified-prefix copy recovery in [recording contract](13-recording-contract.md). No append-only edit/event log is implemented yet.
 
 Remaining fault gates include physical disk-full/permission/I/O failure, kill/power-loss on actual filesystems, and native Windows save/lock/path runtime tests. Current cancellation/nested-writer tests do not substitute for those results.
+
+`ProjectStore::verifyMedia` is now a public control/I/O-side API used by verified recorded-take admission. It validates the session and owned root/path components before hashing. This adds no schema fields or real-time calls; see [S6f attachment](21-native-recording-owner.md).

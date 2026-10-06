@@ -26,6 +26,8 @@ class ProjectStore {
     explicit ProjectStore(std::filesystem::path root) : root_(std::move(root)) {}
     SaveResult save(const Session &, const SaveOptions &options = {}) const;
     Session load() const;
+    // Control/I/O only: verify owned media without publishing a project generation.
+    void verifyMedia(const Session &) const;
     Session loadPrevious() const; // Explicit recovery; never silently substitutes.
     const std::filesystem::path &root() const noexcept {
         return root_;
@@ -34,6 +36,5 @@ class ProjectStore {
   private:
     std::filesystem::path root_;
     Session loadFile(const std::filesystem::path &) const;
-    void verifyMedia(const Session &) const;
 };
 } // namespace soundcurrent::daw

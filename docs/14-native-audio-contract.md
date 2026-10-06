@@ -47,3 +47,5 @@ Windows cross-compiles the shared bridge and journal1.1 recovery fixtures. No na
 ## Next implementation task
 
 S6a's bounded disk read-ahead, non-destructive take playback and off-RT seek retirement now exist; see [the playback contract](15-playback-contract.md). Next connect the first Qt recording/playback/EQ UI (S6), followed by transactional offline WAV export (S7). These tasks retain the native import, Windows, localization and outstanding S4/S5 qualification requirements.
+
+S6f replaces fixture-only capture assembly with the [production recording owner](21-native-recording-owner.md). The current fixture copies raw input before EQ and compares a separate native monitor sink; monitoring Off has no output ports. Native recovery/destruction/activation failure are exercised separately from physical device and deadline qualification.

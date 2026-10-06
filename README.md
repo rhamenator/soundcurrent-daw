@@ -124,3 +124,5 @@ The probe generates no audible output and does not alter audio routing. Build pr
 ## Licensing and distribution
 
 Paid GPL distribution is an option, with corresponding source and license rights preserved. Existing SoundCurrent code retains its copyright and GPL terms. Dependencies, samples, model weights, fonts, codecs, and proprietary plugin binaries require independent inventory; a permissive SDK does not grant rights to vendor content. See [ADR-001](docs/decisions/001-license-and-repository.md).
+
+The [native recording owner](docs/21-native-recording-owner.md) now supplies explicit input/monitor routing, raw capture, ordered finalization/recovery and asynchronous verified take attachment. It is exercised through native integration fixtures; GUI Record/input/arm/monitor/recovery controls and offline export remain the next slice work. Equipment profiles still apply no audio correction.

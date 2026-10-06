@@ -13,6 +13,7 @@ struct RecordingSpec {
     CaptureConfig capture;
     Frame inputLatencyFrames = 0; // Engine-frame alignment, supplied by backend.
     std::optional<Id> recoveredFrom;
+    bool operator==(const RecordingSpec &) const = default;
 };
 enum class RecordingBoundary {
     BeforeAudioWrite,

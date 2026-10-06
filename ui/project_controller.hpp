@@ -1,16 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-#include <soundcurrent/project_store.hpp>
+#include <soundcurrent/recording.hpp>
 #include <memory>
 #include <optional>
 
 namespace soundcurrent::daw::ui {
-enum class CommandKind { Create, Open, Save, Parameter, CancelGesture, Undo, Redo, Barrier };
+enum class CommandKind {
+    Create,
+    Open,
+    Save,
+    Parameter,
+    CancelGesture,
+    Undo,
+    Redo,
+    Barrier,
+    AttachRecording
+};
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
     CommandKind kind = CommandKind::Save;
     std::filesystem::path path;
     std::string name;
+    std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
     std::optional<ParameterAddress> address;
     double value = 0;
     std::uint64_t gesture = 0;
@@ -18,12 +29,13 @@ struct ProjectCommand {
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
-enum class IoOperation { None, Create, Open, Save };
+enum class IoOperation { None, Create, Open, Save, AttachRecording };
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
     std::uint64_t modelRevision = 0, savedRevision = 0, completedCommands = 0, errorSerial = 0;
-    std::uint64_t lastBarrier = 0;
+    std::uint64_t lastBarrier = 0, attachedRecordings = 0;
+    std::optional<Id> lastAttachedAsset;
     std::optional<ErrorCode> errorCode;
     std::string diagnostic;
     IoOperation io = IoOperation::None;

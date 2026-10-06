@@ -20,13 +20,17 @@ AudioBridge::AudioBridge(const Session &s, const Id &track, CapturePipe &capture
         throw ProjectError(ErrorCode::InvalidState, "Audio bridge/capture configuration mismatch");
 }
 AudioBridgeStatus AudioBridge::status() const noexcept {
-    const auto stored = static_cast<AudioBridgeStatus>(state_.load(std::memory_order_acquire));
-    if (stored != AudioBridgeStatus::Ready && stored != AudioBridgeStatus::Running)
-        return stored;
-    const auto requested = requested_.load(std::memory_order_acquire);
-    if (requested)
-        return static_cast<AudioBridgeStatus>(requested);
-    return stored;
+    return static_cast<AudioBridgeStatus>(state_.load(std::memory_order_acquire));
+}
+AudioBridgeStatus AudioBridge::publish(AudioBridgeStatus desired) noexcept {
+    auto current = state_.load(std::memory_order_acquire);
+    if (current == static_cast<std::uint32_t>(AudioBridgeStatus::Ready) ||
+        current == static_cast<std::uint32_t>(AudioBridgeStatus::Running)) {
+        if (state_.compare_exchange_strong(current, static_cast<std::uint32_t>(desired),
+                                           std::memory_order_acq_rel, std::memory_order_acquire))
+            return desired;
+    }
+    return static_cast<AudioBridgeStatus>(current);
 }
 Frame AudioBridge::capturedFrames() const noexcept {
     return publishedFrames_.load(std::memory_order_acquire);
@@ -40,18 +44,24 @@ bool AudioBridge::observation(BackendObservation &o) noexcept {
 void AudioBridge::requestStop() noexcept {
     requestFault(AudioBridgeStatus::Stopped);
 }
-void AudioBridge::requestFault(AudioBridgeStatus state) noexcept {
-    const auto stored = static_cast<AudioBridgeStatus>(state_.load(std::memory_order_acquire));
-    if (stored != AudioBridgeStatus::Ready && stored != AudioBridgeStatus::Running)
+void AudioBridge::requestFault(AudioBridgeStatus desired) noexcept {
+    if (desired == AudioBridgeStatus::Ready || desired == AudioBridgeStatus::Running ||
+        desired == AudioBridgeStatus::Complete || desired > AudioBridgeStatus::ProcessorFailed)
         return;
-    if (state == AudioBridgeStatus::Ready || state == AudioBridgeStatus::Running ||
-        state == AudioBridgeStatus::Complete)
-        return;
-    std::uint32_t expected = 0;
-    requested_.compare_exchange_strong(expected, static_cast<std::uint32_t>(state),
-                                       std::memory_order_release, std::memory_order_relaxed);
+    auto current = state_.load(std::memory_order_acquire);
+    // Only Ready -> Running can race an active-state comparison. Two strong
+    // attempts suffice; there is no unbounded retry in the callback path.
+    for (int attempt = 0; attempt < 2; ++attempt) {
+        if (current != static_cast<std::uint32_t>(AudioBridgeStatus::Ready) &&
+            current != static_cast<std::uint32_t>(AudioBridgeStatus::Running))
+            return;
+        if (state_.compare_exchange_strong(current, static_cast<std::uint32_t>(desired),
+                                           std::memory_order_acq_rel, std::memory_order_acquire))
+            return;
+    }
 }
-void AudioBridge::finish(AudioBridgeStatus state) noexcept {
+AudioBridgeStatus AudioBridge::finish(AudioBridgeStatus state) noexcept {
+    state = publish(state);
     auto reason = CaptureEndReason::UserStop;
     switch (state) {
     case AudioBridgeStatus::Complete:
@@ -83,7 +93,7 @@ void AudioBridge::finish(AudioBridgeStatus state) noexcept {
     capture_.finish(reason);
     if (tap_)
         tap_->finish(reason);
-    state_.store(static_cast<std::uint32_t>(state), std::memory_order_release);
+    return state;
 }
 void AudioBridge::finishQuiescent() noexcept {
     const auto state = status();
@@ -105,8 +115,7 @@ AudioBridgeStatus AudioBridge::process(const DeviceBlockClock &clock,
     };
     if (state != AudioBridgeStatus::Ready && state != AudioBridgeStatus::Running) {
         silence();
-        finish(state);
-        return state;
+        return finish(state);
     }
     if (clock.duration == 0 || clock.duration > options_.maximumFrames ||
         clock.duration > bufferFrames)
@@ -124,8 +133,7 @@ AudioBridgeStatus AudioBridge::process(const DeviceBlockClock &clock,
         state = AudioBridgeStatus::ClockDiscontinuity;
     if (state != AudioBridgeStatus::Ready && state != AudioBridgeStatus::Running) {
         silence();
-        finish(state);
-        return state;
+        return finish(state);
     }
     if (!clockStarted_) {
         const CaptureTimingOrigin origin{
@@ -134,24 +142,29 @@ AudioBridgeStatus AudioBridge::process(const DeviceBlockClock &clock,
             clock.delay};
         if (!capture_.setTimingOrigin(origin) || (tap_ && !tap_->setTimingOrigin(origin))) {
             silence();
-            finish(AudioBridgeStatus::CaptureFailed);
-            return AudioBridgeStatus::CaptureFailed;
+            return finish(AudioBridgeStatus::CaptureFailed);
         }
     }
     previous_ = clock;
     clockStarted_ = true;
     const auto n = static_cast<std::uint32_t>(clock.duration);
     const auto engineStart = driver_.frame();
-    const auto report = driver_.process(input, output, n);
-    if (report.status != ProcessStatus::Ok) {
-        silence();
-        finish(AudioBridgeStatus::ProcessorFailed);
-        return AudioBridgeStatus::ProcessorFailed;
-    }
+    // Raw copy and input metering must precede DSP, including in-place output.
+    float inputPeak = 0;
+    for (auto *channel : input)
+        for (std::uint32_t frame = 0; frame < n; ++frame)
+            if (std::isfinite(channel[frame]))
+                inputPeak = std::max(inputPeak, std::abs(channel[frame]));
     const auto captureFrames = static_cast<std::uint32_t>(
         options_.stopAfterFrames ? std::min<Frame>(n, options_.stopAfterFrames - captured_) : n);
     const auto captureReport = capture_.push(input, captureFrames, engineStart);
     captured_ += captureReport.acceptedFrames;
+    publishedFrames_.store(captured_, std::memory_order_release);
+    const auto report = driver_.process(input, output, n);
+    if (report.status != ProcessStatus::Ok) {
+        silence();
+        return finish(AudioBridgeStatus::ProcessorFailed);
+    }
     if (tap_) {
         for (std::uint32_t c = 0; c < eq_.channels(); ++c)
             tapPointers_[c] = output[c];
@@ -167,22 +180,20 @@ AudioBridgeStatus AudioBridge::process(const DeviceBlockClock &clock,
                     ? AudioBridgeStatus::Complete
                     : AudioBridgeStatus::Running;
     BackendObservation o{clock, engineStart, n, state};
+    o.inputPeak = inputPeak;
     o.invalidSamples = report.invalidInputSamples;
     o.numericFaultSamples = report.numericFaultSamples;
     for (std::uint32_t c = 0; c < eq_.channels(); ++c)
         for (std::uint32_t f = 0; f < n; ++f) {
-            if (std::isfinite(input[c][f]))
-                o.inputPeak = std::max(o.inputPeak, std::abs(input[c][f]));
             if (std::isfinite(output[c][f]))
                 o.outputPeak = std::max(o.outputPeak, std::abs(output[c][f]));
         }
+    state = publish(state);
+    o.status = state;
     if (!observations_.tryPush(o))
         dropped_.fetch_add(1, std::memory_order_relaxed);
-    publishedFrames_.store(captured_, std::memory_order_release);
-    if (state == AudioBridgeStatus::Running)
-        state_.store(static_cast<std::uint32_t>(state), std::memory_order_release);
-    else
-        finish(state);
+    if (state != AudioBridgeStatus::Running)
+        return finish(state);
     return state;
 }
 } // namespace soundcurrent::daw
