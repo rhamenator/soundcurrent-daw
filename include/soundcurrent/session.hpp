@@ -114,6 +114,7 @@ struct Track {
     RouteIntent output;
     RouteIntent monitor;
     RecordingMonitor monitoring = RecordingMonitor::Off;
+    Frame inputLatencyFrames = 0; // Declared capture delay, 0..60 seconds at project rate.
     EqSettings eq;
     std::vector<Clip> clips;
     bool operator==(const Track &) const = default;
@@ -193,9 +194,13 @@ struct SetMaster {
 struct SetPunch {
     PunchSettings value;
 };
+struct SetInputLatency {
+    Id track;
+    Frame frames;
+};
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
-                 SetClipRange, MoveClip, SplitClip, SetMaster, SetPunch>;
+                 SetClipRange, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &);
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

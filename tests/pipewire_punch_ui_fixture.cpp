@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QSpinBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLineEdit>
@@ -274,7 +275,13 @@ int main(int argc, char **argv) {
     qputenv("XDG_CONFIG_HOME", config.path().toUtf8());
     QApplication app(argc, argv);
     try {
-        require(argc == 3, "Supply owned project folder and armed track count (3 or 32)");
+        require(argc == 3 || (argc == 4 && std::string_view(argv[3]) == "--input-latency"),
+                "Supply owned project folder, track count (3 or 32), optionally --input-latency");
+        const bool declaredLatency = argc == 4;
+        const auto latencyFor = [declaredLatency](unsigned lane) -> Frame {
+            constexpr Frame values[] = {4097, 0, 41, 200};
+            return declaredLatency ? values[lane % 4] : 0;
+        };
         const auto count = unsigned(std::stoul(argv[2]));
         require(count == 3 || count == 32, "Unknown native UI scale");
         const auto root = utf8Path(argv[1]);
@@ -302,6 +309,7 @@ int main(int argc, char **argv) {
         initial.playheadFrame = start;
         initial.master = MasterBus{Id::generate(), plan, {}};
         ProjectStore(root).save(initial);
+        const auto originalSaved = initial;
         Source source;
         Audit ownerAudit;
         const auto prefix = "sc-daw-fixture-punch-ui-" + Id::generate().str();
@@ -334,6 +342,31 @@ int main(int argc, char **argv) {
             return window.snapshot()->session && window.snapshot()->io == IoOperation::None;
         });
         await([&] { return window.findChild<QPushButton *>("editPunchRange")->isEnabled(); });
+        if (declaredLatency) {
+            for (unsigned n = 0; n < count; ++n) {
+                require(window.configureInputLatency(arms[n], latencyFor(n)),
+                        "Native declared latency command refused");
+                await([&] {
+                    return window.snapshot()->session->tracks[n + 1].inputLatencyFrames ==
+                           latencyFor(n);
+                });
+                initial.tracks[n + 1].inputLatencyFrames = latencyFor(n);
+            }
+            require(window.selectTrack(arms[0]), "Native latency selection refused");
+            auto *control = window.findChild<QSpinBox *>("inputLatencyFrames");
+            require(control != nullptr, "Native latency control missing");
+            await([&] { return control->value() == 4097 && control->isEnabled(); });
+            showControl(window, control);
+            control->setValue(4098);
+            await([&] { return window.snapshot()->session->tracks[1].inputLatencyFrames == 4098; });
+            window.findChild<QAction *>("undoAction")->trigger();
+            await([&] {
+                return control->value() == 4097 &&
+                       window.snapshot()->session->tracks[1].inputLatencyFrames == 4097;
+            });
+            require(*window.snapshot()->session == initial,
+                    "Native latency Undo lost declared per-track state");
+        }
         auto *rangeButton = window.findChild<QPushButton *>("editPunchRange");
         showControl(window, rangeButton);
         QTest::mouseClick(rangeButton, Qt::LeftButton);
@@ -346,7 +379,7 @@ int main(int argc, char **argv) {
         await([&] {
             return window.snapshot()->session->punch == PunchSettings{true, punchIn, punchOut};
         });
-        require(window.snapshot()->dirty && ProjectStore(root).load() == initial,
+        require(window.snapshot()->dirty && ProjectStore(root).load() == originalSaved,
                 "Punch dialog did not edit canonical state or saved without permission");
         window.findChild<QAction *>("undoAction")->trigger();
         await([&] { return !window.snapshot()->session->punch.enabled; });
@@ -380,7 +413,9 @@ int main(int argc, char **argv) {
         require(window.recordingSnapshot()->endFrame == start + target &&
                     !window.findChild<QCheckBox *>("punchEnabled")->isEnabled() &&
                     !window.findChild<QPushButton *>("editPunchRange")->isEnabled() &&
-                    !window.configurePunch({false, punchIn, punchOut}),
+                    !window.configurePunch({false, punchIn, punchOut}) &&
+                    !window.findChild<QSpinBox *>("inputLatencyFrames")->isEnabled() &&
+                    !window.configureInputLatency(arms[0], 1),
                 "Native prepared punch lost range or allowed locator mutation");
         for (const auto &lane : window.recordingSnapshot()->lanes)
             require(!lane.job, "Native punch preparation created a lane job");
@@ -529,11 +564,11 @@ int main(int argc, char **argv) {
                 inspectRecording(root / "media" / ("capture-" + asset.id.str()), {}, true);
             require(journal.finalized && journal.timingOrigin && asset.frames == rawFrames &&
                         journal.spec.trackId == arms[n] &&
-                        journal.spec.capture.startFrame == punchIn &&
-                        journal.spec.inputLatencyFrames == 0 &&
+                        journal.spec.capture.startFrame == punchIn + latencyFor(n) &&
+                        journal.spec.inputLatencyFrames == latencyFor(n) &&
                         journal.endReason == CaptureEndReason::RangeComplete,
                     "Native GUI raw take journal/extent/identity differs");
-            const auto captureOrigin = origin + std::uint64_t(punchIn - start);
+            const auto captureOrigin = origin + std::uint64_t(punchIn + latencyFor(n) - start);
             require(journal.timingOrigin->devicePosition == captureOrigin,
                     "Native GUI playback/raw punch coordinates differ");
             const auto end = ownerAudit.clocks.begin() + std::ptrdiff_t(ownerAudit.clocksUsed);
@@ -562,7 +597,7 @@ int main(int argc, char **argv) {
                     "Native desktop punch attachment geometry differs");
             lanes.push_back({{"track", arms[n].str()},
                              {"frames", asset.frames},
-                             {"latency", 0},
+                             {"latency", latencyFor(n)},
                              {"raw_start", journal.spec.capture.startFrame},
                              {"device_origin", captureOrigin},
                              {"origin_offset", offset},
@@ -570,8 +605,10 @@ int main(int argc, char **argv) {
                              {"sha256", asset.sha256}});
             raw[n] = samples(root, asset);
             for (std::size_t f = 0; f < raw[n].size(); ++f)
-                require(raw[n][f] == inputSignal(origin + std::uint64_t(punchIn - start) + f, n),
-                        "Native GUI live EQ changed raw input");
+                require(
+                    raw[n][f] ==
+                        inputSignal(origin + std::uint64_t(punchIn + latencyFor(n) - start) + f, n),
+                    "Native GUI live EQ changed raw input");
             std::vector<float> fullInput(std::size_t(target), 0.f);
             for (std::size_t f = 0; f < fullInput.size(); ++f)
                 fullInput[f] = inputSignal(origin + f, n);
@@ -656,6 +693,7 @@ int main(int argc, char **argv) {
                           {"armed_tracks", count},
                           {"production_gui_duplex", true},
                           {"canonical_punch_settings", true},
+                          {"canonical_input_latency_settings", declaredLatency},
                           {"punch_in", punchIn},
                           {"punch_out", punchOut},
                           {"playback_start", start},

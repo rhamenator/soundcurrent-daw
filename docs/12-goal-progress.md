@@ -1531,3 +1531,16 @@ joined grouped attachment, then interruption/fault, manual/Auto/tempo/loop/take/
 comping workflows. Physical/backend latency, sustained/non-flat performance,
 Windows native/Qt/installers and every professional/import/profile/all-Europe
 requirement remain required.
+
+
+[Saved input latency controls](60-input-latency-controls.md) now preserve distinct
+per-track declarations in strict schema1.5 and accepted selected/shared preparation.
+Stable-ID Undo/Redo, passive Save/reopen, prepared/active retirement, zero-frame
+source trimming and desired musical punch attachment have bounded acceptance.
+Debug29/29, ASan/UBSan/LSan29/29, Windows core compilation and a short isolated
+32-track native desktop run pass. Every raw/output sample and lane origin matches;
+callback timing gates pass and four existing links/default metadata are preserved.
+All24 borrowed inputs and92 frozen contracts remain unchanged/unpromoted. Prior23
+observations plus two initial assertions remain retained (25total). Next implement
+manual punch/Auto monitoring, then tempo/loop/take lanes/comping; all physical,
+sustained, native Windows, localization, fault/recovery and full-suite gates remain.

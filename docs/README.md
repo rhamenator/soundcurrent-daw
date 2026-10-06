@@ -64,3 +64,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native punch interruption and recovery checkpoint](59-native-punch-fault-recovery.md)
 
 [Architecture decisions](decisions/) · [Acceptance receipts](../tests/results/) · [Active goal](../GOAL.md)
+
+- [Saved per-track input latency controls](60-input-latency-controls.md)

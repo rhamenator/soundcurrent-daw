@@ -11,7 +11,7 @@ struct RecordingSpec {
     Id trackId = Id::generate();
     Id assetId = Id::generate();
     CaptureConfig capture;
-    Frame inputLatencyFrames = 0; // Engine-frame alignment, supplied by backend.
+    Frame inputLatencyFrames = 0; // Declared capture delay, frozen during preparation.
     std::optional<Id> recoveredFrom;
     bool operator==(const RecordingSpec &) const = default;
 };

@@ -222,7 +222,7 @@ bool compatible(const Session &a, const Session &b) {
     const auto &t = a.tracks.front(), &u = b.tracks.front();
     if (a.id != b.id || a.sampleRate != b.sampleRate || a.playheadFrame != b.playheadFrame ||
         a.punch != b.punch || t.id != u.id || t.layout != u.layout || t.eq.id != u.eq.id ||
-        t.eq.bands.size() != u.eq.bands.size())
+        t.inputLatencyFrames != u.inputLatencyFrames || t.eq.bands.size() != u.eq.bands.size())
         return false;
     for (std::size_t n = 0; n < t.eq.bands.size(); ++n)
         if (t.eq.bands[n].id != u.eq.bands[n].id)
@@ -257,7 +257,8 @@ bool compatible(const RecordingPreparation &p, const Session &b) {
     }
     for (const auto &lane : p.lanes) {
         const auto *t = findTrack(b, lane.spec.trackId);
-        if (!t || t->layout != lane.spec.capture.layout)
+        if (!t || t->layout != lane.spec.capture.layout ||
+            t->inputLatencyFrames != lane.spec.inputLatencyFrames)
             return false;
     }
     return true;
@@ -542,6 +543,7 @@ struct RecordingController::State : QThread {
             p.spec.capture.sampleRate = c.session->sampleRate;
             p.spec.capture.layout = c.session->tracks.front().layout;
             p.spec.capture.startFrame = c.session->playheadFrame;
+            p.spec.inputLatencyFrames = c.session->tracks.front().inputLatencyFrames;
             p.options = options.nativeOptions;
             p.options.monitoring = c.monitoring;
             p.options.bridge.generation = view.generation + 1;
@@ -593,6 +595,7 @@ struct RecordingController::State : QThread {
                     lane.spec.capture.sampleRate = c.session->sampleRate;
                     lane.spec.capture.layout = t->layout;
                     lane.spec.capture.startFrame = c.session->playheadFrame;
+                    lane.spec.inputLatencyFrames = t->inputLatencyFrames;
                     lane.spec.capture.maximumCallbackFrames = p.options.bridge.maximumFrames;
                     lane.spec.capture =
                         withCaptureReserve(lane.spec.capture, c.storageReserveMilliseconds);

@@ -293,6 +293,7 @@ std::string encodeProject(const Session &s) {
              {"outputIntent", route(t.output)},
              {"monitorIntent", route(t.monitor)},
              {"monitoringMode", t.monitoring == RecordingMonitor::Off ? "off" : "post-eq"},
+             {"inputLatencyFrames", t.inputLatencyFrames},
              {"processors", Json::array({processor})},
              {"clips", clips}});
     }
@@ -306,7 +307,7 @@ std::string encodeProject(const Session &s) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 4},
+        {"schemaMinor", 5},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -357,7 +358,7 @@ Session decodeProject(std::string_view bytes) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 4),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 5),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -405,13 +406,18 @@ Session decodeProject(std::string_view bytes) {
             else if (minor == 1)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "processors", "clips"});
-            else
+            else if (minor < 5)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "monitoringMode", "processors", "clips"});
+            else
+                keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
+                         "monitoringMode", "inputLatencyFrames", "processors", "clips"});
             Track track;
             track.id = Id(string(t.at("id")));
             track.name = string(t.at("name"));
             track.layout = readLayout(t.at("layout"));
+            if (minor >= 5)
+                track.inputLatencyFrames = integer(t.at("inputLatencyFrames"));
             track.input = readRoute(t.at("inputIntent"), minor == 0);
             track.output = readRoute(t.at("outputIntent"), minor == 0);
             if (minor >= 1)

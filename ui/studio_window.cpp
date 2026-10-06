@@ -71,6 +71,16 @@ class FocusCombo : public QComboBox {
             event->ignore();
     }
 };
+class FocusIntegerSpin : public QSpinBox {
+  public:
+    using QSpinBox::QSpinBox;
+    void wheelEvent(QWheelEvent *event) override {
+        if (hasFocus())
+            QSpinBox::wheelEvent(event);
+        else
+            event->ignore();
+    }
+};
 ChannelPortIntent portIntent(const PipeWirePort &p) {
     return {p.nodeName, p.portName, p.mediaClass, p.input};
 }
@@ -316,6 +326,33 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     recordModes->addWidget(armed_);
     recordModes->addWidget(monitorMode_, 1);
     recordLayout->addLayout(recordModes);
+    auto *latencyRow = new QHBoxLayout;
+    auto *latencyLabel = new QLabel(tr("Selected track input latency:"), recording);
+    inputLatency_ = new FocusIntegerSpin(recording);
+    inputLatency_->setObjectName("inputLatencyFrames");
+    inputLatency_->setFocusPolicy(Qt::StrongFocus);
+    inputLatency_->setKeyboardTracking(false);
+    inputLatency_->setAccessibleName(tr("Selected track input latency in sample frames"));
+    inputLatency_->setSuffix(tr(" samples"));
+    inputLatency_->setToolTip(tr("Declared input delay, from zero to 60 seconds. New takes are "
+                                 "aligned earlier by this amount. Existing clips and monitor "
+                                 "audio are unchanged. Stop recording before editing."));
+    latencyLabel->setBuddy(inputLatency_);
+    inputLatencyTime_ = new QLabel(recording);
+    inputLatencyTime_->setObjectName("inputLatencyTime");
+    latencyRow->addWidget(latencyLabel);
+    latencyRow->addWidget(inputLatency_, 1);
+    latencyRow->addWidget(inputLatencyTime_);
+    recordLayout->addLayout(latencyRow);
+    connect(inputLatency_, &QSpinBox::valueChanged, this, [this](int frames) {
+        const auto m = controller_.snapshot();
+        if (!latencyTrack_ || latencyEpoch_ != m->projectEpoch || selectedTrack() != latencyTrack_)
+            return;
+        if (!configureInputLatency(*latencyTrack_, frames)) {
+            latencyShown_.reset();
+            notice_->setText(tr("Input latency could not be changed. Stop recording and retry."));
+        }
+    });
     multiRecord_ = new QCheckBox(tr("Record armed tracks with project playback"), recording);
     multiRecord_->setObjectName("recordProjectMix");
     multiRecord_->setToolTip(tr("Select tracks below. Every raw input and project output must be "
@@ -1202,6 +1239,20 @@ bool StudioWindow::configurePunch(PunchSettings value) {
     c.edits = {SetPunch{value}};
     return submitEdit(std::move(c));
 }
+bool StudioWindow::configureInputLatency(const Id &track, Frame frames) {
+    const auto m = controller_.snapshot();
+    const auto r = recording_.snapshot();
+    if (!m->session || m->io != IoOperation::None || recordingBusy() ||
+        r->phase == RecordingPhase::Ready || r->take || attachingTake_ || recordPrepareBarrier_ ||
+        recordCommandPending_ || closing_ || closeRequested_ || closeAfterSave_ ||
+        exportWorkflowBusy() || frames < 0 || frames > Frame(m->session->sampleRate) * 60 ||
+        std::none_of(m->session->tracks.begin(), m->session->tracks.end(),
+                     [&](const auto &t) { return t.id == track; }))
+        return false;
+    ProjectCommand c{CommandKind::Structural};
+    c.edits = {SetInputLatency{track, frames}};
+    return submitEdit(std::move(c));
+}
 void StudioWindow::editPunchRange() {
     const auto m = controller_.snapshot();
     if (!m->session || punchDialog_ || !punchRangeButton_->isEnabled())
@@ -1620,6 +1671,27 @@ void StudioWindow::pollRecording() {
     const auto mode = m->session && !m->session->tracks.empty()
                           ? m->session->tracks.front().monitoring
                           : RecordingMonitor::Off;
+    if (m->session && !m->session->tracks.empty()) {
+        const auto &track = m->session->tracks.front();
+        if (latencyEpoch_ != m->projectEpoch || latencyTrack_ != track.id ||
+            latencyShown_ != track.inputLatencyFrames ||
+            (!inputLatency_->hasFocus() && inputLatency_->value() != track.inputLatencyFrames)) {
+            QSignalBlocker blocked(inputLatency_);
+            inputLatency_->setRange(0, int(m->session->sampleRate * 60));
+            inputLatency_->setValue(int(track.inputLatencyFrames));
+            inputLatencyTime_->setText(tr("%1 ms").arg(QLocale().toString(
+                1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));
+            latencyEpoch_ = m->projectEpoch;
+            latencyTrack_ = track.id;
+            latencyShown_ = track.inputLatencyFrames;
+        }
+    } else {
+        QSignalBlocker blocked(inputLatency_);
+        inputLatency_->setValue(0);
+        inputLatencyTime_->clear();
+        latencyTrack_.reset();
+        latencyShown_.reset();
+    }
     if (!monitoringShown_ || *monitoringShown_ != mode) {
         QSignalBlocker blocked(monitorMode_);
         monitorMode_->setCurrentIndex(monitorMode_->findData(int(mode)));
@@ -1691,6 +1763,10 @@ void StudioWindow::pollRecording() {
     monitorMode_->setEnabled(allow && !recordPrepareBarrier_ && !recordCommandPending_ && idle &&
                              !r->take && m->session && !m->session->tracks.empty() &&
                              m->io != IoOperation::Create && m->io != IoOperation::Open);
+    inputLatency_->setEnabled(allow && !recordPrepareBarrier_ && !recordCommandPending_ && idle &&
+                              !r->take && !attachingTake_ && m->session &&
+                              !m->session->tracks.empty() && m->io == IoOperation::None &&
+                              !exportWorkflowBusy());
     armed_->setEnabled(allow && r->supported && m->session && !r->take);
     recordButton_->setEnabled(
         allow && !recordCommandPending_ && ready &&

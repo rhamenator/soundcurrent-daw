@@ -139,6 +139,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits) {
                     proposed.master = e.value;
                 } else if constexpr (std::is_same_v<E, SetPunch>) {
                     proposed.punch = e.value;
+                } else if constexpr (std::is_same_v<E, SetInputLatency>) {
+                    track(proposed, e.track).inputLatencyFrames = e.frames;
                 } else if constexpr (std::is_same_v<E, RenameTrack>) {
                     track(proposed, e.track).name = e.name;
                 } else if constexpr (std::is_same_v<E, MoveTrack>) {
