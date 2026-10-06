@@ -8,18 +8,24 @@
       "milestone": "M2",
       "acceptance": "Arm 32 mono tracks; record ten minutes; stop, reopen and verify every take and timestamp.",
       "quality": "Zero missing frames in synthetic run; 30-minute native run with zero unreported gaps.",
-      "known_gap": "No DAW capture backend exists.",
+      "known_gap": "Shared-clock simultaneous 32-track capture, overdub, alignment and declared-device runs remain required.",
       "bitwig_url": "https://www.bitwig.com/userguide/latest/recording_clips/",
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Partial: single prepared-track capture, including non-first desktop identity; simultaneous M2 capture unverified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "bitwig_source_id": "29952e7064892724",
-      "cubase_source_id": "07737beea13bae7c"
+      "cubase_source_id": "07737beea13bae7c",
+      "implementation_evidence": [
+        "docs/29-multitrack-edits.md",
+        "docs/30-desktop-timeline.md",
+        "tests/results/M2/2026-10-06-multitrack-edits.json",
+        "tests/results/M2/2026-10-06-desktop-timeline.json"
+      ]
     },
     {
       "id": "P002",
@@ -148,19 +154,25 @@
       "milestone": "M2",
       "acceptance": "Comp and move an eight-mic drum take together; later warp it with linked markers.",
       "quality": "Relative channel offsets remain exact; no introduced phase drift.",
-      "known_gap": "Bitwig guide evidence covers layered editing; full grouped workflow requires verification.",
+      "known_gap": "Group-selection UI, comp/takes, linked warps, rendered/native phase and detailed reference workflow remain unverified; Bitwig topic evidence is limited.",
       "bitwig_url": "https://www.bitwig.com/userguide/latest/working_with_note_events/",
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/parts_events/parts_and_events_group_editing_mode_c.html?contentId=66hmyonQqPz8EmJo9uNsKA",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Partial: M2a grouped stable-ID coordinate commands and M2b single-track/clip desktop selection/move.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "bitwig_source_id": "b073c19d96494b14",
       "cubase_source_id": "dee77e035377364f",
-      "reference_limit": "Topic supports the feature family; detailed workflow equivalence is unresolved."
+      "reference_limit": "Topic supports the feature family; detailed workflow equivalence is unresolved.",
+      "implementation_evidence": [
+        "docs/29-multitrack-edits.md",
+        "docs/30-desktop-timeline.md",
+        "tests/results/M2/2026-10-06-multitrack-edits.json",
+        "tests/results/M2/2026-10-06-desktop-timeline.json"
+      ]
     },
     {
       "id": "P009",
@@ -169,18 +181,24 @@
       "milestone": "M2",
       "acceptance": "Split two clips, apply editable curved fades/crossfade, trim and undo without changing source.",
       "quality": "Gain curve matches specified samples; peak remains predictable.",
-      "known_gap": "Fade shapes and defaults require reference comparison.",
+      "known_gap": "Fade/crossfade model, curves, UI/render, defaults and reference comparison remain required.",
       "bitwig_url": "https://www.bitwig.com/userguide/latest/working_with_audio_events/",
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/fades_crossfades_and_envelopes/fades_crossfades_c.html?contentId=iNGCanNPEOt7kqsEB6nWjA",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Partial: non-destructive range/split commands and desktop controls, raw hash, Undo and save/reopen.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "bitwig_source_id": "7165879928ab22b7",
-      "cubase_source_id": "017a8b9f608a1aff"
+      "cubase_source_id": "017a8b9f608a1aff",
+      "implementation_evidence": [
+        "docs/29-multitrack-edits.md",
+        "docs/30-desktop-timeline.md",
+        "tests/results/M2/2026-10-06-multitrack-edits.json",
+        "tests/results/M2/2026-10-06-desktop-timeline.json"
+      ]
     },
     {
       "id": "P010",
@@ -1713,18 +1731,24 @@
       "milestone": "M1",
       "acceptance": "Undo a control gesture, split, preset, route and take edit; redo after reopen only if history policy supports it.",
       "quality": "Transactions deterministic; no orphan media; RT unaffected.",
-      "known_gap": "First slice saves current state; persistent history scope explicit later.",
+      "known_gap": "Presets, later editor domains, history browser, durable policy and full reference comparisons remain required; saved current state does not persist history.",
       "bitwig_url": "https://www.bitwig.com/userguide/latest/working_with_audio_events/",
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/project_window/project_window_edit_history_dialog_r.html?contentId=XIhCJ5tkegYZHqfktwVUVA",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Partial: mixed in-memory scalar/route/monitor/structural/take history and desktop Save/reopen; full workflow unverified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "bitwig_source_id": "7165879928ab22b7",
-      "cubase_source_id": "febdff9c7dbcc9a7"
+      "cubase_source_id": "febdff9c7dbcc9a7",
+      "implementation_evidence": [
+        "docs/29-multitrack-edits.md",
+        "docs/30-desktop-timeline.md",
+        "tests/results/M2/2026-10-06-multitrack-edits.json",
+        "tests/results/M2/2026-10-06-desktop-timeline.json"
+      ]
     },
     {
       "id": "P087",

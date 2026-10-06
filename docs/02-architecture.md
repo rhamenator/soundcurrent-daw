@@ -121,3 +121,14 @@ Plugins and imported projects are untrusted inputs. Validate sizes/counts/paths/
 ## Monitor versus print paths
 
 Master/track exports branch before control-room correction, monitor gain, dim, talkback and headphone transforms. Cue buses are distinct routes. Store monitor calibration globally with device/profile version, and make printing a correction an explicit export choice that defaults off. Imported EQ speaker profiles are approximations from measurements, not proof of room correction. Analysis must not feed GUI repaint rates back into sample processing.
+
+
+## M2b desktop identity checkpoint
+
+[Selected-track timeline](30-desktop-timeline.md) keeps canonical project order
+separate from transient selection. Existing single-track owners receive cached
+control-side projections and accepted-prefix preparation with a captured ID.
+Follow reconciliation uses that ID; selecting or editing a different track does
+not retarget audio. This does not implement the multitrack DAG, PDC or shared
+playback/capture clock described above. M2c supplies those engine foundations;
+Qt scene allocation, parameter formatting and model projection stay outside RT.

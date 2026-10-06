@@ -187,3 +187,10 @@ P008/P009/P086 subsets and their remaining full acceptance workflows. Mixed
 in-memory Undo now includes verified raw-take admission, with files preserved.
 The original reference-family requirements and unverified F/Q/C/N axes remain
 intact; coordinate/state fixtures do not establish native or processing parity.
+
+[M2b desktop timeline](30-desktop-timeline.md) adds selected-track/clip identity,
+exact split/trim/move controls and save/reopen evidence for the existing subset.
+P009 fades/crossfades remain unimplemented; P008 grouped selection/warps/native
+phase and P086 complete history domains remain open. P001 still needs simultaneous
+32-track capture, shared-clock graph and declared-device qualification. All
+reference workflows and F/Q/C/N requirements remain unchanged.

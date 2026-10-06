@@ -86,3 +86,11 @@ count/byte-bounded mixed history and verified take-admission Undo. Developer CLI
 persistence is available; next implement desktop selection/timeline, shared-clock
 prepared graph and simultaneous overdub. Full M2 and independent M1 gates remain
 open, with no frozen parity completion inferred.
+
+
+M2b now exposes [desktop track/clip selection and timeline edits](30-desktop-timeline.md),
+selected-track EQ/routes and immutable selected single-track preparation. Selection
+never changes canonical order or retargets an owner; verified takes attach to the
+captured ID. M2c next prepares one shared-clock multitrack live/offline graph, then
+simultaneous capture/overdub. Full M2 punch/loop/takes/comping/fades, remaining M1
+native/platform/fault gates and all frozen parity requirements remain required.

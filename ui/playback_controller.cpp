@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "playback_controller.hpp"
+#include "track_view.hpp"
 #include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
@@ -87,16 +88,19 @@ bool compatible(const Session &prepared, const Session &updated) {
             return false;
     const auto &t = prepared.tracks.front();
     const auto &u = updated.tracks.front();
-    if (prepared.id != updated.id || prepared.name != updated.name ||
-        prepared.sampleRate != updated.sampleRate ||
-        prepared.playheadFrame != updated.playheadFrame ||
-        prepared.exportStartFrame != updated.exportStartFrame ||
-        prepared.exportEndFrame != updated.exportEndFrame || prepared.assets != updated.assets ||
-        prepared.tracks.size() != updated.tracks.size() || t.id != u.id || t.name != u.name ||
-        t.layout != u.layout || t.clips != u.clips)
+    if (prepared.id != updated.id || prepared.sampleRate != updated.sampleRate ||
+        prepared.playheadFrame != updated.playheadFrame || t.id != u.id || t.layout != u.layout ||
+        t.clips != u.clips)
         return false;
-    return std::equal(prepared.tracks.begin() + 1, prepared.tracks.end(),
-                      updated.tracks.begin() + 1);
+    for (const auto &clip : t.clips) {
+        const auto old = std::find_if(prepared.assets.begin(), prepared.assets.end(),
+                                      [&](const auto &a) { return a.id == clip.assetId; });
+        const auto now = std::find_if(updated.assets.begin(), updated.assets.end(),
+                                      [&](const auto &a) { return a.id == clip.assetId; });
+        if (old == prepared.assets.end() || now == updated.assets.end() || *old != *now)
+            return false;
+    }
+    return true;
 }
 } // namespace
 struct PlaybackController::State : QThread {
@@ -198,6 +202,10 @@ struct PlaybackController::State : QThread {
             return;
         view.desiredRevision = desired->revision;
         if (desired->revision != checkedRevision) {
+            const auto target = sessionForTrack(desired->session, prepared->track);
+            if (!target)
+                throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
+            desired->session = target;
             validate(*desired->session);
             if (desired->root != prepared->root ||
                 !compatible(*prepared->session, *desired->session))
@@ -280,7 +288,7 @@ struct PlaybackController::State : QThread {
                 std::max(next.config.endFrame, clip.startFrame + clip.lengthFrames);
         if (next.config.endFrame <= next.config.startFrame)
             throw ProjectError(ErrorCode::InvalidState,
-                               "First track has no audio beyond the playhead");
+                               "Prepared track has no audio beyond the playhead");
         auto candidate = options.factory(next);
         if (!candidate)
             throw ProjectError(ErrorCode::InvalidState, "Playback factory returned no owner");

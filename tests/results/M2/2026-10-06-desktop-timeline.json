@@ -1,0 +1,235 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2b desktop timeline and selected-track integration",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "4fc2266ca18e7e4df2471f31bb7dd3d8aef1327a",
+  "status": "scoped desktop foundation passed; M2/full goal incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "c83ae647f449b2c7325cb2feaff0b2a98db0192fca2ee3fcb6364d07153497c8",
+    "ui/timeline_editor.cpp": "13129d9ee731f2e2894e17b49648f62a0d491a73a1b3071e87aaadeec300b145",
+    "ui/timeline_editor.hpp": "7e451a85ab80e409a6e8934270f339f9d953706cc73f9357e41af2ab910f303d",
+    "ui/track_view.hpp": "8efcbf8562552fdac6521f9eb5270c1829b28a2a38f4ac39d0890573c9739623",
+    "ui/studio_window.cpp": "78254cbb886707145ffb25b2ebb0b2c922440dd9681603c32791e2ad125b8d1d",
+    "ui/studio_window.hpp": "ae567e97ac56323a4c8b4e448e769f95b9e279eccaa7fe8be77f0ca329681399",
+    "ui/playback_controller.cpp": "c9f9265336c4d53ae37fd70f2996aa8740bdd45357fb1cd4bb77bc0abaf3cb86",
+    "ui/recording_controller.cpp": "b2ec50022e5b23585b9b46cbca46acfa39a31d99fd5d6093b0cc923921f853ec",
+    "tests/timeline_ui_tests.cpp": "eb6bb761b8fab1e18e68af76a0cdd3d3f09d2587f3efa20f5c80f2bf7adc134f",
+    "tests/ui_tests.cpp": "f746c93cab6050e5513a9df87d6ad877a03e5f54745dc7df37a246d81a355c56",
+    "tests/export_ui_tests.cpp": "c7536b3dc53f1c64f59104f909d869436561fd8f2fb37196dbdc7af3431ff3ca",
+    "tests/fake_playback_endpoint.hpp": "c4eeb88f8f8fd69426f9123b0fe7da84e45400bc9c275230697e4924f9817f40",
+    "tests/fake_recording_endpoint.hpp": "28357349d8d4269a89dfad96ff14c942d61a8a21ade535502e923dcf0971317a",
+    "tests/pipewire_recording_ui_fixture.cpp": "ac2f9e5d9068c870fc2c614f7c2844ce0489ba9df4e162f54027a21583daeac9",
+    "tests/verify_pipewire_fixture.py": "7ae4c37cc225e8addc557b149c14fcba2cd1ce154cc7c98fd214dd6a84c95ab5",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "research/parity.json": "c703c08e1da34f05853685d353e18846b4840024f024b613c6d3dfb9aa80d989"
+  },
+  "workflows": [
+    "Canonical audio-track list, keyboard and real mouse clip selection, exact nonnegative decimal frame fields and zoom/scroll rectangle timeline",
+    "Typed rename/reorder/add/remove, range/split/cross-track move and mixed Undo; source hash unchanged; captured Save/reopen exact",
+    "Frame 9007199254740993 retained exactly; invalid fractional frame rejected before model mutation",
+    "Selection preserves project revision/dirty state/canonical ordering; Unicode names and stable destination choice across rename refresh",
+    "Missing ID projection refuses fallback; immutable control-side selected-track projection never saved",
+    "Accepted-prefix preparation for a non-first track; passive inspector changes leave prepared fake endpoints unactivated/unretargeted",
+    "Unrelated EQ edits do not submit parameter events or fault prepared playback/recording",
+    "Verified raw recording attaches to captured preparation ID after inspector selects another track",
+    "Scene selection handlers avoid deleting emitting scene items; derived destructor disconnects child callbacks before base teardown",
+    "Preparation immediately after async Open synchronizes initial selection before barrier admission",
+    "List/scene reconciliation defers rebuilding until their input event finishes, including concurrent model publication"
+  ],
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "groups": 21,
+      "seconds": 19.19,
+      "log": {
+        "path": ".cache/m2-timeline-event-debug-tests.log",
+        "sha256": "f9aa788ac6a8c8f384b81f82cac0e32fdfad135e026cbc6f0743bcd1c4ab9c3b"
+      }
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 21,
+      "seconds": 48.07,
+      "log": {
+        "path": ".cache/m2-timeline-event-sanitized-tests.log",
+        "sha256": "6d354dd0eead29e7ac8bc676932a955820240d2c1615927db74f82952be76f25"
+      },
+      "sanitizers": [
+        "ASan",
+        "UBSan",
+        "LSan"
+      ],
+      "environment": "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1"
+    },
+    "linux_builds": {
+      "debug": {
+        "path": ".cache/m2-timeline-event-debug-build.log",
+        "sha256": "95157f089ac0908bf06f6a2fd91b5279da690746c416a2d7dcbd971b83614103"
+      },
+      "sanitized": {
+        "path": ".cache/m2-timeline-event-sanitized-build.log",
+        "sha256": "70a4545596a3b5f71b68af2bba854f8e0ea6a6906a40f4d5569a96b600e7f427"
+      }
+    },
+    "desktop_timeline": {
+      "debug_ctest_checks": 86,
+      "sanitized_ctest_checks": 86,
+      "standalone_screenshot_checks": 87,
+      "timeout_seconds": 60,
+      "standalone_log": {
+        "path": ".cache/m2-timeline-event-ui-tests.log",
+        "sha256": "36930c612aaf67ba49bfa0a2c0e567795b0fcff82165cf0c7b79953cedf926ad"
+      },
+      "screenshot": {
+        "path": ".cache/m2-timeline.png",
+        "sha256": "43cc8a135563056dd66bc007a30301c78b448d0d3798334ce3615ff3ddc38499",
+        "visually_inspected": true,
+        "scope": "765x539 timeline pane; full display/font/script/accessibility/load qualification remains open"
+      }
+    },
+    "native_pipewire": {
+      "result": "passed",
+      "execution": "serial after owned build/CTest jobs completed; owned endpoints only",
+      "results": [
+        {
+          "mode": "roundtrip",
+          "frames": 480000,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 480000,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 2,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": false,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": true,
+          "desktop_export_frames": 480000,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 83,
+            "snapshots_with_owned_links": 76,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()"
+        }
+      ],
+      "log": {
+        "path": ".cache/m2-timeline-event-native.log",
+        "sha256": "6f043e54550117ffe077da2242bbe5d20b4e01989901b1c4af13beb5d2e04f29"
+      },
+      "manifest": {
+        "path": ".cache/m2-timeline-event-native.json",
+        "sha256": "6f043e54550117ffe077da2242bbe5d20b4e01989901b1c4af13beb5d2e04f29"
+      },
+      "scope": "one-track regression, not simultaneous multitrack or physical audio qualification"
+    },
+    "windows_headless": {
+      "result": "CMake reconfiguration/build passed; existing core objects unchanged, no work to compile",
+      "log": {
+        "path": ".cache/m2-timeline-windows-build.log",
+        "sha256": "0d8d4a0f11014696a25d9ca9601b44ad14bd397ea06e2d00981addb38fb7fbf9"
+      },
+      "desktop_ui": "not built/qualified",
+      "native_audio": "not executed/qualified"
+    },
+    "equalizer_reuse": {
+      "result": "24 registered inputs match; retained snapshots intact; no source refresh warranted",
+      "report": {
+        "path": ".cache/m2-timeline-final-reuse-audit.json",
+        "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+      },
+      "sources": {
+        "soundcurrent-eq": {
+          "head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "head_changed": false,
+          "registered_inputs": 12
+        },
+        "soundcurrent-studio": {
+          "head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "head_changed": false,
+          "registered_inputs": 12
+        }
+      },
+      "equalizer_checkout_writes": false
+    }
+  },
+  "resolved_failures": [
+    {
+      "failure": "new timeline sanitizer caught derived-object lifetime UB during scene child teardown; debug had segfaulted",
+      "fix": "disconnect child-to-derived handlers before QWidget teardown; avoid redraw during scene selection callbacks",
+      "diagnostic": {
+        "path": ".cache/m2-timeline-ui-sanitizer-diagnostic.log",
+        "sha256": "1baac9652aa8f73a01e318db52a9540118ad6d269fab38bfd80a1b72c58b81eb"
+      }
+    },
+    {
+      "failure": "new fixture Save/reopen mismatch",
+      "fix": "click actual QMessageBox Save button; clear focus and capture accepted-prefix final state before comparison"
+    },
+    {
+      "failure": "new fixture observed missing graphics/route widgets before asynchronous GUI reconciliation",
+      "fix": "wait for scene/route state as well as controller publication, using stable snapshot iterator ownership"
+    },
+    {
+      "failure": "existing desktop-ui stereo preparation refused immediately after Open, both debug/sanitized",
+      "fix": "synchronize canonical model/initial selection before preparation; unchanged acceptance passes",
+      "debug": {
+        "path": ".cache/m2-timeline-final-debug-tests.log",
+        "sha256": "1dcfc7a6890e17c1dd3b7383725d9a39117ae5966e69e315f8fd76eae30371dd"
+      },
+      "sanitized": {
+        "path": ".cache/m2-timeline-final-sanitized-tests.log",
+        "sha256": "dff71c3f067b6cbc18de39ec672070e13dcf9bbea6bee2850c5d8322ab9233fd"
+      }
+    }
+  ],
+  "parity_decomposition": {
+    "P001": {
+      "subset": "selected single-track desktop capture including non-first ID and immutable attachment",
+      "remaining": "shared-clock simultaneous 32-track capture, overdub, alignment and declared-device runs",
+      "F": "unverified",
+      "Q": "unverified"
+    },
+    "P008": {
+      "subset": "stable desktop single-track/clip selection and moves; M2a grouped command offsets retained",
+      "remaining": "group selection, comp/takes, linked warps, rendered/native phase and reference comparison",
+      "F": "unverified",
+      "Q": "unverified"
+    },
+    "P009": {
+      "subset": "desktop non-destructive range/split plus raw hash/Undo/Save-reopen",
+      "remaining": "fade/crossfade model/curves/UI/render/reference options",
+      "F": "unverified",
+      "Q": "unverified"
+    },
+    "P086": {
+      "subset": "desktop command structural Undo and captured Save/reopen; prior mixed history retained",
+      "remaining": "all editor domains/presets/history browser/durable policy/reference options",
+      "F": "unverified",
+      "Q": "unverified"
+    }
+  },
+  "remaining_gates": [
+    "Rectangle timeline has no waveforms/drag/snap/group selection/fade/comp/automation/tempo lanes; approximate double visuals with exact integer fields",
+    "Scene/model-copy cost at large project limits not load-qualified; scalar follow/graph deadlines still open",
+    "One prepared track only; M2c shared-clock multitrack live/offline graph and simultaneous capture/overdub next",
+    "Physical alignment, native Windows Qt/audio, installers, declared-device/deadline/load, filesystem/power-loss/>4GiB and normal PipeWire dependency-unload memory",
+    "All 92 frozen-reference families and separate F/Q/C/N qualification; X004 native imports; X005 engine monitor/print/portable profile/measurements/rights",
+    "All-Europe translation coverage/native numeric entry/native-speaker review/accessibility/UI/help/installers"
+  ],
+  "next_task": "M2c Qt-free shared-clock multitrack live/offline playback/mix graph with sample-sum/offset/EQ oracles, bounded read-ahead/underrun reporting and RT ownership audits; then simultaneous capture/overdub",
+  "published_or_pushed": false
+}

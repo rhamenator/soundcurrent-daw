@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "recording_controller.hpp"
+#include "track_view.hpp"
 #include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
@@ -81,23 +82,21 @@ struct Following {
     std::shared_ptr<const Session> session;
     std::uint64_t revision = 0;
 };
-// Saved first-track route/monitoring intent is separate from the prepared connections.
-// Live processing admits scalar EQ/enable changes; project/rate/layout/clip changes stop it.
+// Selected-track route/monitoring intent is separate from the prepared connections.
+// Scalar EQ follows the captured track ID; unrelated tracks and recorded clips
+// do not alter raw capture. Project/rate/layout/processor identity changes stop it.
 bool compatible(const Session &a, const Session &b) {
     if (a.tracks.empty() || b.tracks.empty())
         return false;
     const auto &t = a.tracks.front(), &u = b.tracks.front();
-    if (a.id != b.id || a.name != b.name || a.sampleRate != b.sampleRate ||
-        a.playheadFrame != b.playheadFrame || a.exportStartFrame != b.exportStartFrame ||
-        a.exportEndFrame != b.exportEndFrame || a.assets != b.assets ||
-        a.tracks.size() != b.tracks.size() || t.id != u.id || t.name != u.name ||
-        t.layout != u.layout || t.clips != u.clips || t.eq.id != u.eq.id ||
+    if (a.id != b.id || a.sampleRate != b.sampleRate || a.playheadFrame != b.playheadFrame ||
+        t.id != u.id || t.layout != u.layout || t.eq.id != u.eq.id ||
         t.eq.bands.size() != u.eq.bands.size())
         return false;
     for (std::size_t n = 0; n < t.eq.bands.size(); ++n)
         if (t.eq.bands[n].id != u.eq.bands[n].id)
             return false;
-    return std::equal(a.tracks.begin() + 1, a.tracks.end(), b.tracks.begin() + 1);
+    return true;
 }
 void checkRecovery(const RecordingCommand &c, const RecordingRecovery &r) {
     if (!c.session || c.session->tracks.empty() || c.job.parent_path() != c.root / "media" ||
@@ -215,6 +214,10 @@ struct RecordingController::State : QThread {
             return;
         view.desiredRevision = desired->revision;
         if (checkedRevision != desired->revision) {
+            const auto target = sessionForTrack(desired->session, prepared->spec.trackId);
+            if (!target)
+                throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
+            desired->session = target;
             validate(*desired->session);
             if (desired->root != prepared->root ||
                 !compatible(*prepared->session, *desired->session))

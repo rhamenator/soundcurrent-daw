@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "track_view.hpp"
 #include "equipment_profiles.hpp"
 #include <soundcurrent/routing.hpp>
 #include <QAction>
@@ -144,14 +145,16 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                 recording_.requestStop();
                 return;
             }
-            if (playback_.snapshot()->phase == PlaybackPhase::Playing)
+            if (playback_.snapshot()->phase == PlaybackPhase::Playing || playbackPrepareBarrier_) {
+                playbackPrepareBarrier_ = 0;
                 playback_.requestStop();
-            else
+            } else
                 playSelected();
         });
     stopAction_ =
         transportMenu->addAction(tr("Stop"), QKeySequence(Qt::SHIFT | Qt::Key_Space), this, [this] {
             recordPrepareBarrier_ = 0;
+            playbackPrepareBarrier_ = 0;
             playback_.requestStop();
             recording_.requestStop();
         });
@@ -161,7 +164,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     recordAction_ = transportMenu->addAction(tr("Record"), QKeySequence(Qt::Key_R), this,
                                              &StudioWindow::recordSelected);
     recoverAction_ = file->addAction(tr("Recover recording…"), this, [this] {
-        const auto model = controller_.snapshot();
+        const auto model = inspectorSnapshot();
         const auto start = model->session ? text(pathUtf8(model->root / "media")) : QString();
         const auto selected =
             QFileDialog::getExistingDirectory(this, tr("Choose a capture job to inspect"), start);
@@ -179,6 +182,28 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     project_->setObjectName(QStringLiteral("projectLabel"));
     project_->setWordWrap(true);
     layout->addWidget(project_);
+    timeline_ = new TimelineEditor(body);
+    layout->addWidget(timeline_);
+    timeline_->submit = [this](std::vector<SessionEdit> edits) {
+        const auto phase = playback_.snapshot()->phase;
+        if (closing_ || closeRequested_ || recordingBusy() || playbackPrepareBarrier_ ||
+            (phase != PlaybackPhase::Idle && phase != PlaybackPhase::Fault &&
+             phase != PlaybackPhase::Unsupported))
+            return false;
+        ProjectCommand command{CommandKind::Structural};
+        command.edits = std::move(edits);
+        return submitEdit(std::move(command));
+    };
+    timeline_->selectionChanged = [this] {
+        shown_.reset();
+        inspectorSource_.reset();
+        outputIntentShown_.reset();
+        inputIntentShown_.reset();
+        monitorIntentShown_.reset();
+        monitoringShown_.reset();
+        if (!polling_)
+            poll();
+    };
     auto *transport = new QGroupBox(tr("Playback"), body);
     transport->setObjectName(QStringLiteral("playbackGroup"));
     auto *transportLayout = new QVBoxLayout(transport);
@@ -197,6 +222,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     connect(playButton_, &QPushButton::clicked, this, &StudioWindow::playSelected);
     connect(stopButton_, &QPushButton::clicked, this, [this] {
         recordPrepareBarrier_ = 0;
+        playbackPrepareBarrier_ = 0;
         playback_.requestStop();
         recording_.requestStop();
     });
@@ -233,7 +259,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         recordButtons->addWidget(b);
     recordLayout->addLayout(recordButtons);
     auto *recordModes = new QHBoxLayout;
-    armed_ = new QCheckBox(tr("Arm first track"), recording);
+    armed_ = new QCheckBox(tr("Arm selected track"), recording);
     armed_->setObjectName(QStringLiteral("armTrack"));
     monitorMode_ = new FocusCombo(recording);
     monitorMode_->setObjectName(QStringLiteral("recordMonitorMode"));
@@ -243,7 +269,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     monitorMode_->addItem(tr("Monitor through track EQ"), int(RecordingMonitor::PostEq));
     monitorMode_->setToolTip(tr("Saved monitoring mode takes effect after Stop and preparation."));
     connect(monitorMode_, &QComboBox::currentIndexChanged, this, [this] {
-        const auto model = controller_.snapshot();
+        const auto model = inspectorSnapshot();
         const auto native = recording_.snapshot();
         if (!model->session || model->session->tracks.empty() || closing_ || closeRequested_ ||
             recordPrepareBarrier_ || recordCommandPending_ || native->take ||
@@ -405,10 +431,10 @@ bool StudioWindow::exportWorkflowBusy() const {
     return exportBarrier_ || exportSelection_ || exportDialog_ || exporter_.snapshot()->busy;
 }
 bool StudioWindow::requestExport() {
-    const auto m = controller_.snapshot();
-    if (exportWorkflowBusy() || closing_ || closeRequested_ || closeAfterSave_ || !m->session ||
-        m->session->tracks.empty() || m->io == IoOperation::Create || m->io == IoOperation::Open ||
-        attachingTake_)
+    const auto m = inspectorSnapshot();
+    if (exportWorkflowBusy() || playbackPrepareBarrier_ || recordPrepareBarrier_ || closing_ ||
+        closeRequested_ || closeAfterSave_ || !m->session || m->session->tracks.empty() ||
+        m->io == IoOperation::Create || m->io == IoOperation::Open || attachingTake_)
         return false;
     if (auto *focused = focusWidget())
         focused->clearFocus();
@@ -418,10 +444,11 @@ bool StudioWindow::requestExport() {
     if (!submitEdit(std::move(barrier)))
         return false;
     exportBarrier_ = token;
+    exportTrack_ = selectedTrack();
     return true;
 }
 void StudioWindow::pollExport() {
-    const auto m = controller_.snapshot();
+    const auto m = inspectorSnapshot();
     if (exportBarrier_ && m->lastBarrier == exportBarrier_ && !closing_ && !closeRequested_) {
         exportBarrier_ = 0;
         if (m->barrierSession && !m->barrierSession->tracks.empty()) {
@@ -435,7 +462,13 @@ void StudioWindow::pollExport() {
                 if (exporter_.submit(std::move(request)) != Admission::Accepted)
                     notice_->setText(tr("An export is already running or closing. Please retry."));
             } else {
-                ExportDialog dialog(m->barrierRoot, m->barrierSession, this);
+                const auto selected = sessionForTrack(m->barrierSession, exportTrack_);
+                if (!selected) {
+                    notice_->setText(
+                        tr("The selected export track no longer exists. Please retry."));
+                    return;
+                }
+                ExportDialog dialog(m->barrierRoot, selected, this);
                 exportDialog_ = &dialog;
                 const auto answer = dialog.exec();
                 exportDialog_.clear();
@@ -568,6 +601,7 @@ void StudioWindow::openProject(const std::filesystem::path &root) {
     ProjectCommand command;
     command.kind = CommandKind::Open;
     command.path = root;
+    playbackPrepareBarrier_ = 0;
     playback_.requestStop();
     submitEdit(std::move(command));
 }
@@ -592,6 +626,7 @@ void StudioWindow::newProject() {
     command.kind = CommandKind::Create;
     command.path = path(parent) / path(name);
     command.name = name.toUtf8().toStdString();
+    playbackPrepareBarrier_ = 0;
     playback_.requestStop();
     submitEdit(std::move(command));
 }
@@ -599,25 +634,54 @@ void StudioWindow::newProject() {
 std::shared_ptr<const PlaybackSnapshot> StudioWindow::playbackSnapshot() const {
     return playback_.snapshot();
 }
-bool StudioWindow::preparePlayback() {
-    const auto view = controller_.snapshot();
-    if (!view->session || closing_ || closeRequested_ || closeAfterSave_ ||
-        view->io == IoOperation::Create || view->io == IoOperation::Open || recordingBusy() ||
-        attachingTake_)
-        return false;
-    PlaybackCommand c;
-    c.root = view->root;
-    c.session = view->session;
-    c.modelRevision = view->modelRevision;
-    const auto admitted = playback_.submit(std::move(c));
-    if (admitted != Admission::Accepted) {
-        playbackState_->setText(tr("Playback queue is full or closing. Please retry."));
-        return false;
+std::optional<Id> StudioWindow::selectedTrack() const {
+    return timeline_->selectedTrack();
+}
+bool StudioWindow::selectTrack(const Id &id) {
+    return timeline_->selectTrack(id);
+}
+std::shared_ptr<const ControllerSnapshot> StudioWindow::inspectorSnapshot() const {
+    const auto canonical = controller_.snapshot();
+    const auto selected = timeline_ ? timeline_->selectedTrack() : std::optional<Id>{};
+    if (canonical->session != inspectorSource_ || selected != inspectorTrack_) {
+        inspectorSource_ = canonical->session;
+        inspectorTrack_ = selected;
+        inspectorProjection_ = sessionForTrack(canonical->session, selected);
+        if (!inspectorProjection_ &&
+            (!selected || !canonical->session || canonical->session->tracks.empty()))
+            inspectorProjection_ = canonical->session;
     }
+    if (inspectorProjection_ == canonical->session)
+        return canonical;
+    auto result = std::make_shared<ControllerSnapshot>(*canonical);
+    result->session = inspectorProjection_;
+    return result;
+}
+bool StudioWindow::preparePlayback() {
+    // Open/create publishes asynchronously; synchronize initial selection even
+    // when preparation is requested before the next timer tick.
+    poll();
+    const auto view = inspectorSnapshot();
+    if (!view->session || view->session->tracks.empty() || !selectedTrack() || closing_ ||
+        closeRequested_ || closeAfterSave_ || playbackPrepareBarrier_ || recordPrepareBarrier_ ||
+        exportBarrier_ || view->io == IoOperation::Create || view->io == IoOperation::Open ||
+        recordingBusy() || attachingTake_)
+        return false;
+    if (auto *focused = focusWidget())
+        focused->clearFocus();
+    ProjectCommand capture{CommandKind::Barrier};
+    capture.barrier = nextGesture_++;
+    const auto token = capture.barrier;
+    if (!submitEdit(std::move(capture)))
+        return false;
+    playbackPrepareBarrier_ = token;
+    playbackPreparationTrack_ = selectedTrack();
     return true;
 }
+
 void StudioWindow::playSelected() {
-    if (playback_.snapshot()->phase != PlaybackPhase::Ready || !outputsShown_)
+    if (playback_.snapshot()->phase != PlaybackPhase::Ready || !outputsShown_ ||
+        selectedTrack() != playbackTrack_)
         return;
     PlaybackCommand c;
     c.kind = PlaybackCommandKind::Play;
@@ -689,7 +753,7 @@ void StudioWindow::populateRoutes(const std::vector<QComboBox *> &combos,
     }
 }
 void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBox *combo) {
-    const auto model = controller_.snapshot();
+    const auto model = inspectorSnapshot();
     if (!model->session || model->session->tracks.empty() || closing_ || closeRequested_)
         return;
     const auto &track = model->session->tracks.front();
@@ -747,7 +811,7 @@ void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
                     [this, combo, c] { selectRoute(RouteTarget::Output, c, combo); });
         }
     }
-    const auto model = controller_.snapshot();
+    const auto model = inspectorSnapshot();
     const auto intent = model->session && !model->session->tracks.empty()
                             ? model->session->tracks.front().output
                             : RouteIntent{};
@@ -758,28 +822,43 @@ void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
         outputIntentShown_ = intent;
     }
     for (auto *combo : outputs_)
-        combo->setEnabled(view.phase == PlaybackPhase::Ready && !closing_ && !closeRequested_);
+        combo->setEnabled(view.phase == PlaybackPhase::Ready && selectedTrack() == playbackTrack_ &&
+                          !closing_ && !closeRequested_);
 }
 void StudioWindow::pollPlayback() {
+    const auto prefix = controller_.snapshot();
+    if (playbackPrepareBarrier_ && prefix->lastBarrier == playbackPrepareBarrier_ && !closing_ &&
+        !closeRequested_) {
+        playbackPrepareBarrier_ = 0;
+        PlaybackCommand c;
+        c.root = prefix->barrierRoot;
+        c.session = sessionForTrack(prefix->barrierSession, playbackPreparationTrack_);
+        c.modelRevision = prefix->barrierRevision;
+        if (c.session && playback_.submit(std::move(c)) == Admission::Accepted)
+            playbackTrack_ = playbackPreparationTrack_;
+        else
+            notice_->setText(tr("Selected playback track could not be prepared. Please retry."));
+    }
     const auto p = playback_.snapshot();
-    const auto model = controller_.snapshot();
+    const auto model = inspectorSnapshot();
     updateOutputs(*p);
     const bool allow = !closing_ && !closeRequested_ && !closeAfterSave_;
     const bool idle = p->phase == PlaybackPhase::Idle || p->phase == PlaybackPhase::Ready ||
                       p->phase == PlaybackPhase::Complete || p->phase == PlaybackPhase::Fault;
-    const bool prepare = allow && !recordingBusy() && !attachingTake_ && p->supported && idle &&
-                         model->session && model->io != IoOperation::Create &&
-                         model->io != IoOperation::Open;
+    const bool prepare = allow && !playbackPrepareBarrier_ && !recordingBusy() && !attachingTake_ &&
+                         p->supported && idle && model->session &&
+                         model->io != IoOperation::Create && model->io != IoOperation::Open;
     prepareButton_->setEnabled(prepare);
     prepareAction_->setEnabled(prepare);
-    playButton_->setEnabled(allow && p->phase == PlaybackPhase::Ready);
+    playButton_->setEnabled(allow && p->phase == PlaybackPhase::Ready &&
+                            selectedTrack() == playbackTrack_);
     playAction_->setEnabled(
         allow && ((p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing) ||
                   recordingBusy()));
     const bool stoppable =
-        allow && (recordingBusy() || p->phase == PlaybackPhase::Preparing ||
-                  p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing ||
-                  p->phase == PlaybackPhase::Complete);
+        allow && (playbackPrepareBarrier_ || recordingBusy() ||
+                  p->phase == PlaybackPhase::Preparing || p->phase == PlaybackPhase::Ready ||
+                  p->phase == PlaybackPhase::Playing || p->phase == PlaybackPhase::Complete);
     stopButton_->setEnabled(stoppable);
     stopAction_->setEnabled(stoppable);
     QString status;
@@ -788,7 +867,7 @@ void StudioWindow::pollPlayback() {
         status = tr("Native playback is not available in this build.");
         break;
     case PlaybackPhase::Idle:
-        status = tr("Prepare the first audio track, choose outputs, then play.");
+        status = tr("Prepare the selected audio track, choose outputs, then play.");
         break;
     case PlaybackPhase::Preparing:
         status = tr("Preparing playback…");
@@ -820,6 +899,8 @@ void StudioWindow::pollPlayback() {
         status += tr(" · %1 s · %2 missing frames")
                       .arg(QLocale().toString(double(p->position) / p->sampleRate, 'f', 2),
                            QLocale().toString(p->missingFrames));
+    if (playbackTrack_ && selectedTrack() != playbackTrack_ && p->ports)
+        status += tr(" · Another track is prepared. Stop or prepare the selected track.");
     playbackState_->setText(status);
     const auto peak = std::isfinite(p->peak) ? std::max(0.0, p->peak) : 0.0;
     meter_->setValue(int(std::lround(std::min(1.2, peak) * 1000)));
@@ -859,14 +940,16 @@ bool StudioWindow::submitRecording(RecordingCommand c) {
     return true;
 }
 bool StudioWindow::prepareRecording() {
-    const auto m = controller_.snapshot();
+    poll();
+    const auto m = inspectorSnapshot();
     const auto p = playback_.snapshot();
     const auto r = recording_.snapshot();
     if ((r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Fault &&
          r->phase != RecordingPhase::Unsupported && r->phase != RecordingPhase::Ready) ||
         !m->session || m->session->tracks.empty() || recordPrepareBarrier_ ||
-        recordCommandPending_ || m->io != IoOperation::None || closing_ || closeRequested_ ||
-        closeAfterSave_ || recording_.snapshot()->take || attachingTake_ ||
+        recordCommandPending_ || playbackPrepareBarrier_ || exportBarrier_ ||
+        m->io != IoOperation::None || closing_ || closeRequested_ || closeAfterSave_ ||
+        recording_.snapshot()->take || attachingTake_ ||
         (p->phase != PlaybackPhase::Idle && p->phase != PlaybackPhase::Fault &&
          p->phase != PlaybackPhase::Unsupported))
         return false;
@@ -876,12 +959,13 @@ bool StudioWindow::prepareRecording() {
     if (!submitEdit(std::move(capture)))
         return false;
     recordPrepareBarrier_ = token;
+    recordPreparationTrack_ = selectedTrack();
     return true;
 }
 void StudioWindow::recordSelected() {
     const auto r = recording_.snapshot();
     if (!armed_->isChecked() || r->phase != RecordingPhase::Ready || !recordPortsShown_ ||
-        closing_ || closeRequested_)
+        selectedTrack() != recordingTrack_ || closing_ || closeRequested_)
         return;
     RecordingCommand c;
     c.kind = RecordingCommandKind::Start;
@@ -907,7 +991,7 @@ void StudioWindow::recordSelected() {
         recordingState_->setText(tr("Recording queue is full or closing. Please retry."));
 }
 bool StudioWindow::inspectTake(const std::filesystem::path &job) {
-    const auto m = controller_.snapshot();
+    const auto m = inspectorSnapshot();
     if (!m->session || m->io != IoOperation::None || recordingBusy() || attachingTake_ ||
         closing_ || closeRequested_)
         return false;
@@ -961,7 +1045,7 @@ void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
         make(inputs_, false, n);
         make(monitors_, true, out);
     }
-    const auto model = controller_.snapshot();
+    const auto model = inspectorSnapshot();
     const auto input = model->session && !model->session->tracks.empty()
                            ? model->session->tracks.front().input
                            : RouteIntent{};
@@ -979,11 +1063,12 @@ void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
     }
     for (const auto &combos : {inputs_, monitors_})
         for (auto *combo : combos)
-            combo->setEnabled(r.phase == RecordingPhase::Ready && !closing_ && !closeRequested_);
+            combo->setEnabled(r.phase == RecordingPhase::Ready &&
+                              selectedTrack() == recordingTrack_ && !closing_ && !closeRequested_);
 }
 void StudioWindow::pollRecording() {
     const auto r = recording_.snapshot();
-    const auto m = controller_.snapshot();
+    const auto m = inspectorSnapshot();
     const auto p = playback_.snapshot();
     if (recordCommandPending_ &&
         (r->completedCommands > recordCommandCompleted_ || r->errorSerial > recordCommandError_ ||
@@ -996,11 +1081,17 @@ void StudioWindow::pollRecording() {
         if (m->barrierSession && !m->barrierSession->tracks.empty()) {
             RecordingCommand c;
             c.root = m->barrierRoot;
-            c.session = m->barrierSession;
+            c.session = sessionForTrack(m->barrierSession, recordPreparationTrack_);
+            if (!c.session) {
+                notice_->setText(tr("Selected recording track no longer exists."));
+                return;
+            }
             c.modelRevision = m->barrierRevision;
             c.monitoring = c.session->tracks.front().monitoring;
             if (!submitRecording(std::move(c)))
                 notice_->setText(tr("Recording queue is full or closing. Please retry."));
+            else
+                recordingTrack_ = recordPreparationTrack_;
         }
     }
     const auto mode = m->session && !m->session->tracks.empty()
@@ -1011,9 +1102,11 @@ void StudioWindow::pollRecording() {
         monitorMode_->setCurrentIndex(monitorMode_->findData(int(mode)));
         monitoringShown_ = mode;
     }
-    if (m->session && m->modelRevision > recordingFollowed_ &&
-        recording_.follow(m->root, m->session, m->modelRevision))
-        recordingFollowed_ = m->modelRevision;
+    if (m->session && m->modelRevision > recordingFollowed_) {
+        const auto target = sessionForTrack(m->session, recordingTrack_);
+        if (recording_.follow(m->root, target ? target : m->session, m->modelRevision))
+            recordingFollowed_ = m->modelRevision;
+    }
     if (r->take) {
         if (takeShown_ != r->take->sequence) {
             takeShown_ = r->take->sequence;
@@ -1062,7 +1155,8 @@ void StudioWindow::pollRecording() {
                              !r->take && m->session && !m->session->tracks.empty() &&
                              m->io != IoOperation::Create && m->io != IoOperation::Open);
     armed_->setEnabled(allow && r->supported && m->session && !r->take);
-    recordButton_->setEnabled(allow && !recordCommandPending_ && ready && armed_->isChecked());
+    recordButton_->setEnabled(allow && !recordCommandPending_ && ready && armed_->isChecked() &&
+                              selectedTrack() == recordingTrack_);
     recordAction_->setEnabled(recordButton_->isEnabled());
     recordStopButton_->setEnabled(allow && (recordPrepareBarrier_ || !idle) && !r->closed);
     recoverAction_->setEnabled(allow && !recordCommandPending_ && idle && !r->take &&
@@ -1125,6 +1219,8 @@ void StudioWindow::pollRecording() {
                            QLocale().toString(r->telemetry.rejectedFrames));
     if (r->job && (r->phase == RecordingPhase::Fault || attachmentFailed_))
         status += tr("\nStored recording: %1").arg(text(pathUtf8(*r->job)));
+    if (recordingTrack_ && selectedTrack() != recordingTrack_ && r->ports)
+        status += tr(" · Another track is prepared. Stop or prepare the selected track.");
     recordingState_->setText(status);
     recordingState_->setToolTip(r->job ? text(pathUtf8(*r->job)) : QString());
     // Independent text measurement lets a shorter diagnostic shrink again.
@@ -1197,7 +1293,7 @@ std::shared_ptr<const RecoveryScanSnapshot> StudioWindow::recoverySnapshot() con
     return recoveryScanner_.snapshot();
 }
 bool StudioWindow::scanRecordings() {
-    const auto m = controller_.snapshot();
+    const auto m = inspectorSnapshot();
     if (!m->session || m->io != IoOperation::None || closing_ || closeRequested_ || closeAfterSave_)
         return false;
     if (!recoveryScanner_.scan(m->root, m->session, m->projectEpoch))
@@ -1208,7 +1304,7 @@ bool StudioWindow::scanRecordings() {
     return true;
 }
 void StudioWindow::pollRecovery() {
-    const auto m = controller_.snapshot();
+    const auto m = inspectorSnapshot();
     const bool allow = m->session && m->io == IoOperation::None && !closing_ && !closeRequested_ &&
                        !closeAfterSave_;
     const auto recorder = recording_.snapshot();
@@ -1250,7 +1346,7 @@ void StudioWindow::pollRecovery() {
 }
 void StudioWindow::reviewRecordings() {
     const auto scan = recoveryScanner_.snapshot();
-    const auto m = controller_.snapshot();
+    const auto m = inspectorSnapshot();
     if (!scan->discovery || scan->running || !m->session || scan->root != m->root ||
         scan->projectEpoch != m->projectEpoch || recordingBusy() || closing_ || closeRequested_)
         return;
@@ -1328,7 +1424,7 @@ void StudioWindow::reviewRecordings() {
     recoveryDialog_ = &dialog;
     const auto answer = dialog.exec();
     recoveryDialog_.clear();
-    const auto now = controller_.snapshot();
+    const auto now = inspectorSnapshot();
     if (answer == QDialog::Accepted && !closing_ && !closeRequested_ &&
         now->projectEpoch == scan->projectEpoch && now->root == scan->root &&
         list.currentRow() >= 0)
@@ -1461,7 +1557,20 @@ void StudioWindow::updateBands(const Session &session) {
     }
 }
 void StudioWindow::poll() {
-    const auto view = controller_.snapshot();
+    if (polling_)
+        return;
+    QScopedValueRollback<bool> guard(polling_, true);
+    const auto canonical = controller_.snapshot();
+    const auto native = playback_.snapshot();
+    const bool inactive = native->phase == PlaybackPhase::Idle ||
+                          native->phase == PlaybackPhase::Fault ||
+                          native->phase == PlaybackPhase::Unsupported;
+    timeline_->updateModel(canonical->session, canonical->projectEpoch,
+                           !closing_ && !closeRequested_ && !closeAfterSave_ && !recordingBusy() &&
+                               !attachingTake_ && inactive && !playbackPrepareBarrier_ &&
+                               canonical->io != IoOperation::Create &&
+                               canonical->io != IoOperation::Open);
+    const auto view = inspectorSnapshot();
     if (routeRevisionShown_ != view->modelRevision || view->errorSerial != lastError_) {
         routeRevisionShown_ = view->modelRevision;
         outputIntentShown_.reset();
@@ -1558,7 +1667,8 @@ void StudioWindow::poll() {
     setWindowTitle(tr("SoundCurrent DAW") +
                    (view->session ? QStringLiteral(" — ") + text(view->session->name) : QString()));
     if (view->session && view->modelRevision > followedRevision_) {
-        if (playback_.follow(view->root, view->session, view->modelRevision))
+        const auto target = sessionForTrack(view->session, playbackTrack_);
+        if (playback_.follow(view->root, target ? target : view->session, view->modelRevision))
             followedRevision_ = view->modelRevision;
     }
     shown_ = view;
@@ -1587,7 +1697,7 @@ void StudioWindow::poll() {
     }
 }
 void StudioWindow::closeEvent(QCloseEvent *event) {
-    const auto view = controller_.snapshot();
+    const auto view = inspectorSnapshot();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed) {
         event->accept();
@@ -1611,12 +1721,13 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     if (exportPrompt_)
         exportPrompt_->done(QMessageBox::No);
     exporter_.requestCancel();
+    playbackPrepareBarrier_ = 0;
     playback_.requestStop();
     closeDrainToken_ = recording_.requestStop();
 }
 void StudioWindow::confirmClose() {
     QScopedValueRollback<bool> promptGuard(closePromptActive_, true);
-    const auto view = controller_.snapshot();
+    const auto view = inspectorSnapshot();
     if (view->dirty) {
         const auto choice = QMessageBox::question(
             this, tr("Close project"), tr("Save your changes before closing?"),

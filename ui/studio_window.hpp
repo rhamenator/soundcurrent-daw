@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "project_controller.hpp"
+#include "timeline_editor.hpp"
 #include "playback_controller.hpp"
 #include "recording_controller.hpp"
 #include "recovery_controller.hpp"
@@ -32,6 +33,8 @@ class StudioWindow : public QMainWindow {
     std::shared_ptr<const ControllerSnapshot> snapshot() const;
     std::shared_ptr<const PlaybackSnapshot> playbackSnapshot() const;
     bool preparePlayback();
+    bool selectTrack(const Id &);
+    std::optional<Id> selectedTrack() const;
     bool prepareRecording();
     bool inspectTake(const std::filesystem::path &);
     std::shared_ptr<const RecordingSnapshot> recordingSnapshot() const;
@@ -48,6 +51,14 @@ class StudioWindow : public QMainWindow {
 
   private:
     ProjectController controller_;
+    TimelineEditor *timeline_ = nullptr;
+    mutable std::shared_ptr<const Session> inspectorSource_, inspectorProjection_;
+    mutable std::optional<Id> inspectorTrack_;
+    std::shared_ptr<const ControllerSnapshot> inspectorSnapshot() const;
+    std::optional<Id> playbackTrack_, recordingTrack_, recordPreparationTrack_, exportTrack_;
+    bool polling_ = false;
+    std::uint64_t playbackPrepareBarrier_ = 0;
+    std::optional<Id> playbackPreparationTrack_;
     PlaybackController playback_;
     RecordingController recording_;
     ExportController exporter_;

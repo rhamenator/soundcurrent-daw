@@ -177,3 +177,38 @@ bindings, then shared-clock live/offline multitrack graph and simultaneous overd
 All later M2 tasks, independent M1 gates, full reference parity, X004 native
 imports, X005 audio/profile portability/rights and European localization remain
 required. Goal remains active and incomplete.
+
+
+## M2b desktop timeline checkpoint (2026-10-06)
+
+Previous goal turn was **progress**, committed M2a typed edits as `4fc2266`.
+This turn adds [desktop stable track/clip selection and a rectangle timeline](30-desktop-timeline.md),
+exact range/split/move/duplicate/insert controls and selected-track EQ/routes.
+Canonical order is preserved. Accepted-prefix preparation captures its selected
+ID, and owners reconcile using that ID even when the inspector moves elsewhere.
+Take admission targets the prepared track; unrelated EQ is not sent to it.
+Transport still prepares one track, so shared-clock multitrack playback and
+simultaneous overdub remain the next implementation task.
+
+[Evidence](../tests/results/M2/2026-10-06-desktop-timeline.json) separates actual
+Qt keyboard/mouse edits, raw-file preservation, Save/reopen, fake endpoint
+identity/isolation, Linux debug/sanitizers and the owned PipeWire regression.
+Final debug and ASan/UBSan/LSan suites each pass all 21 groups. The serial native
+roundtrip retains 480,000 frames, zero direct/native-prefix export differences,
+zero RT allocations/frees/blocking locks and preserved defaults/owned route cleanup.
+The new widget initially exposed a derived-destruction signal callback bug; its
+destructor now disconnects child handlers before teardown. Selection handlers
+also defer list/scene reconciliation until the emitting input event finishes,
+including when a new model has just been published. Full regression
+found an Open-before-timer preparation race, fixed by synchronizing initial
+selection before capturing the target. Save-button and asynchronous scene/route
+waits in the new fixture were corrected; none of these failures were waived.
+
+The read-only equalizer audit still matches all 24 registered inputs and retained
+snapshots; no borrowed source refresh or checkout write is needed. No publication.
+Windows headless CMake reconfiguration/build passes with unchanged core objects;
+Qt/native Windows remains unqualified. P001/P008/P009/P086 retain full frozen
+acceptance and unverified F/Q/C/N axes. Independent M1 physical/native Windows,
+filesystem, deadline/load and normal module-unload memory gates remain open,
+alongside X004 native imports, X005 audio/portable profiles/rights and all-Europe
+translation delivery. The full goal remains active and incomplete.
