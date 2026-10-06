@@ -12,11 +12,19 @@ namespace native_fixture {
 // retained with their own clocks, rather than combining unrelated stage maxima.
 struct StageCost {
     std::uint64_t calls = 0, wallNs = 0, cpuNs = 0, unknown = 0;
+    std::uint64_t maximumCallWallNs = 0, maximumCallCpuNs = 0, maximumCallOrdinal = 0;
+    bool maximumCallKnown = false;
     void add(std::uint64_t wall, std::uint64_t cpu, bool known) noexcept {
         ++calls;
-        if (known) {
+        if (known && cpu <= wall) {
             wallNs += wall;
             cpuNs += cpu;
+            if (!maximumCallKnown || wall > maximumCallWallNs) {
+                maximumCallKnown = true;
+                maximumCallWallNs = wall;
+                maximumCallCpuNs = cpu;
+                maximumCallOrdinal = calls - 1;
+            }
         } else
             ++unknown;
     }

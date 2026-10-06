@@ -180,3 +180,14 @@ diagnostic. Tails vary by stage; no single long-run cause is established. Next
 obtain a matching stage snapshot at a long-run miss, then select a justified change
 and repeat the unchanged full gate. Remaining M2 punch/loop/takes/comping, Windows
 and every frozen full-suite requirement remain required and unpromoted.
+
+
+M2d4c8 retains [paired individual call intervals/ordinals](48-individual-native-processing-calls.md)
+in the separate diagnostic's selected callback snapshots, after a matching long
+miss shows costly raw and EQ intervals plus a slow source on the same cycle.
+All687,079,424raw/42,936,320commonoutput samples are verified read-only, originals
+preserved, nineteen historical observations retained. Existing query pairs and
+all production libraries remain unchanged; short sample/RT/timing and explicit
+pairing/ranking/unknown tests qualify only the helper. Next matching long-run
+individual-call evidence precedes a justified processing/placement experiment;
+sustained native/physical/Windows and all remaining M2/full-suite gates stay open.

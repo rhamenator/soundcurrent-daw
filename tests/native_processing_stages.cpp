@@ -8,17 +8,23 @@ ProcessingStages processingStages;
 // Preparation pushes, source/sink pushes and offline verification are excluded.
 thread_local StageSnapshot *currentStages = nullptr;
 void ProcessingStages::write(std::ostream &o) const {
-    const auto cost = [&](const StageCost &c) {
+    const auto cost = [&](const StageCost &c, bool individual = false) {
         o << "{\"calls\":" << c.calls << ",\"wall_ns\":" << c.wallNs << ",\"cpu_ns\":" << c.cpuNs
-          << ",\"unknown_intervals\":" << c.unknown << '}';
+          << ",\"unknown_intervals\":" << c.unknown;
+        if (individual)
+            o << ",\"maximum_call_known\":" << (c.maximumCallKnown ? "true" : "false")
+              << ",\"maximum_call_wall_ns\":" << c.maximumCallWallNs
+              << ",\"maximum_call_cpu_ns\":" << c.maximumCallCpuNs
+              << ",\"maximum_call_ordinal\":" << c.maximumCallOrdinal;
+        o << '}';
     };
-    const auto stages = [&](const std::array<StageCost, 3> &s) {
+    const auto stages = [&](const std::array<StageCost, 3> &s, bool individual = false) {
         o << "{\"raw_capture\":";
-        cost(s[0]);
+        cost(s[0], individual);
         o << ",\"eq_drivers\":";
-        cost(s[1]);
+        cost(s[1], individual);
         o << ",\"mix_including_eq\":";
-        cost(s[2]);
+        cost(s[2], individual);
         o << '}';
     };
     o << "{\"test_only_linker_wrappers\":true,\"nested_costs_inclusive\":true,"
@@ -38,7 +44,7 @@ void ProcessingStages::write(std::ostream &o) const {
           << ",\"status\":" << unsigned(s.status) << ",\"bridge\":";
         cost(s.whole);
         o << ",\"stages\":";
-        stages(s.stages);
+        stages(s.stages, true);
         o << '}';
     }
     o << "]}";

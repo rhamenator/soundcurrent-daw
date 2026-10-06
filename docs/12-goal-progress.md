@@ -1171,3 +1171,64 @@ no equalizer write/push/publication; all92frozen contracts remain unpromoted.
 Full DAW goal is active/incomplete. Next X002 task is community and actual desktop
 string/catalog auditing with reviewed language/formatting selection; sustained
 native recording and every other full-product gate remain open.
+
+
+## 2026-10-06 continuation: M2d4c8 individual processing intervals
+
+Native5818 is confirmed live then terminalexit1 after462.63wall seconds. Frozen
+actual5e13406 stagebinary SHA is retained before any rebuild. Reader71685 terminates
+with known copied-executable-mode error before execution; after correcting only
+the owned copy's execute mode, exact2843 verifies all retained samples terminal
+success before source edits/builds. Independent X002 inventory work, committed
+b18b0a6, is not an engine input and leaves all62native source/binary/library pins
+unchanged. No timeout-based restarts or CPU experiments overlap the native run.
+
+Sink skips2048frames betweencycles183967and183970 around447.32audio seconds.
+Owner25.097698mswall/25.095800msCPU atfirstmissedcycle starts17.261859msaftercycle,
+ends42.359557ms. Source8.394433mswall/8.391981msCPU shares that clock, starts4.633199ms
+late. Both outlierfaults/switches0; ownerreported24.019msuser/1.074mssystem. Matching
+stage snapshot raw5.806479msCPU,EQdrivers18.350076msCPU,inclusivemix19.171763msCPU.
+Mix includesEQ; aggregates do not locate individualcalls, and CPU/accounting is
+not instruction/cache/frequency/interrupt proof. Inter-client lateness is unisolated.
+All33diskphase pairs complete,maxready5/118,noexhaustion.
+
+All32raw lanes retain21,471,232frames/no rejected/missing rawframes;sink21,468,160.
+Read-only all687,079,424raw/42,936,320common stereo samples exact,peak4.28308;
+105originalfiles/project/media/hashes/journals unchanged. Raw suffixes retained,
+no trim/attachment/Save oforiginal. Defaults/priorlinks stay;ownedroutes retire.
+
+Separate testhelper retains each selectedcallback stage's longest known individual
+wall interval, its pairedCPU and zero-based local invocationordinal. Equalwall
+keeps firstcall; inconsistent/unknown cannotreplace validmax, even zero remains
+known. Aggregate totals omit ordinals without a selectedcallbackclock. Existing
+querypairs reused, no extra clocks/allocations/locks/logs/queues. No production
+DSP/backend/API/parameter/schema/latency/durability/staticlibrary change. Morefixed
+fields/comparisons/copies have overhead includedinoriginaltiming. Top4still rank
+bridgewall, not lateness; missingmatchingclock requiresboundedcycle-selectedprobe.
+
+Newpaired-selection/ties/unknown/inconsistent/zero/snapshot/globalomission tests
+join actualABI/boundary/exactaudio/RT checks. Releasepasses0.01s;threeDebuggroups1.31s
+and ASan/UBSan/LSan3.40s pass. No newWindows qualification; Linux-onlyhelper changes,
+Windows/productioninputs unchanged. Original27group/headless build results retain
+checkpoint scope, not native/Qt/runtime/install qualification.
+
+Serial20s native verifies30,720,000raw/1,920,000output samples exact, origins,
+alignment/hash/Save-reopen/overs, completewall/CPU/resource coverage and original
+finite gates. Ownermax3.815271ms/maxcycleend6.379656ms. All938activeblocks have32raw/
+33EQ/1mix calls; individualmaxima known/paired/withinactualordinalbounds. Thisshort
+check cannotresolve thesustainedmiss or erase anyearlier observation.
+
+[Contract](48-individual-native-processing-calls.md),[ADR-037](decisions/037-retain-individual-processing-call-context.md)
+and[evidence](../tests/results/M2/2026-10-06-individual-native-processing-calls.json)
+retain nineteen unresolved observations and exactlaunch/source/binary/resource/
+clock/phase/stage/media facts. All24borrowed inputs/heads and92frozenacceptance/
+quality/reference/F/Q/C/N contracts intact/unpromoted;no equalizerwrite/dependency/
+license/push/publication.143locale workitems are planned, no review/UI/translation
+qualification. Full goal remainsactive/incomplete, with physical/load/filesystem/
+power-loss/unload/Windows,punch/loop/takes/comping,otherprofessionalworkflows,X004/
+X005 andall-Europe delivery stillrequired.
+
+NextM2d4c9: unchanged1800s separate diagnosticwithindividualcallfacts atmatching
+missedcycle, then choose boundedprocessing/placement/furthermeasurement fromactual
+evidence. Preservecurrentlongrange/sample/period/resource/durability gates; do not
+assign a host/instructioncause froman interval alone.

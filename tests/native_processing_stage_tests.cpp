@@ -24,6 +24,19 @@ nlohmann::json summary(const ProcessingStages &stages) {
     return nlohmann::json::parse(out.str());
 }
 int main() {
+    // Wall-selected CPU and ordinal must come from that same invocation.
+    StageCost calls;
+    calls.add(40, 35, true);
+    calls.add(60, 20, true);
+    calls.add(60, 55, true); // Ties retain the first wall-selected call.
+    calls.add(90, 95, true); // Inconsistent interval is unknown, not a maximum.
+    calls.add(100, 80, false);
+    require(calls.calls == 5 && calls.unknown == 2 && calls.wallNs == 160 && calls.cpuNs == 110 &&
+            calls.maximumCallKnown && calls.maximumCallWallNs == 60 &&
+            calls.maximumCallCpuNs == 20 && calls.maximumCallOrdinal == 1);
+    StageCost zeros;
+    zeros.add(0, 0, true);
+    require(zeros.maximumCallKnown && zeros.maximumCallOrdinal == 0);
     // Deterministic ranking, unknown coverage, ties and fixed four-record capacity.
     ProcessingStages deterministic;
     StageSnapshot s{};
@@ -41,10 +54,16 @@ int main() {
             deterministic.worst(3).clock.position == 3 &&
             j["worst_bridge_callbacks"][0]["stages"]["raw_capture"]["calls"] == 32);
     s.whole = {1, 600, 300, 0};
+    s.stages[1] = calls;
     s.clock.position = 99;
     deterministic.record(s);
     require(deterministic.worst(0).clock.position == 6 &&
             deterministic.worst(1).clock.position == 99);
+    j = summary(deterministic);
+    const auto &selected = j["worst_bridge_callbacks"][1]["stages"]["eq_drivers"];
+    require(selected["maximum_call_known"] == true && selected["maximum_call_ordinal"] == 1 &&
+            selected["maximum_call_cpu_ns"] == 20);
+    require(!j["total_stages"]["eq_drivers"].contains("maximum_call_ordinal"));
     StageCost missing;
     StageStamp{}.finish(missing);
     require(missing.calls == 1 && missing.unknown == 1);
@@ -117,7 +136,11 @@ int main() {
         if (row["stages"]["raw_capture"]["calls"] == 1)
             require(row["stages"]["eq_drivers"]["calls"] == 2 &&
                     row["stages"]["mix_including_eq"]["calls"] == 1 && row["clock_id"] == 4 &&
-                    row["quantum"] == 64);
+                    row["quantum"] == 64 &&
+                    row["stages"]["raw_capture"]["maximum_call_known"] == true &&
+                    row["stages"]["raw_capture"]["maximum_call_ordinal"] == 0 &&
+                    row["stages"]["eq_drivers"]["maximum_call_known"] == true &&
+                    row["stages"]["eq_drivers"]["maximum_call_ordinal"].get<unsigned>() < 2);
     // Preparation/outside pushes must not contaminate owner stage accounting.
     CapturePipe outside(cap);
     require(outside.push({&input, 1}, 64, 0).acceptedFrames == 64);
