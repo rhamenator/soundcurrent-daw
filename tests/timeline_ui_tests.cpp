@@ -551,6 +551,7 @@ void savedMaster(const std::filesystem::path &root) {
 void punchWorkflow(const std::filesystem::path &root) {
     const auto initial = duplex_fixture::project(root);
     auto counters = std::make_shared<duplex_fixture::Counters>();
+    counters->useDeclaredLatency = true;
     StudioWindow w(nullptr, {}, duplex_fixture::options(counters));
     w.show();
     w.openProject(root);
@@ -592,6 +593,37 @@ void punchWorkflow(const std::filesystem::path &root) {
           "Punch dialog cancel changed project");
     check(!w.configurePunch({true, 5, 5}) && !w.configurePunch({false, -1, 0}),
           "Invalid public punch edit accepted");
+    check(!w.configureInputLatency(Id::generate(), 17) &&
+              !w.configureInputLatency(initial.tracks[0].id, -1) &&
+              !w.configureInputLatency(initial.tracks[0].id, 2880001),
+          "Invalid latency UI command accepted");
+    auto *latency = widget<QSpinBox>(w, "inputLatencyFrames");
+    check(latency->isEnabled() && !latency->accessibleName().isEmpty() &&
+              latency->maximum() == 2880000 && latency->value() == 0,
+          "Input latency UI bounds/accessibility/default differs");
+    latency->clearFocus();
+    QWheelEvent wheel(QPointF(1, 1), QPointF(1, 1), {}, QPoint(0, 120), Qt::NoButton,
+                      Qt::NoModifier, Qt::NoScrollPhase, false);
+    QApplication::sendEvent(latency, &wheel);
+    check(latency->value() == 0 && !wheel.isAccepted(), "Unfocused wheel changed input delay");
+    latency->setValue(4097);
+    await([&] { return w.snapshot()->session->tracks[0].inputLatencyFrames == 4097; });
+    check(w.snapshot()->session->tracks[1].inputLatencyFrames == 0 && w.snapshot()->dirty,
+          "Input latency changed another track or did not mark project dirty");
+    undo(w);
+    await([&] {
+        return latency->value() == 0 && w.snapshot()->session->tracks[0].inputLatencyFrames == 0;
+    });
+    check(w.submitEdit(ProjectCommand{CommandKind::Redo}), "Latency Redo refused");
+    await([&] { return latency->value() == 4097; });
+    check(w.selectTrack(initial.tracks[1].id), "Latency second track selection refused");
+    await([&] { return latency->value() == 0; });
+    latency->setValue(17);
+    await([&] { return w.snapshot()->session->tracks[1].inputLatencyFrames == 17; });
+    check(w.selectTrack(initial.tracks[0].id), "Latency first track selection refused");
+    await([&] {
+        return latency->value() == 4097 && !widget<QLabel>(w, "inputLatencyTime")->text().isEmpty();
+    });
     check(w.configurePunch({true, 1513, 2701}), "Punch settings command refused");
     await([&] {
         return w.snapshot()->session->punch == PunchSettings{true, 1513, 2701} &&
@@ -623,6 +655,9 @@ void punchWorkflow(const std::filesystem::path &root) {
     });
     check(w.snapshot()->session->punch == PunchSettings{true, 1513, 2701},
           "Saved punch range not reopened");
+    await([&] { return latency->value() == 4097; });
+    check(w.snapshot()->session->tracks[1].inputLatencyFrames == 17 && !counters->activated,
+          "Saved delay failed passive restore or activated audio");
     check(w.configureArmedRecording({initial.tracks[0].id, initial.tracks[1].id}, 1701) &&
               w.prepareRecording(),
           "GUI punch preparation refused");
@@ -630,8 +665,9 @@ void punchWorkflow(const std::filesystem::path &root) {
         return w.recordingSnapshot()->phase == RecordingPhase::Ready &&
                w.findChild<QComboBox *>("inputChannel1");
     });
-    check(w.recordingSnapshot()->endFrame == 2901 &&
-              !widget<QPushButton>(w, "editPunchRange")->isEnabled() &&
+    check(w.recordingSnapshot()->endFrame == 6798 &&
+              !widget<QPushButton>(w, "editPunchRange")->isEnabled() && !latency->isEnabled() &&
+              !w.configureInputLatency(initial.tracks[0].id, 3) &&
               !w.configurePunch({false, 1513, 2701}) && !counters->activated &&
               !w.recordingSnapshot()->job,
           "GUI prepared punch omitted postroll, created jobs or allowed live mutation");

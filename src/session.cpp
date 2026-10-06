@@ -295,6 +295,8 @@ void validate(const Session &s) {
         unique(t.eq.id);
         text(t.name);
         layout(t.layout);
+        check(t.inputLatencyFrames >= 0 && t.inputLatencyFrames <= Frame(s.sampleRate) * 60,
+              "Track input latency out of range");
         check(t.monitoring == RecordingMonitor::Off || t.monitoring == RecordingMonitor::PostEq,
               "Unknown recording monitoring mode");
         for (const auto *r : {&t.input, &t.output, &t.monitor})

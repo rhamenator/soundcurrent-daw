@@ -46,6 +46,89 @@ struct Comma : std::numpunct<char> {
     }
 };
 
+void inputLatencyState() {
+    auto s = makeOneTrackSession("Alignment — Україна", "Mic — Ελλάδα");
+    s.tracks.push_back(makeAudioTrack("Other", {}, s.sampleRate));
+    const auto initial = s;
+    const auto id = s.tracks.front().id;
+    EditHistory h(s);
+    check(h.structural({SetInputLatency{id, 4097}}) && s.tracks.front().inputLatencyFrames == 4097,
+          "Declared input latency did not enter canonical state");
+    const auto changed = s;
+    check(!h.structural({SetInputLatency{id, 4097}}), "No-op latency retained history");
+    check(h.undo() && s == initial && h.redo() && s == changed, "Latency Undo/Redo differs");
+    for (Frame value : std::vector<Frame>{-1, 2880001, std::numeric_limits<Frame>::max()}) {
+        rejects([&] { h.structural({RenameTrack{id, "Rejected"}, SetInputLatency{id, value}}); });
+        check(s == changed, "Rejected latency batch changed canonical state");
+    }
+    rejects([&] { h.structural({SetInputLatency{Id::generate(), 5}}); }, ErrorCode::InvalidId);
+    check(s == changed && h.undo() && s == initial && h.redo() && s == changed,
+          "Invalid latency damaged history");
+    std::reverse(s.tracks.begin(), s.tracks.end());
+    check(h.undo() && s.tracks.back().id == id && s.tracks.back().inputLatencyFrames == 0 &&
+              h.redo() && s.tracks.back().inputLatencyFrames == 4097,
+          "Latency history lost reordered stable track identity");
+    auto j = Json::parse(encodeProject(s));
+    check(j["schemaMinor"] == 5 && j["tracks"][1]["inputLatencyFrames"] == 4097 &&
+              decodeProject(j.dump()) == s,
+          "Latency exact serialization differs");
+    for (unsigned mode = 0; mode < 8; ++mode) {
+        auto bad = j;
+        auto &t = bad["tracks"][1];
+        if (mode == 0)
+            t["inputLatencyFrames"] = -1;
+        if (mode == 1)
+            t["inputLatencyFrames"] = 2880001;
+        if (mode == 2)
+            t["inputLatencyFrames"] = 1.5;
+        if (mode == 3)
+            t["inputLatencyFrames"] = true;
+        if (mode == 4)
+            t["inputLatencyFrames"] = "4097";
+        if (mode == 5)
+            t["inputLatencyFrames"] = std::numeric_limits<std::uint64_t>::max();
+        if (mode == 6)
+            t.erase("inputLatencyFrames");
+        if (mode == 7)
+            t["inputLatencyUnknown"] = 0;
+        rejects([&] { decodeProject(bad.dump()); });
+    }
+    for (unsigned minor = 0; minor < 5; ++minor) {
+        auto legacy = Json::parse(encodeProject(initial));
+        legacy["schemaMinor"] = minor;
+        if (minor < 4)
+            legacy.erase("punchRecording");
+        if (minor < 3)
+            legacy.erase("master");
+        for (auto &t : legacy["tracks"]) {
+            t.erase("inputLatencyFrames");
+            if (minor < 2)
+                t.erase("monitoringMode");
+            if (minor == 0) {
+                t.erase("monitorIntent");
+                t["inputIntent"].erase("ports");
+                t["outputIntent"].erase("ports");
+            }
+        }
+        check(decodeProject(legacy.dump()) == initial, "Legacy schema guessed an input delay");
+        legacy["tracks"][0]["inputLatencyFrames"] = 0;
+        rejects([&] { decodeProject(legacy.dump()); });
+    }
+    for (auto rate : {8000U, 48000U, 384000U}) {
+        auto bounded = makeOneTrackSession("Bounds", "Mic");
+        bounded.sampleRate = rate;
+        bounded.tracks.front().eq.bands.clear();
+        bounded.tracks.front().inputLatencyFrames = Frame(rate) * 60;
+        check(decodeProject(encodeProject(bounded)) == bounded, "Maximum latency was not exact");
+        ++bounded.tracks.front().inputLatencyFrames;
+        rejects([&] { validate(bounded); });
+    }
+    Temporary d;
+    ProjectStore(d.path).save(initial);
+    ProjectStore(d.path).save(s);
+    check(ProjectStore(d.path).load() == s && ProjectStore(d.path).loadPrevious() == initial,
+          "Latency save/reopen or backup changed state");
+}
 void punchState() {
     auto s = makeOneTrackSession("Punch — Εγγραφή", "Raw");
     const auto initial = s;
@@ -70,7 +153,7 @@ void punchState() {
         check(s == before, "Invalid punch edit changed canonical state/history");
     }
     auto j = Json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 4 && j["punchRecording"]["startFrame"] == 503,
+    check(j["schemaMinor"] == 5 && j["punchRecording"]["startFrame"] == 503,
           "Punch stable schema representation differs");
     for (unsigned mode = 0; mode < 6; ++mode) {
         auto bad = j;
@@ -95,6 +178,7 @@ void punchState() {
         if (minor < 3)
             legacy.erase("master");
         for (auto &t : legacy["tracks"]) {
+            t.erase("inputLatencyFrames");
             if (minor < 2)
                 t.erase("monitoringMode");
             if (minor == 0) {
@@ -117,6 +201,7 @@ void punchState() {
 } // namespace
 int main() {
     try {
+        inputLatencyState();
         punchState();
         auto s = makeOneTrackSession("Été · Ελληνικά · Українська · עברית", "Łódź — voix");
         const auto &t = s.tracks[0];
@@ -159,7 +244,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 5;
+        j["schemaMinor"] = 6;
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;

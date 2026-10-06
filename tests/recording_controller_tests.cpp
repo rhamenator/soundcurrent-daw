@@ -498,14 +498,62 @@ void duplexFiniteRangeAndStructure(const std::filesystem::path &root) {
     }
 }
 
+void singleLatencyState(const std::filesystem::path &root) {
+    for (unsigned mode = 0; mode < 2; ++mode) {
+        const auto folder = root / std::to_string(mode);
+        auto s = project(folder);
+        s.playheadFrame = mode ? 0 : 1000;
+        s.tracks.front().inputLatencyFrames = mode ? 200 : 41;
+        ProjectStore(folder).save(s);
+        auto counters = std::make_shared<Counters>();
+        auto options = recording_fixture::options(counters);
+        auto factory = options.factory;
+        options.factory = [factory, s](const RecordingPreparation &p) {
+            check(p.spec.inputLatencyFrames == s.tracks.front().inputLatencyFrames &&
+                      p.spec.capture.startFrame == s.playheadFrame,
+                  "Single-track preparation lost accepted delay/playhead");
+            return factory(p);
+        };
+        RecordingController r(options);
+        r.submit(recording_fixture::prepare(folder, s));
+        await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
+        check(!r.snapshot()->job && !counters->activated,
+              "Latency preparation created media or activated audio");
+        r.submit(recording_fixture::start(*counters));
+        await([&] { return r.snapshot()->telemetry.capturedFrames >= 512; });
+        auto changed = s;
+        ++changed.tracks.front().inputLatencyFrames;
+        r.follow(folder, std::make_shared<const Session>(changed), 2);
+        await([&] { return r.snapshot()->take.has_value(); });
+        const auto take = *r.snapshot()->take->receipt;
+        check(counters->destroyed == 1 && !counters->wrongThread &&
+                  take.spec.inputLatencyFrames == s.tracks.front().inputLatencyFrames,
+              "Active delay edit did not join/retain original recording generation");
+        auto attached = s;
+        attachRecording(attached, take);
+        const auto &clip = attached.tracks.front().clips.back();
+        check(clip.startFrame == (mode ? 0 : 959) && clip.sourceFrame == (mode ? 200 : 0) &&
+                  clip.lengthFrames == take.asset.frames - clip.sourceFrame &&
+                  ProjectStore(folder).load() == s,
+              "Saved latency attachment double-shifted or overwrote project");
+        ProjectStore(folder).save(attached);
+        check(ProjectStore(folder).load() == attached, "Single compensated take reopen differs");
+        r.acknowledgeTake(r.snapshot()->take->sequence);
+        r.requestShutdown();
+        await([&] { return r.snapshot()->closed; });
+    }
+}
 void duplexPunchState(const std::filesystem::path &root) {
     for (unsigned mode = 0; mode < 3; ++mode) {
         const auto folder = root / std::to_string(mode);
         auto s = duplex_fixture::project(folder);
         s.punch = {true, 1513, 2701};
+        s.tracks[0].inputLatencyFrames = 4097;
+        s.tracks[1].inputLatencyFrames = 17;
         ProjectStore(folder).save(s);
         auto c = std::make_shared<duplex_fixture::Counters>();
         c->holdProcess = mode == 1;
+        c->useDeclaredLatency = true;
         auto options = duplex_fixture::options(c);
         unsigned token = 7;
         options.nativeOptions.audit.context = &token;
@@ -529,16 +577,16 @@ void duplexPunchState(const std::filesystem::path &root) {
             continue;
         }
         await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
-        check(r.snapshot()->endFrame == 2901 && !r.snapshot()->job && c->activated == 0,
+        check(r.snapshot()->endFrame == 6798 && !r.snapshot()->job && c->activated == 0,
               "Prepared punch end omitted actual endpoint postroll or created jobs");
         if (mode == 1) {
             auto changed = s;
-            changed.punch.endFrame = 2702;
+            changed.tracks[0].inputLatencyFrames = 4098;
             r.follow(folder, std::make_shared<const Session>(changed), 2);
             await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
             check(c->destroyed == 1 && !r.snapshot()->take && c->activated == 0 &&
                       r.snapshot()->diagnostic == "Project structure changed; recording stopped",
-                  "Locator edit did not retire an immutable prepared generation");
+                  "Latency edit did not retire an immutable prepared generation");
             continue;
         }
         r.submit(duplex_fixture::start(*c));
@@ -553,7 +601,7 @@ void duplexPunchState(const std::filesystem::path &root) {
         auto attached = s;
         for (unsigned t = 0; t < 2; ++t) {
             const auto &take = (*v->take->receipts)[t];
-            const auto latency = t ? 200 : 41;
+            const auto latency = t ? 17 : 4097;
             check(take.asset.frames == 1188 && take.spec.capture.startFrame == 1513 + latency &&
                       take.spec.inputLatencyFrames == latency,
                   "Controller lost prepared musical capture geometry");
@@ -597,6 +645,7 @@ int main(int argc, char **argv) {
         duplexAdmissionAndFailures(root / "duplex-failures");
         duplexFiniteRangeAndStructure(root / "duplex-range");
         duplexPunchState(root / "duplex-punch");
+        singleLatencyState(root / "single-latency");
         std::cout << "{\"checks\":" << checks
                   << ",\"synthetic_endpoint\":true,\"actual_disk_takes\":true,\"retained_handoff\":"
                      "true,\"preview_copy_recovery\":true,\"bounded_pressure_stop\":true}\n";

@@ -40,6 +40,7 @@ class StudioWindow : public QMainWindow {
     bool prepareRecording();
     bool configureArmedRecording(const std::vector<Id> &, Frame frames = 0);
     bool configurePunch(PunchSettings);
+    bool configureInputLatency(const Id &, Frame);
     bool inspectTake(const std::filesystem::path &);
     std::shared_ptr<const RecordingSnapshot> recordingSnapshot() const;
     std::shared_ptr<const ExportSnapshot> exportSnapshot() const;
@@ -115,6 +116,11 @@ class StudioWindow : public QMainWindow {
     void refreshArms();
     void selectRecordingRoute(bool output, std::size_t, QComboBox *);
     QComboBox *monitorMode_;
+    QSpinBox *inputLatency_;
+    QLabel *inputLatencyTime_;
+    std::optional<Frame> latencyShown_;
+    std::optional<Id> latencyTrack_;
+    std::uint64_t latencyEpoch_ = 0;
     QGridLayout *recordRoutes_;
     std::vector<QComboBox *> inputs_, monitors_;
     std::shared_ptr<const std::vector<PipeWirePort>> recordPortsShown_;

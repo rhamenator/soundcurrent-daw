@@ -146,8 +146,9 @@ Trusted distribution and installers remain separate gates; see
 - [Main branch protection and PR workflow](docs/58-repository-branch-protection.md)
 - [Complete documentation index](docs/README.md) · [dated test results](tests/results/)
 
-Next implementation: saved input-latency controls and prepared-session behavior,
-then manual punch/Auto monitoring, tempo/loop/take lanes and comping. Native engine
+Saved per-track [input-latency controls](docs/60-input-latency-controls.md) now connect
+canonical project state to accepted recording preparation and take alignment.
+Next implementation: manual punch/Auto monitoring, tempo/loop/take lanes and comping. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
 all other frozen-reference requirements remain required. The first recording

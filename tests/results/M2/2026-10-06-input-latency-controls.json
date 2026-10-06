@@ -1,0 +1,1874 @@
+{
+  "date": "2026-10-06",
+  "utc": "2026-10-06T21:30:46.753780+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "5a33b7ea856793aa3d98bea02209d87676ba86de",
+  "classification": "progress: saved per-track input latency, accepted preparation, persistence/history/UI and bounded native evidence",
+  "previous_goal_turn_classification": "progress: prior goal checkpoint published punch-fault recovery through protected PR; intervening user protection verification changed no DAW code",
+  "schema": "1.5; 1.0–1.4 default zero",
+  "dependency_added": false,
+  "realtime_processing_changes": false,
+  "builds": {
+    "debug": {
+      "handle": 77839,
+      "terminal_exit": 0
+    },
+    "sanitized": {
+      "handle": 4860,
+      "terminal_exit": 0
+    },
+    "windows_core": {
+      "handle": 21538,
+      "terminal_exit": 0,
+      "native_runtime_claim": false
+    },
+    "release_native_initial": {
+      "handle": 70646,
+      "terminal_exit": 0
+    },
+    "release_native_final_fixture": {
+      "handle": 82304,
+      "terminal_exit": 0
+    }
+  },
+  "acceptance": {
+    "debug": {
+      "handle": 77074,
+      "terminal_exit": 0,
+      "groups": "29/29",
+      "seconds": 27.09,
+      "concurrent_owned_sanitizer_compile": true,
+      "functional_synthetic_only": true
+    },
+    "sanitized": {
+      "handle": 67254,
+      "terminal_exit": 0,
+      "groups": "29/29",
+      "seconds": 72.72,
+      "ASAN_OPTIONS": "detect_leaks=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    },
+    "native": {
+      "handle": 87711,
+      "terminal_exit": 0,
+      "receipt": {
+        "project_directory": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qzhp40gd/Punch — Ελληνικά",
+        "stdout": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qzhp40gd/stdout.json",
+        "stderr": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qzhp40gd/stderr.log",
+        "native": true,
+        "scheduler_samples": [
+          {
+            "tid": 1680233,
+            "name": "sc-pipewire-pun",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680236,
+            "name": "QDBusConnection",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680237,
+            "name": "[pango] fontcon",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680239,
+            "name": "pool-spawner",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680240,
+            "name": "gmain",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680241,
+            "name": "gdbus",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680242,
+            "name": "WaylandEventThr",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680243,
+            "name": "WaylandEventThr",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680244,
+            "name": "module-rt",
+            "policy": 1073741824,
+            "base_policy": 0,
+            "reset_on_fork": true,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680245,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1680246,
+            "name": "sc-daw-fixture-",
+            "policy": 1073741824,
+            "base_policy": 0,
+            "reset_on_fork": true,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680247,
+            "name": "sc-pipewire-pun",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680248,
+            "name": "module-rt",
+            "policy": 1073741824,
+            "base_policy": 0,
+            "reset_on_fork": true,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680249,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1680250,
+            "name": "sc-daw-fixture-",
+            "policy": 1073741824,
+            "base_policy": 0,
+            "reset_on_fork": true,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680252,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680253,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680254,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680255,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680256,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680257,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680266,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680267,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680268,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680269,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680270,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680271,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680272,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680273,
+            "name": "Thread (pooled)",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680276,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680279,
+            "name": "module-rt",
+            "policy": 1073741824,
+            "base_policy": 0,
+            "reset_on_fork": true,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680280,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1680281,
+            "name": "sc-daw-recordin",
+            "policy": 1073741824,
+            "base_policy": 0,
+            "reset_on_fork": true,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680283,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680284,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680285,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680286,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680287,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680288,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680289,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680290,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680292,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680293,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680295,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680296,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680297,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680298,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680299,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          },
+          {
+            "tid": 1680300,
+            "name": "QThread",
+            "policy": 0,
+            "base_policy": 0,
+            "reset_on_fork": false,
+            "priority": 0,
+            "nice": 0
+          }
+        ],
+        "graph_snapshots": 28,
+        "linked_snapshots": 21,
+        "owned_pid": 1680233,
+        "exit_code": 0,
+        "child_result": {
+          "armed_tracks": 32,
+          "callback_allocations": 0,
+          "callback_frees": 0,
+          "callback_locks": 0,
+          "callback_timing": {
+            "owner": {
+              "callback_end_after_cycle_period_count": 0,
+              "calls": 938,
+              "clock_failures": 0,
+              "complete_cpu_coverage": true,
+              "complete_thread_usage_coverage": true,
+              "complete_timing_coverage": true,
+              "cpu_clock_failures": 0,
+              "cpu_samples": 938,
+              "cpu_timing_requested": true,
+              "cycle_context_samples": 938,
+              "cycle_context_unknown": 0,
+              "dropped_samples": 0,
+              "finite_deadline_thresholds_met": true,
+              "maximum_callback_cpu_known": true,
+              "maximum_callback_cpu_ns": 709451,
+              "maximum_callback_end_after_cycle_ns": 1733281,
+              "maximum_callback_start_monotonic_ns": 162284642781310,
+              "maximum_callback_thread_usage": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 295,
+                "system_ns": 0,
+                "user_ns": 220000,
+                "voluntary_switches": 0
+              },
+              "maximum_clock": {
+                "cycle": 6480694,
+                "discontinuity": false,
+                "duration": 256,
+                "id": 35,
+                "nsec": 162284642692191,
+                "position": 4731531776,
+                "rate_denominator": 48000,
+                "rate_numerator": 1,
+                "xrun": false
+              },
+              "maximum_clock_known": true,
+              "maximum_cpu_ns": 709451,
+              "maximum_cycle_callback_cpu_known": true,
+              "maximum_cycle_callback_cpu_ns": 383598,
+              "maximum_cycle_callback_start_monotonic_ns": 162282372054829,
+              "maximum_cycle_callback_wall_ns": 386547,
+              "maximum_cycle_clock": {
+                "cycle": 6480268,
+                "discontinuity": false,
+                "duration": 256,
+                "id": 35,
+                "nsec": 162282370708095,
+                "position": 4731422720,
+                "rate_denominator": 48000,
+                "rate_numerator": 1,
+                "xrun": false
+              },
+              "maximum_cycle_thread_usage": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 4,
+                "system_ns": 0,
+                "user_ns": 0,
+                "voluntary_switches": 0
+              },
+              "maximum_integer_rate": 48000,
+              "maximum_major_faults": 0,
+              "maximum_minor_faults": 295,
+              "maximum_ns": 711047,
+              "maximum_period_ratio": 0.133321,
+              "maximum_quantum": 256,
+              "maximum_system_ns": 203000,
+              "maximum_wall_minus_cpu_ns": 21379,
+              "mean_cpu_ns": 333187,
+              "minimum_integer_rate": 48000,
+              "minimum_quantum": 256,
+              "missing_periods": 0,
+              "p50_ns": 278889,
+              "p999_ns": 711047,
+              "p999_period_ratio": 0.133321,
+              "p99_ns": 640103,
+              "samples": 938,
+              "thread_usage_failures": 0,
+              "thread_usage_requested": true,
+              "thread_usage_samples": 938,
+              "thread_usage_totals": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 4044,
+                "system_ns": 627000,
+                "user_ns": 73955000,
+                "voluntary_switches": 0
+              }
+            },
+            "sink": {
+              "callback_end_after_cycle_period_count": 0,
+              "calls": 1011,
+              "clock_failures": 0,
+              "complete_cpu_coverage": true,
+              "complete_thread_usage_coverage": true,
+              "complete_timing_coverage": true,
+              "cpu_clock_failures": 0,
+              "cpu_samples": 1011,
+              "cpu_timing_requested": true,
+              "cycle_context_samples": 1011,
+              "cycle_context_unknown": 0,
+              "dropped_samples": 0,
+              "finite_deadline_thresholds_met": true,
+              "maximum_callback_cpu_known": true,
+              "maximum_callback_cpu_ns": 42709,
+              "maximum_callback_end_after_cycle_ns": 1791202,
+              "maximum_callback_start_monotonic_ns": 162285784991691,
+              "maximum_callback_thread_usage": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 0,
+                "system_ns": 0,
+                "user_ns": 14000,
+                "voluntary_switches": 0
+              },
+              "maximum_clock": {
+                "cycle": 6480908,
+                "discontinuity": false,
+                "duration": 256,
+                "id": 35,
+                "nsec": 162285784017535,
+                "position": 4731586560,
+                "rate_denominator": 48000,
+                "rate_numerator": 1,
+                "xrun": false
+              },
+              "maximum_clock_known": true,
+              "maximum_cpu_ns": 42709,
+              "maximum_cycle_callback_cpu_known": true,
+              "maximum_cycle_callback_cpu_ns": 10325,
+              "maximum_cycle_callback_start_monotonic_ns": 162282372487351,
+              "maximum_cycle_callback_wall_ns": 11946,
+              "maximum_cycle_clock": {
+                "cycle": 6480268,
+                "discontinuity": false,
+                "duration": 256,
+                "id": 35,
+                "nsec": 162282370708095,
+                "position": 4731422720,
+                "rate_denominator": 48000,
+                "rate_numerator": 1,
+                "xrun": false
+              },
+              "maximum_cycle_thread_usage": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 2,
+                "system_ns": 0,
+                "user_ns": 0,
+                "voluntary_switches": 0
+              },
+              "maximum_integer_rate": 48000,
+              "maximum_major_faults": 0,
+              "maximum_minor_faults": 2,
+              "maximum_ns": 47572,
+              "maximum_period_ratio": 0.00891975,
+              "maximum_quantum": 256,
+              "maximum_system_ns": 0,
+              "maximum_wall_minus_cpu_ns": 16693,
+              "mean_cpu_ns": 10131,
+              "minimum_integer_rate": 48000,
+              "minimum_quantum": 256,
+              "missing_periods": 0,
+              "p50_ns": 12467,
+              "p999_ns": 41864,
+              "p999_period_ratio": 0.0078495,
+              "p99_ns": 25615,
+              "samples": 1011,
+              "thread_usage_failures": 0,
+              "thread_usage_requested": true,
+              "thread_usage_samples": 1011,
+              "thread_usage_totals": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 2,
+                "system_ns": 0,
+                "user_ns": 14000,
+                "voluntary_switches": 0
+              }
+            },
+            "source": {
+              "callback_end_after_cycle_period_count": 0,
+              "calls": 1010,
+              "clock_failures": 0,
+              "complete_cpu_coverage": true,
+              "complete_thread_usage_coverage": true,
+              "complete_timing_coverage": true,
+              "cpu_clock_failures": 0,
+              "cpu_samples": 1010,
+              "cpu_timing_requested": true,
+              "cycle_context_samples": 1010,
+              "cycle_context_unknown": 0,
+              "dropped_samples": 0,
+              "finite_deadline_thresholds_met": true,
+              "maximum_callback_cpu_known": true,
+              "maximum_callback_cpu_ns": 144328,
+              "maximum_callback_end_after_cycle_ns": 441839,
+              "maximum_callback_start_monotonic_ns": 162283032096866,
+              "maximum_callback_thread_usage": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 0,
+                "system_ns": 0,
+                "user_ns": 0,
+                "voluntary_switches": 0
+              },
+              "maximum_clock": {
+                "cycle": 6480392,
+                "discontinuity": false,
+                "duration": 256,
+                "id": 35,
+                "nsec": 162283032036799,
+                "position": 4731454464,
+                "rate_denominator": 48000,
+                "rate_numerator": 1,
+                "xrun": false
+              },
+              "maximum_clock_known": true,
+              "maximum_cpu_ns": 144328,
+              "maximum_cycle_callback_cpu_known": true,
+              "maximum_cycle_callback_cpu_ns": 72712,
+              "maximum_cycle_callback_start_monotonic_ns": 162282371073921,
+              "maximum_cycle_callback_wall_ns": 76013,
+              "maximum_cycle_clock": {
+                "cycle": 6480268,
+                "discontinuity": false,
+                "duration": 256,
+                "id": 35,
+                "nsec": 162282370708095,
+                "position": 4731422720,
+                "rate_denominator": 48000,
+                "rate_numerator": 1,
+                "xrun": false
+              },
+              "maximum_cycle_thread_usage": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 2,
+                "system_ns": 0,
+                "user_ns": 0,
+                "voluntary_switches": 0
+              },
+              "maximum_integer_rate": 48000,
+              "maximum_major_faults": 0,
+              "maximum_minor_faults": 6,
+              "maximum_ns": 149623,
+              "maximum_period_ratio": 0.0280543,
+              "maximum_quantum": 256,
+              "maximum_system_ns": 0,
+              "maximum_wall_minus_cpu_ns": 11180,
+              "mean_cpu_ns": 53524,
+              "minimum_integer_rate": 48000,
+              "minimum_quantum": 256,
+              "missing_periods": 0,
+              "p50_ns": 64135,
+              "p999_ns": 146663,
+              "p999_period_ratio": 0.0274993,
+              "p99_ns": 95594,
+              "samples": 1010,
+              "thread_usage_failures": 0,
+              "thread_usage_requested": true,
+              "thread_usage_samples": 1010,
+              "thread_usage_totals": {
+                "involuntary_switches": 0,
+                "known": true,
+                "major_faults": 0,
+                "minor_faults": 9,
+                "system_ns": 0,
+                "user_ns": 0,
+                "voluntary_switches": 0
+              }
+            }
+          },
+          "canonical_input_latency_settings": true,
+          "canonical_punch_settings": true,
+          "device_playback_origin": 4731377152,
+          "frames_per_raw_take": 96014,
+          "group_undo_redo": true,
+          "live_EQ_receipts": true,
+          "missing_track_frames": 0,
+          "mode": "32",
+          "output_max_difference": 0.0,
+          "output_peak": 3.7008230686187744,
+          "output_samples_verified": 480000,
+          "owned_nodes_only": true,
+          "physical_latency_qualified": false,
+          "playback_end": 240137,
+          "playback_start": 137,
+          "production_gui_duplex": true,
+          "punch_in": 48150,
+          "punch_out": 144164,
+          "raw_lanes": [
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "562117130766b8c2918dc59190065a5400a6bdaa7035bf583c07a762a25a8abb",
+              "track": "4fa3daf4-e557-41eb-a225-16779ed1c7ce"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "101edd1bb543e53202c6037bdb78927af0b09a00694c6c5f762c48e90d61734d",
+              "track": "3b006f65-c942-4bf9-98c6-28b3877d9f3c"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "166916bade282ee8a2d384e18dee9d299e108fa96d5351cf038fdd92079a593e",
+              "track": "7713603b-07b2-4dcd-8222-166e7c95f935"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "134d95b9e2ecc90afa0443608e9f4e11c55553fbfa25655b6ac5f1beb15a47ff",
+              "track": "eb76d912-65dd-4495-b832-6893290faa12"
+            },
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "82771a6bf169c5042f54de42517ac143c585fa48fc9db06d07b01cd8ea53379a",
+              "track": "c3abde04-15b9-4564-852d-4e848ead3493"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "50de6a0b8ad47bf203f79e477cddd4b81b50a7d01ff28adcc0aef0f5be5be49b",
+              "track": "3b76f1a6-6265-4c7d-8240-0e7fc86bef72"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "f22c25a8690132ea966e7ef72e1ab41c358174625d8f33a75788351084d1e0d3",
+              "track": "bdef766a-f6d8-4266-b74c-b09c5b908210"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "acc6d069379b7fe6840c4d36ace14cbf9cbbc4e5dc8d0cd4e91eadf52cd9b033",
+              "track": "6a6acdce-316e-4149-a4ef-672da2a1a4c3"
+            },
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "82fb422265011475d3ce5394fc44c392b5b25662de32a62fb5dae9d114b2e93f",
+              "track": "1c40d071-65d5-43d3-9116-6cb9605bfae2"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "c0e7fdff7d12d9b9aa46ae3731e160a2045196af3e1e8d9f86ecafd493cf49fb",
+              "track": "f40c967d-ed10-441f-8371-9a9881ff8a89"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "580c70eb7a9c7da39a89ad2e458c6e73dbb446eb1cfd41a7b2e65197c520e221",
+              "track": "94de45fd-534d-4f46-80a4-464a3dd5c3b8"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "b1b50e663159fa9af00fa210d68bcc5d1dbf7d748866b650f10c5c5607313179",
+              "track": "3949de2f-36b4-46c1-a6c5-d252654fbbf7"
+            },
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "680d255d39613f19e7e007d0e12bbe5c399f2612e87b423554a58a60d51748df",
+              "track": "c7a754a2-20df-4866-9f60-dbf76a76a786"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "45e2ace51db64d6fa92d8d5a1a1516a102b1220b85631437c32da583b1c61e66",
+              "track": "9a6cccc7-f987-4108-8249-4eaa9969e056"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "d14ebd9ecd4a7b829294840eac4f8a756c1bf3932705339faafc48e431b5f4fd",
+              "track": "0be4a229-89f1-4450-89c5-c608d09353b9"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "979bad19283615ed7911b80a7053d31d42e7b6d7f9928125dee6bdeb49421ce6",
+              "track": "c786002d-9d56-4ec5-9916-9195ecab1f60"
+            },
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "c38cd1832cddc63a0f6a4d41fbf9e38d5862d5f7e5b9668a4483c53a2486b0dd",
+              "track": "7f3d12ae-653a-4a2a-8077-84a5754d04cc"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "4abfacd8b1cfa881e2b04860f9b51fa1580abf5ea1efb89e5284f9fcde6ef1fb",
+              "track": "e5e167a3-3847-4bf2-8093-df1a3f8d1443"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "258874b7358efff2c91bae6ad23d016f2b259a1e92446b75102bdc984350b9a1",
+              "track": "9b79f2ad-c5fd-4608-878b-8a563ce5e2fc"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "6e9de6421b2d9f566941c665cb77f5ffdb996c83b713fed00a7ddd65a288ce1a",
+              "track": "9af080e1-b9aa-471c-b771-e0350d1bd8d2"
+            },
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "f4f909864e3dc97a1b38734082767b149f1edd5a49c13df822ece7bca98d5f88",
+              "track": "b57f2861-a702-4bf3-8a5a-ac2ab8143f74"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "06ddc361a25857dc6db968ad57c42484bdb53e36323640402e4c2f16616d280e",
+              "track": "c1be8215-3f67-4483-8815-67e49c02d5ac"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "6828a753b9af4708ed8948fc1ee92bef67bd5b01cbefc435294866f4ae6869d3",
+              "track": "12c06fdc-6a20-4c44-ae33-bb0649081485"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "50f4e6ee5ca27302df4030a0bdffe5c37a8cbb15acd7ea10c1aef5ee26026f10",
+              "track": "144d613c-a190-4847-9e2e-ab8882ff4aef"
+            },
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "81780a2cbc6eb92a0ba346ae99044ed7582cd05f61335868e477feafb0358166",
+              "track": "3ad13200-e290-41af-a978-054d40df7b0a"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "b3b662418841e4eaaf349e1ac1cf079606c8e08af4a94163553b106033fb4f37",
+              "track": "077e4fa4-c6f2-492d-aa77-b86cba3ece64"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "0f2476178a84904c78cd618082d8250ef147257e96e79a2ffae8dea0e119a146",
+              "track": "408fed32-f62f-4c72-bb61-6c1a241c6d3f"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "15b8020497559f7e66b528270b7bd053774d9cae3cbb4b8b9de3d0cad94e55d6",
+              "track": "5134ee4c-363d-48a3-9a55-cbf383525301"
+            },
+            {
+              "device_origin": 4731429262,
+              "frames": 96014,
+              "latency": 4097,
+              "origin_offset": 142,
+              "origin_quantum": 256,
+              "raw_start": 52247,
+              "sha256": "4a8dc3faeace1f543de1f194dff2a1c3697465baaeac25993fdbf75738d5c572",
+              "track": "c69e8fdb-1379-48b7-aa1e-63f0bb6f6a05"
+            },
+            {
+              "device_origin": 4731425165,
+              "frames": 96014,
+              "latency": 0,
+              "origin_offset": 141,
+              "origin_quantum": 256,
+              "raw_start": 48150,
+              "sha256": "e39a011ace7b14692a3eff19692eade4a599f4c1be204b785711352d3840a36c",
+              "track": "cd52e9b4-d6a6-4c32-860c-dc5528cfce88"
+            },
+            {
+              "device_origin": 4731425206,
+              "frames": 96014,
+              "latency": 41,
+              "origin_offset": 182,
+              "origin_quantum": 256,
+              "raw_start": 48191,
+              "sha256": "21716ca75159a8a18e6afce2065ea50b5edecbae9518ad86a0d1dad0cd94e2e4",
+              "track": "196ecbb1-e54c-4fbd-bcfc-32cfedf9425c"
+            },
+            {
+              "device_origin": 4731425365,
+              "frames": 96014,
+              "latency": 200,
+              "origin_offset": 85,
+              "origin_quantum": 256,
+              "raw_start": 48350,
+              "sha256": "a5d9720d064753cc28a5969461972b81d80e5f0e78d66905c6ae5a2893544745",
+              "track": "48be5b62-7e46-48f5-b3cc-6c28d68d9725"
+            }
+          ],
+          "raw_samples_exact": true,
+          "raw_samples_verified": 3072448,
+          "save_reopen": true,
+          "sustained_performance_qualified": false,
+          "underlying_clip_unchanged": true,
+          "windows_qualified": false
+        },
+        "wall_seconds": 7.049416944006225,
+        "routing_observations": {
+          "default_metadata_unchanged": true,
+          "pre_existing_links_preserved": 4,
+          "owned_nodes_remaining": 0,
+          "owned_links_remaining": 0,
+          "no_observed_owned_to_unowned_links": true
+        },
+        "artifacts": {
+          "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qzhp40gd/stdout.json": "c5d9c253243f25cd37a1dbeb25657a9eef660180b53ddf05f7ad3d1d3ef5abe2",
+          "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qzhp40gd/stderr.log": "2fd433d46d0b1526b376c3d67cddd48ea9324741421aefb7afdf3e05a83106e3"
+        }
+      },
+      "launch": {
+        "utc": "2026-10-06T21:25:49.023667+00:00",
+        "parent": "5a33b7ea856793aa3d98bea02209d87676ba86de",
+        "branch": "codex/recording-latency-controls",
+        "file_pins": {
+          "src/recording_worker.cpp": "ac635bbfb9e7e6c6832787938e1bc38f0a4d7ec8fcffaa302f7ee5a7316346b1",
+          "src/pipewire_recording.cpp": "bbb98e8369096385a77e7c6ee7b9c204007404d4593972932c40322374928df4",
+          "src/playback_reader.cpp": "47413fb52b4111c81ea3f429635d741fa496470d6f56a345068e963148563191",
+          "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+          "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+          "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+          "src/playback_bridge.cpp": "1092567581e8d7482918d6a89f41449cc1bf66366079e2c0290635f1d1848677",
+          "src/pipewire_playback.cpp": "31b54cc7d61f91587eb615e3feac394242b47ccf87a77b20eccdcfc985699ef7",
+          "src/capture.cpp": "b94c7f14e6ff73216e1c0f5083be1463f094272bbf417b6d0330a4e95f1c3cfe",
+          "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+          "src/pipewire_filter.cpp": "0071d1c75a6fbc809f633fd8dec9273f7ac55e8169b426ffef2b6282a70ce61e",
+          "src/eq.cpp": "298a8a8354780cd734d72ece8072bd6a682bd0465e326ce6f2008da6361b598f",
+          "src/export.cpp": "35b698b3930389fdb2a04605e811986d798bbb0e7e05146d26b81c7ea463e49a",
+          "src/media_io.hpp": "9706e0ed9027bc8843213b970f5a2dd7e0bd2004cb76ef580944b14d056087c7",
+          "src/project_store.cpp": "a22be067c2ca1f4da0fe930dc6228caf66f9b3e9ceed6c9b0cf141f4082beea1",
+          "src/session.cpp": "1023a195addfa595b59e811c2c1989746a6cea90076e3265225b18b8d09ff089",
+          "src/recording.cpp": "bcb7e0005da9e74f98177b1f5ad93671b3d22ae7ebd60bf52436a6c03013240a",
+          "src/session_edits.cpp": "3850ae30545d92f5897d0cc1e9c866322d4f28b3ece77ba0a48d96349ce1ceed",
+          "src/duplex_recording.cpp": "b608a872947bba2ae223a98b4376fb3670fe8c4f3685b5f2f8729809c6142e16",
+          "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+          "src/duplex_bridge.cpp": "00ad5438067fb9ef7d97cfdfeadbacb8b95873740a593555fd04f756864e158d",
+          "src/media_io.cpp": "6597b1951385b908ca292a290f7f6c624a185ba66aa9438efaff00efe1c259bd",
+          "src/routing.cpp": "09b81ca59b08e38cfbd510aaaf88f93bc43485b1f29a17194b557fe352313b0c",
+          "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+          "src/playback.cpp": "8855074a6c7cdd6ae806ecf26101e13f7767972c5e725fa38adf53e2371cab09",
+          "src/audio_bridge.cpp": "6a73bb13af2eb35fa5d701b5149db5c6d1a64bd6845e96e952a075f0e91a9130",
+          "src/playback_run.cpp": "d681d62ca1d0d587ca033a28818eece9fb1c8b76e8e99a8f993236439c8c59f8",
+          "ui/export_dialog.hpp": "48d028c61a322ee1f815ab2b515cfa2db633954c6cf78774a7f68b35beae961a",
+          "ui/playback_controller.cpp": "25950d0e8141951a4d200598ba40f2eda01a446d091ed6391d18e9d31d7678fd",
+          "ui/export_controller.hpp": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e",
+          "ui/playback_controller.hpp": "6df09ab03ede5b7b46afa7bf359e76f2f1636766afd0d67c6c0abef7d1f0c097",
+          "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+          "ui/export_dialog.cpp": "8b22072ebba18649bd2bac9a8d37de70589eec8fca5c03bb099a2a2714b2448b",
+          "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
+          "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
+          "ui/export_controller.cpp": "51a2de241a5f5b4d1fbaf2c1bed6fb0345f49bd602e2cf3f9be1efba2f546085",
+          "ui/recording_controller.hpp": "9b7ee20ca1375fa8ba183c8a48384e41b8c38076f46f24eeadc74403e704d335",
+          "ui/accelerating_spinbox.hpp": "e922369bf24879ec5bf0e3c3518c5e4a6f7daafb9b320640c47f8c837521695e",
+          "ui/track_view.hpp": "8efcbf8562552fdac6521f9eb5270c1829b28a2a38f4ac39d0890573c9739623",
+          "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+          "ui/timeline_editor.hpp": "7e451a85ab80e409a6e8934270f339f9d953706cc73f9357e41af2ab910f303d",
+          "ui/equipment_profiles.cpp": "f5a0f48eb19ef8407547afccaf454a56c6f06595bb5fa97fc737b874610a1f8f",
+          "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
+          "ui/main.cpp": "603c1c3d8bec46c9c38951ba14abb1f3a7a65f0712a570962fa85a5190c87de6",
+          "ui/master_dialog.hpp": "ed896d091d0c55fd399a62727f45879c5250e8e08cff0f535fedefec4d2cfddd",
+          "ui/timeline_editor.cpp": "13129d9ee731f2e2894e17b49648f62a0d491a73a1b3071e87aaadeec300b145",
+          "ui/equipment_curve.hpp": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e",
+          "ui/recording_controller.cpp": "dd97f599eaae046ae6fc7229c25c77a7216b2071276c389699450df959c7dd37",
+          "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
+          "ui/studio_window.cpp": "43fec57d44001bc618811e5dc71d3ed52d38f09bddc589a68e01d92d0f0093fd",
+          "ui/studio_window.hpp": "a043d5d2274b2d6623d66da4b8404552ab46dc13339aad727331a33bcdc893f9",
+          "include/soundcurrent/session.hpp": "a9778d7ac0e8e1ec05660e64ca4247d589c30b11009e549d13db47690547e1b7",
+          "include/soundcurrent/project_store.hpp": "bf024d35855eb41ad62043258c80c22571c7a32e35ccdf2af61588d377f3eaef",
+          "include/soundcurrent/duplex_bridge.hpp": "e3a047f69499a877d258260cd65c6b289ed82a56b0409a96db91676a7aa7537b",
+          "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+          "include/soundcurrent/audio_bridge.hpp": "3fa0e2ab6a427d1abf96d1e6e6369294ed3ed83c4375d271739a838aeaef2959",
+          "include/soundcurrent/export.hpp": "4f49c8a27dc1584e3b882a672e3bae7d8576bef942d5f192568d97f9dc8aa1f5",
+          "include/soundcurrent/spsc_queue.hpp": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd",
+          "include/soundcurrent/playback_bridge.hpp": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910",
+          "include/soundcurrent/mix_playback.hpp": "d07520b21b39df92d88af8d5e62bb2c0fee072cbc4eed702955f4ce18e169fd4",
+          "include/soundcurrent/recording.hpp": "3b42b0b8d33bb5e56470a8fdeae036d94645c1894a17e30e3acfd16423ab3166",
+          "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+          "include/soundcurrent/rt_object_exchange.hpp": "eda689a08bdaf92047d42881770d5ae5dc4b54b43e8066f2ebe7d6edf98ebb41",
+          "include/soundcurrent/capture.hpp": "42e6340938dc12a1232b1ceda6fbc8e5d527cc21afa85f4341cb11743a3cea6e",
+          "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+          "include/soundcurrent/routing.hpp": "66a68a0df135363e242510a9b9761f4cc02a3d9969757750a8ef80cb50c2293d",
+          "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+          "include/soundcurrent/pipewire_playback.hpp": "5351a52b17c97b78edff712ad979c125cba453c84c0a91bdd08be449cf50a2a8",
+          "include/soundcurrent/playback_reader.hpp": "1c1e4cceadbfa0327edc8805e679d98a63cd6242b0a3618047c74270d0b3801b",
+          "include/soundcurrent/playback.hpp": "e98ef42f61a6cb08fbb1e93b79783160b216ad7e8b7b8cb00a9c0a093ba8cfb9",
+          "include/soundcurrent/mix.hpp": "48ca72838822cd4d600788b1e0e42392d5c9861084376c87ab5088034e120d4c",
+          "include/soundcurrent/eq.hpp": "6e29057e53bd5ce501dd198d88e75c69efe22c2f0ee18691d317d8c3182210f0",
+          "include/soundcurrent/pipewire_recording.hpp": "b0e5202b083d54d8f1f2bed1b4e8752b9d1a9a4eddee522e4d9aac577efee53e",
+          "CMakeLists.txt": "49be7cf2d0f088102b9c9c099893c0a1684bc62ec885321158990a0712848f81",
+          "tests/pipewire_punch_ui_fixture.cpp": "63226cb89bbffb77232dec663058a65e298dd0cf5f0de2ca0b9d7cd3071a96b3",
+          "tests/verify_pipewire_punch_ui.py": "f61af22508556afd33501871e1a3ed48bf2c3d0e07cd75b4e4f3391861c2dccb",
+          "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+          "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+          ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture": "0878f463548e15397f8cedbddfb4b5fcb30ba9a96ddc320d693bec22f2840516",
+          ".cache/build-desktop-release/libsc-ui-export.a": "170dfabebf36730753c84f400657ef784bebe52cf50126e188a362b1f8ada4c6",
+          ".cache/build-desktop-release/libsc-ui-equipment.a": "d5ec4ef206d60557711c7a031bb76f7cabea47bbaeec3106e6665ffe5676618d",
+          ".cache/build-desktop-release/libsc-pipewire-recording.a": "a2a6975bae5dbcfd0878e148e0ff7aa34591d2ee347651a9490b15710f28a798",
+          ".cache/build-desktop-release/libsc-playback.a": "fda909b5618d1d4a45fe1e14868caa37e09834cf6512c882e8e9a27ef9f54bce",
+          ".cache/build-desktop-release/libsc-media.a": "430864d870b2238e17e75a58ecfd2746100a44020707bb974fef5e68bed28248",
+          ".cache/build-desktop-release/libsc-engine.a": "41d38710efbfd01f47d2d47c532a44c77d2d835c7ee009b39ded997afd9a28f0",
+          ".cache/build-desktop-release/libsc-ui-timeline.a": "d7504e8594dd6857b934612c672229a7463fa03d2145caa306447c1ef44c347f",
+          ".cache/build-desktop-release/libsc-capture.a": "6466f73612b746796a3990e674c37d2bad89b0c4b14a85d8320ab19ed23fa947",
+          ".cache/build-desktop-release/libsc-ui-playback.a": "7ab1b94cdfae40d9108a8bcc35072a159469140c84ece6988822373b4635f2a6",
+          ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+          ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "ce5559c845f412bf261e03451d618f4e8b53551374edb0f8930621aef50f6acd",
+          ".cache/build-desktop-release/libsc-ui-recording.a": "2ac253ea6d4bec44b502290902a45d9077355d81cc8714c12ce2c9bf3b10ebd2",
+          ".cache/build-desktop-release/libsc-ui-controller.a": "7df6bc22e8f399f574c4feda875943f4c1ad2b34990b2ebeef5630dede69b831",
+          ".cache/build-desktop-release/libsc-project-store.a": "94880553547d214719a5d9dee7909bf6524c59d984d9a04c13d8241c8835ef44",
+          ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+          ".cache/build-desktop-release/libsc-session.a": "8e6d5b0ef0114c5969f176d3cd931ff74fa3169438020397f7784fcfd274c1c9",
+          ".cache/build-desktop-release/libsc-audio-bridge.a": "2be8c0d35f77ddb42775df5742a2e30c0967aed061480c97186d99fd5eb51fd9"
+        },
+        "native_not_launched": false,
+        "launch_utc": "2026-10-06T21:29:04.362984+00:00",
+        "all_owned_producers_terminal": true,
+        "terminal_handles": {
+          "debug_build": 77839,
+          "sanitized_build": 4860,
+          "windows_build": 21538,
+          "release_native_build": 70646,
+          "debug_29_tests": 77074,
+          "sanitized_29_tests": 67254,
+          "final_fixture_build": 82304
+        },
+        "frozen_executable": ".cache/input-latency-native-frozen-5a33b7e/sc-pipewire-punch-ui-fixture"
+      },
+      "source_pins_verified_after_terminal": true,
+      "screenshot_visually_checked": {
+        "path": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qzhp40gd/Punch — Ελληνικά/prepared-desktop.png",
+        "bytes": 113258,
+        "sha256": "e613634bf753622925062235e969e9323c2126d569899cf71b86de022e450cea"
+      }
+    },
+    "negative_verifier": {
+      "unmodified_passes": true,
+      "mutations_refused": [
+        "declaration",
+        "raw-window",
+        "device-origin",
+        "gui-setting",
+        "missing-file",
+        "rt-allocation",
+        "cycle-overrun",
+        "raw-duration"
+      ]
+    }
+  },
+  "build_and_test_logs": [
+    {
+      "path": ".cache/latency-controls-debug-build-final.log",
+      "bytes": 10711,
+      "sha256": "ea4041a1d943c93747d052ac6739a3eef86b909b100e3bb9c60dec90c94d451c",
+      "text": "[1/94] Building CXX object CMakeFiles/sc-export-tool.dir/tools/export_tool.cpp.o\n[2/94] Building CXX object CMakeFiles/sc-play-tool.dir/tools/play_tool.cpp.o\n[3/94] Building CXX object CMakeFiles/sc-record-tool.dir/tools/record_tool.cpp.o\n[4/94] Building CXX object CMakeFiles/sc-project-tool.dir/tools/project_tool.cpp.o\n[5/94] Building CXX object CMakeFiles/sc-export-controller-tests.dir/tests/export_controller_tests.cpp.o\n[6/94] Building CXX object CMakeFiles/sc-export-ui-tests.dir/tests/export_ui_tests.cpp.o\n[7/94] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[8/94] Building CXX object CMakeFiles/sc-playback-controller-tests.dir/tests/playback_controller_tests.cpp.o\n[9/94] Building CXX object CMakeFiles/sc-export-ui-tests.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[10/94] Building CXX object CMakeFiles/sc-controller-tests.dir/tests/controller_tests.cpp.o\n[11/94] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/tests/pipewire_ui_fixture.cpp.o\n[12/94] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/tests/rt_audit.cpp.o\n[13/94] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[14/94] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/tests/pipewire_punch_ui_fixture.cpp.o\n[15/94] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[16/94] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/tests/pipewire_duplex_ui_fixture.cpp.o\n[17/94] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[18/94] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/tests/pipewire_recording_ui_fixture.cpp.o\n[19/94] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[20/94] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[21/94] Building CXX object CMakeFiles/sc-ui-tests.dir/tests/ui_tests.cpp.o\n[22/94] Building CXX object CMakeFiles/sc-native-duration-timing-tests.dir/tests/native_duration_timing_tests.cpp.o\n[23/94] Building CXX object CMakeFiles/sc-editing-tests.dir/tests/editing_tests.cpp.o\n[24/94] Building CXX object CMakeFiles/sc-mix-graph-tests.dir/tests/mix_graph_tests.cpp.o\n[25/94] Building CXX object CMakeFiles/sc-engine-tests.dir/tests/engine_tests.cpp.o\n[26/94] Building CXX object CMakeFiles/sc-ui-tests.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[27/94] Building CXX object CMakeFiles/sc-capture-tests.dir/tests/capture_tests.cpp.o\n[28/94] Building CXX object CMakeFiles/sc-immediate-tests.dir/tests/immediate_tests.cpp.o\n[29/94] Building CXX object CMakeFiles/sc-audio-bridge-tests.dir/tests/audio_bridge_tests.cpp.o\n[30/94] Building CXX object CMakeFiles/sc-writer-timing-tests.dir/tests/writer_timing_tests.cpp.o\n[31/94] Building CXX object CMakeFiles/sc-pipewire-stage-fixture.dir/tests/native_processing_stages.cpp.o\n[32/94] Building CXX object CMakeFiles/sc-pipewire-duration-fixture.dir/tests/pipewire_duration_fixture.cpp.o\n[33/94] Building CXX object CMakeFiles/sc-pipewire-stage-fixture.dir/tests/pipewire_duration_fixture.cpp.o\n[34/94] Building CXX object CMakeFiles/sc-processing-stage-tests.dir/tests/native_processing_stages.cpp.o\n[35/94] Building CXX object CMakeFiles/sc-duplex-duration-fixture.dir/tests/duplex_duration_fixture.cpp.o\n[36/94] Building CXX object CMakeFiles/sc-processing-stage-tests.dir/tests/native_processing_stage_tests.cpp.o\n[37/94] Building CXX object CMakeFiles/sc-duplex-recording-tests.dir/tests/duplex_recording_tests.cpp.o\n[38/94] Building CXX object CMakeFiles/sc-duplex-tests.dir/tests/duplex_tests.cpp.o\n[39/94] Building CXX object CMakeFiles/sc-mix-playback-tests.dir/tests/mix_playback_tests.cpp.o\n[40/94] Building CXX object CMakeFiles/sc-punch-tests.dir/tests/punch_tests.cpp.o\n[41/94] Building CXX object CMakeFiles/sc-discovery-tests.dir/tests/discovery_tests.cpp.o\n[42/94] Building CXX object CMakeFiles/sc-export-tests.dir/tests/export_tests.cpp.o\n[43/94] Building CXX object CMakeFiles/sc-playback-bridge-tests.dir/tests/playback_bridge_tests.cpp.o\n[44/94] Building CXX object CMakeFiles/sc-playback-tests.dir/tests/playback_tests.cpp.o\n[45/94] Building CXX object CMakeFiles/sc-pipewire-punch-fault-fixture.dir/tests/rt_audit.cpp.o\n[46/94] Building CXX object CMakeFiles/sc-recording-tests.dir/tests/recording_tests.cpp.o\n[47/94] Building CXX object CMakeFiles/sc-pipewire-punch-fixture.dir/tests/rt_audit.cpp.o\n[48/94] Building CXX object CMakeFiles/sc-pipewire-duplex-fixture.dir/tests/pipewire_duplex_fixture.cpp.o\n[49/94] Building CXX object CMakeFiles/sc-pipewire-punch-fault-fixture.dir/tests/pipewire_punch_fault_fixture.cpp.o\n[50/94] Building CXX object CMakeFiles/sc-pipewire-fixture.dir/tests/pipewire_fixture.cpp.o\n[51/94] Linking CXX executable sc-play-tool\n[52/94] Linking CXX executable sc-export-tool\n[53/94] Building CXX object CMakeFiles/sc-pipewire-punch-fixture.dir/tests/pipewire_punch_fixture.cpp.o\n[54/94] Linking CXX executable sc-record-tool\n[55/94] Linking CXX executable sc-project-tool\n[56/94] Linking CXX executable sc-export-controller-tests\n[57/94] Building CXX object CMakeFiles/sc-pipewire-playback-fixture.dir/tests/pipewire_playback_fixture.cpp.o\n[58/94] Linking CXX executable soundcurrent-daw\n[59/94] Linking CXX executable sc-equipment-tests\n[60/94] Linking CXX executable sc-controller-tests\n[61/94] Linking CXX executable sc-playback-controller-tests\n[62/94] Linking CXX executable sc-export-ui-tests\n[63/94] Linking CXX executable sc-pipewire-ui-fixture\n[64/94] Linking CXX executable sc-pipewire-punch-ui-fixture\n[65/94] Linking CXX executable sc-pipewire-duplex-ui-fixture\n[66/94] Linking CXX executable sc-pipewire-recording-ui-fixture\n[67/94] Linking CXX executable sc-timeline-ui-tests\n[68/94] Linking CXX executable sc-native-duration-timing-tests\n[69/94] Linking CXX executable sc-engine-tests\n[70/94] Linking CXX executable sc-ui-tests\n[71/94] Linking CXX executable sc-editing-tests\n[72/94] Linking CXX executable sc-capture-tests\n[73/94] Linking CXX executable sc-mix-graph-tests\n[74/94] Linking CXX executable sc-immediate-tests\n[75/94] Linking CXX executable sc-writer-timing-tests\n[76/94] Linking CXX executable sc-audio-bridge-tests\n[77/94] Linking CXX executable sc-processing-stage-tests\n[78/94] Linking CXX executable sc-pipewire-duration-fixture\n[79/94] Linking CXX executable sc-pipewire-stage-fixture\n[80/94] Linking CXX executable sc-duplex-duration-fixture\n[81/94] Linking CXX executable sc-duplex-recording-tests\n[82/94] Linking CXX executable sc-punch-tests\n[83/94] Linking CXX executable sc-duplex-tests\n[84/94] Linking CXX executable sc-mix-playback-tests\n[85/94] Linking CXX executable sc-export-tests\n[86/94] Linking CXX executable sc-discovery-tests\n[87/94] Linking CXX executable sc-recording-tests\n[88/94] Linking CXX executable sc-playback-bridge-tests\n[89/94] Linking CXX executable sc-playback-tests\n[90/94] Linking CXX executable sc-pipewire-punch-fault-fixture\n[91/94] Linking CXX executable sc-pipewire-punch-fixture\n[92/94] Linking CXX executable sc-pipewire-duplex-fixture\n[93/94] Linking CXX executable sc-pipewire-fixture\n[94/94] Linking CXX executable sc-pipewire-playback-fixture\n"
+    },
+    {
+      "path": ".cache/latency-controls-sanitized-build.log",
+      "bytes": 15308,
+      "sha256": "26fa1d2b9282cf0b798554eaa31077843bc31a60f7a6a44eb20a6d126d9f67e2",
+      "text": "[0/1] Re-running CMake...\n-- Configuring done (0.3s)\n-- Generating done (0.1s)\n-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n[1/154] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.o\n[2/154] Building CXX object CMakeFiles/sc-session.dir/src/routing.cpp.o\n[3/154] Building CXX object CMakeFiles/sc-session.dir/src/session_edits.cpp.o\n[4/154] Linking CXX static library libsc-session.a\n[5/154] Building CXX object CMakeFiles/sc-engine.dir/src/eq_coefficients.cpp.o\n[6/154] Building CXX object CMakeFiles/sc-engine.dir/src/eq.cpp.o\n[7/154] Building CXX object CMakeFiles/sc-engine.dir/src/mix.cpp.o\n[8/154] Linking CXX static library libsc-engine.a\n[9/154] Building CXX object CMakeFiles/sc-capture.dir/src/capture.cpp.o\n[10/154] Linking CXX static library libsc-capture.a\n[11/154] Building CXX object CMakeFiles/sc-audio-bridge.dir/src/audio_bridge.cpp.o\n[12/154] Building CXX object CMakeFiles/sc-playback.dir/src/playback.cpp.o\n[13/154] Building CXX object CMakeFiles/sc-playback.dir/src/mix_playback.cpp.o\n[14/154] Linking CXX static library libsc-audio-bridge.a\n[15/154] Linking CXX static library libsc-playback.a\n[16/154] Building CXX object CMakeFiles/sc-pipewire.dir/src/pipewire_filter.cpp.o\n[17/154] Building CXX object CMakeFiles/sc-media.dir/src/media_io.cpp.o\n[18/154] Building CXX object CMakeFiles/sc-project-store.dir/src/project_store.cpp.o\n[19/154] Linking CXX static library libsc-project-store.a\n[20/154] Building CXX object CMakeFiles/sc-media.dir/src/recording_worker.cpp.o\n[21/154] Building CXX object CMakeFiles/sc-media.dir/src/playback_reader.cpp.o\n[22/154] Building CXX object CMakeFiles/sc-media.dir/src/playback_run.cpp.o\n[23/154] Building CXX object CMakeFiles/sc-media.dir/src/recording.cpp.o\n[24/154] Building CXX object CMakeFiles/sc-media.dir/src/mix_reader.cpp.o\n[25/154] Building CXX object CMakeFiles/sc-media.dir/src/mix_run.cpp.o\n[26/154] Building CXX object CMakeFiles/sc-media.dir/src/playback_bridge.cpp.o\n[27/154] Building CXX object CMakeFiles/sc-media.dir/src/duplex_bridge.cpp.o\n[28/154] Building CXX object CMakeFiles/sc-media.dir/src/duplex_recording.cpp.o\n[29/154] Building CXX object CMakeFiles/sc-media.dir/src/export.cpp.o\n[30/154] Linking CXX static library libsc-pipewire.a\n[31/154] Linking CXX static library libsc-media.a\n[32/154] Building CXX object CMakeFiles/sc-pipewire-duplex-recording.dir/src/pipewire_duplex_recording.cpp.o\n[33/154] Building CXX object CMakeFiles/sc-pipewire-recording.dir/src/pipewire_recording.cpp.o\n[34/154] Linking CXX static library libsc-pipewire-recording.a\n[35/154] Linking CXX static library libsc-pipewire-duplex-recording.a\n[36/154] Building CXX object CMakeFiles/sc-pipewire-playback.dir/src/pipewire_playback.cpp.o\n[37/154] Linking CXX static library libsc-pipewire-playback.a\n[38/154] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/timeline_editor.cpp.o\n[39/154] Building CXX object CMakeFiles/sc-ui-equipment.dir/ui/equipment_profiles.cpp.o\n[40/154] Building CXX object CMakeFiles/sc-ui-controller.dir/ui/project_controller.cpp.o\n[41/154] Building CXX object CMakeFiles/sc-ui-playback.dir/ui/playback_controller.cpp.o\n[42/154] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/recovery_controller.cpp.o\n[43/154] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/recording_controller.cpp.o\n[44/154] Building CXX object CMakeFiles/sc-ui-export.dir/ui/export_controller.cpp.o\n[45/154] Building CXX object CMakeFiles/sc-play-tool.dir/tools/play_tool.cpp.o\n[46/154] Building CXX object CMakeFiles/sc-ui-export.dir/ui/export_dialog.cpp.o\n[47/154] Building CXX object CMakeFiles/sc-export-tool.dir/tools/export_tool.cpp.o\n[48/154] Building CXX object CMakeFiles/sc-record-tool.dir/tools/record_tool.cpp.o\n[49/154] Linking CXX static library libsc-ui-equipment.a\n[50/154] Linking CXX static library libsc-ui-timeline.a\n[51/154] Linking CXX static library libsc-ui-controller.a\n[52/154] Building CXX object CMakeFiles/sc-project-tool.dir/tools/project_tool.cpp.o\n[53/154] Linking CXX static library libsc-ui-playback.a\n[54/154] Linking CXX static library libsc-ui-export.a\n[55/154] Linking CXX static library libsc-ui-recording.a\n[56/154] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/main.cpp.o\n[57/154] Building CXX object CMakeFiles/sc-export-controller-tests.dir/tests/export_controller_tests.cpp.o\n[58/154] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[59/154] Building CXX object CMakeFiles/sc-export-ui-tests.dir/tests/export_ui_tests.cpp.o\n[60/154] Building CXX object CMakeFiles/sc-controller-tests.dir/tests/controller_tests.cpp.o\n[61/154] Building CXX object CMakeFiles/sc-export-ui-tests.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[62/154] Building CXX object CMakeFiles/sc-playback-controller-tests.dir/tests/playback_controller_tests.cpp.o\n[63/154] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/tests/pipewire_ui_fixture.cpp.o\n[64/154] Building CXX object CMakeFiles/sc-recording-controller-tests.dir/tests/recording_controller_tests.cpp.o\n[65/154] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/tests/pipewire_punch_ui_fixture.cpp.o\n[66/154] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[67/154] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/tests/rt_audit.cpp.o\n[68/154] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/tests/pipewire_duplex_ui_fixture.cpp.o\n[69/154] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[70/154] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/tests/pipewire_recording_ui_fixture.cpp.o\n[71/154] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[72/154] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[73/154] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o\n[74/154] Building CXX object CMakeFiles/sc-ui-tests.dir/tests/ui_tests.cpp.o\n[75/154] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[76/154] Building CXX object CMakeFiles/sc-native-duration-timing-tests.dir/tests/native_duration_timing_tests.cpp.o\n[77/154] Building CXX object CMakeFiles/sc-session-tests.dir/tests/session_tests.cpp.o\n[78/154] Building CXX object CMakeFiles/sc-ui-tests.dir/ui/studio_window.cpp.o\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp: In member function ‘void soundcurrent::daw::ui::StudioWindow::pollRecording()’:\n/home/rich/dev/soundcurrent-daw/ui/studio_window.cpp:1683:32: warning: conversion from ‘long int’ to ‘double’ may change value [-Wconversion]\n 1683 |                 1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));\n      |                          ~~~~~~^~~~~~~~~~~~~~~~~~\n[79/154] Building CXX object CMakeFiles/sc-editing-tests.dir/tests/editing_tests.cpp.o\n[80/154] Building CXX object CMakeFiles/sc-routing-tests.dir/tests/routing_tests.cpp.o\n[81/154] Building CXX object CMakeFiles/sc-monitoring-tests.dir/tests/monitoring_tests.cpp.o\n[82/154] Building CXX object CMakeFiles/sc-engine-tests.dir/tests/engine_tests.cpp.o\n[83/154] Building CXX object CMakeFiles/sc-mix-graph-tests.dir/tests/mix_graph_tests.cpp.o\n[84/154] Building CXX object CMakeFiles/sc-immediate-tests.dir/tests/immediate_tests.cpp.o\n[85/154] Building CXX object CMakeFiles/sc-capture-tests.dir/tests/capture_tests.cpp.o\n[86/154] Building CXX object CMakeFiles/sc-audio-bridge-tests.dir/tests/audio_bridge_tests.cpp.o\n[87/154] Building CXX object CMakeFiles/sc-writer-timing-tests.dir/tests/writer_timing_tests.cpp.o\n[88/154] Building CXX object CMakeFiles/sc-pipewire-duration-fixture.dir/tests/pipewire_duration_fixture.cpp.o\n[89/154] Building CXX object CMakeFiles/sc-pipewire-stage-fixture.dir/tests/native_processing_stages.cpp.o\n[90/154] Building CXX object CMakeFiles/sc-pipewire-stage-fixture.dir/tests/pipewire_duration_fixture.cpp.o\n[91/154] Building CXX object CMakeFiles/sc-processing-stage-tests.dir/tests/native_processing_stages.cpp.o\n[92/154] Building CXX object CMakeFiles/sc-processing-stage-tests.dir/tests/native_processing_stage_tests.cpp.o\n[93/154] Building CXX object CMakeFiles/sc-duplex-duration-fixture.dir/tests/duplex_duration_fixture.cpp.o\n[94/154] Building CXX object CMakeFiles/sc-duplex-recording-tests.dir/tests/duplex_recording_tests.cpp.o\n[95/154] Building CXX object CMakeFiles/sc-punch-tests.dir/tests/punch_tests.cpp.o\n[96/154] Building CXX object CMakeFiles/sc-duplex-tests.dir/tests/duplex_tests.cpp.o\n[97/154] Building CXX object CMakeFiles/sc-mix-playback-tests.dir/tests/mix_playback_tests.cpp.o\n[98/154] Building CXX object CMakeFiles/sc-export-tests.dir/tests/export_tests.cpp.o\n[99/154] Building CXX object CMakeFiles/sc-discovery-tests.dir/tests/discovery_tests.cpp.o\n[100/154] Building CXX object CMakeFiles/sc-playback-bridge-tests.dir/tests/playback_bridge_tests.cpp.o\n[101/154] Building CXX object CMakeFiles/sc-playback-tests.dir/tests/playback_tests.cpp.o\n[102/154] Building CXX object CMakeFiles/sc-recording-tests.dir/tests/recording_tests.cpp.o\n[103/154] Building CXX object CMakeFiles/sc-pipewire-punch-fault-fixture.dir/tests/pipewire_punch_fault_fixture.cpp.o\n[104/154] Building CXX object CMakeFiles/sc-pipewire-punch-fixture.dir/tests/pipewire_punch_fixture.cpp.o\n[105/154] Building CXX object CMakeFiles/sc-pipewire-fixture.dir/tests/pipewire_fixture.cpp.o\n[106/154] Building CXX object CMakeFiles/sc-pipewire-duplex-fixture.dir/tests/pipewire_duplex_fixture.cpp.o\n[107/154] Linking CXX executable sc-play-tool\n[108/154] Linking CXX executable sc-export-tool\n[109/154] Linking CXX executable sc-record-tool\n[110/154] Linking CXX executable sc-project-tool\n[111/154] Building CXX object CMakeFiles/sc-pipewire-playback-fixture.dir/tests/pipewire_playback_fixture.cpp.o\n[112/154] Linking CXX executable soundcurrent-daw\n[113/154] Linking CXX executable sc-export-controller-tests\n[114/154] Linking CXX executable sc-equipment-tests\n[115/154] Linking CXX executable sc-export-ui-tests\n[116/154] Linking CXX executable sc-controller-tests\n[117/154] Linking CXX executable sc-playback-controller-tests\n[118/154] Linking CXX executable sc-recording-controller-tests\n[119/154] Linking CXX executable sc-pipewire-ui-fixture\n[120/154] Linking CXX executable sc-pipewire-punch-ui-fixture\n[121/154] Linking CXX executable sc-pipewire-duplex-ui-fixture\n[122/154] Linking CXX executable sc-pipewire-recording-ui-fixture\n[123/154] Linking CXX executable sc-timeline-ui-tests\n[124/154] Linking CXX executable sc-native-duration-timing-tests\n[125/154] Linking CXX executable sc-ui-tests\n[126/154] Linking CXX executable sc-session-tests\n[127/154] Linking CXX executable sc-editing-tests\n[128/154] Linking CXX executable sc-routing-tests\n[129/154] Linking CXX executable sc-engine-tests\n[130/154] Linking CXX executable sc-monitoring-tests\n[131/154] Linking CXX executable sc-mix-graph-tests\n[132/154] Linking CXX executable sc-capture-tests\n[133/154] Linking CXX executable sc-immediate-tests\n[134/154] Linking CXX executable sc-audio-bridge-tests\n[135/154] Linking CXX executable sc-writer-timing-tests\n[136/154] Linking CXX executable sc-pipewire-duration-fixture\n[137/154] Linking CXX executable sc-pipewire-stage-fixture\n[138/154] Linking CXX executable sc-processing-stage-tests\n[139/154] Linking CXX executable sc-duplex-duration-fixture\n[140/154] Linking CXX executable sc-duplex-recording-tests\n[141/154] Linking CXX executable sc-punch-tests\n[142/154] Linking CXX executable sc-duplex-tests\n[143/154] Linking CXX executable sc-mix-playback-tests\n[144/154] Linking CXX executable sc-discovery-tests\n[145/154] Linking CXX executable sc-export-tests\n[146/154] Linking CXX executable sc-recording-tests\n[147/154] Linking CXX executable sc-playback-bridge-tests\n[148/154] Linking CXX executable sc-playback-tests\n[149/154] Linking CXX executable sc-pipewire-punch-fault-fixture\n[150/154] Linking CXX executable sc-pipewire-punch-fixture\n[151/154] Linking CXX executable sc-pipewire-duplex-fixture\n[152/154] Linking CXX executable sc-pipewire-fixture\n[153/154] Linking CXX executable sc-pipewire-playback-fixture\n"
+    },
+    {
+      "path": ".cache/latency-controls-windows-build.log",
+      "bytes": 2758,
+      "sha256": "55479a4cbb4a21cd937563891cd7a53456dc8bf178fb5eb3baffc53a7cf75ad2",
+      "text": "[0/1] Re-running CMake...\n-- Configuring done (0.1s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-windows-core\n[1/38] Building CXX object CMakeFiles/sc-session.dir/src/session_edits.cpp.obj\n[2/38] Building CXX object CMakeFiles/sc-session.dir/src/routing.cpp.obj\n[3/38] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.obj\n[4/38] Linking CXX static library libsc-session.a\n[5/38] Building CXX object CMakeFiles/sc-engine.dir/src/eq_coefficients.cpp.obj\n[6/38] Building CXX object CMakeFiles/sc-engine.dir/src/eq.cpp.obj\n[7/38] Building CXX object CMakeFiles/sc-engine.dir/src/mix.cpp.obj\n[8/38] Linking CXX static library libsc-engine.a\n[9/38] Building CXX object CMakeFiles/sc-capture.dir/src/capture.cpp.obj\n[10/38] Linking CXX static library libsc-capture.a\n[11/38] Building CXX object CMakeFiles/sc-audio-bridge.dir/src/audio_bridge.cpp.obj\n[12/38] Linking CXX static library libsc-audio-bridge.a\n[13/38] Building CXX object CMakeFiles/sc-playback.dir/src/playback.cpp.obj\n[14/38] Building CXX object CMakeFiles/sc-playback.dir/src/mix_playback.cpp.obj\n[15/38] Building CXX object CMakeFiles/sc-project-tool.dir/tools/project_tool.cpp.obj\n[16/38] Building CXX object CMakeFiles/sc-project-store.dir/src/project_store.cpp.obj\n[17/38] Linking CXX static library libsc-project-store.a\n[18/38] Building CXX object CMakeFiles/sc-session-tests.dir/tests/session_tests.cpp.obj\n[19/38] Building CXX object CMakeFiles/sc-editing-tests.dir/tests/editing_tests.cpp.obj\n[20/38] Building CXX object CMakeFiles/sc-routing-tests.dir/tests/routing_tests.cpp.obj\n[21/38] Building CXX object CMakeFiles/sc-engine-tests.dir/tests/engine_tests.cpp.obj\n[22/38] Building CXX object CMakeFiles/sc-monitoring-tests.dir/tests/monitoring_tests.cpp.obj\n[23/38] Building CXX object CMakeFiles/sc-mix-graph-tests.dir/tests/mix_graph_tests.cpp.obj\n[24/38] Building CXX object CMakeFiles/sc-capture-tests.dir/tests/capture_tests.cpp.obj\n[25/38] Building CXX object CMakeFiles/sc-immediate-tests.dir/tests/immediate_tests.cpp.obj\n[26/38] Linking CXX static library libsc-playback.a\n[27/38] Linking CXX executable sc-project-tool.exe\n[28/38] Linking CXX executable sc-session-tests.exe\n[29/38] Linking CXX executable sc-routing-tests.exe\n[30/38] Linking CXX executable sc-editing-tests.exe\n[31/38] Linking CXX executable sc-monitoring-tests.exe\n[32/38] Linking CXX executable sc-engine-tests.exe\n[33/38] Linking CXX executable sc-mix-graph-tests.exe\n[34/38] Linking CXX executable sc-immediate-tests.exe\n[35/38] Linking CXX executable sc-capture-tests.exe\n[36/38] Building CXX object CMakeFiles/sc-audio-bridge-tests.dir/tests/audio_bridge_tests.cpp.obj\n[37/38] Linking CXX executable sc-audio-bridge-tests.exe\n"
+    },
+    {
+      "path": ".cache/latency-controls-native-build-final.log",
+      "bytes": 166,
+      "sha256": "f39b4d27ddbeb698b0cd4c5c74a83b9d636d45c78d98322c41ddb303a0f71a7b",
+      "text": "[1/2] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/tests/pipewire_punch_ui_fixture.cpp.o\n[2/2] Linking CXX executable sc-pipewire-punch-ui-fixture\n"
+    },
+    {
+      "path": ".cache/latency-controls-debug-all-tests.log",
+      "bytes": 3270,
+      "sha256": "2af1eacaf2bab03e3b1c06393d81fe1f279227bfde61c3cb73dd40732bad97e5",
+      "text": "Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop\n      Start  1: desktop-export-controller\n 1/29 Test  #1: desktop-export-controller ........   Passed    0.14 sec\n      Start  2: desktop-export-ui\n 2/29 Test  #2: desktop-export-ui ................   Passed    1.43 sec\n      Start  3: equipment-editor\n 3/29 Test  #3: equipment-editor .................   Passed    4.85 sec\n      Start  4: desktop-controller\n 4/29 Test  #4: desktop-controller ...............   Passed    0.30 sec\n      Start  5: desktop-playback-controller\n 5/29 Test  #5: desktop-playback-controller ......   Passed    0.10 sec\n      Start  6: desktop-recording-controller\n 6/29 Test  #6: desktop-recording-controller .....   Passed    1.03 sec\n      Start  7: desktop-timeline\n 7/29 Test  #7: desktop-timeline .................   Passed    2.09 sec\n      Start  8: desktop-ui\n 8/29 Test  #8: desktop-ui .......................   Passed    4.58 sec\n      Start  9: native-duration-timing\n 9/29 Test  #9: native-duration-timing ...........   Passed    0.01 sec\n      Start 10: session-state\n10/29 Test #10: session-state ....................   Passed    0.07 sec\n      Start 11: project-routing\n11/29 Test #11: project-routing ..................   Passed    0.14 sec\n      Start 12: multitrack-edits\n12/29 Test #12: multitrack-edits .................   Passed    1.89 sec\n      Start 13: project-monitoring\n13/29 Test #13: project-monitoring ...............   Passed    0.02 sec\n      Start 14: multitrack-mix-graph\n14/29 Test #14: multitrack-mix-graph .............   Passed    0.07 sec\n      Start 15: immediate-controls\n15/29 Test #15: immediate-controls ...............   Passed    0.03 sec\n      Start 16: capture-transport\n16/29 Test #16: capture-transport ................   Passed    0.86 sec\n      Start 17: audio-bridge\n17/29 Test #17: audio-bridge .....................   Passed    0.35 sec\n      Start 18: writer-phase-timing\n18/29 Test #18: writer-phase-timing ..............   Passed    0.00 sec\n      Start 19: processing-stage-observation\n19/29 Test #19: processing-stage-observation .....   Passed    0.01 sec\n      Start 20: duplex-recording-owner\n20/29 Test #20: duplex-recording-owner ...........   Passed    0.76 sec\n      Start 21: punch-boundaries\n21/29 Test #21: punch-boundaries .................   Passed    1.69 sec\n      Start 22: shared-playback-capture\n22/29 Test #22: shared-playback-capture ..........   Passed    0.36 sec\n      Start 23: multitrack-mix-playback\n23/29 Test #23: multitrack-mix-playback ..........   Passed    0.69 sec\n      Start 24: offline-export\n24/29 Test #24: offline-export ...................   Passed    0.95 sec\n      Start 25: recording-discovery\n25/29 Test #25: recording-discovery ..............   Passed    0.05 sec\n      Start 26: recording-recovery\n26/29 Test #26: recording-recovery ...............   Passed    0.75 sec\n      Start 27: playback-native-clock\n27/29 Test #27: playback-native-clock ............   Passed    0.89 sec\n      Start 28: playback-read-ahead\n28/29 Test #28: playback-read-ahead ..............   Passed    1.60 sec\n      Start 29: prepared-eq\n29/29 Test #29: prepared-eq ......................   Passed    1.35 sec\n\n100% tests passed, 0 tests failed out of 29\n\nTotal Test time (real) =  27.09 sec\n"
+    },
+    {
+      "path": ".cache/latency-controls-sanitized-all-tests.log",
+      "bytes": 3280,
+      "sha256": "d85f8a9ded8025b25a2ca5bf97062d74f52b0a17acc1280d9b6861eb9159b1e7",
+      "text": "Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n      Start  1: desktop-export-controller\n 1/29 Test  #1: desktop-export-controller ........   Passed    0.43 sec\n      Start  2: desktop-export-ui\n 2/29 Test  #2: desktop-export-ui ................   Passed    1.97 sec\n      Start  3: equipment-editor\n 3/29 Test  #3: equipment-editor .................   Passed   12.86 sec\n      Start  4: desktop-controller\n 4/29 Test  #4: desktop-controller ...............   Passed    0.72 sec\n      Start  5: desktop-playback-controller\n 5/29 Test  #5: desktop-playback-controller ......   Passed    0.18 sec\n      Start  6: desktop-recording-controller\n 6/29 Test  #6: desktop-recording-controller .....   Passed    2.49 sec\n      Start  7: desktop-timeline\n 7/29 Test  #7: desktop-timeline .................   Passed    9.29 sec\n      Start  8: desktop-ui\n 8/29 Test  #8: desktop-ui .......................   Passed    9.46 sec\n      Start  9: native-duration-timing\n 9/29 Test  #9: native-duration-timing ...........   Passed    0.09 sec\n      Start 10: session-state\n10/29 Test #10: session-state ....................   Passed    0.37 sec\n      Start 11: project-routing\n11/29 Test #11: project-routing ..................   Passed    0.63 sec\n      Start 12: multitrack-edits\n12/29 Test #12: multitrack-edits .................   Passed    8.46 sec\n      Start 13: project-monitoring\n13/29 Test #13: project-monitoring ...............   Passed    0.12 sec\n      Start 14: multitrack-mix-graph\n14/29 Test #14: multitrack-mix-graph .............   Passed    0.20 sec\n      Start 15: immediate-controls\n15/29 Test #15: immediate-controls ...............   Passed    0.13 sec\n      Start 16: capture-transport\n16/29 Test #16: capture-transport ................   Passed    1.49 sec\n      Start 17: audio-bridge\n17/29 Test #17: audio-bridge .....................   Passed    0.91 sec\n      Start 18: writer-phase-timing\n18/29 Test #18: writer-phase-timing ..............   Passed    0.04 sec\n      Start 19: processing-stage-observation\n19/29 Test #19: processing-stage-observation .....   Passed    0.08 sec\n      Start 20: duplex-recording-owner\n20/29 Test #20: duplex-recording-owner ...........   Passed    2.05 sec\n      Start 21: punch-boundaries\n21/29 Test #21: punch-boundaries .................   Passed    6.19 sec\n      Start 22: shared-playback-capture\n22/29 Test #22: shared-playback-capture ..........   Passed    1.25 sec\n      Start 23: multitrack-mix-playback\n23/29 Test #23: multitrack-mix-playback ..........   Passed    1.90 sec\n      Start 24: offline-export\n24/29 Test #24: offline-export ...................   Passed    1.98 sec\n      Start 25: recording-discovery\n25/29 Test #25: recording-discovery ..............   Passed    0.25 sec\n      Start 26: recording-recovery\n26/29 Test #26: recording-recovery ...............   Passed    1.11 sec\n      Start 27: playback-native-clock\n27/29 Test #27: playback-native-clock ............   Passed    2.16 sec\n      Start 28: playback-read-ahead\n28/29 Test #28: playback-read-ahead ..............   Passed    2.76 sec\n      Start 29: prepared-eq\n29/29 Test #29: prepared-eq ......................   Passed    3.12 sec\n\n100% tests passed, 0 tests failed out of 29\n\nTotal Test time (real) =  72.72 sec\n"
+    }
+  ],
+  "retained_observations": {
+    "previous_count": 23,
+    "prior_receipt": {
+      "path": "tests/results/M2/2026-10-06-native-punch-fault-recovery.json",
+      "bytes": 577356,
+      "sha256": "94e5e4d5abcb9426c9e29990a333729ffecc501a0919158bf7b24e120dc2929f"
+    },
+    "preservation": {
+      "parity_hash": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+      "verified_retained_artifacts": {
+        ".cache/punch-timeline-frozen-14b1eff/sc-timeline-ui-tests": "ff56f62606cc7e39c367a3046f505d842604ad714fde30e7e59854d4cdce0706",
+        ".cache/native-punch-ui-visible-frozen-d9080ca/sc-pipewire-punch-ui-fixture": "f8ba9890037d27f62d60e300a46bff56e65158c110f2c3b25f0dc0f7539139dd",
+        ".cache/punch-fault-oracle-frozen-2d491c9/sc-pipewire-punch-fault-release-reconstructed": "c8015c07c879618a82b1c55575d0fb555428dd5b554008a5db7544ce66456e4e",
+        ".cache/punch-fault-oracle-frozen-2d491c9/sc-pipewire-punch-fault-sanitized-original": "cdebb05f8b06be1a61c12fadd160e87d1834e5f5656aa8420eab5da2ff93724a",
+        "tests/results/M2/2026-10-06-individual-stage-sustained-failure.json": "47499008382d408cc244a555d1e1527f0b9f12d156a3b8a5eb005f89d6a1bd47"
+      }
+    },
+    "new": [
+      {
+        "index": 24,
+        "kind": "first Debug UI edit/Undo combined assertion timeout",
+        "handle": 89096,
+        "terminal_exit": 8,
+        "manifest": {
+          "tests/timeline_ui_tests.cpp": {
+            "retained": ".cache/latency-controls-first-failure/timeline_ui_tests.cpp",
+            "sha256": "9b0933bc1161619892e89521532d9abd065a83faa0daec572e6928eacad312e9"
+          },
+          "ui/studio_window.cpp": {
+            "retained": ".cache/latency-controls-first-failure/studio_window.cpp",
+            "sha256": "4cfd092f123819b941c18d1646223faf202a5400ce030cdc28f4255f7c949754"
+          },
+          "ui/studio_window.hpp": {
+            "retained": ".cache/latency-controls-first-failure/studio_window.hpp",
+            "sha256": "a043d5d2274b2d6623d66da4b8404552ab46dc13339aad727331a33bcdc893f9"
+          },
+          ".cache/build-desktop/sc-timeline-ui-tests": {
+            "retained": ".cache/latency-controls-first-failure/sc-timeline-ui-tests",
+            "sha256": "32742754312daa2be648860f1c64bea6bc636466f410e83169f9f668cee77434"
+          },
+          ".cache/latency-controls-debug-tests.log": {
+            "retained": ".cache/latency-controls-first-failure/latency-controls-debug-tests.log",
+            "sha256": "68087ce094ff92739b8c833228a29a7dec76092d5b7b520e35d7b7933d01af41"
+          },
+          ".cache/build-desktop/Testing/Temporary/LastTest.log": {
+            "retained": ".cache/latency-controls-first-failure/LastTest.log",
+            "sha256": "0e69bd89e59ab00df18b407c3035c640dbd66679e87a698f4d5231420383d69e"
+          }
+        },
+        "log": "Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop\n    Start  6: desktop-recording-controller\n1/5 Test  #6: desktop-recording-controller .....   Passed    1.07 sec\n    Start  7: desktop-timeline\n2/5 Test  #7: desktop-timeline .................***Failed   10.19 sec\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nTimeline timeout at 614\n\n    Start 10: session-state\n3/5 Test #10: session-state ....................   Passed    0.06 sec\n    Start 11: project-routing\n4/5 Test #11: project-routing ..................   Passed    0.13 sec\n    Start 13: project-monitoring\n5/5 Test #13: project-monitoring ...............   Passed    0.02 sec\n\n80% tests passed, 1 tests failed out of 5\n\nTotal Test time (real) =  11.49 sec\n\nThe following tests FAILED:\n\t  7 - desktop-timeline (Failed)\nErrors while running CTest\n",
+        "original_failed_term_unknown": true,
+        "reconstruction_patch_from_tested_current_UI_source": "--- a/ui/studio_window.cpp\n+++ b/ui/studio_window.cpp\n@@ -1674,8 +1674,7 @@\n     if (m->session && !m->session->tracks.empty()) {\n         const auto &track = m->session->tracks.front();\n         if (latencyEpoch_ != m->projectEpoch || latencyTrack_ != track.id ||\n-            latencyShown_ != track.inputLatencyFrames ||\n-            (!inputLatency_->hasFocus() && inputLatency_->value() != track.inputLatencyFrames)) {\n+            latencyShown_ != track.inputLatencyFrames) {\n             QSignalBlocker blocked(inputLatency_);\n             inputLatency_->setRange(0, int(m->session->sampleRate * 60));\n             inputLatency_->setValue(int(track.inputLatencyFrames));\n",
+        "code_review": "A cached canonical value alone can miss an edit/Undo between polls; compare unfocused displayed value too. Later passes do not establish initial runtime values."
+      },
+      {
+        "index": 25,
+        "kind": "initial native fixture saved-state assertion before Record",
+        "handle": 45987,
+        "terminal_exit": 1,
+        "receipt": {
+          "project_directory": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qx76ytvn/Punch — Ελληνικά",
+          "stdout": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qx76ytvn/stdout.json",
+          "stderr": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qx76ytvn/stderr.log",
+          "native": true,
+          "scheduler_samples": [],
+          "graph_snapshots": 3,
+          "linked_snapshots": 0,
+          "owned_pid": 1678133,
+          "exit_code": 1,
+          "error": "Punch child failed; retained /home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qx76ytvn/stderr.log",
+          "routing_observations": {
+            "default_metadata_unchanged": true,
+            "pre_existing_links_preserved": 4,
+            "owned_nodes_remaining": 0,
+            "owned_links_remaining": 0,
+            "no_observed_owned_to_unowned_links": true
+          },
+          "artifacts": {
+            "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qx76ytvn/stdout.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-qx76ytvn/stderr.log": "ede8af9bf0ce02234b1737a2f3690c3edacce23ff69d3d9432e02253af4fde9c"
+          }
+        },
+        "launch": {
+          "utc": "2026-10-06T21:25:49.023667+00:00",
+          "parent": "5a33b7ea856793aa3d98bea02209d87676ba86de",
+          "branch": "codex/recording-latency-controls",
+          "file_pins": {
+            "src/recording_worker.cpp": "ac635bbfb9e7e6c6832787938e1bc38f0a4d7ec8fcffaa302f7ee5a7316346b1",
+            "src/pipewire_recording.cpp": "bbb98e8369096385a77e7c6ee7b9c204007404d4593972932c40322374928df4",
+            "src/playback_reader.cpp": "47413fb52b4111c81ea3f429635d741fa496470d6f56a345068e963148563191",
+            "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+            "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+            "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+            "src/playback_bridge.cpp": "1092567581e8d7482918d6a89f41449cc1bf66366079e2c0290635f1d1848677",
+            "src/pipewire_playback.cpp": "31b54cc7d61f91587eb615e3feac394242b47ccf87a77b20eccdcfc985699ef7",
+            "src/capture.cpp": "b94c7f14e6ff73216e1c0f5083be1463f094272bbf417b6d0330a4e95f1c3cfe",
+            "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+            "src/pipewire_filter.cpp": "0071d1c75a6fbc809f633fd8dec9273f7ac55e8169b426ffef2b6282a70ce61e",
+            "src/eq.cpp": "298a8a8354780cd734d72ece8072bd6a682bd0465e326ce6f2008da6361b598f",
+            "src/export.cpp": "35b698b3930389fdb2a04605e811986d798bbb0e7e05146d26b81c7ea463e49a",
+            "src/media_io.hpp": "9706e0ed9027bc8843213b970f5a2dd7e0bd2004cb76ef580944b14d056087c7",
+            "src/project_store.cpp": "a22be067c2ca1f4da0fe930dc6228caf66f9b3e9ceed6c9b0cf141f4082beea1",
+            "src/session.cpp": "1023a195addfa595b59e811c2c1989746a6cea90076e3265225b18b8d09ff089",
+            "src/recording.cpp": "bcb7e0005da9e74f98177b1f5ad93671b3d22ae7ebd60bf52436a6c03013240a",
+            "src/session_edits.cpp": "3850ae30545d92f5897d0cc1e9c866322d4f28b3ece77ba0a48d96349ce1ceed",
+            "src/duplex_recording.cpp": "b608a872947bba2ae223a98b4376fb3670fe8c4f3685b5f2f8729809c6142e16",
+            "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+            "src/duplex_bridge.cpp": "00ad5438067fb9ef7d97cfdfeadbacb8b95873740a593555fd04f756864e158d",
+            "src/media_io.cpp": "6597b1951385b908ca292a290f7f6c624a185ba66aa9438efaff00efe1c259bd",
+            "src/routing.cpp": "09b81ca59b08e38cfbd510aaaf88f93bc43485b1f29a17194b557fe352313b0c",
+            "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+            "src/playback.cpp": "8855074a6c7cdd6ae806ecf26101e13f7767972c5e725fa38adf53e2371cab09",
+            "src/audio_bridge.cpp": "6a73bb13af2eb35fa5d701b5149db5c6d1a64bd6845e96e952a075f0e91a9130",
+            "src/playback_run.cpp": "d681d62ca1d0d587ca033a28818eece9fb1c8b76e8e99a8f993236439c8c59f8",
+            "ui/export_dialog.hpp": "48d028c61a322ee1f815ab2b515cfa2db633954c6cf78774a7f68b35beae961a",
+            "ui/playback_controller.cpp": "25950d0e8141951a4d200598ba40f2eda01a446d091ed6391d18e9d31d7678fd",
+            "ui/export_controller.hpp": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e",
+            "ui/playback_controller.hpp": "6df09ab03ede5b7b46afa7bf359e76f2f1636766afd0d67c6c0abef7d1f0c097",
+            "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+            "ui/export_dialog.cpp": "8b22072ebba18649bd2bac9a8d37de70589eec8fca5c03bb099a2a2714b2448b",
+            "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
+            "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
+            "ui/export_controller.cpp": "51a2de241a5f5b4d1fbaf2c1bed6fb0345f49bd602e2cf3f9be1efba2f546085",
+            "ui/recording_controller.hpp": "9b7ee20ca1375fa8ba183c8a48384e41b8c38076f46f24eeadc74403e704d335",
+            "ui/accelerating_spinbox.hpp": "e922369bf24879ec5bf0e3c3518c5e4a6f7daafb9b320640c47f8c837521695e",
+            "ui/track_view.hpp": "8efcbf8562552fdac6521f9eb5270c1829b28a2a38f4ac39d0890573c9739623",
+            "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+            "ui/timeline_editor.hpp": "7e451a85ab80e409a6e8934270f339f9d953706cc73f9357e41af2ab910f303d",
+            "ui/equipment_profiles.cpp": "f5a0f48eb19ef8407547afccaf454a56c6f06595bb5fa97fc737b874610a1f8f",
+            "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
+            "ui/main.cpp": "603c1c3d8bec46c9c38951ba14abb1f3a7a65f0712a570962fa85a5190c87de6",
+            "ui/master_dialog.hpp": "ed896d091d0c55fd399a62727f45879c5250e8e08cff0f535fedefec4d2cfddd",
+            "ui/timeline_editor.cpp": "13129d9ee731f2e2894e17b49648f62a0d491a73a1b3071e87aaadeec300b145",
+            "ui/equipment_curve.hpp": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e",
+            "ui/recording_controller.cpp": "dd97f599eaae046ae6fc7229c25c77a7216b2071276c389699450df959c7dd37",
+            "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
+            "ui/studio_window.cpp": "43fec57d44001bc618811e5dc71d3ed52d38f09bddc589a68e01d92d0f0093fd",
+            "ui/studio_window.hpp": "a043d5d2274b2d6623d66da4b8404552ab46dc13339aad727331a33bcdc893f9",
+            "include/soundcurrent/session.hpp": "a9778d7ac0e8e1ec05660e64ca4247d589c30b11009e549d13db47690547e1b7",
+            "include/soundcurrent/project_store.hpp": "bf024d35855eb41ad62043258c80c22571c7a32e35ccdf2af61588d377f3eaef",
+            "include/soundcurrent/duplex_bridge.hpp": "e3a047f69499a877d258260cd65c6b289ed82a56b0409a96db91676a7aa7537b",
+            "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+            "include/soundcurrent/audio_bridge.hpp": "3fa0e2ab6a427d1abf96d1e6e6369294ed3ed83c4375d271739a838aeaef2959",
+            "include/soundcurrent/export.hpp": "4f49c8a27dc1584e3b882a672e3bae7d8576bef942d5f192568d97f9dc8aa1f5",
+            "include/soundcurrent/spsc_queue.hpp": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd",
+            "include/soundcurrent/playback_bridge.hpp": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910",
+            "include/soundcurrent/mix_playback.hpp": "d07520b21b39df92d88af8d5e62bb2c0fee072cbc4eed702955f4ce18e169fd4",
+            "include/soundcurrent/recording.hpp": "3b42b0b8d33bb5e56470a8fdeae036d94645c1894a17e30e3acfd16423ab3166",
+            "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+            "include/soundcurrent/rt_object_exchange.hpp": "eda689a08bdaf92047d42881770d5ae5dc4b54b43e8066f2ebe7d6edf98ebb41",
+            "include/soundcurrent/capture.hpp": "42e6340938dc12a1232b1ceda6fbc8e5d527cc21afa85f4341cb11743a3cea6e",
+            "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+            "include/soundcurrent/routing.hpp": "66a68a0df135363e242510a9b9761f4cc02a3d9969757750a8ef80cb50c2293d",
+            "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+            "include/soundcurrent/pipewire_playback.hpp": "5351a52b17c97b78edff712ad979c125cba453c84c0a91bdd08be449cf50a2a8",
+            "include/soundcurrent/playback_reader.hpp": "1c1e4cceadbfa0327edc8805e679d98a63cd6242b0a3618047c74270d0b3801b",
+            "include/soundcurrent/playback.hpp": "e98ef42f61a6cb08fbb1e93b79783160b216ad7e8b7b8cb00a9c0a093ba8cfb9",
+            "include/soundcurrent/mix.hpp": "48ca72838822cd4d600788b1e0e42392d5c9861084376c87ab5088034e120d4c",
+            "include/soundcurrent/eq.hpp": "6e29057e53bd5ce501dd198d88e75c69efe22c2f0ee18691d317d8c3182210f0",
+            "include/soundcurrent/pipewire_recording.hpp": "b0e5202b083d54d8f1f2bed1b4e8752b9d1a9a4eddee522e4d9aac577efee53e",
+            "CMakeLists.txt": "49be7cf2d0f088102b9c9c099893c0a1684bc62ec885321158990a0712848f81",
+            "tests/pipewire_punch_ui_fixture.cpp": "5bf7df6f3d7721d15a5fafb47e5f8b32a629d8cbf51bc51ac6fad3a2d974e557",
+            "tests/verify_pipewire_punch_ui.py": "f61af22508556afd33501871e1a3ed48bf2c3d0e07cd75b4e4f3391861c2dccb",
+            "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+            "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+            ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture": "69448fb0d790ffdb90a9560c9a9ecc93f4bc0e39d293d522ec9103e742ba80f2",
+            ".cache/build-desktop-release/libsc-ui-export.a": "170dfabebf36730753c84f400657ef784bebe52cf50126e188a362b1f8ada4c6",
+            ".cache/build-desktop-release/libsc-ui-equipment.a": "d5ec4ef206d60557711c7a031bb76f7cabea47bbaeec3106e6665ffe5676618d",
+            ".cache/build-desktop-release/libsc-pipewire-recording.a": "a2a6975bae5dbcfd0878e148e0ff7aa34591d2ee347651a9490b15710f28a798",
+            ".cache/build-desktop-release/libsc-playback.a": "fda909b5618d1d4a45fe1e14868caa37e09834cf6512c882e8e9a27ef9f54bce",
+            ".cache/build-desktop-release/libsc-media.a": "430864d870b2238e17e75a58ecfd2746100a44020707bb974fef5e68bed28248",
+            ".cache/build-desktop-release/libsc-engine.a": "41d38710efbfd01f47d2d47c532a44c77d2d835c7ee009b39ded997afd9a28f0",
+            ".cache/build-desktop-release/libsc-ui-timeline.a": "d7504e8594dd6857b934612c672229a7463fa03d2145caa306447c1ef44c347f",
+            ".cache/build-desktop-release/libsc-capture.a": "6466f73612b746796a3990e674c37d2bad89b0c4b14a85d8320ab19ed23fa947",
+            ".cache/build-desktop-release/libsc-ui-playback.a": "7ab1b94cdfae40d9108a8bcc35072a159469140c84ece6988822373b4635f2a6",
+            ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+            ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "ce5559c845f412bf261e03451d618f4e8b53551374edb0f8930621aef50f6acd",
+            ".cache/build-desktop-release/libsc-ui-recording.a": "2ac253ea6d4bec44b502290902a45d9077355d81cc8714c12ce2c9bf3b10ebd2",
+            ".cache/build-desktop-release/libsc-ui-controller.a": "7df6bc22e8f399f574c4feda875943f4c1ad2b34990b2ebeef5630dede69b831",
+            ".cache/build-desktop-release/libsc-project-store.a": "94880553547d214719a5d9dee7909bf6524c59d984d9a04c13d8241c8835ef44",
+            ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+            ".cache/build-desktop-release/libsc-session.a": "8e6d5b0ef0114c5969f176d3cd931ff74fa3169438020397f7784fcfd274c1c9",
+            ".cache/build-desktop-release/libsc-audio-bridge.a": "2be8c0d35f77ddb42775df5742a2e30c0967aed061480c97186d99fd5eb51fd9"
+          },
+          "native_not_launched": false,
+          "launch_utc": "2026-10-06T21:27:26.986389+00:00",
+          "all_owned_producers_terminal": true,
+          "terminal_handles": {
+            "debug_build": 77839,
+            "sanitized_build": 4860,
+            "windows_build": 21538,
+            "release_native_build": 70646,
+            "debug_29_tests": 77074,
+            "sanitized_29_tests": 67254
+          },
+          "frozen_executable": ".cache/input-latency-native-frozen-5a33b7e/sc-pipewire-punch-ui-fixture"
+        },
+        "original_fixture_source": {
+          "path": ".cache/input-latency-native-frozen-5a33b7e/pipewire_punch_ui_fixture-at-first-launch.cpp",
+          "bytes": 36027,
+          "sha256": "5bf7df6f3d7721d15a5fafb47e5f8b32a629d8cbf51bc51ac6fad3a2d974e557",
+          "text": "// SPDX-License-Identifier: GPL-3.0-only\n// Opt-in canonical desktop punch workflow; production native owner, owned routes only.\n#include \"studio_window.hpp\"\n#include \"native_duration_timing.hpp\"\n#include <nlohmann/json.hpp>\n#include <sstream>\n#include \"rt_audit.hpp\"\n#include <sndfile.h>\n#include <QApplication>\n#include <QAction>\n#include <QAbstractButton>\n#include <QComboBox>\n#include <QDoubleSpinBox>\n#include <QMessageBox>\n#include <QPushButton>\n#include <QCheckBox>\n#include <QSpinBox>\n#include <QDialog>\n#include <QDialogButtonBox>\n#include <QLineEdit>\n#include <QLabel>\n#include <QScrollArea>\n#include <QScrollBar>\n#include <QLayout>\n#include <QRegion>\n#include <QLocale>\n#include <QTemporaryDir>\n#include <QTest>\n#include <QTimer>\n#include <source_location>\n#include <algorithm>\n#include <array>\n#include <atomic>\n#include <chrono>\n#include <iostream>\nusing namespace soundcurrent::daw;\nusing namespace soundcurrent::daw::ui;\nnamespace {\nconstexpr Frame start = 137, target = 240000;\nconstexpr Frame punchIn = start + 48013, punchOut = start + 144027, rawFrames = punchOut - punchIn;\nusing Json = nlohmann::json;\nvoid require(bool value, const char *message) {\n    if (!value)\n        throw std::runtime_error(message);\n}\ntemplate <class F> void rejected(F f) {\n    bool caught = false;\n    try {\n        f();\n    } catch (const ProjectError &) {\n        caught = true;\n    }\n    require(caught, \"Invalid native duplex operation admitted\");\n}\nfloat inputSignal(std::uint64_t f, unsigned c) {\n    auto value = f ^ ((std::uint64_t(c) + 1) * 0x9e3779b97f4a7c15ULL);\n    value = (value ^ (value >> 30)) * 0xbf58476d1ce4e5b9ULL;\n    value = (value ^ (value >> 27)) * 0x94d049bb133111ebULL;\n    value ^= value >> 31;\n    return float(std::int32_t(value >> 40) - 0x800000) * 0x1p-22f;\n}\nfloat fileSignal(Frame f) {\n    return float(double(f % 53 - 26) * .0625);\n}\nstruct Audit {\n    native_fixture::DurationTiming timing{8192, true, true};\n    std::array<DeviceBlockClock, 8192> clocks{};\n    std::size_t clocksUsed = 0;\n    std::atomic<std::uint64_t> allocations{0}, frees{0}, locks{0}, calls{0};\n    static void begin(void *p) noexcept {\n        auto &s = *static_cast<Audit *>(p);\n        s.timing.begin();\n        rt_audit::reset();\n        rt_audit::active = true;\n    }\n    static void clock(void *p, const DeviceBlockClock &clock) noexcept {\n        auto &s = *static_cast<Audit *>(p);\n        s.timing.clock(clock);\n        if (s.clocksUsed < s.clocks.size())\n            s.clocks[s.clocksUsed++] = clock;\n    }\n    Json report() const {\n        std::ostringstream out;\n        timing.write(out);\n        return Json::parse(out.str());\n    }\n    static void end(void *p) noexcept {\n        rt_audit::active = false;\n        auto &s = *static_cast<Audit *>(p);\n        const auto c = rt_audit::counts;\n        s.allocations.fetch_add(c.cppAllocate + c.cAllocate, std::memory_order_relaxed);\n        s.frees.fetch_add(c.cppFree + c.cFree, std::memory_order_relaxed);\n        s.locks.fetch_add(c.blockingLock, std::memory_order_relaxed);\n        s.calls.fetch_add(1, std::memory_order_relaxed);\n        s.timing.end();\n    }\n    void check() const {\n        require(!allocations && !frees && !locks, \"Native callback allocated/freed/locked\");\n    }\n};\nstruct Source {\n    Audit audit;\n    static void process(void *, const DeviceBlockClock &clock, std::span<const float *const>,\n                        std::span<float *const> out, std::uint32_t capacity) noexcept {\n        if (clock.duration > capacity)\n            return;\n        for (unsigned c = 0; c < out.size(); ++c)\n            if (out[c])\n                for (unsigned f = 0; f < clock.duration; ++f)\n                    out[c][f] = inputSignal(clock.position + f, c);\n    }\n    static void begin(void *p) noexcept {\n        Audit::begin(&static_cast<Source *>(p)->audit);\n    }\n    static void observeClock(void *p, const DeviceBlockClock &clock) noexcept {\n        Audit::clock(&static_cast<Source *>(p)->audit, clock);\n    }\n    static void end(void *p) noexcept {\n        Audit::end(&static_cast<Source *>(p)->audit);\n    }\n};\n\nstruct Sink {\n    Audit audit;\n    CapturePipe &pipe;\n    Frame count = 0;\n    DeviceBlockClock previous{};\n    std::uint64_t origin = 0;\n    bool started = false;\n    std::atomic<bool> complete{false}, failed{false};\n    explicit Sink(CapturePipe &p) : pipe(p) {}\n    static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const> input,\n                        std::span<float *const>, std::uint32_t capacity) noexcept {\n        auto &s = *static_cast<Sink *>(p);\n        if (s.complete || s.failed)\n            return;\n        const bool mapped = input.size() == 2 && input[0] && input[1];\n        if (!s.started) {\n            if (!mapped || !clock.duration || clock.duration > capacity)\n                return;\n            bool nonzero = false;\n            for (std::uint32_t f = 0; f < clock.duration; ++f)\n                nonzero = nonzero || input[0][f] != 0 || input[1][f] != 0;\n            if (!nonzero)\n                return;\n            s.origin = clock.position;\n            s.started = true;\n        }\n        if (!mapped || !clock.duration || clock.duration > capacity || clock.rateNumerator != 1 ||\n            clock.rateDenominator != 48000 || clock.xrun || clock.discontinuity ||\n            (s.count && (clock.position != s.previous.position + s.previous.duration ||\n                         clock.id != s.previous.id))) {\n            s.failed = true;\n            return;\n        }\n        const auto n = unsigned(std::min<Frame>(clock.duration, target - s.count));\n        const auto r = s.pipe.push(input, n, s.count);\n        s.count += r.acceptedFrames;\n        s.previous = clock;\n        if (r.acceptedFrames != n) {\n            s.failed = true;\n            return;\n        }\n        if (s.count == target) {\n            s.pipe.finish();\n            s.complete = true;\n        }\n    }\n    static void begin(void *p) noexcept {\n        Audit::begin(&static_cast<Sink *>(p)->audit);\n    }\n    static void observeClock(void *p, const DeviceBlockClock &clock) noexcept {\n        Audit::clock(&static_cast<Sink *>(p)->audit, clock);\n    }\n    static void end(void *p) noexcept {\n        Audit::end(&static_cast<Sink *>(p)->audit);\n    }\n};\ntemplate <class F>\nvoid await(F predicate, std::source_location caller = std::source_location::current()) {\n    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);\n    while (!predicate()) {\n        if (std::chrono::steady_clock::now() >= deadline)\n            throw std::runtime_error(\"Native duplex UI timeout at \" +\n                                     std::to_string(caller.line()));\n        QTest::qWait(2);\n    }\n}\nvoid showControl(StudioWindow &window, QWidget *control) {\n    require(control != nullptr, \"Native punch control missing\");\n    // The accepted selection can precede the periodic inspector redraw. Scroll\n    // only after event delivery and repeat when rebuilding bands changes geometry.\n    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);\n    do {\n        QTest::qWait(10);\n        for (auto *area : window.findChildren<QScrollArea *>())\n            if (area->widget() && area->widget()->isAncestorOf(control)) {\n                if (area->widget()->layout())\n                    area->widget()->layout()->activate();\n                area->ensureWidgetVisible(control, 10, 10);\n            }\n        QTest::qWait(10);\n        if (control->visibleRegion().contains(control->rect().center()))\n            return;\n    } while (std::chrono::steady_clock::now() < deadline);\n    std::cerr << \"Control visibility failure: \" << control->objectName().toStdString()\n              << \" geometry=\" << control->geometry().x() << ',' << control->geometry().y() << ','\n              << control->width() << ',' << control->height() << '\\n';\n    for (auto *area : window.findChildren<QScrollArea *>())\n        if (area->widget() && area->widget()->isAncestorOf(control))\n            std::cerr << \"Scroll geometry: body=\" << area->widget()->width() << ','\n                      << area->widget()->height() << \" value=\" << area->verticalScrollBar()->value()\n                      << \" max=\" << area->verticalScrollBar()->maximum() << '\\n';\n    throw std::runtime_error(\"Native punch control cannot be scrolled into view\");\n}\nvoid choose(StudioWindow &window, const QString &name, const std::string &node,\n            const std::string &port) {\n    auto *combo = window.findChild<QComboBox *>(name);\n    require(combo && combo->currentIndex() == 0, \"Native GUI route was auto-selected\");\n    int selected = -1;\n    for (int n = 1; n < combo->count(); ++n)\n        if (combo->itemText(n) == QString::fromStdString(node + \" / \" + port))\n            selected = n;\n    require(selected > 0, \"Native owned source/sink port absent from UI\");\n    combo->setCurrentIndex(selected);\n}\nRecordingSpec spec(const Session &s, const Id &track, const CaptureConfig &c) {\n    RecordingSpec r;\n    r.projectId = s.id;\n    r.trackId = track;\n    r.capture = c;\n    return r;\n}\nvoid existingFile(Session &s, const std::filesystem::path &root) {\n    CaptureConfig c;\n    c.slabFrames = 4096;\n    c.maximumCallbackFrames = 1024;\n    CapturePipe pipe(c);\n    CaptureWriter writer(root, spec(s, s.tracks[0].id, pipe.config()));\n    std::array<float, 1024> data{};\n    const float *view = data.data();\n    for (Frame at = 0; at < start + target;) {\n        const auto n = unsigned(std::min<Frame>(1024, start + target - at));\n        for (unsigned f = 0; f < n; ++f)\n            data[f] = fileSignal(at + f);\n        require(pipe.push({&view, 1}, n, at).acceptedFrames == n, \"Cannot create source file\");\n        at += n;\n        while (writer.drainOne(pipe)) {\n        }\n    }\n    pipe.finish();\n    while (writer.drainOne(pipe)) {\n    }\n    attachRecording(s, writer.finalize(pipe));\n}\nstd::vector<float> samples(const std::filesystem::path &root, const Asset &a) {\n    SF_INFO info{};\n    auto *f = sf_open((root / utf8Path(a.relativePath)).c_str(), SFM_READ, &info);\n    require(f && info.frames == a.frames && info.channels == int(a.layout.channels) &&\n                info.samplerate == 48000 && (info.format & SF_FORMAT_TYPEMASK) == SF_FORMAT_RF64 &&\n                (info.format & SF_FORMAT_SUBMASK) == SF_FORMAT_FLOAT,\n            \"Native take header differs\");\n    std::vector<float> values(std::size_t(a.frames) * a.layout.channels);\n    const auto n = sf_readf_float(f, values.data(), a.frames);\n    const auto closed = sf_close(f);\n    require(n == a.frames && closed == 0, \"Native take read failed\");\n    return values;\n}\n\n} // namespace\nint main(int argc, char **argv) {\n    QTemporaryDir config;\n    if (!config.isValid())\n        return 1;\n    qputenv(\"XDG_CONFIG_HOME\", config.path().toUtf8());\n    QApplication app(argc, argv);\n    try {\n        require(argc == 3 || (argc == 4 && std::string_view(argv[3]) == \"--input-latency\"),\n                \"Supply owned project folder, track count (3 or 32), optionally --input-latency\");\n        const bool declaredLatency = argc == 4;\n        const auto latencyFor = [declaredLatency](unsigned lane) -> Frame {\n            constexpr Frame values[] = {4097, 0, 41, 200};\n            return declaredLatency ? values[lane % 4] : 0;\n        };\n        const auto count = unsigned(std::stoul(argv[2]));\n        require(count == 3 || count == 32, \"Unknown native UI scale\");\n        const auto root = utf8Path(argv[1]);\n        require(std::filesystem::create_directory(root), \"Owned project already exists\");\n        auto initial = makeOneTrackSession(\"Native punch UI — Ελληνικά\", \"Existing file\");\n        existingFile(initial, root);\n        const auto originalHash =\n            hashMediaFile(root / utf8Path(initial.assets.front().relativePath));\n        std::vector<Id> arms;\n        MixPlan plan{{LayoutKind::Stereo, 2}, {}};\n        plan.tracks.push_back({initial.tracks[0].id, {{0, 0, .125}, {0, 1, -.25}}});\n        for (unsigned n = 0; n < count; ++n) {\n            auto track = makeAudioTrack(\"Armed \" + std::to_string(n + 1), {}, initial.sampleRate);\n            track.eq.bands.resize(2);\n            track.monitoring = n % 2 ? RecordingMonitor::Off : RecordingMonitor::PostEq;\n            arms.push_back(track.id);\n            plan.tracks.push_back({track.id, {{0, n % 2, n % 3 ? .125 : -.25}}});\n            if (n == 0) {\n                auto underlying = initial.tracks.front().clips.front();\n                underlying.id = Id::generate();\n                track.clips.push_back(underlying);\n            }\n            initial.tracks.push_back(std::move(track));\n        }\n        initial.playheadFrame = start;\n        initial.master = MasterBus{Id::generate(), plan, {}};\n        ProjectStore(root).save(initial);\n        Source source;\n        Audit ownerAudit;\n        const auto prefix = \"sc-daw-fixture-punch-ui-\" + Id::generate().str();\n        PipeWireFilter sourceNode(\n            {prefix + \"-source\", 0, count, 65536, true},\n            {&source, Source::process, nullptr, Source::begin, Source::end, Source::observeClock});\n        CaptureConfig config;\n        config.layout = {LayoutKind::Stereo, 2};\n        config.maximumCallbackFrames = 65536;\n        config.slabFrames = 65536;\n        CapturePipe sinkPipe(config);\n        Sink sink(sinkPipe);\n        RecordingWorker sinkWriter(sinkPipe, root,\n                                   spec(initial, Id::generate(), sinkPipe.config()));\n        PipeWireFilter sinkNode(\n            {prefix + \"-sink\", 2, 0, 65536, true},\n            {&sink, Sink::process, nullptr, Sink::begin, Sink::end, Sink::observeClock});\n        require(sourceNode.waitReady(std::chrono::seconds(3)) &&\n                    sinkNode.waitReady(std::chrono::seconds(3)),\n                \"Owned GUI fixture nodes not ready\");\n        RecordingControllerOptions options;\n        options.nativeOptions.audit = {&ownerAudit, Audit::begin, Audit::end};\n        options.duplexAuditClock = Audit::clock;\n        options.nativeOptions.writer.checkpointFrames = 4096;\n        StudioWindow window(nullptr, {}, options);\n        window.show();\n        window.activateWindow();\n        window.openProject(root);\n        await([&] {\n            return window.snapshot()->session && window.snapshot()->io == IoOperation::None;\n        });\n        await([&] { return window.findChild<QPushButton *>(\"editPunchRange\")->isEnabled(); });\n        if (declaredLatency) {\n            for (unsigned n = 0; n < count; ++n) {\n                require(window.configureInputLatency(arms[n], latencyFor(n)),\n                        \"Native declared latency command refused\");\n                await([&] {\n                    return window.snapshot()->session->tracks[n + 1].inputLatencyFrames ==\n                           latencyFor(n);\n                });\n                initial.tracks[n + 1].inputLatencyFrames = latencyFor(n);\n            }\n            require(window.selectTrack(arms[0]), \"Native latency selection refused\");\n            auto *control = window.findChild<QSpinBox *>(\"inputLatencyFrames\");\n            require(control != nullptr, \"Native latency control missing\");\n            await([&] { return control->value() == 4097 && control->isEnabled(); });\n            showControl(window, control);\n            control->setValue(4098);\n            await([&] { return window.snapshot()->session->tracks[1].inputLatencyFrames == 4098; });\n            window.findChild<QAction *>(\"undoAction\")->trigger();\n            await([&] {\n                return control->value() == 4097 &&\n                       window.snapshot()->session->tracks[1].inputLatencyFrames == 4097;\n            });\n            require(*window.snapshot()->session == initial,\n                    \"Native latency Undo lost declared per-track state\");\n        }\n        auto *rangeButton = window.findChild<QPushButton *>(\"editPunchRange\");\n        showControl(window, rangeButton);\n        QTest::mouseClick(rangeButton, Qt::LeftButton);\n        auto *dialog = window.findChild<QDialog *>(\"punchRangeDialog\");\n        require(dialog && dialog->isVisible(), \"Native punch range dialog did not open\");\n        dialog->findChild<QLineEdit *>(\"punchStartFrame\")->setText(QLocale().toString(punchIn));\n        dialog->findChild<QLineEdit *>(\"punchEndFrame\")->setText(QLocale().toString(punchOut));\n        dialog->findChild<QCheckBox *>(\"punchRangeEnabled\")->setChecked(true);\n        dialog->findChild<QDialogButtonBox *>()->button(QDialogButtonBox::Ok)->click();\n        await([&] {\n            return window.snapshot()->session->punch == PunchSettings{true, punchIn, punchOut};\n        });\n        require(window.snapshot()->dirty && ProjectStore(root).load() == initial,\n                \"Punch dialog did not edit canonical state or saved without permission\");\n        window.findChild<QAction *>(\"undoAction\")->trigger();\n        await([&] { return !window.snapshot()->session->punch.enabled; });\n        window.findChild<QAction *>(\"redoAction\")->trigger();\n        await([&] {\n            return window.snapshot()->session->punch == PunchSettings{true, punchIn, punchOut};\n        });\n        require(window.submitEdit(ProjectCommand{CommandKind::Save}),\n                \"Native punch settings Save refused\");\n        await([&] {\n            return !window.snapshot()->dirty && window.snapshot()->io == IoOperation::None;\n        });\n        initial.punch = {true, punchIn, punchOut};\n        require(ProjectStore(root).load() == initial,\n                \"Native punch settings not stored identically\");\n        const auto previousEpoch = window.snapshot()->projectEpoch;\n        window.openProject(root);\n        await([&] {\n            return window.snapshot()->projectEpoch > previousEpoch && window.snapshot()->session &&\n                   window.snapshot()->io == IoOperation::None;\n        });\n        require(*window.snapshot()->session == initial, \"Native punch settings did not reopen\");\n        require(window.configureArmedRecording(arms, target) && window.prepareRecording(),\n                \"Native GUI arms/prepare refused\");\n        await([&] {\n            return window.recordingSnapshot()->phase == RecordingPhase::Ready &&\n                   window.findChild<QComboBox *>(QStringLiteral(\"inputChannel%1\").arg(count - 1));\n        });\n        require(!ownerAudit.calls && !window.recordingSnapshot()->job,\n                \"Native GUI preparation activated callbacks or raw disk jobs\");\n        require(window.recordingSnapshot()->endFrame == start + target &&\n                    !window.findChild<QCheckBox *>(\"punchEnabled\")->isEnabled() &&\n                    !window.findChild<QPushButton *>(\"editPunchRange\")->isEnabled() &&\n                    !window.configurePunch({false, punchIn, punchOut}) &&\n                    !window.findChild<QSpinBox *>(\"inputLatencyFrames\")->isEnabled() &&\n                    !window.configureInputLatency(arms[0], 1),\n                \"Native prepared punch lost range or allowed locator mutation\");\n        for (const auto &lane : window.recordingSnapshot()->lanes)\n            require(!lane.job, \"Native punch preparation created a lane job\");\n        for (unsigned n = 0; n < count; ++n)\n            choose(window, QStringLiteral(\"inputChannel%1\").arg(n), prefix + \"-source\",\n                   \"output_\" + std::to_string(n + 1));\n        for (unsigned n = 0; n < 2; ++n)\n            choose(window, QStringLiteral(\"monitorChannel%1\").arg(n), prefix + \"-sink\",\n                   \"input_\" + std::to_string(n + 1));\n        // Route edits are asynchronous; qualify their complete accepted prefix\n        // before sending Record, rather than racing a partial GUI refresh.\n        ProjectCommand routeBarrier{CommandKind::Barrier};\n        routeBarrier.barrier = 774400 + count;\n        require(window.submitEdit(routeBarrier), \"Native GUI routing barrier refused\");\n        await([&] { return window.snapshot()->lastBarrier == routeBarrier.barrier; });\n        await([&] {\n            for (unsigned n = 0; n < count; ++n) {\n                auto *combo =\n                    window.findChild<QComboBox *>(QStringLiteral(\"inputChannel%1\").arg(n));\n                if (!combo ||\n                    combo->currentText() != QString::fromStdString(prefix + \"-source / output_\" +\n                                                                   std::to_string(n + 1)))\n                    return false;\n            }\n            for (unsigned n = 0; n < 2; ++n) {\n                auto *combo =\n                    window.findChild<QComboBox *>(QStringLiteral(\"monitorChannel%1\").arg(n));\n                if (!combo ||\n                    combo->currentText() !=\n                        QString::fromStdString(prefix + \"-sink / input_\" + std::to_string(n + 1)))\n                    return false;\n            }\n            return true;\n        });\n        require(window.selectTrack(arms[0]), \"Native GUI inspector selection refused\");\n        await([&] {\n            return window.findChild<QDoubleSpinBox *>(\"gain_db0\") &&\n                   window.findChild<QDoubleSpinBox *>(\"gain_db1\") &&\n                   !window.findChild<QDoubleSpinBox *>(\"gain_db2\");\n        });\n        showControl(window, window.findChild<QLabel *>(\"punchSummary\"));\n        require(\n            window.grab().save(QString::fromStdString((root / \"prepared-desktop.png\").string())),\n            \"Cannot retain native punch desktop screenshot\");\n        auto *record = window.findChild<QPushButton *>(\"recordButton\");\n        await([&] { return record->isEnabled(); });\n        sinkNode.activate();\n        sourceNode.activate();\n        record->click();\n        struct TerminalDiagnostic {\n            StudioWindow &window;\n            Audit &owner;\n            ~TerminalDiagnostic() {\n                const auto r = window.recordingSnapshot();\n                std::cerr\n                    << \"Native duplex UI terminal phase/status/captured/written/calls/take/error \"\n                    << unsigned(r->phase) << '/' << unsigned(r->telemetry.duplexStatus) << '/'\n                    << r->telemetry.capturedFrames << '/' << r->telemetry.writtenFrames << '/'\n                    << owner.calls.load() << '/' << bool(r->take) << '/' << r->diagnostic << '\\n';\n                for (auto *combo : window.findChildren<QComboBox *>())\n                    if (combo->objectName().startsWith(\"inputChannel\") ||\n                        combo->objectName().startsWith(\"monitorChannel\"))\n                        std::cerr << combo->objectName().toStdString() << '='\n                                  << combo->currentText().toStdString() << '\\n';\n            }\n        } diagnostic{window, ownerAudit};\n        auto healthy = [&] {\n            const auto state = window.recordingSnapshot();\n            if (state->phase == RecordingPhase::Fault)\n                throw std::runtime_error(\"Native UI recording fault: \" + state->diagnostic);\n            require(!sink.failed, \"Independent native GUI sink clock/mapping failed\");\n        };\n        await([&] {\n            healthy();\n            return window.recordingSnapshot()->telemetry.capturedFrames >= 24000;\n        });\n        const auto generation = window.recordingSnapshot()->generation;\n        std::vector<std::vector<EqEvent>> events(count);\n        auto edited = initial;\n        auto change = [&](unsigned lane, double value) {\n            require(window.selectTrack(arms[lane]), \"Native GUI live selection refused\");\n            await([&] { return window.selectedTrack() == arms[lane]; });\n            window.findChild<QDoubleSpinBox *>(\"gain_db0\")->setValue(value);\n            await([&] {\n                healthy();\n                return window.recordingSnapshot()->appliedRevision ==\n                           window.snapshot()->modelRevision &&\n                       window.snapshot()->session->tracks[lane + 1].eq.bands[0].gainDb == value;\n            });\n            edited.tracks[lane + 1].eq.bands[0].gainDb = value;\n            PreparedEq eq(initial, arms[lane], 2048, generation);\n            const auto &t = initial.tracks[lane + 1];\n            events[lane].push_back(\n                eq.parameterEvent(edited, {t.id, t.eq.id, t.eq.bands[0].id, BandParameter::GainDb},\n                                  window.recordingSnapshot()->appliedFrame));\n        };\n        change(0, 6);\n        await([&] {\n            healthy();\n            return window.recordingSnapshot()->telemetry.capturedFrames >= 48000;\n        });\n        change(count - 1, -3);\n        await([&] {\n            healthy();\n            return window.recordingSnapshot()->telemetry.capturedFrames >= 96000;\n        });\n        window.findChild<QAction *>(\"undoAction\")->trigger();\n        await([&] {\n            healthy();\n            return window.recordingSnapshot()->appliedRevision ==\n                       window.snapshot()->modelRevision &&\n                   window.snapshot()->session->tracks[count].eq.bands[0].gainDb == 0;\n        });\n        PreparedEq eq(initial, arms.back(), 2048, generation);\n        const auto &last = initial.tracks.back();\n        events.back().push_back(eq.parameterEvent(\n            initial, {last.id, last.eq.id, last.eq.bands[0].id, BandParameter::GainDb},\n            window.recordingSnapshot()->appliedFrame));\n        await([&] {\n            healthy();\n            return window.recordingSnapshot()->phase == RecordingPhase::Complete && sink.complete;\n        });\n        window.findChild<QPushButton *>(\"recordStopButton\")->click();\n        await([&] {\n            return window.snapshot()->session->assets.size() == count + 1 &&\n                   !window.recordingSnapshot()->take;\n        });\n        await([&] {\n            return window.findChild<QLabel *>(\"punchSummary\")->text().contains(\"not prepared\");\n        });\n        sourceNode.stop();\n        sinkNode.stop();\n        sinkPipe.finish();\n        const auto monitor = sinkWriter.wait();\n        const auto wet = samples(root, monitor.asset);\n        auto model = *window.snapshot()->session;\n        require(window.snapshot()->lastAttachedAssets.size() == count &&\n                    window.snapshot()->attachedRecordings == count,\n                \"Native GUI grouped receipt differs\");\n        std::vector<std::vector<float>> raw(count), processed(count);\n        const std::uint64_t origin = sink.origin;\n        Json lanes = Json::array();\n        for (unsigned n = 0; n < count; ++n) {\n            const auto &asset = model.assets[n + 1];\n            const auto journal =\n                inspectRecording(root / \"media\" / (\"capture-\" + asset.id.str()), {}, true);\n            require(journal.finalized && journal.timingOrigin && asset.frames == rawFrames &&\n                        journal.spec.trackId == arms[n] &&\n                        journal.spec.capture.startFrame == punchIn + latencyFor(n) &&\n                        journal.spec.inputLatencyFrames == latencyFor(n) &&\n                        journal.endReason == CaptureEndReason::RangeComplete,\n                    \"Native GUI raw take journal/extent/identity differs\");\n            const auto captureOrigin = origin + std::uint64_t(punchIn + latencyFor(n) - start);\n            require(journal.timingOrigin->devicePosition == captureOrigin,\n                    \"Native GUI playback/raw punch coordinates differ\");\n            const auto end = ownerAudit.clocks.begin() + std::ptrdiff_t(ownerAudit.clocksUsed);\n            const auto cycle = std::find_if(ownerAudit.clocks.begin(), end, [&](const auto &clock) {\n                return clock.id == journal.timingOrigin->clockId &&\n                       captureOrigin >= clock.position &&\n                       captureOrigin - clock.position < clock.duration;\n            });\n            require(cycle != end, \"Native punch origin has no independently observed cycle\");\n            const auto offset = captureOrigin - cycle->position;\n            const CaptureTimingOrigin expected{\n                CaptureBackend::PipeWire,\n                captureOrigin,\n                cycle->monotonicNs ? cycle->monotonicNs + offset * 1000000000ULL / 48000 : 0,\n                generation,\n                cycle->id,\n                cycle->cycle,\n                cycle->rateNumerator,\n                cycle->rateDenominator,\n                cycle->delay};\n            require(*journal.timingOrigin == expected,\n                    \"Native desktop punch clock metadata differs\");\n            const auto &clip = model.tracks[n + 1].clips.back();\n            require(clip.startFrame == punchIn && clip.lengthFrames == rawFrames &&\n                        !clip.sourceFrame,\n                    \"Native desktop punch attachment geometry differs\");\n            lanes.push_back({{\"track\", arms[n].str()},\n                             {\"frames\", asset.frames},\n                             {\"latency\", latencyFor(n)},\n                             {\"raw_start\", journal.spec.capture.startFrame},\n                             {\"device_origin\", captureOrigin},\n                             {\"origin_offset\", offset},\n                             {\"origin_quantum\", cycle->duration},\n                             {\"sha256\", asset.sha256}});\n            raw[n] = samples(root, asset);\n            for (std::size_t f = 0; f < raw[n].size(); ++f)\n                require(\n                    raw[n][f] ==\n                        inputSignal(origin + std::uint64_t(punchIn + latencyFor(n) - start) + f, n),\n                    \"Native GUI live EQ changed raw input\");\n            std::vector<float> fullInput(std::size_t(target), 0.f);\n            for (std::size_t f = 0; f < fullInput.size(); ++f)\n                fullInput[f] = inputSignal(origin + f, n);\n            processed[n].resize(std::size_t(target));\n            PreparedEq oracle(initial, arms[n], 127, generation);\n            std::size_t event = 0;\n            for (Frame at = 0; at < target;) {\n                const auto frames = unsigned(std::min<Frame>(127, target - at));\n                auto end = event;\n                while (end < events[n].size() && events[n][end].frame < start + at + frames)\n                    ++end;\n                const float *in = fullInput.data() + at;\n                float *out = processed[n].data() + at;\n                require(\n                    oracle.process({&in, 1}, {&out, 1}, frames, start + at,\n                                   std::span<const EqEvent>(events[n]).subspan(event, end - event))\n                            .status == ProcessStatus::Ok,\n                    \"Native GUI offline EQ receipt replay failed\");\n                event = end;\n                at += frames;\n            }\n        }\n        require(monitor.asset.frames == target && !sink.failed,\n                \"Native GUI monitor prefix incomplete\");\n        double difference = 0, peak = 0;\n        for (Frame f = 0; f < target; ++f) {\n            std::array<double, 2> sum{double(fileSignal(start + f)) * .125,\n                                      double(fileSignal(start + f)) * -.25};\n            for (unsigned n = 0; n < count; ++n)\n                if (initial.tracks[n + 1].monitoring == RecordingMonitor::PostEq)\n                    sum[n % 2] += double(processed[n][std::size_t(f)]) * (n % 3 ? .125 : -.25);\n            for (unsigned ch = 0; ch < 2; ++ch) {\n                const auto value = double(wet[std::size_t(f) * 2 + ch]);\n                difference = std::max(difference, std::abs(value - float(sum[ch])));\n                peak = std::max(peak, std::abs(value));\n            }\n        }\n        require(peak > 1, \"Native desktop punch lost floating-point headroom\");\n        require(model.punch == initial.punch &&\n                    model.tracks[1].clips.front() == initial.tracks[1].clips.front(),\n                \"Native desktop punch lost locators or underlying clip\");\n        require(difference <= 1e-7,\n                \"Native GUI output differs from float64 matrix/offline receipts\");\n        require(window.recordingSnapshot()->telemetry.missingTrackFrames == 0,\n                \"Native GUI file playback underflowed\");\n        ownerAudit.check();\n        source.audit.check();\n        sink.audit.check();\n        const auto hashes = model.assets;\n        window.findChild<QAction *>(\"undoAction\")->trigger();\n        await([&] { return window.snapshot()->session->assets.size() == 1; });\n        require(window.snapshot()->session->tracks[1].clips == initial.tracks[1].clips,\n                \"Native punch grouped Undo lost underlying clip\");\n        require(window.snapshot()->session->tracks[1].eq.bands[0].gainDb == 6 &&\n                    window.snapshot()->session->master->output == model.master->output,\n                \"Native grouped Undo lost live EQ/route edits\");\n        window.findChild<QAction *>(\"redoAction\")->trigger();\n        await([&] { return *window.snapshot()->session == model; });\n        for (const auto &asset : hashes)\n            require(hashMediaFile(root / utf8Path(asset.relativePath)) == asset.sha256,\n                    \"Native grouped Undo/Redo altered raw media\");\n        require(hashMediaFile(root / utf8Path(initial.assets.front().relativePath)) == originalHash,\n                \"Native existing file changed\");\n        QTimer answer;\n        QObject::connect(&answer, &QTimer::timeout, [] {\n            for (auto *w : QApplication::topLevelWidgets())\n                if (auto *box = qobject_cast<QMessageBox *>(w); box && box->isVisible())\n                    if (auto *save = box->button(QMessageBox::Save))\n                        save->click();\n        });\n        answer.start(1);\n        window.close();\n        await([&] {\n            return window.snapshot()->closed && window.recordingSnapshot()->closed &&\n                   window.playbackSnapshot()->closed && !window.isVisible();\n        });\n        require(ProjectStore(root).load() == model, \"Native GUI group did not save/reopen\");\n        const Json times = {{\"owner\", ownerAudit.report()},\n                            {\"source\", source.audit.report()},\n                            {\"sink\", sink.audit.report()}};\n        std::cout << Json{{\"mode\", std::to_string(count)},\n                          {\"armed_tracks\", count},\n                          {\"production_gui_duplex\", true},\n                          {\"canonical_punch_settings\", true},\n                          {\"canonical_input_latency_settings\", declaredLatency},\n                          {\"punch_in\", punchIn},\n                          {\"punch_out\", punchOut},\n                          {\"playback_start\", start},\n                          {\"playback_end\", start + target},\n                          {\"device_playback_origin\", origin},\n                          {\"frames_per_raw_take\", rawFrames},\n                          {\"raw_samples_verified\", count * rawFrames},\n                          {\"output_samples_verified\", 2 * target},\n                          {\"raw_samples_exact\", true},\n                          {\"output_max_difference\", difference},\n                          {\"output_peak\", peak},\n                          {\"raw_lanes\", lanes},\n                          {\"missing_track_frames\", 0},\n                          {\"live_EQ_receipts\", true},\n                          {\"group_undo_redo\", true},\n                          {\"underlying_clip_unchanged\", true},\n                          {\"save_reopen\", true},\n                          {\"owned_nodes_only\", true},\n                          {\"callback_allocations\", 0},\n                          {\"callback_frees\", 0},\n                          {\"callback_locks\", 0},\n                          {\"callback_timing\", times},\n                          {\"physical_latency_qualified\", false},\n                          {\"windows_qualified\", false},\n                          {\"sustained_performance_qualified\", false}}\n                         .dump()\n                  << '\\n';\n        return 0;\n    } catch (const std::exception &e) {\n        std::cerr << \"FAIL: \" << e.what() << '\\n';\n        return 1;\n    }\n}\n"
+        },
+        "post_run_saved_project": {
+          "pin": {
+            "path": ".cache/sc-punch-ui-qx76ytvn/Punch — Ελληνικά/project.json",
+            "bytes": 46276,
+            "sha256": "5291b1d038a8d830af3fb40743d4a6c4331aa5e700a0941f5c8d922295c12ab4"
+          },
+          "input_latency_all_zero": true,
+          "punch_disabled": true
+        },
+        "fix": "Retain originalSaved separately from the unsaved latency-edited expected model; original assertion compared those distinct states."
+      }
+    ],
+    "total": 25,
+    "all_previous_observations_remain_unresolved_where_original_evidence_was_incomplete": true
+  },
+  "parity": {
+    "family_count": 92,
+    "acceptance_quality_references_axes_unchanged": true,
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "no_FQCN_status_promoted": true
+  },
+  "equalizer_audit": {
+    "before": {
+      "snapshot_errors": [],
+      "sources": {
+        "soundcurrent-eq": {
+          "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "current_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "current_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+          "head_changed": true
+        },
+        "soundcurrent-studio": {
+          "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "current_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "current_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "70b0d14264c48bf229992f11495fa6e31b5b9180",
+          "head_changed": true
+        }
+      },
+      "review_required": false
+    },
+    "after": {
+      "snapshot_errors": [],
+      "sources": {
+        "soundcurrent-eq": {
+          "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "current_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "current_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+          "head_changed": true
+        },
+        "soundcurrent-studio": {
+          "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "current_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "current_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "70b0d14264c48bf229992f11495fa6e31b5b9180",
+          "head_changed": true
+        }
+      },
+      "review_required": false
+    },
+    "inputs": 24,
+    "no_source_mutation": true
+  },
+  "publication_authorized": true,
+  "delivery": {
+    "source_checkpoint_only": true,
+    "release_installer_uploaded": false,
+    "windows_destination_still_unprovided": true
+  },
+  "remaining": [
+    "manual punch and Auto monitoring",
+    "tempo/loop/take lanes/comping",
+    "physical and measured hardware latency",
+    "desktop fault/discovery and process-kill/empty-preroll recovery",
+    "sustained native deadlines and real disk-full/filesystem durability",
+    "native Windows recording, UI and installers",
+    "all-Europe translation/review/UI qualification",
+    "all unpromoted frozen-reference workflows"
+  ],
+  "full_goal_status": "active/incomplete",
+  "next_task": "Manual punch and Auto monitoring, with bounded sample-boundary events and saved user modes"
+}

@@ -8,6 +8,8 @@
   recovery, and offline export.
 - Opt-in Qt desktop editor with Linux PipeWire playback/recording, explicit
   routing, master matrix, armed tracks and saved punch locators.
+- Saved per-track input-latency controls, preparation/attachment alignment,
+  strict schema 1.5 migration and Undo/Redo.
 - Equipment profile browsing/import/editor with pinned provenance; audio
   correction routing is still required.
 - Linux synthetic, sanitizer and short owned-native test evidence; Windows core
