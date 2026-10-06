@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "id": "X005",
+  "status": "required_unimplemented",
+  "source": "Owner request in DAW chat; matching human requirements inspected in SoundCurrent equalizer development",
+  "reference_baseline": "SC-DAW-BASELINE-2026-10-05; unchanged",
+  "contract": "docs/17-equipment-profiles.md",
+  "equipment": [
+    "microphones",
+    "speakers",
+    "amplifiers_receivers",
+    "qualified_whole_system"
+  ],
+  "workflows": [
+    "import_profile_calibration_and_response",
+    "browse_brand_family_model_variant",
+    "plot_measured_target_and_correction",
+    "edit_custom_derivative_with_undo",
+    "prompt_save_copy_discard_cancel_on_dirty_switch_close",
+    "provenance_and_rights",
+    "monitor_correction_separate_from_raw_and_default_export",
+    "explicit_print_correction",
+    "portable_profile_pins_and_missing_profile_recovery",
+    "audited_published_measurement_catalog"
+  ],
+  "platforms": [
+    "Linux",
+    "Windows"
+  ],
+  "localization": "All Europe requirement applies",
+  "reuse": "Await reviewed equalizer snapshot; preserve notices/revision/hashes and do not mutate ongoing checkouts",
+  "implemented": false,
+  "acceptance": "X005-A/B/C/D staged gates in contract; no requirement accepted as complete from feature names"
+}

@@ -53,3 +53,9 @@ ASAN_OPTIONS=detect_leaks=1 PIPEWIRE_DLCLOSE=false \
 ```
 
 Native harnesses run serially. The sanitizer native command retains PipeWire modules solely for the existing unload-memory diagnostic. An initial native sanitizer attempt stopped on a gap; its failed evidence is retained, and later passes do not resolve its cause or qualify load/clock transitions. No Qt GUI, physical speaker latency or Windows runtime is exercised. See [the contract](../../../docs/16-immediate-controls.md).
+
+## Asynchronous desktop project editing
+
+[S6c evidence](2026-10-05-desktop-controller.json): Qt6.10.2 project-editor preview, separate canonical-model and project-I/O workers, immutable snapshots, save revision/content correctness, scalar gesture undo/cancel, bounded command pressure, priority shutdown and a close barrier before dirty choices. Linux nine-group desktop/core CTest and sanitizer suites pass; final modified desktop fixtures are separately requalified. UI fixtures use the offscreen plugin, keyboard/wheel/slider controls, locale decimal input, same-ID reordered band reload and actual Save/Discard/Cancel dialogs. The32-band view fits1000×640 and lower controls remain reachable by scroll.
+
+No recording/playback/export or native audio is connected to this GUI yet. Headless Windows regression builds pass; the new Qt window/controller has not been compiled or run on Windows. Language/native accessibility/runtime deployment remain open. The owner-added equipment-profile/editor feature X005 is required and unimplemented here. Reproduction and limits are in [the desktop contract](../../../docs/18-desktop-controller.md).

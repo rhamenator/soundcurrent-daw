@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=SoundCurrent DAW
+GenericName=Digital Audio Workstation
+Comment=SoundCurrent DAW development preview
+Exec=soundcurrent-daw %f
+TryExec=soundcurrent-daw
+Icon=soundcurrent-daw
+Terminal=false
+Categories=AudioVideo;Audio;AudioVideoEditing;
+StartupNotify=true

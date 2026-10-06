@@ -88,3 +88,7 @@ Report external blockers honestly and continue independent work where possible. 
 #### Additional owner requirement (2026-10-05)
 
 X004: import other suites' work/project files. Implement native-project and exchange-format adapters with versioned preservation/loss evidence; see docs/10-project-import.md. This extends the active goal and does not shrink the frozen parity target.
+
+#### Additional owner requirement: equipment profiles (2026-10-05)
+
+X005: bring the equalizer projects' expanded equipment profiling and profile editor into this DAW. Cover microphone, speaker, amplifier/receiver and qualified whole-system measurements; import, brand/family/model/variant browsing, response/correction curves, editable custom copies, provenance and save prompts for modified profiles. Reuse reviewed GPL snapshots with exact source/data rights and hashes, without altering the ongoing equalizer work. Keep monitoring calibration separate from raw takes/default exports; explicit correction printing, portable profile state, Linux/Windows parity and all-Europe localization need acceptance evidence. See docs/17-equipment-profiles.md. This extends the active goal without shrinking its frozen-reference requirements.

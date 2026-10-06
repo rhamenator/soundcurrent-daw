@@ -2,7 +2,7 @@
 
 Linux-first professional digital audio workstation and recording suite, planned in C++20 with CMake and Qt 6. Licensed GPL-3.0-only by the owner's decision on 2026-10-05.
 
-**Status: early implementation.** Qt-free session/state, prepared in-process EQ, headless recording/recovery, shared audio bridge and bounded file playback build on Linux and cross-compile for Windows. A developer command records synthetic input; an opt-in native PipeWire fixture now records and monitors between owned nodes. The desktop application and release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
+**Status: early implementation.** Qt-free session/state, prepared in-process EQ, headless recording/recovery, shared audio bridge and bounded file playback build on Linux and cross-compile for Windows. A developer command records synthetic input; an opt-in native PipeWire fixture now records and monitors between owned nodes. An opt-in Qt project-editor preview now supports asynchronous create/open/save and scalar EQ undo. Its recording/playback/export controls and a release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
 
 `soundcurrent-studio` already contains the premium equalizer. This separate repository is named `soundcurrent-daw` to preserve that work. It is local, has no remote, and has not been published or pushed.
 
@@ -25,12 +25,27 @@ Linux-first professional digital audio workstation and recording suite, planned 
 15. [Shared audio bridge and native PipeWire](docs/14-native-audio-contract.md)
 16. [Read-ahead and take playback](docs/15-playback-contract.md)
 17. [Immediate controls and applied-frame receipts](docs/16-immediate-controls.md)
+18. [Equipment profiles and profile editor requirement](docs/17-equipment-profiles.md)
+19. [Desktop project controller and editor](docs/18-desktop-controller.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
 ## Next implementation task
 
-Continue **M1 / SLICE-001** with **S6: the first Qt recording/playback/EQ UI**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S6b adds bounded immediate edits and applied-frame receipts through recording/playback; the Qt/controller workflow remains to be implemented. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
+The owner added expanded equipment profiles/import and a profile editor as **X005**; [its contract](docs/17-equipment-profiles.md) includes source/rights, editable curves, save-copy prompts and monitor-versus-print routing. That feature remains to be implemented in the DAW.
+
+Continue **M1 / SLICE-001** with **S6: native transport/preparation integration with the Qt recording/playback/EQ UI**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S6b adds bounded immediate edits and applied-frame receipts through recording/playback; S6c adds the asynchronous Qt project controller/editor; native transport binding remains to be implemented. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
+
+## Desktop development preview
+
+```sh
+cmake -S . -B .cache/build-desktop -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSC_BUILD_DESKTOP=ON
+cmake --build .cache/build-desktop
+ctest --test-dir .cache/build-desktop --output-on-failure
+.cache/build-desktop/soundcurrent-daw PROJECT_DIRECTORY
+```
+
+Requires Qt6 Core/Gui/Widgets development files (Test for fixtures), in addition to the core dependencies. This preview edits project state with asynchronous file operations, grouped scalar undo, scrollable controls and dirty-close prompts. It **does not yet record, play or export audio through the GUI**. [The contract](docs/18-desktop-controller.md) records exact evidence and limitations; native transport integration is next. The default build remains Qt-free.
 
 ## Build and test the current core
 

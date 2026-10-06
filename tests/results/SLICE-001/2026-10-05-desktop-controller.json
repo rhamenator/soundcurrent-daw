@@ -1,0 +1,160 @@
+{
+  "date": "2026-10-05",
+  "scope": "S6c asynchronous project editing preview only; no GUI recording/playback/export or full DAW qualification",
+  "parent_commit": "d4c42a86c1eae9e8cd38c196741d0dbe566a8ab8",
+  "ownership": {
+    "canonical_session": "control QThread",
+    "files": "separate I/O QThread",
+    "gui": "widgets and latest snapshot polling",
+    "rt": "unchanged; no Qt/mutex/GUI added to engine/callbacks",
+    "command_capacity": 64,
+    "io_jobs": 1,
+    "snapshot_slots": 1
+  },
+  "fixtures": [
+    "immutable published model",
+    "Unicode project create/open/save",
+    "invalid parameter preserves model",
+    "grouped scalar gesture undo/redo/cancel",
+    "undo to saved content clean",
+    "failed open preserves root/model",
+    "edit while save publication blocked",
+    "captured save revision does not mark later edits saved",
+    "cancel before publication preserves prior snapshot",
+    "shutdown waits for I/O join",
+    "full control FIFO rejects without overwrite",
+    "priority shutdown independent of queue pressure",
+    "focused/unfocused wheel behavior",
+    "keyboard undo",
+    "one undo for slider drag",
+    "locale comma decimal input",
+    "32-band scroll and 1000x640 rendering",
+    "stable ID rebind after same-project band reorder",
+    "close barrier after immediately enqueued edit",
+    "actual Save/Discard/Cancel close dialogs"
+  ],
+  "linux": {
+    "debug": {
+      "full_suite": {
+        "groups": 9,
+        "status": "passed",
+        "log_sha256": "7110c37e6203336de629ece50875137c8f0ccd8e641b4bfebd8b65b95907a124"
+      },
+      "final_desktop_requalification": {
+        "groups": 2,
+        "status": "passed",
+        "metrics": [
+          {
+            "checks": 106,
+            "asynchronous_io": true,
+            "save_revision_checked": true,
+            "shutdown_join_checked": true
+          },
+          {
+            "checks": 15,
+            "ui_keyboard_undo": true,
+            "focus_safe_wheel": true,
+            "scrollable_bands": 32,
+            "dirty_close_choices": 3
+          }
+        ],
+        "summary_sha256": "32c89f872346225f64816b395b52545a49d1b58212d4727034a7ced769ce767d",
+        "details_sha256": "730af567ccfd1dc818ea34b1fcc7c0155b56a13d719f1ec724d88ecc65398a54"
+      },
+      "leak_detection": false
+    },
+    "asan_ubsan": {
+      "full_suite": {
+        "groups": 9,
+        "status": "passed",
+        "log_sha256": "8ce75fd514944090e2a4a93c135f217a66f613f20c2458b1ff196fd4162ba2c2"
+      },
+      "final_desktop_requalification": {
+        "groups": 2,
+        "status": "passed",
+        "metrics": [
+          {
+            "checks": 106,
+            "asynchronous_io": true,
+            "save_revision_checked": true,
+            "shutdown_join_checked": true
+          },
+          {
+            "checks": 14,
+            "ui_keyboard_undo": true,
+            "focus_safe_wheel": true,
+            "scrollable_bands": 32,
+            "dirty_close_choices": 3
+          }
+        ],
+        "summary_sha256": "ce1d6d0c91e61f2511d3332c3ca4f88a0e283ea00e8f330a0e4b54eb46dbe14d",
+        "details_sha256": "87d0a75f6e7be02761e80d54c19c6ee98192ce627d836620d73559cafcf4e266"
+      },
+      "leak_detection": true
+    }
+  },
+  "windows": {
+    "headless_regression_build": "passed",
+    "log_sha256": "0d8d4a0f11014696a25d9ca9601b44ad14bd397ea06e2d00981addb38fb7fbf9",
+    "new_qt_controller_ui_compile": "not_run",
+    "native_runtime": "not_run"
+  },
+  "qt": {
+    "version": "6.10.2",
+    "modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "fixture_only": [
+      "Test"
+    ],
+    "package_versions": [
+      "libqt6core6t64 6.10.2+dfsg-7",
+      "libqt6gui6 6.10.2+dfsg-7",
+      "libqt6widgets6 6.10.2+dfsg-7",
+      "qt6-base-dev 6.10.2+dfsg-7"
+    ],
+    "copyright_metadata_sha256": "9bc6203f2b6fba7a47138f8370afeff96fff8d67c44ee2752ea4b4e02438d961",
+    "license_distribution_gate": "exact module/transitive notices and open-license selection/source delivery remain required; no Qt binaries/sources vendored"
+  },
+  "packaging": {
+    "desktop_entry_validation": "desktop-file-validate passed",
+    "install_layout": "CMake executable/desktop/SVG rules",
+    "installed_on_user_system": false,
+    "clean_install_qualification": "not_run"
+  },
+  "screenshot": {
+    "path": ".cache/s6c-ui.png",
+    "sha256": "3eb196afec00c1037a672da4dcc0f5f69e96b44e0024dad7b421a030972d327c",
+    "size": [
+      1000,
+      640
+    ],
+    "scope": "Qt offscreen 32-band stress view; native compositor/DPI/screen-reader not qualified"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "01a83092e2b4f7ff200b29d7bc7473eab975c2dce710e92f2ef5e79db35c2368",
+    "ui/project_controller.hpp": "69e3f67aba6e129af584e8bc99e3d35516e0b277dad152181740f0d9d04e18b8",
+    "ui/project_controller.cpp": "820bab66d33c6b6e24f6f8cb9da80ba396b68aa586376ea4d7726b743f342d06",
+    "ui/main.cpp": "603c1c3d8bec46c9c38951ba14abb1f3a7a65f0712a570962fa85a5190c87de6",
+    "ui/studio_window.hpp": "2176d27bb7a2eda8039ef60435378ff4cc92fd1ed2bdc66a5b2d88dfc9efb07a",
+    "ui/studio_window.cpp": "a5a6ba294610766959d934de1f5aeb38e978cecfe12b651db93600b6fec0f804",
+    "tests/controller_tests.cpp": "50ed2415144cd7903a3ceab49ebd716990f3c370a0c4b867a1dfde8788a6ffdd",
+    "tests/ui_tests.cpp": "11bc92a30d6c6ea3cba975d9a7ba52a1e3fa3bff9011bb1e8fb5957c13fd0483",
+    "packaging/soundcurrent-daw.desktop": "e5e9bb758dd67e94439a8cbe7cd387d79a9f17380e64515883e6bf63659dfb25",
+    "packaging/soundcurrent-daw.svg": "6bc559e288aec6b5eab049387afaef74253805ed568ad50179f0e958d6a5f760"
+  },
+  "baseline_parity_sources_unchanged": true,
+  "equipment_profiles": "Required X005 recorded, not implemented",
+  "limitations": [
+    "Editor changes model only; S6b DSP ingress not yet bound to native transport",
+    "General enable/track/clip/route/profile undo, autosave, recovery UI and backend preparation remain open",
+    "Qt6.4 API floor declared, not distribution-qualified; new Qt code not compiled/run on Windows",
+    "No complete language catalogs/native reviews; core diagnostic details remain English",
+    "Offscreen fixtures not native Wayland/X11/DPI/accessibility or speaker/GUI-to-audio latency evidence",
+    "No device or route opened; normal PipeWire unload and hardware/deadline gates remain open",
+    "GUI reports full submission; pending retry/coalescing and DSP/model reconciliation still need transport integration"
+  ],
+  "next_task": "S6 native transport/preparation owner and GUI arm/record/stop/monitor/playback/seek/meters/recovery; then S7 export"
+}
