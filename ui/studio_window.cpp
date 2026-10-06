@@ -22,6 +22,8 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QProgressBar>
+#include <QCheckBox>
+#include <QScopedValueRollback>
 #include <algorithm>
 #include <cmath>
 namespace soundcurrent::daw::ui {
@@ -32,6 +34,10 @@ std::filesystem::path path(const QString &value) {
 #else
     return utf8Path(value.toUtf8().toStdString());
 #endif
+}
+std::string pathUtf8(const std::filesystem::path &p) {
+    const auto bytes = p.u8string();
+    return {reinterpret_cast<const char *>(bytes.data()), bytes.size()};
 }
 QString text(std::string_view value) {
     return QString::fromUtf8(value.data(), static_cast<qsizetype>(value.size()));
@@ -72,8 +78,9 @@ class FocusSlider : public QSlider {
     }
 };
 } // namespace
-StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options)
-    : QMainWindow(parent), playback_(std::move(options)) {
+StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
+                           RecordingControllerOptions recordingOptions)
+    : QMainWindow(parent), playback_(std::move(options)), recording_(std::move(recordingOptions)) {
     setObjectName(QStringLiteral("studioWindow"));
     setWindowTitle(tr("SoundCurrent DAW"));
     auto *file = menuBar()->addMenu(tr("&File"));
@@ -116,13 +123,32 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options)
         transportMenu->addAction(tr("Prepare playback"), this, [this] { preparePlayback(); });
     playAction_ =
         transportMenu->addAction(tr("Play / Stop"), QKeySequence(Qt::Key_Space), this, [this] {
+            if (recordingBusy()) {
+                recording_.requestStop();
+                return;
+            }
             if (playback_.snapshot()->phase == PlaybackPhase::Playing)
                 playback_.requestStop();
             else
                 playSelected();
         });
-    stopAction_ = transportMenu->addAction(tr("Stop"), QKeySequence(Qt::SHIFT | Qt::Key_Space),
-                                           this, [this] { playback_.requestStop(); });
+    stopAction_ =
+        transportMenu->addAction(tr("Stop"), QKeySequence(Qt::SHIFT | Qt::Key_Space), this, [this] {
+            playback_.requestStop();
+            recording_.requestStop();
+        });
+    prepareRecordAction_ =
+        transportMenu->addAction(tr("Prepare recording"), this, [this] { prepareRecording(); });
+    recordAction_ = transportMenu->addAction(tr("Record"), QKeySequence(Qt::Key_R), this,
+                                             &StudioWindow::recordSelected);
+    recoverAction_ = file->addAction(tr("Recover recording…"), this, [this] {
+        const auto model = controller_.snapshot();
+        const auto start = model->session ? text(pathUtf8(model->root / "media")) : QString();
+        const auto selected =
+            QFileDialog::getExistingDirectory(this, tr("Choose a capture job to inspect"), start);
+        if (!selected.isEmpty())
+            inspectTake(path(selected));
+    });
     auto *scroll = new QScrollArea(this);
     scroll->setWidgetResizable(true);
     auto *body = new QWidget(scroll);
@@ -167,6 +193,85 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options)
     levels->addWidget(level_);
     transportLayout->addLayout(levels);
     layout->addWidget(transport);
+    auto *recording = new QGroupBox(tr("Recording"), body);
+    recording->setObjectName(QStringLiteral("recordingGroup"));
+    auto *recordLayout = new QVBoxLayout(recording);
+    auto *recordButtons = new QHBoxLayout;
+    prepareRecordButton_ = new QPushButton(tr("Prepare recording"), recording);
+    recordButton_ = new QPushButton(tr("Record"), recording);
+    recordStopButton_ = new QPushButton(tr("Stop recording"), recording);
+    prepareRecordButton_->setObjectName(QStringLiteral("prepareRecordingButton"));
+    recordButton_->setObjectName(QStringLiteral("recordButton"));
+    recordStopButton_->setObjectName(QStringLiteral("recordStopButton"));
+    for (auto *b : {prepareRecordButton_, recordButton_, recordStopButton_})
+        recordButtons->addWidget(b);
+    recordLayout->addLayout(recordButtons);
+    auto *recordModes = new QHBoxLayout;
+    armed_ = new QCheckBox(tr("Arm first track"), recording);
+    armed_->setObjectName(QStringLiteral("armTrack"));
+    monitorMode_ = new FocusCombo(recording);
+    monitorMode_->setObjectName(QStringLiteral("recordMonitorMode"));
+    monitorMode_->setFocusPolicy(Qt::StrongFocus);
+    monitorMode_->setAccessibleName(tr("Recording monitoring mode"));
+    monitorMode_->addItem(tr("Monitoring off"), int(RecordingMonitor::Off));
+    monitorMode_->addItem(tr("Monitor through track EQ"), int(RecordingMonitor::PostEq));
+    recordModes->addWidget(armed_);
+    recordModes->addWidget(monitorMode_, 1);
+    recordLayout->addLayout(recordModes);
+    auto *recordRouteWidget = new QWidget(recording);
+    recordRoutes_ = new QGridLayout(recordRouteWidget);
+    recordLayout->addWidget(recordRouteWidget);
+    recordingState_ = new QLabel(recording);
+    recordingState_->setObjectName(QStringLiteral("recordingStatus"));
+    recordingState_->setWordWrap(true);
+    recordingState_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    recordingState_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    recordLayout->addWidget(recordingState_);
+    inputMeter_ = new QProgressBar(recording);
+    monitorMeter_ = new QProgressBar(recording);
+    inputMeter_->setObjectName(QStringLiteral("inputMeter"));
+    monitorMeter_->setObjectName(QStringLiteral("recordMonitorMeter"));
+    inputMeter_->setAccessibleName(tr("Raw input peak level"));
+    monitorMeter_->setAccessibleName(tr("Post-EQ monitoring peak level"));
+    inputLevel_ = new QLabel(recording);
+    monitorLevel_ = new QLabel(recording);
+    for (auto pair :
+         {std::pair{inputMeter_, inputLevel_}, std::pair{monitorMeter_, monitorLevel_}}) {
+        pair.first->setRange(0, 1200);
+        pair.first->setTextVisible(false);
+        auto *levels = new QHBoxLayout;
+        levels->addWidget(pair.first, 1);
+        levels->addWidget(pair.second);
+        recordLayout->addLayout(levels);
+    }
+    auto *takeButtons = new QHBoxLayout;
+    retryTakeButton_ = new QPushButton(tr("Retry adding take"), recording);
+    keepTakeButton_ = new QPushButton(tr("Keep take for recovery"), recording);
+    retryTakeButton_->setObjectName(QStringLiteral("retryTakeButton"));
+    keepTakeButton_->setObjectName(QStringLiteral("keepTakeButton"));
+    takeButtons->addWidget(retryTakeButton_);
+    takeButtons->addWidget(keepTakeButton_);
+    recordLayout->addLayout(takeButtons);
+    connect(prepareRecordButton_, &QPushButton::clicked, this, [this] { prepareRecording(); });
+    connect(recordButton_, &QPushButton::clicked, this, &StudioWindow::recordSelected);
+    connect(recordStopButton_, &QPushButton::clicked, this, [this] { recording_.requestStop(); });
+    connect(armed_, &QCheckBox::toggled, this, [this](bool v) {
+        if (!v)
+            recording_.requestStop();
+    });
+    connect(retryTakeButton_, &QPushButton::clicked, this, &StudioWindow::retryTake);
+    connect(keepTakeButton_, &QPushButton::clicked, this, [this] {
+        const auto r = recording_.snapshot();
+        if (r->take && recording_.acknowledgeTake(r->take->sequence)) {
+            attachingTake_ = 0;
+            attachmentFailed_ = false;
+            notice_->setText(
+                tr("Take kept for recovery in %1")
+                    .arg(text(
+                        pathUtf8(r->take->root / utf8Path(r->take->receipt->asset.relativePath)))));
+        }
+    });
+    layout->addWidget(recording);
     eq_ = new QGroupBox(tr("Track equalizer"), body);
     eq_->setObjectName(QStringLiteral("equalizerGroup"));
     eq_->setLayout(new QGridLayout);
@@ -175,8 +280,9 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options)
     track_->setWordWrap(true);
     layout->addWidget(track_);
     notice_ = new QLabel(
-        tr("Development preview: project editing and first-track playback are available on "
-           "Linux. Recording and export controls are being integrated."),
+        tr("Development preview: first-track recording and playback are available on Linux. "
+           "Captured audio stays raw; track EQ affects monitoring and playback. Export is being "
+           "integrated."),
         body);
     notice_->setObjectName(QStringLiteral("previewNotice"));
     notice_->setWordWrap(true);
@@ -189,7 +295,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options)
     statusBar()->addWidget(state_, 1);
     const auto available = screen()->availableGeometry();
     resize(std::min(1000, available.width()), std::min(640, available.height()));
-    for (auto *label : {project_, track_, state_, notice_, playbackState_, level_})
+    for (auto *label : {project_, track_, state_, notice_, playbackState_, level_, recordingState_,
+                        inputLevel_, monitorLevel_})
         label->setTextFormat(Qt::PlainText);
     timer_ = new QTimer(this);
     timer_->setInterval(16);
@@ -210,6 +317,11 @@ bool StudioWindow::submitEdit(ProjectCommand command) {
     return true;
 }
 void StudioWindow::openProject(const std::filesystem::path &root) {
+    if (recordingBusy() || attachingTake_) {
+        notice_->setText(
+            tr("Stop recording and resolve the pending take before opening another project."));
+        return;
+    }
     ProjectCommand command;
     command.kind = CommandKind::Open;
     command.path = root;
@@ -217,6 +329,8 @@ void StudioWindow::openProject(const std::filesystem::path &root) {
     submitEdit(std::move(command));
 }
 void StudioWindow::newProject() {
+    if (recordingBusy() || attachingTake_)
+        return;
     const auto parent =
         QFileDialog::getExistingDirectory(this, tr("Choose a folder for the new project"));
     if (parent.isEmpty())
@@ -245,7 +359,8 @@ std::shared_ptr<const PlaybackSnapshot> StudioWindow::playbackSnapshot() const {
 bool StudioWindow::preparePlayback() {
     const auto view = controller_.snapshot();
     if (!view->session || closing_ || closeRequested_ || closeAfterSave_ ||
-        view->io == IoOperation::Create || view->io == IoOperation::Open)
+        view->io == IoOperation::Create || view->io == IoOperation::Open || recordingBusy() ||
+        attachingTake_)
         return false;
     PlaybackCommand c;
     c.root = view->root;
@@ -324,13 +439,15 @@ void StudioWindow::pollPlayback() {
     const bool allow = !closing_ && !closeRequested_ && !closeAfterSave_;
     const bool idle = p->phase == PlaybackPhase::Idle || p->phase == PlaybackPhase::Ready ||
                       p->phase == PlaybackPhase::Complete || p->phase == PlaybackPhase::Fault;
-    const bool prepare = allow && p->supported && idle && model->session &&
-                         model->io != IoOperation::Create && model->io != IoOperation::Open;
+    const bool prepare = allow && !recordingBusy() && !attachingTake_ && p->supported && idle &&
+                         model->session && model->io != IoOperation::Create &&
+                         model->io != IoOperation::Open;
     prepareButton_->setEnabled(prepare);
     prepareAction_->setEnabled(prepare);
     playButton_->setEnabled(allow && p->phase == PlaybackPhase::Ready);
     playAction_->setEnabled(
-        allow && (p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing));
+        allow && ((p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing) ||
+                  recordingBusy()));
     const bool stoppable =
         allow && (p->phase == PlaybackPhase::Preparing || p->phase == PlaybackPhase::Ready ||
                   p->phase == PlaybackPhase::Playing || p->phase == PlaybackPhase::Complete);
@@ -391,8 +508,325 @@ void StudioWindow::pollPlayback() {
         notice_->setText(tr("Playback could not be completed: %1").arg(text(p->diagnostic)));
     }
 }
+bool StudioWindow::recordingBusy() const {
+    const auto r = recording_.snapshot();
+    return recordCommandPending_ || r->take ||
+           (r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Unsupported &&
+            r->phase != RecordingPhase::Fault && r->phase != RecordingPhase::Closed);
+}
+std::shared_ptr<const RecordingSnapshot> StudioWindow::recordingSnapshot() const {
+    return recording_.snapshot();
+}
+bool StudioWindow::submitRecording(RecordingCommand c) {
+    if (recordCommandPending_)
+        return false;
+    const auto r = recording_.snapshot();
+    if (recording_.submit(std::move(c)) != Admission::Accepted)
+        return false;
+    recordCommandPending_ = true;
+    recordCommandCompleted_ = r->completedCommands;
+    recordCommandError_ = r->errorSerial;
+    recordCommandStop_ = r->stopAcknowledged;
+    return true;
+}
+bool StudioWindow::prepareRecording() {
+    const auto m = controller_.snapshot();
+    const auto p = playback_.snapshot();
+    if (!m->session || m->io != IoOperation::None || closing_ || closeRequested_ ||
+        closeAfterSave_ || recording_.snapshot()->take || attachingTake_ ||
+        (p->phase != PlaybackPhase::Idle && p->phase != PlaybackPhase::Fault &&
+         p->phase != PlaybackPhase::Unsupported))
+        return false;
+    RecordingCommand c;
+    c.root = m->root;
+    c.session = m->session;
+    c.modelRevision = m->modelRevision;
+    c.monitoring = static_cast<RecordingMonitor>(monitorMode_->currentData().toInt());
+    if (!submitRecording(std::move(c))) {
+        recordingState_->setText(tr("Recording queue is full or closing. Please retry."));
+        return false;
+    }
+    return true;
+}
+void StudioWindow::recordSelected() {
+    const auto r = recording_.snapshot();
+    if (!armed_->isChecked() || r->phase != RecordingPhase::Ready || !recordPortsShown_ ||
+        closing_ || closeRequested_)
+        return;
+    RecordingCommand c;
+    c.kind = RecordingCommandKind::Start;
+    c.armed = true;
+    auto selected = [&](const std::vector<QComboBox *> &combos, bool input,
+                        std::vector<PipeWirePort> &ports) {
+        for (auto *combo : combos) {
+            const auto key = combo->currentData().toString();
+            const auto found =
+                std::find_if(recordPortsShown_->begin(), recordPortsShown_->end(),
+                             [&](const auto &p) { return p.input == input && portKey(p) == key; });
+            if (found == recordPortsShown_->end())
+                return false;
+            ports.push_back(*found);
+        }
+        return true;
+    };
+    if (!selected(inputs_, false, c.inputs) || !selected(monitors_, true, c.outputs)) {
+        recordingState_->setText(tr("Choose an input and every required monitoring output."));
+        return;
+    }
+    if (!submitRecording(std::move(c)))
+        recordingState_->setText(tr("Recording queue is full or closing. Please retry."));
+}
+bool StudioWindow::inspectTake(const std::filesystem::path &job) {
+    const auto m = controller_.snapshot();
+    if (!m->session || m->io != IoOperation::None || recordingBusy() || attachingTake_ ||
+        closing_ || closeRequested_)
+        return false;
+    RecordingCommand c;
+    c.kind = RecordingCommandKind::Inspect;
+    c.root = m->root;
+    c.session = m->session;
+    c.modelRevision = m->modelRevision;
+    c.job = job;
+    return submitRecording(std::move(c));
+}
+void StudioWindow::retryTake() {
+    if (recording_.snapshot()->take && !attachingTake_)
+        attachmentFailed_ = false;
+}
+void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
+    const auto n = r.ports ? r.channels : 0;
+    const auto out = r.monitoring == RecordingMonitor::PostEq ? n : 0;
+    if (inputs_.size() != n || monitors_.size() != out) {
+        while (auto *item = recordRoutes_->takeAt(0)) {
+            delete item->widget();
+            delete item;
+        }
+        inputs_.clear();
+        monitors_.clear();
+        recordPortsShown_.reset();
+        auto make = [&](std::vector<QComboBox *> &combos, bool input, std::uint32_t count) {
+            for (std::uint32_t c = 0; c < count; ++c) {
+                auto *combo = new FocusCombo;
+                combo->setObjectName(
+                    (input ? QStringLiteral("monitorChannel%1") : QStringLiteral("inputChannel%1"))
+                        .arg(c));
+                combo->setFocusPolicy(Qt::StrongFocus);
+                const auto label = input ? tr("Monitor output %1") : tr("Input %1");
+                combo->setAccessibleName(label.arg(QLocale().toString(c + 1)));
+                combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+                combo->setMinimumContentsLength(16);
+                auto *buddy = new QLabel(combo->accessibleName());
+                buddy->setBuddy(combo);
+                const auto row = int(c + (input ? n : 0));
+                recordRoutes_->addWidget(buddy, row, 0);
+                recordRoutes_->addWidget(combo, row, 1);
+                combos.push_back(combo);
+            }
+        };
+        make(inputs_, false, n);
+        make(monitors_, true, out);
+    }
+    if (r.ports && (!recordPortsShown_ || *recordPortsShown_ != *r.ports)) {
+        auto populate = [&](const std::vector<QComboBox *> &combos, bool input) {
+            for (auto *combo : combos) {
+                const auto previous = combo->currentData().toString();
+                QSignalBlocker block(combo);
+                combo->clear();
+                combo->addItem(input ? tr("Choose a monitoring output…") : tr("Choose an input…"),
+                               QString());
+                for (const auto &p : *r.ports)
+                    if (p.input == input)
+                        combo->addItem(text(p.nodeName) + QStringLiteral(" / ") + text(p.portName),
+                                       portKey(p));
+                const auto index = combo->findData(previous);
+                combo->setCurrentIndex(index < 0 ? 0 : index);
+            }
+        };
+        populate(inputs_, false);
+        populate(monitors_, true);
+        recordPortsShown_ = r.ports;
+    }
+    for (const auto &combos : {inputs_, monitors_})
+        for (auto *combo : combos)
+            combo->setEnabled(r.phase == RecordingPhase::Ready && !closing_ && !closeRequested_);
+}
+void StudioWindow::pollRecording() {
+    const auto r = recording_.snapshot();
+    const auto m = controller_.snapshot();
+    const auto p = playback_.snapshot();
+    if (recordCommandPending_ &&
+        (r->completedCommands > recordCommandCompleted_ || r->errorSerial > recordCommandError_ ||
+         r->stopAcknowledged > recordCommandStop_))
+        recordCommandPending_ = false;
+    if (m->session && m->modelRevision > recordingFollowed_ &&
+        recording_.follow(m->root, m->session, m->modelRevision))
+        recordingFollowed_ = m->modelRevision;
+    if (r->take) {
+        if (takeShown_ != r->take->sequence) {
+            takeShown_ = r->take->sequence;
+            attachingTake_ = 0;
+            attachmentFailed_ = false;
+        }
+        if (m->root == r->take->root && m->lastAttachedAsset == r->take->receipt->asset.id) {
+            recording_.acknowledgeTake(r->take->sequence);
+            attachingTake_ = 0;
+            attachmentFailed_ = false;
+        } else if (attachingTake_ && m->errorSerial > attachmentError_) {
+            attachingTake_ = 0;
+            attachmentFailed_ = true;
+        } else if (!attachingTake_ && !attachmentFailed_ && m->io == IoOperation::None &&
+                   !closing_) {
+            if (!m->session || m->root != r->take->root ||
+                m->session->id != r->take->receipt->spec.projectId)
+                attachmentFailed_ = true;
+            else {
+                ProjectCommand c{CommandKind::AttachRecording};
+                c.path = r->take->root;
+                c.recording = r->take->receipt;
+                if (controller_.submit(std::move(c)) == Admission::Accepted) {
+                    attachingTake_ = r->take->sequence;
+                    attachmentError_ = m->errorSerial;
+                }
+            }
+        }
+    }
+    retryTakeButton_->setVisible(bool(r->take) && attachmentFailed_);
+    keepTakeButton_->setVisible(bool(r->take) && attachmentFailed_);
+    retryTakeButton_->setEnabled(m->io == IoOperation::None && !attachingTake_);
+    keepTakeButton_->setEnabled(m->io == IoOperation::None && !attachingTake_);
+    const bool allow = !closing_ && !closeRequested_ && !closeAfterSave_;
+    const bool playbackIdle = p->phase == PlaybackPhase::Idle || p->phase == PlaybackPhase::Fault ||
+                              p->phase == PlaybackPhase::Unsupported;
+    const bool idle = r->phase == RecordingPhase::Idle || r->phase == RecordingPhase::Fault ||
+                      r->phase == RecordingPhase::Unsupported;
+    const bool ready = r->phase == RecordingPhase::Ready;
+    const bool prepare = allow && !recordCommandPending_ && r->supported && (idle || ready) &&
+                         !r->take && !attachingTake_ && playbackIdle && m->session &&
+                         m->io == IoOperation::None;
+    prepareRecordButton_->setEnabled(prepare);
+    prepareRecordAction_->setEnabled(prepare);
+    monitorMode_->setEnabled(allow && idle && !r->take);
+    armed_->setEnabled(allow && r->supported && m->session && !r->take);
+    recordButton_->setEnabled(allow && !recordCommandPending_ && ready && armed_->isChecked());
+    recordAction_->setEnabled(recordButton_->isEnabled());
+    recordStopButton_->setEnabled(allow && !idle && !r->closed);
+    recoverAction_->setEnabled(allow && !recordCommandPending_ && idle && !r->take &&
+                               !attachingTake_ && m->session && m->io == IoOperation::None);
+    updateRecordingRoutes(*r);
+    QString status;
+    switch (r->phase) {
+    case RecordingPhase::Unsupported:
+        status = tr("Native recording is not available in this build. Stored takes can still be "
+                    "recovered.");
+        break;
+    case RecordingPhase::Idle:
+        status = tr("Choose monitoring, prepare, select inputs, arm, then record.");
+        break;
+    case RecordingPhase::Preparing:
+        status = tr("Preparing recording…");
+        break;
+    case RecordingPhase::Ready:
+        status = tr("Choose every required channel and arm the track.");
+        break;
+    case RecordingPhase::Recording:
+        status = r->pending ? tr("Recording — EQ changes pending")
+                            : tr("Recording — EQ changes acknowledged");
+        break;
+    case RecordingPhase::Complete:
+        status = tr("Recording range complete. Stop to add the take.");
+        break;
+    case RecordingPhase::Finalizing:
+        status = tr("Finalizing recorded audio…");
+        break;
+    case RecordingPhase::Inspecting:
+        status = tr("Verifying recovery checkpoint…");
+        break;
+    case RecordingPhase::Recovering:
+        status = tr("Recovering a copy of the verified take…");
+        break;
+    case RecordingPhase::Fault:
+        status = tr("Recording stopped: %1").arg(text(r->diagnostic));
+        break;
+    case RecordingPhase::Closing:
+        status = tr("Closing recording…");
+        break;
+    case RecordingPhase::Closed:
+        status = tr("Recording closed");
+        break;
+    }
+    if (r->take)
+        status = attachmentFailed_ ? tr("Take could not be added. Retry, or keep it for recovery.")
+                                   : tr("Adding verified take to the project…");
+    if (r->sampleRate)
+        status += tr(" · %1 s · %2 rejected frames")
+                      .arg(QLocale().toString(double(r->telemetry.capturedFrames) / r->sampleRate,
+                                              'f', 2),
+                           QLocale().toString(r->telemetry.rejectedFrames));
+    if (r->job && (r->phase == RecordingPhase::Fault || attachmentFailed_))
+        status += tr("\nStored recording: %1").arg(text(pathUtf8(*r->job)));
+    recordingState_->setText(status);
+    recordingState_->setToolTip(r->job ? text(pathUtf8(*r->job)) : QString());
+    // Independent text measurement lets a shorter diagnostic shrink again.
+    const auto textHeight = recordingState_->fontMetrics()
+                                .boundingRect(0, 0, std::max(1, recordingState_->width()), 100000,
+                                              Qt::TextWordWrap | Qt::AlignLeft, status)
+                                .height();
+    recordingState_->setMinimumHeight(
+        std::max(recordingState_->fontMetrics().height(), textHeight) +
+        2 * recordingState_->margin());
+    auto meter = [&](QProgressBar *bar, QLabel *label, double level, const QString &name) {
+        const auto peak = std::isfinite(level) ? std::max(0.0, level) : 0.;
+        bar->setValue(int(std::lround(std::min(1.2, peak) * 1000)));
+        const auto color = peak >= 1     ? QStringLiteral("#c83434")
+                           : peak >= .85 ? QStringLiteral("#c78a12")
+                                         : QStringLiteral("#28894e");
+        const auto style = QStringLiteral("QProgressBar::chunk { background: %1; }").arg(color);
+        if (bar->styleSheet() != style)
+            bar->setStyleSheet(style);
+        label->setText(
+            peak > 0
+                ? tr("%1: %2 dBFS").arg(name, QLocale().toString(20 * std::log10(peak), 'f', 1))
+                : tr("%1: −∞ dBFS").arg(name));
+    };
+    meter(inputMeter_, inputLevel_, r->telemetry.inputPeak, tr("Input"));
+    meter(monitorMeter_, monitorLevel_,
+          r->monitoring == RecordingMonitor::Off ? 0 : r->telemetry.outputPeak, tr("Monitor"));
+    if (r->errorSerial != recordingError_) {
+        recordingError_ = r->errorSerial;
+        notice_->setText(tr("Recording could not be completed: %1. Any stored checkpoint remains "
+                            "available for recovery.")
+                             .arg(text(r->diagnostic)));
+    }
+    if (r->preview && r->previewSequence != previewShown_) {
+        previewShown_ = r->previewSequence;
+        if (!allow)
+            return;
+        const auto answer = QMessageBox::question(
+            this, tr("Recover recording"),
+            tr("Verified %1 frames (%2 seconds). Recover a new copy into this project? The "
+               "original recording is preserved.")
+                .arg(QLocale().toString(r->preview->committedFrames),
+                     QLocale().toString(double(r->preview->committedFrames) /
+                                            r->preview->spec.capture.sampleRate,
+                                        'f', 2)),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (answer == QMessageBox::Yes && m->session && r->job) {
+            RecordingCommand c;
+            c.kind = RecordingCommandKind::Recover;
+            c.root = m->root;
+            c.session = m->session;
+            c.modelRevision = m->modelRevision;
+            c.job = *r->job;
+            c.previewSequence = r->previewSequence;
+            if (!submitRecording(std::move(c)))
+                notice_->setText(tr("Recovery queue is full or closing. Please retry."));
+        }
+    }
+}
+
 void StudioWindow::shutdownWorkers() {
     playback_.requestShutdown();
+    recording_.requestShutdown();
     controller_.requestShutdown();
 }
 
@@ -515,8 +949,9 @@ void StudioWindow::updateBands(const Session &session) {
 }
 void StudioWindow::poll() {
     const auto view = controller_.snapshot();
+    pollRecording();
     pollPlayback();
-    if (view->closed && playback_.snapshot()->closed && closing_) {
+    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed && closing_) {
         close();
         return;
     }
@@ -553,10 +988,10 @@ void StudioWindow::poll() {
     const bool replacing = view->io == IoOperation::Create || view->io == IoOperation::Open;
     eq_->setEnabled(bool(view->session) && !replacing && !closing_ && !closeAfterSave_ &&
                     !closeRequested_);
-    new_->setEnabled(view->io == IoOperation::None && !view->dirty && !closing_ &&
-                     !closeRequested_);
-    open_->setEnabled(view->io == IoOperation::None && !view->dirty && !closing_ &&
-                      !closeRequested_);
+    new_->setEnabled(!recordingBusy() && !attachingTake_ && view->io == IoOperation::None &&
+                     !view->dirty && !closing_ && !closeRequested_);
+    open_->setEnabled(!recordingBusy() && !attachingTake_ && view->io == IoOperation::None &&
+                      !view->dirty && !closing_ && !closeRequested_);
     save_->setEnabled(bool(view->session) && view->io == IoOperation::None && !closing_ &&
                       !closeRequested_ && !closeAfterSave_);
     undo_->setEnabled(bool(view->session) && !replacing && !closing_ && !closeRequested_);
@@ -585,6 +1020,15 @@ void StudioWindow::poll() {
             followedRevision_ = view->modelRevision;
     }
     shown_ = view;
+    if (closeRequested_ && !closing_ && !closeAfterSave_ && !closePromptActive_ && !closeBarrier_ &&
+        recording_.snapshot()->stopAcknowledged >= closeDrainToken_ &&
+        !recording_.snapshot()->take && !attachingTake_ && view->io == IoOperation::None) {
+        ProjectCommand barrier{CommandKind::Barrier};
+        barrier.barrier = nextGesture_++;
+        const auto token = barrier.barrier;
+        if (submitEdit(std::move(barrier)))
+            closeBarrier_ = token;
+    }
     if (closeBarrier_ && view->lastBarrier == closeBarrier_) {
         closeBarrier_ = 0;
         confirmClose();
@@ -601,7 +1045,7 @@ void StudioWindow::poll() {
 }
 void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = controller_.snapshot();
-    if (view->closed && playback_.snapshot()->closed) {
+    if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed) {
         event->accept();
         return;
     }
@@ -610,16 +1054,12 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
         return;
     if (auto *focused = focusWidget())
         focused->clearFocus();
-    ProjectCommand barrier;
-    barrier.kind = CommandKind::Barrier;
-    barrier.barrier = nextGesture_++;
-    const auto token = barrier.barrier;
-    if (submitEdit(std::move(barrier))) {
-        closeRequested_ = true;
-        closeBarrier_ = token;
-    }
+    closeRequested_ = true;
+    playback_.requestStop();
+    closeDrainToken_ = recording_.requestStop();
 }
 void StudioWindow::confirmClose() {
+    QScopedValueRollback<bool> promptGuard(closePromptActive_, true);
     const auto view = controller_.snapshot();
     if (view->dirty) {
         const auto choice = QMessageBox::question(

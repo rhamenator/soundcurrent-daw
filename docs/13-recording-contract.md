@@ -43,3 +43,5 @@ Remaining gates: physical ENOSPC, true power loss/filesystem matrix, >4 GiB RF64
 ## S6f production native ownership and desktop attachment
 
 [The recording owner contract](21-native-recording-owner.md) now specifies inactive native setup, monitoring off/post-EQ, raw-before-DSP capture, bounded sticky terminal arbitration, ordered native/writer joins and typed asynchronous verified take admission. Native cancel/disk-failure/destructor fixtures and project-controller attachment/save/reopen tests are recorded separately. Input/arm/Record/monitor/recovery GUI and general clip undo remain open.
+
+S6g adds the [desktop recording and manual recovery workflow](22-desktop-recording.md), including immutable pending receipts, verified attachment before dirty-close prompts and explicit keep-for-recovery. Discovery, clip undo and platform/hardware gates remain open.

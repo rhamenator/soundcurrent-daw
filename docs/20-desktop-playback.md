@@ -57,3 +57,5 @@ Native sanitizer runs use the existing retained-module diagnostic `PIPEWIRE_DLCL
 ## Next task
 
 Add the recording preparation/transport owner and GUI input selection, Arm/Record/Stop and monitoring modes, raw take attachment and recoverable fault/recovery presentation. Keep capture/finalization off GUI and callback owners, and test owned sources/sinks before physical input. Then implement S7 transactional offline export and qualify the complete record/EQ/save/reopen/export slice. Full frozen parity, Windows, all-Europe localization, X004 imports and X005 equipment profiling/editor remain required.
+
+S6g [adds recording and recovery controls](22-desktop-recording.md). This preview makes recording and file playback mutually exclusive; simultaneous overdub/monitor mixing remains M2/M4. Window disappearance now waits for project, playback and recording workers.

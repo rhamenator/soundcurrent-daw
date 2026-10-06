@@ -1,6 +1,6 @@
 # S6f native recording ownership and verified take attachment
 
-**Implemented Linux production owner and asynchronous attachment; Record/arm/input/monitor/recovery desktop controls are next. SLICE-001 and the full goal remain incomplete.** Equipment profiles remain an offline editor and do not alter raw takes or monitoring yet.
+**Implemented Linux production owner and asynchronous attachment; S6g now connects Record/arm/input/monitor and manual recovery desktop controls. SLICE-001 and the full goal remain incomplete.** Equipment profiles remain an offline editor and do not alter raw takes or monitoring yet.
 
 ## Native and disk lifetime
 
@@ -47,6 +47,8 @@ Native sanitizer results use the explicit diagnostic `PIPEWIRE_DLCLOSE=false` wi
 
 No physical microphone/speaker test, measured input alignment, memory locking, deadline/load qualification, automatic reprepare/reconnect, native Windows audio or Windows Qt UI qualification is claimed. Physical disk-full/power-loss, >4 GiB RF64, multitrack admission, broad import sandboxing and filesystem race qualification remain open. No frozen parity row is complete.
 
-## Next implementation task
+## Next implementation task at the S6f checkpoint
 
 Add an asynchronous recording desktop owner and explicit input selection, arm, Record/Stop, monitoring Off/Post-EQ, elapsed/input/output status and recovery discovery/preview. Reconcile live parameter receipts and canonical raw take attachment; qualify close/project replacement during setup, capture, disk finalization and verification. Then implement S7 transactional WAV export using a private instance of the shared engine.
+
+S6g now supplies the [asynchronous desktop recording controller and controls](22-desktop-recording.md), retained verified take handoff, close choreography and manual recovery preview/copy. Automatic discovery, general undo and native/platform qualification remain open; S7 export is next.

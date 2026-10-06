@@ -1,0 +1,346 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "scope": "S6g Linux desktop first-track recording/monitoring/verified take handoff/manual recovery; full slice and parity incomplete",
+  "baseline": "SC-DAW-BASELINE-2026-10-05; unchanged",
+  "parent_commit": "942ba76e7d8438e6dc2eeb3a282b7537b63287ed",
+  "previous_goal_turn": "progress: 942ba76 native recording owner and typed asynchronous finalized-take admission",
+  "source_sha256": {
+    "CMakeLists.txt": "07c18ab89420d8e4ac97ec78b846caab893ebbea41786d1af4adc3f88fa23572",
+    "include/soundcurrent/recording.hpp": "404f5a0f7ae22428c1826b3ab15bcbf8767683f4faebde08bb415f9bb5b0f301",
+    "ui/recording_controller.hpp": "e0d1d7072c6b98faa5aede7775d1ac91f2f1a8512b8ea621536bf11f8aae1deb",
+    "ui/recording_controller.cpp": "57e5a17e65774aa0f19397f823d368cd807f381e9994c58661b031f3875f4579",
+    "ui/studio_window.hpp": "ec803e3555659bc19f0e894cb8661f80b2ca01c7af710848ac2c30a66930ca50",
+    "ui/studio_window.cpp": "f28340cf02e018093553ac22aa9b4e4eeb2a3ded2b7780f690daaed1b3b55f3e",
+    "tests/fake_recording_endpoint.hpp": "28357349d8d4269a89dfad96ff14c942d61a8a21ade535502e923dcf0971317a",
+    "tests/recording_controller_tests.cpp": "50438e01172a23380dba62849ddfbb08468680f8b4422262b10e95c07ca70ed9",
+    "tests/ui_tests.cpp": "8683ba96a69f2ea21770ba8e4aa9e4fd40c348a04381593682ccf9ee6f14350c",
+    "tests/pipewire_recording_ui_fixture.cpp": "3d10f1214ce36299a669f8f707560b6e3dd9f9d1f67e633aed0ab31976fc4b2a"
+  },
+  "environment": {
+    "Qt": "6.10.2",
+    "pipewire": "1.6.2",
+    "kernel": "Linux 7.0.0-38-generic x86_64",
+    "GUI": "offscreen; native display/accessibility/HiDPI unqualified"
+  },
+  "builds": {
+    "linux_debug": {
+      "status": "passed",
+      "log_sha256": "a1f2b76b197c552eca95d725e7044b599e70df8e78239441fa7e6b404ab36620",
+      "cmake_cache_sha256": "4e7e3bdf014ca8c86cd79c4cb3caac92441f214bf6f43874c51b6611bcb9c5e3",
+      "Qt_desktop": true,
+      "native_windows_execution": false
+    },
+    "linux_asan_ubsan": {
+      "status": "passed",
+      "log_sha256": "61dd230a2c223c31c4250c5daff554e99d51d4fdbfed0990abdbdfce56b99999",
+      "cmake_cache_sha256": "ac2a5a545a1c6d752bda70db5d595ce26d2d97415058e4e462a83582b984aa47",
+      "Qt_desktop": true,
+      "native_windows_execution": false
+    },
+    "windows_headless": {
+      "status": "passed",
+      "log_sha256": "f866b7e06d255f1674bb5ade41cf0bfad4ad29c1c44d51e85935981a4cfbfdca",
+      "cmake_cache_sha256": "9d8fd5c9fb735e8b0498212fa14bfefa20e6cdc662cb1eea766e68132dd46393",
+      "Qt_desktop": false,
+      "native_windows_execution": false
+    }
+  },
+  "linux_debug": {
+    "regression_groups": 13,
+    "status": "passed",
+    "final_affected_groups": 2,
+    "final_affected_status": "passed after visual and modal-close fixes",
+    "summary_sha256": "55520f1ff277dcfd602d9ce8f40c20016ddd56d8eb4be47da5dfd33253578c46",
+    "final_affected_sha256": "3ef7d78cffe81d3e641998230ec6b61212708f2db91f642cf7399aaf2bb6aa76",
+    "final_details_sha256": "f0cccd54ce6e8724a5ee982c4d08b9c342e3e1623d2a88b0e8fae0c212d58f82"
+  },
+  "linux_asan_ubsan_lsan": {
+    "regression_groups": 13,
+    "status": "passed",
+    "leak_detection": true,
+    "final_affected_groups": 2,
+    "final_affected_status": "passed after visual and modal-close fixes",
+    "summary_sha256": "1ac3326686f86f0c0de3d28ee8d95318b250c3d135ff95d8f994012c87e96bf4",
+    "final_affected_sha256": "3f1cd8f121735fe6d6e775be5a2d7d00ab7bd6feab1806cd732ac12b8220aa8a",
+    "final_details_sha256": "30d0450452921458ca2ed286e0217b15e234c8832b974da1f654bc3b60298240"
+  },
+  "acceptance": [
+    "explicit placeholder input and monitor output selections; no take before activation",
+    "Off and Post-EQ preparation; arm required; duplicate GUI/controller start cannot replace active take",
+    "raw input overload meter color and immediate scalar edit/undo applied receipt",
+    "exact event suffix retry preserves intervening latest model and distinguishes partial revision",
+    "stop epochs invalidate queued preparation/start and acknowledge after writer/native joins",
+    "one unacknowledged finalized take blocks new jobs and future acknowledgement",
+    "input removal retains finalized prefix; injected disk failure retains primary error/checkpoint",
+    "journal/hash rejection leaves canonical state clean and finalized files retained",
+    "explicit keep-for-recovery; owned job preview then new-copy verified attachment/save/reopen",
+    "preview sequence and same-prefix revalidation; original retained",
+    "blocked finalization leaves GUI timer turns responsive and delays Save prompt",
+    "unanswered dirty modal for at least 80ms stays single (modal barrier guard)",
+    "Cancel retains attached dirty take; Discard preserves original saved project/media",
+    "close waits for recording, playback and canonical workers"
+  ],
+  "initial_failure": {
+    "log_sha256": "8ef53e7950f991efa5ad89604564717ce8f99cc3de0e3bfbe82eeb314204eb39",
+    "reason": "Blocked-finalization UI fixture asserted more than 5 one-millisecond timer ticks during qWait(40); offscreen event coalescing failed that throughput expectation.",
+    "resolution": "Observe at least three distinct GUI timer turns while finalization is deliberately blocked; do not claim a latency deadline."
+  },
+  "review_fix": {
+    "reason": "A dirty-close dialog left unanswered could let nested timer polling queue another barrier/dialog.",
+    "resolution": "QScopedValueRollback modal guard; delayed-response UI fixture observes one dialog before Save."
+  },
+  "visual_fix": {
+    "reason": "Dynamic long recording status could clip; minimum-height feedback could prevent later shrinking.",
+    "resolution": "Independent font text measurement; job path shown for faults and available as tooltip; final offscreen image inspected."
+  },
+  "gaps": [
+    "S7 transactional offline WAV export and remaining S8 first-slice acceptance",
+    "portable per-channel route intent/placeholder resolution",
+    "automatic recovery discovery and zero-frame orphan cleanup",
+    "simultaneous overdub, monitoring Auto, multitrack/punch/loop/takes/comping",
+    "general clip/asset/route undo",
+    "native Windows Qt/audio/runtime and packages",
+    "physical alignment/rate/quantum/reconnect/latency",
+    "mlock, native deadlines/load/multitrack resource admission",
+    "normal PipeWire module-unload LSan and old overlapping-load native timeout",
+    "physical ENOSPC/power-loss/filesystem/>4GiB RF64",
+    "untrusted media/plugin containment and hostile filesystem race qualification",
+    "all-Europe translations/native reviews/accessibility/display qualification",
+    "full frozen parity, X004 import, X005 processing/portability/rights"
+  ],
+  "frozen_parity_rows_completed": 0,
+  "published": false,
+  "native_debug": {
+    "status": "all 3 serial modes passed after final modal guard",
+    "results": [
+      {
+        "mode": "normal",
+        "frames": 480000,
+        "owned_nodes_only": true,
+        "gui_recording": true,
+        "monitoring_off": false,
+        "raw_exact": true,
+        "monitor_compared_frames": 480000,
+        "missing_monitor_frames": 0,
+        "live_offline_difference": 0,
+        "applied_events": 2,
+        "first_applied_frame": 24576,
+        "input_disconnect_observed": false,
+        "gui_save_reopen": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "routing_observations": {
+          "graph_snapshots_during_run": 79,
+          "snapshots_with_owned_links": 75,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()"
+      },
+      {
+        "mode": "off",
+        "frames": 480000,
+        "owned_nodes_only": true,
+        "gui_recording": true,
+        "monitoring_off": true,
+        "raw_exact": true,
+        "monitor_compared_frames": 0,
+        "missing_monitor_frames": 0,
+        "live_offline_difference": 0,
+        "applied_events": 2,
+        "first_applied_frame": 24576,
+        "input_disconnect_observed": false,
+        "gui_save_reopen": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "routing_observations": {
+          "graph_snapshots_during_run": 79,
+          "snapshots_with_owned_links": 76,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 0\nThis plugin does not support propagateSizeHints()"
+      },
+      {
+        "mode": "disconnect",
+        "frames": 48128,
+        "owned_nodes_only": true,
+        "gui_recording": true,
+        "monitoring_off": false,
+        "raw_exact": true,
+        "monitor_compared_frames": 48128,
+        "missing_monitor_frames": 0,
+        "live_offline_difference": 0,
+        "applied_events": 1,
+        "first_applied_frame": 24576,
+        "input_disconnect_observed": true,
+        "gui_save_reopen": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "routing_observations": {
+          "graph_snapshots_during_run": 10,
+          "snapshots_with_owned_links": 8,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()"
+      }
+    ],
+    "result_sha256": "28cff86217b6434cad3258144b82e8b99f60d983eb80f385c06a2882dd014a26",
+    "log_sha256": "28cff86217b6434cad3258144b82e8b99f60d983eb80f385c06a2882dd014a26",
+    "fixture_sha256": "2f14e05d4c0b965855eba0fdad0bbc2e54fbfafd8ef1b98904b1566143cfacda",
+    "comparison_modes": [
+      "normal",
+      "disconnect"
+    ],
+    "physical_links": false,
+    "normal_module_unload_qualified": false
+  },
+  "native_asan_ubsan": {
+    "status": "all 3 serial modes passed after final modal guard",
+    "results": [
+      {
+        "mode": "normal",
+        "frames": 480000,
+        "owned_nodes_only": true,
+        "gui_recording": true,
+        "monitoring_off": false,
+        "raw_exact": true,
+        "monitor_compared_frames": 480000,
+        "missing_monitor_frames": 0,
+        "live_offline_difference": 0,
+        "applied_events": 2,
+        "first_applied_frame": 24576,
+        "input_disconnect_observed": false,
+        "gui_save_reopen": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "routing_observations": {
+          "graph_snapshots_during_run": 83,
+          "snapshots_with_owned_links": 75,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()"
+      },
+      {
+        "mode": "off",
+        "frames": 480000,
+        "owned_nodes_only": true,
+        "gui_recording": true,
+        "monitoring_off": true,
+        "raw_exact": true,
+        "monitor_compared_frames": 0,
+        "missing_monitor_frames": 0,
+        "live_offline_difference": 0,
+        "applied_events": 2,
+        "first_applied_frame": 24576,
+        "input_disconnect_observed": false,
+        "gui_save_reopen": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "routing_observations": {
+          "graph_snapshots_during_run": 81,
+          "snapshots_with_owned_links": 76,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 0\nThis plugin does not support propagateSizeHints()"
+      },
+      {
+        "mode": "disconnect",
+        "frames": 48128,
+        "owned_nodes_only": true,
+        "gui_recording": true,
+        "monitoring_off": false,
+        "raw_exact": true,
+        "monitor_compared_frames": 48128,
+        "missing_monitor_frames": 0,
+        "live_offline_difference": 0,
+        "applied_events": 1,
+        "first_applied_frame": 24576,
+        "input_disconnect_observed": true,
+        "gui_save_reopen": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "routing_observations": {
+          "graph_snapshots_during_run": 12,
+          "snapshots_with_owned_links": 8,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()"
+      }
+    ],
+    "result_sha256": "29e49960b5d9ac3af6a166b9129461b7cdbdf3066265014aa362542f28b3c8c6",
+    "log_sha256": "29e49960b5d9ac3af6a166b9129461b7cdbdf3066265014aa362542f28b3c8c6",
+    "fixture_sha256": "3f99cb8974db48814ac5f2e72a4df062dd0c7cfdcaa79ee2e9ecb2fa9f37d5c4",
+    "comparison_modes": [
+      "normal",
+      "disconnect"
+    ],
+    "physical_links": false,
+    "normal_module_unload_qualified": false,
+    "environment": {
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1",
+      "PIPEWIRE_DLCLOSE": "false",
+      "QT_QPA_PLATFORM": "offscreen"
+    }
+  },
+  "binary_sha256": {
+    ".cache/build-desktop/soundcurrent-daw": "0fac8e2404fa5193244e2f827352aafa7db85097c0567b98bbfde4176129b5c2",
+    ".cache/build-desktop/sc-recording-controller-tests": "fc53c3df96fe6c0263670558cda5e4329216e467cc15be2857e5d4eb2f3e51fe",
+    ".cache/build-desktop/sc-ui-tests": "dffaecb670588680195cc7e4f927a9114746db91b4404e58b3fb425258b44895",
+    ".cache/build-desktop-sanitized/soundcurrent-daw": "62044e8c2928ff4044283fa5b8ed893fe275c1159a9392f2990b39b6cb62b50e",
+    ".cache/build-windows-core/sc-recording-tests.exe": "dd901227f8ed15f41a222e0b15c747ece37c2e80ae2b253349749b94baaf0bc1"
+  },
+  "final_synthetic_metrics": [
+    {
+      "checks": 42,
+      "synthetic_endpoint": true,
+      "actual_disk_takes": true,
+      "retained_handoff": true,
+      "preview_copy_recovery": true,
+      "bounded_pressure_stop": true
+    },
+    {
+      "checks": 53,
+      "ui_keyboard_undo": true,
+      "focus_safe_wheel": true,
+      "scrollable_bands": 32,
+      "dirty_close_choices": 3,
+      "playback_ui_fake_endpoint": true,
+      "colorized_meter": true,
+      "close_waits_playback_join": true
+    }
+  ],
+  "screenshots": {
+    ".cache/s6g-recording-ui.png": "10bf7c582b2428520d8e5f7add68689f73c5f4b155e92de0215bca8843098bfb"
+  }
+}

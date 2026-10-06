@@ -1,6 +1,6 @@
 # S6c asynchronous project controller and desktop editor
 
-**Implemented project-editing preview; recording/playback/monitoring/export are not yet connected to the GUI. SLICE-001 and the full DAW remain incomplete.** The Qt-free engine/media targets are unchanged. The optional desktop adapter uses system Qt6 Core/Gui/Widgets; Qt Test is linked only by the UI fixture. Linux qualification used6.10.2. Qt6.4 is the declared API minimum, not a tested distribution/runtime claim.
+**This contract records the S6c project-editing foundation. S6e/S6g now connect playback and recording/monitoring/manual recovery; export remains open. SLICE-001 and the full DAW remain incomplete.** The Qt-free engine/media targets are unchanged. The optional desktop adapter uses system Qt6 Core/Gui/Widgets; Qt Test is linked only by the UI fixture. Linux qualification used6.10.2. Qt6.4 is the declared API minimum, not a tested distribution/runtime claim.
 
 ## Control and I/O ownership
 
@@ -50,4 +50,6 @@ S6d supplies the [production native playback owner](19-native-playback-owner.md)
 
 S6e now [connects Linux desktop playback](20-desktop-playback.md) through a separate transport/preparation worker; the original S6c evidence above describes its earlier editor-only checkpoint. Recording/export and general undo remain open.
 
-S6f adds [typed asynchronous take attachment](21-native-recording-owner.md): finalized-journal and media-hash verification runs on the I/O worker, then publication preserves intervening scalar edits. This does not yet wire Record into the GUI. Clip/asset undo, recording finalization before the close barrier, and recovery discovery remain required.
+S6f adds [typed asynchronous take attachment](21-native-recording-owner.md): finalized-journal and media-hash verification runs on the I/O worker, then publication preserves intervening scalar edits. S6g now wires Record and finalization before the close barrier. Clip/asset undo and automatic recovery discovery remain required.
+
+S6g now [connects recording result handoff and close choreography](22-desktop-recording.md). Recording finalization and verified attachment precede the canonical barrier/dirty decision. The project worker remains the sole canonical editor; its I/O worker performs verification. General clip/asset undo and automatic recovery discovery remain open.

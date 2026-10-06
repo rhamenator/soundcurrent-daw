@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
 #include "fake_playback_endpoint.hpp"
+#include "fake_recording_endpoint.hpp"
 #include <soundcurrent/recording.hpp>
 #include <QApplication>
 #include <QDialog>
@@ -18,6 +19,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QProgressBar>
+#include <QCheckBox>
 #include <chrono>
 #include <algorithm>
 #include <iostream>
@@ -314,6 +316,184 @@ void playbackWorkflow(const std::filesystem::path &root) {
           "Async close changed project or violated endpoint ownership");
 }
 
+void recordingWorkflow(const std::filesystem::path &root, bool monitoring) {
+    auto session = makeOneTrackSession("Enregistrement – Δοκιμή", "Raw input");
+    ProjectStore(root).save(session);
+    auto c = std::make_shared<recording_fixture::Counters>();
+    StudioWindow window(nullptr, {}, recording_fixture::options(c));
+    struct Release {
+        std::shared_ptr<recording_fixture::Counters> c;
+        ~Release() {
+            c->holdStop = false;
+        }
+    } release{c};
+    window.show();
+    window.activateWindow();
+    window.openProject(root);
+    await([&] { return window.snapshot()->session && window.snapshot()->io == IoOperation::None; });
+    auto *mode = window.findChild<QComboBox *>("recordMonitorMode");
+    auto *arm = window.findChild<QCheckBox *>("armTrack");
+    auto *record = window.findChild<QPushButton *>("recordButton");
+    check(mode && arm && record && mode->currentData().toInt() == int(RecordingMonitor::Off),
+          "Recording defaults or controls missing");
+    if (monitoring)
+        mode->setCurrentIndex(1);
+    check(window.prepareRecording(), "Desktop prepare recording not admitted");
+    check(!window.prepareRecording(), "Duplicate GUI prepare was admitted before acknowledgement");
+    await([&] {
+        return window.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               window.findChild<QComboBox *>("inputChannel0");
+    });
+    auto *input = window.findChild<QComboBox *>("inputChannel0");
+    auto *monitor = window.findChild<QComboBox *>("monitorChannel0");
+    check(input->currentIndex() == 0 && !record->isEnabled() && bool(monitor) == monitoring &&
+              !window.recordingSnapshot()->job,
+          "Prepare selected a default/started a job or unarmed recording");
+    input->clearFocus();
+    wheel(input);
+    QTest::qWait(30);
+    check(input->currentIndex() == 0, "Unfocused wheel selected recording input");
+    input->setCurrentIndex(1);
+    if (monitor)
+        monitor->setCurrentIndex(1);
+    arm->setChecked(true);
+    await([&] { return record->isEnabled(); });
+    record->click();
+    record->click();
+    await([&] { return window.recordingSnapshot()->telemetry.capturedFrames >= 512; });
+    check(c->activated == 1 && window.recordingSnapshot()->phase == RecordingPhase::Recording,
+          "Duplicate GUI record activated/stopped the take");
+    auto *gain = window.findChild<QDoubleSpinBox *>("gain_db0");
+    gain->setValue(6);
+    await([&] {
+        return window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 6 &&
+               window.recordingSnapshot()->appliedRevision == window.snapshot()->modelRevision;
+    });
+    auto *meter = window.findChild<QProgressBar *>("inputMeter");
+    await([&] { return meter->value() == 1200; });
+    check(meter->styleSheet().contains("#c83434"),
+          "Recording input overload indicator not colorized");
+    const auto screenshot = qEnvironmentVariable("SC_RECORDING_UI_SCREENSHOT");
+    if (!screenshot.isEmpty() && monitoring)
+        check(window.grab().save(screenshot), "Cannot save recording UI screenshot");
+    if (monitoring) {
+        arm->setChecked(false);
+        await([&] {
+            return window.snapshot()->session->assets.size() == 1 &&
+                   !window.recordingSnapshot()->take;
+        });
+        check(window.snapshot()->dirty && c->destroyed == 1 && !c->wrongThread,
+              "Unarm did not finalize and attach raw take");
+        PromptChoice cancel(QMessageBox::Cancel);
+        window.close();
+        await([&] { return cancel.prompts == 1; });
+        cancel.timer.stop();
+        check(window.isVisible() && !window.snapshot()->closed,
+              "Cancel after recording discarded dirty take");
+        PromptChoice discard(QMessageBox::Discard);
+        window.close();
+        await([&] { return window.snapshot()->closed && window.recordingSnapshot()->closed; });
+        check(ProjectStore(root).load() == session, "Discard changed saved project");
+    } else {
+        c->holdStop = true;
+        int ticks = 0;
+        QTimer responsive;
+        QObject::connect(&responsive, &QTimer::timeout, [&] { ++ticks; });
+        responsive.start(1);
+        PromptChoice save(QMessageBox::Save);
+        save.timer.stop();
+        window.close();
+        await([&] { return c->waitingStop.load() && ticks >= 3; });
+        check(ticks >= 3 && save.prompts == 0 && window.isVisible() && !window.snapshot()->closed &&
+                  !window.snapshot()->session->assets.size(),
+              "Close froze GUI/prompted/closed before finalization");
+        QTimer delayedAnswer;
+        std::optional<std::chrono::steady_clock::time_point> firstPrompt;
+        int maximumPrompts = 0;
+        bool waitedForUser = false;
+        QObject::connect(&delayedAnswer, &QTimer::timeout, [&] {
+            int count = 0;
+            for (auto *widget : QApplication::topLevelWidgets())
+                if (auto *box = qobject_cast<QMessageBox *>(widget); box && box->isVisible())
+                    ++count;
+            maximumPrompts = std::max(maximumPrompts, count);
+            if (count && !firstPrompt)
+                firstPrompt = std::chrono::steady_clock::now();
+            if (firstPrompt &&
+                std::chrono::steady_clock::now() - *firstPrompt >= std::chrono::milliseconds(80)) {
+                waitedForUser = true;
+                save.timer.start(1);
+                delayedAnswer.stop();
+            }
+        });
+        delayedAnswer.start(2);
+        c->holdStop = false;
+        await([&] {
+            return window.snapshot()->closed && window.recordingSnapshot()->closed &&
+                   window.playbackSnapshot()->closed && !window.isVisible();
+        });
+        check(waitedForUser && maximumPrompts == 1,
+              "Unanswered close prompt recursively queued another barrier/dialog");
+        auto saved = ProjectStore(root).load();
+        check(save.prompts == 1 && saved.assets.size() == 1 &&
+                  saved.tracks.front().clips.size() == 1 &&
+                  saved.tracks.front().eq.bands.front().gainDb == 6 && !c->wrongThread,
+              "Close did not attach then save finalized take");
+        check(inspectRecording(root / "media" / ("capture-" + saved.assets.front().id.str()))
+                  .finalized,
+              "Saved raw take is not finalized");
+    }
+}
+void recordingRecoveryWorkflow(const std::filesystem::path &root) {
+    auto s = makeOneTrackSession("Recovery – Σ", "Raw");
+    ProjectStore(root).save(s);
+    auto c = std::make_shared<recording_fixture::Counters>();
+    c->badHash = true;
+    StudioWindow window(nullptr, {}, recording_fixture::options(c));
+    window.show();
+    window.openProject(root);
+    await([&] { return window.snapshot()->session; });
+    check(window.prepareRecording(), "Recovery fixture prepare failed");
+    await([&] {
+        return window.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               window.findChild<QComboBox *>("inputChannel0");
+    });
+    window.findChild<QComboBox *>("inputChannel0")->setCurrentIndex(1);
+    window.findChild<QCheckBox *>("armTrack")->setChecked(true);
+    auto *record = window.findChild<QPushButton *>("recordButton");
+    await([&] { return record->isEnabled(); });
+    record->click();
+    await([&] { return window.recordingSnapshot()->telemetry.capturedFrames >= 512; });
+    window.findChild<QPushButton *>("recordStopButton")->click();
+    auto *keep = window.findChild<QPushButton *>("keepTakeButton");
+    await([&] { return keep->isVisible() && keep->isEnabled(); });
+    auto fault = window.recordingSnapshot();
+    check(fault->take && window.snapshot()->errorCode == ErrorCode::MediaMismatch &&
+              window.snapshot()->session->assets.empty() && !window.snapshot()->dirty,
+          "Unverified take entered canonical model");
+    const auto original = *fault->job;
+    const auto initial = inspectRecording(original);
+    keep->click();
+    await([&] { return !window.recordingSnapshot()->take; });
+    check(inspectRecording(original) == initial, "Keep-for-recovery modified/deleted take");
+    PromptChoice recover(QMessageBox::Yes);
+    check(window.inspectTake(original), "Recovery inspection not admitted");
+    await([&] {
+        return recover.prompts == 1 && window.snapshot()->session->assets.size() == 1 &&
+               !window.recordingSnapshot()->take;
+    });
+    recover.timer.stop();
+    auto model = *window.snapshot()->session;
+    check(window.snapshot()->dirty && model.assets.front().id != initial.spec.assetId &&
+              model.assets.front().frames == initial.committedFrames &&
+              inspectRecording(original) == initial,
+          "Recovery preview did not preserve original/new identity/extents");
+    PromptChoice save(QMessageBox::Save);
+    window.close();
+    await([&] { return window.snapshot()->closed && window.recordingSnapshot()->closed; });
+    check(ProjectStore(root).load() == model, "Recovery take failed desktop save/reopen");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QTemporaryDir configuration;
@@ -326,6 +506,10 @@ int main(int argc, char **argv) {
         check(temp.isValid(), "Cannot create UI fixture directory");
         workflows(utf8Path(temp.path().toUtf8().toStdString()) / "project");
         playbackWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "playback");
+        recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-off", false);
+        recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-monitor", true);
+        recordingRecoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /
+                                  "recording-recovery");
         std::cout << "{\"checks\":" << checks
                   << ",\"ui_keyboard_undo\":true,\"focus_safe_wheel\":true,\"scrollable_bands\":32,"
                      "\"dirty_close_choices\":3,\"playback_ui_fake_endpoint\":true,\"colorized_"
