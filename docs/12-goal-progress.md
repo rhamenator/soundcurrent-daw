@@ -1232,3 +1232,32 @@ NextM2d4c9: unchanged1800s separate diagnosticwithindividualcallfacts atmatching
 missedcycle, then choose boundedprocessing/placement/furthermeasurement fromactual
 evidence. Preservecurrentlongrange/sample/period/resource/durability gates; do not
 assign a host/instructioncause froman interval alone.
+
+## 2026-10-06 continuation: retained individual-call miss and signing budget
+
+Exact11110 terminates exit1 before actualcafc539 diagnostic binary freeze; reader
+35316 terminates exit0 before source/build edits. All62launch source pins and
+binary/library hashes match. At56.92audio seconds sink skips1024frames. Same-cycle
+owner21.854538mswall/21.851922msCPU ends23.490041ms aftercycle; original maximum
+gate fails. Matching rawmax ordinal3 wall4.177203ms/CPU4.175100ms; EQ wallmax ordinal4
+1.494642ms/.784833ms. Observer and other bridge intervals remain unisolated, no
+root-cause claim. Diskready79/118 without exhaustion; all33phase pairs complete.
+Read-only all87,425,024raw/5,459,968stereo samples exact and105originalfiles unchanged.
+The[twentieth observation](../tests/results/M2/2026-10-06-individual-stage-sustained-failure.json)
+preserves originalnineteen by pinned evidence; no gate relaxed or parity promoted.
+
+Owner reports certificate cost constraints. Both equalizers' current uncommitted
+Windows packaging uses signed VB-CABLE while preserving their deferred own-driver
+source. Read-only exactfile/head receipts record policy review; all24borrowed
+DSP/profile inputs still match. The[DAW decision](49-windows-signing-budget.md)
+retains ordinary user-mode WASAPI with no cable/own-driver/purchased-certificate
+development prerequisite. Unsigned local artifacts and public trust/install
+qualification remain distinct. Free signing/distribution candidates require
+eligibility/package/workflow review; none enrolled or published. No equalizer
+writes, host-policy changes, dependency additions or purchase.
+
+Full goal active/incomplete; all92frozencontracts unchanged. Next implement a
+deterministic desktop-close stale-error reproduction/fix while sustained native
+performance, physical/durability/Windows and allremaining full DAW/X004/X005/
+all-Europe workflows remain open. A different workflow's pass cannot erase any
+of the20retained observations.

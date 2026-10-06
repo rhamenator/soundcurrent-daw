@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-06",
+  "owner_constraint": "A purchased signing certificate is currently unaffordable",
+  "repositories": {
+    "soundcurrent-eq": {
+      "observed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+      "files": {
+        "docs/windows-cable-interim.md": {
+          "sha256": "b45e826f6b481cb8b694f21b3f2a46c8b84c64b8fa55be8c8ebb7227ccda6391",
+          "bytes": 2824,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "docs/windows-native-driver-bookmark.md": {
+          "sha256": "037f944a86c13195ea6cbf85ed459c6d7032f17daef12cf8e40f3859032cbd41",
+          "bytes": 993,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "docs/windows-signing.md": {
+          "sha256": "3a22adc629308f05e16a763db53c4cddceaf370790ff2d9f63ee2b486d0bbf56",
+          "bytes": 4483,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "scripts/build-windows.ps1": {
+          "sha256": "5254d9b968d36079b21f07fee9aefc6055e34f923150fbe9660576b2efb2bf29",
+          "bytes": 11414,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "packaging/windows/cable-setup.ps1": {
+          "sha256": "6053b7f51067d936799914447f1d4e5c4a95485db6b53792a447d0cc4858f461",
+          "bytes": 4927,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        }
+      },
+      "no_repository_write": true
+    },
+    "soundcurrent-studio": {
+      "observed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+      "files": {
+        "docs/windows-cable-interim.md": {
+          "sha256": "b45e826f6b481cb8b694f21b3f2a46c8b84c64b8fa55be8c8ebb7227ccda6391",
+          "bytes": 2824,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "docs/windows-native-driver-bookmark.md": {
+          "sha256": "037f944a86c13195ea6cbf85ed459c6d7032f17daef12cf8e40f3859032cbd41",
+          "bytes": 993,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "docs/windows-signing.md": {
+          "sha256": "3a22adc629308f05e16a763db53c4cddceaf370790ff2d9f63ee2b486d0bbf56",
+          "bytes": 4483,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "scripts/build-windows.ps1": {
+          "sha256": "6af77b5f27a318fc1941dc2935dee3c213d6c3012e24c6541d41262016007fb3",
+          "bytes": 11446,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        },
+        "packaging/windows/cable-setup.ps1": {
+          "sha256": "cc26472e41ab5378261b447a432918f0891c6ed4b304f1e1ae2a5a4f1b1a7424",
+          "bytes": 4931,
+          "source_state": "uncommitted working copy",
+          "disposition": "Read-only packaging policy review; no code copied or executed"
+        }
+      },
+      "no_repository_write": true
+    }
+  },
+  "borrowed_input_audit": {
+    "path": ".cache/m2-current-equalizer-reuse-audit.json",
+    "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297",
+    "inputs": 24,
+    "all_match": true
+  },
+  "decision": "Keep DAW user-mode WASAPI direct endpoint development free of a SoundCurrent kernel driver, virtual cable or paid certificate prerequisite. Unsigned development artifacts explicit; public trust/distribution separately qualified; optional no-cost signing eligibility research remains open.",
+  "production_source_changes": false,
+  "full_goal_status": "active and incomplete"
+}

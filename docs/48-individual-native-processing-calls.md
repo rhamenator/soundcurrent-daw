@@ -98,3 +98,40 @@ placement or further measurement experiment; do not assign an instruction/host
 cause from an elapsed/CPU interval alone. Original long native, physical/load/
 filesystem/power-loss/unload, Windows, punch/loop/takes/comping and every remaining
 professional, import, equipment and European-language requirement remain open.
+
+## Sustained individual-call attempt: retained failure
+
+The subsequent `cafc539` diagnostic stops after56.92audio seconds /83.78supervisor
+seconds. Exact native handle11110 terminates exit1; actual binary is frozen
+before changes. Exact reader35316 terminates successfully: all87,425,024raw /
+5,459,968common stereo samples match exactly and all105original files unchanged.
+Raw lanes retain2,732,032frames, sink2,729,984; the2048-frame raw suffix is intact.
+Peak3.82195 retains float headroom.
+
+Sink previous cycle188191 is followed by188193, skipping1024frames. Owner maximum
+shares missed cycle188192:21.854538mswall /21.851922msCPU, starting1.635503ms after
+the clock and ending23.490041ms after it. Usage20.229msuser /1.620mssystem, no
+faults/switches in that interval. Original finite maximum gate fails. Timing,
+CPU and resource coverage is complete.
+
+Matching snapshot raw32calls sum9.408983mswall /5.228982msCPU; longest raw call
+ordinal3 is4.177203mswall /4.175100msCPU. EQ33calls sum8.490520mswall /7.028372msCPU;
+longest wall-selected call ordinal4 is1.494642mswall /0.784833msCPU. Inclusive
+mix8.533080mswall /8.531484msCPU; bridge21.840753mswall /21.839188msCPU. Nested
+intervals are not disjoint. Inner paired CPU queries omit observer work included
+in outer intervals; wall-minus-CPU does not establish scheduler/instruction cost.
+Raw outlier, wider EQ costs and remaining bridge/observer work stay unresolved.
+Source maximum8.530514ms is at another cycle, not evidence for this missed cycle.
+
+All33disk phase pairs complete, maximum ready79/118, no exhaustion. Some flush/
+journal phases exceed1second; exact preserved media does not prove durable
+cadence or disk performance. Defaults/prior links stay, owned routes retire.
+No concurrent build or CPU experiment, policy/device/rate/quantum/affinity/
+governor/NUMA change, or equalizer write. The twentieth unresolved observation
+and original nineteen remain in
+[evidence](../tests/results/M2/2026-10-06-individual-stage-sustained-failure.json).
+
+Next: independently reproduce and fix desktop-close cancellation by an already
+published controller error. Continue native performance work from this evidence;
+do not repeat an unchanged long run or waive its gate. All professional, Windows,
+physical, durability, import, equipment and localization requirements remain.

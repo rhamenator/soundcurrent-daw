@@ -15,6 +15,12 @@ Requirements **X001** (Windows functional parity), **X002** (all-Europe localiza
 
 ## Language coverage
 
+Windows build/test development has no purchased certificate or SoundCurrent
+driver prerequisite. [The budget decision](49-windows-signing-budget.md) records
+the owner constraint and the equalizers' read-only interim-route review. Local
+unsigned development and public distribution/trust qualification are separate;
+native Windows runtime and release gates remain open.
+
 “All of Europe” includes countries outside the EU and regional/minority language communities. There is no seven-language cutoff. [language-register.json](../localization/language-register.json) is the initial authored work inventory, including Latin, Cyrillic, Greek and right-to-left scripts. It separates language from region/script variants. It is **not exhaustive**; additions stay in scope. Translation coverage must be audited with contributors across European countries before a complete-coverage claim. Missing CLDR or Qt locale support is an integration gap, not grounds to drop a language.
 
 The [Council of Europe language charter](https://www.coe.int/en/web/european-charter-regional-or-minority-languages/languages-covered) is a useful regional/minority-language coverage cross-check, but its treaty scope does not define our entire product inventory. Language identifiers use [BCP 47's IANA register](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry). [Unicode CLDR](https://cldr.unicode.org/index/downloads) supplies a reference for locale data; **48.2** is the inspected stable release. Qt's embedded data version must be recorded separately when GUI dependencies are pinned. We do not bundle CLDR data now.
