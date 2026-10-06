@@ -34,7 +34,7 @@ Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, fro
 
 ## Next implementation task
 
-The owner added expanded equipment profiles/import and a profile editor as **X005**; [its contract](docs/17-equipment-profiles.md) includes source/rights, editable curves, save-copy prompts and monitor-versus-print routing. That feature remains to be implemented in the DAW.
+The owner added expanded equipment profiles/import and a profile editor as **X005**; [its contract](docs/17-equipment-profiles.md) includes source/rights, editable curves, save-copy prompts and monitor-versus-print routing. The Qt preview now includes **Equipment → Profile library and editor…**, a searchable pinned 1,087-speaker catalog, JSON/response imports, curve/filter editing, local undo/redo and saved custom copies. Monitoring/print routing and portable project profile pins remain required.
 
 Continue **M1 / SLICE-001** with **S6: the native recording owner and Qt input/arm/record/monitor/recovery workflow**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S6b adds bounded immediate edits and applied-frame receipts through recording/playback; S6c adds the asynchronous Qt project controller/editor, S6d adds a production native playback owner/clock gate and S6e connects Linux GUI playback/output selection/live EQ/meters with a separate worker. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
 

@@ -1,0 +1,84 @@
+{
+  "researchDate": "2026-10-05",
+  "sources": [
+    {
+      "kind": "microphone",
+      "brand": "Dayton Audio",
+      "family": "Measurement microphones",
+      "models": [
+        "EMM-6",
+        "iMM-6",
+        "UMM-6"
+      ],
+      "url": "https://support.daytonaudio.com/microphonecalibrationtool",
+      "status": "Individual calibration file needed; no universal model curve"
+    },
+    {
+      "kind": "microphone",
+      "brand": "miniDSP",
+      "family": "UMIK",
+      "models": [
+        "UMIK-1"
+      ],
+      "url": "https://www.minidsp.com/products/acoustic-measurement/umik-1",
+      "status": "Individual serial / orientation calibration required"
+    },
+    {
+      "kind": "microphone",
+      "brand": "Audio-Technica",
+      "family": "20 Series",
+      "models": [
+        "AT2020"
+      ],
+      "url": "https://docs.audio-technica.com/us/at2020_english.pdf",
+      "status": "Published typical response graph; numeric digitization pending; not unit calibration"
+    },
+    {
+      "kind": "microphone",
+      "brand": "Neumann",
+      "family": "U",
+      "models": [
+        "U 87 Ai"
+      ],
+      "url": "https://www.neumann.com/globalassets/digizuite/16474-en-opin0134_u87ai_06-10.pdf",
+      "status": "Published graphs by polar pattern; digitization pending"
+    },
+    {
+      "kind": "microphone",
+      "brand": "Shure",
+      "family": "SM",
+      "models": [
+        "SM57",
+        "SM58"
+      ],
+      "url": "https://www.shure.com/en-US/docs/guide/SM58",
+      "status": "Documentation found; response-curve acquisition / digitization pending"
+    },
+    {
+      "kind": "amplifier",
+      "brand": "Various",
+      "family": "Integrated amplifiers",
+      "models": [],
+      "url": "https://www.soundstagenetwork.com/index.php?Itemid=154&id=97&option=com_content&view=category",
+      "status": "Published electrical measurement index; condition / rights review and digitization pending"
+    },
+    {
+      "kind": "amplifier",
+      "brand": "Pyle",
+      "family": "PDA compact amplifiers",
+      "models": [
+        "PDA29BU"
+      ],
+      "url": "https://techtalk.parts-express.com/forum/tech-talk-forum/1506906-pyle-audio-products-pda29bu-and-audio-specs",
+      "status": "Approximate electrical reference transcribed; uncertainty retained"
+    },
+    {
+      "kind": "speaker",
+      "brand": "Various",
+      "family": "Various",
+      "models": [],
+      "url": "https://github.com/pierreaubert/spinorama",
+      "status": "1087 generated EQ profiles admitted from pinned commit; original measured curves not copied"
+    }
+  ]
+}

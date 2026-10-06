@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "requirement": "X005",
+  "status": "partial_offline_library_editor",
+  "baseline": "SC-DAW-BASELINE-2026-10-05; unchanged",
+  "source_revision": "6b53056d118807a8252af2cbcd2c6b1820feee98",
+  "source_manifest": "reuse/equipment/provenance.json",
+  "implementation": "Qt desktop Equipment → Profile library and editor…",
+  "platform": "Linux x86_64; Qt 6.10.2; offscreen UI",
+  "catalog": {
+    "profiles": 1087,
+    "brands": 255,
+    "kind": "generated speaker model corrections",
+    "upstream": "acc757bb98d63327092ee537bde25d9c227811f3",
+    "no_bundled_pyle_arrays": true
+  },
+  "tests": {
+    "equipment_checks": 1192,
+    "regression_ctest_groups": 12,
+    "regression_status": "pass",
+    "asan_ubsan_lsan_regression_groups": 12,
+    "asan_ubsan_lsan_status": "pass",
+    "final_affected_ui_groups": 2,
+    "final_affected_ui_status": "pass debug and ASan/UBSan/LSan",
+    "new_source_checkouts_modified": false,
+    "physical_audio_or_native_device_tests": false,
+    "acceptance": [
+      "all_catalog_entries_roundtrip",
+      "unicode_and_whole_system_versioned_state",
+      "bounded_and_invalid_json_response_import",
+      "inverse_fit_sign_residual_and_sub_bass_policy",
+      "library_atomic_save_reopen_and_rejected_save_preserves_bytes",
+      "immutable_reference_custom_identity_and_parent_provenance",
+      "curve_drag_grouped_undo_frequency_and_gain",
+      "local_undo_redo_and_unfocused_wheel_guard",
+      "dirty_cancel_retains_draft_discard_writes_nothing_escape_save_copy",
+      "actual_daw_menu_opens_library_without_mutating_canonical_session",
+      "editor_visible_save_cancel_and_screen_fit_offscreen",
+      "duplicate_json_keys_rejected_at_profile_and_filter_depth"
+    ]
+  },
+  "initial_failure": {
+    "log": ".cache/equipment-ctest.log",
+    "affected": "desktop-ui fixture awaited focused wheel edit after modal library closed",
+    "resolution": "Reactivated the parent window in the offscreen fixture before simulated input; final debug/sanitizer UI pass",
+    "production_change_required": false
+  },
+  "gaps": [
+    "framework_independent_profile_state_and_preparation",
+    "monitor_cue_routes_and_explicit_print_invariance",
+    "project_profile_pins_missing_relink_and_migrations",
+    "live_measurement_capture_and_target_curves",
+    "worker_owned_gui_library_io_and_fit_responsiveness",
+    "native_windows_build_execution",
+    "all_europe_translations_accessibility_and_hidpi",
+    "complete_source_data_redistribution_and_corresponding_source_release_audit"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "92ecd54f54c78a0d6d09d2853458c4877bc3af50bf09b0ded284109533c4a1a3",
+    "ui/studio_window.cpp": "7da3a1a602ef31640dbedf4ff6b90cdba4e922262e68d37616fd23fb37761c72",
+    "ui/equipment_profiles.cpp": "ded832ad6b7100485abd1374c243207c6e872a77902231df87d3021793a13b8c",
+    "ui/equipment_profiles.hpp": "6383ed8f48e6bdc0cbb31ab119bb083fb3df5f1a255b3356e778c9fcde129d9a",
+    "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
+    "ui/equipment_curve.hpp": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e",
+    "ui/equipment_resources.qrc": "c57668900ccb299af3d210bc32a4be2728e2b51184ff180d3fb6d6214dc4f5b4",
+    "tests/equipment_tests.cpp": "e0142280196f276fb981e4b8a298e6d6f0645c2f437cc8845eb440f0ace99846",
+    "tests/ui_tests.cpp": "9351565d9e25211c3bb5f4a77a9428f405a2a32ad57c7e7f840dcf7b1a37d8ef",
+    "reuse/equipment/provenance.json": "4a318e344ca9b13e63272b2464e43dde88429085f07c013911aca57de87deb87"
+  },
+  "logs": {
+    ".cache/equipment-build.log": "ed857f27227b808ec6df52f463dd03d37c6cb84f247773f2f28ace09f7b6a2e7",
+    ".cache/equipment-ctest-final.log": "d57e5d96df3b8c9ff957e7709a97aaa29189cb9b46ced4c4e095289d1dc58f2c",
+    ".cache/equipment-tests-final.log": "30d03e0126e1ca82b14187a69c8c2001d39f9bd2c5e11533b299460d7a6b3238",
+    ".cache/equipment-final-ui.log": "cf0027a2155f71fad7b1237b9723625d1c9fe54274d3f26649d69c626e89a51e",
+    ".cache/equipment-sanitized-build.log": "30f52443c8311b81d697ab04a1fe14ac00cbdb789a9043b71ef755729428f61e",
+    ".cache/equipment-sanitized-ctest.log": "3bd26d354096f977d6f1dbcc8c4252e5089fe5f65d4ae40af4309e96d63ed997",
+    ".cache/equipment-sanitized-final-build.log": "8801521e368fe077c8058f86f2c48b5ff4248eaf86af679722aa21d5d7248c97",
+    ".cache/equipment-sanitized-final-ui.log": "c95115444ef63358ab45e1148d89f612b38712146e376cc9a60ed1b7aaf4a2ca",
+    ".cache/equipment-final-build.log": "0659dcad769f27cc81315de369028ea2b107d571e16b1aef8f797ca417e2e280"
+  },
+  "screenshots": {
+    ".cache/equipment-editor.png": "e6fae9a73aace08e1a7bd467203ee4cc306046c9472cc2aec680e7c33ff055f5",
+    ".cache/equipment-library.png": "a04e78c9e6c18c2812d61294ddd7af1031955bba35c3d65f29f8f71a46d4e378"
+  },
+  "frozen_parity_rows_completed": 0
+}

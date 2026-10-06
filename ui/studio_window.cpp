@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "equipment_profiles.hpp"
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
@@ -100,6 +101,16 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options)
     });
     undo_->setObjectName(QStringLiteral("undoAction"));
     redo_->setObjectName(QStringLiteral("redoAction"));
+    auto *equipmentMenu = menuBar()->addMenu(tr("Equipment"));
+    auto *equipmentAction =
+        equipmentMenu->addAction(tr("Profile library and editor…"), this, [this] {
+            try {
+                equipment::openLibrary(this);
+            } catch (const std::exception &error) {
+                QMessageBox::warning(this, tr("Equipment profiles"), text(error.what()));
+            }
+        });
+    equipmentAction->setObjectName(QStringLiteral("equipmentLibraryAction"));
     auto *transportMenu = menuBar()->addMenu(tr("&Transport"));
     prepareAction_ =
         transportMenu->addAction(tr("Prepare playback"), this, [this] { preparePlayback(); });

@@ -15,6 +15,7 @@ The owner activated the complete [goal](../GOAL.md) on 2026-10-05 and added X004
 | Plugins/instruments/content/analysis | License/dependency inventory and M6/M7/M8 requirements | Actual adapters, catalog/content rights, sound quality and failure qualification |
 | Notation/immersive/video | M9/M10 requirements remain intact | Models, rendering/routing/synchronization and hardware/quality qualification |
 | Native and exchange import | X004 contract plus P080/P081/P082/P091 | Versioned native/exchange adapters, source fixtures and preservation/loss/render reports |
+| Equipment profiles/editor | X005 pinned offline Qt library/editor, generated speaker catalog, strict import, custom-copy/undo and dirty-close evidence | Shared engine schema, monitoring/print routes, portable pins, capture/target curves, rights and platform/localization qualification |
 | Windows | Core/processor/capture/media/shared-bridge/tools/tests cross-link with pinned libsndfile DLL | Native execution, device/plugin/UI/file-fault tests, installer and same full workflows |
 | All-Europe localization | Initial extensible 130-item inventory and identifier checks | Complete coverage audit, real catalogs, native review, UI/help/installer qualification |
 | Distribution/security/licenses | GPL license, pinned source provenance/notices, local build/test evidence | Actual packages, SBOM/transitives, source delivery, untrusted-input/failure and clean-install gates |
@@ -36,3 +37,16 @@ Production playback now has a backend-free clock bridge and a PipeWire control/p
 ## S6e checkpoint (2026-10-05)
 
 Previous goal turn was **progress**: `c9c4c17` added native playback ownership. This turn connects the real Linux desktop to an asynchronous transport/preparation worker, explicit output selectors, Play/Stop, live EQ/undo, accepted/applied receipt state and colorized numeric metering. Controller/UI failure tests and real owned native GUI signal/offline replay evidence are recorded in [the contract](20-desktop-playback.md). Both workers join before window close; completed native routes remain until Stop/reprepare/close so downstream final delivery is not raced. Native timeout/module-unload and hardware/Windows/accessibility/localization gates remain open. Next: recording ownership, input/arm/record/monitor, raw take attachment and recovery UI, then S7 export. Full goal, X004 and X005 remain incomplete.
+
+## X005 equipment editor checkpoint
+
+Owner-requested transfer is **progress**: a committed equalizer snapshot now supplies
+an offline profile library/editor in the actual DAW Equipment menu. Source/data hashes,
+GPL notices and upstream candidates are recorded; the equalizer repositories are not
+modified. Linux catalog/import/fit/reference-preservation/undo/save-prompt/menu fixtures
+and sanitizer evidence are in [X005 results](../tests/results/X005/2026-10-05-equipment-editor.json).
+This does not apply correction to audio. X005-A/B are partial; shared engine schema,
+control-room/print routing and portable pins remain open, as do native Windows,
+localization and release-rights gates. The full goal remains active and incomplete.
+Next primary slice task remains native recording ownership, input/arm/record/monitor,
+raw take attachment and recovery UI, followed by S7 export. Profile routing joins M4.

@@ -1,0 +1,12 @@
+{
+  "commit": "acc757bb98d63327092ee537bde25d9c227811f3",
+  "available": 1088,
+  "accepted": 1087,
+  "brands": 255,
+  "gaps": [
+    {
+      "model": "Vanatoo Transparent Zero Plus",
+      "reason": "No admissible 1\u201316 filter correction"
+    }
+  ]
+}

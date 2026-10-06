@@ -48,3 +48,14 @@ Recent commits are a maintenance signal, not a guarantee of support, review qual
 The final lock includes dependency version/commit, source hash, build flags, direct/transitive license expressions, notices, redistribution method, patch list, SBOM and update owner. Separate columns inventory content/model/font licenses and application code. Paid distribution preserves GPL source obligations; GPL does not license vendor samples or trademarks. A blocked library does not delete its product feature: switch implementation, budget a maintained replacement, or report the remaining requirement.
 
 No dependency is selected merely from a permissive license or a README feature name. Present feasibility validates the Studio C++ boundary, not a full framework/dependency choice. The proposed architecture is intentionally modular so M0 can revise costly choices before broad development.
+
+## Equipment editor reuse checkpoint
+
+X005 uses the existing Qt Core/Gui/Widgets dependency and copied GPL equalizer editor
+at pinned `6b53056`, rather than adopting a new GUI/audio framework. Curve-only C++
+helpers have no Qt headers; the provisional library/profile JSON model is still Qt
+GUI-side and is not the shared engine schema. Snapshot, adapted paths and later
+upstream candidates are in `reuse/equipment/provenance.json`. The 1,087-entry generated
+speaker catalog retains its Spinorama GPL license, source hashes and collector; full
+source/data rights and packaging audit remain open. Pyle measurement arrays are excluded.
+See ADR 011 and docs/17-equipment-profiles.md for integration cost and remaining gates.

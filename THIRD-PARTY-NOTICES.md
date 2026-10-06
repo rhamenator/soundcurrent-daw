@@ -8,6 +8,22 @@
 
 **libsndfile 1.2.2 public API header**, copyright1999–2016 Erik de Castro Lopo, LGPL-2.1-or-later. Unmodified header/notices and COPYING are in `third_party/libsndfile`, with exact source hashes in the manifest. Used by root disk-side recording/read-ahead and the isolated feasibility probe, outside the real-time engine. Linux dynamically links distribution libsndfile1.2.2-4. Windows development cross-build dynamically links upstream1.2.2 with external/MPEG codecs disabled; archive/build pin is in the manifest, full source stays in ignored cache. Actual library/codec transitive packaging notices must be inventoried before distribution.
 
+**SoundCurrent EQ equipment-profile adapter**, pinned at the exact `6b53056` revision
+in [reuse/equipment/provenance.json](reuse/equipment/provenance.json). Original
+GPL-3.0-only SPDX notices and unmodified source/header/curve reference snapshots remain
+under `reuse/equipment/upstream`; adapted Qt editor and response-only C++ helpers are
+marked modified 2026-10-05. These helpers are not audio processing paths.
+
+**Spinorama generated EQ catalog**, source revision
+`acc757bb98d63327092ee537bde25d9c227811f3`, adopted through that equalizer snapshot.
+Its upstream GPLv3 license, bounded collector, count/gap report and per-entry source
+URLs/hashes are retained under `reuse/equipment/upstream`. The root README identifies
+GPLv3; original plots, third-party articles/calibration arrays and the Pyle electrical
+transcription are not included. The local 1,087-entry catalog is an adapted generated
+correction set. Complete per-source data-rights and corresponding-source qualification
+remain a release gate. Install rules include catalog license and reuse provenance;
+these rules do not themselves qualify a distribution package.
+
 ## Linked system dependencies of the current core
 
 - Linux: OpenSSL Crypto, version **3.5.5** in this development build. Apache-2.0; [upstream license](https://github.com/openssl/openssl/blob/openssl-3.5.5/LICENSE.txt). It supplies worker-side media SHA-256. Source and binaries are not vendored. Distribution packaging must retain the actual linked version's notices/license and audit transitives.

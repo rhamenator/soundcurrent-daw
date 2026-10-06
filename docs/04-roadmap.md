@@ -51,7 +51,7 @@ These are acceptance specifications, not claims about reference products' measur
 
 ## Equipment profiles
 
-The owner added **X005 expanded equipment profiling and an editable profile library**, including microphone/speaker/amplifier curves, brand/family/model browsing, import and dirty-profile save prompts. [The contract](17-equipment-profiles.md) separates schema/editor/catalog work from M4 monitoring routing and explicit correction printing. Reviewed GPL/profile snapshots from the equalizer projects are reuse candidates; no ongoing source checkout is modified here. Linux/Windows and localization/portability gates apply.
+The owner added **X005 expanded equipment profiling and an editable profile library**, including microphone/speaker/amplifier curves, brand/family/model browsing, import and dirty-profile save prompts. [The contract](17-equipment-profiles.md) separates schema/editor/catalog work from M4 monitoring routing and explicit correction printing. A pinned equalizer snapshot now provides the offline Qt library/editor and 1,087 generated speaker corrections; engine profile state/preparation, control-room routing/printing, portability and full qualification remain open. No ongoing equalizer checkout is modified here. Linux/Windows and localization/portability gates apply.
 
 ## Work sequencing and next issue
 

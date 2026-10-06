@@ -2,7 +2,7 @@
   "schema": 1,
   "date": "2026-10-05",
   "id": "X005",
-  "status": "required_unimplemented",
+  "status": "partial_offline_library_editor",
   "source": "Owner request in DAW chat; matching human requirements inspected in SoundCurrent equalizer development",
   "reference_baseline": "SC-DAW-BASELINE-2026-10-05; unchanged",
   "contract": "docs/17-equipment-profiles.md",
@@ -29,7 +29,24 @@
     "Windows"
   ],
   "localization": "All Europe requirement applies",
-  "reuse": "Await reviewed equalizer snapshot; preserve notices/revision/hashes and do not mutate ongoing checkouts",
+  "reuse": "Pinned soundcurrent-eq 6b53056; reuse/equipment/provenance.json; source checkouts remain untouched",
   "implemented": false,
-  "acceptance": "X005-A/B/C/D staged gates in contract; no requirement accepted as complete from feature names"
+  "acceptance": "X005-A/B/C/D staged gates in contract; no requirement accepted as complete from feature names",
+  "partial_implementation": {
+    "desktop_entry": "Equipment → Profile library and editor…",
+    "catalog_profiles": 1087,
+    "catalog_brands": 255,
+    "snapshot": "reuse/equipment/provenance.json",
+    "evidence": "tests/results/X005/2026-10-05-equipment-editor.json",
+    "gaps": [
+      "shared_framework_independent_engine_profile_schema",
+      "monitor_correction_and_explicit_print_routes",
+      "project_profile_pins_and_missing_profile_recovery",
+      "measurement_capture_and_target_curves",
+      "worker_io_and_responsiveness",
+      "native_windows_qualification",
+      "all_europe_localization_and_accessibility",
+      "source_data_release_rights"
+    ]
+  }
 }

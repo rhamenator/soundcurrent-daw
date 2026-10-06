@@ -3,6 +3,7 @@
 #include "fake_playback_endpoint.hpp"
 #include <soundcurrent/recording.hpp>
 #include <QApplication>
+#include <QDialog>
 #include <QAbstractButton>
 #include <QAction>
 #include <QDoubleSpinBox>
@@ -21,6 +22,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <source_location>
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
@@ -30,11 +32,13 @@ void check(bool value, const char *message) {
     if (!value)
         throw std::runtime_error(message);
 }
-template <class Predicate> void await(Predicate predicate) {
+template <class Predicate>
+void await(Predicate predicate, std::source_location caller = std::source_location::current()) {
     const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(10);
     while (!predicate()) {
         if (std::chrono::steady_clock::now() >= end)
-            throw std::runtime_error("Timed out awaiting UI workflow");
+            throw std::runtime_error("Timed out awaiting UI workflow at line " +
+                                     std::to_string(caller.line()));
         QTest::qWait(2);
     }
 }
@@ -75,6 +79,23 @@ void workflows(const std::filesystem::path &root) {
         return window.snapshot()->session && window.snapshot()->io == IoOperation::None &&
                window.findChild<QDoubleSpinBox *>(QStringLiteral("gain_db0"));
     });
+    const auto modelBeforeProfiles = *window.snapshot()->session;
+    const auto revisionBeforeProfiles = window.snapshot()->modelRevision;
+    auto *profileAction = window.findChild<QAction *>(QStringLiteral("equipmentLibraryAction"));
+    check(profileAction != nullptr, "DAW equipment menu action missing");
+    QTimer::singleShot(0, [] {
+        auto *library = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+        check(library && library->objectName() == "equipmentLibrary",
+              "DAW menu did not open profile library");
+        library->reject();
+    });
+    profileAction->trigger();
+    window.activateWindow();
+    QTest::qWait(40);
+    check(*window.snapshot()->session == modelBeforeProfiles &&
+              window.snapshot()->modelRevision == revisionBeforeProfiles &&
+              !window.snapshot()->dirty,
+          "Offline profile library mutated canonical session");
     auto *gain = window.findChild<QDoubleSpinBox *>(QStringLiteral("gain_db0"));
     auto *slider = window.findChild<QSlider *>(QStringLiteral("gainSlider0"));
     auto *scroll = window.findChild<QScrollArea *>();
@@ -295,6 +316,10 @@ void playbackWorkflow(const std::filesystem::path &root) {
 
 } // namespace
 int main(int argc, char **argv) {
+    QTemporaryDir configuration;
+    if (!configuration.isValid())
+        return 1;
+    qputenv("XDG_CONFIG_HOME", configuration.path().toUtf8());
     QApplication app(argc, argv);
     try {
         QTemporaryDir temp;

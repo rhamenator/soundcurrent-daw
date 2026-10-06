@@ -1,0 +1,73 @@
+{
+  "origin": "soundcurrent-eq",
+  "revision": "6b53056d118807a8252af2cbcd2c6b1820feee98",
+  "date": "2026-10-05",
+  "license": "GPL-3.0-only",
+  "files": {
+    "src/equipment_profiles.cpp": {
+      "sha256": "96a6314fadf417f0348f25898b7ded6647ec4d690fe97ccb0765ecb4de0c3ae4",
+      "snapshot": "reuse/equipment/upstream/src/equipment_profiles.cpp"
+    },
+    "src/equipment_profiles.h": {
+      "sha256": "0820459b634d679807dfeeae0a94f2b690b9e981ba7601363b43f2fc00a22851",
+      "snapshot": "reuse/equipment/upstream/src/equipment_profiles.h"
+    },
+    "src/dsp.cpp": {
+      "sha256": "259c578fa852d6e8579b3d49b812806d3e3d3aa8134a14d13099282e5b43a6cc",
+      "snapshot": "reuse/equipment/upstream/src/dsp.cpp"
+    },
+    "src/dsp.h": {
+      "sha256": "8d89cdabc5c266b0b2f2c77019d665edfe197c24677be758b2378b25ef5699c4",
+      "snapshot": "reuse/equipment/upstream/src/dsp.h"
+    },
+    "scripts/collect-equipment-profiles.py": {
+      "sha256": "49403500214aeffcf5fa3be72643549bc9b85201156e26c9895cc16e89838a74",
+      "snapshot": "reuse/equipment/upstream/scripts/collect-equipment-profiles.py"
+    },
+    "data/equipment/spinorama.json": {
+      "sha256": "85abb545d27d1a4939c2a27d115a6661774efbc4f75cc9e5abfa11f6d74a0464",
+      "snapshot": "reuse/equipment/upstream/data/equipment/spinorama.json"
+    },
+    "data/equipment/LICENSE": {
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "snapshot": "reuse/equipment/upstream/data/equipment/LICENSE"
+    },
+    "data/equipment/collection-report.json": {
+      "sha256": "adcb1f92ab3a942f4bbb1770f62f3494c0b54e7857a83efcb3194ae34412f68f",
+      "snapshot": "reuse/equipment/upstream/data/equipment/collection-report.json"
+    },
+    "data/equipment/measurement-sources.json": {
+      "sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+      "snapshot": "reuse/equipment/upstream/data/equipment/measurement-sources.json"
+    },
+    "tests/equipment_profiles.cpp": {
+      "sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+      "snapshot": "reuse/equipment/upstream/tests/equipment_profiles.cpp"
+    }
+  },
+  "adapted_files": [
+    "ui/equipment_profiles.cpp",
+    "ui/equipment_profiles.hpp",
+    "ui/equipment_curve.cpp",
+    "ui/equipment_curve.hpp",
+    "tests/equipment_tests.cpp"
+  ],
+  "changes": [
+    "DAW namespace and independent profile storage",
+    "Offline editor only; no implicit correction route",
+    "Strict schema, metadata and library identity checks",
+    "Whole-system kind; bounded editor undo/redo; focus-safe controls",
+    "Qt translation contexts and screen-fit scroll containers",
+    "Existing bounded JSON parser validates duplicate keys and strict JSON before creating the Qt model"
+  ],
+  "upstream_candidates": [
+    "Strict schema rejection and duplicate library identity handling",
+    "Editor undo/redo and gesture grouping",
+    "Focus-safe wheel handling and translated editor controls"
+  ],
+  "gaps": [
+    "Monitoring/print routing, portable project profile pins, worker I/O and framework-independent shared profile schema",
+    "Native Windows and all-Europe translation/UI qualification",
+    "Source/data release-rights audit remains required; no original proprietary plots/arrays imported"
+  ]
+}
