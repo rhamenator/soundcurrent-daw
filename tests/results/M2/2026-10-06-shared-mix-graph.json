@@ -1,0 +1,308 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2c1 shared-clock multitrack EQ/mix, read-ahead and WAV export",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "0b170ac3c82df42847bf9ed5054a3af7f5668025",
+  "status": "Scoped engine and short synthetic corpus passed; native multitrack and full goal incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "5424d334b1873e37b3cd4bf8e43f7aa1fbd7fb2dc21b359ee89b8b45a8e1e3d8",
+    "include/soundcurrent/mix.hpp": "2583593adae5c9690ebc7c16710781a814509e5657b43367d5902397b4112efe",
+    "include/soundcurrent/mix_playback.hpp": "beef6e7620a691459cf1bd50fbd8950d2fff33aec1926a31eb311f5b41bd7b64",
+    "include/soundcurrent/mix_reader.hpp": "6c5b2079fe6411680a5a7701caad5546f608959dd5d18c004ffa7206286ac4e1",
+    "include/soundcurrent/export.hpp": "4f49c8a27dc1584e3b882a672e3bae7d8576bef942d5f192568d97f9dc8aa1f5",
+    "src/mix.cpp": "7dd8c0f8685dcdce39608ad0cba3c64e3f9d09cd2e5e54f01f9a6988fb9a8e2c",
+    "src/mix_playback.cpp": "4e94608db565d33141f36be465356a8144fc28fdd48a7dc73261d3ee71d5003e",
+    "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+    "src/mix_run.cpp": "bed57656f66541dfb7442cbfb85ede40cf3e76c887d71fe66c9e2f3a5cd1eebf",
+    "src/export.cpp": "35b698b3930389fdb2a04605e811986d798bbb0e7e05146d26b81c7ea463e49a",
+    "tools/export_tool.cpp": "3516b3275c6a2ac5e21b3b32973b13f14a640a037594bc263daf68a18d970cfb",
+    "tests/mix_graph_tests.cpp": "4b226292728124ddabfdca67575e5c0993e43ad3f833ebe1a14d81d767693641",
+    "tests/mix_playback_tests.cpp": "5f513a8dd41211ad1a60107d62d74c5e73b0c395f7f1c621985b165b4b530997",
+    "tests/verify_mix_cli.py": "36c44cafe86a0f10f47856b3ebe77017585d469339cde67205b8416853408e5e",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/verify_export_cli.py": "57179181cc565e93261a3ba905205a7afd1ea00055afeed6ccf4b687e8de41c4",
+    "tests/pipewire_recording_ui_fixture.cpp": "ac2f9e5d9068c870fc2c614f7c2844ce0489ba9df4e162f54027a21583daeac9",
+    "tests/verify_pipewire_fixture.py": "7ae4c37cc225e8addc557b149c14fcba2cd1ce154cc7c98fd214dd6a84c95ab5",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "research/parity.json": "5c15ac09802b16b547eebe8dd3b1741e94f4fa5492518f86859d9d340a425bff"
+  },
+  "workflows": [
+    "Independent direct-form-I RBJ EQ plus sparse matrix oracle, +9/-6 dB lanes and Q 1.7; variable 1..127-frame blocks across 8192 frames; difference zero, peak 4.62478",
+    "Explicit stereo-plus-mono matrix yields left 1.25/right 0.375; no inferred channel map",
+    "UUID parameter events bind correctly after prepared track-order reversal; scheduled/immediate generation and revision receipts; duplicate revisions rejected",
+    "Duplicate track/channel routes, invalid layouts/indices/nonfinite coefficients, routing/payload admission and mismatched identity layouts rejected",
+    "Invalid buffers preserve cursor; timing/numeric overflow are sticky and numeric-fault output silent; nonfinite input counted",
+    "32 mono inputs sum to 4, plus 1/2/8/32/256-channel identities; RtObjectExchange publication/replacement and off-RT retirement",
+    "32-track 29000-frame source-coordinate oracle, independent clip offsets/ranges and signed stereo routes; variable 1..512-frame blocks; exact common positions",
+    "Multitrack WAV export range 113..12347 gives 12234 exact float frames; independent RIFF reader and sample oracle; private preroll",
+    "Flat tail reaches 4800-frame quiet budget; confirmed replacement cancellation preserves destination hash and removes temporary",
+    "Global reference cap 31 refuses 32 open track-asset references; low total payload refuses before publication",
+    "Healthy peer retains offsets while absent peer counts 512 gaps; late peer discards 512 stale frames before joining at correct cursor",
+    "Blocked real disk worker retains common cursor and reports missing track-frame units; release/join off RT; failing reader reports ReaderFailed and join error",
+    "Raw hash and project bytes/model preserved; independent Python 32-track RIFF/RF64 CLI, digests, confirmed replacement, actual active SIGTERM and layout rejection",
+    "Zero audited C/C++ allocations/frees/blocking locks; structural bounds do not qualify deadlines or hard RSS"
+  ],
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "groups": 23,
+      "seconds": 19.87,
+      "log": {
+        "path": ".cache/m2-mix-final-debug-tests.log",
+        "sha256": "f73c8da9c58fbaa0e028d93cb2ec2d8898fba20383af646d2247e8d860bc8231"
+      },
+      "ctest_details": {
+        "path": ".cache/build-desktop/Testing/Temporary/LastTest.log",
+        "sha256": "3d46706e718a627594afe403da44c3fecf136af46a1f0df2247910b2796429f7"
+      },
+      "mix_graph": {
+        "checks": 273,
+        "oracle_difference": 0,
+        "peak": 4.62478,
+        "rt_violations": 0
+      },
+      "mix_playback": {
+        "checks": 226,
+        "tracks": 32,
+        "frames": 29000,
+        "oracle_difference": 0,
+        "rt_violations": 0
+      }
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 23,
+      "seconds": 50.63,
+      "log": {
+        "path": ".cache/m2-mix-final-sanitized-tests.log",
+        "sha256": "a192fece647e926f363ba83610d293c7da6c47af395d1e9489e7a116c5682e48"
+      },
+      "ctest_details": {
+        "path": ".cache/build-desktop-sanitized/Testing/Temporary/LastTest.log",
+        "sha256": "97d7f69830549c1d52e700d3f0c26f658838a0cfbbfa96ea9466e1f8c4ba3abe"
+      },
+      "mix_graph": {
+        "checks": 273,
+        "oracle_difference": 0,
+        "peak": 4.62478,
+        "rt_violations": 0
+      },
+      "mix_playback": {
+        "checks": 226,
+        "tracks": 32,
+        "frames": 29000,
+        "oracle_difference": 0,
+        "rt_violations": 0
+      },
+      "sanitizers": [
+        "ASan",
+        "UBSan",
+        "LSan"
+      ],
+      "environment": "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1"
+    },
+    "linux_builds": {
+      "debug": {
+        "path": ".cache/m2-mix-binding-build.log",
+        "sha256": "a7d90c768be73f4da422ac03d528881e732ee9c5992d7dafe26522139987a65e"
+      },
+      "sanitized": {
+        "path": ".cache/m2-mix-sanitized-build.log",
+        "sha256": "b3ab711db3cc61d6d0765c5630d6ee4c4fa658ad79f22cba173eeec125a2497b"
+      },
+      "final_debug_test": {
+        "path": ".cache/m2-mix-final-debug-build.log",
+        "sha256": "364224ff394ed381429a90362ffb1f5ed06d49a86c72c4aa5e1a27ab09c6f2ff"
+      },
+      "final_sanitized_test": {
+        "path": ".cache/m2-mix-final-sanitized-build.log",
+        "sha256": "364224ff394ed381429a90362ffb1f5ed06d49a86c72c4aa5e1a27ab09c6f2ff"
+      }
+    },
+    "independent_mix_cli": {
+      "debug": {
+        "result": "passed",
+        "results": {
+          "tracks": 32,
+          "frames": 4887,
+          "oracle_difference": 0,
+          "rf64_and_confirmed_replace": true,
+          "active_sigterm": true,
+          "layout_rejection": true,
+          "source_project_preserved": true,
+          "audio_devices": false
+        },
+        "log": {
+          "path": ".cache/m2-mix-cli.log",
+          "sha256": "769b725bef546746d4c6e80cb8b1b68b0c4f660f93fab14141cd794e424d34af"
+        }
+      },
+      "sanitized": {
+        "result": "passed",
+        "results": {
+          "tracks": 32,
+          "frames": 4887,
+          "oracle_difference": 0,
+          "rf64_and_confirmed_replace": true,
+          "active_sigterm": true,
+          "layout_rejection": true,
+          "source_project_preserved": true,
+          "audio_devices": false
+        },
+        "log": {
+          "path": ".cache/m2-mix-sanitized-cli.log",
+          "sha256": "769b725bef546746d4c6e80cb8b1b68b0c4f660f93fab14141cd794e424d34af"
+        },
+        "environment": "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1"
+      }
+    },
+    "legacy_export_cli": {
+      "result": "passed",
+      "results": {
+        "record_cli": "Recorded and saved 480000 raw frames at 48000 Hz; SHA-256 556d098f2fb226a534e31dc5387af635d5009e668456ef33994c7fc681cb1fed",
+        "export_cli": {
+          "frames": 11866,
+          "tail_frames": 0,
+          "rate": 48000,
+          "channels": 1,
+          "peak": 3.248429298400879,
+          "over_full_scale_samples": 5542,
+          "tail_truncated": false,
+          "rf64": false,
+          "replaced": false,
+          "sample_sha256": "f1b82c614f27bbf61f848240ac242096ff7728e38db9d88e402897bb9926a359",
+          "file_sha256": "8ed0ff903ad593f7d90e7fb4d6b49f67b8c8b9021fe6d51f96baed9eaca93f43",
+          "directory_flushed": true,
+          "publication_warning": false,
+          "audio_device": false
+        },
+        "independent_reader": "RIFF/RF64 chunks, float GUID, extents, every sample and digests",
+        "independent_dsp": "direct-form-I peaking oracle",
+        "maximum_sample_difference": 9.979164723480862e-30,
+        "confirmed_replacement": "RF64 re-encoding preserves every sample",
+        "signal_cancellation": "SIGTERM during active large RF64 write; status 3, no output or temporary",
+        "project_and_media_unchanged": true,
+        "physical_audio": false
+      },
+      "log": {
+        "path": ".cache/m2-mix-legacy-cli.log",
+        "sha256": "7416a87e947bf592ab555db0ef42f7096e7f23dda9d36355fd20048182f11f94"
+      }
+    },
+    "native_pipewire": {
+      "result": "passed",
+      "execution": "Serial after owned CPU build/test jobs completed; owned endpoints only; production sources unchanged by final test-only rebuild",
+      "results": [
+        {
+          "mode": "roundtrip",
+          "frames": 480000,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 480000,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 2,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": false,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": true,
+          "desktop_export_frames": 480000,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 84,
+            "snapshots_with_owned_links": 76,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()"
+        }
+      ],
+      "manifest": {
+        "path": ".cache/m2-mix-native.json",
+        "sha256": "4e238aca4f632f867a979c58051d7965328e1167d5f66cb022fd3970f316401f"
+      },
+      "log": {
+        "path": ".cache/m2-mix-native.log",
+        "sha256": "4e238aca4f632f867a979c58051d7965328e1167d5f66cb022fd3970f316401f"
+      },
+      "scope": "Existing one-track GUI capture/EQ/Undo/Save/relocate/reopen/export regression; not native multitrack or physical audio qualification"
+    },
+    "windows_headless": {
+      "result": "Cross-compilation passed, initial 28 Ninja steps followed by final test-source rebuild",
+      "log": {
+        "path": ".cache/m2-mix-windows-build.log",
+        "sha256": "09ac9f27f1b747997701b35bf76efd41e4bfafd9cdbc511bdc59732f82ef4ad9"
+      },
+      "desktop_ui": "not built/qualified",
+      "native_audio": "not executed/qualified",
+      "tests": "cross-compiled, not executed on Windows"
+    },
+    "equalizer_reuse": {
+      "result": "All 24 registered inputs match; retained snapshots intact; no source refresh required",
+      "report": {
+        "path": ".cache/m2-mix-final-reuse-audit.json",
+        "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+      },
+      "sources": {
+        "soundcurrent-eq": {
+          "head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "head_changed": false,
+          "registered_inputs": 12
+        },
+        "soundcurrent-studio": {
+          "head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "head_changed": false,
+          "registered_inputs": 12
+        }
+      },
+      "equalizer_checkout_writes": false
+    }
+  },
+  "resolved_failures": [
+    {
+      "failure": "New independent CLI fixture omitted media directory",
+      "fix": "Create media directory before writing fixture WAV"
+    },
+    {
+      "failure": "New independent CLI fixture used wrong EQ schema key",
+      "fix": "Use existing processors[0] EQ schema; no production schema change or waived acceptance"
+    }
+  ],
+  "parity_decomposition": {
+    "P001": {
+      "subset": "Existing single-track native capture plus new shared-clock 32-track synthetic playback/mix and offline render",
+      "remaining": "Shared native playback/capture owner, simultaneous armed recording/overdub, alignment and declared-device/duration evidence",
+      "F": "unverified",
+      "Q": "unverified"
+    },
+    "P017": {
+      "subset": "Explicit static track-to-output matrix, independent EQ/event lanes and float64 summing with float32 headroom",
+      "remaining": "General bus/group/DAG routing, sends/sidechains/cycles, PDC, mixer UI/persistence and full reference comparison",
+      "F": "unverified",
+      "Q": "unverified"
+    }
+  },
+  "frozen_reference_contract_unchanged": true,
+  "remaining_gates": [
+    "Production Qt/PipeWire playback still prepares one selected track; native multitrack/master routing UI required",
+    "Short 32-track corpus does not qualify M2 ten-minute synthetic or 30-minute declared-device; shared simultaneous capture/overdub remains required",
+    "General DAG/bus/send/sidechain/VCA/PDC/feedback, graph crossfades and DSP state migration remain required",
+    "Payload accounting is not hard allocator/RSS admission; decoder memory, source cache and CPU/deadline/load qualification remain open",
+    "Physical recording alignment, native Windows Qt/audio/installers, filesystem/power-loss/>4GiB and normal PipeWire dependency-unload memory qualification remain open",
+    "All 92 frozen-reference families and separate functional/quality/content/native-compatibility qualification remain open; X004 native imports; X005 monitor/print/portable profiles/measurements/rights incomplete",
+    "All-Europe localization coverage, translations, native-speaker review, scripts/bidi/accessibility/help/installers remain open"
+  ],
+  "next_task": "M2c2 integrate prepared shared-clock mix into Linux native playback owner/desktop with explicit master layout/output routes and stable per-track parameters; compare owned native output against offline; then one shared playback/capture callback for simultaneous armed tracks and overdub",
+  "published_or_pushed": false
+}

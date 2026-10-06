@@ -38,6 +38,7 @@ Linux-first professional digital audio workstation and recording suite, planned 
 28. [Recording-job discovery and recovery](docs/28-recording-discovery.md)
 29. [Transactional track and clip edits](docs/29-multitrack-edits.md)
 30. [Desktop timeline and selected-track workflow](docs/30-desktop-timeline.md)
+31. [Shared-clock multitrack EQ and mix](docs/31-multitrack-mix.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix family remains unqualified, with explicit reference uncertainty and scoped evidence for partial workflows. None is reported as equivalent.
 
@@ -45,7 +46,7 @@ Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, fro
 
 The owner added expanded equipment profiles/import and a profile editor as **X005**; [its contract](docs/17-equipment-profiles.md) includes source/rights, editable curves, save-copy prompts and monitor-versus-print routing. The Qt preview now includes **Equipment → Profile library and editor…**, a searchable pinned 1,092-speaker catalog with subtype and active/passive filters, JSON/response imports, curve/filter editing, local undo/redo and saved custom copies. Monitoring/print routing and portable project profile pins remain required.
 
-Continue **M2 multitrack foundations**. [M2a typed editing](docs/29-multitrack-edits.md) now supplies grouped track/clip operations, bounded mixed Undo/Redo and verified take-admission Undo; developer CLI commands expose persisted edits. [M2b](docs/30-desktop-timeline.md) exposes desktop track/clip selection, exact-range/split/move edits and selected single-track preparation without changing canonical order. Next: shared-clock live/offline multitrack graph integration and simultaneous overdub. Punch/loop, takes/comping, fades and the remaining M2 workflows stay required. **M1 / SLICE-001** remains incomplete on its independent native Windows, physical, filesystem, load/deadline and normal module-unload gates; S8 routing, native corpus, monitoring persistence and recovery discovery now have scoped evidence. [S7b desktop export](docs/24-desktop-export.md) now connects immutable accepted-prefix capture, track/range/tail/RF64 selection, worker-side destination inspection/consent, progress/cancel and safe close. [S7a](docs/23-offline-export.md) now exports selected ranges through a private shared EQ instance with preroll, tails, cancellation and completed-file publication. S6g connects Linux desktop input/arm/record/monitoring, verified take attachment and manual recovery; [the desktop recording contract](docs/22-desktop-recording.md) records evidence and limitations. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M2 multitrack foundations**. [M2a typed editing](docs/29-multitrack-edits.md) now supplies grouped track/clip operations, bounded mixed Undo/Redo and verified take-admission Undo; developer CLI commands expose persisted edits. [M2b](docs/30-desktop-timeline.md) exposes desktop track/clip selection, exact-range/split/move edits and selected single-track preparation without changing canonical order. [M2c1](docs/31-multitrack-mix.md) adds the Qt-free shared-clock EQ/matrix graph, fair read-ahead worker and static multitrack WAV/CLI export. Next: native owner/desktop master-output integration, then one playback/capture clock for simultaneous overdub. Punch/loop, takes/comping, fades and the remaining M2 workflows stay required. **M1 / SLICE-001** remains incomplete on its independent native Windows, physical, filesystem, load/deadline and normal module-unload gates; S8 routing, native corpus, monitoring persistence and recovery discovery now have scoped evidence. [S7b desktop export](docs/24-desktop-export.md) now connects immutable accepted-prefix capture, track/range/tail/RF64 selection, worker-side destination inspection/consent, progress/cancel and safe close. [S7a](docs/23-offline-export.md) now exports selected ranges through a private shared EQ instance with preroll, tails, cancellation and completed-file publication. S6g connects Linux desktop input/arm/record/monitoring, verified take attachment and manual recovery; [the desktop recording contract](docs/22-desktop-recording.md) records evidence and limitations. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Desktop development preview
 
@@ -60,8 +61,13 @@ Requires Qt6 Core/Gui/Widgets development files (Test for fixtures), in addition
 
 ## Offline export developer workflow
 
+The new `render-mix` command exports every saved track with matching-layout unity
+routes through the shared multitrack graph. Custom channel matrices are available
+in the core API; mixed-layout GUI routing is still required.
+
 ```sh
 .cache/build-desktop/sc-export-tool render PROJECT_DIRECTORY OUTPUT.wav
+.cache/build-desktop/sc-export-tool render-mix PROJECT_DIRECTORY MIX.wav
 .cache/build-desktop/sc-export-tool render PROJECT_DIRECTORY OUTPUT.wav --start 137 --end 12003 --tail
 python3 tests/verify_export_cli.py
 ```

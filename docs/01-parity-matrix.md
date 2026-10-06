@@ -194,3 +194,10 @@ P009 fades/crossfades remain unimplemented; P008 grouped selection/warps/native
 phase and P086 complete history domains remain open. P001 still needs simultaneous
 32-track capture, shared-clock graph and declared-device qualification. All
 reference workflows and F/Q/C/N requirements remain unchanged.
+
+
+[M2c1 shared-clock EQ/matrix graph](31-multitrack-mix.md) adds a short 32-track
+playback/render corpus with independent samples, reported reader gaps and headroom.
+P001's simultaneous capture/duration/native acceptance remains open; P017's bus
+network, cycle/PDC behavior and persistence are not supplied by a star matrix.
+No reference F/Q/C/N axis is promoted.

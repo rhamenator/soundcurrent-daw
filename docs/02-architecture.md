@@ -132,3 +132,14 @@ Follow reconciliation uses that ID; selecting or editing a different track does
 not retarget audio. This does not implement the multitrack DAG, PDC or shared
 playback/capture clock described above. M2c supplies those engine foundations;
 Qt scene allocation, parameter formatting and model projection stay outside RT.
+
+
+## M2c1 shared-clock mix checkpoint
+
+[The new core](31-multitrack-mix.md) prepares independent track EQ/event nodes,
+explicit sparse channel matrices, float64 sum scratch and one sample cursor.
+Per-track read-ahead pipes retain healthy offsets during counted gaps/late data;
+one fair disk owner remains outside callbacks. Static track/mix WAV export shares
+this processing path and the existing publication transaction. Production native
+playback/Qt integration is next; general DAG/PDC/feedback/crossfade/state migration
+and simultaneous capture/overdub remain required. No new dependency is adopted.

@@ -38,10 +38,14 @@ int main(int argc, char **argv) {
             std::cerr
                 << "Usage: sc-export-tool render PROJECT OUTPUT.wav [--start FRAME --end FRAME] "
                    "[--tail] [--rf64] [--replace-sha256 CONFIRMED_HASH]\n"
+                   "       sc-export-tool render-mix PROJECT OUTPUT.wav [same options; matching "
+                   "track layouts]\n"
                    "       sc-export-tool fingerprint FILE.wav\n";
             return 2;
         }
-        if (arg(std::filesystem::path(argv[1])) != "render")
+        const auto command = arg(std::filesystem::path(argv[1]));
+        const bool mixMode = command == "render-mix";
+        if (command != "render" && !mixMode)
             return 2;
         const auto root = std::filesystem::path(argv[2]);
         const auto session = ProjectStore(root).load();
@@ -52,8 +56,9 @@ int main(int argc, char **argv) {
         spec.endFrame = session.exportEndFrame;
         if (spec.endFrame <= spec.startFrame) {
             spec.startFrame = 0;
-            for (const auto &clip : session.tracks.front().clips)
-                spec.endFrame = std::max(spec.endFrame, clip.startFrame + clip.lengthFrames);
+            for (std::size_t t = 0; t < (mixMode ? session.tracks.size() : 1); ++t)
+                for (const auto &clip : session.tracks[t].clips)
+                    spec.endFrame = std::max(spec.endFrame, clip.startFrame + clip.lengthFrames);
         }
         spec.maximumTailFrames = Frame(session.sampleRate) * 10;
         spec.silentWindowFrames = (session.sampleRate + 9) / 10;
@@ -81,7 +86,16 @@ int main(int argc, char **argv) {
         std::signal(SIGTERM, interrupt);
         ExportOptions options;
         options.canceled = [] { return interrupted != 0; };
-        const auto r = exportTrackWav(root, session, std::filesystem::path(argv[3]), spec, options);
+        ExportResult r;
+        if (mixMode) {
+            std::vector<Id> ids;
+            for (const auto &t : session.tracks)
+                ids.push_back(t.id);
+            MixExportSpec mixed(identityMix(session, ids, session.tracks.front().layout));
+            static_cast<ExportSettings &>(mixed) = spec;
+            r = exportMixWav(root, session, std::filesystem::path(argv[3]), mixed, options);
+        } else
+            r = exportTrackWav(root, session, std::filesystem::path(argv[3]), spec, options);
         std::cout << std::setprecision(17) << "{\"frames\":" << r.frames
                   << ",\"tail_frames\":" << r.tailFrames << ",\"rate\":" << r.sampleRate
                   << ",\"channels\":" << r.layout.channels << ",\"peak\":" << r.peak

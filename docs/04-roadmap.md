@@ -94,3 +94,12 @@ never changes canonical order or retargets an owner; verified takes attach to th
 captured ID. M2c next prepares one shared-clock multitrack live/offline graph, then
 simultaneous capture/overdub. Full M2 punch/loop/takes/comping/fades, remaining M1
 native/platform/fault gates and all frozen parity requirements remain required.
+
+
+M2c1 now provides [shared-clock multitrack EQ/matrix playback and WAV export](31-multitrack-mix.md),
+bounded fair read-ahead, explicit resource/layout admission and independent
+32-track source-coordinate/mix oracles. The short corpus does not satisfy M2's
+ten-minute synthetic or 30-minute native gate. Next integrate its prepared run
+into the native owner/desktop, then simultaneous capture/overdub on one callback.
+General buses/sends/sidechains/PDC, punch/loop/takes/comping/fades and full frozen
+parity remain required, together with independent Windows/localization/M1 gates.

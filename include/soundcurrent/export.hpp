@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "project_store.hpp"
+#include "mix.hpp"
 #include <optional>
 
 namespace soundcurrent::daw {
@@ -16,9 +17,7 @@ struct ExportDestination {
 ExportDestination inspectExportDestination(const std::filesystem::path &projectRoot,
                                            const std::filesystem::path &destination,
                                            const std::function<void()> &beforeRead = {});
-struct ExportSpec {
-    explicit ExportSpec(const Id &track) : trackId(track) {}
-    Id trackId;
+struct ExportSettings {
     Frame startFrame = 0, endFrame = 0; // Half-open timeline selection, not source offsets.
     ExportTail tail = ExportTail::ExactRange;
     Frame maximumTailFrames = 480000;
@@ -26,12 +25,22 @@ struct ExportSpec {
     double silenceAmplitude = 1e-6;
     std::uint32_t blockFrames = 512;
     std::size_t memoryBudgetBytes = 128 * 1024 * 1024;
+    std::size_t maximumRoutingEntries = 65536;
+    std::uint32_t maximumOpenAssetsPerTrack = 64, maximumOpenAssetReferences = 256;
     // Explicit resource admission, includes preroll and maximum tail. Caller may raise it.
     Frame maximumProcessFrames = 48000LL * 60 * 60 * 24;
     bool forceRf64 = false;
     // No token means exclusive no-overwrite. A token approves replacement of these bytes.
     // Hash/recheck is for the owned-filesystem contract, not hostile-writer atomic CAS.
     std::optional<std::string> replaceSha256;
+};
+struct ExportSpec : ExportSettings {
+    explicit ExportSpec(const Id &track) : trackId(track) {}
+    Id trackId;
+};
+struct MixExportSpec : ExportSettings {
+    explicit MixExportSpec(MixPlan p) : plan(std::move(p)) {}
+    MixPlan plan;
 };
 struct ExportOptions {
     // All callbacks run on the calling I/O owner, never on audio or the GUI.
@@ -61,4 +70,7 @@ struct ExportResult {
 ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Session &,
                             const std::filesystem::path &destination, const ExportSpec &,
                             const ExportOptions & = {});
+ExportResult exportMixWav(const std::filesystem::path &projectRoot, const Session &,
+                          const std::filesystem::path &destination, const MixExportSpec &,
+                          const ExportOptions & = {});
 } // namespace soundcurrent::daw

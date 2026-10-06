@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/export.hpp>
-#include <soundcurrent/playback_reader.hpp>
+#include <soundcurrent/mix_reader.hpp>
 #include "media_io.hpp"
 #include <sndfile.h>
 #include <algorithm>
@@ -118,9 +118,10 @@ ExportDestination inspectExportDestination(const std::filesystem::path &projectR
     }
     return result;
 }
-ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Session &session,
-                            const std::filesystem::path &destination, const ExportSpec &spec,
-                            const ExportOptions &options) {
+static ExportResult exportGraphWav(const std::filesystem::path &projectRoot, const Session &session,
+                                   const std::filesystem::path &destination,
+                                   const ExportSettings &spec, const MixPlan &plan,
+                                   const ExportOptions &options) {
     auto checkCanceled = [&] {
         if (options.canceled && options.canceled())
             throw ProjectError(ErrorCode::Canceled, "Export canceled before publication");
@@ -133,13 +134,16 @@ ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Sess
     };
     checkCanceled();
     validate(session);
-    const auto track = std::find_if(session.tracks.begin(), session.tracks.end(),
-                                    [&](const Track &t) { return t.id == spec.trackId; });
-    require(track != session.tracks.end(), "Export track is missing");
     require(spec.startFrame >= 0 && spec.endFrame > spec.startFrame && spec.blockFrames > 0 &&
                 spec.blockFrames <= 65536 && spec.maximumProcessFrames > 0 &&
                 (spec.tail == ExportTail::ExactRange || spec.tail == ExportTail::UntilSilent),
             "Invalid export range or resource admission");
+    MixConfig graphConfig;
+    graphConfig.maximumFrames = spec.blockFrames;
+    graphConfig.startFrame = spec.startFrame;
+    graphConfig.memoryBudgetBytes = spec.memoryBudgetBytes;
+    graphConfig.maximumRoutingEntries = spec.maximumRoutingEntries;
+    mixPayloadBytes(session, plan, graphConfig);
     const Frame tailBudget = spec.tail == ExportTail::UntilSilent ? spec.maximumTailFrames : 0;
     require(tailBudget >= 0 && tailBudget <= Frame(session.sampleRate) * 60 &&
                 (spec.tail != ExportTail::UntilSilent ||
@@ -175,14 +179,18 @@ ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Sess
     };
     verifyDestination();
     Frame begin = spec.startFrame;
-    for (const auto &clip : track->clips)
-        if (clip.startFrame < spec.endFrame)
-            begin = std::min(begin, clip.startFrame);
+    for (const auto &route : plan.tracks) {
+        const auto track = std::find_if(session.tracks.begin(), session.tracks.end(),
+                                        [&](const Track &t) { return t.id == route.track; });
+        for (const auto &clip : track->clips)
+            if (clip.startFrame < spec.endFrame)
+                begin = std::min(begin, clip.startFrame);
+    }
     require(spec.endFrame - begin <= spec.maximumProcessFrames &&
                 tailBudget <= spec.maximumProcessFrames - (spec.endFrame - begin),
             "Export exceeds the admitted processing duration");
     const auto maximumFrames = spec.endFrame - spec.startFrame + tailBudget;
-    const auto channels = track->layout.channels;
+    const auto channels = plan.output.channels;
     require(static_cast<std::uint64_t>(maximumFrames) <=
                 (UINT64_MAX - 1048576) / (std::uint64_t(channels) * sizeof(float)),
             "Export file size overflow");
@@ -193,39 +201,27 @@ ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Sess
     result.endFrame = spec.endFrame;
     result.processingStartFrame = begin;
     result.sampleRate = session.sampleRate;
-    result.layout = track->layout;
+    result.layout = plan.output;
     result.rf64 = spec.forceRf64 || maximumBytes > UINT32_MAX;
-    PlaybackConfig config;
-    config.sampleRate = session.sampleRate;
-    config.layout = track->layout;
-    config.startFrame = begin;
-    config.endFrame = spec.endFrame;
-    config.maximumCallbackFrames = spec.blockFrames;
-    config.slabFrames = std::max(256u, spec.blockFrames);
-    config.memoryBudgetBytes = spec.memoryBudgetBytes;
-    config = preparePlaybackConfig(config);
     const auto samples = std::size_t(spec.blockFrames) * channels;
-    const auto readerBytes =
-        std::size_t(captureSlabs + 3) * config.slabFrames * channels * sizeof(float);
-    require(readerBytes <= spec.memoryBudgetBytes &&
-                samples <= (spec.memoryBudgetBytes - readerBytes) / (3 * sizeof(float)),
+    require(samples < spec.memoryBudgetBytes / (2 * sizeof(float)),
             "Export audio buffers exceed the memory admission");
-    PlaybackPipe pipe(config);
+    graphConfig.startFrame = begin;
+    graphConfig.memoryBudgetBytes -= samples * 2 * sizeof(float);
+    MixPlaybackConfig config{graphConfig, spec.endFrame, std::max(256u, spec.blockFrames)};
+    MixPlayback mix(session, plan, config);
     ReadAheadOptions readerOptions;
     readerOptions.beforeAdmissionRead = checkCanceled;
     readerOptions.beforeRead = [&](Frame) { checkCanceled(); };
-    TrackReader reader(pipe, root, session, track->id, std::move(readerOptions));
-    PreparedEq eq(session, track->id, spec.blockFrames, 1);
+    readerOptions.maximumOpenAssets = spec.maximumOpenAssetsPerTrack;
+    MixReader reader(mix, root, session, std::move(readerOptions), spec.maximumOpenAssetReferences);
     require(PreparedEq::metadata().latencyFrames == 0,
             "This export adapter requires the prepared EQ's zero latency");
     boundary(ExportBoundary::Prepared, 0);
     // Processor/binding state is separately bounded by the existing model/engine contracts.
-    std::vector<float> raw(samples), wet(samples), interleaved(samples);
-    std::array<float *, 256> in{}, out{};
-    std::array<const float *, 256> read{};
+    std::vector<float> wet(samples), interleaved(samples);
+    std::array<float *, 256> out{};
     for (std::uint32_t c = 0; c < channels; ++c) {
-        in[c] = raw.data() + std::size_t(c) * spec.blockFrames;
-        read[c] = in[c];
         out[c] = wet.data() + std::size_t(c) * spec.blockFrames;
     }
     Temporary temp{dest.parent_path() /
@@ -252,8 +248,8 @@ ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Sess
         if (options.progress)
             options.progress(result.frames, maximumFrames);
     };
-    auto process = [&](std::uint32_t n, Frame frame) {
-        const auto report = eq.process({read.data(), channels}, {out.data(), channels}, n, frame);
+    auto process = [&](std::uint32_t n) {
+        const auto report = mix.graph().processSilence({out.data(), channels}, n);
         require(report.status == ProcessStatus::Ok && !report.invalidInputSamples &&
                     !report.numericFaultSamples,
                 "Export processor failed", ErrorCode::MediaMismatch);
@@ -265,18 +261,20 @@ ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Sess
         if (frame < spec.startFrame)
             end = std::min(end, spec.startFrame);
         const auto n = static_cast<std::uint32_t>(end - frame);
-        while (!pipe.readerDone()) {
+        while (!mix.readerDone()) {
             checkCanceled();
-            if (!reader.fillOne())
+            if (!reader.fillRound())
                 break; // Pool full: enough slabs for every admitted callback.
         }
         require(reader.sanitizedSamples() == 0, "Export source contains nonfinite samples",
                 ErrorCode::MediaMismatch);
-        const auto r = pipe.render({in.data(), channels}, n, frame);
-        require(!r.missingFrames && !r.staleFrames && r.timelineFrames == n &&
+        const auto r = mix.process({out.data(), channels}, n);
+        require(!r.missingTrackFrames && !r.staleTrackFrames && r.timelineFrames == n &&
                     (r.status == PlaybackStatus::Running || r.status == PlaybackStatus::Complete),
                 "Offline reader failed to deliver the exact range", ErrorCode::Io);
-        process(n, frame);
+        require(r.mix.status == ProcessStatus::Ok && !r.mix.invalidInputSamples &&
+                    !r.mix.numericFaultSamples,
+                "Export processor failed", ErrorCode::MediaMismatch);
         if (frame >= spec.startFrame)
             write(n);
         frame = end;
@@ -286,8 +284,7 @@ ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Sess
         checkCanceled();
         const auto n = static_cast<std::uint32_t>(
             std::min<Frame>(spec.blockFrames, tailBudget - result.tailFrames));
-        std::fill(raw.begin(), raw.end(), 0.f);
-        process(n, spec.endFrame + result.tailFrames);
+        process(n);
         std::uint32_t count = 0;
         for (; count < n; ++count) {
             bool silent = true;
@@ -344,5 +341,19 @@ ExportResult exportTrackWav(const std::filesystem::path &projectRoot, const Sess
         result.publicationWarning += error.what();
     }
     return result;
+}
+ExportResult exportTrackWav(const std::filesystem::path &root, const Session &s,
+                            const std::filesystem::path &dest, const ExportSpec &spec,
+                            const ExportOptions &options) {
+    const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
+                                [&](const auto &t) { return t.id == spec.trackId; });
+    require(t != s.tracks.end(), "Export track is missing");
+    const std::array<Id, 1> ids{spec.trackId};
+    return exportGraphWav(root, s, dest, spec, identityMix(s, ids, t->layout), options);
+}
+ExportResult exportMixWav(const std::filesystem::path &root, const Session &s,
+                          const std::filesystem::path &dest, const MixExportSpec &spec,
+                          const ExportOptions &options) {
+    return exportGraphWav(root, s, dest, spec, spec.plan, options);
 }
 } // namespace soundcurrent::daw

@@ -212,3 +212,43 @@ acceptance and unverified F/Q/C/N axes. Independent M1 physical/native Windows,
 filesystem, deadline/load and normal module-unload memory gates remain open,
 alongside X004 native imports, X005 audio/portable profiles/rights and all-Europe
 translation delivery. The full goal remains active and incomplete.
+
+
+## M2c1 shared-clock multitrack graph checkpoint (2026-10-06)
+
+Previous goal turn was **progress**, committed the desktop timeline/selected-track
+workflow as `0b170ac`. This turn adds [one shared project cursor, independent EQ
+lanes and an explicit sparse output matrix](31-multitrack-mix.md), fair bounded
+per-track read-ahead, callback-only mixing and off-RT worker lifetime. Scheduled
+and immediate EQ/enable events retain generation/UUID mapping and applied-frame
+receipts. Float64 summing preserves float32 headroom; gaps and stale track-frame
+counts remain visible while healthy lanes retain offsets.
+
+Both static selected-track and new multitrack WAV export share that graph and
+the existing publication transaction. `render-mix` exposes matching-layout unity
+routes for every saved track; the API handles explicit custom/mixed-layout
+matrices. It does not silently drop mismatched channels or modify project/media.
+The new CLI fixture initially lacked its media directory and used the wrong
+processor JSON key; both were corrected to the existing schema. No test gate
+was waived.
+
+[Evidence](../tests/results/M2/2026-10-06-shared-mix-graph.json) separates independent
+direct-form-I/matrix and source-coordinate oracles, 32-track short live-callback/
+WAV corpus, variable blocks, 1/2/8/32/256-channel identities, mixed stereo/mono
+routing, late/blocked/failed-reader behavior, source preservation, token retirement
+and zero audited RT allocation/free/lock observations. Linux 23-group debug and
+ASan/UBSan/LSan suites, independent old/new CLI checks including actual SIGTERM,
+Windows headless cross-build and serial owned native single-track roundtrip pass.
+Native Windows/Qt/audio is unqualified; these tests do not establish physical
+load/deadline or full M2 duration/capture acceptance. All 24 registered borrowed
+inputs still match, with equalizer checkouts untouched and no publication.
+
+Next integrate the prepared mix into the native playback owner/desktop with
+explicit master output layout/routes, then a shared playback/capture callback
+for simultaneous armed tracks/overdub. Production UI currently prepares one
+selected track. General bus/DAG/PDC/feedback/crossfade/state migration, punch/loop/
+takes/comping/fades and all later frozen workflows remain required. P001/P017
+scoped evidence leaves every F/Q/C/N axis and full reference acceptance unchanged.
+Remaining M1 native Windows/physical/filesystem/module-unload/deadline, X004 native
+imports, X005 processing/portable profiles/rights and all-Europe localization
+gates remain open. Full goal remains active and incomplete.

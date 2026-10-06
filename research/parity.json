@@ -13,7 +13,7 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: single prepared-track capture, including non-first desktop identity; simultaneous M2 capture unverified.",
+      "implementation": "Partial: selected single-track capture; shared-clock short 32-track playback/mix/WAV corpus. Simultaneous capture/duration/native gates unverified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -24,7 +24,9 @@
         "docs/29-multitrack-edits.md",
         "docs/30-desktop-timeline.md",
         "tests/results/M2/2026-10-06-multitrack-edits.json",
-        "tests/results/M2/2026-10-06-desktop-timeline.json"
+        "tests/results/M2/2026-10-06-desktop-timeline.json",
+        "docs/31-multitrack-mix.md",
+        "tests/results/M2/2026-10-06-shared-mix-graph.json"
       ]
     },
     {
@@ -349,18 +351,22 @@
       "milestone": "M4",
       "acceptance": "Route drums to a bus and vocals to another; nest groups and test solo/mute propagation.",
       "quality": "Known unity sum nulls to reference within -120 dBFS.",
-      "known_gap": "Graph scheduler and solo policy are new.",
+      "known_gap": "Star matrix only; general buses/group state, cycles/feedback, sends/sidechains and PDC/latency qualification remain required.",
       "bitwig_url": "https://www.bitwig.com/userguide/latest/the_mix_view/",
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/tracks_about/tracks_about_group_channel_tracks_c.html?contentId=9av~TuFoeRdSwAFgXHla2A",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Partial: independent EQ lanes and explicit static channel matrix into one output. General bus/group network remains required.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "bitwig_source_id": "92e5dd2e62070dc4",
-      "cubase_source_id": "225eba86cc198976"
+      "cubase_source_id": "225eba86cc198976",
+      "implementation_evidence": [
+        "docs/31-multitrack-mix.md",
+        "tests/results/M2/2026-10-06-shared-mix-graph.json"
+      ]
     },
     {
       "id": "P018",
