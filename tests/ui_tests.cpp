@@ -17,6 +17,9 @@
 #include <QTimer>
 #include <QWheelEvent>
 #include <QComboBox>
+#include <QListWidget>
+#include <QLabel>
+#include <QDialog>
 #include <QPushButton>
 #include <QProgressBar>
 #include <QCheckBox>
@@ -611,7 +614,9 @@ void monitoringPreferences(const std::filesystem::path &root) {
               w.recordingSnapshot()->monitoring == RecordingMonitor::PostEq &&
               counters->constructed == 1 && !counters->destroyed,
           "Undo reconfigured the already prepared monitor graph");
-    w.findChild<QPushButton *>("recordStopButton")->click();
+    auto *globalStop = w.findChild<QAction *>("stopTransportAction");
+    check(globalStop && globalStop->isEnabled(), "Global Stop disabled during recording setup");
+    globalStop->trigger();
     await(
         [&] { return w.recordingSnapshot()->phase == RecordingPhase::Idle && mode->isEnabled(); });
     check(w.prepareRecording(), "Reprepare after mode undo refused");
@@ -656,6 +661,164 @@ void monitoringPreferences(const std::filesystem::path &root) {
     check(discard.prompts == 1 &&
               ProjectStore(root).load().tracks.front().monitoring == RecordingMonitor::PostEq,
           "Discard overwrote saved monitoring preference");
+}
+
+void recoveryDiscoveryWorkflow(const std::filesystem::path &root) {
+    auto model = makeOneTrackSession("Découverte — Ελλάδα", "Raw");
+    ProjectStore(root).save(model);
+    CaptureConfig cfg;
+    cfg.slabFrames = 256;
+    CapturePipe pipe(cfg);
+    RecordingSpec spec;
+    spec.projectId = model.id;
+    spec.trackId = model.tracks.front().id;
+    spec.capture = pipe.config();
+    std::filesystem::path original;
+    {
+        CaptureWriter writer(root, spec, {128, {}});
+        original = writer.jobDirectory();
+        std::array<float, 512> samples{};
+        samples.fill(.5f);
+        const std::array<const float *, 1> inputs{samples.data()};
+        check(pipe.push(inputs, 512, 0).acceptedFrames == 512, "Recovery discovery input failed");
+        while (writer.drainOne(pipe)) {
+        };
+    }
+    const auto before = inspectRecording(original);
+    const auto journalHash = hashMediaFile(original / "journal.json");
+    auto counters = std::make_shared<recording_fixture::Counters>();
+    StudioWindow w(nullptr, {}, recording_fixture::options(counters));
+    w.show();
+    w.openProject(root);
+    auto *review = w.findChild<QPushButton *>("reviewRecordingsButton");
+    await([&] {
+        return w.recoverySnapshot()->discovery && !w.recoverySnapshot()->running &&
+               review->isEnabled();
+    });
+    check(w.recoverySnapshot()->discovery->entries.size() == 1 && !w.snapshot()->dirty &&
+              !counters->constructed && !counters->activated,
+          "Automatic discovery changed/prepared project");
+    // Cancel keeps both project and checkpoint unchanged, and the list fits the screen.
+    QTimer cancel;
+    cancel.setInterval(1);
+    unsigned canceled = 0;
+    QObject::connect(&cancel, &QTimer::timeout, [&] {
+        if (auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            dialog && dialog->objectName() == "recordingRecoveryList") {
+            check(dialog->findChild<QListWidget *>("recoveryJobs")->count() == 1,
+                  "Recovery list is incomplete");
+            ++canceled;
+            dialog->reject();
+        }
+    });
+    cancel.start();
+    review->click();
+    cancel.stop();
+    check(canceled == 1 && !w.snapshot()->dirty && inspectRecording(original) == before,
+          "Cancel modified checkpoint/project");
+    // Use actual list selection, verification and existing explicit Yes/No consent.
+    QTimer choose;
+    choose.setInterval(1);
+    unsigned chosen = 0;
+    QObject::connect(&choose, &QTimer::timeout, [&] {
+        if (auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            dialog && dialog->objectName() == "recordingRecoveryList") {
+            choose.stop();
+            auto *list = dialog->findChild<QListWidget *>("recoveryJobs");
+            list->setCurrentRow(0);
+            auto *button = dialog->findChild<QPushButton *>("reviewSelectedRecording");
+            check(button->isEnabled(), "Eligible recovery cannot be reviewed");
+            ++chosen;
+            button->click();
+        }
+    });
+    PromptChoice yes(QMessageBox::Yes);
+    choose.start();
+    review->click();
+    await(
+        [&] { return w.snapshot()->session->assets.size() == 1 && !w.recordingSnapshot()->take; });
+    yes.timer.stop();
+    check(chosen == 1 && yes.prompts == 1 && w.snapshot()->dirty &&
+              w.snapshot()->session->assets.front().frames == 512 &&
+              hashMediaFile(original / "journal.json") == journalHash &&
+              inspectRecording(original) == before,
+          "Consented recovery failed or changed original");
+    await([&] {
+        const auto s = w.recoverySnapshot();
+        return !s->running && s->discovery && s->discovery->attached == 1 &&
+               s->discovery->entries.size() == 1 &&
+               s->discovery->entries.front().status == RecordingJobStatus::RecoveredSource &&
+               w.findChild<QLabel *>("recoverySummary")->text().contains("0 recording");
+    });
+    check(w.findChild<QLabel *>("recoverySummary")->text().contains("0 recording"),
+          "Recovered source was still offered as a new recovery candidate");
+    PromptChoice save(QMessageBox::Save);
+    w.close();
+    await([&] {
+        return w.snapshot()->closed && w.recordingSnapshot()->closed &&
+               w.recoverySnapshot()->closed;
+    });
+    save.timer.stop();
+    check(ProjectStore(root).load().assets.size() == 1 && !counters->activated,
+          "Recovered take save/close failed");
+    StudioWindow reopened;
+    reopened.show();
+    reopened.openProject(root);
+    await([&] {
+        return reopened.recoverySnapshot()->discovery && !reopened.recoverySnapshot()->running;
+    });
+    check(reopened.recoverySnapshot()->discovery->attached == 1 &&
+              reopened.recoverySnapshot()->discovery->entries.front().status ==
+                  RecordingJobStatus::RecoveredSource &&
+              !reopened.snapshot()->dirty,
+          "Reopen lost recovery relationship");
+    auto *reopenedReview = reopened.findChild<QPushButton *>("reviewRecordingsButton");
+    await([&] { return reopenedReview->isEnabled(); });
+    QTimer closeList;
+    closeList.setInterval(1);
+    bool closedList = false;
+    QObject::connect(&closeList, &QTimer::timeout, [&] {
+        if (auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            dialog && dialog->objectName() == "recordingRecoveryList") {
+            closeList.stop();
+            closedList = true;
+            reopened.close();
+        }
+    });
+    closeList.start();
+    reopenedReview->click();
+    await([&] { return reopened.snapshot()->closed && reopened.recoverySnapshot()->closed; });
+    check(closedList && ProjectStore(root).load().assets.size() == 1,
+          "Closing a recovery list copied/changed a take");
+    StudioWindow previewClose;
+    previewClose.show();
+    previewClose.openProject(root);
+    auto *previewReview = previewClose.findChild<QPushButton *>("reviewRecordingsButton");
+    await([&] { return previewReview->isEnabled(); });
+    QTimer closePreview;
+    closePreview.setInterval(1);
+    bool closedPreview = false;
+    QObject::connect(&closePreview, &QTimer::timeout, [&] {
+        if (auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            dialog && dialog->objectName() == "recordingRecoveryList") {
+            dialog->findChild<QListWidget *>("recoveryJobs")->setCurrentRow(0);
+            dialog->findChild<QPushButton *>("reviewSelectedRecording")->click();
+        } else if (auto *prompt = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+                   prompt && prompt->windowTitle() == "Recover recording") {
+            closePreview.stop();
+            closedPreview = true;
+            previewClose.close();
+        }
+    });
+    closePreview.start();
+    previewReview->click();
+    await([&] {
+        return previewClose.snapshot()->closed && previewClose.recordingSnapshot()->closed &&
+               previewClose.recoverySnapshot()->closed;
+    });
+    check(closedPreview && ProjectStore(root).load().assets.size() == 1 &&
+              hashMediaFile(original / "journal.json") == journalHash,
+          "Close during recovery consent created/changed audio");
 }
 
 void portableOutputRoutes(const std::filesystem::path &root) {
@@ -832,6 +995,7 @@ int main(int argc, char **argv) {
         workflows(utf8Path(temp.path().toUtf8().toStdString()) / "project");
         playbackWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "playback");
         portableOutputRoutes(utf8Path(temp.path().toUtf8().toStdString()) / "portable-routes");
+        recoveryDiscoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "discovery");
         monitoringPreferences(utf8Path(temp.path().toUtf8().toStdString()) /
                               "monitoring-preferences");
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-off", false);

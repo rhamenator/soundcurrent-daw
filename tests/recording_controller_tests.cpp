@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "fake_recording_endpoint.hpp"
+#include "recovery_controller.hpp"
 #include <QCoreApplication>
 #include <QTemporaryDir>
 #include <chrono>
@@ -213,6 +214,70 @@ void pressureAndCancellation(const std::filesystem::path &root) {
           "Closing FIFO accepted work");
     await([&] { return r.snapshot()->closed; });
 }
+void asynchronousDiscovery(const std::filesystem::path &root) {
+    const auto first = project(root / "first"), second = project(root / "second");
+    std::atomic<bool> entered{false}, released{false};
+    std::atomic<unsigned> calls{0};
+    RecoveryScanOptions options;
+    options.beforeScan = [&] {
+        if (++calls == 1) {
+            entered = true;
+            while (!released)
+                QThread::msleep(1);
+        }
+    };
+    struct Unlock {
+        std::atomic<bool> &flag;
+        ~Unlock() {
+            flag = true;
+        }
+    };
+    RecoveryController scanner(options);
+    Unlock unlock{released};
+    check(scanner.scan(root / "first", std::make_shared<const Session>(first), 1),
+          "Initial scan refused");
+    await([&] { return entered.load(); });
+    check(scanner.snapshot()->running && !scanner.snapshot()->discovery,
+          "Blocked scan prematurely published data");
+    for (unsigned n = 2; n < 34; ++n)
+        check(scanner.scan(root / "second", std::make_shared<const Session>(second), n),
+              "Latest scan slot refused replacement");
+    released = true;
+    await([&] {
+        const auto v = scanner.snapshot();
+        return !v->running && v->projectEpoch == 33 && v->discovery;
+    });
+    check(calls == 2 && scanner.snapshot()->root == root / "second" &&
+              !scanner.snapshot()->errorCode,
+          "Superseded requests executed/published stale data");
+    check(scanner.scan(root / "missing", std::make_shared<const Session>(second), 34),
+          "Scan error fixture refused");
+    await([&] {
+        return !scanner.snapshot()->running && scanner.snapshot()->projectEpoch == 34 &&
+               scanner.snapshot()->errorCode;
+    });
+    check(scanner.snapshot()->errorCode == ErrorCode::Io, "Directory failure lost typed error");
+    scanner.requestShutdown();
+    await([&] { return scanner.snapshot()->closed; });
+    check(!scanner.scan(root / "second", std::make_shared<const Session>(second), 35),
+          "Closed scanner admitted work");
+    entered = false;
+    released = false;
+    calls = 0;
+    RecoveryController blocked(options);
+    Unlock unblock{released};
+    check(blocked.scan(root / "first", std::make_shared<const Session>(first), 1),
+          "Close scan refused");
+    await([&] { return entered.load(); });
+    blocked.requestShutdown();
+    QThread::msleep(5);
+    check(!blocked.snapshot()->closed, "Blocked I/O claimed joined shutdown");
+    released = true;
+    await([&] { return blocked.snapshot()->closed; });
+    check(!blocked.snapshot()->discovery && !blocked.snapshot()->running,
+          "Canceled closing scan published data");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -224,6 +289,7 @@ int main(int argc, char **argv) {
         invalidAndFault(root / "input");
         writerFailureAndRecovery(root / "writer");
         pressureAndCancellation(root / "pressure");
+        asynchronousDiscovery(root / "discovery");
         std::cout << "{\"checks\":" << checks
                   << ",\"synthetic_endpoint\":true,\"actual_disk_takes\":true,\"retained_handoff\":"
                      "true,\"preview_copy_recovery\":true,\"bounded_pressure_stop\":true}\n";

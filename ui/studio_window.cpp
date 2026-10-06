@@ -21,6 +21,9 @@
 #include <QWheelEvent>
 #include <QMessageBox>
 #include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QListWidget>
 #include <QPushButton>
 #include <QProgressBar>
 #include <QCheckBox>
@@ -137,6 +140,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     playAction_ =
         transportMenu->addAction(tr("Play / Stop"), QKeySequence(Qt::Key_Space), this, [this] {
             if (recordingBusy()) {
+                recordPrepareBarrier_ = 0;
                 recording_.requestStop();
                 return;
             }
@@ -147,9 +151,11 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         });
     stopAction_ =
         transportMenu->addAction(tr("Stop"), QKeySequence(Qt::SHIFT | Qt::Key_Space), this, [this] {
+            recordPrepareBarrier_ = 0;
             playback_.requestStop();
             recording_.requestStop();
         });
+    stopAction_->setObjectName("stopTransportAction");
     prepareRecordAction_ =
         transportMenu->addAction(tr("Prepare recording"), this, [this] { prepareRecording(); });
     recordAction_ = transportMenu->addAction(tr("Record"), QKeySequence(Qt::Key_R), this,
@@ -162,6 +168,9 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         if (!selected.isEmpty())
             inspectTake(path(selected));
     });
+    scanRecoveryAction_ =
+        file->addAction(tr("Find recoverable recordings…"), this, [this] { scanRecordings(); });
+    scanRecoveryAction_->setObjectName("scanRecordingsAction");
     auto *scroll = new QScrollArea(this);
     scroll->setWidgetResizable(true);
     auto *body = new QWidget(scroll);
@@ -186,7 +195,11 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     transportLayout->addLayout(buttons);
     connect(prepareButton_, &QPushButton::clicked, this, [this] { preparePlayback(); });
     connect(playButton_, &QPushButton::clicked, this, &StudioWindow::playSelected);
-    connect(stopButton_, &QPushButton::clicked, this, [this] { playback_.requestStop(); });
+    connect(stopButton_, &QPushButton::clicked, this, [this] {
+        recordPrepareBarrier_ = 0;
+        playback_.requestStop();
+        recording_.requestStop();
+    });
     auto *routes = new QWidget(transport);
     outputsLayout_ = new QGridLayout(routes);
     transportLayout->addWidget(routes);
@@ -284,6 +297,21 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     takeButtons->addWidget(retryTakeButton_);
     takeButtons->addWidget(keepTakeButton_);
     recordLayout->addLayout(takeButtons);
+    auto *recoveryRow = new QHBoxLayout;
+    recoverySummary_ = new QLabel(tr("Open a project to find stored recordings."), recording);
+    recoverySummary_->setObjectName("recoverySummary");
+    recoverySummary_->setWordWrap(true);
+    recoverySummary_->setTextFormat(Qt::PlainText);
+    reviewRecoveryButton_ = new QPushButton(tr("Review recordings…"), recording);
+    reviewRecoveryButton_->setObjectName("reviewRecordingsButton");
+    scanRecoveryButton_ = new QPushButton(tr("Refresh"), recording);
+    scanRecoveryButton_->setObjectName("refreshRecordingsButton");
+    recoveryRow->addWidget(recoverySummary_, 1);
+    recoveryRow->addWidget(reviewRecoveryButton_);
+    recoveryRow->addWidget(scanRecoveryButton_);
+    recordLayout->addLayout(recoveryRow);
+    connect(reviewRecoveryButton_, &QPushButton::clicked, this, [this] { reviewRecordings(); });
+    connect(scanRecoveryButton_, &QPushButton::clicked, this, [this] { scanRecordings(); });
     connect(prepareRecordButton_, &QPushButton::clicked, this, [this] { prepareRecording(); });
     connect(recordButton_, &QPushButton::clicked, this, &StudioWindow::recordSelected);
     connect(recordStopButton_, &QPushButton::clicked, this, [this] {
@@ -749,8 +777,9 @@ void StudioWindow::pollPlayback() {
         allow && ((p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing) ||
                   recordingBusy()));
     const bool stoppable =
-        allow && (p->phase == PlaybackPhase::Preparing || p->phase == PlaybackPhase::Ready ||
-                  p->phase == PlaybackPhase::Playing || p->phase == PlaybackPhase::Complete);
+        allow && (recordingBusy() || p->phase == PlaybackPhase::Preparing ||
+                  p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing ||
+                  p->phase == PlaybackPhase::Complete);
     stopButton_->setEnabled(stoppable);
     stopAction_->setEnabled(stoppable);
     QString status;
@@ -1133,16 +1162,24 @@ void StudioWindow::pollRecording() {
         previewShown_ = r->previewSequence;
         if (!allow)
             return;
-        const auto answer = QMessageBox::question(
-            this, tr("Recover recording"),
+        QMessageBox prompt(
+            QMessageBox::Question, tr("Recover recording"),
             tr("Verified %1 frames (%2 seconds). Recover a new copy into this project? The "
                "original recording is preserved.")
-                .arg(QLocale().toString(r->preview->committedFrames),
-                     QLocale().toString(double(r->preview->committedFrames) /
-                                            r->preview->spec.capture.sampleRate,
-                                        'f', 2)),
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-        if (answer == QMessageBox::Yes && m->session && r->job) {
+                    .arg(QLocale().toString(r->preview->committedFrames),
+                         QLocale().toString(double(r->preview->committedFrames) /
+                                                r->preview->spec.capture.sampleRate,
+                                            'f', 2)) +
+                (r->preview->writerActivityConfirmed
+                     ? QString()
+                     : tr("\nThis older job has no writer lock; writer activity cannot be "
+                          "confirmed. Only the verified checkpoint will be copied.")),
+            QMessageBox::Yes | QMessageBox::No, this);
+        prompt.setDefaultButton(QMessageBox::No);
+        recoveryPrompt_ = &prompt;
+        const auto answer = prompt.exec();
+        recoveryPrompt_.clear();
+        if (answer == QMessageBox::Yes && !closing_ && !closeRequested_ && m->session && r->job) {
             RecordingCommand c;
             c.kind = RecordingCommandKind::Recover;
             c.root = m->root;
@@ -1156,7 +1193,150 @@ void StudioWindow::pollRecording() {
     }
 }
 
+std::shared_ptr<const RecoveryScanSnapshot> StudioWindow::recoverySnapshot() const {
+    return recoveryScanner_.snapshot();
+}
+bool StudioWindow::scanRecordings() {
+    const auto m = controller_.snapshot();
+    if (!m->session || m->io != IoOperation::None || closing_ || closeRequested_ || closeAfterSave_)
+        return false;
+    if (!recoveryScanner_.scan(m->root, m->session, m->projectEpoch))
+        return false;
+    recoveryEpoch_ = m->projectEpoch;
+    recoveryJobSeen_ = recording_.snapshot()->job;
+    recoveryRequested_ = m->session;
+    return true;
+}
+void StudioWindow::pollRecovery() {
+    const auto m = controller_.snapshot();
+    const bool allow = m->session && m->io == IoOperation::None && !closing_ && !closeRequested_ &&
+                       !closeAfterSave_;
+    const auto recorder = recording_.snapshot();
+    if (allow && recorder->job && !recorder->take && !recordingBusy() &&
+        recorder->job != recoveryJobSeen_)
+        scanRecordings();
+    if (allow && (recoveryEpoch_ != m->projectEpoch || !recoveryRequested_ ||
+                  recoveryRequested_->assets != m->session->assets))
+        scanRecordings();
+    const auto scan = recoveryScanner_.snapshot();
+    const bool current =
+        m->session && scan->root == m->root && scan->projectEpoch == m->projectEpoch;
+    scanRecoveryAction_->setEnabled(allow);
+    scanRecoveryButton_->setEnabled(allow && !scan->running);
+    reviewRecoveryButton_->setEnabled(allow && current && !scan->running && scan->discovery &&
+                                      !scan->discovery->entries.empty() && !recordingBusy());
+    if (!current)
+        recoverySummary_->setText(tr("Open a project to find stored recordings."));
+    else if (scan->running)
+        recoverySummary_->setText(tr("Looking for stored recordings…"));
+    else if (scan->errorCode)
+        recoverySummary_->setText(tr("Recording discovery failed: %1").arg(text(scan->diagnostic)));
+    else if (scan->discovery) {
+        const auto &d = *scan->discovery;
+        const auto count = std::count_if(d.entries.begin(), d.entries.end(), [](const auto &e) {
+            return e.status == RecordingJobStatus::NeedsVerification ||
+                   e.status == RecordingJobStatus::LegacyNeedsVerification;
+        });
+        auto message = tr("%n recording(s) need review.", nullptr, int(count));
+        if (d.entries.size() > std::size_t(count))
+            message += tr(" %n additional job(s) are listed.", nullptr,
+                          int(d.entries.size() - std::size_t(count)));
+        if (d.truncated)
+            message += tr(" Discovery limit reached; this list is incomplete.");
+        if (!d.warnings.empty())
+            message += tr(" Some recovery metadata needs attention.");
+        recoverySummary_->setText(message);
+    }
+}
+void StudioWindow::reviewRecordings() {
+    const auto scan = recoveryScanner_.snapshot();
+    const auto m = controller_.snapshot();
+    if (!scan->discovery || scan->running || !m->session || scan->root != m->root ||
+        scan->projectEpoch != m->projectEpoch || recordingBusy() || closing_ || closeRequested_)
+        return;
+    QDialog dialog(this);
+    dialog.setObjectName("recordingRecoveryList");
+    dialog.setWindowTitle(tr("Stored recordings"));
+    QVBoxLayout layout(&dialog);
+    QLabel help(tr("This list shows checkpoint metadata. Review verifies the audio before offering "
+                   "a recovery copy. Active jobs cannot be reviewed."),
+                &dialog);
+    help.setWordWrap(true);
+    layout.addWidget(&help);
+    QListWidget list(&dialog);
+    list.setObjectName("recoveryJobs");
+    layout.addWidget(&list, 1);
+    for (const auto &e : scan->discovery->entries) {
+        QString status;
+        switch (e.status) {
+        case RecordingJobStatus::NeedsVerification:
+            status = tr("Needs audio verification");
+            break;
+        case RecordingJobStatus::LegacyNeedsVerification:
+            status = tr("Needs verification — writer activity unconfirmed");
+            break;
+        case RecordingJobStatus::Active:
+            status = tr("Active recording");
+            break;
+        case RecordingJobStatus::Empty:
+            status = tr("No committed audio");
+            break;
+        case RecordingJobStatus::Foreign:
+            status = tr("Different project, track, rate or layout");
+            break;
+        case RecordingJobStatus::Invalid:
+            status = tr("Invalid checkpoint: %1").arg(text(e.diagnostic));
+            break;
+        case RecordingJobStatus::RecoveredSource:
+            status = tr("Matching recovered copy is attached");
+            break;
+        }
+        auto label = text(pathUtf8(e.job.filename())) + QStringLiteral(" — ") + status;
+        if (e.checkpoint)
+            label +=
+                tr(" · %1 claimed frames").arg(QLocale().toString(e.checkpoint->committedFrames));
+        list.addItem(label);
+        list.item(list.count() - 1)
+            ->setToolTip(QStringLiteral("<pre>") + text(pathUtf8(e.job)).toHtmlEscaped() +
+                         QStringLiteral("</pre>"));
+    }
+    for (const auto &warning : scan->discovery->warnings)
+        list.addItem(tr("Metadata warning: %1").arg(text(warning)));
+    if (scan->discovery->truncated) {
+        auto *warning = new QLabel(tr("Discovery limit reached. The list is incomplete."), &dialog);
+        warning->setWordWrap(true);
+        layout.addWidget(warning);
+    }
+    QDialogButtonBox buttons(QDialogButtonBox::Cancel, &dialog);
+    auto *review = buttons.addButton(tr("Review audio…"), QDialogButtonBox::AcceptRole);
+    review->setObjectName("reviewSelectedRecording");
+    review->setEnabled(false);
+    layout.addWidget(&buttons);
+    connect(&buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    connect(review, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(&list, &QListWidget::currentRowChanged, &dialog, [&](int row) {
+        const auto valid = row >= 0 && std::size_t(row) < scan->discovery->entries.size();
+        const auto status =
+            valid ? scan->discovery->entries[std::size_t(row)].status : RecordingJobStatus::Invalid;
+        review->setEnabled(valid && (status == RecordingJobStatus::NeedsVerification ||
+                                     status == RecordingJobStatus::LegacyNeedsVerification ||
+                                     status == RecordingJobStatus::RecoveredSource));
+    });
+    const auto area = screen() ? screen()->availableGeometry() : QRect(0, 0, 800, 600);
+    dialog.resize(std::min(850, std::max(300, area.width() - 40)),
+                  std::min(550, std::max(220, area.height() - 40)));
+    recoveryDialog_ = &dialog;
+    const auto answer = dialog.exec();
+    recoveryDialog_.clear();
+    const auto now = controller_.snapshot();
+    if (answer == QDialog::Accepted && !closing_ && !closeRequested_ &&
+        now->projectEpoch == scan->projectEpoch && now->root == scan->root &&
+        list.currentRow() >= 0)
+        inspectTake(scan->discovery->entries[std::size_t(list.currentRow())].job);
+}
+
 void StudioWindow::shutdownWorkers() {
+    recoveryScanner_.requestShutdown();
     exporter_.requestShutdown();
     playback_.requestShutdown();
     recording_.requestShutdown();
@@ -1304,10 +1484,11 @@ void StudioWindow::poll() {
             }
     }
     pollRecording();
+    pollRecovery();
     pollPlayback();
     pollExport();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed && closing_) {
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && closing_) {
         close();
         return;
     }
@@ -1408,7 +1589,7 @@ void StudioWindow::poll() {
 void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = controller_.snapshot();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed) {
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed) {
         event->accept();
         return;
     }
@@ -1418,6 +1599,11 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     if (auto *focused = focusWidget())
         focused->clearFocus();
     closeRequested_ = true;
+    recoveryScanner_.cancel();
+    if (recoveryDialog_)
+        recoveryDialog_->reject();
+    if (recoveryPrompt_)
+        recoveryPrompt_->done(QMessageBox::No);
     exportBarrier_ = 0;
     exportSelection_.reset();
     if (exportDialog_)

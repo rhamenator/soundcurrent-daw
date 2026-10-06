@@ -73,3 +73,9 @@ explicit old-schema defaults and passive restore. Recording preparation uses an
 accepted-prefix receipt after pending edits. [Contract](27-monitoring-preferences.md).
 Next: bounded project recording-recovery discovery, then M2 multitrack foundations;
 remaining M1/native/platform gates stay visible and required.
+
+S8c now connects bounded passive discovery, per-job activity leases, scrollable
+review and verified consent/copy on a separate I/O owner. [Contract](28-recording-discovery.md).
+Continue M2 multitrack editing/selection/timeline, prepared shared-clock playback
+and simultaneous capture while independent M1 platform/physical/durability gates
+remain open; the frozen product target is unchanged.

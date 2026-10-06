@@ -20,7 +20,8 @@ enum class RecordingBoundary {
     AfterAudioFlush,
     BeforeJournalPublish,
     BeforeMediaPublish,
-    AfterMediaPublish
+    AfterMediaPublish,
+    BeforeAssetHashRead
 };
 struct RecordingOptions {
     // Zero defaults to one second; checkpoints occur after completed slabs.
@@ -82,6 +83,7 @@ struct RecordingRecovery {
     std::string sampleSha256;
     std::filesystem::path source;
     bool finalized = false;
+    bool writerActivityConfirmed = false; // Transient inspection evidence, never serialized.
     CaptureStatus captureStatus = CaptureStatus::Running;
     std::uint64_t rejectedFrames = 0;
     std::uint64_t observedInvalidInputSamples = 0;
@@ -90,10 +92,41 @@ struct RecordingRecovery {
     bool operator==(const RecordingRecovery &) const = default;
 };
 // Worker/control-only. Bounded parse and streaming prefix verification.
-RecordingRecovery inspectRecording(const std::filesystem::path &jobDirectory);
+RecordingRecovery inspectRecording(const std::filesystem::path &jobDirectory,
+                                   const std::function<void()> &boundary = {},
+                                   bool requireInactive = false);
+// Metadata is NOT audio verification. Streaming verification remains an explicit step.
+enum class RecordingJobStatus {
+    NeedsVerification,
+    LegacyNeedsVerification,
+    Active,
+    Empty,
+    Foreign,
+    Invalid,
+    RecoveredSource
+};
+struct RecordingJobEntry {
+    std::filesystem::path job;
+    RecordingJobStatus status = RecordingJobStatus::Invalid;
+    std::optional<RecordingRecovery> checkpoint;
+    std::string diagnostic;
+};
+struct RecordingDiscovery {
+    std::vector<RecordingJobEntry> entries;
+    std::size_t directoryEntries = 0, attached = 0;
+    bool truncated = false;
+    std::vector<std::string> warnings;
+};
+struct RecordingDiscoveryOptions {
+    std::size_t maximumDirectoryEntries = 8192, maximumJobs = 512;
+    std::function<void()> boundary; // Worker-only cancellation/fault boundary.
+};
+RecordingDiscovery discoverRecordings(const std::filesystem::path &root, const Session &,
+                                      const RecordingDiscoveryOptions & = {});
 // Copies only the verified checkpoint into a new asset/job. Original unchanged.
 RecordingResult recoverRecording(const std::filesystem::path &projectRoot,
-                                 const std::filesystem::path &jobDirectory);
+                                 const std::filesystem::path &jobDirectory,
+                                 const std::function<void()> &boundary = {});
 // Transactional model edit; caller saves with ProjectStore afterward. No disk I/O.
 // Raw asset is intact; input latency shifts/initially trims the non-destructive clip.
 void attachRecording(Session &, const RecordingResult &);

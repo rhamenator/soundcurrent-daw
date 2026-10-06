@@ -103,8 +103,10 @@ void checkRecovery(const RecordingCommand &c, const RecordingRecovery &r) {
     if (!c.session || c.session->tracks.empty() || c.job.parent_path() != c.root / "media" ||
         c.job.filename() != utf8Path("capture-" + r.spec.assetId.str()) ||
         c.session->id != r.spec.projectId || c.session->sampleRate != r.spec.capture.sampleRate ||
-        c.session->tracks.front().id != r.spec.trackId ||
-        c.session->tracks.front().layout != r.spec.capture.layout ||
+        std::none_of(c.session->tracks.begin(), c.session->tracks.end(),
+                     [&](const auto &t) {
+                         return t.id == r.spec.trackId && t.layout == r.spec.capture.layout;
+                     }) ||
         std::any_of(c.session->assets.begin(), c.session->assets.end(),
                     [&](const auto &a) { return a.id == r.spec.assetId; }))
         throw ProjectError(ErrorCode::InvalidState, "Recovery belongs to another project or track");
@@ -353,7 +355,11 @@ struct RecordingController::State : QThread {
             view.phase = c.kind == RecordingCommandKind::Inspect ? RecordingPhase::Inspecting
                                                                  : RecordingPhase::Recovering;
             publish();
-            const auto inspected = inspectRecording(c.job);
+            const auto cancellation = [&] {
+                if (interrupted(q.epoch))
+                    throw ProjectError(ErrorCode::Canceled, "Recording recovery canceled");
+            };
+            const auto inspected = inspectRecording(c.job, cancellation, true);
             checkRecovery(c, inspected);
             if (!inspected.committedFrames)
                 throw ProjectError(ErrorCode::InvalidState,
@@ -371,9 +377,9 @@ struct RecordingController::State : QThread {
                                        "Recording changed; inspect it again before recovery");
                 if (interrupted(q.epoch))
                     return;
-                auto recovered = recoverRecording(c.root, c.job);
+                auto recovered = recoverRecording(c.root, c.job, cancellation);
                 view.job = c.root / "media" / ("capture-" + recovered.spec.assetId.str());
-                const auto copied = inspectRecording(*view.job);
+                const auto copied = inspectRecording(*view.job, cancellation, true);
                 if (copied.committedFrames != inspected.committedFrames ||
                     copied.sampleSha256 != inspected.sampleSha256)
                     throw ProjectError(
@@ -420,6 +426,8 @@ struct RecordingController::State : QThread {
                 try {
                     execute(*q);
                 } catch (const ProjectError &e) {
+                    if (e.code() == ErrorCode::Canceled && interrupted(q->epoch))
+                        continue;
                     error(e.code(), e.what());
                     if (!wasStarted) {
                         stopEndpoint();

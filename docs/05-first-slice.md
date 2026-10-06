@@ -101,3 +101,9 @@ state and accepted-prefix recording preparation. Native reopen no longer needs a
 manual monitor-mode override. Next: bounded interrupted-recording discovery and
 consented verified-copy recovery, then M2 multitrack foundations; platform and
 physical gates remain required.
+
+S8c adds [passive recording-job discovery and review](28-recording-discovery.md),
+cooperative active-writer detection, legacy uncertainty, bounded/cancellable
+metadata and verified copy handling. M1 remains incomplete on its independent
+platform/physical/filesystem gates. Next implementation proceeds to M2 multitrack
+commands, timeline/playback and simultaneous overdub, preserving the full goal.

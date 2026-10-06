@@ -8,7 +8,7 @@ Create/open a project, choose **Monitoring off** or **Monitor through track EQ**
 
 The source inventory refreshes on the preparation worker. Removed selections return to the placeholder; core port admission rechecks IDs, serial, name and direction. The recording node's own ports are excluded. Input/monitor disconnect, rate/clock/buffer faults stop capture with explicit terminal telemetry and retain a valid prefix where possible. A disk failure retains its authoritative error and checkpoint. Numeric level calculations and status updates run outside audio callbacks. Physical speaker/microphone behavior is not inferred from synthetic testing.
 
-This preview separates recording and file playback. Stop the existing playback preparation/transport before preparing recording. Prepare/Record are single-flight in the GUI; duplicated commands cannot replace an active take. Changing monitoring mode requires stopping/repreparing. There is no monitoring Auto mode, simultaneous overdub playback, multitrack arm, punch/loop/takes/comping or general clip undo yet; those remain required M2/M4 workflows, not excluded features. Input/monitor selections currently remain transient; complete portable per-channel routing intent and missing-device resolution remain open.
+This preview separates recording and file playback. Stop the existing playback preparation/transport before preparing recording. Prepare/Record are single-flight in the GUI; duplicated commands cannot replace an active take. Changing monitoring mode requires stopping/repreparing. There is no monitoring Auto mode, simultaneous overdub playback, multitrack arm, punch/loop/takes/comping or general clip undo yet; those remain required M2/M4 workflows, not excluded features. S8a/S8b now persist portable per-channel routing intent and monitoring preferences; named missing-device placeholders require explicit choices and passive restore does not activate routing.
 
 ## Threading and parameter reconciliation
 
@@ -54,4 +54,11 @@ QT_QPA_PLATFORM=offscreen python3 tests/verify_pipewire_fixture.py \
 
 Run native fixtures serially after CPU builds/tests. Native ASan/UBSan/LSan uses the explicit diagnostic `PIPEWIRE_DLCLOSE=false`; the previous normal module-unload leak and overlapping-load timeout remain unresolved. This is not a production workaround or complete memory/deadline qualification.
 
-Native Windows recording/playback/Qt, hardware alignment/rate/quantum/reconnect, memory locking, deadlines and combined load, physical filesystem/power-loss/>4 GiB RF64, automatic recovery discovery and general editing undo remain unqualified/unimplemented. All-European translation/native review and accessibility/HiDPI/X11/Wayland qualification remain open. No frozen parity row is marked complete. S7a/S7b shared-engine and desktop snapshot exports now exist. Next primary implementation task: S8 end-to-end native/portability acceptance, preserving the remaining M1 and full-suite gates.
+Native Windows recording/playback/Qt, hardware alignment/rate/quantum/reconnect, memory locking, deadlines and combined load, physical filesystem/power-loss/>4 GiB RF64 and general editing undo remain unqualified/unimplemented. S8c now has scoped recording discovery/review/copy evidence. All-European translation/native review and accessibility/HiDPI/X11/Wayland qualification remain open. No frozen parity row is marked complete. S7a/S7b shared-engine and desktop snapshot exports now exist. Next primary implementation task: M2 multitrack foundations, preserving the independent remaining M1 and full-suite gates.
+
+[S8c](28-recording-discovery.md) adds a fifth, separate recovery-discovery owner
+with passive Open scans, a scrollable list, active/legacy status and existing
+verified preview/consent/copy. Recovery dialogs close with the window and all
+owners report closed before final window closure; destruction joins their
+threads. Global transport Stop now also covers recording/pending preparation.
+Earlier S6g evidence remains historical; latest discovery/close evidence is separate.

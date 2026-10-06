@@ -1,0 +1,304 @@
+{
+  "date": "2026-10-06",
+  "milestone": "SLICE-001/S8c",
+  "status": "partial-product milestone; scoped recording discovery/review/recovery workflows passed",
+  "parent_commit": "63cf570bd85417c48d1eb23a40ece96da754d320",
+  "scope": [
+    "Bounded Qt-free metadata discovery, activity/legacy/foreign/empty/invalid statuses, attached/recovered chain hints; no automatic audio hashing/admission/copy/delete",
+    "Cooperative nonblocking lifetime leases, process death releases lease, strict inactive verification and legacy uncertainty",
+    "Cancelable streamed verification/copy/final asset hashing; original unchanged, canceled new job retained for later discovery",
+    "Separate latest-request QThread owner with root/epoch/serial, obsolete request suppression, blocked-I/O and shutdown receipts",
+    "Actual desktop passive Open scans, scrollable list, review/hash/explicit consent/copy/typed admission, cancellation/reopen/close",
+    "Global Stop/Shift-Space covers recording/pending preparation/recovery",
+    "No RT callback changes, no project/journal schema change, no new dependency"
+  ],
+  "tested_source_sha256": {
+    "CMakeLists.txt": "377a42ad5824587dd663529e5b074de4e16b7bf65dfd97d997faf208b748f672",
+    "include/soundcurrent/recording.hpp": "c5e55037032c5f5e1c0657f8a9da9004dc723b3683304be0b882a61156cf1ec4",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/media_io.cpp": "6597b1951385b908ca292a290f7f6c624a185ba66aa9438efaff00efe1c259bd",
+    "src/media_io.hpp": "9706e0ed9027bc8843213b970f5a2dd7e0bd2004cb76ef580944b14d056087c7",
+    "src/recording.cpp": "9878966397ae62316cf3825219fdf3db9d97de171ee54597c458a920a8578fc8",
+    "tests/discovery_tests.cpp": "3a4804f683994e243c52ffc2aedcd286b47162ca82f9012501895f0bdc50ee11",
+    "tests/pipewire_recording_ui_fixture.cpp": "ac2f9e5d9068c870fc2c614f7c2844ce0489ba9df4e162f54027a21583daeac9",
+    "tests/recording_controller_tests.cpp": "2364bfaeece82be6eb5201f7cfae8918ec52ae16a4b9113b1a4cb01155bc682c",
+    "tests/ui_tests.cpp": "0c39a0153922f6a8ac595f4be81afdae082875d9d363feb8584f6ea8c95e2ba3",
+    "tests/verify_pipewire_fixture.py": "7ae4c37cc225e8addc557b149c14fcba2cd1ce154cc7c98fd214dd6a84c95ab5",
+    "ui/recording_controller.cpp": "7f86cb1e2153e7fd5975ecf26d4320b8ffb2f469435ce78c0e95c8d626f874cd",
+    "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
+    "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
+    "ui/studio_window.cpp": "3e045e9b2ffd2457c69439ca1c8f4cd9d95e7219c43b596c2a0a20e32efc8fdb",
+    "ui/studio_window.hpp": "81feda6e08beb56bd208e38357deba7c7c056cd0614e3d8d8fe4f3fa342c472b"
+  },
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "full_groups": 19,
+      "seconds": 16.9,
+      "log": {
+        "path": ".cache/s8-discovery-debug-tests.log",
+        "sha256": "e5deedf56389f3c5251ffa981b17e1306b4c52e7fad60f16f7990492ad6575ae"
+      }
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "full_groups": 19,
+      "seconds": 108.36,
+      "environment": "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1",
+      "log": {
+        "path": ".cache/s8-discovery-sanitized-tests.log",
+        "sha256": "605c741e1396a5613093cd414a858e34846140a1be80e9c144c2fb5dcd5eb82d"
+      }
+    },
+    "scope_chronology": [
+      "Full 19-group debug/sanitizer suites passed before the final test-only copy cancellation extension and exhausted scan-serial cancellation guard.",
+      "Added cancellation checks before media publication and during final asset hashing; final core fixture has 46 checks. Focused final debug/sanitizer discovery tests pass. Windows fixture rebuilt.",
+      "Final exhausted-serial guard changes cancel at UINT64_MAX to close the worker; final full debug/sanitizer incremental builds and focused recording-controller/UI suites pass. Practical counter exhaustion remains code-reviewed, not runtime exercised.",
+      "Final debug native roundtrip uses current binaries; earlier disconnect and diagnostic native sanitizer results precede the serial-exhaustion guard."
+    ],
+    "final_core_copy_cancellation": {
+      "result": "passed",
+      "checks": 46,
+      "groups_per_configuration": 1,
+      "debug": {
+        "path": ".cache/s8-discovery-copy-debug-tests.log",
+        "sha256": "a6b70660482ae9dd5e82bf4d68fa4741f48ab83e1777be6f39272c25c3cbf614"
+      },
+      "sanitized": {
+        "path": ".cache/s8-discovery-copy-sanitized-tests.log",
+        "sha256": "6ccaca563eaa1ff0b298830bff28546c31c3ebc382f0bb1dbf3cd97607420894"
+      },
+      "includes": [
+        "owned child writer SIGKILL / active-to-inactive verification/recovery",
+        "limits/truncation/no-write missing media",
+        "legacy activity uncertainty",
+        "foreign/corrupt/symlink rejection",
+        "direct and transitive recovery-chain matching and mismatch",
+        "metadata-only discovery followed by truncated audio rejection",
+        "copy cancellation before publication and during completed asset hashing, source preserved"
+      ]
+    },
+    "final_controller_ui": {
+      "result": "passed",
+      "groups_per_configuration": 2,
+      "recording_controller_checks": 83,
+      "desktop_checks": 320,
+      "debug": {
+        "path": ".cache/s8-discovery-final-debug-tests.log",
+        "sha256": "6e2454ac73902693268fef75ea7bf7ddb051db31c1b29ec92b899f97f666a151"
+      },
+      "sanitized": {
+        "path": ".cache/s8-discovery-final-sanitized-tests.log",
+        "sha256": "8d326b49d84822f540ba9bba766f13043b30e7f2a82813ebc7be731f8a5574c6"
+      },
+      "builds": [
+        {
+          "path": ".cache/s8-discovery-final-debug-build.log",
+          "sha256": "6f4d8e6e57b9ecdb0db410aa8c192a5a6fbdefc2c083150effef5176cfa4df30"
+        },
+        {
+          "path": ".cache/s8-discovery-final-sanitized-build.log",
+          "sha256": "6f4d8e6e57b9ecdb0db410aa8c192a5a6fbdefc2c083150effef5176cfa4df30"
+        }
+      ],
+      "includes": [
+        "latest-slot replacement and obsolete results",
+        "blocked I/O does not falsely report closed",
+        "actual GUI review/verification/consent/attachment/cancel/reopen",
+        "close while list or consent is open",
+        "global stop recording preparation"
+      ]
+    },
+    "windows": {
+      "result": "MinGW headless core/tools/tests cross-build and final sc-discovery-tests.exe rebuild passed",
+      "runtime": false,
+      "qt_gui": false,
+      "native_audio": false,
+      "logs": [
+        {
+          "path": ".cache/s8-discovery-windows-build.log",
+          "sha256": "c4f30d0e63ec246c32f0884ffda5948a6efb122027b8871f2022cd6ab4fe6456"
+        },
+        {
+          "path": ".cache/s8-discovery-copy-windows-build.log",
+          "sha256": "dd923c0de3139766aa7c121de16339a7371751fec293ca6c3ef49a779a0edb5f"
+        }
+      ]
+    },
+    "native_linux_final_owned_roundtrip": {
+      "result": "passed",
+      "results": [
+        {
+          "mode": "roundtrip",
+          "frames": 480000,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 480000,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 2,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": false,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": true,
+          "desktop_export_frames": 480000,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 84,
+            "snapshots_with_owned_links": 76,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          }
+        }
+      ],
+      "log": {
+        "path": ".cache/s8-discovery-final-native.log",
+        "sha256": "58512d44a45543506e6f7353606a6ee96a62c78fb815f69b75901aac25feab2d"
+      },
+      "result_receipt": {
+        "path": ".cache/s8-discovery-final-native.json",
+        "sha256": "58512d44a45543506e6f7353606a6ee96a62c78fb815f69b75901aac25feab2d"
+      }
+    },
+    "native_linux_earlier_owned_disconnect": {
+      "result": "passed",
+      "results": [
+        {
+          "mode": "disconnect",
+          "frames": 48128,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 48128,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 1,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": true,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": false,
+          "desktop_export_frames": 0,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 10,
+            "snapshots_with_owned_links": 7,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          }
+        }
+      ],
+      "result_receipt": {
+        "path": ".cache/s8-discovery-native.json",
+        "sha256": "6d7f0c1a1a725c71a190642d667e144afdf388c590409f924431d333b30288d5"
+      }
+    },
+    "native_sanitized_diagnostic": {
+      "result": "passed before final exhausted-serial guard",
+      "environment": "PIPEWIRE_DLCLOSE=false ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 QT_QPA_PLATFORM=offscreen",
+      "normal_dependency_unload_qualified": false,
+      "results": [
+        {
+          "mode": "roundtrip",
+          "frames": 480000,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 480000,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 2,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": false,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": true,
+          "desktop_export_frames": 480000,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 93,
+            "snapshots_with_owned_links": 76,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          }
+        }
+      ],
+      "log": {
+        "path": ".cache/s8-discovery-native-sanitized.log",
+        "sha256": "a258f10df125e496f2ee5f958b11210b730955a48aeaec3499417d6cb724bac3"
+      }
+    }
+  },
+  "equalizer_reuse_recheck": {
+    "result": "all 24 registered inputs match; retained snapshots valid",
+    "repositories": {
+      "soundcurrent-eq": {
+        "head": "080195a85be163cf8e4b1516745c63f43f317700",
+        "inputs": 12,
+        "head_changed": false
+      },
+      "soundcurrent-studio": {
+        "head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+        "inputs": 12,
+        "head_changed": false
+      }
+    },
+    "audit_log": {
+      "path": ".cache/s8-discovery-final-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "isolated_audit_cli_fixture": {
+      "path": ".cache/s8-discovery-final-reuse-tests.log",
+      "sha256": "8a604d4fb5092715ffbb654f2a2c335ebed765acfbd808ac0fdc5a33ae9e2e18"
+    },
+    "impact": "No adopted input change warranted. Reuse audit is read-only; neither equalizer checkout was modified."
+  },
+  "fixture_corrections": [
+    "Split mixed-type auto declarations in the new desktop test to compile.",
+    "Wait for the actual GUI summary update after the worker result instead of asserting a stale label.",
+    "Release blocked worker gates before controller destructors to avoid fixture deadlocks."
+  ],
+  "limits": [
+    "Metadata is not audio verification; matching recovered sources stay explicitly reviewable and are not deleted.",
+    "Missing writer markers are legacy/unconfirmed. Leases are cooperative in owner-controlled directories, not hostile-filesystem containment.",
+    "Directory/job bounds disclose truncation; blocking filesystem calls must return before cancellation/shutdown.",
+    "Canceled copies can leave uniquely owned partial or complete unadmitted jobs; original preserved.",
+    "No deadline/load/physical output or microphone qualification inferred from these tests."
+  ],
+  "remaining_gates": [
+    "M1 physical alignment/device/reconnect, filesystem/power-loss/>4 GiB/general recovery, normal PipeWire dependency unload and deadline/load gates",
+    "Native Windows Qt/audio/installer/runtime parity",
+    "Autosave/edit journals, project snapshot recovery, missing-media relinking",
+    "M2 simultaneous overdub/multitrack, Auto monitoring and full editing/recording workflows",
+    "X004 native imports; X005 monitoring/printing/profile pins/measurement/rights",
+    "Frozen 92-family functional/quality/content/native-project parity and all-Europe translation/review/UI delivery"
+  ],
+  "next_implementation": "M2 stable track/clip commands and Undo, selection/timeline, prepared shared-clock multi-track playback and simultaneous overdub; keep independent M1 gates open.",
+  "publication": "No push or publication. No physical user audio/default-device changes; owned native nodes cleaned up."
+}

@@ -7,6 +7,7 @@
 #include <limits>
 #include <nlohmann/json.hpp>
 #include <unordered_set>
+#include <map>
 
 namespace soundcurrent::daw {
 namespace {
@@ -229,6 +230,7 @@ struct CaptureWriter::State {
     std::filesystem::path root, job;
     RecordingSpec spec;
     RecordingOptions options;
+    std::unique_ptr<media_io::JobLease> lease;
     std::unique_ptr<AudioFile> audio;
     media_io::SampleHash samples;
     Frame written = 0, committed = 0;
@@ -269,6 +271,8 @@ CaptureWriter::CaptureWriter(std::filesystem::path root, RecordingSpec spec,
     s.options = std::move(options);
     s.job = media / ("capture-" + s.spec.assetId.str());
     require(std::filesystem::create_directory(s.job), "Recording job already exists");
+    s.lease = std::make_unique<media_io::JobLease>(s.job, true);
+    media_io::flushDirectory(s.job);
     media_io::flushDirectory(media);
     s.audio = std::make_unique<AudioFile>(s.job / "audio.partial.rf64", &s.spec);
     s.checkpoint(false, CaptureStatus::Running);
@@ -311,6 +315,8 @@ bool CaptureWriter::drainOne(CapturePipe &pipe) {
         return true;
     } catch (...) {
         s.failed = true;
+        s.audio.reset(); // Close header/descriptor before making an interrupted job inactive.
+        s.lease.reset();
         pipe.writerFailed();
         if (owned)
             pipe.release(slab);
@@ -339,18 +345,31 @@ RecordingResult CaptureWriter::finalize(CapturePipe &pipe) {
         asset.sampleRate = s.spec.capture.sampleRate;
         asset.layout = s.spec.capture.layout;
         asset.frames = s.written;
-        asset.sha256 = hashMediaFile(s.job / "take.wav");
+        asset.sha256 = hashMediaFile(s.job / "take.wav",
+                                     [&] { s.boundary(RecordingBoundary::BeforeAssetHashRead); });
         s.finalized = true;
+        s.lease.reset();
         return {s.spec, std::move(asset), pipe.status(), s.durability};
     } catch (...) {
         s.failed = true;
+        s.audio.reset(); // Close header/descriptor before making an interrupted job inactive.
+        s.lease.reset();
         pipe.writerFailed();
         throw;
     }
 }
-RecordingRecovery inspectRecording(const std::filesystem::path &job) {
+RecordingRecovery inspectRecording(const std::filesystem::path &job,
+                                   const std::function<void()> &boundary, bool requireInactive) {
+    if (boundary)
+        boundary();
     media_io::plainDirectory(job);
+    std::unique_ptr<media_io::JobLease> lease;
+    if (requireInactive) {
+        lease = std::make_unique<media_io::JobLease>(job, false);
+        require(lease->status() != media_io::LeaseStatus::Busy, "Recording job is still active");
+    }
     auto r = decodeJournal(media_io::readJournal(job / "journal.json"));
+    r.writerActivityConfirmed = lease && lease->status() == media_io::LeaseStatus::Held;
     require(job.filename() == "capture-" + r.spec.assetId.str(),
             "Recording directory identity mismatch");
     const auto partial = job / "audio.partial.rf64", final = job / "take.wav";
@@ -370,6 +389,8 @@ RecordingRecovery inspectRecording(const std::filesystem::path &job) {
     std::vector<float> buffer(std::size_t(1024) * r.spec.capture.layout.channels);
     Frame remaining = r.committedFrames;
     while (remaining) {
+        if (boundary)
+            boundary();
         const auto n = std::min<Frame>(1024, remaining);
         require(sf_readf_float(audio.file, buffer.data(), n) == n &&
                     sf_error(audio.file) == SF_ERR_NO_ERROR,
@@ -383,15 +404,156 @@ RecordingRecovery inspectRecording(const std::filesystem::path &job) {
         remaining -= n;
     }
     require(hash.digest() == r.sampleSha256, "Recording prefix checksum mismatch");
+    if (boundary)
+        boundary();
     return r;
 }
+RecordingDiscovery discoverRecordings(const std::filesystem::path &root, const Session &session,
+                                      const RecordingDiscoveryOptions &options) {
+    validate(session);
+    require(options.maximumDirectoryEntries > 0 && options.maximumDirectoryEntries <= 65536 &&
+                options.maximumJobs > 0 && options.maximumJobs <= 4096,
+            "Invalid recording discovery limits");
+    const auto boundary = [&] {
+        if (options.boundary)
+            options.boundary();
+    };
+    boundary();
+    media_io::plainDirectory(root);
+    const auto media = root / "media";
+    RecordingDiscovery result;
+    if (!std::filesystem::exists(std::filesystem::symlink_status(media)))
+        return result;
+    media_io::plainDirectory(media);
+    std::vector<std::filesystem::path> jobs;
+    for (const auto &entry : std::filesystem::directory_iterator(media)) {
+        boundary();
+        if (result.directoryEntries == options.maximumDirectoryEntries) {
+            result.truncated = true;
+            break;
+        }
+        ++result.directoryEntries;
+        const auto name = entry.path().filename().u8string();
+        if (!name.starts_with(u8"capture-"))
+            continue;
+        if (jobs.size() == options.maximumJobs) {
+            result.truncated = true;
+            continue;
+        }
+        jobs.push_back(entry.path());
+    }
+    std::sort(jobs.begin(), jobs.end());
+    std::vector<RecordingRecovery> recovered;
+    for (const auto &job : jobs) {
+        boundary();
+        const auto attached =
+            std::find_if(session.assets.begin(), session.assets.end(),
+                         [&](const auto &a) { return job.filename() == "capture-" + a.id.str(); });
+        if (attached != session.assets.end()) {
+            ++result.attached;
+            if (attached->relativePath != "media/capture-" + attached->id.str() + "/take.wav")
+                continue;
+            try {
+                media_io::plainDirectory(job);
+                media_io::JobLease lease(job, false);
+                if (lease.status() == media_io::LeaseStatus::Busy)
+                    continue;
+                auto r = decodeJournal(media_io::readJournal(job / "journal.json"));
+                if (r.spec.assetId == attached->id && r.spec.projectId == session.id &&
+                    r.finalized && r.spec.capture.layout == attached->layout &&
+                    r.spec.capture.sampleRate == attached->sampleRate &&
+                    r.committedFrames == attached->frames && r.spec.recoveredFrom)
+                    recovered.push_back(std::move(r));
+            } catch (const std::exception &e) {
+                if (result.warnings.size() < 16)
+                    result.warnings.emplace_back(std::string(e.what()).substr(0, 512));
+            }
+            continue;
+        }
+        RecordingJobEntry entry;
+        entry.job = job;
+        try {
+            media_io::plainDirectory(job);
+            media_io::JobLease lease(job, false);
+            if (lease.status() == media_io::LeaseStatus::Busy)
+                entry.status = RecordingJobStatus::Active;
+            else {
+                auto r = decodeJournal(media_io::readJournal(job / "journal.json"));
+                require(job.filename() == "capture-" + r.spec.assetId.str(),
+                        "Recording directory identity mismatch");
+                const auto track =
+                    std::find_if(session.tracks.begin(), session.tracks.end(),
+                                 [&](const auto &t) { return t.id == r.spec.trackId; });
+                if (r.spec.projectId != session.id ||
+                    r.spec.capture.sampleRate != session.sampleRate ||
+                    track == session.tracks.end() || track->layout != r.spec.capture.layout)
+                    entry.status = RecordingJobStatus::Foreign;
+                else if (!r.committedFrames)
+                    entry.status = RecordingJobStatus::Empty;
+                else
+                    entry.status = lease.status() == media_io::LeaseStatus::Absent
+                                       ? RecordingJobStatus::LegacyNeedsVerification
+                                       : RecordingJobStatus::NeedsVerification;
+                entry.checkpoint = std::move(r);
+            }
+        } catch (const ProjectError &e) {
+            if (e.code() == ErrorCode::Canceled)
+                throw;
+            entry.diagnostic = std::string(e.what()).substr(0, 512);
+        } catch (const std::exception &e) {
+            entry.diagnostic = std::string(e.what()).substr(0, 512);
+        }
+        result.entries.push_back(std::move(entry));
+    }
+    std::map<std::string, std::size_t> byId;
+    for (std::size_t n = 0; n < result.entries.size(); ++n)
+        if (result.entries[n].checkpoint)
+            byId.emplace(result.entries[n].checkpoint->spec.assetId.str(), n);
+    for (const auto &attachedCopy : recovered) {
+        const RecordingRecovery *copy = &attachedCopy;
+        std::unordered_set<std::string> visited;
+        while (copy->spec.recoveredFrom) {
+            boundary();
+            const auto origin = copy->spec.recoveredFrom->str();
+            if (!visited.insert(origin).second) {
+                if (result.warnings.size() < 16)
+                    result.warnings.emplace_back("Cycle in recovery metadata");
+                break;
+            }
+            const auto found = byId.find(origin);
+            if (found == byId.end())
+                break;
+            auto &entry = result.entries[found->second];
+            if (!entry.checkpoint || (entry.status != RecordingJobStatus::NeedsVerification &&
+                                      entry.status != RecordingJobStatus::LegacyNeedsVerification &&
+                                      entry.status != RecordingJobStatus::RecoveredSource))
+                break;
+            const auto &source = *entry.checkpoint;
+            if (copy->spec.trackId != source.spec.trackId ||
+                copy->spec.capture != source.spec.capture ||
+                copy->spec.inputLatencyFrames != source.spec.inputLatencyFrames ||
+                copy->committedFrames != source.committedFrames ||
+                copy->sampleSha256 != source.sampleSha256)
+                break;
+            entry.status = RecordingJobStatus::RecoveredSource;
+            copy = &source;
+        }
+    }
+    boundary();
+    return result;
+}
 RecordingResult recoverRecording(const std::filesystem::path &root,
-                                 const std::filesystem::path &job) {
+                                 const std::filesystem::path &job,
+                                 const std::function<void()> &boundary) {
+    if (boundary)
+        boundary();
     media_io::plainDirectory(root);
     media_io::plainDirectory(root / "media");
     require(std::filesystem::equivalent(root / "media", job.parent_path()),
             "Recovery source outside project media");
-    const auto r = inspectRecording(job);
+    media_io::JobLease lease(job, false);
+    require(lease.status() != media_io::LeaseStatus::Busy, "Recording job is still active");
+    const auto r = inspectRecording(job, boundary);
     require(r.committedFrames > 0, "No committed audio to recover");
     auto spec = r.spec;
     spec.recoveredFrom = spec.assetId;
@@ -400,7 +562,12 @@ RecordingResult recoverRecording(const std::filesystem::path &root,
     if (r.timingOrigin)
         require(pipe.setTimingOrigin(*r.timingOrigin), "Cannot preserve recovered device origin");
     spec.capture = pipe.config();
-    CaptureWriter writer(root, spec);
+    RecordingOptions options;
+    options.boundary = [&](RecordingBoundary, Frame) {
+        if (boundary)
+            boundary();
+    };
+    CaptureWriter writer(root, spec, options);
     AudioFile input(r.source);
     checkAudio(input, r);
     const auto channels = spec.capture.layout.channels;
@@ -411,6 +578,8 @@ RecordingResult recoverRecording(const std::filesystem::path &root,
     Frame copied = 0;
     media_io::SampleHash hash;
     while (copied < r.committedFrames) {
+        if (boundary)
+            boundary();
         const auto n =
             static_cast<std::uint32_t>(std::min<Frame>(1024, r.committedFrames - copied));
         require(sf_readf_float(input.file, interleaved.data(), n) == n,
@@ -426,6 +595,8 @@ RecordingResult recoverRecording(const std::filesystem::path &root,
         copied += n;
     }
     require(hash.digest() == r.sampleSha256, "Recovery source changed after inspection");
+    if (boundary)
+        boundary();
     pipe.finish(CaptureEndReason::RecoveredCheckpoint);
     while (writer.drainOne(pipe)) {
     }

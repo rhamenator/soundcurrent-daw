@@ -111,3 +111,36 @@ Windows, normal module-unload, deadline/filesystem/>4 GiB and general recovery
 gates remain open. All frozen parity families, X004 native imports, X005 audio
 routing/printing/portable pins/measurement/rights and European language delivery
 remain incomplete; the full goal stays active.
+
+
+## S8c recording discovery checkpoint (2026-10-06)
+
+Previous goal turn was **progress**: `63cf570` persisted monitoring preferences
+and captured accepted recording preparation state. This turn adds bounded
+Qt-free recording-job metadata discovery, cooperative writer leases, explicit
+legacy uncertainty, attached/recovered-chain diagnostics and cancellable verified
+copying. A separate latest-request I/O owner performs passive Open scans without
+preparing or activating audio. The desktop offers a scrollable list followed by
+verified preview/consent; close dismisses both dialogs and waits for closed
+receipts. Global transport Stop also cancels recording preparation/recovery.
+
+[Contract](28-recording-discovery.md) and
+[evidence](../tests/results/SLICE-001/2026-10-06-recording-discovery.json) separate
+19 passing debug/sanitizer groups from later focused copy-cancellation and
+controller/UI checks. The final discovery fixture has 46 checks, including an
+owned writer killed with SIGKILL and recovered after its OS lease releases.
+Windows headless core/tests cross-build passes; runtime/GUI/audio remain
+unqualified. Native owned-route recording/live EQ/Undo/save/relocate/reopen/export
+passes with zero sample differences and two existing links/defaults preserved.
+Diagnostic native sanitizers still use `PIPEWIRE_DLCLOSE=false`, which does not
+close the normal dependency-unload gate. No deadline/load claim is made.
+
+All 24 registered equalizer inputs still match the observed public `080195a`
+and premium `a63cb44` heads. Neither checkout was modified; no push/publication.
+Next primary implementation: **M2 multitrack foundations**—stable track/clip
+commands and Undo, selection/timeline, prepared shared-clock playback graph and
+simultaneous overdub. M1 physical, native Windows, filesystem/power-loss/>4 GiB,
+normal module-unload and load/deadline gates remain open. Autosave/edit journals,
+snapshot recovery and missing-media relinking also remain required. Full frozen
+parity, X004 native imports, X005 monitor/print/profile pins/measurement/rights
+and all-Europe translation/review/UI delivery remain incomplete. Goal stays active.

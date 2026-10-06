@@ -3,6 +3,7 @@
 #include "project_controller.hpp"
 #include "playback_controller.hpp"
 #include "recording_controller.hpp"
+#include "recovery_controller.hpp"
 #include "export_controller.hpp"
 #include "export_dialog.hpp"
 #include <QPointer>
@@ -36,6 +37,8 @@ class StudioWindow : public QMainWindow {
     std::shared_ptr<const RecordingSnapshot> recordingSnapshot() const;
     std::shared_ptr<const ExportSnapshot> exportSnapshot() const;
     bool requestExport();
+    bool scanRecordings();
+    std::shared_ptr<const RecoveryScanSnapshot> recoverySnapshot() const;
     static QString tr(const char *source, const char *comment = nullptr, int count = -1) {
         return QCoreApplication::translate("StudioWindow", source, comment, count);
     }
@@ -48,6 +51,17 @@ class StudioWindow : public QMainWindow {
     PlaybackController playback_;
     RecordingController recording_;
     ExportController exporter_;
+    RecoveryController recoveryScanner_;
+    QLabel *recoverySummary_;
+    QPushButton *reviewRecoveryButton_, *scanRecoveryButton_;
+    QAction *scanRecoveryAction_;
+    QPointer<QDialog> recoveryDialog_;
+    QPointer<QMessageBox> recoveryPrompt_;
+    std::uint64_t recoveryEpoch_ = 0;
+    std::optional<std::filesystem::path> recoveryJobSeen_;
+    std::shared_ptr<const Session> recoveryRequested_;
+    void pollRecovery();
+    void reviewRecordings();
     QAction *exportAction_, *cancelExportAction_;
     QLabel *exportState_;
     QProgressBar *exportProgress_;

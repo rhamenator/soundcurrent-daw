@@ -17,6 +17,8 @@
 #include <fcntl.h>
 #include <openssl/evp.h>
 #include <unistd.h>
+#include <sys/file.h>
+#include <sys/stat.h>
 #endif
 
 namespace soundcurrent::daw::media_io {
@@ -181,6 +183,70 @@ std::string readJournal(const std::filesystem::path &p) {
     }
     require(stream.eof(), "Journal read failed");
     return result;
+}
+struct JobLease::State {
+    LeaseStatus status = LeaseStatus::Absent;
+#ifdef _WIN32
+    HANDLE handle = INVALID_HANDLE_VALUE;
+    ~State() {
+        if (handle != INVALID_HANDLE_VALUE)
+            CloseHandle(handle);
+    }
+#else
+    int fd = -1;
+    ~State() {
+        if (fd >= 0)
+            ::close(fd);
+    }
+#endif
+};
+JobLease::JobLease(const std::filesystem::path &job, bool writer)
+    : state_(std::make_unique<State>()) {
+    plainDirectory(job);
+    const auto path = job / "writer.lock";
+    if (!writer && !std::filesystem::exists(std::filesystem::symlink_status(path)))
+        return;
+    if (!writer)
+        plainFile(path);
+#ifdef _WIN32
+    auto &s = *state_;
+    s.handle =
+        CreateFileW(path.c_str(), writer ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ,
+                    writer ? 0 : FILE_SHARE_READ, nullptr, writer ? CREATE_NEW : OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
+    if (s.handle == INVALID_HANDLE_VALUE) {
+        if (!writer && GetLastError() == ERROR_SHARING_VIOLATION) {
+            s.status = LeaseStatus::Busy;
+            return;
+        }
+        require(false, "Cannot acquire recording job lease");
+    }
+    FILE_ATTRIBUTE_TAG_INFO tag{};
+    require(GetFileInformationByHandleEx(s.handle, FileAttributeTagInfo, &tag, sizeof(tag)) &&
+                !(tag.FileAttributes & (FILE_ATTRIBUTE_REPARSE_POINT | FILE_ATTRIBUTE_DIRECTORY)),
+            "Unsafe recording lease file");
+#else
+    auto &s = *state_;
+    s.fd = open(path.c_str(),
+                writer ? O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC | O_NOFOLLOW
+                       : O_RDONLY | O_CLOEXEC | O_NOFOLLOW,
+                0600);
+    require(s.fd >= 0, "Cannot open recording job lease");
+    struct stat info{};
+    require(fstat(s.fd, &info) == 0 && S_ISREG(info.st_mode), "Unsafe recording lease file");
+    if (flock(s.fd, (writer ? LOCK_EX : LOCK_SH) | LOCK_NB) != 0) {
+        if (!writer && (errno == EWOULDBLOCK || errno == EAGAIN)) {
+            s.status = LeaseStatus::Busy;
+            return;
+        }
+        require(false, "Cannot acquire recording job lease");
+    }
+#endif
+    state_->status = LeaseStatus::Held;
+}
+JobLease::~JobLease() = default;
+LeaseStatus JobLease::status() const noexcept {
+    return state_->status;
 }
 struct SampleHash::State {
 #ifdef _WIN32

@@ -60,3 +60,13 @@ upstream candidates are in `reuse/equipment/provenance.json`. The 1,092-entry ge
 speaker catalog retains its Spinorama GPL license, source hashes and collector; full
 source/data rights and packaging audit remain open. Pyle measurement arrays are excluded.
 See ADR 011 and docs/17-equipment-profiles.md for integration cost and remaining gates.
+
+
+## Recording discovery checkpoint
+
+S8c adds no dependency. Existing C++ filesystem, platform file handles/leases,
+libsndfile and hashing support the Qt-free bounded discovery/verification/copy
+API; existing Qt owns the separate latest-request I/O worker and review dialog.
+Linux nonblocking flock and Windows exclusive sharing are cooperative activity
+checks in owner-controlled directories. Windows execution remains unqualified.
+See [ADR 018](decisions/018-recording-discovery.md).
