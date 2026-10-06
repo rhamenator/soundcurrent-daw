@@ -882,3 +882,69 @@ Next **M2d4c4**: unchanged1800-second native workload with supplementalCPU/clock
 then choose any actual processing/scheduling change from an observed outlier, keeping
 all original sample/RT/current-period/full-duration gates. Neither short passes nor
 uncontrolled host timing establish reliability or waive historical failures.
+
+## 2026-10-06 continuation: M2d4c4 checked audio flush
+
+Previous `5b23173` is progress; full goal remains active and incomplete. The two
+preceding continuations were verified waits on exact handle 5205 while the same
+1800-second run remained live. This continuation observes its terminal exit 1,
+then waits for exact read-only verification handle 83118 to terminate successfully
+before any recording source edit or build. No timeout restart or overlapping
+native/build/test workload was introduced.
+
+That run stops after roughly 1234.6 audio seconds: lane 25 fills all 118 slabs,
+retaining 59,260,928 frames and rejecting 1,024; the other lanes retain 59,261,952.
+All 1,896,381,440 full raw samples and 118,521,856 common stereo samples verify
+exactly, including raw suffixes/overs, with all 105 original files and canonical
+state unchanged. All callback wall/CPU coverage and individual finite gates pass.
+Repeated checkpoint work exceeds committed audio spans, accumulating backlog;
+maxima include post-stop draining and do not identify one underlying storage cause.
+Host context identifies ext4 on an SSD; no hardware/scheduler/power setting changed.
+
+Pinned libsndfile 1.2.2 sf_write_sync only issues an unchecked OS sync; AudioFile
+also flushed the same descriptor with error checking. Remove the redundant library
+call, preserving header/error checks, checked application fsync/FlushFileBuffers,
+and journal flush/atomic rename/directory flush. Frame cadence, reserve, slabs,
+RT graph/callbacks and schemas stay unchanged. A Linux owned-inode application
+fsync EIO test verifies writer failure, no journal advancement, exact earlier
+256-frame recovery/new identity and preservation of the 512-frame original file.
+The wrapper does not intercept the libsndfile DSO or prove sync cost savings.
+
+Release five targeted groups pass; all 27 Debug groups pass in 24.01s. Full
+ASan+UBSan+LSan passes 26/27 in 75.00s with desktop-ui close timeout at line 1183;
+a serial unchanged isolated recheck passes in 8.66s. Preserve both receipts and
+the unknown failure-time mode/state; do not label the full sanitizer suite a clean
+pass or increase its timeout. All configured Windows headless targets compile/link;
+Windows native/Qt/runtime/install gates remain open.
+
+The first short normal native probe skips a sink cycle around 13.5s. All
+20,742,144 raw/1,292,288 common output samples verify exactly, original files
+unchanged, max disk queue 1. Individual callback budgets pass but source and owner
+maxima share the missing cycle: owner starts 14.598437ms and ends 22.007843ms after
+native nsec versus a 21.333333ms period. Cycle timestamp jitter and scheduler/CPU
+causes remain unresolved. Preserve this run; individual budgets alone do not
+establish whole graph continuity.
+
+One bounded unchanged retake passes normal/4s absorption/12s exhaustion. Normal
+and absorption each verify 30,720,000 raw/1,920,000 output samples, Save/reopen,
+floating overs and complete finite wall/CPU coverage. Absorption queues 46 of
+118 slabs. Exhaustion retains lane 17 and all 17,988,608 full raw/1,122,304 common
+output samples exactly; independent-copy recovery verifies all 32 takes, timing
+origins, new IDs/recoveredFrom, alignment, hashes and Save/reopen/previous backup,
+without altering originals or copied source media/journals. These passes do not
+resolve earlier continuity/UI/storage failures or qualify sustained duration.
+
+[Contract](43-recording-checked-flush.md), [ADR-033](decisions/033-single-checked-recording-flush.md)
+and [evidence](../tests/results/M2/2026-10-06-single-checked-recording-flush.json)
+retain fifteen unresolved observations, exact sources/binaries, logs, clocks,
+phases and original media hashes. All 24 equalizer inputs and heads re-audit
+unchanged; no equalizer writes, new dependency/license, push or publication.
+All 92 frozen acceptance/quality/reference/F/Q/C/N contracts remain unchanged
+and unpromoted. Full professional/Windows/physical/load/filesystem/power-loss/
+unload, X004/X005 and all-Europe localization remain required.
+
+Next M2d4c5: unchanged 1800-second native qualification after every build/test/
+recovery/read handle terminates. Preserve exact range/sample/timing gates and
+all historical failures. If late sink cycles recur, measure composed cycle timing
+and scheduling/processing evidence; if storage backlog recurs, investigate
+coordinated publication or filesystem service costs without relaxing durability.

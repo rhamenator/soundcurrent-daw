@@ -37,8 +37,10 @@ struct AudioFile {
     void checkpoint() {
         require(sf_command(file, SFC_UPDATE_HEADER_NOW, nullptr, 0) == 0,
                 "Recording header checkpoint failed");
-        sf_write_sync(file);
         require(sf_error(file) == SF_ERR_NO_ERROR, "Recording write/flush failed");
+        // libsndfile 1.2.2 sf_write_sync only invokes the OS sync, without
+        // reporting its result. This checked flush covers the updated header
+        // and payload before publishing the durable journal.
         descriptor.flush();
     }
     void close() {

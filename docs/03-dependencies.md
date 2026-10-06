@@ -70,3 +70,13 @@ API; existing Qt owns the separate latest-request I/O worker and review dialog.
 Linux nonblocking flock and Windows exclusive sharing are cooperative activity
 checks in owner-controlled directories. Windows execution remains unqualified.
 See [ADR 018](decisions/018-recording-discovery.md).
+
+## Recording flush audit (2026-10-06)
+
+Existing libsndfile 1.2.2 remains selected and licensed as previously inventoried.
+The pinned sf_write_sync/psf_fsync implementations only issue an unchecked OS sync;
+the recording checkpoint now retains the existing checked descriptor flush after
+header/error handling and omits the redundant library call. Exact source hashes,
+platform branches and source links are in [the audit](43-recording-checked-flush.md)
+and its evidence. Re-audit on any dependency upgrade. No new dependency or licensing
+choice; native Windows/packaging qualification remains open.

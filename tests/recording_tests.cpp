@@ -11,6 +11,10 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <thread>
+#if defined(__linux__)
+#include <cerrno>
+#include <sys/stat.h>
+#endif
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -24,6 +28,35 @@
 #endif
 
 using namespace soundcurrent::daw;
+#if defined(__linux__)
+namespace flush_fault {
+// Test-owned single-threaded writer descriptor, selected by inode rather than
+// fd reuse. Wrapping application fsync does not intercept libsndfile's DSO.
+dev_t device{};
+ino_t inode{};
+bool enabled = false, failNext = false;
+std::uint64_t calls = 0, failures = 0, rtCalls = 0;
+} // namespace flush_fault
+extern "C" int __real_fsync(int);
+extern "C" int __wrap_fsync(int fd) {
+    if (rt_audit::active)
+        ++flush_fault::rtCalls;
+    if (flush_fault::enabled) {
+        struct stat info{};
+        if (::fstat(fd, &info) == 0 && info.st_dev == flush_fault::device &&
+            info.st_ino == flush_fault::inode) {
+            ++flush_fault::calls;
+            if (flush_fault::failNext) {
+                flush_fault::failNext = false;
+                ++flush_fault::failures;
+                errno = EIO;
+                return -1;
+            }
+        }
+    }
+    return __real_fsync(fd);
+}
+#endif
 namespace {
 std::uint64_t checks = 0;
 void check(bool ok, const char *text) {
@@ -400,6 +433,76 @@ void interruptedBoundary(RecordingBoundary failure, bool duringFinalize) {
               hashMediaFile(job / "journal.json") == originalJournal,
           "Recovery changed original evidence");
 }
+#if defined(__linux__)
+void checkedFlushFailure() {
+    Temp temp;
+    const auto spec = specFor(makeOneTrackSession("Flush failure", "Raw"), 256);
+    CapturePipe pipe(spec.capture);
+    std::filesystem::path job;
+    std::string journalHash;
+    {
+        std::uint64_t afterFlush = 0, beforeJournal = 0;
+        RecordingOptions options{256, [&](RecordingBoundary boundary, Frame) {
+                                     if (boundary == RecordingBoundary::AfterAudioFlush)
+                                         ++afterFlush;
+                                     if (boundary == RecordingBoundary::BeforeJournalPublish)
+                                         ++beforeJournal;
+                                 }};
+        CaptureWriter writer(temp.root, spec, options);
+        job = writer.jobDirectory();
+        struct stat info{};
+        check(::stat((job / "audio.partial.rf64").c_str(), &info) == 0,
+              "Cannot select owned audio flush descriptor");
+        flush_fault::device = info.st_dev;
+        flush_fault::inode = info.st_ino;
+        flush_fault::enabled = true;
+        struct Disable {
+            ~Disable() {
+                flush_fault::enabled = false;
+                flush_fault::failNext = false;
+            }
+        } disable;
+        Source source(1, 256);
+        check(source.push(pipe, 0, 256).acceptedFrames == 256 && writer.drainOne(pipe) &&
+                  writer.checkpointFrames() == 256 && flush_fault::calls == 1,
+              "Initial checked audio flush/checkpoint failed");
+        journalHash = hashMediaFile(job / "journal.json");
+        const auto savedAfterFlush = afterFlush, savedBeforeJournal = beforeJournal;
+        flush_fault::failNext = true;
+        check(source.push(pipe, 256, 256).acceptedFrames == 256,
+              "Second flush-fault source block rejected");
+        bool ioError = false;
+        try {
+            writer.drainOne(pipe);
+        } catch (const ProjectError &error) {
+            ioError = error.code() == ErrorCode::Io;
+        }
+        check(ioError && flush_fault::calls == 2 && flush_fault::failures == 1 &&
+                  !flush_fault::failNext && writer.writtenFrames() == 512 &&
+                  writer.checkpointFrames() == 256,
+              "Checked flush failure did not preserve committed prefix");
+        check(afterFlush == savedAfterFlush && beforeJournal == savedBeforeJournal &&
+                  hashMediaFile(job / "journal.json") == journalHash,
+              "Failed audio flush advanced journal publication");
+        const auto rejected = source.push(pipe, 512, 256);
+        check(rejected.acceptedFrames == 0 && rejected.status == CaptureStatus::WriterFailed,
+              "Checked flush failure not reported to audio owner");
+    }
+    const auto retained = inspectRecording(job);
+    check(retained.committedFrames == 256 && !retained.finalized,
+          "Inactive failed-flush checkpoint extent changed");
+    verifyAudio(retained.source, 512, 1);
+    const auto mediaHash = hashMediaFile(retained.source);
+    const auto recovered = recoverRecording(temp.root, job);
+    check(recovered.asset.id != spec.assetId && recovered.spec.recoveredFrom == spec.assetId &&
+              recovered.asset.frames == 256,
+          "Flush-failure recovery reused identity or uncommitted suffix");
+    verifyAudio(temp.root / utf8Path(recovered.asset.relativePath), 256, 1);
+    check(hashMediaFile(retained.source) == mediaHash &&
+              hashMediaFile(job / "journal.json") == journalHash && flush_fault::rtCalls == 0,
+          "Flush-failure recovery changed originals or flushed in callback");
+}
+#endif
 void invalidRecoveryAndNoOverwrite() {
     Temp temp;
     auto session = makeOneTrackSession("Validation", "Raw");
@@ -569,6 +672,9 @@ int main() {
         for (auto b : {RecordingBoundary::BeforeMediaPublish, RecordingBoundary::AfterMediaPublish})
             interruptedBoundary(b, true);
         invalidRecoveryAndNoOverwrite();
+#if defined(__linux__)
+        checkedFlushFailure();
+#endif
 #ifndef _WIN32
         processKill();
         writeLimitFailure();

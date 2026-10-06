@@ -258,3 +258,9 @@ and1.803s journal phase fill a32-slab pool. Full raw/common-output prefixes rema
 exact and unchanged. Controlled-stall and short normal evidence qualifies the
 observations, not the required30-minute acceptance or original historical cause.
 All92 acceptance/quality/reference/F/Q/C/N contracts remain unchanged/unpromoted.
+
+M2d4c4 retains a later long native storage-backlog failure despite passing callback
+wall/CPU timing. [One checked audio flush](43-recording-checked-flush.md) removes a
+source-proven duplicate OS sync while retaining journal ordering and tests actual
+flush-error recovery. All 92 acceptance/quality/reference/F/Q/C/N contracts remain
+unchanged. Full-duration, physical, Windows and other reliability gates stay open.
