@@ -81,8 +81,8 @@ struct Following {
     std::shared_ptr<const Session> session;
     std::uint64_t revision = 0;
 };
-// First-track recording currently admits only scalar EQ/enable changes. It
-// cannot silently keep recording after a project/rate/route/layout/clip change.
+// Saved first-track route/monitoring intent is separate from the prepared connections.
+// Live processing admits scalar EQ/enable changes; project/rate/layout/clip changes stop it.
 bool compatible(const Session &a, const Session &b) {
     if (a.tracks.empty() || b.tracks.empty())
         return false;

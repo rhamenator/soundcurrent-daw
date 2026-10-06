@@ -464,8 +464,15 @@ void recordingWorkflow(const std::filesystem::path &root, bool monitoring) {
     await([&] {
         return reopened.snapshot()->session && reopened.snapshot()->io == IoOperation::None;
     });
-    if (monitoring)
-        reopened.findChild<QComboBox *>("recordMonitorMode")->setCurrentIndex(1);
+    await([&] {
+        return reopened.findChild<QComboBox *>("recordMonitorMode")->currentData().toInt() ==
+               int(saved.tracks.front().monitoring);
+    });
+    check(saved.tracks.front().monitoring ==
+                  (monitoring ? RecordingMonitor::PostEq : RecordingMonitor::Off) &&
+              !restored->constructed && !restored->activated &&
+              !reopened.findChild<QCheckBox *>("armTrack")->isChecked(),
+          "Saved monitoring mode was lost or restoration prepared/armed audio");
     check(reopened.prepareRecording(), "Restored input preparation refused");
     await([&] {
         return reopened.recordingSnapshot()->phase == RecordingPhase::Ready &&
@@ -566,6 +573,91 @@ QAction *projectUndo(StudioWindow &window) {
     check(found != actions.end(), "Project Undo action missing");
     return *found;
 }
+void monitoringPreferences(const std::filesystem::path &root) {
+    const auto original = makeOneTrackSession("Monitoring — Écoute", "Mic");
+    ProjectStore(root).save(original);
+    auto counters = std::make_shared<recording_fixture::Counters>();
+    StudioWindow w(nullptr, {}, recording_fixture::options(counters));
+    w.show();
+    w.openProject(root);
+    auto *mode = w.findChild<QComboBox *>("recordMonitorMode");
+    await([&] {
+        return w.snapshot()->session && w.snapshot()->io == IoOperation::None && mode->isEnabled();
+    });
+    mode->clearFocus();
+    wheel(mode);
+    QTest::qWait(30);
+    check(mode->currentData().toInt() == int(RecordingMonitor::Off) && !w.snapshot()->dirty,
+          "Unfocused wheel changed saved monitor mode");
+    // The mode command and preparation enter in the same GUI event turn. A barrier
+    // captures the accepted command prefix instead of a possibly stale publication.
+    mode->setCurrentIndex(1);
+    check(w.prepareRecording(), "Immediate mode/prepare refused");
+    await([&] {
+        return w.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               w.findChild<QPushButton *>("recordStopButton")->isEnabled();
+    });
+    check(w.snapshot()->session->tracks.front().monitoring == RecordingMonitor::PostEq &&
+              w.recordingSnapshot()->monitoring == RecordingMonitor::PostEq &&
+              !counters->activated && !w.recordingSnapshot()->job,
+          "Immediate prepare ignored accepted mode or activated recording");
+    await([&] { return projectUndo(w)->isEnabled(); });
+    projectUndo(w)->trigger();
+    await([&] {
+        return w.snapshot()->session->tracks.front().monitoring == RecordingMonitor::Off &&
+               mode->currentData().toInt() == int(RecordingMonitor::Off);
+    });
+    check(!w.snapshot()->dirty && w.recordingSnapshot()->phase == RecordingPhase::Ready &&
+              w.recordingSnapshot()->monitoring == RecordingMonitor::PostEq &&
+              counters->constructed == 1 && !counters->destroyed,
+          "Undo reconfigured the already prepared monitor graph");
+    w.findChild<QPushButton *>("recordStopButton")->click();
+    await(
+        [&] { return w.recordingSnapshot()->phase == RecordingPhase::Idle && mode->isEnabled(); });
+    check(w.prepareRecording(), "Reprepare after mode undo refused");
+    await([&] {
+        return w.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               w.findChild<QPushButton *>("recordStopButton")->isEnabled();
+    });
+    check(w.recordingSnapshot()->monitoring == RecordingMonitor::Off &&
+              counters->constructed == 2 && counters->destroyed == 1 &&
+              !w.findChild<QComboBox *>("monitorChannel0"),
+          "Reprepare did not capture updated saved mode");
+    w.findChild<QPushButton *>("recordStopButton")->click();
+    await(
+        [&] { return w.recordingSnapshot()->phase == RecordingPhase::Idle && mode->isEnabled(); });
+    mode->setCurrentIndex(1);
+    await([&] { return w.snapshot()->dirty; });
+    PromptChoice save(QMessageBox::Save);
+    w.close();
+    await([&] { return w.snapshot()->closed && w.recordingSnapshot()->closed; });
+    save.timer.stop();
+    check(save.prompts == 1 &&
+              ProjectStore(root).load().tracks.front().monitoring == RecordingMonitor::PostEq,
+          "Dirty monitoring preference was not offered Save");
+    auto restored = std::make_shared<recording_fixture::Counters>();
+    StudioWindow reopen(nullptr, {}, recording_fixture::options(restored));
+    reopen.show();
+    reopen.openProject(root);
+    auto *reopenedMode = reopen.findChild<QComboBox *>("recordMonitorMode");
+    await([&] {
+        return reopen.snapshot()->session &&
+               reopenedMode->currentData().toInt() == int(RecordingMonitor::PostEq) &&
+               reopenedMode->isEnabled();
+    });
+    check(!reopen.snapshot()->dirty && !restored->constructed && !restored->activated,
+          "Reopen prepared native monitoring automatically");
+    reopenedMode->setCurrentIndex(0);
+    await([&] { return reopen.snapshot()->dirty; });
+    PromptChoice discard(QMessageBox::Discard);
+    reopen.close();
+    await([&] { return reopen.snapshot()->closed && reopen.recordingSnapshot()->closed; });
+    discard.timer.stop();
+    check(discard.prompts == 1 &&
+              ProjectStore(root).load().tracks.front().monitoring == RecordingMonitor::PostEq,
+          "Discard overwrote saved monitoring preference");
+}
+
 void portableOutputRoutes(const std::filesystem::path &root) {
     const auto initial = stereoTake(root);
     auto ports = std::make_shared<playback_fixture::Counters>();
@@ -740,6 +832,8 @@ int main(int argc, char **argv) {
         workflows(utf8Path(temp.path().toUtf8().toStdString()) / "project");
         playbackWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "playback");
         portableOutputRoutes(utf8Path(temp.path().toUtf8().toStdString()) / "portable-routes");
+        monitoringPreferences(utf8Path(temp.path().toUtf8().toStdString()) /
+                              "monitoring-preferences");
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-off", false);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-monitor", true);
         recordingRecoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /

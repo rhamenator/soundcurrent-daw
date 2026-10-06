@@ -228,6 +228,25 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     monitorMode_->setAccessibleName(tr("Recording monitoring mode"));
     monitorMode_->addItem(tr("Monitoring off"), int(RecordingMonitor::Off));
     monitorMode_->addItem(tr("Monitor through track EQ"), int(RecordingMonitor::PostEq));
+    monitorMode_->setToolTip(tr("Saved monitoring mode takes effect after Stop and preparation."));
+    connect(monitorMode_, &QComboBox::currentIndexChanged, this, [this] {
+        const auto model = controller_.snapshot();
+        const auto native = recording_.snapshot();
+        if (!model->session || model->session->tracks.empty() || closing_ || closeRequested_ ||
+            recordPrepareBarrier_ || recordCommandPending_ || native->take ||
+            model->io == IoOperation::Create || model->io == IoOperation::Open ||
+            (native->phase != RecordingPhase::Idle && native->phase != RecordingPhase::Fault &&
+             native->phase != RecordingPhase::Unsupported))
+            return;
+        ProjectCommand c{CommandKind::Monitoring};
+        c.monitoringTrack = model->session->tracks.front().id;
+        c.monitoring = static_cast<RecordingMonitor>(monitorMode_->currentData().toInt());
+        if (!submitEdit(std::move(c))) {
+            QSignalBlocker block(monitorMode_);
+            monitorMode_->setCurrentIndex(
+                monitorMode_->findData(int(model->session->tracks.front().monitoring)));
+        }
+    });
     recordModes->addWidget(armed_);
     recordModes->addWidget(monitorMode_, 1);
     recordLayout->addLayout(recordModes);
@@ -267,10 +286,15 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     recordLayout->addLayout(takeButtons);
     connect(prepareRecordButton_, &QPushButton::clicked, this, [this] { prepareRecording(); });
     connect(recordButton_, &QPushButton::clicked, this, &StudioWindow::recordSelected);
-    connect(recordStopButton_, &QPushButton::clicked, this, [this] { recording_.requestStop(); });
+    connect(recordStopButton_, &QPushButton::clicked, this, [this] {
+        recordPrepareBarrier_ = 0;
+        recording_.requestStop();
+    });
     connect(armed_, &QCheckBox::toggled, this, [this](bool v) {
-        if (!v)
+        if (!v) {
+            recordPrepareBarrier_ = 0;
             recording_.requestStop();
+        }
     });
     connect(retryTakeButton_, &QPushButton::clicked, this, &StudioWindow::retryTake);
     connect(keepTakeButton_, &QPushButton::clicked, this, [this] {
@@ -786,7 +810,7 @@ void StudioWindow::pollPlayback() {
 }
 bool StudioWindow::recordingBusy() const {
     const auto r = recording_.snapshot();
-    return recordCommandPending_ || r->take ||
+    return recordPrepareBarrier_ || recordCommandPending_ || r->take ||
            (r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Unsupported &&
             r->phase != RecordingPhase::Fault && r->phase != RecordingPhase::Closed);
 }
@@ -808,20 +832,21 @@ bool StudioWindow::submitRecording(RecordingCommand c) {
 bool StudioWindow::prepareRecording() {
     const auto m = controller_.snapshot();
     const auto p = playback_.snapshot();
-    if (!m->session || m->io != IoOperation::None || closing_ || closeRequested_ ||
+    const auto r = recording_.snapshot();
+    if ((r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Fault &&
+         r->phase != RecordingPhase::Unsupported && r->phase != RecordingPhase::Ready) ||
+        !m->session || m->session->tracks.empty() || recordPrepareBarrier_ ||
+        recordCommandPending_ || m->io != IoOperation::None || closing_ || closeRequested_ ||
         closeAfterSave_ || recording_.snapshot()->take || attachingTake_ ||
         (p->phase != PlaybackPhase::Idle && p->phase != PlaybackPhase::Fault &&
          p->phase != PlaybackPhase::Unsupported))
         return false;
-    RecordingCommand c;
-    c.root = m->root;
-    c.session = m->session;
-    c.modelRevision = m->modelRevision;
-    c.monitoring = static_cast<RecordingMonitor>(monitorMode_->currentData().toInt());
-    if (!submitRecording(std::move(c))) {
-        recordingState_->setText(tr("Recording queue is full or closing. Please retry."));
+    ProjectCommand capture{CommandKind::Barrier};
+    capture.barrier = nextGesture_++;
+    const auto token = capture.barrier;
+    if (!submitEdit(std::move(capture)))
         return false;
-    }
+    recordPrepareBarrier_ = token;
     return true;
 }
 void StudioWindow::recordSelected() {
@@ -935,6 +960,28 @@ void StudioWindow::pollRecording() {
         (r->completedCommands > recordCommandCompleted_ || r->errorSerial > recordCommandError_ ||
          r->stopAcknowledged > recordCommandStop_))
         recordCommandPending_ = false;
+    if (recordPrepareBarrier_ && (closing_ || closeRequested_))
+        recordPrepareBarrier_ = 0;
+    if (recordPrepareBarrier_ && m->lastBarrier == recordPrepareBarrier_) {
+        recordPrepareBarrier_ = 0;
+        if (m->barrierSession && !m->barrierSession->tracks.empty()) {
+            RecordingCommand c;
+            c.root = m->barrierRoot;
+            c.session = m->barrierSession;
+            c.modelRevision = m->barrierRevision;
+            c.monitoring = c.session->tracks.front().monitoring;
+            if (!submitRecording(std::move(c)))
+                notice_->setText(tr("Recording queue is full or closing. Please retry."));
+        }
+    }
+    const auto mode = m->session && !m->session->tracks.empty()
+                          ? m->session->tracks.front().monitoring
+                          : RecordingMonitor::Off;
+    if (!monitoringShown_ || *monitoringShown_ != mode) {
+        QSignalBlocker blocked(monitorMode_);
+        monitorMode_->setCurrentIndex(monitorMode_->findData(int(mode)));
+        monitoringShown_ = mode;
+    }
     if (m->session && m->modelRevision > recordingFollowed_ &&
         recording_.follow(m->root, m->session, m->modelRevision))
         recordingFollowed_ = m->modelRevision;
@@ -977,16 +1024,18 @@ void StudioWindow::pollRecording() {
     const bool idle = r->phase == RecordingPhase::Idle || r->phase == RecordingPhase::Fault ||
                       r->phase == RecordingPhase::Unsupported;
     const bool ready = r->phase == RecordingPhase::Ready;
-    const bool prepare = allow && !recordCommandPending_ && r->supported && (idle || ready) &&
-                         !r->take && !attachingTake_ && playbackIdle && m->session &&
-                         m->io == IoOperation::None;
+    const bool prepare = allow && !recordPrepareBarrier_ && !recordCommandPending_ &&
+                         r->supported && (idle || ready) && !r->take && !attachingTake_ &&
+                         playbackIdle && m->session && m->io == IoOperation::None;
     prepareRecordButton_->setEnabled(prepare);
     prepareRecordAction_->setEnabled(prepare);
-    monitorMode_->setEnabled(allow && idle && !r->take);
+    monitorMode_->setEnabled(allow && !recordPrepareBarrier_ && !recordCommandPending_ && idle &&
+                             !r->take && m->session && !m->session->tracks.empty() &&
+                             m->io != IoOperation::Create && m->io != IoOperation::Open);
     armed_->setEnabled(allow && r->supported && m->session && !r->take);
     recordButton_->setEnabled(allow && !recordCommandPending_ && ready && armed_->isChecked());
     recordAction_->setEnabled(recordButton_->isEnabled());
-    recordStopButton_->setEnabled(allow && !idle && !r->closed);
+    recordStopButton_->setEnabled(allow && (recordPrepareBarrier_ || !idle) && !r->closed);
     recoverAction_->setEnabled(allow && !recordCommandPending_ && idle && !r->take &&
                                !attachingTake_ && m->session && m->io == IoOperation::None);
     updateRecordingRoutes(*r);
@@ -1031,6 +1080,12 @@ void StudioWindow::pollRecording() {
         status = tr("Recording closed");
         break;
     }
+    if ((r->phase == RecordingPhase::Ready || r->phase == RecordingPhase::Recording ||
+         r->phase == RecordingPhase::Complete) &&
+        mode != r->monitoring)
+        status +=
+            tr(" · Prepared monitoring: %1. Stop and prepare to use the saved mode.")
+                .arg(r->monitoring == RecordingMonitor::Off ? tr("Off") : tr("Through track EQ"));
     if (r->take)
         status = attachmentFailed_ ? tr("Take could not be added. Retry, or keep it for recovery.")
                                    : tr("Adding verified take to the project…");
@@ -1232,12 +1287,14 @@ void StudioWindow::poll() {
         outputIntentShown_.reset();
         inputIntentShown_.reset();
         monitorIntentShown_.reset();
+        monitoringShown_.reset();
     }
     if (view->session && routeProjectEpoch_ != view->projectEpoch) {
         routeProjectEpoch_ = view->projectEpoch;
         outputIntentShown_.reset();
         inputIntentShown_.reset();
         monitorIntentShown_.reset();
+        monitoringShown_.reset();
         outputsShown_.reset();
         recordPortsShown_.reset();
         for (const auto &combos : {outputs_, inputs_, monitors_})

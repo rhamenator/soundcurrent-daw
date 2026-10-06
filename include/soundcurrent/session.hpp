@@ -83,6 +83,7 @@ struct Clip {
     Frame lengthFrames = 0;
     bool operator==(const Clip &) const = default;
 };
+enum class RecordingMonitor { Off, PostEq };
 struct Track {
     Id id = Id::generate();
     std::string name;
@@ -90,6 +91,7 @@ struct Track {
     RouteIntent input;
     RouteIntent output;
     RouteIntent monitor;
+    RecordingMonitor monitoring = RecordingMonitor::Off;
     EqSettings eq;
     std::vector<Clip> clips;
     bool operator==(const Track &) const = default;
@@ -132,6 +134,8 @@ struct RouteChannelPatch {
 const RouteIntent &routeValue(const Session &, const RouteAddress &);
 RouteIntent patchedRouteValue(const Session &, const RouteAddress &, const RouteChannelPatch &);
 void setRouteValue(Session &, const RouteAddress &, const RouteIntent &);
+RecordingMonitor monitoringValue(const Session &, const Id &trackId);
+void setMonitoringValue(Session &, const Id &trackId, RecordingMonitor);
 
 enum class BandParameter { FrequencyHz, GainDb, Q };
 struct ParameterAddress {
@@ -162,6 +166,7 @@ class EditHistory {
     bool undo();
     bool redo();
     bool route(const RouteAddress &, const RouteIntent &);
+    bool monitoring(const Id &trackId, RecordingMonitor);
 
   private:
     struct ParameterChange {
@@ -173,7 +178,11 @@ class EditHistory {
         RouteAddress address;
         RouteIntent before, after;
     };
-    using Change = std::variant<ParameterChange, RouteChange>;
+    struct MonitoringChange {
+        Id trackId;
+        RecordingMonitor before, after;
+    };
+    using Change = std::variant<ParameterChange, RouteChange, MonitoringChange>;
     Session &session_;
     std::optional<ParameterChange> active_;
     std::vector<Change> undo_, redo_;

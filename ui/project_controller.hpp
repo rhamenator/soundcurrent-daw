@@ -15,7 +15,8 @@ enum class CommandKind {
     Redo,
     Barrier,
     AttachRecording,
-    Routing
+    Routing,
+    Monitoring
 };
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
@@ -25,6 +26,8 @@ struct ProjectCommand {
     std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
     std::optional<RouteAddress> routeAddress;
     RouteIntent route;
+    std::optional<Id> monitoringTrack;
+    RecordingMonitor monitoring = RecordingMonitor::Off;
     std::optional<RouteChannelPatch>
         routePatch; // Merge with latest accepted route, not a stale GUI copy.
     std::optional<ParameterAddress> address;

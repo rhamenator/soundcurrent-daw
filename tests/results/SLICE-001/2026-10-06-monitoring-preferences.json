@@ -1,0 +1,229 @@
+{
+  "date": "2026-10-06",
+  "milestone": "SLICE-001/S8b",
+  "status": "partial-product milestone; scoped monitoring-preference workflows passed",
+  "parent_commit": "13802430cebd7686e3e592d28bb6c6f3b1ea25eb",
+  "scope": [
+    "Schema 1.2 stable off/post-eq per-track state; explicit 1.0/1.1 migration with safe Off default",
+    "Invalid/missing modes, wrong types, future versions and stale track IDs rejected without state/gesture mutation",
+    "Shared bounded 256 semantic EQ/route/monitor Undo/Redo with stable IDs, no-op revisions and save-prefix isolation",
+    "Desktop focus-safe monitoring preference, same-event change/Prepare via immutable accepted controller prefix, prepared-mode retention through Undo and Stop/reprepare",
+    "Dirty monitoring Save/Discard, passive saved-mode reopen with no preparation/arm/capture",
+    "Actual native record/live EQ/Undo/save/relocate/reopen/desktop-export using persisted mode; no reopen fixture override"
+  ],
+  "tested_source_sha256": {
+    "CMakeLists.txt": "e496fba7a5d3c677b325412773b8ebeb52540f9de532b6e514923932168fd21b",
+    "include/soundcurrent/pipewire_recording.hpp": "b0e5202b083d54d8f1f2bed1b4e8752b9d1a9a4eddee522e4d9aac577efee53e",
+    "include/soundcurrent/session.hpp": "a6855f23ebeec67c263030cac26d9bfbf9375d3e1412c9f378367c531328b540",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/project_store.cpp": "f17fc13db89f5ac9098f983d601804ede8cf831d43efcf2bf909d9d709471ab3",
+    "src/session.cpp": "8e8ae44f026218e73ecfb83ca97ac0336a04009a2abbacb4f7287d66c0ce31e3",
+    "tests/controller_tests.cpp": "e7e0b389adf833253168c5eefb830c302a28e85928d3d56f8f5b5bd901170417",
+    "tests/fake_recording_endpoint.hpp": "28357349d8d4269a89dfad96ff14c942d61a8a21ade535502e923dcf0971317a",
+    "tests/monitoring_tests.cpp": "9a8cb16ed009dfa59015b95343971398db27b3af077cc19cee1843cf5d6eb2d7",
+    "tests/pipewire_recording_ui_fixture.cpp": "ac2f9e5d9068c870fc2c614f7c2844ce0489ba9df4e162f54027a21583daeac9",
+    "tests/routing_tests.cpp": "711148c3adc0468e40613b436fc3209c5d2559e69a948203a8090d6de7e487c7",
+    "tests/session_tests.cpp": "fcf694f633d922f93b9dde9ebef74efb2e579acf45d17695ee768dfcfa6fee0b",
+    "tests/ui_tests.cpp": "e918772484bfd62973bb4195e69847b23a0ea10e8dd795daaf3e38565f3db453",
+    "tests/verify_pipewire_fixture.py": "7ae4c37cc225e8addc557b149c14fcba2cd1ce154cc7c98fd214dd6a84c95ab5",
+    "tests/verify_reuse_audit.py": "58066f64cf453583017cc8cda7a88afab89831bafecdaffef15b31578a9ceb10",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "ui/project_controller.cpp": "4c1e08aea7d9b726ded621478ff4c483f380584cb9c1140a76fca7ba739abafc",
+    "ui/project_controller.hpp": "882e5bd5f97665bbc995dd9ae638ece21de0e7f47c00f9019d103a49805a7d21",
+    "ui/recording_controller.cpp": "928d62aa2a2e885c0e7129970f0040f3800114780414846a5e64ddb2173243a6",
+    "ui/studio_window.cpp": "3cd3e23de4a730e1b3100f977fb3c42d905e06380d6ea8f805178d8c2e510b46",
+    "ui/studio_window.hpp": "84a8a57aa2bffbc4683aaf108088db2b339053f25be9719c6fd9489c2b19c75f"
+  },
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "groups": 18,
+      "log": {
+        "path": ".cache/s8-monitoring-debug-tests.log",
+        "sha256": "d1d5d4e50696d005140ef2b5985d58c2e8653ab69e42a6467372cb53b364e5cd"
+      }
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 18,
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ],
+      "environment": "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1",
+      "log": {
+        "path": ".cache/s8-monitoring-sanitized-tests.log",
+        "sha256": "7c0cab6354326b86339d77cd7f12038f632bb6fe2ee7703c5b584b21b2bdda18"
+      }
+    },
+    "windows": {
+      "result": "MinGW headless core/tools/tests cross-build passed, including sc-monitoring-tests.exe",
+      "runtime": false,
+      "qt_gui": false,
+      "native_audio": false,
+      "log": {
+        "path": ".cache/s8-monitoring-windows-build.log",
+        "sha256": "3279c62edf4644b5db4f996164b51da3cbae4637a6f0fa9a0f5635836d218f18"
+      }
+    },
+    "native_linux_owned_routes": {
+      "result": "passed",
+      "results": [
+        {
+          "mode": "roundtrip",
+          "frames": 480000,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 480000,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 2,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": false,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": true,
+          "desktop_export_frames": 480000,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 83,
+            "snapshots_with_owned_links": 75,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()"
+        },
+        {
+          "mode": "disconnect",
+          "frames": 48128,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 48128,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 1,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": true,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": false,
+          "desktop_export_frames": 0,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 11,
+            "snapshots_with_owned_links": 7,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()"
+        }
+      ],
+      "log": {
+        "path": ".cache/s8-monitoring-native.log",
+        "sha256": "400b86b9181c2b79244f2feb6f19098e4b26f5f5dc92f09a8020bb323e41f574"
+      },
+      "saved_monitoring_restore": "roundtrip fixture explicitly asserts saved PostEq/visible mode and unarmed/inactive reopen before preparation; no setCurrentIndex override"
+    },
+    "native_linux_sanitized_diagnostic": {
+      "result": "passed",
+      "results": [
+        {
+          "mode": "roundtrip",
+          "frames": 480000,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 480000,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 2,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": false,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": true,
+          "desktop_export_frames": 480000,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 93,
+            "snapshots_with_owned_links": 75,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 2,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()"
+        }
+      ],
+      "environment": "PIPEWIRE_DLCLOSE=false ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 QT_QPA_PLATFORM=offscreen",
+      "log": {
+        "path": ".cache/s8-monitoring-native-sanitized.log",
+        "sha256": "d4c36f1fc858ed32a72ae5433d4cb8ad5a18a03a959cb1e95b138754a66ac67a"
+      },
+      "limitation": "Dependency module unload disabled for diagnosis. This does not qualify normal PipeWire module-unload memory behavior."
+    }
+  },
+  "equalizer_reuse_recheck": {
+    "result": "all 24 registered inputs match; retained snapshots valid",
+    "repositories": {
+      "soundcurrent-eq": {
+        "head": "080195a85be163cf8e4b1516745c63f43f317700",
+        "inputs": 12,
+        "head_changed": false
+      },
+      "soundcurrent-studio": {
+        "head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+        "inputs": 12,
+        "head_changed": false
+      }
+    },
+    "snapshot_errors": [],
+    "audit_log": {
+      "path": ".cache/s8-monitoring-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "isolated_audit_cli_fixture": "passed: matching/HEAD-only/seven independent premium modifications/changed/missing/corrupt snapshots/source preservation",
+    "impact": "Current uncommitted equalizer changes concern native Windows routing/guardian/virtual-driver/installation; outside the adopted DSP/editor/catalog subset. No borrowed implementation/data change warranted. No writes to either equalizer checkout."
+  },
+  "initial_fixture_corrections": [
+    "Controller test originally attempted a prohibited dirty project replacement; corrected to assert refusal, Undo to saved state, then Open.",
+    "Desktop test originally clicked Stop before the GUI observed native Ready; corrected to wait for the visible enabled control. Final full debug and sanitizer suites pass."
+  ],
+  "remaining_gates": [
+    "Automatic interrupted-recording discovery and active/foreign/corrupt/attached/recovered candidate handling",
+    "Auto monitoring, simultaneous overdub and multitrack workflows",
+    "Physical recording alignment/deadline/load qualification",
+    "Normal PipeWire dependency-unload memory gate",
+    "Native Windows GUI/audio/installer/runtime qualification",
+    "Filesystem/power-loss/>4 GiB/general recovery",
+    "X004 native imports; X005 monitoring/printing/profile pins/measurement/rights",
+    "Frozen 92-family functional/quality/content/native-project parity and all-Europe translation/review/UI delivery"
+  ],
+  "next_implementation": "Bounded asynchronous recording-job discovery with passive candidates, verified preview and consented copy; then M2 multitrack foundations. Continue independent Windows/physical qualification without shrinking the target.",
+  "publication": "No push or publication."
+}

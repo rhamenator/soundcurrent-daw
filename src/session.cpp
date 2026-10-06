@@ -243,6 +243,8 @@ void validate(const Session &s) {
         unique(t.eq.id);
         text(t.name);
         layout(t.layout);
+        check(t.monitoring == RecordingMonitor::Off || t.monitoring == RecordingMonitor::PostEq,
+              "Unknown recording monitoring mode");
         for (const auto *route : {&t.input, &t.output, &t.monitor}) {
             const auto &r = *route;
             text(r.backendId);
@@ -377,6 +379,39 @@ bool EditHistory::route(const RouteAddress &address, const RouteIntent &value) {
     redo_.clear();
     return true;
 }
+RecordingMonitor monitoringValue(const Session &s, const Id &id) {
+    for (const auto &t : s.tracks)
+        if (t.id == id)
+            return t.monitoring;
+    throw ProjectError(ErrorCode::InvalidId, "Monitoring track is missing");
+}
+void setMonitoringValue(Session &s, const Id &id, RecordingMonitor value) {
+    check(value == RecordingMonitor::Off || value == RecordingMonitor::PostEq,
+          "Unknown recording monitoring mode", ErrorCode::InvalidParameter);
+    (void)monitoringValue(s, id);
+    for (auto &t : s.tracks)
+        if (t.id == id) {
+            t.monitoring = value;
+            return;
+        }
+}
+bool EditHistory::monitoring(const Id &id, RecordingMonitor value) {
+    check(!active_, "Cannot change monitoring during an active parameter gesture");
+    const auto before = monitoringValue(session_, id);
+    if (before == value)
+        return false;
+    undo_.push_back(MonitoringChange{id, before, value});
+    try {
+        setMonitoringValue(session_, id, value);
+    } catch (...) {
+        undo_.pop_back();
+        throw;
+    }
+    if (undo_.size() > 256)
+        undo_.erase(undo_.begin());
+    redo_.clear();
+    return true;
+}
 void EditHistory::begin(const ParameterAddress &address) {
     check(!active_, "A parameter gesture is already active");
     const auto value = parameterValue(session_, address);
@@ -413,8 +448,10 @@ bool EditHistory::undo() {
             [&](const auto &c) {
                 if constexpr (std::is_same_v<std::decay_t<decltype(c)>, ParameterChange>)
                     setParameterValue(session_, c.address, c.before);
-                else
+                else if constexpr (std::is_same_v<std::decay_t<decltype(c)>, RouteChange>)
                     setRouteValue(session_, c.address, c.before);
+                else
+                    setMonitoringValue(session_, c.trackId, c.before);
             },
             change);
     } catch (...) {
@@ -435,8 +472,10 @@ bool EditHistory::redo() {
             [&](const auto &c) {
                 if constexpr (std::is_same_v<std::decay_t<decltype(c)>, ParameterChange>)
                     setParameterValue(session_, c.address, c.after);
-                else
+                else if constexpr (std::is_same_v<std::decay_t<decltype(c)>, RouteChange>)
                     setRouteValue(session_, c.address, c.after);
+                else
+                    setMonitoringValue(session_, c.trackId, c.after);
             },
             change);
     } catch (...) {

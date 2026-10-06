@@ -285,14 +285,16 @@ std::string encodeProject(const Session &s) {
                           {"version", 1},
                           {"enabled", t.eq.enabled},
                           {"bands", bands}};
-        tracks.push_back({{"id", t.id.str()},
-                          {"name", t.name},
-                          {"layout", layout(t.layout)},
-                          {"inputIntent", route(t.input)},
-                          {"outputIntent", route(t.output)},
-                          {"monitorIntent", route(t.monitor)},
-                          {"processors", Json::array({processor})},
-                          {"clips", clips}});
+        tracks.push_back(
+            {{"id", t.id.str()},
+             {"name", t.name},
+             {"layout", layout(t.layout)},
+             {"inputIntent", route(t.input)},
+             {"outputIntent", route(t.output)},
+             {"monitorIntent", route(t.monitor)},
+             {"monitoringMode", t.monitoring == RecordingMonitor::Off ? "off" : "post-eq"},
+             {"processors", Json::array({processor})},
+             {"clips", clips}});
     }
     for (const auto &a : s.assets)
         assets.push_back({{"id", a.id.str()},
@@ -304,7 +306,7 @@ std::string encodeProject(const Session &s) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 1},
+        {"schemaMinor", 2},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -336,7 +338,7 @@ Session decodeProject(std::string_view bytes) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor == 0 || minor == 1),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 2),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                  "playheadFrame", "exportRange", "tracks", "assets"});
@@ -367,17 +369,25 @@ Session decodeProject(std::string_view bytes) {
             if (minor == 0)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "processors",
                          "clips"});
-            else
+            else if (minor == 1)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "processors", "clips"});
+            else
+                keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
+                         "monitoringMode", "processors", "clips"});
             Track track;
             track.id = Id(string(t.at("id")));
             track.name = string(t.at("name"));
             track.layout = readLayout(t.at("layout"));
             track.input = readRoute(t.at("inputIntent"), minor == 0);
             track.output = readRoute(t.at("outputIntent"), minor == 0);
-            if (minor == 1)
+            if (minor >= 1)
                 track.monitor = readRoute(t.at("monitorIntent"), false);
+            if (minor == 2) {
+                const auto mode = string(t.at("monitoringMode"));
+                require(mode == "off" || mode == "post-eq", "Unknown recording monitoring mode");
+                track.monitoring = mode == "off" ? RecordingMonitor::Off : RecordingMonitor::PostEq;
+            }
             const auto &ps = t.at("processors");
             array(ps, 1);
             require(ps.size() == 1, "Exactly one EQ expected in schema v1");

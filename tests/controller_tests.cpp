@@ -468,6 +468,91 @@ void routePatches(const std::filesystem::path &root) {
     check(reopened->session->id == before->session->id && *reopened->session == *all->session,
           "Same-project reopen changed intent or lost epoch");
 }
+void monitoringEdits(const std::filesystem::path &root) {
+    Gate saveGate;
+    ProjectController controller({{}, [&] { saveGate.block(); }, {}});
+    ReleaseGate release{saveGate};
+    const auto before = create(controller, root);
+    ProjectCommand mode{CommandKind::Monitoring};
+    mode.monitoringTrack = before->session->tracks.front().id;
+    mode.monitoring = RecordingMonitor::PostEq;
+    submit(controller, mode);
+    ProjectCommand barrier{CommandKind::Barrier};
+    barrier.barrier = 45001;
+    submit(controller, barrier);
+    const auto accepted =
+        await(controller, [&](const auto &v) { return v.lastBarrier == barrier.barrier; });
+    check(accepted->dirty &&
+              accepted->barrierSession->tracks.front().monitoring == RecordingMonitor::PostEq &&
+              accepted->barrierRevision == accepted->modelRevision &&
+              before->session->tracks.front().monitoring == RecordingMonitor::Off,
+          "Monitoring prefix/snapshot mutation differs");
+    submit(controller, mode);
+    const auto noOp = await(controller, [&](const auto &v) {
+        return v.completedCommands > accepted->completedCommands;
+    });
+    check(noOp->modelRevision == accepted->modelRevision, "No-op monitoring changed revision");
+    submit(controller, parameter(*noOp, 5, 734, false));
+    const auto active = await(controller, [](const auto &v) {
+        return v.session->tracks.front().eq.bands.front().gainDb == 5;
+    });
+    auto bad = mode;
+    bad.monitoring = static_cast<RecordingMonitor>(9);
+    submit(controller, bad);
+    const auto rejected =
+        await(controller, [&](const auto &v) { return v.errorSerial > active->errorSerial; });
+    check(rejected->errorCode == ErrorCode::InvalidParameter &&
+              *rejected->session == *active->session,
+          "Invalid monitoring changed gesture");
+    ProjectCommand cancel{CommandKind::CancelGesture};
+    cancel.gesture = 734;
+    submit(controller, cancel);
+    const auto canceled = await(controller, [](const auto &v) {
+        return v.session->tracks.front().eq.bands.front().gainDb == 0;
+    });
+    bad = mode;
+    bad.monitoringTrack = Id::generate();
+    submit(controller, bad);
+    const auto stale =
+        await(controller, [&](const auto &v) { return v.errorSerial > canceled->errorSerial; });
+    check(stale->errorCode == ErrorCode::InvalidId && *stale->session == *accepted->session,
+          "Stale monitoring ID changed state");
+    saveGate.armed = true;
+    submit(controller, {CommandKind::Save});
+    await(controller, [&](const auto &v) { return saveGate.entered && v.io == IoOperation::Save; });
+    mode.monitoring = RecordingMonitor::Off;
+    submit(controller, mode);
+    await(controller, [](const auto &v) {
+        return v.session->tracks.front().monitoring == RecordingMonitor::Off;
+    });
+    saveGate.release();
+    const auto saved = await(controller, [](const auto &v) { return v.io == IoOperation::None; });
+    check(saved->dirty &&
+              ProjectStore(root).load().tracks.front().monitoring == RecordingMonitor::PostEq,
+          "Save falsely captured newer mode");
+    submit(controller, {CommandKind::Undo});
+    const auto undone = await(controller, [](const auto &v) { return !v.dirty; });
+    check(*undone->session == *accepted->session, "Monitoring undo did not restore saved content");
+    submit(controller, {CommandKind::Redo});
+    const auto redone = await(controller, [](const auto &v) { return v.dirty; });
+    check(redone->session->tracks.front().monitoring == RecordingMonitor::Off,
+          "Monitoring redo lost mode");
+    ProjectCommand open{CommandKind::Open};
+    open.path = root;
+    submit(controller, open);
+    const auto refused =
+        await(controller, [&](const auto &v) { return v.errorSerial > redone->errorSerial; });
+    check(*refused->session == *redone->session && refused->projectEpoch == redone->projectEpoch,
+          "Dirty project replacement lost monitoring edit");
+    submit(controller, {CommandKind::Undo});
+    await(controller, [](const auto &v) { return !v.dirty; });
+    submit(controller, open);
+    const auto reopened = await(controller, [&](const auto &v) {
+        return v.projectEpoch > undone->projectEpoch && v.io == IoOperation::None;
+    });
+    check(!reopened->dirty && *reopened->session == *accepted->session, "Reopen lost saved mode");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -483,6 +568,7 @@ int main(int argc, char **argv) {
         closeDuringAttachment(root / "cancel-attachment");
         exactBarrierReceipt(root / "barrier-prefix");
         routePatches(root / "route-patches");
+        monitoringEdits(root / "monitoring-edits");
         std::cout << "{\"checks\":" << checks
                   << ",\"asynchronous_io\":true,\"save_revision_checked\":true,\"shutdown_join_"
                      "checked\":true}\n";

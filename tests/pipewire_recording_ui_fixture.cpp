@@ -347,7 +347,15 @@ int main(int argc, char **argv) {
             });
             require(*reopened.snapshot()->session == model && !reopened.snapshot()->dirty,
                     "Relocated project changed IDs/media/EQ/routes");
-            reopened.findChild<QComboBox *>("recordMonitorMode")->setCurrentIndex(1);
+            await([&] {
+                return reopened.findChild<QComboBox *>("recordMonitorMode")
+                           ->currentData()
+                           .toInt() == int(RecordingMonitor::PostEq);
+            });
+            require(model.tracks.front().monitoring == RecordingMonitor::PostEq &&
+                        !reopened.findChild<QCheckBox *>("armTrack")->isChecked() &&
+                        !quietRecorder.calls,
+                    "Saved monitoring did not restore passively");
             require(reopened.prepareRecording(), "Relocated recording prepare refused");
             await([&] {
                 return reopened.recordingSnapshot()->phase == RecordingPhase::Ready &&

@@ -67,3 +67,9 @@ S7b now connects the [desktop snapshot export workflow](24-desktop-export.md), i
 
 
 S8a now adds [portable per-channel routing intent and migration](26-project-routing.md), shared route/EQ undo and named endpoint placeholders. Consolidated native owned-node recording/live EQ/undo/save/relocation/reopen/static WAV export has sample-exact evidence, alongside debug/sanitizer and headless Windows builds. Remaining physical alignment, native Windows, deadline/module-unload, filesystem/recovery and platform gates keep M1/SLICE-001 incomplete. Next S8b resolves remaining acceptance/recovery work before M2 multitrack workflows; no frozen parity row is declared complete.
+
+S8b persists Off/Post-EQ monitoring in schema 1.2, with shared semantic Undo/Redo,
+explicit old-schema defaults and passive restore. Recording preparation uses an
+accepted-prefix receipt after pending edits. [Contract](27-monitoring-preferences.md).
+Next: bounded project recording-recovery discovery, then M2 multitrack foundations;
+remaining M1/native/platform gates stay visible and required.

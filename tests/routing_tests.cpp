@@ -94,12 +94,13 @@ void migrationsAndValidation() {
     legacy["schemaMinor"] = 0;
     for (auto &t : legacy["tracks"]) {
         t.erase("monitorIntent");
+        t.erase("monitoringMode");
         t["inputIntent"].erase("ports");
         t["outputIntent"].erase("ports");
     }
     check(decodeProject(legacy.dump()) == s, "v1.0 migration changed identities/EQ/legacy routes");
-    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 1,
-          "Migrated state did not write v1.1");
+    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 2,
+          "Migrated state did not write v1.2");
     auto bad = legacy;
     bad["tracks"][0]["monitorIntent"] = nlohmann::json::object();
     rejects([&] { decodeProject(bad.dump()); });
@@ -217,6 +218,7 @@ void legacyMediaMigration() {
     j["schemaMinor"] = 0;
     for (auto &t : j["tracks"]) {
         t.erase("monitorIntent");
+        t.erase("monitoringMode");
         t["inputIntent"].erase("ports");
         t["outputIntent"].erase("ports");
     }

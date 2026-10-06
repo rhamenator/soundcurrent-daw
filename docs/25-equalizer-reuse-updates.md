@@ -89,3 +89,18 @@ checks. No C++ build or routing qualification is claimed for this metadata/tool 
 separate per-channel project routing work remains in progress. Continue this review
 before each milestone that depends on reused components. Newly introduced features
 still require an impact review, not just these registered-file hashes.
+
+## Recheck during S8b monitoring work (2026-10-06)
+
+The owner reiterated that borrowed components should follow continued equalizer
+changes. The current readonly audit again matches all 24 registered inputs at
+public `080195a` and premium `a63cb44`, with no retained snapshot errors. The
+source working trees still contain Windows managed-route/guardian/virtual-driver
+and installer work, outside the adopted DSP/editor/catalog subset. No source
+adoption or alteration is justified by this recheck. The isolated audit CLI
+failure/preservation fixtures also pass.
+
+This observation is retained in the [S8b evidence](../tests/results/SLICE-001/2026-10-06-monitoring-preferences.json).
+Run the audit and review newly introduced files again before the next reuse-dependent
+milestone; this check neither promises future automatic updates nor establishes
+Windows DAW audio/installer support.

@@ -34,6 +34,7 @@ Linux-first professional digital audio workstation and recording suite, planned 
 24. [Desktop snapshot export](docs/24-desktop-export.md)
 25. [Continuing equalizer reuse updates](docs/25-equalizer-reuse-updates.md)
 26. [Portable per-channel project routing](docs/26-project-routing.md)
+27. [Saved recording-monitor preferences](docs/27-monitoring-preferences.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
@@ -142,4 +143,4 @@ Paid GPL distribution is an option, with corresponding source and license rights
 
 The [native recording owner](docs/21-native-recording-owner.md) now supplies explicit input/monitor routing, raw capture, ordered finalization/recovery and asynchronous verified take attachment. It is exercised through native integration fixtures; S6g now connects GUI Record/input/arm/monitor/manual recovery controls; desktop snapshot export now exists; end-to-end native/portability and remaining slice gates are next. Equipment profiles still apply no audio correction.
 
-The Linux desktop now has **Prepare recording / Arm / Record / Stop**, explicit input and optional post-EQ monitoring selection, colored input/monitor peaks, live scalar EQ/undo, raw-take attachment, and **File → Recover recording…** with preview/copy. [Desktop recording contract](docs/22-desktop-recording.md). Closing waits for take finalization/verification before Save/Discard/Cancel. Core/desktop export now exists. Typed input/playback/monitor routing intent is saved with strict named-placeholder restoration; monitoring mode is not yet persisted. Simultaneous overdub, automatic recovery discovery and native Windows qualification remain open.
+The Linux desktop now has **Prepare recording / Arm / Record / Stop**, explicit input and optional post-EQ monitoring selection, colored input/monitor peaks, live scalar EQ/undo, raw-take attachment, and **File → Recover recording…** with preview/copy. [Desktop recording contract](docs/22-desktop-recording.md). Closing waits for take finalization/verification before Save/Discard/Cancel. Core/desktop export now exists. Typed input/playback/monitor routing intent is saved with strict named-placeholder restoration; Off/Post-EQ monitoring preferences now persist with shared Undo/Redo and passive restore; preparation captures pending edits through an accepted-prefix barrier. Simultaneous overdub, automatic recovery discovery and native Windows qualification remain open.

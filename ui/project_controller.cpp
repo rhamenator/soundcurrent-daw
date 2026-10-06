@@ -253,6 +253,19 @@ struct ProjectController::State : QThread {
                 revised();
             break;
         }
+        case CommandKind::Monitoring: {
+            requireModel();
+            if (!command.monitoringTrack || view.io == IoOperation::Create ||
+                view.io == IoOperation::Open)
+                throw ProjectError(ErrorCode::InvalidState,
+                                   "Monitoring change needs the current project");
+            auto proposed = *model;
+            setMonitoringValue(proposed, *command.monitoringTrack, command.monitoring);
+            commitGesture();
+            if (history->monitoring(*command.monitoringTrack, command.monitoring))
+                revised();
+            break;
+        }
         case CommandKind::CancelGesture:
             requireModel();
             if (activeGesture == command.gesture && activeGesture) {

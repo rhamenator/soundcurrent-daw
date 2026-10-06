@@ -3,7 +3,6 @@
 #include "pipewire_filter.hpp"
 #include "recording.hpp"
 namespace soundcurrent::daw {
-enum class RecordingMonitor { Off, PostEq };
 struct RecordingCallbackInstrumentation {
     void *context = nullptr;
     void (*begin)(void *) noexcept = nullptr;

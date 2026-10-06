@@ -86,3 +86,28 @@ runtime and European localization remain incomplete.
 ## S8a project routing and native roundtrip (2026-10-06)
 
 Previous goal turn was **progress**: `61a0e9a` refreshed committed equalizer input provenance and independent premium profile tracking. This turn completes portable first-track per-channel input/playback/monitor intent, strict schema 1.1 and explicit 1.0 migration, mixed semantic undo, ordered worker-side channel patches and epoch/revision-aware dropdown restoration. Named unresolved placeholders require explicit choices; restoring/undoing intent does not activate or reconnect an active graph. [Contract](26-project-routing.md) and [evidence](../tests/results/SLICE-001/2026-10-06-project-routing.json) separate core/controller/GUI, 17 debug/sanitizer groups, Windows headless cross-build and actual native owned routes. The native ten-second raw/live-EQ/undo/save/relocate/reopen/export workflow passes with zero sample differences and two pre-existing links/defaults preserved. A source-removal prefix and diagnostic native sanitizers also pass; normal module-unload/deadline/physical/Windows gates stay open. Remaining first-slice gates and M2 multitrack work follow. Full 92-family parity, X004 native imports, X005 monitor/print/profile pins/measurement/rights and European translation delivery remain incomplete.
+
+## S8b saved monitoring preferences (2026-10-06)
+
+Previous goal turn was **progress**: `1380243` persisted per-channel routing and
+qualified the native recording/export roundtrip. This turn stores Off/Post-EQ
+monitoring per track in strict schema 1.2 with explicit 1.0/1.1 defaults, shared
+semantic Undo/Redo, passive restore and accepted-prefix recording preparation.
+A prepared graph retains its captured mode through Undo; the desktop discloses
+the mismatch until Stop/preparation. [Contract](27-monitoring-preferences.md) and
+[evidence](../tests/results/SLICE-001/2026-10-06-monitoring-preferences.json) record
+18 passing Linux debug and sanitizer groups, Windows headless cross-build, native
+480,000-frame live/Undo/save/relocate/reopen/export with zero differences, input
+removal and diagnostic native sanitizers. Native reopen now restores its saved
+mode without a manual fixture override. Two existing links/defaults stay intact.
+
+The owner's equalizer update request was rechecked: all 24 registered reused
+inputs still match public `080195a` and premium `a63cb44`; isolated audit CLI
+failure/source-preservation fixtures pass. Ongoing Windows equalizer installation
+and routing work remains outside the adopted subset. Neither equalizer checkout
+was altered; no publication. Next: bounded project recording-job discovery and
+consented verified-copy recovery, then M2 multitrack foundations. Physical, native
+Windows, normal module-unload, deadline/filesystem/>4 GiB and general recovery
+gates remain open. All frozen parity families, X004 native imports, X005 audio
+routing/printing/portable pins/measurement/rights and European language delivery
+remain incomplete; the full goal stays active.

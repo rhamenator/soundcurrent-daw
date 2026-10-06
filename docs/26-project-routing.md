@@ -104,3 +104,8 @@ unload memory remains unqualified.
 gates. Hardware alignment, Windows native workflows, arbitrary multitrack graph swaps, missing-media
 UI, monitor-mode persistence and delivered European translations remain open. This
 is progress toward SLICE-001, not completion of the slice or frozen product parity.
+
+The subsequent [S8b monitoring-preference addition](27-monitoring-preferences.md)
+emits schema 1.2 and explicitly migrates 1.0/1.1. The 1.1 results above remain
+historical evidence of per-channel routing; latest state/preparation qualification
+is recorded separately.
