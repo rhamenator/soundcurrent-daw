@@ -60,5 +60,7 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Owned native punch qualification](55-native-punch-qualification.md)
 - [Native desktop punch checkpoint](56-native-desktop-punch.md)
 - [Public source backup and Windows copy](57-repository-backup.md)
+- [Main branch protection](58-repository-branch-protection.md)
+- [Native punch interruption and recovery checkpoint](59-native-punch-fault-recovery.md)
 
 [Architecture decisions](decisions/) · [Acceptance receipts](../tests/results/) · [Active goal](../GOAL.md)

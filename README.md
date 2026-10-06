@@ -142,12 +142,14 @@ Trusted distribution and installers remain separate gates; see
 - [Other-suite project import](docs/10-project-import.md) · [equipment profiles/editor](docs/17-equipment-profiles.md)
 - [Continuing equalizer reuse audit](docs/25-equalizer-reuse-updates.md)
 - [European language coverage audit](docs/47-europe-language-inventory-audit.md)
-- [Latest native desktop punch evidence](docs/56-native-desktop-punch.md)
+- [Native desktop punch evidence](docs/56-native-desktop-punch.md) · [punch interruption/recovery](docs/59-native-punch-fault-recovery.md)
+- [Main branch protection and PR workflow](docs/58-repository-branch-protection.md)
 - [Complete documentation index](docs/README.md) · [dated test results](tests/results/)
 
-Next implementation: native punch interruption and route/disk-fault recovery,
-then input-latency controls, manual punch/Auto monitoring, tempo/loop/take lanes
-and comping. Sustained native recording, independent Windows qualification and
+Next implementation: saved input-latency controls and prepared-session behavior,
+then manual punch/Auto monitoring, tempo/loop/take lanes and comping. Native engine
+punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
+and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
 all other frozen-reference requirements remain required. The first recording
 slice still has open independent acceptance gates.
 

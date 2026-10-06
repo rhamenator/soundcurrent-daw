@@ -271,3 +271,17 @@ observations remain retained. Complete finite native timing gates pass; all 92
 frozen contracts remain unchanged and unpromoted. Next: native punch interruption
 and route/disk-fault recovery, then input-latency controls, manual/Auto, tempo/loop,
 take lanes and comping. Sustained, physical and Windows gates remain open.
+
+
+## M2 native punch interruption checkpoint (2026-10-06)
+
+[Native punch fault recovery](59-native-punch-fault-recovery.md) now verifies 32
+delayed raw prefixes and new recovery copies under cancel, owned source/sink loss
+and one disk-boundary exception. Grouped Undo/Redo, Save/reopen, retained initiating
+error, complete short native timing and preservation of two existing external links
+pass. Optimized and sanitizer synthetic counterparts qualify the oracle. These are
+engine workflows; desktop fault/discovery, process-kill, empty-preroll, real disk-full,
+sustained/physical/Windows and full reference modes remain open. Prior22 observations
+and one initial fixture assertion are retained; all92 frozen contracts stay unchanged.
+Next product implementation: saved input-latency controls/prepared-session behavior,
+then manual/Auto/tempo/loop/take/comping, with remaining fault gates tracked separately.

@@ -14,6 +14,10 @@ Ignored native failure executables/media remain local and are not backed up by a
 source push. Keep separate backups of personal sessions/media and any local
 diagnostic artifacts that need to survive a drive failure.
 
+Source updates now go through feature branches and required-check pull requests;
+`main` has [verified protection](58-repository-branch-protection.md). Direct pushes
+to `main` are not the backup workflow.
+
 ## Windows source checkout
 
 With Git installed on the intended Windows machine, in PowerShell:
