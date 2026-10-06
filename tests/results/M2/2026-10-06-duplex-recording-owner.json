@@ -1,0 +1,797 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2d2 production shared playback/armed recording ownership",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "4eaa50f07ef41e8bb21c6a9035bd2418ec222eef",
+  "status": "Listed finite owner/native lifecycle and independent sample/recovery workflows passed; desktop multi-arm, declared-duration/load/native Windows and full M2/full product remain incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "69ee5053ee8cf42fe327fe02748d26216ab2ffb6fa92a8ecc2ebf2f0033ce86c",
+    "include/soundcurrent/capture.hpp": "8ac81e48d4ec7a9fd309b9f9e09ff38361f3a6349979a70b86a87b1d7b0536af",
+    "include/soundcurrent/duplex_bridge.hpp": "a5dde698d7f8fa5efc972e552ff2d46179bf1458f2eb6e979d233a1cc58c8a76",
+    "include/soundcurrent/duplex_recording.hpp": "3926c4217c0a8623fed16ad86f35fc48baf24dc593d19a21d2e24c67bfd5b0df",
+    "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+    "include/soundcurrent/pipewire_duplex_recording.hpp": "dcb2b2090b0a6a2054f8fa9cc39641c5681e8e14f63bdf9f7c1327e379730e49",
+    "include/soundcurrent/pipewire_filter.hpp": "f82ed166eb04a4a6f8ccb91c7fab5259a59607cf9f77e9711da3be0fa96e6d69",
+    "include/soundcurrent/recording.hpp": "c5e55037032c5f5e1c0657f8a9da9004dc723b3683304be0b882a61156cf1ec4",
+    "include/soundcurrent/session.hpp": "c4933c213a464f5358fa32b006c2744324450bb36db38e358957f64b402a3c84",
+    "research/parity.json": "93c220c0b02bb7bb69d12a54b378847039a4986a5b438fa339027d9aa27669df",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/capture.cpp": "ba890b1e79572c4f3e5a1951f031ca1246fd14f4bd6a19457f40c519802e9b5e",
+    "src/duplex_bridge.cpp": "9d0a0ff4bc25de5a3e8ce650c464535f651b1202be4702b2216abbc432913f78",
+    "src/duplex_recording.cpp": "4c7b902fdc00186ae4f9abd8499d66281815883aaf56b570fc1088f8de6edcfb",
+    "src/eq.cpp": "b52243413810cf702b9402fa36edf0908a2a59ccc0a4b6bff54221283e56f812",
+    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+    "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+    "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+    "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+    "src/pipewire_duplex_recording.cpp": "40c4a695df765189fc67de9c03ee5e9f66dc320a19a75ef921683da3c6649a07",
+    "src/pipewire_filter.cpp": "7ed6b5f654487b00619fcc366d6628b699403ab7f379bcc752db6f2912d04d8f",
+    "src/recording.cpp": "9878966397ae62316cf3825219fdf3db9d97de171ee54597c458a920a8578fc8",
+    "src/recording_worker.cpp": "6d56b8d84b23f809999cac1ecb032810687c21abf5ac2adefa33f93105b5809d",
+    "tests/duplex_recording_tests.cpp": "e33888b2d440ad1ab073be57195b6c9e8b4ccdbe366d5e7cd17261da3e026c4c",
+    "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+    "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+    "tests/pipewire_duplex_fixture.cpp": "2209b1867c6b1c3908d1705c045091704da975df889da35eadabf35c8377ccc0",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+    "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c"
+  },
+  "workflows": [
+    "Framework-free DuplexRecordingRun owns existing immutable MixPlaybackRun, raw pools/bridge and one writer per armed track; thin production PipeWireDuplexRecording owns one inactive packed-input/master-output filter",
+    "Normalize/validate all 1..256 capture specs/mappings/IDs and aggregate declared playback plus raw-pool/binding payload before any capture pool allocation; maximum aggregate256MiB; no RSS/OS-resource guarantee",
+    "Project identity/rate checked during preparation and again before first writer; initial preparation creates no recording jobs; pre-writer callback silent without frame/origin publication",
+    "Explicit full input/master routes; stale/wrong-direction/repeated/unrouted/closed operations refused; no default/hardware/rate/quantum changes",
+    "Activation-only all-writer preparation before native activation; later initial-journal failure retains original error, earlier writers joined and later workers absent; failed constructor partial on-disk diagnostics not fabricated as valid take",
+    "Native callback/control-loop joins before raw finish/reader and disk joins; all workers joined and retired independently, retaining per-lane receipts/errors/progress/job paths; canceled file/lease resources released before owner destruction",
+    "32 concurrent generic raw writers, permuted packed inputs/stereo sparse matrix, exact9966-frame range from137, independent raw/output oracles, latency41/200 alignment/initial trim and exact explicit save/reopen",
+    "Real second-writer disk failure preserves other successful takes and recoverable verified failed prefix; cancel all lanes yields original-preserving verified recovery; live monitor does not hide file-reader exception or discard raw prefixes",
+    "Inactive/active destruction joins every owner and retains3072-frame finalized raw prefixes; cancel after completed writers withholds every receipt while retaining512-frame finalized media and original terminal winner for explicit recovery",
+    "Native owned32-plane source -> production duplex owner -> independent stereo sink; one unarmed file plus32 armed live lanes; every raw and mixed sample checked against independent source coordinates/float64 matrix sum",
+    "Native normal480000-frame ten-second range, common device origin/project start, input alignment/save/reopen/source preservation; source removal, lane17 write failure, all-lane cancellation and lane17 initial-journal failure exercised",
+    "Sink rejects clock/buffer gaps; fault/cancel runs compare only the actual graph prefix and report additional observed sink frames separately; valid raw lengths/recovery copies are not inferred equal to playback prefix",
+    "Direct callback host allocation/free/mutex audit counts0 and fixed8192 duration timing storage; sorting/logging after native join; actual scheduler/default/owned-only-link/cleanup observations retained",
+    "Cancel suppresses automatic receipt admission even if a writer finalized during native stop/join; completed files/checkpoints remain recoverable; actual disk errors remain independently retained"
+  ],
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "groups": 25,
+      "seconds": 22.12,
+      "log": {
+        "path": ".cache/m2-duplex-owner-final-debug-tests.log",
+        "sha256": "4cd225456ddb118d6d3327eddbc2c5ad38cfdc737783285ee8d2fe53e7e1acb4"
+      },
+      "details": {
+        "path": ".cache/m2-duplex-owner-final-debug-details.log",
+        "sha256": "19405ee371f1ec1e6ef5993b75f2dbf990a7772c651f79e041f88b66596d71e2"
+      },
+      "owner_checks": 449503,
+      "callback_allocate_free_blocking_lock_counts": 0,
+      "scope": "CTest groups execute generic owner and existing controllers; opt-in native fixture is separate"
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 25,
+      "seconds": 65.12,
+      "log": {
+        "path": ".cache/m2-duplex-owner-final-sanitized-tests.log",
+        "sha256": "e640302c806ce74d5ffc733c3c185da443d8690ee98986bd442baeccafc3aa89"
+      },
+      "details": {
+        "path": ".cache/m2-duplex-owner-final-sanitized-details.log",
+        "sha256": "d60e502d19c71afae09d93c28619766a83877690734b53ac06e951f4ebf33dce"
+      },
+      "owner_checks": 449507,
+      "callback_allocate_free_blocking_lock_counts": 0,
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ]
+    },
+    "linux_release_subset": {
+      "result": "passed",
+      "groups": 5,
+      "seconds": 1.27,
+      "log": {
+        "path": ".cache/m2-duplex-owner-final-release-tests.log",
+        "sha256": "4354309dfd0a536351dccd0325aa2f7457e4aba1fe3672484648a1fb6563a3a1"
+      },
+      "details": {
+        "path": ".cache/m2-duplex-owner-final-release-details.log",
+        "sha256": "bdf6d660b8eb2e7905cd79529fc060b342666e1c7fe3a3df1fcba1af56e41516"
+      },
+      "owner_checks": 449502,
+      "callback_allocate_free_blocking_lock_counts": 0,
+      "selected_groups": [
+        "duplex-recording-owner",
+        "shared-playback-capture",
+        "multitrack-mix-playback",
+        "playback-native-clock",
+        "prepared-eq"
+      ]
+    },
+    "builds": {
+      "debug": {
+        "path": ".cache/m2-duplex-owner-final-debug-build.log",
+        "sha256": "6fd115b0cf9a0a476a4b43a2d502abfff4990ff4baebec2ca9e453b736133eae"
+      },
+      "sanitized": {
+        "path": ".cache/m2-duplex-owner-final-sanitized-build.log",
+        "sha256": "209e3ce29631ba6bb7ae626a84b5fa9af1731c61bd0be8ceba00bc9d5765dd58"
+      },
+      "release": {
+        "path": ".cache/m2-duplex-owner-final-release-build.log",
+        "sha256": "c30c5e1c946917a9058304d83b16cbee3c68d7f55f386dc50b68a146cfd638ba"
+      }
+    },
+    "windows_core": {
+      "result": "Framework-free owner/core/media/fixtures cross-compiled and linked; not executed; native Windows adapter/GUI/audio unqualified",
+      "log": {
+        "path": ".cache/m2-duplex-owner-final-windows-build.log",
+        "sha256": "8ee39ea5e855b68fbe9987477b999e06b9de772a4412b4e7a0a4cc1afdd4ae06"
+      },
+      "executed": false,
+      "native_windows_qualified": false
+    },
+    "native_pipewire": {
+      "result": "passed for listed finite Release owned-route cases",
+      "production_duplex_owner_executed": true,
+      "report": {
+        "path": ".cache/m2-duplex-owner-shutdown-native.json",
+        "sha256": "4121c8e67ce2b26f5d2ebbd4e03c85bcdabaabd1604a808e6fdaf13c9f45858c"
+      },
+      "log": {
+        "path": ".cache/m2-duplex-owner-shutdown-native.log",
+        "sha256": "4121c8e67ce2b26f5d2ebbd4e03c85bcdabaabd1604a808e6fdaf13c9f45858c"
+      },
+      "cases": [
+        {
+          "mode": "normal",
+          "production_duplex_owner": true,
+          "armed_tracks": 32,
+          "playback_frames": 480000,
+          "minimum_raw_frames": 480000,
+          "maximum_raw_frames": 480000,
+          "sink_frames": 480000,
+          "sample_rate": 48000,
+          "first_quantum": 1024,
+          "device_origin": 6076579960,
+          "expected_unmapped_end": false,
+          "recovered_frames": 0,
+          "maximum_sample_difference": 0,
+          "missing_track_frames": 0,
+          "owned_nodes_only": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "memory_locked": false,
+          "callback_timing": {
+            "owner": {
+              "samples": 469,
+              "calls": 469,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 1688688,
+              "p95_ns": 2457367,
+              "p99_ns": 2591540,
+              "maximum_ns": 2788460
+            },
+            "source": {
+              "samples": 479,
+              "calls": 479,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 206130,
+              "p95_ns": 235516,
+              "p99_ns": 301489,
+              "maximum_ns": 384297
+            },
+            "sink": {
+              "samples": 470,
+              "calls": 470,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 13337,
+              "p95_ns": 14973,
+              "p99_ns": 18429,
+              "maximum_ns": 26525
+            }
+          },
+          "routing_observations": {
+            "graph_snapshots_during_run": 76,
+            "snapshots_with_owned_links": 69,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "data_loop_scheduler_samples": [
+            {
+              "tid": 1439685,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1439690,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1439694,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            }
+          ]
+        },
+        {
+          "mode": "disconnect",
+          "production_duplex_owner": true,
+          "armed_tracks": 32,
+          "playback_frames": 48128,
+          "minimum_raw_frames": 48128,
+          "maximum_raw_frames": 48128,
+          "sink_frames": 48128,
+          "sample_rate": 48000,
+          "first_quantum": 1024,
+          "device_origin": 6077125640,
+          "expected_unmapped_end": false,
+          "recovered_frames": 0,
+          "maximum_sample_difference": 0,
+          "missing_track_frames": 0,
+          "owned_nodes_only": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "memory_locked": false,
+          "callback_timing": {
+            "owner": {
+              "samples": 47,
+              "calls": 47,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 1031472,
+              "p95_ns": 2438395,
+              "p99_ns": 2565412,
+              "maximum_ns": 2693508
+            },
+            "source": {
+              "samples": 58,
+              "calls": 58,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 164512,
+              "p95_ns": 236505,
+              "p99_ns": 248254,
+              "maximum_ns": 248646
+            },
+            "sink": {
+              "samples": 47,
+              "calls": 47,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 12329,
+              "p95_ns": 13694,
+              "p99_ns": 15389,
+              "maximum_ns": 25317
+            }
+          },
+          "routing_observations": {
+            "graph_snapshots_during_run": 12,
+            "snapshots_with_owned_links": 8,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "data_loop_scheduler_samples": [
+            {
+              "tid": 1440003,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440006,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440011,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            }
+          ]
+        },
+        {
+          "mode": "writer-failure",
+          "production_duplex_owner": true,
+          "armed_tracks": 32,
+          "playback_frames": 12288,
+          "minimum_raw_frames": 12288,
+          "maximum_raw_frames": 12288,
+          "sink_frames": 12288,
+          "sample_rate": 48000,
+          "first_quantum": 1024,
+          "device_origin": 6077208041,
+          "expected_unmapped_end": true,
+          "recovered_frames": 8192,
+          "maximum_sample_difference": 0,
+          "missing_track_frames": 0,
+          "owned_nodes_only": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "memory_locked": false,
+          "callback_timing": {
+            "owner": {
+              "samples": 12,
+              "calls": 12,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 1529327,
+              "p95_ns": 2038544,
+              "p99_ns": 2038544,
+              "maximum_ns": 2252297
+            },
+            "source": {
+              "samples": 25,
+              "calls": 25,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 3214,
+              "p95_ns": 241362,
+              "p99_ns": 264993,
+              "maximum_ns": 1521753
+            },
+            "sink": {
+              "samples": 13,
+              "calls": 13,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 5231,
+              "p95_ns": 7464,
+              "p99_ns": 7464,
+              "maximum_ns": 12644
+            }
+          },
+          "routing_observations": {
+            "graph_snapshots_during_run": 6,
+            "snapshots_with_owned_links": 4,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "data_loop_scheduler_samples": [
+            {
+              "tid": 1440080,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440083,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440088,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            }
+          ]
+        },
+        {
+          "mode": "cancel",
+          "production_duplex_owner": true,
+          "armed_tracks": 32,
+          "playback_frames": 49152,
+          "minimum_raw_frames": 49152,
+          "maximum_raw_frames": 49152,
+          "sink_frames": 49152,
+          "sample_rate": 48000,
+          "first_quantum": 1024,
+          "device_origin": 6077251371,
+          "expected_unmapped_end": false,
+          "recovered_frames": 1572864,
+          "maximum_sample_difference": 0,
+          "missing_track_frames": 0,
+          "owned_nodes_only": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "memory_locked": false,
+          "callback_timing": {
+            "owner": {
+              "samples": 48,
+              "calls": 48,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 1321445,
+              "p95_ns": 2425324,
+              "p99_ns": 2565630,
+              "maximum_ns": 2566508
+            },
+            "source": {
+              "samples": 59,
+              "calls": 59,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 204587,
+              "p95_ns": 240094,
+              "p99_ns": 268148,
+              "maximum_ns": 268593
+            },
+            "sink": {
+              "samples": 48,
+              "calls": 48,
+              "dropped_samples": 0,
+              "clock_failures": 0,
+              "p50_ns": 11321,
+              "p95_ns": 13371,
+              "p99_ns": 28079,
+              "maximum_ns": 33288
+            }
+          },
+          "routing_observations": {
+            "graph_snapshots_during_run": 17,
+            "snapshots_with_owned_links": 8,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "data_loop_scheduler_samples": [
+            {
+              "tid": 1440145,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440149,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440153,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            }
+          ]
+        },
+        {
+          "mode": "activation-failure",
+          "activation_failed": true,
+          "production_duplex_owner": true,
+          "frames": 0,
+          "joined_earlier_writers": 17,
+          "owned_nodes_only": true,
+          "routing_observations": {
+            "graph_snapshots_during_run": 3,
+            "snapshots_with_owned_links": 1,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "data_loop_scheduler_samples": [
+            {
+              "tid": 1440234,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440238,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            },
+            {
+              "tid": 1440242,
+              "name": "data-loop.0",
+              "policy": 1073741826,
+              "base_policy": 2,
+              "reset_on_fork": true,
+              "priority": 20,
+              "nice": 0
+            }
+          ]
+        }
+      ],
+      "first_normal_before_cancel_review": {
+        "report": {
+          "path": ".cache/m2-duplex-owner-native-first.json",
+          "sha256": "6beefb2b6716e53071b5460481155d59e76cd342daaae614b14d4d1ce3e04239"
+        },
+        "log": {
+          "path": ".cache/m2-duplex-owner-native-first.log",
+          "sha256": "6beefb2b6716e53071b5460481155d59e76cd342daaae614b14d4d1ce3e04239"
+        },
+        "scope": "Initial native sample pass before final cancellation receipt policy and richer fixture diagnostics; final five cases are authoritative"
+      },
+      "shutdown_fixture_build": {
+        "path": ".cache/m2-duplex-owner-shutdown-release-build.log",
+        "sha256": "6e327ffc6cc83f2fa8c22f1f92647ee70c1b077753f9e2edf396a8e297afe185"
+      },
+      "declared_native_30_minute_gate_passed": false,
+      "native_sanitizer_or_module_unload_qualified": false,
+      "test_source_scope": "Final Release shutdown-fixture build matches the pinned native fixture source; debug/sanitizer CTest did not execute that opt-in fixture"
+    },
+    "rt_audit_scope": "Host C++/C allocation/free and mutex wrappers, lock-free callback atomics, fixed test timing storage; not all opaque library operations or page-fault/deadline/stress qualification"
+  },
+  "resolved_failures_and_review_findings": [
+    {
+      "finding": "Initial owner build had one unused active-status helper",
+      "correction": "Removed unused helper; final new-source builds have no new warnings",
+      "log": {
+        "path": ".cache/m2-duplex-owner-first-build.log",
+        "sha256": "404292acfeb51ccb570f3c8def309bbbb4e8546aba82f36521e2f888c4c12652"
+      },
+      "gate_waived": false
+    },
+    {
+      "finding": "Foreign-root activation test initially tried forbidden ProjectStore overwrite of another project",
+      "correction": "Test swaps an independently created fixture project.json to exercise revalidation; production overwrite guard unchanged",
+      "log": {
+        "path": ".cache/m2-duplex-owner-first-tests.log",
+        "sha256": "31c9bf67598a5a12fd223fd03b407ce0fddfb742cd9c5b2b4e66757a73cbb83b"
+      },
+      "gate_waived": false
+    },
+    {
+      "finding": "Owner cancellation left joined RecordingWorker file/activity lease alive, preventing inactive inspection",
+      "correction": "Retire every joined disk owner while retaining its receipt/error/job/progress; canceled/failed and completed-cancel recovery tests pass before native owner destruction",
+      "failure_log": {
+        "path": ".cache/m2-duplex-owner-revised-tests.log",
+        "sha256": "be5f25d69f51a62e87e1dc1a36bb0eb212a510d018d6837561bc283cd74a07f7"
+      },
+      "initial_fixed_log": {
+        "path": ".cache/m2-duplex-owner-retirement-tests.log",
+        "sha256": "6b4acde4062c63324773acb4f7feb100742a7c418ad296b176b9da4b58dada61"
+      },
+      "gate_waived": false
+    },
+    {
+      "finding": "Review found cancellation could race disk finalization during native stop/join",
+      "correction": "Publish worker cancellations before quiescent finishing and suppress all successful receipts on Cancel; retain completed media/journal and original terminal winner; deterministic completed-writer regression added",
+      "scope": "Review finding, not an observed native timing failure",
+      "gate_waived": false
+    }
+  ],
+  "prior_qualification_logs": {
+    ".cache/m2-duplex-owner-revised-build.log": {
+      "path": ".cache/m2-duplex-owner-revised-build.log",
+      "sha256": "c83332cfffebb37ab07084a20bda710309e693356ff0f23186be730678f170c8"
+    },
+    ".cache/m2-duplex-owner-retirement-build.log": {
+      "path": ".cache/m2-duplex-owner-retirement-build.log",
+      "sha256": "55f56aec8a826f9dacd88daf5f6299e6f5649e6237f448cc2cc0e3339a2a94ad"
+    },
+    ".cache/m2-duplex-owner-expanded-build.log": {
+      "path": ".cache/m2-duplex-owner-expanded-build.log",
+      "sha256": "ccfe53ace287cda6b64fa373a7957d599fb9f97c2be0f58bab33321ae3f780a9"
+    },
+    ".cache/m2-duplex-owner-expanded-tests.log": {
+      "path": ".cache/m2-duplex-owner-expanded-tests.log",
+      "sha256": "34daa8d994ae074cea6362258185b79232e21f1d5585fe626196c607ab6ec4e6"
+    },
+    ".cache/m2-duplex-owner-qualified-debug-build.log": {
+      "path": ".cache/m2-duplex-owner-qualified-debug-build.log",
+      "sha256": "248e21b02848b33a15f963bcb2dd2a974484d597bf229cc3be304656c9091d80"
+    },
+    ".cache/m2-duplex-owner-qualified-debug-tests.log": {
+      "path": ".cache/m2-duplex-owner-qualified-debug-tests.log",
+      "sha256": "074ed18704f4e728806a54b672c76d5b51cdb90251b6d37c309ac0e19edbd733"
+    },
+    ".cache/m2-duplex-owner-qualified-debug-details.log": {
+      "path": ".cache/m2-duplex-owner-qualified-debug-details.log",
+      "sha256": "8e9cb2c3d829ac3304c0f4d75d28052e3a82fd342461cc57f249b15ba16be1c9"
+    },
+    ".cache/m2-duplex-owner-qualified-sanitized-build.log": {
+      "path": ".cache/m2-duplex-owner-qualified-sanitized-build.log",
+      "sha256": "e38ee3c983ad38afbb680e832017f3532358f294050bbc13a2e7d25204e62a65"
+    },
+    ".cache/m2-duplex-owner-qualified-sanitized-tests.log": {
+      "path": ".cache/m2-duplex-owner-qualified-sanitized-tests.log",
+      "sha256": "eda24e7568a8c81bf06525d93e9686b825daccaa1ff4e146c59d65d72db6fe43"
+    },
+    ".cache/m2-duplex-owner-qualified-sanitized-details.log": {
+      "path": ".cache/m2-duplex-owner-qualified-sanitized-details.log",
+      "sha256": "3ad062e19629d414bf33f8e81a9b16da1e0acfed3d45493554ea33907a9de9aa"
+    },
+    ".cache/m2-duplex-owner-qualified-release-build.log": {
+      "path": ".cache/m2-duplex-owner-qualified-release-build.log",
+      "sha256": "804fd712461ea848fe9da31e12182fe7b5619bb832b9003292b472cdaf69a814"
+    },
+    ".cache/m2-duplex-owner-qualified-windows-build.log": {
+      "path": ".cache/m2-duplex-owner-qualified-windows-build.log",
+      "sha256": "a4e8f2b78d4019331fab44942073913d1db48fe2a7a8dc97d48693521df687fa"
+    }
+  },
+  "unresolved_observations": [
+    {
+      "failure": "First native GUI 32-track attempt timed out after acknowledged Undo while waiting for Complete and sink delivery",
+      "cause": "Unknown; original failure has no terminal state snapshot. No cause or production fix is claimed.",
+      "log": {
+        "path": ".cache/m2-native-mix-gui-failure1.log",
+        "sha256": "d956dd61e21d9f62c87566d03440465ede6a8a42f4b5f8367ef864042b76aab1"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI workflow timed out at line 335\n\n",
+      "action": "Fixture now also wakes on sink gap and emits terminal phase/status/position/missing/sink/gap; isolated mix and final mix/mix-disconnect/export cases passed",
+      "remaining": "Long-duration/deadline/native completion/shutdown reliability qualification remains open; no suppression/waived gate"
+    },
+    {
+      "failure": "First saved-master native GUI 32-track run detected downstream sink clock gap with player still Running",
+      "terminal_state": {
+        "playback_phase": 4,
+        "bridge_status": 1,
+        "player_position": 110592,
+        "missing_track_frames": 0,
+        "sink_prefix": 108544,
+        "sink_gap": true
+      },
+      "cause": "Unknown; no failing-run pw-top/callback timing or first-gap positions captured. No production fix claimed.",
+      "log": {
+        "path": ".cache/m2-master-native.log",
+        "sha256": "024ae0f87b066f4d5e67ff79dfdbd0b3ef5f73d1e732d18ecb29a26480a9a0e3"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nGUI mix terminal phase/status/position/missing/sink/gap 4/1/110592/0/108544/1\nGUI file playback did not complete\n\n",
+      "action": "Fixture now records first expected/observed/duration/unavailable-input count without RT logging; next isolated full/disconnect/export run exact",
+      "remaining": "Characterized native graph/sink deadline/load/clock/delivery reliability; failure is not suppressed or waived"
+    },
+    {
+      "failure": "Legacy CLI synthetic source capture stopped while independent CPU builds/tests were active",
+      "cause": "Exact underlying stop reason not retained by this CLI test output; concurrent activity is observed context, not a proven cause",
+      "log": {
+        "path": ".cache/m2-master-legacy-cli.log",
+        "sha256": "26f8ede9a446d9db0a47f3cdcb9171ed072a1be94f51d74a9271bed62ff4896d"
+      },
+      "action": "Next serial run after CPU/native jobs passed recording and independent export sample/hash oracle; no production change or waived pressure gate"
+    },
+    {
+      "failure": "Concurrent debug full CTest timed out awaiting synthetic recording capture at tests/ui_tests.cpp:368",
+      "result": "22 of 23 groups passed; failed desktop-ui",
+      "cause": "Unknown; unchanged serial debug and concurrent sanitizer suites passed; not waived",
+      "seconds": 31.19,
+      "log": {
+        "path": ".cache/m2-timing-qualified-debug-tests.log",
+        "sha256": "660250e96cecb78bf52f22023b1004b760665fac3af9c89bd6b0837a18bcaa42"
+      },
+      "details": {
+        "path": ".cache/m2-timing-concurrent-debug-details.log",
+        "sha256": "1b1d6d67b0219b70ca7534237b1d9092dd7024939cf0cf2087b53bcfe4843f6d"
+      },
+      "next": "Retain state/admission/route diagnostics and reproduce asynchronous recording route/start behavior under declared load"
+    },
+    {
+      "failure": "Sanitized native callback clock gap occurred before controlled sink injection",
+      "cause": "Measured elapsed above period; consistent with deadline pressure but not proof of old failures",
+      "qualification_remains_open": true,
+      "report": {
+        "path": ".cache/m2-timing-qualified-sanitized-gap.json",
+        "sha256": "861895c7195b4b0dda085ff22a884e31930c9ebae2d649728aed5e5ec2ad65e7"
+      }
+    },
+    {
+      "finding": "First writer-failure native case reported a sink suffix failure after native owner teardown at contiguous clock6064614374, prior6064613350,duration1024. Graph/sink prefixes both12288; exact original buffer/flag/capacity facts were not retained, so its precise cause is not proven.",
+      "log": {
+        "path": ".cache/m2-duplex-owner-final-native.log",
+        "sha256": "8b88b85f84f197af0e7249bda3873474aee340ef524c8f99ea5b9f5852b8a35c"
+      },
+      "report": {
+        "path": ".cache/m2-duplex-owner-final-native-failure.json",
+        "sha256": "76a2cbad625655c7ce73e6222b0668d389fadd150d8af8eeb0e83539d0dc38b7"
+      },
+      "correction_scope": "Fixture now records buffer shape/capacity/mapping and coordinates declared closure. Only unmapped planes at a valid contiguous clock after shutdown declaration and after all published graph frames are observed qualify as end-of-stream. Final post-join prefix/sample checks remain strict; any earlier failure/clock gap is retained.",
+      "production_clock_fault_policy_changed": false,
+      "original_precise_cause_proven": false
+    }
+  ],
+  "equalizer_audit": {
+    "result": "24 registered inputs/retained snapshots match; read-only; no source refresh",
+    "report": {
+      "path": ".cache/m2-duplex-owner-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "reviewed_heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    },
+    "current_heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    }
+  },
+  "parity": {
+    "families": 92,
+    "acceptance_quality_and_F_Q_C_N_unchanged": true,
+    "F_Q_C_N_equivalence_claimed": false,
+    "baseline_changed": false,
+    "scoped_evidence_rows": [
+      "P001",
+      "P003",
+      "P088"
+    ]
+  },
+  "dependency_or_license_changes": false,
+  "equalizer_writes": false,
+  "pushed_or_published": false,
+  "remaining": [
+    "Desktop accepted-prefix multi-arm preparation, explicit packed input/master routes, live monitor/EQ receipts and grouped independent verified-take admission/history/recovery",
+    "Native Windows adapter/execution/GUI with full workflow parity; physical interface input alignment/PDC and endpoint qualification",
+    "M2 ten-minute synthetic and30-minute declared native run; deadline/load/duration/OS resources/memory locking, process-kill/disk-full multitrack recovery and filesystem/module-unload gates",
+    "Earlier native completion/sink gaps, concurrent UI synthetic-record timeout and sanitized native skipped-clock/deadline observations remain open; these passes do not infer a cause/fix",
+    "Auto/tape monitoring, punch/loop/takes/comping/fades, general buses/sends/sidechains/PDC/VCA and all later frozen-reference milestones",
+    "Distinct versioned journal reader-failure cause; full missing-media/plugin/project recovery, backup/migration and qualification",
+    "X004 native/exchange project imports, X005 monitoring/print/portable profiles/rights and all-Europe coverage/catalog/native-review/UI qualification",
+    "Full F/Q/C/N parity acceptance and professional processing/content/native-format compatibility evidence"
+  ],
+  "next_task": "M2d3 desktop multi-arm accepted-prefix preparation, packed input maps and grouped verified take admission/history; preserve independent failed-lane recovery",
+  "reproduction": [
+    "cmake --build .cache/build-desktop -j4; ctest --test-dir .cache/build-desktop --output-on-failure",
+    "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir .cache/build-desktop-sanitized --output-on-failure",
+    "ctest --test-dir .cache/build-desktop-release --output-on-failure -R '^(duplex-recording-owner|shared-playback-capture|multitrack-mix-playback|playback-native-clock|prepared-eq)$'",
+    "python3 tests/verify_pipewire_fixture.py --binary .cache/build-desktop-release/sc-pipewire-duplex-fixture --modes normal disconnect writer-failure cancel activation-failure --output REPORT.json --failure-output FAILURE.json # serial after other CPU jobs terminate",
+    "python3 tools/check_equalizer_reuse.py"
+  ]
+}

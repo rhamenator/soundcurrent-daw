@@ -4,6 +4,8 @@
 #include "mix_reader.hpp"
 
 namespace soundcurrent::daw {
+// Control-side capture-pool and binding reservation; normalizes/validates config.
+std::size_t armedCapturePayloadBytes(CaptureConfig, std::size_t inputChannels);
 struct ArmedCapture {
     Id track;
     CapturePipe *pipe = nullptr; // Must outlive the bridge and callback owner.

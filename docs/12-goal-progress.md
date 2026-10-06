@@ -414,3 +414,58 @@ Next implement production PipeWire duplex preparation/activation/rollback and
 callback-before-writer join/result/error retention, with owned native sources and
 independent sample/gap/recovery tests. Then connect desktop arm maps/monitoring
 and grouped verified take handoff/history.
+
+## M2d2 production duplex ownership (2026-10-06)
+
+Previous goal turn was **progress**, committed the shared bridge as `4eaa50f`.
+This turn adds a framework-free recording owner and production PipeWire duplex
+wrapper: combined capture admission before pool allocation, inactive packed input
+and master ports, explicit routes, activation-only writers, native-before-disk
+joins, and independent per-lane receipts/errors/progress/jobs plus retained reader
+errors. Canceled/joined disk owners retire their descriptors/activity leases
+before owner destruction so verified recovery is available immediately. Cancel
+withholds all take receipts even when finalization wins a race, while preserving
+completed media and the earlier terminal winner. No GUI/disk/allocation/blocking
+work enters audio.
+
+[Contract](36-duplex-recording-owner.md), [ADR-026](decisions/026-duplex-recording-ownership.md)
+and [evidence](../tests/results/M2/2026-10-06-duplex-recording-owner.json) record exact
+source hashes, failures and scope. All 25 Linux debug groups and 25 ASan/UBSan/LSan
+groups passed; five optimized core groups passed. Windows headless owner/core/
+fixtures compile/link but have no execution or native adapter/UI qualification.
+
+The five serial Release native cases use only owned nodes and preserve defaults/
+cleanup: 32-plane independent source, production duplex owner, stereo sink and one
+unarmed file lane. Normal captures exactly 480000 frames per raw lane and exact
+stereo matrix/file output. Source removal retains 48128-frame prefixes; actual
+lane17 write failure leaves a verified 8192-frame recovery prefix and finalizes
+other lanes; all canceled lanes recover 49152 frames; lane17 initial-journal
+failure joins 17 earlier writers without audio activation. All checked sample
+differences/missing frames/direct RT allocation/free/mutex counts are zero.
+Normal observed p99/max elapsed callback times are 2.591540/2.788460 ms at the
+1024-frame 48-kHz quantum. These finite observations are not a duration/load gate.
+
+Initial tests caught a forbidden fixture project overwrite and cancellation's
+retained activity lease; the fixture now swaps an independently created test
+project and the owner retires joined disk resources. Review identified the
+cancellation/finalization race and added a completed-writer regression. An initial
+native write-fault fixture failed on a contiguous clock after output teardown,
+with equal 12288-frame sink/graph prefixes. Original buffer/flag/capacity facts
+were missing, so its precise cause is not proven. The fixture now coordinates
+declared unmapped closure only after a valid clock/full observed graph prefix,
+retains richer diagnostics and keeps final sample/prefix checks strict. No
+production clock fault is suppressed; the original failure remains in evidence.
+
+The read-only equalizer audit still matches all 24 registered inputs and both
+reviewed heads. No dependency/license changes, equalizer checkout writes, push
+or publication. All 92 acceptance/quality/F/Q/C/N/reference contracts stay intact.
+Earlier native completion/sink gaps/concurrent UI timeout, native Windows,
+physical/PDC, declared ten-minute/30-minute runs, deadline/load/disk-full/process-
+kill/filesystem/module-unload and full professional workflow gates remain open.
+X004 imports, X005 monitoring/print/portable profiles/rights and all-Europe
+coverage/translation/review/UI remain required. Full goal remains active/incomplete.
+
+Next: **M2d3 desktop accepted-prefix multi-arm preparation**, explicit packed
+input/master routing, live monitor/EQ receipts and grouped independent verified
+take admission/history, with separate failed-lane recovery. Preserve current
+selection/intervening edits and native-before-worker-close ordering.

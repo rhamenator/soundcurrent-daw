@@ -136,3 +136,11 @@ intermittent UI failures under declared load. Auto monitoring, punch/loop/takes/
 comping, buses/PDC and all frozen F/Q/C/N/X004/X005/platform/localization workflows
 remain required. Equalizer checkouts remain untouched; no new dependency or
 publication is implied.
+
+
+## M2d2 follow-up
+
+[Production ownership](36-duplex-recording-owner.md) now performs aggregate capture
+admission before allocation and owns native preparation/activation/join plus
+independent disk receipts/errors/recovery. The M2d1 evidence above remains scoped
+to its original bridge checkpoint; native M2d2 qualification is separate.

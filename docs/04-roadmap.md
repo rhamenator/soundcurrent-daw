@@ -111,3 +111,11 @@ M2c3 persists [master layout/matrix/output intent](33-master-matrix.md), connect
 M2c4 adds [retained callback faults and bounded native timing evidence](34-native-timing.md). Preserve the unexplained completion/sink-gap and intermittent concurrent UI failure gates. Next implement one native playback/capture owner with explicit armed channel maps, a shared origin, raw bounded per-track pipes, off-RT writers and independent alignment/gap/finalization/recovery acceptance. Optimized declared-load/deadline, native Windows and full M2 remain required.
 
 M2d1 provides the [backend-free shared playback/capture bridge](35-shared-playback-capture.md), explicit raw channel maps, Off/Post-EQ live replacements and per-track clock/prefix/failure retention. Short 32-track exact recording and mono/stereo recovery evidence do not satisfy M2 duration/native/platform gates. Next implement production native duplex ownership with upfront combined memory/spec admission, activation rollback, callback-before-writer join and independent results/errors; then desktop grouped armed-track/take handoff. Punch/loop/Auto/takes/comping and all other M2/frozen workflows remain required.
+
+
+M2d2 connects [production PipeWire duplex ownership](36-duplex-recording-owner.md):
+preflight before pool allocation, inactive explicit input/master routes,
+activation-only writers, callback-before-disk joins and independent receipts/
+errors/recovery. Next implement desktop accepted-prefix multi-arm/input maps and
+grouped verified-take admission/history. Full M2 duration/load/physical/fault and
+Windows gates remain required; no frozen family acceptance is marked complete.

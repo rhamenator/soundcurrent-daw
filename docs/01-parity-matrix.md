@@ -13,7 +13,7 @@ Axes are separately stored per row in [parity.json](../research/parity.json): F/
 
 | ID / target | Bitwig evidence | Cubase evidence | Acceptance workflow | Quality gate | Known gap |
 |---|---|---|---|---|---|
-| P001 **Multitrack audio capture** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw) | Arm 32 mono tracks; record ten minutes; stop, reopen and verify every take and timestamp. | Zero missing frames in synthetic run; 30-minute native run with zero unreported gaps. | No DAW capture backend exists. |
+| P001 **Multitrack audio capture** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw) | Arm 32 mono tracks; record ten minutes; stop, reopen and verify every take and timestamp. | Zero missing frames in synthetic run; 30-minute native run with zero unreported gaps. | Short 32-armed-track native owner evidence exists; desktop multi-arm, ten-minute/30-minute duration, physical/load/fault and Windows gates remain open. |
 | P002 **MIDI record and overdub** (M3) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_midi_c.html?contentId=zMkluR0omNKWXwZYqXajlg) | Record notes, sustain and CC while looping; select replace and overdub separately; reopen and replay. | Recorded events preserve timestamp/order and note-off pairing. | MIDI engine and take semantics are new. |
 | P003 **Input monitoring** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/intro_to_tracks/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_monitoring_via_cubase_t.html?contentId=2rERCFeCKHh9rlr9ISc9og) | Switch auto/on/off monitoring while armed, playing and punching; route selected input explicitly. | Measured latency reported within one quantum; no duplicate monitor route. | Native direct monitoring depends on interface capability. |
 | P004 **Punch recording** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_stopping_automatically_with_punch_out_t.html?contentId=AEYzYZAVOduo2XfpBAp3yQ) | Punch between non-block-aligned locators with preroll; retain underlying audio and undo. | Punch boundaries within one sample in synthetic fixture. | Need compare every reference record mode. |
@@ -205,3 +205,14 @@ No reference F/Q/C/N axis is promoted.
 M2c2 adds [native/desktop shared-clock mix playback](32-native-mix-playback.md) with per-lane receipts, explicit matching-layout/output selection and non-first track EQ/Undo. P001 simultaneous capture and P017 general buses/routing/reference workflows remain incomplete; acceptance, quality and F/Q/C/N axes are unchanged.
 
 M2c3 adds [saved master matrix state and editor](33-master-matrix.md). P017 remains partial: general buses/groups/sends/sidechains/VCA/PDC and reference comparisons are required. No F/Q/C/N status is promoted.
+
+
+## M2d2 scoped evidence
+
+[Production duplex ownership](36-duplex-recording-owner.md) adds explicit native
+simultaneous file playback/raw capture, activation-time writers, independent
+joined receipts/errors and cancellation/write-fault recovery. Its finite owned
+source/sink corpus is scoped in the evidence manifest. P001/P003/P088
+implementation notes advance; their acceptance/quality/F/Q/C/N contracts do not.
+Desktop grouped handoff, required duration/load/physical/native Windows workflows
+and all frozen parity requirements remain open.
