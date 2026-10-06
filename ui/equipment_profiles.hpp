@@ -13,6 +13,7 @@ struct Point {
 };
 struct Profile {
     QString id, kind, brand, family, model, source, conditions, provenance;
+    QString equipmentType = "Unclassified", powerType = "Unknown";
     QVector<EqBand> filters;
     QVector<Point> response;
     bool custom = false;

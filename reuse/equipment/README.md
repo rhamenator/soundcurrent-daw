@@ -1,6 +1,6 @@
 # Pinned equipment-profile reuse
 
-Source: soundcurrent-eq commit `6b53056`, resolved exactly in [provenance](provenance.json).
+Source: soundcurrent-eq equipment update `459627c`, following initial adoption `6b53056`; exact per-file revisions/hashes are in [provenance](provenance.json). The five updated equipment/editor/catalog/collector files use the newer revision. Unchanged reference mathematics, source registry, license and original tests retain their original `6b53056` revision.
 Unmodified source/header, response-math reference, collector, catalog/license/report
 and source-registry snapshots are retained under `upstream/`. Only the catalog resource
 is compiled from that directory; upstream C++ is not compiled. The adapted editor is

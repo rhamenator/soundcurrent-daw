@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "requirement": "X005",
+  "status": "partial_offline_library_editor",
+  "baseline": "SC-DAW-BASELINE-2026-10-05; unchanged",
+  "parent_commit": "091d513b1b8add80e26d0c755345fa3adc2c325c",
+  "source_revision": "459627c6b2db62b281d0b7b7f3fcee4735524907",
+  "source_manifest": "reuse/equipment/provenance.json",
+  "catalog": {
+    "profiles": 1092,
+    "brands": 255,
+    "added_models": [
+      "Revel W126Be",
+      "Audio First Design Cadentia 3",
+      "Revel W228Be",
+      "Vanatoo Transparent Zero Plus",
+      "AsciLab C8C"
+    ],
+    "removed_models": [],
+    "prior_correction_filters_changed": 0,
+    "subtypes": {
+      "Floorstanding": 124,
+      "Bookshelf": 520,
+      "Cinema": 24,
+      "Touring PA": 52,
+      "Column": 10,
+      "Portable PA": 212,
+      "Unclassified": 7,
+      "Center": 76,
+      "Surround": 11,
+      "Omnidirectional": 11,
+      "Soundbar": 1,
+      "In-wall": 24,
+      "Panel": 7,
+      "Outdoor": 10,
+      "Constant beamwidth": 3
+    },
+    "power_types": {
+      "passive": 741,
+      "active": 344,
+      "Unknown": 7
+    },
+    "upstream_measurement_revision": "acc757bb98d63327092ee537bde25d9c227811f3",
+    "snapshot_exact_bytes_verified": true,
+    "source_data_release_rights": "still open; counts are not permission or quality evidence"
+  },
+  "tests": {
+    "platform": "Linux x86_64, Qt 6.10.2, offscreen",
+    "equipment_checks": 1220,
+    "debug_affected_groups": 2,
+    "sanitized_affected_groups": 2,
+    "status": "pass",
+    "scope": "equipment-editor and desktop-ui; core/native audio/Windows not rerun for this offline metadata/catalog update",
+    "acceptance": [
+      "all_1092_catalog_entries_roundtrip",
+      "old_schema2_metadata_defaults_preserve_identity_filters_response",
+      "new_metadata_rejects_wrong_types_blank_overlong_and_nul",
+      "catalog_active_bookshelf_and_passive_floorstanding_metadata",
+      "editor_subtype_undo_redo_and_power_save_copy_reopen",
+      "immutable_reference_and_parent_provenance",
+      "combined_subtype_power_filters_match_independent_catalog_count",
+      "localized_visible_kind_label_uses_stable_data",
+      "kind_change_resets_incompatible_brand_subtype_power_and_populates_families",
+      "subtype_search_and_unfocused_wheel_guard",
+      "existing_dirty_save_discard_cancel_import_fit_library_and_daw_menu_workflows"
+    ],
+    "native_windows": false,
+    "physical_audio": false,
+    "equalizer_checkouts_written_by_this_work": false
+  },
+  "source_sha256": {
+    "ui/equipment_profiles.cpp": "1a3f61d114e4d623567d9ce72c1e372de1b080cca1a98ec3f5ca3a429d5b24d3",
+    "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
+    "ui/equipment_resources.qrc": "c57668900ccb299af3d210bc32a4be2728e2b51184ff180d3fb6d6214dc4f5b4",
+    "tests/equipment_tests.cpp": "cf09b4043586216ee0ee95cbac8ffd9d5fd5dcb9f28f7f7d7ecf0c1a82247a61",
+    "reuse/equipment/provenance.json": "f6ada6eb09e99cd7bd7c7c6d627564b5364f2c7b24033d8d431f740cdcbded26"
+  },
+  "logs_sha256": {
+    ".cache/x005-update-build-final.log": "a177a26e18e064b4b780d08499555ad7b04271866e7a65c9fe6afc57994c6fac",
+    ".cache/x005-update-tests-final.log": "6e099f135d82e9e0d7eb83b226d0878ddf81a551bf08171bc97eb75909b38aab",
+    ".cache/x005-update-sanitized-build-final.log": "a177a26e18e064b4b780d08499555ad7b04271866e7a65c9fe6afc57994c6fac",
+    ".cache/x005-update-sanitized-tests-final.log": "d98b49d63defeb610d1627e63f6dbf7e4fbdd1bbd8ef88395eb50d0d39f7b842",
+    ".cache/build-desktop/Testing/Temporary/LastTest.log": "4a2ae7a02f395d6238ee0fb164d7304c935485f77995b8cfbf1d2d1819cdeec9",
+    ".cache/build-desktop-sanitized/Testing/Temporary/LastTest.log": "5cc7da41e79ef8b75f4a2dfc574c80e2aa0f1cf37992c09d1cb33395580841bc"
+  },
+  "binaries_sha256": {
+    ".cache/build-desktop/sc-equipment-tests": "4367a554ff3faa40adcd194b07fb81050abd28316f73c4621d558598b07dda78",
+    ".cache/build-desktop-sanitized/sc-equipment-tests": "fb776adb78d80af636978add6c3496f4e89d498165e5055b23007d7637ebda5c",
+    ".cache/build-desktop/soundcurrent-daw": "5c9f2dd16a0b72f2090b8edc593972e35f8f30e24f9b5c3fe97fe0526951e9b2"
+  },
+  "visual_review": {
+    "library": ".cache/equipment-library.png",
+    "editor": ".cache/equipment-editor.png",
+    "status": "viewed; taxonomy in two rows, metadata visible, Save/Cancel accessible at 760x650",
+    "screenshots_source": "initial final-implementation run; subsequent test-only cursor API cleanup did not change production UI",
+    "sha256": {
+      ".cache/equipment-library.png": "64afdb85b7554fafc775a0d8304e939605df89b0640c28af55f0b38e331ee297",
+      ".cache/equipment-editor.png": "d4382d9ee903bcb7c014548b6a4ff11942f327b43e086f7bcc9d179ce31fa5d1"
+    }
+  },
+  "gaps": [
+    "shared_framework_independent_engine_profile_schema",
+    "monitor_correction_and_explicit_print_routes",
+    "project_profile_pins_and_missing_profile_recovery",
+    "measurement_capture_and_target_curves",
+    "worker_io_and_responsiveness",
+    "native_windows_qualification",
+    "all_europe_localization_and_accessibility",
+    "source_data_release_rights"
+  ],
+  "frozen_parity_rows_completed": 0,
+  "published": false
+}

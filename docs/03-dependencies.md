@@ -52,10 +52,11 @@ No dependency is selected merely from a permissive license or a README feature n
 ## Equipment editor reuse checkpoint
 
 X005 uses the existing Qt Core/Gui/Widgets dependency and copied GPL equalizer editor
-at pinned `6b53056`, rather than adopting a new GUI/audio framework. Curve-only C++
+at initial pin `6b53056`, with equipment/catalog update `459627c` and exact
+per-file revisions in the provenance manifest. No new GUI/audio framework is adopted. Curve-only C++
 helpers have no Qt headers; the provisional library/profile JSON model is still Qt
 GUI-side and is not the shared engine schema. Snapshot, adapted paths and later
-upstream candidates are in `reuse/equipment/provenance.json`. The 1,087-entry generated
+upstream candidates are in `reuse/equipment/provenance.json`. The 1,092-entry generated
 speaker catalog retains its Spinorama GPL license, source hashes and collector; full
 source/data rights and packaging audit remain open. Pyle measurement arrays are excluded.
 See ADR 011 and docs/17-equipment-profiles.md for integration cost and remaining gates.

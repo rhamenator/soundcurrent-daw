@@ -29,3 +29,20 @@ preview limitation; worker ownership is a later responsiveness gate.
 Record current acceptance evidence and gaps in docs/17-equipment-profiles.md and X005
 results. Catalog breadth and parser/editor tests establish no correction quality,
 Windows qualification, native-project compatibility or reference-product parity.
+
+## Catalog/taxonomy update, 2026-10-05
+
+Adopt the later committed equalizer equipment update `459627c`, retaining per-file
+revisions and SHA-256 hashes in the provenance manifest. Five equipment source/data
+files advance; unchanged mathematical references, original tests, source registry and
+license stay pinned to `6b53056`. Do not include unrelated equalizer effect/guard code.
+The collector remains an archived acquisition reference, not a runtime network task.
+
+The catalog adds five admissible models (1,092 total across 255 brands), leaving all
+prior correction filters unchanged. Schema 2/3 optional subtype/power fields retain
+the equalizer exchange names and bounded text validation. Missing fields use explicit
+unclassified/unknown defaults without changing identity, filters or response arrays.
+Editor metadata uses the existing local undo/custom-copy contract. Library subtype and
+power filters combine with kind/brand/family/search; translated visible kind labels
+use stable data identifiers. No catalog entry count establishes correction quality or
+microphone/amplifier measurement coverage. Source/data release gates remain open.

@@ -162,7 +162,7 @@ class Editor : public QDialog {
     QString originalId, originalProvenance;
     QTableWidget *table;
     Plot *plot;
-    QLineEdit *brand, *family, *model, *source, *conditions;
+    QLineEdit *brand, *family, *model, *source, *conditions, *equipmentType, *powerType;
     std::function<bool(Profile)> save;
     Editor(Profile profile, QWidget *parent, std::function<bool(Profile)> writer)
         : QDialog(parent), draft(std::move(profile)), save(std::move(writer)) {
@@ -182,6 +182,8 @@ class Editor : public QDialog {
         };
         brand = field("Brand", draft.brand);
         family = field("Family", draft.family);
+        equipmentType = field("Equipment subtype", draft.equipmentType);
+        powerType = field("Active / passive / unknown", draft.powerType);
         model = field("Model", draft.model);
         source = field("Source", draft.source);
         conditions = field("Conditions", draft.conditions);
@@ -268,6 +270,8 @@ class Editor : public QDialog {
     bool persist() {
         draft.brand = brand->text().trimmed();
         draft.family = family->text().trimmed();
+        draft.equipmentType = equipmentType->text().trimmed();
+        draft.powerType = powerType->text().trimmed();
         draft.model = model->text().trimmed();
         draft.source = source->text();
         draft.conditions = conditions->text();
@@ -309,6 +313,7 @@ QJsonObject serialize(const Profile &p) {
             {"kind", p.kind},
             {"brand", p.brand},
             {"family", p.family},
+            {"equipmentType", p.equipmentType}, {"powerType", p.powerType},
             {"model", p.model},
             {"measurementSource", p.source},
             {"conditions", p.conditions},
@@ -329,6 +334,9 @@ Profile parse(const QByteArray &bytes) {
     p.kind = o.value("kind").toString();
     p.brand = o.value("brand").toString().trimmed();
     p.family = o.value("family").toString().trimmed();
+    p.equipmentType = o.value("equipmentType").toString("Unclassified").trimmed();
+    p.powerType = o.value("powerType").toString("Unknown").trimmed();
+    require(!p.equipmentType.isEmpty() && p.equipmentType.size()<=120 && !p.powerType.isEmpty() && p.powerType.size()<=120,"Invalid equipment subtype or power type");
     p.model = o.value("model").toString().trimmed();
     p.source = o.value("measurementSource").toString();
     p.conditions = o.value("conditions").toString();
@@ -510,19 +518,22 @@ void openLibrary(QWidget *parent, const std::function<void(const Profile &)> &ap
     taxonomy->addWidget(kindFilter);
     taxonomy->addWidget(brandFilter);
     taxonomy->addWidget(familyFilter);
+    auto *subtypeFilter=new QComboBox;subtypeFilter->setAccessibleName("Equipment subtype");taxonomy->addWidget(subtypeFilter);
     layout->insertLayout(0, taxonomy);
     auto taxonomyRefresh = [&] {
-        const QSignalBlocker b(brandFilter), f(familyFilter);
+        const QSignalBlocker b(brandFilter), f(familyFilter), st(subtypeFilter);
         const auto brand = brandFilter->currentText(), family = familyFilter->currentText();
-        QStringList brands, families;
+        QStringList brands, families, subtypes;
         for (const auto &p : profiles)
             if (kindFilter->currentIndex() == 0 || p.kind == kindFilter->currentText()) {
+                if (!subtypes.contains(p.equipmentType))subtypes.append(p.equipmentType);
                 if (!brands.contains(p.brand))
                     brands.append(p.brand);
                 if ((brand == p.brand || brand == "All brands" || brand.isEmpty()) &&
                     !families.contains(p.family))
                     families.append(p.family);
             }
+        const auto subtype=subtypeFilter->currentText();subtypes.sort(Qt::CaseInsensitive);subtypeFilter->clear();subtypeFilter->addItem("All subtypes");subtypeFilter->addItems(subtypes);subtypeFilter->setCurrentIndex(std::max(0,subtypeFilter->findText(subtype)));
         brands.sort(Qt::CaseInsensitive);
         families.sort(Qt::CaseInsensitive);
         brandFilter->clear();
@@ -544,6 +555,7 @@ void openLibrary(QWidget *parent, const std::function<void(const Profile &)> &ap
             if ((kindFilter->currentIndex() == 0 || p.kind == kindFilter->currentText()) &&
                 (brandFilter->currentIndex() == 0 || p.brand == brandFilter->currentText()) &&
                 (familyFilter->currentIndex() == 0 || p.family == familyFilter->currentText()) &&
+                (subtypeFilter->currentIndex()==0 || p.equipmentType==subtypeFilter->currentText()) &&
                 (name + " " + p.conditions).contains(search->text(), Qt::CaseInsensitive))
                 list->addItem(name, i);
         }
@@ -570,6 +582,7 @@ void openLibrary(QWidget *parent, const std::function<void(const Profile &)> &ap
         refresh();
     });
     QObject::connect(familyFilter, &QComboBox::currentIndexChanged, &dialog, [&] { refresh(); });
+    QObject::connect(subtypeFilter,&QComboBox::currentIndexChanged,&dialog,[&]{refresh();});
     auto save = [&](Profile p) {
         try {
             const auto bytes = QJsonDocument(serialize(p)).toJson();
@@ -582,10 +595,11 @@ void openLibrary(QWidget *parent, const std::function<void(const Profile &)> &ap
             profiles += custom;
             taxonomyRefresh();
             {
-                const QSignalBlocker a(kindFilter), b(brandFilter), c(familyFilter), d(search);
+                const QSignalBlocker a(kindFilter), b(brandFilter), c(familyFilter), d(search), st(subtypeFilter);
                 kindFilter->setCurrentIndex(0);
                 brandFilter->setCurrentIndex(0);
                 familyFilter->setCurrentIndex(0);
+                subtypeFilter->setCurrentIndex(0);
                 search->clear();
             }
             taxonomyRefresh();

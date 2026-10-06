@@ -2,25 +2,25 @@
 
 Owner requirement added 2026-10-05; [machine-readable inventory](../research/equipment-profile-requirement.json). **Partially implemented: the offline library/editor is in the Qt desktop preview. Monitoring/print routing, portable profile pins and full qualification remain required.** This supplements the frozen combined-reference scope; it does not modify that baseline or turn equipment coverage into a parity claim.
 
-The owner is adding equipment profiles/import and a curve editor in the separate **SoundCurrent equalizer development** chat. Its current scope includes speaker and microphone imports, amplifier references, broad published-measurement discovery, brand/family/model browsing, visible response curves, adjustable correction and a prompt to save modified profiles. The DAW now adopts the committed `6b53056` equalizer implementation with exact source/data hashes in [reuse provenance](../reuse/equipment/provenance.json). The source checkouts remain untouched; later equalizer changes need a new reviewed snapshot and migration/acceptance checks.
+The owner is adding equipment profiles/import and a curve editor in the separate **SoundCurrent equalizer development** chat. Its current scope includes speaker and microphone imports, amplifier references, broad published-measurement discovery, brand/family/model browsing, visible response curves, adjustable correction and a prompt to save modified profiles. The DAW now adopts the committed `459627c` equipment update (following the initial `6b53056` adoption) with exact source/data hashes in [reuse provenance](../reuse/equipment/provenance.json). The source checkouts remain untouched; later equalizer changes need a new reviewed snapshot and migration/acceptance checks.
 
 ## Current desktop workflow
 
 Build with `SC_BUILD_DESKTOP=ON`, then open **Equipment → Profile library and editor…**.
-This works without opening a project. The library has 1,087 generated speaker-model
+This works without opening a project. The library has 1,092 generated speaker-model
 corrections across 255 brands from the pinned equalizer catalog; model/measurement
 conditions and source attribution are visible. It is model-level generated EQ, not
 individual-unit or room calibration. There are no invented amplifier or microphone
 measurements. The microphone/amplifier source registry is retained as research metadata.
 
-- Filter by kind, brand and family; search model, variant/serial notes and measurement conditions.
+- Filter by kind, brand, family, equipment subtype and power type (active/passive/unknown); search model, subtype, power, variant/serial notes and measurement conditions. The expanded pinned catalog adds five models without removing or changing the correction filters of the prior 1,087 entries. Subtype/power metadata remains explicitly unknown when the published source lacks it.
 - Import equalizer schema 2 JSON or relative response text (`TXT`, `CSV`, `FRD`, `CAL`),
   create a profile, edit PK/LS/HS filters, and export JSON. A third text phase column is
   explicitly ignored. Already-inverted gains belong in JSON; absolute SPL needs normalization.
 - The orange curve shows supplied measured response only within its covered display range.
   Teal shows the correction's magnitude at 48 kHz. Generated catalog entries generally
   contain correction filters, not measured response arrays. There is no target-curve editor yet.
-- Add/remove up to 16 filters; edit frequency/gain/Q or drag a control point. Undo/redo
+- Add/remove up to 16 filters; edit frequency/gain/Q or drag a control point. Edit subtype/power metadata as well. Undo/redo
   has a bounded 256-state local history; one mouse drag is grouped. Metadata joins that
   history. This is separate from canonical session/parameter undo.
 - Save always creates a custom identity with parent provenance, preserving the reference.
@@ -31,7 +31,7 @@ measurements. The microphone/amplifier source registry is retained as research m
   independent of both equalizer libraries. Atomic `QSaveFile` replacement validates all entries,
   refuses duplicate identities and bounds the library to 256 profiles / 16 MiB.
 
-Schema 2 exchanges speaker/microphone/amplifier profiles with the pinned equalizer.
+Schema 2 exchanges speaker/microphone/amplifier profiles with the pinned equalizer, including optional `equipmentType` and `powerType` text fields (bounded to 120 characters). Earlier schema 2/3 files lacking these fields retain their identity and correction with defaults `Unclassified` / `Unknown`. Fields with wrong types, blank text or NUL characters are rejected.
 **DAW schema 3** additionally names `whole_system`; older equalizers will reject that
 version explicitly. It represents the combined microphone/amplifier/speaker/room route,
 not an isolated component response. All JSON imports reject duplicate keys, unknown fields/filter types
@@ -66,7 +66,8 @@ transcription is **not bundled in this DAW** pending its independent data-rights
 
 Linux offscreen editor/menu workflows, immutable references, numeric/import failures,
 fit sign/quality, all catalog entries and bounded save/reopen checks are recorded in
-[the X005 evidence](../tests/results/X005/2026-10-05-equipment-editor.json).
+[the initial X005 evidence](../tests/results/X005/2026-10-05-equipment-editor.json) and
+[the catalog/taxonomy update](../tests/results/X005/2026-10-05-equipment-catalog-update.json).
 Native Windows compilation/execution and localized/native-review/accessibility/HiDPI
 qualification remain open. Translation contexts exist for principal labels/errors, but
 this is not a delivered European-language feature. No frozen parity row is marked done.

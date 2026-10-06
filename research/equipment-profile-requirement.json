@@ -29,12 +29,12 @@
     "Windows"
   ],
   "localization": "All Europe requirement applies",
-  "reuse": "Pinned soundcurrent-eq 6b53056; reuse/equipment/provenance.json; source checkouts remain untouched",
+  "reuse": "Pinned soundcurrent-eq equipment update 459627c; per-file revisions in reuse/equipment/provenance.json; source checkouts remain untouched",
   "implemented": false,
   "acceptance": "X005-A/B/C/D staged gates in contract; no requirement accepted as complete from feature names",
   "partial_implementation": {
-    "desktop_entry": "Equipment → Profile library and editor…",
-    "catalog_profiles": 1087,
+    "desktop_entry": "Equipment \u2192 Profile library and editor\u2026",
+    "catalog_profiles": 1092,
     "catalog_brands": 255,
     "snapshot": "reuse/equipment/provenance.json",
     "evidence": "tests/results/X005/2026-10-05-equipment-editor.json",
@@ -47,6 +47,15 @@
       "native_windows_qualification",
       "all_europe_localization_and_accessibility",
       "source_data_release_rights"
+    ],
+    "catalog_update_evidence": "tests/results/X005/2026-10-05-equipment-catalog-update.json",
+    "taxonomy": [
+      "kind",
+      "brand",
+      "family",
+      "model",
+      "equipment_subtype",
+      "power_type"
     ]
   }
 }

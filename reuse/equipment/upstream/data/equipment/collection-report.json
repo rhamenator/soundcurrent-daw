@@ -1,12 +1,40 @@
 {
   "commit": "acc757bb98d63327092ee537bde25d9c227811f3",
-  "available": 1088,
-  "accepted": 1087,
+  "available": 1096,
+  "accepted": 1092,
   "brands": 255,
   "gaps": [
     {
-      "model": "Vanatoo Transparent Zero Plus",
+      "model": "JBL LSR708i",
+      "reason": "No published IIR correction file"
+    },
+    {
+      "model": "LD Systems DDQ12 Sub",
+      "reason": "No published IIR correction file"
+    },
+    {
+      "model": "Alcons Audio 3xQR24+1xQM24",
+      "reason": "No published IIR correction file"
+    },
+    {
+      "model": "Meyer Sound Ultra 22",
+      "reason": "No published IIR correction file"
+    },
+    {
+      "model": "Ascend Acoustics CMT-340",
       "reason": "No admissible 1\u201316 filter correction"
+    },
+    {
+      "model": "Audioengine A5+ Powered",
+      "reason": "No admissible 1\u201316 filter correction"
+    },
+    {
+      "model": "datas/eq/Kali LP-6/iir.txt",
+      "error": "Missing upstream profile pointer target"
+    },
+    {
+      "model": "datas/eq/Revel W226Be/iir.txt",
+      "error": "Missing upstream profile pointer target"
     }
   ]
 }

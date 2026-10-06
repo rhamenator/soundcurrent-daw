@@ -47,10 +47,31 @@ for item in tree['tree']:
                         metadata[name]=fields
                     except (ValueError,TypeError): pass
 pattern=re.compile(r'Filter\s+\d+:\s+ON\s+(PK|LS|HS)\s+Fc\s+([\d.]+)\s+Hz\s+Gain\s+([+\-\d.]+)\s+dB\s+Q\s+([\d.]+)')
-paths=sorted(item['path'] for item in tree['tree'] if item['path'].startswith('datas/eq/') and item['path'].endswith('/iir-autoeq.txt'))
+eq_files={item['path'] for item in tree['tree'] if item['path'].startswith('datas/eq/') and item['type']=='blob'}
+model_files={}
+for path in eq_files:
+    parts=path.split('/')
+    if len(parts)==4:model_files.setdefault(parts[2],set()).add(parts[3])
+# Prefer the upstream default. Alternate published files are explicitly attributed.
+priority=['iir-autoeq.txt','iir-autoeq-score.txt','iir-autoeq-lw.txt','iir.txt','iir-flipflop.txt']
+paths=[]
+for model,files in sorted(model_files.items()):
+    for filename in priority:
+        if filename in files:paths.append(f'datas/eq/{model}/{filename}');break
+unavailable=[dict(model=model,reason='No published IIR correction file') for model,files in model_files.items() if not any(f in files for f in priority)]
 def collect(path):
     try:
-        b=fetch(path);text=b.decode();name=path.split('/')[2];meta=metadata.get(name,{})
+        original=path;seen=set()
+        for _ in range(4):
+            if path in seen:raise ValueError('Cyclic upstream profile pointer')
+            seen.add(path);b=fetch(path);text=b.decode().strip()
+            if re.fullmatch(r'iir[\w.-]*\.txt',text):
+                candidate=path.rsplit('/',1)[0]+'/'+text
+                if candidate not in eq_files:raise ValueError('Missing upstream profile pointer target')
+                path=candidate
+            else:break
+        else:raise ValueError('Too many upstream pointer hops')
+        name=path.split('/')[2];meta=metadata.get(name,{})
         filters=[]
         for t,hz,gain,q in pattern.findall(text):
             hz,gain,q=map(float,(hz,gain,q))
@@ -64,10 +85,12 @@ def collect(path):
         for known_brand,prefix,series in [('JBL','30','3 Series MkII'),('Yamaha','HS','HS Series'),('Kali','LP-','Lone Pine')]:
             if brand==known_brand and model.startswith(prefix): family=series
         measure=re.search(r'^EQ for .*? computed from (.*?) data',text,re.M)
-        origin=measure.group(1) if measure else 'See upstream generated EQ'
-        return dict(schema=2,id='spinorama-'+hashlib.sha256(name.encode()).hexdigest()[:24],kind='speaker',brand=brand,family=family,model=model,measurementSource=BASE+urllib.parse.quote(path),conditions=f'Published model-level generated AutoEQ from {origin}; not room calibration. Gains limited to ±6 dB, Q 0.1–6; positive filters below 80 Hz omitted. Verify model/version and measurement at source.',provenance=f'Spinorama GPL-3.0; commit {COMMIT}; source SHA256 {hashlib.sha256(b).hexdigest()}; family classification is explicit; see docs/equipment-profiles.md.',custom=False,filters=filters,response=[]),None
+        origin=measure.group(1) if measure else 'See upstream published EQ'
+        shapes={'bookshelves':'Bookshelf','floorstanders':'Floorstanding','center':'Center','surround':'Surround','inwall':'In-wall','liveportable':'Portable PA','toursound':'Touring PA','cinema':'Cinema','outdoor':'Outdoor','omnidirectional':'Omnidirectional','columns':'Column','panel':'Panel','cbt':'Constant beamwidth','soundbar':'Soundbar'}
+        equipment_type=shapes.get(meta.get('shape'),'Unclassified')
+        return dict(equipmentType=equipment_type,powerType=meta.get('type','Unknown'),schema=2,id='spinorama-'+hashlib.sha256(name.encode()).hexdigest()[:24],kind='speaker',brand=brand,family=family,model=model,measurementSource=BASE+urllib.parse.quote(path),conditions=f'Published model-level correction from {origin}; source file {path.rsplit("/",1)[-1]}; not room calibration. Gains limited to ±6 dB, Q 0.1–6; positive filters below 80 Hz omitted. Verify model/version and measurement at source.',provenance=f'Spinorama GPL-3.0; commit {COMMIT}; selected file {original}; resolved file {path}; source SHA256 {hashlib.sha256(b).hexdigest()}; family classification is explicit; see docs/equipment-profiles.md.',custom=False,filters=filters,response=[]),None
     except Exception as e:return None,dict(model=path,error=str(e))
-profiles=[];gaps=[]
+profiles=[];gaps=list(unavailable)
 with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
     for i,(p,gap) in enumerate(pool.map(collect,paths)):
         if p:profiles.append(p)
