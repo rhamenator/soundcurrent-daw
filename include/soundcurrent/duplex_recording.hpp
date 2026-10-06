@@ -10,6 +10,21 @@ struct DuplexRecordingLane {
     RecordingMonitor monitoring = RecordingMonitor::Off;
     RecordingOptions writer;
 };
+struct PreparedPunchLane {
+    Id track;
+    Frame inputLatencyFrames = 0;
+    PunchRange capture;
+};
+struct MusicalPunchPlan {
+    PunchRange timeline;
+    Frame requiredPlaybackEnd = 0;
+    std::vector<PreparedPunchLane> lanes;
+};
+// Control-only, no disk/jobs. Timeline locators are project sample frames (tempo
+// conversion is upstream). Each raw range adds declared input latency; reject
+// overflow, invalid rates/latencies/identities or more than 256 arms.
+MusicalPunchPlan prepareMusicalPunch(PunchRange, std::uint32_t sampleRate,
+                                     std::span<const DuplexRecordingLane>);
 struct DuplexRecordingOptions {
     MixPlaybackConfig playback;
     std::uint32_t nativeInputs = 1;
@@ -18,6 +33,10 @@ struct DuplexRecordingOptions {
     ReadAheadOptions reader;
     bool staggerCheckpoints = true;
     std::optional<PunchRange> punch;
+    // Timeline-frame locators, mutually exclusive with the raw punch above.
+    // Preparation sets capture starts and extends playback for required latency
+    // postroll, bounded by the existing 60-second input-latency admission limit.
+    std::optional<PunchRange> musicalPunch;
 };
 struct DuplexCaptureSnapshot {
     Frame captured = 0, written = 0;
@@ -49,6 +68,8 @@ class DuplexRecordingRun {
     void cancel() noexcept; // After native join: retain independently recoverable checkpoints.
     const RecordingResult &result(std::size_t) const; // After stop; per-lane disk exception.
     const RecordingSpec &spec(std::size_t) const;
+    std::optional<PunchRange> captureRange(std::size_t) const;
+    Frame playbackEnd() const noexcept;
     std::optional<std::filesystem::path> jobDirectory(std::size_t) const;
     DuplexCaptureSnapshot capture(std::size_t) const;
     std::size_t lanes() const noexcept;

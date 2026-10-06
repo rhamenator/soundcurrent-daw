@@ -1,0 +1,771 @@
+{
+  "date": "2026-10-06",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "66ee15a403d8138e4ac95f90b575e7784b747b74",
+  "previous_goal_turn_classification": "Progress:66ee15a committed scoped native evidence and latest equalizer signing-policy review",
+  "classification": "Progress: per-lane latency-aware project-frame punch preparation and independent origins/postroll",
+  "source_sha256": {
+    "include/soundcurrent/duplex_bridge.hpp": "e3a047f69499a877d258260cd65c6b289ed82a56b0409a96db91676a7aa7537b",
+    "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+    "src/duplex_bridge.cpp": "00ad5438067fb9ef7d97cfdfeadbacb8b95873740a593555fd04f756864e158d",
+    "src/duplex_recording.cpp": "b608a872947bba2ae223a98b4376fb3670fe8c4f3685b5f2f8729809c6142e16",
+    "tests/punch_tests.cpp": "d78d1d5fc505e81da12f4772c5153f93d93847a40c879101e324c619ed3dbe0e",
+    "research/parity.json": "cf46c42161ea903a4b0e72b0bc6edb7748338522f2a66dfb086f80a889ec63bc",
+    "docs/53-latency-aware-punch-locators.md": "6e1b5ef8046771d5e0c277cfc1a59c23b4a82549486603b3b8321d86928d71b2",
+    "docs/decisions/041-per-lane-musical-punch-preparation.md": "6969468914d3fd3244236c7f884dd1d1fa76594cb45caa3d8dcbdbca05e39693"
+  },
+  "implementation": {
+    "control_only_plan": "Stable track IDs, declared input latency, checked raw windows and required playback end; no disk/jobs",
+    "timeline_frames_not_beat_conversion": true,
+    "independent_capture_ranges_and_origins": true,
+    "first_origin_is_earliest_independent_of_binding_order": true,
+    "all_new_timestamp_offsets_preflight_before_origin_or_raw_publication": true,
+    "bounded_required_postroll_and_no_caller_mutation": true,
+    "raw_before_alias_and_full_block_monitoring": true,
+    "independent_lane_completion_and_existing_join_retirement": true,
+    "no_new_RT_allocation_free_lock_IO_log_queue": true,
+    "existing_project_journal_schema_and_durability_preserved": true
+  },
+  "acceptance": {
+    "optimized_oracle": {
+      "checks": 11079850,
+      "boundary_partition_workflows": 25,
+      "raw_sample_oracle": true,
+      "aliased_monitor_file_oracle": true,
+      "origin_alignment_save_reopen_undo": true,
+      "interrupted_prefix_recovery": true,
+      "musical_latency_partition_workflows": 28,
+      "per_lane_origins_postroll": true,
+      "rt_violations": 0,
+      "native_audio": false
+    },
+    "different_latency_pairs": [
+      [
+        0,
+        77
+      ],
+      [
+        77,
+        0
+      ],
+      [
+        13,
+        300
+      ],
+      [
+        300,
+        13
+      ]
+    ],
+    "callback_partitions": [
+      [
+        1
+      ],
+      [
+        7
+      ],
+      [
+        127
+      ],
+      [
+        256
+      ],
+      [
+        3,
+        127,
+        17,
+        256,
+        1
+      ]
+    ],
+    "extra_windows_with_0_700_latency_and_both_binding_orders": [
+      [
+        139,
+        140
+      ],
+      [
+        503,
+        4099
+      ],
+      [
+        503,
+        560
+      ],
+      [
+        137,
+        503
+      ]
+    ],
+    "exact_delayed_signal_timeline_oracle_and_alias_monitor": true,
+    "per_lane_origin_journal_raw_hash_alignment_save_reopen_grouped_undo": true,
+    "real_disk_owner_autopostroll_and_joined_receipts": true,
+    "interruption_blocks_128_frames_from_137": [
+      2,
+      6,
+      9,
+      12
+    ],
+    "recovery_keeps_original_audio_journal_hashes_and_each_origin_latency": true,
+    "INT64_MAX_latency_cap_rate_duplicate_arm_conflict_and_timestamp_limits": true
+  },
+  "tests": {
+    "initial_build_56069": "terminal exit1: fixture used Clip.frames instead of existing lengthFrames; no test/native process started; fixture-only corrected after termination",
+    "corrected_build_40994": "terminal exit0",
+    "first_debug_oracle_33481": "terminal exit0 before final added count/admission checks",
+    "all_builds": {
+      "94975_Debug": "terminal exit0",
+      "71496_ASAN_UBSAN": "terminal exit0",
+      "64633_Release": "terminal exit0",
+      "18452_Windows_core": "terminal exit0",
+      "compiler_warnings": 0
+    },
+    "release_oracle": "terminal exit0",
+    "full_debug_27515": {
+      "passed": 29,
+      "total": 29,
+      "seconds": 27.93
+    },
+    "full_sanitizers_25936": {
+      "passed": 29,
+      "total": 29,
+      "seconds": 75.36,
+      "ASAN_OPTIONS": "detect_leaks=1",
+      "UBSAN_OPTIONS": "halt_on_error=1",
+      "serial_no_competing_own_build_test": true
+    },
+    "windows_core_compile_link_only": true,
+    "windows_native_Qt_runtime_installer_qualified": false
+  },
+  "native_default_regression": {
+    "exact_handle_95926": "terminal exit0",
+    "scope": "Ordinary/default full-range only; no punch selected. No physical,1800-second or Windows qualification.",
+    "launch": {
+      "all_own_build_test_reader_benchmark_handles_terminal": true,
+      "host_policy_or_default_route_change": false,
+      "commit": "66ee15a403d8138e4ac95f90b575e7784b747b74",
+      "utc": "2026-10-06T19:26:36.721262+00:00",
+      "source_sha256": {
+        "CMakeLists.txt": "bff8bb31ec7f4a7712c839ed3c2d781e8f347006dab365dcd19cd8db032296bb",
+        "include/soundcurrent/capture.hpp": "42e6340938dc12a1232b1ceda6fbc8e5d527cc21afa85f4341cb11743a3cea6e",
+        "include/soundcurrent/duplex_bridge.hpp": "e3a047f69499a877d258260cd65c6b289ed82a56b0409a96db91676a7aa7537b",
+        "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+        "include/soundcurrent/eq.hpp": "6e29057e53bd5ce501dd198d88e75c69efe22c2f0ee18691d317d8c3182210f0",
+        "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+        "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+        "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+        "include/soundcurrent/recording.hpp": "c0fcb3c6aba21eccd4ca4dfeab602afdc34aab2904d43d9bd14a74cc22b57db3",
+        "include/soundcurrent/session.hpp": "c4933c213a464f5358fa32b006c2744324450bb36db38e358957f64b402a3c84",
+        "research/parity.json": "cf46c42161ea903a4b0e72b0bc6edb7748338522f2a66dfb086f80a889ec63bc",
+        "reuse/studio/provenance.json": "6035998c095923f621b811611055ae67284b8ab66ad88807cd2403b619102e77",
+        "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+        "src/capture.cpp": "b94c7f14e6ff73216e1c0f5083be1463f094272bbf417b6d0330a4e95f1c3cfe",
+        "src/duplex_bridge.cpp": "00ad5438067fb9ef7d97cfdfeadbacb8b95873740a593555fd04f756864e158d",
+        "src/duplex_recording.cpp": "b608a872947bba2ae223a98b4376fb3670fe8c4f3685b5f2f8729809c6142e16",
+        "src/eq.cpp": "298a8a8354780cd734d72ece8072bd6a682bd0465e326ce6f2008da6361b598f",
+        "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+        "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+        "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+        "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+        "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+        "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+        "src/pipewire_filter.cpp": "0071d1c75a6fbc809f633fd8dec9273f7ac55e8169b426ffef2b6282a70ce61e",
+        "src/recording.cpp": "bcb7e0005da9e74f98177b1f5ad93671b3d22ae7ebd60bf52436a6c03013240a",
+        "src/recording_worker.cpp": "ac635bbfb9e7e6c6832787938e1bc38f0a4d7ec8fcffaa302f7ee5a7316346b1",
+        "tests/capture_tests.cpp": "9ab6f5813d529ca19bb78c9dfcbdb8310ab9ed30e4e8eaff39d343697711fc54",
+        "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+        "tests/duplex_duration_fixture.cpp": "c2b67a69260e38030a223ee55c93747e52106ac5c049f355af41b65178df9216",
+        "tests/duplex_recording_tests.cpp": "21b7f3af4d8f02ce6844e893d38ffc71f5b5a6c21876881b538dfc15ac0f9c34",
+        "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+        "tests/engine_tests.cpp": "b4642a0ae6a0411775bc9d0f263a857e80503fe7738e7b2969a050804d51b2ba",
+        "tests/fake_duplex_endpoint.hpp": "2581d4251544f9fd4a29d61e40809a69a227a98c0568029629117939a589058b",
+        "tests/fake_recording_endpoint.hpp": "0d0d7bf39bdf4ab640cbbf872b0780d556f70282c7246a0f9dc2b66833449f55",
+        "tests/native_duration_timing.hpp": "06650c67983eb6b97265483c0c48127a512d2601c57da8ea60d5e62a403b8929",
+        "tests/native_duration_timing_tests.cpp": "2f3d003910891eeaf8bba2796058b9b64d277a2a0bdefa8f77fe3ca40bd7e228",
+        "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
+        "tests/native_processing_stages.cpp": "c7af99a6f3d7e614a0937abc0453d7674ead1579b7d98ed4420b3b98dbf0a87c",
+        "tests/native_processing_stages.hpp": "a440ef669903d4a005927b45619ac50df9c82cbebbb442cdb6fa0dbd3e89f77a",
+        "tests/native_thread_usage.hpp": "1d31d916c8d7afd072e4cba32352b9a1c3e89a6dbde00ba32af479f570a13ab1",
+        "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+        "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+        "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+        "tests/pipewire_duration_fixture.cpp": "699ddc167a61de3828a5ce6b6e5c881b5656a5088c6eddee96b78f76e5a310c3",
+        "tests/punch_tests.cpp": "d78d1d5fc505e81da12f4772c5153f93d93847a40c879101e324c619ed3dbe0e",
+        "tests/recording_controller_tests.cpp": "4a8ee74996e13399771c4154c6781c525d956c4372060a8a7549aaf6d3fef12b",
+        "tests/recording_tests.cpp": "4ebe579d1914430e306ae14637276592be9ba5d9c8f2b439618f7ed7a0646cae",
+        "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+        "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+        "tests/timeline_ui_tests.cpp": "a49280e2ca4d38bd41e1a192cd6ace3aa3d50b1783b150fa790e2284a8cdff0d",
+        "tests/ui_tests.cpp": "d01f9a76163b3f2045aa9fe12451c229ab8667eb22c91e7b2a7a6e44b4cd46ab",
+        "tests/verify_checkpoint_burst_recovery.py": "ef3d5bfe2510ffd737cf4d860acb00765598d13513ae1ee8eeca0e410cd74553",
+        "tests/verify_duplex_duration.py": "b209ab8760cd1040d13146d1370adaa08e6a8dc218b2e28541fda1175db4b9f9",
+        "tests/verify_pipewire_duration.py": "b1b2fa346fae2e97df7e3cb27742656cc0dc32502b7e568559bcd9a8cca3e77b",
+        "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+        "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
+        "tests/writer_timing_tests.cpp": "f6dbf48c2a7a1852596a5349943e3c8d91aceedc4a42d154af130be8b07f7b39",
+        "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+        "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+        "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+        "ui/recording_controller.cpp": "93ebe352b399043f2a70b4c91447393e952ce9efbde2bedb0ad0a1a42ce11aa1",
+        "ui/recording_controller.hpp": "7dec482c7ad2ffc3a252d266fbdcf33a910292cc27750587cf3e88bec72c1568",
+        "ui/studio_window.cpp": "c202d458dcd47cbfdbae2680fb8b83df2499f3470682dbb29da2c60dc14cbe1c",
+        "ui/studio_window.hpp": "b55a543621aec3df64a2c9d7b18d02a37eff9c0a9f79043694db34de1b44039c"
+      },
+      "binary_sha256": {
+        ".cache/build-desktop-release/sc-pipewire-duration-fixture": "17a562951f5b1329ad7ea067336fd113f7c6cd2bfa8fbf2378687b3f52938a10"
+      },
+      "processing_library_sha256": {
+        ".cache/build-desktop-release/libsc-pipewire-recording.a": "8d86cae666d62e92288cab6d27ce50e4fcbe2eeee42d00eb1675bf096a5f66d7",
+        ".cache/build-desktop-release/libsc-playback.a": "b1279ff6761b6c8629c83e1afff07d7b37dea048c4b66c533a0ac80e025e2ca8",
+        ".cache/build-desktop-release/libsc-media.a": "d599b5ffaa966d7407752e6a06217f4f3f8ffd82ae17300fccd38524d21e6717",
+        ".cache/build-desktop-release/libsc-engine.a": "24729fcd399fdf179d6022b8cc14e2a446a59cbe983960bddcae589bd8f99daa",
+        ".cache/build-desktop-release/libsc-capture.a": "6466f73612b746796a3990e674c37d2bad89b0c4b14a85d8320ab19ed23fa947",
+        ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+        ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "ce5559c845f412bf261e03451d618f4e8b53551374edb0f8930621aef50f6acd",
+        ".cache/build-desktop-release/libsc-project-store.a": "4b75e620459c9cc67e9d47b731f86269918c4e6ece5be321f0b09450ec275e04",
+        ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+        ".cache/build-desktop-release/libsc-session.a": "091920694f08128e7bfe977d0af2a772da3e555670b3a6a650850d82e3d96a45",
+        ".cache/build-desktop-release/libsc-audio-bridge.a": "d853effc07677a0684b5e62a6621c9e2b452d6741c02a0260c34926324260a7e"
+      },
+      "scope": "Serial normal full-range/default recording regression after per-lane musical punch preparation. No punch selected, no interior stage wrappers. Existing complete elapsed/CPU/resource/sample/durability gates unchanged. Not native punch, physical,1800-second or Windows qualification.",
+      "source_state": "Uncommitted DAW delta, exact source hashes plus base Git commit; compiled inputs fixed through builds, tests and this run.",
+      "command": [
+        "python3",
+        "tests/verify_pipewire_duration.py",
+        "--binary",
+        ".cache/build-desktop-release/sc-pipewire-duration-fixture",
+        "--seconds",
+        "20",
+        "--modes",
+        "normal",
+        "--output",
+        ".cache/m2-musical-punch-default-native.json",
+        "--failure-output",
+        ".cache/m2-musical-punch-default-native-failure.json"
+      ],
+      "patch": {
+        "path": ".cache/m2-musical-punch-native-source.patch",
+        "sha256": "d73576e16fea3916fc4bf1b3111db829b2d318eda5597cc6b31944a030bb277b"
+      }
+    },
+    "source_binary_library_pins_verified_after_terminal": true,
+    "result": {
+      "mode": "normal",
+      "owned_nodes_only": true,
+      "seconds": 20,
+      "pool_slabs": 118,
+      "reserve_frames": 483328,
+      "reserve_requested_ms": 10000,
+      "first_checkpoints_staggered": true,
+      "injected_journal_stall_ms": 0,
+      "armed_tracks": 32,
+      "file_tracks": 1,
+      "bands_per_track": 3,
+      "frames_per_raw_take": 960000,
+      "sink_frames": 960000,
+      "verified_raw_samples": 30720000,
+      "verified_output_samples": 1920000,
+      "maximum_sample_difference": 0,
+      "maximum_output_peak": 4.43849,
+      "clock_id": 30,
+      "device_origin": 7436794429,
+      "driver_delay": 0,
+      "sample_rate": 48000,
+      "missing_track_frames": 0,
+      "rt_allocations": 0,
+      "rt_frees": 0,
+      "rt_blocking_locks": 0,
+      "save_reopen": true,
+      "memory_locked": false,
+      "stream_wall_seconds": 20.0639,
+      "total_wall_seconds": 22.5354,
+      "callback_timing": {
+        "owner": {
+          "samples": 938,
+          "calls": 938,
+          "dropped_samples": 0,
+          "clock_failures": 0,
+          "missing_periods": 0,
+          "p50_ns": 1184543,
+          "p99_ns": 2881766,
+          "p999_ns": 3129286,
+          "maximum_ns": 3129286,
+          "p999_period_ratio": 0.146685,
+          "maximum_period_ratio": 0.146685,
+          "minimum_quantum": 1024,
+          "maximum_quantum": 1024,
+          "minimum_integer_rate": 48000,
+          "maximum_integer_rate": 48000,
+          "complete_timing_coverage": true,
+          "finite_deadline_thresholds_met": true,
+          "cpu_timing_requested": true,
+          "cpu_samples": 938,
+          "cpu_clock_failures": 0,
+          "complete_cpu_coverage": true,
+          "mean_cpu_ns": 1385337,
+          "maximum_cpu_ns": 3125028,
+          "maximum_wall_minus_cpu_ns": 18725,
+          "maximum_callback_cpu_known": true,
+          "maximum_callback_cpu_ns": 3125028,
+          "maximum_callback_start_monotonic_ns": 154952054978966,
+          "maximum_clock_known": true,
+          "maximum_clock": {
+            "position": 7437698621,
+            "duration": 1024,
+            "id": 30,
+            "cycle": 190043,
+            "nsec": 154952054604166,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "xrun": false,
+            "discontinuity": false
+          },
+          "thread_usage_requested": true,
+          "thread_usage_samples": 938,
+          "thread_usage_failures": 0,
+          "complete_thread_usage_coverage": true,
+          "maximum_system_ns": 966000,
+          "maximum_minor_faults": 0,
+          "maximum_major_faults": 0,
+          "thread_usage_totals": {
+            "known": true,
+            "user_ns": 798999000,
+            "system_ns": 4301000,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "maximum_callback_thread_usage": {
+            "known": true,
+            "user_ns": 3025000,
+            "system_ns": 0,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "cycle_context_samples": 938,
+          "cycle_context_unknown": 0,
+          "callback_end_after_cycle_period_count": 0,
+          "maximum_callback_end_after_cycle_ns": 6820552,
+          "maximum_cycle_callback_start_monotonic_ns": 154943527007977,
+          "maximum_cycle_callback_wall_ns": 1083408,
+          "maximum_cycle_callback_cpu_known": true,
+          "maximum_cycle_callback_cpu_ns": 1081496,
+          "maximum_cycle_thread_usage": {
+            "known": true,
+            "user_ns": 994000,
+            "system_ns": 0,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "maximum_cycle_clock": {
+            "position": 7437289021,
+            "duration": 1024,
+            "id": 30,
+            "cycle": 189643,
+            "nsec": 154943521270833,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "xrun": false,
+            "discontinuity": false
+          }
+        },
+        "source": {
+          "samples": 951,
+          "calls": 951,
+          "dropped_samples": 0,
+          "clock_failures": 0,
+          "missing_periods": 0,
+          "p50_ns": 251631,
+          "p99_ns": 376803,
+          "p999_ns": 2270908,
+          "maximum_ns": 2270908,
+          "p999_period_ratio": 0.106449,
+          "maximum_period_ratio": 0.106449,
+          "minimum_quantum": 1024,
+          "maximum_quantum": 1024,
+          "minimum_integer_rate": 48000,
+          "maximum_integer_rate": 48000,
+          "complete_timing_coverage": true,
+          "finite_deadline_thresholds_met": true,
+          "cpu_timing_requested": true,
+          "cpu_samples": 951,
+          "cpu_clock_failures": 0,
+          "complete_cpu_coverage": true,
+          "mean_cpu_ns": 234657,
+          "maximum_cpu_ns": 2269427,
+          "maximum_wall_minus_cpu_ns": 20746,
+          "maximum_callback_cpu_known": true,
+          "maximum_callback_cpu_ns": 2269427,
+          "maximum_callback_start_monotonic_ns": 154943524676855,
+          "maximum_clock_known": true,
+          "maximum_clock": {
+            "position": 7437289021,
+            "duration": 1024,
+            "id": 30,
+            "cycle": 189643,
+            "nsec": 154943521270833,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "xrun": false,
+            "discontinuity": false
+          },
+          "thread_usage_requested": true,
+          "thread_usage_samples": 951,
+          "thread_usage_failures": 0,
+          "complete_thread_usage_coverage": true,
+          "maximum_system_ns": 8000,
+          "maximum_minor_faults": 0,
+          "maximum_major_faults": 0,
+          "thread_usage_totals": {
+            "known": true,
+            "user_ns": 9149000,
+            "system_ns": 30000,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "maximum_callback_thread_usage": {
+            "known": true,
+            "user_ns": 1542000,
+            "system_ns": 0,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "cycle_context_samples": 951,
+          "cycle_context_unknown": 0,
+          "callback_end_after_cycle_period_count": 0,
+          "maximum_callback_end_after_cycle_ns": 5676930,
+          "maximum_cycle_callback_start_monotonic_ns": 154943524676855,
+          "maximum_cycle_callback_wall_ns": 2270908,
+          "maximum_cycle_callback_cpu_known": true,
+          "maximum_cycle_callback_cpu_ns": 2269427,
+          "maximum_cycle_thread_usage": {
+            "known": true,
+            "user_ns": 1542000,
+            "system_ns": 0,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "maximum_cycle_clock": {
+            "position": 7437289021,
+            "duration": 1024,
+            "id": 30,
+            "cycle": 189643,
+            "nsec": 154943521270833,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "xrun": false,
+            "discontinuity": false
+          }
+        },
+        "sink": {
+          "samples": 940,
+          "calls": 940,
+          "dropped_samples": 0,
+          "clock_failures": 0,
+          "missing_periods": 0,
+          "p50_ns": 23581,
+          "p99_ns": 41069,
+          "p999_ns": 800541,
+          "maximum_ns": 800541,
+          "p999_period_ratio": 0.0375254,
+          "maximum_period_ratio": 0.0375254,
+          "minimum_quantum": 1024,
+          "maximum_quantum": 1024,
+          "minimum_integer_rate": 48000,
+          "maximum_integer_rate": 48000,
+          "complete_timing_coverage": true,
+          "finite_deadline_thresholds_met": true,
+          "cpu_timing_requested": true,
+          "cpu_samples": 940,
+          "cpu_clock_failures": 0,
+          "complete_cpu_coverage": true,
+          "mean_cpu_ns": 20014,
+          "maximum_cpu_ns": 799021,
+          "maximum_wall_minus_cpu_ns": 21336,
+          "maximum_callback_cpu_known": true,
+          "maximum_callback_cpu_ns": 799021,
+          "maximum_callback_start_monotonic_ns": 154943528103824,
+          "maximum_clock_known": true,
+          "maximum_clock": {
+            "position": 7437289021,
+            "duration": 1024,
+            "id": 30,
+            "cycle": 189643,
+            "nsec": 154943521270833,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "xrun": false,
+            "discontinuity": false
+          },
+          "thread_usage_requested": true,
+          "thread_usage_samples": 940,
+          "thread_usage_failures": 0,
+          "complete_thread_usage_coverage": true,
+          "maximum_system_ns": 22000,
+          "maximum_minor_faults": 0,
+          "maximum_major_faults": 0,
+          "thread_usage_totals": {
+            "known": true,
+            "user_ns": 333000,
+            "system_ns": 29000,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "maximum_callback_thread_usage": {
+            "known": true,
+            "user_ns": 0,
+            "system_ns": 0,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "cycle_context_samples": 940,
+          "cycle_context_unknown": 0,
+          "callback_end_after_cycle_period_count": 0,
+          "maximum_callback_end_after_cycle_ns": 7633532,
+          "maximum_cycle_callback_start_monotonic_ns": 154943528103824,
+          "maximum_cycle_callback_wall_ns": 800541,
+          "maximum_cycle_callback_cpu_known": true,
+          "maximum_cycle_callback_cpu_ns": 799021,
+          "maximum_cycle_thread_usage": {
+            "known": true,
+            "user_ns": 0,
+            "system_ns": 0,
+            "minor_faults": 0,
+            "major_faults": 0,
+            "voluntary_switches": 0,
+            "involuntary_switches": 0
+          },
+          "maximum_cycle_clock": {
+            "position": 7437289021,
+            "duration": 1024,
+            "id": 30,
+            "cycle": 189643,
+            "nsec": 154943521270833,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "xrun": false,
+            "discontinuity": false
+          }
+        }
+      },
+      "observed_native_clock_node": {
+        "node.name": "Dummy-Driver",
+        "node.description": null,
+        "media.class": null,
+        "node.driver": true,
+        "priority.driver": 200000,
+        "factory.name": "support.node.driver",
+        "object.serial": 30,
+        "node.rate": null,
+        "node.latency": null,
+        "node.group": "pipewire.dummy",
+        "clock.quantum-limit": 8192,
+        "device.description": null,
+        "audio.position": null
+      },
+      "finite_deadline_thresholds_met": true,
+      "declared_30_minute_native_sample_qualified": false,
+      "declared_30_minute_fixed_workload_deadline_qualified": false,
+      "routing_observations": {
+        "graph_snapshots": 23,
+        "linked_snapshots": 19,
+        "defaults_unchanged": true,
+        "pre_existing_links_preserved": 0,
+        "owned_nodes_remaining": 0,
+        "owned_links_remaining": 0
+      },
+      "host": {
+        "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+        "logical_processors": 64,
+        "controlled_competing_load": false,
+        "fixed_workload": "32 mono raw/Post-EQ arms with non-flat default bands, one unarmed file, signed stereo matrix, disk sink",
+        "physical_roundtrip_qualified": false,
+        "windows_qualified": false
+      },
+      "project_directory": "/home/rich/dev/soundcurrent-daw/.cache/sc-native-duration-islara4k/Durée native — Ελληνικά",
+      "supervisor_wall_seconds": 24.199389059998794,
+      "artifacts": {
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-native-duration-islara4k/stdout.log": "ae12b2326c2e75c2f1042838a70225172dffa13cb88e8cefe0ec811d2dac8273",
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-native-duration-islara4k/stderr.log": "e43efd147f3acc6e4da268c39b430849f25d864a7a249d6a202098faf1b449ef"
+      }
+    },
+    "disk_summary": {
+      "workers": 33,
+      "maximum_ready_slabs": 1,
+      "all_phase_pairs_complete": true,
+      "maximum_write_gap_ns": 91876589
+    },
+    "actual_frozen_executable": {
+      "path": ".cache/musical-punch-native-frozen-66ee15a/sc-pipewire-duration-fixture",
+      "bytes": 1024888,
+      "sha256": "17a562951f5b1329ad7ea067336fd113f7c6cd2bfa8fbf2378687b3f52938a10"
+    }
+  },
+  "binaries": [
+    {
+      "path": ".cache/build-desktop/sc-punch-tests",
+      "bytes": 14400840,
+      "sha256": "b98e14f9ad35d9099f9bcc7bed484b7dedcf7f090de05ce3ad0ccf5448a9e068"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-punch-tests",
+      "bytes": 46419176,
+      "sha256": "7a89df5f2c9d87b68b8fd299ed7f56bc4dc81fc67c8f8b55513f37c81e2c113e"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-punch-tests",
+      "bytes": 987080,
+      "sha256": "2b34ae4dcb4cf81def95806bbd8f02f0de26ad263bfd808169716079a46d8fb5"
+    },
+    {
+      "path": ".cache/build-windows-core/sc-punch-tests.exe",
+      "bytes": 1353579,
+      "sha256": "c748ded08bbacf66a58a3d4a09d51c2917b2f8b74eef77ce36c721a231d92c2e"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".cache/m2-musical-punch-debug-LastTest.log",
+      "bytes": 25031,
+      "sha256": "e9ed7c6a245d464014b4bcc542a8050bacdb37c5a687484f6819b3ad0bca9669"
+    },
+    {
+      "path": ".cache/m2-musical-punch-debug-all-build.log",
+      "bytes": 4374,
+      "sha256": "458862cdadd700818a89840e9bb2559cec110be1a297caba696ee0a4ca6bcc7e"
+    },
+    {
+      "path": ".cache/m2-musical-punch-debug-all-tests.log",
+      "bytes": 3270,
+      "sha256": "72ba6014b5d454e05872ba06df4d29e2059b04cf9d6f70c6c3ae7bdf36bbd397"
+    },
+    {
+      "path": ".cache/m2-musical-punch-debug-build-corrected.log",
+      "bytes": 171,
+      "sha256": "0f553941eb51ab3c0f76e1c07948ad3089e3d5e519b45189d17479c305d84dc6"
+    },
+    {
+      "path": ".cache/m2-musical-punch-debug-build.log",
+      "bytes": 1418,
+      "sha256": "8f6a522f53d6b901a19d6aa0220bcebc2def76b43cf3fd6b1c09d79b55e3483d"
+    },
+    {
+      "path": ".cache/m2-musical-punch-debug-oracle.log",
+      "bytes": 303,
+      "sha256": "e7b208a3522b29cfe1aacb769b8c0172b61288ffc8e45c139367ddb2f372bc74"
+    },
+    {
+      "path": ".cache/m2-musical-punch-default-native.log",
+      "bytes": 86,
+      "sha256": "66795346b1833a5ad60530701630bdbbf3e7e1091a67df6c83d7a602142534f9"
+    },
+    {
+      "path": ".cache/m2-musical-punch-release-all-build.log",
+      "bytes": 4578,
+      "sha256": "5ed32b6d3a45dd1ebd46346ebb1478965bd5648daffd7c285255adad0ad76538"
+    },
+    {
+      "path": ".cache/m2-musical-punch-release-oracle.log",
+      "bytes": 303,
+      "sha256": "a983baffe78dde3b9ee92e9b8a68369d8741ab5b07cdf8b7942662c145c19539"
+    },
+    {
+      "path": ".cache/m2-musical-punch-sanitized-LastTest.log",
+      "bytes": 25611,
+      "sha256": "01b1c7fee9d7d203a0f152cec297e8c05d1cac80e581bb42903ae383fec91c35"
+    },
+    {
+      "path": ".cache/m2-musical-punch-sanitized-all-build.log",
+      "bytes": 4578,
+      "sha256": "b53eeace310c40208b6768840d45ea4b26fdf24c58e9fb21ef99b9cc59934920"
+    },
+    {
+      "path": ".cache/m2-musical-punch-sanitized-all-tests.log",
+      "bytes": 3280,
+      "sha256": "eb1723f83fb1cb9d243c20b4ea1e4bbcebe8dd9d93d3ad8d0753732ab44721ec"
+    },
+    {
+      "path": ".cache/m2-musical-punch-windows-all-build.log",
+      "bytes": 1342,
+      "sha256": "a49d051f729c1a3f5c7d7fcac54d733492862ccd62d9e88286fa866b1664db24"
+    },
+    {
+      "path": ".cache/m2-musical-punch-default-native-launch.json",
+      "bytes": 9380,
+      "sha256": "80858c44ae5c71c8484ee289fce4c90e734fee2b8c3cac0d090bfcb525adc694"
+    },
+    {
+      "path": ".cache/m2-musical-punch-default-native.json",
+      "bytes": 104452,
+      "sha256": "fd93455b502179bf3dd0ab7c51cb37447c978c793dd082736b54a279ba8d16e9"
+    },
+    {
+      "path": ".cache/m2-musical-punch-reuse-after.json",
+      "bytes": 7215,
+      "sha256": "0406dcf2bdccd758fca086418478868f6d1066c37a2686318d1e9e3ee5d6081b"
+    },
+    {
+      "path": ".cache/m2-locator-reuse-before.json",
+      "bytes": 7215,
+      "sha256": "0406dcf2bdccd758fca086418478868f6d1066c37a2686318d1e9e3ee5d6081b"
+    },
+    {
+      "path": ".cache/m2-musical-punch-native-source.patch",
+      "bytes": 44155,
+      "sha256": "d73576e16fea3916fc4bf1b3111db829b2d318eda5597cc6b31944a030bb277b"
+    }
+  ],
+  "prior_failure_evidence": {
+    "count": 21,
+    "all_retained": true,
+    "prior20_receipt_and_original21_artifact_hashes_verified": true,
+    "previous_punch": {
+      "path": "tests/results/M2/2026-10-06-punch-capture-foundation.json",
+      "bytes": 11022,
+      "sha256": "e7cd69f9639d9d7f0542b48d9462fe683aaf1c5e00518c169913c2eb4693d258"
+    },
+    "previous_native_default": {
+      "path": "tests/results/M2/2026-10-06-punch-default-native-regression.json",
+      "bytes": 116943,
+      "sha256": "6a86ced416f7e218ce6b9143d701b834dc799c4989fe2723b2906d6829c30824"
+    },
+    "previous_native_actual_executable_frozen_before_rebuild": {
+      "path": ".cache/native-default-frozen-1fd9e9e/sc-pipewire-duration-fixture",
+      "bytes": 1016368,
+      "sha256": "ccb9db4cfa6c130a46f166a3b077dddd2d6385efa2d8e11d258f1729ce8eafe4"
+    },
+    "historical_causes_or_resolutions_inferred": false
+  },
+  "equalizer_audit": {
+    "inputs": 24,
+    "before_after_exact": true,
+    "heads": {
+      "soundcurrent-eq": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+      "soundcurrent-studio": "70b0d14264c48bf229992f11495fa6e31b5b9180"
+    },
+    "writes": false
+  },
+  "parity": {
+    "family_count": 92,
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "only_P004_implementation_notes_evidence_extended": true,
+    "no_FQCN_status_promoted": true
+  },
+  "new_dependency_license_signing_purchase_host_policy_VM_publication": false,
+  "full_goal_status": "active and incomplete",
+  "next_task": "Version and persist desired project-frame punch locators, expose desktop recording controls and admitted postroll, and verify owned native per-lane punch origins/alignment. Keep manual punch, Auto monitoring, tempo maps, loop/take/comping, sustained and all Windows/full-product/import/profile/Europe gates required."
+}

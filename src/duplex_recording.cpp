@@ -2,10 +2,32 @@
 #include <soundcurrent/duplex_recording.hpp>
 #include <algorithm>
 #include <exception>
+#include <limits>
 #include <set>
 
 namespace soundcurrent::daw {
 static_assert(std::atomic<bool>::is_always_lock_free);
+MusicalPunchPlan prepareMusicalPunch(PunchRange timeline, std::uint32_t rate,
+                                     std::span<const DuplexRecordingLane> arms) {
+    if (timeline.begin < 0 || timeline.begin >= timeline.end || rate < 8000 || rate > 384000 ||
+        arms.empty() || arms.size() > 256)
+        throw ProjectError(ErrorCode::InvalidState, "Invalid musical punch plan");
+    MusicalPunchPlan result{timeline, timeline.end, {}};
+    std::set<std::string> tracks;
+    result.lanes.reserve(arms.size());
+    for (const auto &lane : arms) {
+        const auto &r = lane.spec;
+        const auto latency = r.inputLatencyFrames;
+        if (r.capture.sampleRate != rate || latency < 0 || latency > Frame(rate) * 60 ||
+            timeline.end > std::numeric_limits<Frame>::max() - latency ||
+            !tracks.insert(r.trackId.str()).second)
+            throw ProjectError(ErrorCode::InvalidState, "Invalid musical punch lane");
+        const PunchRange raw{timeline.begin + latency, timeline.end + latency};
+        result.requiredPlaybackEnd = std::max(result.requiredPlaybackEnd, raw.end);
+        result.lanes.push_back({r.trackId, latency, raw});
+    }
+    return result;
+}
 namespace {
 void directoryMatches(const std::filesystem::path &root, const Session &s) {
     const auto persisted = ProjectStore(root).load();
@@ -14,12 +36,11 @@ void directoryMatches(const std::filesystem::path &root, const Session &s) {
                            "Recording directory belongs to another project");
 }
 void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLane> &lanes,
-           const DuplexRecordingOptions &o) {
+           const DuplexRecordingOptions &o, std::span<const PreparedPunchLane> musical) {
     validate(s);
     if (o.punch && (o.punch->begin < o.playback.graph.startFrame ||
                     o.punch->begin >= o.punch->end || o.punch->end > o.playback.endFrame))
         throw ProjectError(ErrorCode::InvalidState, "Invalid prepared punch range");
-    const auto captureStart = o.punch ? o.punch->begin : o.playback.graph.startFrame;
     if (lanes.empty() || lanes.size() > 256 || !o.nativeInputs || o.nativeInputs > 256 ||
         o.backend > CaptureBackend::Asio || !o.memoryBudgetBytes ||
         o.memoryBudgetBytes > 256 * 1024 * 1024 ||
@@ -42,6 +63,9 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
     std::size_t ordinal = 0;
     for (auto &lane : lanes) {
         auto &r = lane.spec;
+        const auto captureStart = musical.empty()
+                                      ? (o.punch ? o.punch->begin : o.playback.graph.startFrame)
+                                      : musical[ordinal].capture.begin;
         r.capture = prepareCaptureConfig(r.capture);
         const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                     [&](const auto &t) { return t.id == r.trackId; });
@@ -91,7 +115,8 @@ struct DuplexRecordingRun::State {
         Frame joinedWritten = 0;
         bool joined = false;
         std::exception_ptr error;
-        explicit Lane(DuplexRecordingLane b) : binding(std::move(b)) {
+        std::optional<PunchRange> range;
+        Lane(DuplexRecordingLane b, std::optional<PunchRange> r) : binding(std::move(b)), range(r) {
             pipe = std::make_unique<CapturePipe>(binding.spec.capture);
         }
     };
@@ -106,15 +131,31 @@ struct DuplexRecordingRun::State {
     State(std::filesystem::path r, const Session &s, MixPlan plan,
           std::vector<DuplexRecordingLane> arms, DuplexRecordingOptions options)
         : root(std::move(r)), session(s) {
-        admit(s, plan, arms, options); // Entire capture admission BEFORE creating any pool.
+        std::vector<PreparedPunchLane> musical;
+        if (options.musicalPunch) {
+            if (options.punch || options.musicalPunch->begin < options.playback.graph.startFrame ||
+                options.musicalPunch->end > options.playback.endFrame)
+                throw ProjectError(ErrorCode::InvalidState, "Conflicting or outside musical punch");
+            auto prepared = prepareMusicalPunch(*options.musicalPunch, s.sampleRate, arms);
+            options.playback.endFrame =
+                std::max(options.playback.endFrame, prepared.requiredPlaybackEnd);
+            musical = std::move(prepared.lanes);
+            for (std::size_t n = 0; n < arms.size(); ++n)
+                arms[n].spec.capture.startFrame = musical[n].capture.begin;
+        }
+        admit(s, plan, arms, options, musical); // Entire admission BEFORE creating any pool.
         directoryMatches(root, s);
         playback = std::make_unique<MixPlaybackRun>(root, s, std::move(plan), options.playback,
                                                     std::move(options.reader));
         std::vector<ArmedCapture> bindings;
         for (auto &arm : arms) {
-            auto lane = std::make_unique<Lane>(std::move(arm));
+            const auto range = musical.empty()
+                                   ? options.punch
+                                   : std::optional<PunchRange>(musical[lanes.size()].capture);
+            auto lane = std::make_unique<Lane>(std::move(arm), range);
             bindings.push_back({lane->binding.spec.trackId, lane->pipe.get(),
-                                lane->binding.inputChannels, lane->binding.monitoring});
+                                lane->binding.inputChannels, lane->binding.monitoring,
+                                musical.empty() ? std::optional<PunchRange>{} : range});
             lanes.push_back(std::move(lane));
         }
         bridge = std::make_unique<DuplexBridge>(*playback, s, std::move(bindings),
@@ -254,6 +295,12 @@ const RecordingResult &DuplexRecordingRun::result(std::size_t n) const {
 }
 const RecordingSpec &DuplexRecordingRun::spec(std::size_t n) const {
     return state_->lane(n).binding.spec;
+}
+std::optional<PunchRange> DuplexRecordingRun::captureRange(std::size_t n) const {
+    return state_->lane(n).range;
+}
+Frame DuplexRecordingRun::playbackEnd() const noexcept {
+    return state_->playback->config().endFrame;
 }
 std::optional<std::filesystem::path> DuplexRecordingRun::jobDirectory(std::size_t n) const {
     const auto &l = state_->lane(n);

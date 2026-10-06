@@ -17,6 +17,8 @@ struct ArmedCapture {
     CapturePipe *pipe = nullptr; // Must outlive the bridge and callback owner.
     std::vector<std::uint32_t> inputChannels;
     RecordingMonitor monitoring = RecordingMonitor::Off;
+    // Optional per-lane raw window. Mutually exclusive with a shared bridge punch.
+    std::optional<PunchRange> captureRange = {};
 };
 enum class DuplexStatus : std::uint32_t {
     Ready,
@@ -67,8 +69,9 @@ class DuplexBridge {
     DuplexStatus status() const noexcept;
     Frame capturedFrames(std::size_t) const; // Control-side atomic read.
     std::optional<DuplexCallbackFault> callbackFault() const noexcept;
-    // First captured sample, not preroll's first playback block. Unknown until
-    // capture starts; cycle/delay identify the containing native callback.
+    // Earliest captured sample across lanes, independent of binding order.
+    // Per-lane origins live on their pipes and can differ. Unknown until capture
+    // starts; cycle/delay identify the containing native callback.
     std::optional<CaptureTimingOrigin> timingOrigin() const noexcept;
     bool observation(DuplexObservation &) noexcept;
     std::uint64_t droppedObservations() const noexcept;

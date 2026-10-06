@@ -1398,3 +1398,54 @@ bounded postroll and exact origin/alignment/fault tests, then persistent state a
 desktop/native punch workflows. Auto monitoring, loop/takes/comping, sustained
 performance and every frozen/full-product/Windows/import/profile/all-Europe gate
 remain required. Full goal active and incomplete.
+
+## 2026-10-06 continuation: per-lane latency-aware punch preparation
+
+Previous goal turn progressed through66ee15a, committed scoped native evidence and
+latest equalizer signing-policy review. No prior owned handle remains live before
+new source edits. The full goal, worktree, punch contracts and frozen matrix are
+reread, without changing scope.
+
+Control-only musical project-frame locators derive per-track raw windows from
+declared input latency, checked overflow and bounded required postroll. Caller
+options/specs stay unchanged. Fresh bindings admit separate windows and publish
+each first-captured sample's origin; aggregate origin is earliest regardless of
+binding order. All new offsets preflight before publication. Full-block file/live
+monitoring, aliased raw safety, per-lane completion and native-join/disk retirement
+stay intact; no RTallocation/free/blocking-lock/IO/log/newqueue or schema/durability
+change. Ordinary unwindowed completion reason remains unchanged.
+
+Independent delayed mono/stereo samples prove timeline alignment across28latency/
+boundary/partition workflows, plus25existing raw workflows. Tests cover separate
+origins, automatic postroll, real disk workers, grouped undo/Save-reopen, original
+media/journals and interruption/recovery before/between/inside/after lane windows.
+One initial build56069 stops on the fixture's incorrect Clip.frames member; exact
+handle is terminal before correcting to existing lengthFrames. Corrected40994 and
+first debug33481 pass before final count/admission checks. All subsequent four
+builds94975/71496/64633/18452 terminate0 without warnings. Release11,079,850-check
+oracle passes; serial Debug27515 passes29/29 in27.93s, SAN25936 passes29/29 in75.36s.
+Windows headless compile/link supplies no runtime/Qt/native/installer evidence.
+
+After every build/test is terminal, serial owned native95926 terminates0 on the
+20s ordinary/default full-range workflow:30,720,000raw/1,920,000output samples exact,
+joined origins/journals/hashes/alignment/Save-reopen and all complete finite timing
+gates. Maximum owner3.129286ms wall/3.125028ms CPU, no cycle overrun, maxcapturequeue1,
+all33disk phase pairs complete. Default routes unchanged, owned routes retired;
+no prior links present. Source64/executable/library pins verified after termination.
+No competing owned CPU experiment or compiled-source edit during native execution.
+This is no native punch, physical,1800s or Windows qualification.
+
+[Contract](53-latency-aware-punch-locators.md),
+[ADR-041](decisions/041-per-lane-musical-punch-preparation.md) and
+[evidence](../tests/results/M2/2026-10-06-latency-aware-punch.json) preserve all21
+observations and actual original21/prior20receipt hashes. The prior default-native
+executable is frozen before rebuilding. Equalizer24inputs/observedheads match
+before/after;92frozencontract projections exact, onlyP004implementation notes/
+evidence extended, no F/Q/C/N promotion. No dependency, equalizer write, signing
+expense, host policy/default-route change, VM, purchase or publication.
+
+Next version/persist desired project-frame locators, expose recording controls
+and admitted postroll, and qualify owned native per-lane punch origins/alignment.
+Beat/tempo conversion, manual punch/Auto monitoring, stop/continue modes, looping,
+take lanes/comping and every original sustained/physical/Windows/full-product/
+import/profile/all-Europe gate remain required. Full goal active/incomplete.

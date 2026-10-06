@@ -232,3 +232,13 @@ and native punch workflows. All21observations and92frozencontracts remain.
 The [signing budget](49-windows-signing-budget.md) review now records committed
 equalizer packaging changes while keeping direct user-mode Windows development
 independent of a purchased certificate.
+
+M2 now prepares [latency-aware project-frame punch locators](53-latency-aware-punch-locators.md)
+with separate per-track raw windows/origins and bounded postroll.28new delayed-
+signal workflows plus25original boundary workflows, full29Debug/29SAN groups and
+Windows core builds pass; ordinary/default20s native regression remains exact and
+within unchanged finite timing gates. This does not qualify native/UI punch,
+physical latency, Windows runtime or sustained performance. Next persist desired
+locators in versioned project state, add recording controls/admitted postroll and
+owned native per-lane punch evidence. Full manual/Auto/tempo/loop/take/comping and
+all frozen product requirements remain, with21historical observations retained.

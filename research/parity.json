@@ -113,7 +113,7 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_stopping_automatically_with_punch_out_t.html?contentId=AEYzYZAVOduo2XfpBAp3yQ",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: immutable raw engine-frame capture window inside continuous duplex playback; exact nonaligned/one-sample boundary, partition, raw mono/stereo, aliased full monitor/file, origin/alignment, Save-reopen/undo and interrupted durable-prefix fixtures. Musical locator latency preparation/persistence, UI/native punch workflows, Auto monitoring, manual punch, take audition/comping and native/Windows quality remain unqualified. Full sanitized suite retains independent timeline selection/preparation refusal (28/29 pass); no cause/parity claim.",
+      "implementation": "Partial: immutable raw engine-frame capture window inside continuous duplex playback; exact nonaligned/one-sample boundary, partition, raw mono/stereo, aliased full monitor/file, origin/alignment, Save-reopen/undo and interrupted durable-prefix fixtures. Musical locator latency preparation/persistence, UI/native punch workflows, Auto monitoring, manual punch, take audition/comping and native/Windows quality remain unqualified. Full sanitized suite retains independent timeline selection/preparation refusal (28/29 pass); no cause/parity claim. Control-prepared project-frame punch locators now derive separate raw windows from per-track declared input latency, extend bounded postroll and publish per-lane first-sample origins. Delayed-signal synthetic fixtures check exact timeline samples/alignment, independent completion, alias-safe full-block monitoring, joined receipts and interruption/recovery. Persistent locator state, desktop/native/Windows punch and measured backend/physical latency remain open; no full musical/tempo/Auto/manual/loop/take/comping qualification.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -122,7 +122,9 @@
       "cubase_source_id": "e8197fc5fbd89a78",
       "implementation_evidence": [
         "docs/51-punch-capture-foundation.md",
-        "tests/results/M2/2026-10-06-punch-capture-foundation.json"
+        "tests/results/M2/2026-10-06-punch-capture-foundation.json",
+        "docs/53-latency-aware-punch-locators.md",
+        "tests/results/M2/2026-10-06-latency-aware-punch.json"
       ]
     },
     {

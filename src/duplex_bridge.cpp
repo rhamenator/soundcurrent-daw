@@ -69,14 +69,18 @@ struct DuplexBridge::State {
         std::vector<const float *> input;
         std::vector<const float *> captureInput;
         std::atomic<Frame> captured{0};
-        explicit Lane(ArmedCapture b)
+        PunchRange range;
+        bool windowed = false;
+        Frame captureAt = 0;
+        std::uint32_t captureFrames = 0, offset = 0;
+        bool originSet = false; // Audio-owner only; pipe publishes immutable origin.
+        Lane(ArmedCapture b, PunchRange r, bool w)
             : binding(std::move(b)), input(binding.inputChannels.size()),
-              captureInput(binding.inputChannels.size()) {}
+              captureInput(binding.inputChannels.size()), range(r), windowed(w) {}
     };
     MixPlaybackRun &run;
     std::uint32_t nativeInputs;
     CaptureBackend backend;
-    std::optional<PunchRange> punch;
     std::vector<std::unique_ptr<Lane>> lanes;
     std::vector<LiveMixInput> live;
     std::atomic<std::uint32_t> terminal{0}, faultReady{0}, originReady{0};
@@ -131,8 +135,6 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
     if (punch && (punch->begin < c.startFrame || punch->begin >= punch->end ||
                   punch->end > r.config().endFrame))
         throw ProjectError(ErrorCode::InvalidState, "Invalid prepared punch range");
-    st.punch = punch;
-    const auto captureStart = punch ? punch->begin : c.startFrame;
     if (arms.empty() || arms.size() > 256 || !inputs || inputs > 256 ||
         backend > CaptureBackend::Asio || s.sampleRate != r.sampleRate() ||
         r.position() != c.startFrame)
@@ -153,6 +155,14 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
         payload += bytes;
     }
     for (auto &a : arms) {
+        if (a.captureRange && punch)
+            throw ProjectError(ErrorCode::InvalidState, "Conflicting shared and lane punch ranges");
+        const auto range =
+            a.captureRange.value_or(punch.value_or(PunchRange{c.startFrame, r.config().endFrame}));
+        if (range.begin < c.startFrame || range.begin >= range.end ||
+            range.end > r.config().endFrame)
+            throw ProjectError(ErrorCode::InvalidState, "Invalid armed capture range");
+        const auto captureStart = range.begin;
         const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                     [&](const auto &t) { return t.id == a.track; });
         if (!a.pipe || t == s.tracks.end() || a.inputChannels.size() != t->layout.channels ||
@@ -171,7 +181,8 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
                     return l->binding.track == a.track || l->binding.pipe == a.pipe;
                 }))
             throw ProjectError(ErrorCode::InvalidState, "Invalid armed capture binding");
-        auto lane = std::make_unique<State::Lane>(std::move(a));
+        const bool windowed = a.captureRange.has_value() || punch.has_value();
+        auto lane = std::make_unique<State::Lane>(std::move(a), range, windowed);
         if (lane->binding.monitoring == RecordingMonitor::PostEq) {
             const auto &tracks = r.graph().plan().tracks;
             const auto mapped = std::find_if(tracks.begin(), tracks.end(), [&](const auto &t) {
@@ -281,40 +292,55 @@ DuplexStatus DuplexBridge::process(const DeviceBlockClock &clock,
     }
     const auto frames = static_cast<std::uint32_t>(
         std::min<Frame>(Frame(clock.duration), s.run.config().endFrame - at));
-    // Capture is an intersection; engine and native clocks continue through
-    // preroll/postroll. Checked preparation bounds at+frames within endFrame.
-    const auto captureAt = s.punch ? std::max(at, s.punch->begin) : at;
-    const auto captureEnd = s.punch ? std::min(at + frames, s.punch->end) : at + frames;
-    const auto captureFrames =
-        static_cast<std::uint32_t>(std::max<Frame>(0, captureEnd - captureAt));
-    const auto offset = captureFrames ? static_cast<std::uint32_t>(captureAt - at) : 0;
-    if (captureFrames && !s.originReady.load(std::memory_order_relaxed)) {
-        // Integer timestamp of the first captured sample. Zero remains unknown;
-        // driver delay remains a diagnostic, not applied alignment compensation.
-        const auto offsetNs = std::uint64_t(offset) * 1000000000ULL / s.run.sampleRate();
+    // Preflight every lane's first-origin offset before publishing any origin or
+    // raw sample. Playback/native clocks stay monotonic through preroll/postroll.
+    auto earliestOffset = UINT32_MAX;
+    for (auto &lane : s.lanes) {
+        auto &l = *lane;
+        l.captureAt = std::max(at, l.range.begin);
+        const auto end = std::min(at + frames, l.range.end);
+        l.captureFrames = static_cast<std::uint32_t>(std::max<Frame>(0, end - l.captureAt));
+        l.offset = l.captureFrames ? static_cast<std::uint32_t>(l.captureAt - at) : 0;
+        if (!l.captureFrames || l.originSet)
+            continue;
+        const auto offsetNs = std::uint64_t(l.offset) * 1000000000ULL / s.run.sampleRate();
         if (clock.monotonicNs && clock.monotonicNs > UINT64_MAX - offsetNs) {
             s.record(clock, DuplexStatus::ClockDiscontinuity, at, input.size(), output.size(),
                      capacity);
             silence();
             return s.finish(DuplexStatus::ClockDiscontinuity);
         }
-        s.origin = {s.backend,
-                    clock.position + offset,
-                    clock.monotonicNs ? clock.monotonicNs + offsetNs : 0,
-                    c.generation,
-                    clock.id,
-                    clock.cycle,
-                    clock.rateNumerator,
-                    clock.rateDenominator,
-                    clock.delay};
-        for (std::size_t n = 0; n < s.lanes.size(); ++n)
-            if (!s.lanes[n]->binding.pipe->setTimingOrigin(s.origin)) {
+        earliestOffset = std::min(earliestOffset, l.offset);
+    }
+    const auto originAt = [&](std::uint32_t offset) noexcept {
+        const auto offsetNs = std::uint64_t(offset) * 1000000000ULL / s.run.sampleRate();
+        return CaptureTimingOrigin{s.backend,
+                                   clock.position + offset,
+                                   clock.monotonicNs ? clock.monotonicNs + offsetNs : 0,
+                                   c.generation,
+                                   clock.id,
+                                   clock.cycle,
+                                   clock.rateNumerator,
+                                   clock.rateDenominator,
+                                   clock.delay};
+    };
+    if (earliestOffset != UINT32_MAX) {
+        for (std::size_t n = 0; n < s.lanes.size(); ++n) {
+            auto &l = *s.lanes[n];
+            if (!l.captureFrames || l.originSet)
+                continue;
+            if (!l.binding.pipe->setTimingOrigin(originAt(l.offset))) {
                 s.record(clock, DuplexStatus::CaptureFailed, at, input.size(), output.size(),
                          capacity, n);
                 silence();
                 return s.finish(DuplexStatus::CaptureFailed);
             }
-        s.originReady.store(1, std::memory_order_release);
+            l.originSet = true;
+        }
+        if (!s.originReady.load(std::memory_order_relaxed)) {
+            s.origin = originAt(earliestOffset);
+            s.originReady.store(1, std::memory_order_release);
+        }
     }
     // Raw publication precedes all EQ/matrix output, including aliased native views.
     std::size_t failed = SIZE_MAX;
@@ -322,14 +348,14 @@ DuplexStatus DuplexBridge::process(const DeviceBlockClock &clock,
         auto &l = *s.lanes[n];
         for (std::size_t channel = 0; channel < l.input.size(); ++channel)
             l.input[channel] = input[l.binding.inputChannels[channel]];
-        if (captureFrames) {
+        if (l.captureFrames) {
             auto captured = std::span<const float *const>(l.input);
-            if (offset) {
+            if (l.offset) {
                 for (std::size_t channel = 0; channel < l.input.size(); ++channel)
-                    l.captureInput[channel] = l.input[channel] + offset;
+                    l.captureInput[channel] = l.input[channel] + l.offset;
                 captured = l.captureInput;
             }
-            const auto r = l.binding.pipe->push(captured, captureFrames, captureAt);
+            const auto r = l.binding.pipe->push(captured, l.captureFrames, l.captureAt);
             l.captured.fetch_add(r.acceptedFrames, std::memory_order_release);
             if (r.status != CaptureStatus::Running && failed == SIZE_MAX)
                 failed = n;
@@ -341,8 +367,9 @@ DuplexStatus DuplexBridge::process(const DeviceBlockClock &clock,
         silence();
         return s.finish(DuplexStatus::CaptureFailed);
     }
-    if (s.punch && captureFrames && captureEnd == s.punch->end)
-        for (const auto &lane : s.lanes)
+    for (const auto &lane : s.lanes)
+        if (lane->windowed && lane->captureFrames &&
+            lane->captureAt + lane->captureFrames == lane->range.end)
             lane->binding.pipe->finish(CaptureEndReason::RangeComplete);
     const auto report = s.run.process(output, static_cast<std::uint32_t>(clock.duration), s.live);
     next = convert(report.status);

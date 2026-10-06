@@ -421,6 +421,390 @@ void originOverflowAndUnknown() {
         run.waitReader();
     }
 }
+
+std::vector<DuplexRecordingLane> musicalArms(const Session &s, Frame monoLatency,
+                                             Frame stereoLatency) {
+    return {{spec(s, 1, capture(137), monoLatency), {2}, RecordingMonitor::Off, {}},
+            {spec(s, 2, capture(137, {LayoutKind::Stereo, 2}), stereoLatency),
+             {1, 0},
+             RecordingMonitor::PostEq,
+             {}}};
+}
+void delayedInput(Source &src, Frame at, unsigned n, Frame monoLatency, Frame stereoLatency) {
+    src.prepare(at, n);
+    for (unsigned channel = 0; channel < 3; ++channel)
+        for (unsigned f = 0; f < 256; ++f)
+            src.data[channel][f] =
+                inputValue(at + f - (channel == 2 ? monoLatency : stereoLatency), channel);
+}
+void delayedOutput(const Source &src, Frame at, unsigned frames, Frame stereoLatency) {
+    for (unsigned f = 0; f < 256; ++f) {
+        const auto left =
+            f < frames ? float(.75 * fileValue(at + f) + inputValue(at + f - stereoLatency, 1))
+                       : 0.f;
+        const auto right =
+            f < frames
+                ? float(-.25 * fileValue(at + f) - .5 * inputValue(at + f - stereoLatency, 0))
+                : 0.f;
+        check(src.out[0][f] == left && src.out[1][f] == right,
+              "Latency-aware punch shifted full-block aliased live/file monitoring");
+    }
+}
+void musicalTake(const std::filesystem::path &root, const RecordingResult &r, PunchRange timeline,
+                 Frame latency, bool stereo) {
+    check(r.spec.inputLatencyFrames == latency &&
+              r.spec.capture.startFrame == timeline.begin + latency &&
+              r.asset.frames == timeline.end - timeline.begin,
+          "Musical take geometry or declared alignment differs");
+    const auto data = samples(root, r.asset);
+    for (Frame f = 0; f < r.asset.frames; ++f) {
+        if (stereo)
+            check(data[std::size_t(f) * 2] == inputValue(timeline.begin + f, 1) &&
+                      data[std::size_t(f) * 2 + 1] == inputValue(timeline.begin + f, 0),
+                  "Latency-aware stereo raw sample oracle differs");
+        else
+            check(data[std::size_t(f)] == sanitized(inputValue(timeline.begin + f, 2)),
+                  "Latency-aware mono raw sample oracle differs");
+    }
+}
+CaptureTimingOrigin expectedOrigin(const Source &src, const MixPlaybackConfig &cfg,
+                                   unsigned offset) {
+    return {CaptureBackend::Synthetic,
+            src.clock.position + offset,
+            src.clock.monotonicNs
+                ? src.clock.monotonicNs + std::uint64_t(offset) * 1000000000ULL / 48000
+                : 0,
+            cfg.graph.generation,
+            src.clock.id,
+            src.clock.cycle,
+            1,
+            48000,
+            777};
+}
+void musicalPartitions(PunchRange timeline, Frame monoLatency, Frame stereoLatency,
+                       const std::vector<unsigned> &quanta, bool reverse) {
+    Directory d;
+    auto s = session(d.root);
+    const auto before = s;
+    const auto oldHash = hashMediaFile(d.root / utf8Path(s.assets[0].relativePath));
+    const auto prepared =
+        prepareMusicalPunch(timeline, s.sampleRate, musicalArms(s, monoLatency, stereoLatency));
+    const PunchRange monoRange{timeline.begin + monoLatency, timeline.end + monoLatency};
+    const PunchRange stereoRange{timeline.begin + stereoLatency, timeline.end + stereoLatency};
+    check(prepared.timeline == timeline && prepared.lanes.size() == 2 &&
+              prepared.lanes[0].track == s.tracks[1].id && prepared.lanes[0].capture == monoRange &&
+              prepared.lanes[1].track == s.tracks[2].id &&
+              prepared.lanes[1].capture == stereoRange &&
+              prepared.requiredPlaybackEnd == timeline.end + std::max(monoLatency, stereoLatency),
+          "Prepared musical plan lost identity, locators or postroll");
+    auto cfg = playback(137, std::max<Frame>(4099, prepared.requiredPlaybackEnd));
+    MixPlaybackRun run(d.root, s, plan(s), cfg);
+    CapturePipe mono(capture(monoRange.begin)),
+        stereo(capture(stereoRange.begin, {LayoutKind::Stereo, 2}));
+    CaptureWriter a(d.root, spec(s, 1, mono.config(), monoLatency));
+    CaptureWriter b(d.root, spec(s, 2, stereo.config(), stereoLatency));
+    std::vector<ArmedCapture> bindings{
+        {s.tracks[1].id, &mono, {2}, RecordingMonitor::Off, monoRange},
+        {s.tracks[2].id, &stereo, {1, 0}, RecordingMonitor::PostEq, stereoRange}};
+    if (reverse)
+        std::reverse(bindings.begin(), bindings.end());
+    DuplexBridge bridge(run, s, std::move(bindings), 3, CaptureBackend::Synthetic);
+    Source src;
+    unsigned block = 0;
+    std::array<std::optional<CaptureTimingOrigin>, 2> origins;
+    while (run.position() < cfg.endFrame) {
+        const auto at = run.position();
+        const auto n = quanta[block++ % quanta.size()];
+        const auto frames = unsigned(std::min<Frame>(n, cfg.endFrame - at));
+        delayedInput(src, at, n, monoLatency, stereoLatency);
+        for (unsigned t = 0; t < 2; ++t) {
+            const auto range = t ? stereoRange : monoRange;
+            if (!origins[t] && at + frames > range.begin && at < range.end)
+                origins[t] = expectedOrigin(src, cfg, unsigned(range.begin - at));
+        }
+        DuplexStatus status;
+        {
+            rt_audit::Guard guard;
+            status = bridge.process(src.clock, src.in, src.out, 256);
+        }
+        check(status == DuplexStatus::Running || status == DuplexStatus::Complete,
+              "Per-lane punch stopped playback or underflowed");
+        delayedOutput(src, at, frames, stereoLatency);
+        check(mono.timingOrigin() == origins[0] && stereo.timingOrigin() == origins[1] &&
+                  bridge.timingOrigin() == (monoLatency <= stereoLatency ? origins[0] : origins[1]),
+              "Per-lane/earliest origin depends on lane order or preroll");
+        for (unsigned t = 0; t < 2; ++t) {
+            const auto range = t ? stereoRange : monoRange;
+            const auto count =
+                std::clamp<Frame>(run.position() - range.begin, 0, range.end - range.begin);
+            auto &pipe = t ? stereo : mono;
+            check(bridge.capturedFrames(reverse ? 1 - t : t) == count,
+                  "Latency-aware punch captured wrong prefix");
+            if (run.position() >= range.end)
+                check(pipe.producerDone() && pipe.endReason() == CaptureEndReason::RangeComplete,
+                      "Per-lane punch-out did not complete independently");
+        }
+        while (a.drainOne(mono)) {
+        }
+        while (b.drainOne(stereo)) {
+        }
+        src.advance();
+    }
+    bridge.finishQuiescent();
+    run.waitReader();
+    unsigned invalid = 0;
+    for (Frame f : {Frame(139), Frame(2000)})
+        invalid += f >= timeline.begin && f < timeline.end;
+    check(mono.invalidInputSamples() == invalid && !stereo.invalidInputSamples() &&
+              !mono.rejectedFrames() && !stereo.rejectedFrames() && !bridge.callbackFault() &&
+              !run.missingTrackFrames(),
+          "Musical punch hid a fault or counted out-of-window nonfinite input");
+    const auto ra = a.finalize(mono), rb = b.finalize(stereo);
+    musicalTake(d.root, ra, timeline, monoLatency, false);
+    musicalTake(d.root, rb, timeline, stereoLatency, true);
+    for (unsigned t = 0; t < 2; ++t) {
+        const auto j = inspectRecording(t ? b.jobDirectory() : a.jobDirectory(), {}, true);
+        check(j.finalized && j.committedFrames == timeline.end - timeline.begin &&
+                  j.timingOrigin == origins[t] && j.endReason == CaptureEndReason::RangeComplete,
+              "Musical punch journal lost lane origin or exact boundaries");
+    }
+    auto attached = s;
+    attachRecording(attached, ra);
+    attachRecording(attached, rb);
+    for (unsigned t : {1u, 2u})
+        check(attached.tracks[t].clips.back().startFrame == timeline.begin &&
+                  attached.tracks[t].clips.back().sourceFrame == 0 &&
+                  attached.tracks[t].clips.back().lengthFrames == timeline.end - timeline.begin,
+              "Differing input latency did not align both takes at musical locators");
+    EditHistory history(s);
+    check(history.adopt(attached) && history.undo() && s == before && history.redo() &&
+              s == attached,
+          "Musical punch grouped undo/redo differs");
+    check(ProjectStore(d.root).load() == before &&
+              hashMediaFile(d.root / utf8Path(before.assets[0].relativePath)) == oldHash,
+          "Musical punch silently changed canonical state or original media");
+    ProjectStore(d.root).save(s);
+    check(ProjectStore(d.root).load() == s, "Musical punch save/reopen differs");
+}
+void musicalOwner() {
+    Directory d;
+    auto s = session(d.root);
+    const PunchRange timeline{503, 1291};
+    auto arms = musicalArms(s, 13, 300);
+    DuplexRecordingOptions o;
+    o.playback = playback(137, timeline.end);
+    o.nativeInputs = 3;
+    o.backend = CaptureBackend::Synthetic;
+    o.musicalPunch = timeline;
+    DuplexRecordingRun run(d.root, s, plan(s), arms, o);
+    check(run.playbackEnd() == 1591 && run.spec(0).capture.startFrame == 516 &&
+              run.spec(1).capture.startFrame == 803 &&
+              run.captureRange(0) == PunchRange{516, 1304} &&
+              run.captureRange(1) == PunchRange{803, 1591} &&
+              arms[0].spec.capture.startFrame == 137 && o.playback.endFrame == 1291 &&
+              !run.jobDirectory(0) && !run.jobDirectory(1),
+          "Musical preparation changed caller state, created jobs or lost postroll");
+    run.startWriters();
+    Source src;
+    while (run.position() < run.playbackEnd()) {
+        const auto at = run.position();
+        delayedInput(src, at, 127, 13, 300);
+        DuplexStatus status;
+        {
+            rt_audit::Guard guard;
+            status = run.process(src.clock, src.in, src.out, 256);
+        }
+        check(status == DuplexStatus::Running || status == DuplexStatus::Complete,
+              "Musical owner stopped before admitted postroll");
+        delayedOutput(src, at, unsigned(std::min<Frame>(127, run.playbackEnd() - at)), 300);
+        if (run.position() > 1304 && run.position() < 1591)
+            check(run.capture(0).endReason == CaptureEndReason::RangeComplete &&
+                      run.capture(1).captured < 788 && run.status() == DuplexStatus::Running,
+                  "Early-lane punch-out stopped delayed lane");
+        src.advance();
+    }
+    run.stop();
+    run.checkReader();
+    for (unsigned t = 0; t < 2; ++t) {
+        musicalTake(d.root, run.result(t), timeline, t ? 300 : 13, t == 1);
+        check(run.capture(t).captured == 788 && run.capture(t).written == 788 &&
+                  run.capture(t).origin && run.capture(t).writerComplete,
+              "Musical owner joined receipt differs");
+    }
+    check(run.capture(0).origin != run.capture(1).origin &&
+              run.timingOrigin() == run.capture(0).origin,
+          "Musical owner collapsed distinct first-capture origins");
+    auto bad = o;
+    bad.punch = timeline;
+    rejects([&] { DuplexRecordingRun x(d.root, s, plan(s), arms, bad); });
+    for (auto range :
+         {PunchRange{136, 200}, PunchRange{503, 503}, PunchRange{503, 1292}, PunchRange{-1, 500}}) {
+        bad = o;
+        bad.musicalPunch = range;
+        rejects([&] { DuplexRecordingRun x(d.root, s, plan(s), arms, bad); });
+    }
+}
+void musicalLimits() {
+    auto s = makeOneTrackSession("Limits", "Raw");
+    std::vector<DuplexRecordingLane> arms{
+        {spec(s, 0, capture(137), 1), {0}, RecordingMonitor::Off, {}}};
+    const auto limit = std::numeric_limits<Frame>::max();
+    const auto high = prepareMusicalPunch({limit - 2, limit - 1}, s.sampleRate, arms);
+    check(high.requiredPlaybackEnd == limit &&
+              high.lanes[0].capture == PunchRange{limit - 1, limit},
+          "Valid high-frame musical plan overflowed");
+    rejects([&] { (void)prepareMusicalPunch({limit - 1, limit}, s.sampleRate, arms); });
+    for (auto latency : {Frame(-1), Frame(48000) * 60 + 1}) {
+        auto bad = arms;
+        bad[0].spec.inputLatencyFrames = latency;
+        rejects([&] { (void)prepareMusicalPunch({503, 1291}, s.sampleRate, bad); });
+    }
+    auto max = arms;
+    max[0].spec.inputLatencyFrames = Frame(s.sampleRate) * 60;
+    check(prepareMusicalPunch({503, 1291}, s.sampleRate, max).requiredPlaybackEnd ==
+              1291 + Frame(s.sampleRate) * 60,
+          "Declared maximum latency incorrectly refused");
+    auto dup = arms;
+    dup.push_back(arms[0]);
+    rejects([&] { (void)prepareMusicalPunch({503, 1291}, s.sampleRate, dup); });
+    rejects([&] { (void)prepareMusicalPunch({503, 1291}, s.sampleRate, {}); });
+    rejects([&] {
+        (void)prepareMusicalPunch({503, 1291}, s.sampleRate,
+                                  std::vector<DuplexRecordingLane>(257, arms[0]));
+    });
+    for (auto rate : {7999u, 384001u, 44100u})
+        rejects([&] { (void)prepareMusicalPunch({503, 1291}, rate, arms); });
+    for (auto range : {PunchRange{-1, 1}, PunchRange{5, 5}, PunchRange{5, 4}})
+        rejects([&] { (void)prepareMusicalPunch(range, s.sampleRate, arms); });
+}
+
+void musicalInterruption(unsigned blocks) {
+    Directory d;
+    auto s = session(d.root);
+    const PunchRange timeline{503, 820}, monoRange{503, 820}, stereoRange{1203, 1520};
+    MixPlaybackRun run(d.root, s, plan(s), playback());
+    CapturePipe mono(capture(monoRange.begin)),
+        stereo(capture(stereoRange.begin, {LayoutKind::Stereo, 2}));
+    RecordingOptions o;
+    o.checkpointFrames = 16;
+    auto a = std::make_unique<CaptureWriter>(d.root, spec(s, 1, mono.config(), 0), o);
+    auto b = std::make_unique<CaptureWriter>(d.root, spec(s, 2, stereo.config(), 700), o);
+    const auto monoJob = a->jobDirectory(), stereoJob = b->jobDirectory();
+    DuplexBridge bridge(run, s,
+                        {{s.tracks[1].id, &mono, {2}, RecordingMonitor::Off, monoRange},
+                         {s.tracks[2].id, &stereo, {1, 0}, RecordingMonitor::PostEq, stereoRange}},
+                        3, CaptureBackend::Synthetic);
+    Source src;
+    for (unsigned n = 0; n < blocks; ++n) {
+        delayedInput(src, run.position(), 128, 0, 700);
+        {
+            rt_audit::Guard guard;
+            bridge.process(src.clock, src.in, src.out, 256);
+        }
+        while (a->drainOne(mono)) {
+        }
+        while (b->drainOne(stereo)) {
+        }
+        src.advance();
+    }
+    const auto at = run.position();
+    delayedInput(src, at, 128, 0, 700);
+    src.clock.xrun = true;
+    {
+        rt_audit::Guard guard;
+        check(bridge.process(src.clock, src.in, src.out, 256) == DuplexStatus::ClockDiscontinuity,
+              "Musical punch masked interruption between lane windows");
+    }
+    bridge.finishQuiescent();
+    run.waitReader();
+    while (a->drainOne(mono)) {
+    }
+    while (b->drainOne(stereo)) {
+    }
+    a.reset();
+    b.reset();
+    for (unsigned t = 0; t < 2; ++t) {
+        const auto range = t ? stereoRange : monoRange;
+        const auto count = std::clamp<Frame>(at - range.begin, 0, 317);
+        auto &pipe = t ? stereo : mono;
+        const auto job = t ? stereoJob : monoJob;
+        const auto j = inspectRecording(job, {}, true);
+        check(j.committedFrames == count && bridge.capturedFrames(t) == count &&
+                  pipe.endReason() == (count == 317 ? CaptureEndReason::RangeComplete
+                                                    : CaptureEndReason::ClockDiscontinuity),
+              "Musical interruption lost prefix or overwrote a completed lane");
+        if (!count) {
+            check(!j.timingOrigin && !pipe.timingOrigin(),
+                  "Unstarted delayed lane fabricated origin");
+            rejects([&] { (void)recoverRecording(d.root, job); });
+        } else {
+            const auto originalHash = hashMediaFile(j.source),
+                       journalHash = hashMediaFile(job / "journal.json");
+            const auto recovered = recoverRecording(d.root, job);
+            musicalTake(d.root, recovered, {timeline.begin, timeline.begin + count}, t ? 700 : 0,
+                        t == 1);
+            auto attached = s;
+            attachRecording(attached, recovered);
+            check(attached.tracks[t + 1].clips.back().startFrame == timeline.begin &&
+                      attached.tracks[t + 1].clips.back().lengthFrames == count &&
+                      hashMediaFile(j.source) == originalHash &&
+                      hashMediaFile(job / "journal.json") == journalHash &&
+                      inspectRecording(
+                          d.root / utf8Path(recovered.asset.relativePath).parent_path(), {}, true)
+                              .timingOrigin == j.timingOrigin,
+                  "Musical recovery changed original media/journal/origin/alignment");
+        }
+    }
+}
+void laneOriginPreflight() {
+    for (bool overflow : {false, true}) {
+        Directory d;
+        auto s = session(d.root);
+        MixPlaybackRun run(d.root, s, plan(s), playback());
+        CapturePipe mono(capture(149)), stereo(capture(169, {LayoutKind::Stereo, 2}));
+        DuplexBridge bridge(
+            run, s,
+            {{s.tracks[1].id, &mono, {2}, RecordingMonitor::Off, PunchRange{149, 201}},
+             {s.tracks[2].id, &stereo, {1, 0}, RecordingMonitor::PostEq, PunchRange{169, 221}}},
+            3, CaptureBackend::Synthetic);
+        rejects([&] {
+            DuplexBridge bad(
+                run, s, {{s.tracks[1].id, &mono, {2}, RecordingMonitor::Off, PunchRange{149, 201}}},
+                3, CaptureBackend::Synthetic, 256 * 1024 * 1024, PunchRange{149, 201});
+        });
+        for (auto range : {PunchRange{148, 201}, PunchRange{149, 149}, PunchRange{149, 4100},
+                           PunchRange{136, 201}})
+            rejects([&] {
+                DuplexBridge bad(run, s,
+                                 {{s.tracks[1].id, &mono, {2}, RecordingMonitor::Off, range}}, 3,
+                                 CaptureBackend::Synthetic);
+            });
+        Source src;
+        src.prepare(137, 128);
+        src.clock.monotonicNs = overflow ? UINT64_MAX - 500000 : 0;
+        DuplexStatus status;
+        {
+            rt_audit::Guard guard;
+            status = bridge.process(src.clock, src.in, src.out, 256);
+        }
+        if (overflow)
+            check(status == DuplexStatus::ClockDiscontinuity && !mono.timingOrigin() &&
+                      !stereo.timingOrigin() && !bridge.timingOrigin() &&
+                      bridge.capturedFrames(0) == 0 && bridge.capturedFrames(1) == 0 &&
+                      run.position() == 137,
+                  "Later-lane timestamp overflow published an earlier lane/origin");
+        else
+            check(status == DuplexStatus::Running && mono.timingOrigin() && stereo.timingOrigin() &&
+                      mono.timingOrigin()->devicePosition == 10000000012ULL &&
+                      stereo.timingOrigin()->devicePosition == 10000000032ULL &&
+                      mono.timingOrigin()->monotonicNs == 0 &&
+                      stereo.timingOrigin()->monotonicNs == 0,
+                  "Per-lane unknown origin timestamp was fabricated");
+        bridge.requestStop();
+        bridge.finishQuiescent();
+        run.waitReader();
+    }
+}
 void nearFrameLimit() {
     Directory d;
     auto s = makeOneTrackSession("High frame position", "Raw");
@@ -479,6 +863,20 @@ int main() {
         interruption(false, true);
         originOverflowAndUnknown();
         nearFrameLimit();
+        for (auto latency :
+             std::vector<std::pair<Frame, Frame>>{{0, 77}, {77, 0}, {13, 300}, {300, 13}})
+            for (const auto &quanta :
+                 std::vector<std::vector<unsigned>>{{1}, {7}, {127}, {256}, {3, 127, 17, 256, 1}})
+                musicalPartitions({503, 1291}, latency.first, latency.second, quanta, true);
+        for (auto range : {PunchRange{139, 140}, PunchRange{503, 4099}, PunchRange{503, 560},
+                           PunchRange{137, 503}})
+            for (bool reverse : {false, true})
+                musicalPartitions(range, 0, 700, {3, 127, 17, 256, 1}, reverse);
+        musicalOwner();
+        for (unsigned blocks : {2u, 6u, 9u, 12u})
+            musicalInterruption(blocks);
+        musicalLimits();
+        laneOriginPreflight();
         const auto c = rt_audit::counts;
         check(c.cppAllocate + c.cppFree + c.cAllocate + c.cFree + c.blockingLock == 0,
               "Punch callback allocated/freed or took a blocking lock");
@@ -487,6 +885,7 @@ int main() {
             << ",\"boundary_partition_workflows\":25,"
                "\"raw_sample_oracle\":true,\"aliased_monitor_file_oracle\":true,"
                "\"origin_alignment_save_reopen_undo\":true,\"interrupted_prefix_recovery\":true,"
+               "\"musical_latency_partition_workflows\":28,\"per_lane_origins_postroll\":true,"
                "\"rt_violations\":0,\"native_audio\":false}\n";
     } catch (const std::exception &e) {
         std::cerr << "FAIL: " << e.what() << '\n';
