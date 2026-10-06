@@ -74,6 +74,81 @@ int main() {
             summary(cpuMissing)["cpu_clock_failures"] == 1);
     require(summary(variable)["cpu_timing_requested"] == false &&
             summary(variable)["complete_cpu_coverage"] == false);
+    using native_fixture::ThreadUsage;
+    using native_fixture::usageDelta;
+    const ThreadUsage before{1000, 2000, 5, 6, 7, 8, true};
+    const ThreadUsage after{2000, 5000, 7, 6, 8, 11, true};
+    const auto delta = usageDelta(before, after);
+    require(delta.known && delta.userNs == 1000 && delta.systemNs == 3000 &&
+            delta.minorFaults == 2 && delta.majorFaults == 0 && delta.voluntarySwitches == 1 &&
+            delta.involuntarySwitches == 3 && !usageDelta({}, after).known);
+    for (unsigned field = 0; field < 6; ++field) {
+        auto backwards = after;
+        switch (field) {
+        case 0:
+            backwards.userNs = before.userNs - 1;
+            break;
+        case 1:
+            backwards.systemNs = before.systemNs - 1;
+            break;
+        case 2:
+            backwards.minorFaults = before.minorFaults - 1;
+            break;
+        case 3:
+            backwards.majorFaults = before.majorFaults - 1;
+            break;
+        case 4:
+            backwards.voluntarySwitches = before.voluntarySwitches - 1;
+            break;
+        default:
+            backwards.involuntarySwitches = before.involuntarySwitches - 1;
+            break;
+        }
+        require(!usageDelta(before, backwards).known);
+    }
+    const auto liveBefore = native_fixture::threadUsageNow();
+    const auto liveAfter = native_fixture::threadUsageNow();
+    require(liveBefore.known && liveAfter.known && usageDelta(liveBefore, liveAfter).known);
+    c.duration = 4; // 40us native period.
+    c.monotonicNs = 100000;
+    DurationTiming usage(2, true, true);
+    usage.record(3000, &c, 100900, 2500, true, delta);
+    c.monotonicNs = 150000;
+    c.position = 123;
+    const ThreadUsage later{1000, 1000, 0, 1, 0, 0, true};
+    usage.record(2000, &c, 200000, 1500, true, later);
+    auto u = summary(usage);
+    require(u["complete_thread_usage_coverage"] == true && u["thread_usage_samples"] == 2 &&
+            u["thread_usage_totals"]["system_ns"] == 4000 && u["maximum_system_ns"] == 3000 &&
+            u["thread_usage_totals"]["minor_faults"] == 2 && u["maximum_major_faults"] == 1 &&
+            u["maximum_callback_thread_usage"]["system_ns"] == 3000 &&
+            u["maximum_callback_thread_usage"]["involuntary_switches"] == 3 &&
+            u["cycle_context_samples"] == 2 && u["cycle_context_unknown"] == 0 &&
+            u["callback_end_after_cycle_period_count"] == 1 &&
+            u["maximum_callback_end_after_cycle_ns"] == 52000 &&
+            u["maximum_cycle_callback_wall_ns"] == 2000 &&
+            u["maximum_cycle_callback_cpu_ns"] == 1500 &&
+            u["maximum_cycle_clock"]["position"] == 123 &&
+            u["maximum_cycle_thread_usage"]["major_faults"] == 1);
+    // Larger cycle context and wall maximum survive fixed-store overflow, with
+    // missing CPU/resource measurements explicit rather than copied from earlier calls.
+    c.monotonicNs = 200000;
+    usage.record(50000, &c, 230000);
+    u = summary(usage);
+    require(u["complete_thread_usage_coverage"] == false && u["thread_usage_failures"] == 1 &&
+            u["maximum_callback_thread_usage"]["known"] == false &&
+            u["maximum_cycle_thread_usage"]["known"] == false &&
+            u["maximum_cycle_callback_cpu_known"] == false &&
+            u["maximum_callback_end_after_cycle_ns"] == 80000 && u["dropped_samples"] == 1 &&
+            u["complete_timing_coverage"] == false);
+    DurationTiming cycleBoundary(3);
+    cycleBoundary.record(30000, &c, 210000); // Exactly at native period end.
+    cycleBoundary.record(1, &c, 199999);     // Future/jittered cycle timestamp: unknown context.
+    cycleBoundary.record(UINT64_MAX, &c, 200001); // Overflow: unknown context.
+    u = summary(cycleBoundary);
+    require(u["callback_end_after_cycle_period_count"] == 0 && u["cycle_context_samples"] == 1 &&
+            u["cycle_context_unknown"] == 2 && u["thread_usage_requested"] == false &&
+            u["complete_thread_usage_coverage"] == false);
     DurationTiming empty(1);
     require(summary(empty)["complete_timing_coverage"] == false);
 }

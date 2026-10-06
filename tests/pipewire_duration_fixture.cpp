@@ -55,7 +55,7 @@ struct DiskTiming {
     }
 };
 struct Audit {
-    native_fixture::DurationTiming timing{1000000, true};
+    native_fixture::DurationTiming timing{1000000, true, true};
     std::atomic<std::uint64_t> allocations{0}, frees{0}, locks{0};
     static void begin(void *p) noexcept {
         auto &a = *static_cast<Audit *>(p);

@@ -948,3 +948,66 @@ recovery/read handle terminates. Preserve exact range/sample/timing gates and
 all historical failures. If late sink cycles recur, measure composed cycle timing
 and scheduling/processing evidence; if storage backlog recurs, investigate
 coordinated publication or filesystem service costs without relaxing durability.
+
+## 2026-10-06 continuation: M2d4c5 native resource/cycle diagnosis
+
+Previous `c60b5d8` is progress: production checkpoint correction, actual flush-error
+recovery, scoped tests/evidence and local commit. This turn confirms exact handle
+38556 remains live, then terminal exit 1 after 161.37 wall seconds, without source
+edits/rebuilds during it. Exact read-only verification handle 53524 terminates
+successfully before any related edit. No expired observation causes a restart.
+
+The unchanged 1800-second attempt stops around 145.9 audio seconds on a 1,024-frame
+sink clock skip. All 32 raw lanes retain 7,001,088 frames, no rejection or missing
+file samples; sink retains 6,999,040. All 224,034,816 full raw and 13,998,080 common
+stereo samples verify exactly, including overs/extra raw suffix; all 105 original
+files, hashes, journals and canonical state stay unchanged. Defaults/prior links
+remain and owned routes retire. No attachment/Save/trim changes that original.
+
+All individual wall/CPU coverage and finite budgets pass. Maximum owner wall
+16.722020ms and CPU 16.718543ms occur at the skipped cycle. Start is 4.939578ms
+after native nsec, finish 21.661598ms after it versus a 21.333333ms period.
+Native timestamp jitter means no exact physical deadline claim. Original kernel/
+user/fault/switch components remain unknown. Disk queue max 1, flush 76.732782ms,
+journal 91.409512ms: no pool exhaustion; historical storage cause stays unresolved.
+
+Add optional Linux calling-thread getrusage snapshots inside existing fixture CPU/
+wall timing. Validate times/signs/bounds and every backwards counter; unknown
+intervals remain explicit. Fixed totals/maxima retain user/system time, page faults
+and context switches, including context associated with maximum wall callback.
+Timeval accounting can differ from thread CPU clock and is not pure DSP time.
+An independent maximum from native cycle timestamp to callback end retains its
+own clock/start/wall/CPU/resource context; missing/future/jittered/overflow context
+is explicit. It is context, not a physical-deadline gate. Existing million16-byte
+wall samples, quantiles, coverage and 60%/80% limits stay unchanged. No production
+processor, RT query/logging/allocation/lock, routing/buffer/durability/schema or
+library/license change; helper defaults off, native fixture explicitly opts in.
+
+Release/Debug/SAN targeted timing tests pass in 0.01/0.01/0.08s, covering every
+counter regression, live reads, totals/associated distinct wall/cycle maxima,
+overflow/unknown retention and cycle-end boundaries. Four Linux fixture/helper/test
+sources change; prior production Debug/scoped sanitizer results remain at c60b5d8,
+including the unresolved desktop close timeout. Windows has no source/runtime
+change and still needs independent native/Qt/install qualification.
+
+A serial20s probe verifies 30,720,000 raw/1,920,000 stereo samples exactly, overs
+peak3.98858, Save/reopen, complete wall/CPU/resource coverage and unchanged finite
+budgets. Owner maxwall5.684524ms, maxend-after-cycle8.436455ms; no measured callback
+page faults/switches or end beyond native interval. Resource user5.436ms/system0
+at the worst callback retains the accounting-resolution caveat. This short probe
+does not explain the original long outlier or qualify sustained native operation.
+Only parity implementation/gap/evidence annotations change after its source pins.
+
+[Contract](44-native-thread-resource-diagnostics.md), [ADR-034](decisions/034-native-resource-and-composed-cycle-context.md)
+and [evidence](../tests/results/M2/2026-10-06-native-thread-resource-diagnostics.json)
+retain sixteen unresolved observations, exact launch/binary/source/phase/clock/
+media facts. All 24 borrowed equalizer inputs and heads match, no equalizer edits/
+new dependency/license/push/publication. All92 frozen acceptance/quality/reference/
+F/Q/C/N contracts remain intact and unpromoted; full goal active/incomplete.
+Windows, physical/load/filesystem/power-loss/unload, full professional workflows,
+X004/X005 and all-Europe qualification remain required.
+
+Next M2d4c6: the unchanged1800s native workload with resource/composed-cycle facts,
+serial after all handles terminate. Choose any actual processing/memory-residency/
+scheduling change from observed component evidence, retaining all historical faults
+and original sample/RT/current-period/full-duration gates.

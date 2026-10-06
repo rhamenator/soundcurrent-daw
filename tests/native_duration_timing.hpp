@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include "native_thread_usage.hpp"
 #include <soundcurrent/audio_bridge.hpp>
 #include <algorithm>
 #include <cstdint>
@@ -26,6 +27,14 @@ class DurationTiming {
     bool cpuRequested_ = false, maximumCpuKnown_ = false;
     std::uint64_t cpuBegin_ = 0, cpuSamples_ = 0, cpuFailures_ = 0, cpuTotal_ = 0;
     std::uint64_t maximumCpu_ = 0, maximumNonCpu_ = 0, maximumWallCpu_ = 0;
+    bool usageRequested_ = false;
+    ThreadUsage usageBegin_{}, usageTotal_{}, maximumWallUsage_{}, maximumCycleUsage_{};
+    std::uint64_t usageSamples_ = 0, usageFailures_ = 0, maximumSystem_ = 0;
+    std::uint64_t maximumMinor_ = 0, maximumMajor_ = 0;
+    std::uint64_t cycleSamples_ = 0, cycleUnknown_ = 0, cycleOverruns_ = 0, maximumCycleEnd_ = 0;
+    std::uint64_t maximumCycleStart_ = 0, maximumCycleWall_ = 0, maximumCycleCpu_ = 0;
+    bool maximumCycleCpuKnown_ = false;
+    soundcurrent::daw::DeviceBlockClock maximumCycleClock_{};
     static std::uint64_t cpuNow() noexcept {
         timespec t{};
         return clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t) == 0
@@ -40,12 +49,14 @@ class DurationTiming {
     }
 
   public:
-    explicit DurationTiming(std::size_t capacity = 1000000, bool captureCpu = false)
-        : samples_(capacity), cpuRequested_(captureCpu) {}
+    explicit DurationTiming(std::size_t capacity = 1000000, bool captureCpu = false,
+                            bool captureUsage = false)
+        : samples_(capacity), cpuRequested_(captureCpu), usageRequested_(captureUsage) {}
     void begin() noexcept {
         clockKnown_ = false;
         begin_ = now();
         cpuBegin_ = cpuRequested_ ? cpuNow() : 0;
+        usageBegin_ = usageRequested_ ? threadUsageNow() : ThreadUsage{};
     }
     void clock(const soundcurrent::daw::DeviceBlockClock &c) noexcept {
         clock_ = c;
@@ -53,8 +64,22 @@ class DurationTiming {
     }
     // Public deterministic feed for quantile/overflow acceptance; no allocation.
     void record(std::uint64_t ns, const soundcurrent::daw::DeviceBlockClock *c,
-                std::uint64_t started = 0, std::uint64_t cpuNs = 0,
-                bool cpuKnown = false) noexcept {
+                std::uint64_t started = 0, std::uint64_t cpuNs = 0, bool cpuKnown = false,
+                ThreadUsage usage = {}) noexcept {
+        if (usage.known) {
+            ++usageSamples_;
+            usageTotal_.known = true;
+            usageTotal_.userNs += usage.userNs;
+            usageTotal_.systemNs += usage.systemNs;
+            usageTotal_.minorFaults += usage.minorFaults;
+            usageTotal_.majorFaults += usage.majorFaults;
+            usageTotal_.voluntarySwitches += usage.voluntarySwitches;
+            usageTotal_.involuntarySwitches += usage.involuntarySwitches;
+            maximumSystem_ = std::max(maximumSystem_, usage.systemNs);
+            maximumMinor_ = std::max(maximumMinor_, usage.minorFaults);
+            maximumMajor_ = std::max(maximumMajor_, usage.majorFaults);
+        } else if (usageRequested_)
+            ++usageFailures_;
         if (cpuKnown && cpuNs <= ns) {
             ++cpuSamples_;
             cpuTotal_ += cpuNs;
@@ -78,11 +103,31 @@ class DurationTiming {
         }
         if (!period)
             ++missing_;
+        // Native cycle timestamps have jitter. This is context, not a physical
+        // deadline gate or a replacement for callback-period/sample qualification.
+        if (period && c->monotonicNs && started >= c->monotonicNs &&
+            ns <= UINT64_MAX - (started - c->monotonicNs)) {
+            ++cycleSamples_;
+            const auto cycleEnd = started - c->monotonicNs + ns;
+            if (cycleEnd > period)
+                ++cycleOverruns_;
+            if (cycleSamples_ == 1 || cycleEnd > maximumCycleEnd_) {
+                maximumCycleEnd_ = cycleEnd;
+                maximumCycleStart_ = started;
+                maximumCycleWall_ = ns;
+                maximumCycleCpuKnown_ = cpuKnown;
+                maximumCycleCpu_ = cpuKnown ? cpuNs : 0;
+                maximumCycleClock_ = *c;
+                maximumCycleUsage_ = usage;
+            }
+        } else
+            ++cycleUnknown_;
         if (!calls_ || ns > maximum_) {
             maximum_ = ns;
             maximumStart_ = started;
             maximumCpuKnown_ = cpuKnown;
             maximumWallCpu_ = cpuKnown ? cpuNs : 0;
+            maximumWallUsage_ = usage;
             maximumClockKnown_ = c != nullptr;
             maximumClock_ = c ? *c : soundcurrent::daw::DeviceBlockClock{};
         }
@@ -93,6 +138,8 @@ class DurationTiming {
         ++calls_;
     }
     void end() noexcept {
+        const auto usage =
+            usageRequested_ ? usageDelta(usageBegin_, threadUsageNow()) : ThreadUsage{};
         const auto cpuFinished = cpuRequested_ ? cpuNow() : 0;
         const auto finished = now();
         if (!begin_ || finished < begin_) {
@@ -101,7 +148,7 @@ class DurationTiming {
         }
         const bool cpuKnown = cpuRequested_ && cpuBegin_ && cpuFinished >= cpuBegin_;
         record(finished - begin_, clockKnown_ ? &clock_ : nullptr, begin_,
-               cpuKnown ? cpuFinished - cpuBegin_ : 0, cpuKnown);
+               cpuKnown ? cpuFinished - cpuBegin_ : 0, cpuKnown, usage);
     }
     void write(std::ostream &out) const {
         const auto count = std::min<std::uint64_t>(calls_, samples_.size());
@@ -155,7 +202,41 @@ class DurationTiming {
             << ",\"rate_numerator\":" << maximumClock_.rateNumerator
             << ",\"rate_denominator\":" << maximumClock_.rateDenominator
             << ",\"xrun\":" << (maximumClock_.xrun ? "true" : "false")
-            << ",\"discontinuity\":" << (maximumClock_.discontinuity ? "true" : "false") << "}}";
+            << ",\"discontinuity\":" << (maximumClock_.discontinuity ? "true" : "false") << "}"
+            << ",\"thread_usage_requested\":" << (usageRequested_ ? "true" : "false")
+            << ",\"thread_usage_samples\":" << usageSamples_
+            << ",\"thread_usage_failures\":" << usageFailures_
+            << ",\"complete_thread_usage_coverage\":"
+            << (usageRequested_ && calls_ && usageSamples_ == calls_ && !usageFailures_ &&
+                        !failures_
+                    ? "true"
+                    : "false")
+            << ",\"maximum_system_ns\":" << maximumSystem_
+            << ",\"maximum_minor_faults\":" << maximumMinor_
+            << ",\"maximum_major_faults\":" << maximumMajor_ << ",\"thread_usage_totals\":";
+        writeUsage(out, usageTotal_);
+        out << ",\"maximum_callback_thread_usage\":";
+        writeUsage(out, maximumWallUsage_);
+        out << ",\"cycle_context_samples\":" << cycleSamples_
+            << ",\"cycle_context_unknown\":" << cycleUnknown_
+            << ",\"callback_end_after_cycle_period_count\":" << cycleOverruns_
+            << ",\"maximum_callback_end_after_cycle_ns\":" << maximumCycleEnd_
+            << ",\"maximum_cycle_callback_start_monotonic_ns\":" << maximumCycleStart_
+            << ",\"maximum_cycle_callback_wall_ns\":" << maximumCycleWall_
+            << ",\"maximum_cycle_callback_cpu_known\":"
+            << (maximumCycleCpuKnown_ ? "true" : "false")
+            << ",\"maximum_cycle_callback_cpu_ns\":" << maximumCycleCpu_
+            << ",\"maximum_cycle_thread_usage\":";
+        writeUsage(out, maximumCycleUsage_);
+        out << ",\"maximum_cycle_clock\":{\"position\":" << maximumCycleClock_.position
+            << ",\"duration\":" << maximumCycleClock_.duration
+            << ",\"id\":" << maximumCycleClock_.id << ",\"cycle\":" << maximumCycleClock_.cycle
+            << ",\"nsec\":" << maximumCycleClock_.monotonicNs
+            << ",\"rate_numerator\":" << maximumCycleClock_.rateNumerator
+            << ",\"rate_denominator\":" << maximumCycleClock_.rateDenominator
+            << ",\"xrun\":" << (maximumCycleClock_.xrun ? "true" : "false")
+            << ",\"discontinuity\":" << (maximumCycleClock_.discontinuity ? "true" : "false")
+            << "}}";
     }
 };
 } // namespace native_fixture

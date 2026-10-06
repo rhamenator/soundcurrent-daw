@@ -264,3 +264,8 @@ wall/CPU timing. [One checked audio flush](43-recording-checked-flush.md) remove
 source-proven duplicate OS sync while retaining journal ordering and tests actual
 flush-error recovery. All 92 acceptance/quality/reference/F/Q/C/N contracts remain
 unchanged. Full-duration, physical, Windows and other reliability gates stay open.
+
+M2d4c5 retains a later sink-cycle failure despite passing individual callback
+budgets and small disk queues. [Thread resource/cycle context](44-native-thread-resource-diagnostics.md)
+adds optional fixture diagnosis; short coverage does not qualify long native or
+physical timing. All 92 frozen contracts and F/Q/C/N statuses remain unchanged.
