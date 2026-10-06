@@ -1,0 +1,233 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2a structural audio-track/clip command foundation",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "642f6be82d284d32402fe3cfcbc5ed39b0ca8b74",
+  "status": "scoped foundation passed; M2 and full product incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "56d01a903427a40c323a8bcb9f2604c3f8dbeb4d45646fc896225134038cf2d1",
+    "include/soundcurrent/session.hpp": "8861bbad1d1ca0af7004bcda3b5d7d041df837baeb251c85b616adaf1a83699f",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/session.cpp": "fc4fa35d9c27734a7f6a193df8ef9bb06dcc2ad3ac8aba7a4600d8e99f1ee05d",
+    "src/session_edits.cpp": "48224c0ae61aaeb3155f4d3271ecbc1994d33e0eeceb7d2372a741462c96c7a6",
+    "tests/controller_tests.cpp": "4e31229d5d4c3e12897eaf62f0d5d2930a130a1de923f54c0cf5ab2f29aebc64",
+    "tests/editing_tests.cpp": "992556bc7162843e58114a4f2fdd4c922e6a8d2ac66e2371287df26132411376",
+    "tests/pipewire_recording_ui_fixture.cpp": "ac2f9e5d9068c870fc2c614f7c2844ce0489ba9df4e162f54027a21583daeac9",
+    "tests/ui_tests.cpp": "f746c93cab6050e5513a9df87d6ad877a03e5f54745dc7df37a246d81a355c56",
+    "tests/verify_editing_cli.py": "3baa6c45b5bd86446b87005724ac4eb37bb0898eb567668cb83d4752c79fd789",
+    "tests/verify_pipewire_fixture.py": "7ae4c37cc225e8addc557b149c14fcba2cd1ce154cc7c98fd214dd6a84c95ab5",
+    "tools/project_tool.cpp": "d8c8427d1aebd9e81c78e5618168e5e2c2165de2b348360308287fa4b703a7c8",
+    "ui/project_controller.cpp": "612d5953f1089f2791f4d225d6dcda93fc32d384342f9a359bb593df8ef9f7b4",
+    "ui/project_controller.hpp": "1aef846c15bda5a97a60e61c40765b13a08035dfa01ccbb63d0db1fac9e8e00b"
+  },
+  "workflows": [
+    "Stable-ID audio-track insert/remove/rename/reorder; mono/stereo/discrete factory and low-rate Nyquist-safe defaults",
+    "Stable-ID clip insert/remove/non-destructive range/cross-track move/interior split with fresh right ID and preserved left/source identity",
+    "Atomic 1-64 edit groups with full preflight; invalid members roll back the whole group and preserve active gesture",
+    "Mixed scoped structural/scalar/route/monitor/take-admission Undo/Redo, no-op Redo preservation and conflict rollback",
+    "Retained history limited to 256 groups and 32 MiB conservatively counted payload, oldest complete-unit retirement",
+    "Verified asynchronous take admission uses latest canonical model; removal during verification rejects admission, restore/retry succeeds",
+    "Take Undo detaches metadata/export extent while raw files remain unchanged; exact-object Redo and actual desktop recovery Undo/Redo",
+    "Captured save and accepted-prefix barrier correctness while structural edits continue; exact save/reopen state",
+    "Developer CLI persisted track/clip operations, Unicode names/path, failure/no-op file preservation"
+  ],
+  "frozen_family_decomposition": {
+    "P008": {
+      "subset": "eight-track start/source-coordinate offsets preserved by grouped edits/Undo",
+      "remaining": "selection UI, comp/takes/linked warps, rendered/native phase and frozen-reference comparisons",
+      "F": "unverified",
+      "Q": "unverified"
+    },
+    "P009": {
+      "subset": "split/trim preserve independent deterministic source-coordinate oracle",
+      "remaining": "fade/crossfade models/curves/render/UI and reference options/defaults",
+      "F": "unverified",
+      "Q": "unverified"
+    },
+    "P086": {
+      "subset": "mixed group/route/mode/scalar/take admission history, conflicts, raw-file preservation",
+      "remaining": "preset and later editor domains, history browser, durable policy and full reference workflow",
+      "F": "unverified",
+      "Q": "unverified"
+    },
+    "P001": "infrastructure only; no 32-track capture acceptance supplied"
+  },
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "groups": 20,
+      "seconds": 18.18,
+      "log": {
+        "path": ".cache/m2-edits-optimized-debug-tests.log",
+        "sha256": "c5cc8a1814a2895652fc3cb14f925d86f75e2fbe7d3c461430535fed3d9de181"
+      },
+      "build": {
+        "path": ".cache/m2-edits-optimized-debug-build.log",
+        "sha256": "4a63bc4a90c7d0107c458ce0277a2771f91214042087af7067d3810963bd5bde"
+      }
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 20,
+      "seconds": 47.61,
+      "sanitizers": [
+        "ASan",
+        "UBSan",
+        "LSan"
+      ],
+      "environment": "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1",
+      "log": {
+        "path": ".cache/m2-edits-optimized-sanitized-tests.log",
+        "sha256": "57e31dc9dda4e6e0328b670d204a512b35892a4770b70b1a796749cd57120ce8"
+      },
+      "build": {
+        "path": ".cache/m2-edits-optimized-sanitized-build.log",
+        "sha256": "784e3cf5c6e04155a8fd54a2579673959b715ad3a1b7876b51c71f10b92aef53"
+      }
+    },
+    "domain": {
+      "checks": 72,
+      "debug_seconds": 1.75,
+      "sanitized_seconds": 8.69,
+      "test_timeout_seconds": 60,
+      "scope": [
+        "split source-coordinate oracle",
+        "trim/move geometry",
+        "mixed history/active-gesture/expected-value conflicts",
+        "eight-track grouped offsets",
+        "maximum 64-operation valid group and 65-operation rejection",
+        "256 track limit and last-track restoration",
+        "256 history count retirement",
+        "1024-clip track retained byte-budget retirement across 150 renames"
+      ]
+    },
+    "controller": {
+      "checks": 286,
+      "scope": "group/gesture/captured-save/barrier/reopen plus blocked admission target removal/restoration/retry/Undo/raw hash preservation"
+    },
+    "desktop": {
+      "checks": 325,
+      "scope": "existing UI workflows plus actual recovery admission Undo/Redo, automatic inventory refresh, save/reopen and passive audio"
+    },
+    "developer_cli": {
+      "result": "passed",
+      "result_data": {
+        "checks": 43,
+        "owned_synthetic_frames": 480000,
+        "raw_sha256_preserved": "556d098f2fb226a534e31dc5387af635d5009e668456ef33994c7fc681cb1fed",
+        "native_audio_actions": false,
+        "unicode_path_names": true,
+        "failed_commands_preserve_project": true,
+        "no_op_preserves_project_previous_and_mtime": true
+      },
+      "log": {
+        "path": ".cache/m2-edits-final-cli.log",
+        "sha256": "5b209e35bd587a32521b67b06c5b8fd057740edb00aeff8c4ce9e76dfbe6cd8d"
+      }
+    },
+    "windows": {
+      "result": "MinGW headless core/tools/tests cross-build passed including sc-editing-tests.exe and edited project tool",
+      "runtime": false,
+      "qt_gui": false,
+      "native_audio": false,
+      "log": {
+        "path": ".cache/m2-edits-optimized-windows-build.log",
+        "sha256": "f75b79f39a1020d630359e3c5dcefa4b0c54a98f2ae15091818132028d1def1a"
+      }
+    },
+    "native_linux_regression": {
+      "result": "passed",
+      "results": [
+        {
+          "mode": "roundtrip",
+          "frames": 480000,
+          "owned_nodes_only": true,
+          "gui_recording": true,
+          "monitoring_off": false,
+          "raw_exact": true,
+          "monitor_compared_frames": 480000,
+          "missing_monitor_frames": 0,
+          "live_offline_difference": 0,
+          "applied_events": 2,
+          "first_applied_frame": 24576,
+          "input_disconnect_observed": false,
+          "gui_save_reopen": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "routing_intent_saved": true,
+          "relocated_native_reopen": true,
+          "desktop_export_frames": 480000,
+          "export_direct_eq_difference": 0,
+          "export_native_prefix_difference": 0,
+          "routing_observations": {
+            "graph_snapshots_during_run": 84,
+            "snapshots_with_owned_links": 76,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          }
+        }
+      ],
+      "scope": "existing first-track owned roundtrip, not multitrack native acceptance",
+      "log": {
+        "path": ".cache/m2-edits-native.log",
+        "sha256": "4e238aca4f632f867a979c58051d7965328e1167d5f66cb022fd3970f316401f"
+      },
+      "result_receipt": {
+        "path": ".cache/m2-edits-native.json",
+        "sha256": "4e238aca4f632f867a979c58051d7965328e1167d5f66cb022fd3970f316401f"
+      }
+    }
+  },
+  "initial_failure_and_resolution": {
+    "result": "initial sanitizer multitrack history stress timed out at unchanged 60-second gate; other 19 groups passed",
+    "log": {
+      "path": ".cache/m2-edits-sanitized-tests.log",
+      "sha256": "fa1267b839258ee29029b20fcba17b0cdb3577e9489f9b8b45309cb25e21c777"
+    },
+    "resolution": "Validation now reads the exact visited band instead of repeating whole-session parameter-address searches. Byte retirement fixture uses one 1024-clip track across 150 retained renames instead of repeatedly validating 64 long-name tracks per operation. A separate full 64-operation valid group remains. Same count/byte/transaction limits; final full debug and sanitizer suites pass.",
+    "not_claimed": "No load/deadline/native physical performance certification"
+  },
+  "equalizer_reuse_recheck": {
+    "result": "all 24 registered inputs match; retained snapshots valid",
+    "repositories": {
+      "soundcurrent-eq": {
+        "head": "080195a85be163cf8e4b1516745c63f43f317700",
+        "inputs": 12,
+        "head_changed": false
+      },
+      "soundcurrent-studio": {
+        "head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+        "inputs": 12,
+        "head_changed": false
+      }
+    },
+    "receipt": {
+      "path": ".cache/m2-edits-final-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "source_writes": false,
+    "adopted_update_needed": false
+  },
+  "limitations": [
+    "History retained payload accounting is not a hard allocator/RSS bound. In-flight copies can exceed retained bytes; no RT edit execution.",
+    "CLI commands save separately and do not persist an Undo stack across processes.",
+    "Desktop track/clip selection/timeline and graph integration remain next; current transport still prepares its first track.",
+    "Undo/Redo of admitted media does not rehash on Redo; later playback/export preparation performs media validation. No raw-file garbage collection.",
+    "Coordinate fixtures are not physical linked-mic phase, multitrack DSP/render timing or reference parity evidence.",
+    "Current native run had zero pre-existing links. Defaults stayed unchanged; no owned-to-unowned links were observed; owned routes were cleaned up."
+  ],
+  "remaining_gates": [
+    "M2 multitrack shared clock/live/offline graph, simultaneous overdub, punch/loop/takes/comping/fades/group selection and full recording/editing acceptance",
+    "Autosave/edit journals, durable Undo policy, project snapshot recovery, missing-media relinking/backups",
+    "Independent M1 physical alignment/reconnect/load/deadline, filesystem/power-loss/>4 GiB and normal PipeWire module-unload memory",
+    "Native Windows Qt/audio/installer/runtime and same full workflows",
+    "X004 native imports; X005 monitoring/printing/portable pins/measurement/rights",
+    "All frozen 92-family functional/quality/content/native-project parity and all-Europe language/translation/review/UI qualification"
+  ],
+  "next_implementation": "Desktop stable track/clip selection and timeline bindings, then bounded shared-clock live/offline multitrack graph and simultaneous overdub.",
+  "publication": "No push/publication; no equalizer checkout or physical/default-audio changes."
+}

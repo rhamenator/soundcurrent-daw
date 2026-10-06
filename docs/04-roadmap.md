@@ -79,3 +79,10 @@ review and verified consent/copy on a separate I/O owner. [Contract](28-recordin
 Continue M2 multitrack editing/selection/timeline, prepared shared-clock playback
 and simultaneous capture while independent M1 platform/physical/durability gates
 remain open; the frozen product target is unchanged.
+
+
+M2a introduces [grouped stable-ID track/clip edits](29-multitrack-edits.md), scoped
+count/byte-bounded mixed history and verified take-admission Undo. Developer CLI
+persistence is available; next implement desktop selection/timeline, shared-clock
+prepared graph and simultaneous overdub. Full M2 and independent M1 gates remain
+open, with no frozen parity completion inferred.

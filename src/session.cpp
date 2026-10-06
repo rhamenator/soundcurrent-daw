@@ -177,9 +177,9 @@ ParameterDescriptor descriptor(BandParameter p) {
     }
     throw ProjectError(ErrorCode::InvalidParameter, "Unknown parameter");
 }
-double parameterValue(const Session &s, const ParameterAddress &a) {
-    const auto &b = findBand(s, a);
-    switch (a.parameter) {
+namespace {
+double bandValue(const EqBand &b, BandParameter parameter) {
+    switch (parameter) {
     case BandParameter::FrequencyHz:
         return b.frequencyHz;
     case BandParameter::GainDb:
@@ -188,6 +188,10 @@ double parameterValue(const Session &s, const ParameterAddress &a) {
         return b.q;
     }
     throw ProjectError(ErrorCode::InvalidParameter, "Unknown parameter");
+}
+} // namespace
+double parameterValue(const Session &s, const ParameterAddress &a) {
+    return bandValue(findBand(s, a), a.parameter);
 }
 void setParameterValue(Session &s, const ParameterAddress &a, double value) {
     const auto d = descriptor(a.parameter);
@@ -277,8 +281,7 @@ void validate(const Session &s) {
             for (const auto p :
                  {BandParameter::FrequencyHz, BandParameter::GainDb, BandParameter::Q}) {
                 const auto d = descriptor(p);
-                const ParameterAddress a{t.id, t.eq.id, b.id, p};
-                const auto v = parameterValue(s, a);
+                const auto v = bandValue(b, p); // Already visiting the exact validated object.
                 check(std::isfinite(v) && v >= d.minimum && v <= d.maximum, "Invalid EQ parameter");
             }
             check(b.frequencyHz < double(s.sampleRate) / 2, "EQ frequency exceeds Nyquist");
@@ -303,14 +306,7 @@ void validate(const Session &s) {
 Session makeOneTrackSession(std::string name, std::string trackName) {
     Session s;
     s.name = std::move(name);
-    Track t;
-    t.name = std::move(trackName);
-    for (const auto f : {100., 1000., 10000.}) {
-        EqBand b;
-        b.frequencyHz = f;
-        t.eq.bands.push_back(b);
-    }
-    s.tracks.push_back(std::move(t));
+    s.tracks.push_back(makeAudioTrack(std::move(trackName), {}, s.sampleRate));
     validate(s);
     return s;
 }
@@ -367,16 +363,10 @@ bool EditHistory::route(const RouteAddress &address, const RouteIntent &value) {
     const auto before = routeValue(session_, address);
     if (before == value)
         return false;
-    undo_.push_back(RouteChange{address, before, value});
-    try {
-        setRouteValue(session_, address, value);
-    } catch (...) {
-        undo_.pop_back();
-        throw;
-    }
-    if (undo_.size() > 256)
-        undo_.erase(undo_.begin());
-    redo_.clear();
+    auto proposed = session_;
+    setRouteValue(proposed, address, value);
+    retain(RouteChange{address, before, value});
+    session_ = std::move(proposed);
     return true;
 }
 RecordingMonitor monitoringValue(const Session &s, const Id &id) {
@@ -400,16 +390,10 @@ bool EditHistory::monitoring(const Id &id, RecordingMonitor value) {
     const auto before = monitoringValue(session_, id);
     if (before == value)
         return false;
-    undo_.push_back(MonitoringChange{id, before, value});
-    try {
-        setMonitoringValue(session_, id, value);
-    } catch (...) {
-        undo_.pop_back();
-        throw;
-    }
-    if (undo_.size() > 256)
-        undo_.erase(undo_.begin());
-    redo_.clear();
+    auto proposed = session_;
+    setMonitoringValue(proposed, id, value);
+    retain(MonitoringChange{id, before, value});
+    session_ = std::move(proposed);
     return true;
 }
 void EditHistory::begin(const ParameterAddress &address) {
@@ -425,10 +409,7 @@ void EditHistory::update(double value) {
 void EditHistory::commit() {
     check(active_.has_value(), "No active parameter gesture");
     if (active_->before != active_->after) {
-        undo_.push_back(*active_);
-        if (undo_.size() > 256)
-            undo_.erase(undo_.begin());
-        redo_.clear();
+        retain(*active_);
     }
     active_.reset();
 }
@@ -444,16 +425,7 @@ bool EditHistory::undo() {
     const auto change = undo_.back();
     redo_.push_back(change);
     try {
-        std::visit(
-            [&](const auto &c) {
-                if constexpr (std::is_same_v<std::decay_t<decltype(c)>, ParameterChange>)
-                    setParameterValue(session_, c.address, c.before);
-                else if constexpr (std::is_same_v<std::decay_t<decltype(c)>, RouteChange>)
-                    setRouteValue(session_, c.address, c.before);
-                else
-                    setMonitoringValue(session_, c.trackId, c.before);
-            },
-            change);
+        apply(change, false);
     } catch (...) {
         redo_.pop_back();
         throw;
@@ -468,16 +440,7 @@ bool EditHistory::redo() {
     const auto change = redo_.back();
     undo_.push_back(change);
     try {
-        std::visit(
-            [&](const auto &c) {
-                if constexpr (std::is_same_v<std::decay_t<decltype(c)>, ParameterChange>)
-                    setParameterValue(session_, c.address, c.after);
-                else if constexpr (std::is_same_v<std::decay_t<decltype(c)>, RouteChange>)
-                    setRouteValue(session_, c.address, c.after);
-                else
-                    setMonitoringValue(session_, c.trackId, c.after);
-            },
-            change);
+        apply(change, true);
     } catch (...) {
         undo_.pop_back();
         throw;

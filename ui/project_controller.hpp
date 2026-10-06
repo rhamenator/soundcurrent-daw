@@ -16,7 +16,8 @@ enum class CommandKind {
     Barrier,
     AttachRecording,
     Routing,
-    Monitoring
+    Monitoring,
+    Structural
 };
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
@@ -24,6 +25,7 @@ struct ProjectCommand {
     std::filesystem::path path;
     std::string name;
     std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
+    std::vector<SessionEdit> edits;                   // One atomic group, at most 64 operations.
     std::optional<RouteAddress> routeAddress;
     RouteIntent route;
     std::optional<Id> monitoringTrack;

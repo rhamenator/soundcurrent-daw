@@ -178,3 +178,12 @@ Axes are separately stored per row in [parity.json](../research/parity.json): F/
 - No negative vendor assertions are made for LV2, CLAP in Cubase, notation in Bitwig, proprietary formats or interruption recovery where evidence is U.
 - VST2/32-bit compatibility, object-audio/Dolby deliverables, Dorico/native projects, vendor controllers and bundled companion applications remain consequential rights/feasibility gaps. An alternative workflow is a proposed solution, not an automatic parity pass.
 - Before an F/Q/C/N claim, expand every family into observed suboptions and failure cases, run it in the frozen reference and SoundCurrent, keep evidence and record exceptions. All unknowns must be resolved or prominently accepted as known product gaps; marketing cannot silently drop them.
+
+
+## Implementation evidence checkpoints
+
+[M2a transactional track/clip editing](29-multitrack-edits.md) decomposes scoped
+P008/P009/P086 subsets and their remaining full acceptance workflows. Mixed
+in-memory Undo now includes verified raw-take admission, with files preserved.
+The original reference-family requirements and unverified F/Q/C/N axes remain
+intact; coordinate/state fixtures do not establish native or processing parity.

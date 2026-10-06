@@ -287,10 +287,20 @@ void recordedTakeAttachment(const std::filesystem::path &root) {
     const auto revision = extentFailure->modelRevision;
     submit(controller, {CommandKind::Undo});
     auto undone = await(controller, [&](const auto &v) { return v.modelRevision > revision; });
-    check(undone->session->tracks.front().eq.bands.front().gainDb == 0 &&
-              undone->session->assets.size() == 1 &&
-              undone->session->tracks.front().clips.size() == 1,
-          "Scalar undo damaged attached media");
+    check(undone->session->tracks.front().eq.bands.front().gainDb == 6 &&
+              undone->session->assets.empty() && undone->session->tracks.front().clips.empty(),
+          "Take undo lost intervening scalar edits or failed to detach");
+    check(inspectRecording(root / "media" / ("capture-" + take.spec.assetId.str())).finalized,
+          "Take undo deleted raw media");
+    submit(controller, {CommandKind::Undo});
+    auto scalarUndo =
+        await(controller, [&](const auto &v) { return v.modelRevision > undone->modelRevision; });
+    check(scalarUndo->session->tracks.front().eq.bands.front().gainDb == 0 &&
+              scalarUndo->session->assets.empty(),
+          "Scalar undo did not follow attachment undo");
+    submit(controller, {CommandKind::Redo});
+    submit(controller, {CommandKind::Redo});
+    await(controller, [&](const auto &v) { return *v.session == *attached->session; });
     submit(controller, {CommandKind::Save});
     await(controller, [](const auto &v) { return !v.dirty && v.io == IoOperation::None; });
     check(ProjectStore(root).load() == *controller.snapshot()->session,
@@ -553,6 +563,120 @@ void monitoringEdits(const std::filesystem::path &root) {
     check(!reopened->dirty && *reopened->session == *accepted->session, "Reopen lost saved mode");
 }
 
+void structuralEdits(const std::filesystem::path &root) {
+    Gate saveGate;
+    ProjectController controller({[&] { saveGate.block(); }, {}, {}});
+    ReleaseGate release{saveGate};
+    auto initial = create(controller, root);
+    const auto trackId = initial->session->tracks.front().id;
+    auto second = makeAudioTrack("Second — Українська", {}, initial->session->sampleRate);
+    auto batch = [&](std::vector<SessionEdit> edits) {
+        ProjectCommand c{CommandKind::Structural};
+        c.edits = std::move(edits);
+        return c;
+    };
+    submit(controller,
+           batch({InsertTrack{second, trackId}, RenameTrack{trackId, "Voice — Ελλάδα"}}));
+    auto added = await(controller, [&](const auto &v) { return v.session->tracks.size() == 2; });
+    check(added->dirty && added->session->tracks.front().id == second.id,
+          "Structural group ignored or reordered IDs");
+    const auto revision = added->modelRevision;
+    submit(controller, batch({MoveTrack{second.id, second.id}}));
+    auto noop = await(
+        controller, [&](const auto &v) { return v.completedCommands > added->completedCommands; });
+    check(noop->modelRevision == revision, "No-op group advanced revision");
+    submit(controller, parameter(*added, 6, 800, false));
+    auto gestured = await(controller, [&](const auto &v) { return v.modelRevision > revision; });
+    submit(controller,
+           batch({RenameTrack{trackId, "Should roll back"}, RemoveTrack{Id::generate()}}));
+    auto rejected =
+        await(controller, [&](const auto &v) { return v.errorSerial > gestured->errorSerial; });
+    check(*rejected->session == *gestured->session, "Invalid batch committed valid prefix");
+    ProjectCommand cancel{CommandKind::CancelGesture};
+    cancel.gesture = 800;
+    submit(controller, cancel);
+    auto canceled = await(controller, [&](const auto &v) { return *v.session == *added->session; });
+    check(canceled->modelRevision > gestured->modelRevision,
+          "Invalid batch committed unrelated gesture");
+    saveGate.armed = true;
+    submit(controller, {CommandKind::Save});
+    await(controller, [&](const auto &v) { return v.io == IoOperation::Save && saveGate.entered; });
+    submit(controller,
+           batch({MoveTrack{trackId, second.id}, RenameTrack{second.id, "Later edit"}}));
+    auto later =
+        await(controller, [&](const auto &v) { return v.session->tracks.front().id == trackId; });
+    ProjectCommand barrier{CommandKind::Barrier};
+    barrier.barrier = 999;
+    submit(controller, barrier);
+    auto accepted = await(controller, [](const auto &v) { return v.lastBarrier == 999; });
+    check(*accepted->barrierSession == *later->session, "Structural barrier captured wrong prefix");
+    saveGate.release();
+    auto saved = await(controller, [](const auto &v) { return v.io == IoOperation::None; });
+    check(saved->dirty && ProjectStore(root).load() == *added->session,
+          "Concurrent structural edit altered captured save");
+    submit(controller, {CommandKind::Undo});
+    auto undone = await(controller, [](const auto &v) { return !v.dirty; });
+    check(*undone->session == *added->session, "Group undo to saved prefix differs");
+    submit(controller, {CommandKind::Redo});
+    await(controller, [&](const auto &v) { return *v.session == *later->session; });
+    submit(controller, {CommandKind::Save});
+    await(controller, [](const auto &v) { return !v.dirty && v.io == IoOperation::None; });
+    ProjectCommand reopen{CommandKind::Open};
+    reopen.path = root;
+    submit(controller, reopen);
+    auto restored = await(controller, [&](const auto &v) {
+        return v.projectEpoch > saved->projectEpoch && v.io == IoOperation::None;
+    });
+    check(*restored->session == *later->session, "Structural state did not reopen exactly");
+}
+
+void structuralDuringAdmission(const std::filesystem::path &root) {
+    Gate gate;
+    ProjectController controller({[&] { gate.block(); }, {}, {}});
+    ReleaseGate release{gate};
+    auto initial = create(controller, root);
+    const auto take = makeRecordedTake(root, *initial->session);
+    const auto raw = root / utf8Path(take.asset.relativePath);
+    const auto rawHash = hashMediaFile(raw);
+    gate.armed = true;
+    submit(controller, attachment(root, take));
+    auto pending = await(controller, [&](const auto &v) {
+        return v.io == IoOperation::AttachRecording && gate.entered;
+    });
+    const auto target = initial->session->tracks.front().id;
+    auto other = makeAudioTrack("Other", {}, 48000);
+    ProjectCommand edit{CommandKind::Structural};
+    edit.edits = {InsertTrack{other, {}}, RemoveTrack{target}};
+    submit(controller, edit);
+    auto removed =
+        await(controller, [&](const auto &v) { return v.session->tracks.front().id == other.id; });
+    gate.release();
+    auto failed = await(controller, [&](const auto &v) {
+        return v.io == IoOperation::None && v.errorSerial > pending->errorSerial;
+    });
+    check(*failed->session == *removed->session && failed->session->assets.empty() &&
+              failed->attachedRecordings == 0 && hashMediaFile(raw) == rawHash,
+          "Admission attached to wrong track or changed state/raw audio after target removal");
+    submit(controller, {CommandKind::Undo});
+    auto restored =
+        await(controller, [&](const auto &v) { return *v.session == *initial->session; });
+    check(!restored->dirty, "Failed admission broke structural Undo to original");
+    submit(controller, attachment(root, take));
+    auto attached = await(controller, [](const auto &v) {
+        return v.attachedRecordings == 1 && v.io == IoOperation::None;
+    });
+    check(attached->session->tracks.front().id == target &&
+              attached->session->tracks.front().clips.size() == 1,
+          "Retry after target restoration failed");
+    submit(controller, {CommandKind::Undo});
+    auto detached =
+        await(controller, [&](const auto &v) { return *v.session == *initial->session; });
+    check(!detached->dirty && hashMediaFile(raw) == rawHash,
+          "Take Undo changed raw recording or dirty state");
+    submit(controller, {CommandKind::Redo});
+    await(controller, [&](const auto &v) { return *v.session == *attached->session; });
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -569,6 +693,8 @@ int main(int argc, char **argv) {
         exactBarrierReceipt(root / "barrier-prefix");
         routePatches(root / "route-patches");
         monitoringEdits(root / "monitoring-edits");
+        structuralEdits(root / "structural-edits");
+        structuralDuringAdmission(root / "structural-admission");
         std::cout << "{\"checks\":" << checks
                   << ",\"asynchronous_io\":true,\"save_revision_checked\":true,\"shutdown_join_"
                      "checked\":true}\n";

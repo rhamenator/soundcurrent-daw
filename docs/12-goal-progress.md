@@ -144,3 +144,36 @@ normal module-unload and load/deadline gates remain open. Autosave/edit journals
 snapshot recovery and missing-media relinking also remain required. Full frozen
 parity, X004 native imports, X005 monitor/print/profile pins/measurement/rights
 and all-Europe translation/review/UI delivery remain incomplete. Goal stays active.
+
+
+## M2a track/clip command foundation (2026-10-06)
+
+Previous goal turn was **progress**: `642f6be` added passive recording discovery
+and verified consented recovery. This turn starts M2 with Qt-free stable-ID track
+insert/remove/rename/reorder, clip insert/remove/range/move/split, transactional
+1–64-operation groups and scoped structural history. Mixed Undo/Redo is bounded
+by 256 units and a 32 MiB counted-payload budget. Verified raw-take admission now
+joins Undo while preserving audio files. Controller prevalidation preserves an
+unrelated active gesture on failure; concurrent save/barrier snapshots remain
+exact. Removing a track during take verification prevents wrong-track admission;
+Undo/restoration and retry work without changing the raw recording.
+
+[Contract](29-multitrack-edits.md) and
+[evidence](../tests/results/M2/2026-10-06-multitrack-edits.json) record 20 passing
+final debug and ASan/UBSan/LSan groups, 72 domain checks, 286 controller checks,
+325 desktop checks including actual recovery Undo/Redo, developer CLI persistence
+and native owned roundtrip. Windows headless cross-build passes; native
+Windows/Qt/audio remain unqualified. An initial large-name history stress fixture
+timed out under sanitizers; final validation avoids repeated band lookups, and a
+1,024-clip retained-history fixture exercises byte retirement without the redundant
+large-name scan workload. The original 60-second gate remains and final tests pass;
+this is not a load/deadline or physical performance certification.
+
+All 24 registered equalizer inputs still match; no borrowed update or checkout
+write is needed. Nothing was pushed. P008/P009/P086 have explicitly scoped
+subworkflows, with complete frozen-reference requirements and F/Q/C/N axes
+remaining unqualified. Next: desktop stable track/clip selection and timeline
+bindings, then shared-clock live/offline multitrack graph and simultaneous overdub.
+All later M2 tasks, independent M1 gates, full reference parity, X004 native
+imports, X005 audio/profile portability/rights and European localization remain
+required. Goal remains active and incomplete.

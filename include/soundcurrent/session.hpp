@@ -7,6 +7,7 @@
 #include <string_view>
 #include <vector>
 #include <variant>
+#include <utility>
 
 namespace soundcurrent::daw {
 using Frame = std::int64_t;
@@ -120,6 +121,47 @@ bool validUtf8(std::string_view text) noexcept;
 void validateRelativeMediaPath(std::string_view path);
 void validate(const Session &session);
 Session makeOneTrackSession(std::string name, std::string trackName);
+Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampleRate);
+// Control-thread edits, addressed by stable identity. A batch is all-or-nothing.
+struct InsertTrack {
+    Track track;
+    std::optional<Id> before;
+};
+struct RemoveTrack {
+    Id track;
+};
+struct RenameTrack {
+    Id track;
+    std::string name;
+};
+struct MoveTrack {
+    Id track;
+    std::optional<Id> before;
+};
+struct InsertClip {
+    Id track;
+    Clip clip;
+    std::optional<Id> before;
+};
+struct RemoveClip {
+    Id track, clip;
+};
+struct SetClipRange {
+    Id track, clip;
+    Frame start, source, length;
+};
+struct MoveClip {
+    Id from, to, clip;
+    Frame start;
+    std::optional<Id> before;
+};
+struct SplitClip {
+    Id track, clip, rightId;
+    Frame position;
+};
+using SessionEdit = std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip,
+                                 RemoveClip, SetClipRange, MoveClip, SplitClip>;
+void applySessionEdits(Session &, const std::vector<SessionEdit> &);
 enum class RouteTarget { Input, Output, Monitor };
 struct RouteAddress {
     Id trackId;
@@ -167,6 +209,9 @@ class EditHistory {
     bool redo();
     bool route(const RouteAddress &, const RouteIntent &);
     bool monitoring(const Id &trackId, RecordingMonitor);
+    bool structural(const std::vector<SessionEdit> &);
+    // Verified canonical media admission only; this does no disk verification.
+    bool adopt(const Session &);
 
   private:
     struct ParameterChange {
@@ -182,7 +227,20 @@ class EditHistory {
         Id trackId;
         RecordingMonitor before, after;
     };
-    using Change = std::variant<ParameterChange, RouteChange, MonitoringChange>;
+    template <class T> struct ObjectChange {
+        Id id;
+        std::optional<T> before, after;
+    };
+    struct StructureChange {
+        std::vector<ObjectChange<Track>> tracks;
+        std::vector<ObjectChange<Asset>> assets;
+        std::vector<Id> trackOrderBefore, trackOrderAfter, assetOrderBefore, assetOrderAfter;
+        std::optional<std::pair<Frame, Frame>> exportEnd;
+    };
+    using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
+    static std::size_t weight(const Change &);
+    void retain(Change);
+    void apply(const Change &, bool forward);
     Session &session_;
     std::optional<ParameterChange> active_;
     std::vector<Change> undo_, redo_;

@@ -752,6 +752,26 @@ void recoveryDiscoveryWorkflow(const std::filesystem::path &root) {
     });
     check(w.findChild<QLabel *>("recoverySummary")->text().contains("0 recording"),
           "Recovered source was still offered as a new recovery candidate");
+    const auto recoveredModel = *w.snapshot()->session;
+    await([&] { return projectUndo(w)->isEnabled(); });
+    projectUndo(w)->trigger();
+    await([&] { return w.snapshot()->session->assets.empty() && !w.snapshot()->dirty; });
+    check(inspectRecording(original) == before &&
+              hashMediaFile(original / "journal.json") == journalHash,
+          "Recovery Undo changed original audio or journal");
+    await([&] {
+        const auto scan = w.recoverySnapshot();
+        return !scan->running && scan->discovery && scan->discovery->attached == 0;
+    });
+    const auto actions = w.findChildren<QAction *>();
+    const auto redo = std::find_if(actions.begin(), actions.end(),
+                                   [](auto *a) { return a->shortcut() == QKeySequence::Redo; });
+    check(redo != actions.end(), "Project Redo action missing");
+    await([&] { return (*redo)->isEnabled(); });
+    (*redo)->trigger();
+    await([&] { return *w.snapshot()->session == recoveredModel; });
+    check(w.snapshot()->dirty && !counters->activated,
+          "Recovery Redo activated recording or lost dirty state");
     PromptChoice save(QMessageBox::Save);
     w.close();
     await([&] {

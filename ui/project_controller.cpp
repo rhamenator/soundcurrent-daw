@@ -266,6 +266,20 @@ struct ProjectController::State : QThread {
                 revised();
             break;
         }
+        case CommandKind::Structural: {
+            requireModel();
+            if (view.io == IoOperation::Create || view.io == IoOperation::Open)
+                throw ProjectError(ErrorCode::InvalidState, "Project replacement is in progress");
+            auto proposed = *model;
+            applySessionEdits(proposed, command.edits); // Reject before committing a gesture.
+            if (proposed != *model &&
+                view.modelRevision == std::numeric_limits<std::uint64_t>::max())
+                throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
+            commitGesture();
+            if (history->adopt(proposed))
+                revised();
+            break;
+        }
         case CommandKind::CancelGesture:
             requireModel();
             if (activeGesture == command.gesture && activeGesture) {
@@ -333,7 +347,9 @@ struct ProjectController::State : QThread {
                     throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
                 // Preserve scalar edits accepted while files were verified.
                 commitGesture();
-                attachRecording(*model, *result.job.recording);
+                auto admitted = *model;
+                attachRecording(admitted, *result.job.recording);
+                history->adopt(admitted);
                 revised();
                 ++view.attachedRecordings;
                 view.lastAttachedAsset = result.job.recording->asset.id;
