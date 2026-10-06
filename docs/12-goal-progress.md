@@ -1611,3 +1611,50 @@ writer retirement, repeated takes and verified grouped attachment. Then qualify
 native/desktop/Windows and ordered Stop/fault recovery. All sustained/physical,
 full reference monitoring, loop/take/comping, import/profile, packaging and
 European translation/review/UI gates remain required.
+
+
+## Runtime manual punch in the engine (2026-10-06)
+
+Previous goal turn was **progress**: deferred capture publication, full acceptance,
+protected PR #7 and verified source backups. This turn implements the owner that
+uses those pools while the same mix/read generation and continuous EQ keep running.
+[Contract](63-manual-punch-engine-owner.md),
+[ADR 049](decisions/049-manual-punch-slot-lifetime.md),
+[receipt](../tests/results/M2/2026-10-06-manual-punch-engine-owner.json).
+
+Up to eight outstanding globally admitted slots can be replenished after joined
+retirement; 64 command credits guarantee non-lossy FIFO receipts. Logical B/E and
+per-lane B+L/E+L are separate. Earlier finished lanes remain complete while other
+lanes capture postroll. Control-owned storage is not read by audio, queued immutable
+pointers retain lifetime credits, and audio drops references before publishing
+retirement. Construction/disk/project edits/reclamation stay off callbacks.
+
+Three repeated-take workflows match an independent continuous nonflat/flat oracle
+exactly at 256/127/31-frame partitions, with aliases, four delays, in-block windows,
+EQ changes, late writers, grouped Undo/Redo and Save/reopen. Nine interruption
+variants retain independently exact durable raw prefixes; twenty additional takes
+are joined/reclaimed/replenished concurrently with an audio thread. Exact final
+boundary receipts and empty delayed Stop are covered. Instrumented allocation,
+free and blocking-lock hits remain zero in both callback threads. Native audio
+and native Windows execution are not claimed by these synthetic workflows.
+
+The initial output assertion and subsequent journal-fixture assertion are retained
+as observations 26 and 27, including original executables/source/logs and separately
+identified debugger replays. Original unlogged terms are not reconstructed as
+original observations. The first replay/code inspection exposed incomplete-lane
+retirement accounting; the second exposed a fixture comparison of runtime versus
+recovery pool sizes. The earlier 25 observations and sustained failures remain.
+P004 implementation evidence extends; all 92 frozen acceptance/quality/reference/
+F/Q/C/N projections remain unchanged and unpromoted. All 24 borrowed equalizer
+inputs are audited; no equalizer source edits or new dependency are introduced.
+
+Next enforce production off-audio worker/group ownership, errors and empty-take
+policy automatically, then qualify an owned native adapter and desktop manual
+controls. Finite-generation/FIFO scheduling is not the full indefinite/loop/seek/
+quantized recording product. Windows runtime/Qt/installers, physical/sustained,
+full reference monitoring, loop/take/comping, X004/X005 and European translation/
+review/UI gates remain open. The full goal remains active and incomplete.
+
+Final Debug30/30 (27.74 s), ASan/UBSan/LSan30/30 (74.65 s) and Windows media
+compilation pass. No native runtime, desktop manual control or sustained/physical
+qualification follows from this checkpoint.

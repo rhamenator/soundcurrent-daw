@@ -152,7 +152,10 @@ Saved [recording-only Auto monitoring](docs/61-auto-recording-monitoring.md) sel
 input inside desired punch boundaries while preserving continuous EQ history.
 Prepared [deferred capture starts](docs/62-deferred-capture-start.md) now let audio
 publish an exact one-shot origin before disk startup, with immutable worker binding.
-Next implementation: manual punch while playback continues, additional monitor
+The [manual punch engine owner](docs/63-manual-punch-engine-owner.md) now preserves
+continuous playback/EQ across replenishable takes, reliable commands and delayed
+postroll, with scoped synthetic disk/concurrency acceptance.
+Next implementation: production disk/group ownership, native/desktop manual punch, additional monitor
 policies, tempo/loop/take lanes and comping. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
