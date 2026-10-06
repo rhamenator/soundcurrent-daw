@@ -79,15 +79,13 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
             std::any_of(
                 lane.inputChannels.begin(), lane.inputChannels.end(),
                 [&](auto c) { return c >= o.nativeInputs; }) ||
-            (lane.monitoring != RecordingMonitor::Off &&
-             lane.monitoring != RecordingMonitor::PostEq) ||
-            lane.writer.checkpointFrames < 0 ||
+            !validRecordingMonitor(lane.monitoring) || lane.writer.checkpointFrames < 0 ||
             lane.writer.checkpointFrames > Frame(s.sampleRate) * 60 ||
             lane.writer.firstCheckpointFrames < 0 ||
             lane.writer.firstCheckpointFrames > (lane.writer.checkpointFrames
                                                      ? lane.writer.checkpointFrames
                                                      : Frame(s.sampleRate)) ||
-            (lane.monitoring == RecordingMonitor::PostEq &&
+            (lane.monitoring != RecordingMonitor::Off &&
              std::none_of(plan.tracks.begin(), plan.tracks.end(),
                           [&](const auto &p) { return p.track == r.trackId; })))
             throw ProjectError(ErrorCode::InvalidState, "Invalid duplex recording lane");
@@ -155,7 +153,10 @@ struct DuplexRecordingRun::State {
             auto lane = std::make_unique<Lane>(std::move(arm), range);
             bindings.push_back({lane->binding.spec.trackId, lane->pipe.get(),
                                 lane->binding.inputChannels, lane->binding.monitoring,
-                                musical.empty() ? std::optional<PunchRange>{} : range});
+                                musical.empty() ? std::optional<PunchRange>{} : range,
+                                lane->binding.monitoring == RecordingMonitor::AutoRecording
+                                    ? options.musicalPunch
+                                    : std::optional<PunchRange>{}});
             lanes.push_back(std::move(lane));
         }
         bridge = std::make_unique<DuplexBridge>(*playback, s, std::move(bindings),

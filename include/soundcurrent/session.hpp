@@ -105,7 +105,11 @@ struct Clip {
     Frame lengthFrames = 0;
     bool operator==(const Clip &) const = default;
 };
-enum class RecordingMonitor { Off, PostEq };
+enum class RecordingMonitor { Off, PostEq, AutoRecording };
+constexpr bool validRecordingMonitor(RecordingMonitor mode) noexcept {
+    return mode == RecordingMonitor::Off || mode == RecordingMonitor::PostEq ||
+           mode == RecordingMonitor::AutoRecording;
+}
 struct Track {
     Id id = Id::generate();
     std::string name;

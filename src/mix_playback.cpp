@@ -95,9 +95,10 @@ MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_
     std::array<bool, 256> replaced{};
     for (const auto &replacement : live) {
         if (replacement.track >= s.lanes.size() || replaced[replacement.track] ||
+            replacement.beginFrame < 0 || replacement.endFrame < replacement.beginFrame ||
             replacement.input.size() != s.lanes[replacement.track]->pipe.config().layout.channels ||
-            std::any_of(replacement.input.begin(), replacement.input.end(),
-                        [](auto *p) { return !p; })) {
+            std::any_of(
+                replacement.input.begin(), replacement.input.end(), [](auto *p) { return !p; })) {
             r.status = PlaybackStatus::InvalidBuffer;
             return r;
         }
@@ -144,8 +145,14 @@ MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_
     // native in-place view cannot erase another lane's input.
     for (const auto &replacement : live) {
         auto &lane = *s.lanes[replacement.track];
+        const auto begin = std::max(r.startFrame, replacement.beginFrame);
+        const auto end = std::min(r.startFrame + frames, replacement.endFrame);
+        if (end <= begin)
+            continue;
+        const auto offset = static_cast<std::uint32_t>(begin - r.startFrame);
+        const auto count = static_cast<std::uint32_t>(end - begin);
         for (std::size_t c = 0; c < replacement.input.size(); ++c)
-            std::copy_n(replacement.input[c], frames, lane.write[c]);
+            std::copy_n(replacement.input[c] + offset, count, lane.write[c] + offset);
     }
     silence();
     r.mix = s.graph.process(s.inputs, out, frames);

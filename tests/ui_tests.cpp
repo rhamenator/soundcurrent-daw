@@ -653,7 +653,7 @@ QAction *projectUndo(StudioWindow &window) {
     check(found != actions.end(), "Project Undo action missing");
     return *found;
 }
-void monitoringPreferences(const std::filesystem::path &root) {
+void monitoringPreferences(const std::filesystem::path &root, RecordingMonitor selected) {
     const auto original = makeOneTrackSession("Monitoring — Écoute", "Mic");
     ProjectStore(root).save(original);
     auto counters = std::make_shared<recording_fixture::Counters>();
@@ -671,15 +671,15 @@ void monitoringPreferences(const std::filesystem::path &root) {
           "Unfocused wheel changed saved monitor mode");
     // The mode command and preparation enter in the same GUI event turn. A barrier
     // captures the accepted command prefix instead of a possibly stale publication.
-    mode->setCurrentIndex(1);
+    mode->setCurrentIndex(mode->findData(int(selected)));
     check(w.prepareRecording(), "Immediate mode/prepare refused");
     await([&] {
         return w.recordingSnapshot()->phase == RecordingPhase::Ready &&
                w.findChild<QPushButton *>("recordStopButton")->isEnabled();
     });
-    check(w.snapshot()->session->tracks.front().monitoring == RecordingMonitor::PostEq &&
-              w.recordingSnapshot()->monitoring == RecordingMonitor::PostEq &&
-              !counters->activated && !w.recordingSnapshot()->job,
+    check(w.snapshot()->session->tracks.front().monitoring == selected &&
+              w.recordingSnapshot()->monitoring == selected && !counters->activated &&
+              !w.recordingSnapshot()->job,
           "Immediate prepare ignored accepted mode or activated recording");
     await([&] { return projectUndo(w)->isEnabled(); });
     projectUndo(w)->trigger();
@@ -688,8 +688,8 @@ void monitoringPreferences(const std::filesystem::path &root) {
                mode->currentData().toInt() == int(RecordingMonitor::Off);
     });
     check(!w.snapshot()->dirty && w.recordingSnapshot()->phase == RecordingPhase::Ready &&
-              w.recordingSnapshot()->monitoring == RecordingMonitor::PostEq &&
-              counters->constructed == 1 && !counters->destroyed,
+              w.recordingSnapshot()->monitoring == selected && counters->constructed == 1 &&
+              !counters->destroyed,
           "Undo reconfigured the already prepared monitor graph");
     auto *globalStop = w.findChild<QAction *>("stopTransportAction");
     check(globalStop && globalStop->isEnabled(), "Global Stop disabled during recording setup");
@@ -708,14 +708,13 @@ void monitoringPreferences(const std::filesystem::path &root) {
     w.findChild<QPushButton *>("recordStopButton")->click();
     await(
         [&] { return w.recordingSnapshot()->phase == RecordingPhase::Idle && mode->isEnabled(); });
-    mode->setCurrentIndex(1);
+    mode->setCurrentIndex(mode->findData(int(selected)));
     await([&] { return w.snapshot()->dirty; });
     PromptChoice save(QMessageBox::Save);
     w.close();
     await([&] { return w.snapshot()->closed && w.recordingSnapshot()->closed; });
     save.timer.stop();
-    check(save.prompts == 1 &&
-              ProjectStore(root).load().tracks.front().monitoring == RecordingMonitor::PostEq,
+    check(save.prompts == 1 && ProjectStore(root).load().tracks.front().monitoring == selected,
           "Dirty monitoring preference was not offered Save");
     auto restored = std::make_shared<recording_fixture::Counters>();
     StudioWindow reopen(nullptr, {}, recording_fixture::options(restored));
@@ -723,8 +722,7 @@ void monitoringPreferences(const std::filesystem::path &root) {
     reopen.openProject(root);
     auto *reopenedMode = reopen.findChild<QComboBox *>("recordMonitorMode");
     await([&] {
-        return reopen.snapshot()->session &&
-               reopenedMode->currentData().toInt() == int(RecordingMonitor::PostEq) &&
+        return reopen.snapshot()->session && reopenedMode->currentData().toInt() == int(selected) &&
                reopenedMode->isEnabled();
     });
     check(!reopen.snapshot()->dirty && !restored->constructed && !restored->activated,
@@ -735,8 +733,7 @@ void monitoringPreferences(const std::filesystem::path &root) {
     reopen.close();
     await([&] { return reopen.snapshot()->closed && reopen.recordingSnapshot()->closed; });
     discard.timer.stop();
-    check(discard.prompts == 1 &&
-              ProjectStore(root).load().tracks.front().monitoring == RecordingMonitor::PostEq,
+    check(discard.prompts == 1 && ProjectStore(root).load().tracks.front().monitoring == selected,
           "Discard overwrote saved monitoring preference");
 }
 
@@ -1288,7 +1285,11 @@ int main(int argc, char **argv) {
         portableOutputRoutes(utf8Path(temp.path().toUtf8().toStdString()) / "portable-routes");
         recoveryDiscoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "discovery");
         monitoringPreferences(utf8Path(temp.path().toUtf8().toStdString()) /
-                              "monitoring-preferences");
+                                  "monitoring-preferences",
+                              RecordingMonitor::PostEq);
+        monitoringPreferences(utf8Path(temp.path().toUtf8().toStdString()) /
+                                  "auto-monitoring-preferences",
+                              RecordingMonitor::AutoRecording);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-off", false);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-monitor", true);
         recordingRecoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /

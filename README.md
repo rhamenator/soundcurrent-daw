@@ -148,7 +148,10 @@ Trusted distribution and installers remain separate gates; see
 
 Saved per-track [input-latency controls](docs/60-input-latency-controls.md) now connect
 canonical project state to accepted recording preparation and take alignment.
-Next implementation: manual punch/Auto monitoring, tempo/loop/take lanes and comping. Native engine
+Saved [recording-only Auto monitoring](docs/61-auto-recording-monitoring.md) selects live
+input inside desired punch boundaries while preserving continuous EQ history.
+Next implementation: manual punch while playback continues, additional monitor
+policies, tempo/loop/take lanes and comping. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
 all other frozen-reference requirements remain required. The first recording

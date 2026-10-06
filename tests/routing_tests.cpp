@@ -102,8 +102,8 @@ void migrationsAndValidation() {
         t["outputIntent"].erase("ports");
     }
     check(decodeProject(legacy.dump()) == s, "v1.0 migration changed identities/EQ/legacy routes");
-    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 5,
-          "Migrated state did not write v1.5");
+    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 6,
+          "Migrated state did not write v1.6");
     auto bad = legacy;
     bad["tracks"][0]["monitorIntent"] = nlohmann::json::object();
     rejects([&] { decodeProject(bad.dump()); });
@@ -322,7 +322,7 @@ void masterState() {
     check(h.structural({SetMaster{m}}), "Master not admitted");
     check(decodeProject(encodeProject(s)) == s, "Master exact schema roundtrip differs");
     auto j = nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 5, "Master schema not 1.5");
+    check(j["schemaMinor"] == 6, "Master schema not 1.6");
     auto old = j;
     old["schemaMinor"] = 2;
     old.erase("master");

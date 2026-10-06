@@ -9,6 +9,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -206,6 +207,57 @@ void offsets(const Session &s, const std::filesystem::path &root) {
     rejects([&] { exportMixWav(root, s, root.parent_path() / "bad.wav", bad); });
     check(!std::filesystem::exists(root.parent_path() / "bad.wav"), "Rejected export published");
 }
+void liveIntervals() {
+    for (bool high : {false, true}) {
+        auto s = makeOneTrackSession("Live selection — Σ", "Monitor");
+        s.tracks[0].eq.bands.resize(1);
+        s.tracks[0].eq.bands[0].gainDb = 0;
+        const auto first = high ? std::numeric_limits<Frame>::max() - 32 : Frame(0);
+        const auto last = first + 32;
+        MixPlayback mix(s, {{}, {{s.tracks[0].id, {{0, 0, 1}}}}},
+                        {{.maximumFrames = 32, .startFrame = first}, last, 256});
+        PlaybackSlab slab;
+        check(mix.pipe(0).acquire(slab), "Live interval fixture slab missing");
+        for (unsigned f = 0; f < 32; ++f)
+            slab.interleaved[f] = float(f) * .125f;
+        check(mix.pipe(0).commit(slab, 32, first), "Live interval fixture slab rejected");
+        mix.pipe(0).finishReader();
+        std::array<float, 32> buffer{};
+        const float *input = buffer.data();
+        float *output = buffer.data();
+        for (const auto interval : {std::pair<Frame, Frame>{-1, 5}, {first + 5, first + 4}}) {
+            buffer.fill(7);
+            const LiveMixInput replacement{0, {&input, 1}, interval.first, interval.second};
+            MixPlaybackReport r;
+            {
+                rt_audit::Guard guard;
+                r = mix.process({&output, 1}, 8, {&replacement, 1});
+            }
+            check(r.status == PlaybackStatus::InvalidBuffer && !r.timelineFrames &&
+                      mix.position() == first && buffer[0] == 7,
+                  "Invalid live interval consumed file or graph state");
+        }
+        const std::array<unsigned, 3> quanta{8, 12, 12};
+        for (unsigned block = 0, at = 0; block < quanta.size(); at += quanta[block++]) {
+            buffer.fill(10);
+            const LiveMixInput replacement{
+                0, {&input, 1}, first + (block == 1 ? 9 : 5), first + (block == 1 ? 13 : 5)};
+            MixPlaybackReport r;
+            {
+                rt_audit::Guard guard;
+                r = mix.process({&output, 1}, quanta[block], {&replacement, 1});
+            }
+            check(r.timelineFrames == quanta[block] && !r.missingTrackFrames && !r.staleTrackFrames,
+                  "Live interval lost file cursor or overflowed engine time");
+            for (unsigned f = 0; f < quanta[block]; ++f) {
+                const auto source = at + f;
+                check(buffer[f] == (source >= 9 && source < 13 ? 10.f : float(source) * .125f),
+                      "Live half-open selection or aliased view differs");
+            }
+        }
+        check(mix.position() == last, "Live interval final cursor differs");
+    }
+}
 void lateData() {
     auto s = makeOneTrackSession("Late", "First");
     s.tracks.push_back(makeAudioTrack("Second", {}, s.sampleRate));
@@ -313,6 +365,7 @@ int main() {
         const auto hash = hashMediaFile(source);
         offsets(s, root / "Séance — Ελληνικά");
         lateData();
+        liveIntervals();
         worker(s, root / "Séance — Ελληνικά");
         check(hashMediaFile(source) == hash && ProjectStore(root / "Séance — Ελληνικά").load() == s,
               "Mix workflows changed project/raw source");

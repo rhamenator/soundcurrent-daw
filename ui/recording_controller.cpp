@@ -622,9 +622,8 @@ struct RecordingController::State : QThread {
             view.generation = p.options.bridge.generation;
             view.projectMix = mix;
             view.channels = mix ? p.duplexOptions.run.nativeInputs : p.spec.capture.layout.channels;
-            view.outputChannels =
-                mix ? p.plan.output.channels
-                    : (c.monitoring == RecordingMonitor::PostEq ? view.channels : 0);
+            view.outputChannels = mix ? p.plan.output.channels
+                                      : (c.monitoring != RecordingMonitor::Off ? view.channels : 0);
             view.endFrame = mix ? p.duplexOptions.run.playback.endFrame : 0;
             view.lanes.clear();
             if (mix) {

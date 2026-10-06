@@ -19,6 +19,9 @@ struct ArmedCapture {
     RecordingMonitor monitoring = RecordingMonitor::Off;
     // Optional per-lane raw window. Mutually exclusive with a shared bridge punch.
     std::optional<PunchRange> captureRange = {};
+    // AutoRecording follows desired timeline coordinates, independently of the
+    // delayed raw window. Omitted: shared punch or this lane's capture range.
+    std::optional<PunchRange> monitorRange = {};
 };
 enum class DuplexStatus : std::uint32_t {
     Ready,

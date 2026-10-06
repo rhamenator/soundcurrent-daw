@@ -292,7 +292,9 @@ std::string encodeProject(const Session &s) {
              {"inputIntent", route(t.input)},
              {"outputIntent", route(t.output)},
              {"monitorIntent", route(t.monitor)},
-             {"monitoringMode", t.monitoring == RecordingMonitor::Off ? "off" : "post-eq"},
+             {"monitoringMode", t.monitoring == RecordingMonitor::Off      ? "off"
+                                : t.monitoring == RecordingMonitor::PostEq ? "post-eq"
+                                                                           : "auto-recording"},
              {"inputLatencyFrames", t.inputLatencyFrames},
              {"processors", Json::array({processor})},
              {"clips", clips}});
@@ -307,7 +309,7 @@ std::string encodeProject(const Session &s) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 5},
+        {"schemaMinor", 6},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -358,7 +360,7 @@ Session decodeProject(std::string_view bytes) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 5),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 6),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -424,8 +426,12 @@ Session decodeProject(std::string_view bytes) {
                 track.monitor = readRoute(t.at("monitorIntent"), false);
             if (minor >= 2) {
                 const auto mode = string(t.at("monitoringMode"));
-                require(mode == "off" || mode == "post-eq", "Unknown recording monitoring mode");
-                track.monitoring = mode == "off" ? RecordingMonitor::Off : RecordingMonitor::PostEq;
+                require(mode == "off" || mode == "post-eq" ||
+                            (minor >= 6 && mode == "auto-recording"),
+                        "Unknown recording monitoring mode");
+                track.monitoring = mode == "off"       ? RecordingMonitor::Off
+                                   : mode == "post-eq" ? RecordingMonitor::PostEq
+                                                       : RecordingMonitor::AutoRecording;
             }
             const auto &ps = t.at("processors");
             array(ps, 1);

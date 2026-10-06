@@ -298,3 +298,10 @@ All24 borrowed inputs and92 frozen contracts remain unchanged/unpromoted. Prior2
 observations plus two initial assertions remain retained (25total). Next implement
 manual punch/Auto monitoring, then tempo/loop/take lanes/comping; all physical,
 sustained, native Windows, localization, fault/recovery and full-suite gates remain.
+
+
+Prepared recording-only Auto monitoring now selects live input at exact desired
+punch boundaries, independently of delayed raw capture, before continuous track EQ.
+[Contract](61-auto-recording-monitoring.md). Next: sample-boundary manual punch while
+playback continues, then armed/stopped/tape monitoring and loop/take/comp workflows.
+The full frozen scope, independent Windows and all-Europe gates remain required.

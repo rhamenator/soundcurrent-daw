@@ -586,6 +586,163 @@ void musicalPartitions(PunchRange timeline, Frame monoLatency, Frame stereoLaten
     ProjectStore(d.root).save(s);
     check(ProjectStore(d.root).load() == s, "Musical punch save/reopen differs");
 }
+// The sample oracle is assembled before callback activation and processed as one
+// continuous stream. Restarting EQ at either monitor boundary must differ.
+void autoMonitoring(PunchRange timeline, Frame stereoLatency, const std::vector<unsigned> &quanta,
+                    bool nonflat) {
+    Directory d;
+    auto s = session(d.root);
+    CapturePipe originalStereo(capture(0, {LayoutKind::Stereo, 2}));
+    CaptureWriter originalWriter(d.root, spec(s, 2, originalStereo.config()));
+    std::array<std::array<float, 256>, 2> file{};
+    std::array<const float *, 2> fileIn{file[0].data(), file[1].data()};
+    for (Frame at = 0; at < 8192; at += 256) {
+        for (unsigned f = 0; f < 256; ++f) {
+            file[0][f] = .375f * fileValue(at + f);
+            file[1][f] = -2.f * fileValue(at + f);
+        }
+        check(originalStereo.push(fileIn, 256, at).acceptedFrames == 256,
+              "Auto original stereo setup failed");
+        while (originalWriter.drainOne(originalStereo)) {
+        }
+    }
+    originalStereo.finish();
+    while (originalWriter.drainOne(originalStereo)) {
+    }
+    attachRecording(s, originalWriter.finalize(originalStereo));
+    s.tracks[0].monitoring = RecordingMonitor::PostEq;
+    s.tracks[2].monitoring = RecordingMonitor::AutoRecording;
+    if (nonflat) {
+        auto &band = s.tracks[2].eq.bands[0];
+        band.frequencyHz = 600;
+        band.gainDb = 9;
+        band.q = .7;
+    }
+    ProjectStore(d.root).save(s);
+    const auto before = s;
+    std::vector<std::string> oldHashes;
+    for (const auto &asset : s.assets)
+        oldHashes.push_back(hashMediaFile(d.root / utf8Path(asset.relativePath)));
+    DuplexRecordingOptions options;
+    options.playback = playback();
+    options.nativeInputs = 3;
+    options.backend = CaptureBackend::Synthetic;
+    options.musicalPunch = timeline;
+    std::vector<DuplexRecordingLane> arms{
+        {spec(s, 0, capture(137)), {2}, RecordingMonitor::PostEq, {}},
+        {spec(s, 1, capture(137), 41), {2}, RecordingMonitor::Off, {}},
+        {spec(s, 2, capture(137, {LayoutKind::Stereo, 2}), stereoLatency),
+         {1, 0},
+         RecordingMonitor::AutoRecording,
+         {}}};
+    const auto cfg = playback(137, std::max<Frame>(4099, timeline.end + stereoLatency));
+    const auto total = std::size_t(cfg.endFrame - cfg.graph.startFrame);
+    std::array<std::vector<float>, 2> selected{std::vector<float>(total),
+                                               std::vector<float>(total)};
+    std::array<std::vector<float>, 2> equalized{std::vector<float>(total),
+                                                std::vector<float>(total)};
+    for (std::size_t f = 0; f < total; ++f) {
+        const auto at = cfg.graph.startFrame + Frame(f);
+        const bool live = at >= timeline.begin && at < timeline.end;
+        selected[0][f] = live ? inputValue(at - stereoLatency, 1) : .375f * fileValue(at);
+        selected[1][f] = live ? inputValue(at - stereoLatency, 0) : -2.f * fileValue(at);
+    }
+    PreparedEq expectedEq(s, s.tracks[2].id, 256, cfg.graph.generation);
+    for (std::size_t at = 0; at < total; at += 256) {
+        std::array<const float *, 2> in{selected[0].data() + at, selected[1].data() + at};
+        std::array<float *, 2> out{equalized[0].data() + at, equalized[1].data() + at};
+        check(expectedEq
+                      .process(in, out, unsigned(std::min<std::size_t>(256, total - at)),
+                               cfg.graph.startFrame + Frame(at))
+                      .status == ProcessStatus::Ok,
+              "Auto independent continuous EQ failed");
+    }
+    DuplexRecordingRun run(d.root, s, plan(s), arms, options);
+    check(run.position() == 137 && !run.jobDirectory(0), "Auto preparation activated capture");
+    run.startWriters();
+    run.checkActivation();
+    Source src;
+    std::array<std::optional<CaptureTimingOrigin>, 3> origins;
+    const std::array<Frame, 3> latencies{0, 41, stereoLatency};
+    unsigned block = 0;
+    while (run.position() < cfg.endFrame) {
+        const auto at = run.position();
+        const auto n = quanta[block++ % quanta.size()];
+        const auto frames = unsigned(std::min<Frame>(n, cfg.endFrame - at));
+        // Both mono lanes use the same native plane. Its 41-frame declaration is
+        // intentionally independent of the physical samples received by lane 0.
+        delayedInput(src, at, n, 41, stereoLatency);
+        for (unsigned t = 0; t < 3; ++t) {
+            const auto begin = timeline.begin + latencies[t];
+            if (!origins[t] && at + frames > begin && at < timeline.end + latencies[t])
+                origins[t] = expectedOrigin(src, cfg, unsigned(begin - at));
+        }
+        DuplexStatus status;
+        {
+            rt_audit::Guard guard;
+            status = run.process(src.clock, src.in, src.out, 256);
+        }
+        check(status == DuplexStatus::Running || status == DuplexStatus::Complete,
+              "Auto owner stopped playback or lost file data");
+        for (unsigned f = 0; f < 256; ++f) {
+            const auto index = std::size_t(at - 137 + f);
+            const auto mono = sanitized(inputValue(at + f - 41, 2));
+            const auto left =
+                f < frames ? float(.5 * mono + .25 * fileValue(at + f) + equalized[0][index]) : 0.f;
+            const auto right = f < frames ? float(-.25 * mono - .5 * equalized[1][index]) : 0.f;
+            check(src.out[0][f] == left && src.out[1][f] == right,
+                  "Auto switched late, restarted EQ, lost file cursor or corrupted aliased input");
+        }
+        for (unsigned t = 0; t < 3; ++t) {
+            const auto captured = std::clamp<Frame>(run.position() - timeline.begin - latencies[t],
+                                                    0, timeline.end - timeline.begin);
+            check(run.capture(t).captured == captured && run.capture(t).origin == origins[t],
+                  "Auto monitor window shifted raw capture prefix or origin");
+        }
+        src.advance();
+    }
+    run.stop();
+    run.checkReader();
+    for (unsigned t = 0; t < 3; ++t) {
+        const auto r = run.result(t);
+        const auto raw = samples(d.root, r.asset);
+        check(r.asset.frames == timeline.end - timeline.begin &&
+                  r.spec.capture.startFrame == timeline.begin + latencies[t] &&
+                  run.capture(t).origin == origins[t] && run.capture(t).rejected == 0,
+              "Auto raw take differs from admitted window");
+        for (Frame f = 0; f < r.asset.frames; ++f) {
+            const auto source = timeline.begin + f + latencies[t] - (t == 2 ? stereoLatency : 41);
+            if (t == 2)
+                check(raw[std::size_t(f) * 2] == inputValue(source, 1) &&
+                          raw[std::size_t(f) * 2 + 1] == inputValue(source, 0),
+                      "Auto printed EQ or changed stereo raw samples");
+            else
+                check(raw[std::size_t(f)] == sanitized(inputValue(source, 2)),
+                      "Auto changed Off/Post-EQ raw samples");
+        }
+        const auto journal = inspectRecording(*run.jobDirectory(t), {}, true);
+        check(journal.finalized && journal.timingOrigin == origins[t] &&
+                  journal.endReason == CaptureEndReason::RangeComplete,
+              "Auto lost durable origin or completed range");
+    }
+    auto attached = s;
+    for (unsigned t = 0; t < 3; ++t) {
+        attachRecording(attached, run.result(t));
+        check(attached.tracks[t].clips.back().startFrame == timeline.begin &&
+                  attached.tracks[t].clips.back().sourceFrame == 0,
+              "Auto attached at delayed raw coordinates");
+    }
+    EditHistory history(s);
+    check(history.adopt(attached) && history.undo() && s == before && history.redo() &&
+              s == attached,
+          "Auto grouped attachment undo/redo changed preferences or underlying clips");
+    check(ProjectStore(d.root).load() == before, "Auto silently saved preferences or takes");
+    ProjectStore(d.root).save(s);
+    check(ProjectStore(d.root).load() == s, "Auto save/reopen lost preference or geometry");
+    for (std::size_t t = 0; t < oldHashes.size(); ++t)
+        check(hashMediaFile(d.root / utf8Path(before.assets[t].relativePath)) == oldHashes[t],
+              "Auto changed original media");
+}
 void musicalOwner() {
     Directory d;
     auto s = session(d.root);
@@ -678,7 +835,7 @@ void musicalLimits() {
         rejects([&] { (void)prepareMusicalPunch(range, s.sampleRate, arms); });
 }
 
-void musicalInterruption(unsigned blocks) {
+void musicalInterruption(unsigned blocks, RecordingMonitor monitoring) {
     Directory d;
     auto s = session(d.root);
     const PunchRange timeline{503, 820}, monoRange{503, 820}, stereoRange{1203, 1520};
@@ -690,16 +847,37 @@ void musicalInterruption(unsigned blocks) {
     auto a = std::make_unique<CaptureWriter>(d.root, spec(s, 1, mono.config(), 0), o);
     auto b = std::make_unique<CaptureWriter>(d.root, spec(s, 2, stereo.config(), 700), o);
     const auto monoJob = a->jobDirectory(), stereoJob = b->jobDirectory();
-    DuplexBridge bridge(run, s,
-                        {{s.tracks[1].id, &mono, {2}, RecordingMonitor::Off, monoRange},
-                         {s.tracks[2].id, &stereo, {1, 0}, RecordingMonitor::PostEq, stereoRange}},
-                        3, CaptureBackend::Synthetic);
+    DuplexBridge bridge(
+        run, s,
+        {{s.tracks[1].id, &mono, {2}, RecordingMonitor::Off, monoRange},
+         {s.tracks[2].id,
+          &stereo,
+          {1, 0},
+          monitoring,
+          stereoRange,
+          monitoring == RecordingMonitor::AutoRecording ? std::optional<PunchRange>(timeline)
+                                                        : std::nullopt}},
+        3, CaptureBackend::Synthetic);
     Source src;
     for (unsigned n = 0; n < blocks; ++n) {
-        delayedInput(src, run.position(), 128, 0, 700);
+        const auto at = run.position();
+        delayedInput(src, at, 128, 0, 700);
         {
             rt_audit::Guard guard;
             bridge.process(src.clock, src.in, src.out, 256);
+        }
+        for (unsigned f = 0; f < 256; ++f) {
+            const bool live = monitoring == RecordingMonitor::PostEq ||
+                              (at + f >= timeline.begin && at + f < timeline.end);
+            const auto left =
+                f < 128
+                    ? float(.75 * fileValue(at + f) + (live ? inputValue(at + f - 700, 1) : 0.f))
+                    : 0.f;
+            const auto right = f < 128 ? float(-.25 * fileValue(at + f) -
+                                               (live ? .5 * inputValue(at + f - 700, 0) : 0.))
+                                       : 0.f;
+            check(src.out[0][f] == left && src.out[1][f] == right,
+                  "Interrupted punch Auto selection differs from admitted monitor window");
         }
         while (a->drainOne(mono)) {
         }
@@ -715,6 +893,10 @@ void musicalInterruption(unsigned blocks) {
         check(bridge.process(src.clock, src.in, src.out, 256) == DuplexStatus::ClockDiscontinuity,
               "Musical punch masked interruption between lane windows");
     }
+    check(run.position() == at &&
+              std::all_of(src.out[0], src.out[0] + 256, [](float f) { return f == 0; }) &&
+              std::all_of(src.out[1], src.out[1] + 256, [](float f) { return f == 0; }),
+          "Interrupted Auto block leaked output or advanced file cursor");
     bridge.finishQuiescent();
     run.waitReader();
     while (a->drainOne(mono)) {
@@ -805,7 +987,7 @@ void laneOriginPreflight() {
         run.waitReader();
     }
 }
-void nearFrameLimit() {
+void nearFrameLimit(RecordingMonitor monitoring) {
     Directory d;
     auto s = makeOneTrackSession("High frame position", "Raw");
     for (auto &b : s.tracks[0].eq.bands)
@@ -816,7 +998,7 @@ void nearFrameLimit() {
     const auto cfg = playback(limit - 4096, limit - 16);
     MixPlaybackRun run(d.root, s, {{}, {{s.tracks[0].id, {{0, 0, 1}}}}}, cfg);
     CapturePipe pipe(capture(range.begin));
-    DuplexBridge bridge(run, s, {{s.tracks[0].id, &pipe, {0}, RecordingMonitor::PostEq}}, 1,
+    DuplexBridge bridge(run, s, {{s.tracks[0].id, &pipe, {0}, monitoring}}, 1,
                         CaptureBackend::Synthetic, 256 * 1024 * 1024, range);
     std::array<float, 256> input{}, output{};
     const float *in = input.data();
@@ -834,7 +1016,11 @@ void nearFrameLimit() {
               "Punch arithmetic overflowed near maximum engine frame");
         const auto count = std::min<Frame>(256, cfg.endFrame - at);
         for (unsigned f = 0; f < 256; ++f)
-            check(output[f] == (f < count ? .125f : 0.f), "High-position playback range differs");
+            check(output[f] == (f < count && (monitoring == RecordingMonitor::PostEq ||
+                                              (at + f >= range.begin && at + f < range.end))
+                                    ? .125f
+                                    : 0.f),
+                  "High-position playback/Auto range differs");
         clock.position += 256;
         ++clock.cycle;
     }
@@ -862,7 +1048,8 @@ int main() {
         interruption(false, false);
         interruption(false, true);
         originOverflowAndUnknown();
-        nearFrameLimit();
+        nearFrameLimit(RecordingMonitor::PostEq);
+        nearFrameLimit(RecordingMonitor::AutoRecording);
         for (auto latency :
              std::vector<std::pair<Frame, Frame>>{{0, 77}, {77, 0}, {13, 300}, {300, 13}})
             for (const auto &quanta :
@@ -873,8 +1060,16 @@ int main() {
             for (bool reverse : {false, true})
                 musicalPartitions(range, 0, 700, {3, 127, 17, 256, 1}, reverse);
         musicalOwner();
-        for (unsigned blocks : {2u, 6u, 9u, 12u})
-            musicalInterruption(blocks);
+        for (bool nonflat : {false, true})
+            for (const auto &quanta :
+                 std::vector<std::vector<unsigned>>{{1}, {7}, {127}, {256}, {3, 127, 17, 256, 1}})
+                autoMonitoring({503, 1291}, 200, quanta, nonflat);
+        for (auto range : {PunchRange{139, 140}, PunchRange{137, 503}, PunchRange{503, 4000}})
+            autoMonitoring(range, 4097, {3, 127, 17, 256, 1}, true);
+        for (unsigned blocks : {2u, 6u, 9u, 12u}) {
+            musicalInterruption(blocks, RecordingMonitor::PostEq);
+            musicalInterruption(blocks, RecordingMonitor::AutoRecording);
+        }
         musicalLimits();
         laneOriginPreflight();
         const auto c = rt_audit::counts;
@@ -886,6 +1081,7 @@ int main() {
                "\"raw_sample_oracle\":true,\"aliased_monitor_file_oracle\":true,"
                "\"origin_alignment_save_reopen_undo\":true,\"interrupted_prefix_recovery\":true,"
                "\"musical_latency_partition_workflows\":28,\"per_lane_origins_postroll\":true,"
+               "\"auto_monitor_partition_workflows\":13,\"continuous_eq_selection_oracle\":true,"
                "\"rt_violations\":0,\"native_audio\":false}\n";
     } catch (const std::exception &e) {
         std::cerr << "FAIL: " << e.what() << '\n';

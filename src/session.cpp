@@ -297,8 +297,7 @@ void validate(const Session &s) {
         layout(t.layout);
         check(t.inputLatencyFrames >= 0 && t.inputLatencyFrames <= Frame(s.sampleRate) * 60,
               "Track input latency out of range");
-        check(t.monitoring == RecordingMonitor::Off || t.monitoring == RecordingMonitor::PostEq,
-              "Unknown recording monitoring mode");
+        check(validRecordingMonitor(t.monitoring), "Unknown recording monitoring mode");
         for (const auto *r : {&t.input, &t.output, &t.monitor})
             checkRoute(*r, t.layout.channels);
         for (const auto &p : t.input.ports)
@@ -421,8 +420,8 @@ RecordingMonitor monitoringValue(const Session &s, const Id &id) {
     throw ProjectError(ErrorCode::InvalidId, "Monitoring track is missing");
 }
 void setMonitoringValue(Session &s, const Id &id, RecordingMonitor value) {
-    check(value == RecordingMonitor::Off || value == RecordingMonitor::PostEq,
-          "Unknown recording monitoring mode", ErrorCode::InvalidParameter);
+    check(validRecordingMonitor(value), "Unknown recording monitoring mode",
+          ErrorCode::InvalidParameter);
     (void)monitoringValue(s, id);
     for (auto &t : s.tracks)
         if (t.id == id) {

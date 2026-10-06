@@ -2,6 +2,7 @@
 #pragma once
 #include "mix.hpp"
 #include "playback.hpp"
+#include <limits>
 
 namespace soundcurrent::daw {
 struct MixPlaybackConfig {
@@ -13,6 +14,9 @@ struct MixPlaybackConfig {
 struct LiveMixInput {
     std::size_t track = 0;
     MixInput input;
+    // Half-open project-frame replacement interval; defaults to the full stream.
+    // All file samples are still consumed. Selection precedes the continuous EQ.
+    Frame beginFrame = 0, endFrame = std::numeric_limits<Frame>::max();
 };
 struct MixPlaybackReport {
     PlaybackStatus status = PlaybackStatus::Running;
