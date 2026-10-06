@@ -75,7 +75,7 @@ struct RecordingWorker::State {
 RecordingWorker::RecordingWorker(CapturePipe &pipe, std::filesystem::path root, RecordingSpec spec,
                                  RecordingOptions options)
     : state_(std::make_unique<State>(pipe)) {
-    if (pipe.config() != prepareCaptureConfig(spec.capture))
+    if (spec.capture.deferredStart || pipe.recordingConfig() != prepareCaptureConfig(spec.capture))
         throw ProjectError(ErrorCode::InvalidState, "Disk worker/capture configuration mismatch");
     auto callback = std::move(options.boundary);
     options.boundary = [s = state_.get(), callback = std::move(callback)](RecordingBoundary b,

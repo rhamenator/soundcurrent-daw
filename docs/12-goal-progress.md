@@ -1576,3 +1576,38 @@ capture-resource/writer handoff, ordered Stop/fault recovery and grouped admissi
 then armed/stopped/tape monitoring and loop/take/comp workflows. Native Windows,
 physical/sustained timing, X004/X005 and European translation/review/UI gates remain
 open. The full goal remains active and incomplete.
+
+
+## Deferred capture start for manual punch (2026-10-06)
+
+The previous goal implementation made **progress** by adding the deferred capture
+primitive and completing builds; the intervening branch-protection request read
+back the live rules without source changes. This continuation revalidated that
+work and completed acceptance. [Contract](62-deferred-capture-start.md),
+[ADR 048](decisions/048-deferred-capture-publication.md) and
+[receipt](../tests/results/M2/2026-10-06-deferred-capture-start.json).
+Prepared pools now publish their exact raw start once from audio without mutating
+preparation metadata. Disk workers consume immutable resolved snapshots and retain
+prefilled full/partial slabs, including a capture completed before job creation.
+Exact samples, origins, alignment, journals, grouped Undo/Redo and passive Save/reopen
+pass. Unresolved and mismatched job specifications fail before media creation.
+Existing fixed-start owners explicitly refuse deferred bindings. No project/journal
+schema change or new dependency is introduced.
+
+Debug and ASan/UBSan/LSan pass 29/29; focused groups pass 5/5. Windows core and
+media cross-builds pass; native Windows remains open. The isolated fixed-start
+32-track native regression passes with 3,072,448 raw and 480,000 output samples
+exact, zero instrumented RT allocation/free/locks and complete short timing gates.
+Two external links/default metadata are preserved and owned routes retire. All
+152 native pins remain stable; twelve altered receipts are refused. This verifies
+regular-path regression only: no deferred native/manual-punch qualification.
+All 25 historical observations, 13 retained failure artifacts, 24 borrowed inputs
+and 92 unchanged/unpromoted frozen contracts remain. Equalizer sources are read-only.
+The full goal stays active and incomplete.
+
+Next implement bounded reliable manual-punch command/acknowledgement and prepared
+take slots with checked per-lane raw starts/postroll, continuous mix/EQ, off-audio
+writer retirement, repeated takes and verified grouped attachment. Then qualify
+native/desktop/Windows and ordered Stop/fault recovery. All sustained/physical,
+full reference monitoring, loop/take/comping, import/profile, packaging and
+European translation/review/UI gates remain required.

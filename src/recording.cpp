@@ -53,6 +53,7 @@ struct AudioFile {
 };
 void validateSpec(RecordingSpec &s) {
     s.capture = prepareCaptureConfig(s.capture);
+    require(!s.capture.deferredStart, "Recording specification has no resolved start");
     require(s.inputLatencyFrames >= 0 && s.inputLatencyFrames <= Frame(s.capture.sampleRate) * 60,
             "Recording alignment out of range");
 }
@@ -314,7 +315,7 @@ bool CaptureWriter::drainOne(CapturePipe &pipe) {
     CapturedSlab slab;
     bool owned = false;
     try {
-        require(!s.failed && !s.finalized && pipe.config() == s.spec.capture,
+        require(!s.failed && !s.finalized && pipe.recordingConfig() == s.spec.capture,
                 "Writer/capture state mismatch");
         if (!pipe.acquire(slab))
             return false;
@@ -351,7 +352,8 @@ bool CaptureWriter::drainOne(CapturePipe &pipe) {
 RecordingResult CaptureWriter::finalize(CapturePipe &pipe) {
     auto &s = *state_;
     try {
-        require(!s.failed && !s.finalized && pipe.config() == s.spec.capture && pipe.drained(),
+        require(!s.failed && !s.finalized && pipe.recordingConfig() == s.spec.capture &&
+                    pipe.drained(),
                 "Cannot finalize active, undrained or failed capture");
         require(s.written > 0, "Cannot finalize an empty take");
         s.checkpoint(false, pipe.status(), &pipe);

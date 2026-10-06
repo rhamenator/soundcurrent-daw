@@ -2,11 +2,14 @@
 #include "rt_audit.hpp"
 #include <soundcurrent/capture.hpp>
 #include <algorithm>
+#include <atomic>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <thread>
 
 using namespace soundcurrent::daw;
 namespace {
@@ -252,6 +255,137 @@ void admittedPools() {
         check(count == slots && pipe.drained(), "Exhaustion lost accepted pool prefix");
     }
 }
+void deferredPublication() {
+    CaptureConfig config;
+    config.layout = {LayoutKind::Stereo, 2};
+    config.deferredStart = true;
+    config.slabFrames = 256;
+    CapturePipe pipe(config);
+    constexpr Frame start = 0x11223344556677;
+    auto expected = prepareCaptureConfig(config);
+    expected.startFrame = start;
+    expected.deferredStart = false;
+    std::atomic<bool> entered{false}, seen{false}, bad{false}, stop{false};
+    std::thread reader([&] {
+        entered.store(true, std::memory_order_release);
+        while (!stop.load(std::memory_order_acquire)) {
+            const auto resolved = pipe.recordingConfig();
+            if (resolved) {
+                if (*resolved != expected)
+                    bad.store(true, std::memory_order_release);
+                seen.store(true, std::memory_order_release);
+            }
+        }
+    });
+    struct Join {
+        std::atomic<bool> &stop;
+        std::thread &reader;
+        ~Join() {
+            stop.store(true, std::memory_order_release);
+            reader.join();
+        }
+    } join{stop, reader};
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+    while (!entered.load(std::memory_order_acquire)) {
+        check(std::chrono::steady_clock::now() < deadline,
+              "Deferred metadata reader did not start");
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    {
+        rt_audit::Guard guard;
+        check(pipe.beginAt(start), "Concurrent deferred publication refused");
+    }
+    while (!seen.load(std::memory_order_acquire)) {
+        check(std::chrono::steady_clock::now() < deadline, "Deferred publication not observed");
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    check(!bad.load(std::memory_order_acquire), "Deferred reader observed incoherent metadata");
+}
+void deferredStart() {
+    CaptureConfig c;
+    c.deferredStart = true;
+    c.maximumCallbackFrames = 256;
+    c.slabFrames = 256;
+    auto invalid = c;
+    invalid.startFrame = 1;
+    rejects([&] { CapturePipe pipe(invalid); });
+    for (Frame start : {Frame(0), Frame(503), std::numeric_limits<Frame>::max() - 513}) {
+        CapturePipe pipe(c);
+        check(!pipe.recordingConfig() && pipe.config().startFrame == 0,
+              "Deferred preparation fabricated a recording origin");
+        CaptureTimingOrigin origin{
+            CaptureBackend::Synthetic, 7000000000ULL, 17000000000ULL, 42, 7, 9, 1, 48000, 0};
+        bool bad, began, repeated, timing;
+        {
+            rt_audit::Guard guard;
+            bad = pipe.beginAt(-1);
+            check(!pipe.setTimingOrigin(origin), "Origin set before deferred start");
+            began = pipe.beginAt(start);
+            repeated = pipe.beginAt(start + 1);
+            timing = pipe.setTimingOrigin(origin);
+        }
+        check(!bad && began && !repeated && timing && pipe.nextFrame() == start,
+              "Deferred start was lost, restarted or preceded by a fabricated origin");
+        auto expected = prepareCaptureConfig(c);
+        expected.deferredStart = false;
+        expected.startFrame = start;
+        check(pipe.recordingConfig() == expected && pipe.config() == prepareCaptureConfig(c),
+              "Deferred start mutated immutable preparation or published wrong config");
+        std::array<float, 256> data{};
+        const float *in = data.data();
+        Frame at = start;
+        for (unsigned n : {127u, 256u, 130u}) {
+            for (unsigned f = 0; f < n; ++f)
+                data[f] = signal(at + f, 0);
+            CaptureReport r;
+            {
+                rt_audit::Guard guard;
+                r = pipe.push({&in, 1}, n, at);
+            }
+            check(r.acceptedFrames == n && r.status == CaptureStatus::Running,
+                  "Deferred capture rejected valid partition");
+            at += n;
+        }
+        pipe.finish(CaptureEndReason::RangeComplete);
+        check(!pipe.beginAt(0) && pipe.recordingConfig() == expected &&
+                  pipe.timingOrigin() == origin && pipe.nextFrame() == start + 513,
+              "Deferred end lost immutable metadata or revived a completed take");
+        CapturedSlab slab;
+        Frame verified = 0;
+        std::uint64_t sequence = 0;
+        while (pipe.acquire(slab)) {
+            check(slab.packet.sequence == sequence++ && slab.packet.firstFrame == start + verified,
+                  "Deferred packet sequence or first sample differs");
+            for (float value : slab.interleaved)
+                check(value == signal(start + verified++, 0), "Deferred raw sample differs");
+            check(pipe.release(slab), "Deferred packet release failed");
+        }
+        check(verified == 513 && pipe.drained(), "Deferred capture lost final partial slab");
+    }
+    CapturePipe stopped(c);
+    stopped.finish();
+    check(!stopped.beginAt(10) && !stopped.recordingConfig() && !stopped.timingOrigin() &&
+              stopped.drained(),
+          "Stopped deferred pool activated or fabricated metadata");
+    CapturePipe early(c);
+    std::array<float, 256> data{};
+    const float *in = data.data();
+    CaptureReport rejected;
+    {
+        rt_audit::Guard guard;
+        rejected = early.push({&in, 1}, 1, 0);
+    }
+    check(rejected.status == CaptureStatus::TimingError && !rejected.acceptedFrames &&
+              rejected.rejectedFrames == 1 && !early.beginAt(0) && !early.recordingConfig(),
+          "Deferred push before start captured guessed samples or reset a fault");
+    CapturePipe failed(c);
+    failed.writerFailed();
+    check(!failed.beginAt(10) && !failed.recordingConfig(), "Deferred start masked writer failure");
+    c.deferredStart = false;
+    CapturePipe regular(c);
+    check(!regular.beginAt(20) && regular.recordingConfig() == regular.config(),
+          "Regular prepared capture became rebasable");
+}
 void backlog() {
     CaptureConfig c;
     c.slabFrames = 256;
@@ -294,6 +428,8 @@ int main() {
         failures();
         backlog();
         admittedPools();
+        deferredStart();
+        deferredPublication();
         const auto a = rt_audit::counts;
         check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,
               "RT capture allocated, freed or locked");

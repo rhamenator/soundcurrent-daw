@@ -165,8 +165,8 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
         const auto captureStart = range.begin;
         const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                     [&](const auto &t) { return t.id == a.track; });
-        if (!a.pipe || t == s.tracks.end() || a.inputChannels.size() != t->layout.channels ||
-            !validRecordingMonitor(a.monitoring) ||
+        if (!a.pipe || a.pipe->config().deferredStart || t == s.tracks.end() ||
+            a.inputChannels.size() != t->layout.channels || !validRecordingMonitor(a.monitoring) ||
             (a.monitorRange && (a.monitoring != RecordingMonitor::AutoRecording ||
                                 a.monitorRange->begin < c.startFrame ||
                                 a.monitorRange->begin >= a.monitorRange->end ||

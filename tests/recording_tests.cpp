@@ -167,6 +167,85 @@ void firstCheckpointCadence() {
     options.firstCheckpointFrames = 1025;
     rejects([&] { CaptureWriter bad(temp.root, spec, options); });
 }
+void deferredWriter() {
+    for (bool finishBeforeWriter : {false, true}) {
+        Temp temp;
+        auto session = makeOneTrackSession("Deferred — Ελληνικά", "Stereo raw");
+        session.tracks.front().layout = {LayoutKind::Stereo, 2};
+        ProjectStore(temp.root).save(session);
+        const auto original = session;
+        auto prepared = specFor(session, 256);
+        prepared.capture.deferredStart = true;
+        CapturePipe pipe(prepared.capture);
+        rejects([&] { RecordingWorker tooEarly(pipe, temp.root, prepared); });
+        auto guessed = prepared;
+        guessed.capture.deferredStart = false;
+        rejects([&] { RecordingWorker guessedStart(pipe, temp.root, guessed); });
+        rejects([&] { CaptureWriter unresolved(temp.root, prepared); });
+        check(!std::filesystem::exists(temp.root / "media") && !pipe.recordingConfig(),
+              "Deferred reservation created an unresolved/guessed recording job");
+        constexpr Frame start = 503;
+        CaptureTimingOrigin origin{
+            CaptureBackend::Synthetic, 9000000000ULL, 18000000000ULL, 47, 3, 17, 1, 48000, 0};
+        {
+            rt_audit::Guard guard;
+            check(pipe.beginAt(start) && pipe.setTimingOrigin(origin),
+                  "Deferred start/origin refused");
+        }
+        Source source(2, 127);
+        // Audio has started while disk work has not. The prepared pool retains
+        // both full slabs and the unfinished slab without touching the disk.
+        for (Frame at = 0; at < 508; at += 127)
+            check(source.push(pipe, start + at, 127).acceptedFrames == 127,
+                  "Deferred pre-writer samples lost");
+        if (finishBeforeWriter)
+            pipe.finish(CaptureEndReason::RangeComplete);
+        check(!std::filesystem::exists(temp.root / "media"),
+              "Audio start created a disk job on the callback");
+        auto resolved = prepared;
+        resolved.capture = *pipe.recordingConfig();
+        resolved.inputLatencyFrames = 41;
+        auto wrong = resolved;
+        ++wrong.capture.startFrame;
+        rejects([&] { RecordingWorker stale(pipe, temp.root, wrong); });
+        check(!std::filesystem::exists(temp.root / "media"),
+              "Mismatched deferred metadata created a job");
+        RecordingWorker worker(pipe, temp.root, resolved);
+        Frame total = 508;
+        if (!finishBeforeWriter) {
+            for (; total < 4099;) {
+                const auto n = unsigned(std::min<Frame>(127, 4099 - total));
+                check(source.push(pipe, start + total, n).acceptedFrames == n,
+                      "Concurrent deferred writer lost raw samples");
+                total += n;
+            }
+            rt_audit::Guard guard;
+            pipe.finish(CaptureEndReason::RangeComplete);
+        }
+        const auto result = worker.wait();
+        check(result.spec == resolved && result.asset.frames == total && worker.complete() &&
+                  worker.writtenFrames() == total,
+              "Deferred worker finalized wrong origin or extent");
+        verifyAudio(temp.root / utf8Path(result.asset.relativePath), total, 2, start);
+        const auto journal = inspectRecording(worker.jobDirectory(), {}, true);
+        check(journal.finalized && journal.spec.capture.startFrame == start &&
+                  journal.spec.inputLatencyFrames == 41 && journal.timingOrigin == origin &&
+                  journal.committedFrames == total &&
+                  journal.endReason == CaptureEndReason::RangeComplete,
+              "Deferred journal lost exact published start/clock/alignment");
+        auto attached = session;
+        attachRecording(attached, result);
+        check(attached.tracks[0].clips.back().startFrame == start - 41 &&
+                  !attached.tracks[0].clips.back().sourceFrame,
+              "Deferred attachment guessed start or applied delay twice");
+        EditHistory history(session);
+        check(history.adopt(attached) && history.undo() && session == original && history.redo() &&
+                  session == attached && ProjectStore(temp.root).load() == original,
+              "Deferred take changed original project or failed Undo/Redo");
+        ProjectStore(temp.root).save(session);
+        check(ProjectStore(temp.root).load() == session, "Deferred Save/reopen differs");
+    }
+}
 void concurrentTake() {
     Temp temp;
     auto session = makeOneTrackSession("Enregistrement – Aufnahme", "Prise / Aufnahme");
@@ -661,6 +740,7 @@ int main() {
         rt_audit::reset();
         firstCheckpointCadence();
         concurrentTake();
+        deferredWriter();
         layoutsAndAlignment();
         writerObservations();
         workerCancellation();

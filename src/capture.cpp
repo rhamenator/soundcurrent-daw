@@ -26,6 +26,7 @@ CaptureConfig prepareCaptureConfig(CaptureConfig config) {
                  l.kind == LayoutKind::Discrete),
             "Invalid capture layout");
     require(config.sampleRate >= 8000 && config.sampleRate <= 384000 && config.startFrame >= 0 &&
+                (!config.deferredStart || config.startFrame == 0) &&
                 config.maximumCallbackFrames >= 1 && config.maximumCallbackFrames <= 65536,
             "Invalid capture timing");
     if (!config.slabFrames)
@@ -54,11 +55,30 @@ CaptureConfig withCaptureReserve(CaptureConfig config, std::uint32_t millisecond
 }
 CapturePipe::CapturePipe(CaptureConfig config)
     : config_(prepareCaptureConfig(config)), nextFrame_(config.startFrame) {
+    recordingStart_ = config_.startFrame;
+    if (!config_.deferredStart)
+        startReady_.store(1, std::memory_order_relaxed);
     const auto count =
         std::size_t(config_.poolSlabs) * config_.slabFrames * config_.layout.channels;
     samples_.resize(count); // Allocates and touches every sample off RT.
     for (std::uint32_t i = 0; i < config_.poolSlabs; ++i)
         free_.tryPush(i);
+}
+bool CapturePipe::beginAt(Frame at) noexcept {
+    if (!config_.deferredStart || at < 0 || startReady_.load(std::memory_order_relaxed) ||
+        producerDone() || status() != CaptureStatus::Running)
+        return false;
+    recordingStart_ = nextFrame_ = at;
+    startReady_.store(1, std::memory_order_release);
+    return true;
+}
+std::optional<CaptureConfig> CapturePipe::recordingConfig() const noexcept {
+    if (!startReady_.load(std::memory_order_acquire))
+        return {};
+    auto result = config_;
+    result.startFrame = recordingStart_;
+    result.deferredStart = false;
+    return result;
 }
 CaptureStatus CapturePipe::status() const noexcept {
     const auto state = static_cast<CaptureStatus>(status_.load(std::memory_order_acquire));
@@ -99,8 +119,8 @@ CaptureReport CapturePipe::push(std::span<const float *const> input, std::uint32
             frames > config_.maximumCallbackFrames ||
             std::any_of(input.begin(), input.end(), [](const auto p) { return p == nullptr; }))
             state = CaptureStatus::InvalidBuffer;
-        else if (firstFrame != nextFrame_ || firstFrame < 0 ||
-                 firstFrame > std::numeric_limits<Frame>::max() - frames)
+        else if (!startReady_.load(std::memory_order_relaxed) || firstFrame != nextFrame_ ||
+                 firstFrame < 0 || firstFrame > std::numeric_limits<Frame>::max() - frames)
             state = CaptureStatus::TimingError;
     }
     if (state != CaptureStatus::Running) {
@@ -143,7 +163,8 @@ CaptureReport CapturePipe::push(std::span<const float *const> input, std::uint32
     return report;
 }
 bool CapturePipe::setTimingOrigin(const CaptureTimingOrigin &o) noexcept {
-    if (originReady_.load(std::memory_order_relaxed) || nextFrame_ != config_.startFrame ||
+    if (!startReady_.load(std::memory_order_relaxed) ||
+        originReady_.load(std::memory_order_relaxed) || nextFrame_ != recordingStart_ ||
         producerDone() || status() != CaptureStatus::Running || o.backend > CaptureBackend::Asio ||
         o.rateNumerator != 1 || o.rateDenominator < 8000 || o.rateDenominator > 384000 ||
         !o.generation)
