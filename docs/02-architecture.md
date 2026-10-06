@@ -158,3 +158,15 @@ checks, wall pacing, supervision and media hashes stay outside the audited
 callback. Lateness of the private producer is reported separately from contiguous
 sample correctness. A successful ten-minute private-clock run does not qualify
 native 30-minute deadlines, physical alignment or Windows runtime.
+
+M2d4b adds [native route admission and full-duration diagnostics](39-native-duration-qualification.md).
+Selected link listeners are control-owned; native activation negotiates buffers
+while a release/acquire admission gate silences certified outputs without
+advancing DSP/capture/origin. Engine admission waits for every selected link to
+be Active; bounded timeout rolls back, and later inactivity retains DeviceLost.
+An optional clock observer supports fixture-only current-period audit coverage,
+including gated/shutdown callbacks. Timing storage is fixed before activation;
+quantile sorting and worker-boundary diagnostics happen after join. Streaming
+raw/output verification bounds memory. The first long run's pool exhaustion and
+the subsequent120-second maximum callback-budget miss remain open. Existing
+capture pools, budgets, durability and RT processing algorithms are unchanged.

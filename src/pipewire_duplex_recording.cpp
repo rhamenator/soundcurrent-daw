@@ -6,13 +6,14 @@ namespace soundcurrent::daw {
 struct PipeWireDuplexRecording::State {
     DuplexRecordingRun run;
     RecordingCallbackInstrumentation audit;
+    void (*auditClock)(void *, const DeviceBlockClock &) noexcept;
     std::unique_ptr<PipeWireFilter> filter;
     std::exception_ptr activationError;
     bool inputRouted = false, outputRouted = false, attempted = false, stopped = false;
     State(std::filesystem::path root, const Session &s, MixPlan plan,
           std::vector<DuplexRecordingLane> lanes, const PipeWireDuplexRecordingOptions &o)
-        : run(std::move(root), s, std::move(plan), std::move(lanes), native(o.run)),
-          audit(o.audit) {}
+        : run(std::move(root), s, std::move(plan), std::move(lanes), native(o.run)), audit(o.audit),
+          auditClock(o.auditClock) {}
     static DuplexRecordingOptions native(DuplexRecordingOptions o) {
         o.backend = CaptureBackend::PipeWire;
         return o;
@@ -21,6 +22,11 @@ struct PipeWireDuplexRecording::State {
                         std::span<const float *const> input, std::span<float *const> output,
                         std::uint32_t capacity) noexcept {
         static_cast<State *>(context)->run.process(clock, input, output, capacity);
+    }
+    static void observeClock(void *context, const DeviceBlockClock &clock) noexcept {
+        auto &s = *static_cast<State *>(context);
+        if (s.auditClock)
+            s.auditClock(s.audit.context, clock);
     }
     static void unavailable(void *context, AudioBridgeStatus reason) noexcept {
         static_cast<State *>(context)->run.requestFault(reason == AudioBridgeStatus::QuantumExceeded
@@ -64,7 +70,8 @@ PipeWireDuplexRecording::PipeWireDuplexRecording(std::filesystem::path root, con
     st.filter = std::make_unique<PipeWireFilter>(
         PipeWireFilterOptions{"sc-daw-recording-duplex-" + Id::generate().str(),
                               options.run.nativeInputs, st.run.graph().plan().output.channels},
-        PipeWireCallbacks{&st, State::process, State::unavailable, State::begin, State::end});
+        PipeWireCallbacks{&st, State::process, State::unavailable, State::begin, State::end,
+                          State::observeClock});
     if (!st.filter->waitReady(options.readyTimeout))
         throw ProjectError(ErrorCode::Io, "PipeWire duplex ports are not ready");
 }

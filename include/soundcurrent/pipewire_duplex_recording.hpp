@@ -8,6 +8,9 @@ struct PipeWireDuplexRecordingOptions {
     DuplexRecordingOptions run;
     std::chrono::milliseconds readyTimeout = std::chrono::seconds(3);
     RecordingCallbackInstrumentation audit;
+    // Optional fixture instrumentation inside the existing callback audit scope.
+    // Receives the actual current native clock; must be bounded/noexcept/RT-safe.
+    void (*auditClock)(void *, const DeviceBlockClock &) noexcept = nullptr;
 };
 // One inactive native filter, explicit packed input and master output routes.
 // Control owner: preparation, activation and stop/join run outside GUI/audio.

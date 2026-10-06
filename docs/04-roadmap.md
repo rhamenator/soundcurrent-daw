@@ -132,3 +132,12 @@ sink fixture for a declared 30-minute rate/quantum/device/load run with streamin
 full-range source/output verification, complete callback timing coverage and
 99.9th-percentile/max gates. Physical alignment, actual disk-full/filesystem/
 power-loss/Windows and every remaining M1/M2/frozen workflow remain required.
+
+M2d4b supplies [active native-link admission and bounded full-duration diagnostics](39-native-duration-qualification.md),
+short native/desktop regression evidence and read-only failed-prefix verification.
+The first declared30-minute run failed with capture-pool exhaustion around55s;
+an instrumented120s sample run is exact but misses the maximum callback budget.
+Next **M2d4c**: diagnose bounded disk worker phases/queue occupancy and callback
+tails, qualify any justified checkpoint/burst-buffer change under the unchanged
+32-track contract, then repeat the required30-minute native acceptance. Short
+sample/timing passes do not waive earlier observations or promote F/Q/C/N axes.

@@ -58,15 +58,47 @@ struct PipeWireFilter::State {
     std::array<float *, 256> outputViews{};
     std::unordered_map<std::uint32_t, PipeWirePort> nodes, remotePorts;
     std::unordered_set<std::uint32_t> routeLinks;
-    std::vector<pw_proxy *> ownedLinks;
+    struct Route {
+        State &owner;
+        pw_proxy *proxy = nullptr;
+        spa_hook listener{};
+        pw_link_state state = PW_LINK_STATE_INIT;
+        bool listening = false;
+        explicit Route(State &s) : owner(s) {}
+        ~Route() {
+            if (listening)
+                spa_hook_remove(&listener);
+            if (proxy)
+                pw_proxy_destroy(proxy);
+        }
+        static void info(void *data, const pw_link_info *info) noexcept {
+            auto &r = *static_cast<Route *>(data);
+            if (info && (info->change_mask & PW_LINK_CHANGE_MASK_STATE)) {
+                r.state = info->state;
+                if (r.state == PW_LINK_STATE_ERROR)
+                    r.owner.unavailable(AudioBridgeStatus::DeviceLost,
+                                        "Selected audio route negotiation failed");
+                else if (r.state != PW_LINK_STATE_ACTIVE &&
+                         r.owner.admitted.load(std::memory_order_acquire))
+                    r.owner.unavailable(AudioBridgeStatus::DeviceLost,
+                                        "Selected audio route is no longer active");
+            }
+        }
+        bool ready() const noexcept {
+            return state == PW_LINK_STATE_ACTIVE;
+        }
+    };
+    std::vector<std::unique_ptr<Route>> ownedLinks;
     std::string error;
     std::atomic<std::uint32_t> publishedNode{SPA_ID_INVALID}, shuttingDown{0};
+    std::atomic<bool> admitted{false};
     bool active = false, started = false, inputsSet = false, outputsSet = false;
     bool initialized = false;
 
     void unavailable(AudioBridgeStatus status, const char *message) noexcept {
         if (shuttingDown.load(std::memory_order_acquire))
             return;
+        admitted.store(false, std::memory_order_release);
         try {
             if (error.empty())
                 error = message;
@@ -148,7 +180,7 @@ struct PipeWireFilter::State {
             if (s.callbacks.endCallback)
                 s.callbacks.endCallback(s.callbacks.context);
         };
-        if (!position || s.shuttingDown.load(std::memory_order_acquire)) {
+        if (!position) {
             end();
             return;
         }
@@ -163,6 +195,12 @@ struct PipeWireFilter::State {
                                       clock.delay,
                                       (clock.flags & SPA_IO_CLOCK_FLAG_XRUN_RECOVER) != 0,
                                       (clock.flags & SPA_IO_CLOCK_FLAG_DISCONT) != 0};
+        if (s.callbacks.observeClock)
+            s.callbacks.observeClock(s.callbacks.context, timing);
+        if (s.shuttingDown.load(std::memory_order_acquire)) {
+            end();
+            return;
+        }
         if (clock.duration == 0 || clock.duration > s.options.maximumNativeFrames) {
             // No capacity-certified views exist for this unsupported native
             // quantum. Signal outside the callback through the user's bridge.
@@ -175,6 +213,15 @@ struct PipeWireFilter::State {
             s.inputViews[c] = static_cast<const float *>(pw_filter_get_dsp_buffer(s.inputs[c], n));
         for (std::uint32_t c = 0; c < s.options.outputs; ++c)
             s.outputViews[c] = static_cast<float *>(pw_filter_get_dsp_buffer(s.outputs[c], n));
+        if (!s.admitted.load(std::memory_order_acquire)) {
+            // Native activation negotiates links. Until every owned link is
+            // active, publish silence without capturing/advancing the engine.
+            for (std::uint32_t c = 0; c < s.options.outputs; ++c)
+                if (s.outputViews[c])
+                    std::fill_n(s.outputViews[c], n, 0.f);
+            end();
+            return;
+        }
         s.callbacks.process(s.callbacks.context, timing, {s.inputViews.data(), s.options.inputs},
                             {s.outputViews.data(), s.options.outputs}, n);
         end();
@@ -227,28 +274,35 @@ struct PipeWireFilter::State {
                                     std::to_string(input ? own->portId : p.portId)});
         }
         ownedLinks.reserve(ownedLinks.size() + count);
-        std::vector<pw_proxy *> pending;
+        std::vector<std::unique_ptr<Route>> pending;
         pending.reserve(count);
         try {
             for (const auto &d : descriptions) {
+                auto route = std::make_unique<Route>(*this);
                 auto *props = pw_properties_new(
                     PW_KEY_LINK_OUTPUT_NODE, d[0].c_str(), PW_KEY_LINK_OUTPUT_PORT, d[1].c_str(),
                     PW_KEY_LINK_INPUT_NODE, d[2].c_str(), PW_KEY_LINK_INPUT_PORT, d[3].c_str(),
                     PW_KEY_OBJECT_LINGER, "false", nullptr);
                 require(props, "Cannot allocate PipeWire link properties");
-                auto *link = static_cast<pw_proxy *>(
+                route->proxy = static_cast<pw_proxy *>(
                     pw_core_create_object(core, "link-factory", PW_TYPE_INTERFACE_Link,
                                           PW_VERSION_LINK, &props->dict, 0));
                 pw_properties_free(props);
-                require(link, "Cannot create explicit PipeWire route");
-                pending.push_back(link);
+                require(route->proxy, "Cannot create explicit PipeWire route");
+                static const pw_link_events events{.version = PW_VERSION_LINK_EVENTS,
+                                                   .info = Route::info};
+                require(pw_link_add_listener(reinterpret_cast<pw_link *>(route->proxy),
+                                             &route->listener, &events, route.get()) >= 0,
+                        "Cannot observe explicit audio route negotiation");
+                route->listening = true;
+                pending.push_back(std::move(route));
             }
         } catch (...) {
-            for (auto *link : pending)
-                pw_proxy_destroy(link);
+            pending.clear();
             throw;
         }
-        ownedLinks.insert(ownedLinks.end(), pending.begin(), pending.end());
+        for (auto &route : pending)
+            ownedLinks.push_back(std::move(route));
         configured = true;
         // Server-side rejection is asynchronous and delivered by coreError.
         // Do not claim that local publication proves remote link activation.
@@ -373,11 +427,29 @@ void PipeWireFilter::connectOutputs(const std::vector<PipeWirePort> &p) {
 }
 void PipeWireFilter::activate() {
     require(state_->loop, "PipeWire filter stopped");
-    LoopLock lock(state_->loop);
-    require(state_->error.empty() && !state_->active &&
-                pw_filter_set_active(state_->filter, true) >= 0,
-            "Cannot activate PipeWire filter");
-    state_->active = true;
+    {
+        LoopLock lock(state_->loop);
+        require(state_->error.empty() && !state_->active, "Cannot activate PipeWire filter");
+        state_->admitted.store(state_->ownedLinks.empty(), std::memory_order_release);
+        require(pw_filter_set_active(state_->filter, true) >= 0, "Cannot activate PipeWire filter");
+        state_->active = true;
+    }
+    // All route negotiation and waits belong to the control owner. A proxy's
+    // creation is not proof that every channel has negotiated its buffer.
+    const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    while (std::chrono::steady_clock::now() < until) {
+        {
+            LoopLock lock(state_->loop);
+            require(state_->error.empty(), "Cannot activate PipeWire filter");
+            if (std::all_of(state_->ownedLinks.begin(), state_->ownedLinks.end(),
+                            [](const auto &r) { return r->ready(); })) {
+                state_->admitted.store(true, std::memory_order_release);
+                return;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
+    throw ProjectError(ErrorCode::Io, "Selected audio routes did not finish negotiation");
 }
 void PipeWireFilter::stop() noexcept {
     if (!state_)
@@ -392,8 +464,6 @@ void PipeWireFilter::stop() noexcept {
                 pw_filter_destroy(s.filter);
                 s.filter = nullptr;
             }
-            for (auto *p : s.ownedLinks)
-                pw_proxy_destroy(p);
             s.ownedLinks.clear();
             if (s.registry) {
                 spa_hook_remove(&s.registryListener);

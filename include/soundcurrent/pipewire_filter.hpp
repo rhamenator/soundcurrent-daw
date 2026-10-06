@@ -30,6 +30,9 @@ struct PipeWireCallbacks {
     // Optional RT-safe instrumentation; no allocating/logging hooks allowed.
     void (*beginCallback)(void *) noexcept = nullptr;
     void (*endCallback)(void *) noexcept = nullptr;
+    // Optional fixture clock observation, including route-negotiation callbacks.
+    // Receives no mutable buffers; bounded/noexcept/RT-safe only.
+    void (*observeClock)(void *, const DeviceBlockClock &) noexcept = nullptr;
 };
 // Linux-specific implementation behind a framework-free public descriptor.
 // No autoconnection, default-device mutation or driver/rate/quantum forcing.

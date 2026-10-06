@@ -240,3 +240,12 @@ is retained; default unity EQ/private-clock correctness does not establish nativ
 deadlines. P001/P088 implementation notes advance; all 92 frozen acceptance/
 quality/reference/F/Q/C/N contracts remain unchanged. Native 30-minute/physical/
 load/disk-full/platform/full recovery and all professional parity gates stay open.
+
+## M2d4b native diagnostics, no parity promotion
+
+[Native link admission and full-duration diagnostics](39-native-duration-qualification.md)
+retain the failed30-minute pool-exhaustion run and an exact120-second sample run
+with one maximum-budget miss. Both failures stay visible; the duration/quality
+contract remains unqualified. All92 family acceptance/quality/reference/F/Q/C/N
+contracts are unchanged. Read-only full valid-prefix/source/hash/common-output
+verification does not turn an interrupted take into completed recording parity.

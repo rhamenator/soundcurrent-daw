@@ -599,3 +599,81 @@ actual device/rate/quantum/scheduler/load records and complete failure diagnosti
 Keep defaults/owned routes and strict origin/gap/prefix checks. Qualify physical
 round-trip alignment separately. Punch/loop/Auto/takes/comping/fades and the rest
 of M2 stay in the backlog.
+
+## M2d4b native admission, full timing and retained failures (2026-10-06)
+
+Checkpoint `4ad7164` was **progress**, not completion. The production PipeWire
+adapter now owns selected link-state listeners and admits engine/capture only
+when every selected link is Active. Native activation remains necessary for
+format/buffer negotiation; a closed admission gate writes bounded certified
+silence without advancing DSP, capture or origin. Control-side waits and listener
+retirement stay outside RT. Later inactivity/error retains DeviceLost. This
+addresses an admission deficiency; the precise original delayed-plane cause
+remains unproven. No DSP algorithm, capture pool/budget or durability change.
+
+The new opt-in streamed native qualifier prepares fixed full-duration timing
+storage before activation, retains each elapsed/current-period pair, and computes
+nearest-rank 99.9%/maximum after join. Missing periods/storage overflow deny
+qualification. Optional current-clock observation covers admission/shutdown;
+production does not acquire instrumentation clocks. Owned software routes use
+the existing daemon, Dummy-Driver, 1024/48000 and observed SCHED_RR priority20
+native data loops. Defaults and previous links stay unchanged. Full sample,
+headroom, hashes, canonical Save/reopen and synthetic alignment oracles stay
+separate from timing/physical/Windows claims.
+
+All 26 Debug groups passed in 23.53s and all 26 ASan/UBSan/LSan groups in 64.97s;
+Windows headless compilation/linking passed without execution/native/Qt claims.
+Final two-second normal/sink-removal cases and existing five-mode duplex owner,
+three/32-arm desktop and single-file playback/removal regressions passed serially.
+The normal case checks3,072,000 raw/192,000 output samples exactly and retains all
+callback periods with zero host-owned allocation/free/blocking-lock counts.
+Original mismatched lane 26/input 22, pre-activation negotiation timeout and missing
+shutdown timing periods remain recorded with the corresponding scoped changes.
+The first mismatch and all seven inherited reliability failures remain open.
+
+The first declared 1800-second run failed after about 54.9547 audio seconds with
+capture-pool exhaustion. Initiating lane 1 rejects1024 frames at a contiguous
+1024-frame clock with no XRUN/discontinuity; several healthy lanes retain an
+additional quantum before shutdown. Every writer joins with captured=written,
+and no canonical takes attach. Complete callback timing passes its finite
+thresholds for this failed prefix, which does not qualify duration. Original
+checkpoint phase timings were not captured: disk/scheduler/backlog cause is
+unknown. All original sources, diagnostics, journals and media remain retained.
+
+Fixture-only disk boundary timers measure worker intervals without changing
+production policy. A120-second diagnostic verifies184,320,000 raw and11,520,000
+output samples exactly, Save/reopen and peak4.30698. Observed worker maxima
+115.297016ms write/hash/header/flush and81.513784ms journal-to-next-write do not
+explain the original2.730667-second pool exhaustion; the latter includes idle/
+scheduling, not just fsync. Owner p99.9=4.675373ms but maximum17.834714ms exceeds
+80% of its period (83.6002%). Sample verification passes; deadline qualification
+fails. No threshold is loosened, no duration failure is replaced by a shorter pass.
+
+The new offline `verify-retained` mode verifies every full raw prefix against
+source coordinates/sample hashes, inactive journals, identity/origin/latency and
+exact RF64 extents, then privately replays file/EQ/matrix over the common sink
+range. Release checks all 84,424,704 raw and5,275,648 output samples exactly,
+including raw lengths2,637,824..2,638,848 and18,432 rejected frames. Peak4.01682
+preserves float headroom. Separate before/after SHA-256 snapshots prove all 105
+original files unchanged. No native nodes, trimming, Save or copy recovery occur.
+Final Debug/sanitized read-only and deliberate wrong-origin results are recorded
+in [the evidence](../tests/results/M2/2026-10-06-native-duration-qualification.json).
+[Contract](39-native-duration-qualification.md) and
+[ADR-029](decisions/029-native-route-admission-and-duration.md) preserve scope and
+failed gates. Current fixture-only timers/verifier have their own source hashes;
+the pre-instrumentation long run's original hashes remain separate.
+
+Read-only equalizer checks, source hashes and frozen contract equivalence are
+recorded before checkpoint. No equalizer writes, dependency/license change,
+publish or push. All 92 acceptance/quality/reference/F/Q/C/N contracts stay intact
+and unpromoted. M1/M2/30-minute/physical/controlled-load/filesystem/power-loss/
+unload/Windows/full workflows, X004, X005 and all-Europe qualification remain
+required. The full goal remains **active and incomplete**.
+
+Next: **M2d4c writer-backlog and callback-tail diagnosis**. Add bounded worker-only
+phase and queue occupancy observations spanning audio flush, journal publication
+and slab-drain scheduling. Reproduce a declared stall under the same32-track
+budget, evaluate any justified durable-checkpoint/burst-buffer change with fault
+and exact-prefix tests, then repeat the unchanged30-minute native sample and
+callback-budget acceptance. Keep all retained failures visible. Punch/loop/Auto/
+takes/comping/fades and every remaining professional workflow stay required.
