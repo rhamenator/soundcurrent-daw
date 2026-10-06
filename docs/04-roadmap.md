@@ -337,3 +337,19 @@ handling and preserve pending/retired lifetime through Stop/fault and cancellati
 Then integrate and qualify the owned PipeWire adapter and canonical desktop
 manual controls. Native/sustained/physical, independent Windows, broader monitoring,
 loop/take/comping, imports/profiles and all-Europe/full-suite gates remain required.
+
+## M2 manual recording disk/group ownership (2026-10-06)
+
+[Production control owner](64-manual-recording-control-owner.md) now starts writers
+from published exact capture configs, joins/reclaims retired consumers, retains
+initiating errors, distinguishes empty/mixed/failed/canceled lanes, verifies
+independent media/checkpoint results and applies bounded reliable reply/result
+backpressure. Canonical grouped adoption/Undo/Redo preserves the active continuous
+mix/EQ generation. Real reader/writer synthetic cases cover late startup,
+interruptions, queue pressure and twenty concurrent audio/control retirements.
+
+Next implement and qualify the owned PipeWire manual recording adapter, then
+canonical Qt manual controls and their fast-edit/Undo binding checks. All29 retained
+observations and92 frozen contracts remain retained/unpromoted; native sustained,
+physical, Windows runtime/installers, complete monitoring, indefinite/loop/seek,
+takes/comping, X004/X005 and all-Europe qualification remain required.

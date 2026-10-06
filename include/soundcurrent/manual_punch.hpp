@@ -21,6 +21,9 @@ class ManualPunchTake {
     ManualTakePhase phase() const noexcept;
     std::optional<Frame> startFrame() const noexcept;
     std::optional<Frame> endFrame() const noexcept;
+    // Immutable audio-published accepted raw extent, available only after
+    // retirement. Control must never read CapturePipe's audio-only cursor.
+    std::optional<Frame> retiredFrames(std::size_t) const;
     CapturePipe &pipe(std::size_t); // Disk/control lookup; never resets a take.
     std::size_t lanes() const noexcept;
 
