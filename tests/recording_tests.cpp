@@ -193,6 +193,59 @@ void layoutsAndAlignment() {
               "Multichannel prefix verification failed");
     }
 }
+void writerObservations() {
+    Temp temp;
+    const auto spec = specFor(makeOneTrackSession("Diagnostics", "Raw"), 256);
+    CapturePipe pipe(spec.capture);
+    struct Observations {
+        std::array<RecordingWriterObservation, 64> records{};
+        unsigned count = 0;
+        bool onAudio = false, overflow = false;
+        static void receive(void *p, const RecordingWriterObservation &o) noexcept {
+            auto &s = *static_cast<Observations *>(p);
+            s.onAudio |= rt_audit::active;
+            if (s.count < s.records.size())
+                s.records[s.count++] = o;
+            else
+                s.overflow = true;
+        }
+    } observations;
+    RecordingOptions options;
+    options.checkpointFrames = 512;
+    options.instrumentation = {&observations, Observations::receive};
+    CaptureWriter writer(temp.root, spec, options);
+    Source source(1, 512);
+    check(source.push(pipe, 0, 512).acceptedFrames == 512, "Diagnostic capture rejected");
+    check(writer.drainOne(pipe) && writer.drainOne(pipe), "Diagnostic slabs not written");
+    check(source.push(pipe, 512, 37).acceptedFrames == 37, "Diagnostic partial rejected");
+    {
+        rt_audit::Guard guard;
+        pipe.finish();
+    }
+    check(writer.drainOne(pipe) && !writer.drainOne(pipe), "Diagnostic partial not drained");
+    const auto result = writer.finalize(pipe);
+    check(!observations.onAudio && !observations.overflow && observations.count == 20,
+          "Writer observations ran on audio, overflowed or lost phase events");
+    for (unsigned n = 0; n < 4; ++n)
+        check(!observations.records[n].hasBacklog, "Construction invents producer backlog");
+    const auto first = observations.records[4];
+    check(first.phase == RecordingWriterPhase::WriteHashBegin && first.writtenFrames == 0 &&
+              first.committedFrames == 0 && first.backlog.readySlabs == 1 &&
+              first.backlog.acquiredFrames == 256 && first.backlog.queuedFrameUpperBound == 512,
+          "Write phase queue/owned slab observation differs");
+    const auto flush = observations.records[8];
+    check(flush.phase == RecordingWriterPhase::AudioFlushBegin && flush.writtenFrames == 512 &&
+              flush.committedFrames == 0 && !flush.backlog.readySlabs &&
+              !flush.backlog.acquiredFrames,
+          "Audio flush occurs before slab return or has wrong durable cursor");
+    const auto last = observations.records[19];
+    check(last.phase == RecordingWriterPhase::JournalPublishEnd && last.writtenFrames == 549 &&
+              last.committedFrames == 549 && last.hasBacklog && !last.backlog.queuedFrameUpperBound,
+          "Final journal observation precedes commit or retains drained backlog");
+    verifyAudio(temp.root / utf8Path(result.asset.relativePath), 549, 1);
+    check(inspectRecording(writer.jobDirectory(), {}, true).committedFrames == 549,
+          "Instrumented writer changed durable prefix");
+}
 void workerCancellation() {
     Temp temp;
     auto spec = specFor(makeOneTrackSession("Cancel", "Raw"), 256);
@@ -480,6 +533,7 @@ int main() {
         rt_audit::reset();
         concurrentTake();
         layoutsAndAlignment();
+        writerObservations();
         workerCancellation();
         queuedGap();
         sanitizedJournal();

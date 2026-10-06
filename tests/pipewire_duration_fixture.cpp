@@ -2,6 +2,7 @@
 // Opt-in streamed 32-arm native duration qualification. Owned routes only.
 #include <soundcurrent/pipewire_duplex_recording.hpp>
 #include "native_duration_timing.hpp"
+#include "writer_timing.hpp"
 #include "rt_audit.hpp"
 #include <sndfile.h>
 #include <algorithm>
@@ -31,37 +32,26 @@ float inputSignal(std::uint64_t f, unsigned channel) noexcept {
 float fileSignal(Frame f) noexcept {
     return float(double(f % 53 - 26) * .0625);
 }
-// Single disk/control writer; inspected after worker join. Existing worker-only
-// boundaries, no instrumentation enters audio and no checkpoint policy changes.
+// Fixed worker-only phase measurements. Controlled stalls are opt-in fixture
+// behavior; the production pool/durability policy and audio callback are unchanged.
 struct DiskTiming {
-    std::uint64_t writeAt = 0, journalAt = 0, maximumWriteToFlush = 0,
-                  maximumJournalToNextWrite = 0, checkpoints = 0;
-    static std::uint64_t now() {
-        return std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
-                                 std::chrono::steady_clock::now().time_since_epoch())
-                                 .count());
-    }
-    void boundary(RecordingBoundary b, Frame f) {
-        if (!f)
-            return; // Initial journal is on the construction/control owner.
-        const auto t = now();
-        if (b == RecordingBoundary::BeforeAudioWrite) {
-            if (journalAt) {
-                maximumJournalToNextWrite = std::max(maximumJournalToNextWrite, t - journalAt);
-                journalAt = 0;
-            }
-            writeAt = t;
-        } else if (b == RecordingBoundary::AfterAudioFlush) {
-            if (writeAt)
-                maximumWriteToFlush = std::max(maximumWriteToFlush, t - writeAt);
-            ++checkpoints;
-        } else if (b == RecordingBoundary::BeforeJournalPublish)
-            journalAt = t;
+    native_fixture::WriterTiming timing;
+    unsigned stallMilliseconds = 0;
+    bool injected = false;
+    static void observe(void *p, const RecordingWriterObservation &o) noexcept {
+        auto &s = *static_cast<DiskTiming *>(p);
+        const auto now = std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                           std::chrono::steady_clock::now().time_since_epoch())
+                                           .count());
+        s.timing.record(o, now);
+        if (s.stallMilliseconds && !s.injected && o.hasBacklog && o.writtenFrames >= rate &&
+            o.phase == RecordingWriterPhase::JournalPublishBegin) {
+            s.injected = true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(s.stallMilliseconds));
+        }
     }
     void write(std::ostream &out) const {
-        out << "{\"checkpoints\":" << checkpoints
-            << ",\"maximum_write_hash_header_flush_ns\":" << maximumWriteToFlush
-            << ",\"maximum_journal_to_next_write_ns\":" << maximumJournalToNextWrite << '}';
+        timing.write(out);
     }
 };
 struct Audit {
@@ -443,7 +433,8 @@ int main(int argc, char **argv) {
         const auto seconds = Frame(std::stoul(argv[2]));
         const std::string mode = argv[3];
         require(seconds >= 1 && seconds <= 1800 &&
-                    (mode == "normal" || mode == "sink-gap" || mode == "verify-retained"),
+                    (mode == "normal" || mode == "sink-gap" || mode == "writer-stall" ||
+                     mode == "verify-retained"),
                 "Unsupported native duration range/mode");
         if (mode == "verify-retained") {
             verifyRetained(root);
@@ -484,9 +475,9 @@ int main(int argc, char **argv) {
             lane.inputChannels = {(n * 7) % 32};
             lane.monitoring = RecordingMonitor::PostEq;
             lane.writer.checkpointFrames = rate;
-            lane.writer.boundary = [&, n](RecordingBoundary b, Frame f) {
-                diskTiming[n].boundary(b, f);
-            };
+            lane.writer.instrumentation = {&diskTiming[n], DiskTiming::observe};
+            if (mode == "writer-stall" && n == 17)
+                diskTiming[n].stallMilliseconds = 4000;
             lanes.push_back(std::move(lane));
         }
         Audit ownerAudit;
@@ -509,9 +500,7 @@ int main(int argc, char **argv) {
         CapturePipe sinkPipe(sinkConfig);
         Sink sink(run, sinkPipe, target);
         RecordingOptions sinkOptions;
-        sinkOptions.boundary = [&](RecordingBoundary b, Frame f) {
-            diskTiming[arms].boundary(b, f);
-        };
+        sinkOptions.instrumentation = {&diskTiming[arms], DiskTiming::observe};
         RecordingWorker sinkWriter(sinkPipe, root, spec(s, Id::generate(), sinkPipe.config()),
                                    sinkOptions);
         PipeWireFilter sinkNode(
@@ -623,6 +612,73 @@ int main(int argc, char **argv) {
             std::cout << "{\"mode\":\"sink-gap\",\"owned_nodes_only\":true,\"device_lost_"
                          "retained\":true,\"verified_raw_samples\":"
                       << verified << "}\n";
+            return 0;
+        }
+        if (mode == "writer-stall") {
+            const auto fault = run.callbackFault();
+            const auto origin = run.timingOrigin();
+            require(diskTiming[17].injected && run.status() == DuplexStatus::CaptureFailed &&
+                        fault && fault->failedCapture == 17 && origin && sinkResult &&
+                        !fault->received.xrun && !fault->received.discontinuity,
+                    "Controlled journal stall did not retain the initiating capture failure");
+            std::uint64_t raw = 0;
+            Frame minimum = target, maximum = 0;
+            std::vector<RecordingResult> takes;
+            for (unsigned n = 0; n < arms; ++n) {
+                const auto take = run.result(n);
+                const auto stats = run.capture(n);
+                const auto journal = inspectRecording(*run.jobDirectory(n), {}, true);
+                require(stats.writerComplete && stats.captured == take.asset.frames &&
+                            stats.written == stats.captured && stats.origin == origin &&
+                            journal.finalized && journal.writerActivityConfirmed &&
+                            journal.committedFrames == take.asset.frames &&
+                            journal.timingOrigin == origin && !stats.invalidSamples,
+                        "Controlled stall lost a joined raw prefix/journal/origin");
+                Reader reader(root, take.asset);
+                std::array<float, block> data{};
+                for (Frame at = 0; at < take.asset.frames;) {
+                    const auto count = unsigned(std::min<Frame>(block, take.asset.frames - at));
+                    reader.read(data.data(), count);
+                    for (unsigned f = 0; f < count; ++f)
+                        require(data[f] ==
+                                    inputSignal(origin->devicePosition + std::uint64_t(at + f),
+                                                (n * 7) % arms),
+                                "Controlled stall full raw prefix differs");
+                    at += count;
+                    raw += count;
+                }
+                require(hashMediaFile(root / utf8Path(take.asset.relativePath)) ==
+                            take.asset.sha256,
+                        "Controlled stall full raw media hash differs");
+                minimum = std::min(minimum, take.asset.frames);
+                maximum = std::max(maximum, take.asset.frames);
+                takes.push_back(take);
+            }
+            require(run.capture(17).status == CaptureStatus::QueueFull &&
+                        run.capture(17).rejected > 0 && minimum < target,
+                    "Controlled stall did not expose fixed pool exhaustion");
+            const auto common = std::min(minimum, sinkResult->asset.frames);
+            const auto checked = verify(root, initial, takes, sinkResult->asset, common, *origin);
+            require(hashMediaFile(root / utf8Path(sinkResult->asset.relativePath)) ==
+                            sinkResult->asset.sha256 &&
+                        ProjectStore(root).load() == initial,
+                    "Controlled stall changed canonical project or sink hash");
+            std::cout << "{\"mode\":\"writer-stall\",\"owned_nodes_only\":true,"
+                         "\"capture_failed_retained\":true,\"initiating_lane\":17,"
+                         "\"injected_journal_stall_ms\":4000,\"verified_raw_samples\":"
+                      << raw << ",\"verified_output_samples\":" << checked.output
+                      << ",\"common_output_frames\":" << common
+                      << ",\"minimum_raw_frames\":" << minimum
+                      << ",\"maximum_raw_frames\":" << maximum
+                      << ",\"maximum_sample_difference\":" << checked.difference
+                      << ",\"canonical_unchanged\":true,\"rt_allocations\":0,\"rt_frees\":0,"
+                         "\"rt_blocking_locks\":0,\"disk_timing\":[";
+            for (unsigned n = 0; n <= arms; ++n) {
+                if (n)
+                    std::cout << ',';
+                diskTiming[n].write(std::cout);
+            }
+            std::cout << "]}\n";
             return 0;
         }
         if (sinkError)

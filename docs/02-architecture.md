@@ -170,3 +170,14 @@ quantile sorting and worker-boundary diagnostics happen after join. Streaming
 raw/output verification bounds memory. The first long run's pool exhaustion and
 the subsequent120-second maximum callback-budget miss remain open. Existing
 capture pools, budgets, durability and RT processing algorithms are unchanged.
+
+M2d4c1 adds [optional disk-owner phase/backlog observation](40-writer-backlog-diagnostics.md).
+The observer reads existing ready-queue publication counters and its own acquired
+packet; the producer's partial slab is omitted and final ready-frame extents are
+upper bounds. Audio `push()`/`finish()` acquire no additional diagnostic counters,
+clocks or locks. Writer-only paired write/hash, flush, journal and idle observations
+retain written/durable cursors. Construction has no producer backlog. Fixed
+fixture maxima/context and the callback maximum's clock/start time are inspected
+after joins; they distinguish declared phase wall time from presumed disk or
+scheduler causes. The fixed capture/durable checkpoint policy is preserved while
+the native failure remains under investigation.

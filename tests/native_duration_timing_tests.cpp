@@ -25,11 +25,14 @@ int main() {
     auto s = summary(t);
     require(s["p50_ns"] == 501 && s["p999_ns"] == 1000 && s["maximum_ns"] == 1001 &&
             s["complete_timing_coverage"] == true && s["finite_deadline_thresholds_met"] == true);
-    t.record(100000, &c);
+    c.position = 912345;
+    t.record(100000, &c, 456789);
     s = summary(t);
     require(s["calls"] == 1002 && s["samples"] == 1001 && s["dropped_samples"] == 1 &&
             s["maximum_ns"] == 100000 && s["complete_timing_coverage"] == false &&
-            s["finite_deadline_thresholds_met"] == false);
+            s["finite_deadline_thresholds_met"] == false &&
+            s["maximum_callback_start_monotonic_ns"] == 456789 &&
+            s["maximum_clock_known"] == true && s["maximum_clock"]["position"] == 912345);
     DurationTiming boundary(3);
     boundary.record(7999, &c);
     boundary.record(8000, &c);

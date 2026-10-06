@@ -241,14 +241,25 @@ struct CaptureWriter::State {
         if (options.boundary)
             options.boundary(b, written);
     }
+    void observe(RecordingWriterPhase phase, const CapturePipe *pipe = nullptr) noexcept {
+        if (options.instrumentation.observe)
+            options.instrumentation.observe(options.instrumentation.context,
+                                            {phase, written, committed,
+                                             pipe ? pipe->consumerBacklog() : CaptureBacklog{},
+                                             pipe != nullptr});
+    }
     void checkpoint(bool final, CaptureStatus status, const CapturePipe *pipe = nullptr) {
+        observe(RecordingWriterPhase::AudioFlushBegin, pipe);
         audio->checkpoint();
+        observe(RecordingWriterPhase::AudioFlushEnd, pipe);
         boundary(RecordingBoundary::AfterAudioFlush);
         boundary(RecordingBoundary::BeforeJournalPublish);
+        observe(RecordingWriterPhase::JournalPublishBegin, pipe);
         durability = media_io::publishJournal(
             job / "journal.json",
             journal(spec, written, sequence, samples.digest(), final, status, pipe).dump(2) + "\n");
         committed = written;
+        observe(RecordingWriterPhase::JournalPublishEnd, pipe);
     }
 };
 CaptureWriter::CaptureWriter(std::filesystem::path root, RecordingSpec spec,
@@ -287,6 +298,10 @@ Frame CaptureWriter::writtenFrames() const noexcept {
 Frame CaptureWriter::checkpointFrames() const noexcept {
     return state_->committed;
 }
+void CaptureWriter::observeWait(CapturePipe &pipe, bool beginning) noexcept {
+    state_->observe(beginning ? RecordingWriterPhase::IdleBegin : RecordingWriterPhase::IdleEnd,
+                    &pipe);
+}
 bool CaptureWriter::drainOne(CapturePipe &pipe) {
     auto &s = *state_;
     CapturedSlab slab;
@@ -300,6 +315,7 @@ bool CaptureWriter::drainOne(CapturePipe &pipe) {
         require(slab.packet.sequence == s.sequence &&
                     slab.packet.firstFrame == s.spec.capture.startFrame + s.written,
                 "Recording sequence/frame gap");
+        s.observe(RecordingWriterPhase::WriteHashBegin, &pipe);
         s.boundary(RecordingBoundary::BeforeAudioWrite);
         require(sf_writef_float(s.audio->file, slab.interleaved.data(), slab.packet.frames) ==
                         slab.packet.frames &&
@@ -308,6 +324,7 @@ bool CaptureWriter::drainOne(CapturePipe &pipe) {
         s.samples.update(slab.interleaved);
         s.written += slab.packet.frames;
         ++s.sequence;
+        s.observe(RecordingWriterPhase::WriteHashEnd, &pipe);
         require(pipe.release(slab), "Recording slab ownership error");
         owned = false;
         if (s.written - s.committed >= s.options.checkpointFrames)
@@ -334,11 +351,13 @@ RecordingResult CaptureWriter::finalize(CapturePipe &pipe) {
         s.boundary(RecordingBoundary::BeforeMediaPublish);
         media_io::publishMedia(s.job / "audio.partial.rf64", s.job / "take.wav");
         s.boundary(RecordingBoundary::AfterMediaPublish);
+        s.observe(RecordingWriterPhase::JournalPublishBegin, &pipe);
         s.durability = media_io::publishJournal(
             s.job / "journal.json",
             journal(s.spec, s.written, s.sequence, s.samples.digest(), true, pipe.status(), &pipe)
                     .dump(2) +
                 "\n");
+        s.observe(RecordingWriterPhase::JournalPublishEnd, &pipe);
         Asset asset;
         asset.id = s.spec.assetId;
         asset.relativePath = "media/capture-" + asset.id.str() + "/take.wav";

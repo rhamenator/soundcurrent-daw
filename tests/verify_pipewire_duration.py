@@ -103,6 +103,18 @@ def run(binary, seconds, mode, diagnostics):
         result['finite_deadline_thresholds_met'] = all(t['finite_deadline_thresholds_met'] for t in result['callback_timing'].values())
         result['declared_30_minute_native_sample_qualified'] = seconds >= 1800
         result['declared_30_minute_fixed_workload_deadline_qualified'] = seconds >= 1800 and result['finite_deadline_thresholds_met']
+    elif mode == 'writer-stall':
+        assert result['capture_failed_retained'] and result['initiating_lane'] == 17
+        assert result['injected_journal_stall_ms'] == 4000 and result['canonical_unchanged']
+        assert result['verified_raw_samples'] > 0 and result['verified_output_samples'] > 0
+        assert result['maximum_sample_difference'] == 0
+        assert result['rt_allocations'] == result['rt_frees'] == result['rt_blocking_locks'] == 0
+        assert result['minimum_raw_frames'] <= result['maximum_raw_frames'] < seconds * 48000
+        timing = result['disk_timing'][17]
+        assert timing['phase_pairs_complete'] and timing['maximum_ready_slabs'] == 32
+        journal = next(p for p in timing['phase_summaries'] if p['phase'] == 'journal_publish')
+        assert journal['maximum_ns'] >= 4_000_000_000 and journal['end_ready_slabs'] == 32
+        assert journal['end_committed_frames'] >= journal['begin_written_frames']
     else:
         assert result['device_lost_retained'] and result['verified_raw_samples'] > 0
     result['scheduler_samples'] = diagnostics['scheduler_samples']
@@ -123,11 +135,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--seconds', type=int, default=1800)
-    parser.add_argument('--modes', nargs='+', choices=['normal', 'sink-gap'], default=['normal'])
+    parser.add_argument('--modes', nargs='+', choices=['normal', 'sink-gap', 'writer-stall'], default=['normal'])
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--failure-output', type=Path, required=True)
     args = parser.parse_args()
     assert 1 <= args.seconds <= 1800
+    assert 'writer-stall' not in args.modes or args.seconds >= 8, 'Writer stall needs at least eight seconds'
     results = []
     diagnostics = {}
     try:

@@ -141,3 +141,11 @@ Next **M2d4c**: diagnose bounded disk worker phases/queue occupancy and callback
 tails, qualify any justified checkpoint/burst-buffer change under the unchanged
 32-track contract, then repeat the required30-minute native acceptance. Short
 sample/timing passes do not waive earlier observations or promote F/Q/C/N axes.
+
+M2d4c1 introduces [bounded disk-owner phase and queue observations](40-writer-backlog-diagnostics.md)
+without new audio counters/clocks. A declared lane17 journal stall tests initiating
+fault retention and exact full raw/common-output prefixes under the existing
+32-track pool. This is evidence for the next measured storage-burst/worker-policy
+decision, followed by the unchanged30-minute native sample/deadline acceptance;
+no shorter run or injected reproduction resolves the original uninstrumented
+failure or promotes frozen functional/quality/content/compatibility contracts.

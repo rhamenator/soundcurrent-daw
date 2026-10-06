@@ -41,11 +41,13 @@ struct RecordingWorker::State {
                 if (writer->drainOne(pipe))
                     written.store(writer->writtenFrames(), std::memory_order_release);
                 else {
+                    writer->observeWait(pipe, true);
 #ifdef _WIN32
                     Sleep(1);
 #else
                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 #endif
+                    writer->observeWait(pipe, false);
                 }
             }
             checkCanceled();

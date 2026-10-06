@@ -187,4 +187,10 @@ bool CapturePipe::drained() const noexcept {
     CapturePacket packet;
     return producerDone() && acquired_ == captureSlabs && !ready_.tryPeek(packet);
 }
+CaptureBacklog CapturePipe::consumerBacklog() const noexcept {
+    const auto ready = ready_.consumerAvailable();
+    const auto acquired = acquired_ == captureSlabs ? 0u : acquiredPacket_.frames;
+    const auto capacity = std::uint64_t(captureSlabs) * config_.slabFrames;
+    return {ready, acquired, std::uint64_t(ready) * config_.slabFrames + acquired, capacity};
+}
 } // namespace soundcurrent::daw

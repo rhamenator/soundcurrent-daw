@@ -677,3 +677,84 @@ budget, evaluate any justified durable-checkpoint/burst-buffer change with fault
 and exact-prefix tests, then repeat the unchanged30-minute native sample and
 callback-budget acceptance. Keep all retained failures visible. Punch/loop/Auto/
 takes/comping/fades and every remaining professional workflow stay required.
+
+## M2d4c1 writer phase/backlog observations (2026-10-06)
+
+Checkpoint `2eed17a` was **progress**, not completion. Optional recording writer
+observations now pair write/hash, audio flush, journal publication and idle waits
+with written/durable cursors and the disk owner's ready/acquired backlog. The
+consumer reads existing queue publication counters; audio push/finish add no
+counters, clocks, allocation, blocking, logging or disk work. Ready-frame extents
+are documented upper bounds for final partial slabs, and producer partial state
+is omitted. Construction observations have no producer backlog. Existing fault/
+cancellation callbacks and capture memory/checkpoint/durability policies remain
+unchanged. Fixed fixture phase maxima/context and callback maximum clock/start
+facts are inspected after joins, without an unbounded timeline or RT clock work
+in production. Observers must outlive construction and joined disk owners.
+
+Four targeted Release groups passed; all 27 Debug groups passed in 23.95 seconds
+and all 27 ASan/UBSan/LSan groups in 66.10 seconds. Windows headless compilation/
+linking passed, without native/Qt execution claims. Actual tests cover partial and
+acquired queue accounting, exact phase ordering/durable cursors/slab return,
+construction exclusion, no observer on audio, source/header/checkpoint preservation,
+fixed maxima/context, phase pairing and retained incomplete/backwards observations.
+Native experiments start only after all CPU builds/tests are terminal.
+
+The ten-second native normal probe verifies 15,360,000 raw/960,000 stereo output
+samples exactly, hashes, Save/reopen and peak 3.75449, with complete callback period
+coverage and finite timing thresholds met. The declared four-second lane17 journal
+stall initiates capture failure on that lane, retains QueueFull/rejected frames,
+and records 4.003536049 seconds with ready slabs growing 0→32; written/durable
+cursors preserve publication ordering. All 5,798,912 full raw/360,448 common output
+samples verify exactly, including unequal raw lengths 180,224..181,248. Largest
+lane17 write gap is 4.018562400 seconds. All paired phases complete; zero audited
+host-owned callback allocations/frees/blocking locks. Canonical state, defaults
+and prior links stay unchanged; owned nodes/links retire. No injected stall is
+claimed to establish the original historical failure cause.
+
+The unmodified 120-second native diagnostic then fails around 58.026667 audio
+seconds. Initiating lane0, all 32 raw lanes and sink exhaust the fixed pool;
+contiguous ID30/1:48000 clock has no XRUN/discontinuity and no missing file-track
+frames. Every writer joins at 2,785,280 frames; each raw journal retains 1,024
+rejected frames. Complete owner timing p99.9=6.887259 ms/max10.147618 ms (47.567%
+of period) passes finite thresholds for this interrupted prefix, not duration.
+The observed route is Dummy-Driver at 1024/48000 with native SCHED_RR priority20;
+physical interface and controlled competing-load qualification remain absent.
+
+Phase observations establish checkpoint backlog in this new run. Lane26 at
+written 2,654,208/durable 2,605,056 waits 2.469220532 seconds in audio flush
+(ready0→28), then 1.803449198 seconds in journal publication (ready28→32), after
+slab return. Its write gap reaches 4.272674676 seconds, exceeding the 2.730667-second
+pool horizon. All workers reach 32 ready slabs. The overall largest journal phase
+is 2.287432765 seconds during final drain, which is kept separate from the
+initiating checkpoint. The low-level filesystem/header/descriptor/scheduling
+cause is not isolated by wall time. The original uninstrumented failure remains
+unproven; measured new evidence does not retroactively waive any historical fault.
+
+Read-only verification checks every full prefix, journal, origin/identity, sample
+checksum and media hash: all 89,128,960 raw/5,570,560 common stereo samples exact,
+peak 4.16414, aggregate 32,768 rejected frames visible. All 105 original file-content/
+extent snapshots match; canonical one-asset project remains unchanged. No trim,
+Save, take attachment or copy recovery. The first launch attempt rejected the new
+mode at argument parsing before any native child; choices were corrected and
+source hashes refreshed before the qualified probes. [Contract](40-writer-backlog-diagnostics.md),
+[ADR-030](decisions/030-worker-phase-and-backlog-observation.md) and
+[evidence](../tests/results/M2/2026-10-06-writer-backlog-diagnostics.json) retain exact
+source/test/phase/failure facts and every inherited unresolved observation.
+
+The read-only equalizer audit still matches all 24 reviewed inputs and both heads.
+No equalizer writes, new dependency/license choice, publication or push. All 92
+frozen acceptance/quality/reference/F/Q/C/N contracts remain intact and unpromoted.
+The full goal stays **active and incomplete**. M1/M2, declared 30-minute native,
+physical/controlled-load/filesystem/power-loss/unload/Windows/full professional
+workflows, X004, X005 and all-Europe qualification remain required.
+
+Next: **M2d4c2 durable checkpoint burst policy**. Evaluate phase staggering and
+an explicit aggregate-budgeted reserve against the observed multi-second gap.
+Keep one-second durable checkpoint bounds, raw timestamps, immediate live
+monitoring and fixed RT bounds. Verify absorption of a declared four-second stall
+and visible exhaustion beyond the admitted reserve, plus cancellation/failure/
+recovery and source/hash/canonical ordering. Larger pools alone do not establish
+sustained storage throughput: require the unchanged 30-minute sample/deadline
+acceptance next. Punch/loop/Auto/takes/comping/fades and every remaining product
+workflow stay in the backlog.

@@ -23,11 +23,33 @@ enum class RecordingBoundary {
     AfterMediaPublish,
     BeforeAssetHashRead
 };
+enum class RecordingWriterPhase {
+    WriteHashBegin,
+    WriteHashEnd,
+    AudioFlushBegin,
+    AudioFlushEnd,
+    JournalPublishBegin,
+    JournalPublishEnd,
+    IdleBegin,
+    IdleEnd
+};
+struct RecordingWriterObservation {
+    RecordingWriterPhase phase = RecordingWriterPhase::WriteHashBegin;
+    Frame writtenFrames = 0, committedFrames = 0;
+    CaptureBacklog backlog{};
+    bool hasBacklog = false; // Construction checkpoints have no producer/pipe.
+};
+struct RecordingWriterInstrumentation {
+    void *context = nullptr;
+    // Disk/construction owners only; bounded/noexcept. Never called by audio.
+    void (*observe)(void *, const RecordingWriterObservation &) noexcept = nullptr;
+};
 struct RecordingOptions {
     // Zero defaults to one second; checkpoints occur after completed slabs.
     Frame checkpointFrames = 0;
     // Worker-only progress/cancellation/fault boundary; never called by audio.
     std::function<void(RecordingBoundary, Frame)> boundary;
+    RecordingWriterInstrumentation instrumentation{};
 };
 struct RecordingResult {
     RecordingSpec spec;
@@ -51,6 +73,8 @@ class CaptureWriter {
     Frame checkpointFrames() const noexcept;
 
   private:
+    friend class RecordingWorker;
+    void observeWait(CapturePipe &, bool beginning) noexcept;
     struct State;
     std::unique_ptr<State> state_;
 };

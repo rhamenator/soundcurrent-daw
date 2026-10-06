@@ -66,6 +66,12 @@ struct CapturedSlab {
     CapturePacket packet;
     std::span<const float> interleaved;
 };
+// Disk-owner snapshot. Ready slabs exclude the acquired slab and the producer's
+// unfinished slab. Ready-frame count is an upper bound (a final slab may be short).
+struct CaptureBacklog {
+    std::uint32_t readySlabs = 0, acquiredFrames = 0;
+    std::uint64_t queuedFrameUpperBound = 0, capacityFrames = 0;
+};
 
 // Prepared/control construction, one audio producer and one disk consumer.
 // Stop and join both owners before destruction. Methods marked audio must not
@@ -100,6 +106,7 @@ class CapturePipe {
     bool release(const CapturedSlab &) noexcept;
     bool drained() const noexcept;
     void writerFailed() noexcept;
+    CaptureBacklog consumerBacklog() const noexcept; // Disk owner only; no audio changes.
 
   private:
     CaptureConfig config_;

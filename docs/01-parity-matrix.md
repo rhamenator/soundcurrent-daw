@@ -249,3 +249,12 @@ with one maximum-budget miss. Both failures stay visible; the duration/quality
 contract remains unqualified. All92 family acceptance/quality/reference/F/Q/C/N
 contracts are unchanged. Read-only full valid-prefix/source/hash/common-output
 verification does not turn an interrupted take into completed recording parity.
+
+## M2d4c1 measured checkpoint backlog
+
+[Worker phase/backlog observations](40-writer-backlog-diagnostics.md) establish
+checkpoint backlog in the latest interrupted native run: a measured2.469s flush
+and1.803s journal phase fill a32-slab pool. Full raw/common-output prefixes remain
+exact and unchanged. Controlled-stall and short normal evidence qualifies the
+observations, not the required30-minute acceptance or original historical cause.
+All92 acceptance/quality/reference/F/Q/C/N contracts remain unchanged/unpromoted.

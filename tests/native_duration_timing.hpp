@@ -19,6 +19,9 @@ class DurationTiming {
     std::uint64_t minimumQuantum_ = UINT64_MAX, maximumQuantum_ = 0, minimumRate_ = UINT64_MAX,
                   maximumRate_ = 0, maximum_ = 0;
     soundcurrent::daw::DeviceBlockClock clock_{};
+    soundcurrent::daw::DeviceBlockClock maximumClock_{};
+    std::uint64_t maximumStart_ = 0;
+    bool maximumClockKnown_ = false;
     bool clockKnown_ = false;
     static std::uint64_t now() noexcept {
         timespec t{};
@@ -38,7 +41,8 @@ class DurationTiming {
         clockKnown_ = true;
     }
     // Public deterministic feed for quantile/overflow acceptance; no allocation.
-    void record(std::uint64_t ns, const soundcurrent::daw::DeviceBlockClock *c) noexcept {
+    void record(std::uint64_t ns, const soundcurrent::daw::DeviceBlockClock *c,
+                std::uint64_t started = 0) noexcept {
         std::uint64_t period = 0;
         if (c && c->duration && c->duration <= 65536 && c->rateNumerator && c->rateDenominator &&
             c->rateNumerator <= 1000000 && c->rateDenominator <= 1000000 &&
@@ -52,7 +56,12 @@ class DurationTiming {
         }
         if (!period)
             ++missing_;
-        maximum_ = std::max(maximum_, ns);
+        if (!calls_ || ns > maximum_) {
+            maximum_ = ns;
+            maximumStart_ = started;
+            maximumClockKnown_ = c != nullptr;
+            maximumClock_ = c ? *c : soundcurrent::daw::DeviceBlockClock{};
+        }
         if (calls_ < samples_.size())
             samples_[calls_] = {ns, period};
         else
@@ -65,7 +74,7 @@ class DurationTiming {
             ++failures_;
             return;
         }
-        record(finished - begin_, clockKnown_ ? &clock_ : nullptr);
+        record(finished - begin_, clockKnown_ ? &clock_ : nullptr, begin_);
     }
     void write(std::ostream &out) const {
         const auto count = std::min<std::uint64_t>(calls_, samples_.size());
@@ -99,7 +108,14 @@ class DurationTiming {
             << ",\"maximum_integer_rate\":" << maximumRate_
             << ",\"complete_timing_coverage\":" << (complete ? "true" : "false")
             << ",\"finite_deadline_thresholds_met\":"
-            << (complete && p999 < .6 && maxRatio < .8 ? "true" : "false") << '}';
+            << (complete && p999 < .6 && maxRatio < .8 ? "true" : "false")
+            << ",\"maximum_callback_start_monotonic_ns\":" << maximumStart_
+            << ",\"maximum_clock_known\":" << (maximumClockKnown_ ? "true" : "false")
+            << ",\"maximum_clock\":{\"position\":" << maximumClock_.position
+            << ",\"duration\":" << maximumClock_.duration << ",\"id\":" << maximumClock_.id
+            << ",\"cycle\":" << maximumClock_.cycle << ",\"nsec\":" << maximumClock_.monotonicNs
+            << ",\"rate_numerator\":" << maximumClock_.rateNumerator
+            << ",\"rate_denominator\":" << maximumClock_.rateDenominator << "}}";
     }
 };
 } // namespace native_fixture

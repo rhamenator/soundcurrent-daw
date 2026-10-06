@@ -180,6 +180,38 @@ void failures() {
     c.layout.channels = 2;
     rejects([&] { CapturePipe badLayout(c); });
 }
+void backlog() {
+    CaptureConfig c;
+    c.slabFrames = 256;
+    c.maximumCallbackFrames = 1024;
+    CapturePipe pipe(c);
+    std::array<float, 1024> samples{};
+    const float *p = samples.data();
+    check(pipe.push({&p, 1}, 513, 0).acceptedFrames == 513, "Backlog source rejected");
+    auto b = pipe.consumerBacklog();
+    check(b.readySlabs == 2 && !b.acquiredFrames && b.queuedFrameUpperBound == 512 &&
+              b.capacityFrames == 8192,
+          "Backlog included unfinished producer slab or changed capacity");
+    CapturedSlab slab;
+    check(pipe.acquire(slab), "Cannot acquire backlog slab");
+    b = pipe.consumerBacklog();
+    check(b.readySlabs == 1 && b.acquiredFrames == 256 && b.queuedFrameUpperBound == 512,
+          "Backlog lost or double-counted acquired slab");
+    check(pipe.release(slab), "Backlog release failed");
+    pipe.finish();
+    b = pipe.consumerBacklog();
+    check(b.readySlabs == 2 && b.queuedFrameUpperBound == 512,
+          "Final partial slab not represented by documented upper bound");
+    Frame remaining = 0;
+    while (pipe.acquire(slab)) {
+        remaining += slab.packet.frames;
+        check(pipe.release(slab), "Final backlog release failed");
+    }
+    b = pipe.consumerBacklog();
+    check(remaining == 257 && !b.readySlabs && !b.acquiredFrames && !b.queuedFrameUpperBound &&
+              pipe.drained(),
+          "Joined empty backlog differs from retained partial extent");
+}
 } // namespace
 int main() {
     try {
@@ -188,6 +220,7 @@ int main() {
             for (const auto quantum : {16u, 64u, 127u, 512u, 2048u})
                 exactPackets(channels, quantum);
         failures();
+        backlog();
         const auto a = rt_audit::counts;
         check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,
               "RT capture allocated, freed or locked");
