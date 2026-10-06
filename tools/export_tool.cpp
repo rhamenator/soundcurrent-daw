@@ -56,9 +56,15 @@ int main(int argc, char **argv) {
         spec.endFrame = session.exportEndFrame;
         if (spec.endFrame <= spec.startFrame) {
             spec.startFrame = 0;
-            for (std::size_t t = 0; t < (mixMode ? session.tracks.size() : 1); ++t)
+            for (std::size_t t = 0; t < (mixMode ? session.tracks.size() : 1); ++t) {
+                if (mixMode && session.master &&
+                    std::none_of(
+                        session.master->plan.tracks.begin(), session.master->plan.tracks.end(),
+                        [&](const auto &lane) { return lane.track == session.tracks[t].id; }))
+                    continue;
                 for (const auto &clip : session.tracks[t].clips)
                     spec.endFrame = std::max(spec.endFrame, clip.startFrame + clip.lengthFrames);
+            }
         }
         spec.maximumTailFrames = Frame(session.sampleRate) * 10;
         spec.silentWindowFrames = (session.sampleRate + 9) / 10;
@@ -91,7 +97,9 @@ int main(int argc, char **argv) {
             std::vector<Id> ids;
             for (const auto &t : session.tracks)
                 ids.push_back(t.id);
-            MixExportSpec mixed(identityMix(session, ids, session.tracks.front().layout));
+            MixExportSpec mixed(session.master
+                                    ? session.master->plan
+                                    : identityMix(session, ids, session.tracks.front().layout));
             static_cast<ExportSettings &>(mixed) = spec;
             r = exportMixWav(root, session, std::filesystem::path(argv[3]), mixed, options);
         } else

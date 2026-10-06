@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "master_dialog.hpp"
+#include <QDialogButtonBox>
+#include <QSpinBox>
+#include <QTableWidget>
 #include "timeline_editor.hpp"
 #include "track_view.hpp"
 #include "fake_playback_endpoint.hpp"
@@ -22,6 +26,7 @@
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTimer>
+#include <QWheelEvent>
 #include <chrono>
 #include <iostream>
 #include <source_location>
@@ -392,6 +397,122 @@ void mixedLayoutRefusal(const std::filesystem::path &root) {
     close(w);
 }
 
+void savedMaster(const std::filesystem::path &root) {
+    auto original = fixture(root);
+    original.tracks[1].clips[0].startFrame = 100000;
+    ProjectStore(root).save(original);
+    MasterDialog editor(original);
+    editor.show();
+    auto *layout = editor.findChild<QComboBox *>("masterLayout");
+    layout->setCurrentIndex(layout->findData(int(LayoutKind::Stereo)));
+    auto *table = editor.findChild<QTableWidget *>("masterMatrix");
+    check(table->rowCount() == 2, "Master editor initial rows differ");
+    static_cast<QSpinBox *>(table->cellWidget(1, 2))->setValue(2);
+    static_cast<QLineEdit *>(table->cellWidget(0, 3))->setText(QLocale().toString(.5));
+    static_cast<QLineEdit *>(table->cellWidget(1, 3))->setText(QLocale().toString(-.25));
+    auto *sourceChannel = static_cast<QSpinBox *>(table->cellWidget(0, 1));
+    static_cast<QLineEdit *>(table->cellWidget(0, 3))->setFocus();
+    const QPointF local = sourceChannel->rect().center();
+    QWheelEvent wheel(local, sourceChannel->mapToGlobal(local.toPoint()), {}, {0, 120},
+                      Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+    QApplication::sendEvent(sourceChannel, &wheel);
+    check(sourceChannel->value() == 1, "Unfocused wheel changed master source channel");
+    if (!qEnvironmentVariableIsEmpty("SC_MATRIX_SCREENSHOT")) {
+        QTest::qWait(10);
+        check(editor.grab().save(qEnvironmentVariable("SC_MATRIX_SCREENSHOT")),
+              "Master editor screenshot failed");
+    }
+    editor.findChild<QDialogButtonBox *>()->button(QDialogButtonBox::Apply)->click();
+    check(editor.result() == QDialog::Accepted && editor.selection() &&
+              editor.selection()->plan.output.channels == 2,
+          "Master dialog refused explicit stereo mapping");
+    auto counters = std::make_shared<playback_fixture::Counters>();
+    StudioWindow w(nullptr, playback_fixture::options(counters));
+    w.show();
+    w.openProject(root);
+    await([&] {
+        return w.snapshot()->session && w.findChild<QListWidget *>("timelineTracks")->count() == 2;
+    });
+    ProjectCommand c{CommandKind::Structural};
+    c.edits = {SetMaster{editor.selection()}};
+    check(w.submitEdit(c), "Master command refused");
+    await([&] { return w.snapshot()->session->master.has_value(); });
+    undo(w);
+    await([&] { return !w.snapshot()->session->master; });
+    check(w.submitEdit(ProjectCommand{CommandKind::Redo}), "Master redo refused");
+    await([&] { return w.snapshot()->session->master.has_value(); });
+    widget<QCheckBox>(w, "mixAllTracks")->setChecked(true);
+    check(w.preparePlayback(), "Saved master preparation refused");
+    await([&] {
+        return w.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+               w.findChild<QComboBox *>("outputChannel1");
+    });
+    check(w.playbackSnapshot()->channels == 2, "Saved stereo master layout not prepared");
+    widget<QComboBox>(w, "outputChannel0")->setCurrentIndex(1);
+    widget<QComboBox>(w, "outputChannel1")->setCurrentIndex(2);
+    await([&] {
+        const auto &m = w.snapshot()->session->master;
+        return m && m->output.ports.size() == 2 && m->output.ports[0] && m->output.ports[1];
+    });
+    check(w.snapshot()->session->tracks[0].output.ports.empty() &&
+              w.snapshot()->session->tracks[1].output.ports.empty(),
+          "Master output selection changed a track route");
+    check(w.selectTrack(original.tracks[1].id), "Saved mix inspector refused");
+    click(w, "playButton");
+    await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Playing; });
+    check(!widget<QPushButton>(w, "editMasterButton")->isEnabled(),
+          "Live master matrix editing allowed");
+    click(w, "stopButton");
+    await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Idle; });
+    close(w, true);
+    auto saved = ProjectStore(root).load();
+    check(saved.master && saved.master->plan == editor.selection()->plan &&
+              saved.master->output.ports[1],
+          "Saved master reopen differs");
+    MasterDialog invalid(saved);
+    invalid.show();
+    auto *rows = invalid.findChild<QTableWidget *>("masterMatrix");
+    static_cast<QSpinBox *>(rows->cellWidget(0, 1))->setValue(2);
+    invalid.findChild<QDialogButtonBox *>()->button(QDialogButtonBox::Apply)->click();
+    check(invalid.result() != QDialog::Accepted && !invalid.selection() &&
+              !invalid.findChild<QLabel *>("masterError")->text().isEmpty(),
+          "Invalid matrix source was silently mapped");
+    invalid.reject();
+    // Changing the device-channel shape must not retain incompatible hardware slots.
+    MasterDialog resized(saved);
+    auto *kind = resized.findChild<QComboBox *>("masterLayout");
+    kind->setCurrentIndex(kind->findData(int(LayoutKind::Discrete)));
+    resized.findChild<QSpinBox *>("masterChannels")->setValue(3);
+    auto *matrix = resized.findChild<QTableWidget *>("masterMatrix");
+    const double exactGain = .12345678901234567;
+    static_cast<QLineEdit *>(matrix->cellWidget(0, 3))
+        ->setText(QLocale().toString(exactGain, 'g', 17));
+    resized.findChild<QDialogButtonBox *>()->button(QDialogButtonBox::Apply)->click();
+    check(resized.result() == QDialog::Accepted && resized.selection()->output.ports.empty() &&
+              resized.selection()->plan.tracks[0].channels[0].gain == exactGain &&
+              saved.master->output.ports.size() == 2,
+          "Resized master kept invalid slots or altered its input snapshot/gain precision");
+    // Larger valid state must remain intact when the bounded desktop editor refuses it.
+    auto large = saved;
+    large.tracks[0].layout = {LayoutKind::Discrete, 256};
+    large.tracks[0].clips.clear();
+    large.master->plan.output = {LayoutKind::Discrete, 256};
+    large.master->output = {};
+    large.master->plan.tracks = {{large.tracks[0].id, {}}};
+    for (unsigned n = 0; n < 4097; ++n)
+        large.master->plan.tracks[0].channels.push_back({n / 256, n % 256, 1});
+    validate(large);
+    const auto bytes = encodeProject(large);
+    MasterDialog bounded(large);
+    auto *apply = bounded.findChild<QDialogButtonBox *>()->button(QDialogButtonBox::Apply);
+    check(!apply->isEnabled() && !bounded.findChild<QLabel *>("masterError")->text().isEmpty(),
+          "Large matrix silently truncated in desktop editor");
+    apply->click();
+    bounded.reject();
+    check(!bounded.selection() && encodeProject(large) == bytes && decodeProject(bytes) == large,
+          "Bounded editor or persistence lost larger master state");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
@@ -404,6 +525,7 @@ int main(int argc, char **argv) {
         selectedTransport(root / "transport");
         mixedTransport(root / "mix");
         mixedLayoutRefusal(root / "mixed-layout");
+        savedMaster(root / "saved-master");
         std::cout << checks << " timeline/selection UI checks passed\n";
         return 0;
     } catch (const std::exception &e) {

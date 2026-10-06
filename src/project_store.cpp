@@ -306,7 +306,7 @@ std::string encodeProject(const Session &s) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 2},
+        {"schemaMinor", 3},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -314,6 +314,21 @@ std::string encodeProject(const Session &s) {
         {"exportRange", {{"startFrame", s.exportStartFrame}, {"endFrame", s.exportEndFrame}}},
         {"tracks", tracks},
         {"assets", assets}};
+    root["master"] = nullptr;
+    if (s.master) {
+        Json lanes = Json::array();
+        for (const auto &t : s.master->plan.tracks) {
+            Json maps = Json::array();
+            for (const auto &c : t.channels)
+                maps.push_back(
+                    {{"source", c.source}, {"destination", c.destination}, {"gain", c.gain}});
+            lanes.push_back({{"trackId", t.track.str()}, {"channels", maps}});
+        }
+        root["master"] = {{"id", s.master->id.str()},
+                          {"layout", layout(s.master->plan.output)},
+                          {"tracks", lanes},
+                          {"outputIntent", route(s.master->output)}};
+    }
     auto out = root.dump(2) + "\n";
     require(out.size() <= maxProjectBytes, "Project size limit exceeded");
     return out;
@@ -338,10 +353,14 @@ Session decodeProject(std::string_view bytes) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 2),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 3),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
-        keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
-                 "playheadFrame", "exportRange", "tracks", "assets"});
+        if (minor < 3)
+            keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                     "playheadFrame", "exportRange", "tracks", "assets"});
+        else
+            keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                     "playheadFrame", "exportRange", "tracks", "assets", "master"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         Session s;
         s.id = Id(string(j.at("projectId")));
@@ -383,7 +402,7 @@ Session decodeProject(std::string_view bytes) {
             track.output = readRoute(t.at("outputIntent"), minor == 0);
             if (minor >= 1)
                 track.monitor = readRoute(t.at("monitorIntent"), false);
-            if (minor == 2) {
+            if (minor >= 2) {
                 const auto mode = string(t.at("monitoringMode"));
                 require(mode == "off" || mode == "post-eq", "Unknown recording monitoring mode");
                 track.monitoring = mode == "off" ? RecordingMonitor::Off : RecordingMonitor::PostEq;
@@ -419,6 +438,29 @@ Session decodeProject(std::string_view bytes) {
                 track.clips.push_back(std::move(clip));
             }
             s.tracks.push_back(std::move(track));
+        }
+        if (minor >= 3 && !j.at("master").is_null()) {
+            const auto &m = j.at("master");
+            keys(m, {"id", "layout", "tracks", "outputIntent"});
+            MasterBus master;
+            master.id = Id(string(m.at("id")));
+            master.plan.output = readLayout(m.at("layout"));
+            master.output = readRoute(m.at("outputIntent"), false);
+            array(m.at("tracks"), 256);
+            std::size_t maps = 0;
+            for (const auto &t : m.at("tracks")) {
+                keys(t, {"trackId", "channels"});
+                array(t.at("channels"), 65536 - maps);
+                maps += t.at("channels").size();
+                TrackMix lane{Id(string(t.at("trackId"))), {}};
+                for (const auto &c : t.at("channels")) {
+                    keys(c, {"source", "destination", "gain"});
+                    lane.channels.push_back(
+                        {u32(c.at("source")), u32(c.at("destination")), number(c.at("gain"))});
+                }
+                master.plan.tracks.push_back(std::move(lane));
+            }
+            s.master = std::move(master);
         }
         validate(s);
         return s;

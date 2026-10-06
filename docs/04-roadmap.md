@@ -105,3 +105,5 @@ General buses/sends/sidechains/PDC, punch/loop/takes/comping/fades and full froz
 parity remain required, together with independent Windows/localization/M1 gates.
 
 M2c2 connects [native/desktop shared-clock mix playback](32-native-mix-playback.md), explicit matching-layout preparation, output anchoring and all-lane revision acknowledgement. Next persist/edit the dedicated master matrix/output intent and implement one shared playback/capture callback for simultaneous armed tracks and overdub. No full M2 duration/capture/deadline or frozen-reference completion follows from short owned-node playback runs.
+
+M2c3 persists [master layout/matrix/output intent](33-master-matrix.md), connects its editor, routing/history and shared playback/offline export. Next implement one native playback/capture callback for simultaneous armed tracks and overdub; full M2/reference/platform/duration gates remain open.

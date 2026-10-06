@@ -43,7 +43,7 @@ def wave(path):
         if tag == b'data':
             if n == 0xffffffff:
                 n = size
-            assert pos+n <= len(b) and channels == 1 and n % 4 == 0
+            assert pos+n <= len(b) and channels is not None and n % (channels*4) == 0
             payload = b[pos:pos+n]
             return list(struct.unpack('<'+'f'*(n//4), payload)), payload
         pos += n+n%2
@@ -125,4 +125,25 @@ with tempfile.TemporaryDirectory(prefix='sc-mix-cli-', dir=root / '.cache') as t
     assert not (base / 'incompatible.wav').exists()
     (project / 'project.json').write_bytes(before)
     assert path.read_bytes() == data and (project / 'project.json').read_bytes() == before
-    print(json.dumps({'tracks': 32, 'frames': 4887, 'oracle_difference': 0, 'rf64_and_confirmed_replace': True, 'active_sigterm': True, 'layout_rejection': True, 'source_project_preserved': True, 'audio_devices': False}))
+    # Saved master deliberately includes two lanes with a stereo matrix; remaining lanes excluded explicitly.
+    model = json.loads(before)
+    tracks = model['tracks']
+    model['master']={'id':str(uuid.uuid4()),'layout':{'kind':'stereo','channels':2},'outputIntent':{'backendId':'','portIdentity':'','ports':[]},'tracks':[
+        {'trackId':tracks[0]['id'],'channels':[{'source':0,'destination':0,'gain':.5}]},
+        {'trackId':tracks[1]['id'],'channels':[{'source':0,'destination':1,'gain':-.25}]}]}
+    (project/'project.json').write_text(json.dumps(model,ensure_ascii=False),encoding='utf-8')
+    master_before=(project/'project.json').read_bytes()
+    master_result=json.loads(run(tool,'render-mix',project,base/'master.wav','--start',113,'--end',5000).stdout)
+    master_samples=wave(base/'master.wav')[0]
+    master_expected=[]
+    for frame in range(113,5000):
+        for t,gain in zip(tracks[:2],[.5,-.25],strict=True):
+            c=t['clips'][0]
+            value=source[c['sourceFrame']+frame-c['startFrame']] if c['startFrame']<=frame<c['startFrame']+c['lengthFrames'] else 0
+            master_expected.append(f32(value*gain))
+    assert master_result['channels']==2 and master_samples==master_expected
+    saved_default=json.loads(run(tool,'render-mix',project,base/'master-default.wav').stdout)
+    assert saved_default['frames']==max(t['clips'][0]['startFrame']+t['clips'][0]['lengthFrames'] for t in tracks[:2])
+    assert saved_default['frames']<default['frames']
+    assert (project/'project.json').read_bytes()==master_before and path.read_bytes()==data
+    print(json.dumps({'tracks': 32, 'frames': 4887, 'oracle_difference': 0, 'rf64_and_confirmed_replace': True, 'active_sigterm': True, 'layout_rejection': True, 'source_project_preserved': True, 'audio_devices': False, 'saved_stereo_master_exact': True}))

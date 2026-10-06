@@ -290,3 +290,34 @@ unknown. The fixture now wakes on sink gaps and emits terminal diagnostics; the
 next isolated native mix run completed with exact samples. That rerun does not
 resolve long-duration/deadline/shutdown qualification or prove a cause for the
 earlier timeout. The failed evidence is retained, with no production suppression.
+
+## M2c3 saved master checkpoint (2026-10-06)
+
+Previous goal turn was **progress**, committed native/desktop shared-clock
+playback as `9f875ce`. This turn adds optional stable-ID master state in schema
+1.3, exact sparse matrix/independent output intent, migration without guessed
+routes, typed semantic history and atomic track-removal detach/Undo. The desktop
+editor stages explicit channel-pair/gain rows and submits one edit, with a visible
+4,096-entry bound preserving larger saved state. Saved project mix preparation
+and `render-mix` compile this plan; output selection no longer modifies an
+inspected track. Matrix changes require Stop/reprepare; scalar EQ remains live.
+
+[Evidence](../tests/results/M2/2026-10-06-master-matrix.json) separates schema/
+invalid-input/migration/history, real Qt dialog/desktop persistence/output
+ownership, bounded-editor preservation/focus/shape tests, stereo sample oracle,
+owned native saved-plan playback and platform builds. General bus/DAG/PDC/mixer,
+desktop master export, editor virtualization/load, simultaneous recording and
+overdub alignment remain required. The earlier native completion timeout is
+still unexplained. This checkpoint also observed an owned sink clock gap
+while the player remained Running (position 110592, sink prefix 108544).
+The fixture now records first-gap clock diagnostics, and the next isolated
+saved-master/full/disconnect/export batch passed exactly. No cause or production
+fix is claimed; finite passing runs do not resolve duration/deadline/shutdown
+qualification. Full goal remains active/incomplete, with no equalizer writes or
+publication and all frozen F/Q/C/N/X004/X005/localization requirements intact.
+
+Next: characterize/diagnose the native graph/sink clock-gap observations, then
+shared native playback/capture owner for simultaneous armed tracks and
+overdub, preserving raw takes, one project origin, counted gaps and verified
+finalization/recovery. Independent M1/native Windows/physical/filesystem/module-
+unload/deadline gates remain open.

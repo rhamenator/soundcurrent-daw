@@ -61,6 +61,7 @@ class StudioWindow : public QMainWindow {
     std::optional<Id> playbackPreparationTrack_;
     bool playbackPrepareMix_ = false;
     QCheckBox *mixTracks_ = nullptr;
+    QPushButton *masterButton_ = nullptr;
     PlaybackController playback_;
     RecordingController recording_;
     ExportController exporter_;

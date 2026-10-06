@@ -203,3 +203,5 @@ network, cycle/PDC behavior and persistence are not supplied by a star matrix.
 No reference F/Q/C/N axis is promoted.
 
 M2c2 adds [native/desktop shared-clock mix playback](32-native-mix-playback.md) with per-lane receipts, explicit matching-layout/output selection and non-first track EQ/Undo. P001 simultaneous capture and P017 general buses/routing/reference workflows remain incomplete; acceptance, quality and F/Q/C/N axes are unchanged.
+
+M2c3 adds [saved master matrix state and editor](33-master-matrix.md). P017 remains partial: general buses/groups/sends/sidechains/VCA/PDC and reference comparisons are required. No F/Q/C/N status is promoted.

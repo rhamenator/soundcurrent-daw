@@ -85,6 +85,15 @@ std::size_t dynamicWeight(const RouteIntent &r) {
                  p->mediaClass.capacity();
     return n;
 }
+std::size_t dynamicWeight(const std::optional<MasterBus> &m) {
+    if (!m)
+        return 0;
+    std::size_t n = m->id.str().capacity() + dynamicWeight(m->output) +
+                    m->plan.tracks.capacity() * sizeof(TrackMix);
+    for (const auto &t : m->plan.tracks)
+        n += t.track.str().capacity() + t.channels.capacity() * sizeof(ChannelMix);
+    return n;
+}
 std::size_t dynamicWeight(const Track &t) {
     std::size_t n = t.id.str().capacity() + t.name.capacity() + t.eq.id.str().capacity() +
                     t.eq.bands.capacity() * sizeof(EqBand) + t.clips.capacity() * sizeof(Clip);
@@ -123,6 +132,11 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits) {
                     proposed.tracks.insert(position(proposed.tracks, e.before), e.track);
                 } else if constexpr (std::is_same_v<E, RemoveTrack>) {
                     proposed.tracks.erase(find(proposed.tracks, e.track));
+                    if (proposed.master)
+                        std::erase_if(proposed.master->plan.tracks,
+                                      [&](const auto &t) { return t.track == e.track; });
+                } else if constexpr (std::is_same_v<E, SetMaster>) {
+                    proposed.master = e.value;
                 } else if constexpr (std::is_same_v<E, RenameTrack>) {
                     track(proposed, e.track).name = e.name;
                 } else if constexpr (std::is_same_v<E, MoveTrack>) {
@@ -209,6 +223,8 @@ std::size_t EditHistory::weight(const Change &change) {
                            for (const auto &id : *ids)
                                n += id.str().capacity();
                        }
+                       if (c.master)
+                           n += dynamicWeight(c.master->first) + dynamicWeight(c.master->second);
                        return n;
                    } else if constexpr (std::is_same_v<C, RouteChange>) {
                        return c.address.trackId.str().capacity() + dynamicWeight(c.before) +
@@ -254,8 +270,10 @@ bool EditHistory::adopt(const Session &value) {
     }
     if (value.exportEndFrame != session_.exportEndFrame)
         change.exportEnd = {{session_.exportEndFrame, value.exportEndFrame}};
+    if (value.master != session_.master)
+        change.master = {{session_.master, value.master}};
     if (change.tracks.empty() && change.assets.empty() && oldTracks == newTracks &&
-        oldAssets == newAssets && !change.exportEnd)
+        oldAssets == newAssets && !change.exportEnd && !change.master)
         return false;
     auto proposed = value;
     retain(std::move(change));
@@ -287,6 +305,11 @@ void EditHistory::apply(const Change &change, bool forward) {
                                 (forward ? c.exportEnd->first : c.exportEnd->second),
                             "Undo export extent conflicts with current state");
                     proposed.exportEndFrame = forward ? c.exportEnd->second : c.exportEnd->first;
+                }
+                if (c.master) {
+                    require(proposed.master == (forward ? c.master->first : c.master->second),
+                            "Undo master conflicts with current state");
+                    proposed.master = forward ? c.master->second : c.master->first;
                 }
                 validate(proposed);
                 session_ = std::move(proposed);

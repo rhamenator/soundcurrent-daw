@@ -273,6 +273,52 @@ void multitrackReceipts() {
     await([&] { return controller.snapshot()->closed; });
 }
 
+void masterCompatibility() {
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        auto counters = std::make_shared<Counters>();
+        PlaybackController controller(options(counters));
+        auto s = session();
+        std::array<Id, 1> ids{s.tracks.front().id};
+        auto plan = identityMix(s, ids, {});
+        if (mode != 0) {
+            MasterBus master;
+            master.plan = plan;
+            s.master = master;
+        }
+        auto command = prepare(s);
+        command.plan = plan;
+        check(controller.submit(std::move(command)) == Admission::Accepted,
+              "Master compatibility preparation refused");
+        await([&] { return controller.snapshot()->phase == PlaybackPhase::Ready; });
+        play(controller, counters);
+        await([&] { return controller.snapshot()->appliedRevision == 1; });
+        if (s.master) {
+            // Stored endpoint intent never reconnects an active prepared endpoint.
+            s.master->output.backendId = "pipewire";
+            s.master->output.portIdentity = "different-passive-device";
+            controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 2);
+            await([&] { return controller.snapshot()->appliedRevision == 2; });
+            check(counters->activated == 1 && !counters->destroyed,
+                  "Passive master route reconnected or invalidated active playback");
+        }
+        if (mode == 0) {
+            MasterBus master;
+            master.plan = plan;
+            s.master = master;
+        } else if (mode == 1)
+            s.master->plan.tracks.front().channels.front().gain = -.25;
+        else
+            s.master.reset();
+        controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 3);
+        await([&] { return controller.snapshot()->phase == PlaybackPhase::Fault; });
+        check(controller.snapshot()->errorCode == ErrorCode::InvalidState &&
+                  counters->destroyed == 1 && !counters->wrongThread,
+              "Master addition, matrix change or removal retained stale prepared audio");
+        controller.requestShutdown();
+        await([&] { return controller.snapshot()->closed; });
+    }
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -283,6 +329,7 @@ int main(int argc, char **argv) {
         silentEditAndComplete();
         partialBundle();
         multitrackReceipts();
+        masterCompatibility();
         std::cout << "{\"checks\":" << checks
                   << ",\"dsp_backpressure_retry\":true,\"accepted_applied_distinct\":true,\"latest_"
                      "model_reconciled\":true,\"priority_shutdown\":true,\"native_audio\":false}\n";

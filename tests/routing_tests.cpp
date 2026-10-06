@@ -91,6 +91,7 @@ void migrationsAndValidation() {
     s.tracks.front().input = {"pipewire", "opaque old capture", {}};
     s.tracks.front().output = {"wasapi", "opaque old playback", {}};
     auto legacy = nlohmann::json::parse(encodeProject(s));
+    legacy.erase("master");
     legacy["schemaMinor"] = 0;
     for (auto &t : legacy["tracks"]) {
         t.erase("monitorIntent");
@@ -99,8 +100,8 @@ void migrationsAndValidation() {
         t["outputIntent"].erase("ports");
     }
     check(decodeProject(legacy.dump()) == s, "v1.0 migration changed identities/EQ/legacy routes");
-    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 2,
-          "Migrated state did not write v1.2");
+    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 3,
+          "Migrated state did not write v1.3");
     auto bad = legacy;
     bad["tracks"][0]["monitorIntent"] = nlohmann::json::object();
     rejects([&] { decodeProject(bad.dump()); });
@@ -215,6 +216,7 @@ void legacyMediaMigration() {
     original.tracks.front().input = {"pipewire", "opaque microphone identity", {}};
     original.tracks.front().output = {"wasapi", "opaque output identity", {}};
     auto j = nlohmann::json::parse(encodeProject(original));
+    j.erase("master");
     j["schemaMinor"] = 0;
     for (auto &t : j["tracks"]) {
         t.erase("monitorIntent");
@@ -304,6 +306,71 @@ void historyAndPatches() {
         ++count;
     check(count == 256, "Route undo history exceeded its bounded edit limit");
 }
+void masterState() {
+    auto s = makeOneTrackSession("Master — Polska", "Mono");
+    s.tracks.push_back(makeAudioTrack("Stereo", {LayoutKind::Stereo, 2}, 48000));
+    const auto original = s;
+    MasterBus m;
+    m.plan.output = {LayoutKind::Stereo, 2};
+    m.plan.tracks = {{s.tracks[0].id, {{0, 0, .5}, {0, 1, -.25}}},
+                     {s.tracks[1].id, {{0, 0, 1}, {1, 1, 1}}}};
+    EditHistory h(s);
+    check(h.structural({SetMaster{m}}), "Master not admitted");
+    check(decodeProject(encodeProject(s)) == s, "Master exact schema roundtrip differs");
+    auto j = nlohmann::json::parse(encodeProject(s));
+    check(j["schemaMinor"] == 3, "Master schema not 1.3");
+    auto old = j;
+    old["schemaMinor"] = 2;
+    old.erase("master");
+    check(!decodeProject(old.dump()).master, "Old project guessed a master");
+    const RouteAddress address{m.id, RouteTarget::Master};
+    auto p = patchedRouteValue(s, address, {1, "pipewire", descriptor()});
+    check(h.route(address, p) && s.master->output.ports[1] && s.tracks[0].output.ports.empty(),
+          "Master route touched track routing");
+    check(h.undo() && s.master->output.ports.empty() && h.redo() && s.master->output == p,
+          "Master route Undo/Redo failed");
+    check(h.structural({RemoveTrack{s.tracks[1].id}}) && s.master->plan.tracks.size() == 1,
+          "Track removal left dangling master lane");
+    check(h.undo() && s.master->plan == m.plan, "Track removal Undo lost master matrix");
+    auto after = s;
+    h.undo();
+    h.undo();
+    check(s == original, "Mixed master history lost original");
+    check(h.redo() && h.redo() && s == after, "Mixed master history redo differs");
+    for (unsigned n = 0; n < 7; ++n) {
+        auto invalid = s;
+        if (n == 0)
+            invalid.master->id = s.id;
+        if (n == 1)
+            invalid.master->plan.tracks[0].track = Id::generate();
+        if (n == 2)
+            invalid.master->plan.tracks[0].channels.push_back(
+                invalid.master->plan.tracks[0].channels[0]);
+        if (n == 3)
+            invalid.master->plan.tracks[0].channels[0].source = 1;
+        if (n == 4)
+            invalid.master->plan.tracks[0].channels[0].gain = 65;
+        if (n == 5)
+            invalid.master->plan.output = {LayoutKind::Stereo, 1};
+        if (n == 6)
+            invalid.master->output.ports[1]->input = false;
+        rejects([&] { validate(invalid); });
+        rejects([&] { h.structural({SetMaster{invalid.master}}); });
+        check(s == after, "Invalid master changed canonical state");
+    }
+    auto bad = j;
+    bad["master"]["tracks"][0]["channels"][0]["source"] = 1.5;
+    rejects([&] { decodeProject(bad.dump()); });
+    bad = j;
+    bad["master"]["unexpected"] = true;
+    rejects([&] { decodeProject(bad.dump()); });
+    rejects([&] { patchedRouteValue(s, address, {2, "pipewire", descriptor()}); },
+            ErrorCode::InvalidParameter);
+    rejects([&] { routeValue(s, {Id::generate(), RouteTarget::Master}); }, ErrorCode::InvalidId);
+    check(h.structural({SetMaster{std::nullopt}}) && !s.master && h.undo() && s == after,
+          "Master removal Undo differs");
+}
+
 } // namespace
 int main() {
     try {
@@ -311,6 +378,7 @@ int main() {
         migrationsAndValidation();
         legacyMediaMigration();
         historyAndPatches();
+        masterState();
         std::cout << checks << " routing checks passed\n";
         return 0;
     } catch (const std::exception &e) {

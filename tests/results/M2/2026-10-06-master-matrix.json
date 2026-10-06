@@ -1,0 +1,406 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2c3 saved stable-ID master, sparse matrix, independent output intent and desktop editor",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "9f875cecd7ad3ab5f99f68adde6886c2458aebf3",
+  "status": "Listed foundation workflows passed in final cases; native sink clock-gap and earlier completion failure unresolved; full M2/full goal incomplete",
+  "tested_source_sha256": {
+    "include/soundcurrent/mix.hpp": "48ca72838822cd4d600788b1e0e42392d5c9861084376c87ab5088034e120d4c",
+    "include/soundcurrent/session.hpp": "c4933c213a464f5358fa32b006c2744324450bb36db38e358957f64b402a3c84",
+    "research/parity.json": "e28d46df003ddc873c62d196c83757b6ab8e3a051daa4533871dc8c8a7e24bc4",
+    "src/project_store.cpp": "b4eff0b18f7ae32a1a0a71a2ac2bd4d593449fe5083ee32047d2c15c1263bd66",
+    "src/session.cpp": "08b8ccab095eaeb141c1e96b3d68631dfa3a92804809e52a38d634169ad033ed",
+    "src/session_edits.cpp": "185b8daa426f7f47b339f5b31dbd7a84a9b6c329d8f2b8037a749d43dd2ecc4f",
+    "tests/monitoring_tests.cpp": "e470d3942a6be68dc42d8909ab9ccd82599a2a4aaeb784a5b112db664819317b",
+    "tests/pipewire_ui_fixture.cpp": "7a402c7cab6090d0f77e7cceab8b51729e1b82008e2982403cc0418834968a8b",
+    "tests/playback_controller_tests.cpp": "ad12e3dc28abf585e118f9c4f8ea2e4668007393c6755919a91717010e3405e9",
+    "tests/routing_tests.cpp": "ccef1c78115e4ed90e02114e3e777da50e8cecde9e1a16b9fb477633cb7264c2",
+    "tests/session_tests.cpp": "7c75761259dd13e42ecfd0ccf52700fd61527cff5203e76a84a44041ef55e01a",
+    "tests/timeline_ui_tests.cpp": "971f2e6783547f0704e110a51f59ed35c0d83e8f02db5cc69dc000830a4074f3",
+    "tests/verify_mix_cli.py": "1b63e2e3d025af84eac3a9678dca049e3c52deca0fc516cc899762dda919508d",
+    "tools/export_tool.cpp": "42662bd6b9b3f5bd3138dc0fd3df6bc7d4ef0b66fe759325bb30f18b7a8c9acc",
+    "ui/playback_controller.cpp": "708b0ba42855f867dc0152238ee2257b79975530d369c40b3b00a310091de355",
+    "ui/studio_window.cpp": "d66d9352d7632894dfd1e65753afdfaf5c86b67859daa6b9996b5d4e74469ab9",
+    "ui/studio_window.hpp": "05d23e1d57924235f6f56e1ec4d3acc022ce56ddd71dfba206adae674102720b",
+    "ui/master_dialog.hpp": "ed896d091d0c55fd399a62727f45879c5250e8e08cff0f535fedefec4d2cfddd",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "tests/verify_pipewire_fixture.py": "7ae4c37cc225e8addc557b149c14fcba2cd1ce154cc7c98fd214dd6a84c95ab5",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+    "src/mix_run.cpp": "1fa6d726c34bd7fa799ff54e96a86fa41ef3596c0cd0898dde772e0e2d3e11d0",
+    "src/pipewire_playback.cpp": "1337e122dd1224697d44db8b5670d477e40e3fe9d871cb57dc21a9107159a210",
+    "src/playback_bridge.cpp": "0b3c73dcbd61f8b1eeaac861eac347ed7d8c19b44cae72ce34dd6dbe2dd43ea4"
+  },
+  "workflows": [
+    "Schema 1.3 exact stable master ID/layout/ordered sparse lane maps/output intent; strict fields, scalar types, channel/track bindings, duplicate IDs/pairs and route direction; historical 1.0/1.1/1.2 migration with no guessed master",
+    "Typed SetMaster with mixed bounded history; independent master route slot patches and Undo/Redo; atomic track removal/detach/Undo; reject invalid edits without canonical mutation",
+    "Actual Qt desktop editor Apply/Cancel, locale numbers, negative linear gain, source channel refusal, stereo preparation, master-owned output selection, inspector independence, Stop and Save/reopen",
+    "Unfocused wheel does not change source channel; changing channel count clears incompatible saved slots; 17-digit gain retained; valid 4097-entry state preserved with edit refusal and encode/decode exact",
+    "Prepared controller accepts passive endpoint intent without reconnecting; addition/removal or matrix change faults/retires incompatible generation; live scalar EQ and all-lane acknowledgements retained",
+    "Independent stereo WAV parser/sample oracle verifies two explicitly selected mono lanes mapped left/right at .5/-.25, other 30 lanes excluded, default extent selected lanes only; raw/project bytes unchanged",
+    "Owned native Qt 32-track saved mono matrix with different .125/.25/.375 lane gains, lane17 live EQ/Undo, source-coordinate/EQ/float64 sum replay; complete 480000 samples exact in final case",
+    "Owned native saved-master disconnect exact prefix/reason; existing single-track GUI export during playback exact native prefix; no observed callback allocations/frees/blocking locks in passing cases",
+    "Existing RIFF/RF64/headroom/digests/confirmed replacement/active SIGTERM and legacy recording/export oracle remain passing in final isolated runs"
+  ],
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "groups": 23,
+      "seconds": 21.04,
+      "log": {
+        "path": ".cache/m2-master-debug-final-tests.log",
+        "sha256": "a36c293cbdeacd278f80ffd3e3f2bae0e0ece6918bf48ab380817c4c42140037"
+      },
+      "details": {
+        "path": ".cache/m2-master-debug-final-details.log",
+        "sha256": "75f3235d6782955c34d35c001d77576d256b3161dda5e8cd200d789361d3a517"
+      },
+      "project_routing_checks": 604,
+      "timeline_ui_checks": 138,
+      "playback_controller_checks": 62
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 23,
+      "seconds": 61.2,
+      "log": {
+        "path": ".cache/m2-master-sanitized-final-tests.log",
+        "sha256": "ff556ec0f0610145b6a00fcb7d9bd4a84f73f645d21466aa1dc7110133d4e46b"
+      },
+      "details": {
+        "path": ".cache/m2-master-sanitized-final-details.log",
+        "sha256": "5a27000fd4f94bd6984edb27826e6454abe065ff9b7896779657241a15b8560b"
+      },
+      "project_routing_checks": 604,
+      "timeline_ui_checks": 138,
+      "playback_controller_checks": 62,
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ]
+    },
+    "builds": {
+      "linux_debug": {
+        "path": ".cache/m2-master-debug-final-build.log",
+        "sha256": "1d184168cf0ec28ff9915763f0fad63614919b79a74c472cdb2c37f3b3dd471f"
+      },
+      "linux_sanitized": {
+        "path": ".cache/m2-master-sanitized-final-build.log",
+        "sha256": "5f72cd2ecacd7d4c728925e5d616c7578f502ff8810e05cdd86f34a75e9cf0c6"
+      },
+      "native_fixture_diagnostics_debug": {
+        "path": ".cache/m2-master-native-diagnostic-build.log",
+        "sha256": "1f1ba574319550c232f8005f1c95094cde53e59225358624e7bcbcfcff431ff0"
+      },
+      "native_fixture_diagnostics_sanitized": {
+        "path": ".cache/m2-master-native-diagnostic-sanitized-build.log",
+        "sha256": "1f1ba574319550c232f8005f1c95094cde53e59225358624e7bcbcfcff431ff0"
+      },
+      "windows_core": {
+        "result": "65 Ninja steps compiled successfully; not executed",
+        "desktop_or_native_windows_qualified": false,
+        "log": {
+          "path": ".cache/m2-master-windows-build.log",
+          "sha256": "78539376975a7dc35bbc5aa90809e5b3a52677fe9abb70ca1182565b516b0fdb"
+        }
+      }
+    },
+    "qt_visual": {
+      "result": "Screenshot inspected: readable rows/headers/gains, controls fit 780x560 viewport",
+      "native_desktop_or_all_display_locale_qualification": false,
+      "image": {
+        "path": ".cache/m2-master-editor.png",
+        "sha256": "3c46aba49f49b1369b284b5d267d7115a218b266c59154c706e1e4eb4e4efa71"
+      },
+      "log": {
+        "path": ".cache/m2-master-editor-visual.log",
+        "sha256": "42f703222f7588e6213f76cc1d80cfc71ea57b28c48ae225a5b57912b8785752"
+      },
+      "checks_with_capture": 139
+    },
+    "native_pipewire": {
+      "result": "Final serial batch passed; earlier failing cases remain retained and unexplained",
+      "sanitized_native_execution": false,
+      "results": [
+        {
+          "mode": "mix",
+          "frames": 480000,
+          "tracks": 32,
+          "saved_master": true,
+          "gui_export_during_playback": false,
+          "export_live_prefix_frames": 0,
+          "export_live_prefix_difference": 0,
+          "live_offline_difference": 0,
+          "missing_frames": 0,
+          "owned_nodes_only": true,
+          "gui_playback": true,
+          "gui_live_edit": true,
+          "gui_undo": true,
+          "explicit_output_selection": true,
+          "gui_meter": true,
+          "asynchronous_close": true,
+          "project_unchanged": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "first_applied_frame": 24576,
+          "applied_events": 2,
+          "routing_observations": {
+            "graph_snapshots_during_run": 107,
+            "snapshots_with_owned_links": 77,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nGUI mix terminal phase/status/position/missing/sink/gap 6/3/480000/0/480000/0\nNative GUI terminal; closing window\nThis plugin does not support propagateSizeHints()"
+        },
+        {
+          "mode": "mix-disconnect",
+          "frames": 25600,
+          "tracks": 32,
+          "saved_master": true,
+          "gui_export_during_playback": false,
+          "export_live_prefix_frames": 0,
+          "export_live_prefix_difference": 0,
+          "live_offline_difference": 0,
+          "missing_frames": 0,
+          "owned_nodes_only": true,
+          "gui_playback": true,
+          "gui_live_edit": true,
+          "gui_undo": false,
+          "explicit_output_selection": true,
+          "gui_meter": true,
+          "asynchronous_close": true,
+          "project_unchanged": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "first_applied_frame": 24576,
+          "applied_events": 1,
+          "routing_observations": {
+            "graph_snapshots_during_run": 12,
+            "snapshots_with_owned_links": 5,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI terminal; closing window\nThis plugin does not support propagateSizeHints()"
+        },
+        {
+          "mode": "export",
+          "frames": 480000,
+          "tracks": 1,
+          "saved_master": false,
+          "gui_export_during_playback": true,
+          "export_live_prefix_frames": 26624,
+          "export_live_prefix_difference": 0,
+          "live_offline_difference": 0,
+          "missing_frames": 0,
+          "owned_nodes_only": true,
+          "gui_playback": true,
+          "gui_live_edit": true,
+          "gui_undo": true,
+          "explicit_output_selection": true,
+          "gui_meter": true,
+          "asynchronous_close": true,
+          "project_unchanged": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "first_applied_frame": 26624,
+          "applied_events": 2,
+          "routing_observations": {
+            "graph_snapshots_during_run": 80,
+            "snapshots_with_owned_links": 77,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 0,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nThis plugin does not support propagateSizeHints()\nGUI mix terminal phase/status/position/missing/sink/gap 6/3/480000/0/480000/0\nNative GUI terminal; closing window\nThis plugin does not support propagateSizeHints()"
+        }
+      ],
+      "report": {
+        "path": ".cache/m2-master-native-final.json",
+        "sha256": "527208fa3b359652028c12db073e92181f26e4867058499ee44b199cd6cdd6fe"
+      },
+      "log": {
+        "path": ".cache/m2-master-native-final.log",
+        "sha256": "527208fa3b359652028c12db073e92181f26e4867058499ee44b199cd6cdd6fe"
+      },
+      "passing_run_pwtop_sampling": {
+        "path": ".cache/m2-master-native-pwtop.log",
+        "sha256": "85b1f1b23c13fcd81d71071cd31661b607bb6bc3e08bae533b13d4fe41451630"
+      },
+      "sampling_limit": "Sampled statistics on passing run are not failing-run timing data or deadline qualification"
+    },
+    "independent_cli": {
+      "saved_mix": {
+        "result": {
+          "tracks": 32,
+          "frames": 4887,
+          "oracle_difference": 0,
+          "rf64_and_confirmed_replace": true,
+          "active_sigterm": true,
+          "layout_rejection": true,
+          "source_project_preserved": true,
+          "audio_devices": false,
+          "saved_stereo_master_exact": true
+        },
+        "log": {
+          "path": ".cache/m2-master-cli-final.log",
+          "sha256": "1c3b80ddb6228607467a7293efb80f5298dbe88a2fc4c0385d1ce8fa2d1d6e5b"
+        }
+      },
+      "legacy": {
+        "result": {
+          "record_cli": "Recorded and saved 480000 raw frames at 48000 Hz; SHA-256 556d098f2fb226a534e31dc5387af635d5009e668456ef33994c7fc681cb1fed",
+          "export_cli": {
+            "frames": 11866,
+            "tail_frames": 0,
+            "rate": 48000,
+            "channels": 1,
+            "peak": 3.248429298400879,
+            "over_full_scale_samples": 5542,
+            "tail_truncated": false,
+            "rf64": false,
+            "replaced": false,
+            "sample_sha256": "f1b82c614f27bbf61f848240ac242096ff7728e38db9d88e402897bb9926a359",
+            "file_sha256": "eb6fc1daf69436d6775ad422c9324808181d36ed19fa4c85a4f6564b2373c6a3",
+            "directory_flushed": true,
+            "publication_warning": false,
+            "audio_device": false
+          },
+          "independent_reader": "RIFF/RF64 chunks, float GUID, extents, every sample and digests",
+          "independent_dsp": "direct-form-I peaking oracle",
+          "maximum_sample_difference": 9.979164723480862e-30,
+          "confirmed_replacement": "RF64 re-encoding preserves every sample",
+          "signal_cancellation": "SIGTERM during active large RF64 write; status 3, no output or temporary",
+          "project_and_media_unchanged": true,
+          "physical_audio": false
+        },
+        "log": {
+          "path": ".cache/m2-master-legacy-cli-final.log",
+          "sha256": "a175f0dbbbb4df96b48b2f7bdbaec2fe1e56974eee5187ae373b64ff63ffd816"
+        }
+      }
+    },
+    "equalizer_reuse": {
+      "result": "All 24 registered input hashes match; retained snapshots intact",
+      "report": {
+        "path": ".cache/m2-master-final-reuse-audit.json",
+        "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+      },
+      "sources": {
+        "soundcurrent-eq": {
+          "head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "head_changed": false,
+          "registered_inputs": 12
+        },
+        "soundcurrent-studio": {
+          "head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "head_changed": false,
+          "registered_inputs": 12
+        }
+      },
+      "checkout_writes": false
+    }
+  },
+  "implementation_bounds": {
+    "master_tracks": 256,
+    "channels": 256,
+    "total_sparse_entries": 65536,
+    "desktop_editable_entries": 4096,
+    "project_bytes": 4194304,
+    "history_units": 256,
+    "history_retained_payload_bytes": 33554432,
+    "limit_notes": [
+      "Serialized project byte bound can prevent saving a matrix below the entry maximum",
+      "History retained-payload bound is not process RSS",
+      "Empty master lanes persist as stopped/unrouted intent; audible graph preparation rejects empty plans",
+      "New tracks require explicit routes; excluded tracks are not guessed",
+      "No general bus/DAG/PDC compiler or live matrix graph replacement",
+      "Desktop export remains selected-track; saved master export available through render-mix"
+    ]
+  },
+  "resolved_fixture_failures": [
+    {
+      "failure": "New independent stereo oracle reused track list aliased into prior layout-rejection fixture, which had cleared lane-one clips",
+      "fix": "Rebind to restored decoded project track list; accept multi-channel WAV strides in independent parser; no production workaround",
+      "log": {
+        "path": ".cache/m2-master-cli.log",
+        "sha256": "a40c6ba8d2cdf830c0bff0d60da93aaef3a6c18bc2177b2b81c4b21ce2f5f843"
+      }
+    }
+  ],
+  "unresolved_observations": [
+    {
+      "failure": "First native GUI 32-track attempt timed out after acknowledged Undo while waiting for Complete and sink delivery",
+      "cause": "Unknown; original failure has no terminal state snapshot. No cause or production fix is claimed.",
+      "log": {
+        "path": ".cache/m2-native-mix-gui-failure1.log",
+        "sha256": "d956dd61e21d9f62c87566d03440465ede6a8a42f4b5f8367ef864042b76aab1"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI workflow timed out at line 335\n\n",
+      "action": "Fixture now also wakes on sink gap and emits terminal phase/status/position/missing/sink/gap; isolated mix and final mix/mix-disconnect/export cases passed",
+      "remaining": "Long-duration/deadline/native completion/shutdown reliability qualification remains open; no suppression/waived gate"
+    },
+    {
+      "failure": "First saved-master native GUI 32-track run detected downstream sink clock gap with player still Running",
+      "terminal_state": {
+        "playback_phase": 4,
+        "bridge_status": 1,
+        "player_position": 110592,
+        "missing_track_frames": 0,
+        "sink_prefix": 108544,
+        "sink_gap": true
+      },
+      "cause": "Unknown; no failing-run pw-top/callback timing or first-gap positions captured. No production fix claimed.",
+      "log": {
+        "path": ".cache/m2-master-native.log",
+        "sha256": "024ae0f87b066f4d5e67ff79dfdbd0b3ef5f73d1e732d18ecb29a26480a9a0e3"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nGUI mix terminal phase/status/position/missing/sink/gap 4/1/110592/0/108544/1\nGUI file playback did not complete\n\n",
+      "action": "Fixture now records first expected/observed/duration/unavailable-input count without RT logging; next isolated full/disconnect/export run exact",
+      "remaining": "Characterized native graph/sink deadline/load/clock/delivery reliability; failure is not suppressed or waived"
+    },
+    {
+      "failure": "Legacy CLI synthetic source capture stopped while independent CPU builds/tests were active",
+      "cause": "Exact underlying stop reason not retained by this CLI test output; concurrent activity is observed context, not a proven cause",
+      "log": {
+        "path": ".cache/m2-master-legacy-cli.log",
+        "sha256": "26f8ede9a446d9db0a47f3cdcb9171ed072a1be94f51d74a9271bed62ff4896d"
+      },
+      "action": "Next serial run after CPU/native jobs passed recording and independent export sample/hash oracle; no production change or waived pressure gate"
+    }
+  ],
+  "parity_decomposition": {
+    "P017": {
+      "subset": "Saved stable-ID master sparse matrix/output intent, desktop editor/Undo/Save/reopen and shared native/offline plan",
+      "remaining": "General buses/groups/sends/sidechains/VCA/PDC, complete mixer workflow and frozen reference comparison",
+      "F": "unverified",
+      "Q": "unverified",
+      "C": "not applicable",
+      "N": "not implied"
+    }
+  },
+  "frozen_reference_contract_unchanged": true,
+  "remaining_gates": [
+    "Diagnose native sink clock gap and previous completion timeout; characterize native deadlines/load/duration/downstream delivery/shutdown with retained timing evidence",
+    "One shared native playback/capture owner; simultaneous armed recording/overdub/alignment/raw preservation and ten-minute synthetic/30-minute native recording acceptance",
+    "General buses/sends/sidechains/PDC/VCA, all later punch/loop/takes/comping/fade/MIDI/automation/plugin/reference workflows",
+    "Virtualized/larger matrix editor, full accessibility/locale/display/load coverage and desktop master export workflow",
+    "Native Windows Qt/audio/installers and independent M1 hardware/filesystem/power-loss/module-unload/deadline/recovery qualification",
+    "All 92 frozen reference F/Q/C/N qualifications, X004 project import adapters and loss/preservation evidence",
+    "X005 equipment monitoring/explicit print/portable profile pins/measurement and data rights; all-Europe translation/native review/UI/help/installer coverage"
+  ],
+  "next_task": "Characterize native sink/graph clock-gap observations with optimized callback timing and scheduler/delivery evidence; then shared native playback/capture owner for simultaneous armed tracks and overdub",
+  "published_or_pushed": false
+}

@@ -28,7 +28,7 @@ void state() {
     check(monitoringValue(s, id) == RecordingMonitor::Off, "New project monitoring is not off");
     setMonitoringValue(s, id, RecordingMonitor::PostEq);
     const auto j = nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 2 && j["tracks"][0]["monitoringMode"] == "post-eq",
+    check(j["schemaMinor"] == 3 && j["tracks"][0]["monitoringMode"] == "post-eq",
           "Monitoring state uses wrong stable representation");
     check(decodeProject(j.dump()) == s, "Monitoring round trip differs");
     for (unsigned test = 0; test < 5; ++test) {
@@ -55,6 +55,7 @@ void state() {
             ErrorCode::InvalidId);
     for (unsigned minor = 0; minor < 2; ++minor) {
         auto legacy = j;
+        legacy.erase("master");
         legacy["schemaMinor"] = minor;
         for (auto &t : legacy["tracks"]) {
             t.erase("monitoringMode");

@@ -81,3 +81,5 @@ buses/sends/sidechains/PDC/VCA, graph crossfade/state migration and all later
 milestones remain required. Independent M1 physical/native Windows/filesystem/
 module-unload/deadline gates, X004 native imports, X005 monitor/print/portable
 profiles/rights and all-Europe localization remain open.
+
+M2c3 now [persists a dedicated master and supplies its matrix editor](33-master-matrix.md). It replaces the earlier anchor-track output workflow when configured; legacy matching-layout preparation remains explicit. Shared simultaneous capture/overdub is still required.

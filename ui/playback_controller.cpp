@@ -97,6 +97,13 @@ bool compatible(const PlaybackPreparation &p, const Session &updated) {
         prepared.playheadFrame != updated.playheadFrame ||
         (p.projectMix && prepared.tracks.size() != updated.tracks.size()))
         return false;
+    if (p.projectMix && bool(prepared.master) != bool(updated.master))
+        return false;
+    if (p.projectMix && prepared.master) {
+        if (!updated.master || updated.master->id != prepared.master->id ||
+            updated.master->plan != prepared.master->plan)
+            return false;
+    }
     for (const auto &lane : p.plan.tracks) {
         const auto *t = findTrack(prepared, lane.track), *u = findTrack(updated, lane.track);
         if (!t || !u || t->layout != u->layout || t->clips != u->clips || t->eq.id != u->eq.id ||

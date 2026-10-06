@@ -89,7 +89,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 3;
+        j["schemaMinor"] = 4;
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;

@@ -145,3 +145,5 @@ playback/Qt integration is next; general DAG/PDC/feedback/crossfade/state migrat
 and simultaneous capture/overdub remain required. No new dependency is adopted.
 
 M2c2: [native shared-clock mix playback](32-native-mix-playback.md) now uses the same prepared run as offline mixing. The clock bridge dispatches through preparation-fixed pointers; model reconciliation resolves UUIDs and requires receipts from every affected lane. GUI/disk/preparation/retirement remain off RT. Matching-layout desktop mixes retain an explicit output anchor; dedicated master state/matrix UI and shared multitrack capture are required next.
+
+M2c3 adds [versioned plain master state](33-master-matrix.md): stable bus ID, sparse channel matrix and independent endpoint intent. Compilation/persistence/GUI/history remain outside RT; prepared playback retains immutable copies.

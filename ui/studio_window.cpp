@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "master_dialog.hpp"
 #include "track_view.hpp"
 #include "equipment_profiles.hpp"
 #include <soundcurrent/routing.hpp>
@@ -218,12 +219,29 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     buttons->addWidget(playButton_);
     buttons->addWidget(stopButton_);
     transportLayout->addLayout(buttons);
-    mixTracks_ = new QCheckBox(tr("Mix all tracks (matching channel layouts)"), transport);
+    mixTracks_ =
+        new QCheckBox(tr("Play project mix (saved master or matching layouts)"), transport);
     mixTracks_->setObjectName(QStringLiteral("mixAllTracks"));
     mixTracks_->setToolTip(
-        tr("Use the selected track's channel layout and saved output routes for "
-           "the shared mix. Different layouts need an explicit channel matrix."));
+        tr("Use the saved master's channel matrix and output routes. Without a saved master, "
+           "use the selected track's layout and output routes. Different track layouts require "
+           "an explicit matrix."));
     transportLayout->addWidget(mixTracks_);
+    masterButton_ = new QPushButton(tr("Edit master layout and matrix…"), transport);
+    masterButton_->setObjectName("editMasterButton");
+    transportLayout->addWidget(masterButton_);
+    connect(masterButton_, &QPushButton::clicked, this, [this] {
+        const auto model = controller_.snapshot();
+        if (!model->session)
+            return;
+        MasterDialog dialog(*model->session, this);
+        if (dialog.exec() == QDialog::Accepted && dialog.selection()) {
+            ProjectCommand c{CommandKind::Structural};
+            c.edits.push_back(SetMaster{dialog.selection()});
+            if (!submitEdit(std::move(c)))
+                notice_->setText(tr("Master change was not admitted. Please retry."));
+        }
+    });
     connect(prepareButton_, &QPushButton::clicked, this, [this] { preparePlayback(); });
     connect(playButton_, &QPushButton::clicked, this, &StudioWindow::playSelected);
     connect(stopButton_, &QPushButton::clicked, this, [this] {
@@ -764,6 +782,25 @@ void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBo
     auto model = inspectorSnapshot();
     if (target == RouteTarget::Output && playback_.snapshot()->projectMix) {
         auto canonical = controller_.snapshot();
+        if (canonical->session && canonical->session->master) {
+            const auto &m = *canonical->session->master;
+            const auto key = combo->currentData().toString();
+            if (key == "unresolved-route" || !outputsShown_)
+                return;
+            const auto found = std::find_if(outputsShown_->begin(), outputsShown_->end(),
+                                            [&](const auto &p) { return portKey(p) == key; });
+            if (!key.isEmpty() && found == outputsShown_->end())
+                return;
+            ProjectCommand c{CommandKind::Routing};
+            c.routeAddress = RouteAddress{m.id, RouteTarget::Master};
+            c.routePatch =
+                RouteChannelPatch{std::uint32_t(channel), "pipewire",
+                                  found == outputsShown_->end() ? std::optional<ChannelPortIntent>{}
+                                                                : portIntent(*found)};
+            if (!submitEdit(std::move(c)))
+                notice_->setText(tr("Master output was not admitted. Please retry."));
+            return;
+        }
         auto projected = sessionForTrack(canonical->session, playbackTrack_);
         if (!projected)
             return;
@@ -832,8 +869,11 @@ void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
     const auto anchor = view.projectMix
                             ? sessionForTrack(controller_.snapshot()->session, playbackTrack_)
                             : model->session;
-    const auto intent =
-        anchor && !anchor->tracks.empty() ? anchor->tracks.front().output : RouteIntent{};
+    const auto canonical = controller_.snapshot();
+    const auto intent = view.projectMix && canonical->session && canonical->session->master
+                            ? canonical->session->master->output
+                        : anchor && !anchor->tracks.empty() ? anchor->tracks.front().output
+                                                            : RouteIntent{};
     if (view.ports && (!outputsShown_ || *outputsShown_ != *view.ports || !outputIntentShown_ ||
                        *outputIntentShown_ != intent)) {
         populateRoutes(outputs_, *view.ports, intent, true);
@@ -859,7 +899,9 @@ void StudioWindow::pollPlayback() {
                 std::vector<Id> ids;
                 for (const auto &t : c.session->tracks)
                     ids.push_back(t.id);
-                c.plan = identityMix(*c.session, ids, c.session->tracks.front().layout);
+                c.plan = c.session->master
+                             ? c.session->master->plan
+                             : identityMix(*c.session, ids, c.session->tracks.front().layout);
             }
             if (c.session && playback_.submit(std::move(c)) == Admission::Accepted)
                 playbackTrack_ = playbackPreparationTrack_;
@@ -879,6 +921,11 @@ void StudioWindow::pollPlayback() {
                          p->supported && idle && model->session &&
                          model->io != IoOperation::Create && model->io != IoOperation::Open;
     mixTracks_->setEnabled(prepare && !playbackPrepareBarrier_);
+    masterButton_->setEnabled(allow && !playbackPrepareBarrier_ && !recordingBusy() &&
+                              (p->phase == PlaybackPhase::Idle ||
+                               p->phase == PlaybackPhase::Fault ||
+                               p->phase == PlaybackPhase::Unsupported) &&
+                              model->session && model->io == IoOperation::None);
     prepareButton_->setEnabled(prepare);
     prepareAction_->setEnabled(prepare);
     playButton_->setEnabled(allow && p->phase == PlaybackPhase::Ready &&
@@ -934,7 +981,9 @@ void StudioWindow::pollPlayback() {
     if (p->projectMix) {
         status += tr(" · %n mixed track(s)", nullptr, int(p->tracks));
         const auto anchor = sessionForTrack(controller_.snapshot()->session, playbackTrack_);
-        if (anchor && !anchor->tracks.empty())
+        if (controller_.snapshot()->session && controller_.snapshot()->session->master)
+            status += tr(" · Saved master output");
+        else if (anchor && !anchor->tracks.empty())
             status += tr(" · Shared output routes: %1").arg(text(anchor->tracks.front().name));
     } else if (playbackTrack_ && selectedTrack() != playbackTrack_ && p->ports)
         status += tr(" · Another track is prepared. Stop or prepare the selected track.");

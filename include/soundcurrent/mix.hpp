@@ -3,21 +3,6 @@
 #include "eq.hpp"
 
 namespace soundcurrent::daw {
-struct ChannelMix {
-    std::uint32_t source = 0, destination = 0;
-    double gain = 1;
-    bool operator==(const ChannelMix &) const = default;
-};
-struct TrackMix {
-    Id track;
-    std::vector<ChannelMix> channels;
-    bool operator==(const TrackMix &) const = default;
-};
-struct MixPlan {
-    ChannelLayout output;
-    std::vector<TrackMix> tracks;
-    bool operator==(const MixPlan &) const = default;
-};
 // Explicit same-layout identity routes. Never drops or guesses a channel map.
 MixPlan identityMix(const Session &, std::span<const Id> tracks, ChannelLayout output);
 struct MixConfig {

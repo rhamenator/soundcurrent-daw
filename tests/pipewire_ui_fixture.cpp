@@ -65,13 +65,17 @@ struct Sink : Audit {
     Frame count = 0;
     std::atomic<Frame> published{0};
     std::atomic<bool> gap{false}, complete{false};
+    std::atomic<std::uint64_t> gapExpected{0}, gapObserved{0}, gapDuration{0}, unavailableInputs{0};
     explicit Sink(CapturePipe &p) : pipe(p) {}
     static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const> input,
                         std::span<float *const>, std::uint32_t capacity) noexcept {
         auto &s = *static_cast<Sink *>(p);
-        if (s.complete.load() || input.size() != 1 || !input[0] || !clock.duration ||
-            clock.duration > capacity)
+        if (s.complete.load())
             return;
+        if (input.size() != 1 || !input[0] || !clock.duration || clock.duration > capacity) {
+            ++s.unavailableInputs;
+            return;
+        }
         if (!s.started) {
             bool nonzero = false;
             for (std::uint32_t f = 0; f < clock.duration; ++f)
@@ -82,6 +86,11 @@ struct Sink : Audit {
             s.started = true;
         }
         if (clock.position != s.origin + static_cast<std::uint64_t>(s.count)) {
+            if (!s.gap.load()) {
+                s.gapExpected.store(s.origin + static_cast<std::uint64_t>(s.count));
+                s.gapObserved.store(clock.position);
+                s.gapDuration.store(clock.duration);
+            }
             s.gap.store(true);
             return;
         }
@@ -131,6 +140,13 @@ Session source(const std::filesystem::path &root, bool mix) {
             t.eq.bands.front().gainDb = double(int(n % 5) - 2) * 3;
             s.tracks.push_back(std::move(t));
         }
+    if (mix) {
+        MasterBus master;
+        master.plan.output = {};
+        for (std::size_t t = 0; t < s.tracks.size(); ++t)
+            master.plan.tracks.push_back({s.tracks[t].id, {{0, 0, .125 * double(1 + t % 3)}}});
+        s.master = std::move(master);
+    }
     ProjectStore(root).save(s);
     return ProjectStore(root).load();
 }
@@ -215,6 +231,16 @@ int main(int argc, char **argv) {
                 owned = n;
         require(owned > 0, "Owned sink missing from GUI output selection");
         combo->setCurrentIndex(owned);
+        if (mix) {
+            await([&] {
+                const auto &m = window.snapshot()->session->master;
+                return m && m->output.ports.size() == 1 && m->output.ports[0];
+            });
+            require(std::all_of(window.snapshot()->session->tracks.begin(),
+                                window.snapshot()->session->tracks.end(),
+                                [](const auto &t) { return t.output.ports.empty(); }),
+                    "Native master output selection changed track routes");
+        }
         monitor.activate();
         auto *play = window.findChild<QPushButton *>(QStringLiteral("playButton"));
         await([&] { return play && play->isEnabled(); });
@@ -343,6 +369,11 @@ int main(int argc, char **argv) {
                       << window.playbackSnapshot()->position << '/'
                       << window.playbackSnapshot()->missingFrames << '/' << sink.published.load()
                       << '/' << sink.gap.load() << '\n';
+            if (sink.gap)
+                std::cerr << "First sink gap expected/observed/duration/unavailable-inputs "
+                          << sink.gapExpected.load() << '/' << sink.gapObserved.load() << '/'
+                          << sink.gapDuration.load() << '/' << sink.unavailableInputs.load()
+                          << '\n';
             require(window.playbackSnapshot()->phase == PlaybackPhase::Complete && sink.complete &&
                         !sink.gap,
                     "GUI file playback did not complete");
@@ -410,7 +441,8 @@ int main(int argc, char **argv) {
                 require(eq.process(in, out, n, f, updates).status == ProcessStatus::Ok,
                         "GUI offline replay failed");
                 for (std::uint32_t k = 0; k < n; ++k)
-                    sum[k] += expected[k];
+                    sum[k] +=
+                        expected[k] * (s.master ? s.master->plan.tracks[t].channels[0].gain : 1);
             }
             for (std::uint32_t k = 0; k < n; ++k)
                 expected[k] = static_cast<float>(sum[k]);
@@ -440,6 +472,7 @@ int main(int argc, char **argv) {
                 "GUI playback/discard modified saved project");
         std::cout << "{\"mode\":\"" << argv[2] << "\",\"frames\":" << result.asset.frames
                   << ",\"tracks\":" << s.tracks.size()
+                  << ",\"saved_master\":" << (s.master ? "true" : "false")
                   << ",\"gui_export_during_playback\":" << (exporting ? "true" : "false")
                   << ",\"export_live_prefix_frames\":"
                   << (exporting ? firstReceipt.appliedFrame : 0)

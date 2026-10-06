@@ -63,6 +63,27 @@ struct RouteIntent {
     std::vector<std::optional<ChannelPortIntent>> ports;
     bool operator==(const RouteIntent &) const = default;
 };
+struct ChannelMix {
+    std::uint32_t source = 0, destination = 0;
+    double gain = 1;
+    bool operator==(const ChannelMix &) const = default;
+};
+struct TrackMix {
+    Id track;
+    std::vector<ChannelMix> channels;
+    bool operator==(const TrackMix &) const = default;
+};
+struct MixPlan {
+    ChannelLayout output;
+    std::vector<TrackMix> tracks;
+    bool operator==(const MixPlan &) const = default;
+};
+struct MasterBus {
+    Id id = Id::generate();
+    MixPlan plan;
+    RouteIntent output;
+    bool operator==(const MasterBus &) const = default;
+};
 struct EqBand {
     Id id = Id::generate();
     double frequencyHz = 1000;
@@ -115,6 +136,7 @@ struct Session {
     Frame exportEndFrame = 0;
     std::vector<Track> tracks;
     std::vector<Asset> assets;
+    std::optional<MasterBus> master;
     bool operator==(const Session &) const = default;
 };
 bool validUtf8(std::string_view text) noexcept;
@@ -159,10 +181,13 @@ struct SplitClip {
     Id track, clip, rightId;
     Frame position;
 };
+struct SetMaster {
+    std::optional<MasterBus> value;
+};
 using SessionEdit = std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip,
-                                 RemoveClip, SetClipRange, MoveClip, SplitClip>;
+                                 RemoveClip, SetClipRange, MoveClip, SplitClip, SetMaster>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &);
-enum class RouteTarget { Input, Output, Monitor };
+enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {
     Id trackId;
     RouteTarget target;
@@ -236,6 +261,7 @@ class EditHistory {
         std::vector<ObjectChange<Asset>> assets;
         std::vector<Id> trackOrderBefore, trackOrderAfter, assetOrderBefore, assetOrderAfter;
         std::optional<std::pair<Frame, Frame>> exportEnd;
+        std::optional<std::pair<std::optional<MasterBus>, std::optional<MasterBus>>> master;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
     static std::size_t weight(const Change &);
