@@ -23,6 +23,15 @@ class DurationTiming {
     std::uint64_t maximumStart_ = 0;
     bool maximumClockKnown_ = false;
     bool clockKnown_ = false;
+    bool cpuRequested_ = false, maximumCpuKnown_ = false;
+    std::uint64_t cpuBegin_ = 0, cpuSamples_ = 0, cpuFailures_ = 0, cpuTotal_ = 0;
+    std::uint64_t maximumCpu_ = 0, maximumNonCpu_ = 0, maximumWallCpu_ = 0;
+    static std::uint64_t cpuNow() noexcept {
+        timespec t{};
+        return clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t) == 0
+                   ? std::uint64_t(t.tv_sec) * 1000000000ULL + std::uint64_t(t.tv_nsec)
+                   : 0;
+    }
     static std::uint64_t now() noexcept {
         timespec t{};
         return clock_gettime(CLOCK_MONOTONIC, &t) == 0
@@ -31,10 +40,12 @@ class DurationTiming {
     }
 
   public:
-    explicit DurationTiming(std::size_t capacity = 1000000) : samples_(capacity) {}
+    explicit DurationTiming(std::size_t capacity = 1000000, bool captureCpu = false)
+        : samples_(capacity), cpuRequested_(captureCpu) {}
     void begin() noexcept {
         clockKnown_ = false;
         begin_ = now();
+        cpuBegin_ = cpuRequested_ ? cpuNow() : 0;
     }
     void clock(const soundcurrent::daw::DeviceBlockClock &c) noexcept {
         clock_ = c;
@@ -42,7 +53,18 @@ class DurationTiming {
     }
     // Public deterministic feed for quantile/overflow acceptance; no allocation.
     void record(std::uint64_t ns, const soundcurrent::daw::DeviceBlockClock *c,
-                std::uint64_t started = 0) noexcept {
+                std::uint64_t started = 0, std::uint64_t cpuNs = 0,
+                bool cpuKnown = false) noexcept {
+        if (cpuKnown && cpuNs <= ns) {
+            ++cpuSamples_;
+            cpuTotal_ += cpuNs;
+            maximumCpu_ = std::max(maximumCpu_, cpuNs);
+            maximumNonCpu_ = std::max(maximumNonCpu_, ns - cpuNs);
+        } else {
+            if (cpuRequested_)
+                ++cpuFailures_;
+            cpuKnown = false;
+        }
         std::uint64_t period = 0;
         if (c && c->duration && c->duration <= 65536 && c->rateNumerator && c->rateDenominator &&
             c->rateNumerator <= 1000000 && c->rateDenominator <= 1000000 &&
@@ -59,6 +81,8 @@ class DurationTiming {
         if (!calls_ || ns > maximum_) {
             maximum_ = ns;
             maximumStart_ = started;
+            maximumCpuKnown_ = cpuKnown;
+            maximumWallCpu_ = cpuKnown ? cpuNs : 0;
             maximumClockKnown_ = c != nullptr;
             maximumClock_ = c ? *c : soundcurrent::daw::DeviceBlockClock{};
         }
@@ -69,12 +93,15 @@ class DurationTiming {
         ++calls_;
     }
     void end() noexcept {
+        const auto cpuFinished = cpuRequested_ ? cpuNow() : 0;
         const auto finished = now();
         if (!begin_ || finished < begin_) {
             ++failures_;
             return;
         }
-        record(finished - begin_, clockKnown_ ? &clock_ : nullptr, begin_);
+        const bool cpuKnown = cpuRequested_ && cpuBegin_ && cpuFinished >= cpuBegin_;
+        record(finished - begin_, clockKnown_ ? &clock_ : nullptr, begin_,
+               cpuKnown ? cpuFinished - cpuBegin_ : 0, cpuKnown);
     }
     void write(std::ostream &out) const {
         const auto count = std::min<std::uint64_t>(calls_, samples_.size());
@@ -109,13 +136,26 @@ class DurationTiming {
             << ",\"complete_timing_coverage\":" << (complete ? "true" : "false")
             << ",\"finite_deadline_thresholds_met\":"
             << (complete && p999 < .6 && maxRatio < .8 ? "true" : "false")
+            << ",\"cpu_timing_requested\":" << (cpuRequested_ ? "true" : "false")
+            << ",\"cpu_samples\":" << cpuSamples_ << ",\"cpu_clock_failures\":" << cpuFailures_
+            << ",\"complete_cpu_coverage\":"
+            << (cpuRequested_ && calls_ && cpuSamples_ == calls_ && !cpuFailures_ && !failures_
+                    ? "true"
+                    : "false")
+            << ",\"mean_cpu_ns\":" << (cpuSamples_ ? cpuTotal_ / cpuSamples_ : 0)
+            << ",\"maximum_cpu_ns\":" << maximumCpu_
+            << ",\"maximum_wall_minus_cpu_ns\":" << maximumNonCpu_
+            << ",\"maximum_callback_cpu_known\":" << (maximumCpuKnown_ ? "true" : "false")
+            << ",\"maximum_callback_cpu_ns\":" << maximumWallCpu_
             << ",\"maximum_callback_start_monotonic_ns\":" << maximumStart_
             << ",\"maximum_clock_known\":" << (maximumClockKnown_ ? "true" : "false")
             << ",\"maximum_clock\":{\"position\":" << maximumClock_.position
             << ",\"duration\":" << maximumClock_.duration << ",\"id\":" << maximumClock_.id
             << ",\"cycle\":" << maximumClock_.cycle << ",\"nsec\":" << maximumClock_.monotonicNs
             << ",\"rate_numerator\":" << maximumClock_.rateNumerator
-            << ",\"rate_denominator\":" << maximumClock_.rateDenominator << "}}";
+            << ",\"rate_denominator\":" << maximumClock_.rateDenominator
+            << ",\"xrun\":" << (maximumClock_.xrun ? "true" : "false")
+            << ",\"discontinuity\":" << (maximumClock_.discontinuity ? "true" : "false") << "}}";
     }
 };
 } // namespace native_fixture

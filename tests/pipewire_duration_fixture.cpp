@@ -55,7 +55,7 @@ struct DiskTiming {
     }
 };
 struct Audit {
-    native_fixture::DurationTiming timing;
+    native_fixture::DurationTiming timing{1000000, true};
     std::atomic<std::uint64_t> allocations{0}, frees{0}, locks{0};
     static void begin(void *p) noexcept {
         auto &a = *static_cast<Audit *>(p);
@@ -310,6 +310,14 @@ void diagnostics(const DuplexRecordingRun &run, const Sink &sink, const Audit &o
               << " previous=" << sink.previous.position << '+' << sink.previous.duration
               << " inputs=" << sink.failedInputs << " mapped=" << sink.failedMapped
               << " capacity=" << sink.failedCapacity << '\n';
+    const auto sinkClock = [](const char *name, const DeviceBlockClock &c) {
+        std::cerr << name << " position=" << c.position << " duration=" << c.duration
+                  << " id=" << c.id << " cycle=" << c.cycle << " nsec=" << c.monotonicNs
+                  << " rate=" << c.rateNumerator << '/' << c.rateDenominator << " xrun=" << c.xrun
+                  << " discontinuity=" << c.discontinuity << '\n';
+    };
+    sinkClock("Sink received clock", sink.failedClock);
+    sinkClock("Sink previous clock", sink.previous);
     if (auto f = run.callbackFault())
         std::cerr << "Owner fault detected=" << unsigned(f->detected)
                   << " engine=" << f->enginePosition << " received=" << f->received.position << '+'

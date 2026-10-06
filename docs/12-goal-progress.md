@@ -823,3 +823,62 @@ period timing gates with the admitted reserve, serial after all CPU/recovery wor
 Retain every phase, clock, source/media/hash and scheduler fact on pass or failure;
 no shorter sample or compile gate substitutes for it. Then qualify remaining
 independent reliability/platform/physical gates and continue the staged full backlog.
+
+
+## 2026-10-06 continuation: M2d4c3 native wall/CPU diagnosis
+
+Previous **be93d8f** is **progress**, not completion. Exact long-runhandle47244 was
+confirmed live, then exited1 after212.10wallseconds; no timeout/restart assumption
+or source edit occurred while it was live. The1800-second post-reserve attempt
+stops around196.3audioseconds. Sink previous6727368437+1024 next6727370485+1024
+skips1024frames with mapped stereo/capacity1024. Owner has no retained callback
+fault and is stopped by control; raw32writers independently join9,422,848frames,
+zero rejection/invalid/missing file frames, sink9,420,800. All301,531,136full raw/
+18,841,600common output samples/hashes verify exactly read-only, peak4.4291, all
+original file contents/extents/canonical/journals/origins unchanged. No trimming,
+Save/attachment/recovery changes that original. Owned nodes/links retire and
+system defaults/prior links stay unchanged.
+
+Owner complete9202call p99.9=4.542799ms(21.294%period), maximum20.768787ms(97.354%)
+fails unchanged80%maximum. Maximum clockposition6727369461 exactly matches skipped
+sinkcycle. Callback start10.071982ms after nativeCLOCK_MONOTONIC cycle timestamp;
+observed finish30.840769ms after it versus21.333333msperiod. Installed SPA header
+warns that timestamp has jitter; this is coincidence evidence, not a proven scheduler/
+processor/physical deadline cause. Original thread CPU and full received sinkflags/
+rate/ID were not reported, so remain unknown. Every33writer phase pairs complete,
+maxready1, writegap92.346822ms, flush68.712531ms,journal70.482890ms. No pool exhaustion;
+another reserve increase lacks support from this run.
+
+Add explicit optionalCLOCK_THREAD_CPUTIME_ID to the test-only timing helper, default
+disabled and enabled only by the native duration fixture. Two CPU clock reads inside
+existing wall interval retain fixed totals/means/maxCPU/maxwall-minus-CPU and CPU
+associated with maximum wall callback. Missing/impossible intervals remain visible;
+CPU completeness stays separate and never replaces full wall/current-period/60%/
+80%gates. No per-callCPUvector: existing1million16-byte elapsed/period storage and
+max nativeclock/start/overflow retention remain. Postjoin logs now include full
+already-retained sink clocks and maximumXRUN/discontinuity flags. No production
+source, route/buffer/parameter/schema/library/license change.
+
+Targeted Release/Debug/SAN deterministic timer tests pass, including associatedCPU,
+unknown/impossible/overflow coverage and retained clockflags. Only the test helper/
+fixture/unit source changed, so prior27Debug/27SAN production gates stay scoped to
+be93d8f; no unnecessary full-suite rerun.20-second native CPU probe verifiesall
+30,720,000raw/1,920,000output samples, overs/Save-reopen and complete wall/CPU coverage.
+Owner meanCPU2.114234ms,maxCPU5.884950ms withmaxwall5.888962ms, largest remainder18.748us;
+source/sink also complete/pass. It does not explain the original20.77msoutlier.
+First probe source pins precede output-only fullflag extension; final source/tests
+are pinned separately. All builds/probes/retained-verification handles terminate
+before any relevant edit or next native launch.
+
+[Contract](42-native-callback-cpu-diagnostics.md),[ADR-032](decisions/032-supplement-native-wall-timing-with-thread-cpu.md)
+and [evidence](../tests/results/M2/2026-10-06-native-callback-cpu-diagnostics.json)
+retain original launchcommit/binary/sources, clock/timing/phase/media/scheduler and
+all twelve unresolved observations. All24EQsnapshots/heads match; no EQwrite/push/
+publication. All92frozen acceptance/quality/reference/F/Q/C/N contracts remain
+intact/unpromoted. Full goal active/incomplete; Windows/physical/load/filesystem/
+power-loss/unload/full professional/X004/X005/all-Europe gates remain required.
+
+Next **M2d4c4**: unchanged1800-second native workload with supplementalCPU/clockfacts,
+then choose any actual processing/scheduling change from an observed outlier, keeping
+all original sample/RT/current-period/full-duration gates. Neither short passes nor
+uncontrolled host timing establish reliability or waive historical failures.

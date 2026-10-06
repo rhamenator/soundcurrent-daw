@@ -192,3 +192,11 @@ spacing. Block quantization, scheduling and backlog limit phase separation; stal
 durability has no hard wall-time guarantee. Scoped native stall absorption/exhaustion,32-track copy recovery and120-second
 full sample/timing gates now pass. Required30-minute native timing/throughput and
 every independent reliability/platform/physical/product gap remain open.
+
+M2d4c3 adds [supplemental native fixture CPU timing](42-native-callback-cpu-diagnostics.md)
+after the post-reserve1800-second attempt stops around196seconds on a skipped sink
+cycle. Diskqueues max1 and all retained raw/common-output samples are exact; owner
+max wall20.768787ms fails the existingperiod budget. Optional thread CPU clocks and
+fixed coverage/maxima supplement, never replace, full elapsed/current-period gates.
+Full sink/max-clock flags are printed after joins. Production remains unchanged;
+short CPU coverage does not establish original cause or long native qualification.
