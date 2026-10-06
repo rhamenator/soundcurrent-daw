@@ -13,7 +13,7 @@ Axes are separately stored per row in [parity.json](../research/parity.json): F/
 
 | ID / target | Bitwig evidence | Cubase evidence | Acceptance workflow | Quality gate | Known gap |
 |---|---|---|---|---|---|
-| P001 **Multitrack audio capture** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw) | Arm 32 mono tracks; record ten minutes; stop, reopen and verify every take and timestamp. | Zero missing frames in synthetic run; 30-minute native run with zero unreported gaps. | Short 32-armed-track native owner evidence exists; desktop multi-arm, ten-minute/30-minute duration, physical/load/fault and Windows gates remain open. |
+| P001 **Multitrack audio capture** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw) | Arm 32 mono tracks; record ten minutes; stop, reopen and verify every take and timestamp. | Zero missing frames in synthetic run; 30-minute native run with zero unreported gaps. | Scoped desktop multi-arm/short native evidence and ten-minute synthetic sample/timestamp/hash/reopen verification exist; 30-minute native, physical/load/fault/reliability and Windows gates remain open. |
 | P002 **MIDI record and overdub** (M3) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_midi_c.html?contentId=zMkluR0omNKWXwZYqXajlg) | Record notes, sustain and CC while looping; select replace and overdub separately; reopen and replay. | Recorded events preserve timestamp/order and note-off pairing. | MIDI engine and take semantics are new. |
 | P003 **Input monitoring** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/intro_to_tracks/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_monitoring_via_cubase_t.html?contentId=2rERCFeCKHh9rlr9ISc9og) | Switch auto/on/off monitoring while armed, playing and punching; route selected input explicitly. | Measured latency reported within one quantum; no duplicate monitor route. | Native direct monitoring depends on interface capability. |
 | P004 **Punch recording** (M2) | [P: topic](https://www.bitwig.com/userguide/latest/recording_clips/) | [D: topic](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_stopping_automatically_with_punch_out_t.html?contentId=AEYzYZAVOduo2XfpBAp3yQ) | Punch between non-block-aligned locators with preroll; retain underlying audio and undo. | Punch boundaries within one sample in synthetic fixture. | Need compare every reference record mode. |
@@ -229,3 +229,14 @@ the initial 32-arm timeout and earlier unresolved observations. P001/P003/P088
 implementation notes advance. Ten-minute synthetic/30-minute declared native,
 physical/load/fault/native Windows and all other frozen workflows/quality/F/Q/C/N
 contracts remain unchanged and incomplete.
+
+## M2d4a scoped duration evidence
+
+[The paced synthetic fixture](38-recording-duration.md) verifies 32 ten-minute
+raw takes sample-for-sample, with common timing, explicit independent alignment,
+hashes and Save/reopen. Short cancel/write-fault/pool-overflow/owned-process-kill
+recovery runs preserve every durable original and verified copy. Producer lateness
+is retained; default unity EQ/private-clock correctness does not establish native
+deadlines. P001/P088 implementation notes advance; all 92 frozen acceptance/
+quality/reference/F/Q/C/N contracts remain unchanged. Native 30-minute/physical/
+load/disk-full/platform/full recovery and all professional parity gates stay open.

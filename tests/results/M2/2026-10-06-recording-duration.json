@@ -1,0 +1,2772 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2d4a ten-minute 32-track paced synthetic recording and bounded recovery",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "15047ada64b486ac4375890f31ec6fd89e0f1fa3",
+  "parent_checkpoint_classification": "progress; full goal remains active and incomplete",
+  "status": "Declared ten-minute synthetic and short correctness/fault/recovery workflows passed; native 30-minute/physical/load/deadline/disk-full/filesystem/Windows/full M1/M2/product gates incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "b1984f2596f5e36efd25d9edeb0a46f4b9ed035773b707cb1455934da8bb84fc",
+    "include/soundcurrent/capture.hpp": "8ac81e48d4ec7a9fd309b9f9e09ff38361f3a6349979a70b86a87b1d7b0536af",
+    "include/soundcurrent/duplex_bridge.hpp": "a5dde698d7f8fa5efc972e552ff2d46179bf1458f2eb6e979d233a1cc58c8a76",
+    "include/soundcurrent/duplex_recording.hpp": "3926c4217c0a8623fed16ad86f35fc48baf24dc593d19a21d2e24c67bfd5b0df",
+    "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+    "include/soundcurrent/pipewire_duplex_recording.hpp": "dcb2b2090b0a6a2054f8fa9cc39641c5681e8e14f63bdf9f7c1327e379730e49",
+    "include/soundcurrent/pipewire_filter.hpp": "f82ed166eb04a4a6f8ccb91c7fab5259a59607cf9f77e9711da3be0fa96e6d69",
+    "include/soundcurrent/recording.hpp": "c5e55037032c5f5e1c0657f8a9da9004dc723b3683304be0b882a61156cf1ec4",
+    "include/soundcurrent/session.hpp": "c4933c213a464f5358fa32b006c2744324450bb36db38e358957f64b402a3c84",
+    "research/parity.json": "75a3231515ffad74e1acaab4c7a7ad3f04cf0aa8eea72fc3070994069eef035d",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/capture.cpp": "ba890b1e79572c4f3e5a1951f031ca1246fd14f4bd6a19457f40c519802e9b5e",
+    "src/duplex_bridge.cpp": "9d0a0ff4bc25de5a3e8ce650c464535f651b1202be4702b2216abbc432913f78",
+    "src/duplex_recording.cpp": "ab8e08abd69c7322db7067245a1e573a40e93acaf8f34624feac2c992cb5a7df",
+    "src/eq.cpp": "b52243413810cf702b9402fa36edf0908a2a59ccc0a4b6bff54221283e56f812",
+    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+    "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+    "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+    "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+    "src/pipewire_duplex_recording.cpp": "40c4a695df765189fc67de9c03ee5e9f66dc320a19a75ef921683da3c6649a07",
+    "src/pipewire_filter.cpp": "7ed6b5f654487b00619fcc366d6628b699403ab7f379bcc752db6f2912d04d8f",
+    "src/recording.cpp": "9878966397ae62316cf3825219fdf3db9d97de171ee54597c458a920a8578fc8",
+    "src/recording_worker.cpp": "6d56b8d84b23f809999cac1ecb032810687c21abf5ac2adefa33f93105b5809d",
+    "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+    "tests/duplex_duration_fixture.cpp": "c2b67a69260e38030a223ee55c93747e52106ac5c049f355af41b65178df9216",
+    "tests/duplex_recording_tests.cpp": "d70f0d65f010e605e6bd30452c195ad4751596c0d0f8f0e036e464040a577fe3",
+    "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+    "tests/fake_duplex_endpoint.hpp": "2fee31ac648308bf9345a2612369d5b15cff19b6f7fdc8988efc81ab90c33078",
+    "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+    "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+    "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+    "tests/recording_controller_tests.cpp": "40fde18a3ef9775a0e46a92b8406193cdf9e4112bc7073b0f40b674b379cedc4",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+    "tests/ui_tests.cpp": "67d890477e12c71020920e26390182754ffa57c85abd65dc888c0058a85f0c62",
+    "tests/verify_duplex_duration.py": "b209ab8760cd1040d13146d1370adaa08e6a8dc218b2e28541fda1175db4b9f9",
+    "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+    "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+    "ui/recording_controller.cpp": "f8aed2c512ecb0c3b29ad03db2a9573558381d557c9c462fa708c1ce7c3f55aa",
+    "ui/recording_controller.hpp": "d524f0255d59623f6f3ff1abfac424ae0c63cd44bdfe1f49b93b938a01bd8d04",
+    "ui/studio_window.cpp": "5b0729e980a0c2e659392795281aed5b8b611948d8ff4b60dac9ddae7616a92f",
+    "ui/studio_window.hpp": "4c466139d84f5c8c37cb934eba2ec5446a7721e9a250728a26d527db58e9a318"
+  },
+  "production_sources_changed": false,
+  "host_and_workload": {
+    "observed_unix_seconds": 1791290934.3372054,
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "kernel": "7.0.0-38-generic",
+    "cpu": {
+      "model": "Intel(R) Xeon(R) Gold 6130 CPU @ 2.10GHz",
+      "logical_processors": "64"
+    },
+    "build_cache": {
+      "CMAKE_BUILD_TYPE:STRING": "Release",
+      "CMAKE_CXX_COMPILER:FILEPATH": "/usr/bin/c++",
+      "CMAKE_CXX_FLAGS:STRING": "",
+      "CMAKE_CXX_FLAGS_RELEASE:STRING": "-O3 -DNDEBUG",
+      "SC_BUILD_MEDIA:BOOL": "ON",
+      "SC_BUILD_PIPEWIRE:BOOL": "ON"
+    },
+    "filesystem": "ext4",
+    "available_bytes_during_run": 575530881024,
+    "fixture_process": {
+      "VmHWM": "59908 kB",
+      "VmRSS": "59908 kB",
+      "Threads": "34",
+      "Cpus_allowed_list": "0-63",
+      "Mems_allowed_list": "0-1"
+    },
+    "loadavg_during_run": "7.66 5.50 3.17 2/4322 1468539",
+    "controlled_load": false,
+    "native_audio_device": null,
+    "physical_routes_used": false,
+    "rate": 48000,
+    "callback_frames": [
+      1024,
+      256,
+      2048,
+      512,
+      1023
+    ],
+    "synthetic_clock": true,
+    "note": "Default host scheduler/background workload; synthetic sample correctness, not native deadlines or controlled-load qualification."
+  },
+  "workload_limits": [
+    "All 32 tracks armed, default unity EQ, signed sparse stereo matrix, independent raw inputs; unarmed-file playback and non-flat live edits have prior finite evidence only",
+    "Private variable-quantum device clock; producer lateness includes source generation/comparison/scheduling and is not native callback timing",
+    "No native or physical routes; no controlled competing workload",
+    "Ten-minute Release only; short Debug/sanitizer correctness is not a timing/performance pass"
+  ],
+  "qualification": {
+    "linux_release_ten_minute": {
+      "mode": "normal",
+      "tracks": 32,
+      "requested_audio_seconds": 600,
+      "sample_rate": 48000,
+      "first_project_frame": 137,
+      "device_origin": 10000000000,
+      "minimum_raw_frames": 28800000,
+      "maximum_raw_frames": 28800000,
+      "verified_raw_samples": 921600000,
+      "recovered_frames": 0,
+      "callback_calls": 29613,
+      "missing_track_frames": 0,
+      "rt_allocations": 0,
+      "rt_frees": 0,
+      "rt_blocking_locks": 0,
+      "save_reopen": true,
+      "maximum_output_peak": 4.08854,
+      "producer_late_cycles": 12,
+      "maximum_producer_lateness_ns": 7867691,
+      "meter_observations": 29613,
+      "dropped_meter_observations": 0,
+      "stream_wall_seconds": 600.042,
+      "total_wall_seconds": 647.91,
+      "checks": 979349453,
+      "native_device_qualified": false,
+      "project_manifest_sha256": "de4d5d52ac52eb263f7d6adb1504e7573778078443b659a67811f5df0ecef13f",
+      "supervisor_wall_seconds": 648.1625429079868
+    },
+    "ten_minute_per_lane_receipts": [
+      {
+        "lane": 0,
+        "input_plane": 0,
+        "track_id": "ae414fa3-9eb3-454f-b952-794bb0634574",
+        "asset": {
+          "frames": 28800000,
+          "id": "c3bd3bc1-bba4-404a-af16-07cd469a093e",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-c3bd3bc1-bba4-404a-af16-07cd469a093e/take.wav",
+          "sampleRate": 48000,
+          "sha256": "af684fadbc54b409a95e2ac555df0716d22253f1177d3768c92ae2863149c3ac"
+        },
+        "clip": {
+          "assetId": "c3bd3bc1-bba4-404a-af16-07cd469a093e",
+          "id": "f740b225-c6bd-472b-9648-006ccc8f6fe3",
+          "lengthFrames": 28799937,
+          "sourceFrame": 63,
+          "startFrame": 0
+        },
+        "journal": {
+          "path": "media/capture-c3bd3bc1-bba4-404a-af16-07cd469a093e/journal.json",
+          "sha256": "074f7d157d8aebe93a106b39199b3265e260323b06b4991e461fbcc6b1ef2844",
+          "checkpoint": {
+            "assetId": "c3bd3bc1-bba4-404a-af16-07cd469a093e",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 200,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "1168849be38d043df72b2fa1421f2cd98e265ab0ee2c26dd1c241c9a81cc4290",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "ae414fa3-9eb3-454f-b952-794bb0634574"
+          }
+        }
+      },
+      {
+        "lane": 1,
+        "input_plane": 7,
+        "track_id": "edbaf684-c85a-4bea-a4e8-d8d70225db8d",
+        "asset": {
+          "frames": 28800000,
+          "id": "a9a1adc4-59e4-4ec9-a8b8-5f3343fbda89",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-a9a1adc4-59e4-4ec9-a8b8-5f3343fbda89/take.wav",
+          "sampleRate": 48000,
+          "sha256": "68d34697454c195063db9a59e10385d3e8d4a004bc34681740503b673ababa32"
+        },
+        "clip": {
+          "assetId": "a9a1adc4-59e4-4ec9-a8b8-5f3343fbda89",
+          "id": "e9ea5674-78e8-42d9-b994-0e45af2c3648",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-a9a1adc4-59e4-4ec9-a8b8-5f3343fbda89/journal.json",
+          "sha256": "cdbce3e77972443b15e8a92adf37e3133d7e37f8b7a9ba8282f4c6d84699d3b2",
+          "checkpoint": {
+            "assetId": "a9a1adc4-59e4-4ec9-a8b8-5f3343fbda89",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "47c026d41db772add3921dc8e972a49ff3d01b1ed666bfb56f62330ef2f21bcc",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "edbaf684-c85a-4bea-a4e8-d8d70225db8d"
+          }
+        }
+      },
+      {
+        "lane": 2,
+        "input_plane": 14,
+        "track_id": "a8c5aad9-e751-48c0-b8e3-b5f33ebc1987",
+        "asset": {
+          "frames": 28800000,
+          "id": "91e14244-3d52-4212-98e5-75cd1b969c5f",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-91e14244-3d52-4212-98e5-75cd1b969c5f/take.wav",
+          "sampleRate": 48000,
+          "sha256": "f047a932a96f9c6b367a99be743b0c905089633efe2222effeaba08462c69bdf"
+        },
+        "clip": {
+          "assetId": "91e14244-3d52-4212-98e5-75cd1b969c5f",
+          "id": "93e09c42-1eb8-4683-a645-798bae50a5f2",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-91e14244-3d52-4212-98e5-75cd1b969c5f/journal.json",
+          "sha256": "c7c3310e109596558d6448de38d949ad2bf3e3b4f571deb86e954a6e8677ed9a",
+          "checkpoint": {
+            "assetId": "91e14244-3d52-4212-98e5-75cd1b969c5f",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "2f8a6c316b3599088f25beca0f1eeb1b1b0bd7aea9d355e6f42d8878fad59fad",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "a8c5aad9-e751-48c0-b8e3-b5f33ebc1987"
+          }
+        }
+      },
+      {
+        "lane": 3,
+        "input_plane": 21,
+        "track_id": "3719d77b-0e0b-40b6-b542-0ec7cf238738",
+        "asset": {
+          "frames": 28800000,
+          "id": "d6c4746d-e8d5-4016-acdb-dba5bf3c71ef",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-d6c4746d-e8d5-4016-acdb-dba5bf3c71ef/take.wav",
+          "sampleRate": 48000,
+          "sha256": "42efb0d0d66858f52e13687b9bb4eddbbc8c870676b58b41d1608139e236b9b4"
+        },
+        "clip": {
+          "assetId": "d6c4746d-e8d5-4016-acdb-dba5bf3c71ef",
+          "id": "92395902-1a67-4265-b3c9-be755a09735e",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-d6c4746d-e8d5-4016-acdb-dba5bf3c71ef/journal.json",
+          "sha256": "47ed1a5f42f1773897a60d81f31895bc606a1d484c75aa6d8596723a08fc7bac",
+          "checkpoint": {
+            "assetId": "d6c4746d-e8d5-4016-acdb-dba5bf3c71ef",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "97a7d86243a67bc6afc68730d8ec10b2c69a85cce894821fc0b41f99e9cf517e",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "3719d77b-0e0b-40b6-b542-0ec7cf238738"
+          }
+        }
+      },
+      {
+        "lane": 4,
+        "input_plane": 28,
+        "track_id": "8739fa5b-8f39-4ca2-9f7c-b5f80de78549",
+        "asset": {
+          "frames": 28800000,
+          "id": "0c80d81a-323d-4b05-aefc-e5e4df32d4e8",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-0c80d81a-323d-4b05-aefc-e5e4df32d4e8/take.wav",
+          "sampleRate": 48000,
+          "sha256": "4126d4ae3c9689dd9beba4fbce4a64d99d66f251cd99b4609203d769d6eb6118"
+        },
+        "clip": {
+          "assetId": "0c80d81a-323d-4b05-aefc-e5e4df32d4e8",
+          "id": "8acf2670-1b4a-4aa9-8eff-4bbdeba245d5",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-0c80d81a-323d-4b05-aefc-e5e4df32d4e8/journal.json",
+          "sha256": "6d77c2aa5b04eb92ba0e3cc54ffe58ce767476985ce935978e67e5ad7137b50e",
+          "checkpoint": {
+            "assetId": "0c80d81a-323d-4b05-aefc-e5e4df32d4e8",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "00c0d64e4610d896e6d0d040023d0d5358b8e5cbb8fa2940714ff7f5b9e0874f",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "8739fa5b-8f39-4ca2-9f7c-b5f80de78549"
+          }
+        }
+      },
+      {
+        "lane": 5,
+        "input_plane": 3,
+        "track_id": "af058a87-67c7-421f-ae14-26ae030aa46d",
+        "asset": {
+          "frames": 28800000,
+          "id": "300eaadb-baf2-4c2c-ad2d-7ff9d892d53b",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-300eaadb-baf2-4c2c-ad2d-7ff9d892d53b/take.wav",
+          "sampleRate": 48000,
+          "sha256": "452311f2a1ec0fb16033a7f2e8854987d4b0bec783ebf9ae9dd9f6d812ba1727"
+        },
+        "clip": {
+          "assetId": "300eaadb-baf2-4c2c-ad2d-7ff9d892d53b",
+          "id": "681a0850-7b51-43ae-ab11-4b5d0b791300",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-300eaadb-baf2-4c2c-ad2d-7ff9d892d53b/journal.json",
+          "sha256": "e285578b52789683a673befe929037ba7ea4dab5e6f56a45421d70b977b7dac8",
+          "checkpoint": {
+            "assetId": "300eaadb-baf2-4c2c-ad2d-7ff9d892d53b",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "3fa2bfef7ccb92ec2ea2944a4fe625219bee4d5f53986b274bf7c0b649f6c855",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "af058a87-67c7-421f-ae14-26ae030aa46d"
+          }
+        }
+      },
+      {
+        "lane": 6,
+        "input_plane": 10,
+        "track_id": "88b414c0-42ab-46af-a19a-d324a50705e3",
+        "asset": {
+          "frames": 28800000,
+          "id": "8932104c-a884-471d-99d7-e2e53b5c93a5",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-8932104c-a884-471d-99d7-e2e53b5c93a5/take.wav",
+          "sampleRate": 48000,
+          "sha256": "1096451667256b7178228f0d76753e7f3e15147133282b1039aac17c1f1905ff"
+        },
+        "clip": {
+          "assetId": "8932104c-a884-471d-99d7-e2e53b5c93a5",
+          "id": "d40ab51b-111a-4dc2-a07f-2e2e80b8122f",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-8932104c-a884-471d-99d7-e2e53b5c93a5/journal.json",
+          "sha256": "103522bf17562950cf98f1e9d83aa5c44188a94821d66898f0af40deb9828777",
+          "checkpoint": {
+            "assetId": "8932104c-a884-471d-99d7-e2e53b5c93a5",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "c0385282474cd124841aa974038b58b8815b1861bd15f643f977bea81e2aabde",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "88b414c0-42ab-46af-a19a-d324a50705e3"
+          }
+        }
+      },
+      {
+        "lane": 7,
+        "input_plane": 17,
+        "track_id": "8c189179-c942-4bd6-87dc-87be9726fa9b",
+        "asset": {
+          "frames": 28800000,
+          "id": "cc4bd623-fbc1-46b2-a972-0dd0ec5775ec",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-cc4bd623-fbc1-46b2-a972-0dd0ec5775ec/take.wav",
+          "sampleRate": 48000,
+          "sha256": "efe4d74a26ab5f52e048c00d9a1e3be9e1cfc8b19989f3716cf9df0d0d410ee1"
+        },
+        "clip": {
+          "assetId": "cc4bd623-fbc1-46b2-a972-0dd0ec5775ec",
+          "id": "1c681d86-fb89-4683-a980-97d98b8365dd",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-cc4bd623-fbc1-46b2-a972-0dd0ec5775ec/journal.json",
+          "sha256": "fc4be26767f212867f1921ea07f71c3e108b322ecf17cde89d973d0a00b60e31",
+          "checkpoint": {
+            "assetId": "cc4bd623-fbc1-46b2-a972-0dd0ec5775ec",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "ed5dab8fa2885b4a5a1a92209cb90c36f422495a97beb02f7af8181883d11476",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "8c189179-c942-4bd6-87dc-87be9726fa9b"
+          }
+        }
+      },
+      {
+        "lane": 8,
+        "input_plane": 24,
+        "track_id": "02263291-3d77-44c9-b949-a2faeec9e090",
+        "asset": {
+          "frames": 28800000,
+          "id": "ce8ca1dd-3329-4af8-9119-b6363b51a56d",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-ce8ca1dd-3329-4af8-9119-b6363b51a56d/take.wav",
+          "sampleRate": 48000,
+          "sha256": "57de7b93e8e1e5b4717349edf38827328ad130de3c88f06c5511a637aa18c4af"
+        },
+        "clip": {
+          "assetId": "ce8ca1dd-3329-4af8-9119-b6363b51a56d",
+          "id": "569efce0-4981-4037-bc43-7f22707cf950",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-ce8ca1dd-3329-4af8-9119-b6363b51a56d/journal.json",
+          "sha256": "cfce1e511a018965ee8c2cbd8632d1553c0051b8e50f1ae542301b712a2cd7ef",
+          "checkpoint": {
+            "assetId": "ce8ca1dd-3329-4af8-9119-b6363b51a56d",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "5f886983afbbc60530f02f0e05cf04043d7da6256b64ff57080670a5f4eff54b",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "02263291-3d77-44c9-b949-a2faeec9e090"
+          }
+        }
+      },
+      {
+        "lane": 9,
+        "input_plane": 31,
+        "track_id": "27f71a3a-24b5-4a08-9abd-2fde2983e011",
+        "asset": {
+          "frames": 28800000,
+          "id": "1f366973-db4a-4093-8632-2e92f1e8971c",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-1f366973-db4a-4093-8632-2e92f1e8971c/take.wav",
+          "sampleRate": 48000,
+          "sha256": "2d69686582a1187346b4779841930e914c700fae3a1c0b78e04001c74beab586"
+        },
+        "clip": {
+          "assetId": "1f366973-db4a-4093-8632-2e92f1e8971c",
+          "id": "19a9284d-a35d-4345-848b-aafb56388ce7",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-1f366973-db4a-4093-8632-2e92f1e8971c/journal.json",
+          "sha256": "65df896a4581a4271376dfc06d86cc1c18951dd5ff702fa2871d16be290769bb",
+          "checkpoint": {
+            "assetId": "1f366973-db4a-4093-8632-2e92f1e8971c",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "3cc221a2bd49904a9d2460ffc876556130753524d573411e7ba06bd1aff1eee1",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "27f71a3a-24b5-4a08-9abd-2fde2983e011"
+          }
+        }
+      },
+      {
+        "lane": 10,
+        "input_plane": 6,
+        "track_id": "ebaa038b-61f5-435c-9756-886fb8c1e109",
+        "asset": {
+          "frames": 28800000,
+          "id": "61bb5e43-b8f7-4937-ada9-2c73f9238800",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-61bb5e43-b8f7-4937-ada9-2c73f9238800/take.wav",
+          "sampleRate": 48000,
+          "sha256": "f690c561b5a5217d2534b49a3aa8405336cc221ae8f1c4f1dd2dfa2e6b840957"
+        },
+        "clip": {
+          "assetId": "61bb5e43-b8f7-4937-ada9-2c73f9238800",
+          "id": "b33edb6a-87d8-4d50-9dc5-7f3c8d520d34",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-61bb5e43-b8f7-4937-ada9-2c73f9238800/journal.json",
+          "sha256": "71d1e25527314de6739611ec17b49179e222096b7f884e3d1160c48520475345",
+          "checkpoint": {
+            "assetId": "61bb5e43-b8f7-4937-ada9-2c73f9238800",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "d691b2557be43863bb75158b6ad0ed8b56b09f385d86566db5fecbcf42de740e",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "ebaa038b-61f5-435c-9756-886fb8c1e109"
+          }
+        }
+      },
+      {
+        "lane": 11,
+        "input_plane": 13,
+        "track_id": "c1ce4d8e-8a6d-4179-afbe-157acdd5c8b3",
+        "asset": {
+          "frames": 28800000,
+          "id": "9dfae3e8-9e57-4c45-b4af-549c7297a6fb",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-9dfae3e8-9e57-4c45-b4af-549c7297a6fb/take.wav",
+          "sampleRate": 48000,
+          "sha256": "4c6ece81977ecfceac6c1322bcbf5ea54a97669ac3888a111c8aa3de8c1fc01e"
+        },
+        "clip": {
+          "assetId": "9dfae3e8-9e57-4c45-b4af-549c7297a6fb",
+          "id": "d6f216e3-7a15-409d-ab19-a75c6ac681cd",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-9dfae3e8-9e57-4c45-b4af-549c7297a6fb/journal.json",
+          "sha256": "9915e1a04ff0e1e04c250cbc6187b2c034780a844e1308b94caa536e93528e32",
+          "checkpoint": {
+            "assetId": "9dfae3e8-9e57-4c45-b4af-549c7297a6fb",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "794cb44ee1c82d7837461b9bb89a7a84e8a0222064eb8a9559732182196a935b",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "c1ce4d8e-8a6d-4179-afbe-157acdd5c8b3"
+          }
+        }
+      },
+      {
+        "lane": 12,
+        "input_plane": 20,
+        "track_id": "7edbd760-bf6e-4f62-ace0-ac091d22b40a",
+        "asset": {
+          "frames": 28800000,
+          "id": "6ea2be06-f21b-44c3-9b9f-a30904f6bc33",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-6ea2be06-f21b-44c3-9b9f-a30904f6bc33/take.wav",
+          "sampleRate": 48000,
+          "sha256": "bef56bf0730c141f20409a532d777c04baa4c716c7b53ac4229e61cee457bc47"
+        },
+        "clip": {
+          "assetId": "6ea2be06-f21b-44c3-9b9f-a30904f6bc33",
+          "id": "91e297a0-297a-4996-a799-87960211433e",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-6ea2be06-f21b-44c3-9b9f-a30904f6bc33/journal.json",
+          "sha256": "a48547818bf9afe010f1136b2c8f18c82573cf7f9c9d51e9e407ca32efafa9d4",
+          "checkpoint": {
+            "assetId": "6ea2be06-f21b-44c3-9b9f-a30904f6bc33",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "c6bd5fdf56ba031cfc6584754b4eeacc293d6132ab7a14ed5ec046e8f9885d73",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "7edbd760-bf6e-4f62-ace0-ac091d22b40a"
+          }
+        }
+      },
+      {
+        "lane": 13,
+        "input_plane": 27,
+        "track_id": "9fbf76aa-84f6-4f84-8a0a-bf2a4c1ebf0b",
+        "asset": {
+          "frames": 28800000,
+          "id": "2a6779f6-0074-47b1-a612-4c7712ad6d5d",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-2a6779f6-0074-47b1-a612-4c7712ad6d5d/take.wav",
+          "sampleRate": 48000,
+          "sha256": "51b928b9b24aeb7cc4c507f2c5d22cb08155ab85e92f7f265839247869954f4e"
+        },
+        "clip": {
+          "assetId": "2a6779f6-0074-47b1-a612-4c7712ad6d5d",
+          "id": "2f3c623a-ca1e-4870-8bcd-0355ea732846",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-2a6779f6-0074-47b1-a612-4c7712ad6d5d/journal.json",
+          "sha256": "9256cdcfc08fa13665715690177b38095691e0a49a4095ae747ad70380978a5d",
+          "checkpoint": {
+            "assetId": "2a6779f6-0074-47b1-a612-4c7712ad6d5d",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "0935c9fe3868b4bd3969e8ffb203196ca428a8306c39487736dd70606a831bb7",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "9fbf76aa-84f6-4f84-8a0a-bf2a4c1ebf0b"
+          }
+        }
+      },
+      {
+        "lane": 14,
+        "input_plane": 2,
+        "track_id": "007418b7-7175-4470-8f87-1803b3dc75c3",
+        "asset": {
+          "frames": 28800000,
+          "id": "f08997d3-9f51-495e-b901-02022cf8c5cb",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-f08997d3-9f51-495e-b901-02022cf8c5cb/take.wav",
+          "sampleRate": 48000,
+          "sha256": "b334cf5da4450365579fc24668a4b84748b68cc20129bf81be2b4967cd9381ce"
+        },
+        "clip": {
+          "assetId": "f08997d3-9f51-495e-b901-02022cf8c5cb",
+          "id": "fe21a22b-b881-4335-a1f3-a07e646db30a",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-f08997d3-9f51-495e-b901-02022cf8c5cb/journal.json",
+          "sha256": "86a387c821e0fbc517127d6b0f821b131e1cbd34b410502631a225fde799fd06",
+          "checkpoint": {
+            "assetId": "f08997d3-9f51-495e-b901-02022cf8c5cb",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "a3d42bed5cd1881d5352e8b803744db6c41ef2d82cb3a0a13d83ae79af8f00f0",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "007418b7-7175-4470-8f87-1803b3dc75c3"
+          }
+        }
+      },
+      {
+        "lane": 15,
+        "input_plane": 9,
+        "track_id": "27cdc3c0-cb3d-42bc-a92e-12e499df92d8",
+        "asset": {
+          "frames": 28800000,
+          "id": "164d80f5-3d1f-4b7e-b35b-db8388bccbaf",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-164d80f5-3d1f-4b7e-b35b-db8388bccbaf/take.wav",
+          "sampleRate": 48000,
+          "sha256": "08955bc9727ce4d1b70e01e2f4711179dfffb558084f85387d64849d198d02d7"
+        },
+        "clip": {
+          "assetId": "164d80f5-3d1f-4b7e-b35b-db8388bccbaf",
+          "id": "8334a579-20a1-480a-88fa-e28ff7bc5f83",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-164d80f5-3d1f-4b7e-b35b-db8388bccbaf/journal.json",
+          "sha256": "b27f35747cc282be399d45da4e13d33988b45512f28743ba16be5b976dfba15d",
+          "checkpoint": {
+            "assetId": "164d80f5-3d1f-4b7e-b35b-db8388bccbaf",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "d19d4a9e0c95627f0489d955dbfdce610d241f8c50dd6f25a5d09725b6358e92",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "27cdc3c0-cb3d-42bc-a92e-12e499df92d8"
+          }
+        }
+      },
+      {
+        "lane": 16,
+        "input_plane": 16,
+        "track_id": "00558936-c2ac-465c-80af-1da41f998842",
+        "asset": {
+          "frames": 28800000,
+          "id": "728a780a-931f-417f-a071-c0b0cb57a962",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-728a780a-931f-417f-a071-c0b0cb57a962/take.wav",
+          "sampleRate": 48000,
+          "sha256": "282356ad3e0d8263b00437640ef7645614ee3ec9049294935628138b04bf19fc"
+        },
+        "clip": {
+          "assetId": "728a780a-931f-417f-a071-c0b0cb57a962",
+          "id": "26b4425c-e20b-439d-aea3-bd3fc649a932",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-728a780a-931f-417f-a071-c0b0cb57a962/journal.json",
+          "sha256": "028878bf2617f2c12fb051946ace4c8e6055d0bf6a9475f59ee86b7b769b3b8d",
+          "checkpoint": {
+            "assetId": "728a780a-931f-417f-a071-c0b0cb57a962",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "7c1322ea50084b785ed74ea2da45a87f6ad471f38c9ae64a170c277068226e7c",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "00558936-c2ac-465c-80af-1da41f998842"
+          }
+        }
+      },
+      {
+        "lane": 17,
+        "input_plane": 23,
+        "track_id": "9c1d8cc5-def5-4689-bc98-e6cd2e132480",
+        "asset": {
+          "frames": 28800000,
+          "id": "13cbeaca-42d6-4070-8ad3-46c034188ff0",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-13cbeaca-42d6-4070-8ad3-46c034188ff0/take.wav",
+          "sampleRate": 48000,
+          "sha256": "ee86b9ce66949a93a856b535c0d31dbd4ba86110c72497b1c3bfb2ac56a6b5af"
+        },
+        "clip": {
+          "assetId": "13cbeaca-42d6-4070-8ad3-46c034188ff0",
+          "id": "d89b4b34-4f8a-4169-a64a-eb158bee7c99",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-13cbeaca-42d6-4070-8ad3-46c034188ff0/journal.json",
+          "sha256": "0eebc9aa0552851e6cac6e2f31dc67d7d0f65794477ec0b002931e57af1ca317",
+          "checkpoint": {
+            "assetId": "13cbeaca-42d6-4070-8ad3-46c034188ff0",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "25f6a4e1d36cd74dbad52e1d3fc0ea2ac3bf49c2cd09edd1c6f526b79c3147be",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "9c1d8cc5-def5-4689-bc98-e6cd2e132480"
+          }
+        }
+      },
+      {
+        "lane": 18,
+        "input_plane": 30,
+        "track_id": "c9c98a01-6288-4d63-abb9-24c83f7f3c4e",
+        "asset": {
+          "frames": 28800000,
+          "id": "441bc2d3-6408-4a1d-9b19-93d5e9e1f2a8",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-441bc2d3-6408-4a1d-9b19-93d5e9e1f2a8/take.wav",
+          "sampleRate": 48000,
+          "sha256": "e48b32db7135331fd437444a5444f4ae78c1b3108fc8b44e4db180df65cb696b"
+        },
+        "clip": {
+          "assetId": "441bc2d3-6408-4a1d-9b19-93d5e9e1f2a8",
+          "id": "17c67de6-e869-4618-bffc-34bd9747433c",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-441bc2d3-6408-4a1d-9b19-93d5e9e1f2a8/journal.json",
+          "sha256": "1b554525fe6ce12354a6c7e77956c4bd9ba5f3e238f485907142ed7f63df2934",
+          "checkpoint": {
+            "assetId": "441bc2d3-6408-4a1d-9b19-93d5e9e1f2a8",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "1c3c4970fd3c901c9edd8b48fb35886086767a89a7f6def98c2135eeabc925dc",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "c9c98a01-6288-4d63-abb9-24c83f7f3c4e"
+          }
+        }
+      },
+      {
+        "lane": 19,
+        "input_plane": 5,
+        "track_id": "382069bd-b265-4f9e-ac9b-c80cc66d43e3",
+        "asset": {
+          "frames": 28800000,
+          "id": "e998e2fc-6f05-477b-94d5-dc95098c5a62",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-e998e2fc-6f05-477b-94d5-dc95098c5a62/take.wav",
+          "sampleRate": 48000,
+          "sha256": "2c5b2fe6e607b32dc1a2b67001b3b67d424200f05ac547a2c632f422433b633a"
+        },
+        "clip": {
+          "assetId": "e998e2fc-6f05-477b-94d5-dc95098c5a62",
+          "id": "da87482c-1487-45d8-9b5c-fdeddc5e816d",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-e998e2fc-6f05-477b-94d5-dc95098c5a62/journal.json",
+          "sha256": "47a78b44dc7e6307ee6faf1ef5378d51592da5beb6c126403318df5493f81180",
+          "checkpoint": {
+            "assetId": "e998e2fc-6f05-477b-94d5-dc95098c5a62",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "d61e654a5850c2843f13a1209d5683d5d1e36defd17b645f9ee19163b2bd6d4c",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "382069bd-b265-4f9e-ac9b-c80cc66d43e3"
+          }
+        }
+      },
+      {
+        "lane": 20,
+        "input_plane": 12,
+        "track_id": "0d29b942-487e-4fde-a3cd-39bedd9cc497",
+        "asset": {
+          "frames": 28800000,
+          "id": "81baa94a-809d-4168-ba99-50adac4148ae",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-81baa94a-809d-4168-ba99-50adac4148ae/take.wav",
+          "sampleRate": 48000,
+          "sha256": "ab09f9ed4c187e32d67581d237e93ba9e96011f1d21289f61d0db9e51f03dda4"
+        },
+        "clip": {
+          "assetId": "81baa94a-809d-4168-ba99-50adac4148ae",
+          "id": "7d96ee03-dc02-4293-82ec-12b3be1a9586",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-81baa94a-809d-4168-ba99-50adac4148ae/journal.json",
+          "sha256": "4b4974542246d04481207cccf0f14df1724a1604bc96aad55057fa9c33b60de9",
+          "checkpoint": {
+            "assetId": "81baa94a-809d-4168-ba99-50adac4148ae",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "547dbf91941d9f0c2b317d67577d1b02a3a13c446811c76344215ec2d969f1e4",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "0d29b942-487e-4fde-a3cd-39bedd9cc497"
+          }
+        }
+      },
+      {
+        "lane": 21,
+        "input_plane": 19,
+        "track_id": "2e79a933-f4d5-4f58-96ef-b0d065e77966",
+        "asset": {
+          "frames": 28800000,
+          "id": "59f1f66a-9656-462c-8f81-a80b1ff87f19",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-59f1f66a-9656-462c-8f81-a80b1ff87f19/take.wav",
+          "sampleRate": 48000,
+          "sha256": "60939b9be6512b49900989f79231ddd0f12d5a1c089dad3cd7b0f4c2e5c30811"
+        },
+        "clip": {
+          "assetId": "59f1f66a-9656-462c-8f81-a80b1ff87f19",
+          "id": "3ecfd3b9-6417-4cf0-b15a-37a786f54861",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-59f1f66a-9656-462c-8f81-a80b1ff87f19/journal.json",
+          "sha256": "d467d5d1e538bf7a4cf5a14b7fe29668e6026e8668a8d6b7761299d3c8a58e70",
+          "checkpoint": {
+            "assetId": "59f1f66a-9656-462c-8f81-a80b1ff87f19",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "90e70903818325394153a1e0417bda72b0dc88a6adc767708f88d9b536939bfd",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "2e79a933-f4d5-4f58-96ef-b0d065e77966"
+          }
+        }
+      },
+      {
+        "lane": 22,
+        "input_plane": 26,
+        "track_id": "8d0739a8-6e9b-4845-af11-12122b517913",
+        "asset": {
+          "frames": 28800000,
+          "id": "9e9ac2ba-8fa8-47f8-b15d-f57087b33f29",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-9e9ac2ba-8fa8-47f8-b15d-f57087b33f29/take.wav",
+          "sampleRate": 48000,
+          "sha256": "f20e510ea188d79339e398b5d392d684e7c23c2c8ef83459671e4da1a9326e8c"
+        },
+        "clip": {
+          "assetId": "9e9ac2ba-8fa8-47f8-b15d-f57087b33f29",
+          "id": "31a01d01-9791-49e5-a906-cefdc94d789a",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-9e9ac2ba-8fa8-47f8-b15d-f57087b33f29/journal.json",
+          "sha256": "a19b778ef0c5cb456cab0475f91596dbc5ed47fe727281cdca005f13bdb1d87b",
+          "checkpoint": {
+            "assetId": "9e9ac2ba-8fa8-47f8-b15d-f57087b33f29",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "06e98163fd6c0a9a516e89e18e35dae0e68f863e805120e220de0a5025bf9c46",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "8d0739a8-6e9b-4845-af11-12122b517913"
+          }
+        }
+      },
+      {
+        "lane": 23,
+        "input_plane": 1,
+        "track_id": "6477006a-c84c-4d47-b1dc-867862c89e25",
+        "asset": {
+          "frames": 28800000,
+          "id": "04205a58-331f-4b88-a00d-e98f53adfbaa",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-04205a58-331f-4b88-a00d-e98f53adfbaa/take.wav",
+          "sampleRate": 48000,
+          "sha256": "aacabda7274485b4e144d98429265474b97cdc1820456278d51e24ed58b4e0ef"
+        },
+        "clip": {
+          "assetId": "04205a58-331f-4b88-a00d-e98f53adfbaa",
+          "id": "27085eb2-4efd-420b-9fb4-f9d75ee933f3",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-04205a58-331f-4b88-a00d-e98f53adfbaa/journal.json",
+          "sha256": "01da6ba91354ca8c6d8574e58df0875e56c738084d994354fbc738a5c850c1d2",
+          "checkpoint": {
+            "assetId": "04205a58-331f-4b88-a00d-e98f53adfbaa",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "e231beff365be324a02a95354c42974ccb189825ee52bff7a1cf622d06ffc713",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "6477006a-c84c-4d47-b1dc-867862c89e25"
+          }
+        }
+      },
+      {
+        "lane": 24,
+        "input_plane": 8,
+        "track_id": "96f36b2b-6282-464d-8c2b-2c6d7a81ad8a",
+        "asset": {
+          "frames": 28800000,
+          "id": "39025904-9b28-4693-ad8e-db12405048bc",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-39025904-9b28-4693-ad8e-db12405048bc/take.wav",
+          "sampleRate": 48000,
+          "sha256": "cb1705887b0a2f8f2fdbaa02ac4870b22dc141ec72892d46df360c42c59d1549"
+        },
+        "clip": {
+          "assetId": "39025904-9b28-4693-ad8e-db12405048bc",
+          "id": "a8602561-0030-486e-8817-f246d900f1e1",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-39025904-9b28-4693-ad8e-db12405048bc/journal.json",
+          "sha256": "bea82e45ed46ae68ed73b3b49c0725dc130cc02d40b4e0b4fb889f778e1047fa",
+          "checkpoint": {
+            "assetId": "39025904-9b28-4693-ad8e-db12405048bc",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "3e1fa6f4182661e202f35d10b37d340fde7c1bf2566083c5e2983033ea80907c",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "96f36b2b-6282-464d-8c2b-2c6d7a81ad8a"
+          }
+        }
+      },
+      {
+        "lane": 25,
+        "input_plane": 15,
+        "track_id": "9c667d17-9a74-4776-8f34-869cadeb698d",
+        "asset": {
+          "frames": 28800000,
+          "id": "43d0b6aa-670f-44b7-992d-ba43a0a6d1d0",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-43d0b6aa-670f-44b7-992d-ba43a0a6d1d0/take.wav",
+          "sampleRate": 48000,
+          "sha256": "57a1352b9d90881cefe4659f89d1b3cbeb51cec602ba08aa197f948cd1da73c4"
+        },
+        "clip": {
+          "assetId": "43d0b6aa-670f-44b7-992d-ba43a0a6d1d0",
+          "id": "c17bdb80-d6f0-4f22-97d1-8eea80a80a87",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-43d0b6aa-670f-44b7-992d-ba43a0a6d1d0/journal.json",
+          "sha256": "5c5526db313f551a3bb27900382911ea2007274ea546e7351e8adc1cb0360c38",
+          "checkpoint": {
+            "assetId": "43d0b6aa-670f-44b7-992d-ba43a0a6d1d0",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "8edf11bd0bf2f714c7cb2e7e225b2b60a4d278ec79c180af342e366f82350826",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "9c667d17-9a74-4776-8f34-869cadeb698d"
+          }
+        }
+      },
+      {
+        "lane": 26,
+        "input_plane": 22,
+        "track_id": "d442fa76-4e99-46da-9f2d-8028e960da3e",
+        "asset": {
+          "frames": 28800000,
+          "id": "1645327a-0ed0-4dd9-9651-4dc053d6a67e",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-1645327a-0ed0-4dd9-9651-4dc053d6a67e/take.wav",
+          "sampleRate": 48000,
+          "sha256": "b8ab33483b20a2bd2c0991c5c23d92eea455530bf57aa757f920690b231d48f6"
+        },
+        "clip": {
+          "assetId": "1645327a-0ed0-4dd9-9651-4dc053d6a67e",
+          "id": "a3cf1e71-c35b-487b-a01d-81953fddc082",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-1645327a-0ed0-4dd9-9651-4dc053d6a67e/journal.json",
+          "sha256": "096e5de7ac3d452936057bd6ef660bb7ad2b03e24c0ae08aa4050a58e7db1de3",
+          "checkpoint": {
+            "assetId": "1645327a-0ed0-4dd9-9651-4dc053d6a67e",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "c509c8eff5e4409e382a46047bb94142cc5029072d15b5d4917adaec8ec37a77",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "d442fa76-4e99-46da-9f2d-8028e960da3e"
+          }
+        }
+      },
+      {
+        "lane": 27,
+        "input_plane": 29,
+        "track_id": "cbf09083-df51-4dc0-a90a-0bf83d57415c",
+        "asset": {
+          "frames": 28800000,
+          "id": "47a58d95-7fd6-4cd0-8129-ad8093c6384f",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-47a58d95-7fd6-4cd0-8129-ad8093c6384f/take.wav",
+          "sampleRate": 48000,
+          "sha256": "8686ecfa8f6f9f5532ba5dd58b3a0bd27d6ed9af7b575ca90465f50747c0c187"
+        },
+        "clip": {
+          "assetId": "47a58d95-7fd6-4cd0-8129-ad8093c6384f",
+          "id": "c86d9ddc-16aa-489c-9684-e1f2755cf427",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-47a58d95-7fd6-4cd0-8129-ad8093c6384f/journal.json",
+          "sha256": "85a6ff4ff0efd87610384b94bde2eb8572fbe93fd0689c89ca763b26ef5fb72c",
+          "checkpoint": {
+            "assetId": "47a58d95-7fd6-4cd0-8129-ad8093c6384f",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "a5fc797e83bdf8f03a8e58bbb52426136c943a64a90713d7b32a8891f2a2e725",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "cbf09083-df51-4dc0-a90a-0bf83d57415c"
+          }
+        }
+      },
+      {
+        "lane": 28,
+        "input_plane": 4,
+        "track_id": "830fd1c9-e3f7-4998-be6f-759212b83f11",
+        "asset": {
+          "frames": 28800000,
+          "id": "97389d58-02c1-465e-a39e-97fa3ddb202a",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-97389d58-02c1-465e-a39e-97fa3ddb202a/take.wav",
+          "sampleRate": 48000,
+          "sha256": "dc07ba9b449cd341e6328a60c0915f01a39e2a8a8862cffcbe11b2b3c3768520"
+        },
+        "clip": {
+          "assetId": "97389d58-02c1-465e-a39e-97fa3ddb202a",
+          "id": "4c872783-93af-4126-ad62-9f10ec159afa",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-97389d58-02c1-465e-a39e-97fa3ddb202a/journal.json",
+          "sha256": "6b42562ecd45fa1df894d318107a7d33c3cdb64143b7729f3fee75c1f999dd13",
+          "checkpoint": {
+            "assetId": "97389d58-02c1-465e-a39e-97fa3ddb202a",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "05b0bd832a43f1fe2b5a91e2a7c7e3b59c13f0de2c2405775ce464a1d9bee569",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "830fd1c9-e3f7-4998-be6f-759212b83f11"
+          }
+        }
+      },
+      {
+        "lane": 29,
+        "input_plane": 11,
+        "track_id": "1a0f84c2-ab80-4505-ad87-192966dc84a6",
+        "asset": {
+          "frames": 28800000,
+          "id": "660f072e-2671-47f4-8b0b-52af85e8696a",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-660f072e-2671-47f4-8b0b-52af85e8696a/take.wav",
+          "sampleRate": 48000,
+          "sha256": "3d35daf0f05f9b57bf8141dadfdf435acb5b322c83a0f44090c047ed93a39c39"
+        },
+        "clip": {
+          "assetId": "660f072e-2671-47f4-8b0b-52af85e8696a",
+          "id": "72293ad1-74ed-48f9-b262-fcab57c9da8a",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-660f072e-2671-47f4-8b0b-52af85e8696a/journal.json",
+          "sha256": "5ab980d60cf3ad90c72741b22815b4cefece00fe64b903e7f2f51d5e15131a3a",
+          "checkpoint": {
+            "assetId": "660f072e-2671-47f4-8b0b-52af85e8696a",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "4d659e9f9afd1f92bf3d7d8a50dd3e6d6f82eab833d95d7da15414f22bafef5d",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "1a0f84c2-ab80-4505-ad87-192966dc84a6"
+          }
+        }
+      },
+      {
+        "lane": 30,
+        "input_plane": 18,
+        "track_id": "c08b6d33-17a3-42bc-aef3-17ba8635a451",
+        "asset": {
+          "frames": 28800000,
+          "id": "91247cd5-1efa-41ee-8473-ce62d027ccc9",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-91247cd5-1efa-41ee-8473-ce62d027ccc9/take.wav",
+          "sampleRate": 48000,
+          "sha256": "271d8c9a97d94242cb989c691a3168fd399aaeeedb5aac5dfd688bccf7a2294c"
+        },
+        "clip": {
+          "assetId": "91247cd5-1efa-41ee-8473-ce62d027ccc9",
+          "id": "27b9c0f1-a453-488b-9640-3c6a316f0696",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-91247cd5-1efa-41ee-8473-ce62d027ccc9/journal.json",
+          "sha256": "cb680486218f03d226b459d43be24ead9eaf43009c031d0f8fd9ee2688942d7c",
+          "checkpoint": {
+            "assetId": "91247cd5-1efa-41ee-8473-ce62d027ccc9",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "c2159978a955a9cdb85cf128a15a3723018ec3469892346d17422d0539a00231",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "c08b6d33-17a3-42bc-aef3-17ba8635a451"
+          }
+        }
+      },
+      {
+        "lane": 31,
+        "input_plane": 25,
+        "track_id": "26c2e659-dd53-4556-aa3a-81b2414bd786",
+        "asset": {
+          "frames": 28800000,
+          "id": "50de2f5a-b2ed-45e5-b283-d410c79008bf",
+          "layout": {
+            "channels": 1,
+            "kind": "mono"
+          },
+          "path": "media/capture-50de2f5a-b2ed-45e5-b283-d410c79008bf/take.wav",
+          "sampleRate": 48000,
+          "sha256": "d0adaa7fbb84964a5d983449e8113c30061d5ec40d943072b901a9b60c85518d"
+        },
+        "clip": {
+          "assetId": "50de2f5a-b2ed-45e5-b283-d410c79008bf",
+          "id": "1e5431e7-a7fe-47f6-a42a-d53c922f4164",
+          "lengthFrames": 28800000,
+          "sourceFrame": 0,
+          "startFrame": 96
+        },
+        "journal": {
+          "path": "media/capture-50de2f5a-b2ed-45e5-b283-d410c79008bf/journal.json",
+          "sha256": "da530c1f7b032ab9df9f6414140bc9e18b16b2bb47fa7bb5965414f63e508971",
+          "checkpoint": {
+            "assetId": "50de2f5a-b2ed-45e5-b283-d410c79008bf",
+            "captureStatus": 1,
+            "channels": 1,
+            "committedFrames": 28800000,
+            "endReason": 2,
+            "format": "soundcurrent-recording",
+            "inputLatencyFrames": 41,
+            "layoutKind": "mono",
+            "nextSequence": 7032,
+            "observedInvalidInputSamples": 0,
+            "phase": "finalized",
+            "projectId": "d383c4da-aa02-4a95-ae8c-54008b05d23e",
+            "recoveredFrom": null,
+            "rejectedFrames": 0,
+            "sampleRate": 48000,
+            "sampleSha256": "c792ed772cb95b90fa730132500630df2301651d175dd0823f5bf4a8938640d4",
+            "schemaMajor": 1,
+            "schemaMinor": 1,
+            "startFrame": 137,
+            "timingDomain": "engine-frames",
+            "timingOrigin": {
+              "backend": 1,
+              "clockId": 17,
+              "cycle": 1,
+              "devicePosition": 10000000000,
+              "driverDelay": 777,
+              "generation": 1,
+              "monotonicNs": 20000000000,
+              "rateDenominator": 48000,
+              "rateNumerator": 1
+            },
+            "trackId": "26c2e659-dd53-4556-aa3a-81b2414bd786"
+          }
+        }
+      }
+    ],
+    "linux_release_short": [
+      {
+        "mode": "normal",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 96000,
+        "maximum_raw_frames": 96000,
+        "verified_raw_samples": 3072000,
+        "recovered_frames": 0,
+        "callback_calls": 99,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.36446,
+        "producer_late_cycles": 0,
+        "maximum_producer_lateness_ns": 0,
+        "meter_observations": 99,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 2.00502,
+        "total_wall_seconds": 2.22797,
+        "checks": 3265293,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "0008b0f679d322c4bee82b8a85acc45770d97be2e73f843f30a50e04703d88d3",
+        "supervisor_wall_seconds": 2.502312577998964
+      },
+      {
+        "mode": "cancel",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 96237,
+        "maximum_raw_frames": 96237,
+        "verified_raw_samples": 1572864,
+        "recovered_frames": 1572864,
+        "callback_calls": 99,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.36446,
+        "producer_late_cycles": 0,
+        "maximum_producer_lateness_ns": 0,
+        "meter_observations": 99,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 2.00506,
+        "total_wall_seconds": 2.8607,
+        "checks": 1766060,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "171e8615dd1798129c1ecd82790c12892bf94a83a55a7a7051ca54decfa5c679",
+        "supervisor_wall_seconds": 3.2183093600033317
+      },
+      {
+        "mode": "writer-failure",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 53493,
+        "maximum_raw_frames": 53493,
+        "verified_raw_samples": 1707435,
+        "recovered_frames": 49152,
+        "callback_calls": 55,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.33246,
+        "producer_late_cycles": 0,
+        "maximum_producer_lateness_ns": 0,
+        "meter_observations": 55,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 1.11457,
+        "total_wall_seconds": 1.29151,
+        "checks": 1815012,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "2a0970d065d295153459f503698cb5daec7a78a9ab8fcf8628bbd4bc1ece01b8",
+        "supervisor_wall_seconds": 1.5684574180049822
+      },
+      {
+        "mode": "stall-overflow",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 40960,
+        "maximum_raw_frames": 42232,
+        "verified_raw_samples": 1350152,
+        "recovered_frames": 0,
+        "callback_calls": 43,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.17874,
+        "producer_late_cycles": 0,
+        "maximum_producer_lateness_ns": 0,
+        "meter_observations": 42,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 0.879907,
+        "total_wall_seconds": 1.0282,
+        "checks": 1431043,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "c3e03b1b3918910ad0073d4a68ae7e98e7d4ce025c2f61c7e64bd548dccad553",
+        "supervisor_wall_seconds": 1.277025221992517
+      },
+      {
+        "mode": "verify-killed",
+        "tracks": 32,
+        "verified_raw_samples": 1572864,
+        "minimum_recovered_frames": 49152,
+        "maximum_recovered_frames": 49152,
+        "originals_unchanged": true,
+        "save_reopen": true,
+        "project_manifest_sha256": "1624a0df3984251032bd5c69f59688af1eea52955aaea17e2e4c863786c2365c",
+        "supervisor_wall_seconds": 3.288506484008394
+      }
+    ],
+    "linux_debug_short": [
+      {
+        "mode": "normal",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 96000,
+        "maximum_raw_frames": 96000,
+        "verified_raw_samples": 3072000,
+        "recovered_frames": 0,
+        "callback_calls": 99,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.36446,
+        "producer_late_cycles": 3,
+        "maximum_producer_lateness_ns": 940815,
+        "meter_observations": 99,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 2.00508,
+        "total_wall_seconds": 2.33877,
+        "checks": 3265293,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "dc2f356030e43d75fa8c84782c13423187931cb283e68d08e2a75745979c2606",
+        "supervisor_wall_seconds": 2.7287155950034503
+      },
+      {
+        "mode": "cancel",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 96237,
+        "maximum_raw_frames": 96237,
+        "verified_raw_samples": 1572864,
+        "recovered_frames": 1572864,
+        "callback_calls": 99,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.36446,
+        "producer_late_cycles": 0,
+        "maximum_producer_lateness_ns": 0,
+        "meter_observations": 99,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 2.00506,
+        "total_wall_seconds": 3.11985,
+        "checks": 1766060,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "eb795ba95c19e33b84fb08bba7dfdb878deaa298d5e375c2ff163c5878a937fc",
+        "supervisor_wall_seconds": 3.5322492639970733
+      },
+      {
+        "mode": "writer-failure",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 53493,
+        "maximum_raw_frames": 53493,
+        "verified_raw_samples": 1707435,
+        "recovered_frames": 49152,
+        "callback_calls": 55,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.33246,
+        "producer_late_cycles": 0,
+        "maximum_producer_lateness_ns": 0,
+        "meter_observations": 55,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 1.11456,
+        "total_wall_seconds": 1.38427,
+        "checks": 1815012,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "8e0e01d56c4812ab5082a594100239d1c17a2c5522b35bcf3a61a7e4e0be35f1",
+        "supervisor_wall_seconds": 1.7930795089923777
+      },
+      {
+        "mode": "stall-overflow",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 40960,
+        "maximum_raw_frames": 42232,
+        "verified_raw_samples": 1350152,
+        "recovered_frames": 0,
+        "callback_calls": 43,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.17874,
+        "producer_late_cycles": 1,
+        "maximum_producer_lateness_ns": 205750,
+        "meter_observations": 42,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 0.879938,
+        "total_wall_seconds": 1.1147,
+        "checks": 1431043,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "024d990e6e7e07c0929982dfb278e68583340b854d2e1c29c47a312ef9b5fad2",
+        "supervisor_wall_seconds": 1.5103282290074276
+      },
+      {
+        "mode": "verify-killed",
+        "tracks": 32,
+        "verified_raw_samples": 1572864,
+        "minimum_recovered_frames": 49152,
+        "maximum_recovered_frames": 49152,
+        "originals_unchanged": true,
+        "save_reopen": true,
+        "project_manifest_sha256": "39c966d732f0f244bcf762f9e51d39668bfd6b46e528317fe4e807ee5a3a0604",
+        "supervisor_wall_seconds": 3.6211088790005306
+      }
+    ],
+    "linux_sanitized_short": {
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ],
+      "cases": [
+        {
+          "mode": "normal",
+          "tracks": 32,
+          "requested_audio_seconds": 2,
+          "sample_rate": 48000,
+          "first_project_frame": 137,
+          "device_origin": 10000000000,
+          "minimum_raw_frames": 96000,
+          "maximum_raw_frames": 96000,
+          "verified_raw_samples": 3072000,
+          "recovered_frames": 0,
+          "callback_calls": 99,
+          "missing_track_frames": 0,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "save_reopen": true,
+          "maximum_output_peak": 3.36446,
+          "producer_late_cycles": 99,
+          "maximum_producer_lateness_ns": 933916285,
+          "meter_observations": 99,
+          "dropped_meter_observations": 0,
+          "stream_wall_seconds": 2.93762,
+          "total_wall_seconds": 3.79939,
+          "checks": 3265293,
+          "native_device_qualified": false,
+          "project_manifest_sha256": "9d50e70cf690357e95de8fac8eb2dab95f041259e7875d38abbbc1d5c0831e37",
+          "supervisor_wall_seconds": 4.603391627999372
+        },
+        {
+          "mode": "cancel",
+          "tracks": 32,
+          "requested_audio_seconds": 2,
+          "sample_rate": 48000,
+          "first_project_frame": 137,
+          "device_origin": 10000000000,
+          "minimum_raw_frames": 96237,
+          "maximum_raw_frames": 96237,
+          "verified_raw_samples": 1572864,
+          "recovered_frames": 1572864,
+          "callback_calls": 99,
+          "missing_track_frames": 0,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "save_reopen": true,
+          "maximum_output_peak": 3.36446,
+          "producer_late_cycles": 99,
+          "maximum_producer_lateness_ns": 930324603,
+          "meter_observations": 99,
+          "dropped_meter_observations": 0,
+          "stream_wall_seconds": 2.93526,
+          "total_wall_seconds": 4.81083,
+          "checks": 1766060,
+          "native_device_qualified": false,
+          "project_manifest_sha256": "5a7c965f0d8395950362202f5a8748aef8b8f4a04b7fe2cc8fb54448f61d6e53",
+          "supervisor_wall_seconds": 5.653763112000888
+        },
+        {
+          "mode": "writer-failure",
+          "tracks": 32,
+          "requested_audio_seconds": 2,
+          "sample_rate": 48000,
+          "first_project_frame": 137,
+          "device_origin": 10000000000,
+          "minimum_raw_frames": 53493,
+          "maximum_raw_frames": 53493,
+          "verified_raw_samples": 1707435,
+          "recovered_frames": 49152,
+          "callback_calls": 55,
+          "missing_track_frames": 0,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "save_reopen": true,
+          "maximum_output_peak": 3.33246,
+          "producer_late_cycles": 55,
+          "maximum_producer_lateness_ns": 376950868,
+          "meter_observations": 55,
+          "dropped_meter_observations": 0,
+          "stream_wall_seconds": 1.4914,
+          "total_wall_seconds": 2.20188,
+          "checks": 1815012,
+          "native_device_qualified": false,
+          "project_manifest_sha256": "846b21b8e163a9bd367061729d2345f28569da35be1e4341d85f954408e4976d",
+          "supervisor_wall_seconds": 3.0283463100058725
+        },
+        {
+          "mode": "stall-overflow",
+          "tracks": 32,
+          "requested_audio_seconds": 2,
+          "sample_rate": 48000,
+          "first_project_frame": 137,
+          "device_origin": 10000000000,
+          "minimum_raw_frames": 40960,
+          "maximum_raw_frames": 42232,
+          "verified_raw_samples": 1350152,
+          "recovered_frames": 0,
+          "callback_calls": 43,
+          "missing_track_frames": 0,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "save_reopen": true,
+          "maximum_output_peak": 3.17874,
+          "producer_late_cycles": 43,
+          "maximum_producer_lateness_ns": 442251693,
+          "meter_observations": 42,
+          "dropped_meter_observations": 0,
+          "stream_wall_seconds": 1.28381,
+          "total_wall_seconds": 1.99741,
+          "checks": 1431043,
+          "native_device_qualified": false,
+          "project_manifest_sha256": "1f324b5e0c68664c7738f333d3bbae4661ee29cb06fafd61ee672a7b8ef04648",
+          "supervisor_wall_seconds": 2.80899584099825
+        },
+        {
+          "mode": "verify-killed",
+          "tracks": 32,
+          "verified_raw_samples": 1572864,
+          "minimum_recovered_frames": 49152,
+          "maximum_recovered_frames": 49152,
+          "originals_unchanged": true,
+          "save_reopen": true,
+          "project_manifest_sha256": "ab3c2af0f6b9030461af67a34376452c6f9cbd3ad77e525885a912c508539513",
+          "supervisor_wall_seconds": 5.819375790000777
+        }
+      ],
+      "native_or_deadline_qualified": false,
+      "killed_child_leak_exit_not_qualified": true
+    },
+    "final_supervisor_release_normal_and_kill": [
+      {
+        "mode": "normal",
+        "tracks": 32,
+        "requested_audio_seconds": 2,
+        "sample_rate": 48000,
+        "first_project_frame": 137,
+        "device_origin": 10000000000,
+        "minimum_raw_frames": 96000,
+        "maximum_raw_frames": 96000,
+        "verified_raw_samples": 3072000,
+        "recovered_frames": 0,
+        "callback_calls": 99,
+        "missing_track_frames": 0,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "save_reopen": true,
+        "maximum_output_peak": 3.36446,
+        "producer_late_cycles": 0,
+        "maximum_producer_lateness_ns": 0,
+        "meter_observations": 99,
+        "dropped_meter_observations": 0,
+        "stream_wall_seconds": 2.00502,
+        "total_wall_seconds": 2.33775,
+        "checks": 3265293,
+        "native_device_qualified": false,
+        "project_manifest_sha256": "df9b942f8eec4b3ba3b58a8063fe1aee393669984b812ce9b60d0e76ec713b74",
+        "supervisor_wall_seconds": 2.5989143300103024
+      },
+      {
+        "mode": "verify-killed",
+        "tracks": 32,
+        "verified_raw_samples": 1572864,
+        "minimum_recovered_frames": 49152,
+        "maximum_recovered_frames": 49152,
+        "originals_unchanged": true,
+        "save_reopen": true,
+        "project_manifest_sha256": "f4a8d38cd03c0ca7b7569198deed03dcb596eec967af4e785d476ebe5bbfb12e",
+        "supervisor_wall_seconds": 3.226349621982081,
+        "killed_child": {
+          "pid": 1471120,
+          "ready": {
+            "kill_ready": true,
+            "tracks": 32,
+            "captured_frames": 96237
+          },
+          "stdout": "",
+          "stderr": "",
+          "exit_code": -9
+        }
+      }
+    ],
+    "owned_supervisor_timeout_diagnostics": {
+      "owned_child_timeout_output_retained": true,
+      "subprocess_run_joined_owned_child": true,
+      "diagnostics": {
+        "mode": "normal",
+        "seconds": 2,
+        "project": "/home/rich/dev/soundcurrent-daw/.cache/sc-duration-nxqnsc2d/Durée — Ελληνικά",
+        "stdout": "owned timeout stdout\n",
+        "stderr": "owned timeout stderr\n",
+        "timed_out": true,
+        "wall_seconds": 0.2036765239899978
+      }
+    },
+    "windows_headless": {
+      "compiled_and_linked": true,
+      "executed": false,
+      "qt_ui_qualified": false,
+      "native_audio_qualified": false,
+      "build": {
+        "path": ".cache/m2-duration-windows-build.log",
+        "sha256": "755a9c344d3c2b1238fef8489a977a9516891069565209137cfdbcbc50d68452"
+      }
+    },
+    "ordinary_suites": "Not broadened this checkpoint: production code unchanged; prior checkpoint retains full/selected suite evidence",
+    "source_scope": "Final fixture/CMake compiled in all four builds. Release/Debug/sanitized five-case probes preceded supervisor-only signal/timeout diagnostic additions; final Release normal/kill plus timeout-output probe qualify those additions. Ten-minute success path unchanged by later timeout-output handler."
+  },
+  "review_findings_and_test_corrections": [
+    {
+      "finding": "First normal probe rejected correct journal timing because fixture expected clockId777 rather than17; 777 is driverDelay",
+      "failure_report": {
+        "path": ".cache/m2-duration-first-probe-failure.json",
+        "sha256": "63cb85710f3785c4aea06677684365b34662a9af8af66d64e645876cf9c1b80a"
+      },
+      "failure_log": {
+        "path": ".cache/m2-duration-first-probe.log",
+        "sha256": "63f2d762d571c3dba6c550e23951dc565280658c8e922ec7c694c0254356d952"
+      },
+      "change": "Correct fixture timing expectation; production unchanged; retained original project/raw data",
+      "remaining": "No physical latency inferred from synthetic inputLatency41/200 and driverDelay777"
+    },
+    {
+      "finding": "Revised build exposed unused streamWall while JSON footer update was missing",
+      "build": {
+        "path": ".cache/m2-duration-revised-build.log",
+        "sha256": "b7275054f4f7c013d5971696deba609300faea695f5a970732d05c251b9ebf1b"
+      },
+      "change": "Emit stream wall time separately from total verification time; final builds warning-free"
+    },
+    {
+      "finding": "Recovery subprocess overwrote killed-child signal diagnostics and timeout exception omitted captured partial stdout/stderr",
+      "change": "Retain killed-child ready/PID/-SIGKILL output separately and decode TimeoutExpired partial output; only owned child killed/joined",
+      "qualification": [
+        {
+          "path": ".cache/m2-duration-final-supervisor.json",
+          "sha256": "9f223bcb20dbb02dd0f532d28df6f7502b13d4feb08be1bc4f5b96b7635c1494"
+        },
+        {
+          "path": ".cache/m2-duration-timeout-proof.json",
+          "sha256": "62b0910a39e8786097b28fe96382207e592821af5c2c4fb02fdf939eaee4044d"
+        }
+      ]
+    }
+  ],
+  "unresolved_observations": [
+    {
+      "failure": "First native GUI 32-track attempt timed out after acknowledged Undo while waiting for Complete and sink delivery",
+      "cause": "Unknown; original failure has no terminal state snapshot. No cause or production fix is claimed.",
+      "log": {
+        "path": ".cache/m2-native-mix-gui-failure1.log",
+        "sha256": "d956dd61e21d9f62c87566d03440465ede6a8a42f4b5f8367ef864042b76aab1"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI workflow timed out at line 335\n\n",
+      "action": "Fixture now also wakes on sink gap and emits terminal phase/status/position/missing/sink/gap; isolated mix and final mix/mix-disconnect/export cases passed",
+      "remaining": "Long-duration/deadline/native completion/shutdown reliability qualification remains open; no suppression/waived gate"
+    },
+    {
+      "failure": "First saved-master native GUI 32-track run detected downstream sink clock gap with player still Running",
+      "terminal_state": {
+        "playback_phase": 4,
+        "bridge_status": 1,
+        "player_position": 110592,
+        "missing_track_frames": 0,
+        "sink_prefix": 108544,
+        "sink_gap": true
+      },
+      "cause": "Unknown; no failing-run pw-top/callback timing or first-gap positions captured. No production fix claimed.",
+      "log": {
+        "path": ".cache/m2-master-native.log",
+        "sha256": "024ae0f87b066f4d5e67ff79dfdbd0b3ef5f73d1e732d18ecb29a26480a9a0e3"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nGUI mix terminal phase/status/position/missing/sink/gap 4/1/110592/0/108544/1\nGUI file playback did not complete\n\n",
+      "action": "Fixture now records first expected/observed/duration/unavailable-input count without RT logging; next isolated full/disconnect/export run exact",
+      "remaining": "Characterized native graph/sink deadline/load/clock/delivery reliability; failure is not suppressed or waived"
+    },
+    {
+      "failure": "Legacy CLI synthetic source capture stopped while independent CPU builds/tests were active",
+      "cause": "Exact underlying stop reason not retained by this CLI test output; concurrent activity is observed context, not a proven cause",
+      "log": {
+        "path": ".cache/m2-master-legacy-cli.log",
+        "sha256": "26f8ede9a446d9db0a47f3cdcb9171ed072a1be94f51d74a9271bed62ff4896d"
+      },
+      "action": "Next serial run after CPU/native jobs passed recording and independent export sample/hash oracle; no production change or waived pressure gate"
+    },
+    {
+      "failure": "Concurrent debug full CTest timed out awaiting synthetic recording capture at tests/ui_tests.cpp:368",
+      "result": "22 of 23 groups passed; failed desktop-ui",
+      "cause": "Unknown; unchanged serial debug and concurrent sanitizer suites passed; not waived",
+      "seconds": 31.19,
+      "log": {
+        "path": ".cache/m2-timing-qualified-debug-tests.log",
+        "sha256": "660250e96cecb78bf52f22023b1004b760665fac3af9c89bd6b0837a18bcaa42"
+      },
+      "details": {
+        "path": ".cache/m2-timing-concurrent-debug-details.log",
+        "sha256": "1b1d6d67b0219b70ca7534237b1d9092dd7024939cf0cf2087b53bcfe4843f6d"
+      },
+      "next": "Retain state/admission/route diagnostics and reproduce asynchronous recording route/start behavior under declared load"
+    },
+    {
+      "failure": "Sanitized native callback clock gap occurred before controlled sink injection",
+      "cause": "Measured elapsed above period; consistent with deadline pressure but not proof of old failures",
+      "qualification_remains_open": true,
+      "report": {
+        "path": ".cache/m2-timing-qualified-sanitized-gap.json",
+        "sha256": "861895c7195b4b0dda085ff22a884e31930c9ebae2d649728aed5e5ec2ad65e7"
+      }
+    },
+    {
+      "finding": "First writer-failure native case reported a sink suffix failure after native owner teardown at contiguous clock6064614374, prior6064613350,duration1024. Graph/sink prefixes both12288; exact original buffer/flag/capacity facts were not retained, so its precise cause is not proven.",
+      "log": {
+        "path": ".cache/m2-duplex-owner-final-native.log",
+        "sha256": "8b88b85f84f197af0e7249bda3873474aee340ef524c8f99ea5b9f5852b8a35c"
+      },
+      "report": {
+        "path": ".cache/m2-duplex-owner-final-native-failure.json",
+        "sha256": "76a2cbad625655c7ce73e6222b0668d389fadd150d8af8eeb0e83539d0dc38b7"
+      },
+      "correction_scope": "Fixture now records buffer shape/capacity/mapping and coordinates declared closure. Only unmapped planes at a valid contiguous clock after shutdown declaration and after all published graph frames are observed qualify as end-of-stream. Final post-join prefix/sample checks remain strict; any earlier failure/clock gap is retained.",
+      "production_clock_fault_policy_changed": false,
+      "original_precise_cause_proven": false
+    },
+    {
+      "failure": "Initial desktop32-arm owned-native run timed out before capturedFrames24000; preceding3-arm case passed with exact samples",
+      "log": {
+        "path": ".cache/m2-duplex-desktop-native.log",
+        "sha256": "120d9e8b701b8353d2da320c174b4ed1500a146ac1879ed4c0cf578ac945794f"
+      },
+      "diagnostics": {
+        "path": ".cache/m2-duplex-desktop-native-failure.json",
+        "sha256": "3d35af75a922645b8ce19e9a48a31e81d3acee9c97d25c0915910715071a4707"
+      },
+      "cause": "Not established: original failure captured no terminal phase/status/routes/callback counts. No production fix or cause proof claimed.",
+      "action": "Fixture now waits for the complete canonical routing-command barrier and all exact visible selections before Record; terminal phase/status/counts/routes diagnostics added. Final isolated3/32-arm runs passed without suppressing faults or changing the production DSP/clock.",
+      "cleanup": {
+        "default_metadata_unchanged": true,
+        "pre_existing_links_preserved": 0,
+        "owned_nodes_remaining": 0,
+        "owned_links_remaining": 0
+      },
+      "remaining": "Native activation/completion/route-refresh reliability and declared-duration/load qualification remain open; a successful synchronized rerun does not establish the original timeout cause."
+    }
+  ],
+  "logs": {
+    ".cache/m2-duration-debug-build.log": "2f844de2fb281074939a2bf0099accded19daf96cff5220dfe79b0b67a5e9919",
+    ".cache/m2-duration-debug-probe.json": "77fdc9661cd12ede1bf39d10ed0eeba889471b99a934c3ac6e33166ea74ce3ec",
+    ".cache/m2-duration-debug-probe.log": "77fdc9661cd12ede1bf39d10ed0eeba889471b99a934c3ac6e33166ea74ce3ec",
+    ".cache/m2-duration-final-reuse-audit.json": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297",
+    ".cache/m2-duration-final-supervisor.json": "9f223bcb20dbb02dd0f532d28df6f7502b13d4feb08be1bc4f5b96b7635c1494",
+    ".cache/m2-duration-final-supervisor.log": "9f223bcb20dbb02dd0f532d28df6f7502b13d4feb08be1bc4f5b96b7635c1494",
+    ".cache/m2-duration-first-build.log": "39f53ec140cfa4fc9b2ecb84f3d1e7dac4f4c31e5cf09583045a25bffa9ca2c0",
+    ".cache/m2-duration-first-probe-failure.json": "63cb85710f3785c4aea06677684365b34662a9af8af66d64e645876cf9c1b80a",
+    ".cache/m2-duration-first-probe.log": "63f2d762d571c3dba6c550e23951dc565280658c8e922ec7c694c0254356d952",
+    ".cache/m2-duration-frozen-contracts.json": "601c887e241bb39f6f09fdbca53710250feeb4a23dc8b349cfb267a0dd0a0a31",
+    ".cache/m2-duration-host.json": "f913ffd99830ed0293fd8260a3a9adb6e4bf717ddb02278707027d0f9a529c1a",
+    ".cache/m2-duration-kill-proof.json": "c51a8128f149c9efcd80145ea0690ccbc95747f8a4cc998c840dcd48b04cb7e9",
+    ".cache/m2-duration-kill-proof.log": "c51a8128f149c9efcd80145ea0690ccbc95747f8a4cc998c840dcd48b04cb7e9",
+    ".cache/m2-duration-progress.jsonl": "2dea08562c397f6997c8f4365e9e1b00f101728c9142340e6e5eb2d4b268c7e9",
+    ".cache/m2-duration-reuse-audit.json": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297",
+    ".cache/m2-duration-revised-build.log": "b7275054f4f7c013d5971696deba609300faea695f5a970732d05c251b9ebf1b",
+    ".cache/m2-duration-revised-probe.json": "9f572095f3e71a59485cc7589c35aecbdf3c246fbf489edccb83cbc1c3d90936",
+    ".cache/m2-duration-revised-probe.log": "9f572095f3e71a59485cc7589c35aecbdf3c246fbf489edccb83cbc1c3d90936",
+    ".cache/m2-duration-sanitized-build.log": "a8d3e439cdfa56fff04857bf4afaa1315dc835885f706943d953d08df6ea4a97",
+    ".cache/m2-duration-sanitized-probe.json": "311a1ee26bebbd177066999f2c2576b6669060183f701e651f8a3afa6e65b906",
+    ".cache/m2-duration-sanitized-probe.log": "311a1ee26bebbd177066999f2c2576b6669060183f701e651f8a3afa6e65b906",
+    ".cache/m2-duration-ten-minute.json": "50e8687ac5600f8d8ad722844a2f33deeed1e927c8cd2fd873fe52ed883264e7",
+    ".cache/m2-duration-ten-minute.log": "50e8687ac5600f8d8ad722844a2f33deeed1e927c8cd2fd873fe52ed883264e7",
+    ".cache/m2-duration-timeout-proof.json": "62b0910a39e8786097b28fe96382207e592821af5c2c4fb02fdf939eaee4044d",
+    ".cache/m2-duration-timing-build.log": "e1d77a0aaf53be2821b3ceb8cf867fdd48da2b51cc8c9d531b72971d72c480b3",
+    ".cache/m2-duration-windows-build.log": "755a9c344d3c2b1238fef8489a977a9516891069565209137cfdbcbc50d68452"
+  },
+  "equalizer_audit": {
+    "report": {
+      "path": ".cache/m2-duration-final-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "registered_inputs": 24,
+    "all_inputs_match": true,
+    "review_required": false,
+    "heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    }
+  },
+  "parity": {
+    "family_count": 92,
+    "acceptance_quality_references_axes_unchanged": true,
+    "canonical_contract_projection_sha256": "abae9a3947451a731fa6d8d7e19750e58d21bbbcfeb8245a73ed61c8c1368e4f",
+    "implementation_notes_updated": [
+      "P001",
+      "P088"
+    ],
+    "no_FQCN_status_promoted": true
+  },
+  "dependency_or_license_changes": false,
+  "equalizer_writes": false,
+  "pushed_or_published": false,
+  "remaining": [
+    "Separate 30-minute declared native device/rate/quantum/scheduler/load full callback timing and strict gap/source/output verification",
+    "Physical round-trip/input alignment and native Windows/Qt/install parity",
+    "Actual ENOSPC, filesystem/power-loss/worker-kill and >4GiB single media durability",
+    "Unresolved historical native/sink/concurrent GUI failures and normal module unload",
+    "Punch/loop/Auto/takes/comping/fades/backups/portable archive and every remaining M2/full frozen workflow",
+    "X004 native/exchange imports, X005 monitoring/print/portable rights, all-Europe translations/review/UI"
+  ],
+  "next_task": "M2d4b: extend owned native source/production duplex owner/independent sink for streamed full-range verification, full bounded timing, nearest-rank99.9%/max and actual declared device/load/fault records; physical alignment separately",
+  "reproduction": {
+    "normal": "python3 tests/verify_duplex_duration.py --binary .cache/build-desktop-release/sc-duplex-duration-fixture --seconds 600 --modes normal (see docs/38-recording-duration.md for exact spaced arguments and output paths)",
+    "short_modes": [
+      "normal",
+      "cancel",
+      "writer-failure",
+      "stall-overflow",
+      "kill-target"
+    ],
+    "default_seconds": 600,
+    "media_payload_bytes": 3686400000,
+    "raw_files_retained": true
+  }
+}

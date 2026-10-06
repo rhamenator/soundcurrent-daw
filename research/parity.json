@@ -8,12 +8,12 @@
       "milestone": "M2",
       "acceptance": "Arm 32 mono tracks; record ten minutes; stop, reopen and verify every take and timestamp.",
       "quality": "Zero missing frames in synthetic run; 30-minute native run with zero unreported gaps.",
-      "known_gap": "Ten-minute synthetic/30-minute declared-device runs, physical alignment/load/fault, intermittent native/GUI reliability observations and full Windows qualification remain required.",
+      "known_gap": "30-minute declared-device native run, physical alignment/load/disk-full/filesystem, intermittent native/GUI reliability observations and full Windows qualification remain required.",
       "bitwig_url": "https://www.bitwig.com/userguide/latest/recording_clips/",
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: production PipeWire shared-clock playback/raw capture and desktop accepted-prefix multi-arm/range/packed input/master route controls, all-lane live EQ receipts and atomic verified take-group Undo/Redo/Save-close. Short three/32-arm native GUI exact source/output evidence; ten-minute synthetic/30-minute declared-native, physical alignment/load/failure/native Windows remain required.",
+      "implementation": "Partial: production PipeWire/desktop multi-arm recording and grouped admission; ten-minute 32-track wall-paced private-clock run verifies all 921600000 raw samples, timestamps/alignment, hashes and Save/reopen with zero missing/rejected frames. Producer lateness retained; default unity EQ workload does not qualify native deadlines. 30-minute native/physical/load/fault/Windows remain required.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -34,7 +34,9 @@
         "docs/36-duplex-recording-owner.md",
         "tests/results/M2/2026-10-06-duplex-recording-owner.json",
         "docs/37-desktop-duplex-recording.md",
-        "tests/results/M2/2026-10-06-desktop-duplex-recording.json"
+        "tests/results/M2/2026-10-06-desktop-duplex-recording.json",
+        "docs/38-recording-duration.md",
+        "tests/results/M2/2026-10-06-recording-duration.json"
       ]
     },
     {
@@ -1810,7 +1812,7 @@
       "cubase_url": null,
       "bitwig_evidence": "U",
       "cubase_evidence": "U",
-      "implementation": "Partial: independently joined duplex writer checkpoints/results/errors, successful desktop take-group verification/admission, failed-lane job retention, rejected-group Keep/Retry and active Save/close without deleting raw media. Multitrack process-kill/disk-full/Windows/full recovery UI qualification remains required.",
+      "implementation": "Partial: independently retained duplex/desktop writer results/errors and recovery; bounded cancel/write-fault/pool-overflow and owned SIGKILL recovery verify every 32-lane durable prefix, copied source samples/hashes and original media/journal preservation with Save/reopen. Actual disk-full, power-loss/filesystem/worker-kill/native Windows/full recovery UI qualification remain required.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -1823,7 +1825,9 @@
         "docs/36-duplex-recording-owner.md",
         "tests/results/M2/2026-10-06-duplex-recording-owner.json",
         "docs/37-desktop-duplex-recording.md",
-        "tests/results/M2/2026-10-06-desktop-duplex-recording.json"
+        "tests/results/M2/2026-10-06-desktop-duplex-recording.json",
+        "docs/38-recording-duration.md",
+        "tests/results/M2/2026-10-06-recording-duration.json"
       ]
     },
     {

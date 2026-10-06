@@ -536,3 +536,66 @@ ten-minute synthetic P001 workflow with exact timestamps/source/hash, stop/save/
 reopen and bounded disk/cancel/failure evidence; then qualify the independent
 30-minute declared native/device/load/alignment gate. Punch/loop/Auto/take lanes/
 comping, fades and every other M2/full-product requirement stay in the backlog.
+
+## M2d4a ten-minute synthetic duration and recovery (2026-10-06)
+
+Checkpoint `15047ad` was **progress**, not completion. The new opt-in fixture
+uses the actual framework-independent duplex engine, fixed capture pools and
+32 disk writers. It wall-paces a private 48-kHz source with variable callback
+sizes, explicit permuted mono inputs and a signed stereo matrix. Source generation,
+independent matrix comparisons, pacing, progress and every file/hash operation
+stay outside the audited callback. It uses default unity EQ; it does not imply
+a non-flat live-event/native deadline workload or physical alignment measurement.
+Production implementation and dependency/license choices are unchanged.
+
+The Release ten-minute run passed: 28,800,000 frames per lane, all 921,600,000
+raw samples exact, every finalized inactive journal/origin/identity/hash/extent
+verified, original canonical project unchanged until Save, exact per-track
+alignment and Save/reopen/media verification. 29,613 callbacks have zero audited
+allocation/free/blocking-lock calls and zero missing track frames; every output
+sample matches the independent float64 matrix oracle. Peak output 4.08854 retains
+float headroom, with zero dropped meter observations. Stream time was 600.042
+seconds and complete verification finished at 647.910 seconds. The producer had
+12 late cycles, maximum 7.867691 ms; this is retained as a whole-fixture pacing
+observation rather than hidden or treated as native callback/deadline evidence.
+
+Five short normal/cancel/write-fault/stall-overflow/process-kill-recovery modes
+passed on Release, Debug and ASan/UBSan/LSan. Every valid finalized/recovered
+prefix is independently source/hash verified, attached to a copied model and
+saved/reopened. Cancellation keeps canceled receipt errors, lane17 disk failure
+preserves the initiating error and 31 other receipts, and pool exhaustion names
+the failed capture without forcing all lane extents equal. SIGKILL targets only
+the supervisor's freshly spawned child. Discovery/copy recovery verifies all
+32 durable prefixes (49,152 frames each in these probes), keeps original media
+and journal hashes unchanged and saves/reopens. Sanitized normal pacing has
+99 late cycles, maximum 933.916285 ms, and stream wall time 2.937620 seconds;
+it is a memory/correctness observation, not a performance pass. Windows headless
+fixture/core compile/link; execution, Qt/native audio and Windows parity remain
+unqualified. Full ordinary suites were not broadened because production code is
+unchanged and the prior checkpoint retains their qualification.
+
+The initial probe exposed a fixture expectation confusing clock ID 17 with
+driver delay 777. The recorded journal was correct; the expectation was fixed
+without production changes. The supervisor later retained the killed child's
+ready/signal exit separately from recovery, and captured bounded timeout partial
+stdout/stderr. Final Release normal/kill and an owned timeout diagnostic probe
+passed. [Contract](38-recording-duration.md), [ADR-028](decisions/028-recording-duration-qualification.md)
+and [evidence](../tests/results/M2/2026-10-06-recording-duration.json) retain source/log
+hashes, workload, per-lane receipts, corrections and all inherited unresolved
+native/sink/concurrent UI observations. None is waived by this synthetic result.
+
+The final read-only equalizer audit matches all 24 borrowed inputs and both
+reviewed heads. No equalizer checkout writes, push or publication. All 92 frozen
+acceptance/quality/reference/F/Q/C/N contracts are byte-equivalent in their
+canonical projection; only P001/P088 implementation/gap/evidence notes advance.
+The full goal stays **active and incomplete**. M1/M2/native 30-minute/physical/
+controlled-load/disk-full/filesystem/power-loss/unload/Windows and all remaining
+professional workflows, X004, X005 and all-Europe qualification stay required.
+
+Next: **M2d4b declared 30-minute native qualification**. Extend the owned source/
+production duplex owner/independent sink fixture with streamed full-range media
+oracles, complete bounded timing coverage, nearest-rank 99.9th percentile/max,
+actual device/rate/quantum/scheduler/load records and complete failure diagnostics.
+Keep defaults/owned routes and strict origin/gap/prefix checks. Qualify physical
+round-trip alignment separately. Punch/loop/Auto/takes/comping/fades and the rest
+of M2 stay in the backlog.

@@ -122,3 +122,13 @@ Windows gates remain required; no frozen family acceptance is marked complete.
 
 
 M2d3 connects [desktop multi-arm recording and grouped verification](37-desktop-duplex-recording.md): accepted-prefix full-project preparation, immutable arms/range, explicit packed input/master routes, per-lane applied-revision receipts, independently retained writer failures and atomic verified group admission with one Undo/Redo and active Save/close ordering. Short three/32-arm owned-native GUI workflows have independent raw/output oracles. Next **M2d4**: implement the reproducible 32-track ten-minute synthetic P001 acceptance (timestamps, source/hash, stop/save/reopen, bounded failure/cancel evidence), then the separate 30-minute declared native device/load/alignment gate. Punch/loop/Auto/takes/comping and every remaining M2/full-product workflow remain required. No frozen F/Q/C/N status is promoted.
+
+M2d4a supplies [the ten-minute 32-track synthetic duration workflow](38-recording-duration.md):
+921.6 million exact raw samples, timing/alignment/hash/Save-reopen verification,
+independent float output checks and bounded cancel/write-fault/pool-overflow/
+owned-process-kill recovery. Default unity EQ/private device pacing are declared;
+producer lateness is visible. Next **M2d4b**: extend the owned native source/duplex/
+sink fixture for a declared 30-minute rate/quantum/device/load run with streaming
+full-range source/output verification, complete callback timing coverage and
+99.9th-percentile/max gates. Physical alignment, actual disk-full/filesystem/
+power-loss/Windows and every remaining M1/M2/frozen workflow remain required.
