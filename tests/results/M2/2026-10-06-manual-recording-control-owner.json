@@ -1,6 +1,6 @@
 {
   "date": "2026-10-06",
-  "utc": "2026-10-06T23:40:09.245758+00:00",
+  "utc": "2026-10-06T23:46:56.549138+00:00",
   "baseline": "SC-DAW-BASELINE-2026-10-05",
   "parent_commit": "6dbdbe9b58c48a281a781f39366bf55683cc7790",
   "classification": "progress",
@@ -13,22 +13,22 @@
     "include/soundcurrent/manual_punch.hpp": "3aa21303e3c5771553423da8e277e5faad833ca4424e926f5d83c1fd4bf73024",
     "src/manual_punch.cpp": "85572f2cecb1d3101d9af6b2060f97c6d8b265ec4bc4cc526ae6e3f81ae8290d",
     "include/soundcurrent/manual_recording.hpp": "a38c4c11a31e4f6dcdccabd0c5f600bf3a52be5b1c8c339188c8a35f5eeb70e9",
-    "src/manual_recording.cpp": "ad31506a04de1957d9eed0d69d38745de0976179fbfb9c8215ce9c1f2ef1b063",
-    "tests/manual_recording_tests.cpp": "5254513aba52fe737029815b7ccdac78a02501053348b76d4510db883d4221e3",
+    "src/manual_recording.cpp": "47951dc97adc6e47a39fecb50841b657fa70174bc4de81cdb0b9be38c771d0a3",
+    "tests/manual_recording_tests.cpp": "8bc3c644eccca233823051524c2831df356a1cb6bd2a501b9c1e4f8a6e271786",
     "CMakeLists.txt": "e62722802b925973ba438f89e5bdfacec5241f3e1a9eabff7aecb24e8b30561d"
   },
   "qualified_executables": {
-    ".cache/manual-recording-cadence-qualified-4bd9606/sc-manual-recording-tests-debug": {
-      "sha256": "042d37ebe79ac51a2ba09d0b324be8a26a3d1cba6d185877c7fe5d6212d82a7d",
-      "bytes": 15175200
+    ".cache/manual-recording-late-cancel-qualified-e3fbc59/sc-manual-recording-tests-debug": {
+      "sha256": "af41306dce9b793edf814af5ab8bc102ffc66407704f4910d191f6c28c990822",
+      "bytes": 15185216
     },
-    ".cache/manual-recording-cadence-qualified-4bd9606/sc-manual-recording-tests-sanitized": {
-      "sha256": "e18568e4d48b65fd500ab24be33c8cd04d6f0b88021dfbef03af466f30ca19e8",
-      "bytes": 48724584
+    ".cache/manual-recording-late-cancel-qualified-e3fbc59/sc-manual-recording-tests-sanitized": {
+      "sha256": "d7569be4f2af4ab0e7e766bff7a131d4b195a29d76e5fdd746608c0ea189c136",
+      "bytes": 48756856
     },
-    ".cache/manual-recording-cadence-qualified-4bd9606/sc-manual-recording-tests-windows.exe": {
-      "sha256": "3ecc5b0c3028c53f9d257d2da52288fa25f559373b62a19bad854dbe29365907",
-      "bytes": 1383796
+    ".cache/manual-recording-late-cancel-qualified-e3fbc59/sc-manual-recording-tests-windows.exe": {
+      "sha256": "8b757bd3af0e6d46e56e8a43a49db48785644c9093ceb66014bed8d15146be1f",
+      "bytes": 1384894
     }
   },
   "ownership": {
@@ -128,6 +128,25 @@
       "handle": 80894,
       "terminal_exit": 0,
       "not_original_CI_evidence": true
+    },
+    "late_cancel_debug_build_and_tests": {
+      "handle": 34757,
+      "terminal_exit": 0,
+      "tests_total": 31,
+      "tests_passed": 31,
+      "test_seconds": 28.99
+    },
+    "late_cancel_sanitized_build_and_tests": {
+      "handle": 11471,
+      "terminal_exit": 0,
+      "tests_total": 31,
+      "tests_passed": 31,
+      "test_seconds": 76.63
+    },
+    "late_cancel_windows_media_build": {
+      "handle": 12850,
+      "terminal_exit": 0,
+      "runtime_execution": false
     }
   },
   "acceptance": {
@@ -168,7 +187,26 @@
       "rt_violations": 0,
       "native_audio": false,
       "windows_runtime": false
-    }
+    },
+    "late_cancel_debug_synthetic": {
+      "checks": 65134,
+      "repeated_workflows": 3,
+      "maximum_output_difference": 0,
+      "output_peak": 2.14813,
+      "rt_violations": 0,
+      "native_audio": false,
+      "windows_runtime": false
+    },
+    "late_cancel_sanitized_synthetic": {
+      "checks": 65217,
+      "repeated_workflows": 3,
+      "maximum_output_difference": 0,
+      "output_peak": 2.14813,
+      "rt_violations": 0,
+      "native_audio": false,
+      "windows_runtime": false
+    },
+    "late_cancellation": "Before first service, positive raw prefixes are drained after callback join. Empty delayed lanes create no fake job. All receipts remain Canceled and require separate explicit recovery; no silent adoption."
   },
   "build_and_test_logs": {
     "manual-recording-first-build.log": "[0/1] Re-running CMake...\n-- Configuring done (0.3s)\n-- Generating done (0.1s)\n-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop\n[1/9] Building CXX object CMakeFiles/sc-media.dir/src/manual_punch.cpp.o\n[2/9] Building CXX object CMakeFiles/sc-media.dir/src/manual_recording.cpp.o\n[3/9] Linking CXX static library libsc-media.a\n[4/9] Building CXX object CMakeFiles/sc-manual-recording-tests.dir/tests/rt_audit.cpp.o\n[5/9] Building CXX object CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.o\n[6/9] Linking CXX executable sc-manual-recording-tests\n[7/9] Building CXX object CMakeFiles/sc-manual-punch-tests.dir/tests/manual_punch_tests.cpp.o\n[8/9] Linking CXX executable sc-manual-punch-tests\n",
@@ -189,7 +227,14 @@
     "manual-recording-cadence-sanitized-ctest.log": "Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n      Start  1: desktop-export-controller\n 1/31 Test  #1: desktop-export-controller ........   Passed    0.42 sec\n      Start  2: desktop-export-ui\n 2/31 Test  #2: desktop-export-ui ................   Passed    2.04 sec\n      Start  3: equipment-editor\n 3/31 Test  #3: equipment-editor .................   Passed   12.86 sec\n      Start  4: desktop-controller\n 4/31 Test  #4: desktop-controller ...............   Passed    0.72 sec\n      Start  5: desktop-playback-controller\n 5/31 Test  #5: desktop-playback-controller ......   Passed    0.20 sec\n      Start  6: desktop-recording-controller\n 6/31 Test  #6: desktop-recording-controller .....   Passed    2.59 sec\n      Start  7: desktop-timeline\n 7/31 Test  #7: desktop-timeline .................   Passed    8.61 sec\n      Start  8: desktop-ui\n 8/31 Test  #8: desktop-ui .......................   Passed    9.66 sec\n      Start  9: native-duration-timing\n 9/31 Test  #9: native-duration-timing ...........   Passed    0.07 sec\n      Start 10: session-state\n10/31 Test #10: session-state ....................   Passed    0.39 sec\n      Start 11: project-routing\n11/31 Test #11: project-routing ..................   Passed    0.65 sec\n      Start 12: multitrack-edits\n12/31 Test #12: multitrack-edits .................   Passed    8.10 sec\n      Start 13: project-monitoring\n13/31 Test #13: project-monitoring ...............   Passed    0.16 sec\n      Start 14: multitrack-mix-graph\n14/31 Test #14: multitrack-mix-graph .............   Passed    0.23 sec\n      Start 15: immediate-controls\n15/31 Test #15: immediate-controls ...............   Passed    0.15 sec\n      Start 16: capture-transport\n16/31 Test #16: capture-transport ................   Passed    1.49 sec\n      Start 17: audio-bridge\n17/31 Test #17: audio-bridge .....................   Passed    0.90 sec\n      Start 18: writer-phase-timing\n18/31 Test #18: writer-phase-timing ..............   Passed    0.04 sec\n      Start 19: processing-stage-observation\n19/31 Test #19: processing-stage-observation .....   Passed    0.08 sec\n      Start 20: duplex-recording-owner\n20/31 Test #20: duplex-recording-owner ...........   Passed    1.90 sec\n      Start 21: punch-boundaries\n21/31 Test #21: punch-boundaries .................   Passed    7.79 sec\n      Start 22: manual-recording-control\n22/31 Test #22: manual-recording-control .........   Passed    2.46 sec\n      Start 23: manual-punch-owner\n23/31 Test #23: manual-punch-owner ...............   Passed    1.36 sec\n      Start 24: shared-playback-capture\n24/31 Test #24: shared-playback-capture ..........   Passed    1.22 sec\n      Start 25: multitrack-mix-playback\n25/31 Test #25: multitrack-mix-playback ..........   Passed    1.87 sec\n      Start 26: offline-export\n26/31 Test #26: offline-export ...................   Passed    1.89 sec\n      Start 27: recording-discovery\n27/31 Test #27: recording-discovery ..............   Passed    0.24 sec\n      Start 28: recording-recovery\n28/31 Test #28: recording-recovery ...............   Passed    1.14 sec\n      Start 29: playback-native-clock\n29/31 Test #29: playback-native-clock ............   Passed    2.13 sec\n      Start 30: playback-read-ahead\n30/31 Test #30: playback-read-ahead ..............   Passed    2.72 sec\n      Start 31: prepared-eq\n31/31 Test #31: prepared-eq ......................   Passed    3.00 sec\n\n100% tests passed, 0 tests failed out of 31\n\nTotal Test time (real) =  77.09 sec\n",
     "manual-recording-cadence-windows-build.log": "[1/2] Building CXX object CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.obj\n[2/2] Linking CXX executable sc-manual-recording-tests.exe\n",
     "cadence-debug-manual-recording-LastTest-section": "Command: \"/home/rich/dev/soundcurrent-daw/.cache/build-desktop/sc-manual-recording-tests\"\nDirectory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop\n\"manual-recording-control\" start time: Oct 06 19:38 EDT\nOutput:\n----------------------------------------------------------\n{\"checks\":64330,\"repeated_workflows\":3,\"maximum_output_difference\":0,\"output_peak\":2.14813,\"rt_violations\":0,\"native_audio\":false,\"windows_runtime\":false}\n",
-    "cadence-sanitized-manual-recording-LastTest-section": "Command: \"/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-manual-recording-tests\"\nDirectory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n\"manual-recording-control\" start time: Oct 06 19:39 EDT\nOutput:\n----------------------------------------------------------\n{\"checks\":64424,\"repeated_workflows\":3,\"maximum_output_difference\":0,\"output_peak\":2.14813,\"rt_violations\":0,\"native_audio\":false,\"windows_runtime\":false}\n"
+    "cadence-sanitized-manual-recording-LastTest-section": "Command: \"/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-manual-recording-tests\"\nDirectory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n\"manual-recording-control\" start time: Oct 06 19:39 EDT\nOutput:\n----------------------------------------------------------\n{\"checks\":64424,\"repeated_workflows\":3,\"maximum_output_difference\":0,\"output_peak\":2.14813,\"rt_violations\":0,\"native_audio\":false,\"windows_runtime\":false}\n",
+    "late-cancel-debug-manual-recording-LastTest-section": "Command: \"/home/rich/dev/soundcurrent-daw/.cache/build-desktop/sc-manual-recording-tests\"\nDirectory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop\n\"manual-recording-control\" start time: Oct 06 19:45 EDT\nOutput:\n----------------------------------------------------------\n{\"checks\":65134,\"repeated_workflows\":3,\"maximum_output_difference\":0,\"output_peak\":2.14813,\"rt_violations\":0,\"native_audio\":false,\"windows_runtime\":false}\n",
+    "late-cancel-sanitized-manual-recording-LastTest-section": "Command: \"/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-manual-recording-tests\"\nDirectory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n\"manual-recording-control\" start time: Oct 06 19:45 EDT\nOutput:\n----------------------------------------------------------\n{\"checks\":65217,\"repeated_workflows\":3,\"maximum_output_difference\":0,\"output_peak\":2.14813,\"rt_violations\":0,\"native_audio\":false,\"windows_runtime\":false}\n",
+    "manual-recording-late-cancel-debug-build.log": "[0/1] Re-running CMake...\n-- Configuring done (0.3s)\n-- Generating done (0.1s)\n-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop\n[1/42] Building CXX object CMakeFiles/sc-media.dir/src/manual_punch.cpp.o\n[2/42] Building CXX object CMakeFiles/sc-media.dir/src/manual_recording.cpp.o\n[3/42] Linking CXX static library libsc-media.a\n[4/42] Building CXX object CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.o\n[5/42] Linking CXX executable sc-play-tool\n[6/42] Building CXX object CMakeFiles/sc-manual-punch-tests.dir/tests/manual_punch_tests.cpp.o\n[7/42] Linking CXX executable sc-export-tool\n[8/42] Linking CXX executable sc-record-tool\n[9/42] Linking CXX executable sc-export-controller-tests\n[10/42] Linking CXX executable soundcurrent-daw\n[11/42] Linking CXX executable sc-controller-tests\n[12/42] Linking CXX executable sc-export-ui-tests\n[13/42] Linking CXX executable sc-playback-controller-tests\n[14/42] Linking CXX executable sc-recording-controller-tests\n[15/42] Linking CXX executable sc-pipewire-ui-fixture\n[16/42] Linking CXX executable sc-pipewire-punch-ui-fixture\n[17/42] Linking CXX executable sc-pipewire-duplex-ui-fixture\n[18/42] Linking CXX executable sc-pipewire-recording-ui-fixture\n[19/42] Linking CXX executable sc-timeline-ui-tests\n[20/42] Linking CXX executable sc-writer-timing-tests\n[21/42] Linking CXX executable sc-pipewire-duration-fixture\n[22/42] Linking CXX executable sc-ui-tests\n[23/42] Linking CXX executable sc-processing-stage-tests\n[24/42] Linking CXX executable sc-pipewire-stage-fixture\n[25/42] Linking CXX executable sc-duplex-duration-fixture\n[26/42] Linking CXX executable sc-duplex-recording-tests\n[27/42] Linking CXX executable sc-punch-tests\n[28/42] Linking CXX executable sc-manual-recording-tests\n[29/42] Linking CXX executable sc-manual-punch-tests\n[30/42] Linking CXX executable sc-duplex-tests\n[31/42] Linking CXX executable sc-mix-playback-tests\n[32/42] Linking CXX executable sc-export-tests\n[33/42] Linking CXX executable sc-discovery-tests\n[34/42] Linking CXX executable sc-recording-tests\n[35/42] Linking CXX executable sc-playback-bridge-tests\n[36/42] Linking CXX executable sc-playback-tests\n[37/42] Linking CXX executable sc-pipewire-punch-fault-fixture\n[38/42] Linking CXX executable sc-pipewire-punch-fixture\n[39/42] Linking CXX executable sc-pipewire-duplex-fixture\n[40/42] Linking CXX executable sc-pipewire-fixture\n[41/42] Linking CXX executable sc-pipewire-playback-fixture\n",
+    "manual-recording-late-cancel-debug-ctest.log": "Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop\n      Start  1: desktop-export-controller\n 1/31 Test  #1: desktop-export-controller ........   Passed    0.15 sec\n      Start  2: desktop-export-ui\n 2/31 Test  #2: desktop-export-ui ................   Passed    1.43 sec\n      Start  3: equipment-editor\n 3/31 Test  #3: equipment-editor .................   Passed    4.75 sec\n      Start  4: desktop-controller\n 4/31 Test  #4: desktop-controller ...............   Passed    0.32 sec\n      Start  5: desktop-playback-controller\n 5/31 Test  #5: desktop-playback-controller ......   Passed    0.11 sec\n      Start  6: desktop-recording-controller\n 6/31 Test  #6: desktop-recording-controller .....   Passed    1.08 sec\n      Start  7: desktop-timeline\n 7/31 Test  #7: desktop-timeline .................   Passed    2.02 sec\n      Start  8: desktop-ui\n 8/31 Test  #8: desktop-ui .......................   Passed    4.77 sec\n      Start  9: native-duration-timing\n 9/31 Test  #9: native-duration-timing ...........   Passed    0.01 sec\n      Start 10: session-state\n10/31 Test #10: session-state ....................   Passed    0.07 sec\n      Start 11: project-routing\n11/31 Test #11: project-routing ..................   Passed    0.12 sec\n      Start 12: multitrack-edits\n12/31 Test #12: multitrack-edits .................   Passed    1.73 sec\n      Start 13: project-monitoring\n13/31 Test #13: project-monitoring ...............   Passed    0.02 sec\n      Start 14: multitrack-mix-graph\n14/31 Test #14: multitrack-mix-graph .............   Passed    0.07 sec\n      Start 15: immediate-controls\n15/31 Test #15: immediate-controls ...............   Passed    0.03 sec\n      Start 16: capture-transport\n16/31 Test #16: capture-transport ................   Passed    0.81 sec\n      Start 17: audio-bridge\n17/31 Test #17: audio-bridge .....................   Passed    0.34 sec\n      Start 18: writer-phase-timing\n18/31 Test #18: writer-phase-timing ..............   Passed    0.01 sec\n      Start 19: processing-stage-observation\n19/31 Test #19: processing-stage-observation .....   Passed    0.01 sec\n      Start 20: duplex-recording-owner\n20/31 Test #20: duplex-recording-owner ...........   Passed    0.76 sec\n      Start 21: punch-boundaries\n21/31 Test #21: punch-boundaries .................   Passed    2.21 sec\n      Start 22: manual-recording-control\n22/31 Test #22: manual-recording-control .........   Passed    1.32 sec\n      Start 23: manual-punch-owner\n23/31 Test #23: manual-punch-owner ...............   Passed    0.37 sec\n      Start 24: shared-playback-capture\n24/31 Test #24: shared-playback-capture ..........   Passed    0.35 sec\n      Start 25: multitrack-mix-playback\n25/31 Test #25: multitrack-mix-playback ..........   Passed    0.63 sec\n      Start 26: offline-export\n26/31 Test #26: offline-export ...................   Passed    0.87 sec\n      Start 27: recording-discovery\n27/31 Test #27: recording-discovery ..............   Passed    0.05 sec\n      Start 28: recording-recovery\n28/31 Test #28: recording-recovery ...............   Passed    0.79 sec\n      Start 29: playback-native-clock\n29/31 Test #29: playback-native-clock ............   Passed    0.79 sec\n      Start 30: playback-read-ahead\n30/31 Test #30: playback-read-ahead ..............   Passed    1.54 sec\n      Start 31: prepared-eq\n31/31 Test #31: prepared-eq ......................   Passed    1.44 sec\n\n100% tests passed, 0 tests failed out of 31\n\nTotal Test time (real) =  28.99 sec\n",
+    "manual-recording-late-cancel-sanitized-build.log": "[0/1] Re-running CMake...\n-- Configuring done (0.3s)\n-- Generating done (0.1s)\n-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n[1/42] Building CXX object CMakeFiles/sc-media.dir/src/manual_punch.cpp.o\n[2/42] Building CXX object CMakeFiles/sc-media.dir/src/manual_recording.cpp.o\n[3/42] Linking CXX static library libsc-media.a\n[4/42] Building CXX object CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.o\n[5/42] Linking CXX executable sc-play-tool\n[6/42] Linking CXX executable sc-export-tool\n[7/42] Building CXX object CMakeFiles/sc-manual-punch-tests.dir/tests/manual_punch_tests.cpp.o\n[8/42] Linking CXX executable sc-record-tool\n[9/42] Linking CXX executable sc-export-controller-tests\n[10/42] Linking CXX executable soundcurrent-daw\n[11/42] Linking CXX executable sc-controller-tests\n[12/42] Linking CXX executable sc-export-ui-tests\n[13/42] Linking CXX executable sc-playback-controller-tests\n[14/42] Linking CXX executable sc-recording-controller-tests\n[15/42] Linking CXX executable sc-pipewire-ui-fixture\n[16/42] Linking CXX executable sc-pipewire-punch-ui-fixture\n[17/42] Linking CXX executable sc-pipewire-duplex-ui-fixture\n[18/42] Linking CXX executable sc-pipewire-recording-ui-fixture\n[19/42] Linking CXX executable sc-timeline-ui-tests\n[20/42] Linking CXX executable sc-writer-timing-tests\n[21/42] Linking CXX executable sc-ui-tests\n[22/42] Linking CXX executable sc-pipewire-duration-fixture\n[23/42] Linking CXX executable sc-processing-stage-tests\n[24/42] Linking CXX executable sc-pipewire-stage-fixture\n[25/42] Linking CXX executable sc-duplex-duration-fixture\n[26/42] Linking CXX executable sc-duplex-recording-tests\n[27/42] Linking CXX executable sc-punch-tests\n[28/42] Linking CXX executable sc-manual-recording-tests\n[29/42] Linking CXX executable sc-manual-punch-tests\n[30/42] Linking CXX executable sc-duplex-tests\n[31/42] Linking CXX executable sc-mix-playback-tests\n[32/42] Linking CXX executable sc-export-tests\n[33/42] Linking CXX executable sc-discovery-tests\n[34/42] Linking CXX executable sc-recording-tests\n[35/42] Linking CXX executable sc-playback-bridge-tests\n[36/42] Linking CXX executable sc-playback-tests\n[37/42] Linking CXX executable sc-pipewire-punch-fault-fixture\n[38/42] Linking CXX executable sc-pipewire-punch-fixture\n[39/42] Linking CXX executable sc-pipewire-duplex-fixture\n[40/42] Linking CXX executable sc-pipewire-fixture\n[41/42] Linking CXX executable sc-pipewire-playback-fixture\n",
+    "manual-recording-late-cancel-sanitized-ctest.log": "Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n      Start  1: desktop-export-controller\n 1/31 Test  #1: desktop-export-controller ........   Passed    0.40 sec\n      Start  2: desktop-export-ui\n 2/31 Test  #2: desktop-export-ui ................   Passed    1.93 sec\n      Start  3: equipment-editor\n 3/31 Test  #3: equipment-editor .................   Passed   12.63 sec\n      Start  4: desktop-controller\n 4/31 Test  #4: desktop-controller ...............   Passed    0.75 sec\n      Start  5: desktop-playback-controller\n 5/31 Test  #5: desktop-playback-controller ......   Passed    0.19 sec\n      Start  6: desktop-recording-controller\n 6/31 Test  #6: desktop-recording-controller .....   Passed    2.43 sec\n      Start  7: desktop-timeline\n 7/31 Test  #7: desktop-timeline .................   Passed    8.78 sec\n      Start  8: desktop-ui\n 8/31 Test  #8: desktop-ui .......................   Passed    9.59 sec\n      Start  9: native-duration-timing\n 9/31 Test  #9: native-duration-timing ...........   Passed    0.08 sec\n      Start 10: session-state\n10/31 Test #10: session-state ....................   Passed    0.38 sec\n      Start 11: project-routing\n11/31 Test #11: project-routing ..................   Passed    0.61 sec\n      Start 12: multitrack-edits\n12/31 Test #12: multitrack-edits .................   Passed    8.16 sec\n      Start 13: project-monitoring\n13/31 Test #13: project-monitoring ...............   Passed    0.16 sec\n      Start 14: multitrack-mix-graph\n14/31 Test #14: multitrack-mix-graph .............   Passed    0.20 sec\n      Start 15: immediate-controls\n15/31 Test #15: immediate-controls ...............   Passed    0.13 sec\n      Start 16: capture-transport\n16/31 Test #16: capture-transport ................   Passed    1.47 sec\n      Start 17: audio-bridge\n17/31 Test #17: audio-bridge .....................   Passed    0.87 sec\n      Start 18: writer-phase-timing\n18/31 Test #18: writer-phase-timing ..............   Passed    0.03 sec\n      Start 19: processing-stage-observation\n19/31 Test #19: processing-stage-observation .....   Passed    0.08 sec\n      Start 20: duplex-recording-owner\n20/31 Test #20: duplex-recording-owner ...........   Passed    1.89 sec\n      Start 21: punch-boundaries\n21/31 Test #21: punch-boundaries .................   Passed    7.81 sec\n      Start 22: manual-recording-control\n22/31 Test #22: manual-recording-control .........   Passed    2.58 sec\n      Start 23: manual-punch-owner\n23/31 Test #23: manual-punch-owner ...............   Passed    1.36 sec\n      Start 24: shared-playback-capture\n24/31 Test #24: shared-playback-capture ..........   Passed    1.23 sec\n      Start 25: multitrack-mix-playback\n25/31 Test #25: multitrack-mix-playback ..........   Passed    1.82 sec\n      Start 26: offline-export\n26/31 Test #26: offline-export ...................   Passed    1.88 sec\n      Start 27: recording-discovery\n27/31 Test #27: recording-discovery ..............   Passed    0.23 sec\n      Start 28: recording-recovery\n28/31 Test #28: recording-recovery ...............   Passed    1.16 sec\n      Start 29: playback-native-clock\n29/31 Test #29: playback-native-clock ............   Passed    2.09 sec\n      Start 30: playback-read-ahead\n30/31 Test #30: playback-read-ahead ..............   Passed    2.67 sec\n      Start 31: prepared-eq\n31/31 Test #31: prepared-eq ......................   Passed    3.00 sec\n\n100% tests passed, 0 tests failed out of 31\n\nTotal Test time (real) =  76.63 sec\n",
+    "manual-recording-late-cancel-windows-build.log": "[0/1] Re-running CMake...\n-- Configuring done (0.1s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-windows-media\n[1/22] Building CXX object CMakeFiles/sc-media.dir/src/manual_punch.cpp.obj\n[2/22] Building CXX object CMakeFiles/sc-media.dir/src/manual_recording.cpp.obj\n[3/22] Linking CXX static library libsc-media.a\n[4/22] Building CXX object CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.obj\n[5/22] Linking CXX executable sc-play-tool.exe\n[6/22] Linking CXX executable sc-export-tool.exe\n[7/22] Linking CXX executable sc-record-tool.exe\n[8/22] Linking CXX executable sc-writer-timing-tests.exe\n[9/22] Linking CXX executable sc-duplex-duration-fixture.exe\n[10/22] Linking CXX executable sc-duplex-recording-tests.exe\n[11/22] Linking CXX executable sc-punch-tests.exe\n[12/22] Linking CXX executable sc-manual-recording-tests.exe\n[13/22] Linking CXX executable sc-duplex-tests.exe\n[14/22] Linking CXX executable sc-mix-playback-tests.exe\n[15/22] Linking CXX executable sc-export-tests.exe\n[16/22] Linking CXX executable sc-discovery-tests.exe\n[17/22] Building CXX object CMakeFiles/sc-manual-punch-tests.dir/tests/manual_punch_tests.cpp.obj\n[18/22] Linking CXX executable sc-recording-tests.exe\n[19/22] Linking CXX executable sc-manual-punch-tests.exe\n[20/22] Linking CXX executable sc-playback-bridge-tests.exe\n[21/22] Linking CXX executable sc-playback-tests.exe\n"
   },
   "retained_observations": {
     "count": 29,
@@ -1063,7 +1108,7 @@
     "review_required": false
   },
   "publication_authorized": "Public GPL source/normal protected PR merges/backups; no release/installer upload authorized",
-  "delivery": "PR9 original tested head4bd9606 failed required Linux CI; original logs/source retained. Updated fixture and current receipt pass local Debug/SAN31 plus Windows compile; submit updated head to the same protected PR; no bypass or release upload.",
+  "delivery": "PR9 required checks pass on cadence head e3fbc59, but unresolved automated review identified late-cancellation loss. Corrected production owner and regression pass local Debug/SAN31 plus Windows media compile; push updated tested head, resolve addressed thread and require fresh protected CI before merge. No bypass/release upload.",
   "remaining": [
     "Native manual recording adapter and full route/clock/deadline/prefix acceptance",
     "Canonical desktop manual punch and fast monitor edit/Undo binding checks",
@@ -1097,5 +1142,43 @@
       "sha256": "7e432e2e0806b8d40078e865b752a05919653537e0e057f028853bd247286acf",
       "bytes": 1383698
     }
-  }
+  },
+  "cadence_source_sha256": {
+    "include/soundcurrent/manual_punch.hpp": "3aa21303e3c5771553423da8e277e5faad833ca4424e926f5d83c1fd4bf73024",
+    "src/manual_punch.cpp": "85572f2cecb1d3101d9af6b2060f97c6d8b265ec4bc4cc526ae6e3f81ae8290d",
+    "include/soundcurrent/manual_recording.hpp": "a38c4c11a31e4f6dcdccabd0c5f600bf3a52be5b1c8c339188c8a35f5eeb70e9",
+    "src/manual_recording.cpp": "ad31506a04de1957d9eed0d69d38745de0976179fbfb9c8215ce9c1f2ef1b063",
+    "tests/manual_recording_tests.cpp": "5254513aba52fe737029815b7ccdac78a02501053348b76d4510db883d4221e3",
+    "CMakeLists.txt": "e62722802b925973ba438f89e5bdfacec5241f3e1a9eabff7aecb24e8b30561d"
+  },
+  "cadence_qualified_executables": {
+    ".cache/manual-recording-cadence-qualified-4bd9606/sc-manual-recording-tests-debug": {
+      "sha256": "042d37ebe79ac51a2ba09d0b324be8a26a3d1cba6d185877c7fe5d6212d82a7d",
+      "bytes": 15175200
+    },
+    ".cache/manual-recording-cadence-qualified-4bd9606/sc-manual-recording-tests-sanitized": {
+      "sha256": "e18568e4d48b65fd500ab24be33c8cd04d6f0b88021dfbef03af466f30ca19e8",
+      "bytes": 48724584
+    },
+    ".cache/manual-recording-cadence-qualified-4bd9606/sc-manual-recording-tests-windows.exe": {
+      "sha256": "3ecc5b0c3028c53f9d257d2da52288fa25f559373b62a19bad854dbe29365907",
+      "bytes": 1383796
+    }
+  },
+  "review_findings": [
+    {
+      "id": "PR9-R1",
+      "thread_id": "PRRT_kwDOU-rChc6psgcL",
+      "author": "chatgpt-codex-connector",
+      "reviewed_commit": "4bd9606ce60976e51ff5c2fafcf606ffa3f6adeb",
+      "path": "src/manual_recording.cpp",
+      "original_review_archive": {
+        "path": ".cache/manual-recording-late-cancel-review.json",
+        "sha256": "e1b511070ee7eee498dad84282a8f433d9c97a3a3625d9d98b621288e795083f"
+      },
+      "finding": "Canceled runs skipped previously unserviced positive raw prefixes, freeing their only copy without a recording job/checkpoint.",
+      "fix": "After native callback join, open/drain consumers for positive unserviced retired extents; retain verified durable media, mark group and lanes Canceled, prohibit automatic/partial adoption. Existing started-worker checkpoint cancellation policy and empty-lane no-fake-job policy remain.",
+      "acceptance": "Two real-writer pre-service cancellation workflows: two225-frame lanes, then225-frame lane plus4097-delay zero-frame lane. Verify every sample, inactive finalized journal, independent225-frame recovery, canceled adoption refusal, saved original and full callback/consumer cleanup."
+    }
+  ]
 }

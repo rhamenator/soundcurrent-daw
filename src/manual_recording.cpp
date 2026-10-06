@@ -139,11 +139,15 @@ struct ManualRecordingRun::State {
         lane.spec.capture = *resolved;
         consumer.attempted = true;
         const auto extent = slot.take->retiredFrames(n);
-        if ((extent && !*extent) || canceled) {
+        if (extent && !*extent) {
             consumer.joined = true;
             lane.outcome = canceled ? ManualLaneOutcome::Canceled : ManualLaneOutcome::Empty;
             return;
         }
+        // A canceled take may have accepted a bounded raw prefix before its
+        // first service. Native/audio is now quiescent: drain that prefix with
+        // a new worker instead of reclaiming its only copy. Cancellation still
+        // marks the result group, so retained media is never silently adopted.
         try {
             consumer.worker =
                 std::make_unique<RecordingWorker>(pipe, root, lane.spec, arms[n].writer);

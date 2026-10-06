@@ -138,3 +138,19 @@ observations remain retained, and native sustained timing gates remain open.
 Current cadence-qualified Debug31/31 (28.86 s), ASan/UBSan/LSan31/31 (77.09 s)
 and Windows acceptance compile pass. Earlier results and CI failure remain in
 the dated receipt; neither observation28 nor29 is erased.
+
+Protected PR review additionally identified an unserviced late-cancellation gap:
+the initial owner skipped all unstarted consumers when canceled, even if their
+retired pipes contained positive accepted raw prefixes. The owner now starts and
+drains those bounded prefixes after callback join, retaining finalized media and
+verified checkpoints while still marking the group/lane Canceled and refusing
+implicit/partial canceled adoption. Already running consumers keep their existing
+checkpoint cancellation policy. Zero-frame late lanes still create no fake job.
+New real-writer tests cancel before any service for two valid lanes and a mixed
+valid/delayed-empty group, verify every retained sample/checkpoint, recover the
+prefix independently, and preserve the saved original. This is a review finding,
+separate from the29 retained runtime/CI observations.
+
+Final late-cancellation Debug31/31 (28.99 s), ASan/UBSan/LSan31/31 (76.63 s)
+and Windows media cross-build pass. Previous qualification/failure evidence remains
+retained; native/runtime/desktop manual recording gates are still open.

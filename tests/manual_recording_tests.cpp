@@ -547,6 +547,46 @@ void poolExhaustion() {
     check(withManualRecording(f.s, group, true).tracks[0].clips.back().lengthFrames == 8192,
           "Explicit overflow prefix adoption altered independently captured extent");
 }
+void lateCancellation(bool delayed) {
+    Fixture f;
+    auto a = arms(f.s, false);
+    if (delayed)
+        a[1].binding.inputLatencyFrames = 4097;
+    f.prepare(std::move(a));
+    const auto id = f.run->prepareTake();
+    submit(*f.run, ManualPunchAction::In, 31, 1, id);
+    check(f.block() == DuplexStatus::Running, "Late cancellation did not capture accepted prefix");
+    // No service/writer has run. Cancellation must not free the only raw copy.
+    f.run->cancel();
+    f.run->checkError();
+    ManualRecordedGroup group;
+    check(f.run->takeGroup(group) && group.canceled && !group.complete() && !f.run->occupiedSlots(),
+          "Late cancellation lost bounded canceled group");
+    for (unsigned n = 0; n < group.lanes.size(); ++n) {
+        const auto &lane = group.lanes[n];
+        check(lane.outcome == ManualLaneOutcome::Canceled && !lane.error && !lane.verificationError,
+              "Late cancellation incorrectly reported normal drain failure");
+        if (delayed && n == 1)
+            check(!lane.capturedFrames && !lane.job && !lane.result && !lane.origin,
+                  "Late canceled empty lane fabricated a job/origin");
+        else {
+            check(lane.capturedFrames == 225 && lane.result && lane.job && lane.checkpoint &&
+                      lane.checkpoint->finalized && lane.checkpoint->committedFrames == 225,
+                  "Late cancellation discarded accepted audio without durable checkpoint");
+            const auto data = audio(f.directory.root, lane.result->asset);
+            for (Frame frame = 0; frame < 225; ++frame)
+                check(data[std::size_t(frame)] == raw(31 + frame, n),
+                      "Late canceled raw prefix sample differs");
+            const auto recovered = recoverRecording(f.directory.root, *lane.job);
+            check(recovered.asset.frames == 225 &&
+                      recovered.spec.recoveredFrom == lane.spec.assetId,
+                  "Late canceled checkpoint cannot be recovered independently");
+        }
+    }
+    rejects([&] { withManualRecording(f.s, group, true); });
+    check(ProjectStore(f.directory.root).load() == f.s,
+          "Late cancellation silently saved canceled media");
+}
 void backpressure() {
     Fixture f(1);
     f.prepare(arms(f.s, false));
@@ -723,6 +763,8 @@ int main() {
         interruption(true, DuplexStatus::Stopped);
         activeDiskFailure();
         poolExhaustion();
+        lateCancellation(false);
+        lateCancellation(true);
         backpressure();
         readyGroupPressure();
         concurrentOwner();
