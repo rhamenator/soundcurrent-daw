@@ -63,3 +63,7 @@ No recording/playback/export or native audio is connected to this GUI yet. Headl
 ## S6d native playback ownership
 
 [Evidence](2026-10-05-native-playback-owner.json) records10 Linux CTest groups with sanitizers, the shared Windows cross-build, simulated native clock/layout/failure tests and production-owner PipeWire sample/disconnect tests. It preserves an unexplained native timeout and distinguishes serial success from unresolved deadline/load/shutdown and normal dependency-unload qualification. The GUI remains a project editor; asynchronous audio binding is next.
+
+## S6e desktop playback
+
+[Evidence](2026-10-05-desktop-playback.json) records11 Linux debug/sanitizer test groups, explicitly injected controller/UI fixtures, and real owned PipeWire through the actual window/worker. Native gain/undo is replayed at exact receipts and compared with an independent captured sink; graph/default preservation and asynchronous close are checked. Earlier native timeout/module-unload and hardware/Windows GUI gates remain open. Next is recording ownership/UI, then export.

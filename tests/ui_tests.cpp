@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "fake_playback_endpoint.hpp"
+#include <soundcurrent/recording.hpp>
 #include <QApplication>
 #include <QAbstractButton>
 #include <QAction>
@@ -12,6 +14,9 @@
 #include <QTest>
 #include <QTimer>
 #include <QWheelEvent>
+#include <QComboBox>
+#include <QPushButton>
+#include <QProgressBar>
 #include <chrono>
 #include <algorithm>
 #include <iostream>
@@ -185,6 +190,109 @@ void workflows(const std::filesystem::path &root) {
               ProjectStore(root).load().tracks.front().eq.bands.front().gainDb == 9,
           "Discard-close unexpectedly changed the saved project");
 }
+
+void playbackWorkflow(const std::filesystem::path &root) {
+    std::filesystem::create_directory(root);
+    auto session = makeOneTrackSession("Lecture – Δοκιμή", "Audio");
+    CapturePipe pipe({});
+    RecordingSpec spec;
+    spec.projectId = session.id;
+    spec.trackId = session.tracks.front().id;
+    spec.capture = pipe.config();
+    CaptureWriter writer(root, spec);
+    std::array<float, 256> samples{};
+    samples.fill(1.25f);
+    std::array<const float *, 1> input{samples.data()};
+    for (Frame frame = 0; frame < 100096; frame += 256) {
+        pipe.push(input, 256, frame);
+        while (writer.drainOne(pipe)) {
+        }
+    }
+    pipe.finish();
+    while (writer.drainOne(pipe)) {
+    }
+    attachRecording(session, writer.finalize(pipe));
+    ProjectStore(root).save(session);
+    auto counters = std::make_shared<playback_fixture::Counters>();
+    StudioWindow window(nullptr, playback_fixture::options(counters));
+    struct Release {
+        std::shared_ptr<playback_fixture::Counters> c;
+        ~Release() {
+            c->holdStop.store(false);
+        }
+    } release{counters};
+    window.show();
+    window.activateWindow();
+    window.openProject(root);
+    auto *prepare = window.findChild<QPushButton *>(QStringLiteral("preparePlaybackButton"));
+    await([&] { return window.snapshot()->session && prepare->isEnabled(); });
+    QTest::mouseClick(prepare, Qt::LeftButton);
+    await([&] {
+        return window.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+               window.findChild<QComboBox *>(QStringLiteral("outputChannel0"));
+    });
+    auto *output = window.findChild<QComboBox *>(QStringLiteral("outputChannel0"));
+    auto *play = window.findChild<QPushButton *>(QStringLiteral("playButton"));
+    auto *stop = window.findChild<QPushButton *>(QStringLiteral("stopButton"));
+    check(output->currentIndex() == 0 && !counters->activated,
+          "GUI selected/played a default output");
+    QTest::mouseClick(play, Qt::LeftButton);
+    QTest::qWait(10);
+    check(!counters->activated && window.playbackSnapshot()->phase == PlaybackPhase::Ready,
+          "Missing route silently activated playback");
+    output->setFocus();
+    QTest::keyClick(output, Qt::Key_Down);
+    QTest::mouseClick(play, Qt::LeftButton);
+    await([&] {
+        return window.playbackSnapshot()->phase == PlaybackPhase::Playing &&
+               window.playbackSnapshot()->appliedRevision == window.snapshot()->modelRevision;
+    });
+    auto *meter = window.findChild<QProgressBar *>(QStringLiteral("outputMeter"));
+    await([&] { return meter->value() >= 1000; });
+    check(meter->styleSheet().contains(QStringLiteral("#c83434")),
+          "Over-zero level indicator is not colorized");
+    auto *slider = window.findChild<QSlider *>(QStringLiteral("gainSlider0"));
+    slider->setValue(60);
+    await([&] {
+        return window.snapshot()->dirty &&
+               window.playbackSnapshot()->appliedRevision == window.snapshot()->modelRevision;
+    });
+    check(window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 6,
+          "GUI change did not reach project/playback");
+    QTest::keyClick(&window, Qt::Key_Z, Qt::ControlModifier);
+    await([&] {
+        return !window.snapshot()->dirty &&
+               window.playbackSnapshot()->appliedRevision == window.snapshot()->modelRevision;
+    });
+    check(window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 0,
+          "Live keyboard undo did not reconcile");
+    QTest::mouseClick(stop, Qt::LeftButton);
+    await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Idle; });
+    check(counters->destroyed == 1 && !counters->wrongThread, "GUI Stop did not retire on worker");
+    await([&] { return prepare->isEnabled(); });
+    QTest::mouseClick(prepare, Qt::LeftButton);
+    await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Ready; });
+    await([&] {
+        output = window.findChild<QComboBox *>(QStringLiteral("outputChannel0"));
+        return output && output->count() > 1 && play->isEnabled();
+    });
+    output->setCurrentIndex(1);
+    QTest::mouseClick(play, Qt::LeftButton);
+    await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Playing; });
+    counters->waitingStop.store(false);
+    counters->holdStop.store(true);
+    window.close();
+    await([&] { return counters->waitingStop.load() && window.snapshot()->closed; });
+    QTest::qWait(30);
+    check(window.isVisible() && !window.playbackSnapshot()->closed,
+          "Window closed before blocked playback join");
+    counters->holdStop.store(false);
+    await([&] { return window.playbackSnapshot()->closed && !window.isVisible(); });
+    check(counters->destroyed == 2 && !counters->wrongThread &&
+              ProjectStore(root).load() == session,
+          "Async close changed project or violated endpoint ownership");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
@@ -192,9 +300,11 @@ int main(int argc, char **argv) {
         QTemporaryDir temp;
         check(temp.isValid(), "Cannot create UI fixture directory");
         workflows(utf8Path(temp.path().toUtf8().toStdString()) / "project");
+        playbackWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "playback");
         std::cout << "{\"checks\":" << checks
                   << ",\"ui_keyboard_undo\":true,\"focus_safe_wheel\":true,\"scrollable_bands\":32,"
-                     "\"dirty_close_choices\":3}\n";
+                     "\"dirty_close_choices\":3,\"playback_ui_fake_endpoint\":true,\"colorized_"
+                     "meter\":true,\"close_waits_playback_join\":true}\n";
         return 0;
     } catch (const std::exception &e) {
         std::cerr << "FAIL: " << e.what() << '\n';

@@ -1,0 +1,276 @@
+{
+  "date": "2026-10-05",
+  "scope": "S6e Linux desktop first-track playback/output selection/live EQ/undo/meters/close; GUI recording/export and full slice/parity incomplete",
+  "parent_commit": "c9c4c176247934ce306915ee54d46d2004ad14af",
+  "previous_goal_turn": "progress: c9c4c17 added production playback ownership/clock validation",
+  "source_sha256": {
+    "CMakeLists.txt": "1f0302d65e897672e0e31f522ea6e7a5541b9e6aba41179c541c47445a44db26",
+    "include/soundcurrent/pipewire_filter.hpp": "f82ed166eb04a4a6f8ccb91c7fab5259a59607cf9f77e9711da3be0fa96e6d69",
+    "ui/playback_controller.hpp": "2a0caced2e525852212fabf48fef015da8936ab6ea8d7cfa3e9b5a5efe8f599b",
+    "ui/playback_controller.cpp": "d96421a46c679e4afa355c78f0410f435acd0a5420f56e7fbe55840cc465b008",
+    "ui/studio_window.hpp": "59942b5f72f943b0078e86fa731031f06e9f4aef80d1d4c29ba7d6b20a87b4f8",
+    "ui/studio_window.cpp": "a8c3f51f7bf1802adbc56be987b12cadb5b60201c403634f66ac84878ef1c08c",
+    "tests/fake_playback_endpoint.hpp": "3d109ea61f72c7fe357e0a4b3c4f871c6650581eed086ac3fe7e9c548502fb9f",
+    "tests/playback_controller_tests.cpp": "908ca5dfbb6126819f592a31940514e7734bfe81241c6b2e3b0ed9c212a731d1",
+    "tests/ui_tests.cpp": "9a5ff6b816d49758dfbf69232fb97f8b7eef6b17a6b3bda952e7325c3cea249a",
+    "tests/pipewire_ui_fixture.cpp": "eafe51aec3226407ec3faca4c471ff426758cf11f7b0c6417d374758bd8510b6"
+  },
+  "linux_debug": {
+    "groups": 11,
+    "status": "passed",
+    "summary_sha256": "35e2fa45b85cfddb5208e1133161b3ee6e02a2e9a2eba464c2f0bd45e9417696",
+    "details_sha256": "1c993e650a489c0bb34b00c4adbb874ac842e5e800261ca751fc74471be15add",
+    "new_desktop_metrics": [
+      {
+        "checks": 44,
+        "dsp_backpressure_retry": true,
+        "accepted_applied_distinct": true,
+        "latest_model_reconciled": true,
+        "priority_shutdown": true,
+        "native_audio": false
+      },
+      {
+        "checks": 22,
+        "ui_keyboard_undo": true,
+        "focus_safe_wheel": true,
+        "scrollable_bands": 32,
+        "dirty_close_choices": 3,
+        "playback_ui_fake_endpoint": true,
+        "colorized_meter": true,
+        "close_waits_playback_join": true
+      }
+    ]
+  },
+  "linux_asan_ubsan": {
+    "groups": 11,
+    "status": "passed",
+    "summary_sha256": "407e5ca5002ac59d7509b87fb0fdb433d99e4a5f529af61579f6647b9c423ebb",
+    "details_sha256": "577a7cccabf484437551b2a4c135bde3226897d9f4d1986b7dfe6f680e8e379f",
+    "new_desktop_metrics": [
+      {
+        "checks": 44,
+        "dsp_backpressure_retry": true,
+        "accepted_applied_distinct": true,
+        "latest_model_reconciled": true,
+        "priority_shutdown": true,
+        "native_audio": false
+      },
+      {
+        "checks": 22,
+        "ui_keyboard_undo": true,
+        "focus_safe_wheel": true,
+        "scrollable_bands": 32,
+        "dirty_close_choices": 3,
+        "playback_ui_fake_endpoint": true,
+        "colorized_meter": true,
+        "close_waits_playback_join": true
+      }
+    ],
+    "leak_detection": true
+  },
+  "native_gui_debug": {
+    "results": [
+      {
+        "mode": "normal",
+        "frames": 480000,
+        "live_offline_difference": 0,
+        "missing_frames": 0,
+        "owned_nodes_only": true,
+        "gui_playback": true,
+        "gui_live_edit": true,
+        "gui_undo": true,
+        "explicit_output_selection": true,
+        "gui_meter": true,
+        "asynchronous_close": true,
+        "project_unchanged": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "first_applied_frame": 24576,
+        "applied_events": 2,
+        "routing_observations": {
+          "graph_snapshots_during_run": 79,
+          "snapshots_with_owned_links": 76,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI terminal; closing window"
+      },
+      {
+        "mode": "disconnect",
+        "frames": 26624,
+        "live_offline_difference": 0,
+        "missing_frames": 0,
+        "owned_nodes_only": true,
+        "gui_playback": true,
+        "gui_live_edit": true,
+        "gui_undo": false,
+        "explicit_output_selection": true,
+        "gui_meter": true,
+        "asynchronous_close": true,
+        "project_unchanged": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "first_applied_frame": 24576,
+        "applied_events": 1,
+        "routing_observations": {
+          "graph_snapshots_during_run": 7,
+          "snapshots_with_owned_links": 5,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI terminal; closing window\nThis plugin does not support propagateSizeHints()"
+      }
+    ],
+    "log_sha256": "c9a40140664111c2751bb01a426326ee46c70e4f328afc036f31fc5b2245d796",
+    "actual_qt_window_and_production_worker": true,
+    "physical_audio_ports_linked": false
+  },
+  "native_gui_asan_ubsan": {
+    "results": [
+      {
+        "mode": "normal",
+        "frames": 480000,
+        "live_offline_difference": 0,
+        "missing_frames": 0,
+        "owned_nodes_only": true,
+        "gui_playback": true,
+        "gui_live_edit": true,
+        "gui_undo": true,
+        "explicit_output_selection": true,
+        "gui_meter": true,
+        "asynchronous_close": true,
+        "project_unchanged": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "first_applied_frame": 24576,
+        "applied_events": 2,
+        "routing_observations": {
+          "graph_snapshots_during_run": 84,
+          "snapshots_with_owned_links": 76,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI terminal; closing window"
+      },
+      {
+        "mode": "disconnect",
+        "frames": 25600,
+        "live_offline_difference": 0,
+        "missing_frames": 0,
+        "owned_nodes_only": true,
+        "gui_playback": true,
+        "gui_live_edit": true,
+        "gui_undo": false,
+        "explicit_output_selection": true,
+        "gui_meter": true,
+        "asynchronous_close": true,
+        "project_unchanged": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "first_applied_frame": 24576,
+        "applied_events": 1,
+        "routing_observations": {
+          "graph_snapshots_during_run": 9,
+          "snapshots_with_owned_links": 4,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI terminal; closing window\nThis plugin does not support propagateSizeHints()"
+      }
+    ],
+    "log_sha256": "f7ba7ef332febe1ebac34122d4e93d177fd63294f7adfb8d5b26788215bdc698",
+    "leak_detection": true,
+    "retained_dependency_module_diagnostic": "PIPEWIRE_DLCLOSE=false",
+    "normal_unload_memory_qualified": false
+  },
+  "windows": {
+    "headless_regression_build": "passed",
+    "log_sha256": "0d8d4a0f11014696a25d9ca9601b44ad14bd397ea06e2d00981addb38fb7fbf9",
+    "new_qt_worker_window_compile": "not_run",
+    "gui_native_audio": "not_run; default native backend unavailable"
+  },
+  "ownership": {
+    "canonical_project": "existing project control worker",
+    "project_files": "existing separate I/O worker",
+    "playback": "one separate Qt preparation/control worker",
+    "audio": "unchanged native bridge/processor; no Qt or virtual endpoint dispatch",
+    "prepare_play_fifo": 16,
+    "full_model_latest_slot": 1,
+    "playback_snapshot_slot": 1,
+    "in_flight_bundle": 1,
+    "maximum_bundle_events": 65,
+    "gui_timer_ms": 16,
+    "worker_poll_ms": 2,
+    "inventory_refresh_ms": 250,
+    "stop": "priority epoch invalidates earlier queued starts",
+    "close": "priority flag; both project/playback workers closed before accepting window close",
+    "range_complete": "terminal silent owner retained until Stop/reprepare/close for final downstream delivery"
+  },
+  "revision_contract": {
+    "desired": "latest complete canonical snapshot; intermediate GUI-polled audition states explicitly coalesce",
+    "accepted": "entire prepared bundle submitted; partial Full suffix retained",
+    "applied": "matching generation receipt covers last accepted bundle event; smoothing starts at recorded frame",
+    "silent_ready": "latest desired retained; obsolete undo history not queued before Play",
+    "routing_persistent": false
+  },
+  "fixtures": [
+    "actual Prepare/Play/Stop controls and explicit unselected initial output",
+    "colorized/numeric output peaks",
+    "live keyboard undo and canonical edits",
+    "blocked preparation, full command FIFO, priority cancellation/close",
+    "held DSP receipts and Full/retry",
+    "partially admitted two-band prefix and exact retained suffix",
+    "latest model/undo/no-op/silent-ready reconciliation",
+    "structural mismatch, device removal, generation/empty range",
+    "blocked playback join keeps actual window visible and event processing responsive",
+    "independent native captured signal with exact receipt/offline replay",
+    "unchanged saved project, graph/default preservation and final owned cleanup"
+  ],
+  "fixture_crash": {
+    "observed": true,
+    "debugger_trace_sha256": "34eba0c556e2dbeeba3c30e8aa0e502c31dbc035f6e83ea1d4096332d6546164",
+    "location": "tests/ui_tests.cpp QComboBox::count after asynchronous route-row rebuild",
+    "cause": "fixture retained a null/stale combo pointer and waited only for worker readiness",
+    "fix": "wait for and reacquire rendered control in predicate",
+    "final_debug_and_sanitizers_pass": true,
+    "production_crash_claim": false
+  },
+  "screenshot": {
+    "path": ".cache/s6e-ui.png",
+    "sha256": "05f0e355f5d20f2dd99c522d6e5a08f676d25b1cc66de82ad7a54939b95feb2b",
+    "size": [
+      800,
+      640
+    ],
+    "inspected": true,
+    "scope": "Qt offscreen owned playback preview; no native compositor/DPI/accessibility qualification"
+  },
+  "baseline_parity_sources_unchanged": true,
+  "limits": [
+    "GUI cannot yet record/monitor/recover or export",
+    "S6d earlier unexplained native timeout remains open; passing serial runs do not qualify deadlines/load/bounded native shutdown",
+    "Normal PipeWire module-unload memory remains unqualified; retained-module sanitizer run is diagnostic",
+    "Owned mono native tests do not qualify physical hardware/all native layouts or Windows audio/UI",
+    "Route choice ephemeral; seamless seek/reprepare/reconnect and PDC/latency/tails remain open",
+    "No delivered language catalogs/native reviews; core diagnostic details still English",
+    "Injected endpoints test desktop semantics only, not native audio",
+    "Full frozen-reference workflows, X004 imports, X005 equipment profiles/editor and comprehensive undo remain incomplete"
+  ],
+  "next_task": "Native recording owner and Qt input/arm/record/stop/monitor/recovery workflow, raw take attachment; then S7 transactional WAV export and end-to-end slice acceptance"
+}

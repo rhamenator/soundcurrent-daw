@@ -12,6 +12,7 @@ struct PipeWirePort {
     std::uint64_t nodeSerial = 0;
     std::string nodeName, portName, mediaClass;
     bool input = false;
+    bool operator==(const PipeWirePort &) const = default;
 };
 struct PipeWireFilterOptions {
     std::string nodeName;

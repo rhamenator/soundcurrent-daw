@@ -52,3 +52,5 @@ Native sanitizer runs retain dependency modules using the existing diagnostic `P
 ## Next implementation task
 
 Connect this owner to a separate desktop preparation/transport worker, output selection, Play/Stop and asynchronous close. Bind canonical scalar edits/undo to immediate ingress with accepted/applied revision state, meters and failure presentation. Then add the native recording owner and Arm/Record/Monitor/recovery workflow, S7 transactional export and first-slice end-to-end acceptance. Full frozen reference scope, Windows, all-Europe localization, X004 import and X005 equipment profiling/editor remain required.
+
+S6e has connected this owner to [desktop output selection/playback/live EQ/meters](20-desktop-playback.md). Normal completion retains the silent owner until Stop/reprepare/close for final downstream delivery. Recording ownership/UI and export are next; earlier timeout and qualification limits remain open.
