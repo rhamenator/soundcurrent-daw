@@ -38,5 +38,6 @@
     "Sample-partition-invariant parameter smoothing",
     "Immediate edits without stale GUI timestamps, with generation checks and explicit queue pressure"
   ],
-  "snapshot_compiled": false
+  "snapshot_compiled": false,
+  "latest_input_review": "reuse/upstream-review.json"
 }

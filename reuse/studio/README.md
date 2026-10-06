@@ -5,3 +5,9 @@
 The DAW copies only the peaking-coefficient mathematics and biquad recurrence into `src/eq_coefficients.cpp` and `src/eq.cpp`, marked as modified. It adds prepared planar state, stable ID mapping, sample-timed events and smoothing. No absolute source-checkout path or network fetch is needed for the root build. The existing Studio/EQ repositories remain unchanged.
 
 Candidate improvements for later upstream adoption are explicit output/headroom policy and prepared event/ramp transport. They require independent equalizer integration tests; the DAW does not change the equalizer behavior automatically.
+
+2026-10-06: [current input review](../upstream-review.json) confirms that the three
+reused coefficient/response/biquad functions have not changed. New equalizer prepared
+profile/enhancement APIs do not replace the DAW's prepared engine. Original reuse
+origins stay pinned; changed source context is retained separately. The read-only
+`tools/check_equalizer_reuse.py` detects later changes to reviewed inputs.

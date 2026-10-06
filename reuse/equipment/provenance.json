@@ -82,5 +82,6 @@
     "Native Windows and all-Europe translation/UI qualification",
     "Source/data release-rights audit remains required; no original proprietary plots/arrays imported"
   ],
-  "previous_revision": "6b53056d118807a8252af2cbcd2c6b1820feee98"
+  "previous_revision": "6b53056d118807a8252af2cbcd2c6b1820feee98",
+  "latest_input_review": "reuse/upstream-review.json"
 }

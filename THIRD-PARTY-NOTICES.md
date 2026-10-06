@@ -32,3 +32,13 @@ these rules do not themselves qualify a distribution package.
 - C++ standard/compiler runtimes: system components for development; exact binary runtime dependencies require platform package inventory before release.
 
 The optional desktop target system-links **Qt6.10.2 Core/Gui/Widgets** in this development build; **Qt Test** is used only by its UI fixture. Module sources are not vendored; distribution module/transitive notices, exact open-license selection and corresponding source obligations remain package gates. Installed Qt-base copyright/license metadata is inventoried with the S6c evidence. The reusable core does not link Qt. JACK and plugin SDKs are not linked by the current root build. PipeWire is linked only by the optional Linux adapter/integration fixture, outside the framework-free core. Standard/Win32 thread APIs now also run the production disk supervisor. libsndfile transitive codecs linked by the Linux distribution library (FLAC/Vorbis/Opus/Ogg/mpg123/LAME, and compression/runtime libraries) require their exact package notices before distribution; the Windows minimal DLL imports only KERNEL32/msvcrt in this build, while embedded GSM/ALAC and compiler components retain separate source notices and still require complete package inventory. The isolated `experiments/` build has separate dependencies described in the [inventory](docs/03-dependencies.md). There is no installable DAW package yet.
+
+## Additive equalizer source review (2026-10-06)
+
+The GPL-3.0-only held-step numeric widget in `ui/accelerating_spinbox.hpp` is
+adapted from the exact equalizer working snapshot retained under
+`reuse/reviews/2026-10-06/`. Original SPDX notices remain.
+`reuse/upstream-review.json` records observed source HEADs, committed/draft state,
+SHA-256 hashes and adaptation details. Reviewed DSP/editor sources are archived
+references, not compiled wholesale; existing exact origin notices remain applicable.
+No new third-party library or measurement redistribution is introduced.

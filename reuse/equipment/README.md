@@ -19,3 +19,9 @@ Current adapter remains Qt-specific and offline. It is not engine profile routin
 Shared schema/preparation/monitor paths and project pins need their own contracts/tests.
 Improvements suitable for later equalizer adoption are listed in the manifest; nothing
 is automatically written back to either equalizer repository.
+
+2026-10-06: the additive [working-source review](../upstream-review.json) retains the
+new held-step widget and editor substitution with exact HEAD-plus-content hashes.
+`ui/accelerating_spinbox.hpp` adapts the widget with integer-overflow bounds; the
+equipment editor preserves its focus-only wheel guard. Catalog/schema/fitting stay
+unchanged. Run `python3 tools/check_equalizer_reuse.py` for future input changes.

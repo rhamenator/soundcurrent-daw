@@ -2,7 +2,7 @@
 
 Owner requirement added 2026-10-05; [machine-readable inventory](../research/equipment-profile-requirement.json). **Partially implemented: the offline library/editor is in the Qt desktop preview. Monitoring/print routing, portable profile pins and full qualification remain required.** This supplements the frozen combined-reference scope; it does not modify that baseline or turn equipment coverage into a parity claim.
 
-The owner is adding equipment profiles/import and a curve editor in the separate **SoundCurrent equalizer development** chat. Its current scope includes speaker and microphone imports, amplifier references, broad published-measurement discovery, brand/family/model browsing, visible response curves, adjustable correction and a prompt to save modified profiles. The DAW now adopts the committed `459627c` equipment update (following the initial `6b53056` adoption) with exact source/data hashes in [reuse provenance](../reuse/equipment/provenance.json). The source checkouts remain untouched; later equalizer changes need a new reviewed snapshot and migration/acceptance checks.
+The owner is adding equipment profiles/import and a curve editor in the separate **SoundCurrent equalizer development** chat. Its current scope includes speaker and microphone imports, amplifier references, broad published-measurement discovery, brand/family/model browsing, visible response curves, adjustable correction and a prompt to save modified profiles. The DAW now adopts the committed `459627c` equipment update (following the initial `6b53056` adoption) with exact source/data hashes in [reuse provenance](../reuse/equipment/provenance.json). The source checkouts remain untouched; later equalizer changes need a new reviewed snapshot and migration/acceptance checks. The [2026-10-06 input review](25-equalizer-reuse-updates.md) adopts held-step editor controls from exact working snapshots; the read-only audit tool detects subsequent changes.
 
 ## Current desktop workflow
 
@@ -26,7 +26,9 @@ measurements. The microphone/amplifier source registry is retained as research m
 - Save always creates a custom identity with parent provenance, preserving the reference.
   Modified-window close, Escape and Cancel ask Save/Discard/Cancel. Cancel retains the draft;
   Discard writes nothing. Save/Cancel stay outside the scroll area. Unfocused wheel input
-  does not change filters or selection.
+  does not change filters or selection. Held numeric arrows accelerate up to 16 ordinary
+  steps after a short delay; release/focus loss reset the timer and ordinary taps keep
+  their normal step size.
 - The DAW's personal library is in its own Qt application config directory (`equipment.json`),
   independent of both equalizer libraries. Atomic `QSaveFile` replacement validates all entries,
   refuses duplicate identities and bounds the library to 256 profiles / 16 MiB.

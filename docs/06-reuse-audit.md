@@ -40,3 +40,12 @@ All were clean at inspection. Build outputs for feasibility go under `soundcurre
 ## Reuse integration strategy
 
 First slice consumes a pinned, audited module through an explicit local source option for experiments. Before shipping, either package an independently versioned GPL module with provenance or import the necessary source into this new repo with retained notices and upstream commit tracking. Do not depend on an absolute path to a private checkout in a distributable build. No automatic network fetch, no mutation of premium EQ and no assumption that a shared SDK gives all products identical functionality.
+
+## Continuing source updates, 2026-10-06
+
+The owner requires borrowed components to follow later equalizer development. See
+[the additive source review and update procedure](25-equalizer-reuse-updates.md) and
+[exact input inventory](../reuse/upstream-review.json). Both source trees currently
+contain ongoing uncommitted work. This DAW reads them, freezes reviewed inputs and
+adapts its own copies; no source-tree modifications or branch switches are made.
+Run the read-only audit before subsequent reuse-dependent milestones.

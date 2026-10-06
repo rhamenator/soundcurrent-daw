@@ -1,0 +1,78 @@
+{
+  "requirement": "X005 / X003 continuing equalizer reuse updates",
+  "date": "2026-10-06",
+  "status": "progress; affected borrowed editor controls updated, registered input audit implemented",
+  "base_revision": "1e11e7adeb4bf474a04c4273f514d661ecabfceb",
+  "review_manifest": "reuse/upstream-review.json",
+  "source_heads": {
+    "soundcurrent-eq": "20e22515aad5b0aa4851b55a69948d27fc7345df",
+    "soundcurrent-studio": "6cf149f5776ff799dcada3bff75ebdc334958386"
+  },
+  "source_state": "Read-only committed and uncommitted input snapshots, identified per file by exact hash. Original equalizer working changes preserved.",
+  "qualification_source": "Isolated git archive of base revision overlaid with ui/accelerating_spinbox.hpp, ui/equipment_profiles.cpp and tests/equipment_tests.cpp. Unfinished desktop export work in the shared working tree is excluded. No whole-working-tree build claim.",
+  "tested_files_sha256": {
+    "ui/accelerating_spinbox.hpp": "e922369bf24879ec5bf0e3c3518c5e4a6f7daafb9b320640c47f8c837521695e",
+    "ui/equipment_profiles.cpp": "f5a0f48eb19ef8407547afccaf454a56c6f06595bb5fa97fc737b874610a1f8f",
+    "tests/equipment_tests.cpp": "47c0fc29868748b85c5ed2f1ac38e7102e174a74979d97d56e6d9e7053a3a4e1",
+    "tools/check_equalizer_reuse.py": "bcc0e1502600571fc467c11bdd3cab1916dd57b25d548cd0a00440fb6ffcc6a4",
+    "tests/verify_reuse_audit.py": "09b5d65ebdf9d5303c99fc0112df5bb527340c0f9431ef7c2225c9a1606a2aad"
+  },
+  "changes": [
+    "Equipment filter controls adopt held-step half-Gaussian acceleration with ordinary taps, held/release/focus reset and preserved focus-only wheel guard.",
+    "DAW adds integer-overflow bounds to multiplied steps; editor numeric range, schema, undo/custom-copy behavior and catalog remain unchanged.",
+    "Add a read-only input and snapshot-integrity audit plus an isolated CLI failure test. Register future source-update review in the project goal and reuse procedure."
+  ],
+  "debug": {
+    "groups_passed": 2,
+    "groups": [
+      "equipment-editor",
+      "prepared-eq"
+    ],
+    "equipment_checks": 2233,
+    "catalog_entries": 1092,
+    "eq_checks": 231126,
+    "log": ".cache/reuse-update-tests.log"
+  },
+  "sanitizers": {
+    "groups_passed": 2,
+    "address": true,
+    "undefined_behavior": true,
+    "leak_detection": true,
+    "equipment_checks": 2233,
+    "eq_checks": 231126,
+    "log": ".cache/reuse-update-sanitized-tests.log"
+  },
+  "audit_cli": {
+    "fixture_cases": [
+      "matching files -> 0",
+      "changed registered source -> 2 with exact file",
+      "missing registered source -> 2",
+      "standalone retained snapshot integrity -> 0",
+      "corrupt retained snapshot -> 1"
+    ],
+    "result": "passed",
+    "log": ".cache/reuse-audit-tests.log",
+    "current_registered_inputs_match": true
+  },
+  "dsp_review": {
+    "identical_reused_functions": [
+      "filterCoefficients",
+      "filterResponseDb",
+      "StereoEqualizer::Biquad::process"
+    ],
+    "comparison": "Brace-bounded function source strings from original Studio reuse snapshot versus retained reviewed Studio snapshot; byte-identical.",
+    "core_behavior": "Existing prepared planar EQ/event engine and unclamped float headroom retained. Equalizer prepared-profile/enhancement APIs are not compiled into the DAW."
+  },
+  "failures_resolved": [
+    "Test StepRecorder lacked an inherited QWidget-parent constructor.",
+    "Synthetic Qt auto-repeat step-count assumption after focus loss was replaced by direct held multiplier/reset qualification; actual editor workflow, wheel guard, undo and custom save tests pass."
+  ],
+  "gaps": [
+    "Windows native UI and all-Europe language/accessibility qualification remain open.",
+    "No new equipment measurement or processing-quality coverage is claimed; catalog/schema/fitting unchanged.",
+    "X005 monitor/print routing, project profile pins, worker I/O and measurement capture remain required.",
+    "New source dependencies/features need an expanded input review; this audit covers registered files only.",
+    "No future background monitoring, automatic merge, publication or source equalizer modifications performed.",
+    "Desktop export implementation is separate ongoing work, excluded from this qualification."
+  ]
+}

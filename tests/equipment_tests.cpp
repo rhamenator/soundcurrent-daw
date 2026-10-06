@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "equipment_profiles.hpp"
+#include "accelerating_spinbox.hpp"
 #include <QApplication>
 #include <QComboBox>
 #include <QDialog>
@@ -17,6 +18,7 @@
 #include <QTest>
 #include <QTimer>
 #include <QWheelEvent>
+#include <QFocusEvent>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -65,6 +67,75 @@ void prompt(QMessageBox::StandardButton choice) {
         box->button(choice)->click();
     });
 }
+void key(QWidget &widget, int code, bool repeat = false) {
+    QKeyEvent event(QEvent::KeyPress, code, Qt::NoModifier, {}, repeat);
+    QApplication::sendEvent(&widget, &event);
+}
+void release(QWidget &widget, int code) {
+    QKeyEvent event(QEvent::KeyRelease, code, Qt::NoModifier);
+    QApplication::sendEvent(&widget, &event);
+}
+class StepRecorder : public QSpinBox {
+  public:
+    using QSpinBox::QSpinBox;
+    int received = 0;
+    void stepBy(int count) override {
+        received = count;
+    }
+};
+class StepProbe : public soundcurrent::daw::widgets::AcceleratingSpin<StepRecorder> {
+  public:
+    void simulate(int count) {
+        stepBy(count);
+    }
+};
+void acceleration() {
+    using namespace soundcurrent::daw::widgets;
+    double previous = 1;
+    for (int i = 0; i <= 1000; ++i) {
+        const double value = heldSpinMultiplier(i * .01);
+        check(value >= previous && value >= 1 && value <= 16,
+              "Held-step acceleration curve unbounded or nonmonotonic");
+        previous = value;
+    }
+    check(heldSpinMultiplier(0) == 1 && heldSpinMultiplier(.35) == 1 &&
+              heldSpinMultiplier(10) > 15.99,
+          "Held-step delay or limiting rate changed");
+    AcceleratingDoubleSpinBox spin;
+    spin.setRange(-1000, 1000);
+    spin.setDecimals(2);
+    spin.setSingleStep(.1);
+    key(spin, Qt::Key_Up);
+    check(std::abs(spin.value() - .1) < 1e-9, "First decimal step accelerated");
+    QTest::qWait(1400);
+    const double before = spin.value();
+    key(spin, Qt::Key_Up, true);
+    check(spin.value() - before >= .8, "Held decimal step did not accelerate");
+    release(spin, Qt::Key_Up);
+    const double after = spin.value();
+    key(spin, Qt::Key_Down);
+    check(std::abs(spin.value() - (after - .1)) < 1e-9,
+          "Release and direction change retained acceleration");
+    release(spin, Qt::Key_Down);
+    spin.setValue(spin.maximum());
+    key(spin, Qt::Key_Up);
+    check(spin.value() == spin.maximum(), "Step exceeded numeric range");
+    release(spin, Qt::Key_Up);
+    StepProbe probe;
+    key(probe, Qt::Key_Up);
+    QTest::qWait(1400);
+    probe.simulate(1);
+    check(probe.received >= 8, "Step probe did not enter held acceleration");
+    probe.simulate(std::numeric_limits<int>::max());
+    check(probe.received == std::numeric_limits<int>::max(), "Positive step overflowed");
+    probe.simulate(std::numeric_limits<int>::min());
+    check(probe.received == std::numeric_limits<int>::min(), "Negative step overflowed");
+    QFocusEvent lost(QEvent::FocusOut);
+    QApplication::sendEvent(&probe, &lost);
+    probe.simulate(1);
+    check(probe.received == 1, "Focus loss did not reset the scaled step timer");
+    release(probe, Qt::Key_Up);
+}
 } // namespace
 int main(int argc, char **argv) {
     QTemporaryDir temporary;
@@ -75,6 +146,7 @@ int main(int argc, char **argv) {
     QCoreApplication::setOrganizationName("SoundCurrentDAWTest");
     QCoreApplication::setApplicationName("Equipment");
     try {
+        acceleration();
         Profile original;
         original.id = "test-source";
         original.kind = "microphone";
@@ -204,6 +276,9 @@ int main(int argc, char **argv) {
         QTimer::singleShot(0, [&] {
             auto *editor = qobject_cast<QDialog *>(QApplication::activeModalWidget());
             check(editor && editor->objectName() == "equipmentEditor", "Editor missing");
+            check(dynamic_cast<soundcurrent::daw::widgets::AcceleratingDoubleSpinBox *>(
+                      gain(editor)) != nullptr,
+                  "Equipment editor did not adopt held-step controls");
             check(editor->size().height() <= editor->screen()->availableGeometry().height(),
                   "Editor exceeds screen");
             auto *subtype = editor->findChild<QLineEdit *>("equipmentSubtypeEdit");

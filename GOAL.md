@@ -92,3 +92,12 @@ X004: import other suites' work/project files. Implement native-project and exch
 #### Additional owner requirement: equipment profiles (2026-10-05)
 
 X005: bring the equalizer projects' expanded equipment profiling and profile editor into this DAW. Cover microphone, speaker, amplifier/receiver and qualified whole-system measurements; import, brand/family/model/variant browsing, response/correction curves, editable custom copies, provenance and save prompts for modified profiles. Reuse reviewed GPL snapshots with exact source/data rights and hashes, without altering the ongoing equalizer work. Keep monitoring calibration separate from raw takes/default exports; explicit correction printing, portable profile state, Linux/Windows parity and all-Europe localization need acceptance evidence. See docs/17-equipment-profiles.md. This extends the active goal without shrinking its frozen-reference requirements.
+
+### Continuing equalizer reuse updates (2026-10-06)
+
+Keep borrowed components aligned with reviewed changes from the two equalizer projects.
+Run the read-only input audit before reuse-dependent milestones; review changed inputs,
+retain exact committed or working-snapshot hashes/notices, adapt DAW copies and qualify
+affected workflows. Preserve deliberate DAW-specific behavior and existing project
+compatibility. Do not modify the equalizer source trees or silently merge unreviewed
+code/data. See docs/25-equalizer-reuse-updates.md.

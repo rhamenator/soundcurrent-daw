@@ -31,6 +31,7 @@ Linux-first professional digital audio workstation and recording suite, planned 
 21. [Desktop playback and live EQ](docs/20-desktop-playback.md)
 22. [Desktop recording and manual recovery](docs/22-desktop-recording.md)
 23. [Offline WAV export core](docs/23-offline-export.md)
+24. [Continuing equalizer reuse updates](docs/25-equalizer-reuse-updates.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
