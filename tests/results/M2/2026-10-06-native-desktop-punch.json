@@ -1,0 +1,3247 @@
+{
+  "date": "2026-10-06",
+  "utc": "2026-10-06T20:35:50.063730+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "d9080ca2894cfcf8eee4394ee682779ab3a5cad9",
+  "classification": "Short owned Linux production desktop punch evidence; full DAW parity incomplete",
+  "implementation": {
+    "native_clock_hook": "optional worker forwarding via existing audit context; default null",
+    "processing_engine_modified": false,
+    "production_GUI_geometry_modified": false,
+    "dependencies_added": false,
+    "fixture": {
+      "path": "tests/pipewire_punch_ui_fixture.cpp",
+      "bytes": 33914,
+      "sha256": "f417b739b8eab1fe18030ff57b4385239ae8880c2cfece55e7d3272bc7ead4ed"
+    }
+  },
+  "builds": {
+    "Release_initial": "2739 terminal0",
+    "Debug_affected": "83570 terminal0",
+    "SAN_affected": "36066 terminal0",
+    "Release_visibility": "13903 terminal0",
+    "Release_settled": "37129 terminal0",
+    "all_warnings_errors": 0
+  },
+  "unit_tests": {
+    "Debug": "68633 terminal0, controller/timeline2/2,2.90s",
+    "SAN": "24207 terminal0, controller/timeline2/2,11.06s; ASANdetect_leaks=1, UBSANhalt_on_error=1",
+    "new_full_suite_sanitizer_claim": false
+  },
+  "first_native": {
+    "exact_handle": "68083 terminal0",
+    "receipt": {
+      "project_directory": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-hrexpfoh/Punch — Ελληνικά",
+      "stdout": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-hrexpfoh/stdout.json",
+      "stderr": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-hrexpfoh/stderr.log",
+      "native": true,
+      "scheduler_samples": [
+        {
+          "tid": 1639974,
+          "name": "sc-pipewire-pun",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639977,
+          "name": "QDBusConnection",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639978,
+          "name": "module-rt",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639979,
+          "name": "data-loop.0",
+          "policy": 1073741826,
+          "base_policy": 2,
+          "reset_on_fork": true,
+          "priority": 20,
+          "nice": 0
+        },
+        {
+          "tid": 1639981,
+          "name": "sc-daw-fixture-",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639982,
+          "name": "sc-pipewire-pun",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639983,
+          "name": "module-rt",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639984,
+          "name": "data-loop.0",
+          "policy": 1073741826,
+          "base_policy": 2,
+          "reset_on_fork": true,
+          "priority": 20,
+          "nice": 0
+        },
+        {
+          "tid": 1639985,
+          "name": "sc-daw-fixture-",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639987,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639988,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639989,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639990,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639991,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639992,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639994,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639995,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639996,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639997,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639998,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1639999,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640000,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640001,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640004,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640005,
+          "name": "module-rt",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640006,
+          "name": "data-loop.0",
+          "policy": 1073741826,
+          "base_policy": 2,
+          "reset_on_fork": true,
+          "priority": 20,
+          "nice": 0
+        },
+        {
+          "tid": 1640007,
+          "name": "sc-daw-recordin",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640162,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640164,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640167,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640168,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640169,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640171,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640173,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640174,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640175,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640176,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640179,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640180,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640182,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640185,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640186,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640187,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640188,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640189,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640190,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640191,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640192,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640193,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640194,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640195,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640196,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640197,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640198,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640199,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640200,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640201,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640202,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1640204,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        }
+      ],
+      "graph_snapshots": 26,
+      "linked_snapshots": 21,
+      "owned_pid": 1639974,
+      "exit_code": 0,
+      "child_result": {
+        "armed_tracks": 32,
+        "callback_allocations": 0,
+        "callback_frees": 0,
+        "callback_locks": 0,
+        "callback_timing": {
+          "owner": {
+            "callback_end_after_cycle_period_count": 0,
+            "calls": 235,
+            "clock_failures": 0,
+            "complete_cpu_coverage": true,
+            "complete_thread_usage_coverage": true,
+            "complete_timing_coverage": true,
+            "cpu_clock_failures": 0,
+            "cpu_samples": 235,
+            "cpu_timing_requested": true,
+            "cycle_context_samples": 235,
+            "cycle_context_unknown": 0,
+            "dropped_samples": 0,
+            "finite_deadline_thresholds_met": true,
+            "maximum_callback_cpu_known": true,
+            "maximum_callback_cpu_ns": 3075464,
+            "maximum_callback_end_after_cycle_ns": 3944447,
+            "maximum_callback_start_monotonic_ns": 158160262144443,
+            "maximum_callback_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 2861000,
+              "voluntary_switches": 0
+            },
+            "maximum_clock": {
+              "cycle": 190480,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158160261604166,
+              "position": 7591692557,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_clock_known": true,
+            "maximum_cpu_ns": 3075464,
+            "maximum_cycle_callback_cpu_known": true,
+            "maximum_cycle_callback_cpu_ns": 1442036,
+            "maximum_cycle_callback_start_monotonic_ns": 158158322770298,
+            "maximum_cycle_callback_wall_ns": 1444982,
+            "maximum_cycle_clock": {
+              "cycle": 190389,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158158320270833,
+              "position": 7591599373,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_cycle_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 1,
+              "system_ns": 0,
+              "user_ns": 1231000,
+              "voluntary_switches": 0
+            },
+            "maximum_integer_rate": 48000,
+            "maximum_major_faults": 0,
+            "maximum_minor_faults": 1,
+            "maximum_ns": 3080998,
+            "maximum_period_ratio": 0.144422,
+            "maximum_quantum": 1024,
+            "maximum_system_ns": 533000,
+            "maximum_wall_minus_cpu_ns": 12681,
+            "mean_cpu_ns": 1505388,
+            "minimum_integer_rate": 48000,
+            "minimum_quantum": 1024,
+            "missing_periods": 0,
+            "p50_ns": 1351261,
+            "p999_ns": 3080998,
+            "p999_period_ratio": 0.144422,
+            "p99_ns": 2579658,
+            "samples": 235,
+            "thread_usage_failures": 0,
+            "thread_usage_requested": true,
+            "thread_usage_samples": 235,
+            "thread_usage_totals": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 1,
+              "system_ns": 1518000,
+              "user_ns": 233880000,
+              "voluntary_switches": 0
+            }
+          },
+          "sink": {
+            "callback_end_after_cycle_period_count": 0,
+            "calls": 250,
+            "clock_failures": 0,
+            "complete_cpu_coverage": true,
+            "complete_thread_usage_coverage": true,
+            "complete_timing_coverage": true,
+            "cpu_clock_failures": 0,
+            "cpu_samples": 250,
+            "cpu_timing_requested": true,
+            "cycle_context_samples": 250,
+            "cycle_context_unknown": 0,
+            "dropped_samples": 0,
+            "finite_deadline_thresholds_met": true,
+            "maximum_callback_cpu_known": true,
+            "maximum_callback_cpu_ns": 63044,
+            "maximum_callback_end_after_cycle_ns": 4184477,
+            "maximum_callback_start_monotonic_ns": 158158324387955,
+            "maximum_callback_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 5,
+              "system_ns": 0,
+              "user_ns": 0,
+              "voluntary_switches": 0
+            },
+            "maximum_clock": {
+              "cycle": 190389,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158158320270833,
+              "position": 7591599373,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_clock_known": true,
+            "maximum_cpu_ns": 63044,
+            "maximum_cycle_callback_cpu_known": true,
+            "maximum_cycle_callback_cpu_ns": 63044,
+            "maximum_cycle_callback_start_monotonic_ns": 158158324387955,
+            "maximum_cycle_callback_wall_ns": 67355,
+            "maximum_cycle_clock": {
+              "cycle": 190389,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158158320270833,
+              "position": 7591599373,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_cycle_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 5,
+              "system_ns": 0,
+              "user_ns": 0,
+              "voluntary_switches": 0
+            },
+            "maximum_integer_rate": 48000,
+            "maximum_major_faults": 0,
+            "maximum_minor_faults": 5,
+            "maximum_ns": 67355,
+            "maximum_period_ratio": 0.00315727,
+            "maximum_quantum": 1024,
+            "maximum_system_ns": 0,
+            "maximum_wall_minus_cpu_ns": 16981,
+            "mean_cpu_ns": 20061,
+            "minimum_integer_rate": 48000,
+            "minimum_quantum": 1024,
+            "missing_periods": 0,
+            "p50_ns": 27663,
+            "p999_ns": 67355,
+            "p999_period_ratio": 0.00315727,
+            "p99_ns": 42920,
+            "samples": 250,
+            "thread_usage_failures": 0,
+            "thread_usage_requested": true,
+            "thread_usage_samples": 250,
+            "thread_usage_totals": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 5,
+              "system_ns": 0,
+              "user_ns": 40000,
+              "voluntary_switches": 0
+            }
+          },
+          "source": {
+            "callback_end_after_cycle_period_count": 0,
+            "calls": 250,
+            "clock_failures": 0,
+            "complete_cpu_coverage": true,
+            "complete_thread_usage_coverage": true,
+            "complete_timing_coverage": true,
+            "cpu_clock_failures": 0,
+            "cpu_samples": 250,
+            "cpu_timing_requested": true,
+            "cycle_context_samples": 250,
+            "cycle_context_unknown": 0,
+            "dropped_samples": 0,
+            "finite_deadline_thresholds_met": true,
+            "maximum_callback_cpu_known": true,
+            "maximum_callback_cpu_ns": 418665,
+            "maximum_callback_end_after_cycle_ns": 487066,
+            "maximum_callback_start_monotonic_ns": 158157381667587,
+            "maximum_callback_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 337000,
+              "voluntary_switches": 0
+            },
+            "maximum_clock": {
+              "cycle": 190345,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158157381604166,
+              "position": 7591554317,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_clock_known": true,
+            "maximum_cpu_ns": 418665,
+            "maximum_cycle_callback_cpu_known": true,
+            "maximum_cycle_callback_cpu_ns": 418665,
+            "maximum_cycle_callback_start_monotonic_ns": 158157381667587,
+            "maximum_cycle_callback_wall_ns": 423645,
+            "maximum_cycle_clock": {
+              "cycle": 190345,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158157381604166,
+              "position": 7591554317,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_cycle_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 337000,
+              "voluntary_switches": 0
+            },
+            "maximum_integer_rate": 48000,
+            "maximum_major_faults": 0,
+            "maximum_minor_faults": 2,
+            "maximum_ns": 423645,
+            "maximum_period_ratio": 0.0198584,
+            "maximum_quantum": 1024,
+            "maximum_system_ns": 0,
+            "maximum_wall_minus_cpu_ns": 12533,
+            "mean_cpu_ns": 183656,
+            "minimum_integer_rate": 48000,
+            "minimum_quantum": 1024,
+            "missing_periods": 0,
+            "p50_ns": 231374,
+            "p999_ns": 423645,
+            "p999_period_ratio": 0.0198584,
+            "p99_ns": 383009,
+            "samples": 250,
+            "thread_usage_failures": 0,
+            "thread_usage_requested": true,
+            "thread_usage_samples": 250,
+            "thread_usage_totals": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 2,
+              "system_ns": 0,
+              "user_ns": 1232000,
+              "voluntary_switches": 0
+            }
+          }
+        },
+        "canonical_punch_settings": true,
+        "device_playback_origin": 7591475469,
+        "frames_per_raw_take": 96014,
+        "group_undo_redo": true,
+        "live_EQ_receipts": true,
+        "missing_track_frames": 0,
+        "mode": "32",
+        "output_max_difference": 0.0,
+        "output_peak": 3.7583560943603516,
+        "output_samples_verified": 480000,
+        "owned_nodes_only": true,
+        "physical_latency_qualified": false,
+        "playback_end": 240137,
+        "playback_start": 137,
+        "production_gui_duplex": true,
+        "punch_in": 48150,
+        "punch_out": 144164,
+        "raw_lanes": [
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "8b6ae34d0b754f6a666094f4c4c5f849411ce13274fa691483599c06e1debd36",
+            "track": "0c99234e-e628-49f4-b975-c1b2a2b3f65d"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "577e5038516e449863d1f402d2079ee0c0e4964f295faa349da28bc4d03fb77c",
+            "track": "f501f7e3-5dbb-4467-a10d-c1fb10a1dfb8"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "bad1f0137445de9709b0c9227292e1493ef6bb96bc29bbbe242d9ea2137f6f32",
+            "track": "8db547bf-a3fb-40f4-9262-a9ee1c74bf83"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "8b89ae056a8fae65f596410075153e9412a392cf901d85e8b0e0da1ebfc9efb8",
+            "track": "f6d5daa7-8b7b-42b4-b66f-9fe3ed350847"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "e5e434e729b3ce8ffdac1a57673fa4da2419b109104b9a6372634fa9b6acf7de",
+            "track": "e9bb251d-0f3d-456c-94f9-7f7ae075efdd"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "06eba8c86e8ccb66090276ac2b64c7c5adef44132fea1a8766991a2c59cf47e0",
+            "track": "6e70bcf5-f748-42b7-a159-ee456c46274a"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "22a03d5838a17c28ba94e43b4ffe4f1240424d751f53176dbd28e05f8bf7db97",
+            "track": "42bad28f-6c5d-47bf-a547-de8c01a60348"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "d864bf9b911c957ad7802d854a5528422817851a687a4341dc58b989c31ecfd9",
+            "track": "dfc2e29f-2216-4f0f-96ff-db9e48a0a744"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "094a036116393ef3f86e512f24dae40e4a4f4c70edec5940bb81acaa312f7209",
+            "track": "3b270af9-7feb-4461-a27f-ff7153d2b395"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "fa8940c2b2acf24bbe6d3d0299857c72befd21fa130f64da8167448f1f545394",
+            "track": "5aba3a8e-d308-465e-8803-e0bbb1450931"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "f830e209a504568a605cca854da812e454466064a9cf1ebce85db28a589b0d84",
+            "track": "35a149ff-3836-4369-9dc6-866b43c69931"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "24a4a56c18f5572fe03ce6750e5b9bc69667644e6e203df0d467b0e48f090db1",
+            "track": "f13119b1-8fcd-427b-bd17-0ad594526acc"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "9e1f860270e13e29be920d4e91e9584dff87466558b1ee5cab56e0eb57884a38",
+            "track": "c669a33f-031b-4ffe-a126-f1061c9ed000"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "f29de3e1126fdea7988bec97398ebf643d2fc275cd2790808d38d2d0dcef94fe",
+            "track": "21dd3994-5dc9-44c4-ae2c-0c85d43dac0b"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "987966a65dc121673a611dea861504c0995233b28614d52620f5ffc41663ab44",
+            "track": "10de9457-4333-4bd5-8c9e-b0510cc9d127"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "428029a548e9af05b6cf98f1b92bc3727800f5def55f21a73f2e4ad973ad0462",
+            "track": "ce9a93e1-d011-4c05-9873-2ab51324a8ec"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "2dadd391e1ab08f192a06a0efa5790dd81e5415decc034b3ab7b47db460ceb60",
+            "track": "cac87d72-623e-4f59-bda7-ee5ccf07d8d0"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "f963a9a58095baffb8850935b9d9db605a597577570f953c7a0383bf2bfba6a5",
+            "track": "30f6ceec-7a5e-4e5a-889a-fc9c41e3b35a"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "8b34fc2b6198354e18f552d93e34d9e555ec43d050049cdde1d842723e626756",
+            "track": "39383be3-956b-4525-9e1e-90bd35491c30"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "373302b44ff7c13579220b53aaa3950da1286525123abe264603a5b5b7d1d7a5",
+            "track": "0c83032b-c3de-405a-b1d7-9bf036f69acf"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "6d43fc1708f7a8f325da7e4147715633b8c8d36b8ede9e1393aea72747d1d5ca",
+            "track": "6e49a947-21c4-49bf-b697-bfb5fa063f85"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "993b5230124c879b25eb0ae20cf7a1ff0edad44d99faf2fcba52ed965bbb162f",
+            "track": "926323e9-b947-42b3-bd76-6d8a5159f8d8"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "70e70dd2a11ae5d0987f12447a185302e9dbed43881f6d73e48fa17079b09ab5",
+            "track": "8f543736-b389-461b-a3dd-0755bc304515"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "29b472605b11b25ab509fa6d814201db30572b33e38b0fdba95b65daff1774a2",
+            "track": "706b3091-5624-41a8-9405-e834b63b30e0"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "d1d5ae433b39b61bd03e25744ed8bbdab682dfa193e43448c8d7dec4741f7214",
+            "track": "295ccfce-2b7c-4aa3-89e9-01dc57f0e74a"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "d51a0d6772d1fbc6c67ef3cd6a374ed0ceee862cf6fe0c65126e46e74a145fa8",
+            "track": "ac98605e-642b-4e35-99e8-3ed1b7220fb6"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "c4921e592b4d2ca65084f2de0a8dbc18bfdf8229605bf1b7b16874301c0ac999",
+            "track": "39d314a1-bd22-48b4-bdd2-bafe81da7867"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "5aff7eb7cb2956d8636faf3c9ca13b77a4eac38825424c465da37a8ab03bf208",
+            "track": "204719a2-4027-4302-bbda-cb30b905c393"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "16781c4c87cb2d70851a8b678aa72b0430b232c1cba1d6bd3596099a99314d2e",
+            "track": "23462742-9d93-4316-9e87-f68c0cdc6740"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "052ae18b245ad52ee7bc2b9474d06e3dc54c0c6222c07ea0a0dd404eb44a316c",
+            "track": "48766f90-5d4f-4e5f-8203-29cc97675c43"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "facb1c49aaf33d13851128aac06260252e2134840ad684c5a65e6b4311df1969",
+            "track": "633e5ed5-fc87-4e54-ad87-623d8ec21fc7"
+          },
+          {
+            "device_origin": 7591523482,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "c34da1e8dfeafd1cb68274873aec67558e463a9c04422a651f4dc55b3ebeaa22",
+            "track": "9243036e-c92a-4009-a513-467aab268acc"
+          }
+        ],
+        "raw_samples_exact": true,
+        "raw_samples_verified": 3072448,
+        "save_reopen": true,
+        "sustained_performance_qualified": false,
+        "underlying_clip_unchanged": true,
+        "windows_qualified": false
+      },
+      "wall_seconds": 6.325530672009336,
+      "routing_observations": {
+        "default_metadata_unchanged": true,
+        "pre_existing_links_preserved": 0,
+        "owned_nodes_remaining": 0,
+        "owned_links_remaining": 0,
+        "no_observed_owned_to_unowned_links": true
+      },
+      "artifacts": {
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-hrexpfoh/stdout.json": "d42ef5878c5afe8b8b1723e9fb5ab478ecc94854ec2e8ed8511a930b5c473d12",
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-hrexpfoh/stderr.log": "1014b6a67aa8703d2c9d4f942d93c25e45cd079123508bdfa4d31c17ef44ee2c"
+      }
+    },
+    "launch": {
+      "all_own_build_test_reader_benchmark_handles_terminal": true,
+      "previous_goal_turn": "progress:d9080ca qualified owned native engine per-lane punch windows/origins/alignment",
+      "commit": "d9080ca2894cfcf8eee4394ee682779ab3a5cad9",
+      "utc": "2026-10-06T20:20:19.051441+00:00",
+      "command": [
+        "env",
+        "QT_QPA_PLATFORM=offscreen",
+        "python3",
+        "tests/verify_pipewire_punch_ui.py",
+        "--binary",
+        ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture",
+        "--tracks",
+        "32",
+        "--output",
+        ".cache/m2-native-punch-ui-owned.json",
+        "--failure-output",
+        ".cache/m2-native-punch-ui-owned-failure.json"
+      ],
+      "source_sha256": {
+        "CMakeLists.txt": "2540727875138fc14e44cef84dee016f471f790168e71b36f3e9ff1b362879a7",
+        "include/soundcurrent/capture.hpp": "42e6340938dc12a1232b1ceda6fbc8e5d527cc21afa85f4341cb11743a3cea6e",
+        "include/soundcurrent/duplex_bridge.hpp": "e3a047f69499a877d258260cd65c6b289ed82a56b0409a96db91676a7aa7537b",
+        "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+        "include/soundcurrent/eq.hpp": "6e29057e53bd5ce501dd198d88e75c69efe22c2f0ee18691d317d8c3182210f0",
+        "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+        "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+        "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+        "include/soundcurrent/recording.hpp": "c0fcb3c6aba21eccd4ca4dfeab602afdc34aab2904d43d9bd14a74cc22b57db3",
+        "include/soundcurrent/session.hpp": "61f56195304a9b7a2b217c53e9c0f11a80700c6d0f914cd62c1e40f8c56e8f31",
+        "research/parity.json": "f9f008c5c388787cf61963b69011b20591f9fd363cd73f1083f373769fe4b3b3",
+        "reuse/studio/provenance.json": "6035998c095923f621b811611055ae67284b8ab66ad88807cd2403b619102e77",
+        "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+        "src/capture.cpp": "b94c7f14e6ff73216e1c0f5083be1463f094272bbf417b6d0330a4e95f1c3cfe",
+        "src/duplex_bridge.cpp": "00ad5438067fb9ef7d97cfdfeadbacb8b95873740a593555fd04f756864e158d",
+        "src/duplex_recording.cpp": "b608a872947bba2ae223a98b4376fb3670fe8c4f3685b5f2f8729809c6142e16",
+        "src/eq.cpp": "298a8a8354780cd734d72ece8072bd6a682bd0465e326ce6f2008da6361b598f",
+        "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+        "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+        "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+        "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+        "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+        "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+        "src/pipewire_filter.cpp": "0071d1c75a6fbc809f633fd8dec9273f7ac55e8169b426ffef2b6282a70ce61e",
+        "src/recording.cpp": "bcb7e0005da9e74f98177b1f5ad93671b3d22ae7ebd60bf52436a6c03013240a",
+        "src/recording_worker.cpp": "ac635bbfb9e7e6c6832787938e1bc38f0a4d7ec8fcffaa302f7ee5a7316346b1",
+        "tests/capture_tests.cpp": "9ab6f5813d529ca19bb78c9dfcbdb8310ab9ed30e4e8eaff39d343697711fc54",
+        "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+        "tests/duplex_duration_fixture.cpp": "c2b67a69260e38030a223ee55c93747e52106ac5c049f355af41b65178df9216",
+        "tests/duplex_recording_tests.cpp": "21b7f3af4d8f02ce6844e893d38ffc71f5b5a6c21876881b538dfc15ac0f9c34",
+        "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+        "tests/engine_tests.cpp": "b4642a0ae6a0411775bc9d0f263a857e80503fe7738e7b2969a050804d51b2ba",
+        "tests/fake_duplex_endpoint.hpp": "df7f1d5f63ec41cf940161a9f5f499ab2116164aee093362577f5b5a81fda764",
+        "tests/fake_recording_endpoint.hpp": "0d0d7bf39bdf4ab640cbbf872b0780d556f70282c7246a0f9dc2b66833449f55",
+        "tests/native_duration_timing.hpp": "06650c67983eb6b97265483c0c48127a512d2601c57da8ea60d5e62a403b8929",
+        "tests/native_duration_timing_tests.cpp": "2f3d003910891eeaf8bba2796058b9b64d277a2a0bdefa8f77fe3ca40bd7e228",
+        "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
+        "tests/native_processing_stages.cpp": "c7af99a6f3d7e614a0937abc0453d7674ead1579b7d98ed4420b3b98dbf0a87c",
+        "tests/native_processing_stages.hpp": "a440ef669903d4a005927b45619ac50df9c82cbebbb442cdb6fa0dbd3e89f77a",
+        "tests/native_thread_usage.hpp": "1d31d916c8d7afd072e4cba32352b9a1c3e89a6dbde00ba32af479f570a13ab1",
+        "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+        "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+        "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+        "tests/pipewire_duration_fixture.cpp": "699ddc167a61de3828a5ce6b6e5c881b5656a5088c6eddee96b78f76e5a310c3",
+        "tests/punch_tests.cpp": "d78d1d5fc505e81da12f4772c5153f93d93847a40c879101e324c619ed3dbe0e",
+        "tests/recording_controller_tests.cpp": "3ae6b37d80d200ccd1bf28b7a951693963256252b45846377a10fdc92e3bc63c",
+        "tests/recording_tests.cpp": "4ebe579d1914430e306ae14637276592be9ba5d9c8f2b439618f7ed7a0646cae",
+        "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+        "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+        "tests/timeline_ui_tests.cpp": "86c3c2cb75fdd64971dc01bbeb88330b45f4d16ccc6bd80a48222a10b3d0c3fd",
+        "tests/ui_tests.cpp": "d01f9a76163b3f2045aa9fe12451c229ab8667eb22c91e7b2a7a6e44b4cd46ab",
+        "tests/verify_checkpoint_burst_recovery.py": "ef3d5bfe2510ffd737cf4d860acb00765598d13513ae1ee8eeca0e410cd74553",
+        "tests/verify_duplex_duration.py": "b209ab8760cd1040d13146d1370adaa08e6a8dc218b2e28541fda1175db4b9f9",
+        "tests/verify_pipewire_duration.py": "b1b2fa346fae2e97df7e3cb27742656cc0dc32502b7e568559bcd9a8cca3e77b",
+        "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+        "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
+        "tests/writer_timing_tests.cpp": "f6dbf48c2a7a1852596a5349943e3c8d91aceedc4a42d154af130be8b07f7b39",
+        "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+        "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+        "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+        "ui/recording_controller.cpp": "619d6cd528a9893f6ef3e9da5b85c48a783093d23f403297f49bb0c98b2393b0",
+        "ui/recording_controller.hpp": "9b7ee20ca1375fa8ba183c8a48384e41b8c38076f46f24eeadc74403e704d335",
+        "ui/studio_window.cpp": "05433e4e19f19c358a3ee89278a76524f68c56590516271a3ed31c00c4a5d68a",
+        "ui/studio_window.hpp": "e3771f1625e35c2c9e083f5f0889cc75075f841f302d2939ee489f48f21fdbbf",
+        "tests/pipewire_punch_fixture.cpp": "4c6b999e7fe5205e2a5303043d584eef88831f6a9dee4efc96807dd78950d155",
+        "tests/verify_pipewire_punch.py": "df2c41dfff924bb7a14f9005962a820e8febc5be7729c353be85262c1543eaec",
+        "tests/pipewire_punch_ui_fixture.cpp": "8cbbd4f4c152a3196c23ad3ee1fb2f1cb74b0a18578fd7a260b4ddc16d108cc5",
+        "tests/verify_pipewire_punch_ui.py": "2e6734542ca6bda20462a8ecb8f6b7cb82178d06baed9fb2ba567df952c90b01"
+      },
+      "binary_sha256": {
+        ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture": "574b7900b7d260a143d7d69a0f40e3d2cfb7781c86ecfb2faef26a1c837c8568"
+      },
+      "processing_and_UI_library_sha256": {
+        ".cache/build-desktop-release/libsc-pipewire-recording.a": "b7a0bca38d36edb9e9d1888181d578b5259838345a879eb28c55f7edd2ab6b9d",
+        ".cache/build-desktop-release/libsc-playback.a": "b1279ff6761b6c8629c83e1afff07d7b37dea048c4b66c533a0ac80e025e2ca8",
+        ".cache/build-desktop-release/libsc-media.a": "0f55955725f2bc3ca07a31d05dbe00693df3e34732cfdb1a39484da349b76edc",
+        ".cache/build-desktop-release/libsc-engine.a": "24729fcd399fdf179d6022b8cc14e2a446a59cbe983960bddcae589bd8f99daa",
+        ".cache/build-desktop-release/libsc-capture.a": "6466f73612b746796a3990e674c37d2bad89b0c4b14a85d8320ab19ed23fa947",
+        ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+        ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "ce5559c845f412bf261e03451d618f4e8b53551374edb0f8930621aef50f6acd",
+        ".cache/build-desktop-release/libsc-project-store.a": "25edcd50b71bfe9a8c0770ebff98c6cd06b0fffdb4ab463715772a6c3cf7b237",
+        ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+        ".cache/build-desktop-release/libsc-session.a": "34247b85e40ec09b1f36792ce64882100323de0e5f8724ccbfac4ebbc3ea9e33",
+        ".cache/build-desktop-release/libsc-audio-bridge.a": "d853effc07677a0684b5e62a6621c9e2b452d6741c02a0260c34926324260a7e",
+        ".cache/build-desktop-release/libsc-ui-export.a": "52047f77b58ed2fb017cdb496659368439251645f2bdfd82cd5eaffeeeaa1884",
+        ".cache/build-desktop-release/libsc-ui-equipment.a": "d5ec4ef206d60557711c7a031bb76f7cabea47bbaeec3106e6665ffe5676618d",
+        ".cache/build-desktop-release/libsc-ui-timeline.a": "6c136ddf486f158ce40d72619165a0d3df2dd839c64fc6ca85592fb73e66c28a",
+        ".cache/build-desktop-release/libsc-ui-playback.a": "8610b5bfced0b6164a49cda2cb982e4edebaf59c77bd47eb23380209342961ac",
+        ".cache/build-desktop-release/libsc-ui-recording.a": "db2e42cf575729ee11729c428bb8b60b0b7cf2061f0a21fa40b2093abc687551",
+        ".cache/build-desktop-release/libsc-ui-controller.a": "8b7123c35e2fdd701f5b1289836806d5c67d757df78a755d3ffe7db31643d024"
+      },
+      "source_state": "Uncommitted optional controller native-clock forwarding plus unit/native GUI fixtures; processing unchanged",
+      "scope": "Native32-arm desktop canonical punch dialog/Save-reopen/Prepare/routes/Record/live EQ/Stop/group attach/Undo-Redo/closeSave. Default declared input latency0; no measured physical latency, sustained or Windows qualification",
+      "host_policy_or_default_route_change": false,
+      "patch": {
+        "path": ".cache/m2-native-punch-ui-source.patch",
+        "sha256": "5f72f32ab28bb13b06ded9ef4c708ff7380d8214607a8900120f69c41193b292"
+      }
+    },
+    "screenshot_limitation": "Original screenshot contains top timeline, not punch controls"
+  },
+  "visibility_observation": {
+    "index": 22,
+    "exact_handle": "34853 terminal1",
+    "receipt": {
+      "project_directory": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-rhn_6cc6/Punch — Ελληνικά",
+      "stdout": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-rhn_6cc6/stdout.json",
+      "stderr": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-rhn_6cc6/stderr.log",
+      "native": true,
+      "scheduler_samples": [],
+      "graph_snapshots": 3,
+      "linked_snapshots": 0,
+      "owned_pid": 1641590,
+      "exit_code": 1,
+      "error": "Punch child failed; retained /home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-rhn_6cc6/stderr.log",
+      "routing_observations": {
+        "default_metadata_unchanged": true,
+        "pre_existing_links_preserved": 0,
+        "owned_nodes_remaining": 0,
+        "owned_links_remaining": 0,
+        "no_observed_owned_to_unowned_links": true
+      },
+      "artifacts": {
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-rhn_6cc6/stdout.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-rhn_6cc6/stderr.log": "b64657fb34513c7e894a3bca3a5ae97ddaf14241562936f9016f8fb226f36cc1"
+      }
+    },
+    "launch": {
+      "all_own_build_test_reader_benchmark_handles_terminal": true,
+      "previous_goal_turn": "progress:d9080ca qualified owned native engine per-lane punch windows/origins/alignment",
+      "commit": "d9080ca2894cfcf8eee4394ee682779ab3a5cad9",
+      "utc": "2026-10-06T20:23:30.810835+00:00",
+      "command": [
+        "env",
+        "QT_QPA_PLATFORM=offscreen",
+        "python3",
+        "tests/verify_pipewire_punch_ui.py",
+        "--binary",
+        ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture",
+        "--tracks",
+        "32",
+        "--output",
+        ".cache/m2-native-punch-ui-visible.json",
+        "--failure-output",
+        ".cache/m2-native-punch-ui-visible-failure.json"
+      ],
+      "source_sha256": {
+        "CMakeLists.txt": "2540727875138fc14e44cef84dee016f471f790168e71b36f3e9ff1b362879a7",
+        "include/soundcurrent/capture.hpp": "42e6340938dc12a1232b1ceda6fbc8e5d527cc21afa85f4341cb11743a3cea6e",
+        "include/soundcurrent/duplex_bridge.hpp": "e3a047f69499a877d258260cd65c6b289ed82a56b0409a96db91676a7aa7537b",
+        "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+        "include/soundcurrent/eq.hpp": "6e29057e53bd5ce501dd198d88e75c69efe22c2f0ee18691d317d8c3182210f0",
+        "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+        "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+        "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+        "include/soundcurrent/recording.hpp": "c0fcb3c6aba21eccd4ca4dfeab602afdc34aab2904d43d9bd14a74cc22b57db3",
+        "include/soundcurrent/session.hpp": "61f56195304a9b7a2b217c53e9c0f11a80700c6d0f914cd62c1e40f8c56e8f31",
+        "research/parity.json": "f9f008c5c388787cf61963b69011b20591f9fd363cd73f1083f373769fe4b3b3",
+        "reuse/studio/provenance.json": "6035998c095923f621b811611055ae67284b8ab66ad88807cd2403b619102e77",
+        "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+        "src/capture.cpp": "b94c7f14e6ff73216e1c0f5083be1463f094272bbf417b6d0330a4e95f1c3cfe",
+        "src/duplex_bridge.cpp": "00ad5438067fb9ef7d97cfdfeadbacb8b95873740a593555fd04f756864e158d",
+        "src/duplex_recording.cpp": "b608a872947bba2ae223a98b4376fb3670fe8c4f3685b5f2f8729809c6142e16",
+        "src/eq.cpp": "298a8a8354780cd734d72ece8072bd6a682bd0465e326ce6f2008da6361b598f",
+        "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+        "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+        "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+        "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+        "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+        "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+        "src/pipewire_filter.cpp": "0071d1c75a6fbc809f633fd8dec9273f7ac55e8169b426ffef2b6282a70ce61e",
+        "src/recording.cpp": "bcb7e0005da9e74f98177b1f5ad93671b3d22ae7ebd60bf52436a6c03013240a",
+        "src/recording_worker.cpp": "ac635bbfb9e7e6c6832787938e1bc38f0a4d7ec8fcffaa302f7ee5a7316346b1",
+        "tests/capture_tests.cpp": "9ab6f5813d529ca19bb78c9dfcbdb8310ab9ed30e4e8eaff39d343697711fc54",
+        "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+        "tests/duplex_duration_fixture.cpp": "c2b67a69260e38030a223ee55c93747e52106ac5c049f355af41b65178df9216",
+        "tests/duplex_recording_tests.cpp": "21b7f3af4d8f02ce6844e893d38ffc71f5b5a6c21876881b538dfc15ac0f9c34",
+        "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+        "tests/engine_tests.cpp": "b4642a0ae6a0411775bc9d0f263a857e80503fe7738e7b2969a050804d51b2ba",
+        "tests/fake_duplex_endpoint.hpp": "df7f1d5f63ec41cf940161a9f5f499ab2116164aee093362577f5b5a81fda764",
+        "tests/fake_recording_endpoint.hpp": "0d0d7bf39bdf4ab640cbbf872b0780d556f70282c7246a0f9dc2b66833449f55",
+        "tests/native_duration_timing.hpp": "06650c67983eb6b97265483c0c48127a512d2601c57da8ea60d5e62a403b8929",
+        "tests/native_duration_timing_tests.cpp": "2f3d003910891eeaf8bba2796058b9b64d277a2a0bdefa8f77fe3ca40bd7e228",
+        "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
+        "tests/native_processing_stages.cpp": "c7af99a6f3d7e614a0937abc0453d7674ead1579b7d98ed4420b3b98dbf0a87c",
+        "tests/native_processing_stages.hpp": "a440ef669903d4a005927b45619ac50df9c82cbebbb442cdb6fa0dbd3e89f77a",
+        "tests/native_thread_usage.hpp": "1d31d916c8d7afd072e4cba32352b9a1c3e89a6dbde00ba32af479f570a13ab1",
+        "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+        "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+        "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+        "tests/pipewire_duration_fixture.cpp": "699ddc167a61de3828a5ce6b6e5c881b5656a5088c6eddee96b78f76e5a310c3",
+        "tests/punch_tests.cpp": "d78d1d5fc505e81da12f4772c5153f93d93847a40c879101e324c619ed3dbe0e",
+        "tests/recording_controller_tests.cpp": "3ae6b37d80d200ccd1bf28b7a951693963256252b45846377a10fdc92e3bc63c",
+        "tests/recording_tests.cpp": "4ebe579d1914430e306ae14637276592be9ba5d9c8f2b439618f7ed7a0646cae",
+        "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+        "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+        "tests/timeline_ui_tests.cpp": "86c3c2cb75fdd64971dc01bbeb88330b45f4d16ccc6bd80a48222a10b3d0c3fd",
+        "tests/ui_tests.cpp": "d01f9a76163b3f2045aa9fe12451c229ab8667eb22c91e7b2a7a6e44b4cd46ab",
+        "tests/verify_checkpoint_burst_recovery.py": "ef3d5bfe2510ffd737cf4d860acb00765598d13513ae1ee8eeca0e410cd74553",
+        "tests/verify_duplex_duration.py": "b209ab8760cd1040d13146d1370adaa08e6a8dc218b2e28541fda1175db4b9f9",
+        "tests/verify_pipewire_duration.py": "b1b2fa346fae2e97df7e3cb27742656cc0dc32502b7e568559bcd9a8cca3e77b",
+        "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+        "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
+        "tests/writer_timing_tests.cpp": "f6dbf48c2a7a1852596a5349943e3c8d91aceedc4a42d154af130be8b07f7b39",
+        "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+        "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+        "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+        "ui/recording_controller.cpp": "619d6cd528a9893f6ef3e9da5b85c48a783093d23f403297f49bb0c98b2393b0",
+        "ui/recording_controller.hpp": "9b7ee20ca1375fa8ba183c8a48384e41b8c38076f46f24eeadc74403e704d335",
+        "ui/studio_window.cpp": "05433e4e19f19c358a3ee89278a76524f68c56590516271a3ed31c00c4a5d68a",
+        "ui/studio_window.hpp": "e3771f1625e35c2c9e083f5f0889cc75075f841f302d2939ee489f48f21fdbbf",
+        "tests/pipewire_punch_fixture.cpp": "4c6b999e7fe5205e2a5303043d584eef88831f6a9dee4efc96807dd78950d155",
+        "tests/verify_pipewire_punch.py": "df2c41dfff924bb7a14f9005962a820e8febc5be7729c353be85262c1543eaec",
+        "tests/pipewire_punch_ui_fixture.cpp": "72b3779ecb9e0f29a1a3c5a6d357800d09bce5dd782dc379cd11f2a27aa49019",
+        "tests/verify_pipewire_punch_ui.py": "2e6734542ca6bda20462a8ecb8f6b7cb82178d06baed9fb2ba567df952c90b01"
+      },
+      "binary_sha256": {
+        ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture": "f8ba9890037d27f62d60e300a46bff56e65158c110f2c3b25f0dc0f7539139dd"
+      },
+      "processing_and_UI_library_sha256": {
+        ".cache/build-desktop-release/libsc-pipewire-recording.a": "b7a0bca38d36edb9e9d1888181d578b5259838345a879eb28c55f7edd2ab6b9d",
+        ".cache/build-desktop-release/libsc-playback.a": "b1279ff6761b6c8629c83e1afff07d7b37dea048c4b66c533a0ac80e025e2ca8",
+        ".cache/build-desktop-release/libsc-media.a": "0f55955725f2bc3ca07a31d05dbe00693df3e34732cfdb1a39484da349b76edc",
+        ".cache/build-desktop-release/libsc-engine.a": "24729fcd399fdf179d6022b8cc14e2a446a59cbe983960bddcae589bd8f99daa",
+        ".cache/build-desktop-release/libsc-capture.a": "6466f73612b746796a3990e674c37d2bad89b0c4b14a85d8320ab19ed23fa947",
+        ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+        ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "ce5559c845f412bf261e03451d618f4e8b53551374edb0f8930621aef50f6acd",
+        ".cache/build-desktop-release/libsc-project-store.a": "25edcd50b71bfe9a8c0770ebff98c6cd06b0fffdb4ab463715772a6c3cf7b237",
+        ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+        ".cache/build-desktop-release/libsc-session.a": "34247b85e40ec09b1f36792ce64882100323de0e5f8724ccbfac4ebbc3ea9e33",
+        ".cache/build-desktop-release/libsc-audio-bridge.a": "d853effc07677a0684b5e62a6621c9e2b452d6741c02a0260c34926324260a7e",
+        ".cache/build-desktop-release/libsc-ui-export.a": "52047f77b58ed2fb017cdb496659368439251645f2bdfd82cd5eaffeeeaa1884",
+        ".cache/build-desktop-release/libsc-ui-equipment.a": "d5ec4ef206d60557711c7a031bb76f7cabea47bbaeec3106e6665ffe5676618d",
+        ".cache/build-desktop-release/libsc-ui-timeline.a": "6c136ddf486f158ce40d72619165a0d3df2dd839c64fc6ca85592fb73e66c28a",
+        ".cache/build-desktop-release/libsc-ui-playback.a": "8610b5bfced0b6164a49cda2cb982e4edebaf59c77bd47eb23380209342961ac",
+        ".cache/build-desktop-release/libsc-ui-recording.a": "db2e42cf575729ee11729c428bb8b60b0b7cf2061f0a21fa40b2093abc687551",
+        ".cache/build-desktop-release/libsc-ui-controller.a": "8b7123c35e2fdd701f5b1289836806d5c67d757df78a755d3ffe7db31643d024"
+      },
+      "source_state": "Same production optional native-clock forwarding; fixture additionally checks scroll reachability and opens range dialog with a mouse event; previous native pass/executable retained",
+      "scope": "Native32-arm desktop canonical punch dialog/Save-reopen/Prepare/routes/Record/live EQ/Stop/group attach/Undo-Redo/closeSave. Default declared input latency0; no measured physical latency, sustained or Windows qualification",
+      "host_policy_or_default_route_change": false,
+      "patch": {
+        "path": ".cache/m2-native-punch-ui-visible-source.patch",
+        "sha256": "5f72f32ab28bb13b06ded9ef4c708ff7380d8214607a8900120f69c41193b292"
+      }
+    },
+    "failure_stage": "Explicit reachability assertion after canonical selection, before Record/native activation",
+    "original_geometry_recorded": false,
+    "cause": "Unknown original geometry; asynchronous inspector relayout is an inference",
+    "fixture_followup": "Wait for rendered two-band inspector and bound repeated scroll/layout settlement; failure geometry logging",
+    "original_sources_executable_project_logs_retained": true
+  },
+  "final_native": {
+    "exact_handle": "86120 terminal0",
+    "launch": {
+      "all_own_build_test_reader_benchmark_handles_terminal": true,
+      "previous_goal_turn": "progress:d9080ca qualified owned native engine per-lane punch windows/origins/alignment",
+      "commit": "d9080ca2894cfcf8eee4394ee682779ab3a5cad9",
+      "utc": "2026-10-06T20:31:18.119657+00:00",
+      "command": [
+        "env",
+        "QT_QPA_PLATFORM=offscreen",
+        "python3",
+        "tests/verify_pipewire_punch_ui.py",
+        "--binary",
+        ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture",
+        "--tracks",
+        "32",
+        "--output",
+        ".cache/m2-native-punch-ui-settled.json",
+        "--failure-output",
+        ".cache/m2-native-punch-ui-settled-failure.json"
+      ],
+      "source_sha256": {
+        "CMakeLists.txt": "2540727875138fc14e44cef84dee016f471f790168e71b36f3e9ff1b362879a7",
+        "include/soundcurrent/capture.hpp": "42e6340938dc12a1232b1ceda6fbc8e5d527cc21afa85f4341cb11743a3cea6e",
+        "include/soundcurrent/duplex_bridge.hpp": "e3a047f69499a877d258260cd65c6b289ed82a56b0409a96db91676a7aa7537b",
+        "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+        "include/soundcurrent/eq.hpp": "6e29057e53bd5ce501dd198d88e75c69efe22c2f0ee18691d317d8c3182210f0",
+        "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+        "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+        "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+        "include/soundcurrent/recording.hpp": "c0fcb3c6aba21eccd4ca4dfeab602afdc34aab2904d43d9bd14a74cc22b57db3",
+        "include/soundcurrent/session.hpp": "61f56195304a9b7a2b217c53e9c0f11a80700c6d0f914cd62c1e40f8c56e8f31",
+        "research/parity.json": "f9f008c5c388787cf61963b69011b20591f9fd363cd73f1083f373769fe4b3b3",
+        "reuse/studio/provenance.json": "6035998c095923f621b811611055ae67284b8ab66ad88807cd2403b619102e77",
+        "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+        "src/capture.cpp": "b94c7f14e6ff73216e1c0f5083be1463f094272bbf417b6d0330a4e95f1c3cfe",
+        "src/duplex_bridge.cpp": "00ad5438067fb9ef7d97cfdfeadbacb8b95873740a593555fd04f756864e158d",
+        "src/duplex_recording.cpp": "b608a872947bba2ae223a98b4376fb3670fe8c4f3685b5f2f8729809c6142e16",
+        "src/eq.cpp": "298a8a8354780cd734d72ece8072bd6a682bd0465e326ce6f2008da6361b598f",
+        "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+        "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+        "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+        "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+        "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+        "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+        "src/pipewire_filter.cpp": "0071d1c75a6fbc809f633fd8dec9273f7ac55e8169b426ffef2b6282a70ce61e",
+        "src/recording.cpp": "bcb7e0005da9e74f98177b1f5ad93671b3d22ae7ebd60bf52436a6c03013240a",
+        "src/recording_worker.cpp": "ac635bbfb9e7e6c6832787938e1bc38f0a4d7ec8fcffaa302f7ee5a7316346b1",
+        "tests/capture_tests.cpp": "9ab6f5813d529ca19bb78c9dfcbdb8310ab9ed30e4e8eaff39d343697711fc54",
+        "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+        "tests/duplex_duration_fixture.cpp": "c2b67a69260e38030a223ee55c93747e52106ac5c049f355af41b65178df9216",
+        "tests/duplex_recording_tests.cpp": "21b7f3af4d8f02ce6844e893d38ffc71f5b5a6c21876881b538dfc15ac0f9c34",
+        "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+        "tests/engine_tests.cpp": "b4642a0ae6a0411775bc9d0f263a857e80503fe7738e7b2969a050804d51b2ba",
+        "tests/fake_duplex_endpoint.hpp": "df7f1d5f63ec41cf940161a9f5f499ab2116164aee093362577f5b5a81fda764",
+        "tests/fake_recording_endpoint.hpp": "0d0d7bf39bdf4ab640cbbf872b0780d556f70282c7246a0f9dc2b66833449f55",
+        "tests/native_duration_timing.hpp": "06650c67983eb6b97265483c0c48127a512d2601c57da8ea60d5e62a403b8929",
+        "tests/native_duration_timing_tests.cpp": "2f3d003910891eeaf8bba2796058b9b64d277a2a0bdefa8f77fe3ca40bd7e228",
+        "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
+        "tests/native_processing_stages.cpp": "c7af99a6f3d7e614a0937abc0453d7674ead1579b7d98ed4420b3b98dbf0a87c",
+        "tests/native_processing_stages.hpp": "a440ef669903d4a005927b45619ac50df9c82cbebbb442cdb6fa0dbd3e89f77a",
+        "tests/native_thread_usage.hpp": "1d31d916c8d7afd072e4cba32352b9a1c3e89a6dbde00ba32af479f570a13ab1",
+        "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+        "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+        "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+        "tests/pipewire_duration_fixture.cpp": "699ddc167a61de3828a5ce6b6e5c881b5656a5088c6eddee96b78f76e5a310c3",
+        "tests/punch_tests.cpp": "d78d1d5fc505e81da12f4772c5153f93d93847a40c879101e324c619ed3dbe0e",
+        "tests/recording_controller_tests.cpp": "3ae6b37d80d200ccd1bf28b7a951693963256252b45846377a10fdc92e3bc63c",
+        "tests/recording_tests.cpp": "4ebe579d1914430e306ae14637276592be9ba5d9c8f2b439618f7ed7a0646cae",
+        "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+        "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+        "tests/timeline_ui_tests.cpp": "86c3c2cb75fdd64971dc01bbeb88330b45f4d16ccc6bd80a48222a10b3d0c3fd",
+        "tests/ui_tests.cpp": "d01f9a76163b3f2045aa9fe12451c229ab8667eb22c91e7b2a7a6e44b4cd46ab",
+        "tests/verify_checkpoint_burst_recovery.py": "ef3d5bfe2510ffd737cf4d860acb00765598d13513ae1ee8eeca0e410cd74553",
+        "tests/verify_duplex_duration.py": "b209ab8760cd1040d13146d1370adaa08e6a8dc218b2e28541fda1175db4b9f9",
+        "tests/verify_pipewire_duration.py": "b1b2fa346fae2e97df7e3cb27742656cc0dc32502b7e568559bcd9a8cca3e77b",
+        "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+        "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
+        "tests/writer_timing_tests.cpp": "f6dbf48c2a7a1852596a5349943e3c8d91aceedc4a42d154af130be8b07f7b39",
+        "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+        "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+        "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+        "ui/recording_controller.cpp": "619d6cd528a9893f6ef3e9da5b85c48a783093d23f403297f49bb0c98b2393b0",
+        "ui/recording_controller.hpp": "9b7ee20ca1375fa8ba183c8a48384e41b8c38076f46f24eeadc74403e704d335",
+        "ui/studio_window.cpp": "05433e4e19f19c358a3ee89278a76524f68c56590516271a3ed31c00c4a5d68a",
+        "ui/studio_window.hpp": "e3771f1625e35c2c9e083f5f0889cc75075f841f302d2939ee489f48f21fdbbf",
+        "tests/pipewire_punch_fixture.cpp": "4c6b999e7fe5205e2a5303043d584eef88831f6a9dee4efc96807dd78950d155",
+        "tests/verify_pipewire_punch.py": "df2c41dfff924bb7a14f9005962a820e8febc5be7729c353be85262c1543eaec",
+        "tests/pipewire_punch_ui_fixture.cpp": "f417b739b8eab1fe18030ff57b4385239ae8880c2cfece55e7d3272bc7ead4ed",
+        "tests/verify_pipewire_punch_ui.py": "2e6734542ca6bda20462a8ecb8f6b7cb82178d06baed9fb2ba567df952c90b01"
+      },
+      "binary_sha256": {
+        ".cache/build-desktop-release/sc-pipewire-punch-ui-fixture": "5864251b7e0c9870b5adb62489ef8bf35e07857a2f7a7609c8b39ded714966a4"
+      },
+      "processing_and_UI_library_sha256": {
+        ".cache/build-desktop-release/libsc-pipewire-recording.a": "b7a0bca38d36edb9e9d1888181d578b5259838345a879eb28c55f7edd2ab6b9d",
+        ".cache/build-desktop-release/libsc-playback.a": "b1279ff6761b6c8629c83e1afff07d7b37dea048c4b66c533a0ac80e025e2ca8",
+        ".cache/build-desktop-release/libsc-media.a": "0f55955725f2bc3ca07a31d05dbe00693df3e34732cfdb1a39484da349b76edc",
+        ".cache/build-desktop-release/libsc-engine.a": "24729fcd399fdf179d6022b8cc14e2a446a59cbe983960bddcae589bd8f99daa",
+        ".cache/build-desktop-release/libsc-capture.a": "6466f73612b746796a3990e674c37d2bad89b0c4b14a85d8320ab19ed23fa947",
+        ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+        ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "ce5559c845f412bf261e03451d618f4e8b53551374edb0f8930621aef50f6acd",
+        ".cache/build-desktop-release/libsc-project-store.a": "25edcd50b71bfe9a8c0770ebff98c6cd06b0fffdb4ab463715772a6c3cf7b237",
+        ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+        ".cache/build-desktop-release/libsc-session.a": "34247b85e40ec09b1f36792ce64882100323de0e5f8724ccbfac4ebbc3ea9e33",
+        ".cache/build-desktop-release/libsc-audio-bridge.a": "d853effc07677a0684b5e62a6621c9e2b452d6741c02a0260c34926324260a7e",
+        ".cache/build-desktop-release/libsc-ui-export.a": "52047f77b58ed2fb017cdb496659368439251645f2bdfd82cd5eaffeeeaa1884",
+        ".cache/build-desktop-release/libsc-ui-equipment.a": "d5ec4ef206d60557711c7a031bb76f7cabea47bbaeec3106e6665ffe5676618d",
+        ".cache/build-desktop-release/libsc-ui-timeline.a": "6c136ddf486f158ce40d72619165a0d3df2dd839c64fc6ca85592fb73e66c28a",
+        ".cache/build-desktop-release/libsc-ui-playback.a": "8610b5bfced0b6164a49cda2cb982e4edebaf59c77bd47eb23380209342961ac",
+        ".cache/build-desktop-release/libsc-ui-recording.a": "db2e42cf575729ee11729c428bb8b60b0b7cf2061f0a21fa40b2093abc687551",
+        ".cache/build-desktop-release/libsc-ui-controller.a": "8b7123c35e2fdd701f5b1289836806d5c67d757df78a755d3ffe7db31643d024"
+      },
+      "source_state": "Same production optional native-clock forwarding; fixture additionally checks scroll reachability and opens range dialog with a mouse event; previous native pass/executable retained",
+      "scope": "Native32-arm desktop canonical punch dialog/Save-reopen/Prepare/routes/Record/live EQ/Stop/group attach/Undo-Redo/closeSave. Default declared input latency0; no measured physical latency, sustained or Windows qualification",
+      "host_policy_or_default_route_change": false,
+      "patch": "Bounded inspector render/scroll settlement; no production UI change; original visibility failure retained"
+    },
+    "receipt": {
+      "project_directory": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-4uuakfzo/Punch — Ελληνικά",
+      "stdout": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-4uuakfzo/stdout.json",
+      "stderr": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-4uuakfzo/stderr.log",
+      "native": true,
+      "scheduler_samples": [
+        {
+          "tid": 1644323,
+          "name": "sc-pipewire-pun",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644326,
+          "name": "QDBusConnection",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644327,
+          "name": "module-rt",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644328,
+          "name": "data-loop.0",
+          "policy": 1073741826,
+          "base_policy": 2,
+          "reset_on_fork": true,
+          "priority": 20,
+          "nice": 0
+        },
+        {
+          "tid": 1644329,
+          "name": "sc-daw-fixture-",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644331,
+          "name": "sc-pipewire-pun",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644332,
+          "name": "module-rt",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644333,
+          "name": "data-loop.0",
+          "policy": 1073741826,
+          "base_policy": 2,
+          "reset_on_fork": true,
+          "priority": 20,
+          "nice": 0
+        },
+        {
+          "tid": 1644334,
+          "name": "sc-daw-fixture-",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644337,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644338,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644339,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644340,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644341,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644342,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644345,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644346,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644347,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644348,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644349,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644350,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644351,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644352,
+          "name": "Thread (pooled)",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644355,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644356,
+          "name": "module-rt",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644357,
+          "name": "data-loop.0",
+          "policy": 1073741826,
+          "base_policy": 2,
+          "reset_on_fork": true,
+          "priority": 20,
+          "nice": 0
+        },
+        {
+          "tid": 1644358,
+          "name": "sc-daw-recordin",
+          "policy": 1073741824,
+          "base_policy": 0,
+          "reset_on_fork": true,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644363,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644364,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644365,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644366,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644367,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644368,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644369,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644370,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644371,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644372,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644373,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644374,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644375,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644376,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644377,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644378,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644379,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644380,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644381,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644382,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644383,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644384,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644385,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644386,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644387,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644388,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644389,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644390,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644391,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644393,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644395,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        },
+        {
+          "tid": 1644396,
+          "name": "QThread",
+          "policy": 0,
+          "base_policy": 0,
+          "reset_on_fork": false,
+          "priority": 0,
+          "nice": 0
+        }
+      ],
+      "graph_snapshots": 26,
+      "linked_snapshots": 21,
+      "owned_pid": 1644323,
+      "exit_code": 0,
+      "child_result": {
+        "armed_tracks": 32,
+        "callback_allocations": 0,
+        "callback_frees": 0,
+        "callback_locks": 0,
+        "callback_timing": {
+          "owner": {
+            "callback_end_after_cycle_period_count": 0,
+            "calls": 235,
+            "clock_failures": 0,
+            "complete_cpu_coverage": true,
+            "complete_thread_usage_coverage": true,
+            "complete_timing_coverage": true,
+            "cpu_clock_failures": 0,
+            "cpu_samples": 235,
+            "cpu_timing_requested": true,
+            "cycle_context_samples": 235,
+            "cycle_context_unknown": 0,
+            "dropped_samples": 0,
+            "finite_deadline_thresholds_met": true,
+            "maximum_callback_cpu_known": true,
+            "maximum_callback_cpu_ns": 3828349,
+            "maximum_callback_end_after_cycle_ns": 4225382,
+            "maximum_callback_start_monotonic_ns": 158816187786995,
+            "maximum_callback_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 3219000,
+              "voluntary_switches": 0
+            },
+            "maximum_clock": {
+              "cycle": 190594,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158816187395833,
+              "position": 7623176995,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_clock_known": true,
+            "maximum_cpu_ns": 3828349,
+            "maximum_cycle_callback_cpu_known": true,
+            "maximum_cycle_callback_cpu_ns": 3828349,
+            "maximum_cycle_callback_start_monotonic_ns": 158816187786995,
+            "maximum_cycle_callback_wall_ns": 3834220,
+            "maximum_cycle_clock": {
+              "cycle": 190594,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158816187395833,
+              "position": 7623176995,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_cycle_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 3219000,
+              "voluntary_switches": 0
+            },
+            "maximum_integer_rate": 48000,
+            "maximum_major_faults": 0,
+            "maximum_minor_faults": 1,
+            "maximum_ns": 3834220,
+            "maximum_period_ratio": 0.179729,
+            "maximum_quantum": 1024,
+            "maximum_system_ns": 188000,
+            "maximum_wall_minus_cpu_ns": 13967,
+            "mean_cpu_ns": 1545816,
+            "minimum_integer_rate": 48000,
+            "minimum_quantum": 1024,
+            "missing_periods": 0,
+            "p50_ns": 1481989,
+            "p999_ns": 3834220,
+            "p999_period_ratio": 0.179729,
+            "p99_ns": 2731793,
+            "samples": 235,
+            "thread_usage_failures": 0,
+            "thread_usage_requested": true,
+            "thread_usage_samples": 235,
+            "thread_usage_totals": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 1,
+              "system_ns": 362000,
+              "user_ns": 238073000,
+              "voluntary_switches": 0
+            }
+          },
+          "sink": {
+            "callback_end_after_cycle_period_count": 0,
+            "calls": 251,
+            "clock_failures": 0,
+            "complete_cpu_coverage": true,
+            "complete_thread_usage_coverage": true,
+            "complete_timing_coverage": true,
+            "cpu_clock_failures": 0,
+            "cpu_samples": 251,
+            "cpu_timing_requested": true,
+            "cycle_context_samples": 251,
+            "cycle_context_unknown": 0,
+            "dropped_samples": 0,
+            "finite_deadline_thresholds_met": true,
+            "maximum_callback_cpu_known": true,
+            "maximum_callback_cpu_ns": 34878,
+            "maximum_callback_end_after_cycle_ns": 4289230,
+            "maximum_callback_start_monotonic_ns": 158815698738076,
+            "maximum_callback_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 0,
+              "voluntary_switches": 0
+            },
+            "maximum_clock": {
+              "cycle": 190571,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158815696729166,
+              "position": 7623153443,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_clock_known": true,
+            "maximum_cpu_ns": 34878,
+            "maximum_cycle_callback_cpu_known": true,
+            "maximum_cycle_callback_cpu_ns": 18310,
+            "maximum_cycle_callback_start_monotonic_ns": 158816191663501,
+            "maximum_cycle_callback_wall_ns": 21562,
+            "maximum_cycle_clock": {
+              "cycle": 190594,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158816187395833,
+              "position": 7623176995,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_cycle_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 0,
+              "voluntary_switches": 0
+            },
+            "maximum_integer_rate": 48000,
+            "maximum_major_faults": 0,
+            "maximum_minor_faults": 2,
+            "maximum_ns": 38525,
+            "maximum_period_ratio": 0.00180586,
+            "maximum_quantum": 1024,
+            "maximum_system_ns": 0,
+            "maximum_wall_minus_cpu_ns": 11222,
+            "mean_cpu_ns": 14018,
+            "minimum_integer_rate": 48000,
+            "minimum_quantum": 1024,
+            "missing_periods": 0,
+            "p50_ns": 13146,
+            "p999_ns": 38525,
+            "p999_period_ratio": 0.00180586,
+            "p99_ns": 34200,
+            "samples": 251,
+            "thread_usage_failures": 0,
+            "thread_usage_requested": true,
+            "thread_usage_samples": 251,
+            "thread_usage_totals": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 3,
+              "system_ns": 0,
+              "user_ns": 4000,
+              "voluntary_switches": 0
+            }
+          },
+          "source": {
+            "callback_end_after_cycle_period_count": 0,
+            "calls": 251,
+            "clock_failures": 0,
+            "complete_cpu_coverage": true,
+            "complete_thread_usage_coverage": true,
+            "complete_timing_coverage": true,
+            "cpu_clock_failures": 0,
+            "cpu_samples": 251,
+            "cpu_timing_requested": true,
+            "cycle_context_samples": 251,
+            "cycle_context_unknown": 0,
+            "dropped_samples": 0,
+            "finite_deadline_thresholds_met": true,
+            "maximum_callback_cpu_known": true,
+            "maximum_callback_cpu_ns": 327112,
+            "maximum_callback_end_after_cycle_ns": 612513,
+            "maximum_callback_start_monotonic_ns": 158818512784949,
+            "maximum_callback_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 0,
+              "system_ns": 0,
+              "user_ns": 219000,
+              "voluntary_switches": 0
+            },
+            "maximum_clock": {
+              "cycle": 190703,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158818512729166,
+              "position": 7623288611,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_clock_known": true,
+            "maximum_cpu_ns": 327112,
+            "maximum_cycle_callback_cpu_known": true,
+            "maximum_cycle_callback_cpu_ns": 259695,
+            "maximum_cycle_callback_start_monotonic_ns": 158816550411208,
+            "maximum_cycle_callback_wall_ns": 263805,
+            "maximum_cycle_clock": {
+              "cycle": 190611,
+              "discontinuity": false,
+              "duration": 1024,
+              "id": 30,
+              "nsec": 158816550062500,
+              "position": 7623194403,
+              "rate_denominator": 48000,
+              "rate_numerator": 1,
+              "xrun": false
+            },
+            "maximum_cycle_thread_usage": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 2,
+              "system_ns": 0,
+              "user_ns": 0,
+              "voluntary_switches": 0
+            },
+            "maximum_integer_rate": 48000,
+            "maximum_major_faults": 0,
+            "maximum_minor_faults": 2,
+            "maximum_ns": 331889,
+            "maximum_period_ratio": 0.0155573,
+            "maximum_quantum": 1024,
+            "maximum_system_ns": 0,
+            "maximum_wall_minus_cpu_ns": 12529,
+            "mean_cpu_ns": 237457,
+            "minimum_integer_rate": 48000,
+            "minimum_quantum": 1024,
+            "missing_periods": 0,
+            "p50_ns": 253632,
+            "p999_ns": 331889,
+            "p999_period_ratio": 0.0155573,
+            "p99_ns": 324151,
+            "samples": 251,
+            "thread_usage_failures": 0,
+            "thread_usage_requested": true,
+            "thread_usage_samples": 251,
+            "thread_usage_totals": {
+              "involuntary_switches": 0,
+              "known": true,
+              "major_faults": 0,
+              "minor_faults": 4,
+              "system_ns": 0,
+              "user_ns": 13882000,
+              "voluntary_switches": 0
+            }
+          }
+        },
+        "canonical_punch_settings": true,
+        "device_playback_origin": 7623100195,
+        "frames_per_raw_take": 96014,
+        "group_undo_redo": true,
+        "live_EQ_receipts": true,
+        "missing_track_frames": 0,
+        "mode": "32",
+        "output_max_difference": 0.0,
+        "output_peak": 3.632150411605835,
+        "output_samples_verified": 480000,
+        "owned_nodes_only": true,
+        "physical_latency_qualified": false,
+        "playback_end": 240137,
+        "playback_start": 137,
+        "production_gui_duplex": true,
+        "punch_in": 48150,
+        "punch_out": 144164,
+        "raw_lanes": [
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "69cb8d691751f06a7c94fbf12e4d9f5f8bfb6e1627268bfff578f3e2d21b342a",
+            "track": "5b244469-4a71-4a57-a88e-edf90ede8624"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "9176370741e2c5096cf3983a4d62458d03251b6994a106f9aecc16b4a4c47b15",
+            "track": "004fce5d-b5af-4d6d-a78b-8a94fa18d112"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "1dd568ac186e7958f0a3f43f8b4a77e0639c76593dfeb4eb3f6436589ecce0a2",
+            "track": "ad31a879-63cd-4210-b761-ecc90fc7ea5a"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "3e239bc947a8956047eaa83d08a2178cb940592321e51c7ef348c4b6df65d251",
+            "track": "e629bec4-53b3-4a0d-95c9-074076c3ac94"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "0ac95aad107b79732557bf546093fb9d9ae789e7ceafa0c2197ed54606a4a9d1",
+            "track": "d5853e6d-0009-4979-94e5-360a9993a720"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "839a135326322bbe5474051755c3cde563a0c56760631c48b7e6a080b75a4f60",
+            "track": "1ee5c2ef-f1c5-4ce8-a27c-fadf20dcfbc9"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "64e08f1b8b37ed0a1fb0be5a3d0d5f6403f66d9fe044f93096ffe8db0a202f38",
+            "track": "f5cc7ec5-81ab-4b90-9c75-2dc0f4b79799"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "2d15784186c38e472ba5ae852d6a99787b6609969bac4ecf0cea6c85184e56f9",
+            "track": "d76c2c92-de30-4895-ba4e-a4146323770f"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "0e7494607a4e8d3f7863fa2d0e470efd4c8ea9fdb15580f16fbd7ce49f803439",
+            "track": "fd2bd34a-05b7-4c94-bf96-97d9b07c7f80"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "0f470ecc895c542257bf92151df0fce2847e15c1cac84875d25a045bf115106e",
+            "track": "eeccfc4c-7008-4560-9a22-b7c60782bd38"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "3b8c3c71ef4f6958ee5a73e5b921547aa307e314f6b182c575dc7f7c9c70d696",
+            "track": "d3aab74b-09db-4046-abbb-d17321733b02"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "3ff41bd9eb67cf7e745b9b19894e0f4faf7e3cc6f22553d7df8fdb75e087e214",
+            "track": "cf137682-0c00-45aa-89ec-ade7504cadc9"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "408723bd7999b75b12eccb93ec026bd42797f456737e48a2adfc7b8c52342e03",
+            "track": "84b9e5c0-6cb0-4096-8f52-07f2229ea88b"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "2eafd72beba2ff38810514d6eae7d1812ec79d1c099c0f998ba6361dee4754a9",
+            "track": "3c83a65e-187d-4c93-89e7-2f014b03134e"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "62061eab8abe9bfd89684b47664adf5dde18b48f1db0dfcd7c3d6b88da72dd34",
+            "track": "35542242-f198-448c-b499-9cefc802540c"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "6bd05ca4682d9723a3fc7b7e6459d71f8b0b5e2e67b8360220ed97595eada37d",
+            "track": "cea4ce60-f0d5-4fd2-91d1-3d291bb1c89a"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "c275fa1e4a0bae95ed470ac224bebda6fc049fa7cee21b8d7f1e07d2ff5f42ff",
+            "track": "bdfe93d4-f01f-49c4-a001-c66357592afc"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "5d396c8fe1d566fae451a65e9606a4d346011b64b152099913489e8b7a5f9506",
+            "track": "70b50357-6a08-4b29-9bea-5ad7fc5be4f0"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "cc4c9b56851cad8b9c1d7406f684b0c0f34e08be0cdd46628fb4519a5c4a8b2f",
+            "track": "6860c18f-d67d-4d57-b06e-33280e5f8d46"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "9fa7fb4d624e47a3c1fc977b7eb25174130197479271358a80d1c29665360cf6",
+            "track": "487e4f43-c0b4-4827-9a8d-dfd849e64824"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "5f951fb7920e98171dc81e6cc9c79106b21c1f56134dfabe7eeeda67a378924b",
+            "track": "2900509a-6ae2-4cc2-9aff-def21e5dfb1f"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "ba1093d2a49b3ee2c1d9e765ac7eeccc29cc7233a419deced929300396d216f7",
+            "track": "dbbe89d2-7461-4081-a806-13d834cb6443"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "9d563d8b6dc65ff338ef0a9f2fed666365734a48e96e3aa858bb2cd0e9420e68",
+            "track": "6c69fcc5-d18d-4fc5-845c-35b69a4a795d"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "0529ffe516f839a06fd6f9077a1f82726bc73e345b7657933e273e23cdee220e",
+            "track": "a8316e37-2e2a-425e-a893-ad9ec29c1886"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "8d11feffff7852ea0908dd74eafbac4889936b72af0e137d69dbf82acac1311a",
+            "track": "056a5a2f-f4f4-4e9f-bf9a-d96f9f93ece8"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "a198cc079fe28d2cc2295251e51521e748fe8f9efdfaabf035488221e6df95cd",
+            "track": "ecd11385-f224-4e89-a15c-ad320371824e"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "ae23ff2fc10a07a00da27ba68de6a0d9ed9ce5743b119353f4d32c8a3a4bf2bd",
+            "track": "5bcacf70-bd88-4245-a284-105e571a7a98"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "4e4da91589a2cf71a074681cab82b89f7fe639a4c5a12a85798250df04bacf5c",
+            "track": "468b6246-720d-481b-905e-61ebfb53e0a9"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "167b2fbb4b6f09f01ca801842695a20bab9f0ff1c549225d93078a4b2579cfad",
+            "track": "cf4d7c59-1781-47c9-b10d-e00d16f2b175"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "d6adb7e0229d50c8d74b73cd6c3370a554a76b3b632af0fabadb6c912ecdd613",
+            "track": "6b553459-d945-4d81-ad47-ea2950c603d4"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "2cdc047d13c480b510c707b5dcc58d183ea9ac0ac9afc125839b7d7d7dc66e3b",
+            "track": "e7455a4b-ca29-496b-bef6-41ba616443d5"
+          },
+          {
+            "device_origin": 7623148208,
+            "frames": 96014,
+            "latency": 0,
+            "origin_offset": 909,
+            "origin_quantum": 1024,
+            "raw_start": 48150,
+            "sha256": "10233b0f9330ff1bb3f59905337be51afbde68211789b0b68f4b3fddc06a482c",
+            "track": "6652c9a7-a8b6-4e74-bac0-a7f5de0befde"
+          }
+        ],
+        "raw_samples_exact": true,
+        "raw_samples_verified": 3072448,
+        "save_reopen": true,
+        "sustained_performance_qualified": false,
+        "underlying_clip_unchanged": true,
+        "windows_qualified": false
+      },
+      "wall_seconds": 6.33322158199735,
+      "routing_observations": {
+        "default_metadata_unchanged": true,
+        "pre_existing_links_preserved": 0,
+        "owned_nodes_remaining": 0,
+        "owned_links_remaining": 0,
+        "no_observed_owned_to_unowned_links": true
+      },
+      "artifacts": {
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-4uuakfzo/stdout.json": "ac0cfaa6cfdabd01a731ee3e71b1cac8e2c05e174afc232dad5a86645164c124",
+        "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-4uuakfzo/stderr.log": "1014b6a67aa8703d2c9d4f942d93c25e45cd079123508bdfa4d31c17ef44ee2c"
+      }
+    },
+    "all_86_pins_verified_after_terminal": true,
+    "screenshot_visually_inspected": {
+      "path": "/home/rich/dev/soundcurrent-daw/.cache/sc-punch-ui-4uuakfzo/Punch — Ελληνικά/prepared-desktop.png",
+      "bytes": 93661,
+      "sha256": "1f3a10ddf433045d6e300cd45952cf0200acacac01439cacc2e97411b3e108fe"
+    }
+  },
+  "artifacts": [
+    {
+      "path": ".cache/m2-native-punch-ui-debug-build.log",
+      "bytes": 706,
+      "sha256": "f8446624a0f89d6cb6c3244067ac51609bfbe1d05fae4ab0fbf0276e77f2bffb"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-debug-tests.log",
+      "bytes": 357,
+      "sha256": "b113e870560a19167ae6b4d6997448725a30ff76f1bb3c357547a5adb8127ddc"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-owned.log",
+      "bytes": 269,
+      "sha256": "b52418ad9b033d5d7850ca4b3a2890dde3873c8803c518055e29b8ebf36af6b6"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-release-build.log",
+      "bytes": 668,
+      "sha256": "da2a4349f599ece6d56b5ff74087246cbd279783b741696833cc09ada02696ea"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-sanitized-build.log",
+      "bytes": 716,
+      "sha256": "56bd638e90817db41c4884444a1263fa993532dd26e7d0d2db3e2b5c6e896e15"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-sanitized-tests.log",
+      "bytes": 367,
+      "sha256": "e266b0c4754c760c0baea7b586b98453a130afa8c7b4cbcc3816785f7fbeaed9"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-settled-build.log",
+      "bytes": 166,
+      "sha256": "f39b4d27ddbeb698b0cd4c5c74a83b9d636d45c78d98322c41ddb303a0f71a7b"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-settled.log",
+      "bytes": 270,
+      "sha256": "1c46ee0841062aaa9e795c3417806c667fe4bae889252db066847c08fe9e1a55"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-visible-build.log",
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-visible-fixed-build.log",
+      "bytes": 166,
+      "sha256": "f39b4d27ddbeb698b0cd4c5c74a83b9d636d45c78d98322c41ddb303a0f71a7b"
+    },
+    {
+      "path": ".cache/m2-native-punch-ui-visible.log",
+      "bytes": 656,
+      "sha256": "726124a121ce816347caf636cd40c088cb84fc4fe1f0f9aa273ae833308fa861"
+    },
+    {
+      "path": ".cache/native-punch-ui-visible-frozen-d9080ca/sc-pipewire-punch-ui-fixture",
+      "bytes": 2558216,
+      "sha256": "f8ba9890037d27f62d60e300a46bff56e65158c110f2c3b25f0dc0f7539139dd"
+    },
+    {
+      "path": ".cache/native-punch-ui-visible-frozen-d9080ca/pipewire_punch_ui_fixture.cpp",
+      "bytes": 32441,
+      "sha256": "72b3779ecb9e0f29a1a3c5a6d357800d09bce5dd782dc379cd11f2a27aa49019"
+    },
+    {
+      "path": ".cache/native-punch-ui-visible-frozen-d9080ca/verify_pipewire_punch_ui.py",
+      "bytes": 6926,
+      "sha256": "2e6734542ca6bda20462a8ecb8f6b7cb82178d06baed9fb2ba567df952c90b01"
+    }
+  ],
+  "prior_unresolved": {
+    "count": 21,
+    "all_original_observations_retained": true,
+    "original21_pin_check": true,
+    "original20_receipt_and_frozen_exe_check": true,
+    "catalog": {
+      "prior_evidence": {
+        "path": "tests/results/M2/2026-10-06-individual-stage-sustained-failure.json",
+        "bytes": 144591,
+        "sha256": "47499008382d408cc244a555d1e1527f0b9f12d156a3b8a5eb005f89d6a1bd47"
+      },
+      "prior_count": 20,
+      "new": {
+        "index": 21,
+        "failure": "SAN full suite desktop-timeline selected transport prepare refused",
+        "diagnostic": "Combined selectTrack&&preparePlayback assertion; original branch/admission snapshot not retained. No memory diagnostic; no inference of punch cause. All other28groups including punch pass.",
+        "artifacts": [
+          {
+            "path": ".cache/m2-punch-sanitized-all-tests.log",
+            "bytes": 3603,
+            "sha256": "5cee757479313e68b72d4772f9986ad0dcaeee4ee1a3cfead723254338a9e79d"
+          },
+          {
+            "path": ".cache/m2-punch-sanitized-original-LastTest.log",
+            "bytes": 25080,
+            "sha256": "3f3a8c756064d75e6f0cc4713cb1d03d5101c8562ca98f148cf92c98452f51be"
+          },
+          {
+            "path": ".cache/m2-punch-sanitized-original-LastTestsFailed.log",
+            "bytes": 19,
+            "sha256": "99a471cc37ceab604c47fa79dd6fda47fdf25e1377e80cb17f40176422c4f9f3"
+          },
+          {
+            "path": ".cache/punch-timeline-frozen-14b1eff/sc-timeline-ui-tests",
+            "bytes": 106897504,
+            "sha256": "ff56f62606cc7e39c367a3046f505d842604ad714fde30e7e59854d4cdce0706"
+          }
+        ]
+      },
+      "count": 21,
+      "all_prior_observations_retained": true,
+      "original_native_receipts_match": true
+    }
+  },
+  "unresolved_observation_count": 22,
+  "original_failure_causes_not_erased_by_later_passes": true,
+  "parity": {
+    "family_count": 92,
+    "acceptance_quality_references_axes_unchanged": true,
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "no_FQCN_status_promoted": true
+  },
+  "equalizer_audit": {
+    "inputs": 24,
+    "before": {
+      "snapshot_errors": [],
+      "sources": {
+        "soundcurrent-eq": {
+          "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "current_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "current_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+          "head_changed": true
+        },
+        "soundcurrent-studio": {
+          "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "current_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "current_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "70b0d14264c48bf229992f11495fa6e31b5b9180",
+          "head_changed": true
+        }
+      },
+      "review_required": false
+    },
+    "after": {
+      "snapshot_errors": [],
+      "sources": {
+        "soundcurrent-eq": {
+          "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "current_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "current_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+          "head_changed": true
+        },
+        "soundcurrent-studio": {
+          "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "current_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "current_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "70b0d14264c48bf229992f11495fa6e31b5b9180",
+          "head_changed": true
+        }
+      },
+      "review_required": false
+    },
+    "repository_writes": false
+  },
+  "qualification_limits": [
+    "Short owned native workload only",
+    "Zero declared desktop input latency; nonzero simulated latency engine evidence separate",
+    "No populated pre-existing external graph observed",
+    "No sustained, physical or native Windows qualification",
+    "All 92 frozen F/Q/C/N contracts remain unpromoted"
+  ],
+  "publication_authorized": true,
+  "publication_visibility": "public GPL-3.0",
+  "full_goal_status": "active and incomplete",
+  "next_task": "Native punch interruption and route/disk-fault recovery, then explicit latency controls and manual/Auto/tempo/loop/take/comping workflows"
+}

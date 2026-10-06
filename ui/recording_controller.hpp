@@ -129,6 +129,9 @@ struct RecordingControllerOptions {
     std::function<void()> beforePrepare;
     PipeWireRecordingOptions nativeOptions;
     std::function<std::unique_ptr<RecordingEndpoint>(const RecordingPreparation &)> duplexFactory;
+    // Optional bounded native-duplex clock instrumentation in the existing audit
+    // scope/context. Forwarded on the worker; absent in normal desktop operation.
+    void (*duplexAuditClock)(void *, const DeviceBlockClock &) noexcept = nullptr;
 };
 enum class RecordingCommandKind { Prepare, Start, Inspect, Recover };
 struct RecordingCommand {

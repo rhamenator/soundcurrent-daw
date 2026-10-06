@@ -506,7 +506,18 @@ void duplexPunchState(const std::filesystem::path &root) {
         ProjectStore(folder).save(s);
         auto c = std::make_shared<duplex_fixture::Counters>();
         c->holdProcess = mode == 1;
-        RecordingController r(duplex_fixture::options(c));
+        auto options = duplex_fixture::options(c);
+        unsigned token = 7;
+        options.nativeOptions.audit.context = &token;
+        options.duplexAuditClock = +[](void *, const DeviceBlockClock &) noexcept {};
+        auto factory = options.duplexFactory;
+        options.duplexFactory = [factory, context = &token,
+                                 hook = options.duplexAuditClock](const auto &p) {
+            check(p.duplexOptions.audit.context == context && p.duplexOptions.auditClock == hook,
+                  "Desktop worker lost native duplex clock audit/context");
+            return factory(p);
+        };
+        RecordingController r(options);
         DuplexRelease release{c};
         auto p = duplex_fixture::prepare(folder, s);
         p.recordFrames = mode == 2 ? 1700 : 1701;

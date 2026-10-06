@@ -259,3 +259,15 @@ close native desktop integration, fault/interrupted punch, physical/sustained/
 non-flat/Windows gates or full reference record modes. Next canonical native
 desktop punch evidence precedes manual/Auto/tempo/loop/take/comping. All21prior
 observations and92frozencontracts remain unpromoted.
+
+
+## M2 native desktop punch checkpoint (2026-10-06)
+
+[Production desktop/native punch](56-native-desktop-punch.md) now has short owned
+32-track evidence: canonical locators/Prepare/Record/Stop, alternating monitoring,
+live EQ applied-frame receipts, exact raw/full-output samples, grouped attachment
+Undo/Redo and Save/reopen. The original control visibility failure and prior 21
+observations remain retained. Complete finite native timing gates pass; all 92
+frozen contracts remain unchanged and unpromoted. Next: native punch interruption
+and route/disk-fault recovery, then input-latency controls, manual/Auto, tempo/loop,
+take lanes and comping. Sustained, physical and Windows gates remain open.

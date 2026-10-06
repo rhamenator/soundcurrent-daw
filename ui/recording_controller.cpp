@@ -563,6 +563,7 @@ struct RecordingController::State : QThread {
                                   ? c.session->master->plan
                                   : identityMix(*c.session, ids, c.session->tracks.front().layout));
                 p.duplexOptions.audit = p.options.audit;
+                p.duplexOptions.auditClock = options.duplexAuditClock;
                 auto &cfg = p.duplexOptions.run;
                 cfg.nativeInputs = 0;
                 cfg.playback.graph.startFrame = c.session->playheadFrame;
