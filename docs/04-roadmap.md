@@ -250,3 +250,12 @@ Linux codec/controller/desktop tests qualify this bounded workflow. No native
 punch, physical or Windows runtime gate is promoted. Next owned native per-lane
 punch acceptance precedes manual/Auto/tempo/loop/take/comping. All21historical
 observations,92frozencontracts and the full professional-suite scope remain.
+
+The short [owned native punch workflow](55-native-punch-qualification.md) now
+verifies32 differently delayed takes, exact boundaries/origins/timeline alignment,
+full preroll/postroll monitoring and grouped undo/Save-reopen. Complete callback
+elapsed/CPU/resource/cycle coverage passes unchanged finite gates. This does not
+close native desktop integration, fault/interrupted punch, physical/sustained/
+non-flat/Windows gates or full reference record modes. Next canonical native
+desktop punch evidence precedes manual/Auto/tempo/loop/take/comping. All21prior
+observations and92frozencontracts remain unpromoted.

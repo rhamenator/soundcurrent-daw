@@ -1488,3 +1488,46 @@ Next qualify owned native per-lane punch boundaries/origins/alignment, then
 manual/Auto/tempo/loop/take/comping workflows. Sustained performance, physical
 latency, Windows native/Qt/installers, import/profile/all-Europe and all frozen
 professional-suite requirements remain open. Full goal active/incomplete.
+
+## 2026-10-06 continuation: owned native punch origins and alignment
+
+Previous turn75444f6 is progress: canonical schema1.4 punch settings, desktop
+controls and final29-group sanitizers pass. All previous owned handles are
+terminal before this turn's compiled fixture changes. The objective, current
+worktree and required next native gate are reread; full scope remains unchanged.
+
+A separate explicit native punch target uses production owners and independent
+playback-anchor/lane-clock observations. Its32 source channels simulate declared
+latencies4097/0/41/200; desired nonaligned window48150..144164 is captured and
+attached exactly while full preroll/postroll file/live monitoring continues.
+First build73912 terminates1 on fixture-only use of RecordingResult fields rather
+than its existing spec; corrected only after termination. Corrected Release64449
+and SAN64753 terminate0 without warnings/errors. Optimized oracle76151 passes;
+ASan/UBSan/LSan oracle18577 passes with real readers/disk workers and no diagnostic.
+
+After both are terminal, serial owned native7717 terminates0:3,072,448 raw and
+296,248 stereo samples exact, output peak3.6612954, separate nonaligned origins,
+per-lane final journals/hashes/alignment, original-media preservation and grouped
+undo/redo/Save-reopen. Owner maximum2.031224ms elapsed/2.027194ms CPU; all roles
+have complete wall/CPU/resource/cycle coverage, finite gates pass, cycle overruns0
+and instrumented RTallocation/free/blocking-lock hits0. Defaults unchanged,
+owned routes retire; zero pre-existing links means populated-link preservation
+is not exercised. All67source/actual-executable/11library pins verified after
+termination. No competing owned CPU test or compiled source edit overlaps native.
+
+A stricter supervisor check subsequently requires complete native cycle coverage;
+actual evidence replays successfully and11 altered receipts are refused. Original
+supervisor and actual native executable are frozen before this verifier-only
+change. Production source remains unchanged. [Contract](55-native-punch-qualification.md),
+[ADR-043](decisions/043-native-punch-playback-anchor.md) and
+[evidence](../tests/results/M2/2026-10-06-native-punch.json) retain all21historical
+observations; no prior cause or resolution inferred. All24borrowed equalizer inputs
+match before/after,92frozencontracts remain exact, onlyP004implementation/evidence
+extends. No dependency, equalizer write, signing expense, host/default-route policy
+change, VM or publication. Full goal active/incomplete.
+
+Next integrate and qualify native desktop canonical punch Prepare/Record/Stop/
+joined grouped attachment, then interruption/fault, manual/Auto/tempo/loop/take/
+comping workflows. Physical/backend latency, sustained/non-flat performance,
+Windows native/Qt/installers and every professional/import/profile/all-Europe
+requirement remain required.
