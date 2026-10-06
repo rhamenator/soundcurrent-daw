@@ -26,7 +26,8 @@ class MixPlaybackRun {
     ~MixPlaybackRun();
     MixPlaybackRun(const MixPlaybackRun &) = delete;
     MixPlaybackRun &operator=(const MixPlaybackRun &) = delete;
-    MixPlaybackReport process(std::span<float *const>, std::uint32_t frames) noexcept;
+    MixPlaybackReport process(std::span<float *const>, std::uint32_t frames,
+                              std::span<const LiveMixInput> live = {}) noexcept;
     PreparedMixGraph &graph() noexcept;
     Frame position() const noexcept;
     const MixPlaybackConfig &config() const noexcept;

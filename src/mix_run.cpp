@@ -84,10 +84,11 @@ MixPlaybackRun::~MixPlaybackRun() {
     cancelReader();
     state_->join();
 }
-MixPlaybackReport MixPlaybackRun::process(std::span<float *const> out, std::uint32_t n) noexcept {
+MixPlaybackReport MixPlaybackRun::process(std::span<float *const> out, std::uint32_t n,
+                                          std::span<const LiveMixInput> live) noexcept {
     if (state_->stopRequested.load(std::memory_order_acquire))
         state_->mix.stop();
-    auto r = state_->mix.process(out, n);
+    auto r = state_->mix.process(out, n, live);
     if (r.status != PlaybackStatus::Running && r.status != PlaybackStatus::Underflow &&
         r.status != PlaybackStatus::InvalidBuffer)
         state_->canceled.store(1, std::memory_order_release);

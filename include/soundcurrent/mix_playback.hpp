@@ -9,6 +9,11 @@ struct MixPlaybackConfig {
     Frame endFrame = 0;
     std::uint32_t slabFrames = 0;
 };
+// Prepared ordinals only; one input replacement per lane. Unlisted lanes play files.
+struct LiveMixInput {
+    std::size_t track = 0;
+    MixInput input;
+};
 struct MixPlaybackReport {
     PlaybackStatus status = PlaybackStatus::Running;
     Frame startFrame = 0;
@@ -26,7 +31,8 @@ class MixPlayback {
     ~MixPlayback();
     MixPlayback(const MixPlayback &) = delete;
     MixPlayback &operator=(const MixPlayback &) = delete;
-    MixPlaybackReport process(std::span<float *const>, std::uint32_t frames) noexcept;
+    MixPlaybackReport process(std::span<float *const>, std::uint32_t frames,
+                              std::span<const LiveMixInput> live = {}) noexcept;
     void stop() noexcept;
     PreparedMixGraph &graph() noexcept;
     PlaybackPipe &pipe(std::size_t);                     // Preparation/disk owner lookup only.

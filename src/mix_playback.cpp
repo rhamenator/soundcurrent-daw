@@ -75,7 +75,8 @@ MixPlayback::MixPlayback(const Session &s, MixPlan p, MixPlaybackConfig c) {
     }
 }
 MixPlayback::~MixPlayback() = default;
-MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_t n) noexcept {
+MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_t n,
+                                       std::span<const LiveMixInput> live) noexcept {
     auto &s = *state_;
     MixPlaybackReport r;
     r.startFrame = s.graph.position();
@@ -84,16 +85,38 @@ MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_
         r.status = PlaybackStatus::InvalidBuffer;
         return r;
     }
-    for (auto *p : out)
-        std::fill_n(p, n, 0.f);
+    for (std::size_t c = 0; c < out.size(); ++c)
+        for (std::size_t prior = 0; prior < c; ++prior)
+            if (out[c] == out[prior]) {
+                r.status = PlaybackStatus::InvalidBuffer;
+                return r;
+            }
+    // Validate before consuming any file pipe or moving the common cursor.
+    std::array<bool, 256> replaced{};
+    for (const auto &replacement : live) {
+        if (replacement.track >= s.lanes.size() || replaced[replacement.track] ||
+            replacement.input.size() != s.lanes[replacement.track]->pipe.config().layout.channels ||
+            std::any_of(replacement.input.begin(), replacement.input.end(),
+                        [](auto *p) { return !p; })) {
+            r.status = PlaybackStatus::InvalidBuffer;
+            return r;
+        }
+        replaced[replacement.track] = true;
+    }
+    const auto silence = [&] {
+        for (auto *p : out)
+            std::fill_n(p, n, 0.f);
+    };
     if (s.terminal != PlaybackStatus::Running) {
         r.status = s.terminal;
+        silence();
         return r;
     }
     const auto frames =
         static_cast<std::uint32_t>(std::min<Frame>(n, s.config.endFrame - r.startFrame));
     if (!frames) {
         s.terminal = r.status = PlaybackStatus::Complete;
+        silence();
         return r;
     }
     for (auto &lane : s.lanes) {
@@ -112,9 +135,19 @@ MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_
             for (auto &l : s.lanes)
                 l->pipe.stop();
             s.graph.stop();
+            silence();
             return r;
         }
     }
+    // File pipes still consume this block, preserving their shared offset and
+    // failure accounting. Copy every live plane before clearing outputs, so a
+    // native in-place view cannot erase another lane's input.
+    for (const auto &replacement : live) {
+        auto &lane = *s.lanes[replacement.track];
+        for (std::size_t c = 0; c < replacement.input.size(); ++c)
+            std::copy_n(replacement.input[c], frames, lane.write[c]);
+    }
+    silence();
     r.mix = s.graph.process(s.inputs, out, frames);
     if (r.mix.status != ProcessStatus::Ok) {
         s.terminal = r.status = PlaybackStatus::ProcessorFailed;

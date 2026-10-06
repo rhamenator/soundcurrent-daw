@@ -1,0 +1,395 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2d1 backend-free shared playback/armed raw capture and explicit live monitoring",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "115cce98e7267a74f5df7dcfcc271f7682127323",
+  "status": "Listed finite shared-callback foundation workflows passed; production native duplex owner and desktop integration remain required; full M2/full goal incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "24cd9907ce625a449f9345b930629b0df13212ced19837085039e66aaa83d397",
+    "include/soundcurrent/capture.hpp": "8ac81e48d4ec7a9fd309b9f9e09ff38361f3a6349979a70b86a87b1d7b0536af",
+    "include/soundcurrent/duplex_bridge.hpp": "00a6746dafbe0a466a152654e4d9264c7d11783740dccea2dfbd0ff13f419d96",
+    "include/soundcurrent/mix_playback.hpp": "d07520b21b39df92d88af8d5e62bb2c0fee072cbc4eed702955f4ce18e169fd4",
+    "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+    "include/soundcurrent/recording.hpp": "c5e55037032c5f5e1c0657f8a9da9004dc723b3683304be0b882a61156cf1ec4",
+    "include/soundcurrent/session.hpp": "c4933c213a464f5358fa32b006c2744324450bb36db38e358957f64b402a3c84",
+    "research/parity.json": "4afc2ba9e168960eb98ecf5dc97e11ae9dffc9acf8eb272203f9f076be14a6b5",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/capture.cpp": "ba890b1e79572c4f3e5a1951f031ca1246fd14f4bd6a19457f40c519802e9b5e",
+    "src/duplex_bridge.cpp": "8ed0356696befb79cd0c4640d06118c0abccb26d4594a590ccff93fb41e9261b",
+    "src/eq.cpp": "b52243413810cf702b9402fa36edf0908a2a59ccc0a4b6bff54221283e56f812",
+    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+    "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+    "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+    "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+    "src/recording.cpp": "9878966397ae62316cf3825219fdf3db9d97de171ee54597c458a920a8578fc8",
+    "src/recording_worker.cpp": "6d56b8d84b23f809999cac1ecb032810687c21abf5ac2adefa33f93105b5809d",
+    "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+    "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c"
+  },
+  "workflows": [
+    "One device clock gate before raw publication and existing file/EQ/matrix run; common project start/origin across explicitly mapped armed pipes",
+    "Off captures raw and retains file playback; Post-EQ prepares one live replacement through its existing EQ/matrix lane; file offsets/underflow remain reported; offline path supplies no replacements",
+    "33 mixed lanes and 32 armed tracks with permuted input maps, stereo sparse matrix, 37/127/256/83-frame blocks, native input/output aliases and final partial block; independent float64/source sample oracle exact",
+    "32 raw float files independently checked for 9866 frames from project frame137, retained headroom, counted sanitized NaN, same timing origin/generation and RangeComplete reason",
+    "Supplied latency41 gives clip start96/source0; latency200 gives start0/source63/length9803; diagnostic driver delay777 not substituted; originals/canonical state unchanged until explicit attach/save and exact reopen",
+    "Fourteen clock/rate/quantum/buffer/control faults preserve previous raw/file cursor and certified silence; first facts immutable; control faults do not invent callback clocks",
+    "Malformed project/binding/duplicate/shape/mapping/limits/budget refused off RT; wholly unmapped priming skipped, partially mapped or duplicate-output startup fails before capture; valid live input does not hide file underflow",
+    "Queue exhaustion retains distinct8192/8448 raw prefixes at playback8192 and256 rejected frames; injected writer-failed latch retains256/512 raw prefixes at playback256; first failed lane/reasons/counts explicit",
+    "Full64-slot meter queue does not stall transport; independently retained xrun fault at frame8255 leaves raw/file cursor unchanged",
+    "Two concurrent disk workers retain identical10003-frame Off/Post-EQ raw takes; independent1kHz steady response within0.01dB of6dB, immediate gain change receipt exactly at frame4096 and settled output within0.0001",
+    "Interrupted unfinished mono/stereo writers retain4096-frame verified prefixes; exclusive inactive lease inspection, original hashes unchanged during recovery copies, stereo permutation/common origin/start337/latency64/clip start273 and save/reopen",
+    "Reserve immutable prepared playback budget and bounded raw-pool/metadata payload; no recomputation from potentially changed caller model; callback atomics compile-time lock-free",
+    "All callback audit allocation/free/blocking-lock counters remain zero in the new synthetic corpus within wrapper scope",
+    "Existing owned native32-track saved-matrix playback remains480000-sample exact with defaults/preexisting links preserved; this executes the empty-live mix path and does not qualify native duplex capture"
+  ],
+  "qualification": {
+    "linux_debug": {
+      "result": "passed",
+      "groups": 24,
+      "seconds": 21.63,
+      "log": {
+        "path": ".cache/m2-duplex-admitted-debug-tests.log",
+        "sha256": "9d6d0a7176fb6f1341f7614143b4488d5b6d0d28e1b4ddfb51ed11b2dbd8af3a"
+      },
+      "details": {
+        "path": ".cache/m2-duplex-admitted-debug-details.log",
+        "sha256": "d593fc7352d7cabb0da065850a27e0d8ac455c63501dd3c458fd226720db448a"
+      },
+      "shared_playback_capture": {
+        "checks": 374866,
+        "simultaneous_armed_tracks": 32,
+        "captured_frames_per_track": 9866,
+        "matrix_difference": 0,
+        "native_clock_faults": 14,
+        "raw_off_post_eq_exact": true,
+        "save_reopen_alignment": true,
+        "rt_violations": 0,
+        "native_audio": false
+      }
+    },
+    "linux_sanitized": {
+      "result": "passed",
+      "groups": 24,
+      "seconds": 60.13,
+      "log": {
+        "path": ".cache/m2-duplex-admitted-sanitized-tests.log",
+        "sha256": "14dfd2956b2ff429ac5297430ffe8f91e8d6891499d00d82ff61c5812564eb90"
+      },
+      "details": {
+        "path": ".cache/m2-duplex-admitted-sanitized-details.log",
+        "sha256": "d82263136e5db101b15f0182b444d159f4b9da59dcf2b1f4c0f67e123e83302a"
+      },
+      "shared_playback_capture": {
+        "checks": 374866,
+        "simultaneous_armed_tracks": 32,
+        "captured_frames_per_track": 9866,
+        "matrix_difference": 0,
+        "native_clock_faults": 14,
+        "raw_off_post_eq_exact": true,
+        "save_reopen_alignment": true,
+        "rt_violations": 0,
+        "native_audio": false
+      },
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ]
+    },
+    "linux_release_subset": {
+      "result": "passed",
+      "groups": 4,
+      "seconds": 0.92,
+      "log": {
+        "path": ".cache/m2-duplex-admitted-release-tests.log",
+        "sha256": "8d81e1984da0c12cfbd6e64e4d57e88e10e30948fae5a37f8a602f423b32b797"
+      },
+      "details": {
+        "path": ".cache/m2-duplex-admitted-release-details.log",
+        "sha256": "f3cfc43f23cc96480255d50129ca79464d05b490530995187c1efb6d1de7260a"
+      },
+      "shared_playback_capture": {
+        "checks": 374866,
+        "simultaneous_armed_tracks": 32,
+        "captured_frames_per_track": 9866,
+        "matrix_difference": 0,
+        "native_clock_faults": 14,
+        "raw_off_post_eq_exact": true,
+        "save_reopen_alignment": true,
+        "rt_violations": 0,
+        "native_audio": false
+      },
+      "selected_groups": [
+        "shared-playback-capture",
+        "multitrack-mix-playback",
+        "playback-native-clock",
+        "prepared-eq"
+      ]
+    },
+    "builds": {
+      "debug": {
+        "path": ".cache/m2-duplex-admitted-debug-build.log",
+        "sha256": "ee7ed13a3da13b7208cd28aaf7f3f448f38e2f19f0d3ec0d9c64ee7e3f624dbe"
+      },
+      "sanitized": {
+        "path": ".cache/m2-duplex-admitted-sanitized-build.log",
+        "sha256": "9d67cc9a22b7f369d4f7f73c489d6bd1826396e36028eb60c49f9937e4f3f3e8"
+      },
+      "release": {
+        "path": ".cache/m2-duplex-admitted-release-build.log",
+        "sha256": "d526853b44f28db058b58b3577874b0488ec4a3f61a264da9dc5a4a19b5065e3"
+      }
+    },
+    "windows_core": {
+      "result": "New core/fixtures cross-compiled; not executed; no native GUI/audio qualification",
+      "initial_build": {
+        "path": ".cache/m2-duplex-final-windows-build.log",
+        "sha256": "70d1e121d7e8193a23cb3daf8268089164436b69f19364d4f69cb9bdc9780584"
+      },
+      "lock_free_and_exact_receipt_build": {
+        "path": ".cache/m2-duplex-qualified-windows-build.log",
+        "sha256": "87b9ebfacc029a8fc33704fffefcae81f6ff6f5f790a66aead0e890f915d9e88"
+      },
+      "final_admission_build": {
+        "path": ".cache/m2-duplex-admitted-windows-build.log",
+        "sha256": "21039948c724e4a1634c74e8da6424655d807c27f2be4878e08e7bc21f51d93e"
+      },
+      "executed": false,
+      "native_windows_qualified": false
+    },
+    "legacy_native_pipewire_regression": {
+      "result": "passed",
+      "new_duplex_bridge_executed": false,
+      "source_scope": "Existing MixPlayback/MixPlaybackRun path with empty live replacements; no source modification in that path after this run",
+      "report": {
+        "path": ".cache/m2-duplex-legacy-native-mix.json",
+        "sha256": "0784018dbee26acb6886868d3610f7a96b21c18a59020a245be9d50342932210"
+      },
+      "log": {
+        "path": ".cache/m2-duplex-legacy-native-mix.log",
+        "sha256": "0784018dbee26acb6886868d3610f7a96b21c18a59020a245be9d50342932210"
+      },
+      "observed": {
+        "mode": "mix",
+        "frames": 480000,
+        "tracks": 32,
+        "saved_master": true,
+        "gui_export_during_playback": false,
+        "export_live_prefix_frames": 0,
+        "export_live_prefix_difference": 0,
+        "live_offline_difference": 0,
+        "missing_frames": 0,
+        "owned_nodes_only": true,
+        "gui_playback": true,
+        "gui_live_edit": true,
+        "gui_undo": true,
+        "explicit_output_selection": true,
+        "gui_meter": true,
+        "asynchronous_close": true,
+        "project_unchanged": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "first_applied_frame": 24576,
+        "applied_events": 2,
+        "callback_timing": {
+          "player": {
+            "samples": 469,
+            "calls": 469,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 2095360,
+            "p95_ns": 3033374,
+            "p99_ns": 3395761,
+            "maximum_ns": 8356895
+          },
+          "sink": {
+            "samples": 470,
+            "calls": 470,
+            "dropped_samples": 0,
+            "clock_failures": 0,
+            "p50_ns": 7153,
+            "p95_ns": 39321,
+            "p99_ns": 49077,
+            "maximum_ns": 67618
+          },
+          "unavailable_after_start": 0,
+          "minimum_quantum_frames": 1024,
+          "maximum_quantum_frames": 1024
+        },
+        "routing_observations": {
+          "graph_snapshots_during_run": 87,
+          "snapshots_with_owned_links": 77,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 0,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "data_loop_scheduler_samples": [
+          {
+            "tid": 1405858,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1405883,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          }
+        ]
+      }
+    },
+    "native_duplex_capture": {
+      "implemented": false,
+      "qualified": false
+    },
+    "rt_audit_limits": "Direct host C++/C allocation/free and mutex wrappers plus lock-free atomic compilation; not all opaque library operations or page-fault/deadline qualification"
+  },
+  "resolved_fixture_failures": [
+    {
+      "failure": "Initial new test used ImmediateAcknowledgement.appliedFrame and omitted required makeOneTrackSession names",
+      "correction": "Use existing receipt.frame and named factory arguments; exact receipt now asserted at frame4096",
+      "log": {
+        "path": ".cache/m2-duplex-initial-build.log",
+        "sha256": "09c29f33432b1b61cf32b70cb6f13c28d9adab8688e558f88b6f415545b29d61"
+      },
+      "gate_waived": false
+    },
+    {
+      "failure": "Interrupted journal assertion expected writerActivityConfirmed=false after requireInactive inspection",
+      "correction": "Existing inspectRecording acquires an exclusive inactive lease and sets that field true; corrected assertion to require confirmation while retaining finalized=false, exact prefix/origin and source preservation checks",
+      "log": {
+        "path": ".cache/m2-duplex-expanded-tests.log",
+        "sha256": "a3dcbbddcb57111ff78df3aca95057f0dc5fe4e27836141c27a7f2a8df96b39c"
+      },
+      "details": {
+        "path": ".cache/m2-duplex-expanded-failure-details.log",
+        "sha256": "a9c5d2177c0ebe50bbc46972b2040f34de5d61b5b0ee464cdf9d9280496cf166"
+      },
+      "gate_waived": false
+    }
+  ],
+  "unresolved_observations": [
+    {
+      "failure": "First native GUI 32-track attempt timed out after acknowledged Undo while waiting for Complete and sink delivery",
+      "cause": "Unknown; original failure has no terminal state snapshot. No cause or production fix is claimed.",
+      "log": {
+        "path": ".cache/m2-native-mix-gui-failure1.log",
+        "sha256": "d956dd61e21d9f62c87566d03440465ede6a8a42f4b5f8367ef864042b76aab1"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI workflow timed out at line 335\n\n",
+      "action": "Fixture now also wakes on sink gap and emits terminal phase/status/position/missing/sink/gap; isolated mix and final mix/mix-disconnect/export cases passed",
+      "remaining": "Long-duration/deadline/native completion/shutdown reliability qualification remains open; no suppression/waived gate"
+    },
+    {
+      "failure": "First saved-master native GUI 32-track run detected downstream sink clock gap with player still Running",
+      "terminal_state": {
+        "playback_phase": 4,
+        "bridge_status": 1,
+        "player_position": 110592,
+        "missing_track_frames": 0,
+        "sink_prefix": 108544,
+        "sink_gap": true
+      },
+      "cause": "Unknown; no failing-run pw-top/callback timing or first-gap positions captured. No production fix claimed.",
+      "log": {
+        "path": ".cache/m2-master-native.log",
+        "sha256": "024ae0f87b066f4d5e67ff79dfdbd0b3ef5f73d1e732d18ecb29a26480a9a0e3"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nGUI mix terminal phase/status/position/missing/sink/gap 4/1/110592/0/108544/1\nGUI file playback did not complete\n\n",
+      "action": "Fixture now records first expected/observed/duration/unavailable-input count without RT logging; next isolated full/disconnect/export run exact",
+      "remaining": "Characterized native graph/sink deadline/load/clock/delivery reliability; failure is not suppressed or waived"
+    },
+    {
+      "failure": "Legacy CLI synthetic source capture stopped while independent CPU builds/tests were active",
+      "cause": "Exact underlying stop reason not retained by this CLI test output; concurrent activity is observed context, not a proven cause",
+      "log": {
+        "path": ".cache/m2-master-legacy-cli.log",
+        "sha256": "26f8ede9a446d9db0a47f3cdcb9171ed072a1be94f51d74a9271bed62ff4896d"
+      },
+      "action": "Next serial run after CPU/native jobs passed recording and independent export sample/hash oracle; no production change or waived pressure gate"
+    },
+    {
+      "failure": "Concurrent debug full CTest timed out awaiting synthetic recording capture at tests/ui_tests.cpp:368",
+      "result": "22 of 23 groups passed; failed desktop-ui",
+      "cause": "Unknown; unchanged serial debug and concurrent sanitizer suites passed; not waived",
+      "seconds": 31.19,
+      "log": {
+        "path": ".cache/m2-timing-qualified-debug-tests.log",
+        "sha256": "660250e96cecb78bf52f22023b1004b760665fac3af9c89bd6b0837a18bcaa42"
+      },
+      "details": {
+        "path": ".cache/m2-timing-concurrent-debug-details.log",
+        "sha256": "1b1d6d67b0219b70ca7534237b1d9092dd7024939cf0cf2087b53bcfe4843f6d"
+      },
+      "next": "Retain state/admission/route diagnostics and reproduce asynchronous recording route/start behavior under declared load"
+    },
+    {
+      "failure": "Sanitized native callback clock gap occurred before controlled sink injection",
+      "cause": "Measured elapsed above period; consistent with deadline pressure but not proof of old failures",
+      "qualification_remains_open": true,
+      "report": {
+        "path": ".cache/m2-timing-qualified-sanitized-gap.json",
+        "sha256": "861895c7195b4b0dda085ff22a884e31930c9ebae2d649728aed5e5ec2ad65e7"
+      }
+    }
+  ],
+  "equalizer_audit": {
+    "result": "24 registered inputs and retained snapshots match; read-only; no source refresh",
+    "report": {
+      "path": ".cache/m2-duplex-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "reviewed_heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    },
+    "current_heads": {
+      "soundcurrent-eq": "080195a85be163cf8e4b1516745c63f43f317700",
+      "soundcurrent-studio": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+    }
+  },
+  "parity": {
+    "families": 92,
+    "acceptance_quality_and_F_Q_C_N_unchanged": true,
+    "F_Q_C_N_equivalence_claimed": false,
+    "baseline_changed": false,
+    "scoped_evidence_rows": [
+      "P001",
+      "P003",
+      "P088"
+    ]
+  },
+  "dependency_or_license_changes": false,
+  "equalizer_writes": false,
+  "pushed_or_published": false,
+  "remaining": [
+    "Production native duplex preflight memory/spec admission before pool allocation, inactive explicit routes, activation-only writers, rollback, callback-before-disk join and per-track results/errors",
+    "Owned native simultaneous playback/raw capture/monitor sample and alignment/disconnect/activation/writer-failure/recovery corpus; native Windows and physical device qualification",
+    "Desktop grouped armed-track maps/monitoring, accepted-prefix preparation and grouped verified take admission/history/persistence/recovery",
+    "M2 ten-minute synthetic and30-minute declared-native runs; CPU/disk deadline/load/duration, process-kill/disk-full multitrack recovery and filesystem/module-unload gates",
+    "Auto monitoring, punch/loop/takes/comping/fades, general routing/PDC/VCA and all later frozen workflows",
+    "Distinct journal playback-failure cause, runtime memory locking/allocator/RSS and broader admission limits",
+    "Historical native completion/sink-gap and concurrent synthetic UI recording timeout remain unexplained; passing reruns do not close them",
+    "All F/Q/C/N families, X004 native imports, X005 monitoring/print/portable profiles/rights and all-Europe language/review/UI qualification"
+  ],
+  "reproduction": [
+    "cmake --build .cache/build-desktop -j4; ctest --test-dir .cache/build-desktop --output-on-failure",
+    "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir .cache/build-desktop-sanitized --output-on-failure",
+    "ctest --test-dir .cache/build-desktop-release --output-on-failure -R '^(shared-playback-capture|multitrack-mix-playback|playback-native-clock|prepared-eq)$'",
+    "QT_QPA_PLATFORM=offscreen python3 tests/verify_pipewire_fixture.py --binary .cache/build-desktop-release/sc-pipewire-ui-fixture --modes mix --output REPORT.json --failure-output FAILURE.json # existing playback regression, not native duplex capture",
+    "python3 tools/check_equalizer_reuse.py"
+  ]
+}

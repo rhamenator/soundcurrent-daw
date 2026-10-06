@@ -365,3 +365,52 @@ overdub, explicit channel maps, common timing origin, raw bounded capture pipes
 and off-RT writers. Qualify timestamp/alignment, counted gaps, stop/finalization
 and interrupted-recording recovery with independent sources; retain diagnostics
 and investigate the open timing/UI observations under declared optimized load.
+
+
+## M2d1 shared playback/capture foundation (2026-10-06)
+
+Previous goal turn was **progress**, committed retained callback facts and timing
+evidence as `115cce9`. This turn adds the framework-free duplex bridge: one device
+clock gates the existing file mix and explicitly mapped armed raw pipes. Every
+raw take gets the same device origin/project start. Off retains file playback;
+Post-EQ monitoring uses a prepared live replacement through the existing track
+EQ/events/matrix. All raw/live copies precede output writes, including aliased
+input/output views. Empty replacements preserve the offline path. File pipes
+retain their offset/failure accounting even when their audible signal is replaced.
+
+[Contract](35-shared-playback-capture.md) and
+[evidence](../tests/results/M2/2026-10-06-shared-playback-capture.json) separate the
+new backend-free 32-armed-track corpus from existing native playback regression.
+Independent source/matrix checks compare every output and raw sample; 9866-frame
+takes retain common origins, supplied latency/initial trim and save/reopen state.
+Known 1-kHz response verifies Post-EQ monitoring and its exact first-block control
+receipt; concurrent Off/Post-EQ raw files remain identical. Invalid clocks/buffers
+do not move either operation. Queue/writer faults preserve unequal accepted
+prefixes/rejected counts and stop without inventing a common length. Full meter
+queue cannot lose the retained first fault. Interrupted unfinished mono/stereo
+writers recover verified 4096-frame copies with preserved originals and alignment.
+
+The new test initially used the wrong receipt member and omitted factory names;
+compilation caught both. Its recovery assertion initially misunderstood the
+legacy `writerActivityConfirmed` field: acquiring the exclusive inactive lease
+sets it true. The assertion now follows that authoritative contract. No gate or
+production failure policy was waived. Final review reserves the immutable run's
+declared playback budget before adding raw pool/metadata payload; recomputing
+from a later caller model could undercount prepared state. Native ownership must
+preflight before allocating all caller-owned pools. Callback atomic types are
+compile-time qualified as lock-free.
+
+The bridge is not yet connected to a production native duplex owner or desktop
+armed-track workflow. Native Windows/physical alignment/PDC, M2 ten-minute
+synthetic and 30-minute native declared-device runs, process-kill/disk-full
+multitrack recovery, Auto/punch/loop/takes/comping remain required. Earlier native
+completion/sink gaps, concurrent UI recording timeout and normal module-unload/
+filesystem/deadline gates remain open. Read-only equalizer audit still matches all
+24 registered inputs; no checkout writes, new dependency, push or publication.
+All 92 frozen acceptance/quality/F/Q/C/N contracts and X004/X005/all-Europe scope
+remain intact. Full goal stays active and incomplete.
+
+Next implement production PipeWire duplex preparation/activation/rollback and
+callback-before-writer join/result/error retention, with owned native sources and
+independent sample/gap/recovery tests. Then connect desktop arm maps/monitoring
+and grouped verified take handoff/history.
