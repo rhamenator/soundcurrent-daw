@@ -13,10 +13,14 @@ from verify_pipewire_fixture import snapshot, unchanged, thread_schedulers
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def qualify(result, tracks, input_latency=False):
+def qualify(result, tracks, input_latency=False, auto_recording=False):
     assert result['mode'] == str(tracks) and result['armed_tracks'] == tracks
     assert result['production_gui_duplex'] and result['canonical_punch_settings']
     assert result.get('canonical_input_latency_settings', False) == input_latency
+    assert result.get('auto_recording_monitoring', False) == auto_recording
+    if auto_recording:
+        assert result['auto_monitor_tracks'] == (tracks + 3) // 4
+        assert result['continuous_eq_selection_oracle']
     assert result['punch_in'] == 48150 and result['punch_out'] == 144164
     assert result['playback_start'] == 137 and result['playback_end'] == 240137
     assert result['frames_per_raw_take'] == 96014
@@ -33,6 +37,9 @@ def qualify(result, tracks, input_latency=False):
     assert len(rows) == tracks and len({r['track'] for r in rows}) == tracks
     for lane, row in enumerate(rows):
         latency = (4097, 0, 41, 200)[lane % 4] if input_latency else 0
+        mode = 'off' if lane % 2 else 'auto-recording' if auto_recording and lane % 4 == 0 else 'post-eq'
+        if auto_recording:
+            assert row['monitoring'] == mode
         assert row['latency'] == latency and row['frames'] == 96014
         assert row['raw_start'] == 48150 + latency
         assert row['device_origin'] == result['device_playback_origin'] + 48013 + latency
@@ -47,7 +54,7 @@ def qualify(result, tracks, input_latency=False):
         assert timing['callback_end_after_cycle_period_count'] == 0, 'Native desktop current-cycle gate failed'
 
 
-def run(binary, tracks, output, failure, input_latency=False):
+def run(binary, tracks, output, failure, input_latency=False, auto_recording=False):
     native = True
     folder = Path(tempfile.mkdtemp(prefix='sc-punch-ui-',
                                    dir=ROOT / '.cache'))
@@ -62,7 +69,8 @@ def run(binary, tracks, output, failure, input_latency=False):
     started = time.monotonic()
     try:
         with stdout.open('w') as out, stderr.open('w') as err:
-            command = [binary, project, str(tracks)] + (['--input-latency'] if input_latency else [])
+            command = ([binary, project, str(tracks)] + (['--input-latency'] if input_latency else [])
+                       + (['--auto-recording'] if auto_recording else []))
             child = subprocess.Popen(command, stdout=out, stderr=err)
             diagnostic['owned_pid'] = child.pid
             deadline = started + 60
@@ -81,7 +89,7 @@ def run(binary, tracks, output, failure, input_latency=False):
         assert child.returncode == 0, f'Punch child failed; retained {stderr}'
         result = json.loads(stdout.read_text())
         diagnostic['child_result'] = result
-        qualify(result, tracks, input_latency)
+        qualify(result, tracks, input_latency, auto_recording)
         if native:
             assert diagnostic['linked_snapshots'] > 0, 'Owned routes never observed'
         diagnostic['wall_seconds'] = time.monotonic() - started
@@ -125,10 +133,11 @@ def main():
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--tracks', type=int, choices=[3, 32], default=32)
     parser.add_argument('--input-latency', action='store_true')
+    parser.add_argument('--auto-recording', action='store_true')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--failure-output', type=Path, required=True)
     args = parser.parse_args()
-    run(args.binary.resolve(), args.tracks, args.output, args.failure_output, args.input_latency)
+    run(args.binary.resolve(), args.tracks, args.output, args.failure_output, args.input_latency, args.auto_recording)
 
 
 if __name__ == '__main__':

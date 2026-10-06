@@ -275,9 +275,18 @@ int main(int argc, char **argv) {
     qputenv("XDG_CONFIG_HOME", config.path().toUtf8());
     QApplication app(argc, argv);
     try {
-        require(argc == 3 || (argc == 4 && std::string_view(argv[3]) == "--input-latency"),
-                "Supply owned project folder, track count (3 or 32), optionally --input-latency");
-        const bool declaredLatency = argc == 4;
+        require(argc >= 3 && argc <= 5, "Supply owned project folder, track count, optionally "
+                                        "--input-latency and --auto-recording");
+        bool declaredLatency = false, autoRecording = false;
+        for (int argument = 3; argument < argc; ++argument) {
+            const std::string_view flag(argv[argument]);
+            if (flag == "--input-latency" && !declaredLatency)
+                declaredLatency = true;
+            else if (flag == "--auto-recording" && !autoRecording)
+                autoRecording = true;
+            else
+                throw std::runtime_error("Unknown or repeated native punch option");
+        }
         const auto latencyFor = [declaredLatency](unsigned lane) -> Frame {
             constexpr Frame values[] = {4097, 0, 41, 200};
             return declaredLatency ? values[lane % 4] : 0;
@@ -297,6 +306,8 @@ int main(int argc, char **argv) {
             auto track = makeAudioTrack("Armed " + std::to_string(n + 1), {}, initial.sampleRate);
             track.eq.bands.resize(2);
             track.monitoring = n % 2 ? RecordingMonitor::Off : RecordingMonitor::PostEq;
+            if (autoRecording && n % 4 == 0)
+                track.monitoring = RecordingMonitor::AutoRecording;
             arms.push_back(track.id);
             plan.tracks.push_back({track.id, {{0, n % 2, n % 3 ? .125 : -.25}}});
             if (n == 0) {
@@ -341,6 +352,17 @@ int main(int argc, char **argv) {
         await([&] {
             return window.snapshot()->session && window.snapshot()->io == IoOperation::None;
         });
+        if (autoRecording) {
+            require(window.selectTrack(arms[0]), "Native Auto track selection refused");
+            auto *mode = window.findChild<QComboBox *>("recordMonitorMode");
+            require(mode != nullptr, "Native Auto mode control missing");
+            await([&] {
+                return mode->currentData().toInt() == int(RecordingMonitor::AutoRecording);
+            });
+            require(window.recordingSnapshot()->phase == RecordingPhase::Idle &&
+                        !window.recordingSnapshot()->job,
+                    "Native Auto restore activated recording");
+        }
         await([&] { return window.findChild<QPushButton *>("editPunchRange")->isEnabled(); });
         if (declaredLatency) {
             for (unsigned n = 0; n < count; ++n) {
@@ -595,14 +617,19 @@ int main(int argc, char **argv) {
             require(clip.startFrame == punchIn && clip.lengthFrames == rawFrames &&
                         !clip.sourceFrame,
                     "Native desktop punch attachment geometry differs");
-            lanes.push_back({{"track", arms[n].str()},
-                             {"frames", asset.frames},
-                             {"latency", latencyFor(n)},
-                             {"raw_start", journal.spec.capture.startFrame},
-                             {"device_origin", captureOrigin},
-                             {"origin_offset", offset},
-                             {"origin_quantum", cycle->duration},
-                             {"sha256", asset.sha256}});
+            lanes.push_back(
+                {{"track", arms[n].str()},
+                 {"frames", asset.frames},
+                 {"latency", latencyFor(n)},
+                 {"monitoring", initial.tracks[n + 1].monitoring == RecordingMonitor::Off ? "off"
+                                : initial.tracks[n + 1].monitoring == RecordingMonitor::PostEq
+                                    ? "post-eq"
+                                    : "auto-recording"},
+                 {"raw_start", journal.spec.capture.startFrame},
+                 {"device_origin", captureOrigin},
+                 {"origin_offset", offset},
+                 {"origin_quantum", cycle->duration},
+                 {"sha256", asset.sha256}});
             raw[n] = samples(root, asset);
             for (std::size_t f = 0; f < raw[n].size(); ++f)
                 require(
@@ -610,8 +637,13 @@ int main(int argc, char **argv) {
                         inputSignal(origin + std::uint64_t(punchIn + latencyFor(n) - start) + f, n),
                     "Native GUI live EQ changed raw input");
             std::vector<float> fullInput(std::size_t(target), 0.f);
-            for (std::size_t f = 0; f < fullInput.size(); ++f)
-                fullInput[f] = inputSignal(origin + f, n);
+            for (std::size_t f = 0; f < fullInput.size(); ++f) {
+                const auto at = start + Frame(f);
+                const bool live =
+                    initial.tracks[n + 1].monitoring != RecordingMonitor::AutoRecording ||
+                    (at >= punchIn && at < punchOut);
+                fullInput[f] = live ? inputSignal(origin + f, n) : n == 0 ? fileSignal(at) : 0.f;
+            }
             processed[n].resize(std::size_t(target));
             PreparedEq oracle(initial, arms[n], 127, generation);
             std::size_t event = 0;
@@ -638,7 +670,7 @@ int main(int argc, char **argv) {
             std::array<double, 2> sum{double(fileSignal(start + f)) * .125,
                                       double(fileSignal(start + f)) * -.25};
             for (unsigned n = 0; n < count; ++n)
-                if (initial.tracks[n + 1].monitoring == RecordingMonitor::PostEq)
+                if (initial.tracks[n + 1].monitoring != RecordingMonitor::Off)
                     sum[n % 2] += double(processed[n][std::size_t(f)]) * (n % 3 ? .125 : -.25);
             for (unsigned ch = 0; ch < 2; ++ch) {
                 const auto value = double(wet[std::size_t(f) * 2 + ch]);
@@ -694,6 +726,9 @@ int main(int argc, char **argv) {
                           {"production_gui_duplex", true},
                           {"canonical_punch_settings", true},
                           {"canonical_input_latency_settings", declaredLatency},
+                          {"auto_recording_monitoring", autoRecording},
+                          {"auto_monitor_tracks", autoRecording ? (count + 3) / 4 : 0},
+                          {"continuous_eq_selection_oracle", autoRecording},
                           {"punch_in", punchIn},
                           {"punch_out", punchOut},
                           {"playback_start", start},

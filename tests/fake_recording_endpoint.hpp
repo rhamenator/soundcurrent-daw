@@ -72,14 +72,14 @@ class Endpoint : public RecordingEndpoint {
     }
     void connectOutputs(const std::vector<PipeWirePort> &p) override {
         threadCheck();
-        if (p_.options.monitoring != RecordingMonitor::PostEq || p.size() != 1 ||
+        if (p_.options.monitoring == RecordingMonitor::Off || p.size() != 1 ||
             p.front() != c_->ports[1])
             throw ProjectError(ErrorCode::InvalidState, "Stale recording monitor output");
         output_ = true;
     }
     void activate() override {
         threadCheck();
-        if (!routed_ || (p_.options.monitoring == RecordingMonitor::PostEq && !output_))
+        if (!routed_ || (p_.options.monitoring != RecordingMonitor::Off && !output_))
             throw ProjectError(ErrorCode::InvalidState, "Recording routes missing");
         RecordingOptions o;
         o.checkpointFrames = 128;

@@ -144,7 +144,7 @@ void takeAndEdits(const std::filesystem::path &root) {
     recorder.requestShutdown();
     await([&] { return recorder.snapshot()->closed; });
 }
-void invalidAndFault(const std::filesystem::path &root) {
+void invalidAndFault(const std::filesystem::path &root, RecordingMonitor mode) {
     auto s = project(root);
     auto c = std::make_shared<Counters>();
     RecordingController r(recording_fixture::options(c));
@@ -156,12 +156,12 @@ void invalidAndFault(const std::filesystem::path &root) {
     r.submit(bad);
     await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
     check(c->activated == 0 && !r.snapshot()->job, "Unarmed start created audio/file activity");
-    r.submit(recording_fixture::prepare(root, s, 2, RecordingMonitor::PostEq));
+    r.submit(recording_fixture::prepare(root, s, 2, mode));
     await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
     r.submit(recording_fixture::start(*c));
     await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
     check(c->activated == 0, "Missing monitor output activated capture");
-    r.submit(recording_fixture::prepare(root, s, 3, RecordingMonitor::PostEq));
+    r.submit(recording_fixture::prepare(root, s, 3, mode));
     await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
     r.submit(recording_fixture::start(*c, true));
     await([&] { return r.snapshot()->telemetry.capturedFrames >= 256; });
@@ -637,7 +637,8 @@ int main(int argc, char **argv) {
         reserveAdmission(root / "reserve");
         armedReserveOnly(root / "armed-reserve");
         takeAndEdits(root / "take");
-        invalidAndFault(root / "input");
+        invalidAndFault(root / "input", RecordingMonitor::PostEq);
+        invalidAndFault(root / "auto-input", RecordingMonitor::AutoRecording);
         writerFailureAndRecovery(root / "writer");
         pressureAndCancellation(root / "pressure");
         asynchronousDiscovery(root / "discovery");

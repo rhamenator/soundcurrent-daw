@@ -28,9 +28,29 @@ void state() {
     check(monitoringValue(s, id) == RecordingMonitor::Off, "New project monitoring is not off");
     setMonitoringValue(s, id, RecordingMonitor::PostEq);
     const auto j = nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 5 && j["tracks"][0]["monitoringMode"] == "post-eq",
+    check(j["schemaMinor"] == 6 && j["tracks"][0]["monitoringMode"] == "post-eq",
           "Monitoring state uses wrong stable representation");
     check(decodeProject(j.dump()) == s, "Monitoring round trip differs");
+    auto automatic = s;
+    setMonitoringValue(automatic, id, RecordingMonitor::AutoRecording);
+    const auto autoJson = nlohmann::json::parse(encodeProject(automatic));
+    check(autoJson["tracks"][0]["monitoringMode"] == "auto-recording" &&
+              decodeProject(autoJson.dump()) == automatic,
+          "Auto monitoring lost stable state or identity");
+    for (unsigned minor = 2; minor < 6; ++minor) {
+        auto legacy = j;
+        legacy["schemaMinor"] = minor;
+        if (minor < 3)
+            legacy.erase("master");
+        if (minor < 4)
+            legacy.erase("punchRecording");
+        if (minor < 5)
+            for (auto &t : legacy["tracks"])
+                t.erase("inputLatencyFrames");
+        check(decodeProject(legacy.dump()) == s, "Older Post-EQ preference changed");
+        legacy["tracks"][0]["monitoringMode"] = "auto-recording";
+        rejects([&] { decodeProject(legacy.dump()); });
+    }
     for (unsigned test = 0; test < 5; ++test) {
         auto bad = j;
         if (test == 0)
@@ -87,6 +107,9 @@ void state() {
     ProjectStore(root).save(s);
     check(ProjectStore(root).loadPrevious().tracks.front().monitoring == RecordingMonitor::PostEq,
           "Previous mode snapshot lost");
+    ProjectStore(root).save(automatic);
+    check(ProjectStore(root).load() == automatic && ProjectStore(root).loadPrevious() == s,
+          "Auto preference save/previous snapshot differs");
 }
 void history() {
     auto s = makeOneTrackSession("Undo", "Mic");
@@ -97,6 +120,10 @@ void history() {
                           BandParameter::GainDb};
     check(h.monitoring(id, RecordingMonitor::PostEq), "Mode change not admitted");
     check(!h.monitoring(id, RecordingMonitor::PostEq), "No-op mode added history");
+    check(h.monitoring(id, RecordingMonitor::AutoRecording) && h.undo() &&
+              monitoringValue(s, id) == RecordingMonitor::PostEq && h.redo() &&
+              monitoringValue(s, id) == RecordingMonitor::AutoRecording && h.undo(),
+          "Auto preference undo/redo differs");
     RouteAddress output{id, RouteTarget::Output};
     h.route(output,
             {"pipewire", "", {ChannelPortIntent{"Owned sink", "playback_FL", "Audio/Sink", true}}});

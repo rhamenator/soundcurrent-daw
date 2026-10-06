@@ -166,7 +166,11 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
         const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                     [&](const auto &t) { return t.id == a.track; });
         if (!a.pipe || t == s.tracks.end() || a.inputChannels.size() != t->layout.channels ||
-            (a.monitoring != RecordingMonitor::Off && a.monitoring != RecordingMonitor::PostEq) ||
+            !validRecordingMonitor(a.monitoring) ||
+            (a.monitorRange && (a.monitoring != RecordingMonitor::AutoRecording ||
+                                a.monitorRange->begin < c.startFrame ||
+                                a.monitorRange->begin >= a.monitorRange->end ||
+                                a.monitorRange->end > r.config().endFrame)) ||
             a.pipe->config().sampleRate != s.sampleRate || a.pipe->config().layout != t->layout ||
             a.pipe->config().startFrame != captureStart ||
             a.pipe->config().maximumCallbackFrames < c.maximumFrames ||
@@ -183,7 +187,7 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
             throw ProjectError(ErrorCode::InvalidState, "Invalid armed capture binding");
         const bool windowed = a.captureRange.has_value() || punch.has_value();
         auto lane = std::make_unique<State::Lane>(std::move(a), range, windowed);
-        if (lane->binding.monitoring == RecordingMonitor::PostEq) {
+        if (lane->binding.monitoring != RecordingMonitor::Off) {
             const auto &tracks = r.graph().plan().tracks;
             const auto mapped = std::find_if(tracks.begin(), tracks.end(), [&](const auto &t) {
                 return t.track == lane->binding.track;
@@ -193,7 +197,13 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
                     lane->input.size())
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Monitored capture has no explicit mix lane");
-            st.live.push_back({std::size_t(mapped - tracks.begin()), lane->input});
+            auto live = LiveMixInput{std::size_t(mapped - tracks.begin()), lane->input};
+            if (lane->binding.monitoring == RecordingMonitor::AutoRecording) {
+                const auto monitor = lane->binding.monitorRange.value_or(range);
+                live.beginFrame = monitor.begin;
+                live.endFrame = monitor.end;
+            }
+            st.live.push_back(live);
         }
         st.lanes.push_back(std::move(lane));
     }

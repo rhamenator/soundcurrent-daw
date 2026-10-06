@@ -1544,3 +1544,35 @@ All24 borrowed inputs and92 frozen contracts remain unchanged/unpromoted. Prior2
 observations plus two initial assertions remain retained (25total). Next implement
 manual punch/Auto monitoring, then tempo/loop/take lanes/comping; all physical,
 sustained, native Windows, localization, fault/recovery and full-suite gates remain.
+
+
+## Recording-only Auto monitoring (2026-10-06)
+
+Previous goal implementation turn was **progress**: saved declared input-latency
+controls, required-check PR merges and verified source backups. The branch-protection
+request independently verified live rules without mutating the working source.
+This turn adds explicit saved Auto during recording, strict schema 1.6, desired
+sample-boundary input/file selection independent of delayed raw windows, continuous
+EQ history and mixed armed-mode UI labels. [Contract](61-auto-recording-monitoring.md),
+[ADR 047](decisions/047-recording-only-auto-monitoring.md) and
+[receipt](../tests/results/M2/2026-10-06-auto-recording-monitoring.json) identify actual scope.
+Thirteen synthetic partition workflows, four Auto interruption/recovery cases,
+strict old-schema rejection, passive UI save/undo and high-frame preflight pass.
+Debug and ASan/UBSan/LSan pass 29/29; Windows core compilation passes without a
+native claim. The isolated 32-arm native desktop test passes with eight Auto arms,
+3,072,448 raw and 480,000 stereo samples exact, continuous EQ receipt replay, zero
+RT allocation/free/locks and complete short wall/CPU/resource/cycle gates. Two
+external links/default metadata are preserved. All 152 launch pins remain stable;
+12 altered receipts fail. The prepared Auto screenshot is retained in source.
+No new failure occurred; all 25 historical observations remain preserved.
+
+Cubase's record-running policy motivates this bounded workflow; other monitor
+policies and complete Bitwig Auto transition behavior remain required. All 92
+frozen contracts retain their F/Q/C/N acceptance projection and remain unpromoted.
+The 24 borrowed equalizer inputs and retained snapshots match; both equalizer
+checkouts remain read-only. No dependency is adopted and no release is uploaded.
+Next: sample-boundary manual punch commands during running playback, bounded
+capture-resource/writer handoff, ordered Stop/fault recovery and grouped admission;
+then armed/stopped/tape monitoring and loop/take/comp workflows. Native Windows,
+physical/sustained timing, X004/X005 and European translation/review/UI gates remain
+open. The full goal remains active and incomplete.

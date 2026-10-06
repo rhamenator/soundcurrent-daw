@@ -39,8 +39,7 @@ struct PipeWireRecording::State {
           PipeWireRecordingOptions o)
         : root(std::move(r)), spec(checked(s, std::move(specValue))), options(std::move(o)),
           pipe(spec.capture), bridge(s, spec.trackId, pipe, nativeOptions(options.bridge)) {
-        if (options.monitoring != RecordingMonitor::Off &&
-            options.monitoring != RecordingMonitor::PostEq)
+        if (!validRecordingMonitor(options.monitoring))
             throw ProjectError(ErrorCode::InvalidState, "Unknown recording monitor mode");
         if (options.writer.checkpointFrames < 0 ||
             options.writer.checkpointFrames > Frame(s.sampleRate) * 60)
@@ -132,8 +131,7 @@ void PipeWireRecording::connectInputs(const std::vector<PipeWirePort> &ports) {
     state_->inputRouted = true;
 }
 void PipeWireRecording::connectOutputs(const std::vector<PipeWirePort> &ports) {
-    if (state_->stopped || state_->activated ||
-        state_->options.monitoring != RecordingMonitor::PostEq)
+    if (state_->stopped || state_->activated || state_->options.monitoring == RecordingMonitor::Off)
         throw ProjectError(ErrorCode::InvalidState, "Recording monitor route is unavailable");
     state_->filter->connectOutputs(ports);
     state_->outputRouted = true;
@@ -141,7 +139,7 @@ void PipeWireRecording::connectOutputs(const std::vector<PipeWirePort> &ports) {
 void PipeWireRecording::activate() {
     auto &s = *state_;
     if (s.stopped || s.activated || !active(s.bridge.status()) || !s.inputRouted ||
-        (s.options.monitoring == RecordingMonitor::PostEq && !s.outputRouted))
+        (s.options.monitoring != RecordingMonitor::Off && !s.outputRouted))
         throw ProjectError(
             ErrorCode::InvalidState,
             "Select recording input and required monitoring outputs before activation");

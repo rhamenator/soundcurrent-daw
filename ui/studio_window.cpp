@@ -304,6 +304,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     monitorMode_->setAccessibleName(tr("Recording monitoring mode"));
     monitorMode_->addItem(tr("Monitoring off"), int(RecordingMonitor::Off));
     monitorMode_->addItem(tr("Monitor through track EQ"), int(RecordingMonitor::PostEq));
+    monitorMode_->addItem(tr("Auto — monitor during recording"),
+                          int(RecordingMonitor::AutoRecording));
     monitorMode_->setToolTip(tr("Saved monitoring mode takes effect after Stop and preparation."));
     connect(monitorMode_, &QComboBox::currentIndexChanged, this, [this] {
         const auto model = inspectorSnapshot();
@@ -1387,10 +1389,12 @@ void StudioWindow::refreshArms() {
                                       t.id) != armedTracksSelection_.end()
                                 ? Qt::Checked
                                 : Qt::Unchecked);
-        auto label = tr("%1 · %2 channel(s) · %3")
-                         .arg(text(t.name), QLocale().toString(t.layout.channels),
-                              t.monitoring == RecordingMonitor::Off ? tr("Monitoring off")
-                                                                    : tr("Post-EQ monitoring"));
+        auto label =
+            tr("%1 · %2 channel(s) · %3")
+                .arg(text(t.name), QLocale().toString(t.layout.channels),
+                     t.monitoring == RecordingMonitor::Off             ? tr("Monitoring off")
+                     : t.monitoring == RecordingMonitor::AutoRecording ? tr("Auto during recording")
+                                                                       : tr("Post-EQ monitoring"));
         const auto lane = std::find_if(r->lanes.begin(), r->lanes.end(),
                                        [&](const auto &v) { return v.track == t.id; });
         item->setForeground(QBrush());
@@ -1680,7 +1684,7 @@ void StudioWindow::pollRecording() {
             inputLatency_->setRange(0, int(m->session->sampleRate * 60));
             inputLatency_->setValue(int(track.inputLatencyFrames));
             inputLatencyTime_->setText(tr("%1 ms").arg(QLocale().toString(
-                1000.0 * track.inputLatencyFrames / m->session->sampleRate, 'f', 3)));
+                1000.0 * double(track.inputLatencyFrames) / m->session->sampleRate, 'f', 3)));
             latencyEpoch_ = m->projectEpoch;
             latencyTrack_ = track.id;
             latencyShown_ = track.inputLatencyFrames;
@@ -1821,9 +1825,11 @@ void StudioWindow::pollRecording() {
     if ((r->phase == RecordingPhase::Ready || r->phase == RecordingPhase::Recording ||
          r->phase == RecordingPhase::Complete) &&
         !r->projectMix && mode != r->monitoring)
-        status +=
-            tr(" · Prepared monitoring: %1. Stop and prepare to use the saved mode.")
-                .arg(r->monitoring == RecordingMonitor::Off ? tr("Off") : tr("Through track EQ"));
+        status += tr(" · Prepared monitoring: %1. Stop and prepare to use the saved mode.")
+                      .arg(r->monitoring == RecordingMonitor::Off ? tr("Off")
+                           : r->monitoring == RecordingMonitor::AutoRecording
+                               ? tr("Auto during recording")
+                               : tr("Through track EQ"));
     if (r->take)
         status = attachmentFailed_ ? tr("Take could not be added. Retry, or keep it for recovery.")
                                    : tr("Adding verified take to the project…");
