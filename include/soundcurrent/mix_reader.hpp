@@ -29,6 +29,8 @@ class MixPlaybackRun {
     MixPlaybackReport process(std::span<float *const>, std::uint32_t frames) noexcept;
     PreparedMixGraph &graph() noexcept;
     Frame position() const noexcept;
+    const MixPlaybackConfig &config() const noexcept;
+    std::uint32_t sampleRate() const noexcept;
     bool readerDone() const noexcept;
     std::uint64_t missingTrackFrames() const noexcept;
     std::uint64_t sanitizedSamples() const noexcept;

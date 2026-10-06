@@ -3,15 +3,15 @@
 
 namespace soundcurrent::daw {
 struct PipeWirePlayback::State {
-    PlaybackRun run;
+    MixPlaybackRun run;
     PlaybackBridge bridge;
     std::unique_ptr<PipeWireFilter> filter;
     std::exception_ptr readerError;
     PlaybackCallbackInstrumentation audit;
     bool stopped = false, routed = false;
-    State(std::filesystem::path root, const Session &s, const Id &track, PlaybackConfig config,
+    State(std::filesystem::path root, const Session &s, MixPlan plan, MixPlaybackConfig config,
           ReadAheadOptions options)
-        : run(std::move(root), s, track, std::move(config), std::move(options)),
+        : run(std::move(root), s, std::move(plan), config, std::move(options)),
           bridge(run, CaptureBackend::PipeWire) {}
     static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const>,
                         std::span<float *const> out, std::uint32_t n) noexcept {
@@ -51,14 +51,34 @@ struct PipeWirePlayback::State {
         stop();
     }
 };
+namespace {
+MixPlan singlePlan(const Session &s, const Id &track, const PlaybackConfig &c) {
+    if (c.sampleRate != s.sampleRate)
+        throw ProjectError(ErrorCode::InvalidState, "Playback rate differs from the project");
+    return identityMix(s, std::span(&track, 1), c.layout);
+}
+MixPlaybackConfig singleConfig(const PlaybackConfig &c) {
+    const auto prepared = preparePlaybackConfig(c);
+    return {{prepared.maximumCallbackFrames, prepared.startFrame, prepared.generation,
+             prepared.memoryBudgetBytes},
+            prepared.endFrame,
+            prepared.slabFrames};
+}
+} // namespace
 PipeWirePlayback::PipeWirePlayback(std::filesystem::path root, const Session &s, const Id &track,
                                    PlaybackConfig config, ReadAheadOptions options,
                                    std::chrono::milliseconds timeout,
                                    PlaybackCallbackInstrumentation audit)
-    : state_(std::make_unique<State>(std::move(root), s, track, std::move(config),
+    : PipeWirePlayback(std::move(root), s, singlePlan(s, track, config), singleConfig(config),
+                       std::move(options), timeout, audit) {}
+PipeWirePlayback::PipeWirePlayback(std::filesystem::path root, const Session &s, MixPlan plan,
+                                   MixPlaybackConfig config, ReadAheadOptions options,
+                                   std::chrono::milliseconds timeout,
+                                   PlaybackCallbackInstrumentation audit)
+    : state_(std::make_unique<State>(std::move(root), s, std::move(plan), config,
                                      std::move(options))) {
     state_->audit = audit;
-    const auto channels = state_->run.config().layout.channels;
+    const auto channels = state_->run.graph().plan().output.channels;
     state_->filter = std::make_unique<PipeWireFilter>(
         PipeWireFilterOptions{"sc-daw-playback-" + Id::generate().str(), 0,
                               static_cast<std::uint32_t>(channels)},
@@ -100,21 +120,30 @@ bool PipeWirePlayback::memoryLocked() const noexcept {
     return state_->filter->memoryLocked();
 }
 PreparedEq &PipeWirePlayback::prepared() noexcept {
-    return state_->run.prepared();
+    return state_->run.graph().prepared(0);
 }
 SubmitStatus PipeWirePlayback::submitImmediate(const EqEvent &e, std::uint64_t revision) noexcept {
+    return submitImmediate(MixEvent{0, e}, revision);
+}
+PreparedMixGraph &PipeWirePlayback::graph() noexcept {
+    return state_->run.graph();
+}
+SubmitStatus PipeWirePlayback::submitImmediate(const MixEvent &e, std::uint64_t revision) noexcept {
     const auto status = state_->bridge.status();
     if (state_->stopped ||
         (status != PlaybackBridgeStatus::Ready && status != PlaybackBridgeStatus::Running &&
          status != PlaybackBridgeStatus::Underflow))
         return SubmitStatus::Invalid;
-    return state_->run.submitImmediate(e, revision);
+    return state_->run.graph().submitImmediate(e, revision);
 }
 bool PipeWirePlayback::acknowledgement(ImmediateAcknowledgement &a) noexcept {
-    return state_->run.acknowledgement(a);
+    return acknowledgement(0, a);
+}
+bool PipeWirePlayback::acknowledgement(std::size_t track, ImmediateAcknowledgement &a) noexcept {
+    return state_->run.graph().acknowledgement(track, a);
 }
 std::uint64_t PipeWirePlayback::droppedAcknowledgements() const noexcept {
-    return state_->run.droppedAcknowledgements();
+    return state_->run.graph().droppedAcknowledgements();
 }
 PlaybackBridgeStatus PipeWirePlayback::status() const noexcept {
     return state_->bridge.status();
@@ -123,7 +152,7 @@ Frame PipeWirePlayback::position() const noexcept {
     return state_->run.position();
 }
 std::uint64_t PipeWirePlayback::missingFrames() const noexcept {
-    return state_->run.missingFrames();
+    return state_->run.missingTrackFrames();
 }
 bool PipeWirePlayback::observation(PlaybackObservation &o) noexcept {
     return state_->bridge.observation(o);

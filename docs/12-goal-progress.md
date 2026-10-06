@@ -252,3 +252,41 @@ scoped evidence leaves every F/Q/C/N axis and full reference acceptance unchange
 Remaining M1 native Windows/physical/filesystem/module-unload/deadline, X004 native
 imports, X005 processing/portable profiles/rights and all-Europe localization
 gates remain open. Full goal remains active and incomplete.
+
+
+## M2c2 native shared-clock playback checkpoint (2026-10-06)
+
+Previous goal turn was **progress**, committed the shared-clock engine/read-ahead/
+WAV workflows as `e445ca7`. This turn connects that prepared run to the production
+PipeWire owner, shared native clock gate and desktop worker. The desktop matching-
+layout mix has explicit output selection anchored to its preparation track, and
+inspector changes do not retarget it. Stable-ID EQ deltas/Undo address every mixed
+lane. Whole-model applied revisions require receipts from every affected lane,
+with independent watermarks rather than the highest global receipt.
+
+[Contract](32-native-mix-playback.md) and
+[evidence](../tests/results/M2/2026-10-06-native-mix-playback.json) separate backend-
+free clock/failure and withheld-lane receipt tests, actual Qt mixed-track controls
+with a synthetic endpoint, and owned native output/source-coordinate/independent
+summing comparisons. No native Windows, hardware, deadline/duration or full
+frozen-reference acceptance is inferred.
+
+Dedicated master layout/matrix/output state and its editor remain required next,
+followed by one native playback/capture callback for simultaneous armed tracks/
+overdub. Desktop export still selects a track; explicit multitrack API/CLI export
+exists. Punch/loop/takes/comping/fades, general buses/sends/sidechains/PDC/VCA and
+all later reference workflows stay in scope. Independent M1 native Windows/
+physical/filesystem/module-unload/deadline, X004 imports, X005 processing/portable
+profiles/rights and all-Europe localization remain open. No equalizer writes or
+publication. Full goal stays active and incomplete.
+
+Qualification detail: final Linux debug and ASan/UBSan/LSan suites pass all 23
+groups; Windows core cross-build and independent old/new export CLI checks pass.
+The new Qt fixture initially selected an anchor before the asynchronous track
+list was populated; it now waits for that visible state. A first native 32-track
+GUI run timed out after acknowledged Undo while awaiting completion/downstream
+delivery. Its original log has no terminal state snapshot, so the cause remains
+unknown. The fixture now wakes on sink gaps and emits terminal diagnostics; the
+next isolated native mix run completed with exact samples. That rerun does not
+resolve long-duration/deadline/shutdown qualification or prove a cause for the
+earlier timeout. The failed evidence is retained, with no production suppression.

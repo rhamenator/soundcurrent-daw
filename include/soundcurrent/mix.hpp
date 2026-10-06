@@ -69,6 +69,7 @@ class PreparedMixGraph {
     SubmitStatus submitImmediate(std::size_t track, const EqEvent &,
                                  std::uint64_t revision) noexcept;
     bool acknowledgement(std::size_t track, ImmediateAcknowledgement &) noexcept;
+    std::uint64_t droppedAcknowledgements() const noexcept;
 
   private:
     struct State;

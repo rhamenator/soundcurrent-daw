@@ -7,6 +7,7 @@
 #include <QAction>
 #include <QAbstractButton>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -95,7 +96,7 @@ struct Sink : Audit {
         }
     }
 };
-Session source(const std::filesystem::path &root) {
+Session source(const std::filesystem::path &root, bool mix) {
     auto s = makeOneTrackSession("Native GUI – Δοκιμή", "Owned file");
     CapturePipe pipe({});
     RecordingSpec spec;
@@ -118,6 +119,18 @@ Session source(const std::filesystem::path &root) {
     }
     attachRecording(s, writer.finalize(pipe));
     s.tracks.front().eq.bands.front().gainDb = 6;
+    if (mix)
+        for (unsigned n = 1; n < 32; ++n) {
+            auto t = makeAudioTrack("GUI lane " + std::to_string(n), {}, 48000);
+            Clip clip;
+            clip.assetId = s.assets.front().id;
+            clip.startFrame = n * 97;
+            clip.sourceFrame = n * 53;
+            clip.lengthFrames = 480000 - n * 197;
+            t.clips.push_back(clip);
+            t.eq.bands.front().gainDb = double(int(n % 5) - 2) * 3;
+            s.tracks.push_back(std::move(t));
+        }
     ProjectStore(root).save(s);
     return ProjectStore(root).load();
 }
@@ -126,14 +139,18 @@ int main(int argc, char **argv) {
     QApplication app(argc, argv);
     try {
         require(argc == 3, "Supply new owned project folder and normal/disconnect");
-        const bool disconnect = std::string_view(argv[2]) == "disconnect";
+        const bool mix =
+            std::string_view(argv[2]) == "mix" || std::string_view(argv[2]) == "mix-disconnect";
+        const bool disconnect = std::string_view(argv[2]) == "disconnect" ||
+                                std::string_view(argv[2]) == "mix-disconnect";
         const bool exporting = std::string_view(argv[2]) == "export";
-        require(disconnect || exporting || std::string_view(argv[2]) == "normal",
+        require(mix || disconnect || exporting || std::string_view(argv[2]) == "normal",
                 "Unknown native GUI mode");
         const auto root = utf8Path(argv[1]);
         require(std::filesystem::create_directory(root), "Owned project already exists");
         std::cerr << "Preparing owned GUI file source\n";
-        const auto s = source(root);
+        const auto s = source(root, mix);
+        const std::size_t editedLane = mix ? 17 : 0;
         const auto projectHash = hashMediaFile(root / "project.json");
         CapturePipe captured({});
         Sink sink(captured);
@@ -175,11 +192,19 @@ int main(int argc, char **argv) {
         });
         auto *prepare = window.findChild<QPushButton *>(QStringLiteral("preparePlaybackButton"));
         await([&] { return prepare && prepare->isEnabled(); });
+        if (mix) {
+            auto *option = window.findChild<QCheckBox *>("mixAllTracks");
+            require(option, "Native GUI mix option missing");
+            option->setChecked(true);
+        }
         QTest::mouseClick(prepare, Qt::LeftButton);
         await([&] {
             return window.playbackSnapshot()->phase == PlaybackPhase::Ready &&
                    window.findChild<QComboBox *>(QStringLiteral("outputChannel0"));
         });
+        require(window.playbackSnapshot()->tracks == s.tracks.size() &&
+                    window.playbackSnapshot()->projectMix == mix,
+                "Native GUI mix shape differs");
         require(!player.calls && window.playbackSnapshot()->appliedRevision == 0,
                 "Preparation played without output selection");
         auto *combo = window.findChild<QComboBox *>(QStringLiteral("outputChannel0"));
@@ -225,11 +250,21 @@ int main(int argc, char **argv) {
                         window.playbackSnapshot()->phase == PlaybackPhase::Playing,
                     "Export snapshot or continuing native playback invalid");
         }
+        if (mix) {
+            require(window.selectTrack(s.tracks[editedLane].id), "Native mixed inspector refused");
+            await([&] {
+                return window.findChild<QDoubleSpinBox *>("gain_db0") &&
+                       window.findChild<QDoubleSpinBox *>("gain_db0")->value() ==
+                           s.tracks[editedLane].eq.bands.front().gainDb;
+            });
+            require(window.playbackSnapshot()->phase == PlaybackPhase::Playing,
+                    "Mixed inspector selection stopped or retargeted native playback");
+        }
         auto *gain = window.findChild<QDoubleSpinBox *>(QStringLiteral("gain_db0"));
         require(gain, "Gain control unavailable");
         gain->setValue(-3);
         await([&] {
-            return window.snapshot()->session->tracks.front().eq.bands.front().gainDb == -3;
+            return window.snapshot()->session->tracks[editedLane].eq.bands.front().gainDb == -3;
         });
         const auto editedRevision = window.snapshot()->modelRevision;
         await([&] {
@@ -254,9 +289,15 @@ int main(int argc, char **argv) {
         }
 
         auto edited = s;
-        edited.tracks.front().eq.bands.front().gainDb = -3;
-        PreparedEq offline(s, s.tracks.front().id, 2048, firstReceipt.generation);
-        const auto &track = s.tracks.front();
+        edited.tracks[editedLane].eq.bands.front().gainDb = -3;
+        PreparedEq offline(s, s.tracks[editedLane].id, 2048, firstReceipt.generation);
+        const auto &track = s.tracks[editedLane];
+        std::vector<std::unique_ptr<PreparedEq>> otherEq;
+        for (std::size_t t = 0; t < s.tracks.size(); ++t)
+            otherEq.push_back(t == editedLane
+                                  ? nullptr
+                                  : std::make_unique<PreparedEq>(s, s.tracks[t].id, 2048,
+                                                                 firstReceipt.generation));
         const ParameterAddress address{track.id, track.eq.id, track.eq.bands.front().id,
                                        BandParameter::GainDb};
         std::vector<EqEvent> events{
@@ -279,12 +320,13 @@ int main(int argc, char **argv) {
             await([&] { return sink.published.load() >= 96000; });
             // After the export dialog, invoke the project menu action explicitly;
             // a focused numeric editor can consume Ctrl+Z as its local text undo.
-            if (exporting)
+            if (exporting || mix)
                 window.findChild<QAction *>("undoAction")->trigger();
             else
                 QTest::keyClick(&window, Qt::Key_Z, Qt::ControlModifier);
             await([&] {
-                return window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 6;
+                return window.snapshot()->session->tracks[editedLane].eq.bands.front().gainDb ==
+                       s.tracks[editedLane].eq.bands.front().gainDb;
             });
             const auto undoneRevision = window.snapshot()->modelRevision;
             await([&] { return window.playbackSnapshot()->appliedRevision == undoneRevision; });
@@ -293,8 +335,14 @@ int main(int argc, char **argv) {
             await([&] {
                 return (window.playbackSnapshot()->phase == PlaybackPhase::Complete &&
                         sink.complete) ||
-                       window.playbackSnapshot()->phase == PlaybackPhase::Fault;
+                       window.playbackSnapshot()->phase == PlaybackPhase::Fault || sink.gap;
             });
+            std::cerr << "GUI mix terminal phase/status/position/missing/sink/gap "
+                      << static_cast<unsigned>(window.playbackSnapshot()->phase) << '/'
+                      << static_cast<unsigned>(window.playbackSnapshot()->nativeStatus) << '/'
+                      << window.playbackSnapshot()->position << '/'
+                      << window.playbackSnapshot()->missingFrames << '/' << sink.published.load()
+                      << '/' << sink.gap.load() << '\n';
             require(window.playbackSnapshot()->phase == PlaybackPhase::Complete && sink.complete &&
                         !sink.gap,
                     "GUI file playback did not complete");
@@ -342,15 +390,30 @@ int main(int argc, char **argv) {
         for (Frame f = 0; f < result.asset.frames;) {
             const auto n =
                 static_cast<std::uint32_t>(std::min<Frame>(127, result.asset.frames - f));
-            for (std::uint32_t k = 0; k < n; ++k)
-                input[k] = signal(f + k);
             std::array<EqEvent, 2> due{};
             std::size_t count = 0;
             for (const auto &event : events)
                 if (event.frame >= f && event.frame < f + n)
                     due[count++] = event;
-            require(offline.process(in, out, n, f, {due.data(), count}).status == ProcessStatus::Ok,
-                    "GUI offline replay failed");
+            std::array<double, 127> sum{};
+            for (std::size_t t = 0; t < s.tracks.size(); ++t) {
+                const auto &clip = s.tracks[t].clips.front();
+                for (std::uint32_t k = 0; k < n; ++k) {
+                    const auto at = f + k;
+                    input[k] = at >= clip.startFrame && at < clip.startFrame + clip.lengthFrames
+                                   ? signal(clip.sourceFrame + at - clip.startFrame)
+                                   : 0.f;
+                }
+                auto &eq = t == editedLane ? offline : *otherEq[t];
+                const auto updates = t == editedLane ? std::span<const EqEvent>(due.data(), count)
+                                                     : std::span<const EqEvent>{};
+                require(eq.process(in, out, n, f, updates).status == ProcessStatus::Ok,
+                        "GUI offline replay failed");
+                for (std::uint32_t k = 0; k < n; ++k)
+                    sum[k] += expected[k];
+            }
+            for (std::uint32_t k = 0; k < n; ++k)
+                expected[k] = static_cast<float>(sum[k]);
             require(sf_readf_float(file, observed.data(), n) == n, "GUI sink asset read failed");
             for (std::uint32_t k = 0; k < n; ++k)
                 difference = std::max(difference, std::abs(double(observed[k]) - expected[k]));
@@ -376,6 +439,7 @@ int main(int argc, char **argv) {
                     ProjectStore(root).load() == s,
                 "GUI playback/discard modified saved project");
         std::cout << "{\"mode\":\"" << argv[2] << "\",\"frames\":" << result.asset.frames
+                  << ",\"tracks\":" << s.tracks.size()
                   << ",\"gui_export_during_playback\":" << (exporting ? "true" : "false")
                   << ",\"export_live_prefix_frames\":"
                   << (exporting ? firstReceipt.appliedFrame : 0)

@@ -104,7 +104,7 @@ PipeWirePort sinkPort(PipeWirePlayback &client, std::uint32_t id) {
     }
     throw std::runtime_error("Owned playback sink not found");
 }
-Session prepareProject(const std::filesystem::path &root) {
+Session prepareProject(const std::filesystem::path &root, bool mix) {
     auto s = makeOneTrackSession("Native playback fixture", "Raw file");
     CapturePipe pipe({});
     RecordingSpec spec;
@@ -128,6 +128,19 @@ Session prepareProject(const std::filesystem::path &root) {
     }
     attachRecording(s, writer.finalize(pipe));
     s.tracks.front().eq.bands.front().gainDb = 6;
+    if (mix) {
+        for (unsigned n = 1; n < 32; ++n) {
+            auto t = makeAudioTrack("Native lane " + std::to_string(n), {}, s.sampleRate);
+            Clip clip;
+            clip.assetId = s.assets.front().id;
+            clip.startFrame = n * 97;
+            clip.sourceFrame = n * 53;
+            clip.lengthFrames = 480000 - n * 197;
+            t.clips.push_back(clip);
+            t.eq.bands.front().gainDb = double(int(n % 5) - 2) * 3;
+            s.tracks.push_back(std::move(t));
+        }
+    }
     ProjectStore(root).save(s);
     return ProjectStore(root).load();
 }
@@ -135,26 +148,42 @@ Session prepareProject(const std::filesystem::path &root) {
 int main(int argc, char **argv) {
     try {
         require(argc == 3, "Supply new project directory and normal/disconnect mode");
-        const bool disconnect = std::string_view(argv[2]) == "disconnect";
-        require(disconnect || std::string_view(argv[2]) == "normal", "Unknown fixture mode");
+        const auto mode = std::string_view(argv[2]);
+        const bool mix = mode == "mix" || mode == "mix-disconnect";
+        const bool disconnect = mode == "disconnect" || mode == "mix-disconnect";
+        require(mix || disconnect || mode == "normal", "Unknown fixture mode");
         const auto root = utf8Path(argv[1]);
         require(std::filesystem::create_directory(root), "Fixture project already exists");
         std::cerr << "Preparing owned file source\n";
-        auto s = prepareProject(root);
+        auto s = prepareProject(root, mix);
         const auto before = hashMediaFile(root / "project.json");
         PlaybackConfig config;
         config.endFrame = 480000;
         Player player;
-        PipeWirePlayback run(root, s, s.tracks.front().id, config, {}, std::chrono::seconds(3),
-                             {&player, Audit::begin, Player::after});
+        MixPlan plan{{}, {}};
+        for (const auto &t : s.tracks)
+            plan.tracks.push_back({t.id, {{0, 0, mix ? .125 : 1.}}});
+        std::unique_ptr<PipeWirePlayback> owner;
+        if (mix) {
+            MixPlaybackConfig c;
+            c.endFrame = config.endFrame;
+            owner = std::make_unique<PipeWirePlayback>(
+                root, s, plan, c, ReadAheadOptions{}, std::chrono::seconds(3),
+                PlaybackCallbackInstrumentation{&player, Audit::begin, Player::after});
+        } else
+            owner = std::make_unique<PipeWirePlayback>(
+                root, s, s.tracks.front().id, config, ReadAheadOptions{}, std::chrono::seconds(3),
+                PlaybackCallbackInstrumentation{&player, Audit::begin, Player::after});
+        auto &run = *owner;
         player.playback = &run;
         std::cerr << "Native playback owner prepared\n";
         auto edited = s;
-        edited.tracks.front().eq.bands.front().gainDb = -3;
-        const auto &track = edited.tracks.front();
+        const std::size_t editedLane = mix ? 17 : 0;
+        edited.tracks[editedLane].eq.bands.front().gainDb = -3;
+        const auto &track = edited.tracks[editedLane];
         const ParameterAddress address{track.id, track.eq.id, track.eq.bands.front().id,
                                        BandParameter::GainDb};
-        auto manual = run.prepared().parameterEvent(edited, address, 0);
+        auto manual = run.graph().parameterEvent(edited, address, 0);
         CapturePipe captured({});
         Sink sink(captured, player);
         RecordingSpec spec;
@@ -203,7 +232,7 @@ int main(int argc, char **argv) {
                         "Native manual parameter submission failed");
                 submitted = true;
             }
-            if (submitted && !received && run.acknowledgement(receipt)) {
+            if (submitted && !received && run.acknowledgement(editedLane, receipt)) {
                 receiptDelayMs = std::chrono::duration<double, std::milli>(
                                      std::chrono::steady_clock::now() - submittedTime)
                                      .count();
@@ -250,7 +279,7 @@ int main(int argc, char **argv) {
                     receipt.eventsApplied == 1 && receipt.frame >= submittedPosition &&
                     receipt.frame < result.asset.frames && !run.droppedAcknowledgements(),
                 "Native manual edit applied-frame receipt missing or inconsistent");
-        manual.frame = receipt.frame;
+        manual.event.frame = receipt.frame;
         if (disconnect)
             require(removed && player.fault() && result.asset.frames >= 48000 &&
                         result.asset.frames < 480000,
@@ -261,24 +290,39 @@ int main(int argc, char **argv) {
         SF_INFO info{};
         auto *file = sf_open((root / utf8Path(result.asset.relativePath)).c_str(), SFM_READ, &info);
         require(file && info.frames == result.asset.frames, "Native sink file unreadable");
-        PreparedEq reference(s, s.tracks.front().id, 2048, 1);
-        std::array<float, 127> input{}, expected{}, observed{};
+        std::vector<std::unique_ptr<PreparedEq>> references;
+        for (const auto &t : s.tracks)
+            references.push_back(std::make_unique<PreparedEq>(s, t.id, 2048, 1));
+        std::array<float, 127> input{}, wet{}, observed{};
+        std::array<double, 127> expected{};
         std::array<const float *, 1> in{input.data()};
-        std::array<float *, 1> out{expected.data()};
+        std::array<float *, 1> out{wet.data()};
         double difference = 0;
         for (Frame f = 0; f < result.asset.frames;) {
             const auto n =
                 static_cast<std::uint32_t>(std::min<Frame>(127, result.asset.frames - f));
-            for (std::uint32_t i = 0; i < n; ++i)
-                input[i] = signal(f + i);
-            const auto events = manual.frame >= f && manual.frame < f + n
-                                    ? std::span(&manual, 1)
-                                    : std::span<const EqEvent>{};
-            require(reference.process(in, out, n, f, events).status == ProcessStatus::Ok,
-                    "Playback reference failed");
+            expected.fill(0);
+            for (std::size_t t = 0; t < references.size(); ++t) {
+                const auto &clip = s.tracks[t].clips.front();
+                for (std::uint32_t i = 0; i < n; ++i) {
+                    const auto at = f + i;
+                    input[i] = at >= clip.startFrame && at < clip.startFrame + clip.lengthFrames
+                                   ? signal(clip.sourceFrame + at - clip.startFrame)
+                                   : 0.f;
+                }
+                const auto events =
+                    t == editedLane && manual.event.frame >= f && manual.event.frame < f + n
+                        ? std::span(&manual.event, 1)
+                        : std::span<const EqEvent>{};
+                require(references[t]->process(in, out, n, f, events).status == ProcessStatus::Ok,
+                        "Playback EQ reference failed");
+                for (std::uint32_t i = 0; i < n; ++i)
+                    expected[i] += double(wet[i]) * plan.tracks[t].channels.front().gain;
+            }
             require(sf_readf_float(file, observed.data(), n) == n, "Native sink read failed");
             for (std::uint32_t i = 0; i < n; ++i)
-                difference = std::max(difference, std::abs(double(observed[i]) - expected[i]));
+                difference = std::max(
+                    difference, std::abs(double(observed[i]) - static_cast<float>(expected[i])));
             f += n;
         }
         require(sf_close(file) == 0 && difference <= 1e-7,
@@ -290,6 +334,7 @@ int main(int argc, char **argv) {
                 "Playback modified saved project");
         std::cout
             << "{\"mode\":\"" << argv[2] << "\",\"frames\":" << result.asset.frames
+            << ",\"tracks\":" << s.tracks.size()
             << ",\"sample_rate\":48000,\"live_offline_difference\":" << difference
             << ",\"missing_frames\":0,\"file_backed_playback\":true,\"output_disconnect_observed\":"
             << (disconnect ? "true" : "false")

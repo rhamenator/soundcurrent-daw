@@ -2,6 +2,8 @@
 #pragma once
 #include "audio_bridge.hpp"
 #include "playback_reader.hpp"
+#include "mix_reader.hpp"
+#include <variant>
 
 namespace soundcurrent::daw {
 enum class PlaybackBridgeStatus : std::uint32_t {
@@ -22,12 +24,15 @@ struct PlaybackObservation {
     DeviceBlockClock device;
     PlaybackReport playback;
     PlaybackBridgeStatus status = PlaybackBridgeStatus::Ready;
+    std::optional<MixPlaybackReport>
+        mix; // Present for a shared-clock mix; counts are track-frames.
 };
 // Backend-free playback clock gate. One audio owner calls process; one control
 // consumer drains diagnostics. Run outlives bridge and all native callbacks.
 class PlaybackBridge {
   public:
     explicit PlaybackBridge(PlaybackRun &, CaptureBackend = CaptureBackend::Unknown);
+    explicit PlaybackBridge(MixPlaybackRun &, CaptureBackend = CaptureBackend::Unknown);
     PlaybackBridgeStatus process(const DeviceBlockClock &, std::span<float *const>,
                                  std::uint32_t capacity) noexcept;
     void requestStop() noexcept;
@@ -40,7 +45,10 @@ class PlaybackBridge {
     std::optional<CaptureTimingOrigin> timingOrigin() const noexcept;
 
   private:
-    PlaybackRun &run_;
+    std::variant<PlaybackRun *, MixPlaybackRun *> run_;
+    PlaybackConfig config_;
+    void stopRun() noexcept;
+    void cancelRun() noexcept;
     CaptureBackend backend_;
     DeviceBlockClock previous_{};
     CaptureTimingOrigin origin_{};

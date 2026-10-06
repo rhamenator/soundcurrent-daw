@@ -13,6 +13,7 @@
 namespace soundcurrent::daw {
 struct MixPlaybackRun::State {
     MixPlayback mix;
+    const std::uint32_t rate;
     std::unique_ptr<MixReader> reader;
     std::atomic<std::uint32_t> canceled{0}, stopRequested{0};
     std::exception_ptr error;
@@ -25,7 +26,8 @@ struct MixPlaybackRun::State {
 #else
     std::thread thread;
 #endif
-    State(const Session &s, MixPlan p, MixPlaybackConfig c) : mix(s, std::move(p), c) {}
+    State(const Session &s, MixPlan p, MixPlaybackConfig c)
+        : mix(s, std::move(p), c), rate(s.sampleRate) {}
     void run() noexcept {
         try {
             while (!mix.readerDone() && !canceled.load(std::memory_order_acquire)) {
@@ -96,6 +98,12 @@ PreparedMixGraph &MixPlaybackRun::graph() noexcept {
 }
 Frame MixPlaybackRun::position() const noexcept {
     return state_->mix.position();
+}
+const MixPlaybackConfig &MixPlaybackRun::config() const noexcept {
+    return state_->mix.config();
+}
+std::uint32_t MixPlaybackRun::sampleRate() const noexcept {
+    return state_->rate;
 }
 bool MixPlaybackRun::readerDone() const noexcept {
     return state_->mix.readerDone();

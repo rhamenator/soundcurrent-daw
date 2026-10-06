@@ -140,6 +140,85 @@ void clocksAndFaults() {
     check(bridge.status() == PlaybackBridgeStatus::Complete,
           "Late native event overwrote completion");
 }
+void mixedClocksAndFaults() {
+    for (unsigned fault = 0; fault < 12; ++fault) {
+        Fixture f;
+        std::vector<Id> tracks{f.session.tracks.front().id};
+        for (unsigned n = 1; n < 32; ++n) {
+            f.session.tracks.push_back(makeAudioTrack("Lane", {}, 48000));
+            tracks.push_back(f.session.tracks.back().id);
+        }
+        MixPlaybackConfig config;
+        config.endFrame = 4096;
+        MixPlaybackRun run(f.directory.root, f.session, identityMix(f.session, tracks, {}), config);
+        PlaybackBridge bridge(run, CaptureBackend::PipeWire);
+        check(process(bridge, f) == PlaybackBridgeStatus::Running,
+              "Mix clock initial block failed");
+        const auto at = run.position();
+        f.clock.position += f.clock.duration;
+        f.output.fill(123);
+        auto expected = PlaybackBridgeStatus::ClockDiscontinuity;
+        switch (fault) {
+        case 0:
+            ++f.clock.position;
+            break;
+        case 1:
+            ++f.clock.id;
+            break;
+        case 2:
+            f.clock.xrun = true;
+            break;
+        case 3:
+            f.clock.discontinuity = true;
+            break;
+        case 4:
+            f.clock.position = UINT64_MAX - 1;
+            break;
+        case 5:
+            f.clock.duration = 2049;
+            expected = PlaybackBridgeStatus::QuantumExceeded;
+            break;
+        case 6:
+            f.clock.duration = 0;
+            expected = PlaybackBridgeStatus::QuantumExceeded;
+            break;
+        case 7:
+            f.clock.rateDenominator = 44100;
+            expected = PlaybackBridgeStatus::RateChanged;
+            break;
+        case 8:
+            f.clock.rateNumerator = 2;
+            expected = PlaybackBridgeStatus::RateChanged;
+            break;
+        case 9:
+            f.views[0] = nullptr;
+            expected = PlaybackBridgeStatus::BufferUnavailable;
+            break;
+        case 10:
+            bridge.requestFault(PlaybackBridgeStatus::DeviceLost);
+            expected = PlaybackBridgeStatus::DeviceLost;
+            break;
+        case 11:
+            bridge.requestStop();
+            expected = PlaybackBridgeStatus::Stopped;
+            break;
+        }
+        check(process(bridge, f) == expected && run.position() == at,
+              "Mixed native fault advanced shared cursor or lost reason");
+        if (f.views[0])
+            check(std::all_of(f.output.begin(), f.output.begin() + 2048,
+                              [](float v) { return v == 0; }),
+                  "Mixed fault failed to silence certified output");
+        PlaybackObservation observation;
+        check(bridge.observation(observation) && observation.mix &&
+                  observation.mix->startFrame == 0 && observation.mix->timelineFrames == 127,
+              "Mixed observation lost native/shared timing");
+        bridge.finishQuiescent();
+        run.waitReader();
+        check(bridge.status() == expected, "Mixed quiescent stop overwrote terminal fault");
+    }
+}
+
 void layoutsAndDiagnostics() {
     for (auto channels : {1u, 2u, 8u, 32u, 256u}) {
         Fixture f;
@@ -316,6 +395,7 @@ int main() {
     try {
         rt_audit::reset();
         clocksAndFaults();
+        mixedClocksAndFaults();
         layoutsAndDiagnostics();
         readerFailure();
         fileAndImmediateEdit();

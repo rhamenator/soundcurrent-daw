@@ -103,3 +103,5 @@ ten-minute synthetic or 30-minute native gate. Next integrate its prepared run
 into the native owner/desktop, then simultaneous capture/overdub on one callback.
 General buses/sends/sidechains/PDC, punch/loop/takes/comping/fades and full frozen
 parity remain required, together with independent Windows/localization/M1 gates.
+
+M2c2 connects [native/desktop shared-clock mix playback](32-native-mix-playback.md), explicit matching-layout preparation, output anchoring and all-lane revision acknowledgement. Next persist/edit the dedicated master matrix/output intent and implement one shared playback/capture callback for simultaneous armed tracks and overdub. No full M2 duration/capture/deadline or frozen-reference completion follows from short owned-node playback runs.

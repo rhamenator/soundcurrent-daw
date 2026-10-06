@@ -218,6 +218,12 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     buttons->addWidget(playButton_);
     buttons->addWidget(stopButton_);
     transportLayout->addLayout(buttons);
+    mixTracks_ = new QCheckBox(tr("Mix all tracks (matching channel layouts)"), transport);
+    mixTracks_->setObjectName(QStringLiteral("mixAllTracks"));
+    mixTracks_->setToolTip(
+        tr("Use the selected track's channel layout and saved output routes for "
+           "the shared mix. Different layouts need an explicit channel matrix."));
+    transportLayout->addWidget(mixTracks_);
     connect(prepareButton_, &QPushButton::clicked, this, [this] { preparePlayback(); });
     connect(playButton_, &QPushButton::clicked, this, &StudioWindow::playSelected);
     connect(stopButton_, &QPushButton::clicked, this, [this] {
@@ -395,7 +401,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     connect(cancelExportButton_, &QPushButton::clicked, this,
             [this] { exporter_.requestCancel(); });
     notice_ = new QLabel(
-        tr("Development preview: first-track recording and playback are available on Linux. "
+        tr("Development preview: selected-track recording and shared-clock playback are available "
+           "on Linux. "
            "Captured audio stays raw; track EQ affects monitoring, playback and WAV export."),
         body);
     notice_->setObjectName(QStringLiteral("previewNotice"));
@@ -676,12 +683,13 @@ bool StudioWindow::preparePlayback() {
         return false;
     playbackPrepareBarrier_ = token;
     playbackPreparationTrack_ = selectedTrack();
+    playbackPrepareMix_ = mixTracks_->isChecked();
     return true;
 }
 
 void StudioWindow::playSelected() {
     if (playback_.snapshot()->phase != PlaybackPhase::Ready || !outputsShown_ ||
-        selectedTrack() != playbackTrack_)
+        (!playback_.snapshot()->projectMix && selectedTrack() != playbackTrack_))
         return;
     PlaybackCommand c;
     c.kind = PlaybackCommandKind::Play;
@@ -753,7 +761,16 @@ void StudioWindow::populateRoutes(const std::vector<QComboBox *> &combos,
     }
 }
 void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBox *combo) {
-    const auto model = inspectorSnapshot();
+    auto model = inspectorSnapshot();
+    if (target == RouteTarget::Output && playback_.snapshot()->projectMix) {
+        auto canonical = controller_.snapshot();
+        auto projected = sessionForTrack(canonical->session, playbackTrack_);
+        if (!projected)
+            return;
+        auto anchored = std::make_shared<ControllerSnapshot>(*canonical);
+        anchored->session = std::move(projected);
+        model = std::move(anchored);
+    }
     if (!model->session || model->session->tracks.empty() || closing_ || closeRequested_)
         return;
     const auto &track = model->session->tracks.front();
@@ -811,10 +828,12 @@ void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
                     [this, combo, c] { selectRoute(RouteTarget::Output, c, combo); });
         }
     }
-    const auto model = inspectorSnapshot();
-    const auto intent = model->session && !model->session->tracks.empty()
-                            ? model->session->tracks.front().output
-                            : RouteIntent{};
+    auto model = inspectorSnapshot();
+    const auto anchor = view.projectMix
+                            ? sessionForTrack(controller_.snapshot()->session, playbackTrack_)
+                            : model->session;
+    const auto intent =
+        anchor && !anchor->tracks.empty() ? anchor->tracks.front().output : RouteIntent{};
     if (view.ports && (!outputsShown_ || *outputsShown_ != *view.ports || !outputIntentShown_ ||
                        *outputIntentShown_ != intent)) {
         populateRoutes(outputs_, *view.ports, intent, true);
@@ -822,8 +841,9 @@ void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
         outputIntentShown_ = intent;
     }
     for (auto *combo : outputs_)
-        combo->setEnabled(view.phase == PlaybackPhase::Ready && selectedTrack() == playbackTrack_ &&
-                          !closing_ && !closeRequested_);
+        combo->setEnabled(view.phase == PlaybackPhase::Ready &&
+                          (view.projectMix || selectedTrack() == playbackTrack_) && !closing_ &&
+                          !closeRequested_);
 }
 void StudioWindow::pollPlayback() {
     const auto prefix = controller_.snapshot();
@@ -834,10 +854,20 @@ void StudioWindow::pollPlayback() {
         c.root = prefix->barrierRoot;
         c.session = sessionForTrack(prefix->barrierSession, playbackPreparationTrack_);
         c.modelRevision = prefix->barrierRevision;
-        if (c.session && playback_.submit(std::move(c)) == Admission::Accepted)
-            playbackTrack_ = playbackPreparationTrack_;
-        else
-            notice_->setText(tr("Selected playback track could not be prepared. Please retry."));
+        try {
+            if (c.session && playbackPrepareMix_) {
+                std::vector<Id> ids;
+                for (const auto &t : c.session->tracks)
+                    ids.push_back(t.id);
+                c.plan = identityMix(*c.session, ids, c.session->tracks.front().layout);
+            }
+            if (c.session && playback_.submit(std::move(c)) == Admission::Accepted)
+                playbackTrack_ = playbackPreparationTrack_;
+            else
+                notice_->setText(tr("Playback could not be prepared. Please retry."));
+        } catch (const ProjectError &e) {
+            notice_->setText(tr("Playback could not be prepared: %1").arg(text(e.what())));
+        }
     }
     const auto p = playback_.snapshot();
     const auto model = inspectorSnapshot();
@@ -848,10 +878,11 @@ void StudioWindow::pollPlayback() {
     const bool prepare = allow && !playbackPrepareBarrier_ && !recordingBusy() && !attachingTake_ &&
                          p->supported && idle && model->session &&
                          model->io != IoOperation::Create && model->io != IoOperation::Open;
+    mixTracks_->setEnabled(prepare && !playbackPrepareBarrier_);
     prepareButton_->setEnabled(prepare);
     prepareAction_->setEnabled(prepare);
     playButton_->setEnabled(allow && p->phase == PlaybackPhase::Ready &&
-                            selectedTrack() == playbackTrack_);
+                            (p->projectMix || selectedTrack() == playbackTrack_));
     playAction_->setEnabled(
         allow && ((p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing) ||
                   recordingBusy()));
@@ -867,7 +898,8 @@ void StudioWindow::pollPlayback() {
         status = tr("Native playback is not available in this build.");
         break;
     case PlaybackPhase::Idle:
-        status = tr("Prepare the selected audio track, choose outputs, then play.");
+        status =
+            tr("Prepare the selected track or matching-layout mix, choose outputs, then play.");
         break;
     case PlaybackPhase::Preparing:
         status = tr("Preparing playback…");
@@ -896,10 +928,15 @@ void StudioWindow::pollPlayback() {
         break;
     }
     if (p->sampleRate)
-        status += tr(" · %1 s · %2 missing frames")
+        status += tr(" · %1 s · %2 missing track-frames")
                       .arg(QLocale().toString(double(p->position) / p->sampleRate, 'f', 2),
                            QLocale().toString(p->missingFrames));
-    if (playbackTrack_ && selectedTrack() != playbackTrack_ && p->ports)
+    if (p->projectMix) {
+        status += tr(" · %n mixed track(s)", nullptr, int(p->tracks));
+        const auto anchor = sessionForTrack(controller_.snapshot()->session, playbackTrack_);
+        if (anchor && !anchor->tracks.empty())
+            status += tr(" · Shared output routes: %1").arg(text(anchor->tracks.front().name));
+    } else if (playbackTrack_ && selectedTrack() != playbackTrack_ && p->ports)
         status += tr(" · Another track is prepared. Stop or prepare the selected track.");
     playbackState_->setText(status);
     const auto peak = std::isfinite(p->peak) ? std::max(0.0, p->peak) : 0.0;
@@ -1667,8 +1704,12 @@ void StudioWindow::poll() {
     setWindowTitle(tr("SoundCurrent DAW") +
                    (view->session ? QStringLiteral(" — ") + text(view->session->name) : QString()));
     if (view->session && view->modelRevision > followedRevision_) {
-        const auto target = sessionForTrack(view->session, playbackTrack_);
-        if (playback_.follow(view->root, target ? target : view->session, view->modelRevision))
+        const auto canonical = controller_.snapshot();
+        const auto target = playback_.snapshot()->projectMix
+                                ? canonical->session
+                                : sessionForTrack(canonical->session, playbackTrack_);
+        if (playback_.follow(canonical->root, target ? target : canonical->session,
+                             canonical->modelRevision))
             followedRevision_ = view->modelRevision;
     }
     shown_ = view;

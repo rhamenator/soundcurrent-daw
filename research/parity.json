@@ -13,7 +13,7 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: selected single-track capture; shared-clock short 32-track playback/mix/WAV corpus. Simultaneous capture/duration/native gates unverified.",
+      "implementation": "Partial: selected single-track capture; shared-clock short 32-track playback/mix/WAV corpus and native/desktop playback. Simultaneous capture/duration/platform gates unverified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -26,7 +26,9 @@
         "tests/results/M2/2026-10-06-multitrack-edits.json",
         "tests/results/M2/2026-10-06-desktop-timeline.json",
         "docs/31-multitrack-mix.md",
-        "tests/results/M2/2026-10-06-shared-mix-graph.json"
+        "tests/results/M2/2026-10-06-shared-mix-graph.json",
+        "docs/32-native-mix-playback.md",
+        "tests/results/M2/2026-10-06-native-mix-playback.json"
       ]
     },
     {
@@ -356,7 +358,7 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/tracks_about/tracks_about_group_channel_tracks_c.html?contentId=9av~TuFoeRdSwAFgXHla2A",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: independent EQ lanes and explicit static channel matrix into one output. General bus/group network remains required.",
+      "implementation": "Partial: independent EQ lanes and static channel matrix into one output, native owner/desktop matching-layout playback and per-lane revision receipts. Dedicated master state and general bus/group network remain required.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -365,7 +367,9 @@
       "cubase_source_id": "225eba86cc198976",
       "implementation_evidence": [
         "docs/31-multitrack-mix.md",
-        "tests/results/M2/2026-10-06-shared-mix-graph.json"
+        "tests/results/M2/2026-10-06-shared-mix-graph.json",
+        "docs/32-native-mix-playback.md",
+        "tests/results/M2/2026-10-06-native-mix-playback.json"
       ]
     },
     {

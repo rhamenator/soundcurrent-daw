@@ -112,3 +112,5 @@ per-track parameter reconciliation; qualify owned-node output against offline
 samples. Then build one shared playback/capture callback for simultaneous armed
 tracks and overdub. Punch/loop/takes/comping/fades and all later milestones remain
 required without changing the frozen product target.
+
+M2c2 now [connects the prepared mix to native playback and desktop controls](32-native-mix-playback.md). The production single-track limitation above describes M2c1; the newer checkpoint supplies matching-layout project playback and explicit API plans. Dedicated master persistence/matrix editing and simultaneous capture remain required.

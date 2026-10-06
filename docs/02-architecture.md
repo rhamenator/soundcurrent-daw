@@ -143,3 +143,5 @@ one fair disk owner remains outside callbacks. Static track/mix WAV export share
 this processing path and the existing publication transaction. Production native
 playback/Qt integration is next; general DAG/PDC/feedback/crossfade/state migration
 and simultaneous capture/overdub remain required. No new dependency is adopted.
+
+M2c2: [native shared-clock mix playback](32-native-mix-playback.md) now uses the same prepared run as offline mixing. The clock bridge dispatches through preparation-fixed pointers; model reconciliation resolves UUIDs and requires receipts from every affected lane. GUI/disk/preparation/retirement remain off RT. Matching-layout desktop mixes retain an explicit output anchor; dedicated master state/matrix UI and shared multitrack capture are required next.

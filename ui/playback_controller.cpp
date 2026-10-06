@@ -21,7 +21,12 @@ class NativeEndpoint : public PlaybackEndpoint {
 
   public:
     explicit NativeEndpoint(const PlaybackPreparation &p, PlaybackCallbackInstrumentation audit)
-        : owner_(p.root, *p.session, p.track, p.config, {}, std::chrono::seconds(3), audit) {}
+        : owner_(p.root, *p.session, p.plan,
+                 {{p.config.maximumCallbackFrames, p.config.startFrame, p.config.generation,
+                   p.config.memoryBudgetBytes},
+                  p.config.endFrame,
+                  p.config.slabFrames},
+                 {}, std::chrono::seconds(3), audit) {}
     std::vector<PipeWirePort> ports() override {
         auto ports = owner_.ports();
         std::erase_if(ports, [](const auto &p) { return !p.input; });
@@ -39,13 +44,13 @@ class NativeEndpoint : public PlaybackEndpoint {
     void checkReader() override {
         owner_.checkReader();
     }
-    EqEvent event(const Session &s, const ParameterAddress &a) override {
-        return owner_.prepared().parameterEvent(s, a, 0);
+    MixEvent event(const Session &s, const ParameterAddress &a) override {
+        return owner_.graph().parameterEvent(s, a, 0);
     }
-    EqEvent enable(bool value) override {
-        return owner_.prepared().enableEvent(value, 0);
+    MixEvent enable(const Id &id, bool value) override {
+        return owner_.graph().enableEvent(id, value, 0);
     }
-    SubmitStatus submit(const EqEvent &e, std::uint64_t revision) noexcept override {
+    SubmitStatus submit(const MixEvent &e, std::uint64_t revision) noexcept override {
         return owner_.submitImmediate(e, revision);
     }
     PlaybackTelemetry read() override {
@@ -55,9 +60,14 @@ class NativeEndpoint : public PlaybackEndpoint {
             latest_.processed = true;
         }
         ImmediateAcknowledgement receipt;
-        latest_.receipt.reset();
-        for (std::size_t n = 0; n < 64 && owner_.acknowledgement(receipt); ++n)
-            latest_.receipt = receipt;
+        latest_.receipts.clear();
+        for (std::size_t t = 0; t < owner_.graph().plan().tracks.size(); ++t) {
+            std::optional<ImmediateAcknowledgement> last;
+            for (std::size_t n = 0; n < 64 && owner_.acknowledgement(t, receipt); ++n)
+                last = receipt;
+            if (last)
+                latest_.receipts.push_back({t, *last});
+        }
         latest_.status = owner_.status();
         latest_.position = owner_.position();
         latest_.missingFrames = owner_.missingFrames();
@@ -76,29 +86,33 @@ struct Following {
     std::shared_ptr<const Session> session;
     std::uint64_t revision = 0;
 };
-bool compatible(const Session &prepared, const Session &updated) {
-    if (prepared.tracks.empty() || updated.tracks.empty())
-        return false;
-    const auto &a = prepared.tracks.front().eq;
-    const auto &b = updated.tracks.front().eq;
-    if (a.id != b.id || a.bands.size() != b.bands.size())
-        return false;
-    for (std::size_t n = 0; n < a.bands.size(); ++n)
-        if (a.bands[n].id != b.bands[n].id)
-            return false;
-    const auto &t = prepared.tracks.front();
-    const auto &u = updated.tracks.front();
+const Track *findTrack(const Session &s, const Id &id) {
+    const auto it =
+        std::find_if(s.tracks.begin(), s.tracks.end(), [&](const auto &t) { return t.id == id; });
+    return it == s.tracks.end() ? nullptr : &*it;
+}
+bool compatible(const PlaybackPreparation &p, const Session &updated) {
+    const auto &prepared = *p.session;
     if (prepared.id != updated.id || prepared.sampleRate != updated.sampleRate ||
-        prepared.playheadFrame != updated.playheadFrame || t.id != u.id || t.layout != u.layout ||
-        t.clips != u.clips)
+        prepared.playheadFrame != updated.playheadFrame ||
+        (p.projectMix && prepared.tracks.size() != updated.tracks.size()))
         return false;
-    for (const auto &clip : t.clips) {
-        const auto old = std::find_if(prepared.assets.begin(), prepared.assets.end(),
-                                      [&](const auto &a) { return a.id == clip.assetId; });
-        const auto now = std::find_if(updated.assets.begin(), updated.assets.end(),
-                                      [&](const auto &a) { return a.id == clip.assetId; });
-        if (old == prepared.assets.end() || now == updated.assets.end() || *old != *now)
+    for (const auto &lane : p.plan.tracks) {
+        const auto *t = findTrack(prepared, lane.track), *u = findTrack(updated, lane.track);
+        if (!t || !u || t->layout != u->layout || t->clips != u->clips || t->eq.id != u->eq.id ||
+            t->eq.bands.size() != u->eq.bands.size())
             return false;
+        for (std::size_t n = 0; n < t->eq.bands.size(); ++n)
+            if (t->eq.bands[n].id != u->eq.bands[n].id)
+                return false;
+        for (const auto &clip : t->clips) {
+            const auto old = std::find_if(prepared.assets.begin(), prepared.assets.end(),
+                                          [&](const auto &a) { return a.id == clip.assetId; });
+            const auto now = std::find_if(updated.assets.begin(), updated.assets.end(),
+                                          [&](const auto &a) { return a.id == clip.assetId; });
+            if (old == prepared.assets.end() || now == updated.assets.end() || *old != *now)
+                return false;
+        }
     }
     return true;
 }
@@ -124,9 +138,11 @@ struct PlaybackController::State : QThread {
     std::shared_ptr<const Session> acceptedModel;
     std::uint64_t seenStop = 0, eventRevision = 0, checkedRevision = 0;
     bool processed = false;
+    std::array<std::uint64_t, 256> appliedByLane{};
     struct Bundle {
         Following target;
-        std::vector<EqEvent> events;
+        std::vector<MixEvent> events;
+        std::array<std::uint64_t, 256> required{};
         std::size_t submitted = 0;
         std::uint64_t lastEvent = 0;
     };
@@ -182,12 +198,19 @@ struct PlaybackController::State : QThread {
         view.droppedMeters = t.droppedMeters;
         view.droppedReceipts = t.droppedReceipts;
         processed = processed || t.processed;
-        if (t.receipt && t.receipt->generation == view.generation) {
-            view.appliedEventRevision = t.receipt->revision;
-            view.appliedFrame = t.receipt->frame;
-        }
+        for (const auto &receipt : t.receipts)
+            if (receipt.track < appliedByLane.size() &&
+                receipt.applied.generation == view.generation) {
+                appliedByLane[receipt.track] =
+                    std::max(appliedByLane[receipt.track], receipt.applied.revision);
+                if (receipt.applied.revision >= view.appliedEventRevision) {
+                    view.appliedEventRevision = receipt.applied.revision;
+                    view.appliedFrame = receipt.applied.frame;
+                }
+            }
         if (bundle && bundle->submitted == bundle->events.size() &&
-            view.appliedEventRevision >= bundle->lastEvent) {
+            std::equal(bundle->required.begin(), bundle->required.end(), appliedByLane.begin(),
+                       [](auto required, auto applied) { return applied >= required; })) {
             view.appliedRevision = bundle->target.revision;
             bundle.reset();
         } else if (!bundle && prepared && processed && !view.appliedRevision) {
@@ -202,13 +225,14 @@ struct PlaybackController::State : QThread {
             return;
         view.desiredRevision = desired->revision;
         if (desired->revision != checkedRevision) {
-            const auto target = sessionForTrack(desired->session, prepared->track);
+            const auto target = prepared->projectMix
+                                    ? desired->session
+                                    : sessionForTrack(desired->session, prepared->track);
             if (!target)
                 throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
             desired->session = target;
             validate(*desired->session);
-            if (desired->root != prepared->root ||
-                !compatible(*prepared->session, *desired->session))
+            if (desired->root != prepared->root || !compatible(*prepared, *desired->session))
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Project structure changed; prepare playback again");
             checkedRevision = desired->revision;
@@ -218,15 +242,17 @@ struct PlaybackController::State : QThread {
         if (!bundle && desired->revision > view.acceptedRevision) {
             Bundle next;
             next.target = *desired;
-            const auto &oldEq = acceptedModel->tracks.front().eq;
-            const auto &track = desired->session->tracks.front();
-            for (std::size_t n = 0; n < track.eq.bands.size(); ++n)
-                if (track.eq.bands[n] != oldEq.bands[n])
-                    next.events.push_back(endpoint->event(
-                        *desired->session,
-                        {track.id, track.eq.id, track.eq.bands[n].id, BandParameter::GainDb}));
-            if (track.eq.enabled != oldEq.enabled)
-                next.events.push_back(endpoint->enable(track.eq.enabled));
+            for (const auto &lane : prepared->plan.tracks) {
+                const auto &oldEq = findTrack(*acceptedModel, lane.track)->eq;
+                const auto &track = *findTrack(*desired->session, lane.track);
+                for (std::size_t n = 0; n < track.eq.bands.size(); ++n)
+                    if (track.eq.bands[n] != oldEq.bands[n])
+                        next.events.push_back(endpoint->event(
+                            *desired->session,
+                            {track.id, track.eq.id, track.eq.bands[n].id, BandParameter::GainDb}));
+                if (track.eq.enabled != oldEq.enabled)
+                    next.events.push_back(endpoint->enable(track.id, track.eq.enabled));
+            }
             if (next.events.empty()) {
                 acceptedModel = desired->session;
                 view.acceptedRevision = desired->revision;
@@ -240,6 +266,8 @@ struct PlaybackController::State : QThread {
         while (bundle->submitted < bundle->events.size()) {
             if (eventRevision == UINT64_MAX)
                 throw ProjectError(ErrorCode::InvalidState, "Playback event revision exhausted");
+            if (bundle->events[bundle->submitted].track >= prepared->plan.tracks.size())
+                throw ProjectError(ErrorCode::InvalidState, "Playback parameter lane is invalid");
             const auto revision = eventRevision + 1;
             const auto status = endpoint->submit(bundle->events[bundle->submitted], revision);
             if (status == SubmitStatus::Full)
@@ -249,6 +277,7 @@ struct PlaybackController::State : QThread {
                                    "Playback did not admit a prepared parameter change");
             eventRevision = revision;
             bundle->lastEvent = revision;
+            bundle->required[bundle->events[bundle->submitted].track] = revision;
             ++bundle->submitted;
         }
         view.acceptedRevision = bundle->target.revision;
@@ -277,15 +306,22 @@ struct PlaybackController::State : QThread {
             return;
         if (view.generation == UINT64_MAX)
             throw ProjectError(ErrorCode::InvalidState, "Playback generation exhausted");
-        PlaybackPreparation next{
-            c.root, c.session, c.modelRevision, c.session->tracks.front().id, {}};
+        PlaybackPreparation next{c.root, c.session, c.modelRevision, c.session->tracks.front().id,
+                                 {},     {},        bool(c.plan)};
         next.config.sampleRate = c.session->sampleRate;
-        next.config.layout = c.session->tracks.front().layout;
+        next.plan = c.plan ? *c.plan
+                           : identityMix(*c.session, std::span(&next.track, 1),
+                                         c.session->tracks.front().layout);
+        next.config.layout = next.plan.output;
         next.config.generation = view.generation + 1;
         next.config.startFrame = c.session->playheadFrame;
-        for (const auto &clip : c.session->tracks.front().clips)
-            next.config.endFrame =
-                std::max(next.config.endFrame, clip.startFrame + clip.lengthFrames);
+        mixPayloadBytes(*c.session, next.plan,
+                        {next.config.maximumCallbackFrames, next.config.startFrame,
+                         next.config.generation, next.config.memoryBudgetBytes});
+        for (const auto &lane : next.plan.tracks)
+            for (const auto &clip : findTrack(*c.session, lane.track)->clips)
+                next.config.endFrame =
+                    std::max(next.config.endFrame, clip.startFrame + clip.lengthFrames);
         if (next.config.endFrame <= next.config.startFrame)
             throw ProjectError(ErrorCode::InvalidState,
                                "Prepared track has no audio beyond the playhead");
@@ -304,6 +340,9 @@ struct PlaybackController::State : QThread {
         eventRevision = 0;
         checkedRevision = 0;
         processed = false;
+        appliedByLane.fill(0);
+        view.tracks = static_cast<std::uint32_t>(prepared->plan.tracks.size());
+        view.projectMix = prepared->projectMix;
         view.channels = prepared->config.layout.channels;
         view.sampleRate = prepared->config.sampleRate;
         view.generation = prepared->config.generation;

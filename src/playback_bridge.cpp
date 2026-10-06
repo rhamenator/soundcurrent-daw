@@ -32,7 +32,23 @@ PlaybackBridgeStatus converted(PlaybackStatus s) noexcept {
 }
 } // namespace
 PlaybackBridge::PlaybackBridge(PlaybackRun &run, CaptureBackend backend)
-    : run_(run), backend_(backend) {}
+    : run_(&run), config_(run.config()), backend_(backend) {}
+PlaybackBridge::PlaybackBridge(MixPlaybackRun &run, CaptureBackend backend)
+    : run_(&run), backend_(backend) {
+    const auto &c = run.config();
+    config_.sampleRate = run.sampleRate();
+    config_.layout = run.graph().plan().output;
+    config_.maximumCallbackFrames = c.graph.maximumFrames;
+    config_.generation = c.graph.generation;
+    config_.startFrame = c.graph.startFrame;
+    config_.endFrame = c.endFrame;
+}
+void PlaybackBridge::stopRun() noexcept {
+    std::visit([](auto *run) { run->requestStop(); }, run_);
+}
+void PlaybackBridge::cancelRun() noexcept {
+    std::visit([](auto *run) { run->cancelReader(); }, run_);
+}
 PlaybackBridgeStatus PlaybackBridge::status() const noexcept {
     return static_cast<PlaybackBridgeStatus>(state_.load(std::memory_order_acquire));
 }
@@ -43,7 +59,7 @@ void PlaybackBridge::requestFault(PlaybackBridgeStatus next) noexcept {
     while (active(static_cast<PlaybackBridgeStatus>(prior))) {
         if (state_.compare_exchange_strong(prior, static_cast<std::uint32_t>(next),
                                            std::memory_order_acq_rel, std::memory_order_acquire)) {
-            run_.requestStop();
+            stopRun();
             return;
         }
     }
@@ -59,14 +75,14 @@ void PlaybackBridge::finish(PlaybackBridgeStatus next) noexcept {
         state_.compare_exchange_strong(prior, static_cast<std::uint32_t>(next),
                                        std::memory_order_acq_rel, std::memory_order_acquire);
     if (!active(status())) {
-        run_.requestStop();
-        run_.cancelReader();
+        stopRun();
+        cancelRun();
     }
 }
 void PlaybackBridge::finishQuiescent() noexcept {
     if (active(status()))
         requestStop();
-    run_.cancelReader();
+    cancelRun();
 }
 bool PlaybackBridge::observation(PlaybackObservation &o) noexcept {
     return observations_.tryPop(o);
@@ -93,7 +109,7 @@ PlaybackBridgeStatus PlaybackBridge::process(const DeviceBlockClock &clock,
         finish(next);
         return status();
     }
-    const auto &c = run_.config();
+    const auto &c = config_;
     const auto channels = c.layout.channels;
     if (!clock.duration || clock.duration > c.maximumCallbackFrames || clock.duration > capacity)
         next = PlaybackBridgeStatus::QuantumExceeded;
@@ -126,7 +142,21 @@ PlaybackBridgeStatus PlaybackBridge::process(const DeviceBlockClock &clock,
     }
     previous_ = clock;
     started_ = true;
-    const auto report = run_.process(output, static_cast<std::uint32_t>(clock.duration));
+    PlaybackReport report;
+    std::optional<MixPlaybackReport> mixed;
+    std::visit(
+        [&](auto *run) {
+            if constexpr (std::is_same_v<std::remove_pointer_t<decltype(run)>, PlaybackRun>)
+                report = run->process(output, static_cast<std::uint32_t>(clock.duration));
+            else {
+                mixed = run->process(output, static_cast<std::uint32_t>(clock.duration));
+                report = {
+                    mixed->status,           mixed->startFrame,
+                    mixed->timelineFrames,   static_cast<std::uint32_t>(mixed->missingTrackFrames),
+                    mixed->staleTrackFrames, mixed->mix.peak};
+            }
+        },
+        run_);
     // Even if native capacity exceeds the current quantum, certify silent slack.
     for (auto *p : output)
         std::fill(p + clock.duration, p + capacity, 0.f);
@@ -134,7 +164,7 @@ PlaybackBridgeStatus PlaybackBridge::process(const DeviceBlockClock &clock,
     next = status();
     if (next != PlaybackBridgeStatus::Complete && !active(next))
         silence();
-    if (!observations_.tryPush({clock, report, next}))
+    if (!observations_.tryPush({clock, report, next, mixed}))
         dropped_.fetch_add(1, std::memory_order_relaxed);
     return next;
 }

@@ -320,6 +320,78 @@ void selectedTransport(const std::filesystem::path &root) {
           "Take attached to inspector instead of prepared ID");
     close(w);
 }
+void mixedTransport(const std::filesystem::path &root) {
+    auto original = fixture(root);
+    original.tracks[1].clips.front().startFrame = 100000;
+    ProjectStore(root).save(original);
+    const auto first = original.tracks[0].id, second = original.tracks[1].id;
+    const auto rawHash = hashMediaFile(root / utf8Path(original.assets.front().relativePath));
+    auto counters = std::make_shared<playback_fixture::Counters>();
+    StudioWindow w(nullptr, playback_fixture::options(counters));
+    w.show();
+    w.openProject(root);
+    await([&] {
+        auto *list = w.findChild<QListWidget *>("timelineTracks");
+        return w.snapshot()->session && list && list->count() == 2;
+    });
+    check(w.selectTrack(second), "Mix anchor selection refused");
+    widget<QCheckBox>(w, "mixAllTracks")->setChecked(true);
+    check(w.preparePlayback(), "Desktop mix preparation refused");
+    await([&] {
+        return w.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+               w.findChild<QComboBox *>("outputChannel0");
+    });
+    check(w.playbackSnapshot()->projectMix && w.playbackSnapshot()->tracks == 2 &&
+              !counters->activated,
+          "Desktop prepared wrong mix or auto-activated");
+    check(w.selectTrack(first), "Mix inspector switch refused");
+    await([&] { return widget<QPushButton>(w, "playButton")->isEnabled(); });
+    auto *output = widget<QComboBox>(w, "outputChannel0");
+    output->setCurrentIndex(1);
+    await([&] { return !w.snapshot()->session->tracks[1].output.ports.empty(); });
+    check(w.snapshot()->session->tracks[0].output.ports.empty() &&
+              w.snapshot()->session->tracks[1].output.ports[0],
+          "Mix inspector selection retargeted saved shared output anchor");
+    click(w, "playButton");
+    await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Playing; });
+    widget<QDoubleSpinBox>(w, "gain_db0")->setValue(7);
+    await([&] { return w.snapshot()->session->tracks[0].eq.bands[0].gainDb == 7; });
+    const auto revision = w.snapshot()->modelRevision;
+    await([&] { return w.playbackSnapshot()->appliedRevision >= revision; });
+    check(counters->submitted == 1 && counters->activated == 1,
+          "Other mixed lane EQ failed or inspector reactivated audio");
+    undo(w);
+    await([&] { return w.snapshot()->session->tracks[0].eq.bands[0].gainDb == 0; });
+    await([&] { return w.playbackSnapshot()->appliedRevision >= w.snapshot()->modelRevision; });
+    check(counters->submitted == 2, "Mix Undo failed to reach active lane");
+    click(w, "stopButton");
+    await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Idle; });
+    close(w, true);
+    const auto saved = ProjectStore(root).load();
+    check(saved.tracks[0].id == first && saved.tracks[1].id == second &&
+              saved.tracks[0].output.ports.empty() && saved.tracks[1].output.ports[0] &&
+              hashMediaFile(root / utf8Path(saved.assets.front().relativePath)) == rawHash,
+          "Mix workflow changed raw media, canonical order or saved route anchor");
+}
+void mixedLayoutRefusal(const std::filesystem::path &root) {
+    auto original = fixture(root);
+    original.tracks.push_back(makeAudioTrack("Stereo", {LayoutKind::Stereo, 2}, 48000));
+    ProjectStore(root).save(original);
+    auto counters = std::make_shared<playback_fixture::Counters>();
+    StudioWindow w(nullptr, playback_fixture::options(counters));
+    w.show();
+    w.openProject(root);
+    await([&] { return w.snapshot()->session; });
+    widget<QCheckBox>(w, "mixAllTracks")->setChecked(true);
+    check(w.preparePlayback(), "Mixed-layout preparation command refused");
+    await([&] {
+        return widget<QLabel>(w, "previewNotice")->text().contains("explicit channel matrix");
+    });
+    check(!counters->constructed && !counters->activated,
+          "Mixed layout silently dropped or mapped a track");
+    close(w);
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
@@ -330,6 +402,8 @@ int main(int argc, char **argv) {
         const auto root = utf8Path(temp.path().toUtf8().toStdString());
         editing(root / "editing");
         selectedTransport(root / "transport");
+        mixedTransport(root / "mix");
+        mixedLayoutRefusal(root / "mixed-layout");
         std::cout << checks << " timeline/selection UI checks passed\n";
         return 0;
     } catch (const std::exception &e) {

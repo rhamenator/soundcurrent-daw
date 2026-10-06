@@ -59,6 +59,8 @@ class StudioWindow : public QMainWindow {
     bool polling_ = false;
     std::uint64_t playbackPrepareBarrier_ = 0;
     std::optional<Id> playbackPreparationTrack_;
+    bool playbackPrepareMix_ = false;
+    QCheckBox *mixTracks_ = nullptr;
     PlaybackController playback_;
     RecordingController recording_;
     ExportController exporter_;

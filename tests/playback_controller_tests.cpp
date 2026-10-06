@@ -224,6 +224,55 @@ void partialBundle() {
     await([&] { return controller.snapshot()->closed; });
 }
 
+void multitrackReceipts() {
+    auto counters = std::make_shared<Counters>();
+    PlaybackController controller(options(counters));
+    auto s = session();
+    for (unsigned n = 1; n < 3; ++n) {
+        auto t = makeAudioTrack("Mixed " + std::to_string(n), {}, s.sampleRate);
+        auto clip = s.tracks.front().clips.front();
+        clip.id = Id::generate();
+        t.clips.push_back(clip);
+        s.tracks.push_back(std::move(t));
+    }
+    auto command = prepare(s);
+    std::array<Id, 3> order{s.tracks[2].id, s.tracks[0].id, s.tracks[1].id};
+    command.plan = identityMix(s, order, {});
+    check(controller.submit(std::move(command)) == Admission::Accepted, "Mix prepare refused");
+    await([&] { return controller.snapshot()->phase == PlaybackPhase::Ready; });
+    check(controller.snapshot()->projectMix && controller.snapshot()->tracks == 3 &&
+              !counters->activated,
+          "Mix shape/explicit activation differs");
+    play(controller, counters);
+    await([&] { return controller.snapshot()->appliedRevision == 1; });
+    counters->holdLane.store(0);
+    for (auto &t : s.tracks)
+        t.eq.bands.front().gainDb = 6;
+    controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 2);
+    await([&] {
+        return controller.snapshot()->acceptedRevision == 2 &&
+               controller.snapshot()->appliedEventRevision == 3;
+    });
+    check(controller.snapshot()->appliedRevision == 1 && controller.snapshot()->pending,
+          "Highest receipt falsely acknowledged another lane's withheld EQ");
+    counters->holdLane.store(UINT_MAX);
+    await([&] { return controller.snapshot()->appliedRevision == 2; });
+    check(!controller.snapshot()->pending && counters->submitted == 3,
+          "Every lane receipt did not acknowledge whole mixed model");
+    std::reverse(s.tracks.begin(), s.tracks.end());
+    s.tracks.front().eq.enabled = false;
+    controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 3);
+    await([&] { return controller.snapshot()->appliedRevision == 3; });
+    check(counters->submitted == 4, "Stable-ID lane enable failed after canonical reorder");
+    s.tracks.pop_back();
+    controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 4);
+    await([&] { return controller.snapshot()->phase == PlaybackPhase::Fault; });
+    check(counters->destroyed == 1 && !counters->wrongThread,
+          "Removed mix lane did not fault and retire on worker");
+    controller.requestShutdown();
+    await([&] { return controller.snapshot()->closed; });
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -233,6 +282,7 @@ int main(int argc, char **argv) {
         faultsAndGenerations();
         silentEditAndComplete();
         partialBundle();
+        multitrackReceipts();
         std::cout << "{\"checks\":" << checks
                   << ",\"dsp_backpressure_retry\":true,\"accepted_applied_distinct\":true,\"latest_"
                      "model_reconciled\":true,\"priority_shutdown\":true,\"native_audio\":false}\n";

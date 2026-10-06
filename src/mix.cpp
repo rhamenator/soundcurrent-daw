@@ -216,6 +216,12 @@ SubmitStatus PreparedMixGraph::submitImmediate(std::size_t t, const EqEvent &e,
     return t < state_->lanes.size() ? state_->lanes[t]->driver.submitImmediate(e, rev)
                                     : SubmitStatus::Invalid;
 }
+std::uint64_t PreparedMixGraph::droppedAcknowledgements() const noexcept {
+    std::uint64_t total = 0;
+    for (const auto &lane : state_->lanes)
+        total += lane->driver.droppedAcknowledgements();
+    return total;
+}
 bool PreparedMixGraph::acknowledgement(std::size_t t, ImmediateAcknowledgement &a) noexcept {
     return t < state_->lanes.size() && state_->lanes[t]->driver.acknowledgement(a);
 }

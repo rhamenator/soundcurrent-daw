@@ -12,6 +12,8 @@ struct PlaybackPreparation {
     std::uint64_t modelRevision = 0;
     Id track;
     PlaybackConfig config;
+    MixPlan plan;
+    bool projectMix = false;
 };
 struct PlaybackTelemetry {
     PlaybackBridgeStatus status = PlaybackBridgeStatus::Ready;
@@ -19,7 +21,11 @@ struct PlaybackTelemetry {
     double peak = 0;
     std::uint64_t missingFrames = 0, droppedMeters = 0, droppedReceipts = 0;
     bool processed = false;
-    std::optional<ImmediateAcknowledgement> receipt;
+    struct Receipt {
+        std::size_t track;
+        ImmediateAcknowledgement applied;
+    };
+    std::vector<Receipt> receipts;
 };
 // Control-worker adapter seam. No virtual dispatch occurs in an audio callback.
 // Test endpoints qualify controller/UI state, not native audio behavior.
@@ -31,9 +37,9 @@ class PlaybackEndpoint {
     virtual void activate() = 0;
     virtual void stop() noexcept = 0;
     virtual void checkReader() = 0;
-    virtual EqEvent event(const Session &, const ParameterAddress &) = 0;
-    virtual EqEvent enable(bool) = 0;
-    virtual SubmitStatus submit(const EqEvent &, std::uint64_t) noexcept = 0;
+    virtual MixEvent event(const Session &, const ParameterAddress &) = 0;
+    virtual MixEvent enable(const Id &, bool) = 0;
+    virtual SubmitStatus submit(const MixEvent &, std::uint64_t) noexcept = 0;
     virtual PlaybackTelemetry read() = 0;
 };
 enum class PlaybackPhase {
@@ -52,7 +58,8 @@ struct PlaybackSnapshot {
     PlaybackPhase phase = PlaybackPhase::Idle;
     PlaybackBridgeStatus nativeStatus = PlaybackBridgeStatus::Ready;
     std::shared_ptr<const std::vector<PipeWirePort>> ports;
-    std::uint32_t channels = 0, sampleRate = 0;
+    std::uint32_t channels = 0, sampleRate = 0, tracks = 0;
+    bool projectMix = false;
     std::uint64_t generation = 0, desiredRevision = 0, acceptedRevision = 0, appliedRevision = 0;
     std::uint64_t errorSerial = 0, completedCommands = 0;
     std::optional<ErrorCode> errorCode;
@@ -75,6 +82,8 @@ struct PlaybackCommand {
     std::shared_ptr<const Session> session;
     std::uint64_t modelRevision = 0;
     std::vector<PipeWirePort> outputs;
+    // Explicit static plan for project/submix; absent retains selected-track behavior.
+    std::optional<MixPlan> plan;
 };
 // Qt desktop worker. Prepare/Play use a16-command FIFO. Canonical full models
 // have one explicitly coalescing latest slot; gestures/history stay in ProjectController.

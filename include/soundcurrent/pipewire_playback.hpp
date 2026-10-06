@@ -19,6 +19,10 @@ class PipeWirePlayback {
                      ReadAheadOptions = {},
                      std::chrono::milliseconds readyTimeout = std::chrono::seconds(3),
                      PlaybackCallbackInstrumentation = {});
+    PipeWirePlayback(std::filesystem::path, const Session &, MixPlan, MixPlaybackConfig,
+                     ReadAheadOptions = {},
+                     std::chrono::milliseconds readyTimeout = std::chrono::seconds(3),
+                     PlaybackCallbackInstrumentation = {});
     ~PipeWirePlayback();
     PipeWirePlayback(const PipeWirePlayback &) = delete;
     PipeWirePlayback &operator=(const PipeWirePlayback &) = delete;
@@ -29,13 +33,16 @@ class PipeWirePlayback {
     void checkReader();   // After stop, rethrows recorded worker failure.
     std::uint32_t nodeId() const noexcept;
     bool memoryLocked() const noexcept;
-    PreparedEq &prepared() noexcept;
+    PreparedEq &prepared() noexcept; // Legacy single-lane lookup.
+    PreparedMixGraph &graph() noexcept;
+    SubmitStatus submitImmediate(const MixEvent &, std::uint64_t revision) noexcept;
+    bool acknowledgement(std::size_t track, ImmediateAcknowledgement &) noexcept;
     SubmitStatus submitImmediate(const EqEvent &, std::uint64_t revision) noexcept;
     bool acknowledgement(ImmediateAcknowledgement &) noexcept;
     std::uint64_t droppedAcknowledgements() const noexcept;
     PlaybackBridgeStatus status() const noexcept;
     Frame position() const noexcept;
-    std::uint64_t missingFrames() const noexcept;
+    std::uint64_t missingFrames() const noexcept; // Sum of missing track-frame units.
     bool observation(PlaybackObservation &) noexcept;
     std::uint64_t droppedObservations() const noexcept;
     std::optional<CaptureTimingOrigin> timingOrigin() const noexcept;

@@ -201,3 +201,5 @@ playback/render corpus with independent samples, reported reader gaps and headro
 P001's simultaneous capture/duration/native acceptance remains open; P017's bus
 network, cycle/PDC behavior and persistence are not supplied by a star matrix.
 No reference F/Q/C/N axis is promoted.
+
+M2c2 adds [native/desktop shared-clock mix playback](32-native-mix-playback.md) with per-lane receipts, explicit matching-layout/output selection and non-first track EQ/Undo. P001 simultaneous capture and P017 general buses/routing/reference workflows remain incomplete; acceptance, quality and F/Q/C/N axes are unchanged.
