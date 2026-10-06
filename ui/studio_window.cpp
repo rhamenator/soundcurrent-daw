@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDoubleSpinBox>
+#include <QSpinBox>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -313,6 +314,46 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     recordModes->addWidget(armed_);
     recordModes->addWidget(monitorMode_, 1);
     recordLayout->addLayout(recordModes);
+    multiRecord_ = new QCheckBox(tr("Record armed tracks with project playback"), recording);
+    multiRecord_->setObjectName("recordProjectMix");
+    multiRecord_->setToolTip(tr("Select tracks below. Every raw input and project output must be "
+                                "chosen explicitly after preparation."));
+    recordLayout->addWidget(multiRecord_);
+    armedTracksList_ = new QListWidget(recording);
+    armedTracksList_->setObjectName("armedTracksList");
+    armedTracksList_->setAccessibleName(tr("Tracks to arm for simultaneous recording"));
+    armedTracksList_->setMaximumHeight(150);
+    armedTracksList_->setMinimumHeight(80);
+    recordLayout->addWidget(armedTracksList_);
+    auto *rangeRow = new QHBoxLayout;
+    auto *rangeLabel = new QLabel(tr("Recording range (seconds)"), recording);
+    recordRangeLabel_ = rangeLabel;
+    recordSeconds_ = new QSpinBox(recording);
+    recordSeconds_->setObjectName("recordRangeSeconds");
+    recordSeconds_->setRange(1, 86400);
+    recordSeconds_->setValue(600);
+    recordSeconds_->setAccessibleName(tr("Maximum shared recording duration in seconds"));
+    recordSeconds_->setToolTip(tr("Recording stops at this range; you can stop earlier. Existing "
+                                  "audio plays from the current playhead."));
+    rangeLabel->setBuddy(recordSeconds_);
+    rangeRow->addWidget(rangeLabel);
+    rangeRow->addWidget(recordSeconds_);
+    recordLayout->addLayout(rangeRow);
+    connect(recordSeconds_, &QSpinBox::valueChanged, this, [this] { recordRangeOverride_ = 0; });
+    connect(multiRecord_, &QCheckBox::toggled, this, [this] {
+        recordPrepareBarrier_ = 0;
+        if (recording_.snapshot()->phase == RecordingPhase::Ready)
+            recording_.requestStop();
+        refreshArms();
+    });
+    connect(armedTracksList_, &QListWidget::itemChanged, this, [this](QListWidgetItem *item) {
+        const Id id(item->data(Qt::UserRole).toString().toStdString());
+        const auto at = std::find(armedTracksSelection_.begin(), armedTracksSelection_.end(), id);
+        if (item->checkState() == Qt::Checked && at == armedTracksSelection_.end())
+            armedTracksSelection_.push_back(id);
+        else if (item->checkState() != Qt::Checked && at != armedTracksSelection_.end())
+            armedTracksSelection_.erase(at);
+    });
     auto *recordRouteWidget = new QWidget(recording);
     recordRoutes_ = new QGridLayout(recordRouteWidget);
     recordLayout->addWidget(recordRouteWidget);
@@ -1046,12 +1087,127 @@ bool StudioWindow::prepareRecording() {
         return false;
     recordPrepareBarrier_ = token;
     recordPreparationTrack_ = selectedTrack();
+    recordPrepareMix_ = multiRecord_->isChecked();
+    recordPreparationArms_.clear();
+    if (recordPrepareMix_) {
+        const auto canonical = controller_.snapshot();
+        for (const auto &t : canonical->session->tracks)
+            if (std::find(armedTracksSelection_.begin(), armedTracksSelection_.end(), t.id) !=
+                armedTracksSelection_.end())
+                recordPreparationArms_.push_back(t.id);
+        if (recordPreparationArms_.empty()) {
+            recordPrepareBarrier_ = 0;
+            notice_->setText(tr("Select at least one track to arm."));
+            return false;
+        }
+        recordPreparationFrames_ =
+            recordRangeOverride_ ? recordRangeOverride_
+                                 : Frame(recordSeconds_->value()) * canonical->session->sampleRate;
+    }
     return true;
+}
+bool StudioWindow::configureArmedRecording(const std::vector<Id> &ids, Frame frames) {
+    const auto m = controller_.snapshot();
+    const auto r = recording_.snapshot();
+    if (!m->session || ids.empty() || ids.size() > 256 || recordingBusy() || frames < 0 ||
+        frames > Frame(m->session->sampleRate) * 86400 || !r->duplexSupported)
+        return false;
+    std::vector<Id> seen;
+    for (const auto &id : ids) {
+        if (std::find(seen.begin(), seen.end(), id) != seen.end() ||
+            std::none_of(m->session->tracks.begin(), m->session->tracks.end(),
+                         [&](const auto &t) { return t.id == id; }))
+            return false;
+        seen.push_back(id);
+    }
+    armProjectEpoch_ = m->projectEpoch;
+    armedTracksSelection_ = std::move(seen);
+    multiRecord_->setChecked(true);
+    recordRangeOverride_ = frames;
+    refreshArms();
+    return true;
+}
+void StudioWindow::refreshArms() {
+    const auto m = controller_.snapshot();
+    const auto r = recording_.snapshot();
+    if (armProjectEpoch_ != m->projectEpoch) {
+        armProjectEpoch_ = m->projectEpoch;
+        armedTracksSelection_.clear();
+    }
+    const bool mix = multiRecord_->isChecked();
+    armedTracksList_->setVisible(mix);
+    recordSeconds_->setVisible(mix);
+    recordRangeLabel_->setVisible(mix);
+    armed_->setVisible(!mix);
+    QSignalBlocker blocked(armedTracksList_);
+    if (!m->session) {
+        armedTracksList_->clear();
+        return;
+    }
+    bool rebuild = armedTracksList_->count() != int(m->session->tracks.size());
+    if (!rebuild)
+        for (int n = 0; n < armedTracksList_->count(); ++n)
+            if (armedTracksList_->item(n)->data(Qt::UserRole).toString() !=
+                text(m->session->tracks[std::size_t(n)].id.str())) {
+                rebuild = true;
+                break;
+            }
+    if (rebuild) {
+        armedTracksList_->clear();
+        for (const auto &t : m->session->tracks) {
+            auto *item = new QListWidgetItem(armedTracksList_);
+            item->setData(Qt::UserRole, text(t.id.str()));
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        }
+    }
+    for (std::size_t n = 0; n < m->session->tracks.size(); ++n) {
+        const auto &t = m->session->tracks[n];
+        auto *item = armedTracksList_->item(int(n));
+        item->setCheckState(std::find(armedTracksSelection_.begin(), armedTracksSelection_.end(),
+                                      t.id) != armedTracksSelection_.end()
+                                ? Qt::Checked
+                                : Qt::Unchecked);
+        auto label = tr("%1 · %2 channel(s) · %3")
+                         .arg(text(t.name), QLocale().toString(t.layout.channels),
+                              t.monitoring == RecordingMonitor::Off ? tr("Monitoring off")
+                                                                    : tr("Post-EQ monitoring"));
+        const auto lane = std::find_if(r->lanes.begin(), r->lanes.end(),
+                                       [&](const auto &v) { return v.track == t.id; });
+        item->setForeground(QBrush());
+        item->setToolTip(QString());
+        if (r->projectMix && lane != r->lanes.end()) {
+            const auto ordinal = std::size_t(lane - r->lanes.begin());
+            if (ordinal < r->telemetry.lanes.size()) {
+                const auto &c = r->telemetry.lanes[ordinal];
+                label += tr(" · captured %1 / written %2")
+                             .arg(QLocale().toString(c.captured), QLocale().toString(c.written));
+                item->setForeground(c.rejected || c.status == CaptureStatus::WriterFailed
+                                        ? QColor("#c83434")
+                                        : QColor("#28894e"));
+            }
+            if (lane->errorCode) {
+                item->setForeground(QColor("#c83434"));
+                label += tr(" · failed; recovery available");
+            }
+            item->setToolTip(
+                text(lane->diagnostic) +
+                (lane->job ? QStringLiteral("\n") + text(pathUtf8(*lane->job)) : QString()));
+        }
+        if (item->text() != label)
+            item->setText(label);
+    }
+    const bool idle = r->phase == RecordingPhase::Idle || r->phase == RecordingPhase::Fault ||
+                      r->phase == RecordingPhase::Unsupported;
+    const bool edit = idle && !recordPrepareBarrier_ && !recordCommandPending_ && !r->take &&
+                      !closing_ && !closeRequested_;
+    multiRecord_->setEnabled(edit && r->duplexSupported);
+    armedTracksList_->setEnabled(edit);
+    recordSeconds_->setEnabled(edit);
 }
 void StudioWindow::recordSelected() {
     const auto r = recording_.snapshot();
-    if (!armed_->isChecked() || r->phase != RecordingPhase::Ready || !recordPortsShown_ ||
-        selectedTrack() != recordingTrack_ || closing_ || closeRequested_)
+    if ((!r->projectMix && (!armed_->isChecked() || selectedTrack() != recordingTrack_)) ||
+        r->phase != RecordingPhase::Ready || !recordPortsShown_ || closing_ || closeRequested_)
         return;
     RecordingCommand c;
     c.kind = RecordingCommandKind::Start;
@@ -1093,10 +1249,51 @@ void StudioWindow::retryTake() {
     if (recording_.snapshot()->take && !attachingTake_)
         attachmentFailed_ = false;
 }
+void StudioWindow::selectRecordingRoute(bool output, std::size_t channel, QComboBox *combo) {
+    const auto r = recording_.snapshot();
+    if (!r->projectMix) {
+        selectRoute(output ? RouteTarget::Monitor : RouteTarget::Input, channel, combo);
+        return;
+    }
+    const auto m = controller_.snapshot();
+    if (!m->session || closing_ || closeRequested_ || !recordPortsShown_)
+        return;
+    const auto key = combo->currentData().toString();
+    if (key == "unresolved-route")
+        return;
+    const auto port =
+        std::find_if(recordPortsShown_->begin(), recordPortsShown_->end(),
+                     [&](const auto &p) { return p.input == output && portKey(p) == key; });
+    if (!key.isEmpty() && port == recordPortsShown_->end())
+        return;
+    ProjectCommand c{CommandKind::Routing};
+    if (output) {
+        if (m->session->master)
+            c.routeAddress = RouteAddress{m->session->master->id, RouteTarget::Master};
+        else if (!m->session->tracks.empty())
+            c.routeAddress = RouteAddress{m->session->tracks.front().id, RouteTarget::Output};
+    } else {
+        for (const auto &lane : r->lanes)
+            if (channel >= lane.firstInput && channel < lane.firstInput + lane.layout.channels) {
+                c.routeAddress = RouteAddress{lane.track, RouteTarget::Input};
+                channel -= lane.firstInput;
+                break;
+            }
+    }
+    if (!c.routeAddress)
+        return;
+    c.routePatch = RouteChannelPatch{
+        std::uint32_t(channel), "pipewire",
+        port == recordPortsShown_->end() ? std::optional<ChannelPortIntent>{} : portIntent(*port)};
+    if (!submitEdit(std::move(c)))
+        notice_->setText(tr("Recording route was not admitted. Please retry."));
+}
 void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
     const auto n = r.ports ? r.channels : 0;
-    const auto out = r.monitoring == RecordingMonitor::PostEq ? n : 0;
-    if (inputs_.size() != n || monitors_.size() != out) {
+    const auto out = r.ports ? r.outputChannels : 0;
+    if (inputs_.size() != n || monitors_.size() != out ||
+        (n && recordRoutesGeneration_ != r.generation)) {
+        recordRoutesGeneration_ = r.generation;
         while (auto *item = recordRoutes_->takeAt(0)) {
             delete item->widget();
             delete item;
@@ -1104,6 +1301,7 @@ void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
         inputs_.clear();
         monitors_.clear();
         recordPortsShown_.reset();
+        packedInputsShown_.clear();
         auto make = [&](std::vector<QComboBox *> &combos, bool input, std::uint32_t count) {
             for (std::uint32_t c = 0; c < count; ++c) {
                 auto *combo = new FocusCombo;
@@ -1113,8 +1311,24 @@ void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
                 combo->setFocusPolicy(Qt::StrongFocus);
                 combo->setToolTip(
                     tr("Saved routing changes take effect after Stop and preparation."));
-                const auto label = input ? tr("Monitor output %1") : tr("Input %1");
-                combo->setAccessibleName(label.arg(QLocale().toString(c + 1)));
+                auto label =
+                    input ? (r.projectMix ? tr("Project mix output %1") : tr("Monitor output %1"))
+                          : tr("Input %1");
+                label = label.arg(QLocale().toString(c + 1));
+                if (!input && r.projectMix) {
+                    for (const auto &lane : r.lanes)
+                        if (c >= lane.firstInput && c < lane.firstInput + lane.layout.channels) {
+                            const auto canonical = controller_.snapshot();
+                            if (canonical->session)
+                                for (const auto &t : canonical->session->tracks)
+                                    if (t.id == lane.track)
+                                        label =
+                                            tr("%1 — input %2")
+                                                .arg(text(t.name),
+                                                     QLocale().toString(c - lane.firstInput + 1));
+                        }
+                }
+                combo->setAccessibleName(label);
                 combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
                 combo->setMinimumContentsLength(16);
                 auto *buddy = new QLabel(combo->accessibleName());
@@ -1123,13 +1337,44 @@ void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
                 recordRoutes_->addWidget(buddy, row, 0);
                 recordRoutes_->addWidget(combo, row, 1);
                 combos.push_back(combo);
-                connect(combo, &QComboBox::currentIndexChanged, this, [this, combo, c, input] {
-                    selectRoute(input ? RouteTarget::Monitor : RouteTarget::Input, c, combo);
-                });
+                connect(combo, &QComboBox::currentIndexChanged, this,
+                        [this, combo, c, input] { selectRecordingRoute(input, c, combo); });
             }
         };
         make(inputs_, false, n);
         make(monitors_, true, out);
+    }
+    if (r.projectMix) {
+        const auto model = controller_.snapshot();
+        if (r.ports && model->session) {
+            std::vector<RouteIntent> intents(n);
+            for (const auto &lane : r.lanes)
+                for (const auto &t : model->session->tracks)
+                    if (t.id == lane.track)
+                        for (std::uint32_t ch = 0; ch < lane.layout.channels; ++ch) {
+                            auto &intent = intents[lane.firstInput + ch];
+                            intent.backendId = t.input.backendId;
+                            intent.ports.push_back(ch < t.input.ports.size() ? t.input.ports[ch]
+                                                                             : std::nullopt);
+                        }
+            const auto output = model->session->master ? model->session->master->output
+                                                       : model->session->tracks.front().output;
+            const bool portsChanged = !recordPortsShown_ || *recordPortsShown_ != *r.ports;
+            for (std::size_t ch = 0; ch < intents.size(); ++ch)
+                if (portsChanged || ch >= packedInputsShown_.size() ||
+                    packedInputsShown_[ch] != intents[ch])
+                    populateRoutes({inputs_[ch]}, *r.ports, intents[ch], false);
+            if (portsChanged || !monitorIntentShown_ || *monitorIntentShown_ != output)
+                populateRoutes(monitors_, *r.ports, output, true);
+            packedInputsShown_ = std::move(intents);
+            monitorIntentShown_ = output;
+            recordPortsShown_ = r.ports;
+        }
+        for (const auto &combos : {inputs_, monitors_})
+            for (auto *combo : combos)
+                combo->setEnabled(r.phase == RecordingPhase::Ready && !closing_ &&
+                                  !closeRequested_);
+        return;
     }
     const auto model = inspectorSnapshot();
     const auto input = model->session && !model->session->tracks.empty()
@@ -1167,13 +1412,19 @@ void StudioWindow::pollRecording() {
         if (m->barrierSession && !m->barrierSession->tracks.empty()) {
             RecordingCommand c;
             c.root = m->barrierRoot;
-            c.session = sessionForTrack(m->barrierSession, recordPreparationTrack_);
+            c.session = recordPrepareMix_
+                            ? m->barrierSession
+                            : sessionForTrack(m->barrierSession, recordPreparationTrack_);
             if (!c.session) {
                 notice_->setText(tr("Selected recording track no longer exists."));
                 return;
             }
             c.modelRevision = m->barrierRevision;
             c.monitoring = c.session->tracks.front().monitoring;
+            if (recordPrepareMix_) {
+                c.armedTracks = recordPreparationArms_;
+                c.recordFrames = recordPreparationFrames_;
+            }
             if (!submitRecording(std::move(c)))
                 notice_->setText(tr("Recording queue is full or closing. Please retry."));
             else
@@ -1189,8 +1440,11 @@ void StudioWindow::pollRecording() {
         monitoringShown_ = mode;
     }
     if (m->session && m->modelRevision > recordingFollowed_) {
-        const auto target = sessionForTrack(m->session, recordingTrack_);
-        if (recording_.follow(m->root, target ? target : m->session, m->modelRevision))
+        const auto canonical = controller_.snapshot();
+        const auto target = r->projectMix ? canonical->session
+                                          : sessionForTrack(canonical->session, recordingTrack_);
+        if (recording_.follow(canonical->root, target ? target : canonical->session,
+                              canonical->modelRevision))
             recordingFollowed_ = m->modelRevision;
     }
     if (r->take) {
@@ -1199,7 +1453,14 @@ void StudioWindow::pollRecording() {
             attachingTake_ = 0;
             attachmentFailed_ = false;
         }
-        if (m->root == r->take->root && m->lastAttachedAsset == r->take->receipt->asset.id) {
+        const bool group = r->take->receipts && r->take->receipts->size() > 1;
+        std::vector<Id> ids;
+        if (r->take->receipts)
+            for (const auto &take : *r->take->receipts)
+                ids.push_back(take.asset.id);
+        if (m->root == r->take->root &&
+            (group ? m->lastAttachedAssets == ids
+                   : m->lastAttachedAsset == r->take->receipt->asset.id)) {
             recording_.acknowledgeTake(r->take->sequence);
             attachingTake_ = 0;
             attachmentFailed_ = false;
@@ -1214,7 +1475,10 @@ void StudioWindow::pollRecording() {
             else {
                 ProjectCommand c{CommandKind::AttachRecording};
                 c.path = r->take->root;
-                c.recording = r->take->receipt;
+                if (group)
+                    c.recordings = r->take->receipts;
+                else
+                    c.recording = r->take->receipt;
                 if (controller_.submit(std::move(c)) == Admission::Accepted) {
                     attachingTake_ = r->take->sequence;
                     attachmentError_ = m->errorSerial;
@@ -1241,13 +1505,15 @@ void StudioWindow::pollRecording() {
                              !r->take && m->session && !m->session->tracks.empty() &&
                              m->io != IoOperation::Create && m->io != IoOperation::Open);
     armed_->setEnabled(allow && r->supported && m->session && !r->take);
-    recordButton_->setEnabled(allow && !recordCommandPending_ && ready && armed_->isChecked() &&
-                              selectedTrack() == recordingTrack_);
+    recordButton_->setEnabled(
+        allow && !recordCommandPending_ && ready &&
+        (r->projectMix || (armed_->isChecked() && selectedTrack() == recordingTrack_)));
     recordAction_->setEnabled(recordButton_->isEnabled());
     recordStopButton_->setEnabled(allow && (recordPrepareBarrier_ || !idle) && !r->closed);
     recoverAction_->setEnabled(allow && !recordCommandPending_ && idle && !r->take &&
                                !attachingTake_ && m->session && m->io == IoOperation::None);
     updateRecordingRoutes(*r);
+    refreshArms();
     QString status;
     switch (r->phase) {
     case RecordingPhase::Unsupported:
@@ -1291,7 +1557,7 @@ void StudioWindow::pollRecording() {
     }
     if ((r->phase == RecordingPhase::Ready || r->phase == RecordingPhase::Recording ||
          r->phase == RecordingPhase::Complete) &&
-        mode != r->monitoring)
+        !r->projectMix && mode != r->monitoring)
         status +=
             tr(" · Prepared monitoring: %1. Stop and prepare to use the saved mode.")
                 .arg(r->monitoring == RecordingMonitor::Off ? tr("Off") : tr("Through track EQ"));
@@ -1305,8 +1571,12 @@ void StudioWindow::pollRecording() {
                            QLocale().toString(r->telemetry.rejectedFrames));
     if (r->job && (r->phase == RecordingPhase::Fault || attachmentFailed_))
         status += tr("\nStored recording: %1").arg(text(pathUtf8(*r->job)));
-    if (recordingTrack_ && selectedTrack() != recordingTrack_ && r->ports)
+    if (!r->projectMix && recordingTrack_ && selectedTrack() != recordingTrack_ && r->ports)
         status += tr(" · Another track is prepared. Stop or prepare the selected track.");
+    if (r->projectMix)
+        status += tr(" · %n armed track(s)", nullptr, int(r->lanes.size())) +
+                  tr(" · %1 missing playback frames")
+                      .arg(QLocale().toString(r->telemetry.missingTrackFrames));
     recordingState_->setText(status);
     recordingState_->setToolTip(r->job ? text(pathUtf8(*r->job)) : QString());
     // Independent text measurement lets a shorter diagnostic shrink again.
@@ -1331,9 +1601,12 @@ void StudioWindow::pollRecording() {
                 ? tr("%1: %2 dBFS").arg(name, QLocale().toString(20 * std::log10(peak), 'f', 1))
                 : tr("%1: −∞ dBFS").arg(name));
     };
+    inputMeter_->setVisible(!r->projectMix);
+    inputLevel_->setVisible(!r->projectMix);
     meter(inputMeter_, inputLevel_, r->telemetry.inputPeak, tr("Input"));
     meter(monitorMeter_, monitorLevel_,
-          r->monitoring == RecordingMonitor::Off ? 0 : r->telemetry.outputPeak, tr("Monitor"));
+          !r->projectMix && r->monitoring == RecordingMonitor::Off ? 0 : r->telemetry.outputPeak,
+          r->projectMix ? tr("Project output") : tr("Monitor"));
     if (r->errorSerial != recordingError_) {
         recordingError_ = r->errorSerial;
         notice_->setText(tr("Recording could not be completed: %1. Any stored checkpoint remains "

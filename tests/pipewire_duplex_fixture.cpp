@@ -343,7 +343,9 @@ int main(int argc, char **argv) {
             }
             require(original && retained && run.status() == DuplexStatus::CaptureFailed &&
                         !run.timingOrigin() && !run.callbackFault() && !ownerAudit.calls &&
-                        !run.jobDirectory(17) && !run.jobDirectory(18),
+                        run.jobDirectory(17) &&
+                        std::filesystem::is_directory(*run.jobDirectory(17)) &&
+                        !run.jobDirectory(18),
                     "Partial native activation lost original error or activated audio");
             for (unsigned n = 0; n < 17; ++n) {
                 require(run.capture(n).writerComplete &&

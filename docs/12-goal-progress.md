@@ -469,3 +469,70 @@ Next: **M2d3 desktop accepted-prefix multi-arm preparation**, explicit packed
 input/master routing, live monitor/EQ receipts and grouped independent verified
 take admission/history, with separate failed-lane recovery. Preserve current
 selection/intervening edits and native-before-worker-close ordering.
+
+## M2d3 desktop multi-arm recording and verified groups (2026-10-06)
+
+Checkpoint `be64344` was **progress**, not completion. The desktop now captures
+accepted-prefix full-project arms/range, prepares the production duplex owner on
+its worker, saves explicit packed input/master routes and reconciles EQ/enable
+changes against stable prepared track IDs. Applied model revisions wait for every
+participating generation/lane receipt, including lower held receipts after higher
+other-lane revisions. Inspector selection and canonical reorder do not retarget
+capture. The list shows captured/written frames and red failed-lane diagnostics;
+the actual project peak is shown and unavailable raw peak metering is hidden.
+
+Joined successful receipts are retained as one pending group. All finalized,
+inactive journals/identities/extents/media hashes are verified off-thread before
+one canonical history adoption against the latest model. A bad last receipt or
+removed target rejects the whole group; intervening scalar/routes survive. One
+Undo/Redo changes the entire take group and leaves raw media untouched. A failed
+writer preserves other successful takes and its own checkpoint/error/job; a
+partial activation constructor retains an existing diagnostic directory and the
+initiating error without asserting a valid recoverable journal. Active Save/close
+waits for all writer joins and group verification before saving.
+
+[Contract](37-desktop-duplex-recording.md), [ADR-027](decisions/027-desktop-duplex-recording.md)
+and [evidence](../tests/results/M2/2026-10-06-desktop-duplex-recording.json) retain exact
+source/log hashes and chronological qualification. All 25 current Debug groups
+passed in 23.85 seconds; all 25 ASan/UBSan/LSan groups passed in 64.71 seconds,
+then the expanded active-close UI group passed separately in 8.73 seconds. Seven
+optimized groups passed in 5.65 seconds. The headless Windows core compiles/links;
+no native Windows or Qt/UI qualification is inferred.
+
+Final serial Release native GUI runs use three or 32 owned source planes, one
+existing unarmed file, the production desktop/controller/duplex owner and an
+independent stereo sink. Each raw take contains exactly 240000 frames (five
+seconds), with common native origin and exact raw source coordinates. Offline EQ
+replay at actual applied frames plus an independent float64 matrix sum matches
+the stereo output exactly. Group Undo/Redo and Save/reopen pass; missing frames
+and direct host callback allocation/free/mutex counts are zero. 32-arm observed
+elapsed p99/max callback times are 3.088963/6.143693 ms. These finite timings do not
+qualify duration, deadlines, controlled load or physical alignment. Defaults,
+owned-only routes and cleanup observations are retained. The revised lane17
+initial-journal failure regression also passes without audio activation.
+
+The first full Debug UI run aborted on a filesystem iterator assertion; review
+found a new test holding references into a temporary snapshot during lane I/O.
+The test now retains the shared snapshot. Original abort stack details were not
+captured. The first 32-arm native GUI run timed out before its first capture
+threshold, after an exact 3-arm run. Its phase/routes/callback counts were not
+captured, so its precise cause is unproven. The fixture now captures a complete
+canonical route-command prefix, waits for exact visible choices and retains
+terminal diagnostics. The synchronized 3/32 rerun passes without changing the
+production DSP/clock or suppressing any fault. The initial timeout and every
+historical native/sink/concurrent UI observation remain recorded and their
+reliability gates remain open.
+
+The read-only equalizer audit still matches all 24 borrowed inputs and both
+reviewed heads. Equalizer repositories remain untouched. No dependency/license
+change, publication or push. All 92 acceptance/quality/reference/F/Q/C/N contracts
+remain intact and unpromoted. M1/M2 duration/load/physical/Windows/unload and full
+professional workflows remain open, as do X004 import, X005 profile monitor/print/
+portable rights and all-Europe coverage/translation/review/UI qualification.
+The full goal remains **active and incomplete**.
+
+Next: **M2d4 declared-duration acceptance**. Implement the reproducible 32-track
+ten-minute synthetic P001 workflow with exact timestamps/source/hash, stop/save/
+reopen and bounded disk/cancel/failure evidence; then qualify the independent
+30-minute declared native/device/load/alignment gate. Punch/loop/Auto/take lanes/
+comping, fades and every other M2/full-product requirement stay in the backlog.

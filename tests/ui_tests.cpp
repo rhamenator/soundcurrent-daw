@@ -2,6 +2,7 @@
 #include "studio_window.hpp"
 #include "fake_playback_endpoint.hpp"
 #include "fake_recording_endpoint.hpp"
+#include "fake_duplex_endpoint.hpp"
 #include <soundcurrent/recording.hpp>
 #include <QApplication>
 #include <QDialog>
@@ -1002,6 +1003,180 @@ void portableOutputRoutes(const std::filesystem::path &root) {
           "Routing workflow changed original take identities");
 }
 
+void duplexRecordingWorkflow(const std::filesystem::path &root, unsigned mode) {
+    auto initial = duplex_fixture::project(root, 3);
+    auto counters = std::make_shared<duplex_fixture::Counters>();
+    if (mode == 1)
+        counters->failedWriter = 1;
+    if (mode == 2)
+        counters->badHash = true;
+    StudioWindow window(nullptr, {}, duplex_fixture::options(counters));
+    struct Release {
+        std::shared_ptr<duplex_fixture::Counters> c;
+        ~Release() {
+            c->holdStop = false;
+        }
+    } release{counters};
+    window.show();
+    window.activateWindow();
+    window.openProject(root);
+    await([&] { return window.snapshot()->session && window.snapshot()->io == IoOperation::None; });
+    std::vector<Id> arms;
+    for (const auto &t : initial.tracks)
+        arms.push_back(t.id);
+    check(!window.configureArmedRecording({arms[0], arms[0]}), "Duplicate GUI arms accepted");
+    check(window.configureArmedRecording(arms, 100003), "GUI multi-arm selection refused");
+    auto *list = window.findChild<QListWidget *>("armedTracksList");
+    auto *modeControl = window.findChild<QCheckBox *>("recordProjectMix");
+    check(list && modeControl && modeControl->isChecked() && list->count() == 3 &&
+              list->item(0)->checkState() == Qt::Checked &&
+              !window.findChild<QCheckBox *>("armTrack")->isVisible(),
+          "Multi-arm GUI did not show canonical checkable track list");
+    check(window.prepareRecording(), "GUI duplex prepare refused");
+    await([&] {
+        return window.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               window.findChild<QComboBox *>("inputChannel2") &&
+               window.findChild<QComboBox *>("monitorChannel1");
+    });
+    check(!window.recordingSnapshot()->job && counters->activated == 0 &&
+              window.recordingSnapshot()->endFrame == 101003 && !list->isEnabled(),
+          "GUI prepare started I/O, changed explicit range or left arm list editable");
+    auto *record = window.findChild<QPushButton *>("recordButton");
+    record->click();
+    QTest::qWait(20);
+    check(counters->activated == 0 && !window.recordingSnapshot()->job,
+          "GUI recording selected missing/default routes implicitly");
+    for (int n = 0; n < 3; ++n) {
+        auto *combo = window.findChild<QComboBox *>(QStringLiteral("inputChannel%1").arg(n));
+        check(combo && combo->currentIndex() == 0, "GUI packed input auto-selected");
+        combo->clearFocus();
+        wheel(combo);
+        check(combo->currentIndex() == 0, "Unfocused wheel changed packed recording input");
+        combo->setCurrentIndex(n + 1);
+    }
+    for (int n = 0; n < 2; ++n) {
+        auto *combo = window.findChild<QComboBox *>(QStringLiteral("monitorChannel%1").arg(n));
+        check(combo && combo->currentIndex() == 0, "GUI project output auto-selected");
+        combo->setCurrentIndex(n + 1);
+    }
+    await([&] {
+        return window.snapshot()->session->tracks[2].input.ports.size() == 1 &&
+               window.snapshot()->session->master->output.ports.size() == 2 &&
+               window.snapshot()->session->master->output.ports[1];
+    });
+    check(window.selectTrack(initial.tracks[2].id), "Inspector selection refused");
+    await([&] { return window.selectedTrack() == initial.tracks[2].id && record->isEnabled(); });
+    record->click();
+    if (mode == 1) {
+        await([&] {
+            return window.snapshot()->session->assets.size() == 2 &&
+                   !window.recordingSnapshot()->take;
+        });
+        check(window.recordingSnapshot()->lanes[1].errorCode == ErrorCode::Io &&
+                  list->item(1)->foreground().color() == QColor("#c83434") &&
+                  list->item(1)->toolTip().contains("Injected duplex disk failure"),
+              "GUI partial disk failure hid failed lane or discarded valid takes");
+    } else {
+        await([&] { return window.recordingSnapshot()->telemetry.capturedFrames >= 512; });
+        auto *gain = window.findChild<QDoubleSpinBox *>("gain_db0");
+        gain->setValue(6);
+        await([&] {
+            return window.snapshot()->session->tracks[2].eq.bands[0].gainDb == 6 &&
+                   window.recordingSnapshot()->appliedRevision == window.snapshot()->modelRevision;
+        });
+        check(window.recordingSnapshot()->lanes[0].track == initial.tracks[0].id &&
+                  window.recordingSnapshot()->lanes[2].track == initial.tracks[2].id &&
+                  !window.findChild<QProgressBar *>("inputMeter")->isVisible(),
+              "Inspector edit retargeted raw lanes or showed an unavailable raw peak");
+        if (mode == 3) {
+            counters->holdStop = true;
+            PromptChoice saveWhileRecording(QMessageBox::Save);
+            window.close();
+            await([&] { return counters->waitingStop.load(); });
+            check(window.isVisible() && !window.snapshot()->closed &&
+                      window.snapshot()->session->assets.empty(),
+                  "Active multi-arm close saved/closed before writer join and group verification");
+            counters->holdStop = false;
+            await([&] {
+                return window.snapshot()->closed && window.recordingSnapshot()->closed &&
+                       !window.isVisible();
+            });
+            const auto saved = ProjectStore(root).load();
+            check(
+                saved.assets.size() == 3 && saved.tracks[2].eq.bands[0].gainDb == 6 &&
+                    saved.master->output.ports.size() == 2 && counters->destroyed == 1 &&
+                    !counters->wrongThread,
+                "Active multi-arm Save/close lost finalized group, edits, routes or ordered join");
+            ProjectStore(root).verifyMedia(saved);
+            return;
+        }
+        counters->holdStop = true;
+        window.findChild<QPushButton *>("recordStopButton")->click();
+        await([&] { return counters->waitingStop.load(); });
+        check(window.snapshot()->session->assets.empty() &&
+                  window.recordingSnapshot()->phase == RecordingPhase::Finalizing,
+              "GUI attached group before writer join");
+        counters->holdStop = false;
+        if (mode == 2) {
+            auto *keep = window.findChild<QPushButton *>("keepTakeButton");
+            await([&] { return keep && keep->isVisible() && keep->isEnabled(); });
+            check(window.snapshot()->session->assets.empty() &&
+                      window.recordingSnapshot()->take->receipts->size() == 3,
+                  "One failed media verification attached a partial group or lost receipts");
+            keep->click();
+            await([&] { return !window.recordingSnapshot()->take; });
+            const auto kept = window.recordingSnapshot();
+            for (const auto &lane : kept->lanes)
+                check(lane.job && inspectRecording(*lane.job, {}, true).finalized,
+                      "Keeping rejected group deleted or kept writer lease on raw take");
+        } else {
+            await([&] {
+                return window.snapshot()->session->assets.size() == 3 &&
+                       !window.recordingSnapshot()->take;
+            });
+        }
+    }
+    auto attached = window.snapshot();
+    if (mode < 2) {
+        const auto count = mode ? 2U : 3U;
+        check(attached->attachedRecordings == count &&
+                  attached->lastAttachedAssets.size() == count && counters->destroyed == 1 &&
+                  !counters->wrongThread,
+              "GUI grouped verified admission or worker retirement differs");
+        std::vector<std::string> hashes;
+        for (const auto &a : attached->session->assets)
+            hashes.push_back(hashMediaFile(root / utf8Path(a.relativePath)));
+        window.findChild<QAction *>("undoAction")->trigger();
+        await([&] { return window.snapshot()->session->assets.empty(); });
+        check(window.snapshot()->session->master->output == attached->session->master->output &&
+                  window.snapshot()->session->tracks[2].eq == attached->session->tracks[2].eq,
+              "One grouped Undo removed preceding routes or live EQ edits");
+        window.findChild<QAction *>("redoAction")->trigger();
+        await([&] { return *window.snapshot()->session == *attached->session; });
+        for (std::size_t n = 0; n < hashes.size(); ++n)
+            check(hashMediaFile(root / utf8Path(attached->session->assets[n].relativePath)) ==
+                      hashes[n],
+                  "Grouped GUI Undo/Redo changed raw audio");
+    }
+    const auto screenshot = qEnvironmentVariable("SC_DUPLEX_UI_SCREENSHOT");
+    if (mode == 0 && !screenshot.isEmpty()) {
+        auto *recordingGroup = window.findChild<QWidget *>("recordingGroup");
+        for (auto *scroll : window.findChildren<QScrollArea *>())
+            if (scroll->widget() && scroll->widget()->isAncestorOf(recordingGroup))
+                scroll->ensureWidgetVisible(recordingGroup, 0, 0);
+        QTest::qWait(30);
+        check(window.grab().save(screenshot), "Cannot save multi-arm UI screenshot");
+    }
+    auto model = *window.snapshot()->session;
+    PromptChoice save(QMessageBox::Save);
+    window.close();
+    await([&] {
+        return window.snapshot()->closed && window.recordingSnapshot()->closed &&
+               !window.isVisible();
+    });
+    check(ProjectStore(root).load() == model, "GUI duplex save/reopen differs");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QTemporaryDir configuration;
@@ -1022,6 +1197,10 @@ int main(int argc, char **argv) {
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-monitor", true);
         recordingRecoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /
                                   "recording-recovery");
+        for (unsigned mode = 0; mode < 4; ++mode)
+            duplexRecordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /
+                                        ("duplex-ui-" + std::to_string(mode)),
+                                    mode);
         std::cout << "{\"checks\":" << checks
                   << ",\"ui_keyboard_undo\":true,\"focus_safe_wheel\":true,\"scrollable_bands\":32,"
                      "\"dirty_close_choices\":3,\"playback_ui_fake_endpoint\":true,\"colorized_"

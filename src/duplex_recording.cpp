@@ -177,6 +177,14 @@ void DuplexRecordingRun::startWriters() {
                 l->job = l->writer->jobDirectory();
             } catch (...) {
                 l->error = std::current_exception();
+                // A constructor may have created an independently inspectable job
+                // before journal publication failed. Keep that path without masking
+                // the original activation exception; all checks are off RT.
+                const auto candidate =
+                    s.root / "media" / ("capture-" + l->binding.spec.assetId.str());
+                std::error_code directoryError;
+                if (std::filesystem::is_directory(candidate, directoryError))
+                    l->job = candidate;
                 throw;
             }
         s.writersReady.store(true, std::memory_order_release);

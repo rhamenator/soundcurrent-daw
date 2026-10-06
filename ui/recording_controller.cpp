@@ -76,7 +76,135 @@ class NativeRecordingEndpoint : public RecordingEndpoint {
         return latest_;
     }
 };
+class NativeDuplexEndpoint : public RecordingEndpoint {
+    PipeWireDuplexRecording owner_;
+    Id firstTrack_;
+    RecordingTelemetry latest_;
+    static AudioBridgeStatus legacy(DuplexStatus s) {
+        switch (s) {
+        case DuplexStatus::Ready:
+            return AudioBridgeStatus::Ready;
+        case DuplexStatus::Running:
+        case DuplexStatus::Underflow:
+            return AudioBridgeStatus::Running;
+        case DuplexStatus::Complete:
+            return AudioBridgeStatus::Complete;
+        case DuplexStatus::Stopped:
+            return AudioBridgeStatus::Stopped;
+        case DuplexStatus::RateChanged:
+            return AudioBridgeStatus::RateChanged;
+        case DuplexStatus::QuantumExceeded:
+            return AudioBridgeStatus::QuantumExceeded;
+        case DuplexStatus::ClockDiscontinuity:
+            return AudioBridgeStatus::ClockDiscontinuity;
+        case DuplexStatus::BufferUnavailable:
+            return AudioBridgeStatus::BufferUnavailable;
+        case DuplexStatus::DeviceLost:
+            return AudioBridgeStatus::DeviceLost;
+        case DuplexStatus::CaptureFailed:
+            return AudioBridgeStatus::CaptureFailed;
+        default:
+            return AudioBridgeStatus::ProcessorFailed;
+        }
+    }
+
+  public:
+    explicit NativeDuplexEndpoint(const RecordingPreparation &p)
+        : owner_(p.root, *p.session, p.plan, p.lanes, p.duplexOptions),
+          firstTrack_(p.spec.trackId) {}
+    std::vector<PipeWirePort> ports() override {
+        auto result = owner_.ports();
+        std::erase_if(result, [&](const auto &p) { return p.nodeId == owner_.nodeId(); });
+        return result;
+    }
+    void connectInputs(const std::vector<PipeWirePort> &p) override {
+        owner_.connectInputs(p);
+    }
+    void connectOutputs(const std::vector<PipeWirePort> &p) override {
+        owner_.connectOutputs(p);
+    }
+    void activate() override {
+        owner_.activate();
+    }
+    void stop() noexcept override {
+        owner_.stop();
+    }
+    void checkReader() override {
+        owner_.run().checkReader();
+    }
+    RecordingResult result() override {
+        return laneResult(0);
+    }
+    RecordingResult laneResult(std::size_t n) override {
+        return owner_.run().result(n);
+    }
+    std::optional<std::filesystem::path> jobDirectory() override {
+        return laneJob(0);
+    }
+    std::optional<std::filesystem::path> laneJob(std::size_t n) override {
+        return owner_.run().jobDirectory(n);
+    }
+    EqEvent event(const Session &s, const ParameterAddress &a) override {
+        return mixEvent(s, a).event;
+    }
+    EqEvent enable(bool enabled) override {
+        return mixEnable(firstTrack_, enabled).event;
+    }
+    MixEvent mixEvent(const Session &s, const ParameterAddress &a) override {
+        return owner_.run().graph().parameterEvent(s, a, 0);
+    }
+    MixEvent mixEnable(const Id &id, bool enabled) override {
+        return owner_.run().graph().enableEvent(id, enabled, 0);
+    }
+    SubmitStatus submit(const EqEvent &e, std::uint64_t r) noexcept override {
+        return submitMix({0, e}, r);
+    }
+    SubmitStatus submitMix(const MixEvent &e, std::uint64_t r) noexcept override {
+        const auto s = owner_.run().status();
+        if (s != DuplexStatus::Ready && s != DuplexStatus::Running && s != DuplexStatus::Underflow)
+            return SubmitStatus::Invalid;
+        return owner_.run().graph().submitImmediate(e, r);
+    }
+    RecordingTelemetry read() override {
+        auto &run = owner_.run();
+        DuplexObservation o;
+        for (unsigned n = 0; n < 64 && run.observation(o); ++n) {
+            latest_.outputPeak = o.playback.mix.peak;
+            latest_.processed = true;
+        }
+        latest_.receipt.reset();
+        latest_.receipts.clear();
+        for (std::size_t n = 0; n < run.graph().plan().tracks.size(); ++n) {
+            ImmediateAcknowledgement r;
+            for (unsigned k = 0; k < 64 && run.graph().acknowledgement(n, r); ++k)
+                latest_.receipts.push_back({n, r});
+        }
+        latest_.lanes.clear();
+        latest_.rejectedFrames = latest_.invalidSamples = 0;
+        latest_.capturedFrames = latest_.writtenFrames = std::numeric_limits<Frame>::max();
+        for (std::size_t n = 0; n < run.lanes(); ++n) {
+            const auto c = run.capture(n);
+            latest_.lanes.push_back(c);
+            latest_.capturedFrames = std::min(latest_.capturedFrames, c.captured);
+            latest_.writtenFrames = std::min(latest_.writtenFrames, c.written);
+            latest_.rejectedFrames += c.rejected;
+            latest_.invalidSamples += c.invalidSamples;
+        }
+        latest_.duplexStatus = run.status();
+        latest_.status = legacy(latest_.duplexStatus);
+        latest_.droppedMeters = run.droppedObservations();
+        latest_.droppedReceipts = run.graph().droppedAcknowledgements();
+        latest_.callbackFault = run.callbackFault();
+        latest_.missingTrackFrames = run.missingTrackFrames();
+        return latest_;
+    }
+};
 #endif
+const Track *findTrack(const Session &s, const Id &id) {
+    const auto i =
+        std::find_if(s.tracks.begin(), s.tracks.end(), [&](const auto &t) { return t.id == id; });
+    return i == s.tracks.end() ? nullptr : &*i;
+}
 struct Following {
     std::filesystem::path root;
     std::shared_ptr<const Session> session;
@@ -96,6 +224,38 @@ bool compatible(const Session &a, const Session &b) {
     for (std::size_t n = 0; n < t.eq.bands.size(); ++n)
         if (t.eq.bands[n].id != u.eq.bands[n].id)
             return false;
+    return true;
+}
+bool compatible(const RecordingPreparation &p, const Session &b) {
+    if (!p.projectMix)
+        return compatible(*p.session, b);
+    const auto &a = *p.session;
+    if (a.id != b.id || a.sampleRate != b.sampleRate || a.playheadFrame != b.playheadFrame ||
+        a.tracks.size() != b.tracks.size() || bool(a.master) != bool(b.master) ||
+        (a.master && (a.master->id != b.master->id || a.master->plan != b.master->plan)))
+        return false;
+    for (const auto &lane : p.plan.tracks) {
+        const auto *t = findTrack(a, lane.track), *u = findTrack(b, lane.track);
+        if (!t || !u || t->layout != u->layout || t->clips != u->clips || t->eq.id != u->eq.id ||
+            t->eq.bands.size() != u->eq.bands.size())
+            return false;
+        for (std::size_t n = 0; n < t->eq.bands.size(); ++n)
+            if (t->eq.bands[n].id != u->eq.bands[n].id)
+                return false;
+        for (const auto &clip : t->clips) {
+            const auto old = std::find_if(a.assets.begin(), a.assets.end(),
+                                          [&](const auto &v) { return v.id == clip.assetId; });
+            const auto now = std::find_if(b.assets.begin(), b.assets.end(),
+                                          [&](const auto &v) { return v.id == clip.assetId; });
+            if (old == a.assets.end() || now == b.assets.end() || *old != *now)
+                return false;
+        }
+    }
+    for (const auto &lane : p.lanes) {
+        const auto *t = findTrack(b, lane.spec.trackId);
+        if (!t || t->layout != lane.spec.capture.layout)
+            return false;
+    }
     return true;
 }
 void checkRecovery(const RecordingCommand &c, const RecordingRecovery &r) {
@@ -131,9 +291,11 @@ struct RecordingController::State : QThread {
     std::optional<RecordingPreparation> prepared;
     std::shared_ptr<const Session> acceptedModel;
     bool started = false, processed = false;
+    std::array<std::uint64_t, 256> appliedByLane{};
     struct Bundle {
         Following target;
-        std::vector<EqEvent> events;
+        std::vector<MixEvent> events;
+        std::array<std::uint64_t, 256> required{};
         std::size_t submitted = 0;
         std::uint64_t lastEvent = 0;
     };
@@ -146,7 +308,15 @@ struct RecordingController::State : QThread {
                 return std::make_unique<NativeRecordingEndpoint>(p);
             };
 #endif
-        view.supported = bool(options.factory);
+        if (!options.duplexFactory) {
+#ifdef SC_UI_PIPEWIRE
+            options.duplexFactory = [](const auto &p) {
+                return std::make_unique<NativeDuplexEndpoint>(p);
+            };
+#endif
+        }
+        view.duplexSupported = bool(options.duplexFactory);
+        view.supported = bool(options.factory) || view.duplexSupported;
         view.phase = view.supported ? RecordingPhase::Idle : RecordingPhase::Unsupported;
         latest = std::make_shared<const RecordingSnapshot>(view);
     }
@@ -164,13 +334,23 @@ struct RecordingController::State : QThread {
     }
     void update(RecordingTelemetry t) {
         if (t.receipt && t.receipt->generation == view.generation) {
+            appliedByLane[0] = std::max(appliedByLane[0], t.receipt->revision);
             view.appliedEventRevision = t.receipt->revision;
             view.appliedFrame = t.receipt->frame;
         }
+        for (const auto &r : t.receipts)
+            if (r.track < appliedByLane.size() && r.applied.generation == view.generation) {
+                appliedByLane[r.track] = std::max(appliedByLane[r.track], r.applied.revision);
+                if (r.applied.revision >= view.appliedEventRevision) {
+                    view.appliedEventRevision = r.applied.revision;
+                    view.appliedFrame = r.applied.frame;
+                }
+            }
         processed = processed || t.processed;
         view.telemetry = std::move(t);
         if (bundle && bundle->submitted == bundle->events.size() &&
-            view.appliedEventRevision >= bundle->lastEvent) {
+            std::equal(bundle->required.begin(), bundle->required.end(), appliedByLane.begin(),
+                       [](auto required, auto applied) { return applied >= required; })) {
             view.appliedRevision = bundle->target.revision;
             bundle.reset();
         } else if (!bundle && prepared && processed && !view.appliedRevision) {
@@ -179,27 +359,70 @@ struct RecordingController::State : QThread {
         }
     }
     void retain(std::filesystem::path root, RecordingResult r) {
+        retain(std::move(root), std::vector<RecordingResult>{std::move(r)});
+    }
+    void retain(std::filesystem::path root, std::vector<RecordingResult> r) {
         if (view.take || takeSequence == UINT64_MAX)
             throw ProjectError(ErrorCode::InvalidState,
                                "Unacknowledged take or exhausted take sequence");
-        view.take = PendingTake{
-            std::move(root), std::make_shared<const RecordingResult>(std::move(r)), ++takeSequence};
+        if (r.empty() || r.size() > 256)
+            throw ProjectError(ErrorCode::InvalidState, "Invalid recorded take group");
+        auto receipts = std::make_shared<const std::vector<RecordingResult>>(std::move(r));
+        view.take =
+            PendingTake{std::move(root), std::make_shared<const RecordingResult>(receipts->front()),
+                        ++takeSequence, std::move(receipts)};
     }
-    void stopEndpoint() {
+    void stopEndpoint(bool preserveDiagnostic = false) {
         if (!endpoint)
             return;
         view.phase = RecordingPhase::Finalizing;
         publish();
         endpoint->stop();
+        auto report = [&](ErrorCode code, const char *message) {
+            if (!preserveDiagnostic) {
+                error(code, message);
+                preserveDiagnostic = true;
+            }
+        };
         try {
             update(endpoint->read());
-            view.job = endpoint->jobDirectory();
-            if (started)
-                retain(prepared->root, endpoint->result());
+            endpoint->checkReader();
         } catch (const ProjectError &e) {
-            error(e.code(), e.what());
+            report(e.code(), e.what());
         } catch (const std::exception &e) {
-            error(ErrorCode::Io, e.what());
+            report(ErrorCode::Io, e.what());
+        }
+        std::vector<RecordingResult> takes;
+        for (std::size_t n = 0; n < view.lanes.size(); ++n) {
+            auto &lane = view.lanes[n];
+            try {
+                lane.job = endpoint->laneJob(n);
+                if (lane.job && (!view.job || lane.errorCode))
+                    view.job = lane.job;
+                if (started)
+                    takes.push_back(endpoint->laneResult(n));
+            } catch (const ProjectError &e) {
+                lane.errorCode = e.code();
+                lane.diagnostic = e.what();
+                if (lane.job)
+                    view.job = lane.job;
+                report(e.code(), e.what());
+            } catch (const std::exception &e) {
+                lane.errorCode = ErrorCode::Io;
+                lane.diagnostic = e.what();
+                if (lane.job)
+                    view.job = lane.job;
+                report(ErrorCode::Io, e.what());
+            }
+        }
+        if (!takes.empty()) {
+            try {
+                retain(prepared->root, std::move(takes));
+            } catch (const ProjectError &e) {
+                report(e.code(), e.what());
+            } catch (const std::exception &e) {
+                report(ErrorCode::Io, e.what());
+            }
         }
         endpoint.reset();
         prepared.reset();
@@ -214,13 +437,14 @@ struct RecordingController::State : QThread {
             return;
         view.desiredRevision = desired->revision;
         if (checkedRevision != desired->revision) {
-            const auto target = sessionForTrack(desired->session, prepared->spec.trackId);
+            const auto target = prepared->projectMix
+                                    ? desired->session
+                                    : sessionForTrack(desired->session, prepared->spec.trackId);
             if (!target)
                 throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
             desired->session = target;
             validate(*desired->session);
-            if (desired->root != prepared->root ||
-                !compatible(*prepared->session, *desired->session))
+            if (desired->root != prepared->root || !compatible(*prepared, *desired->session))
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Project structure changed; recording stopped");
             checkedRevision = desired->revision;
@@ -230,15 +454,17 @@ struct RecordingController::State : QThread {
         if (!bundle && desired->revision > view.acceptedRevision) {
             Bundle next;
             next.target = *desired;
-            const auto &old = acceptedModel->tracks.front().eq;
-            const auto &t = desired->session->tracks.front();
-            for (std::size_t n = 0; n < t.eq.bands.size(); ++n)
-                if (t.eq.bands[n] != old.bands[n])
-                    next.events.push_back(
-                        endpoint->event(*desired->session,
-                                        {t.id, t.eq.id, t.eq.bands[n].id, BandParameter::GainDb}));
-            if (t.eq.enabled != old.enabled)
-                next.events.push_back(endpoint->enable(t.eq.enabled));
+            for (const auto &lane : prepared->plan.tracks) {
+                const auto &old = findTrack(*acceptedModel, lane.track)->eq;
+                const auto &t = *findTrack(*desired->session, lane.track);
+                for (std::size_t n = 0; n < t.eq.bands.size(); ++n)
+                    if (t.eq.bands[n] != old.bands[n])
+                        next.events.push_back(
+                            endpoint->mixEvent(*desired->session, {t.id, t.eq.id, t.eq.bands[n].id,
+                                                                   BandParameter::GainDb}));
+                if (t.eq.enabled != old.enabled)
+                    next.events.push_back(endpoint->mixEnable(t.id, t.eq.enabled));
+            }
             if (next.events.empty()) {
                 acceptedModel = desired->session;
                 view.acceptedRevision = desired->revision;
@@ -253,7 +479,10 @@ struct RecordingController::State : QThread {
             if (eventRevision == UINT64_MAX)
                 throw ProjectError(ErrorCode::InvalidState, "Recording event revision exhausted");
             const auto revision = eventRevision + 1;
-            const auto admitted = endpoint->submit(bundle->events[bundle->submitted], revision);
+            const auto &event = bundle->events[bundle->submitted];
+            if (event.track >= prepared->plan.tracks.size())
+                throw ProjectError(ErrorCode::InvalidState, "Recording event lane is invalid");
+            const auto admitted = endpoint->submitMix(event, revision);
             if (admitted == SubmitStatus::Full)
                 return;
             if (admitted != SubmitStatus::Accepted)
@@ -261,6 +490,7 @@ struct RecordingController::State : QThread {
                                    "Recording rejected a prepared EQ change");
             eventRevision = revision;
             bundle->lastEvent = revision;
+            bundle->required[event.track] = revision;
             ++bundle->submitted;
         }
         acceptedModel = bundle->target.session;
@@ -276,7 +506,9 @@ struct RecordingController::State : QThread {
             throw ProjectError(ErrorCode::InvalidState,
                                "Attach or keep the pending take before another job");
         if (c.kind == RecordingCommandKind::Prepare) {
-            if (!options.factory || !c.session || !c.modelRevision || c.session->tracks.empty())
+            const bool mix = !c.armedTracks.empty();
+            if (!(mix ? options.duplexFactory : options.factory) || !c.session ||
+                !c.modelRevision || c.session->tracks.empty())
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Recording backend/project/track unavailable");
             validate(*c.session);
@@ -307,46 +539,115 @@ struct RecordingController::State : QThread {
             p.options.monitoring = c.monitoring;
             p.options.bridge.generation = view.generation + 1;
             p.spec.capture.maximumCallbackFrames = p.options.bridge.maximumFrames;
+            p.projectMix = mix;
+            if (mix) {
+                if (c.armedTracks.size() > 256 || c.recordFrames <= 0 ||
+                    c.recordFrames > Frame(c.session->sampleRate) * 86400 ||
+                    c.session->playheadFrame > std::numeric_limits<Frame>::max() - c.recordFrames)
+                    throw ProjectError(
+                        ErrorCode::InvalidState,
+                        "Choose a recording range of up to 24 hours and 1..256 armed tracks");
+                std::vector<Id> ids;
+                for (const auto &t : c.session->tracks)
+                    ids.push_back(t.id);
+                p.plan =
+                    c.plan ? *c.plan
+                           : (c.session->master
+                                  ? c.session->master->plan
+                                  : identityMix(*c.session, ids, c.session->tracks.front().layout));
+                p.duplexOptions.audit = p.options.audit;
+                auto &cfg = p.duplexOptions.run;
+                cfg.nativeInputs = 0;
+                cfg.playback.graph.startFrame = c.session->playheadFrame;
+                cfg.playback.graph.maximumFrames = p.options.bridge.maximumFrames;
+                cfg.playback.graph.generation = p.options.bridge.generation;
+                cfg.playback.endFrame = c.session->playheadFrame + c.recordFrames;
+                for (const auto &id : c.armedTracks) {
+                    const auto *t = findTrack(*c.session, id);
+                    if (!t ||
+                        std::any_of(p.lanes.begin(), p.lanes.end(),
+                                    [&](const auto &l) { return l.spec.trackId == id; }) ||
+                        t->layout.channels > 256 - cfg.nativeInputs)
+                        throw ProjectError(
+                            ErrorCode::InvalidState,
+                            "Invalid/duplicate armed track or more than 256 packed channels");
+                    DuplexRecordingLane lane;
+                    lane.spec.projectId = c.session->id;
+                    lane.spec.trackId = id;
+                    lane.spec.capture.sampleRate = c.session->sampleRate;
+                    lane.spec.capture.layout = t->layout;
+                    lane.spec.capture.startFrame = c.session->playheadFrame;
+                    lane.spec.capture.maximumCallbackFrames = p.options.bridge.maximumFrames;
+                    lane.monitoring = t->monitoring;
+                    lane.writer = p.options.writer;
+                    for (std::uint32_t ch = 0; ch < t->layout.channels; ++ch)
+                        lane.inputChannels.push_back(cfg.nativeInputs++);
+                    p.lanes.push_back(std::move(lane));
+                }
+                p.spec = p.lanes.front().spec;
+            } else {
+                p.plan =
+                    identityMix(*c.session, std::span(&p.spec.trackId, 1), p.spec.capture.layout);
+            }
+            acceptedModel = c.session;
+            eventRevision = checkedRevision = 0;
+            processed = false;
+            appliedByLane.fill(0);
+            bundle.reset();
+            view.telemetry = {};
+            view.preview.reset();
+            view.job.reset();
+            view.generation = p.options.bridge.generation;
+            view.projectMix = mix;
+            view.channels = mix ? p.duplexOptions.run.nativeInputs : p.spec.capture.layout.channels;
+            view.outputChannels =
+                mix ? p.plan.output.channels
+                    : (c.monitoring == RecordingMonitor::PostEq ? view.channels : 0);
+            view.endFrame = mix ? p.duplexOptions.run.playback.endFrame : 0;
+            view.lanes.clear();
+            if (mix) {
+                for (const auto &lane : p.lanes)
+                    view.lanes.push_back({lane.spec.trackId,
+                                          lane.spec.capture.layout,
+                                          lane.monitoring,
+                                          lane.inputChannels.front(),
+                                          {},
+                                          {},
+                                          {}});
+            } else
+                view.lanes.push_back(
+                    {p.spec.trackId, p.spec.capture.layout, c.monitoring, 0, {}, {}, {}});
+            view.sampleRate = p.spec.capture.sampleRate;
+            view.monitoring = c.monitoring;
+            view.desiredRevision = view.acceptedRevision = c.modelRevision;
+            view.appliedRevision = view.appliedEventRevision = view.appliedFrame = 0;
             prepared = p;
-            endpoint = options.factory(p);
+            endpoint = (mix ? options.duplexFactory : options.factory)(p);
             if (!endpoint)
                 throw ProjectError(ErrorCode::InvalidState, "Recording factory returned no owner");
             if (interrupted(q.epoch)) {
                 stopEndpoint();
                 return;
             }
-            acceptedModel = c.session;
-            eventRevision = checkedRevision = 0;
-            processed = false;
-            bundle.reset();
-            view.telemetry = {};
-            view.preview.reset();
-            view.job.reset();
-            view.generation = p.options.bridge.generation;
-            view.channels = p.spec.capture.layout.channels;
-            view.sampleRate = p.spec.capture.sampleRate;
-            view.monitoring = c.monitoring;
-            view.desiredRevision = view.acceptedRevision = c.modelRevision;
-            view.appliedRevision = view.appliedEventRevision = view.appliedFrame = 0;
             view.ports = std::make_shared<const std::vector<PipeWirePort>>(endpoint->ports());
             nextInventory = std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
             view.phase = RecordingPhase::Ready;
         } else if (c.kind == RecordingCommandKind::Start) {
             if (!c.armed || !endpoint || view.phase != RecordingPhase::Ready ||
-                c.inputs.size() != view.channels ||
-                (view.monitoring == RecordingMonitor::PostEq ? c.outputs.size() != view.channels
-                                                             : !c.outputs.empty()))
+                c.inputs.size() != view.channels || c.outputs.size() != view.outputChannels)
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Prepare, arm and select every required recording channel");
             reconcile(true);
             endpoint->connectInputs(c.inputs);
-            if (view.monitoring == RecordingMonitor::PostEq)
+            if (view.outputChannels)
                 endpoint->connectOutputs(c.outputs);
             if (interrupted(q.epoch))
                 return;
             started = true;
             endpoint->activate();
             view.job = endpoint->jobDirectory();
+            for (std::size_t n = 0; n < view.lanes.size(); ++n)
+                view.lanes[n].job = endpoint->laneJob(n);
             view.phase = RecordingPhase::Recording;
         } else {
             if (endpoint)
@@ -433,13 +734,13 @@ struct RecordingController::State : QThread {
                         continue;
                     error(e.code(), e.what());
                     if (!wasStarted) {
-                        stopEndpoint();
+                        stopEndpoint(true);
                         view.phase = RecordingPhase::Fault;
                     }
                 } catch (const std::exception &e) {
                     error(ErrorCode::Io, e.what());
                     if (!wasStarted) {
-                        stopEndpoint();
+                        stopEndpoint(true);
                         view.phase = RecordingPhase::Fault;
                     }
                 }
@@ -471,11 +772,11 @@ struct RecordingController::State : QThread {
                 }
             } catch (const ProjectError &e) {
                 error(e.code(), e.what());
-                stopEndpoint();
+                stopEndpoint(true);
                 view.phase = RecordingPhase::Fault;
             } catch (const std::exception &e) {
                 error(ErrorCode::Io, e.what());
-                stopEndpoint();
+                stopEndpoint(true);
                 view.phase = RecordingPhase::Fault;
             }
             publish();

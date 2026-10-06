@@ -2,6 +2,7 @@
 #pragma once
 #include "project_controller.hpp"
 #include <soundcurrent/pipewire_recording.hpp>
+#include <soundcurrent/pipewire_duplex_recording.hpp>
 
 namespace soundcurrent::daw::ui {
 struct RecordingPreparation {
@@ -10,6 +11,10 @@ struct RecordingPreparation {
     std::uint64_t modelRevision = 0;
     RecordingSpec spec;
     PipeWireRecordingOptions options;
+    bool projectMix = false;
+    MixPlan plan;
+    std::vector<DuplexRecordingLane> lanes;
+    PipeWireDuplexRecordingOptions duplexOptions;
 };
 struct RecordingTelemetry {
     AudioBridgeStatus status = AudioBridgeStatus::Ready;
@@ -20,6 +25,15 @@ struct RecordingTelemetry {
     std::uint64_t rejectedFrames = 0, invalidSamples = 0, droppedMeters = 0, droppedReceipts = 0;
     bool processed = false;
     std::optional<ImmediateAcknowledgement> receipt;
+    DuplexStatus duplexStatus = DuplexStatus::Ready;
+    std::vector<DuplexCaptureSnapshot> lanes;
+    struct Receipt {
+        std::size_t track;
+        ImmediateAcknowledgement applied;
+    };
+    std::vector<Receipt> receipts;
+    std::optional<DuplexCallbackFault> callbackFault;
+    std::uint64_t missingTrackFrames = 0;
 };
 // Worker-side adapter seam only: no virtual calls occur in the native callback.
 class RecordingEndpoint {
@@ -36,6 +50,26 @@ class RecordingEndpoint {
     virtual EqEvent enable(bool) = 0;
     virtual SubmitStatus submit(const EqEvent &, std::uint64_t) noexcept = 0;
     virtual RecordingTelemetry read() = 0;
+    virtual void checkReader() {}
+    virtual RecordingResult laneResult(std::size_t n) {
+        if (n)
+            throw ProjectError(ErrorCode::InvalidState, "Unknown recording lane");
+        return result();
+    }
+    virtual std::optional<std::filesystem::path> laneJob(std::size_t n) {
+        if (n)
+            throw ProjectError(ErrorCode::InvalidState, "Unknown recording lane");
+        return jobDirectory();
+    }
+    virtual MixEvent mixEvent(const Session &s, const ParameterAddress &a) {
+        return {0, event(s, a)};
+    }
+    virtual MixEvent mixEnable(const Id &, bool v) {
+        return {0, enable(v)};
+    }
+    virtual SubmitStatus submitMix(const MixEvent &e, std::uint64_t r) noexcept {
+        return e.track ? SubmitStatus::Invalid : submit(e.event, r);
+    }
 };
 enum class RecordingPhase {
     Unsupported,
@@ -55,6 +89,16 @@ struct PendingTake {
     std::filesystem::path root;
     std::shared_ptr<const RecordingResult> receipt;
     std::uint64_t sequence = 0;
+    std::shared_ptr<const std::vector<RecordingResult>> receipts;
+};
+struct RecordingLaneState {
+    Id track;
+    ChannelLayout layout;
+    RecordingMonitor monitoring = RecordingMonitor::Off;
+    std::uint32_t firstInput = 0;
+    std::optional<std::filesystem::path> job;
+    std::optional<ErrorCode> errorCode;
+    std::string diagnostic;
 };
 struct RecordingSnapshot {
     RecordingPhase phase = RecordingPhase::Idle;
@@ -71,11 +115,16 @@ struct RecordingSnapshot {
     std::optional<RecordingRecovery> preview;
     std::optional<PendingTake> take;
     bool supported = false, pending = false, closed = false;
+    bool projectMix = false, duplexSupported = false;
+    std::uint32_t outputChannels = 0;
+    Frame endFrame = 0;
+    std::vector<RecordingLaneState> lanes;
 };
 struct RecordingControllerOptions {
     std::function<std::unique_ptr<RecordingEndpoint>(const RecordingPreparation &)> factory;
     std::function<void()> beforePrepare;
     PipeWireRecordingOptions nativeOptions;
+    std::function<std::unique_ptr<RecordingEndpoint>(const RecordingPreparation &)> duplexFactory;
 };
 enum class RecordingCommandKind { Prepare, Start, Inspect, Recover };
 struct RecordingCommand {
@@ -86,6 +135,9 @@ struct RecordingCommand {
     RecordingMonitor monitoring = RecordingMonitor::Off;
     bool armed = false;
     std::vector<PipeWirePort> inputs, outputs;
+    std::vector<Id> armedTracks; // Nonempty opts into shared-clock project recording.
+    std::optional<MixPlan> plan;
+    Frame recordFrames = 0; // Explicit finite shared recording range, 1..24h at session rate.
 };
 // 16-entry non-RT FIFO; full-model changes coalesce in one latest slot. Stop
 // invalidates queued transport by epoch and acknowledges only after worker joins.

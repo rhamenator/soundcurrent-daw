@@ -15,7 +15,7 @@ struct IoJob {
     std::filesystem::path root;
     std::shared_ptr<const Session> session;
     std::uint64_t revision = 0;
-    std::shared_ptr<const RecordingResult> recording = nullptr;
+    std::shared_ptr<const std::vector<RecordingResult>> recordings = nullptr;
 };
 struct IoResult {
     IoJob job;
@@ -82,27 +82,39 @@ class IoWorker : public QThread {
                 if (next.operation == IoOperation::Open)
                     finished.loaded = store.load();
                 else if (next.operation == IoOperation::AttachRecording) {
-                    const auto &r = *next.recording;
-                    const auto job = next.root / "media" / ("capture-" + r.spec.assetId.str());
-                    const auto verified = inspectRecording(job);
-                    const auto &a = verified.spec, &b = r.spec;
-                    // Journals persist recording identity/timing, not the run's pool
-                    // sizing, memory budget or callback bound. Recovery uses its own pool.
-                    const bool sameIdentity = a.projectId == b.projectId &&
-                                              a.trackId == b.trackId && a.assetId == b.assetId &&
-                                              a.capture.sampleRate == b.capture.sampleRate &&
-                                              a.capture.layout == b.capture.layout &&
-                                              a.capture.startFrame == b.capture.startFrame &&
-                                              a.inputLatencyFrames == b.inputLatencyFrames &&
-                                              a.recoveredFrom == b.recoveredFrom;
-                    if (!verified.finalized || !sameIdentity ||
-                        verified.committedFrames != r.asset.frames ||
-                        verified.captureStatus != r.captureStatus ||
-                        r.asset.relativePath !=
-                            "media/capture-" + r.spec.assetId.str() + "/take.wav")
-                        throw ProjectError(ErrorCode::MediaMismatch,
-                                           "Recorded take does not match its finalized journal");
-                    store.verifyMedia(*next.session);
+                    if (!next.recordings || next.recordings->empty() ||
+                        next.recordings->size() > 256)
+                        throw ProjectError(ErrorCode::InvalidState,
+                                           "Invalid take verification group");
+                    const auto canceled = [&] {
+                        if (closing.load(std::memory_order_acquire))
+                            throw ProjectError(ErrorCode::Canceled,
+                                               "Take verification canceled; media retained");
+                    };
+                    for (const auto &r : *next.recordings) {
+                        const auto job = next.root / "media" / ("capture-" + r.spec.assetId.str());
+                        const auto verified = inspectRecording(job, canceled, true);
+                        const auto &a = verified.spec, &b = r.spec;
+                        // Journals persist recording identity/timing, not the run's pool
+                        // sizing, memory budget or callback bound. Recovery uses its own pool.
+                        const bool sameIdentity = a.projectId == b.projectId &&
+                                                  a.trackId == b.trackId &&
+                                                  a.assetId == b.assetId &&
+                                                  a.capture.sampleRate == b.capture.sampleRate &&
+                                                  a.capture.layout == b.capture.layout &&
+                                                  a.capture.startFrame == b.capture.startFrame &&
+                                                  a.inputLatencyFrames == b.inputLatencyFrames &&
+                                                  a.recoveredFrom == b.recoveredFrom;
+                        if (!verified.finalized || !sameIdentity ||
+                            verified.committedFrames != r.asset.frames ||
+                            verified.captureStatus != r.captureStatus ||
+                            r.asset.relativePath !=
+                                "media/capture-" + r.spec.assetId.str() + "/take.wav")
+                            throw ProjectError(
+                                ErrorCode::MediaMismatch,
+                                "Recorded take does not match its finalized journal");
+                    }
+                    store.verifyMedia(*next.session, canceled);
                     if (closing.load(std::memory_order_acquire))
                         throw ProjectError(
                             ErrorCode::Canceled,
@@ -300,16 +312,25 @@ struct ProjectController::State : QThread {
             break;
         case CommandKind::AttachRecording: {
             requireModel();
-            if (view.io != IoOperation::None || !command.recording || command.path != view.root)
+            if (view.io != IoOperation::None ||
+                bool(command.recording) == bool(command.recordings) || command.path != view.root)
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Take attachment needs the current project and idle I/O owner");
             // Shape/identity validation is transactional; disk/journal verification belongs
             // to the I/O worker. No speculative asset is published to the canonical model.
             auto proposed = std::make_shared<Session>(*model);
-            attachRecording(*proposed, *command.recording);
+            const auto recordings = command.recordings
+                                        ? command.recordings
+                                        : std::make_shared<const std::vector<RecordingResult>>(
+                                              std::vector<RecordingResult>{*command.recording});
+            if (recordings->empty() || recordings->size() > 256)
+                throw ProjectError(ErrorCode::InvalidState,
+                                   "A take group must contain 1..256 receipts");
+            for (const auto &r : *recordings)
+                attachRecording(*proposed, r);
             commitGesture();
             IoJob job{IoOperation::AttachRecording, view.root, std::move(proposed),
-                      view.modelRevision, command.recording};
+                      view.modelRevision, recordings};
             io.startJob(std::move(job));
             view.io = IoOperation::AttachRecording;
             break;
@@ -339,8 +360,9 @@ struct ProjectController::State : QThread {
         }
         if (result.job.operation == IoOperation::AttachRecording) {
             try {
-                if (!model || view.root != result.job.root ||
-                    model->id != result.job.recording->spec.projectId)
+                if (!model || view.root != result.job.root || !result.job.recordings ||
+                    result.job.recordings->empty() ||
+                    model->id != result.job.recordings->front().spec.projectId)
                     throw ProjectError(ErrorCode::InvalidState,
                                        "Recording project changed before attachment");
                 if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
@@ -348,11 +370,16 @@ struct ProjectController::State : QThread {
                 // Preserve scalar edits accepted while files were verified.
                 commitGesture();
                 auto admitted = *model;
-                attachRecording(admitted, *result.job.recording);
+                std::vector<Id> assets;
+                for (const auto &r : *result.job.recordings) {
+                    attachRecording(admitted, r);
+                    assets.push_back(r.asset.id);
+                }
                 history->adopt(admitted);
                 revised();
-                ++view.attachedRecordings;
-                view.lastAttachedAsset = result.job.recording->asset.id;
+                view.attachedRecordings += assets.size();
+                view.lastAttachedAsset = assets.back();
+                view.lastAttachedAssets = std::move(assets);
             } catch (const ProjectError &e) {
                 error(e.code(), e.what());
             } catch (const std::exception &e) {
@@ -370,6 +397,7 @@ struct ProjectController::State : QThread {
             activeAddress.reset();
             view.attachedRecordings = 0;
             view.lastAttachedAsset.reset();
+            view.lastAttachedAssets.clear();
             view.root = std::move(result.job.root);
             ++view.projectEpoch;
             revised();

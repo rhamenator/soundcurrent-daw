@@ -1,0 +1,582 @@
+{
+  "date": "2026-10-06",
+  "milestone": "M2d3 desktop multi-arm recording and atomic verified take groups",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "be64344c88787c66d5f4f025e443b701ce229cc5",
+  "status": "Listed synthetic desktop/controller and finite three/32-arm Release owned-native GUI workflows passed; historical/new native timeout, duration/load/physical/Windows/full M2/full product qualification remain incomplete",
+  "tested_source_sha256": {
+    "CMakeLists.txt": "9300c1601937fda8b401aab01a192c6191ffcb1d6698ac1f5c53f857592cd39a",
+    "include/soundcurrent/capture.hpp": "8ac81e48d4ec7a9fd309b9f9e09ff38361f3a6349979a70b86a87b1d7b0536af",
+    "include/soundcurrent/duplex_bridge.hpp": "a5dde698d7f8fa5efc972e552ff2d46179bf1458f2eb6e979d233a1cc58c8a76",
+    "include/soundcurrent/duplex_recording.hpp": "3926c4217c0a8623fed16ad86f35fc48baf24dc593d19a21d2e24c67bfd5b0df",
+    "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+    "include/soundcurrent/pipewire_duplex_recording.hpp": "dcb2b2090b0a6a2054f8fa9cc39641c5681e8e14f63bdf9f7c1327e379730e49",
+    "include/soundcurrent/pipewire_filter.hpp": "f82ed166eb04a4a6f8ccb91c7fab5259a59607cf9f77e9711da3be0fa96e6d69",
+    "include/soundcurrent/recording.hpp": "c5e55037032c5f5e1c0657f8a9da9004dc723b3683304be0b882a61156cf1ec4",
+    "include/soundcurrent/session.hpp": "c4933c213a464f5358fa32b006c2744324450bb36db38e358957f64b402a3c84",
+    "research/parity.json": "cbacf1088437c280e23b88fdb0a696ff0ed5d79b648ca37929b90e16bada3e25",
+    "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+    "src/capture.cpp": "ba890b1e79572c4f3e5a1951f031ca1246fd14f4bd6a19457f40c519802e9b5e",
+    "src/duplex_bridge.cpp": "9d0a0ff4bc25de5a3e8ce650c464535f651b1202be4702b2216abbc432913f78",
+    "src/duplex_recording.cpp": "ab8e08abd69c7322db7067245a1e573a40e93acaf8f34624feac2c992cb5a7df",
+    "src/eq.cpp": "b52243413810cf702b9402fa36edf0908a2a59ccc0a4b6bff54221283e56f812",
+    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+    "src/mix_playback.cpp": "a90348b397dede31ef4e1f4727907f17c7b9433c2ce8e15df0d23c26bd688aa0",
+    "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+    "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+    "src/pipewire_duplex_recording.cpp": "40c4a695df765189fc67de9c03ee5e9f66dc320a19a75ef921683da3c6649a07",
+    "src/pipewire_filter.cpp": "7ed6b5f654487b00619fcc366d6628b699403ab7f379bcc752db6f2912d04d8f",
+    "src/recording.cpp": "9878966397ae62316cf3825219fdf3db9d97de171ee54597c458a920a8578fc8",
+    "src/recording_worker.cpp": "6d56b8d84b23f809999cac1ecb032810687c21abf5ac2adefa33f93105b5809d",
+    "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+    "tests/duplex_recording_tests.cpp": "d70f0d65f010e605e6bd30452c195ad4751596c0d0f8f0e036e464040a577fe3",
+    "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+    "tests/fake_duplex_endpoint.hpp": "2fee31ac648308bf9345a2612369d5b15cff19b6f7fdc8988efc81ab90c33078",
+    "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+    "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+    "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+    "tests/recording_controller_tests.cpp": "40fde18a3ef9775a0e46a92b8406193cdf9e4112bc7073b0f40b674b379cedc4",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+    "tests/ui_tests.cpp": "67d890477e12c71020920e26390182754ffa57c85abd65dc888c0058a85f0c62",
+    "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+    "tools/check_equalizer_reuse.py": "746bb318ff28ed6730c1410c2b30ed52273208cda23429e4d2e4c30bdbb2cc4c",
+    "ui/project_controller.cpp": "a3dbde0dbfe47d4cf6084f4e9a7b7405b199639e58ff9c7dae87568f856f8dbd",
+    "ui/project_controller.hpp": "48449103bde18341549bcf4ba3263db4bf995debb216358a3965d6fa915c7ffe",
+    "ui/recording_controller.cpp": "f8aed2c512ecb0c3b29ad03db2a9573558381d557c9c462fa708c1ce7c3f55aa",
+    "ui/recording_controller.hpp": "d524f0255d59623f6f3ff1abfac424ae0c63cd44bdfe1f49b93b938a01bd8d04",
+    "ui/studio_window.cpp": "5b0729e980a0c2e659392795281aed5b8b611948d8ff4b60dac9ddae7616a92f",
+    "ui/studio_window.hpp": "4c466139d84f5c8c37cb934eba2ec5446a7721e9a250728a26d527db58e9a318"
+  },
+  "qualification": {
+    "linux_debug": {
+      "path": ".cache/m2-duplex-desktop-close-debug-tests.log",
+      "sha256": "0d43b0e79923252489dec7c3e3a80ff17c361aa9eaeba649a4f2d2318d8f3922",
+      "test_groups": 25,
+      "passed": true,
+      "elapsed_seconds": 23.85
+    },
+    "linux_sanitized_full_suite": {
+      "path": ".cache/m2-duplex-desktop-qualified-sanitized-tests.log",
+      "sha256": "07cac9fcf7ffb43c26aa08f432f3bb03671655293d955a063d36f41c83abfccf",
+      "test_groups": 25,
+      "passed": true,
+      "elapsed_seconds": 64.71,
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ],
+      "scope": "Full 25-group suite, then only ui_tests.cpp added an active multi-arm close regression; current expanded UI group qualified separately below"
+    },
+    "linux_sanitized_expanded_ui": {
+      "path": ".cache/m2-duplex-desktop-close-sanitized-tests.log",
+      "sha256": "008d1d16a576dd29eb0a10590c21dce331c432ebab903ffd85daedaba3bc0be2",
+      "test_groups": 1,
+      "passed": true,
+      "elapsed_seconds": 8.73
+    },
+    "linux_release": {
+      "path": ".cache/m2-duplex-desktop-qualified-release-tests.log",
+      "sha256": "7eb84b772c3d56d3f9c56113bca1ed6fbffab1ad2cda0305907a86909ef978c1",
+      "test_groups": 7,
+      "passed": true,
+      "elapsed_seconds": 5.65
+    },
+    "windows_headless": {
+      "build": {
+        "path": ".cache/m2-duplex-desktop-final-windows-build.log",
+        "sha256": "d8c6e72e2cc84afc40ca32e70fbfdd78b61a1d997ab14b41f4c0b5580918299b"
+      },
+      "compiled_and_linked": true,
+      "executed": false,
+      "desktop_qualified": false,
+      "native_audio_qualified": false
+    },
+    "linux_native_release": [
+      {
+        "mode": "3",
+        "armed_tracks": 3,
+        "frames_per_raw_take": 240000,
+        "production_gui_duplex": true,
+        "raw_samples_exact": true,
+        "missing_track_frames": 0,
+        "output_max_difference": 0,
+        "group_undo_redo": true,
+        "save_reopen": true,
+        "owned_nodes_only": true,
+        "callback_allocations": 0,
+        "callback_frees": 0,
+        "callback_locks": 0,
+        "owner_elapsed_timing": {
+          "samples": 235,
+          "calls": 235,
+          "dropped_samples": 0,
+          "clock_failures": 0,
+          "p50_ns": 320729,
+          "p95_ns": 387239,
+          "p99_ns": 410288,
+          "maximum_ns": 628200
+        },
+        "routing_observations": {
+          "graph_snapshots_during_run": 42,
+          "snapshots_with_owned_links": 39,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 0,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "data_loop_scheduler_samples": [
+          {
+            "tid": 1458105,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1458110,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1458132,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          }
+        ]
+      },
+      {
+        "mode": "32",
+        "armed_tracks": 32,
+        "frames_per_raw_take": 240000,
+        "production_gui_duplex": true,
+        "raw_samples_exact": true,
+        "missing_track_frames": 0,
+        "output_max_difference": 0,
+        "group_undo_redo": true,
+        "save_reopen": true,
+        "owned_nodes_only": true,
+        "callback_allocations": 0,
+        "callback_frees": 0,
+        "callback_locks": 0,
+        "owner_elapsed_timing": {
+          "samples": 235,
+          "calls": 235,
+          "dropped_samples": 0,
+          "clock_failures": 0,
+          "p50_ns": 1986482,
+          "p95_ns": 2918008,
+          "p99_ns": 3088963,
+          "maximum_ns": 6143693
+        },
+        "routing_observations": {
+          "graph_snapshots_during_run": 47,
+          "snapshots_with_owned_links": 36,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 0,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "data_loop_scheduler_samples": [
+          {
+            "tid": 1458230,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1458234,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          },
+          {
+            "tid": 1458256,
+            "name": "data-loop.0",
+            "policy": 1073741826,
+            "base_policy": 2,
+            "reset_on_fork": true,
+            "priority": 20,
+            "nice": 0
+          }
+        ]
+      }
+    ],
+    "linux_native_activation_failure": {
+      "mode": "activation-failure",
+      "activation_failed": true,
+      "production_duplex_owner": true,
+      "frames": 0,
+      "joined_earlier_writers": 17,
+      "owned_nodes_only": true,
+      "routing_observations": {
+        "graph_snapshots_during_run": 3,
+        "snapshots_with_owned_links": 1,
+        "no_observed_owned_to_unowned_links": true,
+        "pre_existing_links_preserved": 0,
+        "default_metadata_unchanged": true,
+        "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+        "owned_nodes_and_links_removed": true
+      }
+    },
+    "native_scope": "Serial after all CPU builds/CTest handles terminated; opt-in Release GUI fixture uses five-second finite owned sources/sink. Native fixture last changed only its route-prefix synchronization/diagnostics after full build; Release rebuilt. No native sanitizer/unload, long duration, physical latency, controlled background load or deadline qualification claimed."
+  },
+  "workflows": [
+    "Accepted-prefix full canonical session, explicit immutable arms and finite 1..24h recording range, saved master or explicit matching-layout fallback; preparation creates no jobs/callback activation",
+    "Scroll/check arms with captured/written/colorized failures, per-track monitoring policy, explicit packed input/master output route intent, focus-safe wheel behavior and selection-independent stable captured IDs",
+    "All armed raw writers plus existing-file playback through the real shared graph; Off does not drop raw capture or remove required project outputs; no physical/default route chosen",
+    "Exact unsubmitted event suffix on Full; generation-matched per-lane receipts required for applied model revision, including a held lower event after higher other-lane receipts; canonical reorder and unarmed file EQ keep captured identities",
+    "Per-lane stop/jobs/results/errors independently retained; writer failure preserves successful group and failed verified checkpoint; partial constructor directory retained without valid-recovery assertion; original activation/structure errors are not overwritten by secondary collection errors",
+    "Exactly one legacy receipt or 1..256 group; whole proposed shape/identity validation, inactive finalized journal/extent and full media hashes off-thread, replay against latest canonical then one history adoption; no partial publish",
+    "Tampered last hash, duplicate/ambiguous/empty/overlong groups and missing target during verification deny all; intervening scalar/route edits preserved, one whole-group Undo/Redo and exact save/reopen/raw hashes",
+    "Real synthetic shared engine/disk workers: 32-arm finite10003-frame partial block/common start1000, structure-stop prefixes, per-lane latency41/200, independent pending handoff; no fake finalized receipts",
+    "GUI actual 3-arm routes/selection/live EQ, grouped Undo/Redo/raw preservation; one failed writer admits other2 with red diagnostics; one bad receipt admits0 and Keep preserves3 inactive finalized jobs",
+    "Active multi-arm Save/close waits visibly for deliberately blocked writer joins and group verification before saving every raw take, EQ and master routing; pending group cannot be overwritten",
+    "Production GUI3/32-arm owned native source -> PipeWire duplex -> independent stereo sink, unarmed existing file, exact240000 frames per raw take, exact source positions/common origin, live EQ/Undo receipts replayed by independent private EQ plus float64 matrix sum, group Undo/Redo/save/reopen, no missing frames or audited host RT allocation/free/mutex",
+    "New duplex bridge has no raw peak meter; GUI hides unavailable raw peak and displays actual project output instead. No invented raw level or European translation completion claimed"
+  ],
+  "review_findings_and_test_corrections": [
+    {
+      "finding": "Prepare installed captured-lane view after endpoint creation, risking stale indexes on interrupted construction",
+      "change": "Install immutable lane metadata/generation before factory; collect each joined result separately and contain handoff allocation errors",
+      "scope": "Review finding; no native trigger claimed"
+    },
+    {
+      "finding": "Secondary empty-lane result could hide initiating activation failure and a failed writer constructor had no retained job path",
+      "change": "Keep first initiating diagnostic, retain per-lane errors, and retain an existing partial candidate directory outside RT; synthetic and owned native activation regressions qualified"
+    },
+    {
+      "finding": "New group fixture installed its gate in beforeSavePublish rather than beforeIo, and prior activation expectation rejected newly retained partial directory",
+      "failure_logs": [
+        {
+          "path": ".cache/m2-duplex-desktop-second-tests.log",
+          "sha256": "a28d3eabdff326552f54b15c77edd90bbd4ad12a38fd785c1bf631b2d223388f"
+        },
+        {
+          "path": ".cache/m2-duplex-desktop-third-tests.log",
+          "sha256": "bd85591d9f04311a85a06e89d36e46e25702412cc5a60f039237f0f5c38317b6"
+        }
+      ],
+      "change": "Gate actual attachment I/O and assert existing diagnostic directory with no later worker; no production gate waived"
+    },
+    {
+      "finding": "First full debug UI run aborted on filesystem path iterator assertion; review found newly added Keep test iterating lanes from a temporary shared snapshot while the worker republishes",
+      "failure_log": {
+        "path": ".cache/m2-duplex-desktop-final-debug-tests.log",
+        "sha256": "60a95410407c30e3a0c1879fb7b4d6ddcdcd7c56ccdad924fcdb76fbaf704a86"
+      },
+      "change": "Retain the shared snapshot through all lane inspection. All current debug/sanitized UI workflows pass; original abort had no stack trace, so its exact failing stack/cause was not captured"
+    },
+    {
+      "finding": "Native fixture route helper initially used substring matching, which can confuse output_1 with output_10",
+      "change": "Use exact node/port label matching before final native qualification; no source samples accepted by tolerance/truncation to hide route errors"
+    }
+  ],
+  "unresolved_observations": [
+    {
+      "failure": "First native GUI 32-track attempt timed out after acknowledged Undo while waiting for Complete and sink delivery",
+      "cause": "Unknown; original failure has no terminal state snapshot. No cause or production fix is claimed.",
+      "log": {
+        "path": ".cache/m2-native-mix-gui-failure1.log",
+        "sha256": "d956dd61e21d9f62c87566d03440465ede6a8a42f4b5f8367ef864042b76aab1"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nNative GUI workflow timed out at line 335\n\n",
+      "action": "Fixture now also wakes on sink gap and emits terminal phase/status/position/missing/sink/gap; isolated mix and final mix/mix-disconnect/export cases passed",
+      "remaining": "Long-duration/deadline/native completion/shutdown reliability qualification remains open; no suppression/waived gate"
+    },
+    {
+      "failure": "First saved-master native GUI 32-track run detected downstream sink clock gap with player still Running",
+      "terminal_state": {
+        "playback_phase": 4,
+        "bridge_status": 1,
+        "player_position": 110592,
+        "missing_track_frames": 0,
+        "sink_prefix": 108544,
+        "sink_gap": true
+      },
+      "cause": "Unknown; no failing-run pw-top/callback timing or first-gap positions captured. No production fix claimed.",
+      "log": {
+        "path": ".cache/m2-master-native.log",
+        "sha256": "024ae0f87b066f4d5e67ff79dfdbd0b3ef5f73d1e732d18ecb29a26480a9a0e3"
+      },
+      "diagnostic": "Traceback (most recent call last):\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 123, in <module>\n    main()\n    ~~~~^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 115, in main\n    results = [run_fixture(args.binary.resolve(), m) for m in args.modes]\n               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/rich/dev/soundcurrent-daw/tests/verify_pipewire_fixture.py\", line 75, in run_fixture\n    raise AssertionError(f'Native fixture failed ({child.returncode}): {stderr}')\nAssertionError: Native fixture failed (1): Preparing owned GUI file source\nThis plugin does not support propagateSizeHints()\nGUI-selected owned playback activated\nGUI mix terminal phase/status/position/missing/sink/gap 4/1/110592/0/108544/1\nGUI file playback did not complete\n\n",
+      "action": "Fixture now records first expected/observed/duration/unavailable-input count without RT logging; next isolated full/disconnect/export run exact",
+      "remaining": "Characterized native graph/sink deadline/load/clock/delivery reliability; failure is not suppressed or waived"
+    },
+    {
+      "failure": "Legacy CLI synthetic source capture stopped while independent CPU builds/tests were active",
+      "cause": "Exact underlying stop reason not retained by this CLI test output; concurrent activity is observed context, not a proven cause",
+      "log": {
+        "path": ".cache/m2-master-legacy-cli.log",
+        "sha256": "26f8ede9a446d9db0a47f3cdcb9171ed072a1be94f51d74a9271bed62ff4896d"
+      },
+      "action": "Next serial run after CPU/native jobs passed recording and independent export sample/hash oracle; no production change or waived pressure gate"
+    },
+    {
+      "failure": "Concurrent debug full CTest timed out awaiting synthetic recording capture at tests/ui_tests.cpp:368",
+      "result": "22 of 23 groups passed; failed desktop-ui",
+      "cause": "Unknown; unchanged serial debug and concurrent sanitizer suites passed; not waived",
+      "seconds": 31.19,
+      "log": {
+        "path": ".cache/m2-timing-qualified-debug-tests.log",
+        "sha256": "660250e96cecb78bf52f22023b1004b760665fac3af9c89bd6b0837a18bcaa42"
+      },
+      "details": {
+        "path": ".cache/m2-timing-concurrent-debug-details.log",
+        "sha256": "1b1d6d67b0219b70ca7534237b1d9092dd7024939cf0cf2087b53bcfe4843f6d"
+      },
+      "next": "Retain state/admission/route diagnostics and reproduce asynchronous recording route/start behavior under declared load"
+    },
+    {
+      "failure": "Sanitized native callback clock gap occurred before controlled sink injection",
+      "cause": "Measured elapsed above period; consistent with deadline pressure but not proof of old failures",
+      "qualification_remains_open": true,
+      "report": {
+        "path": ".cache/m2-timing-qualified-sanitized-gap.json",
+        "sha256": "861895c7195b4b0dda085ff22a884e31930c9ebae2d649728aed5e5ec2ad65e7"
+      }
+    },
+    {
+      "finding": "First writer-failure native case reported a sink suffix failure after native owner teardown at contiguous clock6064614374, prior6064613350,duration1024. Graph/sink prefixes both12288; exact original buffer/flag/capacity facts were not retained, so its precise cause is not proven.",
+      "log": {
+        "path": ".cache/m2-duplex-owner-final-native.log",
+        "sha256": "8b88b85f84f197af0e7249bda3873474aee340ef524c8f99ea5b9f5852b8a35c"
+      },
+      "report": {
+        "path": ".cache/m2-duplex-owner-final-native-failure.json",
+        "sha256": "76a2cbad625655c7ce73e6222b0668d389fadd150d8af8eeb0e83539d0dc38b7"
+      },
+      "correction_scope": "Fixture now records buffer shape/capacity/mapping and coordinates declared closure. Only unmapped planes at a valid contiguous clock after shutdown declaration and after all published graph frames are observed qualify as end-of-stream. Final post-join prefix/sample checks remain strict; any earlier failure/clock gap is retained.",
+      "production_clock_fault_policy_changed": false,
+      "original_precise_cause_proven": false
+    },
+    {
+      "failure": "Initial desktop32-arm owned-native run timed out before capturedFrames24000; preceding3-arm case passed with exact samples",
+      "log": {
+        "path": ".cache/m2-duplex-desktop-native.log",
+        "sha256": "120d9e8b701b8353d2da320c174b4ed1500a146ac1879ed4c0cf578ac945794f"
+      },
+      "diagnostics": {
+        "path": ".cache/m2-duplex-desktop-native-failure.json",
+        "sha256": "3d35af75a922645b8ce19e9a48a31e81d3acee9c97d25c0915910715071a4707"
+      },
+      "cause": "Not established: original failure captured no terminal phase/status/routes/callback counts. No production fix or cause proof claimed.",
+      "action": "Fixture now waits for the complete canonical routing-command barrier and all exact visible selections before Record; terminal phase/status/counts/routes diagnostics added. Final isolated3/32-arm runs passed without suppressing faults or changing the production DSP/clock.",
+      "cleanup": {
+        "default_metadata_unchanged": true,
+        "pre_existing_links_preserved": 0,
+        "owned_nodes_remaining": 0,
+        "owned_links_remaining": 0
+      },
+      "remaining": "Native activation/completion/route-refresh reliability and declared-duration/load qualification remain open; a successful synchronized rerun does not establish the original timeout cause."
+    }
+  ],
+  "logs": [
+    {
+      "path": ".cache/m2-duplex-desktop-ui-build.log",
+      "sha256": "8a0662039d973ebf9e992a69f0f1ffdfee9792b06f496616b7754951c94c6497"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-second-build.log",
+      "sha256": "1823a779d68c262f0f5ee64cedd550ec5db34cbbf82660f01fed5810c70d53c9"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-second-tests.log",
+      "sha256": "a28d3eabdff326552f54b15c77edd90bbd4ad12a38fd785c1bf631b2d223388f"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-third-build.log",
+      "sha256": "6c07b29ee0cc1239bd64ccade9a7baaf614177c06b2b2bf812d4ed9ef06236aa"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-third-tests.log",
+      "sha256": "bd85591d9f04311a85a06e89d36e46e25702412cc5a60f039237f0f5c38317b6"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-native-build.log",
+      "sha256": "5ab0a79e42a87d6281c4de246e858f202a9672bff190252b8d3eec9e99d47be2"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-final-debug-tests.log",
+      "sha256": "60a95410407c30e3a0c1879fb7b4d6ddcdcd7c56ccdad924fcdb76fbaf704a86"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-lifetime-debug-build.log",
+      "sha256": "0e23cfd7e5d48fdd242eca07444463e3af5efd1ad9b0b002cc9a5b703743b23d"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-debug-tests.log",
+      "sha256": "a99403c5ea9aef2152d67a6d19feaae55268b42d1732b6685c9ce537131673c8"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-debug-details.log",
+      "sha256": "39fc00339673dcb886a7122c4ad7324641b5a319fdbac9cf51ce1bfb13cb5bc2"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-final-release-build.log",
+      "sha256": "1459846b1f20e6cef73fad64ceb18a189be3767d107feabf986901b972b202a8"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-final-sanitized-build.log",
+      "sha256": "c870cce321c0e35f8c04a8c36837c3f637636bafd65de9029472a1e3c251a432"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-final-windows-build.log",
+      "sha256": "d8c6e72e2cc84afc40ca32e70fbfdd78b61a1d997ab14b41f4c0b5580918299b"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-final-native-release-build.log",
+      "sha256": "c291a930e0be1cad572a96de5b54088e8cd495e1069b07ba19b92af979b6ee82"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-sanitized-tests.log",
+      "sha256": "07cac9fcf7ffb43c26aa08f432f3bb03671655293d955a063d36f41c83abfccf"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-sanitized-details.log",
+      "sha256": "c1d9dada9dd757c52e472beff047ad070d9aa3dd5e3eea430d9493599ef11b94"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-close-debug-build.log",
+      "sha256": "f524d274a86459ba2ef3a7f0e380ab1214304413f38a27579fd23ec9e486f2d8"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-close-sanitized-build.log",
+      "sha256": "f524d274a86459ba2ef3a7f0e380ab1214304413f38a27579fd23ec9e486f2d8"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-close-release-build.log",
+      "sha256": "f524d274a86459ba2ef3a7f0e380ab1214304413f38a27579fd23ec9e486f2d8"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-close-debug-tests.log",
+      "sha256": "0d43b0e79923252489dec7c3e3a80ff17c361aa9eaeba649a4f2d2318d8f3922"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-close-debug-details.log",
+      "sha256": "35ef67c2b3de95285f70b766ba42a3a1a7ef38f1c899c4d7aad1361605db3abf"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-close-sanitized-tests.log",
+      "sha256": "008d1d16a576dd29eb0a10590c21dce331c432ebab903ffd85daedaba3bc0be2"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-close-sanitized-details.log",
+      "sha256": "948127b3bfecc42f864c1feb33d65861837c51e2c15827835704ad702b665b67"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-release-tests.log",
+      "sha256": "7eb84b772c3d56d3f9c56113bca1ed6fbffab1ad2cda0305907a86909ef978c1"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-release-details.log",
+      "sha256": "6c7a88b89e6c6829889b778cf6711873350261ab549922c5e6d8095f583df3c2"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-native.log",
+      "sha256": "120d9e8b701b8353d2da320c174b4ed1500a146ac1879ed4c0cf578ac945794f"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-native-failure.json",
+      "sha256": "3d35af75a922645b8ce19e9a48a31e81d3acee9c97d25c0915910715071a4707"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-routing-native-build.log",
+      "sha256": "c291a930e0be1cad572a96de5b54088e8cd495e1069b07ba19b92af979b6ee82"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-native.log",
+      "sha256": "ccf66d3f9a8bc434ddcaa293bc22e08f7106f04c0f12cb64763caa35069291e3"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-qualified-native.json",
+      "sha256": "ccf66d3f9a8bc434ddcaa293bc22e08f7106f04c0f12cb64763caa35069291e3"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-activation-native.log",
+      "sha256": "29001ace898d9e2c51a99178e31523e7b2acc0edba1efdf8a37648a2ecc5ee28"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-activation-native.json",
+      "sha256": "29001ace898d9e2c51a99178e31523e7b2acc0edba1efdf8a37648a2ecc5ee28"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    {
+      "path": ".cache/m2-duplex-desktop.png",
+      "sha256": "07b349bf50784a8ef6b89ed1156a4bbb716b2ee958ab51ba634c641962bc1232"
+    }
+  ],
+  "equalizer_audit": {
+    "log": {
+      "path": ".cache/m2-duplex-desktop-reuse-audit.json",
+      "sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+    },
+    "inputs_checked": 24,
+    "review_required": false,
+    "source_heads": {
+      "soundcurrent-eq": {
+        "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+        "current_head": "080195a85be163cf8e4b1516745c63f43f317700"
+      },
+      "soundcurrent-studio": {
+        "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+        "current_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+      }
+    }
+  },
+  "parity": {
+    "family_count": 92,
+    "acceptance_quality_references_axes_unchanged": true,
+    "implementation_notes_updated": [
+      "P001",
+      "P003",
+      "P088"
+    ],
+    "no_FQCN_status_promoted": true
+  },
+  "dependency_or_license_changes": false,
+  "equalizer_writes": false,
+  "pushed_or_published": false,
+  "remaining": [
+    "Native Windows adapter/execution/GUI with full workflow parity; physical interface input alignment/PDC and endpoint qualification",
+    "M2 ten-minute synthetic and30-minute declared native run; deadline/load/duration/OS resources/memory locking, process-kill/disk-full multitrack recovery and filesystem/module-unload gates",
+    "Earlier native completion/sink gaps, concurrent UI synthetic-record timeout and sanitized native skipped-clock/deadline observations remain open; these passes do not infer a cause/fix",
+    "Auto/tape monitoring, punch/loop/takes/comping/fades, general buses/sends/sidechains/PDC/VCA and all later frozen-reference milestones",
+    "Distinct versioned journal reader-failure cause; full missing-media/plugin/project recovery, backup/migration and qualification",
+    "X004 native/exchange project imports, X005 monitoring/print/portable profiles/rights and all-Europe coverage/catalog/native-review/UI qualification",
+    "Full F/Q/C/N parity acceptance and professional processing/content/native-format compatibility evidence",
+    "M2d4 reproducible 32-track ten-minute synthetic/full thirty-minute declared-native duration/load/alignment/fault workflows",
+    "All-Europe catalogs/coverage/native review remain incomplete; X004 imports and X005 monitor/print/portable pins/rights remain required"
+  ],
+  "next_task": "M2d4: reproducible 32-track ten-minute synthetic source/hash/timestamp/stop/save-reopen P001 workflow with bounded disk/cancel/failure evidence, then separate declared 30-minute native/device/load/alignment qualification; preserve all frozen remaining M2/product/platform gates",
+  "reproduction": [
+    "cmake --build .cache/build-desktop",
+    "ctest --test-dir .cache/build-desktop --output-on-failure",
+    "cmake --build .cache/build-desktop-sanitized",
+    "ctest --test-dir .cache/build-desktop-sanitized --output-on-failure",
+    "QT_QPA_PLATFORM=offscreen python3 tests/verify_pipewire_fixture.py --binary .cache/build-desktop-release/sc-pipewire-duplex-ui-fixture --modes 3 32 --output .cache/desktop-duplex-native.json --failure-output .cache/desktop-duplex-native-failure.json",
+    "python3 tools/check_equalizer_reuse.py"
+  ]
+}

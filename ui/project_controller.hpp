@@ -25,7 +25,9 @@ struct ProjectCommand {
     std::filesystem::path path;
     std::string name;
     std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
-    std::vector<SessionEdit> edits;                   // One atomic group, at most 64 operations.
+    std::shared_ptr<const std::vector<RecordingResult>>
+        recordings;                 // Alternative atomic group, 1..256.
+    std::vector<SessionEdit> edits; // One atomic group, at most 64 operations.
     std::optional<RouteAddress> routeAddress;
     RouteIntent route;
     std::optional<Id> monitoringTrack;
@@ -51,6 +53,7 @@ struct ControllerSnapshot {
     std::filesystem::path barrierRoot;
     std::uint64_t barrierRevision = 0;
     std::optional<Id> lastAttachedAsset;
+    std::vector<Id> lastAttachedAssets; // One successful verified group, stable canonical IDs.
     std::optional<ErrorCode> errorCode;
     std::string diagnostic;
     IoOperation io = IoOperation::None;

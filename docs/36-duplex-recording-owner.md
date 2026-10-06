@@ -7,9 +7,9 @@ It is framework independent and suitable for a later Windows native adapter.
 ports and the explicit master output layout. Neither component selects hardware,
 changes system defaults or prints EQ/profile correction into the raw takes.
 
-This is a native engine/control foundation. The desktop still exposes selected
-single-track recording; simultaneous arm selection, grouped take verification
-and canonical history handoff are the next implementation task. The frozen
+This is a native engine/control foundation. [M2d3](37-desktop-duplex-recording.md)
+now connects desktop arm selection, grouped take verification and canonical
+history handoff; the evidence below retains the original M2d2 source scope. The frozen
 Bitwig/Cubase baseline and all functional/quality/content/native-format gates
 remain unchanged.
 

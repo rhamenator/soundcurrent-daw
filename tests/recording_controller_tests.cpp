@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "fake_recording_endpoint.hpp"
+#include "fake_duplex_endpoint.hpp"
 #include "recovery_controller.hpp"
 #include <QCoreApplication>
 #include <QTemporaryDir>
@@ -278,6 +279,183 @@ void asynchronousDiscovery(const std::filesystem::path &root) {
           "Canceled closing scan published data");
 }
 
+struct DuplexRelease {
+    std::shared_ptr<duplex_fixture::Counters> c;
+    ~DuplexRelease() {
+        c->holdStop = false;
+        c->holdProcess = false;
+    }
+};
+void duplexTakeAndEdits(const std::filesystem::path &root) {
+    auto s = duplex_fixture::project(root);
+    auto c = std::make_shared<duplex_fixture::Counters>();
+    RecordingController r(duplex_fixture::options(c));
+    DuplexRelease release{c};
+    r.submit(duplex_fixture::prepare(root, s));
+    await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
+    auto ready = r.snapshot();
+    check(ready->projectMix && ready->lanes.size() == 2 && ready->channels == 2 &&
+              ready->outputChannels == 2 && !ready->job && !std::filesystem::exists(root / "media"),
+          "Duplex preparation created jobs or lost packed inputs/master channels");
+    r.submit(duplex_fixture::start(*c));
+    await([&] { return r.snapshot()->telemetry.capturedFrames >= 256; });
+    auto next = s;
+    next.tracks[0].eq.bands[0].gainDb = 6;
+    next.tracks[1].eq.bands[0].gainDb = -3;
+    next.tracks[2].eq.bands[0].gainDb = 4; // Unarmed file track also follows canonical EQ.
+    c->heldReceiptLane = 0; // A lower event revision cannot be inferred from a higher lane.
+    c->acceptLimit = 1;
+    r.follow(root, std::make_shared<const Session>(next), 2);
+    await([&] { return c->submitted == 1; });
+    check(r.snapshot()->acceptedRevision == 1 && r.snapshot()->appliedRevision == 1,
+          "Partial duplex event prefix claimed whole model");
+    c->acceptLimit = UINT_MAX;
+    await([&] {
+        return r.snapshot()->acceptedRevision == 2 && r.snapshot()->appliedEventRevision == 3;
+    });
+    check(r.snapshot()->appliedRevision == 1 && c->submitted == 3,
+          "Higher lane receipt falsely acknowledged a held lower revision");
+    c->heldReceiptLane = UINT_MAX;
+    await([&] { return r.snapshot()->appliedRevision == 2; });
+    auto reordered = next;
+    std::reverse(reordered.tracks.begin(), reordered.tracks.end());
+    reordered.tracks.front().eq.bands[0].gainDb = 8;
+    r.follow(root, std::make_shared<const Session>(reordered), 3);
+    await([&] { return r.snapshot()->appliedRevision == 3; });
+    check(r.snapshot()->lanes[0].track == s.tracks[0].id &&
+              r.snapshot()->lanes[1].track == s.tracks[1].id && c->submitted == 4,
+          "Canonical reorder retargeted armed lanes or lost unarmed file EQ update");
+    c->holdStop = true;
+    const auto stop = r.requestStop();
+    await([&] { return c->waitingStop.load(); });
+    check(!r.snapshot()->take && r.snapshot()->stopAcknowledged < stop &&
+              r.snapshot()->phase == RecordingPhase::Finalizing,
+          "Duplex stop published results before all writers joined");
+    c->holdStop = false;
+    await([&] { return r.snapshot()->stopAcknowledged == stop && r.snapshot()->take; });
+    const auto take = r.snapshot()->take;
+    check(take->receipts && take->receipts->size() == 2 && c->destroyed == 1 && !c->wrongThread,
+          "Duplex handoff did not retain the joined group on its worker");
+    const auto &a = (*take->receipts)[0], &b = (*take->receipts)[1];
+    check(a.spec.trackId == s.tracks[0].id && b.spec.trackId == s.tracks[1].id &&
+              a.spec.capture.startFrame == 1000 && b.spec.capture.startFrame == 1000 &&
+              a.asset.frames == b.asset.frames && a.asset.frames >= 256 &&
+              a.spec.inputLatencyFrames == 41 && b.spec.inputLatencyFrames == 200 &&
+              ProjectStore(root).load() == s,
+          "Shared raw takes lost clock/latency/track identity or implicitly saved edits");
+    for (const auto &result : *take->receipts) {
+        const auto job = root / "media" / ("capture-" + result.asset.id.str());
+        check(inspectRecording(job, {}, true).finalized &&
+                  hashMediaFile(root / utf8Path(result.asset.relativePath)) == result.asset.sha256,
+              "Duplex raw receipt was not finalized, inactive or hash verified");
+    }
+    const auto serial = r.snapshot()->errorSerial;
+    r.submit(duplex_fixture::prepare(root, s, 4));
+    await([&] { return r.snapshot()->errorSerial > serial; });
+    check(r.snapshot()->take->sequence == take->sequence && c->constructed == 1,
+          "Another preparation overwrote a pending duplex group");
+    r.requestShutdown();
+    await([&] { return r.snapshot()->closed; });
+    check(r.snapshot()->take->receipts->size() == 2, "Shutdown discarded a pending group");
+}
+void duplexAdmissionAndFailures(const std::filesystem::path &root) {
+    for (unsigned mode = 0; mode < 6; ++mode) {
+        const auto folder = root / std::to_string(mode);
+        auto s = duplex_fixture::project(folder);
+        auto c = std::make_shared<duplex_fixture::Counters>();
+        RecordingController r(duplex_fixture::options(c));
+        DuplexRelease release{c};
+        auto prepare = duplex_fixture::prepare(folder, s);
+        if (mode == 0)
+            prepare.armedTracks.push_back(prepare.armedTracks.front());
+        if (mode == 1)
+            prepare.recordFrames = 0;
+        if (mode == 2)
+            prepare.armedTracks.back() = Id::generate();
+        if (mode == 3)
+            c->failedActivation = 1;
+        if (mode == 4)
+            c->failedWriter = 1;
+        if (mode == 5) {
+            s.tracks[0].monitoring = s.tracks[1].monitoring = RecordingMonitor::Off;
+            prepare.session = std::make_shared<const Session>(s);
+        }
+        r.submit(prepare);
+        if (mode < 3) {
+            await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
+            check(c->constructed == 0 && !std::filesystem::exists(folder / "media"),
+                  "Invalid duplex admission allocated endpoint or created jobs");
+            continue;
+        }
+        await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
+        auto start = duplex_fixture::start(*c);
+        if (mode == 5)
+            start.outputs.clear();
+        r.submit(start);
+        if (mode == 3) {
+            await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
+            check(c->activated == 0 && c->destroyed == 1 && !r.snapshot()->take &&
+                      r.snapshot()->lanes.size() == 2 && r.snapshot()->lanes[0].job &&
+                      r.snapshot()->lanes[1].job &&
+                      r.snapshot()->diagnostic == "Injected duplex activation failure",
+                  "Duplex activation failure lost original error, jobs or earlier writer joins");
+        } else if (mode == 4) {
+            await(
+                [&] { return r.snapshot()->phase == RecordingPhase::Fault && r.snapshot()->take; });
+            auto v = r.snapshot();
+            check(v->take->receipts->size() == 1 && v->lanes[1].errorCode == ErrorCode::Io &&
+                      v->lanes[1].diagnostic == "Injected duplex disk failure" &&
+                      v->job == v->lanes[1].job && c->destroyed == 1,
+                  "One failed writer discarded other raw takes or hid failed lane job/error");
+            const auto failed = inspectRecording(*v->lanes[1].job, {}, true);
+            check(!failed.finalized && failed.committedFrames > 0,
+                  "Failed duplex writer lost inactive independently recoverable checkpoint");
+        } else {
+            await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
+            check(c->activated == 0 && !r.snapshot()->job,
+                  "All monitoring off bypassed required project playback output routes");
+        }
+    }
+}
+void duplexFiniteRangeAndStructure(const std::filesystem::path &root) {
+    for (unsigned mode = 0; mode < 2; ++mode) {
+        const auto folder = root / std::to_string(mode);
+        auto s = duplex_fixture::project(folder, 32);
+        auto c = std::make_shared<duplex_fixture::Counters>();
+        RecordingController r(duplex_fixture::options(c));
+        DuplexRelease release{c};
+        auto p = duplex_fixture::prepare(folder, s, 1, 32);
+        p.recordFrames = mode ? 480000 : 10003;
+        r.submit(p);
+        await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
+        r.submit(duplex_fixture::start(*c));
+        await([&] { return r.snapshot()->telemetry.capturedFrames >= 512; });
+        if (mode) {
+            auto changed = s;
+            changed.tracks.pop_back();
+            changed.master->plan.tracks.pop_back();
+            r.follow(folder, std::make_shared<const Session>(changed), 2);
+            await(
+                [&] { return r.snapshot()->phase == RecordingPhase::Fault && r.snapshot()->take; });
+            check(r.snapshot()->diagnostic == "Project structure changed; recording stopped",
+                  "Structural change did not stop immutable duplex generation");
+        } else {
+            await([&] { return r.snapshot()->phase == RecordingPhase::Complete; });
+            check(!r.snapshot()->take && r.snapshot()->telemetry.capturedFrames == 10003,
+                  "Finite duplex range published before Stop or lost final partial block");
+            r.requestStop();
+            await([&] { return r.snapshot()->take.has_value(); });
+        }
+        auto v = r.snapshot();
+        check(v->take->receipts->size() == 32 && c->destroyed == 1 && !c->wrongThread,
+              "32-arm duplex terminal path lost joined raw takes");
+        const auto frames = v->take->receipts->front().asset.frames;
+        for (const auto &take : *v->take->receipts)
+            check(take.asset.frames == frames && take.spec.capture.startFrame == 1000,
+                  "32-arm raw takes diverged from shared capture clock");
+    }
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -290,6 +468,9 @@ int main(int argc, char **argv) {
         writerFailureAndRecovery(root / "writer");
         pressureAndCancellation(root / "pressure");
         asynchronousDiscovery(root / "discovery");
+        duplexTakeAndEdits(root / "duplex-take");
+        duplexAdmissionAndFailures(root / "duplex-failures");
+        duplexFiniteRangeAndStructure(root / "duplex-range");
         std::cout << "{\"checks\":" << checks
                   << ",\"synthetic_endpoint\":true,\"actual_disk_takes\":true,\"retained_handoff\":"
                      "true,\"preview_copy_recovery\":true,\"bounded_pressure_stop\":true}\n";

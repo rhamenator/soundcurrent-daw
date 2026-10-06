@@ -282,8 +282,9 @@ void activationFailure() {
     original([&] { run.checkActivation(); }, "second-writer-preparation");
     original([&] { (void)run.result(1); }, "second-writer-preparation");
     check(run.status() == DuplexStatus::CaptureFailed && run.jobDirectory(0) &&
-              !run.jobDirectory(1) && !run.jobDirectory(2) && run.capture(0).writerComplete &&
-              !run.timingOrigin() && !run.callbackFault(),
+              run.jobDirectory(1) && std::filesystem::is_directory(*run.jobDirectory(1)) &&
+              !run.jobDirectory(2) && run.capture(0).writerComplete && !run.timingOrigin() &&
+              !run.callbackFault(),
           "Partial activation lifecycle differs");
     run.stop();
     run.checkReader();

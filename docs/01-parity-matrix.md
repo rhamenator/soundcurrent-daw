@@ -216,3 +216,16 @@ source/sink corpus is scoped in the evidence manifest. P001/P003/P088
 implementation notes advance; their acceptance/quality/F/Q/C/N contracts do not.
 Desktop grouped handoff, required duration/load/physical/native Windows workflows
 and all frozen parity requirements remain open.
+
+
+## M2d3 scoped desktop evidence
+
+[Desktop multi-arm recording](37-desktop-duplex-recording.md) adds accepted-prefix
+project playback/raw arm preparation, explicit input/master routing, all-lane EQ
+receipts and atomic verified take groups with Undo/Redo and active Save/close.
+Three/32-arm five-second owned-native GUI runs compare every raw/output sample;
+[the manifest](../tests/results/M2/2026-10-06-desktop-duplex-recording.json) retains
+the initial 32-arm timeout and earlier unresolved observations. P001/P003/P088
+implementation notes advance. Ten-minute synthetic/30-minute declared native,
+physical/load/fault/native Windows and all other frozen workflows/quality/F/Q/C/N
+contracts remain unchanged and incomplete.

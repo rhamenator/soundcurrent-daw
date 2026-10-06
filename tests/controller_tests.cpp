@@ -677,6 +677,133 @@ void structuralDuringAdmission(const std::filesystem::path &root) {
     await(controller, [&](const auto &v) { return *v.session == *attached->session; });
 }
 
+void groupedTakeAdmission(const std::filesystem::path &root) {
+    auto session = makeOneTrackSession("Grouped takes — Ελληνικά", "A");
+    session.tracks.push_back(makeAudioTrack("B", {}, session.sampleRate));
+    session.tracks.push_back(makeAudioTrack("C", {}, session.sampleRate));
+    ProjectStore(root).save(session);
+    std::vector<RecordingResult> takes;
+    std::vector<std::string> hashes;
+    for (std::size_t n = 0; n < session.tracks.size(); ++n) {
+        auto lane = session;
+        std::swap(lane.tracks.front(), lane.tracks[n]);
+        takes.push_back(makeRecordedTake(root, lane));
+        hashes.push_back(hashMediaFile(root / utf8Path(takes.back().asset.relativePath)));
+    }
+    auto group = [&](const std::vector<RecordingResult> &receipts) {
+        ProjectCommand c{CommandKind::AttachRecording};
+        c.path = root;
+        c.recordings = std::make_shared<const std::vector<RecordingResult>>(receipts);
+        return c;
+    };
+    Gate gate;
+    ProjectController controller({[&] { gate.block(); }, {}, {}});
+    ReleaseGate release{gate};
+    ProjectCommand open{CommandKind::Open};
+    open.path = root;
+    submit(controller, open);
+    auto initial =
+        await(controller, [](const auto &v) { return v.session && v.io == IoOperation::None; });
+    auto rejected = [&](ProjectCommand c) {
+        const auto before = controller.snapshot();
+        submit(controller, std::move(c));
+        auto fail = await(controller, [&](const auto &v) {
+            return v.errorSerial > before->errorSerial && v.io == IoOperation::None;
+        });
+        check(*fail->session == *before->session && fail->attachedRecordings == 0 &&
+                  fail->lastAttachedAssets.empty(),
+              "Rejected take group published a partial canonical attachment");
+    };
+    auto bad = takes;
+    bad.back().asset.sha256 = std::string(64, '0');
+    rejected(group(bad));
+    bad = takes;
+    bad.back() = bad.front();
+    rejected(group(bad));
+    rejected(group({}));
+    rejected(group(std::vector<RecordingResult>(257, takes.front())));
+    auto ambiguous = group(takes);
+    ambiguous.recording = std::make_shared<const RecordingResult>(takes.front());
+    rejected(std::move(ambiguous));
+    gate.armed = true;
+    submit(controller, group(takes));
+    auto pending = await(controller, [&](const auto &v) {
+        return v.io == IoOperation::AttachRecording && gate.entered;
+    });
+    check(pending->session->assets.empty(), "Group published before all media verification");
+    submit(controller, parameter(*pending, 7, 700));
+    ProjectCommand route{CommandKind::Routing};
+    route.routeAddress = RouteAddress{session.tracks[1].id, RouteTarget::Input};
+    route.routePatch = RouteChannelPatch{
+        0, "pipewire", ChannelPortIntent{"Owned group input", "output_2", "Audio/Source", false}};
+    submit(controller, route);
+    auto edited = await(controller, [](const auto &v) {
+        return v.session->tracks.front().eq.bands.front().gainDb == 7 &&
+               !v.session->tracks[1].input.ports.empty();
+    });
+    gate.release();
+    auto attached = await(controller, [](const auto &v) {
+        return v.attachedRecordings == 3 && v.io == IoOperation::None;
+    });
+    check(attached->session->assets.size() == 3 && attached->lastAttachedAssets.size() == 3,
+          "Whole group was not published in one receipt");
+    for (std::size_t n = 0; n < takes.size(); ++n) {
+        const auto &track = attached->session->tracks[n];
+        check(attached->lastAttachedAssets[n] == takes[n].asset.id && track.clips.size() == 1 &&
+                  track.clips.front().assetId == takes[n].asset.id &&
+                  track.clips.front().startFrame == 873 &&
+                  hashMediaFile(root / utf8Path(takes[n].asset.relativePath)) == hashes[n],
+              "Group lost per-track identity, latency alignment or raw media");
+    }
+    submit(controller, {CommandKind::Undo});
+    await(controller, [&](const auto &v) { return *v.session == *edited->session; });
+    submit(controller, {CommandKind::Redo});
+    await(controller, [&](const auto &v) { return *v.session == *attached->session; });
+    submit(controller, {CommandKind::Save});
+    auto saved =
+        await(controller, [](const auto &v) { return !v.dirty && v.io == IoOperation::None; });
+    check(ProjectStore(root).load() == *saved->session, "Grouped take save/reopen differs");
+    check(initial->session->assets.empty(), "Immutable pre-admission snapshot changed");
+}
+void groupedRemovalDuringAdmission(const std::filesystem::path &root) {
+    auto s = makeOneTrackSession("Removal during group", "A");
+    s.tracks.push_back(makeAudioTrack("B", {}, s.sampleRate));
+    ProjectStore(root).save(s);
+    std::vector<RecordingResult> receipts;
+    for (std::size_t n = 0; n < s.tracks.size(); ++n) {
+        auto lane = s;
+        std::swap(lane.tracks.front(), lane.tracks[n]);
+        receipts.push_back(makeRecordedTake(root, lane));
+    }
+    Gate gate;
+    ProjectController c({[&] { gate.block(); }, {}, {}});
+    ReleaseGate release{gate};
+    ProjectCommand open{CommandKind::Open};
+    open.path = root;
+    submit(c, open);
+    await(c, [](const auto &v) { return v.session && v.io == IoOperation::None; });
+    gate.armed = true;
+    ProjectCommand attach{CommandKind::AttachRecording};
+    attach.path = root;
+    attach.recordings = std::make_shared<const std::vector<RecordingResult>>(receipts);
+    submit(c, attach);
+    auto pending = await(
+        c, [&](const auto &v) { return v.io == IoOperation::AttachRecording && gate.entered; });
+    ProjectCommand remove{CommandKind::Structural};
+    remove.edits = {RemoveTrack{s.tracks.back().id}};
+    submit(c, remove);
+    auto removed = await(c, [](const auto &v) { return v.session->tracks.size() == 1; });
+    gate.release();
+    await(c, [&](const auto &v) {
+        return v.io == IoOperation::None && v.errorSerial > pending->errorSerial;
+    });
+    check(*c.snapshot()->session == *removed->session && c.snapshot()->attachedRecordings == 0,
+          "Second missing track allowed first grouped take to attach");
+    for (const auto &r : receipts)
+        check(hashMediaFile(root / utf8Path(r.asset.relativePath)) == r.asset.sha256,
+              "Failed grouped admission altered a raw take");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -695,6 +822,8 @@ int main(int argc, char **argv) {
         monitoringEdits(root / "monitoring-edits");
         structuralEdits(root / "structural-edits");
         structuralDuringAdmission(root / "structural-admission");
+        groupedTakeAdmission(root / "grouped-takes");
+        groupedRemovalDuringAdmission(root / "grouped-removal");
         std::cout << "{\"checks\":" << checks
                   << ",\"asynchronous_io\":true,\"save_revision_checked\":true,\"shutdown_join_"
                      "checked\":true}\n";

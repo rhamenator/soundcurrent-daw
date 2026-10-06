@@ -23,6 +23,8 @@ class QProgressBar;
 class QGridLayout;
 class QCheckBox;
 class QMessageBox;
+class QListWidget;
+class QSpinBox;
 namespace soundcurrent::daw::ui {
 class StudioWindow : public QMainWindow {
   public:
@@ -36,6 +38,7 @@ class StudioWindow : public QMainWindow {
     bool selectTrack(const Id &);
     std::optional<Id> selectedTrack() const;
     bool prepareRecording();
+    bool configureArmedRecording(const std::vector<Id> &, Frame frames = 0);
     bool inspectTake(const std::filesystem::path &);
     std::shared_ptr<const RecordingSnapshot> recordingSnapshot() const;
     std::shared_ptr<const ExportSnapshot> exportSnapshot() const;
@@ -90,6 +93,17 @@ class StudioWindow : public QMainWindow {
     QPushButton *prepareRecordButton_, *recordButton_, *recordStopButton_;
     QPushButton *retryTakeButton_, *keepTakeButton_;
     QCheckBox *armed_;
+    QCheckBox *multiRecord_;
+    QListWidget *armedTracksList_;
+    QSpinBox *recordSeconds_;
+    QLabel *recordRangeLabel_;
+    std::vector<Id> armedTracksSelection_, recordPreparationArms_;
+    Frame recordRangeOverride_ = 0, recordPreparationFrames_ = 0;
+    bool recordPrepareMix_ = false;
+    std::uint64_t armProjectEpoch_ = 0, recordRoutesGeneration_ = 0;
+    std::vector<RouteIntent> packedInputsShown_;
+    void refreshArms();
+    void selectRecordingRoute(bool output, std::size_t, QComboBox *);
     QComboBox *monitorMode_;
     QGridLayout *recordRoutes_;
     std::vector<QComboBox *> inputs_, monitors_;

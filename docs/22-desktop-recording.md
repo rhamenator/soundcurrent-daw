@@ -1,5 +1,11 @@
 # S6g desktop recording and recovery handoff
 
+This records the historical selected-track S6g slice. The current
+[M2d3 desktop multi-arm contract](37-desktop-duplex-recording.md) adds simultaneous
+project playback, armed raw tracks and grouped verified take/history admission.
+Its evidence is separate; historical exclusions below describe S6g, not removed
+product requirements.
+
 **Linux first-track recording/monitoring, live EQ/undo, verified attachment and manual recovery now have desktop controls. SLICE-001 still requires export and outstanding acceptance gates; full frozen-reference parity remains incomplete.** The framework-independent engine and raw media path remain separate from Qt. Equipment profiles are still an offline library/editor and do not yet process monitor audio.
 
 ## User workflow
