@@ -271,6 +271,11 @@ CaptureWriter::CaptureWriter(std::filesystem::path root, RecordingSpec spec,
         options.checkpointFrames = spec.capture.sampleRate;
     require(options.checkpointFrames <= Frame(spec.capture.sampleRate) * 60,
             "Checkpoint interval too long");
+    require(options.firstCheckpointFrames >= 0 &&
+                options.firstCheckpointFrames <= options.checkpointFrames,
+            "First recording checkpoint must fit the regular interval");
+    if (!options.firstCheckpointFrames)
+        options.firstCheckpointFrames = options.checkpointFrames;
     media_io::plainDirectory(root);
     const auto media = root / "media";
     if (std::filesystem::create_directory(media))
@@ -327,7 +332,8 @@ bool CaptureWriter::drainOne(CapturePipe &pipe) {
         s.observe(RecordingWriterPhase::WriteHashEnd, &pipe);
         require(pipe.release(slab), "Recording slab ownership error");
         owned = false;
-        if (s.written - s.committed >= s.options.checkpointFrames)
+        if (s.written - s.committed >=
+            (s.committed ? s.options.checkpointFrames : s.options.firstCheckpointFrames))
             s.checkpoint(false, pipe.status(), &pipe);
         return true;
     } catch (...) {

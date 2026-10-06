@@ -339,6 +339,23 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     rangeRow->addWidget(rangeLabel);
     rangeRow->addWidget(recordSeconds_);
     recordLayout->addLayout(rangeRow);
+    auto *reserveRow = new QHBoxLayout;
+    auto *reserveLabel = new QLabel(tr("Recording disk-stall reserve"), recording);
+    recordReserve_ = new FocusCombo(recording);
+    recordReserve_->setObjectName("recordingReserveMilliseconds");
+    recordReserve_->addItem(tr("2 seconds"), 2000);
+    recordReserve_->addItem(tr("5 seconds"), 5000);
+    recordReserve_->addItem(tr("10 seconds"), 10000);
+    recordReserve_->setCurrentIndex(2);
+    recordReserve_->setAccessibleName(tr("Recording disk-stall reserve"));
+    recordReserve_->setToolTip(
+        tr("Uses memory to absorb temporary disk stalls. Applies on Prepare; "
+           "monitoring latency is unchanged. Preparation refuses a reserve "
+           "that exceeds the recording memory budget."));
+    reserveLabel->setBuddy(recordReserve_);
+    reserveRow->addWidget(reserveLabel);
+    reserveRow->addWidget(recordReserve_);
+    recordLayout->addLayout(reserveRow);
     connect(recordSeconds_, &QSpinBox::valueChanged, this, [this] { recordRangeOverride_ = 0; });
     connect(multiRecord_, &QCheckBox::toggled, this, [this] {
         recordPrepareBarrier_ = 0;
@@ -1087,6 +1104,7 @@ bool StudioWindow::prepareRecording() {
         return false;
     recordPrepareBarrier_ = token;
     recordPreparationTrack_ = selectedTrack();
+    recordPreparationReserveMilliseconds_ = recordReserve_->currentData().toUInt();
     recordPrepareMix_ = multiRecord_->isChecked();
     recordPreparationArms_.clear();
     if (recordPrepareMix_) {
@@ -1420,6 +1438,7 @@ void StudioWindow::pollRecording() {
                 return;
             }
             c.modelRevision = m->barrierRevision;
+            c.storageReserveMilliseconds = recordPreparationReserveMilliseconds_;
             c.monitoring = c.session->tracks.front().monitoring;
             if (recordPrepareMix_) {
                 c.armedTracks = recordPreparationArms_;
@@ -1501,6 +1520,7 @@ void StudioWindow::pollRecording() {
                          playbackIdle && m->session && m->io == IoOperation::None;
     prepareRecordButton_->setEnabled(prepare);
     prepareRecordAction_->setEnabled(prepare);
+    recordReserve_->setEnabled(prepare);
     monitorMode_->setEnabled(allow && !recordPrepareBarrier_ && !recordCommandPending_ && idle &&
                              !r->take && m->session && !m->session->tracks.empty() &&
                              m->io != IoOperation::Create && m->io != IoOperation::Open);

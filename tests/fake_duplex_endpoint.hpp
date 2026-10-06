@@ -16,6 +16,7 @@ struct Counters {
     std::atomic<unsigned> acceptLimit{UINT_MAX}, heldReceiptLane{UINT_MAX};
     std::atomic<unsigned> failedWriter{UINT_MAX}, failedActivation{UINT_MAX};
     std::atomic<bool> badHash{false};
+    std::atomic<std::uint64_t> preparedCapacityFrames{0};
     std::vector<PipeWirePort> inputs, outputs;
 };
 // Synthetic endpoint, real shared-clock graph/readers/raw writers. Only read()
@@ -42,6 +43,8 @@ class Endpoint final : public RecordingEndpoint {
         options.backend = CaptureBackend::Synthetic;
         options.playback.slabFrames = 256;
         auto lanes = p.lanes;
+        c_->preparedCapacityFrames = std::uint64_t(lanes.front().spec.capture.poolSlabs) *
+                                     lanes.front().spec.capture.slabFrames;
         for (std::size_t n = 0; n < lanes.size(); ++n) {
             lanes[n].spec.capture.slabFrames = 256;
             lanes[n].spec.inputLatencyFrames = n == 0 ? 41 : 200;

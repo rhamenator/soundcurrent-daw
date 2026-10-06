@@ -50,6 +50,9 @@ struct RecordingOptions {
     // Worker-only progress/cancellation/fault boundary; never called by audio.
     std::function<void(RecordingBoundary, Frame)> boundary;
     RecordingWriterInstrumentation instrumentation{};
+    // Zero uses the regular interval. A shorter first interval disperses
+    // synchronized writers without increasing subsequent checkpoint spacing.
+    Frame firstCheckpointFrames = 0;
 };
 struct RecordingResult {
     RecordingSpec spec;

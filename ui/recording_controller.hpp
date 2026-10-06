@@ -138,6 +138,8 @@ struct RecordingCommand {
     std::vector<Id> armedTracks; // Nonempty opts into shared-clock project recording.
     std::optional<MixPlan> plan;
     Frame recordFrames = 0; // Explicit finite shared recording range, 1..24h at session rate.
+    std::uint32_t storageReserveMilliseconds =
+        10000; // Immutable Prepare intent, not monitor delay.
 };
 // 16-entry non-RT FIFO; full-model changes coalesce in one latest slot. Stop
 // invalidates queued transport by epoch and acknowledges only after worker joins.

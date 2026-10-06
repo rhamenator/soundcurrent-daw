@@ -15,6 +15,7 @@ struct Counters {
     std::atomic<std::uint32_t> forcedStatus{0};
     std::atomic<unsigned> constructed{0}, activated{0}, stopped{0}, destroyed{0}, submitted{0};
     std::atomic<unsigned> acceptLimit{UINT_MAX};
+    std::atomic<std::uint64_t> preparedCapacityFrames{0};
     const std::vector<PipeWirePort> ports{
         {501, 502, 503, "Owned Σ input", "output_1", "Audio/Source", false},
         {504, 505, 506, "Owned Σ monitor", "input_1", "Audio/Sink", true}};
@@ -44,6 +45,8 @@ class Endpoint : public RecordingEndpoint {
         : c_(std::move(c)), p_(p), pipe_(p.spec.capture),
           bridge_(*p.session, p.spec.trackId, pipe_, p.options.bridge) {
         p_.spec.capture = pipe_.config();
+        c_->preparedCapacityFrames =
+            std::uint64_t(pipe_.config().poolSlabs) * pipe_.config().slabFrames;
         clock_.duration = 128;
         clock_.rateDenominator = p.spec.capture.sampleRate;
         input_.fill(1.25f);

@@ -149,3 +149,14 @@ fault retention and exact full raw/common-output prefixes under the existing
 decision, followed by the unchanged30-minute native sample/deadline acceptance;
 no shorter run or injected reproduction resolves the original uninstrumented
 failure or promotes frozen functional/quality/content/compatibility contracts.
+
+M2d4c2 adds [admitted capture reserve and first checkpoint phases](41-checkpoint-burst-policy.md)
+([ADR-031](decisions/031-admitted-capture-reserve-and-checkpoint-phases.md)). Capture
+admission rounds whole independent pool slots up to the requested duration within
+fixed token/per-pipe/aggregate bounds; playback blocks and queues stay separate.
+Prepare captures the desktop choice, and only armed pools are admitted. Initial
+checkpoint phases disperse nominal disk calls without increasing regular frame
+spacing. Block quantization, scheduling and backlog limit phase separation; stalled
+durability has no hard wall-time guarantee. Scoped native stall absorption/exhaustion,32-track copy recovery and120-second
+full sample/timing gates now pass. Required30-minute native timing/throughput and
+every independent reliability/platform/physical/product gap remain open.

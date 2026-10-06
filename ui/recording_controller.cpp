@@ -578,6 +578,8 @@ struct RecordingController::State : QThread {
                     lane.spec.capture.layout = t->layout;
                     lane.spec.capture.startFrame = c.session->playheadFrame;
                     lane.spec.capture.maximumCallbackFrames = p.options.bridge.maximumFrames;
+                    lane.spec.capture =
+                        withCaptureReserve(lane.spec.capture, c.storageReserveMilliseconds);
                     lane.monitoring = t->monitoring;
                     lane.writer = p.options.writer;
                     for (std::uint32_t ch = 0; ch < t->layout.channels; ++ch)
@@ -586,6 +588,7 @@ struct RecordingController::State : QThread {
                 }
                 p.spec = p.lanes.front().spec;
             } else {
+                p.spec.capture = withCaptureReserve(p.spec.capture, c.storageReserveMilliseconds);
                 p.plan =
                     identityMix(*c.session, std::span(&p.spec.trackId, 1), p.spec.capture.layout);
             }

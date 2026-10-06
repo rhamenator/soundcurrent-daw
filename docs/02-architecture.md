@@ -181,3 +181,14 @@ fixture maxima/context and the callback maximum's clock/start time are inspected
 after joins; they distinguish declared phase wall time from presumed disk or
 scheduler causes. The fixed capture/durable checkpoint policy is preserved while
 the native failure remains under investigation.
+
+M2d4c2 adds [admitted capture reserve and first checkpoint phases](41-checkpoint-burst-policy.md)
+([ADR-031](decisions/031-admitted-capture-reserve-and-checkpoint-phases.md)). Capture
+admission rounds whole independent pool slots up to the requested duration within
+fixed token/per-pipe/aggregate bounds; playback blocks and queues stay separate.
+Prepare captures the desktop choice, and only armed pools are admitted. Initial
+checkpoint phases disperse nominal disk calls without increasing regular frame
+spacing. Block quantization, scheduling and backlog limit phase separation; stalled
+durability has no hard wall-time guarantee. Scoped native stall absorption/exhaustion,32-track copy recovery and120-second
+full sample/timing gates now pass. Required30-minute native timing/throughput and
+every independent reliability/platform/physical/product gap remain open.

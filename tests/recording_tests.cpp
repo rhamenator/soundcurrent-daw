@@ -109,6 +109,31 @@ void verifyAudio(const std::filesystem::path &file, Frame count, std::uint32_t c
     }
     check(sf_close(reader) == 0 && correct, "Raw recording samples differ or overs clipped");
 }
+void firstCheckpointCadence() {
+    Temp temp;
+    const auto s = makeOneTrackSession("Phased", "Raw");
+    const auto spec = specFor(s, 256);
+    CapturePipe pipe(spec.capture);
+    RecordingOptions options;
+    options.checkpointFrames = 1024;
+    options.firstCheckpointFrames = 256;
+    CaptureWriter writer(temp.root, spec, options);
+    Source source(1, 256);
+    for (Frame n = 0; n < 2560; n += 256) {
+        check(source.push(pipe, n, 256).acceptedFrames == 256 && writer.drainOne(pipe),
+              "Phased checkpoint source/write failed");
+        const auto expected = Frame(256 + ((n / 256) / 4) * 1024);
+        const auto checkpoint = inspectRecording(writer.jobDirectory());
+        check(checkpoint.committedFrames == expected,
+              "First checkpoint phase increased regular durability spacing");
+    }
+    pipe.finish();
+    const auto result = writer.finalize(pipe);
+    check(result.asset.frames == 2560, "Phased final checkpoint lost suffix");
+    verifyAudio(temp.root / result.asset.relativePath, 2560, 1);
+    options.firstCheckpointFrames = 1025;
+    rejects([&] { CaptureWriter bad(temp.root, spec, options); });
+}
 void concurrentTake() {
     Temp temp;
     auto session = makeOneTrackSession("Enregistrement – Aufnahme", "Prise / Aufnahme");
@@ -531,6 +556,7 @@ void writeLimitFailure() {
 int main() {
     try {
         rt_audit::reset();
+        firstCheckpointCadence();
         concurrentTake();
         layoutsAndAlignment();
         writerObservations();

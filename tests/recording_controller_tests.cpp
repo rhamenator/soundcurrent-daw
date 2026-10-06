@@ -36,6 +36,48 @@ Session project(const std::filesystem::path &root) {
     ProjectStore(root).save(s);
     return s;
 }
+void reserveAdmission(const std::filesystem::path &root) {
+    auto s = project(root);
+    auto c = std::make_shared<Counters>();
+    RecordingController r(recording_fixture::options(c));
+    auto p = recording_fixture::prepare(root, s);
+    p.storageReserveMilliseconds = 5000;
+    r.submit(p);
+    await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
+    check(c->preparedCapacityFrames >= 240000 && c->preparedCapacityFrames < 243000,
+          "Prepare did not preserve the requested disk reserve");
+    const auto serial = r.snapshot()->errorSerial;
+    p.storageReserveMilliseconds = 1999;
+    r.submit(p);
+    await([&] { return r.snapshot()->errorSerial > serial; });
+    check(c->constructed == 1 && !r.snapshot()->job && ProjectStore(root).load() == s,
+          "Invalid reserve allocated an endpoint, created a job or changed canonical state");
+    r.requestStop();
+}
+void armedReserveOnly(const std::filesystem::path &root) {
+    auto s = makeOneTrackSession("Unarmed multichannel", "Unarmed");
+    s.tracks.front().layout = {LayoutKind::Discrete, 256};
+    s.tracks.push_back(makeAudioTrack("Armed mono", {}, s.sampleRate));
+    ProjectStore(root).save(s);
+    std::atomic<bool> reached{false};
+    RecordingControllerOptions o;
+    o.duplexFactory = [&](const RecordingPreparation &p) -> std::unique_ptr<RecordingEndpoint> {
+        reached =
+            p.lanes.size() == 1 && p.lanes[0].spec.capture.layout.channels == 1 &&
+            std::uint64_t(p.lanes[0].spec.capture.poolSlabs) * p.lanes[0].spec.capture.slabFrames ==
+                480000;
+        throw ProjectError(ErrorCode::InvalidState, "Deliberate preparation observation");
+    };
+    RecordingController r(o);
+    auto p = recording_fixture::prepare(root, s);
+    p.armedTracks = {s.tracks.back().id};
+    p.recordFrames = 48000;
+    p.plan = MixPlan{{LayoutKind::Stereo, 2}, {{s.tracks.back().id, {{0, 0, 1}}}}};
+    r.submit(p);
+    await([&] { return r.snapshot()->errorSerial > 0; });
+    check(reached && !r.snapshot()->job && ProjectStore(root).load() == s,
+          "Unarmed track reserve incorrectly blocked an admitted mono arm");
+}
 void takeAndEdits(const std::filesystem::path &root) {
     auto s = project(root);
     auto c = std::make_shared<Counters>();
@@ -463,6 +505,8 @@ int main(int argc, char **argv) {
         QTemporaryDir temp;
         check(temp.isValid(), "Temporary recording folder unavailable");
         auto root = utf8Path(temp.path().toUtf8().toStdString());
+        reserveAdmission(root / "reserve");
+        armedReserveOnly(root / "armed-reserve");
         takeAndEdits(root / "take");
         invalidAndFault(root / "input");
         writerFailureAndRecovery(root / "writer");

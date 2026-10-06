@@ -9,6 +9,7 @@
 
 namespace soundcurrent::daw {
 inline constexpr std::uint32_t captureSlabs = 32;
+inline constexpr std::uint32_t maximumCaptureSlabs = 256;
 struct CaptureConfig {
     std::uint32_t sampleRate = 48000;
     ChannelLayout layout;
@@ -17,9 +18,14 @@ struct CaptureConfig {
     std::uint32_t slabFrames = 0;
     std::size_t memoryBudgetBytes = 128 * 1024 * 1024;
     Frame startFrame = 0;
+    // Runtime pool admission. Playback retains its separate fixed 32-slab pool.
+    std::uint32_t poolSlabs = captureSlabs;
     bool operator==(const CaptureConfig &) const = default;
 };
 CaptureConfig prepareCaptureConfig(CaptureConfig); // Validates/admission off RT.
+// Minimum disk-stall reserve, 2..20 seconds. Preserves slab/callback sizes;
+// refuses an impossible slot/memory request rather than silently reducing it.
+CaptureConfig withCaptureReserve(CaptureConfig, std::uint32_t milliseconds);
 enum class CaptureStatus : std::uint32_t {
     Running,
     Stopped,
@@ -111,12 +117,12 @@ class CapturePipe {
   private:
     CaptureConfig config_;
     std::vector<float> samples_;
-    SpscQueue<std::uint32_t, 64> free_;
-    SpscQueue<CapturePacket, 64> ready_;
-    std::uint32_t current_ = captureSlabs, used_ = 0;
+    SpscQueue<std::uint32_t, 512> free_;
+    SpscQueue<CapturePacket, 512> ready_;
+    std::uint32_t current_ = maximumCaptureSlabs, used_ = 0;
     std::uint64_t sequence_ = 0;
     Frame nextFrame_ = 0, slabStart_ = 0;
-    std::uint32_t acquired_ = captureSlabs;
+    std::uint32_t acquired_ = maximumCaptureSlabs;
     CapturePacket acquiredPacket_;
     alignas(64) std::atomic<std::uint32_t> status_{0}, done_{0}, writerFailed_{0};
     std::atomic<std::uint64_t> rejected_{0}, invalid_{0};

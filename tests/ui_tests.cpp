@@ -1032,14 +1032,24 @@ void duplexRecordingWorkflow(const std::filesystem::path &root, unsigned mode) {
               list->item(0)->checkState() == Qt::Checked &&
               !window.findChild<QCheckBox *>("armTrack")->isVisible(),
           "Multi-arm GUI did not show canonical checkable track list");
+    auto *reserve = window.findChild<QComboBox *>("recordingReserveMilliseconds");
+    check(reserve && reserve->currentData().toUInt() == 10000 && reserve->count() == 3,
+          "Recording reserve choices/default unavailable");
+    reserve->clearFocus();
+    wheel(reserve);
+    check(reserve->currentData().toUInt() == 10000, "Unfocused wheel changed recording reserve");
+    reserve->setCurrentIndex(1);
     check(window.prepareRecording(), "GUI duplex prepare refused");
+    reserve->setCurrentIndex(
+        0); // Programmatic change after accepted barrier must not alter intent.
     await([&] {
         return window.recordingSnapshot()->phase == RecordingPhase::Ready &&
                window.findChild<QComboBox *>("inputChannel2") &&
                window.findChild<QComboBox *>("monitorChannel1");
     });
     check(!window.recordingSnapshot()->job && counters->activated == 0 &&
-              window.recordingSnapshot()->endFrame == 101003 && !list->isEnabled(),
+              window.recordingSnapshot()->endFrame == 101003 && !list->isEnabled() &&
+              reserve->isEnabled() && counters->preparedCapacityFrames == 240000,
           "GUI prepare started I/O, changed explicit range or left arm list editable");
     auto *record = window.findChild<QPushButton *>("recordButton");
     record->click();

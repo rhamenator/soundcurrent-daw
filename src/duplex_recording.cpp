@@ -35,6 +35,7 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
             occupied.insert(c.id.str());
     }
     auto bytes = o.playback.graph.memoryBudgetBytes;
+    std::size_t ordinal = 0;
     for (auto &lane : lanes) {
         auto &r = lane.spec;
         r.capture = prepareCaptureConfig(r.capture);
@@ -54,10 +55,21 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
              lane.monitoring != RecordingMonitor::PostEq) ||
             lane.writer.checkpointFrames < 0 ||
             lane.writer.checkpointFrames > Frame(s.sampleRate) * 60 ||
+            lane.writer.firstCheckpointFrames < 0 ||
+            lane.writer.firstCheckpointFrames > (lane.writer.checkpointFrames
+                                                     ? lane.writer.checkpointFrames
+                                                     : Frame(s.sampleRate)) ||
             (lane.monitoring == RecordingMonitor::PostEq &&
              std::none_of(plan.tracks.begin(), plan.tracks.end(),
                           [&](const auto &p) { return p.track == r.trackId; })))
             throw ProjectError(ErrorCode::InvalidState, "Invalid duplex recording lane");
+        if (o.staggerCheckpoints && !lane.writer.firstCheckpointFrames) {
+            const auto interval =
+                lane.writer.checkpointFrames ? lane.writer.checkpointFrames : Frame(s.sampleRate);
+            lane.writer.firstCheckpointFrames =
+                std::max<Frame>(1, interval * Frame(ordinal + 1) / Frame(lanes.size()));
+        }
+        ++ordinal;
         const auto payload = armedCapturePayloadBytes(r.capture, lane.inputChannels.size());
         if (payload > o.memoryBudgetBytes - bytes)
             throw ProjectError(ErrorCode::InvalidState, "Duplex capture payload exceeds budget");

@@ -758,3 +758,68 @@ recovery and source/hash/canonical ordering. Larger pools alone do not establish
 sustained storage throughput: require the unchanged 30-minute sample/deadline
 acceptance next. Punch/loop/Auto/takes/comping/fades and every remaining product
 workflow stay in the backlog.
+
+
+## 2026-10-06 continuation: M2d4c2 admitted recording reserve
+
+Previous checkpoint **d361b87** is **progress**, not completion; the persistent
+full goal remains active and incomplete. Continue from M2d4c1's measured checkpoint
+backlog without waiving any of its eleven inherited unresolved observations.
+
+Capture now admits1..256 preallocated sample slots independently of slab/callback
+size, using fixed512-token SPSC queues and a sentinel outside all admitted slots.
+Playback stays fixed32slots. The off-RT helper admits2..20seconds, rounds up whole
+slabs and refuses impossible slot/object/per-pipe/shared budgets. Aggregate ceiling
+remains256MiB. The desktop offers2/5/10seconds(default10), captures accepted Prepare
+intent, normalizes actual armed captures and preserves immediate live monitoring.
+Unarmed front-track normalization was corrected with a256-channel-unarmed/mono-arm
+regression. First shared checkpoints distribute unspecified thresholds across one
+regular interval; explicit/disabled choices and regular completed-block cadence
+are tested. Nominal one-second frame spacing is unchanged; stalled disk publication
+has no hard durable wall-time guarantee and uncommitted memory is not crash-safe.
+
+Five targeted Release groups pass5.74s. All27Debug pass26.45s and all27ASan+UBSan+
+LSan pass66.33s, serial after all four builds terminate. Existing Windows headless
+targets compile/link only. Pool tests verify1/33/118/256slots, repeated wraps, exact
+samples/timing, returned ownership and full-prefix exhaustion; writer tests verify
+short first/regular/final cadence. Controller/UI test accepted5-second choice despite
+later widget change, invalid request no job/canonical mutation, and focus-safe wheel.
+Initial new test errors (inactive inspection of open writer, ready-selector expected
+disabled) were corrected; initial copied-recovery check incorrectly included updated
+previous-save backup, corrected with explicit backup/canonical evidence. No automatic
+restart/edit took place while an exact build/test/native handle remained live.
+
+Owned native20-second normal and controlled4-second absorption both verify all
+30,720,000 raw/1,920,000 output samples exactly, Save/reopen, overs and complete finite
+timing gates. Production helper admits118x4096=483,328frames(10.069333s). Lane17's
+4.003025413s journal stall queues0→46 slabs and recovers without rejected frames.
+Declared12-second exhaustion queues0→118 over12.003501364s, retains initiatinglane17/
+QueueFull/rejection and independent full raw extents561,152..562,176. All17,988,608raw/
+1,122,304 common stereo samples/hashes are exact, canonical unchanged. Actual recovery
+on an independent copy restores every32take and all17,988,608samples bit-for-bit with
+new IDs/recoveredFrom/origin/alignment/Save-reopen and previous-save backup. Original
+files and copied source media/journals stay unchanged; no physical microphone or
+speaker route is used.
+
+The normal120-second native retake then passes all184,320,000raw/11,520,000output
+samples, peak4.1435 and Save/reopen. Owner complete5625call timing p99.9=4.805532ms/
+max13.698197ms(22.526%/64.210%period), source/sink also meet unchanged gates. Maximum
+ready queue1slab, flush89.351638ms,journal56.715259ms,writegap98.962843ms. All phase
+pairs complete, no audited host callback allocations/frees/blocking locks. Defaults
+and prior links unchanged; no owned nodes/links remain. This run and injected
+absorption do not prove original underlying filesystem/scheduling causes or sustained
+throughput. All eleven inherited failures, originals and source hashes are retained.
+
+[Contract](41-checkpoint-burst-policy.md), [ADR-031](decisions/031-admitted-capture-reserve-and-checkpoint-phases.md)
+and [evidence](../tests/results/M2/2026-10-06-checkpoint-burst-policy.json) record scoped
+facts. All24equalizer snapshots/heads re-audit unchanged, with no writes. No new
+library/license choice, push or publication. All92frozen acceptance/quality/reference/
+F/Q/C/N contracts stay intact and unpromoted. M1/M2, Windows native/Qt/install,
+physical/load/filesystem/power-loss/unload/full professional workflows, X004, X005
+and all-Europe localization remain required; full goal remains **active/incomplete**.
+
+Next **M2d4c3**: run the unchanged1800-second native workload and full sample/current-
+period timing gates with the admitted reserve, serial after all CPU/recovery work.
+Retain every phase, clock, source/media/hash and scheduler fact on pass or failure;
+no shorter sample or compile gate substitutes for it. Then qualify remaining
+independent reliability/platform/physical gates and continue the staged full backlog.

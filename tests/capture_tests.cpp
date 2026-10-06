@@ -180,6 +180,78 @@ void failures() {
     c.layout.channels = 2;
     rejects([&] { CapturePipe badLayout(c); });
 }
+void admittedPools() {
+    CaptureConfig c;
+    c.slabFrames = 4096;
+    const auto reserved = withCaptureReserve(c, 10000);
+    check(reserved.poolSlabs == 118 && reserved.slabFrames == c.slabFrames &&
+              reserved.maximumCallbackFrames == c.maximumCallbackFrames,
+          "Disk reserve altered block/callback size or rounded below requested capacity");
+    rejects([&] { withCaptureReserve(c, 1999); });
+    rejects([&] { withCaptureReserve(c, 20001); });
+    c.slabFrames = 256;
+    rejects([&] { withCaptureReserve(c, 2000); }); // 375 slots cannot fit 256-token admission.
+    c.poolSlabs = 0;
+    rejects([&] { prepareCaptureConfig(c); });
+    c.poolSlabs = 257;
+    rejects([&] { prepareCaptureConfig(c); });
+    c = reserved;
+    c.memoryBudgetBytes = std::size_t(c.poolSlabs) * c.slabFrames * sizeof(float);
+    rejects([&] { prepareCaptureConfig(c); }); // Queue/object memory is part of the budget.
+    std::array<float, 256> input{};
+    for (unsigned slots : {1u, 33u, 118u, 256u}) {
+        c = {};
+        c.slabFrames = 256;
+        c.poolSlabs = slots;
+        CapturePipe pipe(c);
+        const float *p = input.data();
+        Frame frame = 0;
+        CapturedSlab slab;
+        for (unsigned lap = 0; lap < 5; ++lap) {
+            for (unsigned n = 0; n < slots; ++n) {
+                input.fill(float(frame));
+                CaptureReport r;
+                {
+                    rt_audit::Guard guard;
+                    r = pipe.push({&p, 1}, 256, frame);
+                }
+                check(r.acceptedFrames == 256 && !r.rejectedFrames,
+                      "Admitted pool exhausted early");
+                frame += 256;
+            }
+            check(pipe.consumerBacklog().readySlabs == slots &&
+                      pipe.consumerBacklog().capacityFrames == slots * 256,
+                  "Admitted backlog capacity differs");
+            for (unsigned n = 0; n < slots; ++n) {
+                check(pipe.acquire(slab), "Admitted pool lost a slab after queue wrap");
+                check(slab.packet.firstFrame == frame - Frame(slots - n) * 256 &&
+                          slab.interleaved.front() == float(slab.packet.firstFrame),
+                      "Queue wrap changed timing or samples");
+                check(pipe.release(slab) && !pipe.release(slab), "Pool accepted duplicate release");
+            }
+        }
+        for (unsigned n = 0; n < slots; ++n) {
+            rt_audit::Guard guard;
+            pipe.push({&p, 1}, 256, frame);
+            frame += 256;
+        }
+        CaptureReport r;
+        {
+            rt_audit::Guard guard;
+            r = pipe.push({&p, 1}, 1, frame);
+            pipe.finish();
+        }
+        check(r.acceptedFrames == 0 && r.rejectedFrames == 1 &&
+                  r.status == CaptureStatus::QueueFull,
+              "Pool exhaustion overwrote accepted prefix");
+        unsigned count = 0;
+        while (pipe.acquire(slab)) {
+            ++count;
+            check(pipe.release(slab), "Pool prefix release failed");
+        }
+        check(count == slots && pipe.drained(), "Exhaustion lost accepted pool prefix");
+    }
+}
 void backlog() {
     CaptureConfig c;
     c.slabFrames = 256;
@@ -221,6 +293,7 @@ int main() {
                 exactPackets(channels, quantum);
         failures();
         backlog();
+        admittedPools();
         const auto a = rt_audit::counts;
         check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,
               "RT capture allocated, freed or locked");

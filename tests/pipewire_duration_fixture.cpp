@@ -33,7 +33,7 @@ float fileSignal(Frame f) noexcept {
     return float(double(f % 53 - 26) * .0625);
 }
 // Fixed worker-only phase measurements. Controlled stalls are opt-in fixture
-// behavior; the production pool/durability policy and audio callback are unchanged.
+// behavior; pool reserve/first-phase admission uses the production policy.
 struct DiskTiming {
     native_fixture::WriterTiming timing;
     unsigned stallMilliseconds = 0;
@@ -434,7 +434,7 @@ int main(int argc, char **argv) {
         const std::string mode = argv[3];
         require(seconds >= 1 && seconds <= 1800 &&
                     (mode == "normal" || mode == "sink-gap" || mode == "writer-stall" ||
-                     mode == "verify-retained"),
+                     mode == "stall-absorb" || mode == "verify-retained"),
                 "Unsupported native duration range/mode");
         if (mode == "verify-retained") {
             verifyRetained(root);
@@ -466,6 +466,7 @@ int main(int argc, char **argv) {
         c.startFrame = start;
         c.maximumCallbackFrames = 2048;
         c.slabFrames = block;
+        c = withCaptureReserve(c, 10000);
         std::vector<DuplexRecordingLane> lanes;
         std::array<DiskTiming, arms + 1> diskTiming;
         for (unsigned n = 0; n < arms; ++n) {
@@ -476,8 +477,8 @@ int main(int argc, char **argv) {
             lane.monitoring = RecordingMonitor::PostEq;
             lane.writer.checkpointFrames = rate;
             lane.writer.instrumentation = {&diskTiming[n], DiskTiming::observe};
-            if (mode == "writer-stall" && n == 17)
-                diskTiming[n].stallMilliseconds = 4000;
+            if ((mode == "writer-stall" || mode == "stall-absorb") && n == 17)
+                diskTiming[n].stallMilliseconds = mode == "writer-stall" ? 12000 : 4000;
             lanes.push_back(std::move(lane));
         }
         Audit ownerAudit;
@@ -665,7 +666,9 @@ int main(int argc, char **argv) {
                     "Controlled stall changed canonical project or sink hash");
             std::cout << "{\"mode\":\"writer-stall\",\"owned_nodes_only\":true,"
                          "\"capture_failed_retained\":true,\"initiating_lane\":17,"
-                         "\"injected_journal_stall_ms\":4000,\"verified_raw_samples\":"
+                         "\"injected_journal_stall_ms\":12000,\"pool_slabs\":118,\"reserve_"
+                         "frames\":483328,"
+                         "\"verified_raw_samples\":"
                       << raw << ",\"verified_output_samples\":" << checked.output
                       << ",\"common_output_frames\":" << common
                       << ",\"minimum_raw_frames\":" << minimum
@@ -722,7 +725,14 @@ int main(int argc, char **argv) {
         ProjectStore(root).save(s);
         require(ProjectStore(root).load() == s, "Native duration save/reopen lost takes");
         ProjectStore(root).verifyMedia(s);
-        std::cout << "{\"mode\":\"normal\",\"owned_nodes_only\":true,\"seconds\":" << seconds
+        if (mode == "stall-absorb")
+            require(diskTiming[17].injected, "Absorption test did not inject a disk stall");
+        std::cout << "{\"mode\":\"" << mode
+                  << "\",\"owned_nodes_only\":true,\"seconds\":" << seconds
+                  << ",\"pool_slabs\":" << c.poolSlabs
+                  << ",\"reserve_frames\":" << std::uint64_t(c.poolSlabs) * c.slabFrames
+                  << ",\"reserve_requested_ms\":10000,\"first_checkpoints_staggered\":true"
+                  << ",\"injected_journal_stall_ms\":" << diskTiming[17].stallMilliseconds
                   << ",\"armed_tracks\":32,\"file_tracks\":1,\"bands_per_track\":"
                   << s.tracks[0].eq.bands.size() << ",\"frames_per_raw_take\":" << target
                   << ",\"sink_frames\":" << sinkResult->asset.frames

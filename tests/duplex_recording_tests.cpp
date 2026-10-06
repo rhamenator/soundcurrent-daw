@@ -222,6 +222,51 @@ void normal() {
     check(ProjectStore(d.root).load() == s, "Recorded model did not reopen identically");
     rejects([&] { run.startWriters(); });
 }
+void checkpointPhases() {
+    for (unsigned variant = 0; variant < 3; ++variant) {
+        Directory d;
+        const auto s = session(d.root, 3);
+        auto a = lanes(s);
+        auto o = options(3);
+        o.staggerCheckpoints = variant != 1;
+        std::array<std::vector<Frame>, 3> checkpoints;
+        for (unsigned n = 0; n < 3; ++n) {
+            a[n].writer.checkpointFrames = 4096;
+            if (variant == 2 && n == 1)
+                a[n].writer.firstCheckpointFrames = 512;
+            a[n].writer.boundary = [&, n](RecordingBoundary b, Frame f) {
+                if (b == RecordingBoundary::BeforeJournalPublish && f)
+                    checkpoints[n].push_back(f); // Single disk owner, inspected only after join.
+            };
+        }
+        DuplexRecordingRun run(d.root, s, plan(s), a, o);
+        run.startWriters();
+        Source source(3);
+        while (run.position() < o.playback.endFrame) {
+            const auto status = source.process(run);
+            check(status == DuplexStatus::Running || status == DuplexStatus::Complete,
+                  "Checkpoint phase workflow faulted");
+            pause();
+        }
+        run.stop();
+        for (unsigned n = 0; n < 3; ++n) {
+            const Frame first =
+                variant == 1
+                    ? 4096
+                    : (variant == 2 && n == 1 ? 512
+                                              : ((4096 * Frame(n + 1) / 3 + 511) / 512) * 512);
+            check(!checkpoints[n].empty() && checkpoints[n].front() == first,
+                  "Automatic, disabled or explicit first checkpoint phase differs");
+            for (std::size_t k = 1; k < checkpoints[n].size(); ++k)
+                check(checkpoints[n][k] == 9966 ||
+                          checkpoints[n][k] - checkpoints[n][k - 1] == 4096,
+                      "Phase changed regular completed-block checkpoint spacing");
+            const auto journal = inspectRecording(*run.jobDirectory(n), {}, true);
+            check(journal.finalized && journal.committedFrames == 9966,
+                  "Checkpoint phases lost finalized inactive recovery prefix");
+        }
+    }
+}
 void admission() {
     Directory d;
     auto s = session(d.root, 3);
@@ -246,6 +291,9 @@ void admission() {
     test([](auto &a, auto &, auto &) { a[1].spec.capture.maximumCallbackFrames = 128; });
     test([](auto &a, auto &, auto &) { a[1].spec.inputLatencyFrames = -1; });
     test([](auto &a, auto &, auto &) { a[1].writer.checkpointFrames = -1; });
+    test([](auto &a, auto &, auto &) { a[1].writer.firstCheckpointFrames = -1; });
+    test([](auto &a, auto &, auto &) { a[1].writer.firstCheckpointFrames = 513; });
+    test([](auto &a, auto &, auto &) { a[1].spec.capture.poolSlabs = 257; });
     test([](auto &a, auto &, auto &) { a[1].spec.recoveredFrom = Id::generate(); });
     test([](auto &, auto &cfg, auto &) { cfg.nativeInputs = 257; });
     test([](auto &, auto &, auto &mp) { mp.tracks.erase(mp.tracks.begin() + 1); });
@@ -457,6 +505,7 @@ int main() {
     try {
         rt_audit::reset();
         normal();
+        checkpointPhases();
         admission();
         activationFailure();
         failureAndRecovery(false);

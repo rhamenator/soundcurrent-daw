@@ -90,30 +90,38 @@ def run(binary, seconds, mode, diagnostics):
             assert not after['owned'] and not after['edges'], 'Native duration nodes/links leaked'
     result = json.loads(stdout_path.read_text())
     assert result['mode'] == mode and result['owned_nodes_only'] and linked > 0
-    if mode == 'normal':
+    if mode in ('normal', 'stall-absorb'):
         frames = seconds * 48000
         assert result['frames_per_raw_take'] == result['sink_frames'] == frames
         assert result['verified_raw_samples'] == 32 * frames and result['verified_output_samples'] == 2 * frames
         assert result['maximum_sample_difference'] == result['missing_track_frames'] == 0
         assert result['rt_allocations'] == result['rt_frees'] == result['rt_blocking_locks'] == 0
         assert result['save_reopen'] and result['maximum_output_peak'] > 1
+        assert result['pool_slabs'] == 118 and result['reserve_frames'] == 483328
+        assert result['first_checkpoints_staggered'] and result['reserve_requested_ms'] == 10000
+        if mode == 'stall-absorb':
+            assert result['injected_journal_stall_ms'] == 4000
+            timing = result['disk_timing'][17]
+            journal = next(p for p in timing['phase_summaries'] if p['phase'] == 'journal_publish')
+            assert timing['phase_pairs_complete'] and journal['maximum_ns'] >= 4_000_000_000
+            assert 40 <= journal['end_ready_slabs'] < result['pool_slabs']
         assert result['stream_wall_seconds'] >= seconds - .1, 'Native range ran faster than declared duration'
         assert all(t['samples'] == t['calls'] and t['complete_timing_coverage'] for t in result['callback_timing'].values())
         result['observed_native_clock_node'] = diagnostics.get('active_native_nodes', inventory).get(str(result['clock_id']))
         result['finite_deadline_thresholds_met'] = all(t['finite_deadline_thresholds_met'] for t in result['callback_timing'].values())
-        result['declared_30_minute_native_sample_qualified'] = seconds >= 1800
-        result['declared_30_minute_fixed_workload_deadline_qualified'] = seconds >= 1800 and result['finite_deadline_thresholds_met']
+        result['declared_30_minute_native_sample_qualified'] = mode == 'normal' and seconds >= 1800
+        result['declared_30_minute_fixed_workload_deadline_qualified'] = mode == 'normal' and seconds >= 1800 and result['finite_deadline_thresholds_met']
     elif mode == 'writer-stall':
         assert result['capture_failed_retained'] and result['initiating_lane'] == 17
-        assert result['injected_journal_stall_ms'] == 4000 and result['canonical_unchanged']
+        assert result['injected_journal_stall_ms'] == 12000 and result['canonical_unchanged']
         assert result['verified_raw_samples'] > 0 and result['verified_output_samples'] > 0
         assert result['maximum_sample_difference'] == 0
         assert result['rt_allocations'] == result['rt_frees'] == result['rt_blocking_locks'] == 0
         assert result['minimum_raw_frames'] <= result['maximum_raw_frames'] < seconds * 48000
         timing = result['disk_timing'][17]
-        assert timing['phase_pairs_complete'] and timing['maximum_ready_slabs'] == 32
+        assert timing['phase_pairs_complete'] and timing['maximum_ready_slabs'] == result['pool_slabs'] == 118
         journal = next(p for p in timing['phase_summaries'] if p['phase'] == 'journal_publish')
-        assert journal['maximum_ns'] >= 4_000_000_000 and journal['end_ready_slabs'] == 32
+        assert journal['maximum_ns'] >= 12_000_000_000 and journal['end_ready_slabs'] == 118
         assert journal['end_committed_frames'] >= journal['begin_written_frames']
     else:
         assert result['device_lost_retained'] and result['verified_raw_samples'] > 0
@@ -135,12 +143,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--seconds', type=int, default=1800)
-    parser.add_argument('--modes', nargs='+', choices=['normal', 'sink-gap', 'writer-stall'], default=['normal'])
+    parser.add_argument('--modes', nargs='+', choices=['normal', 'sink-gap', 'writer-stall', 'stall-absorb'], default=['normal'])
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--failure-output', type=Path, required=True)
     args = parser.parse_args()
     assert 1 <= args.seconds <= 1800
-    assert 'writer-stall' not in args.modes or args.seconds >= 8, 'Writer stall needs at least eight seconds'
+    assert 'stall-absorb' not in args.modes or args.seconds >= 8, 'Stall absorption needs at least eight seconds'
+    assert 'writer-stall' not in args.modes or args.seconds >= 20, 'Writer exhaustion needs at least twenty seconds'
     results = []
     diagnostics = {}
     try:

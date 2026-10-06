@@ -59,8 +59,9 @@ std::size_t armedCapturePayloadBytes(CaptureConfig config, std::size_t inputs) {
     config = prepareCaptureConfig(config);
     if (inputs != config.layout.channels)
         throw ProjectError(ErrorCode::InvalidState, "Invalid armed input shape");
-    return std::size_t(captureSlabs) * config.slabFrames * config.layout.channels * sizeof(float) +
-           8192 + inputs * (sizeof(std::uint32_t) + sizeof(float *));
+    return std::size_t(config.poolSlabs) * config.slabFrames * config.layout.channels *
+               sizeof(float) +
+           sizeof(CapturePipe) + 8192 + inputs * (sizeof(std::uint32_t) + sizeof(float *));
 }
 struct DuplexBridge::State {
     struct Lane {

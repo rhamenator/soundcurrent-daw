@@ -96,6 +96,8 @@ class StudioWindow : public QMainWindow {
     QCheckBox *multiRecord_;
     QListWidget *armedTracksList_;
     QSpinBox *recordSeconds_;
+    QComboBox *recordReserve_;
+    std::uint32_t recordPreparationReserveMilliseconds_ = 10000;
     QLabel *recordRangeLabel_;
     std::vector<Id> armedTracksSelection_, recordPreparationArms_;
     Frame recordRangeOverride_ = 0, recordPreparationFrames_ = 0;

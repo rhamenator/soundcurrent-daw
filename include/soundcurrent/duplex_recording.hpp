@@ -16,6 +16,7 @@ struct DuplexRecordingOptions {
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     CaptureBackend backend = CaptureBackend::Unknown;
     ReadAheadOptions reader;
+    bool staggerCheckpoints = true;
 };
 struct DuplexCaptureSnapshot {
     Frame captured = 0, written = 0;

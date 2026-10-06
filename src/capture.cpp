@@ -33,17 +33,31 @@ CaptureConfig prepareCaptureConfig(CaptureConfig config) {
             std::max(256u, (config.sampleRate * 2 + captureSlabs - 1) / captureSlabs);
     require(config.slabFrames >= 256 && config.slabFrames <= 65536,
             "Capture slab size out of range");
-    const auto count = std::size_t(captureSlabs) * config.slabFrames * l.channels;
+    require(config.poolSlabs >= 1 && config.poolSlabs <= maximumCaptureSlabs,
+            "Capture pool slot count out of range");
+    const auto count = std::uint64_t(config.poolSlabs) * config.slabFrames * l.channels;
     require(config.memoryBudgetBytes <= 256 * 1024 * 1024 &&
-                count <= config.memoryBudgetBytes / sizeof(float),
+                config.memoryBudgetBytes >= sizeof(CapturePipe) &&
+                count <= (config.memoryBudgetBytes - sizeof(CapturePipe)) / sizeof(float),
             "Capture memory budget exceeded");
     return config;
 }
+CaptureConfig withCaptureReserve(CaptureConfig config, std::uint32_t milliseconds) {
+    require(milliseconds >= 2000 && milliseconds <= 20000,
+            "Choose a recording disk-stall reserve of 2..20 seconds");
+    config = prepareCaptureConfig(config);
+    const auto frames = (std::uint64_t(config.sampleRate) * milliseconds + 999) / 1000;
+    const auto slots = (frames + config.slabFrames - 1) / config.slabFrames;
+    require(slots <= maximumCaptureSlabs, "Recording reserve exceeds bounded pool slots");
+    config.poolSlabs = std::max(config.poolSlabs, std::uint32_t(slots));
+    return prepareCaptureConfig(config);
+}
 CapturePipe::CapturePipe(CaptureConfig config)
     : config_(prepareCaptureConfig(config)), nextFrame_(config.startFrame) {
-    const auto count = std::size_t(captureSlabs) * config_.slabFrames * config_.layout.channels;
+    const auto count =
+        std::size_t(config_.poolSlabs) * config_.slabFrames * config_.layout.channels;
     samples_.resize(count); // Allocates and touches every sample off RT.
-    for (std::uint32_t i = 0; i < captureSlabs; ++i)
+    for (std::uint32_t i = 0; i < config_.poolSlabs; ++i)
         free_.tryPush(i);
 }
 CaptureStatus CapturePipe::status() const noexcept {
@@ -66,11 +80,11 @@ void CapturePipe::writerFailed() noexcept {
     writerFailed_.store(1, std::memory_order_release);
 }
 void CapturePipe::publishCurrent() noexcept {
-    if (current_ != captureSlabs && used_) {
+    if (current_ != maximumCaptureSlabs && used_) {
         // A ready queue twice the pool size cannot be full: each token owns
-        // one of only 32 slabs. Neither owner can manufacture extra tokens.
+        // one of only the admitted pool slots. Neither owner can manufacture extra tokens.
         ready_.tryPush({sequence_++, slabStart_, used_, current_});
-        current_ = captureSlabs;
+        current_ = maximumCaptureSlabs;
         used_ = 0;
     }
 }
@@ -97,7 +111,7 @@ CaptureReport CapturePipe::push(std::span<const float *const> input, std::uint32
         return report;
     }
     while (report.acceptedFrames < frames) {
-        if (current_ == captureSlabs) {
+        if (current_ == maximumCaptureSlabs) {
             if (!free_.tryPop(current_)) {
                 state = CaptureStatus::QueueFull;
                 break;
@@ -163,7 +177,7 @@ void CapturePipe::finish(CaptureEndReason reason) noexcept {
     done_.store(1, std::memory_order_release);
 }
 bool CapturePipe::acquire(CapturedSlab &slab) noexcept {
-    if (acquired_ != captureSlabs || !ready_.tryPop(slab.packet))
+    if (acquired_ != maximumCaptureSlabs || !ready_.tryPop(slab.packet))
         return false;
     acquired_ = slab.packet.slab;
     acquiredPacket_ = slab.packet;
@@ -173,24 +187,24 @@ bool CapturePipe::acquire(CapturedSlab &slab) noexcept {
     return true;
 }
 bool CapturePipe::release(const CapturedSlab &slab) noexcept {
-    if (acquired_ == captureSlabs || slab.packet != acquiredPacket_ ||
+    if (acquired_ == maximumCaptureSlabs || slab.packet != acquiredPacket_ ||
         slab.interleaved.data() != samples_.data() + std::size_t(acquired_) * config_.slabFrames *
                                                          config_.layout.channels ||
         slab.interleaved.size() != std::size_t(acquiredPacket_.frames) * config_.layout.channels)
         return false;
     if (!free_.tryPush(acquired_))
         return false;
-    acquired_ = captureSlabs;
+    acquired_ = maximumCaptureSlabs;
     return true;
 }
 bool CapturePipe::drained() const noexcept {
     CapturePacket packet;
-    return producerDone() && acquired_ == captureSlabs && !ready_.tryPeek(packet);
+    return producerDone() && acquired_ == maximumCaptureSlabs && !ready_.tryPeek(packet);
 }
 CaptureBacklog CapturePipe::consumerBacklog() const noexcept {
     const auto ready = ready_.consumerAvailable();
-    const auto acquired = acquired_ == captureSlabs ? 0u : acquiredPacket_.frames;
-    const auto capacity = std::uint64_t(captureSlabs) * config_.slabFrames;
+    const auto acquired = acquired_ == maximumCaptureSlabs ? 0u : acquiredPacket_.frames;
+    const auto capacity = std::uint64_t(config_.poolSlabs) * config_.slabFrames;
     return {ready, acquired, std::uint64_t(ready) * config_.slabFrames + acquired, capacity};
 }
 } // namespace soundcurrent::daw
