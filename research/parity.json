@@ -113,7 +113,7 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_stopping_automatically_with_punch_out_t.html?contentId=AEYzYZAVOduo2XfpBAp3yQ",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: prepared immutable raw and per-lane project-frame punch windows, declared input-latency alignment and bounded postroll. Synthetic delayed-signal fixtures qualify exact nonaligned/one-sample boundaries, partition independence, raw mono/stereo and alias-safe full-block monitoring, separate first-sample origins, joined attachment, original-media preservation, grouped undo/redo, Save/reopen and interrupted durable prefixes. Schema 1.4 persists canonical settings with strict 1.0–1.3 migration, exact integer locators and retained disabled ranges. Linux desktop dialog/toggle, barrier preparation, admitted postroll, explicit arm clearing and retired-end display are qualified with synthetic real-reader/writer endpoints. A short owned native PipeWire engine fixture now verifies 32 differently delayed raw windows/origins and exact timeline waveforms, full preroll/postroll file/live signed stereo monitoring, journals/hashes/alignment, grouped undo/redo and Save/reopen. Complete elapsed/CPU/resource/current-cycle coverage passes unchanged finite gates. Full native desktop workflow, interrupted/fault punch modes, measured backend/physical latency, sustained/non-flat workload, Windows Qt/native/runtime and all tempo/manual/Auto/loop/take/comping reference workflows remain unqualified. All 21 historical observations remain; the earlier unidentified SAN selection/preparation refusal is not assigned a cause or erased. Full F/Q/C/N parity remains unverified.",
+      "implementation": "Partial: prepared raw/project-frame punch windows and per-lane declared input-delay alignment now have bounded synthetic, saved desktop and short owned native desktop/fault-recovery evidence. Schema 1.6 retains project punch settings, input delays and explicit recording-only Auto. Deferred one-shot starts preserve immutable disk binding. A framework-independent manual-punch owner now keeps playback and continuous EQ running across replenishable take slots with reliable bounded FIFO command replies and delayed postroll. Synthetic real-reader/writer workflows cover nonaligned repeated windows, aliasing, four distinct delays, exact raw/continuous output, grouped Undo/Redo, Save/reopen, late/completed-before-worker startup, nine independently durable interruption prefixes and twenty concurrent control/audio slot retirements. Native/desktop runtime manual-punch adapters and automatic disk/group lifetime enforcement remain required. Full reference monitor/record modes, indefinite transport/loop/take/comping, measured physical latency, sustained workload, Windows Qt/native/runtime and all F/Q/C/N parity remain unverified. All 27 historical observations are retained; original unlogged terms and prior sustained failures are not resolved by short/synthetic passes.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -128,7 +128,15 @@
         "docs/54-project-punch-controls.md",
         "tests/results/M2/2026-10-06-project-punch-controls.json",
         "docs/55-native-punch-qualification.md",
-        "tests/results/M2/2026-10-06-native-punch.json"
+        "tests/results/M2/2026-10-06-native-punch.json",
+        "docs/56-native-desktop-punch.md",
+        "tests/results/M2/2026-10-06-native-punch-fault-recovery.json",
+        "docs/59-native-punch-fault-recovery.md",
+        "docs/60-input-latency-controls.md",
+        "docs/61-auto-recording-monitoring.md",
+        "docs/62-deferred-capture-start.md",
+        "docs/63-manual-punch-engine-owner.md",
+        "tests/results/M2/2026-10-06-manual-punch-engine-owner.json"
       ]
     },
     {

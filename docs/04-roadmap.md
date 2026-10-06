@@ -318,3 +318,22 @@ per-lane delayed capture/postroll, continuous mix/EQ and safe writer/group retir
 The current fixed-start native regression does not qualify a deferred native owner.
 Repeated takes, desktop controls, ordered Stop/fault recovery and all frozen
 reference, sustained, Windows and localization gates remain required.
+
+
+## M2 runtime manual-punch engine checkpoint (2026-10-06)
+
+[Manual-punch engine owner](63-manual-punch-engine-owner.md) now keeps playback and
+EQ running across replenishable take slots with reliable bounded FIFO replies,
+separate per-lane delayed raw windows and safe release-published retirement.
+Synthetic real-reader/writer workflows verify exact repeated windows/output,
+grouped Undo/Redo/Save-reopen, delayed/completed-before-worker startup, nine fault
+prefix recoveries, exact end-boundary receipts, empty delayed stop and twenty
+concurrent control/audio slot replacements. This extends P004 implementation
+evidence without promoting its frozen F/Q/C/N requirements.
+
+Next build the production off-audio recording control owner: start/join disk
+workers, retain initiating errors, validate grouped results, enforce empty-take
+handling and preserve pending/retired lifetime through Stop/fault and cancellation.
+Then integrate and qualify the owned PipeWire adapter and canonical desktop
+manual controls. Native/sustained/physical, independent Windows, broader monitoring,
+loop/take/comping, imports/profiles and all-Europe/full-suite gates remain required.
