@@ -57,7 +57,8 @@ class StudioWindow : public QMainWindow {
     TimelineEditor *timeline_ = nullptr;
     mutable std::shared_ptr<const Session> inspectorSource_, inspectorProjection_;
     mutable std::optional<Id> inspectorTrack_;
-    std::shared_ptr<const ControllerSnapshot> inspectorSnapshot() const;
+    std::shared_ptr<const ControllerSnapshot>
+    inspectorSnapshot(std::shared_ptr<const ControllerSnapshot> canonical = {}) const;
     std::optional<Id> playbackTrack_, recordingTrack_, recordPreparationTrack_, exportTrack_;
     bool polling_ = false;
     std::uint64_t playbackPrepareBarrier_ = 0;

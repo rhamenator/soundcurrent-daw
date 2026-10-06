@@ -1,0 +1,202 @@
+{
+  "date": "2026-10-06",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "6d2bf2607c326c9180fb187aa7fc07613e807d77",
+  "classification": "Progress: deterministic published-selection synchronization; original unknown sanitizer admission state retained",
+  "source_sha256": {
+    "ui/studio_window.cpp": "c202d458dcd47cbfdbae2680fb8b83df2499f3470682dbb29da2c60dc14cbe1c",
+    "ui/studio_window.hpp": "b55a543621aec3df64a2c9d7b18d02a37eff9c0a9f79043694db34de1b44039c",
+    "tests/timeline_ui_tests.cpp": "a49280e2ca4d38bd41e1a192cd6ace3aa3d50b1783b150fa790e2284a8cdff0d"
+  },
+  "reproduction": {
+    "product_revision": "6d2bf26",
+    "source_and_binary_sha256": {
+      "ui/studio_window.hpp": "9634df35fa7248d520bc97144110a0e63c45bbcbd210309afa658ab4f2a25166",
+      "ui/studio_window.cpp": "abf1fea556b59775c6f6ae553cd345ec9e550a11af35f24397846379ec726329",
+      "tests/timeline_ui_tests.cpp": "9206c9366f60105900c2e3b31abc0f0faf39e5d929f6d5ec659d4da429159f94",
+      ".cache/build-desktop/sc-timeline-ui-tests": "8139010ddfab0c959965797e4594d7df82d3c00f1e359a94ebff59ae1eb5a5be"
+    },
+    "frozen_binary": {
+      "path": ".cache/selection-before-poll-frozen-6d2bf26/sc-timeline-ui-tests",
+      "sha256": "8139010ddfab0c959965797e4594d7df82d3c00f1e359a94ebff59ae1eb5a5be"
+    },
+    "exact_handle_88849": "terminal exit1 with deterministic Published track selection refused before GUI poll"
+  },
+  "fix": {
+    "selection_polls_current_canonical_before_resolving_ID": true,
+    "timeline_and_inspector_share_one_captured_canonical_snapshot_per_redraw": true,
+    "stable_selection_does_not_change_canonical_project_or_start_audio": true,
+    "factory_prepares_requested_track": true,
+    "no_engine_backend_schema_parameter_change": true
+  },
+  "tests": {
+    "before_exact_88849": "terminal exit1 at selection rejection before product edit",
+    "after_first_94446": "terminal exit1 with known test-only wrong list-count assumption3 versus fixture2; selection itself succeeded",
+    "corrected_82263": "terminal exit0 before subsequent builds",
+    "all_builds_82075_32871_56680": "terminal exit0 before test execution",
+    "debug_three_desktop_groups": {
+      "passed": 3,
+      "total": 3,
+      "seconds": 7.62
+    },
+    "release_deterministic_selection": true,
+    "full_sanitizers_57394": {
+      "passed": 29,
+      "total": 29,
+      "seconds": 66.3,
+      "ASAN_OPTIONS": "detect_leaks=1",
+      "UBSAN_OPTIONS": "halt_on_error=1",
+      "competing_own_build_or_test_processes": false
+    },
+    "windows_native_runtime_qualified": false,
+    "punch_binaries_and_windows_core_unchanged": true
+  },
+  "artifacts": [
+    {
+      "path": ".cache/m2-selection-before-poll-after.log",
+      "bytes": 99,
+      "sha256": "1d7eb992ec1b3f30528cba6c2b03285519d122b797bd67877aaa3cd270889bb9"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-before.log",
+      "bytes": 100,
+      "sha256": "018cc6f3ad54e03ba5a8c359c2436dbc8abfa645512335e5ee2bb6eff5cfaaee"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-debug-all-build.log",
+      "bytes": 1409,
+      "sha256": "62d2bc7831b55f221f614131347ad4c556da240b1e36b3616e099247402da254"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-debug-build.log",
+      "bytes": 227,
+      "sha256": "099aef4ab79eb96e6b5a5714cf7face0a251db93390a1a45023d3d9a165000b1"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-debug-rebuild.log",
+      "bytes": 142,
+      "sha256": "260554cedd3b70a48e40919f2b5c1395585f90a1a0cee6c7e937a243f78331e7"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-debug-tests.log",
+      "bytes": 439,
+      "sha256": "1c2494437fb3b5e2c86f423b1a8c346efc2a72bb1fa3798dfc72fa7d500784e7"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-release-all-build.log",
+      "bytes": 1642,
+      "sha256": "f1f179beec2278b7135189184a20a1690619e1eb98e17c875cc43c81b709d7e2"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-release-tests.log",
+      "bytes": 99,
+      "sha256": "1d7eb992ec1b3f30528cba6c2b03285519d122b797bd67877aaa3cd270889bb9"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-reproduction-build.log",
+      "bytes": 142,
+      "sha256": "260554cedd3b70a48e40919f2b5c1395585f90a1a0cee6c7e937a243f78331e7"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-sanitized-all-build.log",
+      "bytes": 1642,
+      "sha256": "b3c637208be733c1c7ccd18c9310f8fa97a907410eb0b59827f7dd5ab915e3e0"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-sanitized-all-tests.log",
+      "bytes": 3280,
+      "sha256": "636e12259582585cdbc5edf62a79f9bf4ebdefa85dbb1526034dc1ad23015fcd"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-wrong-fixture-count.log",
+      "bytes": 96,
+      "sha256": "0e36391fe69a8d487d59a4a1912f14659eaca83ffd97399c757f06df05be4646"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-original-launch.json",
+      "bytes": 782,
+      "sha256": "cac3ff5665dea447a71a3c8155e6b6611445076acc1611c7a8119c49c3cc8923"
+    },
+    {
+      "path": ".cache/m2-selection-before-poll-reuse-audit.json",
+      "bytes": 7215,
+      "sha256": "2ed2aa21508265dbd7382ba8afd9394946c23b806f293e56afdf208450c2ca22"
+    },
+    {
+      "path": ".cache/selection-before-poll-frozen-6d2bf26/sc-timeline-ui-tests",
+      "bytes": 32416984,
+      "sha256": "8139010ddfab0c959965797e4594d7df82d3c00f1e359a94ebff59ae1eb5a5be"
+    }
+  ],
+  "binaries": [
+    {
+      "path": ".cache/build-desktop/sc-timeline-ui-tests",
+      "bytes": 32422856,
+      "sha256": "cdf21fea5715a9190d97979ce3f302845a794d11f1228ddd8bc056e5ba7ca1db"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-timeline-ui-tests",
+      "bytes": 107000416,
+      "sha256": "cc4095e8bbebaa9bd4ed6ec4c21a21a03213375a914858f3c0920f713a062f91"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-timeline-ui-tests",
+      "bytes": 2492936,
+      "sha256": "6a25f2024669cd68c2034e7e010cf9d2afcb50c02415779723ffb8d5931fde19"
+    },
+    {
+      "path": ".cache/build-desktop-release/soundcurrent-daw",
+      "bytes": 2306544,
+      "sha256": "8816171b3dfb0757adb9baca9be2e53eea26fa590e7587582e7cf96051cb2f9a"
+    }
+  ],
+  "prior_failure_evidence": {
+    "evidence": {
+      "path": "tests/results/M2/2026-10-06-punch-capture-foundation.json",
+      "bytes": 11022,
+      "sha256": "e7cd69f9639d9d7f0542b48d9462fe683aaf1c5e00518c169913c2eb4693d258"
+    },
+    "count": 21,
+    "all_retained": true,
+    "original21_branch_admission_state_unknown": true,
+    "new_deterministic_bug_does_not_prove_original21_cause": true,
+    "unchanged_original21_artifacts": true
+  },
+  "equalizer_audit": {
+    "inputs": 24,
+    "match": true,
+    "heads": {
+      "soundcurrent-eq": "ef87754b261fab76d3be21d06f74e58de8cd6475",
+      "soundcurrent-studio": "b829deb9871ff34a76c1195313c97603952a084b"
+    },
+    "writes": false
+  },
+  "parity": {
+    "family_count": 92,
+    "acceptance_quality_references_axes_unchanged": true,
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "no_FQCN_status_promoted": true
+  },
+  "native_callbacks_started": false,
+  "pushed_or_published": false,
+  "full_goal_status": "active and incomplete",
+  "next_task": "Serial owned PipeWire default-recording regression after the punch change; then latency-aware musical locator preparation, persistent state and punch UI/native workflows. All original sustained and full-product gates remain open."
+}

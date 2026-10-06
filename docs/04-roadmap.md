@@ -214,3 +214,10 @@ without assuming its cause. Windows core compile is not runtime qualification.
 Next fix/reproduce pre-poll selection admission, then prepare latency-aware
 musical locators and add persistent UI/native punch workflows. Full punch,
 Auto monitoring, loop/take lanes/comping and the sustained native gate remain open.
+
+The deterministic [pre-poll selection defect](52-published-track-selection.md) is
+fixed with a single canonical snapshot for timeline/inspector redraw. Three
+Debug desktop groups, Release and full29-group sanitizers pass. The previous
+unidentified admission failure is retained independently; all21observations stay.
+Next serial owned native default-recording regression, then latency-aware musical
+locator preparation/persistence and UI/native punch workflows.

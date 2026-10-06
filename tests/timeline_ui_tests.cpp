@@ -26,6 +26,7 @@
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTimer>
+#include <QThread>
 #include <QWheelEvent>
 #include <chrono>
 #include <iostream>
@@ -253,6 +254,39 @@ void editing(const std::filesystem::path &root) {
     });
     check(*reopened.snapshot()->session == final && !reopened.snapshot()->dirty, "Reopen differs");
     close(reopened);
+}
+void selectionBeforePoll(const std::filesystem::path &root) {
+    const auto original = fixture(root);
+    auto playback = std::make_shared<playback_fixture::Counters>();
+    auto options = playback_fixture::options(playback);
+    const auto factory = options.factory;
+    std::optional<Id> prepared;
+    options.factory = [&](const PlaybackPreparation &p) {
+        prepared = p.track;
+        return factory(p);
+    };
+    StudioWindow w(nullptr, options);
+    w.show();
+    w.openProject(root);
+    // Let the control owner publish Open while no Qt timer consumes it. A
+    // caller with a canonical stable ID should not need a hidden UI tick first.
+    const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+    while (!w.snapshot()->session || w.snapshot()->io != IoOperation::None) {
+        check(std::chrono::steady_clock::now() < end, "Pre-poll Open did not complete");
+        QThread::msleep(1);
+    }
+    check(widget<QListWidget>(w, "timelineTracks")->count() == 0,
+          "Pre-poll fixture unexpectedly consumed GUI events");
+    check(w.selectTrack(original.tracks[1].id),
+          "Published track selection refused before GUI poll");
+    check(widget<QListWidget>(w, "timelineTracks")->count() == int(original.tracks.size()) &&
+              w.selectedTrack() == original.tracks[1].id && w.preparePlayback(),
+          "Synchronized selection/UI/preparation differs");
+    await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Ready; });
+    check(prepared == original.tracks[1].id && !playback->activated,
+          "Pre-poll selection prepared wrong track or auto-started playback");
+    close(w);
+    check(ProjectStore(root).load() == original, "Pre-poll selection changed canonical project");
 }
 void selectedTransport(const std::filesystem::path &root) {
     const auto original = fixture(root);
@@ -521,6 +555,11 @@ int main(int argc, char **argv) {
         QTemporaryDir temp;
         check(temp.isValid(), "Temporary directory failed");
         const auto root = utf8Path(temp.path().toUtf8().toStdString());
+        selectionBeforePoll(root / "selection-before-poll");
+        if (argc == 2 && std::string_view(argv[1]) == "--selection-before-poll-only") {
+            std::cout << "Published selection synchronized before GUI poll\n";
+            return 0;
+        }
         editing(root / "editing");
         selectedTransport(root / "transport");
         mixedTransport(root / "mix");

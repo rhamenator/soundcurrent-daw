@@ -1336,3 +1336,32 @@ capture is not a full musical-locator or overlapping-take workflow. Auto monitor
 loop/take lanes/comping and allremaining M2/full DAW/X004/X005/Windows/all-Europe
 requirements stay in scope. Sustained native gate remains independently open;
 full goal active/incomplete.
+
+## 2026-10-06 continuation: published selection before UI tick
+
+Core punch work is committed6d2bf26. All prior handles are terminal before a
+deterministic GUI fixture completes Open without Qt event processing. Exact88849
+fails selection of an already published ID; original executable/input hashes are
+frozen before product edits. Selection now polls current canonical state and the
+timeline/inspector redraw shares its captured snapshot. Canonical IDs/content
+remain, and selection never starts audio.
+
+Exact94446 terminates with a known downstream test-only row-count mistake3vs2,
+then fixture expectation is corrected. Exact82263 passes before all three build
+handles82075/32871/56680 start and terminate. Debug three desktop groups pass7.62s;
+Release deterministic fixture passes; serial full ASan/UBSan/LSan57394 passes
+29/29in66.30s. No source edit/rebuild overlaps a live related test/build. Punch
+executables/Windows core are unchanged; no engine/schema/durability change.
+
+[Contract](52-published-track-selection.md),
+[ADR-040](decisions/040-published-selection-snapshot.md) and
+[evidence](../tests/results/M2/2026-10-06-selection-before-ui-poll.json) retain all
+21observations. Original21branch/admission state unknown, so the deterministic
+related defect does not prove its exact cause. All24borrowed inputs and92frozen
+contracts match, no F/Q/C/N promotion, equalizer writes, new dependency, signing
+expense, host-policy change or publication. No native/VM test in this checkpoint.
+
+Next serial owned PipeWire default-recording regression after the engine punch
+change, then latency-aware musical locator preparation/persistence and desktop/
+native punch. Full punch/Auto/loop/takes/comping and sustained/physical/Windows/
+professional/import/profile/all-Europe gates stay required. Full goal incomplete.

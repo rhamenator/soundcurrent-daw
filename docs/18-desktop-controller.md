@@ -24,6 +24,11 @@ A newer error during drain/barrier/save cancels closing and preserves dirty stat
 The [reproduction and failure tests](50-desktop-close-error-baseline.md) cover
 clean close, Save/close, a new Save failure, and explicit retry after repair.
 
+Programmatic selection synchronizes with the published project before resolving
+the ID. Timeline and inspector redraw use one canonical snapshot, avoiding two
+views straddling an Open completion. [The pre-poll workflow](52-published-track-selection.md)
+preserves canonical content and prepares the requested track without starting audio.
+
 Creation refuses an existing folder. If initial save fails/cancels, an owned newly created empty/temporary directory may remain; no automatic recursive deletion occurs. Writer-lock, media verification and snapshot backup behavior are inherited from the project-store contract. Error details currently include core English diagnostics under a contextual translatable message; complete translated error/help/installer catalogs and native reviews remain open.
 
 ## Desktop editor

@@ -721,10 +721,15 @@ std::optional<Id> StudioWindow::selectedTrack() const {
     return timeline_->selectedTrack();
 }
 bool StudioWindow::selectTrack(const Id &id) {
+    // Open may already be published while the displayed timeline still awaits
+    // its timer tick. Resolve a caller's stable ID against the current model.
+    poll();
     return timeline_->selectTrack(id);
 }
-std::shared_ptr<const ControllerSnapshot> StudioWindow::inspectorSnapshot() const {
-    const auto canonical = controller_.snapshot();
+std::shared_ptr<const ControllerSnapshot>
+StudioWindow::inspectorSnapshot(std::shared_ptr<const ControllerSnapshot> canonical) const {
+    if (!canonical)
+        canonical = controller_.snapshot();
     const auto selected = timeline_ ? timeline_->selectedTrack() : std::optional<Id>{};
     if (canonical->session != inspectorSource_ || selected != inspectorTrack_) {
         inspectorSource_ = canonical->session;
@@ -1949,7 +1954,9 @@ void StudioWindow::poll() {
                                !attachingTake_ && inactive && !playbackPrepareBarrier_ &&
                                canonical->io != IoOperation::Create &&
                                canonical->io != IoOperation::Open);
-    const auto view = inspectorSnapshot();
+    // Keep timeline and inspector on the same published snapshot. A second
+    // read could observe an Open completion between these two view updates.
+    const auto view = inspectorSnapshot(canonical);
     if (routeRevisionShown_ != view->modelRevision || view->errorSerial != lastError_) {
         routeRevisionShown_ = view->modelRevision;
         outputIntentShown_.reset();
