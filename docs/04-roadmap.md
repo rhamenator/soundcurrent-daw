@@ -221,3 +221,14 @@ Debug desktop groups, Release and full29-group sanitizers pass. The previous
 unidentified admission failure is retained independently; all21observations stay.
 Next serial owned native default-recording regression, then latency-aware musical
 locator preparation/persistence and UI/native punch workflows.
+
+The serial plain20-second [native default-recording regression](../tests/results/M2/2026-10-06-punch-default-native-regression.json)
+now passes exact raw/output, origin/alignment/Save-reopen and complete finite
+timing gates after the punch addition. It selects no punch range and establishes
+no native punch, physical, sustained or Windows qualification. Next prepared
+per-lane musical locator windows must include declared input latency, bounded
+postroll and independent origin/attachment/fault evidence before persistent UI
+and native punch workflows. All21observations and92frozencontracts remain.
+The [signing budget](49-windows-signing-budget.md) review now records committed
+equalizer packaging changes while keeping direct user-mode Windows development
+independent of a purchased certificate.

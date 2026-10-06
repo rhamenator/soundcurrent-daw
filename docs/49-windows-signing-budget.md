@@ -5,7 +5,7 @@ unaffordable. Windows functional parity remains required.
 
 ## Equalizer review
 
-Read-only review finds both equalizers' current **uncommitted** packaging changes
+The initial read-only review found both equalizers' then **uncommitted** packaging changes
 default to the existing signed primary VB-CABLE, retaining their own driver for
 later signing. Ordinary app/installer artifacts remain explicitly unsigned.
 Driver requirements are deferred, not represented as qualified. The
@@ -13,6 +13,19 @@ Driver requirements are deferred, not represented as qualified. The
 records exact working-file hashes plus HEADs; these are not committed upstream
 release claims. All24 already borrowed DSP/profile/editor inputs still match.
 No equalizer repository or working file was changed.
+
+The subsequent [committed-source review](../reuse/reviews/2026-10-06/windows-signing-budget-committed-review.json)
+observes public EQ `28e6f4779bbe0ed48b2e825aa5370f76670b64df` and Studio EQ
+`70b0d14264c48bf229992f11495fa6e31b5b9180`, both clean at observation. The five
+policy/build/setup files in each repository are now committed. Only the native
+driver bookmark changed its bytes since the initial policy receipt, adding its
+preserved Git bookmark. The new commit range also contains Windows routing,
+packaging, native driver preservation and preview documentation changes; these
+platform components have not been imported or independently qualified for the
+DAW. All24 registered DSP/profile/editor files equal both the new committed
+HEADs and existing retained snapshots. Original adaptation provenance remains
+unchanged. Equalizer preview publication recorded upstream does not authorize
+publishing this DAW repository.
 
 ## DAW decision
 

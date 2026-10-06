@@ -1365,3 +1365,36 @@ Next serial owned PipeWire default-recording regression after the engine punch
 change, then latency-aware musical locator preparation/persistence and desktop/
 native punch. Full punch/Auto/loop/takes/comping and sustained/physical/Windows/
 professional/import/profile/all-Europe gates stay required. Full goal incomplete.
+
+## 2026-10-06 continuation: default native recording and committed signing policy
+
+Exact28857 is terminal exit0 before subsequent edits. At1fd9e9e, the serial plain
+owned PipeWire20-second normal fixture verifies30,720,000raw/1,920,000output samples
+with zero difference, no missing frames and intact float headroom. Joined raw
+journals/origins/hashes/alignment and Save/reopen pass. All three callback roles
+have complete wall/CPU/resource coverage and unchanged finite gates pass; no
+current-cycle overruns, maximum capture queue1, all33worker phase pairs complete.
+No RTallocation/free/blocking-lock hits. All64source pins, actual executable and
+11processing library hashes remain exact after termination. Default routes remain
+unchanged and owned nodes/links retire; zero pre-existing links means populated
+prior-link preservation is not exercised.
+
+[Native receipt](../tests/results/M2/2026-10-06-punch-default-native-regression.json)
+qualifies only ordinary/default full-range recording after punch infrastructure.
+No punch window, physical device,1800-second sustained or Windows qualification.
+All21historical observations remain, with original21artifact and prior20receipt
+hashes verified unchanged. All92frozencontract projections remain exact and
+F/Q/C/N unpromoted.
+
+The owner signing-budget constraint remains in force. Read-only equalizer review
+now observes committed public28e6f47/Studio70b0d14 policy/build/setup files; all24
+borrowed DSP/profile/editor inputs remain exact against newHEADs and snapshots.
+[Updated budget review](49-windows-signing-budget.md) records both newHEADs and
+changed path inventories. No platform code/driver/archive/setup dependency
+imported, equalizer write/branch change, purchase, VM or DAW publication.
+
+Next implement a prepared per-lane latency-aware musical punch locator plan with
+bounded postroll and exact origin/alignment/fault tests, then persistent state and
+desktop/native punch workflows. Auto monitoring, loop/takes/comping, sustained
+performance and every frozen/full-product/Windows/import/profile/all-Europe gate
+remain required. Full goal active and incomplete.

@@ -86,3 +86,34 @@ all other frozen professional requirements, project import, equipment profiling
 and all-Europe delivery remain open. All 92 acceptance/quality/reference/F/Q/C/N
 contracts are unchanged; no axis is promoted. Equalizer inputs stay read-only;
 no dependency, license, host policy, publication or signing purchase is added.
+
+## Default native recording regression after the punch addition
+
+At source1fd9e9e, the unchanged plain owned-route native fixture passes its
+20-second normal full-range workflow. This run uses no punch window. It verifies
+30,720,000 raw samples and1,920,000 stereo output samples exactly, joined common
+origins/journals/media hashes, declared alignment and Save/reopen. Floating-point
+output peak3.85643 remains unclipped. All three callback roles have complete
+wall/CPU/thread-usage coverage and pass the existing finite timing thresholds;
+no observed callback ends beyond its current cycle period. Owner maximum
+3.467954ms wall/3.464261ms CPU, maximum ready queue1 of118 capture slabs, all33
+worker phase-pair records complete. There are no RT allocation/free/lock hits.
+
+Defaults remain unchanged, all owned routes retire, and zero pre-existing links
+were present; a populated prior-link preservation workflow is not exercised.
+Observed clock is Dummy-Driver,1024frames/48kHz. This is no physical, native
+punch, sustained1800-second or Windows qualification. All21 prior observations
+remain retained without a cause/resolution inference.
+
+The [scoped receipt](../tests/results/M2/2026-10-06-punch-default-native-regression.json)
+pins the launch and64 source inputs, actual executable and11 processing libraries,
+then verifies them after exact28857 terminal exit0 and before subsequent edits.
+No competing owned build/test/reader/benchmark or processing-source edit occurs
+during this run. No threshold, schema, dependency or host policy changes.
+
+Next prepare musical punch locators per lane: raw capture windows need declared
+input latency added to desired timeline positions, validated overflow and bounded
+postroll, with independent per-lane origin/attachment tests. The existing shared
+raw-frame primitive cannot establish differing-latency musical-locator parity.
+Persistent controls, native/UI punch, Auto monitoring, looping, take lanes and
+comping remain required.
