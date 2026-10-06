@@ -24,12 +24,13 @@ Linux-first professional digital audio workstation and recording suite, planned 
 14. [Capture, disk worker and recovery](docs/13-recording-contract.md)
 15. [Shared audio bridge and native PipeWire](docs/14-native-audio-contract.md)
 16. [Read-ahead and take playback](docs/15-playback-contract.md)
+17. [Immediate controls and applied-frame receipts](docs/16-immediate-controls.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
 ## Next implementation task
 
-Continue **M1 / SLICE-001** with **S6: the first Qt recording/playback/EQ UI**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M1 / SLICE-001** with **S6: the first Qt recording/playback/EQ UI**, then transactional offline WAV export. S6a adds bounded file read-ahead, source/timeline mapping, private live EQ and control-side seek retirement; owned native playback/sink-removal fixtures pass. S6b adds bounded immediate edits and applied-frame receipts through recording/playback; the Qt/controller workflow remains to be implemented. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Build and test the current core
 

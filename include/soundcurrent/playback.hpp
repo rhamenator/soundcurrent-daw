@@ -89,6 +89,15 @@ class PlaybackProcessor {
     SubmitStatus submit(const EqEvent &event) noexcept {
         return driver_.submit(event);
     }
+    SubmitStatus submitImmediate(const EqEvent &event, std::uint64_t revision) noexcept {
+        return driver_.submitImmediate(event, revision);
+    }
+    bool acknowledgement(ImmediateAcknowledgement &result) noexcept {
+        return driver_.acknowledgement(result);
+    }
+    std::uint64_t droppedAcknowledgements() const noexcept {
+        return driver_.droppedAcknowledgements();
+    }
 
   private:
     PlaybackPipe &pipe_;

@@ -29,12 +29,14 @@
     "Planar arbitrary-channel prepared state",
     "No automatic EQ headroom or final \u00b11 sample clamp",
     "Sample-timestamped fixed-size events and coefficient/wet-dry ramps",
-    "GUI/device-independent immutable mapping and latency/tail metadata"
+    "GUI/device-independent immutable mapping and latency/tail metadata",
+    "Independent bounded immediate-control queue, snapshot application and applied-frame receipts in the DAW transport"
   ],
   "upstream_candidates": [
     "Explicit float headroom/output policy",
     "Prepared coefficient event transport and persistent band identity",
-    "Sample-partition-invariant parameter smoothing"
+    "Sample-partition-invariant parameter smoothing",
+    "Immediate edits without stale GUI timestamps, with generation checks and explicit queue pressure"
   ],
   "snapshot_compiled": false
 }

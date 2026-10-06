@@ -96,6 +96,15 @@ PreparedEq &PlaybackRun::prepared() noexcept {
 SubmitStatus PlaybackRun::submit(const EqEvent &e) noexcept {
     return state_->processor.submit(e);
 }
+SubmitStatus PlaybackRun::submitImmediate(const EqEvent &e, std::uint64_t revision) noexcept {
+    return state_->processor.submitImmediate(e, revision);
+}
+bool PlaybackRun::acknowledgement(ImmediateAcknowledgement &result) noexcept {
+    return state_->processor.acknowledgement(result);
+}
+std::uint64_t PlaybackRun::droppedAcknowledgements() const noexcept {
+    return state_->processor.droppedAcknowledgements();
+}
 const PlaybackConfig &PlaybackRun::config() const noexcept {
     return state_->pipe.config();
 }

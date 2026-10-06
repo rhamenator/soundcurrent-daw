@@ -38,3 +38,18 @@ Supply a new path; the probe exclusively creates it and refuses overwrite. It wr
 [CLI/independent-reader evidence](2026-10-05-recording-cli.json) is reproduced by `python3 tests/verify_record_cli.py` after the Linux core build. This generates/inspects an owned synthetic project on a Unicode path, rejects overwrite, checks RF64 chunks/GUID/frame counts and independently compares all480000 float samples. Fixtures clean up their owned files.
 
 The large capture assertion count includes per-sample equality at multiple channel layouts/quantums, not millions of distinct parity workflows. No PipeWire/device/default route is exercised. Physical ENOSPC, actual power loss, >4 GiB RF64, native deadlines, and Windows runtime/filesystem qualification remain open. See [recording contract](../../../docs/13-recording-contract.md).
+
+## Immediate control ingress
+
+[S6b evidence](2026-10-05-immediate-controls.json): Linux Debug and ASan/UBSan seven-group CTest gates, Windows cross-build only,128-command published-prefix snapshots, mixed scheduled/manual ordering, full combined budget, pressure/fault handling and20000 concurrent edits replayed exactly at applied receipt frames. Shared recording and disk-playback forwarding is exercised. The opt-in native file-player fixture now changes gain from its control thread and compares captured output against receipt-driven offline replay.
+
+```sh
+ctest --test-dir .cache/build-core --output-on-failure
+python3 tests/verify_pipewire_fixture.py \
+  --binary .cache/build-core/sc-pipewire-playback-fixture
+ASAN_OPTIONS=detect_leaks=1 PIPEWIRE_DLCLOSE=false \
+  python3 tests/verify_pipewire_fixture.py \
+  --binary .cache/build-sanitized/sc-pipewire-playback-fixture
+```
+
+Native harnesses run serially. The sanitizer native command retains PipeWire modules solely for the existing unload-memory diagnostic. An initial native sanitizer attempt stopped on a gap; its failed evidence is retained, and later passes do not resolve its cause or qualify load/clock transitions. No Qt GUI, physical speaker latency or Windows runtime is exercised. See [the contract](../../../docs/16-immediate-controls.md).

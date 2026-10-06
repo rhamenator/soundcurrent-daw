@@ -1,0 +1,390 @@
+{
+  "date": "2026-10-05",
+  "scope": "S6b immediate control ingress and recording/playback integration; Qt application, SLICE-001 and full DAW incomplete",
+  "parent_commit": "4383d7d2aa7901c8b4aa96970367c6a1eeda53f8",
+  "contracts": {
+    "scheduled_queue_records": 4096,
+    "scheduled_due_events_per_block": 1024,
+    "immediate_queue_records": 128,
+    "combined_event_limit": 1152,
+    "receipt_queue_records": 64,
+    "snapshot": "single audio-owner acquire of published prefix; later publications wait",
+    "precedence": "boundary scheduled FIFO, immediate FIFO, later sample-timed events",
+    "revision": "positive and strictly increasing on acceptance; not required contiguous",
+    "receipt_pressure": "drop new receipt and count; no audio backpressure",
+    "coefficient_preparation": "control/preparation owner; never callback"
+  },
+  "platforms": {
+    "linux_debug": {
+      "status": "passed",
+      "ctest_cases": 7,
+      "metrics": [
+        {
+          "checks": 44252,
+          "replay_difference": 0,
+          "concurrent_updates": 20000,
+          "rt_cpp_allocations": 0,
+          "rt_cpp_frees": 0,
+          "rt_c_allocations": 0,
+          "rt_c_frees": 0,
+          "rt_blocking_locks": 0
+        },
+        {
+          "checks": 14960005,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "pool_slabs": 32,
+          "default_reserve_seconds": 2
+        },
+        {
+          "checks": 102411,
+          "live_offline_sample_difference": 0,
+          "exact_capture_frames": 10003,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "faults": 9
+        },
+        {
+          "checks": 157,
+          "synthetic_recorded_frames": 480000,
+          "rate_hz": 48000,
+          "concurrent_disk_worker": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "raw_overs_preserved": true,
+          "prefix_recovery": true,
+          "native_audio_device": false
+        },
+        {
+          "checks": 15133451,
+          "live_offline_difference": 0,
+          "timeline_frames": 52750,
+          "seek_generation_retired": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0
+        },
+        {
+          "checks": 231126,
+          "gain_error_db": 0.000315653,
+          "partition_error": 0,
+          "float_overs_peak": 1.79575,
+          "rt_cpp_allocations": 0,
+          "rt_cpp_frees": 0,
+          "rt_c_allocations": 0,
+          "rt_c_frees": 0,
+          "rt_blocking_locks": 0,
+          "queue_packets": 1000000
+        }
+      ],
+      "test_log_sha256": "669c4882239a4c662ae0133c42ea773440538648e461575b0489ce18e65727b3",
+      "detailed_test_log_sha256": "5068eb4624b1881d9de67aa442f2c4b2670df1dcca57b7fa807638d9f94402c9"
+    },
+    "linux_asan_ubsan": {
+      "status": "passed",
+      "ctest_cases": 7,
+      "metrics": [
+        {
+          "checks": 44252,
+          "replay_difference": 0,
+          "concurrent_updates": 20000,
+          "rt_cpp_allocations": 0,
+          "rt_cpp_frees": 0,
+          "rt_c_allocations": 0,
+          "rt_c_frees": 0,
+          "rt_blocking_locks": 0
+        },
+        {
+          "checks": 14960005,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "pool_slabs": 32,
+          "default_reserve_seconds": 2
+        },
+        {
+          "checks": 102411,
+          "live_offline_sample_difference": 0,
+          "exact_capture_frames": 10003,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "faults": 9
+        },
+        {
+          "checks": 157,
+          "synthetic_recorded_frames": 480000,
+          "rate_hz": 48000,
+          "concurrent_disk_worker": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "raw_overs_preserved": true,
+          "prefix_recovery": true,
+          "native_audio_device": false
+        },
+        {
+          "checks": 15133451,
+          "live_offline_difference": 0,
+          "timeline_frames": 52750,
+          "seek_generation_retired": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0
+        },
+        {
+          "checks": 231126,
+          "gain_error_db": 0.000315653,
+          "partition_error": 0,
+          "float_overs_peak": 1.79575,
+          "rt_cpp_allocations": 0,
+          "rt_cpp_frees": 0,
+          "rt_c_allocations": 0,
+          "rt_c_frees": 0,
+          "rt_blocking_locks": 0,
+          "queue_packets": 1000000
+        }
+      ],
+      "test_log_sha256": "cd892c3eddb506ee3a046d6ae08a266e4dd3a24f3ed1358671737daeadc9339b",
+      "detailed_test_log_sha256": "d983f562cc29c8bab7cb97693e3293ff2652cd6a482ee492cd0a18ae03b1cfa2"
+    },
+    "native_debug": {
+      "status": "passed",
+      "modes": [
+        {
+          "mode": "normal",
+          "frames": 480000,
+          "sample_rate": 48000,
+          "live_offline_difference": 0,
+          "missing_frames": 0,
+          "file_backed_playback": true,
+          "output_disconnect_observed": false,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "owned_nodes_only": true,
+          "project_unchanged": true,
+          "player_callbacks": 1875,
+          "sink_callbacks": 1875,
+          "immediate_revision": 1,
+          "immediate_applied_frame": 24064,
+          "immediate_submit_position": 24064,
+          "submit_to_receipt_poll_ms": 6.4299,
+          "minimum_native_frames": 256,
+          "maximum_native_frames": 256,
+          "routing_observations": {
+            "graph_snapshots_during_run": 65,
+            "snapshots_with_owned_links": 62,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 6,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Native playback: player frames 480000; captured frames 480000; removed/fault 0/0; status 2; missing frames 0; sink gap 0; sink gap position/expected/capacity 0/0/0; native frames min/max 256/256"
+        },
+        {
+          "mode": "disconnect",
+          "frames": 48128,
+          "sample_rate": 48000,
+          "live_offline_difference": 0,
+          "missing_frames": 0,
+          "file_backed_playback": true,
+          "output_disconnect_observed": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "owned_nodes_only": true,
+          "project_unchanged": true,
+          "player_callbacks": 189,
+          "sink_callbacks": 188,
+          "immediate_revision": 1,
+          "immediate_applied_frame": 24064,
+          "immediate_submit_position": 24064,
+          "submit_to_receipt_poll_ms": 6.41932,
+          "minimum_native_frames": 256,
+          "maximum_native_frames": 256,
+          "routing_observations": {
+            "graph_snapshots_during_run": 8,
+            "snapshots_with_owned_links": 7,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 6,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Native playback: player frames 48128; captured frames 48128; removed/fault 1/1; status 0; missing frames 0; sink gap 0; sink gap position/expected/capacity 0/0/0; native frames min/max 256/256"
+        }
+      ],
+      "result_sha256": "4ae7fc2919e38477f81bbc79298b4ba7baf381dc3fc791ba32092a5ab7b76c73"
+    },
+    "native_sanitizer_retained_module_diagnostic": {
+      "status": "passed",
+      "modes": [
+        {
+          "mode": "normal",
+          "frames": 480000,
+          "sample_rate": 48000,
+          "live_offline_difference": 0,
+          "missing_frames": 0,
+          "file_backed_playback": true,
+          "output_disconnect_observed": false,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "owned_nodes_only": true,
+          "project_unchanged": true,
+          "player_callbacks": 1875,
+          "sink_callbacks": 1875,
+          "immediate_revision": 1,
+          "immediate_applied_frame": 24064,
+          "immediate_submit_position": 24064,
+          "submit_to_receipt_poll_ms": 6.46312,
+          "minimum_native_frames": 256,
+          "maximum_native_frames": 256,
+          "routing_observations": {
+            "graph_snapshots_during_run": 67,
+            "snapshots_with_owned_links": 62,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 6,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Native playback: player frames 480000; captured frames 480000; removed/fault 0/0; status 2; missing frames 0; sink gap 0; sink gap position/expected/capacity 0/0/0; native frames min/max 256/256"
+        },
+        {
+          "mode": "disconnect",
+          "frames": 48128,
+          "sample_rate": 48000,
+          "live_offline_difference": 0,
+          "missing_frames": 0,
+          "file_backed_playback": true,
+          "output_disconnect_observed": true,
+          "rt_allocations": 0,
+          "rt_frees": 0,
+          "rt_blocking_locks": 0,
+          "owned_nodes_only": true,
+          "project_unchanged": true,
+          "player_callbacks": 189,
+          "sink_callbacks": 188,
+          "immediate_revision": 1,
+          "immediate_applied_frame": 24064,
+          "immediate_submit_position": 24064,
+          "submit_to_receipt_poll_ms": 4.31534,
+          "minimum_native_frames": 256,
+          "maximum_native_frames": 256,
+          "routing_observations": {
+            "graph_snapshots_during_run": 8,
+            "snapshots_with_owned_links": 6,
+            "no_observed_owned_to_unowned_links": true,
+            "pre_existing_links_preserved": 6,
+            "default_metadata_unchanged": true,
+            "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+            "owned_nodes_and_links_removed": true
+          },
+          "native_diagnostic": "Native playback: player frames 48128; captured frames 48128; removed/fault 1/1; status 0; missing frames 0; sink gap 0; sink gap position/expected/capacity 0/0/0; native frames min/max 256/256"
+        }
+      ],
+      "result_sha256": "96880d659a584bea9418f3c36c9b3cc97b585fc9ddd36578ee26c5080b4f474a"
+    },
+    "windows": {
+      "status": "cross_compile_and_link_passed",
+      "native_execution": "not_run",
+      "build_log_sha256": "ff44cf3e7cde74e19caec6059d89c65937cba0e8e5be332a5633c5d7f60084e7",
+      "binary_sha256": {
+        "sc-audio-bridge-tests.exe": "5923acb095bc0986867f988bb7495a6613479c7321cc7c224dc94960f8fcaf27",
+        "sc-capture-tests.exe": "a23f4e010bec43c82a731bafee278dcd87e837235823155421792b354c5c8170",
+        "sc-engine-tests.exe": "ce98392583d9386c51c74573b9af6d79809f6d4b25d5dbe9e4e5f475be109ee6",
+        "sc-immediate-tests.exe": "a3084c2c3022020d3f8380045c58a350b5825f3920ba499e57f5d4d3972c9318",
+        "sc-play-tool.exe": "74f3d329c5a496d7d95b86d1fccab0da9fdd31118315a8e3392459f9438b30bb",
+        "sc-playback-tests.exe": "8923b4aaa14269be2a7384ca91cb5c249bd7fd20d543c32c010346edd26df282",
+        "sc-project-tool.exe": "ba96c6d1f3db2bc51ff3eb64b4d3bd5c47d3480d4a48be401c266288af2b1e23",
+        "sc-record-tool.exe": "94c92fc4a5e872e92333eae2a30d898a47334194d187019e010ee2c0bec33b9e",
+        "sc-recording-tests.exe": "58e097dac1c364c2134ffa69629ee6b5253a4c08260252c87850926f91bea18e",
+        "sc-session-tests.exe": "3e30d0e24363e4ba740fa34e870c42264c48c71b6d8987a1eba589ccad207049"
+      }
+    }
+  },
+  "fixtures": {
+    "rates_hz": [
+      8000,
+      44100,
+      48000,
+      96000,
+      384000
+    ],
+    "callback_frames": [
+      16,
+      64,
+      127,
+      512,
+      2048
+    ],
+    "control_kinds": [
+      "gain",
+      "frequency",
+      "Q",
+      "enable"
+    ],
+    "large_start_frame": 10000000000,
+    "concurrent_control_updates": 20000,
+    "replay": "reconstruct accepted payloads at receipt frames; private offline instance, exact samples",
+    "failure_cases": [
+      "invalid generation",
+      "nonfinite command",
+      "zero/repeated revision",
+      "queue full/retry without consuming revision",
+      "empty/invalid callback retention",
+      "far-future scheduled queue",
+      "same-frame precedence",
+      "1152 combined density",
+      "1025 scheduled overload",
+      "receipt overflow without stopping",
+      "uint32 queue wrap and publications after snapshot",
+      "stale generation after seek"
+    ]
+  },
+  "limitations": [
+    "No Qt GUI/controller gesture, coalescing, session-save or undo integration yet",
+    "Receipts are lossy diagnostics, not durable automation/performance logging",
+    "No native Windows execution, physical device, speaker latency, subjective ramp or maximal graph/deadline qualification",
+    "Native submit-to-receipt-poll duration includes control polling and scheduling; it is not GUI-to-speaker latency",
+    "Ordinary C/C++ allocation/free/direct mutex instrumentation covers marked linked host regions, not all transitive syscalls",
+    "Normal PipeWire unload-memory qualification remains open; sanitizer native checks use retained-module diagnostic",
+    "One initial native sanitizer attempt stopped on a gap with insufficient original clock diagnostics; cause unresolved and load/transition gate remains open",
+    "Full frozen-reference, localization, content/quality and native-import requirements remain required"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "aece52579217b7eb7333fb49a03704a64df32be4590f5cfb0b6e55a3676aff9e",
+    "include/soundcurrent/eq.hpp": "63ab571185da69eb6454b7840ddcb602990e42468ebcf5fd653b1fbdac219902",
+    "include/soundcurrent/spsc_queue.hpp": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd",
+    "include/soundcurrent/audio_bridge.hpp": "67a419ee30eab344820651cf509bd11a70305c26ecefdcc3f95cb8c56f03d168",
+    "include/soundcurrent/playback.hpp": "e98ef42f61a6cb08fbb1e93b79783160b216ad7e8b7b8cb00a9c0a093ba8cfb9",
+    "include/soundcurrent/playback_reader.hpp": "7e9674463384a9bf85f897aaeddf966e2ff1469ee52c628bb241cbbab26b4b3e",
+    "src/eq.cpp": "b52243413810cf702b9402fa36edf0908a2a59ccc0a4b6bff54221283e56f812",
+    "src/playback_run.cpp": "d681d62ca1d0d587ca033a28818eece9fb1c8b76e8e99a8f993236439c8c59f8",
+    "tests/immediate_tests.cpp": "d4c19239d8ac09986de2b6a78f791d4ac827be4e133cc64ec1613028783ddfc4",
+    "tests/audio_bridge_tests.cpp": "e8b7c3c6ebd0a321a4544252fd3c5af1ccc361cf215494519b66c17fa0634e7d",
+    "tests/playback_tests.cpp": "5e88a6305978ecfffea4a1f9a9a049a5e39439c41abfb7531ea4b6537100ccc1",
+    "tests/pipewire_playback_fixture.cpp": "1eb3e78b5d60fddc62b4ab0f3219095d675aea006063cfd9b6f55be780a12fca",
+    "tests/verify_pipewire_fixture.py": "f64a94e1ad376f3e9baa2f1b206d7d140d229b13a892d137c31d36c5e09decc1",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+    "reuse/studio/provenance.json": "5159576ce4857fad83538785eb765f23ded709dbd30fea2ec72909b356fc8d5a"
+  },
+  "protected_workspace_snapshot": "research/workspace-after-immediate-controls.json",
+  "initial_native_sanitizer_failure": {
+    "status": "failed_on_gap",
+    "frames_captured": 134400,
+    "player_frames": 134912,
+    "cause": "unresolved; original diagnostic did not separate sink-clock discontinuity from reader underflow",
+    "log": ".cache/s6-immediate-native-sanitized-first-gap.log",
+    "log_sha256": "dca643899abde2f8ba3380845bbb1ab174c6726e01c0cdf21883a032cfb16851",
+    "followup": "added native min/max quantum and sink expected/observed clock plus missing-frame diagnostics; rerun passed under separately observed graph conditions",
+    "native_diagnostic": "Native playback: player frames 134912; captured frames 134400; removed/fault 0/0; status 0; Native playback gap/underflow observed"
+  }
+}

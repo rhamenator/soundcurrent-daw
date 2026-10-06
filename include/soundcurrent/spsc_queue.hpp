@@ -45,6 +45,12 @@ template <class T, std::size_t Capacity> class SpscQueue {
         return write_.load(std::memory_order_relaxed) - read_.load(std::memory_order_acquire) <
                Capacity;
     }
+    // Consumer only: snapshot the published prefix before a bounded drain.
+    // Subsequent producer publications do not enlarge that drain's budget.
+    std::uint32_t consumerAvailable() const noexcept {
+        const auto r = read_.load(std::memory_order_relaxed);
+        return write_.load(std::memory_order_acquire) - r;
+    }
 
   private:
     alignas(64) std::atomic<std::uint32_t> write_{0};

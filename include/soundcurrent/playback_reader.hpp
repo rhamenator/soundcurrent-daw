@@ -37,6 +37,9 @@ class PlaybackRun {
     PlaybackReport process(std::span<float *const> output, std::uint32_t frames) noexcept;
     PreparedEq &prepared() noexcept; // Immutable control-side event preparation.
     SubmitStatus submit(const EqEvent &) noexcept;
+    SubmitStatus submitImmediate(const EqEvent &, std::uint64_t revision) noexcept;
+    bool acknowledgement(ImmediateAcknowledgement &) noexcept;
+    std::uint64_t droppedAcknowledgements() const noexcept;
     const PlaybackConfig &config() const noexcept;
     Frame position() const noexcept;
     std::uint64_t missingFrames() const noexcept;

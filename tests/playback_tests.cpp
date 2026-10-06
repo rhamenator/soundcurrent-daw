@@ -241,6 +241,9 @@ void readerAndSeek() {
                              edited.tracks.front().eq.bands.front().id, BandParameter::GainDb};
     const auto event = run.prepared().parameterEvent(edited, address, first + 997);
     check(run.submit(event) == SubmitStatus::Accepted, "Playback control event rejected");
+    edited.tracks.front().eq.bands.front().gainDb = 9;
+    auto immediate = run.prepared().parameterEvent(edited, address, 0);
+    const auto immediateAt = first + 127 * 20;
     std::array<float, 2048> left{}, right{}, inLeft{}, inRight{}, expectedLeft{}, expectedRight{};
     std::array<float *, 2> out{left.data(), right.data()},
         reference{expectedLeft.data(), expectedRight.data()};
@@ -248,15 +251,20 @@ void readerAndSeek() {
     double difference = 0;
     for (Frame at = first; at < end;) {
         const auto n = static_cast<std::uint32_t>(std::min<Frame>(127, end - at));
+        if (at == immediateAt) {
+            check(run.submitImmediate(immediate, 1) == SubmitStatus::Accepted,
+                  "Playback immediate edit rejected");
+            immediate.frame = at; // Reproduce the observed block boundary offline.
+        }
         for (std::uint32_t i = 0; i < n; ++i) {
             inLeft[i] = expected(s, at + i, 0);
             inRight[i] = expected(s, at + i, 1);
         }
-        check(offline.process(input, reference, n, at,
-                              event.frame >= at && event.frame < at + n
-                                  ? std::span(&event, 1)
-                                  : std::span<const EqEvent>{})
-                      .status == ProcessStatus::Ok,
+        const auto events = at == immediateAt ? std::span(&immediate, 1)
+                            : event.frame >= at && event.frame < at + n
+                                ? std::span(&event, 1)
+                                : std::span<const EqEvent>{};
+        check(offline.process(input, reference, n, at, events).status == ProcessStatus::Ok,
               "Reference processing failed");
         PlaybackReport r;
         {
@@ -265,6 +273,12 @@ void readerAndSeek() {
         }
         check(r.timelineFrames == n && r.missingFrames == 0 && r.startFrame == at,
               "Reader lost expected timeline");
+        if (at == immediateAt) {
+            ImmediateAcknowledgement ack;
+            check(run.acknowledgement(ack) && ack.frame == at && ack.revision == 1 &&
+                      ack.eventsApplied == 1 && !run.droppedAcknowledgements(),
+                  "Playback immediate receipt differs");
+        }
         for (std::uint32_t i = 0; i < n; ++i) {
             difference = std::max(difference, std::abs(double(left[i]) - expectedLeft[i]));
             difference = std::max(difference, std::abs(double(right[i]) - expectedRight[i]));
@@ -288,6 +302,8 @@ void readerAndSeek() {
     const auto staleEvent = exchange.active().prepared().enableEvent(false, 12600);
     check(seek->submit(staleEvent) == SubmitStatus::Invalid,
           "Old generation parameter accepted after seek");
+    check(seek->submitImmediate(staleEvent, 1) == SubmitStatus::Invalid,
+          "Old generation immediate edit accepted after seek");
     check(exchange.publish(seek), "Seek generation publication failed");
     {
         rt_audit::Guard g;

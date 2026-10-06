@@ -8,7 +8,10 @@
 
 namespace soundcurrent::daw {
 inline constexpr std::size_t maxEqBands = 64;
-inline constexpr std::size_t maxEqEventsPerBlock = 1024;
+inline constexpr std::size_t maxEqTimedEventsPerBlock = 1024;
+inline constexpr std::size_t eqImmediateQueueCapacity = 128;
+inline constexpr std::size_t maxEqEventsPerBlock =
+    maxEqTimedEventsPerBlock + eqImmediateQueueCapacity;
 inline constexpr std::size_t eqEventQueueCapacity = 4096;
 struct BiquadCoefficients {
     // b0, b1, b2, a1, a2; normalized a0 = 1.
@@ -114,11 +117,23 @@ class PreparedEq {
 };
 
 enum class SubmitStatus { Accepted, Full, OutOfOrder, Invalid };
+struct ImmediateAcknowledgement {
+    std::uint64_t generation = 0, revision = 0;
+    Frame frame = 0;                 // First sample of the block where smoothing started.
+    std::uint32_t eventsApplied = 0; // Prefix ending at revision, in this block.
+};
+static_assert(std::atomic<std::uint64_t>::is_always_lock_free);
 // One session-owner producer, one audio-owner consumer. Queue never overwrites.
 class EqLiveDriver {
   public:
     explicit EqLiveDriver(PreparedEq &eq, Frame start = 0);
     SubmitStatus submit(const EqEvent &) noexcept;
+    // Control edits: frame is ignored; generation/coefficients remain validated.
+    // Positive revisions strictly increase on accepted submissions only.
+    SubmitStatus submitImmediate(const EqEvent &, std::uint64_t revision) noexcept;
+    // One control consumer; lossy diagnostics never backpressure audio.
+    bool acknowledgement(ImmediateAcknowledgement &) noexcept;
+    std::uint64_t droppedAcknowledgements() const noexcept;
     EqReport process(std::span<const float *const> input, std::span<float *const> output,
                      std::uint32_t frames) noexcept;
     Frame frame() const noexcept {
@@ -130,6 +145,14 @@ class EqLiveDriver {
   private:
     PreparedEq &eq_;
     SpscQueue<EqEvent, eqEventQueueCapacity> queue_;
+    struct ImmediateUpdate {
+        EqEvent event;
+        std::uint64_t revision = 0;
+    };
+    SpscQueue<ImmediateUpdate, eqImmediateQueueCapacity> immediate_;
+    SpscQueue<ImmediateAcknowledgement, 64> acknowledgements_;
+    std::atomic<std::uint64_t> droppedAcknowledgements_{0};
+    std::uint64_t lastImmediateRevision_ = 0; // Producer owns.
     std::array<EqEvent, maxEqEventsPerBlock> ready_{};
     Frame lastSubmitted_ = 0; // Producer owns; equal timestamps retain ingress order.
     bool submitted_ = false;

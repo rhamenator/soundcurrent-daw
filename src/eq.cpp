@@ -211,6 +211,24 @@ SubmitStatus EqLiveDriver::submit(const EqEvent &event) noexcept {
     submitted_ = true;
     return SubmitStatus::Accepted;
 }
+SubmitStatus EqLiveDriver::submitImmediate(const EqEvent &event, std::uint64_t revision) noexcept {
+    auto prepared = event;
+    prepared.frame = 0;
+    if (!revision || !eq_.validEvent(prepared))
+        return SubmitStatus::Invalid;
+    if (revision <= lastImmediateRevision_)
+        return SubmitStatus::OutOfOrder;
+    if (!immediate_.tryPush({prepared, revision}))
+        return SubmitStatus::Full;
+    lastImmediateRevision_ = revision;
+    return SubmitStatus::Accepted;
+}
+bool EqLiveDriver::acknowledgement(ImmediateAcknowledgement &result) noexcept {
+    return acknowledgements_.tryPop(result);
+}
+std::uint64_t EqLiveDriver::droppedAcknowledgements() const noexcept {
+    return droppedAcknowledgements_.load(std::memory_order_relaxed);
+}
 EqReport EqLiveDriver::process(std::span<const float *const> input, std::span<float *const> output,
                                std::uint32_t frames) noexcept {
     if (stopped_)
@@ -226,23 +244,44 @@ EqReport EqLiveDriver::process(std::span<const float *const> input, std::span<fl
         return {ProcessStatus::TimingError};
     }
     const auto end = frame_ + frames;
+    // A zero-length or rejected block must not consume control edits.
+    const auto immediateCount = frames ? immediate_.consumerAvailable() : 0;
     std::size_t count = 0;
     EqEvent event;
-    while (count < ready_.size() && queue_.tryPeek(event) && event.frame < end) {
+    while (count < maxEqTimedEventsPerBlock && queue_.tryPeek(event) && event.frame < end) {
         if (event.frame < frame_) {
             stopped_ = true;
             return {ProcessStatus::TimingError};
         }
         (void)queue_.tryPop(ready_[count++]);
     }
-    if (count == ready_.size() && queue_.tryPeek(event) && event.frame < end) {
+    if (count == maxEqTimedEventsPerBlock && queue_.tryPeek(event) && event.frame < end) {
         stopped_ = true;
         return {ProcessStatus::EventBudgetExceeded};
     }
+    // Timed events at the boundary first, then immediate FIFO edits, then
+    // later sample-timed automation. No reads of audio-owned fields on control.
+    ImmediateUpdate update{};
+    if (immediateCount) {
+        const auto boundaryEnd = std::find_if(ready_.begin(), ready_.begin() + count,
+                                              [&](const EqEvent &e) { return e.frame != frame_; });
+        std::move_backward(boundaryEnd, ready_.begin() + count,
+                           ready_.begin() + count + immediateCount);
+        auto insertion = boundaryEnd;
+        for (std::uint32_t i = 0; i < immediateCount; ++i) {
+            (void)immediate_.tryPop(update); // Single consumer; snapshotted prefix exists.
+            update.event.frame = frame_;
+            *insertion++ = update.event;
+        }
+    }
+    count += immediateCount;
     auto result = eq_.process(input, output, frames, frame_, std::span(ready_).first(count));
-    if (result.status == ProcessStatus::Ok)
+    if (result.status == ProcessStatus::Ok) {
+        if (immediateCount &&
+            !acknowledgements_.tryPush({eq_.generation(), update.revision, frame_, immediateCount}))
+            droppedAcknowledgements_.fetch_add(1, std::memory_order_relaxed);
         frame_ = end;
-    else
+    } else
         stopped_ = true;
     return result;
 }

@@ -40,6 +40,7 @@ struct Player : Audit {
     std::atomic<std::uint32_t> nativeFault{0},
         status{static_cast<std::uint32_t>(PlaybackStatus::Running)};
     DeviceBlockClock previous{};
+    std::uint32_t minimumFrames = UINT32_MAX, maximumFrames = 0; // Audio owner; read after stop.
     explicit Player(PlaybackRun &r) : run(r) {}
     static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const>,
                         std::span<float *const> out, std::uint32_t capacity) noexcept {
@@ -63,6 +64,8 @@ struct Player : Audit {
                     std::fill_n(v, capacity, 0.f);
             return;
         }
+        s.minimumFrames = std::min(s.minimumFrames, static_cast<std::uint32_t>(clock.duration));
+        s.maximumFrames = std::max(s.maximumFrames, static_cast<std::uint32_t>(clock.duration));
         const auto r = s.run.process(out, static_cast<std::uint32_t>(clock.duration));
         if (!started && r.timelineFrames)
             s.origin.store(clock.position, std::memory_order_release);
@@ -82,6 +85,8 @@ struct Sink : Audit {
     CapturePipe &pipe;
     Player &player;
     Frame count = 0;
+    std::uint64_t gapPosition = 0, expectedPosition = 0; // Audio owner; read after stop.
+    std::uint32_t gapCapacity = 0;
     std::atomic<std::uint32_t> complete{0}, gap{0};
     std::atomic<Frame> capturedFrames{0};
     Sink(CapturePipe &p, Player &s) : pipe(p), player(s) {}
@@ -94,6 +99,9 @@ struct Sink : Audit {
             return;
         if (in.size() != 1 || !in[0] || clock.duration > capacity ||
             clock.position != origin + static_cast<std::uint64_t>(s.count)) {
+            s.gapPosition = clock.position;
+            s.expectedPosition = origin + static_cast<std::uint64_t>(s.count);
+            s.gapCapacity = capacity;
             s.gap.store(1, std::memory_order_release);
             return;
         }
@@ -160,6 +168,12 @@ int main(int argc, char **argv) {
         PlaybackConfig config;
         config.endFrame = 480000;
         PlaybackRun run(root, s, s.tracks.front().id, config);
+        auto edited = s;
+        edited.tracks.front().eq.bands.front().gainDb = -3;
+        const auto &track = edited.tracks.front();
+        const ParameterAddress address{track.id, track.eq.id, track.eq.bands.front().id,
+                                       BandParameter::GainDb};
+        auto manual = run.prepared().parameterEvent(edited, address, 0);
         Player player(run);
         CapturePipe captured({});
         Sink sink(captured, player);
@@ -181,9 +195,27 @@ int main(int argc, char **argv) {
         monitor.activate();
         output.activate();
         bool removed = false;
+        bool submitted = false, received = false;
+        Frame submittedPosition = 0;
+        ImmediateAcknowledgement receipt;
+        std::chrono::steady_clock::time_point submittedTime;
+        double receiptDelayMs = 0;
         const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(20);
         while (std::chrono::steady_clock::now() < end) {
-            if (disconnect && !removed &&
+            if (!submitted && run.position() >= 24000) {
+                submittedPosition = run.position();
+                submittedTime = std::chrono::steady_clock::now();
+                require(run.submitImmediate(manual, 1) == SubmitStatus::Accepted,
+                        "Native manual parameter submission failed");
+                submitted = true;
+            }
+            if (submitted && !received && run.acknowledgement(receipt)) {
+                receiptDelayMs = std::chrono::duration<double, std::milli>(
+                                     std::chrono::steady_clock::now() - submittedTime)
+                                     .count();
+                received = true;
+            }
+            if (disconnect && received && !removed &&
                 sink.capturedFrames.load(std::memory_order_acquire) >= 48000) {
                 monitor.stop();
                 removed = true;
@@ -207,8 +239,17 @@ int main(int argc, char **argv) {
         const auto result = writer.wait();
         std::cerr << "Native playback: player frames " << run.position() << "; captured frames "
                   << result.asset.frames << "; removed/fault " << removed << '/'
-                  << player.nativeFault << "; status " << player.status << '\n';
+                  << player.nativeFault << "; status " << player.status << "; missing frames "
+                  << run.missingFrames() << "; sink gap " << sink.gap
+                  << "; sink gap position/expected/capacity " << sink.gapPosition << '/'
+                  << sink.expectedPosition << '/' << sink.gapCapacity << "; native frames min/max "
+                  << player.minimumFrames << '/' << player.maximumFrames << '\n';
         require(!sink.gap && run.missingFrames() == 0, "Native playback gap/underflow observed");
+        require(submitted && received && receipt.revision == 1 && receipt.generation == 1 &&
+                    receipt.eventsApplied == 1 && receipt.frame >= submittedPosition &&
+                    receipt.frame < result.asset.frames && !run.droppedAcknowledgements(),
+                "Native manual edit applied-frame receipt missing or inconsistent");
+        manual.frame = receipt.frame;
         if (disconnect)
             require(removed && player.nativeFault && result.asset.frames >= 48000 &&
                         result.asset.frames < 480000,
@@ -230,7 +271,10 @@ int main(int argc, char **argv) {
                 static_cast<std::uint32_t>(std::min<Frame>(127, result.asset.frames - f));
             for (std::uint32_t i = 0; i < n; ++i)
                 input[i] = signal(f + i);
-            require(reference.process(in, out, n, f).status == ProcessStatus::Ok,
+            const auto events = manual.frame >= f && manual.frame < f + n
+                                    ? std::span(&manual, 1)
+                                    : std::span<const EqEvent>{};
+            require(reference.process(in, out, n, f, events).status == ProcessStatus::Ok,
                     "Playback reference failed");
             require(sf_readf_float(file, observed.data(), n) == n, "Native sink read failed");
             for (std::uint32_t i = 0; i < n; ++i)
@@ -251,7 +295,13 @@ int main(int argc, char **argv) {
             << (disconnect ? "true" : "false")
             << ",\"rt_allocations\":0,\"rt_frees\":0,\"rt_blocking_locks\":0,\"owned_nodes_only\":"
                "true,\"project_unchanged\":true,\"player_callbacks\":"
-            << player.calls << ",\"sink_callbacks\":" << sink.calls << "}\n";
+            << player.calls << ",\"sink_callbacks\":" << sink.calls
+            << ",\"immediate_revision\":" << receipt.revision
+            << ",\"immediate_applied_frame\":" << receipt.frame
+            << ",\"immediate_submit_position\":" << submittedPosition
+            << ",\"submit_to_receipt_poll_ms\":" << receiptDelayMs
+            << ",\"minimum_native_frames\":" << player.minimumFrames
+            << ",\"maximum_native_frames\":" << player.maximumFrames << "}\n";
         return 0;
     } catch (const std::exception &e) {
         std::cerr << e.what() << '\n';

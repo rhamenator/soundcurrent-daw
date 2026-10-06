@@ -103,6 +103,34 @@ void captureAndEvents() {
     }
     check(f.output[0] == f.input[0] && f.output[98] != f.input[98],
           "Sample-timed bridge control did not apply");
+    PreparedEq reference(f.session, f.session.tracks.front().id, 2048, 1);
+    std::array<float, 2048> expected{};
+    const std::array<float *, 1> expectedViews{expected.data()};
+    const auto timed = reference.parameterEvent(changed, address, 97);
+    check(reference.process(f.inputs, expectedViews, 127, 0, {&timed, 1}).status ==
+              ProcessStatus::Ok,
+          "Bridge control reference failed");
+    changed.tracks.front().eq.bands.front().gainDb = -6;
+    const auto immediate = bridge.prepared().parameterEvent(changed, address, 0);
+    check(bridge.submitImmediate(immediate, 1) == SubmitStatus::Accepted,
+          "Bridge immediate edit rejected");
+    f.clock.position += 127;
+    ++f.clock.cycle;
+    {
+        rt_audit::Guard guard;
+        check(bridge.process(f.clock, f.inputs, f.outputs, 127) == AudioBridgeStatus::Running,
+              "Bridge immediate edit stopped recording");
+    }
+    ImmediateAcknowledgement ack;
+    check(bridge.acknowledgement(ack) && ack.frame == 127 && ack.revision == 1 &&
+              ack.eventsApplied == 1 && !bridge.droppedAcknowledgements(),
+          "Bridge applied-frame receipt differs");
+    auto replay = immediate;
+    replay.frame = ack.frame;
+    check(reference.process(f.inputs, expectedViews, 127, 127, {&replay, 1}).status ==
+                  ProcessStatus::Ok &&
+              std::equal(expected.begin(), expected.begin() + 127, f.output.begin()),
+          "Bridge immediate replay differs");
     bridge.requestStop();
     {
         rt_audit::Guard guard;

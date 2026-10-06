@@ -28,7 +28,7 @@ A callback processes at most32 stale slabs plus the number of minimum admitted s
 
 Unexpected timeline jumps latch a timing failure; invalid views/capacity are rejected without dereferencing uncertified pointers. Reader failure stops/silences processing and is surfaced by `waitReader()` after join. Occupancy counts include a partly consumed active slab and are point-in-time diagnostics, not a sample-exact prefill horizon. Counter loads are lock-free on the admitted x64 platforms.
 
-The playback range deliberately crops at its end. Automatically appended processor tails and export tail policies are S7/M4 work. Scheduled EQ events use session-frame timestamps and existing generation/budget/smoothing rules; GUI immediate-event ingress and end-to-end fader latency still need S6 integration and measurement.
+The playback range deliberately crops at its end. Automatically appended processor tails and export tail policies are S7/M4 work. Scheduled EQ events use session-frame timestamps and existing generation/budget/smoothing rules; A separate immediate-event queue and exact applied-frame receipts now exist through `PlaybackRun`; see [S6b contract](16-immediate-controls.md). Qt/controller integration and end-to-end fader latency remain unqualified.
 
 ## Seek generation retirement
 
@@ -55,4 +55,4 @@ Headless fixtures cover32-bit-boundary and near-int64-limit timeline positions, 
 
 Linux ASan/UBSan headless tests pass with leak detection. Native sanitizer runs use the explicitly documented `PIPEWIRE_DLCLOSE=false` diagnostic; **normal PipeWire module-unload memory qualification remains open** from S5. No suppression or production environment change is introduced. Native tests are owned mono ports, not physical hardware, native Windows, all-channel/multitrack or deadline/load evidence.
 
-Next is **S6: the first Qt recording/playback/EQ UI**, including asynchronous preparation, production device/transport ownership, immediate control ingress, meters, keyboard/focus/undo, recovery/error presentation and desktop integration. Follow with S7 transactional offline WAV export. Preserve the frozen full-suite, Windows, localization, native import and remaining S4/S5 gates.
+Next is **S6: the first Qt recording/playback/EQ UI**, including asynchronous preparation, production device/transport ownership, integration of the implemented immediate ingress, meters, keyboard/focus/undo, recovery/error presentation and desktop integration. Follow with S7 transactional offline WAV export. Preserve the frozen full-suite, Windows, localization, native import and remaining S4/S5 gates.
