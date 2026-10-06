@@ -1079,3 +1079,62 @@ Next M2d4c7: unchanged1800s native workload with settled-ramp change and full re
 composed-cycle facts, after all CPU/build/test/recovery/read handles terminate. If
 outliers persist, measure actual whole-pipeline processing/cache/frequency costs;
 do not substitute isolated EQ savings or shorter ranges for original gates.
+
+
+## 2026-10-06 continuation: M2d4c7 same-callback processing intervals
+
+Previous turn was a verified wait on exact native handle91488. This turn confirms
+it live, then terminal exit1 after341.80supervisor seconds, and exact retained
+reader28022 terminal success before edits/builds. All related build/test/native
+handles subsequently terminate before the next dependent change/experiment.
+
+The unchanged49f28e7 1800s attempt skips1024sinkframes around326.25audio seconds.
+Owner25.807899mswall/25.806142msCPU at the skipped cycle exceeds21.333333msperiod,
+ends26.668947msaftercycle, and reports25.337msuser/.373mssystem with no faults/
+switches in that callback. All32raw lanes retain15,660,032frames/no rejected/missing
+raw frames; sink15,657,984. Read-only verification checks every501,121,024raw and
+31,315,968commonoutput sample exactly, peak4.18949; all105originalfiles/project/
+media/hashes/journals unchanged. A frozen executable is reconstructed with the
+exact failed binary SHA. All33disk phase pairs complete, readyqueue maximum6/118,
+no exhaustion. No routing/default/host-policy change; owned routes retire.
+
+A separate uninstalled Linux diagnostic executable wraps unresolved cross-object
+GNU ABI calls in unchanged static libraries: DuplexBridge, raw CapturePipe pushes,
+EqLiveDriver and inclusive PreparedMixGraph. Production APIs/libraries add no
+profiling clocks/hooks. One audio writer uses fixed totals and four complete worst
+callback snapshots with their own clocks/statuses. Thread-local scope excludes
+preparation/source/sink/offline work. Unknown intervals remain explicit. Inclusive
+mix contains EQ and must not be added to it; clocks/wrappers add overhead, included
+in the unchanged original whole-callback wall/CPU/resource/sample/RT gates.
+
+Release wrapper acceptance passes after correcting an inadmissible test slab to
+256frames; production admission was unchanged. Debug3groups1.36s and ASan/UBSan/
+LSan3groups3.31s pass. Tests verify actual boundary coverage, exact wrapped/original
+bridge samples, terminal/outside scopes, fixed ranking/ties/unknowns and no callback
+allocation/free/blocking lock. Current Windows headless build/configuration succeeds
+with Linux-only profiling excluded; no Windows runtime/Qt/install qualification.
+Earlier full27group results retain their checkpoint scope and do not erase faults.
+
+Serial120s native diagnostic verifies184,320,000raw/11,520,000output samples exactly,
+origins/alignment/hashes/Save-reopen/overs peak4.2659. All5625activeblocks have32raw
+pushes/33EQ-driver calls/one mix, no unknown intervals. Ownermax11.235597ms and
+p9996.067810ms pass current finite gates with complete wall/CPU/resource coverage.
+Same-callback tails vary: one10.55msbridge interval spends10.22msCPU inEQ drivers;
+another8.83ms spends7.77msCPU inraw capture. Largest11.23ms interval contains both,
+reports32minor faults; that cannot explain the earlier25.8ms/no-fault interval.
+Averages are not native worst-case/physical evidence; the long gate stays open.
+
+[Contract](46-native-processing-stage-diagnostics.md), [ADR-036](decisions/036-test-only-native-processing-stages.md)
+and [evidence](../tests/results/M2/2026-10-06-native-processing-stage-diagnostics.json)
+retain eighteen unresolved observations and exact launch/source/binary/clock/phase/
+media facts. All24borrowed inputs/heads match; no equalizer edits/dependency/license/
+push/publication changes. All92frozen acceptance/quality/reference/F/Q/C/N contracts
+remain unchanged and unpromoted. Full goal remains active/incomplete; full M2,
+physical/load/filesystem/power-loss/unload, Windows, professional features, imports,
+equipment routing/portability/rights and all-Europe delivery remain required.
+
+Next M2d4c8: run the separate stage diagnostic on the unchanged long workload to
+retain interval facts at an actual missed cycle. If aggregation is insufficient,
+retain longest individual capture/EQ-call interval/prepared ordinal in that same
+snapshot; choose a production change from that evidence. Do not substitute short
+passes, CPU accounting or unrelated maximum/average intervals for the real gate.

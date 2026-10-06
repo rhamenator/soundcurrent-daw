@@ -4,6 +4,9 @@
 #include "native_duration_timing.hpp"
 #include "writer_timing.hpp"
 #include "rt_audit.hpp"
+#ifdef SC_NATIVE_PROCESSING_STAGES
+#include "native_processing_stages.hpp"
+#endif
 #include <sndfile.h>
 #include <algorithm>
 #include <array>
@@ -340,6 +343,11 @@ void diagnostics(const DuplexRecordingRun &run, const Sink &sink, const Audit &o
     std::cerr << "\nSink timing ";
     sink.audit.timing.write(std::cerr);
     std::cerr << '\n';
+#ifdef SC_NATIVE_PROCESSING_STAGES
+    std::cerr << "Processing stages ";
+    native_fixture::processingStages.write(std::cerr);
+    std::cerr << '\n';
+#endif
 }
 // Read-only verification of a joined, failed native run. Keep every lane's full
 // valid prefix, including those one quantum longer than the failed lane. Compare
@@ -768,7 +776,12 @@ int main(int argc, char **argv) {
                 std::cout << ',';
             diskTiming[n].write(std::cout);
         }
-        std::cout << "]}\n";
+        std::cout << ']';
+#ifdef SC_NATIVE_PROCESSING_STAGES
+        std::cout << ",\"processing_stages\":";
+        native_fixture::processingStages.write(std::cout);
+#endif
+        std::cout << "}\n";
     } catch (const std::exception &e) {
         std::cerr << "FAIL: " << e.what() << '\n';
         return 1;

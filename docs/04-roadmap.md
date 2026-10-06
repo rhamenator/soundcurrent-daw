@@ -168,3 +168,15 @@ max wall20.768787ms fails the existingperiod budget. Optional thread CPU clocks 
 fixed coverage/maxima supplement, never replace, full elapsed/current-period gates.
 Full sink/max-clock flags are printed after joins. Production remains unchanged;
 short CPU coverage does not establish original cause or long native qualification.
+
+
+M2d4c7 adds [separate test-only processing stage intervals](46-native-processing-stage-diagnostics.md)
+after a further unchanged long native miss. The exact full raw/common-output prefix
+is retained and verified read-only; eighteen historical observations remain. GNU
+ABI wrappers measure raw capture, EQ-driver and inclusive mix within the same
+bridge callback without modifying production libraries. Actual wrapper-count/
+bit-identical-output/RT and120s native sample/timing evidence qualify this scoped
+diagnostic. Tails vary by stage; no single long-run cause is established. Next
+obtain a matching stage snapshot at a long-run miss, then select a justified change
+and repeat the unchanged full gate. Remaining M2 punch/loop/takes/comping, Windows
+and every frozen full-suite requirement remain required and unpromoted.
