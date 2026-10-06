@@ -1,6 +1,6 @@
 # SLICE-001: record one track → in-process EQ → save/reopen → WAV
 
-Status: **S1/S2 state, S3 prepared EQ/transport, S4 headless recording/recovery, S5 native owned-source and S6a bounded playback and S6b immediate-control and S6c asynchronous project-editor and S6d/S6e native owner/desktop playback and S6f recording owner/attachment and S6g desktop recording/recovery and S7a/S7b offline/desktop export foundations implemented; whole slice incomplete** (2026-10-06). State includes stable IDs, scalar EQ gesture undo, v1.0 snapshots and hashed relative media. `sc-engine` supplies prepared peaking EQ, sample-timed events, smoothing, float headroom and shared live/offline processing; bounded queue and retirement infrastructure have fixtures. See [state](09-session-state-contract.md), [engine](11-engine-contract.md) and [results](../tests/results/SLICE-001/). Linux tests/sanitizers run; Windows core/tests cross-compile. A concurrent synthetic source records RF64 raw takes, checkpoints/recovery and project attachment; see [recording contract](13-recording-contract.md). The shared bridge and native PipeWire owned-source/monitor/disconnect fixtures now exist; full graph transitions, hardware latency, automatic reprepare, Windows audio, general graph UI and full platform/route qualification remain unimplemented or unqualified. See [native contract](14-native-audio-contract.md). Physical disk-full/power-loss, >4 GiB and native Windows execution remain unverified.
+Status: **S1/S2 state, S3 prepared EQ/transport, S4 headless recording/recovery, S5 native owned-source and S6a bounded playback and S6b immediate-control and S6c asynchronous project-editor and S6d/S6e native owner/desktop playback and S6f recording owner/attachment and S6g desktop recording/recovery and S7a/S7b offline/desktop export foundations implemented; whole slice incomplete** (2026-10-06). State includes stable IDs, scalar EQ and route undo, v1.1 snapshots with explicit v1.0 migration and hashed relative media. `sc-engine` supplies prepared peaking EQ, sample-timed events, smoothing, float headroom and shared live/offline processing; bounded queue and retirement infrastructure have fixtures. See [state](09-session-state-contract.md), [engine](11-engine-contract.md) and [results](../tests/results/SLICE-001/). Linux tests/sanitizers run; Windows core/tests cross-compile. A concurrent synthetic source records RF64 raw takes, checkpoints/recovery and project attachment; see [recording contract](13-recording-contract.md). The shared bridge and native PipeWire owned-source/monitor/disconnect fixtures now exist; full graph transitions, hardware latency, automatic reprepare, Windows audio, general graph UI and full platform/route qualification remain unimplemented or unqualified. See [native contract](14-native-audio-contract.md). Physical disk-full/power-loss, >4 GiB and native Windows execution remain unverified.
 
 ## User workflow
 
@@ -39,13 +39,18 @@ No clip launcher, VST host, notation, new effects catalog, arbitrary-channel UI 
 {
   "format": "soundcurrent-daw",
   "schemaMajor": 1,
-  "schemaMinor": 0,
+  "schemaMinor": 1,
   "projectId": "UUID",
   "sampleRate": 48000,
   "tracks": [{
     "id": "UUID",
     "layout": {"kind": "mono", "channels": 1},
-    "inputIntent": {"backend": "pipewire", "portIdentity": "stable descriptor"},
+    "inputIntent": {"backendId": "pipewire", "portIdentity": "",
+                    "ports": [{"deviceIdentity": "microphone-node",
+                               "portIdentity": "capture_1", "mediaClass": "Audio/Source",
+                               "input": false}]},
+    "outputIntent": {"backendId": "pipewire", "portIdentity": "", "ports": [null]},
+    "monitorIntent": {"backendId": "", "portIdentity": "", "ports": []},
     "clips": [{"id": "UUID", "assetId": "UUID", "startFrame": 0,
                "sourceFrame": 0, "lengthFrames": 480000}],
     "processors": [{"id": "UUID", "type": "sc.eq", "version": 1,
@@ -57,7 +62,7 @@ No clip launcher, VST host, notation, new effects catalog, arbitrary-channel UI 
 }
 ```
 
-This original example illustrates identity and timing. The implemented v1.0 encoding additionally includes session/track names, playhead/export range, output intent, processor enable and structured asset layout; route keys are `backendId`/`portIdentity`. [State contract](09-session-state-contract.md) describes strict decoding. Capture timestamp origins and terminal reasons now live in journal1.1; measured latency, monitor-mode UI and richer processor-tail state remain later work. Device numeric IDs are ephemeral and must not be used as persistent identities.
+This partial example illustrates identity, timing and typed routing. The implemented v1.1 encoding additionally includes session/track names, playhead/export range, processor enable and structured asset layout; exact fields are defined by the encoder and strict decoder. Explicit v1.0 migration preserves older opaque route strings. [State contract](09-session-state-contract.md) describes strict decoding. Capture timestamp origins and terminal reasons now live in journal1.1; measured latency, monitor-mode UI and richer processor-tail state remain later work. Device numeric IDs are ephemeral and must not be used as persistent identities.
 
 ## Required gates
 
@@ -83,3 +88,10 @@ S6g now [connects first-track desktop recording, live EQ/undo, verified take han
 S7a now [renders transactional float WAV/RF64 exports through a private shared EQ](23-offline-export.md). Linux debug/sanitizer regression, exact live/oracle comparisons and active signal cancellation pass; Windows headless cross-build passes. This adds worker API/developer CLI only. Desktop range/overwrite/progress/cancel/close controls, S8, native Windows and physical/durability gates remain required.
 
 S7b now [connects desktop snapshot export](24-desktop-export.md), with real WAV-write/immutable-prefix/overwrite/progress/cancel/close evidence. S7a processing/format and remaining filesystem/native/platform limitations still apply. This advances the Linux one-track workflow but does not complete all SLICE-001 gates or any frozen parity row.
+
+
+S8a adds typed per-channel input/playback/monitor intent, explicit v1.0 migration,
+shared route/EQ undo and desktop restoration with named unresolved placeholders.
+See [routing contract](26-project-routing.md). This is a portability foundation;
+consolidated native record-to-export, hardware, Windows and other remaining first-slice
+gates stay open.

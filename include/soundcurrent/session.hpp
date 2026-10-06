@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <variant>
 
 namespace soundcurrent::daw {
 using Frame = std::int64_t;
@@ -49,9 +50,16 @@ struct ChannelLayout {
     std::uint32_t channels = 1;
     bool operator==(const ChannelLayout &) const = default;
 };
+struct ChannelPortIntent {
+    std::string deviceIdentity, portIdentity, mediaClass;
+    bool input = false; // Endpoint receives audio (output/monitor destination).
+    bool operator==(const ChannelPortIntent &) const = default;
+};
 struct RouteIntent {
     std::string backendId; // Stable machine identifier, never a translated label.
     std::string portIdentity;
+    // v1.0 opaque identities remain intact; v1.1 uses ordered channel slots.
+    std::vector<std::optional<ChannelPortIntent>> ports;
     bool operator==(const RouteIntent &) const = default;
 };
 struct EqBand {
@@ -81,6 +89,7 @@ struct Track {
     ChannelLayout layout;
     RouteIntent input;
     RouteIntent output;
+    RouteIntent monitor;
     EqSettings eq;
     std::vector<Clip> clips;
     bool operator==(const Track &) const = default;
@@ -109,6 +118,20 @@ bool validUtf8(std::string_view text) noexcept;
 void validateRelativeMediaPath(std::string_view path);
 void validate(const Session &session);
 Session makeOneTrackSession(std::string name, std::string trackName);
+enum class RouteTarget { Input, Output, Monitor };
+struct RouteAddress {
+    Id trackId;
+    RouteTarget target;
+    bool operator==(const RouteAddress &) const = default;
+};
+struct RouteChannelPatch {
+    std::uint32_t channel = 0;
+    std::string backendId;
+    std::optional<ChannelPortIntent> port;
+};
+const RouteIntent &routeValue(const Session &, const RouteAddress &);
+RouteIntent patchedRouteValue(const Session &, const RouteAddress &, const RouteChannelPatch &);
+void setRouteValue(Session &, const RouteAddress &, const RouteIntent &);
 
 enum class BandParameter { FrequencyHz, GainDb, Q };
 struct ParameterAddress {
@@ -138,15 +161,21 @@ class EditHistory {
     void cancel();
     bool undo();
     bool redo();
+    bool route(const RouteAddress &, const RouteIntent &);
 
   private:
-    struct Change {
+    struct ParameterChange {
         ParameterAddress address;
         double before;
         double after;
     };
+    struct RouteChange {
+        RouteAddress address;
+        RouteIntent before, after;
+    };
+    using Change = std::variant<ParameterChange, RouteChange>;
     Session &session_;
-    std::optional<Change> active_;
+    std::optional<ParameterChange> active_;
     std::vector<Change> undo_, redo_;
 };
 } // namespace soundcurrent::daw

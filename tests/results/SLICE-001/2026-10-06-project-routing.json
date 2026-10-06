@@ -1,0 +1,205 @@
+{
+  "slice": "SLICE-001 / S8a portable route intent and consolidated native roundtrip",
+  "date": "2026-10-06",
+  "base_revision": "61a0e9ac9980787816f13be3f1678595194d7ae8",
+  "status": "progress; routing persistence/migration and native synthetic workflow qualified; full slice/parity remains incomplete",
+  "schema": {
+    "writer": "1.1",
+    "readers": [
+      "1.0 explicit migration",
+      "1.1 strict"
+    ],
+    "legacy_media_fixture": "The state-only legacy migration corpus uses three hash-fixture bytes plus clip/asset timing metadata; actual RF64 audio relocation/export is qualified separately by the native roundtrip."
+  },
+  "tested_source_sha256": {
+    "CMakeLists.txt": "3d45ed0bab92bd6667b8a65b5e2faf7178870211141bb0a1df7bb61c7603abb5",
+    "include/soundcurrent/session.hpp": "ca5e4381f74ba41f31df42d83674623d9d0ee925d2fc287a6b440568f57327a3",
+    "src/project_store.cpp": "fc9bba2150e085c3b0dad163e9e6edddb08990c5ad7fa85f7ddc0088871aa1ee",
+    "src/session.cpp": "385385efc7ecce751ef51d8c280170acb5fab343575cfbb9e8d4bf3f7b79159d",
+    "tests/controller_tests.cpp": "3bdf6406f62b12f9192ed7d68c8375fb8937246d611ce25001e01c1be4b4e72d",
+    "tests/fake_playback_endpoint.hpp": "c4eeb88f8f8fd69426f9123b0fe7da84e45400bc9c275230697e4924f9817f40",
+    "tests/pipewire_fixture.cpp": "0f5080ae3a198b8b39d791dc15dc2ceeccde71fb20e352bce63cf8074d291774",
+    "tests/pipewire_recording_ui_fixture.cpp": "a737e8f45970d1da91b09564389f631fa8687155a52feead3ad76965da382cf4",
+    "tests/session_tests.cpp": "e6a8520dfd9f601b96d0fad98e0017a0d062cef2bcb94255a051933ed19970ad",
+    "tests/ui_tests.cpp": "8021be072a270db6b23f11a2ad63877e04397bca5b7b04269013814d14d65a87",
+    "ui/playback_controller.cpp": "9425e5eb80a4b8e1a9a3fe71200663049b3dc89401c0be76d4a4f86cd5ce942c",
+    "ui/project_controller.cpp": "4b882ef99f3f124222d3de649f1fa4294d153063477f9313bf0c2655ff7f5628",
+    "ui/project_controller.hpp": "b1c5bf3dcfd430356935e8318992017e1d4e3626426a466e0933326b5fdfbaf9",
+    "ui/recording_controller.cpp": "31bf2d6095a46209a3c6523e6dcba079d021992beb48d58899725bc1e77cf66e",
+    "ui/studio_window.cpp": "fe85fe33fcc55c62082562a94ff68907cd95c3050e5be9cb8fdd688b844ee466",
+    "ui/studio_window.hpp": "8e3bdf58c84ea3d4bc2bbeb69a3dc17c8594b22c9f32d45e77690049a2c268f2",
+    "include/soundcurrent/routing.hpp": "66a68a0df135363e242510a9b9761f4cc02a3d9969757750a8ef80cb50c2293d",
+    "src/routing.cpp": "09b81ca59b08e38cfbd510aaaf88f93bc43485b1f29a17194b557fe352313b0c",
+    "tests/routing_tests.cpp": "52d12eea1ebe315b552979e2e7837eb1d1a438d290a0e24424ea9c81648ac3c0"
+  },
+  "headless_qualification": {
+    "linux_debug": {
+      "groups": 17,
+      "result": "passed",
+      "log_sha256": "4e9b350b343e5a2d59c189c2cf2d96d113a742443e14b9480427b35de28eb29f",
+      "note": "Initial routing corpus 561 checks. Final legacy media/previous-generation additions separately rerun and passed."
+    },
+    "linux_debug_final_migration": {
+      "groups": 1,
+      "routing_checks": 568,
+      "result": "passed",
+      "log_sha256": "3fcc971384137457b6939cf521d9420ec450c6e78223be42fbf5892a18526105"
+    },
+    "linux_sanitized": {
+      "groups": 17,
+      "result": "passed",
+      "sanitizers": [
+        "AddressSanitizer",
+        "UndefinedBehaviorSanitizer",
+        "LeakSanitizer"
+      ],
+      "environment": "ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1",
+      "routing_checks": 568,
+      "desktop_controller_checks": 224,
+      "desktop_ui_checks": 295,
+      "log_sha256": "e51e551ec7e59fac42a212bd4923b04e20eaa6abe52e9d197cf0b4658b9ff49a"
+    },
+    "windows_headless": {
+      "result": "MinGW core/tools/tests cross-build passed, including sc-routing-tests.exe",
+      "log_sha256": "8fad571437e0620b6cc99b44b7f8f4699d6163c87693bca61ee364dc9a9108a9",
+      "runtime": false,
+      "qt_native_audio": false
+    }
+  },
+  "core_cases": [
+    "Exact unique matching and all 256 ordered channel descriptors; missing, partial, ambiguous, wrong-direction/class/backend, null and legacy choices.",
+    "Strict schema 1.0 migration preserves IDs, clips, timing, EQ, opaque routes and media hashes; explicit Save emits 1.1 and keeps previous legacy bytes exactly.",
+    "Typed route roundtrip, field/type/direction/shape/UTF-8/NUL/text-budget rejection.",
+    "Stable-ID mixed parameter/route undo and redo, transactional failures and 256-item history bound.",
+    "Control worker held while 32 patches queue; ordered merge and barrier; no-op revisions, stale/invalid IDs, active-gesture rejection/cancel.",
+    "Route changes during Save and finalized-take verification preserve canonical edits and saved-prefix semantics; full queue rejects routing and priority close joins.",
+    "Desktop actual stereo recorded media, rapid channel choices, save/relocate/reopen under new numeric IDs; named missing/ambiguous/legacy/backend placeholders; explicit remap/undo without active reconnection.",
+    "Recording input and monitor intents independently persist/restore without starting callbacks or a capture job; monitor mode remains an explicit unsaved choice."
+  ],
+  "native_debug": [
+    {
+      "mode": "roundtrip",
+      "frames": 480000,
+      "owned_nodes_only": true,
+      "gui_recording": true,
+      "monitoring_off": false,
+      "raw_exact": true,
+      "monitor_compared_frames": 480000,
+      "missing_monitor_frames": 0,
+      "live_offline_difference": 0,
+      "applied_events": 2,
+      "first_applied_frame": 24576,
+      "input_disconnect_observed": false,
+      "gui_save_reopen": true,
+      "rt_allocations": 0,
+      "rt_frees": 0,
+      "rt_blocking_locks": 0,
+      "routing_intent_saved": true,
+      "relocated_native_reopen": true,
+      "desktop_export_frames": 480000,
+      "export_direct_eq_difference": 0,
+      "export_native_prefix_difference": 0,
+      "routing_observations": {
+        "graph_snapshots_during_run": 82,
+        "snapshots_with_owned_links": 75,
+        "no_observed_owned_to_unowned_links": true,
+        "pre_existing_links_preserved": 2,
+        "default_metadata_unchanged": true,
+        "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+        "owned_nodes_and_links_removed": true
+      },
+      "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()"
+    },
+    {
+      "mode": "disconnect",
+      "frames": 48128,
+      "owned_nodes_only": true,
+      "gui_recording": true,
+      "monitoring_off": false,
+      "raw_exact": true,
+      "monitor_compared_frames": 48128,
+      "missing_monitor_frames": 0,
+      "live_offline_difference": 0,
+      "applied_events": 1,
+      "first_applied_frame": 24576,
+      "input_disconnect_observed": true,
+      "gui_save_reopen": true,
+      "rt_allocations": 0,
+      "rt_frees": 0,
+      "rt_blocking_locks": 0,
+      "routing_intent_saved": true,
+      "relocated_native_reopen": false,
+      "desktop_export_frames": 0,
+      "export_direct_eq_difference": 0,
+      "export_native_prefix_difference": 0,
+      "routing_observations": {
+        "graph_snapshots_during_run": 10,
+        "snapshots_with_owned_links": 7,
+        "no_observed_owned_to_unowned_links": true,
+        "pre_existing_links_preserved": 2,
+        "default_metadata_unchanged": true,
+        "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+        "owned_nodes_and_links_removed": true
+      },
+      "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()"
+    }
+  ],
+  "native_sanitized_diagnostic": {
+    "environment": "PIPEWIRE_DLCLOSE=false ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 QT_QPA_PLATFORM=offscreen",
+    "results": [
+      {
+        "mode": "roundtrip",
+        "frames": 480000,
+        "owned_nodes_only": true,
+        "gui_recording": true,
+        "monitoring_off": false,
+        "raw_exact": true,
+        "monitor_compared_frames": 480000,
+        "missing_monitor_frames": 0,
+        "live_offline_difference": 0,
+        "applied_events": 2,
+        "first_applied_frame": 24576,
+        "input_disconnect_observed": false,
+        "gui_save_reopen": true,
+        "rt_allocations": 0,
+        "rt_frees": 0,
+        "rt_blocking_locks": 0,
+        "routing_intent_saved": true,
+        "relocated_native_reopen": true,
+        "desktop_export_frames": 480000,
+        "export_direct_eq_difference": 0,
+        "export_native_prefix_difference": 0,
+        "routing_observations": {
+          "graph_snapshots_during_run": 93,
+          "snapshots_with_owned_links": 76,
+          "no_observed_owned_to_unowned_links": true,
+          "pre_existing_links_preserved": 2,
+          "default_metadata_unchanged": true,
+          "default_metadata_sha256": "5cb6eb42713eb7d44ddca037c9ca3b07f6e5f215fde2ca57fc2bf166372c8f58",
+          "owned_nodes_and_links_removed": true
+        },
+        "native_diagnostic": "This plugin does not support propagateSizeHints()\nPreparing GUI recording, monitoring 1\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()\nThis plugin does not support propagateSizeHints()"
+      }
+    ],
+    "limitation": "Disabling module unload is diagnostic qualification only. Normal PipeWire dependency-unload memory and deadline/load gates remain open."
+  },
+  "failures_resolved": [
+    "Existing playback/recording compatibility checks wrongly treated newly persisted route intent as active graph structure; exclude first-track intent from live EQ compatibility while retaining prepared connections.",
+    "Latest-only GUI snapshots can skip an intermediate route and its undo; refresh selectors on model revision/epoch and failed-command changes, not only cached intent equality.",
+    "Old UI dirty-state predicates could succeed on a newly dirty route before an EQ edit; synchronize on actual gain and applied revision. A monitor test originally expected discarded state to be saved; it now preserves discard acceptance and explicitly persists the owned fixture model for reopen.",
+    "Native fixture compile errors used an unavailable path helper and optional-style access for a shared result; fixed to declared Linux path/result APIs."
+  ],
+  "upstream_reuse_audit": {
+    "registered_inputs": 24,
+    "result": "matching, no adoption required",
+    "report_sha256": "6bc5e23b402e0fc35bdb6dc7180bec65ef1e87710da8fb89adf77c205151b297"
+  },
+  "limitations": [
+    "Synthetic mono native route and static selected-track WAV export; physical recording latency/alignment and arbitrary hardware layouts are not qualified.",
+    "Name-based PipeWire descriptors are not authenticated/immutable hardware identity; renames, duplicates and cross-backend routes need explicit choice.",
+    "Monitor mode, live topology replacement, multitrack/overdub/Auto monitoring and general project undo remain future work.",
+    "Native Windows execution/Qt/UI/audio/installer, physical disk-full/power-loss/>4 GiB and automatic recovery discovery remain open.",
+    "Full 92-family frozen parity, X004 imports, X005 correction routing/printing/pins/measurement/rights and all-Europe language delivery remain incomplete."
+  ],
+  "next_task": "S8b remaining recording/recovery/portability acceptance and native Windows/physical gates, then M2 multitrack timeline/capture/monitoring without claiming full first-slice or product completion."
+}

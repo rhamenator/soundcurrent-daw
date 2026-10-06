@@ -15,6 +15,7 @@ struct Counters {
     std::atomic<bool> holdStop{false}, waitingStop{false};
     std::atomic<std::uint32_t> forcedStatus{0};
     std::atomic<unsigned> constructed{0}, activated{0}, stopped{0}, destroyed{0}, submitted{0};
+    std::atomic<unsigned> connected{0};
     std::atomic<unsigned> acceptLimit{UINT_MAX};
     std::atomic<bool> wrongThread{false};
     std::vector<PipeWirePort> ports{{501, 502, 503, "Owned Σ sink", "input_1", "Audio/Sink", true},
@@ -28,9 +29,9 @@ class Endpoint : public PlaybackEndpoint {
     QThread *thread_ = QThread::currentThread();
     bool active_ = false, stopped_ = false;
     PlaybackTelemetry telemetry_;
-    std::array<float, 256> input_{}, output_{};
-    std::array<const float *, 1> inputs_{input_.data()};
-    std::array<float *, 1> outputs_{output_.data()};
+    std::vector<std::array<float, 256>> input_, output_;
+    std::vector<const float *> inputs_;
+    std::vector<float *> outputs_;
     void threadCheck() noexcept {
         if (thread_ != QThread::currentThread())
             counters_->wrongThread.store(true);
@@ -40,7 +41,13 @@ class Endpoint : public PlaybackEndpoint {
     Endpoint(const PlaybackPreparation &p, std::shared_ptr<Counters> c)
         : counters_(std::move(c)), eq_(*p.session, p.track, 2048, p.config.generation),
           driver_(eq_, p.config.startFrame), end_(p.config.endFrame) {
-        input_.fill(1.25f);
+        input_.resize(eq_.channels());
+        output_.resize(eq_.channels());
+        for (std::size_t c = 0; c < input_.size(); ++c) {
+            input_[c].fill(1.25f);
+            inputs_.push_back(input_[c].data());
+            outputs_.push_back(output_[c].data());
+        }
         telemetry_.position = p.config.startFrame;
         ++counters_->constructed;
     }
@@ -55,9 +62,12 @@ class Endpoint : public PlaybackEndpoint {
     }
     void connect(const std::vector<PipeWirePort> &p) override {
         threadCheck();
-        if (p.size() != 1 || std::find(counters_->ports.begin(), counters_->ports.end(),
-                                       p.front()) == counters_->ports.end())
+        if (p.size() != eq_.channels() || std::any_of(p.begin(), p.end(), [&](const auto &port) {
+                return !port.input || std::find(counters_->ports.begin(), counters_->ports.end(),
+                                                port) == counters_->ports.end();
+            }))
             throw ProjectError(ErrorCode::InvalidState, "Stale/invalid fake output");
+        ++counters_->connected;
     }
     void activate() override {
         threadCheck();

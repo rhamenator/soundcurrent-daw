@@ -2,11 +2,11 @@
 
 The root CMake build exposes Qt-free `SoundCurrent::Session` and `SoundCurrent::ProjectStore`. These two state components contain no playback or capture callbacks. Their methods allocate and run only on the control/disk side; they are **not real-time APIs**.
 
-## Schema v1.0
+## Schema v1.1 (with explicit v1.0 migration)
 
 [encodeProject](../src/project_store.cpp) defines the exact JSON fields; tests exercise inverse decoding. `project.json` stores session/track/processor/band/clip/asset UUIDs, names, sample rate, playhead/export frames, layout, backend/port intent, EQ enable/frequency/gain/Q and relative hashed media. No machine-specific numeric device ID is persisted.
 
-Canonical lowercase UUIDs identify objects; parameter addresses use track + processor + band UUID and fixed descriptor IDs. Track names and band order can change without changing parameter addresses. One drag gesture produces one undo item (up to 256 retained gestures); cancel restores its initial value. Undo state is presently in-memory, limited to EQ scalar gestures, and not serialized. Recording/monitor/latency state and general edit commands are future schema work.
+Canonical lowercase UUIDs identify objects; parameter addresses use track + processor + band UUID and fixed descriptor IDs. Track names and band order can change without changing parameter addresses. One drag gesture produces one undo item; cancel restores its initial value. Scalar EQ gestures and input/output/monitor route edits share at most 256 in-memory undo items; history is not serialized. Schema 1.1 adds strict per-channel descriptors and a separate monitor intent. The decoder explicitly migrates v1.0 while preserving opaque route strings; the writer emits 1.1. See [routing](26-project-routing.md) for matching, limits and named placeholders. Monitoring mode, latency state and general edit commands remain future schema work.
 
 Input limits: 4 MiB project text, JSON nesting depth 32, 256 tracks, 4096 assets, 8192 clips total, 64 EQ bands per track, 1–256 layout channels and 4096-byte UTF-8 text fields. Frames are nonnegative int64; overflow and float-to-frame conversion are rejected. IDs must be globally unique. Unknown fields, processor versions or schema versions fail explicitly rather than disappear during load/save. A later migration must be explicit and tested before accepting a newer schema.
 

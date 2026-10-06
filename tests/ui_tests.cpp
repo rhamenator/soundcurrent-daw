@@ -278,13 +278,14 @@ void playbackWorkflow(const std::filesystem::path &root) {
     slider->setValue(60);
     await([&] {
         return window.snapshot()->dirty &&
+               window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 6 &&
                window.playbackSnapshot()->appliedRevision == window.snapshot()->modelRevision;
     });
     check(window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 6,
           "GUI change did not reach project/playback");
     QTest::keyClick(&window, Qt::Key_Z, Qt::ControlModifier);
     await([&] {
-        return !window.snapshot()->dirty &&
+        return window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 0 &&
                window.playbackSnapshot()->appliedRevision == window.snapshot()->modelRevision;
     });
     check(window.snapshot()->session->tracks.front().eq.bands.front().gainDb == 0,
@@ -304,6 +305,7 @@ void playbackWorkflow(const std::filesystem::path &root) {
     await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Playing; });
     counters->waitingStop.store(false);
     counters->holdStop.store(true);
+    PromptChoice discardRoutes(QMessageBox::Discard);
     window.close();
     await([&] { return counters->waitingStop.load() && window.snapshot()->closed; });
     QTest::qWait(30);
@@ -394,6 +396,9 @@ void recordingWorkflow(const std::filesystem::path &root, bool monitoring) {
         window.close();
         await([&] { return window.snapshot()->closed && window.recordingSnapshot()->closed; });
         check(ProjectStore(root).load() == session, "Discard changed saved project");
+        // The discarded live model remains available to the owned fixture. Persist it
+        // explicitly to qualify monitor-intent reopen independently of discard behavior.
+        ProjectStore(root).save(*window.snapshot()->session);
     } else {
         c->holdStop = true;
         int ticks = 0;
@@ -443,6 +448,37 @@ void recordingWorkflow(const std::filesystem::path &root, bool monitoring) {
                   .finalized,
               "Saved raw take is not finalized");
     }
+    const auto saved = ProjectStore(root).load();
+    check(saved.tracks.front().input.ports.size() == 1 &&
+              saved.tracks.front().input.ports[0]->deviceIdentity == "Owned Σ input",
+          "Recorded input intent not saved");
+    check(monitoring
+              ? saved.tracks.front().monitor.ports.size() == 1 &&
+                    saved.tracks.front().monitor.ports[0]->deviceIdentity == "Owned Σ monitor"
+              : saved.tracks.front().monitor.ports.empty(),
+          "Independent monitor intent changed");
+    auto restored = std::make_shared<recording_fixture::Counters>();
+    StudioWindow reopened(nullptr, {}, recording_fixture::options(restored));
+    reopened.show();
+    reopened.openProject(root);
+    await([&] {
+        return reopened.snapshot()->session && reopened.snapshot()->io == IoOperation::None;
+    });
+    if (monitoring)
+        reopened.findChild<QComboBox *>("recordMonitorMode")->setCurrentIndex(1);
+    check(reopened.prepareRecording(), "Restored input preparation refused");
+    await([&] {
+        return reopened.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               reopened.findChild<QComboBox *>("inputChannel0");
+    });
+    check(reopened.findChild<QComboBox *>("inputChannel0")->currentIndex() == 1 &&
+              !restored->activated && !reopened.recordingSnapshot()->job,
+          "Input restoration failed or started capture job");
+    if (monitoring)
+        check(reopened.findChild<QComboBox *>("monitorChannel0")->currentIndex() == 1,
+              "Monitor restoration failed");
+    reopened.close();
+    await([&] { return reopened.snapshot()->closed && reopened.recordingSnapshot()->closed; });
 }
 void recordingRecoveryWorkflow(const std::filesystem::path &root) {
     auto s = makeOneTrackSession("Recovery – Σ", "Raw");
@@ -469,7 +505,8 @@ void recordingRecoveryWorkflow(const std::filesystem::path &root) {
     await([&] { return keep->isVisible() && keep->isEnabled(); });
     auto fault = window.recordingSnapshot();
     check(fault->take && window.snapshot()->errorCode == ErrorCode::MediaMismatch &&
-              window.snapshot()->session->assets.empty() && !window.snapshot()->dirty,
+              window.snapshot()->session->assets.empty() && window.snapshot()->dirty &&
+              !window.snapshot()->session->tracks.front().input.ports.empty(),
           "Unverified take entered canonical model");
     const auto original = *fault->job;
     const auto initial = inspectRecording(original);
@@ -494,6 +531,202 @@ void recordingRecoveryWorkflow(const std::filesystem::path &root) {
     check(ProjectStore(root).load() == model, "Recovery take failed desktop save/reopen");
 }
 
+Session stereoTake(const std::filesystem::path &root) {
+    auto s = makeOneTrackSession("Portable — Ελλάδα", "Stereo");
+    s.tracks.front().layout = {LayoutKind::Stereo, 2};
+    std::filesystem::create_directories(root);
+    CaptureConfig config;
+    config.layout = s.tracks.front().layout;
+    CapturePipe pipe(config);
+    RecordingSpec spec;
+    spec.projectId = s.id;
+    spec.trackId = s.tracks.front().id;
+    spec.capture = pipe.config();
+    CaptureWriter writer(root, spec);
+    std::array<float, 256> left{}, right{};
+    left.fill(.2f);
+    right.fill(-.1f);
+    std::array<const float *, 2> planes{left.data(), right.data()};
+    for (Frame f = 0; f < 48128; f += 256) {
+        check(pipe.push(planes, 256, f).acceptedFrames == 256, "Stereo raw capture rejected");
+        while (writer.drainOne(pipe)) {
+        }
+    }
+    pipe.finish();
+    while (writer.drainOne(pipe)) {
+    }
+    attachRecording(s, writer.finalize(pipe));
+    ProjectStore(root).save(s);
+    return s;
+}
+QAction *projectUndo(StudioWindow &window) {
+    const auto actions = window.findChildren<QAction *>();
+    const auto found = std::find_if(actions.begin(), actions.end(),
+                                    [](auto *a) { return a->shortcut() == QKeySequence::Undo; });
+    check(found != actions.end(), "Project Undo action missing");
+    return *found;
+}
+void portableOutputRoutes(const std::filesystem::path &root) {
+    const auto initial = stereoTake(root);
+    auto ports = std::make_shared<playback_fixture::Counters>();
+    Session saved;
+    {
+        StudioWindow w(nullptr, playback_fixture::options(ports));
+        w.show();
+        w.openProject(root);
+        await([&] { return w.snapshot()->session && w.snapshot()->io == IoOperation::None; });
+        check(w.preparePlayback(), "Stereo route preparation refused");
+        await([&] {
+            return w.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+                   w.findChild<QComboBox *>("outputChannel1");
+        });
+        auto *left = w.findChild<QComboBox *>("outputChannel0");
+        auto *right = w.findChild<QComboBox *>("outputChannel1");
+        check(left->currentIndex() == 0 && right->currentIndex() == 0 && !ports->activated,
+              "Fresh route activated/defaulted");
+        left->setCurrentIndex(1);
+        right->setCurrentIndex(2);
+        await([&] {
+            const auto &r = w.snapshot()->session->tracks.front().output;
+            return r.ports.size() == 2 && r.ports[0] && r.ports[1];
+        });
+        saved = *w.snapshot()->session;
+        check(saved.tracks.front().output.ports[0]->portIdentity == "input_1" &&
+                  saved.tracks.front().output.ports[1]->portIdentity == "input_2",
+              "Quick GUI changes lost channel selection");
+        check(w.snapshot()->dirty && !ports->activated,
+              "Route intent is not dirty or activated audio");
+        check(w.submitEdit({CommandKind::Save}), "GUI route Save refused");
+        await([&] { return !w.snapshot()->dirty && w.snapshot()->io == IoOperation::None; });
+        check(ProjectStore(root).load() == saved, "Desktop route Save/reopen differs");
+        const auto bytes = encodeProject(saved);
+        check(bytes.find("nodeId") == std::string::npos &&
+                  bytes.find("nodeSerial") == std::string::npos &&
+                  bytes.find("portId\"") == std::string::npos,
+              "Volatile graph IDs serialized");
+        w.close();
+        await([&] { return w.snapshot()->closed && w.playbackSnapshot()->closed; });
+    }
+    const auto moved = root.parent_path() / utf8Path("Moved — Україна");
+    std::filesystem::rename(root, moved);
+    auto reconnected = std::make_shared<playback_fixture::Counters>();
+    for (auto &p : reconnected->ports) {
+        p.nodeId += 100;
+        p.portId += 100;
+        p.nodeSerial += 1000;
+    }
+    {
+        StudioWindow w(nullptr, playback_fixture::options(reconnected));
+        w.show();
+        w.openProject(moved);
+        await([&] { return w.snapshot()->session && w.snapshot()->io == IoOperation::None; });
+        check(*w.snapshot()->session == saved && w.snapshot()->root == moved,
+              "Moved project changed media/route identity");
+        check(w.preparePlayback(), "Relocated prepare refused");
+        await([&] {
+            return w.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+                   w.findChild<QComboBox *>("outputChannel1");
+        });
+        auto *left = w.findChild<QComboBox *>("outputChannel0");
+        auto *right = w.findChild<QComboBox *>("outputChannel1");
+        check(left->currentIndex() == 1 && right->currentIndex() == 2 && !reconnected->activated &&
+                  !reconnected->connected,
+              "Matched descriptors activated a graph on reopen/prepare");
+        check(left->currentData().toString().startsWith("1503:601:"),
+              "Restoration reused old graph IDs");
+        left->setCurrentIndex(2);
+        await([&] {
+            return w.snapshot()->session->tracks.front().output.ports[0]->portIdentity == "input_2";
+        });
+        w.findChild<QPushButton *>("playButton")->click();
+        await([&] { return reconnected->activated.load() == 1; });
+        projectUndo(w)->trigger();
+        await([&] { return !w.snapshot()->dirty && left->currentIndex() == 1; });
+        check(reconnected->connected == 1, "Route undo reconnected active graph");
+        w.findChild<QPushButton *>("stopButton")->click();
+        await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Idle; });
+        const auto epoch = w.snapshot()->projectEpoch;
+        w.openProject(moved);
+        await([&] {
+            return w.snapshot()->projectEpoch > epoch && w.snapshot()->io == IoOperation::None;
+        });
+        check(w.preparePlayback(), "Same-project prepare refused");
+        await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Ready; });
+        w.close();
+        await([&] { return w.snapshot()->closed && w.playbackSnapshot()->closed; });
+    }
+    for (unsigned variant = 0; variant < 4; ++variant) {
+        auto expected = saved;
+        auto counters = std::make_shared<playback_fixture::Counters>();
+        if (variant == 0)
+            for (auto &p : counters->ports)
+                p.nodeName = "Different device";
+        if (variant == 1) {
+            auto duplicate = counters->ports[0];
+            duplicate.nodeId += 100;
+            duplicate.nodeSerial += 100;
+            duplicate.portId += 100;
+            counters->ports.push_back(duplicate);
+        }
+        if (variant == 2)
+            expected.tracks.front().output.backendId = "wasapi";
+        if (variant == 3)
+            expected.tracks.front().output = {"pipewire", "opaque legacy destination", {}};
+        ProjectStore(moved).save(expected);
+        StudioWindow w(nullptr, playback_fixture::options(counters));
+        w.show();
+        w.openProject(moved);
+        await([&] { return w.snapshot()->session && w.snapshot()->io == IoOperation::None; });
+        check(w.preparePlayback(), "Placeholder prepare refused");
+        await([&] {
+            return w.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+                   w.findChild<QComboBox *>("outputChannel1");
+        });
+        auto *left = w.findChild<QComboBox *>("outputChannel0");
+        auto *right = w.findChild<QComboBox *>("outputChannel1");
+        const auto reason = variant == 0   ? "Missing endpoint"
+                            : variant == 1 ? "Ambiguous endpoint"
+                            : variant == 2 ? "Unavailable backend"
+                                           : "Legacy route";
+        check(left->currentData().toString() == "unresolved-route" &&
+                  left->currentText().contains(reason),
+              "Route placeholder missing/reason lost");
+        check(left->currentText().contains(variant == 3 ? "opaque legacy destination"
+                                                        : "Owned Σ sink"),
+              "Placeholder lost saved endpoint name");
+        w.findChild<QPushButton *>("playButton")->click();
+        QTest::qWait(15);
+        check(!counters->activated && !counters->connected && *w.snapshot()->session == expected &&
+                  !w.snapshot()->dirty,
+              "Unresolved route activated or rewrote project");
+        left->setCurrentIndex(2);
+        right->setCurrentIndex(2);
+        await([&] {
+            return w.snapshot()->session->tracks.front().output.backendId == "pipewire" &&
+                   w.snapshot()->session->tracks.front().output.ports.size() == 2 &&
+                   w.snapshot()->session->tracks.front().output.ports[0] &&
+                   w.snapshot()->session->tracks.front().output.ports[0]->portIdentity == "input_2";
+        });
+        ProjectCommand barrier{CommandKind::Barrier};
+        barrier.barrier = 99100 + variant;
+        check(w.submitEdit(barrier), "Route confirmation barrier refused");
+        await([&] { return w.snapshot()->lastBarrier == barrier.barrier; });
+        // Return to the saved content through explicit undo; the active backend stays stopped.
+        while (w.snapshot()->dirty) {
+            const auto revision = w.snapshot()->modelRevision;
+            projectUndo(w)->trigger();
+            await([&] { return w.snapshot()->modelRevision > revision; });
+        }
+        await([&] { return left->currentData().toString() == "unresolved-route"; });
+        check(*w.snapshot()->session == expected && !counters->activated,
+              "Placeholder undo lost original route");
+        w.close();
+        await([&] { return w.snapshot()->closed && w.playbackSnapshot()->closed; });
+    }
+    check(initial.id == saved.id && ProjectStore(moved).load().assets == initial.assets,
+          "Routing workflow changed original take identities");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QTemporaryDir configuration;
@@ -506,6 +739,7 @@ int main(int argc, char **argv) {
         check(temp.isValid(), "Cannot create UI fixture directory");
         workflows(utf8Path(temp.path().toUtf8().toStdString()) / "project");
         playbackWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "playback");
+        portableOutputRoutes(utf8Path(temp.path().toUtf8().toStdString()) / "portable-routes");
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-off", false);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-monitor", true);
         recordingRecoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /

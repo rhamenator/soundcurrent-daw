@@ -106,6 +106,12 @@ class StudioWindow : public QMainWindow {
     void pollPlayback();
     void playSelected();
     void updateOutputs(const PlaybackSnapshot &);
+    std::uint64_t routeProjectEpoch_ = 0;
+    std::uint64_t routeRevisionShown_ = 0;
+    std::optional<RouteIntent> outputIntentShown_, inputIntentShown_, monitorIntentShown_;
+    void populateRoutes(const std::vector<QComboBox *> &, const std::vector<PipeWirePort> &,
+                        const RouteIntent &, bool endpointInput);
+    void selectRoute(RouteTarget, std::size_t channel, QComboBox *);
     void shutdownWorkers();
     void newProject();
     void confirmClose();

@@ -79,11 +79,38 @@ ChannelLayout readLayout(const Json &j) {
             u32(j.at("channels"))};
 }
 Json route(const RouteIntent &r) {
-    return {{"backendId", r.backendId}, {"portIdentity", r.portIdentity}};
+    auto ports = Json::array();
+    for (const auto &p : r.ports) {
+        if (!p)
+            ports.push_back(nullptr);
+        else
+            ports.push_back({{"deviceIdentity", p->deviceIdentity},
+                             {"portIdentity", p->portIdentity},
+                             {"mediaClass", p->mediaClass},
+                             {"input", p->input}});
+    }
+    return {{"backendId", r.backendId}, {"portIdentity", r.portIdentity}, {"ports", ports}};
 }
-RouteIntent readRoute(const Json &j) {
-    keys(j, {"backendId", "portIdentity"});
-    return {string(j.at("backendId")), string(j.at("portIdentity"))};
+RouteIntent readRoute(const Json &j, bool legacy) {
+    if (legacy)
+        keys(j, {"backendId", "portIdentity"});
+    else
+        keys(j, {"backendId", "portIdentity", "ports"});
+    RouteIntent r{string(j.at("backendId")), string(j.at("portIdentity")), {}};
+    if (!legacy) {
+        array(j.at("ports"), 256);
+        for (const auto &p : j.at("ports")) {
+            if (p.is_null())
+                r.ports.emplace_back();
+            else {
+                keys(p, {"deviceIdentity", "portIdentity", "mediaClass", "input"});
+                r.ports.push_back(
+                    ChannelPortIntent{string(p.at("deviceIdentity")), string(p.at("portIdentity")),
+                                      string(p.at("mediaClass")), boolean(p.at("input"))});
+            }
+        }
+    }
+    return r;
 }
 bool plainFile(const std::filesystem::path &p) {
     const auto s = std::filesystem::symlink_status(p);
@@ -263,6 +290,7 @@ std::string encodeProject(const Session &s) {
                           {"layout", layout(t.layout)},
                           {"inputIntent", route(t.input)},
                           {"outputIntent", route(t.output)},
+                          {"monitorIntent", route(t.monitor)},
                           {"processors", Json::array({processor})},
                           {"clips", clips}});
     }
@@ -276,7 +304,7 @@ std::string encodeProject(const Session &s) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 0},
+        {"schemaMinor", 1},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -307,7 +335,8 @@ Session decodeProject(std::string_view bytes) {
         const auto j = Json::parse(bytes.begin(), bytes.end(), callback);
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
-        require(integer(j.at("schemaMajor")) == 1 && integer(j.at("schemaMinor")) == 0,
+        const auto minor = integer(j.at("schemaMinor"));
+        require(integer(j.at("schemaMajor")) == 1 && (minor == 0 || minor == 1),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                  "playheadFrame", "exportRange", "tracks", "assets"});
@@ -335,13 +364,20 @@ Session decodeProject(std::string_view bytes) {
         }
         array(j.at("tracks"), 256);
         for (const auto &t : j.at("tracks")) {
-            keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "processors", "clips"});
+            if (minor == 0)
+                keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "processors",
+                         "clips"});
+            else
+                keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
+                         "processors", "clips"});
             Track track;
             track.id = Id(string(t.at("id")));
             track.name = string(t.at("name"));
             track.layout = readLayout(t.at("layout"));
-            track.input = readRoute(t.at("inputIntent"));
-            track.output = readRoute(t.at("outputIntent"));
+            track.input = readRoute(t.at("inputIntent"), minor == 0);
+            track.output = readRoute(t.at("outputIntent"), minor == 0);
+            if (minor == 1)
+                track.monitor = readRoute(t.at("monitorIntent"), false);
             const auto &ps = t.at("processors");
             array(ps, 1);
             require(ps.size() == 1, "Exactly one EQ expected in schema v1");

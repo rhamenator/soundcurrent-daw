@@ -230,6 +230,11 @@ void recordedTakeAttachment(const std::filesystem::path &root) {
     });
     check(pending->session->assets.empty() && !pending->dirty,
           "Unverified take published speculatively");
+    ProjectCommand route{CommandKind::Routing};
+    route.routeAddress = RouteAddress{pending->session->tracks.front().id, RouteTarget::Input};
+    route.routePatch = RouteChannelPatch{
+        0, "pipewire", ChannelPortIntent{"Owned source", "capture_1", "Audio/Source", false}};
+    submit(controller, route);
     submit(controller, parameter(*pending, 6, 500));
     await(controller,
           [](const auto &v) { return v.session->tracks.front().eq.bands.front().gainDb == 6; });
@@ -240,7 +245,9 @@ void recordedTakeAttachment(const std::filesystem::path &root) {
     const auto &track = attached->session->tracks.front();
     check(attached->dirty && attached->lastAttachedAsset == take.asset.id &&
               attached->session->assets.size() == 1 && track.eq.bands.front().gainDb == 6 &&
-              track.clips.size() == 1 && track.clips.front().assetId == take.asset.id &&
+              track.input.ports.size() == 1 &&
+              track.input.ports[0]->deviceIdentity == "Owned source" && track.clips.size() == 1 &&
+              track.clips.front().assetId == take.asset.id &&
               track.clips.front().startFrame == 873 && track.clips.front().sourceFrame == 0 &&
               track.clips.front().lengthFrames == 512,
           "Raw take attachment lost edits, alignment or asset identity");
@@ -320,8 +327,12 @@ void queuePressure(const std::filesystem::path &root) {
     await(controller, [&](auto &) { return gate.entered.load(std::memory_order_acquire); });
     for (std::uint64_t i = 0; i < 64; ++i)
         submit(controller, parameter(*created, 2, i + 2));
-    check(controller.submit(parameter(*created, 3, 66)) == Admission::Full,
-          "Full control queue silently admitted/overwrote a command");
+    ProjectCommand route{CommandKind::Routing};
+    route.routeAddress = RouteAddress{created->session->tracks.front().id, RouteTarget::Output};
+    route.routePatch = RouteChannelPatch{
+        0, "pipewire", ChannelPortIntent{"Sink", "playback_1", "Audio/Sink", true}};
+    check(controller.submit(std::move(route)) == Admission::Full,
+          "Full control queue silently admitted/overwrote a route change");
     controller.requestShutdown();
     check(controller.submit({CommandKind::Save}) == Admission::Closing,
           "Full queue prevented priority shutdown");
@@ -360,6 +371,103 @@ void exactBarrierReceipt(const std::filesystem::path &root) {
               ProjectStore(root).load() == *initial->session,
           "Later edit changed barrier model or implicitly saved it");
 }
+void routePatches(const std::filesystem::path &root) {
+    auto initial = makeOneTrackSession("Routes — Ελλάδα", "Discrete track");
+    initial.tracks.front().layout = {LayoutKind::Discrete, 32};
+    ProjectStore(root).save(initial);
+    Gate commandGate, saveGate;
+    ProjectController controller({{}, [&] { saveGate.block(); }, [&] { commandGate.block(); }});
+    ReleaseGate releaseCommand{commandGate}, releaseSave{saveGate};
+    ProjectCommand open{CommandKind::Open};
+    open.path = root;
+    submit(controller, open);
+    auto before =
+        await(controller, [](const auto &v) { return v.session && v.io == IoOperation::None; });
+    const auto address = RouteAddress{before->session->tracks.front().id, RouteTarget::Output};
+    auto patch = [&](unsigned channel, std::string name) {
+        ProjectCommand c{CommandKind::Routing};
+        c.routeAddress = address;
+        c.routePatch = RouteChannelPatch{channel, "pipewire",
+                                         ChannelPortIntent{std::move(name),
+                                                           "playback_" + std::to_string(channel),
+                                                           "Audio/Sink", true}};
+        return c;
+    };
+    commandGate.armed = true;
+    submit(controller, patch(0, "Sink"));
+    await(controller, [&](const auto &) { return commandGate.entered.load(); });
+    for (unsigned channel = 1; channel < 32; ++channel)
+        submit(controller, patch(channel, "Sink"));
+    ProjectCommand barrier{CommandKind::Barrier};
+    barrier.barrier = 27001;
+    submit(controller, barrier);
+    commandGate.release();
+    auto all = await(controller, [](const auto &v) { return v.lastBarrier == 27001; });
+    check(all->barrierSession && *all->barrierSession == *all->session &&
+              all->modelRevision == before->modelRevision + 32,
+          "Routing barrier prefix differs");
+    for (unsigned channel = 0; channel < 32; ++channel)
+        check(all->session->tracks.front().output.ports[channel]->portIdentity ==
+                  "playback_" + std::to_string(channel),
+              "Burst patch lost an accepted channel");
+    submit(controller, patch(31, "Sink"));
+    auto noOp = await(controller,
+                      [&](const auto &v) { return v.completedCommands > all->completedCommands; });
+    check(noOp->modelRevision == all->modelRevision, "No-op route changed revision");
+    auto invalid = patch(32, "Wrong");
+    submit(controller, invalid);
+    auto failed =
+        await(controller, [&](const auto &v) { return v.errorSerial > noOp->errorSerial; });
+    check(failed->errorCode == ErrorCode::InvalidParameter && *failed->session == *all->session,
+          "Rejected route changed content");
+    invalid = patch(0, "Wrong");
+    invalid.routeAddress->trackId = Id::generate();
+    submit(controller, invalid);
+    auto stale =
+        await(controller, [&](const auto &v) { return v.errorSerial > failed->errorSerial; });
+    check(stale->errorCode == ErrorCode::InvalidId && *stale->session == *all->session,
+          "Stale route ID edited another track");
+    submit(controller, parameter(*stale, 5, 919, false));
+    await(controller,
+          [](const auto &v) { return v.session->tracks.front().eq.bands.front().gainDb == 5; });
+    invalid = patch(0, "Wrong direction");
+    invalid.routePatch->port->input = false;
+    submit(controller, invalid);
+    auto wrongDirection =
+        await(controller, [&](const auto &v) { return v.errorSerial > stale->errorSerial; });
+    check(wrongDirection->session->tracks.front().eq.bands.front().gainDb == 5,
+          "Invalid route changed active gesture value");
+    ProjectCommand cancel{CommandKind::CancelGesture};
+    cancel.gesture = 919;
+    submit(controller, cancel);
+    auto canceled = await(controller, [](const auto &v) {
+        return v.session->tracks.front().eq.bands.front().gainDb == 0;
+    });
+    check(*canceled->session == *all->session,
+          "Invalid route committed/canceled unrelated gesture");
+    saveGate.armed = true;
+    submit(controller, {CommandKind::Save});
+    await(controller,
+          [&](const auto &v) { return saveGate.entered.load() && v.io == IoOperation::Save; });
+    submit(controller, patch(2, "Later sink"));
+    await(controller, [](const auto &v) {
+        return v.session->tracks.front().output.ports[2]->deviceIdentity == "Later sink";
+    });
+    saveGate.release();
+    auto saved = await(controller, [](const auto &v) { return v.io == IoOperation::None; });
+    check(saved->dirty && ProjectStore(root).load() == *all->session,
+          "Save falsely persisted a later route");
+    submit(controller, {CommandKind::Undo});
+    auto undone = await(controller, [](const auto &v) { return !v.dirty; });
+    check(*undone->session == *all->session, "Route undo did not restore saved content");
+    const auto epoch = undone->projectEpoch;
+    submit(controller, open);
+    auto reopened = await(controller, [&](const auto &v) {
+        return v.projectEpoch > epoch && v.io == IoOperation::None;
+    });
+    check(reopened->session->id == before->session->id && *reopened->session == *all->session,
+          "Same-project reopen changed intent or lost epoch");
+}
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -374,6 +482,7 @@ int main(int argc, char **argv) {
         recordedTakeAttachment(root / "recorded-takes");
         closeDuringAttachment(root / "cancel-attachment");
         exactBarrierReceipt(root / "barrier-prefix");
+        routePatches(root / "route-patches");
         std::cout << "{\"checks\":" << checks
                   << ",\"asynchronous_io\":true,\"save_revision_checked\":true,\"shutdown_join_"
                      "checked\":true}\n";

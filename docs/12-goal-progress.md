@@ -81,3 +81,8 @@ are warranted by this refresh. Separate per-channel project routing work is ongo
 and unqualified; next implementation work resumes that S8 persistence/migration and
 portability acceptance. Full parity, X004/X005 routing/printing/portable pins, Windows
 runtime and European localization remain incomplete.
+
+
+## S8a project routing and native roundtrip (2026-10-06)
+
+Previous goal turn was **progress**: `61a0e9a` refreshed committed equalizer input provenance and independent premium profile tracking. This turn completes portable first-track per-channel input/playback/monitor intent, strict schema 1.1 and explicit 1.0 migration, mixed semantic undo, ordered worker-side channel patches and epoch/revision-aware dropdown restoration. Named unresolved placeholders require explicit choices; restoring/undoing intent does not activate or reconnect an active graph. [Contract](26-project-routing.md) and [evidence](../tests/results/SLICE-001/2026-10-06-project-routing.json) separate core/controller/GUI, 17 debug/sanitizer groups, Windows headless cross-build and actual native owned routes. The native ten-second raw/live-EQ/undo/save/relocate/reopen/export workflow passes with zero sample differences and two pre-existing links/defaults preserved. A source-removal prefix and diagnostic native sanitizers also pass; normal module-unload/deadline/physical/Windows gates stay open. Remaining first-slice gates and M2 multitrack work follow. Full 92-family parity, X004 native imports, X005 monitor/print/profile pins/measurement/rights and European translation delivery remain incomplete.

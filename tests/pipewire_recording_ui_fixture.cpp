@@ -15,6 +15,8 @@
 #include <QTimer>
 #include <QCheckBox>
 #include <QTemporaryDir>
+#include <QLineEdit>
+#include <source_location>
 #include <QScrollArea>
 #include <algorithm>
 #include <array>
@@ -31,11 +33,13 @@ void require(bool ok, const char *message) {
 float signal(Frame f) {
     return float((double(f % 101) - 50) * .04);
 }
-template <class F> void await(F predicate) {
+template <class F>
+void await(F predicate, std::source_location caller = std::source_location::current()) {
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
     while (!predicate()) {
         if (std::chrono::steady_clock::now() >= deadline)
-            throw std::runtime_error("Native GUI workflow timed out");
+            throw std::runtime_error("Native GUI workflow timed out at line " +
+                                     std::to_string(caller.line()));
         QTest::qWait(2);
     }
 }
@@ -133,10 +137,12 @@ int main(int argc, char **argv) {
     qputenv("XDG_CONFIG_HOME", config.path().toUtf8());
     QApplication app(argc, argv);
     try {
-        require(argc == 3, "Supply owned recording UI folder and normal/off/disconnect");
+        require(argc == 3, "Supply owned recording UI folder and normal/off/disconnect/roundtrip");
         const std::string mode = argv[2];
-        const bool off = mode == "off", disconnect = mode == "disconnect";
-        require(off || disconnect || mode == "normal", "Unknown recording UI fixture mode");
+        const bool off = mode == "off", disconnect = mode == "disconnect",
+                   roundtrip = mode == "roundtrip";
+        require(off || disconnect || roundtrip || mode == "normal",
+                "Unknown recording UI fixture mode");
         const auto root = utf8Path(argv[1]);
         require(std::filesystem::create_directory(root), "Project already exists");
         auto initial = makeOneTrackSession("Native recording UI – Δοκιμή", "Raw take");
@@ -249,6 +255,14 @@ int main(int argc, char **argv) {
             output->stop();
         monitored.finish();
         const auto model = *window.snapshot()->session;
+        require(model.tracks.front().input.ports.size() == 1 &&
+                    model.tracks.front().input.ports[0]->deviceIdentity == prefix + "-input",
+                "Native capture route intent missing");
+        if (!off)
+            require(model.tracks.front().monitor.ports.size() == 1 &&
+                        model.tracks.front().monitor.ports[0]->deviceIdentity ==
+                            prefix + "-monitor",
+                    "Native monitor route intent missing");
         const auto asset = model.assets.front();
         const auto info = inspectRecording(root / "media" / ("capture-" + asset.id.str()));
         require(info.finalized && info.timingOrigin &&
@@ -307,6 +321,112 @@ int main(int argc, char **argv) {
                    window.playbackSnapshot()->closed && !window.isVisible();
         });
         require(ProjectStore(root).load() == model, "Native GUI take/EQ did not save/reopen");
+        double exportDifference = 0, exportNativePrefixDifference = 0;
+        Frame exportedFrames = 0;
+        if (roundtrip) {
+            answer.stop();
+            const auto relocated = root.parent_path() / utf8Path("Relocated — Ελλάδα");
+            std::filesystem::rename(root, relocated);
+            Audit quietInput, quietOutput, quietRecorder;
+            PipeWireFilter replacementInput(
+                {prefix + "-input", 0, 1, 65536, true},
+                {&quietInput, Source::process, nullptr, Audit::begin, Audit::end});
+            PipeWireFilter replacementOutput(
+                {prefix + "-monitor", 1, 0, 65536, true},
+                {&quietOutput, Source::process, nullptr, Audit::begin, Audit::end});
+            require(replacementInput.waitReady(std::chrono::seconds(3)) &&
+                        replacementOutput.waitReady(std::chrono::seconds(3)),
+                    "Replacement route descriptors not ready");
+            RecordingControllerOptions reopenedOptions;
+            reopenedOptions.nativeOptions.audit = {&quietRecorder, Audit::begin, Audit::end};
+            StudioWindow reopened(nullptr, {}, reopenedOptions);
+            reopened.show();
+            reopened.openProject(relocated);
+            await([&] {
+                return reopened.snapshot()->session && reopened.snapshot()->io == IoOperation::None;
+            });
+            require(*reopened.snapshot()->session == model && !reopened.snapshot()->dirty,
+                    "Relocated project changed IDs/media/EQ/routes");
+            reopened.findChild<QComboBox *>("recordMonitorMode")->setCurrentIndex(1);
+            require(reopened.prepareRecording(), "Relocated recording prepare refused");
+            await([&] {
+                return reopened.recordingSnapshot()->phase == RecordingPhase::Ready &&
+                       reopened.findChild<QComboBox *>("monitorChannel0");
+            });
+            auto *restoredInput = reopened.findChild<QComboBox *>("inputChannel0");
+            auto *restoredMonitor = reopened.findChild<QComboBox *>("monitorChannel0");
+            require(restoredInput->currentIndex() > 0 &&
+                        restoredInput->currentData().toString() != "unresolved-route" &&
+                        restoredMonitor->currentIndex() > 0 &&
+                        restoredMonitor->currentData().toString() != "unresolved-route",
+                    "Native descriptors did not restore current routes");
+            require(!quietInput.calls && !quietOutput.calls && !quietRecorder.calls &&
+                        !reopened.recordingSnapshot()->job,
+                    "Restoration or preparation activated native processing/capture");
+            // Stop the inactive recording owner before configuring an offline export.
+            reopened.findChild<QPushButton *>("recordStopButton")->click();
+            await([&] { return reopened.recordingSnapshot()->phase == RecordingPhase::Idle; });
+            const auto destination = relocated.parent_path() / "roundtrip-export.wav";
+            QTimer configure;
+            configure.setInterval(2);
+            QObject::connect(&configure, &QTimer::timeout, [&] {
+                auto *dialog = dynamic_cast<ExportDialog *>(QApplication::activeModalWidget());
+                if (!dialog)
+                    return;
+                configure.stop();
+                dialog->findChild<QLineEdit *>("exportDestination")
+                    ->setText(QString::fromUtf8(destination.string()));
+                dialog->findChild<QLineEdit *>("exportStartFrame")->setText("0");
+                dialog->findChild<QLineEdit *>("exportEndFrame")
+                    ->setText(QString::number(asset.frames));
+                dialog->findChild<QPushButton *>("startExportJob")->click();
+            });
+            configure.start();
+            require(reopened.requestExport(), "Relocated desktop export refused");
+            await([&] {
+                return reopened.exportSnapshot()->phase == ExportPhase::Complete ||
+                       reopened.exportSnapshot()->phase == ExportPhase::Fault;
+            });
+            require(bool(reopened.exportSnapshot()->result),
+                    reopened.exportSnapshot()->diagnostic.c_str());
+            const auto exported = read(destination, asset.frames);
+            require(reopened.exportSnapshot()->result->frames == asset.frames,
+                    "Exported frame count changed");
+            exportedFrames = asset.frames;
+            PreparedEq staticEq(model, model.tracks.front().id, 2048, 88);
+            std::vector<float> expected(raw.size());
+            for (std::size_t f = 0; f < raw.size();) {
+                const auto n = std::uint32_t(std::min<std::size_t>(127, raw.size() - f));
+                const std::array<const float *, 1> in{raw.data() + f};
+                const std::array<float *, 1> out{expected.data() + f};
+                staticEq.process(in, out, n, Frame(f), {});
+                f += n;
+            }
+            double audibleDifference = 0;
+            for (std::size_t f = 0; f < raw.size(); ++f) {
+                exportDifference =
+                    std::max(exportDifference, std::abs(double(exported[f]) - expected[f]));
+                audibleDifference =
+                    std::max(audibleDifference, std::abs(double(exported[f]) - raw[f]));
+            }
+            require(exportDifference == 0 && audibleDifference > .01,
+                    "Reopened static EQ export differs or bypassed processing");
+            const auto wetAsset = sinkWriter->wait().asset;
+            const auto wet = read(relocated / utf8Path(wetAsset.relativePath), wetAsset.frames);
+            for (std::size_t f = 0;
+                 f < std::min<std::size_t>(std::size_t(first.appliedFrame), wet.size()); ++f)
+                exportNativePrefixDifference =
+                    std::max(exportNativePrefixDifference, std::abs(double(exported[f]) - wet[f]));
+            require(first.appliedFrame > 0 && exportNativePrefixDifference == 0,
+                    "Export/native initial static EQ prefix differs");
+            reopened.close();
+            await([&] {
+                return reopened.snapshot()->closed && reopened.recordingSnapshot()->closed &&
+                       reopened.exportSnapshot()->closed;
+            });
+            require(ProjectStore(relocated).load() == model && !quietRecorder.calls,
+                    "Export/reopen rewrote project or activated capture");
+        }
         std::cout << "{\"mode\":\"" << mode << "\",\"frames\":" << asset.frames
                   << ",\"owned_nodes_only\":true,\"gui_recording\":true,\"monitoring_off\":"
                   << (off ? "true" : "false")
@@ -317,7 +437,12 @@ int main(int argc, char **argv) {
                   << ",\"first_applied_frame\":" << first.appliedFrame
                   << ",\"input_disconnect_observed\":" << (disconnect ? "true" : "false")
                   << ",\"gui_save_reopen\":true,\"rt_allocations\":0,\"rt_frees\":0,\"rt_blocking_"
-                     "locks\":0}\n";
+                  << "locks\":0,\"routing_intent_saved\":true,\"relocated_native_reopen\":"
+                  << (roundtrip ? "true" : "false")
+                  << ",\"desktop_export_frames\":" << exportedFrames
+                  << ",\"export_direct_eq_difference\":" << exportDifference
+                  << ",\"export_native_prefix_difference\":" << exportNativePrefixDifference
+                  << "}\n";
     } catch (const std::exception &e) {
         std::cerr << e.what() << '\n';
         return 1;

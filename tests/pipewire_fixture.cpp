@@ -380,9 +380,9 @@ int main(int argc, char **argv) {
         require(!source.allocations && !source.frees && !source.locks && !track.allocations &&
                     !track.frees && !track.locks && !sink.allocations && !sink.frees && !sink.locks,
                 "Native host callback allocation/free/lock detected");
-        session.tracks.front().input = {"pipewire", prefix + "-source/output_1"};
+        session.tracks.front().input = {"pipewire", prefix + "-source/output_1", {}};
         if (monitor)
-            session.tracks.front().output = {"pipewire", prefix + "-sink/input_1"};
+            session.tracks.front().output = {"pipewire", prefix + "-sink/input_1", {}};
         attachRecording(session, rawResult);
         store.save(session);
         require(store.load() == session, "Native raw take save/reopen failed");

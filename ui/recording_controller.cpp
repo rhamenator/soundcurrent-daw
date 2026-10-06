@@ -91,8 +91,8 @@ bool compatible(const Session &a, const Session &b) {
         a.playheadFrame != b.playheadFrame || a.exportStartFrame != b.exportStartFrame ||
         a.exportEndFrame != b.exportEndFrame || a.assets != b.assets ||
         a.tracks.size() != b.tracks.size() || t.id != u.id || t.name != u.name ||
-        t.layout != u.layout || t.input != u.input || t.output != u.output || t.clips != u.clips ||
-        t.eq.id != u.eq.id || t.eq.bands.size() != u.eq.bands.size())
+        t.layout != u.layout || t.clips != u.clips || t.eq.id != u.eq.id ||
+        t.eq.bands.size() != u.eq.bands.size())
         return false;
     for (std::size_t n = 0; n < t.eq.bands.size(); ++n)
         if (t.eq.bands[n].id != u.eq.bands[n].id)

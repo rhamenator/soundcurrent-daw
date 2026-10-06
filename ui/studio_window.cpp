@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
 #include "equipment_profiles.hpp"
+#include <soundcurrent/routing.hpp>
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
@@ -62,6 +63,9 @@ class FocusCombo : public QComboBox {
             event->ignore();
     }
 };
+ChannelPortIntent portIntent(const PipeWirePort &p) {
+    return {p.nodeName, p.portName, p.mediaClass, p.input};
+}
 QString portKey(const PipeWirePort &p) {
     return QString::number(p.nodeSerial) + QStringLiteral(":") + QString::number(p.nodeId) +
            QStringLiteral(":") + QString::number(p.portId) + QStringLiteral(":") +
@@ -105,12 +109,12 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     file->addSeparator();
     file->addAction(tr("&Quit"), QKeySequence::Quit, this, &QWidget::close);
     auto *editMenu = menuBar()->addMenu(tr("&Edit"));
-    undo_ = editMenu->addAction(tr("&Undo parameter edit"), QKeySequence::Undo, this, [this] {
+    undo_ = editMenu->addAction(tr("&Undo project edit"), QKeySequence::Undo, this, [this] {
         if (auto *focused = focusWidget())
             focused->clearFocus();
         submitEdit({CommandKind::Undo});
     });
-    redo_ = editMenu->addAction(tr("&Redo parameter edit"), QKeySequence::Redo, this, [this] {
+    redo_ = editMenu->addAction(tr("&Redo project edit"), QKeySequence::Redo, this, [this] {
         if (auto *focused = focusWidget())
             focused->clearFocus();
         submitEdit({CommandKind::Redo});
@@ -578,6 +582,92 @@ void StudioWindow::playSelected() {
     if (playback_.submit(std::move(c)) != Admission::Accepted)
         playbackState_->setText(tr("Playback queue is full or closing. Please retry."));
 }
+void StudioWindow::populateRoutes(const std::vector<QComboBox *> &combos,
+                                  const std::vector<PipeWirePort> &ports, const RouteIntent &intent,
+                                  bool endpointInput) {
+    std::vector<ChannelPortIntent> descriptors;
+    for (const auto &p : ports)
+        descriptors.push_back(portIntent(p));
+    for (std::size_t channel = 0; channel < combos.size(); ++channel) {
+        auto *combo = combos[channel];
+        const auto previous = combo->currentData().toString();
+        QSignalBlocker blocked(combo);
+        combo->clear();
+        combo->addItem(tr("Choose an endpoint…"), QString());
+        for (const auto &p : ports)
+            if (p.input == endpointInput)
+                combo->addItem(text(p.nodeName) + QStringLiteral(" / ") + text(p.portName),
+                               portKey(p));
+        const auto result = matchRouteIntent(intent, channel, "pipewire", descriptors);
+        const auto prior = std::find_if(ports.begin(), ports.end(),
+                                        [&](const auto &p) { return portKey(p) == previous; });
+        if (prior != ports.end() && channel < intent.ports.size() && intent.ports[channel] &&
+            *intent.ports[channel] == portIntent(*prior)) {
+            combo->setCurrentIndex(combo->findData(
+                previous)); // Explicit live choice, even if saved descriptor is ambiguous.
+        } else if (result.index) {
+            combo->setCurrentIndex(combo->findData(portKey(ports[*result.index])));
+        } else if (result.status != RouteMatchStatus::Unassigned) {
+            QString message;
+            switch (result.status) {
+            case RouteMatchStatus::Missing:
+                message = tr("Missing endpoint");
+                break;
+            case RouteMatchStatus::Ambiguous:
+                message = tr("Ambiguous endpoint; choose explicitly");
+                break;
+            case RouteMatchStatus::Legacy:
+                message = tr("Legacy route; choose explicitly");
+                break;
+            case RouteMatchStatus::UnsupportedBackend:
+                message = tr("Unavailable backend: %1").arg(text(intent.backendId));
+                break;
+            default:
+                break;
+            }
+            if (channel < intent.ports.size() && intent.ports[channel])
+                message += QStringLiteral(" — ") + text(intent.ports[channel]->deviceIdentity) +
+                           QStringLiteral(" / ") + text(intent.ports[channel]->portIdentity);
+            else if (!intent.portIdentity.empty())
+                message += QStringLiteral(" — ") + text(intent.portIdentity);
+            combo->addItem(message, QStringLiteral("unresolved-route"));
+            combo->setCurrentIndex(combo->count() - 1);
+        } else
+            combo->setCurrentIndex(0);
+    }
+}
+void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBox *combo) {
+    const auto model = controller_.snapshot();
+    if (!model->session || model->session->tracks.empty() || closing_ || closeRequested_)
+        return;
+    const auto &track = model->session->tracks.front();
+    if (channel >= track.layout.channels)
+        return;
+    const auto key = combo->currentData().toString();
+    if (key == "unresolved-route")
+        return;
+    const auto ports = target == RouteTarget::Output ? outputsShown_ : recordPortsShown_;
+    if (!ports)
+        return;
+    const auto found = std::find_if(ports->begin(), ports->end(),
+                                    [&](const auto &p) { return portKey(p) == key; });
+    if (!key.isEmpty() && found == ports->end())
+        return;
+    ProjectCommand command(CommandKind::Routing);
+    command.routeAddress = RouteAddress{track.id, target};
+    command.routePatch = RouteChannelPatch{
+        static_cast<std::uint32_t>(channel), "pipewire",
+        found == ports->end() ? std::optional<ChannelPortIntent>{} : portIntent(*found)};
+    if (!submitEdit(std::move(command))) {
+        const RouteAddress address{track.id, target};
+        const auto &intent = routeValue(*model->session, address);
+        populateRoutes(target == RouteTarget::Output  ? outputs_
+                       : target == RouteTarget::Input ? inputs_
+                                                      : monitors_,
+                       *ports, intent, target != RouteTarget::Input);
+        notice_->setText(tr("The route change was not accepted. Please retry."));
+    }
+}
 void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
     const auto channels = view.ports ? view.channels : 0;
     const bool rebuild = outputs_.size() != channels;
@@ -592,6 +682,7 @@ void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
             auto *combo = new FocusCombo;
             combo->setObjectName(QStringLiteral("outputChannel%1").arg(c));
             combo->setFocusPolicy(Qt::StrongFocus);
+            combo->setToolTip(tr("Saved routing changes take effect after Stop and preparation."));
             combo->setAccessibleName(tr("Output channel %1").arg(QLocale().toString(c + 1)));
             combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
             combo->setMinimumContentsLength(16);
@@ -600,24 +691,22 @@ void StudioWindow::updateOutputs(const PlaybackSnapshot &view) {
             outputsLayout_->addWidget(label, int(c), 0);
             outputsLayout_->addWidget(combo, int(c), 1);
             outputs_.push_back(combo);
+            connect(combo, &QComboBox::currentIndexChanged, this,
+                    [this, combo, c] { selectRoute(RouteTarget::Output, c, combo); });
         }
     }
-    if (view.ports && (!outputsShown_ || *outputsShown_ != *view.ports)) {
-        for (auto *combo : outputs_) {
-            const auto previous = combo->currentData().toString();
-            QSignalBlocker blocked(combo);
-            combo->clear();
-            combo->addItem(tr("Choose an output…"), QString());
-            for (const auto &p : *view.ports)
-                combo->addItem(text(p.nodeName) + QStringLiteral(" / ") + text(p.portName),
-                               portKey(p));
-            const auto index = combo->findData(previous);
-            combo->setCurrentIndex(index >= 0 ? index : 0);
-        }
+    const auto model = controller_.snapshot();
+    const auto intent = model->session && !model->session->tracks.empty()
+                            ? model->session->tracks.front().output
+                            : RouteIntent{};
+    if (view.ports && (!outputsShown_ || *outputsShown_ != *view.ports || !outputIntentShown_ ||
+                       *outputIntentShown_ != intent)) {
+        populateRoutes(outputs_, *view.ports, intent, true);
         outputsShown_ = view.ports;
+        outputIntentShown_ = intent;
     }
     for (auto *combo : outputs_)
-        combo->setEnabled(view.phase == PlaybackPhase::Ready && !closing_);
+        combo->setEnabled(view.phase == PlaybackPhase::Ready && !closing_ && !closeRequested_);
 }
 void StudioWindow::pollPlayback() {
     const auto p = playback_.snapshot();
@@ -798,6 +887,8 @@ void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
                     (input ? QStringLiteral("monitorChannel%1") : QStringLiteral("inputChannel%1"))
                         .arg(c));
                 combo->setFocusPolicy(Qt::StrongFocus);
+                combo->setToolTip(
+                    tr("Saved routing changes take effect after Stop and preparation."));
                 const auto label = input ? tr("Monitor output %1") : tr("Input %1");
                 combo->setAccessibleName(label.arg(QLocale().toString(c + 1)));
                 combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
@@ -808,30 +899,29 @@ void StudioWindow::updateRecordingRoutes(const RecordingSnapshot &r) {
                 recordRoutes_->addWidget(buddy, row, 0);
                 recordRoutes_->addWidget(combo, row, 1);
                 combos.push_back(combo);
+                connect(combo, &QComboBox::currentIndexChanged, this, [this, combo, c, input] {
+                    selectRoute(input ? RouteTarget::Monitor : RouteTarget::Input, c, combo);
+                });
             }
         };
         make(inputs_, false, n);
         make(monitors_, true, out);
     }
-    if (r.ports && (!recordPortsShown_ || *recordPortsShown_ != *r.ports)) {
-        auto populate = [&](const std::vector<QComboBox *> &combos, bool input) {
-            for (auto *combo : combos) {
-                const auto previous = combo->currentData().toString();
-                QSignalBlocker block(combo);
-                combo->clear();
-                combo->addItem(input ? tr("Choose a monitoring output…") : tr("Choose an input…"),
-                               QString());
-                for (const auto &p : *r.ports)
-                    if (p.input == input)
-                        combo->addItem(text(p.nodeName) + QStringLiteral(" / ") + text(p.portName),
-                                       portKey(p));
-                const auto index = combo->findData(previous);
-                combo->setCurrentIndex(index < 0 ? 0 : index);
-            }
-        };
-        populate(inputs_, false);
-        populate(monitors_, true);
+    const auto model = controller_.snapshot();
+    const auto input = model->session && !model->session->tracks.empty()
+                           ? model->session->tracks.front().input
+                           : RouteIntent{};
+    const auto monitor = model->session && !model->session->tracks.empty()
+                             ? model->session->tracks.front().monitor
+                             : RouteIntent{};
+    if (r.ports &&
+        (!recordPortsShown_ || *recordPortsShown_ != *r.ports || !inputIntentShown_ ||
+         !monitorIntentShown_ || *inputIntentShown_ != input || *monitorIntentShown_ != monitor)) {
+        populateRoutes(inputs_, *r.ports, input, false);
+        populateRoutes(monitors_, *r.ports, monitor, true);
         recordPortsShown_ = r.ports;
+        inputIntentShown_ = input;
+        monitorIntentShown_ = monitor;
     }
     for (const auto &combos : {inputs_, monitors_})
         for (auto *combo : combos)
@@ -1137,6 +1227,25 @@ void StudioWindow::updateBands(const Session &session) {
 }
 void StudioWindow::poll() {
     const auto view = controller_.snapshot();
+    if (routeRevisionShown_ != view->modelRevision || view->errorSerial != lastError_) {
+        routeRevisionShown_ = view->modelRevision;
+        outputIntentShown_.reset();
+        inputIntentShown_.reset();
+        monitorIntentShown_.reset();
+    }
+    if (view->session && routeProjectEpoch_ != view->projectEpoch) {
+        routeProjectEpoch_ = view->projectEpoch;
+        outputIntentShown_.reset();
+        inputIntentShown_.reset();
+        monitorIntentShown_.reset();
+        outputsShown_.reset();
+        recordPortsShown_.reset();
+        for (const auto &combos : {outputs_, inputs_, monitors_})
+            for (auto *combo : combos) {
+                QSignalBlocker blocked(combo);
+                combo->setCurrentIndex(0);
+            }
+    }
     pollRecording();
     pollPlayback();
     pollExport();

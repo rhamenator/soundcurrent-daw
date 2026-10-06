@@ -236,6 +236,23 @@ struct ProjectController::State : QThread {
                 commitGesture();
             break;
         }
+        case CommandKind::Routing: {
+            requireModel();
+            if (view.io == IoOperation::Create || view.io == IoOperation::Open ||
+                !command.routeAddress)
+                throw ProjectError(ErrorCode::InvalidState,
+                                   "Route change needs the current project");
+            const auto value = command.routePatch ? patchedRouteValue(*model, *command.routeAddress,
+                                                                      *command.routePatch)
+                                                  : command.route;
+            auto proposed = *model;
+            setRouteValue(proposed, *command.routeAddress,
+                          value); // Reject before committing a gesture.
+            commitGesture();
+            if (history->route(*command.routeAddress, value))
+                revised();
+            break;
+        }
         case CommandKind::CancelGesture:
             requireModel();
             if (activeGesture == command.gesture && activeGesture) {
@@ -325,6 +342,7 @@ struct ProjectController::State : QThread {
             view.attachedRecordings = 0;
             view.lastAttachedAsset.reset();
             view.root = std::move(result.job.root);
+            ++view.projectEpoch;
             revised();
             view.savedRevision = view.modelRevision;
             savedModel = std::make_shared<const Session>(*model);

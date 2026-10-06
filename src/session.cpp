@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#include <type_traits>
 #include <soundcurrent/session.hpp>
 #include <unordered_map>
 #include <unordered_set>
@@ -236,16 +237,38 @@ void validate(const Session &s) {
               "Invalid asset extent/rate");
         assets.emplace(a.id.str(), &a);
     }
-    std::size_t clipCount = 0;
+    std::size_t clipCount = 0, routeBytes = 0;
     for (const auto &t : s.tracks) {
         unique(t.id);
         unique(t.eq.id);
         text(t.name);
         layout(t.layout);
-        text(t.input.backendId);
-        text(t.input.portIdentity);
-        text(t.output.backendId);
-        text(t.output.portIdentity);
+        for (const auto *route : {&t.input, &t.output, &t.monitor}) {
+            const auto &r = *route;
+            text(r.backendId);
+            text(r.portIdentity);
+            routeBytes += r.backendId.size() + r.portIdentity.size();
+            check(r.ports.empty() || (r.ports.size() == t.layout.channels && !r.backendId.empty() &&
+                                      r.portIdentity.empty()),
+                  "Invalid per-channel route shape or conflicting legacy identity");
+            for (const auto &p : r.ports)
+                if (p) {
+                    for (const auto *value :
+                         {&p->deviceIdentity, &p->portIdentity, &p->mediaClass}) {
+                        text(*value);
+                        check(!value->empty(), "Empty route descriptor");
+                        routeBytes += value->size();
+                    }
+                }
+            check(routeBytes <= 1024 * 1024, "Session route metadata budget exceeded");
+        }
+        for (const auto &p : t.input.ports)
+            if (p)
+                check(!p->input, "Capture route needs an output endpoint");
+        for (const auto *r : {&t.output, &t.monitor})
+            for (const auto &p : r->ports)
+                if (p)
+                    check(p->input, "Playback/monitor route needs an input endpoint");
         check(t.eq.bands.size() <= 64, "EQ band limit exceeded");
         for (const auto &b : t.eq.bands) {
             unique(b.id);
@@ -289,10 +312,75 @@ Session makeOneTrackSession(std::string name, std::string trackName) {
     validate(s);
     return s;
 }
+const RouteIntent &routeValue(const Session &s, const RouteAddress &address) {
+    for (const auto &t : s.tracks)
+        if (t.id == address.trackId) {
+            switch (address.target) {
+            case RouteTarget::Input:
+                return t.input;
+            case RouteTarget::Output:
+                return t.output;
+            case RouteTarget::Monitor:
+                return t.monitor;
+            }
+            throw ProjectError(ErrorCode::InvalidParameter, "Unknown route target");
+        }
+    throw ProjectError(ErrorCode::InvalidId, "Route track is missing");
+}
+RouteIntent patchedRouteValue(const Session &s, const RouteAddress &address,
+                              const RouteChannelPatch &patch) {
+    auto result = routeValue(s, address);
+    const auto track = std::find_if(s.tracks.begin(), s.tracks.end(),
+                                    [&](const auto &t) { return t.id == address.trackId; });
+    check(patch.channel < track->layout.channels && !patch.backendId.empty(),
+          "Route patch needs a valid channel and backend", ErrorCode::InvalidParameter);
+    if (result.backendId != patch.backendId || result.ports.empty())
+        result = {patch.backendId, "",
+                  std::vector<std::optional<ChannelPortIntent>>(track->layout.channels)};
+    result.ports.at(patch.channel) = patch.port;
+    return result;
+}
+void setRouteValue(Session &s, const RouteAddress &address, const RouteIntent &value) {
+    (void)routeValue(s, address);
+    auto proposed = s;
+    for (auto &t : proposed.tracks)
+        if (t.id == address.trackId) {
+            switch (address.target) {
+            case RouteTarget::Input:
+                t.input = value;
+                break;
+            case RouteTarget::Output:
+                t.output = value;
+                break;
+            case RouteTarget::Monitor:
+                t.monitor = value;
+                break;
+            }
+        }
+    validate(proposed);
+    s = std::move(proposed);
+}
+bool EditHistory::route(const RouteAddress &address, const RouteIntent &value) {
+    check(!active_, "Cannot change a route during an active parameter gesture");
+    const auto before = routeValue(session_, address);
+    if (before == value)
+        return false;
+    undo_.push_back(RouteChange{address, before, value});
+    try {
+        setRouteValue(session_, address, value);
+    } catch (...) {
+        undo_.pop_back();
+        throw;
+    }
+    if (undo_.size() > 256)
+        undo_.erase(undo_.begin());
+    redo_.clear();
+    return true;
+}
 void EditHistory::begin(const ParameterAddress &address) {
     check(!active_, "A parameter gesture is already active");
     const auto value = parameterValue(session_, address);
-    active_ = Change{address, value, value};
+    active_ = ParameterChange{address, value, value};
 }
 void EditHistory::update(double value) {
     check(active_.has_value(), "No active parameter gesture");
@@ -321,7 +409,14 @@ bool EditHistory::undo() {
     const auto change = undo_.back();
     redo_.push_back(change);
     try {
-        setParameterValue(session_, change.address, change.before);
+        std::visit(
+            [&](const auto &c) {
+                if constexpr (std::is_same_v<std::decay_t<decltype(c)>, ParameterChange>)
+                    setParameterValue(session_, c.address, c.before);
+                else
+                    setRouteValue(session_, c.address, c.before);
+            },
+            change);
     } catch (...) {
         redo_.pop_back();
         throw;
@@ -336,7 +431,14 @@ bool EditHistory::redo() {
     const auto change = redo_.back();
     undo_.push_back(change);
     try {
-        setParameterValue(session_, change.address, change.after);
+        std::visit(
+            [&](const auto &c) {
+                if constexpr (std::is_same_v<std::decay_t<decltype(c)>, ParameterChange>)
+                    setParameterValue(session_, c.address, c.after);
+                else
+                    setRouteValue(session_, c.address, c.after);
+            },
+            change);
     } catch (...) {
         undo_.pop_back();
         throw;

@@ -14,7 +14,8 @@ enum class CommandKind {
     Undo,
     Redo,
     Barrier,
-    AttachRecording
+    AttachRecording,
+    Routing
 };
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
@@ -22,6 +23,10 @@ struct ProjectCommand {
     std::filesystem::path path;
     std::string name;
     std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
+    std::optional<RouteAddress> routeAddress;
+    RouteIntent route;
+    std::optional<RouteChannelPatch>
+        routePatch; // Merge with latest accepted route, not a stale GUI copy.
     std::optional<ParameterAddress> address;
     double value = 0;
     std::uint64_t gesture = 0;
@@ -34,6 +39,7 @@ struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
     std::uint64_t modelRevision = 0, savedRevision = 0, completedCommands = 0, errorSerial = 0;
+    std::uint64_t projectEpoch = 0; // Each successful Create/Open, even the same project ID.
     std::uint64_t lastBarrier = 0, attachedRecordings = 0;
     // One retained immutable receipt at the exact accepted-command prefix.
     std::shared_ptr<const Session> barrierSession;

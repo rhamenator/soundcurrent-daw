@@ -93,7 +93,7 @@ bool compatible(const Session &prepared, const Session &updated) {
         prepared.exportStartFrame != updated.exportStartFrame ||
         prepared.exportEndFrame != updated.exportEndFrame || prepared.assets != updated.assets ||
         prepared.tracks.size() != updated.tracks.size() || t.id != u.id || t.name != u.name ||
-        t.layout != u.layout || t.input != u.input || t.output != u.output || t.clips != u.clips)
+        t.layout != u.layout || t.clips != u.clips)
         return false;
     return std::equal(prepared.tracks.begin() + 1, prepared.tracks.end(),
                       updated.tracks.begin() + 1);
