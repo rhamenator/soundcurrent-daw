@@ -51,6 +51,10 @@ class RecordingEndpoint {
     virtual SubmitStatus submit(const EqEvent &, std::uint64_t) noexcept = 0;
     virtual RecordingTelemetry read() = 0;
     virtual void checkReader() {}
+    // Worker-only immutable endpoint bounds; zero for an unbounded single take.
+    virtual Frame preparedEndFrame() {
+        return 0;
+    }
     virtual RecordingResult laneResult(std::size_t n) {
         if (n)
             throw ProjectError(ErrorCode::InvalidState, "Unknown recording lane");

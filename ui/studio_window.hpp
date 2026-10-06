@@ -39,6 +39,7 @@ class StudioWindow : public QMainWindow {
     std::optional<Id> selectedTrack() const;
     bool prepareRecording();
     bool configureArmedRecording(const std::vector<Id> &, Frame frames = 0);
+    bool configurePunch(PunchSettings);
     bool inspectTake(const std::filesystem::path &);
     std::shared_ptr<const RecordingSnapshot> recordingSnapshot() const;
     std::shared_ptr<const ExportSnapshot> exportSnapshot() const;
@@ -100,6 +101,12 @@ class StudioWindow : public QMainWindow {
     QComboBox *recordReserve_;
     std::uint32_t recordPreparationReserveMilliseconds_ = 10000;
     QLabel *recordRangeLabel_;
+    QCheckBox *punchEnabled_ = nullptr;
+    QPushButton *punchRangeButton_ = nullptr;
+    QLabel *punchSummary_ = nullptr;
+    std::optional<PunchSettings> punchShown_;
+    QPointer<QDialog> punchDialog_;
+    void editPunchRange();
     std::vector<Id> armedTracksSelection_, recordPreparationArms_;
     Frame recordRangeOverride_ = 0, recordPreparationFrames_ = 0;
     bool recordPrepareMix_ = false;

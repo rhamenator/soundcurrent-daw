@@ -242,3 +242,11 @@ physical latency, Windows runtime or sustained performance. Next persist desired
 locators in versioned project state, add recording controls/admitted postroll and
 owned native per-lane punch evidence. Full manual/Auto/tempo/loop/take/comping and
 all frozen product requirements remain, with21historical observations retained.
+
+M2 now persists [canonical project punch settings](54-project-punch-controls.md)
+in schema1.4 with strict older-schema migrations and undo/redo, and connects
+range/toggle/actual-postroll controls to prepared recording and grouped attachment.
+Linux codec/controller/desktop tests qualify this bounded workflow. No native
+punch, physical or Windows runtime gate is promoted. Next owned native per-lane
+punch acceptance precedes manual/Auto/tempo/loop/take/comping. All21historical
+observations,92frozencontracts and the full professional-suite scope remain.

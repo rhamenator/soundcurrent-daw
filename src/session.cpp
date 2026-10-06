@@ -225,6 +225,9 @@ void validate(const Session &s) {
     check(s.sampleRate >= 8000 && s.sampleRate <= 384000, "Invalid sample rate");
     check(s.playheadFrame >= 0 && s.exportStartFrame >= 0 && s.exportEndFrame >= s.exportStartFrame,
           "Invalid frame position/range");
+    check(s.punch.startFrame >= 0 && s.punch.endFrame >= s.punch.startFrame &&
+              (!s.punch.enabled || s.punch.endFrame > s.punch.startFrame),
+          "Invalid punch recording locators");
     check(s.tracks.size() <= 256 && s.assets.size() <= 4096, "Session object limit exceeded");
     std::unordered_set<std::string> ids;
     auto unique = [&](const Id &id) {

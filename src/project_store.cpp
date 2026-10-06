@@ -306,12 +306,16 @@ std::string encodeProject(const Session &s) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 3},
+        {"schemaMinor", 4},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
         {"playheadFrame", s.playheadFrame},
         {"exportRange", {{"startFrame", s.exportStartFrame}, {"endFrame", s.exportEndFrame}}},
+        {"punchRecording",
+         {{"enabled", s.punch.enabled},
+          {"startFrame", s.punch.startFrame},
+          {"endFrame", s.punch.endFrame}}},
         {"tracks", tracks},
         {"assets", assets}};
     root["master"] = nullptr;
@@ -353,14 +357,18 @@ Session decodeProject(std::string_view bytes) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 3),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 4),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                      "playheadFrame", "exportRange", "tracks", "assets"});
-        else
+        else if (minor == 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                      "playheadFrame", "exportRange", "tracks", "assets", "master"});
+        else
+            keys(j,
+                 {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                  "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         Session s;
         s.id = Id(string(j.at("projectId")));
@@ -371,6 +379,12 @@ Session decodeProject(std::string_view bytes) {
         keys(range, {"startFrame", "endFrame"});
         s.exportStartFrame = integer(range.at("startFrame"));
         s.exportEndFrame = integer(range.at("endFrame"));
+        if (minor >= 4) {
+            const auto &punch = j.at("punchRecording");
+            keys(punch, {"enabled", "startFrame", "endFrame"});
+            s.punch = {boolean(punch.at("enabled")), integer(punch.at("startFrame")),
+                       integer(punch.at("endFrame"))};
+        }
         array(j.at("assets"), 4096);
         for (const auto &a : j.at("assets")) {
             keys(a, {"id", "path", "sha256", "sampleRate", "layout", "frames"});

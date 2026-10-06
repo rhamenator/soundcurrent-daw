@@ -121,6 +121,9 @@ class Endpoint final : public RecordingEndpoint {
     void checkReader() override {
         run_->checkReader();
     }
+    Frame preparedEndFrame() override {
+        return run_->playbackEnd();
+    }
     RecordingResult result() override {
         return laneResult(0);
     }

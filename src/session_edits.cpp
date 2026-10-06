@@ -137,6 +137,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits) {
                                       [&](const auto &t) { return t.track == e.track; });
                 } else if constexpr (std::is_same_v<E, SetMaster>) {
                     proposed.master = e.value;
+                } else if constexpr (std::is_same_v<E, SetPunch>) {
+                    proposed.punch = e.value;
                 } else if constexpr (std::is_same_v<E, RenameTrack>) {
                     track(proposed, e.track).name = e.name;
                 } else if constexpr (std::is_same_v<E, MoveTrack>) {
@@ -272,8 +274,10 @@ bool EditHistory::adopt(const Session &value) {
         change.exportEnd = {{session_.exportEndFrame, value.exportEndFrame}};
     if (value.master != session_.master)
         change.master = {{session_.master, value.master}};
+    if (value.punch != session_.punch)
+        change.punch = {{session_.punch, value.punch}};
     if (change.tracks.empty() && change.assets.empty() && oldTracks == newTracks &&
-        oldAssets == newAssets && !change.exportEnd && !change.master)
+        oldAssets == newAssets && !change.exportEnd && !change.master && !change.punch)
         return false;
     auto proposed = value;
     retain(std::move(change));
@@ -310,6 +314,11 @@ void EditHistory::apply(const Change &change, bool forward) {
                     require(proposed.master == (forward ? c.master->first : c.master->second),
                             "Undo master conflicts with current state");
                     proposed.master = forward ? c.master->second : c.master->first;
+                }
+                if (c.punch) {
+                    require(proposed.punch == (forward ? c.punch->first : c.punch->second),
+                            "Undo punch locators conflict with current state");
+                    proposed.punch = forward ? c.punch->second : c.punch->first;
                 }
                 validate(proposed);
                 session_ = std::move(proposed);

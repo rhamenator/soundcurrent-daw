@@ -498,6 +498,76 @@ void duplexFiniteRangeAndStructure(const std::filesystem::path &root) {
     }
 }
 
+void duplexPunchState(const std::filesystem::path &root) {
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        const auto folder = root / std::to_string(mode);
+        auto s = duplex_fixture::project(folder);
+        s.punch = {true, 1513, 2701};
+        ProjectStore(folder).save(s);
+        auto c = std::make_shared<duplex_fixture::Counters>();
+        c->holdProcess = mode == 1;
+        RecordingController r(duplex_fixture::options(c));
+        DuplexRelease release{c};
+        auto p = duplex_fixture::prepare(folder, s);
+        p.recordFrames = mode == 2 ? 1700 : 1701;
+        r.submit(p);
+        if (mode == 2) {
+            await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
+            check(c->constructed == 0 && c->activated == 0 && !r.snapshot()->job,
+                  "Outside punch range allocated endpoint/jobs");
+            continue;
+        }
+        await([&] { return r.snapshot()->phase == RecordingPhase::Ready; });
+        check(r.snapshot()->endFrame == 2901 && !r.snapshot()->job && c->activated == 0,
+              "Prepared punch end omitted actual endpoint postroll or created jobs");
+        if (mode == 1) {
+            auto changed = s;
+            changed.punch.endFrame = 2702;
+            r.follow(folder, std::make_shared<const Session>(changed), 2);
+            await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
+            check(c->destroyed == 1 && !r.snapshot()->take && c->activated == 0 &&
+                      r.snapshot()->diagnostic == "Project structure changed; recording stopped",
+                  "Locator edit did not retire an immutable prepared generation");
+            continue;
+        }
+        r.submit(duplex_fixture::start(*c));
+        await([&] { return r.snapshot()->phase == RecordingPhase::Complete; });
+        check(r.snapshot()->telemetry.capturedFrames == 1188 && !r.snapshot()->take,
+              "Punch included preroll/postroll or exposed unjoined receipts");
+        r.requestStop();
+        await([&] { return r.snapshot()->take.has_value(); });
+        const auto v = r.snapshot();
+        check(v->take->receipts->size() == 2 && c->destroyed == 1 && !c->wrongThread,
+              "Punch grouped handoff or retirement differs");
+        auto attached = s;
+        for (unsigned t = 0; t < 2; ++t) {
+            const auto &take = (*v->take->receipts)[t];
+            const auto latency = t ? 200 : 41;
+            check(take.asset.frames == 1188 && take.spec.capture.startFrame == 1513 + latency &&
+                      take.spec.inputLatencyFrames == latency,
+                  "Controller lost prepared musical capture geometry");
+            attachRecording(attached, take);
+            check(attached.tracks[t].clips.back().startFrame == 1513 &&
+                      attached.tracks[t].clips.back().lengthFrames == 1188,
+                  "Controller musical punch attachment differs");
+        }
+        check(v->telemetry.lanes[0].origin && v->telemetry.lanes[1].origin &&
+                  v->telemetry.lanes[0].origin != v->telemetry.lanes[1].origin,
+              "Controller collapsed per-lane origins");
+        ProjectStore(folder).save(attached);
+        check(ProjectStore(folder).load() == attached, "Controller punch save/reopen differs");
+    }
+    const auto folder = root / "single";
+    auto s = project(folder);
+    s.punch = {true, 0, 100};
+    auto c = std::make_shared<Counters>();
+    RecordingController r(recording_fixture::options(c));
+    r.submit(recording_fixture::prepare(folder, s));
+    await([&] { return r.snapshot()->phase == RecordingPhase::Fault; });
+    check(c->constructed == 0 && !r.snapshot()->job,
+          "Single-track backend silently ignored enabled punch");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -515,6 +585,7 @@ int main(int argc, char **argv) {
         duplexTakeAndEdits(root / "duplex-take");
         duplexAdmissionAndFailures(root / "duplex-failures");
         duplexFiniteRangeAndStructure(root / "duplex-range");
+        duplexPunchState(root / "duplex-punch");
         std::cout << "{\"checks\":" << checks
                   << ",\"synthetic_endpoint\":true,\"actual_disk_takes\":true,\"retained_handoff\":"
                      "true,\"preview_copy_recovery\":true,\"bounded_pressure_stop\":true}\n";

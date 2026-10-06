@@ -45,9 +45,79 @@ struct Comma : std::numpunct<char> {
         return ',';
     }
 };
+
+void punchState() {
+    auto s = makeOneTrackSession("Punch — Εγγραφή", "Raw");
+    const auto initial = s;
+    EditHistory h(s);
+    check(h.structural({SetPunch{{true, 503, 1291}}}) && s.punch == PunchSettings{true, 503, 1291},
+          "Punch structural edit not applied");
+    check(h.undo() && s == initial && h.redo() && s.punch.enabled, "Punch Undo/Redo differs");
+    check(!h.structural({SetPunch{s.punch}}), "Unchanged punch retained a history entry");
+    const auto enabled = s;
+    check(h.structural({SetPunch{{false, 503, 1291}}}) && !s.punch.enabled &&
+              s.punch.endFrame == 1291,
+          "Disabling punch discarded saved locators");
+    check(h.undo() && s == enabled, "Punch toggle Undo lost enabled range");
+    check(decodeProject(encodeProject(s)) == s, "Punch exact serialization roundtrip differs");
+    Temporary d;
+    ProjectStore(d.path).save(s);
+    check(ProjectStore(d.path).load() == s, "Punch save/reopen differs");
+    for (auto value :
+         {PunchSettings{true, 5, 5}, PunchSettings{false, 5, 4}, PunchSettings{false, -1, 0}}) {
+        const auto before = s;
+        rejects([&] { h.structural({SetPunch{value}}); });
+        check(s == before, "Invalid punch edit changed canonical state/history");
+    }
+    auto j = Json::parse(encodeProject(s));
+    check(j["schemaMinor"] == 4 && j["punchRecording"]["startFrame"] == 503,
+          "Punch stable schema representation differs");
+    for (unsigned mode = 0; mode < 6; ++mode) {
+        auto bad = j;
+        if (mode == 0)
+            bad["punchRecording"]["enabled"] = 1;
+        if (mode == 1)
+            bad["punchRecording"]["startFrame"] = 503.5;
+        if (mode == 2)
+            bad["punchRecording"]["endFrame"] = std::numeric_limits<std::uint64_t>::max();
+        if (mode == 3)
+            bad["punchRecording"].erase("endFrame");
+        if (mode == 4)
+            bad["punchRecording"]["unknown"] = false;
+        if (mode == 5)
+            bad.erase("punchRecording");
+        rejects([&] { decodeProject(bad.dump()); });
+    }
+    for (unsigned minor = 0; minor < 4; ++minor) {
+        auto legacy = Json::parse(encodeProject(initial));
+        legacy["schemaMinor"] = minor;
+        legacy.erase("punchRecording");
+        if (minor < 3)
+            legacy.erase("master");
+        for (auto &t : legacy["tracks"]) {
+            if (minor < 2)
+                t.erase("monitoringMode");
+            if (minor == 0) {
+                t.erase("monitorIntent");
+                t["inputIntent"].erase("ports");
+                t["outputIntent"].erase("ports");
+            }
+        }
+        check(decodeProject(legacy.dump()) == initial,
+              "Legacy migration changed state or enabled punch");
+        if (minor == 3) {
+            legacy["punchRecording"] = j["punchRecording"];
+            rejects([&] { decodeProject(legacy.dump()); });
+        }
+    }
+    s.punch = {true, std::numeric_limits<Frame>::max() - 1, std::numeric_limits<Frame>::max()};
+    check(decodeProject(encodeProject(s)) == s,
+          "High-frame punch positions lost integer precision");
+}
 } // namespace
 int main() {
     try {
+        punchState();
         auto s = makeOneTrackSession("Été · Ελληνικά · Українська · עברית", "Łódź — voix");
         const auto &t = s.tracks[0];
         ParameterAddress address{t.id, t.eq.id, t.eq.bands[0].id, BandParameter::GainDb};
@@ -89,7 +159,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 4;
+        j["schemaMinor"] = 5;
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;

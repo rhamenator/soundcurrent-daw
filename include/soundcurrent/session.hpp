@@ -127,6 +127,11 @@ struct Asset {
     Frame frames = 0;
     bool operator==(const Asset &) const = default;
 };
+struct PunchSettings {
+    bool enabled = false;
+    Frame startFrame = 0, endFrame = 0; // Desired project frames, before input latency.
+    bool operator==(const PunchSettings &) const = default;
+};
 struct Session {
     Id id = Id::generate();
     std::string name;
@@ -137,6 +142,7 @@ struct Session {
     std::vector<Track> tracks;
     std::vector<Asset> assets;
     std::optional<MasterBus> master;
+    PunchSettings punch;
     bool operator==(const Session &) const = default;
 };
 bool validUtf8(std::string_view text) noexcept;
@@ -184,8 +190,12 @@ struct SplitClip {
 struct SetMaster {
     std::optional<MasterBus> value;
 };
-using SessionEdit = std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip,
-                                 RemoveClip, SetClipRange, MoveClip, SplitClip, SetMaster>;
+struct SetPunch {
+    PunchSettings value;
+};
+using SessionEdit =
+    std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
+                 SetClipRange, MoveClip, SplitClip, SetMaster, SetPunch>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &);
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {
@@ -262,6 +272,7 @@ class EditHistory {
         std::vector<Id> trackOrderBefore, trackOrderAfter, assetOrderBefore, assetOrderAfter;
         std::optional<std::pair<Frame, Frame>> exportEnd;
         std::optional<std::pair<std::optional<MasterBus>, std::optional<MasterBus>>> master;
+        std::optional<std::pair<PunchSettings, PunchSettings>> punch;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
     static std::size_t weight(const Change &);

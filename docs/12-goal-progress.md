@@ -1449,3 +1449,42 @@ and admitted postroll, and qualify owned native per-lane punch origins/alignment
 Beat/tempo conversion, manual punch/Auto monitoring, stop/continue modes, looping,
 take lanes/comping and every original sustained/physical/Windows/full-product/
 import/profile/all-Europe gate remain required. Full goal active/incomplete.
+
+## 2026-10-06 continuation: canonical punch settings and desktop recording
+
+Schema1.4 persists desired project-frame punch locators; schemas1.0–1.3 default
+punch off without changing existing identities or rewriting on Open. Strict
+boolean/integer/key/overflow checks, transactional edits, retained disabled
+locators and undo/redo cover exact state through INT64_MAX. Recording journals
+and alignment remain unchanged.
+
+The desktop provides a labeled range dialog and toggle, uses canonical settings
+at the recording barrier and displays admitted latency postroll. Initial enable
+or Open suggests an arm only when empty; subsequent clearing stays empty.
+Prepared/busy generations reject settings changes, incompatible canonical
+locators retire their owner, and Stop clears the prepared-end display. Explicit
+routes, joined receipt handoff and grouped attachment remain required. Codec,
+controller and desktop tests use synthetic endpoints with real graph readers and
+disk workers; they establish no physical or native punch qualification.
+
+Initial full Debug passes29/29in26.04s. Visual inspection found clipped validation
+feedback; its original screenshot is retained and the layout fix passes both
+text-bounds and screenshot inspection. Final desktop/discovery checks pass4/4
+in7.98s. An existing optimized Unix crash-fixture pipe-write warning was fixed by
+checking the readiness write, preserving its original warning log. Detailed final
+sanitizer/optimized build and test results are in the
+[evidence](../tests/results/M2/2026-10-06-project-punch-controls.json).
+
+[Contract](54-project-punch-controls.md) and
+[ADR-042](decisions/042-project-punch-settings.md) retain all21historical
+observations. All24borrowed inputs still match current equalizer HEADs; no
+acceptance/quality/reference or F/Q/C/N projection changes among92families.
+The owner's signing-budget constraint remains in force; Windows development
+uses the documented direct user-mode plan without a purchased certificate.
+No new dependency, equalizer write, policy/default-route change, native callback,
+VM, signing expense or publication occurred in this checkpoint.
+
+Next qualify owned native per-lane punch boundaries/origins/alignment, then
+manual/Auto/tempo/loop/take/comping workflows. Sustained performance, physical
+latency, Windows native/Qt/installers, import/profile/all-Europe and all frozen
+professional-suite requirements remain open. Full goal active/incomplete.

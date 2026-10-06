@@ -14,6 +14,7 @@
 #include <QGroupBox>
 #include <QInputDialog>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMenuBar>
 #include <QScreen>
 #include <QScrollArea>
@@ -33,6 +34,7 @@
 #include <QScopedValueRollback>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 namespace soundcurrent::daw::ui {
 namespace {
 std::filesystem::path path(const QString &value) {
@@ -339,6 +341,43 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     rangeRow->addWidget(rangeLabel);
     rangeRow->addWidget(recordSeconds_);
     recordLayout->addLayout(rangeRow);
+    auto *punchRow = new QHBoxLayout;
+    punchEnabled_ = new QCheckBox(tr("Punch recording"), recording);
+    punchEnabled_->setObjectName("punchEnabled");
+    punchEnabled_->setToolTip(
+        tr("Record only within the saved punch range while project playback continues."));
+    punchRangeButton_ = new QPushButton(tr("Set punch range…"), recording);
+    punchRangeButton_->setObjectName("editPunchRange");
+    punchRow->addWidget(punchEnabled_);
+    punchRow->addWidget(punchRangeButton_);
+    recordLayout->addLayout(punchRow);
+    punchSummary_ = new QLabel(recording);
+    punchSummary_->setObjectName("punchSummary");
+    punchSummary_->setWordWrap(true);
+    recordLayout->addWidget(punchSummary_);
+    connect(punchRangeButton_, &QPushButton::clicked, this, [this] { editPunchRange(); });
+    connect(punchEnabled_, &QCheckBox::toggled, this, [this](bool enabled) {
+        const auto m = controller_.snapshot();
+        if (!m->session)
+            return;
+        auto value = m->session->punch;
+        value.enabled = enabled;
+        if (enabled && value.endFrame == value.startFrame) {
+            const auto duration = Frame(m->session->sampleRate) * 10;
+            if (m->session->playheadFrame > std::numeric_limits<Frame>::max() - duration) {
+                notice_->setText(tr("There is no room for a punch range at this position."));
+                punchShown_.reset();
+                return;
+            }
+            value.startFrame = m->session->playheadFrame;
+            value.endFrame = value.startFrame + duration;
+        }
+        if (!configurePunch(value)) {
+            punchShown_.reset();
+            notice_->setText(
+                tr("Punch settings could not be changed. Stop recording setup and retry."));
+        }
+    });
     auto *reserveRow = new QHBoxLayout;
     auto *reserveLabel = new QLabel(tr("Recording disk-stall reserve"), recording);
     recordReserve_ = new FocusCombo(recording);
@@ -1150,12 +1189,115 @@ bool StudioWindow::configureArmedRecording(const std::vector<Id> &ids, Frame fra
     refreshArms();
     return true;
 }
+bool StudioWindow::configurePunch(PunchSettings value) {
+    const auto m = controller_.snapshot();
+    const auto r = recording_.snapshot();
+    if (!m->session || m->io != IoOperation::None || recordingBusy() ||
+        r->phase == RecordingPhase::Ready || r->take || attachingTake_ || recordPrepareBarrier_ ||
+        recordCommandPending_ || closing_ || closeRequested_ || exportWorkflowBusy() ||
+        value.startFrame < 0 || value.endFrame < value.startFrame ||
+        (value.enabled && value.endFrame == value.startFrame))
+        return false;
+    ProjectCommand c{CommandKind::Structural};
+    c.edits = {SetPunch{value}};
+    return submitEdit(std::move(c));
+}
+void StudioWindow::editPunchRange() {
+    const auto m = controller_.snapshot();
+    if (!m->session || punchDialog_ || !punchRangeButton_->isEnabled())
+        return;
+    auto *d = new QDialog(this);
+    punchDialog_ = d;
+    d->setObjectName("punchRangeDialog");
+    d->setAttribute(Qt::WA_DeleteOnClose);
+    d->setWindowTitle(tr("Punch recording range"));
+    d->setModal(true);
+    auto *layout = new QVBoxLayout(d);
+    auto *info = new QLabel(tr("Positions are sample frames at %1 Hz. Input latency is accounted "
+                               "for during preparation.")
+                                .arg(QLocale().toString(m->session->sampleRate)),
+                            d);
+    info->setWordWrap(true);
+    layout->addWidget(info);
+    auto *enabled = new QCheckBox(tr("Enable punch recording"), d);
+    enabled->setObjectName("punchRangeEnabled");
+    enabled->setChecked(m->session->punch.enabled);
+    layout->addWidget(enabled);
+    auto *start = new QLineEdit(QLocale().toString(m->session->punch.startFrame), d);
+    auto *end = new QLineEdit(QLocale().toString(m->session->punch.endFrame), d);
+    start->setObjectName("punchStartFrame");
+    end->setObjectName("punchEndFrame");
+    for (auto pair :
+         {std::pair{tr("Punch in (samples)"), start}, std::pair{tr("Punch out (samples)"), end}}) {
+        auto *row = new QHBoxLayout;
+        auto *label = new QLabel(pair.first, d);
+        label->setBuddy(pair.second);
+        pair.second->setAccessibleName(pair.first);
+        row->addWidget(label);
+        row->addWidget(pair.second);
+        layout->addLayout(row);
+    }
+    auto *error = new QLabel(d);
+    error->setObjectName("punchRangeError");
+    error->setWordWrap(true);
+    error->setMinimumHeight(error->fontMetrics().height() * 3);
+    layout->addWidget(error);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, d);
+    layout->addWidget(buttons);
+    connect(buttons, &QDialogButtonBox::rejected, d, &QDialog::reject);
+    connect(
+        buttons, &QDialogButtonBox::accepted, d,
+        [this, d, start, end, enabled, error, epoch = m->projectEpoch, project = m->session->id] {
+            const auto showError = [d, error](const QString &message) {
+                error->setText(message);
+                d->layout()->activate();
+                d->adjustSize();
+            };
+            const auto current = controller_.snapshot();
+            if (!current->session || current->projectEpoch != epoch ||
+                current->session->id != project) {
+                error->setText(
+                    tr("The project changed. Close this dialog and reopen its punch settings."));
+                return;
+            }
+            bool a = false, b = false;
+            const auto first = QLocale().toLongLong(start->text(), &a),
+                       last = QLocale().toLongLong(end->text(), &b);
+            if (!a || !b || first < 0 || last < first || (enabled->isChecked() && first == last)) {
+                showError(tr("Enter nonnegative whole sample positions, with punch out after "
+                             "punch in when enabled."));
+                return;
+            }
+            if (!configurePunch({enabled->isChecked(), first, last})) {
+                error->setText(
+                    tr("Punch settings could not be changed. Stop recording setup and retry."));
+                return;
+            }
+            d->accept();
+        });
+    d->open();
+}
 void StudioWindow::refreshArms() {
     const auto m = controller_.snapshot();
     const auto r = recording_.snapshot();
-    if (armProjectEpoch_ != m->projectEpoch) {
+    const bool newProject = armProjectEpoch_ != m->projectEpoch;
+    const bool suggestArm = m->session && m->session->punch.enabled &&
+                            (newProject || !punchShown_ || !punchShown_->enabled);
+    if (newProject) {
         armProjectEpoch_ = m->projectEpoch;
         armedTracksSelection_.clear();
+    }
+    if (m->session && (!punchShown_ || *punchShown_ != m->session->punch)) {
+        punchShown_ = m->session->punch;
+        QSignalBlocker blocked(punchEnabled_);
+        punchEnabled_->setChecked(punchShown_->enabled);
+    }
+    if (m->session && m->session->punch.enabled) {
+        QSignalBlocker blocked(multiRecord_);
+        multiRecord_->setChecked(true);
+        if (suggestArm && armedTracksSelection_.empty() && !m->session->tracks.empty())
+            armedTracksSelection_.push_back(
+                selectedTrack().value_or(m->session->tracks.front().id));
     }
     const bool mix = multiRecord_->isChecked();
     armedTracksList_->setVisible(mix);
@@ -1165,6 +1307,10 @@ void StudioWindow::refreshArms() {
     QSignalBlocker blocked(armedTracksList_);
     if (!m->session) {
         armedTracksList_->clear();
+        punchEnabled_->setEnabled(false);
+        punchRangeButton_->setEnabled(false);
+        punchSummary_->clear();
+        punchShown_.reset();
         return;
     }
     bool rebuild = armedTracksList_->count() != int(m->session->tracks.size());
@@ -1223,9 +1369,25 @@ void StudioWindow::refreshArms() {
                       r->phase == RecordingPhase::Unsupported;
     const bool edit = idle && !recordPrepareBarrier_ && !recordCommandPending_ && !r->take &&
                       !closing_ && !closeRequested_;
-    multiRecord_->setEnabled(edit && r->duplexSupported);
+    multiRecord_->setEnabled(edit && r->duplexSupported && !m->session->punch.enabled);
     armedTracksList_->setEnabled(edit);
     recordSeconds_->setEnabled(edit);
+    punchEnabled_->setEnabled(edit && r->duplexSupported);
+    punchRangeButton_->setEnabled(edit && r->duplexSupported);
+    punchSummary_->setText(
+        m->session->punch.enabled
+            ? tr("Punch in %1 · punch out %2 samples. Prepared playback end: %3.")
+                  .arg(QLocale().toString(m->session->punch.startFrame),
+                       QLocale().toString(m->session->punch.endFrame),
+                       r->projectMix && (r->phase == RecordingPhase::Ready ||
+                                         r->phase == RecordingPhase::Recording ||
+                                         r->phase == RecordingPhase::Complete ||
+                                         r->phase == RecordingPhase::Finalizing)
+                           ? QLocale().toString(r->endFrame)
+                           : tr("not prepared"))
+            : tr("Punch is off. Saved range: %1 to %2 samples.")
+                  .arg(QLocale().toString(m->session->punch.startFrame),
+                       QLocale().toString(m->session->punch.endFrame)));
 }
 void StudioWindow::recordSelected() {
     const auto r = recording_.snapshot();

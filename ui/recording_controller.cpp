@@ -132,6 +132,9 @@ class NativeDuplexEndpoint : public RecordingEndpoint {
     void checkReader() override {
         owner_.run().checkReader();
     }
+    Frame preparedEndFrame() override {
+        return owner_.run().playbackEnd();
+    }
     RecordingResult result() override {
         return laneResult(0);
     }
@@ -218,7 +221,7 @@ bool compatible(const Session &a, const Session &b) {
         return false;
     const auto &t = a.tracks.front(), &u = b.tracks.front();
     if (a.id != b.id || a.sampleRate != b.sampleRate || a.playheadFrame != b.playheadFrame ||
-        t.id != u.id || t.layout != u.layout || t.eq.id != u.eq.id ||
+        a.punch != b.punch || t.id != u.id || t.layout != u.layout || t.eq.id != u.eq.id ||
         t.eq.bands.size() != u.eq.bands.size())
         return false;
     for (std::size_t n = 0; n < t.eq.bands.size(); ++n)
@@ -231,7 +234,8 @@ bool compatible(const RecordingPreparation &p, const Session &b) {
         return compatible(*p.session, b);
     const auto &a = *p.session;
     if (a.id != b.id || a.sampleRate != b.sampleRate || a.playheadFrame != b.playheadFrame ||
-        a.tracks.size() != b.tracks.size() || bool(a.master) != bool(b.master) ||
+        a.punch != b.punch || a.tracks.size() != b.tracks.size() ||
+        bool(a.master) != bool(b.master) ||
         (a.master && (a.master->id != b.master->id || a.master->plan != b.master->plan)))
         return false;
     for (const auto &lane : p.plan.tracks) {
@@ -512,6 +516,9 @@ struct RecordingController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Recording backend/project/track unavailable");
             validate(*c.session);
+            if (c.session->punch.enabled && !mix)
+                throw ProjectError(ErrorCode::InvalidState,
+                                   "Punch recording requires shared project playback");
             if (endpoint) {
                 if (started)
                     throw ProjectError(ErrorCode::InvalidState,
@@ -562,6 +569,14 @@ struct RecordingController::State : QThread {
                 cfg.playback.graph.maximumFrames = p.options.bridge.maximumFrames;
                 cfg.playback.graph.generation = p.options.bridge.generation;
                 cfg.playback.endFrame = c.session->playheadFrame + c.recordFrames;
+                if (c.session->punch.enabled) {
+                    cfg.musicalPunch =
+                        PunchRange{c.session->punch.startFrame, c.session->punch.endFrame};
+                    if (cfg.musicalPunch->begin < cfg.playback.graph.startFrame ||
+                        cfg.musicalPunch->end > cfg.playback.endFrame)
+                        throw ProjectError(ErrorCode::InvalidState,
+                                           "Punch locators must fit the prepared recording range");
+                }
                 for (const auto &id : c.armedTracks) {
                     const auto *t = findTrack(*c.session, id);
                     if (!t ||
@@ -628,6 +643,17 @@ struct RecordingController::State : QThread {
             endpoint = (mix ? options.duplexFactory : options.factory)(p);
             if (!endpoint)
                 throw ProjectError(ErrorCode::InvalidState, "Recording factory returned no owner");
+            if (mix) {
+                const auto end = endpoint->preparedEndFrame();
+                if ((c.session->punch.enabled && end <= 0) ||
+                    (end && (end < p.duplexOptions.run.playback.endFrame ||
+                             end - p.duplexOptions.run.playback.endFrame >
+                                 Frame(c.session->sampleRate) * 60)))
+                    throw ProjectError(ErrorCode::InvalidState,
+                                       "Endpoint reported invalid prepared recording bounds");
+                if (end)
+                    view.endFrame = end;
+            }
             if (interrupted(q.epoch)) {
                 stopEndpoint();
                 return;

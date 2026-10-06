@@ -1,0 +1,392 @@
+{
+  "date": "2026-10-06",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parent_commit": "210fcfd2cb1e2b8e5a1d3bf4f0686cbc0793ebf9",
+  "classification": "Bounded project-state/desktop punch workflow checkpoint; full DAW and punch parity incomplete",
+  "source_sha256": [
+    {
+      "path": "include/soundcurrent/session.hpp",
+      "bytes": 8560,
+      "sha256": "61f56195304a9b7a2b217c53e9c0f11a80700c6d0f914cd62c1e40f8c56e8f31"
+    },
+    {
+      "path": "src/project_store.cpp",
+      "bytes": 25071,
+      "sha256": "f8a305b79b9a7c33d465ecc63e608a557bc94bdb8eec1528d8ca9cd34066e12b"
+    },
+    {
+      "path": "src/session.cpp",
+      "bytes": 19801,
+      "sha256": "ec1e5b4535256d56281d1c51e28ccb7e2f67c7693a770423df8fa3e0c67ea152"
+    },
+    {
+      "path": "src/session_edits.cpp",
+      "bytes": 15704,
+      "sha256": "b3803ce6f828df308315139d52eb103c2814defbf74ca5f74512396133e0d72f"
+    },
+    {
+      "path": "tests/discovery_tests.cpp",
+      "bytes": 14010,
+      "sha256": "c8d3432e73e133a651979c2004b8eafac1a4f701e4c7edea11ce59d0112c36dd"
+    },
+    {
+      "path": "tests/fake_duplex_endpoint.hpp",
+      "bytes": 10680,
+      "sha256": "df7f1d5f63ec41cf940161a9f5f499ab2116164aee093362577f5b5a81fda764"
+    },
+    {
+      "path": "tests/monitoring_tests.cpp",
+      "bytes": 6048,
+      "sha256": "f6c80c474cc704dcbde8a70b8cc552bcc3f0e62b8a3f1729fbacbc7e0ee8e1cb"
+    },
+    {
+      "path": "tests/recording_controller_tests.cpp",
+      "bytes": 29521,
+      "sha256": "bfa730ccc90e186972e750fee3630150749c9f1b07dde98f1a96c09fcdbfbf4c"
+    },
+    {
+      "path": "tests/routing_tests.cpp",
+      "bytes": 17330,
+      "sha256": "a6a01deae8b1221ce96befcd8f5f7f0b9b942c37e530ac36edba6ce722484352"
+    },
+    {
+      "path": "tests/session_tests.cpp",
+      "bytes": 11182,
+      "sha256": "6fb9b6db483d472b6e096b49accc6d5527fbdc83f61ca4f81c8b0ad308e03c1f"
+    },
+    {
+      "path": "tests/timeline_ui_tests.cpp",
+      "bytes": 34590,
+      "sha256": "86c3c2cb75fdd64971dc01bbeb88330b45f4d16ccc6bd80a48222a10b3d0c3fd"
+    },
+    {
+      "path": "ui/recording_controller.cpp",
+      "bytes": 40471,
+      "sha256": "83b5a3baf7191b8325a33989b4f2867e1622bd7e55d362f085be75adcaadfa30"
+    },
+    {
+      "path": "ui/recording_controller.hpp",
+      "bytes": 6815,
+      "sha256": "9c5f865d3e9138df115fca53527a8a45cfcc2b2ea69889a0559056702c74c2dd"
+    },
+    {
+      "path": "ui/studio_window.cpp",
+      "bytes": 112781,
+      "sha256": "05433e4e19f19c358a3ee89278a76524f68c56590516271a3ed31c00c4a5d68a"
+    },
+    {
+      "path": "ui/studio_window.hpp",
+      "bytes": 7628,
+      "sha256": "e3771f1625e35c2c9e083f5f0889cc75075f841f302d2939ee489f48f21fdbbf"
+    }
+  ],
+  "implementation": {
+    "schema": "1.4 strict punchRecording; legacy1.0–1.3 disabled defaults; journals unchanged",
+    "control": "transactional SetPunch and undo/redo; disabled locators retained; exact integer frames",
+    "desktop": "range dialog, toggle, canonical barrier, shared playback, initial arm suggestion, explicit unarm preserved, current prepared postroll, Stop clears stale end",
+    "worker": "immutable prepared end query; invalid range/backend/endpoint metadata refusal; changed locators retire incompatible generations",
+    "RT": "No new callback work; actual native callbacks not activated in this checkpoint"
+  },
+  "acceptance": {
+    "codec": "whole schema/key/type/overflow/migration/Save-reopen/undo fixtures",
+    "controller": "synthetic endpoints with real readers/writers; latencies41/200, window1513..2701, prepared end2901,1188 frames each, separate origins and grouped alignment; invalid preparation before allocation",
+    "desktop": "invalid fractional input/Cancel unchanged; dirty state/Undo-Redo/Save-reopen/Prepare/explicit routes/Record-Stop/grouped attach; clearing every arm stays cleared; Stop summary not prepared",
+    "visual": "original clipped screenshot retained; final text bounds test and actual rendered screenshot readable",
+    "not_qualified": [
+      "stale-project dialog rejection is implemented but not independently tested",
+      "synthetic controller raw input does not independently model a physical delayed waveform",
+      "native owned-route punch",
+      "physical roundtrip latency",
+      "Windows Qt/native/runtime/installer",
+      "tempo/manual/Auto/loop/take lanes/comping",
+      "sustained native performance"
+    ]
+  },
+  "builds": {
+    "initial_all": [
+      "10104 Debug",
+      "71003 SAN",
+      "10108 Release",
+      "48661 Windows core"
+    ],
+    "final_all": [
+      "73810 Debug",
+      "17872 SAN",
+      "4744 Release"
+    ],
+    "all_handles_terminal_before_related_edits_or_tests": true,
+    "windows_core": "compile/link only; final UI changes excluded by headless configuration",
+    "warning": "Initial optimized discovery fixture ignored pipe write result; original log retained; checked write repair and all final Linux builds warning/error free"
+  },
+  "tests": {
+    "initial_full_debug": {
+      "handle": 62730,
+      "passed": 29,
+      "total": 29,
+      "seconds": 26.04,
+      "before_final_layout_arm_and_summary_changes": true
+    },
+    "final_debug": {
+      "handle": 39295,
+      "passed": 4,
+      "total": 4,
+      "seconds": 7.98
+    },
+    "final_sanitizers": {
+      "handle": 10593,
+      "passed": 29,
+      "total": 29,
+      "seconds": 70.03,
+      "ASAN_OPTIONS": "detect_leaks=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    },
+    "final_release": {
+      "handle": 85542,
+      "passed": 4,
+      "total": 4,
+      "seconds": 1.86
+    },
+    "serial_execution_after_all_builds_terminal": true
+  },
+  "binaries": [
+    {
+      "path": ".cache/build-desktop/sc-timeline-ui-tests",
+      "bytes": 33406512,
+      "sha256": "9ac26248467d3e2adbefc4cc08201d2fcaaece97a65031c476617bec6faa1d6f"
+    },
+    {
+      "path": ".cache/build-desktop/sc-recording-controller-tests",
+      "bytes": 19204344,
+      "sha256": "c51f264e4a3096af4a63f75a67c71cc306dd12e14f782093332abb96cbd5e577"
+    },
+    {
+      "path": ".cache/build-desktop/sc-session-tests",
+      "bytes": 8571488,
+      "sha256": "e45bc824c44ef59d30f92db47c80f3bbef0f2903c414f35e9edb11684f0e591f"
+    },
+    {
+      "path": ".cache/build-desktop/sc-discovery-tests",
+      "bytes": 9653296,
+      "sha256": "ee1caf1cc855a02f687c12ef644156e1fd4b3346878f665b3cfa797d77e343fa"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-timeline-ui-tests",
+      "bytes": 111120392,
+      "sha256": "45b9e6424e4dcf0cc01fd4311991e8321df4480ee3782cad8f00a0ed7e289946"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-recording-controller-tests",
+      "bytes": 62731000,
+      "sha256": "b5d347990199c05cb15478435351a41f4f9806ecb230aa47437ef94304f0a43c"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-session-tests",
+      "bytes": 27408512,
+      "sha256": "dd08fe3830b9846b921c4e56920d48124834b723003fe0e2ed125008cb8d3554"
+    },
+    {
+      "path": ".cache/build-desktop-sanitized/sc-discovery-tests",
+      "bytes": 32428248,
+      "sha256": "33642cffe2b55201d69d1de04fe0e8f09f1f2b294fbc19c240c0c1b490776615"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-timeline-ui-tests",
+      "bytes": 2596912,
+      "sha256": "cdce204ab85d6d6c9fc2e89fb91657a15353ff37d72d0000cb852ad18babb317"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-recording-controller-tests",
+      "bytes": 1309520,
+      "sha256": "09b8c278f3116e73e1e5cb4a618b82944e12c65b9b5cb58af2bb728b2d81f8f7"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-session-tests",
+      "bytes": 635216,
+      "sha256": "d0db518a933e1f897935b14808c91c3f9df8c877bada8f90c027bcafdfe25fb5"
+    },
+    {
+      "path": ".cache/build-desktop-release/sc-discovery-tests",
+      "bytes": 732616,
+      "sha256": "b5de1918e673f82fdb4cca3a191cb4989e12dac6d0f8ce0fa30548f4a414d263"
+    }
+  ],
+  "logs": [
+    {
+      "path": ".cache/m2-punch-ui-debug-all-tests.log",
+      "bytes": 3270,
+      "sha256": "cf541b1475623f1af460d93a751574b14a488c3e5e06915659ca14b95e5d4bb9"
+    },
+    {
+      "path": ".cache/m2-punch-ui-debug-build.log",
+      "bytes": 10887,
+      "sha256": "ddecbd4a2c5bc43738c2a3e2f5bf99eda7899e53cfc189414524b87de12ac25a"
+    },
+    {
+      "path": ".cache/m2-punch-ui-debug-discovery-build.log",
+      "bytes": 136,
+      "sha256": "643546a09ef48fb0cab6f6383ed036c8c07aecaf6436b566e044152b564f1e90"
+    },
+    {
+      "path": ".cache/m2-punch-ui-debug-final-build.log",
+      "bytes": 1074,
+      "sha256": "5d625bafe23289200c8445b9951fd671a563d1a2f0aa09cf3a795d2671ace2a6"
+    },
+    {
+      "path": ".cache/m2-punch-ui-debug-final-tests.log",
+      "bytes": 549,
+      "sha256": "91eb4bd6045360ab1c953214401be2898b59cef7904210c5e7b04d04da986023"
+    },
+    {
+      "path": ".cache/m2-punch-ui-debug-fixture-build.log",
+      "bytes": 142,
+      "sha256": "260554cedd3b70a48e40919f2b5c1395585f90a1a0cee6c7e937a243f78331e7"
+    },
+    {
+      "path": ".cache/m2-punch-ui-debug-layout-build.log",
+      "bytes": 1074,
+      "sha256": "cbed4c6a327b4ca5ccb8088d8c509bff547614e711b43c6a6dfe6da4dd70c56c"
+    },
+    {
+      "path": ".cache/m2-punch-ui-release-build.log",
+      "bytes": 11324,
+      "sha256": "acabdaa211d7dea900d4d59c0fbd5038e530b49920c5a6a9d9d2501c7aaa4901"
+    },
+    {
+      "path": ".cache/m2-punch-ui-release-discovery-build.log",
+      "bytes": 136,
+      "sha256": "643546a09ef48fb0cab6f6383ed036c8c07aecaf6436b566e044152b564f1e90"
+    },
+    {
+      "path": ".cache/m2-punch-ui-release-final-build.log",
+      "bytes": 1074,
+      "sha256": "d44208b61d9e6f7801f25dfa97c97a3483261c444150e7d09024c9b8aab389c2"
+    },
+    {
+      "path": ".cache/m2-punch-ui-release-final-tests.log",
+      "bytes": 571,
+      "sha256": "8ece704251dc90409a03b5872d5508888b9256e94c0e5ecf000716d0b327fe9f"
+    },
+    {
+      "path": ".cache/m2-punch-ui-release-layout-build.log",
+      "bytes": 1074,
+      "sha256": "a5e0fe791888aeb64f97db6c0bcaed5c4211f7e132f6bfd559571f453592dbb2"
+    },
+    {
+      "path": ".cache/m2-punch-ui-sanitized-build.log",
+      "bytes": 10887,
+      "sha256": "e0784b532ab0b3a23d7a1a8376788f645dfc776d183c34b75697ceb3808c89e9"
+    },
+    {
+      "path": ".cache/m2-punch-ui-sanitized-discovery-build.log",
+      "bytes": 136,
+      "sha256": "643546a09ef48fb0cab6f6383ed036c8c07aecaf6436b566e044152b564f1e90"
+    },
+    {
+      "path": ".cache/m2-punch-ui-sanitized-final-build.log",
+      "bytes": 1074,
+      "sha256": "7a536c4740ca06fc10c0fb32a02c3e8f17d89cc37a13cfb597971372ba7ac623"
+    },
+    {
+      "path": ".cache/m2-punch-ui-sanitized-final-tests.log",
+      "bytes": 3280,
+      "sha256": "2c7ba3e8c8ad3287668e32b5fb394ca9a242ccfb6e9973bb32c10e6c993cd203"
+    },
+    {
+      "path": ".cache/m2-punch-ui-sanitized-layout-build.log",
+      "bytes": 1074,
+      "sha256": "f0492e817dc65f70527b19dbf528e26fd2521f697f4da4589e4c79a2c33f372a"
+    },
+    {
+      "path": ".cache/m2-punch-ui-windows-build.log",
+      "bytes": 5528,
+      "sha256": "df11e0d8a1ea06e8998f021108a588f85c8936f734b7edcc95a712ebd3ddae06"
+    },
+    {
+      "path": ".cache/m2-punch-ui-windows-discovery-build.log",
+      "bytes": 142,
+      "sha256": "dd923c0de3139766aa7c121de16339a7371751fec293ca6c3ef49a779a0edb5f"
+    }
+  ],
+  "visual_artifacts": [
+    {
+      "path": ".cache/m2-punch-range-dialog-clipped-original.png",
+      "bytes": 16774,
+      "sha256": "ed66200590518a5dbc4e4dc7247b11d2ab4bdbf4901ce28bdca17afaec7962b7"
+    },
+    {
+      "path": ".cache/m2-punch-range-dialog.png",
+      "bytes": 18422,
+      "sha256": "c2d1d2854becc71da8ad2f94771f6e43e41d20dc7065d7f1f437dc726b3293c0"
+    }
+  ],
+  "prior_failure_evidence": {
+    "count": 21,
+    "all_retained": true,
+    "prior20_receipt_and_original21_artifact_hashes_verified": true,
+    "punch_receipt": {
+      "path": "tests/results/M2/2026-10-06-punch-capture-foundation.json",
+      "bytes": 11022,
+      "sha256": "e7cd69f9639d9d7f0542b48d9462fe683aaf1c5e00518c169913c2eb4693d258"
+    },
+    "latest_punch_receipt": {
+      "path": "tests/results/M2/2026-10-06-latency-aware-punch.json",
+      "bytes": 33565,
+      "sha256": "2c8ac8e1fb96d449b91d079c36a1ac722df104cffe403528d2b0b6013facf209"
+    },
+    "historical_causes_or_resolutions_inferred": false
+  },
+  "equalizer_audit": {
+    "inputs": 24,
+    "before_after_final_exact": true,
+    "heads": {
+      "soundcurrent-eq": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+      "soundcurrent-studio": "70b0d14264c48bf229992f11495fa6e31b5b9180"
+    },
+    "artifacts": [
+      {
+        "path": ".cache/m2-punch-ui-reuse-before.json",
+        "bytes": 7215,
+        "sha256": "0406dcf2bdccd758fca086418478868f6d1066c37a2686318d1e9e3ee5d6081b"
+      },
+      {
+        "path": ".cache/m2-punch-ui-reuse-after.json",
+        "bytes": 7215,
+        "sha256": "0406dcf2bdccd758fca086418478868f6d1066c37a2686318d1e9e3ee5d6081b"
+      },
+      {
+        "path": ".cache/m2-punch-ui-reuse-final.json",
+        "bytes": 7215,
+        "sha256": "0406dcf2bdccd758fca086418478868f6d1066c37a2686318d1e9e3ee5d6081b"
+      }
+    ],
+    "source_writes": false
+  },
+  "parity": {
+    "family_count": 92,
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "only_P004_implementation_notes_evidence_extended": true,
+    "no_FQCN_status_promoted": true
+  },
+  "owner_signing_constraint": "Purchasing a certificate is currently unaffordable; docs49 already incorporates committed equalizer policy. No certificate prerequisite for local Windows development; public release trust remains separately unqualified.",
+  "new_dependency_license_signing_purchase_host_policy_VM_publication": false,
+  "full_goal_status": "active/incomplete",
+  "next_task": "Owned native per-lane punch boundary/origin/alignment acceptance, then full manual/Auto/tempo/loop/take/comping and sustained/physical/Windows gates"
+}

@@ -8,6 +8,7 @@
 #include "track_view.hpp"
 #include "fake_playback_endpoint.hpp"
 #include "fake_recording_endpoint.hpp"
+#include "fake_duplex_endpoint.hpp"
 #include <QApplication>
 #include <QAbstractButton>
 #include <QAction>
@@ -547,6 +548,114 @@ void savedMaster(const std::filesystem::path &root) {
           "Bounded editor or persistence lost larger master state");
 }
 
+void punchWorkflow(const std::filesystem::path &root) {
+    const auto initial = duplex_fixture::project(root);
+    auto counters = std::make_shared<duplex_fixture::Counters>();
+    StudioWindow w(nullptr, {}, duplex_fixture::options(counters));
+    w.show();
+    w.openProject(root);
+    await([&] {
+        return w.snapshot()->session && widget<QPushButton>(w, "editPunchRange")->isEnabled();
+    });
+    const auto initialRevision = w.snapshot()->modelRevision;
+    click(w, "editPunchRange");
+    auto *d = w.findChild<QDialog *>("punchRangeDialog");
+    check(d && d->isVisible(), "Punch dialog did not open");
+    auto *start = d->findChild<QLineEdit *>("punchStartFrame"),
+         *end = d->findChild<QLineEdit *>("punchEndFrame");
+    auto *enabled = d->findChild<QCheckBox *>("punchRangeEnabled");
+    auto *buttons = d->findChild<QDialogButtonBox *>();
+    check(start && end && enabled && buttons && !start->accessibleName().isEmpty() &&
+              !end->accessibleName().isEmpty(),
+          "Punch controls or accessibility labels missing");
+    start->setText("1.5");
+    end->setText("2701");
+    enabled->setChecked(true);
+    buttons->button(QDialogButtonBox::Ok)->click();
+    check(d->isVisible() && !d->findChild<QLabel *>("punchRangeError")->text().isEmpty() &&
+              w.snapshot()->modelRevision == initialRevision,
+          "Fractional punch edit was accepted or mutated project");
+    QTest::qWait(2);
+    const auto *feedback = d->findChild<QLabel *>("punchRangeError");
+    const auto feedbackBounds = feedback->fontMetrics().boundingRect(
+        QRect(0, 0, feedback->contentsRect().width(), 10000), Qt::TextWordWrap, feedback->text());
+    check(feedback->contentsRect().height() >= feedbackBounds.height(),
+          "Punch validation message is clipped by the dialog layout");
+    const auto image = qEnvironmentVariable("SC_DAW_PUNCH_SCREENSHOT");
+    if (!image.isEmpty())
+        check(d->grab().save(image), "Cannot save punch dialog screenshot");
+    start->setText("1513");
+    end->setText("2701");
+    buttons->button(QDialogButtonBox::Cancel)->click();
+    QTest::qWait(2);
+    check(w.snapshot()->modelRevision == initialRevision && *w.snapshot()->session == initial,
+          "Punch dialog cancel changed project");
+    check(!w.configurePunch({true, 5, 5}) && !w.configurePunch({false, -1, 0}),
+          "Invalid public punch edit accepted");
+    check(w.configurePunch({true, 1513, 2701}), "Punch settings command refused");
+    await([&] {
+        return w.snapshot()->session->punch == PunchSettings{true, 1513, 2701} &&
+               widget<QCheckBox>(w, "punchEnabled")->isChecked() &&
+               widget<QCheckBox>(w, "recordProjectMix")->isChecked();
+    });
+    check(w.snapshot()->dirty && widget<QCheckBox>(w, "punchEnabled")->isChecked() &&
+              widget<QCheckBox>(w, "recordProjectMix")->isChecked(),
+          "Punch not canonical/dirty or shared playback not selected");
+    auto *armList = widget<QListWidget>(w, "armedTracksList");
+    for (int n = 0; n < armList->count(); ++n)
+        armList->item(n)->setCheckState(Qt::Unchecked);
+    QTest::qWait(40);
+    for (int n = 0; n < armList->count(); ++n)
+        check(armList->item(n)->checkState() == Qt::Unchecked,
+              "Punch silently rearmed a user-cleared track");
+    undo(w);
+    await([&] { return !w.snapshot()->session->punch.enabled; });
+    check(w.submitEdit(ProjectCommand{CommandKind::Redo}), "Punch Redo refused");
+    await([&] { return w.snapshot()->session->punch.enabled; });
+    check(w.submitEdit(ProjectCommand{CommandKind::Save}), "Punch Save refused");
+    await([&] { return !w.snapshot()->dirty && w.snapshot()->io == IoOperation::None; });
+    check(ProjectStore(root).load().punch == PunchSettings{true, 1513, 2701},
+          "Punch range not stored in canonical project");
+    w.openProject(root);
+    await([&] {
+        return w.snapshot()->session && w.snapshot()->projectEpoch >= 2 &&
+               w.snapshot()->io == IoOperation::None;
+    });
+    check(w.snapshot()->session->punch == PunchSettings{true, 1513, 2701},
+          "Saved punch range not reopened");
+    check(w.configureArmedRecording({initial.tracks[0].id, initial.tracks[1].id}, 1701) &&
+              w.prepareRecording(),
+          "GUI punch preparation refused");
+    await([&] {
+        return w.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               w.findChild<QComboBox *>("inputChannel1");
+    });
+    check(w.recordingSnapshot()->endFrame == 2901 &&
+              !widget<QPushButton>(w, "editPunchRange")->isEnabled() &&
+              !w.configurePunch({false, 1513, 2701}) && !counters->activated &&
+              !w.recordingSnapshot()->job,
+          "GUI prepared punch omitted postroll, created jobs or allowed live mutation");
+    for (int n = 0; n < 2; ++n) {
+        widget<QComboBox>(w, ("inputChannel" + std::to_string(n)).c_str())->setCurrentIndex(n + 1);
+        widget<QComboBox>(w, ("monitorChannel" + std::to_string(n)).c_str())
+            ->setCurrentIndex(n + 1);
+    }
+    click(w, "recordButton");
+    await([&] { return w.recordingSnapshot()->phase == RecordingPhase::Complete; });
+    click(w, "recordStopButton");
+    await([&] { return w.snapshot()->attachedRecordings == 2 && !w.recordingSnapshot()->take; });
+    await([&] { return widget<QLabel>(w, "punchSummary")->text().contains("not prepared"); });
+    const auto attached = *w.snapshot()->session;
+    check(attached.punch == PunchSettings{true, 1513, 2701},
+          "Take attachment lost saved punch locators");
+    for (unsigned t = 0; t < 2; ++t)
+        check(attached.tracks[t].clips.back().startFrame == 1513 &&
+                  attached.tracks[t].clips.back().lengthFrames == 1188,
+              "GUI punch take geometry differs");
+    close(w, true);
+    check(ProjectStore(root).load() == attached, "GUI punch take/save/reopen differs");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
@@ -560,6 +669,7 @@ int main(int argc, char **argv) {
             std::cout << "Published selection synchronized before GUI poll\n";
             return 0;
         }
+        punchWorkflow(root / "punch");
         editing(root / "editing");
         selectedTransport(root / "transport");
         mixedTransport(root / "mix");

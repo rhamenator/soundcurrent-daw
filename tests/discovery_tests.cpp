@@ -284,7 +284,7 @@ void killedWriter() {
             CaptureWriter writer(t.root, spec, {128, {}});
             write(writer, pipe);
             char ready = 1;
-            (void)::write(notify[1], &ready, 1);
+            check(::write(notify[1], &ready, 1) == 1, "Cannot notify parent of durable crash prefix");
             for (;;)
                 pause();
         } catch (...) {
