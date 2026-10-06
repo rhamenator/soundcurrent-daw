@@ -262,6 +262,118 @@ void eventsAndPartitions() {
     rejects([&] { preparePeakingCoefficients(24000, 0, 1, 48000); });
     rejects([&] { PreparedEq bad(s, s.tracks[0].id, 2048, 0); });
 }
+void overlappingBandRamps() {
+    // Gain-only stable processors give an independent closed-form ramp oracle.
+    // Bootstrap each band to identity, preserving unity while its matching
+    // feedforward/feedback terms settle, then exercise 3 and all64 concurrent ramps.
+    struct Reference {
+        double origin = 1, target = 1;
+        Frame began = -1;
+        double at(Frame frame) const {
+            if (began < 0 || frame < began)
+                return origin;
+            const auto steps = std::min<Frame>(48, frame - began + 1);
+            return steps == 48 ? target : origin + (target - origin) * double(steps) / 48;
+        }
+        void retarget(Frame frame, double value) {
+            origin = at(frame - 1);
+            target = value;
+            began = frame;
+        }
+    };
+    for (const auto count : {3u, 64u}) {
+        auto s = profile();
+        s.tracks[0].eq.bands.resize(count);
+        std::vector<EqEvent> bootstrap;
+        for (unsigned b = 0; b < count; ++b)
+            bootstrap.push_back({0, 77, {}, static_cast<std::uint16_t>(b), EqEventKind::Band});
+        std::vector<EqEvent> events;
+        const auto gain = [&](Frame frame, unsigned band, double value) {
+            events.push_back({frame,
+                              77,
+                              {{value, 0, 0, 0, 0}},
+                              static_cast<std::uint16_t>(band),
+                              EqEventKind::Band});
+        };
+        gain(11, 0, 4);
+        gain(17, 1, 2);
+        gain(23, 0, 1.25);
+        gain(23, 0, 3); // Same-sample supersession must not count a ramp twice.
+        gain(23, 1, 2);
+        gain(23, 2, 1.5);
+        events.push_back({31, 77, {{0, 0, 0, 0, 0}}, 0, EqEventKind::Enable});
+        events.push_back({37, 77, {{1, 0, 0, 0, 0}}, 0, EqEventKind::Enable});
+        gain(89, 2, .75); // Start again after an interval with no band ramps.
+        for (unsigned b = 0; b < count; ++b)
+            if (b != 2)
+                gain(111, b, b == 0 ? 3 : b == 1 ? 2 : 1);
+        gain(123, 0, 2); // Other ramps finish before this retargeted one.
+        events.push_back({211, 77, {{0, 0, 0, 0, 0}}, 0, EqEventKind::Enable});
+        events.push_back({300, 77, {{1, 0, 0, 0, 0}}, 0, EqEventKind::Enable});
+        const std::vector<float> input(512, .25f);
+        std::vector<float> expected(input.size());
+        std::vector<Reference> reference(count);
+        Reference wet;
+        std::size_t next = 0;
+        for (Frame f = 0; f < Frame(input.size()); ++f) {
+            while (next < events.size() && events[next].frame == f) {
+                const auto &e = events[next++];
+                (e.kind == EqEventKind::Enable ? wet : reference[e.band])
+                    .retarget(f, e.coefficients.values[0]);
+            }
+            double value = .25;
+            for (const auto &band : reference)
+                value *= band.at(f);
+            const auto mix = wet.at(f);
+            expected[std::size_t(f)] = float(mix == 1   ? value
+                                             : mix == 0 ? .25
+                                                        : .25 + mix * (value - .25));
+        }
+        std::vector<float> whole;
+        for (const auto block : {512u, 1u, 7u, 31u, 127u}) {
+            PreparedEq eq(s, s.tracks[0].id, 512, 77, 1);
+            check(eq.smoothingFrames() == 48, "Gain ramp fixture duration differs");
+            check(render(eq, std::vector<float>(64, .25f), 64, bootstrap) ==
+                      std::vector<float>(64, .25f),
+                  "Identity bootstrap changed unity");
+            eq.reset();
+            const auto output = render(eq, input, block, events);
+            check(difference(expected, output) <= 5e-7,
+                  "Overlapping/restarted band or wet ramps disagree with closed-form gain oracle");
+            if (whole.empty())
+                whole = output;
+            else
+                check(whole == output, "Concurrent band ramps depend on block partition");
+            std::vector<EqEvent> pending;
+            for (unsigned b = 0; b < count; ++b)
+                pending.push_back({512,
+                                   77,
+                                   {{b == 0   ? 4.
+                                     : b == 1 ? 2.
+                                     : b == 2 ? 1.5
+                                              : 1.,
+                                     0, 0, 0, 0}},
+                                   static_cast<std::uint16_t>(b),
+                                   EqEventKind::Band});
+            pending.push_back({519, 77, {{0, 0, 0, 0, 0}}, 0, EqEventKind::Enable});
+            std::array<float, 48> dry{}, out{};
+            dry.fill(.25f);
+            check(audited(eq, dry.data(), out.data(), 16, 512, pending).status == ProcessStatus::Ok,
+                  "Pending ramp preparation failed");
+            eq.reset(); // Commit pending targets, clear histories/ramp bookkeeping while stopped.
+            check(audited(eq, dry.data(), out.data(), 32, 528).status == ProcessStatus::Ok &&
+                      std::all_of(out.begin(), out.begin() + 32, [](float v) { return v == .25f; }),
+                  "Reset did not commit dry target");
+            const std::array<EqEvent, 2> restarted{
+                {{560, 77, {{2, 0, 0, 0, 0}}, 0, EqEventKind::Band},
+                 {560, 77, {{1, 0, 0, 0, 0}}, 0, EqEventKind::Enable}}};
+            check(audited(eq, dry.data(), out.data(), 48, 560, restarted).status ==
+                          ProcessStatus::Ok &&
+                      out.front() != .25f && out.back() == 1.5f,
+                  "Reset prevented new band/wet ramp from starting or settling on time");
+        }
+    }
+}
 void channelsAndFaults() {
     for (auto channels : {1u, 2u, 8u, 32u, 256u}) {
         auto s = profile(48000, 6, 1000, 1, channels);
@@ -490,6 +602,7 @@ int main() {
         rt_audit::reset();
         staticResponse();
         eventsAndPartitions();
+        overlappingBandRamps();
         channelsAndFaults();
         queueConcurrency();
         objectRetirement();

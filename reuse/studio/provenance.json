@@ -27,16 +27,18 @@
   "changes": [
     "DAW namespace/types and strict coefficient validation",
     "Planar arbitrary-channel prepared state",
-    "No automatic EQ headroom or final \u00b11 sample clamp",
+    "No automatic EQ headroom or final ±1 sample clamp",
     "Sample-timestamped fixed-size events and coefficient/wet-dry ramps",
     "GUI/device-independent immutable mapping and latency/tail metadata",
-    "Independent bounded immediate-control queue, snapshot application and applied-frame receipts in the DAW transport"
+    "Independent bounded immediate-control queue, snapshot application and applied-frame receipts in the DAW transport",
+    "Audio-owned count of active band ramps skips settled per-sample ramp traversal without changing recurrence, coefficient/wet ramp steps, timestamp semantics or reset policy"
   ],
   "upstream_candidates": [
     "Explicit float headroom/output policy",
     "Prepared coefficient event transport and persistent band identity",
     "Sample-partition-invariant parameter smoothing",
-    "Immediate edits without stale GUI timestamps, with generation checks and explicit queue pressure"
+    "Immediate edits without stale GUI timestamps, with generation checks and explicit queue pressure",
+    "Track active coefficient ramps so settled EQ processing skips redundant smoothing traversal, with simultaneous/retarget/reset regression coverage"
   ],
   "snapshot_compiled": false,
   "latest_input_review": "reuse/upstream-review.json"

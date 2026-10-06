@@ -114,6 +114,7 @@ class PreparedEq {
     std::vector<State> states_; // band-major, channels stride; touched in preparation.
     double wet_ = 1, wetTarget_ = 1, wetStep_ = 0;
     std::uint32_t wetRemaining_ = 0;
+    std::uint32_t activeBandRamps_ = 0; // Audio owner; 0..maxEqBands.
 };
 
 enum class SubmitStatus { Accepted, Full, OutOfOrder, Invalid };

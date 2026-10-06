@@ -90,20 +90,24 @@ void PreparedEq::apply(const EqEvent &event) noexcept {
     }
     auto &b = bands_[event.band];
     b.target = event.coefficients;
+    if (!b.remaining)
+        ++activeBandRamps_;
     b.remaining = smoothingFrames_;
     for (std::size_t i = 0; i < 5; ++i)
         b.step.values[i] = (b.target.values[i] - b.current.values[i]) / smoothingFrames_;
 }
 void PreparedEq::advance() noexcept {
-    for (auto &b : bands_)
-        if (b.remaining) {
-            --b.remaining;
-            if (!b.remaining)
-                b.current = b.target;
-            else
-                for (std::size_t i = 0; i < 5; ++i)
-                    b.current.values[i] += b.step.values[i];
-        }
+    if (activeBandRamps_)
+        for (auto &b : bands_)
+            if (b.remaining) {
+                --b.remaining;
+                if (!b.remaining) {
+                    b.current = b.target;
+                    --activeBandRamps_;
+                } else
+                    for (std::size_t i = 0; i < 5; ++i)
+                        b.current.values[i] += b.step.values[i];
+            }
     if (wetRemaining_) {
         --wetRemaining_;
         wet_ = wetRemaining_ ? wet_ + wetStep_ : wetTarget_;
@@ -121,6 +125,7 @@ void PreparedEq::reset() noexcept {
     }
     wet_ = wetTarget_;
     wetRemaining_ = 0;
+    activeBandRamps_ = 0;
 }
 EqReport PreparedEq::process(std::span<const float *const> input, std::span<float *const> output,
                              std::uint32_t frames, Frame start,
@@ -157,7 +162,10 @@ EqReport PreparedEq::process(std::span<const float *const> input, std::span<floa
             apply(events[next++]);
             ++report.eventsApplied;
         }
-        advance(); // First nonzero smoothing step applies at the accepted event sample.
+        // First smoothing step still applies at the accepted event sample.
+        // Settled plans avoid a second complete band traversal on every sample.
+        if (activeBandRamps_ || wetRemaining_)
+            advance();
         for (std::uint32_t channel = 0; channel < channels_; ++channel) {
             double dry = input[channel][frame];
             if (!std::isfinite(dry)) {

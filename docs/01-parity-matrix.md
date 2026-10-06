@@ -269,3 +269,9 @@ M2d4c5 retains a later sink-cycle failure despite passing individual callback
 budgets and small disk queues. [Thread resource/cycle context](44-native-thread-resource-diagnostics.md)
 adds optional fixture diagnosis; short coverage does not qualify long native or
 physical timing. All 92 frozen contracts and F/Q/C/N statuses remain unchanged.
+
+M2d4c6 retains another long-run sink-cycle gap with associated user-CPU outlier.
+[Settled EQ ramp work](45-steady-eq-ramp-work.md) removes redundant traversal, with
+independent overlap/reset/64band tests and full Debug/sanitizer passes. Standalone
+savings do not qualify composed native scheduling, long duration or Windows audio.
+All92 frozen acceptance/quality/reference/F/Q/C/N contracts remain unpromoted.

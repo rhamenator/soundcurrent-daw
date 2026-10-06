@@ -1011,3 +1011,71 @@ Next M2d4c6: the unchanged1800s native workload with resource/composed-cycle fac
 serial after all handles terminate. Choose any actual processing/memory-residency/
 scheduling change from observed component evidence, retaining all historical faults
 and original sample/RT/current-period/full-duration gates.
+
+## 2026-10-06 continuation: M2d4c6 settled EQ smoothing work
+
+Previous `7ffebbc` is progress: fixture resource/cycle instrumentation, tests/evidence
+and local commit. This turn confirms exact native handle64334 live, then terminal
+exit1 after398.71wall seconds, and exact reader1314 terminal success before any
+related edit. No observation timeout/restart or overlapping native/build/test work.
+
+The unchanged1800s resource-instrumented attempt stops around382.6audio seconds on
+1024-frame sink skip. Raw32lanes independently retain18,363,392frames, zero rejected/
+missing file samples; sink18,361,344. All587,628,544full raw/36,722,688common stereo
+samples verify exactly read-only, peak4.11241, all105original files/canonical/
+media/journals/hashes unchanged. No trim/Save/attachment changes that original.
+Defaults/prior links stay and owned routes retire.
+
+Owner max20.932047mswall/20.930266msCPU at skipped cycle fails80%maximum (98.119%),
+ending22.457169msafter native nsec. Resource context20.392msuser/0.104mssystem,
+zero faults/switches during this callback, with coarse-accounting caveat. Owner
+59,607minor faults elsewhere/max460/no major faults remain visible, no address or
+root-cause attribution. Diskqueue max1, no exhaustion. No governor/NUMA/memory-lock/
+affinity/scheduler/device changes. Processing/cache/frequency causes remain unknown.
+
+PreparedEq now counts active band ramps (audio owner,0..64), increments only on
+idle-to-active, preserves count on retarget, decrements at completion and clears
+on stopped reset. Skip advance while both band/wet counts0; wet-only skips idle
+band scan. That old body was a no-op when no ramp remained. Recurrence/interpolation/
+first sample/same-frame ingress/fault/reset/bypass-history/headroom/IDs/schema/
+version/latency/queues/reserve/durability remain unchanged. No new callback timing
+query/allocation/lock/logging or dependency/license. GPL notices/snapshots retained;
+DAW adaptation and later upstream candidate recorded without writing equalizers.
+
+A closed-form gain oracle tests3/all64 concurrent, same-frame superseded, overlapping,
+retargeted/restarted/wet/reset ramps within5e-7, with bit-identical1/7/31/127/512frame
+partitions. Existing independent peaking/headroom/numeric/timestamp/RT gates remain.
+Release4targeted groups pass0.84s; all27Debug23.66s and27ASan+UBSan+LSan61.75s pass.
+Earlier UIclose failures are not resolved by a later passing suite. All Windows
+headless configured targets compile/link, no native/Qt/runtime/install qualification.
+All Linux Release targets build consistently after the private header change.
+
+Pinned old/new standalone EQ measurements run serial ABBA after builds/readers
+terminate, five repeats per process.3band32mono before medians342.076/326.273ms,
+after312.613/312.491ms;64band1mono before143.721/139.921ms, after131.209/133.461ms.
+Final block digests match. An earlier after measurement during builds remains
+retained/excluded. Input generation/reset/preparation/digest outside timing;
+no full audio oracle, capture/mix/native/whole-pipeline or worst-case conclusion.
+This modest reduction does not explain the20.9mswhole-pipeline outlier.
+
+Serial20s normal/4s absorption each verify30,720,000raw/1,920,000output samples,
+Save/reopen, overs and complete wall/CPU/resource coverage with original finite gates.
+Normal ownermax6.955083ms/maxend-after-cycle10.269865ms; absorption6.523845ms/
+8.927618ms.12s exhaustion explicitly retainslane17/all17,988,608full raw/1,122,304
+commonoutput samples exactly. Independent-copy recovery verifies all32takes/newIDs/
+recoveredFrom/origin/alignment/hash/Save-reopen/previous backup while originals and
+copied source media/journals remain unchanged. No physical route or user music
+interruption. These short successes do not qualify sustained native or erase faults.
+
+[Contract](45-steady-eq-ramp-work.md), [ADR-035](decisions/035-skip-settled-eq-ramp-work.md)
+and [evidence](../tests/results/M2/2026-10-06-steady-eq-ramp-work.json) retain17unresolved
+observations, exact launch/binary/source/resource/clock/media and benchmark facts.
+All24reviewed EQinputs/heads match, no equalizer writes/push/publication. All92frozen
+acceptance/quality/reference/F/Q/C/N contracts stay intact/unpromoted. Full goal
+active/incomplete; Windows, physical/load/filesystem/power-loss/unload, professional
+workflows, X004/X005 and all-Europe qualification remain required.
+
+Next M2d4c7: unchanged1800s native workload with settled-ramp change and full resource/
+composed-cycle facts, after all CPU/build/test/recovery/read handles terminate. If
+outliers persist, measure actual whole-pipeline processing/cache/frequency costs;
+do not substitute isolated EQ savings or shorter ranges for original gates.
