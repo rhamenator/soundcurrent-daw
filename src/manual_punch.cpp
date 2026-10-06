@@ -63,12 +63,13 @@ struct ManualPunchTake::State {
     std::uint64_t id;
     std::vector<std::unique_ptr<CapturePipe>> pipes;
     std::vector<bool> originSet;
+    std::vector<Frame> retiredFrames;
     Frame begin = 0, end = 0;
     std::atomic<std::uint32_t> phase{0}, beginReady{0}, endReady{0};
     // Control-only reservation and pending command references.
     std::size_t payload = 0, pendingStarts = 0;
     State(std::uint64_t n, std::vector<CaptureConfig> configs)
-        : id(n), originSet(configs.size(), false) {
+        : id(n), originSet(configs.size(), false), retiredFrames(configs.size(), 0) {
         for (const auto &c : configs)
             pipes.push_back(std::make_unique<CapturePipe>(c));
     }
@@ -91,6 +92,12 @@ std::optional<Frame> ManualPunchTake::endFrame() const noexcept {
     if (!state_->endReady.load(std::memory_order_acquire))
         return {};
     return state_->end;
+}
+std::optional<Frame> ManualPunchTake::retiredFrames(std::size_t n) const {
+    require(n < state_->pipes.size(), "Manual capture lane missing");
+    if (phase() != ManualTakePhase::Retired)
+        return {};
+    return state_->retiredFrames[n];
 }
 CapturePipe &ManualPunchTake::pipe(std::size_t n) {
     require(n < state_->pipes.size(), "Manual capture lane missing");
@@ -175,6 +182,11 @@ struct ManualPunchBridge::State {
     }
     void retire(std::size_t slot) noexcept {
         auto *p = active[slot];
+        for (std::size_t n = 0; n < p->state_->pipes.size(); ++n) {
+            const auto &pipe = *p->state_->pipes[n];
+            const auto config = pipe.recordingConfig();
+            p->state_->retiredFrames[n] = config ? pipe.nextFrame() - config->startFrame : 0;
+        }
         active[slot] = nullptr; // Drop callback references BEFORE retirement publication.
         p->state_->phase.store(static_cast<std::uint32_t>(ManualTakePhase::Retired),
                                std::memory_order_release);
@@ -317,8 +329,8 @@ ManualPunchTake &ManualPunchBridge::prepareTake(CaptureConfig config) {
         c.layout = a.layout;
         c.deferredStart = true;
         c = prepareCaptureConfig(c);
-        const auto bytes =
-            armedCapturePayloadBytes(c, a.input.size()) + sizeof(CaptureConfig) + sizeof(void *);
+        const auto bytes = armedCapturePayloadBytes(c, a.input.size()) + sizeof(CaptureConfig) +
+                           sizeof(void *) + sizeof(Frame);
         require(payload <= s.budget - s.reserved && bytes <= s.budget - s.reserved - payload,
                 "Manual takes exceed aggregate payload reservation");
         payload += bytes;

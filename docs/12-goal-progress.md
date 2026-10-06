@@ -1658,3 +1658,50 @@ review/UI gates remain open. The full goal remains active and incomplete.
 Final Debug30/30 (27.74 s), ASan/UBSan/LSan30/30 (74.65 s) and Windows media
 compilation pass. No native runtime, desktop manual control or sustained/physical
 qualification follows from this checkpoint.
+
+## Manual recording disk/group ownership (2026-10-06)
+
+The previous implementation goal turn was **progress**: manual-punch engine
+ownership, scoped synthetic acceptance, protected PR #8 and verified source
+backups. The intervening branch-protection request revalidated the existing
+protected workflow; it did not count as implementation progress. This turn adds
+[production disk/group control](64-manual-recording-control-owner.md),
+[ADR 050](decisions/050-manual-recording-control-lifetime.md) and
+[receipt](../tests/results/M2/2026-10-06-manual-recording-control-owner.json).
+
+The framework-independent owner starts workers only from published exact capture
+configs, automatically joins consumers before capture reclamation, preserves
+inactive checkpoint/origin/identity/hash evidence and exposes bounded groups.
+Application reply credits survive bridge-to-control transfer until explicitly
+consumed. Eight unconsumed groups apply backpressure. Grouped canonical edits,
+Undo/Redo and Save/reopen do not reset the prepared playback/EQ generation.
+Empty, failed, canceled and independent partial prefixes remain explicit.
+
+Three synthetic real-reader/writer repeated-take workflows have zero output
+oracle difference and float peak2.14813, with zero instrumented callback allocate/
+free/blocking-lock hits. Tests include delayed/completed-before-service startup,
+aliasing, EQ changes, early/late empty/mixed takes, construction/active/retired disk
+errors, Stop/device loss/cancel, pool exhaustion, reply/result pressure and twenty
+concurrent production control/audio slot retirements.
+
+Observation28 retains the original active-write-failure combined assertion,
+frozen executable/source/logs, preserved original project/journals and separate
+debugger replay. A valid initial nonfinalized zero-frame checkpoint has no origin;
+validation now permits that case while keeping positive-prefix/finalized origin
+checks. Original unlogged individual terms remain unknown; replay evidence is
+separate. All prior27 observations, including sustained native failures, remain.
+All92 frozen contracts/projection and24 borrowed equalizer inputs remain unchanged;
+no schema change, new dependency, equalizer mutation or F/Q/C/N promotion.
+
+Next: an owned native PipeWire manual-recording adapter with control-worker joins,
+route cleanup, exact continuous output/origins, error/prefix recovery and native
+deadline gates. Then integrate canonical desktop manual controls, including fast
+monitor edit/Undo binding verification. Finite prepared transport/FIFO is not full
+indefinite/loop/seek/quantized record-mode parity. Independent Windows native/Qt/
+installers, sustained/physical, full monitoring, tempo/take/comping, imports,
+profiles and all-Europe translation/review/UI requirements remain open. The full
+goal remains active and incomplete.
+
+Final Debug31/31 (28.86 s), ASan/UBSan/LSan31/31 (94.26 s) and Windows media
+cross-compilation pass. No native, desktop manual-control, sustained or physical
+qualification is inferred from these functional checks.

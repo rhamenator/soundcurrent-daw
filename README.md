@@ -155,7 +155,9 @@ publish an exact one-shot origin before disk startup, with immutable worker bind
 The [manual punch engine owner](docs/63-manual-punch-engine-owner.md) now preserves
 continuous playback/EQ across replenishable takes, reliable commands and delayed
 postroll, with scoped synthetic disk/concurrency acceptance.
-Next implementation: production disk/group ownership, native/desktop manual punch, additional monitor
+The [manual recording control owner](docs/64-manual-recording-control-owner.md) now
+starts and joins consumers, verifies bounded groups and handles empty/faulted takes.
+Next implementation: native/desktop manual punch, additional monitor
 policies, tempo/loop/take lanes and comping. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
