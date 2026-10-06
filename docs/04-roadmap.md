@@ -60,3 +60,5 @@ The owner has now activated the [full implementation goal](../GOAL.md). Continue
 S6f production recording ownership and typed verified raw take attachment now exist; [contract](21-native-recording-owner.md). Next implement input/arm/Record/monitor/recovery GUI and finalization/attachment before the close barrier, then S7 transactional export. No native Windows/hardware/deadline or full first-slice completion is inferred.
 
 S6g desktop first-track recording and manual recovery now connect the production owner to explicit input/arm/Record/monitor controls and canonical verified attachment. [Contract](22-desktop-recording.md). S7 private shared-engine WAV export is next; S8 and all remaining M1/M2/native/platform gates remain open.
+
+S7a adds the shared-engine offline export core and CLI with selected-range preroll, bounded tails, float headroom, cancellation and completed-file publication; [contract](23-offline-export.md). Next S7b connects a separate desktop job owner and Export dialog with canonical snapshot/revision, overwrite consent, progress/cancel and safe close. S7/S8 and all native Windows/physical/filesystem/route gates remain open.

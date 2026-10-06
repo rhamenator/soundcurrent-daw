@@ -88,7 +88,8 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
             }
             path /= relative.filename();
             media_io::plainFile(path);
-            require(hashMediaFile(path) == asset->sha256, "Playback media hash mismatch");
+            require(hashMediaFile(path, state_->options.beforeAdmissionRead) == asset->sha256,
+                    "Playback media hash mismatch");
             auto prepared = std::make_unique<SourceFile>(path, *asset);
             file = prepared.get();
             state_->files.push_back(std::move(prepared));

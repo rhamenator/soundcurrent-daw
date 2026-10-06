@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "milestone": "S7a",
+  "status": "offline_export_core_cli_implemented_desktop_pending",
+  "parent_commit": "df920a5ca734c17d8b0657a6e5cde10cf71cb064",
+  "baseline": "SC-DAW-BASELINE-2026-10-05; unchanged",
+  "implementation": "include/soundcurrent/export.hpp; src/export.cpp; tools/export_tool.cpp",
+  "processing": "existing TrackReader/PlaybackPipe and private PreparedEq; static snapshot, selected-range preroll, exact/bounded-until-silent tails, zero-latency descriptor required",
+  "transaction": "exclusive sibling temporary; finalized WAV header, file flush, file/sample hashes, source and approved destination revalidation; no-overwrite link/move or explicit hash-confirmed atomic replacement; postpublication directory durability warnings",
+  "linux": {
+    "debug_groups": 14,
+    "debug_status": "pass",
+    "asan_ubsan_lsan_groups": 14,
+    "sanitized_status": "pass",
+    "export_checks": 937,
+    "blocks": [
+      16,
+      64,
+      127,
+      512,
+      2048
+    ],
+    "channel_counts": [
+      1,
+      2,
+      8,
+      32,
+      256
+    ],
+    "live_offline_difference_gate": 1e-07,
+    "guarded_live_host_allocation_free_blocking_calls": 0,
+    "guard_scope": "EqLiveDriver/PreparedEq reference path; the export supervisor is intentionally I/O-side",
+    "acceptance": [
+      "half_open_ranges_source_offsets_overlaps_gaps",
+      "preroll_retains_filter_history",
+      "exact_range_and_declared_tail_hold_cap",
+      "disabled_eq_and_float_headroom",
+      "readable_float_wav_rf64_format_extents_hashes",
+      "replacement_requires_current_confirmed_hash",
+      "changed_missing_or_late_existing_destination_refused",
+      "prepublication_boundary_error_cancellation_cleanup",
+      "hash_admission_cancellation",
+      "postpublication_directory_failure_returns_complete_file_warning",
+      "media_hash_change_and_nonfinite_sources_rejected",
+      "protected_project_paths_linux_symlink_hard_link_refusal",
+      "bounded_audio_memory_processing_duration_and_tail_admission",
+      "project_model_and_raw_media_unchanged"
+    ]
+  },
+  "independent_cli_evidence": {
+    "record_cli": "Recorded and saved 480000 raw frames at 48000 Hz; SHA-256 556d098f2fb226a534e31dc5387af635d5009e668456ef33994c7fc681cb1fed",
+    "export_cli": {
+      "frames": 11866,
+      "tail_frames": 0,
+      "rate": 48000,
+      "channels": 1,
+      "peak": 3.248429298400879,
+      "over_full_scale_samples": 5542,
+      "tail_truncated": false,
+      "rf64": false,
+      "replaced": false,
+      "sample_sha256": "f1b82c614f27bbf61f848240ac242096ff7728e38db9d88e402897bb9926a359",
+      "file_sha256": "cdb56982d9b730c5d5090a197d643a16effeb69cb2addfabc108601ae72d17a0",
+      "directory_flushed": true,
+      "publication_warning": false,
+      "audio_device": false
+    },
+    "independent_reader": "RIFF/RF64 chunks, float GUID, extents, every sample and digests",
+    "independent_dsp": "direct-form-I peaking oracle",
+    "maximum_sample_difference": 9.979164723480862e-30,
+    "confirmed_replacement": "RF64 re-encoding preserves every sample",
+    "signal_cancellation": "SIGTERM during active large RF64 write; status 3, no output or temporary",
+    "project_and_media_unchanged": true,
+    "physical_audio": false
+  },
+  "windows": {
+    "cross_build": "MinGW x64 Release, SC_BUILD_DESKTOP=OFF, pinned libsndfile import library",
+    "tool_core_and_tests": "pass",
+    "native_runtime": false,
+    "qt_gui": false,
+    "native_audio": false,
+    "unicode_wide_argv_and_publication": "compiled only"
+  },
+  "initial_failures": [
+    {
+      "log": ".cache/s7-core-build.log",
+      "type": "compile_fixture_declaration",
+      "resolution": "split path and string auto declarations; explicit spec constructor and test numeric casts"
+    },
+    {
+      "log": ".cache/s7-export-tests.log",
+      "type": "fixture_missing_project_directory",
+      "resolution": "create owned fixture project before CaptureWriter admission"
+    },
+    {
+      "log": ".cache/s7-export-tests-pass2.log",
+      "type": "fixture_stale_track_reference_after_transactional_attachment",
+      "resolution": "reacquire the attached canonical track; final debug/sanitizer pass"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "99b0483ee41c4b037f2fd49809293d1a7f2b8ca084fcda5451c01ec243091670",
+    "include/soundcurrent/export.hpp": "945374a108a07e1ed186404b2c0d0a3d8af61f34d94d968f8cfd6fb147e6f5ce",
+    "include/soundcurrent/project_store.hpp": "bf024d35855eb41ad62043258c80c22571c7a32e35ccdf2af61588d377f3eaef",
+    "include/soundcurrent/playback_reader.hpp": "1c1e4cceadbfa0327edc8805e679d98a63cd6242b0a3618047c74270d0b3801b",
+    "src/export.cpp": "a2aa82d573b47e52bfebadf847f97869af4cb1adc39422414a680458dc67d52b",
+    "src/project_store.cpp": "66894714dfdfb335182c2214e05bbdef301ce35fe1cafef9000e0b29a63dee6b",
+    "src/playback_reader.cpp": "47413fb52b4111c81ea3f429635d741fa496470d6f56a345068e963148563191",
+    "tools/export_tool.cpp": "c6f514f0590bc71cb9a32cfcabba5d1beafc8bc3ba4c23e6ed6efb616eae5fad",
+    "tests/export_tests.cpp": "0afee3dde1d9e40483a517b8fc2ec1f6b196bbfd5d39de69c12356e8f5fd2eb8",
+    "tests/verify_export_cli.py": "57179181cc565e93261a3ba905205a7afd1ea00055afeed6ccf4b687e8de41c4"
+  },
+  "logs_sha256": {
+    ".cache/s7-core-build-pass3.log": "35f76b44f2fcbc0ec843f3c36f19b68ed58348ec5fd31b7642a5b2e86cb7e3f4",
+    ".cache/s7-sanitized-build-pass3.log": "35f76b44f2fcbc0ec843f3c36f19b68ed58348ec5fd31b7642a5b2e86cb7e3f4",
+    ".cache/s7-debug-regression.log": "7fef909776d626bd3bf8ae65823cd5d7da114397ba1258a2a462603342716f4e",
+    ".cache/s7-sanitized-regression.log": "5728fa94fe40ca0dbfe604c3b5c10cdf5a52341f43d7d7c8e9ea7906ad9b748f",
+    ".cache/s7-windows-core-build.log": "d99d91b691b8eb0c8f560107aae73ee6f9552933e8d5c38eda54d7a8d33270c9",
+    ".cache/s7-export-cli.json": "d558859954d2df134ee1ede2e042e6adc5e569c3e2178260d9bcd9759fb2085a",
+    ".cache/s7-export-cli.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".cache/build-desktop/Testing/Temporary/LastTest.log": "a5932a6d71374654d9fda0de02142a31b2d584afe846b5578af811d9eb235bba",
+    ".cache/build-desktop-sanitized/Testing/Temporary/LastTest.log": "bcfd1a9450f8be1763bf08771f8e30b29d2d10839b3722280582b780cce697a9"
+  },
+  "binary_sha256": {
+    ".cache/build-desktop/sc-export-tool": "8730e9d6ed285000729e3cb55124957c5755316774ca4a0c5ffbb574f5f3cbdc",
+    ".cache/build-desktop/sc-export-tests": "ff7a1a043902a5e0eef802c0aeb1456259de5964c306c8b8ebd95a6721316c11",
+    ".cache/build-desktop-sanitized/sc-export-tests": "d23ab8d97c29dfc4580e342407055b0de4e7f6f55e5479da8d361c2ac613ffab",
+    ".cache/build-windows-core/sc-export-tool.exe": "184e222d839f3581bc526f49b746e54b432d09adf8957046727b89379f091e87",
+    ".cache/build-windows-core/sc-export-tests.exe": "503df1b5ad9b877ab0f6fb4ad7d85d65fcf63c5de3d7624741c5b566006a932e"
+  },
+  "gaps": [
+    "desktop_export_dialog_worker_snapshot_revision_progress_cancel_overwrite_and_close",
+    "S8_and_remaining_record_route_discovery_overdub_gates",
+    "native_windows_build_runtime_qt_audio_installer_qualification",
+    "physical_disk_full_power_loss_OS_write_flush_failure_and_4GiB_completion",
+    "automatic_interrupted_export_temp_discovery_cleanup",
+    "hostile_filesystem_concurrent_source_and_replace_CAS_containment",
+    "resampling_pcm_dither_loudness_normalization_automation_latency_graphs_and_named_layouts",
+    "full_frozen_parity_X004_X005_processing_portability_and_all_Europe_localization"
+  ],
+  "physical_audio": false,
+  "equalizer_checkouts_written": false,
+  "publication_or_push": false,
+  "frozen_parity_rows_completed": 0,
+  "next_task": "S7b: asynchronous desktop Export dialog and worker with canonical immutable snapshot, range/tail/destination/overwrite consent, progress/cancel and close join"
+}

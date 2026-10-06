@@ -380,7 +380,7 @@ Session decodeProject(std::string_view bytes) {
         fail("Malformed project JSON");
     }
 }
-std::string hashMediaFile(const std::filesystem::path &p) {
+std::string hashMediaFile(const std::filesystem::path &p, const std::function<void()> &beforeRead) {
     require(plainFile(p), "Media missing or not a regular file", ErrorCode::MissingMedia);
     std::ifstream f(p, std::ios::binary);
     require(bool(f), "Cannot read media", ErrorCode::Io);
@@ -408,6 +408,8 @@ std::string hashMediaFile(const std::filesystem::path &p) {
     require(BCryptCreateHash(h.algorithm, &h.hash, h.object.data(), size, nullptr, 0, 0) >= 0,
             "SHA-256 setup failed", ErrorCode::Io);
     while (f) {
+        if (beforeRead)
+            beforeRead();
         f.read(buffer.data(), buffer.size());
         require(BCryptHashData(h.hash, reinterpret_cast<PUCHAR>(buffer.data()),
                                static_cast<ULONG>(f.gcount()), 0) >= 0,
@@ -424,6 +426,8 @@ std::string hashMediaFile(const std::filesystem::path &p) {
     require(h && EVP_DigestInit_ex(h.get(), EVP_sha256(), nullptr) == 1, "SHA-256 unavailable",
             ErrorCode::Io);
     while (f) {
+        if (beforeRead)
+            beforeRead();
         f.read(buffer.data(), buffer.size());
         require(EVP_DigestUpdate(h.get(), buffer.data(), static_cast<std::size_t>(f.gcount())) == 1,
                 "SHA-256 update failed", ErrorCode::Io);
@@ -442,7 +446,7 @@ std::string hashMediaFile(const std::filesystem::path &p) {
     }
     return out;
 }
-void ProjectStore::verifyMedia(const Session &s) const {
+void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &beforeRead) const {
     validate(s);
     noLink(root_);
     require(std::filesystem::is_directory(root_), "Project directory unavailable", ErrorCode::Io);
@@ -453,7 +457,8 @@ void ProjectStore::verifyMedia(const Session &s) const {
             p /= part;
             noLink(p);
         }
-        require(hashMediaFile(p) == a.sha256, "Media hash mismatch", ErrorCode::MediaMismatch);
+        require(hashMediaFile(p, beforeRead) == a.sha256, "Media hash mismatch",
+                ErrorCode::MediaMismatch);
     }
 }
 SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) const {

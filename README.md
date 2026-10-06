@@ -2,7 +2,7 @@
 
 Linux-first professional digital audio workstation and recording suite, planned in C++20 with CMake and Qt 6. Licensed GPL-3.0-only by the owner's decision on 2026-10-05.
 
-**Status: early implementation.** Qt-free session/state, prepared in-process EQ, headless recording/recovery, shared audio bridge and bounded file playback build on Linux and cross-compile for Windows. A developer command records synthetic input; an opt-in native PipeWire fixture now records and monitors between owned nodes. An opt-in Qt preview supports asynchronous create/open/save, scalar EQ undo and Linux first-track playback with explicit outputs, live EQ receipts and a colorized peak meter. The desktop now connects first-track input/arm/record/monitoring and manual take recovery. Offline export and a release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
+**Status: early implementation.** Qt-free session/state, prepared in-process EQ, headless recording/recovery, shared audio bridge and bounded file playback build on Linux and cross-compile for Windows. A developer command records synthetic input; an opt-in native PipeWire fixture now records and monitors between owned nodes. An opt-in Qt preview supports asynchronous create/open/save, scalar EQ undo and Linux first-track playback with explicit outputs, live EQ receipts and a colorized peak meter. The desktop now connects first-track input/arm/record/monitoring and manual take recovery. A worker-side float WAV/RF64 export API and developer CLI now exist; the desktop Export dialog and a release remain ahead. The product goal remains the combined functional capabilities of full Bitwig Studio and Cubase Pro, with Windows, all-Europe localization, and other-suite project import requirements. Completing the first recording slice will not establish that parity. The full active objective is preserved in [GOAL.md](GOAL.md).
 
 `soundcurrent-studio` already contains the premium equalizer. This separate repository is named `soundcurrent-daw` to preserve that work. It is local, has no remote, and has not been published or pushed.
 
@@ -29,6 +29,8 @@ Linux-first professional digital audio workstation and recording suite, planned 
 19. [Desktop project controller and editor](docs/18-desktop-controller.md)
 20. [Native playback owner and clock bridge](docs/19-native-playback-owner.md)
 21. [Desktop playback and live EQ](docs/20-desktop-playback.md)
+22. [Desktop recording and manual recovery](docs/22-desktop-recording.md)
+23. [Offline WAV export core](docs/23-offline-export.md)
 
 Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, frozen 2026-10-05. Every matrix row is planned, with explicit reference uncertainty; none is reported as implemented or equivalent.
 
@@ -36,7 +38,7 @@ Baseline: **Bitwig Studio 6.1.3 (full edition)** and **Cubase Pro 15.0.30**, fro
 
 The owner added expanded equipment profiles/import and a profile editor as **X005**; [its contract](docs/17-equipment-profiles.md) includes source/rights, editable curves, save-copy prompts and monitor-versus-print routing. The Qt preview now includes **Equipment → Profile library and editor…**, a searchable pinned 1,092-speaker catalog with subtype and active/passive filters, JSON/response imports, curve/filter editing, local undo/redo and saved custom copies. Monitoring/print routing and portable project profile pins remain required.
 
-Continue **M1 / SLICE-001** with **S7: transactional offline WAV export** through the shared in-process engine. S6g connects Linux desktop input/arm/record/monitoring, verified take attachment and manual recovery; [the desktop recording contract](docs/22-desktop-recording.md) records evidence and limitations. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
+Continue **M1 / SLICE-001** with **S7b: the asynchronous desktop Export dialog/worker**. [S7a](docs/23-offline-export.md) now exports selected ranges through a private shared EQ instance with preroll, tails, cancellation and completed-file publication. S6g connects Linux desktop input/arm/record/monitoring, verified take attachment and manual recovery; [the desktop recording contract](docs/22-desktop-recording.md) records evidence and limitations. S5 hardware latency, reprepare/reconnect and Windows audio remain open, alongside S4 filesystem/>4 GiB and normal PipeWire unload-memory gates. See [the acceptance contract](docs/05-first-slice.md).
 
 ## Desktop development preview
 
@@ -48,6 +50,16 @@ ctest --test-dir .cache/build-desktop --output-on-failure
 ```
 
 Requires Qt6 Core/Gui/Widgets development files (Test for fixtures), in addition to the core dependencies. This preview edits project state with asynchronous file operations, grouped scalar undo, scrollable controls and dirty-close prompts. For a project containing audio, choose **Prepare playback**, select every output explicitly, then **Play**. For recording, choose monitoring Off/Post-EQ, **Prepare recording**, select every required input/output, **Arm first track**, then **Record**. Stop or unarm finalizes and verifies the raw take before attachment. File → Recover recording… previews/copies an owned checkpoint. Linux recording/playback/live EQ/undo/meters are connected; **GUI export remains unimplemented**. [The playback contract](docs/20-desktop-playback.md) records exact evidence and limitations. The default Windows native backend is unavailable and its Qt GUI remains unqualified. The default build remains Qt-free.
+
+## Offline export developer workflow
+
+```sh
+.cache/build-desktop/sc-export-tool render PROJECT_DIRECTORY OUTPUT.wav
+.cache/build-desktop/sc-export-tool render PROJECT_DIRECTORY OUTPUT.wav --start 137 --end 12003 --tail
+python3 tests/verify_export_cli.py
+```
+
+Exports the saved first track to float WAV/RF64 with the same in-process EQ and selected-range preroll. Existing destinations are refused unless their current content has been explicitly approved with `--replace-sha256 CONFIRMED_HASH`; `fingerprint FILE.wav` prints that hash. SIGINT/SIGTERM cancel before publication. The core is independent of Qt/audio backends; the GUI export controls remain next. [Contract and limits](docs/23-offline-export.md).
 
 ## Build and test the current core
 

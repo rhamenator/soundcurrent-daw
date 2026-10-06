@@ -10,6 +10,8 @@ struct ReadAheadOptions {
     std::uint32_t maximumOpenAssets = 64;
     // Disk/preparation owner only, for cancellation and failure fixtures.
     std::function<void(Frame)> beforeRead;
+    // Optional worker-side cancellation during large source admission hashes.
+    std::function<void()> beforeAdmissionRead{};
 };
 // Worker-side timeline reader. Admits owned WAV/RF64 assets, verifies hashes,
 // opens read-only handles, then mixes clip source extents into bounded slabs.

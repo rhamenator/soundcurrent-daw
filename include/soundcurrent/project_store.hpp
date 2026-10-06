@@ -10,7 +10,8 @@ inline constexpr std::size_t maxProjectBytes = 4 * 1024 * 1024;
 std::string encodeProject(const Session &);
 Session decodeProject(std::string_view);
 std::filesystem::path utf8Path(std::string_view);
-std::string hashMediaFile(const std::filesystem::path &);
+std::string hashMediaFile(const std::filesystem::path &,
+                          const std::function<void()> &beforeRead = {});
 enum class Durability { FileAndDirectoryFlushed, FileFlushed };
 struct SaveResult {
     bool previousSnapshot;
@@ -27,7 +28,7 @@ class ProjectStore {
     SaveResult save(const Session &, const SaveOptions &options = {}) const;
     Session load() const;
     // Control/I/O only: verify owned media without publishing a project generation.
-    void verifyMedia(const Session &) const;
+    void verifyMedia(const Session &, const std::function<void()> &beforeRead = {}) const;
     Session loadPrevious() const; // Explicit recovery; never silently substitutes.
     const std::filesystem::path &root() const noexcept {
         return root_;
