@@ -21,7 +21,8 @@ enum class CommandKind {
     Monitoring,
     Structural,
     HistoryLimits,
-    SnapshotLimits
+    SnapshotLimits,
+    MemoryLimits
 };
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
@@ -47,6 +48,8 @@ struct ProjectCommand {
     std::uint64_t historyRequest = 0;
     std::optional<std::size_t> snapshotBytes;
     std::uint64_t snapshotRequest = 0;
+    std::optional<std::size_t> memoryBytes;
+    std::uint64_t memoryRequest = 0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
@@ -83,6 +86,9 @@ struct ControllerSnapshot {
     HistoryPolicyCompletion historyCompleted;
     ResourceUsage snapshotResources{};
     HistoryPolicyCompletion snapshotCompleted;
+    ResourceUsage memoryResources{};
+    std::size_t canonicalBytes = 0, historyBytes = 0;
+    HistoryPolicyCompletion memoryCompleted;
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -95,6 +101,7 @@ struct ControllerOptions {
     HistoryBudget historyBudget{};
     std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
+    std::size_t memoryBytes = 1024 * 1024 * 1024;
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
 // to the control worker; blocking filesystem operations to a separate I/O worker.
@@ -109,7 +116,9 @@ class ProjectController {
     std::shared_ptr<const ControllerSnapshot> snapshot() const;
     // Live ownership accounting, including externally retained older snapshots.
     ResourceUsage snapshotResources() const;
-    void requestShutdown() noexcept; // Priority flag, unaffected by a full command queue.
+    ResourceUsage memoryResources() const;
+    ResourceLedger resourceLedger() const; // Off-audio owners join the same parent budget.
+    void requestShutdown() noexcept;       // Priority flag, unaffected by a full command queue.
   private:
     struct State;
     std::unique_ptr<State> state_;

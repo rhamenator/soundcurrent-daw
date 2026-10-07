@@ -2,6 +2,12 @@
 
 ## Unreleased — development preview
 
+- Shared controller parent budget for canonical state, history, retained snapshots
+  and declared edit work; atomic parent/child limits and allocation-free credit
+  transfers preserve full-budget Cancel. The scrollable Project resources dialog
+  persists adjustable memory policies and reports refusal/preferences failures.
+  GUI/graph/cache/IO and exact allocation/RSS admission remain open.
+
 - Shared leases retain immutable Session charges until the last reader releases
   them. Saved revisions, in-flight saves and barriers share current state; edits
   and Undo/Redo admit their next publication first, with Cancel still available

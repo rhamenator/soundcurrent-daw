@@ -108,7 +108,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            RecordingControllerOptions recordingOptions,
                            ExportControllerOptions exportOptions,
                            ManualControlOptions manualOptions, ControllerOptions projectOptions,
-                           std::function<void(HistoryBudget)> historyAccepted)
+                           std::function<void(HistoryBudget)> historyAccepted,
+                           std::function<void(MemoryPreferences)> memoryAccepted)
     : QMainWindow(parent), controller_(std::move(projectOptions)), playback_(std::move(options)),
       recording_(std::move(recordingOptions)), exporter_(std::move(exportOptions)) {
     setObjectName(QStringLiteral("studioWindow"));
@@ -146,15 +147,16 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     undo_->setObjectName(QStringLiteral("undoAction"));
     redo_->setObjectName(QStringLiteral("redoAction"));
     editMenu->addSeparator();
-    auto *historyAction = editMenu->addAction(tr("Undo resources…"), this, [this, historyAccepted] {
-        if (historyDialog_) {
-            historyDialog_->raise();
-            return;
-        }
-        historyDialog_ =
-            new HistoryResourcesDialog(controller_, nextGesture_, historyAccepted, this);
-        historyDialog_->show();
-    });
+    auto *historyAction = editMenu->addAction(
+        tr("Project resources…"), this, [this, historyAccepted, memoryAccepted] {
+            if (historyDialog_) {
+                historyDialog_->raise();
+                return;
+            }
+            historyDialog_ = new HistoryResourcesDialog(controller_, nextGesture_, historyAccepted,
+                                                        this, memoryAccepted);
+            historyDialog_->show();
+        });
     historyAction->setObjectName("historyResourcesAction");
     auto *equipmentMenu = menuBar()->addMenu(tr("Equipment"));
     auto *equipmentAction =

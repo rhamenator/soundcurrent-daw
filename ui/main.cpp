@@ -17,8 +17,12 @@ int main(int argc, char **argv) {
     parser.process(app);
     soundcurrent::daw::ui::ControllerOptions options;
     options.historyBudget = soundcurrent::daw::ui::loadHistoryPreferences();
+    const auto memory = soundcurrent::daw::ui::loadMemoryPreferences();
+    options.memoryBytes = memory.totalBytes;
+    options.snapshotBytes = memory.snapshotBytes;
     soundcurrent::daw::ui::StudioWindow window(nullptr, {}, {}, {}, {}, options,
-                                               soundcurrent::daw::ui::saveHistoryPreferences);
+                                               soundcurrent::daw::ui::saveHistoryPreferences,
+                                               soundcurrent::daw::ui::saveMemoryPreferences);
     const auto paths = parser.positionalArguments();
     if (!paths.isEmpty()) {
 #ifdef _WIN32

@@ -345,6 +345,8 @@ class EditHistory {
     std::size_t checkRoute(const RouteAddress &, const RouteIntent &) const;
     std::size_t checkMonitoring(const Id &, RecordingMonitor) const;
     std::size_t checkBegin(const ParameterAddress &) const;
+    std::size_t checkUpdate() const;
+    std::size_t checkCommit() const;
     // Record a successful controller operation using its earlier read-only preflight.
     void acceptPreflight(std::size_t declaredBytes) noexcept;
     void begin(const ParameterAddress &);
@@ -352,7 +354,7 @@ class EditHistory {
     void commit();
     void cancel();
     // Read-only target after committing a pending gesture, for publication admission.
-    std::optional<Session> previewTransfer(bool forward) const;
+    std::optional<Session> previewTransfer(bool forward, std::size_t *declaredPeak = nullptr) const;
     bool undo();
     bool redo();
     bool route(const RouteAddress &, const RouteIntent &);

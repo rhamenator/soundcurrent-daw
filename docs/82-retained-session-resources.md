@@ -1,5 +1,9 @@
 # Retained immutable session resources
 
+Historical snapshot-only checkpoint. The [next checkpoint](83-controller-memory-resources.md)
+also coordinates canonical/history/declared edit work and persistent desktop
+parent/snapshot policies. The original qualification scopes below remain historical.
+
 X006 checkpoint, 2026-10-07. Large projects now retain a declared ownership charge
 for every unique immutable controller Session block until its last borrower
 releases it. This is a concrete part of combined memory admission; canonical state,
