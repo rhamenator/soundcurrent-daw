@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include "resource_ledger.hpp"
+#include <optional>
 #include "eq.hpp"
 
 namespace soundcurrent::daw {
@@ -13,6 +15,7 @@ struct MixConfig {
     std::size_t memoryBudgetBytes = 128 * 1024 * 1024;
     std::size_t maximumRoutingEntries = 65536;
     StateBudget stateBudget;
+    std::optional<ResourceLedger> resources; // Trusted off-RT shared parent, never project state.
 };
 // Conservative owned DSP/vector/string payload admission, not allocator/RSS accounting.
 std::size_t mixPayloadBytes(const Session &, const MixPlan &, const MixConfig &);

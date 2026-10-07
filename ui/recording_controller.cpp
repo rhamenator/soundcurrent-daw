@@ -445,7 +445,7 @@ struct RecordingController::State : QThread {
             const auto target = prepared->projectMix
                                     ? desired->session
                                     : sessionForTrack(desired->session, prepared->spec.trackId,
-                                                      options.projectionMemory);
+                                                      options.projectMemory);
             if (!target)
                 throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
             desired->session = target;
@@ -546,6 +546,7 @@ struct RecordingController::State : QThread {
             p.spec.capture.startFrame = c.session->playheadFrame;
             p.spec.inputLatencyFrames = c.session->tracks.front().inputLatencyFrames;
             p.options = options.nativeOptions;
+            p.options.bridge.resources = options.projectMemory;
             p.options.monitoring = c.monitoring;
             p.options.bridge.generation = view.generation + 1;
             p.spec.capture.maximumCallbackFrames = p.options.bridge.maximumFrames;
@@ -568,6 +569,8 @@ struct RecordingController::State : QThread {
                 p.duplexOptions.audit = p.options.audit;
                 p.duplexOptions.auditClock = options.duplexAuditClock;
                 auto &cfg = p.duplexOptions.run;
+                cfg.playback.graph.resources = options.projectMemory;
+                cfg.reader.resources = options.projectMemory;
                 cfg.nativeInputs = 0;
                 cfg.playback.graph.startFrame = c.session->playheadFrame;
                 cfg.playback.graph.maximumFrames = p.options.bridge.maximumFrames;

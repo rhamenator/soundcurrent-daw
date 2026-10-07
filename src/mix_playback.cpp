@@ -31,11 +31,9 @@ std::size_t mixPlaybackPayloadBytes(const Session &s, const MixPlan &p,
     bytes += mask.bytes();
     for (const auto &t : p.tracks) {
         const auto pipe = configFor(validated, t.track, c);
-        // Pipes + planar raw scratch + disk float/double decode buffers. Binding/file
-        // metadata is separately bounded by MixReader, with additional payload checks.
-        const auto samples =
-            std::size_t(pipe.layout.channels) *
-            (std::size_t(captureSlabs + 3) * pipe.slabFrames + c.graph.maximumFrames);
+        // Owned pipes and planar scratch. Reader buffers and cache hold separate leases.
+        const auto samples = std::size_t(pipe.layout.channels) *
+                             (std::size_t(captureSlabs) * pipe.slabFrames + c.graph.maximumFrames);
         if (bytes > SIZE_MAX - 8192 || samples > (SIZE_MAX - bytes - 8192) / sizeof(float))
             throw ProjectError(ErrorCode::InvalidState, "Playback mix payload overflow");
         bytes += samples * sizeof(float);
@@ -60,6 +58,7 @@ struct MixPlayback::State {
             }
         }
     };
+    ResourceLease resourceLease;
     MixPlaybackConfig config;
     PreparedMixGraph graph;
     std::vector<std::unique_ptr<Lane>> lanes;
@@ -67,14 +66,22 @@ struct MixPlayback::State {
     std::vector<std::uint8_t> replaced; // Prepared per graph, never resized in process().
     PlaybackStatus terminal = PlaybackStatus::Running;
     std::atomic<std::uint64_t> missing{0};
-    State(const Session &s, MixPlan p, MixPlaybackConfig c)
-        : config(c), graph(s, std::move(p), c.graph) {}
+    static MixConfig nestedConfig(MixConfig c) {
+        c.resources.reset(); // Aggregate playback lease already covers its nested DSP.
+        return c;
+    }
+    State(ResourceLease lease, const Session &s, MixPlan p, MixPlaybackConfig c)
+        : resourceLease(std::move(lease)), config(c),
+          graph(s, std::move(p), nestedConfig(c.graph)) {}
 };
 MixPlayback::MixPlayback(const Session &s, MixPlan p, MixPlaybackConfig c) {
-    mixPlaybackPayloadBytes(s, p, c);
-    state_ = std::make_unique<State>(s, std::move(p), c);
+    const auto bytes = mixPlaybackPayloadBytes(s, p, c);
+    auto lease = c.graph.resources ? c.graph.resources->reserve(bytes) : ResourceLease{};
+    state_ = std::make_unique<State>(std::move(lease), s, std::move(p), c);
     const ValidatedSession validated(s, c.graph.stateBudget);
     state_->replaced.assign(state_->graph.plan().tracks.size(), 0);
+    state_->lanes.reserve(state_->graph.plan().tracks.size());
+    state_->inputs.reserve(state_->graph.plan().tracks.size());
     for (const auto &route : state_->graph.plan().tracks) {
         auto lane = std::make_unique<State::Lane>(configFor(validated, route.track, c));
         state_->inputs.emplace_back(lane->read.data(), lane->pipe.config().layout.channels);

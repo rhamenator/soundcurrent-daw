@@ -128,3 +128,9 @@ controller's shared parent. Staged refusal retains a complete previous display
 with retry through resource settings. This declared scope is not full heap/RSS
 admission. Prepared graph/cache/IO overlap, paging, larger capture and sustained
 Linux/Windows workload qualification remain required.
+
+The [prepared execution checkpoint](85-graph-memory-resources.md)/ADR070 extends
+the controller parent to prepared DSP/playback pools, reader buffers/bindings,
+shared cache pages/registry and offline output buffers. Old/new graph generations
+retain credit through control retirement. Capture/other IO, exact allocator/RSS,
+CPU scheduling, paging and sustained platform qualification remain open.

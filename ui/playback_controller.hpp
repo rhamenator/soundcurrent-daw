@@ -14,6 +14,7 @@ struct PlaybackPreparation {
     PlaybackConfig config;
     MixPlan plan;
     bool projectMix = false;
+    ReadAheadOptions reader;
 };
 struct PlaybackTelemetry {
     PlaybackBridgeStatus status = PlaybackBridgeStatus::Ready;
@@ -61,6 +62,7 @@ struct PlaybackSnapshot {
     std::shared_ptr<const std::vector<PipeWirePort>> ports;
     std::uint32_t channels = 0, sampleRate = 0, tracks = 0;
     bool projectMix = false;
+    ReadAheadOptions reader;
     std::uint64_t generation = 0, desiredRevision = 0, acceptedRevision = 0, appliedRevision = 0;
     std::uint64_t errorSerial = 0, completedCommands = 0;
     std::optional<ErrorCode> errorCode;
@@ -76,7 +78,7 @@ struct PlaybackControllerOptions {
     std::function<std::unique_ptr<PlaybackEndpoint>(const PlaybackPreparation &)> factory;
     std::function<void()> beforePrepare;         // Worker-only slow/failure fixture.
     PlaybackCallbackInstrumentation nativeAudit; // RT-only, caller outlives worker.
-    ResourceLedger projectionMemory{};           // Off-audio selected-track fallback ownership.
+    ResourceLedger projectMemory{}; // Off-audio project projection and execution ownership.
 };
 enum class PlaybackCommandKind { Prepare, Play };
 struct PlaybackCommand {

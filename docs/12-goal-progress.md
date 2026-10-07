@@ -2439,3 +2439,42 @@ graph/media-cache overlap and safe retirement, then IO and measured allocations/
 RSS, paging, larger capture/adoption, freeze/bounce, scheduling and sustained
 Linux/Windows workloads. The 256 recording-input implementation, native Windows,
 X004/X005 and Europe gates remain required. Full goal and X006 stay incomplete.
+
+## X006 shared prepared execution checkpoint (2026-10-07)
+
+Previous goal turn was **progress**: PR29 merged as `dba9815c1c8f`, with exact
+compiled-source GUI qualification and verified source/bundle restoration. This
+turn adds [ADR070](decisions/070-shared-execution-memory.md) and
+[execution ownership/admission scope](85-graph-memory-resources.md). Prepared
+DSP/playback pools, reader bindings/decode buffers, shared cache registry/pages
+and WAV output buffers share the controller parent. Nested owners are charged
+once; old/new graphs retain credit until control retirement after the last audio
+borrow. Desktop playback, fixed/manual recording and export receive that parent.
+
+The [receipt](../tests/results/M2/2026-10-07-graph-memory-resources.json) records
+Linux Debug **58/58, 147.09s**, affected ASan/UBSan/LSan **29/29, 214.63s**, and
+Windows core/media cross-build. All **183 compiled input hashes** match across
+final Debug/sanitizer/current sources. New 512-track overlap/refusal/retirement,
+reader/cache rollback/retry, shared cache last-owner release, exact live/offline
+128.0 float headroom and concurrent export ownership pass. Actual desktop full
+parent Prepare refusal, policy raise/retry and Stop release pass without activation.
+Existing 8192-track/sparse UI, event/timing/quality and persistence gates pass.
+The CRC/every-entry-byte verified archive is **17,356,908 bytes / 1,797 entries**.
+
+Original preparation-member compile and fixture Json compile failures are retained,
+as are small fixture local-budget/missing-media, missing export directory/undrained
+capture, and early disabled Stop fixture sequencing failures. Exact sources,
+executable hashes/private copies, logs, GDB diagnosis and owned generated files
+were preserved before corrections. These failures do not establish native causes.
+
+All 24 reviewed equalizer input hashes and 92 unpromoted frozen F/Q/C/N contracts
+remain unchanged. No native audio/VM run, dependency or schema change, source write
+to equalizers or resolution of original observation71 clock/source CPU cause.
+These conservative weights do not bound all allocations/RSS, CPU throughput,
+capture/writer/other IO, parser/command/expanding trials or Qt overhead. Local
+128 MiB playback/export allowances remain independently configurable through core
+APIs; coordinated desktop graph/IO policies are still needed. Continue that policy
+work and capture/IO admission, measured allocations/RSS, paging, larger recording/
+adoption, freeze/bounce, prepared scheduling and sustained Linux/Windows profiles.
+The 256 recording-input implementation and all native Windows, X004/X005, Europe
+and frozen product gates remain required. The full goal and X006 remain incomplete.

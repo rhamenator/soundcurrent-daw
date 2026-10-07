@@ -106,6 +106,8 @@ struct MediaReadCache::State {
         std::vector<float> data;
         bool valid = false;
     };
+    ResourceLease resourceLease;
+    explicit State(ResourceLease lease) : resourceLease(std::move(lease)) {}
     std::filesystem::path root;
     std::vector<Entry> entries;
     std::unordered_map<std::string, std::size_t> index;
@@ -197,9 +199,10 @@ struct MediaReadCache::State {
 };
 MediaReadCache::MediaReadCache(std::filesystem::path root, std::span<const Asset> assets,
                                std::uint32_t rate, MediaCacheConfig config,
-                               const std::function<void()> &beforeRead)
-    : state_(std::make_unique<State>()) {
+                               const std::function<void()> &beforeRead) {
     const auto g = geometry(assets, config);
+    auto lease = config.resources ? config.resources->reserve(g.bytes) : ResourceLease{};
+    state_ = std::make_unique<State>(std::move(lease));
     auto &s = *state_;
     s.root = std::move(root);
     s.config = config;

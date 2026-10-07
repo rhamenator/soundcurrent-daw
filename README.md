@@ -65,8 +65,10 @@ parent. **Edit → Project resources…** exposes persistent adjustable parent/s
 policies and live usage. [GUI payload admission](docs/84-gui-memory-resources.md)
 now leases selected-track copies, lists and timeline indices from that parent.
 A refused display retains its old view with resource settings and explicit retry.
-Further graph/cache/IO and allocator/RSS integration remains
-required.
+[Prepared execution admission](docs/85-graph-memory-resources.md) extends that
+parent to DSP/playback pools, reader buffers, shared caches and WAV output buffers;
+old/new graphs retain credit through control-side retirement. Capture/other IO,
+exact allocator/RSS and measured sustained capacity remain required.
 
 The [viewport timeline and model-backed lists](docs/80-virtualized-session-views.md)
 now have bounded Linux Qt large-project regression workflows. Combined memory,

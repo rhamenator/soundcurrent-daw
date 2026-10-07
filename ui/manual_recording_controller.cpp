@@ -394,6 +394,8 @@ struct ManualRecordingController::State {
                         token->requestStop();
                 }
                 p.options.run.interrupt = token;
+                p.options.run.playback.graph.resources = options.projectMemory;
+                p.options.run.reader.resources = options.projectMemory;
                 p.options.run.playback.graph.generation = ++view.generation;
                 r.generation = view.generation;
                 view.phase = ManualControlPhase::Preparing;

@@ -83,6 +83,7 @@ struct PreparedMixGraph::State {
                 views[n] = wet.data() + std::size_t(n) * c.maximumFrames;
         }
     };
+    ResourceLease resourceLease;
     MixPlan plan;
     MixConfig config;
     std::vector<std::unique_ptr<Lane>> lanes;
@@ -93,17 +94,21 @@ struct PreparedMixGraph::State {
     Frame frame;
     std::atomic<Frame> published;
     ProcessStatus terminal = ProcessStatus::Ok;
-    State(MixPlan p, MixConfig c)
-        : plan(std::move(p)), config(c), frame(c.startFrame), published(frame) {}
+    State(ResourceLease lease, MixPlan p, MixConfig c)
+        : resourceLease(std::move(lease)), plan(std::move(p)), config(c), frame(c.startFrame),
+          published(frame) {}
 };
 PreparedMixGraph::PreparedMixGraph(const Session &s, MixPlan p, MixConfig c) {
     const ValidatedSession validated(s, c.stateBudget);
-    admittedMixBytes(validated, p, c);
-    state_ = std::make_unique<State>(std::move(p), c);
+    const auto bytes = admittedMixBytes(validated, p, c);
+    auto lease = c.resources ? c.resources->reserve(bytes) : ResourceLease{};
+    state_ = std::make_unique<State>(std::move(lease), std::move(p), c);
     auto &v = *state_;
     v.sum.resize(std::size_t(c.maximumFrames) * v.plan.output.channels, 0.);
     v.silence.resize(c.maximumFrames, 0.f);
     v.silentViews.fill(v.silence.data());
+    v.lanes.reserve(v.plan.tracks.size());
+    v.silentInputs.reserve(v.plan.tracks.size());
     for (const auto &t : v.plan.tracks) {
         auto lane = std::make_unique<State::Lane>(validated, t.track, c);
         v.silentInputs.emplace_back(v.silentViews.data(), lane->eq.channels());

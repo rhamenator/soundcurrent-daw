@@ -90,6 +90,7 @@ struct ManualControlSnapshot {
 };
 struct ManualControlOptions {
     std::function<std::unique_ptr<ManualControlEndpoint>(const ManualControlPreparation &)> factory;
+    ResourceLedger projectMemory{};
 };
 // Framework-independent desktop adapter. One serialized worker performs all
 // endpoint/IO calls. GUI uses bounded queues, immutable snapshots and the shared

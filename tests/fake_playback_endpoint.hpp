@@ -38,10 +38,15 @@ class Endpoint : public PlaybackEndpoint {
     }
 
   public:
+    static MixConfig config(const PlaybackPreparation &p) {
+        MixConfig c;
+        c.startFrame = p.config.startFrame;
+        c.generation = p.config.generation;
+        c.resources = p.reader.resources;
+        return c;
+    }
     Endpoint(const PlaybackPreparation &p, std::shared_ptr<Counters> c)
-        : counters_(std::move(c)),
-          graph_(*p.session, p.plan, {2048, p.config.startFrame, p.config.generation}),
-          end_(p.config.endFrame) {
+        : counters_(std::move(c)), graph_(*p.session, p.plan, config(p)), end_(p.config.endFrame) {
         for (std::size_t t = 0; t < p.plan.tracks.size(); ++t) {
             std::vector<const float *> views;
             for (std::uint32_t c = 0; c < graph_.prepared(t).channels(); ++c) {

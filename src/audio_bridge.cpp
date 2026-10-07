@@ -5,9 +5,22 @@
 #include <limits>
 
 namespace soundcurrent::daw {
+namespace {
+ResourceLease bridgeLease(const Session &s, const Id &id, const AudioBridgeOptions &options) {
+    if (!options.resources)
+        return {};
+    const ValidatedSession validated(s);
+    const auto &t = validated.track(id);
+    PayloadCharge charge("Audio monitoring DSP", SIZE_MAX);
+    charge.add(sizeof(AudioBridge) + 8192);
+    charge.add(t.eq.bands.size(), 256 + std::size_t(t.layout.channels) * 16);
+    return options.resources->reserve(charge.bytes());
+}
+} // namespace
 AudioBridge::AudioBridge(const Session &s, const Id &track, CapturePipe &capture,
                          AudioBridgeOptions options, CapturePipe *tap)
-    : eq_(s, track, options.maximumFrames, options.generation),
+    : resourceLease_(bridgeLease(s, track, options)),
+      eq_(s, track, options.maximumFrames, options.generation),
       driver_(eq_, capture.config().startFrame), capture_(capture), tap_(tap), options_(options) {
     const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
                                 [&](const auto &item) { return item.id == track; });

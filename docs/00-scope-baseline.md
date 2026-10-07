@@ -53,5 +53,6 @@ X006 scoped controller-memory checkpoint: [shared parent ownership and desktop
 policies](83-controller-memory-resources.md) now cover canonical/history/snapshot
 and declared edit work. [GUI payload admission](84-gui-memory-resources.md) adds
 selected-track copies, list/decorations and timeline/query arrays with staged
-refusal/retry. Further graph/cache/IO, exact allocations/RSS and sustained capacity
-remain unqualified. No reference or F/Q/C/N completion change.
+refusal/retry. [Prepared execution admission](85-graph-memory-resources.md) now
+adds DSP/playback, readers, shared media caches and WAV output buffers. Capture/other
+IO, exact allocations/RSS and sustained capacity remain unqualified. No reference or F/Q/C/N completion change.

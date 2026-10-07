@@ -16,6 +16,7 @@ class MixReader {
     MediaCacheStatistics mediaStatistics() const noexcept; // Serialized disk owner only.
 
   private:
+    ResourceLease resourceLease_; // Releases after readers and cache.
     std::vector<std::unique_ptr<TrackReader>> readers_;
     std::shared_ptr<MediaReadCache> media_;
     std::size_t references_ = 0;
