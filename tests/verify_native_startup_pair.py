@@ -76,12 +76,14 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--original', type=Path, required=True)
     p.add_argument('--counterfactual-receipt', type=Path, required=True)
+    p.add_argument('--counterfactual-project', type=Path,
+                   help='Relocated project directory; leaves the original receipt unchanged')
     p.add_argument('--original-raw-analysis', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     receipt = json.loads(args.counterfactual_receipt.read_text())
     assert receipt['exit_code'] == 0 and 'error' not in receipt
-    counterfactual = Path(receipt['project_directory'])
+    counterfactual = args.counterfactual_project or Path(receipt['project_directory'])
     a, b = gate_case(args.original), gate_case(counterfactual)
     failed, passed = marker_analysis(args.original), marker_analysis(counterfactual)
     raw = json.loads(args.original_raw_analysis.read_text())

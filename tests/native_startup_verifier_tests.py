@@ -13,11 +13,13 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--original', type=Path, required=True)
     p.add_argument('--counterfactual-receipt', type=Path, required=True)
+    p.add_argument('--counterfactual-project', type=Path,
+                   help='Relocated project directory; leaves the original receipt unchanged')
     p.add_argument('--original-raw-analysis', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     receipt = json.loads(args.counterfactual_receipt.read_text())
-    root = Path(receipt['project_directory'])
+    root = args.counterfactual_project or Path(receipt['project_directory'])
     baseline = [gate_case(args.original), gate_case(root), analyze(args.original), analyze(root),
                 json.loads(args.original_raw_analysis.read_text()), receipt['child_result']]
     verify_pair(*baseline)
