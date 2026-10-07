@@ -2193,3 +2193,24 @@ logs, generated media/projects and qualification. Next virtualize track/timeline
 meter views, measure combined resource envelopes and expose desktop resource
 controls; large recording/adoption, freeze, scheduling, sustained/platform profiles,
 X004/X005/Europe and every remaining full-suite milestone remain required.
+
+
+### Export registry policy review correction (2026-10-07)
+
+Review found that export could raise overall memory but could not configure its
+default16MiB media registry. ExportSettings.mediaCache now reaches the shared
+reader for both track and mix exports, charged inside aggregate memory. A real
+API fixture requests1 registry byte: original adapter wrongly publishes both
+files; fixed adapter returns ResourceLimit and leaves destinations absent. Raising
+the configured registry to32MiB yields exact output against the independent EQ
+reference and unchanged Save/reopen state. This verifies propagation/refusal, not
+an above-default asset-inventory stress workload. Original source/executable
+hashes/log/project/media and wrongly published outputs are retained.
+
+Fresh full Debug45/45,127.81s and affected export
+ASan/UBSan/LSan2/2,5.11s pass. The initial
+seven sanitizer groups retain their initial checkpoint scope. Fresh Windows media/
+export compile/link passes, with no Windows runtime/UI/native claim. No native
+run, dependency, schema change, equalizer change or92-contract promotion.
+[Review receipt](../tests/results/M2/2026-10-07-shared-media-export-policy.json)
+records the correction; full X006 and the frozen goal remain incomplete.

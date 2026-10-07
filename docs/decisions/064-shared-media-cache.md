@@ -21,3 +21,9 @@ whole-file hash work after eviction. The bounded file-backed tests establish exa
 source coordinates, descriptor limits and callback separation, not sustained disk
 or native Windows capacity. Charges are declared payload, not allocator/RSS hard
 bounds. See [implementation and scoped evidence](../79-shared-media-cache.md).
+
+
+ExportSettings exposes the caller-owned MediaCacheConfig as well as overall
+export memory. A default cache policy must not become an inaccessible inventory
+limit in an adapter. Both single-track and mix export use the same configured
+policy; explicit refusal happens before a temporary/destination is published.

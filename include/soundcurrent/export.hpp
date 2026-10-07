@@ -2,6 +2,7 @@
 #pragma once
 #include "project_store.hpp"
 #include "mix.hpp"
+#include "media_cache.hpp"
 #include <optional>
 
 namespace soundcurrent::daw {
@@ -34,6 +35,8 @@ struct ExportSettings {
     // No token means exclusive no-overwrite. A token approves replacement of these bytes.
     // Hash/recheck is for the owned-filesystem contract, not hostile-writer atomic CAS.
     std::optional<std::string> replaceSha256;
+    // Caller-owned registry/page/handle policy, charged inside memoryBudgetBytes.
+    MediaCacheConfig mediaCache{};
 };
 struct ExportSpec : ExportSettings {
     explicit ExportSpec(const Id &track) : trackId(track) {}

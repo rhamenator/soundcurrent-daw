@@ -66,6 +66,8 @@ Legacy names remain source-compatible, but their meaning changes:
   effective cap is the minimum of those and cache.maximumOpenFiles.
 - ExportSettings.maximumOpenAssetsPerTrack/maximumOpenAssetReferences use those
   same concurrent-handle policies. They do not reject a larger asset inventory.
+  ExportSettings.mediaCache exposes trusted registry/page/handle policy; it is
+  charged inside the overall export memory budget and used by both export APIs.
 - MixReader.openAssetReferences() returns size_t and counts **unique admitted
   assets**, not duplicated track references or currently open descriptors. Use
   mediaStatistics().openFiles/peakOpenFiles on the serialized owner for handles.
@@ -114,3 +116,21 @@ virtualized track/timeline/meter views, measured combined memory and desktop
 resource controls, then large recording/adoption, freeze/bounce and sustained
 Linux/Windows profiles. All 92 frozen F/Q/C/N contracts, X004 imports, X005 equipment,
 all-Europe delivery and independent Windows UI/native/install qualification remain.
+
+
+## Export policy review correction
+
+Review found that export exposed its overall memory but not the default16MiB
+cache registry policy. ExportSettings.mediaCache now configures the shared reader
+inside aggregate export memory. A dedicated real API case reproduces the original
+ignored1-byte registry policy for both track/mix export, retaining original source,
+executable hashes, log, project/media and wrongly published destinations. The fixed
+case refuses both before publication, then exports exact reference samples with
+a32MiB registry policy and unchanged saved state. This is policy propagation, not
+an above-default asset-inventory stress measurement.
+
+The [review receipt](../tests/results/M2/2026-10-07-shared-media-export-policy.json)
+records full Debug45/45,127.81s, affected export ASan/UBSan/LSan2/2,5.11s, and fresh
+Windows media/export/test compile/link. Earlier seven sanitizer groups retain
+their initial checkpoint source scope. No native/Windows runtime/sustained or
+frozen parity claim follows.

@@ -1,8 +1,9 @@
 {
-  "utc": "2026-10-07T11:14:59.274604+00:00",
+  "utc": "2026-10-07T11:30:35.696520+00:00",
   "baseline": "SC-DAW-BASELINE-2026-10-05",
-  "source_parent": "a6e1e28b031980275f05c9ff3fb571bacc816c8b",
-  "scope": "X006 shared resource-admitted media handle/page pool; bounded exact file-backed workflows, no sustained/native capacity claim",
+  "reviewed_head": "c0e1771f2a34b990597b0be67b4bbe3ffd410b76",
+  "review_thread": "PRRT_kwDOU-rChc6p4LCP",
+  "source_parent": "c0e1771f2a34b990597b0be67b4bbe3ffd410b76",
   "compiled_source_sha256": {
     "src/recording_worker.cpp": "6997c1dee88f4d88352788e71d20ffc7077aa57e483a34c0fd4c998ee314ddbd",
     "src/pipewire_recording.cpp": "43f31f71808cf550e8770e6c26856a5cab09403cb6e2fac6b58b89738300ad33",
@@ -17,7 +18,7 @@
     "src/mix.cpp": "1d76d7b39fa53d044d8a49b9f5cd5885d3d6f0757007b484c5bad1ee02953588",
     "src/pipewire_filter.cpp": "a79a1c16dc1e3ab705e6b4e376460c0c6e333162fb5d889ded9d8bf0be18c0c7",
     "src/eq.cpp": "22639eca5f4c588041486eee27b6bc315ccdaa2f6b649d640c5fbd19c854a201",
-    "src/export.cpp": "6f897f836e851389105e10e027b481ff2b271dca95f515f8152cef0db1d1c9e3",
+    "src/export.cpp": "f132b4ffb417d60e4f4f9462ec3a98af7931128a69075fc7e6e47617a8977091",
     "src/media_io.hpp": "ce2f64171570b95fdd6dbc4d852602169e3659263d9e74c9d7ffab4c1d5f11a6",
     "src/project_store.cpp": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15",
     "src/manual_recording.cpp": "bc86df89a18b2d7f207c87d4b5254a651fcb753d882eb316c1fc494a3a55115c",
@@ -42,7 +43,7 @@
     "include/soundcurrent/duplex_bridge.hpp": "bcd20d6205db8110a941f1002f287f318c599c041198d2188750c95e9efc1342",
     "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
     "include/soundcurrent/audio_bridge.hpp": "3fa0e2ab6a427d1abf96d1e6e6369294ed3ed83c4375d271739a838aeaef2959",
-    "include/soundcurrent/export.hpp": "c3f9383ca69624b6ff0773c893367f070a7194544e81cf2dbe99767042410ba0",
+    "include/soundcurrent/export.hpp": "c274cbc523173b6aa8be807741cad46847fc2b2ef5feab02d7d82bf2094689a9",
     "include/soundcurrent/spsc_queue.hpp": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd",
     "include/soundcurrent/manual_recording.hpp": "ef6d775d39f9a2c97ea42e05b3ad7df772ca5850a12e7dac793734702631f941",
     "include/soundcurrent/playback_bridge.hpp": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910",
@@ -107,7 +108,7 @@
     "tests/equipment_tests.cpp": "47c0fc29868748b85c5ed2f1ac38e7102e174a74979d97d56e6d9e7053a3a4e1",
     "tests/pipewire_fixture.cpp": "0f5080ae3a198b8b39d791dc15dc2ceeccde71fb20e352bce63cf8074d291774",
     "tests/pipewire_punch_fixture.cpp": "4c6b999e7fe5205e2a5303043d584eef88831f6a9dee4efc96807dd78950d155",
-    "tests/export_tests.cpp": "52a6bde17e43e8c1cf171cfb8ba1e8385d66f19b39b3568e67d4f55fb003204b",
+    "tests/export_tests.cpp": "ab016e653cfd15269b8a0b9dc7b09859e30f75d4bae7b66e57bc0961bc4db63c",
     "tests/native_startup_gate.cpp": "55537f6f4dc64a577dd53d460346fc93366978fcbe5e9436ead496c9dd8e4a95",
     "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
     "tests/export_controller_tests.cpp": "3d8c123384caa11bfd108e7863721cfcc5df288b47d5fffabf03fe19a13f299a",
@@ -170,146 +171,50 @@
     "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
     "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
     "tests/native_port_marker_fake.cpp": "c1bfa5d19894fabd9b892bac953814de138ea30442183461dd685d43254f1815",
-    "CMakeLists.txt": "e1ebb1d23525305c1fe401b6e27c65ab15ac7e0ca3d9851635415127e85c05c8",
+    "CMakeLists.txt": "9b9662fc2c9f5e8d96d20e4909d949cac348a95a0b62fc910360b9e9fb01ac24",
     "third_party/nlohmann/json.hpp": "aaf127c04cb31c406e5b04a63f1ae89369fccde6d8fa7cdda1ed4f32dfc5de63"
   },
-  "schema_minor": 7,
-  "new_dependencies": [],
-  "results": [
-    {
-      "Windows_runtime_qualified": false,
-      "native_audio": false,
-      "passed": true,
-      "rt_violations": 0,
-      "sustained_qualified": false,
-      "workflows": [
-        {
-          "OS_descriptor_bound_qualified": true,
-          "charged_cache_registry_bytes": 1127680,
-          "compared_output_samples": 16384,
-          "decoded_pages": 3,
-          "frames": 8192,
-          "handle_evictions": 0,
-          "oracle_difference": 0,
-          "page_hits": 8444,
-          "page_slots": 63,
-          "peak_open_files": 1,
-          "tracks": 257,
-          "unique_assets": 1,
-          "verified_opens": 1
-        },
-        {
-          "OS_descriptor_bound_qualified": true,
-          "charged_cache_registry_bytes": 1127680,
-          "compared_output_samples": 16384,
-          "decoded_pages": 3,
-          "frames": 8192,
-          "handle_evictions": 0,
-          "oracle_difference": 0,
-          "page_hits": 33937,
-          "page_slots": 63,
-          "peak_open_files": 1,
-          "tracks": 1024,
-          "unique_assets": 1,
-          "verified_opens": 1
-        },
-        {
-          "OS_descriptor_bound_qualified": true,
-          "charged_cache_registry_bytes": 232632,
-          "compared_output_samples": 1536,
-          "decoded_pages": 288,
-          "frames": 768,
-          "handle_evictions": 382,
-          "oracle_difference": 0,
-          "page_hits": 0,
-          "page_slots": 12,
-          "peak_open_files": 2,
-          "tracks": 96,
-          "unique_assets": 96,
-          "verified_opens": 384
-        }
-      ]
-    },
-    {
-      "Windows_runtime_qualified": false,
-      "native_audio": false,
-      "passed": true,
-      "rt_violations": 0,
-      "sustained_qualified": false,
-      "workflows": [
-        {
-          "OS_descriptor_bound_qualified": true,
-          "charged_cache_registry_bytes": 1127680,
-          "compared_output_samples": 16384,
-          "decoded_pages": 3,
-          "frames": 8192,
-          "handle_evictions": 0,
-          "oracle_difference": 0,
-          "page_hits": 8444,
-          "page_slots": 63,
-          "peak_open_files": 1,
-          "tracks": 257,
-          "unique_assets": 1,
-          "verified_opens": 1
-        },
-        {
-          "OS_descriptor_bound_qualified": true,
-          "charged_cache_registry_bytes": 1127680,
-          "compared_output_samples": 16384,
-          "decoded_pages": 3,
-          "frames": 8192,
-          "handle_evictions": 0,
-          "oracle_difference": 0,
-          "page_hits": 33937,
-          "page_slots": 63,
-          "peak_open_files": 1,
-          "tracks": 1024,
-          "unique_assets": 1,
-          "verified_opens": 1
-        },
-        {
-          "OS_descriptor_bound_qualified": true,
-          "charged_cache_registry_bytes": 232632,
-          "compared_output_samples": 1536,
-          "decoded_pages": 288,
-          "frames": 768,
-          "handle_evictions": 382,
-          "oracle_difference": 0,
-          "page_hits": 0,
-          "page_slots": 12,
-          "peak_open_files": 2,
-          "tracks": 96,
-          "unique_assets": 96,
-          "verified_opens": 384
-        }
-      ]
-    }
-  ],
-  "original_failure": {
-    "test": "multitrack-mix-playback",
+  "finding": "Export adapter did not expose/propagate trusted media registry policy; overall export memory alone could not raise16MiB registry default.",
+  "correction": "ExportSettings.mediaCache carries caller-owned registry/page/handle policy into shared readers for both track and mix export, inside aggregate export memory.",
+  "original_red": {
+    "tests": "0/1",
     "exit_code": 8,
-    "diagnostic": "Source reference count differs",
-    "reason": "Old assertion counted32 duplicated references; shared registry correctly counts1 unique asset",
-    "source_executable_hash_and_log_retained": true,
-    "original_project_and_media_missing_after_old_automatic_cleanup": true,
-    "replacement_fixture_not_original": true,
-    "initial_regex_selected_playback_read_ahead": false
+    "single_track_refused": false,
+    "mix_refused": false,
+    "configured_registry_bytes": 1,
+    "original_source_executable_hash_log_project_media_and_wrongly_published_outputs_retained": true
+  },
+  "fixed_workflow": {
+    "single_and_mix_resource_refusal": true,
+    "refused_destinations_absent": true,
+    "raised_registry_bytes": 33554432,
+    "page_frames": 256,
+    "page_budget_bytes": 4096,
+    "maximum_open_files": 1,
+    "both_raised_exports_exact_independent_Eq_reference": true,
+    "canonical_and_saved_project_unchanged": true,
+    "above_default_asset_inventory_stress_test": false
   },
   "final_debug": {
-    "tests": "44/44",
-    "elapsed_seconds": 86.94,
+    "tests": "45/45",
+    "elapsed_seconds": 127.81,
     "exit_code": 0
   },
   "final_sanitizers": {
-    "tests": "7/7",
-    "elapsed_seconds": 74.44,
+    "tests": "2/2",
+    "elapsed_seconds": 5.11,
     "exit_code": 0,
+    "cases": [
+      "offline-export",
+      "offline-export-media-policy"
+    ],
     "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
-    "UBSAN_OPTIONS": "halt_on_error=1"
+    "UBSAN_OPTIONS": "halt_on_error=1",
+    "initial_seven_sanitizer_groups_keep_initial_checkpoint_source_scope": true
   },
-  "Windows_media_cross_compile": {
-    "utc": "2026-10-07T11:13:46.754008+00:00",
-    "source_parent": "a6e1e28b031980275f05c9ff3fb571bacc816c8b",
+  "Windows_media_export_cross_compile": {
+    "utc": "2026-10-07T11:29:40.591728+00:00",
+    "source_parent": "c0e1771f2a34b990597b0be67b4bbe3ffd410b76",
     "source_sha256": {
       "src/recording_worker.cpp": "6997c1dee88f4d88352788e71d20ffc7077aa57e483a34c0fd4c998ee314ddbd",
       "src/pipewire_recording.cpp": "43f31f71808cf550e8770e6c26856a5cab09403cb6e2fac6b58b89738300ad33",
@@ -324,7 +229,7 @@
       "src/mix.cpp": "1d76d7b39fa53d044d8a49b9f5cd5885d3d6f0757007b484c5bad1ee02953588",
       "src/pipewire_filter.cpp": "a79a1c16dc1e3ab705e6b4e376460c0c6e333162fb5d889ded9d8bf0be18c0c7",
       "src/eq.cpp": "22639eca5f4c588041486eee27b6bc315ccdaa2f6b649d640c5fbd19c854a201",
-      "src/export.cpp": "6f897f836e851389105e10e027b481ff2b271dca95f515f8152cef0db1d1c9e3",
+      "src/export.cpp": "f132b4ffb417d60e4f4f9462ec3a98af7931128a69075fc7e6e47617a8977091",
       "src/media_io.hpp": "ce2f64171570b95fdd6dbc4d852602169e3659263d9e74c9d7ffab4c1d5f11a6",
       "src/project_store.cpp": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15",
       "src/manual_recording.cpp": "bc86df89a18b2d7f207c87d4b5254a651fcb753d882eb316c1fc494a3a55115c",
@@ -349,7 +254,7 @@
       "include/soundcurrent/duplex_bridge.hpp": "bcd20d6205db8110a941f1002f287f318c599c041198d2188750c95e9efc1342",
       "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
       "include/soundcurrent/audio_bridge.hpp": "3fa0e2ab6a427d1abf96d1e6e6369294ed3ed83c4375d271739a838aeaef2959",
-      "include/soundcurrent/export.hpp": "c3f9383ca69624b6ff0773c893367f070a7194544e81cf2dbe99767042410ba0",
+      "include/soundcurrent/export.hpp": "c274cbc523173b6aa8be807741cad46847fc2b2ef5feab02d7d82bf2094689a9",
       "include/soundcurrent/spsc_queue.hpp": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd",
       "include/soundcurrent/manual_recording.hpp": "ef6d775d39f9a2c97ea42e05b3ad7df772ca5850a12e7dac793734702631f941",
       "include/soundcurrent/playback_bridge.hpp": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910",
@@ -385,7 +290,7 @@
       "tests/equipment_tests.cpp": "47c0fc29868748b85c5ed2f1ac38e7102e174a74979d97d56e6d9e7053a3a4e1",
       "tests/pipewire_fixture.cpp": "0f5080ae3a198b8b39d791dc15dc2ceeccde71fb20e352bce63cf8074d291774",
       "tests/pipewire_punch_fixture.cpp": "4c6b999e7fe5205e2a5303043d584eef88831f6a9dee4efc96807dd78950d155",
-      "tests/export_tests.cpp": "52a6bde17e43e8c1cf171cfb8ba1e8385d66f19b39b3568e67d4f55fb003204b",
+      "tests/export_tests.cpp": "ab016e653cfd15269b8a0b9dc7b09859e30f75d4bae7b66e57bc0961bc4db63c",
       "tests/native_startup_gate.cpp": "55537f6f4dc64a577dd53d460346fc93366978fcbe5e9436ead496c9dd8e4a95",
       "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
       "tests/export_controller_tests.cpp": "3d8c123384caa11bfd108e7863721cfcc5df288b47d5fffabf03fe19a13f299a",
@@ -448,7 +353,7 @@
       "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
       "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
       "tests/native_port_marker_fake.cpp": "c1bfa5d19894fabd9b892bac953814de138ea30442183461dd685d43254f1815",
-      "CMakeLists.txt": "e1ebb1d23525305c1fe401b6e27c65ab15ac7e0ca3d9851635415127e85c05c8",
+      "CMakeLists.txt": "9b9662fc2c9f5e8d96d20e4909d949cac348a95a0b62fc910360b9e9fb01ac24",
       "cmake/toolchains/windows-mingw.cmake": "2e27174cc5dd5c9568433eb5a2d6a33d3e0aa1b3fe4e6725680387b1fdee42dd",
       "third_party/libsndfile/sndfile.h": "911098ea4b66f0c5ad59785b176f2b19f6e657042c15c93791edb53467efd6c0"
     },
@@ -462,64 +367,43 @@
       "sc-media",
       "sc-media-cache-tests",
       "sc-export-tool",
-      "sc-play-tool"
+      "sc-play-tool",
+      "sc-export-tests"
     ],
     "runtime_qualified": false,
     "desktop_built": false,
     "scope": "Fresh Windows MinGW Release media library, shared media test executable and playback/export CLI cross-compile/link; no runtime/ABI/installer qualification",
     "exit_code": 0,
-    "ended_utc": "2026-10-07T11:14:33.797819+00:00",
+    "ended_utc": "2026-10-07T11:29:46.875209+00:00",
     "artifact_sha256": {
-      "libsc-media.a": "fae0bac0b539f8ee259378660f313e2c618908becf19817c165659afa120e80a",
-      "sc-media-cache-tests.exe": "334ac151041a3c23385a0c4f1d3ed170c7b1ab99cc117a6256739830f927d146",
-      "sc-export-tool.exe": "5869929b40afb36d8aab62bebb190c9a6859fe7fa5cb3ffee23cf4d5434cf2fb",
-      "sc-play-tool.exe": "2b842b479ec15a3487b63fcef4a96dd16b2cb8c601c4459e2aa70949f5492886"
+      "libsc-media.a": "86a78634a46bc7fdb46822cef80add6ae915e6d952de77f8e83d5b40363a545f",
+      "sc-media-cache-tests.exe": "e48afe203bbe1d5e884c514706cb980d504af4c7d04d1ed64967a4b1925c006a",
+      "sc-export-tool.exe": "842994fbbfc9d1171f1d94a995c476a46ef4bf38cc6c52330bbd7294e7e8e566",
+      "sc-play-tool.exe": "7c7d0d8f7c50e55bf701102e2dc7489aea7113435c83746e372e83cf652f7b15",
+      "sc-export-tests.exe": "cf76c3173ef2b937c44f716848383c91dab2dd9617971c986c34a53bc8136d84"
     }
   },
-  "native_audio_runs": 0,
-  "native_observations_total_unchanged": 71,
-  "native_observation71_gap_and_source_CPU_cause_unresolved": true,
-  "sustained_qualified": false,
-  "Windows_runtime_qualified": false,
-  "shared_cache_statistics_concurrent_GUI_safe": false,
-  "declared_payload_not_allocator_RSS_guarantee": true,
-  "immutable_owned_media_not_continuous_hostile_writer_snapshot": true,
+  "initial_checkpoint_receipt": "tests/results/M2/2026-10-07-shared-media-cache.json",
+  "evidence_archive": {
+    "path": "tests/results/M2/2026-10-07-shared-media-export-policy-evidence.zip",
+    "sha256": "d910ba4f023ae6bd7c7281419539900fb69bcfa45a4782c76fcb332f73323bde",
+    "bytes": 4149259,
+    "entries": 715,
+    "CRC_and_all_entry_bytes_verified": true
+  },
   "equalizer_reuse": {
     "reviewed_inputs": 24,
     "before_after_equal": true,
     "repositories_modified": false
   },
   "parity": {
-    "projection_keys": [
-      "C",
-      "F",
-      "N",
-      "Q",
-      "acceptance",
-      "bitwig_evidence",
-      "bitwig_source_id",
-      "bitwig_url",
-      "cubase_evidence",
-      "cubase_source_id",
-      "cubase_url",
-      "feature",
-      "group",
-      "id",
-      "milestone",
-      "quality"
-    ],
-    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
     "frozen_contracts": 92,
+    "projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
     "FQCN_promotions": 0
   },
-  "evidence_archive": {
-    "path": "tests/results/M2/2026-10-07-shared-media-cache-evidence.zip",
-    "sha256": "550ccd4e3440595c3fca720940d0ec29e45305b80141144b6876e7cf09d8748c",
-    "bytes": 4304829,
-    "entries": 1186,
-    "CRC_and_all_entry_bytes_verified": true
-  },
-  "remaining_full_X006_and_frozen_scope_unchanged": true,
-  "initial_checkpoint_tested_commit": "c0e1771f2a34b990597b0be67b4bbe3ffd410b76",
-  "export_policy_superseded_by": "tests/results/M2/2026-10-07-shared-media-export-policy.json"
+  "native_observations_total_unchanged": 71,
+  "native_audio_runs": 0,
+  "new_dependencies": [],
+  "schema_minor": 7,
+  "remaining_full_X006_and_frozen_scope_unchanged": true
 }

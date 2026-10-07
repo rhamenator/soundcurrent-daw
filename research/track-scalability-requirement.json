@@ -98,6 +98,7 @@
     "receipt": "tests/results/M2/2026-10-07-shared-media-cache.json",
     "native_audio": false,
     "sustained_qualified": false,
-    "Windows_runtime_qualified": false
+    "Windows_runtime_qualified": false,
+    "export_policy_review_receipt": "tests/results/M2/2026-10-07-shared-media-export-policy.json"
   }
 }
