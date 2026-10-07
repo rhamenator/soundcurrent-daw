@@ -92,4 +92,5 @@ arrays and256 validators together under versioned admission. Do not merely raise
 one constant, leave parser/UI/recording limits behind, or bypass real-time safety.
 Current native manual failure/recovery work remains the immediate implementation
 checkpoint. X006 is an owner extension; the frozen92 contracts remain unchanged
-and unpromoted. All31 retained observations and sustained failures remain visible.
+and unpromoted. All32 retained observations and sustained failures remain visible; see the
+[CI recording-fixture observation](../tests/results/repository/2026-10-07-track-scalability-ci-observation.json).
