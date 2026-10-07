@@ -76,10 +76,19 @@ corrected harness mutates a source row actually consumed by the recorder.
 - Native owner callback maxima are 1,262,018ns and 1,238,325ns, respectively, at
   512 frames/48 kHz; existing finite and current-cycle gates pass. Per-callback raw/
   EQ/mix costs and clocks are in the receipt. This does not qualify sustained load.
-- Fourteen altered traces are refused against both a synthetic and an actual
+- Twenty-three altered traces are refused against both a synthetic and an actual
   native reference, including marker corruption, a channel 19 quantum delay,
   missing ports/clocks, dropped coverage, exhausted identities, count/cost/ordinal
   errors and consumption of absent/partial source buffers.
+
+Review R3 found that the first verifier did not validate retained whole-bridge
+records. An actual corrupted native-reference row with zero calls/wall time,
+999999999ns CPU and one unknown interval still qualified. That reproduction and
+original verifier are preserved separately. The correction validates retained
+call counts, CPU/wall/unknown coverage, capacity, ordering, unique clock association
+(including time/rate) and retained sums against global totals. All six original
+observed traces pass these checks; the corrupted record and nine additional timing
+mutations are refused. No native executable or original trace was changed.
 
 The [earlier originals1–40](68-native-manual-fault-recovery.md) remain unchanged.
 Original 37's channel 19 extra 512-frame prefix and original 38's predominantly-CPU

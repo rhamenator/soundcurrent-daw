@@ -11,8 +11,8 @@
     "tests/native_manual_processing_stage_tests.cpp": "9d777740f6ff9bba8f24f3a4c67c9beed72488ed21732fb65c8b61436d3b2b55",
     "tests/native_processing_stages.cpp": "db66381908a1d5183de60e8e06ed095d5f2d85e170f2ad5f72342a9aef6053df",
     "tests/pipewire_manual_fault_fixture.cpp": "9b62babe7259f756c9474799d174674a2f1d077e79055ceca37369af7874c30f",
-    "tests/verify_pipewire_manual_trace.py": "8978962b6a8bca3b84affa9057801adbd9e5144162a3a4663bb1ae1c0ef30835",
-    "tests/manual_trace_verifier_tests.py": "16b7e906729c5bc9f280b64c23ff36e3df44a494538bb254d9ce8edd1ce39515",
+    "tests/verify_pipewire_manual_trace.py": "7e62836409c975475d191d1560b63c750f6d7f2cb7cbee6fb4c173a709fe1966",
+    "tests/manual_trace_verifier_tests.py": "f92840f5ae11023ad00983b9d481b311ef0ec3ffff1b34bdaf1edf32c7d41844",
     "tests/verify_pipewire_manual_fault.py": "6be79c5ad12a4eeda07fcaeb5366ea71b816836cd93ce5219bbd91a870e4c939"
   },
   "parity": {
@@ -72,7 +72,7 @@
     "ASan_UBSan": "3/3 pass,0.18s,ASAN_OPTIONS=detect_leaks=1",
     "manual_transparency": "Wrapped/unwrapped output and raw IEEE samples, origins and command boundaries identical; zero RT alloc/free/lock",
     "marker_contract": "Unknown/unsupported/null/short extents, exact NaN/negative-zero bits, source post-generation sampling, ignored output buffers, role/TLS isolation, bounded storage/drop/identity overflow, actual linker interception",
-    "refused_trace_mutations": 14,
+    "refused_trace_mutations": 23,
     "mutation_reference_platforms": [
       "synthetic Debug",
       "native Release"
@@ -1402,7 +1402,279 @@
         },
         "fixture_qualified": true,
         "fixture_receipt_sha256": "72adaf5ae3c514e10abdccb5fe2de7c05f7d5e2011a58fc0261c6cf7b017611a"
-      }
+      },
+      "reviewed_trace": {
+        "qualified_trace": true,
+        "coverage": {
+          "source": {
+            "callbacks": 71,
+            "observed_ports": 2272,
+            "sampled_ports": 2272,
+            "active_rows": 71,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 0,
+            "generated_rows": 71,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          },
+          "owner": {
+            "callbacks": 71,
+            "observed_ports": 2272,
+            "sampled_ports": 2272,
+            "active_rows": 71,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 71,
+            "generated_rows": 0,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          }
+        },
+        "problems": [],
+        "marker_mismatches": [],
+        "processing_stages": {
+          "test_only_linker_wrappers": true,
+          "nested_costs_inclusive": true,
+          "total_bridge": {
+            "calls": 71,
+            "wall_ns": 213825489,
+            "cpu_ns": 213755366,
+            "unknown_intervals": 0
+          },
+          "total_stages": {
+            "raw_capture": {
+              "calls": 760,
+              "wall_ns": 11090703,
+              "cpu_ns": 10429543,
+              "unknown_intervals": 0
+            },
+            "eq_drivers": {
+              "calls": 2376,
+              "wall_ns": 164069897,
+              "cpu_ns": 161889122,
+              "unknown_intervals": 0
+            },
+            "mix_including_eq": {
+              "calls": 72,
+              "wall_ns": 176006428,
+              "cpu_ns": 175923873,
+              "unknown_intervals": 0
+            }
+          },
+          "worst_bridge_callbacks": [
+            {
+              "clock_position": 1056320,
+              "clock_cycle": 56,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 3477645,
+                "cpu_ns": 3476750,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 486682,
+                  "cpu_ns": 459324,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 31562,
+                  "maximum_call_cpu_ns": 30556,
+                  "maximum_call_ordinal": 9
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 2422248,
+                  "cpu_ns": 2391607,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 95599,
+                  "maximum_call_cpu_ns": 94528,
+                  "maximum_call_ordinal": 17
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 2597419,
+                  "cpu_ns": 2596386,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 2597419,
+                  "maximum_call_cpu_ns": 2596386,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1069632,
+              "clock_cycle": 69,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 3417458,
+                "cpu_ns": 3416509,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 461382,
+                  "cpu_ns": 433815,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 16046,
+                  "maximum_call_cpu_ns": 15155,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 2404281,
+                  "cpu_ns": 2373706,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 88684,
+                  "maximum_call_cpu_ns": 87753,
+                  "maximum_call_ordinal": 19
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 2576426,
+                  "cpu_ns": 2575277,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 2576426,
+                  "maximum_call_cpu_ns": 2575277,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1051200,
+              "clock_cycle": 51,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 3405304,
+                "cpu_ns": 3404369,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 438339,
+                  "cpu_ns": 407830,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 18064,
+                  "maximum_call_cpu_ns": 17116,
+                  "maximum_call_ordinal": 1
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 2370653,
+                  "cpu_ns": 2340697,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 86540,
+                  "maximum_call_cpu_ns": 85635,
+                  "maximum_call_ordinal": 10
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 2539198,
+                  "cpu_ns": 2537924,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 2539198,
+                  "maximum_call_cpu_ns": 2537924,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1067584,
+              "clock_cycle": 67,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 3380002,
+                "cpu_ns": 3379048,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 480782,
+                  "cpu_ns": 453426,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 27157,
+                  "maximum_call_cpu_ns": 26149,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 2343296,
+                  "cpu_ns": 2313093,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 82999,
+                  "maximum_call_cpu_ns": 81979,
+                  "maximum_call_ordinal": 17
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 2530163,
+                  "cpu_ns": 2528953,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 2530163,
+                  "maximum_call_cpu_ns": 2528953,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            }
+          ]
+        },
+        "files": {
+          "source-port-markers": {
+            "sha256": "04b1f9d67d376e99b2e1b91991f2bbb3b8892d77ca8f55302071214fcd01a073",
+            "bytes": 442563
+          },
+          "owner-port-markers": {
+            "sha256": "dcc19fa97d38e702990368ceec5b6a184d3b3da12909e33b748e7d4bda6d3d35",
+            "bytes": 442970
+          },
+          "manual-processing-stages": {
+            "sha256": "4af434d9b64ea427f014da666b90b356c297bd6af2bd0bf4ab67338688ff0a13",
+            "bytes": 3718
+          }
+        }
+      },
+      "reviewed_trace_analysis_sha256": "5e3a86d01214d8598078b749f775f162eef965701a3f4ee927fb7135bf63dac5"
     },
     {
       "build": "debug",
@@ -2727,7 +2999,279 @@
         },
         "fixture_qualified": true,
         "fixture_receipt_sha256": "ad9e6fd229d9a92178790a1ff8089ca96d9f85f447718cad3be87c2d4d72e6ea"
-      }
+      },
+      "reviewed_trace": {
+        "qualified_trace": true,
+        "coverage": {
+          "source": {
+            "callbacks": 76,
+            "observed_ports": 2432,
+            "sampled_ports": 2432,
+            "active_rows": 76,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 0,
+            "generated_rows": 76,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          },
+          "owner": {
+            "callbacks": 76,
+            "observed_ports": 2432,
+            "sampled_ports": 2432,
+            "active_rows": 76,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 76,
+            "generated_rows": 0,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          }
+        },
+        "problems": [],
+        "marker_mismatches": [],
+        "processing_stages": {
+          "test_only_linker_wrappers": true,
+          "nested_costs_inclusive": true,
+          "total_bridge": {
+            "calls": 76,
+            "wall_ns": 274555221,
+            "cpu_ns": 274477391,
+            "unknown_intervals": 0
+          },
+          "total_stages": {
+            "raw_capture": {
+              "calls": 816,
+              "wall_ns": 16298790,
+              "cpu_ns": 15392098,
+              "unknown_intervals": 0
+            },
+            "eq_drivers": {
+              "calls": 2574,
+              "wall_ns": 209672362,
+              "cpu_ns": 207021632,
+              "unknown_intervals": 0
+            },
+            "mix_including_eq": {
+              "calls": 78,
+              "wall_ns": 224243997,
+              "cpu_ns": 224150376,
+              "unknown_intervals": 0
+            }
+          },
+          "worst_bridge_callbacks": [
+            {
+              "clock_position": 1013312,
+              "clock_cycle": 14,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 8205659,
+                "cpu_ns": 8203874,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 0,
+                  "wall_ns": 0,
+                  "cpu_ns": 0,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": false,
+                  "maximum_call_wall_ns": 0,
+                  "maximum_call_cpu_ns": 0,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 6608688,
+                  "cpu_ns": 6525416,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 248482,
+                  "maximum_call_cpu_ns": 245364,
+                  "maximum_call_ordinal": 0
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 6994519,
+                  "cpu_ns": 6992633,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 6994519,
+                  "maximum_call_cpu_ns": 6992633,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1074752,
+              "clock_cycle": 74,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 6401217,
+                "cpu_ns": 6400031,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 8,
+                  "wall_ns": 247514,
+                  "cpu_ns": 238415,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 31483,
+                  "maximum_call_cpu_ns": 30119,
+                  "maximum_call_ordinal": 7
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 5274063,
+                  "cpu_ns": 5232144,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 184648,
+                  "maximum_call_cpu_ns": 183523,
+                  "maximum_call_ordinal": 23
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 5555420,
+                  "cpu_ns": 5553974,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 5555420,
+                  "maximum_call_cpu_ns": 5553974,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1062464,
+              "clock_cycle": 62,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 6219884,
+                "cpu_ns": 6218774,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 993517,
+                  "cpu_ns": 957304,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 38289,
+                  "maximum_call_cpu_ns": 37035,
+                  "maximum_call_ordinal": 29
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 4411171,
+                  "cpu_ns": 4373416,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 183048,
+                  "maximum_call_cpu_ns": 181780,
+                  "maximum_call_ordinal": 7
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 4614267,
+                  "cpu_ns": 4613001,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 4614267,
+                  "maximum_call_cpu_ns": 4613001,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1076800,
+              "clock_cycle": 76,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 6199917,
+                "cpu_ns": 6198811,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 0,
+                  "wall_ns": 0,
+                  "cpu_ns": 0,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": false,
+                  "maximum_call_wall_ns": 0,
+                  "maximum_call_cpu_ns": 0,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 5369351,
+                  "cpu_ns": 5329416,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 178878,
+                  "maximum_call_cpu_ns": 177624,
+                  "maximum_call_ordinal": 21
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 5606407,
+                  "cpu_ns": 5604544,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 5606407,
+                  "maximum_call_cpu_ns": 5604544,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            }
+          ]
+        },
+        "files": {
+          "source-port-markers": {
+            "sha256": "cfc2f89563342080035f23f476e36453c11f1e0947c716db17f9cfa42b6814b1",
+            "bytes": 473717
+          },
+          "owner-port-markers": {
+            "sha256": "870eaa14b0966650862b01ed090a881ad76187e6770452ea0b2e2b2255aa3cb2",
+            "bytes": 474154
+          },
+          "manual-processing-stages": {
+            "sha256": "818f028a1e7b97f6d568cb6c1a8387e8563585f98576d177c5140f7f1dafd0c0",
+            "bytes": 3688
+          }
+        }
+      },
+      "reviewed_trace_analysis_sha256": "a2e2a9fa88bcce41ef82bca7cffa85b19b8b9d2d99d73ad651de960842bd4a2d"
     },
     {
       "build": "sanitized",
@@ -4052,7 +4596,279 @@
         },
         "fixture_qualified": true,
         "fixture_receipt_sha256": "425cde63a19f03e7fe2a6d1b4ef4fb6313d87dff35ded0844614041f566ce0e8"
-      }
+      },
+      "reviewed_trace": {
+        "qualified_trace": true,
+        "coverage": {
+          "source": {
+            "callbacks": 71,
+            "observed_ports": 2272,
+            "sampled_ports": 2272,
+            "active_rows": 71,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 0,
+            "generated_rows": 71,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          },
+          "owner": {
+            "callbacks": 71,
+            "observed_ports": 2272,
+            "sampled_ports": 2272,
+            "active_rows": 71,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 71,
+            "generated_rows": 0,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          }
+        },
+        "problems": [],
+        "marker_mismatches": [],
+        "processing_stages": {
+          "test_only_linker_wrappers": true,
+          "nested_costs_inclusive": true,
+          "total_bridge": {
+            "calls": 71,
+            "wall_ns": 583377489,
+            "cpu_ns": 582939429,
+            "unknown_intervals": 0
+          },
+          "total_stages": {
+            "raw_capture": {
+              "calls": 760,
+              "wall_ns": 25051820,
+              "cpu_ns": 24239266,
+              "unknown_intervals": 0
+            },
+            "eq_drivers": {
+              "calls": 2376,
+              "wall_ns": 464256714,
+              "cpu_ns": 461721520,
+              "unknown_intervals": 0
+            },
+            "mix_including_eq": {
+              "calls": 72,
+              "wall_ns": 498138999,
+              "cpu_ns": 497809462,
+              "unknown_intervals": 0
+            }
+          },
+          "worst_bridge_callbacks": [
+            {
+              "clock_position": 1055296,
+              "clock_cycle": 55,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 9365911,
+                "cpu_ns": 9360403,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 1186918,
+                  "cpu_ns": 1151435,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 57882,
+                  "maximum_call_cpu_ns": 52251,
+                  "maximum_call_ordinal": 14
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 6777053,
+                  "cpu_ns": 6745324,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 224890,
+                  "maximum_call_cpu_ns": 223847,
+                  "maximum_call_ordinal": 16
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 7276304,
+                  "cpu_ns": 7274860,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 7276304,
+                  "maximum_call_cpu_ns": 7274860,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1053248,
+              "clock_cycle": 53,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 9099991,
+                "cpu_ns": 9099024,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 1077562,
+                  "cpu_ns": 1048461,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 41584,
+                  "maximum_call_cpu_ns": 40534,
+                  "maximum_call_ordinal": 5
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 6642264,
+                  "cpu_ns": 6609494,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 226802,
+                  "maximum_call_cpu_ns": 225829,
+                  "maximum_call_ordinal": 26
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 7130085,
+                  "cpu_ns": 7128880,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 7130085,
+                  "maximum_call_cpu_ns": 7128880,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1060416,
+              "clock_cycle": 60,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 9005258,
+                "cpu_ns": 9004325,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 1071981,
+                  "cpu_ns": 1043102,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 50486,
+                  "maximum_call_cpu_ns": 49553,
+                  "maximum_call_ordinal": 27
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 6561521,
+                  "cpu_ns": 6530756,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 225032,
+                  "maximum_call_cpu_ns": 223926,
+                  "maximum_call_ordinal": 4
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 7045543,
+                  "cpu_ns": 7044340,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 7045543,
+                  "maximum_call_cpu_ns": 7044340,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1056320,
+              "clock_cycle": 56,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 8988713,
+                "cpu_ns": 8987750,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 1080486,
+                  "cpu_ns": 1051053,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 43028,
+                  "maximum_call_cpu_ns": 42040,
+                  "maximum_call_ordinal": 19
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 6532646,
+                  "cpu_ns": 6501469,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 213073,
+                  "maximum_call_cpu_ns": 212115,
+                  "maximum_call_ordinal": 32
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 7001911,
+                  "cpu_ns": 7000771,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 7001911,
+                  "maximum_call_cpu_ns": 7000771,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            }
+          ]
+        },
+        "files": {
+          "source-port-markers": {
+            "sha256": "04b1f9d67d376e99b2e1b91991f2bbb3b8892d77ca8f55302071214fcd01a073",
+            "bytes": 442563
+          },
+          "owner-port-markers": {
+            "sha256": "dcc19fa97d38e702990368ceec5b6a184d3b3da12909e33b748e7d4bda6d3d35",
+            "bytes": 442970
+          },
+          "manual-processing-stages": {
+            "sha256": "8c3d68bfedd81226ef4e90fe67604efdd75c05ed24a50aa5105ba97971f516ac",
+            "bytes": 3736
+          }
+        }
+      },
+      "reviewed_trace_analysis_sha256": "b5946d6a0d1f8f3aad7bd4f502166298a5ba2b1dea80cfee65406eec269e21d2"
     },
     {
       "build": "sanitized",
@@ -5377,7 +6193,279 @@
         },
         "fixture_qualified": true,
         "fixture_receipt_sha256": "35e0f23e39536bdae3fbf952647aec2d8627826030cbf5a711192ccfa7a48dc3"
-      }
+      },
+      "reviewed_trace": {
+        "qualified_trace": true,
+        "coverage": {
+          "source": {
+            "callbacks": 76,
+            "observed_ports": 2432,
+            "sampled_ports": 2432,
+            "active_rows": 76,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 0,
+            "generated_rows": 76,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          },
+          "owner": {
+            "callbacks": 76,
+            "observed_ports": 2432,
+            "sampled_ports": 2432,
+            "active_rows": 76,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 76,
+            "generated_rows": 0,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          }
+        },
+        "problems": [],
+        "marker_mismatches": [],
+        "processing_stages": {
+          "test_only_linker_wrappers": true,
+          "nested_costs_inclusive": true,
+          "total_bridge": {
+            "calls": 76,
+            "wall_ns": 716816127,
+            "cpu_ns": 716538253,
+            "unknown_intervals": 0
+          },
+          "total_stages": {
+            "raw_capture": {
+              "calls": 816,
+              "wall_ns": 33468616,
+              "cpu_ns": 32530045,
+              "unknown_intervals": 0
+            },
+            "eq_drivers": {
+              "calls": 2574,
+              "wall_ns": 567809330,
+              "cpu_ns": 564889556,
+              "unknown_intervals": 0
+            },
+            "mix_including_eq": {
+              "calls": 78,
+              "wall_ns": 608994369,
+              "cpu_ns": 608704491,
+              "unknown_intervals": 0
+            }
+          },
+          "worst_bridge_callbacks": [
+            {
+              "clock_position": 1058368,
+              "clock_cycle": 58,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 15318799,
+                "cpu_ns": 15310209,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 1521410,
+                  "cpu_ns": 1483840,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 72678,
+                  "maximum_call_cpu_ns": 71113,
+                  "maximum_call_ordinal": 19
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 11214120,
+                  "cpu_ns": 11168533,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 543815,
+                  "maximum_call_cpu_ns": 542176,
+                  "maximum_call_ordinal": 16
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 12030946,
+                  "cpu_ns": 12028324,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 12030946,
+                  "maximum_call_cpu_ns": 12028324,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1057344,
+              "clock_cycle": 57,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 14296907,
+                "cpu_ns": 14295691,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 1457334,
+                  "cpu_ns": 1419378,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 74685,
+                  "maximum_call_cpu_ns": 72885,
+                  "maximum_call_ordinal": 17
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 10884319,
+                  "cpu_ns": 10837673,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 489021,
+                  "maximum_call_cpu_ns": 487382,
+                  "maximum_call_ordinal": 25
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 11665011,
+                  "cpu_ns": 11663256,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 11665011,
+                  "maximum_call_cpu_ns": 11663256,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1051200,
+              "clock_cycle": 51,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 13429606,
+                "cpu_ns": 13428216,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 1203291,
+                  "cpu_ns": 1164463,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 76942,
+                  "maximum_call_cpu_ns": 75462,
+                  "maximum_call_ordinal": 11
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 10373770,
+                  "cpu_ns": 10327872,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 572969,
+                  "maximum_call_cpu_ns": 571291,
+                  "maximum_call_ordinal": 10
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 11130990,
+                  "cpu_ns": 11129309,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 11130990,
+                  "maximum_call_cpu_ns": 11129309,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 1052224,
+              "clock_cycle": 52,
+              "clock_nsec": 0,
+              "clock_id": 7,
+              "quantum": 1024,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 13210879,
+                "cpu_ns": 13209699,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 2131952,
+                  "cpu_ns": 2091842,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 73241,
+                  "maximum_call_cpu_ns": 71964,
+                  "maximum_call_ordinal": 11
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 8730831,
+                  "cpu_ns": 8690301,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 367249,
+                  "maximum_call_cpu_ns": 365898,
+                  "maximum_call_ordinal": 1
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 9391877,
+                  "cpu_ns": 9390202,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 9391877,
+                  "maximum_call_cpu_ns": 9390202,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            }
+          ]
+        },
+        "files": {
+          "source-port-markers": {
+            "sha256": "cfc2f89563342080035f23f476e36453c11f1e0947c716db17f9cfa42b6814b1",
+            "bytes": 473717
+          },
+          "owner-port-markers": {
+            "sha256": "870eaa14b0966650862b01ed090a881ad76187e6770452ea0b2e2b2255aa3cb2",
+            "bytes": 474154
+          },
+          "manual-processing-stages": {
+            "sha256": "cb6891267f1be9027ff2896c686a1586c1e606b7067fafff2b0b15d61d6d29b7",
+            "bytes": 3763
+          }
+        }
+      },
+      "reviewed_trace_analysis_sha256": "898355ae8ca5059181167fcd5830e81e9735a1e0566761ab8d38465726351495"
     },
     {
       "build": "native",
@@ -6829,7 +7917,279 @@
         },
         "fixture_qualified": true,
         "fixture_receipt_sha256": "78d85f1614c4637e5c37dd3eb3114734725caec57d9e0327b0df683e5edc4954"
-      }
+      },
+      "reviewed_trace": {
+        "qualified_trace": true,
+        "coverage": {
+          "source": {
+            "callbacks": 257,
+            "observed_ports": 8224,
+            "sampled_ports": 4608,
+            "active_rows": 144,
+            "nonadvancing_rows": 113,
+            "bridge_calls": 0,
+            "generated_rows": 146,
+            "unavailable_generated_rows": 2,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          },
+          "owner": {
+            "callbacks": 141,
+            "observed_ports": 4512,
+            "sampled_ports": 4512,
+            "active_rows": 141,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 141,
+            "generated_rows": 0,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          }
+        },
+        "problems": [],
+        "marker_mismatches": [],
+        "processing_stages": {
+          "test_only_linker_wrappers": true,
+          "nested_costs_inclusive": true,
+          "total_bridge": {
+            "calls": 141,
+            "wall_ns": 91107188,
+            "cpu_ns": 90824620,
+            "unknown_intervals": 0
+          },
+          "total_stages": {
+            "raw_capture": {
+              "calls": 1464,
+              "wall_ns": 7426175,
+              "cpu_ns": 4775271,
+              "unknown_intervals": 0
+            },
+            "eq_drivers": {
+              "calls": 4686,
+              "wall_ns": 72338480,
+              "cpu_ns": 63942535,
+              "unknown_intervals": 0
+            },
+            "mix_including_eq": {
+              "calls": 142,
+              "wall_ns": 76341505,
+              "cpu_ns": 76049109,
+              "unknown_intervals": 0
+            }
+          },
+          "worst_bridge_callbacks": [
+            {
+              "clock_position": 5444585984,
+              "clock_cycle": 7935034,
+              "clock_nsec": 177139993058229,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1237858,
+                "cpu_ns": 1234704,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 259531,
+                  "cpu_ns": 166213,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 8784,
+                  "maximum_call_cpu_ns": 5742,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 851825,
+                  "cpu_ns": 755816,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 40500,
+                  "maximum_call_cpu_ns": 37478,
+                  "maximum_call_ordinal": 9
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 898664,
+                  "cpu_ns": 895459,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 898664,
+                  "maximum_call_cpu_ns": 895459,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 5444572672,
+              "clock_cycle": 7935008,
+              "clock_nsec": 177139715725529,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1219873,
+                "cpu_ns": 1216717,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 253645,
+                  "cpu_ns": 162618,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 8595,
+                  "maximum_call_cpu_ns": 5611,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 844254,
+                  "cpu_ns": 749664,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 45661,
+                  "maximum_call_cpu_ns": 42688,
+                  "maximum_call_ordinal": 19
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 888274,
+                  "cpu_ns": 885034,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 888274,
+                  "maximum_call_cpu_ns": 885034,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 5444571136,
+              "clock_cycle": 7935005,
+              "clock_nsec": 177139683725603,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1154264,
+                "cpu_ns": 1151164,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 24,
+                  "wall_ns": 193855,
+                  "cpu_ns": 123850,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 8634,
+                  "maximum_call_cpu_ns": 5573,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 841633,
+                  "cpu_ns": 745635,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 37832,
+                  "maximum_call_cpu_ns": 34719,
+                  "maximum_call_ordinal": 24
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 884932,
+                  "cpu_ns": 881714,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 884932,
+                  "maximum_call_cpu_ns": 881714,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 5444579840,
+              "clock_cycle": 7935022,
+              "clock_nsec": 177139865058517,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1077106,
+                "cpu_ns": 1074579,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 256060,
+                  "cpu_ns": 165347,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 8312,
+                  "maximum_call_cpu_ns": 5431,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 719902,
+                  "cpu_ns": 639326,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 35875,
+                  "maximum_call_cpu_ns": 33404,
+                  "maximum_call_ordinal": 10
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 754446,
+                  "cpu_ns": 751728,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 754446,
+                  "maximum_call_cpu_ns": 751728,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            }
+          ]
+        },
+        "files": {
+          "source-port-markers": {
+            "sha256": "2e4d5141e1b70ebb6bfaf83ed9b86eebd2ffa38da37d7901bd8a5e7e0cad65dc",
+            "bytes": 1378878
+          },
+          "owner-port-markers": {
+            "sha256": "08a12438fb0a6928ed702a35c3d7ff2aae6d9b64599823f30d7ba83608d6755c",
+            "bytes": 878391
+          },
+          "manual-processing-stages": {
+            "sha256": "67187b884b2363cdcbf41ca588cfe9f69876aafc956596fb27b083ba233be406",
+            "bytes": 3768
+          }
+        }
+      },
+      "reviewed_trace_analysis_sha256": "53737e954f8f9df25685f1d2443bfb69b1c52969df4cf4684108c4d755a07702"
     },
     {
       "build": "native",
@@ -8281,7 +9641,279 @@
         },
         "fixture_qualified": true,
         "fixture_receipt_sha256": "356d09dd1a2c26ed2134b1e63e2c80d698864e89b1a3edf1e293895f73265991"
-      }
+      },
+      "reviewed_trace": {
+        "qualified_trace": true,
+        "coverage": {
+          "source": {
+            "callbacks": 157,
+            "observed_ports": 5024,
+            "sampled_ports": 4864,
+            "active_rows": 152,
+            "nonadvancing_rows": 5,
+            "bridge_calls": 0,
+            "generated_rows": 154,
+            "unavailable_generated_rows": 2,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          },
+          "owner": {
+            "callbacks": 149,
+            "observed_ports": 4768,
+            "sampled_ports": 4768,
+            "active_rows": 149,
+            "nonadvancing_rows": 0,
+            "bridge_calls": 149,
+            "generated_rows": 0,
+            "unavailable_generated_rows": 0,
+            "partial_generated_rows": 0,
+            "unknown_clocks": 0,
+            "missing_source_rows": 0
+          }
+        },
+        "problems": [],
+        "marker_mismatches": [],
+        "processing_stages": {
+          "test_only_linker_wrappers": true,
+          "nested_costs_inclusive": true,
+          "total_bridge": {
+            "calls": 149,
+            "wall_ns": 105698295,
+            "cpu_ns": 105381464,
+            "unknown_intervals": 0
+          },
+          "total_stages": {
+            "raw_capture": {
+              "calls": 1560,
+              "wall_ns": 8629607,
+              "cpu_ns": 5551993,
+              "unknown_intervals": 0
+            },
+            "eq_drivers": {
+              "calls": 4983,
+              "wall_ns": 84360696,
+              "cpu_ns": 74577515,
+              "unknown_intervals": 0
+            },
+            "mix_including_eq": {
+              "calls": 151,
+              "wall_ns": 88885340,
+              "cpu_ns": 88544335,
+              "unknown_intervals": 0
+            }
+          },
+          "worst_bridge_callbacks": [
+            {
+              "clock_position": 5450178560,
+              "clock_cycle": 7945957,
+              "clock_nsec": 177256505292338,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1221018,
+                "cpu_ns": 1218062,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 252587,
+                  "cpu_ns": 161058,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 8941,
+                  "maximum_call_cpu_ns": 5193,
+                  "maximum_call_ordinal": 31
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 836915,
+                  "cpu_ns": 741601,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 39222,
+                  "maximum_call_cpu_ns": 36130,
+                  "maximum_call_ordinal": 2
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 880028,
+                  "cpu_ns": 876675,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 880028,
+                  "maximum_call_cpu_ns": 876675,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 5450193408,
+              "clock_cycle": 7945986,
+              "clock_nsec": 177256814626319,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1160423,
+                "cpu_ns": 1158358,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 276791,
+                  "cpu_ns": 181875,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 21764,
+                  "maximum_call_cpu_ns": 18269,
+                  "maximum_call_ordinal": 11
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 768006,
+                  "cpu_ns": 679902,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 26320,
+                  "maximum_call_cpu_ns": 23452,
+                  "maximum_call_ordinal": 13
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 816472,
+                  "cpu_ns": 814316,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 816472,
+                  "maximum_call_cpu_ns": 814316,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 5450173952,
+              "clock_cycle": 7945948,
+              "clock_nsec": 177256409292137,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1154898,
+                "cpu_ns": 1152238,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 24,
+                  "wall_ns": 195199,
+                  "cpu_ns": 129410,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 19586,
+                  "maximum_call_cpu_ns": 17017,
+                  "maximum_call_ordinal": 2
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 841938,
+                  "cpu_ns": 745959,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 41785,
+                  "maximum_call_cpu_ns": 38724,
+                  "maximum_call_ordinal": 4
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 885723,
+                  "cpu_ns": 882622,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 885723,
+                  "maximum_call_cpu_ns": 882622,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            },
+            {
+              "clock_position": 5450182144,
+              "clock_cycle": 7945964,
+              "clock_nsec": 177256579959161,
+              "clock_id": 35,
+              "quantum": 512,
+              "rate_numerator": 1,
+              "rate_denominator": 48000,
+              "status": 1,
+              "bridge": {
+                "calls": 1,
+                "wall_ns": 1148299,
+                "cpu_ns": 1145468,
+                "unknown_intervals": 0
+              },
+              "stages": {
+                "raw_capture": {
+                  "calls": 32,
+                  "wall_ns": 232554,
+                  "cpu_ns": 150163,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 7801,
+                  "maximum_call_cpu_ns": 5099,
+                  "maximum_call_ordinal": 0
+                },
+                "eq_drivers": {
+                  "calls": 33,
+                  "wall_ns": 774331,
+                  "cpu_ns": 681975,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 40311,
+                  "maximum_call_cpu_ns": 36560,
+                  "maximum_call_ordinal": 16
+                },
+                "mix_including_eq": {
+                  "calls": 1,
+                  "wall_ns": 820199,
+                  "cpu_ns": 816884,
+                  "unknown_intervals": 0,
+                  "maximum_call_known": true,
+                  "maximum_call_wall_ns": 820199,
+                  "maximum_call_cpu_ns": 816884,
+                  "maximum_call_ordinal": 0
+                }
+              }
+            }
+          ]
+        },
+        "files": {
+          "source-port-markers": {
+            "sha256": "61bfda43a3cbb3da9c680b87e932c11e05431d2e7eeab220214273ba362be419",
+            "bytes": 967246
+          },
+          "owner-port-markers": {
+            "sha256": "aa7a708aac70d4925069f74988f79431f10a5b76d703bb357b0ffe9bc8803be4",
+            "bytes": 928235
+          },
+          "manual-processing-stages": {
+            "sha256": "6207fe606a254b20d831d1b395602c7c7dcf80b3562ec149d1ef9333ef145fd5",
+            "bytes": 3775
+          }
+        }
+      },
+      "reviewed_trace_analysis_sha256": "7d3bcd742f49b08cf33ef2b86706f17db6c85ba2a3235d52da0ec5c37a916438"
     }
   ],
   "archive": {
@@ -8298,5 +9930,25 @@
     "Native Windows, sustained/physical, full92 contracts, X004/X005/X006 and European localization incomplete",
     "Production libraries, dependency inventory, schema and frozen baseline unchanged; no F/Q/C/N promotion"
   ],
-  "next_task": "Bounded serialized off-GUI manual control worker; priority Stop/Cancel separated from disk binding; actual Qt control/shutdown/monitoring Undo qualification"
+  "next_task": "Bounded serialized off-GUI manual control worker; priority Stop/Cancel separated from disk binding; actual Qt control/shutdown/monitoring Undo qualification",
+  "review_R3": {
+    "thread": "PRRT_kwDOU-rChc6puWrl",
+    "parent_head": "ea886db88d140e5f51dd9c037b5f875cb6dc1430",
+    "original_corruption_qualified": true,
+    "actual_reproduction_preserved": true,
+    "fix": "Validate retained whole-bridge calls/cost/coverage/ranking/uniqueness/retention, clock nsec/rate association and retained sums versus totals. All six observed traces pass; original corrupted record refuses.",
+    "refused_trace_mutations": 23,
+    "reference_platforms": [
+      "synthetic Debug",
+      "native Release"
+    ],
+    "archive": {
+      "path": "tests/results/M2/native-manual-observations/2026-10-07-port-trace-review-evidence.zip",
+      "sha256": "145bf3162f585e7b177727cac032ec778237efcc148950c4fd01da270b29d09e",
+      "bytes": 413332,
+      "payload_files": 16,
+      "per_member_sha256_and_zip_integrity_verified": true
+    },
+    "native_executable_and_original_trace_data_unchanged": true
+  }
 }

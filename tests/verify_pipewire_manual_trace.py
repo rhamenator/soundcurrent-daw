@@ -120,14 +120,34 @@ def analyze(project):
         assert cost['cpu_ns'] <= cost['wall_ns']
         if cost['unknown_intervals']:
             problems.append(name + ': unknown stage intervals')
-    owner_clocks = {key(row) for row in owner['rows'] if row['bridge_calls']}
-    for row in stages['worst_bridge_callbacks']:
-        assert tuple(row[k] for k in ['clock_id', 'clock_cycle', 'clock_position', 'quantum']) in owner_clocks
+    owner_clocks = {key(row): row for row in owner['rows'] if row['bridge_calls']}
+    retained = stages['worst_bridge_callbacks']
+    assert len(retained) == min(stages['total_bridge']['calls'] - stages['total_bridge']['unknown_intervals'], 4)
+    observed_clocks = set()
+    previous_wall = None
+    for row in retained:
+        clock = tuple(row[k] for k in ['clock_id', 'clock_cycle', 'clock_position', 'quantum'])
+        assert clock in owner_clocks and clock not in observed_clocks
+        assert row['clock_nsec'] == owner_clocks[clock]['nsec']
+        for rate in ['rate_numerator', 'rate_denominator']:
+            assert row[rate] == owner_clocks[clock][rate]
+        observed_clocks.add(clock)
+        bridge = row['bridge']
+        assert bridge['calls'] == 1 and bridge['unknown_intervals'] == 0
+        assert 0 <= bridge['cpu_ns'] <= bridge['wall_ns']
+        assert previous_wall is None or bridge['wall_ns'] <= previous_wall
+        previous_wall = bridge['wall_ns']
         for cost in row['stages'].values():
+            assert cost['unknown_intervals'] == 0 and cost['calls'] >= 0
+            assert 0 <= cost['cpu_ns'] <= cost['wall_ns'] <= bridge['wall_ns']
             if cost['calls']:
                 assert cost['maximum_call_known']
                 assert cost['maximum_call_ordinal'] < cost['calls']
                 assert cost['maximum_call_cpu_ns'] <= cost['maximum_call_wall_ns'] <= cost['wall_ns']
+    for field in ['calls', 'wall_ns', 'cpu_ns', 'unknown_intervals']:
+        assert sum(row['bridge'][field] for row in retained) <= stages['total_bridge'][field]
+        for name, total in stages['total_stages'].items():
+            assert sum(row['stages'][name][field] for row in retained) <= total[field]
     return {'qualified_trace': not problems and not mismatches, 'coverage': coverage,
             'problems': problems, 'marker_mismatches': mismatches,
             'processing_stages': stages,

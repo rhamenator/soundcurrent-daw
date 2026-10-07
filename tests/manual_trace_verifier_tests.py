@@ -26,7 +26,10 @@ def main():
         for case in ['source-bit', 'owner-bit', 'owner-quantum-delay', 'missing-port',
                      'unknown-clock', 'drop', 'identity-overflow', 'bridge-count',
                      'unknown-stage', 'worst-clock', 'stage-ordinal', 'missing-source-clock',
-                     'consumed-null-source', 'consumed-partial-source']:
+                     'consumed-null-source', 'consumed-partial-source',
+                     'worst-corrupted-bridge', 'worst-cpu-wall', 'worst-unknown',
+                     'worst-order', 'worst-retention', 'worst-duplicate', 'worst-total',
+                     'worst-nsec', 'worst-rate']:
             data = copy.deepcopy(original)
             source = data[names[0]]
             owner = data[names[1]]
@@ -64,6 +67,26 @@ def main():
             elif case in ['consumed-null-source', 'consumed-partial-source']:
                 for port in source_row['ports'][:32 if case == 'consumed-null-source' else 1]:
                     port['present'] = port['sampled'] = False
+            elif case == 'worst-corrupted-bridge':
+                stages['worst_bridge_callbacks'][0]['bridge'] = {
+                    'calls': 0, 'wall_ns': 0, 'cpu_ns': 999999999, 'unknown_intervals': 1}
+            elif case == 'worst-cpu-wall':
+                cost = stages['worst_bridge_callbacks'][0]['bridge']
+                cost['cpu_ns'] = cost['wall_ns'] + 1
+            elif case == 'worst-unknown':
+                stages['worst_bridge_callbacks'][0]['bridge']['unknown_intervals'] = 1
+            elif case == 'worst-order':
+                stages['worst_bridge_callbacks'].reverse()
+            elif case == 'worst-retention':
+                stages['worst_bridge_callbacks'].pop()
+            elif case == 'worst-duplicate':
+                stages['worst_bridge_callbacks'][1] = copy.deepcopy(stages['worst_bridge_callbacks'][0])
+            elif case == 'worst-total':
+                stages['total_bridge']['wall_ns'] = 0
+            elif case == 'worst-nsec':
+                stages['worst_bridge_callbacks'][0]['clock_nsec'] += 1
+            elif case == 'worst-rate':
+                stages['worst_bridge_callbacks'][0]['rate_denominator'] += 1
             for name in names:
                 (root / (name + '.json')).write_text(json.dumps(data[name]))
             try:
