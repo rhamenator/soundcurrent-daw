@@ -1829,3 +1829,17 @@ Next: bounded per-channel buffer/clock and stage timing diagnostics, then bounde
 canonical Qt manual controls. No production/schema/dependency change or F/Q/C/N
 promotion; all92 frozen contracts and X004/X005/X006/Europe/Windows remain required.
 The full goal remains active and incomplete.
+
+## Native manual port/stage diagnostics (2026-10-07 UTC)
+
+Progress: bounded source/recorder marker traces and manual GNU linker stage
+instrumentation, transparent processing tests, Debug/sanitizer synthetic checks
+and two scoped native successes. Original 41's startup source-buffer verifier
+refusal is preserved before its classification correction. Fourteen altered
+traces are refused against both synthetic and native references. Finite native
+retired hash recovery now has evidence; early Stop and earlier channel-delay/CPU
+causes remain open. See [contract](69-native-manual-port-tracing.md) and receipt.
+Next: bounded off-GUI manual control ownership with priority Stop/Cancel and
+actual-widget qualification. No production/schema/dependency or F/Q/C/N promotion.
+All 92 frozen contracts, independent Windows, X004/X005/X006 and Europe remain
+required. The full goal remains active and incomplete.

@@ -3,6 +3,10 @@
 #include <soundcurrent/pipewire_manual_recording.hpp>
 #include "native_duration_timing.hpp"
 #include "rt_audit.hpp"
+#ifdef SC_NATIVE_MANUAL_STAGES
+#include "native_processing_stages.hpp"
+#include "native_port_markers.hpp"
+#endif
 #include <nlohmann/json.hpp>
 #include <sndfile.h>
 #include <algorithm>
@@ -117,6 +121,14 @@ struct Endpoints {
     }
 };
 struct Audit {
+#ifdef SC_NATIVE_MANUAL_STAGES
+    std::unique_ptr<native_fixture::PortMarkers> markers;
+    explicit Audit(unsigned channels = 0, unsigned calls = 0, bool source = false) {
+        if (channels)
+            markers =
+                std::make_unique<native_fixture::PortMarkers>(8192, channels, calls, 65536, source);
+    }
+#endif
     native_fixture::DurationTiming timing{8192, true, true};
     std::atomic<std::uint64_t> allocations{0}, frees{0}, locks{0};
     Endpoints *run = nullptr;
@@ -129,6 +141,11 @@ struct Audit {
     static void begin(void *p) noexcept {
         auto &s = *static_cast<Audit *>(p);
         s.timing.begin();
+#ifdef SC_NATIVE_MANUAL_STAGES
+        native_fixture::activePortMarkers = nullptr;
+        if (s.markers)
+            s.markers->begin();
+#endif
         rt_audit::reset();
         rt_audit::active = true;
     }
@@ -136,6 +153,10 @@ struct Audit {
         auto &s = *static_cast<Audit *>(p);
         s.current = c;
         s.timing.clock(c);
+#ifdef SC_NATIVE_MANUAL_STAGES
+        if (s.markers)
+            s.markers->clock(c);
+#endif
         if (s.run)
             s.before = s.run->position();
     }
@@ -157,6 +178,11 @@ struct Audit {
                     }
                 }
         }
+#ifdef SC_NATIVE_MANUAL_STAGES
+        if (s.markers)
+            s.markers->end(s.before, s.run ? s.run->position() : 0);
+        native_fixture::activePortMarkers = nullptr;
+#endif
         rt_audit::active = false;
         const auto count = rt_audit::counts;
         s.allocations.fetch_add(count.cppAllocate + count.cAllocate, std::memory_order_relaxed);
@@ -174,9 +200,14 @@ struct Audit {
     }
 };
 struct Source {
+#ifdef SC_NATIVE_MANUAL_STAGES
+    Audit audit{arms, arms, true};
+#else
     Audit audit;
-    static void process(void *, const DeviceBlockClock &c, std::span<const float *const>,
-                        std::span<float *const> out, std::uint32_t backing) noexcept {
+#endif
+    static void process([[maybe_unused]] void *p, const DeviceBlockClock &c,
+                        std::span<const float *const>, std::span<float *const> out,
+                        std::uint32_t backing) noexcept {
         if (!c.duration || c.duration > backing)
             return;
         for (unsigned channel = 0; channel < out.size(); ++channel)
@@ -187,6 +218,9 @@ struct Source {
                     out[channel][f] =
                         c.position + f >= delay ? signal(c.position + f - delay, channel) : 0.f;
                 }
+#ifdef SC_NATIVE_MANUAL_STAGES
+        static_cast<Source *>(p)->audit.markers->generated(out, std::uint32_t(c.duration));
+#endif
     }
     static void begin(void *p) noexcept {
         Audit::begin(&static_cast<Source *>(p)->audit);
@@ -420,7 +454,11 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
         bindings.push_back(
             {{s.tracks[n + 1].id, {(n * 7) % arms}, latency(n), monitoring}, writer});
     }
+#ifdef SC_NATIVE_MANUAL_STAGES
+    Audit ownerAudit{arms, arms + 2, false};
+#else
     Audit ownerAudit;
+#endif
     Source source;
     opts.audit = {&ownerAudit, Audit::begin, Audit::end};
     opts.auditClock = Audit::clock;
@@ -532,10 +570,20 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
                 1000000 + std::uint64_t(at - start), 1024, 0, 7, ++cycle, 1, rate};
             Source::begin(&source);
             Source::clock(&source, clock);
+#ifdef SC_NATIVE_MANUAL_STAGES
+            for (auto *view : inputs)
+                source.audit.markers->buffer(view, std::uint32_t(clock.duration));
+#endif
             Source::process(&source, clock, {}, inputs, capacity);
             Source::end(&source);
             Audit::begin(&ownerAudit);
             Audit::clock(&ownerAudit, clock);
+#ifdef SC_NATIVE_MANUAL_STAGES
+            for (auto *view : views)
+                ownerAudit.markers->buffer(view, std::uint32_t(clock.duration));
+            for (auto *view : out)
+                ownerAudit.markers->buffer(view, std::uint32_t(clock.duration));
+#endif
             owner.synthetic->process(clock, views, out, capacity);
             Audit::end(&ownerAudit);
             Sink::begin(&sink);
@@ -573,6 +621,25 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
                   << " discontinuity=" << c.discontinuity << " previous=" << sink.previous.position
                   << " previous_duration=" << sink.previous.duration << '\n';
     }
+#ifdef SC_NATIVE_MANUAL_STAGES
+    // Persist diagnostics even when subsequent strict waveform/timing checks fail.
+    // No writer/observer remains live after these joins.
+    {
+        std::ofstream out(root / "source-port-markers.json");
+        source.audit.markers->write(out);
+        check(bool(out), "Source trace write failed");
+    }
+    {
+        std::ofstream out(root / "owner-port-markers.json");
+        ownerAudit.markers->write(out);
+        check(bool(out), "Owner trace write failed");
+    }
+    {
+        std::ofstream out(root / "manual-processing-stages.json");
+        native_fixture::processingStages.write(out);
+        check(bool(out), "Stage trace write failed");
+    }
+#endif
     source.audit.verify();
     ownerAudit.verify();
     sink.audit.verify();
