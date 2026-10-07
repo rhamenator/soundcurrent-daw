@@ -465,3 +465,13 @@ remain open. Preserve all92 unpromoted contracts and unresolved original failure
 Next measure/admit combined GUI/history/state/old-new graph envelopes and expose
 trusted desktop policies; then large recording/adoption, freeze/bounce, scheduling
 and sustained Linux/Windows qualification. Full X006 and frozen scope remain.
+
+### X006 configurable history checkpoint
+
+[ADR066](decisions/066-configurable-history-resources.md) and
+[workflow/admission scope](81-history-resource-admission.md) specify configurable
+Undo retention and declared state/candidate work admission. Scope includes stable
+IDs, reductions/refusal/retry, unrelated active gestures and real desktop settings.
+Next implement aggregate snapshot/GUI/old-new graph admission and larger recording
+arms/adoption. This does not promote the frozen parity contracts or establish
+sustained native/Windows/localization qualification.

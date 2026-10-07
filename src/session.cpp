@@ -478,7 +478,7 @@ bool EditHistory::route(const RouteAddress &address, const RouteIntent &value) {
         return false;
     auto proposed = session_;
     setRouteValue(proposed, address, value, budget_);
-    retain(RouteChange{address, before, value});
+    retain(RouteChange{address, before, value}, proposed);
     session_ = std::move(proposed);
     return true;
 }
@@ -505,24 +505,30 @@ bool EditHistory::monitoring(const Id &id, RecordingMonitor value) {
         return false;
     auto proposed = session_;
     setMonitoringValue(proposed, id, value);
-    retain(MonitoringChange{id, before, value});
+    retain(MonitoringChange{id, before, value}, proposed);
     session_ = std::move(proposed);
     return true;
 }
 void EditHistory::begin(const ParameterAddress &address) {
     check(!active_, "A parameter gesture is already active");
     const auto value = parameterValue(session_, address);
+    checkBegin(address);
+    const Change candidate = ParameterChange{address, value, value};
+    const auto peak = checkOperation(weight(candidate), session_, true, weight(candidate));
     active_ = ParameterChange{address, value, value};
+    operationPeakBytes_ = std::max(operationPeakBytes_, peak);
 }
 void EditHistory::update(double value) {
     check(active_.has_value(), "No active parameter gesture");
+    const auto peak = checkOperation(weight(*active_), session_);
     setParameterValue(session_, active_->address, value);
     active_->after = value;
+    operationPeakBytes_ = std::max(operationPeakBytes_, peak);
 }
 void EditHistory::commit() {
     check(active_.has_value(), "No active parameter gesture");
     if (active_->before != active_->after) {
-        retain(*active_);
+        retain(*active_, session_);
     }
     active_.reset();
 }
@@ -531,34 +537,26 @@ void EditHistory::cancel() {
     setParameterValue(session_, active_->address, active_->before);
     active_.reset();
 }
-bool EditHistory::undo() {
-    check(!active_, "Cannot undo an active gesture");
-    if (undo_.empty())
+bool EditHistory::transfer(bool forward) {
+    check(!active_, "Cannot undo or redo an active gesture");
+    auto &source = forward ? redo_ : undo_;
+    auto &destination = forward ? undo_ : redo_;
+    if (source.empty())
         return false;
-    const auto change = undo_.back();
-    redo_.push_back(change);
-    try {
-        apply(change, false);
-    } catch (...) {
-        redo_.pop_back();
-        throw;
-    }
-    undo_.pop_back();
+    const auto &entry = source.back();
+    (void)checkOperation(entry.bytes, session_, false);
+    auto next = proposed(entry.change, forward);
+    const auto peak = checkOperation(entry.bytes, next, false);
+    destination.push_back(entry); // Copies before canonical mutation; allocation may fail.
+    session_ = std::move(next);
+    source.pop_back();
+    operationPeakBytes_ = std::max(operationPeakBytes_, peak);
     return true;
 }
+bool EditHistory::undo() {
+    return transfer(false);
+}
 bool EditHistory::redo() {
-    check(!active_, "Cannot redo an active gesture");
-    if (redo_.empty())
-        return false;
-    const auto change = redo_.back();
-    undo_.push_back(change);
-    try {
-        apply(change, true);
-    } catch (...) {
-        undo_.pop_back();
-        throw;
-    }
-    redo_.pop_back();
-    return true;
+    return transfer(true);
 }
 } // namespace soundcurrent::daw

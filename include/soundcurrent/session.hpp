@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include <cstdint>
+#include <deque>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -317,10 +318,33 @@ double parameterValue(const Session &, const ParameterAddress &);
 void setParameterValue(Session &, const ParameterAddress &, double value);
 
 // Semantic control-thread gestures. No audio processing and no RT-safe claim.
+struct HistoryBudget {
+    std::size_t retainedBytes = 32 * 1024 * 1024;
+    std::size_t operationBytes = 256 * 1024 * 1024;
+    std::size_t maximumCommands = 256;
+    bool operator==(const HistoryBudget &) const = default;
+};
+struct HistoryResources {
+    std::size_t undoCommands = 0, redoCommands = 0, retainedBytes = 0, activeBytes = 0;
+    std::size_t operationPeakBytes = 0;
+    std::uint64_t evictedCommands = 0;
+    bool operator==(const HistoryResources &) const = default;
+};
+void validateHistoryBudget(const HistoryBudget &);
 class EditHistory {
   public:
-    explicit EditHistory(Session &session, StateBudget budget = {})
-        : session_(session), budget_(budget) {}
+    explicit EditHistory(Session &session, StateBudget budget = {}, HistoryBudget history = {});
+    const HistoryBudget &resourceBudget() const noexcept {
+        return historyBudget_;
+    }
+    HistoryResources resources() const;
+    // Refuses reductions below retained usage; never discards existing Undo/Redo.
+    void configure(HistoryBudget);
+    // Controller preflight includes an unrelated pending gesture before committing it.
+    void checkAdopt(const Session &) const;
+    void checkRoute(const RouteAddress &, const RouteIntent &) const;
+    void checkMonitoring(const Id &, RecordingMonitor) const;
+    void checkBegin(const ParameterAddress &) const;
     void begin(const ParameterAddress &);
     void update(double value);
     void commit();
@@ -360,12 +384,24 @@ class EditHistory {
         std::optional<std::pair<PunchSettings, PunchSettings>> punch;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
+    struct Entry {
+        Change change;
+        std::size_t bytes;
+    };
     static std::size_t weight(const Change &);
-    void retain(Change);
-    void apply(const Change &, bool forward);
+    StructureChange difference(const Session &) const;
+    std::size_t checkOperation(std::size_t candidateBytes, const Session &, bool pending = true,
+                               std::size_t extraBytes = 0) const;
+    void checkCandidate(const Change &, const Session &) const;
+    void retain(Change, const Session &);
+    Session proposed(const Change &, bool forward) const;
+    bool transfer(bool forward);
     Session &session_;
     StateBudget budget_;
+    HistoryBudget historyBudget_;
+    std::size_t retainedBytes_ = 0, operationPeakBytes_ = 0;
+    std::uint64_t evictedCommands_ = 0;
     std::optional<ParameterChange> active_;
-    std::vector<Change> undo_, redo_;
+    std::deque<Entry> undo_, redo_;
 };
 } // namespace soundcurrent::daw

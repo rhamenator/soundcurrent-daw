@@ -36,7 +36,7 @@ The current foundation **does not yet meet X006**:
 | Prepared mix | Resource-admitted dynamic track routes and indexed EQ preparation (`src/mix.cpp`) | Measured aggregate memory/event/CPU bounds, richer graphs and scheduling |
 | Live replacement mask | Prepared, charged dynamic mask (`src/mix_playback.cpp`) | Sustained/native qualification at large counts |
 | Recording owner | 256 armed tracks/packed native inputs and bounded aggregate capture budgets | Scale arm descriptors independently from backend port capabilities; prepare capture against actual IO/reserve needs |
-| Readers/UI/history | Shared media pool; snapshot-backed selectors/viewport interval painting; bounded history | Sustained media, remaining meters/waveforms, GUI paging and measured aggregate history/snapshot/index memory |
+| Readers/UI/history | Shared media pool; snapshot-backed selectors/viewport interval painting; configurable history with declared operation-work checks | Sustained media, remaining meters/waveforms, GUI paging and measured aggregate history/snapshot/index memory |
 
 Some other arrays of size256 address **channels within a bus**, not project
 tracks. Audit their meaning before changing them. This requirement does not
@@ -108,3 +108,9 @@ and unpromoted. The initial planning checkpoint retained32 observations; the
 [current native checkpoint](77-native-manual-panel.md) retains71, including an
 unresolved active clock gap and source CPU outlier in a sanitizer run. See also the
 [CI recording-fixture observation](../tests/results/repository/2026-10-07-track-scalability-ci-observation.json).
+
+The [history checkpoint](81-history-resource-admission.md)/ADR066 replaces fixed
+Undo policies with trusted configurable command/byte/workspace limits, usage and
+observable retirement. Refusal preserves canonical/history/active gesture state.
+This is one input to aggregate admission; saved/IO/snapshot/GUI/graph ownership,
+allocator/RSS and sustained workload profiles remain separate open gates.

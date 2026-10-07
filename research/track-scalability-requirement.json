@@ -5,7 +5,7 @@
   "recorded_utc": "2026-10-07T00:25:36.362141+00:00",
   "baseline": "SC-DAW-BASELINE-2026-10-05",
   "requirement": "Serve lower-budget recording studios including studios with substantial audio hardware; support any finite total project track count admitted by configured resources without a fixed product/license ceiling.",
-  "status": "partial implementation: resource-admitted audio-track state/mix, shared file-backed media cache and Linux Qt controls; full X006 incomplete",
+  "status": "partial implementation: resource-admitted audio-track state/mix, shared media, virtualized Linux Qt views and configurable history; full X006 incomplete",
   "contract": "docs/67-track-scalability.md",
   "decision": "docs/decisions/053-resource-admitted-track-count.md",
   "platforms": [
@@ -19,7 +19,7 @@
   "frozen_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
   "FQCN_promotion": false,
   "implementation_source_sha256": {
-    "src/session.cpp": "68018ad1cc17a6cd4e39e6b853ed60abea59fc8d387425226a177abf03f3c626",
+    "src/session.cpp": "ad4e27e91301675b97f1d4aceac9d35fa3fbfb356db7afb9a9bbecba0dd75e27",
     "src/project_store.cpp": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15",
     "src/mix.cpp": "1d76d7b39fa53d044d8a49b9f5cd5885d3d6f0757007b484c5bad1ee02953588",
     "src/mix_playback.cpp": "e1947f16f6d2c3465e564845e5326e1c76a2695bd5bb97acd999a3f6a0acdee8",
@@ -86,8 +86,8 @@
     "allocator_rss_guarantee": false
   },
   "next_tasks": [
-    "Virtualized track/timeline/meter views; sustained shared-cache/read-ahead profiling",
-    "Combined snapshot/history/old-new graph resource accounting and configurable desktop policies",
+    "Sustained shared-cache/read-ahead profiling; remaining meter/waveform virtualization and Qt paging",
+    "Combined retained snapshot/GUI/state/old-new graph resource admission; configurable project/graph desktop policies",
     "Large recording/adoption workflows; separate arm/native channel capabilities",
     "Diagnose original native sanitizer observation71 clock gap/source CPU cause without relabeling missing original evidence",
     "All frozen product milestones and independent Linux/Windows/localization qualification"
@@ -107,5 +107,16 @@
     "receipt": "tests/results/M2/2026-10-07-virtualized-session-views.json",
     "status": "partial: snapshot-backed lists and viewport interval painting; combined memory/admission, remaining meters/waveforms, Qt row paging and independent Windows native UI remain open",
     "product_ceiling": null
+  },
+  "history_resource_checkpoint": {
+    "contract": "docs/81-history-resource-admission.md",
+    "decision": "docs/decisions/066-configurable-history-resources.md",
+    "receipt": "tests/results/M2/2026-10-07-history-resource-admission.json",
+    "status": "partial qualified checkpoint: configurable policy, checked history/state/candidate work and real Linux desktop settings; full aggregate admission remains open",
+    "native_audio": false,
+    "Windows_runtime_qualified": false,
+    "product_ceiling": null,
+    "Linux_debug_tests": "48/48",
+    "affected_sanitizer_tests": "11/11"
   }
 }

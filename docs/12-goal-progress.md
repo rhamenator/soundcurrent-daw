@@ -2247,3 +2247,44 @@ profiles remain. Next measure/admit combined GUI/history/state/old-new graph
 resources and expose trusted desktop policies, then large recording/adoption,
 freeze/bounce/scheduling and all remaining frozen/X004/X005/Europe/Windows work.
 [Receipt](../tests/results/M2/2026-10-07-virtualized-session-views.json) retains scope.
+
+
+## M2 X006 configurable Undo resources (2026-10-07)
+
+[History admission](81-history-resource-admission.md)/ADR066 replaces fixed
+Undo retention with trusted configurable command/payload/workspace policies.
+Checked charges include retained/active data and declared canonical/candidate
+work. The control worker preflights before committing unrelated gestures.
+Rejected reductions preserve both stacks; new edits report oldest retirement.
+The desktop dialog reports usage and correlated acceptance/refusal, persists
+accepted preferences, and distinguishes preference-write failure from runtime
+policy acceptance. Project schema1.7 and existing defaults remain compatible.
+
+Final full Linux Debug48/48,134.77s; affected ASan/UBSan/LSan11/11,276.39s;
+Windows core/media cross-build passes without a GUI/native runtime claim.
+Core512-track/400-group full Undo/Redo/Save-reopen and actual Linux Qt512-track/
+300-action Undo/Redo/settings/refusal/retry/save/Open workflows preserve stable
+identities. German grouping input is qualified; translations and all-Europe
+review remain open. The8192-track viewport regression still passes.
+
+An original unresolved dialog-library link failure is retained with its source
+and log; both omitted fixture links were corrected and the full build passes.
+The initial peak-reporting regression fails0/1: active gestures did not publish
+admitted workspace. Exact source/executable hashes, log and owned project remain;
+successful Begin/update now publish their checked peak, and final tests pass.
+An intermediate full build was deliberately interrupted for preference callback
+review; no preference-failure test ran before the handler correction. The final
+actual settings failure/retry fixture passes.
+
+[Receipt](../tests/results/M2/2026-10-07-history-resource-admission.json) and its
+verified22,622,839-byte/1757-entry archive retain originals and final evidence.
+All24 equalizer input snapshots and92 frozen F/Q/C/N projections are unchanged;
+no parity promotion, dependency/schema change or native audio run. Observations
+remain71; original71 clock/source CPU cause remains unresolved.
+
+These are declared owned/work charges, not pre-admission of every allocation,
+allocator/RSS bounds or complete aggregate process admission. Next implement a
+combined policy for controller retained snapshots/saved/IO models, inspector/GUI
+indices and old/new graphs, then scale recording arms/adoption independently of
+hardware channels. Full X006, all frozen milestones, Windows, X004/X005 and Europe
+qualification remain required. The goal stays active and incomplete.
