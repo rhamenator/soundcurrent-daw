@@ -82,7 +82,7 @@ generated row. No observed returned output pointer has unknown IO or pre-API
 `HAVE_DATA`; 31 first-available queries have status 0 and 6416 have `NEED_DATA`.
 Owner inputs have `HAVE_DATA` and known backing buffers. Source outputs have two
 public buffers; owner inputs have one. Full clocks and returned-pointer presence
-match the independent source/owner marker rows.19 altered retained handoff traces
+match the independent source/owner marker rows.39 altered retained handoff/marker traces
 are refused without rerunning audio. The existing waveform, recovery, priority,
 stage/cycle and owned-route gates pass independently.
 
@@ -92,6 +92,15 @@ sample compensation, production fix, parity promotion, sustained/physical claim
 or native Windows claim. The first missing-header build is preserved separately
 as a development compilation failure; historical runtime observations remain 46.
 All 24 reviewed equalizer inputs and the 92-row frozen parity projection are unchanged.
+
+Review found that the first verifier skipped comparisons when a marker declared
+zero or31 channels. Both false qualifications were reproduced against the retained
+native baseline and original verifier, then preserved in a separate review archive.
+The final verifier requires both nonempty marker roles, the complete32-channel
+layout, exact callback/row counts, every port ordinal/seen/extent and the expected
+API query count. Missing, empty, null, short and extra marker coverage is refused.
+The same retained native run passes the corrected verifier; native audio was not
+rerun and the original evidence archive remains unchanged.
 
 ## Reproduction and next task
 

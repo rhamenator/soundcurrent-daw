@@ -41,6 +41,33 @@ def main():
         try: analyze(altered, m)
         except (AssertionError, KeyError, ValueError): refused.append(name)
         else: raise AssertionError('Mutation accepted: ' + name)
+    marker_cases = [('declared channels ' + str(channels), ['owner', 'channels'], channels)
+                    for channels in [0, 31, 33]]
+    marker_cases += [('wrong marker role', ['owner', 'source'], True),
+                     ('wrong marker query count', ['owner', 'expected_buffer_calls'], 32),
+                     ('missing channel ordinal', ['owner', 'rows', 0, 'ports', 0, 'channel'], 4),
+                     ('unseen channel', ['owner', 'rows', 0, 'ports', 0, 'seen'], False),
+                     ('wrong channel extent', ['owner', 'rows', 0, 'ports', 0, 'frames'], 1)]
+    for name, path, value in marker_cases:
+        altered = copy.deepcopy(m)
+        parent = altered
+        for key in path[:-1]: parent = parent[key]
+        parent[path[-1]] = value
+        try: analyze(h, altered)
+        except (AssertionError, KeyError, ValueError): refused.append(name)
+        else: raise AssertionError('Marker mutation accepted: ' + name)
+    for role in ['owner', 'source']:
+        for alteration in ['missing marker', 'empty marker', 'null marker', 'missing row', 'extra row', 'missing port']:
+            altered = copy.deepcopy(m)
+            if alteration == 'missing marker': del altered[role]
+            elif alteration == 'empty marker': altered[role] = {}
+            elif alteration == 'null marker': altered[role] = None
+            elif alteration == 'missing row': altered[role]['rows'].pop()
+            elif alteration == 'extra row': altered[role]['rows'].append(copy.deepcopy(altered[role]['rows'][0]))
+            else: altered[role]['rows'][0]['ports'].pop()
+            try: analyze(h, altered)
+            except (AssertionError, KeyError, ValueError): refused.append(role + ' ' + alteration)
+            else: raise AssertionError('Missing coverage accepted: ' + role + ' ' + alteration)
     args.output.write_text(json.dumps({'retained_native_baseline': str(args.project),
                                       'mutations_refused': refused}, indent=2) + '\n')
     print(json.dumps({'mutations_refused': len(refused)}))

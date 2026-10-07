@@ -14,6 +14,7 @@ CLOCK = ['id', 'cycle', 'position', 'duration', 'nsec', 'rate_numerator',
 def analyze(handoff, markers):
     assert handoff['test_only'] is True and handoff['public_api_observer'] is True
     assert len(handoff['filters']) == 3
+    assert set(markers) == {'owner', 'source'}
     report = {}
     for f in handoff['filters']:
         name = f['name']
@@ -36,9 +37,14 @@ def analyze(handoff, markers):
         for key in ['complete_timing_coverage', 'complete_cpu_coverage',
                     'complete_thread_usage_coverage', 'finite_deadline_thresholds_met']:
             assert timing[key] is True, (role, key)
-        marker = markers.get(role)
-        if marker:
+        marker = markers[role] if role != 'sink' else None
+        if role != 'sink':
+            assert isinstance(marker, dict) and marker
+            assert marker['source'] is (role == 'source')
+            assert marker['channels'] == 32
+            assert marker['expected_buffer_calls'] == len(ports)
             assert marker['calls'] == marker['retained'] == len(rows)
+            assert len(marker['rows']) == len(rows)
             assert marker['dropped'] == marker['identity_overflows'] == 0
         states = Counter()
         notable = []
@@ -53,6 +59,7 @@ def analyze(handoff, markers):
             assert row['calls'] == len(row['queries']) == len(ports)
             if marker:
                 reference = marker['rows'][ordinal]
+                assert len(reference['ports']) == 32
                 assert reference['clock_known'] is True
                 assert all(row[k] == reference[k] for k in CLOCK)
                 assert reference['buffer_calls'] == row['calls']
@@ -69,8 +76,10 @@ def analyze(handoff, markers):
                     assert q['known_buffer'] is False and q['maximum_bytes'] == 0
                     assert q['buffer'] == 4294967295
                 if marker and index < marker['channels']:
-                    assert q['returned'] == reference['ports'][index]['present']
-                    assert reference['ports'][index]['channel'] == index
+                    p = reference['ports'][index]
+                    assert p['seen'] is True and p['frames'] == q['frames']
+                    assert q['returned'] == p['present']
+                    assert p['channel'] == index
                 states[(q['io_known'], q['io_status'], q['returned'], q['live_buffers'])] += 1
                 # Pre-API output HAVE_DATA or an unavailable IO area is recorded,
                 # not interpreted as proof of a private FIFO depth or publication.

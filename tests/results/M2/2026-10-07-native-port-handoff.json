@@ -11,8 +11,8 @@
     "tests/native_port_handoff_fake.cpp": "91de1e4ff101b5d6b23f4ac02b019d6aec74faa1ac968e8834c29d04e55ed52e",
     "tests/native_port_handoff_fake.hpp": "7e7c559953977a17d23b82657dbe89c32e46ff06cea50aa7689fd0d392de2827",
     "tests/native_port_handoff_tests.cpp": "3bc95cf694c5a9d73000df43e114b9801f152f57b408b245cf69d221aaa0fdb2",
-    "tests/verify_native_port_handoff.py": "3f9706be47a7fbf7569a50b3c5205da3442ce79484074342140d06d29f74d682",
-    "tests/native_port_handoff_verifier_tests.py": "465c5972e8d4362b4297bae2797551fb2adaeed810824ddc556d0d2c6b1efe6b"
+    "tests/verify_native_port_handoff.py": "f6f877d0a4c1bff04d29e42e0a452a5ccecbd8a42184e547104c46c4b8100ac2",
+    "tests/native_port_handoff_verifier_tests.py": "9dc59fd060ff2f2fda5c03d3dbbf6d41503ef6c880e3e3d59dc04ca4ce211a23"
   },
   "parity": {
     "family_count": 92,
@@ -1781,7 +1781,27 @@
       "timing complete_timing_coverage",
       "timing complete_cpu_coverage",
       "timing complete_thread_usage_coverage",
-      "timing finite_deadline_thresholds_met"
+      "timing finite_deadline_thresholds_met",
+      "declared channels 0",
+      "declared channels 31",
+      "declared channels 33",
+      "wrong marker role",
+      "wrong marker query count",
+      "missing channel ordinal",
+      "unseen channel",
+      "wrong channel extent",
+      "owner missing marker",
+      "owner empty marker",
+      "owner null marker",
+      "owner missing row",
+      "owner extra row",
+      "owner missing port",
+      "source missing marker",
+      "source empty marker",
+      "source null marker",
+      "source missing row",
+      "source extra row",
+      "source missing port"
     ]
   },
   "local_acceptance": {
@@ -2124,5 +2144,184 @@
     "no_fixed_product_license_track_ceiling_required": true,
     "full_goal_complete": false
   },
-  "next_task": "Controlled native startup/backpressure causal experiment; preserve public observations and full waveform/cycle gates. Then bounded Qt manual controller, late Cancel and actual monitoring/Undo widgets; X006 coordinated resource-admitted scaling remains required."
+  "next_task": "Controlled native startup/backpressure causal experiment; preserve public observations and full waveform/cycle gates. Then bounded Qt manual controller, late Cancel and actual monitoring/Undo widgets; X006 coordinated resource-admitted scaling remains required.",
+  "review": {
+    "thread": "PRRT_kwDOU-rChc6pve8U",
+    "initial_tested_head": "11cb12dac4a8415037121e11bb2039cefb49ca29",
+    "initial_ci": 37565396901,
+    "original_false_qualification_reproduction": {
+      "baseline_project": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/Manual fault — Ελληνικά",
+      "review_thread": "PRRT_kwDOU-rChc6pve8U",
+      "native_runtime_repeated": false,
+      "original_cases": [
+        {
+          "owner_declared_channels": 0,
+          "accepted_by_original": true,
+          "marker_correspondence_checked": true
+        },
+        {
+          "owner_declared_channels": 31,
+          "accepted_by_original": true,
+          "marker_correspondence_checked": true
+        }
+      ]
+    },
+    "original_manifest": {
+      "classification": "verifier review gap; not native runtime observation47",
+      "files": {
+        "owner-channels-31.json": "4df02a18b37c336eaf789bfe24b53859127dbad36bbbe789552e6f2e10a21106",
+        "verify_native_port_handoff.py": "3f9706be47a7fbf7569a50b3c5205da3442ce79484074342140d06d29f74d682",
+        "owner-channels-0.json": "1a16dd49d57a9586f72f224b1837e0eb0d66a8db599ab98210eab7af2928f970",
+        "native_port_handoff_verifier_tests.py": "465c5972e8d4362b4297bae2797551fb2adaeed810824ddc556d0d2c6b1efe6b",
+        "reproduction.json": "82ad8e1def2bc5e5b3ef1b2c9f89a1ffa02cd48a73e79f660854f9ec178cc308"
+      }
+    },
+    "corrected_contract": "Require both nonempty marker roles, exact32-channel/row/port/query coverage before comparison",
+    "compiled_native_sources_unchanged": true,
+    "native_runtime_repeated": false,
+    "final_retained_native_analysis": {
+      "public_observation_coverage_qualified": true,
+      "waveform_qualification_performed_here": false,
+      "private_queue_state_observed": false,
+      "delay_cause_established": false,
+      "timing_scope": "row bookkeeping, original callback, DSP hooks and cleanup; bounded observer lookup audited but excluded from timing",
+      "roles": {
+        "owner": {
+          "callbacks": 196,
+          "queries": 6664,
+          "marker_correspondence_checked": true,
+          "query_states": [
+            {
+              "io_known": true,
+              "io_status": 0,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 2
+            },
+            {
+              "io_known": true,
+              "io_status": 1,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 390
+            },
+            {
+              "io_known": true,
+              "io_status": 2,
+              "returned": true,
+              "live_buffers": 1,
+              "count": 6272
+            }
+          ],
+          "notable_pre_api_output_queries": [],
+          "wrapper_maximum_ns": 968761,
+          "wrapper_maximum_cpu_ns": 965079
+        },
+        "source": {
+          "callbacks": 287,
+          "queries": 9184,
+          "marker_correspondence_checked": true,
+          "query_states": [
+            {
+              "io_known": false,
+              "io_status": 0,
+              "returned": false,
+              "live_buffers": 0,
+              "count": 2737
+            },
+            {
+              "io_known": true,
+              "io_status": 0,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 31
+            },
+            {
+              "io_known": true,
+              "io_status": 1,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 6416
+            }
+          ],
+          "notable_pre_api_output_queries": [],
+          "wrapper_maximum_ns": 211685,
+          "wrapper_maximum_cpu_ns": 206400
+        },
+        "sink": {
+          "callbacks": 195,
+          "queries": 390,
+          "marker_correspondence_checked": false,
+          "query_states": [
+            {
+              "io_known": true,
+              "io_status": 2,
+              "returned": true,
+              "live_buffers": 1,
+              "count": 390
+            }
+          ],
+          "notable_pre_api_output_queries": [],
+          "wrapper_maximum_ns": 50465,
+          "wrapper_maximum_cpu_ns": 46729
+        }
+      },
+      "input_sha256": {
+        "native-port-handoff.json": "a1a71cb457ce3f90728dee4e250163dada235d4c84a03260b2bd68dca4193a12",
+        "owner-port-markers.json": "d243dac617c8bda8db609e52fe169f656d1062583c36cb0fea3a7a6854d8e004",
+        "source-port-markers.json": "0192468321464135372bdbf6175d4ca0214f6f5ce010336df1c5e2be10fc2f90"
+      }
+    },
+    "final_mutations": {
+      "retained_native_baseline": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/Manual fault — Ελληνικά",
+      "mutations_refused": [
+        "dropped",
+        "query_overflows",
+        "unknown_queries",
+        "unknown_events",
+        "outer_allocations",
+        "outer_frees",
+        "outer_locks",
+        "port layout",
+        "callback count",
+        "clock correspondence",
+        "unknown clock",
+        "buffer coverage",
+        "buffer extent",
+        "query layout",
+        "buffer presence",
+        "timing complete_timing_coverage",
+        "timing complete_cpu_coverage",
+        "timing complete_thread_usage_coverage",
+        "timing finite_deadline_thresholds_met",
+        "declared channels 0",
+        "declared channels 31",
+        "declared channels 33",
+        "wrong marker role",
+        "wrong marker query count",
+        "missing channel ordinal",
+        "unseen channel",
+        "wrong channel extent",
+        "owner missing marker",
+        "owner empty marker",
+        "owner null marker",
+        "owner missing row",
+        "owner extra row",
+        "owner missing port",
+        "source missing marker",
+        "source empty marker",
+        "source null marker",
+        "source missing row",
+        "source extra row",
+        "source missing port"
+      ]
+    },
+    "review_archive": {
+      "path": "tests/results/M2/native-manual-observations/2026-10-07-port-handoff-review-evidence.zip",
+      "sha256": "aa7662880166b67cbb6f3e8d7196ec9bcf8814768145f7d133676f2573269cb7",
+      "bytes": 570068,
+      "payload_files": 11,
+      "integrity_verified": true
+    }
+  }
 }
