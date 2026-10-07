@@ -444,7 +444,8 @@ struct RecordingController::State : QThread {
         if (checkedRevision != desired->revision) {
             const auto target = prepared->projectMix
                                     ? desired->session
-                                    : sessionForTrack(desired->session, prepared->spec.trackId);
+                                    : sessionForTrack(desired->session, prepared->spec.trackId,
+                                                      options.projectionMemory);
             if (!target)
                 throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
             desired->session = target;

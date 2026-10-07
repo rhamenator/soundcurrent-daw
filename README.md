@@ -62,7 +62,10 @@ and barriers share current state; snapshot-budget refusal preserves active edits
 and leaves Cancel available. [Shared controller admission](docs/83-controller-memory-resources.md)
 now also charges canonical state, history and declared edit work against one
 parent. **Edit → Project resources…** exposes persistent adjustable parent/snapshot
-policies and live usage. GUI/graph/cache/IO and allocator/RSS integration remains
+policies and live usage. [GUI payload admission](docs/84-gui-memory-resources.md)
+now leases selected-track copies, lists and timeline indices from that parent.
+A refused display retains its old view with resource settings and explicit retry.
+Further graph/cache/IO and allocator/RSS integration remains
 required.
 
 The [viewport timeline and model-backed lists](docs/80-virtualized-session-views.md)

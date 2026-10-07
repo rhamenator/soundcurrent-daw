@@ -121,3 +121,10 @@ barriers and externally retained readers. Publications are admitted before edits
 and Undo/Redo; full-budget Cancel reuses the gesture's starting block. Canonical,
 history, GUI indices/projections, graphs and IO buffers still require combined
 admission and measured sustained workload envelopes.
+
+The [GUI payload checkpoint](84-gui-memory-resources.md)/ADR069 now leases actual
+selected-track projections, list/decorations and timeline/query arrays from the
+controller's shared parent. Staged refusal retains a complete previous display
+with retry through resource settings. This declared scope is not full heap/RSS
+admission. Prepared graph/cache/IO overlap, paging, larger capture and sustained
+Linux/Windows workload qualification remain required.

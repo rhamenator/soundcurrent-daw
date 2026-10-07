@@ -110,8 +110,15 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            ManualControlOptions manualOptions, ControllerOptions projectOptions,
                            std::function<void(HistoryBudget)> historyAccepted,
                            std::function<void(MemoryPreferences)> memoryAccepted)
-    : QMainWindow(parent), controller_(std::move(projectOptions)), playback_(std::move(options)),
-      recording_(std::move(recordingOptions)), exporter_(std::move(exportOptions)) {
+    : QMainWindow(parent), controller_(std::move(projectOptions)), playback_([&] {
+          options.projectionMemory = controller_.resourceLedger();
+          return std::move(options);
+      }()),
+      recording_([&] {
+          recordingOptions.projectionMemory = controller_.resourceLedger();
+          return std::move(recordingOptions);
+      }()),
+      exporter_(std::move(exportOptions)) {
     setObjectName(QStringLiteral("studioWindow"));
     setWindowTitle(tr("SoundCurrent DAW"));
     auto *file = menuBar()->addMenu(tr("&File"));
@@ -158,6 +165,14 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
             historyDialog_->show();
         });
     historyAction->setObjectName("historyResourcesAction");
+    retryGui_ = editMenu->addAction(tr("Retry project display"), this, [this] {
+        guiRefusedSource_.reset();
+        guiRefusedEpoch_ = 0;
+        guiRefusedUsage_ = {};
+        poll();
+    });
+    retryGui_->setObjectName("retryProjectDisplayAction");
+    retryGui_->setEnabled(false);
     auto *equipmentMenu = menuBar()->addMenu(tr("Equipment"));
     auto *equipmentAction =
         equipmentMenu->addAction(tr("Profile library and editor…"), this, [this] {
@@ -221,7 +236,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     project_->setObjectName(QStringLiteral("projectLabel"));
     project_->setWordWrap(true);
     layout->addWidget(project_);
-    timeline_ = new TimelineEditor(body);
+    timeline_ = new TimelineEditor(body, controller_.resourceLedger());
     layout->addWidget(timeline_);
     timeline_->submit = [this](std::vector<SessionEdit> edits) {
         const auto phase = playback_.snapshot()->phase;
@@ -233,9 +248,29 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         command.edits = std::move(edits);
         return submitEdit(std::move(command));
     };
+    timeline_->selectionAdmission = [this](std::shared_ptr<const Session> source,
+                                           std::optional<Id> id) {
+        if (source != controller_.snapshot()->session || guiBlocked_)
+            return false;
+        if (source == inspectorSource_ && id == inspectorTrack_)
+            return true;
+        try {
+            auto projected = sessionForTrack(source, id, controller_.resourceLedger());
+            if (!projected && source && !source->tracks.empty())
+                return false;
+            inspectorSource_ = std::move(source);
+            inspectorProjection_ = std::move(projected);
+            inspectorTrack_ = std::move(id);
+            return true;
+        } catch (const std::exception &e) {
+            notice_->setText(
+                tr("Track selection could not be updated: %1. Raise Project resources and retry.")
+                    .arg(text(e.what())));
+            return false;
+        }
+    };
     timeline_->selectionChanged = [this] {
         shown_.reset();
-        inspectorSource_.reset();
         outputIntentShown_.reset();
         inputIntentShown_.reset();
         monitorIntentShown_.reset();
@@ -335,6 +370,11 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                           int(RecordingMonitor::AutoRecording));
     monitorMode_->setToolTip(tr("Saved monitoring mode takes effect after Stop and preparation."));
     connect(monitorMode_, &QComboBox::currentIndexChanged, this, [this] {
+        // This control can be changed just after Open publishes, before the
+        // first display tick. Preserve the requested value across synchronization.
+        const auto requested = static_cast<RecordingMonitor>(monitorMode_->currentData().toInt());
+        if (!polling_)
+            poll();
         const auto model = inspectorSnapshot();
         const auto native = recording_.snapshot();
         if (!model->session || model->session->tracks.empty() || closing_ || closeRequested_ ||
@@ -352,7 +392,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         }
         ProjectCommand c{CommandKind::Monitoring};
         c.monitoringTrack = model->session->tracks.front().id;
-        c.monitoring = static_cast<RecordingMonitor>(monitorMode_->currentData().toInt());
+        c.monitoring = requested;
         if (!submitEdit(std::move(c))) {
             QSignalBlocker block(monitorMode_);
             monitorMode_->setCurrentIndex(
@@ -395,7 +435,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                                 "chosen explicitly after preparation."));
     recordLayout->addWidget(multiRecord_);
     armedTracksList_ = new QListView(recording);
-    armedTrackModel_ = new SessionListModel(SessionListModel::Kind::Tracks, this, true);
+    armedTrackModel_ = new SessionListModel(SessionListModel::Kind::Tracks, this, true,
+                                            controller_.resourceLedger());
     armedTracksList_->setModel(armedTrackModel_);
     armedTracksList_->setUniformItemSizes(true);
     armedTracksList_->setLayoutMode(QListView::Batched);
@@ -636,6 +677,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                         inputLevel_, monitorLevel_})
         label->setTextFormat(Qt::PlainText);
     timer_ = new QTimer(this);
+    timer_->setObjectName("studioPollTimer");
     timer_->setInterval(16);
     connect(timer_, &QTimer::timeout, this, &StudioWindow::poll);
     timer_->start();
@@ -651,6 +693,7 @@ bool StudioWindow::exportWorkflowBusy() const {
     return exportBarrier_ || exportSelection_ || exportDialog_ || exporter_.snapshot()->busy;
 }
 bool StudioWindow::requestExport() {
+    poll();
     const auto m = inspectorSnapshot();
     if (exportWorkflowBusy() || playbackPrepareBarrier_ || recordPrepareBarrier_ || closing_ ||
         closeRequested_ || closeAfterSave_ || !m->session || m->session->tracks.empty() ||
@@ -682,7 +725,7 @@ void StudioWindow::pollExport() {
                 if (exporter_.submit(std::move(request)) != Admission::Accepted)
                     notice_->setText(tr("An export is already running or closing. Please retry."));
             } else {
-                const auto selected = sessionForTrack(m->barrierSession, exportTrack_);
+                const auto selected = projectTrack(m->barrierSession, exportTrack_);
                 if (!selected) {
                     notice_->setText(
                         tr("The selected export track no longer exists. Please retry."));
@@ -870,23 +913,106 @@ bool StudioWindow::selectTrack(const Id &id) {
     poll();
     return timeline_->selectTrack(id);
 }
+ResourceLedger StudioWindow::resourceLedger() const {
+    return controller_.resourceLedger();
+}
+ResourceUsage StudioWindow::memoryResources() const {
+    return controller_.memoryResources();
+}
+std::size_t StudioWindow::guiResourceBytes() const {
+    auto bytes = guiCharge("GUI retained ownership");
+    bytes.add(timeline_->resourceBytes());
+    bytes.add(armedTrackModel_->resourceBytes());
+    if (inspectorProjection_ && inspectorProjection_ != inspectorSource_)
+        bytes.add(sessionPayloadBytes(*inspectorProjection_, StateBudget{SIZE_MAX}) + 256);
+    return bytes.bytes() - 256;
+}
+bool StudioWindow::syncGui(const std::shared_ptr<const ControllerSnapshot> &canonical,
+                           bool editable) {
+    const auto usage = controller_.memoryResources();
+    if (!guiBlocked_ && canonical->session == inspectorSource_ &&
+        canonical->projectEpoch == guiEpoch_) {
+        guiRevision_ = canonical->modelRevision;
+        timeline_->editing(editable);
+        return true;
+    }
+    if (guiBlocked_ && guiRefusedSource_ == canonical->session &&
+        guiRefusedEpoch_ == canonical->projectEpoch &&
+        usage.limitBytes == guiRefusedUsage_.limitBytes &&
+        usage.reservedBytes == guiRefusedUsage_.reservedBytes) {
+        timeline_->editing(false);
+        return false;
+    }
+    try {
+        auto timeline =
+            timeline_->prepareModel(canonical->session, canonical->projectEpoch, editable);
+        auto arms = armedTrackModel_->prepare(canonical->session);
+        const auto selected = timeline_->preparedTrack(timeline);
+        auto projection =
+            inspectorSource_ == canonical->session && inspectorTrack_ == selected
+                ? inspectorProjection_
+                : sessionForTrack(canonical->session, selected, controller_.resourceLedger());
+        timeline_->commitModel(std::move(timeline));
+        armedTrackModel_->commit(std::move(arms));
+        inspectorSource_ = canonical->session;
+        inspectorProjection_ = std::move(projection);
+        inspectorTrack_ = selected;
+        guiEpoch_ = canonical->projectEpoch;
+        guiRevision_ = canonical->modelRevision;
+        if (guiBlocked_)
+            notice_->setText(tr("Project display updated. Retained edits are available."));
+        guiBlocked_ = false;
+        guiRefusedSource_.reset();
+        retryGui_->setEnabled(false);
+        return true;
+    } catch (const std::exception &e) {
+        guiBlocked_ = true;
+        guiRefusedSource_ = canonical->session;
+        guiRefusedEpoch_ = canonical->projectEpoch;
+        guiRefusedUsage_ = controller_.memoryResources();
+        retryGui_->setEnabled(true);
+        timeline_->editing(false);
+        notice_->setText(
+            tr("Project display could not be updated: %1. The previous view is retained and "
+               "editing is paused. Raise Project resources, then retry the display.")
+                .arg(text(e.what())));
+        return false;
+    }
+}
+std::shared_ptr<const Session> StudioWindow::projectTrack(std::shared_ptr<const Session> source,
+                                                          std::optional<Id> id) {
+    if (source == inspectorSource_ && id == inspectorTrack_)
+        return inspectorProjection_;
+    try {
+        return sessionForTrack(std::move(source), id, controller_.resourceLedger());
+    } catch (const std::exception &e) {
+        notice_->setText(
+            tr("Audio view could not be prepared: %1. Raise Project resources and retry.")
+                .arg(text(e.what())));
+        return {};
+    }
+}
 std::shared_ptr<const ControllerSnapshot>
 StudioWindow::inspectorSnapshot(std::shared_ptr<const ControllerSnapshot> canonical) const {
+    const bool supplied = bool(canonical);
     if (!canonical)
         canonical = controller_.snapshot();
     const auto selected = timeline_ ? timeline_->selectedTrack() : std::optional<Id>{};
-    if (canonical->session != inspectorSource_ || selected != inspectorTrack_) {
-        inspectorSource_ = canonical->session;
-        inspectorTrack_ = selected;
-        inspectorProjection_ = sessionForTrack(canonical->session, selected);
-        if (!inspectorProjection_ &&
-            (!selected || !canonical->session || canonical->session->tracks.empty()))
-            inspectorProjection_ = canonical->session;
-    }
-    if (inspectorProjection_ == canonical->session)
+    const bool exact = canonical->session == inspectorSource_;
+    // A command may publish during poll. Default UI bindings keep the last
+    // admitted display tuple for the same epoch/stable selected ID; command
+    // barriers still capture the latest accepted prefix. Explicit poll tuples
+    // require an exact match, and a refused display never supplies edit state.
+    const bool displayed = !supplied && inspectorSource_ && canonical->session && selected &&
+                           trackForId(canonical->session.get(), selected);
+    const bool ready = !guiBlocked_ && canonical->projectEpoch == guiEpoch_ &&
+                       selected == inspectorTrack_ && (exact || displayed);
+    if (ready && exact && inspectorProjection_ == canonical->session)
         return canonical;
     auto result = std::make_shared<ControllerSnapshot>(*canonical);
-    result->session = inspectorProjection_;
+    result->session = ready ? inspectorProjection_ : std::shared_ptr<const Session>{};
+    if (ready)
+        result->modelRevision = guiRevision_;
     return result;
 }
 bool StudioWindow::preparePlayback() {
@@ -1008,7 +1134,7 @@ void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBo
                 notice_->setText(tr("Master output was not admitted. Please retry."));
             return;
         }
-        auto projected = sessionForTrack(canonical->session, playbackTrack_);
+        auto projected = projectTrack(canonical->session, playbackTrack_);
         if (!projected)
             return;
         auto anchored = std::make_shared<ControllerSnapshot>(*canonical);
@@ -1098,7 +1224,7 @@ void StudioWindow::pollPlayback() {
         playbackPrepareBarrier_ = 0;
         PlaybackCommand c;
         c.root = prefix->barrierRoot;
-        c.session = sessionForTrack(prefix->barrierSession, playbackPreparationTrack_);
+        c.session = projectTrack(prefix->barrierSession, playbackPreparationTrack_);
         c.modelRevision = prefix->barrierRevision;
         try {
             if (c.session && playbackPrepareMix_) {
@@ -1278,9 +1404,13 @@ bool StudioWindow::prepareRecording() {
     return true;
 }
 bool StudioWindow::configureArmedRecording(const std::vector<Id> &ids, Frame frames) {
+    // Arming can be requested immediately after Open's worker publication.
+    // Synchronize the admitted inventory before changing its check states.
+    poll();
     const auto m = controller_.snapshot();
     const auto r = recording_.snapshot();
-    if (!m->session || ids.empty() || ids.size() > 256 || recordingBusy() || frames < 0 ||
+    if (guiBlocked_ || m->session != inspectorSource_ || !m->session || ids.empty() ||
+        ids.size() > 256 || recordingBusy() || frames < 0 ||
         frames > Frame(m->session->sampleRate) * 86400 || !r->duplexSupported)
         return false;
     std::vector<Id> seen;
@@ -1401,6 +1531,10 @@ void StudioWindow::editPunchRange() {
     d->open();
 }
 void StudioWindow::refreshArms() {
+    if (guiBlocked_) {
+        armedTrackModel_->checkEditing(false);
+        return;
+    }
     const auto m = controller_.snapshot();
     const auto r = recording_.snapshot();
     const bool newProject = armProjectEpoch_ != m->projectEpoch;
@@ -1427,7 +1561,6 @@ void StudioWindow::refreshArms() {
     recordSeconds_->setVisible(mix);
     recordRangeLabel_->setVisible(mix);
     armed_->setVisible(!mix);
-    armedTrackModel_->update(m->session);
     if (!m->session) {
         armedTrackModel_->decorate({});
         armedTrackModel_->checkEditing(false);
@@ -1458,7 +1591,13 @@ void StudioWindow::refreshArms() {
             d.tooltip = text(lane.diagnostic) +
                         (lane.job ? QStringLiteral("\n") + text(pathUtf8(*lane.job)) : QString());
         }
-    armedTrackModel_->decorate(std::move(decorations));
+    try {
+        armedTrackModel_->decorate(std::move(decorations));
+    } catch (const std::exception &e) {
+        notice_->setText(
+            tr("Recording indicators could not be updated: %1. Raise Project resources and retry.")
+                .arg(text(e.what())));
+    }
     const bool idle = r->phase == RecordingPhase::Idle || r->phase == RecordingPhase::Fault ||
                       r->phase == RecordingPhase::Unsupported;
     const bool edit = idle && !recordPrepareBarrier_ && !recordCommandPending_ && !r->take &&
@@ -1712,7 +1851,7 @@ void StudioWindow::pollRecording() {
             c.root = m->barrierRoot;
             c.session = recordPrepareMix_
                             ? m->barrierSession
-                            : sessionForTrack(m->barrierSession, recordPreparationTrack_);
+                            : projectTrack(m->barrierSession, recordPreparationTrack_);
             if (!c.session) {
                 notice_->setText(tr("Selected recording track no longer exists."));
                 return;
@@ -1762,10 +1901,9 @@ void StudioWindow::pollRecording() {
     }
     if (m->session && m->modelRevision > recordingFollowed_) {
         const auto canonical = controller_.snapshot();
-        const auto target = r->projectMix ? canonical->session
-                                          : sessionForTrack(canonical->session, recordingTrack_);
-        if (recording_.follow(canonical->root, target ? target : canonical->session,
-                              canonical->modelRevision))
+        const auto target =
+            r->projectMix ? canonical->session : projectTrack(canonical->session, recordingTrack_);
+        if (target && recording_.follow(canonical->root, target, canonical->modelRevision))
             recordingFollowed_ = m->modelRevision;
     }
     if (r->take) {
@@ -2263,11 +2401,10 @@ void StudioWindow::poll() {
     const bool inactive = native->phase == PlaybackPhase::Idle ||
                           native->phase == PlaybackPhase::Fault ||
                           native->phase == PlaybackPhase::Unsupported;
-    timeline_->updateModel(canonical->session, canonical->projectEpoch,
-                           !closing_ && !closeRequested_ && !closeAfterSave_ && !recordingBusy() &&
-                               !attachingTake_ && inactive && !playbackPrepareBarrier_ &&
-                               canonical->io != IoOperation::Create &&
-                               canonical->io != IoOperation::Open);
+    syncGui(canonical, !closing_ && !closeRequested_ && !closeAfterSave_ && !recordingBusy() &&
+                           !attachingTake_ && inactive && !playbackPrepareBarrier_ &&
+                           canonical->io != IoOperation::Create &&
+                           canonical->io != IoOperation::Open);
     // Keep timeline and inspector on the same published snapshot. A second
     // read could observe an Open completion between these two view updates.
     const auto view = inspectorSnapshot(canonical);
@@ -2348,7 +2485,9 @@ void StudioWindow::poll() {
     open_->setEnabled(!recordingBusy() && !attachingTake_ && !exportWorkflowBusy() &&
                       view->io == IoOperation::None && !view->dirty && !closing_ &&
                       !closeRequested_);
-    save_->setEnabled(bool(view->session) && view->io == IoOperation::None && !closing_ &&
+    // Save writes controller-owned canonical state, even when GUI admission
+    // retains an older display and therefore supplies no editing projection.
+    save_->setEnabled(bool(canonical->session) && view->io == IoOperation::None && !closing_ &&
                       !closeRequested_ && !closeAfterSave_);
     undo_->setEnabled(bool(view->session) && !replacing && !closing_ && !closeRequested_);
     redo_->setEnabled(bool(view->session) && !replacing && !closing_ && !closeRequested_);
@@ -2376,10 +2515,29 @@ void StudioWindow::poll() {
         const auto canonical = controller_.snapshot();
         const auto target = playback_.snapshot()->projectMix
                                 ? canonical->session
-                                : sessionForTrack(canonical->session, playbackTrack_);
-        if (playback_.follow(canonical->root, target ? target : canonical->session,
-                             canonical->modelRevision))
+                                : projectTrack(canonical->session, playbackTrack_);
+        if (target && playback_.follow(canonical->root, target, canonical->modelRevision))
             followedRevision_ = view->modelRevision;
+    }
+    if (guiBlocked_) {
+        eq_->setEnabled(false);
+        undo_->setEnabled(false);
+        redo_->setEnabled(false);
+        prepareButton_->setEnabled(false);
+        prepareAction_->setEnabled(false);
+        prepareRecordButton_->setEnabled(false);
+        prepareRecordAction_->setEnabled(false);
+        armedTrackModel_->checkEditing(false);
+        punchEnabled_->setEnabled(false);
+        punchRangeButton_->setEnabled(false);
+        monitorMode_->setEnabled(false);
+        inputLatency_->setEnabled(false);
+        armed_->setEnabled(false);
+        exportButton_->setEnabled(false);
+        exportAction_->setEnabled(false);
+        for (const auto &combos : {outputs_, inputs_, monitors_})
+            for (auto *combo : combos)
+                combo->setEnabled(false);
     }
     shown_ = view;
     int manualCloseReady = 0;

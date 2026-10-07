@@ -2400,3 +2400,42 @@ then coordinate graphs/cache/IO, measure allocations/RSS and sustained platforms
 and continue larger capture/adoption, freeze/bounce and scheduling. The 256
 recording-input implementation cap, native Windows, X004/X005 and Europe gates
 remain required. The full goal remains **active and incomplete**.
+
+## X006 shared GUI payload checkpoint (2026-10-07)
+
+Previous goal turn was **progress**: PR28 merged as `b2f35b06313e`, with final
+controller-memory qualification and verified source/bundle restoration. This turn
+adds [ADR069](decisions/069-gui-memory-resources.md) and
+[GUI ownership/refusal workflows](84-gui-memory-resources.md). Selected-track
+projections, list/decorations and timeline interval/query arrays lease credit from
+the controller parent. Old/new displays are staged together; refusal retains a
+complete previous view, pauses stale editing and offers resource settings/retry.
+Matching inventories reuse admitted indices, and timeline candidate scratch is
+prepared before paint/hit queries. Save remains available for committed state.
+
+The [receipt](../tests/results/M2/2026-10-07-gui-memory-resources.json) records exact
+final compiled inputs, executed Debug/sanitizer scopes, Windows core/media
+cross-build, original compile/UI failures and owned generated project/media bytes.
+New 512/513-track display, selection, full-budget Save/refusal/retry and last-owner
+release workflows pass; existing 8192-track sparse and 10000-clip viewport gates
+remain required. Timer-stopped initial monitoring/arming fixtures preserve their
+original product failures and corrections. An earlier Close timeout was a fixture
+timer sequencing error, preserved separately. No hardware route is activated.
+
+The initial 24-input equalizer audit passed. Before publication, four review-only
+DSP references changed as both equalizers lowered their profile-wrapper post-gain
+minimum to −60 dB. New committed snapshots and exact whole-file delta proof are
+retained in `reuse/reviews/2026-10-07/`; the borrowed equations and other 20 inputs
+are unchanged. Refreshed input/integrity/isolated CLI checks pass. All 182 compiled
+inputs remain identical between final Debug/sanitizer/current sources. No equalizer
+source was modified by this work. Final Debug **57/57, 145.16s** and affected
+ASan/UBSan/LSan **22/22, 341.79s** pass; Windows core/media cross-build passes.
+All 92 frozen F/Q/C/N contracts remain unchanged and unpromoted. No native audio/VM
+run, schema change or dependency addition. Original native observation 71 clock/
+source CPU cause and earlier unresolved causes remain open. Declared GUI weights
+do not cover all Qt/control/caller temporaries or exact heap/RSS; graph/cache/IO,
+commands and expanding trials still need shared admission. Next admit prepared
+graph/media-cache overlap and safe retirement, then IO and measured allocations/
+RSS, paging, larger capture/adoption, freeze/bounce, scheduling and sustained
+Linux/Windows workloads. The 256 recording-input implementation, native Windows,
+X004/X005 and Europe gates remain required. Full goal and X006 stay incomplete.

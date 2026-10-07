@@ -76,6 +76,7 @@ struct PlaybackControllerOptions {
     std::function<std::unique_ptr<PlaybackEndpoint>(const PlaybackPreparation &)> factory;
     std::function<void()> beforePrepare;         // Worker-only slow/failure fixture.
     PlaybackCallbackInstrumentation nativeAudit; // RT-only, caller outlives worker.
+    ResourceLedger projectionMemory{};           // Off-audio selected-track fallback ownership.
 };
 enum class PlaybackCommandKind { Prepare, Play };
 struct PlaybackCommand {

@@ -321,9 +321,11 @@ void selectedTransport(const std::filesystem::path &root) {
     const auto original = fixture(root);
     const auto first = original.tracks[0].id, second = original.tracks[1].id;
     const auto canonical = std::make_shared<const Session>(original);
-    const auto selected = sessionForTrack(canonical, second);
-    check(sessionForTrack(canonical, first) == canonical && selected->tracks.front().id == second &&
-              canonical->tracks.front().id == first && !sessionForTrack(canonical, Id::generate()),
+    ResourceLedger memory;
+    const auto selected = sessionForTrack(canonical, second, memory);
+    check(sessionForTrack(canonical, first, memory) == canonical &&
+              selected->tracks.front().id == second && canonical->tracks.front().id == first &&
+              !sessionForTrack(canonical, Id::generate(), memory),
           "Track projection changed canonical order or silently replaced missing ID");
     auto playback = std::make_shared<playback_fixture::Counters>();
     auto recording = std::make_shared<recording_fixture::Counters>();

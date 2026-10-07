@@ -40,12 +40,13 @@ void field(QLineEdit *w, Frame f, bool force) {
         w->setText(QString::number(f));
 }
 } // namespace
-TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timeline"), parent) {
+TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
+    : QGroupBox(tr("Tracks and timeline"), parent) {
     setObjectName("timelineEditor");
     auto *body = new QVBoxLayout(this);
     auto *splitter = new QSplitter(this);
     tracks_ = new QListView;
-    trackList_ = new SessionListModel(SessionListModel::Kind::Tracks, this);
+    trackList_ = new SessionListModel(SessionListModel::Kind::Tracks, this, false, memory);
     tracks_->setModel(trackList_);
     tracks_->setUniformItemSizes(true);
     tracks_->setLayoutMode(QListView::Batched);
@@ -53,7 +54,7 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     tracks_->setObjectName("timelineTracks");
     tracks_->setAccessibleName(tr("Audio tracks"));
     tracks_->setMinimumWidth(140);
-    view_ = new TimelineView(this);
+    view_ = new TimelineView(this, memory);
     splitter->addWidget(tracks_);
     splitter->addWidget(view_);
     splitter->setStretchFactor(1, 1);
@@ -134,7 +135,7 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     body->addLayout(trackRow);
     auto *ranges = new QFormLayout;
     clips_ = new FocusCombo;
-    clipList_ = new SessionListModel(SessionListModel::Kind::Clips, this);
+    clipList_ = new SessionListModel(SessionListModel::Kind::Clips, this, false, memory);
     clips_->setModel(clipList_);
     clips_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     clips_->setMinimumContentsLength(16);
@@ -145,8 +146,8 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
         if (refreshing_)
             return;
         const auto id = clips_->currentData().toString();
-        clip_ = id.isEmpty() ? std::optional<Id>{} : std::optional<Id>(Id(id.toStdString()));
-        refresh(true);
+        select(track_,
+               id.isEmpty() ? std::optional<Id>{} : std::optional<Id>(Id(id.toStdString())));
         if (track_ && clip_)
             view_->ensureClipVisible(*track_, *clip_);
         if (selectionChanged)
@@ -188,7 +189,7 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
             mutate({RemoveClip{*track_, *clip_}});
     });
     destination_ = new FocusCombo;
-    destinations_ = new SessionListModel(SessionListModel::Kind::Tracks, this);
+    destinations_ = new SessionListModel(SessionListModel::Kind::Tracks, this, false, memory);
     destination_->setModel(destinations_);
     destination_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     destination_->setMinimumContentsLength(16);
@@ -206,7 +207,7 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     body->addLayout(clipRow);
     auto *assetRow = new QHBoxLayout;
     asset_ = new FocusCombo;
-    assets_ = new SessionListModel(SessionListModel::Kind::Assets, this);
+    assets_ = new SessionListModel(SessionListModel::Kind::Assets, this, false, memory);
     asset_->setModel(assets_);
     asset_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     asset_->setMinimumContentsLength(16);
@@ -252,20 +253,7 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     view_->selection = [this](std::optional<Id> track, std::optional<Id> clip) {
         if (refreshing_)
             return;
-        if (track) {
-            const auto at = trackList_->rowForId(*track);
-            if (at < 0)
-                return;
-            if (auto *focused = window()->focusWidget())
-                focused->clearFocus();
-            track_ = track;
-        }
-        clip_ = clip;
-        refresh(true);
-        QTimer::singleShot(0, this, [this] {
-            if (selectionChanged)
-                selectionChanged();
-        });
+        select(track ? track : track_, clip);
     };
     refresh(true);
 }
@@ -313,61 +301,146 @@ void TimelineEditor::mutate(std::vector<SessionEdit> edits) {
     if (!submit || !submit(std::move(edits)))
         throw ProjectError(ErrorCode::InvalidState, "Edit was not admitted; please retry");
 }
-bool TimelineEditor::selectTrack(const Id &id) {
-    if (!model_ || std::none_of(model_->tracks.begin(), model_->tracks.end(),
-                                [&](const auto &t) { return t.id == id; }))
-        return false;
-    if (track_ == std::optional<Id>(id))
-        return true;
-    if (auto *focused = window()->focusWidget())
-        focused->clearFocus();
-    track_ = id;
-    clip_.reset();
-    pendingTrack_.reset();
-    refresh(true);
-    view_->ensureTrackVisible(id);
-    if (selectionChanged)
-        selectionChanged();
-    return true;
+struct TimelineEditor::Prepared {
+    std::shared_ptr<const Session> model;
+    std::uint64_t epoch = 0;
+    bool editable = false, force = false;
+    std::optional<Id> track, clip, pending;
+    std::shared_ptr<SessionListModel::Prepared> tracks, clips, destinations, assets;
+    std::shared_ptr<TimelineView::Prepared> view;
+};
+std::shared_ptr<TimelineEditor::Prepared>
+TimelineEditor::prepare(std::shared_ptr<const Session> s, std::uint64_t epoch, bool editable,
+                        std::optional<Id> selected, std::optional<Id> clip, bool specific) const {
+    auto p = std::make_shared<Prepared>();
+    p->model = std::move(s);
+    p->epoch = epoch;
+    p->editable = editable;
+    p->force = epoch != epoch_;
+    p->track = specific ? selected : p->force ? std::optional<Id>{} : track_;
+    p->clip = specific ? clip : p->force ? std::optional<Id>{} : clip_;
+    p->pending = p->force || specific ? std::optional<Id>{} : pendingTrack_;
+    const Track *t = nullptr;
+    if (p->model) {
+        if (p->pending)
+            for (const auto &candidate : p->model->tracks)
+                if (candidate.id == *p->pending) {
+                    p->track = candidate.id;
+                    p->clip.reset();
+                    p->pending.reset();
+                    break;
+                }
+        if (p->track)
+            for (const auto &candidate : p->model->tracks)
+                if (candidate.id == *p->track)
+                    t = &candidate;
+        if (!t && !p->model->tracks.empty()) {
+            t = &p->model->tracks.front();
+            p->track = t->id;
+            p->clip.reset();
+        }
+    }
+    if (!t) {
+        p->track.reset();
+        p->clip.reset();
+    }
+    if (t && p->clip && std::none_of(t->clips.begin(), t->clips.end(), [&](const auto &c) {
+            return c.id == *p->clip;
+        }))
+        p->clip.reset();
+    p->tracks = trackList_->prepare(p->model);
+    p->clips = clipList_->prepare(p->model, {}, p->track);
+    p->destinations = destinations_->prepare(
+        t ? p->model : nullptr, t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
+    p->assets = assets_->prepare(t ? p->model : nullptr,
+                                 t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
+    p->view = view_->prepare(p->model, epoch);
+    return p;
 }
-void TimelineEditor::updateModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
-                                 bool editable) {
-    const bool changed = s != model_ || epoch != epoch_;
-    const bool force = epoch != epoch_;
+std::shared_ptr<TimelineEditor::Prepared>
+TimelineEditor::prepareModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
+                             bool editable) const {
+    return prepare(std::move(s), epoch, editable, {}, {}, false);
+}
+std::optional<Id> TimelineEditor::preparedTrack(const std::shared_ptr<Prepared> &p) const {
+    return p ? p->track : track_;
+}
+void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
+    if (!p)
+        return;
     const auto previous = track_;
-    if (force) {
-        track_.reset();
-        clip_.reset();
-        pendingTrack_.reset();
+    const auto previousDestination = destination_->currentData().toString();
+    const auto previousAsset = asset_->currentData().toString();
+    const bool changed = model_ != p->model || epoch_ != p->epoch || track_ != p->track ||
+                         clip_ != p->clip || editable_ != p->editable;
+    {
+        QScopedValueRollback<bool> guard(refreshing_, true);
+        QSignalBlocker a(tracks_), b(clips_), c(destination_), d(asset_);
+        trackList_->commit(std::move(p->tracks));
+        clipList_->commit(std::move(p->clips));
+        destinations_->commit(std::move(p->destinations));
+        assets_->commit(std::move(p->assets));
+        view_->commit(std::move(p->view));
+        model_ = std::move(p->model);
+        epoch_ = p->epoch;
+        editable_ = p->editable;
+        track_ = std::move(p->track);
+        clip_ = std::move(p->clip);
+        pendingTrack_ = std::move(p->pending);
     }
-    model_ = std::move(s);
-    epoch_ = epoch;
-    if (pendingTrack_ && model_ &&
-        std::any_of(model_->tracks.begin(), model_->tracks.end(),
-                    [&](const auto &t) { return t.id == *pendingTrack_; })) {
-        track_ = pendingTrack_;
-        pendingTrack_.reset();
-        clip_.reset();
-    }
-    if (!track()) {
-        track_ = model_ && !model_->tracks.empty() ? std::optional<Id>(model_->tracks.front().id)
-                                                   : std::nullopt;
-        clip_.reset();
-    }
-    if (!clip())
-        clip_.reset();
-    const bool enabledChanged = editable_ != editable;
-    editable_ = editable;
-    if (changed || enabledChanged || previous != track_)
-        refresh(force);
+    if (changed)
+        refresh(p->force, true, previousDestination, previousAsset);
     if (previous != track_ && selectionChanged)
         selectionChanged();
 }
-void TimelineEditor::refresh(bool force, bool redraw) {
+void TimelineEditor::updateModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
+                                 bool editable) {
+    commitModel(prepareModel(std::move(s), epoch, editable));
+}
+void TimelineEditor::editing(bool editable) {
+    if (editable_ != editable) {
+        editable_ = editable;
+        refresh(false, false);
+    }
+}
+std::size_t TimelineEditor::resourceBytes() const {
+    return trackList_->resourceBytes() + destinations_->resourceBytes() + assets_->resourceBytes() +
+           clipList_->resourceBytes() + view_->resourceBytes();
+}
+bool TimelineEditor::select(std::optional<Id> id, std::optional<Id> clip) {
+    if (!model_ || !id ||
+        std::none_of(model_->tracks.begin(), model_->tracks.end(),
+                     [&](const auto &t) { return t.id == *id; }))
+        return false;
+    if (track_ == id && clip_ == clip)
+        return true;
+    if (auto *focused = window()->focusWidget())
+        focused->clearFocus();
+    try {
+        auto p = prepare(model_, epoch_, editable_, id, clip, true);
+        if (selectionAdmission && !selectionAdmission(model_, p->track)) {
+            refresh(false, false);
+            return false;
+        }
+        p->force = true;
+        commitModel(std::move(p));
+        view_->ensureTrackVisible(*id);
+        return true;
+    } catch (const std::exception &e) {
+        refresh(false, false);
+        status_->setText(tr("View could not be updated: %1").arg(text(e.what())));
+        return false;
+    }
+}
+bool TimelineEditor::selectTrack(const Id &id) {
+    return select(id, track_ == std::optional<Id>(id) ? clip_ : std::optional<Id>{});
+}
+void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> destination,
+                             std::optional<QString> asset) {
     QScopedValueRollback<bool> guard(refreshing_, true);
     QSignalBlocker block(tracks_);
-    const auto previousDestination = destination_->currentData();
-    const auto previousAsset = asset_->currentData();
+    const auto previousDestination = destination.value_or(destination_->currentData().toString());
+    const auto previousAsset = asset.value_or(asset_->currentData().toString());
     const auto *t = track();
     const auto *c = clip();
     trackList_->update(model_);
@@ -384,7 +457,7 @@ void TimelineEditor::refresh(bool force, bool redraw) {
         QSignalBlocker blocked(destination_);
         destinations_->update(t ? model_ : nullptr,
                               t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
-        const auto id = previousDestination.toString();
+        const auto id = previousDestination;
         const auto row = id.isEmpty() ? -1 : destinations_->rowForId(Id(id.toStdString()));
         destination_->setCurrentIndex(row >= 0 ? row : (destinations_->rowCount() ? 0 : -1));
     }
@@ -392,7 +465,7 @@ void TimelineEditor::refresh(bool force, bool redraw) {
         QSignalBlocker blocked(asset_);
         assets_->update(t ? model_ : nullptr,
                         t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
-        const auto id = previousAsset.toString();
+        const auto id = previousAsset;
         const auto row = id.isEmpty() ? -1 : assets_->rowForId(Id(id.toStdString()));
         asset_->setCurrentIndex(row >= 0 ? row : (assets_->rowCount() ? 0 : -1));
     }

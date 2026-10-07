@@ -497,3 +497,14 @@ The desktop exposes persistent atomic parent/snapshot limits. Next lease actual
 GUI projections/indices before graph old/new/tail, cache and IO overlap; measure
 allocator/RSS and sustained Linux/Windows workloads, then continue larger capture,
 freeze/bounce and scheduling. Full X006 and all frozen contracts remain open.
+
+### X006 shared GUI payload checkpoint
+
+[ADR069](decisions/069-gui-memory-resources.md) and
+[scope/workflows](84-gui-memory-resources.md) lease selected-track copies,
+list/decorations and timeline/query arrays from the project parent. Stage old/new
+display ownership, refuse atomically, retain the previous view and offer resource
+settings/explicit retry. Next admit prepared graph/media-cache overlap and safe
+retirement, then parser/IO and measured heap/RSS; continue paging, larger capture,
+freeze/bounce, prepared scheduling and sustained Linux/Windows workloads.
+Full X006 and all frozen-reference contracts remain open.

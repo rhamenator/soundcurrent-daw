@@ -2,11 +2,21 @@
 
 ## Unreleased — development preview
 
+- Refresh four noncompiled equalizer DSP review references for the upstream
+  quieter post-gain wrapper. Borrowed coefficient/recurrence equations and the
+  other 20 inputs remain unchanged; compiled DAW behavior is unchanged.
+
+- Shared project parent leases for selected-track projections, list/decorations
+  and timeline interval/query arrays. Staged display replacement preserves the
+  previous view on refusal; Project resources and Retry project display allow
+  recovery. Initial monitoring/arming preserve requested accepted-prefix state.
+  Exact allocation/RSS and graph/cache/IO admission remain open.
+
 - Shared controller parent budget for canonical state, history, retained snapshots
   and declared edit work; atomic parent/child limits and allocation-free credit
   transfers preserve full-budget Cancel. The scrollable Project resources dialog
   persists adjustable memory policies and reports refusal/preferences failures.
-  GUI/graph/cache/IO and exact allocation/RSS admission remain open.
+  Further graph/cache/IO and exact allocation/RSS admission remain open.
 
 - Shared leases retain immutable Session charges until the last reader releases
   them. Saved revisions, in-flight saves and barriers share current state; edits

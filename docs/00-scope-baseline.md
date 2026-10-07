@@ -51,5 +51,7 @@ Commercial names are reference landmarks, not licensed assets. Dolby-branded del
 
 X006 scoped controller-memory checkpoint: [shared parent ownership and desktop
 policies](83-controller-memory-resources.md) now cover canonical/history/snapshot
-and declared edit work. GUI/graph/cache/IO, exact allocations/RSS and sustained
-capacity remain unqualified. No reference or F/Q/C/N completion change.
+and declared edit work. [GUI payload admission](84-gui-memory-resources.md) adds
+selected-track copies, list/decorations and timeline/query arrays with staged
+refusal/retry. Further graph/cache/IO, exact allocations/RSS and sustained capacity
+remain unqualified. No reference or F/Q/C/N completion change.

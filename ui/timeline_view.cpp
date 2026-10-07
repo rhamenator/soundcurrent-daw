@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "timeline_view.hpp"
+#include "gui_resources.hpp"
 #include <QPainter>
 #include <QScrollBar>
 #include <QMouseEvent>
@@ -28,7 +29,8 @@ Frame clippedFrame(long double v, Frame extent) {
     return Frame(v);
 }
 } // namespace
-TimelineView::TimelineView(QWidget *parent) : QAbstractScrollArea(parent) {
+TimelineView::TimelineView(QWidget *parent, ResourceLedger memory)
+    : QAbstractScrollArea(parent), memory_(std::move(memory)) {
     setObjectName("audioTimeline");
     setAccessibleName(tr("Audio clip timeline"));
     setMinimumHeight(180);
@@ -54,11 +56,72 @@ void TimelineView::geometry() {
         0, std::max(0, int(std::ceil(90. + double(extent_) * scale())) - viewport()->width()));
     horizontalScrollBar()->setPageStep(std::max(1, viewport()->width() - labelWidth));
 }
-void TimelineView::setSnapshot(std::shared_ptr<const Session> s, std::uint64_t epoch) {
-    if (s == session_ && epoch == epoch_)
-        return;
+struct TimelineView::Prepared {
+    ResourceLease reservation;
     std::unordered_map<std::string, std::size_t> tracks;
     std::vector<Lane> lanes;
+    std::vector<std::size_t> visible;
+    std::shared_ptr<const Session> session;
+    std::uint64_t epoch = 0;
+    Frame extent = 1;
+    bool reuse = false;
+};
+std::shared_ptr<TimelineView::Prepared> TimelineView::prepare(std::shared_ptr<const Session> s,
+                                                              std::uint64_t epoch) const {
+    if (s == session_ && epoch == epoch_)
+        return {};
+    if (!s) {
+        auto p = std::make_shared<Prepared>();
+        p->epoch = epoch;
+        return p;
+    }
+    bool same = bool(s) == bool(session_);
+    if (same && s) {
+        same = s->tracks.size() == session_->tracks.size() && s->sampleRate == session_->sampleRate;
+        for (std::size_t n = 0; same && n < s->tracks.size(); ++n)
+            same = s->tracks[n].id == session_->tracks[n].id &&
+                   s->tracks[n].clips == session_->tracks[n].clips;
+    }
+    if (same) {
+        auto p = std::make_shared<Prepared>();
+        p->reuse = true;
+        p->session = std::move(s);
+        p->epoch = epoch;
+        p->extent = extent_;
+        return p;
+    }
+    auto allowance = guiCharge("GUI timeline indices");
+    const auto count = s ? s->tracks.size() : 0;
+    if (count > std::size_t(INT_MAX))
+        throw ResourceLimitError("Qt timeline row representation", count, INT_MAX);
+    allowance.add(count, sizeof(Lane));
+    std::size_t maxClips = 0, keys = 0;
+    if (s)
+        for (const auto &t : s->tracks) {
+            PayloadCharge sum("Timeline keys", SIZE_MAX);
+            sum.add(keys);
+            sum.add(t.id.str().capacity() + 1);
+            keys = sum.bytes();
+            allowance.add(t.clips.size(), sizeof(std::size_t));
+            maxClips = std::max(maxClips, t.clips.size());
+            if (!t.clips.empty()) {
+                std::size_t base = 1;
+                while (base < t.clips.size()) {
+                    if (base > SIZE_MAX / 4)
+                        throw ResourceLimitError("Timeline interval index", SIZE_MAX, SIZE_MAX,
+                                                 true);
+                    base *= 2;
+                }
+                allowance.add(base, sizeof(Frame) * 2);
+            }
+        }
+    allowance.add(maxClips, sizeof(std::size_t));
+    mapAllowance(allowance, count, keys, sizeof(std::pair<const std::string, std::size_t>));
+    auto prepared = std::make_shared<Prepared>();
+    prepared->reservation = memory_.reserve(allowance.bytes());
+    auto &tracks = prepared->tracks;
+    auto &lanes = prepared->lanes;
+    prepared->visible.reserve(maxClips);
     Frame extent = s ? std::max<Frame>(1, s->sampleRate) : 1;
     if (s) {
         if (s->tracks.size() > std::size_t(std::numeric_limits<int>::max()))
@@ -94,19 +157,43 @@ void TimelineView::setSnapshot(std::shared_ptr<const Session> s, std::uint64_t e
             }
         }
     }
-    const bool newProject = epoch_ != epoch;
-    session_ = std::move(s);
-    epoch_ = epoch;
-    tracks_ = std::move(tracks);
-    lanes_ = std::move(lanes);
-    extent_ = extent;
-    increment(stats_.snapshotBuilds);
+    auto actual = guiCharge("GUI timeline indices");
+    mapCharge(actual, tracks);
+    actual.add(lanes.capacity(), sizeof(Lane));
+    actual.add(prepared->visible.capacity(), sizeof(std::size_t));
+    for (const auto &lane : lanes) {
+        actual.add(lane.order.capacity(), sizeof(std::size_t));
+        actual.add(lane.ends.capacity(), sizeof(Frame));
+    }
+    prepared->reservation.resize(actual.bytes());
+    prepared->session = std::move(s);
+    prepared->epoch = epoch;
+    prepared->extent = extent;
+    return prepared;
+}
+void TimelineView::commit(std::shared_ptr<Prepared> p) {
+    if (!p)
+        return;
+    const bool newProject = epoch_ != p->epoch;
+    session_ = std::move(p->session);
+    epoch_ = p->epoch;
+    if (!p->reuse) {
+        tracks_ = std::move(p->tracks);
+        lanes_ = std::move(p->lanes);
+        visible_ = std::move(p->visible);
+        reservation_ = std::move(p->reservation);
+        increment(stats_.snapshotBuilds);
+    }
+    extent_ = p->extent;
     geometry();
     if (newProject) {
         verticalScrollBar()->setValue(0);
         horizontalScrollBar()->setValue(0);
     }
     viewport()->update();
+}
+void TimelineView::setSnapshot(std::shared_ptr<const Session> s, std::uint64_t epoch) {
+    commit(prepare(std::move(s), epoch));
 }
 void TimelineView::setZoom(int z) {
     z = std::clamp(z, 0, 100);
@@ -263,9 +350,8 @@ std::pair<std::optional<Id>, std::optional<Id>> TimelineView::hit(const QPoint &
         (static_cast<long double>(point.x() - labelWidth) + horizontalScrollBar()->value()) /
             scale(),
         extent_);
-    std::vector<std::size_t> candidates;
-    visibleClips(row, frame, frame, candidates);
-    for (auto it = candidates.rbegin(); it != candidates.rend(); ++it)
+    visibleClips(row, frame, frame, visible_);
+    for (auto it = visible_.rbegin(); it != visible_.rend(); ++it)
         if (rectangle(row, t.clips[*it]).contains(point))
             return {t.id, t.clips[*it].id};
     return {t.id, {}};

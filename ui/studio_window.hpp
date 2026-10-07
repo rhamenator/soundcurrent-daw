@@ -45,6 +45,12 @@ class StudioWindow : public QMainWindow {
     bool preparePlayback();
     bool selectTrack(const Id &);
     std::optional<Id> selectedTrack() const;
+    ResourceUsage memoryResources() const;
+    ResourceLedger resourceLedger() const; // Off-audio GUI ownership facade.
+    std::size_t guiResourceBytes() const;
+    std::uint64_t displayedRevision() const {
+        return guiRevision_;
+    }
     bool prepareRecording();
     bool configureArmedRecording(const std::vector<Id> &, Frame frames = 0);
     bool configurePunch(PunchSettings);
@@ -66,8 +72,16 @@ class StudioWindow : public QMainWindow {
     ProjectController controller_;
     QPointer<QDialog> historyDialog_;
     TimelineEditor *timeline_ = nullptr;
-    mutable std::shared_ptr<const Session> inspectorSource_, inspectorProjection_;
-    mutable std::optional<Id> inspectorTrack_;
+    std::shared_ptr<const Session> inspectorSource_, inspectorProjection_;
+    std::uint64_t guiEpoch_ = 0, guiRevision_ = 0;
+    std::shared_ptr<const Session> guiRefusedSource_;
+    std::uint64_t guiRefusedEpoch_ = 0;
+    ResourceUsage guiRefusedUsage_{};
+    bool guiBlocked_ = false;
+    QAction *retryGui_ = nullptr;
+    bool syncGui(const std::shared_ptr<const ControllerSnapshot> &, bool editable);
+    std::shared_ptr<const Session> projectTrack(std::shared_ptr<const Session>, std::optional<Id>);
+    std::optional<Id> inspectorTrack_;
     std::shared_ptr<const ControllerSnapshot>
     inspectorSnapshot(std::shared_ptr<const ControllerSnapshot> canonical = {}) const;
     std::optional<Id> playbackTrack_, recordingTrack_, recordPreparationTrack_, exportTrack_;

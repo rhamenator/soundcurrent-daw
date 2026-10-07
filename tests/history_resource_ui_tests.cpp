@@ -187,7 +187,7 @@ void memoryWorkflow(const std::filesystem::path &root) {
     dialog->reject();
     await([&] { return !window.findChild<QDialog *>("historyResourcesDialog"); });
     ProjectCommand full{CommandKind::MemoryLimits};
-    full.memoryBytes = window.snapshot()->memoryResources.reservedBytes;
+    full.memoryBytes = window.memoryResources().reservedBytes;
     full.memoryRequest = 9101;
     check(window.submitEdit(full), "Full memory policy queue refused");
     await([&] { return window.snapshot()->memoryCompleted.request == 9101; });

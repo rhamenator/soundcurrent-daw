@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-#include <soundcurrent/session.hpp>
+#include <soundcurrent/resource_ledger.hpp>
+#include "session_list_model.hpp"
+#include "timeline_view.hpp"
 #include <QGroupBox>
 #include <QCoreApplication>
 #include <functional>
@@ -18,7 +20,15 @@ class SessionListModel;
 class TimelineView;
 class TimelineEditor : public QGroupBox {
   public:
-    explicit TimelineEditor(QWidget *parent = nullptr);
+    explicit TimelineEditor(QWidget *parent = nullptr, ResourceLedger = ResourceLedger{});
+    struct Prepared;
+    std::shared_ptr<Prepared> prepareModel(std::shared_ptr<const Session>, std::uint64_t epoch,
+                                           bool editable) const;
+    void commitModel(std::shared_ptr<Prepared>);
+    std::optional<Id> preparedTrack(const std::shared_ptr<Prepared> &) const;
+    void editing(bool);
+    std::size_t resourceBytes() const;
+    std::function<bool(std::shared_ptr<const Session>, std::optional<Id>)> selectionAdmission;
     ~TimelineEditor() override;
     std::function<bool(std::vector<SessionEdit>)> submit;
     std::function<void()> selectionChanged;
@@ -35,6 +45,9 @@ class TimelineEditor : public QGroupBox {
     }
 
   private:
+    std::shared_ptr<Prepared> prepare(std::shared_ptr<const Session>, std::uint64_t, bool,
+                                      std::optional<Id>, std::optional<Id>, bool) const;
+    bool select(std::optional<Id>, std::optional<Id>);
     std::shared_ptr<const Session> model_;
     std::uint64_t epoch_ = 0;
     bool editable_ = false, refreshing_ = false;
@@ -50,7 +63,8 @@ class TimelineEditor : public QGroupBox {
     std::vector<QPushButton *> mutations_;
     const Track *track() const;
     const Clip *clip() const;
-    void refresh(bool forceFields = false, bool redraw = true);
+    void refresh(bool forceFields = false, bool redraw = true,
+                 std::optional<QString> destination = {}, std::optional<QString> asset = {});
     void draw();
     void mutate(std::vector<SessionEdit>);
     void operation(const std::function<void()> &);
