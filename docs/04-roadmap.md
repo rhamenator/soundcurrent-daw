@@ -417,3 +417,22 @@ Next implement X006 coordinated resource-admitted model/parser/mix and media/UI
 scaling, preserving the current256-track gap until acceptance. Diagnose original71's
 active clock skip separately and continue sustained/native Windows recording
 qualification and every remaining full-suite milestone.
+
+## M2 X006 resource-admitted project checkpoint (2026-10-07)
+
+[First large-project implementation](78-resource-admitted-projects.md)/ADR063
+removes fixed total-track validation/parser/mix/replacement-mask and desktop Add
+Track ceilings. Trusted byte policies, checked charges, immutable preparation
+indices and schema 1.7 preserve explicit refusal and stable IDs. Core fixtures
+cover 257/512/1024/4096 audio tracks and actual Linux Qt controls add track 4097.
+These are bounded synthetic state/processing/GUI workflows, not sustained native
+recording or a universal real-time capacity claim.
+
+Next implement shared bounded media handles/cache/read-ahead and virtualized
+views/meters, then combined snapshot/history/old-new graph envelopes, configurable
+desktop resource controls and large recording/adoption workflows. Recording
+256-arm/channel assumptions, structural 64-operation batch policy and history
+256-command/32 MiB payload policy remain separate work. Freeze/bounce, richer
+serial/parallel graphs and Linux/Windows sustained and physical profiles retain
+their staged dependencies. No F/Q/C/N contract is promoted, and original native
+sanitizer observation 71's clock gap/source CPU cause remains unresolved.

@@ -4,11 +4,10 @@
 
 namespace soundcurrent::daw {
 namespace {
-PlaybackConfig configFor(const Session &s, const Id &id, const MixPlaybackConfig &c) {
-    const auto it =
-        std::find_if(s.tracks.begin(), s.tracks.end(), [&](const auto &t) { return t.id == id; });
-    if (it == s.tracks.end())
-        throw ProjectError(ErrorCode::InvalidState, "Playback mix track missing");
+PlaybackConfig configFor(const ValidatedSession &validated, const Id &id,
+                         const MixPlaybackConfig &c) {
+    const auto &s = validated.session();
+    const auto *it = &validated.track(id);
     PlaybackConfig p;
     p.sampleRate = s.sampleRate;
     p.layout = it->layout;
@@ -24,8 +23,14 @@ PlaybackConfig configFor(const Session &s, const Id &id, const MixPlaybackConfig
 std::size_t mixPlaybackPayloadBytes(const Session &s, const MixPlan &p,
                                     const MixPlaybackConfig &c) {
     auto bytes = mixPayloadBytes(s, p, c.graph);
+    const ValidatedSession validated(s, c.graph.stateBudget);
+    PayloadCharge mask("Playback track mask", c.graph.memoryBudgetBytes);
+    mask.add(p.tracks.size());
+    if (bytes > SIZE_MAX - mask.bytes())
+        throw ResourceLimitError("Playback mix payload", SIZE_MAX, c.graph.memoryBudgetBytes);
+    bytes += mask.bytes();
     for (const auto &t : p.tracks) {
-        const auto pipe = configFor(s, t.track, c);
+        const auto pipe = configFor(validated, t.track, c);
         // Pipes + planar raw scratch + disk float/double decode buffers. Binding/file
         // metadata is separately bounded by MixReader, with additional payload checks.
         const auto samples =
@@ -37,8 +42,7 @@ std::size_t mixPlaybackPayloadBytes(const Session &s, const MixPlan &p,
         bytes += 8192;
     }
     if (bytes > c.graph.memoryBudgetBytes)
-        throw ProjectError(ErrorCode::InvalidState,
-                           "Playback mix buffers exceed total memory admission");
+        throw ResourceLimitError("Playback mix buffers", bytes, c.graph.memoryBudgetBytes);
     return bytes;
 }
 struct MixPlayback::State {
@@ -60,6 +64,7 @@ struct MixPlayback::State {
     PreparedMixGraph graph;
     std::vector<std::unique_ptr<Lane>> lanes;
     std::vector<MixInput> inputs;
+    std::vector<std::uint8_t> replaced; // Prepared per graph, never resized in process().
     PlaybackStatus terminal = PlaybackStatus::Running;
     std::atomic<std::uint64_t> missing{0};
     State(const Session &s, MixPlan p, MixPlaybackConfig c)
@@ -68,8 +73,10 @@ struct MixPlayback::State {
 MixPlayback::MixPlayback(const Session &s, MixPlan p, MixPlaybackConfig c) {
     mixPlaybackPayloadBytes(s, p, c);
     state_ = std::make_unique<State>(s, std::move(p), c);
+    const ValidatedSession validated(s, c.graph.stateBudget);
+    state_->replaced.assign(state_->graph.plan().tracks.size(), 0);
     for (const auto &route : state_->graph.plan().tracks) {
-        auto lane = std::make_unique<State::Lane>(configFor(s, route.track, c));
+        auto lane = std::make_unique<State::Lane>(configFor(validated, route.track, c));
         state_->inputs.emplace_back(lane->read.data(), lane->pipe.config().layout.channels);
         state_->lanes.push_back(std::move(lane));
     }
@@ -92,7 +99,8 @@ MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_
                 return r;
             }
     // Validate before consuming any file pipe or moving the common cursor.
-    std::array<bool, 256> replaced{};
+    auto &replaced = s.replaced;
+    std::fill(replaced.begin(), replaced.end(), std::uint8_t{0});
     for (const auto &replacement : live) {
         if (replacement.track >= s.lanes.size() || replaced[replacement.track] ||
             replacement.beginFrame < 0 || replacement.endFrame < replacement.beginFrame ||

@@ -10,16 +10,16 @@
 namespace soundcurrent::daw {
 PreparedEq::PreparedEq(const Session &session, const Id &trackId, std::uint32_t maxFrames,
                        std::uint64_t generation, double smoothingMs)
-    : trackId_(trackId), processorId_(session.id), sampleRate_(session.sampleRate), channels_(0),
-      maxFrames_(maxFrames), smoothingFrames_(0), generation_(generation) {
-    validate(session);
+    : PreparedEq(ValidatedSession(session), trackId, maxFrames, generation, smoothingMs) {}
+PreparedEq::PreparedEq(const ValidatedSession &validated, const Id &trackId,
+                       std::uint32_t maxFrames, std::uint64_t generation, double smoothingMs)
+    : trackId_(trackId), processorId_(validated.session().id),
+      sampleRate_(validated.session().sampleRate), channels_(0), maxFrames_(maxFrames),
+      smoothingFrames_(0), generation_(generation) {
     if (!maxFrames || maxFrames > 65536 || !generation || !std::isfinite(smoothingMs) ||
         smoothingMs < 1 || smoothingMs > 20)
         throw ProjectError(ErrorCode::InvalidState, "Invalid EQ preparation contract");
-    const auto t = std::find_if(session.tracks.begin(), session.tracks.end(),
-                                [&](const Track &t) { return t.id == trackId; });
-    if (t == session.tracks.end())
-        throw ProjectError(ErrorCode::InvalidId, "Unknown track");
+    const auto *t = &validated.track(trackId);
     processorId_ = t->eq.id;
     channels_ = t->layout.channels;
     layout_ = t->layout;

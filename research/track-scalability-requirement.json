@@ -5,37 +5,37 @@
   "recorded_utc": "2026-10-07T00:25:36.362141+00:00",
   "baseline": "SC-DAW-BASELINE-2026-10-05",
   "requirement": "Serve lower-budget recording studios including studios with substantial audio hardware; support any finite total project track count admitted by configured resources without a fixed product/license ceiling.",
-  "status": "required/planned/not implemented",
+  "status": "partial implementation: resource-admitted audio-track model/parser/mix and Linux Qt controls; full X006 incomplete",
   "contract": "docs/67-track-scalability.md",
   "decision": "docs/decisions/053-resource-admitted-track-count.md",
   "platforms": [
     "Linux",
     "Windows"
   ],
-  "current_total_track_limit": 256,
+  "current_total_track_limit": null,
   "hardware_input_count_distinct": true,
   "real_time_capacity_distinct": true,
   "frozen_contract_count": 92,
   "frozen_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
   "FQCN_promotion": false,
   "implementation_source_sha256": {
-    "src/session.cpp": "da55005ea2c16cd1abfcf54ddcede29042cbe32314edf14cad1bb15ed387ea90",
-    "src/project_store.cpp": "2f14c94ad5e4f20f06ba534e8d038839ee9941f2b6b35f6accb45c9e8527bf83",
-    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
-    "src/mix_playback.cpp": "b1438a91d5d1f54e5830c45e084412246af738b99e6a046d300dce064acd19e1",
-    "src/manual_recording.cpp": "298b63cb6750b748003bb60b020942fad1124a35ebb79d6a16cd548c21d0aa98",
+    "src/session.cpp": "68018ad1cc17a6cd4e39e6b853ed60abea59fc8d387425226a177abf03f3c626",
+    "src/project_store.cpp": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15",
+    "src/mix.cpp": "1d76d7b39fa53d044d8a49b9f5cd5885d3d6f0757007b484c5bad1ee02953588",
+    "src/mix_playback.cpp": "e1947f16f6d2c3465e564845e5326e1c76a2695bd5bb97acd999a3f6a0acdee8",
+    "src/manual_recording.cpp": "bc86df89a18b2d7f207c87d4b5254a651fcb753d882eb316c1fc494a3a55115c",
     "src/manual_punch.cpp": "85572f2cecb1d3101d9af6b2060f97c6d8b265ec4bc4cc526ae6e3f81ae8290d"
   },
   "acceptance_workflows": [
     {
       "id": "X006-01",
       "workflow": "Create/edit/group/Undo/Redo/Save/reopen257,512,1024,4096-track synthetic projects preserving all stable IDs/routes/state; no replacement fixed product ceiling.",
-      "status": "unverified"
+      "status": "partial: 257/512/1024/4096 audio-track core state and short synthetic processing; Linux Qt opens4096/adds4097/Undo/Redo/Save/reopen; other track types and Windows runtime unverified"
     },
     {
       "id": "X006-02",
       "workflow": "Admit/refuse under declared state/memory/IO budgets before mutation; untrusted projects cannot raise trusted admission budgets. Safe old-version refusal and no truncation.",
-      "status": "unverified"
+      "status": "partial: state/encoded/parser/DSP refusal, transactional edit/Save and actual predecessor refusal; combined history/graphs/media/IO/CPU admission remains open"
     },
     {
       "id": "X006-03",
@@ -45,7 +45,7 @@
     {
       "id": "X006-04",
       "workflow": "Prepared serial/parallel/offline graphs preserve processing quality, events, buses/sidechains/PDC/tails and safe retirement with zero RT allocations/frees/blocking locks.",
-      "status": "unverified"
+      "status": "partial: serial unity-EQ matrix/headroom, high-ordinal replacement/event and zero RT allocations/frees/blocking locks over32syntheticframes; richer/parallel/PDC/tail/native gates open"
     },
     {
       "id": "X006-05",
@@ -59,5 +59,37 @@
     }
   ],
   "extends_goal_without_reducing_scope": true,
-  "native_manual_fault_recovery_remains_immediate_next_task": true
+  "native_manual_fault_recovery_remains_immediate_next_task": false,
+  "initial_qualification": {
+    "recorded_utc": "2026-10-07T00:25:36.362141+00:00",
+    "status": "required/planned/not implemented",
+    "current_total_track_limit": 256,
+    "implementation_source_sha256": {
+      "src/session.cpp": "da55005ea2c16cd1abfcf54ddcede29042cbe32314edf14cad1bb15ed387ea90",
+      "src/project_store.cpp": "2f14c94ad5e4f20f06ba534e8d038839ee9941f2b6b35f6accb45c9e8527bf83",
+      "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+      "src/mix_playback.cpp": "b1438a91d5d1f54e5830c45e084412246af738b99e6a046d300dce064acd19e1",
+      "src/manual_recording.cpp": "298b63cb6750b748003bb60b020942fad1124a35ebb79d6a16cd548c21d0aa98",
+      "src/manual_punch.cpp": "85572f2cecb1d3101d9af6b2060f97c6d8b265ec4bc4cc526ae6e3f81ae8290d"
+    }
+  },
+  "current_total_track_limit_scope": "No fixed total project track count in canonical validation/parser/mix or desktop Add Track; caller-owned payload budgets still apply. Recording owners have separate 256-arm/packed-input assumptions.",
+  "implementation_contract": "docs/78-resource-admitted-projects.md",
+  "implementation_decision": "docs/decisions/063-trusted-large-project-admission.md",
+  "implementation_receipt": "tests/results/M2/2026-10-07-resource-admitted-projects.json",
+  "schema_minor": 7,
+  "configured_payload_budget_defaults": {
+    "state_bytes": 67108864,
+    "encoded_bytes": 33554432,
+    "parser_bytes": 268435456,
+    "prepared_dsp_playback_bytes": 134217728,
+    "allocator_rss_guarantee": false
+  },
+  "next_tasks": [
+    "Shared bounded media handles/cache/read-ahead and virtualized views/meters",
+    "Combined snapshot/history/old-new graph resource accounting and configurable desktop policies",
+    "Large recording/adoption workflows; separate arm/native channel capabilities",
+    "Diagnose original native sanitizer observation71 clock gap/source CPU cause without relabeling missing original evidence",
+    "All frozen product milestones and independent Linux/Windows/localization qualification"
+  ]
 }

@@ -220,7 +220,63 @@ void setParameterValue(Session &s, const ParameterAddress &a, double value) {
                     return;
                 }
 }
-void validate(const Session &s) {
+std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
+    PayloadCharge bytes("Session state/validation", budget.memoryBudgetBytes);
+    bytes.add(1, sizeof(Session));
+    const auto string = [&](const std::string &v) { bytes.add(v.capacity()); };
+    const auto id = [&](const Id &v) {
+        string(v.str());
+        bytes.add(256); // Validation indices/identity sets, off the audio thread.
+    };
+    const auto route = [&](const RouteIntent &r) {
+        string(r.backendId);
+        string(r.portIdentity);
+        bytes.add(r.ports.capacity(), sizeof(std::optional<ChannelPortIntent>));
+        for (const auto &p : r.ports)
+            if (p) {
+                string(p->deviceIdentity);
+                string(p->portIdentity);
+                string(p->mediaClass);
+            }
+    };
+    id(s.id);
+    string(s.name);
+    bytes.add(s.tracks.capacity(), sizeof(Track));
+    bytes.add(s.assets.capacity(), sizeof(Asset));
+    for (const auto &a : s.assets) {
+        id(a.id);
+        string(a.relativePath);
+        string(a.sha256);
+    }
+    for (const auto &t : s.tracks) {
+        id(t.id);
+        id(t.eq.id);
+        string(t.name);
+        route(t.input);
+        route(t.output);
+        route(t.monitor);
+        bytes.add(t.eq.bands.capacity(), sizeof(EqBand));
+        for (const auto &b : t.eq.bands)
+            id(b.id);
+        bytes.add(t.clips.capacity(), sizeof(Clip));
+        for (const auto &c : t.clips) {
+            id(c.id);
+            string(c.assetId.str());
+        }
+    }
+    if (s.master) {
+        id(s.master->id);
+        route(s.master->output);
+        bytes.add(s.master->plan.tracks.capacity(), sizeof(TrackMix));
+        for (const auto &lane : s.master->plan.tracks) {
+            string(lane.track.str());
+            bytes.add(lane.channels.capacity(), sizeof(ChannelMix) + 128);
+        }
+    }
+    return bytes.bytes();
+}
+void validate(const Session &s, StateBudget budget) {
+    (void)sessionPayloadBytes(s, budget); // Before allocating validation indices.
     text(s.name);
     check(s.sampleRate >= 8000 && s.sampleRate <= 384000, "Invalid sample rate");
     check(s.playheadFrame >= 0 && s.exportStartFrame >= 0 && s.exportEndFrame >= s.exportStartFrame,
@@ -228,13 +284,15 @@ void validate(const Session &s) {
     check(s.punch.startFrame >= 0 && s.punch.endFrame >= s.punch.startFrame &&
               (!s.punch.enabled || s.punch.endFrame > s.punch.startFrame),
           "Invalid punch recording locators");
-    check(s.tracks.size() <= 256 && s.assets.size() <= 4096, "Session object limit exceeded");
-    std::unordered_set<std::string> ids;
+    std::unordered_set<std::string_view> ids;
     auto unique = [&](const Id &id) {
         check(ids.insert(id.str()).second, "Duplicate object UUID");
     };
     unique(s.id);
-    std::unordered_map<std::string, const Asset *> assets;
+    std::unordered_map<std::string_view, const Asset *> assets;
+    std::unordered_map<std::string_view, const Track *> tracks;
+    for (const auto &t : s.tracks)
+        check(tracks.emplace(t.id.str(), &t).second, "Duplicate track UUID");
     for (const auto &a : s.assets) {
         unique(a.id);
         validateRelativeMediaPath(a.relativePath);
@@ -245,11 +303,9 @@ void validate(const Session &s) {
               "Invalid asset extent/rate");
         assets.emplace(a.id.str(), &a);
     }
-    std::size_t clipCount = 0, routeBytes = 0;
     const auto checkRoute = [&](const RouteIntent &r, std::uint32_t channels) {
         text(r.backendId);
         text(r.portIdentity);
-        routeBytes += r.backendId.size() + r.portIdentity.size();
         check(r.ports.empty() ||
                   (r.ports.size() == channels && !r.backendId.empty() && r.portIdentity.empty()),
               "Invalid per-channel route shape or conflicting legacy identity");
@@ -258,10 +314,8 @@ void validate(const Session &s) {
                 for (const auto *value : {&p->deviceIdentity, &p->portIdentity, &p->mediaClass}) {
                     text(*value);
                     check(!value->empty(), "Empty route descriptor");
-                    routeBytes += value->size();
                 }
             }
-        check(routeBytes <= 1024 * 1024, "Session route metadata budget exceeded");
     };
     if (s.master) {
         const auto &m = *s.master;
@@ -271,22 +325,17 @@ void validate(const Session &s) {
         for (const auto &p : m.output.ports)
             if (p)
                 check(p->input, "Master needs output destinations");
-        check(m.plan.tracks.size() <= 256, "Master track limit exceeded");
-        std::set<std::string> seen;
-        std::size_t routes = 0;
+        std::set<std::string_view> seen;
         for (const auto &lane : m.plan.tracks) {
-            const auto t = std::find_if(s.tracks.begin(), s.tracks.end(),
-                                        [&](const auto &t) { return t.id == lane.track; });
-            check(t != s.tracks.end() && seen.insert(lane.track.str()).second,
+            const auto t = tracks.find(lane.track.str());
+            check(t != tracks.end() && seen.insert(lane.track.str()).second,
                   "Master track missing or duplicated");
-            check(!lane.channels.empty() && lane.channels.size() <= 65536 - routes,
-                  "Master routing limit/empty lane");
-            routes += lane.channels.size();
+            check(!lane.channels.empty(), "Empty master routing lane");
             std::set<std::pair<std::uint32_t, std::uint32_t>> pairs;
             for (const auto &c : lane.channels)
-                check(c.source < t->layout.channels && c.destination < m.plan.output.channels &&
-                          std::isfinite(c.gain) && std::abs(c.gain) <= 64 &&
-                          pairs.emplace(c.source, c.destination).second,
+                check(c.source < t->second->layout.channels &&
+                          c.destination < m.plan.output.channels && std::isfinite(c.gain) &&
+                          std::abs(c.gain) <= 64 && pairs.emplace(c.source, c.destination).second,
                       "Invalid/duplicate master channel route");
         }
     }
@@ -318,8 +367,6 @@ void validate(const Session &s) {
             }
             check(b.frequencyHz < double(s.sampleRate) / 2, "EQ frequency exceeds Nyquist");
         }
-        check(t.clips.size() <= 8192 - clipCount, "Clip limit exceeded");
-        clipCount += t.clips.size();
         for (const auto &c : t.clips) {
             unique(c.id);
             auto it = assets.find(c.assetId.str());
@@ -334,6 +381,18 @@ void validate(const Session &s) {
             check(t.layout == a.layout, "Clip/track layout mismatch");
         }
     }
+}
+ValidatedSession::ValidatedSession(const Session &s, StateBudget budget) : session_(s) {
+    validate(s, budget);
+    tracks_.reserve(s.tracks.size());
+    for (const auto &t : s.tracks)
+        tracks_.emplace(t.id.str(), &t);
+}
+const Track &ValidatedSession::track(const Id &id) const {
+    const auto found = tracks_.find(id.str());
+    if (found == tracks_.end())
+        throw ProjectError(ErrorCode::InvalidId, "Unknown track");
+    return *found->second;
 }
 Session makeOneTrackSession(std::string name, std::string trackName) {
     Session s;
@@ -378,7 +437,8 @@ RouteIntent patchedRouteValue(const Session &s, const RouteAddress &address,
     result.ports.at(patch.channel) = patch.port;
     return result;
 }
-void setRouteValue(Session &s, const RouteAddress &address, const RouteIntent &value) {
+void setRouteValue(Session &s, const RouteAddress &address, const RouteIntent &value,
+                   StateBudget budget) {
     (void)routeValue(s, address);
     auto proposed = s;
     if (address.target == RouteTarget::Master)
@@ -399,7 +459,7 @@ void setRouteValue(Session &s, const RouteAddress &address, const RouteIntent &v
                 break;
             }
         }
-    validate(proposed);
+    validate(proposed, budget);
     s = std::move(proposed);
 }
 bool EditHistory::route(const RouteAddress &address, const RouteIntent &value) {
@@ -408,7 +468,7 @@ bool EditHistory::route(const RouteAddress &address, const RouteIntent &value) {
     if (before == value)
         return false;
     auto proposed = session_;
-    setRouteValue(proposed, address, value);
+    setRouteValue(proposed, address, value, budget_);
     retain(RouteChange{address, before, value});
     session_ = std::move(proposed);
     return true;

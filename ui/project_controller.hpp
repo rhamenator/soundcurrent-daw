@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include <soundcurrent/recording.hpp>
+#include <soundcurrent/project_store.hpp>
 #include <memory>
 #include <optional>
 
@@ -26,7 +27,7 @@ struct ProjectCommand {
     std::string name;
     std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
     std::shared_ptr<const std::vector<RecordingResult>>
-        recordings;                 // Alternative atomic group, 1..256.
+        recordings; // Alternative atomic group, admitted against trusted receipt/state resources.
     std::vector<SessionEdit> edits; // One atomic group, at most 64 operations.
     std::optional<RouteAddress> routeAddress;
     RouteIntent route;
@@ -73,6 +74,7 @@ struct ControllerOptions {
     std::function<void()> beforeIo;
     std::function<void()> beforeSavePublish;
     std::function<void()> beforeCommand; // Control-worker admission/failure fixture only.
+    ProjectBudget admission{}; // Trusted application configuration, never project metadata.
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
 // to the control worker; blocking filesystem operations to a separate I/O worker.

@@ -6,9 +6,14 @@
 #include <string>
 
 namespace soundcurrent::daw {
-inline constexpr std::size_t maxProjectBytes = 4 * 1024 * 1024;
-std::string encodeProject(const Session &);
-Session decodeProject(std::string_view);
+inline constexpr std::size_t maxProjectBytes = 32 * 1024 * 1024;
+struct ProjectBudget {
+    StateBudget state;
+    std::size_t encodedBytes = maxProjectBytes;
+    std::size_t parserBytes = 256 * 1024 * 1024;
+};
+std::string encodeProject(const Session &, ProjectBudget = {});
+Session decodeProject(std::string_view, ProjectBudget = {});
 std::filesystem::path utf8Path(std::string_view);
 std::string hashMediaFile(const std::filesystem::path &,
                           const std::function<void()> &beforeRead = {});
@@ -24,7 +29,8 @@ struct SaveOptions {
 };
 class ProjectStore {
   public:
-    explicit ProjectStore(std::filesystem::path root) : root_(std::move(root)) {}
+    explicit ProjectStore(std::filesystem::path root, ProjectBudget budget = {})
+        : root_(std::move(root)), budget_(budget) {}
     SaveResult save(const Session &, const SaveOptions &options = {}) const;
     Session load() const;
     // Control/I/O only: verify owned media without publishing a project generation.
@@ -36,6 +42,7 @@ class ProjectStore {
 
   private:
     std::filesystem::path root_;
+    ProjectBudget budget_;
     Session loadFile(const std::filesystem::path &) const;
 };
 } // namespace soundcurrent::daw

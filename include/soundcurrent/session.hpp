@@ -8,6 +8,8 @@
 #include <vector>
 #include <variant>
 #include <utility>
+#include <unordered_map>
+#include <limits>
 
 namespace soundcurrent::daw {
 using Frame = std::int64_t;
@@ -19,8 +21,10 @@ enum class ErrorCode {
     Io,
     MissingMedia,
     MediaMismatch,
-    Canceled
+    Canceled,
+    ResourceLimit
 };
+
 class ProjectError : public std::runtime_error {
   public:
     ProjectError(ErrorCode code, const std::string &diagnostic)
@@ -31,6 +35,60 @@ class ProjectError : public std::runtime_error {
 
   private:
     ErrorCode code_;
+};
+
+// Trusted control-side budgets, never read from project files. Charges bound
+// owned payload and validation work; allocator overhead/RSS is measured separately.
+struct StateBudget {
+    std::size_t memoryBudgetBytes = 64 * 1024 * 1024;
+};
+class ResourceLimitError : public ProjectError {
+  public:
+    ResourceLimitError(std::string resource, std::size_t required, std::size_t available,
+                       bool overflow = false)
+        : ProjectError(ErrorCode::ResourceLimit,
+                       overflow ? resource + " payload size arithmetic overflow"
+                                : resource + " needs at least " + std::to_string(required) +
+                                      " bytes; budget is " + std::to_string(available) + " bytes"),
+          resource_(std::move(resource)), required_(required), available_(available),
+          overflow_(overflow) {}
+    bool arithmeticOverflow() const noexcept {
+        return overflow_;
+    }
+    const std::string &resource() const noexcept {
+        return resource_;
+    }
+    std::size_t requiredBytes() const noexcept {
+        return required_;
+    }
+    std::size_t availableBytes() const noexcept {
+        return available_;
+    }
+
+  private:
+    std::string resource_;
+    std::size_t required_, available_;
+    bool overflow_;
+};
+class PayloadCharge {
+  public:
+    PayloadCharge(std::string resource, std::size_t budget)
+        : resource_(std::move(resource)), budget_(budget) {}
+    void add(std::size_t count, std::size_t unit = 1) {
+        if (unit && count > (std::numeric_limits<std::size_t>::max() - bytes_) / unit)
+            throw ResourceLimitError(resource_, std::numeric_limits<std::size_t>::max(), budget_,
+                                     true);
+        bytes_ += count * unit;
+        if (bytes_ > budget_)
+            throw ResourceLimitError(resource_, bytes_, budget_);
+    }
+    std::size_t bytes() const noexcept {
+        return bytes_;
+    }
+
+  private:
+    std::string resource_;
+    std::size_t budget_, bytes_ = 0;
 };
 
 class Id {
@@ -152,7 +210,22 @@ struct Session {
 };
 bool validUtf8(std::string_view text) noexcept;
 void validateRelativeMediaPath(std::string_view path);
-void validate(const Session &session);
+std::size_t sessionPayloadBytes(const Session &, StateBudget = {});
+void validate(const Session &session, StateBudget = {});
+// Preparation-only immutable borrow: do not mutate/destroy the session while
+// this validated index exists. No public unchecked validation bypass.
+class ValidatedSession {
+  public:
+    explicit ValidatedSession(const Session &, StateBudget = {});
+    const Session &session() const noexcept {
+        return session_;
+    }
+    const Track &track(const Id &) const;
+
+  private:
+    const Session &session_;
+    std::unordered_map<std::string_view, const Track *> tracks_;
+};
 Session makeOneTrackSession(std::string name, std::string trackName);
 Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampleRate);
 // Control-thread edits, addressed by stable identity. A batch is all-or-nothing.
@@ -205,7 +278,7 @@ struct SetInputLatency {
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
                  SetClipRange, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
-void applySessionEdits(Session &, const std::vector<SessionEdit> &);
+void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {
     Id trackId;
@@ -219,7 +292,7 @@ struct RouteChannelPatch {
 };
 const RouteIntent &routeValue(const Session &, const RouteAddress &);
 RouteIntent patchedRouteValue(const Session &, const RouteAddress &, const RouteChannelPatch &);
-void setRouteValue(Session &, const RouteAddress &, const RouteIntent &);
+void setRouteValue(Session &, const RouteAddress &, const RouteIntent &, StateBudget = {});
 RecordingMonitor monitoringValue(const Session &, const Id &trackId);
 void setMonitoringValue(Session &, const Id &trackId, RecordingMonitor);
 
@@ -244,7 +317,8 @@ void setParameterValue(Session &, const ParameterAddress &, double value);
 // Semantic control-thread gestures. No audio processing and no RT-safe claim.
 class EditHistory {
   public:
-    explicit EditHistory(Session &session) : session_(session) {}
+    explicit EditHistory(Session &session, StateBudget budget = {})
+        : session_(session), budget_(budget) {}
     void begin(const ParameterAddress &);
     void update(double value);
     void commit();
@@ -288,6 +362,7 @@ class EditHistory {
     void retain(Change);
     void apply(const Change &, bool forward);
     Session &session_;
+    StateBudget budget_;
     std::optional<ParameterChange> active_;
     std::vector<Change> undo_, redo_;
 };

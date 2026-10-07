@@ -11,21 +11,17 @@ void require(bool ok, const char *message) {
     if (!ok)
         throw ProjectError(ErrorCode::InvalidState, message);
 }
-const Track &find(const Session &s, const Id &id) {
-    const auto it =
-        std::find_if(s.tracks.begin(), s.tracks.end(), [&](const auto &t) { return t.id == id; });
-    require(it != s.tracks.end(), "Mix track is missing");
-    return *it;
-}
 void add(std::size_t &bytes, std::size_t count, std::size_t unit) {
     require(count <= (SIZE_MAX - bytes) / unit, "Mix payload size overflow");
     bytes += count * unit;
 }
 } // namespace
-MixPlan identityMix(const Session &s, std::span<const Id> tracks, ChannelLayout output) {
+MixPlan identityMix(const Session &s, std::span<const Id> tracks, ChannelLayout output,
+                    StateBudget budget) {
+    const ValidatedSession validated(s, budget);
     MixPlan p{output, {}};
     for (const auto &id : tracks) {
-        const auto &t = find(s, id);
+        const auto &t = validated.track(id);
         require(t.layout == output, "Mixed layouts require an explicit channel matrix");
         TrackMix lane{id, {}};
         for (std::uint32_t c = 0; c < output.channels; ++c)
@@ -34,11 +30,12 @@ MixPlan identityMix(const Session &s, std::span<const Id> tracks, ChannelLayout 
     }
     return p;
 }
-std::size_t mixPayloadBytes(const Session &s, const MixPlan &p, const MixConfig &c) {
-    validate(s);
-    require(!p.tracks.empty() && p.tracks.size() <= 256 && c.maximumFrames &&
-                c.maximumFrames <= 65536 && c.startFrame >= 0 && c.generation &&
-                c.maximumRoutingEntries && p.output.channels && p.output.channels <= 256 &&
+namespace {
+std::size_t admittedMixBytes(const ValidatedSession &validated, const MixPlan &p,
+                             const MixConfig &c) {
+    require(!p.tracks.empty() && c.maximumFrames && c.maximumFrames <= 65536 && c.startFrame >= 0 &&
+                c.generation && c.maximumRoutingEntries && p.output.channels &&
+                p.output.channels <= 256 &&
                 ((p.output.kind == LayoutKind::Mono && p.output.channels == 1) ||
                  (p.output.kind == LayoutKind::Stereo && p.output.channels == 2) ||
                  p.output.kind == LayoutKind::Discrete),
@@ -49,7 +46,7 @@ std::size_t mixPayloadBytes(const Session &s, const MixPlan &p, const MixConfig 
     std::set<std::string> ids;
     for (const auto &route : p.tracks) {
         require(ids.insert(route.track.str()).second, "Duplicate mix track");
-        const auto &t = find(s, route.track);
+        const auto &t = validated.track(route.track);
         require(!route.channels.empty() &&
                     route.channels.size() <= c.maximumRoutingEntries - entries,
                 "Mix routing entry budget exceeded or empty track route");
@@ -65,8 +62,13 @@ std::size_t mixPayloadBytes(const Session &s, const MixPlan &p, const MixConfig 
         add(bytes, std::size_t(c.maximumFrames) * t.layout.channels, sizeof(float));
         add(bytes, t.eq.bands.size(), 256 + std::size_t(t.layout.channels) * 16);
     }
-    require(bytes <= c.memoryBudgetBytes, "Mix DSP payload exceeds memory admission");
+    if (bytes > c.memoryBudgetBytes)
+        throw ResourceLimitError("Mix DSP payload", bytes, c.memoryBudgetBytes);
     return bytes;
+}
+} // namespace
+std::size_t mixPayloadBytes(const Session &s, const MixPlan &p, const MixConfig &c) {
+    return admittedMixBytes(ValidatedSession(s, c.stateBudget), p, c);
 }
 struct PreparedMixGraph::State {
     struct Lane {
@@ -74,7 +76,7 @@ struct PreparedMixGraph::State {
         EqLiveDriver driver;
         std::vector<float> wet;
         std::array<float *, 256> views{};
-        Lane(const Session &s, const Id &id, const MixConfig &c)
+        Lane(const ValidatedSession &s, const Id &id, const MixConfig &c)
             : eq(s, id, c.maximumFrames, c.generation), driver(eq, c.startFrame),
               wet(std::size_t(eq.channels()) * c.maximumFrames, 0.f) {
             for (std::uint32_t n = 0; n < eq.channels(); ++n)
@@ -95,14 +97,15 @@ struct PreparedMixGraph::State {
         : plan(std::move(p)), config(c), frame(c.startFrame), published(frame) {}
 };
 PreparedMixGraph::PreparedMixGraph(const Session &s, MixPlan p, MixConfig c) {
-    mixPayloadBytes(s, p, c);
+    const ValidatedSession validated(s, c.stateBudget);
+    admittedMixBytes(validated, p, c);
     state_ = std::make_unique<State>(std::move(p), c);
     auto &v = *state_;
     v.sum.resize(std::size_t(c.maximumFrames) * v.plan.output.channels, 0.);
     v.silence.resize(c.maximumFrames, 0.f);
     v.silentViews.fill(v.silence.data());
     for (const auto &t : v.plan.tracks) {
-        auto lane = std::make_unique<State::Lane>(s, t.track, c);
+        auto lane = std::make_unique<State::Lane>(validated, t.track, c);
         v.silentInputs.emplace_back(v.silentViews.data(), lane->eq.channels());
         v.lanes.push_back(std::move(lane));
     }

@@ -132,9 +132,10 @@ void noLink(const std::filesystem::path &p) {
             "Reparse point refused", ErrorCode::Io);
 #endif
 }
-std::string readFile(const std::filesystem::path &p) {
+std::string readFile(const std::filesystem::path &p, ProjectBudget budget) {
     require(plainFile(p), "Project file missing or not a regular file", ErrorCode::Io);
-    require(std::filesystem::file_size(p) <= maxProjectBytes, "Project size limit exceeded");
+    PayloadCharge bytes("Encoded project", budget.encodedBytes);
+    bytes.add(std::filesystem::file_size(p));
     std::ifstream f(p, std::ios::binary);
     require(bool(f), "Cannot read project", ErrorCode::Io);
     std::string out;
@@ -142,7 +143,8 @@ std::string readFile(const std::filesystem::path &p) {
     while (f) {
         f.read(buffer.data(), buffer.size());
         out.append(buffer.data(), static_cast<std::size_t>(f.gcount()));
-        require(out.size() <= maxProjectBytes, "Project size limit exceeded");
+        if (out.size() > budget.encodedBytes)
+            throw ResourceLimitError("Encoded project", out.size(), budget.encodedBytes);
     }
     require(f.eof(), "Project read failed", ErrorCode::Io);
     return out;
@@ -264,8 +266,10 @@ std::filesystem::path utf8Path(std::string_view s) {
     return std::filesystem::path(
         std::u8string(reinterpret_cast<const char8_t *>(s.data()), s.size()));
 }
-std::string encodeProject(const Session &s) {
-    validate(s);
+std::string encodeProject(const Session &s, ProjectBudget budget) {
+    validate(s, budget.state);
+    PayloadCharge staging("Project encoding staging", budget.parserBytes);
+    staging.add(sessionPayloadBytes(s, budget.state), 8);
     Json tracks = Json::array(), assets = Json::array();
     for (const auto &t : s.tracks) {
         Json bands = Json::array(), clips = Json::array();
@@ -309,7 +313,7 @@ std::string encodeProject(const Session &s) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 6},
+        {"schemaMinor", 7},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -337,30 +341,108 @@ std::string encodeProject(const Session &s) {
                           {"outputIntent", route(s.master->output)}};
     }
     auto out = root.dump(2) + "\n";
-    require(out.size() <= maxProjectBytes, "Project size limit exceeded");
+    PayloadCharge encoded("Encoded project", budget.encodedBytes);
+    encoded.add(out.size());
     return out;
 }
-Session decodeProject(std::string_view bytes) {
-    require(bytes.size() <= maxProjectBytes, "Project size limit exceeded");
+namespace {
+// A non-building pass certifies bounded node/string/duplicate-key work before
+// constructing the JSON DOM. This is a payload charge, not an allocator/RSS cap.
+struct ProjectPreflight : nlohmann::json_sax<Json> {
+    PayloadCharge charge;
+    struct Level {
+        bool object;
+        std::unordered_set<std::string> keys;
+    };
+    std::vector<Level> levels;
+    explicit ProjectPreflight(std::size_t budget) : charge("Project parser staging", budget) {}
+    bool scalar() {
+        charge.add(128);
+        return true;
+    }
+    bool null() override {
+        return scalar();
+    }
+    bool boolean(bool) override {
+        return scalar();
+    }
+    bool number_integer(number_integer_t) override {
+        return scalar();
+    }
+    bool number_unsigned(number_unsigned_t) override {
+        return scalar();
+    }
+    bool number_float(number_float_t, const string_t &) override {
+        return scalar();
+    }
+    bool string(string_t &v) override {
+        charge.add(v.size());
+        return scalar();
+    }
+    bool binary(binary_t &) override {
+        fail("Binary project JSON refused");
+    }
+    bool start(bool object) {
+        require(levels.size() < 32, "Project nesting limit exceeded");
+        charge.add(512);
+        levels.push_back({object, {}});
+        return true;
+    }
+    bool start_object(std::size_t) override {
+        return start(true);
+    }
+    bool start_array(std::size_t) override {
+        return start(false);
+    }
+    bool key(string_t &v) override {
+        charge.add(128);
+        charge.add(v.size());
+        require(!levels.empty() && levels.back().object && levels.back().keys.insert(v).second,
+                "Duplicate JSON key");
+        return true;
+    }
+    bool end_object() override {
+        levels.pop_back();
+        return true;
+    }
+    bool end_array() override {
+        levels.pop_back();
+        return true;
+    }
+    bool parse_error(std::size_t, const std::string &,
+                     const nlohmann::detail::exception &) override {
+        fail("Malformed project JSON");
+    }
+};
+void canonicalPreflight(const Json &value, PayloadCharge &charge) {
+    if (value.is_object()) {
+        charge.add(512);
+        for (const auto &child : value.items())
+            canonicalPreflight(child.value(), charge);
+    } else if (value.is_array()) {
+        charge.add(128);
+        for (const auto &child : value)
+            canonicalPreflight(child, charge);
+    } else {
+        charge.add(32);
+        if (value.is_string())
+            charge.add(value.get_ref<const std::string &>().size());
+    }
+}
+} // namespace
+Session decodeProject(std::string_view bytes, ProjectBudget budget) {
+    PayloadCharge encoded("Encoded project", budget.encodedBytes);
+    encoded.add(bytes.size());
     try {
-        std::vector<std::unordered_set<std::string>> objectKeys;
-        auto callback = [&](int depth, Json::parse_event_t event, Json &value) {
-            require(depth <= 32, "Project nesting limit exceeded");
-            if (event == Json::parse_event_t::object_start)
-                objectKeys.emplace_back();
-            else if (event == Json::parse_event_t::key) {
-                require(!objectKeys.empty() &&
-                            objectKeys.back().insert(value.get<std::string>()).second,
-                        "Duplicate JSON key");
-            } else if (event == Json::parse_event_t::object_end)
-                objectKeys.pop_back();
-            return true;
-        };
-        const auto j = Json::parse(bytes.begin(), bytes.end(), callback);
+        ProjectPreflight preflight(budget.parserBytes);
+        preflight.charge.add(
+            bytes.size()); // Token strings are bounded before SAX materializes them.
+        require(Json::sax_parse(bytes.begin(), bytes.end(), &preflight), "Malformed project JSON");
+        const auto j = Json::parse(bytes.begin(), bytes.end());
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 6),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 7),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -373,6 +455,8 @@ Session decodeProject(std::string_view bytes) {
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
+        PayloadCharge canonical("Project canonical staging", budget.state.memoryBudgetBytes);
+        canonicalPreflight(j, canonical); // Before constructing canonical vectors/strings.
         Session s;
         s.id = Id(string(j.at("projectId")));
         s.name = string(j.at("name"));
@@ -388,7 +472,8 @@ Session decodeProject(std::string_view bytes) {
             s.punch = {boolean(punch.at("enabled")), integer(punch.at("startFrame")),
                        integer(punch.at("endFrame"))};
         }
-        array(j.at("assets"), 4096);
+        array(j.at("assets"), budget.state.memoryBudgetBytes / sizeof(Asset));
+        s.assets.reserve(j.at("assets").size());
         for (const auto &a : j.at("assets")) {
             keys(a, {"id", "path", "sha256", "sampleRate", "layout", "frames"});
             Asset asset;
@@ -400,7 +485,8 @@ Session decodeProject(std::string_view bytes) {
             asset.frames = integer(a.at("frames"));
             s.assets.push_back(std::move(asset));
         }
-        array(j.at("tracks"), 256);
+        array(j.at("tracks"), budget.state.memoryBudgetBytes / sizeof(Track));
+        s.tracks.reserve(j.at("tracks").size());
         for (const auto &t : j.at("tracks")) {
             if (minor == 0)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "processors",
@@ -443,6 +529,7 @@ Session decodeProject(std::string_view bytes) {
             track.eq.id = Id(string(p.at("id")));
             track.eq.enabled = boolean(p.at("enabled"));
             array(p.at("bands"), 64);
+            track.eq.bands.reserve(p.at("bands").size());
             for (const auto &b : p.at("bands")) {
                 keys(b, {"id", "frequencyHz", "gainDb", "q"});
                 EqBand band;
@@ -452,7 +539,8 @@ Session decodeProject(std::string_view bytes) {
                 band.q = number(b.at("q"));
                 track.eq.bands.push_back(std::move(band));
             }
-            array(t.at("clips"), 8192);
+            array(t.at("clips"), budget.state.memoryBudgetBytes / sizeof(Clip));
+            track.clips.reserve(t.at("clips").size());
             for (const auto &c : t.at("clips")) {
                 keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames"});
                 Clip clip;
@@ -472,13 +560,13 @@ Session decodeProject(std::string_view bytes) {
             master.id = Id(string(m.at("id")));
             master.plan.output = readLayout(m.at("layout"));
             master.output = readRoute(m.at("outputIntent"), false);
-            array(m.at("tracks"), 256);
-            std::size_t maps = 0;
+            array(m.at("tracks"), budget.state.memoryBudgetBytes / sizeof(TrackMix));
+            master.plan.tracks.reserve(m.at("tracks").size());
             for (const auto &t : m.at("tracks")) {
                 keys(t, {"trackId", "channels"});
-                array(t.at("channels"), 65536 - maps);
-                maps += t.at("channels").size();
+                array(t.at("channels"), budget.state.memoryBudgetBytes / sizeof(ChannelMix));
                 TrackMix lane{Id(string(t.at("trackId"))), {}};
+                lane.channels.reserve(t.at("channels").size());
                 for (const auto &c : t.at("channels")) {
                     keys(c, {"source", "destination", "gain"});
                     lane.channels.push_back(
@@ -488,7 +576,7 @@ Session decodeProject(std::string_view bytes) {
             }
             s.master = std::move(master);
         }
-        validate(s);
+        validate(s, budget.state);
         return s;
     } catch (const Json::exception &) {
         fail("Malformed project JSON");
@@ -561,7 +649,7 @@ std::string hashMediaFile(const std::filesystem::path &p, const std::function<vo
     return out;
 }
 void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &beforeRead) const {
-    validate(s);
+    validate(s, budget_.state);
     noLink(root_);
     require(std::filesystem::is_directory(root_), "Project directory unavailable", ErrorCode::Io);
     for (const auto &a : s.assets) {
@@ -576,7 +664,7 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
     }
 }
 SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) const {
-    const auto encoded = encodeProject(s);
+    const auto encoded = encodeProject(s, budget_);
     noLink(root_);
     std::filesystem::create_directories(root_);
     WriterLock lock(root_);
@@ -585,8 +673,8 @@ SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) cons
     bool previous = false;
     noLink(current);
     if (std::filesystem::exists(current)) {
-        auto old = readFile(current);
-        const auto prior = decodeProject(old);
+        auto old = readFile(current, budget_);
+        const auto prior = decodeProject(old, budget_);
         require(prior.id == s.id, "Refusing to overwrite another project");
         publish(root_ / "project.previous.json", old);
         previous = true;
@@ -594,7 +682,7 @@ SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) cons
     return {previous, publish(current, encoded, options)};
 }
 Session ProjectStore::loadFile(const std::filesystem::path &p) const {
-    auto s = decodeProject(readFile(p));
+    auto s = decodeProject(readFile(p, budget_), budget_);
     verifyMedia(s);
     return s;
 }

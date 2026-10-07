@@ -2093,3 +2093,55 @@ Next: X006 coordinated track-resource admission and media/UI scaling, native Win
 recording acceptance, and separate diagnosis/sustained qualification. The current
 256-track ceiling and all F/Q/C/N, X004/X005/X006/Europe/full-product gaps remain.
 See [contract and limits](77-native-manual-panel.md) and the dated M2 receipt.
+
+
+## M2 X006 resource-admitted large projects (2026-10-07)
+
+Previous goal turn was **progress**: protected PR22 qualified actual short native
+manual desktop workflows and retained original sanitizer observation 71's active
+clock gap/source CPU cause unresolved. This turn starts concrete X006 model/parser/
+mix and desktop scaling rather than promoting a track count to full acceptance.
+
+[Implementation](78-resource-admitted-projects.md)/ADR063 removes fixed total-track
+validation/parser/mix/replacement-mask and Add Track ceilings. Trusted state,
+encoded-byte, parser-staging and DSP payload policies cannot be overridden by a
+project file. Checked charges, indexed immutable preparation, efficient history
+differences/order and schema 1.7 retain IDs, explicit refusal and migrations.
+Charges do not establish allocator/RSS or combined old/new graph/history bounds.
+
+Core audio-track workflows pass at 257/512/1024/4096: grouped edit, Undo/Redo, Save/
+reopen/previous snapshot, low-budget transactional refusal, exact matrix/headroom
+over two synthetic 16-frame blocks, high-ordinal replacement/event and zero RT
+allocations/frees/blocking locks. Actual Linux Qt controls open 4096, edit the last
+stable ID, add 4097, Undo/Redo and Close/Save/reopen. Full Debug **42/42, 82.25 s**
+passes. Seven affected sanitizer groups pass on unchanged production sources;
+the separate normal/large desktop cases then pass **2/2, 58.25 s**. Large Close/
+Save measures 3,058 ms Debug and 16,536 ms under sanitizers. The 4,096-track
+synthetic graph requires about 1.64 GB of configured prepared payload, highlighting
+per-track event queues. No sustained or physical throughput is inferred.
+
+Original slab16/slab64 fixture errors, stale-test launch after a failed build,
+legacy minor/track-limit assertions, logger compile error, initial GUI compound
+assertion and sanitizer ten-second Close timeout remain retained. Missing original
+GUI subterms/unsaved state and exact original Close-worker timing are not restored
+retroactively by later instrumentation. The large GUI case now has a separate
+bounded test and scoped wait; ordinary waits/deadlines remain. Actual predecessor
+reader refusal passes on a 257-track schema 1.7 project with snapshots unchanged;
+its 4096-track attempt stopped earlier at the old 4 MiB bound and is kept separate.
+
+Windows core cross-build passes compilation/linking only. All 24 reviewed equalizer
+inputs remain unchanged. The 92-row frozen projection hash remains
+`8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28`, with zero F/Q/C/N
+promotion. All 71 existing native observations and historical unresolved causes
+remain; this turn adds no native audio run. The [dated receipt](../tests/results/M2/2026-10-07-resource-admitted-projects.json)
+and archive preserve exact sources, executable hashes, generated no-media projects,
+logs and original failures.
+
+Next implement shared bounded media handles/cache/read-ahead and virtualized views/
+meters, combined snapshot/history/old-new graph admission and configurable desktop
+policies, then large recording/adoption workflows. Recording 256-arm/channel
+assumptions, structural 64-operation batch and 256-command/32 MiB history policy,
+freeze/bounce, richer/parallel graphs and sustained Linux/Windows profiles remain.
+The full frozen suite, X004 imports, X005 profiles, native Windows/UI/install and
+European language delivery remain required. X006 is partially implemented, and
+the full goal remains active and incomplete.

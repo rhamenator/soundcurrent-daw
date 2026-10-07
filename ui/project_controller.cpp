@@ -10,6 +10,14 @@
 namespace soundcurrent::daw::ui {
 namespace {
 constexpr std::size_t commandCapacity = 64;
+void admitReceipts(const std::shared_ptr<const std::vector<RecordingResult>> &recordings,
+                   StateBudget budget) {
+    if (!recordings || recordings->empty())
+        throw ProjectError(ErrorCode::InvalidState, "A take group needs recording receipts");
+    PayloadCharge charge("Take receipt group", budget.memoryBudgetBytes);
+    charge.add(recordings->size(), sizeof(RecordingResult) + 8192);
+}
+
 struct IoJob {
     IoOperation operation = IoOperation::None;
     std::filesystem::path root;
@@ -79,14 +87,11 @@ class IoWorker : public QThread {
                     options.beforeIo();
                 if (closing.load(std::memory_order_acquire))
                     throw ProjectError(ErrorCode::Canceled, "Project operation canceled");
-                ProjectStore store(next.root);
+                ProjectStore store(next.root, options.admission);
                 if (next.operation == IoOperation::Open)
                     finished.loaded = store.load();
                 else if (next.operation == IoOperation::AttachRecording) {
-                    if (!next.recordings || next.recordings->empty() ||
-                        next.recordings->size() > 256)
-                        throw ProjectError(ErrorCode::InvalidState,
-                                           "Invalid take verification group");
+                    admitReceipts(next.recordings, options.admission.state);
                     const auto canceled = [&] {
                         if (closing.load(std::memory_order_acquire))
                             throw ProjectError(ErrorCode::Canceled,
@@ -155,6 +160,7 @@ struct ProjectController::State : QThread {
     std::deque<ProjectCommand> commands;
     std::shared_ptr<const ControllerSnapshot> latest = std::make_shared<ControllerSnapshot>();
     std::atomic<bool> closing{false};
+    ProjectBudget admission;
     IoWorker io;
     std::optional<Session> model;
     std::unique_ptr<EditHistory> history;
@@ -163,7 +169,8 @@ struct ProjectController::State : QThread {
     std::optional<ParameterAddress> activeAddress;
     ControllerSnapshot view;
     bool changed = true;
-    explicit State(ControllerOptions options) : io(std::move(options), closing) {}
+    explicit State(ControllerOptions options)
+        : admission(options.admission), io(std::move(options), closing) {}
     ~State() override = default;
     void publish() {
         if (changed && model)
@@ -324,9 +331,7 @@ struct ProjectController::State : QThread {
                                         ? command.recordings
                                         : std::make_shared<const std::vector<RecordingResult>>(
                                               std::vector<RecordingResult>{*command.recording});
-            if (recordings->empty() || recordings->size() > 256)
-                throw ProjectError(ErrorCode::InvalidState,
-                                   "A take group must contain 1..256 receipts");
+            admitReceipts(recordings, admission.state);
             for (const auto &r : *recordings)
                 attachRecording(*proposed, r);
             commitGesture();
@@ -404,7 +409,7 @@ struct ProjectController::State : QThread {
         } else {
             model = result.loaded ? std::move(result.loaded)
                                   : std::optional<Session>(*result.job.session);
-            history = std::make_unique<EditHistory>(*model);
+            history = std::make_unique<EditHistory>(*model, admission.state);
             activeGesture = 0;
             activeAddress.reset();
             view.attachedRecordings = 0;
