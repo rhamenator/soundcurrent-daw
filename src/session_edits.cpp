@@ -314,35 +314,38 @@ std::size_t EditHistory::checkOperation(std::size_t candidateBytes, const Sessio
         std::max(sessionPayloadBytes(session_, budget_), sessionPayloadBytes(value, budget_)), 3);
     return charge.bytes();
 }
-void EditHistory::checkCandidate(const Change &change, const Session &value) const {
+std::size_t EditHistory::checkCandidate(const Change &change, const Session &value) const {
     const auto bytes = weight(change);
     if (bytes > historyBudget_.retainedBytes)
         throw ResourceLimitError("Retained Undo command", bytes, historyBudget_.retainedBytes);
     if (active_ && weight(*active_) > historyBudget_.retainedBytes)
         throw ResourceLimitError("Pending Undo command", weight(*active_),
                                  historyBudget_.retainedBytes);
-    (void)checkOperation(bytes, value);
+    return checkOperation(bytes, value);
 }
-void EditHistory::checkBegin(const ParameterAddress &address) const {
+std::size_t EditHistory::checkBegin(const ParameterAddress &address) const {
     const auto value = parameterValue(session_, address);
     const Change candidate = ParameterChange{address, value, value};
     checkCandidate(candidate, session_);
-    (void)checkOperation(weight(candidate), session_, true, weight(candidate));
+    return checkOperation(weight(candidate), session_, true, weight(candidate));
 }
-void EditHistory::checkRoute(const RouteAddress &address, const RouteIntent &value) const {
+std::size_t EditHistory::checkRoute(const RouteAddress &address, const RouteIntent &value) const {
     auto next = session_;
     setRouteValue(next, address, value, budget_);
-    checkCandidate(RouteChange{address, routeValue(session_, address), value}, next);
+    return checkCandidate(RouteChange{address, routeValue(session_, address), value}, next);
 }
-void EditHistory::checkMonitoring(const Id &id, RecordingMonitor value) const {
+std::size_t EditHistory::checkMonitoring(const Id &id, RecordingMonitor value) const {
     auto next = session_;
     setMonitoringValue(next, id, value);
-    checkCandidate(MonitoringChange{id, monitoringValue(session_, id), value}, next);
+    return checkCandidate(MonitoringChange{id, monitoringValue(session_, id), value}, next);
 }
-void EditHistory::checkAdopt(const Session &value) const {
+std::size_t EditHistory::checkAdopt(const Session &value) const {
     if (value == session_)
-        return;
-    checkCandidate(difference(value), value);
+        return 0;
+    return checkCandidate(difference(value), value);
+}
+void EditHistory::acceptPreflight(std::size_t declaredBytes) noexcept {
+    operationPeakBytes_ = std::max(operationPeakBytes_, declaredBytes);
 }
 void EditHistory::retain(Change change, const Session &value) {
     checkCandidate(change, value);

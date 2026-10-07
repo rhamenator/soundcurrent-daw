@@ -158,7 +158,7 @@ struct ProjectController::State : QThread {
     mutable QMutex mutex;
     QWaitCondition wake;
     std::deque<ProjectCommand> commands;
-    std::shared_ptr<const ControllerSnapshot> latest = std::make_shared<ControllerSnapshot>();
+    std::shared_ptr<const ControllerSnapshot> latest;
     std::atomic<bool> closing{false};
     ProjectBudget admission;
     HistoryBudget historyBudget;
@@ -174,6 +174,8 @@ struct ProjectController::State : QThread {
         : admission(options.admission), historyBudget(options.historyBudget),
           io(std::move(options), closing) {
         validateHistoryBudget(historyBudget);
+        view.historyBudget = historyBudget;
+        latest = std::make_shared<const ControllerSnapshot>(view);
     }
     ~State() override = default;
     void publish() {
@@ -261,8 +263,9 @@ struct ProjectController::State : QThread {
             // Validate the proposed value before altering the current gesture/history.
             auto proposed = *model;
             setParameterValue(proposed, *command.address, command.value);
+            std::size_t preflightPeak = 0;
             if (activeGesture != command.gesture || activeAddress != command.address) {
-                history->checkBegin(*command.address);
+                preflightPeak = history->checkBegin(*command.address);
                 commitGesture();
                 history->begin(*command.address);
                 activeGesture = command.gesture;
@@ -274,6 +277,7 @@ struct ProjectController::State : QThread {
                 revised();
             if (command.final)
                 commitGesture();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Routing: {
@@ -288,10 +292,11 @@ struct ProjectController::State : QThread {
             auto proposed = *model;
             setRouteValue(proposed, *command.routeAddress, value,
                           admission.state); // Reject before committing a gesture.
-            history->checkRoute(*command.routeAddress, value);
+            const auto preflightPeak = history->checkRoute(*command.routeAddress, value);
             commitGesture();
             if (history->route(*command.routeAddress, value))
                 revised();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Monitoring: {
@@ -302,10 +307,12 @@ struct ProjectController::State : QThread {
                                    "Monitoring change needs the current project");
             auto proposed = *model;
             setMonitoringValue(proposed, *command.monitoringTrack, command.monitoring);
-            history->checkMonitoring(*command.monitoringTrack, command.monitoring);
+            const auto preflightPeak =
+                history->checkMonitoring(*command.monitoringTrack, command.monitoring);
             commitGesture();
             if (history->monitoring(*command.monitoringTrack, command.monitoring))
                 revised();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Structural: {
@@ -318,10 +325,11 @@ struct ProjectController::State : QThread {
             if (proposed != *model &&
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                 throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
-            history->checkAdopt(proposed);
+            const auto preflightPeak = history->checkAdopt(proposed);
             commitGesture();
             if (history->adopt(proposed))
                 revised();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::CancelGesture:
@@ -358,13 +366,14 @@ struct ProjectController::State : QThread {
             admitReceipts(recordings, admission.state);
             for (const auto &r : *recordings)
                 attachRecording(*proposed, r);
-            history->checkAdopt(*proposed);
+            const auto preflightPeak = history->checkAdopt(*proposed);
             commitGesture();
             IoJob job{IoOperation::AttachRecording, view.root, std::move(proposed),
                       view.modelRevision, recordings};
             job.attachmentRequest = command.attachmentRequest;
             io.startJob(std::move(job));
             view.io = IoOperation::AttachRecording;
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Barrier:
@@ -411,13 +420,14 @@ struct ProjectController::State : QThread {
                     attachRecording(admitted, r);
                     assets.push_back(r.asset.id);
                 }
-                history->checkAdopt(admitted);
+                const auto preflightPeak = history->checkAdopt(admitted);
                 commitGesture();
                 history->adopt(admitted);
                 revised();
                 view.attachedRecordings += assets.size();
                 view.lastAttachedAsset = assets.back();
                 view.lastAttachedAssets = std::move(assets);
+                history->acceptPreflight(preflightPeak);
             } catch (const ProjectError &e) {
                 if (correlated)
                     view.attachmentCompleted = {result.job.attachmentRequest, e.code(), e.what()};
@@ -452,6 +462,8 @@ struct ProjectController::State : QThread {
     }
     void run() override {
         io.start();
+        if (io.options.beforeInitialPublish)
+            io.options.beforeInitialPublish();
         publish();
         while (!closing.load(std::memory_order_acquire)) {
             if (auto result = io.takeResult()) {

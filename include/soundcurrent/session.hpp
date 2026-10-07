@@ -341,10 +341,12 @@ class EditHistory {
     // Refuses reductions below retained usage; never discards existing Undo/Redo.
     void configure(HistoryBudget);
     // Controller preflight includes an unrelated pending gesture before committing it.
-    void checkAdopt(const Session &) const;
-    void checkRoute(const RouteAddress &, const RouteIntent &) const;
-    void checkMonitoring(const Id &, RecordingMonitor) const;
-    void checkBegin(const ParameterAddress &) const;
+    std::size_t checkAdopt(const Session &) const;
+    std::size_t checkRoute(const RouteAddress &, const RouteIntent &) const;
+    std::size_t checkMonitoring(const Id &, RecordingMonitor) const;
+    std::size_t checkBegin(const ParameterAddress &) const;
+    // Record a successful controller operation using its earlier read-only preflight.
+    void acceptPreflight(std::size_t declaredBytes) noexcept;
     void begin(const ParameterAddress &);
     void update(double value);
     void commit();
@@ -392,7 +394,7 @@ class EditHistory {
     StructureChange difference(const Session &) const;
     std::size_t checkOperation(std::size_t candidateBytes, const Session &, bool pending = true,
                                std::size_t extraBytes = 0) const;
-    void checkCandidate(const Change &, const Session &) const;
+    std::size_t checkCandidate(const Change &, const Session &) const;
     void retain(Change, const Session &);
     Session proposed(const Change &, bool forward) const;
     bool transfer(bool forward);

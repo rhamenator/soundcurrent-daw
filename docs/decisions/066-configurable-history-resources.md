@@ -16,3 +16,8 @@ measured accounting. Declared work checks must not be presented as exact allocat
 or RSS bounds, or as pre-admission of every candidate-building allocation.
 
 See [workflow, admission terms and acceptance scope](../81-history-resource-admission.md).
+
+Review correction: initialize the first immutable controller snapshot from trusted
+options before starting the worker. Return read-only preflight charges and record
+only successfully accepted operations so gesture-commit eviction cannot erase
+previously admitted peak work. Both behaviors have deterministic regression gates.

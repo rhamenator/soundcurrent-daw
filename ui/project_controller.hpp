@@ -84,7 +84,8 @@ struct ControllerOptions {
     // I/O worker only. Used for cancellation/slow storage/failure qualification.
     std::function<void()> beforeIo;
     std::function<void()> beforeSavePublish;
-    std::function<void()> beforeCommand; // Control-worker admission/failure fixture only.
+    std::function<void()> beforeCommand;        // Control-worker admission/failure fixture only.
+    std::function<void()> beforeInitialPublish; // Control-worker startup qualification only.
     HistoryBudget historyBudget{};
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
 };

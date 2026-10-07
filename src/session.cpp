@@ -512,9 +512,7 @@ bool EditHistory::monitoring(const Id &id, RecordingMonitor value) {
 void EditHistory::begin(const ParameterAddress &address) {
     check(!active_, "A parameter gesture is already active");
     const auto value = parameterValue(session_, address);
-    checkBegin(address);
-    const Change candidate = ParameterChange{address, value, value};
-    const auto peak = checkOperation(weight(candidate), session_, true, weight(candidate));
+    const auto peak = checkBegin(address);
     active_ = ParameterChange{address, value, value};
     operationPeakBytes_ = std::max(operationPeakBytes_, peak);
 }

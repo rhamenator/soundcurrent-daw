@@ -52,6 +52,12 @@ Usage reports Undo/Redo counts, retained/active bytes, the historical peak of
 accepted operations and retired commands. Limits take effect without dirtying or
 revising the project, modifying media or touching the audio callback.
 
+The initial controller snapshot is initialized synchronously from trusted options,
+so opening the dialog before the worker's first publication preserves configured
+limits, including byte-exact non-MiB-aligned values. Read-only edit preflights return
+the declared charge; successful operations record it after acceptance, retaining
+the pre-eviction workspace peak. Refusals leave existing resource counters intact.
+
 Worker results use a separate request receipt. A rejected reduction leaves the
 old policy and preferences intact and reports the reason in the dialog. Close is
 disabled while applying so the owner can observe the result. Create/Open/Save or
@@ -76,7 +82,10 @@ active Cancel, oldest retirement, new-branch Redo clearing and checked overflow.
 The real Qt fixture exercises menu/dialog input, locale parsing, preference
 callback, 512-track selection, 300 Undo/Redo actions, rejected reduction/retry and
 Save/Open. A worker fixture verifies refusal preserves an unrelated active gesture
-and saved project. Results are recorded separately from these acceptance contracts.
+and saved project. The final [review receipt](../tests/results/M2/2026-10-07-history-resource-review.json)
+qualifies the startup and pre-eviction corrections and supersedes the initial
+checkpoint's source qualification. Its originals retain both deterministic failures.
+Results are recorded separately from these acceptance contracts.
 
 Still required: full aggregate graph/snapshot/GUI/IO admission, memory/RSS and
 sustained workload profiles, larger recording arms/adoption, remaining visualization,

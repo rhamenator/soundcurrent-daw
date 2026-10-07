@@ -19,7 +19,7 @@
   "frozen_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
   "FQCN_promotion": false,
   "implementation_source_sha256": {
-    "src/session.cpp": "ad4e27e91301675b97f1d4aceac9d35fa3fbfb356db7afb9a9bbecba0dd75e27",
+    "src/session.cpp": "5f80a8726f568e964747b0714c7393ac10b59d62214bc800213b6f7a73716893",
     "src/project_store.cpp": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15",
     "src/mix.cpp": "1d76d7b39fa53d044d8a49b9f5cd5885d3d6f0757007b484c5bad1ee02953588",
     "src/mix_playback.cpp": "e1947f16f6d2c3465e564845e5326e1c76a2695bd5bb97acd999a3f6a0acdee8",
@@ -111,12 +111,13 @@
   "history_resource_checkpoint": {
     "contract": "docs/81-history-resource-admission.md",
     "decision": "docs/decisions/066-configurable-history-resources.md",
-    "receipt": "tests/results/M2/2026-10-07-history-resource-admission.json",
+    "receipt": "tests/results/M2/2026-10-07-history-resource-review.json",
     "status": "partial qualified checkpoint: configurable policy, checked history/state/candidate work and real Linux desktop settings; full aggregate admission remains open",
     "native_audio": false,
     "Windows_runtime_qualified": false,
     "product_ceiling": null,
-    "Linux_debug_tests": "48/48",
-    "affected_sanitizer_tests": "11/11"
+    "Linux_debug_tests": "50/50",
+    "affected_sanitizer_tests": "13/13",
+    "initial_receipt": "tests/results/M2/2026-10-07-history-resource-admission.json"
   }
 }

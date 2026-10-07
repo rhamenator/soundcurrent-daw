@@ -2288,3 +2288,36 @@ combined policy for controller retained snapshots/saved/IO models, inspector/GUI
 indices and old/new graphs, then scale recording arms/adoption independently of
 hardware channels. Full X006, all frozen milestones, Windows, X004/X005 and Europe
 qualification remain required. The goal stays active and incomplete.
+
+
+## M2 X006 history review corrections (2026-10-07)
+
+PR26 review identified two valid defects. With the initial worker publication
+held, the dialog read default limits rather than configured options; applying
+could overwrite unedited custom bytes. With an active gesture and oldest-command
+retirement, a successful preflight admitted40,000bytes but the later counter
+published37,409bytes. Both deterministic original cases fail0/2 and retain exact
+source/executable hashes, logs and owned roots.
+
+Initialize the first immutable controller snapshot synchronously from trusted
+options. Return read-only preflight charges and record them only after accepted
+parameter/route/monitoring/structural/attachment work succeeds. This preserves
+pre-eviction work without changing counters on refusal. Startup with the worker
+paused preserves configured and non-MiB-aligned byte limits; the accepted peak is
+now40,000bytes. Existing defaults, stable IDs, saved state and all frozen scope
+remain unchanged.
+
+Final full Linux Debug50/50,131.85s and affected ASan/UBSan/LSan13/13,276.76s pass;
+Windows core/media cross-build passes without GUI/native runtime qualification.
+The512-track/400-core-group and300-GUI-action workflows and8192-track viewport
+regression remain passing. The final [review receipt](../tests/results/M2/2026-10-07-history-resource-review.json)
+supersedes the first checkpoint's compiled-source qualification; its verified
+10,504,496-byte/704-entry archive preserves both review failures and final data.
+The original checkpoint receipt/archive remain historical evidence.
+
+All24 reviewed equalizer inputs and92 unpromoted frozen contracts remain unchanged;
+no native audio run, dependency/schema change or resolution of original71 clock/
+source CPU cause. Full aggregate snapshots/GUI/IO/old-new graphs and allocator/RSS
+admission, recording scaling, sustained/native Linux/Windows, frozen parity,
+X004/X005 and Europe qualification remain required. Next implement combined
+snapshot/GUI/graph resource admission. The goal stays active and incomplete.

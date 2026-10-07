@@ -12,6 +12,7 @@
 #include <QTest>
 #include <chrono>
 #include <iostream>
+#include <latch>
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
@@ -34,6 +35,106 @@ void type(QLineEdit *field, const char *value) {
     field->setFocus();
     QTest::keyClick(field, Qt::Key_A, Qt::ControlModifier);
     QTest::keyClicks(field, value);
+}
+struct ReleaseLatch {
+    std::latch &gate;
+    bool released = false;
+    void release() {
+        if (!released) {
+            released = true;
+            gate.count_down();
+        }
+    }
+    ~ReleaseLatch() {
+        release();
+    }
+};
+void startupPolicy() {
+    std::latch gate(1);
+    ControllerOptions options;
+    options.historyBudget = {3 * 1024 * 1024 + 17, 9 * 1024 * 1024 + 37, 512};
+    options.beforeInitialPublish = [&] { gate.wait(); };
+    StudioWindow window(nullptr, {}, {}, {}, {}, options);
+    ReleaseLatch release{gate}; // Releases before the window joins, including on failure.
+    window.show();
+    window.findChild<QAction *>("historyResourcesAction")->trigger();
+    auto *dialog = window.findChild<QDialog *>("historyResourcesDialog");
+    check(dialog, "Startup resource dialog missing");
+    auto *count = dialog->findChild<QLineEdit *>("historyCommandLimit");
+    check(window.snapshot()->historyBudget == options.historyBudget &&
+              count->text() == QLocale().toString(qulonglong(512)),
+          "Startup dialog used default policy before first worker publication");
+    type(count, "1.024");
+    dialog->findChild<QPushButton *>("historyApply")->click();
+    release.release();
+    await([&] { return window.snapshot()->historyBudget.maximumCommands == 1024; });
+    check(window.snapshot()->historyBudget.retainedBytes == options.historyBudget.retainedBytes &&
+              window.snapshot()->historyBudget.operationBytes ==
+                  options.historyBudget.operationBytes,
+          "Startup Apply overwrote unedited byte-exact custom limits");
+    await([&] { return dialog->findChild<QPushButton *>("historyApply")->isEnabled(); });
+    dialog->reject();
+    window.close();
+    await([&] { return window.snapshot()->closed; });
+    std::cout << "Startup policy before initial worker publication preserved byte-exact limits\n";
+}
+void acceptedPreflightPeak(const std::filesystem::path &root) {
+    const auto initial = makeOneTrackSession("Preflight peak", "Original");
+    ProjectStore(root).save(initial);
+    ControllerOptions options;
+    options.historyBudget.maximumCommands = 2;
+    ProjectController controller(options);
+    ProjectCommand open{CommandKind::Open};
+    open.path = root;
+    check(controller.submit(open) == Admission::Accepted, "Peak fixture Open refused");
+    await([&] {
+        return controller.snapshot()->session && controller.snapshot()->io == IoOperation::None;
+    });
+    auto oracleSession = *controller.snapshot()->session;
+    EditHistory oracle(oracleSession, options.admission.state, options.historyBudget);
+    const auto id = oracleSession.tracks.front().id;
+    for (const char *name : {"One", "Two"}) {
+        const auto revision = controller.snapshot()->modelRevision;
+        ProjectCommand rename{CommandKind::Structural};
+        rename.edits = {RenameTrack{id, name}};
+        oracle.structural(rename.edits);
+        check(controller.submit(rename) == Admission::Accepted, "Peak fixture rename refused");
+        await([&] { return controller.snapshot()->modelRevision > revision; });
+    }
+    const auto &track = oracleSession.tracks.front();
+    const ParameterAddress address{track.id, track.eq.id, track.eq.bands.front().id,
+                                   BandParameter::GainDb};
+    oracle.begin(address);
+    oracle.update(5);
+    ProjectCommand parameter{CommandKind::Parameter};
+    parameter.address = address;
+    parameter.gesture = 177;
+    parameter.value = 5;
+    parameter.final = false;
+    const auto revision = controller.snapshot()->modelRevision;
+    check(controller.submit(parameter) == Admission::Accepted, "Peak fixture parameter refused");
+    await([&] { return controller.snapshot()->modelRevision > revision; });
+    const auto active = controller.snapshot();
+    auto next = oracleSession;
+    next.tracks.front().name = std::string(4096, 'x');
+    const auto before = oracle.resources();
+    const auto expectedPeak = oracle.checkAdopt(next);
+    check(oracle.resources() == before &&
+              expectedPeak > active->historyResources.operationPeakBytes,
+          "Peak fixture did not expose larger read-only preflight");
+    ProjectCommand rename{CommandKind::Structural};
+    rename.edits = {RenameTrack{id, next.tracks.front().name}};
+    check(controller.submit(rename) == Admission::Accepted, "Peak fixture final rename refused");
+    await([&] { return controller.snapshot()->modelRevision > active->modelRevision; });
+    const auto accepted = controller.snapshot();
+    check(*accepted->session == next && accepted->historyResources.evictedCommands == 2,
+          "Peak fixture did not accept edit and retire older commands");
+    std::cout << "Accepted preflight expected=" << expectedPeak
+              << " published=" << accepted->historyResources.operationPeakBytes << '\n';
+    check(accepted->historyResources.operationPeakBytes >= expectedPeak,
+          "Accepted pre-eviction workspace peak was discarded");
+    controller.requestShutdown();
+    await([&] { return controller.snapshot()->closed; });
 }
 void guiWorkflow(const std::filesystem::path &root) {
     auto initial = makeOneTrackSession("Studio — Ελληνικά", "Original");
@@ -217,6 +318,15 @@ int main(int argc, char **argv) {
         std::filesystem::temp_directory_path() / ("sc-history-ui-" + Id::generate().str());
     try {
         std::cout << "Owned history UI fixture root: " << root << '\n';
+        std::filesystem::create_directories(root);
+        if (argc == 2 && std::string_view(argv[1]) == "--review-startup-only") {
+            startupPolicy();
+            return 0;
+        }
+        if (argc == 2 && std::string_view(argv[1]) == "--review-peak-only") {
+            acceptedPreflightPeak(root / "peak");
+            return 0;
+        }
         saveHistoryPreferences({});
         guiWorkflow(root / "project");
         activePreflight(root / "preflight");
