@@ -114,3 +114,10 @@ Undo policies with trusted configurable command/byte/workspace limits, usage and
 observable retirement. Refusal preserves canonical/history/active gesture state.
 This is one input to aggregate admission; saved/IO/snapshot/GUI/graph ownership,
 allocator/RSS and sustained workload profiles remain separate open gates.
+
+The [retained-session checkpoint](82-retained-session-resources.md)/ADR067 now
+accounts for unique immutable controller blocks across saved revisions, IO saves,
+barriers and externally retained readers. Publications are admitted before edits
+and Undo/Redo; full-budget Cancel reuses the gesture's starting block. Canonical,
+history, GUI indices/projections, graphs and IO buffers still require combined
+admission and measured sustained workload envelopes.

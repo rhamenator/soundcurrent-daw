@@ -90,3 +90,12 @@ handle/page pool. A custom small cache avoids a second audio framework and keeps
 cache policy separate from project state and callbacks. Whole-file reopen hash
 cost, allocator/RSS overhead and native Windows behavior still need qualification.
 See [ADR064](decisions/064-shared-media-cache.md).
+
+## Retained Session ownership (2026-10-07)
+
+[ADR067](decisions/067-retained-session-resources.md) uses the C++20 standard
+library's shared ownership and off-audio mutex. `sc-session` links the existing
+CMake Threads facility; there is no additional third-party dependency or change
+to GPL-3.0-only source licensing. Platform thread/runtime redistribution still
+follows the existing packaging inventory. The ledger must never be acquired or
+released by an audio callback.

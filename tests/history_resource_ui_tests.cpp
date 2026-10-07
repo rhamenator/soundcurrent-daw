@@ -53,6 +53,7 @@ void startupPolicy() {
     std::latch gate(1);
     ControllerOptions options;
     options.historyBudget = {3 * 1024 * 1024 + 17, 9 * 1024 * 1024 + 37, 512};
+    options.snapshotBytes = 64 * 1024 * 1024 + 37;
     options.beforeInitialPublish = [&] { gate.wait(); };
     StudioWindow window(nullptr, {}, {}, {}, {}, options);
     ReleaseLatch release{gate}; // Releases before the window joins, including on failure.
@@ -60,6 +61,12 @@ void startupPolicy() {
     window.findChild<QAction *>("historyResourcesAction")->trigger();
     auto *dialog = window.findChild<QDialog *>("historyResourcesDialog");
     check(dialog, "Startup resource dialog missing");
+    await([&] { return !dialog->findChild<QLabel *>("snapshotUsage")->text().isEmpty(); });
+    check(window.snapshot()->snapshotResources.limitBytes == options.snapshotBytes &&
+              dialog->findChild<QLabel *>("snapshotUsage")
+                  ->text()
+                  .contains(QLocale().toString(qulonglong(options.snapshotBytes))),
+          "Snapshot usage did not show trusted byte-exact startup limits");
     auto *count = dialog->findChild<QLineEdit *>("historyCommandLimit");
     check(window.snapshot()->historyBudget == options.historyBudget &&
               count->text() == QLocale().toString(qulonglong(512)),

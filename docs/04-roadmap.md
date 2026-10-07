@@ -475,3 +475,15 @@ IDs, reductions/refusal/retry, unrelated active gestures and real desktop settin
 Next implement aggregate snapshot/GUI/old-new graph admission and larger recording
 arms/adoption. This does not promote the frozen parity contracts or establish
 sustained native/Windows/localization qualification.
+
+### X006 retained immutable Session checkpoint
+
+[ADR067](decisions/067-retained-session-resources.md) and
+[ownership/admission scope](82-retained-session-resources.md) introduce leased
+Session blocks, shared Save/barrier ownership and pre-admitted publications.
+Qualify external-reader survival/release, unknown-size Open, active-gesture
+refusal/Cancel and staged Undo/Redo. Next coordinate canonical/history and GUI
+projection/index leases with graph old/new/tail and IO budgets; expose a combined
+resource editor, measure RSS and sustained workloads, and continue larger capture,
+freeze/bounce and prepared scheduling. This snapshot budget is one component;
+full X006 and every frozen-reference contract remain required.

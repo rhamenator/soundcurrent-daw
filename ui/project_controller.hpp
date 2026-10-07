@@ -2,6 +2,7 @@
 #pragma once
 #include <soundcurrent/recording.hpp>
 #include <soundcurrent/project_store.hpp>
+#include <soundcurrent/resource_ledger.hpp>
 #include <memory>
 #include <optional>
 
@@ -19,7 +20,8 @@ enum class CommandKind {
     Routing,
     Monitoring,
     Structural,
-    HistoryLimits
+    HistoryLimits,
+    SnapshotLimits
 };
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
@@ -43,6 +45,8 @@ struct ProjectCommand {
     std::uint64_t attachmentRequest = 0; // Optional caller-owned correlation ID.
     std::optional<HistoryBudget> historyBudget;
     std::uint64_t historyRequest = 0;
+    std::optional<std::size_t> snapshotBytes;
+    std::uint64_t snapshotRequest = 0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
@@ -77,6 +81,8 @@ struct ControllerSnapshot {
     HistoryBudget historyBudget{};
     HistoryResources historyResources{};
     HistoryPolicyCompletion historyCompleted;
+    ResourceUsage snapshotResources{};
+    HistoryPolicyCompletion snapshotCompleted;
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -87,6 +93,7 @@ struct ControllerOptions {
     std::function<void()> beforeCommand;        // Control-worker admission/failure fixture only.
     std::function<void()> beforeInitialPublish; // Control-worker startup qualification only.
     HistoryBudget historyBudget{};
+    std::size_t snapshotBytes = 256 * 1024 * 1024;
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
@@ -100,6 +107,8 @@ class ProjectController {
     ProjectController &operator=(const ProjectController &) = delete;
     Admission submit(ProjectCommand);
     std::shared_ptr<const ControllerSnapshot> snapshot() const;
+    // Live ownership accounting, including externally retained older snapshots.
+    ResourceUsage snapshotResources() const;
     void requestShutdown() noexcept; // Priority flag, unaffected by a full command queue.
   private:
     struct State;

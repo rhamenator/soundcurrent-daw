@@ -351,6 +351,8 @@ class EditHistory {
     void update(double value);
     void commit();
     void cancel();
+    // Read-only target after committing a pending gesture, for publication admission.
+    std::optional<Session> previewTransfer(bool forward) const;
     bool undo();
     bool redo();
     bool route(const RouteAddress &, const RouteIntent &);
