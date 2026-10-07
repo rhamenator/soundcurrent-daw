@@ -86,3 +86,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Priority Stop/Cancel independent of manual disk startup](70-manual-priority-interruption.md)
 
 - [Public native buffer handoff observations](71-native-port-handoff.md)
+
+- [Controlled native allocation before publication readiness](72-controlled-native-startup.md)

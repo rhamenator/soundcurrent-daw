@@ -3,6 +3,10 @@
 #include <soundcurrent/pipewire_manual_recording.hpp>
 #include "native_duration_timing.hpp"
 #include "rt_audit.hpp"
+#ifdef SC_NATIVE_STARTUP_GATE
+#include "native_startup_gate.hpp"
+#include <cstdlib>
+#endif
 #ifdef SC_NATIVE_MANUAL_STAGES
 #include "native_processing_stages.hpp"
 #include "native_port_markers.hpp"
@@ -694,6 +698,9 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     const auto observed = sinkWriter.wait();
 #ifdef SC_NATIVE_PORT_HANDOFF
     native_fixture::writePortHandoffs(root / "native-port-handoff.json");
+#ifdef SC_NATIVE_STARTUP_GATE
+    native_fixture::writeStartupGate(root / "native-startup-gate.json");
+#endif
 #endif
     const Json times{{"owner", ownerAudit.report()},
                      {"source", source.audit.report()},
@@ -1035,6 +1042,10 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
 } // namespace
 int main(int argc, char **argv) {
     try {
+#ifdef SC_NATIVE_STARTUP_GATE
+        const char *policy = std::getenv("SC_NATIVE_STARTUP_POLICY");
+        native_fixture::configureStartupGate(policy ? policy : "observe");
+#endif
         check(argc == 4, "Supply new project path, native/synthetic and manual fault mode");
         const std::string backend = argv[2], mode = argv[3];
         check(backend == "native" || backend == "synthetic", "Unknown manual fault backend");

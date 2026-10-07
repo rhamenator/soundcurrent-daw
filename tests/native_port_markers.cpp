@@ -143,7 +143,12 @@ extern "C" void *__wrap_pw_filter_get_dsp_buffer(void *port, std::uint32_t n) {
 #ifdef SC_NATIVE_PORT_HANDOFF
     native_fixture::handoffBeforeDsp(port, n);
 #endif
+#ifdef SC_NATIVE_STARTUP_GATE
+    auto *result =
+        native_fixture::handoffSuppressDsp() ? nullptr : __real_pw_filter_get_dsp_buffer(port, n);
+#else
     auto *result = __real_pw_filter_get_dsp_buffer(port, n);
+#endif
 #ifdef SC_NATIVE_PORT_HANDOFF
     native_fixture::handoffAfterDsp(result);
 #endif

@@ -3,6 +3,9 @@
 #include "native_port_handoff.hpp"
 #include "native_duration_timing.hpp"
 #include "rt_audit.hpp"
+#ifdef SC_NATIVE_STARTUP_GATE
+#include "native_startup_gate.hpp"
+#endif
 #include <pipewire/filter.h>
 #include <pipewire/keys.h>
 #include <pipewire/properties.h>
@@ -40,6 +43,7 @@ struct Query {
     unsigned liveBuffers = 0, bufferChanges = 0, maximumBytes = 0;
     int ioStatus = 0;
     bool ioKnown = false, returned = false, knownBuffer = false;
+    bool apiSuppressed = false;
 };
 struct Row {
     spa_io_clock clock{};
@@ -107,6 +111,10 @@ struct Observer {
                 slot.maximumBytes.store(d.maxsize, std::memory_order_relaxed);
                 slot.object.store(buffer, std::memory_order_release);
                 ++p->bufferChanges;
+#ifdef SC_NATIVE_STARTUP_GATE
+                if (!p->input)
+                    startupBufferPublished(o.name, p->channel, unsigned(&slot - p->buffers.data()));
+#endif
                 return;
             }
         ++o.unknownEvents;
@@ -165,11 +173,25 @@ struct Observer {
         pending = nullptr;
         const auto before = rt_audit::counts;
         o->original.process(context, position); // Unchanged original callback/arguments.
+
         // Preserve the original callback's counters for its caller. The nested
         // audit already records these; outer counters are additional coverage.
         const auto originalCounts = rt_audit::counts;
         rt_audit::reset();
         rt_audit::active = true;
+#ifdef SC_NATIVE_STARTUP_GATE
+        if (o->current && o->current->clockKnown)
+            for (unsigned n = 0; n < std::min(o->current->calls, maximumPorts); ++n) {
+                const auto &q = o->current->queries[n];
+                if (q.port < o->portCount.load(std::memory_order_acquire)) {
+                    const auto &p = o->ports[q.port];
+                    if (!p.input)
+                        startupAfterProcess(o->name, p.channel, o->current->clock, q.ioKnown,
+                                            q.liveBuffers, q.returned, q.knownBuffer,
+                                            q.apiSuppressed);
+                }
+            }
+#endif
         pending = nullptr;
         active = nullptr;
         o->current = nullptr;
@@ -243,6 +265,16 @@ void handoffAfterDsp(const void *pointer) noexcept {
     }
     pending = nullptr;
 }
+#ifdef SC_NATIVE_STARTUP_GATE
+bool handoffSuppressDsp() noexcept {
+    if (!active || !pending || pending->port == UINT32_MAX)
+        return false;
+    const auto &p = active->ports[pending->port];
+    pending->apiSuppressed = startupSuppressQuery(active->name, p.channel, p.input,
+                                                  pending->ioKnown, pending->liveBuffers);
+    return pending->apiSuppressed;
+}
+#endif
 void writePortHandoffs(const std::filesystem::path &path) {
     std::ofstream out(path);
     out << "{\"test_only\":true,\"public_api_observer\":true,\"filters\":[";
@@ -291,6 +323,7 @@ void writePortHandoffs(const std::filesystem::path &path) {
                     << ",\"io_buffer\":" << q.ioBuffer << ",\"live_buffers\":" << q.liveBuffers
                     << ",\"buffer_changes\":" << q.bufferChanges
                     << ",\"returned\":" << (q.returned ? "true" : "false")
+                    << ",\"api_suppressed\":" << (q.apiSuppressed ? "true" : "false")
                     << ",\"known_buffer\":" << (q.knownBuffer ? "true" : "false")
                     << ",\"buffer\":" << q.buffer << ",\"maximum_bytes\":" << q.maximumBytes << '}';
             }

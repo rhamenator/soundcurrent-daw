@@ -173,8 +173,11 @@ owned-route successes. [Priority Stop/Cancel](docs/70-manual-priority-interrupti
 now terminates audio independently of held disk startup, with scoped native Linux
 evidence. [Public native buffer handoff observations](docs/71-native-port-handoff.md)
 now retain IO/buffer startup state beside independent waveform markers. One new
-finite Stop passes; original46's delayed channel remains unresolved. Next: a causal
-startup/backpressure experiment, then bounded canonical desktop manual controls
+finite Stop passes; original46's delayed channel remains unresolved.
+[A controlled startup experiment](docs/72-controlled-native-startup.md) now reproduces
+a one-cycle delay when an allocated buffer is queried before IO readiness;
+deferring that query prevents the measured mechanism. Next: production readiness
+and capacity-aware acquisition with logical port tracing, then desktop manual controls
 and late cancellation policy. Additional monitor
 policies, tempo/loop/take lanes and comping remain required. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
