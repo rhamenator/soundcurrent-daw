@@ -3,6 +3,10 @@
 #include <soundcurrent/pipewire_manual_recording.hpp>
 #include "native_duration_timing.hpp"
 #include "rt_audit.hpp"
+#ifdef SC_NATIVE_MANUAL_STAGES
+#include "native_processing_stages.hpp"
+#include <fstream>
+#endif
 #include <nlohmann/json.hpp>
 #include <sndfile.h>
 #include <algorithm>
@@ -504,6 +508,13 @@ void run(const std::filesystem::path &root, bool native, bool late) {
         }
         owner.stop();
     }
+#ifdef SC_NATIVE_MANUAL_STAGES
+    {
+        std::ofstream out(root / "repeated-manual-processing-stages.json");
+        native_fixture::processingStages.write(out);
+        check(bool(out), "Cannot retain joined repeated manual stage observations");
+    }
+#endif
     control();
     sinkPipe.finish();
     const auto observed = sinkWriter.wait();

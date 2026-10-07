@@ -1922,3 +1922,44 @@ independent native Windows/physical and full parity requirements remain open.
 Next implementation task: bounded repeated-take stage observation to locate its
 CPU outlier while preserving the strict original gates; finish actual manual Qt
 controls and late-Cancel / monitoring Undo acceptance afterward.
+
+## Canonical monitoring feedback and bounded repeated takes (2026-10-07 UTC)
+
+Previous goal turn made production progress through merged PR18. This checkpoint
+fixes the [actual monitoring widget mismatch](74-recording-monitor-feedback.md)
+and completes one original full repeated native recording workflow.
+
+A real Qt dropdown change after Prepare but before GUI refresh was rejected by
+the accepted-prefix barrier while remaining displayed. The original failing UI
+source/build/logs were preserved before the production correction. Rejected input
+now restores canonical mode immediately; polling checks actual widget data too.
+Off→Post-EQ, Post-EQ→Auto and Auto→Off regressions preserve model revision, clean
+state and prepared mode without activation or job creation. Subsequent accepted
+edit, Undo/Redo and Save pass. Local Debug38/38 pass in44.81s, including475 actual
+Qt checks and all existing controller/preparation regressions.
+
+One opt-in native repeated-stage run passes32 armed tracks, three replenished
+windows, mixed monitor modes and declared input delays. All1,557,696 raw samples
+and960,000 nonflat stereo samples match exactly; original media, Save/reopen and
+grouped Undo/Redo pass. All1,875 owner bridge calls have joined stage coverage,
+with original RT /80% deadline /current-cycle /owned-route gates unchanged. The
+owner's1,159,207ns wall maximum joins its same-clock1,124,448ns bridge observation;
+inclusive mix/EQ dominates this measured interval. The existing production
+libraries are hash-identical throughout this diagnostic experiment. Its test-only
+measurement cost is included, not removed.
+
+Original48's timing failure is not reproduced or resolved by this later pass;
+its CPU-stage cause remains unknown and sustained performance is unqualified.
+Runtime failures remain48. The original337-payload archive verifies relocation,
+all96 persisted raw asset/oracle hashes and22 altered evidence refusals without
+audio replay. A reader-development field-name error is separately retained before
+correction; no original generated data is changed. The24-input equalizer audit is
+identical before/after and all92 frozen projections remain unpromoted at
+`8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28`.
+
+Next actual feature: serialized Qt manual-recording controller and Play / Punch
+In-Out / next take / Stop-Cancel / retained group adoption, including late Cancel
+through finalization and canonical intent/Undo tests. Native Windows, physical,
+sustained, X004/X005/X006 and Europe remain open; the current256-track ceiling is
+unchanged. Continue the full goal without waiting for repeated passing short runs
+to substitute for these missing workflows.

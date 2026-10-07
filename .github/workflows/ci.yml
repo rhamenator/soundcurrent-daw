@@ -33,6 +33,7 @@ jobs:
           python3 tests/native_startup_archive_integrity_tests.py
           python3 tests/native_startup_portability_tests.py
           python3 tests/native_buffer_archive_tests.py
+          python3 tests/recording_feedback_archive_tests.py
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
