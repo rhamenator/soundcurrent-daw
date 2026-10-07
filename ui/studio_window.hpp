@@ -33,7 +33,8 @@ class StudioWindow : public QMainWindow {
   public:
     explicit StudioWindow(QWidget *parent = nullptr, PlaybackControllerOptions = {},
                           RecordingControllerOptions = {}, ExportControllerOptions = {},
-                          ManualControlOptions = {}, ControllerOptions = {});
+                          ManualControlOptions = {}, ControllerOptions = {},
+                          std::function<void(HistoryBudget)> historyAccepted = {});
     std::shared_ptr<const ManualControlSnapshot> manualRecordingSnapshot() const;
     void openProject(const std::filesystem::path &);
     bool submitEdit(ProjectCommand); // Shared entry for bindings/UI acceptance.
@@ -61,6 +62,7 @@ class StudioWindow : public QMainWindow {
 
   private:
     ProjectController controller_;
+    QPointer<QDialog> historyDialog_;
     TimelineEditor *timeline_ = nullptr;
     mutable std::shared_ptr<const Session> inspectorSource_, inspectorProjection_;
     mutable std::optional<Id> inspectorTrack_;

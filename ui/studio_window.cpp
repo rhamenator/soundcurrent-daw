@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "history_resources_dialog.hpp"
 #include "session_list_model.hpp"
 #include "master_dialog.hpp"
 #include "track_view.hpp"
@@ -106,7 +107,8 @@ class FocusSlider : public QSlider {
 StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            RecordingControllerOptions recordingOptions,
                            ExportControllerOptions exportOptions,
-                           ManualControlOptions manualOptions, ControllerOptions projectOptions)
+                           ManualControlOptions manualOptions, ControllerOptions projectOptions,
+                           std::function<void(HistoryBudget)> historyAccepted)
     : QMainWindow(parent), controller_(std::move(projectOptions)), playback_(std::move(options)),
       recording_(std::move(recordingOptions)), exporter_(std::move(exportOptions)) {
     setObjectName(QStringLiteral("studioWindow"));
@@ -143,6 +145,17 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     });
     undo_->setObjectName(QStringLiteral("undoAction"));
     redo_->setObjectName(QStringLiteral("redoAction"));
+    editMenu->addSeparator();
+    auto *historyAction = editMenu->addAction(tr("Undo resources…"), this, [this, historyAccepted] {
+        if (historyDialog_) {
+            historyDialog_->raise();
+            return;
+        }
+        historyDialog_ =
+            new HistoryResourcesDialog(controller_, nextGesture_, historyAccepted, this);
+        historyDialog_->show();
+    });
+    historyAction->setObjectName("historyResourcesAction");
     auto *equipmentMenu = menuBar()->addMenu(tr("Equipment"));
     auto *equipmentAction =
         equipmentMenu->addAction(tr("Profile library and editor…"), this, [this] {

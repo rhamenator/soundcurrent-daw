@@ -158,9 +158,10 @@ struct ProjectController::State : QThread {
     mutable QMutex mutex;
     QWaitCondition wake;
     std::deque<ProjectCommand> commands;
-    std::shared_ptr<const ControllerSnapshot> latest = std::make_shared<ControllerSnapshot>();
+    std::shared_ptr<const ControllerSnapshot> latest;
     std::atomic<bool> closing{false};
     ProjectBudget admission;
+    HistoryBudget historyBudget;
     IoWorker io;
     std::optional<Session> model;
     std::unique_ptr<EditHistory> history;
@@ -170,9 +171,16 @@ struct ProjectController::State : QThread {
     ControllerSnapshot view;
     bool changed = true;
     explicit State(ControllerOptions options)
-        : admission(options.admission), io(std::move(options), closing) {}
+        : admission(options.admission), historyBudget(options.historyBudget),
+          io(std::move(options), closing) {
+        validateHistoryBudget(historyBudget);
+        view.historyBudget = historyBudget;
+        latest = std::make_shared<const ControllerSnapshot>(view);
+    }
     ~State() override = default;
     void publish() {
+        view.historyBudget = historyBudget;
+        view.historyResources = history ? history->resources() : HistoryResources{};
         if (changed && model)
             view.session = std::make_shared<const Session>(*model);
         changed = false;
@@ -205,6 +213,19 @@ struct ProjectController::State : QThread {
     }
     void execute(ProjectCommand &command) {
         switch (command.kind) {
+        case CommandKind::HistoryLimits:
+            if (!command.historyBudget || !command.historyRequest)
+                throw ProjectError(ErrorCode::InvalidParameter, "Undo resource request is missing");
+            if (view.io != IoOperation::None || activeGesture)
+                throw ProjectError(
+                    ErrorCode::InvalidState,
+                    "Finish project I/O and the active gesture before changing Undo limits");
+            validateHistoryBudget(*command.historyBudget);
+            if (history)
+                history->configure(*command.historyBudget);
+            historyBudget = *command.historyBudget;
+            view.historyCompleted = {command.historyRequest, {}, {}};
+            break;
         case CommandKind::Create:
         case CommandKind::Open: {
             if (view.io != IoOperation::None)
@@ -242,7 +263,9 @@ struct ProjectController::State : QThread {
             // Validate the proposed value before altering the current gesture/history.
             auto proposed = *model;
             setParameterValue(proposed, *command.address, command.value);
+            std::size_t preflightPeak = 0;
             if (activeGesture != command.gesture || activeAddress != command.address) {
+                preflightPeak = history->checkBegin(*command.address);
                 commitGesture();
                 history->begin(*command.address);
                 activeGesture = command.gesture;
@@ -254,6 +277,7 @@ struct ProjectController::State : QThread {
                 revised();
             if (command.final)
                 commitGesture();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Routing: {
@@ -268,9 +292,11 @@ struct ProjectController::State : QThread {
             auto proposed = *model;
             setRouteValue(proposed, *command.routeAddress, value,
                           admission.state); // Reject before committing a gesture.
+            const auto preflightPeak = history->checkRoute(*command.routeAddress, value);
             commitGesture();
             if (history->route(*command.routeAddress, value))
                 revised();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Monitoring: {
@@ -281,9 +307,12 @@ struct ProjectController::State : QThread {
                                    "Monitoring change needs the current project");
             auto proposed = *model;
             setMonitoringValue(proposed, *command.monitoringTrack, command.monitoring);
+            const auto preflightPeak =
+                history->checkMonitoring(*command.monitoringTrack, command.monitoring);
             commitGesture();
             if (history->monitoring(*command.monitoringTrack, command.monitoring))
                 revised();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Structural: {
@@ -296,9 +325,11 @@ struct ProjectController::State : QThread {
             if (proposed != *model &&
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                 throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
+            const auto preflightPeak = history->checkAdopt(proposed);
             commitGesture();
             if (history->adopt(proposed))
                 revised();
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::CancelGesture:
@@ -335,12 +366,14 @@ struct ProjectController::State : QThread {
             admitReceipts(recordings, admission.state);
             for (const auto &r : *recordings)
                 attachRecording(*proposed, r);
+            const auto preflightPeak = history->checkAdopt(*proposed);
             commitGesture();
             IoJob job{IoOperation::AttachRecording, view.root, std::move(proposed),
                       view.modelRevision, recordings};
             job.attachmentRequest = command.attachmentRequest;
             io.startJob(std::move(job));
             view.io = IoOperation::AttachRecording;
+            history->acceptPreflight(preflightPeak);
             break;
         }
         case CommandKind::Barrier:
@@ -381,18 +414,20 @@ struct ProjectController::State : QThread {
                 if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                     throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
                 // Preserve scalar edits accepted while files were verified.
-                commitGesture();
                 auto admitted = *model;
                 std::vector<Id> assets;
                 for (const auto &r : *result.job.recordings) {
                     attachRecording(admitted, r);
                     assets.push_back(r.asset.id);
                 }
+                const auto preflightPeak = history->checkAdopt(admitted);
+                commitGesture();
                 history->adopt(admitted);
                 revised();
                 view.attachedRecordings += assets.size();
                 view.lastAttachedAsset = assets.back();
                 view.lastAttachedAssets = std::move(assets);
+                history->acceptPreflight(preflightPeak);
             } catch (const ProjectError &e) {
                 if (correlated)
                     view.attachmentCompleted = {result.job.attachmentRequest, e.code(), e.what()};
@@ -410,7 +445,7 @@ struct ProjectController::State : QThread {
         } else {
             model = result.loaded ? std::move(result.loaded)
                                   : std::optional<Session>(*result.job.session);
-            history = std::make_unique<EditHistory>(*model, admission.state);
+            history = std::make_unique<EditHistory>(*model, admission.state, historyBudget);
             activeGesture = 0;
             activeAddress.reset();
             view.attachedRecordings = 0;
@@ -427,6 +462,8 @@ struct ProjectController::State : QThread {
     }
     void run() override {
         io.start();
+        if (io.options.beforeInitialPublish)
+            io.options.beforeInitialPublish();
         publish();
         while (!closing.load(std::memory_order_acquire)) {
             if (auto result = io.takeResult()) {
@@ -451,10 +488,15 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
+                    if (command->kind == CommandKind::HistoryLimits && command->historyRequest)
+                        view.historyCompleted = {command->historyRequest, e.code(), e.what()};
                     if (command->kind == CommandKind::AttachRecording && command->attachmentRequest)
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
+                    if (command->kind == CommandKind::HistoryLimits && command->historyRequest)
+                        view.historyCompleted = {command->historyRequest, ErrorCode::InvalidState,
+                                                 e.what()};
                     if (command->kind == CommandKind::AttachRecording && command->attachmentRequest)
                         view.attachmentRejected = {command->attachmentRequest,
                                                    ErrorCode::InvalidState, e.what()};

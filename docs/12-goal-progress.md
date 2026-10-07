@@ -2247,3 +2247,77 @@ profiles remain. Next measure/admit combined GUI/history/state/old-new graph
 resources and expose trusted desktop policies, then large recording/adoption,
 freeze/bounce/scheduling and all remaining frozen/X004/X005/Europe/Windows work.
 [Receipt](../tests/results/M2/2026-10-07-virtualized-session-views.json) retains scope.
+
+
+## M2 X006 configurable Undo resources (2026-10-07)
+
+[History admission](81-history-resource-admission.md)/ADR066 replaces fixed
+Undo retention with trusted configurable command/payload/workspace policies.
+Checked charges include retained/active data and declared canonical/candidate
+work. The control worker preflights before committing unrelated gestures.
+Rejected reductions preserve both stacks; new edits report oldest retirement.
+The desktop dialog reports usage and correlated acceptance/refusal, persists
+accepted preferences, and distinguishes preference-write failure from runtime
+policy acceptance. Project schema1.7 and existing defaults remain compatible.
+
+Final full Linux Debug48/48,134.77s; affected ASan/UBSan/LSan11/11,276.39s;
+Windows core/media cross-build passes without a GUI/native runtime claim.
+Core512-track/400-group full Undo/Redo/Save-reopen and actual Linux Qt512-track/
+300-action Undo/Redo/settings/refusal/retry/save/Open workflows preserve stable
+identities. German grouping input is qualified; translations and all-Europe
+review remain open. The8192-track viewport regression still passes.
+
+An original unresolved dialog-library link failure is retained with its source
+and log; both omitted fixture links were corrected and the full build passes.
+The initial peak-reporting regression fails0/1: active gestures did not publish
+admitted workspace. Exact source/executable hashes, log and owned project remain;
+successful Begin/update now publish their checked peak, and final tests pass.
+An intermediate full build was deliberately interrupted for preference callback
+review; no preference-failure test ran before the handler correction. The final
+actual settings failure/retry fixture passes.
+
+[Receipt](../tests/results/M2/2026-10-07-history-resource-admission.json) and its
+verified22,622,839-byte/1757-entry archive retain originals and final evidence.
+All24 equalizer input snapshots and92 frozen F/Q/C/N projections are unchanged;
+no parity promotion, dependency/schema change or native audio run. Observations
+remain71; original71 clock/source CPU cause remains unresolved.
+
+These are declared owned/work charges, not pre-admission of every allocation,
+allocator/RSS bounds or complete aggregate process admission. Next implement a
+combined policy for controller retained snapshots/saved/IO models, inspector/GUI
+indices and old/new graphs, then scale recording arms/adoption independently of
+hardware channels. Full X006, all frozen milestones, Windows, X004/X005 and Europe
+qualification remain required. The goal stays active and incomplete.
+
+
+## M2 X006 history review corrections (2026-10-07)
+
+PR26 review identified two valid defects. With the initial worker publication
+held, the dialog read default limits rather than configured options; applying
+could overwrite unedited custom bytes. With an active gesture and oldest-command
+retirement, a successful preflight admitted40,000bytes but the later counter
+published37,409bytes. Both deterministic original cases fail0/2 and retain exact
+source/executable hashes, logs and owned roots.
+
+Initialize the first immutable controller snapshot synchronously from trusted
+options. Return read-only preflight charges and record them only after accepted
+parameter/route/monitoring/structural/attachment work succeeds. This preserves
+pre-eviction work without changing counters on refusal. Startup with the worker
+paused preserves configured and non-MiB-aligned byte limits; the accepted peak is
+now40,000bytes. Existing defaults, stable IDs, saved state and all frozen scope
+remain unchanged.
+
+Final full Linux Debug50/50,131.85s and affected ASan/UBSan/LSan13/13,276.76s pass;
+Windows core/media cross-build passes without GUI/native runtime qualification.
+The512-track/400-core-group and300-GUI-action workflows and8192-track viewport
+regression remain passing. The final [review receipt](../tests/results/M2/2026-10-07-history-resource-review.json)
+supersedes the first checkpoint's compiled-source qualification; its verified
+10,504,496-byte/704-entry archive preserves both review failures and final data.
+The original checkpoint receipt/archive remain historical evidence.
+
+All24 reviewed equalizer inputs and92 unpromoted frozen contracts remain unchanged;
+no native audio run, dependency/schema change or resolution of original71 clock/
+source CPU cause. Full aggregate snapshots/GUI/IO/old-new graphs and allocator/RSS
+admission, recording scaling, sustained/native Linux/Windows, frozen parity,
+X004/X005 and Europe qualification remain required. Next implement combined
+snapshot/GUI/graph resource admission. The goal stays active and incomplete.

@@ -2,6 +2,11 @@
 
 ## Unreleased — development preview
 
+- Configurable Undo command/payload/workspace limits with checked charges,
+  observable usage/retirement and a desktop resource dialog. Rejected reductions
+  preserve Undo/Redo; active-gesture preflight and preference-failure reporting
+  preserve project state. Full combined graph/GUI/IO admission remains open.
+
 - Snapshot-backed track, arm, destination, media and clip selectors; viewport
   timeline with visible-row/horizontal interval queries and stable-ID selection.
   Large-project Linux Qt regressions preserve media, Undo/Redo and Save/reopen;

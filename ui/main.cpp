@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "history_resources_dialog.hpp"
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QFile>
@@ -14,7 +15,10 @@ int main(int argc, char **argv) {
     parser.addPositionalArgument(QStringLiteral("project"),
                                  QApplication::translate("Main", "Project folder to open"));
     parser.process(app);
-    soundcurrent::daw::ui::StudioWindow window;
+    soundcurrent::daw::ui::ControllerOptions options;
+    options.historyBudget = soundcurrent::daw::ui::loadHistoryPreferences();
+    soundcurrent::daw::ui::StudioWindow window(nullptr, {}, {}, {}, {}, options,
+                                               soundcurrent::daw::ui::saveHistoryPreferences);
     const auto paths = parser.positionalArguments();
     if (!paths.isEmpty()) {
 #ifdef _WIN32

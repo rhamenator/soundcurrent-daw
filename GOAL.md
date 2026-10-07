@@ -115,8 +115,8 @@ resources, without a fixed product/license ceiling. Separate total tracks, activ
 processing and simultaneous hardware inputs; scale model/parser/graph/recording,
 media caches, UI/history and persistence together. Preserve bounded real-time
 execution, safe refusal, originals and recovery. Include freeze/unfreeze, bounce,
-offline rendering and measured Linux/Windows workload profiles. The present256
-track limit remains a documented implementation gap until qualified. See
+offline rendering and measured Linux/Windows workload profiles. Fixed limits in
+remaining recording/editing adapters are documented implementation gaps until independently resource-admitted and qualified. See
 docs/67-track-scalability.md. This extends the goal without changing the frozen
 reference versions, reducing other requirements or claiming unlimited real-time
 performance.

@@ -18,7 +18,8 @@ enum class CommandKind {
     AttachRecording,
     Routing,
     Monitoring,
-    Structural
+    Structural,
+    HistoryLimits
 };
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
@@ -40,11 +41,18 @@ struct ProjectCommand {
     std::uint64_t gesture = 0;
     std::uint64_t barrier = 0;
     std::uint64_t attachmentRequest = 0; // Optional caller-owned correlation ID.
+    std::optional<HistoryBudget> historyBudget;
+    std::uint64_t historyRequest = 0;
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
 enum class IoOperation { None, Create, Open, Save, AttachRecording };
 struct AttachmentCompletion {
+    std::uint64_t request = 0;
+    std::optional<ErrorCode> error;
+    std::string diagnostic;
+};
+struct HistoryPolicyCompletion {
     std::uint64_t request = 0;
     std::optional<ErrorCode> error;
     std::string diagnostic;
@@ -66,6 +74,9 @@ struct ControllerSnapshot {
     AttachmentCompletion attachmentCompleted, attachmentRejected;
     std::optional<ErrorCode> errorCode;
     std::string diagnostic;
+    HistoryBudget historyBudget{};
+    HistoryResources historyResources{};
+    HistoryPolicyCompletion historyCompleted;
     IoOperation io = IoOperation::None;
     bool dirty = false, closing = false, closed = false;
 };
@@ -73,7 +84,9 @@ struct ControllerOptions {
     // I/O worker only. Used for cancellation/slow storage/failure qualification.
     std::function<void()> beforeIo;
     std::function<void()> beforeSavePublish;
-    std::function<void()> beforeCommand; // Control-worker admission/failure fixture only.
+    std::function<void()> beforeCommand;        // Control-worker admission/failure fixture only.
+    std::function<void()> beforeInitialPublish; // Control-worker startup qualification only.
+    HistoryBudget historyBudget{};
     ProjectBudget admission{}; // Trusted application configuration, never project metadata.
 };
 // Qt is confined to this desktop adapter. Canonical Session/EditHistory belong
