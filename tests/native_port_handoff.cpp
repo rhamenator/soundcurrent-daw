@@ -44,6 +44,11 @@ struct Query {
     int ioStatus = 0;
     bool ioKnown = false, returned = false, knownBuffer = false;
     bool apiSuppressed = false;
+    unsigned sdkDequeues = 0, sdkQueues = 0, nativeSlot = UINT32_MAX, acquisitionStatus = 0;
+    unsigned extentBytes = 0, chunkOffset = 0, chunkBytes = 0, chunkFlags = 0, dataFlags = 0;
+    int chunkStride = 0, queueResult = INT32_MIN;
+    pw_buffer *nativeBuffer = nullptr; // Callback-local identity, never serialized.
+    bool nativeReturned = false, nativeKnown = false, queueMatched = false;
 };
 struct Row {
     spa_io_clock clock{};
@@ -265,6 +270,68 @@ void handoffAfterDsp(const void *pointer) noexcept {
     }
     pending = nullptr;
 }
+#ifdef SC_NATIVE_BUFFER_ACQUISITION
+void handoffNativeDequeue(void *object) noexcept {
+    if (!active || !pending)
+        return;
+    auto &q = *pending;
+    ++q.sdkDequeues;
+    q.nativeBuffer = static_cast<pw_buffer *>(object);
+    q.nativeReturned = object != nullptr;
+    if (!object || q.port == UINT32_MAX)
+        return;
+    auto &p = active->ports[q.port];
+    for (unsigned n = 0; n < p.buffers.size(); ++n)
+        if (p.buffers[n].object.load(std::memory_order_acquire) == object) {
+            q.nativeKnown = true;
+            q.nativeSlot = n;
+            break;
+        }
+}
+void handoffAfterAcquisition(const void *view, unsigned status) noexcept {
+    if (pending) {
+        auto &q = *pending;
+        q.acquisitionStatus = status;
+        if (q.nativeBuffer && q.nativeBuffer->buffer && q.nativeBuffer->buffer->n_datas == 1 &&
+            q.nativeBuffer->buffer->datas) {
+            const auto &d = q.nativeBuffer->buffer->datas[0];
+            q.extentBytes = d.maxsize;
+            q.dataFlags = d.flags;
+            if (d.chunk) {
+                q.chunkOffset = d.chunk->offset;
+                q.chunkBytes = d.chunk->size;
+                q.chunkStride = d.chunk->stride;
+                q.chunkFlags = d.chunk->flags;
+            }
+            if (view && d.data && q.nativeKnown && q.chunkOffset <= d.maxsize &&
+                view == static_cast<const std::byte *>(d.data) + q.chunkOffset) {
+                q.returned = q.knownBuffer = true;
+                q.buffer = q.nativeSlot;
+                q.maximumBytes = d.maxsize - q.chunkOffset;
+                pending = nullptr;
+                return;
+            }
+        }
+    }
+    handoffAfterDsp(view);
+}
+void handoffNativeQueue(void *key, void *buffer, int result) noexcept {
+    if (!active || !active->current)
+        return;
+    auto *p = active->find(key);
+    if (!p)
+        return;
+    const auto index = unsigned(p - active->ports.data());
+    if (index >= active->current->calls || active->current->queries[index].port != index) {
+        ++active->unknownQueries;
+        return;
+    }
+    auto &q = active->current->queries[index];
+    ++q.sdkQueues;
+    q.queueResult = result;
+    q.queueMatched = q.nativeBuffer == buffer;
+}
+#endif
 #ifdef SC_NATIVE_STARTUP_GATE
 bool handoffSuppressDsp() noexcept {
     if (!active || !pending || pending->port == UINT32_MAX)
@@ -277,7 +344,13 @@ bool handoffSuppressDsp() noexcept {
 #endif
 void writePortHandoffs(const std::filesystem::path &path) {
     std::ofstream out(path);
-    out << "{\"test_only\":true,\"public_api_observer\":true,\"filters\":[";
+    out << "{\"test_only\":true,\"public_api_observer\":true,\"acquisition_version\":"
+#ifdef SC_NATIVE_BUFFER_ACQUISITION
+        << 2
+#else
+        << 1
+#endif
+        << ",\"filters\":[";
     bool first = true;
     for (const auto &owned : owners) {
         if (!owned)
@@ -325,7 +398,18 @@ void writePortHandoffs(const std::filesystem::path &path) {
                     << ",\"returned\":" << (q.returned ? "true" : "false")
                     << ",\"api_suppressed\":" << (q.apiSuppressed ? "true" : "false")
                     << ",\"known_buffer\":" << (q.knownBuffer ? "true" : "false")
-                    << ",\"buffer\":" << q.buffer << ",\"maximum_bytes\":" << q.maximumBytes << '}';
+                    << ",\"buffer\":" << q.buffer << ",\"maximum_bytes\":" << q.maximumBytes
+                    << ",\"sdk_dequeues\":" << q.sdkDequeues << ",\"sdk_queues\":" << q.sdkQueues
+                    << ",\"native_returned\":" << (q.nativeReturned ? "true" : "false")
+                    << ",\"native_known\":" << (q.nativeKnown ? "true" : "false")
+                    << ",\"native_buffer\":" << q.nativeSlot
+                    << ",\"acquisition_status\":" << q.acquisitionStatus
+                    << ",\"queue_matched\":" << (q.queueMatched ? "true" : "false")
+                    << ",\"queue_result\":" << q.queueResult
+                    << ",\"extent_bytes\":" << q.extentBytes
+                    << ",\"chunk_offset\":" << q.chunkOffset << ",\"chunk_bytes\":" << q.chunkBytes
+                    << ",\"chunk_stride\":" << q.chunkStride << ",\"chunk_flags\":" << q.chunkFlags
+                    << ",\"data_flags\":" << q.dataFlags << '}';
             }
             out << "]}";
         }

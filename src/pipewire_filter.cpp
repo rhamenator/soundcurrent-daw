@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <pipewire/pipewire.h>
 #include <pipewire/filter.h>
+#include "pipewire_buffer.hpp"
+#include <cstring>
 #include <soundcurrent/pipewire_filter.hpp>
 #include <algorithm>
 #include <array>
@@ -53,7 +55,9 @@ struct PipeWireFilter::State {
     pw_registry *registry = nullptr;
     pw_filter *filter = nullptr;
     spa_hook filterListener{}, registryListener{}, coreListener{};
-    std::array<void *, 256> inputs{}, outputs{};
+    std::array<native::Port, 256> inputs{}, outputs{};
+    std::array<native::Buffer, 256> inputBuffers{}, outputBuffers{};
+    std::atomic<bool> bufferFault{false};
     std::array<const float *, 256> inputViews{};
     std::array<float *, 256> outputViews{};
     std::unordered_map<std::uint32_t, PipeWirePort> nodes, remotePorts;
@@ -115,6 +119,15 @@ struct PipeWireFilter::State {
                           message ? message : "PipeWire filter error");
         else if (state == PW_FILTER_STATE_PAUSED || state == PW_FILTER_STATE_STREAMING)
             s.publishedNode.store(pw_filter_get_node_id(s.filter), std::memory_order_release);
+    }
+    static void ioChanged(void *, void *key, std::uint32_t id, void *area,
+                          std::uint32_t bytes) noexcept {
+        if (!key)
+            return;
+        native::Port *port = nullptr;
+        std::memcpy(&port, key, sizeof(port));
+        if (port)
+            native::ioChanged(*port, id, area, bytes);
     }
     static void coreError(void *data, std::uint32_t, int, int, const char *message) {
         static_cast<State *>(data)->unavailable(AudioBridgeStatus::DeviceLost,
@@ -201,7 +214,8 @@ struct PipeWireFilter::State {
             end();
             return;
         }
-        if (clock.duration == 0 || clock.duration > s.options.maximumNativeFrames) {
+        if (s.bufferFault.load(std::memory_order_acquire) || clock.duration == 0 ||
+            clock.duration > s.options.maximumNativeFrames) {
             // No capacity-certified views exist for this unsupported native
             // quantum. Signal outside the callback through the user's bridge.
             s.callbacks.process(s.callbacks.context, timing, {}, {}, 0);
@@ -209,21 +223,49 @@ struct PipeWireFilter::State {
             return;
         }
         const auto n = static_cast<std::uint32_t>(clock.duration);
-        for (std::uint32_t c = 0; c < s.options.inputs; ++c)
-            s.inputViews[c] = static_cast<const float *>(pw_filter_get_dsp_buffer(s.inputs[c], n));
-        for (std::uint32_t c = 0; c < s.options.outputs; ++c)
-            s.outputViews[c] = static_cast<float *>(pw_filter_get_dsp_buffer(s.outputs[c], n));
+        bool invalid = false;
+        for (std::uint32_t c = 0; c < s.options.inputs; ++c) {
+            s.inputBuffers[c] = sc_pw_acquire_buffer(&s.inputs[c], n);
+            s.inputViews[c] = s.inputBuffers[c].samples;
+            invalid |= s.inputBuffers[c].status == native::Acquisition::Invalid;
+        }
+        for (std::uint32_t c = 0; c < s.options.outputs; ++c) {
+            s.outputBuffers[c] = sc_pw_acquire_buffer(&s.outputs[c], n);
+            s.outputViews[c] = s.outputBuffers[c].samples;
+            invalid |= s.outputBuffers[c].status == native::Acquisition::Invalid;
+        }
+        const auto release = [&] {
+            bool success = true;
+            for (std::uint32_t c = 0; c < s.options.inputs; ++c)
+                success &= sc_pw_release_buffer(&s.inputs[c], &s.inputBuffers[c]);
+            for (std::uint32_t c = 0; c < s.options.outputs; ++c)
+                success &= sc_pw_release_buffer(&s.outputs[c], &s.outputBuffers[c]);
+            if (!success)
+                s.bufferFault.store(true, std::memory_order_release);
+        };
+        if (invalid) {
+            s.bufferFault.store(true, std::memory_order_release);
+            for (std::uint32_t c = 0; c < s.options.outputs; ++c)
+                if (s.outputViews[c])
+                    std::fill_n(s.outputViews[c], n, 0.f);
+            s.callbacks.process(s.callbacks.context, timing, {}, {}, 0);
+            release();
+            end();
+            return;
+        }
         if (!s.admitted.load(std::memory_order_acquire)) {
             // Native activation negotiates links. Until every owned link is
             // active, publish silence without capturing/advancing the engine.
             for (std::uint32_t c = 0; c < s.options.outputs; ++c)
                 if (s.outputViews[c])
                     std::fill_n(s.outputViews[c], n, 0.f);
+            release();
             end();
             return;
         }
         s.callbacks.process(s.callbacks.context, timing, {s.inputViews.data(), s.options.inputs},
                             {s.outputViews.data(), s.options.outputs}, n);
+        release();
         end();
     }
     std::vector<PipeWirePort> ports() const {
@@ -358,6 +400,7 @@ PipeWireFilter::PipeWireFilter(PipeWireFilterOptions options, PipeWireCallbacks 
             e.version = PW_VERSION_FILTER_EVENTS;
             e.state_changed = State::stateChanged;
             e.process = State::process;
+            e.io_changed = State::ioChanged;
             return e;
         }();
         pw_filter_add_listener(s.filter, &s.filterListener, &filterEvents, &s);
@@ -368,11 +411,15 @@ PipeWireFilter::PipeWireFilter(PipeWireFilterOptions options, PipeWireCallbacks 
                 auto *p = pw_properties_new(PW_KEY_FORMAT_DSP, "32 bit float mono audio",
                                             PW_KEY_PORT_NAME, name.c_str(), nullptr);
                 require(p, "Cannot allocate PipeWire DSP port properties");
-                void *port =
-                    pw_filter_add_port(s.filter, input ? PW_DIRECTION_INPUT : PW_DIRECTION_OUTPUT,
-                                       PW_FILTER_PORT_FLAG_MAP_BUFFERS, 1, p, nullptr, 0);
+                void *port = pw_filter_add_port(
+                    s.filter, input ? PW_DIRECTION_INPUT : PW_DIRECTION_OUTPUT,
+                    PW_FILTER_PORT_FLAG_MAP_BUFFERS, sizeof(native::Port *), p, nullptr, 0);
                 require(port, "Cannot create PipeWire DSP port");
-                (input ? s.inputs : s.outputs)[c] = port;
+                auto &metadata = (input ? s.inputs : s.outputs)[c];
+                metadata.key = port;
+                metadata.input = input;
+                auto *pointer = &metadata;
+                std::memcpy(port, &pointer, sizeof(pointer));
             }
         }
         require(pw_filter_connect(s.filter,
@@ -495,6 +542,8 @@ std::uint32_t PipeWireFilter::nodeId() const noexcept {
     return state_->publishedNode.load(std::memory_order_acquire);
 }
 std::string PipeWireFilter::diagnostic() const {
+    if (state_->bufferFault.load(std::memory_order_acquire))
+        return "Native audio buffer layout, extent or ownership return was refused";
     if (!state_->loop)
         return state_->error;
     LoopLock lock(state_->loop);

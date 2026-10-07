@@ -18,6 +18,7 @@ struct PortMarkerRow {
     soundcurrent::daw::DeviceBlockClock clock{};
     soundcurrent::daw::Frame before = 0, after = 0;
     std::uint32_t bufferCalls = 0, generatedCalls = 0, bridgeCalls = 0;
+    std::uint32_t sdkDequeues = 0, sdkQueues = 0, sdkReturned = 0, sdkQueueFailures = 0;
     bool clockKnown = false;
     std::array<PortMarker, 32> ports{};
 };
@@ -39,6 +40,8 @@ class PortMarkers {
     void begin() noexcept;
     void clock(const soundcurrent::daw::DeviceBlockClock &) noexcept;
     void buffer(const float *, std::uint32_t) noexcept;
+    void sdkDequeue(bool returned) noexcept;
+    void sdkQueue(int result) noexcept;
     void generated(std::span<float *const>, std::uint32_t) noexcept;
     void bridge() noexcept;
     void end(soundcurrent::daw::Frame before, soundcurrent::daw::Frame after) noexcept;

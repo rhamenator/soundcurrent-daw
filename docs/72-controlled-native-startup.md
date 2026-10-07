@@ -3,6 +3,9 @@
 Scoped mechanism checkpoint, 2026-10-07 UTC. See the
 [receipt](../tests/results/M2/2026-10-07-controlled-native-startup.json).
 Full goal incomplete; no production adapter fix is delivered here.
+The subsequent [production acquisition checkpoint](73-native-buffer-acquisition.md)
+uses readiness-gated explicit buffer leases. This document retains the original
+getter experiment and its historical evidence.
 
 ## Experiment
 
@@ -100,6 +103,11 @@ Set `SC_NATIVE_STARTUP_POLICY=observe` or `defer-unready` when invoking
 both output and failure-output paths. Observe is expected to fail on its raw
 samples; preserve its terminal evidence before analysis. Native work follows
 termination of all owned local CPU builders/tests/producers.
+
+Those original getter runs require the archived source checkpoint
+`3e41aec906d2e5dd7ff1a2433fd57a2c2badd7a1`. The current production acquisition
+fixture uses `production-ready`; the old getter policy names no longer reproduce
+the original mechanism through that newer implementation.
 
 `verify_native_startup_pair.py` takes the original project, counterfactual receipt,
 independent original raw analysis and an output path. Run the pair mutation tests

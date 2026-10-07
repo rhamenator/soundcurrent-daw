@@ -1881,3 +1881,44 @@ this does not explain Stop or earlier delays. Final Debug/Release/sanitizer2/2
 and Windows media compilation pass. All 46 observations remain visible.
 Next diagnose original 46 before completing Qt manual ownership/late Cancel/UI.
 Full92 contracts and X004/X005/X006/Europe/Windows/sustained gates remain open.
+
+## Native buffer acquisition checkpoint (2026-10-07 UTC)
+
+Previous user-question turn was a status restatement; this continuation makes
+production and acceptance progress. [Native buffer leases](73-native-buffer-acquisition.md)
+replace the Linux convenience getter with synchronous readiness checks, certified
+mono F32 extents/chunks and explicit native object return after processing. Every
+logical channel remains represented when unavailable. Production callbacks gain
+no allocation, locks, waits, logging or clocks; no DSP, persistence, default-device
+or equalizer working-tree changes are made.
+
+The held source23 startup test now exercises actual production deferral with zero
+SDK dequeues and no test API suppression. That run and ordinary early Stop/Cancel
+pass all original raw/recovery/output,32-channel current-cycle, ownership, RT,
+priority and finite deadline/cycle gates. Each verifies37,696 raw and recovered
+samples and99,328 nonflat stereo output samples. Local Debug38/38 pass in44.06s;
+Release helper and explicit ASan/UBSan/LSan helper tests pass. Hosted native-off
+checks do not execute the new C++ helper test. The pinned1295-payload archive
+verifies all three runs after relocation, refuses60 changed evidence cases and
+retains the original receipt unchanged without native replay.
+
+Ordinary repeated-take failure48 is retained before diagnosis with its full298-file
+project/log/source-build evidence. All96 lane files /1,557,696 raw samples match
+expected timing. Its452,608 saved stereo prefix samples independently match the
+original nonflat prepared graph oracle exactly. The owner exceeds the unchanged
+80% callback budget and ends after a native cycle; the sink subsequently detects
+a skipped cycle. Its CPU-stage cause remains unobserved, and the full target,
+Save/reopen, grouped Undo/Redo, recovery and sustained timing are not qualified by
+this failed run. Original46/37 missing IO/queue terms and earlier failures remain.
+
+The [receipt](../tests/results/M2/2026-10-07-native-buffer-acquisition.json) pins
+compiled sources, exact native builds, complete original generated media/logs,
+SDK lifetime assessment, analyses, test logs and unchanged24-input reuse audit.
+All92 frozen projections remain at
+`8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28`,
+with zero F/Q/C/N promotion. Current256-track limit and X004/X005/X006, Europe,
+independent native Windows/physical and full parity requirements remain open.
+
+Next implementation task: bounded repeated-take stage observation to locate its
+CPU outlier while preserving the strict original gates; finish actual manual Qt
+controls and late-Cancel / monitoring Undo acceptance afterward.
