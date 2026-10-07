@@ -20,6 +20,14 @@ the copied binary and declares Qt platform plugins/existing PipeWire. It does no
 install the package, configure a daemon, change routes or upload a release.
 It retains failed packaging output and prepares paired application source.
 
+Review correction: the build cache's canonical source directory must match the
+current checkout. Before stripping or adding packaging metadata, the exact CMake
+installed file set and every executable/icon/desktop-entry/license/provenance byte
+must match current qualified inputs. An unchanged executable hash alone cannot
+prove that an older or different install tree matches the paired source archive.
+Owned failure tests reject another/ambiguous source directory, five independently
+stale inputs, extra/missing files and symlink payloads; retry preserves originals.
+
 The [first local preparation receipt](../tests/results/X007/2026-10-07-local-ubuntu-preview.json)
 records source `d23d3632f09e147d4fc7e663001075d4b93109b8`, Debug build,
 **1,077,580-byte DEB** and separate exact source archive. Every extracted installed

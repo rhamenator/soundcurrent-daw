@@ -28,6 +28,28 @@ def command(args, cwd=ROOT, env=None):
 def require(value, message):
     if not value:
         raise RuntimeError(message)
+def verify_build_source(cache, root):
+    entries = [line.split('=',1)[1] for line in cache.splitlines()
+               if line.startswith('CMAKE_HOME_DIRECTORY:INTERNAL=')]
+    require(len(entries)==1 and Path(entries[0]).resolve()==root.resolve(),
+            'Build tree belongs to another source checkout')
+def verify_staged_install(stage, root, executable):
+    expected = {
+        'usr/bin/soundcurrent-daw': executable,
+        'usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt': root/'reuse/equipment/upstream/data/equipment/LICENSE',
+        'usr/share/doc/soundcurrent-daw/equipment-provenance.json': root/'reuse/equipment/provenance.json',
+        'usr/share/applications/soundcurrent-daw.desktop': root/'packaging/soundcurrent-daw.desktop',
+        'usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg': root/'packaging/soundcurrent-daw.svg',
+    }
+    found = {}
+    for path in stage.rglob('*'):
+        require(not path.is_symlink(), 'Unexpected install payload symlink: '+str(path))
+        if path.is_file(): found[str(path.relative_to(stage))]=path
+    require(set(found)==set(expected), 'Install payload file set differs from current source')
+    for relative, source in expected.items():
+        require(digest(found[relative])==digest(source),
+                'Install payload differs from qualified source: '+relative)
+    return {relative:digest(source) for relative,source in expected.items()}
 def package(args):
     require(not command(['git','status','--porcelain']), 'Commit the tested source before packaging')
     host = dict(line.split('=',1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
@@ -44,6 +66,7 @@ def package(args):
     for relative, sha in qualification['source_sha256'].items():
         require(digest(ROOT/relative)==sha, 'Tested input changed: '+relative)
     cache = (build/'CMakeCache.txt').read_text()
+    verify_build_source(cache,ROOT)
     require('SC_BUILD_PIPEWIRE:BOOL=ON' in cache,'A recording preview requires native PipeWire')
     build_type = next(line.split('=',1)[1] for line in cache.splitlines() if line.startswith('CMAKE_BUILD_TYPE:'))
     head = command(['git','rev-parse','HEAD'])
@@ -73,6 +96,8 @@ def package(args):
     try:
         environment=dict(os.environ,DESTDIR=str(stage))
         run(['cmake','--install',build,'--prefix','/usr'],env=environment)
+        receipt['install_input_sha256']=verify_staged_install(stage,ROOT,executable)
+        receipt['every_CMake_install_input_matches_current_source']=True
         documentation=stage/'usr/share/doc/soundcurrent-daw';documentation.mkdir(parents=True,exist_ok=True)
         licenses=stage/'usr/share/licenses/soundcurrent-daw';licenses.mkdir(parents=True,exist_ok=True)
         for relative in ['README.md','CHANGELOG.md','THIRD-PARTY-NOTICES.md','docs/88-easy-installation.md','docs/89-workflow-previews.md']:
