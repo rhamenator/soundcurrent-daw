@@ -105,6 +105,7 @@ def owned_route_details():
 
 
 def run(binary, native, mode, output, failure):
+    (ROOT / '.cache').mkdir(parents=True, exist_ok=True)
     folder = Path(tempfile.mkdtemp(prefix='sc-manual-fault-native-' if native else 'sc-manual-fault-oracle-',
                                    dir=ROOT / '.cache'))
     project = folder / 'Manual fault — Ελληνικά'

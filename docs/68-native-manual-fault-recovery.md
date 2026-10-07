@@ -92,3 +92,9 @@ reliable replies/results and shutdown priority. Independent Windows, sustained/
 physical capture, full take/comp/loop/transport policies, X004/X005/X006, all-Europe
 localization and all92 frozen contracts remain open. X006's current256-track cap
 is unchanged; no fixed product ceiling is intended.
+
+Automated reviewR2 found the new verifier assumed `.cache` already existed. It now
+creates the directory before allocating its workspace. An actual clean temporary
+checkout with an external frozen binary reproduced the original FileNotFoundError
+and then passed the synthetic early-Stop workflow after the fix. No compiled source
+or native deadline changed.
