@@ -1813,3 +1813,19 @@ observations remain retained. See [receipt](../tests/results/repository/2026-10-
 Native manual fault/recovery remains the immediate implementation task; X006
 scaling, independent Windows/runtime/installers and every other full goal gate
 remain required. No F/Q/C/N promotion, dependency or schema change.
+
+
+## Native manual fault/recovery checkpoint (2026-10-07 UTC)
+
+Progress: opt-in actual native manual-adapter failure/recovery fixture, independent
+nonflat output/raw oracles and diagnostic route retention. All nine synthetic modes
+have scoped acceptance; finite native successes are recorded separately. Observations
+33–40 are retained, including an original per-channel512-frame delay and an owner
+13.88ms predominantly-CPU callback overrun at512/48k. Native early Stop and retired
+hash recovery remain unqualified; a later passing unserviced-cancel run does not
+resolve the original alignment failure. See [contract](68-native-manual-fault-recovery.md)
+and its dated receipt for exact per-attempt sources/binaries and historical links.
+Next: bounded per-channel buffer/clock and stage timing diagnostics, then bounded
+canonical Qt manual controls. No production/schema/dependency change or F/Q/C/N
+promotion; all92 frozen contracts and X004/X005/X006/Europe/Windows remain required.
+The full goal remains active and incomplete.
