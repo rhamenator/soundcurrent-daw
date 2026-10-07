@@ -13,6 +13,7 @@
 #endif
 namespace soundcurrent::daw {
 struct PlaybackRun::State {
+    ResourceLease resourceLease;
     PlaybackPipe pipe;
     PlaybackProcessor processor;
     std::unique_ptr<TrackReader> reader;
@@ -27,7 +28,8 @@ struct PlaybackRun::State {
 #else
     std::thread thread;
 #endif
-    State(const Session &s, const Id &id, PlaybackConfig c) : pipe(c), processor(s, id, pipe) {}
+    State(ResourceLease lease, const Session &s, const Id &id, PlaybackConfig c)
+        : resourceLease(std::move(lease)), pipe(c), processor(s, id, pipe) {}
     void run() noexcept {
         try {
             while (!pipe.readerDone() && !canceled.load(std::memory_order_acquire)) {
@@ -60,8 +62,10 @@ struct PlaybackRun::State {
     }
 };
 PlaybackRun::PlaybackRun(std::filesystem::path root, const Session &s, const Id &id,
-                         PlaybackConfig config, ReadAheadOptions options)
-    : state_(std::make_unique<State>(s, id, config)) {
+                         PlaybackConfig config, ReadAheadOptions options) {
+    const auto bytes = playbackRunPayloadBytes(ValidatedSession(s), id, config);
+    auto lease = options.resources ? options.resources->reserve(bytes) : ResourceLease{};
+    state_ = std::make_unique<State>(std::move(lease), s, id, config);
     state_->reader =
         std::make_unique<TrackReader>(state_->pipe, std::move(root), s, id, std::move(options));
     // Bounded pool prefill on preparation owner, before callback publication.

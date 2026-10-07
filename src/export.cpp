@@ -220,6 +220,9 @@ static ExportResult exportGraphWav(const std::filesystem::path &projectRoot, con
     require(samples < spec.memoryBudgetBytes / (2 * sizeof(float)),
             "Export audio buffers exceed the memory admission");
     graphConfig.startFrame = begin;
+    graphConfig.resources = options.resources;
+    auto outputLease = options.resources ? options.resources->reserve(samples * 2 * sizeof(float))
+                                         : ResourceLease{};
     graphConfig.memoryBudgetBytes -= samples * 2 * sizeof(float);
     MixPlaybackConfig config{graphConfig, spec.endFrame, std::max(256u, spec.blockFrames)};
     MixPlayback mix(session, plan, config);
@@ -228,6 +231,8 @@ static ExportResult exportGraphWav(const std::filesystem::path &projectRoot, con
     readerOptions.beforeRead = [&](Frame) { checkCanceled(); };
     readerOptions.maximumOpenAssets = spec.maximumOpenAssetsPerTrack;
     readerOptions.cache = spec.mediaCache;
+    readerOptions.resources = options.resources;
+    readerOptions.cache.resources = options.resources;
     MixReader reader(mix, root, session, std::move(readerOptions), spec.maximumOpenAssetReferences);
     require(PreparedEq::metadata().latencyFrames == 0,
             "This export adapter requires the prepared EQ's zero latency");

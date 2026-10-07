@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include "resource_ledger.hpp"
+#include <optional>
 #include "project_store.hpp"
 #include <span>
 
@@ -8,6 +10,7 @@ struct MediaCacheConfig {
     std::uint32_t maximumOpenFiles = 64, pageFrames = 4096;
     std::size_t cacheBudgetBytes = 8 * 1024 * 1024;
     std::size_t registryBudgetBytes = 16 * 1024 * 1024;
+    std::optional<ResourceLedger> resources; // Cache owns one lease across all borrowers.
 };
 struct MediaCacheStatistics {
     std::size_t uniqueAssets = 0, openFiles = 0, peakOpenFiles = 0, pageSlots = 0;

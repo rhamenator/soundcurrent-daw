@@ -5,7 +5,7 @@
   "recorded_utc": "2026-10-07T00:25:36.362141+00:00",
   "baseline": "SC-DAW-BASELINE-2026-10-05",
   "requirement": "Serve lower-budget recording studios including studios with substantial audio hardware; support any finite total project track count admitted by configured resources without a fixed product/license ceiling.",
-  "status": "partial implementation: resource-admitted audio-track state/mix, shared media, virtualized Linux Qt views and configurable history; full X006 incomplete",
+  "status": "partial implementation: resource-admitted project state/mix, shared media, virtualized Linux Qt views and shared declared controller/GUI/execution memory; full X006 incomplete",
   "contract": "docs/67-track-scalability.md",
   "decision": "docs/decisions/053-resource-admitted-track-count.md",
   "platforms": [
@@ -19,10 +19,10 @@
   "frozen_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
   "FQCN_promotion": false,
   "implementation_source_sha256": {
-    "src/session.cpp": "5f80a8726f568e964747b0714c7393ac10b59d62214bc800213b6f7a73716893",
+    "src/session.cpp": "3d18bcb2810f30a3805833a0ababf8f97fb326907c3a7c4ffc29093635a45ee8",
     "src/project_store.cpp": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15",
-    "src/mix.cpp": "1d76d7b39fa53d044d8a49b9f5cd5885d3d6f0757007b484c5bad1ee02953588",
-    "src/mix_playback.cpp": "e1947f16f6d2c3465e564845e5326e1c76a2695bd5bb97acd999a3f6a0acdee8",
+    "src/mix.cpp": "0d1cf5e2a7613c95ef036cb95b68c86746c4771742b1b5dbd39376a87d7fb12e",
+    "src/mix_playback.cpp": "c7dbbe45cbdc592fc8a7ba254212a9b2a595930916168e5d38de4b50ef22f57a",
     "src/manual_recording.cpp": "bc86df89a18b2d7f207c87d4b5254a651fcb753d882eb316c1fc494a3a55115c",
     "src/manual_punch.cpp": "85572f2cecb1d3101d9af6b2060f97c6d8b265ec4bc4cc526ae6e3f81ae8290d"
   },
@@ -87,7 +87,7 @@
   },
   "next_tasks": [
     "Sustained shared-cache/read-ahead profiling; remaining meter/waveform virtualization and Qt paging",
-    "Combined retained snapshot/GUI/state/old-new graph resource admission; configurable project/graph desktop policies",
+    "Coordinate desktop graph/IO trusted policies, capture/writer/other IO and commands/trials with the existing shared declared controller/GUI/execution parent; measure all allocations/RSS and processing capacity",
     "Large recording/adoption workflows; separate arm/native channel capabilities",
     "Diagnose original native sanitizer observation71 clock gap/source CPU cause without relabeling missing original evidence",
     "All frozen product milestones and independent Linux/Windows/localization qualification"
@@ -119,5 +119,18 @@
     "Linux_debug_tests": "50/50",
     "affected_sanitizer_tests": "13/13",
     "initial_receipt": "tests/results/M2/2026-10-07-history-resource-admission.json"
+  },
+  "prepared_execution_checkpoint": {
+    "contract": "docs/85-graph-memory-resources.md",
+    "decision": "docs/decisions/070-shared-execution-memory.md",
+    "receipt": "tests/results/M2/2026-10-07-graph-memory-resources.json",
+    "Linux_debug_tests": "58/58",
+    "affected_sanitizer_tests": "29/29",
+    "native_audio": false,
+    "Windows_runtime_qualified": false,
+    "full_heap_RSS_CPU_admission": false,
+    "product_track_ceiling": null,
+    "separate_recording_input_implementation_limit": 256,
+    "coordinated_desktop_graph_IO_policy_editor": false
   }
 }

@@ -132,7 +132,7 @@ struct RecordingControllerOptions {
     // Optional bounded native-duplex clock instrumentation in the existing audit
     // scope/context. Forwarded on the worker; absent in normal desktop operation.
     void (*duplexAuditClock)(void *, const DeviceBlockClock &) noexcept = nullptr;
-    ResourceLedger projectionMemory{}; // Off-audio selected-track fallback ownership.
+    ResourceLedger projectMemory{}; // Off-audio project projection and execution ownership.
 };
 enum class RecordingCommandKind { Prepare, Start, Inspect, Recover };
 struct RecordingCommand {

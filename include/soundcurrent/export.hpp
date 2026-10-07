@@ -51,6 +51,7 @@ struct ExportOptions {
     std::function<bool()> canceled;
     std::function<void(Frame written, Frame maximum)> progress;
     std::function<void(ExportBoundary, Frame written)> boundary;
+    std::optional<ResourceLedger> resources; // Trusted execution policy, not persisted state.
 };
 struct ExportResult {
     std::filesystem::path destination;

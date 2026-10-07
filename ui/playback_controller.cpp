@@ -26,7 +26,7 @@ class NativeEndpoint : public PlaybackEndpoint {
                    p.config.memoryBudgetBytes},
                   p.config.endFrame,
                   p.config.slabFrames},
-                 {}, std::chrono::seconds(3), audit) {}
+                 p.reader, std::chrono::seconds(3), audit) {}
     std::vector<PipeWirePort> ports() override {
         auto ports = owner_.ports();
         std::erase_if(ports, [](const auto &p) { return !p.input; });
@@ -237,7 +237,7 @@ struct PlaybackController::State : QThread {
             const auto target =
                 prepared->projectMix
                     ? desired->session
-                    : sessionForTrack(desired->session, prepared->track, options.projectionMemory);
+                    : sessionForTrack(desired->session, prepared->track, options.projectMemory);
             if (!target)
                 throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
             desired->session = target;
@@ -318,6 +318,7 @@ struct PlaybackController::State : QThread {
             throw ProjectError(ErrorCode::InvalidState, "Playback generation exhausted");
         PlaybackPreparation next{c.root, c.session, c.modelRevision, c.session->tracks.front().id,
                                  {},     {},        bool(c.plan)};
+        next.reader.resources = options.projectMemory;
         next.config.sampleRate = c.session->sampleRate;
         next.plan = c.plan ? *c.plan
                            : identityMix(*c.session, std::span(&next.track, 1),

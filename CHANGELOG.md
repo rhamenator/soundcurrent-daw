@@ -2,6 +2,13 @@
 
 ## Unreleased — development preview
 
+- Shared project admission for prepared mixes/playback pools, reader bindings and
+  decode buffers, shared media caches and WAV export output buffers. Retained
+  generations keep credit until control retirement; preparation failures unwind
+  credit before audio activation or export publication. Desktop resource settings
+  share live/offline usage. Capture/other IO, exact allocator/RSS and sustained
+  capacity remain open.
+
 - Refresh four noncompiled equalizer DSP review references for the upstream
   quieter post-gain wrapper. Borrowed coefficient/recurrence equations and the
   other 20 inputs remain unchanged; compiled DAW behavior is unchanged.

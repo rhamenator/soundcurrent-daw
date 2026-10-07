@@ -111,14 +111,17 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            std::function<void(HistoryBudget)> historyAccepted,
                            std::function<void(MemoryPreferences)> memoryAccepted)
     : QMainWindow(parent), controller_(std::move(projectOptions)), playback_([&] {
-          options.projectionMemory = controller_.resourceLedger();
+          options.projectMemory = controller_.resourceLedger();
           return std::move(options);
       }()),
       recording_([&] {
-          recordingOptions.projectionMemory = controller_.resourceLedger();
+          recordingOptions.projectMemory = controller_.resourceLedger();
           return std::move(recordingOptions);
       }()),
-      exporter_(std::move(exportOptions)) {
+      exporter_([&] {
+          exportOptions.render.resources = controller_.resourceLedger();
+          return std::move(exportOptions);
+      }()) {
     setObjectName(QStringLiteral("studioWindow"));
     setWindowTitle(tr("SoundCurrent DAW"));
     auto *file = menuBar()->addMenu(tr("&File"));
@@ -606,6 +609,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     recordModesTabs->setAccessibleName(tr("Recording workflows"));
     recordModesTabs->addTab(recording, tr("Fixed range / locators"));
     layout->addWidget(recordModesTabs);
+    manualOptions.projectMemory = controller_.resourceLedger();
     manual_ = std::make_unique<ManualRecordingPanel>(
         controller_, nextGesture_,
         [this] {

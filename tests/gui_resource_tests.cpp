@@ -5,6 +5,7 @@
 #include "track_view.hpp"
 #include "fake_recording_endpoint.hpp"
 #include "fake_duplex_endpoint.hpp"
+#include "fake_playback_endpoint.hpp"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QApplication>
@@ -272,6 +273,67 @@ void desktop(const std::filesystem::path &root) {
     std::cout << "512/513-track actual desktop atomic refusal, resource editor, display retry and "
                  "save qualified\n";
 }
+void executionResources(const std::filesystem::path &root) {
+    auto initial = makeOneTrackSession("Desktop graph resources", "Audio");
+    ProjectStore(root).save(initial);
+    RecordingSpec spec;
+    spec.projectId = initial.id;
+    spec.trackId = initial.tracks.front().id;
+    spec.capture.maximumCallbackFrames = 128;
+    spec.capture = prepareCaptureConfig(spec.capture);
+    CapturePipe pipe(spec.capture);
+    CaptureWriter writer(root, spec);
+    std::array<float, 128> samples{};
+    const float *input = samples.data();
+    pipe.push({&input, 1}, 128, 0);
+    pipe.finish();
+    while (writer.drainOne(pipe)) {
+    }
+    const auto take = writer.finalize(pipe);
+    initial.assets = {take.asset};
+    Clip clip;
+    clip.assetId = take.asset.id;
+    clip.lengthFrames = 128;
+    initial.tracks.front().clips = {clip};
+    initial.exportEndFrame = 128;
+    ProjectStore(root).save(initial);
+    auto counters = std::make_shared<playback_fixture::Counters>();
+    ResourceLedger observer;
+    {
+        StudioWindow window(nullptr, playback_fixture::options(counters));
+        observer = window.resourceLedger();
+        window.show();
+        window.openProject(root);
+        await([&] {
+            return window.snapshot()->session && window.snapshot()->io == IoOperation::None &&
+                   window.displayedRevision() == window.snapshot()->modelRevision;
+        });
+        const auto baseline = observer.usage().reservedBytes;
+        policy(window, baseline, 9991);
+        check(window.preparePlayback(), "Execution Prepare queue refused");
+        await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Fault; });
+        check(window.playbackSnapshot()->errorCode == ErrorCode::ResourceLimit &&
+                  counters->constructed == 0 && counters->activated == 0 &&
+                  observer.usage().reservedBytes == baseline,
+              "Full project parent did not refuse desktop graph before activation");
+        policy(window, 128 * 1024 * 1024, 9992);
+        check(window.preparePlayback(), "Execution retry queue refused");
+        await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Ready; });
+        check(counters->constructed == 1 && counters->activated == 0 &&
+                  observer.usage().reservedBytes > baseline,
+              "Raised desktop policy did not admit graph into project parent");
+        auto *stop = window.findChild<QPushButton *>("stopButton");
+        await([&] { return stop->isEnabled(); });
+        stop->click();
+        await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Idle; });
+        await([&] { return observer.usage().reservedBytes == baseline; });
+        check(counters->destroyed == 1, "Desktop Stop did not retire prepared execution");
+        window.close();
+        await([&] { return window.snapshot()->closed; });
+    }
+    check(observer.usage().reservedBytes == 0, "Desktop execution parent leaked after close");
+    check(ProjectStore(root).load() == initial, "Desktop execution refusal/retry modified project");
+}
 void earlyPrepare(const std::filesystem::path &root) {
     const auto initial = makeOneTrackSession("Early monitoring", "Input");
     ProjectStore(root).save(initial);
@@ -346,6 +408,7 @@ int main(int argc, char **argv) {
         }
         components();
         desktop(root / "project");
+        executionResources(root / "execution");
         earlyPrepare(root / "early");
         earlyArms(root / "early-arms");
         std::cout << "GUI resource checks=" << checks << '\n';

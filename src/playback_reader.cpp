@@ -11,7 +11,35 @@ void require(bool ok, const char *message, ErrorCode code = ErrorCode::MediaMism
         throw ProjectError(code, message);
 }
 } // namespace
+std::size_t trackReaderPayloadBytes(const ValidatedSession &s, const Id &id,
+                                    const PlaybackConfig &raw) {
+    const auto c = preparePlaybackConfig(raw);
+    const auto &t = s.track(id);
+    require(t.layout == c.layout && s.session().sampleRate == c.sampleRate,
+            "Playback reader/session admission mismatch", ErrorCode::InvalidState);
+    PayloadCharge charge("Track reader payload", c.memoryBudgetBytes);
+    charge.add(4096);
+    for (const auto &clip : t.clips)
+        if (clip.startFrame < c.endFrame && clip.startFrame + clip.lengthFrames > c.startFrame)
+            charge.add(512);
+    charge.add(std::size_t(c.slabFrames) * c.layout.channels, sizeof(float) + sizeof(double));
+    return charge.bytes();
+}
+std::size_t playbackRunPayloadBytes(const ValidatedSession &s, const Id &id,
+                                    const PlaybackConfig &raw) {
+    const auto c = preparePlaybackConfig(raw);
+    const auto &t = s.track(id);
+    require(t.layout == c.layout && s.session().sampleRate == c.sampleRate,
+            "Playback run/session admission mismatch", ErrorCode::InvalidState);
+    PayloadCharge charge("Playback run DSP/buffers", c.memoryBudgetBytes);
+    charge.add(sizeof(PlaybackPipe) + sizeof(PreparedEq) + sizeof(EqLiveDriver) + 8192);
+    charge.add(std::size_t(captureSlabs) * c.slabFrames * c.layout.channels, sizeof(float));
+    charge.add(std::size_t(c.maximumCallbackFrames) * c.layout.channels, sizeof(float));
+    charge.add(t.eq.bands.size(), 256 + std::size_t(c.layout.channels) * 16);
+    return charge.bytes();
+}
 struct TrackReader::State {
+    ResourceLease resourceLease;
     PlaybackPipe &pipe;
     ReadAheadOptions options;
     struct Binding {
@@ -24,13 +52,18 @@ struct TrackReader::State {
     std::vector<double> sumBuffer;
     Frame next;
     std::atomic<std::uint64_t> sanitized{0};
-    State(PlaybackPipe &p, ReadAheadOptions o)
-        : pipe(p), options(std::move(o)), next(p.config().startFrame) {}
+    State(ResourceLease lease, PlaybackPipe &p, ReadAheadOptions o)
+        : resourceLease(std::move(lease)), pipe(p), options(std::move(o)),
+          next(p.config().startFrame) {}
 };
 TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const Session &session,
-                         const Id &trackId, ReadAheadOptions options)
-    : state_(std::make_unique<State>(pipe, std::move(options))) {
+                         const Id &trackId, ReadAheadOptions options) {
     const ValidatedSession validated(session);
+    const auto bytes = trackReaderPayloadBytes(validated, trackId, pipe.config());
+    auto lease = options.resources ? options.resources->reserve(bytes) : ResourceLease{};
+    if (!options.cache.resources)
+        options.cache.resources = options.resources;
+    state_ = std::make_unique<State>(std::move(lease), pipe, std::move(options));
     const auto &config = pipe.config();
     const auto &track = validated.track(trackId);
     require(track.layout == config.layout && session.sampleRate == config.sampleRate,
@@ -46,14 +79,13 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
     cache.maximumOpenFiles = std::min(cache.maximumOpenFiles, state_->options.maximumOpenAssets);
     PayloadCharge total("Playback reader aggregate", config.memoryBudgetBytes);
     total.add(mediaCachePayloadBytes(assets, cache));
-    total.add(sizeof(PlaybackPipe) + sizeof(PreparedEq) + sizeof(EqLiveDriver) + 8192);
-    total.add(std::size_t(captureSlabs) * config.slabFrames * config.layout.channels,
-              sizeof(float));
-    total.add(std::size_t(config.maximumCallbackFrames) * config.layout.channels, sizeof(float));
-    total.add(track.eq.bands.size(), 256 + std::size_t(config.layout.channels) * 16);
-    total.add(track.clips.size(), sizeof(State::Binding) + 128);
-    total.add(std::size_t(config.slabFrames) * config.layout.channels,
-              sizeof(float) + sizeof(double));
+    total.add(playbackRunPayloadBytes(validated, trackId, config));
+    total.add(bytes);
+    state_->bindings.reserve(
+        std::count_if(track.clips.begin(), track.clips.end(), [&](const auto &clip) {
+            return clip.startFrame < config.endFrame &&
+                   clip.startFrame + clip.lengthFrames > config.startFrame;
+        }));
     state_->media = std::make_shared<MediaReadCache>(root, assets, session.sampleRate, cache,
                                                      state_->options.beforeAdmissionRead);
     for (const auto &clip : track.clips)
@@ -65,14 +97,21 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
     state_->sumBuffer.resize(size, 0.);
 }
 TrackReader::TrackReader(PlaybackPipe &pipe, const ValidatedSession &validated, const Id &trackId,
-                         std::shared_ptr<MediaReadCache> media, ReadAheadOptions options)
-    : state_(std::make_unique<State>(pipe, std::move(options))) {
+                         std::shared_ptr<MediaReadCache> media, ReadAheadOptions options) {
+    const auto bytes = trackReaderPayloadBytes(validated, trackId, pipe.config());
+    auto lease = options.resources ? options.resources->reserve(bytes) : ResourceLease{};
+    state_ = std::make_unique<State>(std::move(lease), pipe, std::move(options));
     require(bool(media), "Shared playback media cache missing", ErrorCode::InvalidState);
     const auto &track = validated.track(trackId);
     const auto &config = pipe.config();
     require(track.layout == config.layout && validated.session().sampleRate == config.sampleRate,
             "Playback reader/session admission mismatch", ErrorCode::InvalidState);
     state_->media = std::move(media);
+    state_->bindings.reserve(
+        std::count_if(track.clips.begin(), track.clips.end(), [&](const auto &clip) {
+            return clip.startFrame < config.endFrame &&
+                   clip.startFrame + clip.lengthFrames > config.startFrame;
+        }));
     for (const auto &clip : track.clips)
         if (clip.startFrame < config.endFrame &&
             clip.startFrame + clip.lengthFrames > config.startFrame) {

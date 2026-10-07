@@ -14,7 +14,11 @@ struct ReadAheadOptions {
     // Optional worker-side cancellation during large source admission hashes.
     std::function<void()> beforeAdmissionRead{};
     MediaCacheConfig cache{}; // Effective handle cap is the minimum of both policies.
+    std::optional<ResourceLedger> resources;
 };
+// Declared owned payloads; helpers validate configurations before computing sizes.
+std::size_t trackReaderPayloadBytes(const ValidatedSession &, const Id &, const PlaybackConfig &);
+std::size_t playbackRunPayloadBytes(const ValidatedSession &, const Id &, const PlaybackConfig &);
 // Worker-side timeline reader. Admits owned WAV/RF64 assets, verifies hashes,
 // opens read-only handles, then mixes clip source extents into bounded slabs.
 class TrackReader {

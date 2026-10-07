@@ -64,8 +64,12 @@ struct MixPlaybackRun::State {
     }
 };
 MixPlaybackRun::MixPlaybackRun(std::filesystem::path root, const Session &s, MixPlan p,
-                               MixPlaybackConfig c, ReadAheadOptions o, std::uint32_t references)
-    : state_(std::make_unique<State>(s, std::move(p), c)) {
+                               MixPlaybackConfig c, ReadAheadOptions o, std::uint32_t references) {
+    if (!c.graph.resources)
+        c.graph.resources = o.resources;
+    if (!o.resources)
+        o.resources = c.graph.resources;
+    state_ = std::make_unique<State>(s, std::move(p), c);
     state_->reader =
         std::make_unique<MixReader>(state_->mix, std::move(root), s, std::move(o), references);
     while (state_->reader->fillRound()) {

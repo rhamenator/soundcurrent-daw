@@ -97,11 +97,11 @@ HistoryResourcesDialog::HistoryResourcesDialog(
     auto *layout = new QFormLayout(page);
     scroll->setWidget(page);
     outer->addWidget(scroll, 1);
-    auto *explanation = new QLabel(
-        tr("Limits apply to Undo payload and declared state/edit work. "
-           "They do not measure total RAM or audio graph memory. New edits may retire the "
-           "oldest Undo commands; reducing limits never clears existing history."),
-        this);
+    auto *explanation =
+        new QLabel(tr("Limits apply to Undo payload and declared state/edit work. "
+                      "They do not measure total RAM. New edits may retire the "
+                      "oldest Undo commands; reducing limits never clears existing history."),
+                   this);
     explanation->setWordWrap(true);
     layout->addRow(explanation);
     auto *count = new QLineEdit(this);
@@ -177,8 +177,9 @@ HistoryResourcesDialog::HistoryResourcesDialog(
             });
     auto *memoryExplanation =
         new QLabel(tr("The shared project budget covers canonical state, snapshots, Undo, declared "
-                      "edit work, list/timeline indices and selected-track projections. "
-                      "Graphs, parser/IO buffers and Qt/allocator overhead remain separate."),
+                      "edit work, list/timeline indices, projections, prepared DSP, readers, media "
+                      "caches and export audio buffers. Capture pools, parser/other IO buffers "
+                      "and Qt/allocator overhead remain separate."),
                    this);
     memoryExplanation->setWordWrap(true);
     layout->addRow(memoryExplanation);

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include "resource_ledger.hpp"
+#include <optional>
 #include "capture.hpp"
 #include "eq.hpp"
 #include <atomic>
@@ -38,6 +40,7 @@ struct AudioBridgeOptions {
     std::uint64_t generation = 1;
     Frame stopAfterFrames = 0; // Zero: run until explicit stop/fault.
     CaptureBackend backend = CaptureBackend::Synthetic;
+    std::optional<ResourceLedger> resources;
 };
 // Qt/backend-free callback owner; prepare before activation, one control owner
 // for parameter events and one audio owner for process. Pipes outlive callbacks.
@@ -72,6 +75,7 @@ class AudioBridge {
     std::uint64_t droppedObservations() const noexcept;
 
   private:
+    ResourceLease resourceLease_; // Declared first: releases after owned DSP destruction.
     PreparedEq eq_;
     EqLiveDriver driver_;
     CapturePipe &capture_;

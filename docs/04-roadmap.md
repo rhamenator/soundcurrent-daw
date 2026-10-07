@@ -508,3 +508,15 @@ settings/explicit retry. Next admit prepared graph/media-cache overlap and safe
 retirement, then parser/IO and measured heap/RSS; continue paging, larger capture,
 freeze/bounce, prepared scheduling and sustained Linux/Windows workloads.
 Full X006 and all frozen-reference contracts remain open.
+
+### X006 shared prepared execution checkpoint
+
+[ADR070](decisions/070-shared-execution-memory.md) and
+[ownership/acceptance scope](85-graph-memory-resources.md) connect prepared graphs,
+playback pools, readers, shared cache pages/registry and offline output buffers to
+the project parent. Nested aggregate ownership is counted once; retirement waits
+for control collection after the last audio borrow. Desktop controls and offline
+workers receive the same trusted parent. Next coordinate capture/writer/other IO,
+measure allocator/RSS, implement paging and larger capture/adoption, then
+freeze/bounce, prepared scheduling and sustained Linux/Windows workload profiles.
+No native Windows or full X006/frozen-contract promotion.
