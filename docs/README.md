@@ -80,6 +80,7 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [X006: scalable track counts for recording studios](67-track-scalability.md)
 - [Native buffer readiness, extent and ownership](73-native-buffer-acquisition.md)
 - [Canonical recording monitoring feedback and bounded repeated takes](74-recording-monitor-feedback.md)
+- [Manual recording desktop worker and cancellation delivery](75-manual-desktop-worker.md)
 
 - [Native manual fault recovery and unresolved timing/alignment](68-native-manual-fault-recovery.md)
 

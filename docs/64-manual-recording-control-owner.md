@@ -79,6 +79,10 @@ A writer that finalized before cancellation can retain completed media, but the
 pending group is still marked Canceled. Already delivered ready groups remain
 completed receipts.
 
+The [later desktop worker checkpoint](75-manual-desktop-worker.md) defines this
+delivery boundary as `takeGroup()`'s cancellation acquire observation. It covers
+Cancel during writer/verifier finalization and after Stop, before transfer.
+
 Raw capture can have accepted a prefix in a callback that subsequently faults
 before advancing playback. Keep that exact raw prefix even when it extends beyond
 the last successfully mixed logical position; do not clamp or pad it to fabricate

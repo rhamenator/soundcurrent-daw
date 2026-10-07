@@ -1963,3 +1963,53 @@ through finalization and canonical intent/Undo tests. Native Windows, physical,
 sustained, X004/X005/X006 and Europe remain open; the current256-track ceiling is
 unchanged. Continue the full goal without waiting for repeated passing short runs
 to substitute for these missing workflows.
+
+## 2026-10-07: manual desktop worker and late cancellation
+
+Previous goal turn: progress. PR19's merged tree/source backup was verified by
+fresh bundle restore and byte comparison; track scalability remains planned.
+This turn adds the production serialized manual worker and closes the core late
+Cancel gap at application handoff.
+
+One worker owns native endpoint construction, explicit activation/routes, prepared
+take slots, punch submission, disk service and native/reader/disk joins. A16-command
+FIFO reserves64 reliable control completions. Audio replies retain64 application
+credits; eight aggregate engine/application results enforce backpressure. Stop/
+Cancel uses the shared generation signal independent of queued commands. Stale
+intent cannot replace the active graph; explicit result consumption does not edit
+canonical history or Save. Closed results remain immutable and consumable.
+
+Cancel now reaches still-owned core results during writer/verifier finalization
+and after Stop. takeGroup's cancellation acquire observation commits handoff of
+its next receipt; previously transferred receipts remain unchanged. Positive
+unserviced prefixes drain into retained media. Canceled groups refuse implicit/
+partial adoption, with original failures/checkpoints/media retained.
+
+Actual functional tests cover8 repeated two-lane takes on one prepared nonflat
+graph, exact raw/reliable replies, grouped history/Save/reopen,16 queued commands
+during held construction,64 control/audio receipts,8 aggregate result slots,
+priority callback stop independent of a held control worker, late Cancel and joined
+Close. Core tests additionally cover held real writer hash/join and actual verifier
+with32 independently captured lanes. No callback allocation/free/blocking lock
+was observed. The unchanged-core synthetic regression original/source/executable
+hashes/media/logs were retained before diagnosis; it is not a new native failure.
+
+Debug39/39,45.07s; affected ASan/UBSan/LSan3/3,6.38s with leak detection; Windows
+media/controller/test compilation passes. No actual-widget/native-controller/
+Windows-runtime/sustained qualification follows.24 reviewed equalizer inputs are
+unchanged. All92 frozen contract projections remain unchanged/unpromoted.48 runtime
+observations, original48 CPU cause, X004/X005/X006, Europe and platform/installers
+remain open. See docs/75-manual-desktop-worker.md, ADR060 and the dated receipt.
+
+Next implementation: wire actual Qt manual transport/take widgets, canonical
+prefix barrier, parameter following, explicit grouped adoption/recovery and Close.
+Keep the full frozen goal active.
+
+PR20 review additionally found acknowledgements queued during the last held Close
+could be accepted but stranded after worker exit. The new unchanged-source
+regression records1 control/2 audio/1 group still present; source/executable hashes
+and original media/logs were frozen before correction. Final publication drains
+that prefix under its publication mutex; the same regression records0/0/0 with
+older snapshots unchanged. Final Debug39/39,46.29s and focused controller
+ASan/UBSan/LSan1/1,1.03s pass; Windows controller compilation passes. Earlier
+core sanitizer/evidence archives remain unchanged. Runtime/native count remains48.
