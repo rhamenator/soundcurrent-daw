@@ -101,3 +101,7 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Shared media handles and decoded-page cache](79-shared-media-cache.md)
 
 - [Model-backed session lists and viewport timeline](80-virtualized-session-views.md)
+
+- [Configurable Undo resource settings](81-history-resource-admission.md)
+
+- [Retained immutable session resources](82-retained-session-resources.md)

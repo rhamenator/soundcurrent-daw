@@ -2,6 +2,11 @@
 
 ## Unreleased — development preview
 
+- Shared leases retain immutable Session charges until the last reader releases
+  them. Saved revisions, in-flight saves and barriers share current state; edits
+  and Undo/Redo admit their next publication first, with Cancel still available
+  at a full snapshot budget. Full combined resource admission remains open.
+
 - Configurable Undo command/payload/workspace limits with checked charges,
   observable usage/retirement and a desktop resource dialog. Rejected reductions
   preserve Undo/Redo; active-gesture preflight and preference-failure reporting

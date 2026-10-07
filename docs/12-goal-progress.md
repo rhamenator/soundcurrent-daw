@@ -2321,3 +2321,51 @@ source CPU cause. Full aggregate snapshots/GUI/IO/old-new graphs and allocator/R
 admission, recording scaling, sustained/native Linux/Windows, frozen parity,
 X004/X005 and Europe qualification remain required. Next implement combined
 snapshot/GUI/graph resource admission. The goal stays active and incomplete.
+
+## X006 retained immutable Session ownership (2026-10-07)
+
+[ADR067](decisions/067-retained-session-resources.md) and
+[ownership/admission scope](82-retained-session-resources.md) add shared accounting
+and move-only leases for each unique immutable controller Session block, retained
+until the last reader releases it. Saved revisions, in-flight saves and barriers
+borrow current state. Edit/Undo/Redo publications are admitted before gesture
+commit/canonical mutation; full-budget Cancel borrows the starting publication.
+Unknown-size Open reserves trusted maximum state bytes before worker decoding.
+Snapshot policies have correlated runtime commands; the real Undo resources dialog
+shows locale-formatted live reservations and configured byte-exact startup limits.
+
+The [receipt](../tests/results/M2/2026-10-07-retained-session-resources.json) preserves
+the first successful focused scope plus final sources, executable hashes, logs and
+owned generated project/media bytes. Full Linux Debug52/52,139.51s
+and affected ASan/UBSan/LSan15/15,314.38s pass.
+Windows core/media cross-build passes; no GUI/native Windows runtime qualification.
+512-track refusal/release/retry, active Cancel, Undo/Redo, Save/reopen, paused Save
+and shared barriers pass; the8192-track viewport regression remains passing.
+The verified archive is11,320,389bytes/736entries.
+
+All24 reviewed equalizer inputs and92 unpromoted frozen contracts remain unchanged.
+No live native audio/VM run, new third-party dependency, schema change or resolution
+of original71 clock/source CPU cause. This snapshot ledger does not cover canonical
+state/history, GUI indices/projections, audio graph overlap, parser/IO buffers or
+Qt/allocator/RSS. Next share leases across those owners and expose combined trusted
+resource settings; continue large capture admission, freeze/bounce, prepared
+scheduling and sustained Linux/Windows qualification. All frozen parity, X004/X005
+and Europe gates remain required. The goal stays active and incomplete.
+
+### PR27 attachment review correction
+
+The [final review receipt](../tests/results/M2/2026-10-07-retained-session-review.json)
+retains a deterministic full-budget512-track attachment failure: completion tried
+a third publication (3,342,324bytes required,2,227,903available) while the verified
+proposal remained owned. Unchanged model revision now reuses that proposal and its
+generated clip IDs; changed revisions still merge/admit current edits. Original
+source/executable hash/log/project/take bytes remain in the supplementary archive.
+
+Final Linux53/53,142.86s and targeted attachment/controller/manual UI
+ASan/UBSan/LSan5/5,29.64s pass. Windows core/media cross-build
+passes without GUI/native runtime qualification. This final compiled-source receipt
+supersedes the initial52/15 scope; that earlier evidence remains historical.
+The supplementary CRC/all-entry-byte verified archive is
+8,496,931bytes/685entries. All92 contracts,
+24 reviewed reuse inputs, original71 unresolved cause and full X006/frozen scope
+remain unchanged. Next coordinate canonical/history/GUI/graph/IO resource leases.

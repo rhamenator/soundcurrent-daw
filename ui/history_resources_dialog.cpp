@@ -92,6 +92,10 @@ HistoryResourcesDialog::HistoryResourcesDialog(ProjectController &controller,
     usage->setObjectName("historyUsage");
     usage->setWordWrap(true);
     layout->addRow(usage);
+    auto *snapshotUsage = new QLabel(this);
+    snapshotUsage->setObjectName("snapshotUsage");
+    snapshotUsage->setWordWrap(true);
+    layout->addRow(snapshotUsage);
     auto *feedback = new QLabel(this);
     feedback->setObjectName("historyFeedback");
     feedback->setWordWrap(true);
@@ -137,8 +141,15 @@ HistoryResourcesDialog::HistoryResourcesDialog(ProjectController &controller,
             });
     auto *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this,
-            [&, this, usage, feedback, apply, buttons, count, retained, operation, accepted] {
+            [&, this, usage, snapshotUsage, feedback, apply, buttons, count, retained, operation,
+             accepted] {
                 const auto snapshot = controller.snapshot();
+                const auto reservations = controller.snapshotResources();
+                snapshotUsage->setText(
+                    tr("Project snapshot reservations: %1 owners\n"
+                       "%2 / %3 bytes · Peak reservation: %4 bytes")
+                        .arg(display(reservations.owners), display(reservations.reservedBytes),
+                             display(reservations.limitBytes), display(reservations.peakBytes)));
                 const auto &r = snapshot->historyResources;
                 usage->setText(tr("Undo: %1 · Redo: %2\nRetained: %3 bytes · Active: %4 bytes\n"
                                   "Accepted operation peak: %5 bytes · Retired commands: %6")

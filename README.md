@@ -56,6 +56,10 @@ evidence. A [shared media pool/cache](docs/79-shared-media-cache.md) now serves
 raise retained command, payload and operation-workspace budgets. Existing history
 survives rejected reductions; usage and oldest-command retirement are visible.
 These declared checks are one input to future combined memory admission.
+The [retained-session ledger](docs/82-retained-session-resources.md) also keeps
+older immutable snapshots charged until their last reader releases them. Saves
+and barriers share current state; snapshot-budget refusal preserves active edits
+and leaves Cancel available.
 
 The [viewport timeline and model-backed lists](docs/80-virtualized-session-views.md)
 now have bounded Linux Qt large-project regression workflows. Combined memory,

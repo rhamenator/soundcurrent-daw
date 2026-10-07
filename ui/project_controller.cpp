@@ -25,23 +25,26 @@ struct IoJob {
     std::uint64_t revision = 0;
     std::shared_ptr<const std::vector<RecordingResult>> recordings = nullptr;
     std::uint64_t attachmentRequest = 0;
+    std::shared_ptr<ResourceLease> loadReservation = nullptr;
 };
 struct IoResult {
     IoJob job;
-    std::optional<Session> loaded;
+    std::shared_ptr<const Session> loaded;
     std::optional<ErrorCode> error;
     std::string diagnostic;
 };
 class IoWorker : public QThread {
   public:
     ControllerOptions options;
+    SessionSnapshots snapshots;
     std::atomic<bool> &closing;
     QMutex mutex;
     QWaitCondition wake;
     std::optional<IoJob> job;
     std::optional<IoResult> result;
     bool busy = false, quit = false;
-    IoWorker(ControllerOptions o, std::atomic<bool> &c) : options(std::move(o)), closing(c) {}
+    IoWorker(ControllerOptions o, SessionSnapshots s, std::atomic<bool> &c)
+        : options(std::move(o)), snapshots(std::move(s)), closing(c) {}
     void startJob(IoJob next) {
         QMutexLocker lock(&mutex);
         if (busy)
@@ -89,7 +92,8 @@ class IoWorker : public QThread {
                     throw ProjectError(ErrorCode::Canceled, "Project operation canceled");
                 ProjectStore store(next.root, options.admission);
                 if (next.operation == IoOperation::Open)
-                    finished.loaded = store.load();
+                    finished.loaded =
+                        snapshots.adopt(store.load(), std::move(*next.loadReservation));
                 else if (next.operation == IoOperation::AttachRecording) {
                     admitReceipts(next.recordings, options.admission.state);
                     const auto canceled = [&] {
@@ -162,28 +166,29 @@ struct ProjectController::State : QThread {
     std::atomic<bool> closing{false};
     ProjectBudget admission;
     HistoryBudget historyBudget;
+    SessionSnapshots snapshots;
     IoWorker io;
-    std::optional<Session> model;
+    std::unique_ptr<Session> model;
     std::unique_ptr<EditHistory> history;
     std::shared_ptr<const Session> savedModel;
     std::uint64_t activeGesture = 0;
     std::optional<ParameterAddress> activeAddress;
+    std::shared_ptr<const Session> gestureBefore;
     ControllerSnapshot view;
-    bool changed = true;
     explicit State(ControllerOptions options)
         : admission(options.admission), historyBudget(options.historyBudget),
-          io(std::move(options), closing) {
+          snapshots(ResourceLedger(options.snapshotBytes), options.admission.state),
+          io(std::move(options), snapshots, closing) {
         validateHistoryBudget(historyBudget);
         view.historyBudget = historyBudget;
+        view.snapshotResources = snapshots.usage();
         latest = std::make_shared<const ControllerSnapshot>(view);
     }
     ~State() override = default;
     void publish() {
         view.historyBudget = historyBudget;
         view.historyResources = history ? history->resources() : HistoryResources{};
-        if (changed && model)
-            view.session = std::make_shared<const Session>(*model);
-        changed = false;
+        view.snapshotResources = snapshots.usage();
         view.dirty = model && (!savedModel || *model != *savedModel);
         auto next = std::make_shared<const ControllerSnapshot>(view);
         QMutexLocker lock(&mutex);
@@ -203,16 +208,28 @@ struct ProjectController::State : QThread {
             history->commit();
             activeGesture = 0;
             activeAddress.reset();
+            gestureBefore.reset();
         }
     }
     void revised() {
         if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
             throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
         ++view.modelRevision;
-        changed = true;
+    }
+    std::shared_ptr<const Session> prepareSnapshot(const Session &value) const {
+        if (view.session && *view.session == value)
+            return view.session;
+        return snapshots.copy(value);
     }
     void execute(ProjectCommand &command) {
         switch (command.kind) {
+        case CommandKind::SnapshotLimits:
+            if (!command.snapshotBytes || !command.snapshotRequest)
+                throw ProjectError(ErrorCode::InvalidParameter,
+                                   "Snapshot resource request is missing");
+            snapshots.configure(*command.snapshotBytes);
+            view.snapshotCompleted = {command.snapshotRequest, {}, {}};
+            break;
         case CommandKind::HistoryLimits:
             if (!command.historyBudget || !command.historyRequest)
                 throw ProjectError(ErrorCode::InvalidParameter, "Undo resource request is missing");
@@ -232,14 +249,15 @@ struct ProjectController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState,
                                    "A project operation is already active");
             requireCleanReplacement();
-            commitGesture();
             IoJob job;
             job.operation =
                 command.kind == CommandKind::Create ? IoOperation::Create : IoOperation::Open;
             job.root = command.path;
             if (job.operation == IoOperation::Create)
-                job.session =
-                    std::make_shared<const Session>(makeOneTrackSession(command.name, "Audio 1"));
+                job.session = snapshots.copy(makeOneTrackSession(command.name, "Audio 1"));
+            else
+                job.loadReservation = std::make_shared<ResourceLease>(snapshots.reserveLoad());
+            commitGesture();
             io.startJob(std::move(job));
             view.io = command.kind == CommandKind::Create ? IoOperation::Create : IoOperation::Open;
             break;
@@ -250,8 +268,7 @@ struct ProjectController::State : QThread {
             if (view.io != IoOperation::None)
                 throw ProjectError(ErrorCode::InvalidState,
                                    "A project operation is already active");
-            io.startJob({IoOperation::Save, view.root, std::make_shared<const Session>(*model),
-                         view.modelRevision});
+            io.startJob({IoOperation::Save, view.root, view.session, view.modelRevision});
             view.io = IoOperation::Save;
             break;
         case CommandKind::Parameter: {
@@ -263,11 +280,13 @@ struct ProjectController::State : QThread {
             // Validate the proposed value before altering the current gesture/history.
             auto proposed = *model;
             setParameterValue(proposed, *command.address, command.value);
+            auto publication = prepareSnapshot(proposed);
             std::size_t preflightPeak = 0;
             if (activeGesture != command.gesture || activeAddress != command.address) {
                 preflightPeak = history->checkBegin(*command.address);
                 commitGesture();
                 history->begin(*command.address);
+                gestureBefore = view.session;
                 activeGesture = command.gesture;
                 activeAddress = command.address;
             }
@@ -275,6 +294,7 @@ struct ProjectController::State : QThread {
             history->update(command.value);
             if (previous != command.value)
                 revised();
+            view.session = std::move(publication);
             if (command.final)
                 commitGesture();
             history->acceptPreflight(preflightPeak);
@@ -293,9 +313,11 @@ struct ProjectController::State : QThread {
             setRouteValue(proposed, *command.routeAddress, value,
                           admission.state); // Reject before committing a gesture.
             const auto preflightPeak = history->checkRoute(*command.routeAddress, value);
+            auto publication = prepareSnapshot(proposed);
             commitGesture();
             if (history->route(*command.routeAddress, value))
                 revised();
+            view.session = std::move(publication);
             history->acceptPreflight(preflightPeak);
             break;
         }
@@ -309,9 +331,11 @@ struct ProjectController::State : QThread {
             setMonitoringValue(proposed, *command.monitoringTrack, command.monitoring);
             const auto preflightPeak =
                 history->checkMonitoring(*command.monitoringTrack, command.monitoring);
+            auto publication = prepareSnapshot(proposed);
             commitGesture();
             if (history->monitoring(*command.monitoringTrack, command.monitoring))
                 revised();
+            view.session = std::move(publication);
             history->acceptPreflight(preflightPeak);
             break;
         }
@@ -326,9 +350,11 @@ struct ProjectController::State : QThread {
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                 throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
             const auto preflightPeak = history->checkAdopt(proposed);
+            auto publication = prepareSnapshot(proposed);
             commitGesture();
             if (history->adopt(proposed))
                 revised();
+            view.session = std::move(publication);
             history->acceptPreflight(preflightPeak);
             break;
         }
@@ -338,18 +364,23 @@ struct ProjectController::State : QThread {
                 history->cancel();
                 activeGesture = 0;
                 activeAddress.reset();
+                view.session = std::move(gestureBefore);
                 revised();
             }
             break;
         case CommandKind::Undo:
-        case CommandKind::Redo:
+        case CommandKind::Redo: {
             requireModel();
             if (view.io == IoOperation::Create || view.io == IoOperation::Open)
                 throw ProjectError(ErrorCode::InvalidState, "Project replacement is in progress");
+            const auto proposed = history->previewTransfer(command.kind == CommandKind::Redo);
+            auto publication = proposed ? prepareSnapshot(*proposed) : view.session;
             commitGesture();
             if (command.kind == CommandKind::Undo ? history->undo() : history->redo())
                 revised();
+            view.session = std::move(publication);
             break;
+        }
         case CommandKind::AttachRecording: {
             requireModel();
             if (view.io != IoOperation::None ||
@@ -358,17 +389,18 @@ struct ProjectController::State : QThread {
                                    "Take attachment needs the current project and idle I/O owner");
             // Shape/identity validation is transactional; disk/journal verification belongs
             // to the I/O worker. No speculative asset is published to the canonical model.
-            auto proposed = std::make_shared<Session>(*model);
+            auto proposed = *model;
             const auto recordings = command.recordings
                                         ? command.recordings
                                         : std::make_shared<const std::vector<RecordingResult>>(
                                               std::vector<RecordingResult>{*command.recording});
             admitReceipts(recordings, admission.state);
             for (const auto &r : *recordings)
-                attachRecording(*proposed, r);
-            const auto preflightPeak = history->checkAdopt(*proposed);
+                attachRecording(proposed, r);
+            const auto preflightPeak = history->checkAdopt(proposed);
+            auto publication = prepareSnapshot(proposed);
             commitGesture();
-            IoJob job{IoOperation::AttachRecording, view.root, std::move(proposed),
+            IoJob job{IoOperation::AttachRecording, view.root, std::move(publication),
                       view.modelRevision, recordings};
             job.attachmentRequest = command.attachmentRequest;
             io.startJob(std::move(job));
@@ -381,7 +413,7 @@ struct ProjectController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState, "Barrier token is missing");
             commitGesture();
             view.lastBarrier = command.barrier;
-            view.barrierSession = model ? std::make_shared<const Session>(*model) : nullptr;
+            view.barrierSession = view.session;
             view.barrierRoot = view.root;
             view.barrierRevision = view.modelRevision;
             break;
@@ -407,23 +439,31 @@ struct ProjectController::State : QThread {
         if (result.job.operation == IoOperation::AttachRecording) {
             try {
                 if (!model || view.root != result.job.root || !result.job.recordings ||
-                    result.job.recordings->empty() ||
+                    result.job.recordings->empty() || !result.job.session ||
                     model->id != result.job.recordings->front().spec.projectId)
                     throw ProjectError(ErrorCode::InvalidState,
                                        "Recording project changed before attachment");
                 if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                     throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
                 // Preserve scalar edits accepted while files were verified.
-                auto admitted = *model;
+                std::optional<Session> admitted;
+                if (result.job.revision != view.modelRevision)
+                    admitted = *model;
                 std::vector<Id> assets;
                 for (const auto &r : *result.job.recordings) {
-                    attachRecording(admitted, r);
+                    if (admitted)
+                        attachRecording(*admitted, r);
                     assets.push_back(r.asset.id);
                 }
-                const auto preflightPeak = history->checkAdopt(admitted);
+                // With no intervening model change, the verified proposal already
+                // owns the exact publication, including its generated clip IDs.
+                const auto &candidate = admitted ? *admitted : *result.job.session;
+                const auto preflightPeak = history->checkAdopt(candidate);
+                auto publication = admitted ? prepareSnapshot(candidate) : result.job.session;
                 commitGesture();
-                history->adopt(admitted);
+                history->adopt(candidate);
                 revised();
+                view.session = std::move(publication);
                 view.attachedRecordings += assets.size();
                 view.lastAttachedAsset = assets.back();
                 view.lastAttachedAssets = std::move(assets);
@@ -443,21 +483,34 @@ struct ProjectController::State : QThread {
             view.savedRevision = result.job.revision;
             savedModel = result.job.session;
         } else {
-            model = result.loaded ? std::move(result.loaded)
-                                  : std::optional<Session>(*result.job.session);
-            history = std::make_unique<EditHistory>(*model, admission.state, historyBudget);
-            activeGesture = 0;
-            activeAddress.reset();
-            view.attachedRecordings = 0;
-            view.attachmentCompleted = {};
-            view.attachmentRejected = {};
-            view.lastAttachedAsset.reset();
-            view.lastAttachedAssets.clear();
-            view.root = std::move(result.job.root);
-            ++view.projectEpoch;
-            revised();
-            view.savedRevision = view.modelRevision;
-            savedModel = std::make_shared<const Session>(*model);
+            try {
+                auto publication = result.loaded ? std::move(result.loaded) : result.job.session;
+                auto nextModel = std::make_unique<Session>(*publication);
+                auto nextHistory =
+                    std::make_unique<EditHistory>(*nextModel, admission.state, historyBudget);
+                if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
+                    throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
+                history = std::move(nextHistory);
+                model = std::move(nextModel);
+                view.session = publication;
+                activeGesture = 0;
+                activeAddress.reset();
+                gestureBefore.reset();
+                view.attachedRecordings = 0;
+                view.attachmentCompleted = {};
+                view.attachmentRejected = {};
+                view.lastAttachedAsset.reset();
+                view.lastAttachedAssets.clear();
+                view.root = std::move(result.job.root);
+                ++view.projectEpoch;
+                revised();
+                view.savedRevision = view.modelRevision;
+                savedModel = std::move(publication);
+            } catch (const ProjectError &e) {
+                error(e.code(), e.what());
+            } catch (const std::exception &e) {
+                error(ErrorCode::InvalidState, e.what());
+            }
         }
     }
     void run() override {
@@ -488,12 +541,17 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
+                    if (command->kind == CommandKind::SnapshotLimits && command->snapshotRequest)
+                        view.snapshotCompleted = {command->snapshotRequest, e.code(), e.what()};
                     if (command->kind == CommandKind::HistoryLimits && command->historyRequest)
                         view.historyCompleted = {command->historyRequest, e.code(), e.what()};
                     if (command->kind == CommandKind::AttachRecording && command->attachmentRequest)
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
+                    if (command->kind == CommandKind::SnapshotLimits && command->snapshotRequest)
+                        view.snapshotCompleted = {command->snapshotRequest, ErrorCode::InvalidState,
+                                                  e.what()};
                     if (command->kind == CommandKind::HistoryLimits && command->historyRequest)
                         view.historyCompleted = {command->historyRequest, ErrorCode::InvalidState,
                                                  e.what()};
@@ -536,6 +594,9 @@ Admission ProjectController::submit(ProjectCommand command) {
 std::shared_ptr<const ControllerSnapshot> ProjectController::snapshot() const {
     QMutexLocker lock(&state_->mutex);
     return state_->latest;
+}
+ResourceUsage ProjectController::snapshotResources() const {
+    return state_->snapshots.usage();
 }
 void ProjectController::requestShutdown() noexcept {
     state_->closing.store(true, std::memory_order_release);

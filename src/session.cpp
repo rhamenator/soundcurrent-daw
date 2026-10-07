@@ -551,6 +551,23 @@ bool EditHistory::transfer(bool forward) {
     operationPeakBytes_ = std::max(operationPeakBytes_, peak);
     return true;
 }
+std::optional<Session> EditHistory::previewTransfer(bool forward) const {
+    if (active_ && active_->before != active_->after) {
+        if (forward)
+            return {}; // Committing this edit clears Redo.
+        (void)checkOperation(weight(*active_), session_);
+        auto next = proposed(*active_, false);
+        (void)checkOperation(weight(*active_), next);
+        return next;
+    }
+    const auto &source = forward ? redo_ : undo_;
+    if (source.empty())
+        return {};
+    (void)checkOperation(source.back().bytes, session_, false);
+    auto next = proposed(source.back().change, forward);
+    (void)checkOperation(source.back().bytes, next, false);
+    return next;
+}
 bool EditHistory::undo() {
     return transfer(false);
 }
