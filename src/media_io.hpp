@@ -22,6 +22,7 @@ class File {
     void flush();
     void close();
     void write(std::string_view);
+    std::string digest(const std::function<void()> &beforeRead = {}); // Same owned descriptor.
 
   private:
     int fd_ = -1;
@@ -48,6 +49,7 @@ class SampleHash {
     SampleHash();
     ~SampleHash();
     void update(std::span<const float>);
+    void updateBytes(std::span<const std::byte>);
     std::string digest() const;
 
   private:

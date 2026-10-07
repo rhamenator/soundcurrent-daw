@@ -2,16 +2,18 @@
 #pragma once
 #include "playback.hpp"
 #include "project_store.hpp"
+#include "media_cache.hpp"
 #include <functional>
 #include <memory>
 
 namespace soundcurrent::daw {
 struct ReadAheadOptions {
-    std::uint32_t maximumOpenAssets = 64;
+    std::uint32_t maximumOpenAssets = 64; // Concurrent shared handles, not asset inventory.
     // Disk/preparation owner only, for cancellation and failure fixtures.
     std::function<void(Frame)> beforeRead;
     // Optional worker-side cancellation during large source admission hashes.
     std::function<void()> beforeAdmissionRead{};
+    MediaCacheConfig cache{}; // Effective handle cap is the minimum of both policies.
 };
 // Worker-side timeline reader. Admits owned WAV/RF64 assets, verifies hashes,
 // opens read-only handles, then mixes clip source extents into bounded slabs.
@@ -19,6 +21,9 @@ class TrackReader {
   public:
     TrackReader(PlaybackPipe &, std::filesystem::path projectRoot, const Session &, const Id &track,
                 ReadAheadOptions = {});
+    // Shared-cache callers own aggregate admission and serialize all readers/cache access.
+    TrackReader(PlaybackPipe &, const ValidatedSession &, const Id &,
+                std::shared_ptr<MediaReadCache>, ReadAheadOptions = {});
     ~TrackReader();
     bool fillOne(); // False: pool full or range completed. Never called by audio.
     std::uint64_t sanitizedSamples() const noexcept; // Atomic point-in-time count.

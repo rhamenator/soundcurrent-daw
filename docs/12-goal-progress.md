@@ -2166,3 +2166,30 @@ while the valid review conversation was unresolved; no admin bypass was used.
 the corrected source, original red fixture and qualification. All24 equalizer
 inputs remain unchanged, all92 frozen contracts remain unpromoted and native
 observations stay71. The full goal and remaining X006 stages remain incomplete.
+
+
+## M2 X006 shared media pool/cache (2026-10-07)
+
+[Shared media checkpoint](79-shared-media-cache.md)/ADR064 adds one resource-admitted
+asset registry, handle pool and decoded source-frame cache per serialized read owner.
+Live/offline readers share exact clip coordinates; audio consumes existing bounded
+slabs. Immutable prepared asset indices avoid per-lane whole-session admission.
+
+File-backed257/1,024-track mixes share one asset/handle and decode three pages;
+96 distinct assets stay within two handles. Independent matrix/source oracles
+compare every output sample exactly, with Linux descriptor bounds, page/reopen/
+cancellation/refusal and per-occurrence nonfinite tests. Original old-reference
+assertion source/executable hashes/log remain; old fixture cleanup removed original
+project/media, and later fixtures do not fill that evidence gap.
+
+Full Debug44/44,86.94s and affected media/playback/
+export/recording ASan/UBSan/LSan7/7,74.44s pass.
+Fresh Windows headless media compile passes; no Windows runtime/UI/native or
+sustained capacity follows. All24 reviewed equalizer inputs are unchanged and all92
+frozen F/Q/C/N contracts are unchanged/unpromoted. Native observations remain71;
+original71's clock gap/source CPU cause and historical failures stay unresolved.
+[Receipt](../tests/results/M2/2026-10-07-shared-media-cache.json) retains exact sources,
+logs, generated media/projects and qualification. Next virtualize track/timeline/
+meter views, measure combined resource envelopes and expose desktop resource
+controls; large recording/adoption, freeze, scheduling, sustained/platform profiles,
+X004/X005/Europe and every remaining full-suite milestone remain required.

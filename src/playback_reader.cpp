@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
-#include <sndfile.h>
-#include "media_io.hpp"
 #include <soundcurrent/playback_reader.hpp>
 #include <algorithm>
 #include <cmath>
-#include <unordered_map>
+#include <unordered_set>
 
 namespace soundcurrent::daw {
 namespace {
@@ -12,36 +10,15 @@ void require(bool ok, const char *message, ErrorCode code = ErrorCode::MediaMism
     if (!ok)
         throw ProjectError(code, message);
 }
-struct SourceFile {
-    media_io::File descriptor;
-    struct Close {
-        void operator()(SNDFILE *f) const noexcept {
-            if (f)
-                sf_close(f);
-        }
-    };
-    std::unique_ptr<SNDFILE, Close> file;
-    SF_INFO info{};
-    SourceFile(const std::filesystem::path &path, const Asset &asset) : descriptor(path, false) {
-        file.reset(sf_open_fd(descriptor.descriptor(), SFM_READ, &info, SF_FALSE));
-        require(file != nullptr, "Cannot open playback media");
-        const auto type = info.format & SF_FORMAT_TYPEMASK;
-        require((type == SF_FORMAT_WAV || type == SF_FORMAT_WAVEX || type == SF_FORMAT_RF64) &&
-                    info.frames == asset.frames &&
-                    info.samplerate == static_cast<int>(asset.sampleRate) &&
-                    info.channels == static_cast<int>(asset.layout.channels),
-                "Playback media metadata differs from asset");
-    }
-};
 } // namespace
 struct TrackReader::State {
     PlaybackPipe &pipe;
     ReadAheadOptions options;
     struct Binding {
         Clip clip;
-        SourceFile *source = nullptr;
+        std::size_t source = 0;
     };
-    std::vector<std::unique_ptr<SourceFile>> files;
+    std::shared_ptr<MediaReadCache> media;
     std::vector<Binding> bindings;
     std::vector<float> readBuffer;
     std::vector<double> sumBuffer;
@@ -53,50 +30,57 @@ struct TrackReader::State {
 TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const Session &session,
                          const Id &trackId, ReadAheadOptions options)
     : state_(std::make_unique<State>(pipe, std::move(options))) {
-    validate(session);
+    const ValidatedSession validated(session);
     const auto &config = pipe.config();
-    const auto track = std::find_if(session.tracks.begin(), session.tracks.end(),
-                                    [&](const auto &t) { return t.id == trackId; });
-    require(track != session.tracks.end() && track->layout == config.layout &&
-                session.sampleRate == config.sampleRate && state_->options.maximumOpenAssets > 0 &&
-                state_->options.maximumOpenAssets <= 4096,
+    const auto &track = validated.track(trackId);
+    require(track.layout == config.layout && session.sampleRate == config.sampleRate,
             "Playback reader/session admission mismatch", ErrorCode::InvalidState);
-    media_io::plainDirectory(root);
-    std::unordered_map<std::string, SourceFile *> open;
-    for (const auto &clip : track->clips) {
-        if (clip.startFrame >= config.endFrame ||
-            clip.startFrame + clip.lengthFrames <= config.startFrame)
-            continue;
-        auto *file = static_cast<SourceFile *>(nullptr);
-        const auto existing = open.find(clip.assetId.str());
-        if (existing != open.end())
-            file = existing->second;
-        else {
-            require(open.size() < state_->options.maximumOpenAssets,
-                    "Playback open-asset budget exceeded", ErrorCode::InvalidState);
-            const auto asset = std::find_if(session.assets.begin(), session.assets.end(),
-                                            [&](const auto &a) { return a.id == clip.assetId; });
-            require(asset != session.assets.end() && asset->sampleRate == config.sampleRate,
-                    "Playback needs matching source rate; resampler is not prepared");
-            // Paths were validated by the model; every relative ancestor must
-            // remain a plain directory. Owned project filesystem contract applies.
-            auto path = root;
-            const auto relative = utf8Path(asset->relativePath);
-            for (const auto &part : relative.parent_path()) {
-                path /= part;
-                media_io::plainDirectory(path);
-            }
-            path /= relative.filename();
-            media_io::plainFile(path);
-            require(hashMediaFile(path, state_->options.beforeAdmissionRead) == asset->sha256,
-                    "Playback media hash mismatch");
-            auto prepared = std::make_unique<SourceFile>(path, *asset);
-            file = prepared.get();
-            state_->files.push_back(std::move(prepared));
-            open.emplace(asset->id.str(), file);
+    std::vector<Asset> assets;
+    std::unordered_set<std::string_view> seen;
+    for (const auto &clip : track.clips)
+        if (clip.startFrame < config.endFrame &&
+            clip.startFrame + clip.lengthFrames > config.startFrame &&
+            seen.insert(clip.assetId.str()).second)
+            assets.push_back(validated.asset(clip.assetId));
+    auto cache = state_->options.cache;
+    cache.maximumOpenFiles = std::min(cache.maximumOpenFiles, state_->options.maximumOpenAssets);
+    PayloadCharge total("Playback reader aggregate", config.memoryBudgetBytes);
+    total.add(mediaCachePayloadBytes(assets, cache));
+    total.add(sizeof(PlaybackPipe) + sizeof(PreparedEq) + sizeof(EqLiveDriver) + 8192);
+    total.add(std::size_t(captureSlabs) * config.slabFrames * config.layout.channels,
+              sizeof(float));
+    total.add(std::size_t(config.maximumCallbackFrames) * config.layout.channels, sizeof(float));
+    total.add(track.eq.bands.size(), 256 + std::size_t(config.layout.channels) * 16);
+    total.add(track.clips.size(), sizeof(State::Binding) + 128);
+    total.add(std::size_t(config.slabFrames) * config.layout.channels,
+              sizeof(float) + sizeof(double));
+    state_->media = std::make_shared<MediaReadCache>(root, assets, session.sampleRate, cache,
+                                                     state_->options.beforeAdmissionRead);
+    for (const auto &clip : track.clips)
+        if (clip.startFrame < config.endFrame &&
+            clip.startFrame + clip.lengthFrames > config.startFrame)
+            state_->bindings.push_back({clip, state_->media->assetIndex(clip.assetId)});
+    const auto size = std::size_t(config.slabFrames) * config.layout.channels;
+    state_->readBuffer.resize(size, 0.f);
+    state_->sumBuffer.resize(size, 0.);
+}
+TrackReader::TrackReader(PlaybackPipe &pipe, const ValidatedSession &validated, const Id &trackId,
+                         std::shared_ptr<MediaReadCache> media, ReadAheadOptions options)
+    : state_(std::make_unique<State>(pipe, std::move(options))) {
+    require(bool(media), "Shared playback media cache missing", ErrorCode::InvalidState);
+    const auto &track = validated.track(trackId);
+    const auto &config = pipe.config();
+    require(track.layout == config.layout && validated.session().sampleRate == config.sampleRate,
+            "Playback reader/session admission mismatch", ErrorCode::InvalidState);
+    state_->media = std::move(media);
+    for (const auto &clip : track.clips)
+        if (clip.startFrame < config.endFrame &&
+            clip.startFrame + clip.lengthFrames > config.startFrame) {
+            const auto asset = state_->media->assetIndex(clip.assetId);
+            require(state_->media->assetDescription(asset) == validated.asset(clip.assetId),
+                    "Shared cache asset differs from prepared session", ErrorCode::MediaMismatch);
+            state_->bindings.push_back({clip, asset});
         }
-        state_->bindings.push_back({clip, file});
-    }
     const auto size = std::size_t(config.slabFrames) * config.layout.channels;
     state_->readBuffer.resize(size, 0.f);
     state_->sumBuffer.resize(size, 0.);
@@ -128,11 +112,7 @@ bool TrackReader::fillOne() {
                 continue;
             const auto source = b.clip.sourceFrame + (begin - b.clip.startFrame);
             const auto count = end - begin;
-            require(sf_seek(b.source->file.get(), source, SEEK_SET) == source,
-                    "Playback source seek failed", ErrorCode::Io);
-            require(sf_readf_float(b.source->file.get(), s.readBuffer.data(), count) == count &&
-                        sf_error(b.source->file.get()) == SF_ERR_NO_ERROR,
-                    "Playback source read failed or truncated", ErrorCode::Io);
+            s.media->read(b.source, source, {s.readBuffer.data(), std::size_t(count) * channels});
             const auto offset = std::size_t(begin - s.next) * channels;
             for (std::size_t n = 0; n < std::size_t(count) * channels; ++n) {
                 if (std::isfinite(s.readBuffer[n]))

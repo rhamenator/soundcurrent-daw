@@ -221,10 +221,12 @@ class ValidatedSession {
         return session_;
     }
     const Track &track(const Id &) const;
+    const Asset &asset(const Id &) const;
 
   private:
     const Session &session_;
     std::unordered_map<std::string_view, const Track *> tracks_;
+    std::unordered_map<std::string_view, const Asset *> assets_;
 };
 Session makeOneTrackSession(std::string name, std::string trackName);
 Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampleRate);

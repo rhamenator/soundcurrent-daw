@@ -141,3 +141,12 @@ initial merge while the review conversation was unresolved; no bypass was used.
 See the [supplementary review receipt](../tests/results/M2/2026-10-07-resource-admission-review.json)
 for the corrected source identity and tests. The initial checkpoint receipt and
 archive retain their original source identity and results.
+
+
+## Subsequent shared media checkpoint
+
+[Shared media/cache implementation](79-shared-media-cache.md)/ADR064 adds one
+resource-admitted asset registry, handle pool and decoded-page cache per serialized
+read owner, with bounded file-backed257/1,024-track and96-asset exact-output tests.
+The evidence above retains its original source/scope; this subsequent checkpoint
+does not qualify sustained native, full UI/recording or Windows runtime capacity.

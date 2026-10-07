@@ -36,7 +36,7 @@ The current foundation **does not yet meet X006**:
 | Prepared mix | Resource-admitted dynamic track routes and indexed EQ preparation (`src/mix.cpp`) | Measured aggregate memory/event/CPU bounds, richer graphs and scheduling |
 | Live replacement mask | Prepared, charged dynamic mask (`src/mix_playback.cpp`) | Sustained/native qualification at large counts |
 | Recording owner | 256 armed tracks/packed native inputs and bounded aggregate capture budgets | Scale arm descriptors independently from backend port capabilities; prepare capture against actual IO/reserve needs |
-| Readers/UI/history | Bounded open asset references and snapshots | Shared bounded media cache, virtualized views and measured history/snapshot memory; avoid one open file/widget/copy per project track |
+| Readers/UI/history | Shared bounded media handle/page pool; ordinary track widgets and bounded history | Sustained media qualification, virtualized views and measured history/snapshot memory; avoid one widget/copy per project track |
 
 Some other arrays of size256 address **channels within a bus**, not project
 tracks. Audit their meaning before changing them. This requirement does not
@@ -93,7 +93,9 @@ old boundary at 257/512/1024/4096 in audio-track core workflows and opens/edits/
 track 4097 in the actual Linux Qt fixture. It removes the coordinated model/parser/
 mix/mask and Add Track ceilings under trusted byte policies, with original failures
 and predecessor refusal retained. Counts are scoped workloads, not ceilings.
-Next implement shared bounded media/cache and virtualized views, combined
+The [shared media checkpoint](79-shared-media-cache.md)/ADR064 adds exact file-backed
+257/1,024-track mixes with one handle and 96 distinct assets with two handles.
+Next implement virtualized views/meters, combined
 snapshot/history/graph resource accounting, and large recording/adoption budgets.
 The recording owner still has 256-arm/packed-input assumptions; these do not set a
 total project track ceiling, and their separate qualification remains required.

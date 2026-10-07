@@ -26,6 +26,7 @@ struct ExportSettings {
     std::uint32_t blockFrames = 512;
     std::size_t memoryBudgetBytes = 128 * 1024 * 1024;
     std::size_t maximumRoutingEntries = 65536;
+    // Legacy names: concurrent shared-handle policies, not asset-inventory ceilings.
     std::uint32_t maximumOpenAssetsPerTrack = 64, maximumOpenAssetReferences = 256;
     // Explicit resource admission, includes preroll and maximum tail. Caller may raise it.
     Frame maximumProcessFrames = 48000LL * 60 * 60 * 24;

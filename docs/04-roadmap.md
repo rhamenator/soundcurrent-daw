@@ -436,3 +436,19 @@ desktop resource controls and large recording/adoption workflows. Recording
 serial/parallel graphs and Linux/Windows sustained and physical profiles retain
 their staged dependencies. No F/Q/C/N contract is promoted, and original native
 sanitizer observation 71's clock gap/source CPU cause remains unresolved.
+
+
+## M2 X006 shared media checkpoint (2026-10-07)
+
+[Shared media cache](79-shared-media-cache.md)/ADR064 uses one serialized asset
+registry, bounded handle pool and decoded source-frame pages for all track readers.
+Live preparation and offline rendering share it; callbacks still consume bounded
+slabs. File-backed257/1,024-track exact-output workflows share one handle and
+96 distinct assets stay within two. This is partial X006 media implementation,
+not sustained/native capacity or completion of the media/GUI stage.
+
+Next virtualize track/timeline/meter views, measure combined state/history/old-new
+graph envelopes and expose trusted desktop resource controls. Continue large
+recording/adoption, freeze/bounce, scheduling and sustained Linux/Windows profiles.
+All92 frozen contracts and independent Windows, X004/X005/Europe remain required;
+original native observation71 clock gap/source CPU diagnosis is still unresolved.

@@ -152,7 +152,8 @@ void offsets(const Session &s, const std::filesystem::path &root) {
     MixPlaybackConfig c{{.maximumFrames = 512}, 29000, 256};
     MixPlayback mix(s, plan(s), c);
     MixReader reader(mix, root, s);
-    check(reader.openAssetReferences() == 32, "Source reference count differs");
+    check(reader.openAssetReferences() == 1 && reader.mediaStatistics().peakOpenFiles == 1,
+          "Shared source admission/handle count differs");
     std::vector<float> rendered(expected.size());
     std::array<std::array<float, 512>, 2> raw{};
     std::array<float *, 2> out{raw[0].data(), raw[1].data()};
@@ -201,7 +202,9 @@ void offsets(const Session &s, const std::filesystem::path &root) {
     const auto tail = exportMixWav(root, s, root.parent_path() / "tail.wav", spec);
     check(tail.tailFrames == 4800 && !tail.tailTruncated, "Shared graph tail termination differs");
     MixPlayback limited(s, plan(s), c);
-    rejects([&] { MixReader tooMany(limited, root, s, {}, 31); });
+    MixReader shared(limited, root, s, {}, 1);
+    check(shared.openAssetReferences() == 1 && shared.mediaStatistics().peakOpenFiles == 1,
+          "One shared handle did not serve all32 lanes");
     auto bad = spec;
     bad.memoryBudgetBytes = 8192;
     rejects([&] { exportMixWav(root, s, root.parent_path() / "bad.wav", bad); });
@@ -356,6 +359,10 @@ int main() {
         struct Cleanup {
             std::filesystem::path p;
             ~Cleanup() {
+                if (std::uncaught_exceptions()) {
+                    std::cerr << "Retained original mix fixture: " << p << '\n';
+                    return;
+                }
                 std::error_code e;
                 std::filesystem::remove_all(p, e);
             }

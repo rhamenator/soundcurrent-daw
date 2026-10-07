@@ -285,7 +285,9 @@ SampleHash::SampleHash() : state_(std::make_unique<State>()) {
 }
 SampleHash::~SampleHash() = default;
 void SampleHash::update(std::span<const float> samples) {
-    const auto bytes = std::as_bytes(samples);
+    updateBytes(std::as_bytes(samples));
+}
+void SampleHash::updateBytes(std::span<const std::byte> bytes) {
 #ifdef _WIN32
     require(bytes.size() <= std::numeric_limits<ULONG>::max() &&
                 BCryptHashData(state_->hash,
@@ -296,6 +298,36 @@ void SampleHash::update(std::span<const float> samples) {
     require(EVP_DigestUpdate(state_->context, bytes.data(), bytes.size()) == 1,
             "Capture SHA-256 update failed");
 #endif
+}
+std::string File::digest(const std::function<void()> &beforeRead) {
+#ifdef _WIN32
+    require(_lseeki64(fd_, 0, SEEK_SET) == 0, "Media hash seek failed");
+#else
+    require(lseek(fd_, 0, SEEK_SET) == 0, "Media hash seek failed");
+#endif
+    SampleHash hash;
+    std::array<std::byte, 65536> buffer;
+    for (;;) {
+        if (beforeRead)
+            beforeRead();
+#ifdef _WIN32
+        const auto count = _read(fd_, buffer.data(), static_cast<unsigned>(buffer.size()));
+#else
+        const auto count = ::read(fd_, buffer.data(), buffer.size());
+        if (count < 0 && errno == EINTR)
+            continue;
+#endif
+        require(count >= 0, "Media hash read failed");
+        if (!count)
+            break;
+        hash.updateBytes({buffer.data(), static_cast<std::size_t>(count)});
+    }
+#ifdef _WIN32
+    require(_lseeki64(fd_, 0, SEEK_SET) == 0, "Media hash rewind failed");
+#else
+    require(lseek(fd_, 0, SEEK_SET) == 0, "Media hash rewind failed");
+#endif
+    return hash.digest();
 }
 std::string SampleHash::digest() const {
     std::array<unsigned char, 32> bytes{};
