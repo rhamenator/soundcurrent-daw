@@ -87,6 +87,36 @@ void ready(Provider &p, unsigned frames = 8, unsigned offset = 0) {
           !p.protocolErrors && p.guardsIntact());
     check(sc_pw_release_buffer(&p.port, &b) && p.queues == queuesBefore + 1);
 }
+void silence() {
+    for (unsigned size : {0u, 8u * unsigned(sizeof(float)), 16u * unsigned(sizeof(float))}) {
+        Provider p(true);
+        p.chunk.flags = SPA_CHUNK_FLAG_EMPTY;
+        p.chunk.size = size;
+        if (size > p.data.maxsize)
+            p.chunk.size = p.data.maxsize;
+        const auto original = p.chunk;
+        Buffer b;
+        rt_audit::reset();
+        {
+            rt_audit::Guard guard;
+            b = sc_pw_acquire_buffer(&p.port, 8);
+        }
+        auditClean();
+        check(b.status == Acquisition::Silence && b.owned == &p.buffer && !b.samples && p.held);
+        check(p.chunk.offset == original.offset && p.chunk.size == original.size &&
+              p.chunk.stride == original.stride && p.chunk.flags == original.flags);
+        bool returned;
+        rt_audit::reset();
+        {
+            rt_audit::Guard guard;
+            returned = sc_pw_release_buffer(&p.port, &b);
+        }
+        auditClean();
+        check(returned && !p.held && p.queues == 1 && !p.protocolErrors);
+        for (const auto value : p.guarded)
+            check(value == 19.f);
+    }
+}
 } // namespace
 extern "C" pw_buffer *pw_filter_dequeue_buffer(void *key) {
     auto &p = *static_cast<Provider *>(key);
@@ -107,6 +137,7 @@ extern "C" int pw_filter_queue_buffer(void *key, pw_buffer *buffer) {
     return p.failQueue ? -EIO : 0;
 }
 int main() {
+    silence();
     Provider p;
     ready(p);
     check(p.chunk.offset == 0 && p.chunk.size == 8 * sizeof(float) &&
@@ -142,7 +173,7 @@ int main() {
     ready(input, 6, 2);
     // Every invalid shape is refused before exposing a view. Its native lease
     // remains owned until return, and bounded sentinel samples remain untouched.
-    for (unsigned which = 0; which < 13; ++which) {
+    for (unsigned which = 0; which < 16; ++which) {
         Provider bad(which >= 8);
         switch (which) {
         case 0:
@@ -183,6 +214,16 @@ int main() {
             break;
         case 12:
             bad.data.flags = SPA_DATA_FLAG_WRITABLE;
+            break;
+        case 13:
+            bad.chunk.flags = SPA_CHUNK_FLAG_EMPTY | SPA_CHUNK_FLAG_CORRUPTED;
+            break;
+        case 14:
+            bad.chunk.flags = 4;
+            break;
+        case 15:
+            bad.chunk.flags = SPA_CHUNK_FLAG_EMPTY;
+            bad.chunk.offset = bad.data.maxsize;
             break;
         }
         Buffer b;

@@ -39,9 +39,17 @@ sc_pw_acquire_buffer(soundcurrent::daw::native::Port *port, std::uint32_t frames
     if (port->input) {
         // This adapter admits contiguous, non-wrapped mono F32 DSP chunks only.
         if (chunk.offset % sizeof(float) || chunk.offset > d.maxsize ||
-            bytes > d.maxsize - chunk.offset || chunk.size < bytes ||
-            chunk.size > d.maxsize - chunk.offset || chunk.stride != sizeof(float) ||
-            chunk.flags != SPA_CHUNK_FLAG_NONE)
+            bytes > d.maxsize - chunk.offset || chunk.size > d.maxsize - chunk.offset ||
+            chunk.stride != sizeof(float) ||
+            (chunk.flags != SPA_CHUNK_FLAG_NONE && chunk.flags != SPA_CHUNK_FLAG_EMPTY))
+            return result;
+        if (chunk.flags == SPA_CHUNK_FLAG_EMPTY) {
+            // SPA declares neutral media. Never expose stale backing bytes as
+            // audio; the filter supplies an immutable preparation-owned zero plane.
+            result.status = Acquisition::Silence;
+            return result;
+        }
+        if (chunk.size < bytes)
             return result;
         result.samples = reinterpret_cast<float *>(static_cast<std::byte *>(d.data) + chunk.offset);
     } else {

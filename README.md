@@ -180,8 +180,11 @@ deferring that query prevents the measured mechanism. Production readiness and
 capacity-aware acquisition retain logical port tracing. The
 [manual recording desktop panel](docs/76-manual-recording-panel.md) now connects
 finite repeated takes, explicit routing, EQ updates, preview adoption and priority
-Stop/Cancel to Qt controls, with synthetic widget acceptance. Native desktop/controller
-and Windows runtime qualification remain next. Additional monitor
+Stop/Cancel to Qt controls. [Owned native desktop evidence](docs/77-native-manual-panel.md)
+now checks repeated groups on3/32 inputs, live EQ, adoption/retry and Stop/Cancel/Close.
+Valid native silence is handled without exposing stale backing bytes. A separate
+active clock gap under sanitizers remains unresolved; sustained/physical and Windows
+runtime qualification remain open. Additional monitor
 policies, tempo/loop/take lanes and comping remain required. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and

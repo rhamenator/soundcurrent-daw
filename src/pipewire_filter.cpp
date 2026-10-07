@@ -60,6 +60,7 @@ struct PipeWireFilter::State {
     std::atomic<bool> bufferFault{false};
     std::array<const float *, 256> inputViews{};
     std::array<float *, 256> outputViews{};
+    std::vector<float> silence; // Prepared once; shared read-only across input planes.
     std::unordered_map<std::uint32_t, PipeWirePort> nodes, remotePorts;
     std::unordered_set<std::uint32_t> routeLinks;
     struct Route {
@@ -226,7 +227,9 @@ struct PipeWireFilter::State {
         bool invalid = false;
         for (std::uint32_t c = 0; c < s.options.inputs; ++c) {
             s.inputBuffers[c] = sc_pw_acquire_buffer(&s.inputs[c], n);
-            s.inputViews[c] = s.inputBuffers[c].samples;
+            s.inputViews[c] = s.inputBuffers[c].status == native::Acquisition::Silence
+                                  ? s.silence.data()
+                                  : s.inputBuffers[c].samples;
             invalid |= s.inputBuffers[c].status == native::Acquisition::Invalid;
         }
         for (std::uint32_t c = 0; c < s.options.outputs; ++c) {
@@ -362,6 +365,8 @@ PipeWireFilter::PipeWireFilter(PipeWireFilterOptions options, PipeWireCallbacks 
     auto &s = *state_;
     s.options = std::move(options);
     s.callbacks = callbacks;
+    if (s.options.inputs)
+        s.silence.assign(s.options.maximumNativeFrames, 0.f);
     // Since PipeWire0.3.49, init/deinit are reference-counted and paired.
     // Balance this adapter's reference after all its context/data loops stop.
     pw_init(nullptr, nullptr);

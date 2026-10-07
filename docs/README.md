@@ -93,3 +93,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Public native buffer handoff observations](71-native-port-handoff.md)
 
 - [Controlled native allocation before publication readiness](72-controlled-native-startup.md)
+
+- [Native manual desktop evidence and neutral buffers](77-native-manual-panel.md)
