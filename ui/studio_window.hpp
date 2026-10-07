@@ -29,12 +29,14 @@ class QListView;
 class QSpinBox;
 namespace soundcurrent::daw::ui {
 class SessionListModel;
+struct MemoryPreferences;
 class StudioWindow : public QMainWindow {
   public:
     explicit StudioWindow(QWidget *parent = nullptr, PlaybackControllerOptions = {},
                           RecordingControllerOptions = {}, ExportControllerOptions = {},
                           ManualControlOptions = {}, ControllerOptions = {},
-                          std::function<void(HistoryBudget)> historyAccepted = {});
+                          std::function<void(HistoryBudget)> historyAccepted = {},
+                          std::function<void(MemoryPreferences)> memoryAccepted = {});
     std::shared_ptr<const ManualControlSnapshot> manualRecordingSnapshot() const;
     void openProject(const std::filesystem::path &);
     bool submitEdit(ProjectCommand); // Shared entry for bindings/UI acceptance.

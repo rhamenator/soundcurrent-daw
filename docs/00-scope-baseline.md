@@ -48,3 +48,8 @@ Commercial names are reference landmarks, not licensed assets. Dolby-branded del
 ## Source discipline
 
 `research/sources.json` records canonical URLs, retrieval date and SHA-256. Raw documents are in ignored `.cache/sources/`; the tracked plan includes original workflow specifications and brief factual evidence, not copied manuals. `/latest/` and `/15.0/` URLs are paired with this date and hashes because they are not immutable. An absent manual or marketing entry means **U (unknown)**, never a negative feature claim. The matrix is a first requirements decomposition, not proof that every button and bundled preset has already been catalogued; M0 must expand the exhaustive subfeature inventory before parity can be certified.
+
+X006 scoped controller-memory checkpoint: [shared parent ownership and desktop
+policies](83-controller-memory-resources.md) now cover canonical/history/snapshot
+and declared edit work. GUI/graph/cache/IO, exact allocations/RSS and sustained
+capacity remain unqualified. No reference or F/Q/C/N completion change.

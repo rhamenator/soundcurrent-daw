@@ -9,6 +9,7 @@ struct ResourceUsage {
     bool operator==(const ResourceUsage &) const = default;
 };
 struct ResourceLedgerState;
+struct ResourceScopeState;
 // Off audio only: acquisition, configuration and last-owner destruction take a mutex.
 // A lease may outlive its ledger facade. Failed admission leaves usage unchanged.
 class ResourceLease {
@@ -20,27 +21,37 @@ class ResourceLease {
     ResourceLease(const ResourceLease &) = delete;
     ResourceLease &operator=(const ResourceLease &) = delete;
     void resize(std::size_t);
+    // Same ledger/scope only. Moves already admitted credit without a new reservation.
+    void transferTo(ResourceLease &, std::size_t);
     std::size_t bytes() const noexcept {
         return bytes_;
     }
 
   private:
     friend class ResourceLedger;
-    ResourceLease(std::shared_ptr<ResourceLedgerState>, std::size_t);
+    ResourceLease(std::shared_ptr<ResourceLedgerState>, std::shared_ptr<ResourceScopeState>,
+                  std::size_t);
     void release() noexcept;
     std::shared_ptr<ResourceLedgerState> state_;
+    std::shared_ptr<ResourceScopeState> scope_;
     std::size_t bytes_ = 0;
 };
 class ResourceLedger {
   public:
-    explicit ResourceLedger(std::size_t limitBytes = 256 * 1024 * 1024);
+    explicit ResourceLedger(std::size_t limitBytes = 256 * 1024 * 1024,
+                            std::string resource = "Retained project snapshots");
+    // Parent and child admission/configuration share one mutex and one atomic decision.
+    ResourceLedger child(std::size_t limitBytes, std::string resource) const;
     ResourceLease reserve(std::size_t) const;
     ResourceUsage usage() const;
     void configure(std::size_t limitBytes) const;
+    void configureWith(const ResourceLedger &child, std::size_t parentBytes,
+                       std::size_t childBytes) const;
     bool owns(const ResourceLease &) const noexcept;
 
   private:
     std::shared_ptr<ResourceLedgerState> state_;
+    std::shared_ptr<ResourceScopeState> scope_;
 };
 // Counts each immutable Session block once across all shared_ptr borrowers.
 // Payload charges include the existing conservative validation allowances;
@@ -58,6 +69,9 @@ class SessionSnapshots {
     }
     void configure(std::size_t bytes) const {
         ledger_.configure(bytes);
+    }
+    ResourceLedger resourceLedger() const {
+        return ledger_;
     }
 
   private:

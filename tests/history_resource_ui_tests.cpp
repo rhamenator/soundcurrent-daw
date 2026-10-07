@@ -8,6 +8,9 @@
 #include <QLineEdit>
 #include <QLocale>
 #include <QPushButton>
+#include <QScrollArea>
+#include <QScreen>
+#include <QSettings>
 #include <QTemporaryDir>
 #include <QTest>
 #include <chrono>
@@ -54,6 +57,7 @@ void startupPolicy() {
     ControllerOptions options;
     options.historyBudget = {3 * 1024 * 1024 + 17, 9 * 1024 * 1024 + 37, 512};
     options.snapshotBytes = 64 * 1024 * 1024 + 37;
+    options.memoryBytes = 192 * 1024 * 1024 + 17;
     options.beforeInitialPublish = [&] { gate.wait(); };
     StudioWindow window(nullptr, {}, {}, {}, {}, options);
     ReleaseLatch release{gate}; // Releases before the window joins, including on failure.
@@ -80,10 +84,148 @@ void startupPolicy() {
                   options.historyBudget.operationBytes,
           "Startup Apply overwrote unedited byte-exact custom limits");
     await([&] { return dialog->findChild<QPushButton *>("historyApply")->isEnabled(); });
+    check(window.snapshot()->memoryResources.limitBytes == options.memoryBytes,
+          "Parent budget used defaults before initial worker publication");
+    await([&] { return dialog->findChild<QPushButton *>("projectMemoryApply")->isEnabled(); });
+    dialog->findChild<QPushButton *>("projectMemoryApply")->click();
+    await([&] { return window.snapshot()->memoryCompleted.request > 0; });
+    check(window.snapshot()->memoryResources.limitBytes == options.memoryBytes &&
+              window.snapshot()->snapshotResources.limitBytes == options.snapshotBytes,
+          "Memory Apply rounded unedited custom startup limits");
+    await([&] { return dialog->findChild<QPushButton *>("projectMemoryApply")->isEnabled(); });
     dialog->reject();
     window.close();
     await([&] { return window.snapshot()->closed; });
     std::cout << "Startup policy before initial worker publication preserved byte-exact limits\n";
+}
+void memoryWorkflow(const std::filesystem::path &root) {
+    auto initial = makeOneTrackSession("Combined resources", "Original");
+    for (unsigned n = 1; n < 512; ++n)
+        initial.tracks.push_back(makeAudioTrack("Track", {}, 48000));
+    ControllerOptions options;
+    options.admission.state.memoryBudgetBytes = sessionPayloadBytes(initial) * 4;
+    options.memoryBytes = 64 * 1024 * 1024 + 7;
+    options.snapshotBytes = 16 * 1024 * 1024 + 33;
+    ProjectStore(root, options.admission).save(initial);
+    unsigned accepted = 0;
+    bool failPreferences = false;
+    StudioWindow window(nullptr, {}, {}, {}, {}, options, {}, [&](MemoryPreferences policy) {
+        ++accepted;
+        if (failPreferences)
+            throw ProjectError(ErrorCode::Io, "Owned memory preference failure");
+        saveMemoryPreferences(policy);
+    });
+    window.show();
+    window.openProject(root);
+    await([&] { return window.snapshot()->session && window.snapshot()->io == IoOperation::None; });
+    const auto original = window.snapshot();
+    auto *action = window.findChild<QAction *>("historyResourcesAction");
+    action->trigger();
+    auto *dialog = window.findChild<QDialog *>("historyResourcesDialog");
+    check(dialog, "Project resources dialog unavailable");
+    auto *total = dialog->findChild<QLineEdit *>("projectMemoryMiB");
+    auto *snapshots = dialog->findChild<QLineEdit *>("snapshotMemoryMiB");
+    auto *apply = dialog->findChild<QPushButton *>("projectMemoryApply");
+    auto *scroll = dialog->findChild<QScrollArea *>("projectResourcesScroll");
+    check(scroll && dialog->height() <= dialog->screen()->availableGeometry().height(),
+          "Project resources are not scrollable or exceed the display");
+    await([&] { return !dialog->findChild<QLabel *>("projectMemoryUsage")->text().isEmpty(); });
+    type(total, "128");
+    scroll->ensureWidgetVisible(apply);
+    QTest::mouseClick(apply, Qt::LeftButton);
+    check(!apply->isEnabled() && !total->isEnabled(), "Pending policy controls still enabled");
+    await([&] { return accepted == 1; });
+    check(window.snapshot()->memoryResources.limitBytes == 128 * 1024 * 1024 &&
+              window.snapshot()->snapshotResources.limitBytes == options.snapshotBytes &&
+              loadMemoryPreferences() ==
+                  MemoryPreferences{128 * 1024 * 1024, options.snapshotBytes} &&
+              window.snapshot()->modelRevision == original->modelRevision &&
+              !window.snapshot()->dirty,
+          "Accepted memory limits changed project or rounded unedited snapshot policy");
+    type(total, "1");
+    const auto before = window.snapshot();
+    apply->click();
+    await([&] { return apply->isEnabled(); });
+    check(window.snapshot()->memoryCompleted.request > before->memoryCompleted.request &&
+              window.snapshot()->memoryCompleted.error == ErrorCode::ResourceLimit &&
+              accepted == 1 &&
+              window.snapshot()->memoryResources.limitBytes == before->memoryResources.limitBytes &&
+              window.snapshot()->snapshotResources.limitBytes ==
+                  before->snapshotResources.limitBytes &&
+              window.snapshot()->session == before->session &&
+              dialog->findChild<QLabel *>("projectMemoryFeedback")->text().contains("not changed"),
+          "Rejected GUI parent reduction changed state or persisted policy");
+    type(total, "256");
+    type(snapshots, "1");
+    apply->click();
+    await([&] { return apply->isEnabled(); });
+    check(window.snapshot()->memoryCompleted.error == ErrorCode::ResourceLimit && accepted == 1 &&
+              window.snapshot()->memoryResources.limitBytes == before->memoryResources.limitBytes,
+          "Rejected GUI child reduction partially raised the parent limit");
+    type(snapshots, "32");
+    apply->click();
+    await([&] { return accepted == 2; });
+    check(loadMemoryPreferences() == MemoryPreferences{256 * 1024 * 1024, 32 * 1024 * 1024},
+          "Accepted parent and child memory policy did not persist");
+    failPreferences = true;
+    type(total, "512");
+    apply->click();
+    await([&] { return accepted == 3; });
+    check(window.snapshot()->memoryResources.limitBytes == 512 * 1024 * 1024 &&
+              loadMemoryPreferences().totalBytes == 256 * 1024 * 1024 &&
+              dialog->findChild<QLabel *>("projectMemoryFeedback")
+                  ->text()
+                  .contains("could not be saved"),
+          "Preference failure hid the runtime limit or claimed persistence");
+    failPreferences = false;
+    apply->click();
+    await([&] { return accepted == 4; });
+    check(loadMemoryPreferences().totalBytes == 512 * 1024 * 1024,
+          "Memory preference retry did not persist");
+    check(dialog->grab().save(QString::fromStdString((root / "memory-dialog.png").string())),
+          "Could not preserve memory dialog screenshot");
+    dialog->reject();
+    await([&] { return !window.findChild<QDialog *>("historyResourcesDialog"); });
+    ProjectCommand full{CommandKind::MemoryLimits};
+    full.memoryBytes = window.snapshot()->memoryResources.reservedBytes;
+    full.memoryRequest = 9101;
+    check(window.submitEdit(full), "Full memory policy queue refused");
+    await([&] { return window.snapshot()->memoryCompleted.request == 9101; });
+    check(!window.snapshot()->memoryCompleted.error, "Full memory policy refused");
+    ProjectCommand edit{CommandKind::Structural};
+    edit.edits = {RenameTrack{initial.tracks.back().id, "GUI retry"}};
+    const auto error = window.snapshot()->errorSerial;
+    check(window.submitEdit(edit), "GUI edit queue refused");
+    await([&] { return window.snapshot()->errorSerial > error; });
+    check(window.snapshot()->errorCode == ErrorCode::ResourceLimit &&
+              window.snapshot()->session == original->session &&
+              window.snapshot()->historyResources == original->historyResources,
+          "GUI resource refusal changed canonical/history state");
+    action->trigger();
+    dialog = window.findChild<QDialog *>("historyResourcesDialog");
+    type(dialog->findChild<QLineEdit *>("projectMemoryMiB"), "128");
+    dialog->findChild<QPushButton *>("projectMemoryApply")->click();
+    await([&] { return accepted == 5; });
+    dialog->reject();
+    await([&] { return !window.findChild<QDialog *>("historyResourcesDialog"); });
+    check(window.submitEdit(edit), "GUI retry edit queue refused");
+    await([&] { return window.snapshot()->modelRevision > original->modelRevision; });
+    check(window.snapshot()->session->tracks.back().name == "GUI retry",
+          "Raising the GUI memory budget did not enable retry");
+    window.findChild<QAction *>("saveAction")->trigger();
+    await([&] { return !window.snapshot()->dirty && window.snapshot()->io == IoOperation::None; });
+    check(ProjectStore(root, options.admission).load() == *window.snapshot()->session,
+          "GUI memory policy changed saved state");
+    window.close();
+    await([&] { return window.snapshot()->closed; });
+    QSettings settings;
+    settings.setValue("memory/totalBytes", 0);
+    settings.setValue("memory/snapshotBytes", "invalid");
+    settings.sync();
+    check(loadMemoryPreferences() == MemoryPreferences{},
+          "Invalid persisted limits did not fall back");
+    std::cout << "512-track desktop memory policies, atomic refusal, persistence failure and edit "
+                 "retry qualified\n";
 }
 void acceptedPreflightPeak(const std::filesystem::path &root) {
     const auto initial = makeOneTrackSession("Preflight peak", "Original");
@@ -326,6 +468,11 @@ int main(int argc, char **argv) {
     try {
         std::cout << "Owned history UI fixture root: " << root << '\n';
         std::filesystem::create_directories(root);
+        if (argc == 2 && std::string_view(argv[1]) == "--memory-only") {
+            startupPolicy();
+            memoryWorkflow(root / "memory");
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--review-startup-only") {
             startupPolicy();
             return 0;

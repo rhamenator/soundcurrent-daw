@@ -2369,3 +2369,34 @@ The supplementary CRC/all-entry-byte verified archive is
 8,496,931bytes/685entries. All92 contracts,
 24 reviewed reuse inputs, original71 unresolved cause and full X006/frozen scope
 remain unchanged. Next coordinate canonical/history/GUI/graph/IO resource leases.
+
+## X006 shared controller memory checkpoint (2026-10-07)
+
+Previous goal turn was **progress**: PR27 is merged as `df80c96a5418`, with final
+compiled-source qualification, retained original review failure and verified
+source/bundle restore. This turn adds [ADR068](decisions/068-controller-memory-resources.md)
+and [shared controller ownership/policies](83-controller-memory-resources.md).
+Canonical state, history/active gestures, unique snapshots and declared edit work
+share a parent; persistent growth/shrink transfers existing credits without a new
+reservation after mutation. The actual scrollable desktop dialog exposes atomic
+parent/snapshot policies, live usage and preference persistence/failure/retry.
+
+The [receipt](../tests/results/M2/2026-10-07-controller-memory-resources.json) records
+Linux Debug **55/55, 145.39s**, affected ASan/UBSan/LSan **18/18, 334.35s**, and
+Windows core/media cross-build. New 512-track root/UI refusal, full-budget Cancel,
+513-track growth/Undo/Redo, retained-reader survival and desktop retry pass.
+Existing 8192-track/10000 sparse-clip UI regression passes. Original focused
+fixture oracle/sequencing failures and their sources/executable hashes/logs/owned
+projects remain preserved; final inputs match between Debug and sanitizers.
+The CRC/all-entry-byte verified archive is **13,830,965 bytes / 978 entries**.
+
+All 24 reviewed reuse inputs and 92 unpromoted frozen-reference contracts remain
+unchanged. No native audio/VM run, new dependency or schema change. Original 71
+clock/source CPU cause and earlier unresolved causes remain open. These declared
+charges do not bound exact allocations/RSS, expanding trials/command payloads,
+GUI projections/indices, graph old/new/tail, caches or parser/IO overlap.
+Next lease actual GUI projections/indices and expose retryable GUI admission;
+then coordinate graphs/cache/IO, measure allocations/RSS and sustained platforms,
+and continue larger capture/adoption, freeze/bounce and scheduling. The 256
+recording-input implementation cap, native Windows, X004/X005 and Europe gates
+remain required. The full goal remains **active and incomplete**.

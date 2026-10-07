@@ -487,3 +487,13 @@ projection/index leases with graph old/new/tail and IO budgets; expose a combine
 resource editor, measure RSS and sustained workloads, and continue larger capture,
 freeze/bounce and prepared scheduling. This snapshot budget is one component;
 full X006 and every frozen-reference contract remain required.
+
+### X006 shared controller budget checkpoint
+
+[ADR068](decisions/068-controller-memory-resources.md) and
+[scope/workflows](83-controller-memory-resources.md) coordinate canonical,
+history/active, unique snapshots and declared operation credit under one parent.
+The desktop exposes persistent atomic parent/snapshot limits. Next lease actual
+GUI projections/indices before graph old/new/tail, cache and IO overlap; measure
+allocator/RSS and sustained Linux/Windows workloads, then continue larger capture,
+freeze/bounce and scheduling. Full X006 and all frozen contracts remain open.

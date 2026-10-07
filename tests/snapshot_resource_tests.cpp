@@ -165,6 +165,125 @@ void boundedEdits(const std::filesystem::path &root) {
     await(c, [](const auto &v) { return v.closed; });
     std::cout << "512-track retained snapshot refusal, Cancel, Undo/Redo, save/reopen qualified\n";
 }
+void memoryPolicy(ProjectController &c, std::size_t bytes, std::uint64_t request,
+                  std::optional<std::size_t> snapshots = {}, bool success = true) {
+    ProjectCommand next{CommandKind::MemoryLimits};
+    next.memoryBytes = bytes;
+    next.snapshotBytes = snapshots;
+    next.memoryRequest = request;
+    const auto result = command(c, next, success);
+    check(result->memoryCompleted.request == request &&
+              bool(result->memoryCompleted.error) == !success,
+          "Missing correlated combined memory receipt");
+}
+void combinedOwnership(const std::filesystem::path &root) {
+    const auto initial = large();
+    ControllerOptions options;
+    options.admission.state.memoryBudgetBytes = sessionPayloadBytes(initial) * 4;
+    ProjectStore(root, options.admission).save(initial);
+    ResourceLedger observer;
+    std::shared_ptr<const Session> survivor;
+    {
+        ProjectController c(options);
+        observer = c.resourceLedger();
+        open(c, root);
+        auto consistent = [&] {
+            const auto v = c.snapshot();
+            const auto usage = c.memoryResources();
+            // Canonical capacities can differ from the immutable publication's copy.
+            check(v->canonicalBytes > 0 &&
+                      v->historyBytes ==
+                          v->historyResources.retainedBytes + v->historyResources.activeBytes &&
+                      usage.reservedBytes ==
+                          v->canonicalBytes + v->historyBytes + c.snapshotResources().reservedBytes,
+                  "Canonical/history/snapshot root ownership does not reconcile");
+        };
+        consistent();
+        auto original = c.snapshot()->session;
+        const auto id = initial.tracks.front().id;
+        rename(c, id, "Combined");
+        consistent();
+        const auto usage = c.memoryResources();
+        const auto child = c.snapshotResources();
+        const auto before = c.snapshot();
+        memoryPolicy(c, usage.reservedBytes - 1, 901, {}, false);
+        memoryPolicy(c, usage.limitBytes * 2, 902, child.reservedBytes - 1, false);
+        check(c.memoryResources() == usage && c.snapshotResources() == child,
+              "Rejected parent/child policy partially changed limits or peaks");
+        memoryPolicy(c, usage.reservedBytes, 903);
+        const auto full = c.memoryResources();
+        rename(c, id, "Refused", false);
+        check(c.memoryResources() == full && c.snapshotResources() == child &&
+                  c.snapshot()->modelRevision == before->modelRevision &&
+                  c.snapshot()->historyResources == before->historyResources &&
+                  c.snapshot()->session == before->session &&
+                  ProjectStore(root, options.admission).load() == initial,
+              "Root refusal changed state, history or saved bytes");
+        memoryPolicy(c, options.memoryBytes, 904);
+        command(c, parameter(*c.snapshot()->session, 5));
+        consistent();
+        const auto active = c.snapshot();
+        memoryPolicy(c, c.memoryResources().reservedBytes, 905);
+        rename(c, id, "Refused", false);
+        command(c, parameter(*active->session, 7), false);
+        command(c, ProjectCommand{CommandKind::Undo}, false);
+        check(c.snapshot()->modelRevision == active->modelRevision &&
+                  c.snapshot()->historyResources == active->historyResources &&
+                  c.snapshot()->session == active->session,
+              "Root refusal committed an unrelated active gesture");
+        ProjectCommand cancel{CommandKind::CancelGesture};
+        cancel.gesture = 777;
+        command(c, cancel);
+        check(c.snapshot()->session->tracks.front().eq.bands.front().gainDb == 0 &&
+                  active->session->tracks.front().eq.bands.front().gainDb == 5,
+              "Cancel needed new credit or changed a borrowed snapshot");
+        consistent();
+        save(c); // A full-budget Save without a gesture must borrow existing state.
+        consistent();
+        memoryPolicy(c, options.memoryBytes, 906);
+        rename(c, id, "Retry");
+        consistent();
+        ProjectCommand insert{CommandKind::Structural};
+        const auto extra = makeAudioTrack(std::string(4096, 'x'), {}, 48000);
+        insert.edits = {InsertTrack{extra, initial.tracks.front().id}};
+        command(c, insert);
+        consistent();
+        command(c, ProjectCommand{CommandKind::Undo});
+        consistent();
+        command(c, ProjectCommand{CommandKind::Redo});
+        consistent();
+        check(c.snapshot()->session->tracks.size() == 513 &&
+                  c.snapshot()->session->tracks.front().id == extra.id,
+              "Structural growth Undo/Redo lost stable IDs");
+        auto fixture = observer.child(1024, "External owner fixture");
+        auto external = fixture.reserve(1024);
+        check(observer.usage().reservedBytes == c.snapshot()->canonicalBytes +
+                                                    c.snapshot()->historyBytes +
+                                                    c.snapshotResources().reservedBytes + 1024,
+              "External scope did not participate in the parent budget");
+        memoryPolicy(c, observer.usage().reservedBytes, 907);
+        rename(c, id, "External refused", false);
+        external.resize(0);
+        consistent();
+        memoryPolicy(c, options.memoryBytes, 908);
+        save(c);
+        open(c, root);
+        consistent();
+        check(ProjectStore(root, options.admission).load() == *c.snapshot()->session,
+              "Combined ownership changed reopened project");
+        survivor = c.snapshot()->session;
+        c.requestShutdown();
+        await(c, [](const auto &v) { return v.closed; });
+    }
+    check(observer.usage().owners == 1 && observer.usage().reservedBytes > 0 &&
+              survivor->tracks.size() == 513,
+          "Controller destruction lost or leaked borrowed snapshot ownership");
+    survivor.reset();
+    check(observer.usage().owners == 0 && observer.usage().reservedBytes == 0,
+          "Last surviving snapshot did not release the shared parent charge");
+    std::cout << "512-track combined parent/child limits, Cancel, growth, Undo/Redo and surviving "
+                 "readers qualified\n";
+}
 struct Release {
     std::latch &gate;
     bool done = false;
@@ -286,6 +405,10 @@ int main(int argc, char **argv) {
     std::cout << "Owned snapshot fixture root: " << root << '\n';
     try {
         check(temp.isValid(), "Snapshot fixture directory unavailable");
+        if (argc == 2 && std::string_view(argv[1]) == "--combined-only") {
+            combinedOwnership(root / "combined");
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--attachment-only") {
             attachmentOwnership(root / "attachment");
             return 0;

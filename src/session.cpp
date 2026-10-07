@@ -551,13 +551,24 @@ bool EditHistory::transfer(bool forward) {
     operationPeakBytes_ = std::max(operationPeakBytes_, peak);
     return true;
 }
-std::optional<Session> EditHistory::previewTransfer(bool forward) const {
+std::size_t EditHistory::checkUpdate() const {
+    check(active_.has_value(), "No active parameter gesture");
+    return checkOperation(weight(*active_), session_);
+}
+std::size_t EditHistory::checkCommit() const {
+    return active_ && active_->before != active_->after ? checkCandidate(*active_, session_) : 0;
+}
+std::optional<Session> EditHistory::previewTransfer(bool forward, std::size_t *declaredPeak) const {
+    if (declaredPeak)
+        *declaredPeak = 0;
     if (active_ && active_->before != active_->after) {
         if (forward)
             return {}; // Committing this edit clears Redo.
         (void)checkOperation(weight(*active_), session_);
         auto next = proposed(*active_, false);
-        (void)checkOperation(weight(*active_), next);
+        const auto peak = checkOperation(weight(*active_), next);
+        if (declaredPeak)
+            *declaredPeak = peak;
         return next;
     }
     const auto &source = forward ? redo_ : undo_;
@@ -565,7 +576,9 @@ std::optional<Session> EditHistory::previewTransfer(bool forward) const {
         return {};
     (void)checkOperation(source.back().bytes, session_, false);
     auto next = proposed(source.back().change, forward);
-    (void)checkOperation(source.back().bytes, next, false);
+    const auto peak = checkOperation(source.back().bytes, next, false);
+    if (declaredPeak)
+        *declaredPeak = peak;
     return next;
 }
 bool EditHistory::undo() {

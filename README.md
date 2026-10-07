@@ -59,7 +59,11 @@ These declared checks are one input to future combined memory admission.
 The [retained-session ledger](docs/82-retained-session-resources.md) also keeps
 older immutable snapshots charged until their last reader releases them. Saves
 and barriers share current state; snapshot-budget refusal preserves active edits
-and leaves Cancel available.
+and leaves Cancel available. [Shared controller admission](docs/83-controller-memory-resources.md)
+now also charges canonical state, history and declared edit work against one
+parent. **Edit → Project resources…** exposes persistent adjustable parent/snapshot
+policies and live usage. GUI/graph/cache/IO and allocator/RSS integration remains
+required.
 
 The [viewport timeline and model-backed lists](docs/80-virtualized-session-views.md)
 now have bounded Linux Qt large-project regression workflows. Combined memory,
