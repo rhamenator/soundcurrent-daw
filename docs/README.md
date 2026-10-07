@@ -82,6 +82,8 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Canonical recording monitoring feedback and bounded repeated takes](74-recording-monitor-feedback.md)
 - [Manual recording desktop worker and cancellation delivery](75-manual-desktop-worker.md)
 
+- [Manual recording desktop controls and preview lifetime](76-manual-recording-panel.md)
+
 - [Native manual fault recovery and unresolved timing/alignment](68-native-manual-fault-recovery.md)
 
 - [Native manual channel markers and processing-stage diagnostics](69-native-manual-port-tracing.md)

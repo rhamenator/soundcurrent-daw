@@ -2013,3 +2013,45 @@ that prefix under its publication mutex; the same regression records0/0/0 with
 older snapshots unchanged. Final Debug39/39,46.29s and focused controller
 ASan/UBSan/LSan1/1,1.03s pass; Windows controller compilation passes. Earlier
 core sanitizer/evidence archives remain unchanged. Runtime/native count remains48.
+
+## 2026-10-07: actual manual recording desktop workflow
+
+Previous continuation: progress by observing the exact pending build's terminal
+failure and current implementation/planned track limits. The frozen full goal and
+X006 resource-admitted track target remain intact; no fixed product cap is adopted.
+
+The dedicated Qt panel now connects canonical-prefix preparation, explicit persistent
+input/master routes, Play, prepared next takes, Punch In/Out, priority Stop/Cancel,
+retained group previews and explicit adoption/Keep. Fixed-range/locator and manual
+workflows occupy separate recording tabs. Close drains native/reader/disk ownership,
+requires an explicit preview decision, then runs the normal project save prompt.
+The worker remains usable when Review/Cancel aborts Close.
+
+Canonical EQ revisions follow the existing graph through bounded event queues.
+Partial acceptance, audio application and coalesced desired models remain distinct;
+Undo/Redo and selected-track inspector changes preserve canonical preparation.
+Structural inventory/layout/matrix/arm changes refuse safely. Adopted clips affect
+canonical history and are heard after reprepare; the live original timeline is retained.
+
+Actual-widget synthetic acceptance covers three two-lane takes on one graph, exact
+raw capture, float headroom, persisted routing and Ready hotplug, group adoption/
+Undo/Redo/Save/reopen, failed file verification/retry, priority Cancel during held
+finalization and Close Review/Keep choices. Dependent controls now disable at
+admission, including attachment Retry, before a timer can lag behind intent. Four
+development regressions and the original compile failure retain source/log/project
+evidence and executable hashes; the fourth runtime failure also retains local
+executable bytes. Earlier executable bytes are unavailable and not claimed.
+These are synthetic development failures, not new native timing observations.
+
+Debug40/40,47.83s; affected ASan/UBSan/LSan3/3,15.29s with leak detection; Windows
+media/controller/test cross-compilation passes. The900×700 offscreen manual panel
+was visually inspected.24 reviewed equalizer inputs and all92 frozen projections
+are unchanged; zero F/Q/C/N promotions. Native runtime count remains48 and original48
+CPU cause is unresolved. See docs/76, ADR061 and the dated M2 receipt/archive.
+
+Next concrete task: exercise this actual StudioWindow/controller workflow on owned
+PipeWire source/sink routes, preserving the user's hardware/default playback. Cover
+repeated takes, parameter audio application, Stop/Cancel, input/output loss, failed
+adoption/recovery and Close with exact timing/raw/output evidence. Independently
+implement/qualify Windows audio and equivalent desktop workflows. Continue full
+frozen parity, X004/X005/X006, all-Europe localization and installers; none is complete.

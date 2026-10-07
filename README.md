@@ -176,9 +176,12 @@ now retain IO/buffer startup state beside independent waveform markers. One new
 finite Stop passes; original46's delayed channel remains unresolved.
 [A controlled startup experiment](docs/72-controlled-native-startup.md) now reproduces
 a one-cycle delay when an allocated buffer is queried before IO readiness;
-deferring that query prevents the measured mechanism. Next: production readiness
-and capacity-aware acquisition with logical port tracing, then desktop manual controls
-and late cancellation policy. Additional monitor
+deferring that query prevents the measured mechanism. Production readiness and
+capacity-aware acquisition retain logical port tracing. The
+[manual recording desktop panel](docs/76-manual-recording-panel.md) now connects
+finite repeated takes, explicit routing, EQ updates, preview adoption and priority
+Stop/Cancel to Qt controls, with synthetic widget acceptance. Native desktop/controller
+and Windows runtime qualification remain next. Additional monitor
 policies, tempo/loop/take lanes and comping remain required. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and

@@ -4,6 +4,7 @@
 #include "timeline_editor.hpp"
 #include "playback_controller.hpp"
 #include "recording_controller.hpp"
+#include "manual_recording_panel.hpp"
 #include "recovery_controller.hpp"
 #include "export_controller.hpp"
 #include "export_dialog.hpp"
@@ -29,7 +30,9 @@ namespace soundcurrent::daw::ui {
 class StudioWindow : public QMainWindow {
   public:
     explicit StudioWindow(QWidget *parent = nullptr, PlaybackControllerOptions = {},
-                          RecordingControllerOptions = {}, ExportControllerOptions = {});
+                          RecordingControllerOptions = {}, ExportControllerOptions = {},
+                          ManualControlOptions = {});
+    std::shared_ptr<const ManualControlSnapshot> manualRecordingSnapshot() const;
     void openProject(const std::filesystem::path &);
     bool submitEdit(ProjectCommand); // Shared entry for bindings/UI acceptance.
     std::shared_ptr<const ControllerSnapshot> snapshot() const;
@@ -163,6 +166,8 @@ class StudioWindow : public QMainWindow {
     bool closeSaveSubmitted_ = false, closePromptActive_ = false;
     std::uint64_t closeBarrier_ = 0;
     std::uint64_t closeErrorSerial_ = 0;
+    // Destroy the pane before the project worker and its referenced gesture sequence.
+    std::unique_ptr<ManualRecordingPanel> manual_;
     void poll();
     void pollPlayback();
     void playSelected();

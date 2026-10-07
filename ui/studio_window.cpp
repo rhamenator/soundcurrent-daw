@@ -22,6 +22,7 @@
 #include <QSlider>
 #include <QStatusBar>
 #include <QTimer>
+#include <QTabWidget>
 #include <QWheelEvent>
 #include <QMessageBox>
 #include <QComboBox>
@@ -102,7 +103,8 @@ class FocusSlider : public QSlider {
 } // namespace
 StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            RecordingControllerOptions recordingOptions,
-                           ExportControllerOptions exportOptions)
+                           ExportControllerOptions exportOptions,
+                           ManualControlOptions manualOptions)
     : QMainWindow(parent), playback_(std::move(options)), recording_(std::move(recordingOptions)),
       exporter_(std::move(exportOptions)) {
     setObjectName(QStringLiteral("studioWindow"));
@@ -154,6 +156,10 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         transportMenu->addAction(tr("Prepare playback"), this, [this] { preparePlayback(); });
     playAction_ =
         transportMenu->addAction(tr("Play / Stop"), QKeySequence(Qt::Key_Space), this, [this] {
+            if (manual_ && manual_->busy()) {
+                manual_->stop();
+                return;
+            }
             if (recordingBusy()) {
                 recordPrepareBarrier_ = 0;
                 recording_.requestStop();
@@ -167,6 +173,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         });
     stopAction_ =
         transportMenu->addAction(tr("Stop"), QKeySequence(Qt::SHIFT | Qt::Key_Space), this, [this] {
+            if (manual_)
+                manual_->stop();
             recordPrepareBarrier_ = 0;
             playbackPrepareBarrier_ = 0;
             playback_.requestStop();
@@ -258,6 +266,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     connect(prepareButton_, &QPushButton::clicked, this, [this] { preparePlayback(); });
     connect(playButton_, &QPushButton::clicked, this, &StudioWindow::playSelected);
     connect(stopButton_, &QPushButton::clicked, this, [this] {
+        if (manual_)
+            manual_->stop();
         recordPrepareBarrier_ = 0;
         playbackPrepareBarrier_ = 0;
         playback_.requestStop();
@@ -312,7 +322,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         const auto native = recording_.snapshot();
         if (!model->session || model->session->tracks.empty() || closing_ || closeRequested_ ||
             recordPrepareBarrier_ || recordCommandPending_ || native->take ||
-            model->io == IoOperation::Create || model->io == IoOperation::Open ||
+            (manual_ && manual_->busy()) || model->io == IoOperation::Create ||
+            model->io == IoOperation::Open ||
             (native->phase != RecordingPhase::Idle && native->phase != RecordingPhase::Fault &&
              native->phase != RecordingPhase::Unsupported)) {
             QSignalBlocker block(monitorMode_);
@@ -528,7 +539,28 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                         pathUtf8(r->take->root / utf8Path(r->take->receipt->asset.relativePath)))));
         }
     });
-    layout->addWidget(recording);
+    auto *recordModesTabs = new QTabWidget(body);
+    recordModesTabs->setObjectName("recordingModes");
+    recordModesTabs->setAccessibleName(tr("Recording workflows"));
+    recordModesTabs->addTab(recording, tr("Fixed range / locators"));
+    layout->addWidget(recordModesTabs);
+    manual_ = std::make_unique<ManualRecordingPanel>(
+        controller_, nextGesture_,
+        [this] {
+            const auto r = recording_.snapshot();
+            const auto p = playback_.snapshot();
+            const bool recordIdle = r->phase == RecordingPhase::Idle ||
+                                    r->phase == RecordingPhase::Unsupported ||
+                                    r->phase == RecordingPhase::Fault;
+            const bool playIdle = p->phase == PlaybackPhase::Idle ||
+                                  p->phase == PlaybackPhase::Unsupported ||
+                                  p->phase == PlaybackPhase::Fault;
+            return !closing_ && !closeRequested_ && !recordPrepareBarrier_ &&
+                   !recordCommandPending_ && !r->take && !attachingTake_ &&
+                   !playbackPrepareBarrier_ && recordIdle && playIdle && !exportWorkflowBusy();
+        },
+        std::move(manualOptions), body);
+    recordModesTabs->addTab(manual_.get(), tr("Manual / repeated takes"));
     eq_ = new QGroupBox(tr("Track equalizer"), body);
     eq_->setObjectName(QStringLiteral("equalizerGroup"));
     eq_->setLayout(new QGridLayout);
@@ -751,6 +783,13 @@ void StudioWindow::pollExport() {
     exportState_->setText(status);
 }
 bool StudioWindow::submitEdit(ProjectCommand command) {
+    if (manual_ && manual_->busy() &&
+        (command.kind == CommandKind::Structural || command.kind == CommandKind::Monitoring ||
+         command.kind == CommandKind::Open || command.kind == CommandKind::Create)) {
+        state_->setText(tr("Stop manual recording and resolve its previews before changing the "
+                           "project structure."));
+        return false;
+    }
     const auto admission = controller_.submit(std::move(command));
     if (admission != Admission::Accepted) {
         state_->setText(admission == Admission::Full ? tr("Too many pending changes. Please retry.")
@@ -1153,9 +1192,13 @@ void StudioWindow::pollPlayback() {
 }
 bool StudioWindow::recordingBusy() const {
     const auto r = recording_.snapshot();
-    return recordPrepareBarrier_ || recordCommandPending_ || r->take ||
+    return (manual_ && manual_->busy()) || recordPrepareBarrier_ || recordCommandPending_ ||
+           r->take ||
            (r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Unsupported &&
             r->phase != RecordingPhase::Fault && r->phase != RecordingPhase::Closed);
+}
+std::shared_ptr<const ManualControlSnapshot> StudioWindow::manualRecordingSnapshot() const {
+    return manual_->snapshot();
 }
 std::shared_ptr<const RecordingSnapshot> StudioWindow::recordingSnapshot() const {
     return recording_.snapshot();
@@ -2067,6 +2110,7 @@ void StudioWindow::reviewRecordings() {
 }
 
 void StudioWindow::shutdownWorkers() {
+    manual_->requestShutdown();
     recoveryScanner_.requestShutdown();
     exporter_.requestShutdown();
     playback_.requestShutdown();
@@ -2196,6 +2240,9 @@ void StudioWindow::poll() {
         return;
     QScopedValueRollback<bool> guard(polling_, true);
     const auto canonical = controller_.snapshot();
+    if (!closeRequested_)
+        manual_->cancelClose();
+    manual_->poll();
     const auto native = playback_.snapshot();
     const bool inactive = native->phase == PlaybackPhase::Idle ||
                           native->phase == PlaybackPhase::Fault ||
@@ -2234,7 +2281,8 @@ void StudioWindow::poll() {
     pollPlayback();
     pollExport();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && closing_) {
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed &&
+        manual_->snapshot()->closed && closing_) {
         close();
         return;
     }
@@ -2318,10 +2366,18 @@ void StudioWindow::poll() {
             followedRevision_ = view->modelRevision;
     }
     shown_ = view;
+    int manualCloseReady = 0;
+    if (closeRequested_ && !closing_ && !closeAfterSave_ && !closePromptActive_) {
+        manualCloseReady = manual_->closeReadiness();
+        if (manualCloseReady < 0) {
+            closeRequested_ = false;
+            closeBarrier_ = 0;
+        }
+    }
     if (closeRequested_ && !closing_ && !closeAfterSave_ && !closePromptActive_ && !closeBarrier_ &&
         recording_.snapshot()->stopAcknowledged >= closeDrainToken_ &&
         !recording_.snapshot()->take && !attachingTake_ && !exporter_.snapshot()->busy &&
-        view->io == IoOperation::None) {
+        view->io == IoOperation::None && manualCloseReady == 1) {
         ProjectCommand barrier{CommandKind::Barrier};
         barrier.barrier = nextGesture_++;
         const auto token = barrier.barrier;
@@ -2345,7 +2401,8 @@ void StudioWindow::poll() {
 void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = inspectorSnapshot();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed) {
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed &&
+        manual_->snapshot()->closed) {
         event->accept();
         return;
     }
@@ -2356,6 +2413,7 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     if (auto *focused = focusWidget())
         focused->clearFocus();
     closeRequested_ = true;
+    manual_->beginClose();
     recoveryScanner_.cancel();
     if (recoveryDialog_)
         recoveryDialog_->reject();

@@ -1,0 +1,151 @@
+{
+  "utc": "2026-10-07T07:01:59.865372+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "source_parent": "6cf9e05b3b36c4d96e313029c40d643cd57a49c8",
+  "scope": "Production Qt manual recording panel and canonical parameter following; synthetic actual-widget acceptance only",
+  "compiled_source_sha256": {
+    "CMakeLists.txt": "89fc6ef04718d8e558171956ed6d6bd6a2885bc089c7fc67aa3da6b1c078c04f",
+    "ui/manual_recording_controller.cpp": "a09e9cff761a7d01b44f5dd749d693666b37ac6555c7ac5db263c6fb484c7f19",
+    "ui/manual_recording_controller.hpp": "78d8f150613d963ce6047c292068ee58fa5370ae6a9729d6a2574eec39b567c5",
+    "ui/manual_recording_panel.cpp": "5517744a1c4d4e0c3caf0df46bfcb8b97a124749c9616de63365b4d3513db641",
+    "ui/manual_recording_panel.hpp": "dd70485d7c0cfb8fe152cd88fbeabe46ff20760c6e63fbee497b8f1df4913b7e",
+    "ui/studio_window.cpp": "19a991fba984579e6ec26f9edef9bde7bec20d4def3e4fee3f42d17fc74e787e",
+    "ui/studio_window.hpp": "8ca2f50176a02c67bd9505d6247bec00ec07cbc5ac5c15517efd5aea3689f2a0",
+    "tests/manual_panel_tests.cpp": "717196bf351f5c036a11d26c42bb9c19072dbd3aa0fb1c63d776ae18feed339e",
+    "tests/manual_controller_tests.cpp": "3ebcf1fc4bb3d81413533ce3955ba9207f178048526b4ad17bf80747892c218b",
+    "tests/fake_manual_endpoint.hpp": "38eb79b3e5631c565cd342bb567cdf522d8f2f2fcce237f7b3ee6f4cfb8e48d8"
+  },
+  "executables": {
+    ".cache/build-desktop/sc-manual-panel-tests": {
+      "sha256": "771aeb0af8ecc9f91386423fb226a69d2da6747186668362f839e9a3a72b3ad7",
+      "bytes": 37728584
+    },
+    ".cache/build-desktop/sc-manual-controller-tests": {
+      "sha256": "3a24cd493022a49f90765a033927b7640b01da900626d4a3c069fa773a644f63",
+      "bytes": 18094688
+    },
+    ".cache/build-desktop-sanitized/sc-manual-panel-tests": {
+      "sha256": "e73c7e59f2d9f43ef0c364430f82580b8a6a7bf592efb1df792b64e901f09f21",
+      "bytes": 125337688
+    },
+    ".cache/build-desktop-sanitized/sc-manual-controller-tests": {
+      "sha256": "f41b7d97ae40b6a07e65c87571df51f0380e04db1a07a19115e1e316baae213d",
+      "bytes": 58849160
+    },
+    ".cache/build-desktop-sanitized/sc-ui-tests": {
+      "sha256": "6478bbc674b8b1de883e07ef09203ccffae473f83b8c4f04608d11e32edc036a",
+      "bytes": 131330328
+    },
+    ".cache/build-windows-media/sc-manual-controller-tests.exe": {
+      "sha256": "4be92697ed502aae18cbf7845a5e2ec7b7a97c529e9c5b827cd29c8d948f7fa4",
+      "bytes": 1515396
+    }
+  },
+  "evidence_archive": {
+    "path": "tests/results/M2/2026-10-07-manual-recording-panel-evidence.zip",
+    "sha256": "bf32f5413fae2f6ffb9ba2b35b4af310a558b63a26d2aa8665b149c78481b460",
+    "bytes": 265333,
+    "payload_files": 74,
+    "integrity_verified": true
+  },
+  "local_debug": {
+    "tests_passed": 40,
+    "seconds": 47.83,
+    "log": "logs/manual-panel-debug-tests.log"
+  },
+  "sanitizers": {
+    "tests_passed": 3,
+    "seconds": 15.29,
+    "address": true,
+    "undefined": true,
+    "leak_detection": true,
+    "scope": "desktop-ui, desktop-manual-recording, manual-desktop-control"
+  },
+  "windows": {
+    "controller_media_test_cross_compiled": true,
+    "desktop_panel_cross_compiled": false,
+    "native_runtime_tested": false
+  },
+  "visual": {
+    "offscreen_size": [
+      900,
+      700
+    ],
+    "manual_panel_inspected": true,
+    "physical_display_qualified": false
+  },
+  "workflow_acceptance": [
+    "exact canonical barrier with prior EQ edit",
+    "duplicate control/take gesture refusal",
+    "explicit persistent per-channel routes; no automatic activation",
+    "Ready disconnection/reconnection preserves route intent",
+    "three repeated two-lane groups on one prepared graph",
+    "all raw samples exact; float headroom preserved",
+    "verified atomic adoption; group Undo/Redo; Save/reopen",
+    "EQ parameter/Undo application receipts; selected inspector does not rotate canonical graph",
+    "failed media verification retains preview; restored file permits retry",
+    "priority Stop then Cancel during held finalization; canceled groups recovery-only",
+    "Close waits joins; explicit Keep or Review choice; no auto-adoption",
+    "partial parameter queue prefixes and latest-model coalescing; fresh-generation revision isolation"
+  ],
+  "development_failures": {
+    "original_projects_sources_logs_executable_hashes_retained": true,
+    "runtime_original_executable_bytes_retained": [
+      false,
+      false,
+      false,
+      true
+    ],
+    "native_or_timing_failures": false,
+    "causes": [
+      "fixture omitted required parameter gesture ID",
+      "dependent GUI button stayed enabled between admission and timer update",
+      "attachment command omitted canonical project path",
+      "attachment Retry button stayed enabled until timer processed failure"
+    ],
+    "resolved_by_final_acceptance": true
+  },
+  "equalizer_reuse": {
+    "inputs": 24,
+    "review_required": false,
+    "snapshot_errors": [],
+    "repositories_modified": false
+  },
+  "retained_runtime_failures": 48,
+  "historical48_cpu_cause_resolved": false,
+  "parity": {
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "frozen_contracts": 92,
+    "FQCN_promotions": 0
+  },
+  "new_dependencies": [],
+  "schema_changes": false,
+  "current_track_limit": 256,
+  "remaining_gaps": [
+    "Owned PipeWire actual desktop/controller runtime including port loss and finalization",
+    "Native Windows audio endpoint and equivalent runtime workflow; desktop build/install qualification",
+    "Sustained and physical workloads; original48 CPU cause",
+    "Indefinite/loop/seek recording and full monitoring/take/comp/PDC/plugin workflows",
+    "Full frozen92 functional/quality/content/native compatibility contracts",
+    "X004 imports, X005 equipment profiling/editor integration, X006 resource-admitted track counts",
+    "All-Europe translation/review/UI qualification and installers"
+  ]
+}

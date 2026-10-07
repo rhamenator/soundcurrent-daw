@@ -9,6 +9,11 @@
 namespace soundcurrent::daw::ui {
 namespace {
 constexpr std::size_t controlQueueCapacity = 16;
+const Track *findTrack(const Session &s, const Id &id) {
+    const auto found =
+        std::find_if(s.tracks.begin(), s.tracks.end(), [&](const auto &t) { return t.id == id; });
+    return found == s.tracks.end() ? nullptr : &*found;
+}
 void require(bool condition, const char *message) {
     if (!condition)
         throw ProjectError(ErrorCode::InvalidState, message);
@@ -69,6 +74,19 @@ class NativeEndpoint final : public ManualControlEndpoint {
     std::size_t occupiedSlots() noexcept override {
         return run_.occupiedSlots();
     }
+    MixEvent parameterEvent(const Session &s, const ParameterAddress &a) override {
+        return run_.graph().parameterEvent(s, a, 0);
+    }
+    MixEvent enableEvent(const Id &track, bool enabled) override {
+        return run_.graph().enableEvent(track, enabled, 0);
+    }
+    SubmitStatus submitParameter(const MixEvent &event, std::uint64_t revision) noexcept override {
+        return run_.graph().submitImmediate(event, revision);
+    }
+    bool parameterAcknowledgement(std::size_t track,
+                                  ImmediateAcknowledgement &r) noexcept override {
+        return run_.graph().acknowledgement(track, r);
+    }
 };
 #endif
 } // namespace
@@ -90,6 +108,25 @@ struct ManualRecordingController::State {
     ManualControlSnapshot view;
     ManualControlOptions options;
     std::unique_ptr<ManualControlEndpoint> endpoint;
+    struct Following {
+        std::uint64_t generation, revision;
+        std::filesystem::path root;
+        std::shared_ptr<const Session> session;
+    };
+    std::optional<Following> following, desired;
+    std::optional<ManualControlPreparation> prepared;
+    std::shared_ptr<const Session> acceptedModel;
+    struct Bundle {
+        Following target;
+        std::vector<MixEvent> events;
+        std::vector<std::uint64_t> required;
+        std::size_t submitted = 0;
+    };
+    std::optional<Bundle> bundle;
+    std::vector<std::uint64_t> appliedParameters;
+    std::uint64_t parameterRevision = 0, lastFollowed = 0, lastFollowingGeneration = 0,
+                  checkedRevision = 0;
+    std::chrono::steady_clock::time_point nextInventory;
     std::filesystem::path root;
     std::uint64_t seenStop = 0;
     std::size_t punchInFlight = 0;
@@ -128,6 +165,8 @@ struct ManualRecordingController::State {
         });
     }
     void publish() {
+        view.parametersPending =
+            endpoint && (bundle || view.desiredRevision != view.appliedRevision);
         std::shared_ptr<const ManualControlSnapshot> copy;
         if (!view.closed)
             copy = std::make_shared<const ManualControlSnapshot>(view);
@@ -178,6 +217,21 @@ struct ManualRecordingController::State {
         view.status = endpoint->status();
         view.position = endpoint->position();
         view.occupiedSlots = endpoint->occupiedSlots();
+        for (std::size_t n = 0; n < appliedParameters.size(); ++n) {
+            ImmediateAcknowledgement r;
+            for (unsigned k = 0; k < 64 && endpoint->parameterAcknowledgement(n, r); ++k)
+                if (r.generation == view.generation)
+                    appliedParameters[n] = std::max(appliedParameters[n], r.revision);
+        }
+        if (bundle && bundle->submitted == bundle->events.size() &&
+            std::equal(bundle->required.begin(), bundle->required.end(), appliedParameters.begin(),
+                       [](auto required, auto applied) { return applied >= required; })) {
+            view.appliedRevision = bundle->target.revision;
+            bundle.reset();
+        } else if (!bundle && prepared &&
+                   view.position > prepared->options.run.playback.graph.startFrame &&
+                   !view.appliedRevision)
+            view.appliedRevision = view.acceptedRevision;
         ManualPunchReceipt receipt;
         while (view.punches.size() < manualPunchCommands && endpoint->acknowledgement(receipt)) {
             require(punchInFlight != 0, "Unexpected manual punch acknowledgement");
@@ -189,6 +243,83 @@ struct ManualRecordingController::State {
             view.groups.push_back({view.generation, root,
                                    std::make_shared<const ManualRecordedGroup>(std::move(group))});
         view.occupiedSlots = endpoint->occupiedSlots();
+    }
+    void reconcile() {
+        if (!endpoint || !prepared || !desired || desired->generation != view.generation ||
+            desired->revision < prepared->modelRevision)
+            return;
+        view.desiredRevision = desired->revision;
+        if (checkedRevision != desired->revision) {
+            require(desired->root == prepared->root &&
+                        desired->session->id == prepared->session->id &&
+                        desired->session->sampleRate == prepared->session->sampleRate,
+                    "Prepared manual project changed");
+            validate(*desired->session);
+            require(desired->session->tracks.size() == prepared->session->tracks.size(),
+                    "Prepared manual track inventory changed");
+            for (std::size_t n = 0; n < prepared->session->tracks.size(); ++n)
+                require(desired->session->tracks[n].id == prepared->session->tracks[n].id,
+                        "Prepared manual track ordering changed");
+            require(desired->session->master.has_value() == prepared->session->master.has_value() &&
+                        (!prepared->session->master ||
+                         (desired->session->master->id == prepared->session->master->id &&
+                          desired->session->master->plan == prepared->session->master->plan)),
+                    "Prepared manual mix structure changed");
+            for (const auto &route : prepared->plan.tracks) {
+                const auto *old = findTrack(*prepared->session, route.track);
+                const auto *next = findTrack(*desired->session, route.track);
+                require(old && next && old->layout == next->layout && old->eq.id == next->eq.id &&
+                            old->eq.bands.size() == next->eq.bands.size(),
+                        "Prepared manual track structure changed");
+                for (std::size_t n = 0; n < old->eq.bands.size(); ++n)
+                    require(old->eq.bands[n].id == next->eq.bands[n].id,
+                            "Prepared manual EQ structure changed");
+            }
+            for (const auto &arm : prepared->arms) {
+                const auto *old = findTrack(*prepared->session, arm.binding.track);
+                const auto *next = findTrack(*desired->session, arm.binding.track);
+                require(old && next && next->inputLatencyFrames == old->inputLatencyFrames &&
+                            next->monitoring == old->monitoring,
+                        "Prepared manual capture intent changed");
+            }
+            checkedRevision = desired->revision;
+        }
+        if (!bundle && desired->revision > view.acceptedRevision) {
+            Bundle next{*desired, {}, std::vector<std::uint64_t>(prepared->plan.tracks.size()), 0};
+            for (const auto &route : prepared->plan.tracks) {
+                const auto &old = findTrack(*acceptedModel, route.track)->eq;
+                const auto &track = *findTrack(*desired->session, route.track);
+                for (std::size_t n = 0; n < old.bands.size(); ++n)
+                    if (old.bands[n] != track.eq.bands[n])
+                        next.events.push_back(endpoint->parameterEvent(
+                            *desired->session,
+                            {track.id, track.eq.id, track.eq.bands[n].id, BandParameter::GainDb}));
+                if (old.enabled != track.eq.enabled)
+                    next.events.push_back(endpoint->enableEvent(track.id, track.eq.enabled));
+            }
+            if (next.events.empty()) {
+                acceptedModel = desired->session;
+                view.acceptedRevision = desired->revision;
+                if (view.position > prepared->options.run.playback.graph.startFrame)
+                    view.appliedRevision = desired->revision;
+            } else
+                bundle = std::move(next);
+        }
+        if (!bundle)
+            return;
+        while (bundle->submitted < bundle->events.size()) {
+            require(parameterRevision != UINT64_MAX, "Manual parameter revision exhausted");
+            const auto &event = bundle->events[bundle->submitted];
+            require(event.track < bundle->required.size(), "Manual parameter track unavailable");
+            const auto result = endpoint->submitParameter(event, parameterRevision + 1);
+            if (result == SubmitStatus::Full)
+                return;
+            require(result == SubmitStatus::Accepted, "Manual EQ update refused");
+            bundle->required[event.track] = ++parameterRevision;
+            ++bundle->submitted;
+        }
+        acceptedModel = bundle->target.session;
+        view.acceptedRevision = bundle->target.revision;
     }
     void finish() {
         if (!endpoint)
@@ -225,6 +356,8 @@ struct ManualRecordingController::State {
         require(!punchInFlight && !endpoint->occupiedSlots(),
                 "Manual shutdown left undelivered replies/results");
         endpoint.reset();
+        bundle.reset();
+        prepared.reset();
         view.ports.clear();
         view.phase = view.supported ? ManualControlPhase::Idle : ManualControlPhase::Unsupported;
     }
@@ -271,10 +404,18 @@ struct ManualRecordingController::State {
                 endpoint = options.factory(p);
                 require(bool(endpoint), "Manual endpoint factory returned no endpoint");
                 root = p.root;
+                prepared = p;
+                acceptedModel = p.session;
+                parameterRevision = checkedRevision = 0;
+                appliedParameters.assign(p.plan.tracks.size(), 0);
+                bundle.reset();
+                view.desiredRevision = view.acceptedRevision = p.modelRevision;
+                view.appliedRevision = 0;
                 view.modelRevision = p.modelRevision;
                 view.position = 0;
                 view.status = endpoint->status();
                 view.ports = endpoint->ports();
+                nextInventory = std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
                 if (token->stopRequested()) {
                     finish();
                     r.result = ManualControlResult::Stopped;
@@ -346,6 +487,10 @@ struct ManualRecordingController::State {
                 consumeAcknowledgements();
                 stop = stopEpoch;
                 close = closing;
+                if (following) {
+                    desired = std::move(following);
+                    following.reset();
+                }
                 if (!queue.empty()) {
                     command = std::move(queue.front());
                     queue.pop_front();
@@ -364,9 +509,15 @@ struct ManualRecordingController::State {
                 execute(std::move(*command));
             if (endpoint) {
                 try {
+                    reconcile();
                     endpoint->service();
                     endpoint->checkError();
                     collect();
+                    if (std::chrono::steady_clock::now() >= nextInventory) {
+                        view.ports = endpoint->ports();
+                        nextInventory =
+                            std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
+                    }
                     if (terminal(view.status)) {
                         if (view.status != DuplexStatus::Stopped &&
                             view.status != DuplexStatus::Complete)
@@ -418,6 +569,20 @@ ManualControlSubmission ManualRecordingController::submit(ManualControlCommand c
     ++state_->commandCredits;
     state_->wake.notify_one();
     return {ManualControlAdmission::Accepted, sequence};
+}
+bool ManualRecordingController::follow(std::uint64_t generation, std::filesystem::path root,
+                                       std::shared_ptr<const Session> session,
+                                       std::uint64_t revision) {
+    std::lock_guard lock(state_->mutex);
+    if (state_->closing || !session || !revision || generation != state_->latest->generation ||
+        (state_->following && revision <= state_->following->revision) ||
+        (state_->lastFollowed >= revision && generation == state_->lastFollowingGeneration))
+        return false;
+    state_->lastFollowed = revision;
+    state_->lastFollowingGeneration = generation;
+    state_->following = State::Following{generation, revision, std::move(root), std::move(session)};
+    state_->wake.notify_one();
+    return true;
 }
 std::uint64_t ManualRecordingController::requestStop(bool cancel) noexcept {
     std::lock_guard lock(state_->mutex);

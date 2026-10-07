@@ -108,6 +108,11 @@ immutable, duplicates are refused and post-Close consumption still works.
 
 ## Next implementation
 
+The actual-widget connection is now covered by the next
+[manual panel checkpoint](76-manual-recording-panel.md). The results above describe
+this earlier worker-only checkpoint; native desktop/controller qualification remains
+the next gate after that panel's synthetic functional acceptance.
+
 Wire Prepare, Play, prepare-next-take, Punch In/Out, Stop and Cancel to actual Qt
 widgets. Coordinate the canonical-prefix barrier, parameter-following receipts,
 route selection, explicit complete/partial group adoption, recovery and Close

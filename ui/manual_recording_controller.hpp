@@ -31,6 +31,18 @@ class ManualControlEndpoint {
     virtual DuplexStatus status() noexcept = 0;
     virtual Frame position() noexcept = 0;
     virtual std::size_t occupiedSlots() noexcept = 0;
+    virtual MixEvent parameterEvent(const Session &, const ParameterAddress &) {
+        throw ProjectError(ErrorCode::InvalidState, "Endpoint cannot update prepared EQ");
+    }
+    virtual MixEvent enableEvent(const Id &, bool) {
+        throw ProjectError(ErrorCode::InvalidState, "Endpoint cannot update prepared EQ");
+    }
+    virtual SubmitStatus submitParameter(const MixEvent &, std::uint64_t) noexcept {
+        return SubmitStatus::Invalid;
+    }
+    virtual bool parameterAcknowledgement(std::size_t, ImmediateAcknowledgement &) noexcept {
+        return false;
+    }
 };
 enum class ManualControlKind { Prepare, Activate, PrepareTake, AbandonTake, Punch };
 struct ManualControlCommand {
@@ -63,6 +75,7 @@ struct ManualControlGroup {
 struct ManualControlSnapshot {
     ManualControlPhase phase = ManualControlPhase::Idle;
     std::uint64_t generation = 0, modelRevision = 0, stopAcknowledged = 0, errorSerial = 0;
+    std::uint64_t desiredRevision = 0, acceptedRevision = 0, appliedRevision = 0;
     Frame position = 0;
     DuplexStatus status = DuplexStatus::Ready;
     std::size_t occupiedSlots = 0;
@@ -73,6 +86,7 @@ struct ManualControlSnapshot {
     std::optional<ErrorCode> error;
     std::string diagnostic;
     bool supported = false, fault = false, closed = false;
+    bool parametersPending = false;
 };
 struct ManualControlOptions {
     std::function<std::unique_ptr<ManualControlEndpoint>(const ManualControlPreparation &)> factory;
@@ -87,6 +101,8 @@ class ManualRecordingController {
     ManualRecordingController(const ManualRecordingController &) = delete;
     ManualRecordingController &operator=(const ManualRecordingController &) = delete;
     ManualControlSubmission submit(ManualControlCommand);
+    bool follow(std::uint64_t generation, std::filesystem::path, std::shared_ptr<const Session>,
+                std::uint64_t revision);
     std::uint64_t requestStop(bool cancel = false) noexcept;
     bool acknowledgeCommand(std::uint64_t sequence);
     bool acknowledgePunch(std::uint64_t revision);

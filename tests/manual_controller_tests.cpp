@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "manual_recording_controller.hpp"
 #include "rt_audit.hpp"
+#include "fake_manual_endpoint.hpp"
 #include <sndfile.h>
 #include <algorithm>
 #include <array>
@@ -37,161 +38,15 @@ struct Directory {
         }
     }
 };
-float sample(Frame frame) {
-    return float(frame % 97 - 48) * .0625f;
-}
-struct Counters {
-    std::atomic<unsigned> constructed{0}, activated{0}, destroyed{0}, steps{0}, callbacks{0};
-    std::atomic<bool> wrongThread{false}, rtViolation{false}, audioStopped{false};
-    std::atomic<bool> holdFactory{false}, factoryEntered{false}, failFactory{false};
-    std::atomic<bool> holdStop{false}, stopEntered{false}, badActivation{false};
-    std::atomic<bool> holdService{false}, serviceEntered{false};
-    std::atomic<std::shared_ptr<ManualRecordingInterrupt>> token;
-};
-class Endpoint final : public ManualControlEndpoint {
-    std::shared_ptr<Counters> counts;
-    std::shared_ptr<ManualRecordingInterrupt> token;
-    ManualRecordingRun run;
-    std::thread::id owner = std::this_thread::get_id();
-    std::thread audio;
-    std::atomic<bool> joinAudio{false};
-    bool stopped = false;
-    void checkOwner() noexcept {
-        if (std::this_thread::get_id() != owner)
-            counts->wrongThread = true;
-    }
-
-  public:
-    Endpoint(const ManualControlPreparation &p, std::shared_ptr<Counters> c)
-        : counts(std::move(c)), token(p.options.run.interrupt),
-          run(p.root, *p.session, p.plan, p.arms, p.options.run) {
-        ++counts->constructed;
-    }
-    ~Endpoint() override {
-        checkOwner();
-        stop(false);
-        ++counts->destroyed;
-    }
-    std::vector<PipeWirePort> ports() override {
-        checkOwner();
-        return {};
-    }
-    void activate(const std::vector<PipeWirePort> &, const std::vector<PipeWirePort> &) override {
-        checkOwner();
-        check(!counts->badActivation && !token->stopRequested(), "Deliberate activation refusal");
-        ++counts->activated;
-        audio = std::thread([this] {
-            std::array<float, 256> input{}, output{};
-            const float *in = input.data();
-            float *out = output.data();
-            while (!joinAudio.load()) {
-                unsigned pending = counts->steps.load();
-                if (!token->stopRequested() &&
-                    (!pending || !counts->steps.compare_exchange_strong(pending, pending - 1))) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                    continue;
-                }
-                const auto start = run.position();
-                for (unsigned n = 0; n < 256; ++n)
-                    input[n] = sample(start + n);
-                DuplexStatus status;
-                rt_audit::reset();
-                {
-                    rt_audit::Guard guard;
-                    status = run.process({100000 + std::uint64_t(start), 256,
-                                          10000 + std::uint64_t(start) * 1000000000 / 48000, 17,
-                                          std::uint32_t(1 + start / 256), 1, 48000},
-                                         {&in, 1}, {&out, 1}, 256);
-                }
-                const auto audit = rt_audit::counts;
-                if (audit.cppAllocate + audit.cppFree + audit.cAllocate + audit.cFree +
-                    audit.blockingLock)
-                    counts->rtViolation = true;
-                ++counts->callbacks;
-                if (status == DuplexStatus::Stopped) {
-                    counts->audioStopped = true;
-                    return;
-                }
-                if (status != DuplexStatus::Running) {
-                    counts->rtViolation = true;
-                    return;
-                }
-            }
-        });
-    }
-    std::uint64_t prepareTake() override {
-        checkOwner();
-        return run.prepareTake();
-    }
-    void abandonTake(std::uint64_t id) override {
-        checkOwner();
-        run.abandonTake(id);
-    }
-    ManualPunchSubmit submit(ManualPunchCommand c) noexcept override {
-        checkOwner();
-        return run.submit(c);
-    }
-    void service() override {
-        checkOwner();
-        if (run.position() && counts->holdService) {
-            counts->serviceEntered = true;
-            until([&] { return !counts->holdService.load(); });
-        }
-        run.service();
-    }
-    bool acknowledgement(ManualPunchReceipt &r) noexcept override {
-        checkOwner();
-        return run.acknowledgement(r);
-    }
-    bool takeGroup(ManualRecordedGroup &g) override {
-        checkOwner();
-        return run.takeGroup(g);
-    }
-    void stop(bool cancel) override {
-        checkOwner();
-        if (!stopped) {
-            counts->stopEntered = true;
-            until([&] { return !counts->holdStop.load(); });
-            joinAudio = true;
-            if (audio.joinable())
-                audio.join();
-            stopped = true;
-        }
-        cancel ? run.cancel() : run.stop();
-    }
-    void checkError() override {
-        checkOwner();
-        run.checkError();
-    }
-    void checkReader() override {
-        checkOwner();
-        run.checkReader();
-    }
-    DuplexStatus status() noexcept override {
-        checkOwner();
-        return run.status();
-    }
-    Frame position() noexcept override {
-        checkOwner();
-        return run.position();
-    }
-    std::size_t occupiedSlots() noexcept override {
-        checkOwner();
-        return run.occupiedSlots();
-    }
-};
+using manual_fixture::Counters;
+using manual_fixture::Endpoint;
+using manual_fixture::sample;
 struct Fixture {
     Directory directory;
     Session session = makeOneTrackSession("Manual control — Ελληνικά", "Lane0");
     std::shared_ptr<Counters> counts = std::make_shared<Counters>();
     ManualControlOptions options() {
-        return {[c = counts](const ManualControlPreparation &p) {
-            c->token = p.options.run.interrupt;
-            c->factoryEntered = true;
-            until([&] { return !c->holdFactory.load(); });
-            check(!c->failFactory, "Deliberate factory refusal");
-            return std::make_unique<Endpoint>(p, c);
-        }};
+        return manual_fixture::options(counts);
     }
     Fixture() {
         session.tracks.front().eq.bands[0].gainDb = 4;
@@ -616,6 +471,72 @@ void acknowledgementDuringClose() {
     close(controller, f.counts);
     f.directory.success = true;
 }
+void parameterFollowing() {
+    Fixture f;
+    ManualRecordingController controller(f.options());
+    const auto generation = send(controller, f.prepare()).generation;
+    send(controller, action(ManualControlKind::Activate, generation));
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->appliedRevision == 1; });
+    auto changed = f.session;
+    changed.tracks.front().eq.bands[0].gainDb = 6;
+    changed.tracks.front().eq.bands[1].gainDb = -3;
+    f.counts->acceptParameterLimit = 1;
+    check(controller.follow(generation, f.directory.root, std::make_shared<const Session>(changed),
+                            2),
+          "Manual parameter follow refused");
+    until([&] { return f.counts->parameterCalls == 1; });
+    ++f.counts->steps;
+    until([&] { return f.counts->callbacks >= 2; });
+    check(controller.snapshot()->acceptedRevision == 1 &&
+              controller.snapshot()->appliedRevision == 1,
+          "Manual partial parameter prefix claimed a whole model revision");
+    changed.tracks.front().eq.bands[0].gainDb = 9;
+    changed.tracks.front().eq.bands[1].gainDb = 0;
+    check(controller.follow(generation, f.directory.root, std::make_shared<const Session>(changed),
+                            3),
+          "Latest manual parameter model refused");
+    f.counts->acceptParameterLimit = UINT_MAX;
+    until([&] { return controller.snapshot()->acceptedRevision == 2; });
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->acceptedRevision == 3; });
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->appliedRevision == 3; });
+    check(f.counts->parameterCalls == 4 && f.counts->constructed == 1 && f.counts->activated == 1 &&
+              !controller.follow(generation + 1, f.directory.root,
+                                 std::make_shared<const Session>(changed), 4),
+          "Parameter coalescing reset graph or accepted stale generation");
+    // Undo/Redo update coefficients on the existing producer and graph.
+    controller.follow(generation, f.directory.root, std::make_shared<const Session>(f.session), 4);
+    until([&] { return controller.snapshot()->acceptedRevision == 4; });
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->appliedRevision == 4; });
+    controller.follow(generation, f.directory.root, std::make_shared<const Session>(changed), 5);
+    until([&] { return controller.snapshot()->acceptedRevision == 5; });
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->appliedRevision == 5; });
+    auto structural = changed;
+    structural.tracks.erase(structural.tracks.begin());
+    controller.follow(generation, f.directory.root, std::make_shared<const Session>(structural), 6);
+    until([&] { return controller.snapshot()->fault && f.counts->destroyed == 1; });
+    check(ProjectStore(f.directory.root).load() == f.session,
+          "Manual rejected structure implicitly saved canonical state");
+    const auto nextGeneration = send(controller, f.prepare()).generation;
+    check(nextGeneration == generation + 1, "Manual preparation did not advance generation");
+    send(controller, action(ManualControlKind::Activate, nextGeneration));
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->appliedRevision == 1; });
+    check(controller.follow(nextGeneration, f.directory.root,
+                            std::make_shared<const Session>(changed), 2),
+          "Previous generation high-water mark refused current parameters");
+    until([&] { return controller.snapshot()->acceptedRevision == 2; });
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->appliedRevision == 2; });
+    close(controller, f.counts);
+    f.directory.success = true;
+    std::cout << "Manual parameter following: partial/backpressure/latest/Undo/Redo on one graph, "
+                 "safe structural refusal\n";
+}
 } // namespace
 int main() {
     try {
@@ -626,6 +547,7 @@ int main() {
         cancelDuringFinalization();
         controlReceiptPressure();
         acknowledgementDuringClose();
+        parameterFollowing();
     } catch (const std::exception &e) {
         std::cerr << "Manual controller failure: " << e.what() << '\n';
         return 1;
