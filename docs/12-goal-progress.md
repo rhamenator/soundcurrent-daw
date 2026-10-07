@@ -1738,3 +1738,47 @@ separate from the29 retained runtime/CI observations.
 Final late-cancellation Debug31/31 (28.99 s), ASan/UBSan/LSan31/31 (76.63 s)
 and Windows media cross-build pass. Previous qualification/failure evidence remains
 retained; native/runtime/desktop manual recording gates are still open.
+
+## Native manual recording checkpoint (2026-10-07 UTC)
+
+The previous implementation turn made progress through manual disk/group ownership,
+protected PR9 and verified backups. The intervening protection request only
+revalidated remote settings; it did not make implementation progress. Current
+checkout and the specific pending native-fixture build handle64094 were checked;
+that handle is terminal0. Implementation then continued from its existing changes.
+
+[Native adapter](65-native-manual-recording.md), ADR051 and the dated receipt
+qualify complete repeated and late-serviced takes on owned routes. The one
+serialized control owner performs disk service away from audio/GUI; actual native
+callback joins precede raw finishing, worker joins and result reclamation. The
+32-arm source/master sink fixture keeps one nonflat graph alive across three
+manual windows, canonical grouped Undo/Redo and replenished preparation. Early
+and late native runs each have exact raw/origin/journal/output evidence, floating
+headroom, zero callback allocate/free/blocking-lock hits and all finite native
+wall/CPU/resource/current-cycle gates. User defaults/two pre-existing external
+links survive; all owned nodes/links are removed. No physical/sustained claim.
+
+Broader regression found observation30: a combined desktop export sample/file-hash
+assertion. Its original executable/source/logs are retained; original hashes and
+project were unavailable. Separate delayed replay proves identical audio with
+different PEAK timestamps. Observation31 preserves the first correction's RF64
+repeatability assertion, executable/source/logs; its missing original iteration/
+hashes remain unknown. Separate initialized RF64 replay proves an unintended
+PEAK allocation by the disable command when peak_info was initially absent.
+[Default exports](66-repeatable-export.md)/ADR052 now disable PEAK only for WAV
+and keep RF64's default absence, with cross-second sample/byte/header regression.
+All31 observations and prior sustained failure uncertainty remain retained.
+
+Next: adapter-specific interrupted/faulted native manual take acceptance and
+checkpoint recovery, then canonical Qt manual controls with bounded service-worker
+messages and rapid monitor edit/Undo binding checks. Windows native/Qt/installers,
+indefinite/loop/seek/quantized transport, full monitor/take/comping, physical/
+sustained, imports, profiles and European translation/review/UI gates remain open.
+All92 frozen contracts stay unpromoted; the full goal remains active/incomplete.
+
+Final local Debug31/31 (32.49 s), ASan/UBSan/LSan31/31 (82.66 s), both
+new sanitized synthetic manual oracles and Windows media cross-compilation pass.
+The optimized current-tree native fixture is byte-identical to the executable
+used by both retained native runs; the unrelated export processor is not linked
+into it. No Windows execution, desktop manual-control, sustained or physical
+qualification follows from those checks.

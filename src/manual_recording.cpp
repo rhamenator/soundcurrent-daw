@@ -407,6 +407,9 @@ PreparedMixGraph &ManualRecordingRun::graph() noexcept {
 Frame ManualRecordingRun::position() const noexcept {
     return state_->playback->position();
 }
+std::uint64_t ManualRecordingRun::missingTrackFrames() const noexcept {
+    return state_->playback->missingTrackFrames();
+}
 std::size_t ManualRecordingRun::occupiedSlots() const noexcept {
     return std::count_if(state_->slots.begin(), state_->slots.end(),
                          [](const auto &s) { return bool(s); });

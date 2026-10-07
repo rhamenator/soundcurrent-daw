@@ -74,6 +74,7 @@ class ManualRecordingRun {
     std::optional<DuplexCallbackFault> callbackFault() const noexcept;
     PreparedMixGraph &graph() noexcept; // Existing bounded parameter queues; no graph reset.
     Frame position() const noexcept;
+    std::uint64_t missingTrackFrames() const noexcept;
     std::size_t occupiedSlots() const noexcept; // Serialized control owner only.
 
   private:

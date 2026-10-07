@@ -353,3 +353,21 @@ canonical Qt manual controls and their fast-edit/Undo binding checks. All29 reta
 observations and92 frozen contracts remain retained/unpromoted; native sustained,
 physical, Windows runtime/installers, complete monitoring, indefinite/loop/seek,
 takes/comping, X004/X005 and all-Europe qualification remain required.
+
+## M2 native manual recording checkpoint (2026-10-07 UTC)
+
+[Native owner](65-native-manual-recording.md) keeps one graph running through
+three replenished manual windows with32 arms, mixed monitor modes and four delays.
+Early and completed-before-service synthetic/native cases verify96 raw recordings,
+1,557,696 raw samples and960,000 output samples, exact origins/journals, six reliable
+replies, grouped Undo/Redo and Save/reopen. Both finite native runs pass full
+callback wall/CPU/resource/current-cycle gates and preserve external routes/defaults.
+Default export header repeatability is corrected and tested across seconds for WAV
+and RF64; original failures/replays remain separate.
+
+Next qualify this adapter's Stop/cancel/late-cancel, input/output loss, active/retired
+disk errors and independently recoverable raw prefixes, then integrate the bounded
+Qt manual-control owner and fast monitor edit/Undo regression. Static-adapter and
+engine fault tests do not establish new native fault scope. All31 historical
+observations and92 unpromoted frozen contracts remain; full sustained/physical,
+Windows runtime/installers, X004/X005 and all-Europe translation/review/UI are open.
