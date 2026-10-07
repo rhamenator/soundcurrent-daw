@@ -102,8 +102,8 @@ void migrationsAndValidation() {
         t["outputIntent"].erase("ports");
     }
     check(decodeProject(legacy.dump()) == s, "v1.0 migration changed identities/EQ/legacy routes");
-    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 6,
-          "Migrated state did not write v1.6");
+    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 7,
+          "Migrated state did not write v1.7");
     auto bad = legacy;
     bad["tracks"][0]["monitorIntent"] = nlohmann::json::object();
     rejects([&] { decodeProject(bad.dump()); });
@@ -160,8 +160,10 @@ void migrationsAndValidation() {
     p.deviceIdentity = std::string(2048, 'x');
     large.ports.assign(256, p);
     validate(badModel);
+    const auto admittedBytes = sessionPayloadBytes(badModel);
     badModel.tracks.front().monitor = large;
-    rejects([&] { validate(badModel); });
+    rejects([&] { validate(badModel, {admittedBytes}); }, ErrorCode::ResourceLimit);
+    validate(badModel);
     badModel = s;
     badModel.tracks.front().layout = {LayoutKind::Stereo, 2};
     for (auto *r : {&badModel.tracks.front().input, &badModel.tracks.front().output,
@@ -322,7 +324,7 @@ void masterState() {
     check(h.structural({SetMaster{m}}), "Master not admitted");
     check(decodeProject(encodeProject(s)) == s, "Master exact schema roundtrip differs");
     auto j = nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 6, "Master schema not 1.6");
+    check(j["schemaMinor"] == 7, "Master schema not 1.6");
     auto old = j;
     old["schemaMinor"] = 2;
     old.erase("master");

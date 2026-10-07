@@ -4,13 +4,15 @@
 
 namespace soundcurrent::daw {
 // Explicit same-layout identity routes. Never drops or guesses a channel map.
-MixPlan identityMix(const Session &, std::span<const Id> tracks, ChannelLayout output);
+MixPlan identityMix(const Session &, std::span<const Id> tracks, ChannelLayout output,
+                    StateBudget = {});
 struct MixConfig {
     std::uint32_t maximumFrames = 2048;
     Frame startFrame = 0;
     std::uint64_t generation = 1;
     std::size_t memoryBudgetBytes = 128 * 1024 * 1024;
     std::size_t maximumRoutingEntries = 65536;
+    StateBudget stateBudget;
 };
 // Conservative owned DSP/vector/string payload admission, not allocator/RSS accounting.
 std::size_t mixPayloadBytes(const Session &, const MixPlan &, const MixConfig &);

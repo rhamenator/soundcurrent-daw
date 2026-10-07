@@ -32,6 +32,7 @@
 #include <chrono>
 #include <iostream>
 #include <source_location>
+#include <fstream>
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
@@ -41,8 +42,10 @@ void check(bool v, const char *s) {
     if (!v)
         throw std::runtime_error(s);
 }
-template <class F> void await(F f, std::source_location l = std::source_location::current()) {
-    const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+template <class F>
+void await(F f, std::source_location l = std::source_location::current(),
+           std::chrono::seconds timeout = std::chrono::seconds(10)) {
+    const auto end = std::chrono::steady_clock::now() + timeout;
     while (!f()) {
         if (std::chrono::steady_clock::now() > end)
             throw std::runtime_error("Timeline timeout at " + std::to_string(l.line()));
@@ -65,7 +68,10 @@ void undo(StudioWindow &w) {
     ProjectCommand c{CommandKind::Undo};
     check(w.submitEdit(c), "Undo rejected");
 }
-void close(StudioWindow &w, bool save = false) {
+void close(StudioWindow &w, bool save = false,
+           std::chrono::seconds timeout = std::chrono::seconds(10)) {
+    const auto began = std::chrono::steady_clock::now();
+    const auto originalError = w.snapshot()->errorSerial;
     QTimer choice;
     choice.setInterval(1);
     QObject::connect(&choice, &QTimer::timeout, [&] {
@@ -75,10 +81,31 @@ void close(StudioWindow &w, bool save = false) {
     });
     choice.start();
     w.close();
-    await([&] {
-        return w.snapshot()->closed && w.playbackSnapshot()->closed &&
-               w.recordingSnapshot()->closed;
-    });
+    try {
+        await(
+            [&] {
+                const auto state = w.snapshot();
+                if (state->errorSerial != originalError && state->errorCode)
+                    throw std::runtime_error("Close error: " + state->diagnostic);
+                return state->closed && w.playbackSnapshot()->closed &&
+                       w.recordingSnapshot()->closed;
+            },
+            std::source_location::current(), timeout);
+    } catch (...) {
+        const auto state = w.snapshot();
+        std::cerr << "Close failure IO=" << int(state->io) << " dirty=" << state->dirty
+                  << " canonical closed=" << state->closed
+                  << " playback closed=" << w.playbackSnapshot()->closed
+                  << " recording closed=" << w.recordingSnapshot()->closed
+                  << " diagnostic=" << state->diagnostic << '\n';
+        throw;
+    }
+    if (timeout > std::chrono::seconds(10))
+        std::cout << "Large desktop Close/Save elapsed ms="
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(
+                         std::chrono::steady_clock::now() - began)
+                         .count()
+                  << '\n';
 }
 Session fixture(const std::filesystem::path &root) {
     auto s = makeOneTrackSession("Session — Українська", "First — Ελλάδα");
@@ -692,14 +719,71 @@ void punchWorkflow(const std::filesystem::path &root) {
     check(ProjectStore(root).load() == attached, "GUI punch take/save/reopen differs");
 }
 
+void largeProjectDesktop(const std::filesystem::path &root) {
+    auto s = makeOneTrackSession("Grand studio — Україна", "Audio1");
+    s.tracks.reserve(4096);
+    for (unsigned n = 1; n < 4096; ++n)
+        s.tracks.push_back(makeAudioTrack("Piste " + std::to_string(n), {}, s.sampleRate));
+    ProjectStore(root).save(s);
+    std::cerr << "Owned large desktop project: " << root << '\n';
+    StudioWindow w;
+    w.show();
+    w.openProject(root);
+    await([&] {
+        return w.snapshot()->session && widget<QListWidget>(w, "timelineTracks")->count() == 4096;
+    });
+    check(*w.snapshot()->session == s, "Large desktop Open lost project state");
+    const auto last = s.tracks.back().id;
+    check(w.selectTrack(last), "Large last-track selection refused");
+    await([&] { return w.selectedTrack() == last; });
+    widget<QLineEdit>(w, "selectedTrackName")->setText("Voix — Ελλάδα");
+    click(w, "renameAudioTrack");
+    await([&] { return w.snapshot()->session->tracks.back().name == "Voix — Ελλάδα"; });
+    click(w, "addAudioTrack");
+    await([&] { return w.snapshot()->session->tracks.size() == 4097; });
+    const auto observedSelection = w.selectedTrack();
+    std::cerr << "Large Add observed canonical tracks=" << w.snapshot()->session->tracks.size()
+              << " GUI rows=" << widget<QListWidget>(w, "timelineTracks")->count()
+              << " selected=" << (observedSelection ? observedSelection->str() : "none")
+              << " prior=" << last.str() << '\n';
+    {
+        std::ofstream snapshot(root / "admitted-after-add.json");
+        snapshot << encodeProject(*w.snapshot()->session);
+    }
+    await([&] {
+        return widget<QListWidget>(w, "timelineTracks")->count() == 4097 &&
+               w.selectedTrack() != last;
+    });
+    const auto added = w.selectedTrack();
+    check(added != last && widget<QListWidget>(w, "timelineTracks")->count() == 4097,
+          "Large Add Track or selection silently capped");
+    const auto edited = *w.snapshot()->session;
+    undo(w);
+    await([&] { return w.snapshot()->session->tracks.size() == 4096; });
+    ProjectCommand redo{CommandKind::Redo};
+    check(w.submitEdit(redo), "Large desktop Redo refused");
+    await([&] { return *w.snapshot()->session == edited; });
+    close(w, true, std::chrono::seconds(60));
+    check(ProjectStore(root).load() == edited, "Large desktop Save/reopen lost IDs or edit");
+    std::cout
+        << "4096-track actual desktop Open/last-track edit/Add4097/Undo/Redo/Save/reopen passed\n";
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
     try {
         QTemporaryDir temp;
+        temp.setAutoRemove(false); // Retain original project/media on any failure.
+        std::cerr << "Owned timeline fixture root: " << temp.path().toStdString() << '\n';
         check(temp.isValid(), "Temporary directory failed");
         const auto root = utf8Path(temp.path().toUtf8().toStdString());
+        if (argc == 2 && std::string_view(argv[1]) == "--large-project-only") {
+            largeProjectDesktop(root / "large-project");
+            std::cout << checks << " large-project desktop checks passed\n";
+            return 0;
+        }
         selectionBeforePoll(root / "selection-before-poll");
         if (argc == 2 && std::string_view(argv[1]) == "--selection-before-poll-only") {
             std::cout << "Published selection synchronized before GUI poll\n";

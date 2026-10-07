@@ -244,10 +244,15 @@ void groupedMicsAndBounds() {
     EditHistory fullHistory(maximum);
     check(fullHistory.structural(group) && fullHistory.undo() && maximum == full,
           "Maximum-size edit group did not undo atomically");
+    const StateBudget trackMemoryBudget{sessionPayloadBytes(maximum)};
     rejects([&] {
-        applySessionEdits(maximum, {InsertTrack{makeAudioTrack("Excess", {}, 48000), {}}});
+        applySessionEdits(maximum, {InsertTrack{makeAudioTrack("Next", {}, 48000), {}}},
+                          trackMemoryBudget);
     });
-    check(maximum == full, "Track limit rejection mutated session");
+    check(maximum == full, "Track memory refusal mutated session");
+    check(fullHistory.structural({InsertTrack{makeAudioTrack("Next", {}, 48000), {}}}) &&
+              maximum.tracks.size() == 257 && fullHistory.undo() && maximum == full,
+          "Track257 was capped or did not undo atomically");
     auto empty = makeOneTrackSession("Empty", "Last");
     EditHistory last(empty);
     const auto id = empty.tracks[0].id;

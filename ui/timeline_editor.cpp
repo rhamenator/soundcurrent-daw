@@ -414,7 +414,7 @@ void TimelineEditor::refresh(bool force, bool redraw) {
         const auto n = b->objectName();
         bool usable = bool(t);
         if (n == "addAudioTrack")
-            usable = model_ && model_->tracks.size() < 256;
+            usable = bool(model_);
         else if (n == "insertMediaClip")
             usable = t && asset_->count();
         else if (n.contains("Clip") || n == "applyClipRange")

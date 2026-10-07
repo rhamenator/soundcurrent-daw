@@ -95,3 +95,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Controlled native allocation before publication readiness](72-controlled-native-startup.md)
 
 - [Native manual desktop evidence and neutral buffers](77-native-manual-panel.md)
+
+- [Resource-admitted large projects: first implementation](78-resource-admitted-projects.md)

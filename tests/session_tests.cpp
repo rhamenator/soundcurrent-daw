@@ -69,7 +69,7 @@ void inputLatencyState() {
               h.redo() && s.tracks.back().inputLatencyFrames == 4097,
           "Latency history lost reordered stable track identity");
     auto j = Json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 6 && j["tracks"][1]["inputLatencyFrames"] == 4097 &&
+    check(j["schemaMinor"] == 7 && j["tracks"][1]["inputLatencyFrames"] == 4097 &&
               decodeProject(j.dump()) == s,
           "Latency exact serialization differs");
     for (unsigned mode = 0; mode < 8; ++mode) {
@@ -153,7 +153,7 @@ void punchState() {
         check(s == before, "Invalid punch edit changed canonical state/history");
     }
     auto j = Json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 6 && j["punchRecording"]["startFrame"] == 503,
+    check(j["schemaMinor"] == 7 && j["punchRecording"]["startFrame"] == 503,
           "Punch stable schema representation differs");
     for (unsigned mode = 0; mode < 6; ++mode) {
         auto bad = j;
@@ -244,7 +244,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 7;
+        j["schemaMinor"] = 8;
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;
@@ -260,7 +260,8 @@ int main() {
         rejects([&] { decodeProject(j.dump()); });
         rejects([&] { decodeProject("{\"schemaMajor\":1,\"schemaMajor\":1}"); });
         rejects([&] { decodeProject(std::string(40, '[') + std::string(40, ']')); });
-        rejects([&] { decodeProject(std::string(maxProjectBytes + 1, ' ')); });
+        rejects([&] { decodeProject(std::string(maxProjectBytes + 1, ' ')); },
+                ErrorCode::ResourceLimit);
         Temporary temp;
         auto root = temp.path / utf8Path("Projet — Αθήνα");
         std::filesystem::create_directories(root / "media");

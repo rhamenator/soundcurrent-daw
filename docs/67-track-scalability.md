@@ -1,6 +1,7 @@
 # X006: track scalability for recording studios
 
-Owner requirement, 2026-10-06 (America/Detroit). Planning; not implemented.
+Owner requirement, 2026-10-06 (America/Detroit). First model/parser/mix/desktop
+implementation, 2026-10-07; full requirement remains incomplete.
 
 ## Product target
 
@@ -30,10 +31,10 @@ The current foundation **does not yet meet X006**:
 
 | Area | Current bound / implementation | Required change |
 |---|---|---|
-| Session validation | 256 tracks, 4096 assets (`src/session.cpp`) | Resource-budgeted object admission and efficient stable-ID lookup; remove the fixed project track ceiling |
-| Project parsing | 256 tracks and master track routes (`src/project_store.cpp`) | Versioned large-project admission with checked byte/object/nesting limits and streaming or partitioned state as needed |
-| Prepared mix | 256 track routes (`src/mix.cpp`) | Prepared dynamic route/processor arrays with checked aggregate memory/event/CPU bounds |
-| Live replacement mask | Fixed 256-element track mask (`src/mix_playback.cpp`) | Allocate an admitted mask per prepared graph outside callbacks |
+| Session validation | Trusted state/validation payload budget; indexed stable-ID lookup (`src/session.cpp`) | Combined snapshots/history/graph envelopes and more track types/workloads |
+| Project parsing | Schema 1.7; caller-owned encoded/parser/state budgets; bounded SAX preflight (`src/project_store.cpp`) | Shared large-media/cache workloads and streaming or partitioned state as needed |
+| Prepared mix | Resource-admitted dynamic track routes and indexed EQ preparation (`src/mix.cpp`) | Measured aggregate memory/event/CPU bounds, richer graphs and scheduling |
+| Live replacement mask | Prepared, charged dynamic mask (`src/mix_playback.cpp`) | Sustained/native qualification at large counts |
 | Recording owner | 256 armed tracks/packed native inputs and bounded aggregate capture budgets | Scale arm descriptors independently from backend port capabilities; prepare capture against actual IO/reserve needs |
 | Readers/UI/history | Bounded open asset references and snapshots | Shared bounded media cache, virtualized views and measured history/snapshot memory; avoid one open file/widget/copy per project track |
 
@@ -87,12 +88,18 @@ performance claims**. Extend them as evidence and hardware allow. Owned syntheti
 routes allow high project counts without purchasing a large physical interface;
 physical multi-input claims still require independent qualified hardware tests.
 
-Next architecture implementation within M2: audit and replace track-indexed fixed
-arrays and256 validators together under versioned admission. Do not merely raise
-one constant, leave parser/UI/recording limits behind, or bypass real-time safety.
+The [first implementation](78-resource-admitted-projects.md)/ADR063 crosses the
+old boundary at 257/512/1024/4096 in audio-track core workflows and opens/edits/adds
+track 4097 in the actual Linux Qt fixture. It removes the coordinated model/parser/
+mix/mask and Add Track ceilings under trusted byte policies, with original failures
+and predecessor refusal retained. Counts are scoped workloads, not ceilings.
+Next implement shared bounded media/cache and virtualized views, combined
+snapshot/history/graph resource accounting, and large recording/adoption budgets.
+The recording owner still has 256-arm/packed-input assumptions; these do not set a
+total project track ceiling, and their separate qualification remains required.
 The current native manual checkpoint includes short actual desktop workflows
 with3/32 armed inputs; this does not qualify larger projects or sustained workloads.
-X006 remains an implementation task. The frozen92 contracts remain unchanged
+Full X006 remains an implementation task. The frozen92 contracts remain unchanged
 and unpromoted. The initial planning checkpoint retained32 observations; the
 [current native checkpoint](77-native-manual-panel.md) retains71, including an
 unresolved active clock gap and source CPU outlier in a sanitizer run. See also the

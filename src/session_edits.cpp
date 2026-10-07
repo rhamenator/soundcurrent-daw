@@ -31,17 +31,22 @@ template <class T> std::vector<Id> order(const std::vector<T> &objects) {
 }
 template <class T, class P>
 void differences(const std::vector<T> &before, const std::vector<T> &after, P &patches) {
+    std::unordered_map<std::string_view, const T *> beforeIndex, afterIndex;
+    beforeIndex.reserve(before.size());
+    afterIndex.reserve(after.size());
+    for (const auto &old : before)
+        beforeIndex.emplace(old.id.str(), &old);
+    for (const auto &now : after)
+        afterIndex.emplace(now.id.str(), &now);
     for (const auto &old : before) {
-        const auto now =
-            std::find_if(after.begin(), after.end(), [&](const auto &o) { return o.id == old.id; });
-        if (now == after.end())
+        const auto now = afterIndex.find(old.id.str());
+        if (now == afterIndex.end())
             patches.push_back({old.id, old, std::nullopt});
-        else if (*now != old)
-            patches.push_back({old.id, old, *now});
+        else if (*now->second != old)
+            patches.push_back({old.id, old, *now->second});
     }
     for (const auto &now : after)
-        if (std::none_of(before.begin(), before.end(),
-                         [&](const auto &o) { return o.id == now.id; }))
+        if (!beforeIndex.contains(now.id.str()))
             patches.push_back({now.id, std::nullopt, now});
 }
 template <class T, class P>
@@ -66,10 +71,17 @@ void overlay(std::vector<T> &objects, const P &patches, const std::vector<Id> &b
             *it = *target;
     }
     if (!expectedOrder.empty() || !targetOrder.empty()) {
+        std::unordered_map<std::string, std::size_t> index;
+        index.reserve(objects.size());
+        for (std::size_t n = 0; n < objects.size(); ++n)
+            index.emplace(objects[n].id.str(), n);
         std::vector<T> sorted;
         sorted.reserve(targetOrder.size());
-        for (const auto &id : targetOrder)
-            sorted.push_back(std::move(*find(objects, id)));
+        for (const auto &id : targetOrder) {
+            const auto found = index.find(id.str());
+            require(found != index.end(), "Undo object no longer exists", ErrorCode::InvalidId);
+            sorted.push_back(std::move(objects[found->second]));
+        }
         objects = std::move(sorted);
     }
 }
@@ -120,9 +132,9 @@ Track makeAudioTrack(std::string name, ChannelLayout channels, std::uint32_t rat
     validate(s);
     return std::move(s.tracks.front());
 }
-void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits) {
+void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateBudget budget) {
     require(!edits.empty() && edits.size() <= 64, "Edit batch must contain 1 to 64 operations");
-    validate(s);
+    validate(s, budget);
     auto proposed = s;
     for (const auto &edit : edits) {
         std::visit(
@@ -195,7 +207,7 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits) {
                 }
             },
             edit);
-        validate(proposed);
+        validate(proposed, budget);
     }
     s = std::move(proposed);
 }
@@ -253,7 +265,7 @@ void EditHistory::retain(Change change) {
 }
 bool EditHistory::adopt(const Session &value) {
     require(!active_, "Cannot adopt structural state during a parameter gesture");
-    validate(value);
+    validate(value, budget_);
     require(value.id == session_.id && value.name == session_.name &&
                 value.sampleRate == session_.sampleRate &&
                 value.playheadFrame == session_.playheadFrame &&
@@ -289,7 +301,7 @@ bool EditHistory::adopt(const Session &value) {
 bool EditHistory::structural(const std::vector<SessionEdit> &edits) {
     require(!active_, "Cannot change structure during a parameter gesture");
     auto proposed = session_;
-    applySessionEdits(proposed, edits);
+    applySessionEdits(proposed, edits, budget_);
     return adopt(proposed);
 }
 void EditHistory::apply(const Change &change, bool forward) {
@@ -299,7 +311,7 @@ void EditHistory::apply(const Change &change, bool forward) {
             if constexpr (std::is_same_v<C, ParameterChange>)
                 setParameterValue(session_, c.address, forward ? c.after : c.before);
             else if constexpr (std::is_same_v<C, RouteChange>)
-                setRouteValue(session_, c.address, forward ? c.after : c.before);
+                setRouteValue(session_, c.address, forward ? c.after : c.before, budget_);
             else if constexpr (std::is_same_v<C, MonitoringChange>)
                 setMonitoringValue(session_, c.trackId, forward ? c.after : c.before);
             else {
@@ -322,7 +334,7 @@ void EditHistory::apply(const Change &change, bool forward) {
                             "Undo punch locators conflict with current state");
                     proposed.punch = forward ? c.punch->second : c.punch->first;
                 }
-                validate(proposed);
+                validate(proposed, budget_);
                 session_ = std::move(proposed);
             }
         },

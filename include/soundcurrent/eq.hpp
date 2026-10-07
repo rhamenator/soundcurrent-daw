@@ -61,6 +61,8 @@ class PreparedEq {
     // All construction/allocation/validation occurs before callback activation.
     PreparedEq(const Session &, const Id &trackId, std::uint32_t maxFrames,
                std::uint64_t generation, double smoothingMs = 10);
+    PreparedEq(const ValidatedSession &, const Id &trackId, std::uint32_t maxFrames,
+               std::uint64_t generation, double smoothingMs = 10);
     PreparedEq(const PreparedEq &) = delete;
     PreparedEq &operator=(const PreparedEq &) = delete;
     PreparedEq(PreparedEq &&) = delete;

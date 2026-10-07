@@ -804,6 +804,64 @@ void groupedRemovalDuringAdmission(const std::filesystem::path &root) {
               "Failed grouped admission altered a raw take");
 }
 
+void configuredPreflight(const std::filesystem::path &root) {
+    bool preservedBoth = true;
+    for (const bool structural : {false, true}) {
+        const auto path = root / (structural ? "structural" : "routing");
+        auto initial = makeOneTrackSession("Trusted admission", "Audio");
+        initial.tracks.front().layout = {LayoutKind::Discrete, 4};
+        ControllerOptions options;
+        options.admission.state.memoryBudgetBytes = 32 * 1024;
+        ProjectStore(path, options.admission).save(initial);
+        ProjectController c(options);
+        ProjectCommand open{CommandKind::Open};
+        open.path = path;
+        submit(c, open);
+        auto loaded =
+            await(c, [](const auto &v) { return v.session && v.io == IoOperation::None; });
+        check(*loaded->session == initial, "Configured Open changed initial project");
+        submit(c, parameter(*loaded, 5, 881, false));
+        auto active = await(c, [](const auto &v) {
+            return v.session->tracks.front().eq.bands.front().gainDb == 5;
+        });
+        RouteIntent oversized;
+        oversized.backendId = "fixture";
+        oversized.ports.resize(4);
+        for (auto &p : oversized.ports)
+            p = ChannelPortIntent{std::string(4096, 'd'), std::string(4096, 'p'),
+                                  std::string(4096, 'm'), false};
+        ProjectCommand change{structural ? CommandKind::Structural : CommandKind::Routing};
+        if (structural) {
+            auto added = makeAudioTrack("New", {LayoutKind::Discrete, 4}, initial.sampleRate);
+            added.input = oversized;
+            change.edits = {InsertTrack{std::move(added), std::nullopt}};
+        } else {
+            change.routeAddress = RouteAddress{initial.tracks.front().id, RouteTarget::Input};
+            change.route = oversized;
+        }
+        submit(c, change);
+        auto rejected =
+            await(c, [&](const auto &v) { return v.errorSerial > active->errorSerial; });
+        check(rejected->errorCode == ErrorCode::ResourceLimit &&
+                  *rejected->session == *active->session,
+              "Configured preflight did not refuse transactionally");
+        ProjectCommand cancel{CommandKind::CancelGesture};
+        cancel.gesture = 881;
+        submit(c, cancel);
+        auto canceled = await(
+            c, [&](const auto &v) { return v.completedCommands > rejected->completedCommands; });
+        const bool preserved = *canceled->session == initial;
+        preservedBoth &= preserved;
+        std::cout << (structural ? "Structural" : "Routing")
+                  << " configured preflight preserved active gesture=" << preserved << '\n';
+        check(ProjectStore(path, options.admission).load() == initial,
+              "Configured refusal changed saved project");
+        c.requestShutdown();
+        await(c, [](const auto &v) { return v.closed; });
+    }
+    check(preservedBoth, "Budget-refused preflight committed an unrelated active gesture");
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -811,6 +869,12 @@ int main(int argc, char **argv) {
         QTemporaryDir tmp;
         check(tmp.isValid(), "Cannot create controller fixture directory");
         auto root = utf8Path(tmp.path().toUtf8().toStdString());
+        if (argc == 2 && std::string_view(argv[1]) == "--configured-preflight-only") {
+            tmp.setAutoRemove(false);
+            std::cout << "Owned configured preflight root: " << root << '\n';
+            configuredPreflight(root);
+            return 0;
+        }
         editsAndFiles(root / utf8Path("Séance – Δοκιμή"));
         saveWhileEditing(root / "concurrent-save");
         closeDuringSave(root / "cancel-save");
