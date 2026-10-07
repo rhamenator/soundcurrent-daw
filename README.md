@@ -171,8 +171,11 @@ The [native manual owner](docs/65-native-manual-recording.md) now has finite
 expose retained channel-alignment and callback-deadline failures alongside finite
 owned-route successes. [Priority Stop/Cancel](docs/70-manual-priority-interruption.md)
 now terminates audio independently of held disk startup, with scoped native Linux
-evidence. Next: bounded canonical desktop manual controls and late cancellation
-policy; first diagnose the retained native channel delay in original 46. Additional monitor
+evidence. [Public native buffer handoff observations](docs/71-native-port-handoff.md)
+now retain IO/buffer startup state beside independent waveform markers. One new
+finite Stop passes; original46's delayed channel remains unresolved. Next: a causal
+startup/backpressure experiment, then bounded canonical desktop manual controls
+and late cancellation policy. Additional monitor
 policies, tempo/loop/take lanes and comping remain required. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
