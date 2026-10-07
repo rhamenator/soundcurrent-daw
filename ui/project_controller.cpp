@@ -16,6 +16,7 @@ struct IoJob {
     std::shared_ptr<const Session> session;
     std::uint64_t revision = 0;
     std::shared_ptr<const std::vector<RecordingResult>> recordings = nullptr;
+    std::uint64_t attachmentRequest = 0;
 };
 struct IoResult {
     IoJob job;
@@ -331,6 +332,7 @@ struct ProjectController::State : QThread {
             commitGesture();
             IoJob job{IoOperation::AttachRecording, view.root, std::move(proposed),
                       view.modelRevision, recordings};
+            job.attachmentRequest = command.attachmentRequest;
             io.startJob(std::move(job));
             view.io = IoOperation::AttachRecording;
             break;
@@ -354,6 +356,11 @@ struct ProjectController::State : QThread {
     }
     void finishIo(IoResult result) {
         view.io = IoOperation::None;
+        const bool correlated =
+            result.job.operation == IoOperation::AttachRecording && result.job.attachmentRequest;
+        if (correlated)
+            view.attachmentCompleted = {result.job.attachmentRequest, result.error,
+                                        result.diagnostic};
         if (result.error) {
             error(*result.error, std::move(result.diagnostic));
             return;
@@ -381,8 +388,13 @@ struct ProjectController::State : QThread {
                 view.lastAttachedAsset = assets.back();
                 view.lastAttachedAssets = std::move(assets);
             } catch (const ProjectError &e) {
+                if (correlated)
+                    view.attachmentCompleted = {result.job.attachmentRequest, e.code(), e.what()};
                 error(e.code(), e.what());
             } catch (const std::exception &e) {
+                if (correlated)
+                    view.attachmentCompleted = {result.job.attachmentRequest,
+                                                ErrorCode::InvalidState, e.what()};
                 error(ErrorCode::InvalidState, e.what());
             }
         } else if (result.job.operation == IoOperation::Save) {
@@ -396,6 +408,8 @@ struct ProjectController::State : QThread {
             activeGesture = 0;
             activeAddress.reset();
             view.attachedRecordings = 0;
+            view.attachmentCompleted = {};
+            view.attachmentRejected = {};
             view.lastAttachedAsset.reset();
             view.lastAttachedAssets.clear();
             view.root = std::move(result.job.root);
@@ -431,8 +445,13 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
+                    if (command->kind == CommandKind::AttachRecording && command->attachmentRequest)
+                        view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
+                    if (command->kind == CommandKind::AttachRecording && command->attachmentRequest)
+                        view.attachmentRejected = {command->attachmentRequest,
+                                                   ErrorCode::InvalidState, e.what()};
                     error(ErrorCode::InvalidState, e.what());
                 }
                 publish();

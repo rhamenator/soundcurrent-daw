@@ -1,0 +1,212 @@
+{
+  "utc": "2026-10-07T07:33:53.984256+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "source_parent": "6cf9e05b3b36c4d96e313029c40d643cd57a49c8",
+  "scope": "Production Qt manual recording panel and canonical parameter following; synthetic actual-widget acceptance only",
+  "compiled_source_sha256": {
+    "CMakeLists.txt": "89fc6ef04718d8e558171956ed6d6bd6a2885bc089c7fc67aa3da6b1c078c04f",
+    "ui/manual_recording_controller.cpp": "a09e9cff761a7d01b44f5dd749d693666b37ac6555c7ac5db263c6fb484c7f19",
+    "ui/manual_recording_controller.hpp": "78d8f150613d963ce6047c292068ee58fa5370ae6a9729d6a2574eec39b567c5",
+    "ui/manual_recording_panel.cpp": "b7db2392cff9e7c7f03c7bd39909ed860966d2ccd2a1b0416aa50a303de125f2",
+    "ui/manual_recording_panel.hpp": "5abba04c604012118f78be33bb01c1c70d463ad775ac9ec3a2582f084dda97e2",
+    "ui/studio_window.cpp": "974d6d56c6d7aba173c90ba1def94838e3fa5dd43ee7bd28ccb34889666d7c3a",
+    "ui/studio_window.hpp": "804d72dac3c8f90a84dcbba830c0dcbea1abbd494e0b810ccdf3399fe74575a2",
+    "tests/manual_panel_tests.cpp": "b80f7dbdcf91be6f094faa8669ee38a4d521ac1d01368bebb6b24dec0cb73dba",
+    "tests/manual_controller_tests.cpp": "3ebcf1fc4bb3d81413533ce3955ba9207f178048526b4ad17bf80747892c218b",
+    "tests/fake_manual_endpoint.hpp": "38eb79b3e5631c565cd342bb567cdf522d8f2f2fcce237f7b3ee6f4cfb8e48d8",
+    "ui/project_controller.cpp": "5ea1e5744927f2f6499a62b4fdcb7d4a11af8eed9331c2a63fd12e6b9a52f562",
+    "ui/project_controller.hpp": "5e97b9c3b9fd84877e0e802ed81eb2a3e942925e74f33f8f3abe1c88f297c220",
+    "tests/ui_tests.cpp": "67ecde705e5c15a723e3c8f59a3a8cb5f9408796d65ca07595d1bf80acc85c73"
+  },
+  "executables": {
+    ".cache/build-desktop/sc-manual-panel-tests": {
+      "sha256": "c5590b35ecb783f368ec330e1d69504d3932f7d147a6176254f3148a6d036ec1",
+      "bytes": 37780904
+    },
+    ".cache/build-desktop/sc-manual-controller-tests": {
+      "sha256": "3a24cd493022a49f90765a033927b7640b01da900626d4a3c069fa773a644f63",
+      "bytes": 18094688
+    },
+    ".cache/build-desktop-sanitized/sc-manual-panel-tests": {
+      "sha256": "efd8417a8c1a9b782090948e395bbe7bd6332ce18d2e1097a5389615e06e7e16",
+      "bytes": 125643376
+    },
+    ".cache/build-desktop-sanitized/sc-manual-controller-tests": {
+      "sha256": "f41b7d97ae40b6a07e65c87571df51f0380e04db1a07a19115e1e316baae213d",
+      "bytes": 58849160
+    },
+    ".cache/build-desktop-sanitized/sc-ui-tests": {
+      "sha256": "f5aa18e6331731ffd409ae932b94e39a21195a4a6c3d27a362fb947cb158df1a",
+      "bytes": 132798368
+    },
+    ".cache/build-windows-media/sc-manual-controller-tests.exe": {
+      "sha256": "4be92697ed502aae18cbf7845a5e2ec7b7a97c529e9c5b827cd29c8d948f7fa4",
+      "bytes": 1515396
+    }
+  },
+  "evidence_archive": {
+    "path": "tests/results/M2/2026-10-07-manual-recording-panel-evidence.zip",
+    "sha256": "1aa5732dcec5ad89d2ec9e23bec96f04919a835fbc3540a315d30574a7c9fee4",
+    "bytes": 367870,
+    "payload_files": 106,
+    "integrity_verified": true
+  },
+  "local_debug": {
+    "tests_passed": 40,
+    "seconds": 48.08,
+    "log": "logs/manual-panel-final-qualified-debug-tests.log"
+  },
+  "sanitizers": {
+    "tests_passed": 4,
+    "seconds": 16.19,
+    "address": true,
+    "undefined": true,
+    "leak_detection": true,
+    "scope": "desktop-controller, desktop-ui, desktop-manual-recording, manual-desktop-control",
+    "log": "logs/manual-panel-review-final-sanitized-tests.log"
+  },
+  "windows": {
+    "controller_media_test_cross_compiled": true,
+    "desktop_panel_cross_compiled": false,
+    "native_runtime_tested": false
+  },
+  "visual": {
+    "offscreen_size": [
+      900,
+      700
+    ],
+    "manual_panel_inspected": true,
+    "physical_display_qualified": false
+  },
+  "workflow_acceptance": [
+    "exact canonical barrier with prior EQ edit",
+    "duplicate control/take gesture refusal",
+    "explicit persistent per-channel routes; no automatic activation",
+    "Ready disconnection/reconnection preserves route intent",
+    "three repeated two-lane groups on one prepared graph",
+    "all raw samples exact; float headroom preserved",
+    "verified atomic adoption; group Undo/Redo; Save/reopen",
+    "EQ parameter/Undo application receipts; selected inspector does not rotate canonical graph",
+    "failed media verification retains preview; restored file permits retry",
+    "priority Stop then Cancel during held finalization; canceled groups recovery-only",
+    "Close waits joins; explicit Keep or Review choice; no auto-adoption",
+    "partial parameter queue prefixes and latest-model coalescing; fresh-generation revision isolation",
+    "Held actual verification IO: unrelated Save rejection does not fail or duplicate attachment; terminal receipt correlated by request"
+  ],
+  "development_failures": {
+    "original_projects_sources_logs_executable_hashes_retained": true,
+    "runtime_original_executable_bytes_retained": [
+      false,
+      false,
+      false,
+      true
+    ],
+    "native_or_timing_failures": false,
+    "causes": [
+      "fixture omitted required parameter gesture ID",
+      "dependent GUI button stayed enabled between admission and timer update",
+      "attachment command omitted canonical project path",
+      "attachment Retry button stayed enabled until timer processed failure"
+    ],
+    "resolved_by_final_acceptance": true
+  },
+  "equalizer_reuse": {
+    "inputs": 24,
+    "review_required": false,
+    "snapshot_errors": [],
+    "repositories_modified": false
+  },
+  "retained_runtime_failures": 48,
+  "historical48_cpu_cause_resolved": false,
+  "parity": {
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "frozen_contracts": 92,
+    "FQCN_promotions": 0
+  },
+  "new_dependencies": [],
+  "schema_changes": false,
+  "current_track_limit": 256,
+  "remaining_gaps": [
+    "Owned PipeWire actual desktop/controller runtime including port loss and finalization",
+    "Native Windows audio endpoint and equivalent runtime workflow; desktop build/install qualification",
+    "Sustained and physical workloads; original48 CPU cause",
+    "Indefinite/loop/seek recording and full monitoring/take/comp/PDC/plugin workflows",
+    "Full frozen92 functional/quality/content/native compatibility contracts",
+    "X004 imports, X005 equipment profiling/editor integration, X006 resource-admitted track counts",
+    "All-Europe translation/review/UI qualification and installers",
+    "Original intermittent fixed-recording desktop sanitizer timeout cause remains unresolved"
+  ],
+  "initial_qualification": {
+    "commit": "c89654b4394dd648e261016b3f7a71361e3a7157",
+    "local_debug": {
+      "tests_passed": 40,
+      "seconds": 47.83,
+      "log": "logs/manual-panel-debug-tests.log"
+    },
+    "sanitizers": {
+      "tests_passed": 3,
+      "seconds": 15.29,
+      "address": true,
+      "undefined": true,
+      "leak_detection": true,
+      "scope": "desktop-ui, desktop-manual-recording, manual-desktop-control"
+    },
+    "evidence_archive": {
+      "path": "tests/results/M2/2026-10-07-manual-recording-panel-evidence.zip",
+      "sha256": "bf32f5413fae2f6ffb9ba2b35b4af310a558b63a26d2aa8665b149c78481b460",
+      "bytes": 265333,
+      "payload_files": 74,
+      "integrity_verified": true
+    }
+  },
+  "review_fix": {
+    "thread": "PRRT_kwDOU-rChc6pyzfM",
+    "reviewed_commit": "c89654b4394dd648e261016b3f7a71361e3a7157",
+    "replay": {
+      "reviewed_commit": "c89654b4394dd648e261016b3f7a71361e3a7157",
+      "source_sha256": "5517744a1c4d4e0c3caf0df46bfcb8b97a124749c9616de63365b4d3513db641",
+      "adapted_sha256": "5c49ea14316d7cef509500c08f406f5daa88c3d60c75eb7a78f801ce2cb26f54",
+      "adaptation": "Private uint64 field renamed attachmentError_ to attachmentRequest_ to match current header; reviewed adoption and global-error branch otherwise unchanged",
+      "current_supporting_project_controller": true,
+      "native_or_timing_experiment": false,
+      "executable_sha256": "1e830a486e35eb1967325f524f341a813275bb1792a3ae36c813daa871f56bf3",
+      "test_scope": "Held attachment/Save regression only; skip later immediate-route-disable assertion to reach reviewed adoption branch"
+    },
+    "observed_failure": "Unrelated command rejection falsely failed an in-flight attachment",
+    "replay_exit_code": 1,
+    "original_project_source_executable_logs_retained": true,
+    "fix": "Caller-owned attachment request IDs; separate retained IO-completion and command-rejection receipts for the single desktop attachment owner; used by manual and fixed-range adoption",
+    "final_actual_widget_held_io_regression_passed": true
+  },
+  "additional_synthetic_timeout": {
+    "test": "desktop-ui",
+    "instrumentation": "ASan/UBSan/LSan",
+    "stage": "older fixed recording; waiting for512 captured frames",
+    "cause_resolved": false,
+    "original_project_available": false,
+    "original_project_missing_reason": "Existing QTemporaryDir auto-cleaned on exception before diagnosis",
+    "original_source_log_executable_retained": true,
+    "final_changed_source_test_passes": true,
+    "passing_run_does_not_resolve_original": true,
+    "future_failures_log_worker_state_and_retain_project": true,
+    "native_failure": false
+  }
+}

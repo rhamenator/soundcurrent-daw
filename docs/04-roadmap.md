@@ -387,3 +387,18 @@ modest/strong Linux and Windows workloads, sustained deadlines and overload/reco
 257/512/1024/4096 synthetic projects are acceptance workloads, not product caps or
 existing performance claims. Current native manual fault/recovery remains next;
 no frozen-reference acceptance/quality/status changes or scope reductions.
+
+## M2 actual manual desktop checkpoint (2026-10-07)
+
+[Manual recording panel](76-manual-recording-panel.md)/ADR061 now connect the
+canonical barrier and full-project EQ following to repeated takes, explicit routes,
+Punch In/Out, priority Stop/Cancel, group preview/adoption/retry/Keep and joined Close.
+Actual-widget acceptance uses a synthetic audio owner and real media/history/store;
+Debug40/40 and affected ASan/UBSan/LSan3/3 pass. Windows controller/media cross-build
+passes; the new desktop workflow has no native Windows qualification.
+
+Next qualify this exact Qt/controller workflow on owned PipeWire routes, including
+port loss and late finalization, then independently on Windows. Current finite
+transport, capture admission,256 project-track limit and full frozen backlog remain
+explicit. All48 historical native observations and92 unpromoted frozen contracts
+remain; synthetic widget success does not resolve sustained/physical qualification.

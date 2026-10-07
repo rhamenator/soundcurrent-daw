@@ -44,9 +44,20 @@ template <class Predicate>
 void await(Predicate predicate, std::source_location caller = std::source_location::current()) {
     const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(10);
     while (!predicate()) {
-        if (std::chrono::steady_clock::now() >= end)
+        if (std::chrono::steady_clock::now() >= end) {
+            for (auto *widget : QApplication::topLevelWidgets())
+                if (auto *window = dynamic_cast<StudioWindow *>(widget)) {
+                    const auto project = window->snapshot();
+                    const auto recording = window->recordingSnapshot();
+                    std::cerr << "UI timeout diagnostic: io=" << int(project->io)
+                              << " project_error=" << project->diagnostic
+                              << " recording_phase=" << int(recording->phase)
+                              << " recording_error=" << recording->diagnostic
+                              << " captured=" << recording->telemetry.capturedFrames << '\n';
+                }
             throw std::runtime_error("Timed out awaiting UI workflow at line " +
                                      std::to_string(caller.line()));
+        }
         QTest::qWait(2);
     }
 }
@@ -1333,8 +1344,8 @@ int main(int argc, char **argv) {
         return 1;
     qputenv("XDG_CONFIG_HOME", configuration.path().toUtf8());
     QApplication app(argc, argv);
+    QTemporaryDir temp;
     try {
-        QTemporaryDir temp;
         check(temp.isValid(), "Cannot create UI fixture directory");
         const auto closeRoot = utf8Path(temp.path().toUtf8().toStdString());
         closeErrorWorkflow(closeRoot / "close-clean-error", false, false);
@@ -1376,6 +1387,8 @@ int main(int argc, char **argv) {
                      "meter\":true,\"close_waits_playback_join\":true}\n";
         return 0;
     } catch (const std::exception &e) {
+        temp.setAutoRemove(false);
+        std::cerr << "Owned failed UI project directory: " << temp.path().toStdString() << '\n';
         std::cerr << "FAIL: " << e.what() << '\n';
         return 1;
     }
