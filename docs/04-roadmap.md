@@ -452,3 +452,16 @@ graph envelopes and expose trusted desktop resource controls. Continue large
 recording/adoption, freeze/bounce, scheduling and sustained Linux/Windows profiles.
 All92 frozen contracts and independent Windows, X004/X005/Europe remain required;
 original native observation71 clock gap/source CPU diagnosis is still unresolved.
+
+
+## M2 X006 viewport/list checkpoint (2026-10-07)
+
+[Viewport/list design](80-virtualized-session-views.md)/ADR065 replaces retained
+track/clip items with snapshot-backed selectors, checkable arm rows and visible
+interval painting. Scoped offscreen Linux actual-widget regression workflows
+exercise8192 tracks and10000 sparse clips. Combined memory/resource admission,
+remaining meters/waveforms, Qt row paging, accessibility and native Windows UI
+remain open. Preserve all92 unpromoted contracts and unresolved original failures.
+Next measure/admit combined GUI/history/state/old-new graph envelopes and expose
+trusted desktop policies; then large recording/adoption, freeze/bounce, scheduling
+and sustained Linux/Windows qualification. Full X006 and frozen scope remain.

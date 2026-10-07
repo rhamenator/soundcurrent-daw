@@ -5,9 +5,8 @@
 #include <QCoreApplication>
 #include <functional>
 #include <memory>
-class QListWidget;
-class QGraphicsView;
-class QGraphicsScene;
+class QListView;
+
 class QLineEdit;
 class QComboBox;
 class QSpinBox;
@@ -15,6 +14,8 @@ class QPushButton;
 class QLabel;
 class QSlider;
 namespace soundcurrent::daw::ui {
+class SessionListModel;
+class TimelineView;
 class TimelineEditor : public QGroupBox {
   public:
     explicit TimelineEditor(QWidget *parent = nullptr);
@@ -38,9 +39,9 @@ class TimelineEditor : public QGroupBox {
     std::uint64_t epoch_ = 0;
     bool editable_ = false, refreshing_ = false;
     std::optional<Id> track_, clip_, pendingTrack_;
-    QListWidget *tracks_;
-    QGraphicsScene *scene_;
-    QGraphicsView *view_;
+    QListView *tracks_;
+    TimelineView *view_;
+    SessionListModel *trackList_, *destinations_, *assets_, *clipList_;
     QLineEdit *name_, *start_, *source_, *length_, *split_;
     QComboBox *layout_, *destination_, *asset_, *clips_;
     QSpinBox *channels_;

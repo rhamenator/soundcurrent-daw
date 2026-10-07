@@ -40,7 +40,7 @@
     {
       "id": "X006-03",
       "workflow": "Bounded media cache/open handles, virtualized UI/meters and measured snapshots/history under sparse large project workloads; missing media/autosave/recovery retained.",
-      "status": "partial: bounded shared media cache/handles, exact source-coordinate output and Save/reopen for257/1024 shared-asset tracks and96 distinct assets; virtualized views, measured aggregate snapshots/history and sustained profiles remain open"
+      "status": "partial: shared media pool, exact file-backed output, snapshot-backed selectors and viewport timeline; aggregate GUI/history/snapshot memory, paging, remaining visualization and sustained profiles remain open"
     },
     {
       "id": "X006-04",
@@ -100,5 +100,12 @@
     "sustained_qualified": false,
     "Windows_runtime_qualified": false,
     "export_policy_review_receipt": "tests/results/M2/2026-10-07-shared-media-export-policy.json"
+  },
+  "virtualized_views_checkpoint": {
+    "contract": "docs/80-virtualized-session-views.md",
+    "decision": "docs/decisions/065-virtualized-session-views.md",
+    "receipt": "tests/results/M2/2026-10-07-virtualized-session-views.json",
+    "status": "partial: snapshot-backed lists and viewport interval painting; combined memory/admission, remaining meters/waveforms, Qt row paging and independent Windows native UI remain open",
+    "product_ceiling": null
   }
 }

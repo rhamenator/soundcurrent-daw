@@ -52,7 +52,9 @@ removes the fixed total-track ceiling from the model, parser, mixer and desktop
 Add Track control. Synthetic 4,096-track core and Linux Qt workflows have scoped
 evidence. A [shared media pool/cache](docs/79-shared-media-cache.md) now serves
 1,024 file-backed tracks with one handle in a bounded exact-output test.
-Recording, virtualized views, freeze/bounce and sustained Linux/Windows workloads
+The [viewport timeline and model-backed lists](docs/80-virtualized-session-views.md)
+now have bounded Linux Qt large-project regression workflows. Combined memory,
+recording, meters/waveforms, freeze/bounce and sustained Linux/Windows workloads
 remain staged.
 
 ## Build on Linux

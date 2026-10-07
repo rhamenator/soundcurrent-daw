@@ -15,12 +15,15 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDoubleSpinBox>
-#include <QGraphicsRectItem>
-#include <QGraphicsScene>
-#include <QGraphicsView>
+#include "timeline_view.hpp"
+#include "session_list_model.hpp"
+#include <QScrollBar>
+#include <QSlider>
+#include <QImage>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QListView>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
@@ -148,9 +151,10 @@ void editing(const std::filesystem::path &root) {
     w.show();
     w.openProject(root);
     await([&] { return w.snapshot()->session && w.findChild<QDoubleSpinBox *>("gain_db0"); });
-    auto *tracks = widget<QListWidget>(w, "timelineTracks");
+    auto *tracks = widget<QListView>(w, "timelineTracks");
     auto *timeline = widget<TimelineEditor>(w, "timelineEditor");
-    check(tracks->count() == 2 && w.selectedTrack() == first, "Initial selection wrong");
+    check(tracks->model()->rowCount() == 2 && w.selectedTrack() == first,
+          "Initial selection wrong");
     const auto revision = w.snapshot()->modelRevision;
     tracks->setFocus();
     QTest::keyClick(tracks, Qt::Key_Down);
@@ -179,28 +183,23 @@ void editing(const std::filesystem::path &root) {
     check(split.tracks[1].clips[0].lengthFrames == 200 &&
               split.tracks[1].clips[1].sourceFrame == 264,
           "UI split geometry differs");
-    auto *view = widget<QGraphicsView>(w, "audioTimeline");
+    auto *view = widget<TimelineView>(w, "audioTimeline");
     auto selectGraphic = [&](const Id &id) {
         auto *scroll = qobject_cast<QScrollArea *>(w.centralWidget());
         scroll->ensureWidgetVisible(view);
-        QGraphicsItem *item = nullptr;
-        await([&] {
-            for (auto *candidate : view->scene()->items())
-                if (candidate->data(1).toString() == QString::fromStdString(id.str()))
-                    item = candidate;
-            return item != nullptr;
-        });
-        const auto center = item->sceneBoundingRect().center();
-        view->ensureVisible(item);
-        QTest::mouseClick(view->viewport(), Qt::LeftButton, Qt::NoModifier,
-                          view->mapFromScene(center));
+        // Worker publication is not a GUI-paint barrier. Await the same clip
+        // becoming represented in the viewport before dispatching its mouse hit.
+        await([&] { return !view->clipRectangle(second, id).isEmpty(); });
+        check(view->ensureClipVisible(second, id), "Clip no longer reachable in virtual view");
+        QTest::qWait(2);
+        const auto center = view->clipRectangle(second, id).center().toPoint();
+        QTest::mouseClick(view->viewport(), Qt::LeftButton, Qt::NoModifier, center);
         await([&] { return timeline->selectedClip() == id; });
     };
     selectGraphic(right);
     check(widget<QLineEdit>(w, "clipSourceFrame")->text() == "264",
           "Graphic selection did not refresh exact fields");
-    QTest::mouseClick(view->viewport(), Qt::LeftButton, Qt::NoModifier,
-                      view->mapFromScene(QPointF(300, 170)));
+    QTest::mouseClick(view->viewport(), Qt::LeftButton, Qt::NoModifier, QPoint(300, 170));
     check(!timeline->selectedClip() && !widget<QLineEdit>(w, "clipSourceFrame")->isEnabled(),
           "Blank timeline click retained selection");
     selectGraphic(right);
@@ -239,7 +238,8 @@ void editing(const std::filesystem::path &root) {
     click(w, "renameAudioTrack");
     await([&] {
         return w.snapshot()->session->tracks[1].name == "Renamed — 日本語" &&
-               tracks->item(1)->text() == "Renamed — 日本語";
+               tracks->model()->data(tracks->model()->index(1, 0), Qt::DisplayRole).toString() ==
+                   "Renamed — 日本語";
     });
     check(destination->currentData().toString() == QString::fromStdString(second.str()),
           "Model refresh replaced destination selection");
@@ -278,7 +278,7 @@ void editing(const std::filesystem::path &root) {
     reopened.openProject(root);
     await([&] {
         return reopened.snapshot()->session &&
-               reopened.findChild<QListWidget *>("timelineTracks")->count() == 3;
+               reopened.findChild<QListView *>("timelineTracks")->model()->rowCount() == 3;
     });
     check(*reopened.snapshot()->session == final && !reopened.snapshot()->dirty, "Reopen differs");
     close(reopened);
@@ -303,11 +303,12 @@ void selectionBeforePoll(const std::filesystem::path &root) {
         check(std::chrono::steady_clock::now() < end, "Pre-poll Open did not complete");
         QThread::msleep(1);
     }
-    check(widget<QListWidget>(w, "timelineTracks")->count() == 0,
+    check(widget<QListView>(w, "timelineTracks")->model()->rowCount() == 0,
           "Pre-poll fixture unexpectedly consumed GUI events");
     check(w.selectTrack(original.tracks[1].id),
           "Published track selection refused before GUI poll");
-    check(widget<QListWidget>(w, "timelineTracks")->count() == int(original.tracks.size()) &&
+    check(widget<QListView>(w, "timelineTracks")->model()->rowCount() ==
+                  int(original.tracks.size()) &&
               w.selectedTrack() == original.tracks[1].id && w.preparePlayback(),
           "Synchronized selection/UI/preparation differs");
     await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Ready; });
@@ -398,8 +399,8 @@ void mixedTransport(const std::filesystem::path &root) {
     w.show();
     w.openProject(root);
     await([&] {
-        auto *list = w.findChild<QListWidget *>("timelineTracks");
-        return w.snapshot()->session && list && list->count() == 2;
+        auto *list = w.findChild<QListView *>("timelineTracks");
+        return w.snapshot()->session && list && list->model()->rowCount() == 2;
     });
     check(w.selectTrack(second), "Mix anchor selection refused");
     widget<QCheckBox>(w, "mixAllTracks")->setChecked(true);
@@ -493,7 +494,8 @@ void savedMaster(const std::filesystem::path &root) {
     w.show();
     w.openProject(root);
     await([&] {
-        return w.snapshot()->session && w.findChild<QListWidget *>("timelineTracks")->count() == 2;
+        return w.snapshot()->session &&
+               w.findChild<QListView *>("timelineTracks")->model()->rowCount() == 2;
     });
     ProjectCommand c{CommandKind::Structural};
     c.edits = {SetMaster{editor.selection()}};
@@ -660,12 +662,13 @@ void punchWorkflow(const std::filesystem::path &root) {
     check(w.snapshot()->dirty && widget<QCheckBox>(w, "punchEnabled")->isChecked() &&
               widget<QCheckBox>(w, "recordProjectMix")->isChecked(),
           "Punch not canonical/dirty or shared playback not selected");
-    auto *armList = widget<QListWidget>(w, "armedTracksList");
-    for (int n = 0; n < armList->count(); ++n)
-        armList->item(n)->setCheckState(Qt::Unchecked);
+    auto *armList = widget<QListView>(w, "armedTracksList");
+    for (int n = 0; n < armList->model()->rowCount(); ++n)
+        armList->model()->setData(armList->model()->index(n, 0), Qt::Unchecked, Qt::CheckStateRole);
     QTest::qWait(40);
-    for (int n = 0; n < armList->count(); ++n)
-        check(armList->item(n)->checkState() == Qt::Unchecked,
+    for (int n = 0; n < armList->model()->rowCount(); ++n)
+        check(armList->model()->data(armList->model()->index(n, 0), Qt::CheckStateRole).toInt() ==
+                  Qt::Unchecked,
               "Punch silently rearmed a user-cleared track");
     undo(w);
     await([&] { return !w.snapshot()->session->punch.enabled; });
@@ -703,6 +706,7 @@ void punchWorkflow(const std::filesystem::path &root) {
         widget<QComboBox>(w, ("monitorChannel" + std::to_string(n)).c_str())
             ->setCurrentIndex(n + 1);
     }
+    await([&] { return widget<QPushButton>(w, "recordButton")->isEnabled(); });
     click(w, "recordButton");
     await([&] { return w.recordingSnapshot()->phase == RecordingPhase::Complete; });
     click(w, "recordStopButton");
@@ -730,7 +734,8 @@ void largeProjectDesktop(const std::filesystem::path &root) {
     w.show();
     w.openProject(root);
     await([&] {
-        return w.snapshot()->session && widget<QListWidget>(w, "timelineTracks")->count() == 4096;
+        return w.snapshot()->session &&
+               widget<QListView>(w, "timelineTracks")->model()->rowCount() == 4096;
     });
     check(*w.snapshot()->session == s, "Large desktop Open lost project state");
     const auto last = s.tracks.back().id;
@@ -743,7 +748,7 @@ void largeProjectDesktop(const std::filesystem::path &root) {
     await([&] { return w.snapshot()->session->tracks.size() == 4097; });
     const auto observedSelection = w.selectedTrack();
     std::cerr << "Large Add observed canonical tracks=" << w.snapshot()->session->tracks.size()
-              << " GUI rows=" << widget<QListWidget>(w, "timelineTracks")->count()
+              << " GUI rows=" << widget<QListView>(w, "timelineTracks")->model()->rowCount()
               << " selected=" << (observedSelection ? observedSelection->str() : "none")
               << " prior=" << last.str() << '\n';
     {
@@ -751,11 +756,11 @@ void largeProjectDesktop(const std::filesystem::path &root) {
         snapshot << encodeProject(*w.snapshot()->session);
     }
     await([&] {
-        return widget<QListWidget>(w, "timelineTracks")->count() == 4097 &&
+        return widget<QListView>(w, "timelineTracks")->model()->rowCount() == 4097 &&
                w.selectedTrack() != last;
     });
     const auto added = w.selectedTrack();
-    check(added != last && widget<QListWidget>(w, "timelineTracks")->count() == 4097,
+    check(added != last && widget<QListView>(w, "timelineTracks")->model()->rowCount() == 4097,
           "Large Add Track or selection silently capped");
     const auto edited = *w.snapshot()->session;
     undo(w);
@@ -767,6 +772,168 @@ void largeProjectDesktop(const std::filesystem::path &root) {
     check(ProjectStore(root).load() == edited, "Large desktop Save/reopen lost IDs or edit");
     std::cout
         << "4096-track actual desktop Open/last-track edit/Add4097/Undo/Redo/Save/reopen passed\n";
+}
+
+void virtualizedDesktop(const std::filesystem::path &root) {
+    std::cerr << "Owned virtualized desktop project: " << root << '\n';
+    auto s = fixture(root);
+    s.tracks.clear();
+    for (unsigned n = 0; n < 8192; ++n) {
+        auto t = makeAudioTrack("Voix — Ελλάδα " + std::to_string(n), {}, s.sampleRate);
+        Clip c;
+        c.assetId = s.assets.front().id;
+        c.startFrame = (n % 64) * 64;
+        c.sourceFrame = 64;
+        c.lengthFrames = 128;
+        t.clips = {c};
+        s.tracks.push_back(std::move(t));
+    }
+    s.exportEndFrame = 5000;
+    ProjectStore(root).save(s);
+    const auto original = encodeProject(s);
+    const auto rawHash = hashMediaFile(root / utf8Path(s.assets.front().relativePath));
+    StudioWindow w;
+    w.resize(1100, 900);
+    w.show();
+    const auto openBegan = std::chrono::steady_clock::now();
+    w.openProject(root);
+    await(
+        [&] {
+            const auto state = w.snapshot();
+            if (state->errorCode)
+                throw std::runtime_error("Large project Open: " + state->diagnostic);
+            return state->session &&
+                   widget<QListView>(w, "timelineTracks")->model()->rowCount() == 8192;
+        },
+        std::source_location::current(), std::chrono::seconds(60));
+    std::cout << "Virtualized8192 Open elapsed ms="
+              << std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::steady_clock::now() - openBegan)
+                     .count()
+              << '\n';
+    auto *list = widget<QListView>(w, "timelineTracks");
+    auto *model = dynamic_cast<SessionListModel *>(list->model());
+    auto *canvas = widget<TimelineView>(w, "audioTimeline");
+    auto *timeline = widget<TimelineEditor>(w, "timelineEditor");
+    auto *outer = qobject_cast<QScrollArea *>(w.centralWidget());
+    outer->ensureWidgetVisible(canvas);
+    const auto last = s.tracks.back().id;
+    const auto selectedClip = s.tracks.back().clips.front().id;
+    check(model && model->idAt(8191) == last, "Virtual list lost a high-ordinal stable ID");
+    list->setCurrentIndex(model->index(8190, 0));
+    await([&] { return w.selectedTrack() == s.tracks[8190].id; });
+    list->setFocus();
+    QTest::keyClick(list, Qt::Key_Down);
+    await([&] { return w.selectedTrack() == last; });
+    widget<QSlider>(w, "timelineZoom")->setValue(100);
+    check(canvas->ensureClipVisible(last, selectedClip),
+          "Last-row clip cannot be scrolled into view");
+    QTest::qWait(5);
+    const auto rect =
+        canvas->clipRectangle(last, selectedClip).intersected(QRectF(canvas->viewport()->rect()));
+    check(!rect.isEmpty(), "Last-row clip is outside the viewport after scrolling");
+    const auto at = rect.center().toPoint();
+    QTest::mouseClick(canvas->viewport(), Qt::LeftButton, Qt::NoModifier, at);
+    await([&] { return timeline->selectedClip() == selectedClip; });
+    check(widget<QLineEdit>(w, "clipSourceFrame")->text() == "64",
+          "Virtual hit selected the wrong clip source");
+    const auto pixels = canvas->viewport()->grab().toImage();
+    const auto color = QColor::fromHsv(int((8191 % 360) * 47) % 360, 150, 195);
+    pixels.save(QString::fromStdString((root / "last-row-paint.png").string()));
+    std::cerr << "Paint at " << at.x() << ',' << at.y() << " actual="
+              << pixels.pixelColor(at * pixels.devicePixelRatio()).name().toStdString()
+              << " expected=" << color.name().toStdString()
+              << " row=" << canvas->verticalScrollBar()->value()
+              << " viewport=" << canvas->viewport()->width() << 'x' << canvas->viewport()->height()
+              << '\n';
+    check(pixels.pixelColor(at * pixels.devicePixelRatio()).rgba() == color.rgba(),
+          "Actual last-row clip paint differs from its color oracle");
+    const auto before = canvas->statistics();
+    const auto resets = model->resets();
+    QTest::qWait(250);
+    check(canvas->statistics().snapshotBuilds == before.snapshotBuilds && model->resets() == resets,
+          "Passive polling rebuilt stable timeline/list state");
+    for (unsigned n = 0; n < 20; ++n) {
+        canvas->verticalScrollBar()->setValue(int(n * 401));
+        canvas->viewport()->repaint();
+        const auto stats = canvas->statistics();
+        const auto visible = std::size_t(std::max(0, canvas->viewport()->height() - 35) + 55) / 56;
+        check(stats.rows <= visible && stats.rows < 8192 && stats.clips <= stats.rows,
+              "Timeline paint traversed nonvisible project rows/clips");
+    }
+    check(encodeProject(*w.snapshot()->session) == original && !w.snapshot()->dirty &&
+              hashMediaFile(root / utf8Path(s.assets.front().relativePath)) == rawHash,
+          "Selection/scrolling changed canonical state or raw media");
+    check(w.selectTrack(last), "Last track selection cannot be restored");
+    widget<QLineEdit>(w, "selectedTrackName")->setText("Renamed — Українська");
+    click(w, "renameAudioTrack");
+    await([&] {
+        return model->data(model->index(8191, 0), Qt::DisplayRole).toString() ==
+               "Renamed — Українська";
+    });
+    check(model->resets() == resets, "Track rename reset stable row identities");
+    undo(w);
+    await([&] { return w.snapshot()->session->tracks.back().name == s.tracks.back().name; });
+    check(w.submitEdit(ProjectCommand{CommandKind::Redo}), "Large virtualized Redo refused");
+    await([&] { return w.snapshot()->session->tracks.back().name == "Renamed — Українська"; });
+    const auto saved = *w.snapshot()->session;
+    close(w, true, std::chrono::seconds(60));
+    check(ProjectStore(root).load() == saved, "Virtualized edit/Undo/Redo/Save lost project state");
+    std::cout << "Virtualized8192 rows: painted=" << before.rows << " clips=" << before.clips
+              << " interval_nodes=" << before.intervalNodes
+              << " snapshot_builds=" << before.snapshotBuilds
+              << " actual_widgets=" << w.findChildren<QWidget *>().size() << '\n';
+
+    // A sparse dense inventory on one row must query its horizontal window.
+    auto dense = s;
+    dense.tracks.resize(1);
+    auto &t = dense.tracks.front();
+    t.clips.clear();
+    for (unsigned n = 0; n < 10000; ++n) {
+        Clip c;
+        c.assetId = dense.assets.front().id;
+        c.startFrame = Frame(n) * 1024;
+        c.lengthFrames = 1;
+        t.clips.push_back(c);
+    }
+    dense.exportEndFrame = 10240000;
+    const auto denseRoot = root / "dense-clips";
+    std::filesystem::create_directory(denseRoot);
+    const auto denseMedia = denseRoot / utf8Path(dense.assets.front().relativePath);
+    std::filesystem::create_directories(denseMedia.parent_path());
+    std::filesystem::copy_file(root / utf8Path(dense.assets.front().relativePath), denseMedia);
+    ProjectStore(denseRoot).save(dense);
+    StudioWindow d;
+    d.resize(1100, 900);
+    d.show();
+    d.openProject(denseRoot);
+    await(
+        [&] {
+            return d.snapshot()->session && widget<QComboBox>(d, "timelineClips")->count() == 10001;
+        },
+        std::source_location::current(), std::chrono::seconds(60));
+    auto *v = widget<TimelineView>(d, "audioTimeline");
+    qobject_cast<QScrollArea *>(d.centralWidget())->ensureWidgetVisible(v);
+    widget<QSlider>(d, "timelineZoom")->setValue(100);
+    v->horizontalScrollBar()->setValue(v->horizontalScrollBar()->maximum());
+    v->viewport()->repaint();
+    QTest::qWait(2);
+    const auto sparse = v->statistics();
+    check(sparse.rows == 1 && sparse.clips > 0 && sparse.clips < 1000 &&
+              sparse.intervalNodes < 2000,
+          "Horizontal interval query traversed the whole10000-clip inventory");
+    widget<QComboBox>(d, "timelineClips")->setCurrentIndex(10000);
+    check(widget<TimelineEditor>(d, "timelineEditor")->selectedClip() == t.clips.back().id &&
+              widget<QLineEdit>(d, "clipStartFrame")->text() == "10238976",
+          "Virtual clip selector lost the last stable clip or exact frame");
+    std::cout << "Virtualized10000 clips: painted=" << sparse.clips
+              << " interval_nodes=" << sparse.intervalNodes << '\n';
+    const auto screenshot = qEnvironmentVariable("SC_DAW_VIEWPORT_SCREENSHOT");
+    if (!screenshot.isEmpty())
+        check(d.grab().save(screenshot), "Cannot save virtualized desktop screenshot");
+    close(d);
+    check(ProjectStore(denseRoot).load() == dense,
+          "Horizontal scrolling or selection altered dense project");
 }
 
 } // namespace
@@ -782,6 +949,11 @@ int main(int argc, char **argv) {
         if (argc == 2 && std::string_view(argv[1]) == "--large-project-only") {
             largeProjectDesktop(root / "large-project");
             std::cout << checks << " large-project desktop checks passed\n";
+            return 0;
+        }
+        if (argc == 2 && std::string_view(argv[1]) == "--viewport-only") {
+            virtualizedDesktop(root / "virtualized-project");
+            std::cout << checks << " virtualized desktop checks passed\n";
             return 0;
         }
         selectionBeforePoll(root / "selection-before-poll");

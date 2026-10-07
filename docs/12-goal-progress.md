@@ -2214,3 +2214,36 @@ export compile/link passes, with no Windows runtime/UI/native claim. No native
 run, dependency, schema change, equalizer change or92-contract promotion.
 [Review receipt](../tests/results/M2/2026-10-07-shared-media-export-policy.json)
 records the correction; full X006 and the frozen goal remain incomplete.
+
+
+## M2 X006 model-backed lists and viewport timeline (2026-10-07)
+
+[Viewport/list checkpoint](80-virtualized-session-views.md)/ADR065 adds stable-ID
+models for track/arm/destination/media/clip selectors and viewport interval queries.
+Actual offscreen Linux Qt8192-track navigation/edit/Undo/Redo/Save/reopen retains
+raw/canonical state. The recorded viewport paints2rows/2clips; a10000-clip
+inventory paints304matches after631interval-node visits.20vertical positions and
+passive polling reuse the snapshot index. These are workloads, not capacities.
+
+Final full Debug46/46,109.03s and affected
+ASan/UBSan/LSan6/6,202.54s pass. Original paint
+storage assertion, one intermittent desktop recording-start timeout and the
+split-fixture publication/viewport race remain retained with exact source and
+executable hashes, logs and generated project/media. The pixel check now compares
+exact RGBA; the split fixture awaits the new clip rectangle. A deterministic regression reproduces Record enabled with missing required routes;
+the GUI now reconciles route widgets before readiness and gates button/action/Start
+on every required input/monitor selection. Missing-input/output negative checks
+and actual capture/adoption pass. Exact route state at the two original timed-out
+clicks was not captured, so their precise cause remains unproven. The initial large sanitizer case exceeds the generic10-second Open wait; its
+originals remain retained. A measured rerun uses an explicit60-second large-load
+allowance; this does not qualify interactive load responsiveness. Original71 clock/source CPU cause
+also remains open; no native run is added.
+
+No engine/schema/dependency or equalizer change; all24 reviewed inputs and92
+frozen F/Q/C/N projections are unchanged/unpromoted. GUI indices/rebuilds still
+scale with inventory, Qt signed-int rows need paging, and aggregate resource
+admission, meters/waveforms, accessibility, native Windows GUI and sustained
+profiles remain. Next measure/admit combined GUI/history/state/old-new graph
+resources and expose trusted desktop policies, then large recording/adoption,
+freeze/bounce/scheduling and all remaining frozen/X004/X005/Europe/Windows work.
+[Receipt](../tests/results/M2/2026-10-07-virtualized-session-views.json) retains scope.
