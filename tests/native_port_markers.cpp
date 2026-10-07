@@ -2,6 +2,9 @@
 #include "native_port_markers.hpp"
 #include <algorithm>
 #include <stdexcept>
+#ifdef SC_NATIVE_PORT_HANDOFF
+#include "native_port_handoff.hpp"
+#endif
 namespace native_fixture {
 thread_local PortMarkers *activePortMarkers = nullptr;
 namespace {
@@ -137,7 +140,13 @@ void PortMarkers::write(std::ostream &o) const {
 } // namespace native_fixture
 extern "C" void *__real_pw_filter_get_dsp_buffer(void *, std::uint32_t);
 extern "C" void *__wrap_pw_filter_get_dsp_buffer(void *port, std::uint32_t n) {
+#ifdef SC_NATIVE_PORT_HANDOFF
+    native_fixture::handoffBeforeDsp(port, n);
+#endif
     auto *result = __real_pw_filter_get_dsp_buffer(port, n);
+#ifdef SC_NATIVE_PORT_HANDOFF
+    native_fixture::handoffAfterDsp(result);
+#endif
     if (auto *trace = native_fixture::activePortMarkers)
         trace->buffer(static_cast<const float *>(result), n);
     return result;

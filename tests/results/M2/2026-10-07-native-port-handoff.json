@@ -1,0 +1,2327 @@
+{
+  "utc": "2026-10-07T03:08:11.352129+00:00",
+  "checkpoint": "Opt-in public native port handoff observation; cause of original46 remains unresolved",
+  "source_parent": "d0189bbac5193aaa587541297099b9994ba14452",
+  "source_sha256": {
+    "CMakeLists.txt": "6fdb5aa184e3c81089ec19e50ee51eb1dc4579689855afb792f8a46c8a24f41a",
+    "tests/native_port_handoff.cpp": "68174ee37418d7cfe1d8ebd15dd522da6aa2c26486acc68823c43ac1ec6b8295",
+    "tests/native_port_handoff.hpp": "6b0e395b5789b96b6b97464bb536401a08051e836b0c9ecbba5c732803b14a95",
+    "tests/native_port_markers.cpp": "1b17bcdf73a18fa3dc0a8dcab83bbbb224b11f7347521457f51cdf1ed5686357",
+    "tests/pipewire_manual_fault_fixture.cpp": "0a918258a937448fc360e2d06cee2fd1104ee0382354f5c4892a6776a97fb6d3",
+    "tests/native_port_handoff_fake.cpp": "91de1e4ff101b5d6b23f4ac02b019d6aec74faa1ac968e8834c29d04e55ed52e",
+    "tests/native_port_handoff_fake.hpp": "7e7c559953977a17d23b82657dbe89c32e46ff06cea50aa7689fd0d392de2827",
+    "tests/native_port_handoff_tests.cpp": "3bc95cf694c5a9d73000df43e114b9801f152f57b408b245cf69d221aaa0fdb2",
+    "tests/verify_native_port_handoff.py": "f6f877d0a4c1bff04d29e42e0a452a5ccecbd8a42184e547104c46c4b8100ac2",
+    "tests/native_port_handoff_verifier_tests.py": "9dc59fd060ff2f2fda5c03d3dbbf6d41503ef6c880e3e3d59dc04ca4ce211a23"
+  },
+  "parity": {
+    "family_count": 92,
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "FQCN_promotions": 0
+  },
+  "prior_receipt": {
+    "path": "tests/results/M2/2026-10-07-manual-priority-interruption.json",
+    "sha256": "544de20a352e62c10ed1c52c0d507d90edbaf67ce4f3456cdf34d407116f6543",
+    "observations_retained": 46
+  },
+  "retained_observations": {
+    "count": 46,
+    "new_runtime_failures": 0,
+    "initial_development_compile_failure": "Missing native headers on new fixture target; preserved source/log; PkgConfig::PIPEWIRE target dependency added. Not runtime observation47."
+  },
+  "development_compile_failure_manifest": {
+    "classification": "development compilation failure, not native runtime observation 47",
+    "files": {
+      "CMakeLists.txt": "1745668e303a9c58000ef3ec4adf71c1e14f7094efefa70cb44fbd5e08a5d05f",
+      "tests/native_port_handoff.cpp": "445c175a7836ad74d05ce90fbce93504f594b0719c939408370e2d97393d827c",
+      "tests/native_port_handoff.hpp": "6b0e395b5789b96b6b97464bb536401a08051e836b0c9ecbba5c732803b14a95",
+      "tests/native_port_markers.cpp": "1b17bcdf73a18fa3dc0a8dcab83bbbb224b11f7347521457f51cdf1ed5686357",
+      "tests/pipewire_manual_fault_fixture.cpp": "0a918258a937448fc360e2d06cee2fd1104ee0382354f5c4892a6776a97fb6d3",
+      ".cache/native-handoff-first-build.log": "294e849d285e6bef7925785b6766d5029c46b43bb593293567b6e7d613eaaab4"
+    }
+  },
+  "native_frozen_manifest": {
+    "source_parent": "d0189bbac5193aaa587541297099b9994ba14452",
+    "files": {
+      "tests/native_port_handoff.cpp": "68174ee37418d7cfe1d8ebd15dd522da6aa2c26486acc68823c43ac1ec6b8295",
+      "tests/native_port_handoff.hpp": "6b0e395b5789b96b6b97464bb536401a08051e836b0c9ecbba5c732803b14a95",
+      "tests/native_port_handoff_fake.cpp": "91de1e4ff101b5d6b23f4ac02b019d6aec74faa1ac968e8834c29d04e55ed52e",
+      "tests/native_port_handoff_fake.hpp": "7e7c559953977a17d23b82657dbe89c32e46ff06cea50aa7689fd0d392de2827",
+      "tests/native_port_handoff_tests.cpp": "3bc95cf694c5a9d73000df43e114b9801f152f57b408b245cf69d221aaa0fdb2",
+      "include/soundcurrent/audio_bridge.hpp": "3fa0e2ab6a427d1abf96d1e6e6369294ed3ed83c4375d271739a838aeaef2959",
+      "include/soundcurrent/capture.hpp": "44259628ba7b609c57c9455e458e7bf710dfd78ec4680192528221ce8aa3b969",
+      "include/soundcurrent/duplex_bridge.hpp": "bcd20d6205db8110a941f1002f287f318c599c041198d2188750c95e9efc1342",
+      "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+      "include/soundcurrent/eq.hpp": "6e29057e53bd5ce501dd198d88e75c69efe22c2f0ee18691d317d8c3182210f0",
+      "include/soundcurrent/export.hpp": "4f49c8a27dc1584e3b882a672e3bae7d8576bef942d5f192568d97f9dc8aa1f5",
+      "include/soundcurrent/manual_punch.hpp": "3aa21303e3c5771553423da8e277e5faad833ca4424e926f5d83c1fd4bf73024",
+      "include/soundcurrent/manual_recording.hpp": "a89289d64f1841781fa0c813d6b70102896e01ec81c65f85313b8be8409ff6ff",
+      "include/soundcurrent/mix.hpp": "48ca72838822cd4d600788b1e0e42392d5c9861084376c87ab5088034e120d4c",
+      "include/soundcurrent/mix_playback.hpp": "f5651d55dfd1557f4690a014a9d50c8526d50df75cf25f351da3462bcf273b33",
+      "include/soundcurrent/mix_reader.hpp": "cdc23c2fd88ea5f21b286fa4d27c5e8263a1886ea64883e003a25e9a90f75a7c",
+      "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+      "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+      "include/soundcurrent/pipewire_manual_recording.hpp": "f082797966659e6e71dc3064c43d151200dda304d649fea7fa2e201df1995fe8",
+      "include/soundcurrent/pipewire_playback.hpp": "5351a52b17c97b78edff712ad979c125cba453c84c0a91bdd08be449cf50a2a8",
+      "include/soundcurrent/pipewire_recording.hpp": "b0e5202b083d54d8f1f2bed1b4e8752b9d1a9a4eddee522e4d9aac577efee53e",
+      "include/soundcurrent/playback.hpp": "e98ef42f61a6cb08fbb1e93b79783160b216ad7e8b7b8cb00a9c0a093ba8cfb9",
+      "include/soundcurrent/playback_bridge.hpp": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910",
+      "include/soundcurrent/playback_reader.hpp": "1c1e4cceadbfa0327edc8805e679d98a63cd6242b0a3618047c74270d0b3801b",
+      "include/soundcurrent/project_store.hpp": "bf024d35855eb41ad62043258c80c22571c7a32e35ccdf2af61588d377f3eaef",
+      "include/soundcurrent/recording.hpp": "3b42b0b8d33bb5e56470a8fdeae036d94645c1894a17e30e3acfd16423ab3166",
+      "include/soundcurrent/routing.hpp": "66a68a0df135363e242510a9b9761f4cc02a3d9969757750a8ef80cb50c2293d",
+      "include/soundcurrent/rt_object_exchange.hpp": "eda689a08bdaf92047d42881770d5ae5dc4b54b43e8066f2ebe7d6edf98ebb41",
+      "include/soundcurrent/session.hpp": "74341e2a9c44301c0655da5ad4aa2a3688ce4de264dc9ae1619136881efdfb55",
+      "include/soundcurrent/spsc_queue.hpp": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd",
+      "reuse/equipment/README.md": "a081c46d496c7a40e0d67a50548398bd74ea31b744de8a71a092f586489116f4",
+      "reuse/equipment/provenance.json": "34a364e2b2d31e017550717f2eb90470777faa0085cce76faf7cafb55605f0fb",
+      "reuse/equipment/upstream/data/equipment/LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "reuse/equipment/upstream/data/equipment/collection-report.json": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+      "reuse/equipment/upstream/data/equipment/measurement-sources.json": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+      "reuse/equipment/upstream/data/equipment/spinorama.json": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+      "reuse/equipment/upstream/scripts/collect-equipment-profiles.py": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+      "reuse/equipment/upstream/src/dsp.cpp": "259c578fa852d6e8579b3d49b812806d3e3d3aa8134a14d13099282e5b43a6cc",
+      "reuse/equipment/upstream/src/dsp.h": "8d89cdabc5c266b0b2f2c77019d665edfe197c24677be758b2378b25ef5699c4",
+      "reuse/equipment/upstream/src/equipment_profiles.cpp": "1e176bf01cef587969aba0cd6402743987c9429cd29e2100a8114e2160049e11",
+      "reuse/equipment/upstream/src/equipment_profiles.h": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+      "reuse/equipment/upstream/tests/equipment_profiles.cpp": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+      "reuse/reviews/2026-10-06/soundcurrent-eq/src/accelerating_spinbox.h": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+      "reuse/reviews/2026-10-06/soundcurrent-eq/src/dsp.cpp": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+      "reuse/reviews/2026-10-06/soundcurrent-eq/src/dsp.h": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+      "reuse/reviews/2026-10-06/soundcurrent-eq/src/equipment_profiles.cpp": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+      "reuse/reviews/2026-10-06/soundcurrent-eq/tests/spin_acceleration.cpp": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+      "reuse/reviews/2026-10-06/soundcurrent-studio/src/accelerating_spinbox.h": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+      "reuse/reviews/2026-10-06/soundcurrent-studio/src/dsp.cpp": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+      "reuse/reviews/2026-10-06/soundcurrent-studio/src/dsp.h": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+      "reuse/reviews/2026-10-06/soundcurrent-studio/src/equipment_profiles.cpp": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+      "reuse/reviews/2026-10-06/soundcurrent-studio/tests/spin_acceleration.cpp": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+      "reuse/reviews/2026-10-06/upstream-review-before-committed-refresh.json": "532928777a2336cab3b0671ab5a1a20ff69068aeb86d7b4101a02d8becc394dc",
+      "reuse/reviews/2026-10-06/windows-signing-budget-committed-review.json": "b041c2d171189c59d530d3b83053270da9c3d0f8c0b7fb7ef2fce35f62a0f7bc",
+      "reuse/reviews/2026-10-06/windows-signing-budget-review.json": "62d31eec7f1a11fecb4fe196904f4c306deff6cfda70b4d1d7ae4aba50c1c483",
+      "reuse/studio/README.md": "8a128454e8a5e9df1b4a389632ef118a43ef551d5b59e391b92f30e664a11451",
+      "reuse/studio/provenance.json": "6035998c095923f621b811611055ae67284b8ab66ad88807cd2403b619102e77",
+      "reuse/studio/upstream/dsp.cpp": "53a2bbf019a7bef78b95085a99a42410ad1a21294a8b9358cf85020f51368fd0",
+      "reuse/studio/upstream/dsp.h": "66bd0f05d4e2d4f35f432bcb871457d048e32dee2a48ce122b8ec10ced523b6f",
+      "reuse/upstream-review.json": "79ae82e03c3be47e29676975652c05454f38db3c066ba9024ef00ed4f306c6d3",
+      "src/audio_bridge.cpp": "29ccd23db4818718624a8eaac5d7a3817144e5982251a79239727ca3b3f86c56",
+      "src/capture.cpp": "36322de26590fc96ada3706f4a44e6fdcb29422ea0a841971421344f826b7aa8",
+      "src/duplex_bridge.cpp": "677cf8b89cbd919cab61555da424b58f8d94c81dcb1f9d830528f59db726384d",
+      "src/duplex_recording.cpp": "026516b0a440b138a164cc41b804757fed91492c84103184c05aedc12eb69a9f",
+      "src/eq.cpp": "298a8a8354780cd734d72ece8072bd6a682bd0465e326ce6f2008da6361b598f",
+      "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+      "src/export.cpp": "6f897f836e851389105e10e027b481ff2b271dca95f515f8152cef0db1d1c9e3",
+      "src/manual_punch.cpp": "85572f2cecb1d3101d9af6b2060f97c6d8b265ec4bc4cc526ae6e3f81ae8290d",
+      "src/manual_recording.cpp": "e2611c3d7d63d820e3ee2abef274fcb92590d9500e3b1f0b8f870c048393e420",
+      "src/media_io.cpp": "6597b1951385b908ca292a290f7f6c624a185ba66aa9438efaff00efe1c259bd",
+      "src/media_io.hpp": "9706e0ed9027bc8843213b970f5a2dd7e0bd2004cb76ef580944b14d056087c7",
+      "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+      "src/mix_playback.cpp": "b1438a91d5d1f54e5830c45e084412246af738b99e6a046d300dce064acd19e1",
+      "src/mix_reader.cpp": "a4e7cc94acd17746ba36fca259c71ef95ef01550590d6789d23ac613153cd5c3",
+      "src/mix_run.cpp": "10b947bafe525b170e31a4705a51750f78a8e5b811cebb98b4bcf38fc60ed44d",
+      "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+      "src/pipewire_filter.cpp": "0071d1c75a6fbc809f633fd8dec9273f7ac55e8169b426ffef2b6282a70ce61e",
+      "src/pipewire_manual_recording.cpp": "60e6b5edd1bff559a3775bb09bd07c9ba5436b7ddf8ed9225c1ac5f9fab570e8",
+      "src/pipewire_playback.cpp": "31b54cc7d61f91587eb615e3feac394242b47ccf87a77b20eccdcfc985699ef7",
+      "src/pipewire_recording.cpp": "43f31f71808cf550e8770e6c26856a5cab09403cb6e2fac6b58b89738300ad33",
+      "src/playback.cpp": "8855074a6c7cdd6ae806ecf26101e13f7767972c5e725fa38adf53e2371cab09",
+      "src/playback_bridge.cpp": "1092567581e8d7482918d6a89f41449cc1bf66366079e2c0290635f1d1848677",
+      "src/playback_reader.cpp": "47413fb52b4111c81ea3f429635d741fa496470d6f56a345068e963148563191",
+      "src/playback_run.cpp": "d681d62ca1d0d587ca033a28818eece9fb1c8b76e8e99a8f993236439c8c59f8",
+      "src/project_store.cpp": "2f14c94ad5e4f20f06ba534e8d038839ee9941f2b6b35f6accb45c9e8527bf83",
+      "src/recording.cpp": "7a0412f900e341c0de5f6b4f58bf153e65d965a5b156a30d2712415e951b2581",
+      "src/recording_worker.cpp": "6997c1dee88f4d88352788e71d20ffc7077aa57e483a34c0fd4c998ee314ddbd",
+      "src/routing.cpp": "09b81ca59b08e38cfbd510aaaf88f93bc43485b1f29a17194b557fe352313b0c",
+      "src/session.cpp": "da55005ea2c16cd1abfcf54ddcede29042cbe32314edf14cad1bb15ed387ea90",
+      "src/session_edits.cpp": "3850ae30545d92f5897d0cc1e9c866322d4f28b3ece77ba0a48d96349ce1ceed",
+      "tests/audio_bridge_tests.cpp": "b7061da810d75d9709af4dfe107ecfdce6f33e590d87f8406f84f75583db83f5",
+      "tests/capture_tests.cpp": "04ab9eb671a1d7ef998c9a12a5e36414473bcb24aafdabb2f0721edceefa85ef",
+      "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+      "tests/discovery_tests.cpp": "c8d3432e73e133a651979c2004b8eafac1a4f701e4c7edea11ce59d0112c36dd",
+      "tests/duplex_duration_fixture.cpp": "c2b67a69260e38030a223ee55c93747e52106ac5c049f355af41b65178df9216",
+      "tests/duplex_recording_tests.cpp": "21b7f3af4d8f02ce6844e893d38ffc71f5b5a6c21876881b538dfc15ac0f9c34",
+      "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+      "tests/editing_tests.cpp": "992556bc7162843e58114a4f2fdd4c922e6a8d2ac66e2371287df26132411376",
+      "tests/engine_tests.cpp": "b4642a0ae6a0411775bc9d0f263a857e80503fe7738e7b2969a050804d51b2ba",
+      "tests/equipment_tests.cpp": "47c0fc29868748b85c5ed2f1ac38e7102e174a74979d97d56e6d9e7053a3a4e1",
+      "tests/export_controller_tests.cpp": "3d8c123384caa11bfd108e7863721cfcc5df288b47d5fffabf03fe19a13f299a",
+      "tests/export_fixture.hpp": "652990110040112977a4c6de1eb824c0a842d873faec7211392185e878bc3717",
+      "tests/export_tests.cpp": "52a6bde17e43e8c1cf171cfb8ba1e8385d66f19b39b3568e67d4f55fb003204b",
+      "tests/export_ui_tests.cpp": "7d7a32bf079c19e2b935d4d6c5659810e7398eb05dfcfc8d871d13674737a925",
+      "tests/fake_duplex_endpoint.hpp": "af6950368ee75323ba56e5d52d5a871a02d437f664ad062e34e3460b82430a9d",
+      "tests/fake_playback_endpoint.hpp": "21903b5721a8c1713050069fd1158445a335dc952781cfddd921b8bd4eafb0af",
+      "tests/fake_recording_endpoint.hpp": "42a55b08e8c6b839d4a55d9ea3fdd498e55f7b78f95267848a166a93de0fda8a",
+      "tests/immediate_tests.cpp": "d4c19239d8ac09986de2b6a78f791d4ac827be4e133cc64ec1613028783ddfc4",
+      "tests/manual_interrupt_tests.cpp": "7689c42703a442586090edf1c93118e5d62fb923a3c99baed26c68f0c55fc281",
+      "tests/manual_priority_verifier_tests.py": "795f0bd8df104fdfaba8da16ad41ff1ab3f3db78070b0021b670f5aa83497f25",
+      "tests/manual_punch_tests.cpp": "e0a31e3cd024a225bcb4d4bd7e1fd4827c0c1a816310980a48ea1215f7086917",
+      "tests/manual_recording_tests.cpp": "8bc3c644eccca233823051524c2831df356a1cb6bd2a501b9c1e4f8a6e271786",
+      "tests/manual_trace_verifier_tests.py": "f92840f5ae11023ad00983b9d481b311ef0ec3ffff1b34bdaf1edf32c7d41844",
+      "tests/manual_verification_gate.cpp": "66b0ad261571e5191acf5668d1e8a2d367c234d5678de22a8f00e37164c3e77b",
+      "tests/mix_graph_tests.cpp": "4b226292728124ddabfdca67575e5c0993e43ad3f833ebe1a14d81d767693641",
+      "tests/mix_playback_tests.cpp": "c95d9f4a10795a00e92a5ca9bee2915ca941ffef92e764a793e62a528a011b6d",
+      "tests/monitoring_tests.cpp": "46bd757c6ce102439c6b2fd7d488e3b740442545a7eef40e370a4aa2bade0638",
+      "tests/native_duration_timing.hpp": "06650c67983eb6b97265483c0c48127a512d2601c57da8ea60d5e62a403b8929",
+      "tests/native_duration_timing_tests.cpp": "2f3d003910891eeaf8bba2796058b9b64d277a2a0bdefa8f77fe3ca40bd7e228",
+      "tests/native_manual_processing_stage_tests.cpp": "9d777740f6ff9bba8f24f3a4c67c9beed72488ed21732fb65c8b61436d3b2b55",
+      "tests/native_port_marker_fake.cpp": "c1bfa5d19894fabd9b892bac953814de138ea30442183461dd685d43254f1815",
+      "tests/native_port_marker_tests.cpp": "2ef47cdb600a239ef28a4db5dfa3fa2ab1900c702cf89f70388150732ac30321",
+      "tests/native_port_markers.cpp": "1b17bcdf73a18fa3dc0a8dcab83bbbb224b11f7347521457f51cdf1ed5686357",
+      "tests/native_port_markers.hpp": "3fbfeaa3309ef8a07b85263cf3a63ccdf22e5a7aca1f1747ce69bb312f58baef",
+      "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
+      "tests/native_processing_stages.cpp": "db66381908a1d5183de60e8e06ed095d5f2d85e170f2ad5f72342a9aef6053df",
+      "tests/native_processing_stages.hpp": "a440ef669903d4a005927b45619ac50df9c82cbebbb442cdb6fa0dbd3e89f77a",
+      "tests/native_thread_usage.hpp": "1d31d916c8d7afd072e4cba32352b9a1c3e89a6dbde00ba32af479f570a13ab1",
+      "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+      "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+      "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+      "tests/pipewire_duration_fixture.cpp": "699ddc167a61de3828a5ce6b6e5c881b5656a5088c6eddee96b78f76e5a310c3",
+      "tests/pipewire_fixture.cpp": "0f5080ae3a198b8b39d791dc15dc2ceeccde71fb20e352bce63cf8074d291774",
+      "tests/pipewire_manual_fault_fixture.cpp": "0a918258a937448fc360e2d06cee2fd1104ee0382354f5c4892a6776a97fb6d3",
+      "tests/pipewire_manual_fixture.cpp": "a87a3768cd36627eba8bdbb6f5505d9de21826addebd83645518fbbfd26792ab",
+      "tests/pipewire_playback_fixture.cpp": "6516054a61d23c5cf757f97148c9e974786477a8e7ce1e86188f5daeed7d298f",
+      "tests/pipewire_punch_fault_fixture.cpp": "f777f15fe1ea8380c65873dcce7ea4b69247ec6f7ec2fdf881b990885980bcc1",
+      "tests/pipewire_punch_fixture.cpp": "4c6b999e7fe5205e2a5303043d584eef88831f6a9dee4efc96807dd78950d155",
+      "tests/pipewire_punch_ui_fixture.cpp": "2a778ee87da23111b4e44ebe76b83acee27997ee4b6903d4a40d6f3e04d304b7",
+      "tests/pipewire_recording_ui_fixture.cpp": "ac2f9e5d9068c870fc2c614f7c2844ce0489ba9df4e162f54027a21583daeac9",
+      "tests/pipewire_ui_fixture.cpp": "7f177c3c25464fa71c2cfcf34ac53fdf90d26649e56d6dfeda1bad4746228118",
+      "tests/playback_bridge_tests.cpp": "a13004d432690fd1676c1d26b428cb287d5c8a4a858411fe4b630da25440e070",
+      "tests/playback_controller_tests.cpp": "d3d4389d66f8de24e01319bb26968e54b13fbdb73b93e8dbd9bc14c432dc6e02",
+      "tests/playback_tests.cpp": "5e88a6305978ecfffea4a1f9a9a049a5e39439c41abfb7531ea4b6537100ccc1",
+      "tests/punch_tests.cpp": "b08b12c9e2efcd2750d6c388187f8800c860830a82fff89eab3f75f2a75ed801",
+      "tests/recording_controller_tests.cpp": "05d395b06390b6681d3fc997b2447595d2f88a398efa562855729214374804b0",
+      "tests/recording_tests.cpp": "b4e5fec52231878e50f6c34a52cd0048f07a3a35d1cacd16643dc3230e84fde1",
+      "tests/routing_tests.cpp": "3a1b628a9346a735c0a2954766a47c97b61250253c4e411be373dd3812f22c47",
+      "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+      "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+      "tests/session_tests.cpp": "2acd5da0242dceecad59a0f3dd197c211ce36b1e141b3ea37331d2d76a8c8e31",
+      "tests/timeline_ui_tests.cpp": "9b0933bc1161619892e89521532d9abd065a83faa0daec572e6928eacad312e9",
+      "tests/ui_tests.cpp": "dc5d0ff8e0d7382ed3793e2729ebe9a38d6ce0668d915e033dd6e909ec00df19",
+      "tests/verify_checkpoint_burst_recovery.py": "ef3d5bfe2510ffd737cf4d860acb00765598d13513ae1ee8eeca0e410cd74553",
+      "tests/verify_duplex_duration.py": "b209ab8760cd1040d13146d1370adaa08e6a8dc218b2e28541fda1175db4b9f9",
+      "tests/verify_editing_cli.py": "3baa6c45b5bd86446b87005724ac4eb37bb0898eb567668cb83d4752c79fd789",
+      "tests/verify_export_cli.py": "57179181cc565e93261a3ba905205a7afd1ea00055afeed6ccf4b687e8de41c4",
+      "tests/verify_mix_cli.py": "1b63e2e3d025af84eac3a9678dca049e3c52deca0fc516cc899762dda919508d",
+      "tests/verify_pipewire_duration.py": "b1b2fa346fae2e97df7e3cb27742656cc0dc32502b7e568559bcd9a8cca3e77b",
+      "tests/verify_pipewire_fixture.py": "b1466fcf751e8a2a3006a11907b662471117c939a87ae356d532c5a7876990ac",
+      "tests/verify_pipewire_manual.py": "9aad0df125c24ad65e87b5dee515713a5fdf05310f1aff2f303d72eaa13dab14",
+      "tests/verify_pipewire_manual_fault.py": "6be79c5ad12a4eeda07fcaeb5366ea71b816836cd93ce5219bbd91a870e4c939",
+      "tests/verify_pipewire_manual_priority.py": "7e20d4499ddd539b99dc8d086ac47eb0de90de6b19f8648f81c6d7f145c2314a",
+      "tests/verify_pipewire_manual_trace.py": "7e62836409c975475d191d1560b63c750f6d7f2cb7cbee6fb4c173a709fe1966",
+      "tests/verify_pipewire_punch.py": "df2c41dfff924bb7a14f9005962a820e8febc5be7729c353be85262c1543eaec",
+      "tests/verify_pipewire_punch_fault.py": "366719951e16af4915833965176469c6a3ce1d2ad000b43d2e1ffaf85b7632de",
+      "tests/verify_pipewire_punch_ui.py": "9584594f1c1149b8f4f48ceda92c57699e735b40c94bd5e8192c038a4fd291a0",
+      "tests/verify_play_cli.py": "e301a4ee7763ca683e6a91379cc02697ecc049fb522c280f7bacfcd5f5ec798e",
+      "tests/verify_record_cli.py": "05c84063add4f313c7a350fbccaf92e9a937bade539bab0f2a6f836f5c7c96cb",
+      "tests/verify_reuse_audit.py": "58066f64cf453583017cc8cda7a88afab89831bafecdaffef15b31578a9ceb10",
+      "tests/verify_timing_reports.py": "98895fb343b48ed84681581319be7539299b9bdfff7efe8ef82f9e247a5022cd",
+      "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
+      "tests/writer_timing_tests.cpp": "f6dbf48c2a7a1852596a5349943e3c8d91aceedc4a42d154af130be8b07f7b39",
+      "third_party/libsndfile/COPYING": "ad01ea5cd2755f6048383c8d54c88459cd6fcb17757c5c8892f8c5ea060f6140",
+      "third_party/libsndfile/sndfile.h": "911098ea4b66f0c5ad59785b176f2b19f6e657042c15c93791edb53467efd6c0",
+      "third_party/manifest.json": "a7453ea21aff05debcbfa8683d04cbbf75bf75ddcbb96a64d0006ca2bb22361a",
+      "third_party/nlohmann/LICENSE.MIT": "46a65cffd1ea955132d95a8dd921640714a8d6b537d2e4e482d31145ae95b603",
+      "third_party/nlohmann/json.hpp": "aaf127c04cb31c406e5b04a63f1ae89369fccde6d8fa7cdda1ed4f32dfc5de63",
+      "CMakeLists.txt": "6fdb5aa184e3c81089ec19e50ee51eb1dc4579689855afb792f8a46c8a24f41a",
+      ".cache/build-desktop-release/CMakeCache.txt": "fba798ce8e70e7cac7b444b5d2d3e689739f7dcb4be7a8be3582b4a7f5758d6c",
+      ".cache/build-desktop-release/libsc-ui-export.a": "170dfabebf36730753c84f400657ef784bebe52cf50126e188a362b1f8ada4c6",
+      ".cache/build-desktop-release/libsc-ui-equipment.a": "d5ec4ef206d60557711c7a031bb76f7cabea47bbaeec3106e6665ffe5676618d",
+      ".cache/build-desktop-release/libsc-pipewire-recording.a": "94fc563944ae0bd5f022436d5ea79c49817819ee3da75e6b7f6a994f641c99ab",
+      ".cache/build-desktop-release/libsc-playback.a": "42be79b3dc3a4e2b2c168547f742ebcf0b0f6a0b2a63971dc2a326dcb80c5f4e",
+      ".cache/build-desktop-release/libsc-media.a": "db960567accc374f3f5bdaaa62afce152d0a01e36cfed9fd93eec7df89e90bbc",
+      ".cache/build-desktop-release/libsc-engine.a": "41d38710efbfd01f47d2d47c532a44c77d2d835c7ee009b39ded997afd9a28f0",
+      ".cache/build-desktop-release/libsc-pipewire-manual-recording.a": "7241b33e1b6a20e13400ad6320851a266fac9f8b835e2c232609e05421612146",
+      ".cache/build-desktop-release/libsc-ui-timeline.a": "d7504e8594dd6857b934612c672229a7463fa03d2145caa306447c1ef44c347f",
+      ".cache/build-desktop-release/libsc-capture.a": "4680d93f4d18da989c229d683cc75dc5eb98511f4646e9bdb0dffb2426c41e06",
+      ".cache/build-desktop-release/libsc-ui-playback.a": "7ab1b94cdfae40d9108a8bcc35072a159469140c84ece6988822373b4635f2a6",
+      ".cache/build-desktop-release/libsc-pipewire.a": "914b45e1c739ed65b14ed68dbae94de0f80dafff601d99ff7aefc058b78d5d2c",
+      ".cache/build-desktop-release/libsc-pipewire-duplex-recording.a": "ce5559c845f412bf261e03451d618f4e8b53551374edb0f8930621aef50f6acd",
+      ".cache/build-desktop-release/libsc-ui-recording.a": "de4d209c6d7fec7626c0864ae2808fb753fe8b57e31d01e2781da21920a21aec",
+      ".cache/build-desktop-release/libsc-ui-controller.a": "7df6bc22e8f399f574c4feda875943f4c1ad2b34990b2ebeef5630dede69b831",
+      ".cache/build-desktop-release/libsc-project-store.a": "0b3c381424ae28b69d903e9cffec5710d84453ff8d119908ffa6acd7ce9ee2c4",
+      ".cache/build-desktop-release/libsc-pipewire-playback.a": "d8a911905a2b5c6af5edbf250c6f49cdeba62e4dc1ceb5af2ed011860a283db5",
+      ".cache/build-desktop-release/libsc-session.a": "decfb75e5a37c22f32f7b0e6caa4ad6d308def72324b631852c4be9b093cb014",
+      ".cache/build-desktop-release/libsc-audio-bridge.a": "0292cc3b1428e0252011553f3ca6e902b205ba8f23569b9a82431a56b50257c8",
+      ".cache/build-desktop-release/sc-manual-interrupt-tests": "ec6af3ab82e0346b23b85effa47d408dba96b67210f4db6e8a22c3911bbc70bb",
+      ".cache/build-desktop-release/sc-manual-recording-tests": "5011523f16d23069fd458ffa44e47630c1f8d7eb5844f8a76dc92b9d0e6287d9",
+      ".cache/build-desktop-release/sc-pipewire-manual-priority-fixture": "6c2fef601b27b1ff7f6a51ae7b918b54166b284f1f850f2d900269e7c40a198e",
+      ".cache/build-desktop-release/sc-pipewire-manual-handoff-fixture": "c419e7aed4fb7053355e3ed52ee0d97cf4615d596e27c99e32e33f562005c7aa",
+      ".cache/build-desktop-release/sc-handoff-tests": "4ca5220f86f949d89a5f2987a23717d92f8150eafdb9c3a49d281d380a099cf3"
+    }
+  },
+  "native_stop": {
+    "project_directory": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/Manual fault — Ελληνικά",
+    "stdout": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/stdout.json",
+    "stderr": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/stderr.log",
+    "native": true,
+    "mode": "early-stop",
+    "binary": "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-pipewire-manual-handoff-fixture",
+    "binary_sha256": "c419e7aed4fb7053355e3ed52ee0d97cf4615d596e27c99e32e33f562005c7aa",
+    "verifier_sha256": "6be79c5ad12a4eeda07fcaeb5366ea71b816836cd93ce5219bbd91a870e4c939",
+    "scheduler_samples": [
+      {
+        "tid": 2078012,
+        "name": "sc-pipewire-man",
+        "policy": 0,
+        "base_policy": 0,
+        "reset_on_fork": false,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078015,
+        "name": "sc-pipewire-man",
+        "policy": 0,
+        "base_policy": 0,
+        "reset_on_fork": false,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078016,
+        "name": "module-rt",
+        "policy": 1073741824,
+        "base_policy": 0,
+        "reset_on_fork": true,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078017,
+        "name": "data-loop.0",
+        "policy": 1073741826,
+        "base_policy": 2,
+        "reset_on_fork": true,
+        "priority": 20,
+        "nice": 0
+      },
+      {
+        "tid": 2078019,
+        "name": "sc-daw-recordin",
+        "policy": 1073741824,
+        "base_policy": 0,
+        "reset_on_fork": true,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078023,
+        "name": "sc-pipewire-man",
+        "policy": 0,
+        "base_policy": 0,
+        "reset_on_fork": false,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078024,
+        "name": "sc-pipewire-man",
+        "policy": 0,
+        "base_policy": 0,
+        "reset_on_fork": false,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078025,
+        "name": "module-rt",
+        "policy": 1073741824,
+        "base_policy": 0,
+        "reset_on_fork": true,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078026,
+        "name": "data-loop.0",
+        "policy": 1073741826,
+        "base_policy": 2,
+        "reset_on_fork": true,
+        "priority": 20,
+        "nice": 0
+      },
+      {
+        "tid": 2078027,
+        "name": "sc-daw-fixture-",
+        "policy": 1073741824,
+        "base_policy": 0,
+        "reset_on_fork": true,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078028,
+        "name": "module-rt",
+        "policy": 1073741824,
+        "base_policy": 0,
+        "reset_on_fork": true,
+        "priority": 0,
+        "nice": 0
+      },
+      {
+        "tid": 2078029,
+        "name": "data-loop.0",
+        "policy": 1073741826,
+        "base_policy": 2,
+        "reset_on_fork": true,
+        "priority": 20,
+        "nice": 0
+      },
+      {
+        "tid": 2078030,
+        "name": "sc-daw-fixture-",
+        "policy": 1073741824,
+        "base_policy": 0,
+        "reset_on_fork": true,
+        "priority": 0,
+        "nice": 0
+      }
+    ],
+    "graph_snapshots": 9,
+    "linked_snapshots": 3,
+    "owned_pid": 2078012,
+    "exit_code": 0,
+    "child_result": {
+      "armed_tracks": 32,
+      "callback_timing": {
+        "owner": {
+          "callback_end_after_cycle_period_count": 0,
+          "calls": 196,
+          "clock_failures": 0,
+          "complete_cpu_coverage": true,
+          "complete_thread_usage_coverage": true,
+          "complete_timing_coverage": true,
+          "cpu_clock_failures": 0,
+          "cpu_samples": 196,
+          "cpu_timing_requested": true,
+          "cycle_context_samples": 196,
+          "cycle_context_unknown": 0,
+          "dropped_samples": 0,
+          "finite_deadline_thresholds_met": true,
+          "maximum_callback_cpu_known": true,
+          "maximum_callback_cpu_ns": 952452,
+          "maximum_callback_end_after_cycle_ns": 1225464,
+          "maximum_callback_start_monotonic_ns": 182343091587748,
+          "maximum_callback_thread_usage": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 949000,
+            "voluntary_switches": 0
+          },
+          "maximum_clock": {
+            "cycle": 8618562,
+            "discontinuity": false,
+            "duration": 256,
+            "id": 35,
+            "nsec": 182343091316978,
+            "position": 5694333440,
+            "rate_denominator": 48000,
+            "rate_numerator": 1,
+            "xrun": false
+          },
+          "maximum_clock_known": true,
+          "maximum_cpu_ns": 952452,
+          "maximum_cycle_callback_cpu_known": true,
+          "maximum_cycle_callback_cpu_ns": 952452,
+          "maximum_cycle_callback_start_monotonic_ns": 182343091587748,
+          "maximum_cycle_callback_wall_ns": 954694,
+          "maximum_cycle_clock": {
+            "cycle": 8618562,
+            "discontinuity": false,
+            "duration": 256,
+            "id": 35,
+            "nsec": 182343091316978,
+            "position": 5694333440,
+            "rate_denominator": 48000,
+            "rate_numerator": 1,
+            "xrun": false
+          },
+          "maximum_cycle_thread_usage": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 949000,
+            "voluntary_switches": 0
+          },
+          "maximum_integer_rate": 48000,
+          "maximum_major_faults": 0,
+          "maximum_minor_faults": 1,
+          "maximum_ns": 954694,
+          "maximum_period_ratio": 0.179005,
+          "maximum_quantum": 256,
+          "maximum_system_ns": 626000,
+          "maximum_wall_minus_cpu_ns": 3253,
+          "mean_cpu_ns": 331016,
+          "minimum_integer_rate": 48000,
+          "minimum_quantum": 256,
+          "missing_periods": 0,
+          "p50_ns": 265438,
+          "p999_ns": 954694,
+          "p999_period_ratio": 0.179005,
+          "p99_ns": 771871,
+          "samples": 196,
+          "thread_usage_failures": 0,
+          "thread_usage_requested": true,
+          "thread_usage_samples": 196,
+          "thread_usage_totals": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 1,
+            "system_ns": 12044000,
+            "user_ns": 52159000,
+            "voluntary_switches": 0
+          }
+        },
+        "sink": {
+          "callback_end_after_cycle_period_count": 0,
+          "calls": 195,
+          "clock_failures": 0,
+          "complete_cpu_coverage": true,
+          "complete_thread_usage_coverage": true,
+          "complete_timing_coverage": true,
+          "cpu_clock_failures": 0,
+          "cpu_samples": 195,
+          "cpu_timing_requested": true,
+          "cycle_context_samples": 195,
+          "cycle_context_unknown": 0,
+          "dropped_samples": 0,
+          "finite_deadline_thresholds_met": true,
+          "maximum_callback_cpu_known": true,
+          "maximum_callback_cpu_ns": 27472,
+          "maximum_callback_end_after_cycle_ns": 1262782,
+          "maximum_callback_start_monotonic_ns": 182342494991559,
+          "maximum_callback_thread_usage": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 14000,
+            "voluntary_switches": 0
+          },
+          "maximum_clock": {
+            "cycle": 8618450,
+            "discontinuity": false,
+            "duration": 256,
+            "id": 35,
+            "nsec": 182342493980098,
+            "position": 5694304768,
+            "rate_denominator": 48000,
+            "rate_numerator": 1,
+            "xrun": false
+          },
+          "maximum_clock_known": true,
+          "maximum_cpu_ns": 27472,
+          "maximum_cycle_callback_cpu_known": true,
+          "maximum_cycle_callback_cpu_ns": 6579,
+          "maximum_cycle_callback_start_monotonic_ns": 182343092571824,
+          "maximum_cycle_callback_wall_ns": 7936,
+          "maximum_cycle_clock": {
+            "cycle": 8618562,
+            "discontinuity": false,
+            "duration": 256,
+            "id": 35,
+            "nsec": 182343091316978,
+            "position": 5694333440,
+            "rate_denominator": 48000,
+            "rate_numerator": 1,
+            "xrun": false
+          },
+          "maximum_cycle_thread_usage": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 0,
+            "voluntary_switches": 0
+          },
+          "maximum_integer_rate": 48000,
+          "maximum_major_faults": 0,
+          "maximum_minor_faults": 0,
+          "maximum_ns": 30608,
+          "maximum_period_ratio": 0.005739,
+          "maximum_quantum": 256,
+          "maximum_system_ns": 0,
+          "maximum_wall_minus_cpu_ns": 3136,
+          "mean_cpu_ns": 6701,
+          "minimum_integer_rate": 48000,
+          "minimum_quantum": 256,
+          "missing_periods": 0,
+          "p50_ns": 6953,
+          "p999_ns": 30608,
+          "p999_period_ratio": 0.005739,
+          "p99_ns": 24469,
+          "samples": 195,
+          "thread_usage_failures": 0,
+          "thread_usage_requested": true,
+          "thread_usage_samples": 195,
+          "thread_usage_totals": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 14000,
+            "voluntary_switches": 0
+          }
+        },
+        "source": {
+          "callback_end_after_cycle_period_count": 0,
+          "calls": 287,
+          "clock_failures": 0,
+          "complete_cpu_coverage": true,
+          "complete_thread_usage_coverage": true,
+          "complete_timing_coverage": true,
+          "cpu_clock_failures": 0,
+          "cpu_samples": 287,
+          "cpu_timing_requested": true,
+          "cycle_context_samples": 287,
+          "cycle_context_unknown": 0,
+          "dropped_samples": 0,
+          "finite_deadline_thresholds_met": true,
+          "maximum_callback_cpu_known": true,
+          "maximum_callback_cpu_ns": 188680,
+          "maximum_callback_end_after_cycle_ns": 308009,
+          "maximum_callback_start_monotonic_ns": 182342264723253,
+          "maximum_callback_thread_usage": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 0,
+            "voluntary_switches": 0
+          },
+          "maximum_clock": {
+            "cycle": 8618407,
+            "discontinuity": false,
+            "duration": 256,
+            "id": 35,
+            "nsec": 182342264645403,
+            "position": 5694293760,
+            "rate_denominator": 48000,
+            "rate_numerator": 1,
+            "xrun": false
+          },
+          "maximum_clock_known": true,
+          "maximum_cpu_ns": 188680,
+          "maximum_cycle_callback_cpu_known": true,
+          "maximum_cycle_callback_cpu_ns": 168150,
+          "maximum_cycle_callback_start_monotonic_ns": 182342755451426,
+          "maximum_cycle_callback_wall_ns": 171566,
+          "maximum_cycle_clock": {
+            "cycle": 8618499,
+            "discontinuity": false,
+            "duration": 256,
+            "id": 35,
+            "nsec": 182342755314983,
+            "position": 5694317312,
+            "rate_denominator": 48000,
+            "rate_numerator": 1,
+            "xrun": false
+          },
+          "maximum_cycle_thread_usage": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 0,
+            "voluntary_switches": 0
+          },
+          "maximum_integer_rate": 48000,
+          "maximum_major_faults": 0,
+          "maximum_minor_faults": 0,
+          "maximum_ns": 192568,
+          "maximum_period_ratio": 0.0361065,
+          "maximum_quantum": 256,
+          "maximum_system_ns": 0,
+          "maximum_wall_minus_cpu_ns": 15218,
+          "mean_cpu_ns": 58699,
+          "minimum_integer_rate": 48000,
+          "minimum_quantum": 256,
+          "missing_periods": 0,
+          "p50_ns": 43017,
+          "p999_ns": 192568,
+          "p999_period_ratio": 0.0361065,
+          "p99_ns": 181310,
+          "samples": 287,
+          "thread_usage_failures": 0,
+          "thread_usage_requested": true,
+          "thread_usage_samples": 287,
+          "thread_usage_totals": {
+            "involuntary_switches": 0,
+            "known": true,
+            "major_faults": 0,
+            "minor_faults": 0,
+            "system_ns": 0,
+            "user_ns": 0,
+            "voluntary_switches": 0
+          }
+        }
+      },
+      "canceled_group_adoption_refused": false,
+      "canceled_lanes": 0,
+      "device_playback_origin": 5694286848,
+      "empty_lanes": 8,
+      "explicit_partial_adoption": true,
+      "failed_lanes": 0,
+      "first_service_frame": 49801,
+      "grouped_undo_redo": true,
+      "hash_failure_after_postroll": false,
+      "initiating_writer_error_retained": false,
+      "injected_position": 49801,
+      "maximum_sample_difference": 0.0,
+      "missing_track_frames": 0,
+      "mode": "early-stop",
+      "native": true,
+      "original_journals_unchanged": true,
+      "original_media_unchanged": true,
+      "output_common_frames": 49664,
+      "output_peak": 2.8572838306427,
+      "output_retained_frames": 49920,
+      "output_samples_verified": 99328,
+      "owned_nodes_only": true,
+      "physical_latency_qualified": false,
+      "playback_start": 137,
+      "priority_callback_applied": true,
+      "priority_disk_startup_held": true,
+      "priority_held_at_request": true,
+      "priority_request_after": 49801,
+      "priority_request_before": 49801,
+      "priority_requested_cancel": false,
+      "priority_service_delay_frames": 1536,
+      "punch_in": 48150,
+      "raw_lanes": [
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "Cannot finalize an empty take",
+          "lane": 0,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "d567461b-0ac7-4a8b-99b2-3f2eceaca818",
+          "track": "50b58201-c3d0-4fc2-a876-e7122d43e4c1",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 1,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "a6be1e6bedb5cb4f7297b7c77463c1cc49c3ab015e57e9e2c4efabef20c679d3",
+          "original_media_sha256": "d40d9d831d84eb3cda106f21d3d457e225518745ae8b5c53408e0dd690dc201f",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "ec1f6c27-a6c8-4eda-a888-ca2a50df4552",
+          "sha256": "d40d9d831d84eb3cda106f21d3d457e225518745ae8b5c53408e0dd690dc201f",
+          "source_id": "1a8a0199-b117-4a81-b654-c041cf0df050",
+          "track": "99f9865d-7963-4f14-903a-9cd44fd39a8c",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 2,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "a4cf533fa9c183408b7ef73b6a369c16456c3721aad1f835c6c466817e29ee77",
+          "original_media_sha256": "6b492f05d62d3608c252717abe155e707713e34b579476c19c428be049f40c58",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "85b2d8c5-8545-441f-959b-3259dde32380",
+          "sha256": "6b492f05d62d3608c252717abe155e707713e34b579476c19c428be049f40c58",
+          "source_id": "f490ae8f-f69e-41f3-b70f-9ecc76ec3b89",
+          "track": "f70034c3-1dd7-4d5b-9030-a043af7a66bb",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 3,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "2d0ba484848da69ea8a17f5a9dc0b5e0ab479336972f82f81b28c9753816b2e3",
+          "original_media_sha256": "82968961c6760238b6fb87e2fff7c82d3099b77f6af86865f72104c6d8c22d9f",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "b102dc41-95a6-434b-8608-165445358bee",
+          "sha256": "82968961c6760238b6fb87e2fff7c82d3099b77f6af86865f72104c6d8c22d9f",
+          "source_id": "4f9c8663-1502-4d04-81c2-9ad3aea15621",
+          "track": "a1e14dd7-e2b4-4c01-9703-b9213b42fbab",
+          "verification_error": "",
+          "written": 1451
+        },
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "",
+          "lane": 4,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "219fe02e-124d-4299-90ce-3f0b718a22c6",
+          "track": "cb5d51ca-bcc4-4585-a232-defd41bc65ec",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 5,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "5102d81f8f254ab6790b096db624f6795685ed25c3bde73709586b9f1a9dccc4",
+          "original_media_sha256": "3848caf091e7c566b60e8128412a814450339a82b5bce0d6076259e944821106",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "5d64fd63-bf78-41be-873d-b66504eacf06",
+          "sha256": "3848caf091e7c566b60e8128412a814450339a82b5bce0d6076259e944821106",
+          "source_id": "a5306aae-d515-4a90-bbc5-fdc070bdb480",
+          "track": "d2f80a70-4a8b-431e-9a1c-7a83f1cea023",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 6,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "84c2321b6a51200806551fb6015053517e1bd70a79a1e50b45921a3711605326",
+          "original_media_sha256": "6ab8d508e65343e5c4ad33140d04d9ce1b27456f71c5b39b45a9160cad7032de",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "36d0cb14-6f1b-4ed7-8d77-570c15e4247e",
+          "sha256": "6ab8d508e65343e5c4ad33140d04d9ce1b27456f71c5b39b45a9160cad7032de",
+          "source_id": "0b438fed-3263-4c4a-8430-e22d14cef78f",
+          "track": "f80ce930-fe8f-4fb9-9c7e-4f097c9a5972",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 7,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "f78d0c41e2956931a2d4376d26a88f0a8e930652160cd283bbbf60b5a3434ed5",
+          "original_media_sha256": "0c1a783d3f89123d87bb23e22b0308c1a104af7c1b2765a4842a26e88239f1be",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "43b515a9-72d9-4f09-aac1-07911aa7db1c",
+          "sha256": "0c1a783d3f89123d87bb23e22b0308c1a104af7c1b2765a4842a26e88239f1be",
+          "source_id": "fb8dac45-3d95-46ef-878b-6c9b01fd1378",
+          "track": "e03e860a-1c0c-4599-ab15-228a119c6dc5",
+          "verification_error": "",
+          "written": 1451
+        },
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "",
+          "lane": 8,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "d2c16b44-2509-41ba-9b4f-613e8ff2728c",
+          "track": "c779c83f-6531-41b7-b211-1e6d7e8040d9",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 9,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "9512e863312fda084404a3a3dc3063cc783249dc64b32388f2c1aa390e04deef",
+          "original_media_sha256": "75d5eb6832cfba3ceaac336951f3cb87fcb881045b851bae42ca31920fc80b97",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "b173943a-8fd9-4e53-a92c-e24562f80ff5",
+          "sha256": "75d5eb6832cfba3ceaac336951f3cb87fcb881045b851bae42ca31920fc80b97",
+          "source_id": "0887ad10-07e6-4f5b-89d5-a120970e450e",
+          "track": "c4eeede6-c100-4eb8-ad56-f4bc7ed32b75",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 10,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "7556c80336f3e02ad1a3e9f8b1782e6f2a47e4d9a398609b905b8c3a4f240c0f",
+          "original_media_sha256": "62e7d5343abcb324188dac9d5c3cc14a5793820350be2141dc30a6241780b0f7",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "dd002163-ecae-4642-918c-6a1e76588d0d",
+          "sha256": "62e7d5343abcb324188dac9d5c3cc14a5793820350be2141dc30a6241780b0f7",
+          "source_id": "dd291af1-bf36-447e-9c32-44b5ec67fec9",
+          "track": "4afda9ba-8fd3-4910-922f-d907fd5ebae7",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 11,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "7ad1608743376d4874e73accc20863da1ffc77cf0e4281ca9d23d15eb2264766",
+          "original_media_sha256": "c8975adb0d818331f59e3197be790bff776b20cfcdd2e2c7fd24aadc615628e9",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "94165e55-efbf-4734-969e-8a874c6ef7a2",
+          "sha256": "c8975adb0d818331f59e3197be790bff776b20cfcdd2e2c7fd24aadc615628e9",
+          "source_id": "bee9db41-679f-4bd9-afc5-03ac268937da",
+          "track": "d76e3e1d-5aa1-43ca-be07-74abc73ccf18",
+          "verification_error": "",
+          "written": 1451
+        },
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "",
+          "lane": 12,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "ebe609f8-444f-434c-b547-fdd8d83838be",
+          "track": "a0efe9d6-b1c3-4028-ac43-b2a6c93980c9",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 13,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "cc6a674a9b90943175e5cf881f51a10aac9f0f4930fb6ef8182cc229d53f240d",
+          "original_media_sha256": "80d89e48f04ff4641e7426c92fa0f879e24a360d0ec6a556c13f80de03e3e6d1",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "a8b9237c-02a5-4f0e-8da0-2b715c26cce5",
+          "sha256": "80d89e48f04ff4641e7426c92fa0f879e24a360d0ec6a556c13f80de03e3e6d1",
+          "source_id": "f786c39c-dc63-423e-9e2a-9f27f969e71f",
+          "track": "04e431cf-f7bc-4071-b76a-d6dd8b730ee4",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 14,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "090ed79e8057f7b09d70466d0972b07a454ef3fd709f3708f0d4e775aefda7b7",
+          "original_media_sha256": "3178b5ea1941fb5f573e67689c6f3829a947c3803d8abcabe04e181fcd6c7d53",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "90c08523-7b44-4bb0-a30e-bd08178b0bc5",
+          "sha256": "3178b5ea1941fb5f573e67689c6f3829a947c3803d8abcabe04e181fcd6c7d53",
+          "source_id": "bebec932-7fbb-4e57-934b-df6a82c2694d",
+          "track": "70036b72-bc1a-49a5-847f-b7d85d7e4565",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 15,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "e4be1424f5a0af169c9e1ea603ee27969daed486804656b80993a072496fe859",
+          "original_media_sha256": "c40f7c1933f74d42e2d6d6f423db3c29e1d1ca79840565a1cf70f1f941c723c9",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "ed665636-082f-42c8-bd51-a39659b15c4b",
+          "sha256": "c40f7c1933f74d42e2d6d6f423db3c29e1d1ca79840565a1cf70f1f941c723c9",
+          "source_id": "38af044a-c811-41b8-bd49-803ba129f36a",
+          "track": "420dca58-e833-445b-a8e9-2d8eb623ad86",
+          "verification_error": "",
+          "written": 1451
+        },
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "",
+          "lane": 16,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "5f7a5f19-e538-4990-b220-abafdc2562a2",
+          "track": "4ea001e3-31d6-45a2-aa1f-62f80174b4cc",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 17,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "2f58de16f80da77fa1289e5f41b816129b61896f14714fcb855b1f59357a01db",
+          "original_media_sha256": "880fb3153e7677bc819f4ccd42447e3fb5c4b1dc0f405079bdbb89eece42b127",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "ceb7489b-d590-4c9a-82e6-da4c8eaf4345",
+          "sha256": "880fb3153e7677bc819f4ccd42447e3fb5c4b1dc0f405079bdbb89eece42b127",
+          "source_id": "cda24f16-8825-4f1d-ada5-b5fa630be612",
+          "track": "7932042f-4a5c-467c-bba6-81c927624afa",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 18,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "ea9147cd4f8ef3f555375437390da266d61f252e6c179199397b20438c6bee12",
+          "original_media_sha256": "a78dfe43bac0a666549ec3fca4a61747c3c3855eaeb0f1b462ea98766d31362e",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "1abbbbcf-b6d8-4908-b89b-122dd419e944",
+          "sha256": "a78dfe43bac0a666549ec3fca4a61747c3c3855eaeb0f1b462ea98766d31362e",
+          "source_id": "240ac57c-6be4-4106-a94b-d18d6a7b226e",
+          "track": "204e3f11-fd7b-4fb4-af1b-2fda9d7f4978",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 19,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "8ad56d4c6126af171ca2835f7c9c287d2a6540a7c42421ab8aecc4f6d68afbdb",
+          "original_media_sha256": "b76b7eadacada2c9743292912ff416f93c1910653c640c0926d808d9e712fa1b",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "0a132b57-12af-4770-ab4e-e88de681c0e0",
+          "sha256": "b76b7eadacada2c9743292912ff416f93c1910653c640c0926d808d9e712fa1b",
+          "source_id": "96c714ba-1d28-4f45-be45-85f71bc2342b",
+          "track": "af815ab7-cbc5-4b04-bc75-b78453443ee0",
+          "verification_error": "",
+          "written": 1451
+        },
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "",
+          "lane": 20,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "717a628e-36b0-46d7-99e8-e770129bc6f1",
+          "track": "7667f9ac-0e5c-4b7b-8448-d709d86c72b0",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 21,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "2441153737c84d5708bcd6de502ac16857460c2f02afba806edb09828806d03f",
+          "original_media_sha256": "fd8f81afe2bb336ef6a4e784fe6e4dee4b4159d3d2a0a86ec3df459d7a4a0c0c",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "5ec7c04b-29d3-4983-8607-9f98ad6d7762",
+          "sha256": "fd8f81afe2bb336ef6a4e784fe6e4dee4b4159d3d2a0a86ec3df459d7a4a0c0c",
+          "source_id": "215adbaf-6324-48cc-b66a-a52c4acce2d1",
+          "track": "81f5b637-473a-4108-b9a2-39fb09e26897",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 22,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "f3e0263254761d063cde8f89728410b80e04ed694e7fb1ac8d39a3b00b8f3e37",
+          "original_media_sha256": "18636070c4cca5d0da890f33f2ed331a743f88605b7c1ef5ec52b42cf7bad371",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "a5d73c43-8f01-457c-a114-c0a6b4574519",
+          "sha256": "18636070c4cca5d0da890f33f2ed331a743f88605b7c1ef5ec52b42cf7bad371",
+          "source_id": "b406fec4-ccd6-4814-8225-31b8e811e8b2",
+          "track": "7aafd902-e23c-417d-98d2-1ad9ace0fad4",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 23,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "4d9e80453f9ae767537d1ee29790efb3e6555683f914f9f1b1beb72bd788ea54",
+          "original_media_sha256": "6003b023afaff613084f98248a1576688aaffc07b5d0224e2413b3344dd00141",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "56001b26-3f73-4fc5-8f09-e1da65feb08d",
+          "sha256": "6003b023afaff613084f98248a1576688aaffc07b5d0224e2413b3344dd00141",
+          "source_id": "ea23dc64-ab66-47ea-9c83-b37f73025c90",
+          "track": "94948f8b-4788-4343-b8ef-d9142b3ac353",
+          "verification_error": "",
+          "written": 1451
+        },
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "",
+          "lane": 24,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "ae412f37-7513-4065-98f5-f7a157873250",
+          "track": "86ff3a0a-13c4-45bc-a539-a19fdb7661e2",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 25,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "9f99ea13e6e47ee05b4f0072b7ac2cc275df673bb6a36cca240ea314d0c3b6d9",
+          "original_media_sha256": "6d84d7d7fd48fd59a11617419b3e09c0f13dca10d9135fbea64419a6059ed633",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "bbcd56a0-e265-4d99-9ec8-e3a3271f9664",
+          "sha256": "6d84d7d7fd48fd59a11617419b3e09c0f13dca10d9135fbea64419a6059ed633",
+          "source_id": "350c06b8-e227-4315-a3d4-09924a97fdf1",
+          "track": "190fedaa-b454-4aa8-9036-35f93690a091",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 26,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "076d9c4a06a0a0dfceaefab7f8b0ecafd331a2959e226da5c8f9f7849b4a93cd",
+          "original_media_sha256": "e7206f87ea72d865f1fb4e5b974a1333a0e43d04ad8166e3f550043832f614a0",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "5ea9d7f7-e49d-4f28-912e-1aeaafb3a8f9",
+          "sha256": "e7206f87ea72d865f1fb4e5b974a1333a0e43d04ad8166e3f550043832f614a0",
+          "source_id": "4d689704-70fb-40ea-a385-72d2e00bb5b9",
+          "track": "b24d7199-250c-4e31-b62b-5b423189fdb9",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 27,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "ac855866d294afbe550dd6355ca94c5230748b634711ac893daa8b239dd93d09",
+          "original_media_sha256": "9fab530a876052060ccd66f1bfb3085ae2bc887998864fe1958e371f9a3e3aa5",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "ed48b677-e60e-4517-8b4f-68cd459d33c9",
+          "sha256": "9fab530a876052060ccd66f1bfb3085ae2bc887998864fe1958e371f9a3e3aa5",
+          "source_id": "ced81af3-8d5f-431f-9edb-836162498aa4",
+          "track": "f614363c-facd-45a6-b804-139f92b49859",
+          "verification_error": "",
+          "written": 1451
+        },
+        {
+          "captured": 0,
+          "durable": 0,
+          "error": "",
+          "lane": 28,
+          "latency": 4097,
+          "outcome": 1,
+          "raw_start": 52247,
+          "recovered_id": null,
+          "source_id": "51f4345a-d1ba-408e-9b7c-3554e62f124d",
+          "track": "0c107c2e-afcd-42b4-b98c-15212b481ce0",
+          "verification_error": "",
+          "written": 0
+        },
+        {
+          "captured": 1651,
+          "device_origin": 5694334861,
+          "durable": 1651,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 29,
+          "latency": 0,
+          "origin_offset": 141,
+          "origin_quantum": 256,
+          "original_journal_sha256": "79de5dda51d0c651d070832b9205509ca1f6f2b624eb00a337c39cf86a74dda4",
+          "original_media_sha256": "4fda16125b231163b5c9ec0f87f8c9d1a25cff10ad940bd04a8e63cbae336df3",
+          "outcome": 0,
+          "raw_start": 48150,
+          "recovered_id": "357030f2-ba36-46eb-a92a-c9dbf981fa30",
+          "sha256": "4fda16125b231163b5c9ec0f87f8c9d1a25cff10ad940bd04a8e63cbae336df3",
+          "source_id": "fb44ff8e-44af-48dc-b084-c01454462ac7",
+          "track": "c220afcb-355d-4f23-a5a2-7468d26e5dee",
+          "verification_error": "",
+          "written": 1651
+        },
+        {
+          "captured": 1610,
+          "device_origin": 5694334902,
+          "durable": 1610,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 30,
+          "latency": 41,
+          "origin_offset": 182,
+          "origin_quantum": 256,
+          "original_journal_sha256": "cfc44fd670bfb04919d2a51e95366f170871a284870ef49eaa6393dbd15afe42",
+          "original_media_sha256": "4613aef72afc53609edc08f2487f76844ddd7f053b71221db67bd7d411488a55",
+          "outcome": 0,
+          "raw_start": 48191,
+          "recovered_id": "8ca88323-f670-4f62-bc0d-6990aebfff8f",
+          "sha256": "4613aef72afc53609edc08f2487f76844ddd7f053b71221db67bd7d411488a55",
+          "source_id": "025cb53e-15e0-466e-84cc-951704ecdd36",
+          "track": "a6c4d0d7-cbf1-4802-a5e8-f80a8440812a",
+          "verification_error": "",
+          "written": 1610
+        },
+        {
+          "captured": 1451,
+          "device_origin": 5694335061,
+          "durable": 1451,
+          "end_reason": 1,
+          "error": "",
+          "finalized": true,
+          "lane": 31,
+          "latency": 200,
+          "origin_offset": 85,
+          "origin_quantum": 256,
+          "original_journal_sha256": "2ab025baf93342876b153aa57368a8734c145eaa47ef5a0d377beef56f10fe20",
+          "original_media_sha256": "678dce2a4a051aa0abde5d38aac09b55e9fd1d924d9632484ff79146c4b61bff",
+          "outcome": 0,
+          "raw_start": 48350,
+          "recovered_id": "849d690f-5d87-4ae3-907b-9fa2883bba11",
+          "sha256": "678dce2a4a051aa0abde5d38aac09b55e9fd1d924d9632484ff79146c4b61bff",
+          "source_id": "1a21c6b3-4572-420d-a013-433b3bd65981",
+          "track": "d5040f8e-657d-4f95-8ba7-e097b5185739",
+          "verification_error": "",
+          "written": 1451
+        }
+      ],
+      "raw_samples_verified": 37696,
+      "recovered_samples_verified": 37696,
+      "recovered_takes": 24,
+      "reliable_replies": 2,
+      "rt_allocations": 0,
+      "rt_blocking_locks": 0,
+      "rt_frees": 0,
+      "save_reopen": true,
+      "scheduled_out": 144164,
+      "status": 4,
+      "stopped_position": 49801,
+      "successful_lanes": 24,
+      "sustained_performance_qualified": false,
+      "windows_qualified": false
+    },
+    "wall_seconds": 2.345317700994201,
+    "routing_observations": {
+      "default_metadata_unchanged": true,
+      "pre_existing_links_preserved": 4,
+      "owned_nodes_remaining": 0,
+      "owned_links_remaining": 0,
+      "no_observed_owned_to_unowned_links": true
+    },
+    "owned_route_details": {
+      "path": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/owned-route-details.json",
+      "snapshots": 3,
+      "sha256": "f620a4ace1ec5db0a0e9a3255d91216af0c15506296c5ce0cf613fc519cf7a4d"
+    },
+    "artifacts": {
+      "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/stdout.json": "3bb9e52b46b0eb948487e3dfd8593635dbc3a4748346053b5176918103c4c862",
+      "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/stderr.log": "0054c4ad21bbfa3d3b92bcc3bc2bdc18c3e36ad0c3b8fd563eb047ec9a6f2655"
+    }
+  },
+  "independent_priority_trace": {
+    "priority_qualified": true,
+    "original_fixture_gates_met": true,
+    "trace": {
+      "qualified_trace": true,
+      "coverage": {
+        "source": {
+          "callbacks": 287,
+          "observed_ports": 9184,
+          "sampled_ports": 6445,
+          "active_rows": 202,
+          "nonadvancing_rows": 85,
+          "bridge_calls": 0,
+          "generated_rows": 207,
+          "unavailable_generated_rows": 5,
+          "partial_generated_rows": 1,
+          "unknown_clocks": 0,
+          "missing_source_rows": 0
+        },
+        "owner": {
+          "callbacks": 196,
+          "observed_ports": 6272,
+          "sampled_ports": 6272,
+          "active_rows": 194,
+          "nonadvancing_rows": 2,
+          "bridge_calls": 196,
+          "generated_rows": 0,
+          "unavailable_generated_rows": 0,
+          "partial_generated_rows": 0,
+          "unknown_clocks": 0,
+          "missing_source_rows": 0
+        }
+      },
+      "problems": [],
+      "marker_mismatches": [],
+      "processing_stages": {
+        "test_only_linker_wrappers": true,
+        "nested_costs_inclusive": true,
+        "total_bridge": {
+          "calls": 196,
+          "wall_ns": 61155794,
+          "cpu_ns": 60827799,
+          "unknown_intervals": 0
+        },
+        "total_stages": {
+          "raw_capture": {
+            "calls": 160,
+            "wall_ns": 769402,
+            "cpu_ns": 445056,
+            "unknown_intervals": 0
+          },
+          "eq_drivers": {
+            "calls": 6435,
+            "wall_ns": 51352759,
+            "cpu_ns": 42249727,
+            "unknown_intervals": 0
+          },
+          "mix_including_eq": {
+            "calls": 195,
+            "wall_ns": 54514518,
+            "cpu_ns": 54218889,
+            "unknown_intervals": 0
+          }
+        },
+        "worst_bridge_callbacks": [
+          {
+            "clock_position": 5694333440,
+            "clock_cycle": 8618562,
+            "clock_nsec": 182343091316978,
+            "clock_id": 35,
+            "quantum": 256,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "status": 1,
+            "bridge": {
+              "calls": 1,
+              "wall_ns": 916232,
+              "cpu_ns": 913892,
+              "unknown_intervals": 0
+            },
+            "stages": {
+              "raw_capture": {
+                "calls": 0,
+                "wall_ns": 0,
+                "cpu_ns": 0,
+                "unknown_intervals": 0,
+                "maximum_call_known": false,
+                "maximum_call_wall_ns": 0,
+                "maximum_call_cpu_ns": 0,
+                "maximum_call_ordinal": 0
+              },
+              "eq_drivers": {
+                "calls": 33,
+                "wall_ns": 816820,
+                "cpu_ns": 708854,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 43131,
+                "maximum_call_cpu_ns": 38483,
+                "maximum_call_ordinal": 10
+              },
+              "mix_including_eq": {
+                "calls": 1,
+                "wall_ns": 855984,
+                "cpu_ns": 853330,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 855984,
+                "maximum_call_cpu_ns": 853330,
+                "maximum_call_ordinal": 0
+              }
+            }
+          },
+          {
+            "clock_position": 5694330112,
+            "clock_cycle": 8618549,
+            "clock_nsec": 182343021983233,
+            "clock_id": 35,
+            "quantum": 256,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "status": 1,
+            "bridge": {
+              "calls": 1,
+              "wall_ns": 737622,
+              "cpu_ns": 734884,
+              "unknown_intervals": 0
+            },
+            "stages": {
+              "raw_capture": {
+                "calls": 0,
+                "wall_ns": 0,
+                "cpu_ns": 0,
+                "unknown_intervals": 0,
+                "maximum_call_known": false,
+                "maximum_call_wall_ns": 0,
+                "maximum_call_cpu_ns": 0,
+                "maximum_call_ordinal": 0
+              },
+              "eq_drivers": {
+                "calls": 33,
+                "wall_ns": 648186,
+                "cpu_ns": 562196,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 32594,
+                "maximum_call_cpu_ns": 29804,
+                "maximum_call_ordinal": 30
+              },
+              "mix_including_eq": {
+                "calls": 1,
+                "wall_ns": 684385,
+                "cpu_ns": 681520,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 684385,
+                "maximum_call_cpu_ns": 681520,
+                "maximum_call_ordinal": 0
+              }
+            }
+          },
+          {
+            "clock_position": 5694329856,
+            "clock_cycle": 8618548,
+            "clock_nsec": 182343016649868,
+            "clock_id": 35,
+            "quantum": 256,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "status": 1,
+            "bridge": {
+              "calls": 1,
+              "wall_ns": 727909,
+              "cpu_ns": 725122,
+              "unknown_intervals": 0
+            },
+            "stages": {
+              "raw_capture": {
+                "calls": 0,
+                "wall_ns": 0,
+                "cpu_ns": 0,
+                "unknown_intervals": 0,
+                "maximum_call_known": false,
+                "maximum_call_wall_ns": 0,
+                "maximum_call_cpu_ns": 0,
+                "maximum_call_ordinal": 0
+              },
+              "eq_drivers": {
+                "calls": 33,
+                "wall_ns": 648201,
+                "cpu_ns": 562309,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 39175,
+                "maximum_call_cpu_ns": 36444,
+                "maximum_call_ordinal": 3
+              },
+              "mix_including_eq": {
+                "calls": 1,
+                "wall_ns": 679433,
+                "cpu_ns": 676825,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 679433,
+                "maximum_call_cpu_ns": 676825,
+                "maximum_call_ordinal": 0
+              }
+            }
+          },
+          {
+            "clock_position": 5694336000,
+            "clock_cycle": 8618572,
+            "clock_nsec": 182343144650628,
+            "clock_id": 35,
+            "quantum": 256,
+            "rate_numerator": 1,
+            "rate_denominator": 48000,
+            "status": 1,
+            "bridge": {
+              "calls": 1,
+              "wall_ns": 673729,
+              "cpu_ns": 671842,
+              "unknown_intervals": 0
+            },
+            "stages": {
+              "raw_capture": {
+                "calls": 24,
+                "wall_ns": 165778,
+                "cpu_ns": 97546,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 7716,
+                "maximum_call_cpu_ns": 4634,
+                "maximum_call_ordinal": 0
+              },
+              "eq_drivers": {
+                "calls": 33,
+                "wall_ns": 411689,
+                "cpu_ns": 337700,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 21582,
+                "maximum_call_cpu_ns": 19909,
+                "maximum_call_ordinal": 22
+              },
+              "mix_including_eq": {
+                "calls": 1,
+                "wall_ns": 433542,
+                "cpu_ns": 431716,
+                "unknown_intervals": 0,
+                "maximum_call_known": true,
+                "maximum_call_wall_ns": 433542,
+                "maximum_call_cpu_ns": 431716,
+                "maximum_call_ordinal": 0
+              }
+            }
+          }
+        ]
+      },
+      "files": {
+        "source-port-markers": {
+          "sha256": "0192468321464135372bdbf6175d4ca0214f6f5ce010336df1c5e2be10fc2f90",
+          "bytes": 1619037
+        },
+        "owner-port-markers": {
+          "sha256": "d243dac617c8bda8db609e52fe169f656d1062583c36cb0fea3a7a6854d8e004",
+          "bytes": 1220939
+        },
+        "manual-processing-stages": {
+          "sha256": "eec0ece3239487b413615450554733bb7c57ee4c306cd157346b27d2ede202df",
+          "bytes": 3708
+        }
+      }
+    },
+    "receipt_sha256": "54d8077e445206eb99fb818c3ee143e7c6b8108b3dfec145f83f2d1248c95c31"
+  },
+  "public_handoff_analysis": {
+    "public_observation_coverage_qualified": true,
+    "waveform_qualification_performed_here": false,
+    "private_queue_state_observed": false,
+    "delay_cause_established": false,
+    "timing_scope": "row bookkeeping, original callback, DSP hooks and cleanup; bounded observer lookup audited but excluded from timing",
+    "roles": {
+      "owner": {
+        "callbacks": 196,
+        "queries": 6664,
+        "marker_correspondence_checked": true,
+        "query_states": [
+          {
+            "io_known": true,
+            "io_status": 0,
+            "returned": true,
+            "live_buffers": 2,
+            "count": 2
+          },
+          {
+            "io_known": true,
+            "io_status": 1,
+            "returned": true,
+            "live_buffers": 2,
+            "count": 390
+          },
+          {
+            "io_known": true,
+            "io_status": 2,
+            "returned": true,
+            "live_buffers": 1,
+            "count": 6272
+          }
+        ],
+        "notable_pre_api_output_queries": [],
+        "wrapper_maximum_ns": 968761,
+        "wrapper_maximum_cpu_ns": 965079
+      },
+      "source": {
+        "callbacks": 287,
+        "queries": 9184,
+        "marker_correspondence_checked": true,
+        "query_states": [
+          {
+            "io_known": false,
+            "io_status": 0,
+            "returned": false,
+            "live_buffers": 0,
+            "count": 2737
+          },
+          {
+            "io_known": true,
+            "io_status": 0,
+            "returned": true,
+            "live_buffers": 2,
+            "count": 31
+          },
+          {
+            "io_known": true,
+            "io_status": 1,
+            "returned": true,
+            "live_buffers": 2,
+            "count": 6416
+          }
+        ],
+        "notable_pre_api_output_queries": [],
+        "wrapper_maximum_ns": 211685,
+        "wrapper_maximum_cpu_ns": 206400
+      },
+      "sink": {
+        "callbacks": 195,
+        "queries": 390,
+        "marker_correspondence_checked": false,
+        "query_states": [
+          {
+            "io_known": true,
+            "io_status": 2,
+            "returned": true,
+            "live_buffers": 1,
+            "count": 390
+          }
+        ],
+        "notable_pre_api_output_queries": [],
+        "wrapper_maximum_ns": 50465,
+        "wrapper_maximum_cpu_ns": 46729
+      }
+    },
+    "input_sha256": {
+      "native-port-handoff.json": "a1a71cb457ce3f90728dee4e250163dada235d4c84a03260b2bd68dca4193a12",
+      "owner-port-markers.json": "d243dac617c8bda8db609e52fe169f656d1062583c36cb0fea3a7a6854d8e004",
+      "source-port-markers.json": "0192468321464135372bdbf6175d4ca0214f6f5ce010336df1c5e2be10fc2f90"
+    }
+  },
+  "mutations": {
+    "retained_native_baseline": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/Manual fault — Ελληνικά",
+    "mutations_refused": [
+      "dropped",
+      "query_overflows",
+      "unknown_queries",
+      "unknown_events",
+      "outer_allocations",
+      "outer_frees",
+      "outer_locks",
+      "port layout",
+      "callback count",
+      "clock correspondence",
+      "unknown clock",
+      "buffer coverage",
+      "buffer extent",
+      "query layout",
+      "buffer presence",
+      "timing complete_timing_coverage",
+      "timing complete_cpu_coverage",
+      "timing complete_thread_usage_coverage",
+      "timing finite_deadline_thresholds_met",
+      "declared channels 0",
+      "declared channels 31",
+      "declared channels 33",
+      "wrong marker role",
+      "wrong marker query count",
+      "missing channel ordinal",
+      "unseen channel",
+      "wrong channel extent",
+      "owner missing marker",
+      "owner empty marker",
+      "owner null marker",
+      "owner missing row",
+      "owner extra row",
+      "owner missing port",
+      "source missing marker",
+      "source empty marker",
+      "source null marker",
+      "source missing row",
+      "source extra row",
+      "source missing port"
+    ]
+  },
+  "local_acceptance": {
+    "debug": {
+      "tests": 4,
+      "passed": 4,
+      "seconds": 2.39
+    },
+    "release": {
+      "tests": 1,
+      "passed": 1,
+      "seconds": 0.19
+    },
+    "sanitizers": {
+      "tests": 1,
+      "passed": 1,
+      "seconds": 3.86,
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    },
+    "scope": "Final observer unit test plus Debug existing control/interrupt/marker regressions; native run after all owned CPU handles terminal"
+  },
+  "reuse": {
+    "reviewed_inputs": 24,
+    "unchanged_before_after": true,
+    "before": {
+      "snapshot_errors": [],
+      "sources": {
+        "soundcurrent-eq": {
+          "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "current_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "current_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+          "head_changed": true
+        },
+        "soundcurrent-studio": {
+          "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "current_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "current_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "70b0d14264c48bf229992f11495fa6e31b5b9180",
+          "head_changed": true
+        }
+      },
+      "review_required": false
+    },
+    "after": {
+      "snapshot_errors": [],
+      "sources": {
+        "soundcurrent-eq": {
+          "reviewed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "current_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "current_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "28e6f4779bbe0ed48b2e825aa5370f76670b64df",
+          "head_changed": true
+        },
+        "soundcurrent-studio": {
+          "reviewed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+          "files": {
+            "src/dsp.cpp": {
+              "reviewed_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "current_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+              "review_required": false
+            },
+            "src/dsp.h": {
+              "reviewed_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "current_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+              "review_required": false
+            },
+            "src/equipment_profiles.cpp": {
+              "reviewed_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "current_sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
+              "review_required": false
+            },
+            "src/accelerating_spinbox.h": {
+              "reviewed_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "current_sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
+              "review_required": false
+            },
+            "tests/spin_acceleration.cpp": {
+              "reviewed_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "current_sha256": "9407f9e5f7221395b9d06a2df31e512e00e17278fa001b975df02912b7ccc1e6",
+              "review_required": false
+            },
+            "src/equipment_profiles.h": {
+              "reviewed_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "current_sha256": "34fb124fe9a9177735c3e96b54f947fbdd2881ff175153c29334842c140b9545",
+              "review_required": false
+            },
+            "scripts/collect-equipment-profiles.py": {
+              "reviewed_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "current_sha256": "cf7fd7618954437777322934f55ed857ca4ffdff7055c53043c6f3068954def5",
+              "review_required": false
+            },
+            "data/equipment/spinorama.json": {
+              "reviewed_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "current_sha256": "540379cfa57938242e59c0f8f01b668f1637e4ee58f54500533df10b014e0c09",
+              "review_required": false
+            },
+            "data/equipment/LICENSE": {
+              "reviewed_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "current_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+              "review_required": false
+            },
+            "data/equipment/collection-report.json": {
+              "reviewed_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "current_sha256": "bd996e0decb084c66b9d1d79d5017141499e9d98ecb49b6b37359e0385d4a202",
+              "review_required": false
+            },
+            "data/equipment/measurement-sources.json": {
+              "reviewed_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "current_sha256": "ccf9efc40092a9a36284eae831b2c1f8b5bab8895b934f7de179469b9a008bdf",
+              "review_required": false
+            },
+            "tests/equipment_profiles.cpp": {
+              "reviewed_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "current_sha256": "9e43c3f1c03d54d7c6d49b2eed3acae1bfc725d6fdd4fa8b386e733af3e8a000",
+              "review_required": false
+            }
+          },
+          "current_head": "70b0d14264c48bf229992f11495fa6e31b5b9180",
+          "head_changed": true
+        }
+      },
+      "review_required": false
+    }
+  },
+  "upstream_source_assessment": [
+    {
+      "url": "https://github.com/PipeWire/pipewire/blob/1.6.2/src/pipewire/filter.c",
+      "upstream_tag": "1.6.2",
+      "downloaded_bytes": 57150,
+      "sha256": "88f725e7b55a569c21ed7f188ecba027f9779cb6533ce6e6ebd8fd2ab1bf1cf4",
+      "incorporated_into_product": false
+    },
+    {
+      "url": "https://github.com/PipeWire/pipewire/blob/1.6.2/src/pipewire/impl-link.c",
+      "upstream_tag": "1.6.2",
+      "downloaded_bytes": 54835,
+      "sha256": "3992113b2f9258b27d2f725212f1fe74539879b7e9afaa65f43e98497865b705",
+      "incorporated_into_product": false
+    }
+  ],
+  "archive": {
+    "path": "tests/results/M2/native-manual-observations/2026-10-07-port-handoff-evidence.zip",
+    "sha256": "9e0e46d0b5252c78ec79ac97fdec2e688d7e9fe5ec4b8aa145a954ed00ab33cc",
+    "bytes": 1448685,
+    "payload_files": 195,
+    "integrity_verified": true
+  },
+  "qualification_limits": {
+    "delay_cause_established": false,
+    "original46_resolved": false,
+    "original37_resolved": false,
+    "production_audio_changes": false,
+    "native_windows_qualified": false,
+    "sustained_native_qualified": false,
+    "physical_inputs_qualified": false,
+    "private_queue_state_observed": false,
+    "project_track_implementation_limit": 256,
+    "no_fixed_product_license_track_ceiling_required": true,
+    "full_goal_complete": false
+  },
+  "next_task": "Controlled native startup/backpressure causal experiment; preserve public observations and full waveform/cycle gates. Then bounded Qt manual controller, late Cancel and actual monitoring/Undo widgets; X006 coordinated resource-admitted scaling remains required.",
+  "review": {
+    "thread": "PRRT_kwDOU-rChc6pve8U",
+    "initial_tested_head": "11cb12dac4a8415037121e11bb2039cefb49ca29",
+    "initial_ci": 37565396901,
+    "original_false_qualification_reproduction": {
+      "baseline_project": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/Manual fault — Ελληνικά",
+      "review_thread": "PRRT_kwDOU-rChc6pve8U",
+      "native_runtime_repeated": false,
+      "original_cases": [
+        {
+          "owner_declared_channels": 0,
+          "accepted_by_original": true,
+          "marker_correspondence_checked": true
+        },
+        {
+          "owner_declared_channels": 31,
+          "accepted_by_original": true,
+          "marker_correspondence_checked": true
+        }
+      ]
+    },
+    "original_manifest": {
+      "classification": "verifier review gap; not native runtime observation47",
+      "files": {
+        "owner-channels-31.json": "4df02a18b37c336eaf789bfe24b53859127dbad36bbbe789552e6f2e10a21106",
+        "verify_native_port_handoff.py": "3f9706be47a7fbf7569a50b3c5205da3442ce79484074342140d06d29f74d682",
+        "owner-channels-0.json": "1a16dd49d57a9586f72f224b1837e0eb0d66a8db599ab98210eab7af2928f970",
+        "native_port_handoff_verifier_tests.py": "465c5972e8d4362b4297bae2797551fb2adaeed810824ddc556d0d2c6b1efe6b",
+        "reproduction.json": "82ad8e1def2bc5e5b3ef1b2c9f89a1ffa02cd48a73e79f660854f9ec178cc308"
+      }
+    },
+    "corrected_contract": "Require both nonempty marker roles, exact32-channel/row/port/query coverage before comparison",
+    "compiled_native_sources_unchanged": true,
+    "native_runtime_repeated": false,
+    "final_retained_native_analysis": {
+      "public_observation_coverage_qualified": true,
+      "waveform_qualification_performed_here": false,
+      "private_queue_state_observed": false,
+      "delay_cause_established": false,
+      "timing_scope": "row bookkeeping, original callback, DSP hooks and cleanup; bounded observer lookup audited but excluded from timing",
+      "roles": {
+        "owner": {
+          "callbacks": 196,
+          "queries": 6664,
+          "marker_correspondence_checked": true,
+          "query_states": [
+            {
+              "io_known": true,
+              "io_status": 0,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 2
+            },
+            {
+              "io_known": true,
+              "io_status": 1,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 390
+            },
+            {
+              "io_known": true,
+              "io_status": 2,
+              "returned": true,
+              "live_buffers": 1,
+              "count": 6272
+            }
+          ],
+          "notable_pre_api_output_queries": [],
+          "wrapper_maximum_ns": 968761,
+          "wrapper_maximum_cpu_ns": 965079
+        },
+        "source": {
+          "callbacks": 287,
+          "queries": 9184,
+          "marker_correspondence_checked": true,
+          "query_states": [
+            {
+              "io_known": false,
+              "io_status": 0,
+              "returned": false,
+              "live_buffers": 0,
+              "count": 2737
+            },
+            {
+              "io_known": true,
+              "io_status": 0,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 31
+            },
+            {
+              "io_known": true,
+              "io_status": 1,
+              "returned": true,
+              "live_buffers": 2,
+              "count": 6416
+            }
+          ],
+          "notable_pre_api_output_queries": [],
+          "wrapper_maximum_ns": 211685,
+          "wrapper_maximum_cpu_ns": 206400
+        },
+        "sink": {
+          "callbacks": 195,
+          "queries": 390,
+          "marker_correspondence_checked": false,
+          "query_states": [
+            {
+              "io_known": true,
+              "io_status": 2,
+              "returned": true,
+              "live_buffers": 1,
+              "count": 390
+            }
+          ],
+          "notable_pre_api_output_queries": [],
+          "wrapper_maximum_ns": 50465,
+          "wrapper_maximum_cpu_ns": 46729
+        }
+      },
+      "input_sha256": {
+        "native-port-handoff.json": "a1a71cb457ce3f90728dee4e250163dada235d4c84a03260b2bd68dca4193a12",
+        "owner-port-markers.json": "d243dac617c8bda8db609e52fe169f656d1062583c36cb0fea3a7a6854d8e004",
+        "source-port-markers.json": "0192468321464135372bdbf6175d4ca0214f6f5ce010336df1c5e2be10fc2f90"
+      }
+    },
+    "final_mutations": {
+      "retained_native_baseline": "/home/rich/dev/soundcurrent-daw/.cache/sc-manual-fault-native-69viggm7/Manual fault — Ελληνικά",
+      "mutations_refused": [
+        "dropped",
+        "query_overflows",
+        "unknown_queries",
+        "unknown_events",
+        "outer_allocations",
+        "outer_frees",
+        "outer_locks",
+        "port layout",
+        "callback count",
+        "clock correspondence",
+        "unknown clock",
+        "buffer coverage",
+        "buffer extent",
+        "query layout",
+        "buffer presence",
+        "timing complete_timing_coverage",
+        "timing complete_cpu_coverage",
+        "timing complete_thread_usage_coverage",
+        "timing finite_deadline_thresholds_met",
+        "declared channels 0",
+        "declared channels 31",
+        "declared channels 33",
+        "wrong marker role",
+        "wrong marker query count",
+        "missing channel ordinal",
+        "unseen channel",
+        "wrong channel extent",
+        "owner missing marker",
+        "owner empty marker",
+        "owner null marker",
+        "owner missing row",
+        "owner extra row",
+        "owner missing port",
+        "source missing marker",
+        "source empty marker",
+        "source null marker",
+        "source missing row",
+        "source extra row",
+        "source missing port"
+      ]
+    },
+    "review_archive": {
+      "path": "tests/results/M2/native-manual-observations/2026-10-07-port-handoff-review-evidence.zip",
+      "sha256": "aa7662880166b67cbb6f3e8d7196ec9bcf8814768145f7d133676f2573269cb7",
+      "bytes": 570068,
+      "payload_files": 11,
+      "integrity_verified": true
+    }
+  }
+}

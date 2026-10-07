@@ -6,6 +6,9 @@
 #ifdef SC_NATIVE_MANUAL_STAGES
 #include "native_processing_stages.hpp"
 #include "native_port_markers.hpp"
+#ifdef SC_NATIVE_PORT_HANDOFF
+#include "native_port_handoff.hpp"
+#endif
 #endif
 #include <nlohmann/json.hpp>
 #include <sndfile.h>
@@ -689,6 +692,9 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     collect();
     sinkPipe.finish();
     const auto observed = sinkWriter.wait();
+#ifdef SC_NATIVE_PORT_HANDOFF
+    native_fixture::writePortHandoffs(root / "native-port-handoff.json");
+#endif
     const Json times{{"owner", ownerAudit.report()},
                      {"source", source.audit.report()},
                      {"sink", sink.audit.report()}};
