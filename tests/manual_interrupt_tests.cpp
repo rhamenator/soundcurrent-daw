@@ -11,6 +11,7 @@ using namespace soundcurrent::daw;
 namespace manual_verification_test {
 extern thread_local ManualRecordingInterrupt *interrupt;
 extern thread_local unsigned inspections;
+extern thread_local std::function<void()> afterInspection;
 } // namespace manual_verification_test
 #endif
 namespace {
@@ -302,7 +303,216 @@ void blockedStartup(bool cancel) {
               << ": 32lanes, blocked real disk construction, next-boundary stop, verified="
               << verified << ", zeroRT, saved original retained\n";
 }
+struct FinalizationFixture {
+    Directory directory;
+    Session session = makeOneTrackSession("Finalization — Ελληνικά", "Lane0");
+    std::shared_ptr<ManualRecordingInterrupt> interrupt =
+        std::make_shared<ManualRecordingInterrupt>();
+    std::unique_ptr<ManualRecordingRun> run;
+    std::uint64_t revision = 0;
+    explicit FinalizationFixture(unsigned lanes = 2, RecordingOptions writer = {}) {
+        while (session.tracks.size() < lanes)
+            session.tracks.push_back(makeAudioTrack("Armed", {}, session.sampleRate));
+        ProjectStore(directory.root).save(session);
+        MixPlan plan;
+        std::vector<ManualRecordingArm> arms;
+        for (const auto &track : session.tracks) {
+            plan.tracks.push_back({track.id, {{0, 0, .015625}}});
+            arms.push_back({{track.id, {0}, 0, RecordingMonitor::Off}, writer});
+        }
+        ManualRecordingOptions options;
+        options.playback.graph.maximumFrames = options.capture.maximumCallbackFrames = 256;
+        options.playback.graph.generation = 7;
+        options.playback.endFrame = 20000;
+        options.playback.slabFrames = 512;
+        options.capture.slabFrames = 256;
+        options.backend = CaptureBackend::Synthetic;
+        options.interrupt = interrupt;
+        run = std::make_unique<ManualRecordingRun>(directory.root, session, plan, arms, options);
+    }
+    void record() {
+        const auto start = run->position();
+        const auto take = run->prepareTake();
+        check(run->submit({ManualPunchAction::In, start + 13, 7, ++revision, take}) ==
+                      ManualPunchSubmit::Accepted &&
+                  run->submit({ManualPunchAction::Out, start + 100, 7, ++revision, 0}) ==
+                      ManualPunchSubmit::Accepted,
+              "Finalization commands refused");
+        std::array<float, 256> input{}, output{};
+        for (unsigned n = 0; n < 256; ++n)
+            input[n] = signal(start + n, 0);
+        const float *in = input.data();
+        float *out = output.data();
+        rt_audit::reset();
+        DuplexStatus status;
+        {
+            rt_audit::Guard guard;
+            status = run->process({100000 + std::uint64_t(start), 256,
+                                   10000 + std::uint64_t(start) * 1000000000 / 48000, 17,
+                                   std::uint32_t(1 + start / 256), 1, 48000},
+                                  {&in, 1}, {&out, 1}, 256);
+        }
+        const auto counts = rt_audit::counts;
+        check(status == DuplexStatus::Running &&
+                  !(counts.cppAllocate + counts.cppFree + counts.cAllocate + counts.cFree +
+                    counts.blockingLock),
+              "Finalization capture failed or violated RT");
+    }
+    void verify(const ManualRecordedGroup &group, bool canceled) {
+        check(group.canceled == canceled && group.complete() == !canceled &&
+                  group.endFrame - group.beginFrame == 87 &&
+                  group.lanes.size() == session.tracks.size(),
+              "Finalization lost cancellation or range classification");
+        for (const auto &lane : group.lanes) {
+            check(lane.outcome ==
+                          (canceled ? ManualLaneOutcome::Canceled : ManualLaneOutcome::Complete) &&
+                      lane.capturedFrames == 87 && lane.checkpoint &&
+                      lane.checkpoint->committedFrames == 87 && !lane.verificationError &&
+                      lane.origin &&
+                      lane.origin->devicePosition == 100000 + std::uint64_t(group.beginFrame),
+                  "Finalization lost raw prefix/checkpoint/origin");
+            SF_INFO info{};
+#ifdef _WIN32
+            auto *file = sf_wchar_open(lane.checkpoint->source.c_str(), SFM_READ, &info);
+#else
+            auto *file = sf_open(lane.checkpoint->source.c_str(), SFM_READ, &info);
+#endif
+            check(file && info.frames == 87 && info.channels == 1 && info.samplerate == 48000,
+                  "Finalization raw header differs");
+            std::array<float, 87> samples{};
+            const auto count = sf_readf_float(file, samples.data(), 87);
+            sf_close(file);
+            check(count == 87, "Finalization raw prefix truncated");
+            for (unsigned n = 0; n < 87; ++n)
+                check(samples[n] == signal(group.beginFrame + n, 0),
+                      "Finalization raw sample changed");
+        }
+        bool refused = false;
+        try {
+            const auto candidate = withManualRecording(session, group, true);
+            check(candidate.assets.size() == session.tracks.size(),
+                  "Complete finalization group cannot be previewed");
+        } catch (const ProjectError &) {
+            refused = true;
+        }
+        check(refused == canceled && ProjectStore(directory.root).load() == session,
+              "Finalization canceled adoption or saved-original preservation differs");
+    }
+};
+void cancelAfterFinalization(bool token) {
+    FinalizationFixture fixture;
+    fixture.record();
+    ManualRecordedGroup delivered;
+    until([&] {
+        fixture.run->service();
+        return fixture.run->takeGroup(delivered);
+    });
+    fixture.verify(delivered, false);
+    fixture.record();
+    fixture.run->stop();
+    if (token)
+        fixture.interrupt->requestCancel();
+    else
+        fixture.run->cancel();
+    ManualRecordedGroup pending;
+    check(fixture.run->takeGroup(pending), "Finalization lost pending group");
+    fixture.verify(pending, true);
+    fixture.verify(delivered, false); // Previously delivered receipts stay immutable.
+    check(!fixture.run->takeGroup(pending) && !fixture.run->occupiedSlots(),
+          "Finalization leaked result or duplicate delivery");
+    fixture.run->checkReader();
+    fixture.run->checkError();
+    fixture.directory.success = true;
+    std::cout << "Late Cancel after Stop via " << (token ? "token" : "method")
+              << ": pending canceled, delivered unchanged, every raw sample preserved\n";
+}
+void cancelDuringWriterJoin() {
+    std::atomic<bool> entered{false}, release{false};
+    RecordingOptions writer;
+    writer.boundary = [&](RecordingBoundary boundary, Frame) {
+        if (boundary != RecordingBoundary::BeforeAssetHashRead || entered.exchange(true))
+            return;
+        // Finalization started this real consumer; its durable journal/media
+        // have already been published, while result hashing is still held.
+        until([&] { return release.load(std::memory_order_acquire); });
+    };
+    FinalizationFixture fixture(32, writer);
+    fixture.record(); // No service: stop must construct and join these consumers.
+    std::exception_ptr error;
+    std::thread control([&] {
+        try {
+            fixture.run->stop();
+        } catch (...) {
+            error = std::current_exception();
+        }
+    });
+    struct Join {
+        std::thread &thread;
+        std::atomic<bool> &release;
+        ~Join() {
+            release.store(true, std::memory_order_release);
+            if (thread.joinable())
+                thread.join();
+        }
+    } join{control, release};
+    until([&] { return entered.load(std::memory_order_acquire); });
+    fixture.interrupt->requestCancel();
+    release.store(true, std::memory_order_release);
+    control.join();
+    if (error)
+        std::rethrow_exception(error);
+    ManualRecordedGroup group;
+    check(fixture.run->takeGroup(group), "Held writer finalization lost result");
+    fixture.verify(group, true);
+    fixture.run->checkError();
+    fixture.run->checkReader();
+    fixture.directory.success = true;
+    std::cout << "Late Cancel during held writer finalization: all32 lanes preserved\n";
+}
 #ifdef SC_MANUAL_VERIFY_GATE
+void cancelDuringVerification() {
+    FinalizationFixture fixture(32);
+    fixture.record();
+    std::atomic<bool> entered{false}, release{false};
+    std::exception_ptr error;
+    std::thread control([&] {
+        unsigned inspections = 0;
+        manual_verification_test::afterInspection = [&] {
+            if (++inspections != 1)
+                return;
+            entered.store(true, std::memory_order_release);
+            until([&] { return release.load(std::memory_order_acquire); });
+        };
+        try {
+            fixture.run->stop();
+        } catch (...) {
+            error = std::current_exception();
+        }
+        manual_verification_test::afterInspection = {};
+    });
+    struct Join {
+        std::thread &thread;
+        std::atomic<bool> &release;
+        ~Join() {
+            release.store(true, std::memory_order_release);
+            if (thread.joinable())
+                thread.join();
+        }
+    } join{control, release};
+    until([&] { return entered.load(std::memory_order_acquire); });
+    fixture.interrupt->requestCancel(); // Actual GUI producer while verifier is blocked.
+    release.store(true, std::memory_order_release);
+    control.join();
+    if (error)
+        std::rethrow_exception(error);
+    ManualRecordedGroup group;
+    check(fixture.run->takeGroup(group), "Blocked finalization lost result");
+    fixture.verify(group, true);
+    fixture.run->checkError();
+    fixture.run->checkReader();
+    fixture.directory.success = true;
+    std::cout << "Late Cancel during held verification: all32 lanes canceled and preserved\n";
+}
 void interruptedVerification() {
     Directory d;
     auto s = makeOneTrackSession("Verification interruption", "Lane0");
@@ -375,7 +585,11 @@ int main() {
         beforeFirstCallback(true);
         blockedStartup(false);
         blockedStartup(true);
+        cancelAfterFinalization(false);
+        cancelAfterFinalization(true);
+        cancelDuringWriterJoin();
 #ifdef SC_MANUAL_VERIFY_GATE
+        cancelDuringVerification();
         interruptedVerification();
 #endif
     } catch (const std::exception &e) {

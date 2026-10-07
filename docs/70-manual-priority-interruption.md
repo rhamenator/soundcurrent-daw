@@ -26,9 +26,10 @@ disk consumer, including consumers not serviced before interruption. Stop keeps
 explicit partial/recovery choices. Cancel sampled at finalization entry marks
 the group canceled, refuses adoption and preserves recoverable originals.
 
-**Cancel during/after finalization remains unqualified.** Delivered groups are
-not retroactively rewritten. The upcoming Qt controller needs an explicit
-finalization/adoption boundary and reliable late cancellation policy.
+At this historical checkpoint, **Cancel during/after finalization was unqualified**.
+The later [desktop worker checkpoint](75-manual-desktop-worker.md) adds functional
+core coverage and an application handoff boundary. Delivered groups are not
+retroactively rewritten; actual-widget/native-controller acceptance remains pending.
 
 ## Acceptance evidence
 

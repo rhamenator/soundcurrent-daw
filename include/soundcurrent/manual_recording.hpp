@@ -83,13 +83,17 @@ class ManualRecordingRun {
     ManualPunchSubmit submit(ManualPunchCommand) noexcept;
     bool acknowledgement(ManualPunchReceipt &) noexcept; // Reliable until explicitly consumed.
     void service(); // Start late workers, collect completed workers/groups and retain errors.
-    bool takeGroup(ManualRecordedGroup &); // Control; frees an already joined/reclaimed slot.
+    // Control; cancellation acquire observation commits delivery of the next
+    // joined/reclaimed result. Later cancellation cannot rewrite that receipt.
+    bool takeGroup(ManualRecordedGroup &);
     DuplexStatus process(const DeviceBlockClock &, std::span<const float *const>,
                          std::span<float *const>, std::uint32_t capacity) noexcept;
     void requestFault(DuplexStatus) noexcept;
     void requestStop() noexcept;
-    void stop();              // After callback join. Drains replies, finishes/joins every consumer.
-    void cancel();            // After callback join. Keeps each independently durable checkpoint.
+    void stop(); // After callback join. Drains replies, finishes/joins every consumer.
+    // After callback join, including after stop. Cancels still-owned receipts;
+    // keeps each independently durable checkpoint and already delivered groups.
+    void cancel();
     void checkError() const;  // Retained first control/disk error; cleanup cannot overwrite it.
     void checkReader() const; // Reader failure independent of recording failures, after stop.
     DuplexStatus status() const noexcept;

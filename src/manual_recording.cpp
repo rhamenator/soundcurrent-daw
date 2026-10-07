@@ -77,6 +77,23 @@ struct ManualRecordingRun::State {
     bool interrupted() const noexcept {
         return options.interrupt && options.interrupt->stopRequested();
     }
+    void observeCancellation(bool explicitRequest = false) noexcept {
+        if (canceled ||
+            !(explicitRequest || (options.interrupt && options.interrupt->cancelRequested())))
+            return;
+        canceled = true;
+        // Only receipts still owned by this run change. takeGroup's acquire load
+        // is the delivery boundary; already transferred groups are immutable.
+        for (auto &slot : slots)
+            if (slot) {
+                slot->group.canceled = true;
+                for (auto &lane : slot->group.lanes)
+                    lane.outcome = ManualLaneOutcome::Canceled;
+                for (auto &consumer : slot->consumers)
+                    if (consumer.worker)
+                        consumer.worker->cancel();
+            }
+    }
 
     State(std::filesystem::path r, const Session &s, MixPlan plan,
           std::vector<ManualRecordingArm> bindings, ManualRecordingOptions o)
@@ -237,6 +254,7 @@ struct ManualRecordingRun::State {
         }
     }
     void service(bool blocking = false) {
+        observeCancellation();
         collectReplies();
         for (auto &entry : slots) {
             if (!entry || !entry->take)
@@ -255,8 +273,10 @@ struct ManualRecordingRun::State {
                 // before finish's blocking service drains every remaining lane.
                 if (!blocking && interrupted())
                     return;
+                observeCancellation();
                 start(slot, n);
                 join(slot, n, blocking);
+                observeCancellation();
             }
             if (slot.take->phase() != ManualTakePhase::Retired || slot.pendingStarts ||
                 !std::all_of(slot.consumers.begin(), slot.consumers.end(),
@@ -269,6 +289,7 @@ struct ManualRecordingRun::State {
                 if (!blocking && interrupted())
                     return; // Defer remaining verification and retirement to finish.
                 verify(slot, n);
+                observeCancellation();
             }
             bridge->releaseTake(*slot.take); // Every disk consumer joined above.
             slot.take = nullptr;
@@ -276,15 +297,9 @@ struct ManualRecordingRun::State {
         }
     }
     void finish(bool cancel) {
+        observeCancellation(cancel);
         if (stopped)
             return;
-        canceled = cancel || (options.interrupt && options.interrupt->cancelRequested());
-        if (canceled)
-            for (auto &slot : slots)
-                if (slot)
-                    for (auto &consumer : slot->consumers)
-                        if (consumer.worker)
-                            consumer.worker->cancel();
         bridge->requestStop();
         bridge->finishQuiescent(); // Caller has joined the native callback owner.
         try {
@@ -293,6 +308,7 @@ struct ManualRecordingRun::State {
             readerError = std::current_exception();
         }
         service(true);
+        observeCancellation();
         stopped = true;
     }
     ~State() {
@@ -374,6 +390,7 @@ void ManualRecordingRun::service() {
     state_->service();
 }
 bool ManualRecordingRun::takeGroup(ManualRecordedGroup &group) {
+    state_->observeCancellation();
     for (auto &slot : state_->slots)
         if (slot && slot->ready) {
             group = std::move(slot->group);

@@ -44,8 +44,13 @@ struct PipeWireManualRecording::State {
             s.auditClock(s.audit.context, c);
     }
     void finish(bool canceled) {
-        if (stopped)
+        if (stopped) {
+            if (canceled)
+                run.cancel();
+            else
+                run.stop();
             return;
+        }
         run.requestStop();
         if (filter)
             filter->stop(); // Callback/control notification join precedes all producer retirement.

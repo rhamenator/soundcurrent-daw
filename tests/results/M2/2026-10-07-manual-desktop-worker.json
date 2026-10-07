@@ -1,0 +1,150 @@
+{
+  "utc": "2026-10-07T05:54:21.929732+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "scope": "Production serialized desktop worker component and late cancellation delivery; actual widgets/native controller/platform runtime remain unqualified",
+  "source_parent": "323845a55e206b6c8216679088cd3bf3b4fca8f2",
+  "compiled_source_sha256": {
+    "CMakeLists.txt": "4c8416b8f5c9f31b1c059dc45d6e7f19cbcbf2bb83885e17242fd66bbc4d2c13",
+    "src/manual_recording.cpp": "bc86df89a18b2d7f207c87d4b5254a651fcb753d882eb316c1fc494a3a55115c",
+    "src/pipewire_manual_recording.cpp": "0263b58aee2ba25171c0e373d85c549bd3e117564bf64771b64343016e772d2f",
+    "include/soundcurrent/manual_recording.hpp": "ef6d775d39f9a2c97ea42e05b3ad7df772ca5850a12e7dac793734702631f941",
+    "ui/manual_recording_controller.cpp": "b7e6ba745107e214b16e8fd86fdd8acb2e20d12187bac45b79cd658fad9c4c74",
+    "ui/manual_recording_controller.hpp": "02600dc148f7aed3a1292501dd746c0fd501184db4452ec409d95a98b05172b1",
+    "tests/manual_interrupt_tests.cpp": "26348e5a26cfd33644f30c988e762f781c16f0987f73add62e206c101795b7d9",
+    "tests/manual_verification_gate.cpp": "560174941c43ea706ac5d7f96c88546fe8cdeacc1f20b5124286b840ff8eefc8",
+    "tests/manual_controller_tests.cpp": "c90d3c629be615c2df0d8a3ff75dc6bdb5f7843d5b33426560dc59605bc623c9"
+  },
+  "executables": {
+    ".cache/build-desktop/sc-manual-controller-tests": {
+      "sha256": "1260d8a5091f651f11b1c11efc843f9ae9188519f8155c4a6211a14debd4b3c4",
+      "bytes": 17576960
+    },
+    ".cache/build-desktop/sc-manual-interrupt-tests": {
+      "sha256": "51cdec5c7d5ca1a9c99eea2eb90829c14a64db0b3c9b3f30234047d7707895d0",
+      "bytes": 15158944
+    },
+    ".cache/build-desktop/sc-manual-recording-tests": {
+      "sha256": "a44acf57c29359a562d8b551d105e023d5719ff9b26a56d545c95fac191e4ab3",
+      "bytes": 15206440
+    },
+    ".cache/build-desktop-sanitized/sc-manual-controller-tests": {
+      "sha256": "646ff2f534d6c86937769b343a454c9fa190e255ffa00cbc9daa5879d862f137",
+      "bytes": 56633776
+    },
+    ".cache/build-desktop-sanitized/sc-manual-interrupt-tests": {
+      "sha256": "df68b694789e898cf515c9a7163e20cde841701ec86c1961cc1e3464b556edfa",
+      "bytes": 48271784
+    },
+    ".cache/build-desktop-sanitized/sc-manual-recording-tests": {
+      "sha256": "837e22c2d056e8bafdfbbde7609cf1a2d9828203d261112dda11a524c9e9d0db",
+      "bytes": 48874128
+    },
+    ".cache/build-windows-media/sc-manual-controller-tests.exe": {
+      "sha256": "6e9b6f063bf82eb1012e094f12d09d1cc92f8aaa07894a04a14a4802c36f3884",
+      "bytes": 1477559
+    },
+    ".cache/build-windows-media/sc-manual-interrupt-tests.exe": {
+      "sha256": "84233b3c567cdaddb37fd376c6669af42e87ecc724a59f5bd683a52327271f2f",
+      "bytes": 1371713
+    },
+    ".cache/build-windows-media/sc-manual-recording-tests.exe": {
+      "sha256": "f98fc69294aae1b6cf0e7775babeb6bc748bbd7596c8a4dca7eb12691d2083d0",
+      "bytes": 1389119
+    }
+  },
+  "evidence_archive": {
+    "path": "tests/results/M2/2026-10-07-manual-desktop-worker-evidence.zip",
+    "sha256": "6e487c0e5bf9fcfd3ff21305dcfb86f33e85b26c69679fe3a709020e57828dfe",
+    "bytes": 53158,
+    "payload_files": 32,
+    "integrity_verified": true
+  },
+  "local_debug": {
+    "tests_passed": 39,
+    "seconds": 45.07,
+    "original_joined_log": ".cache/manual-controller-full-debug-test.log"
+  },
+  "sanitizers": {
+    "tests_passed": 3,
+    "seconds": 6.38,
+    "address": true,
+    "undefined": true,
+    "leak_detection": true,
+    "original_joined_log": ".cache/manual-controller-sanitized-test.log"
+  },
+  "windows": {
+    "media_controller_tests_cross_compile": true,
+    "native_runtime_qualified": false,
+    "original_build_log": ".cache/manual-controller-windows-media-build.log"
+  },
+  "core_late_cancel": {
+    "after_stop_method": true,
+    "after_stop_token": true,
+    "held_writer_join_32_lanes": true,
+    "held_actual_verification_32_lanes_linux_only": true,
+    "already_delivered_receipts_unchanged": true,
+    "saved_originals_unchanged": true,
+    "canceled_adoption_refused": true
+  },
+  "worker_acceptance": {
+    "repeated_two_lane_groups": 8,
+    "one_prepared_graph": true,
+    "queue_capacity": 16,
+    "held_factory_terminal_receipts": 17,
+    "retained_control_credits": 64,
+    "retained_audio_credits": 64,
+    "aggregate_engine_application_result_credits": 8,
+    "callback_stop_independent_of_held_worker": true,
+    "stop_to_cancel_during_finalization": true,
+    "closed_results_reliable_and_consumable": true,
+    "endpoint_calls_and_destruction_worker_only": true,
+    "callback_alloc_free_blocking_lock_observations": 0,
+    "failed_factory_activation_and_stale_command_coverage": true,
+    "raw_samples_replies_history_save_reopen": true
+  },
+  "original_development_regression": {
+    "production_core_unchanged": true,
+    "retained_original_before_fix": true,
+    "assertion": "Finalization lost cancellation or range classification",
+    "unlogged_terms": "Each classification boolean was not logged; remains unknown",
+    "native_runtime_failure": false
+  },
+  "retained_runtime_failures": 48,
+  "historical48_cpu_cause_resolved": false,
+  "new_dependencies": [],
+  "schema_changes": false,
+  "equalizer_reuse": {
+    "inputs": 24,
+    "before_after_unchanged": true,
+    "review_required": false
+  },
+  "parity": {
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "frozen_contracts": 92,
+    "FQCN_promotions": 0
+  },
+  "remaining_gaps": [
+    "Actual Qt manual widgets, prefix barrier, parameter following, grouped adoption/recovery/Close",
+    "Native controller runtime and sustained qualification; original48 CPU cause",
+    "Windows native endpoint/runtime/installers",
+    "Full frozen92 contracts, imports/profiles, above256 project tracks and all-Europe localization"
+  ]
+}
