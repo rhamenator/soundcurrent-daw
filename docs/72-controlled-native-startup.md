@@ -135,13 +135,24 @@ python3 tests/verify_native_startup_pair.py \
 
 Use the same arguments with `tests/native_startup_verifier_tests.py` for all 21
 mutation refusals. `python3 tests/native_startup_portability_tests.py` verifies ZIP
-payload hashes, extracts into a fresh temporary directory, blocks original-machine
+the externally recorded ZIP checksum, requires unique members and an exact manifest
+member set, checks payload hashes, extracts the same verified bytes into a fresh
+temporary directory, blocks original-machine
 path reads, runs both corrected CLIs, checks missing overrides fail, and verifies
 the archived receipt is byte-identical afterward. The Linux CI job runs this check
 without a PipeWire daemon, compiled native fixture or audio replay. The additive
 [review receipt](../tests/results/M2/2026-10-07-controlled-native-startup-review.json)
 preserves reproduction logs and corrected verifier hashes; original evidence and
 its native qualification limits remain unchanged.
+
+A second review reproduced acceptance of a self-consistent replacement ZIP,
+unmanifested member and duplicate member before the external checksum and member
+checks were added. `tests/native_startup_archive_integrity_tests.py` refuses all
+three replacements and independently checks both member gates after explicitly
+pinning altered test fixtures. CI runs it before the relocation test. Its additive
+[integrity review receipt](../tests/results/M2/2026-10-07-controlled-native-startup-integrity-review.json)
+retains the original checker, reproducer and terminal logs. No native audio was
+repeated for either review.
 
 ## Next implementation
 

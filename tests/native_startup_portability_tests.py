@@ -15,15 +15,32 @@ import native_startup_verifier_tests as mutations
 import verify_native_startup_pair as pair
 
 
+# Frozen external receipt: results/M2/2026-10-07-controlled-native-startup.json.
+# Expected integrity must not come from the same archive being checked.
+RETAINED_ARCHIVE_SHA256 = '5c72c7926e37ad006f8d954cac8214f58f9f6bae0682d4c1bb79826076004195'
+
+
+def verify_archive_bytes(data):
+    assert hashlib.sha256(data).hexdigest() == RETAINED_ARCHIVE_SHA256, 'Retained ZIP replaced'
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        names = z.namelist()
+        assert len(names) == len(set(names)), 'Duplicate archive member'
+        assert z.testzip() is None
+        manifest = json.loads(z.read('manifest.json'))
+        assert set(names) == set(manifest['payload_files']) | {'manifest.json'}, 'Unexpected members'
+        for name, sha in manifest['payload_files'].items():
+            assert not Path(name).is_absolute() and '..' not in Path(name).parts
+            assert hashlib.sha256(z.read(name)).hexdigest() == sha, name
+        return manifest
+
+
 def run(archive):
+    # Verify and extract the same immutable bytes, avoiding a second path read.
+    data = archive.read_bytes()
+    verify_archive_bytes(data)
     with tempfile.TemporaryDirectory(prefix='sc-startup-relocated-') as temp:
         root = Path(temp).resolve()
-        with zipfile.ZipFile(archive) as z:
-            assert z.testzip() is None
-            manifest = json.loads(z.read('manifest.json'))
-            for name, sha in manifest['payload_files'].items():
-                assert not Path(name).is_absolute() and '..' not in Path(name).parts
-                assert hashlib.sha256(z.read(name)).hexdigest() == sha, name
+        with zipfile.ZipFile(io.BytesIO(data)) as z:
             z.extractall(root)
         receipt = root / 'joined-checks/native-startup-defer-native.json'
         original_bytes = receipt.read_bytes()
@@ -88,7 +105,7 @@ def run(archive):
         return {'relocated_pair_qualified': True, 'relocated_mutations_refused': 21,
                 'original_machine_path_reads_blocked': len(blocked_reads),
                 'missing_explicit_paths_refused': 2, 'original_receipt_unchanged': True,
-                'archive_sha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
+                'archive_sha256': hashlib.sha256(data).hexdigest(),
                 'native_audio_repeated': False, 'retained_runtime_observations': 47}
 
 
