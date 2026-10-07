@@ -29,6 +29,7 @@ def main():
               ('buffer extent', prefix + ['rows', 0, 'queries', 0, 'maximum_bytes'], 1),
               ('query layout', prefix + ['rows', 0, 'queries', 0, 'port'], 2),
               ('buffer presence', prefix + ['rows', 0, 'queries', 0, 'returned'], False)]
+    cases += [('undeclared API suppression', prefix + ['rows', 0, 'queries', 0, 'api_suppressed'], True)]
     cases += [('timing ' + key, prefix + ['wrapper_timing', key], False)
               for key in ['complete_timing_coverage', 'complete_cpu_coverage',
                           'complete_thread_usage_coverage', 'finite_deadline_thresholds_met']]

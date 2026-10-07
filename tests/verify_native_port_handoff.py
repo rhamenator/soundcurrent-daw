@@ -11,7 +11,7 @@ CLOCK = ['id', 'cycle', 'position', 'duration', 'nsec', 'rate_numerator',
          'rate_denominator', 'delay']
 
 
-def analyze(handoff, markers):
+def analyze(handoff, markers, allow_test_suppression=False):
     assert handoff['test_only'] is True and handoff['public_api_observer'] is True
     assert len(handoff['filters']) == 3
     assert set(markers) == {'owner', 'source'}
@@ -47,6 +47,7 @@ def analyze(handoff, markers):
             assert len(marker['rows']) == len(rows)
             assert marker['dropped'] == marker['identity_overflows'] == 0
         states = Counter()
+        suppressed = 0
         notable = []
         seen = set()
         for ordinal, row in enumerate(rows):
@@ -65,6 +66,10 @@ def analyze(handoff, markers):
                 assert reference['buffer_calls'] == row['calls']
             for index, q in enumerate(row['queries']):
                 assert q['port'] == index and q['frames'] == row['duration']
+                if q.get('api_suppressed', False):
+                    assert allow_test_suppression and role == 'source' and index == 23
+                    assert not q['io_known'] and not q['returned'] and q['live_buffers'] > 0
+                    suppressed += 1
                 assert 0 <= q['live_buffers'] <= 64
                 if q['io_known']:
                     assert q['io_id'] == 1 and q['io_bytes'] >= 8
@@ -88,6 +93,7 @@ def analyze(handoff, markers):
                     notable.append({'row': ordinal, 'channel': ports[index]['channel'],
                                     **{k: row[k] for k in CLOCK}, 'query': q})
         report[role] = {'callbacks': len(rows), 'queries': sum(states.values()),
+                        'sdk_queries_skipped_by_test_policy': suppressed,
                         'marker_correspondence_checked': marker is not None,
                         'query_states': [dict(io_known=a, io_status=b, returned=c,
                                               live_buffers=d, count=count)
@@ -96,6 +102,7 @@ def analyze(handoff, markers):
                         'wrapper_maximum_ns': timing['maximum_ns'],
                         'wrapper_maximum_cpu_ns': timing['maximum_cpu_ns']}
     return {'public_observation_coverage_qualified': True,
+            'test_suppression_allowed': allow_test_suppression,
             'waveform_qualification_performed_here': False,
             'private_queue_state_observed': False, 'delay_cause_established': False,
             'timing_scope': 'row bookkeeping, original callback, DSP hooks and cleanup; '
@@ -107,13 +114,20 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--project', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--allow-startup-intervention', action='store_true')
     args = p.parse_args()
     files = {name: args.project / name for name in ['native-port-handoff.json',
              'owner-port-markers.json', 'source-port-markers.json']}
     h = json.loads(files['native-port-handoff.json'].read_text())
     markers = {role: json.loads(files[role + '-port-markers.json'].read_text())
                for role in ['owner', 'source']}
-    result = analyze(h, markers)
+    gate = args.project / 'native-startup-gate.json'
+    if args.allow_startup_intervention:
+        assert gate.is_file(), 'Explicit intervention requires its joined gate evidence'
+        files[gate.name] = gate
+    elif gate.exists():
+        raise AssertionError('Controlled startup run requires --allow-startup-intervention')
+    result = analyze(h, markers, args.allow_startup_intervention)
     result['input_sha256'] = {name: hashlib.sha256(path.read_bytes()).hexdigest()
                               for name, path in files.items()}
     args.output.write_text(json.dumps(result, indent=2) + '\n')
