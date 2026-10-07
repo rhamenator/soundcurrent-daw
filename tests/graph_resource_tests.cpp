@@ -3,6 +3,7 @@
 #include <soundcurrent/export.hpp>
 #include <soundcurrent/mix_reader.hpp>
 #include <soundcurrent/manual_punch.hpp>
+#include <soundcurrent/duplex_recording.hpp>
 #include <soundcurrent/recording.hpp>
 #include <soundcurrent/rt_object_exchange.hpp>
 #include "rt_audit.hpp"
@@ -194,6 +195,19 @@ void playbackAndExport(const std::filesystem::path &root, const Asset &a) {
         check(reads == 0 && parent.usage().reservedBytes == graphBytes,
               "Reader refusal did not roll back before media read");
         parent.configure(graphBytes + readerBytes + cacheBytes);
+        auto changed = s;
+        changed.tracks.front().clips.clear();
+        changed.tracks.front().layout = {LayoutKind::Stereo, 2};
+        bool incompatible = false;
+        try {
+            MixReader fail(mix, root, changed, options);
+        } catch (const ProjectError &e) {
+            if (e.code() != ErrorCode::InvalidState)
+                throw;
+            incompatible = true;
+        }
+        check(incompatible && reads == 0 && parent.usage().reservedBytes == graphBytes,
+              "Changed session lane format was not refused before media hashing");
         MixReader reader(mix, root, s, options);
         const auto liveBytes = parent.usage().reservedBytes;
         check(liveBytes == graphBytes + readerBytes + cacheBytes && parent.usage().owners == 3,
@@ -492,11 +506,20 @@ void recordingBridges(const std::filesystem::path &root, const Asset &a) {
         limited([&] { DuplexBridge refused(run, s, arms, 1, CaptureBackend::Synthetic, 1 << 30); });
         check(parent.usage().reservedBytes == before, "Refused duplex bridge leaked credit");
         parent.configure(1 << 30);
+        std::size_t exact = 0;
         {
-            DuplexBridge bridge(run, s, arms, 1, CaptureBackend::Synthetic, runBytes + (1 << 20));
+            DuplexBridge probe(run, s, arms, 1, CaptureBackend::Synthetic, runBytes + (1 << 20));
+            exact = parent.usage().reservedBytes;
+        }
+        check(parent.usage().reservedBytes == before, "Probe bridge leaked credit");
+        parent.configure(exact);
+        {
+            DuplexBridge bridge(run, s, arms, 1, CaptureBackend::Synthetic, exact);
             check(parent.usage().owners == 5 && parent.usage().reservedBytes > before,
                   "Duplex bridge bindings/pool not independently owned");
             const auto occupied = parent.usage().reservedBytes;
+            check(occupied == exact,
+                  "Local duplex envelope differs from declared parent ownership");
             std::array<float, 16> raw{}, out{};
             raw.fill(.25f);
             const float *input = raw.data();
@@ -517,6 +540,60 @@ void recordingBridges(const std::filesystem::path &root, const Asset &a) {
     }
     check(parent.usage().reservedBytes == 0, "Duplex/pool destruction leaked credit");
 }
+void wholeRecordingAdmission(const std::filesystem::path &root) {
+    auto s = project(2);
+    const auto a = wave(root);
+    s.assets = {a};
+    for (auto &t : s.tracks) {
+        Clip clip;
+        clip.assetId = a.id;
+        clip.lengthFrames = 64;
+        t.clips = {clip};
+    }
+    ProjectStore(root).save(s);
+    const auto plan = planFor(s);
+    DuplexRecordingOptions options;
+    options.playback.graph.maximumFrames = 16;
+    options.playback.graph.memoryBudgetBytes = 1 << 30;
+    options.playback.slabFrames = 256;
+    options.playback.endFrame = 64;
+    options.nativeInputs = 2;
+    options.backend = CaptureBackend::Synthetic;
+    options.reader.cache.pageFrames = 256;
+    options.reader.cache.cacheBudgetBytes = 1 << 20;
+    options.reader.cache.maximumOpenFiles = 1;
+    unsigned reads = 0;
+    options.reader.beforeAdmissionRead = [&] { ++reads; };
+    std::vector<DuplexRecordingLane> lanes;
+    std::vector<ArmedCapture> bindings;
+    std::size_t captureBytes = 0;
+    for (unsigned n = 0; n < 2; ++n) {
+        DuplexRecordingLane lane;
+        lane.spec.projectId = s.id;
+        lane.spec.trackId = s.tracks[n].id;
+        lane.spec.capture = smallCapture();
+        lane.inputChannels = {n};
+        captureBytes += capturePayloadBytes(lane.spec.capture);
+        bindings.push_back({lane.spec.trackId, nullptr, lane.inputChannels});
+        lanes.push_back(lane);
+    }
+    const auto full = mixPlaybackPayloadBytes(s, plan, options.playback) +
+                      mixReaderPayloadBytes(s, plan, options.playback, options.reader) +
+                      DuplexBridge::bindingPayloadBytes(bindings, 1 << 30) + captureBytes;
+    options.memoryBudgetBytes = full - 1;
+    options.playback.graph.memoryBudgetBytes = options.memoryBudgetBytes;
+    limited([&] { DuplexRecordingRun refused(root, s, plan, lanes, options); });
+    check(reads == 0 && discoverRecordings(root, s).entries.empty(),
+          "Aggregate recording refusal occurred after media verification or job creation");
+    options.memoryBudgetBytes = full;
+    options.playback.graph.memoryBudgetBytes = full;
+    {
+        DuplexRecordingRun admitted(root, s, plan, lanes, options);
+        check(reads > 0 && discoverRecordings(root, s).entries.empty(),
+              "Exact aggregate retry failed or created inactive recording jobs");
+    }
+    check(ProjectStore(root).load() == s, "Whole recording admission changed saved project");
+}
 } // namespace
 int main(int argc, char **argv) {
     const auto root = (argc > 1 ? utf8Path(argv[1]) : std::filesystem::temp_directory_path()) /
@@ -534,6 +611,7 @@ int main(int argc, char **argv) {
         playbackAndExport(root, a);
         captureAndWriter(root / "capture-writer");
         recordingBridges(root, a);
+        wholeRecordingAdmission(root / "whole-admission");
         const auto &c = rt_audit::counts;
         check(!(c.cppAllocate + c.cppFree + c.cAllocate + c.cFree + c.blockingLock),
               "RT payload ownership violation");

@@ -4,6 +4,10 @@
 #include "playback_reader.hpp"
 
 namespace soundcurrent::daw {
+// Off-RT declaration only: trial metadata, no pools, leases, hash or media IO.
+std::size_t mixReaderPayloadBytes(const Session &, const MixPlan &, const MixPlaybackConfig &,
+                                  ReadAheadOptions = {},
+                                  std::uint32_t maximumOpenAssetReferences = 256);
 class MixReader {
   public:
     // Last argument is a concurrent shared-handle cap, not an asset-inventory limit.

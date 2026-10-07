@@ -128,6 +128,16 @@ struct DuplexBridge::State {
         faultReady.store(1, std::memory_order_release);
     }
 };
+std::size_t DuplexBridge::bindingPayloadBytes(std::span<const ArmedCapture> arms,
+                                              std::size_t budget) {
+    PayloadCharge bridgeCharge("Duplex bridge bindings", budget);
+    bridgeCharge.add(sizeof(State) + 8192);
+    for (const auto &a : arms)
+        bridgeCharge.add(1, sizeof(State::Lane) + sizeof(LiveMixInput) + 8192 +
+                                a.inputChannels.size() *
+                                    (sizeof(std::uint32_t) + 2 * sizeof(float *)));
+    return bridgeCharge.bytes();
+}
 DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<ArmedCapture> arms,
                            std::uint32_t inputs, CaptureBackend backend, std::size_t budget,
                            std::optional<PunchRange> punch)
@@ -145,24 +155,21 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
     if (!budget)
         throw ProjectError(ErrorCode::InvalidState, "Invalid duplex memory budget");
     // Query immutable prepared declarations, never a later caller model or mutable cache stats.
-    PayloadCharge bridgeCharge("Duplex bridge bindings", budget);
-    bridgeCharge.add(sizeof(State) + 8192);
-    for (const auto &a : arms)
-        bridgeCharge.add(1, sizeof(State::Lane) + sizeof(LiveMixInput) + 8192 +
-                                a.inputChannels.size() *
-                                    (sizeof(std::uint32_t) + 2 * sizeof(float *)));
+    const auto bridgeBytes = bindingPayloadBytes(arms, budget);
     PayloadCharge total("Duplex prepared payload", budget);
     total.add(r.payloadBytes());
-    total.add(bridgeCharge.bytes());
+    total.add(bridgeBytes);
     auto payload = total.bytes();
     if (c.resources)
-        st.resourceLease = c.resources->reserve(bridgeCharge.bytes());
+        st.resourceLease = c.resources->reserve(bridgeBytes);
     if (payload > budget)
         throw ProjectError(ErrorCode::InvalidState, "Duplex playback reservation exceeds budget");
     for (const auto &a : arms) {
         if (!a.pipe)
             throw ProjectError(ErrorCode::InvalidState, "Missing armed capture pipe");
-        const auto bytes = armedCapturePayloadBytes(a.pipe->config(), a.inputChannels.size());
+        // The bridge declaration above owns the bindings. Each external pipe
+        // contributes only its pool/object, matching the separate ledger lease.
+        const auto bytes = capturePayloadBytes(a.pipe->config());
         if (bytes > budget - payload)
             throw ProjectError(ErrorCode::InvalidState, "Duplex capture payload exceeds budget");
         payload += bytes;

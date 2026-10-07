@@ -3,9 +3,8 @@
 #include <algorithm>
 
 namespace soundcurrent::daw {
-namespace {
-PlaybackConfig configFor(const ValidatedSession &validated, const Id &id,
-                         const MixPlaybackConfig &c) {
+PlaybackConfig mixPlaybackLaneConfig(const ValidatedSession &validated, const Id &id,
+                                     const MixPlaybackConfig &c) {
     const auto &s = validated.session();
     const auto *it = &validated.track(id);
     PlaybackConfig p;
@@ -19,7 +18,6 @@ PlaybackConfig configFor(const ValidatedSession &validated, const Id &id,
     p.memoryBudgetBytes = std::min<std::size_t>(c.graph.memoryBudgetBytes, 256 * 1024 * 1024);
     return preparePlaybackConfig(p);
 }
-} // namespace
 std::size_t mixPlaybackPayloadBytes(const Session &s, const MixPlan &p,
                                     const MixPlaybackConfig &c) {
     auto bytes = mixPayloadBytes(s, p, c.graph);
@@ -30,7 +28,7 @@ std::size_t mixPlaybackPayloadBytes(const Session &s, const MixPlan &p,
         throw ResourceLimitError("Playback mix payload", SIZE_MAX, c.graph.memoryBudgetBytes);
     bytes += mask.bytes();
     for (const auto &t : p.tracks) {
-        const auto pipe = configFor(validated, t.track, c);
+        const auto pipe = mixPlaybackLaneConfig(validated, t.track, c);
         // Owned pipes and planar scratch. Reader buffers and cache hold separate leases.
         const auto samples = std::size_t(pipe.layout.channels) *
                              (std::size_t(captureSlabs) * pipe.slabFrames + c.graph.maximumFrames);
@@ -84,7 +82,7 @@ MixPlayback::MixPlayback(const Session &s, MixPlan p, MixPlaybackConfig c) {
     state_->lanes.reserve(state_->graph.plan().tracks.size());
     state_->inputs.reserve(state_->graph.plan().tracks.size());
     for (const auto &route : state_->graph.plan().tracks) {
-        auto lane = std::make_unique<State::Lane>(configFor(validated, route.track, c));
+        auto lane = std::make_unique<State::Lane>(mixPlaybackLaneConfig(validated, route.track, c));
         state_->inputs.emplace_back(lane->read.data(), lane->pipe.config().layout.channels);
         state_->lanes.push_back(std::move(lane));
     }

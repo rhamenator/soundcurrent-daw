@@ -148,6 +148,11 @@
     "affected_sanitizer_qualified_workflows": 33,
     "qualification_scopes": "Full Debug 58; initial sanitizers 32/33, changed test-only deadline fixture rerun in Debug/sanitizers 1/1. Other 182 compiled inputs unchanged.",
     "desktop_acknowledgement_arrays_dynamic_and_leased": true,
-    "upstream_localization_review_pending": true
+    "upstream_localization_review_pending": true,
+    "review_correction_receipt": "tests/results/M2/2026-10-07-execution-memory-review.json",
+    "review_qualification_scopes": "Current full Debug 58/58 (150.03s) and affected ASan/UBSan/LSan 33/33 (249.27s); all 183 current compiled input hashes match.",
+    "complete_early_duplex_declared_payload_preflight": true,
+    "exact_local_duplex_ownership_admission": true,
+    "later_changed_lane_format_refused_before_hashing": true
   }
 }

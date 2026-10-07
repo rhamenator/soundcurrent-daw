@@ -16,7 +16,10 @@ Recording bridges use immutable prepared DSP/pool/reader/cache declarations inst
 of treating the graph's entire allowance as occupied memory. This avoids reserving
 a mostly unused allowance while still checking run plus bridge plus outstanding
 capture banks against the local envelope. They never sample mutable reader/cache
-statistics concurrently. Explicit child ledgers remain supported.
+statistics concurrently. The complete duplex preflight includes the same shared
+reader/cache and bridge declarations as construction, plus each raw pool exactly
+once, before prepared pools or media verification. Trial metadata and copied owner
+state remain outside this payload gate. Explicit child ledgers remain supported.
 
 ## New ownership
 
@@ -52,6 +55,14 @@ Exercise 512-lane live parameter receipts, withheld-lane backpressure and canoni
 reordering without an out-of-range acknowledgement array. Retain existing
 timing/recording recovery/export/RT audits. Exact executed scopes,
 source/executable hashes and original failures belong in the checkpoint receipt.
+
+Review acceptance also covers an exact local duplex budget equal to the parent's
+occupied declarations, a standalone complete preparation budget one byte short
+refused before media hashing/job creation, and an exact-budget inactive retry.
+A caller Session with a lane format changed after graph preparation must be
+refused before cache media reads. See the separate
+[review correction receipt](../tests/results/M2/2026-10-07-execution-memory-review.json);
+the original preview receipt/archive stay immutable.
 
 ## Remaining gates
 

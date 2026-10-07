@@ -118,3 +118,15 @@ bytes, heads, diffs and decision are retained in the execution-policy evidence.
 The registered-input audit remains visibly pending these concurrent changes.
 No equalizer source tree is written. Preserve language-independent project/profile
 IDs, DAW-specific behavior and the full all-Europe scope.
+
+
+The follow-up read-only observation at public `2f0a576e4ab7` and premium
+`41c5655ce9f3` also retains the latest chart-direction change. Both observed
+editor files have SHA-256
+`764681ba59eedafd5a6122805e5aa990a08f707082bb3e1516dbce94ed34a5ec`.
+The new delta sets the plot painter to left-to-right; translated UI direction
+must not change the frequency-axis meaning. Its exact bytes and diff are retained
+in the [review receipt](../tests/results/M2/2026-10-07-execution-memory-review.json).
+Numerical chart direction and the new runtime/catalog/installer integration need
+an affected UI adoption gate. The two changed registered inputs remain pending;
+the other 22 registered inputs and retained snapshot integrity still match.

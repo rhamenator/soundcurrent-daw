@@ -2527,3 +2527,34 @@ Linux/Windows profiles remain open. Continue these tasks and review stable
 equalizer localization runtime/catalog/installer changes. Full X006, frozen parity,
 X004/X005, native Windows and European language qualification remain required.
 The full goal stays active and incomplete.
+
+
+## X006 execution policy review corrections (2026-10-07)
+
+PR31 review found two valid accounting errors: duplex bindings were charged twice
+in the local envelope, and early standalone preparation omitted reader/cache and
+bridge declarations. Shared off-RT queries now make preflight and construction
+agree; raw capture pools count once. Exact declared occupancy admits recording,
+a budget one byte below the complete total refuses before media hashing/job
+creation, and an exact inactive retry preserves the saved project. Actual prepared
+lane format validation still precedes media hashing if a later caller Session has
+changed. Trial metadata and copied owner Sessions remain outside this gate.
+
+The separate [review receipt](../tests/results/M2/2026-10-07-execution-memory-review.json)
+retains the original preview source and static review findings. No pre-fix runtime
+reproduction is claimed for those findings. Current full Linux Debug passes
+**58/58, 150.03s**, and affected ASan/UBSan/LSan passes **33/33, 249.27s**;
+all **183** compiled input hashes match current sources across both final scopes.
+The original preview receipt/archive and its earlier failures remain immutable.
+The separate review archive is **21,712,785 bytes / 1,580 entries**, with CRC
+and every entry byte verified.
+The Windows core/media cross-build passes; this is separate from native
+runtime/GUI qualification. The latest equalizer editor snapshots/diffs, including
+the numerical chart-direction delta, remain retained for a distinct localization
+UI adoption gate; neither source checkout was written.
+
+No new native audio/VM run, dependency/schema, frozen parity promotion or resolution
+of original native71. Continue copied state/IO/transient admission and measured
+allocator/RSS, larger recording arms, freeze/bounce, scheduling and sustained
+Linux/Windows workflows. Native Windows, X004/X005 and Europe qualification remain
+required. Full X006 and the DAW goal remain incomplete.

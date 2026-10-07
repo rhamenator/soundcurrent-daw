@@ -23,3 +23,14 @@ quantum or DSP algorithm changes. Standalone explicit policies remain supported.
 This remains partial payload accounting: copied Sessions, allocator/RSS, IO/Qt
 internals, CPU/deadline capacity and recording input descriptors need separate
 work. The full acceptance/limitations contract is [86](../86-execution-memory-policy.md).
+
+
+## Review correction
+
+The local duplex total must agree with the shared ownership declarations: bridge
+bindings count once, each external raw pool counts once. Early standalone
+preparation must include the same graph, reader/cache, bridge and pool declarations
+before constructing pools or hashing media. Share off-RT declaration helpers
+between preflight and construction. Trial metadata and copied Session state remain
+outside this declared payload contract. Preserve actual prepared-lane validation
+before a reader hashes media, even if its later caller Session has changed.

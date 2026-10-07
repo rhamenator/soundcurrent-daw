@@ -58,6 +58,7 @@ struct DuplexObservation {
 // bridge. One native clock gates both playback and all armed raw captures.
 class DuplexBridge {
   public:
+    static std::size_t bindingPayloadBytes(std::span<const ArmedCapture>, std::size_t budget);
     DuplexBridge(MixPlaybackRun &, const Session &, std::vector<ArmedCapture>,
                  std::uint32_t nativeInputs, CaptureBackend = CaptureBackend::Unknown,
                  std::size_t memoryBudgetBytes = 256 * 1024 * 1024, std::optional<PunchRange> = {});

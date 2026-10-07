@@ -58,7 +58,11 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
         for (const auto &c : t.clips)
             occupied.insert(c.id.str());
     }
-    auto bytes = mixPlaybackPayloadBytes(s, plan, o.playback);
+    PayloadCharge total("Duplex prepared payload", o.memoryBudgetBytes);
+    total.add(mixPlaybackPayloadBytes(s, plan, o.playback));
+    total.add(mixReaderPayloadBytes(s, plan, o.playback, o.reader));
+    std::vector<ArmedCapture> bindings;
+    bindings.reserve(lanes.size());
     std::size_t ordinal = 0;
     for (auto &lane : lanes) {
         auto &r = lane.spec;
@@ -96,11 +100,10 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
                 std::max<Frame>(1, interval * Frame(ordinal + 1) / Frame(lanes.size()));
         }
         ++ordinal;
-        const auto payload = armedCapturePayloadBytes(r.capture, lane.inputChannels.size());
-        if (payload > o.memoryBudgetBytes - bytes)
-            throw ProjectError(ErrorCode::InvalidState, "Duplex capture payload exceeds budget");
-        bytes += payload;
+        total.add(capturePayloadBytes(r.capture));
+        bindings.push_back({r.trackId, nullptr, lane.inputChannels, lane.monitoring});
     }
+    total.add(DuplexBridge::bindingPayloadBytes(bindings, o.memoryBudgetBytes));
 }
 } // namespace
 struct DuplexRecordingRun::State {
