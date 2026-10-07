@@ -2478,3 +2478,83 @@ work and capture/IO admission, measured allocations/RSS, paging, larger recordin
 adoption, freeze/bounce, prepared scheduling and sustained Linux/Windows profiles.
 The 256 recording-input implementation and all native Windows, X004/X005, Europe
 and frozen product gates remain required. The full goal and X006 remain incomplete.
+
+## X006 coordinated execution policy checkpoint (2026-10-07)
+
+Previous goal turn was **progress**: PR30 merged as `12b49d846667` with a
+verified restored source backup. This turn adds [ADR071](decisions/071-coordinated-execution-policy.md)
+and [86](86-execution-memory-policy.md). New desktop playback/fixed/manual/export
+preparation samples trusted parent policy; recording envelopes use immutable
+prepared usage. Raw pools, bridge bindings, aggregate manual banks, declared
+writer/hash/journal workspace and monitoring-off scratch now share that parent.
+Dynamic leased acknowledgement arrays remove the remaining 256-lane assumption
+in desktop playback parameter receipts. No callback ledger work is added.
+
+The [receipt](../tests/results/M2/2026-10-07-execution-memory-policy.json) records
+full Linux Debug **58/58, 161.05s**. Initial
+affected sanitizers passed **32/33**; the new 512-lane bulk control fixture hit its
+old five-second wait. Exact-executable GDB captured bulk model preparation, zero
+submissions and no engine error. Its test-only large-workload allowance is now
+30 seconds; smaller workflows keep five. The changed fixture passes current
+Debug **1/1** and ASan/UBSan/LSan **1/1, 6.76s**,
+completing 33 qualified sanitizer workflows across those explicit scopes. The
+other 182 compiled inputs are identical to the original full scopes; all current
+183 hashes match the two targeted retry snapshots. This is not a real-time
+deadline/performance qualification. Windows core/media cross-building passes.
+
+Actual Qt 512-track file/EQ Play verifies exact 128.0 float samples/peak, full-parent
+refusal/raise/retry, explicit output-intent editing, exact execution release on
+Stop, Save/reopen and zero parent credit after Close. New capture/writer/bank/bridge
+refusal, retry, cancellation, overlapping ownership and retirement tests pass,
+including the existing callback allocation/free/blocking-lock audit. The verified
+archive is **26,766,142 bytes / 2,603 entries**, with CRC and every
+entry's bytes checked. Original compile, allowance-versus-usage fixture errors,
+early null route selection, terminal zero-meter expectation, pre-routing baseline
+assumption and sanitizer deadline failure remain retained with exact sources,
+executable hashes/private copies, logs and GDB diagnosis/reproductions.
+
+The owner is adding equalizer localization in other chats. The audit flags both
+equipment editor inputs, and exact observed source/diffs are retained for impact
+review. The DAW already uses contextual Qt editor translation; no equalizer source
+tree is written or unreviewed runtime/catalog integration claimed. Reviewed
+snapshot integrity and the 92 unpromoted frozen contracts remain intact.
+
+No native audio/VM run, new dependency/schema or resolution of original native71
+clock/source CPU cause. Copied owner Sessions, parser/recovery/other IO, transient
+work, allocator/RSS/CPU, bulk parameter preparation/cancellation responsiveness,
+paging, 256-arm/packed-input adaptation, freeze/bounce, scheduling and sustained
+Linux/Windows profiles remain open. Continue these tasks and review stable
+equalizer localization runtime/catalog/installer changes. Full X006, frozen parity,
+X004/X005, native Windows and European language qualification remain required.
+The full goal stays active and incomplete.
+
+
+## X006 execution policy review corrections (2026-10-07)
+
+PR31 review found two valid accounting errors: duplex bindings were charged twice
+in the local envelope, and early standalone preparation omitted reader/cache and
+bridge declarations. Shared off-RT queries now make preflight and construction
+agree; raw capture pools count once. Exact declared occupancy admits recording,
+a budget one byte below the complete total refuses before media hashing/job
+creation, and an exact inactive retry preserves the saved project. Actual prepared
+lane format validation still precedes media hashing if a later caller Session has
+changed. Trial metadata and copied owner Sessions remain outside this gate.
+
+The separate [review receipt](../tests/results/M2/2026-10-07-execution-memory-review.json)
+retains the original preview source and static review findings. No pre-fix runtime
+reproduction is claimed for those findings. Current full Linux Debug passes
+**58/58, 150.03s**, and affected ASan/UBSan/LSan passes **33/33, 249.27s**;
+all **183** compiled input hashes match current sources across both final scopes.
+The original preview receipt/archive and its earlier failures remain immutable.
+The separate review archive is **21,712,785 bytes / 1,580 entries**, with CRC
+and every entry byte verified.
+The Windows core/media cross-build passes; this is separate from native
+runtime/GUI qualification. The latest equalizer editor snapshots/diffs, including
+the numerical chart-direction delta, remain retained for a distinct localization
+UI adoption gate; neither source checkout was written.
+
+No new native audio/VM run, dependency/schema, frozen parity promotion or resolution
+of original native71. Continue copied state/IO/transient admission and measured
+allocator/RSS, larger recording arms, freeze/bounce, scheduling and sustained
+Linux/Windows workflows. Native Windows, X004/X005 and Europe qualification remain
+required. Full X006 and the DAW goal remain incomplete.

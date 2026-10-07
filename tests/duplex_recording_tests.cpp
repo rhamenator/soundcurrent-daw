@@ -298,11 +298,12 @@ void admission() {
     test([](auto &, auto &cfg, auto &) { cfg.nativeInputs = 257; });
     test([](auto &, auto &, auto &mp) { mp.tracks.erase(mp.tracks.begin() + 1); });
     test([](auto &, auto &cfg, auto &) { cfg.playback.endFrame = 137; });
-    test([](auto &a, auto &cfg, auto &) {
-        cfg.memoryBudgetBytes = cfg.playback.graph.memoryBudgetBytes;
+    test([&](auto &a, auto &cfg, auto &mp) {
+        cfg.memoryBudgetBytes = mixPlaybackPayloadBytes(s, mp, cfg.playback);
         for (const auto &l : a)
             cfg.memoryBudgetBytes += armedCapturePayloadBytes(l.spec.capture, 1);
         --cfg.memoryBudgetBytes;
+        cfg.playback.graph.memoryBudgetBytes = cfg.memoryBudgetBytes;
     });
     // Persisted identity is checked again at start, before the first file is created.
     DuplexRecordingRun run(d.root, s, p, lanes(s), o);

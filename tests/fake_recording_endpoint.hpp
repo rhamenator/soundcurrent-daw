@@ -42,7 +42,7 @@ class Endpoint : public RecordingEndpoint {
 
   public:
     Endpoint(const RecordingPreparation &p, std::shared_ptr<Counters> c)
-        : c_(std::move(c)), p_(p), pipe_(p.spec.capture),
+        : c_(std::move(c)), p_(p), pipe_(p.spec.capture, p.options.bridge.resources),
           bridge_(*p.session, p.spec.trackId, pipe_, p.options.bridge) {
         p_.spec.capture = pipe_.config();
         c_->preparedCapacityFrames =

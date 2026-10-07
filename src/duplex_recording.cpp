@@ -43,7 +43,6 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
         throw ProjectError(ErrorCode::InvalidState, "Invalid prepared punch range");
     if (lanes.empty() || lanes.size() > 256 || !o.nativeInputs || o.nativeInputs > 256 ||
         o.backend > CaptureBackend::Asio || !o.memoryBudgetBytes ||
-        o.memoryBudgetBytes > 256 * 1024 * 1024 ||
         o.playback.graph.memoryBudgetBytes > o.memoryBudgetBytes)
         throw ProjectError(ErrorCode::InvalidState, "Invalid duplex recording admission");
     std::set<std::string> occupied{s.id.str()}, armed;
@@ -59,7 +58,11 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
         for (const auto &c : t.clips)
             occupied.insert(c.id.str());
     }
-    auto bytes = o.playback.graph.memoryBudgetBytes;
+    PayloadCharge total("Duplex prepared payload", o.memoryBudgetBytes);
+    total.add(mixPlaybackPayloadBytes(s, plan, o.playback));
+    total.add(mixReaderPayloadBytes(s, plan, o.playback, o.reader));
+    std::vector<ArmedCapture> bindings;
+    bindings.reserve(lanes.size());
     std::size_t ordinal = 0;
     for (auto &lane : lanes) {
         auto &r = lane.spec;
@@ -97,11 +100,10 @@ void admit(const Session &s, const MixPlan &plan, std::vector<DuplexRecordingLan
                 std::max<Frame>(1, interval * Frame(ordinal + 1) / Frame(lanes.size()));
         }
         ++ordinal;
-        const auto payload = armedCapturePayloadBytes(r.capture, lane.inputChannels.size());
-        if (payload > o.memoryBudgetBytes - bytes)
-            throw ProjectError(ErrorCode::InvalidState, "Duplex capture payload exceeds budget");
-        bytes += payload;
+        total.add(capturePayloadBytes(r.capture));
+        bindings.push_back({r.trackId, nullptr, lane.inputChannels, lane.monitoring});
     }
+    total.add(DuplexBridge::bindingPayloadBytes(bindings, o.memoryBudgetBytes));
 }
 } // namespace
 struct DuplexRecordingRun::State {
@@ -115,8 +117,10 @@ struct DuplexRecordingRun::State {
         bool joined = false;
         std::exception_ptr error;
         std::optional<PunchRange> range;
-        Lane(DuplexRecordingLane b, std::optional<PunchRange> r) : binding(std::move(b)), range(r) {
-            pipe = std::make_unique<CapturePipe>(binding.spec.capture);
+        Lane(DuplexRecordingLane b, std::optional<PunchRange> r,
+             std::optional<ResourceLedger> resources)
+            : binding(std::move(b)), range(r) {
+            pipe = std::make_unique<CapturePipe>(binding.spec.capture, std::move(resources));
         }
     };
     std::filesystem::path root;
@@ -130,6 +134,10 @@ struct DuplexRecordingRun::State {
     State(std::filesystem::path r, const Session &s, MixPlan plan,
           std::vector<DuplexRecordingLane> arms, DuplexRecordingOptions options)
         : root(std::move(r)), session(s) {
+        if (!options.playback.graph.resources)
+            options.playback.graph.resources = options.reader.resources;
+        if (!options.reader.resources)
+            options.reader.resources = options.playback.graph.resources;
         std::vector<PreparedPunchLane> musical;
         if (options.musicalPunch) {
             if (options.punch || options.musicalPunch->begin < options.playback.graph.startFrame ||
@@ -151,7 +159,10 @@ struct DuplexRecordingRun::State {
             const auto range = musical.empty()
                                    ? options.punch
                                    : std::optional<PunchRange>(musical[lanes.size()].capture);
-            auto lane = std::make_unique<Lane>(std::move(arm), range);
+            if (!arm.writer.resources)
+                arm.writer.resources = options.playback.graph.resources;
+            auto lane =
+                std::make_unique<Lane>(std::move(arm), range, options.playback.graph.resources);
             bindings.push_back({lane->binding.spec.trackId, lane->pipe.get(),
                                 lane->binding.inputChannels, lane->binding.monitoring,
                                 musical.empty() ? std::optional<PunchRange>{} : range,

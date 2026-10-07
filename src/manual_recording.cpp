@@ -98,6 +98,10 @@ struct ManualRecordingRun::State {
     State(std::filesystem::path r, const Session &s, MixPlan plan,
           std::vector<ManualRecordingArm> bindings, ManualRecordingOptions o)
         : root(std::move(r)), session(s), arms(std::move(bindings)), options(std::move(o)) {
+        if (!options.playback.graph.resources)
+            options.playback.graph.resources = options.reader.resources;
+        if (!options.reader.resources)
+            options.reader.resources = options.playback.graph.resources;
         validate(session);
         const auto saved = ProjectStore(root).load();
         require(saved.id == s.id && saved.sampleRate == s.sampleRate,
@@ -110,6 +114,8 @@ struct ManualRecordingRun::State {
         std::vector<ManualPunchArm> routes;
         for (std::size_t n = 0; n < arms.size(); ++n) {
             auto &writer = arms[n].writer;
+            if (!writer.resources)
+                writer.resources = options.playback.graph.resources;
             const Frame interval = writer.checkpointFrames ? writer.checkpointFrames : s.sampleRate;
             require(writer.checkpointFrames >= 0 && interval <= Frame(s.sampleRate) * 60 &&
                         writer.firstCheckpointFrames >= 0 &&

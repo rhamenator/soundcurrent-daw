@@ -87,7 +87,7 @@
   },
   "next_tasks": [
     "Sustained shared-cache/read-ahead profiling; remaining meter/waveform virtualization and Qt paging",
-    "Coordinate desktop graph/IO trusted policies, capture/writer/other IO and commands/trials with the existing shared declared controller/GUI/execution parent; measure all allocations/RSS and processing capacity",
+    "Admit copied owner Sessions, remaining IO/transient work and command trials; measure all allocations/RSS and processing capacity under the existing shared project parent",
     "Large recording/adoption workflows; separate arm/native channel capabilities",
     "Diagnose original native sanitizer observation71 clock gap/source CPU cause without relabeling missing original evidence",
     "All frozen product milestones and independent Linux/Windows/localization qualification"
@@ -132,5 +132,27 @@
     "product_track_ceiling": null,
     "separate_recording_input_implementation_limit": 256,
     "coordinated_desktop_graph_IO_policy_editor": false
+  },
+  "coordinated_execution_checkpoint": {
+    "contract": "docs/86-execution-memory-policy.md",
+    "decision": "docs/decisions/071-coordinated-execution-policy.md",
+    "receipt": "tests/results/M2/2026-10-07-execution-memory-policy.json",
+    "new_desktop_preparation_follows_trusted_parent": true,
+    "declared_capture_bridge_take_bank_writer_workspace_admitted": true,
+    "all_heap_RSS_CPU_admitted": false,
+    "product_track_ceiling": null,
+    "separate_recording_input_implementation_limit": 256,
+    "native_audio": false,
+    "Windows_runtime_qualified": false,
+    "Linux_Debug_qualified_workflows": 58,
+    "affected_sanitizer_qualified_workflows": 33,
+    "qualification_scopes": "Full Debug 58; initial sanitizers 32/33, changed test-only deadline fixture rerun in Debug/sanitizers 1/1. Other 182 compiled inputs unchanged.",
+    "desktop_acknowledgement_arrays_dynamic_and_leased": true,
+    "upstream_localization_review_pending": true,
+    "review_correction_receipt": "tests/results/M2/2026-10-07-execution-memory-review.json",
+    "review_qualification_scopes": "Current full Debug 58/58 (150.03s) and affected ASan/UBSan/LSan 33/33 (249.27s); all 183 current compiled input hashes match.",
+    "complete_early_duplex_declared_payload_preflight": true,
+    "exact_local_duplex_ownership_admission": true,
+    "later_changed_lane_format_refused_before_hashing": true
   }
 }

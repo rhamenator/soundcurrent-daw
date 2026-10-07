@@ -27,6 +27,8 @@ struct MixPlaybackReport {
 };
 // Global buffer/DSP payload admission before preparing any lane.
 std::size_t mixPlaybackPayloadBytes(const Session &, const MixPlan &, const MixPlaybackConfig &);
+PlaybackConfig mixPlaybackLaneConfig(const ValidatedSession &, const Id &,
+                                     const MixPlaybackConfig &);
 // Shared clock for all per-track read-ahead pipes and the shared mix graph.
 // No readers/device/Qt dependencies. Seek prepares another generation, never resets live pipes.
 class MixPlayback {
@@ -43,6 +45,7 @@ class MixPlayback {
     const PlaybackReport &laneReport(std::size_t) const; // Audio owner only.
     const MixPlaybackConfig &config() const noexcept;
     Frame position() const noexcept;
+    std::size_t payloadBytes() const noexcept; // Immutable declared generation payload.
     bool readerDone() const noexcept;
     std::uint64_t missingTrackFrames() const noexcept;
 

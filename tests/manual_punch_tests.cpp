@@ -407,7 +407,7 @@ void slotsAndAggregateAdmission() {
     auto s = session(1, false);
     addFile(s, d.root);
     MixPlaybackRun run(d.root, s, plan(s), config(0, 10000));
-    const auto budget = run.config().graph.memoryBudgetBytes + 1024 * 1024;
+    const auto budget = run.payloadBytes() + 1024 * 1024;
     ManualPunchBridge bridge(run, s, {{s.tracks[0].id, {0}, 0, RecordingMonitor::Off}}, 1,
                              CaptureBackend::Synthetic, budget);
     auto small = capture();

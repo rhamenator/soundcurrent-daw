@@ -126,6 +126,7 @@ bool compatible(const PlaybackPreparation &p, const Session &updated) {
 }
 } // namespace
 struct PlaybackController::State : QThread {
+    ResourceLease receiptsLease; // Last released after lane vectors and bundles.
     struct Queued {
         PlaybackCommand command;
         std::uint64_t epoch;
@@ -146,11 +147,12 @@ struct PlaybackController::State : QThread {
     std::shared_ptr<const Session> acceptedModel;
     std::uint64_t seenStop = 0, eventRevision = 0, checkedRevision = 0;
     bool processed = false;
-    std::array<std::uint64_t, 256> appliedByLane{};
+    std::vector<std::uint64_t> appliedByLane;
     struct Bundle {
+        ResourceLease requiredLease;
         Following target;
         std::vector<MixEvent> events;
-        std::array<std::uint64_t, 256> required{};
+        std::vector<std::uint64_t> required;
         std::size_t submitted = 0;
         std::uint64_t lastEvent = 0;
     };
@@ -193,6 +195,8 @@ struct PlaybackController::State : QThread {
         }
         endpoint.reset();
         bundle.reset();
+        std::vector<std::uint64_t>().swap(appliedByLane);
+        receiptsLease = {};
         prepared.reset();
         acceptedModel.reset();
         view.ports.reset();
@@ -268,8 +272,13 @@ struct PlaybackController::State : QThread {
                 view.acceptedRevision = desired->revision;
                 if (processed)
                     view.appliedRevision = desired->revision;
-            } else
+            } else {
+                PayloadCharge charge("Playback model acknowledgement lanes", SIZE_MAX);
+                charge.add(prepared->plan.tracks.size(), sizeof(std::uint64_t));
+                next.requiredLease = options.projectMemory.reserve(charge.bytes());
+                next.required.assign(prepared->plan.tracks.size(), 0);
                 bundle = std::move(next);
+            }
         }
         if (!bundle)
             return;
@@ -319,6 +328,7 @@ struct PlaybackController::State : QThread {
         PlaybackPreparation next{c.root, c.session, c.modelRevision, c.session->tracks.front().id,
                                  {},     {},        bool(c.plan)};
         next.reader.resources = options.projectMemory;
+        next.config.memoryBudgetBytes = options.projectMemory.usage().limitBytes;
         next.config.sampleRate = c.session->sampleRate;
         next.plan = c.plan ? *c.plan
                            : identityMix(*c.session, std::span(&next.track, 1),
@@ -336,6 +346,10 @@ struct PlaybackController::State : QThread {
         if (next.config.endFrame <= next.config.startFrame)
             throw ProjectError(ErrorCode::InvalidState,
                                "Prepared track has no audio beyond the playhead");
+        PayloadCharge receiptCharge("Playback acknowledgement lanes", SIZE_MAX);
+        receiptCharge.add(next.plan.tracks.size(), sizeof(std::uint64_t));
+        auto receiptReservation = options.projectMemory.reserve(receiptCharge.bytes());
+        std::vector<std::uint64_t> receiptLanes(next.plan.tracks.size(), 0);
         auto candidate = options.factory(next);
         if (!candidate)
             throw ProjectError(ErrorCode::InvalidState, "Playback factory returned no owner");
@@ -351,7 +365,8 @@ struct PlaybackController::State : QThread {
         eventRevision = 0;
         checkedRevision = 0;
         processed = false;
-        appliedByLane.fill(0);
+        appliedByLane = std::move(receiptLanes);
+        receiptsLease = std::move(receiptReservation);
         view.tracks = static_cast<std::uint32_t>(prepared->plan.tracks.size());
         view.projectMix = prepared->projectMix;
         view.channels = prepared->config.layout.channels;

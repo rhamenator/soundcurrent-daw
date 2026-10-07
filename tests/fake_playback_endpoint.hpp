@@ -43,6 +43,7 @@ class Endpoint : public PlaybackEndpoint {
         c.startFrame = p.config.startFrame;
         c.generation = p.config.generation;
         c.resources = p.reader.resources;
+        c.memoryBudgetBytes = p.config.memoryBudgetBytes;
         return c;
     }
     Endpoint(const PlaybackPreparation &p, std::shared_ptr<Counters> c)

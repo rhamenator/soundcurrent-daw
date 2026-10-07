@@ -104,3 +104,29 @@ This observation is retained in the [S8b evidence](../tests/results/SLICE-001/20
 Run the audit and review newly introduced files again before the next reuse-dependent
 milestone; this check neither promises future automatic updates nor establishes
 Windows DAW audio/installer support.
+
+## Concurrent equalizer localization work (2026-10-07)
+
+The owner is having the equalizer chats add localization. The readonly audit now
+flags both registered equipment editor inputs: new `SC_TR` wrappers and localization
+header integration. The DAW adaptation already uses the contextual
+`EquipmentProfiles` Qt translator, including its own error/dirty-copy workflows.
+This warrants a runtime/catalog/installer impact review when the equalizer changes
+are stable; it does not justify replacing the adapted DAW editor with an upstream
+working file or claim completed European translations. Exact observed working
+bytes, heads, diffs and decision are retained in the execution-policy evidence.
+The registered-input audit remains visibly pending these concurrent changes.
+No equalizer source tree is written. Preserve language-independent project/profile
+IDs, DAW-specific behavior and the full all-Europe scope.
+
+
+The follow-up read-only observation at public `2f0a576e4ab7` and premium
+`41c5655ce9f3` also retains the latest chart-direction change. Both observed
+editor files have SHA-256
+`764681ba59eedafd5a6122805e5aa990a08f707082bb3e1516dbce94ed34a5ec`.
+The new delta sets the plot painter to left-to-right; translated UI direction
+must not change the frequency-axis meaning. Its exact bytes and diff are retained
+in the [review receipt](../tests/results/M2/2026-10-07-execution-memory-review.json).
+Numerical chart direction and the new runtime/catalog/installer integration need
+an affected UI adoption gate. The two changed registered inputs remain pending;
+the other 22 registered inputs and retained snapshot integrity still match.

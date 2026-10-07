@@ -60,6 +60,7 @@ void require(bool value, const char *message) {
 }
 } // namespace
 struct ManualPunchTake::State {
+    ResourceLease resourceLease;
     std::uint64_t id;
     std::vector<std::unique_ptr<CapturePipe>> pipes;
     std::vector<bool> originSet;
@@ -68,14 +69,15 @@ struct ManualPunchTake::State {
     std::atomic<std::uint32_t> phase{0}, beginReady{0}, endReady{0};
     // Control-only reservation and pending command references.
     std::size_t payload = 0, pendingStarts = 0;
-    State(std::uint64_t n, std::vector<CaptureConfig> configs)
-        : id(n), originSet(configs.size(), false), retiredFrames(configs.size(), 0) {
+    State(ResourceLease lease, std::uint64_t n, std::vector<CaptureConfig> configs)
+        : resourceLease(std::move(lease)), id(n), originSet(configs.size(), false),
+          retiredFrames(configs.size(), 0) {
         for (const auto &c : configs)
             pipes.push_back(std::make_unique<CapturePipe>(c));
     }
 };
-ManualPunchTake::ManualPunchTake(std::uint64_t n, std::vector<CaptureConfig> c)
-    : state_(std::make_unique<State>(n, std::move(c))) {}
+ManualPunchTake::ManualPunchTake(ResourceLease lease, std::uint64_t n, std::vector<CaptureConfig> c)
+    : state_(std::make_unique<State>(std::move(lease), n, std::move(c))) {}
 ManualPunchTake::~ManualPunchTake() = default;
 std::uint64_t ManualPunchTake::id() const noexcept {
     return state_->id;
@@ -115,6 +117,7 @@ struct ManualPunchBridge::State {
         explicit Arm(ManualPunchArm a)
             : binding(std::move(a)), input(binding.inputChannels.size()), captured(input.size()) {}
     };
+    ResourceLease resourceLease;
     MixPlaybackRun &run;
     std::vector<Arm> arms;
     std::vector<LiveMixInput> live;
@@ -275,16 +278,25 @@ ManualPunchBridge::ManualPunchBridge(MixPlaybackRun &run, const Session &s,
                                      CaptureBackend backend, std::size_t budget) {
     validate(s);
     require(!arms.empty() && arms.size() <= 256 && inputs && inputs <= 256 &&
-                backend <= CaptureBackend::Asio && budget && budget <= 256 * 1024 * 1024 &&
-                s.sampleRate == run.sampleRate() && run.position() == run.config().graph.startFrame,
+                backend <= CaptureBackend::Asio && budget && s.sampleRate == run.sampleRate() &&
+                run.position() == run.config().graph.startFrame,
             "Invalid manual punch preparation");
-    std::size_t payload = sizeof(State) + 8192 + run.config().graph.memoryBudgetBytes;
+    PayloadCharge bridgeCharge("Manual bridge payload", budget);
+    bridgeCharge.add(sizeof(State) + 8192);
     for (const auto &a : arms)
-        payload += sizeof(State::Arm) + a.inputChannels.size() * 2 * sizeof(float *) +
-                   sizeof(LiveMixInput);
-    require(payload <= budget, "Manual punch playback/bridge reservation exceeds budget");
+        bridgeCharge.add(sizeof(State::Arm) + a.inputChannels.size() * 2 * sizeof(float *) +
+                         sizeof(LiveMixInput));
+    PayloadCharge total("Manual playback/bridge", budget);
+    total.add(run.payloadBytes());
+    total.add(bridgeCharge.bytes());
+    const auto payload = total.bytes();
+    auto lease = run.config().graph.resources
+                     ? run.config().graph.resources->reserve(bridgeCharge.bytes())
+                     : ResourceLease{};
     state_ = std::make_unique<State>(run, inputs, backend, budget, payload);
     auto &st = *state_;
+    st.resourceLease = std::move(lease);
+    st.arms.reserve(arms.size());
     Frame maximumLatency = 0;
     for (auto &a : arms) {
         const auto track = std::find_if(s.tracks.begin(), s.tracks.end(),
@@ -336,8 +348,10 @@ ManualPunchTake &ManualPunchBridge::prepareTake(CaptureConfig config) {
         payload += bytes;
         configs.push_back(c);
     }
-    auto take =
-        std::unique_ptr<ManualPunchTake>(new ManualPunchTake(s.nextTake, std::move(configs)));
+    auto take = std::unique_ptr<ManualPunchTake>(new ManualPunchTake(
+        s.run.config().graph.resources ? s.run.config().graph.resources->reserve(payload)
+                                       : ResourceLease{},
+        s.nextTake, std::move(configs)));
     take->state_->payload = payload;
     s.reserved += payload;
     ++s.nextTake;

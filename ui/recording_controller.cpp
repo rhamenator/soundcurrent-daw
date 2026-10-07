@@ -547,6 +547,8 @@ struct RecordingController::State : QThread {
             p.spec.inputLatencyFrames = c.session->tracks.front().inputLatencyFrames;
             p.options = options.nativeOptions;
             p.options.bridge.resources = options.projectMemory;
+            p.options.writer.resources = options.projectMemory;
+            p.spec.capture.memoryBudgetBytes = options.projectMemory.usage().limitBytes;
             p.options.monitoring = c.monitoring;
             p.options.bridge.generation = view.generation + 1;
             p.spec.capture.maximumCallbackFrames = p.options.bridge.maximumFrames;
@@ -571,6 +573,8 @@ struct RecordingController::State : QThread {
                 auto &cfg = p.duplexOptions.run;
                 cfg.playback.graph.resources = options.projectMemory;
                 cfg.reader.resources = options.projectMemory;
+                cfg.memoryBudgetBytes = options.projectMemory.usage().limitBytes;
+                cfg.playback.graph.memoryBudgetBytes = cfg.memoryBudgetBytes;
                 cfg.nativeInputs = 0;
                 cfg.playback.graph.startFrame = c.session->playheadFrame;
                 cfg.playback.graph.maximumFrames = p.options.bridge.maximumFrames;
@@ -596,6 +600,7 @@ struct RecordingController::State : QThread {
                     DuplexRecordingLane lane;
                     lane.spec.projectId = c.session->id;
                     lane.spec.trackId = id;
+                    lane.spec.capture.memoryBudgetBytes = cfg.memoryBudgetBytes;
                     lane.spec.capture.sampleRate = c.session->sampleRate;
                     lane.spec.capture.layout = t->layout;
                     lane.spec.capture.startFrame = c.session->playheadFrame;

@@ -24,6 +24,7 @@ bool active(AudioBridgeStatus status) noexcept {
 }
 } // namespace
 struct PipeWireRecording::State {
+    ResourceLease discardLease;
     std::filesystem::path root;
     RecordingSpec spec;
     PipeWireRecordingOptions options;
@@ -39,7 +40,10 @@ struct PipeWireRecording::State {
     State(std::filesystem::path r, const Session &s, RecordingSpec specValue,
           PipeWireRecordingOptions o)
         : root(std::move(r)), spec(checked(s, std::move(specValue))), options(std::move(o)),
-          pipe(spec.capture), bridge(s, spec.trackId, pipe, nativeOptions(options.bridge)) {
+          pipe(spec.capture, options.bridge.resources),
+          bridge(s, spec.trackId, pipe, nativeOptions(options.bridge)) {
+        if (!options.writer.resources)
+            options.writer.resources = options.bridge.resources;
         if (!validRecordingMonitor(options.monitoring))
             throw ProjectError(ErrorCode::InvalidState, "Unknown recording monitor mode");
         if (options.writer.checkpointFrames < 0 ||
@@ -51,6 +55,10 @@ struct PipeWireRecording::State {
             throw ProjectError(ErrorCode::InvalidState,
                                "Recording directory belongs to another project");
         if (options.monitoring == RecordingMonitor::Off) {
+            if (options.bridge.resources)
+                discardLease =
+                    options.bridge.resources->reserve(std::size_t(bridge.prepared().channels()) *
+                                                      options.bridge.maximumFrames * sizeof(float));
             discarded.resize(std::size_t(bridge.prepared().channels()) *
                              options.bridge.maximumFrames);
             for (std::uint32_t c = 0; c < bridge.prepared().channels(); ++c)

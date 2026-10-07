@@ -134,3 +134,10 @@ the controller parent to prepared DSP/playback pools, reader buffers/bindings,
 shared cache pages/registry and offline output buffers. Old/new graph generations
 retain credit through control retirement. Capture/other IO, exact allocator/RSS,
 CPU scheduling, paging and sustained platform qualification remain open.
+
+The [coordinated execution checkpoint](86-execution-memory-policy.md)/ADR071
+uses the trusted parent limit for new desktop preparations and immutable prepared
+usage for recording envelopes. Declared capture pools, bridges, manual take banks,
+writer workspace and monitoring-off scratch share that parent. Copied owner state,
+other IO, measured allocations/RSS and sustained capacity remain open; the
+256-arm/packed-input implementation bound remains separate from project inventory.

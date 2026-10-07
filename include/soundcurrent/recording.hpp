@@ -53,6 +53,7 @@ struct RecordingOptions {
     // Zero uses the regular interval. A shorter first interval disperses
     // synchronized writers without increasing subsequent checkpoint spacing.
     Frame firstCheckpointFrames = 0;
+    std::optional<ResourceLedger> resources; // Trusted disk-owner workspace parent.
 };
 struct RecordingResult {
     RecordingSpec spec;

@@ -230,6 +230,8 @@ void checkAudio(const AudioFile &a, const RecordingRecovery &r) {
 }
 } // namespace
 struct CaptureWriter::State {
+    ResourceLease resourceLease;
+    explicit State(ResourceLease reserve) : resourceLease(std::move(reserve)) {}
     std::filesystem::path root, job;
     RecordingSpec spec;
     RecordingOptions options;
@@ -266,8 +268,7 @@ struct CaptureWriter::State {
     }
 };
 CaptureWriter::CaptureWriter(std::filesystem::path root, RecordingSpec spec,
-                             RecordingOptions options)
-    : state_(std::make_unique<State>()) {
+                             RecordingOptions options) {
     validateSpec(spec);
     require(options.checkpointFrames >= 0, "Invalid checkpoint interval");
     if (!options.checkpointFrames)
@@ -279,6 +280,12 @@ CaptureWriter::CaptureWriter(std::filesystem::path root, RecordingSpec spec,
             "First recording checkpoint must fit the regular interval");
     if (!options.firstCheckpointFrames)
         options.firstCheckpointFrames = options.checkpointFrames;
+    PayloadCharge workspace("Recording writer/hash/journal workspace", SIZE_MAX);
+    workspace.add(128 * 1024);
+    workspace.add(root.native().size(), 8 * sizeof(std::filesystem::path::value_type));
+    auto reserve =
+        options.resources ? options.resources->reserve(workspace.bytes()) : ResourceLease{};
+    state_ = std::make_unique<State>(std::move(reserve));
     media_io::plainDirectory(root);
     const auto media = root / "media";
     if (std::filesystem::create_directory(media))

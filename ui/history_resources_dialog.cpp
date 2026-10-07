@@ -178,8 +178,9 @@ HistoryResourcesDialog::HistoryResourcesDialog(
     auto *memoryExplanation =
         new QLabel(tr("The shared project budget covers canonical state, snapshots, Undo, declared "
                       "edit work, list/timeline indices, projections, prepared DSP, readers, media "
-                      "caches and export audio buffers. Capture pools, parser/other IO buffers "
-                      "and Qt/allocator overhead remain separate."),
+                      "caches, export buffers, capture pools and writer/hash/journal workspace. "
+                      "New preparation follows this trusted budget. Parser/other IO, "
+                      "copied owner sessions and Qt/allocator overhead remain separate."),
                    this);
     memoryExplanation->setWordWrap(true);
     layout->addRow(memoryExplanation);

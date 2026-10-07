@@ -62,7 +62,6 @@ struct PlaybackSnapshot {
     std::shared_ptr<const std::vector<PipeWirePort>> ports;
     std::uint32_t channels = 0, sampleRate = 0, tracks = 0;
     bool projectMix = false;
-    ReadAheadOptions reader;
     std::uint64_t generation = 0, desiredRevision = 0, acceptedRevision = 0, appliedRevision = 0;
     std::uint64_t errorSerial = 0, completedCommands = 0;
     std::optional<ErrorCode> errorCode;

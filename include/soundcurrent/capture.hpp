@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-#include "session.hpp"
+#include "resource_ledger.hpp"
 #include "spsc_queue.hpp"
 #include <array>
 #include <atomic>
@@ -25,6 +25,7 @@ struct CaptureConfig {
     bool deferredStart = false;
     bool operator==(const CaptureConfig &) const = default;
 };
+std::size_t capturePayloadBytes(CaptureConfig);    // Pool/object declared payload, off RT.
 CaptureConfig prepareCaptureConfig(CaptureConfig); // Validates/admission off RT.
 // Minimum disk-stall reserve, 2..20 seconds. Preserves slab/callback sizes;
 // refuses an impossible slot/memory request rather than silently reducing it.
@@ -87,7 +88,7 @@ struct CaptureBacklog {
 // be called by the GUI. Consumer sample views expire on release().
 class CapturePipe {
   public:
-    explicit CapturePipe(CaptureConfig);
+    explicit CapturePipe(CaptureConfig, std::optional<ResourceLedger> = {});
     CapturePipe(const CapturePipe &) = delete;
     CapturePipe &operator=(const CapturePipe &) = delete;
     const CaptureConfig &config() const noexcept {
@@ -124,6 +125,7 @@ class CapturePipe {
     CaptureBacklog consumerBacklog() const noexcept; // Disk owner only; no audio changes.
 
   private:
+    ResourceLease resourceLease_; // Last released, after the owned pool.
     CaptureConfig config_;
     std::vector<float> samples_;
     SpscQueue<std::uint32_t, 512> free_;

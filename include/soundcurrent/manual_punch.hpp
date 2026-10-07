@@ -31,7 +31,7 @@ class ManualPunchTake {
     friend class ManualPunchBridge;
     struct State;
     std::unique_ptr<State> state_;
-    ManualPunchTake(std::uint64_t, std::vector<CaptureConfig>);
+    ManualPunchTake(ResourceLease, std::uint64_t, std::vector<CaptureConfig>);
 };
 enum class ManualPunchAction : std::uint32_t { In, Out };
 struct ManualPunchCommand {

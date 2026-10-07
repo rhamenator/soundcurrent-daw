@@ -67,8 +67,11 @@ now leases selected-track copies, lists and timeline indices from that parent.
 A refused display retains its old view with resource settings and explicit retry.
 [Prepared execution admission](docs/85-graph-memory-resources.md) extends that
 parent to DSP/playback pools, reader buffers, shared caches and WAV output buffers;
-old/new graphs retain credit through control-side retirement. Capture/other IO,
-exact allocator/RSS and measured sustained capacity remain required.
+old/new graphs retain credit through control-side retirement.
+[Coordinated execution policy](docs/86-execution-memory-policy.md) makes new desktop
+playback/recording/export preparation follow the trusted parent and adds declared
+capture pools, take banks, bridge bindings and writer workspace. Copied owner state,
+other IO, exact allocator/RSS and measured sustained capacity remain required.
 
 The [viewport timeline and model-backed lists](docs/80-virtualized-session-views.md)
 now have bounded Linux Qt large-project regression workflows. Combined memory,
