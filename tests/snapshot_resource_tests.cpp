@@ -222,6 +222,61 @@ void saveOwnership(const std::filesystem::path &root) {
     check(survivor->tracks.front().name == "Later", "Shutdown invalidated a borrowed snapshot");
     std::cout << "In-flight Save and barrier share counted immutable owners\n";
 }
+void attachmentOwnership(const std::filesystem::path &root) {
+    const auto initial = large();
+    ProjectStore(root).save(initial);
+    std::latch gate(1);
+    std::atomic<bool> pause{false}, entered{false};
+    ControllerOptions options;
+    options.beforeIo = [&] {
+        if (pause) {
+            entered = true;
+            gate.wait();
+        }
+    };
+    ProjectController c(options);
+    Release release{gate};
+    open(c, root);
+    CaptureConfig capture;
+    capture.slabFrames = 256;
+    CapturePipe pipe(capture);
+    RecordingSpec spec;
+    spec.projectId = initial.id;
+    spec.trackId = initial.tracks.front().id;
+    spec.capture = pipe.config();
+    RecordingWorker writer(pipe, root, spec);
+    std::array<float, 512> samples{};
+    const std::array<const float *, 1> channels{samples.data()};
+    check(pipe.push(channels, samples.size(), 0).acceptedFrames == samples.size(),
+          "Owned take capture refused");
+    pipe.finish();
+    const auto take = writer.wait();
+    pause = true;
+    ProjectCommand attach{CommandKind::AttachRecording};
+    attach.path = root;
+    attach.recording = std::make_shared<const RecordingResult>(take);
+    attach.attachmentRequest = 551;
+    command(c, attach);
+    await(c, [&](const auto &v) { return entered.load() && v.io == IoOperation::AttachRecording; });
+    const auto owned = c.snapshotResources();
+    check(owned.owners == 2, "Verified attachment proposal not retained");
+    policy(c, owned.reservedBytes, 552);
+    const auto before = c.snapshot();
+    release.release();
+    auto completed = await(c, [](const auto &v) { return v.io == IoOperation::None; });
+    std::cout << "Full-budget attachment error=" << completed->diagnostic
+              << " owned blocks=" << c.snapshotResources().owners << '\n';
+    check(completed->attachedRecordings == 1 && !completed->attachmentCompleted.error &&
+              completed->errorSerial == before->errorSerial &&
+              completed->session->assets.front().id == take.asset.id &&
+              c.snapshotResources().reservedBytes == owned.reservedBytes,
+          "Unchanged verified attachment allocated a third snapshot and refused completion");
+    save(c);
+    check(ProjectStore(root).load() == *c.snapshot()->session,
+          "Reused attachment publication changed saved state");
+    c.requestShutdown();
+    await(c, [](const auto &v) { return v.closed; });
+}
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -231,8 +286,13 @@ int main(int argc, char **argv) {
     std::cout << "Owned snapshot fixture root: " << root << '\n';
     try {
         check(temp.isValid(), "Snapshot fixture directory unavailable");
+        if (argc == 2 && std::string_view(argv[1]) == "--attachment-only") {
+            attachmentOwnership(root / "attachment");
+            return 0;
+        }
         boundedEdits(root / "bounded");
         saveOwnership(root / "save");
+        attachmentOwnership(root / "attachment");
         std::cout << "Snapshot resource checks=" << checks << '\n';
         return 0;
     } catch (const std::exception &e) {

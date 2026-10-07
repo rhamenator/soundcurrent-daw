@@ -439,23 +439,29 @@ struct ProjectController::State : QThread {
         if (result.job.operation == IoOperation::AttachRecording) {
             try {
                 if (!model || view.root != result.job.root || !result.job.recordings ||
-                    result.job.recordings->empty() ||
+                    result.job.recordings->empty() || !result.job.session ||
                     model->id != result.job.recordings->front().spec.projectId)
                     throw ProjectError(ErrorCode::InvalidState,
                                        "Recording project changed before attachment");
                 if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                     throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
                 // Preserve scalar edits accepted while files were verified.
-                auto admitted = *model;
+                std::optional<Session> admitted;
+                if (result.job.revision != view.modelRevision)
+                    admitted = *model;
                 std::vector<Id> assets;
                 for (const auto &r : *result.job.recordings) {
-                    attachRecording(admitted, r);
+                    if (admitted)
+                        attachRecording(*admitted, r);
                     assets.push_back(r.asset.id);
                 }
-                const auto preflightPeak = history->checkAdopt(admitted);
-                auto publication = prepareSnapshot(admitted);
+                // With no intervening model change, the verified proposal already
+                // owns the exact publication, including its generated clip IDs.
+                const auto &candidate = admitted ? *admitted : *result.job.session;
+                const auto preflightPeak = history->checkAdopt(candidate);
+                auto publication = admitted ? prepareSnapshot(candidate) : result.job.session;
                 commitGesture();
-                history->adopt(admitted);
+                history->adopt(candidate);
                 revised();
                 view.session = std::move(publication);
                 view.attachedRecordings += assets.size();

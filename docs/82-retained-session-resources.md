@@ -102,3 +102,24 @@ Linux52/52,139.51s; affected ASan/UBSan/LSan15/15,
 314.38s; Windows core/media cross-build. The CRC/all-entry-byte
 verified archive retains scoped sources, executable hashes, logs and owned project
 bytes. Native Windows/UI, aggregate/RSS and sustained capacity remain unqualified.
+
+### Attachment review correction
+
+PR27 review exposed a redundant final attachment publication at a tight snapshot
+limit. The deterministic512-track case originally refused with3,342,324bytes
+required against2,227,903bytes already reserved for current state and the verified
+proposal. The original source, executable hash, log, project and owned take survive.
+
+When the model revision is unchanged during verification, completion now adopts
+the already-owned proposal, including its generated clip IDs. Reconstruction would
+generate different IDs, so a simple equality comparison cannot establish reuse.
+If the revision changes, completion retains the existing merge/admission path for
+current edits plus verified takes. The full-budget case now completes and saves
+without a new snapshot reservation.
+
+The final [review receipt](../tests/results/M2/2026-10-07-retained-session-review.json)
+supersedes the initial compiled-source qualification: Linux53/53,
+142.86s; targeted attachment/controller/manual UI ASan/UBSan/LSan5/5,
+29.64s; Windows core/media cross-build. The earlier15-case
+snapshot sanitizer scope remains historical evidence. Both original and corrected
+scopes are retained; full aggregate/RSS, native Windows and sustained gates remain.

@@ -2351,3 +2351,21 @@ Qt/allocator/RSS. Next share leases across those owners and expose combined trus
 resource settings; continue large capture admission, freeze/bounce, prepared
 scheduling and sustained Linux/Windows qualification. All frozen parity, X004/X005
 and Europe gates remain required. The goal stays active and incomplete.
+
+### PR27 attachment review correction
+
+The [final review receipt](../tests/results/M2/2026-10-07-retained-session-review.json)
+retains a deterministic full-budget512-track attachment failure: completion tried
+a third publication (3,342,324bytes required,2,227,903available) while the verified
+proposal remained owned. Unchanged model revision now reuses that proposal and its
+generated clip IDs; changed revisions still merge/admit current edits. Original
+source/executable hash/log/project/take bytes remain in the supplementary archive.
+
+Final Linux53/53,142.86s and targeted attachment/controller/manual UI
+ASan/UBSan/LSan5/5,29.64s pass. Windows core/media cross-build
+passes without GUI/native runtime qualification. This final compiled-source receipt
+supersedes the initial52/15 scope; that earlier evidence remains historical.
+The supplementary CRC/all-entry-byte verified archive is
+8,496,931bytes/685entries. All92 contracts,
+24 reviewed reuse inputs, original71 unresolved cause and full X006/frozen scope
+remain unchanged. Next coordinate canonical/history/GUI/graph/IO resource leases.

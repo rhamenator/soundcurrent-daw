@@ -19,3 +19,8 @@ existing platform Threads facility to the session target. No third-party library
 project-schema change, RT work or equalizer modification is introduced.
 
 See [ownership, workflows, accounting scope and acceptance](../82-retained-session-resources.md).
+
+Review correction: if attachment verification returns at the captured model
+revision, reuse its leased proposal rather than reconstructing a third Session
+with new clip IDs. Later accepted edits still require current-state merge and
+publication admission. A deterministic full-budget regression guards this path.
