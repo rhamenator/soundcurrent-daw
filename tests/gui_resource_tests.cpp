@@ -273,7 +273,104 @@ void desktop(const std::filesystem::path &root) {
     std::cout << "512/513-track actual desktop atomic refusal, resource editor, display retry and "
                  "save qualified\n";
 }
-void executionResources(const std::filesystem::path &root) {
+// Real disk/EQ generation behind the desktop seam; no native device or audio daemon.
+struct FileObservation {
+    std::size_t payload = 0;
+    std::atomic<double> peak{0};
+    std::atomic<bool> samplesExact{false};
+};
+class FileEndpoint final : public PlaybackEndpoint {
+    MixPlaybackRun run_;
+    std::shared_ptr<playback_fixture::Counters> counts_;
+    std::shared_ptr<FileObservation> observation_;
+    PlaybackTelemetry meter_;
+    std::array<float, 128> samples_{};
+    bool active_ = false, stopped_ = false;
+    static MixPlaybackConfig configuration(const PlaybackPreparation &p) {
+        MixPlaybackConfig c;
+        c.graph.maximumFrames = p.config.maximumCallbackFrames;
+        c.graph.startFrame = p.config.startFrame;
+        c.graph.generation = p.config.generation;
+        c.graph.memoryBudgetBytes = p.config.memoryBudgetBytes;
+        c.endFrame = p.config.endFrame;
+        c.slabFrames = p.config.slabFrames;
+        return c;
+    }
+
+  public:
+    FileEndpoint(const PlaybackPreparation &p, std::shared_ptr<playback_fixture::Counters> counts,
+                 std::shared_ptr<FileObservation> observation)
+        : run_(p.root, *p.session, p.plan, configuration(p), p.reader), counts_(std::move(counts)),
+          observation_(std::move(observation)) {
+        observation_->payload = run_.payloadBytes();
+        meter_.position = p.config.startFrame;
+        meter_.receipts.reserve(p.plan.tracks.size());
+        ++counts_->constructed;
+    }
+    ~FileEndpoint() override {
+        stop();
+        ++counts_->destroyed;
+    }
+    std::vector<PipeWirePort> ports() override {
+        return {counts_->ports.front()};
+    }
+    void connect(const std::vector<PipeWirePort> &ports) override {
+        check(ports == std::vector<PipeWirePort>{counts_->ports.front()},
+              "Invalid owned file route");
+        ++counts_->connected;
+    }
+    void activate() override {
+        active_ = true;
+        ++counts_->activated;
+    }
+    void stop() noexcept override {
+        if (stopped_)
+            return;
+        stopped_ = true;
+        run_.requestStop();
+        run_.cancelReader();
+        ++counts_->stopped;
+        meter_.status = PlaybackBridgeStatus::Stopped;
+    }
+    void checkReader() override {
+        run_.waitReader();
+    }
+    MixEvent event(const Session &s, const ParameterAddress &a) override {
+        return run_.graph().parameterEvent(s, a, 0);
+    }
+    MixEvent enable(const Id &id, bool enabled) override {
+        return run_.graph().enableEvent(id, enabled, 0);
+    }
+    SubmitStatus submit(const MixEvent &event, std::uint64_t revision) noexcept override {
+        return run_.graph().submitImmediate(event, revision);
+    }
+    PlaybackTelemetry read() override {
+        meter_.receipts.clear();
+        if (active_ && !stopped_ && run_.position() < run_.config().endFrame) {
+            float *p = samples_.data();
+            const auto count = static_cast<std::uint32_t>(
+                std::min<Frame>(128, run_.config().endFrame - run_.position()));
+            const auto r = run_.process({&p, 1}, count);
+            meter_.position = run_.position();
+            meter_.peak = r.mix.peak;
+            observation_->peak.store(r.mix.peak);
+            observation_->samplesExact.store(
+                std::all_of(samples_.begin(), samples_.begin() + count,
+                            [](float value) { return value == 128.f; }));
+            meter_.missingFrames += r.missingTrackFrames;
+            meter_.processed = true;
+            meter_.status = r.status == PlaybackStatus::Complete ? PlaybackBridgeStatus::Complete
+                                                                 : PlaybackBridgeStatus::Running;
+            for (std::size_t n = 0; n < run_.graph().plan().tracks.size(); ++n) {
+                ImmediateAcknowledgement a;
+                while (run_.graph().acknowledgement(n, a))
+                    meter_.receipts.push_back({n, a});
+            }
+        }
+        return meter_;
+    }
+};
+void executionResources(const std::filesystem::path &root, bool largeMix = false) {
     auto initial = makeOneTrackSession("Desktop graph resources", "Audio");
     ProjectStore(root).save(initial);
     RecordingSpec spec;
@@ -284,6 +381,8 @@ void executionResources(const std::filesystem::path &root) {
     CapturePipe pipe(spec.capture);
     CaptureWriter writer(root, spec);
     std::array<float, 128> samples{};
+    if (largeMix)
+        samples.fill(.25f);
     const float *input = samples.data();
     pipe.push({&input, 1}, 128, 0);
     pipe.finish();
@@ -296,11 +395,27 @@ void executionResources(const std::filesystem::path &root) {
     clip.lengthFrames = 128;
     initial.tracks.front().clips = {clip};
     initial.exportEndFrame = 128;
+    if (largeMix) {
+        initial.tracks.front().eq.bands.clear();
+        while (initial.tracks.size() < 512) {
+            auto track = initial.tracks.front();
+            track.id = Id::generate();
+            track.eq.id = Id::generate();
+            track.clips.front().id = Id::generate();
+            initial.tracks.push_back(std::move(track));
+        }
+    }
     ProjectStore(root).save(initial);
     auto counters = std::make_shared<playback_fixture::Counters>();
+    auto observation = std::make_shared<FileObservation>();
     ResourceLedger observer;
     {
-        StudioWindow window(nullptr, playback_fixture::options(counters));
+        auto playback = playback_fixture::options(counters);
+        if (largeMix)
+            playback.factory = [counters, observation](const PlaybackPreparation &p) {
+                return std::make_unique<FileEndpoint>(p, counters, observation);
+            };
+        StudioWindow window(nullptr, playback);
         observer = window.resourceLedger();
         window.show();
         window.openProject(root);
@@ -308,6 +423,8 @@ void executionResources(const std::filesystem::path &root) {
             return window.snapshot()->session && window.snapshot()->io == IoOperation::None &&
                    window.displayedRevision() == window.snapshot()->modelRevision;
         });
+        if (largeMix)
+            window.findChild<QCheckBox *>("mixAllTracks")->setChecked(true);
         const auto baseline = observer.usage().reservedBytes;
         policy(window, baseline, 9991);
         check(window.preparePlayback(), "Execution Prepare queue refused");
@@ -316,18 +433,52 @@ void executionResources(const std::filesystem::path &root) {
                   counters->constructed == 0 && counters->activated == 0 &&
                   observer.usage().reservedBytes == baseline,
               "Full project parent did not refuse desktop graph before activation");
-        policy(window, 128 * 1024 * 1024, 9992);
+        policy(window, largeMix ? 1024 * 1024 * 1024 : 128 * 1024 * 1024, 9992);
         check(window.preparePlayback(), "Execution retry queue refused");
         await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Ready; });
         check(counters->constructed == 1 && counters->activated == 0 &&
                   observer.usage().reservedBytes > baseline,
               "Raised desktop policy did not admit graph into project parent");
+        if (largeMix) {
+            check(window.playbackSnapshot()->tracks == 512 && window.playbackSnapshot()->projectMix,
+                  "Large file generation lost inventory");
+            QComboBox *route = nullptr;
+            await([&] {
+                route = window.findChild<QComboBox *>("outputChannel0");
+                return route && route->count() > 1;
+            });
+            route->setCurrentIndex(1);
+            await([&] {
+                return window.snapshot()->dirty &&
+                       window.displayedRevision() == window.snapshot()->modelRevision;
+            });
+            auto *play = window.findChild<QPushButton *>("playButton");
+            await([&] { return play->isEnabled(); });
+            play->click();
+            await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Complete; });
+            check(counters->activated == 1 && window.playbackSnapshot()->position == 128 &&
+                      observation->peak == 128 && observation->samplesExact &&
+                      window.playbackSnapshot()->missingFrames == 0,
+                  "Large actual file/EQ desktop generation lost samples or float headroom");
+        }
         auto *stop = window.findChild<QPushButton *>("stopButton");
         await([&] { return stop->isEnabled(); });
+        const auto beforeStop = observer.usage().reservedBytes;
         stop->click();
         await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Idle; });
-        await([&] { return observer.usage().reservedBytes == baseline; });
+        const auto afterStop =
+            largeMix ? beforeStop - observation->payload - 512 * sizeof(std::uint64_t) : baseline;
+        await([&] { return observer.usage().reservedBytes == afterStop; });
         check(counters->destroyed == 1, "Desktop Stop did not retire prepared execution");
+        check(ProjectStore(root).load() == initial,
+              "Desktop execution refusal/retry changed saved project before explicit Save");
+        if (largeMix) {
+            initial = *window.snapshot()->session; // Output selection is an explicit routing edit.
+            window.findChild<QAction *>("saveAction")->trigger();
+            await([&] {
+                return !window.snapshot()->dirty && window.snapshot()->io == IoOperation::None;
+            });
+        }
         window.close();
         await([&] { return window.snapshot()->closed; });
     }
@@ -409,6 +560,7 @@ int main(int argc, char **argv) {
         components();
         desktop(root / "project");
         executionResources(root / "execution");
+        executionResources(root / "large-file-execution", true);
         earlyPrepare(root / "early");
         earlyArms(root / "early-arms");
         std::cout << "GUI resource checks=" << checks << '\n';

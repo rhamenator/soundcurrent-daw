@@ -59,9 +59,11 @@ std::size_t armedCapturePayloadBytes(CaptureConfig config, std::size_t inputs) {
     config = prepareCaptureConfig(config);
     if (inputs != config.layout.channels)
         throw ProjectError(ErrorCode::InvalidState, "Invalid armed input shape");
-    return std::size_t(config.poolSlabs) * config.slabFrames * config.layout.channels *
-               sizeof(float) +
-           sizeof(CapturePipe) + 8192 + inputs * (sizeof(std::uint32_t) + 2 * sizeof(float *));
+    PayloadCharge payload("Armed capture declaration", SIZE_MAX);
+    payload.add(capturePayloadBytes(config));
+    payload.add(8192);
+    payload.add(inputs, sizeof(std::uint32_t) + 2 * sizeof(float *));
+    return payload.bytes();
 }
 struct DuplexBridge::State {
     struct Lane {
@@ -78,6 +80,7 @@ struct DuplexBridge::State {
             : binding(std::move(b)), input(binding.inputChannels.size()),
               captureInput(binding.inputChannels.size()), range(r), windowed(w) {}
     };
+    ResourceLease resourceLease;
     MixPlaybackRun &run;
     std::uint32_t nativeInputs;
     CaptureBackend backend;
@@ -139,11 +142,21 @@ DuplexBridge::DuplexBridge(MixPlaybackRun &r, const Session &s, std::vector<Arme
         backend > CaptureBackend::Asio || s.sampleRate != r.sampleRate() ||
         r.position() != c.startFrame)
         throw ProjectError(ErrorCode::InvalidState, "Invalid duplex preparation");
-    if (!budget || budget > 256 * 1024 * 1024)
+    if (!budget)
         throw ProjectError(ErrorCode::InvalidState, "Invalid duplex memory budget");
-    // Reserve the already admitted run budget. Recomputing from a later
-    // caller model could undercount the immutable prepared generation.
-    auto payload = r.config().graph.memoryBudgetBytes;
+    // Query immutable prepared declarations, never a later caller model or mutable cache stats.
+    PayloadCharge bridgeCharge("Duplex bridge bindings", budget);
+    bridgeCharge.add(sizeof(State) + 8192);
+    for (const auto &a : arms)
+        bridgeCharge.add(1, sizeof(State::Lane) + sizeof(LiveMixInput) + 8192 +
+                                a.inputChannels.size() *
+                                    (sizeof(std::uint32_t) + 2 * sizeof(float *)));
+    PayloadCharge total("Duplex prepared payload", budget);
+    total.add(r.payloadBytes());
+    total.add(bridgeCharge.bytes());
+    auto payload = total.bytes();
+    if (c.resources)
+        st.resourceLease = c.resources->reserve(bridgeCharge.bytes());
     if (payload > budget)
         throw ProjectError(ErrorCode::InvalidState, "Duplex playback reservation exceeds budget");
     for (const auto &a : arms) {

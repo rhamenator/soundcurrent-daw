@@ -520,3 +520,15 @@ workers receive the same trusted parent. Next coordinate capture/writer/other IO
 measure allocator/RSS, implement paging and larger capture/adoption, then
 freeze/bounce, prepared scheduling and sustained Linux/Windows workload profiles.
 No native Windows or full X006/frozen-contract promotion.
+
+### X006 coordinated execution and recording ownership checkpoint
+
+[ADR071](decisions/071-coordinated-execution-policy.md) and
+[86](86-execution-memory-policy.md) make new desktop playback/fixed/manual/export
+preparation follow trusted parent policy. Recording envelopes use prepared usage,
+not configured allowance. Capture pools, bridge bindings, aggregate manual banks,
+writer/hash/journal workspace and monitoring-off scratch now have declared leases.
+Next account for copied owner Sessions and remaining IO/transient work, measure
+allocation/RSS, scale arm descriptors independently of native ports, then implement
+freeze/bounce and prepared scheduling with sustained Linux/Windows qualification.
+Full X006 and all frozen-reference contracts remain open.

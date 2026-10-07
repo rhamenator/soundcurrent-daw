@@ -43,6 +43,7 @@ class MixPlayback {
     const PlaybackReport &laneReport(std::size_t) const; // Audio owner only.
     const MixPlaybackConfig &config() const noexcept;
     Frame position() const noexcept;
+    std::size_t payloadBytes() const noexcept; // Immutable declared generation payload.
     bool readerDone() const noexcept;
     std::uint64_t missingTrackFrames() const noexcept;
 

@@ -59,6 +59,7 @@ struct MixPlayback::State {
         }
     };
     ResourceLease resourceLease;
+    const std::size_t payloadBytes;
     MixPlaybackConfig config;
     PreparedMixGraph graph;
     std::vector<std::unique_ptr<Lane>> lanes;
@@ -70,14 +71,14 @@ struct MixPlayback::State {
         c.resources.reset(); // Aggregate playback lease already covers its nested DSP.
         return c;
     }
-    State(ResourceLease lease, const Session &s, MixPlan p, MixPlaybackConfig c)
-        : resourceLease(std::move(lease)), config(c),
+    State(ResourceLease lease, std::size_t bytes, const Session &s, MixPlan p, MixPlaybackConfig c)
+        : resourceLease(std::move(lease)), payloadBytes(bytes), config(c),
           graph(s, std::move(p), nestedConfig(c.graph)) {}
 };
 MixPlayback::MixPlayback(const Session &s, MixPlan p, MixPlaybackConfig c) {
     const auto bytes = mixPlaybackPayloadBytes(s, p, c);
     auto lease = c.graph.resources ? c.graph.resources->reserve(bytes) : ResourceLease{};
-    state_ = std::make_unique<State>(std::move(lease), s, std::move(p), c);
+    state_ = std::make_unique<State>(std::move(lease), bytes, s, std::move(p), c);
     const ValidatedSession validated(s, c.graph.stateBudget);
     state_->replaced.assign(state_->graph.plan().tracks.size(), 0);
     state_->lanes.reserve(state_->graph.plan().tracks.size());
@@ -212,6 +213,9 @@ const MixPlaybackConfig &MixPlayback::config() const noexcept {
 }
 Frame MixPlayback::position() const noexcept {
     return state_->graph.position();
+}
+std::size_t MixPlayback::payloadBytes() const noexcept {
+    return state_->payloadBytes;
 }
 bool MixPlayback::readerDone() const noexcept {
     return std::all_of(state_->lanes.begin(), state_->lanes.end(),

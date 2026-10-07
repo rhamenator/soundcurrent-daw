@@ -36,6 +36,8 @@ struct ExportController::State : QThread {
                 ErrorCode::InvalidState,
                 "Export needs an immutable model/revision and controller-owned consent");
         validate(*job.session);
+        if (options.render.resources)
+            job.spec.memoryBudgetBytes = options.render.resources->usage().limitBytes;
         view.phase = ExportPhase::Inspecting;
         publish();
         if (options.beforeInspect)

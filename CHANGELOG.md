@@ -2,6 +2,11 @@
 
 ## Unreleased — development preview
 
+- New desktop graph/capture/render preparations follow the trusted Project resources
+  budget. Recording envelopes use immutable prepared payload usage; declared raw
+  pools, bridge bindings, manual banks and writer workspace share the parent.
+  Callback behavior, device routing and project schema remain unchanged.
+
 - Shared project admission for prepared mixes/playback pools, reader bindings and
   decode buffers, shared media caches and WAV export output buffers. Retained
   generations keep credit until control retirement; preparation failures unwind

@@ -396,6 +396,11 @@ struct ManualRecordingController::State {
                 p.options.run.interrupt = token;
                 p.options.run.playback.graph.resources = options.projectMemory;
                 p.options.run.reader.resources = options.projectMemory;
+                p.options.run.memoryBudgetBytes = options.projectMemory.usage().limitBytes;
+                p.options.run.playback.graph.memoryBudgetBytes = p.options.run.memoryBudgetBytes;
+                p.options.run.capture.memoryBudgetBytes = p.options.run.memoryBudgetBytes;
+                for (auto &arm : p.arms)
+                    arm.writer.resources = options.projectMemory;
                 p.options.run.playback.graph.generation = ++view.generation;
                 r.generation = view.generation;
                 view.phase = ManualControlPhase::Preparing;

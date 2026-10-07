@@ -37,11 +37,17 @@ CaptureConfig prepareCaptureConfig(CaptureConfig config) {
     require(config.poolSlabs >= 1 && config.poolSlabs <= maximumCaptureSlabs,
             "Capture pool slot count out of range");
     const auto count = std::uint64_t(config.poolSlabs) * config.slabFrames * l.channels;
-    require(config.memoryBudgetBytes <= 256 * 1024 * 1024 &&
-                config.memoryBudgetBytes >= sizeof(CapturePipe) &&
-                count <= (config.memoryBudgetBytes - sizeof(CapturePipe)) / sizeof(float),
-            "Capture memory budget exceeded");
+    if (count > (SIZE_MAX - sizeof(CapturePipe)) / sizeof(float))
+        throw ResourceLimitError("Capture pool/object", SIZE_MAX, config.memoryBudgetBytes, true);
+    PayloadCharge charge("Capture pool/object", config.memoryBudgetBytes);
+    charge.add(sizeof(CapturePipe));
+    charge.add(static_cast<std::size_t>(count), sizeof(float));
     return config;
+}
+std::size_t capturePayloadBytes(CaptureConfig config) {
+    const auto c = prepareCaptureConfig(config);
+    return sizeof(CapturePipe) +
+           std::size_t(c.poolSlabs) * c.slabFrames * c.layout.channels * sizeof(float);
 }
 CaptureConfig withCaptureReserve(CaptureConfig config, std::uint32_t milliseconds) {
     require(milliseconds >= 2000 && milliseconds <= 20000,
@@ -53,8 +59,9 @@ CaptureConfig withCaptureReserve(CaptureConfig config, std::uint32_t millisecond
     config.poolSlabs = std::max(config.poolSlabs, std::uint32_t(slots));
     return prepareCaptureConfig(config);
 }
-CapturePipe::CapturePipe(CaptureConfig config)
-    : config_(prepareCaptureConfig(config)), nextFrame_(config.startFrame) {
+CapturePipe::CapturePipe(CaptureConfig config, std::optional<ResourceLedger> resources)
+    : resourceLease_(resources ? resources->reserve(capturePayloadBytes(config)) : ResourceLease{}),
+      config_(prepareCaptureConfig(config)), nextFrame_(config.startFrame) {
     recordingStart_ = config_.startFrame;
     if (!config_.deferredStart)
         startReady_.store(1, std::memory_order_relaxed);

@@ -3,6 +3,10 @@
 X006 checkpoint, 2026-10-07. This extends the trusted controller/GUI parent from
 [84](84-gui-memory-resources.md); it does not establish full scalability or parity.
 
+Current desktop policy and added recording/receipt leases are described in
+[86](86-execution-memory-policy.md); the local-policy limitations below describe
+this earlier checkpoint.
+
 ## Ownership and preparation
 
 Core execution options accept an optional caller-owned `ResourceLedger`. Empty

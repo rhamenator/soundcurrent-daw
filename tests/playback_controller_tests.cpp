@@ -13,8 +13,9 @@ void check(bool ok, const char *message) {
     if (!ok)
         throw std::runtime_error(message);
 }
-template <class F> void await(F predicate) {
-    const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+template <class F>
+void await(F predicate, std::chrono::seconds allowance = std::chrono::seconds(5)) {
+    const auto end = std::chrono::steady_clock::now() + allowance;
     while (!predicate()) {
         if (std::chrono::steady_clock::now() >= end)
             throw std::runtime_error("Controller workflow timed out");
@@ -248,11 +249,19 @@ void partialBundle() {
     await([&] { return controller.snapshot()->closed; });
 }
 
-void multitrackReceipts() {
+void multitrackReceipts(unsigned count = 3) {
+    // Sanitizer control-side preparation of a bulk 512-lane model is not an
+    // audio callback deadline or a product performance claim.
+    const auto waitMix = [count](auto predicate) {
+        await(predicate, std::chrono::seconds(count > 256 ? 30 : 5));
+    };
     auto counters = std::make_shared<Counters>();
-    PlaybackController controller(options(counters));
+    auto config = options(counters);
+    config.projectMemory.configure(1 << 30);
+    const auto parent = config.projectMemory;
+    PlaybackController controller(std::move(config));
     auto s = session();
-    for (unsigned n = 1; n < 3; ++n) {
+    for (unsigned n = 1; n < count; ++n) {
         auto t = makeAudioTrack("Mixed " + std::to_string(n), {}, s.sampleRate);
         auto clip = s.tracks.front().clips.front();
         clip.id = Id::generate();
@@ -260,41 +269,44 @@ void multitrackReceipts() {
         s.tracks.push_back(std::move(t));
     }
     auto command = prepare(s);
-    std::array<Id, 3> order{s.tracks[2].id, s.tracks[0].id, s.tracks[1].id};
+    std::vector<Id> order;
+    for (auto i = s.tracks.rbegin(); i != s.tracks.rend(); ++i)
+        order.push_back(i->id);
     command.plan = identityMix(s, order, {});
     check(controller.submit(std::move(command)) == Admission::Accepted, "Mix prepare refused");
-    await([&] { return controller.snapshot()->phase == PlaybackPhase::Ready; });
-    check(controller.snapshot()->projectMix && controller.snapshot()->tracks == 3 &&
+    waitMix([&] { return controller.snapshot()->phase == PlaybackPhase::Ready; });
+    check(controller.snapshot()->projectMix && controller.snapshot()->tracks == count &&
               !counters->activated,
           "Mix shape/explicit activation differs");
     play(controller, counters);
-    await([&] { return controller.snapshot()->appliedRevision == 1; });
+    waitMix([&] { return controller.snapshot()->appliedRevision == 1; });
     counters->holdLane.store(0);
     for (auto &t : s.tracks)
         t.eq.bands.front().gainDb = 6;
     controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 2);
-    await([&] {
+    waitMix([&] {
         return controller.snapshot()->acceptedRevision == 2 &&
-               controller.snapshot()->appliedEventRevision == 3;
+               controller.snapshot()->appliedEventRevision == count;
     });
     check(controller.snapshot()->appliedRevision == 1 && controller.snapshot()->pending,
           "Highest receipt falsely acknowledged another lane's withheld EQ");
     counters->holdLane.store(UINT_MAX);
-    await([&] { return controller.snapshot()->appliedRevision == 2; });
-    check(!controller.snapshot()->pending && counters->submitted == 3,
+    waitMix([&] { return controller.snapshot()->appliedRevision == 2; });
+    check(!controller.snapshot()->pending && counters->submitted == count,
           "Every lane receipt did not acknowledge whole mixed model");
     std::reverse(s.tracks.begin(), s.tracks.end());
     s.tracks.front().eq.enabled = false;
     controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 3);
-    await([&] { return controller.snapshot()->appliedRevision == 3; });
-    check(counters->submitted == 4, "Stable-ID lane enable failed after canonical reorder");
+    waitMix([&] { return controller.snapshot()->appliedRevision == 3; });
+    check(counters->submitted == count + 1, "Stable-ID lane enable failed after canonical reorder");
     s.tracks.pop_back();
     controller.follow(utf8Path("owned-Σ"), std::make_shared<const Session>(s), 4);
-    await([&] { return controller.snapshot()->phase == PlaybackPhase::Fault; });
+    waitMix([&] { return controller.snapshot()->phase == PlaybackPhase::Fault; });
     check(counters->destroyed == 1 && !counters->wrongThread,
           "Removed mix lane did not fault and retire on worker");
     controller.requestShutdown();
-    await([&] { return controller.snapshot()->closed; });
+    waitMix([&] { return controller.snapshot()->closed; });
+    check(parent.usage().reservedBytes == 0, "Playback receipt/DSP lane credit leaked");
 }
 
 void masterCompatibility() {
@@ -354,6 +366,7 @@ int main(int argc, char **argv) {
         retainedClockFacts();
         partialBundle();
         multitrackReceipts();
+        multitrackReceipts(512);
         masterCompatibility();
         std::cout << "{\"checks\":" << checks
                   << ",\"dsp_backpressure_retry\":true,\"accepted_applied_distinct\":true,\"latest_"

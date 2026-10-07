@@ -110,6 +110,9 @@ const MixPlaybackConfig &MixPlaybackRun::config() const noexcept {
 std::uint32_t MixPlaybackRun::sampleRate() const noexcept {
     return state_->rate;
 }
+std::size_t MixPlaybackRun::payloadBytes() const noexcept {
+    return state_->mix.payloadBytes() + state_->reader->payloadBytes();
+}
 bool MixPlaybackRun::readerDone() const noexcept {
     return state_->mix.readerDone();
 }

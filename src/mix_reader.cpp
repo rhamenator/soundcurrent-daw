@@ -36,7 +36,9 @@ MixReader::MixReader(MixPlayback &mix, std::filesystem::path root, const Session
     PayloadCharge total("Mix reader aggregate", mix.config().graph.memoryBudgetBytes);
     total.add(mixPlaybackPayloadBytes(s, mix.graph().plan(), mix.config()));
     total.add(readerCharge.bytes());
-    total.add(mediaCachePayloadBytes(assets, cache));
+    const auto cacheBytes = mediaCachePayloadBytes(assets, cache);
+    total.add(cacheBytes);
+    payloadBytes_ = readerCharge.bytes() + cacheBytes;
     resourceLease_ =
         options.resources ? options.resources->reserve(readerCharge.bytes()) : ResourceLease{};
     readers_.reserve(mix.graph().plan().tracks.size());
