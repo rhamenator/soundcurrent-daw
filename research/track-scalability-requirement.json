@@ -5,7 +5,7 @@
   "recorded_utc": "2026-10-07T00:25:36.362141+00:00",
   "baseline": "SC-DAW-BASELINE-2026-10-05",
   "requirement": "Serve lower-budget recording studios including studios with substantial audio hardware; support any finite total project track count admitted by configured resources without a fixed product/license ceiling.",
-  "status": "partial implementation: resource-admitted audio-track model/parser/mix and Linux Qt controls; full X006 incomplete",
+  "status": "partial implementation: resource-admitted audio-track state/mix, shared file-backed media cache and Linux Qt controls; full X006 incomplete",
   "contract": "docs/67-track-scalability.md",
   "decision": "docs/decisions/053-resource-admitted-track-count.md",
   "platforms": [
@@ -40,7 +40,7 @@
     {
       "id": "X006-03",
       "workflow": "Bounded media cache/open handles, virtualized UI/meters and measured snapshots/history under sparse large project workloads; missing media/autosave/recovery retained.",
-      "status": "unverified"
+      "status": "partial: bounded shared media cache/handles, exact source-coordinate output and Save/reopen for257/1024 shared-asset tracks and96 distinct assets; virtualized views, measured aggregate snapshots/history and sustained profiles remain open"
     },
     {
       "id": "X006-04",
@@ -86,10 +86,19 @@
     "allocator_rss_guarantee": false
   },
   "next_tasks": [
-    "Shared bounded media handles/cache/read-ahead and virtualized views/meters",
+    "Virtualized track/timeline/meter views; sustained shared-cache/read-ahead profiling",
     "Combined snapshot/history/old-new graph resource accounting and configurable desktop policies",
     "Large recording/adoption workflows; separate arm/native channel capabilities",
     "Diagnose original native sanitizer observation71 clock gap/source CPU cause without relabeling missing original evidence",
     "All frozen product milestones and independent Linux/Windows/localization qualification"
-  ]
+  ],
+  "shared_media_checkpoint": {
+    "contract": "docs/79-shared-media-cache.md",
+    "decision": "docs/decisions/064-shared-media-cache.md",
+    "receipt": "tests/results/M2/2026-10-07-shared-media-cache.json",
+    "native_audio": false,
+    "sustained_qualified": false,
+    "Windows_runtime_qualified": false,
+    "export_policy_review_receipt": "tests/results/M2/2026-10-07-shared-media-export-policy.json"
+  }
 }

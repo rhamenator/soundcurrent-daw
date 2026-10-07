@@ -1,38 +1,40 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/mix_reader.hpp>
 #include <algorithm>
-#include <set>
+#include <unordered_set>
 
 namespace soundcurrent::daw {
 MixReader::MixReader(MixPlayback &mix, std::filesystem::path root, const Session &s,
                      ReadAheadOptions options, std::uint32_t maximumReferences) {
-    if (!maximumReferences || maximumReferences > 16384)
-        throw ProjectError(ErrorCode::InvalidState, "Invalid mix open-asset reference limit");
-    auto bytes = mixPlaybackPayloadBytes(s, mix.graph().plan(), mix.config());
+    if (!maximumReferences || !options.maximumOpenAssets)
+        throw ProjectError(ErrorCode::InvalidState, "Invalid shared media handle policy");
+    const ValidatedSession validated(s, mix.config().graph.stateBudget);
+    std::unordered_set<std::string_view> seen;
+    std::vector<Asset> assets;
     std::size_t bindings = 0;
     for (const auto &route : mix.graph().plan().tracks) {
-        const auto track = std::find_if(s.tracks.begin(), s.tracks.end(),
-                                        [&](const auto &t) { return t.id == route.track; });
-        std::set<std::string> assets;
-        for (const auto &clip : track->clips)
+        const auto &track = validated.track(route.track);
+        for (const auto &clip : track.clips)
             if (clip.startFrame < mix.config().endFrame &&
                 clip.startFrame + clip.lengthFrames > mix.config().graph.startFrame) {
-                assets.insert(clip.assetId.str());
                 ++bindings;
+                if (seen.insert(clip.assetId.str()).second)
+                    assets.push_back(validated.asset(clip.assetId));
             }
-        if (assets.size() > maximumReferences - references_)
-            throw ProjectError(ErrorCode::InvalidState, "Mix open-asset reference budget exceeded");
-        references_ += static_cast<std::uint32_t>(assets.size());
     }
-    if (bytes > SIZE_MAX - bindings * 512 ||
-        bytes + bindings * 512 > SIZE_MAX - std::size_t(references_) * 8192 ||
-        bytes + bindings * 512 + std::size_t(references_) * 8192 >
-            mix.config().graph.memoryBudgetBytes)
-        throw ProjectError(ErrorCode::InvalidState,
-                           "Mix reader payload exceeds total memory admission");
+    auto cache = options.cache;
+    cache.maximumOpenFiles =
+        std::min({cache.maximumOpenFiles, maximumReferences, options.maximumOpenAssets});
+    PayloadCharge total("Mix reader aggregate", mix.config().graph.memoryBudgetBytes);
+    total.add(mixPlaybackPayloadBytes(s, mix.graph().plan(), mix.config()));
+    total.add(bindings, 512);
+    total.add(mediaCachePayloadBytes(assets, cache));
+    media_ = std::make_shared<MediaReadCache>(std::move(root), assets, s.sampleRate, cache,
+                                              options.beforeAdmissionRead);
+    references_ = assets.size();
     for (std::size_t n = 0; n < mix.graph().plan().tracks.size(); ++n)
         readers_.push_back(std::make_unique<TrackReader>(
-            mix.pipe(n), root, s, mix.graph().plan().tracks[n].track, options));
+            mix.pipe(n), validated, mix.graph().plan().tracks[n].track, media_, options));
 }
 MixReader::~MixReader() = default;
 bool MixReader::fillRound() {
@@ -47,7 +49,10 @@ std::uint64_t MixReader::sanitizedSamples() const noexcept {
         total += std::min(r->sanitizedSamples(), UINT64_MAX - total);
     return total;
 }
-std::uint32_t MixReader::openAssetReferences() const noexcept {
+std::size_t MixReader::openAssetReferences() const noexcept {
     return references_;
+}
+MediaCacheStatistics MixReader::mediaStatistics() const noexcept {
+    return media_->statistics();
 }
 } // namespace soundcurrent::daw

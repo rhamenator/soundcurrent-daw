@@ -80,3 +80,13 @@ header/error handling and omits the redundant library call. Exact source hashes,
 platform branches and source links are in [the audit](43-recording-checked-flush.md)
 and its evidence. Re-audit on any dependency upgrade. No new dependency or licensing
 choice; native Windows/packaging qualification remains open.
+
+
+## Shared media cache checkpoint (2026-10-07)
+
+No new dependency or license selection. The existing libsndfile decoder and
+OpenSSL/Linux or BCrypt/Windows SHA-256 wrappers support one serialized shared
+handle/page pool. A custom small cache avoids a second audio framework and keeps
+cache policy separate from project state and callbacks. Whole-file reopen hash
+cost, allocator/RSS overhead and native Windows behavior still need qualification.
+See [ADR064](decisions/064-shared-media-cache.md).

@@ -50,8 +50,10 @@ no fixed product/license ceiling on total project tracks, with separately measur
 real-time and hardware-input capacity. The [first scaling implementation](docs/78-resource-admitted-projects.md)
 removes the fixed total-track ceiling from the model, parser, mixer and desktop
 Add Track control. Synthetic 4,096-track core and Linux Qt workflows have scoped
-evidence; recording, shared media/cache, virtualized views, freeze/bounce and
-sustained Linux/Windows workloads remain staged.
+evidence. A [shared media pool/cache](docs/79-shared-media-cache.md) now serves
+1,024 file-backed tracks with one handle in a bounded exact-output test.
+Recording, virtualized views, freeze/bounce and sustained Linux/Windows workloads
+remain staged.
 
 ## Build on Linux
 

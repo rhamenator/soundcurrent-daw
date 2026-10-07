@@ -6,16 +6,19 @@
 namespace soundcurrent::daw {
 class MixReader {
   public:
+    // Last argument is a concurrent shared-handle cap, not an asset-inventory limit.
     MixReader(MixPlayback &, std::filesystem::path root, const Session &, ReadAheadOptions = {},
               std::uint32_t maximumOpenAssetReferences = 256);
     ~MixReader();
     bool fillRound(); // Disk owner: at most one slab per track, fair prepared order.
     std::uint64_t sanitizedSamples() const noexcept;
-    std::uint32_t openAssetReferences() const noexcept;
+    std::size_t openAssetReferences() const noexcept;      // Unique admitted assets; legacy name.
+    MediaCacheStatistics mediaStatistics() const noexcept; // Serialized disk owner only.
 
   private:
     std::vector<std::unique_ptr<TrackReader>> readers_;
-    std::uint32_t references_ = 0;
+    std::shared_ptr<MediaReadCache> media_;
+    std::size_t references_ = 0;
 };
 // Prepared shared-clock generation with one read worker; suitable for
 // RtObjectExchange. Caller stops callbacks before destroying/joining off RT.

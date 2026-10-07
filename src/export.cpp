@@ -227,6 +227,7 @@ static ExportResult exportGraphWav(const std::filesystem::path &projectRoot, con
     readerOptions.beforeAdmissionRead = checkCanceled;
     readerOptions.beforeRead = [&](Frame) { checkCanceled(); };
     readerOptions.maximumOpenAssets = spec.maximumOpenAssetsPerTrack;
+    readerOptions.cache = spec.mediaCache;
     MixReader reader(mix, root, session, std::move(readerOptions), spec.maximumOpenAssetReferences);
     require(PreparedEq::metadata().latencyFrames == 0,
             "This export adapter requires the prepared EQ's zero latency");

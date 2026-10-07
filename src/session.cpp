@@ -387,11 +387,20 @@ ValidatedSession::ValidatedSession(const Session &s, StateBudget budget) : sessi
     tracks_.reserve(s.tracks.size());
     for (const auto &t : s.tracks)
         tracks_.emplace(t.id.str(), &t);
+    assets_.reserve(s.assets.size());
+    for (const auto &a : s.assets)
+        assets_.emplace(a.id.str(), &a);
 }
 const Track &ValidatedSession::track(const Id &id) const {
     const auto found = tracks_.find(id.str());
     if (found == tracks_.end())
         throw ProjectError(ErrorCode::InvalidId, "Unknown track");
+    return *found->second;
+}
+const Asset &ValidatedSession::asset(const Id &id) const {
+    const auto found = assets_.find(id.str());
+    if (found == assets_.end())
+        throw ProjectError(ErrorCode::InvalidId, "Unknown asset");
     return *found->second;
 }
 Session makeOneTrackSession(std::string name, std::string trackName) {

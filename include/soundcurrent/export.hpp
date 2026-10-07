@@ -2,6 +2,7 @@
 #pragma once
 #include "project_store.hpp"
 #include "mix.hpp"
+#include "media_cache.hpp"
 #include <optional>
 
 namespace soundcurrent::daw {
@@ -26,6 +27,7 @@ struct ExportSettings {
     std::uint32_t blockFrames = 512;
     std::size_t memoryBudgetBytes = 128 * 1024 * 1024;
     std::size_t maximumRoutingEntries = 65536;
+    // Legacy names: concurrent shared-handle policies, not asset-inventory ceilings.
     std::uint32_t maximumOpenAssetsPerTrack = 64, maximumOpenAssetReferences = 256;
     // Explicit resource admission, includes preroll and maximum tail. Caller may raise it.
     Frame maximumProcessFrames = 48000LL * 60 * 60 * 24;
@@ -33,6 +35,8 @@ struct ExportSettings {
     // No token means exclusive no-overwrite. A token approves replacement of these bytes.
     // Hash/recheck is for the owned-filesystem contract, not hostile-writer atomic CAS.
     std::optional<std::string> replaceSha256;
+    // Caller-owned registry/page/handle policy, charged inside memoryBudgetBytes.
+    MediaCacheConfig mediaCache{};
 };
 struct ExportSpec : ExportSettings {
     explicit ExportSpec(const Id &track) : trackId(track) {}

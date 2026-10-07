@@ -30,14 +30,15 @@ template <class F> ErrorCode rejects(F action) {
     throw std::runtime_error("Invalid export admitted");
 }
 struct Temp {
+    bool preserve = false;
     std::filesystem::path root =
         std::filesystem::temp_directory_path() / utf8Path("sc-export-Δ-" + Id::generate().str());
     Temp() {
         std::filesystem::create_directory(root);
     }
     ~Temp() {
-        if (std::uncaught_exceptions()) {
-            std::cerr << "Retained offline export failure project: " << root << '\n';
+        if (preserve || std::uncaught_exceptions()) {
+            std::cerr << "Retained offline export fixture: " << root << '\n';
             return;
         }
         std::error_code e;
@@ -287,6 +288,47 @@ void rendering() {
               "Channel order/output differs");
     }
 }
+void mediaPolicy() {
+    Temp t;
+    t.preserve = true;
+    const auto root = t.root / "Project";
+    const auto s = project(root);
+    ExportSpec single{s.tracks.front().id};
+    single.endFrame = 512;
+    single.mediaCache.registryBudgetBytes = 1;
+    single.mediaCache.pageFrames = 256;
+    single.mediaCache.cacheBudgetBytes = 4096;
+    single.mediaCache.maximumOpenFiles = 1;
+    MixExportSpec mix{
+        MixPlan{s.tracks.front().layout, {{s.tracks.front().id, {{0, 0, 1}, {1, 1, 1}}}}}};
+    static_cast<ExportSettings &>(mix) = single;
+    bool singleRefused = false, mixRefused = false;
+    try {
+        exportTrackWav(root, s, t.root / "refused-track.wav", single);
+    } catch (const ProjectError &e) {
+        singleRefused = e.code() == ErrorCode::ResourceLimit;
+    }
+    try {
+        exportMixWav(root, s, t.root / "refused-mix.wav", mix);
+    } catch (const ProjectError &e) {
+        mixRefused = e.code() == ErrorCode::ResourceLimit;
+    }
+    std::cout << "Export registry policy: track_refused=" << singleRefused
+              << " mix_refused=" << mixRefused << " root=" << t.root << std::endl;
+    check(singleRefused && mixRefused, "Configured export media registry policy ignored");
+    check(!std::filesystem::exists(t.root / "refused-track.wav") &&
+              !std::filesystem::exists(t.root / "refused-mix.wav"),
+          "Refused export published a destination");
+    single.mediaCache.registryBudgetBytes = 32 * 1024 * 1024;
+    static_cast<ExportSettings &>(mix) = single;
+    const auto a = exportTrackWav(root, s, t.root / "track.wav", single);
+    const auto b = exportMixWav(root, s, t.root / "mix.wav", mix);
+    const auto expected = reference(s, single.endFrame, single.blockFrames, single.endFrame);
+    check(Wave(a.destination).samples == expected && Wave(b.destination).samples == expected,
+          "Raised export media policy changed output");
+    check(ProjectStore(root).load() == s, "Export media policy changed project state");
+    clean(t.root);
+}
 void transactions() {
     Temp t;
     const auto root = t.root / "Project";
@@ -427,12 +469,16 @@ void transactions() {
     check(ProjectStore(root).load() == s, "Failure changed project state");
 }
 } // namespace
-int main() {
+int main(int argc, char **argv) {
     try {
         rt_audit::reset();
-        rendering();
-        repeatableHeaders();
-        transactions();
+        if (argc == 2 && std::string_view(argv[1]) == "--media-policy") {
+            mediaPolicy();
+        } else {
+            rendering();
+            repeatableHeaders();
+            transactions();
+        }
         const auto c = rt_audit::counts;
         check(c.cppAllocate == 0 && c.cppFree == 0 && c.cAllocate == 0 && c.cFree == 0 &&
                   c.blockingLock == 0,
