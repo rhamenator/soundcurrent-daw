@@ -134,11 +134,10 @@ python3 tests/verify_native_startup_pair.py \
 ```
 
 Use the same arguments with `tests/native_startup_verifier_tests.py` for all 21
-mutation refusals. `python3 tests/native_startup_portability_tests.py` verifies ZIP
+mutation refusals. `python3 tests/native_startup_portability_tests.py` verifies
 the externally recorded ZIP checksum, requires unique members and an exact manifest
 member set, checks payload hashes, extracts the same verified bytes into a fresh
-temporary directory, blocks original-machine
-path reads, runs both corrected CLIs, checks missing overrides fail, and verifies
+temporary directory, blocks original-machine path reads, runs both corrected CLIs, checks missing overrides fail, and verifies
 the archived receipt is byte-identical afterward. The Linux CI job runs this check
 without a PipeWire daemon, compiled native fixture or audio replay. The additive
 [review receipt](../tests/results/M2/2026-10-07-controlled-native-startup-review.json)
