@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "native_processing_stages.hpp"
+#ifdef SC_NATIVE_MANUAL_STAGES
+#include <soundcurrent/manual_punch.hpp>
+#endif
+#ifdef SC_NATIVE_PORT_MARKERS
+#include "native_port_markers.hpp"
+#endif
 
 using namespace soundcurrent::daw;
 namespace native_fixture {
@@ -107,3 +113,32 @@ extern "C" DuplexStatus SC_JOIN(__wrap_, SC_DUPLEX_SYMBOL)(DuplexBridge *self,
     native_fixture::processingStages.record(snapshot);
     return snapshot.status;
 }
+
+#ifdef SC_NATIVE_MANUAL_STAGES
+#define SC_MANUAL_SYMBOL                                                                           \
+    _ZN12soundcurrent3daw17ManualPunchBridge7processERKNS0_16DeviceBlockClockESt4spanIKPKfLm18446744073709551615EES5_IKPfLm18446744073709551615EEj
+extern "C" DuplexStatus SC_JOIN(__real_,
+                                SC_MANUAL_SYMBOL)(ManualPunchBridge *, const DeviceBlockClock &,
+                                                  std::span<const float *const>,
+                                                  std::span<float *const>, std::uint32_t) noexcept;
+extern "C" DuplexStatus SC_JOIN(__wrap_, SC_MANUAL_SYMBOL)(ManualPunchBridge *self,
+                                                           const DeviceBlockClock &c,
+                                                           std::span<const float *const> in,
+                                                           std::span<float *const> out,
+                                                           std::uint32_t n) noexcept {
+#ifdef SC_NATIVE_PORT_MARKERS
+    if (auto *trace = native_fixture::activePortMarkers)
+        trace->bridge();
+#endif
+    native_fixture::StageSnapshot snapshot{};
+    snapshot.clock = c;
+    auto *previous = native_fixture::currentStages;
+    native_fixture::currentStages = &snapshot;
+    const auto begin = native_fixture::StageStamp::now();
+    snapshot.status = SC_JOIN(__real_, SC_MANUAL_SYMBOL)(self, c, in, out, n);
+    begin.finish(snapshot.whole);
+    native_fixture::currentStages = previous;
+    native_fixture::processingStages.record(snapshot);
+    return snapshot.status;
+}
+#endif

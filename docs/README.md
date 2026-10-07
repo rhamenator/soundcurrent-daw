@@ -80,3 +80,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [X006: scalable track counts for recording studios](67-track-scalability.md)
 
 - [Native manual fault recovery and unresolved timing/alignment](68-native-manual-fault-recovery.md)
+
+- [Native manual channel markers and processing-stage diagnostics](69-native-manual-port-tracing.md)
