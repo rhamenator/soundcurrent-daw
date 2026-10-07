@@ -121,6 +121,9 @@ struct Endpoints {
     }
 };
 struct Audit {
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    std::atomic<bool> *priorityApplied = nullptr;
+#endif
 #ifdef SC_NATIVE_MANUAL_STAGES
     std::unique_ptr<native_fixture::PortMarkers> markers;
     explicit Audit(unsigned channels = 0, unsigned calls = 0, bool source = false) {
@@ -188,6 +191,10 @@ struct Audit {
         s.allocations.fetch_add(count.cppAllocate + count.cAllocate, std::memory_order_relaxed);
         s.frees.fetch_add(count.cppFree + count.cFree, std::memory_order_relaxed);
         s.locks.fetch_add(count.blockingLock, std::memory_order_relaxed);
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+        if (s.priorityApplied && s.run && s.run->status() == DuplexStatus::Stopped)
+            s.priorityApplied->store(true, std::memory_order_release);
+#endif
         s.timing.end();
     }
     Json report() const {
@@ -240,6 +247,9 @@ struct Sink {
     DeviceBlockClock previous{}, failedClock{};
     bool started = false;
     std::atomic<bool> failed{false}, complete{false};
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    std::atomic<Frame> priorityReceived{0};
+#endif
     Sink(Audit &a, CapturePipe &p, Frame n) : owner(a), pipe(p), target(n) {}
     static void process(void *p, const DeviceBlockClock &c, std::span<const float *const> in,
                         std::span<float *const>, std::uint32_t backing) noexcept {
@@ -265,6 +275,9 @@ struct Sink {
         const auto frames = std::uint32_t(std::min<Frame>(Frame(c.duration), s.target - s.count));
         const auto result = s.pipe.push(in, frames, start + s.count);
         s.count += result.acceptedFrames;
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+        s.priorityReceived.store(s.count, std::memory_order_release);
+#endif
         if (result.status != CaptureStatus::Running) {
             s.pipe.finish(CaptureEndReason::CaptureFailed);
             s.failed.store(true, std::memory_order_release);
@@ -391,6 +404,9 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     check(std::filesystem::create_directory(root), "Manual fault project exists");
     const bool cancel = mode == "cancel" || mode == "early-cancel" || mode == "unserviced-cancel";
     const bool early = mode == "early-stop" || mode == "early-cancel";
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    check(native && early, "Priority fixture requires native early-stop/early-cancel");
+#endif
     const bool late = mode == "unserviced-cancel";
     const bool hashFailure = mode == "hash-fail", writerFailure = mode == "writer-fail";
     auto s = makeOneTrackSession("Manual fault — Ελληνικά", "Original file");
@@ -411,6 +427,11 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     for (unsigned n = 0; n < s.tracks.size(); ++n)
         plan.tracks.push_back({s.tracks[n].id, {{0, n % 2, n % 3 ? .125 : -.25}}});
     PipeWireManualRecordingOptions opts;
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    opts.run.interrupt = std::make_shared<ManualRecordingInterrupt>();
+    std::atomic<bool> priorityDiskHeld{false}, priorityApplied{false};
+    std::atomic<Frame> priorityBefore{-1}, priorityAfter{-1};
+#endif
     opts.run.nativeInputs = arms;
     opts.run.playback.graph.startFrame = start;
     opts.run.playback.graph.generation = 73;
@@ -431,6 +452,20 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
                                              : RecordingMonitor::AutoRecording;
         RecordingOptions writer;
         writer.checkpointFrames = 4096;
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+        if (!n)
+            writer.boundary = [&](RecordingBoundary boundary, Frame at) {
+                if (boundary != RecordingBoundary::BeforeJournalPublish || at)
+                    return;
+                priorityDiskHeld.store(true, std::memory_order_release);
+                const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+                while (!priorityApplied.load(std::memory_order_acquire)) {
+                    check(std::chrono::steady_clock::now() < deadline,
+                          "Priority disk startup gate timed out");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+            };
+#endif
         if (n == 17 && (writerFailure || hashFailure))
             writer.boundary = [&](RecordingBoundary boundary, Frame at) {
                 if ((writerFailure && boundary == RecordingBoundary::BeforeAudioWrite &&
@@ -458,6 +493,9 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     Audit ownerAudit{arms, arms + 2, false};
 #else
     Audit ownerAudit;
+#endif
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    ownerAudit.priorityApplied = &priorityApplied;
 #endif
     Source source;
     opts.audit = {&ownerAudit, Audit::begin, Audit::end};
@@ -522,6 +560,24 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
             owner.synthetic->requestFault(DuplexStatus::DeviceLost);
     };
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(native ? 15 : 45);
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    // Simulated GUI producer: only atomic position/status reads and its own
+    // lifetime-safe signal. It never touches serialized owner/route/disk methods.
+    std::jthread priorityProducer([&](std::stop_token stop) {
+        while (!stop.stop_requested() && active(owner.status())) {
+            if (owner.position() >= punchIn + 1000) {
+                priorityBefore.store(owner.position(), std::memory_order_release);
+                if (cancel)
+                    opts.run.interrupt->requestCancel();
+                else
+                    opts.run.interrupt->requestStop();
+                priorityAfter.store(owner.position(), std::memory_order_release);
+                return;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    });
+#endif
     if (native) {
         sourceNode = std::make_unique<PipeWireFilter>(
             PipeWireFilterOptions{"sc-daw-fixture-manual-fault-source-" + Id::generate().str(), 0,
@@ -593,6 +649,25 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
     }
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    priorityProducer.request_stop();
+    priorityProducer.join();
+    injected = opts.run.interrupt->stopRequested();
+    injectedAt = priorityAfter.load();
+    // Native stop also joins potentially slow disk startup/finalization. Retain
+    // the ENTIRE produced output before shutting down the observer; a live sink
+    // cannot require buffers from a filter already deactivated during that IO.
+    const auto wanted = owner.position() - start;
+    const auto sinkDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    while (sink.priorityReceived.load(std::memory_order_acquire) < wanted && !sink.failed) {
+        check(std::chrono::steady_clock::now() < sinkDeadline,
+              "Priority observer did not receive the complete processed prefix");
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    sinkNode->stop(); // Callback join before owner deactivation/disk draining.
+    check(!sink.failed && sink.count >= wanted,
+          "Priority observer lost produced output before route teardown");
+#endif
     // Native stop/cancel synchronously joins callbacks before touching raw pools.
     if (cancel)
         owner.cancel();
@@ -608,6 +683,17 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     const Json times{{"owner", ownerAudit.report()},
                      {"source", source.audit.report()},
                      {"sink", sink.audit.report()}};
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+    std::cerr << "Priority disk_held=" << priorityDiskHeld.load()
+              << " requested_before=" << priorityBefore.load()
+              << " requested_after=" << priorityAfter.load() << " stopped_at=" << owner.position()
+              << " cancel=" << opts.run.interrupt->cancelRequested() << '\n';
+    check(priorityDiskHeld.load() && priorityApplied.load() &&
+              priorityAfter.load() >= punchIn + 1000 && owner.position() >= priorityAfter.load() &&
+              owner.position() - priorityAfter.load() <=
+                  times["owner"]["maximum_quantum"].get<Frame>(),
+          "Priority request missed the next callback boundary or startup gate");
+#endif
     std::cerr << "Joined manual fault mode=" << mode << " status=" << unsigned(owner.status())
               << " position=" << owner.position() << " group=" << bool(group)
               << " replies=" << replies.size() << " sink=" << sink.count
@@ -877,6 +963,13 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     ProjectStore(root).save(s);
     check(ProjectStore(root).load() == s, "Manual recovered group Save/reopen differs");
     std::cout << Json{{"mode", mode},
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+                      {"priority_disk_startup_held", priorityDiskHeld.load()},
+                      {"priority_callback_applied", priorityApplied.load()},
+                      {"priority_request_before", priorityBefore.load()},
+                      {"priority_request_after", priorityAfter.load()},
+                      {"priority_requested_cancel", opts.run.interrupt->cancelRequested()},
+#endif
                       {"native", native},
                       {"armed_tracks", arms},
                       {"owned_nodes_only", native},

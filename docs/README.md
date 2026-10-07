@@ -82,3 +82,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native manual fault recovery and unresolved timing/alignment](68-native-manual-fault-recovery.md)
 
 - [Native manual channel markers and processing-stage diagnostics](69-native-manual-port-tracing.md)
+
+- [Priority Stop/Cancel independent of manual disk startup](70-manual-priority-interruption.md)

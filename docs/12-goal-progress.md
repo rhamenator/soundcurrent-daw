@@ -1051,7 +1051,7 @@ headless configured targets compile/link, no native/Qt/runtime/install qualifica
 All Linux Release targets build consistently after the private header change.
 
 Pinned old/new standalone EQ measurements run serial ABBA after builds/readers
-terminate, five repeats per process.3band32mono before medians342.076/326.273ms,
+terminate, five repeats per process.3band 32mono before medians342.076/326.273ms,
 after312.613/312.491ms;64band1mono before143.721/139.921ms, after131.209/133.461ms.
 Final block digests match. An earlier after measurement during builds remains
 retained/excluded. Input generation/reset/preparation/digest outside timing;
@@ -1848,3 +1848,24 @@ Review R3 reproduced acceptance of a corrupted retained whole-bridge record;
 the strengthened verifier now checks whole-callback cost/coverage/ranking,
 retention/uniqueness, clock time/rate and retained sums. Original reproduction
 and first verifier are preserved; all six observed traces pass the new gates.
+
+## Priority manual Stop/Cancel checkpoint (2026-10-07 UTC)
+
+Independent one-generation atomic signals terminate audio while real disk startup
+is held, with immediate new-command/preparation refusal and reliable terminal
+replies. Synthetic pre-first-callback and 32-arm held-startup workflows pass Debug,
+Release and ASan/UBSan/LSan; Windows media compilation passes. Finite owned native
+Stop/Cancel each have 97 callbacks, complete 32-channel advancing correspondence,
+25,408 raw/recovered and 98,304 mixed samples verified, zero RT allocation/free/
+locks/late cycles. Fifteen altered receipts are refused for each native reference.
+
+Original 42's checkpoint-filename test error and43's observer teardown failure were
+frozen before correction; original missing terms remain missing. All 43 observations
+remain retained and earlier alignment/CPU/sustained causes unresolved. See
+[contract](70-manual-priority-interruption.md) and receipt. No parity promotion.
+
+Next: bounded serialized Qt manual controller with reliable replies/results,
+canonical adoption, defined late-Cancel policy, shutdown and actual-widget monitor
+edit/Undo tests. X006 remains planned with current 256 limit; all92 contracts,
+X004/X005, Europe and independent Windows/installer/physical/sustained gates stay
+required. The full goal is active/incomplete.

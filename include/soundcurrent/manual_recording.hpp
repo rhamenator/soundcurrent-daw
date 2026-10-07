@@ -5,6 +5,27 @@
 #include <exception>
 
 namespace soundcurrent::daw {
+// One generation, monotonic priority signal. Any thread may request; no reset or
+// endpoint pointer escapes. Retain shared ownership until native/control joins.
+// The callback only observes stop; the serialized owner performs cancel/drain.
+class ManualRecordingInterrupt {
+    std::atomic<std::uint32_t> requested_{0};
+
+  public:
+    void requestStop() noexcept {
+        requested_.fetch_or(1, std::memory_order_release);
+    }
+    void requestCancel() noexcept {
+        requested_.fetch_or(3, std::memory_order_release);
+    }
+    bool stopRequested() const noexcept {
+        return requested_.load(std::memory_order_acquire) != 0;
+    }
+    bool cancelRequested() const noexcept {
+        return (requested_.load(std::memory_order_acquire) & 2) != 0;
+    }
+};
+static_assert(std::atomic<std::uint32_t>::is_always_lock_free);
 struct ManualRecordingArm {
     ManualPunchArm binding;
     RecordingOptions writer;
@@ -17,6 +38,7 @@ struct ManualRecordingOptions {
     CaptureBackend backend = CaptureBackend::Unknown;
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     bool staggerCheckpoints = true;
+    std::shared_ptr<ManualRecordingInterrupt> interrupt; // Optional, prepared off RT; never reset.
 };
 enum class ManualLaneOutcome { Complete, Empty, Failed, Canceled };
 struct ManualRecordedLane {

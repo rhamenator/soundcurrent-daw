@@ -74,6 +74,9 @@ struct ManualRecordingRun::State {
     std::size_t outstanding = 0;
     std::exception_ptr firstError, readerError;
     bool stopped = false, canceled = false;
+    bool interrupted() const noexcept {
+        return options.interrupt && options.interrupt->stopRequested();
+    }
 
     State(std::filesystem::path r, const Session &s, MixPlan plan,
           std::vector<ManualRecordingArm> bindings, ManualRecordingOptions o)
@@ -247,6 +250,11 @@ struct ManualRecordingRun::State {
                 continue;
             }
             for (std::size_t n = 0; n < arms.size(); ++n) {
+                // A GUI priority signal bypasses slow construction/verification.
+                // Audio closes its prefix independently; caller joins native
+                // before finish's blocking service drains every remaining lane.
+                if (!blocking && interrupted())
+                    return;
                 start(slot, n);
                 join(slot, n, blocking);
             }
@@ -267,8 +275,8 @@ struct ManualRecordingRun::State {
     void finish(bool cancel) {
         if (stopped)
             return;
-        canceled = cancel;
-        if (cancel)
+        canceled = cancel || (options.interrupt && options.interrupt->cancelRequested());
+        if (canceled)
             for (auto &slot : slots)
                 if (slot)
                     for (auto &consumer : slot->consumers)
@@ -297,7 +305,8 @@ ManualRecordingRun::ManualRecordingRun(std::filesystem::path root, const Session
 ManualRecordingRun::~ManualRecordingRun() = default;
 std::uint64_t ManualRecordingRun::prepareTake() {
     auto &s = *state_;
-    require(!s.stopped && running(status()), "Manual recording preparation is closed");
+    require(!s.stopped && !s.interrupted() && running(status()),
+            "Manual recording preparation is closed");
     auto slot = std::find_if(s.slots.begin(), s.slots.end(), [](const auto &p) { return !p; });
     require(slot != s.slots.end(), "Manual recording result slots full; consume groups first");
     State::Slot candidate;
@@ -339,6 +348,8 @@ void ManualRecordingRun::abandonTake(std::uint64_t id) {
 }
 ManualPunchSubmit ManualRecordingRun::submit(ManualPunchCommand c) noexcept {
     auto &s = *state_;
+    if (s.interrupted())
+        return ManualPunchSubmit::Stopped;
     if (s.outstanding == manualPunchCommands)
         return ManualPunchSubmit::Full;
     auto *slot = c.action == ManualPunchAction::In ? s.find(c.take) : nullptr;
@@ -372,6 +383,8 @@ DuplexStatus ManualRecordingRun::process(const DeviceBlockClock &clock,
                                          std::span<const float *const> input,
                                          std::span<float *const> output,
                                          std::uint32_t capacity) noexcept {
+    if (state_->interrupted())
+        state_->bridge->requestStop();
     return state_->bridge->process(clock, input, output, capacity);
 }
 void ManualRecordingRun::requestFault(DuplexStatus s) noexcept {
