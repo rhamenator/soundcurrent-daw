@@ -109,9 +109,33 @@ struct ManualRecordingController::State {
         view.phase = view.supported ? ManualControlPhase::Idle : ManualControlPhase::Unsupported;
         latest = std::make_shared<const ManualControlSnapshot>(view);
     }
+    // Worker only, with mutex held. Final Close consumes the last GUI prefix
+    // under the same lock that publishes closed, so no accepted ack is stranded.
+    void consumeAcknowledgements() {
+        std::erase_if(view.commands, [&](const auto &r) {
+            if (std::find(commandAcks.begin(), commandAcks.end(), r.sequence) == commandAcks.end())
+                return false;
+            --commandCredits;
+            return true;
+        });
+        std::erase_if(view.punches, [&](const auto &r) {
+            return std::find(punchAcks.begin(), punchAcks.end(), r.command.revision) !=
+                   punchAcks.end();
+        });
+        std::erase_if(view.groups, [&](const auto &g) {
+            return std::find(groupAcks.begin(), groupAcks.end(),
+                             std::pair{g.generation, g.group->take}) != groupAcks.end();
+        });
+    }
     void publish() {
-        auto copy = std::make_shared<const ManualControlSnapshot>(view);
+        std::shared_ptr<const ManualControlSnapshot> copy;
+        if (!view.closed)
+            copy = std::make_shared<const ManualControlSnapshot>(view);
         std::lock_guard lock(mutex);
+        if (view.closed) {
+            consumeAcknowledgements();
+            copy = std::make_shared<const ManualControlSnapshot>(view);
+        }
         // Keep acknowledgement tombstones until the visible snapshot changes,
         // so a slow endpoint call cannot make an old receipt consumable twice.
         std::erase_if(commandAcks, [&](auto id) {
@@ -319,21 +343,7 @@ struct ManualRecordingController::State {
             {
                 std::unique_lock lock(mutex);
                 wake.wait_for(lock, std::chrono::milliseconds(5));
-                std::erase_if(view.commands, [&](const auto &r) {
-                    if (std::find(commandAcks.begin(), commandAcks.end(), r.sequence) ==
-                        commandAcks.end())
-                        return false;
-                    --commandCredits;
-                    return true;
-                });
-                std::erase_if(view.punches, [&](const auto &r) {
-                    return std::find(punchAcks.begin(), punchAcks.end(), r.command.revision) !=
-                           punchAcks.end();
-                });
-                std::erase_if(view.groups, [&](const auto &g) {
-                    return std::find(groupAcks.begin(), groupAcks.end(),
-                                     std::pair{g.generation, g.group->take}) != groupAcks.end();
-                });
+                consumeAcknowledgements();
                 stop = stopEpoch;
                 close = closing;
                 if (!queue.empty()) {

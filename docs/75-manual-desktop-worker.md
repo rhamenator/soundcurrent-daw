@@ -91,10 +91,20 @@ Worker tests use a separate synthetic audio owner and real core readers/writers:
 - Construction/activation failures, worker-only endpoint calls/destruction and
   zero callback RT allocation/free/blocking-lock observations.
 
-Final local Debug39/39 (45.07s); affected ASan/UBSan/LSan3/3 (6.38s), leak detection
-enabled; Windows media/controller/test cross-compilation passes. These are
+Initial Debug39/39 (45.07s); affected ASan/UBSan/LSan3/3 (6.38s), leak detection
+enabled. After review, final Debug39/39 (46.29s) and focused controller
+ASan/UBSan/LSan1/1 (1.03s) pass; unchanged core retains its earlier sanitizer
+qualification. Windows media/controller/test cross-compilation passes. These are
 functional/compile checks, not actual-widget, native-controller timing, physical
 hardware, sustained or native Windows qualification.
+
+Review found acknowledgements accepted after the last worker sweep could remain
+stranded when Closed was published. The deterministic held-Close regression against
+the reviewed source records1 control/2 audio/1 group still present after successful
+acknowledgement. Its original generated project/source/executable hashes/logs are
+retained separately. Final publication consumes that accepted prefix and publishes
+Closed under one lock; the same regression records0/0/0. Older snapshots remain
+immutable, duplicates are refused and post-Close consumption still works.
 
 ## Next implementation
 

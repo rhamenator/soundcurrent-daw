@@ -559,6 +559,63 @@ void controlReceiptPressure() {
           "Closed controller cannot consume retained control receipts");
     f.directory.success = true;
 }
+void acknowledgementDuringClose() {
+    Fixture f;
+    ManualRecordingController controller(f.options());
+    struct Release {
+        std::shared_ptr<Counters> c;
+        ~Release() {
+            c->holdStop = false;
+        }
+    } release{f.counts};
+    const auto generation = send(controller, f.prepare()).generation;
+    const auto take = send(controller, action(ManualControlKind::PrepareTake, generation)).take;
+    send(controller, action(ManualControlKind::Activate, generation));
+    auto punch = action(ManualControlKind::Punch, generation);
+    punch.take = take;
+    punch.frame = 13;
+    send(controller, punch);
+    punch.take = 0;
+    punch.action = ManualPunchAction::Out;
+    punch.frame = 100;
+    send(controller, punch);
+    ++f.counts->steps;
+    until([&] { return controller.snapshot()->groups.size() == 1; });
+    const auto unused = controller.submit(action(ManualControlKind::PrepareTake, generation));
+    until([&] {
+        const auto view = controller.snapshot();
+        return std::any_of(view->commands.begin(), view->commands.end(),
+                           [&](const auto &r) { return r.sequence == unused.sequence; });
+    });
+    f.counts->holdStop = true;
+    controller.requestShutdown();
+    until([&] { return f.counts->stopEntered.load(); });
+    const auto held = controller.snapshot();
+    check(held->phase == ManualControlPhase::Finalizing && !held->closed &&
+              held->commands.size() == 1 && held->punches.size() == 2 && held->groups.size() == 1,
+          "Close acknowledgment gate did not hold the last worker iteration");
+    check(controller.acknowledgeCommand(unused.sequence),
+          "Held Close refused control acknowledgment");
+    for (const auto &r : held->punches)
+        check(controller.acknowledgePunch(r.command.revision),
+              "Held Close refused audio acknowledgment");
+    check(controller.acknowledgeGroup(generation, take), "Held Close refused group acknowledgment");
+    f.counts->holdStop = false;
+    until([&] { return controller.snapshot()->closed; });
+    const auto closed = controller.snapshot();
+    std::cerr << "Acknowledgments during last Close iteration: remaining_control="
+              << closed->commands.size() << " remaining_audio=" << closed->punches.size()
+              << " remaining_groups=" << closed->groups.size() << '\n';
+    check(closed->commands.empty() && closed->punches.empty() && closed->groups.empty(),
+          "Close retained acknowledged receipts");
+    check(held->commands.size() == 1 && held->punches.size() == 2 && held->groups.size() == 1 &&
+              !controller.acknowledgeCommand(unused.sequence) &&
+              !controller.acknowledgePunch(held->punches.front().command.revision) &&
+              !controller.acknowledgeGroup(generation, take),
+          "Close acknowledgment mutated older snapshots or accepted a duplicate");
+    close(controller, f.counts);
+    f.directory.success = true;
+}
 } // namespace
 int main() {
     try {
@@ -568,6 +625,7 @@ int main() {
         failedPreparation();
         cancelDuringFinalization();
         controlReceiptPressure();
+        acknowledgementDuringClose();
     } catch (const std::exception &e) {
         std::cerr << "Manual controller failure: " << e.what() << '\n';
         return 1;

@@ -2004,3 +2004,12 @@ remain open. See docs/75-manual-desktop-worker.md, ADR060 and the dated receipt.
 Next implementation: wire actual Qt manual transport/take widgets, canonical
 prefix barrier, parameter following, explicit grouped adoption/recovery and Close.
 Keep the full frozen goal active.
+
+PR20 review additionally found acknowledgements queued during the last held Close
+could be accepted but stranded after worker exit. The new unchanged-source
+regression records1 control/2 audio/1 group still present; source/executable hashes
+and original media/logs were frozen before correction. Final publication drains
+that prefix under its publication mutex; the same regression records0/0/0 with
+older snapshots unchanged. Final Debug39/39,46.29s and focused controller
+ASan/UBSan/LSan1/1,1.03s pass; Windows controller compilation passes. Earlier
+core sanitizer/evidence archives remain unchanged. Runtime/native count remains48.
