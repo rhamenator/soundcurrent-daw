@@ -120,3 +120,10 @@ Final qualification: Linux Debug **55/55, 145.39s**; affected
 ASan/UBSan/LSan **18/18, 334.35s**; Windows core/media cross-build.
 The CRC/all-entry-byte verified archive contains **13,830,965 bytes / 978 entries**.
 Its SHA-256 is `2f4aecdcaf1a5edd98adc1147faa4907315dd81d339d469b7f7ee61b360d87fa`.
+
+Subsequent [GUI payload admission](84-gui-memory-resources.md)/ADR069 leases
+selected-track copies, list/decorations and timeline/query arrays under this same
+parent. Its separate receipt qualifies staged display refusal/retry and initial
+control timing. The exclusions and next task above describe this historical
+controller-only checkpoint; graph/cache/IO, metadata/allocator/RSS and sustained
+platform capacity remain open after the GUI addition.

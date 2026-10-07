@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-07T19:29:29.568410+00:00",
+  "registered_inputs": 24,
+  "unchanged_inputs": 20,
+  "review_only_changed_files": [
+    {
+      "repository": "soundcurrent-eq",
+      "source_path": "src/dsp.cpp",
+      "previous_sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
+      "current_sha256": "273cbcbd1e2112f98d54840c1af7621f7339a4122624b53d50bc51086add9647",
+      "source_revision": "533492cfee9ae9a381ac126d4bd94ecb2a92512a",
+      "snapshot": "reuse/reviews/2026-10-07/soundcurrent-eq/src/dsp.cpp",
+      "sole_postgain_wrapper_delta_verified": true,
+      "compiled": false
+    },
+    {
+      "repository": "soundcurrent-eq",
+      "source_path": "src/dsp.h",
+      "previous_sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
+      "current_sha256": "6cf3bbf1fa880d6159bffbed215fdb5b2c92c2b995a0b41631a483087adeab2d",
+      "source_revision": "533492cfee9ae9a381ac126d4bd94ecb2a92512a",
+      "snapshot": "reuse/reviews/2026-10-07/soundcurrent-eq/src/dsp.h",
+      "sole_postgain_wrapper_delta_verified": true,
+      "compiled": false
+    },
+    {
+      "repository": "soundcurrent-studio",
+      "source_path": "src/dsp.cpp",
+      "previous_sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
+      "current_sha256": "83d1ee61f49c7083645bcaae55943254acfd6d03275268f5041baf13c268afb8",
+      "source_revision": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9",
+      "snapshot": "reuse/reviews/2026-10-07/soundcurrent-studio/src/dsp.cpp",
+      "sole_postgain_wrapper_delta_verified": true,
+      "compiled": false
+    },
+    {
+      "repository": "soundcurrent-studio",
+      "source_path": "src/dsp.h",
+      "previous_sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
+      "current_sha256": "8f3158b2d4f7fe5abe5350bbd2ae43373b38ab0b7bb67bc63c0c583b7e3cbb43",
+      "source_revision": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9",
+      "snapshot": "reuse/reviews/2026-10-07/soundcurrent-studio/src/dsp.h",
+      "sole_postgain_wrapper_delta_verified": true,
+      "compiled": false
+    }
+  ],
+  "observed_heads": {
+    "soundcurrent-eq": "533492cfee9ae9a381ac126d4bd94ecb2a92512a",
+    "soundcurrent-studio": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9"
+  },
+  "sole_normalized_whole_file_delta_verified": true,
+  "borrowed_coefficient_and_recurrence_subset_unchanged": true,
+  "equipment_editor_catalog_inputs_unchanged": true,
+  "all_182_compiled_GUI_checkpoint_inputs_unchanged": true,
+  "source_repositories_written": false,
+  "original_adaptation_provenance_unchanged": true,
+  "snapshot_compiled": false,
+  "license": "GPL-3.0-only"
+}

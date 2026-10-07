@@ -99,7 +99,7 @@ HistoryResourcesDialog::HistoryResourcesDialog(
     outer->addWidget(scroll, 1);
     auto *explanation = new QLabel(
         tr("Limits apply to Undo payload and declared state/edit work. "
-           "They do not measure total RAM, audio graphs or GUI memory. New edits may retire the "
+           "They do not measure total RAM or audio graph memory. New edits may retire the "
            "oldest Undo commands; reducing limits never clears existing history."),
         this);
     explanation->setWordWrap(true);
@@ -176,9 +176,9 @@ HistoryResourcesDialog::HistoryResourcesDialog(
                     field->setEnabled(false);
             });
     auto *memoryExplanation =
-        new QLabel(tr("The shared controller budget covers canonical state, retained snapshots, "
-                      "Undo and declared edit work. Graphs, GUI indices and parser/IO buffers "
-                      "still use separate policies."),
+        new QLabel(tr("The shared project budget covers canonical state, snapshots, Undo, declared "
+                      "edit work, list/timeline indices and selected-track projections. "
+                      "Graphs, parser/IO buffers and Qt/allocator overhead remain separate."),
                    this);
     memoryExplanation->setWordWrap(true);
     layout->addRow(memoryExplanation);
@@ -194,7 +194,7 @@ HistoryResourcesDialog::HistoryResourcesDialog(
         tr("Current limit: %1 bytes. Edited values use whole MiB.").arg(display(totalInitial)));
     snapshotField->setToolTip(
         tr("Current limit: %1 bytes. Edited values use whole MiB.").arg(display(snapshotInitial)));
-    layout->addRow(tr("Shared controller budget (MiB)"), totalField);
+    layout->addRow(tr("Shared project budget (MiB)"), totalField);
     layout->addRow(tr("Retained snapshot budget (MiB)"), snapshotField);
     auto *memoryUsage = new QLabel(this);
     memoryUsage->setObjectName("projectMemoryUsage");

@@ -1,25 +1,25 @@
 {
   "schema": 1,
-  "date": "2026-10-06",
+  "date": "2026-10-07",
   "license": "GPL-3.0-only",
   "policy": "Read-only working snapshots; uncommitted source is identified by HEAD plus exact content hash. Archived reference C++ is not compiled. No automatic source adoption or upstream writes.",
   "repositories": {
     "soundcurrent-eq": {
-      "observed_head": "080195a85be163cf8e4b1516745c63f43f317700",
+      "observed_head": "533492cfee9ae9a381ac126d4bd94ecb2a92512a",
       "files": {
         "src/dsp.cpp": {
-          "sha256": "9dc7a30123e94329687686b684f9a64e7e8b26ca3ae12d8394ebacebf77b534e",
-          "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/src/dsp.cpp",
+          "sha256": "273cbcbd1e2112f98d54840c1af7621f7339a4122624b53d50bc51086add9647",
+          "snapshot": "reuse/reviews/2026-10-07/soundcurrent-eq/src/dsp.cpp",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
-          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
+          "disposition": "Review-only refreshed post-gain minimum wrapper reference. Borrowed coefficient and TDF-II recurrence subset is byte-unchanged; no compiled DAW change.",
+          "source_revision": "533492cfee9ae9a381ac126d4bd94ecb2a92512a"
         },
         "src/dsp.h": {
-          "sha256": "987146a6be031addd818f83a9486d6820f63748a5092066b0fc21fc57d41f461",
-          "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/src/dsp.h",
+          "sha256": "6cf3bbf1fa880d6159bffbed215fdb5b2c92c2b995a0b41631a483087adeab2d",
+          "snapshot": "reuse/reviews/2026-10-07/soundcurrent-eq/src/dsp.h",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
-          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
+          "disposition": "Review-only refreshed post-gain minimum wrapper reference. Borrowed coefficient and TDF-II recurrence subset is byte-unchanged; no compiled DAW change.",
+          "source_revision": "533492cfee9ae9a381ac126d4bd94ecb2a92512a"
         },
         "src/equipment_profiles.cpp": {
           "sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
@@ -92,24 +92,24 @@
           "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
         }
       },
-      "previous_observed_head": "20e22515aad5b0aa4851b55a69948d27fc7345df"
+      "previous_observed_head": "080195a85be163cf8e4b1516745c63f43f317700"
     },
     "soundcurrent-studio": {
-      "observed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26",
+      "observed_head": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9",
       "files": {
         "src/dsp.cpp": {
-          "sha256": "135725387e6a42cf21de192d6a71070e1c9b4a7243330048bfd6bfcc090a4bd1",
-          "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/src/dsp.cpp",
+          "sha256": "83d1ee61f49c7083645bcaae55943254acfd6d03275268f5041baf13c268afb8",
+          "snapshot": "reuse/reviews/2026-10-07/soundcurrent-studio/src/dsp.cpp",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
-          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+          "disposition": "Review-only refreshed post-gain minimum wrapper reference. Borrowed coefficient and TDF-II recurrence subset is byte-unchanged; no compiled DAW change.",
+          "source_revision": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9"
         },
         "src/dsp.h": {
-          "sha256": "00c4d5169e14d1cf2038eab3a724df41cd73b2284f1ea16c3cca6f56a73a23a1",
-          "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/src/dsp.h",
+          "sha256": "8f3158b2d4f7fe5abe5350bbd2ae43373b38ab0b7bb67bc63c0c583b7e3cbb43",
+          "snapshot": "reuse/reviews/2026-10-07/soundcurrent-studio/src/dsp.h",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
-          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+          "disposition": "Review-only refreshed post-gain minimum wrapper reference. Borrowed coefficient and TDF-II recurrence subset is byte-unchanged; no compiled DAW change.",
+          "source_revision": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9"
         },
         "src/equipment_profiles.cpp": {
           "sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
@@ -182,14 +182,15 @@
           "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
         }
       },
-      "previous_observed_head": "6cf149f5776ff799dcada3bff75ebdc334958386"
+      "previous_observed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
     }
   },
   "impact": [
     "Equipment editor changes only the numeric widget class; adopt held-step acceleration. Catalog, schema, source registry and fitting code are unchanged from the adopted equipment revision.",
     "Studio filterCoefficients, filterResponseDb and StereoEqualizer::Biquad::process are byte-identical to the original DAW DSP reuse snapshot. Profile preparation now has an off-thread prepared structure, already provided by the DAW engine; retain DAW validation, events, arbitrary channels and unclamped headroom.",
     "New equalizer enhancements and native Windows endpoint deployment plans do not change a reused DSP subset; they are not imported as DAW processors or a DAW audio backend.",
-    "At the committed-head refresh, all 24 registered inputs match retained reviewed bytes. New APO/native routing and ongoing guardian/virtual-driver work are outside the borrowed DSP/editor subset; no DAW backend or processor changes are justified by those additions."
+    "At the committed-head refresh, all 24 registered inputs match retained reviewed bytes. New APO/native routing and ongoing guardian/virtual-driver work are outside the borrowed DSP/editor subset; no DAW backend or processor changes are justified by those additions.",
+    "2026-10-07 post-gain refresh: 20 inputs unchanged, four review-only DSP files updated. Removing the new minimum constant/validation substitution reproduces each prior whole-file snapshot byte-for-byte. The borrowed coefficient/recurrence subset is unchanged; original immutable adaptation provenance stays pinned."
   ],
   "adapted_files": [
     "ui/accelerating_spinbox.hpp",
@@ -199,6 +200,6 @@
   "upstream_candidates": [
     "Overflow-bounded scaled step multiplication; retain focused-only wheel behavior in editors."
   ],
-  "previous_review": "reuse/reviews/2026-10-06/upstream-review-before-committed-refresh.json",
-  "review_note": "Rechecked after the owner reported further equalizer changes. Previously reviewed draft bytes are now committed unchanged; expand both repositories to the complete shared equipment input inventory."
+  "previous_review": "reuse/reviews/2026-10-07/upstream-review-before-postgain-refresh.json",
+  "review_note": "Four review-only DSP files changed after the initial GUI checkpoint audit. Exact committed snapshots refreshed. The sole changes are a -60 dB post-gain minimum constant and its profile-wrapper validation; borrowed coefficient/recurrence equations, equipment/editor inputs and compiled DAW behavior are unchanged."
 }

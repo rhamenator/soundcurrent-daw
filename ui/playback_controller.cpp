@@ -234,9 +234,10 @@ struct PlaybackController::State : QThread {
             return;
         view.desiredRevision = desired->revision;
         if (desired->revision != checkedRevision) {
-            const auto target = prepared->projectMix
-                                    ? desired->session
-                                    : sessionForTrack(desired->session, prepared->track);
+            const auto target =
+                prepared->projectMix
+                    ? desired->session
+                    : sessionForTrack(desired->session, prepared->track, options.projectionMemory);
             if (!target)
                 throw ProjectError(ErrorCode::InvalidState, "Prepared track no longer exists");
             desired->session = target;

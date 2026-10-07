@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-#include <soundcurrent/session.hpp>
+#include <soundcurrent/resource_ledger.hpp>
 #include <QAbstractListModel>
 #include <QColor>
 #include <memory>
@@ -17,7 +17,14 @@ struct TrackDecoration {
 class SessionListModel : public QAbstractListModel {
   public:
     enum class Kind { Tracks, Assets, Clips };
-    SessionListModel(Kind, QObject *parent, bool checkable = false);
+    SessionListModel(Kind, QObject *parent, bool checkable = false,
+                     ResourceLedger = ResourceLedger{});
+    struct Prepared;
+    std::shared_ptr<Prepared> prepare(std::shared_ptr<const Session>,
+                                      std::optional<ChannelLayout> filter = {},
+                                      std::optional<Id> clipTrack = {}) const;
+    void commit(std::shared_ptr<Prepared>);
+    std::size_t resourceBytes() const;
     int rowCount(const QModelIndex &parent = {}) const override;
     QVariant data(const QModelIndex &, int role) const override;
     Qt::ItemFlags flags(const QModelIndex &) const override;
@@ -37,6 +44,8 @@ class SessionListModel : public QAbstractListModel {
     }
 
   private:
+    ResourceLedger memory_;
+    ResourceLease indicesReservation_, decorationReservation_;
     Kind kind_;
     bool checkable_, editable_ = false;
     std::shared_ptr<const Session> session_;
