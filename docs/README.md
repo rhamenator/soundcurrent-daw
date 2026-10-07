@@ -78,6 +78,7 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Repeatable default WAV/RF64 exports](66-repeatable-export.md)
 
 - [X006: scalable track counts for recording studios](67-track-scalability.md)
+- [Native buffer readiness, extent and ownership](73-native-buffer-acquisition.md)
 
 - [Native manual fault recovery and unresolved timing/alignment](68-native-manual-fault-recovery.md)
 

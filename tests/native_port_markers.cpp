@@ -2,6 +2,9 @@
 #include "native_port_markers.hpp"
 #include <algorithm>
 #include <stdexcept>
+#ifdef SC_NATIVE_BUFFER_ACQUISITION
+#include "pipewire_buffer.hpp"
+#endif
 #ifdef SC_NATIVE_PORT_HANDOFF
 #include "native_port_handoff.hpp"
 #endif
@@ -77,6 +80,18 @@ void PortMarkers::buffer(const float *p, std::uint32_t n) noexcept {
     if (!source_)
         samples(m, p, n);
 }
+void PortMarkers::sdkDequeue(bool returned) noexcept {
+    if (current_) {
+        ++current_->sdkDequeues;
+        current_->sdkReturned += returned;
+    }
+}
+void PortMarkers::sdkQueue(int result) noexcept {
+    if (current_) {
+        ++current_->sdkQueues;
+        current_->sdkQueueFailures += result < 0;
+    }
+}
 void PortMarkers::generated(std::span<float *const> views, std::uint32_t n) noexcept {
     if (!current_ || !source_)
         return;
@@ -98,9 +113,14 @@ void PortMarkers::bridge() noexcept {
         ++current_->bridgeCalls;
 }
 void PortMarkers::write(std::ostream &o) const {
-    o << "{\"test_only\":true,\"source\":" << (source_ ? "true" : "false")
-      << ",\"channels\":" << channels_ << ",\"expected_buffer_calls\":" << expectedCalls_
-      << ",\"admitted_rows\":" << rows_.size()
+    o << "{\"test_only\":true,\"acquisition_version\":"
+#ifdef SC_NATIVE_BUFFER_ACQUISITION
+      << 2
+#else
+      << 1
+#endif
+      << ",\"source\":" << (source_ ? "true" : "false") << ",\"channels\":" << channels_
+      << ",\"expected_buffer_calls\":" << expectedCalls_ << ",\"admitted_rows\":" << rows_.size()
       << ",\"prepared_bytes\":" << rows_.size() * sizeof(PortMarkerRow) << ",\"calls\":" << calls_
       << ",\"retained\":" << retained_ << ",\"dropped\":" << dropped_
       << ",\"identity_overflows\":" << identityOverflows_ << ",\"rows\":[";
@@ -115,6 +135,9 @@ void PortMarkers::write(std::ostream &o) const {
           << ",\"rate_numerator\":" << c.rateNumerator
           << ",\"rate_denominator\":" << c.rateDenominator << ",\"delay\":" << c.delay
           << ",\"before\":" << r.before << ",\"after\":" << r.after
+          << ",\"sdk_dequeues\":" << r.sdkDequeues << ",\"sdk_queues\":" << r.sdkQueues
+          << ",\"sdk_returned\":" << r.sdkReturned
+          << ",\"sdk_queue_failures\":" << r.sdkQueueFailures
           << ",\"buffer_calls\":" << r.bufferCalls << ",\"generated_calls\":" << r.generatedCalls
           << ",\"bridge_calls\":" << r.bridgeCalls << ",\"ports\":[";
         for (unsigned ch = 0; ch < channels_; ++ch) {
@@ -156,3 +179,41 @@ extern "C" void *__wrap_pw_filter_get_dsp_buffer(void *port, std::uint32_t n) {
         trace->buffer(static_cast<const float *>(result), n);
     return result;
 }
+
+#ifdef SC_NATIVE_BUFFER_ACQUISITION
+extern "C" soundcurrent::daw::native::Buffer
+__real_sc_pw_acquire_buffer(soundcurrent::daw::native::Port *, std::uint32_t) noexcept;
+extern "C" soundcurrent::daw::native::Buffer
+__wrap_sc_pw_acquire_buffer(soundcurrent::daw::native::Port *port, std::uint32_t frames) noexcept {
+#ifdef SC_NATIVE_PORT_HANDOFF
+    native_fixture::handoffBeforeDsp(port->key, frames);
+#endif
+    auto result = __real_sc_pw_acquire_buffer(port, frames);
+#ifdef SC_NATIVE_PORT_HANDOFF
+    native_fixture::handoffAfterAcquisition(result.samples, unsigned(result.status));
+#endif
+    if (auto *trace = native_fixture::activePortMarkers)
+        trace->buffer(result.samples, frames); // Every logical channel, including deferred ports.
+    return result;
+}
+extern "C" pw_buffer *__real_pw_filter_dequeue_buffer(void *);
+extern "C" pw_buffer *__wrap_pw_filter_dequeue_buffer(void *key) {
+    auto *result = __real_pw_filter_dequeue_buffer(key);
+#ifdef SC_NATIVE_PORT_HANDOFF
+    native_fixture::handoffNativeDequeue(result);
+#endif
+    if (auto *trace = native_fixture::activePortMarkers)
+        trace->sdkDequeue(result != nullptr);
+    return result;
+}
+extern "C" int __real_pw_filter_queue_buffer(void *, pw_buffer *);
+extern "C" int __wrap_pw_filter_queue_buffer(void *key, pw_buffer *buffer) {
+    const auto result = __real_pw_filter_queue_buffer(key, buffer);
+#ifdef SC_NATIVE_PORT_HANDOFF
+    native_fixture::handoffNativeQueue(key, buffer, result);
+#endif
+    if (auto *trace = native_fixture::activePortMarkers)
+        trace->sdkQueue(result);
+    return result;
+}
+#endif

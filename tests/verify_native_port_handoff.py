@@ -14,6 +14,8 @@ CLOCK = ['id', 'cycle', 'position', 'duration', 'nsec', 'rate_numerator',
 def analyze(handoff, markers, allow_test_suppression=False):
     assert handoff['test_only'] is True and handoff['public_api_observer'] is True
     assert len(handoff['filters']) == 3
+    version = handoff.get('acquisition_version', 1)
+    assert version in [1, 2]
     assert set(markers) == {'owner', 'source'}
     report = {}
     for f in handoff['filters']:
@@ -41,6 +43,7 @@ def analyze(handoff, markers, allow_test_suppression=False):
         if role != 'sink':
             assert isinstance(marker, dict) and marker
             assert marker['source'] is (role == 'source')
+            assert marker.get('acquisition_version', 1) == version
             assert marker['channels'] == 32
             assert marker['expected_buffer_calls'] == len(ports)
             assert marker['calls'] == marker['retained'] == len(rows)
@@ -85,6 +88,35 @@ def analyze(handoff, markers, allow_test_suppression=False):
                     assert p['seen'] is True and p['frames'] == q['frames']
                     assert q['returned'] == p['present']
                     assert p['channel'] == index
+                if version == 2:
+                    # Logical attempts and actual ownership operations are separate.
+                    # Every returned view must be capacity-certified and its exact
+                    # native object returned once after the original processing.
+                    assert q.get('api_suppressed', False) is False
+                    assert q['sdk_dequeues'] in [0, 1]
+                    assert q['native_returned'] is q['returned']
+                    assert q['acquisition_status'] == int(q['returned'])
+                    assert q['sdk_queues'] == int(q['native_returned'])
+                    if q['sdk_dequeues']:
+                        assert q['io_known']
+                        assert q['io_status'] == 2 if ports[index]['input'] else q['io_status'] in [0, 1]
+                        if ports[index]['input']:
+                            assert q['io_buffer'] != 4294967295
+                    if q['returned']:
+                        assert q['sdk_dequeues'] == 1 and q['native_known'] is True
+                        assert q['native_buffer'] == q['buffer'] and q['queue_matched'] is True
+                        assert q['queue_result'] >= 0 and q['chunk_stride'] == 4 and q['chunk_flags'] == 0
+                        assert q['extent_bytes'] >= q['chunk_offset'] + q['frames'] * 4
+                        assert q['maximum_bytes'] == q['extent_bytes'] - q['chunk_offset']
+                        assert q['chunk_offset'] % 4 == 0
+                        assert q['frames'] * 4 <= q['chunk_bytes'] <= q['maximum_bytes']
+                        assert q['data_flags'] & (1 if ports[index]['input'] else 2)
+                        if not ports[index]['input']:
+                            assert q['chunk_offset'] == 0 and q['chunk_bytes'] == q['frames'] * 4
+                    else:
+                        assert not q['native_known'] and q['native_buffer'] == 4294967295
+                        assert q['queue_result'] == -2147483648 and not q['queue_matched']
+                        assert q['extent_bytes'] == q['chunk_offset'] == q['chunk_bytes'] == 0
                 states[(q['io_known'], q['io_status'], q['returned'], q['live_buffers'])] += 1
                 # Pre-API output HAVE_DATA or an unavailable IO area is recorded,
                 # not interpreted as proof of a private FIFO depth or publication.
@@ -92,6 +124,11 @@ def analyze(handoff, markers, allow_test_suppression=False):
                         (not q['io_known'] or q['io_status'] == 2)):
                     notable.append({'row': ordinal, 'channel': ports[index]['channel'],
                                     **{k: row[k] for k in CLOCK}, 'query': q})
+            if marker and version == 2:
+                assert reference['sdk_dequeues'] == sum(q['sdk_dequeues'] for q in row['queries'])
+                assert reference['sdk_queues'] == sum(q['sdk_queues'] for q in row['queries'])
+                assert reference['sdk_returned'] == sum(q['native_returned'] for q in row['queries'])
+                assert reference['sdk_queue_failures'] == 0
         report[role] = {'callbacks': len(rows), 'queries': sum(states.values()),
                         'sdk_queries_skipped_by_test_policy': suppressed,
                         'marker_correspondence_checked': marker is not None,
@@ -102,6 +139,7 @@ def analyze(handoff, markers, allow_test_suppression=False):
                         'wrapper_maximum_ns': timing['maximum_ns'],
                         'wrapper_maximum_cpu_ns': timing['maximum_cpu_ns']}
     return {'public_observation_coverage_qualified': True,
+            'acquisition_version': version,
             'test_suppression_allowed': allow_test_suppression,
             'waveform_qualification_performed_here': False,
             'private_queue_state_observed': False, 'delay_cause_established': False,

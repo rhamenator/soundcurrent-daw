@@ -41,6 +41,8 @@ def analyze(project):
         assert trace['test_only'] and trace['source'] == (role == 'source')
         assert trace['channels'] == 32 and trace['admitted_rows'] == 8192
         assert trace['expected_buffer_calls'] == (32 if role == 'source' else 34)
+        version = trace.get('acquisition_version', 1)
+        assert version in [1, 2]
         assert trace['retained'] == len(trace['rows']) <= trace['admitted_rows']
         assert trace['calls'] == trace['retained'] + trace['dropped']
         if trace['dropped'] or trace['identity_overflows']:
@@ -65,6 +67,9 @@ def analyze(project):
                 stats['unknown_clocks'] += 1
                 problems.append(f'{role} row{index}: unknown clock')
             assert row['generated_calls'] in [0, 1]
+            if version == 2:
+                assert 0 <= row['sdk_returned'] <= row['sdk_dequeues'] <= trace['expected_buffer_calls']
+                assert row['sdk_queues'] == row['sdk_returned'] and row['sdk_queue_failures'] == 0
             if (active or generated_call) and (row['buffer_calls'] != trace['expected_buffer_calls'] or
                            not 0 < row['duration'] <= 65536):
                 problems.append(f'{role} row{index}: incomplete active buffer coverage')

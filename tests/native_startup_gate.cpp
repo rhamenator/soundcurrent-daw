@@ -8,7 +8,7 @@
 #include <thread>
 namespace native_fixture {
 namespace {
-enum class Policy { Disabled, Observe, DeferUnready };
+enum class Policy { Disabled, Observe, DeferUnready, ProductionReady };
 Policy policy = Policy::Disabled; // Immutable after preparation.
 std::atomic<bool> entered{false}, completed{false}, released{false}, timedOut{false};
 bool enteredOutsideRT = false;
@@ -26,6 +26,8 @@ void configureStartupGate(std::string_view value) {
         policy = Policy::Observe;
     else if (value == "defer-unready")
         policy = Policy::DeferUnready;
+    else if (value == "production-ready")
+        policy = Policy::ProductionReady;
     else
         throw std::invalid_argument("Unknown startup intervention policy");
 }
@@ -64,6 +66,8 @@ void startupAfterProcess(std::string_view name, unsigned channel, const spa_io_c
         return;
     if (policy == Policy::DeferUnready && (returned || !suppressed))
         return;
+    if (policy == Policy::ProductionReady && (returned || knownBuffer || suppressed))
+        return;
     observedClock = clock;
     observedBuffers = liveBuffers;
     observedReturn = returned;
@@ -77,7 +81,9 @@ bool startupGateHolding() noexcept {
 void writeStartupGate(const std::filesystem::path &path) {
     std::ofstream out(path);
     out << "{\"test_only\":true,\"selected_channel\":23,\"policy\":\""
-        << (policy == Policy::Observe ? "observe" : "defer-unready")
+        << (policy == Policy::Observe        ? "observe"
+            : policy == Policy::DeferUnready ? "defer-unready"
+                                             : "production-ready")
         << "\",\"entered\":" << (entered.load() ? "true" : "false")
         << ",\"entered_outside_rt\":" << (enteredOutsideRT ? "true" : "false")
         << ",\"completed\":" << (completed.load() ? "true" : "false")
