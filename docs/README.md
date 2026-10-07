@@ -73,3 +73,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Manual punch engine owner and take lifetime](63-manual-punch-engine-owner.md)
 
 - [Manual recording disk/group ownership](64-manual-recording-control-owner.md)
+
+- [Native manual recording and late service](65-native-manual-recording.md)
+- [Repeatable default WAV/RF64 exports](66-repeatable-export.md)

@@ -82,6 +82,19 @@ struct Audio {
         info.format = (rf64 ? SF_FORMAT_RF64 : SF_FORMAT_WAV) | SF_FORMAT_FLOAT;
         file = sf_open_fd(descriptor.descriptor(), SFM_WRITE, &info, SF_FALSE);
         require(file != nullptr, "Cannot prepare float WAV export", ErrorCode::Io);
+        // libsndfile's optional PEAK chunk contains the current wall-clock time.
+        // Keep default exports repeatable across render time and destination.
+        // Peak/headroom measurements remain in ExportResult; samples stay float.
+        // RF64 starts without that chunk. In libsndfile 1.2.2, issuing this
+        // command when peak_info is absent paradoxically creates it instead.
+        if (!rf64) {
+            sf_command(file, SFC_SET_ADD_PEAK_CHUNK, nullptr, SF_FALSE);
+            if (sf_error(file) != SF_ERR_NO_ERROR) {
+                sf_close(file);
+                file = nullptr;
+                throw ProjectError(ErrorCode::Io, "Cannot prepare repeatable WAV header");
+            }
+        }
     }
     ~Audio() {
         if (file)

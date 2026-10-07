@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <thread>
 #include <vector>
 using namespace soundcurrent::daw;
 namespace {
@@ -35,6 +36,10 @@ struct Temp {
         std::filesystem::create_directory(root);
     }
     ~Temp() {
+        if (std::uncaught_exceptions()) {
+            std::cerr << "Retained offline export failure project: " << root << '\n';
+            return;
+        }
         std::error_code e;
         std::filesystem::remove_all(root, e);
     }
@@ -167,6 +172,32 @@ void clean(const std::filesystem::path &parent) {
     for (const auto &entry : std::filesystem::directory_iterator(parent))
         check(entry.path().extension() != ".partial",
               "Export left temporary file after cooperative completion/failure");
+}
+void repeatableHeaders() {
+    Temp t;
+    const auto root = t.root / "Repeatable";
+    const auto s = project(root);
+    for (const bool rf64 : {false, true}) {
+        ExportSpec spec{s.tracks.front().id};
+        spec.startFrame = s.exportStartFrame;
+        spec.endFrame = s.exportEndFrame;
+        spec.forceRf64 = rf64;
+        const auto a = t.root / (rf64 ? "first-rf64.wav" : "first-wav.wav");
+        const auto b = t.root / (rf64 ? "second-rf64.wav" : "second-wav.wav");
+        const auto first = exportTrackWav(root, s, a, spec);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1100));
+        const auto second = exportTrackWav(root, s, b, spec);
+        if (first.fileSha256 != second.fileSha256)
+            std::cerr << "Repeatable format RF64=" << rf64 << " first=" << first.fileSha256
+                      << " second=" << second.fileSha256 << '\n';
+        check(first.sampleSha256 == second.sampleSha256 && Wave(a).samples == Wave(b).samples,
+              "Repeated export changed audio samples");
+        check(first.fileSha256 == second.fileSha256 && contents(a) == contents(b),
+              "Repeated export changed bytes across wall-clock seconds");
+        check(first.rf64 == rf64 && second.rf64 == rf64 && first.peak > 1 && second.peak > 1,
+              "Repeatable export lost format or floating headroom");
+    }
+    check(ProjectStore(root).load() == s, "Repeated exports changed project");
 }
 void rendering() {
     Temp t;
@@ -400,6 +431,7 @@ int main() {
     try {
         rt_audit::reset();
         rendering();
+        repeatableHeaders();
         transactions();
         const auto c = rt_audit::counts;
         check(c.cppAllocate == 0 && c.cppFree == 0 && c.cAllocate == 0 && c.cFree == 0 &&

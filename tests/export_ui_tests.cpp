@@ -216,10 +216,13 @@ void snapshotAndPlayback(const std::filesystem::path &dir) {
         w.grab().save(".cache/export-rendering.png");
     gate.released = true;
     await([&] { return w.exportSnapshot()->phase == ExportPhase::Complete; });
+    // The same immutable snapshot must export identically across wall-clock seconds.
+    QTest::qWait(1100);
     const auto expected = exportTrackWav(root, *frozen, dir / "desktop-expected.wav", *spec);
-    check(w.exportSnapshot()->result->sampleSha256 == expected.sampleSha256 &&
-              w.exportSnapshot()->result->fileSha256 == expected.fileSha256,
-          "Desktop WAV differs from captured shared-engine render");
+    check(w.exportSnapshot()->result->sampleSha256 == expected.sampleSha256,
+          "Desktop WAV samples differ from captured shared-engine render");
+    check(w.exportSnapshot()->result->fileSha256 == expected.fileSha256,
+          "Desktop WAV bytes differ from captured shared-engine render");
     await([&] { return find<QLabel>(w, "exportStatus")->text().contains("Export complete"); });
     check(find<QProgressBar>(w, "exportProgress")->value() == 1000 && w.snapshot()->dirty &&
               bytes(root / "project.json") == projectBefore,
@@ -355,6 +358,8 @@ int main(int argc, char **argv) {
         std::cout << checks << " desktop export UI checks passed.\n";
         return 0;
     } catch (const std::exception &e) {
+        temp.setAutoRemove(false);
+        std::cerr << "Retained export UI failure project: " << temp.path().toStdString() << '\n';
         std::cerr << e.what() << '\n';
         return 1;
     }

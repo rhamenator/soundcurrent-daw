@@ -157,8 +157,11 @@ continuous playback/EQ across replenishable takes, reliable commands and delayed
 postroll, with scoped synthetic disk/concurrency acceptance.
 The [manual recording control owner](docs/64-manual-recording-control-owner.md) now
 starts and joins consumers, verifies bounded groups and handles empty/faulted takes.
-Next implementation: native/desktop manual punch, additional monitor
-policies, tempo/loop/take lanes and comping. Native engine
+The [native manual owner](docs/65-native-manual-recording.md) now has finite
+32-arm repeated-take and late-service acceptance on owned PipeWire routes.
+[Default exports](docs/66-repeatable-export.md) are repeatable across render seconds.
+Next implementation: manual-native interruption/recovery, canonical desktop manual
+controls, additional monitor policies, tempo/loop/take lanes and comping. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
 all other frozen-reference requirements remain required. The first recording
