@@ -2586,11 +2586,11 @@ wrong-context-value and dirty-prompt timeout failures remain retained. The
 content-addressed evidence capsule is **83,382,228 bytes / 647 physical entries**,
 with 8,832 logical input names, CRC and every selected byte verified. Exact hashes
 are in the [receipt](../tests/results/X002/2026-10-07-desktop-localization.json).
-The read-only reuse audit now matches all44 inputs at the stable public/premium
+The read-only reuse audit now matches all 44 inputs at the stable public/premium
 localization revisions; the equalizer checkouts remain unchanged.
 
 No native audio or VM execution, new dependency, project schema or F/Q/C/N promotion.
-All92 frozen contracts and original native71 clock/source CPU questions remain open.
+All 92 frozen contracts and original native71 clock/source CPU questions remain open.
 Native Windows, language completion/review/UI/help/installers and full X004/X005/
 X006 remain required. The owner prioritizes useful installable previews and easy
 setup: a bounded Ubuntu26.04 amd64 DEB builder checks clean tested inputs, derives

@@ -20,6 +20,15 @@ the copied binary and declares Qt platform plugins/existing PipeWire. It does no
 install the package, configure a daemon, change routes or upload a release.
 It retains failed packaging output and prepares paired application source.
 
+The [first local preparation receipt](../tests/results/X007/2026-10-07-local-ubuntu-preview.json)
+records source `d23d3632f09e147d4fc7e663001075d4b93109b8`, Debug build,
+**1,077,580-byte DEB** and separate exact source archive. Every extracted installed
+payload byte matches the stage; offscreen help/version startup passes. All **698**
+tracked source archive files match the commit bytes. No system installation,
+fresh-machine/audio qualification or public release upload is claimed. The paired
+artifacts remain in the local ignored preview directory. The next delivery gate
+is an owned fresh Ubuntu install and recording/EQ/reopen/export workflow.
+
 Each produced package records its actual Debug/Release build type, original and
 stripped executable hashes, source commit/tree, dependency metadata and extracted
 payload/startup checks. Those checks use the existing developer host: they are

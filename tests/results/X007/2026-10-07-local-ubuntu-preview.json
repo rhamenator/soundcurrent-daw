@@ -1,0 +1,31 @@
+{
+  "utc": "2026-10-07T23:22:06.552820+00:00",
+  "source_head": "d23d3632f09e147d4fc7e663001075d4b93109b8",
+  "source_tree": "510c913abfcd934f3753263551a0b8a2aa33a247",
+  "platform": "Ubuntu 26.04 amd64",
+  "build_type": "Debug",
+  "version": "0.1.0~preview.20261007.d23d3632f09e",
+  "qualified_executable_sha256": "49df3152d55910b5bd2f029e7182161dc2ca737d021dad7050cb8c8201e70d7b",
+  "qualification_sha256": "d82d96c2ae43a08204a8b54260b4b17ad3af058802d03981efedd1f469bb819f",
+  "native_audio_run": false,
+  "system_installation": false,
+  "clean_install_qualified": false,
+  "release_uploaded": false,
+  "status": "prepared-local-preview",
+  "depends": "libc6 (>= 2.38), libgcc-s1 (>= 4.0), libpipewire-0.3-0t64 (>= 0.3.6), libqt6core6t64 (>= 6.10.2), libqt6gui6 (>= 6.9.1), libqt6widgets6 (>= 6.3.0), libsndfile1 (>= 1.0.20), libssl3t64 (>= 3.0.0), libstdc++6 (>= 12), qt6-qpa-plugins (>= 6.10.2), pipewire (>= 1.6.2), libpipewire-0.3-0t64 (>= 1.6.2)",
+  "artifacts": {
+    "soundcurrent-daw_0.1.0~preview.20261007.d23d3632f09e_amd64.deb": {
+      "bytes": 1077580,
+      "sha256": "2f7978235b1a70cfd2682cd810d9959f60a7f58c68d070a96edc65660df7ace9"
+    },
+    "soundcurrent-daw-0.1.0~preview.20261007.d23d3632f09e-source.tar.gz": {
+      "bytes": 362149224,
+      "sha256": "0909ecfd72819021a08c08907ac9b6ea5dc9596db3df925210a50dbb6e63bd54"
+    }
+  },
+  "packaged_executable_sha256": "00f5c9f87c830bc493966e09261e6f929ac767b3861d6bad87405d5aec595c59",
+  "all_extracted_payload_bytes_match": true,
+  "offscreen_startup_help_version": true,
+  "every_source_archive_tracked_file_byte_verified": true,
+  "verified_source_files": 698
+}
