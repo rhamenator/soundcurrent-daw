@@ -106,3 +106,17 @@ retain exact committed or working-snapshot hashes/notices, adapt DAW copies and 
 affected workflows. Preserve deliberate DAW-specific behavior and existing project
 compatibility. Do not modify the equalizer source trees or silently merge unreviewed
 code/data. See docs/25-equalizer-reuse-updates.md.
+
+### Additional owner requirement: studio track scalability (2026-10-06)
+
+X006: target lower-budget recording studios, including studios with substantial
+audio hardware. Support any finite project track count that fits admitted machine
+resources, without a fixed product/license ceiling. Separate total tracks, active
+processing and simultaneous hardware inputs; scale model/parser/graph/recording,
+media caches, UI/history and persistence together. Preserve bounded real-time
+execution, safe refusal, originals and recovery. Include freeze/unfreeze, bounce,
+offline rendering and measured Linux/Windows workload profiles. The present256
+track limit remains a documented implementation gap until qualified. See
+docs/67-track-scalability.md. This extends the goal without changing the frozen
+reference versions, reducing other requirements or claiming unlimited real-time
+performance.

@@ -8,7 +8,9 @@ Build a Linux-first professional workstation that supports the combined workflow
 
 C++20 and a CMake build are accepted defaults. Qt 6 is provisional for the GUI; the processing/session core must compile without Qt. Native PipeWire is the first Linux backend, with JACK support through existing infrastructure. The owner added **Windows functional parity** and **localization across all of Europe** on 2026-10-05; these are required staged deliverables, with portability starting in the core and native adapters/UI tests later. [Platform and language gates](08-platforms-and-localization.md) supplement the frozen vendor references without changing their versions. There is no commitment to commercial products' exact UI, proprietary DSP implementations, branded content, or undisclosed project file formats.
 
-This repository is `soundcurrent-daw`: `/home/rich/dev/soundcurrent-studio` already serves the premium equalizer. The existing repositories were read without changing branches, working files, or remote state. No remote has been created for the DAW. Planning and bounded experiments are the stopping boundary for this task.
+This repository is `soundcurrent-daw`: `/home/rich/dev/soundcurrent-studio` already serves the premium equalizer. Initial planning inspected those repositories without changing their work. The owner subsequently activated the full implementation goal and authorized the public GPL source backup at https://github.com/rhamenator/soundcurrent-daw. Planning is no longer the stopping boundary; see [active goal](../GOAL.md) and [progress](12-goal-progress.md).
+
+The owner added **X006 studio track scalability** on2026-10-06: serve lower-budget studios, including studios with substantial hardware, without a fixed product/license ceiling on total project tracks. Real-time capacity and simultaneous hardware inputs remain separately admitted/measured. [Track scalability](67-track-scalability.md) defines staged acceptance and the present256-track implementation gap. This owner extension does not change the frozen vendor reference versions or claim unlimited processing throughput.
 
 ## Reference freeze
 

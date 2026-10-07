@@ -76,3 +76,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Native manual recording and late service](65-native-manual-recording.md)
 - [Repeatable default WAV/RF64 exports](66-repeatable-export.md)
+
+- [X006: scalable track counts for recording studios](67-track-scalability.md)

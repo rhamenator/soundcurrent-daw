@@ -44,6 +44,12 @@ recording failures remain open. Synthetic or short owned-route success does not
 establish physical latency, a supported Windows application, or full DAW parity.
 The [changelog](CHANGELOG.md) summarizes the development snapshot.
 
+The product targets lower-budget recording studios, including studios with
+substantial hardware. [Track scalability](docs/67-track-scalability.md) requires
+no fixed product/license ceiling on total project tracks, with separately measured
+real-time and hardware-input capacity. The current256-track foundation limit is an
+implementation gap; larger-project scaling and freeze/bounce support remain staged.
+
 ## Build on Linux
 
 Core dependencies: a C++20 compiler, CMake >=3.20, OpenSSL 3 Crypto development
