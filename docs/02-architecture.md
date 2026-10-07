@@ -68,7 +68,7 @@ Single producer/single consumer per queue. Serialize GUI producers through the s
 | MIDI/event ingress | 4096 events/period, reserved note-off/reset capacity | Reject oversized bursts, issue bounded all-notes-off for affected port; identify overload after callback |
 | Host IPC | Triple-buffered slabs, fixed event/state descriptors | Sequence mismatch/deadline missed → policy-controlled wet-path silence or latency-aligned bypass; report and restart from last checkpoint |
 
-For 256 channels at 96 kHz, float32 capture alone needs roughly **197 MB** for two seconds. Limits are admission control based on explicit memory budget, not a promise of unlimited tracks. The 256-channel Studio cap is not a DAW format ceiling. Version1 targets up to 256 channels per bus with checked graph memory; later limits may grow. Quantum changes exceeding prepared capacity request an orderly reprepare and output silence until ready; never resize in a callback.
+For 256 channels at 96 kHz, float32 capture alone needs roughly **197 MB** for two seconds. Limits are admission control based on explicit memory budget. [X006](67-track-scalability.md) requires total project tracks to scale with configured resources without a fixed product/license ceiling; the current256-track model/mix limit is a temporary implementation gap, not a real-time throughput promise. The 256-channel Studio cap is not a DAW format ceiling. Version1 targets up to 256 channels per bus with checked graph memory; later limits may grow. Quantum changes exceeding prepared capacity request an orderly reprepare and output silence until ready; never resize in a callback.
 
 ## Safe graph replacement and retirement
 

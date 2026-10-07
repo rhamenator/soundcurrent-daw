@@ -80,6 +80,10 @@ struct Temp {
         std::filesystem::create_directory(root);
     }
     ~Temp() {
+        if (std::uncaught_exceptions()) {
+            std::cerr << "Retained recording failure project: " << root << '\n';
+            return;
+        }
         std::error_code e;
         std::filesystem::remove_all(root, e);
     }
@@ -255,27 +259,38 @@ void concurrentTake() {
     Source source(1, 127);
     constexpr Frame total = 480000;
     bool correct = true;
+    CaptureReport last;
+    Frame attemptedFrame = 0;
     for (Frame f = 0; f < total;) {
         const auto n = static_cast<std::uint32_t>(std::min<Frame>(source.quantum, total - f));
         const auto r = source.push(pipe, f, n);
+        last = r;
+        attemptedFrame = f;
         if (r.acceptedFrames != n) {
             correct = false;
             break;
         }
         f += n;
-        // Synthetic producer pacing outside the marked callback. This is not
-        // a physical clock/latency benchmark or native PipeWire qualification.
-#ifdef _WIN32
-        Sleep(1);
-#else
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-#endif
+        // Nominal sample-rate pacing outside the marked callback. Scheduling
+        // may be slower; this functional fixture does not qualify native timing.
+        // The old 100us/127-frame producer requested about26x nominal throughput.
+        std::this_thread::sleep_for(
+            std::chrono::nanoseconds(std::uint64_t(n) * 1000000000ULL / spec.capture.sampleRate));
     }
     {
         rt_audit::Guard guard;
         pipe.finish();
     }
     const auto result = worker.wait();
+    if (!correct || !worker.complete() || result.asset.frames != total ||
+        worker.writtenFrames() != total)
+        std::cerr << "Concurrent capture correct=" << correct << " complete=" << worker.complete()
+                  << " asset_frames=" << result.asset.frames
+                  << " written_frames=" << worker.writtenFrames()
+                  << " attempted_frame=" << attemptedFrame
+                  << " last_status=" << unsigned(last.status)
+                  << " last_accepted=" << last.acceptedFrames
+                  << " last_rejected=" << last.rejectedFrames << '\n';
     check(correct && worker.complete() && result.asset.frames == total &&
               worker.writtenFrames() == total,
           "Concurrent ten-second capture incomplete");

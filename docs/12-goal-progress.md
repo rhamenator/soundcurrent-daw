@@ -1782,3 +1782,34 @@ The optimized current-tree native fixture is byte-identical to the executable
 used by both retained native runs; the unrelated export processor is not linked
 into it. No Windows execution, desktop manual-control, sustained or physical
 qualification follows from those checks.
+
+## X006 and recording-fixture CI observation32 (2026-10-07 UTC)
+
+The owner added lower-budget studio targeting with arbitrary finite track counts,
+including studios with substantial hardware. [X006](67-track-scalability.md) and
+ADR053 define no fixed product/license ceiling on total project tracks, separate
+resource/real-time/hardware admission and staged model/parser/graph/media/UI/freeze
+and Linux/Windows qualification. Current256-track limits remain implementation
+gaps. Six explicit owner acceptance workflows are unverified; the frozen92-contract
+projection and status axes are unchanged. This extends the full goal.
+
+The first protected PR11 CI run37551952667 on106cccfd4931a33a4d7be401a366da111abf9ea9
+passed30/31 tests but recording-recovery reported only the combined assertion
+"Concurrent ten-second capture incomplete". Original correct/completion/extent
+terms were not logged. Downloaded original test logs/full run and exact Git source
+are retained; remote executable/project were not uploaded and are unavailable.
+Implementation code on that head was unchanged from passing PR10. Do not claim
+that a later pass or local binary identifies the original individual term/cause.
+
+Source inspection found a100us sleep per127 samples at48kHz (2.646ms of audio):
+about26x nominal requested throughput, with platform-specific Windows1ms pacing.
+The functional concurrent writer test now sleeps for its actual block/sample-rate
+duration outside the marked callback, keeps strict complete480000-frame/raw/
+journal/zero-RT assertions, logs the failure terms and preserves failed projects.
+This corrects an unsuitable synthetic workload; it does not qualify native timing,
+prove the original remote subtype or resolve sustained recording failures. All32
+observations remain retained. See [receipt](../tests/results/repository/2026-10-07-track-scalability-ci-observation.json).
+
+Native manual fault/recovery remains the immediate implementation task; X006
+scaling, independent Windows/runtime/installers and every other full goal gate
+remain required. No F/Q/C/N promotion, dependency or schema change.

@@ -371,3 +371,19 @@ Qt manual-control owner and fast monitor edit/Undo regression. Static-adapter an
 engine fault tests do not establish new native fault scope. All31 historical
 observations and92 unpromoted frozen contracts remain; full sustained/physical,
 Windows runtime/installers, X004/X005 and all-Europe translation/review/UI are open.
+
+## X006 studio track scalability (owner requirement2026-10-06)
+
+Target lower-budget studios, including studios with substantial hardware.
+[Track scalability](67-track-scalability.md)/ADR053 require total track counts to
+grow under explicit resource admission, without a fixed product/license ceiling.
+Physical IO channels and real-time graph throughput are separately qualified.
+
+M2 must replace256 track validation/parser/mix/replacement-mask assumptions
+together, with larger-project persistence, bounded shared media resources and
+virtualized UI/history. M3/M4 qualify prepared multicore/plugin graphs; M4/M9
+deliver freeze/unfreeze/bounce without losing originals. M11 verifies measured
+modest/strong Linux and Windows workloads, sustained deadlines and overload/recovery.
+257/512/1024/4096 synthetic projects are acceptance workloads, not product caps or
+existing performance claims. Current native manual fault/recovery remains next;
+no frozen-reference acceptance/quality/status changes or scope reductions.

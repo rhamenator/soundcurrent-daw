@@ -1,0 +1,63 @@
+{
+  "id": "X006",
+  "owner_request_date": "2026-10-06",
+  "timezone": "America/Detroit",
+  "recorded_utc": "2026-10-07T00:25:36.362141+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "requirement": "Serve lower-budget recording studios including studios with substantial audio hardware; support any finite total project track count admitted by configured resources without a fixed product/license ceiling.",
+  "status": "required/planned/not implemented",
+  "contract": "docs/67-track-scalability.md",
+  "decision": "docs/decisions/053-resource-admitted-track-count.md",
+  "platforms": [
+    "Linux",
+    "Windows"
+  ],
+  "current_total_track_limit": 256,
+  "hardware_input_count_distinct": true,
+  "real_time_capacity_distinct": true,
+  "frozen_contract_count": 92,
+  "frozen_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+  "FQCN_promotion": false,
+  "implementation_source_sha256": {
+    "src/session.cpp": "da55005ea2c16cd1abfcf54ddcede29042cbe32314edf14cad1bb15ed387ea90",
+    "src/project_store.cpp": "2f14c94ad5e4f20f06ba534e8d038839ee9941f2b6b35f6accb45c9e8527bf83",
+    "src/mix.cpp": "d49a6e6a212a7733c791803749eeac784191c827e69a690f921aa93bc405db97",
+    "src/mix_playback.cpp": "b1438a91d5d1f54e5830c45e084412246af738b99e6a046d300dce064acd19e1",
+    "src/manual_recording.cpp": "298b63cb6750b748003bb60b020942fad1124a35ebb79d6a16cd548c21d0aa98",
+    "src/manual_punch.cpp": "85572f2cecb1d3101d9af6b2060f97c6d8b265ec4bc4cc526ae6e3f81ae8290d"
+  },
+  "acceptance_workflows": [
+    {
+      "id": "X006-01",
+      "workflow": "Create/edit/group/Undo/Redo/Save/reopen257,512,1024,4096-track synthetic projects preserving all stable IDs/routes/state; no replacement fixed product ceiling.",
+      "status": "unverified"
+    },
+    {
+      "id": "X006-02",
+      "workflow": "Admit/refuse under declared state/memory/IO budgets before mutation; untrusted projects cannot raise trusted admission budgets. Safe old-version refusal and no truncation.",
+      "status": "unverified"
+    },
+    {
+      "id": "X006-03",
+      "workflow": "Bounded media cache/open handles, virtualized UI/meters and measured snapshots/history under sparse large project workloads; missing media/autosave/recovery retained.",
+      "status": "unverified"
+    },
+    {
+      "id": "X006-04",
+      "workflow": "Prepared serial/parallel/offline graphs preserve processing quality, events, buses/sidechains/PDC/tails and safe retirement with zero RT allocations/frees/blocking locks.",
+      "status": "unverified"
+    },
+    {
+      "id": "X006-05",
+      "workflow": "Freeze/unfreeze/bounce restores originals/plugin state and timing; cancel/failure never silently discards source tracks.",
+      "status": "unverified"
+    },
+    {
+      "id": "X006-06",
+      "workflow": "Modest/strong Linux and Windows profiles record total/active/recording track counts, effects, rate/quantum, memory/IO and sustained current-cycle deadlines; explicit overload/recovery.",
+      "status": "unverified"
+    }
+  ],
+  "extends_goal_without_reducing_scope": true,
+  "native_manual_fault_recovery_remains_immediate_next_task": true
+}
