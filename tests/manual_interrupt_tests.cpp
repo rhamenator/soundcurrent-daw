@@ -7,6 +7,12 @@
 #include <thread>
 
 using namespace soundcurrent::daw;
+#ifdef SC_MANUAL_VERIFY_GATE
+namespace manual_verification_test {
+extern thread_local ManualRecordingInterrupt *interrupt;
+extern thread_local unsigned inspections;
+} // namespace manual_verification_test
+#endif
 namespace {
 void check(bool ok, const char *message) {
     if (!ok)
@@ -296,6 +302,72 @@ void blockedStartup(bool cancel) {
               << ": 32lanes, blocked real disk construction, next-boundary stop, verified="
               << verified << ", zeroRT, saved original retained\n";
 }
+#ifdef SC_MANUAL_VERIFY_GATE
+void interruptedVerification() {
+    Directory d;
+    auto s = makeOneTrackSession("Verification interruption", "Lane0");
+    while (s.tracks.size() < 32)
+        s.tracks.push_back(makeAudioTrack("Armed", {}, s.sampleRate));
+    ProjectStore(d.root).save(s);
+    MixPlan plan;
+    std::vector<ManualRecordingArm> arms;
+    for (unsigned n = 0; n < 32; ++n) {
+        plan.tracks.push_back({s.tracks[n].id, {{0, 0, .015625}}});
+        arms.push_back({{s.tracks[n].id, {0}, 0, RecordingMonitor::Off}, {}});
+    }
+    ManualRecordingOptions o;
+    o.playback.graph.maximumFrames = o.capture.maximumCallbackFrames = 256;
+    o.playback.graph.generation = 7;
+    o.playback.endFrame = 20000;
+    o.playback.slabFrames = 512;
+    o.capture.slabFrames = 256;
+    o.backend = CaptureBackend::Synthetic;
+    o.interrupt = std::make_shared<ManualRecordingInterrupt>();
+    ManualRecordingRun run(d.root, s, plan, arms, o);
+    const auto take = run.prepareTake();
+    check(run.submit({ManualPunchAction::In, 13, 7, 1, take}) == ManualPunchSubmit::Accepted &&
+              run.submit({ManualPunchAction::Out, 100, 7, 2, 0}) == ManualPunchSubmit::Accepted,
+          "Verification take commands refused");
+    std::array<float, 256> input{}, output{};
+    for (unsigned n = 0; n < 256; ++n)
+        input[n] = signal(n, 0);
+    const float *in = input.data();
+    float *out = output.data();
+    check(run.process({100000, 256, 10000, 17, 1, 1, 48000}, {&in, 1}, {&out, 1}, 256) ==
+              DuplexStatus::Running,
+          "Verification initial take failed");
+    manual_verification_test::inspections = 0;
+    manual_verification_test::interrupt = o.interrupt.get();
+    struct Clear {
+        ~Clear() {
+            manual_verification_test::interrupt = nullptr;
+        }
+    } clear;
+    until([&] {
+        run.service();
+        return o.interrupt->stopRequested();
+    });
+    const auto inspected = manual_verification_test::inspections;
+    std::cerr << "Nonblocking inspections after priority signal: " << inspected << '\n';
+    check(inspected == 1, "Nonblocking service verified more lanes after interruption");
+    ManualRecordedGroup group;
+    check(!run.takeGroup(group) && run.occupiedSlots() == 1,
+          "Interrupted verification published/released an incomplete group");
+    manual_verification_test::interrupt = nullptr;
+    run.stop(); // Quiescent, blocking finalization verifies ALL remaining lanes.
+    check(run.takeGroup(group) && group.complete() && group.lanes.size() == 32 &&
+              group.beginFrame == 13 && group.endFrame == 100 && !run.occupiedSlots(),
+          "Deferred verification did not finish/reclaim all lanes");
+    for (const auto &lane : group.lanes)
+        check(lane.checkpoint && lane.checkpoint->committedFrames == 87 && lane.result &&
+                  lane.result->asset.frames == 87 && !lane.verificationError,
+              "Deferred verification lost durable media or errors");
+    run.checkError();
+    run.checkReader();
+    check(ProjectStore(d.root).load() == s, "Deferred verification mutated saved state");
+    d.success = true;
+}
+#endif
 } // namespace
 int main() {
     try {
@@ -303,6 +375,9 @@ int main() {
         beforeFirstCallback(true);
         blockedStartup(false);
         blockedStartup(true);
+#ifdef SC_MANUAL_VERIFY_GATE
+        interruptedVerification();
+#endif
     } catch (const std::exception &e) {
         std::cerr << "Interruption failure: " << e.what() << '\n';
         return 1;

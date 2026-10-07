@@ -172,7 +172,7 @@ expose retained channel-alignment and callback-deadline failures alongside finit
 owned-route successes. [Priority Stop/Cancel](docs/70-manual-priority-interruption.md)
 now terminates audio independently of held disk startup, with scoped native Linux
 evidence. Next: bounded canonical desktop manual controls and late cancellation
-policy; continue diagnosing unresolved native failures. Additional monitor
+policy; first diagnose the retained native channel delay in original 46. Additional monitor
 policies, tempo/loop/take lanes and comping remain required. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and

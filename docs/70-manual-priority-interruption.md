@@ -49,7 +49,7 @@ observer copies the entire produced prefix and joins before recorder deactivatio
 and disk draining. Existing full raw/recovery/nonflat-output, receipt, adoption,
 timing, cycle and owned-route gates remain required.
 
-| Native finite case | Stop | Cancel |
+| Initial native finite case, before review | Stop | Cancel |
 |---|---:|---:|
 | Requested / stopped engine frame | 49289 / 49289 | 49289 / 49289 |
 | Advancing / terminal owner callbacks | 96 / 1 | 96 / 1 |
@@ -95,18 +95,61 @@ exact source versions and frozen executable hashes. No executable/user audio is
 included. It is evidence, not one loadable project. All 43 historical observations
 remain linked through prior receipts.
 
+## Review regressions and original 46
+
+Review found missing interruption checks between control-thread lane verification
+operations. Original 44, a deliberate GNU/Linux linker regression against the
+initial core, records 32 actual inspections after Stop during the first. Checks now
+defer remaining verification/retirement to blocking finalization. The same test
+records only 1 inspection, then verifies all 32 complete 87-frame lanes after join.
+No production inspection hook or raw/hash requirement changed. Final Debug,
+Release and sanitizer tests pass 2/2; Windows media compiles. The verification
+interposition regression itself is GNU/Linux only.
+
+Review also found the producer could signal before startup ever entered its gate.
+Original 45 deliberately delays control service until In+1536, with the old
+position-only producer target In+1000: request/stopped 49289, disk_held=0 and
+held_at_request=0. The producer now waits for the held flag and position, records
+held-at-request, and still requires callback completion before releasing startup.
+Joined timing/traces were not emitted before the original assertion; unavailable
+original terms remain unavailable.
+
+The first corrected late-service Stop attempt, original 46, meets priority/timing
+and observer-prefix gates but fails the raw waveform oracle. Actual quantum was
+256 frames at 48 kHz. All 1,651 saved lane 17/source 23 samples match an extra-256-frame
+source delay; the other 23 positive lanes match the unshifted source. All 194
+advancing owner rows show the same source 23 marker delay before capture. The 196
+owner callbacks include 2 nonadvancing rows. Maximum owner wall/CPU 803257/800547 ns;
+no late-cycle/RT violation. Root cause remains unresolved. Nothing is compensated.
+Final-source native Stop is unqualified and was not retried merely for a pass.
+
+The separate final Cancel workflow passes at256/48kHz: request/stopped 49801,
+195 callbacks (194 advancing/1 terminal), complete 32-channel correspondence,
+37,696 raw/recovered samples and 99,328 mixed-output samples verified. Maximum owner
+wall/CPU 747136/743476 ns, zero RT/cycle violations. Eighteen altered receipts are
+refused, including held-at-request and delayed-service evidence. This pass does
+not explain original 46 or previous channel delays. Initial 512-frame passes above
+remain historical evidence tied to their exact earlier source/executable.
+
+The review archive retains originals 44–46, their full generated files and missing
+terms, independent original 46 analyses and the final Cancel case. All 46 historical
+observations remain linked. The original evidence archive is unchanged.
+
 ## Reproduction and next task
 
 Build `sc-manual-interrupt-tests` and `sc-manual-recording-tests`; run CTest
 `manual-priority-interruption` and `manual-recording-control`. Build the opt-in
 `sc-pipewire-manual-priority-fixture`; use `verify_pipewire_manual_fault.py` with
-`--native --mode early-stop` or `early-cancel`, then
+`--mode early-stop` or `early-cancel` (native is the default), supplying both
+`--output RECEIPT --failure-output FAILURE`, then
 `verify_pipewire_manual_priority.py --receipt RECEIPT --output ANALYSIS`.
 `manual_priority_verifier_tests.py` accepts the retained receipt. Native tests
 follow termination of all owned builders/tests/producers; preserve failures
 before diagnosis. User/hardware playback routes are not needed.
 
-Next: bounded serialized Qt manual controller, reliable replies/results, signal
+Next: diagnose original 46's native source/received channel delay without compensation,
+using its original route/buffer/clock evidence. Then bounded serialized Qt manual
+controller, reliable replies/results, signal
 lifetime, native/control/disk shutdown, canonical adoption and late-Cancel policy.
 Test actual widgets, repeated takes and rapid monitoring edit/Undo against the
 displayed combo state. Full 92 frozen contracts, X004 imports, X005 profiles,

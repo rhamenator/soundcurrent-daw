@@ -19,7 +19,7 @@ def main():
     original = receipt['child_result']
     priority(original)
     mutations = []
-    for field in ['priority_disk_startup_held', 'priority_callback_applied']:
+    for field in ['priority_disk_startup_held', 'priority_callback_applied', 'priority_held_at_request']:
         mutations.append((field + '-false', lambda r, f=field: r.update({f: False})))
         mutations.append((field + '-missing', lambda r, f=field: r.pop(f)))
     mutations.extend([
@@ -29,6 +29,7 @@ def main():
         ('request-before-target', lambda r: r.update(priority_request_before=r['punch_in'], priority_request_after=r['punch_in'])),
         ('stop-beyond-quantum', lambda r: r.update(stopped_position=r['priority_request_after'] + r['callback_timing']['owner']['maximum_quantum'] + 1)),
         ('missing-request-clock', lambda r: r.pop('priority_request_after')),
+        ('service-before-delay', lambda r: r.update(first_service_frame=r['punch_in'])),
         ('synthetic-as-native', lambda r: r.update(native=False)),
         ('unrelated-mode', lambda r: r.update(mode='hash-fail')),
         ('raw-oracle-failed', lambda r: r.update(maximum_sample_difference=1)),

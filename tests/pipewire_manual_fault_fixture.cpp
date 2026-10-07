@@ -429,7 +429,7 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     PipeWireManualRecordingOptions opts;
 #ifdef SC_MANUAL_PRIORITY_INTERRUPT
     opts.run.interrupt = std::make_shared<ManualRecordingInterrupt>();
-    std::atomic<bool> priorityDiskHeld{false}, priorityApplied{false};
+    std::atomic<bool> priorityDiskHeld{false}, priorityApplied{false}, priorityHeldAtRequest{false};
     std::atomic<Frame> priorityBefore{-1}, priorityAfter{-1};
 #endif
     opts.run.nativeInputs = arms;
@@ -539,6 +539,12 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
         }
     };
     auto control = [&] {
+#ifdef SC_MANUAL_PRIORITY_INTERRUPT
+        // Deterministically start control after the producer's position target.
+        // The priority signal must wait for the actual constructor gate too.
+        if (owner.position() < punchIn + 1536)
+            return;
+#endif
         if (hashFailure && owner.position() >= punchOut + 4097)
             hashAllowed.store(true, std::memory_order_release);
         if (!late) {
@@ -565,7 +571,10 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
     // lifetime-safe signal. It never touches serialized owner/route/disk methods.
     std::jthread priorityProducer([&](std::stop_token stop) {
         while (!stop.stop_requested() && active(owner.status())) {
-            if (owner.position() >= punchIn + 1000) {
+            if (priorityDiskHeld.load(std::memory_order_acquire) &&
+                owner.position() >= punchIn + 1000) {
+                priorityHeldAtRequest.store(priorityDiskHeld.load(std::memory_order_acquire),
+                                            std::memory_order_release);
                 priorityBefore.store(owner.position(), std::memory_order_release);
                 if (cancel)
                     opts.run.interrupt->requestCancel();
@@ -685,10 +694,11 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
                      {"sink", sink.audit.report()}};
 #ifdef SC_MANUAL_PRIORITY_INTERRUPT
     std::cerr << "Priority disk_held=" << priorityDiskHeld.load()
+              << " held_at_request=" << priorityHeldAtRequest.load()
               << " requested_before=" << priorityBefore.load()
               << " requested_after=" << priorityAfter.load() << " stopped_at=" << owner.position()
               << " cancel=" << opts.run.interrupt->cancelRequested() << '\n';
-    check(priorityDiskHeld.load() && priorityApplied.load() &&
+    check(priorityDiskHeld.load() && priorityHeldAtRequest.load() && priorityApplied.load() &&
               priorityAfter.load() >= punchIn + 1000 && owner.position() >= priorityAfter.load() &&
               owner.position() - priorityAfter.load() <=
                   times["owner"]["maximum_quantum"].get<Frame>(),
@@ -966,6 +976,8 @@ void run(const std::filesystem::path &root, bool native, const std::string &mode
 #ifdef SC_MANUAL_PRIORITY_INTERRUPT
                       {"priority_disk_startup_held", priorityDiskHeld.load()},
                       {"priority_callback_applied", priorityApplied.load()},
+                      {"priority_held_at_request", priorityHeldAtRequest.load()},
+                      {"priority_service_delay_frames", 1536},
                       {"priority_request_before", priorityBefore.load()},
                       {"priority_request_after", priorityAfter.load()},
                       {"priority_requested_cancel", opts.run.interrupt->cancelRequested()},

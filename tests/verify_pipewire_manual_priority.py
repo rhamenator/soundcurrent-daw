@@ -12,6 +12,9 @@ from verify_pipewire_manual_trace import analyze
 def priority(result):
     assert result['native'] and result['mode'] in ['early-stop', 'early-cancel']
     assert result['priority_disk_startup_held'] and result['priority_callback_applied']
+    assert result['priority_held_at_request'] is True
+    assert result['priority_service_delay_frames'] == 1536
+    assert result['first_service_frame'] >= result['punch_in'] + result['priority_service_delay_frames']
     assert result['priority_requested_cancel'] == (result['mode'] == 'early-cancel')
     assert result['priority_request_before'] <= result['priority_request_after'] <= result['stopped_position']
     assert result['priority_request_after'] >= result['punch_in'] + 1000

@@ -265,8 +265,11 @@ struct ManualRecordingRun::State {
             slot.group.beginFrame = *slot.take->startFrame();
             slot.group.endFrame = *slot.take->endFrame();
             slot.group.canceled = canceled;
-            for (std::size_t n = 0; n < arms.size(); ++n)
+            for (std::size_t n = 0; n < arms.size(); ++n) {
+                if (!blocking && interrupted())
+                    return; // Defer remaining verification and retirement to finish.
                 verify(slot, n);
+            }
             bridge->releaseTake(*slot.take); // Every disk consumer joined above.
             slot.take = nullptr;
             slot.ready = true; // Bounded receipt occupies its slot until explicitly taken.
