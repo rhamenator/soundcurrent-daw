@@ -2,6 +2,15 @@
 
 ## Unreleased — development preview
 
+- Desktop language and regional preferences, embedded contextual catalogs,
+  independent number formatting and expanded/RTL developer test locales. English
+  plus 32 draft catalogs are partial; each draft translates 8 of 525 messages.
+  Native-speaker/full UI qualification remains open. Numerical timelines and
+  equipment charts retain their direction under RTL layouts.
+- Easy Linux/Windows installation is an explicit product acceptance requirement.
+  Useful installable workflow previews are the delivery priority; package/runtime
+  and native Windows qualification remain unfinished.
+
 - New desktop graph/capture/render preparations follow the trusted Project resources
   budget. Recording envelopes use immutable prepared payload usage; declared raw
   pools, bridge bindings, manual banks and writer workspace share the parent.

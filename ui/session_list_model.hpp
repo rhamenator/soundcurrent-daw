@@ -2,6 +2,7 @@
 #pragma once
 #include <soundcurrent/resource_ledger.hpp>
 #include <QAbstractListModel>
+#include <QCoreApplication>
 #include <QColor>
 #include <memory>
 #include <functional>
@@ -15,6 +16,7 @@ struct TrackDecoration {
 };
 // GUI-only immutable borrow. No per-row QObject, widget, or retained display string.
 class SessionListModel : public QAbstractListModel {
+    Q_DECLARE_TR_FUNCTIONS(SessionListModel)
   public:
     enum class Kind { Tracks, Assets, Clips };
     SessionListModel(Kind, QObject *parent, bool checkable = false,

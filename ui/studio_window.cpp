@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "localization.hpp"
 #include "history_resources_dialog.hpp"
 #include "session_list_model.hpp"
 #include "master_dialog.hpp"
@@ -143,6 +144,13 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     cancelExportAction_->setObjectName("cancelExportAction");
     file->addSeparator();
     file->addAction(tr("&Quit"), QKeySequence::Quit, this, &QWidget::close);
+    auto *settings = menuBar()->addMenu(tr("Settings"));
+    auto *languageAction = settings->addAction(tr("Language and regional settings…"), this, [this] {
+        auto *dialog = soundcurrent::daw::i18n::settingsDialog(this);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->open();
+    });
+    languageAction->setObjectName(QStringLiteral("languageSettingsAction"));
     auto *editMenu = menuBar()->addMenu(tr("&Edit"));
     undo_ = editMenu->addAction(tr("&Undo project edit"), QKeySequence::Undo, this, [this] {
         if (auto *focused = focusWidget())

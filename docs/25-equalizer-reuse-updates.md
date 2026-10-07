@@ -130,3 +130,22 @@ in the [review receipt](../tests/results/M2/2026-10-07-execution-memory-review.j
 Numerical chart direction and the new runtime/catalog/installer integration need
 an affected UI adoption gate. The two changed registered inputs remain pending;
 the other 22 registered inputs and retained snapshot integrity still match.
+
+## Stable localization adoption checkpoint (2026-10-07)
+
+The owner now regards the equalizers as finished, with their own Windows drivers
+awaiting a signing certificate. Read-only committed snapshots at public
+`2f0a576e4ab752ec5c9343bbc39f09960845e143` and premium
+`41c5655ce9f3d2703eacc3a8248559df0a375ac5` pin the runtime, contexts, seeds,
+catalog metadata, tooling/tests, review docs/license and latest equipment editor.
+The additive inventory registers **44** inputs; exact retained and current bytes
+match. Earlier audit failures/provenance remain retained; neither source tree is
+written. Future adoption remains an explicit reviewed change.
+
+DAW adaptations now include explicit runtime contexts/Linguist extraction,
+independent language/number preferences, bounded embedded catalog selection,
+explicit script-preserving fallback, translator lifetime restoration, pseudo
+locales and numerical timeline/plot direction. [Bounded evidence](87-desktop-localization.md)
+qualifies the affected Linux fixtures, not a language or native Windows platform.
+There are 32 unverified drafts at 8/525 keys each and zero fully reviewed/UI-qualified
+languages. Returning suitable improvements to the equalizers remains later work.

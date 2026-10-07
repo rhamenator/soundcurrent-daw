@@ -32,6 +32,7 @@ Frame clippedFrame(long double v, Frame extent) {
 TimelineView::TimelineView(QWidget *parent, ResourceLedger memory)
     : QAbstractScrollArea(parent), memory_(std::move(memory)) {
     setObjectName("audioTimeline");
+    setLayoutDirection(Qt::LeftToRight);
     setAccessibleName(tr("Audio clip timeline"));
     setMinimumHeight(180);
     setFocusPolicy(Qt::StrongFocus);

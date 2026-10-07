@@ -17,6 +17,14 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
+[Easy installation](docs/88-easy-installation.md) is required on supported Linux
+and Windows systems: normal packages/installers, no compiler or manual dependency
+assembly, app-menu shortcuts, and tested upgrades/removal that preserve recordings.
+The build instructions below are for developers; end-user installers remain open.
+The [preview delivery plan](docs/89-workflow-previews.md) starts with the existing
+Linux recording/EQ/project/WAV workflow. Local binary packages need fresh-machine
+qualification before being described as supported installers.
+
 This is the DAW repository. [soundcurrent-eq](https://github.com/rhamenator/soundcurrent-eq)
 is the free equalizer; `soundcurrent-studio` is the separate premium equalizer.
 Borrowed components have pinned provenance and are adapted here without changing

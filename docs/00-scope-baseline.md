@@ -14,6 +14,13 @@ The owner added **X006 studio track scalability** on2026-10-06: serve lower-budg
 
 ## Reference freeze
 
+The owner added **X007 easy installation** and **useful workflow previews** on
+2026-10-07. Deliver normal Linux/Windows setup without development tools and qualify
+upgrades/removal that preserve recordings. Begin with a tested Linux recording/EQ/
+project/WAV preview, retaining explicit platform and capability gaps. See
+[installation](88-easy-installation.md) and [preview delivery](89-workflow-previews.md).
+These priorities do not change the frozen versions or reduce full-suite parity.
+
 | Reference | Frozen executable baseline | Documentation baseline | Evidence and limitation |
 |---|---|---|---|
 | Bitwig Studio, full edition | **6.1.3**, released **2026-09-25** | General guide **5.3**, official 6.1 PDF incorporating 6.0 changes, 6.1.3 changelog | [Download page](https://www.bitwig.com/download/), [versioned release notes](https://www.bitwig.com/dl/Bitwig%20Studio/6.1.3/release_notes/), [6.1/6.0 documentation](https://downloads.bitwig.com/6.1/Release-Notes-6.1.pdf), [general guide](https://www.bitwig.com/userguide/latest/). Official release notes acknowledge the general manual overhaul. Old-guide evidence is provisional for unchanged 6.x workflows. |

@@ -31,6 +31,7 @@ namespace soundcurrent::daw::ui {
 class SessionListModel;
 struct MemoryPreferences;
 class StudioWindow : public QMainWindow {
+    Q_DECLARE_TR_FUNCTIONS(StudioWindow)
   public:
     explicit StudioWindow(QWidget *parent = nullptr, PlaybackControllerOptions = {},
                           RecordingControllerOptions = {}, ExportControllerOptions = {},
@@ -61,9 +62,6 @@ class StudioWindow : public QMainWindow {
     bool requestExport();
     bool scanRecordings();
     std::shared_ptr<const RecoveryScanSnapshot> recoverySnapshot() const;
-    static QString tr(const char *source, const char *comment = nullptr, int count = -1) {
-        return QCoreApplication::translate("StudioWindow", source, comment, count);
-    }
 
   protected:
     void closeEvent(QCloseEvent *) override;

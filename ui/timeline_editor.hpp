@@ -19,6 +19,7 @@ namespace soundcurrent::daw::ui {
 class SessionListModel;
 class TimelineView;
 class TimelineEditor : public QGroupBox {
+    Q_DECLARE_TR_FUNCTIONS(TimelineEditor)
   public:
     explicit TimelineEditor(QWidget *parent = nullptr, ResourceLedger = ResourceLedger{});
     struct Prepared;
@@ -40,9 +41,6 @@ class TimelineEditor : public QGroupBox {
         return clip_;
     }
     bool selectTrack(const Id &);
-    static QString tr(const char *s) {
-        return QCoreApplication::translate("TimelineEditor", s);
-    }
 
   private:
     std::shared_ptr<Prepared> prepare(std::shared_ptr<const Session>, std::uint64_t, bool,
