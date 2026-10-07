@@ -736,6 +736,72 @@ void monitoringPreferences(const std::filesystem::path &root, RecordingMonitor s
     check(discard.prompts == 1 && ProjectStore(root).load().tracks.front().monitoring == selected,
           "Discard overwrote saved monitoring preference");
 }
+void rejectedMonitoringFeedback(const std::filesystem::path &root, RecordingMonitor canonical,
+                                RecordingMonitor rejected) {
+    auto original = makeOneTrackSession("Monitoring feedback — Écoute", "Mic");
+    original.tracks.front().monitoring = canonical;
+    ProjectStore(root).save(original);
+    auto counters = std::make_shared<recording_fixture::Counters>();
+    StudioWindow window(nullptr, {}, recording_fixture::options(counters));
+    window.show();
+    window.openProject(root);
+    auto *mode = window.findChild<QComboBox *>("recordMonitorMode");
+    await([&] {
+        return window.snapshot()->session && window.snapshot()->io == IoOperation::None &&
+               mode->isEnabled() && mode->currentData().toInt() == int(canonical);
+    });
+    // Establish the real timer's canonical rendering before the rejected input.
+    QTest::qWait(40);
+    const auto revision = window.snapshot()->modelRevision;
+    check(window.prepareRecording() && mode->isEnabled(),
+          "Prepare/monitoring input window was not exercised");
+    // No event-loop poll occurs between Prepare and this real widget selection.
+    // The preparation barrier rejects the change, while the widget was enabled
+    // at the last GUI refresh. Model revision remains unchanged.
+    mode->setCurrentIndex(mode->findData(int(rejected)));
+    check(mode->currentData().toInt() == int(canonical),
+          "Rejected monitoring selection was not restored immediately");
+    await([&] { return window.recordingSnapshot()->phase == RecordingPhase::Ready; });
+    QTest::qWait(40);
+    check(mode->currentData().toInt() == int(canonical),
+          "Rejected monitoring selection remained displayed after Prepare");
+    check(window.snapshot()->session->tracks.front().monitoring == canonical &&
+              window.snapshot()->modelRevision == revision && !window.snapshot()->dirty &&
+              window.recordingSnapshot()->monitoring == canonical && counters->constructed == 1 &&
+              !counters->activated && !window.recordingSnapshot()->job,
+          "Rejected monitoring selection changed model or prepared/activated audio");
+    window.findChild<QPushButton *>("recordStopButton")->click();
+    await([&] {
+        return window.recordingSnapshot()->phase == RecordingPhase::Idle && mode->isEnabled();
+    });
+    // A later accepted change, Undo and Redo must also follow canonical state.
+    mode->setCurrentIndex(mode->findData(int(rejected)));
+    await([&] {
+        return window.snapshot()->session->tracks.front().monitoring == rejected &&
+               mode->currentData().toInt() == int(rejected) && projectUndo(window)->isEnabled();
+    });
+    projectUndo(window)->trigger();
+    await([&] {
+        return window.snapshot()->session->tracks.front().monitoring == canonical &&
+               mode->currentData().toInt() == int(canonical) && !window.snapshot()->dirty;
+    });
+    const auto actions = window.findChildren<QAction *>();
+    const auto redo = std::find_if(actions.begin(), actions.end(),
+                                   [](auto *a) { return a->shortcut() == QKeySequence::Redo; });
+    check(redo != actions.end() && (*redo)->isEnabled(), "Monitoring Redo action missing");
+    (*redo)->trigger();
+    await([&] {
+        return window.snapshot()->session->tracks.front().monitoring == rejected &&
+               mode->currentData().toInt() == int(rejected) && window.snapshot()->dirty;
+    });
+    check(counters->constructed == 1 && counters->destroyed == 1 && !counters->activated,
+          "Monitoring edit/Undo/Redo unexpectedly prepared or activated audio");
+    PromptChoice save(QMessageBox::Save);
+    window.close();
+    await([&] { return window.snapshot()->closed && window.recordingSnapshot()->closed; });
+    check(save.prompts == 1 && ProjectStore(root).load().tracks.front().monitoring == rejected,
+          "Accepted monitoring edit was not saved after rejected input");
+}
 
 void recoveryDiscoveryWorkflow(const std::filesystem::path &root) {
     auto model = makeOneTrackSession("Découverte — Ελλάδα", "Raw");
@@ -1280,6 +1346,12 @@ int main(int argc, char **argv) {
                          "\"new_save_error_cancels_close\":true,\"retry_saves\":true}\n";
             return 0;
         }
+        rejectedMonitoringFeedback(closeRoot / "rejected-monitor-off", RecordingMonitor::Off,
+                                   RecordingMonitor::PostEq);
+        rejectedMonitoringFeedback(closeRoot / "rejected-monitor-eq", RecordingMonitor::PostEq,
+                                   RecordingMonitor::AutoRecording);
+        rejectedMonitoringFeedback(closeRoot / "rejected-monitor-auto",
+                                   RecordingMonitor::AutoRecording, RecordingMonitor::Off);
         workflows(utf8Path(temp.path().toUtf8().toStdString()) / "project");
         playbackWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "playback");
         portableOutputRoutes(utf8Path(temp.path().toUtf8().toStdString()) / "portable-routes");

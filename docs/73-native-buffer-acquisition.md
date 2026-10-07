@@ -139,3 +139,7 @@ Next: instrument the actual repeated-take processing stages to locate the CPU
 outlier while retaining full waveform/cycle gates, then complete manual Qt
 controls and late-Cancel / monitoring Undo acceptance. Track scaling continues
 under [X006](67-track-scalability.md); no larger track-count claim is made here.
+
+The next [bounded repeated-take observation and actual monitoring widget fix](74-recording-monitor-feedback.md)
+complete those gates for one run; original48's timing failure is not reproduced or
+resolved. Canonical Qt manual-control integration remains the next feature task.

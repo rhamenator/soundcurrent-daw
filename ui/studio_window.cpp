@@ -314,8 +314,14 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
             recordPrepareBarrier_ || recordCommandPending_ || native->take ||
             model->io == IoOperation::Create || model->io == IoOperation::Open ||
             (native->phase != RecordingPhase::Idle && native->phase != RecordingPhase::Fault &&
-             native->phase != RecordingPhase::Unsupported))
+             native->phase != RecordingPhase::Unsupported)) {
+            QSignalBlocker block(monitorMode_);
+            const auto canonical = model->session && !model->session->tracks.empty()
+                                       ? model->session->tracks.front().monitoring
+                                       : RecordingMonitor::Off;
+            monitorMode_->setCurrentIndex(monitorMode_->findData(int(canonical)));
             return;
+        }
         ProjectCommand c{CommandKind::Monitoring};
         c.monitoringTrack = model->session->tracks.front().id;
         c.monitoring = static_cast<RecordingMonitor>(monitorMode_->currentData().toInt());
@@ -1696,7 +1702,8 @@ void StudioWindow::pollRecording() {
         latencyTrack_.reset();
         latencyShown_.reset();
     }
-    if (!monitoringShown_ || *monitoringShown_ != mode) {
+    if (!monitoringShown_ || *monitoringShown_ != mode ||
+        monitorMode_->currentData().toInt() != int(mode)) {
         QSignalBlocker blocked(monitorMode_);
         monitorMode_->setCurrentIndex(monitorMode_->findData(int(mode)));
         monitoringShown_ = mode;
