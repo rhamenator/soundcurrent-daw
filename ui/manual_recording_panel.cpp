@@ -159,6 +159,12 @@ bool ManualRecordingPanel::send(ManualControlCommand c) {
     // Priority Stop/Cancel remain usable during endpoint construction or IO.
     for (auto *b : {prepare_, play_, prepareTake_, punchIn_, punchOut_})
         b->setEnabled(false);
+    for (const auto &combos : {inputs_, outputs_})
+        for (auto *c : combos)
+            c->setEnabled(false);
+    arms_->setEnabled(false);
+    seconds_->setEnabled(false);
+    reserve_->setEnabled(false);
     stop_->setEnabled(true);
     cancel_->setEnabled(true);
     return true;
@@ -183,6 +189,9 @@ void ManualRecordingPanel::prepare() {
         barrierSeconds_ = seconds_->value();
         barrierReserve_ = reserve_->value();
         prepare_->setEnabled(false);
+        arms_->setEnabled(false);
+        seconds_->setEnabled(false);
+        reserve_->setEnabled(false);
         stop_->setEnabled(true);
     }
 }
@@ -462,6 +471,8 @@ void ManualRecordingPanel::adopt(bool partial) {
     ProjectCommand c{CommandKind::AttachRecording};
     c.path = p->root;
     c.recordings = records;
+    c.attachmentRequest = barrierSequence_++;
+    const auto request = c.attachmentRequest;
     if (project_.submit(std::move(c)) != Admission::Accepted)
         return;
     attaching_ = g;
@@ -469,7 +480,7 @@ void ManualRecordingPanel::adopt(bool partial) {
     addPartial_->setEnabled(false);
     keep_->setEnabled(false);
     attachmentCount_ = p->attachedRecordings;
-    attachmentError_ = p->errorSerial;
+    attachmentRequest_ = request;
     attachmentAssets_.clear();
     for (const auto &r : *records)
         attachmentAssets_.push_back(r.asset.id);
@@ -639,17 +650,23 @@ void ManualRecordingPanel::poll() {
     if (s->stopAcknowledged >= stopToken_ && !transport(*s))
         nextTake_ = activeTake_ = punchPending_ = 0;
     if (attaching_) {
-        if (p->attachedRecordings > attachmentCount_ &&
+        if (p->attachmentCompleted.request == attachmentRequest_ && !p->attachmentCompleted.error &&
+            p->attachedRecordings > attachmentCount_ &&
             p->lastAttachedAssets == attachmentAssets_) {
             if (worker_.acknowledgeGroup(attaching_->generation, attaching_->group->take))
                 consumed_.insert({attaching_->generation, attaching_->group->take});
             attaching_.reset();
             receipt_->setText(tr("Take added. Save to persist the project changes. Reprepare "
                                  "playback to hear new clips."));
-        } else if (p->errorSerial != attachmentError_) {
+        } else if ((p->attachmentCompleted.request == attachmentRequest_ &&
+                    p->attachmentCompleted.error) ||
+                   p->attachmentRejected.request == attachmentRequest_) {
+            const auto &result = p->attachmentRejected.request == attachmentRequest_
+                                     ? p->attachmentRejected
+                                     : p->attachmentCompleted;
             attaching_.reset();
             receipt_->setText(tr("Could not add the take: %1. Files and preview are retained.")
-                                  .arg(text(p->diagnostic)));
+                                  .arg(text(result.diagnostic)));
         }
     }
     if (prepared_ && transport(*s) && p->session && p->modelRevision > followed_ &&

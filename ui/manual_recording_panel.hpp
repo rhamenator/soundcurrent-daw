@@ -54,7 +54,7 @@ class ManualRecordingPanel final : public QGroupBox {
     std::set<GroupKey> consumed_;
     std::optional<ManualControlGroup> attaching_;
     std::vector<Id> attachmentAssets_;
-    std::uint64_t attachmentCount_ = 0, attachmentError_ = 0;
+    std::uint64_t attachmentCount_ = 0, attachmentRequest_ = 0;
     bool closingIntent_ = false, prompting_ = false;
     bool send(ManualControlCommand);
     void prepare();

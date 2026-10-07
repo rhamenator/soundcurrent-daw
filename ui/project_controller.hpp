@@ -38,10 +38,16 @@ struct ProjectCommand {
     double value = 0;
     std::uint64_t gesture = 0;
     std::uint64_t barrier = 0;
+    std::uint64_t attachmentRequest = 0; // Optional caller-owned correlation ID.
     bool final = true;
 };
 enum class Admission { Accepted, Full, Closing };
 enum class IoOperation { None, Create, Open, Save, AttachRecording };
+struct AttachmentCompletion {
+    std::uint64_t request = 0;
+    std::optional<ErrorCode> error;
+    std::string diagnostic;
+};
 struct ControllerSnapshot {
     std::shared_ptr<const Session> session;
     std::filesystem::path root;
@@ -54,6 +60,9 @@ struct ControllerSnapshot {
     std::uint64_t barrierRevision = 0;
     std::optional<Id> lastAttachedAsset;
     std::vector<Id> lastAttachedAssets; // One successful verified group, stable canonical IDs.
+    // Single serialized desktop attachment owner. Unrelated errors cannot
+    // replace these separately retained IO and command-rejection receipts.
+    AttachmentCompletion attachmentCompleted, attachmentRejected;
     std::optional<ErrorCode> errorCode;
     std::string diagnostic;
     IoOperation io = IoOperation::None;

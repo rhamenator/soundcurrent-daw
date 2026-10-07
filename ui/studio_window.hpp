@@ -31,7 +31,7 @@ class StudioWindow : public QMainWindow {
   public:
     explicit StudioWindow(QWidget *parent = nullptr, PlaybackControllerOptions = {},
                           RecordingControllerOptions = {}, ExportControllerOptions = {},
-                          ManualControlOptions = {});
+                          ManualControlOptions = {}, ControllerOptions = {});
     std::shared_ptr<const ManualControlSnapshot> manualRecordingSnapshot() const;
     void openProject(const std::filesystem::path &);
     bool submitEdit(ProjectCommand); // Shared entry for bindings/UI acceptance.
@@ -130,7 +130,7 @@ class StudioWindow : public QMainWindow {
     QLabel *recordingState_, *inputLevel_, *monitorLevel_;
     QProgressBar *inputMeter_, *monitorMeter_;
     std::uint64_t recordingFollowed_ = 0, recordingError_ = 0, previewShown_ = 0;
-    std::uint64_t takeShown_ = 0, attachingTake_ = 0, attachmentError_ = 0, closeDrainToken_ = 0;
+    std::uint64_t takeShown_ = 0, attachingTake_ = 0, attachmentRequest_ = 0, closeDrainToken_ = 0;
     bool attachmentFailed_ = false, recordCommandPending_ = false;
     std::uint64_t recordPrepareBarrier_ = 0;
     std::optional<RecordingMonitor> monitoringShown_;

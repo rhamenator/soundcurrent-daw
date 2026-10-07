@@ -104,9 +104,9 @@ class FocusSlider : public QSlider {
 StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            RecordingControllerOptions recordingOptions,
                            ExportControllerOptions exportOptions,
-                           ManualControlOptions manualOptions)
-    : QMainWindow(parent), playback_(std::move(options)), recording_(std::move(recordingOptions)),
-      exporter_(std::move(exportOptions)) {
+                           ManualControlOptions manualOptions, ControllerOptions projectOptions)
+    : QMainWindow(parent), controller_(std::move(projectOptions)), playback_(std::move(options)),
+      recording_(std::move(recordingOptions)), exporter_(std::move(exportOptions)) {
     setObjectName(QStringLiteral("studioWindow"));
     setWindowTitle(tr("SoundCurrent DAW"));
     auto *file = menuBar()->addMenu(tr("&File"));
@@ -1776,7 +1776,9 @@ void StudioWindow::pollRecording() {
             recording_.acknowledgeTake(r->take->sequence);
             attachingTake_ = 0;
             attachmentFailed_ = false;
-        } else if (attachingTake_ && m->errorSerial > attachmentError_) {
+        } else if (attachingTake_ && ((m->attachmentCompleted.request == attachmentRequest_ &&
+                                       m->attachmentCompleted.error) ||
+                                      m->attachmentRejected.request == attachmentRequest_)) {
             attachingTake_ = 0;
             attachmentFailed_ = true;
         } else if (!attachingTake_ && !attachmentFailed_ && m->io == IoOperation::None &&
@@ -1787,13 +1789,15 @@ void StudioWindow::pollRecording() {
             else {
                 ProjectCommand c{CommandKind::AttachRecording};
                 c.path = r->take->root;
+                c.attachmentRequest = nextGesture_++;
+                const auto request = c.attachmentRequest;
                 if (group)
                     c.recordings = r->take->receipts;
                 else
                     c.recording = r->take->receipt;
                 if (controller_.submit(std::move(c)) == Admission::Accepted) {
                     attachingTake_ = r->take->sequence;
-                    attachmentError_ = m->errorSerial;
+                    attachmentRequest_ = request;
                 }
             }
         }

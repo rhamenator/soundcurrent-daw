@@ -2055,3 +2055,19 @@ repeated takes, parameter audio application, Stop/Cancel, input/output loss, fai
 adoption/recovery and Close with exact timing/raw/output evidence. Independently
 implement/qualify Windows audio and equivalent desktop workflows. Continue full
 frozen parity, X004/X005/X006, all-Europe localization and installers; none is complete.
+
+PR21 review identified an unrelated rejected Save could clear pending attachment
+state while its verification IO continued. An isolated replay of the reviewed panel
+reproduces the failure; its only source adaptation renames the private uint64 member
+to match the current header, with current supporting project controller. Source,
+adaptation, executable, generated project and log are retained; this is not claimed
+as an unmodified original binary or a native timing experiment. Attachments now use
+caller IDs and separately retained IO-completion/command-rejection receipts. Manual
+and fixed-range adoption use them. The held-IO actual-widget regression passes.
+
+Final Debug40/40,48.08s and affected ASan/UBSan/LSan4/4,16.19s pass. Earlier source
+evidence remains retained. An intermediate sanitizer run of the older fixed-recording
+widget workflow timed out waiting for512 captured frames; original source/log/executable
+are retained, but its auto-cleaned project is unavailable. Cause remains unresolved;
+passing later tests do not resolve it. Future timeouts now log worker state and retain
+their project. No native observation/parity counts are changed.

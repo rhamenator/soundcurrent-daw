@@ -21,6 +21,7 @@
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
+bool attachmentReviewReplay = false;
 void check(bool ok, const char *message) {
     if (!ok)
         throw std::runtime_error(message);
@@ -39,6 +40,7 @@ struct Fixture {
         std::filesystem::temp_directory_path() / ("sc-manual-panel-" + Id::generate().str());
     Session initial = makeOneTrackSession("Studio — Ελληνικά", "Vocal α");
     std::shared_ptr<manual_fixture::Counters> counts = std::make_shared<manual_fixture::Counters>();
+    std::atomic<bool> holdProjectIo{false}, projectIoEntered{false};
     std::unique_ptr<StudioWindow> window;
     bool success = false;
     Fixture() {
@@ -50,7 +52,16 @@ struct Fixture {
         counts->validateRoutes = true;
         window = std::make_unique<StudioWindow>(
             nullptr, PlaybackControllerOptions{}, RecordingControllerOptions{},
-            ExportControllerOptions{}, manual_fixture::options(counts));
+            ExportControllerOptions{}, manual_fixture::options(counts),
+            ControllerOptions{[this] {
+                                  if (holdProjectIo) {
+                                      projectIoEntered = true;
+                                      while (holdProjectIo)
+                                          std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                                  }
+                              },
+                              {},
+                              {}});
         window->resize(900, 700);
         window->show();
         child<QTabWidget>("recordingModes")->setCurrentIndex(1);
@@ -110,6 +121,9 @@ struct Fixture {
     }
     void start() {
         click("manualPlay");
+        check(attachmentReviewReplay || (!child<QComboBox>("manualInput0")->isEnabled() &&
+                                         !child<QComboBox>("manualOutput0")->isEnabled()),
+              "Routes remained editable between Play admission and timer snapshot");
         await([&] { return child<QPushButton>("manualPrepareTake")->isEnabled(); });
     }
     void take() {
@@ -181,6 +195,7 @@ struct Fixture {
               "Manual panel close violated ownership or real-time safety");
     }
     ~Fixture() {
+        holdProjectIo = false;
         counts->holdFactory = counts->holdStop = counts->holdService = false;
         window.reset();
         if (success) {
@@ -199,6 +214,9 @@ void workflow() {
     edit.gesture = 177;
     check(f.window->submitEdit(edit), "Manual prefix EQ edit refused");
     f.click("manualPrepare");
+    check(!f.child<QListWidget>("manualArms")->isEnabled() &&
+              !f.child<QSpinBox>("manualSeconds")->isEnabled(),
+          "Capture intent remained editable after barrier admission");
     f.child<QPushButton>("manualPrepare")->click();
     await([&] { return f.counts->factoryEntered.load(); });
     check(!f.counts->constructed && !f.child<QListWidget>("manualArms")->isEnabled(),
@@ -305,6 +323,41 @@ void workflow() {
            "takes, exact raw, explicit adoption, Undo/Redo, EQ audio acknowledgement, Save/reopen, "
            "async close\n";
 }
+void unrelatedAttachmentError() {
+    Fixture f;
+    f.prepare();
+    f.routes();
+    f.start();
+    f.take();
+    f.holdProjectIo = true;
+    const auto errors = f.window->snapshot()->errorSerial;
+    f.click("manualAdd");
+    await([&] {
+        return f.projectIoEntered && f.window->snapshot()->io == IoOperation::AttachRecording;
+    });
+    // Same accepted command as a Ctrl+S gesture before the next GUI poll.
+    check(f.window->submitEdit({CommandKind::Save}), "Held attachment Save admission refused");
+    await([&] { return f.window->snapshot()->errorSerial > errors; });
+    QTest::qWait(50);
+    check(f.window->snapshot()->io == IoOperation::AttachRecording &&
+              f.window->manualRecordingSnapshot()->groups.size() == 1 &&
+              !f.child<QPushButton>("manualAdd")->isEnabled() &&
+              !f.child<QPushButton>("manualKeep")->isEnabled(),
+          "Unrelated command rejection falsely failed an in-flight attachment");
+    f.holdProjectIo = false;
+    await([&] {
+        return f.window->snapshot()->attachedRecordings == 2 &&
+               f.window->manualRecordingSnapshot()->groups.empty();
+    });
+    check(!f.window->snapshot()->attachmentCompleted.error &&
+              f.window->snapshot()->attachmentCompleted.request,
+          "Attachment did not retain its own terminal receipt");
+    f.stop();
+    f.close();
+    f.success = true;
+    std::cout << "Held attachment: unrelated Save rejected, preview remains pending, successful IO "
+                 "consumes exactly once\n";
+}
 void failedAdoptionAndCancel() {
     Fixture f;
     f.prepare();
@@ -407,10 +460,16 @@ void closePreview(bool keep) {
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
     try {
+        if (argc > 1 && std::string_view(argv[1]) == "--attachment-review-only") {
+            attachmentReviewReplay = true;
+            unrelatedAttachmentError();
+            return 0;
+        }
         workflow();
         closePreview(false);
         closePreview(true);
         failedAdoptionAndCancel();
+        unrelatedAttachmentError();
         std::cout << "Manual desktop panel acceptance passed\n";
     } catch (const std::exception &e) {
         std::cerr << e.what() << '\n';

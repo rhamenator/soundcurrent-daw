@@ -18,6 +18,12 @@ remain recovery-only. Close drains first and requires a preview decision before
 the dirty-project prompt. The worker is not shut down on initial Close because
 the user may choose Review/Cancel and continue editing or recording.
 
+Correlate attachment completions/rejections by caller-owned IDs rather than the
+project's global error serial. Unrelated rejected commands may occur while IO is
+held or queued. Keep terminal IO and control-rejection receipts separate, scoped
+to the current single serialized desktop attachment owner; do not claim arbitrary
+multi-consumer reliability from two retained receipts.
+
 Place fixed-range/locator and manual/repeated-take workflows in separate tabs.
 Both retain their current finite preparation bounds. This does not establish full
 recording parity, native Windows or above256-track scalability; see docs/76.

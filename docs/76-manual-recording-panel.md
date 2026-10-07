@@ -47,6 +47,11 @@ Joined groups remain previews until an explicit choice:
 
 Verification failures retain the group/files and allow retry. The preview is consumed
 only after the project's retained attachment receipt names the expected assets.
+Each attachment has its own caller identifier. The project worker separately
+retains that identifier's IO completion and command rejection; an unrelated Save
+or parameter error cannot fail pending verification. The current desktop has one
+serialized attachment owner. These two retained receipts are not a general
+multi-consumer result queue. Fixed-range adoption uses the same identifiers.
 Project replacement and structural GUI edits are refused while transport, attachment
 or unresolved previews remain. Parameter edits and Save have their existing history
 and worker semantics.
@@ -76,11 +81,18 @@ history and ProjectStore. The fake records Synthetic timing provenance. It check
   track rotation; parameter Undo on the same graph.
 - File-verification failure/retry, priority Cancel during held finalization,
   recovery-file retention and refusal of canceled adoption.
+- Held real attachment IO with an unrelated accepted Save that is rejected while
+  verification runs; the preview remains pending and is consumed once IO succeeds.
 - Held Close joins, review/keep choices, no automatic adoption and worker retirement.
 
 The controller test also checks partial event admission, coalescing and generation
 high-water isolation. Test-only RT interposition covers the real core callback;
 it does not prove every external library/syscall path or processing deadline.
+An intermediate sanitizer run of the older fixed-recording widget workflow timed
+out waiting for512 captured frames. Its original source/log/executable are retained;
+its fixture auto-removed the project before diagnosis, so that missing artifact
+remains unavailable. Cause is unresolved. Future UI timeouts now log worker state
+and retain the failed project. Later passing runs do not resolve that observation.
 The rendered900×700 offscreen view is a layout check, not physical display or
 native-language qualification.
 
