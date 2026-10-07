@@ -20,6 +20,8 @@
 #include <QWheelEvent>
 #include <QComboBox>
 #include <QListWidget>
+#include <QListView>
+#include <QBrush>
 #include <QLabel>
 #include <QDialog>
 #include <QPushButton>
@@ -446,7 +448,14 @@ void recordingWorkflow(const std::filesystem::path &root, bool monitoring) {
     wheel(input);
     QTest::qWait(30);
     check(input->currentIndex() == 0, "Unfocused wheel selected recording input");
+    arm->setChecked(true);
+    QTest::qWait(40);
+    check(!record->isEnabled(), "Armed Record enabled without required input routes");
     input->setCurrentIndex(1);
+    if (monitor) {
+        QTest::qWait(40);
+        check(!record->isEnabled(), "Armed Record enabled without required monitoring output");
+    }
     if (monitor)
         monitor->setCurrentIndex(1);
     arm->setChecked(true);
@@ -1176,10 +1185,11 @@ void duplexRecordingWorkflow(const std::filesystem::path &root, unsigned mode) {
         arms.push_back(t.id);
     check(!window.configureArmedRecording({arms[0], arms[0]}), "Duplicate GUI arms accepted");
     check(window.configureArmedRecording(arms, 100003), "GUI multi-arm selection refused");
-    auto *list = window.findChild<QListWidget *>("armedTracksList");
+    auto *list = window.findChild<QListView *>("armedTracksList");
     auto *modeControl = window.findChild<QCheckBox *>("recordProjectMix");
-    check(list && modeControl && modeControl->isChecked() && list->count() == 3 &&
-              list->item(0)->checkState() == Qt::Checked &&
+    check(list && modeControl && modeControl->isChecked() && list->model()->rowCount() == 3 &&
+              list->model()->data(list->model()->index(0, 0), Qt::CheckStateRole).toInt() ==
+                  Qt::Checked &&
               !window.findChild<QCheckBox *>("armTrack")->isVisible(),
           "Multi-arm GUI did not show canonical checkable track list");
     auto *reserve = window.findChild<QComboBox *>("recordingReserveMilliseconds");
@@ -1233,8 +1243,14 @@ void duplexRecordingWorkflow(const std::filesystem::path &root, unsigned mode) {
                    !window.recordingSnapshot()->take;
         });
         check(window.recordingSnapshot()->lanes[1].errorCode == ErrorCode::Io &&
-                  list->item(1)->foreground().color() == QColor("#c83434") &&
-                  list->item(1)->toolTip().contains("Injected duplex disk failure"),
+                  list->model()
+                          ->data(list->model()->index(1, 0), Qt::ForegroundRole)
+                          .value<QBrush>()
+                          .color() == QColor("#c83434") &&
+                  list->model()
+                      ->data(list->model()->index(1, 0), Qt::ToolTipRole)
+                      .toString()
+                      .contains("Injected duplex disk failure"),
               "GUI partial disk failure hid failed lane or discarded valid takes");
     } else {
         await([&] { return window.recordingSnapshot()->telemetry.capturedFrames >= 512; });

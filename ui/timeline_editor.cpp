@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "timeline_editor.hpp"
+#include "session_list_model.hpp"
+#include "timeline_view.hpp"
 #include <QComboBox>
 #include <QFormLayout>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsRectItem>
 #include <QLabel>
 #include <QLineEdit>
-#include <QListWidget>
+#include <QListView>
+#include <QItemSelectionModel>
 #include <QLocale>
 #include <QPushButton>
 #include <QSignalBlocker>
@@ -44,16 +44,16 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     setObjectName("timelineEditor");
     auto *body = new QVBoxLayout(this);
     auto *splitter = new QSplitter(this);
-    tracks_ = new QListWidget;
+    tracks_ = new QListView;
+    trackList_ = new SessionListModel(SessionListModel::Kind::Tracks, this);
+    tracks_->setModel(trackList_);
+    tracks_->setUniformItemSizes(true);
+    tracks_->setLayoutMode(QListView::Batched);
+    tracks_->setBatchSize(128);
     tracks_->setObjectName("timelineTracks");
     tracks_->setAccessibleName(tr("Audio tracks"));
     tracks_->setMinimumWidth(140);
-    scene_ = new QGraphicsScene(this);
-    view_ = new QGraphicsView(scene_);
-    view_->setObjectName("audioTimeline");
-    view_->setAccessibleName(tr("Audio clip timeline"));
-    view_->setMinimumHeight(180);
-    view_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    view_ = new TimelineView(this);
     splitter->addWidget(tracks_);
     splitter->addWidget(view_);
     splitter->setStretchFactor(1, 1);
@@ -134,6 +134,10 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     body->addLayout(trackRow);
     auto *ranges = new QFormLayout;
     clips_ = new FocusCombo;
+    clipList_ = new SessionListModel(SessionListModel::Kind::Clips, this);
+    clips_->setModel(clipList_);
+    clips_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    clips_->setMinimumContentsLength(16);
     clips_->setObjectName("timelineClips");
     clips_->setAccessibleName(tr("Clips in selected track"));
     ranges->addRow(tr("Selected clip"), clips_);
@@ -143,6 +147,8 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
         const auto id = clips_->currentData().toString();
         clip_ = id.isEmpty() ? std::optional<Id>{} : std::optional<Id>(Id(id.toStdString()));
         refresh(true);
+        if (track_ && clip_)
+            view_->ensureClipVisible(*track_, *clip_);
         if (selectionChanged)
             selectionChanged();
     });
@@ -182,6 +188,10 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
             mutate({RemoveClip{*track_, *clip_}});
     });
     destination_ = new FocusCombo;
+    destinations_ = new SessionListModel(SessionListModel::Kind::Tracks, this);
+    destination_->setModel(destinations_);
+    destination_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    destination_->setMinimumContentsLength(16);
     destination_->setObjectName("clipDestinationTrack");
     destination_->setAccessibleName(tr("Clip destination track"));
     clipRow->addWidget(destination_, 1);
@@ -196,6 +206,10 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     body->addLayout(clipRow);
     auto *assetRow = new QHBoxLayout;
     asset_ = new FocusCombo;
+    assets_ = new SessionListModel(SessionListModel::Kind::Assets, this);
+    asset_->setModel(assets_);
+    asset_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    asset_->setMinimumContentsLength(16);
     asset_->setObjectName("timelineAsset");
     asset_->setAccessibleName(tr("Recorded media asset"));
     assetRow->addWidget(asset_, 1);
@@ -227,42 +241,36 @@ TimelineEditor::TimelineEditor(QWidget *parent) : QGroupBox(tr("Tracks and timel
     status_->setTextFormat(Qt::PlainText);
     body->addWidget(status_);
     connect(zoom_, &QSlider::valueChanged, this, [this] { draw(); });
-    connect(tracks_, &QListWidget::currentRowChanged, this, [this](int row) {
-        if (refreshing_ || !model_ || row < 0 || std::size_t(row) >= model_->tracks.size())
-            return;
-        const auto id = model_->tracks[std::size_t(row)].id;
-        // Reconciliation can rebuild the list. Let its current-row event finish.
-        QTimer::singleShot(0, this, [this, id] { selectTrack(id); });
-    });
-    connect(scene_, &QGraphicsScene::selectionChanged, this, [this] {
+    connect(tracks_->selectionModel(), &QItemSelectionModel::currentChanged, this,
+            [this](const QModelIndex &index, const QModelIndex &) {
+                if (refreshing_)
+                    return;
+                const auto id = trackList_->idAt(index.row());
+                if (id)
+                    QTimer::singleShot(0, this, [this, id] { selectTrack(*id); });
+            });
+    view_->selection = [this](std::optional<Id> track, std::optional<Id> clip) {
         if (refreshing_)
             return;
-        const auto items = scene_->selectedItems();
-        if (items.empty()) {
-            clip_.reset();
-            refresh(true, false);
-            return;
+        if (track) {
+            const auto at = trackList_->rowForId(*track);
+            if (at < 0)
+                return;
+            if (auto *focused = window()->focusWidget())
+                focused->clearFocus();
+            track_ = track;
         }
-        const auto *item = items.front();
-        const auto trackId = item->data(0).toString(), clipId = item->data(1).toString();
-        if (trackId.isEmpty() || clipId.isEmpty())
-            return;
-        if (auto *focused = window()->focusWidget())
-            focused->clearFocus();
-        track_ = Id(trackId.toStdString());
-        clip_ = Id(clipId.toStdString());
-        refresh(true, false);
-        // Window reconciliation may observe a newly published model and redraw
-        // the scene. Never delete scene items inside their mouse event stack.
+        clip_ = clip;
+        refresh(true);
         QTimer::singleShot(0, this, [this] {
             if (selectionChanged)
                 selectionChanged();
         });
-    });
+    };
     refresh(true);
 }
 TimelineEditor::~TimelineEditor() {
-    // Child scenes can emit selectionChanged during QWidget child teardown,
+    // Child controls can emit selection changes during QWidget child teardown,
     // after this class's members have been destroyed.
     for (auto *sender : findChildren<QObject *>())
         QObject::disconnect(sender, nullptr, this, nullptr);
@@ -317,6 +325,7 @@ bool TimelineEditor::selectTrack(const Id &id) {
     clip_.reset();
     pendingTrack_.reset();
     refresh(true);
+    view_->ensureTrackVisible(id);
     if (selectionChanged)
         selectionChanged();
     return true;
@@ -359,43 +368,34 @@ void TimelineEditor::refresh(bool force, bool redraw) {
     QSignalBlocker block(tracks_);
     const auto previousDestination = destination_->currentData();
     const auto previousAsset = asset_->currentData();
-    tracks_->clear();
-    destination_->clear();
-    asset_->clear();
     const auto *t = track();
     const auto *c = clip();
+    trackList_->update(model_);
+    if (t)
+        tracks_->setCurrentIndex(trackList_->index(trackList_->rowForId(t->id)));
+    else
+        tracks_->setCurrentIndex({});
     {
         QSignalBlocker blocked(clips_);
-        clips_->clear();
-        clips_->addItem(tr("Select a clip"), QString());
-        if (t)
-            for (std::size_t n = 0; n < t->clips.size(); ++n) {
-                const auto &item = t->clips[n];
-                clips_->addItem(
-                    tr("Clip %1 · %2 frames")
-                        .arg(QLocale().toString(n + 1), QLocale().toString(item.lengthFrames)),
-                    text(item.id.str()));
-                if (c && item.id == c->id)
-                    clips_->setCurrentIndex(clips_->count() - 1);
-            }
+        clipList_->update(model_, {}, track_);
+        clips_->setCurrentIndex(c ? clipList_->rowForId(c->id) : 0);
     }
-    if (model_)
-        for (const auto &item : model_->tracks) {
-            tracks_->addItem(text(item.name));
-            tracks_->item(tracks_->count() - 1)->setData(Qt::UserRole, text(item.id.str()));
-            if (t && item.id == t->id)
-                tracks_->setCurrentRow(tracks_->count() - 1);
-            if (t && item.layout == t->layout)
-                destination_->addItem(text(item.name), text(item.id.str()));
-        }
-    if (model_ && t)
-        for (const auto &a : model_->assets)
-            if (a.layout == t->layout && a.sampleRate == model_->sampleRate)
-                asset_->addItem(text(a.relativePath), text(a.id.str()));
-    if (const auto index = destination_->findData(previousDestination); index >= 0)
-        destination_->setCurrentIndex(index);
-    if (const auto index = asset_->findData(previousAsset); index >= 0)
-        asset_->setCurrentIndex(index);
+    {
+        QSignalBlocker blocked(destination_);
+        destinations_->update(t ? model_ : nullptr,
+                              t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
+        const auto id = previousDestination.toString();
+        const auto row = id.isEmpty() ? -1 : destinations_->rowForId(Id(id.toStdString()));
+        destination_->setCurrentIndex(row >= 0 ? row : (destinations_->rowCount() ? 0 : -1));
+    }
+    {
+        QSignalBlocker blocked(asset_);
+        assets_->update(t ? model_ : nullptr,
+                        t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
+        const auto id = previousAsset.toString();
+        const auto row = id.isEmpty() ? -1 : assets_->rowForId(Id(id.toStdString()));
+        asset_->setCurrentIndex(row >= 0 ? row : (assets_->rowCount() ? 0 : -1));
+    }
     if (force || !name_->hasFocus())
         name_->setText(t ? text(t->name) : QString());
     name_->setEnabled(editable_ && t);
@@ -428,47 +428,8 @@ void TimelineEditor::refresh(bool force, bool redraw) {
         draw();
 }
 void TimelineEditor::draw() {
-    QScopedValueRollback<bool> guard(refreshing_, true);
-    QSignalBlocker block(scene_);
-    scene_->clear();
-    if (!model_)
-        return;
-    Frame extent = std::max<Frame>(1, model_->sampleRate);
-    for (const auto &t : model_->tracks)
-        for (const auto &c : t.clips)
-            extent = std::max(extent, c.startFrame + c.lengthFrames);
-    const double scale = 800. / double(extent) * std::exp2((zoom_->value() - 50) / 10.);
-    for (unsigned tick = 0; tick <= 8; ++tick) {
-        const double f = double(extent) * tick / 8.;
-        auto *label =
-            scene_->addText(QLocale().toString(f / model_->sampleRate, 'f', 2) + tr(" s"));
-        label->setPos(70 + f * scale, 0);
-    }
-    for (std::size_t row = 0; row < model_->tracks.size(); ++row) {
-        const auto &t = model_->tracks[row];
-        const double y = 35 + double(row) * 56;
-        auto *label = scene_->addText(text(t.name));
-        label->setPos(0, y);
-        label->setTextWidth(65);
-        scene_->addLine(70, y + 44, 70 + double(extent) * scale, y + 44,
-                        QPen(palette().mid().color()));
-        for (const auto &c : t.clips) {
-            auto *rect =
-                scene_->addRect(70 + double(c.startFrame) * scale, y,
-                                std::max(.002, double(c.lengthFrames) * scale), 38, QPen(Qt::black),
-                                QBrush(QColor::fromHsv(int(row * 47) % 360, 150, 195)));
-            rect->setFlag(QGraphicsItem::ItemIsSelectable);
-            rect->setData(0, text(t.id.str()));
-            rect->setData(1, text(c.id.str()));
-            rect->setToolTip(tr("Start %1 · source %2 · length %3 frames")
-                                 .arg(QLocale().toString(c.startFrame),
-                                      QLocale().toString(c.sourceFrame),
-                                      QLocale().toString(c.lengthFrames)));
-            if (track_ == std::optional<Id>(t.id) && clip_ == std::optional<Id>(c.id))
-                rect->setSelected(true);
-        }
-    }
-    scene_->setSceneRect(0, 0, 90 + double(extent) * scale,
-                         std::max(180., 35 + double(model_->tracks.size()) * 56));
+    view_->setSnapshot(model_, epoch_);
+    view_->setZoom(zoom_->value());
+    view_->setSelection(track_, clip_);
 }
 } // namespace soundcurrent::daw::ui

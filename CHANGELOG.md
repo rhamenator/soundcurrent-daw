@@ -2,6 +2,13 @@
 
 ## Unreleased — development preview
 
+- Snapshot-backed track, arm, destination, media and clip selectors; viewport
+  timeline with visible-row/horizontal interval queries and stable-ID selection.
+  Large-project Linux Qt regressions preserve media, Undo/Redo and Save/reopen;
+  combined GUI/history memory, paging and native Windows qualification remain open.
+- Require every recording input/monitor route before enabling Record or admitting
+  a Start click; reconcile asynchronous route updates before the readiness check.
+
 - Shared resource-admitted media handles and decoded pages across track readers.
   Exact file-backed output tests cover 1,024 tracks sharing one asset/handle and
   96 distinct assets with two handles. Live/offline readers retain frame coordinates
@@ -11,7 +18,7 @@
   indexed preparation and dynamic callback masks replace the fixed 256-track
   model/parser/mix/UI ceiling. Scoped synthetic 4,096-track core and Linux Qt
   Add 4,097/Undo/Redo/Save/reopen evidence; schema 1.7 retains old migrations.
-  Large recording, full media scaling, virtualized views and sustained native
+  Large recording, full media/GUI scaling and sustained native
   Linux/Windows workloads remain incomplete.
 - C++20 framework-independent session, processing, capture and playback layers.
 - Prepared in-process EQ, bounded live parameter events and float headroom.

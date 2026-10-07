@@ -25,8 +25,10 @@ class QGridLayout;
 class QCheckBox;
 class QMessageBox;
 class QListWidget;
+class QListView;
 class QSpinBox;
 namespace soundcurrent::daw::ui {
+class SessionListModel;
 class StudioWindow : public QMainWindow {
   public:
     explicit StudioWindow(QWidget *parent = nullptr, PlaybackControllerOptions = {},
@@ -100,7 +102,8 @@ class StudioWindow : public QMainWindow {
     QPushButton *retryTakeButton_, *keepTakeButton_;
     QCheckBox *armed_;
     QCheckBox *multiRecord_;
-    QListWidget *armedTracksList_;
+    QListView *armedTracksList_;
+    SessionListModel *armedTrackModel_;
     QSpinBox *recordSeconds_;
     QComboBox *recordReserve_;
     std::uint32_t recordPreparationReserveMilliseconds_ = 10000;
@@ -140,6 +143,7 @@ class StudioWindow : public QMainWindow {
     void pollRecording();
     void updateRecordingRoutes(const RecordingSnapshot &);
     void recordSelected();
+    bool recordingRoutesReady(const RecordingSnapshot &) const;
     void retryTake();
     std::shared_ptr<const ControllerSnapshot> shown_;
     QLabel *project_, *track_, *state_, *notice_;
