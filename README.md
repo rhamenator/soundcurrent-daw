@@ -150,6 +150,7 @@ Trusted distribution and installers remain separate gates; see
 - [European language coverage audit](docs/47-europe-language-inventory-audit.md)
 - [Native desktop punch evidence](docs/56-native-desktop-punch.md) · [punch interruption/recovery](docs/59-native-punch-fault-recovery.md)
 - [Main branch protection and PR workflow](docs/58-repository-branch-protection.md)
+- [Track scalability without a fixed product ceiling](docs/67-track-scalability.md)
 - [Complete documentation index](docs/README.md) · [dated test results](tests/results/)
 
 Saved per-track [input-latency controls](docs/60-input-latency-controls.md) now connect
@@ -168,8 +169,11 @@ The [native manual owner](docs/65-native-manual-recording.md) now has finite
 [Default exports](docs/66-repeatable-export.md) are repeatable across render seconds.
 [Native manual fault/recovery tests](docs/68-native-manual-fault-recovery.md) now
 expose retained channel-alignment and callback-deadline failures alongside finite
-owned-route successes. Next implementation: diagnose these native failures, then
-canonical desktop manual controls, additional monitor policies, tempo/loop/take lanes and comping. Native engine
+owned-route successes. [Priority Stop/Cancel](docs/70-manual-priority-interruption.md)
+now terminates audio independently of held disk startup, with scoped native Linux
+evidence. Next: bounded canonical desktop manual controls and late cancellation
+policy; first diagnose the retained native channel delay in original 46. Additional monitor
+policies, tempo/loop/take lanes and comping remain required. Native engine
 punch fault recovery now has scoped evidence; desktop fault/discovery, process-kill
 and empty-preroll workflows remain required. Sustained native recording, independent Windows qualification and
 all other frozen-reference requirements remain required. The first recording

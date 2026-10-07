@@ -4,6 +4,7 @@
 namespace soundcurrent::daw {
 struct PipeWireManualRecording::State {
     ManualRecordingRun run;
+    std::shared_ptr<ManualRecordingInterrupt> interrupt;
     RecordingCallbackInstrumentation audit;
     void (*auditClock)(void *, const DeviceBlockClock &) noexcept;
     std::unique_ptr<PipeWireFilter> filter;
@@ -15,8 +16,8 @@ struct PipeWireManualRecording::State {
     }
     State(std::filesystem::path root, const Session &s, MixPlan plan,
           std::vector<ManualRecordingArm> arms, const PipeWireManualRecordingOptions &o)
-        : run(std::move(root), s, std::move(plan), std::move(arms), native(o.run)), audit(o.audit),
-          auditClock(o.auditClock) {}
+        : run(std::move(root), s, std::move(plan), std::move(arms), native(o.run)),
+          interrupt(o.run.interrupt), audit(o.audit), auditClock(o.auditClock) {}
     static void process(void *context, const DeviceBlockClock &clock,
                         std::span<const float *const> input, std::span<float *const> output,
                         std::uint32_t capacity) noexcept {
@@ -92,6 +93,8 @@ void PipeWireManualRecording::connectOutputs(const std::vector<PipeWirePort> &po
 }
 void PipeWireManualRecording::activate() {
     auto &s = *state_;
+    if (s.interrupt && s.interrupt->stopRequested())
+        throw ProjectError(ErrorCode::Canceled, "Manual activation interrupted");
     if (s.stopped || s.attempted || !s.inputRouted || !s.outputRouted ||
         s.run.status() != DuplexStatus::Ready)
         throw ProjectError(ErrorCode::InvalidState, "Select manual input and master output routes");

@@ -1051,7 +1051,7 @@ headless configured targets compile/link, no native/Qt/runtime/install qualifica
 All Linux Release targets build consistently after the private header change.
 
 Pinned old/new standalone EQ measurements run serial ABBA after builds/readers
-terminate, five repeats per process.3band32mono before medians342.076/326.273ms,
+terminate, five repeats per process.3band 32mono before medians342.076/326.273ms,
 after312.613/312.491ms;64band1mono before143.721/139.921ms, after131.209/133.461ms.
 Final block digests match. An earlier after measurement during builds remains
 retained/excluded. Input generation/reset/preparation/digest outside timing;
@@ -1712,7 +1712,7 @@ logged only a failure flag, so its original callback/oracle status is unknown.
 Remote executable and test project were not uploaded by that workflow and are
 unavailable; do not claim they were retained. A separate local diagnostic under
 one-CPU affinity passed and does not identify the remote cause. Source inspection
-found a 0.2ms callback sleep for256 frames at48kHz (about27x accelerated) and a
+found a 0.2ms callback sleep for256 frames at 48 kHz (about27x accelerated) and a
 200000-frame finite horizon. The functional fixture now uses nominal256/48000
 cadence and a2000000-frame horizon, with first-status diagnostics and unchanged
 strict Running/output/zero-RT checks. This corrects an unsuitable functional
@@ -1801,7 +1801,7 @@ are retained; remote executable/project were not uploaded and are unavailable.
 Implementation code on that head was unchanged from passing PR10. Do not claim
 that a later pass or local binary identifies the original individual term/cause.
 
-Source inspection found a100us sleep per127 samples at48kHz (2.646ms of audio):
+Source inspection found a100us sleep per127 samples at 48 kHz (2.646ms of audio):
 about26x nominal requested throughput, with platform-specific Windows1ms pacing.
 The functional concurrent writer test now sleeps for its actual block/sample-rate
 duration outside the marked callback, keeps strict complete480000-frame/raw/
@@ -1848,3 +1848,36 @@ Review R3 reproduced acceptance of a corrupted retained whole-bridge record;
 the strengthened verifier now checks whole-callback cost/coverage/ranking,
 retention/uniqueness, clock time/rate and retained sums. Original reproduction
 and first verifier are preserved; all six observed traces pass the new gates.
+
+## Priority manual Stop/Cancel checkpoint (2026-10-07 UTC)
+
+Independent one-generation atomic signals terminate audio while real disk startup
+is held, with immediate new-command/preparation refusal and reliable terminal
+replies. Synthetic pre-first-callback and 32-arm held-startup workflows pass Debug,
+Release and ASan/UBSan/LSan; Windows media compilation passes. Finite owned native
+Stop/Cancel each have 97 callbacks, complete 32-channel advancing correspondence,
+25,408 raw/recovered and 98,304 mixed samples verified, zero RT allocation/free/
+locks/late cycles. Fifteen altered receipts are refused for each native reference.
+
+Original 42's checkpoint-filename test error and43's observer teardown failure were
+frozen before correction; original missing terms remain missing. All 43 observations
+remain retained and earlier alignment/CPU/sustained causes unresolved. See
+[contract](70-manual-priority-interruption.md) and receipt. No parity promotion.
+
+Next: bounded serialized Qt manual controller with reliable replies/results,
+canonical adoption, defined late-Cancel policy, shutdown and actual-widget monitor
+edit/Undo tests. X006 remains planned with current 256 limit; all92 contracts,
+X004/X005, Europe and independent Windows/installer/physical/sustained gates stay
+required. The full goal is active/incomplete.
+
+
+Review corrected interruption between verification lanes and a position-only
+producer race, with deliberate original 44/45 regressions. The first final-source
+native Stop (original 46) failed raw/source 23 markers by one256-frame quantum;
+all 1,651 lane17 saved samples match that extra delay. Original files/routes/traces
+and independent analyses are retained. It is not qualified or compensated. A
+separate final Cancel passes195 callbacks and full32-channel/raw/output gates;
+this does not explain Stop or earlier delays. Final Debug/Release/sanitizer2/2
+and Windows media compilation pass. All 46 observations remain visible.
+Next diagnose original 46 before completing Qt manual ownership/late Cancel/UI.
+Full92 contracts and X004/X005/X006/Europe/Windows/sustained gates remain open.
