@@ -14,7 +14,7 @@ struct Port {
     std::atomic<spa_io_buffers *> io{nullptr};
 };
 static_assert(std::atomic<spa_io_buffers *>::is_always_lock_free);
-enum class Acquisition { Unavailable, Ready, Invalid };
+enum class Acquisition { Unavailable, Ready, Invalid, Silence };
 struct Buffer {
     pw_buffer *owned = nullptr;
     float *samples = nullptr;

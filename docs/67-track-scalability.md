@@ -90,7 +90,10 @@ physical multi-input claims still require independent qualified hardware tests.
 Next architecture implementation within M2: audit and replace track-indexed fixed
 arrays and256 validators together under versioned admission. Do not merely raise
 one constant, leave parser/UI/recording limits behind, or bypass real-time safety.
-Current native manual failure/recovery work remains the immediate implementation
-checkpoint. X006 is an owner extension; the frozen92 contracts remain unchanged
-and unpromoted. All32 retained observations and sustained failures remain visible; see the
+The current native manual checkpoint includes short actual desktop workflows
+with3/32 armed inputs; this does not qualify larger projects or sustained workloads.
+X006 remains an implementation task. The frozen92 contracts remain unchanged
+and unpromoted. The initial planning checkpoint retained32 observations; the
+[current native checkpoint](77-native-manual-panel.md) retains71, including an
+unresolved active clock gap and source CPU outlier in a sanitizer run. See also the
 [CI recording-fixture observation](../tests/results/repository/2026-10-07-track-scalability-ci-observation.json).

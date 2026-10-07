@@ -2071,3 +2071,25 @@ widget workflow timed out waiting for512 captured frames; original source/log/ex
 are retained, but its auto-cleaned project is unavailable. Cause remains unresolved;
 passing later tests do not resolve it. Future timeouts now log worker state and retain
 their project. No native observation/parity counts are changed.
+
+## M2 native manual desktop and neutral buffers (2026-10-07)
+
+Previous goal continuation: **progress** (PR21 merged and source backups verified).
+This checkpoint adds actual owned-native Qt recording acceptance and corrects an
+observed valid native silence buffer being rejected. Exact original62 metadata
+and an isolated old-source regression establish that mechanism; earlier missing
+metadata remains missing. Five final short release workflows pass on3/32 inputs.
+
+Debug40/40,48.20s and affected ASan/UBSan/LSan3/3,4.31s pass. An extra actual native
+sanitizer run fails on a512-frame active clock skip after30,464 frames; original
+source/executable/media/logs/clocks are retained, no memory diagnostic is reported,
+and no passing native-sanitizer or causal claim follows. Its original routing
+snapshots are unavailable. All71 native observations and prior missing artifacts
+remain visible. Independent archive replay verifies original53's entire exact
+raw/output prefixes while retaining its original failure status.
+
+The frozen92-contract projection, equalizer inputs and full target are unchanged.
+Next: X006 coordinated track-resource admission and media/UI scaling, native Windows
+recording acceptance, and separate diagnosis/sustained qualification. The current
+256-track ceiling and all F/Q/C/N, X004/X005/X006/Europe/full-product gaps remain.
+See [contract and limits](77-native-manual-panel.md) and the dated M2 receipt.

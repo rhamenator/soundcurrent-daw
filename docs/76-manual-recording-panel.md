@@ -108,3 +108,8 @@ including repeated takes, parameter application, Stop/Cancel, port loss, failed
 adoption and Close; preserve original evidence before diagnosis. Add an independent
 Windows endpoint and equivalent native workflow acceptance. Then continue the full
 frozen roadmap, including X006 model/parser/mix/UI scaling together.
+
+The subsequent [owned native desktop checkpoint](77-native-manual-panel.md) has
+short actual Qt/PipeWire evidence and a neutral-buffer correction. Original71's
+active sanitizer clock gap remains open; it does not replace sustained, physical
+or Windows qualification.

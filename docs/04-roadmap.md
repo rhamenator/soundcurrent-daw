@@ -402,3 +402,18 @@ port loss and late finalization, then independently on Windows. Current finite
 transport, capture admission,256 project-track limit and full frozen backlog remain
 explicit. All48 historical native observations and92 unpromoted frozen contracts
 remain; synthetic widget success does not resolve sustained/physical qualification.
+
+## M2 native manual desktop checkpoint (2026-10-07)
+
+[Owned native desktop qualification](77-native-manual-panel.md)/ADR062 adds the
+actual Qt/controller fixture and fixes legitimate neutral-buffer rejection using
+one prepared read-only zero plane. Five short release workflows pass, including
+32-input repeated takes with exact raw/output oracles. Original observations49..71
+remain retained; the additional native sanitizer run fails on an active clock skip.
+Debug40/40 and three affected sanitizer tests pass. No full native sanitizer,
+sustained/physical/Windows or frozen parity promotion follows.
+
+Next implement X006 coordinated resource-admitted model/parser/mix and media/UI
+scaling, preserving the current256-track gap until acceptance. Diagnose original71's
+active clock skip separately and continue sustained/native Windows recording
+qualification and every remaining full-suite milestone.
