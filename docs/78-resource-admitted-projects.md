@@ -118,3 +118,26 @@ unresolved; no native observation is added by these synthetic tests.
 
 See the [dated receipt](../tests/results/M2/2026-10-07-resource-admitted-projects.json)
 for exact source/executable/archive hashes, original failures and qualification.
+
+
+## Configured controller preflight review correction
+
+Automated review of the first published head found that controller routing and
+structural preflight calls still used the default state policy, even though the
+store and history had the configured policy. They now pass `admission.state`
+explicitly before committing an active gesture. This covers both directions of
+policy change, including raising the budget above the default 64 MiB.
+
+A separate regression uses a small trusted 32 KiB policy and an oversized route/
+track edit. The original executable refuses both changes later in history but
+incorrectly commits an unrelated active parameter gesture; Cancel then leaves
+the changed gain. Both original observations and saved projects are retained.
+The corrected preflight must refuse before gesture/history mutation, with Cancel
+restoring the original model and saved project unchanged. This bounded test
+qualifies policy propagation and transactional refusal; it is not an above-64 MiB
+project workload or Windows runtime measurement. Branch protection refused the
+initial merge while the review conversation was unresolved; no bypass was used.
+
+See the [supplementary review receipt](../tests/results/M2/2026-10-07-resource-admission-review.json)
+for the corrected source identity and tests. The initial checkpoint receipt and
+archive retain their original source identity and results.

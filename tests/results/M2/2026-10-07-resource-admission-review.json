@@ -1,9 +1,12 @@
 {
-  "utc": "2026-10-07T10:15:44.703794+00:00",
+  "utc": "2026-10-07T10:32:18.052767+00:00",
   "baseline": "SC-DAW-BASELINE-2026-10-05",
-  "source_parent": "aa108887c5288d1b472aee65b44e07ddc29e9b88",
-  "scope": "X006 first resource-admitted audio-track canonical/parser/mix and Linux Qt workflow; full scalability and frozen parity incomplete",
-  "previous_goal_turn": "progress: protected PR22 native actual manual desktop workflow; original native sanitizer71 clock gap/source CPU cause retained unresolved",
+  "source_parent": "17d1e0c905d64e72199a468046d8746178948187",
+  "reviewed_head": "17d1e0c905d64e72199a468046d8746178948187",
+  "review_thread": "PRRT_kwDOU-rChc6p27Li",
+  "scope": "Controller configured state policy in routing/structural preflight; no additional native audio or Windows runtime qualification",
+  "finding": "Store/history used configured admission; two controller preflights still used64MiB default. Above-default admitted projects could fail before configured history. Below-default refusals could commit unrelated active gestures before history rejection.",
+  "correction": "Pass admission.state to setRouteValue and applySessionEdits before committing an active gesture.",
   "compiled_source_sha256": {
     "src/recording_worker.cpp": "6997c1dee88f4d88352788e71d20ffc7077aa57e483a34c0fd4c998ee314ddbd",
     "src/pipewire_recording.cpp": "43f31f71808cf550e8770e6c26856a5cab09403cb6e2fac6b58b89738300ad33",
@@ -78,7 +81,7 @@
     "ui/recording_controller.hpp": "9b7ee20ca1375fa8ba183c8a48384e41b8c38076f46f24eeadc74403e704d335",
     "ui/accelerating_spinbox.hpp": "e922369bf24879ec5bf0e3c3518c5e4a6f7daafb9b320640c47f8c837521695e",
     "ui/track_view.hpp": "8efcbf8562552fdac6521f9eb5270c1829b28a2a38f4ac39d0890573c9739623",
-    "ui/project_controller.cpp": "39ecebd62994b58fc5ffa640c71b51cce2ac05fbf1667a6db3885b9f753c9e7c",
+    "ui/project_controller.cpp": "abb60eef6851365dca5d44b78a996630e7b36f5d5d96e2c8e5ee5cf7a5919599",
     "ui/timeline_editor.hpp": "7e451a85ab80e409a6e8934270f339f9d953706cc73f9357e41af2ab910f303d",
     "ui/equipment_profiles.cpp": "f5a0f48eb19ef8407547afccaf454a56c6f06595bb5fa97fc737b874610a1f8f",
     "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
@@ -112,7 +115,7 @@
     "tests/export_controller_tests.cpp": "3d8c123384caa11bfd108e7863721cfcc5df288b47d5fffabf03fe19a13f299a",
     "tests/playback_controller_tests.cpp": "d3d4389d66f8de24e01319bb26968e54b13fbdb73b93e8dbd9bc14c432dc6e02",
     "tests/native_manual_processing_stage_tests.cpp": "9d777740f6ff9bba8f24f3a4c67c9beed72488ed21732fb65c8b61436d3b2b55",
-    "tests/controller_tests.cpp": "63d94b09d77a4caeb9db57dc683419f7b13267ff93a0003b839d42e1b401a954",
+    "tests/controller_tests.cpp": "e650be75b1768f8df28bc925c8d975ff63502b374944d44e6cc66662350f723e",
     "tests/native_port_handoff.cpp": "6b6cee5a15183c3e5731dbaf75f4f949fca056d6cd9a2243e1b71267c0b8e378",
     "tests/native_port_marker_tests.cpp": "2ef47cdb600a239ef28a4db5dfa3fa2ab1900c702cf89f70388150732ac30321",
     "tests/audio_bridge_tests.cpp": "b7061da810d75d9709af4dfe107ecfdce6f33e590d87f8406f84f75583db83f5",
@@ -168,403 +171,71 @@
     "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
     "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
     "tests/native_port_marker_fake.cpp": "c1bfa5d19894fabd9b892bac953814de138ea30442183461dd685d43254f1815",
-    "CMakeLists.txt": "a0d2840ca71bead9a4a0bca8db0372d2dbf54354807cf23068839770b1bdc4f7",
+    "CMakeLists.txt": "638121ac868719cb1391a4fa88cf39fa2783b376acf8ccbc68191dba3ebec12c",
     "third_party/nlohmann/json.hpp": "aaf127c04cb31c406e5b04a63f1ae89369fccde6d8fa7cdda1ed4f32dfc5de63"
   },
-  "new_dependencies": [],
-  "schema_changes": {
-    "writer_minor": 7,
-    "migration_minors": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6
-    ],
-    "trusted_policy_from_file": false,
-    "predecessor": {
-      "utc": "2026-10-07T09:43:57.750570+00:00",
-      "command": [
-        ".cache/x006-predecessor/sc-project-tool",
-        "inspect",
-        ".cache/build-track-scale/track-scalability-projects/sc-track-scale-efa03213-1164-4dec-b687-8abcc2d2fe0e/257"
-      ],
-      "exit_code": 1,
-      "diagnostic": "Unsupported project schema\n",
-      "input_schema_minor": 7,
-      "tracks": 257,
-      "snapshots_unchanged": true,
-      "input_sha256": {
-        "project.json": "87aee8dafa4e4782e955ddf13390725cf93ac45b54290e2322db4d415fe816e4",
-        "project.previous.json": "4373c2a9c60ef9a692d0d0db2b5ecde47c86cdb2fe83fadca8f3c1a9a6d08125"
-      },
-      "native_runtime": false,
-      "earlier4096_refusal_reason": "Project size limit exceeded\n",
-      "earlier_expected_schema_assertion_failed": true,
-      "scope": "Actual retained prior reader executable refuses schema1.7 at257 tracks.4096 failed earlier at its original4MiB byte bound; not claimed as a schema-gate observation."
-    }
+  "original_red": {
+    "exit_code": 8,
+    "test": "desktop-configured-preflight",
+    "routing_preserved_gesture": false,
+    "structural_preserved_gesture": false,
+    "saved_projects_unchanged": true,
+    "original_source_executable_hash_log_saved_projects_retained": true,
+    "unsaved_model_bytes_not_serialized": true
   },
-  "trusted_payload_budget_defaults": {
-    "state_validation_bytes": 67108864,
-    "encoded_project_bytes": 33554432,
-    "parser_staging_bytes": 268435456,
-    "prepared_dsp_playback_bytes": 134217728,
-    "allocator_overhead_or_rss_guarantee": false
+  "regression_scope": {
+    "trusted_state_bytes": 32768,
+    "large_rejected_route_channels": 4,
+    "direction_shape_and_text_lengths_valid": true,
+    "both_commands_refused_with_ResourceLimit": true,
+    "Cancel_restores_prior_parameter_model": true,
+    "saved_project_unchanged": true,
+    "above_64MiB_project_workload": false
   },
-  "core_workflows": {
-    "media_cache_qualified": false,
-    "native_runtime_qualified": false,
-    "passed": true,
-    "sustained_qualified": false,
-    "track_counts_are_regressions_not_product_limits": true,
-    "virtualized_ui_qualified": false,
-    "workflows": [
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 302030,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 94962768,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 32.875,
-          "playback_payload_bytes": 102930089,
-          "right_peak": 32.0,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 484411,
-        "state_workflow_ns": 1162174159,
-        "tracks": 257
-      },
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 601145,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 144022102,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 63.875,
-          "playback_payload_bytes": 205054784,
-          "right_peak": 64.75,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 964066,
-        "state_workflow_ns": 1853529561,
-        "tracks": 512
-      },
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 1201745,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 297449458,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 127.8125,
-          "playback_payload_bytes": 410105152,
-          "right_peak": 129.625,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 1927138,
-        "state_workflow_ns": 3711296186,
-        "tracks": 1024
-      },
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 4808273,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 1486461061,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 511.875,
-          "playback_payload_bytes": 1640407360,
-          "right_peak": 513.875,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 7705570,
-        "state_workflow_ns": 15125863620,
-        "tracks": 4096
-      }
-    ]
-  },
-  "sanitized_core_workflows": {
-    "media_cache_qualified": false,
-    "native_runtime_qualified": false,
-    "passed": true,
-    "sustained_qualified": false,
-    "track_counts_are_regressions_not_product_limits": true,
-    "virtualized_ui_qualified": false,
-    "workflows": [
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 302030,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 169014618,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 32.875,
-          "playback_payload_bytes": 102930089,
-          "right_peak": 32.0,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 484411,
-        "state_workflow_ns": 5643107662,
-        "tracks": 257
-      },
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 601145,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 441393188,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 63.875,
-          "playback_payload_bytes": 205054784,
-          "right_peak": 64.75,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 964066,
-        "state_workflow_ns": 10874640882,
-        "tracks": 512
-      },
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 1201745,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 879890534,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 127.8125,
-          "playback_payload_bytes": 410105152,
-          "right_peak": 129.625,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 1927138,
-        "state_workflow_ns": 22126363791,
-        "tracks": 1024
-      },
-      {
-        "all_ids_routes_state_preserved": true,
-        "encoded_bytes": 4808273,
-        "group_undo_redo": true,
-        "mix_workflow_ns": 3283796347,
-        "mixer": {
-          "duplicate_and_invalid_ordinal_transactional": true,
-          "exact_sample_difference": 0,
-          "frames": 32,
-          "high_ordinal_parameter_receipt": true,
-          "left_peak": 511.875,
-          "playback_payload_bytes": 1640407360,
-          "right_peak": 513.875,
-          "rt_violations": 0
-        },
-        "save_reopen_previous": true,
-        "small_budgets_refused_without_mutation": true,
-        "state_validation_payload_bytes": 7705570,
-        "state_workflow_ns": 88119945819,
-        "tracks": 4096
-      }
-    ]
-  },
-  "local_debug": {
-    "tests": "42/42",
+  "final_debug": {
+    "tests": "43/43",
+    "elapsed_seconds": 84.35,
     "exit_code": 0,
-    "log": "x006-debug-final/ctest.log",
-    "native_hardware": false,
-    "elapsed_seconds": 82.25
+    "includes_actual_4096_4097_Qt_workflow": true
   },
-  "sanitizers": {
-    "options": "ASan/UBSan/LSan halt_on_error; detect_leaks=1",
-    "initial": "7/8 pass; new large Close helper timed out at10s, no memory diagnostic",
-    "final_ui": "2/2 pass: ordinary timeline4.10s, large desktop54.15s, Close/Save16536ms",
-    "unique_affected_tests_passed": 9,
-    "single_nine_group_rerun": false,
-    "production_sources_identical": true,
-    "native_sanitizer_run": false
+  "final_sanitizers": {
+    "tests": "2/2",
+    "elapsed_seconds": 0.9,
+    "exit_code": 0,
+    "cases": [
+      "desktop-controller",
+      "desktop-configured-preflight"
+    ],
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1",
+    "prior_nine_affected_groups_are_prior_source_scope": true
   },
-  "desktop": {
-    "actual_widget_stack": "StudioWindow/canonical ProjectController/history/store; QT_QPA_PLATFORM=offscreen",
-    "workflow": "Open4096, select/rename last stable ID, Add4097, Undo/Redo, Close/Save/reopen",
-    "tracks_after_reopen": 4097,
-    "virtualization_qualified": false,
-    "physical_display_qualified": false,
-    "native_audio": false,
-    "large_case_ctest_deadline_seconds": 180,
-    "large_close_wait_seconds": 60,
-    "ordinary_ctest_deadline_seconds": 60,
-    "ordinary_wait_seconds": 10,
-    "debug_close_save_ms": 3058
+  "branch_protection": {
+    "initial_merge_exit_code": 1,
+    "diagnostic": "base branch policy prohibits the merge",
+    "all_required_checks_already_passed": true,
+    "unresolved_review_conversation_at_attempt": true,
+    "admin_bypass_used": false
   },
-  "original_failures": [
-    {
-      "run": "x006-core-original",
-      "failure": "Initial fixture used slab16 below minimum256; routing expected oldminor6; editing expected removed256 cap",
-      "source_executable_logs_projects_retained": true
-    },
-    {
-      "run": "x006-stale-build-test",
-      "failure": "StateBudget local-name compile collision; mistakenly launched stale executables after failed build",
-      "qualification_valid": false,
-      "source_executable_logs_retained": true
-    },
-    {
-      "run": "x006-core-slab64-failure",
-      "failure": "Correctly rebuilt fixture still used slab64 belowminimum256",
-      "source_executable_logs_projects_retained": true
-    },
-    {
-      "run": "x006-desktop-qualified",
-      "failure": "40/41; immediate compound GUI count/selection assertion after canonical4097",
-      "original_failed_subterm_unknown": true,
-      "original_unsaved_state_missing": true,
-      "saved4096_project_retained": true,
-      "later_instrumented_ui_lag_does_not_restore_original_terms": true
-    },
-    {
-      "run": "local-logs/x006-timeline-poll-build.log",
-      "failure": "Logger tried .str() on optional selectedTrack; corrected before any new test launch",
-      "original_failed_source_retained": true
-    },
-    {
-      "run": "x006-sanitized-qualified",
-      "failure": "7/8; default10s Close wait timedout on4097",
-      "exact_original_save_worker_duration_and_closed_subterms_unobserved": true,
-      "original_saved4096_and_admitted4097_source_executable_log_retained": true,
-      "later16536ms_close_observation_is_separate": true
-    },
-    {
-      "run": "predecessor/refusal4096.stderr.log",
-      "failure": "Initial assertion wrongly expected schema diagnostic; actual predecessor4MiB size refusal",
-      "later257_schema_refusal_is_separate": true
-    }
-  ],
-  "windows": {
-    "core_mingw_compile_link_exit": 0,
-    "log": "local-logs/x006-windows-core-build.log",
-    "executable_sha256": {
-      "sc-playback-bridge-tests.exe": "cd15eca6e31756a1b488347635bf4272cf21554d6879840ef30f374d3ef3a894",
-      "sc-record-tool.exe": "a5ac65e4dde22ffb547967f9b183a7077a9a4b6a90b470ae53c3d6c6efcfb93b",
-      "sc-engine-tests.exe": "6d3d80ac005aeda03ad629f862fb8ce67aef13f6d25f59aa85986fcb2769e886",
-      "sc-track-scalability-tests.exe": "13ba37de6d29167f4e0e2e3b34b06915bac9211e44f7876859eaf9b44755a2cd",
-      "sc-editing-tests.exe": "09dbe11617bb2c96e389f85f7958d9fe1434cc45c89122a8eb25d2a1114972e6",
-      "sc-writer-timing-tests.exe": "d0ee1d68ad8e5608c22cb56702348fdc6b7c536a5e2dc41f8f4df60c2a111b73",
-      "sc-project-tool.exe": "62763776383ac847ad3fa82b29ba9e5af4ab73b11143eb2229b5760f9e7990d5",
-      "sc-duplex-recording-tests.exe": "c28ac7b5a95c211bd03d55e335606b81e473ce641b3857f0cfaec4a283128ea9",
-      "sc-duplex-tests.exe": "e06ae0f944c2bc720435f456f39e0170086a2933075dce38480d1f33c04a8e5f",
-      "sc-mix-graph-tests.exe": "9a81a84a87dfba9a764e62d3b5cdcfe64f3862db8c0532f05fe2d6280ff2884d",
-      "sc-session-tests.exe": "0ff670a1c4a363644a3615f9336da52e2788bec8202817eb8a44e3fc2f2c4c30",
-      "sc-recording-tests.exe": "06c716908cdfd64179b93379a7920bb272602837a097df3321cffca08f2db334",
-      "sc-monitoring-tests.exe": "3ba3cf899969e804ad4fd616e5a09101873bae7a26f0b6e83c0a7e819f5e84fc",
-      "sc-audio-bridge-tests.exe": "12b225e20c9847847cf2c74497b6208b58ecb7723b65978e1bb23d328c0232ce",
-      "sc-capture-tests.exe": "9ffa80a244612987d0ef68c12447a88efad9084c9d9ecb309bbec612f7ceab05",
-      "sc-duplex-duration-fixture.exe": "cbc04f5ceabe4688b23839bcb1beebfc95e4ffff6759fd95f74e5f5f0ce6e48b",
-      "sc-routing-tests.exe": "d2d2ffd04fdd61875f1a19dc6df4d187713e8842ff94d69ebf17775e7a61bee8",
-      "sc-punch-tests.exe": "cad53f4c2d84f8fcaa72c5c9e71d4ee620cacaa6c76c05372590eef7f418d19c",
-      "sc-play-tool.exe": "ea48295e69fbb8941361b03fa60982f7dcbf1bc828b679cf90db8fe7b5632c94",
-      "sc-export-tool.exe": "e3f6aa46a0cc89969ea52e05d030ff936c80e90a36ba5a3666ddab0705a8a903",
-      "sc-discovery-tests.exe": "45db598c8d5b7864343a20596d2544cdba1c379a81c1129d1e1d785ef47d2d6b",
-      "sc-playback-tests.exe": "55b2bad133681dae55d3330d6885e0cc31e85dcd7c5ba8fa8449d19ab3239f65",
-      "sc-export-tests.exe": "267cc8544dd85bae8e660df91649089505e77eb1b1782593e284b7a3c9aca145",
-      "sc-mix-playback-tests.exe": "982e2bc66eb58b7227d3851dac36ffae69caf02296f5b8562ad14071b64b5c64",
-      "sc-immediate-tests.exe": "4cbfeabab6f39fb57e3d24be2ab54182001aed648fb742796a28f7b826e203e9"
-    },
-    "native_runtime": false,
-    "desktop_runtime": false,
-    "installer_qualified": false
-  },
+  "initial_checkpoint_receipt": "tests/results/M2/2026-10-07-resource-admitted-projects.json",
   "evidence_archive": {
-    "path": "tests/results/M2/2026-10-07-resource-admitted-projects-evidence.zip",
-    "sha256": "6c2700ba5ca24f3c44689c31c842af78e876f12ba5385d73f14f4580fd16860c",
-    "bytes": 16818865,
-    "entries": 1425,
-    "CRC_and_all_entry_bytes_verified": true,
-    "manifest_sha256": "fad6f4fab26784a28b438ce96413b6cef0a3d21b52358efb4632a35fffc1fbb1",
-    "private_executables_omitted": true,
-    "user_audio_included": false
+    "path": "tests/results/M2/2026-10-07-resource-admission-review-evidence.zip",
+    "sha256": "5ffa852eeba5ab658f18be0f625ee3971549bfe40546819003d665b1030a40b6",
+    "bytes": 2343513,
+    "entries": 513,
+    "CRC_and_all_entry_bytes_verified": true
   },
   "equalizer_reuse": {
     "reviewed_inputs": 24,
     "before_after_equal": true,
-    "review_required": false,
     "repositories_modified": false
   },
   "parity": {
-    "projection_keys": [
-      "C",
-      "F",
-      "N",
-      "Q",
-      "acceptance",
-      "bitwig_evidence",
-      "bitwig_source_id",
-      "bitwig_url",
-      "cubase_evidence",
-      "cubase_source_id",
-      "cubase_url",
-      "feature",
-      "group",
-      "id",
-      "milestone",
-      "quality"
-    ],
-    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
     "frozen_contracts": 92,
+    "projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
     "FQCN_promotions": 0
   },
-  "current_fixed_total_project_track_limit": null,
-  "synthetic_counts_are_regressions_not_product_limits": true,
   "native_observations_total_unchanged": 71,
-  "original_native71_cause_resolved": false,
-  "missing_original_terms_restored_retroactively": false,
-  "remaining_gaps": [
-    "Recording owner256arm/packed-native-channel assumptions; large adoption/resource policy propagation",
-    "Shared bounded media handles/cache/read-ahead; reader default256/open-reference16384 policies",
-    "Virtualized views/meters and configurable desktop resource controls",
-    "Combined old/new model, GUI, history and graph-tail memory; structural64-op batch/history256-command32MiB policy large-group workflows",
-    "Finite transport, richer serial/parallel/plugin graphs, freeze/bounce, IO/CPU admission, sustained Linux/Windows/physical workloads",
-    "Independent Windows native/UI/install qualification, X004 imports, X005 profiles, European localization, all92 frozen F/Q/C/N contracts",
-    "Original native sanitizer71 clock gap/source CPU cause and historical failures"
-  ],
-  "next_tasks": [
-    "Shared bounded media/cache and virtualized views/meters",
-    "Combined state/history/graph resource admission and large recording/adoption workflows",
-    "Original native71 bounded source-stage diagnosis; full staged frozen-reference suite"
-  ],
-  "initial_checkpoint_tested_commit": "17d1e0c905d64e72199a468046d8746178948187",
-  "controller_preflight_superseded_by": "tests/results/M2/2026-10-07-resource-admission-review.json"
+  "new_dependencies": [],
+  "remaining_full_X006_and_frozen_scope_unchanged": true
 }

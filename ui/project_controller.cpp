@@ -266,8 +266,8 @@ struct ProjectController::State : QThread {
                                                                       *command.routePatch)
                                                   : command.route;
             auto proposed = *model;
-            setRouteValue(proposed, *command.routeAddress,
-                          value); // Reject before committing a gesture.
+            setRouteValue(proposed, *command.routeAddress, value,
+                          admission.state); // Reject before committing a gesture.
             commitGesture();
             if (history->route(*command.routeAddress, value))
                 revised();
@@ -291,7 +291,8 @@ struct ProjectController::State : QThread {
             if (view.io == IoOperation::Create || view.io == IoOperation::Open)
                 throw ProjectError(ErrorCode::InvalidState, "Project replacement is in progress");
             auto proposed = *model;
-            applySessionEdits(proposed, command.edits); // Reject before committing a gesture.
+            applySessionEdits(proposed, command.edits,
+                              admission.state); // Reject before committing a gesture.
             if (proposed != *model &&
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                 throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");

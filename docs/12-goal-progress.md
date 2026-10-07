@@ -2145,3 +2145,24 @@ freeze/bounce, richer/parallel graphs and sustained Linux/Windows profiles remai
 The full frozen suite, X004 imports, X005 profiles, native Windows/UI/install and
 European language delivery remain required. X006 is partially implemented, and
 the full goal remains active and incomplete.
+
+
+### Configured admission review correction (2026-10-07)
+
+Automated review of the first X006 published head found two controller preflight
+calls still using default state admission. Both now receive `admission.state`
+before committing a gesture. A dedicated 32 KiB refusal fixture reproduces the
+original defect for routing and structural changes: later history refusal left
+an unrelated gain gesture committed, so Cancel could not restore it. Original
+source/executable hashes, saved projects and both red observations remain. The
+fixed case preserves canonical/history/gesture state and saved projects. It is
+a policy-propagation test, not an above-64 MiB project stress measurement.
+
+Fresh full Debug43/43,84.35s and affected controller ASan/UBSan/LSan2/2,0.90s pass.
+The earlier nine affected sanitizer groups retain their earlier source scope; no
+new all-nine sanitizer run is claimed. Branch protection refused an initial merge
+while the valid review conversation was unresolved; no admin bypass was used.
+[Review receipt](../tests/results/M2/2026-10-07-resource-admission-review.json) pins
+the corrected source, original red fixture and qualification. All24 equalizer
+inputs remain unchanged, all92 frozen contracts remain unpromoted and native
+observations stay71. The full goal and remaining X006 stages remain incomplete.
