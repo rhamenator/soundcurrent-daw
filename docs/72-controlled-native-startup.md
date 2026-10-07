@@ -108,6 +108,51 @@ with the same inputs. `verify_native_port_handoff.py` requires
 the original independent raw-analysis script and all inputs; do not regenerate
 originals by replaying audio or silently apply their diagnostic shift.
 
+## Archived evidence portability review
+
+The first pair/mutation CLI used only the original receipt's absolute temporary
+project path. Both failures with that path unavailable were preserved before
+editing the verifier. This was an analysis-tool portability defect; native audio
+was not repeated and runtime observations remain 47.
+
+Both tools now accept `--counterfactual-project`. This overrides only the location
+used to read the preserved project; the original receipt and its recorded paths,
+clock/sample contracts and SHA remain unchanged. An explicitly missing project
+fails without falling back to another historical directory. Old verifier source
+snapshots inside the original archive remain unchanged; use the corrected checkout
+scripts when verifying extracted evidence.
+
+For example, after extracting the evidence ZIP into `evidence/`, run:
+
+```sh
+python3 tests/verify_native_startup_pair.py \
+  --original evidence/original47/original-project \
+  --counterfactual-receipt evidence/joined-checks/native-startup-defer-native.json \
+  --counterfactual-project 'evidence/counterfactual/Manual fault — Ελληνικά' \
+  --original-raw-analysis evidence/original47/independent-original-full-raw-analysis.json \
+  --output relocated-pair.json
+```
+
+Use the same arguments with `tests/native_startup_verifier_tests.py` for all 21
+mutation refusals. `python3 tests/native_startup_portability_tests.py` verifies
+the externally recorded ZIP checksum, requires unique members and an exact manifest
+member set, checks payload hashes, extracts the same verified bytes into a fresh
+temporary directory, blocks original-machine path reads, runs both corrected CLIs, checks missing overrides fail, and verifies
+the archived receipt is byte-identical afterward. The Linux CI job runs this check
+without a PipeWire daemon, compiled native fixture or audio replay. The additive
+[review receipt](../tests/results/M2/2026-10-07-controlled-native-startup-review.json)
+preserves reproduction logs and corrected verifier hashes; original evidence and
+its native qualification limits remain unchanged.
+
+A second review reproduced acceptance of a self-consistent replacement ZIP,
+unmanifested member and duplicate member before the external checksum and member
+checks were added. `tests/native_startup_archive_integrity_tests.py` refuses all
+three replacements and independently checks both member gates after explicitly
+pinning altered test fixtures. CI runs it before the relocation test. Its additive
+[integrity review receipt](../tests/results/M2/2026-10-07-controlled-native-startup-integrity-review.json)
+retains the original checker, reproducer and terminal logs. No native audio was
+repeated for either review.
+
 ## Next implementation
 
 Implement production output acquisition against actual publication readiness for

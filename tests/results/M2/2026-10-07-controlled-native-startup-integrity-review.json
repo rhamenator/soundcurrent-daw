@@ -1,0 +1,110 @@
+{
+  "utc": "2026-10-07T04:04:20.733836+00:00",
+  "checkpoint": "Pin retained startup ZIP checksum and reject unexpected/duplicate archive members",
+  "source_parent": "169b5f7627fdfd5f0be65983ac823f5e3ad47716",
+  "review_thread": "PRRT_kwDOU-rChc6pwDRo",
+  "scope": "Analysis integrity gates; production sources and original native evidence unchanged",
+  "original_receipt": {
+    "path": "tests/results/M2/2026-10-07-controlled-native-startup.json",
+    "sha256": "b249a8aeb20f595fbfd8ceec4c185be67a6d4045f5302d0ed2429c823832dea9",
+    "unchanged": true
+  },
+  "original_archive": {
+    "path": "tests/results/M2/native-manual-observations/2026-10-07-controlled-startup-evidence.zip",
+    "sha256": "5c72c7926e37ad006f8d954cac8214f58f9f6bae0682d4c1bb79826076004195",
+    "unchanged": true
+  },
+  "source_sha256": {
+    "tests/native_startup_portability_tests.py": "2910ef4b030abfd0a9cf8949d2f7177372313967cf02022a45b7c3631e30a63a",
+    "tests/native_startup_archive_integrity_tests.py": "fce63002acc7544b13ae24c80a4e221d3900b552ef3365aa5c3afb13e8d3c1b5",
+    ".github/workflows/ci.yml": "acc22ac7c615ce4d7729df8b315869bc5794ae8a854f3a953c3a4d06a706a49f",
+    "docs/72-controlled-native-startup.md": "8930587b9bd89ff0bd7a3684c433b5adc3bae88633e3fde7350417633b60adfa"
+  },
+  "original_failure_reproduction": {
+    "scope": "Analysis-tool integrity review reproduction; no native audio or original ZIP changed",
+    "source_sha256": "b8703c2cb3d90d5344179810ff077a9c3b3e5ca5a7e3c1dfca29a61e1a37bae1",
+    "cases": {
+      "self-consistent-replacement": {
+        "original_wrongly_accepted": true,
+        "sha256": "800d99fdd7e9130be1ce23ded9533108f2c4557f1de9ab6a78b3adeea27c01e6",
+        "result": {
+          "relocated_pair_qualified": true,
+          "relocated_mutations_refused": 21,
+          "original_machine_path_reads_blocked": 2,
+          "missing_explicit_paths_refused": 2,
+          "original_receipt_unchanged": true,
+          "archive_sha256": "800d99fdd7e9130be1ce23ded9533108f2c4557f1de9ab6a78b3adeea27c01e6",
+          "native_audio_repeated": false,
+          "retained_runtime_observations": 47
+        }
+      },
+      "unmanifested-member": {
+        "original_wrongly_accepted": true,
+        "sha256": "374f4b289ab65d1cf72c3764d45b5455e8967b710e6e43c2b6a27c9cc6a2eb2a",
+        "result": {
+          "relocated_pair_qualified": true,
+          "relocated_mutations_refused": 21,
+          "original_machine_path_reads_blocked": 2,
+          "missing_explicit_paths_refused": 2,
+          "original_receipt_unchanged": true,
+          "archive_sha256": "374f4b289ab65d1cf72c3764d45b5455e8967b710e6e43c2b6a27c9cc6a2eb2a",
+          "native_audio_repeated": false,
+          "retained_runtime_observations": 47
+        }
+      },
+      "duplicate-member": {
+        "original_wrongly_accepted": true,
+        "sha256": "63ad0bee4985726f32d78c17ab6aec38694366d5d8d9abc12f827428b6adc80a",
+        "result": {
+          "relocated_pair_qualified": true,
+          "relocated_mutations_refused": 21,
+          "original_machine_path_reads_blocked": 2,
+          "missing_explicit_paths_refused": 2,
+          "original_receipt_unchanged": true,
+          "archive_sha256": "63ad0bee4985726f32d78c17ab6aec38694366d5d8d9abc12f827428b6adc80a",
+          "native_audio_repeated": false,
+          "retained_runtime_observations": 47
+        }
+      }
+    }
+  },
+  "final_integrity_acceptance": {
+    "replacement_archives_refused": [
+      "self-consistent-replacement",
+      "unmanifested-member",
+      "duplicate-member"
+    ],
+    "independent_member_gates_refused": [
+      "unmanifested-member",
+      "duplicate-member"
+    ],
+    "original_archive_unchanged": true,
+    "native_audio_repeated": false
+  },
+  "final_portability_acceptance": {
+    "relocated_pair_qualified": true,
+    "relocated_mutations_refused": 21,
+    "original_machine_path_reads_blocked": 2,
+    "missing_explicit_paths_refused": 2,
+    "original_receipt_unchanged": true,
+    "archive_sha256": "5c72c7926e37ad006f8d954cac8214f58f9f6bae0682d4c1bb79826076004195",
+    "native_audio_repeated": false,
+    "retained_runtime_observations": 47
+  },
+  "archive": {
+    "path": "tests/results/M2/native-manual-observations/2026-10-07-controlled-startup-integrity-review-evidence.zip",
+    "sha256": "f024187521d7ee7d6d61dabce1c5d4cc3d46b1724ba2a052c9d944d6f78a0029",
+    "bytes": 16389,
+    "payload_files": 12,
+    "integrity_verified": true
+  },
+  "retained_runtime_observations": 47,
+  "native_audio_repeated": false,
+  "production_fix_implemented": false,
+  "historical46_cause_established": false,
+  "historical37_cause_established": false,
+  "parity_promotions": 0,
+  "project_track_implementation_limit": 256,
+  "full_goal_complete": false,
+  "next_task": "Production publication-readiness and capacity-certified buffer acquisition for every channel; trace logical attempts separately from actual SDK calls without shifting port ordinals. Qualify the same forced startup and ordinary native paths, then bounded Qt manual controls, late Cancel/monitoring Undo and X006 track scaling."
+}
