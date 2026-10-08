@@ -67,9 +67,10 @@ manual-stop take. They prove there is no first fault, sidecar or storage warning
 Debug **2/2, 1.45 s**, affected sanitizer **2/2, 3.69 s**. Production inputs and
 the packaged executable are unchanged; the exact package source remains `743392e`.
 
-This installed fault/reopen workflow does not qualify sustained successful
-recording/EQ/export on this binary. The earlier `85ec` candidate retains its own
-ten-second workflow evidence. Private Xvfb/PipeWire on a shared kernel do not
+This fault/reopen workflow has its own scope. A subsequent [normal installed
+workflow on the same binary](94-installed-normal-preview.md) now qualifies an
+11.264-second recording, live EQ/Undo, reopen and independently checked export.
+The earlier `85ec` candidate retains its own evidence. Private Xvfb/PipeWire on a shared kernel do not
 qualify a complete desktop, physical audio, real-time deadlines or native Windows.
 Original native71 and 2,048 leading zero frames remain unresolved; no valid
 silence is trimmed. Multi-track/manual-punch durable diagnostics, detailed writer
@@ -77,6 +78,5 @@ exception persistence, broader setup/recovery and language qualification remain
 required. No full frozen F/Q/C/N family or X004/X005/X006/Europe gate is promoted.
 
 Next concrete task: distinguish native missing-buffer substitutions from valid
-input silence and choose a tested acquisition/alignment policy; then qualify this
-candidate's normal installed recording/EQ/reopen/export workflow and complete
+input silence and choose a tested acquisition/alignment policy; then complete
 desktop/native Windows previews.

@@ -9,6 +9,8 @@ The latest local candidate is **0.1.0~preview.20261008034000.743392ece10a**, in
 `.cache/preview-portable-faults-ubuntu-26.04/`. It adds saved single-track error
 details after reopen and passes an actual installed fault/Save/Quit/reopen/review
 workflow. See [its package hashes, installation and evidence](93-installed-portable-fault-preview.md).
+The same binary also passes [normal 11.264-second recording, live EQ/Undo,
+save/reopen and independently verified WAV export](94-installed-normal-preview.md).
 The two earlier candidates below retain their original, different test scopes.
 
 ## Package and installation
