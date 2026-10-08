@@ -66,6 +66,7 @@ class NativeRecordingEndpoint : public RecordingEndpoint {
             latest_.receipt = receipt;
         latest_.status = owner_.status();
         latest_.firstFault = owner_.firstFault();
+        latest_.faultStorageDiagnostic = owner_.faultStorageDiagnostic();
         latest_.captureStatus = owner_.captureStatus();
         latest_.endReason = owner_.endReason();
         latest_.capturedFrames = owner_.capturedFrames();

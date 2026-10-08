@@ -325,6 +325,41 @@ void faults() {
           "Capture exhaustion lost its precise first fault");
 }
 void firstFaultReceipts() {
+    // A normal Stop changes terminal status without publishing a first fault.
+    // Exercise both prepared and running owners, and completed ranges.
+    for (bool running : {false, true}) {
+        Fixture f;
+        CapturePipe pipe(f.config);
+        AudioBridge bridge(f.session, f.session.tracks.front().id, pipe);
+        if (running) {
+            rt_audit::Guard guard;
+            check(bridge.process(f.clock, f.inputs, f.outputs, 127) == AudioBridgeStatus::Running,
+                  "Healthy block failed before normal Stop");
+        }
+        {
+            rt_audit::Guard guard;
+            bridge.requestStop();
+            bridge.finishQuiescent();
+        }
+        check(bridge.status() == AudioBridgeStatus::Stopped && !bridge.firstFault(),
+              "Normal Stop fabricated a first-fault receipt");
+    }
+    {
+        Fixture f;
+        CapturePipe pipe(f.config);
+        AudioBridgeOptions options;
+        options.stopAfterFrames = 127;
+        AudioBridge bridge(f.session, f.session.tracks.front().id, pipe, options);
+        {
+            rt_audit::Guard guard;
+            check(bridge.process(f.clock, f.inputs, f.outputs, 127) == AudioBridgeStatus::Complete,
+                  "Healthy range did not complete");
+            bridge.requestStop();
+            bridge.finishQuiescent();
+        }
+        check(bridge.status() == AudioBridgeStatus::Complete && !bridge.firstFault(),
+              "Completed range fabricated a first-fault receipt");
+    }
     for (auto reason : {AudioBridgeFaultReason::Xrun,
                         AudioBridgeFaultReason::DiscontinuityFlag,
                         AudioBridgeFaultReason::PositionOverflow,

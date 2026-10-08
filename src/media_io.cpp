@@ -200,7 +200,7 @@ struct JobLease::State {
     }
 #endif
 };
-JobLease::JobLease(const std::filesystem::path &job, bool writer)
+JobLease::JobLease(const std::filesystem::path &job, bool writer, bool exclusiveExisting)
     : state_(std::make_unique<State>()) {
     plainDirectory(job);
     const auto path = job / "writer.lock";
@@ -212,7 +212,8 @@ JobLease::JobLease(const std::filesystem::path &job, bool writer)
     auto &s = *state_;
     s.handle =
         CreateFileW(path.c_str(), writer ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ,
-                    writer ? 0 : FILE_SHARE_READ, nullptr, writer ? CREATE_NEW : OPEN_EXISTING,
+                    writer || exclusiveExisting ? 0 : FILE_SHARE_READ, nullptr,
+                    writer ? CREATE_NEW : OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
     if (s.handle == INVALID_HANDLE_VALUE) {
         if (!writer && GetLastError() == ERROR_SHARING_VIOLATION) {
@@ -234,7 +235,7 @@ JobLease::JobLease(const std::filesystem::path &job, bool writer)
     require(s.fd >= 0, "Cannot open recording job lease");
     struct stat info{};
     require(fstat(s.fd, &info) == 0 && S_ISREG(info.st_mode), "Unsafe recording lease file");
-    if (flock(s.fd, (writer ? LOCK_EX : LOCK_SH) | LOCK_NB) != 0) {
+    if (flock(s.fd, (writer || exclusiveExisting ? LOCK_EX : LOCK_SH) | LOCK_NB) != 0) {
         if (!writer && (errno == EWOULDBLOCK || errno == EAGAIN)) {
             s.status = LeaseStatus::Busy;
             return;

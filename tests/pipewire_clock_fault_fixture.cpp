@@ -15,7 +15,9 @@ json clockJson(const DeviceBlockClock &c) {
 }
 int main(int argc, char **argv) {
     try {
-        if (argc != 2) throw std::runtime_error("Supply a new owned project directory");
+        if (argc != 2 && argc != 3) throw std::runtime_error("Supply a new owned project directory");
+        const bool blockStorage = argc == 3 && std::string_view(argv[2]) == "block-fault-storage";
+        if (argc == 3 && !blockStorage) throw std::runtime_error("Unknown fixture option");
         const auto root=utf8Path(argv[1]);
         if (!std::filesystem::create_directory(root))
             throw std::runtime_error("Owned project directory already exists");
@@ -36,6 +38,8 @@ int main(int argc, char **argv) {
         if (selected.size()!=1) throw std::runtime_error("Explicit owned mono source not found");
         recording.connectInputs(selected);
         recording.activate();
+        if (blockStorage)
+            std::filesystem::create_directory(*recording.jobDirectory() / "first-fault.json");
         const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(10);
         while ((recording.status()==AudioBridgeStatus::Ready ||
                 recording.status()==AudioBridgeStatus::Running) &&
@@ -44,13 +48,17 @@ int main(int argc, char **argv) {
         recording.stop();
         const auto fault=recording.firstFault();
         const auto &take=recording.result();
+        const auto storageDiagnostic = recording.faultStorageDiagnostic();
+        const auto stored = blockStorage ? std::optional<AudioBridgeFault>{}
+                                         : inspectRecordingFault(*recording.jobDirectory(), recording.spec());
         json report{{"format","sc-owned-recording-fault-probe"},{"schemaMajor",1},
                     {"status",static_cast<unsigned>(recording.status())},
                     {"capturedFrames",recording.capturedFrames()},
                     {"writtenFrames",recording.writtenFrames()},
                     {"endReason",static_cast<unsigned>(recording.endReason())},
                     {"assetPath",take.asset.relativePath},{"assetSha256",take.asset.sha256},
-                    {"firstFault",nullptr}};
+                    {"firstFault",nullptr},{"storedFaultMatches",stored == fault},
+                    {"storageDiagnostic",storageDiagnostic},{"storageBlocked",blockStorage}};
         if (fault) report["firstFault"]={
             {"status",static_cast<unsigned>(fault->status)},
             {"reason",static_cast<unsigned>(fault->reason)},
@@ -64,7 +72,8 @@ int main(int argc, char **argv) {
         const bool expected=fault && fault->reason==AudioBridgeFaultReason::PositionJump &&
             fault->status==AudioBridgeStatus::ClockDiscontinuity && fault->previousClock &&
             fault->previous.position+fault->previous.duration!=fault->rejected.position &&
-            take.asset.frames>0;
+            take.asset.frames>0 &&
+            (blockStorage ? !storageDiagnostic.empty() : storageDiagnostic.empty() && stored == fault);
         report["expectedPositionJump"]=expected;
         std::cout<<report.dump(2)<<'\n';
         return expected ? 0 : 2;

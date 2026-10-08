@@ -1819,6 +1819,32 @@ Stored recording: %1</translation>
       <translation>Monitor</translation>
     </message>
     <message>
+      <source>Recording error details could not be saved: %1</source>
+      <translation>Recording error details could not be saved: %1</translation>
+    </message>
+    <message>
+      <source>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</source>
+      <translation>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</translation>
+    </message>
+    <message>
+      <source>Recover recording</source>
+      <translation>Recover recording</translation>
+    </message>
+    <message>
+      <source>Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.</source>
+      <translation>Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.</translation>
+    </message>
+    <message>
+      <source>
+This older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.</source>
+      <translation>
+This older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.</translation>
+    </message>
+    <message>
+      <source>Recovery queue is full or closing. Please retry.</source>
+      <translation>Recovery queue is full or closing. Please retry.</translation>
+    </message>
+    <message>
       <source>The audio backend stopped recording.</source>
       <translation>The audio backend stopped recording.</translation>
     </message>
@@ -1875,28 +1901,6 @@ Stored recording: %1</translation>
       <translation>Previous clock %1 at position %2, block %3 frames.</translation>
     </message>
     <message>
-      <source>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</source>
-      <translation>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</translation>
-    </message>
-    <message>
-      <source>Recover recording</source>
-      <translation>Recover recording</translation>
-    </message>
-    <message>
-      <source>Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.</source>
-      <translation>Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.</translation>
-    </message>
-    <message>
-      <source>
-This older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.</source>
-      <translation>
-This older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.</translation>
-    </message>
-    <message>
-      <source>Recovery queue is full or closing. Please retry.</source>
-      <translation>Recovery queue is full or closing. Please retry.</translation>
-    </message>
-    <message>
       <source>Looking for stored recordings…</source>
       <translation>Looking for stored recordings…</translation>
     </message>
@@ -1911,6 +1915,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message numerus="yes">
       <source> %n additional job(s) are listed.</source>
       <translation type="unfinished" />
+    </message>
+    <message>
+      <source> Saved recording error details are available.</source>
+      <translation> Saved recording error details are available.</translation>
     </message>
     <message>
       <source> Discovery limit reached; this list is incomplete.</source>
@@ -1959,6 +1967,14 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source> · %1 claimed frames</source>
       <translation> · %1 claimed frames</translation>
+    </message>
+    <message>
+      <source>Stored recording error metadata is invalid: %1</source>
+      <translation>Stored recording error metadata is invalid: %1</translation>
+    </message>
+    <message>
+      <source>Saved recording error — %1: %2</source>
+      <translation>Saved recording error — %1: %2</translation>
     </message>
     <message>
       <source>Metadata warning: %1</source>

@@ -32,12 +32,12 @@ struct EqEvent {
 static_assert(sizeof(EqEvent) <= 64);
 static_assert(std::is_trivially_copyable_v<EqEvent>);
 enum class ProcessStatus {
-    Ok,
-    InvalidBuffer,
-    InvalidEvent,
-    EventBudgetExceeded,
-    TimingError,
-    Stopped
+    Ok = 0,
+    InvalidBuffer = 1,
+    InvalidEvent = 2,
+    EventBudgetExceeded = 3,
+    TimingError = 4,
+    Stopped = 5
 };
 struct EqReport {
     ProcessStatus status = ProcessStatus::Ok;

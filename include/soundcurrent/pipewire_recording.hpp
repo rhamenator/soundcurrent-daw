@@ -52,6 +52,7 @@ class PipeWireRecording {
     std::uint64_t droppedAcknowledgements() const noexcept;
     bool observation(BackendObservation &) noexcept;
     std::optional<AudioBridgeFault> firstFault() const noexcept;
+    std::string faultStorageDiagnostic() const; // Worker/control only; raw result stays independent.
     std::uint64_t droppedObservations() const noexcept;
 
   private:

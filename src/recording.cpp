@@ -220,6 +220,139 @@ RecordingRecovery decodeJournal(std::string_view bytes) {
         throw ProjectError(ErrorCode::InvalidState, "Malformed recording journal");
     }
 }
+Json clockJson(const DeviceBlockClock &c) {
+    return {{"position", c.position}, {"duration", c.duration}, {"monotonicNs", c.monotonicNs},
+            {"id", c.id}, {"cycle", c.cycle}, {"rateNumerator", c.rateNumerator},
+            {"rateDenominator", c.rateDenominator}, {"delay", c.delay},
+            {"xrun", c.xrun}, {"discontinuity", c.discontinuity}};
+}
+std::uint32_t u32(const Json &v) {
+    const auto n = unsignedInteger(v);
+    require(n <= UINT32_MAX, "Recording fault integer exceeds uint32");
+    return static_cast<std::uint32_t>(n);
+}
+bool boolean(const Json &v) {
+    require(v.is_boolean(), "Invalid recording fault boolean");
+    return v.get<bool>();
+}
+DeviceBlockClock clockFromJson(const Json &c) {
+    require(c.is_object() && c.size() == 10, "Invalid recording fault clock fields");
+    return {unsignedInteger(c.at("position")), unsignedInteger(c.at("duration")),
+            unsignedInteger(c.at("monotonicNs")), u32(c.at("id")), u32(c.at("cycle")),
+            u32(c.at("rateNumerator")), u32(c.at("rateDenominator")), integer(c.at("delay")),
+            boolean(c.at("xrun")), boolean(c.at("discontinuity"))};
+}
+void validateFault(const RecordingSpec &s, const AudioBridgeFault &f) {
+    require((f.callbackClock || f.rejected == DeviceBlockClock{}) &&
+                (f.previousClock || f.previous == DeviceBlockClock{}),
+            "Absent recording fault clock has unexpected values");
+    require(f.status >= AudioBridgeStatus::RateChanged && f.status <= AudioBridgeStatus::ProcessorFailed &&
+                f.reason <= AudioBridgeFaultReason::ProcessorFailed && f.generation != 0 &&
+                f.expectedRate == s.capture.sampleRate && f.expectedChannels == s.capture.layout.channels &&
+                f.maximumFrames >= 1 && f.maximumFrames <= 65536 &&
+                f.engineFrame >= 0 && f.capturedFrames >= 0 &&
+                f.capturedFrames <= std::numeric_limits<Frame>::max() - s.capture.startFrame &&
+                f.processorStatus >= ProcessStatus::Ok && f.processorStatus <= ProcessStatus::Stopped &&
+                f.captureStatus <= CaptureStatus::WriterFailed,
+            "Invalid recording fault bounds");
+    if (f.reason == AudioBridgeFaultReason::ControlRequest) {
+        require(!f.callbackClock && !f.previousClock, "Control fault claims callback clocks");
+        return;
+    }
+    require(f.callbackClock && f.engineFrame >= s.capture.startFrame,
+            "Callback fault has no valid engine clock");
+    auto expected = AudioBridgeStatus::ClockDiscontinuity;
+    switch (f.reason) {
+    case AudioBridgeFaultReason::InvalidQuantum: expected = AudioBridgeStatus::QuantumExceeded; break;
+    case AudioBridgeFaultReason::RateChanged: expected = AudioBridgeStatus::RateChanged; break;
+    case AudioBridgeFaultReason::InvalidBuffer: expected = AudioBridgeStatus::BufferUnavailable; break;
+    case AudioBridgeFaultReason::TimingOriginRejected:
+    case AudioBridgeFaultReason::CaptureFailed: expected = AudioBridgeStatus::CaptureFailed; break;
+    case AudioBridgeFaultReason::ProcessorFailed: expected = AudioBridgeStatus::ProcessorFailed; break;
+    default: break;
+    }
+    require(f.status == expected, "Recording fault reason/status mismatch");
+    if (f.previousClock)
+        require(f.previous.duration > 0 && f.previous.duration <= f.maximumFrames &&
+                    f.previous.position <= UINT64_MAX - f.previous.duration &&
+                    f.previous.rateNumerator == 1 && f.previous.rateDenominator == f.expectedRate &&
+                    !f.previous.xrun && !f.previous.discontinuity,
+                "Invalid previous accepted recording clock");
+}
+Json faultJson(const RecordingSpec &s, const AudioBridgeFault &f) {
+    return {{"format", "soundcurrent-recording-fault"}, {"schemaMajor", 1}, {"schemaMinor", 0},
+            {"projectId", s.projectId.str()}, {"trackId", s.trackId.str()}, {"assetId", s.assetId.str()},
+            {"sampleRate", s.capture.sampleRate}, {"channels", s.capture.layout.channels},
+            {"layoutKind", kind(s.capture.layout.kind)}, {"startFrame", s.capture.startFrame},
+            {"fault", {{"status", static_cast<std::uint32_t>(f.status)},
+                       {"reason", static_cast<std::uint32_t>(f.reason)},
+                       {"rejected", f.callbackClock ? clockJson(f.rejected) : Json(nullptr)},
+                       {"previous", f.previousClock ? clockJson(f.previous) : Json(nullptr)},
+                       {"engineFrame", f.engineFrame}, {"capturedFrames", f.capturedFrames},
+                       {"inputChannels", f.inputChannels}, {"outputChannels", f.outputChannels},
+                       {"generation", f.generation}, {"bufferFrames", f.bufferFrames},
+                       {"maximumFrames", f.maximumFrames}, {"expectedRate", f.expectedRate},
+                       {"expectedChannels", f.expectedChannels},
+                       {"processorStatus", static_cast<std::uint32_t>(f.processorStatus)},
+                       {"captureStatus", static_cast<std::uint32_t>(f.captureStatus)}}}};
+}
+AudioBridgeFault decodeFault(std::string_view bytes, const RecordingSpec &s) {
+    try {
+        std::vector<std::unordered_set<std::string>> keys;
+        const auto j = Json::parse(bytes.begin(), bytes.end(), [&](int depth, Json::parse_event_t e, Json &v) {
+            require(depth <= 4, "Recording fault nesting limit");
+            if (e == Json::parse_event_t::object_start) keys.emplace_back();
+            else if (e == Json::parse_event_t::key)
+                require(!keys.empty() && keys.back().insert(v.get<std::string>()).second,
+                        "Duplicate recording fault key");
+            else if (e == Json::parse_event_t::object_end) keys.pop_back();
+            return true;
+        });
+        require(j.is_object() && j.size() == 11 && text(j.at("format")) == "soundcurrent-recording-fault" &&
+                    integer(j.at("schemaMajor")) == 1 && integer(j.at("schemaMinor")) == 0,
+                "Unsupported recording fault metadata");
+        require(Id(text(j.at("projectId"))) == s.projectId && Id(text(j.at("trackId"))) == s.trackId &&
+                    Id(text(j.at("assetId"))) == s.assetId && u32(j.at("sampleRate")) == s.capture.sampleRate &&
+                    u32(j.at("channels")) == s.capture.layout.channels && text(j.at("layoutKind")) == kind(s.capture.layout.kind) &&
+                    integer(j.at("startFrame")) == s.capture.startFrame,
+                "Recording fault identity mismatch");
+        const auto &v = j.at("fault");
+        require(v.is_object() && v.size() == 15, "Invalid recording fault fields");
+        AudioBridgeFault f;
+        f.status = static_cast<AudioBridgeStatus>(u32(v.at("status")));
+        f.reason = static_cast<AudioBridgeFaultReason>(u32(v.at("reason")));
+        f.callbackClock = !v.at("rejected").is_null(); f.previousClock = !v.at("previous").is_null();
+        if (f.callbackClock) f.rejected = clockFromJson(v.at("rejected"));
+        if (f.previousClock) f.previous = clockFromJson(v.at("previous"));
+        f.engineFrame = integer(v.at("engineFrame")); f.capturedFrames = integer(v.at("capturedFrames"));
+        f.inputChannels = unsignedInteger(v.at("inputChannels")); f.outputChannels = unsignedInteger(v.at("outputChannels"));
+        f.generation = unsignedInteger(v.at("generation")); f.bufferFrames = u32(v.at("bufferFrames"));
+        f.maximumFrames = u32(v.at("maximumFrames")); f.expectedRate = u32(v.at("expectedRate"));
+        f.expectedChannels = u32(v.at("expectedChannels"));
+        const auto processor = u32(v.at("processorStatus"));
+        require(processor <= static_cast<std::uint32_t>(ProcessStatus::Stopped), "Invalid recording processor status");
+        f.processorStatus = static_cast<ProcessStatus>(processor);
+        f.captureStatus = static_cast<CaptureStatus>(u32(v.at("captureStatus")));
+        validateFault(s, f); return f;
+    } catch (const Json::exception &) {
+        throw ProjectError(ErrorCode::InvalidState, "Malformed recording fault metadata");
+    }
+}
+void checkFaultJob(const std::filesystem::path &job, const RecordingSpec &s) {
+    media_io::plainDirectory(job.parent_path().parent_path());
+    media_io::plainDirectory(job.parent_path()); media_io::plainDirectory(job);
+    require(job.parent_path().filename() == "media" && job.filename() == "capture-" + s.assetId.str(),
+            "Recording fault directory identity mismatch");
+}
+RecordingRecovery checkedFaultJournal(const std::filesystem::path &job, const RecordingSpec &s) {
+    const auto r = decodeJournal(media_io::readJournal(job / "journal.json"));
+    require(r.spec.projectId == s.projectId && r.spec.trackId == s.trackId && r.spec.assetId == s.assetId &&
+                r.spec.capture.sampleRate == s.capture.sampleRate && r.spec.capture.layout == s.capture.layout &&
+                r.spec.capture.startFrame == s.capture.startFrame,
+            "Recording fault journal identity mismatch");
+    return r;
+}
+
 void checkAudio(const AudioFile &a, const RecordingRecovery &r) {
     require(a.info.samplerate == static_cast<int>(r.spec.capture.sampleRate) &&
                 a.info.channels == static_cast<int>(r.spec.capture.layout.channels) &&
@@ -229,6 +362,56 @@ void checkAudio(const AudioFile &a, const RecordingRecovery &r) {
             "Recording media differs from checkpoint");
 }
 } // namespace
+void persistRecordingFault(const std::filesystem::path &job, const RecordingSpec &spec,
+                           const AudioBridgeFault &fault) {
+    auto checked = spec;
+    validateSpec(checked);
+    validateFault(checked, fault);
+    checkFaultJob(job, checked);
+    media_io::JobLease lease(job, false, true);
+    require(lease.status() == media_io::LeaseStatus::Held,
+            "Recording fault requires an inactive owned job lease");
+    const auto journal = checkedFaultJournal(job, checked);
+    require(!fault.callbackClock || fault.capturedFrames >= journal.committedFrames,
+            "Recording fault precedes the committed checkpoint");
+    const auto destination = job / "first-fault.json";
+    if (std::filesystem::exists(std::filesystem::symlink_status(destination))) {
+        require(decodeFault(media_io::readJournal(destination), checked) == fault,
+                "A different first recording fault is already stored");
+        return;
+    }
+    const auto temporary = job / ("fault-" + Id::generate().str() + ".partial");
+    bool owned = false;
+    try {
+        media_io::File file(temporary, true);
+        owned = true;
+        file.write(faultJson(checked, fault).dump(2) + "\n");
+        file.flush();
+        file.close();
+        media_io::publishMedia(temporary, destination);
+        owned = false;
+    } catch (...) {
+        if (owned) {
+            std::error_code error;
+            std::filesystem::remove(temporary, error);
+        }
+        throw;
+    }
+}
+std::optional<AudioBridgeFault> inspectRecordingFault(const std::filesystem::path &job,
+                                                    const RecordingSpec &spec) {
+    checkFaultJob(job, spec);
+    media_io::JobLease lease(job, false);
+    require(lease.status() != media_io::LeaseStatus::Busy, "Recording job is still active");
+    const auto path = job / "first-fault.json";
+    if (!std::filesystem::exists(std::filesystem::symlink_status(path)))
+        return {};
+    const auto journal = checkedFaultJournal(job, spec);
+    auto fault = decodeFault(media_io::readJournal(path), spec);
+    require(!fault.callbackClock || fault.capturedFrames >= journal.committedFrames,
+            "Recording fault precedes the committed checkpoint");
+    return fault;
+}
 struct CaptureWriter::State {
     ResourceLease resourceLease;
     explicit State(ResourceLease reserve) : resourceLease(std::move(reserve)) {}
@@ -480,6 +663,17 @@ RecordingDiscovery discoverRecordings(const std::filesystem::path &root, const S
     }
     std::sort(jobs.begin(), jobs.end());
     std::vector<RecordingRecovery> recovered;
+    auto addFault = [&](const std::filesystem::path &job, const RecordingRecovery &r, bool attached) {
+        StoredRecordingFault entry{job, r.spec.trackId, r.spec.assetId, {}, {}, attached};
+        try {
+            if (!std::filesystem::exists(std::filesystem::symlink_status(job / "first-fault.json")))
+                return;
+            entry.fault = inspectRecordingFault(job, r.spec);
+        } catch (const std::exception &e) {
+            entry.diagnostic = std::string(e.what()).substr(0, 512);
+        }
+        result.faults.push_back(std::move(entry));
+    };
     for (const auto &job : jobs) {
         boundary();
         const auto attached =
@@ -498,8 +692,11 @@ RecordingDiscovery discoverRecordings(const std::filesystem::path &root, const S
                 if (r.spec.assetId == attached->id && r.spec.projectId == session.id &&
                     r.finalized && r.spec.capture.layout == attached->layout &&
                     r.spec.capture.sampleRate == attached->sampleRate &&
-                    r.committedFrames == attached->frames && r.spec.recoveredFrom)
-                    recovered.push_back(std::move(r));
+                    r.committedFrames == attached->frames) {
+                    addFault(job, r, true);
+                    if (r.spec.recoveredFrom)
+                        recovered.push_back(std::move(r));
+                }
             } catch (const std::exception &e) {
                 if (result.warnings.size() < 16)
                     result.warnings.emplace_back(std::string(e.what()).substr(0, 512));
@@ -530,6 +727,8 @@ RecordingDiscovery discoverRecordings(const std::filesystem::path &root, const S
                     entry.status = lease.status() == media_io::LeaseStatus::Absent
                                        ? RecordingJobStatus::LegacyNeedsVerification
                                        : RecordingJobStatus::NeedsVerification;
+                if (entry.status != RecordingJobStatus::Foreign)
+                    addFault(job, r, false);
                 entry.checkpoint = std::move(r);
             }
         } catch (const ProjectError &e) {

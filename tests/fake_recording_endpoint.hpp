@@ -14,6 +14,7 @@ struct Counters {
     std::atomic<bool> badHash{false}, writeFailure{false}, noInput{false}, wrongThread{false};
     std::atomic<std::uint32_t> forcedStatus{0};
     std::atomic<bool> jumpClock{false};
+    std::atomic<bool> blockFaultStorage{false};
     std::atomic<unsigned> constructed{0}, activated{0}, stopped{0}, destroyed{0}, submitted{0};
     std::atomic<unsigned> acceptLimit{UINT_MAX};
     std::atomic<std::uint64_t> preparedCapacityFrames{0};
@@ -29,6 +30,7 @@ class Endpoint : public RecordingEndpoint {
     std::unique_ptr<RecordingWorker> writer_;
     std::optional<RecordingResult> result_;
     std::exception_ptr error_;
+    std::exception_ptr faultStorageError_;
     RecordingTelemetry t_;
     DeviceBlockClock clock_;
     QThread *thread_ = QThread::currentThread();
@@ -108,6 +110,15 @@ class Endpoint : public RecordingEndpoint {
             } catch (...) {
                 error_ = std::current_exception();
             }
+        if (writer_ && bridge_.firstFault()) {
+            try {
+                if (c_->blockFaultStorage)
+                    std::filesystem::create_directory(writer_->jobDirectory() / "first-fault.json");
+                persistRecordingFault(writer_->jobDirectory(), p_.spec, *bridge_.firstFault());
+            } catch (...) {
+                faultStorageError_ = std::current_exception();
+            }
+        }
         stopped_ = true;
         ++c_->stopped;
     }
@@ -172,6 +183,10 @@ class Endpoint : public RecordingEndpoint {
         }
         t_.status = bridge_.status();
         t_.firstFault = bridge_.firstFault();
+        if (faultStorageError_) {
+            try { std::rethrow_exception(faultStorageError_); }
+            catch (const std::exception &e) { t_.faultStorageDiagnostic = e.what(); }
+        }
         t_.captureStatus = pipe_.status();
         t_.endReason = pipe_.endReason();
         t_.capturedFrames = bridge_.capturedFrames();

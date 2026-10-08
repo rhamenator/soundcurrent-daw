@@ -101,6 +101,7 @@ class StudioWindow : public QMainWindow {
     std::uint64_t recoveryEpoch_ = 0;
     std::optional<std::filesystem::path> recoveryJobSeen_;
     std::shared_ptr<const Session> recoveryRequested_;
+    QString recordingFaultText(const AudioBridgeFault &) const;
     void pollRecovery();
     void reviewRecordings();
     QAction *exportAction_, *cancelExportAction_;

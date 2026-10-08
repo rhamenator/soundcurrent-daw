@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "capture.hpp"
+#include "audio_bridge.hpp"
 #include "project_store.hpp"
 #include <functional>
 #include <memory>
@@ -139,12 +140,27 @@ struct RecordingJobEntry {
     std::optional<RecordingRecovery> checkpoint;
     std::string diagnostic;
 };
+struct StoredRecordingFault {
+    std::filesystem::path job;
+    Id trackId, assetId;
+    std::optional<AudioBridgeFault> fault;
+    std::string diagnostic; // Invalid optional metadata never invalidates the raw take.
+    bool attached = false;
+};
 struct RecordingDiscovery {
     std::vector<RecordingJobEntry> entries;
+    std::vector<StoredRecordingFault> faults;
     std::size_t directoryEntries = 0, attached = 0;
     bool truncated = false;
     std::vector<std::string> warnings;
 };
+// Control/disk only, after native and writer joins. Immutable, identity-bound,
+// no-overwrite sidecar; repeated publication of the same receipt is harmless.
+void persistRecordingFault(const std::filesystem::path &jobDirectory,
+                           const RecordingSpec &, const AudioBridgeFault &);
+// Metadata only, not audio verification. Missing sidecar returns nullopt.
+std::optional<AudioBridgeFault> inspectRecordingFault(const std::filesystem::path &jobDirectory,
+                                                    const RecordingSpec &);
 struct RecordingDiscoveryOptions {
     std::size_t maximumDirectoryEntries = 8192, maximumJobs = 512;
     std::function<void()> boundary; // Worker-only cancellation/fault boundary.

@@ -46,10 +46,10 @@ the block-size wording correction. It does not qualify this source cohort,
 linguistic correctness, plural rules or live localized UI. The in-repository
 catalog generator/audit remains authoritative for the current input set.
 
-The receipt is retained in the current recording session and test evidence. A
-portable diagnostic sidecar for reopening a failed job is still required; the
-current recording journal continues to retain its existing end reason and timing
-origin. Existing multitrack/manual-punch diagnostics remain separate contracts.
+At this checkpoint the receipt was retained in the recording session and test
+evidence. The subsequent [portable error-details implementation](92-portable-recording-faults.md)
+adds a sidecar without changing the journal's existing end reason/timing origin.
+Existing multitrack/manual-punch diagnostics remain separate contracts.
 
 ## Acceptance and next action
 
@@ -126,8 +126,9 @@ This is a new diagnostic-failure workflow, not a repeat of sustained successful
 recording/EQ/export on the new binary. The earlier candidate's successful workflow
 evidence retains its original scope. Private Xvfb/PipeWire and a shared-kernel
 read-only rootfs do not qualify a complete desktop, physical audio or real-time
-deadlines. Reopening still does not restore the detailed session fault receipt;
-the portable sidecar and native startup/alignment policy remain next.
+deadlines. This installed candidate does not restore detailed fault receipts on
+reopening; the [subsequent sidecar code](92-portable-recording-faults.md) still needs
+an updated package/source pair. Native startup/alignment policy remains open.
 
 The [separate installed receipt](../tests/results/X007/2026-10-08-installed-recording-fault.json)
 and its **2,086,164-byte** capsule retain 39 logical entries, verified CRC and every

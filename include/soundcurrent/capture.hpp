@@ -31,26 +31,26 @@ CaptureConfig prepareCaptureConfig(CaptureConfig); // Validates/admission off RT
 // refuses an impossible slot/memory request rather than silently reducing it.
 CaptureConfig withCaptureReserve(CaptureConfig, std::uint32_t milliseconds);
 enum class CaptureStatus : std::uint32_t {
-    Running,
-    Stopped,
-    QueueFull,
-    InvalidBuffer,
-    TimingError,
-    WriterFailed
+    Running = 0,
+    Stopped = 1,
+    QueueFull = 2,
+    InvalidBuffer = 3,
+    TimingError = 4,
+    WriterFailed = 5
 };
 enum class CaptureBackend : std::uint32_t { Unknown, Synthetic, PipeWire, Jack, Wasapi, Asio };
 enum class CaptureEndReason : std::uint32_t {
-    Unknown,
-    UserStop,
-    RangeComplete,
-    DeviceLost,
-    RateChanged,
-    QuantumExceeded,
-    ClockDiscontinuity,
-    CaptureFailed,
-    ProcessorFailed,
-    WriterFailed,
-    RecoveredCheckpoint
+    Unknown = 0,
+    UserStop = 1,
+    RangeComplete = 2,
+    DeviceLost = 3,
+    RateChanged = 4,
+    QuantumExceeded = 5,
+    ClockDiscontinuity = 6,
+    CaptureFailed = 7,
+    ProcessorFailed = 8,
+    WriterFailed = 9,
+    RecoveredCheckpoint = 10
 };
 struct CaptureTimingOrigin {
     CaptureBackend backend = CaptureBackend::Unknown;
