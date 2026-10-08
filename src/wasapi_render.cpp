@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/wasapi_render.hpp>
+#include <soundcurrent/wasapi_render_trace.hpp>
 #include "wasapi_support.hpp"
 namespace soundcurrent::daw {
 using namespace wasapi_detail;
@@ -24,6 +25,8 @@ struct WasapiRenderStream::State {
             !options.maximumFrames || options.maximumFrames > 65536)
             throw ProjectError(ErrorCode::InvalidState, "Invalid native render admission");
         wide(options.endpointId);
+        if (options.trace && !options.trace->prepare(options.channels,options.maximumFrames))
+            throw ProjectError(ErrorCode::InvalidState, "Render trace preparation mismatch or reuse");
         thread = std::thread([this] { run(); });
         const auto waited = WaitForSingleObject(ready.value, 10000);
         if (waited != WAIT_OBJECT_0 || prepared.load(std::memory_order_acquire) != 1) {
@@ -149,13 +152,22 @@ struct WasapiRenderStream::State {
                         if (FAILED(hr)) { fail(hr, 6); end = true; break; }
                         BYTE *data = nullptr;
                         hr = render->GetBuffer(count, &data);
-                        if (FAILED(hr)) { fail(hr, 2); end = true; break; }
+                        if (FAILED(hr)) {
+                            if (options.trace) options.trace->acquireFailed(reading,count,hr);
+                            fail(hr, 2); end = true; break;
+                        }
                         auto action = WasapiRenderAction::Abort;
                         if (data) action = callbacks.fill(callbacks.context,
                                                          reinterpret_cast<float *>(data), count, reading);
                         // Abort releases an unused lease; success commits the
                         // full requested extent, including certified end slack.
-                        hr = render->ReleaseBuffer(action == WasapiRenderAction::Abort ? 0 : count, 0);
+                        const auto token = options.trace ? options.trace->beforeRelease(reading,count,action,
+                            data ? std::span<const float>{reinterpret_cast<const float *>(data),
+                                                         std::size_t(count)*options.channels} :
+                                   std::span<const float>{}) : WasapiRenderTrace::invalidToken;
+                        const auto releaseFrames = action == WasapiRenderAction::Abort ? 0 : count;
+                        hr = render->ReleaseBuffer(releaseFrames, 0);
+                        if (options.trace) options.trace->released(token,hr,releaseFrames);
                         if (FAILED(hr)) { fail(hr, 3); end = true; break; }
                         if (!data) { fail(E_POINTER, 2); end = true; break; }
                         if (action == WasapiRenderAction::Abort) { end = true; break; }
@@ -194,6 +206,7 @@ struct WasapiRenderStream::State {
     void join() noexcept {
         if (joined) return;
         SetEvent(stop.value); if (thread.joinable()) thread.join(); joined = true;
+        if (options.trace) options.trace->sealAfterJoin();
     }
     ~State() { join(); }
 };

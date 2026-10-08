@@ -1,0 +1,36 @@
+{
+  "sourceCommit": "62980f2b3de16b2a37f93820aa052eaaad9831ff",
+  "runId": 37852435691,
+  "jobId": 113568448703,
+  "artifact": {
+    "id": 11581984827,
+    "node_id": "MDg6QXJ0aWZhY3QxMTU4MTk4NDgyNw==",
+    "name": "windows-native-packet-unit-log",
+    "size_in_bytes": 1074,
+    "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11581984827",
+    "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11581984827/zip",
+    "expired": false,
+    "digest": "sha256:c4aed0a49447dd0c72238e663b09d229a03e22116c81abd003960b007e025dc6",
+    "created_at": "2026-10-08T22:20:41Z",
+    "updated_at": "2026-10-08T22:20:41Z",
+    "expires_at": "2027-01-06T22:16:38Z",
+    "workflow_run": {
+      "id": 37852435691,
+      "repository_id": 1407894149,
+      "head_repository_id": 1407894149,
+      "head_branch": "codex/windows-output-admission-rollback",
+      "head_sha": "62980f2b3de16b2a37f93820aa052eaaad9831ff"
+    }
+  },
+  "artifactSha256": "c4aed0a49447dd0c72238e663b09d229a03e22116c81abd003960b007e025dc6",
+  "nativeEndpointActivated": false,
+  "format": "sc-hosted-output-owner-rollback-v1",
+  "compiler": "MSVC 19.51.36260.0",
+  "selectedTests": 7,
+  "configuredTests": 38,
+  "totalTestSeconds": 52.59,
+  "jobConclusion": "success",
+  "sdkBoundaryInjectedForOwnerTest": true,
+  "localVMStarted": false,
+  "scope": "Seven hosted native unit/synthetic disk tests; production SDK adapters compiled, no endpoint activation or GUI/installer execution"
+}
