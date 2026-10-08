@@ -32,6 +32,16 @@ Discontinuity refusal and raw take preservation remain strict.
 
 ## Trace version and evidence
 
+Review additionally identified a compound-admission leak: input conversion was
+assigned to recording state before native packet-copy admission succeeded. Both
+owners are now staged locally and committed together after preparation. A native
+`admission` fixture prepares an explicit inactive loopback route, budgets exactly
+enough for input conversion, requires three packet-copy budget refusals with
+unchanged active credit, then retries with sufficient credit and verifies full
+retirement. It never activates recording or creates a writer. Execution of this
+regression fixture is pending the isolated native build; it is not counted as a
+passed native workflow merely because the source exists.
+
 New fixture traces use `sc-wasapi-capture-lease-trace-v2`, explicitly marking
 processing after release. QPC order is acquire → release → callback return;
 held-lease time excludes processing, while callback duration starts at release.
