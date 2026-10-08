@@ -1,0 +1,658 @@
+{
+  "format": "sc-windows-direct-stop-evidence-v1",
+  "sourceHead": "df9611d3a0b57ba0848a7839def3770e41f54064",
+  "sourceInputFiles": 344,
+  "native": {
+    "scope": "Native direct WASAPI render and owned endpoint loopback, no mixer or EQ",
+    "exitCode": 0,
+    "tests": [
+      {
+        "label": "cancel-1",
+        "exitCode": 0,
+        "sessionId": 1,
+        "exeBytes": 373248,
+        "exeSha256": "cc596dfe47227e1d5326a5527654fb6ad1a826607ea79b92df32b854311212dd",
+        "mode": "cancel-active"
+      },
+      {
+        "label": "cancel-2",
+        "exitCode": 0,
+        "sessionId": 1,
+        "exeBytes": 373248,
+        "exeSha256": "cc596dfe47227e1d5326a5527654fb6ad1a826607ea79b92df32b854311212dd",
+        "mode": "cancel-active"
+      },
+      {
+        "label": "non-silent-end",
+        "exitCode": 0,
+        "sessionId": 1,
+        "exeBytes": 373248,
+        "exeSha256": "cc596dfe47227e1d5326a5527654fb6ad1a826607ea79b92df32b854311212dd",
+        "mode": "non-silent-end"
+      }
+    ],
+    "sessionId": 1
+  },
+  "analyses": {
+    "cancel-1": {
+      "format": "sc-wasapi-direct-stop-analysis",
+      "mode": "cancel-active",
+      "submittedLeaseEqualsIndependentSource": true,
+      "mixerOrEqInvoked": false,
+      "fixtureOffsetFrames": 544,
+      "nativeStartupFrames": 480,
+      "measuredInteriorGain": 1.0,
+      "matchedFrames": 43616,
+      "contentSubmittedFrames": 48480,
+      "captureFrames": 44160,
+      "maximumResidual": 0.0,
+      "beforeFinal960MaximumResidual": 0.0,
+      "directPathAlterationObserved": false,
+      "firstAffectedFrame": null,
+      "lastAffectedFrame": null,
+      "finalBlocks": [
+        {
+          "firstFrame": 42656,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42704,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42752,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42800,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42848,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42896,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42944,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42992,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43040,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43088,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43136,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43184,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43232,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43280,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43328,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43376,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43424,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43472,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43520,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43568,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        }
+      ],
+      "unobservedSubmittedSourceFrames": 4864,
+      "allSourceFramesObserved": false,
+      "capturedPrefixFidelityQualified": true,
+      "fullNonSilentEndQualified": false,
+      "physicalOrSustainedTimingQualified": false,
+      "driverOrOsCauseIsolated": false
+    },
+    "cancel-2": {
+      "format": "sc-wasapi-direct-stop-analysis",
+      "mode": "cancel-active",
+      "submittedLeaseEqualsIndependentSource": true,
+      "mixerOrEqInvoked": false,
+      "fixtureOffsetFrames": 544,
+      "nativeStartupFrames": 480,
+      "measuredInteriorGain": 1.0,
+      "matchedFrames": 43616,
+      "contentSubmittedFrames": 48480,
+      "captureFrames": 44160,
+      "maximumResidual": 0.0,
+      "beforeFinal960MaximumResidual": 0.0,
+      "directPathAlterationObserved": false,
+      "firstAffectedFrame": null,
+      "lastAffectedFrame": null,
+      "finalBlocks": [
+        {
+          "firstFrame": 42656,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42704,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42752,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42800,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42848,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42896,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42944,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 42992,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43040,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43088,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43136,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43184,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43232,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43280,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43328,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43376,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43424,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43472,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43520,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 43568,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        }
+      ],
+      "unobservedSubmittedSourceFrames": 4864,
+      "allSourceFramesObserved": false,
+      "capturedPrefixFidelityQualified": true,
+      "fullNonSilentEndQualified": false,
+      "physicalOrSustainedTimingQualified": false,
+      "driverOrOsCauseIsolated": false
+    },
+    "non-silent-end": {
+      "format": "sc-wasapi-direct-stop-analysis",
+      "mode": "non-silent-end",
+      "submittedLeaseEqualsIndependentSource": true,
+      "mixerOrEqInvoked": false,
+      "fixtureOffsetFrames": 544,
+      "nativeStartupFrames": 480,
+      "measuredInteriorGain": 1.0,
+      "matchedFrames": 95936,
+      "contentSubmittedFrames": 96000,
+      "captureFrames": 96480,
+      "maximumResidual": 0.0,
+      "beforeFinal960MaximumResidual": 0.0,
+      "directPathAlterationObserved": false,
+      "firstAffectedFrame": null,
+      "lastAffectedFrame": null,
+      "finalBlocks": [
+        {
+          "firstFrame": 94976,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95024,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95072,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95120,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95168,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95216,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95264,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95312,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95360,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95408,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95456,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95504,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95552,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95600,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95648,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95696,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95744,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95792,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95840,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 95888,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        }
+      ],
+      "unobservedSubmittedSourceFrames": 64,
+      "allSourceFramesObserved": false,
+      "capturedPrefixFidelityQualified": true,
+      "fullNonSilentEndQualified": false,
+      "physicalOrSustainedTimingQualified": false,
+      "driverOrOsCauseIsolated": false
+    }
+  },
+  "scope": "Owned independent Windows clone, direct production WASAPI renderer; no mixer/EQ; no physical or sustained qualification",
+  "earlierProductionEqCancellationFailureResolved": false,
+  "fullNonSilentEndQualified": false,
+  "driverOrOsCauseIsolated": false,
+  "installedPreviewsRebuilt": false,
+  "fullParityPromoted": false,
+  "capsule": {
+    "name": "2026-10-08-windows-stop-boundary.zip",
+    "bytes": 2706189,
+    "sha256": "9a7209704ebdddde11eaffa13d526e8c4dd2afbffd634c236443a1f6c1c1a96a",
+    "files": {
+      "analysis/cancel-1-analysis.json": {
+        "bytes": 3284,
+        "sha256": "de48a56f8d7ef234b864d9f03e23bfc07def5c66eea8d25f58a528ac0e05f422"
+      },
+      "analysis/cancel-1-analysis.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "analysis/cancel-2-analysis.json": {
+        "bytes": 3284,
+        "sha256": "de48a56f8d7ef234b864d9f03e23bfc07def5c66eea8d25f58a528ac0e05f422"
+      },
+      "analysis/cancel-2-analysis.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "analysis/non-silent-end-analysis.json": {
+        "bytes": 3283,
+        "sha256": "460058a170916a2c18b24a1ab95de2fabcffd25525a6d861abf4ede45cc1a4ae"
+      },
+      "analysis/non-silent-end-analysis.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "control/build.log": {
+        "bytes": 217472,
+        "sha256": "ef18ca53cbb5a003db25ee3b4ae09df7e7f9184d8cb0c6cff02b065b6892d6b6"
+      },
+      "control/collect.log": {
+        "bytes": 11030,
+        "sha256": "b486c96dd58fcf936e9e8d354a16c034ec2b9a0f05efaf34fae48a36f5dc3c61"
+      },
+      "control/dispatch.log": {
+        "bytes": 994,
+        "sha256": "4a15c379f80dacbf9d2940a35f28d31aad98f718f57a00c3d1013ef20388847d"
+      },
+      "control/inputs.json": {
+        "bytes": 49996,
+        "sha256": "f27e7ff5999e7f458974d9b40e75d266d3e5629cbc4df58450946ad5f29bc5b3"
+      },
+      "control/linux-analysis-tests.log": {
+        "bytes": 358,
+        "sha256": "13fa3e4dbb532d6903ee051048ee4a76a004fc401537ac1b5ab679afcb151ce2"
+      },
+      "control/terminal-observation.log": {
+        "bytes": 3226,
+        "sha256": "ef1840c1c8aff060df7da40f5f7f328f070b2acbe95f737c24063f8ab8fc0c57"
+      },
+      "native/cancel-1.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/cancel-1.stdout": {
+        "bytes": 25846,
+        "sha256": "656864a3680ffb959bfe87b0067798b6860725a7351a5fca851e8777cb853742"
+      },
+      "native/cancel-1/loopback/media/capture-bbf86269-c3cc-48ff-aace-065576aa6718/journal.json": {
+        "bytes": 906,
+        "sha256": "67ee48a972652c1384e55d9a8bebf3c497f51a7127d2b6af9176b69f3aff2f4d"
+      },
+      "native/cancel-1/loopback/media/capture-bbf86269-c3cc-48ff-aace-065576aa6718/take.wav": {
+        "bytes": 353384,
+        "sha256": "b27720ae50cb03b93dfe4c49da5a1b9db409fe0d10b23128fe365b8e29fdb948"
+      },
+      "native/cancel-1/loopback/media/capture-bbf86269-c3cc-48ff-aace-065576aa6718/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/cancel-1/probe.json": {
+        "bytes": 25846,
+        "sha256": "656864a3680ffb959bfe87b0067798b6860725a7351a5fca851e8777cb853742"
+      },
+      "native/cancel-1/source-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "eda2f06b88cdf0c528ad749f62df851a73db45ef5948e6cfacacc88fb86cba13"
+      },
+      "native/cancel-1/submitted-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "4784963966e12d98e9e965d322aa4a0d00099ba8529c63aa7982ed172ac2bfe9"
+      },
+      "native/cancel-2.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/cancel-2.stdout": {
+        "bytes": 25847,
+        "sha256": "37465eba042c80e1139df278fb40f4f6597c80bb4e90867848489c40775b8287"
+      },
+      "native/cancel-2/loopback/media/capture-0659496a-0eaf-4751-9e95-92514e15ebb2/journal.json": {
+        "bytes": 906,
+        "sha256": "4bc405f8a7bca416ecc0cabae5af8f1ace5e47128dc81f37c54d4885b8cb3743"
+      },
+      "native/cancel-2/loopback/media/capture-0659496a-0eaf-4751-9e95-92514e15ebb2/take.wav": {
+        "bytes": 353384,
+        "sha256": "b27720ae50cb03b93dfe4c49da5a1b9db409fe0d10b23128fe365b8e29fdb948"
+      },
+      "native/cancel-2/loopback/media/capture-0659496a-0eaf-4751-9e95-92514e15ebb2/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/cancel-2/probe.json": {
+        "bytes": 25847,
+        "sha256": "37465eba042c80e1139df278fb40f4f6597c80bb4e90867848489c40775b8287"
+      },
+      "native/cancel-2/source-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "eda2f06b88cdf0c528ad749f62df851a73db45ef5948e6cfacacc88fb86cba13"
+      },
+      "native/cancel-2/submitted-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "4784963966e12d98e9e965d322aa4a0d00099ba8529c63aa7982ed172ac2bfe9"
+      },
+      "native/non-silent-end.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/non-silent-end.stdout": {
+        "bytes": 51978,
+        "sha256": "768525fc76ce1e1126a8b1b8425438ffde1f9a792b882b156f8949994f13beda"
+      },
+      "native/non-silent-end/loopback/media/capture-0bf5594b-823e-4f1b-8899-45525ef85609/journal.json": {
+        "bytes": 906,
+        "sha256": "9d89255a2ed9f11dc313a3ae31165fef853ed972ef508d036d7f0eb415abbd67"
+      },
+      "native/non-silent-end/loopback/media/capture-0bf5594b-823e-4f1b-8899-45525ef85609/take.wav": {
+        "bytes": 771944,
+        "sha256": "80c238db0c421fe69446689fb718fe158ba028b28a3eb8f556e688ca1b0404d8"
+      },
+      "native/non-silent-end/loopback/media/capture-0bf5594b-823e-4f1b-8899-45525ef85609/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/non-silent-end/probe.json": {
+        "bytes": 51978,
+        "sha256": "768525fc76ce1e1126a8b1b8425438ffde1f9a792b882b156f8949994f13beda"
+      },
+      "native/non-silent-end/source-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "1073f7e5007ed05723997a42a05bdde9b3df5fac32253123ef6e79e6e2987c72"
+      },
+      "native/non-silent-end/submitted-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "1073f7e5007ed05723997a42a05bdde9b3df5fac32253123ef6e79e6e2987c72"
+      },
+      "native/result.json": {
+        "bytes": 1274,
+        "sha256": "7a77dda70d80ec59fc5963dc6a7f3f04111eba88a7367a387a4ccf483c26dd33"
+      },
+      "source/CMakeLists.txt": {
+        "bytes": 54401,
+        "sha256": "5307530abe5e1febae0ede3bb3f0e21b13e38603fbb75ffcced2d3db8bf80c86"
+      },
+      "source/include/soundcurrent/wasapi_render.hpp": {
+        "bytes": 2267,
+        "sha256": "ea071207070a2eb71175d0edf1f718fd508cf32840e4c058a5ca8359df7ae511"
+      },
+      "source/src/wasapi_render.cpp": {
+        "bytes": 12603,
+        "sha256": "6ffce85575616cf197bc08999fd066ee23f806477022496fda801d487d7ef30c"
+      },
+      "source/tests/analyze_windows_stop.py": {
+        "bytes": 6442,
+        "sha256": "79ad0f61b69682da4f4f1d1e167f23d558acefc7eb3914529fc459d08c8cb32a"
+      },
+      "source/tests/wasapi_startup_fixture.cpp": {
+        "bytes": 11529,
+        "sha256": "e3b27ed5e1b7eb8748fcf1d7c4f6c9db145dbcb067706dab4d295bd01d35dcac"
+      },
+      "source/tests/windows_stop_analysis_tests.py": {
+        "bytes": 4933,
+        "sha256": "de91266a34d8abeceb2d69b268a2e549f87cb24fdd25a2b49a85bf07328f86ad"
+      }
+    }
+  }
+}
