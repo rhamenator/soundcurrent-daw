@@ -80,16 +80,24 @@ audio sample hashes across locales, and compares actual equipment-chart pixels
 under English/RTL. It uses fake audio endpoints and never activates native audio.
 Retain source/executable hashes, fixture projects, WAVs and screenshots in evidence.
 
-The [receipt](../tests/results/X002/2026-10-07-desktop-localization.json) records
-current full Linux Debug **61/61, 157.49s** and affected ASan/UBSan/LSan
+The [original receipt](../tests/results/X002/2026-10-07-desktop-localization.json) records
+full Linux Debug **61/61, 157.49s** and affected ASan/UBSan/LSan
 **6/6, 31.32s**, with matching source/resource input hashes. Ten isolated catalog
 corruption cases are refused. Original fixture compile/context/prompt errors and
 the prompt timeout are retained separately; no pre-fix product failure is claimed.
 
+Subsequent hosted Linux qualification on Qt **6.4.2** loads the embedded catalogs
+and passes all **58/58** non-native tests. The packaging correction's local Debug
+cohort passes **62/62**; the changed Python/version and desktop checks pass **3/3**.
+Compiled C++/Qt resource hashes match the earlier passing affected sanitizer cohort.
+See the [separate runtime receipt](../tests/results/X007/2026-10-08-preview-runtime.json).
+This scopes minimum-Qt catalog loading; it does not qualify complete translated
+workflows or native Windows.
+
 Open: all remaining translations and native review; correct translated numerus
 coverage; engine/worker diagnostics, startup CLI help, help/recovery and installer
 text; Qt standard-button/dialog translation packs; mnemonic/font/accessibility,
-1280×720/HiDPI/full RTL workflows; native Windows Qt/runtime and minimum Qt 6.4
-catalog loading; per-language recording/recovery/export qualification. See
+1280×720/HiDPI/full RTL workflows; native Windows Qt/runtime;
+per-language recording/recovery/export qualification. See
 [X007 installation](88-easy-installation.md). A catalog-load or pseudo-locale test
 does not qualify a language, device backend or platform.

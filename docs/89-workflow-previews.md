@@ -45,6 +45,36 @@ fresh-machine/audio qualification or public release upload is claimed. The paire
 artifacts remain in the local ignored preview directory. The next delivery gate
 is an owned fresh Ubuntu install and recording/EQ/reopen/export workflow.
 
+## Runtime and upgrade checkpoint
+
+The [separate runtime receipt](../tests/results/X007/2026-10-08-preview-runtime.json)
+retains the packaging review correction, **62/62 Linux Debug** checks and the
+changed Python/desktop **3/3** checks. The candidate is
+`0.1.0~preview.20261008001000.85ec9552cdd7`, a **1,078,184-byte DEB** paired
+with source commit `85ec9552cdd7161f08d8b189d842258241747b5e`.
+Every one of its **701 tracked source archive files** matches that commit.
+
+An owned rootfs derived from signed Ubuntu Base 26.04.1 installed the initial
+candidate and runtime dependencies without g++, CMake or a Qt development SDK.
+Normal apt upgrade to the sequenced candidate, remove and reinstall passed;
+all owned project/media files stayed identical. Removal deleted the executable,
+desktop entry and icon. Separate GUI test tools were installed afterward.
+The installed GUI ran as UID/GID 1000 with no effective capabilities on a
+read-only rootfs, opened/saved/reopened a Unicode project and exported **128 mono
+float frames at 48 kHz**. Export samples exactly match the owned golden render.
+Window focus errors in the Xvfb fixture and the original package-order refusal
+are retained, rather than counted as successful first attempts.
+
+This is a shared-host-kernel container with private Xvfb/D-Bus, not a fresh
+complete desktop or VM. It qualifies runtime dependency resolution and the
+scoped project/export/lifecycle operations. It does not qualify application-menu
+launch, actual capture/playback, physical audio, active-recording upgrade refusal,
+interrupted installation, preference/recovery preservation, Wayland or HiDPI.
+No host packages/default audio routes or equalizer trees were changed. No release
+was uploaded. [Candidate guide](90-preview-guide.md) describes the available
+package and workflows; the next gate remains installed-app recording/EQ/playback
+on owned routes and complete desktop integration.
+
 Each produced package records its actual Debug/Release build type, original and
 stripped executable hashes, source commit/tree, dependency metadata and extracted
 payload/startup checks. Those checks use the existing developer host: they are

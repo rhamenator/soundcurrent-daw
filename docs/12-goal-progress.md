@@ -2597,3 +2597,32 @@ setup: a bounded Ubuntu26.04 amd64 DEB builder checks clean tested inputs, deriv
 runtime dependencies and pairs exact source. Fresh-machine installation/audio/
 upgrade/remove and Windows runtime qualification remain the next delivery gates.
 The DAW goal remains active and incomplete.
+
+## Useful Linux preview packaging/runtime checkpoint (2026-10-08 UTC)
+
+Previous goal turn was progress: contextual desktop localization and the first
+local DEB/source preparation, with all 92 frozen F/Q/C/N rows still unpromoted.
+This continuation corrects a valid packaging review: canonical build-source binding
+and exact installed executable/icon/desktop/notices/provenance verification.
+The owned upgrade attempt also found that random Git hashes break same-day Debian
+version ordering. Frozen increasing UTC preview sequences now order versions;
+updates check the previous package version without a downgrade override.
+
+[Runtime evidence](../tests/results/X007/2026-10-08-preview-runtime.json) retains
+62/62 Linux Debug, changed Python/desktop 3/3, the prior matching compiled
+sanitizer inputs, actual CLI refusals and original fixture/setup errors. Hosted
+Qt6.4.2 passes 58/58 non-native tests and the required Windows core cross-build
+passes; neither is native Windows qualification. A signed Ubuntu Base derived
+owned rootfs resolves dependencies without a compiler/Qt SDK, upgrades/removes/
+reinstalls the sequenced candidate while preserving project/media bytes, and
+runs the installed GUI as UID/GID1000 with CapEff0. Unicode project save/reopen
+and 128-frame float WAV export exactly match golden bytes. The candidate's
+701-file corresponding source archive is independently byte verified.
+
+This is scoped shared-kernel container/Xvfb evidence, not complete desktop/menu
+or installed-app native recording qualification. No host package/audio changes,
+VM tests, equalizer writes or binary release upload occurred. Native observation71
+clock/source CPU causes remain open. Full Europe, X004/X005/X006 and every frozen
+parity family remain incomplete. Next concrete preview gate is installed-app
+recording/EQ/playback on owned routes and complete desktop integration; native
+Windows and its installer follow. The goal remains active.

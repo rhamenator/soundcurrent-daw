@@ -10,6 +10,11 @@
 - Easy Linux/Windows installation is an explicit product acceptance requirement.
   Useful installable workflow previews are the delivery priority; package/runtime
   and native Windows qualification remain unfinished.
+- Local Ubuntu 26.04 amd64 DEB preview preparation verifies every install input
+  against qualified source and pairs an exact source archive. Frozen increasing
+  version sequences fix same-day upgrade ordering. Owned Ubuntu Base runtime
+  installation, normal-user GUI Unicode project/WAV export and normal package
+  upgrade/remove/reinstall pass; complete desktop/recording qualification remains open.
 
 - New desktop graph/capture/render preparations follow the trusted Project resources
   budget. Recording envelopes use immutable prepared payload usage; declared raw

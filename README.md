@@ -24,6 +24,10 @@ The build instructions below are for developers; end-user installers remain open
 The [preview delivery plan](docs/89-workflow-previews.md) starts with the existing
 Linux recording/EQ/project/WAV workflow. Local binary packages need fresh-machine
 qualification before being described as supported installers.
+An Ubuntu 26.04 amd64 DEB candidate now passes scoped runtime dependency installation,
+normal-user project/export and upgrade/remove/reinstall checks in an owned Ubuntu
+Base environment. See the [candidate guide](docs/90-preview-guide.md).
+Full desktop/menu and installed-app recording qualification remain open.
 
 This is the DAW repository. [soundcurrent-eq](https://github.com/rhamenator/soundcurrent-eq)
 is the free equalizer; `soundcurrent-studio` is the separate premium equalizer.

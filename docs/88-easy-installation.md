@@ -4,6 +4,12 @@ Owner requirement **X007**, 2026-10-07. Linux and Windows are required platforms
 the frozen reference versions and all other acceptance requirements remain unchanged.
 Status: product contract and staged work; no qualified binary installer exists yet.
 
+A local Ubuntu 26.04 amd64 DEB candidate now has scoped fresh Ubuntu Base runtime
+dependency installation, normal-user GUI project/export and upgrade/remove/reinstall
+evidence. Complete desktop/menu, installed-app capture/playback and failure/recovery
+gates remain open. See [the preview checkpoint](89-workflow-previews.md) and
+[candidate guide](90-preview-guide.md); this is not full INSTALL-001 qualification.
+
 ## User experience
 
 An ordinary recording-studio user must be able to download the appropriate package,
@@ -46,7 +52,9 @@ dependencies need their own inventory. Current web documentation is not a toolch
 pin. Record exact tools and output hashes when an implementation is chosen.
 
 Current `cmake --install` installs the executable, desktop entry, icon and selected
-equipment notices. It does not produce an end-user installer, deploy Windows DLLs,
+equipment notices. The separate DEB preview builder stages and verifies these files,
+adds application notices and pairs exact source. CMake installation alone does not
+produce an end-user installer, deploy Windows DLLs,
 resolve every runtime dependency, or establish a complete GPL corresponding-source
 delivery. Existing CI cross-builds Windows core code; it does not exercise a native
 Windows Qt application or installer. Linux desktop CI disables native PipeWire.
@@ -98,4 +106,3 @@ Wine, a cross-build, or an archive copied to the owner's Windows machine.
 
 Start the dependency/support audit alongside continued native backend development;
 do not postpone every installation task to M11. M11 verifies the complete delivery.
-
