@@ -1,0 +1,52 @@
+{
+  "format": "sc-playback-output-rollback-regression-v1",
+  "sdkBoundary": "injected inventory and native render preparation, no endpoint/audio activation",
+  "oldOwnerCommit": "13a7d6845e3511b8d226d22c7dacffba713071db",
+  "oldOwnerSha256": "579760e2d3db0d0c25bad65a6ef205596f7af5f083a594bdc2ff7dcab88f43c7",
+  "testSourceSha256": "c73f926f7d6e25dac784ed2e5aeeed52d90ab6219e626d43b59cf675508478dc",
+  "red": {
+    "actualExitCode": 1,
+    "stdout": "",
+    "stderr": "Failed native preparation retained output memory credit\n",
+    "binarySha256": "e824d6c034c8af04bf9fc3a7909dd03325ffd9615203a06dcc461e357176669a"
+  },
+  "newOwnerSha256": "6d8168d990285d5714c09931dfef7178ffea0ceb1feeab2f9ffd6d97fa64a503",
+  "green": {
+    "actualExitCode": 0,
+    "stdout": "Production playback owner: repeated admission rollback, inactive retry, replacement and full resource retirement passed; SDK boundary injected\n",
+    "stderr": "",
+    "binarySha256": "de0da7dac3bc2a3ff065f7075a8d1ddca4c41df0316e2f1b8a3ffe4623f86385"
+  },
+  "sanitized": {
+    "actualExitCode": 0,
+    "stdout": "Production playback owner: repeated admission rollback, inactive retry, replacement and full resource retirement passed; SDK boundary injected\n",
+    "stderr": "",
+    "binarySha256": "9341d3054374e5bd6c2b8ebb36ac5864f1a96889486aebabf9345abde60d78fe",
+    "addressSanitizer": true,
+    "undefinedBehaviorSanitizer": true,
+    "leakDetection": true
+  },
+  "platform": "Local Linux; actual WASAPI control-owner source compiled with SDK test doubles",
+  "workflow": {
+    "repeatedFailedPreparations": 3,
+    "failedInactiveReplacement": 1,
+    "successfulInactivePreparations": 2,
+    "nativeActivations": 0,
+    "defaultEndpointQueries": 0,
+    "retiredReservedBytes": 0,
+    "retiredOwners": 0
+  },
+  "nativeEndpointQualified": false,
+  "installedPreviewChanged": false,
+  "mingwCrossBuild": {
+    "actualExitCode": 0,
+    "targets": [
+      "sc-wasapi-playback",
+      "sc-wasapi-playback-owner-tests"
+    ],
+    "buildType": "Release",
+    "nativeExecution": false,
+    "binarySha256": "31f33f3ad5fd67a8113bd419bd841103c04da825ed4e252796db7dbe294b9830",
+    "buildLogSha256": "9ba080c3a39e664ee2db3448695e1a84a95ad641d4731d13a0a34cc3923edfae"
+  }
+}

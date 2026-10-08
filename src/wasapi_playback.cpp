@@ -121,14 +121,17 @@ void WasapiPlayback::connectOutputs(const std::vector<AudioPort> &ports) {
     const auto selected = selectWasapiPorts(ports, current, s.run.graph().plan().output.channels,
                                             s.run.sampleRate(), true);
     if (s.stream) s.stream->stop();
-    s.stream.reset(); s.output.reset();
-    s.nativeChannels = selected.nativeChannels;
-    s.output = std::make_unique<PreparedWasapiOutput>(s.run,
+    s.stream.reset(); s.output.reset(); s.nativeChannels = 0;
+    auto output = std::make_unique<PreparedWasapiOutput>(s.run,
         WasapiOutputConfig{selected.nativeChannels, selected.channels, s.run.config().graph.resources});
-    s.stream = std::make_unique<WasapiRenderStream>(
+    auto stream = std::make_unique<WasapiRenderStream>(
         WasapiRenderOptions{selected.endpointId, selected.sampleRate, selected.nativeChannels,
                             s.run.config().graph.maximumFrames},
         WasapiRenderCallbacks{&s, State::fill, State::unavailable});
+    // Preparation never invokes fill before activate(). Commit both owners only
+    // after the native stream succeeds; a refused route returns output credit.
+    s.output = std::move(output); s.stream = std::move(stream);
+    s.nativeChannels = selected.nativeChannels;
 }
 void WasapiPlayback::stop() noexcept { state_->stop(); }
 void WasapiPlayback::checkReader() {
