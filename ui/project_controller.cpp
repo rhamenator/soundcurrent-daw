@@ -328,7 +328,8 @@ struct ProjectController::State : QThread {
                 command.kind == CommandKind::Create ? IoOperation::Create : IoOperation::Open;
             job.root = command.path;
             if (job.operation == IoOperation::Create)
-                job.session = snapshots.copy(makeOneTrackSession(command.name, "Audio 1"));
+                job.session = snapshots.copy(makeOneTrackSession(command.name, "Audio 1",
+                                                                command.sampleRate));
             else
                 job.loadReservation = std::make_shared<ResourceLease>(snapshots.reserveLoad());
             OperationWork work(*this);

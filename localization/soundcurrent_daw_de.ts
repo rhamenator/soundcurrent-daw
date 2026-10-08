@@ -1457,6 +1457,10 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Sample rate (Hz). For Windows native audio, match the device mix rate:</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Project display updated. Retained edits are available.</source>
       <translation type="unfinished" />
     </message>
@@ -1478,6 +1482,10 @@ The complete file was published with a warning: %1</source>
     </message>
     <message>
       <source>Choose an endpoint…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · %1 Hz</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1690,6 +1698,10 @@ The complete file was published with a warning: %1</source>
     </message>
     <message>
       <source>%1 ms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Windows recording monitoring is not available in this preview. Use monitoring off.</source>
       <translation type="unfinished" />
     </message>
     <message>

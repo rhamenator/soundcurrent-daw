@@ -123,6 +123,7 @@ struct RecordingSnapshot {
     std::optional<PendingTake> take;
     bool supported = false, pending = false, closed = false;
     bool projectMix = false, duplexSupported = false;
+    bool monitoringSupported = true;
     std::uint32_t outputChannels = 0;
     Frame endFrame = 0;
     std::vector<RecordingLaneState> lanes;

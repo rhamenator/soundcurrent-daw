@@ -16,6 +16,7 @@ struct Counters {
     std::atomic<unsigned> acceptLimit{UINT_MAX}, heldReceiptLane{UINT_MAX};
     std::atomic<unsigned> failedWriter{UINT_MAX}, failedActivation{UINT_MAX};
     std::atomic<bool> badHash{false};
+    std::atomic<bool> holdWriterFailure{false}, waitingWriterFailure{false};
     bool useDeclaredLatency = false; // Opt in to testing the accepted project values.
     std::atomic<std::uint64_t> preparedCapacityFrames{0};
     std::vector<PipeWirePort> inputs, outputs;
@@ -55,8 +56,12 @@ class Endpoint final : public RecordingEndpoint {
                 if (n == c->failedActivation && b == RecordingBoundary::BeforeJournalPublish &&
                     f == 0)
                     throw ProjectError(ErrorCode::Io, "Injected duplex activation failure");
-                if (n == c->failedWriter && b == RecordingBoundary::BeforeAudioWrite && f >= 4096)
+                if (n == c->failedWriter && b == RecordingBoundary::BeforeAudioWrite && f >= 4096) {
+                    c->waitingWriterFailure = true;
+                    while (c->holdWriterFailure)
+                        QThread::msleep(1);
                     throw ProjectError(ErrorCode::Io, "Injected duplex disk failure");
+                }
             };
         }
         run_ = std::make_unique<DuplexRecordingRun>(p.root, *p.session, p.plan, lanes, options);

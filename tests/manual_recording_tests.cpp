@@ -252,28 +252,45 @@ void repeated(unsigned partition, bool late, bool alias) {
                           << " expected=" << expected[f] << '\n';
             check(diff <= 1e-6, "Control adoption reset or changed continuous mix/EQ");
         }
-        if (!late || at >= 6000)
+        const auto service = [&] {
             run.service();
-        ManualPunchReceipt receipt;
-        while (run.acknowledgement(receipt)) {
-            const std::array<Frame, 6> frames{503, 541, 557, 611, 7303, 8001};
-            check(receipt.result == ManualPunchResult::Applied && receipt.command.revision <= 6 &&
-                      receipt.appliedFrame == frames[receipt.command.revision - 1],
-                  "Control reliable exact reply differs");
-            ++replies;
-        }
-        ManualRecordedGroup group;
-        while (run.takeGroup(group)) {
-            verifiedGroup(group, canonical, original, d.root);
-            ++groups;
-        }
-        if (groups == 2 && !third) {
-            check(run.position() < 7303, "Control service missed next scheduled group");
-            const auto next = run.prepareTake();
-            check(next > two, "Control reused take identity");
-            submit(run, ManualPunchAction::In, 7303, 5, next);
-            submit(run, ManualPunchAction::Out, 8001, 6);
-            third = true;
+            ManualPunchReceipt receipt;
+            while (run.acknowledgement(receipt)) {
+              const std::array<Frame, 6> frames{503, 541, 557, 611, 7303, 8001};
+              check(receipt.result == ManualPunchResult::Applied && receipt.command.revision <= 6 &&
+                        receipt.appliedFrame == frames[receipt.command.revision - 1],
+                    "Control reliable exact reply differs");
+              ++replies;
+            }
+            ManualRecordedGroup group;
+            while (run.takeGroup(group)) {
+              verifiedGroup(group, canonical, original, d.root);
+              ++groups;
+            }
+            if (groups == 2 && !third) {
+              check(run.position() < 7303, "Control service missed next scheduled group");
+              const auto next = run.prepareTake();
+              check(next > two, "Control reused take identity");
+              submit(run, ManualPunchAction::In, 7303, 5, next);
+              submit(run, ManualPunchAction::Out, 8001, 6);
+              third = true;
+            }
+        };
+        if (!late || at >= 6000)
+            service();
+        // This synthetic workflow verifies the scheduled third take, not disk
+        // startup deadlines. Join/adopt the earlier groups before advancing
+        // beyond the control preparation boundary. Callback auditing above is
+        // unchanged; all waits/service stay outside it.
+        if (run.position() >= 6000 && !third) {
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+            while (!third) {
+                service();
+                check(std::chrono::steady_clock::now() < deadline,
+                      "Earlier control groups did not finish before third-take preparation");
+                if (!third)
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
         }
         clock.position += n;
         clock.monotonicNs += std::uint64_t(n) * 1000000000ULL / 48000;

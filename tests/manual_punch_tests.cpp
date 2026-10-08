@@ -685,7 +685,12 @@ void concurrentRetirement() {
         }
     };
     for (unsigned n = 0; n < 20; ++n) {
-        auto &take = bridge.prepareTake(capture());
+        auto concurrentCapture = capture();
+        // Use the ordinary two-second disk reserve while a worker opens and
+        // checkpoints files concurrently. Explicit small-pool pressure remains
+        // covered by poolExhaustion/backpressure workflows.
+        concurrentCapture.slabFrames = 0;
+        auto &take = bridge.prepareTake(concurrentCapture);
         check(bridge.submit({ManualPunchAction::In, -1, 43, std::uint64_t(n) * 2 + 1, take.id()}) ==
                   ManualPunchSubmit::Accepted,
               "Concurrent start refused");

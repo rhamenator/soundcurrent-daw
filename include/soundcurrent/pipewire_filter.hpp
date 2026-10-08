@@ -1,19 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "audio_bridge.hpp"
+#include "audio_port.hpp"
 #include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace soundcurrent::daw {
-struct PipeWirePort {
-    std::uint32_t nodeId = 0, portId = 0;
-    std::uint64_t nodeSerial = 0;
-    std::string nodeName, portName, mediaClass;
-    bool input = false;
-    bool operator==(const PipeWirePort &) const = default;
-};
+using PipeWirePort = AudioPort; // Existing adapter/API spelling retained.
 struct PipeWireFilterOptions {
     std::string nodeName;
     std::uint32_t inputs = 1, outputs = 1;

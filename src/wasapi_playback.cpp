@@ -22,7 +22,7 @@ PlaybackBridgeStatus converted(PlaybackStatus status) noexcept {
 }
 struct WasapiPlayback::State {
     MixPlaybackRun run;
-    PreparedWasapiOutput output;
+    std::unique_ptr<PreparedWasapiOutput> output;
     PlaybackCallbackInstrumentation audit;
     std::unique_ptr<WasapiRenderStream> stream;
     std::exception_ptr readerError;
@@ -30,17 +30,17 @@ struct WasapiPlayback::State {
     std::atomic<std::uint64_t> dropped{0};
     std::atomic<PlaybackBridgeStatus> phase{PlaybackBridgeStatus::Ready};
     std::atomic<bool> complete{false};
-    bool stopped = false;
+    bool stopped = false, activated = false;
     State(std::filesystem::path root, const Session &s, MixPlan plan, MixPlaybackConfig config,
-          WasapiOutputConfig out, ReadAheadOptions reader, PlaybackCallbackInstrumentation a)
+          ReadAheadOptions reader, PlaybackCallbackInstrumentation a)
         : run(std::move(root), s, std::move(plan), config, std::move(reader)),
-          output(run, std::move(out)), audit(a) {}
+          audit(a) {}
     static WasapiRenderAction fill(void *p, float *data, std::uint32_t frames,
                                    const WasapiRenderClock &clock) noexcept {
         auto &s = *static_cast<State *>(p);
         if (!active(s.phase.load(std::memory_order_acquire))) return WasapiRenderAction::Abort;
         if (s.audit.begin) s.audit.begin(s.audit.context);
-        const auto report = s.output.process({data, std::size_t(frames) * s.nativeChannels}, frames);
+        const auto report = s.output->process({data, std::size_t(frames) * s.nativeChannels}, frames);
         const auto next = converted(report.status);
         auto prior = s.phase.load(std::memory_order_acquire);
         if (active(prior)) s.phase.compare_exchange_strong(prior, next, std::memory_order_acq_rel);
@@ -85,6 +85,11 @@ struct WasapiPlayback::State {
     ~State() { stop(); }
 };
 WasapiPlayback::WasapiPlayback(std::filesystem::path root, const Session &s, MixPlan plan,
+                               MixPlaybackConfig config, ReadAheadOptions reader,
+                               PlaybackCallbackInstrumentation audit)
+    : state_(std::make_unique<State>(std::move(root), s, std::move(plan), config,
+                                     std::move(reader), audit)) {}
+WasapiPlayback::WasapiPlayback(std::filesystem::path root, const Session &s, MixPlan plan,
                                MixPlaybackConfig config, WasapiRenderOptions native,
                                WasapiOutputConfig out, ReadAheadOptions reader,
                                PlaybackCallbackInstrumentation audit) {
@@ -92,15 +97,38 @@ WasapiPlayback::WasapiPlayback(std::filesystem::path root, const Session &s, Mix
         native.channels != out.nativeChannels)
         throw ProjectError(ErrorCode::InvalidState, "Playback engine/native preparation mismatch");
     state_ = std::make_unique<State>(std::move(root), s, std::move(plan), config,
-                                    std::move(out), std::move(reader), audit);
+                                    std::move(reader), audit);
     state_->nativeChannels = native.channels;
+    state_->output = std::make_unique<PreparedWasapiOutput>(state_->run, std::move(out));
     state_->stream = std::make_unique<WasapiRenderStream>(std::move(native),
         WasapiRenderCallbacks{state_.get(), State::fill, State::unavailable});
 }
 WasapiPlayback::~WasapiPlayback() = default;
 void WasapiPlayback::activate() {
-    if (state_->stopped) throw ProjectError(ErrorCode::InvalidState, "Playback owner has stopped");
+    if (state_->stopped || !state_->stream)
+        throw ProjectError(ErrorCode::InvalidState, "Select playback outputs before activation");
     state_->stream->activate();
+    state_->activated = true;
+}
+std::vector<AudioPort> WasapiPlayback::ports() const {
+    return describeWasapiPorts(wasapiEndpoints(), false, true);
+}
+void WasapiPlayback::connectOutputs(const std::vector<AudioPort> &ports) {
+    auto &s = *state_;
+    if (s.stopped || s.activated || s.phase.load(std::memory_order_acquire) != PlaybackBridgeStatus::Ready)
+        throw ProjectError(ErrorCode::InvalidState, "Playback route is closed");
+    const auto current = this->ports();
+    const auto selected = selectWasapiPorts(ports, current, s.run.graph().plan().output.channels,
+                                            s.run.sampleRate(), true);
+    if (s.stream) s.stream->stop();
+    s.stream.reset(); s.output.reset();
+    s.nativeChannels = selected.nativeChannels;
+    s.output = std::make_unique<PreparedWasapiOutput>(s.run,
+        WasapiOutputConfig{selected.nativeChannels, selected.channels, s.run.config().graph.resources});
+    s.stream = std::make_unique<WasapiRenderStream>(
+        WasapiRenderOptions{selected.endpointId, selected.sampleRate, selected.nativeChannels,
+                            s.run.config().graph.maximumFrames},
+        WasapiRenderCallbacks{&s, State::fill, State::unavailable});
 }
 void WasapiPlayback::stop() noexcept { state_->stop(); }
 void WasapiPlayback::checkReader() {
@@ -122,9 +150,9 @@ Frame WasapiPlayback::position() const noexcept { return state_->run.position();
 bool WasapiPlayback::observation(WasapiPlaybackObservation &o) noexcept { return state_->observations.tryPop(o); }
 std::uint64_t WasapiPlayback::droppedObservations() const noexcept { return state_->dropped.load(std::memory_order_relaxed); }
 std::uint64_t WasapiPlayback::missingFrames() const noexcept { return state_->run.missingTrackFrames(); }
-bool WasapiPlayback::drained() const noexcept { return state_->stream->drained(); }
-std::uint64_t WasapiPlayback::submittedFrames() const noexcept { return state_->stream->submittedFrames(); }
-std::uint64_t WasapiPlayback::emptyQueueObservations() const noexcept { return state_->stream->emptyQueueObservations(); }
-std::uint32_t WasapiPlayback::bufferFrames() const noexcept { return state_->stream->bufferFrames(); }
-std::optional<WasapiStreamFailure> WasapiPlayback::failure() const noexcept { return state_->stream->failure(); }
+bool WasapiPlayback::drained() const noexcept { return state_->stream && state_->stream->drained(); }
+std::uint64_t WasapiPlayback::submittedFrames() const noexcept { return state_->stream ? state_->stream->submittedFrames() : 0; }
+std::uint64_t WasapiPlayback::emptyQueueObservations() const noexcept { return state_->stream ? state_->stream->emptyQueueObservations() : 0; }
+std::uint32_t WasapiPlayback::bufferFrames() const noexcept { return state_->stream ? state_->stream->bufferFrames() : 0; }
+std::optional<WasapiStreamFailure> WasapiPlayback::failure() const noexcept { return state_->stream ? state_->stream->failure() : std::nullopt; }
 } // namespace soundcurrent::daw

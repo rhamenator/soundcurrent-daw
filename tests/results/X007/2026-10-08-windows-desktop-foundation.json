@@ -1,0 +1,434 @@
+{
+  "format": "sc-windows-desktop-foundation",
+  "schemaMajor": 1,
+  "sourceBase": "3dd6654e8334d67e6edd0b9da940e9e923ea71a0",
+  "buildInputFiles": 331,
+  "sourceScope": "Developer snapshot plus explicit hash-verified overlays; compiled/resource closure matches current files before documentation edits. Not a corresponding-source release archive.",
+  "nativePlatform": "Windows 11 10.0.26300.9550, independent test VM, limited interactive session 1",
+  "compiler": "MSVC 19.44.35228.0, Visual Studio Build Tools 2022, x64 Release /MD",
+  "qt": "6.12.0 MSVC x64, native windows QPA",
+  "sndfile": "1.2.2 shared, built with matching MSVC/UCRT; optional codecs disabled",
+  "tests": {
+    "scope": "Native Qt/IO tests; fake audio endpoints for UI control tests, no native audio activation",
+    "exitCode": 0,
+    "platform": "windows",
+    "tests": [
+      {
+        "exitCode": 0,
+        "exeBytes": 693248,
+        "name": "sc-controller-tests",
+        "exeSha256": "3a90a732ec0a7633217bc762e3b7438f25bfd3f3eb32d1bb5f90068fcb6a9220"
+      },
+      {
+        "exitCode": 0,
+        "exeBytes": 51200,
+        "name": "sc-wasapi-ports-tests",
+        "exeSha256": "22914075d6d2074eb6708718172d9f696a056bfa7faffa8c17d04ec4fbf5bfd6"
+      },
+      {
+        "exitCode": 0,
+        "exeBytes": 334336,
+        "name": "sc-playback-controller-tests",
+        "exeSha256": "39d4750102d1524ce1b11dfa5db83efa7b234ed2768eff00b2ac35483c6859c8"
+      },
+      {
+        "exitCode": 0,
+        "exeBytes": 872448,
+        "name": "sc-recording-controller-tests",
+        "exeSha256": "779967253774ce5b57b41afeb0b9d068ebe0cdf6c39d818bdf19630a5c6c9674"
+      },
+      {
+        "exitCode": 0,
+        "exeBytes": 1975296,
+        "name": "sc-localization-tests",
+        "exeSha256": "c16978f5c536338d6bfaf3905921e99217fbd2e6b051d3b7e7fba1187cb0cdc2"
+      },
+      {
+        "exitCode": 0,
+        "exeBytes": 513024,
+        "name": "sc-equipment-tests",
+        "exeSha256": "a85653e97b6228d9539018ad5e3d535a37b17c9646b4620ded8707885d2758dc"
+      },
+      {
+        "exitCode": 0,
+        "exeBytes": 1980416,
+        "name": "sc-export-ui-tests",
+        "exeSha256": "6bacc6436050faf000dc2ad9ac22fce2a970a7f3c0ead76570068509e37e2bd8"
+      },
+      {
+        "exitCode": 0,
+        "exeBytes": 40960,
+        "name": "sc-wasapi-sta-tests",
+        "exeSha256": "e8c215b38021af3fd72dc4b459786f85e1ab54bc27518e35e0b7e06cb516a02b"
+      }
+    ],
+    "sessionId": 1
+  },
+  "mainLaunch": {
+    "exitCode": 0,
+    "scope": "Actual main executable normal empty-project launch and close with developer SDK PATH; no installer qualification",
+    "exeSha256": "b79cd84844b5e02cc69d292f82a44483233c2aead7324c1a677b31c0335a0f48",
+    "nativeAudioActivated": false,
+    "exeBytes": 1915904,
+    "sessionId": 1,
+    "title": "SoundCurrent DAW"
+  },
+  "archive": "2026-10-08-windows-desktop-foundation.zip",
+  "archiveBytes": 73941,
+  "archiveSha256": "92e789702c5e2662f6eb3adc8d9962adb72763d55d00cafda221b2d237319828",
+  "payloads": [
+    {
+      "path": "control/build.log",
+      "bytes": 390511,
+      "sha256": "d32f9658e67e8ed3eb156bd9b5682238f538833d2bee4291ec5323971d3f4d02"
+    },
+    {
+      "path": "control/desktop-v5-build.log",
+      "bytes": 65217,
+      "sha256": "2e22a6a3fc60a875f9c30e5b440014657cd13e9b514bb0d68f84d5ae888ddf28"
+    },
+    {
+      "path": "control/desktop-v5-receipt.json",
+      "bytes": 11484,
+      "sha256": "4fe131b0f069a20ec9e3182b5101873eb3407d7751fb5ed3176bb3484f6f7d38"
+    },
+    {
+      "path": "control/guid-v2-build.log",
+      "bytes": 1314,
+      "sha256": "b8da5ed22532120dce608bff18f4e27f3ac0a3ed42cdc7c7cb8818b69b2c6af0"
+    },
+    {
+      "path": "control/guid-v3-build.log",
+      "bytes": 120855,
+      "sha256": "4901808a3569714de6bc1639530d88117b7a9fbde0269978057526298d3d2c19"
+    },
+    {
+      "path": "control/guid-v3-receipt.json",
+      "bytes": 743,
+      "sha256": "5bd651f1889ac8afbd0883472d7166e140702c647a1ff43c42a8d532538a46ca"
+    },
+    {
+      "path": "control/interactive-gui-v5-dispatch.log",
+      "bytes": 967,
+      "sha256": "86c8fbd81de2a38b47957dc2747aac90d8b281d739de5bb0c4c04c0e5727e058"
+    },
+    {
+      "path": "control/interactive-gui-v6-collect.log",
+      "bytes": 2960,
+      "sha256": "0f42aa75c8da77ea3ff99bb790677782fb5e941864a9b6e9f4e1ae63cf2d9d59"
+    },
+    {
+      "path": "control/interactive-gui-v6-dispatch.log",
+      "bytes": 2742,
+      "sha256": "54ae1aafe9c4d8c481bbe03fd393319aef8202f944e2a69733f0ab9278b0680e"
+    },
+    {
+      "path": "control/late-writer-v6-build.log",
+      "bytes": 86040,
+      "sha256": "8ccaaeac66b50dcf5a0cbb1b5197ee69962e9d5b0c86c3563f370d7702517aae"
+    },
+    {
+      "path": "control/late-writer-v6-receipt.json",
+      "bytes": 11919,
+      "sha256": "8682fb01780ef1f132a81c00a42a9253da9ede23b70a53e9c5d0b7b0e435bc24"
+    },
+    {
+      "path": "control/main-v6-dispatch.log",
+      "bytes": 590,
+      "sha256": "0ce17f4b3fe513313cfc521e23a52ed9d2cac903e6cff45309553c09e6b2cdac"
+    },
+    {
+      "path": "control/main-v7-dispatch.log",
+      "bytes": 587,
+      "sha256": "994229b0d59acd228c918fb03850e6ef78a9db8ac744b7f7d60c15d8551c1428"
+    },
+    {
+      "path": "control/run-tests.log",
+      "bytes": 1740,
+      "sha256": "85578af807f5dab18c370eb0c976ee5fda343ac1684a0c157565593701dcb5f7"
+    },
+    {
+      "path": "control/source-receipt.json",
+      "bytes": 288,
+      "sha256": "7810c3e79307d1e75ac7d4cb61d2cad158ebd6fa91d209e246b1c48e8bc90e48"
+    },
+    {
+      "path": "control/unexpected-guest-shutdown.log",
+      "bytes": 1550,
+      "sha256": "68dcc8e0c4e126762c1e34616b4c22d1bdb88f5be85a32effc5e8ff14c2f2a9a"
+    },
+    {
+      "path": "control/unicode-v4-build.log",
+      "bytes": 32022,
+      "sha256": "99051429d474f610b84ae18d932701d7543214d34e01aba3c9471e1e56c79154"
+    },
+    {
+      "path": "control/unicode-v4-receipt.json",
+      "bytes": 11222,
+      "sha256": "5ed64969d07944c17d39bdbf096d61b68f6ea6c733b405fddf7b9056d8b70223"
+    },
+    {
+      "path": "final-native-gui/result.json",
+      "bytes": 2523,
+      "sha256": "7185c55440bcacf1f254d58c355c79741d94fbfd9f543b53506287ba0a342c35"
+    },
+    {
+      "path": "final-native-gui/sc-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-controller-tests.stdout",
+      "bytes": 97,
+      "sha256": "c36b0cc9526156e76166b78bf375a1a07a8fac7f71c2a186234d6ccd4da39e4c"
+    },
+    {
+      "path": "final-native-gui/sc-equipment-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-equipment-tests.stdout",
+      "bytes": 63,
+      "sha256": "8437a0bf5cb5df9288c7039b2e8b967c576459abe7498650ac9334d31641eedb"
+    },
+    {
+      "path": "final-native-gui/sc-export-ui-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-export-ui-tests.stdout",
+      "bytes": 39,
+      "sha256": "c95db7af4c233122f9cb542d1d7c234c03bd9ddb98ff8362069ee239acb5f168"
+    },
+    {
+      "path": "final-native-gui/sc-localization-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-localization-tests.stdout",
+      "bytes": 304,
+      "sha256": "4c7033ee6d49f7b4b381267abdf5532fe348260f83cc07aeeed12505530ca847"
+    },
+    {
+      "path": "final-native-gui/sc-playback-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-playback-controller-tests.stdout",
+      "bytes": 155,
+      "sha256": "af70f9a3d2332c8bb64dc0fe80490a73b6fc5ded7c785f12aeef0e0801c489c0"
+    },
+    {
+      "path": "final-native-gui/sc-recording-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-recording-controller-tests.stdout",
+      "bytes": 149,
+      "sha256": "d6b0194e37014c7ec13af7e766a8dc3214275d04282aaee2508c3d03abe82ed6"
+    },
+    {
+      "path": "final-native-gui/sc-wasapi-ports-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-wasapi-ports-tests.stdout",
+      "bytes": 34,
+      "sha256": "d5d7b77c63fb7598c4612ebd87b3cede8d570dd14104752a38c030478b1a8326"
+    },
+    {
+      "path": "final-native-gui/sc-wasapi-sta-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-native-gui/sc-wasapi-sta-tests.stdout",
+      "bytes": 84,
+      "sha256": "ef9e9c71dca39a29321b2c871dc38c6008b271c76f69fd06758fa7b99ae35cbf"
+    },
+    {
+      "path": "first-native-gui/result.json",
+      "bytes": 2523,
+      "sha256": "0b38ef6f6f16a06634cf387998711aea7c60eeaebbefa6c5546de015a667b8d2"
+    },
+    {
+      "path": "first-native-gui/sc-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-controller-tests.stdout",
+      "bytes": 97,
+      "sha256": "c36b0cc9526156e76166b78bf375a1a07a8fac7f71c2a186234d6ccd4da39e4c"
+    },
+    {
+      "path": "first-native-gui/sc-equipment-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-equipment-tests.stdout",
+      "bytes": 63,
+      "sha256": "8437a0bf5cb5df9288c7039b2e8b967c576459abe7498650ac9334d31641eedb"
+    },
+    {
+      "path": "first-native-gui/sc-export-ui-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-export-ui-tests.stdout",
+      "bytes": 39,
+      "sha256": "e55aa7943562702a97e512f1b27d2e5cd1bee37d7260e65fb7e59a61002ef417"
+    },
+    {
+      "path": "first-native-gui/sc-localization-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-localization-tests.stdout",
+      "bytes": 304,
+      "sha256": "c4e56b8c7a35ef03b0ec572d9efb34dd774bcd33cb6aeb7b268928d74b5c8779"
+    },
+    {
+      "path": "first-native-gui/sc-playback-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-playback-controller-tests.stdout",
+      "bytes": 155,
+      "sha256": "af70f9a3d2332c8bb64dc0fe80490a73b6fc5ded7c785f12aeef0e0801c489c0"
+    },
+    {
+      "path": "first-native-gui/sc-recording-controller-tests.stderr",
+      "bytes": 33,
+      "sha256": "75ed14a2a735899f2e031d5ed50802c31630444e79216007056fa7ff0df5fa97"
+    },
+    {
+      "path": "first-native-gui/sc-recording-controller-tests.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-wasapi-ports-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-wasapi-ports-tests.stdout",
+      "bytes": 34,
+      "sha256": "d5d7b77c63fb7598c4612ebd87b3cede8d570dd14104752a38c030478b1a8326"
+    },
+    {
+      "path": "first-native-gui/sc-wasapi-sta-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-native-gui/sc-wasapi-sta-tests.stdout",
+      "bytes": 84,
+      "sha256": "ef9e9c71dca39a29321b2c871dc38c6008b271c76f69fd06758fa7b99ae35cbf"
+    },
+    {
+      "path": "linux/windows-desktop-catalog-update-final.log",
+      "bytes": 242,
+      "sha256": "5eab2f3bc9562ce251166f2ffefdb4ec4886d224393e6bb383885a353af39bc3"
+    },
+    {
+      "path": "linux/windows-desktop-controls-retry-tests.log",
+      "bytes": 427,
+      "sha256": "e77dfe427b187618d719746b6fd33d9d47a117d47bee8963c6baa7a92b8cd6b1"
+    },
+    {
+      "path": "linux/windows-desktop-controls-tests.log",
+      "bytes": 720,
+      "sha256": "6ab2820ad40624d8f46b6567c7979d58da8f85bd35ffa83ced1354781f9c36ad"
+    },
+    {
+      "path": "linux/windows-desktop-final-tests.log",
+      "bytes": 926,
+      "sha256": "67ee74b9f2f563f88ef046c2fda6ec8910d5a2f8088e91ded7932b4ff13fce0e"
+    },
+    {
+      "path": "linux/windows-late-writer-green-tests.log",
+      "bytes": 599,
+      "sha256": "d2237593dd5c1d278b0229d8acce8950f6508500694ea9ff3159557c304300cc"
+    },
+    {
+      "path": "linux/windows-late-writer-red-tests.log",
+      "bytes": 392,
+      "sha256": "98300c15b514127c03be1934c5102f8ab1c26f4e82085ec00e42ef853ad006a7"
+    },
+    {
+      "path": "main-launch/main-v6-result.json",
+      "bytes": 371,
+      "sha256": "1db0ad41734a92571096b45f49165b4529ee9815268665a397661a45c054007e"
+    },
+    {
+      "path": "main-launch/main-v6.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "main-launch/main-v6.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "main-launch/main-v7-result.json",
+      "bytes": 368,
+      "sha256": "ac0494ac6bb317e9695714670ef75441eb3162dd3df6891b70dae5dae582d5a0"
+    },
+    {
+      "path": "main-launch/main-v7.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "main-launch/main-v7.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "sdk/bootstrap-v1-receipt.json",
+      "bytes": 249,
+      "sha256": "29cb5a935c44dfd00b4c6b063dc5472dad5215c5fce1d4732def7f4793d34e3c"
+    },
+    {
+      "path": "sdk/bootstrap-v1.log",
+      "bytes": 7255,
+      "sha256": "7f5be9181b2530b5f4c3ce13bc6516af802be04d597902cb163ecfabf1826513"
+    },
+    {
+      "path": "source/build-input-closure.json",
+      "bytes": 51624,
+      "sha256": "680a0ca7415b0b449e92557a8b5152b75955382887ca63baf06703651d0659d9"
+    }
+  ],
+  "gaps": [
+    "Native GUI recording/playback audio workflow not yet run; UI control tests inject synthetic endpoints.",
+    "Developer SDK PATH is used; no compiler-free runtime/installer qualification.",
+    "Windows monitoring/shared-clock duplex/punch owner remains open.",
+    "Native-rate admission only; project creation can choose a rate but native SRC/drift adaptation remains open.",
+    "32 non-English catalogs remain partial unreviewed drafts; no language fully qualified.",
+    "18 changed borrowed equipment/localization inputs await review/adaptation.",
+    "Earlier capture SDK 480-frame gap and sustained/physical timing remain unresolved."
+  ],
+  "originalFailures": [
+    "Native libsndfile CMake argument split 3.5 into 3 and .5; quoted retry retained.",
+    "MSVC missing extern SDK audio GUID symbols; SDK __uuidof attributes fix also cross-compiles with MinGW.",
+    "Patch-harness hash placeholder damaged SHA256 token; refused before source replacement.",
+    "Initial Windows localization screenshot used ANSI filesystem conversion; fixture now uses wide paths.",
+    "Native first GUI run timed out waiting for a late writer failure after processing Complete; deterministic Linux red/green and final native checks cover independent storage failure.",
+    "Unexpected guest shutdown during collection; retained Windows log attributes system power-off to winlogon, reason 0x500ff, cause not established.",
+    "First main-launch harness produced null exit code; retained failed observation, same binary retested with pinned process handle and non-null exit zero."
+  ]
+}

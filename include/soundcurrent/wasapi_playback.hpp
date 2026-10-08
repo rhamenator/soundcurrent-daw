@@ -3,6 +3,7 @@
 #include "wasapi_render.hpp"
 #include "wasapi_output.hpp"
 #include "pipewire_playback.hpp" // Shared instrumentation POD, no PipeWire calls.
+#include "wasapi_ports.hpp"
 namespace soundcurrent::daw {
 struct WasapiPlaybackObservation {
     WasapiRenderClock native;
@@ -13,6 +14,10 @@ struct WasapiPlaybackObservation {
 // thread and disk reader are joined before releasing any processing state.
 class WasapiPlayback {
   public:
+    // Prepare the shared graph/reader before output selection. Native stream
+    // and channel banks are prepared by connectOutputs, still inactive.
+    WasapiPlayback(std::filesystem::path root, const Session &, MixPlan, MixPlaybackConfig,
+                   ReadAheadOptions = {}, PlaybackCallbackInstrumentation = {});
     WasapiPlayback(std::filesystem::path root, const Session &, MixPlan, MixPlaybackConfig,
                    WasapiRenderOptions, WasapiOutputConfig, ReadAheadOptions = {},
                    PlaybackCallbackInstrumentation = {});
@@ -20,6 +25,8 @@ class WasapiPlayback {
     WasapiPlayback(const WasapiPlayback &) = delete;
     WasapiPlayback &operator=(const WasapiPlayback &) = delete;
     void activate();
+    std::vector<AudioPort> ports() const;
+    void connectOutputs(const std::vector<AudioPort> &);
     void stop() noexcept;
     void checkReader();
     PreparedMixGraph &graph() noexcept;

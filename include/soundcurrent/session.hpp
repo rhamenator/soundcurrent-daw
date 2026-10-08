@@ -229,7 +229,8 @@ class ValidatedSession {
     std::unordered_map<std::string_view, const Track *> tracks_;
     std::unordered_map<std::string_view, const Asset *> assets_;
 };
-Session makeOneTrackSession(std::string name, std::string trackName);
+Session makeOneTrackSession(std::string name, std::string trackName,
+                           std::uint32_t sampleRate = 48000);
 Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampleRate);
 // Control-thread edits, addressed by stable identity. A batch is all-or-nothing.
 struct InsertTrack {

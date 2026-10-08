@@ -38,12 +38,15 @@ template<class Predicate> void await(Predicate p) {
     const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(10);
     while (!p()) { check(std::chrono::steady_clock::now() < end, "Localized UI workflow timed out"); QTest::qWait(2); }
 }
-QByteArray bytes(const std::filesystem::path &p) {
+QString pathText(const std::filesystem::path &p) {
 #ifdef _WIN32
-    QFile f(QString::fromStdWString(p.wstring()));
+    return QString::fromStdWString(p.wstring());
 #else
-    QFile f(QString::fromUtf8(p.string()));
+    return QString::fromUtf8(p.string());
 #endif
+}
+QByteArray bytes(const std::filesystem::path &p) {
+    QFile f(pathText(p));
     check(f.open(QIODevice::ReadOnly), "Owned fixture unreadable"); return f.readAll();
 }
 Session project(const std::filesystem::path &root) {
@@ -126,7 +129,8 @@ void uiWorkflow(const std::filesystem::path &root, const QString &language, cons
         check(ProjectStore(root).load()==*window.snapshot()->session,"Localized edit Save/reopen changed state");
     }
     const auto before=bytes(root/"project.json");
-    window.grab().save(QString::fromStdString((root/(language.toStdString()+".png")).string()));
+    check(window.grab().save(pathText(root/(language.toStdString()+".png"))),
+          "Localized Unicode screenshot path failed");
     window.close();await([&]{return window.snapshot()->closed;});
     check(bytes(root/"project.json")==before,"Language settings or Close changed saved project bytes");
     check(playback->activated==0 && recording->activated==0,"Localization fixture activated audio");
@@ -161,8 +165,8 @@ QImage profileChart(const QString &language) {
 int main(int argc,char **argv) {
     QApplication app(argc,argv);app.setOrganizationName("SoundCurrentDAWTest");app.setApplicationName("Localization");
     const auto root=std::filesystem::temp_directory_path()/("sc-localization-"+Id::generate().str());std::filesystem::create_directories(root);
-    std::cout<<"Owned localization fixture root: "<<root<<'\n';
-    QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,QString::fromStdString(root.string()));
+    std::cout<<"Owned localization fixture root: "<<pathText(root).toUtf8().toStdString()<<'\n';
+    QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,pathText(root));
     try {
         const auto previous=QLocale();const auto direction=QApplication::layoutDirection();runtimeAndPreferences();
         check(QLocale()==previous && QApplication::layoutDirection()==direction,"Runtime lifetime did not restore locale/direction");

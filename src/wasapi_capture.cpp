@@ -24,7 +24,7 @@ std::vector<WasapiEndpoint> wasapiEndpoints() {
         Memory id;
         check(device->GetId(reinterpret_cast<wchar_t **>(&id.p)), "Read audio identity");
         Com<IMMEndpoint> endpoint;
-        check(device->QueryInterface(IID_IMMEndpoint, reinterpret_cast<void **>(endpoint.out())),
+        check(device->QueryInterface(__uuidof(IMMEndpoint), reinterpret_cast<void **>(endpoint.out())),
               "Read audio direction");
         EDataFlow direction;
         check(endpoint->GetDataFlow(&direction), "Read audio direction");
@@ -33,7 +33,7 @@ std::vector<WasapiEndpoint> wasapiEndpoints() {
         Variant name;
         check(properties->GetValue(PKEY_Device_FriendlyName, &name.value), "Read audio name");
         Com<IAudioClient> audio;
-        check(device->Activate(IID_IAudioClient, CLSCTX_ALL, nullptr,
+        check(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr,
                               reinterpret_cast<void **>(audio.out())), "Read audio format");
         Memory mix;
         check(audio->GetMixFormat(reinterpret_cast<WAVEFORMATEX **>(&mix.p)), "Read mix format");
@@ -109,14 +109,14 @@ struct WasapiCaptureStream::State {
             if (deviceState != DEVICE_STATE_ACTIVE)
                 throw ProjectError(ErrorCode::InvalidState, "Selected endpoint is inactive");
             Com<IMMEndpoint> endpoint;
-            check(device->QueryInterface(IID_IMMEndpoint, reinterpret_cast<void **>(endpoint.out())),
+            check(device->QueryInterface(__uuidof(IMMEndpoint), reinterpret_cast<void **>(endpoint.out())),
                   "Read selected endpoint direction");
             EDataFlow direction;
             check(endpoint->GetDataFlow(&direction), "Read selected endpoint direction");
             if (direction != (options.loopback ? eRender : eCapture))
                 throw ProjectError(ErrorCode::InvalidState, "Selected endpoint direction mismatch");
             Com<IAudioClient> client;
-            check(device->Activate(IID_IAudioClient, CLSCTX_ALL, nullptr,
+            check(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr,
                                    reinterpret_cast<void **>(client.out())), "Open audio client");
             Memory mix;
             check(client->GetMixFormat(reinterpret_cast<WAVEFORMATEX **>(&mix.p)), "Read native format");
@@ -149,7 +149,7 @@ struct WasapiCaptureStream::State {
                 throw ProjectError(ErrorCode::InvalidState, "Native capture buffer exceeds admission");
             check(client->SetEventHandle(audio.value), "Set capture notification");
             Com<IAudioCaptureClient> capture;
-            check(client->GetService(IID_IAudioCaptureClient,
+            check(client->GetService(__uuidof(IAudioCaptureClient),
                                      reinterpret_cast<void **>(capture.out())), "Prepare capture lease service");
             Scheduling scheduling;
             prepared.store(1, std::memory_order_release);

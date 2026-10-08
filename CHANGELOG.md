@@ -2,13 +2,20 @@
 
 ## Unreleased — development preview
 
+- Native Windows desktop playback and single-track recording factories, stable
+  device/channel route identities, project sample-rate selection and visible
+  monitoring limits. Native MSVC/Qt GUI and disk tests pass; native GUI audio and
+  the Windows installer remain unqualified.
+- Late recording-writer failures are reported independently of completed audio
+  processing, preserving other finalized lanes and the failed writer's checkpoint.
+
 - Single-track recording errors retain portable, versioned details beside the
   take. Review recordings shows saved details after reopening, including attached
   takes. Malformed metadata and storage failure report separately and preserve
   raw checkpoint recovery. Native Windows and multi-track persistence remain open.
 - Desktop language and regional preferences, embedded contextual catalogs,
   independent number formatting and expanded/RTL developer test locales. English
-  plus 32 draft catalogs are partial; each draft translates 8 of 543 messages.
+  plus 32 draft catalogs are partial; each draft translates 8 of 546 messages.
   Native-speaker/full UI qualification remains open. Numerical timelines and
   equipment charts retain their direction under RTL layouts.
 - Easy Linux/Windows installation is an explicit product acceptance requirement.

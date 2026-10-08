@@ -40,10 +40,10 @@ class Source {
   public:
     Source(const std::wstring &id, std::uint32_t channels) : channels_(channels) {
         if (!channels || channels > 256) throw std::runtime_error("Test source channel admission");
-        checked(CoCreateInstance(CLSID_MMDeviceEnumerator, nullptr, CLSCTX_ALL,
-                                 IID_IMMDeviceEnumerator, reinterpret_cast<void **>(enumerator_.out())));
+        checked(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
+                                 __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(enumerator_.out())));
         checked(enumerator_->GetDevice(id.c_str(), device_.out()));
-        checked(device_->Activate(IID_IAudioClient, CLSCTX_ALL, nullptr,
+        checked(device_->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr,
                                   reinterpret_cast<void **>(client_.out())));
         WAVEFORMATEXTENSIBLE format{};
         format.Format = {WAVE_FORMAT_EXTENSIBLE, static_cast<WORD>(channels), 48000,
@@ -61,14 +61,14 @@ class Source {
         // Isolate this ephemeral fixture session from persistent per-app mute.
         // Only its own session volume changes; endpoint/default/other apps don't.
         Com<ISimpleAudioVolume> volume;
-        checked(client_->GetService(IID_ISimpleAudioVolume, reinterpret_cast<void **>(volume.out())));
+        checked(client_->GetService(__uuidof(ISimpleAudioVolume), reinterpret_cast<void **>(volume.out())));
         checked(volume->SetMasterVolume(1.f, nullptr));
         checked(volume->SetMute(FALSE, nullptr));
         checked(volume->GetMasterVolume(&volume_));
         checked(volume->GetMute(&muted_));
         checked(client_->GetBufferSize(&capacity_));
         if (!capacity_ || capacity_ > 65536) throw std::runtime_error("Test source buffer admission");
-        checked(client_->GetService(IID_IAudioRenderClient, reinterpret_cast<void **>(render_.out())));
+        checked(client_->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(render_.out())));
         samples_.resize(std::size_t(192000) * channels);
         std::uint32_t state = 0x753bdce1;
         for (unsigned frame = 0; frame < 192000; ++frame)

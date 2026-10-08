@@ -403,8 +403,10 @@ const Asset &ValidatedSession::asset(const Id &id) const {
         throw ProjectError(ErrorCode::InvalidId, "Unknown asset");
     return *found->second;
 }
-Session makeOneTrackSession(std::string name, std::string trackName) {
+Session makeOneTrackSession(std::string name, std::string trackName, std::uint32_t sampleRate) {
     Session s;
+    check(sampleRate >= 8000 && sampleRate <= 384000, "Invalid sample rate");
+    s.sampleRate = sampleRate;
     s.name = std::move(name);
     s.tracks.push_back(makeAudioTrack(std::move(trackName), {}, s.sampleRate));
     validate(s);

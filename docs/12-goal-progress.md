@@ -2823,3 +2823,34 @@ symptoms remain visible; no raw trimming, latency fix or installed-binary change
 Next: input latency observations and explicit recording-start alignment, then
 native Windows workflow/installer previews. Source and local packages are useful
 previews; full-suite and platform/language gates remain incomplete.
+
+## 2026-10-08: native Windows desktop toward useful previews
+
+Native WASAPI single-track recording and deferred output playback now connect to
+standard desktop factories. Stable device/channel route identities survive friendly
+name changes; fresh preparation rejects invalid/stale/duplicate/cross-device/rate
+choices. Project creation offers its sample rate, validates before I/O and prepares
+its initial EQ below Nyquist. Windows monitoring remains Off-only, with unavailable
+choices visible and Off selectable for portable projects. Windows duplex/punch,
+conversion and independent clocks remain in scope.
+
+Native MSVC 19.44.35228.0/Qt 6.12.0 Release with matching MSVC libsndfile passes
+8/8 checks in limited interactive Windows session 1. Actual empty-project main
+launch and normal close return exit 0. UI audio-control tests use synthetic
+endpoints; no native GUI audio or compiler-free installer workflow is established.
+The native tests exposed a late disk failure after processing Complete. A new
+held-writer fixture reproduces the old timeout; independent raw storage-fault
+handling now retains the original error, other full takes and failed-lane recovery
+on Linux and Windows without rewriting the processing terminal status.
+
+[Checkpoint and original failures](98-windows-desktop-foundation.md) include a
+331-file verified developer code/resource closure and a 67-payload hashed capsule.
+Current catalogs have 546 source keys, 256 partial draft translations and no
+language promotion. The 18 changed upstream equipment/localization inputs still
+need review/adaptation before delivery. The existing Ubuntu preview files remain
+available; no replacement package or binary release upload is claimed here.
+
+Next: actual native GUI recording/attachment/playback/live EQ/Undo/save/reopen/WAV
+with owned Windows audio, then a compiler-free local installer/source pair and an
+independent clean-install clone. Original capture's SDK gap, native71, startup
+alignment, physical/sustained gates and full F/Q/C/N requirements remain open.
