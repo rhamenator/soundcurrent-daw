@@ -3059,3 +3059,28 @@ and explicit abrupt-Stop/capture limitations. No public binary upload or parity
 promotion. Next: bounded native packet/lease telemetry and installed capture
 continuity qualification, plus the independent production-EQ Stop trace.
 The full frozen goal remains active and incomplete.
+
+## Native capture lease trace checkpoint (2026-10-08)
+
+PR #51 merged the refreshed installer evidence after protected checks passed.
+Optional capture metadata now records bounded SDK lease and callback timing,
+device positions/flags, separate QPC domains and explicit observation loss.
+Native same-binary ten-second attempts have actual exits 0, 2, 2: one full take
+and independently verified EQ export, two partial takes refused for SDK gaps.
+All preserved raw samples match the original deterministic source exactly.
+Portable queue/audit/sanitizer tests and native unit checks pass; retained media,
+negative results and trace recomputation are backed by corruption/claim refusals.
+
+One failure includes a lease longer than the reported device period; another
+follows a long event wait without a held lease. This establishes packet gaps
+reported before processing, without isolating a driver/VM/scheduling cause or
+qualifying installed recording. A cable comparison stopped before audio when
+the interactive session changed; its child exit remains unknown. Further native
+work stopped to preserve visible equalizer activity. The refused task was
+terminal, but its unregister was not confirmed before access was lost and the
+VM was observed off. See [checkpoint 109](109-windows-capture-trace.md).
+
+Next: pre-admitted packet copy and SDK release before DSP, with exact metadata,
+pointer lifetime and continuity evidence; use the independent installer clone
+for further native checks. Existing local preview/source pairs are unchanged;
+production-EQ Stop and all full-suite gates remain open. The goal stays active.

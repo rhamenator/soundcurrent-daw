@@ -56,6 +56,25 @@ json packetJson(const std::optional<WasapiPacketReceipt> &p) {
     return {{"error",unsigned(p->error)},{"frames",p->frames},{"flags",p->flags},
             {"devicePosition",p->devicePosition},{"qpc100ns",p->qpc100ns}};
 }
+json captureTrace(WasapiCaptureTrace &trace) {
+    const auto &i = trace.info();
+    json result{{"format","sc-wasapi-capture-lease-trace-v1"},{"qpcFrequency",i.qpcFrequency},
+        {"sampleRate",i.sampleRate},{"channels",i.channels},{"bufferFrames",i.bufferFrames},
+        {"devicePeriod100ns",i.devicePeriod100ns},{"streamLatency100ns",i.streamLatency100ns},
+        {"capacity",WasapiCaptureTrace::capacity},{"dropped",trace.dropped()},
+        {"sequenceExhausted",trace.sequenceExhausted()},{"leases",json::array()}};
+    WasapiCaptureLeaseObservation o;
+    while (trace.take(o)) result["leases"].push_back({
+        {"sequence",o.sequence},{"wakeSequence",o.wakeSequence},{"batchIndex",o.batchIndex},
+        {"catchUp",o.catchUp},{"frames",o.frames},{"flags",o.flags},
+        {"devicePosition",o.devicePosition},{"packetQpc100ns",o.packetQpc100ns},
+        {"waitStartedTicks",o.waitStartedTicks},{"wakeTicks",o.wakeTicks},
+        {"acquireStartedTicks",o.acquireStartedTicks},{"acquiredTicks",o.acquiredTicks},
+        {"callbackReturnedTicks",o.callbackReturnedTicks},{"releasedTicks",o.releasedTicks},
+        {"clockValid",o.clockValid},{"callbackInvoked",o.callbackInvoked},{"released",o.released},
+        {"acquireHresult",o.acquireHresult},{"releaseHresult",o.releaseHresult}});
+    return result;
+}
 int run(const std::vector<std::filesystem::path> &args) {
     const auto endpoints = wasapiEndpoints();
     if (args.size() == 2 && args[1] == "--list") {
@@ -66,12 +85,14 @@ int run(const std::vector<std::filesystem::path> &args) {
                                            {"channels",e.channels},{"mixRate",e.mixRate}});
         std::cout << report.dump(2) << '\n'; return 0;
     }
-    if ((args.size() != 4 && args.size() != 5) || (args[3] != "capture" && args[3] != "loopback"))
-        throw std::runtime_error("Supply NEW_PROJECT explicit endpoint ID and capture/loopback [synthesize]");
+    if (args.size() < 4 || args.size() > 6 || (args[3] != "capture" && args[3] != "loopback"))
+        throw std::runtime_error("Supply NEW_PROJECT explicit endpoint ID and capture/loopback [synthesize [trace]]");
     const bool loopback = args[3] == "loopback";
-    const bool synthesize = args.size() == 5;
+    const bool synthesize = args.size() >= 5;
+    const bool traced = args.size() == 6;
     if (synthesize && (!loopback || args[4] != "synthesize"))
         throw std::runtime_error("Explicit synthesis is available only for loopback testing");
+    if (traced && args[5] != "trace") throw std::runtime_error("Unknown native capture diagnostic");
     const auto encodedId = args[2].u8string();
     const std::string id(encodedId.begin(), encodedId.end());
     const auto it = std::find_if(endpoints.begin(), endpoints.end(), [&](const auto &e) {
@@ -86,13 +107,15 @@ int run(const std::vector<std::filesystem::path> &args) {
     config.sampleRate = session.sampleRate;
     CapturePipe pipe(config);
     AudioBridge bridge(session, session.tracks.front().id, pipe,
-                        {2048, 1, Frame(session.sampleRate) * 2, CaptureBackend::Wasapi});
+                        {2048, 1, Frame(session.sampleRate) * (traced ? 10 : 2), CaptureBackend::Wasapi});
     PreparedWasapiInput input(bridge, {it->channels, 32768, 1, {0}, {}});
     Callback callback{bridge, input, it->channels};
-    WasapiCaptureStream stream({id, session.sampleRate, it->channels, 32768, loopback},
+    auto trace = traced ? std::make_unique<WasapiCaptureTrace>() : nullptr;
+    WasapiCaptureStream stream({id, session.sampleRate, it->channels, 32768, loopback, trace.get()},
                                {&callback, Callback::packet, Callback::unavailable});
     std::unique_ptr<wasapi_test::Source> source;
-    if (synthesize) source = std::make_unique<wasapi_test::Source>(args[2].wstring(), it->channels);
+    if (synthesize) source = std::make_unique<wasapi_test::Source>(args[2].wstring(), it->channels,
+                                                               traced ? 576000 : 192000);
     if (synthesize && session.sampleRate != 48000)
         throw std::runtime_error("Generated source is explicitly prepared at 48 kHz");
     if (callback.calls) throw std::runtime_error("Prepared inactive stream invoked a packet callback");
@@ -127,11 +150,19 @@ int run(const std::vector<std::filesystem::path> &args) {
                 {"sourceSessionVolume",source ? json(source->volume()) : json(nullptr)},
                 {"sourceSessionMuted",source ? json(source->muted()) : json(nullptr)},
                 {"reopenedAndExported",false}};
+    if (trace) {
+        const auto data = captureTrace(*trace);
+        std::ofstream traceFile(args[1]/"native-leases.json"); traceFile << data.dump(2) << '\n';
+        if (!traceFile) throw std::runtime_error("Cannot retain native capture lease trace");
+        report["nativeLeaseTraceRetained"] = true;
+        report["nativeTraceDropped"] = data["dropped"];
+    }
     if (const auto f = stream.failure()) report["streamFailure"]={{"hresult",f->hresult},{"operation",f->operation}};
     if (bridge.status() == AudioBridgeStatus::Complete && !stream.failure()) {
         attachRecording(session, result); store.save(session);
         const auto reopened = store.load();
-        ExportSpec exportSpec(session.tracks.front().id); exportSpec.endFrame = Frame(session.sampleRate) * 2;
+        ExportSpec exportSpec(session.tracks.front().id);
+        exportSpec.endFrame = Frame(session.sampleRate) * (traced ? 10 : 2);
         std::filesystem::create_directory(args[1] / "exports");
         const auto exported = exportTrackWav(args[1], reopened, args[1] / "exports" / "native.wav", exportSpec);
         report["reopenedAndExported"] = true;

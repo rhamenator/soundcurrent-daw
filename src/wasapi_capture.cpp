@@ -6,6 +6,14 @@
 namespace soundcurrent::daw {
 using namespace wasapi_detail;
 
+namespace {
+bool traceClock(std::uint64_t &ticks) noexcept {
+    LARGE_INTEGER value{};
+    if (!QueryPerformanceCounter(&value) || value.QuadPart < 0) { ticks = 0; return false; }
+    ticks = static_cast<std::uint64_t>(value.QuadPart); return true;
+}
+}
+
 std::vector<WasapiEndpoint> wasapiEndpoints() {
     Apartment apartment;
     Com<IMMDeviceEnumerator> e;
@@ -147,6 +155,16 @@ struct WasapiCaptureStream::State {
             check(client->GetBufferSize(&frames), "Read capture capacity");
             if (!frames || frames > options.maximumPacketFrames)
                 throw ProjectError(ErrorCode::InvalidState, "Native capture buffer exceeds admission");
+            if (options.trace) {
+                REFERENCE_TIME period = 0, minimum = 0, latency = 0;
+                check(client->GetDevicePeriod(&period, &minimum), "Read capture period for trace");
+                check(client->GetStreamLatency(&latency), "Read capture latency for trace");
+                LARGE_INTEGER frequency{};
+                if (!QueryPerformanceFrequency(&frequency) || frequency.QuadPart <= 0 ||
+                    !options.trace->prepare({static_cast<std::uint64_t>(frequency.QuadPart),
+                        period, latency, options.sampleRate, options.channels, frames}))
+                    throw ProjectError(ErrorCode::InvalidState, "Native capture trace preparation refused");
+            }
             check(client->SetEventHandle(audio.value), "Set capture notification");
             Com<IAudioCaptureClient> capture;
             check(client->GetService(__uuidof(IAudioCaptureClient),
@@ -161,19 +179,27 @@ struct WasapiCaptureStream::State {
             if (FAILED(began)) { fail(began, 1); return; }
             HANDLE events[]{stop.value, audio.value};
             bool end = false, catchUp = false;
+            std::uint64_t wakeSequence = 0;
             while (!end) {
+                const bool resumed = catchUp;
+                std::uint64_t waitStarted = 0, wake = 0;
+                bool traceClockValid = options.trace ? traceClock(waitStarted) : false;
                 const auto waited = catchUp ?
                     (WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0 ? WAIT_OBJECT_0 : WAIT_OBJECT_0 + 1) :
                     WaitForMultipleObjects(2, events, FALSE, 2000);
+                const auto waitError = (waited != WAIT_OBJECT_0 && waited != WAIT_OBJECT_0 + 1 &&
+                                        waited != WAIT_TIMEOUT) ? GetLastError() : ERROR_SUCCESS;
+                if (options.trace) traceClockValid = traceClock(wake) && traceClockValid;
                 catchUp = false;
                 if (waited == WAIT_OBJECT_0) break;
                 // Idle loopback may publish no packet. Event absence is not
                 // silent media or evidence that the endpoint disconnected.
                 if (waited == WAIT_TIMEOUT) continue;
                 if (waited != WAIT_OBJECT_0 + 1) {
-                    fail(HRESULT_FROM_WIN32(GetLastError()), 1);
+                    fail(HRESULT_FROM_WIN32(waitError), 1);
                     break;
                 }
+                if (wakeSequence != std::numeric_limits<std::uint64_t>::max()) ++wakeSequence;
                 // A fixed 16-lease quota bounds each catch-up batch. Resume a
                 // full batch without relying on a new producer notification.
                 // Return every nonempty lease once, on this same thread,
@@ -183,10 +209,28 @@ struct WasapiCaptureStream::State {
                     UINT32 packetFrames = 0;
                     DWORD packetFlags = 0;
                     UINT64 position = 0, qpc = 0;
+                    WasapiCaptureLeaseObservation observation{};
+                    if (options.trace) {
+                        observation.wakeSequence = wakeSequence; observation.batchIndex = count;
+                        observation.catchUp = resumed; observation.waitStartedTicks = waitStarted;
+                        observation.wakeTicks = wake;
+                        observation.clockValid = traceClock(observation.acquireStartedTicks) && traceClockValid;
+                    }
                     const auto acquired = capture->GetBuffer(&data, &packetFrames, &packetFlags,
                                                               &position, &qpc);
-                    if (FAILED(acquired)) { fail(acquired, 2); end = true; break; }
+                    if (options.trace) {
+                        observation.clockValid = traceClock(observation.acquiredTicks) && observation.clockValid;
+                        observation.acquireHresult = static_cast<std::int32_t>(acquired);
+                    }
+                    if (FAILED(acquired)) {
+                        if (options.trace) options.trace->publish(observation);
+                        fail(acquired, 2); end = true; break;
+                    }
                     if (acquired == AUDCLNT_S_BUFFER_EMPTY || packetFrames == 0) break;
+                    if (options.trace) {
+                        observation.frames = packetFrames; observation.flags = packetFlags;
+                        observation.devicePosition = position; observation.packetQpc100ns = qpc;
+                    }
                     if (packetFrames > frames) {
                         fail(E_INVALIDARG, 2);
                         end = true;
@@ -195,8 +239,17 @@ struct WasapiCaptureStream::State {
                                              std::size_t(packetFrames) * options.channels * 4,
                                              packetFrames, packetFlags, position, qpc};
                         callbacks.packet(callbacks.context, p);
+                        observation.callbackInvoked = true;
                     }
+                    if (options.trace)
+                        observation.clockValid = traceClock(observation.callbackReturnedTicks) && observation.clockValid;
                     const auto released = capture->ReleaseBuffer(packetFrames);
+                    if (options.trace) {
+                        observation.clockValid = traceClock(observation.releasedTicks) && observation.clockValid;
+                        observation.released = true;
+                        observation.releaseHresult = static_cast<std::int32_t>(released);
+                        options.trace->publish(observation);
+                    }
                     if (FAILED(released)) { fail(released, 3); end = true; break; }
                     if (end || WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
                     if (count == 15) catchUp = true;
