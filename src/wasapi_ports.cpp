@@ -29,31 +29,58 @@ std::vector<AudioPort> describeWasapiPorts(std::span<const WasapiEndpoint> endpo
     }
     return result;
 }
+WasapiRouteCheck checkWasapiPorts(std::span<const AudioPort> selected,
+    std::uint32_t expectedChannels, std::uint32_t sampleRate, bool output) noexcept {
+    if (!expectedChannels || selected.size() != expectedChannels || expectedChannels > 256)
+        return {WasapiRouteProblem::ChannelCount};
+    for (std::size_t index = 0; index < selected.size(); ++index) {
+        const auto &port = selected[index];
+        if (port.backendId != "wasapi" || port.input != output || (output && port.loopback) ||
+            port.deviceIdentity.empty() || port.portId >= port.nativeChannels ||
+            port.nativeChannels > 256 || port.sampleRate < 8000 || port.sampleRate > 384000)
+            return {WasapiRouteProblem::InvalidPort, index};
+        if (port.sampleRate != sampleRate)
+            return {WasapiRouteProblem::SampleRate, index};
+        if (selected.front().deviceIdentity != port.deviceIdentity ||
+            selected.front().loopback != port.loopback ||
+            selected.front().nativeChannels != port.nativeChannels)
+            return {WasapiRouteProblem::MultipleEndpoints, index};
+        for (std::size_t previous = 0; previous < index; ++previous)
+            if (selected[previous].portId == port.portId)
+                return {WasapiRouteProblem::DuplicateChannel, index};
+    }
+    return {};
+}
 WasapiPortSelection selectWasapiPorts(std::span<const AudioPort> selected,
     std::span<const AudioPort> current, std::uint32_t expectedChannels,
     std::uint32_t sampleRate, bool output) {
     if (!expectedChannels || selected.size() != expectedChannels || expectedChannels > 256)
         throw ProjectError(ErrorCode::InvalidState, "Choose one WASAPI port for every processing channel");
-    WasapiPortSelection result;
-    for (const auto &port : selected) {
-        if (port.backendId != "wasapi" || port.input != output || (output && port.loopback) ||
-            port.deviceIdentity.empty() || port.portId >= port.nativeChannels ||
-            std::find(current.begin(), current.end(), port) == current.end())
-            throw ProjectError(ErrorCode::InvalidState, "Selected WASAPI port is stale or has the wrong direction");
-        if (port.sampleRate != sampleRate)
-            throw ProjectError(ErrorCode::InvalidState,
-                               "Project sample rate must match the selected device mix rate");
-        if (result.channels.empty()) {
-            result.endpointId = port.deviceIdentity; result.nativeChannels = port.nativeChannels;
-            result.sampleRate = port.sampleRate; result.loopback = port.loopback;
-        } else if (result.endpointId != port.deviceIdentity || result.loopback != port.loopback ||
-                   result.nativeChannels != port.nativeChannels)
-            throw ProjectError(ErrorCode::InvalidState,
-                               "Select channels from one WASAPI endpoint for this stream");
-        if (std::find(result.channels.begin(), result.channels.end(), port.portId) != result.channels.end())
-            throw ProjectError(ErrorCode::InvalidState, "Duplicate WASAPI channel selection");
-        result.channels.push_back(port.portId);
+    // Fresh inventory validation remains authoritative even after a GUI check.
+    if (std::any_of(selected.begin(), selected.end(), [&](const auto &port) {
+            return std::find(current.begin(), current.end(), port) == current.end();
+        }))
+        throw ProjectError(ErrorCode::InvalidState, "Selected WASAPI port is stale or has the wrong direction");
+    switch (checkWasapiPorts(selected, expectedChannels, sampleRate, output).problem) {
+    case WasapiRouteProblem::None: break;
+    case WasapiRouteProblem::ChannelCount:
+        throw ProjectError(ErrorCode::InvalidState, "Choose one WASAPI port for every processing channel");
+    case WasapiRouteProblem::InvalidPort:
+        throw ProjectError(ErrorCode::InvalidState, "Selected WASAPI port is stale or has the wrong direction");
+    case WasapiRouteProblem::SampleRate:
+        throw ProjectError(ErrorCode::InvalidState, "Project sample rate must match the selected device mix rate");
+    case WasapiRouteProblem::MultipleEndpoints:
+        throw ProjectError(ErrorCode::InvalidState, "Select channels from one WASAPI endpoint for this stream");
+    case WasapiRouteProblem::DuplicateChannel:
+        throw ProjectError(ErrorCode::InvalidState, "Duplicate WASAPI channel selection");
     }
+    WasapiPortSelection result;
+    result.endpointId = selected.front().deviceIdentity;
+    result.nativeChannels = selected.front().nativeChannels;
+    result.sampleRate = selected.front().sampleRate;
+    result.loopback = selected.front().loopback;
+    for (const auto &port : selected)
+        result.channels.push_back(port.portId);
     return result;
 }
 } // namespace soundcurrent::daw

@@ -1620,7 +1620,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Choose outputs for every channel, then play.</source>
+      <source>Ready to play.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1736,6 +1736,26 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Choose an endpoint for every required channel.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Device %1 uses %2; this project uses %3. Choose a matching device or change its sample rate in the system audio settings.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose all channels from one device for this stream.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose each device channel only once for this stream.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The selected device format is unavailable. Prepare again and choose a current device.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Choose an input and every required monitoring output.</source>
       <translation type="unfinished" />
     </message>
@@ -1788,7 +1808,11 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Choose every required channel and arm the track.</source>
+      <source>Ready to record.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Arm the track, then record.</source>
       <translation type="unfinished" />
     </message>
     <message>

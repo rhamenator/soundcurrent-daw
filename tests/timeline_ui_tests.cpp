@@ -415,9 +415,11 @@ void mixedTransport(const std::filesystem::path &root) {
               !counters->activated,
           "Desktop prepared wrong mix or auto-activated");
     check(w.selectTrack(first), "Mix inspector switch refused");
-    await([&] { return widget<QPushButton>(w, "playButton")->isEnabled(); });
     auto *output = widget<QComboBox>(w, "outputChannel0");
+    check(!widget<QPushButton>(w, "playButton")->isEnabled(),
+          "Mix playback enabled without an explicit output");
     output->setCurrentIndex(1);
+    await([&] { return widget<QPushButton>(w, "playButton")->isEnabled(); });
     await([&] { return !w.snapshot()->session->tracks[1].output.ports.empty(); });
     check(w.snapshot()->session->tracks[0].output.ports.empty() &&
               w.snapshot()->session->tracks[1].output.ports[0],
@@ -524,6 +526,7 @@ void savedMaster(const std::filesystem::path &root) {
               w.snapshot()->session->tracks[1].output.ports.empty(),
           "Master output selection changed a track route");
     check(w.selectTrack(original.tracks[1].id), "Saved mix inspector refused");
+    await([&] { return widget<QPushButton>(w, "playButton")->isEnabled(); });
     click(w, "playButton");
     await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Playing; });
     check(!widget<QPushButton>(w, "editMasterButton")->isEnabled(),

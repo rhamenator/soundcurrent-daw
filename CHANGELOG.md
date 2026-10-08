@@ -1,5 +1,11 @@
 # Changelog
 
+- Development controls explain WASAPI device/project rate conflicts,
+  cross-device stream selections and duplicate channels before enabling Start.
+  Authored incompatible routes survive reopen; the existing installers retain
+  their earlier frozen code. Linux and native Windows Qt control evidence is
+  recorded separately from physical audio and installer qualification.
+
 ## Unreleased — development preview
 
 - Local Windows 11 x64 installer preparation with per-user preview slots, desktop

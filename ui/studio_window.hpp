@@ -160,7 +160,11 @@ class StudioWindow : public QMainWindow {
     void pollRecording();
     void updateRecordingRoutes(const RecordingSnapshot &);
     void recordSelected();
-    bool recordingRoutesReady(const RecordingSnapshot &) const;
+    QString recordingRoutesProblem(const RecordingSnapshot &) const;
+    QString playbackRoutesProblem(const PlaybackSnapshot &) const;
+    QString selectedRoutesProblem(const std::vector<QComboBox *> &,
+                                  const std::vector<PipeWirePort> &,
+                                  std::uint32_t sampleRate, bool endpointInput) const;
     void retryTake();
     std::shared_ptr<const ControllerSnapshot> shown_;
     QLabel *project_, *track_, *state_, *notice_;

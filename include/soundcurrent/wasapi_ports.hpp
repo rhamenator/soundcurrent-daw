@@ -12,6 +12,17 @@ struct WasapiPortSelection {
     bool loopback = false;
     std::vector<std::uint32_t> channels;
 };
+enum class WasapiRouteProblem {
+    None, ChannelCount, InvalidPort, SampleRate, MultipleEndpoints, DuplicateChannel
+};
+struct WasapiRouteCheck {
+    WasapiRouteProblem problem = WasapiRouteProblem::None;
+    std::size_t portIndex = 0;
+};
+// Control-side preflight, shared by the GUI and activation-time admission.
+// This checks stream shape; it does not establish that a device is still present.
+WasapiRouteCheck checkWasapiPorts(std::span<const AudioPort>, std::uint32_t expectedChannels,
+                                std::uint32_t sampleRate, bool output) noexcept;
 // Revalidate against a FRESH SDK inventory before preparing any stream. No
 // implicit device/default/downmix/rate selection. Cross-device clocks remain an
 // explicit future adapter; one native stream accepts one endpoint/channel map.

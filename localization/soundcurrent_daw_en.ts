@@ -1632,8 +1632,8 @@ The complete file was published with a warning: %1</translation>
       <translation>Preparing playback…</translation>
     </message>
     <message>
-      <source>Choose outputs for every channel, then play.</source>
-      <translation>Choose outputs for every channel, then play.</translation>
+      <source>Ready to play.</source>
+      <translation>Ready to play.</translation>
     </message>
     <message>
       <source>Playing — EQ changes pending</source>
@@ -1748,6 +1748,26 @@ The complete file was published with a warning: %1</translation>
       <translation>Punch is off. Saved range: %1 to %2 samples.</translation>
     </message>
     <message>
+      <source>Choose an endpoint for every required channel.</source>
+      <translation>Choose an endpoint for every required channel.</translation>
+    </message>
+    <message>
+      <source>Device %1 uses %2; this project uses %3. Choose a matching device or change its sample rate in the system audio settings.</source>
+      <translation>Device %1 uses %2; this project uses %3. Choose a matching device or change its sample rate in the system audio settings.</translation>
+    </message>
+    <message>
+      <source>Choose all channels from one device for this stream.</source>
+      <translation>Choose all channels from one device for this stream.</translation>
+    </message>
+    <message>
+      <source>Choose each device channel only once for this stream.</source>
+      <translation>Choose each device channel only once for this stream.</translation>
+    </message>
+    <message>
+      <source>The selected device format is unavailable. Prepare again and choose a current device.</source>
+      <translation>The selected device format is unavailable. Prepare again and choose a current device.</translation>
+    </message>
+    <message>
       <source>Choose an input and every required monitoring output.</source>
       <translation>Choose an input and every required monitoring output.</translation>
     </message>
@@ -1800,8 +1820,12 @@ The complete file was published with a warning: %1</translation>
       <translation>Preparing recording…</translation>
     </message>
     <message>
-      <source>Choose every required channel and arm the track.</source>
-      <translation>Choose every required channel and arm the track.</translation>
+      <source>Ready to record.</source>
+      <translation>Ready to record.</translation>
+    </message>
+    <message>
+      <source>Arm the track, then record.</source>
+      <translation>Arm the track, then record.</translation>
     </message>
     <message>
       <source>Recording — EQ changes pending</source>

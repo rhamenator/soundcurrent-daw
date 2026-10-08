@@ -358,6 +358,7 @@ void playbackWorkflow(const std::filesystem::path &root) {
           "Missing route silently activated playback");
     output->setFocus();
     QTest::keyClick(output, Qt::Key_Down);
+    await([&] { return play->isEnabled(); });
     QTest::mouseClick(play, Qt::LeftButton);
     await([&] {
         return window.playbackSnapshot()->phase == PlaybackPhase::Playing &&
@@ -1080,6 +1081,128 @@ void recoveryDiscoveryWorkflow(const std::filesystem::path &root) {
           "Close during recovery consent created/changed audio");
 }
 
+void nativeFormatPlayback(const std::filesystem::path &root) {
+    stereoTake(root);
+    auto counters = std::make_shared<playback_fixture::Counters>();
+    for (unsigned channel = 0; channel < 2; ++channel) {
+        auto &port = counters->ports[channel];
+        port.backendId = "wasapi"; port.deviceIdentity = "owned-output";
+        port.channelIdentity = "channel." + std::to_string(channel);
+        port.portId = channel; port.nativeChannels = 2; port.sampleRate = 48000;
+    }
+    auto mismatch = counters->ports[0];
+    mismatch.deviceIdentity = "owned-rate-mismatch";
+    mismatch.nodeName = "Other speaker Δ"; mismatch.sampleRate = 44100;
+    counters->ports.push_back(mismatch);
+    auto other = mismatch;
+    other.deviceIdentity = "owned-other-output"; other.sampleRate = 48000;
+    counters->ports.push_back(other);
+    {
+        StudioWindow window(nullptr, playback_fixture::options(counters));
+        window.show(); window.openProject(root);
+        await([&] { return window.snapshot()->session && window.snapshot()->io == IoOperation::None; });
+        check(window.preparePlayback(), "Native-format playback preparation refused");
+        await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+                          window.findChild<QComboBox *>("outputChannel1"); });
+        auto *left = window.findChild<QComboBox *>("outputChannel0");
+        auto *right = window.findChild<QComboBox *>("outputChannel1");
+        auto *play = window.findChild<QPushButton *>("playButton");
+        auto *stop = window.findChild<QPushButton *>("stopButton");
+        auto *status = window.findChild<QLabel *>("playbackStatus");
+        check(!play->isEnabled(), "Unselected native output enabled playback");
+        left->setCurrentIndex(1); right->setCurrentIndex(3);
+        await([&] { return status->text().contains(QLocale().toString(44100)) &&
+                          status->text().contains(QLocale().toString(48000)); });
+        check(!play->isEnabled() && stop->isEnabled() && !counters->activated && !counters->connected,
+              "Mismatched device activated playback or disabled Stop");
+        QTest::keyClick(&window, Qt::Key_Space);
+        QTest::qWait(30);
+        check(!counters->activated && window.playbackSnapshot()->phase == PlaybackPhase::Ready,
+              "Keyboard bypassed native format preflight");
+        check(window.submitEdit({CommandKind::Save}), "Incompatible authored route could not be saved");
+        await([&] { return window.snapshot()->io == IoOperation::None && !window.snapshot()->dirty; });
+        const auto saved = ProjectStore(root).load();
+        check(saved.sampleRate == 48000 && saved.tracks.front().output.ports[1]->deviceIdentity == mismatch.deviceIdentity,
+              "Preflight rewrote saved route or project rate");
+        right->setCurrentIndex(4);
+        await([&] { return status->text().contains("one device"); });
+        check(!play->isEnabled() && !counters->activated, "Multiple devices enabled a single native stream");
+        right->setCurrentIndex(1);
+        await([&] { return status->text().contains("only once"); });
+        check(!play->isEnabled() && !counters->activated, "Duplicate native channels enabled playback");
+        right->setCurrentIndex(2);
+        await([&] { return play->isEnabled(); });
+        play->click();
+        await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Playing; });
+        check(stop->isEnabled() && counters->activated == 1, "Compatible route failed to play/stop");
+        stop->click();
+        await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Idle; });
+        PromptChoice discard(QMessageBox::Discard);
+        window.close(); await([&] { return !window.isVisible(); });
+    }
+    {
+        StudioWindow reopened(nullptr, playback_fixture::options(counters));
+        reopened.show(); reopened.openProject(root);
+        await([&] { return reopened.snapshot()->session && reopened.snapshot()->io == IoOperation::None; });
+        check(reopened.preparePlayback(), "Saved incompatible route preparation refused");
+        await([&] { return reopened.playbackSnapshot()->phase == PlaybackPhase::Ready &&
+                          reopened.findChild<QLabel *>("playbackStatus")->text().contains(QLocale().toString(44100)); });
+        check(!reopened.findChild<QPushButton *>("playButton")->isEnabled() && counters->activated == 1 &&
+                  reopened.findChild<QComboBox *>("outputChannel1")->currentIndex() == 3 &&
+                  !reopened.snapshot()->dirty,
+              "Reopen activated, discarded or rewrote incompatible authored route");
+        reopened.close(); await([&] { return !reopened.isVisible(); });
+    }
+}
+void nativeFormatRecording(const std::filesystem::path &root) {
+    ProjectStore(root).save(makeOneTrackSession("Native input formats", "Take"));
+    auto counters = std::make_shared<recording_fixture::Counters>();
+    for (unsigned direction = 0; direction < 2; ++direction) {
+        auto &port = counters->ports[direction];
+        port.backendId = "wasapi"; port.deviceIdentity = direction ? "owned-monitor" : "owned-microphone";
+        port.channelIdentity = "channel.0"; port.portId = 0;
+        port.nativeChannels = 1; port.sampleRate = 48000;
+    }
+    auto input = counters->ports[0];
+    input.deviceIdentity = "owned-mismatched-input"; input.nodeName = "Bad input Δ"; input.sampleRate = 44100;
+    counters->ports.push_back(input);
+    auto monitor = counters->ports[1];
+    monitor.deviceIdentity = "owned-mismatched-monitor"; monitor.nodeName = "Bad monitor Δ"; monitor.sampleRate = 44100;
+    counters->ports.push_back(monitor);
+    StudioWindow window(nullptr, {}, recording_fixture::options(counters));
+    window.show(); window.openProject(root);
+    await([&] { return window.snapshot()->session && window.snapshot()->io == IoOperation::None; });
+    window.findChild<QComboBox *>("recordMonitorMode")->setCurrentIndex(1);
+    check(window.prepareRecording(), "Native-format recording preparation refused");
+    await([&] { return window.recordingSnapshot()->phase == RecordingPhase::Ready &&
+                      window.findChild<QComboBox *>("monitorChannel0"); });
+    auto *inputCombo = window.findChild<QComboBox *>("inputChannel0");
+    auto *monitorCombo = window.findChild<QComboBox *>("monitorChannel0");
+    auto *record = window.findChild<QPushButton *>("recordButton");
+    auto *status = window.findChild<QLabel *>("recordingStatus");
+    window.findChild<QCheckBox *>("armTrack")->setChecked(true);
+    inputCombo->setCurrentIndex(2); monitorCombo->setCurrentIndex(1);
+    await([&] { return status->text().contains("Bad input") && status->text().contains(QLocale().toString(44100)); });
+    check(!record->isEnabled() && !counters->activated && !window.recordingSnapshot()->job,
+          "Mismatched microphone started a recording or disk job");
+    inputCombo->setCurrentIndex(1); monitorCombo->setCurrentIndex(2);
+    await([&] { return status->text().contains("Bad monitor"); });
+    check(!record->isEnabled() && !counters->activated && !window.recordingSnapshot()->job,
+          "Mismatched monitor started a recording or disk job");
+    monitorCombo->setCurrentIndex(1);
+    await([&] { return record->isEnabled(); });
+    record->click();
+    await([&] { return window.recordingSnapshot()->telemetry.capturedFrames >= 512; });
+    check(counters->activated == 1, "Compatible recording route did not activate exactly once");
+    window.findChild<QPushButton *>("recordStopButton")->click();
+    await([&] { return window.snapshot()->session->assets.size() == 1 &&
+                      window.recordingSnapshot()->phase == RecordingPhase::Idle; });
+    PromptChoice save(QMessageBox::Save);
+    window.close(); await([&] { return !window.isVisible(); });
+    check(ProjectStore(root).load().assets.size() == 1 && !counters->wrongThread,
+          "Native-format recording failed retirement/save");
+}
+
 void portableOutputRoutes(const std::filesystem::path &root) {
     const auto initial = stereoTake(root);
     auto ports = std::make_shared<playback_fixture::Counters>();
@@ -1450,6 +1573,13 @@ int main(int argc, char **argv) {
             std::cout << "{\"historical_error_clean_close\":true,"
                          "\"historical_error_dirty_save_close\":true,"
                          "\"new_save_error_cancels_close\":true,\"retry_saves\":true}\n";
+            return 0;
+        }
+        nativeFormatPlayback(closeRoot / "native-format-playback");
+        nativeFormatRecording(closeRoot / "native-format-recording");
+        if (argc == 2 && std::string_view(argv[1]) == "--native-formats-only") {
+            std::cout << "{\"checks\":" << checks << ",\"native_format_playback\":true,"
+                         "\"native_format_recording\":true,\"physical_devices\":false}\n";
             return 0;
         }
         rejectedMonitoringFeedback(closeRoot / "rejected-monitor-off", RecordingMonitor::Off,

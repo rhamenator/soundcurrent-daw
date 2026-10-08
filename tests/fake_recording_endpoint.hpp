@@ -18,7 +18,8 @@ struct Counters {
     std::atomic<unsigned> constructed{0}, activated{0}, stopped{0}, destroyed{0}, submitted{0};
     std::atomic<unsigned> acceptLimit{UINT_MAX};
     std::atomic<std::uint64_t> preparedCapacityFrames{0};
-    const std::vector<PipeWirePort> ports{
+    // Configure before preparation; never mutate while the endpoint owns it.
+    std::vector<PipeWirePort> ports{
         {501, 502, 503, "Owned Σ input", "output_1", "Audio/Source", false},
         {504, 505, 506, "Owned Σ monitor", "input_1", "Audio/Sink", true}};
 };

@@ -7,6 +7,7 @@
 #include "track_view.hpp"
 #include "equipment_profiles.hpp"
 #include <soundcurrent/routing.hpp>
+#include <soundcurrent/wasapi_ports.hpp>
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
@@ -1062,9 +1063,15 @@ bool StudioWindow::preparePlayback() {
 }
 
 void StudioWindow::playSelected() {
-    if (playback_.snapshot()->phase != PlaybackPhase::Ready || !outputsShown_ ||
-        (!playback_.snapshot()->projectMix && selectedTrack() != playbackTrack_))
+    const auto p = playback_.snapshot();
+    if (p->phase != PlaybackPhase::Ready || !outputsShown_ ||
+        (!p->projectMix && selectedTrack() != playbackTrack_))
         return;
+    const auto problem = playbackRoutesProblem(*p);
+    if (!problem.isEmpty()) {
+        playbackState_->setText(problem);
+        return;
+    }
     PlaybackCommand c;
     c.kind = PlaybackCommandKind::Play;
     for (auto *combo : outputs_) {
@@ -1292,11 +1299,13 @@ void StudioWindow::pollPlayback() {
                               model->session && model->io == IoOperation::None);
     prepareButton_->setEnabled(prepare);
     prepareAction_->setEnabled(prepare);
-    playButton_->setEnabled(allow && p->phase == PlaybackPhase::Ready &&
-                            (p->projectMix || selectedTrack() == playbackTrack_));
+    const auto routeProblem = p->phase == PlaybackPhase::Ready ? playbackRoutesProblem(*p) : QString{};
+    const bool canPlay = allow && p->phase == PlaybackPhase::Ready && routeProblem.isEmpty() &&
+                         (p->projectMix || selectedTrack() == playbackTrack_);
+    playButton_->setEnabled(canPlay);
+    playButton_->setToolTip(routeProblem);
     playAction_->setEnabled(
-        allow && ((p->phase == PlaybackPhase::Ready || p->phase == PlaybackPhase::Playing) ||
-                  recordingBusy()));
+        allow && (canPlay || p->phase == PlaybackPhase::Playing || recordingBusy()));
     const bool stoppable =
         allow && (playbackPrepareBarrier_ || recordingBusy() ||
                   p->phase == PlaybackPhase::Preparing || p->phase == PlaybackPhase::Ready ||
@@ -1316,7 +1325,7 @@ void StudioWindow::pollPlayback() {
         status = tr("Preparing playback…");
         break;
     case PlaybackPhase::Ready:
-        status = tr("Choose outputs for every channel, then play.");
+        status = routeProblem.isEmpty() ? tr("Ready to play.") : routeProblem;
         break;
     case PlaybackPhase::Playing:
         status = p->pending ? tr("Playing — EQ changes pending")
@@ -1655,27 +1664,70 @@ void StudioWindow::refreshArms() {
                   .arg(QLocale().toString(m->session->punch.startFrame),
                        QLocale().toString(m->session->punch.endFrame)));
 }
-bool StudioWindow::recordingRoutesReady(const RecordingSnapshot &r) const {
+QString StudioWindow::selectedRoutesProblem(const std::vector<QComboBox *> &combos,
+    const std::vector<PipeWirePort> &inventory, std::uint32_t sampleRate, bool endpointInput) const {
+    if (combos.empty())
+        return {};
+    std::vector<AudioPort> selected;
+    selected.reserve(combos.size());
+    for (const auto *combo : combos) {
+        const auto key = combo->currentData().toString();
+        const auto found = std::find_if(inventory.begin(), inventory.end(), [&](const auto &port) {
+            return port.input == endpointInput && portKey(port) == key;
+        });
+        if (found == inventory.end())
+            return tr("Choose an endpoint for every required channel.");
+        selected.push_back(*found);
+    }
+    // PipeWire can negotiate rates in its graph. Native WASAPI currently
+    // accepts one device at its mix rate; do not apply that restriction to PW.
+    if (std::none_of(selected.begin(), selected.end(), [](const auto &port) {
+            return port.backendId == "wasapi";
+        }))
+        return {};
+    const auto result = checkWasapiPorts(selected, std::uint32_t(selected.size()), sampleRate, endpointInput);
+    switch (result.problem) {
+    case WasapiRouteProblem::None: return {};
+    case WasapiRouteProblem::SampleRate: {
+        const auto rate = [](std::uint32_t value) {
+            return i18n::numberWithUnit(QStringLiteral("%1 %2"), QLocale().toString(value), QStringLiteral("Hz"));
+        };
+        const auto &port = selected[result.portIndex];
+        return tr("Device %1 uses %2; this project uses %3. Choose a matching device or change its sample rate in the system audio settings.")
+            .arg(text(port.nodeName), rate(port.sampleRate), rate(sampleRate));
+    }
+    case WasapiRouteProblem::MultipleEndpoints:
+        return tr("Choose all channels from one device for this stream.");
+    case WasapiRouteProblem::DuplicateChannel:
+        return tr("Choose each device channel only once for this stream.");
+    case WasapiRouteProblem::ChannelCount:
+        return tr("Choose an endpoint for every required channel.");
+    case WasapiRouteProblem::InvalidPort:
+        return tr("The selected device format is unavailable. Prepare again and choose a current device.");
+    }
+    return {};
+}
+QString StudioWindow::playbackRoutesProblem(const PlaybackSnapshot &p) const {
+    if (!outputsShown_ || !p.channels || outputs_.size() != p.channels)
+        return tr("Choose an output for every channel.");
+    return selectedRoutesProblem(outputs_, *outputsShown_, p.sampleRate, true);
+}
+QString StudioWindow::recordingRoutesProblem(const RecordingSnapshot &r) const {
     if (!recordPortsShown_ || !r.channels || inputs_.size() != r.channels ||
         monitors_.size() != r.outputChannels)
-        return false;
-    const auto selected = [&](const std::vector<QComboBox *> &combos, bool input) {
-        return std::all_of(combos.begin(), combos.end(), [&](const auto *combo) {
-            const auto key = combo->currentData().toString();
-            return std::any_of(
-                recordPortsShown_->begin(), recordPortsShown_->end(),
-                [&](const auto &p) { return p.input == input && portKey(p) == key; });
-        });
-    };
-    return selected(inputs_, false) && selected(monitors_, true);
+        return tr("Choose an input and every required monitoring output.");
+    const auto problem = selectedRoutesProblem(inputs_, *recordPortsShown_, r.sampleRate, false);
+    return problem.isEmpty()
+        ? selectedRoutesProblem(monitors_, *recordPortsShown_, r.sampleRate, true) : problem;
 }
 void StudioWindow::recordSelected() {
     const auto r = recording_.snapshot();
     if ((!r->projectMix && (!armed_->isChecked() || selectedTrack() != recordingTrack_)) ||
         r->phase != RecordingPhase::Ready || !recordPortsShown_ || closing_ || closeRequested_)
         return;
-    if (!recordingRoutesReady(*r)) {
-        recordingState_->setText(tr("Choose an input and every required monitoring output."));
+    const auto problem = recordingRoutesProblem(*r);
+    if (!problem.isEmpty()) {
+        recordingState_->setText(problem);
         return;
     }
     RecordingCommand c;
@@ -2016,10 +2068,12 @@ void StudioWindow::pollRecording() {
     // Reconcile asynchronous route publication before deciding whether a click
     // can start. A Ready endpoint alone does not establish selected routes.
     updateRecordingRoutes(*r);
+    const auto routeProblem = ready ? recordingRoutesProblem(*r) : QString{};
     recordButton_->setEnabled(
         allow && !recordCommandPending_ && ready &&
         (r->projectMix || (armed_->isChecked() && selectedTrack() == recordingTrack_)) &&
-        recordingRoutesReady(*r));
+        routeProblem.isEmpty());
+    recordButton_->setToolTip(routeProblem);
     recordAction_->setEnabled(recordButton_->isEnabled());
     recordStopButton_->setEnabled(allow && (recordPrepareBarrier_ || !idle) && !r->closed);
     recoverAction_->setEnabled(allow && !recordCommandPending_ && idle && !r->take &&
@@ -2038,7 +2092,9 @@ void StudioWindow::pollRecording() {
         status = tr("Preparing recording…");
         break;
     case RecordingPhase::Ready:
-        status = tr("Choose every required channel and arm the track.");
+        status = !routeProblem.isEmpty() ? routeProblem
+            : (r->projectMix || armed_->isChecked()) ? tr("Ready to record.")
+                                                   : tr("Arm the track, then record.");
         break;
     case RecordingPhase::Recording:
         status = r->pending ? tr("Recording — EQ changes pending")

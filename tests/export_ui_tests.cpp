@@ -185,6 +185,7 @@ void snapshotAndPlayback(const std::filesystem::path &dir) {
                w.findChild<QComboBox *>("outputChannel0");
     });
     find<QComboBox>(w, "outputChannel0")->setCurrentIndex(1);
+    await([&] { return find<QPushButton>(w, "playButton")->isEnabled(); });
     find<QPushButton>(w, "playButton")->click();
     await([&] { return w.playbackSnapshot()->phase == PlaybackPhase::Playing; });
     const auto stops = counters->stopped.load();
