@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>Publicerad frekvensgång och redigerbara korrigeringskurvor</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>Utrustningsprofilredigerare</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>Märke</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>Serie</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>Utrustningens undertyp</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>Aktiv / passiv / okänd</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>Modell</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>Källa</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>Förhållanden</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>Typ</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>Frekvens i Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>Förstärkning i dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>Lägg till filter</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>Ta bort valt filter</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>Spara ändrad profil?</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>Denna profil har ändrats. Spara en anpassad kopia innan du lämnar den?</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>Profilen överskrider gränsen på 1 MiB.</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>En JSON-utrustningsprofil förväntas. Importera frekvensgångstext med knappen för import av frekvensgång.</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>Märke, serie och modell krävs (högst 120 tecken vardera).</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>Profilens metadata är för långa.</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>Mätförhållanden krävs.</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>Publicerade profiler behöver en HTTPS-mätkälla.</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>Profiler behöver 1–16 korrigeringsfilter.</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>Ogiltigt filter.</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>Filtertypen stöds inte.</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>Filtervärden måste vara tal.</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>Filtren överskrider gränserna för frekvens, förstärkning eller Q.</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>Frekvensgången innehåller fler än 4096 punkter.</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>Ogiltig frekvensgångspunkt.</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>Frekvenserna måste vara stigande, med ändliga värden inom tillåtna gränser.</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>Varje datarad ska innehålla frekvens i Hz och relativ uppmätt frekvensgång i dB.</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>Ogiltiga eller osorterade frekvensgångsdata.</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>Frekvensgången måste innehålla 2–4096 uppmätta punkter.</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>Ogiltig eller osorterad uppmätt frekvensgång.</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>Frekvensgången saknar ett användbart ljudfrekvensområde.</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>Kan inte läsa profilbiblioteket.</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Profilbiblioteket överstiger 16 MiB.</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>Ogiltigt profilbibliotek.</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>Det anpassade biblioteket rymmer upp till 256 profiler.</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Biblioteket överstiger 16 MiB.</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>Kan inte skapa profilmapp.</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>Kan inte spara profilbiblioteket.</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>Kan inte slutföra sparandet av profilbiblioteket.</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>Utrustningsresurs saknas.</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>Spara profil</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>Utrustningsprofiler — märke / serie / modell</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>Sök efter tillverkare, familj, modell eller mätförhållanden</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>Utrustningsprofiler efter märke, serie och modell</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>All utrustning</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>Utrustningstyp</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>Utrustningens märke</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>Utrustningens serie</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>Alla märken</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>Alla serier</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>Alla undertyper</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>Profil</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>Importera JSON</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>Importera frekvensgångstext</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>Skapa profil</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>Redigera / spara kopia</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>Exportera JSON</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Kan inte läsa profilen eller filen överstiger 1 MiB.</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>Importera</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Kan inte läsa frekvensgången eller filen överstiger 1 MiB.</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>Detta importerar uppmätt FREKVENSGÅNG, inte redan inverterade EQ-förstärkningar. Bekräfta utrustningstypen. Absolut ljudtrycksnivå behöver normaliseras före import.</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>Importera frekvensgång</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>Exportera</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>Utökad testspråkvariant</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>Testspråk med höger-till-vänster-riktning</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>Ja</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>Nej</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>Ja till alla</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>Nej till alla</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>Öppna</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>Spara</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>Spara alla</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Stäng</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Avbryt</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>Kasta ändringar</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>Tillämpa</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>Återställ</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>Återställ standardinställningar</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>Försök igen</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>Avbryt</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>Ignorera</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>Hjälp</translation>
     </message>
   </context>
   <context>
@@ -1597,11 +1672,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
+      <source>Output: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1798,11 +1869,7 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
+      <source>%1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>

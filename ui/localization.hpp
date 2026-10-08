@@ -21,6 +21,8 @@ QString chooseLanguage(QString commandLine, QString stored, QString environment,
                        const QStringList &systemLanguages);
 Preferences loadPreferences();
 void savePreferences(const Preferences &);
+// Display-only directional isolation; never persisted or parsed as a parameter.
+QString numberWithUnit(QString pattern, const QString &number, const QString &unit);
 // GUI startup/control only. No engine dependency and no live view reconstruction.
 class Runtime {
   public:
@@ -36,6 +38,7 @@ class Runtime {
     QLocale previousLocale_;
     Qt::LayoutDirection previousDirection_;
     std::unique_ptr<QTranslator> translator_;
+    std::unique_ptr<QTranslator> standardActions_;
     bool catalogLoaded_ = false;
 };
 QDialog *settingsDialog(QWidget *parent = nullptr);

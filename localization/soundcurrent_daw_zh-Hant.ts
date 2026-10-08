@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>已發布的響應及可編輯的校正曲線</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>設備設定檔編輯器</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>品牌</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>系列</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>設備子類型</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>主動式 / 被動式 / 未知</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>型號</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>來源</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>條件</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>類型</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>頻率 Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>增益 dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>新增濾波器</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>移除所選濾波器</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>儲存修改後的設定檔？</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>此設定檔已變更。離開前儲存自訂副本？</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>設定檔超過 1 MiB 限制。</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>需要 JSON 設備設定檔。請使用響應匯入按鈕匯入響應文字。</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>品牌、系列及型號為必填項目（每項最多 120 個字元）。</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>設定檔中繼資料過長。</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>必須填寫測量條件。</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>已發布的設定檔需要 HTTPS 測量來源。</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>設定檔需要 1–16 個校正濾波器。</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>濾波器無效。</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>不支援的濾波器類型。</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>濾波器數值必須為數字。</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>濾波器超出頻率、增益或 Q 限制。</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>響應超過 4096 個點。</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>響應點無效。</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>響應頻率必須遞增，且數值必須有限並在範圍內。</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>每行資料都需要以 Hz 為單位的頻率及以 dB 為單位的相對實測響應。</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>響應資料無效或未依順序排列。</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>響應需要 2–4096 個實測點。</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>實測響應無效或未依順序排列。</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>響應沒有可用的音訊範圍。</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>無法讀取設定檔資料庫。</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>設定檔資料庫超過 16 MiB。</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>設定檔資料庫無效。</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>自訂資料庫最多可儲存 256 個設定檔。</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>資料庫大小超過 16 MiB。</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>無法建立設定檔資料夾。</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>無法儲存設定檔資料庫。</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>無法完成儲存設定檔資料庫。</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>缺少設備資源。</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>儲存設定檔</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>設備設定檔 — 品牌 / 系列 / 型號</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>搜尋品牌、系列、型號或測量條件</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>依品牌、系列及型號瀏覽設備設定檔</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>所有設備</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>設備類型</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>設備品牌</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>設備系列</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>所有品牌</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>所有系列</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>所有子類型</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>設定檔</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>匯入 JSON</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>匯入響應文字</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>建立設定檔</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>編輯 / 儲存副本</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>匯出 JSON</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>無法讀取設定檔，或檔案大小超過 1 MiB。</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>匯入</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>無法讀取響應，或檔案大小超過 1 MiB。</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>這裡匯入的是實測響應，而非已經反向轉換的等化器增益。請確認設備類型。絕對聲壓位準 SPL 需要在匯入前正規化。</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>匯入響應</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>匯出</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>擴展文字測試語言</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>由右至左測試語言</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>確定</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>是</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>否</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>全部是</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>全部否</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>開啟</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>儲存</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>全部儲存</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>關閉</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>捨棄變更</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>套用</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>重設</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>還原預設值</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>重試</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>中止</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>忽略</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>說明</translation>
     </message>
   </context>
   <context>
@@ -1597,11 +1672,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
+      <source>Output: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1798,11 +1869,7 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
+      <source>%1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>

@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>Опублікована характеристика та редаговані криві корекції</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>Редактор профілів обладнання</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>Бренд</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>Серія</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>Підтип обладнання</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>Активний / пасивний / невідомий</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>Модель</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>Джерело</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>Умови</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>Тип</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>Частота в Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>Підсилення в dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>Додати фільтр</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>Видалити вибраний фільтр</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>Зберегти змінений профіль?</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>Цей профіль змінено. Зберегти власну копію перед виходом?</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>Профіль перевищує межу 1 MiB.</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>Очікується профіль обладнання у форматі JSON. Імпортуйте текст частотної характеристики кнопкою імпорту характеристики.</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>Бренд, серія та модель обов’язкові (не більше 120 символів у кожному полі).</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>Метадані профілю надто довгі.</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>Умови вимірювання обов’язкові.</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>Опубліковані профілі потребують джерела вимірювання через HTTPS.</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>Профілі потребують 1–16 фільтрів корекції.</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>Неприпустимий фільтр.</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>Непідтримуваний тип фільтра.</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>Значення фільтра мають бути числами.</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>Фільтри перевищують межі частоти, підсилення або Q.</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>Характеристика перевищує 4096 точок.</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>Неприпустима точка характеристики.</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>Частоти характеристики мають зростати, а значення мають бути скінченними та в допустимих межах.</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>У кожному рядку даних очікуються частота в Hz і відносна виміряна характеристика в dB.</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>Неприпустимі або невпорядковані дані характеристики.</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>Характеристика потребує 2–4096 виміряних точок.</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>Неприпустима або невпорядкована виміряна характеристика.</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>Характеристика не має придатного звукового діапазону.</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>Не вдалося прочитати бібліотеку профілів.</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Бібліотека профілів перевищує 16 MiB.</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>Неприпустима бібліотека профілів.</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>Власна бібліотека вміщує до 256 профілів.</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Бібліотека перевищує 16 MiB.</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>Не вдалося створити папку профілів.</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>Не вдалося зберегти бібліотеку профілів.</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>Не вдалося завершити збереження бібліотеки профілів.</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>Ресурс обладнання відсутній.</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>Зберегти профіль</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>Профілі обладнання — бренд / серія / модель</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>Шукати бренд, серію, модель або умови вимірювання</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>Профілі обладнання за брендом, серією та моделлю</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>Усе обладнання</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>Тип обладнання</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>Бренд обладнання</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>Серія обладнання</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>Усі бренди</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>Усі серії</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>Усі підтипи</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>Профіль</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>Імпортувати JSON</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>Імпортувати текст характеристики</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>Створити профіль</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>Редагувати / зберегти копію</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>Експортувати JSON</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Не вдалося прочитати профіль або файл перевищує 1 MiB.</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>Імпортувати</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Не вдалося прочитати частотну характеристику або файл перевищує 1 MiB.</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>Імпортується виміряна ХАРАКТЕРИСТИКА, а не вже інвертовані значення підсилення EQ. Підтвердьте тип обладнання. Абсолютний SPL потребує нормалізації перед імпортом.</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>Імпорт характеристики</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>Експортувати</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>Розширена тестова мова</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>Тестова мова справа наліво</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>Так</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>Ні</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>Так для всіх</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>Ні для всіх</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>Відкрити</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>Зберегти</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>Зберегти все</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Закрити</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Скасувати</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>Відкинути</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>Застосувати</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>Скинути</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>Відновити типові налаштування</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>Спробувати знову</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>Перервати</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>Ігнорувати</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>Довідка</translation>
     </message>
   </context>
   <context>
@@ -1597,11 +1672,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
+      <source>Output: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1798,11 +1869,7 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
+      <source>%1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>

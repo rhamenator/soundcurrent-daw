@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>공개된 주파수 응답 및 편집 가능한 보정 곡선</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>장비 프로파일 편집기</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>브랜드</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>제품군</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>장비 하위 유형</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>액티브 / 패시브 / 알 수 없음</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>모델</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>출처</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>측정 조건</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>유형</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>주파수 (Hz)</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>게인 (dB)</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>필터 추가</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>선택한 필터 제거</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>수정한 프로파일을 저장하시겠습니까?</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>이 프로파일이 변경되었습니다. 나가기 전에 사용자 지정 사본을 저장하시겠습니까?</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>프로파일이 1 MiB 제한을 초과합니다.</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>JSON 장비 프로파일이 필요합니다. 주파수 응답 텍스트는 응답 가져오기 버튼으로 가져오세요.</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>브랜드, 제품군 및 모델은 필수입니다 (각각 최대 120자).</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>프로파일 메타데이터가 너무 깁니다.</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>측정 조건은 필수입니다.</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>공개 프로파일에는 HTTPS 측정 출처가 필요합니다.</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>프로파일에는 보정 필터 1~16개가 필요합니다.</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>잘못된 필터입니다.</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>지원하지 않는 필터 유형입니다.</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>필터 값은 숫자여야 합니다.</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>필터가 주파수, 게인 또는 Q 제한을 초과합니다.</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>응답이 4096개 지점을 초과합니다.</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>잘못된 응답 지점입니다.</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>응답 주파수는 오름차순이어야 하며 값은 유한하고 제한 범위 안에 있어야 합니다.</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>각 데이터 줄에는 주파수 (Hz)와 상대 측정 응답 (dB)이 필요합니다.</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>응답 데이터가 잘못되었거나 순서가 올바르지 않습니다.</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>응답에는 측정 지점 2~4096개가 필요합니다.</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>측정 응답이 잘못되었거나 순서가 올바르지 않습니다.</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>응답에 사용 가능한 오디오 대역이 없습니다.</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>프로파일 라이브러리를 읽을 수 없습니다.</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>프로파일 라이브러리가 16 MiB를 초과합니다.</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>잘못된 프로파일 라이브러리입니다.</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>사용자 지정 라이브러리에는 최대 256개 프로파일을 저장할 수 있습니다.</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>라이브러리가 16 MiB를 초과합니다.</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>프로파일 폴더를 만들 수 없습니다.</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>프로파일 라이브러리를 저장할 수 없습니다.</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>프로파일 라이브러리 저장을 완료할 수 없습니다.</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>장비 리소스가 없습니다.</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>프로파일 저장</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>장비 프로파일 — 브랜드 / 제품군 / 모델</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>브랜드, 제품군, 모델 또는 측정 조건 검색</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>브랜드, 제품군 및 모델별 장비 프로파일</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>모든 장비</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>장비 유형</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>장비 브랜드</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>장비 제품군</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>모든 브랜드</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>모든 제품군</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>모든 하위 유형</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>프로파일</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>JSON 가져오기</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>주파수 응답 텍스트 가져오기</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>프로파일 만들기</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>편집 / 사본 저장</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>JSON 내보내기</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>프로파일을 읽을 수 없거나 파일이 1 MiB를 초과합니다.</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>가져오기</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>주파수 응답을 읽을 수 없거나 파일이 1 MiB를 초과합니다.</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>이 기능은 이미 반전된 EQ 게인이 아닌 측정 응답을 가져옵니다. 장비 유형을 확인하세요. 절대 SPL은 가져오기 전에 정규화해야 합니다.</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>응답 가져오기</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>내보내기</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>문자열 확장 테스트 언어</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>오른쪽에서 왼쪽으로 표시하는 테스트 언어</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>확인</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>예</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>아니요</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>모두 예</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>모두 아니요</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>열기</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>저장</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>모두 저장</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>닫기</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>변경 내용 버리기</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>적용</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>초기화</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>기본값 복원</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>다시 시도</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>중단</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>무시</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>도움말</translation>
     </message>
   </context>
   <context>
@@ -1597,11 +1672,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
+      <source>Output: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1798,11 +1869,7 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
+      <source>%1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>

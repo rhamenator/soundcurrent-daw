@@ -70,6 +70,9 @@ These workflows have scoped [test receipts](tests/results/). Sustained native
 recording failures remain open. Synthetic or short owned-route success does not
 establish physical latency, a supported Windows application, or full DAW parity.
 The [changelog](CHANGELOG.md) summarizes the development snapshot.
+The [localization refresh](docs/100-localization-reuse-refresh.md) adds reviewed
+equipment/settings vocabulary and signed RTL input; 33 language catalogs remain
+partial drafts with English fallback, awaiting native-speaker review.
 
 The product targets lower-budget recording studios, including studios with
 substantial hardware. [Track scalability](docs/67-track-scalability.md) requires

@@ -27,6 +27,39 @@ namespace {
 class Text {
     Q_DECLARE_TR_FUNCTIONS(Localization)
 };
+class ActionText {
+    Q_DECLARE_TR_FUNCTIONS(StandardActions)
+};
+// Qt standard captions use the same embedded catalog, with no external Qt
+// translation directory. Guard contexts to avoid recursive translation.
+class StandardActionTranslator final : public QTranslator {
+  public:
+    bool isEmpty() const override { return false; }
+    QString translate(const char *context, const char *source, const char *, int) const override {
+        if (!context || !source || (QByteArray(context) != "QPlatformTheme" &&
+                                   QByteArray(context) != "QDialogButtonBox")) return {};
+        const QByteArray key(source);
+        if (key == "OK") return ActionText::tr("OK");
+        if (key == "&Yes") return QStringLiteral("&") + ActionText::tr("Yes");
+        if (key == "&No") return QStringLiteral("&") + ActionText::tr("No");
+        if (key == "Yes to &All") return ActionText::tr("Yes to All");
+        if (key == "N&o to All") return ActionText::tr("No to All");
+        if (key == "Open") return ActionText::tr("Open");
+        if (key == "Save") return ActionText::tr("Save");
+        if (key == "Save All") return ActionText::tr("Save All");
+        if (key == "Close") return ActionText::tr("Close");
+        if (key == "Cancel") return ActionText::tr("Cancel");
+        if (key == "Discard") return ActionText::tr("Discard");
+        if (key == "Apply") return ActionText::tr("Apply");
+        if (key == "Reset") return ActionText::tr("Reset");
+        if (key == "Restore Defaults") return ActionText::tr("Restore Defaults");
+        if (key == "Retry") return ActionText::tr("Retry");
+        if (key == "Abort") return ActionText::tr("Abort");
+        if (key == "Ignore") return ActionText::tr("Ignore");
+        if (key == "Help") return ActionText::tr("Help");
+        return {};
+    }
+};
 QString normalize(QString tag) {
     return tag.trimmed().replace('_', '-');
 }
@@ -86,14 +119,34 @@ QString resolve(QString requested) {
     if (!validTag(tag)) return QStringLiteral("en");
     for (const auto &l : languages())
         if (l.tag.compare(tag, Qt::CaseInsensitive) == 0) return l.tag;
-    // Explicit application fallback policy. Never strip or infer a script.
-    const QMap<QString, QString> fallbacks{{"de-DE", "de"}, {"de-AT", "de"}, {"de-CH", "de"},
-        {"fr-FR", "fr"}, {"fr-BE", "fr"}, {"fr-CH", "fr"}, {"fr-CA", "fr"},
-        {"zh-Hant-TW", "zh-Hant"}, {"zh-Hans-CN", "zh-Hans"}};
-    for (auto it = fallbacks.begin(); it != fallbacks.end(); ++it)
-        if (tag.compare(it.key(), Qt::CaseInsensitive) == 0)
-            for (const auto &l : languages()) if (l.tag == it.value()) return l.tag;
-    return QStringLiteral("en");
+    // Adapted from reviewed upstream QLocale selection. Formatting extensions
+    // do not pick catalogs. Explicit incompatible scripts/regions stay refused.
+    auto parts = tag.split('-');
+    for (qsizetype i = 1; i < parts.size(); ++i)
+        if (parts[i].size() == 1) { parts = parts.mid(0, i); break; }
+    const QLocale requestedLocale(parts.join('-'));
+    const auto code = QLocale::languageToCode(requestedLocale.language());
+    if (code.compare(parts.front(), Qt::CaseInsensitive) != 0) return QStringLiteral("en");
+    qsizetype regionIndex = 1;
+    static const QRegularExpression script(QStringLiteral("^[A-Za-z]{4}$"));
+    if (parts.size() > 1 && script.match(parts[1]).hasMatch()) {
+        if (QLocale::scriptToCode(requestedLocale.script()).compare(parts[1], Qt::CaseInsensitive) != 0)
+            return QStringLiteral("en");
+        regionIndex = 2;
+    }
+    static const QRegularExpression region(QStringLiteral("^(?:[A-Za-z]{2}|[0-9]{3})$"));
+    const auto desiredRegion = parts.size() > regionIndex && region.match(parts[regionIndex]).hasMatch()
+        ? parts[regionIndex] : QLocale::territoryToCode(requestedLocale.territory());
+    QString regional;
+    for (const auto &l : languages()) {
+        if (l.tag.section('-', 0, 0).compare(code, Qt::CaseInsensitive) != 0 ||
+            QLocale(l.tag).script() != requestedLocale.script()) continue;
+        const auto candidate = l.tag.split('-');
+        const bool specific = candidate.size() > 1 && region.match(candidate.last()).hasMatch();
+        if (!specific) return l.tag;
+        if (candidate.last().compare(desiredRegion, Qt::CaseInsensitive) == 0) regional = l.tag;
+    }
+    return regional.isEmpty() ? QStringLiteral("en") : regional;
 }
 QString chooseLanguage(QString commandLine, QString stored, QString environment,
                        const QStringList &systemLanguages) {
@@ -118,6 +171,15 @@ void savePreferences(const Preferences &p) {
     if (settings.status() != QSettings::NoError)
         throw std::runtime_error(Text::tr("Language preferences could not be saved.").toStdString());
 }
+QString numberWithUnit(QString pattern, const QString &number, const QString &unit) {
+    // The translated label contains one value placeholder. Build the invariant
+    // engineering unit with the formatted number outside translation, then
+    // isolate the entire field. Translators may change label spelling/spacing.
+    auto field = number + QStringLiteral(" ") + unit;
+    if (QApplication::layoutDirection() == Qt::RightToLeft)
+        field = QString(QChar(0x2066)) + field + QChar(0x2069);
+    return pattern.arg(field);
+}
 Runtime::Runtime(QString requested, QString format)
     : requested_(std::move(requested)), loaded_(resolve(requested_)),
       previousLocale_(QLocale()), previousDirection_(QApplication::layoutDirection()) {
@@ -134,12 +196,15 @@ Runtime::Runtime(QString requested, QString format)
             (void)translator_->load(QStringLiteral(":/daw/i18n/soundcurrent_daw_en.qm"));
         }
     }
+    standardActions_ = std::make_unique<StandardActionTranslator>();
+    QCoreApplication::installTranslator(standardActions_.get());
     catalogLoaded_ = QCoreApplication::installTranslator(translator_.get());
     QApplication::setLayoutDirection(loaded_ == "qps-rtl" ? Qt::RightToLeft
         : loaded_.startsWith("qps-") ? Qt::LeftToRight : QLocale(loaded_).textDirection());
 }
 Runtime::~Runtime() {
     if (catalogLoaded_) QCoreApplication::removeTranslator(translator_.get());
+    QCoreApplication::removeTranslator(standardActions_.get());
     QLocale::setDefault(previousLocale_);
     QApplication::setLayoutDirection(previousDirection_);
 }

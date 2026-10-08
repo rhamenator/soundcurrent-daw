@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>Veröffentlichter Frequenzgang und bearbeitbare Korrekturkurven</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>Geräteprofil-Editor</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>Marke</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>Baureihe</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>Geräteuntertyp</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>Aktiv / passiv / unbekannt</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>Modell</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>Quelle</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>Bedingungen</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>Typ</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>Frequenz in Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>Verstärkung in dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>Filter hinzufügen</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>Ausgewählten Filter entfernen</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>Geändertes Profil speichern?</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>Dieses Profil wurde geändert. Vor dem Verlassen eine benutzerdefinierte Kopie speichern?</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>Das Profil überschreitet die Grenze von 1 MiB.</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>Ein JSON-Geräteprofil wird erwartet. Importieren Sie Frequenzgangtext über die Schaltfläche zum Importieren von Frequenzgangdaten.</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>Marke, Baureihe und Modell sind erforderlich (jeweils höchstens 120 Zeichen).</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>Die Profilmetadaten sind zu lang.</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>Messbedingungen sind erforderlich.</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>Veröffentlichte Profile benötigen eine HTTPS-Messquelle.</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>Profile benötigen 1–16 Korrekturfilter.</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>Ungültiger Filter.</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>Nicht unterstützter Filtertyp.</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>Filterwerte müssen Zahlen sein.</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>Die Filter überschreiten die Grenzen für Frequenz, Verstärkung oder Q.</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>Der Frequenzgang überschreitet 4096 Punkte.</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>Ungültiger Frequenzgangpunkt.</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>Die Frequenzen des Frequenzgangs müssen mit endlichen Werten innerhalb der Grenzen aufsteigen.</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>Jede Datenzeile muss eine Frequenz in Hz und einen relativen gemessenen Frequenzgang in dB enthalten.</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>Ungültige oder ungeordnete Frequenzgangdaten.</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>Der Frequenzgang benötigt 2–4096 Messpunkte.</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>Ungültiger oder ungeordneter gemessener Frequenzgang.</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>Der Frequenzgang enthält keinen nutzbaren Audiobereich.</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>Die Profilbibliothek kann nicht gelesen werden.</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Die Profilbibliothek überschreitet 16 MiB.</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>Ungültige Profilbibliothek.</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>Die benutzerdefinierte Bibliothek fasst bis zu 256 Profile.</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Die Bibliothek überschreitet 16 MiB.</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>Der Profilordner kann nicht erstellt werden.</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>Die Profilbibliothek kann nicht gespeichert werden.</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>Das Speichern der Profilbibliothek kann nicht abgeschlossen werden.</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>Geräteressource fehlt.</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>Profil speichern</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>Geräteprofile — Marke / Baureihe / Modell</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>Nach Marke, Baureihe, Modell oder Messbedingungen suchen</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>Geräteprofile nach Marke, Baureihe und Modell</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>Alle Geräte</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>Gerätetyp</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>Gerätemarke</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>Gerätebaureihe</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>Alle Marken</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>Alle Baureihen</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>Alle Untertypen</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>Profil</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>JSON importieren</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>Frequenzgangtext importieren</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>Profil erstellen</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>Bearbeiten / Kopie speichern</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>JSON exportieren</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Das Profil kann nicht gelesen werden oder die Datei ist größer als 1 MiB.</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>Importieren</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Die Frequenzgangdaten können nicht gelesen werden oder die Datei ist größer als 1 MiB.</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>Hier wird der gemessene FREQUENZGANG importiert, keine bereits invertierten EQ-Verstärkungen. Bestätigen Sie den Gerätetyp. Absolute SPL-Werte müssen vor dem Import normalisiert werden.</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>Frequenzgang importieren</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>Exportieren</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>Testsprache mit verlängertem Text</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>Testsprache für Rechts-nach-links-Schrift</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>Ja</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>Nein</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>Ja zu allen</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>Nein zu allen</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>Öffnen</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>Speichern</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>Alles speichern</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Schließen</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Abbrechen</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>Änderungen verwerfen</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>Anwenden</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>Standardwerte wiederherstellen</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>Erneut versuchen</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>Abbrechen</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>Ignorieren</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>Hilfe</translation>
     </message>
   </context>
   <context>
@@ -1597,11 +1672,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
+      <source>Output: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1798,11 +1869,7 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
+      <source>%1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>

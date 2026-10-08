@@ -137,3 +137,11 @@ Redistributable for end-user MSVC runtime deployment. Developer SDK PATH executi
 does not satisfy that gate. Do not copy individual developer CRT DLLs into a release.
 [ADR077](decisions/077-desktop-native-routes-and-storage-completion.md) and
 [the evidence checkpoint](98-windows-desktop-foundation.md) record the choice and limits.
+
+## Reviewed localization refresh (2026-10-08)
+
+ADR079 adds no library or new Qt floor. Existing Qt widgets/Linguist resources
+support script/territory selection, embedded standard actions and display-only
+number handling. GPL equalizer draft words are mapped to explicit DAW contexts;
+110 retained review inputs have exact source hashes/revisions. Original DSP and
+equipment pins remain immutable. Structural checks are not native-language review.

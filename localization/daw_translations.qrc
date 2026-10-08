@@ -35,5 +35,6 @@
     <file alias="soundcurrent_daw_vi.qm">soundcurrent_daw_vi.qm</file>
     <file alias="soundcurrent_daw_th.qm">soundcurrent_daw_th.qm</file>
     <file alias="soundcurrent_daw_sw.qm">soundcurrent_daw_sw.qm</file>
+    <file alias="soundcurrent_daw_nn.qm">soundcurrent_daw_nn.qm</file>
   </qresource>
 </RCC>

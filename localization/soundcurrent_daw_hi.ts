@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>प्रकाशित प्रतिक्रिया और संपादन योग्य सुधार वक्र</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>उपकरण प्रोफ़ाइल संपादक</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>ब्रांड</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>उत्पाद परिवार</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>उपकरण का उपप्रकार</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>ऐक्टिव / पैसिव / अज्ञात</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>मॉडल</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>स्रोत</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>माप की स्थितियाँ</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>प्रकार</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>आवृत्ति (Hz)</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>गेन (dB)</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>फ़िल्टर जोड़ें</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>चयनित फ़िल्टर हटाएँ</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>बदली गई प्रोफ़ाइल सहेजें?</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>इस प्रोफ़ाइल में बदलाव हुआ है। बाहर जाने से पहले कस्टम कॉपी सहेजें?</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल 1 MiB की सीमा से बड़ी है।</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>JSON उपकरण प्रोफ़ाइल अपेक्षित है। प्रतिक्रिया टेक्स्ट को प्रतिक्रिया आयात बटन से आयात करें।</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>ब्रांड, उत्पाद परिवार और मॉडल आवश्यक हैं (प्रत्येक में अधिकतम 120 अक्षर)।</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल का मेटाडेटा बहुत लंबा है।</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>माप की स्थितियाँ आवश्यक हैं।</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>प्रकाशित प्रोफ़ाइल के लिए HTTPS माप स्रोत आवश्यक है।</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल में 1–16 सुधार फ़िल्टर आवश्यक हैं।</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>अमान्य फ़िल्टर।</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>असमर्थित फ़िल्टर प्रकार।</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>फ़िल्टर के मान संख्याएँ होने चाहिए।</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>फ़िल्टर आवृत्ति, गेन या Q की सीमा से बाहर हैं।</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>प्रतिक्रिया में 4096 से अधिक बिंदु हैं।</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>अमान्य प्रतिक्रिया बिंदु।</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>प्रतिक्रिया की आवृत्तियाँ बढ़ते क्रम में होनी चाहिए और मान सीमित तथा निर्धारित सीमा के भीतर होने चाहिए।</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>हर डेटा पंक्ति में आवृत्ति (Hz) और सापेक्ष मापी गई प्रतिक्रिया (dB) अपेक्षित है।</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>प्रतिक्रिया डेटा अमान्य है या सही क्रम में नहीं है।</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>प्रतिक्रिया में 2–4096 मापे गए बिंदु आवश्यक हैं।</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>मापी गई प्रतिक्रिया अमान्य है या सही क्रम में नहीं है।</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>प्रतिक्रिया में उपयोग योग्य ऑडियो आवृत्ति क्षेत्र नहीं है।</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल लाइब्रेरी नहीं पढ़ी जा सकती।</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल लाइब्रेरी 16 MiB से बड़ी है।</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>अमान्य प्रोफ़ाइल लाइब्रेरी।</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>कस्टम लाइब्रेरी में अधिकतम 256 प्रोफ़ाइल रखी जा सकती हैं।</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>लाइब्रेरी 16 MiB से बड़ी है।</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल फ़ोल्डर नहीं बनाया जा सकता।</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल लाइब्रेरी नहीं सहेजी जा सकती।</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल लाइब्रेरी सहेजना पूरा नहीं किया जा सकता।</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>उपकरण संसाधन नहीं मिला।</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल सहेजें</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>उपकरण प्रोफ़ाइल — ब्रांड / उत्पाद परिवार / मॉडल</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>ब्रांड, उत्पाद परिवार, मॉडल या माप की स्थितियाँ खोजें</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>ब्रांड, उत्पाद परिवार और मॉडल के अनुसार उपकरण प्रोफ़ाइल</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>सभी उपकरण</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>उपकरण का प्रकार</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>उपकरण का ब्रांड</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>उपकरण का उत्पाद परिवार</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>सभी ब्रांड</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>सभी उत्पाद परिवार</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>सभी उपप्रकार</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>JSON आयात करें</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>प्रतिक्रिया टेक्स्ट आयात करें</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल बनाएँ</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>संपादित करें / कॉपी सहेजें</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>JSON निर्यात करें</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>प्रोफ़ाइल नहीं पढ़ी जा सकती या फ़ाइल 1 MiB से बड़ी है।</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>आयात करें</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>आवृत्ति प्रतिक्रिया नहीं पढ़ी जा सकती या फ़ाइल 1 MiB से बड़ी है।</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>यह मापी गई प्रतिक्रिया आयात करता है, पहले से उलटे गए EQ गेन नहीं। उपकरण का प्रकार सुनिश्चित करें। पूर्ण SPL मानों को आयात से पहले सामान्यीकृत करना आवश्यक है।</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>प्रतिक्रिया आयात</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>निर्यात करें</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>विस्तारित परीक्षण भाषा</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>दाएँ से बाएँ परीक्षण भाषा</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>ठीक है</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>हाँ</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>नहीं</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>सभी के लिए हाँ</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>सभी के लिए नहीं</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>खोलें</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>सहेजें</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>सभी सहेजें</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>बंद करें</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>रद्द करें</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>बदलाव छोड़ें</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>लागू करें</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>रीसेट करें</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>डिफ़ॉल्ट बहाल करें</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>दोबारा कोशिश करें</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>बंद करें</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>अनदेखा करें</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>सहायता</translation>
     </message>
   </context>
   <context>
@@ -1597,11 +1672,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
+      <source>Output: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1798,11 +1869,7 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
+      <source>%1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>

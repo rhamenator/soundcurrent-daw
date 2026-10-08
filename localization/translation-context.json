@@ -12,5 +12,6 @@
   "Use system locale": "Use the operating system regional number/date formatting settings; independent of interface language.",
   "Listening preset": "Saved equalizer settings for playback. Not a listening device.",
   "Lock EQ": "Prevent accidental editing of EQ controls; not encryption or a security lock.",
-  "Undo": "Reverse the previous editable setting change."
+  "Undo": "Reverse the previous editable setting change.",
+  "Filter Q": "Dimensionless filter quality factor, not bandwidth in Hz. Processing parameter and stable identifier remain q."
 }

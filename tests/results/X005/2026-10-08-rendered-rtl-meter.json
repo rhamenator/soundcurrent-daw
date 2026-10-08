@@ -1,0 +1,80 @@
+{
+  "scope": "Actual translated meter number/unit display regression, no audio activation or language promotion",
+  "originalReview": "https://github.com/rhamenator/soundcurrent-daw/pull/43#discussion_r4217109903",
+  "sourceBase": "09a6a7a",
+  "archive": {
+    "name": "2026-10-08-rendered-rtl-meter.zip",
+    "bytes": 22209,
+    "sha256": "a9a3ec5e9d103cff6bcbfa4a9f46d1d620d4edc9c72916c0529b971c96dea3de"
+  },
+  "payloadManifest": [
+    {
+      "path": "control/preview-production-inputs-v2.json",
+      "bytes": 29308,
+      "sha256": "cd4b5b71bb3a51990a3ab9b97b5949a6ef1b7599e22ba704099f4c04aea74c71"
+    },
+    {
+      "path": "control/unit-gui-v16-dispatch.log",
+      "bytes": 1014,
+      "sha256": "2faf33a80350f37a207aeac96a6ea6a2a8c27007eeaeb8e8805523c1c7be23c2"
+    },
+    {
+      "path": "control/unit-isolation-v15-build.log",
+      "bytes": 54308,
+      "sha256": "4defe4c3cfae5374459b41443a1b8e6f59f7a11ab440143dc1d003dbe87976f7"
+    },
+    {
+      "path": "control/unit-isolation-v15-receipt.json",
+      "bytes": 12066,
+      "sha256": "13b93d33bc6ece3f1196040dddc338ae6933666bdeb38e88f9e5bf02c56dd947"
+    },
+    {
+      "path": "control/unit-isolation-v16-build.log",
+      "bytes": 35204,
+      "sha256": "978412f713a7b8a9abc4150b35f505c090a616f4a3ba3b13d2db139210da5a90"
+    },
+    {
+      "path": "control/unit-isolation-v16-receipt.json",
+      "bytes": 336,
+      "sha256": "7c718b133fb7bccf9d8eccc46533b4d2a5f634412c81e59215578375dc44f961"
+    },
+    {
+      "path": "linux/LastTest.log",
+      "bytes": 9651,
+      "sha256": "6186b3da519d3d1111e5f1d1fdf630746ddc3fb740d23bc59f341da877168263"
+    },
+    {
+      "path": "native/result.json",
+      "bytes": 795,
+      "sha256": "52232726dc489292c8c755faa26c0bfcc538414d606d315aa06557ad57487554"
+    },
+    {
+      "path": "native/sc-export-ui-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/sc-export-ui-tests.stdout",
+      "bytes": 39,
+      "sha256": "a68eecb74a0ff21102a998675f5ed13424291d52b67043165ebcaf8ada035f50"
+    },
+    {
+      "path": "native/sc-localization-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/sc-localization-tests.stdout",
+      "bytes": 358,
+      "sha256": "4657fc9a47b0b0accfc918e89486adadba6b5247aa456d005727f2051f66df11"
+    }
+  ],
+  "linux": "5/5 focused CTest groups passed after completed rebuild",
+  "windows": "2/2 native UI tests passed in limited interactive session 1; 277 localization checks",
+  "originalBuildFailure": "Missing QLabel definition in new test; original native compilation failure retained; explicit include fixes it",
+  "sourceKeys": 562,
+  "draftEntriesPerLanguage": 95,
+  "nativeAudioActivated": false,
+  "installerQualified": false,
+  "nativeLanguagePromotion": false
+}

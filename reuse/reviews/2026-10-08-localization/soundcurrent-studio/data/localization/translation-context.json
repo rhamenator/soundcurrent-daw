@@ -1,0 +1,17 @@
+{
+  "Equalizer": "Audio frequency-response processor, not social equality.",
+  "Post gain": "Signal level adjustment after EQ processing, in dB; permits attenuation as well as amplification. Not financial profit.",
+  "Gain": "Audio signal level adjustment in dB, positive or negative. Not financial profit.",
+  "Bands": "Frequency bands in an audio equalizer. Not music groups, belts or radio stations.",
+  "Selected band": "Currently selected frequency band in the equalizer.",
+  "Flat": "Preset with zero equalizer gain at every frequency. Not an apartment; does not imply muted audio.",
+  "Reset to flat": "Restore zero gain in all EQ bands. Does not mute playback.",
+  "Balance": "Left/right audio channel balance. Not bank balance or physical equilibrium.",
+  "Quit app": "Exit the process and unload audio processing; closing the window alone keeps the app running.",
+  "Natural mic EQ": "Microphone equalization feature intended to produce natural-sounding audio. Not a claim that the microphone has a measured neutral response.",
+  "Use system locale": "Use the operating system regional number/date formatting settings; independent of interface language.",
+  "Listening preset": "Saved equalizer settings for playback. Not a listening device.",
+  "Lock EQ": "Prevent accidental editing of EQ controls; not encryption or a security lock.",
+  "Undo": "Reverse the previous editable setting change.",
+  "Filter Q": "Dimensionless quality factor controlling filter sharpness: higher Q produces a narrower peak. Not a bandwidth in Hz. Stable processing parameter remains q."
+}

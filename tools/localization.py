@@ -5,13 +5,34 @@
 Draft terms are reused only for identical source text in the DAW's own contexts.
 """
 import argparse, hashlib, json, re, shutil, subprocess, tempfile
+from collections import Counter
+from html.parser import HTMLParser
 from pathlib import Path
 import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'localization'
-PLACEHOLDER = re.compile(r'%L?(?:[0-9]+|n)')
+PLACEHOLDER = re.compile(r'%L?[1-9][0-9]?|%Ln|%n')
 BIDI = '\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069'
 def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+class Markup(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True); self.structure=[]
+    def handle_starttag(self, tag, attrs): self.structure.append(('start',tag,tuple(sorted(attrs))))
+    def handle_endtag(self, tag): self.structure.append(('end',tag))
+    def handle_startendtag(self, tag, attrs): self.structure.append(('empty',tag,tuple(sorted(attrs))))
+def validate_text(source, text):
+    # Adapted from reviewed upstream catalog validation, with DAW contexts and
+    # existing numerus extraction retained. Structural validation is not review.
+    assert text.strip(),'Empty finished entry'
+    assert Counter(PLACEHOLDER.findall(text))==Counter(PLACEHOLDER.findall(source)),'Placeholder mismatch'
+    assert text.count('&&')==source.count('&&'),'Literal ampersand mismatch'
+    assert not any(c in text for c in BIDI),'Hidden bidi control'
+    a,b=Markup(),Markup();a.feed(source);b.feed(text)
+    assert a.structure==b.structure,'Rich-text tags or attributes changed'
+    assert Counter(re.findall(r'\*\.[A-Za-z0-9]+',source))==Counter(re.findall(r'\*\.[A-Za-z0-9]+',text)),'File-dialog extension patterns changed'
+def draft_words():
+    p=DATA/'reviewed-words.json'
+    return json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}
 def sources():
     return sorted(p for p in (ROOT/'ui').iterdir() if p.suffix in {'.cpp','.hpp'})
 def key(context, message):
@@ -25,7 +46,7 @@ def tool(name):
 def update():
     updater,compiler=tool('lupdate'),tool('lrelease')
     if not updater or not compiler: raise SystemExit('Qt 6 Linguist lupdate/lrelease required only for --update')
-    source_files=sources();seeds=json.loads((DATA/'seed-translations.json').read_text());notes=json.loads((DATA/'translation-context.json').read_text());meta=[]
+    source_files=sources();seeds=json.loads((DATA/'seed-translations.json').read_text());notes=json.loads((DATA/'translation-context.json').read_text());meta=[];borrowed=draft_words()
     with tempfile.TemporaryDirectory(prefix='sc-daw-translations-') as temporary:
         prototype=Path(temporary)/'source.ts'
         subprocess.run([updater,*map(str,source_files),'-no-obsolete','-locations','none','-ts',str(prototype)],check=True)
@@ -34,21 +55,30 @@ def update():
             assert len(row)==len(seeds['sources'])+1
             ts=DATA/('soundcurrent_daw_'+tag+'.ts');old={}
             if ts.exists():
-                old={k:m.find('translation') for k,m in messages(ET.parse(ts).getroot())}
+                old={k:m for k,m in messages(ET.parse(ts).getroot())}
             tree=ET.fromstring(ET.tostring(raw.getroot()));tree.set('language',tag.replace('-','_'));tree.set('sourcelanguage','en_US')
             seed=dict(zip(seeds['sources'],row[1:]));done=0
             for k,m in messages(tree):
                 source=k[1];m.remove(m.find('translation'))
                 # Preserve translator edits, unfinished entries, comments and plural forms.
-                previous=old.get(k)
+                previous=old.get(k);previous_t=previous.find('translation') if previous is not None else None
+                words=borrowed.get(tag,{}).get(k[0],{})
+                candidate=words.get(source,seed.get(source)) if not k[3] else None
                 if tag=='en' and not k[3]:
                     t=ET.SubElement(m,'translation');t.text=source
-                elif previous is not None:
-                    t=ET.fromstring(ET.tostring(previous));m.append(t)
+                elif previous_t is not None:
+                    t=ET.fromstring(ET.tostring(previous_t));m.append(t)
+                    # Retain unfinished translator work. Only genuinely blank
+                    # unfinished scalar entries may receive a reviewed draft.
+                    if t.get('type')=='unfinished' and not k[3] and not (t.text or '').strip() and not list(t) and candidate:
+                        validate_text(source,candidate);t.attrib.pop('type',None);t.text=candidate
                 else:
                     t=ET.SubElement(m,'translation')
-                    if not k[3] and source in seed: t.text=seed[source]
+                    if candidate: validate_text(source,candidate);t.text=candidate
                     else: t.set('type','unfinished')
+                if previous is not None:
+                    for comment in previous.findall('translatorcomment'):
+                        m.append(ET.fromstring(ET.tostring(comment)))
                 if source in notes: ET.SubElement(m,'extracomment').text=notes[source]
                 if t.get('type')!='unfinished': done+=1
             ET.indent(tree);ET.ElementTree(tree).write(ts,encoding='utf-8',xml_declaration=True)
@@ -62,6 +92,7 @@ def update():
     ET.indent(qrc);ET.ElementTree(qrc).write(DATA/'daw_translations.qrc',encoding='utf-8',xml_declaration=True)
     inventory={'source_sha256':{str(p.relative_to(ROOT)):digest(p) for p in source_files},
         'seed_sha256':digest(DATA/'seed-translations.json'),'translator_notes_sha256':digest(DATA/'translation-context.json'),
+        'reviewed_words_sha256':digest(DATA/'reviewed-words.json') if (DATA/'reviewed-words.json').exists() else None,
         'tools':{name:subprocess.check_output([program,'-version'],text=True).strip() for name,program in [('lupdate',updater),('lrelease',compiler)]},
         'keys':[list(k) for k,_ in messages(ET.parse(prototype).getroot())] if prototype.exists() else [list(k) for k,_ in messages(ET.parse(DATA/'soundcurrent_daw_en.ts').getroot())]}
     (DATA/'source-inventory.json').write_text(json.dumps(inventory,ensure_ascii=False,indent=2)+'\n')
@@ -70,6 +101,7 @@ def check():
     assert actual==inventory['source_sha256'],'UI changed: run tools/localization.py --update'
     assert digest(DATA/'seed-translations.json')==inventory['seed_sha256']
     assert digest(DATA/'translation-context.json')==inventory['translator_notes_sha256']
+    assert (digest(DATA/'reviewed-words.json') if (DATA/'reviewed-words.json').exists() else None)==inventory.get('reviewed_words_sha256')
     expected={tuple(k) for k in inventory['keys']};meta=json.loads((DATA/'catalogs.json').read_text());seen=set()
     for item in meta:
         tag=item['tag'];assert re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*',tag) and tag not in seen;seen.add(tag)
@@ -82,10 +114,7 @@ def check():
             entries=[e.text or '' for e in t.findall('numerusform')] if k[3] else [t.text or '']
             assert entries,'Empty plural forms'
             for text in entries:
-                assert text.strip(),(tag,k,'Empty finished entry')
-                assert sorted(PLACEHOLDER.findall(text))==sorted(PLACEHOLDER.findall(k[1])),(tag,k,'Placeholder mismatch')
-                assert text.count('&&')==k[1].count('&&'),(tag,k,'Literal ampersand mismatch')
-                assert not any(c in text for c in BIDI),(tag,k,'Hidden bidi control')
+                validate_text(k[1],text)
             done+=1
         assert done==item['translated'] and len(expected)==item['total']
         assert done>0,'An empty catalog cannot be exposed as a language'

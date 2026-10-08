@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "originalRun": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/37754044545",
+  "originalSource": "5e35ad50ba91d3a73ee3a085609d6072d2784da1",
+  "linux": "62/63 passed; actual-update test refused missing Qt Linguist tools",
+  "windows": "core cross-build passed; no native runtime claim",
+  "correction": "Install qt6-l10n-tools for maintainer-only real catalog extraction/compilation tests; do not skip the test or add end-user Qt development dependencies",
+  "log": {
+    "name": "2026-10-08-localization-hosted-tools.log.gz",
+    "bytes": 3294,
+    "sha256": "6d12296f8dec1a33c44912462830ef5ba7bff635ae5be26950800a726bbc6682"
+  },
+  "correctedHostedResult": {
+    "run": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/37755136847",
+    "source": "09a6a7a",
+    "linux": "63/63 groups and subsequent retained evidence verifiers passed",
+    "windows": "core cross-build passed; no native runtime claim",
+    "furtherRenderedUnitReview": "pending separate corrected-source checks"
+  }
+}

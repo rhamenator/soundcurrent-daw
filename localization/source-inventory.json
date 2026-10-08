@@ -1,9 +1,9 @@
 {
   "source_sha256": {
-    "ui/accelerating_spinbox.hpp": "e922369bf24879ec5bf0e3c3518c5e4a6f7daafb9b320640c47f8c837521695e",
+    "ui/accelerating_spinbox.hpp": "cea53fc8be41c2adee53101c6492e22b34d1dbba8fa8dff6aee9cb651bd9265c",
     "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
     "ui/equipment_curve.hpp": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e",
-    "ui/equipment_profiles.cpp": "4c2614c9cf71035bc5b0f11d51b0269bd9c8485097f7b0406959f7e26bf08dd7",
+    "ui/equipment_profiles.cpp": "4f8d1dfae571a43a2726591bf28d0323496e4e47fde88c9f463b4ff277a49b9a",
     "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
     "ui/export_controller.cpp": "4fa071da04f93555333df4b9f7b740f015d81e4b3b6f151167d49da5605bb61f",
     "ui/export_controller.hpp": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e",
@@ -12,8 +12,8 @@
     "ui/gui_resources.hpp": "6f1e4b9a8988bb79969c45eeaecda226d3319c3adc0b44938fa287c967f707c4",
     "ui/history_resources_dialog.cpp": "b8e4a2b0303b5bededad4b5b85a46307a3c0cf869da437b025f50c1f088dcdfb",
     "ui/history_resources_dialog.hpp": "f9ce0174b9f6a392b2a8f9af22d2f71d9eb11b4dd4c9eaad392bc62e2e85fad8",
-    "ui/localization.cpp": "2605c7b5aba6db5a873e31263c0b0500283de08d41c3b12b2c608ed5556aa892",
-    "ui/localization.hpp": "fa6e43ff79f5bdd10e60bfee0468d26c76e7480ba8174405972c7c8ca115b262",
+    "ui/localization.cpp": "be5c1e4ce406ac5bdd58ba007d87f9043c2e4f13fa773286c7c6bce2c4d45693",
+    "ui/localization.hpp": "60c9513cf542d243492c8f330090c05b4f114d5764101042fb984beffdf35bdf",
     "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
     "ui/manual_recording_controller.cpp": "d7007294c7b9cbdb630d02662773f50df7b3eebbc977a6ec8322dd84764e80ee",
     "ui/manual_recording_controller.hpp": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2",
@@ -30,7 +30,7 @@
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "4a4f0a394a9bbff8d5a6c8a37c0d5103e2dde6bedc9f67dd30a3af6f9eea8b09",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/studio_window.cpp": "9d8bb2a35a9af4f96836f7477905d20bcf2b8608e1e03df44891e1e371b9c04d",
+    "ui/studio_window.cpp": "bf099e36f9466aca4cc86b11d285d07fb76bfbf591eccf3f1dd34a4d5f1a5ab6",
     "ui/studio_window.hpp": "14c62cd62524cb9d7c5460c7743ba077cc2ae3b5b3be76ec2d19f57d5fff6013",
     "ui/timeline_editor.cpp": "f9f3ab72ad1cf57854ac51dfd60f749eef92e45af1f956e124ac88e81a9dc5ec",
     "ui/timeline_editor.hpp": "a7e56fc0955ecf21c54d9748a19ad61c2711c54d8890e34cea276d0edb1d8ada",
@@ -38,8 +38,9 @@
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47"
   },
-  "seed_sha256": "f16e0380c8e3acda4d123f1d64872a0136714574018ffd13889d2d61176c1688",
-  "translator_notes_sha256": "daa6230a049c8ef43a022a4086a56f04f48969550299e4a7f67e2af62f1ef72d",
+  "seed_sha256": "e9e3d7955a3fb640581c02d47fae53d1efd801350da019d91b0ea40c27e787f6",
+  "translator_notes_sha256": "6216767f12f3b4801cc3c8bbc7273ccff973738ee33915779de9407d1644d950",
+  "reviewed_words_sha256": "f27f25569669ec85d2e4d9f8a1ca7ca153fcaca7c7852b76c0f7075a321eb72b",
   "tools": {
     "lupdate": "lupdate version 6.10.2",
     "lrelease": "lrelease version 6.10.2"
@@ -1498,6 +1499,114 @@
       false
     ],
     [
+      "StandardActions",
+      "OK",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Yes",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "No",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Yes to All",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "No to All",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Open",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Save",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Save All",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Close",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Cancel",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Discard",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Apply",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Reset",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Restore Defaults",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Retry",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Abort",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Ignore",
+      "",
+      false
+    ],
+    [
+      "StandardActions",
+      "Help",
+      "",
+      false
+    ],
+    [
       "StudioWindow",
       "SoundCurrent DAW",
       "",
@@ -2381,13 +2490,7 @@
     ],
     [
       "StudioWindow",
-      "Output: %1 dBFS",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "Output: −∞ dBFS",
+      "Output: %1",
       "",
       false
     ],
@@ -2681,13 +2784,7 @@
     ],
     [
       "StudioWindow",
-      "%1: %2 dBFS",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "%1: −∞ dBFS",
+      "%1: %2",
       "",
       false
     ],

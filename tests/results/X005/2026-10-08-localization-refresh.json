@@ -1,0 +1,1011 @@
+{
+  "schema": 1,
+  "sourceBase": "5bed3ef0876137514cb3e657e04b7b0ead8df2cd",
+  "scope": "Reviewed desktop localization/editor refresh; no native-language promotion or current native-audio replay",
+  "archive": {
+    "name": "2026-10-08-localization-refresh.zip",
+    "bytes": 34023,
+    "sha256": "4475ab9829277755f2f4a1dd543a36bd27fcbf31b057f9b28bf7b73f03507c12"
+  },
+  "payloadManifest": [
+    {
+      "path": "control/locale-gui-v12-dispatch.log",
+      "bytes": 967,
+      "sha256": "86c8fbd81de2a38b47957dc2747aac90d8b281d739de5bb0c4c04c0e5727e058"
+    },
+    {
+      "path": "control/locale-gui-v13-dispatch.log",
+      "bytes": 967,
+      "sha256": "86c8fbd81de2a38b47957dc2747aac90d8b281d739de5bb0c4c04c0e5727e058"
+    },
+    {
+      "path": "control/locale-refresh-v12-build.log",
+      "bytes": 421442,
+      "sha256": "dec8b1b0b4b28054d81fcf809538a1ffe6f8851b5f4384506809dae2b0d0af04"
+    },
+    {
+      "path": "control/locale-refresh-v12-receipt.json",
+      "bytes": 28991,
+      "sha256": "b4123f0f4e8b6d8dd6381015b3f18338fc15793e4f18bf618bbf26d1f9888f8a"
+    },
+    {
+      "path": "control/snapshot-integrity.json",
+      "bytes": 313,
+      "sha256": "415ca4b7612f6545ca9537470d1e1ca95bdf58034d74a5374355acf1639c4118"
+    },
+    {
+      "path": "control/source-audit.json",
+      "bytes": 31885,
+      "sha256": "7f0ad7640963fa8f4b12ab01dc14674e90c4bae474f127e9dbe900ffc91ee8e3"
+    },
+    {
+      "path": "linux/LastTest.log",
+      "bytes": 10645,
+      "sha256": "3a77497571120735bdb501dc0ad88011eaa749bfa649377c4a7a6cdaae459c34"
+    },
+    {
+      "path": "native/locale-gui-v12/result.json",
+      "bytes": 2523,
+      "sha256": "6e2c64f2b48cf7e514aa004906f701307d7ff8ac441aafea2c6be32da639fcec"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-controller-tests.stdout",
+      "bytes": 97,
+      "sha256": "c36b0cc9526156e76166b78bf375a1a07a8fac7f71c2a186234d6ccd4da39e4c"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-equipment-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-equipment-tests.stdout",
+      "bytes": 63,
+      "sha256": "8437a0bf5cb5df9288c7039b2e8b967c576459abe7498650ac9334d31641eedb"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-export-ui-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-export-ui-tests.stdout",
+      "bytes": 39,
+      "sha256": "e3c64ca1f88e47426b1729ef75f0fba0f62ec9c324f5d6fd0e01a38cc754ecd6"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-localization-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-localization-tests.stdout",
+      "bytes": 358,
+      "sha256": "5e0981fcba2e73e31ffec731841021ad94af2062c4710b542575584cb9dc7f97"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-playback-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-playback-controller-tests.stdout",
+      "bytes": 155,
+      "sha256": "af70f9a3d2332c8bb64dc0fe80490a73b6fc5ded7c785f12aeef0e0801c489c0"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-recording-controller-tests.stderr",
+      "bytes": 33,
+      "sha256": "75ed14a2a735899f2e031d5ed50802c31630444e79216007056fa7ff0df5fa97"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-recording-controller-tests.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-wasapi-ports-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-wasapi-ports-tests.stdout",
+      "bytes": 34,
+      "sha256": "d5d7b77c63fb7598c4612ebd87b3cede8d570dd14104752a38c030478b1a8326"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-wasapi-sta-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v12/sc-wasapi-sta-tests.stdout",
+      "bytes": 84,
+      "sha256": "ef9e9c71dca39a29321b2c871dc38c6008b271c76f69fd06758fa7b99ae35cbf"
+    },
+    {
+      "path": "native/locale-gui-v13/result.json",
+      "bytes": 1374,
+      "sha256": "afba7ace4cb43481579b2b0c16b1e843b0da3aa04fb7e2658295c26e6b04fea6"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-equipment-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-equipment-tests.stdout",
+      "bytes": 63,
+      "sha256": "8437a0bf5cb5df9288c7039b2e8b967c576459abe7498650ac9334d31641eedb"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-export-ui-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-export-ui-tests.stdout",
+      "bytes": 39,
+      "sha256": "a68eecb74a0ff21102a998675f5ed13424291d52b67043165ebcaf8ada035f50"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-localization-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-localization-tests.stdout",
+      "bytes": 358,
+      "sha256": "6ff4591241703af165b1ec2900f410bc4613ba724d037d120afe412d423c17a6"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-recording-controller-tests.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/locale-gui-v13/sc-recording-controller-tests.stdout",
+      "bytes": 149,
+      "sha256": "d6b0194e37014c7ec13af7e766a8dc3214275d04282aaee2508c3d03abe82ed6"
+    }
+  ],
+  "compiledInputs": [
+    {
+      "name": "CMakeLists.txt",
+      "sha256": "c1fe30889fca766d59d04030629e5aaa2cf6ec88806b65dea792cacf96298aab"
+    },
+    {
+      "name": "ui/accelerating_spinbox.hpp",
+      "sha256": "cea53fc8be41c2adee53101c6492e22b34d1dbba8fa8dff6aee9cb651bd9265c"
+    },
+    {
+      "name": "ui/equipment_curve.cpp",
+      "sha256": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035"
+    },
+    {
+      "name": "ui/equipment_curve.hpp",
+      "sha256": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e"
+    },
+    {
+      "name": "ui/equipment_profiles.cpp",
+      "sha256": "4f8d1dfae571a43a2726591bf28d0323496e4e47fde88c9f463b4ff277a49b9a"
+    },
+    {
+      "name": "ui/equipment_profiles.hpp",
+      "sha256": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221"
+    },
+    {
+      "name": "ui/equipment_resources.qrc",
+      "sha256": "c57668900ccb299af3d210bc32a4be2728e2b51184ff180d3fb6d6214dc4f5b4"
+    },
+    {
+      "name": "ui/export_controller.cpp",
+      "sha256": "4fa071da04f93555333df4b9f7b740f015d81e4b3b6f151167d49da5605bb61f"
+    },
+    {
+      "name": "ui/export_controller.hpp",
+      "sha256": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e"
+    },
+    {
+      "name": "ui/export_dialog.cpp",
+      "sha256": "8b22072ebba18649bd2bac9a8d37de70589eec8fca5c03bb099a2a2714b2448b"
+    },
+    {
+      "name": "ui/export_dialog.hpp",
+      "sha256": "1e9f5e4a14323fb7db691491b3c26a78b760c29ec9ed4b7f2e7d9254faa61bfa"
+    },
+    {
+      "name": "ui/gui_resources.hpp",
+      "sha256": "6f1e4b9a8988bb79969c45eeaecda226d3319c3adc0b44938fa287c967f707c4"
+    },
+    {
+      "name": "ui/history_resources_dialog.cpp",
+      "sha256": "b8e4a2b0303b5bededad4b5b85a46307a3c0cf869da437b025f50c1f088dcdfb"
+    },
+    {
+      "name": "ui/history_resources_dialog.hpp",
+      "sha256": "f9ce0174b9f6a392b2a8f9af22d2f71d9eb11b4dd4c9eaad392bc62e2e85fad8"
+    },
+    {
+      "name": "ui/localization.cpp",
+      "sha256": "e59f0044626ace22550da5d3a2b3b5105582d8754f2c548ae3434c6e46707267"
+    },
+    {
+      "name": "ui/localization.hpp",
+      "sha256": "7705fee7f643fe48a9b9cc259d79c4d96253f33b2193829bd46f7786dbdba483"
+    },
+    {
+      "name": "ui/main.cpp",
+      "sha256": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088"
+    },
+    {
+      "name": "ui/manual_recording_controller.cpp",
+      "sha256": "d7007294c7b9cbdb630d02662773f50df7b3eebbc977a6ec8322dd84764e80ee"
+    },
+    {
+      "name": "ui/manual_recording_controller.hpp",
+      "sha256": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2"
+    },
+    {
+      "name": "ui/manual_recording_panel.cpp",
+      "sha256": "b7db2392cff9e7c7f03c7bd39909ed860966d2ccd2a1b0416aa50a303de125f2"
+    },
+    {
+      "name": "ui/manual_recording_panel.hpp",
+      "sha256": "eaf6ca2ab3c499813f4f6d929f61cbfe94f9c25d6c7ef6977f914db056c5908b"
+    },
+    {
+      "name": "ui/master_dialog.hpp",
+      "sha256": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254"
+    },
+    {
+      "name": "ui/playback_controller.cpp",
+      "sha256": "822d66c9d0473fd7c837161d7f97ed49afe0f6d6dcdc4c6f3223e960bfac2b87"
+    },
+    {
+      "name": "ui/playback_controller.hpp",
+      "sha256": "1e7c28cf39f69f38fcd8c21485ecb5233e4fc684a50b226f16101abb6322781e"
+    },
+    {
+      "name": "ui/project_controller.cpp",
+      "sha256": "08286812231a78a86cb4f4e99b50fc80c6d662fdb03d8c03aed310555b9df71d"
+    },
+    {
+      "name": "ui/project_controller.hpp",
+      "sha256": "fcac0f627feccd35ba4d56c7f21ab02938e296d0306baf66d6095d9c4bc3a71f"
+    },
+    {
+      "name": "ui/recording_controller.cpp",
+      "sha256": "1b352cf625fd226040e8e9ad7da661bbd28127350af2a26f851dcaff546dff6e"
+    },
+    {
+      "name": "ui/recording_controller.hpp",
+      "sha256": "59c6024d7f8caaf83a2070ce634f529013ab6a71c845c1a162e5c935ce23a147"
+    },
+    {
+      "name": "ui/recovery_controller.cpp",
+      "sha256": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac"
+    },
+    {
+      "name": "ui/recovery_controller.hpp",
+      "sha256": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c"
+    },
+    {
+      "name": "ui/session_list_model.cpp",
+      "sha256": "4a4f0a394a9bbff8d5a6c8a37c0d5103e2dde6bedc9f67dd30a3af6f9eea8b09"
+    },
+    {
+      "name": "ui/session_list_model.hpp",
+      "sha256": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa"
+    },
+    {
+      "name": "ui/studio_window.cpp",
+      "sha256": "8001a057b33da33fc186531aaea6ea18c112b3bd6e4b7452c21841143fde1e1c"
+    },
+    {
+      "name": "ui/studio_window.hpp",
+      "sha256": "14c62cd62524cb9d7c5460c7743ba077cc2ae3b5b3be76ec2d19f57d5fff6013"
+    },
+    {
+      "name": "ui/timeline_editor.cpp",
+      "sha256": "f9f3ab72ad1cf57854ac51dfd60f749eef92e45af1f956e124ac88e81a9dc5ec"
+    },
+    {
+      "name": "ui/timeline_editor.hpp",
+      "sha256": "a7e56fc0955ecf21c54d9748a19ad61c2711c54d8890e34cea276d0edb1d8ada"
+    },
+    {
+      "name": "ui/timeline_view.cpp",
+      "sha256": "c9ffafee0c4a132c9a2ac41a11ed3cef86fd451b2eba8940817d71e9b26b27e1"
+    },
+    {
+      "name": "ui/timeline_view.hpp",
+      "sha256": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3"
+    },
+    {
+      "name": "ui/track_view.hpp",
+      "sha256": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47"
+    },
+    {
+      "name": "include/soundcurrent/audio_bridge.hpp",
+      "sha256": "7cf3015eb18e8617e013e0343691f499e111a68e0a75be133e2ba1f6769d86ee"
+    },
+    {
+      "name": "include/soundcurrent/audio_port.hpp",
+      "sha256": "fe321daa7a60a24278577c9ce52dda8b0e142b9a23fd40c683e610ee70fbcc1d"
+    },
+    {
+      "name": "include/soundcurrent/capture.hpp",
+      "sha256": "73399adea28727bb2873f2407acee00e6bff08bc8062b6b3791556d5c299d589"
+    },
+    {
+      "name": "include/soundcurrent/duplex_bridge.hpp",
+      "sha256": "9ec10c1ca1bf17b3b40a0eb361b909160fd344a4d248fdd43294a81e3c2c34b5"
+    },
+    {
+      "name": "include/soundcurrent/duplex_recording.hpp",
+      "sha256": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413"
+    },
+    {
+      "name": "include/soundcurrent/eq.hpp",
+      "sha256": "a104ad97e9a694af075e3417627aa8a5bee5b6e8156e9d6ec233e7b22ea8de38"
+    },
+    {
+      "name": "include/soundcurrent/export.hpp",
+      "sha256": "d90926709f24d34781333d9417aa269fe61516190e4e1b67add689a68f53b7eb"
+    },
+    {
+      "name": "include/soundcurrent/manual_punch.hpp",
+      "sha256": "3d1768ee56ddc99281eff06a16ebcfe6e94090a856bfb1f07233ef824cebce9a"
+    },
+    {
+      "name": "include/soundcurrent/manual_recording.hpp",
+      "sha256": "ef6d775d39f9a2c97ea42e05b3ad7df772ca5850a12e7dac793734702631f941"
+    },
+    {
+      "name": "include/soundcurrent/media_cache.hpp",
+      "sha256": "89644bd01dbe79281913df840fac5e5ffb2204b1e400243a37949467bf207360"
+    },
+    {
+      "name": "include/soundcurrent/mix.hpp",
+      "sha256": "b2749045f9042e7e0a6dac79e16fc60a77f3f8b0fcf77496880655877c906db3"
+    },
+    {
+      "name": "include/soundcurrent/mix_playback.hpp",
+      "sha256": "957fd28fc72c1d3aa0f5f28114b28c6729c4edf5200335555376f763793fdc3e"
+    },
+    {
+      "name": "include/soundcurrent/mix_reader.hpp",
+      "sha256": "28b13c16a49aff713eb8b1f5b6352718ada0b8310813b70dc1ec0ae6bff36ca9"
+    },
+    {
+      "name": "include/soundcurrent/pipewire_duplex_recording.hpp",
+      "sha256": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb"
+    },
+    {
+      "name": "include/soundcurrent/pipewire_filter.hpp",
+      "sha256": "724a3f4e648d90e632b891ec0678b9c7c3e7a3605f01765389a16b0dffb0701b"
+    },
+    {
+      "name": "include/soundcurrent/pipewire_manual_recording.hpp",
+      "sha256": "f082797966659e6e71dc3064c43d151200dda304d649fea7fa2e201df1995fe8"
+    },
+    {
+      "name": "include/soundcurrent/pipewire_playback.hpp",
+      "sha256": "5351a52b17c97b78edff712ad979c125cba453c84c0a91bdd08be449cf50a2a8"
+    },
+    {
+      "name": "include/soundcurrent/pipewire_recording.hpp",
+      "sha256": "5d1f77487b804aa8536e1180b4c96bb2080ef6f9388d6529704eabe21b88f716"
+    },
+    {
+      "name": "include/soundcurrent/playback.hpp",
+      "sha256": "e98ef42f61a6cb08fbb1e93b79783160b216ad7e8b7b8cb00a9c0a093ba8cfb9"
+    },
+    {
+      "name": "include/soundcurrent/playback_bridge.hpp",
+      "sha256": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910"
+    },
+    {
+      "name": "include/soundcurrent/playback_reader.hpp",
+      "sha256": "19321fe2bfaf3aa5d5ff5904f0efadb1827ef42c2242e79e14dcf7434b7796e5"
+    },
+    {
+      "name": "include/soundcurrent/project_store.hpp",
+      "sha256": "c8fe26ca494699a57c2baefeda853ebc8b2ab68476742287df323e2298d5648e"
+    },
+    {
+      "name": "include/soundcurrent/recording.hpp",
+      "sha256": "0e795307f0028fa60088bfed870f5cfbf2dc9b440c2fba95b30bc3f06405dab8"
+    },
+    {
+      "name": "include/soundcurrent/resource_ledger.hpp",
+      "sha256": "9225bcc34e6c2d6bcd362840837ee7ac9b2bce3c31d7d72a230257479d015b17"
+    },
+    {
+      "name": "include/soundcurrent/routing.hpp",
+      "sha256": "66a68a0df135363e242510a9b9761f4cc02a3d9969757750a8ef80cb50c2293d"
+    },
+    {
+      "name": "include/soundcurrent/rt_object_exchange.hpp",
+      "sha256": "eda689a08bdaf92047d42881770d5ae5dc4b54b43e8066f2ebe7d6edf98ebb41"
+    },
+    {
+      "name": "include/soundcurrent/session.hpp",
+      "sha256": "5e53fede4ef6b4218284edb37e1e3006c80889eb1395360a895cb6e89d8d96c4"
+    },
+    {
+      "name": "include/soundcurrent/spsc_queue.hpp",
+      "sha256": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd"
+    },
+    {
+      "name": "include/soundcurrent/wasapi_capture.hpp",
+      "sha256": "543fb7e2df6965e5bcf5a31051ceab801f6007ff889ccb006e172ba049020d0c"
+    },
+    {
+      "name": "include/soundcurrent/wasapi_input.hpp",
+      "sha256": "8634859fbbcd2f1316aea75943833f370aeb7ddcde18878bfacf5c84b24fc77a"
+    },
+    {
+      "name": "include/soundcurrent/wasapi_output.hpp",
+      "sha256": "51c3bd53c81c5b6337259adbfe1de0bb5f2a368de669fe2cbefd800ff4d8ad96"
+    },
+    {
+      "name": "include/soundcurrent/wasapi_playback.hpp",
+      "sha256": "3539a6848724fbcb9f7476c205ae467485f47d8ec4e3a65e236b19fc6100911f"
+    },
+    {
+      "name": "include/soundcurrent/wasapi_ports.hpp",
+      "sha256": "e58f92568cb3ce9044d9f4223be7cedc7fc639a93c2455f09af9324876c2853f"
+    },
+    {
+      "name": "include/soundcurrent/wasapi_recording.hpp",
+      "sha256": "b26f1e13da97e6e6b81880fc261428293e5190a18e86d96fd07c7c6958ca8a7a"
+    },
+    {
+      "name": "include/soundcurrent/wasapi_render.hpp",
+      "sha256": "285412588a5ff410b17523066eca70864932e260d6a212dba688b63e2efbc13f"
+    },
+    {
+      "name": "src/audio_bridge.cpp",
+      "sha256": "49d0c60457420848ead7ee4dd198b0935378797057c8d0395c346393be2150cb"
+    },
+    {
+      "name": "src/capture.cpp",
+      "sha256": "286672383a769727390ae7b75a7de53f084ae4dd2a3262191247755b840f79a0"
+    },
+    {
+      "name": "src/duplex_bridge.cpp",
+      "sha256": "743f3e395b4e31928c7942281b2c08b404d9095a04d2aaf8716bba7de9ff6286"
+    },
+    {
+      "name": "src/duplex_recording.cpp",
+      "sha256": "1513c84c026debca033ebe0a88e3b99c11fdd67ad72db46bf235c376c17ae407"
+    },
+    {
+      "name": "src/eq.cpp",
+      "sha256": "22639eca5f4c588041486eee27b6bc315ccdaa2f6b649d640c5fbd19c854a201"
+    },
+    {
+      "name": "src/eq_coefficients.cpp",
+      "sha256": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578"
+    },
+    {
+      "name": "src/export.cpp",
+      "sha256": "b3d7c79838682af89bea3615e0269ecaeddf17eb7288c035f281571b72eda03e"
+    },
+    {
+      "name": "src/manual_punch.cpp",
+      "sha256": "2a0dbdc8e0c520f9764b702a142b98671aa8d03b34d0d1f5c81b70f659927d27"
+    },
+    {
+      "name": "src/manual_recording.cpp",
+      "sha256": "3de2bc28cb213026aff1c5dc62f7fb875ede7642518335273953f6872d8d6db4"
+    },
+    {
+      "name": "src/media_cache.cpp",
+      "sha256": "8dbddc5ab136ed426f6df4553ecc4630810bfdf115c60ff98de2cac7b7e12e75"
+    },
+    {
+      "name": "src/media_io.cpp",
+      "sha256": "5368120ff436796fdcc4daedf2d83458aa24bef2253f76f865ccb43568ba5568"
+    },
+    {
+      "name": "src/media_io.hpp",
+      "sha256": "ef4660bab281c183b01e8283cc8199ed408094d50eb44fb3cb0eb9967e4ff153"
+    },
+    {
+      "name": "src/mix.cpp",
+      "sha256": "0d1cf5e2a7613c95ef036cb95b68c86746c4771742b1b5dbd39376a87d7fb12e"
+    },
+    {
+      "name": "src/mix_playback.cpp",
+      "sha256": "d524eed48e531df100dad575ec39498407fef0d762bb8a7a2b7b8193d5f903a7"
+    },
+    {
+      "name": "src/mix_reader.cpp",
+      "sha256": "644a15090048d85fdb6bff9719011856faff82df7c83adca8b21a2ad83ed4432"
+    },
+    {
+      "name": "src/mix_run.cpp",
+      "sha256": "6696d37db2f601aab3a1f804ed5fd78b151f1777c9f0afd791c427d4eaa2a173"
+    },
+    {
+      "name": "src/pipewire_buffer.cpp",
+      "sha256": "8a52f7e5ce0c4e65e20acb49362a0c3481fdfc51a03c2d13c8ee76bd78fb7bc8"
+    },
+    {
+      "name": "src/pipewire_buffer.hpp",
+      "sha256": "b4c1d998d158f917acd04f558e95a180f443eb3526c2d87ccb1ba1d3f46a77f1"
+    },
+    {
+      "name": "src/pipewire_duplex_recording.cpp",
+      "sha256": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88"
+    },
+    {
+      "name": "src/pipewire_filter.cpp",
+      "sha256": "a79a1c16dc1e3ab705e6b4e376460c0c6e333162fb5d889ded9d8bf0be18c0c7"
+    },
+    {
+      "name": "src/pipewire_manual_recording.cpp",
+      "sha256": "0263b58aee2ba25171c0e373d85c549bd3e117564bf64771b64343016e772d2f"
+    },
+    {
+      "name": "src/pipewire_playback.cpp",
+      "sha256": "31b54cc7d61f91587eb615e3feac394242b47ccf87a77b20eccdcfc985699ef7"
+    },
+    {
+      "name": "src/pipewire_recording.cpp",
+      "sha256": "47996a685a9b015789b98398bdc97b34273d7c11ebbd27af156c1ba83433c2ad"
+    },
+    {
+      "name": "src/playback.cpp",
+      "sha256": "8855074a6c7cdd6ae806ecf26101e13f7767972c5e725fa38adf53e2371cab09"
+    },
+    {
+      "name": "src/playback_bridge.cpp",
+      "sha256": "1092567581e8d7482918d6a89f41449cc1bf66366079e2c0290635f1d1848677"
+    },
+    {
+      "name": "src/playback_reader.cpp",
+      "sha256": "330fb6e546091cbf9310cbca59c896e86400e3cd4f38be4ac711ff0aeaa5ee56"
+    },
+    {
+      "name": "src/playback_run.cpp",
+      "sha256": "b87264b41e46be328cda79ea6358277715ee9be0bb2ebf19081591821bb8dcad"
+    },
+    {
+      "name": "src/project_store.cpp",
+      "sha256": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15"
+    },
+    {
+      "name": "src/recording.cpp",
+      "sha256": "0c4630042b2a74da53c61f8c5e7b2c23e0110ccbb04a135213054ce5dfbc88d0"
+    },
+    {
+      "name": "src/recording_worker.cpp",
+      "sha256": "6997c1dee88f4d88352788e71d20ffc7077aa57e483a34c0fd4c998ee314ddbd"
+    },
+    {
+      "name": "src/resource_ledger.cpp",
+      "sha256": "531458368d17825a5744b1a0f59585ce2c6169041ceae648612f934e6fcb86e7"
+    },
+    {
+      "name": "src/routing.cpp",
+      "sha256": "09b81ca59b08e38cfbd510aaaf88f93bc43485b1f29a17194b557fe352313b0c"
+    },
+    {
+      "name": "src/session.cpp",
+      "sha256": "6ec1f7e8602654d82bec9401ea64906dc417e6709b0f7dc2a9811755827968ef"
+    },
+    {
+      "name": "src/session_edits.cpp",
+      "sha256": "18141c28451fb83052a1a04d8706e869202739439d57045bc10be1e520f4604f"
+    },
+    {
+      "name": "src/wasapi_capture.cpp",
+      "sha256": "a3620b0f204f6066d7c4553f5bad1f0106547ec7cae5e45871e35a5e8208b640"
+    },
+    {
+      "name": "src/wasapi_input.cpp",
+      "sha256": "40096b6db873fce761b259975ae71e84e89d17b90fb7917362916f7558d013c6"
+    },
+    {
+      "name": "src/wasapi_output.cpp",
+      "sha256": "e2dceaf36ef60859e01f27a638997faa14f70b41c2489c69da6d1a55138faac1"
+    },
+    {
+      "name": "src/wasapi_playback.cpp",
+      "sha256": "cdff2dccc85bc82d6b83c21514ca83bfa9fbaa3b023c9fdf49c305c1e1cec632"
+    },
+    {
+      "name": "src/wasapi_ports.cpp",
+      "sha256": "c8a0fa9ffc7686c9ca7383ce7cb81c69d1778ae482f0488085e272dc490d34c4"
+    },
+    {
+      "name": "src/wasapi_recording.cpp",
+      "sha256": "ca78b0437128e35a4304f0609ec77c83eda32e16aa0e28139037134a5fbba8ec"
+    },
+    {
+      "name": "src/wasapi_render.cpp",
+      "sha256": "7f313cedbec4ea1f8703a767d666a08c904811d1d5595d4bd552b39960951dab"
+    },
+    {
+      "name": "src/wasapi_support.hpp",
+      "sha256": "5f3c4d162bcac4c5ae1647ca37706d29daa2e709512d440cacf3de8844cbdd8b"
+    },
+    {
+      "name": "localization/README.md",
+      "sha256": "4d1c18f44498691cc3316f25d2f85d3eb5510ad1a98bdfcfc31179c32bc9f439"
+    },
+    {
+      "name": "localization/catalogs.json",
+      "sha256": "68e37aafecc2c3350da03c24d262d3541cb3a555f3d8b1c3807c955a68ddca64"
+    },
+    {
+      "name": "localization/daw_translations.qrc",
+      "sha256": "f09f19e804db2acbf0e627bf34f471ab11da0a841c1d265100d268ef53daab8e"
+    },
+    {
+      "name": "localization/language-register.json",
+      "sha256": "91b11714f89a7a43302ad3b057762ba1741a4de1e67819ea173133653f29b9a9"
+    },
+    {
+      "name": "localization/reviewed-words.json",
+      "sha256": "f27f25569669ec85d2e4d9f8a1ca7ca153fcaca7c7852b76c0f7075a321eb72b"
+    },
+    {
+      "name": "localization/seed-translations.json",
+      "sha256": "e9e3d7955a3fb640581c02d47fae53d1efd801350da019d91b0ea40c27e787f6"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ar.qm",
+      "sha256": "fb7ab9fa73e4999083ea180426485beda221ddb3ad5a1b5d23f60109b819611a"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ar.ts",
+      "sha256": "4bcadbdde9c13813edc5f0f6841d76d228082b633f2f6760e57b384e1f64dea5"
+    },
+    {
+      "name": "localization/soundcurrent_daw_cs.qm",
+      "sha256": "4b39079cbaa9ffd5e1597e8b6cd1aa1c870b3b1f4a97ee89c2acb2d74fd8b425"
+    },
+    {
+      "name": "localization/soundcurrent_daw_cs.ts",
+      "sha256": "bb30393a1fa31d4172d15e2eadb924bfb5a798bd6b82053b3b417321b8f05c85"
+    },
+    {
+      "name": "localization/soundcurrent_daw_da.qm",
+      "sha256": "2cf1f3bfbe06f764d9e2de3c55011fc4f83dcf2cdf0a5c1afdf12bbba421c1bc"
+    },
+    {
+      "name": "localization/soundcurrent_daw_da.ts",
+      "sha256": "d400d5467cb7b10d423a7f6039d585157a781e3c89588e567ed84c38e5d93733"
+    },
+    {
+      "name": "localization/soundcurrent_daw_de.qm",
+      "sha256": "f1f2ecbd2291f1bb5b2304b1d51f3caf981766d3563f37e673962abfa109f7e2"
+    },
+    {
+      "name": "localization/soundcurrent_daw_de.ts",
+      "sha256": "71ada74bbe57daf70c37c8f2e79370b3b26d398cfacb81343af482b6c4d9c775"
+    },
+    {
+      "name": "localization/soundcurrent_daw_el.qm",
+      "sha256": "6cea4f5d6d8584f3aa81ebadb0634f3c79f4f33e78a71b12c38c7222df96ac9b"
+    },
+    {
+      "name": "localization/soundcurrent_daw_el.ts",
+      "sha256": "4d947f790ecc90d107b984ba9d9b74946fdeb8f5824bd8e575d7915d5b94f722"
+    },
+    {
+      "name": "localization/soundcurrent_daw_en.qm",
+      "sha256": "6871544e58d9d84d6c51c58c4e65da4a51856f373e8cbd9012b8acd1cadf3005"
+    },
+    {
+      "name": "localization/soundcurrent_daw_en.ts",
+      "sha256": "ea5d4695625c76860c61b576549cf1c4195c4ba25ff3b75088d48ee8a9aacb2a"
+    },
+    {
+      "name": "localization/soundcurrent_daw_es.qm",
+      "sha256": "a6f2d7293ad9be342d84f8453b80d3b50138d19e5fe7708df61fab689156ecdf"
+    },
+    {
+      "name": "localization/soundcurrent_daw_es.ts",
+      "sha256": "9cfe878a9c712357c32cc6441866d0b89a67f3c547c5d6c236c13e0bca188bc1"
+    },
+    {
+      "name": "localization/soundcurrent_daw_fa.qm",
+      "sha256": "5f359b8f62c0c9821198d50639f581ea899b5036178c401b909b959d456b1c37"
+    },
+    {
+      "name": "localization/soundcurrent_daw_fa.ts",
+      "sha256": "4f9c546ba960637018fe8d96bda2bcd55cd17a7c8f950127afee9c4636649e37"
+    },
+    {
+      "name": "localization/soundcurrent_daw_fi.qm",
+      "sha256": "591b9b184c40712a47f9a6989452602a675bb551da150bc65ad7233efaea2e9c"
+    },
+    {
+      "name": "localization/soundcurrent_daw_fi.ts",
+      "sha256": "62a86e6f319d6a86cca49b2b54f027e1cbd474707ded46715da306b2c8ddb7b3"
+    },
+    {
+      "name": "localization/soundcurrent_daw_fr.qm",
+      "sha256": "2330df1c096b8fb5238fe0ac9a903594867c1e6fa43a4a83b933df2a45ea28a3"
+    },
+    {
+      "name": "localization/soundcurrent_daw_fr.ts",
+      "sha256": "91930d683d2addd3fd3744636e62997944d2d6c3f5754ab3a891ebb942366870"
+    },
+    {
+      "name": "localization/soundcurrent_daw_he.qm",
+      "sha256": "38f9446e54ef2d38806f56d10dfc888417a5d5a9783a0a01c6ea09da53a1cf9b"
+    },
+    {
+      "name": "localization/soundcurrent_daw_he.ts",
+      "sha256": "580d2039079076ffb968a52a06cd2876de1b9ba2765ca82d7b833a9a90ec65d9"
+    },
+    {
+      "name": "localization/soundcurrent_daw_hi.qm",
+      "sha256": "a9d9f529603e4d47015f93bf67ebf261b5f8bec3c0e3d920ed67d9c204091f6e"
+    },
+    {
+      "name": "localization/soundcurrent_daw_hi.ts",
+      "sha256": "aa0f022866f18b729f67fc5e8df7de5b3916cc797577b5a1a7684b31b2c69191"
+    },
+    {
+      "name": "localization/soundcurrent_daw_hu.qm",
+      "sha256": "fe86b68047de4ac7c66e0f1bcbdfe65bd2494f5ecb61566525a93142ca62c9e5"
+    },
+    {
+      "name": "localization/soundcurrent_daw_hu.ts",
+      "sha256": "a62dec5768ad667ba6b9ad06b112a32b10e2d24c1f60ea1d5f3462283df88c92"
+    },
+    {
+      "name": "localization/soundcurrent_daw_id.qm",
+      "sha256": "87ea2a41f7c39f68f6f1312c68a0ec4fe4b6e357fe4c0d91a956eb2fafc326b1"
+    },
+    {
+      "name": "localization/soundcurrent_daw_id.ts",
+      "sha256": "ebb3391ef0d640d1bd580186474a98f5f360eeb50be299f3a3839a856ec98dd6"
+    },
+    {
+      "name": "localization/soundcurrent_daw_it.qm",
+      "sha256": "0d414be558c94e240dec638feb5dbf1040a73f0932baea8157e94fc3e46753fa"
+    },
+    {
+      "name": "localization/soundcurrent_daw_it.ts",
+      "sha256": "ef9e9ae2f919c07f38821910304b297270ae369bafbc991f05a01bc19914c4a8"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ja.qm",
+      "sha256": "3b11e1351fcaaad3569626f6e433115db9fda8841edc234ce574eb3e822a5315"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ja.ts",
+      "sha256": "d60d3396c932577f8087464fcb7bc3f613497c491e745816c3bc69f32601c771"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ko.qm",
+      "sha256": "0de5e1e0cc824f842325decf324708230cc8a1809c0059220783bbb62a4be494"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ko.ts",
+      "sha256": "442aede9af82acfb7b8b128983f5ab61ea4e087acaaf1c5d4a6d6fa2b755933f"
+    },
+    {
+      "name": "localization/soundcurrent_daw_nb.qm",
+      "sha256": "c61c9a59c3cb0311fcf1eda0ff79b9cef14c883e427e8e682f13493fee9e6b43"
+    },
+    {
+      "name": "localization/soundcurrent_daw_nb.ts",
+      "sha256": "ea5843873c8cdef4136141608ccac867e59c9b8fcd3e0dae45305a0e3798635b"
+    },
+    {
+      "name": "localization/soundcurrent_daw_nl.qm",
+      "sha256": "f670b368112cfbd90b9fcfdaa4d02d5e5ac401915a027a95c824282f0e7f0ae7"
+    },
+    {
+      "name": "localization/soundcurrent_daw_nl.ts",
+      "sha256": "3c49a09eade7f9fc9813856629cbedd61730997b566f05c51deab32b7c9ac1dc"
+    },
+    {
+      "name": "localization/soundcurrent_daw_nn.qm",
+      "sha256": "08720457b961794056ff28c18b8e50676275708f38df8c1b94bcd93c84083baf"
+    },
+    {
+      "name": "localization/soundcurrent_daw_nn.ts",
+      "sha256": "8e7fd34e9e6eb05d9f0233e05a8a71a6b9d1aa5007c047fbb606527278fe8cca"
+    },
+    {
+      "name": "localization/soundcurrent_daw_pl.qm",
+      "sha256": "5bbd212699962b36e1509dc300d4d7635e8bed1de56ef30d3fb498b013723548"
+    },
+    {
+      "name": "localization/soundcurrent_daw_pl.ts",
+      "sha256": "542a248a31d20eb23dbf94057c13c302ed1dda7c715fcb458261d3ba542ad544"
+    },
+    {
+      "name": "localization/soundcurrent_daw_pt-BR.qm",
+      "sha256": "09187e2d6a247423a3e9c77c7de332dca11097279456a2613c498cd6dc9f4802"
+    },
+    {
+      "name": "localization/soundcurrent_daw_pt-BR.ts",
+      "sha256": "1415f32be8dfc7407a140a290bda14dc38b11bfb879eb174134e1ebf1f97251f"
+    },
+    {
+      "name": "localization/soundcurrent_daw_pt-PT.qm",
+      "sha256": "5042f0f1b30d8b03cdc5991a81bd829a2e07e777a8207e13589ba490f6659508"
+    },
+    {
+      "name": "localization/soundcurrent_daw_pt-PT.ts",
+      "sha256": "b35685df86203326f57637ad5c2ae09c24177740ca8f196558ef466327f458b5"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ro.qm",
+      "sha256": "262d56968d5c06292e761de60d8b181b716eb345b2d4a3c81eaf267ea3ed95b3"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ro.ts",
+      "sha256": "2ca54659a4443d4d86c1eb605ac5c12c46cffc1814e06e02f56096d21bec8e2a"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ru.qm",
+      "sha256": "1b89940f2ad99f1c39069755867afd10ca13eb75ab86ddf294668275f293892e"
+    },
+    {
+      "name": "localization/soundcurrent_daw_ru.ts",
+      "sha256": "cbef7b675d3c6e49198bfed1bf691f582db493b3764bd3f7ea583359f603f249"
+    },
+    {
+      "name": "localization/soundcurrent_daw_sk.qm",
+      "sha256": "d33cbdeb359af2c9432c7fbb567efa379e2102a1b71b30c5f688547530b2cfa7"
+    },
+    {
+      "name": "localization/soundcurrent_daw_sk.ts",
+      "sha256": "7aa8f130a5123c17717f8e7c6f70f8865cb7098d9cba456a92f5d5612f517777"
+    },
+    {
+      "name": "localization/soundcurrent_daw_sv.qm",
+      "sha256": "67a7cd0d567ad67590e06eb71eef005bcf38058e3d4b96c1ccfad2d982bbba7b"
+    },
+    {
+      "name": "localization/soundcurrent_daw_sv.ts",
+      "sha256": "5afe0b21f9767be201c0e8782ae66395a0b1f538316f46331c0cd90aa65df749"
+    },
+    {
+      "name": "localization/soundcurrent_daw_sw.qm",
+      "sha256": "c710c0657c038a29fedabfa85c3448e4d335a4fa189c101d7c42997da39c6543"
+    },
+    {
+      "name": "localization/soundcurrent_daw_sw.ts",
+      "sha256": "962111f9713c6842237c609d2540adedb18aa9107c345382834c56e29d5bf4cf"
+    },
+    {
+      "name": "localization/soundcurrent_daw_th.qm",
+      "sha256": "ca67e6f4929687f079bd352910a375813130a3f28695a23e7cd17a424435c098"
+    },
+    {
+      "name": "localization/soundcurrent_daw_th.ts",
+      "sha256": "bb992c4598b3c7a1d2b5d604b1fe00b314e071b0aba7845aa3a2e95044d3bac4"
+    },
+    {
+      "name": "localization/soundcurrent_daw_tr.qm",
+      "sha256": "8f8804407f1dfee1ace692fdb158f81cce16c6944d6c7002b7f0d67bad65f43b"
+    },
+    {
+      "name": "localization/soundcurrent_daw_tr.ts",
+      "sha256": "563e551e5b92ecf1219377d4d52e83d4c69c211bea5f19fd35050a39cbd312ac"
+    },
+    {
+      "name": "localization/soundcurrent_daw_uk.qm",
+      "sha256": "aad95dfec890523c5268188bcf6c49a9793af3b4d0d61c0ee05e6783823e7f3c"
+    },
+    {
+      "name": "localization/soundcurrent_daw_uk.ts",
+      "sha256": "a92e49aee7ee029206e74ce6c0b595c9860fc5af22c60658b6c5bb3a1ed30655"
+    },
+    {
+      "name": "localization/soundcurrent_daw_vi.qm",
+      "sha256": "a90552efc189f21334f0818104d931895d49c67a7e941a4063f7152ae30a4fb5"
+    },
+    {
+      "name": "localization/soundcurrent_daw_vi.ts",
+      "sha256": "3427fd2a3657f3d630d23d03191bab487c08ccbbe1f1e8c0bd3f987cfc041494"
+    },
+    {
+      "name": "localization/soundcurrent_daw_zh-Hans.qm",
+      "sha256": "8d8b7ef43c68ad3d9ef15b9bd9c1d1f1461b18bf649d209c40d7f6046755d46e"
+    },
+    {
+      "name": "localization/soundcurrent_daw_zh-Hans.ts",
+      "sha256": "0a66d5b4235d6ae13d08e51c8643d1fc2f5cfb7ee2f8e4a3b043f38babe83152"
+    },
+    {
+      "name": "localization/soundcurrent_daw_zh-Hant.qm",
+      "sha256": "ccd5ee9c115bcc482fa583fd746291f409022513223b6706b77388c18097d0c4"
+    },
+    {
+      "name": "localization/soundcurrent_daw_zh-Hant.ts",
+      "sha256": "783c32ef0aaa9e9a1e408559b60b3cba0be2f990d7442ca2fed73c61ee537452"
+    },
+    {
+      "name": "localization/source-inventory.json",
+      "sha256": "73d7e5e02afd16e7572a3a70c30858e8458cdb8b4f590da1f925942ee3d8f8c0"
+    },
+    {
+      "name": "localization/translation-context.json",
+      "sha256": "6216767f12f3b4801cc3c8bbc7273ccff973738ee33915779de9407d1644d950"
+    },
+    {
+      "name": "third_party/libsndfile/COPYING",
+      "sha256": "ad01ea5cd2755f6048383c8d54c88459cd6fcb17757c5c8892f8c5ea060f6140"
+    },
+    {
+      "name": "third_party/libsndfile/sndfile.h",
+      "sha256": "911098ea4b66f0c5ad59785b176f2b19f6e657042c15c93791edb53467efd6c0"
+    },
+    {
+      "name": "third_party/manifest.json",
+      "sha256": "a7453ea21aff05debcbfa8683d04cbbf75bf75ddcbb96a64d0006ca2bb22361a"
+    },
+    {
+      "name": "third_party/nlohmann/LICENSE.MIT",
+      "sha256": "46a65cffd1ea955132d95a8dd921640714a8d6b537d2e4e482d31145ae95b603"
+    },
+    {
+      "name": "third_party/nlohmann/json.hpp",
+      "sha256": "aaf127c04cb31c406e5b04a63f1ae89369fccde6d8fa7cdda1ed4f32dfc5de63"
+    },
+    {
+      "name": "tests/localization_tests.cpp",
+      "sha256": "34886247e8edd74a778acf69555240a9275e09040f1e7a0e2a166c79c2f7285c"
+    },
+    {
+      "name": "tests/equipment_tests.cpp",
+      "sha256": "47c0fc29868748b85c5ed2f1ac38e7102e174a74979d97d56e6d9e7053a3a4e1"
+    },
+    {
+      "name": "tests/export_ui_tests.cpp",
+      "sha256": "7d7a32bf079c19e2b935d4d6c5659810e7398eb05dfcfc8d871d13674737a925"
+    }
+  ],
+  "linux": {
+    "focusedCTestGroups": 6,
+    "allPassed": true,
+    "catalogCorruptionsRefused": 13,
+    "realLinguistTranslatorWorkPreserved": true
+  },
+  "windows": {
+    "toolchain": "MSVC 19.44.35228.0, Qt 6.12.0, Release /MD",
+    "platform": "native windows",
+    "session": 1,
+    "firstRun": "7/8 passed; recording-controller timed out at 463; original retained",
+    "rerun": "4/4 passed unchanged, including recording-controller and localization/equipment/export",
+    "recordingTimeoutCauseIsolated": false,
+    "dispatchTimeouts": "55-second dispatcher observed tasks still running; terminal limited-session results collected separately and owned tasks retired",
+    "nativeAudioActivated": false
+  },
+  "coverage": {
+    "catalogs": 34,
+    "sourceKeys": 564,
+    "draftEntriesPerLanguage": 95,
+    "draftEntries": 3135,
+    "nativeReviewed": 0,
+    "fullyUIQualified": 0
+  },
+  "unchangedGates": [
+    "European coverage and independent native review",
+    "Windows installer",
+    "current native-audio workflow",
+    "startup alignment/physical inputs/sustained scheduling",
+    "X005 equipment processing and portable pins",
+    "full frozen F/Q/C/N suite"
+  ]
+}

@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>پاسخ منتشرشده و منحنی‌های اصلاح قابل ویرایش</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>ویرایشگر پروفایل تجهیزات</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>برند</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>خانواده</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>زیرنوع تجهیزات</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>اکتیو / پسیو / نامشخص</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>مدل</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>منبع</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>شرایط</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>نوع</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>فرکانس Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>بهره dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>افزودن فیلتر</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>حذف فیلتر انتخاب‌شده</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>پروفایل تغییرکرده ذخیره شود؟</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>این پروفایل تغییر کرده است. پیش از خروج یک نسخه سفارشی ذخیره شود؟</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>پروفایل از محدودیت 1 MiB فراتر می‌رود.</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>یک پروفایل تجهیزات JSON لازم است. متن پاسخ را با دکمه وارد کردن پاسخ وارد کنید.</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>برند، خانواده و مدل الزامی هستند (حداکثر 120 نویسه برای هر مورد).</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>فراداده پروفایل بیش از حد طولانی است.</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>شرایط اندازه‌گیری الزامی است.</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>پروفایل‌های منتشرشده به منبع اندازه‌گیری HTTPS نیاز دارند.</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>پروفایل‌ها به 1–16 فیلتر اصلاح نیاز دارند.</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>فیلتر نامعتبر است.</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>نوع فیلتر پشتیبانی نمی‌شود.</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>مقادیر فیلتر باید عدد باشند.</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>فیلترها از محدودیت فرکانس، بهره یا Q فراتر می‌روند.</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>پاسخ بیش از 4096 نقطه دارد.</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>نقطه پاسخ نامعتبر است.</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>فرکانس‌های پاسخ باید افزایشی باشند و مقادیر متناهی و در محدوده مجاز باشند.</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>در هر خط داده، فرکانس بر حسب Hz و پاسخ نسبی اندازه‌گیری‌شده بر حسب dB لازم است.</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>داده‌های پاسخ نامعتبر یا نامرتب هستند.</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>پاسخ به 2–4096 نقطه اندازه‌گیری‌شده نیاز دارد.</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>پاسخ اندازه‌گیری‌شده نامعتبر یا نامرتب است.</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>پاسخ محدوده صوتی قابل استفاده ندارد.</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>خواندن کتابخانه پروفایل‌ها ممکن نیست.</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>اندازه کتابخانه پروفایل‌ها بیش از 16 MiB است.</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>کتابخانه پروفایل‌ها نامعتبر است.</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>کتابخانه سفارشی تا 256 پروفایل نگه می‌دارد.</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>اندازه کتابخانه بیش از 16 MiB است.</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>ایجاد پوشه پروفایل ممکن نیست.</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>ذخیره کتابخانه پروفایل‌ها ممکن نیست.</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>تکمیل ذخیره کتابخانه پروفایل‌ها ممکن نیست.</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>منبع تجهیزات موجود نیست.</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>ذخیره پروفایل</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>پروفایل تجهیزات — برند / خانواده / مدل</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>جستجوی برند، خانواده، مدل یا شرایط اندازه‌گیری</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>پروفایل تجهیزات بر اساس برند، خانواده و مدل</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>همه تجهیزات</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>نوع تجهیزات</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>برند تجهیزات</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>خانواده تجهیزات</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>همه برندها</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>همه خانواده‌ها</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>همه زیرنوع‌ها</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>پروفایل</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>وارد کردن JSON</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>وارد کردن متن پاسخ</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>ایجاد پروفایل</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>ویرایش / ذخیره نسخه</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>صدور JSON</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>خواندن پروفایل ممکن نیست یا اندازه فایل بیش از 1 MiB است.</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>وارد کردن</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>خواندن پاسخ ممکن نیست یا اندازه فایل بیش از 1 MiB است.</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>این گزینه پاسخ اندازه‌گیری‌شده را وارد می‌کند، نه بهره‌های اکولایزری که قبلاً برای اصلاح وارونه شده‌اند. نوع تجهیزات را تأیید کنید. SPL مطلق پیش از وارد کردن به نرمال‌سازی نیاز دارد.</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>وارد کردن پاسخ</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>صدور</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>زبان آزمون با متن گسترش‌یافته</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>زبان آزمون راست‌به‌چپ</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>تأیید</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>بله</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>خیر</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>بله به همه</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>خیر به همه</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>باز کردن</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>ذخیره</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>ذخیره همه</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>بستن</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>لغو</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>دور انداختن تغییرات</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>اعمال</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>بازنشانی</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>بازیابی پیش‌فرض‌ها</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>تلاش دوباره</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>توقف عملیات</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>نادیده گرفتن</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>راهنما</translation>
     </message>
   </context>
   <context>
@@ -1597,11 +1672,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
+      <source>Output: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1798,11 +1869,7 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
+      <source>%1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>
