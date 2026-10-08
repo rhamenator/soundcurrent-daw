@@ -61,6 +61,11 @@ job, that Stop stays usable, and that project rates/routes remain authored.
 The existing full UI suite verifies the surrounding EQ/Undo/save/recovery and
 worker-retirement workflows. An older playback test now waits for the newly
 conditional Play button before clicking; its original timeout is retained.
+The first hosted full run found the same readiness assumptions in export and
+mix tests. Both are corrected to choose outputs and observe readiness; mix also
+asserts that Play is disabled before selection. Linux, sanitizer and native
+Windows export/mix tests pass, with the hosted failures and original capsule
+payloads retained. These corrections do not change production code.
 
 Native Windows Qt tests use owned fake audio endpoints. They qualify these
 controls separately from SDK/audio activation, physical devices and sustained

@@ -52,6 +52,7 @@ jobs:
       - name: Verify retained native Windows device-format controls (no audio replay)
         run: |
           git fetch --no-tags --depth=1 origin 54ca5d30703e5f6269327901cf148c78d34c1f94
+          git fetch --no-tags --depth=1 origin d03ff77c8a47084ca9159aa2fa19b8fc5f06efcf
           python3 tools/verify_device_format_controls.py
       - name: Retain test log
         if: always()

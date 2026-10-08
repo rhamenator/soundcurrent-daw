@@ -77,9 +77,21 @@
   ],
   "capsule": {
     "name": "2026-10-08-device-format-diagnostics.zip",
-    "bytes": 30075,
-    "sha256": "4a79046c58345211061d73de56d1c12cedf8227f0b7e70b8fdaae44613cb8e80",
+    "bytes": 38005,
+    "sha256": "826be83c061fd921f77958c8f83803961aac81240b5e2aae80b59aac3beaa7c7",
     "files": {
+      "hosted/initial-two-fixture-failure.log": {
+        "bytes": 22973,
+        "sha256": "4853c79210c09e01d867db337642388b3e019f5c440b3b89d1f9e2008e06e39c"
+      },
+      "linux/adjacent-corrected-tests.log": {
+        "bytes": 350,
+        "sha256": "61abebe56f13d9c5db2930525c8aaf841ea1d4fbdc168d73cf66f3c708755887"
+      },
+      "linux/adjacent-sanitizers.log": {
+        "bytes": 360,
+        "sha256": "6ea32fc0e2bbf3d6b14f17e5176b8e646723740f3e0a1d19152faf831e59ddf0"
+      },
       "linux/catalog-refresh.log": {
         "bytes": 243,
         "sha256": "cf8b6bfecd5d67f1c2b87ae84fdf809ce0e9111b3170c06a162a4757a07f00c9"
@@ -99,6 +111,34 @@
       "linux/sanitizers.log": {
         "bytes": 358,
         "sha256": "b5dbebe8f428b4ff92a15d8877f20bb322ee68eac77cf632130be0c55abba352"
+      },
+      "native/adjacent-build.log": {
+        "bytes": 54228,
+        "sha256": "4b3218db68ada4448726264851f30069f41c4f993e372fed35ab4072bc6dc85a"
+      },
+      "native/adjacent-inputs.json": {
+        "bytes": 491,
+        "sha256": "68be05d0d719a2678942d3e008729939bc07dae5a495a59fa7a93de1dcf439e6"
+      },
+      "native/adjacent-results/export.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/adjacent-results/export.stdout": {
+        "bytes": 39,
+        "sha256": "f6f5a7922d66a6386e01668935e9f64797f9ff4620dea86dac7af4b9077a726d"
+      },
+      "native/adjacent-results/result.json": {
+        "bytes": 911,
+        "sha256": "4e13f8b76acee3b340f04419d788aee07df09946a6d5f0b2cd2feb7ee158f5b9"
+      },
+      "native/adjacent-results/timeline.stderr": {
+        "bytes": 93,
+        "sha256": "052003f994ec8176d3cf11cd355e12e157f8a9db1f764810294f5f91054778a8"
+      },
+      "native/adjacent-results/timeline.stdout": {
+        "bytes": 41,
+        "sha256": "23469c578f10bac72e5d4c9f26923656af2148ea15571aedc422ae752cdc7c38"
       },
       "native/build.log": {
         "bytes": 382501,
@@ -145,5 +185,35 @@
         "sha256": "4c031200c6d8364748bfb80bbf16f6149b0214a81c653e61c544e14edb42efbc"
       }
     }
+  },
+  "adjacentWorkflowChecks": {
+    "sourceHead": "d03ff77c8a47084ca9159aa2fa19b8fc5f06efcf",
+    "linuxTestsPassed": 2,
+    "sanitizerTestsPassed": 2,
+    "windows": {
+      "scope": "Native Windows Qt and SDK-free port admission; UI uses owned fake audio endpoints, no physical/native audio activation",
+      "exitCode": 0,
+      "platform": "windows",
+      "tests": [
+        {
+          "label": "export",
+          "exitCode": 0,
+          "exeBytes": 2340352,
+          "name": "sc-export-ui-tests",
+          "exeSha256": "6adfddf9c89e27323b11a3e7c2a6dfe57b627b4f21222af7cb3a002177e10b4a"
+        },
+        {
+          "label": "timeline",
+          "exitCode": 0,
+          "exeBytes": 2516480,
+          "name": "sc-timeline-ui-tests",
+          "exeSha256": "cbbadd6c78e0beeed1928814e26f43a3f7c8b605ea7a43ce9114a71ac3f3cafe"
+        }
+      ],
+      "sessionId": 1
+    },
+    "originalPayloadsPreserved": true,
+    "failure": "Hosted export clicked before readiness; mix test waited for readiness before output selection",
+    "productionCodeChangedForCorrection": false
   }
 }

@@ -58,6 +58,23 @@ def run():
         require(ports == '26 route admission checks passed', 'Native port admission result differs')
         require(b'No native audio; no language fully qualified.' in
                 z.read('native/results/localization.stdout'), 'Localization scope differs')
+        adjacent = read('native/adjacent-results/result.json')
+        correction = receipt['adjacentWorkflowChecks']
+        require(adjacent == correction['windows'] and adjacent['exitCode'] == 0 and
+                adjacent['sessionId'] == 1 and adjacent['platform'] == 'windows' and
+                len(adjacent['tests']) == 2 and
+                {t['label'] for t in adjacent['tests']} == {'export', 'timeline'} and
+                all(t['exitCode'] == 0 for t in adjacent['tests']) and
+                not correction['productionCodeChangedForCorrection'],
+                'Adjacent native workflows not accepted')
+        verify_source_inputs(correction['sourceHead'], read('native/adjacent-inputs.json'))
+        require(b'desktop export UI checks passed' in z.read('native/adjacent-results/export.stdout') and
+                b'timeline/selection UI checks passed' in z.read('native/adjacent-results/timeline.stdout') and
+                b'100% tests passed' in z.read('linux/adjacent-corrected-tests.log') and
+                b'100% tests passed' in z.read('linux/adjacent-sanitizers.log') and
+                b'Export fixture timed out at line 189' in z.read('hosted/initial-two-fixture-failure.log') and
+                b'Timeline timeout at 418' in z.read('hosted/initial-two-fixture-failure.log'),
+                'Adjacent acceptance or original hosted failures lost')
         require(b'100% tests passed' in z.read('linux/corrected-ui-run.log') and
                 b'100% tests passed' in z.read('linux/sanitizers.log') and
                 b'FAIL: Timed out awaiting UI workflow at line 362' in
