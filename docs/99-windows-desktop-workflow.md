@@ -66,8 +66,8 @@ an application crash or licensing cause. Testing used limited interactive sessio
 
 [Receipt](../tests/results/X007/2026-10-08-windows-desktop-workflow.json) and
 [77-payload capsule](../tests/results/X007/2026-10-08-windows-desktop-workflow.zip):
-24,280,446 bytes, SHA-256
-`053e8006e7b9c4bdf6049e30c683e984580f4cdcd0dd14bd50519cb936225fbc`.
+24,280,458 bytes, SHA-256
+`20b260b8040f0cc321f1461356da7ac3667a6d747a40e10a49919d64f5ce6cb7`.
 Membership, CRC and each payload hash are checked. No executable, DLL or credential
 helper is included. Its 330 conservative code/resource inputs match the final
 guest snapshot; two unrelated Linux synthetic manual tests were excluded because

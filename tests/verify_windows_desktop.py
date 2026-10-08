@@ -47,8 +47,8 @@ def engine(raw, band, events):
 
 def verify(root):
     root = Path(root)
-    report = json.loads((root/'probe.json').read_text())
-    s = json.loads((root/'project.json').read_text())
+    report = json.loads((root/'probe.json').read_text(encoding='utf-8'))
+    s = json.loads((root/'project.json').read_text(encoding='utf-8'))
     require(report['format'] == 'sc-wasapi-desktop-probe' and report['nativeWorkflowAccepted'] and
             report['rawUnchanged'] and report['defaultsUnchanged'] and
             report['cppAllocations'] == report['cppFrees'] == report['missingFrames'] == 0 and
@@ -71,7 +71,7 @@ def verify(root):
             len(left) == report['captureFrames'] and 470000 <= len(left) <= 500000,
             'Native desktop extent differs')
     for media, count in ((raw_path, len(raw)), (tap_path, len(left))):
-        j = json.loads((media.parent/'journal.json').read_text())
+        j = json.loads((media.parent/'journal.json').read_text(encoding='utf-8'))
         require(j['phase'] == 'finalized' and j['committedFrames'] == count and
                 j['rejectedFrames'] == j['observedInvalidInputSamples'] == 0 and
                 j['timingDomain'] == 'engine-frames' and j['timingOrigin']['backend'] == 4 and

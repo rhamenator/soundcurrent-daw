@@ -42,8 +42,8 @@
   ],
   "archive": {
     "name": "2026-10-08-windows-desktop-workflow.zip",
-    "bytes": 24280446,
-    "sha256": "053e8006e7b9c4bdf6049e30c683e984580f4cdcd0dd14bd50519cb936225fbc"
+    "bytes": 24280458,
+    "sha256": "20b260b8040f0cc321f1461356da7ac3667a6d747a40e10a49919d64f5ce6cb7"
   },
   "payloadManifest": [
     {
@@ -343,8 +343,8 @@
     },
     {
       "path": "oracle/tests/verify_windows_desktop.py",
-      "bytes": 8058,
-      "sha256": "83b2d28935fd64980b535e3bd5112793674c38e2bfc8f3f4a2d7f002a6abe7ae"
+      "bytes": 8106,
+      "sha256": "14ab12b93109ef065fa68f7d1442f40a6dd7df9d6695ffaed8ef918e61d0ce6b"
     },
     {
       "path": "oracle/tests/verify_windows_playback.py",

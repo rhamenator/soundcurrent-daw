@@ -12,7 +12,7 @@ from verify_windows_desktop import verify
 from verify_input_acquisition import require
 
 ROOT = Path(__file__).resolve().parents[1]
-receipt = json.loads((ROOT/'tests/results/X007/2026-10-08-windows-desktop-workflow.json').read_text())
+receipt = json.loads((ROOT/'tests/results/X007/2026-10-08-windows-desktop-workflow.json').read_text(encoding='utf-8'))
 archive = ROOT/'tests/results/X007'/receipt['archive']['name']
 require(archive.stat().st_size == receipt['archive']['bytes'] and
         hashlib.sha256(archive.read_bytes()).hexdigest() == receipt['archive']['sha256'],
@@ -38,8 +38,8 @@ with tempfile.TemporaryDirectory(prefix='sc-native-desktop-evidence-') as tempor
     report = verify(project)
     require(report == receipt['verification'], 'Relocated verification changed')
     original = base/receipt['originalStartupProject']
-    observation = json.loads((base/'control/workflow-v10-startup-observation.json').read_text())
-    require(json.loads((original/'probe.json').read_text())['nativeWorkflowAccepted'] and
+    observation = json.loads((base/'control/workflow-v10-startup-observation.json').read_text(encoding='utf-8'))
+    require(json.loads((original/'probe.json').read_text(encoding='utf-8'))['nativeWorkflowAccepted'] and
             not observation['independentFullRangeAccepted'] and
             observation['first480MaximumResidual'] > .01 and
             observation['after480MaximumResidual'] == 0 and not observation['causeIsolated'],
@@ -48,8 +48,8 @@ with tempfile.TemporaryDirectory(prefix='sc-native-desktop-evidence-') as tempor
     for case in range(9):
         q = base/('mutation-'+str(case))
         shutil.copytree(project,q)
-        probe = json.loads((q/'probe.json').read_text())
-        model = json.loads((q/'project.json').read_text())
+        probe = json.loads((q/'probe.json').read_text(encoding='utf-8'))
+        model = json.loads((q/'project.json').read_text(encoding='utf-8'))
         raw = q/probe['rawPath']
         if case == 0: probe['nativeWorkflowAccepted'] = False
         if case == 1: probe['cppAllocations'] = 1
@@ -66,7 +66,7 @@ with tempfile.TemporaryDirectory(prefix='sc-native-desktop-evidence-') as tempor
             p = q/'source-stereo.f32'; data = bytearray(p.read_bytes()); data[-4:] = struct.pack('<f',.125)
             p.write_bytes(data)
         if case == 6:
-            p = raw.parent/'journal.json'; data = json.loads(p.read_text())
+            p = raw.parent/'journal.json'; data = json.loads(p.read_text(encoding='utf-8'))
             data['timingOrigin']['backend'] = 1; p.write_text(json.dumps(data))
         if case == 7: probe['exportPath'] = 'C:\\Users\\outside.wav'
         if case == 8: probe['frames'] -= 64
