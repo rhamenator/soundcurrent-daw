@@ -59,3 +59,14 @@ refuse('missing-icon');icon.symlink_to(source/'packaging/soundcurrent-daw.svg')
 refuse('symlink-payload');icon.unlink();icon.write_bytes(before)
 assert len(builder.verify_staged_install(stage,source,binary))==5
 print('PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.')
+
+# New desktop versions require the sibling worker from the exact qualified build.
+(source/'ui').mkdir();(source/'ui/import_inspection_dialog.cpp').write_text('fixture marker')
+worker=binary.parent/'sc-import-inspect-worker';worker.write_bytes(b'qualified worker')
+refuse('missing-worker')
+installed=stage/'usr/bin/sc-import-inspect-worker';installed.write_bytes(worker.read_bytes())
+assert len(builder.verify_staged_install(stage,source,binary))==6
+installed.write_bytes(b'stale worker');refuse('stale-worker')
+installed.write_bytes(worker.read_bytes())
+assert len(builder.verify_staged_install(stage,source,binary))==6
+print('New desktop payload: qualified worker required; missing/stale worker refused.')

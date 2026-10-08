@@ -1,0 +1,119 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 2
+    Start  2: desktop-import-controller
+
+2: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-controller-tests
+2: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+2: Test timeout computed to be: 60
+2: Import controller checks=60; real child, synthetic project, native compatibility unqualified
+1/7 Test  #2: desktop-import-controller ..........   Passed    0.77 sec
+test 3
+    Start  3: desktop-import-ui
+
+3: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-ui-tests
+3: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+3: Environment variables: 
+3:  QT_QPA_PLATFORM=offscreen
+3: Test timeout computed to be: 60
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support raise()
+3: This plugin does not support raise()
+3: PASS: 31 import preview UI checks; actual child, no project mutation, async retirement.
+2/7 Test  #3: desktop-import-ui ..................   Passed    0.25 sec
+test 4
+    Start  4: desktop-localization
+
+4: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-localization-tests
+4: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+4: Environment variables: 
+4:  QT_QPA_PLATFORM=offscreen
+4: Test timeout computed to be: 90
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: Owned localization fixture root: /tmp/sc-localization-88d0dae8-5ba9-4913-ab48-12b2c2c2fd97
+4: PASS: 260 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.
+3/7 Test  #4: desktop-localization ...............   Passed    0.70 sec
+test 5
+    Start  5: daw-translation-catalogs
+
+5: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tools/localization.py" "--check"
+5: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+5: Test timeout computed to be: 1500
+5: {"catalogs": 34, "source_keys": 596, "draft_translations": 3135, "native_reviewed": 0, "fully_UI_qualified": 0}
+4/7 Test  #5: daw-translation-catalogs ...........   Passed    0.35 sec
+test 6
+    Start  6: daw-translation-catalog-failures
+
+6: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/translation_catalog_tests.py"
+6: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+6: Test timeout computed to be: 1500
+6: Owned localization catalog fixture root: "/tmp/sc-localization-catalogs-4z_qmpt_"
+6: Updating '../../../../../../tmp/sc-daw-translations-41ii497q/source.ts'...
+6:     Found 596 source text(s) (596 new and 0 already existing)
+6: PASS: matching retained catalogs
+6: PASS: refused stale-ui
+6: PASS: refused empty-finished
+6: PASS: refused placeholder-loss
+6: PASS: refused placeholder-duplication
+6: PASS: refused file-filter-loss
+6: PASS: refused rich-text-injection
+6: PASS: refused hidden-bidi
+6: PASS: refused ampersand-loss
+6: PASS: refused duplicate-key
+6: PASS: refused missing-key
+6: PASS: refused empty-catalog
+6: PASS: refused qm-corruption
+6: PASS: refused wrong-resource-alias
+6: PASS: actual Linguist update retained unfinished scalar/plural drafts and translator comments.
+6: PASS: 13 isolated corruption/refusal workflows; originals untouched; no native language qualification.
+5/7 Test  #6: daw-translation-catalog-failures ...   Passed    2.35 sec
+test 32
+    Start 32: reaper-structure
+
+32: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-reaper-structure-tests
+32: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+32: Test timeout computed to be: 60
+32: RPP structural checks=174; synthetic only; semantic/native compatibility unqualified
+6/7 Test #32: reaper-structure ...................   Passed    0.06 sec
+test 33
+    Start 33: import-inspection-worker
+
+33: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/import_inspect_worker_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-inspect-worker"
+33: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+33: Test timeout computed to be: 60
+33: {"checks": 140, "processBoundary": true, "sourceUntouched": true, "nativeDAWCompatibilityQualified": false, "platform": "linux"}
+7/7 Test #33: import-inspection-worker ...........   Passed    0.39 sec
+
+The following tests passed:
+	desktop-import-controller
+	desktop-import-ui
+	desktop-localization
+	daw-translation-catalogs
+	daw-translation-catalog-failures
+	reaper-structure
+	import-inspection-worker
+
+100% tests passed, 0 tests failed out of 7
+
+Total Test time (real) =   4.88 sec

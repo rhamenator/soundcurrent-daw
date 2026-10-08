@@ -1,0 +1,210 @@
+{
+  "format": "sc-desktop-import-inspection-v1",
+  "utc": "2026-10-08T23:57:59.594471+00:00",
+  "sourceBase": "8d65af63ce6ecfa336fddeb1cb058459f4d912c6",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "ab99d0390d9cae0edc32bb499432c1c559234a3333c2a8af3378ec636b24af56",
+    "CMakeLists.txt": "dc6cec5ba69d693c0bf06262bbf6be207fa6c3f155f5129ac852366e1b93e27e",
+    "include/soundcurrent/foreign_snapshot.hpp": "be1cce534ca9eecb3a1d5ea3dcbb5dd342db11b6c4a85d7d46ebe89d7c5e8619",
+    "include/soundcurrent/import_inspection_report.hpp": "b0dbdde5ebb6abb3a543b621b4b7ac21051a45402e30ab6de8684701c57c0e4d",
+    "localization/catalogs.json": "59d29f3651c1015d242b616e37e4a69c48ff019c08c981a85ba1ddaf33800dfe",
+    "localization/soundcurrent_daw_ar.ts": "04f55845e4cb35c56eb216de91d541056a6ca22be7fd4f5cfe05fb853e5c1f20",
+    "localization/soundcurrent_daw_cs.ts": "73d59778327edf03388c5336f8334fd0893b98eef976442ea008c636e6c16351",
+    "localization/soundcurrent_daw_da.ts": "b490dc4de7918482435b9e8c96813381b5a5fc56b542b7941cd5a270d742794f",
+    "localization/soundcurrent_daw_de.ts": "feedd27b6189e66ea10c09172d0063707f1773b47d1327c4e7b588a9dbb45849",
+    "localization/soundcurrent_daw_el.ts": "98b272243e5781bde3e9377921e1c6d0a3275ce792a0d5bb83cd209b4d12f2ae",
+    "localization/soundcurrent_daw_en.qm": "caf0f3bb0e87ddab535342d76971b040491d2893e71fd65f9433807321228352",
+    "localization/soundcurrent_daw_en.ts": "480c716d4b55943779b4b752dd870f9947ce163cce3b276be91cf7db4a18b9be",
+    "localization/soundcurrent_daw_es.ts": "9b51fa3ba7ebe00afd03dfdd8d564d8a6a05324b0259eb0cbf2ea7e769eb0532",
+    "localization/soundcurrent_daw_fa.ts": "a928c83a9649166cc05d369a3d376e5e56206a29751406ccbcd8652dddbc5c97",
+    "localization/soundcurrent_daw_fi.ts": "2487c76ea564847dc2f498f7edc6e2a5919eab91cf17c22c2aa1b64589dd5c1c",
+    "localization/soundcurrent_daw_fr.ts": "d6062f1fea338aecb55625973bbe014d91533893402578b760fb3a5f38adf1f7",
+    "localization/soundcurrent_daw_he.ts": "5b180519a7aaa63e2fbddcbdc1ba069368bdc3bb78f04ecc1d7bb8f0d4d16e0a",
+    "localization/soundcurrent_daw_hi.ts": "575322d1338f56011adaa2850dce6dcc422c951cc7c79595bd7ef141bd63a797",
+    "localization/soundcurrent_daw_hu.ts": "f72063039f5cab081111e40d2f0271d899d445b4275ad9f8990eac4d51ab4f6a",
+    "localization/soundcurrent_daw_id.ts": "58cdf50e509bbc822ec0510ee433161d10667f1828152875f8aec1367f335ade",
+    "localization/soundcurrent_daw_it.ts": "dbb830e37e38ed7e175cef0f9cecae9872e96f324885ecc94e61df6885c98487",
+    "localization/soundcurrent_daw_ja.ts": "03b2d7fea8f84bccfbd02ef80da2535deca5e2a24dd76b4812970f1cefc31151",
+    "localization/soundcurrent_daw_ko.ts": "227d7aad354bcb2892a2b1a1426d7061526422427298f6b777efbeea3f7351fc",
+    "localization/soundcurrent_daw_nb.ts": "6ccc8eaed8379899aa5b4b273f00ff3fa4b4fed6e7213c403f0f97f94fee8ba5",
+    "localization/soundcurrent_daw_nl.ts": "dcbb710bf85e2c1482baada1189031a9d1843a5b11876ca68984e351cbda37ec",
+    "localization/soundcurrent_daw_nn.ts": "79112101e0215b51a2561de24f78d9c91e04e6811aed401d8be1e0fcc8cae3a3",
+    "localization/soundcurrent_daw_pl.ts": "4541ba7ae71fd0cae5d12745ec7ea933dc59f81907cadad38f0d28e571d4a980",
+    "localization/soundcurrent_daw_pt-BR.ts": "8e57f417eec264dca1df7726e3e50485cc73f443092dc5df4e52b65fe4a529b2",
+    "localization/soundcurrent_daw_pt-PT.ts": "41719bde7722cb596a4ccd60ae8a25fd77d77ff01194cfd97b5674e129ae3afb",
+    "localization/soundcurrent_daw_ro.ts": "48cb63e4bf24b14baf54aa642a9c1a7fef2712de758be322d6b1b67a50ad859c",
+    "localization/soundcurrent_daw_ru.ts": "22f50cf04dfdf024e70f92a5f381a9b27067405d6a56549f8c092a9dfb1b01f4",
+    "localization/soundcurrent_daw_sk.ts": "7421f840f32d357708d90cc24cccd2784b55e92d55477e95d817165ed75cad71",
+    "localization/soundcurrent_daw_sv.ts": "bc8ead10c1787af765c7993833f1f0efb37740a857780f4ff273966205f771d0",
+    "localization/soundcurrent_daw_sw.ts": "d87e804b411b54253c9cb4412f53ff2dfe9ac73154ad4a39892c22d26904a887",
+    "localization/soundcurrent_daw_th.ts": "643a59da84bf94b527487f120ca7156796af84ea5087b87e7c2dc6df0004ddbd",
+    "localization/soundcurrent_daw_tr.ts": "4de8985f41a6c9836435bf0f08343525e6f1644efed375f406b64fd713d4ff8d",
+    "localization/soundcurrent_daw_uk.ts": "1dfc97f4ac6c17340cb0e83749057b31495ff66e1e8a118470ac1ca9c6ab1f44",
+    "localization/soundcurrent_daw_vi.ts": "be90a353dc4e41fe1e594e6f0d39c23d59fe10aef1e4fcdc822e962bc7eafecd",
+    "localization/soundcurrent_daw_zh-Hans.ts": "27330290935ab6f9f09605b82b2e7d1e2f085f42792ce8bb38b09cf80abbef86",
+    "localization/soundcurrent_daw_zh-Hant.ts": "931d835ad2dfb501d477bee7c3f394ae8eaa4c7fcdc7e5ad95701024d8435266",
+    "localization/source-inventory.json": "f99c65a05f7afab7ea0aefbaee501572239fea21a067a24c9a0d97946bf1fe7f",
+    "src/foreign_snapshot.cpp": "f161e3541b2bd077dc8c6e7b39f7931944df9a5e5b6508b4fecb26ecc81f3d58",
+    "src/import_inspection_report.cpp": "0c95e4559a9f034b05bdd08677efc55fcb13ae16e5796f2033343fb53567e4e6",
+    "tests/import_controller_tests.cpp": "834553f556ca9eef9601b747278c34d2c34ba58b0bc83aead7a761beba0e2a55",
+    "tests/import_lifecycle_probe.cpp": "8abdba2f5ae4f9600ed4bcfe23c56c58e9014729f939372d3c3b45c3e04f18a3",
+    "tests/import_ui_tests.cpp": "017cfdb488340e55fc6a31ba68f82de1b42b5b9b49cd7e0614fdb7d21c4a6226",
+    "tests/preview_package_tests.py": "b7a50148718a6d1ac7a66740e185d4ad34e98721054237c5cb8bbfe0fbd1c7dc",
+    "tests/windows_package_input_tests.py": "6473754ed9aa4993f9e0643c6ea18dc6e9da207343011ce123743b7f0bba6533",
+    "tools/import_inspect_worker.cpp": "b98b31118c61d0ffd446bea74e5306a569a6f95d347955d091f2678f0254f6cc",
+    "tools/package_linux_preview.py": "e7e93da63f8fcd8fde84a2dfea4a761b2268709bd8924052e11ea8356abc50c2",
+    "tools/package_windows_preview.py": "bed402f79394c188d941aaef97ac7e41323a668d9c447fe2772f9dcfb4b1843c",
+    "ui/import_inspection_controller.cpp": "94520232acc6ce64b02563424d764538ca046828d9a8ce09562d2ecd2bf19c33",
+    "ui/import_inspection_controller.hpp": "31c5e3a705342153b24db26150e40089df77ddaed0f022a5cd9a9e6a5c678ea5",
+    "ui/import_inspection_dialog.cpp": "079e9b18a48534fcd84341a560b153d55bf38fef553be717bcd4b132de492f1e",
+    "ui/import_inspection_dialog.hpp": "ba10e9c25c4f1d0fe66a0307997933ea1d46e77c7bb7395309bc8df90143423c",
+    "ui/studio_window.cpp": "390c2e991adb3f0d29f57b14f3ff2ef859a86e59fa5906ab472a2b5ea022003e",
+    "ui/studio_window.hpp": "a25bac74864833b8e06177ea6f27103c76e4f48d07bd76828865863d01bec1ad"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/soundcurrent-daw": "ccfd4dde5d3181c8b57908306bebbb5a339b12c53b0dd71940678d4fdbad9832",
+    ".cache/build-desktop-release/sc-import-ui-tests": "c8967fe907aa08d3b2c8281ee57ccb2a5a603d7952b3003014e76325c0a1af7a",
+    ".cache/build-desktop-release/sc-import-controller-tests": "34be426d5636319376786d80a2f62ccd2600788af751aa7e4312e005bab14c8b",
+    ".cache/build-desktop-release/sc-import-inspect-worker": "8e8e77c6598a5deafee3c89193ccf34700924662a870c5e8e953329f94a85bd4",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "f371d10fb7224fcb50305d5836ccffbfd640aa9a8ac24e3e4bac082cc7ea47b3",
+    ".cache/build-desktop-sanitized/sc-import-controller-tests": "14edc9258933cb29f3f4cc1ba6d3a4d3ff7d55b1d681df22dcce97c74a78b3a3",
+    ".cache/build-desktop-sanitized/sc-import-inspect-worker": "07bdd88d45e2f056a3bd751e327986a9588a811ff5a57441f5453c5e30a765ac",
+    ".cache/build-windows-core/sc-import-inspect-worker.exe": "4cbb12ad401eeb22bec9712bc2841a753b987347dc97ac64e49476b52381d8fe",
+    ".cache/build-windows-core/libsc-import-report.a": "b29d586aaf0b1097767e9b4454f14bf588030eabbb59e3b687b31d36ee19acc5"
+  },
+  "steps": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^(desktop-import-controller|desktop-import-ui|desktop-localization|daw-translation-catalogs|daw-translation-catalog-failures|import-inspection-worker|reaper-structure)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 4.9,
+      "logSha256": "53a5c7aa05682b903d84c04bfbfaf5d0164e53d44c53df44a17bb7110bfbe8db",
+      "observedResult": [
+        "2: Import controller checks=60; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 31 import preview UI checks; actual child, no project mutation, async retirement.",
+        "4: PASS: 260 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.",
+        "5: {\"catalogs\": 34, \"source_keys\": 596, \"draft_translations\": 3135, \"native_reviewed\": 0, \"fully_UI_qualified\": 0}",
+        "6: PASS: matching retained catalogs",
+        "6: PASS: refused stale-ui",
+        "6: PASS: refused empty-finished",
+        "6: PASS: refused placeholder-loss",
+        "6: PASS: refused placeholder-duplication",
+        "6: PASS: refused file-filter-loss",
+        "6: PASS: refused rich-text-injection",
+        "6: PASS: refused hidden-bidi",
+        "6: PASS: refused ampersand-loss",
+        "6: PASS: refused duplicate-key",
+        "6: PASS: refused missing-key",
+        "6: PASS: refused empty-catalog",
+        "6: PASS: refused qm-corruption",
+        "6: PASS: refused wrong-resource-alias",
+        "6: PASS: actual Linguist update retained unfinished scalar/plural drafts and translator comments.",
+        "6: PASS: 13 isolated corruption/refusal workflows; originals untouched; no native language qualification.",
+        "32: RPP structural checks=174; synthetic only; semantic/native compatibility unqualified",
+        "33: {\"checks\": 140, \"processBoundary\": true, \"sourceUntouched\": true, \"nativeDAWCompatibilityQualified\": false, \"platform\": \"linux\"}",
+        "The following tests passed:",
+        "100% tests passed, 0 tests failed out of 7"
+      ]
+    },
+    {
+      "command": [
+        "python3",
+        "tests/preview_package_tests.py"
+      ],
+      "actualExit": 0,
+      "seconds": 0.208,
+      "logSha256": "7177bd399f2422334408afe1f02793a6529f11a12861910a9ffb8209f314c2c4",
+      "observedResult": [
+        "PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged."
+      ]
+    },
+    {
+      "command": [
+        "python3",
+        "tests/windows_package_input_tests.py"
+      ],
+      "actualExit": 0,
+      "seconds": 0.185,
+      "logSha256": "424475ef5598651b43d37fb426d0a9edd3f846aeec62aab94dee7178330db0dc",
+      "observedResult": []
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-core",
+        "--target",
+        "sc-import-report",
+        "sc-import-inspect-worker",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "seconds": 0.022,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+      "observedResult": []
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^(desktop-import-controller|desktop-import-ui|import-inspection-worker)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "actualExit": 0,
+      "seconds": 2.697,
+      "logSha256": "e707f228bbfda1bf218ee4f1574d98b01676e1e5bfbd08c84aafcf2df5514c93",
+      "observedResult": [
+        "2: Import controller checks=60; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 31 import preview UI checks; actual child, no project mutation, async retirement.",
+        "33: {\"checks\": 140, \"processBoundary\": true, \"sourceUntouched\": true, \"nativeDAWCompatibilityQualified\": false, \"platform\": \"linux\"}",
+        "100% tests passed, 0 tests failed out of 3"
+      ]
+    }
+  ],
+  "scope": "Linux real child/controller and offscreen read-only GUI; synthetic RPP files; Release and ASan/UBSan. Windows MinGW shared snapshot/decoder/worker compilation only. Existing installed preview binaries unchanged.",
+  "sanitizerConfiguration": {
+    "CXX_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -fPIC",
+    "EXE_LINKER_FLAGS": "-fsanitize=address,undefined -no-pie",
+    "leakDetection": false,
+    "initialRunActualExit": 8,
+    "initialFailure": "Old -fno-pie build caused typed Qt signal lookup failure and GUI timer timeout; retained original log.",
+    "minimalQtConnectProbe": {
+      "fnoPieActualExit": 1,
+      "fPICActualExit": 0,
+      "sourceSha256": "a9d37afb400ab6cae1c4e756bc9beeac589fce54e9c3bcd296d2a2ad19d38aad"
+    }
+  },
+  "artifacts": {
+    "initial-sanitizer-ctest.log": "0340cd27fc849c2e360987971cb364edd646f7c2002de645acf5dfaa7bda633d",
+    "preview.png": "486988c9cb004655cd047524a0d87135a13bd364dbd9968f407026022c7ace7d",
+    "release-ctest.log": "53a5c7aa05682b903d84c04bfbfaf5d0164e53d44c53df44a17bb7110bfbe8db",
+    "sanitizer-ctest.log": "e707f228bbfda1bf218ee4f1574d98b01676e1e5bfbd08c84aafcf2df5514c93"
+  },
+  "controllerChecks": 60,
+  "uiChecks": 31,
+  "screenshotRunUiChecks": 32,
+  "workerProcessChecks": 140,
+  "structuralChecks": 174,
+  "localVMStarted": false,
+  "nativeAudioActivated": false,
+  "nativeWindowsQtExecuted": false,
+  "newInstalledPayloadQualified": false,
+  "OSHardMemorySandboxQualified": false,
+  "persistentSourceBundleImplemented": false,
+  "nativeProjectConversionQualified": false,
+  "fullParityPromoted": false
+}

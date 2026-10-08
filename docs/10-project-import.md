@@ -50,12 +50,15 @@ Native compatibility is directional and versioned. A passing exchange conversion
 The original bounded RPP outline now preserves raw bytes and structural offsets
 under shared resource admission and cancellation. Synthetic tests cover unknown
 state and refusals; every semantic property remains unverified. No native writer
-version/corpus, conversion, isolated file worker or import UI is qualified yet.
+version/corpus or conversion is qualified yet. Later checkpoints below add worker
+and desktop inspection evidence without promoting native compatibility.
 See [checkpoint 113](113-rpp-structural-inspection.md) and
 [ADR081](decisions/081-bounded-foreign-project-outline.md). Native imports for the
 other registered suites remain required.
 
 The [separate inspection worker](114-import-inspection-worker.md) adds pinned
 read-only file loading, a bounded versioned source-hash/range report and actual
-child-process cancellation/refusal tests. Desktop integration, persistent opaque
-state, OS sandboxing, native version/corpus and semantic mapping remain open.
+child-process cancellation/refusal tests. The [desktop inspection preview](115-desktop-import-inspection.md)
+adds shared admission, strict report validation, async retirement and a read-only
+outline. Persistent opaque state, OS sandboxing, native version/corpus, semantic
+mapping and Windows Qt/installed qualification remain open.

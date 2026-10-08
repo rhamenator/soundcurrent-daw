@@ -47,7 +47,7 @@ def relative(value):
             'Unsafe Windows payload component')
     return p
 
-def deploy_payload(archive, manifest, destination):
+def deploy_payload(archive, manifest, destination, *, require_worker=False):
     expected = {}
     for row in manifest['files']:
         name = relative(row['path']).as_posix()
@@ -55,6 +55,7 @@ def deploy_payload(archive, manifest, destination):
         expected[name] = row
     required = {'soundcurrent-daw.exe','sndfile.dll','Qt6Core.dll','Qt6Gui.dll',
                 'Qt6Widgets.dll','platforms/qwindows.dll'}
+    if require_worker: required.add('sc-import-inspect-worker.exe')
     require(required <= set(expected) and len(expected)<=64, 'Missing/excess deployment payload')
     require(all(0<r['bytes']<=64*1024*1024 for r in expected.values()) and
             sum(r['bytes'] for r in expected.values())<=256*1024*1024,
@@ -91,8 +92,16 @@ def qualified_dependencies(manifest):
     trusted = read_json(ROOT/'research/windows-preview-dependencies.json')
     require(trusted['qtSourceSha256']==QT_SOURCE and
             trusted['sndfileSourceSha256']==SNDFILE_SOURCE, 'Dependency source anchor differs')
-    dependencies = {r['path']:r for r in manifest['files'] if r['path']!='soundcurrent-daw.exe'}
+    dependencies = {r['path']:r for r in manifest['files'] if r['path'] not in {'soundcurrent-daw.exe','sc-import-inspect-worker.exe'}}
     require(dependencies==trusted['files'], 'Unqualified dependency binary identity')
+
+def qualify_worker(manifest, qualification, head):
+    require(qualification is not None, 'Native inspection worker qualification required')
+    row=next((r for r in manifest['files'] if r['path']=='sc-import-inspect-worker.exe'),{})
+    require(qualification.get('sourceCommit')==head and qualification.get('exitCode')==0 and
+            type(qualification.get('pid')) is int and qualification['pid']>0 and
+            row.get('sha256')==qualification.get('exeSha256') and bool(row),
+            'Deployed inspection worker differs from qualified native process/source')
 
 def nsis_path(path):
     text = str(path.resolve())
@@ -151,11 +160,14 @@ def package(args):
         require(digest(p)==sha, 'Pinned external source/runtime mismatch: '+p.name)
     manifest=read_json(args.deploy_manifest)
     qualified_dependencies(manifest)
+    needs_worker=(ROOT/'ui/import_inspection_dialog.cpp').is_file()
+    if needs_worker:
+        qualify_worker(manifest,read_json(args.worker_qualification) if args.worker_qualification else None,head)
     row=next((r for r in manifest['files'] if r['path']=='soundcurrent-daw.exe'),{})
     require(row.get('sha256')==qualification['exeSha256'], 'Deployed main differs from qualified main')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     stage=output/'payload';stage.mkdir()
-    deploy_payload(args.deploy_zip,manifest,stage)
+    deploy_payload(args.deploy_zip,manifest,stage,require_worker=needs_worker)
     legal=stage/'licenses';legal.mkdir()
     for name,path in {'GPL-3.0.txt':ROOT/'LICENSE','libsndfile-LGPL.txt':ROOT/'third_party/libsndfile/COPYING',
                       'nlohmann-MIT.txt':ROOT/'third_party/nlohmann/LICENSE.MIT',
@@ -189,6 +201,7 @@ def package(args):
     receipt={'sourceHead':head,'sequence':args.sequence,'status':'prepared-local-unsigned-preview',
              'cleanInstallQualified':False,'nativeAudioReplayed':False,'releaseUploaded':False,
              'buildInputsReceiptSha256':digest(args.build_inputs),'mainQualificationSha256':digest(args.main_qualification),
+             'workerQualificationSha256':digest(args.worker_qualification) if needs_worker else None,
              'deploymentManifestSha256':digest(args.deploy_manifest),'officialRuntimeSha256':REDIST,
              'installerSourceSha256':digest(ROOT/'packaging/windows/preview.nsi.in'),
              'payload':{p.relative_to(stage).as_posix():{'bytes':p.stat().st_size,'sha256':digest(p)} for p in sorted(stage.rglob('*')) if p.is_file()},
@@ -203,5 +216,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ['deploy-zip','deploy-manifest','build-inputs','main-qualification','qt-source','sndfile-source','runtime','qt-sdk','output']:
         parser.add_argument('--'+name,type=Path,required=True)
+    parser.add_argument('--worker-qualification',type=Path,
+                        help='Actual matching-source native worker PID/exit/executable receipt')
     parser.add_argument('--sequence',required=True)
     package(parser.parse_args())

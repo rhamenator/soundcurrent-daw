@@ -3203,3 +3203,25 @@ Linux Release/sanitizers and Windows cross-build pass; hosted native execution
 of the worker remains pending. GUI integration, hard process/sandbox policies,
 persistent opaque state and semantic conversion remain gates. Existing previews
 are unchanged; no local VM was started for this work.
+
+## Desktop import inspection checkpoint (2026-10-08, later)
+
+PR #57 merged after all required checks passed. Its exact hosted MSVC revision
+`8d65af6` passed 129 worker-process checks and ten selected tests from 41
+configured tests, without activating an audio endpoint or local VM. Logs and
+source/runner identities are retained separately from the new desktop work.
+
+[Checkpoint 115](115-desktop-import-inspection.md) adds a single-flight Qt parent
+with shared admission, independently captured source/hash, strict report
+validation, actual child retirement and a read-only File-menu outline. Linux
+Release and corrected ASan/UBSan controller/GUI/worker checks pass. A minimal
+probe identifies the initial sanitizer Qt signal-lookup failure with `-fno-pie`;
+that failed run is retained, and `-fPIC` rebuilding passes. Windows cross-build
+passes; Windows Qt execution and refreshed installed packages remain open.
+
+The outline changes no canonical project/source bytes. Persistent opaque-source
+bundles, source-writer/version corpora, semantic mapping, conversion, OS sandbox
+and the complete X004 adapter program remain required. Existing end-user
+installers remain unchanged. All local VMs stayed off; the existing independent
+clone comparison remains pending under its 8 MiB/s cap. The full frozen-reference
+professional DAW goal remains active and incomplete.

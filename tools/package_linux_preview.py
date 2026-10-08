@@ -58,6 +58,8 @@ def verify_staged_install(stage, root, executable):
         'usr/share/applications/soundcurrent-daw.desktop': root/'packaging/soundcurrent-daw.desktop',
         'usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg': root/'packaging/soundcurrent-daw.svg',
     }
+    if (root/'ui/import_inspection_dialog.cpp').is_file():
+        expected['usr/bin/sc-import-inspect-worker']=executable.parent/'sc-import-inspect-worker'
     found = {}
     for path in stage.rglob('*'):
         require(not path.is_symlink(), 'Unexpected install payload symlink: '+str(path))
@@ -80,6 +82,10 @@ def package(args):
     require(qualification.get('exit_code')==0, 'Qualification did not pass')
     require(qualification.get('executable_sha256',{}).get('soundcurrent-daw')==digest(executable),
             'Desktop executable differs from the tested executable')
+    if (ROOT/'ui/import_inspection_dialog.cpp').is_file():
+        worker=build/'sc-import-inspect-worker'
+        require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
+                'Inspection worker differs from qualified worker')
     for relative, sha in qualification['source_sha256'].items():
         require(digest(ROOT/relative)==sha, 'Tested input changed: '+relative)
     cache = (build/'CMakeCache.txt').read_text()

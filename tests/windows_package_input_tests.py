@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_windows_preview import deploy_payload, qualified_dependencies
+from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker
 import json
 
 
@@ -71,10 +71,27 @@ def run():
                 if case != 'native-separators':
                     raise AssertionError('Unsafe deployment accepted: ' + case)
                 assert all((destination / n).read_bytes() == b for n, b in data.items())
+                try:deploy_payload(archive,m,destination,require_worker=True)
+                except ValueError:pass
+                else:raise AssertionError('New desktop payload admitted missing worker')
     trusted = json.loads((Path(__file__).resolve().parents[1] /
                           'research/windows-preview-dependencies.json').read_text())
     pinned = {'files': list(trusted['files'].values())}
     qualified_dependencies(pinned)
+    worker={'path':'sc-import-inspect-worker.exe','bytes':123,'sha256':'a'*64}
+    with_worker={'files':pinned['files']+[worker]}
+    qualified_dependencies(with_worker)
+    head='b'*40
+    receipt={'sourceCommit':head,'exitCode':0,'pid':1234,'exeSha256':'a'*64}
+    qualify_worker(with_worker,receipt,head)
+    for bad in (None,{**receipt,'sourceCommit':'c'*40},{**receipt,'exitCode':1},
+                {**receipt,'pid':0},{**receipt,'exeSha256':'0'*64}):
+        try:qualify_worker(with_worker,bad,head)
+        except ValueError:pass
+        else:raise AssertionError('Unqualified worker accepted')
+    try:qualify_worker(pinned,receipt,head)
+    except ValueError:pass
+    else:raise AssertionError('Missing worker accepted')
     wrong = deepcopy(pinned)
     wrong['files'][0]['sha256'] = '0' * 64
     try:

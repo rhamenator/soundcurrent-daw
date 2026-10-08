@@ -571,6 +571,120 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
   </context>
   <context>
+    <name>ImportInspectionDialog</name>
+    <message>
+      <source>Choose a REAPER project</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>REAPER projects (*.rpp)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspect foreign project</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose project…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel inspection</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Close</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>REAPER project inspection preview. Conversion is not available yet. The original file and current project remain unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Stopping inspection…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspecting project…</source>
+      <translation type="unfinished" />
+    </message>
+    <message numerus="yes">
+      <source>%n source line(s) inspected. Project properties are unverified.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspection canceled.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspection exceeded its time limit.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>There is not enough import memory, or the file exceeds the inspection limits.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This project uses invalid or unsupported syntax for this inspector.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The selected project or inspection worker could not be read.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The inspection failed or its result could not be verified.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose a project to inspect.</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>ImportPreviewModel</name>
+    <message>
+      <source>Original file bytes: %1 + %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Blank line</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Group</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>End of group</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Property</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Unverified</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Item</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Type</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Line</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Status</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
     <name>Localization</name>
     <message>
       <source>Language preferences could not be saved.</source>
@@ -1098,6 +1212,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>&amp;Save</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspect foreign project…</source>
       <translation type="unfinished" />
     </message>
     <message>
