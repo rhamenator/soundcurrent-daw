@@ -3102,3 +3102,21 @@ endpoint/GUI dependency; its execution remains pending. No native endpoint test
 or installer refresh is claimed for this change. See [checkpoint 110](110-windows-packet-release.md).
 Next: isolated full native build and same-source bounded v2 capture comparisons
 on the installer clone, then exact installed qualification. The goal stays active.
+
+## Hosted native recording build checkpoint (2026-10-08)
+
+The packet-ownership MSVC gate passed 3/3 at `cfa5b5b` and `ac11b80` and is now
+required by strict main protection. Source PR #53 remains open: the compound
+route-admission review is fixed in source but its inactive endpoint fixture has
+not yet executed. Full production recording and fixture code cross-compile.
+The hosted gate is extended with hash-pinned, codec-disabled shared libsndfile
+1.2.2 to compile that path and run existing disk recording/recovery, WAV export
+and resource tests; this expanded gate is pending execution. No endpoint or
+installed qualification is inferred from it.
+
+Host reboot/resource contention interrupted full independent clone preparation.
+The clone disk remains unverified; the owned equality verifier is suspended,
+TPM copying and clone boot are pending. Continue hosted verification while
+keeping additional local VM/disk load low, then resume this exact verifier
+before native route/capture comparison. Existing previews stay unchanged and
+the full frozen-reference goal remains active.

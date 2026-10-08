@@ -75,9 +75,23 @@ the `windows-2025` label supplied image `windows-2025-vs2026` version
 `20260925.250.1`, so the hardcoded VS 2022 generator found no instance. That
 refusal remains in hosted run `37817576970`; it is not a failed packet test.
 The corrected job discovers the installed compiler instead of assuming its year.
-It needs neither Qt nor libsndfile and does not run endpoint/GUI fixtures. Until
-that job executes successfully, native MSVC acceptance of this revision is pending.
-Even a passed job is not Windows 11 installer or recording qualification.
+The corrected hosted job passed all three packet tests on MSVC 19.51.36260.0
+at `cfa5b5b` (run `37818166925`, job `113452281276`), then again at the
+admission fix `ac11b80` (run `37821506179`, job `113463413902`). That latter
+job did not build the media-dependent `WasapiRecording` or endpoint fixture.
+The native check is now one of the three required strict branch-protection checks,
+alongside Linux desktop/synthetic tests and Windows core cross-compilation.
+These passes do not qualify Windows 11 installation or endpoint recording.
+
+The check is extended to compile the production recording owner and full native
+capture/admission fixture using the same pinned libsndfile 1.2.2 source and
+codec-disabled shared build as the Windows preview. Its archive is verified
+against SHA-256 `ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121`
+before extraction; no new dependency is selected. The hosted job also runs the
+existing recording/recovery, offline WAV export and resource-ledger tests,
+without activating audio endpoints. Execution of this expanded gate is pending.
+The local MinGW full fixture, including production admission code, compiles.
+This is compilation evidence, not execution of the inactive native route test.
 
 Next: build the exact full native fixture in an isolated compiler workspace,
 verify limited owner and actual parent/child session dynamically, and run the
@@ -91,3 +105,14 @@ exclusive use of that development clone. No VM was started or changed for this
 checkpoint. Existing local preview/source pairs, original VMs and equalizer work
 remain preserved. Production-EQ active Stop, monitoring/duplex, physical/sustained
 audio and full frozen-reference parity remain open. The full goal stays active.
+
+## Reboot and resource contention
+
+A host reboot interrupted independent native test-workspace preparation. The new
+full-copy VM is defined and its qcow2 has no backing file, but equality with the
+powered-off source disk is still unverified; TPM state has not been copied and
+the test clone has not been booted. The owned read-only equality verifier is
+suspended in response to owner-reported disk contention. Originals and ongoing
+equalizer work remain untouched. Two other Windows VMs were observed running;
+no second DAW VM is started. Full native admission/endpoint tests and the source
+PR's review resolution remain pending. Existing preview artifacts are unchanged.
