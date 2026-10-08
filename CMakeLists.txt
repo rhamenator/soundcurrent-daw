@@ -401,6 +401,12 @@ if(BUILD_TESTING)
     target_link_libraries(sc-wasapi-output-tests PRIVATE sc-wasapi-output)
     add_test(NAME wasapi-output-contract COMMAND sc-wasapi-output-tests)
     set_tests_properties(wasapi-output-contract PROPERTIES TIMEOUT 60)
+    # Exercise the real control owner with only native SDK symbols replaced.
+    # This target intentionally does not link the native capture/render library.
+    add_executable(sc-wasapi-playback-owner-tests tests/wasapi_playback_owner_tests.cpp src/wasapi_playback.cpp)
+    target_link_libraries(sc-wasapi-playback-owner-tests PRIVATE sc-wasapi-output sc-wasapi-ports)
+    add_test(NAME wasapi-playback-owner-rollback COMMAND sc-wasapi-playback-owner-tests)
+    set_tests_properties(wasapi-playback-owner-rollback PROPERTIES TIMEOUT 60)
     if(TARGET sc-wasapi-capture)
       add_executable(sc-wasapi-playback-fixture tests/wasapi_playback_fixture.cpp tests/rt_audit.cpp)
       target_link_libraries(sc-wasapi-playback-fixture PRIVATE sc-wasapi-playback)

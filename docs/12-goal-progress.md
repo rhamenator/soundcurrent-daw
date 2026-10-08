@@ -3127,3 +3127,26 @@ networking and remains off. The same suspended verifier resumed after host load
 fell, in a systemd-managed 16 MiB/s, idle-priority scope. Continue this exact
 verifier before native route/capture comparison while keeping local VM load low. Existing previews stay unchanged and
 the full frozen-reference goal remains active.
+
+## Output preparation rollback checkpoint (2026-10-08)
+
+PR #53 merged with all three required checks and Socket checks passing. The
+reviewed input-credit leak is fixed by tentative owner staging; actual capture
+endpoint admission/comparison remains pending. The same pattern in playback
+output selection is now corrected: SDK preparation refusal returns interleaver
+credit, and a successful inactive preparation commits both owners together.
+The real control owner, with only SDK boundary symbols injected, reproduces
+the old failure and passes the fix, repeated refusal/retry/replacement and full
+retirement on Linux Release and ASan/UBSan. MinGW cross-compilation also passes;
+its MSVC test addition is pending.
+See [checkpoint 111](111-output-admission-rollback.md). No audio/GUI/installer
+qualification or frozen parity status is promoted.
+
+Frozen native comparison builds now require independent fresh directories and
+verified compiler/dependency/input/binary identities. Scripts parse, but neither
+build nor endpoint runner has executed in the unbooted new clone. Continue the
+existing capped verifier, then native capture and production-EQ Stop qualification.
+The verifier is currently suspended to reduce disk activity following the owner's
+report. Disk capacity, available RAM and unused disk swap do not show a shortage;
+the earlier crash remains undiagnosed. No new local VM or heavy build was started.
+The complete professional DAW scope stays active and incomplete.
