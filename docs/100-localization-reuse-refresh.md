@@ -64,6 +64,12 @@ qualification. These UI tests use synthetic audio endpoints.
 logs/input hashes, original failures and Linux/audit evidence. No executable,
 credential helper or screenshot is included.
 
+The first hosted run passed 62/63 groups; the new real-update preservation test
+correctly refused to run without lupdate/lrelease. CI now installs
+`qt6-l10n-tools` beside its existing build tools. It remains a maintainer/test
+dependency, not an end-user runtime requirement. The original failure is retained
+in [the hosted-tools receipt](../tests/results/X005/2026-10-08-localization-hosted-tools.json).
+
 ## Remaining work
 
 Translate remaining controls, plurals, diagnostics, help and installer text;
