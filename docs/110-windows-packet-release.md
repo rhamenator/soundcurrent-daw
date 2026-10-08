@@ -59,7 +59,12 @@ These are separate from physical/native endpoint acceptance.
 
 CI adds a Windows Server 2025 MSVC Release job that compiles the actual SDK adapter
 and runs the three SDK-independent packet ownership/admission/trace tests. It uses
-the published [runner image's Visual Studio 2022 and Windows SDK](https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-Readme.md).
+the installed MSVC discovered through `vswhere`, with its developer environment
+and Ninja. The first hosted attempt refused configuration before compilation:
+the `windows-2025` label supplied image `windows-2025-vs2026` version
+`20260925.250.1`, so the hardcoded VS 2022 generator found no instance. That
+refusal remains in hosted run `37817576970`; it is not a failed packet test.
+The corrected job discovers the installed compiler instead of assuming its year.
 It needs neither Qt nor libsndfile and does not run endpoint/GUI fixtures. Until
 that job executes successfully, native MSVC acceptance of this revision is pending.
 Even a passed job is not Windows 11 installer or recording qualification.

@@ -113,12 +113,19 @@ jobs:
       - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
         with:
           persist-credentials: false
-      - name: Configure MSVC without media or desktop dependencies
-        run: cmake -S . -B build-native -G "Visual Studio 17 2022" -A x64 -DSC_BUILD_MEDIA=OFF -DSC_BUILD_DESKTOP=OFF
-      - name: Compile actual SDK adapter and packet ownership tests
-        run: cmake --build build-native --config Release --parallel 2 --target sc-wasapi-capture sc-wasapi-packet-copy-tests sc-wasapi-input-tests sc-wasapi-capture-trace-tests
-      - name: Test packet ownership and processing without audio endpoints
-        run: ctest --test-dir build-native -C Release -R "^wasapi-(packet-copy|packet-admission|capture-trace)$" --output-on-failure
+      - name: Build and test MSVC packet ownership without audio endpoints
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "SC_NATIVE_VS_PATH=%%i"
+          if not defined SC_NATIVE_VS_PATH exit /b 1
+          call "%SC_NATIVE_VS_PATH%\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
+          if errorlevel 1 exit /b 1
+          cmake -S . -B build-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=OFF -DSC_BUILD_DESKTOP=OFF
+          if errorlevel 1 exit /b 1
+          cmake --build build-native --parallel 2 --target sc-wasapi-capture sc-wasapi-packet-copy-tests sc-wasapi-input-tests sc-wasapi-capture-trace-tests
+          if errorlevel 1 exit /b 1
+          ctest --test-dir build-native -R "^wasapi-(packet-copy|packet-admission|capture-trace)$" --output-on-failure
+          if errorlevel 1 exit /b 1
       - name: Retain native unit log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
