@@ -118,3 +118,15 @@ export and upgrade/uninstall preservation in the independent VM.
 Review the nine changed localization/profile-editor inputs in each equalizer repo
 before relevant GUI reuse. Keep DAW adaptations and existing project compatibility.
 All frozen F/Q/C/N, X004/X005/X006/X007 and all-Europe gates remain required.
+
+## COM review correction
+
+PR39 review identified that control discovery requested MTA even on an existing
+UI/OLE STA. `RPC_E_CHANGED_MODE` now reuses that already initialized apartment and
+never calls CoUninitialize for that failed mode change. S_OK and S_FALSE still
+balance their own reference. A native Windows STA fixture repeats endpoint/default
+inventory three times, observes five active endpoints, and verifies the caller's
+STA type remains intact after every call; exit0. The first fixture build omitted
+its explicit COM header and is preserved in the [supplement](../tests/results/X007/2026-10-08-windows-com-review.json).
+No GUI/native audio run or scheduling qualification follows from this control test.
+[Microsoft COM initialization contract](https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex).

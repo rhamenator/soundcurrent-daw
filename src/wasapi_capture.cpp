@@ -22,8 +22,16 @@ void check(HRESULT hr, const char *operation) {
                            std::to_string(static_cast<std::int32_t>(hr)) + ")");
 }
 struct Apartment {
-    Apartment() { check(CoInitializeEx(nullptr, COINIT_MULTITHREADED), "Initialize audio COM"); }
-    ~Apartment() { CoUninitialize(); }
+    bool owned = false;
+    Apartment() {
+        const auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+        // Inventory is also valid in an existing UI/OLE STA. A failed mode
+        // change did not add a COM initialization reference: never release it.
+        if (hr == RPC_E_CHANGED_MODE) return;
+        check(hr, "Initialize audio COM");
+        owned = true; // S_OK and S_FALSE both require a matching uninitialize.
+    }
+    ~Apartment() { if (owned) CoUninitialize(); }
 };
 template <class T> struct Com {
     T *p = nullptr;
