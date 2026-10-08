@@ -5,6 +5,7 @@
 #include "session_list_model.hpp"
 #include "equipment_profiles.hpp"
 #include "accelerating_spinbox.hpp"
+#include <QLabel>
 #include "fake_playback_endpoint.hpp"
 #include "fake_recording_endpoint.hpp"
 #include <soundcurrent/export.hpp>
@@ -114,9 +115,9 @@ void runtimeAndPreferences() {
         auto text=QCoreApplication::translate("Probe","<b>Value %L1 / %2 && %n</b>",nullptr,2);
         check(text.contains("%L1") && text.contains("%2") && text.contains("&&") && text.contains("<b>") && !text.contains("%n"),"Pseudo translator damaged placeholders, markup or numerus replacement");
         check(QApplication::layoutDirection()==Qt::RightToLeft,"Pseudo RTL direction failed");
-        const auto signedUnit=locale::numberWithUnit(QStringLiteral("Output: %1 dBFS"),"-12.5","dBFS");
+        const auto signedUnit=locale::numberWithUnit(QCoreApplication::translate("StudioWindow","Output: %1"),"-12.5","dBFS");
         check(signedUnit.contains(QString(QChar(0x2066))+"-12.5 dBFS"+QChar(0x2069)),"RTL signed number and unit split");
-        const auto second=locale::numberWithUnit(QStringLiteral("Input: %2 dBFS"),"-3.0","dBFS","%2");
+        const auto second=locale::numberWithUnit(QCoreApplication::translate("StudioWindow","%1: %2").arg("Input"),"-3.0","dBFS");
         check(second.contains(QString(QChar(0x2066))+"-3.0 dBFS"+QChar(0x2069)),"Second display placeholder lost unit isolation");
     }
     for (const auto &pair : {std::pair{"de","Speichern"}, {"fr","Enregistrer"},
@@ -134,7 +135,7 @@ void runtimeAndPreferences() {
         integer.findChild<QLineEdit *>()->setText(format.toString(-37));integer.interpretText();
         check(integer.value()==-37,"Locale-formatted signed integer failed");
     }
-    QString marked=QString(QChar(0x061c))+"-"+QChar(0x200f)+"12.5"+QChar(0x200e);int cursor=marked.size();
+    QString marked=QString(QChar(0x061c))+"-"+QChar(0x200f)+"12.5"+QChar(0x200e);int cursor=int(marked.size());
     widgets::normalizeNumericDirectionMarks(marked,&cursor);
     check(marked=="-12.5" && cursor==5,"Numeric normalization changed more than presentation marks or lost cursor");
     check(QCoreApplication::translate("QPlatformTheme","Save")=="Save","Standard action translator outlived its runtime");
@@ -146,6 +147,14 @@ void uiWorkflow(const std::filesystem::path &root, const QString &language, cons
     window.resize(1000,640);window.show();window.openProject(root);
     await([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.findChild<QDoubleSpinBox *>("gain_db0");});
     check(*window.snapshot()->session==initial,"UI language changed canonical project or IDs");
+    if(language=="qps-rtl") {
+        const auto field=QString(QChar(0x2066))+QStringLiteral("−∞ dBFS")+QChar(0x2069);
+        auto *label=window.findChild<QLabel *>("outputPeakLabel");
+        check(label,"Actual output meter label missing");
+        await([&]{return label->text().contains(field);});
+        check(label->text().contains(field),
+              "Actual translated output meter lost number/unit isolation");
+    }
     auto *timeline=dynamic_cast<TimelineView *>(window.findChild<QWidget *>("audioTimeline"));
     check(timeline && timeline->layoutDirection()==Qt::LeftToRight,"RTL reversed musical timeline layout");
     auto *action=window.findChild<QAction *>("languageSettingsAction");check(action,"Language menu missing");action->trigger();

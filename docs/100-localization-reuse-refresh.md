@@ -41,7 +41,7 @@ rich tags/attributes/links, file filters, literal ampersands and bidi boundaries
 
 ## Coverage and evidence
 
-There are 564 extracted keys, English plus 33 draft catalogs. English has 559
+There are now 562 extracted keys, English plus 33 draft catalogs. English has 557
 finished scalar entries; its five plural messages still use Qt source fallback.
 Each draft has 95 finished entries (3,135 total), with English fallback for the
 rest. No language is promoted to native-reviewed or fully UI-qualified. These
@@ -83,3 +83,22 @@ Qt's [QLocale](https://doc.qt.io/qt-6/qlocale.html),
 [QAbstractSpinBox](https://doc.qt.io/qt-6/qabstractspinbox.html) documentation
 describes the toolkit boundaries. These changes add no dependency and do not
 raise the existing Qt API floor.
+
+## Rendered RTL unit correction
+
+Review found that the initial exact source-token search failed after actual
+pseudo-translation expanded the unit spelling. The old literal-pattern test did
+not exercise that boundary. Meter labels now translate only the label/value
+placeholder; invariant dBFS is joined to the formatted finite or infinity value
+first, and the complete field receives LRI/PDI before insertion. The regression
+uses actual translated contexts and the real desktop output-peak label. Two
+redundant source keys disappear (564 to 562); drafts still have 95 entries each.
+The original capsule remains immutable evidence of the earlier source snapshot,
+not qualification of this later correction.
+
+Five focused Linux groups and two native MSVC UI groups pass after a completed
+rebuild, including 277 localization checks. An initial regression-test compile
+failed because QLabel was only forward-declared; its original native log is
+retained and the explicit include repairs it. [Correction receipt](../tests/results/X005/2026-10-08-rendered-rtl-meter.json)
+and [capsule](../tests/results/X005/2026-10-08-rendered-rtl-meter.zip) preserve
+current observations separately from the original 564-key source evidence.

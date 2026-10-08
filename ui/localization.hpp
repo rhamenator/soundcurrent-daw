@@ -22,8 +22,7 @@ QString chooseLanguage(QString commandLine, QString stored, QString environment,
 Preferences loadPreferences();
 void savePreferences(const Preferences &);
 // Display-only directional isolation; never persisted or parsed as a parameter.
-QString numberWithUnit(QString pattern, const QString &number, const QString &unit,
-                       const QString &placeholder = QStringLiteral("%1"));
+QString numberWithUnit(QString pattern, const QString &number, const QString &unit);
 // GUI startup/control only. No engine dependency and no live view reconstruction.
 class Runtime {
   public:

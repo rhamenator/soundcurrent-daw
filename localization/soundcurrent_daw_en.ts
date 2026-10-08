@@ -1684,12 +1684,8 @@ The complete file was published with a warning: %1</translation>
       <translation> · Another track is prepared. Stop or prepare the selected track.</translation>
     </message>
     <message>
-      <source>Output: %1 dBFS</source>
-      <translation>Output: %1 dBFS</translation>
-    </message>
-    <message>
-      <source>Output: −∞ dBFS</source>
-      <translation>Output: −∞ dBFS</translation>
+      <source>Output: %1</source>
+      <translation>Output: %1</translation>
     </message>
     <message>
       <source>Playback could not be completed: %1</source>
@@ -1886,12 +1882,8 @@ Stored recording: %1</translation>
       <translation> · %1 missing playback frames</translation>
     </message>
     <message>
-      <source>%1: %2 dBFS</source>
-      <translation>%1: %2 dBFS</translation>
-    </message>
-    <message>
-      <source>%1: −∞ dBFS</source>
-      <translation>%1: −∞ dBFS</translation>
+      <source>%1: %2</source>
+      <translation>%1: %2</translation>
     </message>
     <message>
       <source>Input</source>

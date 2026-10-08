@@ -10,5 +10,11 @@
     "bytes": 3294,
     "sha256": "6d12296f8dec1a33c44912462830ef5ba7bff635ae5be26950800a726bbc6682"
   },
-  "correctedHostedResult": "pending"
+  "correctedHostedResult": {
+    "run": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/37755136847",
+    "source": "09a6a7a",
+    "linux": "63/63 groups and subsequent retained evidence verifiers passed",
+    "windows": "core cross-build passed; no native runtime claim",
+    "furtherRenderedUnitReview": "pending separate corrected-source checks"
+  }
 }

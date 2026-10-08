@@ -16,7 +16,7 @@
   raw checkpoint recovery. Native Windows and multi-track persistence remain open.
 - Desktop language and regional preferences, embedded contextual catalogs,
   independent number formatting and expanded/RTL developer test locales. English
-  plus 33 draft catalogs are partial; each draft translates 95 of 564 messages.
+  plus 33 draft catalogs are partial; each draft translates 95 of 562 messages.
   Native-speaker/full UI qualification remains open. Numerical timelines and
   equipment charts retain their direction under RTL layouts.
 - Reviewed equalizer localization vocabulary, localized standard dialog actions,

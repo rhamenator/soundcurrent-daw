@@ -1361,10 +1361,9 @@ void StudioWindow::pollPlayback() {
     const auto style = QStringLiteral("QProgressBar::chunk { background: %1; }").arg(color);
     if (meter_->styleSheet() != style)
         meter_->setStyleSheet(style);
-    level_->setText(
-        peak > 0 ? soundcurrent::daw::i18n::numberWithUnit(tr("Output: %1 dBFS"),
-                       QLocale().toString(20 * std::log10(peak), 'f', 1), QStringLiteral("dBFS"))
-                 : tr("Output: −∞ dBFS"));
+    level_->setText(soundcurrent::daw::i18n::numberWithUnit(tr("Output: %1"),
+        peak > 0 ? QLocale().toString(20 * std::log10(peak), 'f', 1) : QStringLiteral("−∞"),
+        QStringLiteral("dBFS")));
     if (p->errorSerial != playbackError_) {
         playbackError_ = p->errorSerial;
         notice_->setText(tr("Playback could not be completed: %1").arg(text(p->diagnostic)));
@@ -2110,12 +2109,9 @@ void StudioWindow::pollRecording() {
         const auto style = QStringLiteral("QProgressBar::chunk { background: %1; }").arg(color);
         if (bar->styleSheet() != style)
             bar->setStyleSheet(style);
-        label->setText(
-            peak > 0
-                ? soundcurrent::daw::i18n::numberWithUnit(tr("%1: %2 dBFS").arg(name),
-                      QLocale().toString(20 * std::log10(peak), 'f', 1),
-                      QStringLiteral("dBFS"), QStringLiteral("%2"))
-                : tr("%1: −∞ dBFS").arg(name));
+        label->setText(soundcurrent::daw::i18n::numberWithUnit(tr("%1: %2").arg(name),
+            peak > 0 ? QLocale().toString(20 * std::log10(peak), 'f', 1) : QStringLiteral("−∞"),
+            QStringLiteral("dBFS")));
     };
     inputMeter_->setVisible(!r->projectMix);
     inputLevel_->setVisible(!r->projectMix);

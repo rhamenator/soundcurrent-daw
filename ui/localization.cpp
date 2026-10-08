@@ -171,13 +171,14 @@ void savePreferences(const Preferences &p) {
     if (settings.status() != QSettings::NoError)
         throw std::runtime_error(Text::tr("Language preferences could not be saved.").toStdString());
 }
-QString numberWithUnit(QString pattern, const QString &number, const QString &unit,
-                       const QString &placeholder) {
-    if (QApplication::layoutDirection() == Qt::RightToLeft) {
-        const auto token = placeholder + QStringLiteral(" ") + unit;
-        pattern.replace(token, QString(QChar(0x2066)) + token + QChar(0x2069));
-    }
-    return pattern.arg(number);
+QString numberWithUnit(QString pattern, const QString &number, const QString &unit) {
+    // The translated label contains one value placeholder. Build the invariant
+    // engineering unit with the formatted number outside translation, then
+    // isolate the entire field. Translators may change label spelling/spacing.
+    auto field = number + QStringLiteral(" ") + unit;
+    if (QApplication::layoutDirection() == Qt::RightToLeft)
+        field = QString(QChar(0x2066)) + field + QChar(0x2069);
+    return pattern.arg(field);
 }
 Runtime::Runtime(QString requested, QString format)
     : requested_(std::move(requested)), loaded_(resolve(requested_)),
