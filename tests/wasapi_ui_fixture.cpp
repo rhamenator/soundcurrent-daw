@@ -151,6 +151,9 @@ int run(const QStringList &args) {
     await([&] { return record->isEnabled(); });
     source.start = true;
     await([&] { source.check(); return source.running.load(std::memory_order_acquire); });
+    // Let the independent source pass its defined silent lead before starting
+    // the raw take. Playback of this take must preserve non-silent frame zero.
+    QTest::qWait(500);
     record->click();
     await([&] { source.check(); return window.recordingSnapshot()->telemetry.capturedFrames >= 24000 ||
                                          window.recordingSnapshot()->phase == RecordingPhase::Fault; });
@@ -216,7 +219,8 @@ int run(const QStringList &args) {
     await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Complete || window.playbackSnapshot()->phase == PlaybackPhase::Fault; });
     const auto playbackFinal = *window.playbackSnapshot();
     require(playbackFinal.phase == PlaybackPhase::Complete && playbackFinal.position == frames &&
-            !playbackFinal.missingFrames && !playbackFinal.droppedReceipts, "Desktop playback incomplete/fault");
+            !playbackFinal.missingFrames && !playbackFinal.droppedReceipts && playbackFinal.nativeTiming &&
+            playbackFinal.nativeTiming->startupFrames > 0, "Desktop playback incomplete/fault/timing");
     find<QPushButton>(window,"stopButton")->click();
     await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Idle; });
     QTest::qWait(150); tap.stop(); bridge.finishQuiescent(); const auto wet = writer.wait();
@@ -262,6 +266,10 @@ int run(const QStringList &args) {
         {"cppAllocations",0},{"cppFrees",0},{"recordingCallbacks",recording.calls.load()},
         {"playbackCallbacks",playback.calls.load()},{"observerCallbacks",sink.calls.load()},
         {"installerQualified",false},{"physicalOrSustainedTimingQualified",false}};
+    report["nativeStartupFrames"] = playbackFinal.nativeTiming->startupFrames;
+    report["devicePeriod100ns"] = playbackFinal.nativeTiming->devicePeriod100ns;
+    report["streamLatency100ns"] = playbackFinal.nativeTiming->streamLatency100ns;
+    report["nonSilentPlaybackStartRequired"] = true;
     std::ofstream out(root / "probe.json"); out << report.dump(2) << '\n'; require(bool(out),"Cannot retain desktop report");
     std::cout << report.dump(2) << '\n'; return 0;
 }

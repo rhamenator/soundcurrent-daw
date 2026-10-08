@@ -8,6 +8,7 @@ namespace soundcurrent::daw {
 struct WasapiPlaybackObservation {
     WasapiRenderClock native;
     MixPlaybackReport mix;
+    std::uint32_t nativeFrames = 0; // Full lease extent, including certified end slack.
 };
 // Control worker owner. Explicit output endpoint/map, no system routing or
 // device-volume changes. Reader/DSP preparation precedes activation; native
@@ -42,6 +43,7 @@ class WasapiPlayback {
     std::uint64_t submittedFrames() const noexcept;
     std::uint64_t emptyQueueObservations() const noexcept;
     std::uint32_t bufferFrames() const noexcept;
+    std::optional<NativeRenderTiming> timing() const noexcept;
     std::optional<WasapiStreamFailure> failure() const noexcept;
   private:
     struct State;

@@ -33,22 +33,34 @@ def analyze(root):
     submitted = samples(root / 'submitted-stereo.f32')
     require(submitted == source, 'SDK lease differs from source intent')
     seed = 0x1a2b3c4d
+    kind = report.get('sourceKind', 'noise')
+    require(kind in ('noise','impulse'), 'Unknown direct source recipe')
     f32 = lambda v: array('f', [v])[0]
     for n in range(96000):
         seed = (seed * 1664525 + 1013904223) & 0xffffffff
         expected = 0. if n < report['silentLeadFrames'] or n >= 84000 else \
             f32(f32((seed >> 8) / 16777216. - .5) * f32(.1))
         if n == 0 and not report['silentLeadFrames']: expected = f32(.04)
+        if kind == 'impulse' and n > 0: expected = 0.
         require(source[n * 2] == expected and source[n * 2 + 1] == 0., 'Source recipe differs')
-    sequence = clock = qpc = 0
+    startup = report.get('startupFrames', 0)
+    if 'startupFrames' in report:
+        period, latency = report['devicePeriod100ns'], report['streamLatency100ns']
+        require(0 < period <= 10000000 and 0 <= latency <= 10000000 and
+                startup in (0, (period * 48000 + 9999999)//10000000) and
+                0 <= startup <= report['bufferFrames'] and
+                (not startup or report['silentLeadFrames'] == 0), 'Native startup timing admission differs')
+    sequence = startup; content = clock = qpc = 0
     rows = report['observations']
     require(0 < len(rows) <= 256 and 0 < report['bufferFrames'] <= 32768, 'Unbounded native observations')
     for row in rows:
         require(row['submittedFrames'] == sequence and 0 < row['frames'] <= 2048 and
+                row.get('contentSubmittedFrames', row['submittedFrames'] - startup) == content and
+                row.get('startupFrames', 0) == startup and
                 row['clockFrequency'] > 0 and row['clockPosition'] >= clock and row['qpc100ns'] >= qpc and
                 0 <= row['paddingFrames'] <= report['bufferFrames'], 'Native queue/clock sequence differs')
-        sequence += row['frames']; clock = row['clockPosition']; qpc = row['qpc100ns']
-    require(sequence == report['submittedFrames'] and 96000 <= sequence <= 98047, 'Submitted extent differs')
+        sequence += row['frames']; content += row['frames']; clock = row['clockPosition']; qpc = row['qpc100ns']
+    require(sequence == report['submittedFrames'] and 96000 <= content <= 98047, 'Submitted extent differs')
     capture = path(root / 'loopback', report['capturePath'])
     require(hashlib.sha256(capture.read_bytes()).hexdigest() == report['captureSha256'], 'Capture identity differs')
     left, right = stereo_wav(capture)
@@ -64,14 +76,15 @@ def analyze(root):
     mono = source[::2]
     # Align using a nonperiodic interior segment, excluding the suspected startup.
     # This is fixture alignment, not production latency compensation.
-    anchor = max(8192, report['silentLeadFrames'] + 2048)
+    anchor = 0 if kind == 'impulse' else max(8192, report['silentLeadFrames'] + 2048)
     x = mono[anchor:anchor+128]; energy = sum(v*v for v in x)
     candidates = []
-    for offset in range(-2048, 2049):
+    for offset in range(0 if kind == 'impulse' else -2048, 2049):
         y = left[anchor+offset:anchor+offset+128]
         gain = sum(a*b for a, b in zip(x, y)) / energy
         error = max(abs(b-gain*a) for a, b in zip(x, y))
-        candidates.append((error, offset, gain))
+        if .05 <= gain <= 1.1: candidates.append((error, offset, gain))
+    require(candidates, 'Direct source onset/interior absent')
     error, offset, gain = min(candidates)
     require(error <= 5e-5 and .05 <= gain <= 1.1, 'Direct native interior signal missing/altered')
     begin, end = max(0, -offset), min(96000, len(left)-offset)
@@ -88,7 +101,7 @@ def analyze(root):
         blocks.append({'firstFrame': first, 'frames': 48,
                        'gainRelativeToInterior': sum(a*b for a,b in zip(x,y))/energy/gain if energy else None,
                        'maximumResidual': max(residual[first:first+48])})
-    return {'format': 'sc-wasapi-direct-startup-analysis', 'silentLeadFrames': report['silentLeadFrames'],
+    result = {'format': 'sc-wasapi-direct-startup-analysis', 'silentLeadFrames': report['silentLeadFrames'],
             'submittedLeaseEqualsIndependentSource': True, 'mixerOrEqInvoked': False,
             'fixtureOffsetFrames': offset, 'measuredInteriorGain': gain, 'matchedFrames': end,
             'first480MaximumResidual': max(residual[:480]),
@@ -97,6 +110,12 @@ def analyze(root):
             'firstAffectedFrame': affected[0] if affected else None,
             'lastAffectedFrame': affected[-1] if affected else None, 'startupBlocks': blocks,
             'physicalOrSustainedTimingQualified': False, 'driverOrOsCauseIsolated': False}
+    if 'startupFrames' in report:
+        result.update({'nativeStartupFrames': startup, 'devicePeriod100ns': period,
+                       'streamLatency100ns': latency, 'projectSourceStartsAtNativeFrame': startup,
+                       'sourceFrameZeroPreserved': not affected and report['silentLeadFrames'] == 0})
+    if 'sourceKind' in report: result['sourceKind'] = kind
+    return result
 
 
 if __name__ == '__main__':

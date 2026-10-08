@@ -76,6 +76,10 @@ def verify(root):
     require(len(raw) == len(exported) == asset['frames'] == report['frames'] == 480000 and
             len(left) == report['captureFrames'] and 470000 <= len(left) <= 500000,
             'Native desktop extent differs')
+    if report.get('nonSilentPlaybackStartRequired'):
+        require(any(abs(v) > .0001 for v in raw[:2]) and report['nativeStartupFrames'] > 0 and
+                report['nativeStartupFrames'] == (report['devicePeriod100ns']*48000+9999999)//10000000,
+                'Non-silent startup or admitted timing missing')
     for media, count in ((raw_path, len(raw)), (tap_path, len(left))):
         j = json.loads((media.parent/'journal.json').read_text(encoding='utf-8'))
         require(j['phase'] == 'finalized' and j['committedFrames'] == count and

@@ -4,6 +4,7 @@
 #include <soundcurrent/pipewire_filter.hpp>
 #include <soundcurrent/pipewire_playback.hpp>
 #include <soundcurrent/playback_bridge.hpp>
+#include <soundcurrent/native_render_timing.hpp>
 
 namespace soundcurrent::daw::ui {
 struct PlaybackPreparation {
@@ -22,6 +23,7 @@ struct PlaybackTelemetry {
     double peak = 0;
     std::uint64_t missingFrames = 0, droppedMeters = 0, droppedReceipts = 0;
     bool processed = false;
+    std::optional<NativeRenderTiming> nativeTiming;
     struct Receipt {
         std::size_t track;
         ImmediateAcknowledgement applied;
@@ -72,6 +74,7 @@ struct PlaybackSnapshot {
     double peak = 0;
     bool supported = false, pending = false, closed = false;
     std::optional<PlaybackCallbackFault> callbackFault;
+    std::optional<NativeRenderTiming> nativeTiming;
 };
 struct PlaybackControllerOptions {
     std::function<std::unique_ptr<PlaybackEndpoint>(const PlaybackPreparation &)> factory;

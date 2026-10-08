@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Opt-in direct-render diagnostic on an explicit owned, quiet Windows endpoint.
-// No DAW mixer/EQ, no endpoint/session volume changes, no production workaround.
+// Direct production renderer; source and endpoint/session volumes stay unchanged.
 #include <soundcurrent/wasapi_render.hpp>
 #include <soundcurrent/wasapi_input.hpp>
 #include <soundcurrent/recording.hpp>
@@ -43,11 +43,11 @@ struct Source : Audit {
     bool overflow = false, fault = false;
     struct Row { WasapiRenderClock clock; std::uint32_t frames; };
     std::array<Row, 256> rows{};
-    explicit Source(std::uint32_t lead) : samples(sourceFrames * 2), submitted(sourceFrames * 2) {
+    explicit Source(std::uint32_t lead, bool impulse = false) : samples(sourceFrames * 2), submitted(sourceFrames * 2) {
         std::uint32_t seed = 0x1a2b3c4d;
         for (std::uint32_t n = 0; n < sourceFrames; ++n) {
             seed = seed * 1664525u + 1013904223u;
-            samples[n * 2] = n < lead || n >= sourceFrames - 12000 ? 0.f :
+            samples[n * 2] = impulse || n < lead || n >= sourceFrames - 12000 ? 0.f :
                 float(double(seed >> 8) / 16777216.0 - .5) * .1f;
         }
         if (!lead) samples[0] = .04f;
@@ -55,7 +55,7 @@ struct Source : Audit {
     static WasapiRenderAction fill(void *p, float *out, std::uint32_t count,
                                   const WasapiRenderClock &clock) noexcept {
         auto &s = *static_cast<Source *>(p); s.begin();
-        if (s.packets >= s.rows.size() || clock.submittedFrames != s.cursor ||
+        if (s.packets >= s.rows.size() || clock.contentSubmittedFrames != s.cursor ||
             !count || count > 2048 || s.cursor >= sourceFrames) {
             s.overflow = true; s.end(); return WasapiRenderAction::Abort;
         }
@@ -77,8 +77,9 @@ void retain(const std::filesystem::path &p, const std::vector<float> &values) {
     require(bool(out), "Cannot retain direct-render samples");
 }
 int run(const std::vector<std::filesystem::path> &args) {
-    require(args.size() == 4 && (args[3] == "immediate" || args[3] == "silent-lead"),
-            "Supply NEW_ROOT explicit owned stereo endpoint ID immediate|silent-lead");
+    require(args.size() == 4 && (args[3] == "immediate" || args[3] == "silent-lead" ||
+            args[3] == "device-period" || args[3] == "impulse" || args[3] == "cancel-prepared"),
+            "Supply NEW_ROOT explicit owned stereo endpoint ID immediate|silent-lead|device-period|impulse|cancel-prepared");
     const auto encoded = args[2].u8string(); const std::string id(encoded.begin(), encoded.end());
     const auto endpoints = wasapiEndpoints();
     const auto e = std::find_if(endpoints.begin(), endpoints.end(), [&](const auto &e) { return e.id == id; });
@@ -86,8 +87,23 @@ int run(const std::vector<std::filesystem::path> &args) {
             "Explicit owned 48 kHz stereo endpoint required");
     const auto defaults = wasapiDefaultEndpoints();
     const auto root = args[1]; require(std::filesystem::create_directory(root), "New result root required");
-    const std::uint32_t lead = args[3] == "immediate" ? 0 : 12000;
-    Source source(lead);
+    const std::uint32_t lead = args[3] == "silent-lead" ? 12000 : 0;
+    Source source(lead, args[3] == "impulse");
+    if (args[3] == "cancel-prepared") {
+        WasapiRenderStream render({id,48000,2,2048}, {&source,Source::fill,Source::unavailable});
+        require(!source.calls && !render.submittedFrames() && !render.drained(), "Prepared stream processed content");
+        const auto timing = render.timing(); render.stop(); render.stop();
+        bool refused = false;
+        try { render.activate(); } catch (const ProjectError &) { refused = true; }
+        require(refused && !source.calls && !render.submittedFrames() && !render.drained() &&
+                !render.failure() && defaults == wasapiDefaultEndpoints(), "Prepared cancellation activated or completed audio");
+        json report{{"format","sc-wasapi-prepared-cancel"},{"nativeSdkAccepted",true},
+            {"startupFrames",timing.startupFrames},{"devicePeriod100ns",timing.devicePeriod100ns},
+            {"streamLatency100ns",timing.streamLatency100ns},{"sourceCallbacks",0},{"submittedFrames",0},
+            {"drained",false},{"diskWorkerCreated",false},{"activationAfterStopRefused",true},{"defaultsUnchanged",true}};
+        std::ofstream out(root / "probe.json"); out << report.dump(2) << '\n'; require(bool(out), "Cannot retain cancellation");
+        std::cout << report.dump(2) << '\n'; return 0;
+    }
     CaptureConfig cc; cc.layout = {LayoutKind::Stereo, 2}; CapturePipe pipe(cc);
     auto session = makeOneTrackSession("Direct renderer observer", "Native stereo input");
     session.tracks.front().layout = cc.layout;
@@ -97,7 +113,9 @@ int run(const std::vector<std::filesystem::path> &args) {
     std::filesystem::create_directory(root / "loopback");
     RecordingSpec spec; spec.projectId = session.id; spec.trackId = session.tracks.front().id;
     spec.capture = pipe.config(); RecordingWorker worker(pipe, root / "loopback", spec);
-    WasapiRenderStream render({id, 48000, 2, 2048}, {&source, Source::fill, Source::unavailable});
+    WasapiRenderStream render({id, 48000, 2, 2048,
+        args[3] == "device-period" || args[3] == "impulse" ? NativeRenderStartup::DevicePeriod : NativeRenderStartup::Immediate},
+        {&source, Source::fill, Source::unavailable});
     require(!source.calls && !sink.calls, "Prepared stream activated processing");
     tap.activate(); render.activate();
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
@@ -114,6 +132,7 @@ int run(const std::vector<std::filesystem::path> &args) {
     for (std::uint32_t n = 0; n < source.packets; ++n) {
         const auto &r = source.rows[n];
         rows.push_back({{"submittedFrames", r.clock.submittedFrames}, {"frames", r.frames},
+            {"contentSubmittedFrames", r.clock.contentSubmittedFrames}, {"startupFrames", r.clock.startupFrames},
             {"clockPosition", r.clock.clockPosition}, {"clockFrequency", r.clock.clockFrequency},
             {"qpc100ns", r.clock.qpc100ns}, {"paddingFrames", r.clock.paddingFrames}});
     }
@@ -123,9 +142,12 @@ int run(const std::vector<std::filesystem::path> &args) {
         defaults == wasapiDefaultEndpoints();
     json report{{"format", "sc-wasapi-direct-startup-probe"}, {"nativeSdkAccepted", accepted},
         {"silentLeadFrames", lead}, {"sourceFrames", sourceFrames}, {"rate", 48000},
+        {"sourceKind",args[3] == "impulse" ? "impulse" : "noise"},
         {"capturePath", captured.asset.relativePath}, {"captureSha256", captured.asset.sha256},
         {"captureFrames", captured.asset.frames}, {"submittedFrames", render.submittedFrames()},
         {"bufferFrames", render.bufferFrames()}, {"drained", render.drained()}, {"observations", rows},
+        {"startupFrames", render.timing().startupFrames}, {"devicePeriod100ns", render.timing().devicePeriod100ns},
+        {"streamLatency100ns", render.timing().streamLatency100ns},
         {"cppAllocations", source.allocations.load() + sink.allocations.load()},
         {"cppFrees", source.frees.load() + sink.frees.load()}, {"defaultsUnchanged", defaults == wasapiDefaultEndpoints()},
         {"mixerOrEqInvoked", false}, {"physicalOrSustainedTimingQualified", false}};

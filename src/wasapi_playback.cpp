@@ -44,7 +44,7 @@ struct WasapiPlayback::State {
         const auto next = converted(report.status);
         auto prior = s.phase.load(std::memory_order_acquire);
         if (active(prior)) s.phase.compare_exchange_strong(prior, next, std::memory_order_acq_rel);
-        if (!s.observations.tryPush({clock, report})) s.dropped.fetch_add(1, std::memory_order_relaxed);
+        if (!s.observations.tryPush({clock, report, frames})) s.dropped.fetch_add(1, std::memory_order_relaxed);
         if (s.audit.end) s.audit.end(s.audit.context);
         if (!active(s.phase.load(std::memory_order_acquire))) return WasapiRenderAction::Abort;
         if (report.status == PlaybackStatus::Complete) {
@@ -154,5 +154,8 @@ bool WasapiPlayback::drained() const noexcept { return state_->stream && state_-
 std::uint64_t WasapiPlayback::submittedFrames() const noexcept { return state_->stream ? state_->stream->submittedFrames() : 0; }
 std::uint64_t WasapiPlayback::emptyQueueObservations() const noexcept { return state_->stream ? state_->stream->emptyQueueObservations() : 0; }
 std::uint32_t WasapiPlayback::bufferFrames() const noexcept { return state_->stream ? state_->stream->bufferFrames() : 0; }
+std::optional<NativeRenderTiming> WasapiPlayback::timing() const noexcept {
+    return state_->stream ? std::optional{state_->stream->timing()} : std::nullopt;
+}
 std::optional<WasapiStreamFailure> WasapiPlayback::failure() const noexcept { return state_->stream ? state_->stream->failure() : std::nullopt; }
 } // namespace soundcurrent::daw

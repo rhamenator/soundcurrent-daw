@@ -11,6 +11,7 @@ namespace playback_fixture {
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 struct Counters {
+    std::optional<NativeRenderTiming> nativeTiming; // Configure before preparation.
     std::atomic<bool> full{false}, holdReceipts{false}, readerFailure{false};
     std::atomic<bool> holdStop{false}, waitingStop{false};
     std::atomic<std::uint32_t> forcedStatus{0};
@@ -86,6 +87,7 @@ class Endpoint : public PlaybackEndpoint {
             }))
             throw ProjectError(ErrorCode::InvalidState, "Stale/invalid fake output");
         ++counters_->connected;
+        telemetry_.nativeTiming = counters_->nativeTiming;
     }
     void activate() override {
         threadCheck();
