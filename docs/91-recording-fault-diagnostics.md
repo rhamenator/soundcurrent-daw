@@ -1,7 +1,8 @@
 # Recording first-fault diagnostics
 
 Implementation checkpoint, 2026-10-08 UTC. Scoped Linux qualification is recorded
-below; this change is not yet in the packaged preview described by guide 90.
+below; guide 90 includes a newer packaged diagnostic candidate separately from
+the earlier recording/EQ/export candidate.
 This extends recording failure visibility for useful previews; full recording
 alignment, sustained native operation and Windows workflows remain required.
 
@@ -96,3 +97,51 @@ exact bytes/hashes were captured for a separate review; existing DAW adaptations
 stay pinned until reviewed and qualified. Review/adapt that upstream work before
 the next reuse-dependent localization/profile milestone. Do not replace the
 DAW's context-aware Qt extraction with the equalizers' single-context extractor.
+
+## Installed diagnostic candidate
+
+Protected PR34 merged the tested tree without changing its bytes. Required hosted
+Linux checks pass **58/58, 112.38 s**, and the Windows core cross-build passes;
+this is not a native Windows runtime test.
+
+The new local Ubuntu candidate is
+`0.1.0~preview.20261008013908.97a307fcf2ba`. All **710** tracked corresponding-source
+files were independently compared byte-for-byte. A normal package-manager upgrade
+in the owned Ubuntu rootfs replaced the earlier candidate without installing a
+compiler/SDK or using a downgrade override. The installed executable matches the
+DEB's stripped executable hash.
+
+The actual installed GUI selected the private audiotestsrc mono port, armed and
+recorded with monitoring off. Its visible explanation reports clock29 position0,
+block1024, engine frame1024 and previous clock29 position0/block1024. The saved
+project attaches **1,024** verified raw frames; the finalized journal preserves
+end reason6, zero rejected frames and the timing origin. WAV and PCM hashes,
+asset/clip/journal agreement and explicit route intent were independently checked.
+Save and normal Quit completed; the launcher exited0 and all owned processes
+retired. The control helper's exit137 followed PID-namespace teardown, not an
+application crash. Private recording nodes/links retired, and host default
+metadata and existing links stayed identical.
+
+This is a new diagnostic-failure workflow, not a repeat of sustained successful
+recording/EQ/export on the new binary. The earlier candidate's successful workflow
+evidence retains its original scope. Private Xvfb/PipeWire and a shared-kernel
+read-only rootfs do not qualify a complete desktop, physical audio or real-time
+deadlines. Reopening still does not restore the detailed session fault receipt;
+the portable sidecar and native startup/alignment policy remain next.
+
+The [separate installed receipt](../tests/results/X007/2026-10-08-installed-recording-fault.json)
+and its **2,086,164-byte** capsule retain 39 logical entries, verified CRC and every
+selected byte, including visible GUI screenshots and the preserved take. Original
+receipts and takes were not rewritten. The candidate/source pair remains local;
+no binary release was uploaded.
+
+Review correction: the initial capsule's action logs were stderr-only and its
+verifier depended on private host dumps. The [additive supplement](../tests/results/X007/2026-10-08-installed-recording-fault-supplement.json)
+preserves five actual command execution records recovered from this chat, with
+timestamps and exit codes, plus redacted canonical fingerprints of every default
+metadata/link object before and after. Historical namespace PID targets are
+retired; a new GUI run needs a newly owned matching fixture and substituted PID.
+The standalone `tools/verify_installed_fault_evidence.py` checks both capsules,
+actions and equality inputs without audio/GUI or raw host dumps. It independently
+replays the retained fingerprint comparison; omitted host values cannot be
+reconstructed. The original receipt/archive remains unchanged.

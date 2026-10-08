@@ -1,0 +1,69 @@
+{
+  "utc": "2026-10-08T02:06:58.058105+00:00",
+  "source_head": "97a307fcf2bae9ea2781de96a4e25dc76dbda001",
+  "original_receipt": "tests/results/X007/2026-10-08-installed-recording-fault.json",
+  "original_receipt_sha256": "f3033ec0601313f244fc5f5b9ad83b2130119122dc158eb8a000c286595dac07",
+  "original_archive_sha256": "33c92dbdb98872657decb5c6c3d107eecbd911ab2cd8bfd8d55b17a29271a9ca",
+  "original_artifacts_rewritten": false,
+  "review_correction": "Original archive includes stderr-only action logs and excludes host graph inputs. This additive capsule retains actual command execution records and redacted equality inputs; earlier capsule alone does not independently replay those claims.",
+  "action_origin": "Five actual completed CommandExecution events recovered from this Codex chat local execution history, filtered by exact namespace target and output-log path; no full chat, other commands or credentials retained",
+  "actions_retained": 5,
+  "action_names": [
+    "actions/open-input.log.json",
+    "actions/open-transport.log.json",
+    "actions/prepare-and-scroll.log.json",
+    "actions/record-and-read-fault.log.json",
+    "actions/save-quit.log.json"
+  ],
+  "original_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    137
+  ],
+  "action_replay_scope": "Historical namespace PID3468392 retired; reproducible interactions require a newly owned matching fixture, screen geometry and substituted namespace PID. Records establish commands issued and exits, not a new GUI replay.",
+  "host_route_input_scope": "Before/after canonical fingerprints of every full default metadata and link object. Comparing retained fingerprints independently verifies equality; original raw values are deliberately omitted and cannot be independently reconstructed from this capsule.",
+  "host_route_inputs": {
+    "before": {
+      "schema": 1,
+      "redaction": "Canonical SHA-256 fingerprints retain equality of full default metadata and link objects; values, device identities and unrelated host graph objects omitted",
+      "defaults": [
+        {
+          "id": 41,
+          "type": "PipeWire:Interface:Metadata",
+          "canonical_object_sha256": "eac1662f8d3cc13a8a5f8b8103de3e4306956a48aad9cc444095bcb537b2a298"
+        }
+      ],
+      "links": [],
+      "default_object_count": 1,
+      "link_object_count": 0
+    },
+    "after": {
+      "schema": 1,
+      "redaction": "Canonical SHA-256 fingerprints retain equality of full default metadata and link objects; values, device identities and unrelated host graph objects omitted",
+      "defaults": [
+        {
+          "id": 41,
+          "type": "PipeWire:Interface:Metadata",
+          "canonical_object_sha256": "eac1662f8d3cc13a8a5f8b8103de3e4306956a48aad9cc444095bcb537b2a298"
+        }
+      ],
+      "links": [],
+      "default_object_count": 1,
+      "link_object_count": 0
+    }
+  },
+  "host_route_equality_rechecked": true,
+  "new_native_or_GUI_runs": 0,
+  "production_changes": false,
+  "release_uploaded": false,
+  "archive": {
+    "path": "tests/results/X007/2026-10-08-installed-recording-fault-supplement.zip",
+    "bytes": 6747,
+    "sha256": "10b4930fa12e2078d2fc869c8c4945d48e4d06e5c5d8af3f2fd934146b7bb451",
+    "logical_entries": 8,
+    "unique_blobs": 7,
+    "CRC_and_every_selected_byte_verified": true
+  }
+}
