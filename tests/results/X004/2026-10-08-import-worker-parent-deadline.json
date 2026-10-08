@@ -1,0 +1,48 @@
+{
+  "format": "sc-import-worker-parent-deadline-v1",
+  "previousEvidence": "2026-10-08-import-worker.json",
+  "scope": "Updated acceptance parent waits for first report byte with an external deadline and retires the exact child; successful real child cancellation workflow, not a timeout-injection qualification",
+  "steps": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^import-inspection-worker$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 0.457,
+      "logSha256": "24bc914b91d1930c58f3f7c5488429ed5e529e96d6ca48b376211ab02c0a3319",
+      "observedResult": [
+        "31: {\"checks\": 140, \"processBoundary\": true, \"sourceUntouched\": true, \"nativeDAWCompatibilityQualified\": false, \"platform\": \"linux\"}"
+      ]
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^import-inspection-worker$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 1.209,
+      "logSha256": "98077a59a6cefc50e3fff375aa309eebc739adaf5729d968f78fb851f3dccd70",
+      "observedResult": [
+        "31: {\"checks\": 140, \"processBoundary\": true, \"sourceUntouched\": true, \"nativeDAWCompatibilityQualified\": false, \"platform\": \"linux\"}"
+      ]
+    }
+  ],
+  "nativeWindowsExecution": false,
+  "localVMStarted": false,
+  "testSourceSha256": "0ab373c99539cfcebed9bf15071896743445bf4387fb31a0e2b6c6d11e58aa07",
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-import-inspect-worker": "72decb14193c7ea1801836999a26dd3226f77d12794db38ff9e16501fd19f6f1",
+    ".cache/build-desktop-sanitized/sc-import-inspect-worker": "457d4517f1cec35f3d3af59d1fe7f4d47ae018e27ec2a043386f7bfeb620feb2"
+  }
+}

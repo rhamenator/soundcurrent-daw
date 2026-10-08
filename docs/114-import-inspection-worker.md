@@ -98,6 +98,9 @@ hosted native unit/synthetic tests passing at `2f81b97`, including 174 structura
 checks; its exact log is retained separately.
 
 Local evidence: [worker receipt](../tests/results/X004/2026-10-08-import-worker.json).
+The acceptance parent's bounded first-byte wait is recorded in a separate
+[follow-up receipt](../tests/results/X004/2026-10-08-import-worker-parent-deadline.json);
+the prior input hashes and exits remain unchanged in their original receipt.
 Earlier hosted evidence: [RPP structural receipt](../tests/results/X004/2026-10-08-hosted-rpp-structure/receipt.json).
 No local VM/audio endpoint is needed. Existing end-user previews are unchanged.
 

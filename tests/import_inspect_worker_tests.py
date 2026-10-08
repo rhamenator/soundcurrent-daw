@@ -4,6 +4,7 @@
 import hashlib
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from pathlib import Path
 import signal
 import subprocess
@@ -155,9 +156,17 @@ with tempfile.TemporaryDirectory(prefix='sc-import-worker-') as temporary:
     process = subprocess.Popen([str(worker), '--rpp', str(large)],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
-        # read(1) is bounded by the outer CTest deadline; the worker cannot emit a
-        # byte before loading, parsing, hashing and sizing all report rows.
-        first = process.stdout.read(1)
+        # An external first-byte deadline also retires this exact child if it
+        # stalls before producing a report. The reader is joined before drain.
+        with ThreadPoolExecutor(max_workers=1) as reader:
+            pending = reader.submit(process.stdout.read, 1)
+            try:
+                first = pending.result(timeout=15)
+            except FutureTimeout:
+                process.kill()
+                pending.result(timeout=10)
+                process.communicate(timeout=10)
+                raise AssertionError('Live-cancel worker missed first-byte deadline')
         check(first == b'{' and process.poll() is None, 'Cancellation target was not a live worker')
         if os.name == 'nt':
             process.terminate()  # Actual Windows termination, no cooperative-exit claim.
