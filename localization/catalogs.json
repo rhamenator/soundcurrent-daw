@@ -2,364 +2,375 @@
   {
     "tag": "en",
     "name": "English",
-    "translated": 541,
-    "total": 546,
+    "translated": 559,
+    "total": 564,
     "status": "source",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "22bb93afb8bad5e5031fd28806e3ac5ab36bd551c70cafd1cab3ac459a7ff680",
-    "qmSha256": "970e1dc2213df85d5c6500bf53873e8ec15b7c37704e38620982243f42017b03"
+    "tsSha256": "ea5d4695625c76860c61b576549cf1c4195c4ba25ff3b75088d48ee8a9aacb2a",
+    "qmSha256": "6871544e58d9d84d6c51c58c4e65da4a51856f373e8cbd9012b8acd1cadf3005"
   },
   {
     "tag": "de",
     "name": "Deutsch",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "b2820c5b3fba9bdaceec598509a967c548236cd25d0ab9833a2cf9486118eb75",
-    "qmSha256": "7ec8fbcdf6dccc845950f0c6d1ba385275b9a7a890bf1924c55f8daeacd1bae7"
+    "tsSha256": "71ada74bbe57daf70c37c8f2e79370b3b26d398cfacb81343af482b6c4d9c775",
+    "qmSha256": "f1f2ecbd2291f1bb5b2304b1d51f3caf981766d3563f37e673962abfa109f7e2"
   },
   {
     "tag": "fr",
     "name": "Français",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "924a16bdf784ff6385414ceefaef771d7410203684a4f60a31eb04eaabbda794",
-    "qmSha256": "55cc94aa561a4401fb59f069d2cd785e76d3208a96e9815baf45f7d11c521d10"
+    "tsSha256": "91930d683d2addd3fd3744636e62997944d2d6c3f5754ab3a891ebb942366870",
+    "qmSha256": "2330df1c096b8fb5238fe0ac9a903594867c1e6fa43a4a83b933df2a45ea28a3"
   },
   {
     "tag": "es",
     "name": "Español",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "fc3684df0c93e3e48070cfcbe4e587b23ac7514067334215b9a18c3088d2c7d7",
-    "qmSha256": "205591f887c4233afce4ffec1fa61f1db287d912e99c45152ce6ba21c863617e"
+    "tsSha256": "9cfe878a9c712357c32cc6441866d0b89a67f3c547c5d6c236c13e0bca188bc1",
+    "qmSha256": "a6f2d7293ad9be342d84f8453b80d3b50138d19e5fe7708df61fab689156ecdf"
   },
   {
     "tag": "it",
     "name": "Italiano",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "883737079d657ec089f59e83de71b4146043a4150789e524ba771f713310e5d4",
-    "qmSha256": "6d648da57960777eb99ba864bf6d3a8d4817125750218e760ef6369eff193787"
+    "tsSha256": "ef9e9ae2f919c07f38821910304b297270ae369bafbc991f05a01bc19914c4a8",
+    "qmSha256": "0d414be558c94e240dec638feb5dbf1040a73f0932baea8157e94fc3e46753fa"
   },
   {
     "tag": "pt-PT",
     "name": "Português (Portugal)",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "46ea1a6d3f9b71a66fd1e24e1b991ff8fcc5ca1a160f2a3a4bfd7a11fd3afff0",
-    "qmSha256": "32f53405e50044b2af4ce8816b2fe4cb02ec4cea0de1c565e552ee0eaf73eeef"
+    "tsSha256": "b35685df86203326f57637ad5c2ae09c24177740ca8f196558ef466327f458b5",
+    "qmSha256": "5042f0f1b30d8b03cdc5991a81bd829a2e07e777a8207e13589ba490f6659508"
   },
   {
     "tag": "pt-BR",
     "name": "Português (Brasil)",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "a98bf4d90efde069097d8d0aa43aa4c0cd9e223af2e11060f85d5468389e6662",
-    "qmSha256": "df603afe9f8cdd3c165b122fee8244e7e1b6e5565e9cbebe20577d6b303532a5"
+    "tsSha256": "1415f32be8dfc7407a140a290bda14dc38b11bfb879eb174134e1ebf1f97251f",
+    "qmSha256": "09187e2d6a247423a3e9c77c7de332dca11097279456a2613c498cd6dc9f4802"
   },
   {
     "tag": "nl",
     "name": "Nederlands",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "e8a8fa79e68417b86975e10744578d30fe5df3d87d92e047fd9720a2994bbcab",
-    "qmSha256": "5d42176d0cf8e6dd29acafbd9451131a34ceb90cac40a7b52b15b2668683a7a9"
+    "tsSha256": "3c49a09eade7f9fc9813856629cbedd61730997b566f05c51deab32b7c9ac1dc",
+    "qmSha256": "f670b368112cfbd90b9fcfdaa4d02d5e5ac401915a027a95c824282f0e7f0ae7"
   },
   {
     "tag": "pl",
     "name": "Polski",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "771e338a1fe1b5d363911d19dc743e323da995e4083c1b9b9d267f0c1fb6bb89",
-    "qmSha256": "125803f995bd9361ecccbd5d9c717be85dd494ef6084fcf49ea5a15f273f1ae0"
+    "tsSha256": "542a248a31d20eb23dbf94057c13c302ed1dda7c715fcb458261d3ba542ad544",
+    "qmSha256": "5bbd212699962b36e1509dc300d4d7635e8bed1de56ef30d3fb498b013723548"
   },
   {
     "tag": "cs",
     "name": "Čeština",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "6e0a61c9aa9ceec667c191d52f6b9a0dd7d67ac657d9fd8c024e0c1ff70d619b",
-    "qmSha256": "7585da80e08cf5c62fb5370b5c04af103922d41ae6d17e85b0d40e9c2e97979d"
+    "tsSha256": "bb30393a1fa31d4172d15e2eadb924bfb5a798bd6b82053b3b417321b8f05c85",
+    "qmSha256": "4b39079cbaa9ffd5e1597e8b6cd1aa1c870b3b1f4a97ee89c2acb2d74fd8b425"
   },
   {
     "tag": "sk",
     "name": "Slovenčina",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "755ab70163a0127fe97958323497fb512cf296c5678a3ccc64196470831d93eb",
-    "qmSha256": "42f823ba3895d0607a8e8601712c97320cb13ce5e1027bdcf4ca80ca8c697b59"
+    "tsSha256": "7aa8f130a5123c17717f8e7c6f70f8865cb7098d9cba456a92f5d5612f517777",
+    "qmSha256": "d33cbdeb359af2c9432c7fbb567efa379e2102a1b71b30c5f688547530b2cfa7"
   },
   {
     "tag": "uk",
     "name": "Українська",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "cc287cbfebd183bdcce92c68ca5d52f56cba915c0b1fe07023fc1b9e2dcad0d6",
-    "qmSha256": "c604b721084120f240c14e0f64b9d9d3f0da91412461c2b88e04175da0cad7bd"
+    "tsSha256": "a92e49aee7ee029206e74ce6c0b595c9860fc5af22c60658b6c5bb3a1ed30655",
+    "qmSha256": "aad95dfec890523c5268188bcf6c49a9793af3b4d0d61c0ee05e6783823e7f3c"
   },
   {
     "tag": "ru",
     "name": "Русский",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "b9d766b85ec41e4e0df1a5672e19c042d38d0d154e2fdf3e26e00dec97630976",
-    "qmSha256": "16639cbaddc4b1185690d6321345a3048ef69d247831e7c2aa1f1a73859c6448"
+    "tsSha256": "cbef7b675d3c6e49198bfed1bf691f582db493b3764bd3f7ea583359f603f249",
+    "qmSha256": "1b89940f2ad99f1c39069755867afd10ca13eb75ab86ddf294668275f293892e"
   },
   {
     "tag": "el",
     "name": "Ελληνικά",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "9fee1309b5cbe08fa4e2a171557f87aa29540059cda9fba60a2646ce6435b597",
-    "qmSha256": "c96174280584ec6dc75e1c08e7358fcadb4943f2d2144dbadb0b2e14360b56d0"
+    "tsSha256": "4d947f790ecc90d107b984ba9d9b74946fdeb8f5824bd8e575d7915d5b94f722",
+    "qmSha256": "6cea4f5d6d8584f3aa81ebadb0634f3c79f4f33e78a71b12c38c7222df96ac9b"
   },
   {
     "tag": "tr",
     "name": "Türkçe",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "02b9ca1ed3072abccc26be4b1c9a3aa4657ef06f835a387a4fd7e1f545daa1ea",
-    "qmSha256": "778a8b16885265b1b721ab51c44f34a52e7cec85afd26e65aa33bec483f906c7"
+    "tsSha256": "563e551e5b92ecf1219377d4d52e83d4c69c211bea5f19fd35050a39cbd312ac",
+    "qmSha256": "8f8804407f1dfee1ace692fdb158f81cce16c6944d6c7002b7f0d67bad65f43b"
   },
   {
     "tag": "sv",
     "name": "Svenska",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "81d0cf50befdac51c5e5206fef8753461c5a4010a222d5a9b27c46c967a558e1",
-    "qmSha256": "a9f80fc90064c1d85046b2159bda5acd5c12ce2e63b79e9bf5da80ccff46f626"
+    "tsSha256": "5afe0b21f9767be201c0e8782ae66395a0b1f538316f46331c0cd90aa65df749",
+    "qmSha256": "67a7cd0d567ad67590e06eb71eef005bcf38058e3d4b96c1ccfad2d982bbba7b"
   },
   {
     "tag": "da",
     "name": "Dansk",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "db496d3ae385b5c715a7bf227057e355a6112cfba8bad0c15558e3102ead0156",
-    "qmSha256": "8d90e1dd5e485707238b4d5023565c12e3e7d20c6228168eef386172ab685e6c"
+    "tsSha256": "d400d5467cb7b10d423a7f6039d585157a781e3c89588e567ed84c38e5d93733",
+    "qmSha256": "2cf1f3bfbe06f764d9e2de3c55011fc4f83dcf2cdf0a5c1afdf12bbba421c1bc"
   },
   {
     "tag": "nb",
     "name": "Norsk bokmål",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "cc11220efba133bd4f4b337145ab27ca95c3dfc191717e918efeea9a3ce3404b",
-    "qmSha256": "578e42bf10e84ec62706f2cbc3f7816fc98d385b96bd653c4ed5fb531b1608ae"
+    "tsSha256": "ea5843873c8cdef4136141608ccac867e59c9b8fcd3e0dae45305a0e3798635b",
+    "qmSha256": "c61c9a59c3cb0311fcf1eda0ff79b9cef14c883e427e8e682f13493fee9e6b43"
   },
   {
     "tag": "fi",
     "name": "Suomi",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "7131b8f21d1273efb3e621902eb248e86753373653279a7e04895cad5f5bdd6c",
-    "qmSha256": "c8a987ad7f45287101382250d53124ef95421607886ef4ef2ef6caa05faef6dc"
+    "tsSha256": "62a86e6f319d6a86cca49b2b54f027e1cbd474707ded46715da306b2c8ddb7b3",
+    "qmSha256": "591b9b184c40712a47f9a6989452602a675bb551da150bc65ad7233efaea2e9c"
   },
   {
     "tag": "ro",
     "name": "Română",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "12e615322ffd5eae6c744bd54b930db62ea5285ec9d093de96c017c524f4baae",
-    "qmSha256": "79f27edf85f2f87d6a90888586a761cc5c02565b758340ecab784689e7600605"
+    "tsSha256": "2ca54659a4443d4d86c1eb605ac5c12c46cffc1814e06e02f56096d21bec8e2a",
+    "qmSha256": "262d56968d5c06292e761de60d8b181b716eb345b2d4a3c81eaf267ea3ed95b3"
   },
   {
     "tag": "hu",
     "name": "Magyar",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "e7c366f3c354c1ccae3a9710e18b31c72bcdce5f044c0de43b69d0d643cbb94f",
-    "qmSha256": "a9dcf1d1af3e705f3bd6b2c2e9c8d386d033efbaf7cd4086c999eca580bacbe7"
+    "tsSha256": "a62dec5768ad667ba6b9ad06b112a32b10e2d24c1f60ea1d5f3462283df88c92",
+    "qmSha256": "fe86b68047de4ac7c66e0f1bcbdfe65bd2494f5ecb61566525a93142ca62c9e5"
   },
   {
     "tag": "ar",
     "name": "العربية",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "17007b3965d87f7b8b91ecfed0d9bb89dbb4b5a6272e35839d397d7ce0042f1a",
-    "qmSha256": "a46a6198765eb2cdf6e2668a34015ec4aa54958b90b478d25f48ffb5f1c7cd0e"
+    "tsSha256": "4bcadbdde9c13813edc5f0f6841d76d228082b633f2f6760e57b384e1f64dea5",
+    "qmSha256": "fb7ab9fa73e4999083ea180426485beda221ddb3ad5a1b5d23f60109b819611a"
   },
   {
     "tag": "he",
     "name": "עברית",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "4ac12296cc8fdd7392803a76cfd7b050abcf4d8631f474bf60776298f8493187",
-    "qmSha256": "89870414583b15a5ceee2a732d03644fdd89b5e65fc171769566198ba8577b14"
+    "tsSha256": "580d2039079076ffb968a52a06cd2876de1b9ba2765ca82d7b833a9a90ec65d9",
+    "qmSha256": "38f9446e54ef2d38806f56d10dfc888417a5d5a9783a0a01c6ea09da53a1cf9b"
   },
   {
     "tag": "fa",
     "name": "فارسی",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "0a0a94a5f13cfab09497ecb8400c4324ecdf2f565ed5876315d0aacd29621e69",
-    "qmSha256": "55f4d5ee31b150d6097bb1ef081dfe6ec0e04db0972152d81c3a1d0539176178"
+    "tsSha256": "4f9c546ba960637018fe8d96bda2bcd55cd17a7c8f950127afee9c4636649e37",
+    "qmSha256": "5f359b8f62c0c9821198d50639f581ea899b5036178c401b909b959d456b1c37"
   },
   {
     "tag": "zh-Hans",
     "name": "简体中文",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "0de8a280be6730a9e8d3e5359898727e063d47f0897a5da90cf6c4f4c5c6a66d",
-    "qmSha256": "47b5850fb17a9e2a4444cdca95f8308bdfac39615a8fbadeaffe885847fade71"
+    "tsSha256": "0a66d5b4235d6ae13d08e51c8643d1fc2f5cfb7ee2f8e4a3b043f38babe83152",
+    "qmSha256": "8d8b7ef43c68ad3d9ef15b9bd9c1d1f1461b18bf649d209c40d7f6046755d46e"
   },
   {
     "tag": "zh-Hant",
     "name": "繁體中文",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "5a8cbb71c3b31bc572ecc63ce906082cd3c86881197121b76a370f0493588136",
-    "qmSha256": "0e6da137e4b07d44114d594235862f443f2ee8ed5075c91460785fc26f8e2f7e"
+    "tsSha256": "783c32ef0aaa9e9a1e408559b60b3cba0be2f990d7442ca2fed73c61ee537452",
+    "qmSha256": "ccd5ee9c115bcc482fa583fd746291f409022513223b6706b77388c18097d0c4"
   },
   {
     "tag": "ja",
     "name": "日本語",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "3dedb623e6afdab8e16702009af61782b25fc4fd2f874d0c4c5bae7ec2acd669",
-    "qmSha256": "774bae17fd4a76f50d05e730557e98a585850fd490eb423b3b60bb0f70cad9a3"
+    "tsSha256": "d60d3396c932577f8087464fcb7bc3f613497c491e745816c3bc69f32601c771",
+    "qmSha256": "3b11e1351fcaaad3569626f6e433115db9fda8841edc234ce574eb3e822a5315"
   },
   {
     "tag": "ko",
     "name": "한국어",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "a852711ac40b3a7380aa3502518d623eec974cccd40c33d164328edf3c54e5d5",
-    "qmSha256": "96460f510fc3dc0a95310753d69e05aa120369f13b9ef0ec0a88cf67e1fe387c"
+    "tsSha256": "442aede9af82acfb7b8b128983f5ab61ea4e087acaaf1c5d4a6d6fa2b755933f",
+    "qmSha256": "0de5e1e0cc824f842325decf324708230cc8a1809c0059220783bbb62a4be494"
   },
   {
     "tag": "hi",
     "name": "हिन्दी",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "611fb7b32d354508679572fc2914a6d72e7ad679fa45067bf8f0a6384eabf6ca",
-    "qmSha256": "1e8153dfccbb91c9dd31cd2b992465882458b82e8609fe24b59eb00864f71917"
+    "tsSha256": "aa0f022866f18b729f67fc5e8df7de5b3916cc797577b5a1a7684b31b2c69191",
+    "qmSha256": "a9d9f529603e4d47015f93bf67ebf261b5f8bec3c0e3d920ed67d9c204091f6e"
   },
   {
     "tag": "id",
     "name": "Bahasa Indonesia",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "8e0398e13712eafa4ccbc27d83df76c560b7192a0b8eed4516bd76c7fe00765a",
-    "qmSha256": "29a6ef9ebc6b315d04ccc24f01b161ab0f1d4cf2d8c8d8f9cd7bfad1b96d2f34"
+    "tsSha256": "ebb3391ef0d640d1bd580186474a98f5f360eeb50be299f3a3839a856ec98dd6",
+    "qmSha256": "87ea2a41f7c39f68f6f1312c68a0ec4fe4b6e357fe4c0d91a956eb2fafc326b1"
   },
   {
     "tag": "vi",
     "name": "Tiếng Việt",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "fdcde1e7e10c035e2e4f4b29b711fb23a7d5dce06df36e550243ede9e52358bd",
-    "qmSha256": "551ddab5ed10d635e79739920b1c43b340823774e895d402d53cf48a1f7fcdd5"
+    "tsSha256": "3427fd2a3657f3d630d23d03191bab487c08ccbbe1f1e8c0bd3f987cfc041494",
+    "qmSha256": "a90552efc189f21334f0818104d931895d49c67a7e941a4063f7152ae30a4fb5"
   },
   {
     "tag": "th",
     "name": "ไทย",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "366202efe472e4b2316e21aee3a0693e6eef6ca46270e0907abce806d0be1fae",
-    "qmSha256": "4c4fdd56b9e2a46cc89491318d4be281552852c9f0fb5ba36d18e6ffd6ab109a"
+    "tsSha256": "bb992c4598b3c7a1d2b5d604b1fe00b314e071b0aba7845aa3a2e95044d3bac4",
+    "qmSha256": "ca67e6f4929687f079bd352910a375813130a3f28695a23e7cd17a424435c098"
   },
   {
     "tag": "sw",
     "name": "Kiswahili",
-    "translated": 8,
-    "total": 546,
+    "translated": 95,
+    "total": 564,
     "status": "partial-unverified",
     "nativeReviewed": false,
     "uiQualified": false,
-    "tsSha256": "88e7936e7677f9bcddf075e5a75b3a402485bee1b217ee183578fa667636a57e",
-    "qmSha256": "24e41df5ebad8677eea1c27e254c276406d14f51a9fcde31ed1b7489a97ce1d6"
+    "tsSha256": "962111f9713c6842237c609d2540adedb18aa9107c345382834c56e29d5bf4cf",
+    "qmSha256": "c710c0657c038a29fedabfa85c3448e4d335a4fa189c101d7c42997da39c6543"
+  },
+  {
+    "tag": "nn",
+    "name": "Norsk nynorsk",
+    "translated": 95,
+    "total": 564,
+    "status": "partial-unverified",
+    "nativeReviewed": false,
+    "uiQualified": false,
+    "tsSha256": "8e7fd34e9e6eb05d9f0233e05a8a71a6b9d1aa5007c047fbb606527278fe8cca",
+    "qmSha256": "08720457b961794056ff28c18b8e50676275708f38df8c1b94bcd93c84083baf"
   }
 ]

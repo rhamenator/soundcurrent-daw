@@ -4,6 +4,7 @@
 #include "timeline_view.hpp"
 #include "session_list_model.hpp"
 #include "equipment_profiles.hpp"
+#include "accelerating_spinbox.hpp"
 #include "fake_playback_endpoint.hpp"
 #include "fake_recording_endpoint.hpp"
 #include <soundcurrent/export.hpp>
@@ -70,11 +71,17 @@ Session project(const std::filesystem::path &root) {
     ProjectStore(root).save(s);return s;
 }
 void runtimeAndPreferences() {
-    check(locale::languages().size()==33,"Draft catalogs missing");
+    check(locale::languages().size()==34,"Draft catalogs missing");
     check(locale::resolve("de_DE")=="de" && locale::resolve("fr-CA")=="fr","Explicit regional fallback failed");
     check(locale::resolve("pt-BR")=="pt-BR" && locale::resolve("pt-PT")=="pt-PT","Distinct regional catalogs collapsed");
     check(locale::resolve("zh-Hant-TW")=="zh-Hant" && locale::resolve("zh-Hans-CN")=="zh-Hans","Script catalog collapsed");
-    check(locale::resolve("sr-Latn")=="en" && locale::resolve("de-Latn-DE")=="en","An unapproved script was guessed");
+    check(locale::resolve("sr-Latn")=="en" && locale::resolve("de-Cyrl-DE")=="en","An unavailable/incompatible script was guessed");
+    for (const auto &pair : {std::pair{"de-Latn-DE","de"}, {"zh-TW","zh-Hant"},
+                            {"zh-CN","zh-Hans"}, {"pt-Latn-PT","pt-PT"},
+                            {"pt-Latn-BR","pt-BR"}, {"de-u-nu-latn","de"},
+                            {"fr-x-own","fr"}, {"nn-NO","nn"}, {"nb-NO","nb"}})
+        check(locale::resolve(pair.first)==pair.second,"Locale language/script/region resolution failed");
+    check(locale::resolve("pt-AO")=="en" && locale::resolve("zh-Cyrl-TW")=="en", "Explicit unsupported territory/script collapsed");
     for(const auto &bad:QStringList{"../bad","../../de","de/../fr","",QString(100,'a')})
         check(locale::resolve(bad)=="en","Unsafe or unavailable language did not fall back");
     check(locale::chooseLanguage("fr","de","he",{"en"})=="fr","CLI precedence failed");
@@ -107,7 +114,30 @@ void runtimeAndPreferences() {
         auto text=QCoreApplication::translate("Probe","<b>Value %L1 / %2 && %n</b>",nullptr,2);
         check(text.contains("%L1") && text.contains("%2") && text.contains("&&") && text.contains("<b>") && !text.contains("%n"),"Pseudo translator damaged placeholders, markup or numerus replacement");
         check(QApplication::layoutDirection()==Qt::RightToLeft,"Pseudo RTL direction failed");
+        const auto signedUnit=locale::numberWithUnit(QStringLiteral("Output: %1 dBFS"),"-12.5","dBFS");
+        check(signedUnit.contains(QString(QChar(0x2066))+"-12.5 dBFS"+QChar(0x2069)),"RTL signed number and unit split");
+        const auto second=locale::numberWithUnit(QStringLiteral("Input: %2 dBFS"),"-3.0","dBFS","%2");
+        check(second.contains(QString(QChar(0x2066))+"-3.0 dBFS"+QChar(0x2069)),"Second display placeholder lost unit isolation");
     }
+    for (const auto &pair : {std::pair{"de","Speichern"}, {"fr","Enregistrer"},
+                            {"ar","حفظ"}, {"ja","保存"}, {"nn","Lagre"}}) {
+        locale::Runtime runtime(pair.first,"en-US");
+        QDialogButtonBox buttons(QDialogButtonBox::Save|QDialogButtonBox::Cancel);
+        check(buttons.button(QDialogButtonBox::Save)->text()==QString::fromUtf8(pair.second),"Standard action caption stayed in OS language");
+    }
+    for (const auto &tag : {"ar-EG","fa-IR","he-IL"}) {
+        const QLocale format(tag);
+        widgets::AcceleratingDoubleSpinBox spin;spin.setLocale(format);spin.setRange(-100,100);spin.setDecimals(2);
+        spin.findChild<QLineEdit *>()->setText(format.toString(-12.5,'f',2));spin.interpretText();
+        check(spin.value()==-12.5,"Locale-formatted signed fractional value lost its sign/digits");
+        widgets::AcceleratingSpinBox integer;integer.setLocale(format);integer.setRange(-100,100);
+        integer.findChild<QLineEdit *>()->setText(format.toString(-37));integer.interpretText();
+        check(integer.value()==-37,"Locale-formatted signed integer failed");
+    }
+    QString marked=QString(QChar(0x061c))+"-"+QChar(0x200f)+"12.5"+QChar(0x200e);int cursor=marked.size();
+    widgets::normalizeNumericDirectionMarks(marked,&cursor);
+    check(marked=="-12.5" && cursor==5,"Numeric normalization changed more than presentation marks or lost cursor");
+    check(QCoreApplication::translate("QPlatformTheme","Save")=="Save","Standard action translator outlived its runtime");
 }
 void uiWorkflow(const std::filesystem::path &root, const QString &language, const Session &initial, bool edit) {
     locale::Runtime runtime(language,"de-DE");
@@ -181,6 +211,6 @@ int main(int argc,char **argv) {
             if(hash.empty())hash=result.sampleSha256;else check(hash==result.sampleSha256,"UI/format locale changed rendered audio samples");
         }
         check(profileChart("en")==profileChart("qps-rtl"),"Frequency chart pixels changed under RTL");
-        std::cout<<"PASS: "<<checks<<" checks; 33 draft catalog loads, real DAW contexts, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.\n";return 0;
+        std::cout<<"PASS: "<<checks<<" checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.\n";return 0;
     }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}
 }

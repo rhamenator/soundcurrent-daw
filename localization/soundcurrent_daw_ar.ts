@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>الاستجابة المنشورة ومنحنيات التصحيح القابلة للتحرير</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>محرر ملفات تعريف المعدات</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>العلامة التجارية</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>العائلة</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>النوع الفرعي للمعدات</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>نشط / سلبي / غير معروف</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>الطراز</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>المصدر</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>الظروف</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>النوع</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>التردد Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>الكسب dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>إضافة مرشح</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>إزالة المرشح المحدد</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>حفظ ملف التعريف المعدّل؟</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>تم تغيير ملف التعريف هذا. هل تريد حفظ نسخة مخصصة قبل المغادرة؟</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>يتجاوز ملف التعريف الحد البالغ 1 MiB.</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>المطلوب ملف تعريف معدات بصيغة JSON. استورد نص الاستجابة باستخدام زر استيراد الاستجابة.</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>العلامة التجارية والعائلة والطراز مطلوبة (بحد أقصى 120 محرفًا لكل منها).</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>البيانات الوصفية لملف التعريف طويلة جدًا.</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>ظروف القياس مطلوبة.</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>تتطلب ملفات التعريف المنشورة مصدر قياس عبر HTTPS.</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>تتطلب ملفات التعريف 1–16 مرشح تصحيح.</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>مرشح غير صالح.</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>نوع المرشح غير مدعوم.</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>يجب أن تكون قيم المرشحات أرقامًا.</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>تتجاوز المرشحات حدود التردد أو الكسب أو Q.</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>تتجاوز الاستجابة 4096 نقطة.</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>نقطة استجابة غير صالحة.</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>يجب أن تكون ترددات الاستجابة متزايدة، مع قيم محدودة ومنتهية.</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>يُتوقع تردد بوحدة Hz واستجابة مقاسة نسبية بوحدة dB في كل سطر بيانات.</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>بيانات الاستجابة غير صالحة أو غير مرتبة.</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>تتطلب الاستجابة 2–4096 نقطة مقاسة.</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>الاستجابة المقاسة غير صالحة أو غير مرتبة.</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>لا تتضمن الاستجابة نطاقًا صوتيًا قابلًا للاستخدام.</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>تعذر قراءة مكتبة ملفات التعريف.</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>تتجاوز مكتبة ملفات التعريف 16 MiB.</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>مكتبة ملفات التعريف غير صالحة.</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>تستوعب المكتبة المخصصة حتى 256 ملف تعريف.</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>تتجاوز المكتبة 16 MiB.</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>تعذر إنشاء مجلد ملفات التعريف.</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>تعذر حفظ مكتبة ملفات التعريف.</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>تعذر إكمال حفظ مكتبة ملفات التعريف.</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>مورد المعدات مفقود.</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>حفظ ملف التعريف</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>ملفات تعريف المعدات — العلامة التجارية / العائلة / الطراز</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>البحث حسب العلامة التجارية أو العائلة أو الطراز أو ظروف القياس</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>ملفات تعريف المعدات حسب العلامة التجارية والعائلة والطراز</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>كل المعدات</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>نوع المعدات</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>العلامة التجارية للمعدات</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>عائلة المعدات</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>كل العلامات التجارية</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>كل العائلات</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>كل الأنواع الفرعية</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>ملف التعريف</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>استيراد JSON</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>استيراد نص الاستجابة</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>إنشاء ملف تعريف</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>تحرير / حفظ نسخة</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>تصدير JSON</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>تعذر قراءة ملف التعريف، أو يتجاوز حجم الملف 1 MiB.</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>استيراد</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>تعذر قراءة الاستجابة، أو يتجاوز حجم الملف 1 MiB.</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>يستورد هذا الاستجابة المقاسة، وليس قيم كسب المعادلة المعكوسة مسبقًا. تأكد من نوع المعدات. يحتاج مستوى ضغط الصوت المطلق SPL إلى تطبيع قبل الاستيراد.</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>استيراد الاستجابة</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>تصدير</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>لغة اختبار النص الموسع</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>لغة اختبار من اليمين إلى اليسار</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>موافق</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>نعم</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>لا</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>نعم للكل</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>لا للكل</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>فتح</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>حفظ</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>حفظ الكل</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>إغلاق</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>إلغاء</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>تجاهل التغييرات</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>تطبيق</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>إعادة الضبط</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>استعادة الإعدادات الافتراضية</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>إعادة المحاولة</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>إيقاف العملية</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>تجاهل</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>المساعدة</translation>
     </message>
   </context>
   <context>

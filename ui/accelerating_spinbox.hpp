@@ -12,7 +12,19 @@
 #include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <utility>
 namespace soundcurrent::daw::widgets {
+// Adapted from the 2026-10-08 reviewed upstream input. Some Qt numeric
+// formatters emit presentation marks their spin-box parser cannot consume.
+inline void normalizeNumericDirectionMarks(QString &text, int *cursor = nullptr) {
+    for (qsizetype i = text.size(); i-- > 0;) {
+        const auto code = text.at(i).unicode();
+        if (code == 0x061c || code == 0x200e || code == 0x200f) {
+            text.remove(i, 1);
+            if (cursor && i < *cursor) --*cursor;
+        }
+    }
+}
 // The step-rate curve integrates a half Gaussian: acceleration decays smoothly
 // from its peak, and repeat speed asymptotically reaches 16 normal steps.
 inline double heldSpinMultiplier(double seconds) {
@@ -26,6 +38,16 @@ template <class Base> class AcceleratingSpin : public Base {
     }
 
   protected:
+    using NumericValue = decltype(std::declval<Base>().value());
+    QValidator::State validate(QString &text, int &position) const override {
+        normalizeNumericDirectionMarks(text, &position);
+        return Base::validate(text, position);
+    }
+    NumericValue valueFromText(const QString &text) const override {
+        auto normalized = text;
+        normalizeNumericDirectionMarks(normalized);
+        return Base::valueFromText(normalized);
+    }
     void stepBy(int steps) override {
         const int multiplier =
             held_ ? std::clamp(

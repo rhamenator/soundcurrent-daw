@@ -1362,7 +1362,8 @@ void StudioWindow::pollPlayback() {
     if (meter_->styleSheet() != style)
         meter_->setStyleSheet(style);
     level_->setText(
-        peak > 0 ? tr("Output: %1 dBFS").arg(QLocale().toString(20 * std::log10(peak), 'f', 1))
+        peak > 0 ? soundcurrent::daw::i18n::numberWithUnit(tr("Output: %1 dBFS"),
+                       QLocale().toString(20 * std::log10(peak), 'f', 1), QStringLiteral("dBFS"))
                  : tr("Output: −∞ dBFS"));
     if (p->errorSerial != playbackError_) {
         playbackError_ = p->errorSerial;
@@ -2111,7 +2112,9 @@ void StudioWindow::pollRecording() {
             bar->setStyleSheet(style);
         label->setText(
             peak > 0
-                ? tr("%1: %2 dBFS").arg(name, QLocale().toString(20 * std::log10(peak), 'f', 1))
+                ? soundcurrent::daw::i18n::numberWithUnit(tr("%1: %2 dBFS").arg(name),
+                      QLocale().toString(20 * std::log10(peak), 'f', 1),
+                      QStringLiteral("dBFS"), QStringLiteral("%2"))
                 : tr("%1: −∞ dBFS").arg(name));
     };
     inputMeter_->setVisible(!r->projectMix);

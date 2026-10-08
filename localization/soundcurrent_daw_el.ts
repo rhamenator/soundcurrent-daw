@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>Δημοσιευμένη απόκριση και επεξεργάσιμες καμπύλες διόρθωσης</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>Επεξεργασία προφίλ εξοπλισμού</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>Μάρκα</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>Σειρά</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>Υποτύπος εξοπλισμού</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>Ενεργό / παθητικό / άγνωστο</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>Μοντέλο</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>Πηγή</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>Συνθήκες</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>Τύπος</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>Συχνότητα σε Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>Ενίσχυση σε dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>Προσθήκη φίλτρου</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>Αφαίρεση επιλεγμένου φίλτρου</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>Αποθήκευση τροποποιημένου προφίλ;</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>Αυτό το προφίλ έχει αλλάξει. Αποθήκευση προσαρμοσμένου αντιγράφου πριν φύγετε;</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>Το προφίλ υπερβαίνει το όριο του 1 MiB.</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>Αναμένεται προφίλ εξοπλισμού JSON. Εισαγάγετε κείμενο απόκρισης με το κουμπί εισαγωγής απόκρισης.</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>Η μάρκα, η σειρά και το μοντέλο είναι υποχρεωτικά (έως 120 χαρακτήρες το καθένα).</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>Τα μεταδεδομένα προφίλ είναι πολύ μεγάλα.</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>Οι συνθήκες μέτρησης είναι υποχρεωτικές.</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>Τα δημοσιευμένα προφίλ χρειάζονται πηγή μέτρησης HTTPS.</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>Τα προφίλ χρειάζονται 1–16 φίλτρα διόρθωσης.</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>Μη έγκυρο φίλτρο.</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>Μη υποστηριζόμενος τύπος φίλτρου.</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>Οι τιμές φίλτρου πρέπει να είναι αριθμοί.</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>Τα φίλτρα υπερβαίνουν τα όρια συχνότητας, ενίσχυσης ή Q.</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>Η απόκριση υπερβαίνει τα 4096 σημεία.</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>Μη έγκυρο σημείο απόκρισης.</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>Οι συχνότητες απόκρισης πρέπει να αυξάνονται, με πεπερασμένες τιμές εντός ορίων.</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>Σε κάθε γραμμή δεδομένων αναμένονται συχνότητα σε Hz και σχετική μετρημένη απόκριση σε dB.</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>Μη έγκυρα ή μη ταξινομημένα δεδομένα απόκρισης.</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>Η απόκριση χρειάζεται 2–4096 μετρημένα σημεία.</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>Μη έγκυρη ή μη ταξινομημένη μετρημένη απόκριση.</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>Η απόκριση δεν έχει χρήσιμο εύρος ήχου.</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>Δεν είναι δυνατή η ανάγνωση της βιβλιοθήκης προφίλ.</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Η βιβλιοθήκη προφίλ υπερβαίνει τα 16 MiB.</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>Μη έγκυρη βιβλιοθήκη προφίλ.</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>Η προσαρμοσμένη βιβλιοθήκη χωρά έως 256 προφίλ.</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Η βιβλιοθήκη υπερβαίνει τα 16 MiB.</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>Δεν είναι δυνατή η δημιουργία φακέλου προφίλ.</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>Δεν είναι δυνατή η αποθήκευση της βιβλιοθήκης προφίλ.</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>Δεν είναι δυνατή η ολοκλήρωση της αποθήκευσης βιβλιοθήκης προφίλ.</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>Λείπει ο πόρος εξοπλισμού.</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>Αποθήκευση προφίλ</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>Προφίλ εξοπλισμού — μάρκα / σειρά / μοντέλο</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>Αναζήτηση μάρκας, σειράς, μοντέλου ή συνθηκών μέτρησης</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>Προφίλ εξοπλισμού ανά μάρκα, σειρά και μοντέλο</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>Όλος ο εξοπλισμός</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>Τύπος εξοπλισμού</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>Μάρκα εξοπλισμού</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>Σειρά εξοπλισμού</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>Όλες οι μάρκες</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>Όλες οι σειρές</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>Όλοι οι υποτύποι</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>Προφίλ</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>Εισαγωγή JSON</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>Εισαγωγή κειμένου απόκρισης</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>Δημιουργία προφίλ</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>Επεξεργασία / αποθήκευση αντιγράφου</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>Εξαγωγή JSON</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Δεν είναι δυνατή η ανάγνωση του προφίλ ή το αρχείο υπερβαίνει το 1 MiB.</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>Εισαγωγή</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>Δεν είναι δυνατή η ανάγνωση της απόκρισης ή το αρχείο υπερβαίνει το 1 MiB.</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>Εισάγεται μετρημένη ΑΠΟΚΡΙΣΗ, όχι ήδη ανεστραμμένες ενισχύσεις EQ. Επιβεβαιώστε τον τύπο εξοπλισμού. Το απόλυτο SPL χρειάζεται κανονικοποίηση πριν από την εισαγωγή.</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>Εισαγωγή απόκρισης</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>Εξαγωγή</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>Εκτεταμένη δοκιμαστική γλώσσα</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>Δοκιμαστική γλώσσα από δεξιά προς αριστερά</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>Ναι</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>Όχι</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>Ναι σε όλα</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>Όχι σε όλα</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>Άνοιγμα</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>Αποθήκευση</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>Αποθήκευση όλων</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Κλείσιμο</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Ακύρωση</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>Απόρριψη</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>Εφαρμογή</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>Επαναφορά</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>Επαναφορά προεπιλογών</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>Επανάληψη</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>Διακοπή</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>Παράβλεψη</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>Βοήθεια</translation>
     </message>
   </context>
   <context>

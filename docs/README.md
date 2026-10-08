@@ -115,3 +115,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Windows desktop foundation and independent storage faults](98-windows-desktop-foundation.md)
 
 - [Native Windows single-track desktop workflow and original sample refusals](99-windows-desktop-workflow.md)
+- [Reviewed localization and equipment-editor refresh](100-localization-reuse-refresh.md)

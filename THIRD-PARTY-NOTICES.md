@@ -42,3 +42,14 @@ adapted from the exact equalizer working snapshot retained under
 SHA-256 hashes and adaptation details. Reviewed DSP/editor sources are archived
 references, not compiled wholesale; existing exact origin notices remain applicable.
 No new third-party library or measurement redistribution is introduced.
+
+## Additive localization review (2026-10-08)
+
+GPL-3.0-only equalizer localization/numeric-input/catalog updates are retained
+under `reuse/reviews/2026-10-08-localization`, pinned to public EQ
+`6081fd4a25d19b8fd15121e67c5852f9af1f1ac5` and Studio
+`a6d152b2b29530123fe517f02d2cfbc3db8cdd3f`. Original SPDX notices remain.
+Explicit context/source draft-word mappings and adapted runtime/tool behavior
+are described in [checkpoint 100](docs/100-localization-reuse-refresh.md).
+These draft words carry no independent native-language certification. Original
+DSP/equipment provenance remains unchanged; no proprietary assets are copied.

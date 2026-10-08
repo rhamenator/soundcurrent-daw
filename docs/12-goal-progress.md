@@ -2879,3 +2879,27 @@ clone, and investigate non-silent startup. Windows monitoring/duplex, conversion
 physical inputs, sustained scheduling, original capture gap and native71 remain
 open alongside the unchanged full-suite scope. Existing Ubuntu preview unchanged;
 no Windows binary release uploaded.
+
+## Reviewed localization/editor refresh — 2026-10-08
+
+[Checkpoint 100](100-localization-reuse-refresh.md) adapts 22 changed reviewed
+equalizer inputs and 66 retained TS catalogs, preserving immutable original
+DSP/equipment provenance and both equalizer working trees. Context-mapped drafts,
+standard actions, QLocale script/territory selection and signed RTL numeric input
+now pass six focused Linux groups and native MSVC/Qt localization/editor/export
+tests. Catalog regeneration preserves unfinished translator text/plurals/comments;
+13 altered-catalog cases are refused. English plus 33 drafts have 564 keys, each
+draft translates 95; no native-review/full-UI promotion or all-Europe coverage.
+
+The first native controller run timed out at line 463; its unchanged rerun passes.
+Both results/dispatcher timeouts remain visible, cause unisolated. The Windows
+media oracle now rejects all nonfinite raw/export/native-channel samples before
+reductions; twelve rehashed NaN/infinity cases supplement the nine prior evidence
+mutations. PR42 review is resolved through that tested fix, without bypassing
+required checks. The original native startup discrepancy remains open.
+
+The Windows runtime deployment is staged; a full independent pristine-template
+clone has been created with no backing disk. It is not an installer qualification
+yet. Next: compiler-free Windows installer/source pair and clean-clone normal
+launch/record/EQ/save/reopen/export/removal, then continue full-suite milestones.
+The existing Ubuntu preview remains available; no binary release upload.

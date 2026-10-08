@@ -271,7 +271,9 @@ class Editor : public QDialog {
         powerType->setObjectName("equipmentPowerEdit");
         model = field(QT_TRANSLATE_NOOP("EquipmentProfiles", "Model"), draft.model);
         source = field(QT_TRANSLATE_NOOP("EquipmentProfiles", "Source"), draft.source);
+        source->setObjectName("profileSource");
         conditions = field(QT_TRANSLATE_NOOP("EquipmentProfiles", "Conditions"), draft.conditions);
+        conditions->setObjectName("profileConditions");
         layout->addLayout(form);
         auto *legend = new QLabel(
             "Orange: measured response where supplied. Teal: correction at 48 kHz. Drag teal "

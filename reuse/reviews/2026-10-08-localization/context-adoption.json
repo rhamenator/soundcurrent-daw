@@ -1,0 +1,368 @@
+{
+  "policy": "Exact source mapping only in shared EquipmentProfiles/Localization, standard actions, and existing StudioWindow starter words; excludes numerus/disambiguated keys and keeps translator edits",
+  "entries": [
+    {
+      "tag": "de",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_de.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "fr",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_fr.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "es",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_es.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "it",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_it.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "pt-PT",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_pt-PT.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "pt-BR",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_pt-BR.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "nl",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_nl.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "pl",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_pl.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "cs",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_cs.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "sk",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_sk.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "uk",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_uk.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "ru",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_ru.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "el",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_el.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "tr",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_tr.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "sv",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_sv.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "da",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_da.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "nb",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_nb.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "fi",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_fi.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "ro",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_ro.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "hu",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_hu.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "ar",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_ar.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "he",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_he.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "fa",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_fa.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "zh-Hans",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_zh-Hans.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "zh-Hant",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_zh-Hant.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "ja",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_ja.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "ko",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_ko.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "hi",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_hi.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "id",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_id.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "vi",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_vi.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "th",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_th.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "sw",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_sw.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    },
+    {
+      "tag": "nn",
+      "upstream_catalog": "reuse/reviews/2026-10-08-localization/soundcurrent-eq/data/localization/soundcurrent_nn.ts",
+      "contexts": {
+        "EquipmentProfiles": 68,
+        "Localization": 7,
+        "StudioWindow": 2,
+        "StandardActions": 18
+      },
+      "status": "draft-unverified; no native review or full UI qualification"
+    }
+  ]
+}

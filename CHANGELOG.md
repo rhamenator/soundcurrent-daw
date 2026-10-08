@@ -16,9 +16,12 @@
   raw checkpoint recovery. Native Windows and multi-track persistence remain open.
 - Desktop language and regional preferences, embedded contextual catalogs,
   independent number formatting and expanded/RTL developer test locales. English
-  plus 32 draft catalogs are partial; each draft translates 8 of 546 messages.
+  plus 33 draft catalogs are partial; each draft translates 95 of 564 messages.
   Native-speaker/full UI qualification remains open. Numerical timelines and
   equipment charts retain their direction under RTL layouts.
+- Reviewed equalizer localization vocabulary, localized standard dialog actions,
+  script/region-aware catalog selection and signed RTL numeric input. Catalog
+  updates preserve unfinished translator text, plural forms and comments.
 - Easy Linux/Windows installation is an explicit product acceptance requirement.
   Useful installable workflow previews are the delivery priority; package/runtime
   and native Windows qualification remain unfinished.

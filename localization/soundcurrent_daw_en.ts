@@ -1005,6 +1005,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     </message>
   </context>
   <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>Yes</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>No</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>Yes to All</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>No to All</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>Open</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>Save</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>Save All</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Close</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancel</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>Discard</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>Apply</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>Reset</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>Restore Defaults</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>Retry</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>Abort</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>Ignore</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>Help</translation>
+    </message>
+  </context>
+  <context>
     <name>StudioWindow</name>
     <message>
       <source>SoundCurrent DAW</source>

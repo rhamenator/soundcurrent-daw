@@ -4,51 +4,51 @@
     <name>EquipmentProfiles</name>
     <message>
       <source>Published response and editable correction curves</source>
-      <translation type="unfinished" />
+      <translation>การตอบสนองที่เผยแพร่และกราฟชดเชยที่แก้ไขได้</translation>
     </message>
     <message>
       <source>Equipment profile editor</source>
-      <translation type="unfinished" />
+      <translation>ตัวแก้ไขโปรไฟล์อุปกรณ์</translation>
     </message>
     <message>
       <source>Brand</source>
-      <translation type="unfinished" />
+      <translation>แบรนด์</translation>
     </message>
     <message>
       <source>Family</source>
-      <translation type="unfinished" />
+      <translation>ตระกูลรุ่น</translation>
     </message>
     <message>
       <source>Equipment subtype</source>
-      <translation type="unfinished" />
+      <translation>ประเภทย่อยอุปกรณ์</translation>
     </message>
     <message>
       <source>Active / passive / unknown</source>
-      <translation type="unfinished" />
+      <translation>แอ็กทีฟ / พาสซีฟ / ไม่ทราบ</translation>
     </message>
     <message>
       <source>Model</source>
-      <translation type="unfinished" />
+      <translation>รุ่น</translation>
     </message>
     <message>
       <source>Source</source>
-      <translation type="unfinished" />
+      <translation>แหล่งที่มา</translation>
     </message>
     <message>
       <source>Conditions</source>
-      <translation type="unfinished" />
+      <translation>เงื่อนไข</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished" />
+      <translation>ประเภท</translation>
     </message>
     <message>
       <source>Frequency Hz</source>
-      <translation type="unfinished" />
+      <translation>ความถี่ Hz</translation>
     </message>
     <message>
       <source>Gain dB</source>
-      <translation type="unfinished" />
+      <translation>เกน dB</translation>
     </message>
     <message>
       <source>Q</source>
@@ -64,11 +64,11 @@
     </message>
     <message>
       <source>Add filter</source>
-      <translation type="unfinished" />
+      <translation>เพิ่มฟิลเตอร์</translation>
     </message>
     <message>
       <source>Remove selected filter</source>
-      <translation type="unfinished" />
+      <translation>ลบฟิลเตอร์ที่เลือก</translation>
     </message>
     <message>
       <source>Undo</source>
@@ -81,15 +81,15 @@
     </message>
     <message>
       <source>Save modified profile?</source>
-      <translation type="unfinished" />
+      <translation>บันทึกโปรไฟล์ที่แก้ไขหรือไม่?</translation>
     </message>
     <message>
       <source>This profile has changed. Save a custom copy before leaving?</source>
-      <translation type="unfinished" />
+      <translation>โปรไฟล์นี้มีการเปลี่ยนแปลง บันทึกสำเนากำหนดเองก่อนออกหรือไม่?</translation>
     </message>
     <message>
       <source>Profile exceeds the 1 MiB limit.</source>
-      <translation type="unfinished" />
+      <translation>โปรไฟล์เกินขีดจำกัด 1 MiB</translation>
     </message>
     <message>
       <source>Profile is not valid UTF-8.</source>
@@ -113,7 +113,7 @@
     </message>
     <message>
       <source>Expected a JSON equipment profile. Import response text using the response import button.</source>
-      <translation type="unfinished" />
+      <translation>ต้องเป็นโปรไฟล์อุปกรณ์ JSON นำเข้าข้อความการตอบสนองด้วยปุ่มนำเข้าการตอบสนอง</translation>
     </message>
     <message>
       <source>Unknown profile field; import would lose data.</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
       <source>Brand, family and model are required (maximum 120 characters each).</source>
-      <translation type="unfinished" />
+      <translation>ต้องระบุแบรนด์ ตระกูลรุ่น และรุ่น (สูงสุดรายการละ 120 อักขระ)</translation>
     </message>
     <message>
       <source>Profile metadata is too long.</source>
-      <translation type="unfinished" />
+      <translation>ข้อมูลกำกับโปรไฟล์ยาวเกินไป</translation>
     </message>
     <message>
       <source>Profile metadata contains a NUL character.</source>
@@ -161,19 +161,19 @@
     </message>
     <message>
       <source>Measurement conditions are required.</source>
-      <translation type="unfinished" />
+      <translation>ต้องระบุเงื่อนไขการวัด</translation>
     </message>
     <message>
       <source>Published profiles need an HTTPS measurement source.</source>
-      <translation type="unfinished" />
+      <translation>โปรไฟล์ที่เผยแพร่ต้องมีแหล่งข้อมูลการวัด HTTPS</translation>
     </message>
     <message>
       <source>Profiles need 1–16 correction filters.</source>
-      <translation type="unfinished" />
+      <translation>โปรไฟล์ต้องมีฟิลเตอร์ชดเชย 1–16 ตัว</translation>
     </message>
     <message>
       <source>Invalid filter.</source>
-      <translation type="unfinished" />
+      <translation>ฟิลเตอร์ไม่ถูกต้อง</translation>
     </message>
     <message>
       <source>Unknown filter field; import would lose data.</source>
@@ -181,27 +181,27 @@
     </message>
     <message>
       <source>Unsupported filter type.</source>
-      <translation type="unfinished" />
+      <translation>ไม่รองรับประเภทฟิลเตอร์</translation>
     </message>
     <message>
       <source>Filter values must be numbers.</source>
-      <translation type="unfinished" />
+      <translation>ค่าฟิลเตอร์ต้องเป็นตัวเลข</translation>
     </message>
     <message>
       <source>Filters exceed frequency, gain or Q limits.</source>
-      <translation type="unfinished" />
+      <translation>ฟิลเตอร์เกินขีดจำกัดความถี่ เกน หรือ Q</translation>
     </message>
     <message>
       <source>Response exceeds 4096 points.</source>
-      <translation type="unfinished" />
+      <translation>การตอบสนองมีมากกว่า 4096 จุด</translation>
     </message>
     <message>
       <source>Invalid response point.</source>
-      <translation type="unfinished" />
+      <translation>จุดข้อมูลการตอบสนองไม่ถูกต้อง</translation>
     </message>
     <message>
       <source>Response frequencies must increase, with finite bounded values.</source>
-      <translation type="unfinished" />
+      <translation>ความถี่การตอบสนองต้องเพิ่มขึ้นตามลำดับ โดยมีค่าจำกัดที่เป็นจำนวนจำกัด</translation>
     </message>
     <message>
       <source>Response exceeds the 1 MiB limit.</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
       <source>Expected frequency Hz and relative measured response dB on every data line.</source>
-      <translation type="unfinished" />
+      <translation>ทุกบรรทัดข้อมูลต้องมีความถี่เป็น Hz และการตอบสนองสัมพัทธ์ที่วัดได้เป็น dB</translation>
     </message>
     <message>
       <source>Invalid or unordered response data.</source>
-      <translation type="unfinished" />
+      <translation>ข้อมูลการตอบสนองไม่ถูกต้องหรือไม่เรียงลำดับ</translation>
     </message>
     <message>
       <source>Response needs at least two measured points.</source>
@@ -225,27 +225,27 @@
     </message>
     <message>
       <source>Response needs 2–4096 measured points.</source>
-      <translation type="unfinished" />
+      <translation>การตอบสนองต้องมีจุดที่วัดได้ 2–4096 จุด</translation>
     </message>
     <message>
       <source>Invalid or unordered measured response.</source>
-      <translation type="unfinished" />
+      <translation>การตอบสนองที่วัดได้ไม่ถูกต้องหรือไม่เรียงลำดับ</translation>
     </message>
     <message>
       <source>Response has no usable audio range.</source>
-      <translation type="unfinished" />
+      <translation>การตอบสนองไม่มีช่วงเสียงที่ใช้ได้</translation>
     </message>
     <message>
       <source>Cannot read profile library.</source>
-      <translation type="unfinished" />
+      <translation>ไม่สามารถอ่านคลังโปรไฟล์ได้</translation>
     </message>
     <message>
       <source>Profile library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>คลังโปรไฟล์เกิน 16 MiB</translation>
     </message>
     <message>
       <source>Invalid profile library.</source>
-      <translation type="unfinished" />
+      <translation>คลังโปรไฟล์ไม่ถูกต้อง</translation>
     </message>
     <message>
       <source>Duplicate profile identity in library.</source>
@@ -253,35 +253,35 @@
     </message>
     <message>
       <source>The custom library holds up to 256 profiles.</source>
-      <translation type="unfinished" />
+      <translation>คลังกำหนดเองรองรับสูงสุด 256 โปรไฟล์</translation>
     </message>
     <message>
       <source>Library exceeds 16 MiB.</source>
-      <translation type="unfinished" />
+      <translation>คลังมีขนาดเกิน 16 MiB</translation>
     </message>
     <message>
       <source>Cannot create profile folder.</source>
-      <translation type="unfinished" />
+      <translation>ไม่สามารถสร้างโฟลเดอร์โปรไฟล์ได้</translation>
     </message>
     <message>
       <source>Cannot save profile library.</source>
-      <translation type="unfinished" />
+      <translation>ไม่สามารถบันทึกคลังโปรไฟล์ได้</translation>
     </message>
     <message>
       <source>Cannot finish saving profile library.</source>
-      <translation type="unfinished" />
+      <translation>บันทึกคลังโปรไฟล์ไม่สำเร็จ</translation>
     </message>
     <message>
       <source>Equipment resource missing.</source>
-      <translation type="unfinished" />
+      <translation>ไม่พบทรัพยากรอุปกรณ์</translation>
     </message>
     <message>
       <source>Save profile</source>
-      <translation type="unfinished" />
+      <translation>บันทึกโปรไฟล์</translation>
     </message>
     <message>
       <source>Equipment profiles — brand / family / model</source>
-      <translation type="unfinished" />
+      <translation>โปรไฟล์อุปกรณ์ — แบรนด์ / ตระกูลรุ่น / รุ่น</translation>
     </message>
     <message>
       <source>Edit and save equipment profiles here. Monitoring correction routing is not yet available.</source>
@@ -289,15 +289,15 @@
     </message>
     <message>
       <source>Search brand, family, model or measurement conditions</source>
-      <translation type="unfinished" />
+      <translation>ค้นหาแบรนด์ ตระกูลรุ่น รุ่น หรือเงื่อนไขการวัด</translation>
     </message>
     <message>
       <source>Equipment profiles by brand family and model</source>
-      <translation type="unfinished" />
+      <translation>โปรไฟล์อุปกรณ์ตามแบรนด์ ตระกูลรุ่น และรุ่น</translation>
     </message>
     <message>
       <source>All equipment</source>
-      <translation type="unfinished" />
+      <translation>อุปกรณ์ทั้งหมด</translation>
     </message>
     <message>
       <source>Speakers</source>
@@ -317,15 +317,15 @@
     </message>
     <message>
       <source>Equipment type</source>
-      <translation type="unfinished" />
+      <translation>ประเภทอุปกรณ์</translation>
     </message>
     <message>
       <source>Equipment brand</source>
-      <translation type="unfinished" />
+      <translation>แบรนด์อุปกรณ์</translation>
     </message>
     <message>
       <source>Equipment family</source>
-      <translation type="unfinished" />
+      <translation>ตระกูลรุ่นอุปกรณ์</translation>
     </message>
     <message>
       <source>Equipment power type</source>
@@ -333,15 +333,15 @@
     </message>
     <message>
       <source>All brands</source>
-      <translation type="unfinished" />
+      <translation>ทุกแบรนด์</translation>
     </message>
     <message>
       <source>All families</source>
-      <translation type="unfinished" />
+      <translation>ทุกรุ่นตระกูล</translation>
     </message>
     <message>
       <source>All subtypes</source>
-      <translation type="unfinished" />
+      <translation>ทุกประเภทย่อย</translation>
     </message>
     <message>
       <source>All power types</source>
@@ -357,51 +357,51 @@
     </message>
     <message>
       <source>Profile</source>
-      <translation type="unfinished" />
+      <translation>โปรไฟล์</translation>
     </message>
     <message>
       <source>Import JSON</source>
-      <translation type="unfinished" />
+      <translation>นำเข้า JSON</translation>
     </message>
     <message>
       <source>Import response text</source>
-      <translation type="unfinished" />
+      <translation>นำเข้าข้อความการตอบสนอง</translation>
     </message>
     <message>
       <source>Create profile</source>
-      <translation type="unfinished" />
+      <translation>สร้างโปรไฟล์</translation>
     </message>
     <message>
       <source>Edit / save copy</source>
-      <translation type="unfinished" />
+      <translation>แก้ไข / บันทึกสำเนา</translation>
     </message>
     <message>
       <source>Export JSON</source>
-      <translation type="unfinished" />
+      <translation>ส่งออก JSON</translation>
     </message>
     <message>
       <source>Cannot read profile or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>ไม่สามารถอ่านโปรไฟล์ได้ หรือไฟล์มีขนาดเกิน 1 MiB</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished" />
+      <translation>นำเข้า</translation>
     </message>
     <message>
       <source>Cannot read response or file exceeds 1 MiB.</source>
-      <translation type="unfinished" />
+      <translation>ไม่สามารถอ่านข้อมูลการตอบสนองได้ หรือไฟล์มีขนาดเกิน 1 MiB</translation>
     </message>
     <message>
       <source>This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.</source>
-      <translation type="unfinished" />
+      <translation>นี่เป็นการนำเข้าการตอบสนองที่วัดได้ ไม่ใช่เกน EQ ที่กลับค่าแล้ว ยืนยันประเภทอุปกรณ์ SPL สัมบูรณ์ต้องปรับให้อยู่ในมาตรฐานก่อนนำเข้า</translation>
     </message>
     <message>
       <source>Response import</source>
-      <translation type="unfinished" />
+      <translation>นำเข้าการตอบสนอง</translation>
     </message>
     <message>
       <source>Export</source>
-      <translation type="unfinished" />
+      <translation>ส่งออก</translation>
     </message>
   </context>
   <context>
@@ -590,11 +590,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Expanded test language</source>
-      <translation type="unfinished" />
+      <translation>ภาษาทดสอบข้อความขยาย</translation>
     </message>
     <message>
       <source>Right-to-left test language</source>
-      <translation type="unfinished" />
+      <translation>ภาษาทดสอบจากขวาไปซ้าย</translation>
     </message>
     <message>
       <source>Saved language preference: %1</source>
@@ -997,6 +997,81 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     <message>
       <source>Post-EQ monitoring</source>
       <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>StandardActions</name>
+    <message>
+      <source>OK</source>
+      <translation>ตกลง</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>ใช่</translation>
+    </message>
+    <message>
+      <source>No</source>
+      <translation>ไม่</translation>
+    </message>
+    <message>
+      <source>Yes to All</source>
+      <translation>ใช่ทั้งหมด</translation>
+    </message>
+    <message>
+      <source>No to All</source>
+      <translation>ไม่ทั้งหมด</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>เปิด</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>บันทึก</translation>
+    </message>
+    <message>
+      <source>Save All</source>
+      <translation>บันทึกทั้งหมด</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>ปิด</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>ยกเลิก</translation>
+    </message>
+    <message>
+      <source>Discard</source>
+      <translation>ละทิ้ง</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>นำไปใช้</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>รีเซ็ต</translation>
+    </message>
+    <message>
+      <source>Restore Defaults</source>
+      <translation>คืนค่าเริ่มต้น</translation>
+    </message>
+    <message>
+      <source>Retry</source>
+      <translation>ลองอีกครั้ง</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>ยุติ</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>ละเว้น</translation>
+    </message>
+    <message>
+      <source>Help</source>
+      <translation>ช่วยเหลือ</translation>
     </message>
   </context>
   <context>
