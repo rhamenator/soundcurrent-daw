@@ -1,0 +1,451 @@
+{
+  "format": "sc-native-windows-playback-evidence",
+  "schemaMajor": 1,
+  "sourceBase": "918aa6c3dcbaff7872c8932a2606f704d0cdba74",
+  "nativePlatform": "Windows 11 10.0.26300.9550, independent soundcurrent-win11-dev VM",
+  "compiler": "MinGW-w64 GCC 13 win32 x86_64, Release",
+  "archive": "2026-10-08-windows-native-playback.zip",
+  "archiveBytes": 4104162,
+  "archiveSha256": "0ba5c334f1bdb429d9f0b0eb40701c7ffd36ddcf3a5491f77ed227483eda8045",
+  "payloads": [
+    {
+      "path": "control/wasapi-playback-native-v1/dispatch.log",
+      "bytes": 1067,
+      "sha256": "cc0400a4ee6d496da91cd4f9e5f7a11366831e52a3c2e38fa7acebfb49dacedc"
+    },
+    {
+      "path": "control/wasapi-playback-native-v1/rejection-reason.log",
+      "bytes": 255,
+      "sha256": "421e16b53d9fba9e897c118bb58701c1003ad146a18e0bbf8cd61d5e6223a07b"
+    },
+    {
+      "path": "control/wasapi-playback-native-v1/setup.log",
+      "bytes": 386,
+      "sha256": "aa92bc9b3040a741b2032e962c46f0a197bcf8192261beaaebdcdfe457dd931d"
+    },
+    {
+      "path": "control/wasapi-playback-native-v1/transfer.log",
+      "bytes": 222,
+      "sha256": "048e2ba89ae430962e02f5341cf60c694fb7e131cb417790075a56b32ca09992"
+    },
+    {
+      "path": "control/wasapi-playback-native-v2/cancel-dispatch.log",
+      "bytes": 626,
+      "sha256": "4d17931b62d955299881dd86186b6bd7688c7591058ca2c52ba862d1ce6f8906"
+    },
+    {
+      "path": "control/wasapi-playback-native-v2/collect-transfer.log",
+      "bytes": 222,
+      "sha256": "048e2ba89ae430962e02f5341cf60c694fb7e131cb417790075a56b32ca09992"
+    },
+    {
+      "path": "control/wasapi-playback-native-v2/collect.log",
+      "bytes": 222,
+      "sha256": "048e2ba89ae430962e02f5341cf60c694fb7e131cb417790075a56b32ca09992"
+    },
+    {
+      "path": "control/wasapi-playback-native-v2/dispatch.log",
+      "bytes": 626,
+      "sha256": "4d17931b62d955299881dd86186b6bd7688c7591058ca2c52ba862d1ce6f8906"
+    },
+    {
+      "path": "control/wasapi-playback-native-v2/setup.log",
+      "bytes": 386,
+      "sha256": "aa92bc9b3040a741b2032e962c46f0a197bcf8192261beaaebdcdfe457dd931d"
+    },
+    {
+      "path": "control/wasapi-playback-native-v2/transfer.log",
+      "bytes": 222,
+      "sha256": "048e2ba89ae430962e02f5341cf60c694fb7e131cb417790075a56b32ca09992"
+    },
+    {
+      "path": "first-refusal/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-refusal/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-813fd263-db38-441e-9d36-ac1c0db346d1/journal.json",
+      "bytes": 696,
+      "sha256": "546c06ddee1c720959337e5e927c322c9b6fef954fd519c77dabc5bdd5b93ee0"
+    },
+    {
+      "path": "first-refusal/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-813fd263-db38-441e-9d36-ac1c0db346d1/take.wav",
+      "bytes": 768104,
+      "sha256": "56af0bfbb9be3118b4239f9760a8a5ee9a0d72308adc3614334c505822005f8e"
+    },
+    {
+      "path": "first-refusal/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-813fd263-db38-441e-9d36-ac1c0db346d1/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-refusal/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/project.json",
+      "bytes": 2345,
+      "sha256": "53a021e5f366c85196d6e148d2a4e1ec037d8db9ff6aab6e54055b63ee7f9fc1"
+    },
+    {
+      "path": "first-refusal/inventory.json",
+      "bytes": 1544,
+      "sha256": "566022d1efaf29336a82146684d77cb6881110daadb51250a0ad92a150a5ee00"
+    },
+    {
+      "path": "first-refusal/manifest.json",
+      "bytes": 900,
+      "sha256": "a3ecf520d8c3b7ca02bbe4f5b8ffb974658fda7bd65e36df882f82c36b67e775"
+    },
+    {
+      "path": "first-refusal/playback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-refusal/playback.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/wasapi-output-asan-build.log",
+      "bytes": 549,
+      "sha256": "31f74d1c745c4911aafc7ff2ac8826ab56c0bbc7305e6e80403d6b82a07da893"
+    },
+    {
+      "path": "logs/wasapi-output-asan-test.log",
+      "bytes": 264,
+      "sha256": "e244556aa040c909ac6a9a34cfd3d2464a6ead4a30c1d5a75314fcbbaf50210f"
+    },
+    {
+      "path": "logs/wasapi-output-linux-build-v2.log",
+      "bytes": 454,
+      "sha256": "5c9e789c7e94cdd34546149ba7dc658d3378c8a3ab27319a75b6c6087526b1c4"
+    },
+    {
+      "path": "logs/wasapi-output-linux-build.log",
+      "bytes": 1059,
+      "sha256": "61d8e6216c0f2f10d6cacbf7bc914b1b27d40b6393f6dce07f67dc25a2977cbc"
+    },
+    {
+      "path": "logs/wasapi-output-linux-test-v2.log",
+      "bytes": 254,
+      "sha256": "b23356f97d2f3a6f70440a6d898376d92f6c3c239e6866ecaf6529a8927b601d"
+    },
+    {
+      "path": "logs/wasapi-output-linux-test.log",
+      "bytes": 379,
+      "sha256": "cff1f8b854a0d33e9ebcc7b8a6ef50ec48062896c52a526888b3fed3c76a465b"
+    },
+    {
+      "path": "logs/wasapi-playback-build.log",
+      "bytes": 739,
+      "sha256": "92f9ee1c1b4c6609cd5b51b4e82dbea1fd2d4334c7af3b6ed9be7ca3b0bce7cc"
+    },
+    {
+      "path": "logs/wasapi-playback-cancel-oracle-v2.log",
+      "bytes": 493,
+      "sha256": "5a474526a30aefb089c8e42b04bd5e9765fd6669ce7e833df37ee2a7b989073f"
+    },
+    {
+      "path": "logs/wasapi-playback-cancel-oracle.log",
+      "bytes": 784,
+      "sha256": "e6d4e8bc5370159d89be1431b3717cdcfc13c8eefa3a7245f0910065ae5bec43"
+    },
+    {
+      "path": "logs/wasapi-playback-fixture-build-v2.log",
+      "bytes": 606,
+      "sha256": "47cfcb27b1c04716b98d027667f73324f9531b1c1be762d1d1a175291fbbea02"
+    },
+    {
+      "path": "logs/wasapi-playback-fixture-build-v3.log",
+      "bytes": 166,
+      "sha256": "76457796eaa10be8a147c8a0c57ab9642ab557ae46d39df8758fe033302921c5"
+    },
+    {
+      "path": "logs/wasapi-playback-fixture-build.log",
+      "bytes": 1488,
+      "sha256": "85bce9ec1330fe412360f539ab8d05ac0929449b5c24312af7871ec159d618ce"
+    },
+    {
+      "path": "logs/wasapi-playback-oracle-v2.log",
+      "bytes": 496,
+      "sha256": "8f51d7923e802c868d102ba9f2a890190a2765fc5f9a42b9b8589f5f57f3ff0a"
+    },
+    {
+      "path": "logs/windows-vc-workload.log",
+      "bytes": 1202,
+      "sha256": "c3a2504cb14755e0a5edb9263243044870604256b4d3765118e692ab22773fbe"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/expected-engine.f32",
+      "bytes": 768000,
+      "sha256": "bcd9c918eebf4ae3f384ca0e3de2992604549615cbf787527d6e4b995f0b9482"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/loopback/media/capture-4089499b-26c8-4ee7-b280-8a977ebbbae8/journal.json",
+      "bytes": 907,
+      "sha256": "61df5b141a92ea28653a211a23ad5a2376b2647f02c08ec2f7329dec2eb96f3d"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/loopback/media/capture-4089499b-26c8-4ee7-b280-8a977ebbbae8/take.wav",
+      "bytes": 349544,
+      "sha256": "0257a7818b4af88e2bf066908fa239c61fc6c4ea5436d149cee6110f181d1c76"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/loopback/media/capture-4089499b-26c8-4ee7-b280-8a977ebbbae8/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-5e006fe1-19a0-4da5-b20b-ea85711f1709/journal.json",
+      "bytes": 696,
+      "sha256": "1ad9d869535982a48c5b743d844c2e108c86c26c52716cb93136c980043605a8"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-5e006fe1-19a0-4da5-b20b-ea85711f1709/take.wav",
+      "bytes": 768104,
+      "sha256": "56af0bfbb9be3118b4239f9760a8a5ee9a0d72308adc3614334c505822005f8e"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-5e006fe1-19a0-4da5-b20b-ea85711f1709/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/probe.json",
+      "bytes": 24318,
+      "sha256": "48dcbe5ada9a5db055239bd388e94cf77da0d63c3f779db358f7799c63352f80"
+    },
+    {
+      "path": "qualified/Cancel-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/project.json",
+      "bytes": 2345,
+      "sha256": "8753ba4ea93682c84fbb6fb95b1c47ff6f628b5ce2133b8f31ddb8310eb098a5"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/expected-engine.f32",
+      "bytes": 768000,
+      "sha256": "f2aad640570596f97cff6a99c2afe0b4ba5f565138c6f2c37f24d886bcea6bd5"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/loopback/media/capture-f5a9561b-749b-4d80-9081-ee6dcabd6586/journal.json",
+      "bytes": 908,
+      "sha256": "030f9787ae4708f64a790439f98f50114e1e9138584c7084a388da3820d103e5"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/loopback/media/capture-f5a9561b-749b-4d80-9081-ee6dcabd6586/take.wav",
+      "bytes": 1536104,
+      "sha256": "1041ef6cf0803569c54f2b8dd724d215a6117effa09cda48d0a89ce66272c185"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/loopback/media/capture-f5a9561b-749b-4d80-9081-ee6dcabd6586/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-87ff315d-0e17-4750-a09e-15142f2625b1/journal.json",
+      "bytes": 696,
+      "sha256": "8203b3876f2dfe2bf49e444367a6a45b367597af0cdba7100dcf14888ceb0b17"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-87ff315d-0e17-4750-a09e-15142f2625b1/take.wav",
+      "bytes": 768104,
+      "sha256": "56af0bfbb9be3118b4239f9760a8a5ee9a0d72308adc3614334c505822005f8e"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-87ff315d-0e17-4750-a09e-15142f2625b1/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/probe.json",
+      "bytes": 99881,
+      "sha256": "19951754d4ec6781c393510e8763591d6d793665346fe157678ae01400faf644"
+    },
+    {
+      "path": "qualified/Playback-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/project.json",
+      "bytes": 2345,
+      "sha256": "d515501900530e8e7a48af03f8423cb3519292071772abe6492f47df9f006295"
+    },
+    {
+      "path": "qualified/cancel-result.json",
+      "bytes": 373,
+      "sha256": "2ae3d84fbd064d765999ec9c547356d9225ac296f570483a01a91cfb1873449d"
+    },
+    {
+      "path": "qualified/cancel.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/cancel.stdout.txt",
+      "bytes": 24318,
+      "sha256": "48dcbe5ada9a5db055239bd388e94cf77da0d63c3f779db358f7799c63352f80"
+    },
+    {
+      "path": "qualified/interactive-result.json",
+      "bytes": 373,
+      "sha256": "2ae3d84fbd064d765999ec9c547356d9225ac296f570483a01a91cfb1873449d"
+    },
+    {
+      "path": "qualified/inventory.json",
+      "bytes": 1544,
+      "sha256": "566022d1efaf29336a82146684d77cb6881110daadb51250a0ad92a150a5ee00"
+    },
+    {
+      "path": "qualified/manifest.json",
+      "bytes": 900,
+      "sha256": "9378839152c4b301c973fa1d91c3ff60f5dc0f5d045ec03539903a2a8c11c26a"
+    },
+    {
+      "path": "qualified/playback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qualified/playback.stdout.txt",
+      "bytes": 99881,
+      "sha256": "19951754d4ec6781c393510e8763591d6d793665346fe157678ae01400faf644"
+    },
+    {
+      "path": "source/CMakeLists.txt",
+      "bytes": 51315,
+      "sha256": "d21c6757dcc06338958e3e8419f688665b3c9b790a87a457bb1f14528d10458a"
+    },
+    {
+      "path": "source/include/soundcurrent/wasapi_capture.hpp",
+      "bytes": 1822,
+      "sha256": "543fb7e2df6965e5bcf5a31051ceab801f6007ff889ccb006e172ba049020d0c"
+    },
+    {
+      "path": "source/include/soundcurrent/wasapi_input.hpp",
+      "bytes": 2120,
+      "sha256": "8634859fbbcd2f1316aea75943833f370aeb7ddcde18878bfacf5c84b24fc77a"
+    },
+    {
+      "path": "source/include/soundcurrent/wasapi_output.hpp",
+      "bytes": 991,
+      "sha256": "51c3bd53c81c5b6337259adbfe1de0bb5f2a368de669fe2cbefd800ff4d8ad96"
+    },
+    {
+      "path": "source/include/soundcurrent/wasapi_playback.hpp",
+      "bytes": 1994,
+      "sha256": "11ddc9b148e8684f041ca31f67282d5685b6468ba0241219b188f9f82f649f3c"
+    },
+    {
+      "path": "source/include/soundcurrent/wasapi_render.hpp",
+      "bytes": 1934,
+      "sha256": "285412588a5ff410b17523066eca70864932e260d6a212dba688b63e2efbc13f"
+    },
+    {
+      "path": "source/src/wasapi_capture.cpp",
+      "bytes": 13017,
+      "sha256": "fdc82cd6e1f94714ea1fb9f7ed9afe65c10f794fc3337369aafc1a173d019082"
+    },
+    {
+      "path": "source/src/wasapi_input.cpp",
+      "bytes": 6563,
+      "sha256": "40096b6db873fce761b259975ae71e84e89d17b90fb7917362916f7558d013c6"
+    },
+    {
+      "path": "source/src/wasapi_output.cpp",
+      "bytes": 2586,
+      "sha256": "e2dceaf36ef60859e01f27a638997faa14f70b41c2489c69da6d1a55138faac1"
+    },
+    {
+      "path": "source/src/wasapi_playback.cpp",
+      "bytes": 7699,
+      "sha256": "8bd64b9b02ad2693184abeb22e13e0d006fe8b03734b459a8ba3f521b618fef8"
+    },
+    {
+      "path": "source/src/wasapi_render.cpp",
+      "bytes": 10956,
+      "sha256": "d1c96b10b9f95b68f777c4d3df32ef934b03bb956883fdd8f7771fbaf4e334e3"
+    },
+    {
+      "path": "source/src/wasapi_support.hpp",
+      "bytes": 4534,
+      "sha256": "a551ada05648509b64461f0a146ecd4b2a4b147c334e4cd7fff3c0254916cfc9"
+    },
+    {
+      "path": "source/tests/wasapi_output_tests.cpp",
+      "bytes": 6297,
+      "sha256": "6577cc353a110b671942fd1198b395fea96b724960d89f026b87e1d232a57ef6"
+    },
+    {
+      "path": "source/tests/wasapi_playback_fixture.cpp",
+      "bytes": 11510,
+      "sha256": "498b0db8ecad54e1defddba6c8032db3bd648e9fa8650d98224d6a6324491a1b"
+    }
+  ],
+  "nativeOriginalArchives": [
+    {
+      "name": "wasapi-playback-native-v1-original.zip",
+      "bytes": 11230568,
+      "sha256": "83070191477926833b609c96b9f3eed6bb63d495897629a05acaf20a0d89819c"
+    },
+    {
+      "name": "wasapi-playback-native-v2-original.zip",
+      "bytes": 12654960,
+      "sha256": "7599594a65d081be31f65761c5b7063c6252fab6ccf4bdbb645533b70fb76349"
+    },
+    {
+      "name": "wasapi-playback-native-v2-with-cancel.zip",
+      "bytes": 14069231,
+      "sha256": "87badaf8bb1d8e03db9ef8eae60485eb493d7bb7505832f24e27938584fc83d7"
+    }
+  ],
+  "normal": {
+    "format": "sc-native-windows-playback-verification",
+    "cancel": false,
+    "engineFrames": 192000,
+    "capturedFrames": 192000,
+    "nativeQueueDrained": true,
+    "independentEngineMaximumError": 0.0,
+    "nativeMaximumResidual": 0.0,
+    "fixtureOffsetFrames": 64,
+    "measuredPathGain": 1.0,
+    "matchedFrames": 191936,
+    "nativeClockUnitsDistinctFromQueueFrames": true,
+    "unselectedChannelSilent": true,
+    "GUIOrInstallerQualified": false,
+    "PhysicalLatencyOrSustainedSchedulingQualified": false
+  },
+  "cancel": {
+    "format": "sc-native-windows-playback-verification",
+    "cancel": true,
+    "engineFrames": 48480,
+    "capturedFrames": 43680,
+    "nativeQueueDrained": false,
+    "independentEngineMaximumError": 0.0,
+    "nativeMaximumResidual": 0.0,
+    "fixtureOffsetFrames": 64,
+    "measuredPathGain": 1.0,
+    "matchedFrames": 43616,
+    "nativeClockUnitsDistinctFromQueueFrames": true,
+    "unselectedChannelSilent": true,
+    "GUIOrInstallerQualified": false,
+    "PhysicalLatencyOrSustainedSchedulingQualified": false
+  },
+  "scope": {
+    "nativeAudioReplayedByArchiveVerification": false,
+    "nativeGUIQualified": false,
+    "installerQualified": false,
+    "physicalHardwareOrLatencyQualified": false,
+    "sustainedSchedulingQualified": false,
+    "outerSdkAllocationQualified": false,
+    "binaryReleaseUploaded": false
+  },
+  "preservedFailures": [
+    "Initial slab128 preparation refused; corrected to admitted256.",
+    "First native fixture mono clips reused as stereo capture model; project validator refused Clip layout mismatch before audio. Original media/hash manifest and exact rejection log retained.",
+    "Initial cancellation oracle incorrectly demanded48000 captured frames despite intentional cancellation leaving4800 queued; original oracle failure retained, cancellation gate explicitly checks shorter matched prefix."
+  ],
+  "mmcss": "Native capture/render constructors now require successful Pro Audio registration and HIGH task priority on the unique owner thread; RAII reverts it. This is not proof that the earlier 480-frame SDK discontinuity is fixed."
+}
