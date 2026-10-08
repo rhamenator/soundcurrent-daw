@@ -72,7 +72,7 @@
       "mixRate": 48000,
       "name": "Speakers (High Definition Audio Device)"
     },
-    "project": "C:\\Users\\copperfin\\SoundCurrent-Install-Native-Acceptance-v3\\Installed workflow v3 - Ελληνικά",
+    "project": "C:\\Users\\copperfin\\SoundCurrent-Install-Native-Acceptance-v3\\Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac",
     "compilerOnPath": false,
     "fixtureSha256": "2f2821525d7ac78b882b3b399efa39b150e51bff7d11da6e2412ec4c0d921eb6",
     "sessionId": 1,
@@ -142,47 +142,47 @@
   ],
   "capsule": {
     "name": "2026-10-08-windows-installed-preview.zip",
-    "bytes": 14532286,
-    "sha256": "d6f8db2247f26e265bf89d5588e288bdae921e27d913e13000fba39325b269e8",
-    "payloads": 54,
+    "bytes": 23128466,
+    "sha256": "7af9719c8714ed7f24151485c5449ef6103dc0a128631ff7b52f7adca60dafcb",
+    "payloads": 83,
     "files": {
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/.save.lock": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/.save.lock": {
         "bytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/first-fault.json": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/first-fault.json": {
         "bytes": 1207,
         "sha256": "a1f16bcbec850b498bd53d2f60b36e5cba5e3828c8c736466eef6b662001e749"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/journal.json": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/journal.json": {
         "bytes": 907,
         "sha256": "33f6291bd4d871bbba7bfb539cd5b759cf447107adb72d5905b3a351de692cd1"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/take.wav": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/take.wav": {
         "bytes": 2300264,
         "sha256": "eb5288ccfd4d3d34fa3fa7c391680a8f97a87d9280d03a89e261d61ade3b5f75"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/writer.lock": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/writer.lock": {
         "bytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/journal.json": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/journal.json": {
         "bytes": 907,
         "sha256": "38a55988380b9fee15bcf021b9bfd8e526220791b7439f0f7518ef755e96d921"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/take.wav": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/take.wav": {
         "bytes": 1920104,
         "sha256": "58d4e683c90bee7c4f02674005f6b385d74a2b32e2a4bd27757baee2b1edc850"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/writer.lock": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/writer.lock": {
         "bytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/project.json": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.json": {
         "bytes": 1748,
         "sha256": "4e3e2e9a04872cecd0a192a43899d711315b72f41e7ce6a1621a3e46fcebd81a"
       },
-      "initial-installed-observer-failure/Installed workflow - Ελληνικά/source-stereo.f32": {
+      "initial-installed-observer-failure/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/source-stereo.f32": {
         "bytes": 4608000,
         "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
       },
@@ -270,13 +270,121 @@
         "bytes": 743,
         "sha256": "694847ceb984c424ce53b2890b4ba012b52c2575ed6ad4ca363b2243989b880d"
       },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/exports/Export \u2014 \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac.wav": {
+        "bytes": 1920080,
+        "sha256": "f450e6a9d52dddf85ca53d334ae958eeaf3d753aa3dcf28e659087355a5671f7"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-f1a806b9-b92d-4c55-834d-b8d94a055ceb/journal.json": {
+        "bytes": 909,
+        "sha256": "e0bb6d5cfc5def2d9e176e730a8759c1211115a98c978458380e10eb798d62b1"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-f1a806b9-b92d-4c55-834d-b8d94a055ceb/take.wav": {
+        "bytes": 3840104,
+        "sha256": "e168bebafbf87e2837d1a07e3507adecebfe621034197a284094c063099aa509"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-f1a806b9-b92d-4c55-834d-b8d94a055ceb/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-8f2a9053-465b-4ae7-9926-7d2088df8346/journal.json": {
+        "bytes": 908,
+        "sha256": "abe438ecee57036962dc6d62b48d9f571004b44bb1e216a741bd5b56357fdd59"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-8f2a9053-465b-4ae7-9926-7d2088df8346/take.wav": {
+        "bytes": 1920104,
+        "sha256": "5b3e0cf2fede4c115f0ef0e0447c8d1c709e4f83eb71d1c85a1a4ec1673b7a3e"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-8f2a9053-465b-4ae7-9926-7d2088df8346/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/probe.json": {
+        "bytes": 1276,
+        "sha256": "346d8685584d7b114fe00674a42de823f9e25ccc9ab015b7addd65b8150596b9"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.json": {
+        "bytes": 2813,
+        "sha256": "76adae39f10fb1286592cb94ce59deb257e703460a69d8bea58dcda0c93122e1"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.previous.json": {
+        "bytes": 1748,
+        "sha256": "ff89ad242638d68017f20e7fed7b5a340ff05217e55fb6404e46a66287b0827a"
+      },
+      "installed-native-module-proof/Installed workflow v6 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/source-stereo.f32": {
+        "bytes": 4608000,
+        "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
+      },
+      "installed-native-module-proof/native.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "installed-native-module-proof/native.stdout": {
+        "bytes": 1276,
+        "sha256": "346d8685584d7b114fe00674a42de823f9e25ccc9ab015b7addd65b8150596b9"
+      },
+      "installed-native-module-proof/result.json": {
+        "bytes": 15545,
+        "sha256": "47e6962f76e85b427314c13f1382d91d2fa451c2b59076d18f1daafc6762414b"
+      },
+      "module-harness-diagnostic-v1/failure.txt": {
+        "bytes": 442,
+        "sha256": "e33f79b6f9ca7c9d085f1711e41aa53f4a1cd2f4422a0741d71b1ce968a63e91"
+      },
+      "module-harness-diagnostic-v1/native.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "module-harness-diagnostic-v1/native.stdout": {
+        "bytes": 1276,
+        "sha256": "46c77945c23b6624e9aedea447f13e69a581dbf559bb0d2f4f324471e9064c39"
+      },
+      "module-harness-diagnostic-v1/result.json": {
+        "bytes": 1016,
+        "sha256": "947b510de356881eb7fe8e8ac1be30521d52f44fbbb009d322404ec7041b8f14"
+      },
+      "module-harness-diagnostic-v1/state.json": {
+        "bytes": 6119,
+        "sha256": "c466d4eb51f360e0193bd06faeabda143be9883e0a0e080bbb5a62cc2f7af5c9"
+      },
+      "module-harness-diagnostic-v2/failure.txt": {
+        "bytes": 400,
+        "sha256": "6a34d9a8e7be8685c7fea78622d8471fcb17bb7ab046a0a76d673d0029480a79"
+      },
+      "module-harness-diagnostic-v2/native.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "module-harness-diagnostic-v2/native.stdout": {
+        "bytes": 1276,
+        "sha256": "b534f80175c68fe645e5bbc69592d0819884250a6f53b18a783f76bdb4768819"
+      },
+      "module-harness-diagnostic-v2/result.json": {
+        "bytes": 886,
+        "sha256": "4b4fdd5feb88b8fff4e23ade873c28d2f34143f77150ad356cd7204e5cdd1c2f"
+      },
+      "module-harness-diagnostic-v2/state.json": {
+        "bytes": 6118,
+        "sha256": "4da2f3d2cd08c21d88919973a41a399def6b427ad29805aea0f8ad01dd0c6730"
+      },
       "prepared/SHA256SUMS": {
         "bytes": 478,
         "sha256": "adf39b5b1bb680cdfd59112ee45cfa94eba5a5b7df20b4eab6c2950e20ed62ab"
       },
+      "prepared/fixture-imports.txt": {
+        "bytes": 632,
+        "sha256": "f2049559d16d81c53ebdfbf49ccc4157a5df847d977a3ce6650950e16cc5529c"
+      },
       "prepared/makensis.log": {
         "bytes": 1224,
         "sha256": "a150b213091628d91b11420f3a0cdb938c9648499058b7c98ecb1777ca9c70aa"
+      },
+      "prepared/merged-native-input-audit.json": {
+        "bytes": 137079,
+        "sha256": "1c1af5c571eb867e0da049dc2a7e66146d35914bd700c573e514f353a67e94cc"
       },
       "prepared/native-deployment-manifest.json": {
         "bytes": 2438,
@@ -290,6 +398,10 @@
         "bytes": 368,
         "sha256": "3321ff8eca0b78b52c723d3b334e8860bf8199aafae227930b955068beeec607"
       },
+      "prepared/native-source-audited-files.json": {
+        "bytes": 51272,
+        "sha256": "e8e23d15996757bcad1ed7145121455132a2c285905985358655bde5b689f769"
+      },
       "prepared/receipt.json": {
         "bytes": 10239,
         "sha256": "1a767f7a791843f5c03add8f4935a63da893ff617c0d8f44eabb455738e97df6"
@@ -298,51 +410,51 @@
         "bytes": 526,
         "sha256": "d05e5ad5f8eef35c617c3722eaa7f88562da08ef01c4c37ddc64cd632551c113"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/.save.lock": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/.save.lock": {
         "bytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/exports/Export — Ελληνικά.wav": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/exports/Export \u2014 \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac.wav": {
         "bytes": 1920080,
         "sha256": "f3dfb7553a37857d69ad7f4f31eb80f7d64074a8770e5480329dbdf5853eb380"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/journal.json": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/journal.json": {
         "bytes": 908,
         "sha256": "d91d04c1d0c653b753ed134286be9bd778019b5be6fa97750b1588291dcbbed8"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/take.wav": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/take.wav": {
         "bytes": 3840104,
         "sha256": "d76836ecaa5afb2bbf2643378dfc281fee06598a2b54c7b5fe0d75b9ab9b864c"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/writer.lock": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/writer.lock": {
         "bytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/journal.json": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/journal.json": {
         "bytes": 907,
         "sha256": "72885961f8134048cee0db0a90f50755a6a70d699260a7efc0604d47fa7ae499"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/take.wav": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/take.wav": {
         "bytes": 1920104,
         "sha256": "5b33f68183f77aa710482b5e6ebaa21e1e85580679a60cc0d33c3ac407e44aa6"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/writer.lock": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/writer.lock": {
         "bytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/probe.json": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/probe.json": {
         "bytes": 1276,
         "sha256": "90dd7abf5d68f0a9c2eb9f302b7d3004b1c8511066d307420617a027c69b8b76"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/project.json": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.json": {
         "bytes": 2813,
         "sha256": "aac7252628465febcf7bdcf01ce9a96d6feba1f0173d1afc9a5b2adf543b05e3"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/project.previous.json": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.previous.json": {
         "bytes": 1748,
         "sha256": "5233058fcf384ff80e2b1ca20d8d25084c9180e11f418637b5b05f8c54a73d10"
       },
-      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/source-stereo.f32": {
+      "unchanged-installed-native-pass/Installed workflow v3 - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/source-stereo.f32": {
         "bytes": 4608000,
         "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
       },
@@ -361,6 +473,10 @@
       "verification/independent-native-v3.json": {
         "bytes": 520,
         "sha256": "c3e6f459dfbcb8cb3583fc0b1ec01a005fb231b30ad30aeaaba4d387cb21ade0"
+      },
+      "verification/independent-native-v6.json": {
+        "bytes": 520,
+        "sha256": "5f8029baec9e4b5573418dfaebbb1a8d393a5b7494bf26bcbb22cfa9ca6eb7be"
       }
     }
   },
@@ -369,6 +485,45 @@
     "installCloneShutdownRequested": true,
     "temporaryScopedFirewallRuleRemoved": true,
     "privateEvidenceReceiverStopped": true,
-    "noReleaseBinaryInCapsule": true
+    "noReleaseBinaryInCapsule": true,
+    "installCloneShutDown": true,
+    "moduleProofMediaDetachedAndRemoved": true
+  },
+  "nativeModuleProof": {
+    "nativeExitCode": 0,
+    "fixtureSha256": "2f2821525d7ac78b882b3b399efa39b150e51bff7d11da6e2412ec4c0d921eb6",
+    "productModulesFromInstalledSlot": true,
+    "qtTestLoaded": false,
+    "independentMedia": {
+      "format": "sc-native-desktop-media-verification",
+      "frames": 480000,
+      "rawMaximumError": 0.0,
+      "fixtureSourceOffsetFrames": 2816,
+      "exportMaximumError": 0.0,
+      "nativePlaybackMaximumResidual": 0.0,
+      "fixturePlaybackOffsetFrames": 64,
+      "measuredPlaybackPathGain": 1.0,
+      "matchedPlaybackFrames": 479936,
+      "unselectedChannelSilent": true,
+      "oneTrackNativeDesktopWorkflowQualified": true,
+      "installerQualified": false,
+      "physicalLatencyOrSustainedSchedulingQualified": false,
+      "nativeAudioReplayed": false
+    },
+    "original54PayloadsPreserved": true
+  },
+  "sourceAudit": {
+    "frozenGitCommitChecked": "b8cdb3e00da524e5be51b007c1f81d6e51806d72",
+    "refreshedInputs": 201,
+    "auditedConservativeInputs": 333,
+    "includesNativeFixtureSource": true,
+    "excludedStaleNoncompiledPythonTest": "tests/translation_catalog_tests.py"
+  },
+  "moduleHarnessDiagnostics": {
+    "retained": true,
+    "first": "WaitForInputIdle unsupported by fixture",
+    "second": "Unused QtTest DLL incorrectly required by harness",
+    "nativeBytesChanged": false,
+    "mediaOracleRelaxed": false
   }
 }

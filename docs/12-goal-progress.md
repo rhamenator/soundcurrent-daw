@@ -2930,3 +2930,19 @@ public binary upload. Physical/sustained audio, monitoring/duplex, broader
 installer/language/release gates and full F/Q/C/N parity remain open. The full
 goal stays active and incomplete. Next: physical format/record/play diagnostics
 and startup/discontinuity qualification.
+
+## Installed preview evidence review checkpoint (2026-10-08)
+
+The Windows candidate's exact native source inputs now match its frozen Git
+commit, including the native fixture source. A new unchanged installed workflow
+records the fixture's own module paths and pinned executable identity; the five
+Qt/platform/media DLLs load from the installed slot. Independent samples again
+pass with zero raw/export errors and measured playback residual. Ten mutations
+refuse stale sources, SDK-loaded dependencies and incorrect fault claims.
+The expanded capsule preserves all original payloads and both failed inspection
+harnesses. The original observer discontinuity remains unisolated. The clean
+clone is shut down and temporary transfer infrastructure is removed.
+This strengthens the local preview evidence without changing installer bytes
+or claiming physical, sustained or full-suite qualification. The next concrete
+implementation remains actionable device-format diagnostics for recording and
+playback, followed by native physical workflow qualification.

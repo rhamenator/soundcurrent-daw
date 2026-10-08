@@ -42,7 +42,10 @@ separate installation from native media verification:
   allows reinstall into the retained owned slot. Reinstalled main exits zero.
 - A test-only executable compiles the production StudioWindow/native controllers
   with bounded capture and RT audit seams. It uses only installed product DLLs
-  plus a separately copied test-only QtTest DLL, which is not shipped in setup.
+  from the installed slot, confirmed by its own loaded-module inventory and
+  executable hash bound to the retained test-tool receipt. QtTest was copied
+  separately for testing but is neither imported nor loaded by this particular
+  MSVC fixture; its inline wait helper uses QtCore. QtTest is not shipped in setup.
   The owned 48 kHz stereo loopback route records a mono take, edits live EQ/Undo,
   attaches the take, plays with live EQ/Undo, saves/reopens and exports WAV.
 - An independent media oracle checks 480,000 raw/export frames with **zero** maximum
@@ -57,6 +60,21 @@ activate Windows audio. Probe/oracle fields such as `installerQualified:false`
 remain untouched: those generic helpers do not test setup themselves. The outer
 receipt's scoped installed qualification combines their separate evidence.
 
+The verifier compares the 201 refreshed native input hashes and 333 audited
+conservative source inputs, including the native fixture C++ source, against
+the exact frozen Git commit. The original merged audit retains one stale
+auxiliary Python catalog test, which was not compiled into either executable;
+it is explicitly excluded rather than represented as current compiled source.
+CI fetches the recorded commit before checking historical evidence. Ten mutation
+tests reject stale source hashes, five SDK-loaded product DLLs, an incorrect
+fixture hash, and altered observer-failure claims.
+
+A second unchanged native pass retains the fixture module inventory and a fresh
+independent media check: 480,000 raw/export frames, 479,936 matched playback
+frames, zero sample errors/residual, unity path gain and silent unselected
+channel. The expanded 83-payload capsule preserves all 54 original payloads
+byte for byte, along with both module-inspection harness failures.
+
 ## Retained failures and limits
 
 The first installed audio test captured its full raw take, then the independent
@@ -65,6 +83,13 @@ received 288,480 after 287,520 committed frames. It failed and is retained.
 An **unchanged** retry with the VM left undisturbed passed the full oracle. The
 cause is unisolated; console inspection and VM/host scheduling are hypotheses.
 This does not qualify sustained scheduling or erase the failed observation.
+
+The first module-inspection harness used an unsupported `WaitForInputIdle`
+check. Its replacement incorrectly required an unused QtTest DLL. Diagnostics
+retain both failures. Direct module polling and the executable's import audit
+correct those harness assumptions without rebuilding native bytes or relaxing
+the media oracle. The independent clone is shut down; temporary transfer media,
+listener and scoped firewall rule are removed.
 
 On an earlier prepared source, declining Microsoft's approval left no preview
 directory and showed the expected runtime-refusal message. The harness timed out
