@@ -68,12 +68,49 @@ are retained, rather than counted as successful first attempts.
 This is a shared-host-kernel container with private Xvfb/D-Bus, not a fresh
 complete desktop or VM. It qualifies runtime dependency resolution and the
 scoped project/export/lifecycle operations. It does not qualify application-menu
-launch, actual capture/playback, physical audio, active-recording upgrade refusal,
+launch, physical audio, active-recording upgrade refusal,
 interrupted installation, preference/recovery preservation, Wayland or HiDPI.
 No host packages/default audio routes or equalizer trees were changed. No release
 was uploaded. [Candidate guide](90-preview-guide.md) describes the available
-package and workflows; the next gate remains installed-app recording/EQ/playback
-on owned routes and complete desktop integration.
+package and workflows; the installed audio workflow checkpoint below adds owned
+recording/playback evidence. Complete desktop integration remains open.
+
+## Installed audio workflow checkpoint
+
+The same installed candidate was exercised as the normal user with private
+PipeWire 1.6.2 and an existing null-sink clock provider. A normal WAV player supplied
+owned mono 48 kHz input; no PipeWire implementation or production timing guard was
+changed. The actual GUI selected its port, armed, recorded **493,568 frames / 10.28 s**,
+stopped normally and attached the verified raw take with zero rejected frames.
+
+An actual playback gain edit **−12 → −6 dB → Undo to −12 dB** was observed in an
+independent output tap: 78 stable 100 ms windows at −12 dB and 22 at −6 dB, with
+the −12 level before and after the edit. This is stable response evidence, not
+exact event timing or callback deadline qualification. The raw file stayed unchanged.
+The **480,000-frame** export agrees with an independent direct-form I peaking EQ
+oracle to **2.8422e−14**. Normal save/quit/reopen preserved six project/media files
+byte for byte; a second export was identical, and reopening made no automatic links.
+
+Original failures remain part of the [new receipt and evidence capsule](../tests/results/X007/2026-10-08-installed-preview-workflow.json):
+the first audiotestsrc route stopped after 1,024 frames with ClockDiscontinuity6;
+a source configuration attempt created no ports; parser assumptions and probe
+lifetime failures were corrected without changing the original bytes. The successful
+raw take has **2,048 leading silent frames**. Every later sample matches the source
+period, but complete source coverage/initial alignment is unqualified. A periodic
+signal cannot independently detect dropped whole periods. The first rejected clock
+is not exposed by current diagnostics, so its cause remains unresolved.
+
+Both installed GUI sessions closed normally and all owned processes retired. Host
+default metadata and existing links remained identical across all three private
+experiments. There was no host package change, physical playback interruption,
+VM run, equalizer write or release upload. All 257 compiled/resource inputs match
+the pinned package source and earlier qualification cohort. Old receipts stay
+unchanged; no frozen F/Q/C/N family or original native71 issue is promoted.
+
+Next implementation task: retain bounded first-fault clock/input observations,
+show useful recording failure details in the UI, and define/test first-valid-input
+startup alignment without hiding dropped data or weakening clock guards. Then
+complete application-menu/Wayland/HiDPI and native Windows preview qualification.
 
 Each produced package records its actual Debug/Release build type, original and
 stripped executable hashes, source commit/tree, dependency metadata and extracted

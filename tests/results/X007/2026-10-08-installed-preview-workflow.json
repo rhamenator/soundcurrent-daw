@@ -1,0 +1,1216 @@
+{
+  "utc": "2026-10-08T00:52:38.076084+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "working_source_head": "40d74166a6f2453502eaa780998ff14a6b983402",
+  "package_source_head": "85ec9552cdd7161f08d8b189d842258241747b5e",
+  "package_version": "0.1.0~preview.20261008001000.85ec9552cdd7",
+  "installed_executable_sha256": "00f5c9f87c830bc493966e09261e6f929ac767b3861d6bad87405d5aec595c59",
+  "compiled_resources_sha256": {
+    "src/recording_worker.cpp": "6997c1dee88f4d88352788e71d20ffc7077aa57e483a34c0fd4c998ee314ddbd",
+    "src/pipewire_recording.cpp": "0652bdef90f3f18e60eb2e34b2aea2bf1f21f477f2bdd412f5b657eb0d82ada3",
+    "src/playback_reader.cpp": "330fb6e546091cbf9310cbca59c896e86400e3cd4f38be4ac711ff0aeaa5ee56",
+    "src/mix_reader.cpp": "644a15090048d85fdb6bff9719011856faff82df7c83adca8b21a2ad83ed4432",
+    "src/pipewire_manual_recording.cpp": "0263b58aee2ba25171c0e373d85c549bd3e117564bf64771b64343016e772d2f",
+    "src/mix_playback.cpp": "d524eed48e531df100dad575ec39498407fef0d762bb8a7a2b7b8193d5f903a7",
+    "src/pipewire_duplex_recording.cpp": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88",
+    "src/playback_bridge.cpp": "1092567581e8d7482918d6a89f41449cc1bf66366079e2c0290635f1d1848677",
+    "src/pipewire_playback.cpp": "31b54cc7d61f91587eb615e3feac394242b47ccf87a77b20eccdcfc985699ef7",
+    "src/capture.cpp": "286672383a769727390ae7b75a7de53f084ae4dd2a3262191247755b840f79a0",
+    "src/mix.cpp": "0d1cf5e2a7613c95ef036cb95b68c86746c4771742b1b5dbd39376a87d7fb12e",
+    "src/pipewire_filter.cpp": "a79a1c16dc1e3ab705e6b4e376460c0c6e333162fb5d889ded9d8bf0be18c0c7",
+    "src/eq.cpp": "22639eca5f4c588041486eee27b6bc315ccdaa2f6b649d640c5fbd19c854a201",
+    "src/export.cpp": "b3d7c79838682af89bea3615e0269ecaeddf17eb7288c035f281571b72eda03e",
+    "src/media_io.hpp": "ce2f64171570b95fdd6dbc4d852602169e3659263d9e74c9d7ffab4c1d5f11a6",
+    "src/project_store.cpp": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15",
+    "src/manual_recording.cpp": "3de2bc28cb213026aff1c5dc62f7fb875ede7642518335273953f6872d8d6db4",
+    "src/pipewire_buffer.cpp": "8a52f7e5ce0c4e65e20acb49362a0c3481fdfc51a03c2d13c8ee76bd78fb7bc8",
+    "src/session.cpp": "3d18bcb2810f30a3805833a0ababf8f97fb326907c3a7c4ffc29093635a45ee8",
+    "src/recording.cpp": "7e9e487770344276f48564970b2a78971415d1d7d0eaa402716471e5191c02d9",
+    "src/resource_ledger.cpp": "531458368d17825a5744b1a0f59585ce2c6169041ceae648612f934e6fcb86e7",
+    "src/session_edits.cpp": "18141c28451fb83052a1a04d8706e869202739439d57045bc10be1e520f4604f",
+    "src/duplex_recording.cpp": "1513c84c026debca033ebe0a88e3b99c11fdd67ad72db46bf235c376c17ae407",
+    "src/manual_punch.cpp": "2a0dbdc8e0c520f9764b702a142b98671aa8d03b34d0d1f5c81b70f659927d27",
+    "src/eq_coefficients.cpp": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578",
+    "src/duplex_bridge.cpp": "743f3e395b4e31928c7942281b2c08b404d9095a04d2aaf8716bba7de9ff6286",
+    "src/media_io.cpp": "275856087072bc25d394a571d9a129830776b67a998a9eb630312edc6d1e836f",
+    "src/routing.cpp": "09b81ca59b08e38cfbd510aaaf88f93bc43485b1f29a17194b557fe352313b0c",
+    "src/mix_run.cpp": "6696d37db2f601aab3a1f804ed5fd78b151f1777c9f0afd791c427d4eaa2a173",
+    "src/playback.cpp": "8855074a6c7cdd6ae806ecf26101e13f7767972c5e725fa38adf53e2371cab09",
+    "src/audio_bridge.cpp": "b01ad166eb33e65fadeb598a82a0f4466d840155c7f0c4e59840d2f2e43bacb6",
+    "src/pipewire_buffer.hpp": "b4c1d998d158f917acd04f558e95a180f443eb3526c2d87ccb1ba1d3f46a77f1",
+    "src/media_cache.cpp": "8dbddc5ab136ed426f6df4553ecc4630810bfdf115c60ff98de2cac7b7e12e75",
+    "src/playback_run.cpp": "b87264b41e46be328cda79ea6358277715ee9be0bb2ebf19081591821bb8dcad",
+    "include/soundcurrent/session.hpp": "e800af9df5d78b7433cdbd6feb4bc838ddc76afc083f37c1bd8515ee03f5fb02",
+    "include/soundcurrent/project_store.hpp": "c8fe26ca494699a57c2baefeda853ebc8b2ab68476742287df323e2298d5648e",
+    "include/soundcurrent/duplex_bridge.hpp": "9ec10c1ca1bf17b3b40a0eb361b909160fd344a4d248fdd43294a81e3c2c34b5",
+    "include/soundcurrent/pipewire_duplex_recording.hpp": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb",
+    "include/soundcurrent/audio_bridge.hpp": "a886f145d8bd6eec146b00d5feb8f4a53ac424166d6b590b6962c14c48ce2263",
+    "include/soundcurrent/export.hpp": "d90926709f24d34781333d9417aa269fe61516190e4e1b67add689a68f53b7eb",
+    "include/soundcurrent/spsc_queue.hpp": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd",
+    "include/soundcurrent/manual_recording.hpp": "ef6d775d39f9a2c97ea42e05b3ad7df772ca5850a12e7dac793734702631f941",
+    "include/soundcurrent/playback_bridge.hpp": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910",
+    "include/soundcurrent/mix_playback.hpp": "957fd28fc72c1d3aa0f5f28114b28c6729c4edf5200335555376f763793fdc3e",
+    "include/soundcurrent/recording.hpp": "012cc5a6369e7abbbdeb74ff052f83d981eb2f379ce954424a55460e09ac602a",
+    "include/soundcurrent/media_cache.hpp": "89644bd01dbe79281913df840fac5e5ffb2204b1e400243a37949467bf207360",
+    "include/soundcurrent/pipewire_filter.hpp": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767",
+    "include/soundcurrent/rt_object_exchange.hpp": "eda689a08bdaf92047d42881770d5ae5dc4b54b43e8066f2ebe7d6edf98ebb41",
+    "include/soundcurrent/manual_punch.hpp": "3d1768ee56ddc99281eff06a16ebcfe6e94090a856bfb1f07233ef824cebce9a",
+    "include/soundcurrent/capture.hpp": "b792f34678fa157e56ebe46c2d018158167e377321bb8a1e3ea28b56cf45af21",
+    "include/soundcurrent/mix_reader.hpp": "28b13c16a49aff713eb8b1f5b6352718ada0b8310813b70dc1ec0ae6bff36ca9",
+    "include/soundcurrent/routing.hpp": "66a68a0df135363e242510a9b9761f4cc02a3d9969757750a8ef80cb50c2293d",
+    "include/soundcurrent/duplex_recording.hpp": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413",
+    "include/soundcurrent/pipewire_playback.hpp": "5351a52b17c97b78edff712ad979c125cba453c84c0a91bdd08be449cf50a2a8",
+    "include/soundcurrent/playback_reader.hpp": "19321fe2bfaf3aa5d5ff5904f0efadb1827ef42c2242e79e14dcf7434b7796e5",
+    "include/soundcurrent/resource_ledger.hpp": "9225bcc34e6c2d6bcd362840837ee7ac9b2bce3c31d7d72a230257479d015b17",
+    "include/soundcurrent/pipewire_manual_recording.hpp": "f082797966659e6e71dc3064c43d151200dda304d649fea7fa2e201df1995fe8",
+    "include/soundcurrent/playback.hpp": "e98ef42f61a6cb08fbb1e93b79783160b216ad7e8b7b8cb00a9c0a093ba8cfb9",
+    "include/soundcurrent/mix.hpp": "b2749045f9042e7e0a6dac79e16fc60a77f3f8b0fcf77496880655877c906db3",
+    "include/soundcurrent/eq.hpp": "b4daaaece57023a6dbe982dfc326dab788463e69c9f3f696df578d08dda97049",
+    "include/soundcurrent/pipewire_recording.hpp": "b0e5202b083d54d8f1f2bed1b4e8752b9d1a9a4eddee522e4d9aac577efee53e",
+    "ui/session_list_model.cpp": "4a4f0a394a9bbff8d5a6c8a37c0d5103e2dde6bedc9f67dd30a3af6f9eea8b09",
+    "ui/export_dialog.hpp": "1e9f5e4a14323fb7db691491b3c26a78b760c29ec9ed4b7f2e7d9254faa61bfa",
+    "ui/playback_controller.cpp": "0d95dd106308a3a7ead7ffcf8dc95de8ad30d0317bec2b1e04966e3b386b94b1",
+    "ui/manual_recording_controller.hpp": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2",
+    "ui/equipment_resources.qrc": "c57668900ccb299af3d210bc32a4be2728e2b51184ff180d3fb6d6214dc4f5b4",
+    "ui/export_controller.hpp": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e",
+    "ui/playback_controller.hpp": "1e7c28cf39f69f38fcd8c21485ecb5233e4fc684a50b226f16101abb6322781e",
+    "ui/project_controller.hpp": "37286bc602ab1953043cc2dc66cc878bcf827610d994755ba5bf7103c4ae9dde",
+    "ui/manual_recording_panel.hpp": "eaf6ca2ab3c499813f4f6d929f61cbfe94f9c25d6c7ef6977f914db056c5908b",
+    "ui/export_dialog.cpp": "8b22072ebba18649bd2bac9a8d37de70589eec8fca5c03bb099a2a2714b2448b",
+    "ui/manual_recording_panel.cpp": "b7db2392cff9e7c7f03c7bd39909ed860966d2ccd2a1b0416aa50a303de125f2",
+    "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
+    "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
+    "ui/export_controller.cpp": "4fa071da04f93555333df4b9f7b740f015d81e4b3b6f151167d49da5605bb61f",
+    "ui/recording_controller.hpp": "53e298169ea6487cd733d6cc6acf5d1d700439d6919edfad9207c5ea2ea37fa4",
+    "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
+    "ui/gui_resources.hpp": "6f1e4b9a8988bb79969c45eeaecda226d3319c3adc0b44938fa287c967f707c4",
+    "ui/accelerating_spinbox.hpp": "e922369bf24879ec5bf0e3c3518c5e4a6f7daafb9b320640c47f8c837521695e",
+    "ui/localization.cpp": "2605c7b5aba6db5a873e31263c0b0500283de08d41c3b12b2c608ed5556aa892",
+    "ui/timeline_view.cpp": "c9ffafee0c4a132c9a2ac41a11ed3cef86fd451b2eba8940817d71e9b26b27e1",
+    "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
+    "ui/history_resources_dialog.cpp": "b8e4a2b0303b5bededad4b5b85a46307a3c0cf869da437b025f50c1f088dcdfb",
+    "ui/project_controller.cpp": "3fa855154336c4bea68e60e045fd0104fde7a9680f4f29041635b576f5434028",
+    "ui/localization.hpp": "fa6e43ff79f5bdd10e60bfee0468d26c76e7480ba8174405972c7c8ca115b262",
+    "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
+    "ui/history_resources_dialog.hpp": "f9ce0174b9f6a392b2a8f9af22d2f71d9eb11b4dd4c9eaad392bc62e2e85fad8",
+    "ui/timeline_editor.hpp": "a7e56fc0955ecf21c54d9748a19ad61c2711c54d8890e34cea276d0edb1d8ada",
+    "ui/equipment_profiles.cpp": "4c2614c9cf71035bc5b0f11d51b0269bd9c8485097f7b0406959f7e26bf08dd7",
+    "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
+    "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
+    "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
+    "ui/timeline_editor.cpp": "f9f3ab72ad1cf57854ac51dfd60f749eef92e45af1f956e124ac88e81a9dc5ec",
+    "ui/equipment_curve.hpp": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e",
+    "ui/recording_controller.cpp": "dc6113efde6e81d5b36a8be0a3013d0aecc887dda0b47f30d8a1682eb2c0fa7a",
+    "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
+    "ui/manual_recording_controller.cpp": "d7007294c7b9cbdb630d02662773f50df7b3eebbc977a6ec8322dd84764e80ee",
+    "ui/studio_window.cpp": "49b0bed7a29e501a0f416ac805edcd76d7cf43c3d2741f04b4c7eb69fa2d16d8",
+    "ui/studio_window.hpp": "d213c01e3967f1ef71b504b9588ecdd7054843164f1070bdf23a1532d0b24409",
+    "tests/duplex_recording_tests.cpp": "b0308ee36f8db37a773844b16a610ec4c93b3f7848137e6ffc47342ecf1fadfc",
+    "tests/native_processing_stages.cpp": "db66381908a1d5183de60e8e06ed095d5f2d85e170f2ad5f72342a9aef6053df",
+    "tests/manual_controller_tests.cpp": "3ebcf1fc4bb3d81413533ce3955ba9207f178048526b4ad17bf80747892c218b",
+    "tests/duplex_duration_fixture.cpp": "c2b67a69260e38030a223ee55c93747e52106ac5c049f355af41b65178df9216",
+    "tests/snapshot_resource_tests.cpp": "8c3a5bda1203fd427cdf5efac100ef3e6e1244d7856ff76d9e2a060c478a4126",
+    "tests/pipewire_manual_fixture.cpp": "dc766dda917ab559ba2e84d8cd7ec26c2a1678e91908d8cf22518e31686e7329",
+    "tests/native_startup_gate_tests.cpp": "c8b6093ed8c2fc991c5ff7e55e4eeeda1b4973dca8cf73591302dbeaa0538243",
+    "tests/native_port_markers.hpp": "22ca0d9e4fe7377d8156197b6786987e6179480a46be7408d6ebbabb47983f70",
+    "tests/immediate_tests.cpp": "d4c19239d8ac09986de2b6a78f791d4ac827be4e133cc64ec1613028783ddfc4",
+    "tests/pipewire_playback_fixture.cpp": "6516054a61d23c5cf757f97148c9e974786477a8e7ce1e86188f5daeed7d298f",
+    "tests/rt_audit.cpp": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331",
+    "tests/ui_tests.cpp": "721b0f750927759eecce2ffc8351422930acb1cc75db4c1f4b11bdc00433a3b0",
+    "tests/export_ui_tests.cpp": "7d7a32bf079c19e2b935d4d6c5659810e7398eb05dfcfc8d871d13674737a925",
+    "tests/equipment_tests.cpp": "47c0fc29868748b85c5ed2f1ac38e7102e174a74979d97d56e6d9e7053a3a4e1",
+    "tests/gui_resource_tests.cpp": "d263b9490c7ad48b5d75819794d39efa2143c114ad9c8e89f2ed25cc94f75bb7",
+    "tests/pipewire_fixture.cpp": "0f5080ae3a198b8b39d791dc15dc2ceeccde71fb20e352bce63cf8074d291774",
+    "tests/pipewire_punch_fixture.cpp": "4c6b999e7fe5205e2a5303043d584eef88831f6a9dee4efc96807dd78950d155",
+    "tests/export_tests.cpp": "ab016e653cfd15269b8a0b9dc7b09859e30f75d4bae7b66e57bc0961bc4db63c",
+    "tests/native_startup_gate.cpp": "55537f6f4dc64a577dd53d460346fc93366978fcbe5e9436ead496c9dd8e4a95",
+    "tests/native_processing_stage_tests.cpp": "23fde16112cf5052df079ba55bb6d0d1d4c2ebbd970abdd3bd9b56976052b96b",
+    "tests/export_controller_tests.cpp": "3d8c123384caa11bfd108e7863721cfcc5df288b47d5fffabf03fe19a13f299a",
+    "tests/playback_controller_tests.cpp": "b7b66bd22c8ebe43e570b5a980929ddba60bc7866be7878a35f7d4ccebdfbffc",
+    "tests/native_manual_processing_stage_tests.cpp": "9d777740f6ff9bba8f24f3a4c67c9beed72488ed21732fb65c8b61436d3b2b55",
+    "tests/controller_tests.cpp": "e650be75b1768f8df28bc925c8d975ff63502b374944d44e6cc66662350f723e",
+    "tests/native_port_handoff.cpp": "6b6cee5a15183c3e5731dbaf75f4f949fca056d6cd9a2243e1b71267c0b8e378",
+    "tests/native_port_marker_tests.cpp": "2ef47cdb600a239ef28a4db5dfa3fa2ab1900c702cf89f70388150732ac30321",
+    "tests/audio_bridge_tests.cpp": "b7061da810d75d9709af4dfe107ecfdce6f33e590d87f8406f84f75583db83f5",
+    "tests/recording_tests.cpp": "b4e5fec52231878e50f6c34a52cd0048f07a3a35d1cacd16643dc3230e84fde1",
+    "tests/punch_tests.cpp": "b08b12c9e2efcd2750d6c388187f8800c860830a82fff89eab3f75f2a75ed801",
+    "tests/history_resource_ui_tests.cpp": "2169c83b8475513df58750eb851d3d951bc655c4c6e2774c6b9bba7e7099fc34",
+    "tests/manual_recording_tests.cpp": "8bc3c644eccca233823051524c2831df356a1cb6bd2a501b9c1e4f8a6e271786",
+    "tests/playback_bridge_tests.cpp": "a13004d432690fd1676c1d26b428cb287d5c8a4a858411fe4b630da25440e070",
+    "tests/writer_timing_tests.cpp": "f6dbf48c2a7a1852596a5349943e3c8d91aceedc4a42d154af130be8b07f7b39",
+    "tests/resource_ledger_tests.cpp": "b1babbf22c65f382f716e1f2034471a710494374670a5057431339fc9e5b50ba",
+    "tests/pipewire_punch_fault_fixture.cpp": "f777f15fe1ea8380c65873dcce7ea4b69247ec6f7ec2fdf881b990885980bcc1",
+    "tests/pipewire_ui_fixture.cpp": "7f177c3c25464fa71c2cfcf34ac53fdf90d26649e56d6dfeda1bad4746228118",
+    "tests/manual_punch_tests.cpp": "7ed12ace4158590e1ccff231dc1a86ba88e15cbef5aaae50c47b33c7762d09e0",
+    "tests/manual_interrupt_tests.cpp": "26348e5a26cfd33644f30c988e762f781c16f0987f73add62e206c101795b7d9",
+    "tests/mix_playback_tests.cpp": "f2f49b6aab324e805bdf2034e86a9b29ecfc6a40ad32ad2d55546928958d48d1",
+    "tests/native_buffer_tests.cpp": "d40204a5767971eb0bdbd0020a6b139481f9bf4c90675a04f867b73670c8b57c",
+    "tests/mix_graph_tests.cpp": "4b226292728124ddabfdca67575e5c0993e43ad3f833ebe1a14d81d767693641",
+    "tests/native_duration_timing.hpp": "06650c67983eb6b97265483c0c48127a512d2601c57da8ea60d5e62a403b8929",
+    "tests/native_port_handoff.hpp": "165e4a73dfad25766f1545a168a5b55a28eb1f5b2a9358a1ae77ef9127fb727f",
+    "tests/native_port_markers.cpp": "c8f3aeca8ef756172072123533698447ab6e674d4a8b13a582dcb9581b74d6b5",
+    "tests/native_startup_gate.hpp": "3dcf152b4205473414ff4d80c58f484e7b93879366e81e214c6b225c0a28a116",
+    "tests/history_resource_tests.cpp": "c2adcf464f8b85f669e23b4a4c99372ba9b4d0a1d8c7c0c5af839c7463dd04c3",
+    "tests/pipewire_duplex_fixture.cpp": "ed83b2e42d829eed8dee9673ea685a59df134f6cb60fad7baf57a700c05568d5",
+    "tests/native_port_handoff_fake.cpp": "91de1e4ff101b5d6b23f4ac02b019d6aec74faa1ac968e8834c29d04e55ed52e",
+    "tests/fake_playback_endpoint.hpp": "a8a437862b632ae332166b0149420c920b5bb18d93235678b3ed6c7d441e624d",
+    "tests/pipewire_duplex_ui_fixture.cpp": "63a2bd7a7c6b9de84dd12f6440ae8ed6ea28275691eeb9454c8d5254fe4f600b",
+    "tests/pipewire_manual_panel_fixture.cpp": "38f8043d35b6250079da6ace5e4e2c591a2e35e9dedd0ba764076bd56e03413d",
+    "tests/fake_recording_endpoint.hpp": "3ac9554d21632000e93d56a2014665729082aff7a0b932d0bb115c69bbf60471",
+    "tests/capture_tests.cpp": "04ab9eb671a1d7ef998c9a12a5e36414473bcb24aafdabb2f0721edceefa85ef",
+    "tests/export_fixture.hpp": "652990110040112977a4c6de1eb824c0a842d873faec7211392185e878bc3717",
+    "tests/graph_resource_tests.cpp": "76909fe6645d5868f938112b3cfc5f9923e7e57b7440871dc162a3fb05bde98c",
+    "tests/fake_duplex_endpoint.hpp": "af6950368ee75323ba56e5d52d5a871a02d437f664ad062e34e3460b82430a9d",
+    "tests/fake_manual_endpoint.hpp": "38eb79b3e5631c565cd342bb567cdf522d8f2f2fcce237f7b3ee6f4cfb8e48d8",
+    "tests/native_thread_usage.hpp": "1d31d916c8d7afd072e4cba32352b9a1c3e89a6dbde00ba32af479f570a13ab1",
+    "tests/manual_panel_tests.cpp": "b80f7dbdcf91be6f094faa8669ee38a4d521ac1d01368bebb6b24dec0cb73dba",
+    "tests/native_timing.hpp": "046b93903f6a4e0d4b05ffd2586eae148c4bdd00619a2ca0d5f2471e54884375",
+    "tests/native_port_handoff_tests.cpp": "3bc95cf694c5a9d73000df43e114b9801f152f57b408b245cf69d221aaa0fdb2",
+    "tests/native_duration_timing_tests.cpp": "2f3d003910891eeaf8bba2796058b9b64d277a2a0bdefa8f77fe3ca40bd7e228",
+    "tests/pipewire_punch_ui_fixture.cpp": "2a778ee87da23111b4e44ebe76b83acee27997ee4b6903d4a40d6f3e04d304b7",
+    "tests/routing_tests.cpp": "f84ef1150013cced656560c9d9d3aea87fb4befc1aa3f15241c8cec1b95b5700",
+    "tests/recording_controller_tests.cpp": "05d395b06390b6681d3fc997b2447595d2f88a398efa562855729214374804b0",
+    "tests/playback_tests.cpp": "5e88a6305978ecfffea4a1f9a9a049a5e39439c41abfb7531ea4b6537100ccc1",
+    "tests/native_port_handoff_fake.hpp": "7e7c559953977a17d23b82657dbe89c32e46ff06cea50aa7689fd0d392de2827",
+    "tests/pipewire_duration_fixture.cpp": "699ddc167a61de3828a5ce6b6e5c881b5656a5088c6eddee96b78f76e5a310c3",
+    "tests/pipewire_recording_ui_fixture.cpp": "ac2f9e5d9068c870fc2c614f7c2844ce0489ba9df4e162f54027a21583daeac9",
+    "tests/monitoring_tests.cpp": "073d5ec7d68f21032fb6716c0f59f96ada9d347b6d485728bb93b5dc22746887",
+    "tests/discovery_tests.cpp": "c8d3432e73e133a651979c2004b8eafac1a4f701e4c7edea11ce59d0112c36dd",
+    "tests/media_cache_tests.cpp": "2faae55bc4452b489d108525ccc0886d5ca63580e451d23aa76644fa6b2a34a2",
+    "tests/native_processing_stages.hpp": "a440ef669903d4a005927b45619ac50df9c82cbebbb442cdb6fa0dbd3e89f77a",
+    "tests/rt_audit.hpp": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996",
+    "tests/track_scalability_tests.cpp": "11112399ba5f14ca24155f04c0f98ecfd73ce4ef529fc66f58a7d11f7c2008de",
+    "tests/localization_tests.cpp": "054ddd460a524b02b5dc7fcce50723447504a800a5b0afa0e1bdd934d7336c90",
+    "tests/editing_tests.cpp": "ad673eb11803582583944439c58500f0d009a1c0d5cbcf27d6f3a9f60cb3ac46",
+    "tests/session_tests.cpp": "25a30313e7237f552128ba9cf6687ab2e2877754326875134086f4282407655f",
+    "tests/timeline_ui_tests.cpp": "c66b76942f469cf02464636c0d1236a607399282fbb49013ea055c5067d261dc",
+    "tests/manual_verification_gate.cpp": "560174941c43ea706ac5d7f96c88546fe8cdeacc1f20b5124286b840ff8eefc8",
+    "tests/pipewire_manual_fault_fixture.cpp": "a5d48b617263e352468d9b5fd5135f9f1f5d9eb2408056d200e6d76e53461918",
+    "tests/engine_tests.cpp": "b4642a0ae6a0411775bc9d0f263a857e80503fe7738e7b2969a050804d51b2ba",
+    "tests/duplex_tests.cpp": "6a691b5303883a471d64f7b97b6ea7dad6c64bf25c14d753b55c7800a33864f4",
+    "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb",
+    "tests/native_port_marker_fake.cpp": "c1bfa5d19894fabd9b892bac953814de138ea30442183461dd685d43254f1815",
+    "localization/soundcurrent_daw_zh-Hant.ts": "a592e640d44faf6d0385aea83a75d90332bd20364ffe47c41d03208c877a4d5d",
+    "localization/soundcurrent_daw_es.ts": "9b3af4589553d56e68cf2e04fa2797ac389c12ab46b5b962eff4ea3cab84aea2",
+    "localization/soundcurrent_daw_ru.ts": "93fd68118fe36abc98b3dfeb74247bb05bc5b5e8b99413f36091c99fe3792e50",
+    "localization/soundcurrent_daw_da.qm": "8d90e1dd5e485707238b4d5023565c12e3e7d20c6228168eef386172ab685e6c",
+    "localization/seed-translations.json": "f16e0380c8e3acda4d123f1d64872a0136714574018ffd13889d2d61176c1688",
+    "localization/soundcurrent_daw_sk.qm": "42f823ba3895d0607a8e8601712c97320cb13ce5e1027bdcf4ca80ca8c697b59",
+    "localization/soundcurrent_daw_th.qm": "4c4fdd56b9e2a46cc89491318d4be281552852c9f0fb5ba36d18e6ffd6ab109a",
+    "localization/soundcurrent_daw_en.qm": "0c3c00f29f1f38920ddd347470277b0b8d54a0c291fed2918da060b566ce490d",
+    "localization/soundcurrent_daw_fa.ts": "74740d284b3801ccb1ae2a6c1b42ba9959f234b4c18d20f9dcc9d78306edf869",
+    "localization/soundcurrent_daw_tr.ts": "8f97e5f2a9a74ffa6c816159f72b9b03268f477082cefe31aaecf0aa710e9ee6",
+    "localization/soundcurrent_daw_zh-Hant.qm": "0e6da137e4b07d44114d594235862f443f2ee8ed5075c91460785fc26f8e2f7e",
+    "localization/soundcurrent_daw_nb.ts": "46521e9a32730e6603d4898183fbec06006e8d7cee387dba75f250b0c903933e",
+    "localization/soundcurrent_daw_el.qm": "c96174280584ec6dc75e1c08e7358fcadb4943f2d2144dbadb0b2e14360b56d0",
+    "localization/soundcurrent_daw_pt-BR.ts": "ba2e7cf75e01d15c32e9d12976126b261bb7afbe09ea5820ba3122b8bdddda6d",
+    "localization/soundcurrent_daw_sw.ts": "a9f1cc14f44b5ce57e1d9efd77923403ccf0f362b7bae61c1560a8a15dbf896e",
+    "localization/soundcurrent_daw_ar.qm": "a46a6198765eb2cdf6e2668a34015ec4aa54958b90b478d25f48ffb5f1c7cd0e",
+    "localization/soundcurrent_daw_ja.qm": "774bae17fd4a76f50d05e730557e98a585850fd490eb423b3b60bb0f70cad9a3",
+    "localization/soundcurrent_daw_de.qm": "7ec8fbcdf6dccc845950f0c6d1ba385275b9a7a890bf1924c55f8daeacd1bae7",
+    "localization/translation-context.json": "daa6230a049c8ef43a022a4086a56f04f48969550299e4a7f67e2af62f1ef72d",
+    "localization/soundcurrent_daw_ko.ts": "ad025e201ada00e078dc7e422a7806977e118d0841aed0d916e61c97f2b50c24",
+    "localization/catalogs.json": "6d8ec031143d0c6fce75cbd9a48f97cab2ecab87f1eca0faea7795e99023d10a",
+    "localization/soundcurrent_daw_ko.qm": "96460f510fc3dc0a95310753d69e05aa120369f13b9ef0ec0a88cf67e1fe387c",
+    "localization/soundcurrent_daw_hu.qm": "a9dcf1d1af3e705f3bd6b2c2e9c8d386d033efbaf7cd4086c999eca580bacbe7",
+    "localization/soundcurrent_daw_sv.ts": "b170918fb3cfcf26959147fddae68817a7d3e9465584428a260f627a339d2662",
+    "localization/soundcurrent_daw_tr.qm": "778a8b16885265b1b721ab51c44f34a52e7cec85afd26e65aa33bec483f906c7",
+    "localization/soundcurrent_daw_nl.ts": "805866e3496c64bec34d52b35ce51e88c96f52dcd766491d0b48c3811967a7c2",
+    "localization/soundcurrent_daw_id.qm": "29a6ef9ebc6b315d04ccc24f01b161ab0f1d4cf2d8c8d8f9cd7bfad1b96d2f34",
+    "localization/soundcurrent_daw_ar.ts": "fd7822c17ea4ec1158ad19cac6e26c5a0a95e0d9c448bdc8ae145c400ff64ecd",
+    "localization/soundcurrent_daw_pt-BR.qm": "df603afe9f8cdd3c165b122fee8244e7e1b6e5565e9cbebe20577d6b303532a5",
+    "localization/soundcurrent_daw_hu.ts": "31dc863c25578a89c30c2654fd5057f1d30cb987b86388b546b1d32b4fa7004d",
+    "localization/soundcurrent_daw_pl.qm": "125803f995bd9361ecccbd5d9c717be85dd494ef6084fcf49ea5a15f273f1ae0",
+    "localization/soundcurrent_daw_zh-Hans.ts": "ff7db1afad0914f4bfe129fa773885882b7836e917a0ab59906bb568d2cfbab4",
+    "localization/soundcurrent_daw_fi.qm": "c8a987ad7f45287101382250d53124ef95421607886ef4ef2ef6caa05faef6dc",
+    "localization/soundcurrent_daw_pt-PT.ts": "e67e64273e1bbe1e58f6db3ccaedb5873484eee429d2dbbfed1fdb74c00a34e1",
+    "localization/language-register.json": "91b11714f89a7a43302ad3b057762ba1741a4de1e67819ea173133653f29b9a9",
+    "localization/soundcurrent_daw_cs.ts": "cc2baf4fa03ca8b51260ea7217e86c027c285e6d7e44c86fdbd65b76ffe19e1b",
+    "localization/soundcurrent_daw_es.qm": "205591f887c4233afce4ffec1fa61f1db287d912e99c45152ce6ba21c863617e",
+    "localization/soundcurrent_daw_uk.qm": "c604b721084120f240c14e0f64b9d9d3f0da91412461c2b88e04175da0cad7bd",
+    "localization/source-inventory.json": "bedd3470f55e37aa89c25a28d9880a8ddc207a5281140bcdda0ae73c6beaa669",
+    "localization/soundcurrent_daw_ro.qm": "79f27edf85f2f87d6a90888586a761cc5c02565b758340ecab784689e7600605",
+    "localization/soundcurrent_daw_nb.qm": "578e42bf10e84ec62706f2cbc3f7816fc98d385b96bd653c4ed5fb531b1608ae",
+    "localization/soundcurrent_daw_pt-PT.qm": "32f53405e50044b2af4ce8816b2fe4cb02ec4cea0de1c565e552ee0eaf73eeef",
+    "localization/soundcurrent_daw_ja.ts": "91bd955b6c0fbe677053a1a1b8c8452a425c375db60849c0faf8aae6992f445c",
+    "localization/soundcurrent_daw_hi.ts": "ae67993c1b48b36887a6fcd21cc2b6a946563f47cdeed4b4e98581bd316b43e5",
+    "localization/soundcurrent_daw_fa.qm": "55f4d5ee31b150d6097bb1ef081dfe6ec0e04db0972152d81c3a1d0539176178",
+    "localization/soundcurrent_daw_sv.qm": "a9f80fc90064c1d85046b2159bda5acd5c12ce2e63b79e9bf5da80ccff46f626",
+    "localization/soundcurrent_daw_th.ts": "c6d6c446c0a2513448feb45251debf72b56cee5c595e3d247443107e0370182b",
+    "localization/soundcurrent_daw_he.ts": "ceee1b6d08812151c58a7381248937ea2de93b7622778977ba5e339b68b0ba2b",
+    "localization/soundcurrent_daw_it.qm": "6d648da57960777eb99ba864bf6d3a8d4817125750218e760ef6369eff193787",
+    "localization/soundcurrent_daw_uk.ts": "1bffa3bc40727db5c6b34063115e9ab3e867408b41ab055eb3f442bad2ded1f6",
+    "localization/soundcurrent_daw_pl.ts": "7c7af30793551f0526e45c3ae0c049d84ef421c909790d2af99794bbe319abde",
+    "localization/soundcurrent_daw_vi.ts": "88bf362b58bfc1cc02156b5172a66bd5cbdd54bd2b5ffe4831108a4e0e0fbb7e",
+    "localization/soundcurrent_daw_sw.qm": "24e41df5ebad8677eea1c27e254c276406d14f51a9fcde31ed1b7489a97ce1d6",
+    "localization/soundcurrent_daw_en.ts": "a30277bc922e7caa2cc9a2da10d7bb796e94551d2316e8a8fe74c321438850d7",
+    "localization/soundcurrent_daw_hi.qm": "1e8153dfccbb91c9dd31cd2b992465882458b82e8609fe24b59eb00864f71917",
+    "localization/soundcurrent_daw_da.ts": "cd56d41f600b4d9906ed7613503100dcd496642e840be2316b305f99aa888109",
+    "localization/daw_translations.qrc": "2565b9841b1d236735f67cff195058e0c434c2512fa23fb54e558f24809b6e00",
+    "localization/soundcurrent_daw_fi.ts": "8dab5a3e538633fd7a0869d295b17bedeecaaa67411ada5f89d7c05b7c6302c8",
+    "localization/soundcurrent_daw_zh-Hans.qm": "47b5850fb17a9e2a4444cdca95f8308bdfac39615a8fbadeaffe885847fade71",
+    "localization/soundcurrent_daw_id.ts": "16dcd82c44112b46d4899dc04b60bcfa281dedbb10526aeb64bf40ab28845dae",
+    "localization/soundcurrent_daw_ru.qm": "16639cbaddc4b1185690d6321345a3048ef69d247831e7c2aa1f1a73859c6448",
+    "localization/soundcurrent_daw_nl.qm": "5d42176d0cf8e6dd29acafbd9451131a34ceb90cac40a7b52b15b2668683a7a9",
+    "localization/soundcurrent_daw_ro.ts": "5f5225d0fbee3557046e5b4bf030db6d6cf478ab686d26754e231eb62dc720bd",
+    "localization/soundcurrent_daw_he.qm": "89870414583b15a5ceee2a732d03644fdd89b5e65fc171769566198ba8577b14",
+    "localization/soundcurrent_daw_cs.qm": "7585da80e08cf5c62fb5370b5c04af103922d41ae6d17e85b0d40e9c2e97979d",
+    "localization/soundcurrent_daw_fr.ts": "c1faece59ec765ad4fc51359b44b9c2fa2e93e09ee3110b327cf6abb8be56684",
+    "localization/soundcurrent_daw_vi.qm": "551ddab5ed10d635e79739920b1c43b340823774e895d402d53cf48a1f7fcdd5",
+    "localization/soundcurrent_daw_fr.qm": "55cc94aa561a4401fb59f069d2cd785e76d3208a96e9815baf45f7d11c521d10",
+    "localization/soundcurrent_daw_el.ts": "51fdcc2eb5855f1dc21bc7dda871db620c4bafbf032ca557ad9cd69c79e64d89",
+    "localization/soundcurrent_daw_sk.ts": "411ca13bbec8c4fb7e43f4334663361c6a136673d86e85283ecab0e5c5621378",
+    "localization/soundcurrent_daw_it.ts": "163aa0a74d2b84088d2d800d3a2dcf989955ccc4af3f9900aef3b74c21880fe9",
+    "localization/soundcurrent_daw_de.ts": "55ce4e0c04ca5106a760db8b716b7695c9bb6a68fc72e90aa59031a5b5be573c",
+    "third_party/nlohmann/json.hpp": "aaf127c04cb31c406e5b04a63f1ae89369fccde6d8fa7cdda1ed4f32dfc5de63"
+  },
+  "compiled_input_count_compared": 257,
+  "scope": "Partial X007 installed-app workflow qualification; shared-kernel signed Ubuntu Base 26.04.1 derived read-only rootfs, UID/GID1000, private Xvfb/D-Bus/PipeWire1.6.2, no physical audio bind, no RTKit scheduling qualification",
+  "prior_package_runtime_receipt": "tests/results/X007/2026-10-08-preview-runtime.json",
+  "workflow": {
+    "package_source_head": "85ec9552cdd7161f08d8b189d842258241747b5e",
+    "raw": {
+      "frames": 493568,
+      "seconds": 10.282666666666668,
+      "sha256": "23628da84e8bdf33e69c46a1084cf47cf76f33e8077b8ebcb3f8ac2d98f40e7d",
+      "pcm_sha256": "5ed24a648332ff8b3fccf9d2dad9bb47c683c43798d6b7ebcc3abdc6519aaa08",
+      "leading_silent_frames": 2048,
+      "exact_source_suffix_from_frame": 2048,
+      "source_relative_phase": 16,
+      "source_suffix_maximum_difference": 0,
+      "whole_source_equal": false,
+      "complete_source_coverage": false,
+      "rejected_frames": 0,
+      "timing_origin": {
+        "backend": 2,
+        "clockId": 29,
+        "cycle": 1129,
+        "devicePosition": 2312192,
+        "driverDelay": 0,
+        "generation": 1,
+        "monotonicNs": 259805267172183,
+        "rateDenominator": 48000,
+        "rateNumerator": 1
+      },
+      "oracle_limit": "Periodic input cannot detect missing whole 48-sample periods independently. Startup silence remains an alignment qualification gap."
+    },
+    "project": {
+      "project_id": "7a01c510-549f-49a6-b041-cb122c516439",
+      "track_id": "605bf51f-29d9-4b97-9f71-b4315ac309b3",
+      "undo_restored_gain_db": -12,
+      "raw_media_unchanged": true,
+      "input_intent": {
+        "backendId": "pipewire",
+        "portIdentity": "",
+        "ports": [
+          {
+            "deviceIdentity": "sc-preview-wav-player",
+            "input": false,
+            "mediaClass": "Stream/Output/Audio",
+            "portIdentity": "output_MONO"
+          }
+        ]
+      }
+    },
+    "export": {
+      "frames": 480000,
+      "seconds": 10.0,
+      "sha256": "9edf0c2165e24b13df916106caf9986914a8c7545e9b0e9faad187c983d01cf6",
+      "pcm_sha256": "b10de6120cdecf59514ef129cd303deacb028374eadc5c9ee2f071af03d6a091",
+      "independent_direct_form_I_maximum_difference": 2.842170943040401e-14,
+      "tolerance": 1e-07
+    },
+    "live_output": {
+      "frames": 627712,
+      "seconds": 13.077333333333334,
+      "sha256": "9615d92e704ede94e9bdfe7f23706d17f99e1ff3c866fc3d2e65b0ef2e8fba06",
+      "pcm_sha256": "971d9d6bedd936229e415802baf2b59394f0a29a02a5425018845ec5bd66dbb4",
+      "probe_exit": "1 after deliberate SIGINT; complete header/data verified independently",
+      "minus_12_db_stable_windows": 78,
+      "minus_6_db_stable_windows": 22,
+      "stable_minus_12_before_and_after_minus_6": true,
+      "window_frames": 4800,
+      "windows": [
+        {
+          "frame": 0,
+          "seconds": 0.0,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 4800,
+          "seconds": 0.1,
+          "peak": 0.06353496015071869,
+          "rms": 0.0069019359027073166
+        },
+        {
+          "frame": 9600,
+          "seconds": 0.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 14400,
+          "seconds": 0.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 19200,
+          "seconds": 0.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 24000,
+          "seconds": 0.5,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 28800,
+          "seconds": 0.6,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 33600,
+          "seconds": 0.7,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 38400,
+          "seconds": 0.8,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 43200,
+          "seconds": 0.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 48000,
+          "seconds": 1.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 52800,
+          "seconds": 1.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 57600,
+          "seconds": 1.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 62400,
+          "seconds": 1.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 67200,
+          "seconds": 1.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 72000,
+          "seconds": 1.5,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 76800,
+          "seconds": 1.6,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 81600,
+          "seconds": 1.7,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 86400,
+          "seconds": 1.8,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 91200,
+          "seconds": 1.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 96000,
+          "seconds": 2.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 100800,
+          "seconds": 2.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 105600,
+          "seconds": 2.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 110400,
+          "seconds": 2.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 115200,
+          "seconds": 2.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 120000,
+          "seconds": 2.5,
+          "peak": 0.06265383958816528,
+          "rms": 0.03145004881400042
+        },
+        {
+          "frame": 124800,
+          "seconds": 2.6,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 129600,
+          "seconds": 2.7,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 134400,
+          "seconds": 2.8,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 139200,
+          "seconds": 2.9,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 144000,
+          "seconds": 3.0,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 148800,
+          "seconds": 3.1,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 153600,
+          "seconds": 3.2,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 158400,
+          "seconds": 3.3,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 163200,
+          "seconds": 3.4,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 168000,
+          "seconds": 3.5,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 172800,
+          "seconds": 3.6,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 177600,
+          "seconds": 3.7,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 182400,
+          "seconds": 3.8,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 187200,
+          "seconds": 3.9,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 192000,
+          "seconds": 4.0,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 196800,
+          "seconds": 4.1,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 201600,
+          "seconds": 4.2,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 206400,
+          "seconds": 4.3,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 211200,
+          "seconds": 4.4,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 216000,
+          "seconds": 4.5,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 220800,
+          "seconds": 4.6,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 225600,
+          "seconds": 4.7,
+          "peak": 0.06265094876289368,
+          "rms": 0.04429709130345215
+        },
+        {
+          "frame": 230400,
+          "seconds": 4.8,
+          "peak": 0.06265094876289368,
+          "rms": 0.029436171136473562
+        },
+        {
+          "frame": 235200,
+          "seconds": 4.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 240000,
+          "seconds": 5.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 244800,
+          "seconds": 5.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 249600,
+          "seconds": 5.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 254400,
+          "seconds": 5.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 259200,
+          "seconds": 5.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 264000,
+          "seconds": 5.5,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 268800,
+          "seconds": 5.6,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 273600,
+          "seconds": 5.7,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 278400,
+          "seconds": 5.8,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 283200,
+          "seconds": 5.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 288000,
+          "seconds": 6.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 292800,
+          "seconds": 6.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 297600,
+          "seconds": 6.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 302400,
+          "seconds": 6.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 307200,
+          "seconds": 6.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 312000,
+          "seconds": 6.5,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 316800,
+          "seconds": 6.6,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 321600,
+          "seconds": 6.7,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 326400,
+          "seconds": 6.8,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 331200,
+          "seconds": 6.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 336000,
+          "seconds": 7.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 340800,
+          "seconds": 7.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 345600,
+          "seconds": 7.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 350400,
+          "seconds": 7.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 355200,
+          "seconds": 7.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 360000,
+          "seconds": 7.5,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 364800,
+          "seconds": 7.6,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 369600,
+          "seconds": 7.7,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 374400,
+          "seconds": 7.8,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 379200,
+          "seconds": 7.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 384000,
+          "seconds": 8.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 388800,
+          "seconds": 8.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 393600,
+          "seconds": 8.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 398400,
+          "seconds": 8.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 403200,
+          "seconds": 8.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 408000,
+          "seconds": 8.5,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 412800,
+          "seconds": 8.6,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 417600,
+          "seconds": 8.7,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 422400,
+          "seconds": 8.8,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 427200,
+          "seconds": 8.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 432000,
+          "seconds": 9.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 436800,
+          "seconds": 9.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 441600,
+          "seconds": 9.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 446400,
+          "seconds": 9.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 451200,
+          "seconds": 9.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 456000,
+          "seconds": 9.5,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 460800,
+          "seconds": 9.6,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 465600,
+          "seconds": 9.7,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 470400,
+          "seconds": 9.8,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 475200,
+          "seconds": 9.9,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 480000,
+          "seconds": 10.0,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 484800,
+          "seconds": 10.1,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 489600,
+          "seconds": 10.2,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 494400,
+          "seconds": 10.3,
+          "peak": 0.031402092427015305,
+          "rms": 0.022201138067528485
+        },
+        {
+          "frame": 499200,
+          "seconds": 10.4,
+          "peak": 0.031402092427015305,
+          "rms": 0.012558860222086556
+        },
+        {
+          "frame": 504000,
+          "seconds": 10.5,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 508800,
+          "seconds": 10.6,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 513600,
+          "seconds": 10.7,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 518400,
+          "seconds": 10.8,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 523200,
+          "seconds": 10.9,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 528000,
+          "seconds": 11.0,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 532800,
+          "seconds": 11.1,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 537600,
+          "seconds": 11.2,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 542400,
+          "seconds": 11.3,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 547200,
+          "seconds": 11.4,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 552000,
+          "seconds": 11.5,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 556800,
+          "seconds": 11.6,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 561600,
+          "seconds": 11.7,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 566400,
+          "seconds": 11.8,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 571200,
+          "seconds": 11.9,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 576000,
+          "seconds": 12.0,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 580800,
+          "seconds": 12.1,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 585600,
+          "seconds": 12.2,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 590400,
+          "seconds": 12.3,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 595200,
+          "seconds": 12.4,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 600000,
+          "seconds": 12.5,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 604800,
+          "seconds": 12.6,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 609600,
+          "seconds": 12.7,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 614400,
+          "seconds": 12.8,
+          "peak": 0.0,
+          "rms": 0.0
+        },
+        {
+          "frame": 619200,
+          "seconds": 12.9,
+          "peak": 0.0,
+          "rms": 0.0
+        }
+      ],
+      "limits": "Stable output level response only; not exact event-sample timing, scheduling or deadline qualification."
+    },
+    "scope": "Installed Ubuntu 26.04.1 derived read-only rootfs, normal user, private PipeWire/Xvfb; no physical device or native Windows qualification."
+  },
+  "reopen": {
+    "project_files_preserved": 6,
+    "project_bytes_identical": true,
+    "reopened_export_bytes_identical": true,
+    "reopened_export_sha256": "9edf0c2165e24b13df916106caf9986914a8c7545e9b0e9faad187c983d01cf6",
+    "no_links_on_reopen": true,
+    "normal_quit_console": "INSTALLED_APP_REOPEN_SESSION_CLOSED\n"
+  },
+  "normal_app_shutdown": {
+    "original": "launcher session55115 exit0; INSTALLED_APP_OWNED_AUDIO_SESSION_CLOSED",
+    "reopen": "launcher session98092 exit0; INSTALLED_APP_REOPEN_SESSION_CLOSED",
+    "namespace_control_exit137": "After normal GUI quit the PID namespace terminated its nsenter control shell; not an application crash",
+    "owned_app_server_display_processes_absent": true
+  },
+  "original_failures": [
+    "Installed audiotestsrc route stopped after1024 frames with sticky ClockDiscontinuity6; short raw take/journal/source/executable/configuration preserved before closing. Rejected clock itself was not exposed; cause unresolved.",
+    "First source F32 automatic port missing; explicit DSP/F32LE PortConfig produced it. Int1000 frequency ignored; actual Float440 source setting retained.",
+    "Second source configuration experiment could not suppress audiotestsrc driver metadata and produced no ports; no recording activated.",
+    "First raw WAV parser assumed fmt tag3; actual RF64 used WAVE_FORMAT_EXTENSIBLE float32. Original failed parser/log retained.",
+    "Second whole-period equality assertion correctly failed: first2048 samples silent. Every later sample exactly matches owned PCM16 period at relative phase16. Whole-source coverage/alignment remains unqualified.",
+    "Background output probe outlived neither its control shell nor configuration; header-only80-byte WAV and refusal retained. Foreground correction produced627712 finite mono float frames; intentional SIGINT exit1, header/data verified independently.",
+    "Reopen export screenshot attempted relative output under root; write refused. Corrected owned workspace path. No export/project bytes changed by that fixture failure."
+  ],
+  "source_clock_research": {
+    "url": "https://raw.githubusercontent.com/PipeWire/pipewire/1.6.2/spa/plugins/audiotestsrc/audiotestsrc.c",
+    "sha256": "b2227236aaf23c7f71c62af94f9215dce885db8cd5b79ff61b43e88844ccad8a",
+    "local_only_file": ".cache/preview-installed-audio-01/audiotestsrc-1.6.2.c",
+    "conclusion": "Test-source clock behavior is a hypothesis, not a proved rejected-clock cause; production guards unchanged."
+  },
+  "host_preservation": {
+    "preview-installed-audio-01": {
+      "default_metadata_identical": true,
+      "existing_links_identical": true,
+      "link_count_before": 0,
+      "link_count_after": 0,
+      "host_dump_omitted_from_public_evidence": true
+    },
+    "preview-installed-audio-02": {
+      "default_metadata_identical": true,
+      "existing_links_identical": true,
+      "link_count_before": 0,
+      "link_count_after": 0,
+      "host_dump_omitted_from_public_evidence": true
+    },
+    "preview-installed-audio-03": {
+      "default_metadata_identical": true,
+      "existing_links_identical": true,
+      "link_count_before": 0,
+      "link_count_after": 0,
+      "host_dump_omitted_from_public_evidence": true
+    }
+  },
+  "VM_runs": 0,
+  "host_package_changes": false,
+  "equalizer_writes": false,
+  "release_uploaded": false,
+  "parity": {
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "frozen_contracts": 92,
+    "FQCN_promotions": 0
+  },
+  "original_native_observations_unchanged": 71,
+  "remaining_gates": [
+    "First-valid-input startup policy and precise failed-clock diagnostics;2048 leading zero frames and first short capture unresolved",
+    "Fresh complete Ubuntu desktop, application menu/Wayland/HiDPI and physical/sustained sessions",
+    "Active recording upgrade refusal, interrupted setup and preference/recoverable take lifecycle",
+    "Native Windows UI/audio/installer and other Linux packages",
+    "All frozen F/Q/C/N families, X004/X005/X006 and all-European translation/review/UI/setup"
+  ],
+  "archive": {
+    "path": "tests/results/X007/2026-10-08-installed-preview-workflow.zip",
+    "sha256": "53e4c6b347d6b94f83fcaf89f66d8c60b757e2fd7deb63955512b97608c7dda2",
+    "bytes": 4488932,
+    "logical_entries": 420,
+    "unique_blobs": 366,
+    "content_addressed_manifest": true,
+    "CRC_and_every_selected_entry_verified": true,
+    "selection": "Owned source/executable/short failure take, private graphs/config/scripts/logs/screenshots, owned source WAV/raw take/live output/exports, project files and independent oracles. Host graph dumps, sockets and downloaded upstream reference source excluded."
+  }
+}
