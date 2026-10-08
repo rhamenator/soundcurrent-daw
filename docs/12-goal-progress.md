@@ -3003,3 +3003,20 @@ final loopback samples and is independently refused despite SDK success.
 The retained failure remains open; next investigate the native Stop boundary,
 then refresh the installer. Prepared cancellation and non-silent startup evidence
 remain separately qualified on the owned endpoint.
+
+## Direct native Stop/end checkpoint (2026-10-08)
+
+Startup scheduling and localization inventory refresh passed protected hosted
+checks and merged through PR #48 at `c2622b4cf518cb962807cf0cff886eaa3abf4c79`.
+Two new direct renderer active-Stop runs preserve the captured prefix exactly;
+the production mixer/EQ probe's altered-tail failure remains unresolved. A new
+non-silent ending reveals 64 source frames absent from loopback despite the
+drained flag. No fidelity threshold is relaxed or native cause asserted. Exact
+native sources/media/exits and independent analyses are retained and recomputable;
+the owned clone is shut down. See [checkpoint 106](106-windows-stop-boundary.md).
+
+This is progress toward reliable installable previews, not completion. Next:
+bounded native end guard with separate queue accounting and exact final-frame
+evidence; production EQ lease tracing at Stop; then installer/runtime refresh.
+Existing local Linux/Windows installers remain available at their earlier source.
+The full DAW goal remains active and incomplete.
