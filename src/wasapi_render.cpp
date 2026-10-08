@@ -14,6 +14,7 @@ struct WasapiRenderStream::State {
     std::atomic<std::uint64_t> submitted{0}, emptyQueue{0};
     WasapiStreamFailure firstFailure{};
     std::uint32_t frames = 0;
+    NativeRenderTiming timing{};
     bool activated = false, joined = false;
     State(WasapiRenderOptions o, WasapiRenderCallbacks c)
         : options(std::move(o)), callbacks(c) {
@@ -77,6 +78,10 @@ struct WasapiRenderStream::State {
             // cancellation checked between leases. Refuse excess admission.
             if (!frames || frames > std::uint64_t(options.maximumFrames) * 16 || frames > 65536)
                 throw ProjectError(ErrorCode::InvalidState, "Native playback capacity exceeds admission");
+            REFERENCE_TIME period = 0, latency = 0;
+            check(client->GetDevicePeriod(&period, nullptr), "Read playback device period");
+            check(client->GetStreamLatency(&latency), "Read playback stream latency");
+            timing = prepareNativeRenderTiming(options.sampleRate, period, latency, frames, options.startup);
             check(client->SetEventHandle(audio.value), "Set playback notification");
             Com<IAudioRenderClient> render;
             check(client->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(render.out())),
@@ -103,11 +108,26 @@ struct WasapiRenderStream::State {
                 if (finishing && !padding) { normal = true; break; }
                 if (!finishing) {
                     auto available = frames - padding;
+                    if (!sequence && timing.startupFrames) {
+                        // Explicit native startup interval. No source/DSP callback
+                        // runs, and no project frame or parameter receipt advances.
+                        if (WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
+                        if (timing.startupFrames > available) { fail(E_INVALIDARG, 5); break; }
+                        BYTE *silence = nullptr;
+                        hr = render->GetBuffer(timing.startupFrames, &silence);
+                        if (FAILED(hr)) { fail(hr, 2); break; }
+                        hr = render->ReleaseBuffer(timing.startupFrames, AUDCLNT_BUFFERFLAGS_SILENT);
+                        if (FAILED(hr)) { fail(hr, 3); break; }
+                        sequence = timing.startupFrames; submitted.store(sequence, std::memory_order_release);
+                        available -= timing.startupFrames; padding += timing.startupFrames;
+                    }
                     for (unsigned batch = 0; batch < 16 && available; ++batch) {
                         if (WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) { end = true; break; }
                         const auto count = std::min(available, options.maximumFrames);
                         if (sequence > UINT64_MAX - count) { fail(E_INVALIDARG, 6); end = true; break; }
                         WasapiRenderClock reading{sequence, 0, frequency, 0, padding};
+                        reading.contentSubmittedFrames = sequence - timing.startupFrames;
+                        reading.startupFrames = timing.startupFrames;
                         hr = clock->GetPosition(&reading.clockPosition, &reading.qpc100ns);
                         if (FAILED(hr)) { fail(hr, 6); end = true; break; }
                         BYTE *data = nullptr;
@@ -172,6 +192,7 @@ bool WasapiRenderStream::drained() const noexcept { return state_->drained.load(
 std::uint64_t WasapiRenderStream::submittedFrames() const noexcept { return state_->submitted.load(std::memory_order_acquire); }
 std::uint64_t WasapiRenderStream::emptyQueueObservations() const noexcept { return state_->emptyQueue.load(std::memory_order_relaxed); }
 std::uint32_t WasapiRenderStream::bufferFrames() const noexcept { return state_->frames; }
+NativeRenderTiming WasapiRenderStream::timing() const noexcept { return state_->timing; }
 std::optional<WasapiStreamFailure> WasapiRenderStream::failure() const noexcept {
     return state_->failureReady.load(std::memory_order_acquire) ? std::optional{state_->firstFailure} : std::nullopt;
 }
