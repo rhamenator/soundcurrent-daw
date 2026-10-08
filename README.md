@@ -27,7 +27,10 @@ qualification before being described as supported installers.
 An Ubuntu 26.04 amd64 DEB candidate now passes scoped runtime dependency installation,
 normal-user project/export and upgrade/remove/reinstall checks in an owned Ubuntu
 Base environment. See the [candidate guide](docs/90-preview-guide.md).
-Full desktop/menu and installed-app recording qualification remain open.
+The installed app also passes a scoped owned-source ten-second recording,
+live EQ/Undo, save/reopen and independently checked WAV export workflow.
+Recording startup/clock diagnostics, full desktop/menu and physical/sustained
+recording qualification remain open.
 
 This is the DAW repository. [soundcurrent-eq](https://github.com/rhamenator/soundcurrent-eq)
 is the free equalizer; `soundcurrent-studio` is the separate premium equalizer.

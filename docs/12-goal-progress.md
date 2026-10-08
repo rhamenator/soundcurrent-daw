@@ -2626,3 +2626,29 @@ clock/source CPU causes remain open. Full Europe, X004/X005/X006 and every froze
 parity family remain incomplete. Next concrete preview gate is installed-app
 recording/EQ/playback on owned routes and complete desktop integration; native
 Windows and its installer follow. The goal remains active.
+
+## Installed preview audio checkpoint (2026-10-08 UTC)
+
+This continuation is **progress** toward useful previews. The exact installed
+Ubuntu candidate now has an owned-source **10.28-second** raw recording through
+the actual GUI, explicit routing, verified attachment, live EQ **−12/−6/Undo**
+with independently measured output, normal save/quit/reopen and a ten-second
+float WAV export. An independent direct-form I oracle differs by at most
+**2.8422e−14**; reopened exports are byte-identical and all six owned project/media
+files are preserved. See [workflow evidence](../tests/results/X007/2026-10-08-installed-preview-workflow.json)
+and the updated [candidate guide](90-preview-guide.md).
+
+The earlier failed short capture and fixture failures are retained. Successful
+capture has 2,048 leading silent frames; exact suffix comparison does not qualify
+complete source coverage/startup alignment. Rejected-clock diagnostics and
+first-valid-input policy remain implementation work. Private read-only-rootfs
+Xvfb/PipeWire evidence shares the host kernel and does not qualify physical audio,
+real-time deadlines, complete desktop installation or native Windows. Owned
+sessions retired normally; host defaults/links and equalizer repositories were
+preserved. No compiled production inputs changed or binary release was uploaded.
+
+Next concrete task: bounded first-fault timing/input diagnostics and a tested
+recording startup/alignment policy, followed by complete desktop and native
+Windows preview installation/workflows. All 92 frozen contracts, original native71
+and full X004/X005/X006/Europe requirements remain open. The full goal is active
+and incomplete.

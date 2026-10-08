@@ -61,21 +61,32 @@ unreviewed drafts and use English fallback.
 |---|---|
 | Runtime installation | Fresh signed Ubuntu Base 26.04.1 derived rootfs resolves dependencies without compiler/CMake/Qt SDK |
 | Project and export | Installed GUI, normal UID/GID 1000, Unicode project opened/saved/reopened; 128 mono float frames at 48 kHz exactly match the golden render |
+| Installed recording | Explicit owned WAV-player input, mono 48 kHz, 493,568 raw float frames (10.28 s), normal stop and verified attachment; 2,048 leading silent frames remain a startup/alignment gap |
+| Live EQ and Undo | Actual GUI change −12 to −6 dB and Undo; independently recorded output contains stable levels in the expected order; raw take unchanged |
+| Recorded-project export | 480,000 frames match an independent direct-form I EQ calculation within 2.85e−14; reopening preserves project/media bytes and produces identical export bytes |
 | Package lifecycle | Normal upgrade, remove and reinstall; owned project/media bytes preserved; integration files removed/restored |
 | Regression | 62/62 local Linux Debug checks; changed Python/desktop 3/3; earlier affected sanitizers and hosted Qt6.4.2 checks recorded separately |
 
-The container shares the host kernel and uses private Xvfb, not a complete fresh
-Ubuntu desktop. Actual installed-app capture/playback, menu launch, physical
-latency, sustained sessions, setup failure/recovery and native Windows remain
-open. Earlier owned native/synthetic recording evidence is not a fresh-package
-recording result. No frozen Bitwig/Cubase parity family is marked complete.
+The container shares the host kernel and uses private Xvfb/PipeWire, not a complete
+fresh Ubuntu desktop. The installed-app workflow above uses an owned source and
+sink, with no physical audio device or real-time scheduling qualification. Menu
+launch, Wayland/HiDPI, physical latency, sustained sessions, setup failure/recovery
+and native Windows remain open. No frozen Bitwig/Cubase parity family is complete.
+
+Two recording limitations are retained in the evidence: an earlier audiotestsrc
+route stopped with a clock discontinuity after 1,024 frames, and the successful
+take starts with 2,048 silent frames (42.7 ms). Every subsequent raw sample matches
+the owned source period exactly, but a periodic signal cannot independently detect
+loss of whole periods. The rejected clock cause and startup alignment need further
+work; keep original takes and treat this as a development preview.
 
 For removal, close the app and use the normal package manager to remove
 `soundcurrent-daw`. Scoped remove/reinstall testing preserved the owned project
 and media. Broader preference/recoverable-take and interrupted-update tests remain
 required. Keep the supplied source with the candidate when redistributing it.
 
-The [runtime receipt](../tests/results/X007/2026-10-08-preview-runtime.json) and
-[delivery gates](89-workflow-previews.md) record exact hashes and remaining work.
-Next: installed-app ten-second recording/EQ/playback/save/reopen/export on owned
-routes, followed by complete desktop install/upgrade/remove qualification.
+The [runtime receipt](../tests/results/X007/2026-10-08-preview-runtime.json),
+[installed workflow receipt](../tests/results/X007/2026-10-08-installed-preview-workflow.json)
+and [delivery gates](89-workflow-previews.md) record hashes, original failures and
+remaining work. Next: precise recording fault diagnostics and a tested first-valid
+input/alignment policy, then complete desktop and native Windows qualification.
