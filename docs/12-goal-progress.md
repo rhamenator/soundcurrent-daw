@@ -2774,3 +2774,33 @@ alignment and this candidate's normal installed recording/EQ/reopen/export,
 then full desktop/native Windows previews. No equalizer, VM, host package or
 audio configuration change. All full frozen parity/Europe/X004/X005/X006 and
 original native71/2,048-frame startup-silence gaps remain open; goal stays active.
+
+## Current installed candidate: normal workflow (2026-10-08 UTC)
+
+The unchanged `743392e` Ubuntu candidate now passes a new actual installed normal
+workflow: **540,672 raw frames / 11.264 s**, normal Stop/verified attachment,
+live EQ −12→−6 dB and Undo, Save/Quit/reopen, and two byte-identical ten-second
+WAV exports. The independent direct-form I EQ oracle differs by at most
+**2.842170943040401e−14**. Live output has 73 stable −12 dB and 22 stable −6 dB
+windows in the expected order. Normal Stop produces no error sidecar/storage
+warning; original WAV/journal/project bytes are preserved. Both app exits and
+launcher exit 0, owned nodes retire, and host routes are unchanged.
+
+See [the scoped workflow and immutable receipt](94-installed-normal-preview.md).
+The 2,605,032-byte capsule retains all nine actual action/probe commands, original
+bytes, graphs, screenshots and independent checks; all 101 logical entries and CRC
+are verified. The owner has the DEB/source/instructions/checksums in Downloads.
+The exact 719-file package source and previous receipt scopes remain unchanged.
+
+Protected PR36 merges tested `c686f40` as `9c8df5c`, trees identical. Final required
+hosted Linux passes **59/59, 139.63 s**; Windows core cross-build passes. A verified
+source ZIP/Git bundle and full restored-byte/fsck check back up that source;
+Windows transfer remains pending a destination. No binary release upload or host
+package/audio/VM/equalizer change.
+
+This is **progress** and a useful local Linux preview. Native acquisition/
+alignment remains the next concrete implementation task: 2,048 initial raw zeros
+are retained, exact periodic suffix equality cannot detect missing whole periods,
+and original native71 remains unresolved. Complete desktop/physical/RT and native
+Windows, broader install/recovery, translations and full frozen F/Q/C/N/
+X004/X005/X006/Europe gates remain open; the full goal stays active.

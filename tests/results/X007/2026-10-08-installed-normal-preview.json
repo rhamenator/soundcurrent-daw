@@ -1,0 +1,1003 @@
+{
+  "utc": "2026-10-08T03:52:19.961469+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "parity": {
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "frozen_contracts": 92,
+    "FQCN_promotions": 0
+  },
+  "scope": "Actual installed candidate normal single-track recording/live EQ/Undo/Save/Quit/reopen and independently verified WAV export. Private shared-kernel read-only Ubuntu Base rootfs; no complete desktop/physical/RT/native Windows qualification.",
+  "package_source_head": "743392ece10afa4b27a0378d5f5961dad059c500",
+  "package_source_tree": "e05e4075cb58138de3f9616d55990510d6c39820",
+  "package": {
+    "utc": "2026-10-08T03:24:48.543332+00:00",
+    "source_head": "743392ece10afa4b27a0378d5f5961dad059c500",
+    "source_tree": "e05e4075cb58138de3f9616d55990510d6c39820",
+    "platform": "Ubuntu 26.04 amd64",
+    "build_type": "Debug",
+    "version": "0.1.0~preview.20261008034000.743392ece10a",
+    "qualified_executable_sha256": "52b0988199e1a36b11eb265f2354b5a9237fda021292ab5084be6cdec9cd435f",
+    "qualification_sha256": "6c28e0d27cf33bb2d2ff34031648cbd5a291ff30ea2e411f5bf90ab0ef337f72",
+    "native_audio_run": false,
+    "system_installation": false,
+    "clean_install_qualified": false,
+    "release_uploaded": false,
+    "preview_sequence": "20261008034000",
+    "previous_version": "0.1.0~preview.20261008013908.97a307fcf2ba",
+    "previous_package_version_order_verified": true,
+    "install_input_sha256": {
+      "usr/bin/soundcurrent-daw": "52b0988199e1a36b11eb265f2354b5a9237fda021292ab5084be6cdec9cd435f",
+      "usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "usr/share/doc/soundcurrent-daw/equipment-provenance.json": "34a364e2b2d31e017550717f2eb90470777faa0085cce76faf7cafb55605f0fb",
+      "usr/share/applications/soundcurrent-daw.desktop": "e5e9bb758dd67e94439a8cbe7cd387d79a9f17380e64515883e6bf63659dfb25",
+      "usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg": "6bc559e288aec6b5eab049387afaef74253805ed568ad50179f0e958d6a5f760"
+    },
+    "every_CMake_install_input_matches_current_source": true,
+    "status": "prepared-local-preview",
+    "depends": "libc6 (>= 2.38), libgcc-s1 (>= 4.0), libpipewire-0.3-0t64 (>= 0.3.6), libqt6core6t64 (>= 6.10.2), libqt6gui6 (>= 6.9.1), libqt6widgets6 (>= 6.3.0), libsndfile1 (>= 1.0.20), libssl3t64 (>= 3.0.0), libstdc++6 (>= 12), qt6-qpa-plugins (>= 6.10.2), pipewire (>= 1.6.2), libpipewire-0.3-0t64 (>= 1.6.2)",
+    "artifacts": {
+      "soundcurrent-daw_0.1.0~preview.20261008034000.743392ece10a_amd64.deb": {
+        "bytes": 1093936,
+        "sha256": "c2487d8be6474a0b6258537b7cbbdc81c18d42f432a703b9fcdf2d0572672c6f"
+      },
+      "soundcurrent-daw-0.1.0~preview.20261008034000.743392ece10a-source.tar.gz": {
+        "bytes": 522453202,
+        "sha256": "41aa9f81a0dc04eebe1357ed60fd2b386af84958bfff0f43a042ad135705c5b1"
+      }
+    },
+    "packaged_executable_sha256": "f6d358e99e8c9fe0d518949447cccdabdbf1f3475456069a966fecf1226dc3ea",
+    "all_extracted_payload_bytes_match": true,
+    "offscreen_startup_help_version": true
+  },
+  "independent_source_files_verified": 719,
+  "protected_PR36": {
+    "tested_head": "c686f4017c784d74c168d82297df2b7415b14f39",
+    "merge_head": "9c8df5cb6161fa43ab8d6081dec114e8f38bfb9a",
+    "hosted_run": 37723608176,
+    "hosted_Linux": "59/59,139.63s",
+    "hosted_Windows": "core cross-build only; no runtime qualification"
+  },
+  "launch": {
+    "utc": "2026-10-08T03:39:42.531457+00:00",
+    "command": [
+      "sudo",
+      "-n",
+      "systemd-nspawn",
+      "--quiet",
+      "--console=pipe",
+      "--settings=no",
+      "--register=no",
+      "--as-pid2",
+      "--read-only",
+      "--directory=/home/rich/dev/soundcurrent-daw/.cache/preview-fresh-runtime/rootfs",
+      "--user=preview",
+      "--bind=/home/rich/dev/soundcurrent-daw/.cache/preview-normal-latest/workspace:/home/preview",
+      "--setenv=HOME=/home/preview",
+      "--setenv=LANG=C.UTF-8",
+      "--",
+      "/usr/bin/dbus-run-session",
+      "/bin/sh",
+      "/home/preview/launch.sh"
+    ],
+    "cwd": "/home/rich/dev/soundcurrent-daw",
+    "UID_GID": 1000,
+    "read_only_rootfs": true,
+    "shared_host_kernel": true,
+    "VM_runs": 0,
+    "audio": "Private PipeWire; no /dev/snd",
+    "display": "Private Xvfb 1280x720",
+    "installed_executable_sha256": "f6d358e99e8c9fe0d518949447cccdabdbf1f3475456069a966fecf1226dc3ea",
+    "exit_code": 0,
+    "ended_utc": "2026-10-08T03:46:37.280782+00:00",
+    "host_route_fingerprints_equal": true
+  },
+  "actions": [
+    {
+      "path": "export-save-and-reopen-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nxdotool mousemove 722 492 click 1\nsleep 2\nimport -window root export-finished.png\nwindow=$(xdotool search --onlyvisible --name '^SoundCurrent DAW' | head -n1)\nxdotool windowfocus \"$window\"\nxdotool key ctrl+s\nsleep 0.5\nsha256sum project-\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.json project-\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/*/take.wav project-\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/*/journal.json project-\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac-mix.wav > saved-before-reopen-sha256.txt\nxdotool key ctrl+q\nsleep 3\ntest -f second-app-ready\nsha256sum -c saved-before-reopen-sha256.txt > reopened-byte-comparison.txt\nxdotool key ctrl+shift+e\nsleep 0.5\nimport -window root reopened-export-dialog.png\n"
+      ],
+      "exit_code": 0
+    },
+    {
+      "path": "live-eq-and-undo-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nprobe_id=$(pw-cli ls Node | awk '/id [0-9]+,/ { node=$2; gsub(\",\", \"\", node) } /node.name = \"sc-preview-output-probe\"/ { print node }')\ntest -n \"$probe_id\"\npw-cli set-param \"$probe_id\" PortConfig '{ direction: Input, mode: dsp, format: { mediaType: audio, mediaSubtype: raw, format: F32LE, rate: 48000, channels: 1, position: [ MONO ] } }'\npw-link sc-preview-sink:monitor_MONO sc-preview-output-probe:input_MONO\npw-dump > graph-with-output-probe.json\nxdotool mousemove 975 392 click --repeat 32 --delay 25 5\nxdotool mousemove 262 8 click 1\nxdotool mousemove 285 52 click 1\nsleep 2\nimport -window root playback-eq-initial.png\npw-dump > graph-playing.json\nxdotool mousemove 194 407 click 1\nxdotool key ctrl+a\nxdotool type --clearmodifiers -- '-6.0'\nxdotool key Return\nsleep 2\nimport -window root playback-eq-edited.png\nxdotool mousemove 123 8 click 1\nxdotool mousemove 162 30 click 1\nsleep 2\nimport -window root playback-eq-undone.png\nsleep 3\nxdotool key --clearmodifiers shift+space\nsleep 0.5\npw-dump > graph-playback-stopped.json\nprobe_pid=$(pgrep -x pw-record)\ntest -n \"$probe_pid\"\nread -r actual_name < \"/proc/$probe_pid/comm\"\ntest \"$actual_name\" = pw-record\nkill -INT \"$probe_pid\"\nsha256sum -c raw-take-sha256.txt > raw-unchanged-after-EQ.txt\nwindow=$(xdotool search --onlyvisible --name '^SoundCurrent DAW' | head -n1)\nxdotool windowfocus \"$window\"\nxdotool key --clearmodifiers ctrl+s\nsleep 0.5\nxdotool key ctrl+shift+e\nsleep 0.5\nimport -window root export-dialog.png\n"
+      ],
+      "exit_code": 0
+    },
+    {
+      "path": "output-probe-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "/usr/bin/pw-record",
+        "--target",
+        "0",
+        "--properties",
+        "{ node.name = sc-preview-output-probe }",
+        "--rate",
+        "48000",
+        "--channels",
+        "1",
+        "--channel-map",
+        "MONO",
+        "--format",
+        "f32",
+        "/home/preview/live-output.wav"
+      ],
+      "exit_code": 1
+    },
+    {
+      "path": "playback-controls-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nxdotool mousemove 294 30 click 1\nsleep 1\nxdotool mousemove 975 392 click --repeat 32 --delay 25 5\nimport -window root eq-controls.png\npw-dump > graph-playback-prepared.json\n"
+      ],
+      "exit_code": 0
+    },
+    {
+      "path": "prepare-playback-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nxdotool mousemove 262 8 click 1\nimport -window root transport-playback-menu.png\n"
+      ],
+      "exit_code": 0
+    },
+    {
+      "path": "prepare-recording-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nplayer_id=$(pw-cli ls Node | awk '/id [0-9]+,/ { node=$2; gsub(\",\", \"\", node) } /node.name = \"sc-preview-wav-player\"/ { print node }')\ntest -n \"$player_id\"\npw-cli set-param \"$player_id\" PortConfig '{ direction: Output, mode: dsp, format: { mediaType: audio, mediaSubtype: raw, format: F32LE, rate: 48000, channels: 1, position: [ MONO ] } }'\npw-link sc-preview-wav-player:output_MONO sc-preview-source:input_MONO\npw-dump > graph-fed-source.json\nxdotool mousemove 262 8 click 1\nsleep 0.2\nxdotool mousemove 294 95 click 1\nsleep 1\nxdotool mousemove 975 393 click --repeat 8 --delay 35 5\nimport -window root prepared-recording.png\n"
+      ],
+      "exit_code": 0
+    },
+    {
+      "path": "record-normal-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nxdotool mousemove 31 374 click 1\nxdotool mousemove 487 347 click 1\nsleep 2\nimport -window root during-recording.png\npw-dump > graph-recording.json\nsleep 9\nxdotool mousemove 805 347 click 1\nsleep 2\nimport -window root after-normal-stop.png\npw-dump > graph-recording-stopped.json\nwindow=$(xdotool search --onlyvisible --name '^SoundCurrent DAW' | head -n1)\nxdotool windowfocus \"$window\"\nxdotool key ctrl+s\nsleep 0.5\nsha256sum project-\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/*/take.wav project-\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/*/journal.json > raw-take-sha256.txt\n"
+      ],
+      "exit_code": 0
+    },
+    {
+      "path": "reopened-export-and-quit-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nxdotool mousemove 454 160 click 1\nxdotool key ctrl+a\nxdotool type --clearmodifiers -- '/home/preview/reopened.wav'\nxdotool mousemove 722 492 click 1\nsleep 2\nimport -window root reopened-export-finished.png\ncmp project-\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac-mix.wav reopened.wav\nsha256sum -c saved-before-reopen-sha256.txt > reopened-export-byte-comparison.txt\nwindow=$(xdotool search --onlyvisible --name '^SoundCurrent DAW' | head -n1)\nxdotool windowfocus \"$window\"\nxdotool key ctrl+q\n"
+      ],
+      "exit_code": 0
+    },
+    {
+      "path": "show-playback-routes-command.json",
+      "command": [
+        "sudo",
+        "-n",
+        "nsenter",
+        "--target",
+        "3760015",
+        "--mount",
+        "--pid",
+        "--root",
+        "--wd=/",
+        "--setuid=1000",
+        "--setgid=1000",
+        "--",
+        "/usr/bin/env",
+        "HOME=/home/preview",
+        "XDG_RUNTIME_DIR=/home/preview/run",
+        "DISPLAY=:92",
+        "/bin/sh",
+        "-c",
+        "set -eu\ncd /home/preview\nxdotool mousemove 975 392 click --repeat 10 --delay 25 4\nimport -window root playback-routes.png\n"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "workflow": {
+    "scope": "Actual installed Ubuntu candidate, private Xvfb/PipeWire in shared-kernel read-only rootfs, normal user; no full desktop/physical/RT/native Windows qualification",
+    "package_source_head": "743392ece10afa4b27a0378d5f5961dad059c500",
+    "installed_binary_SHA256": "f6d358e99e8c9fe0d518949447cccdabdbf1f3475456069a966fecf1226dc3ea",
+    "raw": {
+      "frames": 540672,
+      "seconds": 11.264,
+      "SHA256": "e0731d00feee986ba31cdf67dbc05af4b49fb2143adfc35c9b0511fe11ab99cc",
+      "PCM_SHA256": "d44f0f4de1214b569d2a19ec7b96a97511fd0a4ca0f1cf88a9bb04d771cd4c66",
+      "endReason": 1,
+      "rejectedFrames": 0,
+      "fault_sidecar_present": false,
+      "timingOrigin": {
+        "backend": 2,
+        "clockId": 29,
+        "cycle": 779,
+        "devicePosition": 1595392,
+        "driverDelay": 0,
+        "generation": 1,
+        "monotonicNs": 271005172372208,
+        "rateDenominator": 48000,
+        "rateNumerator": 1
+      },
+      "first_2048_frames_all_zero": true,
+      "exact_periodic_source_suffix_from_frame": 2048,
+      "phase": 0,
+      "maximum_source_suffix_difference": 0.0,
+      "complete_source_coverage": false,
+      "oracle_limit": "Periodic source cannot independently detect missing whole48-frame periods. Startup alignment remains unresolved; no sample trimming or amplitude validity gate."
+    },
+    "export": {
+      "frames": 480000,
+      "seconds": 10,
+      "SHA256": "6206d52212be960ae528afe8a33a655134500baf8d9bab3529d1eeb5e8f11d84",
+      "PCM_SHA256": "db12ef33f915491effd7496014fa05b5ea0e543e0f8b75490c7297e58586143a",
+      "independent_direct_form_I_maximum_difference": 2.842170943040401e-14,
+      "tolerance": 1e-07,
+      "reopened_export_byte_identical": true
+    },
+    "live_EQ": {
+      "probe_frames": 547840,
+      "probe_SHA256": "7023406ae372d6e593c5594ad3038899764a29cf205c5128587140b520063507",
+      "stable_minus12_windows": 73,
+      "stable_minus6_windows": 22,
+      "low_before_and_after_high": true,
+      "Undo_restored_gain": -12,
+      "window_frames": 4800,
+      "windows": [
+        {
+          "frame": 0,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 4800,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 9600,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 14400,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 19200,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 24000,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 28800,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 33600,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 38400,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 43200,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 48000,
+          "rms": 0.022099027276224315,
+          "peak": 0.09890708327293396
+        },
+        {
+          "frame": 52800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 57600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 62400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 67200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 72000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 76800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 81600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 86400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 91200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 96000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 100800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 105600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 110400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 115200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 120000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 124800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 129600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 134400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 139200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 144000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 148800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 153600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 158400,
+          "rms": 0.033850489035552496,
+          "peak": 0.06265222281217575
+        },
+        {
+          "frame": 163200,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 168000,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 172800,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 177600,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 182400,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 187200,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 192000,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 196800,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 201600,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 206400,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 211200,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 216000,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 220800,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 225600,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 230400,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 235200,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 240000,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 244800,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 249600,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 254400,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 259200,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 264000,
+          "rms": 0.04429709130345215,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 268800,
+          "rms": 0.03656060087636268,
+          "peak": 0.06265094876289368
+        },
+        {
+          "frame": 273600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 278400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 283200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 288000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 292800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 297600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 302400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 307200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 312000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 316800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 321600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 326400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 331200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 336000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 340800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 345600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 350400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 355200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 360000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 364800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 369600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 374400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 379200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 384000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 388800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 393600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 398400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 403200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 408000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 412800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 417600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 422400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 427200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 432000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 436800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 441600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 446400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 451200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 456000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 460800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 465600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 470400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 475200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 480000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 484800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 489600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 494400,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 499200,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 504000,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 508800,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 513600,
+          "rms": 0.022201138067528485,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 518400,
+          "rms": 0.019857301558740804,
+          "peak": 0.031402092427015305
+        },
+        {
+          "frame": 523200,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 528000,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 532800,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 537600,
+          "rms": 0.0,
+          "peak": 0.0
+        },
+        {
+          "frame": 542400,
+          "rms": 0.0,
+          "peak": 0.0
+        }
+      ],
+      "scope": "Stable level response only, not exact event-frame/deadline timing"
+    },
+    "preservation": {
+      "raw_journal_after_EQ": true,
+      "project_raw_journal_export_after_reopen": true,
+      "no_normal_Stop_storage_warning_screenshot_inspected": true,
+      "normal_app_exits": [
+        0,
+        0
+      ],
+      "launcher_exit": 0,
+      "host_route_fingerprints_equal": true,
+      "owned_app_nodes_retired": true
+    },
+    "release_uploaded": false
+  },
+  "host_package_or_audio_configuration_changes": false,
+  "VM_runs": 0,
+  "equalizer_writes": false,
+  "release_uploaded": false,
+  "remaining_gates": [
+    "Original native71 and native acquisition/startup alignment; current2048 leading zero frames retained",
+    "Complete desktop/menu/Wayland/HiDPI, physical sustained/RT and native Windows UI/audio/installer",
+    "Multi-track/manual-punch portable error details and broader install/recovery tests",
+    "All frozen F/Q/C/N, X004/X005/X006 and all-Europe completion"
+  ],
+  "archive": {
+    "path": "tests/results/X007/2026-10-08-installed-normal-preview.zip",
+    "bytes": 2605032,
+    "sha256": "024ed43e6c5da6d77453ef9bc515b49938bc9647c1228f581e077ba521d17f2f",
+    "logical_entries": 101,
+    "unique_blobs": 83,
+    "CRC_and_every_selected_byte_verified": true,
+    "selection": "Exact private root launcher and action/probe commands/exits, owned PCM16 source/raw take/live output/WAV exports/project/journal, byte comparisons, private graphs/screenshots and independent recurrence verifier, installed app/package/source-byte metadata, protected hosted log and redacted host before/after inputs. Raw host dumps, rootfs, DEB/source archive and user audio excluded."
+  }
+}

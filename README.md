@@ -33,8 +33,10 @@ Recording startup/clock diagnostics, full desktop/menu and physical/sustained
 recording qualification remain open.
 Single-track code now retains [portable recording error details](docs/92-portable-recording-faults.md)
 for reopening. The [latest local Ubuntu candidate](docs/93-installed-portable-fault-preview.md)
-passes an installed fault/Save/Quit/reopen/review workflow. Sustained normal
-recording on this candidate and native Windows qualification remain open.
+passes an installed fault/Save/Quit/reopen/review workflow. Sustained physical
+recording and native Windows qualification remain open. The same binary
+now passes [normal 11.264-second recording, live EQ/Undo, save/reopen and verified
+WAV export](docs/94-installed-normal-preview.md).
 
 This is the DAW repository. [soundcurrent-eq](https://github.com/rhamenator/soundcurrent-eq)
 is the free equalizer; `soundcurrent-studio` is the separate premium equalizer.
