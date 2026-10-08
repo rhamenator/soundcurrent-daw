@@ -44,6 +44,34 @@ int main() {
         refuses([&] { selectWasapiPorts(duplicate, outputs, 2, 48000, true); });
         std::vector<AudioPort> crossed{outputs[0], outputs[3]};
         refuses([&] { selectWasapiPorts(crossed, outputs, 2, 48000, true); });
+        check(checkWasapiPorts(reversed, 2, 48000, true).problem == WasapiRouteProblem::None,
+              "Valid reordered stream failed preflight");
+        check(checkWasapiPorts({inputs.data(), 1}, 1, 44100, false).problem == WasapiRouteProblem::None,
+              "Valid mono subset failed preflight");
+        const auto rate = checkWasapiPorts({inputs.data(), 1}, 1, 48000, false);
+        check(rate.problem == WasapiRouteProblem::SampleRate && rate.portIndex == 0,
+              "Rate preflight lost offending device");
+        const auto device = checkWasapiPorts(crossed, 2, 48000, true);
+        check(device.problem == WasapiRouteProblem::MultipleEndpoints && device.portIndex == 1,
+              "Cross-device stream failed to identify second endpoint");
+        check(checkWasapiPorts(duplicate, 2, 48000, true).problem == WasapiRouteProblem::DuplicateChannel,
+              "Duplicate channel was not diagnosed");
+        check(checkWasapiPorts({}, 1, 48000, true).problem == WasapiRouteProblem::ChannelCount &&
+              checkWasapiPorts(reversed, 257, 48000, true).problem == WasapiRouteProblem::ChannelCount,
+              "Preflight channel admission changed");
+        check(checkWasapiPorts({inputs.data(), 1}, 1, 44100, true).problem == WasapiRouteProblem::InvalidPort &&
+              checkWasapiPorts({inputs.data()+2, 1}, 1, 48000, true).problem == WasapiRouteProblem::InvalidPort,
+              "Wrong direction or loopback output passed preflight");
+        auto malformed = outputs;
+        malformed[0].nativeChannels = 0;
+        check(checkWasapiPorts({malformed.data(), 1}, 1, 48000, true).problem == WasapiRouteProblem::InvalidPort,
+              "Unknown native layout passed preflight");
+        malformed[0] = outputs[0]; malformed[0].sampleRate = 0;
+        check(checkWasapiPorts({malformed.data(), 1}, 1, 48000, true).problem == WasapiRouteProblem::InvalidPort,
+              "Unknown native rate passed preflight");
+        check(checkWasapiPorts({inputs.data(), 1}, 1, 44100, false).problem == WasapiRouteProblem::None,
+              "Advisory preflight incorrectly promised fresh inventory");
+        refuses([&] { selectWasapiPorts({inputs.data(), 1}, {}, 1, 44100, false); });
         std::vector<AudioPort> stale{outputs[0]}; stale[0].sampleRate = 44100;
         refuses([&] { selectWasapiPorts(stale, outputs, 1, 44100, true); });
         std::vector<AudioPort> invalid{outputs[0]}; invalid[0].backendId = "other";
