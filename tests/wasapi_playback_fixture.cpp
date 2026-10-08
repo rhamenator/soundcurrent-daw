@@ -113,6 +113,8 @@ int run(const std::vector<std::filesystem::path> &args) {
         WasapiPlaybackObservation o;
         for (unsigned n = 0; n < 64 && playback.observation(o); ++n)
             observations.push_back({{"submittedFrames",o.native.submittedFrames},
+                {"contentSubmittedFrames",o.native.contentSubmittedFrames},{"startupFrames",o.native.startupFrames},
+                {"nativeFrames",o.nativeFrames},
                 {"clockPosition",o.native.clockPosition},{"clockFrequency",o.native.clockFrequency},
                 {"qpc100ns",o.native.qpc100ns},{"paddingFrames",o.native.paddingFrames},
                 {"engineStart",o.mix.startFrame},{"engineFrames",o.mix.timelineFrames},
@@ -168,6 +170,10 @@ int run(const std::vector<std::filesystem::path> &args) {
         {"captureCallbacks",sink.calls.load()},{"cppAllocations",player.allocations.load()+sink.allocations.load()},
         {"cppFrees",player.frees.load()+sink.frees.load()},{"observations",observations},
         {"nativePlaybackFailure",nullptr},{"nativeCaptureFailure",nullptr}};
+    require(playback.timing().has_value(), "Native admitted timing missing");
+    report["startupFrames"] = playback.timing()->startupFrames;
+    report["devicePeriod100ns"] = playback.timing()->devicePeriod100ns;
+    report["streamLatency100ns"] = playback.timing()->streamLatency100ns;
     if (auto f = playback.failure()) report["nativePlaybackFailure"]={{"hresult",f->hresult},{"operation",f->operation}};
     if (auto f = capture.failure()) report["nativeCaptureFailure"]={{"hresult",f->hresult},{"operation",f->operation}};
     std::ofstream out(root / "probe.json"); out << report.dump(2) << '\n'; require(bool(out), "Cannot retain native report");

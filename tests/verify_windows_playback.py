@@ -110,15 +110,23 @@ def verify(project):
     require(all(math.isfinite(x) for x in engine), 'Nonfinite engine reference')
     engine_error = max(abs(a-b) for a,b in zip(expected, engine))
     require(engine_error <= 1e-7, 'Independent live-ramp DSP differs')
-    rows = report['observations']; sequence = engine_frames = 0
+    startup = report.get('startupFrames', 0)
+    if 'startupFrames' in report:
+        require(0 < report['devicePeriod100ns'] <= 10000000 and 0 <= report['streamLatency100ns'] <= 10000000 and
+                startup == (report['devicePeriod100ns']*48000+9999999)//10000000 and
+                startup <= report['bufferFrames'], 'Native startup timing differs')
+    rows = report['observations']; sequence = startup; engine_frames = 0
     require(len(rows) == report['playerCallbacks'] and rows, 'Dropped/missing playback observations')
     previous_clock = previous_qpc = 0
     for row in rows:
         require(row['submittedFrames'] == sequence and row['engineStart'] == engine_frames and
+                row.get('contentSubmittedFrames',sequence-startup) == sequence-startup and
+                row.get('startupFrames',0) == startup and
+                row['engineFrames'] <= row.get('nativeFrames',row['engineFrames']) <= 2048 and
                 0 < row['engineFrames'] <= 2048 and row['clockFrequency'] > 0 and
                 row['clockPosition'] >= previous_clock and row['qpc100ns'] >= previous_qpc and
                 0 <= row['paddingFrames'] <= report['bufferFrames'], 'Timing/queue domains differ')
-        sequence += row['engineFrames']; engine_frames += row['engineFrames']
+        sequence += row.get('nativeFrames',row['engineFrames']); engine_frames += row['engineFrames']
         previous_clock, previous_qpc = row['clockPosition'], row['qpc100ns']
     require(engine_frames == report['engineFrames'] and sequence == report['submittedFrames'],
             'Final submitted/engine extent differs')
@@ -126,7 +134,8 @@ def verify(project):
         require(report['status'] == 4 and not report['drained'] and 48000 <= engine_frames < 192000,
                 'Cancellation incorrectly promoted to completion')
     else:
-        require(report['status'] == 3 and report['drained'] and engine_frames == 192000 and len(left) == 192000,
+        require(report['status'] == 3 and report['drained'] and engine_frames == 192000 and
+                len(left) == report['submittedFrames'],
                 'Native range/drain/capture incomplete')
     # Fixture alignment only: find the known marker, never alter media or derive
     # production recording compensation from amplitude. Candidate offsets cover

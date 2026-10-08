@@ -44,7 +44,7 @@ struct WasapiPlayback::State {
         const auto next = converted(report.status);
         auto prior = s.phase.load(std::memory_order_acquire);
         if (active(prior)) s.phase.compare_exchange_strong(prior, next, std::memory_order_acq_rel);
-        if (!s.observations.tryPush({clock, report})) s.dropped.fetch_add(1, std::memory_order_relaxed);
+        if (!s.observations.tryPush({clock, report, frames})) s.dropped.fetch_add(1, std::memory_order_relaxed);
         if (s.audit.end) s.audit.end(s.audit.context);
         if (!active(s.phase.load(std::memory_order_acquire))) return WasapiRenderAction::Abort;
         if (report.status == PlaybackStatus::Complete) {
