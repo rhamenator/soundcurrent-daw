@@ -10,6 +10,7 @@ import datetime
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -28,6 +29,22 @@ def command(args, cwd=ROOT, env=None):
 def require(value, message):
     if not value:
         raise RuntimeError(message)
+def preview_version(sequence, head, previous=None):
+    # Freeze the sequence before packaging so rebuilding has the same version.
+    # Git hashes are provenance, not an ordering key for package managers.
+    require(re.fullmatch(r'[0-9]{14}', sequence) is not None,
+            'Preview sequence must be a frozen 14-digit UTC timestamp')
+    try:
+        datetime.datetime.strptime(sequence, '%Y%m%d%H%M%S')
+    except ValueError as error:
+        raise RuntimeError('Invalid UTC preview sequence') from error
+    require(re.fullmatch(r'[0-9a-f]{40}', head) is not None, 'Invalid source commit')
+    version = '0.1.0~preview.'+sequence+'.'+head[:12]
+    if previous:
+        require(subprocess.run(['dpkg','--compare-versions',version,'gt',previous],
+                               capture_output=True).returncode==0,
+                'Preview version must be newer than the previous distributed package')
+    return version
 def verify_build_source(cache, root):
     entries = [line.split('=',1)[1] for line in cache.splitlines()
                if line.startswith('CMAKE_HOME_DIRECTORY:INTERNAL=')]
@@ -71,8 +88,7 @@ def package(args):
     build_type = next(line.split('=',1)[1] for line in cache.splitlines() if line.startswith('CMAKE_BUILD_TYPE:'))
     head = command(['git','rev-parse','HEAD'])
     maintainer = command(['git','show','-s','--format=%an <%ae>',head])
-    date = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d')
-    version = '0.1.0~preview.'+date+'.'+head[:12]
+    version = preview_version(args.preview_sequence,head,args.previous_version)
     output = args.output.resolve(); output.mkdir(parents=True,exist_ok=False)
     stage = output/'stage'; stage.mkdir()
     receipt = {'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -81,7 +97,9 @@ def package(args):
                'qualified_executable_sha256':digest(executable),
                'qualification_sha256':digest(args.qualification),
                'native_audio_run':False,'system_installation':False,'clean_install_qualified':False,
-               'release_uploaded':False}
+               'release_uploaded':False,'preview_sequence':args.preview_sequence,
+               'previous_version':args.previous_version,
+               'previous_package_version_order_verified':bool(args.previous_version)}
     log=[]
     def run(argv,cwd=ROOT,env=None):
         try:
@@ -152,4 +170,8 @@ if __name__=='__main__':
     parser.add_argument('--build-dir',type=Path,required=True)
     parser.add_argument('--qualification',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--preview-sequence',required=True,
+                        help='Frozen increasing UTC timestamp YYYYMMDDHHMMSS')
+    parser.add_argument('--previous-version',
+                        help='Required when updating a distributed preview; refuse non-increasing versions')
     package(parser.parse_args())

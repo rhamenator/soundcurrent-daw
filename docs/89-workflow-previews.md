@@ -28,6 +28,14 @@ prove that an older or different install tree matches the paired source archive.
 Owned failure tests reject another/ambiguous source directory, five independently
 stale inputs, extra/missing files and symlink payloads; retry preserves originals.
 
+Freeze a monotonically increasing UTC `--preview-sequence` (YYYYMMDDHHMMSS) for
+each candidate, and pass `--previous-version` when updating a distributed preview.
+The builder checks actual Debian version ordering before creating an output tree.
+Commit hashes identify source; they must not determine upgrade order. The first
+owned upgrade attempt correctly refused the earlier date/hash version scheme as
+a downgrade; its original log and package remain retained. No downgrade override
+is the fix. A frozen sequence also gives rebuilds the same package version.
+
 The [first local preparation receipt](../tests/results/X007/2026-10-07-local-ubuntu-preview.json)
 records source `d23d3632f09e147d4fc7e663001075d4b93109b8`, Debug build,
 **1,077,580-byte DEB** and separate exact source archive. Every extracted installed

@@ -4,10 +4,22 @@
 import importlib.util
 from pathlib import Path
 import shutil
+import subprocess
 import tempfile
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('preview_builder',ROOT/'tools/package_linux_preview.py')
 builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
+legacy='0.1.0~preview.20261007.d23d3632f09e'
+first=builder.preview_version('20261008001000','f'*40,legacy)
+second=builder.preview_version('20261008001001','0'*40,first)
+assert subprocess.run(['dpkg','--compare-versions',second,'gt',first]).returncode==0
+for sequence,head,previous in [('20261008001000','0'*40,second),
+                               ('20261301001000','0'*40,None),
+                               ('202610080010','0'*40,None),
+                               ('20261008001000','unqualified',None)]:
+    try:builder.preview_version(sequence,head,previous)
+    except RuntimeError:pass
+    else:raise AssertionError('Unordered or invalid preview version accepted')
 owned=Path(tempfile.mkdtemp(prefix='sc-preview-package-'))
 print(f'Owned preview package fixture root: "{owned}"',flush=True)
 source=owned/'source';source.mkdir();other=owned/'other-checkout';other.mkdir()
