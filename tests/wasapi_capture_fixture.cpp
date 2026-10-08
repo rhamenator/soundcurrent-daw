@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Opt-in native Windows developer fixture. Use an independent test VM initially.
 #include <soundcurrent/wasapi_capture.hpp>
+#include <soundcurrent/wasapi_recording.hpp>
 #include <soundcurrent/recording.hpp>
 #include <soundcurrent/export.hpp>
 #include "rt_audit.hpp"
@@ -58,7 +59,8 @@ json packetJson(const std::optional<WasapiPacketReceipt> &p) {
 }
 json captureTrace(WasapiCaptureTrace &trace) {
     const auto &i = trace.info();
-    json result{{"format","sc-wasapi-capture-lease-trace-v1"},{"qpcFrequency",i.qpcFrequency},
+    json result{{"format","sc-wasapi-capture-lease-trace-v2"},{"qpcFrequency",i.qpcFrequency},
+        {"processingAfterRelease",i.processingAfterRelease},
         {"sampleRate",i.sampleRate},{"channels",i.channels},{"bufferFrames",i.bufferFrames},
         {"devicePeriod100ns",i.devicePeriod100ns},{"streamLatency100ns",i.streamLatency100ns},
         {"capacity",WasapiCaptureTrace::capacity},{"dropped",trace.dropped()},
@@ -77,6 +79,64 @@ json captureTrace(WasapiCaptureTrace &trace) {
 }
 int run(const std::vector<std::filesystem::path> &args) {
     const auto endpoints = wasapiEndpoints();
+    if (args.size() == 4 && args[3] == "admission") {
+        const auto encoded = args[2].u8string(); const std::string id(encoded.begin(),encoded.end());
+        const auto endpoint = std::find_if(endpoints.begin(),endpoints.end(),[&](const auto &e) {
+            return e.id == id && !e.capture && e.mixRate == 48000;
+        });
+        if (endpoint == endpoints.end()) throw std::runtime_error("Explicit owned render endpoint required");
+        if (!std::filesystem::create_directory(args[1])) throw std::runtime_error("New admission project required");
+        auto session = makeOneTrackSession("Native route admission","Inactive raw route");
+        ProjectStore(args[1]).save(session);
+        const auto defaults = wasapiDefaultEndpoints();
+        ResourceLedger ledger(64*1024*1024,"Native route admission fixture");
+        RecordingSpec spec; spec.projectId = session.id; spec.trackId = session.tracks.front().id;
+        PipeWireRecordingOptions options; options.bridge.resources = ledger;
+        options.writer.resources = ledger;
+        json report{{"format","sc-native-route-admission-v1"},{"activated",false},
+                    {"writerCreated",false},{"failedAttempts",0},{"rollbackQualified",false},
+                    {"retryQualified",false},{"retirementQualified",false}};
+        {
+            WasapiRecording recording(args[1],session,spec,options);
+            const auto ports = recording.ports();
+            const auto selected = std::find_if(ports.begin(),ports.end(),[&](const auto &p) {
+                return p.deviceIdentity == id && p.loopback && p.portId == 0;
+            });
+            if (selected == ports.end()) throw std::runtime_error("Owned inactive loopback port missing");
+            const auto before = ledger.usage();
+            const auto inputBytes = std::size_t(options.bridge.maximumFrames)*2*sizeof(float)+sizeof(PreparedWasapiInput);
+            ledger.configure(before.reservedBytes+inputBytes);
+            for (unsigned n = 0; n < 3; ++n) {
+                bool refused = false;
+                try { recording.connectInputs({*selected}); }
+                catch (const ProjectError &e) {
+                    if (e.code() != ErrorCode::ResourceLimit) throw;
+                    refused = true;
+                }
+                const auto after = ledger.usage();
+                if (!refused || after.reservedBytes != before.reservedBytes || after.owners != before.owners ||
+                    recording.jobDirectory() || recording.capturedFrames() || recording.status() != AudioBridgeStatus::Ready)
+                    throw std::runtime_error("Failed native route retained input memory or created recording work");
+                report["failedAttempts"] = n+1;
+            }
+            report["rollbackQualified"] = true; report["baseReservedBytes"] = before.reservedBytes;
+            report["inputChargeBytes"] = inputBytes;
+            ledger.configure(64*1024*1024); recording.connectInputs({*selected});
+            if (recording.jobDirectory() || recording.capturedFrames() || recording.status() != AudioBridgeStatus::Ready ||
+                ledger.usage().reservedBytes <= before.reservedBytes+inputBytes)
+                throw std::runtime_error("Inactive retry did not admit both owners without starting recording");
+            report["retryQualified"] = true;
+            recording.stop();
+        }
+        if (ledger.usage().reservedBytes || ledger.usage().owners)
+            throw std::runtime_error("Retired native route retained memory credit");
+        report["retirementQualified"] = true;
+        report["defaultsUnchanged"] = defaults == wasapiDefaultEndpoints();
+        if (!report["defaultsUnchanged"].get<bool>()) throw std::runtime_error("Native admission changed defaults");
+        std::ofstream out(args[1]/"admission.json"); out << report.dump(2) << '\n';
+        if (!out) throw std::runtime_error("Cannot retain admission report");
+        std::cout << report.dump(2) << '\n'; return 0;
+    }
     if (args.size() == 2 && args[1] == "--list") {
         json report{{"format","sc-wasapi-inventory"},{"defaults",wasapiDefaultEndpoints()},
                     {"endpoints",json::array()}};

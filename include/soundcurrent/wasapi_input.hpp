@@ -28,8 +28,9 @@ struct WasapiPacketReceipt {
     std::uint32_t frames = 0, flags = 0;
     std::uint64_t devicePosition = 0, qpc100ns = 0;
 };
-// Prepared on control. One audio writer; raw packet lease remains with the SDK
-// caller until consume returns. No allocation, waiting, locks, I/O or logging.
+// Prepared on control. One audio writer; packet backing remains with its caller
+// until consume returns. Native capture uses a copy after SDK release.
+// No allocation, waiting, locks, I/O or logging.
 class PreparedWasapiInput {
   public:
     PreparedWasapiInput(AudioBridge &, WasapiInputConfig);

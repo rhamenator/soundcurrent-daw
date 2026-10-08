@@ -10,6 +10,7 @@ struct WasapiCaptureTraceInfo {
     std::uint64_t qpcFrequency = 0;
     std::int64_t devicePeriod100ns = 0, streamLatency100ns = 0;
     std::uint32_t sampleRate = 0, channels = 0, bufferFrames = 0;
+    bool processingAfterRelease = false;
 };
 struct WasapiCaptureLeaseObservation {
     std::uint64_t sequence = 0, wakeSequence = 0;

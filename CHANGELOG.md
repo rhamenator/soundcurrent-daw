@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- Native capture now copies into prepared resource-admitted storage and releases
+  the SDK packet before processing. Poisoned SDK reuse, strict error/metadata
+  behavior and memory retirement are tested; native endpoint and installer
+  qualification of this revision remain pending.
+
 - Opt-in bounded WASAPI capture lease metadata now separates SDK packet positions
   from acquisition, callback and release timing. One complete and two refused
   native recordings are retained with independently checked raw/export samples.

@@ -13,6 +13,14 @@ from verify_windows_desktop import path
 from verify_windows_playback import coefficients
 
 
+def lease_times(observation, after_release):
+    ending = ('releasedTicks','callbackReturnedTicks') if after_release else ('callbackReturnedTicks','releasedTicks')
+    times = [observation[k] for k in ('waitStartedTicks','wakeTicks','acquireStartedTicks','acquiredTicks')+ending]
+    require(all(type(v) is int and v >= 0 for v in times) and times == sorted(times),
+            'Native lease timing order/type differs')
+    return times
+
+
 def analyze(root):
     root = Path(root)
     t = json.loads((root/'native-leases.json').read_text())
@@ -21,7 +29,9 @@ def analyze(root):
             report['loopback'] and report['sampleRate'] == 48000 and report['nativeChannels'] == 2 and
             report['sourceSessionVolume'] == 1 and not report['sourceSessionMuted'],
             'Owned source/route/session differs')
-    require(t['format'] == 'sc-wasapi-capture-lease-trace-v1' and t['sampleRate'] == 48000 and
+    after_release = t['format'] == 'sc-wasapi-capture-lease-trace-v2'
+    require(t['format'] in ('sc-wasapi-capture-lease-trace-v1','sc-wasapi-capture-lease-trace-v2') and
+            (not after_release or t.get('processingAfterRelease') is True) and t['sampleRate'] == 48000 and
             t['channels'] == 2 and t['capacity'] == 2048 and t['dropped'] == 0 and
             not t['sequenceExhausted'] and 0 < t['qpcFrequency'] <= 10**12 and
             0 < t['devicePeriod100ns'] <= 10000000 and 0 <= t['streamLatency100ns'] <= 10000000 and
@@ -34,26 +44,25 @@ def analyze(root):
     ns = lambda ticks: ticks*1000000000//t['qpcFrequency']
     previous = None; gaps = []; maximum_lease = maximum_callback = maximum_wait = 0
     for n,o in enumerate(t['leases']):
-        times = [o[k] for k in ('waitStartedTicks','wakeTicks','acquireStartedTicks','acquiredTicks',
-                                'callbackReturnedTicks','releasedTicks')]
+        lease_times(o,after_release)
         require(o['sequence'] == n and o['clockValid'] and o['released'] and o['callbackInvoked'] and
                 o['acquireHresult'] == o['releaseHresult'] == 0 and 0 < o['frames'] <= t['bufferFrames'] and
-                o['flags'] & ~7 == 0 and 0 <= o['batchIndex'] < 16 and
-                all(isinstance(v,int) and v >= 0 for v in times) and times == sorted(times),
+                o['flags'] & ~7 == 0 and 0 <= o['batchIndex'] < 16,
                 'Native lease order/identity/clock differs')
         lease = ns(o['releasedTicks']-o['acquiredTicks'])
-        callback = ns(o['callbackReturnedTicks']-o['acquiredTicks'])
+        callback_origin = 'releasedTicks' if after_release else 'acquiredTicks'
+        callback = ns(o['callbackReturnedTicks']-o[callback_origin])
         maximum_lease = max(maximum_lease,lease); maximum_callback = max(maximum_callback,callback)
         maximum_wait = max(maximum_wait,ns(o['wakeTicks']-o['waitStartedTicks']))
         if previous:
-            require(o['acquireStartedTicks'] >= previous['releasedTicks'] and
+            require(o['acquireStartedTicks'] >= max(previous['releasedTicks'],previous['callbackReturnedTicks']) and
                     o['wakeSequence'] >= previous['wakeSequence'], 'Native thread order reversed')
             expected = previous['devicePosition']+previous['frames']
             if o['devicePosition'] != expected or o['flags'] & 1:
                 gaps.append({'sequence':n,'expectedPosition':expected,'sdkPosition':o['devicePosition'],
                              'positionDifferenceFrames':o['devicePosition']-expected,'sdkFlags':o['flags'],
                              'previousLeaseNs':ns(previous['releasedTicks']-previous['acquiredTicks']),
-                             'previousCallbackNs':ns(previous['callbackReturnedTicks']-previous['acquiredTicks']),
+                             'previousCallbackNs':ns(previous['callbackReturnedTicks']-previous[callback_origin]),
                              'sincePreviousReleaseNs':ns(o['acquireStartedTicks']-previous['releasedTicks'])})
         previous = o
     raw_path = path(root,report['assetPath']); raw = float_wav(raw_path)
@@ -116,13 +125,15 @@ def analyze(root):
                 f['rejected']['duration'] == t['leases'][gaps[0]['sequence']]['frames'] and
                 gaps[0]['expectedPosition'] == f['previous']['position']+f['previous']['duration'],
                 'Native SDK gap/bridge first fault differs')
-    return {'format':'sc-native-capture-lease-analysis-v1','rawFrames':len(raw),'rawSourceOffset':offset,
+    result = {'format':'sc-native-capture-lease-analysis-v1','rawFrames':len(raw),'rawSourceOffset':offset,
             'rawMaximumError':0,'exportMaximumError':export_error,'sdkGaps':gaps,
             'maximumLeaseNs':maximum_lease,'maximumCallbackNs':maximum_callback,'maximumWaitNs':maximum_wait,
             'leasesExceedingDevicePeriod':sum(ns(o['releasedTicks']-o['acquiredTicks']) > t['devicePeriod100ns']*100
                                              for o in t['leases']),
             'ownedCaptureWorkflowQualified':qualified,'nativeAudioReplayed':False,
             'driverOrSchedulingCauseIsolated':False,'installedWorkflowQualified':False}
+    if after_release: result['processingAfterRelease'] = True
+    return result
 
 
 if __name__ == '__main__':

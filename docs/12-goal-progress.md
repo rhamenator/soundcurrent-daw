@@ -3084,3 +3084,46 @@ Next: pre-admitted packet copy and SDK release before DSP, with exact metadata,
 pointer lifetime and continuity evidence; use the independent installer clone
 for further native checks. Existing local preview/source pairs are unchanged;
 production-EQ Stop and all full-suite gates remain open. The goal stays active.
+
+## Capture packet ownership checkpoint (2026-10-08)
+
+PR #52 merged with protected checks passing. Capture now prepares a resource-
+admitted reusable packet copy, releases the native SDK lease before processing,
+and retires storage after join. Failed releases never reach DSP; silent/invalid
+backing and exact flags/timestamps retain existing strict input semantics.
+Poisoned SDK reuse through the real raw/EQ pipeline proves the consumer does not
+depend on released backing. Focused Linux and sanitizer checks pass 3/3; the
+actual Windows SDK adapter and packet tests cross-compile successfully. Historical
+v1 evidence and all original failed exits remain independently recomputable.
+
+V2 traces explicitly record release before processing; synthetic order/type
+controls keep v1/v2 timing separate. A Windows MSVC unit job is added with no
+endpoint/GUI dependency; its execution remains pending. No native endpoint test
+or installer refresh is claimed for this change. See [checkpoint 110](110-windows-packet-release.md).
+Next: isolated full native build and same-source bounded v2 capture comparisons
+on the installer clone, then exact installed qualification. The goal stays active.
+
+## Hosted native recording build checkpoint (2026-10-08)
+
+The packet-ownership MSVC gate passed 3/3 at `cfa5b5b` and `ac11b80` and is now
+required by strict main protection. Source PR #53 remains open: the compound
+route-admission review is fixed in source but its inactive endpoint fixture has
+not yet executed. Full production recording and fixture code cross-compile.
+The hosted gate is extended with hash-pinned, codec-disabled shared libsndfile
+1.2.2 to compile that path and run existing disk recording/recovery, WAV export
+and resource tests; this expanded gate passed 6/6 at `58a23cb` on hosted MSVC 19.51.36260.0.
+Retained [native results](../tests/results/X007/2026-10-08-hosted-native-recording/receipt.json)
+include 255 recording/recovery checks and 1,062 export checks with raw headroom
+and live/offline comparisons. Six of 37 configured tests ran; no audio endpoint,
+GUI or installer executed. The 57.17-second Windows recovery suite gets a
+180-second CTest observation budget; assertions are unchanged and Linux retains
+60 seconds. That timeout adjustment awaits checks. No endpoint or installed
+qualification is inferred from the hosted pass.
+
+Host reboot/resource contention interrupted full independent clone preparation.
+The clone disk remains unverified. TPM and firmware copies are independently
+byte-verified; the clone is prepared with 8 GiB RAM, CPU/disk caps and isolated
+networking and remains off. The same suspended verifier resumed after host load
+fell, in a systemd-managed 16 MiB/s, idle-priority scope. Continue this exact
+verifier before native route/capture comparison while keeping local VM load low. Existing previews stay unchanged and
+the full frozen-reference goal remains active.

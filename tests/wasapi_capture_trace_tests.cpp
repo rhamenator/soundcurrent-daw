@@ -8,7 +8,7 @@
 using namespace soundcurrent::daw;
 namespace {
 void require(bool ok) { if (!ok) throw std::runtime_error("Native capture trace invariant failed"); }
-WasapiCaptureTraceInfo info{10000000,100000,0,48000,2,4800};
+WasapiCaptureTraceInfo info{10000000,100000,0,48000,2,4800,true};
 }
 int main() {
     try {
@@ -28,7 +28,7 @@ int main() {
             }
             require(!trace->prepare(invalid));
         }
-        require(trace->prepare(info) && !trace->prepare(info));
+        require(trace->prepare(info) && !trace->prepare(info) && trace->info().processingAfterRelease);
         value.frames = 480; value.devicePosition = 17; value.flags = 1;
         value.clockValid = true; value.callbackInvoked = value.released = true;
         // No allocations or waits when the consumer stalls: metadata is lost

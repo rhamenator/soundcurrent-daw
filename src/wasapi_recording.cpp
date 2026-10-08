@@ -136,12 +136,15 @@ void WasapiRecording::connectInputs(const std::vector<PipeWirePort> &ports) {
         WasapiInputConfig{selected.nativeChannels,
             std::min<std::uint32_t>(65536, s.options.bridge.maximumFrames * 16), 1,
             selected.channels, s.options.bridge.resources});
-    s.input = std::move(input);
     auto stream = std::make_unique<WasapiCaptureStream>(
         WasapiCaptureOptions{selected.endpointId, selected.sampleRate, selected.nativeChannels,
-            std::min<std::uint32_t>(65536, s.options.bridge.maximumFrames * 16), selected.loopback},
+            std::min<std::uint32_t>(65536, s.options.bridge.maximumFrames * 16), selected.loopback,
+            nullptr, s.options.bridge.resources},
         WasapiCaptureCallbacks{&s, State::packet, State::unavailable});
-    s.stream = std::move(stream); s.inputRouted = true;
+    // No packets arrive before activate(). Keep both owners tentative until
+    // native preparation succeeds; a failed copy/SDK admission returns all
+    // input credit instead of retaining an unused route in State.
+    s.input = std::move(input); s.stream = std::move(stream); s.inputRouted = true;
 }
 void WasapiRecording::connectOutputs(const std::vector<PipeWirePort> &ports) {
     if (state_->stopped || state_->activated || !ports.empty())

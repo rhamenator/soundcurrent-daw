@@ -1,0 +1,52 @@
+{
+  "format": "sc-hosted-native-recording-gate-v1",
+  "sourceCommit": "58a23cbf0db6830165eb780290a6d40f3c260d7a",
+  "runId": 37846953989,
+  "jobId": 113550078108,
+  "jobUrl": "https://github.com/rhamenator/soundcurrent-daw/actions/runs/37846953989/job/113550078108",
+  "compiler": "MSVC 19.51.36260.0",
+  "libsndfileVersion": "1.2.2",
+  "libsndfileSourceSha256": "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121",
+  "passedTests": [
+    "resource-ledger",
+    "wasapi-packet-admission",
+    "wasapi-packet-copy",
+    "wasapi-capture-trace",
+    "offline-export",
+    "recording-recovery"
+  ],
+  "totalTests": 6,
+  "fullRecordingAndCaptureFixtureCompiled": true,
+  "audioEndpointsActivated": false,
+  "endpointAdmissionExecuted": false,
+  "installerQualified": false,
+  "runnerImage": "windows-2025-vs2026",
+  "runnerImageVersion": "20260925.250.1",
+  "platform": "Windows Server 2025 hosted runner",
+  "artifactId": 11579734585,
+  "artifactName": "windows-native-packet-unit-log",
+  "log": {
+    "path": "native-ctest-log.zip",
+    "bytes": 4713,
+    "sha256": "0fcee65a1a2e69ed35a601a715661af0237609c91b0dae5f629eb4dd783a6f4e",
+    "entry": "LastTest.log",
+    "archiveBytes": 952,
+    "archiveSha256": "1243b79bac1b71c5a8c697c618f4a3b007b399bd1f38d630b4fca08afca5928b"
+  },
+  "observations": {
+    "offlineExportChecks": 1062,
+    "resourceLedgerChecks": 44,
+    "recordingChecks": 255,
+    "syntheticRecordedFrames": 480000,
+    "sampleRate": 48000,
+    "recordingTestSeconds": 57.17,
+    "totalTestSeconds": 64.68
+  },
+  "gaps": [
+    "This selected suite ran six of 37 configured tests",
+    "Native audio endpoint route admission and capture did not execute",
+    "No Qt desktop or installer executed",
+    "No physical or sustained audio qualification",
+    "Windows excludes Linux-only process-kill and kernel write-limit fixtures"
+  ]
+}
