@@ -117,3 +117,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native Windows single-track desktop workflow and original sample refusals](99-windows-desktop-workflow.md)
 - [Reviewed localization and equipment-editor refresh](100-localization-reuse-refresh.md)
 - [Windows installer and source-pair preparation](101-windows-installer-preparation.md)
+- [Windows clean-installed workflow preview](102-windows-installed-workflow-preview.md)

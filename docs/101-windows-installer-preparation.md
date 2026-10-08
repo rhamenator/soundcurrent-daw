@@ -1,5 +1,8 @@
 # Windows installer and source-pair preparation
 
+Historical preparation checkpoint. Subsequent bounded clean-installed acceptance
+is recorded in [checkpoint 102](102-windows-installed-workflow-preview.md).
+
 This is a bounded local preview preparation. Compiler-free installation, upgrade,
 removal and installed native recording still need acceptance on the independent
 clean clone. Full Windows parity remains open.

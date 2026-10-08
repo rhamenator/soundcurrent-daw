@@ -20,13 +20,16 @@ translations remain unfinished. See [the active goal](GOAL.md) and
 The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records
 through the native desktop, plays with live EQ/Undo, saves/reopens and exports WAV.
 Independent raw/output/export sample checks pass on an owned loopback route with
-a silent lead-in. Non-silent startup, monitoring/duplex and the Windows installer
-remain open preview gates.
+a silent lead-in. A [local Windows 11 x64 installer/source pair](docs/102-windows-installed-workflow-preview.md)
+now passes scoped clean-install, shortcut, normal removal/reinstall and installed
+native workflow acceptance. Non-silent startup, physical/sustained recording and
+monitoring/duplex remain open preview gates.
 
 [Easy installation](docs/88-easy-installation.md) is required on supported Linux
 and Windows systems: normal packages/installers, no compiler or manual dependency
 assembly, app-menu shortcuts, and tested upgrades/removal that preserve recordings.
-The build instructions below are for developers; end-user installers remain open.
+The build instructions below are for developers; broader end-user installer
+qualification remains open.
 The [preview delivery plan](docs/89-workflow-previews.md) starts with the existing
 Linux recording/EQ/project/WAV workflow. Local binary packages need fresh-machine
 qualification before being described as supported installers.

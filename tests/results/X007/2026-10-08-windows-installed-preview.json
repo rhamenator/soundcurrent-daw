@@ -1,0 +1,374 @@
+{
+  "scope": "Bounded per-user Windows 11 x64 local workflow preview on independent clean-template clone; not full Windows/DAW, physical, sustained, installer-language or complete release qualification",
+  "sourceHead": "b8cdb3e00da524e5be51b007c1f81d6e51806d72",
+  "sequence": "20261008100700",
+  "installerSha256": "f7a1f75ce7b9052c07388caaac72fd3c233643ebbe330eac3089673b2a502518",
+  "installerBytes": 33757321,
+  "mainExeSha256": "7dab2d068a9c1a5f3e715167c839f172fb60eefdb39f2136211b1f831222b559",
+  "platform": {
+    "vm": "soundcurrent-daw-install-win11",
+    "independentNoBackingDisk": true,
+    "os": "Windows 11 Pro 10.0.26200",
+    "sessionId": 1,
+    "originalsAndTemplatePreserved": true
+  },
+  "installation": {
+    "installExit": 0,
+    "uninstallExit": 0,
+    "reinstallExit": 0,
+    "payloadVerified": true,
+    "projectAndSettingsPreserved": true,
+    "runtimeBefore": {
+      "view32": {},
+      "view64": {}
+    },
+    "runtimeAfter": {
+      "view32": {
+        "Installed": 1,
+        "Version": "v14.44.35211.00"
+      },
+      "view64": {
+        "Installed": 1,
+        "Version": "v14.44.35211.00"
+      }
+    },
+    "shortcuts": [
+      {
+        "target": "C:\\Users\\copperfin\\AppData\\Local\\Programs\\SoundCurrent DAW Preview\\20261008100700-b8cdb3e00da5\\soundcurrent-daw.exe",
+        "path": "C:\\Users\\copperfin\\Desktop\\SoundCurrent DAW Preview 20261008100700-b8cdb3e00da5.lnk"
+      },
+      {
+        "target": "C:\\Users\\copperfin\\AppData\\Local\\Programs\\SoundCurrent DAW Preview\\20261008100700-b8cdb3e00da5\\soundcurrent-daw.exe",
+        "path": "C:\\Users\\copperfin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\SoundCurrent DAW Preview\\SoundCurrent DAW Preview 20261008100700-b8cdb3e00da5.lnk"
+      }
+    ]
+  },
+  "installedMain": {
+    "main": {
+      "exitCode": 0,
+      "exeSha256": "7dab2d068a9c1a5f3e715167c839f172fb60eefdb39f2136211b1f831222b559",
+      "sessionId": 1,
+      "title": "SoundCurrent DAW"
+    },
+    "reinstalledMain": {
+      "exitCode": 0,
+      "exeSha256": "7dab2d068a9c1a5f3e715167c839f172fb60eefdb39f2136211b1f831222b559",
+      "sessionId": 1,
+      "title": "SoundCurrent DAW"
+    }
+  },
+  "installedModulesEvidence": "Full before/after-reinstall loaded module paths retained; Qt Core/Gui/Widgets, sndfile and qwindows all loaded from owned installed slot, not SDK PATH",
+  "nativeInstalledWorkflow": {
+    "qtSdkOnPath": false,
+    "nativeAudioReplayed": true,
+    "sourceHead": "b8cdb3e00da524e5be51b007c1f81d6e51806d72",
+    "phase": "unchanged-installed-native-v3",
+    "nativeExitCode": 0,
+    "installedExeSha256": "7dab2d068a9c1a5f3e715167c839f172fb60eefdb39f2136211b1f831222b559",
+    "device": {
+      "capture": false,
+      "channels": 2,
+      "id": "{0.0.0.00000000}.{3b925689-b97e-464a-802e-7f198dc1040e}",
+      "mixRate": 48000,
+      "name": "Speakers (High Definition Audio Device)"
+    },
+    "project": "C:\\Users\\copperfin\\SoundCurrent-Install-Native-Acceptance-v3\\Installed workflow v3 - Ελληνικά",
+    "compilerOnPath": false,
+    "fixtureSha256": "2f2821525d7ac78b882b3b399efa39b150e51bff7d11da6e2412ec4c0d921eb6",
+    "sessionId": 1,
+    "payloadVerified": true,
+    "initialObserverFailurePreserved": true,
+    "exitCode": 0
+  },
+  "independentMedia": {
+    "format": "sc-native-desktop-media-verification",
+    "frames": 480000,
+    "rawMaximumError": 0.0,
+    "fixtureSourceOffsetFrames": 2336,
+    "exportMaximumError": 0.0,
+    "nativePlaybackMaximumResidual": 0.0,
+    "fixturePlaybackOffsetFrames": 64,
+    "measuredPlaybackPathGain": 1.0,
+    "matchedPlaybackFrames": 479936,
+    "unselectedChannelSilent": true,
+    "oneTrackNativeDesktopWorkflowQualified": true,
+    "installerQualified": false,
+    "physicalLatencyOrSustainedSchedulingQualified": false,
+    "nativeAudioReplayed": false
+  },
+  "initialFailure": {
+    "nativeWorkflowExit": 1,
+    "message": "Native playback observer fault",
+    "observerCommittedFrames": 287520,
+    "expectedNextPosition": 288000,
+    "rejectedPosition": 288480,
+    "discontinuityFlag": true,
+    "rawCommittedFrames": 480000,
+    "cause": "Unisolated; VM/host scheduling and console inspection are hypotheses, not established causes",
+    "unchangedRetryPassed": true,
+    "relaxedOracle": false
+  },
+  "runtimeRefusal": {
+    "originalEarlierSource": "6ff749ce34683a2fe8625e190bc5923498f6cf15",
+    "approvalDeclined": true,
+    "noPreviewDirectoryObserved": true,
+    "diagnosticMessage": "Microsoft runtime could not be installed",
+    "harnessTimedOutWaitingForAcknowledgement": true,
+    "actualWrapperExitCodeRetained": false,
+    "finalSourceRefusalQualification": false
+  },
+  "packageInputRefusals": {
+    "hostileMutations": 14,
+    "replacementDependencyIdentity": true,
+    "nativeSeparatorsAccepted": true
+  },
+  "cleanInstallQualified": true,
+  "qualificationMeaning": "Normal install/shortcuts/main/uninstall/reinstall plus one unchanged native recording/live-EQ/Undo/save/reopen/play/WAV workflow on this clone. General installation failure and upgrade matrix remain open.",
+  "nativeAudioReplayed": true,
+  "releaseUploaded": false,
+  "signing": "SoundCurrent wrapper unsigned; independent Microsoft runtime Valid/Microsoft Corporation",
+  "openGates": [
+    "physical devices",
+    "non-silent startup",
+    "sustained/native deadline behavior",
+    "microphone monitoring/duplex",
+    "loaded-app and deletion-failure runtime cases",
+    "unowned-destination runtime case",
+    "final-source runtime refusal replay",
+    "same-sequence coexistence runtime matrix",
+    "seamless upgrade consolidation",
+    "installer localization/native speaker reviews",
+    "complete F/Q/C/N and release licensing/content qualification"
+  ],
+  "capsule": {
+    "name": "2026-10-08-windows-installed-preview.zip",
+    "bytes": 14532286,
+    "sha256": "d6f8db2247f26e265bf89d5588e288bdae921e27d913e13000fba39325b269e8",
+    "payloads": 54,
+    "files": {
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/first-fault.json": {
+        "bytes": 1207,
+        "sha256": "a1f16bcbec850b498bd53d2f60b36e5cba5e3828c8c736466eef6b662001e749"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/journal.json": {
+        "bytes": 907,
+        "sha256": "33f6291bd4d871bbba7bfb539cd5b759cf447107adb72d5905b3a351de692cd1"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/take.wav": {
+        "bytes": 2300264,
+        "sha256": "eb5288ccfd4d3d34fa3fa7c391680a8f97a87d9280d03a89e261d61ade3b5f75"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/loopback/media/capture-c4ba8ed9-7542-4252-86f5-3379616a35e1/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/journal.json": {
+        "bytes": 907,
+        "sha256": "38a55988380b9fee15bcf021b9bfd8e526220791b7439f0f7518ef755e96d921"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/take.wav": {
+        "bytes": 1920104,
+        "sha256": "58d4e683c90bee7c4f02674005f6b385d74a2b32e2a4bd27757baee2b1edc850"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/media/capture-a0e8fea7-398e-4410-98fb-a52a7a94ff05/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/project.json": {
+        "bytes": 1748,
+        "sha256": "4e3e2e9a04872cecd0a192a43899d711315b72f41e7ce6a1621a3e46fcebd81a"
+      },
+      "initial-installed-observer-failure/Installed workflow - Ελληνικά/source-stereo.f32": {
+        "bytes": 4608000,
+        "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
+      },
+      "initial-installed-observer-failure/endpoints.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/endpoints.stdout": {
+        "bytes": 900,
+        "sha256": "a86aa1d7c47de66065f4f94008326aeee0bb500923750cf5ef4c19b519c7115e"
+      },
+      "initial-installed-observer-failure/failure.txt": {
+        "bytes": 401,
+        "sha256": "aeca015503d0a5eee760fae1f1b334fd3db86c34214bae8af69030150f4f6044"
+      },
+      "initial-installed-observer-failure/main-after-reinstall.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/main-after-reinstall.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/main-before-remove.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/main-before-remove.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/native-workflow.stderr": {
+        "bytes": 32,
+        "sha256": "9eff33f3b7cc726922fa96a661fcd4f047d7c9db3e6da6421e3075e70056db76"
+      },
+      "initial-installed-observer-failure/native-workflow.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/reinstall.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/reinstall.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/result.json": {
+        "bytes": 49819,
+        "sha256": "92c9ca37133686aeef52d2cf0ddc27324ab57f17e2741e83e3208479b08da86f"
+      },
+      "initial-installed-observer-failure/setup.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/setup.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/uninstall.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-installed-observer-failure/uninstall.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-runtime-refusal-diagnostic/original-qa/failure.txt": {
+        "bytes": 346,
+        "sha256": "84f5d6176166031c9fbc894c21899f562692687ca9b4b2df95ddf66d8ffb7471"
+      },
+      "initial-runtime-refusal-diagnostic/original-qa/result.json": {
+        "bytes": 752,
+        "sha256": "7321dda3d85c9a904dc85d162bfb580fa7eaca8dc71aba6c7b250b035ec0f08d"
+      },
+      "initial-runtime-refusal-diagnostic/original-qa/setup.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-runtime-refusal-diagnostic/original-qa/setup.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "initial-runtime-refusal-diagnostic/state.json": {
+        "bytes": 743,
+        "sha256": "694847ceb984c424ce53b2890b4ba012b52c2575ed6ad4ca363b2243989b880d"
+      },
+      "prepared/SHA256SUMS": {
+        "bytes": 478,
+        "sha256": "adf39b5b1bb680cdfd59112ee45cfa94eba5a5b7df20b4eab6c2950e20ed62ab"
+      },
+      "prepared/makensis.log": {
+        "bytes": 1224,
+        "sha256": "a150b213091628d91b11420f3a0cdb938c9648499058b7c98ecb1777ca9c70aa"
+      },
+      "prepared/native-deployment-manifest.json": {
+        "bytes": 2438,
+        "sha256": "2f2bf044f6bccb125cb55c5341297ad74116dd6c4f131da3616585415a902919"
+      },
+      "prepared/native-inputs.json": {
+        "bytes": 29308,
+        "sha256": "cd4b5b71bb3a51990a3ab9b97b5949a6ef1b7599e22ba704099f4c04aea74c71"
+      },
+      "prepared/native-main-before-packaging.json": {
+        "bytes": 368,
+        "sha256": "3321ff8eca0b78b52c723d3b334e8860bf8199aafae227930b955068beeec607"
+      },
+      "prepared/receipt.json": {
+        "bytes": 10239,
+        "sha256": "1a767f7a791843f5c03add8f4935a63da893ff617c0d8f44eabb455738e97df6"
+      },
+      "prepared/test-only-tools.json": {
+        "bytes": 526,
+        "sha256": "d05e5ad5f8eef35c617c3722eaa7f88562da08ef01c4c37ddc64cd632551c113"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/exports/Export — Ελληνικά.wav": {
+        "bytes": 1920080,
+        "sha256": "f3dfb7553a37857d69ad7f4f31eb80f7d64074a8770e5480329dbdf5853eb380"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/journal.json": {
+        "bytes": 908,
+        "sha256": "d91d04c1d0c653b753ed134286be9bd778019b5be6fa97750b1588291dcbbed8"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/take.wav": {
+        "bytes": 3840104,
+        "sha256": "d76836ecaa5afb2bbf2643378dfc281fee06598a2b54c7b5fe0d75b9ab9b864c"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/loopback/media/capture-9c23f202-f47b-453a-995a-7fbcdb81a29f/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/journal.json": {
+        "bytes": 907,
+        "sha256": "72885961f8134048cee0db0a90f50755a6a70d699260a7efc0604d47fa7ae499"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/take.wav": {
+        "bytes": 1920104,
+        "sha256": "5b33f68183f77aa710482b5e6ebaa21e1e85580679a60cc0d33c3ac407e44aa6"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/media/capture-7659b583-698b-4bee-8010-bfd9e7028de1/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/probe.json": {
+        "bytes": 1276,
+        "sha256": "90dd7abf5d68f0a9c2eb9f302b7d3004b1c8511066d307420617a027c69b8b76"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/project.json": {
+        "bytes": 2813,
+        "sha256": "aac7252628465febcf7bdcf01ce9a96d6feba1f0173d1afc9a5b2adf543b05e3"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/project.previous.json": {
+        "bytes": 1748,
+        "sha256": "5233058fcf384ff80e2b1ca20d8d25084c9180e11f418637b5b05f8c54a73d10"
+      },
+      "unchanged-installed-native-pass/Installed workflow v3 - Ελληνικά/source-stereo.f32": {
+        "bytes": 4608000,
+        "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
+      },
+      "unchanged-installed-native-pass/native.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "unchanged-installed-native-pass/native.stdout": {
+        "bytes": 1276,
+        "sha256": "90dd7abf5d68f0a9c2eb9f302b7d3004b1c8511066d307420617a027c69b8b76"
+      },
+      "unchanged-installed-native-pass/result.json": {
+        "bytes": 983,
+        "sha256": "6be779aabc9b4caa32efc577f85650cfb689fb113e3308c422b2a7a07ee0f2c5"
+      },
+      "verification/independent-native-v3.json": {
+        "bytes": 520,
+        "sha256": "c3e6f459dfbcb8cb3583fc0b1ec01a005fb231b30ad30aeaaba4d387cb21ade0"
+      }
+    }
+  },
+  "teardown": {
+    "developmentVmShutDown": true,
+    "installCloneShutdownRequested": true,
+    "temporaryScopedFirewallRuleRemoved": true,
+    "privateEvidenceReceiverStopped": true,
+    "noReleaseBinaryInCapsule": true
+  }
+}

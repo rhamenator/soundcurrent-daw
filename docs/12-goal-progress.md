@@ -2914,3 +2914,19 @@ Windows per-user installer/source preparation now has bounded input refusal
 tests, fixed-file removal and independent signed runtime setup; clean installed
 main/shortcut/audio/uninstall tests are the next gate. This is progress toward
 X007, not full-suite or installer qualification. See [checkpoint 101](101-windows-installer-preparation.md).
+
+## Windows installable workflow preview checkpoint (2026-10-08)
+
+Protected PR44 merged installer preparation and review corrections after both
+required checks passed. The source-paired Windows 11 x64 candidate now has scoped
+clean-clone installation, runtime bootstrap, shortcuts, actual-main/dependency
+launch, exact-file removal/reinstall and project/settings preservation evidence.
+A test-only production-UI/native-controller workflow uses installed DLLs; its
+unchanged retry passes independently checked raw/live-output/export samples.
+The original 480-frame observer discontinuity remains retained and unisolated.
+See [checkpoint 102](102-windows-installed-workflow-preview.md) and X007 receipt.
+This supports a useful local Windows preview alongside the Ubuntu DEB, with no
+public binary upload. Physical/sustained audio, monitoring/duplex, broader
+installer/language/release gates and full F/Q/C/N parity remain open. The full
+goal stays active and incomplete. Next: physical format/record/play diagnostics
+and startup/discontinuity qualification.
