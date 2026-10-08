@@ -10,12 +10,16 @@ clean clone. Full Windows parity remains open.
 native input hashes, actual main-executable launch/normal-close evidence, and the
 exact deployed executable identity. It checks ZIP membership, size bounds,
 duplicates after native separator normalization, symlinks and all payload hashes.
-Developer CRT DLL copies are refused. The local deployment contains Qt 6.12.0
+Developer CRT DLL copies are refused. The nine dependency DLLs must match the
+separately reviewed, repository-pinned MSVC SDK identities in
+`research/windows-preview-dependencies.json`, whose Qt/libsndfile source anchors
+are checked independently. A self-consistent replacement ZIP/manifest is refused. The local deployment contains Qt 6.12.0
 Core/Gui/Widgets, Windows platform/style and GIF/ICO/JPEG plugins plus matching
 MSVC/UCRT libsndfile 1.2.2. Qt Test and developer SDK files are not product payload.
 
 The Unicode NSIS installer targets Windows 11 x64. It creates an owned per-user
 preview directory, Start-menu and desktop shortcuts and an Apps uninstall entry.
+Shortcut names include the full timestamp/commit-derived preview build ID.
 Different preview builds coexist; automatic replacement/cleanup of older previews
 is not claimed. Unowned nonempty folders are refused. Partial owned extraction
 can be retried. Removal preflights loaded executables/DLLs and deletes only the
@@ -73,3 +77,9 @@ Primary deployment guidance:
 [Qt Windows deployment](https://doc.qt.io/qt-6/windows-deployment.html),
 [Microsoft supported runtimes](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170),
 [NSIS scripting](https://nsis.sourceforge.io/Docs/Chapter4.html).
+
+Review corrections: shortcut names distinguish same-sequence commits; dependency
+identities no longer trust an arbitrary deployment manifest as their only anchor.
+The focused maintainer test rejects a replacement dependency hash in addition to
+the 14 bounded ZIP mutations. Original preparation/prototype evidence remains
+historical; a fresh source-paired setup is required after these corrections.

@@ -7,7 +7,7 @@ Unicode true
 !include "WordFunc.nsh"
 !insertmacro VersionCompare
 !define BUILD_ID "@BUILD_ID@"
-!define APP_TITLE "SoundCurrent DAW Preview @SEQUENCE@"
+!define APP_TITLE "SoundCurrent DAW Preview ${BUILD_ID}"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\SoundCurrentDAW-${BUILD_ID}"
 Name "${APP_TITLE}"
 OutFile "@INSTALLER@"

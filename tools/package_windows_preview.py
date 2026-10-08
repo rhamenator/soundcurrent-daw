@@ -87,6 +87,13 @@ def deploy_payload(archive, manifest, destination):
             p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
     return expected
 
+def qualified_dependencies(manifest):
+    trusted = read_json(ROOT/'research/windows-preview-dependencies.json')
+    require(trusted['qtSourceSha256']==QT_SOURCE and
+            trusted['sndfileSourceSha256']==SNDFILE_SOURCE, 'Dependency source anchor differs')
+    dependencies = {r['path']:r for r in manifest['files'] if r['path']!='soundcurrent-daw.exe'}
+    require(dependencies==trusted['files'], 'Unqualified dependency binary identity')
+
 def nsis_path(path):
     text = str(path.resolve())
     require(not any(c in text for c in '$"\r\n'), 'Unsupported NSIS source path')
@@ -143,6 +150,7 @@ def package(args):
     for p,sha in [(args.qt_source,QT_SOURCE),(args.sndfile_source,SNDFILE_SOURCE),(args.runtime,REDIST)]:
         require(digest(p)==sha, 'Pinned external source/runtime mismatch: '+p.name)
     manifest=read_json(args.deploy_manifest)
+    qualified_dependencies(manifest)
     row=next((r for r in manifest['files'] if r['path']=='soundcurrent-daw.exe'),{})
     require(row.get('sha256')==qualification['exeSha256'], 'Deployed main differs from qualified main')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)

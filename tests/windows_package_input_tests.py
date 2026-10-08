@@ -9,7 +9,8 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_windows_preview import deploy_payload
+from package_windows_preview import deploy_payload, qualified_dependencies
+import json
 
 
 def run():
@@ -70,6 +71,19 @@ def run():
                 if case != 'native-separators':
                     raise AssertionError('Unsafe deployment accepted: ' + case)
                 assert all((destination / n).read_bytes() == b for n, b in data.items())
+    trusted = json.loads((Path(__file__).resolve().parents[1] /
+                          'research/windows-preview-dependencies.json').read_text())
+    pinned = {'files': list(trusted['files'].values())}
+    qualified_dependencies(pinned)
+    wrong = deepcopy(pinned)
+    wrong['files'][0]['sha256'] = '0' * 64
+    try:
+        qualified_dependencies(wrong)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('Self-consistent wrong dependency identity accepted')
+    print('Pinned native dependencies: accepted qualified identities; refused replacement DLL')
     print('Windows deployment inputs: accepted native separators; refused 14 mutations')
 
 

@@ -1,0 +1,60 @@
+{
+  "format": "sc-qualified-windows-preview-dependencies-v1",
+  "qtVersion": "6.12.0",
+  "qtSourceSha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+  "sndfileVersion": "1.2.2",
+  "sndfileSourceSha256": "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121",
+  "scope": "Exact independently retained native MSVC SDK/deployment identities. Qt binary hashes checked against the retained open-source SDK; libsndfile identity retained in native SDK/deployment evidence. No arbitrary self-consistent replacement manifest is admitted. Updating this record requires a new native dependency review.",
+  "evidence": [
+    "docs/98-windows-desktop-foundation.md",
+    "tests/results/X007/2026-10-08-windows-desktop-foundation.json",
+    "docs/101-windows-installer-preparation.md"
+  ],
+  "files": {
+    "Qt6Core.dll": {
+      "path": "Qt6Core.dll",
+      "sha256": "39175459c4837c8cc0f709a637fb6eadb25d696785109c8393559ec876f02703",
+      "bytes": 10472760
+    },
+    "Qt6Gui.dll": {
+      "path": "Qt6Gui.dll",
+      "sha256": "37c79b48b9cc2d9a03d21410c26fea683d236f9280f5c9aaab85d980759f2835",
+      "bytes": 9683256
+    },
+    "Qt6Widgets.dll": {
+      "path": "Qt6Widgets.dll",
+      "sha256": "74138ca203c378a62367cc398e4dac07dec729b5a121486dbb26109854c17ae5",
+      "bytes": 6520120
+    },
+    "sndfile.dll": {
+      "path": "sndfile.dll",
+      "sha256": "cf55f672111a88e7b67bd0b769d3f40a99f41238949767ff1d0532ae0662057e",
+      "bytes": 482816
+    },
+    "imageformats/qgif.dll": {
+      "path": "imageformats/qgif.dll",
+      "sha256": "a1ea6be36c9aedbc54bf88bf391be85f1477d1d80f831f6eaf6a4d10fac8d027",
+      "bytes": 48440
+    },
+    "imageformats/qico.dll": {
+      "path": "imageformats/qico.dll",
+      "sha256": "964b39989a4a8dccd809c39b8e7d5813990aa31676d1d39b18aeea97336ddab7",
+      "bytes": 47416
+    },
+    "imageformats/qjpeg.dll": {
+      "path": "imageformats/qjpeg.dll",
+      "sha256": "9e67dc18c9f67141f5da20646b63a5ee4a57f8cfdad6b1b3c4c5f70e49ace065",
+      "bytes": 592696
+    },
+    "platforms/qwindows.dll": {
+      "path": "platforms/qwindows.dll",
+      "sha256": "12eef54bcdb6711b2722e9cef983d91a54546565a96b684d7bd9e2a7370fde92",
+      "bytes": 1001784
+    },
+    "styles/qmodernwindowsstyle.dll": {
+      "path": "styles/qmodernwindowsstyle.dll",
+      "sha256": "db5ef23d50d53fa66920baea1240a17dd47c6a6037dc72ee0288b07a3396b2c9",
+      "bytes": 241464
+    }
+  }
+}
