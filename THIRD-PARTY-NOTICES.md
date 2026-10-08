@@ -31,7 +31,7 @@ these rules do not themselves qualify a distribution package.
 - Windows: operating-system BCrypt and Win32 file APIs. No additional crypto DLL distributed. The current MinGW cross-build also uses its C++ runtime; runtime deployment/license notices must be audited before packaging.
 - C++ standard/compiler runtimes: system components for development; exact binary runtime dependencies require platform package inventory before release.
 
-The optional desktop target system-links **Qt6.10.2 Core/Gui/Widgets** in this development build; **Qt Test** is used only by its UI fixture. Module sources are not vendored; distribution module/transitive notices, exact open-license selection and corresponding source obligations remain package gates. Installed Qt-base copyright/license metadata is inventoried with the S6c evidence. The reusable core does not link Qt. JACK and plugin SDKs are not linked by the current root build. PipeWire is linked only by the optional Linux adapter/integration fixture, outside the framework-free core. Standard/Win32 thread APIs now also run the production disk supervisor. libsndfile transitive codecs linked by the Linux distribution library (FLAC/Vorbis/Opus/Ogg/mpg123/LAME, and compression/runtime libraries) require their exact package notices before distribution; the Windows minimal DLL imports only KERNEL32/msvcrt in this build, while embedded GSM/ALAC and compiler components retain separate source notices and still require complete package inventory. The isolated `experiments/` build has separate dependencies described in the [inventory](docs/03-dependencies.md). There is no installable DAW package yet.
+The optional desktop target system-links **Qt6.10.2 Core/Gui/Widgets** in this development build; **Qt Test** is used only by its UI fixture. Module sources are not vendored; distribution module/transitive notices, exact open-license selection and corresponding source obligations remain package gates. Installed Qt-base copyright/license metadata is inventoried with the S6c evidence. The reusable core does not link Qt. JACK and plugin SDKs are not linked by the current root build. PipeWire is linked only by the optional Linux adapter/integration fixture, outside the framework-free core. Standard/Win32 thread APIs now also run the production disk supervisor. libsndfile transitive codecs linked by the Linux distribution library (FLAC/Vorbis/Opus/Ogg/mpg123/LAME, and compression/runtime libraries) require their exact package notices before distribution; the Windows minimal DLL imports only KERNEL32/msvcrt in this build, while embedded GSM/ALAC and compiler components retain separate source notices and still require complete package inventory. The isolated `experiments/` build has separate dependencies described in the [inventory](docs/03-dependencies.md). Local preview package preparation and installed workflow evidence are tracked separately in docs/89-workflow-previews.md.
 
 ## Additive equalizer source review (2026-10-06)
 
@@ -53,3 +53,30 @@ Explicit context/source draft-word mappings and adapted runtime/tool behavior
 are described in [checkpoint 100](docs/100-localization-reuse-refresh.md).
 These draft words carry no independent native-language certification. Original
 DSP/equipment provenance remains unchanged; no proprietary assets are copied.
+
+## Windows MSVC preview deployment (2026-10-08)
+
+The bounded Windows installer preparation uses **QtBase 6.12.0** shared
+Core/Gui/Widgets plus Windows platform/style and GIF/ICO/JPEG plugins from the
+open-source MSVC x64 distribution. Qt Test is test-only. QtBase license texts and
+its supplied SPDX SBOM accompany the payload; the pinned complete QtBase source
+archive accompanies setup. Shared libraries remain replaceable. Qt's bundled
+third-party license texts are retained; final content/data-rights and complete
+platform release auditing remain separate gates.
+
+**libsndfile 1.2.2**, LGPL-2.1-or-later, is built as a shared x64 MSVC/UCRT DLL
+with external/MPEG codecs, programs, examples, tests and experimental features
+disabled. Its LGPL text, embedded ALAC/GSM notices and exact unmodified complete
+source archive accompany this preview. This describes the native MSVC preview,
+not the older MinGW DLL or the Linux distribution's codec set.
+
+The official **Microsoft Visual C++ x64 Redistributable 14.44.35211.0** comes
+unchanged from the licensed Build Tools installation. Its Microsoft signature
+was Valid. The independent Microsoft installer controls its license, installation
+and elevation; no developer CRT DLLs or SDK are copied into the app payload.
+Windows system libraries remain OS components.
+
+The generated Unicode installer uses **NSIS 3.10-2**. Its distribution copyright
+and license notices accompany setup. SoundCurrent's installer wrapper is unsigned.
+Source identity, SHA-256 pins and qualification boundaries are documented in
+[checkpoint 101](docs/101-windows-installer-preparation.md).

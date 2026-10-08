@@ -1,0 +1,184 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Generated fixed-file payload include; no recursive project deletion.
+Unicode true
+!include "MUI2.nsh"
+!include "x64.nsh"
+!include "WinVer.nsh"
+!include "WordFunc.nsh"
+!insertmacro VersionCompare
+!define BUILD_ID "@BUILD_ID@"
+!define APP_TITLE "SoundCurrent DAW Preview @SEQUENCE@"
+!define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\SoundCurrentDAW-${BUILD_ID}"
+Name "${APP_TITLE}"
+OutFile "@INSTALLER@"
+InstallDir "$LOCALAPPDATA\Programs\SoundCurrent DAW Preview\${BUILD_ID}"
+RequestExecutionLevel user
+SetCompressor /SOLID lzma
+!define MUI_ABORTWARNING
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE "@LICENSE@"
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_LANGUAGE "English"
+Var RuntimeReady
+
+Function .onInit
+  SetShellVarContext current
+  ${IfNot} ${IsNativeAMD64}
+    MessageBox MB_OK "This preview requires 64-bit Windows on an x64 processor."
+    SetErrorLevel 2
+    Abort
+  ${EndIf}
+  ${IfNot} ${AtLeastWin10}
+    MessageBox MB_OK "This preview requires Windows 11."
+    SetErrorLevel 2
+    Abort
+  ${EndIf}
+  SetRegView 64
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuildNumber"
+  ${If} $0 < 22000
+    MessageBox MB_OK "This preview requires Windows 11."
+    SetErrorLevel 2
+    Abort
+  ${EndIf}
+FunctionEnd
+
+# Read both registry views; shared-runtime installers can register either view.
+Function CheckRuntime
+  StrCpy $RuntimeReady 0
+  SetRegView 64
+  ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
+  ${If} $0 != 1
+    SetRegView 32
+    ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
+  ${EndIf}
+  ${If} $0 == 1
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Version"
+    StrCpy $1 $0 1
+    ${If} $1 == "v"
+      StrCpy $0 $0 "" 1
+    ${EndIf}
+    ${VersionCompare} $0 "14.44.35211.0" $1
+    ${If} $1 != 2
+      StrCpy $RuntimeReady 1
+    ${EndIf}
+  ${EndIf}
+  SetRegView 64
+FunctionEnd
+
+Function .onVerifyInstDir
+  # Every preview has a separate owned directory. Refuse nonempty unowned paths.
+  IfFileExists "$INSTDIR\preview.ini" owned
+  FindFirst $0 $1 "$INSTDIR\*"
+  ${DoWhile} $1 != ""
+    ${If} $1 != "."
+    ${AndIf} $1 != ".."
+      FindClose $0
+      SetErrorLevel 2
+      Abort
+    ${EndIf}
+    FindNext $0 $1
+  ${Loop}
+  FindClose $0
+  Return
+  owned:
+  ReadINIStr $0 "$INSTDIR\preview.ini" "Preview" "Build"
+  ${If} $0 != "${BUILD_ID}"
+    SetErrorLevel 2
+    Abort
+  ${EndIf}
+FunctionEnd
+
+Section "SoundCurrent DAW" SEC_APP
+  SetShellVarContext current
+  Call .onVerifyInstDir
+!include "@PREFLIGHT_INCLUDE@"
+  # A same-build reinstall is refused while the executable cannot be written.
+  IfFileExists "$INSTDIR\soundcurrent-daw.exe" 0 unlocked
+  System::Call 'kernel32::CreateFileW(w "$INSTDIR\soundcurrent-daw.exe", i 0x40000000, i 7, p 0, i 3, i 0, p 0) p.r0'
+  ${If} $0 == -1
+    MessageBox MB_OK "Close SoundCurrent DAW before reinstalling this preview."
+    SetErrorLevel 2
+    Abort
+  ${EndIf}
+  System::Call 'kernel32::CloseHandle(p r0)'
+  unlocked:
+  Call CheckRuntime
+  ${If} $RuntimeReady != 1
+    InitPluginsDir
+    SetOutPath "$PLUGINSDIR"
+    File /oname=vc_redist.x64.exe "@REDIST@"
+    ClearErrors
+    ExecShellWait "runas" "$PLUGINSDIR\vc_redist.x64.exe" "/install /passive /norestart" SW_SHOWNORMAL
+    IfErrors runtime_failed
+    Call CheckRuntime
+    ${If} $RuntimeReady != 1
+      runtime_failed:
+      MessageBox MB_OK "Microsoft's Visual C++ x64 runtime could not be installed. Run setup again after installing the runtime."
+      SetErrorLevel 2
+      Abort
+    ${EndIf}
+  ${EndIf}
+  SetOverwrite on
+  # Own partial files before extraction so a refused/aborted install is retryable.
+  SetOutPath "$INSTDIR"
+  ClearErrors
+  WriteINIStr "$INSTDIR\preview.ini" "Preview" "Build" "${BUILD_ID}"
+  WriteUninstaller "$INSTDIR\Uninstall.exe"
+  IfErrors payload_failed
+  ClearErrors
+!include "@PAYLOAD_INCLUDE@"
+  IfErrors payload_failed
+  SetOutPath "$INSTDIR"
+  CreateDirectory "$SMPROGRAMS\SoundCurrent DAW Preview"
+  CreateShortcut "$SMPROGRAMS\SoundCurrent DAW Preview\${APP_TITLE}.lnk" "$INSTDIR\soundcurrent-daw.exe"
+  CreateShortcut "$DESKTOP\${APP_TITLE}.lnk" "$INSTDIR\soundcurrent-daw.exe"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "${APP_TITLE}"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "0.1.0 preview @SEQUENCE@"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "SoundCurrent"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\soundcurrent-daw.exe"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" '$\"$INSTDIR\Uninstall.exe$\"'
+  WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoModify" 1
+  WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoRepair" 1
+  IfErrors payload_failed
+  Goto installed
+  payload_failed:
+  MessageBox MB_OK "Installation could not be completed. The partial preview folder is retained; your projects are preserved."
+  SetErrorLevel 2
+  Abort
+  installed:
+SectionEnd
+
+Section "Uninstall"
+  SetShellVarContext current
+  SetRegView 64
+  ReadINIStr $0 "$INSTDIR\preview.ini" "Preview" "Build"
+  ${If} $0 != "${BUILD_ID}"
+    SetErrorLevel 2
+    Abort
+  ${EndIf}
+!include "@PREFLIGHT_INCLUDE@"
+!include "@REMOVE_INCLUDE@"
+  Delete "$INSTDIR\preview.ini"
+  Delete "$INSTDIR\Uninstall.exe"
+  Delete "$SMPROGRAMS\SoundCurrent DAW Preview\${APP_TITLE}.lnk"
+  Delete "$DESKTOP\${APP_TITLE}.lnk"
+  RMDir "$SMPROGRAMS\SoundCurrent DAW Preview"
+  DeleteRegKey HKCU "${UNINSTALL_KEY}"
+  RMDir "$INSTDIR"
+  # A user-created project inside the folder stays, with its ownership marker
+  # so the same build can be reinstalled without adopting an unrelated directory.
+  IfFileExists "$INSTDIR\*" 0 removed
+  WriteINIStr "$INSTDIR\preview.ini" "Preview" "Build" "${BUILD_ID}"
+  removed:
+  Goto removal_complete
+  removal_failed:
+  MessageBox MB_OK "Some preview files could not be removed. Close applications using them and run Uninstall again. Your projects are preserved."
+  SetErrorLevel 2
+  Abort
+  removal_complete:
+SectionEnd

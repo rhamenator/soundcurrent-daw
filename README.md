@@ -178,8 +178,11 @@ git clone https://github.com/rhamenator/soundcurrent-daw.git
 Set-Location soundcurrent-daw
 ```
 
-Current Windows evidence is limited to core cross-compilation. On a Linux host
-with MinGW:
+Native MSVC/Qt Windows desktop and owned WASAPI workflows now have separate
+[acceptance evidence](docs/99-windows-desktop-workflow.md). A per-user Windows 11
+x64 installer and matching GPL/dependency sources are being prepared locally;
+[clean-installed acceptance](docs/101-windows-installer-preparation.md) is a separate gate.
+On a Linux host with MinGW:
 
 ```sh
 cmake -S . -B .cache/build-windows-core -G Ninja \

@@ -2,6 +2,10 @@
 
 ## Unreleased — development preview
 
+- Local Windows 11 x64 installer preparation with per-user preview slots, desktop
+  and Start-menu shortcuts, exact-file uninstall, signed Microsoft runtime setup
+  and paired GPL/dependency sources. Clean-installed workflows remain unqualified.
+
 - Native Windows desktop playback and single-track recording factories, stable
   device/channel route identities, project sample-rate selection and visible
   monitoring limits. An owned native GUI record/EQ/Undo/play/save/reopen/WAV workflow

@@ -1,0 +1,78 @@
+{
+  "scope": "Local Windows x64 installer preparation; no installer runtime/clean-install claim",
+  "prototypeCompiler": "NSIS 3.10-2 x86-unicode stub carrying x64 application/runtime",
+  "prototype": "Owned v2 compile passed; not released; metadata/payload template improved afterward",
+  "payloadInputTests": [
+    {
+      "case": "traversal",
+      "reason": "Unsafe payload path"
+    },
+    {
+      "case": "absolute",
+      "reason": "Unsafe payload path"
+    },
+    {
+      "case": "drive",
+      "reason": "Unsafe payload path"
+    },
+    {
+      "case": "normalized-duplicate",
+      "reason": "Deployment membership mismatch"
+    },
+    {
+      "case": "missing-file",
+      "reason": "Deployment membership mismatch"
+    },
+    {
+      "case": "hash",
+      "reason": "Deployment hash mismatch"
+    },
+    {
+      "case": "size",
+      "reason": "Deployment size mismatch"
+    },
+    {
+      "case": "oversize",
+      "reason": "Deployment bounds exceeded"
+    },
+    {
+      "case": "symlink",
+      "reason": "Deployment symlink refused"
+    },
+    {
+      "case": "developer-crt",
+      "reason": "Use official runtime installer, not developer CRT DLLs"
+    }
+  ],
+  "nativeMain": {
+    "exitCode": 0,
+    "scope": "Actual main executable normal empty-project launch and close with developer SDK PATH; no installer qualification",
+    "exeSha256": "7dab2d068a9c1a5f3e715167c839f172fb60eefdb39f2136211b1f831222b559",
+    "nativeAudioActivated": false,
+    "exeBytes": 2275328,
+    "sessionId": 1,
+    "title": "SoundCurrent DAW"
+  },
+  "nativeSourceInputsSha256": "cd4b5b71bb3a51990a3ab9b97b5949a6ef1b7599e22ba704099f4c04aea74c71",
+  "deployment": "Qt 6.12.0 Core/Gui/Widgets, Windows platform/style and GIF/ICO/JPEG plugins; matching MSVC/UCRT libsndfile 1.2.2; no developer CRT DLL copy",
+  "officialRuntime": {
+    "version": "14.44.35211.0",
+    "bytes": 25635768,
+    "sha256": "cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b",
+    "signatureStatus": "Valid",
+    "signer": "Microsoft Corporation"
+  },
+  "cleanClone": {
+    "name": "soundcurrent-daw-install-win11",
+    "source": "copperfin-clean-win11",
+    "virtualBytes": 128849018880,
+    "noBackingFile": true,
+    "qemuImgCheck": "No errors; no original/template writes",
+    "normalConsoleLogin": true,
+    "ssh": "Not configured/reachable on pristine-derived clone; use isolated test media rather than treating development VM as a clean install"
+  },
+  "installerExecuted": false,
+  "cleanInstallQualified": false,
+  "nativeAudioReplayed": false,
+  "releaseUploaded": false
+}
