@@ -113,6 +113,7 @@ def check_trace(report, trace, raw, waveform):
             audit['calls'] == owner['calls'] == len(owner['rows']), 'Audit/row scope mismatch')
     origin = report['timingOrigin']
     captured, declared_silence = 0, 0
+    previous_ns = None
     ready_started = False
     for index, row in enumerate(owner['rows']):
         require(row['clock_known'] and row['id'] == origin['clockId'] and
@@ -121,6 +122,16 @@ def check_trace(report, trace, raw, waveform):
                 row['rate_numerator'] == 1 and row['rate_denominator'] == 48000 and
                 row['flags'] == 0 and row['calls'] == 1 and len(row['queries']) == 1,
                 'Clock/route discontinuity')
+        nsec = row['nsec']
+        require(type(nsec) is int and 0 < nsec <= 0xffffffffffffffff and
+                (previous_ns is None or nsec > previous_ns), 'Invalid/backward callback timestamp')
+        expected_ns = origin['monotonicNs'] + captured * 1000000000 // 48000
+        # Public integer frame positions and nanosecond phase can differ by one
+        # sample at driver startup. Check the entire origin-relative span so
+        # a small per-cycle error cannot accumulate without detection.
+        require(abs(nsec - expected_ns) <= (1000000000 + 47999) // 48000,
+                'Callback timestamp differs from device sample rate')
+        previous_ns = nsec
         if index == 0:
             require(row['nsec'] == origin['monotonicNs'] and row['delay'] == origin['driverDelay'],
                     'Owner/observer origins differ')

@@ -4,6 +4,7 @@
 from pathlib import Path
 from array import array
 import copy
+import hashlib
 import json
 import tempfile
 import zipfile
@@ -21,8 +22,29 @@ def rejected(operation):
     raise AssertionError('Altered evidence accepted')
 
 
+def verify_capsule(archive, receipt):
+    metadata = json.loads(Path(receipt).read_text())
+    claim = metadata['archive']
+    if Path(archive).stat().st_size != claim['bytes']:
+        raise ValueError('Capsule size changed')
+    if hashlib.sha256(Path(archive).read_bytes()).hexdigest() != claim['sha256']:
+        raise ValueError('Capsule hash changed')
+    with zipfile.ZipFile(archive) as z:
+        names = z.namelist()
+        if len(names) != len(set(names)) or set(names) != set(metadata['entries']) or \
+                len(names) != claim['logical_entries']:
+            raise ValueError('Capsule manifest/member set changed')
+        if z.testzip() is not None:
+            raise ValueError('Capsule CRC failed')
+        for name, expected in metadata['entries'].items():
+            payload = z.read(name)
+            if len(payload) != expected['bytes'] or hashlib.sha256(payload).hexdigest() != expected['sha256']:
+                raise ValueError('Capsule payload changed: ' + name)
+
+
 def main():
     refused = 0
+    verify_capsule(CAPSULE, CAPSULE.with_suffix(".json"))
     with tempfile.TemporaryDirectory(prefix='sc-input-oracle-') as temp, zipfile.ZipFile(CAPSULE) as z:
         for label in ('direct', 'via-source', 'cmake-direct'):
             workspace = Path(temp) / label
@@ -62,6 +84,10 @@ def main():
                 lambda r, t: t['filters'][0]['rows'][1].update(id=123456789),
                 lambda r, t: t['filters'][0]['rows'][1].update(rate_denominator=44100),
                 lambda r, t: t['filters'][0]['rows'][1].update(flags=1),
+                lambda r, t: t['filters'][0]['rows'][1].update(nsec=-1),
+                lambda r, t: t['filters'][0]['rows'][1].update(nsec=t['filters'][0]['rows'][0]['nsec']),
+                lambda r, t: t['filters'][0]['rows'][1].update(nsec=t['filters'][0]['rows'][0]['nsec'] - 1),
+                lambda r, t: t['filters'][0]['rows'][1].update(nsec=t['filters'][0]['rows'][1]['nsec'] + 1000000),
                 lambda r, t: t['filters'][0]['rows'][1]['queries'][0].update(acquisition_status=0),
                 lambda r, t: t['filters'][0]['rows'][1]['queries'][0].update(acquisition_status=2),
                 lambda r, t: t['filters'][0]['rows'][1]['queries'][0].update(api_suppressed=True),
@@ -103,7 +129,26 @@ def main():
             receipt = dict(report); receipt['assetPath'] = '../outside.wav'
             (project / 'probe.json').write_text(json.dumps(receipt))
             rejected(lambda: verify(workspace)); refused += 1
-    print(f'Three relocated original observations pass; {refused} altered claims/media refused')
+    with tempfile.TemporaryDirectory(prefix='sc-input-capsule-') as temp:
+        temp = Path(temp)
+        claim = json.loads(CAPSULE.with_suffix('.json').read_text())
+        bad_receipt = temp / 'claim.json'
+        claim['entries']['runs/direct/probe']['sha256'] = '0' * 64
+        bad_receipt.write_text(json.dumps(claim))
+        rejected(lambda: verify_capsule(CAPSULE, bad_receipt)); refused += 1
+        claim = json.loads(CAPSULE.with_suffix('.json').read_text())
+        claim['entries']['runs/cmake-direct/compiled-source/src/eq.cpp']['sha256'] = '0' * 64
+        bad_receipt.write_text(json.dumps(claim))
+        rejected(lambda: verify_capsule(CAPSULE, bad_receipt)); refused += 1
+        claim = json.loads(CAPSULE.with_suffix('.json').read_text())
+        claim['archive']['bytes'] += 1
+        bad_receipt.write_text(json.dumps(claim))
+        rejected(lambda: verify_capsule(CAPSULE, bad_receipt)); refused += 1
+        claim = json.loads(CAPSULE.with_suffix('.json').read_text())
+        claim['archive']['sha256'] = '0' * 64
+        bad_receipt.write_text(json.dumps(claim))
+        rejected(lambda: verify_capsule(CAPSULE, bad_receipt)); refused += 1
+    print(f'Three relocated originals, all capsule payloads and timestamps pass; {refused} altered claims/media refused')
 
 
 if __name__ == '__main__':
