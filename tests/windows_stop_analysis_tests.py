@@ -76,4 +76,17 @@ with tempfile.TemporaryDirectory(prefix='sc-stop-analysis-') as directory:
         else: raise AssertionError('Accepted '+change)
         for p,data in files.items(): p.write_bytes(data)
         report = json.loads((root/'probe.json').read_text())
-print(json.dumps({'syntheticStopAnalysisCases':8,'nativeAudioReplayed':False}))
+    for cancel in (False,True):
+        root = parent/('scaled-cancel' if cancel else 'scaled-end'); root.mkdir()
+        report,capture = make(root,cancel)
+        data = bytearray(capture.read_bytes())
+        for offset in range(44,len(data),8):
+            value = struct.unpack_from('<f',data,offset)[0]
+            struct.pack_into('<f',data,offset,value*.5)
+        capture.write_bytes(data); report['captureSha256'] = hashlib.sha256(data).hexdigest()
+        (root/'probe.json').write_text(json.dumps(report))
+        r = analyze(root)
+        assert abs(r['measuredInteriorGain']-.5) < 1e-6 and r['directPathAlterationObserved']
+        assert r['maximumResidual'] > .01 and not r['capturedPrefixFidelityQualified']
+        assert not r['fullNonSilentEndQualified']
+print(json.dumps({'syntheticStopAnalysisCases':10,'nativeAudioReplayed':False}))

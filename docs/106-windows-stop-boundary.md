@@ -32,9 +32,13 @@ remain separate. Control code reads callback state after native threads join.
 The independent analyzer checks the float recipe, actual lease samples, channel
 silence, finite media, hashes, timing/queue progression and finalized observer
 journal. Interior alignment uses nonperiodic noise, not the possibly changed tail.
-It reports residuals and unobserved source frames separately. Eight synthetic
+It reports unity-gain residuals and unobserved source frames separately. Fitted
+gain assists alignment and diagnosis; it cannot normalize altered samples into
+fidelity. Qualification requires the original-sample residual tolerance and
+unity fitted gain within 1e-6. Ten synthetic
 cases detect altered Stop tails, truncated non-silent endings, poisoned media,
-changed leases and invalid timing/cursor metadata. These are diagnostic checks,
+changed leases, invalid timing/cursor metadata and uniformly scaled normal/Stop
+captures. These are diagnostic checks,
 not relaxed fidelity acceptance thresholds.
 
 ## Results

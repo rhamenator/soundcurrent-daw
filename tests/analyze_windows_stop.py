@@ -72,8 +72,13 @@ def analyze(root):
     require(end >= 32000 and all(abs(v) <= 5e-5 for v in right) and
             all(abs(v) <= 5e-5 for v in left[:offset]) and
             all(abs(v) <= 5e-5 for v in left[offset+end:]), 'Unexpected Stop observer signal')
-    residual = [abs(left[n+offset]-gain*mono[n]) for n in range(end)]
+    # Fitted gain is useful for alignment/diagnosis, not a license to normalize
+    # an altered capture into fidelity. Qualification compares original samples
+    # at unity gain, including a separate bound on uniform scaling.
+    residual = [abs(left[n+offset]-mono[n]) for n in range(end)]
     affected = [n for n,v in enumerate(residual) if v > 5e-5]
+    unity = abs(gain-1.) <= 1e-6
+    fidelity = unity and not affected
     blocks = []
     for first in range(max(0,end-960), end, 48):
         last = min(first+48,end); x = mono[first:last]; y = left[first+offset:last+offset]
@@ -86,11 +91,11 @@ def analyze(root):
             'fixtureOffsetFrames':offset,'nativeStartupFrames':startup,'measuredInteriorGain':gain,
             'matchedFrames':end,'contentSubmittedFrames':content,'captureFrames':len(left),
             'maximumResidual':max(residual),'beforeFinal960MaximumResidual':max(residual[:-960]),
-            'directPathAlterationObserved':bool(affected),'firstAffectedFrame':affected[0] if affected else None,
+            'directPathAlterationObserved':not fidelity,'firstAffectedFrame':affected[0] if affected else None,
             'lastAffectedFrame':affected[-1] if affected else None,'finalBlocks':blocks,
             'unobservedSubmittedSourceFrames':min(content,96000)-end,
-            'allSourceFramesObserved':end == 96000,'capturedPrefixFidelityQualified':not affected,
-            'fullNonSilentEndQualified':not cancel and end == 96000 and not affected,
+            'allSourceFramesObserved':end == 96000,'capturedPrefixFidelityQualified':fidelity,
+            'fullNonSilentEndQualified':not cancel and end == 96000 and fidelity,
             'physicalOrSustainedTimingQualified':False,'driverOrOsCauseIsolated':False}
 
 
