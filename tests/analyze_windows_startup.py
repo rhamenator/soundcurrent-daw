@@ -57,7 +57,9 @@ def analyze(root):
     journal = json.loads((capture.parent / 'journal.json').read_text())
     require(journal['phase'] == 'finalized' and journal['committedFrames'] == len(left) and
             journal['rejectedFrames'] == journal['observedInvalidInputSamples'] == 0 and
-            journal['timingOrigin']['backend'] == 4 and not (capture.parent / 'first-fault.json').exists(),
+            journal['timingOrigin']['backend'] == 4 and journal['timingDomain'] == 'engine-frames' and
+            journal['timingOrigin']['rateNumerator'] == 1 and journal['timingOrigin']['rateDenominator'] == 48000 and
+            not (capture.parent / 'first-fault.json').exists(),
             'Observer capture fault/origin differs')
     mono = source[::2]
     # Align using a nonperiodic interior segment, excluding the suspected startup.
