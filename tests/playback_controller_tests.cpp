@@ -38,7 +38,7 @@ void play(PlaybackController &controller, const std::shared_ptr<Counters> &count
 }
 void editsAndFailure() {
     auto c = std::make_shared<Counters>();
-    c->nativeTiming = NativeRenderTiming{100000,700000,480};
+    c->nativeTiming = NativeRenderTiming{100000,700000,480,480};
     PlaybackController controller(options(c));
     auto s = session();
     check(controller.submit(prepare(s)) == Admission::Accepted, "Preparation not admitted");

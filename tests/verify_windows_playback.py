@@ -128,7 +128,11 @@ def verify(project):
                 0 <= row['paddingFrames'] <= report['bufferFrames'], 'Timing/queue domains differ')
         sequence += row.get('nativeFrames',row['engineFrames']); engine_frames += row['engineFrames']
         previous_clock, previous_qpc = row['clockPosition'], row['qpc100ns']
-    require(engine_frames == report['engineFrames'] and sequence == report['submittedFrames'],
+    guard = report.get('endGuardSubmittedFrames',0)
+    if 'endGuardFrames' in report:
+        require(report['endGuardFrames'] in (0,startup) and
+                guard == (0 if report['cancel'] else report['endGuardFrames']), 'Native tail guard differs')
+    require(engine_frames == report['engineFrames'] and sequence+guard == report['submittedFrames'],
             'Final submitted/engine extent differs')
     if report['cancel']:
         require(report['status'] == 4 and not report['drained'] and 48000 <= engine_frames < 192000,

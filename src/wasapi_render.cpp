@@ -12,6 +12,7 @@ struct WasapiRenderStream::State {
     std::exception_ptr initializationError;
     std::atomic<unsigned> prepared{0}, failureReady{0}, drained{0};
     std::atomic<std::uint64_t> submitted{0}, emptyQueue{0};
+    std::atomic<std::uint32_t> guardSubmitted{0};
     WasapiStreamFailure firstFailure{};
     std::uint32_t frames = 0;
     NativeRenderTiming timing{};
@@ -81,7 +82,7 @@ struct WasapiRenderStream::State {
             REFERENCE_TIME period = 0, latency = 0;
             check(client->GetDevicePeriod(&period, nullptr), "Read playback device period");
             check(client->GetStreamLatency(&latency), "Read playback stream latency");
-            timing = prepareNativeRenderTiming(options.sampleRate, period, latency, frames, options.startup);
+            timing = prepareNativeRenderTiming(options.sampleRate, period, latency, frames, options.startup, options.end);
             check(client->SetEventHandle(audio.value), "Set playback notification");
             Com<IAudioRenderClient> render;
             check(client->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(render.out())),
@@ -98,6 +99,7 @@ struct WasapiRenderStream::State {
             if (WaitForMultipleObjects(2, initial, FALSE, INFINITE) != WAIT_OBJECT_0 + 1) return;
             bool finishing = false, began = false, end = false, normal = false;
             std::uint64_t sequence = 0;
+            std::uint32_t guardRemaining = 0;
             HANDLE events[]{stop.value, audio.value};
             // Prime before Start. No processing while prepared/inactive.
             while (!end) {
@@ -105,7 +107,22 @@ struct WasapiRenderStream::State {
                 auto hr = client->GetCurrentPadding(&padding);
                 if (FAILED(hr) || padding > frames) { fail(FAILED(hr) ? hr : E_INVALIDARG, 5); break; }
                 if (began && !padding && !finishing) emptyQueue.fetch_add(1, std::memory_order_relaxed);
-                if (finishing && !padding) { normal = true; break; }
+                if (finishing && !padding && !guardRemaining) { normal = true; break; }
+                if (finishing && guardRemaining && padding < frames) {
+                    if (WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
+                    const auto count = std::min(frames - padding, guardRemaining);
+                    if (sequence > UINT64_MAX - count) { fail(E_INVALIDARG, 6); break; }
+                    BYTE *silence = nullptr;
+                    hr = render->GetBuffer(count, &silence);
+                    if (FAILED(hr)) { fail(hr, 2); break; }
+                    hr = render->ReleaseBuffer(count, AUDCLNT_BUFFERFLAGS_SILENT);
+                    if (FAILED(hr)) { fail(hr, 3); break; }
+                    // Native-only post-roll. No source/DSP callback, parameter
+                    // receipt or project position advances through this lease.
+                    guardRemaining -= count; sequence += count;
+                    guardSubmitted.store(timing.endGuardFrames - guardRemaining, std::memory_order_release);
+                    submitted.store(sequence, std::memory_order_release);
+                }
                 if (!finishing) {
                     auto available = frames - padding;
                     if (!sequence && timing.startupFrames) {
@@ -144,7 +161,9 @@ struct WasapiRenderStream::State {
                         if (action == WasapiRenderAction::Abort) { end = true; break; }
                         sequence += count; submitted.store(sequence, std::memory_order_release);
                         available -= count; padding += count;
-                        if (action == WasapiRenderAction::Finish) { finishing = true; break; }
+                        if (action == WasapiRenderAction::Finish) {
+                            finishing = true; guardRemaining = timing.endGuardFrames; break;
+                        }
                     }
                 }
                 if (end) break;
@@ -190,6 +209,7 @@ void WasapiRenderStream::activate() {
 void WasapiRenderStream::stop() noexcept { state_->join(); }
 bool WasapiRenderStream::drained() const noexcept { return state_->drained.load(std::memory_order_acquire); }
 std::uint64_t WasapiRenderStream::submittedFrames() const noexcept { return state_->submitted.load(std::memory_order_acquire); }
+std::uint32_t WasapiRenderStream::endGuardSubmittedFrames() const noexcept { return state_->guardSubmitted.load(std::memory_order_acquire); }
 std::uint64_t WasapiRenderStream::emptyQueueObservations() const noexcept { return state_->emptyQueue.load(std::memory_order_relaxed); }
 std::uint32_t WasapiRenderStream::bufferFrames() const noexcept { return state_->frames; }
 NativeRenderTiming WasapiRenderStream::timing() const noexcept { return state_->timing; }

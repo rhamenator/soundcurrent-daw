@@ -7,9 +7,12 @@ struct WasapiRenderOptions {
     std::string endpointId;
     std::uint32_t sampleRate = 48000, channels = 2, maximumFrames = 2048;
     NativeRenderStartup startup = NativeRenderStartup::DevicePeriod;
+    NativeRenderEnd end = NativeRenderEnd::DevicePeriod;
 };
 // Separate timing domains. submittedFrames is a queue sequence, NOT an audible
-// device position. It includes startup silence; contentSubmittedFrames does not.
+// device position. It includes startup/end-guard silence; contentSubmittedFrames
+// describes callback leases only, including certified end slack. No callback
+// runs for guard leases. Actual project frames are reported by the engine.
 // clockPosition / clockFrequency is the SDK stream clock in
 // seconds; qpc100ns timestamps that reading. Padding is a separate snapshot.
 struct WasapiRenderClock {
@@ -37,6 +40,9 @@ class WasapiRenderStream {
     void stop() noexcept; // Join before retiring callback state/banks.
     bool drained() const noexcept; // SDK queue drained and client stopped normally.
     std::uint64_t submittedFrames() const noexcept;
+    // Successfully committed native-only tail frames. For exact paired extent
+    // accounting, read after stop/join or drained(), not across a running fill.
+    std::uint32_t endGuardSubmittedFrames() const noexcept;
     std::uint64_t emptyQueueObservations() const noexcept; // Diagnostic, not xrun proof.
     std::uint32_t bufferFrames() const noexcept;
     NativeRenderTiming timing() const noexcept; // Immutable after preparation.

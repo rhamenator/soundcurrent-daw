@@ -267,6 +267,7 @@ int run(const QStringList &args) {
         {"playbackCallbacks",playback.calls.load()},{"observerCallbacks",sink.calls.load()},
         {"installerQualified",false},{"physicalOrSustainedTimingQualified",false}};
     report["nativeStartupFrames"] = playbackFinal.nativeTiming->startupFrames;
+    report["nativeEndGuardFrames"] = playbackFinal.nativeTiming->endGuardFrames;
     report["devicePeriod100ns"] = playbackFinal.nativeTiming->devicePeriod100ns;
     report["streamLatency100ns"] = playbackFinal.nativeTiming->streamLatency100ns;
     report["nonSilentPlaybackStartRequired"] = true;

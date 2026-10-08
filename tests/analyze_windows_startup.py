@@ -51,6 +51,10 @@ def analyze(root):
                 0 <= startup <= report['bufferFrames'] and
                 (not startup or report['silentLeadFrames'] == 0), 'Native startup timing admission differs')
     sequence = startup; content = clock = qpc = 0
+    guard = report.get('endGuardSubmittedFrames',0)
+    if 'endGuardFrames' in report:
+        require(guard == report['endGuardFrames'] and guard in
+                (0,(report['devicePeriod100ns']*48000+9999999)//10000000), 'Startup probe end guard differs')
     rows = report['observations']
     require(0 < len(rows) <= 256 and 0 < report['bufferFrames'] <= 32768, 'Unbounded native observations')
     for row in rows:
@@ -60,7 +64,7 @@ def analyze(root):
                 row['clockFrequency'] > 0 and row['clockPosition'] >= clock and row['qpc100ns'] >= qpc and
                 0 <= row['paddingFrames'] <= report['bufferFrames'], 'Native queue/clock sequence differs')
         sequence += row['frames']; content += row['frames']; clock = row['clockPosition']; qpc = row['qpc100ns']
-    require(sequence == report['submittedFrames'] and 96000 <= content <= 98047, 'Submitted extent differs')
+    require(sequence+guard == report['submittedFrames'] and 96000 <= content <= 98047, 'Submitted extent differs')
     capture = path(root / 'loopback', report['capturePath'])
     require(hashlib.sha256(capture.read_bytes()).hexdigest() == report['captureSha256'], 'Capture identity differs')
     left, right = stereo_wav(capture)
@@ -115,6 +119,7 @@ def analyze(root):
                        'streamLatency100ns': latency, 'projectSourceStartsAtNativeFrame': startup,
                        'sourceFrameZeroPreserved': not affected and report['silentLeadFrames'] == 0})
     if 'sourceKind' in report: result['sourceKind'] = kind
+    if 'endGuardSubmittedFrames' in report: result['nativeEndGuardFrames'] = guard
     return result
 
 

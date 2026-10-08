@@ -145,6 +145,9 @@ def verify(root):
     require(best and .05 <= best[2] <= 1.1 and best[0] <= 5e-5,
             'Native GUI playback did not match live EQ/Undo')
     error,delay,gain,begin,end = best
+    if 'nativeEndGuardFrames' in report:
+        require(report['nativeEndGuardFrames'] == report['nativeStartupFrames'] and
+                begin == 0 and end == len(expected), 'Guarded desktop source range not fully observed')
     require(all(abs(v*gain) <= 5e-5 for v in expected[:begin]) and
             all(abs(v*gain) <= 5e-5 for v in expected[end:]) and
             all(abs(v) <= 5e-5 for v in left[:begin+delay]) and

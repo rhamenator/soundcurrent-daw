@@ -174,6 +174,8 @@ int run(const std::vector<std::filesystem::path> &args) {
     report["startupFrames"] = playback.timing()->startupFrames;
     report["devicePeriod100ns"] = playback.timing()->devicePeriod100ns;
     report["streamLatency100ns"] = playback.timing()->streamLatency100ns;
+    report["endGuardFrames"] = playback.timing()->endGuardFrames;
+    report["endGuardSubmittedFrames"] = playback.endGuardSubmittedFrames();
     if (auto f = playback.failure()) report["nativePlaybackFailure"]={{"hresult",f->hresult},{"operation",f->operation}};
     if (auto f = capture.failure()) report["nativeCaptureFailure"]={{"hresult",f->hresult},{"operation",f->operation}};
     std::ofstream out(root / "probe.json"); out << report.dump(2) << '\n'; require(bool(out), "Cannot retain native report");

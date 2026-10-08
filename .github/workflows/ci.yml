@@ -70,6 +70,10 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin df9611d3a0b57ba0848a7839def3770e41f54064
           python3 tools/verify_windows_stop_boundary.py
+      - name: Verify retained Windows end guard (no native audio replay)
+        run: |
+          git fetch --no-tags --depth=1 origin 87a74cb196b4ccd746e5d237e73e13d574598129
+          python3 tools/verify_windows_end_guard.py
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

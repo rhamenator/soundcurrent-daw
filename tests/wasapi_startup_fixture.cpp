@@ -40,11 +40,13 @@ struct Sink : Audit {
 struct Source : Audit {
     std::vector<float> samples, submitted;
     std::uint32_t cursor = 0, packets = 0;
+    std::uint32_t rangeFrames = sourceFrames;
     bool overflow = false, fault = false;
     struct Row { WasapiRenderClock clock; std::uint32_t frames; };
     std::array<Row, 256> rows{};
-    explicit Source(std::uint32_t lead, bool impulse = false, bool nonSilentEnd = false)
-        : samples(sourceFrames * 2), submitted(sourceFrames * 2) {
+    explicit Source(std::uint32_t lead, bool impulse = false, bool nonSilentEnd = false,
+                    std::uint32_t range = sourceFrames)
+        : samples(sourceFrames * 2), submitted(sourceFrames * 2), rangeFrames(range) {
         std::uint32_t seed = 0x1a2b3c4d;
         for (std::uint32_t n = 0; n < sourceFrames; ++n) {
             seed = seed * 1664525u + 1013904223u;
@@ -57,18 +59,18 @@ struct Source : Audit {
                                   const WasapiRenderClock &clock) noexcept {
         auto &s = *static_cast<Source *>(p); s.begin();
         if (s.packets >= s.rows.size() || clock.contentSubmittedFrames != s.cursor ||
-            !count || count > 2048 || s.cursor >= sourceFrames) {
+            !count || count > 2048 || s.cursor >= s.rangeFrames) {
             s.overflow = true; s.end(); return WasapiRenderAction::Abort;
         }
         s.rows[s.packets++] = {clock, count};
-        const auto used = std::min(count, sourceFrames - s.cursor);
+        const auto used = std::min(count, s.rangeFrames - s.cursor);
         std::copy_n(s.samples.data() + std::size_t(s.cursor) * 2, used * 2, out);
         std::fill_n(out + used * 2, (count - used) * 2, 0.f);
         // Retain the actual SDK lease contents, not just the source intent.
         std::copy_n(out, used * 2, s.submitted.data() + std::size_t(s.cursor) * 2);
         s.cursor += count;
         s.end();
-        return s.cursor >= sourceFrames ? WasapiRenderAction::Finish : WasapiRenderAction::Continue;
+        return s.cursor >= s.rangeFrames ? WasapiRenderAction::Finish : WasapiRenderAction::Continue;
     }
     static void unavailable(void *p, std::int32_t) noexcept { static_cast<Source *>(p)->fault = true; }
 };
@@ -80,8 +82,10 @@ void retain(const std::filesystem::path &p, const std::vector<float> &values) {
 int run(const std::vector<std::filesystem::path> &args) {
     require(args.size() == 4 && (args[3] == "immediate" || args[3] == "silent-lead" ||
             args[3] == "device-period" || args[3] == "impulse" || args[3] == "cancel-prepared" ||
-            args[3] == "cancel-active" || args[3] == "non-silent-end"),
-            "Supply NEW_ROOT explicit owned stereo endpoint ID immediate|silent-lead|device-period|impulse|cancel-prepared|cancel-active|non-silent-end");
+            args[3] == "cancel-active" || args[3] == "non-silent-end" ||
+            args[3] == "non-silent-end-immediate" || args[3] == "one-frame-end" || args[3] == "short-end" ||
+            args[3] == "cancel-guard"),
+            "Supply NEW_ROOT explicit owned stereo endpoint ID and direct diagnostic mode");
     const auto encoded = args[2].u8string(); const std::string id(encoded.begin(), encoded.end());
     const auto endpoints = wasapiEndpoints();
     const auto e = std::find_if(endpoints.begin(), endpoints.end(), [&](const auto &e) { return e.id == id; });
@@ -91,15 +95,19 @@ int run(const std::vector<std::filesystem::path> &args) {
     const auto root = args[1]; require(std::filesystem::create_directory(root), "New result root required");
     const std::uint32_t lead = args[3] == "silent-lead" ? 12000 : 0;
     const bool cancelActive = args[3] == "cancel-active";
-    const bool nonSilentEnd = args[3] == "non-silent-end";
-    Source source(lead, args[3] == "impulse", nonSilentEnd);
+    const bool cancelGuard = args[3] == "cancel-guard";
+    const bool endImmediate = args[3] == "non-silent-end-immediate";
+    const bool nonSilentEnd = args[3] == "non-silent-end" || endImmediate ||
+                             args[3] == "one-frame-end" || args[3] == "short-end" || cancelGuard;
+    const std::uint32_t range = args[3] == "one-frame-end" ? 1 : args[3] == "short-end" ? 31 : sourceFrames;
+    Source source(lead, args[3] == "impulse", nonSilentEnd, range);
     if (args[3] == "cancel-prepared") {
         WasapiRenderStream render({id,48000,2,2048}, {&source,Source::fill,Source::unavailable});
         require(!source.calls && !render.submittedFrames() && !render.drained(), "Prepared stream processed content");
         const auto timing = render.timing(); render.stop(); render.stop();
         bool refused = false;
         try { render.activate(); } catch (const ProjectError &) { refused = true; }
-        require(refused && !source.calls && !render.submittedFrames() && !render.drained() &&
+        require(refused && !source.calls && !render.submittedFrames() && !render.endGuardSubmittedFrames() && !render.drained() &&
                 !render.failure() && defaults == wasapiDefaultEndpoints(), "Prepared cancellation activated or completed audio");
         json report{{"format","sc-wasapi-prepared-cancel"},{"nativeSdkAccepted",true},
             {"startupFrames",timing.startupFrames},{"devicePeriod100ns",timing.devicePeriod100ns},
@@ -119,13 +127,15 @@ int run(const std::vector<std::filesystem::path> &args) {
     spec.capture = pipe.config(); RecordingWorker worker(pipe, root / "loopback", spec);
     WasapiRenderStream render({id, 48000, 2, 2048,
         args[3] == "device-period" || args[3] == "impulse" || cancelActive || nonSilentEnd ?
-            NativeRenderStartup::DevicePeriod : NativeRenderStartup::Immediate},
+            NativeRenderStartup::DevicePeriod : NativeRenderStartup::Immediate,
+        endImmediate ? NativeRenderEnd::Immediate : NativeRenderEnd::DevicePeriod},
         {&source, Source::fill, Source::unavailable});
     require(!source.calls && !sink.calls, "Prepared stream activated processing");
     tap.activate(); render.activate();
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
     const auto startup = render.timing().startupFrames;
     while (!(cancelActive && render.submittedFrames() >= startup + 48000) &&
+           !(cancelGuard && render.endGuardSubmittedFrames() > 0) &&
            !render.drained() && !render.failure() && !bridge.firstFault() &&
            std::chrono::steady_clock::now() < deadline)
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -143,15 +153,19 @@ int run(const std::vector<std::filesystem::path> &args) {
             {"clockPosition", r.clock.clockPosition}, {"clockFrequency", r.clock.clockFrequency},
             {"qpc100ns", r.clock.qpc100ns}, {"paddingFrames", r.clock.paddingFrames}});
     }
-    const auto contentSubmitted = render.submittedFrames() - startup;
-    const bool sourceCommitted = cancelActive ? contentSubmitted >= 48000 && contentSubmitted < sourceFrames &&
-        source.cursor == contentSubmitted &&
-        std::equal(source.samples.begin(), source.samples.begin() + std::size_t(contentSubmitted) * 2,
+    const auto guardSubmitted = render.endGuardSubmittedFrames();
+    const auto contentSubmitted = render.submittedFrames() - startup - guardSubmitted;
+    const auto copied = std::min<std::uint64_t>(contentSubmitted,range);
+    const bool copiedSource = std::equal(source.samples.begin(), source.samples.begin() + std::size_t(copied) * 2,
                    source.submitted.begin()) &&
-        std::all_of(source.submitted.begin() + std::size_t(contentSubmitted) * 2, source.submitted.end(),
-                    [](float value) { return value == 0.f; }) :
-        source.cursor >= sourceFrames && source.submitted == source.samples;
-    const bool accepted = (cancelActive ? !render.drained() : render.drained()) &&
+        std::all_of(source.submitted.begin() + std::size_t(copied) * 2, source.submitted.end(),
+                    [](float value) { return value == 0.f; });
+    const bool sourceCommitted = cancelActive ? contentSubmitted >= 48000 && contentSubmitted < sourceFrames &&
+        source.cursor == contentSubmitted && copiedSource && !guardSubmitted :
+        source.cursor >= range && source.cursor == contentSubmitted && copiedSource &&
+        (cancelGuard ? guardSubmitted > 0 && guardSubmitted <= render.timing().endGuardFrames :
+                       guardSubmitted == render.timing().endGuardFrames);
+    const bool accepted = (cancelActive || cancelGuard ? !render.drained() : render.drained()) &&
         !render.failure() && !tap.failure() && !bridge.firstFault() &&
         !source.overflow && !source.fault && sourceCommitted &&
         !source.allocations && !source.frees && !sink.allocations && !sink.frees &&
@@ -159,8 +173,10 @@ int run(const std::vector<std::filesystem::path> &args) {
     json report{{"format", "sc-wasapi-direct-startup-probe"}, {"nativeSdkAccepted", accepted},
         {"silentLeadFrames", lead}, {"sourceFrames", sourceFrames}, {"rate", 48000},
         {"sourceKind",args[3] == "impulse" ? "impulse" : "noise"},
-        {"mode",cancelActive ? "cancel-active" : nonSilentEnd ? "non-silent-end" : "normal"},
+        {"mode",cancelActive ? "cancel-active" : cancelGuard ? "cancel-guard" : nonSilentEnd ? "non-silent-end" : "normal"},
         {"sourceCursor",source.cursor},{"contentSubmittedFrames",contentSubmitted},
+        {"sourceRangeFrames",range},{"endGuardFrames",render.timing().endGuardFrames},
+        {"endGuardSubmittedFrames",guardSubmitted},
         {"stopRequestedAtMinimumContentFrame",cancelActive ? 48000 : 0},
         {"capturePath", captured.asset.relativePath}, {"captureSha256", captured.asset.sha256},
         {"captureFrames", captured.asset.frames}, {"submittedFrames", render.submittedFrames()},
