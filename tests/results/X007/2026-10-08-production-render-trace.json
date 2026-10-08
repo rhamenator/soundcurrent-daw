@@ -11,8 +11,8 @@
     "src/wasapi_render_trace.cpp": "d6aff43f8860a147d51d214dfa255ca74034392cc060a9d439b79cc70f3b3e4d",
     "tests/wasapi_playback_fixture.cpp": "a62987f011b7e0723c0470493a7b0affc3a71b124dac448ea16cea879ebde617",
     "tests/wasapi_render_trace_tests.cpp": "565120d3cdd81be46b2bc6c3b37dddb688e01b56e489cc1aab2b7c27d2a41897",
-    "tests/analyze_windows_render_trace.py": "f8c50c6a3229add5b5df7bcb0559aed472ce8bc5fd521dad9ea31ed123892d76",
-    "tests/windows_render_trace_analysis_tests.py": "2e937a2417c154005b20e85a267b501aec7d39bac0575c55506c621fa14b6c74"
+    "tests/analyze_windows_render_trace.py": "50a5424142c39836b37416cd40f02f700cf25fd1468686815b927d140c0b0a06",
+    "tests/windows_render_trace_analysis_tests.py": "c9e6a86e2a1e39dd811b12f6946460135699f40f1d8b7ae6cd0dbf4514a82fc9"
   },
   "localRelease": {
     "actualExitCode": 0,
@@ -44,5 +44,13 @@
     ],
     "fixtureSha256": "7e9ab3e0901f312f6c0f631b34069c836a5213d5d66dbe24068a7d32725b32ea",
     "unitBinarySha256": "fcde4c15d87c2156d20307a1d51c1fb6996537150b87d1ed68115e55b823fc80"
+  },
+  "observerAlignmentReviewRegression": {
+    "oldSourceCommit": "7fe82ec49d197319bf4e92e2a4bd75d18eba68d0",
+    "oldAcceptedCorrectAlignment": false,
+    "oldObservedOffset": 1520,
+    "actualExpectedOffset": 4864,
+    "newSyntheticFidelityAccepted": true,
+    "usesAdmittedTimingBound": true
   }
 }

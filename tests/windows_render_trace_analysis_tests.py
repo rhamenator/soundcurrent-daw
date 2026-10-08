@@ -74,14 +74,20 @@ with tempfile.TemporaryDirectory(prefix='sc-render-trace-') as directory:
     write(report,stereo[:22528*2]); result,_=analyze_trace(root,expected)
     assert result['acquireFailures']==1 and result['releaseFailures']==0
     left=array('f',[0.]*100); left.extend(expected); right=array('f',[0.]*len(left))
-    result=compare_observer(expected,left,right)
+    result=compare_observer(expected,left,right,480+4800)
     assert result['observerComparedLeaseFidelity'] and result['fullCommittedExtentObserved']
     fade=array('f',left)
     for n in range(480): fade[-480+n]*=(480-n)/480
-    assert not compare_observer(expected,fade,right)['observerComparedLeaseFidelity']
+    assert not compare_observer(expected,fade,right,480+4800)['observerComparedLeaseFidelity']
     scaled=array('f',(v*.5 for v in left))
-    assert not compare_observer(expected,scaled,right)['observerComparedLeaseFidelity']
-    missing=compare_observer(expected,left[:-100],right[:-100])
+    assert not compare_observer(expected,scaled,right,480+4800)['observerComparedLeaseFidelity']
+    missing=compare_observer(expected,left[:-100],right[:-100],480+4800)
     assert missing['observerComparedLeaseFidelity'] and not missing['fullCommittedExtentObserved']
     assert missing['unobservedCommittedFrames']==100
+    # An admitted 100 ms startup interval exceeds the 2,048-frame DSP block.
+    late=array('f',[0.]*(4800+64)); late.extend(expected)
+    late_right=array('f',[0.]*len(late))
+    delayed=compare_observer(expected,late,late_right,4800+4800)
+    assert delayed['fixtureOffsetFrames']==4864 and delayed['observerComparedLeaseFidelity']
+    assert delayed['fullCommittedExtentObserved']
 print('Render trace analyzer: sample alteration, metadata refusals, failed release/acquire, abort, unity Stop tail and missing extent passed (synthetic only)')

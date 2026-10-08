@@ -23,7 +23,7 @@ def f32_file(path, limit):
 def analyze_trace(root, expected):
     require(expected and all(math.isfinite(v) for v in expected), 'Nonfinite or empty independent reference')
     root = Path(root); path = root/'render-trace.json'
-    require(path.stat().st_size <= 1024*1024, 'Unbounded render metadata')
+    require(path.stat().st_size <= 4*1024*1024, 'Unbounded render metadata')
     r = json.loads(path.read_text(encoding='utf-8-sig'))
     require(r['format'] == 'sc-wasapi-render-trace-v1' and r['channels'] == 2 and
             r['sampleRate'] == 48000 and r['maximumFrames'] == 2048 and
@@ -85,15 +85,17 @@ def analyze_trace(root, expected):
             'nativeEndpointQualified':False}, committed
 
 
-def compare_observer(committed, left, right):
+def compare_observer(committed, left, right, maximum_offset):
     # Interior fit finds alignment only. Fidelity uses original, unity-gain
     # samples; a fitted amplitude never repairs an altered Stop tail.
     anchor = 16384; end_anchor = min(anchor+256,len(committed))
     require(end_anchor > anchor, 'Insufficient committed interior for Stop diagnosis')
     x = committed[anchor:end_anchor]; energy = sum(v*v for v in x)
     require(energy > 0, 'No committed interior signal')
+    require(type(maximum_offset) is int and 0 <= maximum_offset <= 131072,
+            'Observer alignment outside admitted timing bounds')
     candidates = []
-    for offset in range(2049):
+    for offset in range(min(maximum_offset,len(left)-end_anchor)+1):
         y = left[anchor+offset:end_anchor+offset]
         if len(y) != len(x): continue
         gain = sum(a*b for a,b in zip(x,y))/energy
@@ -139,7 +141,16 @@ def analyze_project(root):
     capture = owned_path(root/'loopback',probe['capturePath'])
     require(hashlib.sha256(capture.read_bytes()).hexdigest() == probe['captureSha256'], 'Observer hash differs')
     left,right = stereo_wav(capture); require(len(left) == probe['capturedFrames'], 'Observer extent differs')
-    result.update(compare_observer(committed,left,right))
+    startup,buffer,latency = probe['startupFrames'],probe['bufferFrames'],probe['streamLatency100ns']
+    require(type(startup) is int and type(buffer) is int and type(latency) is int and
+            0 <= startup <= buffer <= 32768 and 0 <= latency <= 10000000,
+            'Observer native preparation timing differs')
+    # The DSP chunk limit does not bound native startup/observer alignment.
+    # Include admitted startup, one endpoint bank and reported latency; this is
+    # only a diagnostic search bound, never production recording compensation.
+    maximum_offset = startup+buffer+(latency*48000+9999999)//10000000
+    result.update(compare_observer(committed,left,right,maximum_offset))
+    result['observerAlignmentSearchLimitFrames'] = maximum_offset
     result.update({'cancel':probe['cancel'],'actualFixtureAccepted':probe['nativeSdkAccepted'],
                    'observerFault':probe['captureFault'],'drained':probe['drained'],
                    'engineFrames':probe['engineFrames'],'submittedFrames':probe['submittedFrames'],

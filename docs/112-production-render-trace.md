@@ -53,6 +53,12 @@ committed actual lease samples. Interior fitting finds alignment only; original
 unity-gain residuals decide fidelity. A missing queued extent and an altered
 observed tail are reported separately. It never promotes endpoint or full playback
 qualification from a diagnostic pass.
+Review identified that an alignment search limited by the DSP chunk size could
+reject a valid longer-startup endpoint. The search now uses admitted startup,
+buffer capacity and reported latency, capped by available observation extent.
+The old analyzer rejects a valid 4,864-frame offset; the added regression accepts
+that unchanged observer at the correct offset. This is a diagnostic bound, not
+production recording compensation or a physical latency claim.
 
 The SDK-free C++ tests verify owned backing after simulated release poisoning,
 float headroom, raw errors/timing, zero-copy Abort, loss, mismatched preparation,
