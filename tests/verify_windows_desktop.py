@@ -67,6 +67,12 @@ def verify(root):
             'Native desktop media identity differs')
     raw, exported = float_wav(raw_path), float_wav(export_path)
     left, right = stereo_wav(tap_path)
+    # max()/sum() cannot serve as finiteness checks: a later NaN can leave an
+    # earlier finite maximum unchanged. Refuse every channel before reductions.
+    for name, samples in (('raw', raw), ('export', exported),
+                          ('playback-left', left), ('playback-right', right)):
+        require(all(math.isfinite(v) for v in samples),
+                'Non-finite native '+name+' sample')
     require(len(raw) == len(exported) == asset['frames'] == report['frames'] == 480000 and
             len(left) == report['captureFrames'] and 470000 <= len(left) <= 500000,
             'Native desktop extent differs')
@@ -115,10 +121,12 @@ def verify(root):
                 24000 <= e[0]['frame'] < 96000 <= e[1]['frame'] < 240000 and
                 0 < e[0]['revision'] < e[1]['revision'], 'Wrong live edit/Undo receipts')
     static = engine(raw,bands[0],[])
+    require(all(math.isfinite(v) for v in static), 'Non-finite static EQ oracle')
     export_error = max(abs(a-b) for a,b in zip(static,exported))
     require(export_error <= 1e-7 and max(abs(a-b) for a,b in zip(raw,exported)) > .0001,
             'Reopened EQ export differs or bypassed processing')
     expected = engine(raw,bands[0],report['playbackEvents'])
+    require(all(math.isfinite(v) for v in expected), 'Non-finite live EQ oracle')
     marker = next(n for n,v in enumerate(left) if abs(v) > .0001)
     expected_marker = next(n for n,v in enumerate(expected) if abs(v) > .0001)
     best = None

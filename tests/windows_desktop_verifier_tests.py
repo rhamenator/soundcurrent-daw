@@ -45,7 +45,7 @@ with tempfile.TemporaryDirectory(prefix='sc-native-desktop-evidence-') as tempor
             observation['after480MaximumResidual'] == 0 and not observation['causeIsolated'],
             'Original startup discrepancy was suppressed/promoted')
     refused = 0
-    for case in range(9):
+    for case in range(21):
         q = base/('mutation-'+str(case))
         shutil.copytree(project,q)
         probe = json.loads((q/'probe.json').read_text(encoding='utf-8'))
@@ -70,11 +70,31 @@ with tempfile.TemporaryDirectory(prefix='sc-native-desktop-evidence-') as tempor
             data['timingOrigin']['backend'] = 1; p.write_text(json.dumps(data))
         if case == 7: probe['exportPath'] = 'C:\\Users\\outside.wav'
         if case == 8: probe['frames'] -= 64
+        if case >= 9:
+            # Rehash the corrupted media so the semantic sample guard, rather
+            # than the integrity guard, must refuse NaN/+Inf/-Inf at a late
+            # sample of each mono media or native stereo output channel.
+            channel, kind = divmod(case-9, 3)
+            value = (float('nan'),float('inf'),float('-inf'))[kind]
+            p = (raw, q/probe['exportPath'].replace('\\','/'),
+                 q/'loopback'/probe['capturePath'].replace('\\','/'),
+                 q/'loopback'/probe['capturePath'].replace('\\','/'))[channel]
+            data = bytearray(p.read_bytes())
+            end = -8 if channel == 2 else -4
+            data[end:end+4 if end+4 else None] = struct.pack('<f',value)
+            p.write_bytes(data); digest = hashlib.sha256(data).hexdigest()
+            if channel == 0:
+                model['assets'][0]['sha256'] = probe['rawSha256'] = digest
+            elif channel == 1: probe['exportSha256'] = digest
+            else: probe['captureSha256'] = digest
         (q/'project.json').write_text(json.dumps(model))
         (q/'probe.json').write_text(json.dumps(probe))
         try:
             verify(q)
-        except ValueError:
+        except ValueError as error:
+            if case >= 9:
+                require(('Non-finite native' in str(error)) if channel < 2 else
+                        str(error) == 'Nonfinite loopback', 'Non-finite media refused for wrong reason')
             refused += 1
         else:
             raise ValueError('Altered native desktop evidence accepted: '+str(case))

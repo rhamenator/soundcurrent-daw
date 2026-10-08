@@ -78,9 +78,13 @@ Windows 11 10.0.26300.9550, MSVC 19.44.35228.0 x64 Release `/MD`, Qt 6.12.0
 MSVC SDK and matching MSVC/UCRT libsndfile 1.2.2. The final fixture is 1,967,104
 bytes, SHA-256 `b7dc651191419328d4261bc1435b06ff75cb554defef8f2b711c6c305fed6a3b`.
 
-`tests/windows_desktop_verifier_tests.py` relocates the capsule and checks nine
+`tests/windows_desktop_verifier_tests.py` relocates the capsule and checks 21
 altered claims/media cases, including rehashed audio, changed live receipts,
-fabricated source, synthetic timing origin and an absolute Windows path. Hosted
+fabricated source, synthetic timing origin and an absolute Windows path. Every
+raw/export/native stereo channel is required finite before error reductions.
+Twelve rehashed late-sample NaN/positive-infinity/negative-infinity cases verify
+that semantic guard; Python max alone can silently retain an earlier finite value
+when a later difference is NaN. Original capsule inputs remain immutable. Hosted
 Linux checks run this read-only verification; they do not replay Windows audio.
 
 Physical microphone input, monitoring On/Auto, Windows shared-clock multitrack
