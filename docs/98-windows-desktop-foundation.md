@@ -79,6 +79,24 @@ They do **not** establish native audio through the GUI factories. SDK paths are
 supplied by the harness: no compiler-free runtime, installer, upgrade/removal,
 physical/sustained or full workflow qualification is claimed.
 
+### Hosted synthetic scheduling correction
+
+The first PR 41 Linux run (37744310302) failed two existing manual workflows;
+61 of 63 tests passed. The scheduled third take was assumed active at frame
+7,303 before the earlier groups' asynchronous disk joins had necessarily
+completed. Its oracle reported frame 7,303 as 0.984326 instead of 0.0931333.
+The fixture now services and adopts those groups at a control boundary before
+advancing the synthetic clock into that third take. It keeps exact samples,
+scheduled receipts and callback audit assertions; this is not a disk deadline test.
+
+The concurrent retirement fixture used only 8,192 frames (170.7 ms) of raw
+reserve while creating writers. It now uses the ordinary two-second reserve.
+Small-pool exhaustion and backpressure retain their separate explicit fixtures.
+The original hosted refusal did not retain a status, so reserve exhaustion is
+a hypothesis, not an established native/product cause. Both corrected workflows
+passed five consecutive local runs (10 executions, 9.84 seconds). Hosted checks
+must independently pass; no CI rerun is treated as a fix by itself.
+
 Original failures remain in the receipt/capsule: split CMake policy argument;
 MSVC unresolved extern audio GUIDs (now SDK `__uuidof`, also checked with MinGW);
 refused hash-harness substitution; ANSI screenshot-path conversion in the test;
