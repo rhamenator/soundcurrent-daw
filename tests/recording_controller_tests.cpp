@@ -645,6 +645,41 @@ void duplexPunchState(const std::filesystem::path &root) {
           "Single-track backend silently ignored enabled punch");
 }
 
+void writerFailureAfterProcessing(const std::filesystem::path &root) {
+    const auto session = duplex_fixture::project(root);
+    auto counter = std::make_shared<duplex_fixture::Counters>();
+    counter->failedWriter = 1;
+    counter->holdWriterFailure = true;
+    RecordingController recorder(duplex_fixture::options(counter));
+    // Release a stalled disk worker on assertion failure before recorder joins.
+    struct ReleaseWriter {
+        std::shared_ptr<duplex_fixture::Counters> counter;
+        ~ReleaseWriter() { counter->holdWriterFailure = false; }
+    } release{counter};
+    auto prepare = duplex_fixture::prepare(root, session);
+    prepare.recordFrames = 8192;
+    recorder.submit(prepare);
+    await([&] { return recorder.snapshot()->phase == RecordingPhase::Ready; });
+    recorder.submit(duplex_fixture::start(*counter));
+    await([&] { return recorder.snapshot()->phase == RecordingPhase::Complete &&
+                      counter->waitingWriterFailure; });
+    check(recorder.snapshot()->telemetry.duplexStatus == DuplexStatus::Complete &&
+          !recorder.snapshot()->take, "Fixture did not hold a late failure after processing ended");
+    counter->holdWriterFailure = false;
+    await([&] { return recorder.snapshot()->phase == RecordingPhase::Fault &&
+                      recorder.snapshot()->take; });
+    const auto result = recorder.snapshot();
+    check(result->diagnostic == "Injected duplex disk failure" &&
+          result->take->receipts->size() == 1 && result->lanes[1].errorCode == ErrorCode::Io &&
+          result->lanes[1].job && counter->destroyed == 1,
+          "Late failure hid original disk error or discarded other finalized lane");
+    check(result->take->receipts->front().asset.frames == 8192 &&
+          result->telemetry.duplexStatus == DuplexStatus::Complete,
+          "Disk fault rewrote processing completion or shortened valid other lane");
+    const auto recovery = inspectRecording(*result->lanes[1].job, {}, true);
+    check(!recovery.finalized && recovery.committedFrames > 0 && recovery.committedFrames <= 4096,
+          "Late-failed writer did not retain its independently recoverable prefix");
+}
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -653,6 +688,7 @@ int main(int argc, char **argv) {
         check(temp.isValid(), "Temporary recording folder unavailable");
         auto root = utf8Path(temp.path().toUtf8().toStdString());
         reserveAdmission(root / "reserve");
+        writerFailureAfterProcessing(root / "late-writer");
         armedReserveOnly(root / "armed-reserve");
         takeAndEdits(root / "take");
         invalidAndFault(root / "input", RecordingMonitor::PostEq);

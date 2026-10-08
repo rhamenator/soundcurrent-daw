@@ -862,6 +862,46 @@ void configuredPreflight(const std::filesystem::path &root) {
     check(preservedBoth, "Budget-refused preflight committed an unrelated active gesture");
 }
 
+void creationSampleRates(const std::filesystem::path &root) {
+    std::filesystem::create_directory(root);
+    for (auto rate : {8000u, 44100u, 48000u, 384000u}) {
+        ProjectController controller;
+        const auto folder = root / std::to_string(rate);
+        ProjectCommand command{CommandKind::Create};
+        command.path = folder; command.name = "Rate fixture"; command.sampleRate = rate;
+        submit(controller, command);
+        auto view = await(controller, [](const auto &v) {
+            return v.completedCommands && v.io == IoOperation::None;
+        });
+        check(view->session && !view->errorCode && view->session->sampleRate == rate,
+              "Create did not publish chosen sample rate");
+        check(ProjectStore(folder).load().sampleRate == rate, "Chosen sample rate was not persisted");
+        for (const auto &band : view->session->tracks.front().eq.bands)
+            check(band.frequencyHz < double(rate) / 2, "New track EQ exceeds selected Nyquist");
+        controller.requestShutdown();
+        await(controller, [](const auto &v) { return v.closed; });
+        ProjectController reopened;
+        ProjectCommand open{CommandKind::Open}; open.path = folder; open.sampleRate = 0;
+        submit(reopened, open);
+        auto loaded = await(reopened, [](const auto &v) {
+            return v.completedCommands && v.io == IoOperation::None;
+        });
+        check(loaded->session && loaded->session->sampleRate == rate,
+              "Open applied irrelevant Create rate instead of saved project rate");
+        reopened.requestShutdown(); await(reopened, [](const auto &v) { return v.closed; });
+    }
+    for (auto rate : {0u, 7999u, 384001u}) {
+        ProjectController controller;
+        ProjectCommand command{CommandKind::Create};
+        command.path = root / ("invalid-" + std::to_string(rate));
+        command.name = "Invalid rate"; command.sampleRate = rate;
+        submit(controller, command);
+        const auto view = await(controller, [](const auto &v) { return v.errorSerial != 0; });
+        check(view->errorCode && !view->session && view->io == IoOperation::None &&
+              !std::filesystem::exists(command.path), "Invalid Create rate performed project I/O");
+        controller.requestShutdown(); await(controller, [](const auto &v) { return v.closed; });
+    }
+}
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
@@ -876,6 +916,7 @@ int main(int argc, char **argv) {
             return 0;
         }
         editsAndFiles(root / utf8Path("Séance – Δοκιμή"));
+        creationSampleRates(root / "sample-rates");
         saveWhileEditing(root / "concurrent-save");
         closeDuringSave(root / "cancel-save");
         queuePressure(root / "queue-pressure");

@@ -1469,6 +1469,10 @@ The complete file was published with a warning: %1</translation>
       <translation>Choose a project name without folder separators.</translation>
     </message>
     <message>
+      <source>Sample rate (Hz). For Windows native audio, match the device mix rate:</source>
+      <translation>Sample rate (Hz). For Windows native audio, match the device mix rate:</translation>
+    </message>
+    <message>
       <source>Project display updated. Retained edits are available.</source>
       <translation>Project display updated. Retained edits are available.</translation>
     </message>
@@ -1491,6 +1495,10 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source>Choose an endpoint…</source>
       <translation>Choose an endpoint…</translation>
+    </message>
+    <message>
+      <source> · %1 Hz</source>
+      <translation> · %1 Hz</translation>
     </message>
     <message>
       <source>Missing endpoint</source>
@@ -1703,6 +1711,10 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source>%1 ms</source>
       <translation>%1 ms</translation>
+    </message>
+    <message>
+      <source>Windows recording monitoring is not available in this preview. Use monitoring off.</source>
+      <translation>Windows recording monitoring is not available in this preview. Use monitoring off.</translation>
     </message>
     <message>
       <source>Native recording is not available in this build. Stored takes can still be recovered.</source>

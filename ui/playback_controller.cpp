@@ -10,6 +10,9 @@
 #ifdef SC_UI_PIPEWIRE
 #include <soundcurrent/pipewire_playback.hpp>
 #endif
+#ifdef SC_UI_WASAPI
+#include <soundcurrent/wasapi_playback.hpp>
+#endif
 
 namespace soundcurrent::daw::ui {
 namespace {
@@ -74,6 +77,70 @@ class NativeEndpoint : public PlaybackEndpoint {
         latest_.droppedMeters = owner_.droppedObservations();
         latest_.droppedReceipts = owner_.droppedAcknowledgements();
         latest_.callbackFault = owner_.callbackFault();
+        return latest_;
+    }
+};
+#endif
+#ifdef SC_UI_WASAPI
+class NativeWindowsEndpoint : public PlaybackEndpoint {
+    WasapiPlayback owner_;
+    PlaybackTelemetry latest_;
+
+  public:
+    explicit NativeWindowsEndpoint(const PlaybackPreparation &p, PlaybackCallbackInstrumentation audit)
+        : owner_(p.root, *p.session, p.plan,
+                 {{p.config.maximumCallbackFrames, p.config.startFrame, p.config.generation,
+                   p.config.memoryBudgetBytes},
+                  p.config.endFrame,
+                  p.config.slabFrames},
+                 p.reader, audit) {}
+    std::vector<PipeWirePort> ports() override {
+        auto ports = owner_.ports();
+        std::erase_if(ports, [](const auto &p) { return !p.input; });
+        return ports;
+    }
+    void connect(const std::vector<PipeWirePort> &p) override {
+        owner_.connectOutputs(p);
+    }
+    void activate() override {
+        owner_.activate();
+    }
+    void stop() noexcept override {
+        owner_.stop();
+    }
+    void checkReader() override {
+        owner_.checkReader();
+    }
+    MixEvent event(const Session &s, const ParameterAddress &a) override {
+        return owner_.graph().parameterEvent(s, a, 0);
+    }
+    MixEvent enable(const Id &id, bool value) override {
+        return owner_.graph().enableEvent(id, value, 0);
+    }
+    SubmitStatus submit(const MixEvent &e, std::uint64_t revision) noexcept override {
+        return owner_.submitImmediate(e, revision);
+    }
+    PlaybackTelemetry read() override {
+        WasapiPlaybackObservation o;
+        for (std::size_t n = 0; n < 64 && owner_.observation(o); ++n) {
+            latest_.peak = o.mix.mix.peak;
+            latest_.processed = true;
+        }
+        ImmediateAcknowledgement receipt;
+        latest_.receipts.clear();
+        for (std::size_t t = 0; t < owner_.graph().plan().tracks.size(); ++t) {
+            std::optional<ImmediateAcknowledgement> last;
+            for (std::size_t n = 0; n < 64 && owner_.acknowledgement(t, receipt); ++n)
+                last = receipt;
+            if (last)
+                latest_.receipts.push_back({t, *last});
+        }
+        latest_.status = owner_.status();
+        latest_.position = owner_.position();
+        latest_.missingFrames = owner_.missingFrames();
+        latest_.droppedMeters = owner_.droppedObservations();
+        latest_.droppedReceipts = owner_.droppedAcknowledgements();
+        latest_.callbackFault.reset();
         return latest_;
     }
 };
@@ -163,6 +230,12 @@ struct PlaybackController::State : QThread {
         if (!options.factory)
             options.factory = [audit = options.nativeAudit](const auto &p) {
                 return std::make_unique<NativeEndpoint>(p, audit);
+            };
+#endif
+#ifdef SC_UI_WASAPI
+        if (!options.factory)
+            options.factory = [audit = options.nativeAudit](const auto &p) {
+                return std::make_unique<NativeWindowsEndpoint>(p, audit);
             };
 #endif
         view.supported = bool(options.factory);

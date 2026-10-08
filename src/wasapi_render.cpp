@@ -45,14 +45,14 @@ struct WasapiRenderStream::State {
             const auto id = wide(options.endpointId);
             check(e->GetDevice(id.c_str(), device.out()), "Open selected playback endpoint");
             Com<IMMEndpoint> endpoint;
-            check(device->QueryInterface(IID_IMMEndpoint, reinterpret_cast<void **>(endpoint.out())),
+            check(device->QueryInterface(__uuidof(IMMEndpoint), reinterpret_cast<void **>(endpoint.out())),
                   "Read playback direction");
             EDataFlow direction;
             check(endpoint->GetDataFlow(&direction), "Read playback direction");
             if (direction != eRender)
                 throw ProjectError(ErrorCode::InvalidState, "Selected endpoint is not a playback device");
             Com<IAudioClient> client;
-            check(device->Activate(IID_IAudioClient, CLSCTX_ALL, nullptr,
+            check(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr,
                                   reinterpret_cast<void **>(client.out())), "Open playback client");
             Memory mix;
             check(client->GetMixFormat(reinterpret_cast<WAVEFORMATEX **>(&mix.p)), "Read playback format");
@@ -79,10 +79,10 @@ struct WasapiRenderStream::State {
                 throw ProjectError(ErrorCode::InvalidState, "Native playback capacity exceeds admission");
             check(client->SetEventHandle(audio.value), "Set playback notification");
             Com<IAudioRenderClient> render;
-            check(client->GetService(IID_IAudioRenderClient, reinterpret_cast<void **>(render.out())),
+            check(client->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(render.out())),
                   "Prepare playback lease service");
             Com<IAudioClock> clock;
-            check(client->GetService(IID_IAudioClock, reinterpret_cast<void **>(clock.out())),
+            check(client->GetService(__uuidof(IAudioClock), reinterpret_cast<void **>(clock.out())),
                   "Prepare playback clock service");
             UINT64 frequency = 0;
             check(clock->GetFrequency(&frequency), "Read playback clock units");

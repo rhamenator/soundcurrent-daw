@@ -29,6 +29,7 @@ struct ProjectCommand {
     CommandKind kind = CommandKind::Save;
     std::filesystem::path path;
     std::string name;
+    std::uint32_t sampleRate = 48000; // Create only; existing projects retain their rate.
     std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
     std::shared_ptr<const std::vector<RecordingResult>>
         recordings; // Alternative atomic group, admitted against trusted receipt/state resources.

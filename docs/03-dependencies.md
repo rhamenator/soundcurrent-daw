@@ -111,3 +111,29 @@ Before distribution qualify the native Qt/runtime/toolchain combination and coll
 exact transitive notices/source/build configuration. Test-only existing cable
 endpoints do not become installer dependencies. Native SDK source-render pumping
 is fixture control work, not a selected production output engine.
+
+## Native Windows desktop dependency checkpoint (2026-10-08)
+
+The existing Qt dependency is now compiled and exercised natively with the
+available Qt 6.12.0 MSVC x64 SDK, MSVC 19.44.35228.0 and Release `/MD`.
+The SDK was copied into the DAW's own cache; the equalizer checkout was read-only.
+Its matching QtBase source archive is retained and verified as SHA-256
+`a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307`.
+The SDK transfer manifest verifies all 4,440 Qt files. Existing Core/Gui/Widgets
+license selection remains; native Test is developer-only. Exact deployed modules,
+transitive notices, runtime source delivery and clean installation remain open.
+
+Build the pinned libsndfile 1.2.2 source with MSVC/UCRT for these media callers.
+The earlier MinGW/MSVCRT descriptor table cannot be shared with MSVC `_open_osfhandle`
+descriptors via `sf_open_fd`. Native source hash is
+`ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121`;
+shared build, optional codecs/programs/examples/tests/experimental features disabled.
+No dependency source or license was changed. The developer DLL is not a qualified
+end-user redistribution package.
+
+The [Qt Windows deployment guide](https://doc.qt.io/qt-6/windows-deployment.html)
+requires separate third-party dependency handling and the official Microsoft
+Redistributable for end-user MSVC runtime deployment. Developer SDK PATH execution
+does not satisfy that gate. Do not copy individual developer CRT DLLs into a release.
+[ADR077](decisions/077-desktop-native-routes-and-storage-completion.md) and
+[the evidence checkpoint](98-windows-desktop-foundation.md) record the choice and limits.

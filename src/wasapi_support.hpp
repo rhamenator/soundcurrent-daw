@@ -82,8 +82,8 @@ inline std::wstring wide(const std::string &s) {
     return result;
 }
 inline void enumerator(Com<IMMDeviceEnumerator> &e) {
-    check(CoCreateInstance(CLSID_MMDeviceEnumerator, nullptr, CLSCTX_ALL,
-                           IID_IMMDeviceEnumerator, reinterpret_cast<void **>(e.out())),
+    check(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
+                           __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(e.out())),
           "Enumerate audio endpoints");
 }
 inline constexpr GUID floatSubtype{3, 0, 0x10, {0x80, 0, 0, 0xaa, 0, 0x38, 0x9b, 0x71}};

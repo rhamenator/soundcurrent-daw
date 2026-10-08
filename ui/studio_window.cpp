@@ -37,6 +37,7 @@
 #include <QProgressBar>
 #include <QCheckBox>
 #include <QScopedValueRollback>
+#include <QStandardItemModel>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -87,9 +88,12 @@ class FocusIntegerSpin : public QSpinBox {
     }
 };
 ChannelPortIntent portIntent(const PipeWirePort &p) {
-    return {p.nodeName, p.portName, p.mediaClass, p.input};
+    return audioPortIntent(p);
 }
 QString portKey(const PipeWirePort &p) {
+    if (p.backendId != "pipewire")
+        return text(p.backendId) + QStringLiteral(":") + text(p.deviceIdentity) +
+               QStringLiteral(":") + text(p.channelIdentity) + QStringLiteral(":") + text(p.mediaClass);
     return QString::number(p.nodeSerial) + QStringLiteral(":") + QString::number(p.nodeId) +
            QStringLiteral(":") + QString::number(p.portId) + QStringLiteral(":") +
            text(p.nodeName) + QStringLiteral(":") + text(p.portName);
@@ -906,6 +910,13 @@ void StudioWindow::newProject() {
     }
     ProjectCommand command;
     command.kind = CommandKind::Create;
+    const int sampleRate = QInputDialog::getInt(
+        this, tr("New project"),
+        tr("Sample rate (Hz). For Windows native audio, match the device mix rate:"),
+        48000, 8000, 384000, 1, &accepted);
+    if (!accepted)
+        return;
+    command.sampleRate = static_cast<std::uint32_t>(sampleRate);
     command.path = path(parent) / path(name);
     command.name = name.toUtf8().toStdString();
     playbackPrepareBarrier_ = 0;
@@ -1082,10 +1093,19 @@ void StudioWindow::populateRoutes(const std::vector<QComboBox *> &combos,
         combo->clear();
         combo->addItem(tr("Choose an endpoint…"), QString());
         for (const auto &p : ports)
-            if (p.input == endpointInput)
-                combo->addItem(text(p.nodeName) + QStringLiteral(" / ") + text(p.portName),
-                               portKey(p));
-        const auto result = matchRouteIntent(intent, channel, "pipewire", descriptors);
+            if (p.input == endpointInput) {
+                auto label = text(p.nodeName) + QStringLiteral(" / ") + text(p.portName);
+                if (p.sampleRate)
+                    label += tr(" · %1 Hz").arg(QLocale().toString(p.sampleRate));
+                combo->addItem(label, portKey(p));
+            }
+        const auto result = matchRouteIntent(intent, channel, ports.empty() ?
+#ifdef Q_OS_WIN
+            "wasapi"
+#else
+            "pipewire"
+#endif
+            : ports.front().backendId, descriptors);
         const auto prior = std::find_if(ports.begin(), ports.end(),
                                         [&](const auto &p) { return portKey(p) == previous; });
         if (prior != ports.end() && channel < intent.ports.size() && intent.ports[channel] &&
@@ -1139,7 +1159,7 @@ void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBo
             ProjectCommand c{CommandKind::Routing};
             c.routeAddress = RouteAddress{m.id, RouteTarget::Master};
             c.routePatch =
-                RouteChannelPatch{std::uint32_t(channel), "pipewire",
+                RouteChannelPatch{std::uint32_t(channel), outputsShown_->empty() ? m.output.backendId : outputsShown_->front().backendId,
                                   found == outputsShown_->end() ? std::optional<ChannelPortIntent>{}
                                                                 : portIntent(*found)};
             if (!submitEdit(std::move(c)))
@@ -1171,7 +1191,7 @@ void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBo
     ProjectCommand command(CommandKind::Routing);
     command.routeAddress = RouteAddress{track.id, target};
     command.routePatch = RouteChannelPatch{
-        static_cast<std::uint32_t>(channel), "pipewire",
+        static_cast<std::uint32_t>(channel), ports->empty() ? routeValue(*model->session, {track.id, target}).backendId : ports->front().backendId,
         found == ports->end() ? std::optional<ChannelPortIntent>{} : portIntent(*found)};
     if (!submitEdit(std::move(command))) {
         const RouteAddress address{track.id, target};
@@ -1977,6 +1997,14 @@ void StudioWindow::pollRecording() {
     prepareRecordButton_->setEnabled(prepare);
     prepareRecordAction_->setEnabled(prepare);
     recordReserve_->setEnabled(prepare);
+    monitorMode_->setToolTip(r->monitoringSupported
+        ? tr("Saved monitoring mode takes effect after Stop and preparation.")
+        : tr("Windows recording monitoring is not available in this preview. Use monitoring off."));
+    if (auto *model = qobject_cast<QStandardItemModel *>(monitorMode_->model()))
+        for (int index = 1; index < monitorMode_->count(); ++index)
+            if (auto *item = model->item(index); item && item->isEnabled() != r->monitoringSupported)
+                item->setEnabled(r->monitoringSupported);
+    // Keep Off selectable when a portable project saved an unavailable mode.
     monitorMode_->setEnabled(allow && !recordPrepareBarrier_ && !recordCommandPending_ && idle &&
                              !r->take && m->session && !m->session->tracks.empty() &&
                              m->io != IoOperation::Create && m->io != IoOperation::Open);

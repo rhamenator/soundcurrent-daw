@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <deque>
 #include <limits>
+#ifdef SC_UI_WASAPI
+#include <soundcurrent/wasapi_recording.hpp>
+#endif
 namespace soundcurrent::daw::ui {
 namespace {
 constexpr std::size_t capacity = 16;
@@ -205,6 +208,72 @@ class NativeDuplexEndpoint : public RecordingEndpoint {
     }
 };
 #endif
+#ifdef SC_UI_WASAPI
+class NativeWindowsRecordingEndpoint : public RecordingEndpoint {
+    WasapiRecording owner_;
+    RecordingTelemetry latest_;
+
+  public:
+    explicit NativeWindowsRecordingEndpoint(const RecordingPreparation &p)
+        : owner_(p.root, *p.session, p.spec, p.options) {}
+    std::vector<PipeWirePort> ports() override {
+        auto ports = owner_.ports();
+        return ports;
+    }
+    void connectInputs(const std::vector<PipeWirePort> &p) override {
+        owner_.connectInputs(p);
+    }
+    void connectOutputs(const std::vector<PipeWirePort> &p) override {
+        owner_.connectOutputs(p);
+    }
+    void activate() override {
+        owner_.activate();
+    }
+    void stop() noexcept override {
+        owner_.stop();
+    }
+    RecordingResult result() override {
+        return owner_.result();
+    }
+    std::optional<std::filesystem::path> jobDirectory() override {
+        return owner_.jobDirectory();
+    }
+    EqEvent event(const Session &s, const ParameterAddress &a) override {
+        return owner_.prepared().parameterEvent(s, a, 0);
+    }
+    EqEvent enable(bool v) override {
+        return owner_.prepared().enableEvent(v, 0);
+    }
+    SubmitStatus submit(const EqEvent &e, std::uint64_t r) noexcept override {
+        return owner_.submitImmediate(e, r);
+    }
+    RecordingTelemetry read() override {
+        BackendObservation o;
+        for (unsigned n = 0; n < 64 && owner_.observation(o); ++n) {
+            latest_.inputPeak = o.inputPeak;
+            latest_.outputPeak = o.outputPeak;
+            latest_.processed = true;
+        }
+        latest_.receipt.reset();
+        ImmediateAcknowledgement receipt;
+        for (unsigned n = 0; n < 64 && owner_.acknowledgement(receipt); ++n)
+            latest_.receipt = receipt;
+        latest_.status = owner_.status();
+        latest_.firstFault = owner_.firstFault();
+        latest_.faultStorageDiagnostic = owner_.faultStorageDiagnostic();
+        latest_.captureStatus = owner_.captureStatus();
+        latest_.endReason = owner_.endReason();
+        latest_.capturedFrames = owner_.capturedFrames();
+        latest_.writtenFrames = owner_.writtenFrames();
+        latest_.rejectedFrames = owner_.rejectedFrames();
+        latest_.invalidSamples = owner_.invalidInputSamples();
+        latest_.droppedMeters = owner_.droppedObservations();
+        latest_.droppedReceipts = owner_.droppedAcknowledgements();
+        return latest_;
+    }
+};
+#endif
+
 const Track *findTrack(const Session &s, const Id &id) {
     const auto i =
         std::find_if(s.tracks.begin(), s.tracks.end(), [&](const auto &t) { return t.id == id; });
@@ -314,6 +383,14 @@ struct RecordingController::State : QThread {
             options.factory = [](const auto &p) {
                 return std::make_unique<NativeRecordingEndpoint>(p);
             };
+#endif
+#ifdef SC_UI_WASAPI
+        if (!options.factory) {
+            view.monitoringSupported = false;
+            options.factory = [](const auto &p) {
+                return std::make_unique<NativeWindowsRecordingEndpoint>(p);
+            };
+        }
 #endif
         if (!options.duplexFactory) {
 #ifdef SC_UI_PIPEWIRE
@@ -792,20 +869,28 @@ struct RecordingController::State : QThread {
             try {
                 if (endpoint) {
                     update(endpoint->read());
-                    if (view.telemetry.status == AudioBridgeStatus::Complete) {
-                        view.phase = RecordingPhase::Complete; // Retain final monitor block until
-                                                               // Stop/close.
-                    } else if (!active(view.telemetry.status)) {
+                    // Processing can finish before the disk workers. Preserve
+                    // its terminal clock status while reporting storage failure
+                    // independently, including errors after the last callback.
+                    const bool writerFailed = view.telemetry.captureStatus == CaptureStatus::WriterFailed ||
+                        std::any_of(view.telemetry.lanes.begin(), view.telemetry.lanes.end(),
+                            [](const auto &lane) { return lane.status == CaptureStatus::WriterFailed; });
+                    if (writerFailed || (view.telemetry.status != AudioBridgeStatus::Complete &&
+                                         !active(view.telemetry.status))) {
                         const auto cause = view.telemetry.status;
                         const auto errors = view.errorSerial;
                         stopEndpoint();
                         view.phase = RecordingPhase::Fault;
                         if (view.errorSerial == errors) {
-                            error(ErrorCode::Io, "Recording input/clock/capture stopped (status " +
+                            error(ErrorCode::Io, writerFailed ? "Recording storage failed" :
+                                                 "Recording input/clock/capture stopped (status " +
                                                      std::to_string(static_cast<unsigned>(cause)) +
                                                      ")");
-                            view.backendFaultDiagnostic = true;
+                            view.backendFaultDiagnostic = !writerFailed;
                         }
+                    } else if (view.telemetry.status == AudioBridgeStatus::Complete) {
+                        view.phase = RecordingPhase::Complete; // Retain final monitor block until
+                                                               // Stop/close.
                     } else {
                         reconcile();
                         if (std::chrono::steady_clock::now() >= nextInventory) {

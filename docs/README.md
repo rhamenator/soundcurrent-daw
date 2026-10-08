@@ -112,3 +112,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native Windows capture foundation and honest waveform acceptance](96-windows-capture-foundation.md)
 
 - [Native Windows playback toward a useful preview](97-windows-native-playback.md)
+- [Windows desktop foundation and independent storage faults](98-windows-desktop-foundation.md)
