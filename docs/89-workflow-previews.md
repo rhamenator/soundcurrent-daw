@@ -6,6 +6,12 @@ not promote a frozen parity row or establish a complete language/platform.
 
 ## First delivery
 
+Windows checkpoint, 2026-10-08: the [native single-track desktop workflow](99-windows-desktop-workflow.md)
+now passes owned loopback recording, live EQ/Undo, playback, save/reopen and WAV
+sample checks with a silent lead-in. This is developer-runtime evidence. The
+Windows installer/source pair, clean install and non-silent startup remain open;
+there is no Windows installer available for users yet.
+
 An Ubuntu 26.04 amd64 recording/EQ/project/WAV preview using the existing PipeWire
 backend. Include a normal DEB application package, desktop/menu icon, declared
 runtime dependencies, exact source archive and capability/limitation notes. The

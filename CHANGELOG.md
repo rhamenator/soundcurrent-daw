@@ -4,8 +4,9 @@
 
 - Native Windows desktop playback and single-track recording factories, stable
   device/channel route identities, project sample-rate selection and visible
-  monitoring limits. Native MSVC/Qt GUI and disk tests pass; native GUI audio and
-  the Windows installer remain unqualified.
+  monitoring limits. An owned native GUI record/EQ/Undo/play/save/reopen/WAV workflow
+  passes independent media checks with a silent lead-in. Non-silent startup,
+  Windows monitoring/duplex and the installer remain unqualified.
 - Late recording-writer failures are reported independently of completed audio
   processing, preserving other finalized lanes and the failed writer's checkpoint.
 
