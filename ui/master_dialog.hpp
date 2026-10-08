@@ -29,6 +29,7 @@ template <class Base> class MasterFocusControl : public Base {
 };
 // Stages an immutable snapshot. Apply is one semantic project edit; Cancel has no effect.
 class MasterDialog : public QDialog {
+    Q_DECLARE_TR_FUNCTIONS(MasterDialog)
     Session session_;
     MasterBus staged_;
     QComboBox *kind_;
@@ -36,9 +37,6 @@ class MasterDialog : public QDialog {
     QTableWidget *rows_;
     QLabel *error_;
     std::optional<MasterBus> result_;
-    static QString tr(const char *s) {
-        return QCoreApplication::translate("MasterDialog", s);
-    }
     void add(const Id &track, std::uint32_t source, std::uint32_t destination, double gain) {
         if (rows_->rowCount() >= 4096) {
             error_->setText(tr("The desktop editor supports at most 4096 entries. The project API "

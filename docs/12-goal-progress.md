@@ -2,6 +2,14 @@
 
 The owner activated the complete [goal](../GOAL.md) on 2026-10-05 and added X004 other-suite project import. The reference baseline is unchanged. This goal remains **active and incomplete**; no milestone or compile result substitutes for the full completion audit.
 
+Delivery priority, 2026-10-07: [useful installable workflow previews](89-workflow-previews.md),
+starting with Linux recording/EQ/project/WAV. The full timeline remains early:
+the recording slice is substantially implemented but its end-to-end qualification
+is open, M2 is in progress, and most M3–M11 subsystems remain ahead. No defensible
+completion percentage or date is available; combined full-suite parity is a
+multi-year planning assumption, not a measured schedule. Preview gates make
+useful delivery independent of the eventual parity qualification date.
+
 ## Current evidence
 
 | Requirement family | Current authoritative evidence | Still required |
@@ -17,8 +25,9 @@ The owner activated the complete [goal](../GOAL.md) on 2026-10-05 and added X004
 | Native and exchange import | X004 contract plus P080/P081/P082/P091 | Versioned native/exchange adapters, source fixtures and preservation/loss/render reports |
 | Equipment profiles/editor | X005 pinned offline Qt library/editor, generated speaker catalog, strict import, custom-copy/undo and dirty-close evidence | Shared engine schema, monitoring/print routes, portable pins, capture/target curves, rights and platform/localization qualification |
 | Windows | Core/processor/capture/media/shared-bridge/tools/tests cross-link with pinned libsndfile DLL | Native execution, device/plugin/UI/file-fault tests, installer and same full workflows |
-| All-Europe localization | Initial extensible 130-item inventory and identifier checks | Complete coverage audit, real catalogs, native review, UI/help/installer qualification |
+| All-Europe localization | Extensible 143-item planned inventory; partial contextual desktop catalogs/runtime and independent language/format settings | Complete coverage audit, remaining translations/plurals/diagnostics, native review, per-platform UI/help/installer qualification |
 | Distribution/security/licenses | GPL license, pinned source provenance/notices, local build/test evidence | Actual packages, SBOM/transitives, source delivery, untrusted-input/failure and clean-install gates |
+| Easy installation | X007 [Linux/Windows setup contract](88-easy-installation.md), explicit fresh-install/upgrade/failure/remove/localization/source workflows | Runtime/support audit, graphical packages/installers and native qualification without development tools |
 
 There is meaningful implementation work available. Reference-license access, native Windows qualification, source-suite project corpora and native-speaker reviews are external evidence needs, not reasons to block current engine/media work or claim those gates passed.
 
@@ -2558,3 +2567,62 @@ of original native71. Continue copied state/IO/transient admission and measured
 allocator/RSS, larger recording arms, freeze/bounce, scheduling and sustained
 Linux/Windows workflows. Native Windows, X004/X005 and Europe qualification remain
 required. Full X006 and the DAW goal remain incomplete.
+
+
+## X002 contextual desktop and preview delivery checkpoint (2026-10-07)
+
+The [localization foundation](87-desktop-localization.md) now provides an actual
+Settings language/format dialog, embedded contextual catalogs, explicit fallback
+and expanded/RTL test locales. English and 32 nonempty drafts are available;
+each draft covers 8/525 messages, with zero native-reviewed/fully UI-qualified
+languages. The Europe register remains 143 planned work items. Numerical timelines
+and equipment charts retain their direction, and GUI language/format preferences
+do not alter project IDs/state or rendered audio samples.
+
+Current full Linux Debug passes **61/61, 157.49s**; affected ASan/UBSan/LSan passes
+**6/6, 31.32s**. All 379 captured source/resource/test inputs match those scopes.
+Ten isolated catalog corruption/refusal cases pass. Original fixture compile,
+wrong-context-value and dirty-prompt timeout failures remain retained. The
+content-addressed evidence capsule is **83,382,228 bytes / 647 physical entries**,
+with 8,832 logical input names, CRC and every selected byte verified. Exact hashes
+are in the [receipt](../tests/results/X002/2026-10-07-desktop-localization.json).
+The read-only reuse audit now matches all 44 inputs at the stable public/premium
+localization revisions; the equalizer checkouts remain unchanged.
+
+No native audio or VM execution, new dependency, project schema or F/Q/C/N promotion.
+All 92 frozen contracts and original native71 clock/source CPU questions remain open.
+Native Windows, language completion/review/UI/help/installers and full X004/X005/
+X006 remain required. The owner prioritizes useful installable previews and easy
+setup: a bounded Ubuntu26.04 amd64 DEB builder checks clean tested inputs, derives
+runtime dependencies and pairs exact source. Fresh-machine installation/audio/
+upgrade/remove and Windows runtime qualification remain the next delivery gates.
+The DAW goal remains active and incomplete.
+
+## Useful Linux preview packaging/runtime checkpoint (2026-10-08 UTC)
+
+Previous goal turn was progress: contextual desktop localization and the first
+local DEB/source preparation, with all 92 frozen F/Q/C/N rows still unpromoted.
+This continuation corrects a valid packaging review: canonical build-source binding
+and exact installed executable/icon/desktop/notices/provenance verification.
+The owned upgrade attempt also found that random Git hashes break same-day Debian
+version ordering. Frozen increasing UTC preview sequences now order versions;
+updates check the previous package version without a downgrade override.
+
+[Runtime evidence](../tests/results/X007/2026-10-08-preview-runtime.json) retains
+62/62 Linux Debug, changed Python/desktop 3/3, the prior matching compiled
+sanitizer inputs, actual CLI refusals and original fixture/setup errors. Hosted
+Qt6.4.2 passes 58/58 non-native tests and the required Windows core cross-build
+passes; neither is native Windows qualification. A signed Ubuntu Base derived
+owned rootfs resolves dependencies without a compiler/Qt SDK, upgrades/removes/
+reinstalls the sequenced candidate while preserving project/media bytes, and
+runs the installed GUI as UID/GID1000 with CapEff0. Unicode project save/reopen
+and 128-frame float WAV export exactly match golden bytes. The candidate's
+701-file corresponding source archive is independently byte verified.
+
+This is scoped shared-kernel container/Xvfb evidence, not complete desktop/menu
+or installed-app native recording qualification. No host package/audio changes,
+VM tests, equalizer writes or binary release upload occurred. Native observation71
+clock/source CPU causes remain open. Full Europe, X004/X005/X006 and every frozen
+parity family remain incomplete. Next concrete preview gate is installed-app
+recording/EQ/playback on owned routes and complete desktop integration; native
+Windows and its installer follow. The goal remains active.

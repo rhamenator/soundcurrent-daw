@@ -120,3 +120,24 @@ remaining recording/editing adapters are documented implementation gaps until in
 docs/67-track-scalability.md. This extends the goal without changing the frozen
 reference versions, reducing other requirements or claiming unlimited real-time
 performance.
+
+### Additional owner requirement: easy installation (2026-10-07)
+
+X007: deliver easy end-user installation on supported Linux and Windows systems,
+without a compiler, SDK or manual dependency assembly. Provide normal application
+menu/Start menu integration and optional desktop shortcuts; qualify runtime
+dependencies, upgrade, cancellation/failure recovery and uninstall while preserving
+projects, media, preferences and recoverable takes. Localize setup and first-run
+workflows. A Windows virtual cable or new SoundCurrent driver is not a DAW setup
+prerequisite. Maintain the signing-budget decision and exact license/source
+delivery. See docs/88-easy-installation.md. Current developer builds are not
+qualified end-user installers. This extends the goal without shrinking parity.
+
+### Owner delivery priority: useful previews (2026-10-07)
+
+Deliver installable previews of concrete tested workflows while continuing toward
+the complete frozen-reference target. Prioritize a Linux recording/EQ/project/WAV
+preview, then native Windows workflow qualification and installation. Each preview
+must state tested platform/version, build/source provenance, working workflows,
+known failures and remaining limits; a preview is not a full-parity declaration.
+Preserve useful staged delivery rather than waiting for every DAW feature to exist.

@@ -6,6 +6,12 @@ Requirement IDs and milestone assignments live in [parity.json](../research/pari
 
 ## Milestones
 
+X007 [easy installation](88-easy-installation.md) now has explicit fresh-install,
+upgrade, failure recovery, removal, localization and source-delivery workflows.
+Begin its runtime/support inventory alongside native backend work; native Linux
+packages and a graphical Windows installer are deliverables, not developer build
+instructions. M11 qualifies the completed installation paths.
+
 | Stage | Depends on | Implementation backlog | Exit criteria |
 |---|---|---|---|
 | **M0 — reference and contracts** | Planning artifacts | Expand each reference family into options/defaults/failures; licensed reference workflow corpus; release/submodule pins; session schema and RT budgets; compare framework alternatives against M1/M4 | Every matrix row has owned child tasks, verified source/version or explicit uncertainty, acceptance fixture and failure cases. Qt-free core builds. Exact license/source inventory approved for selected dependencies. No parity claim at this stage. |

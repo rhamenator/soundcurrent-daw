@@ -14,6 +14,7 @@ class QGridLayout;
 namespace soundcurrent::daw::ui {
 // GUI owns intent and previews; endpoint, file work and joins belong to the worker.
 class ManualRecordingPanel final : public QGroupBox {
+    Q_DECLARE_TR_FUNCTIONS(ManualRecordingPanel)
   public:
     ManualRecordingPanel(ProjectController &, std::uint64_t &barrierSequence,
                          std::function<bool()> mayPrepare, ManualControlOptions, QWidget *);
@@ -26,9 +27,6 @@ class ManualRecordingPanel final : public QGroupBox {
     void cancelClose();
     void requestShutdown();
     std::shared_ptr<const ManualControlSnapshot> snapshot() const;
-    static QString tr(const char *s, const char *comment = nullptr, int n = -1) {
-        return QCoreApplication::translate("ManualRecordingPanel", s, comment, n);
-    }
 
   private:
     ProjectController &project_;

@@ -11,9 +11,6 @@ namespace {
 QString text(const std::string &s) {
     return QString::fromUtf8(s);
 }
-QString tr(const char *s) {
-    return QCoreApplication::translate("SessionListModel", s);
-}
 void increment(std::uint64_t &v) {
     if (v != UINT64_MAX)
         ++v;

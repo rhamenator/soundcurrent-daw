@@ -17,10 +17,8 @@ struct ExportSelection {
     std::filesystem::path destination;
 };
 class ExportDialog : public QDialog {
+    Q_DECLARE_TR_FUNCTIONS(ExportDialog)
   public:
-    static QString tr(const char *source) {
-        return QCoreApplication::translate("ExportDialog", source);
-    }
     ExportDialog(std::filesystem::path root, std::shared_ptr<const Session>, QWidget *parent);
     const std::optional<ExportSelection> &selection() const {
         return selection_;

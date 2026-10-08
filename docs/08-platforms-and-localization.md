@@ -25,7 +25,7 @@ native Windows runtime and release gates remain open.
 
 The [Council of Europe language charter](https://www.coe.int/en/web/european-charter-regional-or-minority-languages/languages-covered) is a useful regional/minority-language coverage cross-check, but its treaty scope does not define our entire product inventory. Language identifiers use [BCP 47's IANA register](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry). [Unicode CLDR](https://cldr.unicode.org/index/downloads) supplies a reference for locale data; **48.2** is the inspected stable release. Qt's embedded data version must be recorded separately when GUI dependencies are pinned. We do not bundle CLDR data now.
 
-Each locale moves through **planned → translated → native-reviewed → UI-qualified**. These states are independent of whether the toolkit can display its script. Current translations/reviews/UI qualifications: **none**; the current command-line developer tool has English diagnostics. Every empty/missing catalog falls back to source English and is shown as incomplete; it never counts as language support in release notes.
+Each locale moves through **planned → translated → native-reviewed → UI-qualified**. These states are independent of whether the toolkit can display its script. The [desktop foundation](87-desktop-localization.md) adds English plus 32 partial unverified draft catalogs, each translating 8 of 525 contextual keys. Native-reviewed and fully UI-qualified languages remain **zero**. Developer CLI/worker diagnostics still have English gaps. Every empty/missing catalog falls back to source English and is shown as incomplete; it never counts as language support in release notes.
 
 The [2026-10-06 bounded audit](47-europe-language-inventory-audit.md) expands the
 register from 130 to 143 planned language work items, adds two variant candidates
@@ -50,9 +50,10 @@ Use [Qt Linguist](https://doc.qt.io/qt-6/qtlinguist-index.html), `QTranslator`, 
 | ID | Workflow | Required evidence | Current gap |
 |---|---|---|---|
 | X001 | Run the full frozen-reference acceptance corpus on Linux and Windows; move a project between them | Per-OS functional/quality results and portable media/plugin report | Shared state/DSP/capture/media/audio bridge cross-build; no native Windows DAW execution |
-| X002 | Select each registered language, record/edit/export, trigger recovery and reopen in another language | Translation completeness, native review, layout/accessibility and invariant project tests for each locale | Registry/identifier audits and Unicode state tests; desktop exists, language selection/catalogs and per-locale workflows unqualified |
+| X002 | Select each registered language, record/edit/export, trigger recovery and reopen in another language | Translation completeness, native review, layout/accessibility and invariant project tests for each locale | 143-item planned register; partial contextual catalog/runtime foundation, independent language/format selection and bounded Unicode/RTL/edit/export fixtures; full translations, native review and per-platform/per-language workflows remain unqualified |
 | X003 | Adapt borrowed DSP, then isolate a candidate improvement for later upstream adoption | Pinned origin/notices/hash manifest, documented divergence and independent fixture results | Audited peaking subset now adapted in the DAW with source snapshots and fixtures; returning changes to equalizers remains later work |
 | X004 | Import other suites' native work files and exchange formats | Versioned source corpus, property/render comparisons and persistent preservation/loss reports | Native/exchange adapters pending; see [import contract](10-project-import.md) |
+| X007 | Install and upgrade on supported Linux/Windows systems without development tools; remove without losing recordings | Fresh-machine dependency/trust, integration, localized setup, failure/upgrade/uninstall and GPL source evidence | [Installation contract](88-easy-installation.md); actual packages, native Windows application and installer qualification pending |
 
 ## Next implementation task
 

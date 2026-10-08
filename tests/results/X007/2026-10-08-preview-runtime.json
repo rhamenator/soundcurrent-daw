@@ -1,0 +1,178 @@
+{
+  "utc": "2026-10-08T00:10:08.521332+00:00",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "source_head": "85ec9552cdd7161f08d8b189d842258241747b5e",
+  "scope": "Local Ubuntu runtime/package preparation, partial X007 qualification; no full desktop/recording/release qualification",
+  "qualification": {
+    "full_Debug": "62/62, 162.81s at 7d6a packaging provenance fix",
+    "changed_Python_and_desktop_focused": "3/3, 1.12s at sequenced candidate inputs",
+    "hosted_7d6a": "Both required checks passed; Linux Qt6.4.2 58/58, 94.98s; Windows core cross-build only",
+    "CPP_Qt_resource_hashes_match_prior_affected_ASan_UBSan_LSan": true,
+    "compiled_input_count_compared": 257,
+    "latest_input_count": 384,
+    "prior_SAN_receipt": "tests/results/X002/2026-10-07-desktop-localization.json"
+  },
+  "packaging": {
+    "utc": "2026-10-08T00:06:35.009711+00:00",
+    "source_head": "85ec9552cdd7161f08d8b189d842258241747b5e",
+    "source_tree": "bf0fd1ba403f700596127c04ab0735b793c590e4",
+    "platform": "Ubuntu 26.04 amd64",
+    "build_type": "Debug",
+    "version": "0.1.0~preview.20261008001000.85ec9552cdd7",
+    "qualified_executable_sha256": "49df3152d55910b5bd2f029e7182161dc2ca737d021dad7050cb8c8201e70d7b",
+    "qualification_sha256": "427b87c4826fb5374721227cb07f6c21e33f929d1baa70b48db87a10f9c2c078",
+    "native_audio_run": false,
+    "system_installation": false,
+    "clean_install_qualified": false,
+    "release_uploaded": false,
+    "preview_sequence": "20261008001000",
+    "previous_version": "0.1.0~preview.20261007.d23d3632f09e",
+    "previous_package_version_order_verified": true,
+    "install_input_sha256": {
+      "usr/bin/soundcurrent-daw": "49df3152d55910b5bd2f029e7182161dc2ca737d021dad7050cb8c8201e70d7b",
+      "usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "usr/share/doc/soundcurrent-daw/equipment-provenance.json": "34a364e2b2d31e017550717f2eb90470777faa0085cce76faf7cafb55605f0fb",
+      "usr/share/applications/soundcurrent-daw.desktop": "e5e9bb758dd67e94439a8cbe7cd387d79a9f17380e64515883e6bf63659dfb25",
+      "usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg": "6bc559e288aec6b5eab049387afaef74253805ed568ad50179f0e958d6a5f760"
+    },
+    "every_CMake_install_input_matches_current_source": true,
+    "status": "prepared-local-preview",
+    "depends": "libc6 (>= 2.38), libgcc-s1 (>= 4.0), libpipewire-0.3-0t64 (>= 0.3.6), libqt6core6t64 (>= 6.10.2), libqt6gui6 (>= 6.9.1), libqt6widgets6 (>= 6.3.0), libsndfile1 (>= 1.0.20), libssl3t64 (>= 3.0.0), libstdc++6 (>= 12), qt6-qpa-plugins (>= 6.10.2), pipewire (>= 1.6.2), libpipewire-0.3-0t64 (>= 1.6.2)",
+    "artifacts": {
+      "soundcurrent-daw_0.1.0~preview.20261008001000.85ec9552cdd7_amd64.deb": {
+        "bytes": 1078184,
+        "sha256": "dd579bfd42cba5b21ff1b6de7588bcb260f395f63997a97338162d777a73a6e2"
+      },
+      "soundcurrent-daw-0.1.0~preview.20261008001000.85ec9552cdd7-source.tar.gz": {
+        "bytes": 362154748,
+        "sha256": "62f9f7b28aac28bf1e9c24096730b03363785c4627cc2cea7a6f6c8788b19ebc"
+      }
+    },
+    "packaged_executable_sha256": "00f5c9f87c830bc493966e09261e6f929ac767b3861d6bad87405d5aec595c59",
+    "all_extracted_payload_bytes_match": true,
+    "offscreen_startup_help_version": true
+  },
+  "runtime": {
+    "image": {
+      "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/26.04/release/ubuntu-base-26.04.1-base-amd64.tar.gz",
+      "sha256": "a496a960472ce474a59590b8987d3a1135d3cbef1991f3b1abe8cacfea8bf85a",
+      "signature_verified": true,
+      "absolute_image_symlinks_rebased_to_equivalent_rootfs_relative_targets": {
+        "etc/alternatives/awk": "/usr/bin/mawk",
+        "etc/alternatives/nawk": "/usr/bin/mawk",
+        "etc/alternatives/pager": "/bin/more",
+        "etc/alternatives/rmt": "/usr/sbin/rmt-tar",
+        "etc/alternatives/which": "/usr/bin/which.debianutils",
+        "etc/rmt": "/usr/sbin/rmt",
+        "etc/systemd/system/multi-user.target.wants/e2scrub_reap.service": "/lib/systemd/system/e2scrub_reap.service",
+        "etc/systemd/system/timers.target.wants/apt-daily-upgrade.timer": "/lib/systemd/system/apt-daily-upgrade.timer",
+        "etc/systemd/system/timers.target.wants/apt-daily.timer": "/lib/systemd/system/apt-daily.timer",
+        "etc/systemd/system/timers.target.wants/dpkg-db-backup.timer": "/lib/systemd/system/dpkg-db-backup.timer",
+        "etc/systemd/system/timers.target.wants/e2scrub_all.timer": "/lib/systemd/system/e2scrub_all.timer",
+        "etc/systemd/system/timers.target.wants/fstrim.timer": "/lib/systemd/system/fstrim.timer",
+        "etc/systemd/system/timers.target.wants/motd-news.timer": "/lib/systemd/system/motd-news.timer",
+        "usr/bin/awk": "/etc/alternatives/awk",
+        "usr/bin/nawk": "/etc/alternatives/nawk",
+        "usr/bin/pager": "/etc/alternatives/pager",
+        "usr/bin/which": "/etc/alternatives/which",
+        "usr/sbin/rmt": "/etc/alternatives/rmt",
+        "var/lock": "/run/lock",
+        "var/run": "/run"
+      },
+      "first_safe_extraction_failure_retained": "/home/rich/dev/soundcurrent-daw/.cache/preview-fresh-runtime/rootfs-first-absolute-link-failure",
+      "host_system_changes": false,
+      "scope": "Fresh Ubuntu Base derived rootfs/user namespace with shared host kernel; not fresh desktop/VM qualification"
+    },
+    "execution": "Privileged systemd-nspawn bootstrap of owned rootfs, then read-only rootfs/application UID and GID1000, CapEff0, private Xvfb and D-Bus; shares host kernel",
+    "initial_dependency_resolution": "Original d23 candidate installed via apt, 95.6MB runtime downloads/359MB installed; no g++/CMake/Qt SDK",
+    "separate_test_tooling": [
+      "Xvfb",
+      "xdotool",
+      "dbus-x11",
+      "x11-utils",
+      "ImageMagick"
+    ],
+    "reinstalled_candidate_version": "0.1.0~preview.20261008001000.85ec9552cdd7",
+    "lifecycle": "Normal apt upgrade, remove, reinstall passed; executable/desktop entry/icon removed and restored; all owned project/media files unchanged",
+    "GUI": {
+      "head": "85ec9552cdd7161f08d8b189d842258241747b5e",
+      "verified_source_files": 701,
+      "source_archive_sha256": "62f9f7b28aac28bf1e9c24096730b03363785c4627cc2cea7a6f6c8788b19ebc",
+      "gui_WAV": {
+        "sha256": "c59dbfb6453306f8fc3ef8c1b2819afe9f1c9ec1b634790ddb05d61845e29d95",
+        "frames": 128,
+        "sampleRate": 48000,
+        "channels": 1,
+        "peak": 0.24747079610824585
+      },
+      "golden_pcm_bytes_equal": true,
+      "project_after_explicit_save_equals_original_bytes": true,
+      "retained_check_fixture_error": "First independent WAV check looked for de.wav at project root; actual fixture path is exports/de.wav; no bytes changed",
+      "scope": "Existing owned 128-frame fixture opened/saved/exported by installed GUI; no capture/physical audio claim"
+    },
+    "host_package_or_audio_configuration_changes": false,
+    "VM_runs": 0,
+    "native_audio_runs": 0,
+    "recording_run": false,
+    "desktop_menu_launch": false,
+    "new_source_archive_all_701_tracked_bytes_verified": true
+  },
+  "original_failures": [
+    "bwrap single-UID APT permission switch refusal; full user-map attempts also refused; no host security profile changed",
+    "Safe Python image extraction refused absolute Ubuntu symlink; partial root retained; 20 equivalent in-rootfs relative targets documented",
+    "First Xvfb fixture chose hidden window; second exact-title query missed project suffix; third export removed focus; original scripts/logs retained, owned visible window refocused to close",
+    "Initial independent sample check used wrong golden path; actual owned exports/de.wav matches exactly; no audio bytes changed",
+    "Original date/hash version scheme caused apt downgrade refusal; corrected sequenced version upgraded without an override; original package/refusal log retained",
+    "First sequenced lifecycle bind command used wrong hash suffix and refused before container start; original log retained"
+  ],
+  "review_fix": {
+    "thread": "PRRT_kwDOU-rChc6qItZk",
+    "finding": "Build source and every installed input must match paired current source",
+    "actual_CLI_refusals": {
+      "foreign_checkout": "refused before output creation",
+      "stale_renamed_icon": "file-set refusal; initial fixture expected the later hash refusal; original failure retained",
+      "same_name_stale_icon": "actual CLI byte mismatch refusal before strip/package; failed stage retained"
+    }
+  },
+  "parity": {
+    "projection_keys": [
+      "C",
+      "F",
+      "N",
+      "Q",
+      "acceptance",
+      "bitwig_evidence",
+      "bitwig_source_id",
+      "bitwig_url",
+      "cubase_evidence",
+      "cubase_source_id",
+      "cubase_url",
+      "feature",
+      "group",
+      "id",
+      "milestone",
+      "quality"
+    ],
+    "explicit_projection_sha256": "8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28",
+    "frozen_contracts": 92,
+    "FQCN_promotions": 0
+  },
+  "original_native_observations_unchanged": 71,
+  "remaining_gates": [
+    "Fresh complete Ubuntu desktop/menu/Wayland/HiDPI and installed-app recording/EQ/playback workflow",
+    "Physical latency/sustained native71 clock and source CPU cause remain unresolved",
+    "Active application upgrade prevention, interrupted setup, preferences/recoverable-take and broader lifecycle failures",
+    "Native Windows UI/audio/installer, Fedora/RHEL and other distro qualification",
+    "All-European translation/review/UI/setup and full frozen F/Q/C/N contracts"
+  ],
+  "archive": {
+    "path": "tests/results/X007/2026-10-08-preview-runtime.zip",
+    "bytes": 39636872,
+    "sha256": "aae8df4a297d19c1bb82574609b0ce29d84b9e70ca09880dc757e0a7d7f94700",
+    "logical_entries": 2331,
+    "content_addressed_manifest": true,
+    "CRC_and_every_selected_entry_byte_verified": true,
+    "selection": "Review/full Debug and focused inputs/logs, private desktop/localization executables, owned provenance failure stages, runtime signature/image derivation logs/inventories/scripts, owned GUI project/media/WAV/PNG, candidate packaging receipts. Rootfs/image and DEB/source archives remain local; not embedded."
+  },
+  "release_uploaded": false
+}

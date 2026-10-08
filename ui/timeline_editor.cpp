@@ -89,7 +89,7 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     };
     body->addLayout(trackRow);
     trackRow = new QHBoxLayout;
-    button(trackRow, "Add track", "addAudioTrack", [this] {
+    button(trackRow, QT_TRANSLATE_NOOP("TimelineEditor", "Add track"), "addAudioTrack", [this] {
         if (!model_)
             return;
         ChannelLayout l;
@@ -106,15 +106,15 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
         mutate({InsertTrack{std::move(t), {}}});
         pendingTrack_ = id;
     });
-    button(trackRow, "Rename", "renameAudioTrack", [this] {
+    button(trackRow, QT_TRANSLATE_NOOP("TimelineEditor", "Rename"), "renameAudioTrack", [this] {
         if (track_)
             mutate({RenameTrack{*track_, name_->text().toUtf8().toStdString()}});
     });
-    button(trackRow, "Remove track", "removeAudioTrack", [this] {
+    button(trackRow, QT_TRANSLATE_NOOP("TimelineEditor", "Remove track"), "removeAudioTrack", [this] {
         if (track_)
             mutate({RemoveTrack{*track_}});
     });
-    button(trackRow, "Up", "moveAudioTrackUp", [this] {
+    button(trackRow, QT_TRANSLATE_NOOP("TimelineEditor", "Up"), "moveAudioTrackUp", [this] {
         if (!track())
             return;
         const auto it = std::find_if(model_->tracks.begin(), model_->tracks.end(),
@@ -122,7 +122,7 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
         if (it != model_->tracks.begin())
             mutate({MoveTrack{*track_, (it - 1)->id}});
     });
-    button(trackRow, "Down", "moveAudioTrackDown", [this] {
+    button(trackRow, QT_TRANSLATE_NOOP("TimelineEditor", "Down"), "moveAudioTrackDown", [this] {
         if (!track())
             return;
         const auto it = std::find_if(model_->tracks.begin(), model_->tracks.end(),
@@ -160,21 +160,21 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
         ranges->addRow(tr(caption), w);
         return w;
     };
-    start_ = frameField("clipStartFrame", "Timeline start frame");
-    source_ = frameField("clipSourceFrame", "Source start frame");
-    length_ = frameField("clipLengthFrames", "Length in frames");
-    split_ = frameField("clipSplitFrame", "Split at timeline frame");
+    start_ = frameField("clipStartFrame", QT_TRANSLATE_NOOP("TimelineEditor", "Timeline start frame"));
+    source_ = frameField("clipSourceFrame", QT_TRANSLATE_NOOP("TimelineEditor", "Source start frame"));
+    length_ = frameField("clipLengthFrames", QT_TRANSLATE_NOOP("TimelineEditor", "Length in frames"));
+    split_ = frameField("clipSplitFrame", QT_TRANSLATE_NOOP("TimelineEditor", "Split at timeline frame"));
     body->addLayout(ranges);
     auto *clipRow = new QHBoxLayout;
-    button(clipRow, "Apply range", "applyClipRange", [this] {
+    button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Apply range"), "applyClipRange", [this] {
         if (clip_ && track_)
             mutate({SetClipRange{*track_, *clip_, frame(start_), frame(source_), frame(length_)}});
     });
-    button(clipRow, "Split", "splitAudioClip", [this] {
+    button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Split"), "splitAudioClip", [this] {
         if (clip_ && track_)
             mutate({SplitClip{*track_, *clip_, Id::generate(), frame(split_)}});
     });
-    button(clipRow, "Duplicate", "duplicateAudioClip", [this] {
+    button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Duplicate"), "duplicateAudioClip", [this] {
         if (const auto *c = clip()) {
             if (c->startFrame > std::numeric_limits<Frame>::max() - c->lengthFrames)
                 throw ProjectError(ErrorCode::InvalidState, "Clip position overflow");
@@ -184,7 +184,7 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
             mutate({InsertClip{*track_, std::move(copy), {}}});
         }
     });
-    button(clipRow, "Remove clip", "removeAudioClip", [this] {
+    button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Remove clip"), "removeAudioClip", [this] {
         if (clip_ && track_)
             mutate({RemoveClip{*track_, *clip_}});
     });
@@ -196,7 +196,7 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     destination_->setObjectName("clipDestinationTrack");
     destination_->setAccessibleName(tr("Clip destination track"));
     clipRow->addWidget(destination_, 1);
-    button(clipRow, "Move to track", "moveClipToTrack", [this] {
+    button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Move to track"), "moveClipToTrack", [this] {
         if (clip_ && track_ && destination_->currentIndex() >= 0)
             mutate({MoveClip{*track_,
                              Id(destination_->currentData().toString().toStdString()),
@@ -214,7 +214,7 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     asset_->setObjectName("timelineAsset");
     asset_->setAccessibleName(tr("Recorded media asset"));
     assetRow->addWidget(asset_, 1);
-    button(assetRow, "Insert media clip", "insertMediaClip", [this] {
+    button(assetRow, QT_TRANSLATE_NOOP("TimelineEditor", "Insert media clip"), "insertMediaClip", [this] {
         if (!track_ || !model_ || asset_->currentIndex() < 0)
             return;
         const auto id = Id(asset_->currentData().toString().toStdString());

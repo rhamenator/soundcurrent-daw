@@ -1,0 +1,3199 @@
+{
+  "source_sha256": {
+    "ui/accelerating_spinbox.hpp": "e922369bf24879ec5bf0e3c3518c5e4a6f7daafb9b320640c47f8c837521695e",
+    "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",
+    "ui/equipment_curve.hpp": "1049cac78a2bc4472931302dd194505bfa67fb0058bd8e4fe74be09eb406748e",
+    "ui/equipment_profiles.cpp": "4c2614c9cf71035bc5b0f11d51b0269bd9c8485097f7b0406959f7e26bf08dd7",
+    "ui/equipment_profiles.hpp": "3652863110f3419c95ff22d4f4d89e0b16f306981f3ddce68b8a30f2a0dfb221",
+    "ui/export_controller.cpp": "4fa071da04f93555333df4b9f7b740f015d81e4b3b6f151167d49da5605bb61f",
+    "ui/export_controller.hpp": "516525172c32ee8d359de56d0890cf136e388c946a17055e53e45068c68b682e",
+    "ui/export_dialog.cpp": "8b22072ebba18649bd2bac9a8d37de70589eec8fca5c03bb099a2a2714b2448b",
+    "ui/export_dialog.hpp": "1e9f5e4a14323fb7db691491b3c26a78b760c29ec9ed4b7f2e7d9254faa61bfa",
+    "ui/gui_resources.hpp": "6f1e4b9a8988bb79969c45eeaecda226d3319c3adc0b44938fa287c967f707c4",
+    "ui/history_resources_dialog.cpp": "b8e4a2b0303b5bededad4b5b85a46307a3c0cf869da437b025f50c1f088dcdfb",
+    "ui/history_resources_dialog.hpp": "f9ce0174b9f6a392b2a8f9af22d2f71d9eb11b4dd4c9eaad392bc62e2e85fad8",
+    "ui/localization.cpp": "2605c7b5aba6db5a873e31263c0b0500283de08d41c3b12b2c608ed5556aa892",
+    "ui/localization.hpp": "fa6e43ff79f5bdd10e60bfee0468d26c76e7480ba8174405972c7c8ca115b262",
+    "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
+    "ui/manual_recording_controller.cpp": "d7007294c7b9cbdb630d02662773f50df7b3eebbc977a6ec8322dd84764e80ee",
+    "ui/manual_recording_controller.hpp": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2",
+    "ui/manual_recording_panel.cpp": "b7db2392cff9e7c7f03c7bd39909ed860966d2ccd2a1b0416aa50a303de125f2",
+    "ui/manual_recording_panel.hpp": "eaf6ca2ab3c499813f4f6d929f61cbfe94f9c25d6c7ef6977f914db056c5908b",
+    "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
+    "ui/playback_controller.cpp": "0d95dd106308a3a7ead7ffcf8dc95de8ad30d0317bec2b1e04966e3b386b94b1",
+    "ui/playback_controller.hpp": "1e7c28cf39f69f38fcd8c21485ecb5233e4fc684a50b226f16101abb6322781e",
+    "ui/project_controller.cpp": "3fa855154336c4bea68e60e045fd0104fde7a9680f4f29041635b576f5434028",
+    "ui/project_controller.hpp": "37286bc602ab1953043cc2dc66cc878bcf827610d994755ba5bf7103c4ae9dde",
+    "ui/recording_controller.cpp": "dc6113efde6e81d5b36a8be0a3013d0aecc887dda0b47f30d8a1682eb2c0fa7a",
+    "ui/recording_controller.hpp": "53e298169ea6487cd733d6cc6acf5d1d700439d6919edfad9207c5ea2ea37fa4",
+    "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
+    "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
+    "ui/session_list_model.cpp": "4a4f0a394a9bbff8d5a6c8a37c0d5103e2dde6bedc9f67dd30a3af6f9eea8b09",
+    "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
+    "ui/studio_window.cpp": "49b0bed7a29e501a0f416ac805edcd76d7cf43c3d2741f04b4c7eb69fa2d16d8",
+    "ui/studio_window.hpp": "d213c01e3967f1ef71b504b9588ecdd7054843164f1070bdf23a1532d0b24409",
+    "ui/timeline_editor.cpp": "f9f3ab72ad1cf57854ac51dfd60f749eef92e45af1f956e124ac88e81a9dc5ec",
+    "ui/timeline_editor.hpp": "a7e56fc0955ecf21c54d9748a19ad61c2711c54d8890e34cea276d0edb1d8ada",
+    "ui/timeline_view.cpp": "c9ffafee0c4a132c9a2ac41a11ed3cef86fd451b2eba8940817d71e9b26b27e1",
+    "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
+    "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47"
+  },
+  "seed_sha256": "f16e0380c8e3acda4d123f1d64872a0136714574018ffd13889d2d61176c1688",
+  "translator_notes_sha256": "daa6230a049c8ef43a022a4086a56f04f48969550299e4a7f67e2af62f1ef72d",
+  "tools": {
+    "lupdate": "lupdate version 6.10.2",
+    "lrelease": "lrelease version 6.10.2"
+  },
+  "keys": [
+    [
+      "EquipmentProfiles",
+      "Published response and editable correction curves",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment profile editor",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Brand",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Family",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment subtype",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Active / passive / unknown",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Model",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Source",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Conditions",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Type",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Frequency Hz",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Gain dB",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Q",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Undo profile edit",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Redo profile edit",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Add filter",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Remove selected filter",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Undo",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Redo",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Save modified profile?",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "This profile has changed. Save a custom copy before leaving?",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile exceeds the 1 MiB limit.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile is not valid UTF-8.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile exceeds nesting limit.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Duplicate JSON field in equipment profile.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Expected a JSON equipment profile.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Invalid equipment JSON.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Expected a JSON equipment profile. Import response text using the response import button.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Unknown profile field; import would lose data.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile metadata must be text.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Custom flag must be boolean.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile filters and response must be arrays.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Unsupported equipment profile schema (expected 2 or 3).",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Whole-system profiles require DAW schema 3.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment subtype and power type are required (maximum 120 characters each).",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment kind must be speaker, microphone, amplifier or whole_system.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Brand, family and model are required (maximum 120 characters each).",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile metadata is too long.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile metadata contains a NUL character.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Measurement conditions are required.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Published profiles need an HTTPS measurement source.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profiles need 1–16 correction filters.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Invalid filter.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Unknown filter field; import would lose data.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Unsupported filter type.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Filter values must be numbers.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Filters exceed frequency, gain or Q limits.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response exceeds 4096 points.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Invalid response point.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response frequencies must increase, with finite bounded values.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response exceeds the 1 MiB limit.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response is not valid UTF-8.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Expected frequency Hz and relative measured response dB on every data line.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Invalid or unordered response data.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response needs at least two measured points.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response needs 2–4096 measured points.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Invalid or unordered measured response.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response has no usable audio range.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Cannot read profile library.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile library exceeds 16 MiB.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Invalid profile library.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Duplicate profile identity in library.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "The custom library holds up to 256 profiles.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Library exceeds 16 MiB.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Cannot create profile folder.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Cannot save profile library.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Cannot finish saving profile library.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment resource missing.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Save profile",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment profiles — brand / family / model",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Edit and save equipment profiles here. Monitoring correction routing is not yet available.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Search brand, family, model or measurement conditions",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment profiles by brand family and model",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "All equipment",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Speakers",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Microphones",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Amplifiers / receivers",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Whole system",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment type",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment brand",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment family",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Equipment power type",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "All brands",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "All families",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "All subtypes",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "All power types",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Subtype: %1; power: %2",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile identity already exists; edit a custom copy instead.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Profile",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Import JSON",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Import response text",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Create profile",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Edit / save copy",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Export JSON",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Cannot read profile or file exceeds 1 MiB.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Import",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Cannot read response or file exceeds 1 MiB.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "This imports measured RESPONSE, not already-inverted EQ gains. Confirm equipment type. Absolute SPL needs normalization before import.",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Response import",
+      "",
+      false
+    ],
+    [
+      "EquipmentProfiles",
+      "Export",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Export audio",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Audio track",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Start frame",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "End frame (exclusive)",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Browse…",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "WAV destination",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Include the EQ tail",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      " seconds",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Use RF64 for this WAV",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Maximum tail",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Float32 WAV keeps levels above 0 dBFS. Large files use RF64 automatically. The export captures accepted project settings when you start; later edits do not change it. Existing files require a separate replacement confirmation.",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Export",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Export WAV",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "WAV audio (*.wav)",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "Choose a destination and a range with end greater than start.",
+      "",
+      false
+    ],
+    [
+      "ExportDialog",
+      "%1 Hz · %2 seconds selected",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Project resources",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Limits apply to Undo payload and declared state/edit work. They do not measure total RAM. New edits may retire the oldest Undo commands; reducing limits never clears existing history.",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Current limit: %1 bytes. Edited values use whole MiB.",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Maximum retained commands",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Retained payload (MiB)",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Operation workspace (MiB)",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Enter positive whole numbers within this machine's size range.",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Resource request sequence exhausted.",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "The project worker is busy or closing. Try again.",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Applying limits…",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "The shared project budget covers canonical state, snapshots, Undo, declared edit work, list/timeline indices, projections, prepared DSP, readers, media caches, export buffers, capture pools and writer/hash/journal workspace. New preparation follows this trusted budget. Parser/other IO, copied owner sessions and Qt/allocator overhead remain separate.",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Shared project budget (MiB)",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Retained snapshot budget (MiB)",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Apply memory limits",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Applying memory limits…",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Project snapshot reservations: %1 owners\n%2 / %3 bytes · Peak reservation: %4 bytes",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Shared reservations: %1 / %2 bytes · Peak: %3 bytes\nCanonical: %4 bytes · History: %5 bytes",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Memory limits were not changed: %1",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Memory limits applied. Retained state is preserved.",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Limits applied, but preferences could not be saved: %1",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Undo: %1 · Redo: %2\nRetained: %3 bytes · Active: %4 bytes\nAccepted operation peak: %5 bytes · Retired commands: %6",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Limits were not changed: %1",
+      "",
+      false
+    ],
+    [
+      "HistoryResourcesDialog",
+      "Limits applied. Existing Undo and Redo are preserved.",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Language preferences could not be saved.",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Language and regional settings",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Interface language",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Use system language",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Expanded test language",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Right-to-left test language",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Saved language preference: %1",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Number and date format",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Use system locale",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Saved format preference: %1",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Developer test language; no translated language coverage.",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Requested: %1. Loaded after restart: %2. Translation coverage: %3 of %4 messages. Missing translations use English. Draft translations await native-speaker review.",
+      "",
+      false
+    ],
+    [
+      "Localization",
+      "Restart the application to apply language and number format changes. Save projects before quitting.",
+      "",
+      false
+    ],
+    [
+      "Main",
+      "Interface language tag (draft catalogs available)",
+      "",
+      false
+    ],
+    [
+      "Main",
+      "Project folder to open",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Manual recording and repeated takes",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Prepare transport",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Play / monitor",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Prepare next take",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Punch In",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Punch Out",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Stop",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Cancel recording",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      " s",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Maximum transport duration",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Disk stall reserve",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Tracks armed for manual recording",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recorded take previews",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Add complete take",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Add verified complete lanes",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Keep files for recovery",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recording command could not be queued. Please retry.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Arm at least one track before preparing.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Select every input and output port before playing.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Punch queued; waiting for the audio boundary.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recorded takes",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recorded files have not all been added to the project. Keep them for later recovery, or return to review the previews?",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Keep for recovery and close",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Review takes",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Route change could not be queued. Please retry.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "%1 input %2",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Missing track",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Master output %1",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Unassigned",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Saved port missing or ambiguous — select a port",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Take %1 — %2",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "canceled; recovery files retained",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "complete",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "partial / failed",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Take previews will appear here. Adding a take changes the project; Save is separate.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Take range: %1 to %2 frames",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "\n%1 — %2 captured frames; %3",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "verified complete",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "retained for review / recovery",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Files kept in the project for later recovery.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Could not prepare recording: %1",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recording command was not completed: %1",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "%1 applied at frame %2",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "transport has changed",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "requested position has passed",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "position is outside the prepared range",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "already recording",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "no active recording",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "take is no longer available",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "transport has stopped",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "capture failed; files retained for recovery",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "unknown recording state",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Punch refused: %1.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Take added. Save to persist the project changes. Reprepare playback to hear new clips.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Could not add the take: %1. Files and preview are retained.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recording failed: %1. Available files are retained.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Manual recording is unavailable on this platform.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Preparing recording…",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Ready. Select explicit ports, then Play / monitor.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Playing / monitoring — frame %1",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Stopping; draining and verifying recordings…",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Recording worker closed.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      "Transport stopped.",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
+      " EQ changes pending audio acknowledgement.",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "The desktop editor supports at most 4096 entries. The project API supports 65536.",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Source track",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Source channel",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Destination channel",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Linear gain",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Master was not applied: %1",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Master layout and channel matrix",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Each row maps one source channel to a master channel. Gains are linear, including zero or negative polarity. Unlisted tracks are excluded. Changing the output channel count clears saved output assignments.",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Mono",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Stereo",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Discrete",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Master layout",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Master channels",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Track",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Master channel",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "This matrix exceeds the 4096-entry desktop editor limit; its saved state is preserved. Use the project API.",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Add route",
+      "",
+      false
+    ],
+    [
+      "MasterDialog",
+      "Remove selected routes",
+      "",
+      false
+    ],
+    [
+      "SessionListModel",
+      "Select a clip",
+      "",
+      false
+    ],
+    [
+      "SessionListModel",
+      "Clip %1 · %2 frames",
+      "",
+      false
+    ],
+    [
+      "SessionListModel",
+      "%1 · %2 channel(s) · %3",
+      "",
+      false
+    ],
+    [
+      "SessionListModel",
+      "Monitoring off",
+      "",
+      false
+    ],
+    [
+      "SessionListModel",
+      "Auto during recording",
+      "",
+      false
+    ],
+    [
+      "SessionListModel",
+      "Post-EQ monitoring",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "SoundCurrent DAW",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&File",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&New project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Open project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Open project folder",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Save",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Export WAV…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Cancel export",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Quit",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Settings",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Language and regional settings…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Edit",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Undo project edit",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Redo project edit",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project resources…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Retry project display",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Equipment",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Profile library and editor…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Equipment profiles",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "&Transport",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Prepare playback",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Play / Stop",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Stop",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Prepare recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Record",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recover recording…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose a capture job to inspect",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Find recoverable recordings…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Create or open a project to begin.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Track selection could not be updated: %1. Raise Project resources and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Play",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Play project mix (saved master or matching layouts)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Use the saved master's channel matrix and output routes. Without a saved master, use the selected track's layout and output routes. Different track layouts require an explicit matrix.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Edit master layout and matrix…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Master change was not admitted. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Output peak level",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Stop recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Arm selected track",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording monitoring mode",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Monitoring off",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Monitor through track EQ",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Auto — monitor during recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Saved monitoring mode takes effect after Stop and preparation.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Selected track input latency:",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Selected track input latency in sample frames",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " samples",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Declared input delay, from zero to 60 seconds. New takes are aligned earlier by this amount. Existing clips and monitor audio are unchanged. Stop recording before editing.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Input latency could not be changed. Stop recording and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Record armed tracks with project playback",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Select tracks below. Every raw input and project output must be chosen explicitly after preparation.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Tracks to arm for simultaneous recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording range (seconds)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Maximum shared recording duration in seconds",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording stops at this range; you can stop earlier. Existing audio plays from the current playhead.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Punch recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Record only within the saved punch range while project playback continues.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Set punch range…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "There is no room for a punch range at this position.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Punch settings could not be changed. Stop recording setup and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording disk-stall reserve",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "2 seconds",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "5 seconds",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "10 seconds",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Uses memory to absorb temporary disk stalls. Applies on Prepare; monitoring latency is unchanged. Preparation refuses a reserve that exceeds the recording memory budget.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Raw input peak level",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Post-EQ monitoring peak level",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Retry adding take",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Keep take for recovery",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Open a project to find stored recordings.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review recordings…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Refresh",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Take kept for recovery in %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording workflows",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Fixed range / locators",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Manual / repeated takes",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Track equalizer",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Audio export",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Export WAV…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Audio export progress",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "An export is already running or closing. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The selected export track no longer exists. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Replace existing file?",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Replace this file with the new audio export?\n%1\nCurrent size: %2 bytes",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Export a track through its EQ to float32 WAV.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Export queued…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Checking the export destination…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Waiting for replacement confirmation.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendering snapshot %1 — %2 frames written",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Export complete: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\n%1 frames · peak %2 dBFS",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "−∞",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\nFloat levels exceed 0 dBFS; they were preserved.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\nThe tail reached its time limit.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\nFile flushed; directory durability is not confirmed.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\nThe complete file was published with a warning: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Export canceled; no new file was published.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Export failed: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Closing export…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Export worker closed.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Canceling export; waiting for the current file operation…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Stop manual recording and resolve its previews before changing the project structure.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Too many pending changes. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Closing project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Finish recording, pending take attachment and export before opening another project.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose a folder for the new project",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "New project",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project name:",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Untitled",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose a project name without folder separators.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project display updated. Retained edits are available.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project display could not be updated: %1. The previous view is retained and editing is paused. Raise Project resources, then retry the display.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Audio view could not be prepared: %1. Raise Project resources and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose an output for every channel.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback queue is full or closing. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose an endpoint…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Missing endpoint",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Ambiguous endpoint; choose explicitly",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Legacy route; choose explicitly",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Unavailable backend: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Master output was not admitted. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The route change was not accepted. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Saved routing changes take effect after Stop and preparation.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Output channel %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Output %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback could not be prepared. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback could not be prepared: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Native playback is not available in this build.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Prepare the selected track or matching-layout mix, choose outputs, then play.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Preparing playback…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose outputs for every channel, then play.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playing — EQ changes pending",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playing — EQ changes acknowledged",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Stopping playback…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback complete",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback stopped: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Closing playback…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback closed",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · %1 s · %2 missing track-frames",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · %n mixed track(s)",
+      "",
+      true
+    ],
+    [
+      "StudioWindow",
+      " · Saved master output",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · Shared output routes: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · Another track is prepared. Stop or prepare the selected track.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Output: %1 dBFS",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Output: −∞ dBFS",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback could not be completed: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Select at least one track to arm.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Punch recording range",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Positions are sample frames at %1 Hz. Input latency is accounted for during preparation.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Enable punch recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Punch in (samples)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Punch out (samples)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project changed. Close this dialog and reopen its punch settings.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Enter nonnegative whole sample positions, with punch out after punch in when enabled.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · captured %1 / written %2",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · failed; recovery available",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording indicators could not be updated: %1. Raise Project resources and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Punch in %1 · punch out %2 samples. Prepared playback end: %3.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "not prepared",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Punch is off. Saved range: %1 to %2 samples.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose an input and every required monitoring output.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording queue is full or closing. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording route was not admitted. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project mix output %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Monitor output %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Input %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 — input %2",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Selected recording track no longer exists.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 ms",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Native recording is not available in this build. Stored takes can still be recovered.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose monitoring, prepare, select inputs, arm, then record.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Preparing recording…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose every required channel and arm the track.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording — EQ changes pending",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording — EQ changes acknowledged",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording range complete. Stop to add the take.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Finalizing recorded audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verifying recovery checkpoint…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recovering a copy of the verified take…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording stopped: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Closing recording…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording closed",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · Prepared monitoring: %1. Stop and prepare to use the saved mode.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Off",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Auto during recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Through track EQ",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Take could not be added. Retry, or keep it for recovery.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Adding verified take to the project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · %1 s · %2 rejected frames",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\nStored recording: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · %n armed track(s)",
+      "",
+      true
+    ],
+    [
+      "StudioWindow",
+      " · %1 missing playback frames",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1: %2 dBFS",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1: −∞ dBFS",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Input",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Project output",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Monitor",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording could not be completed: %1. Any stored checkpoint remains available for recovery.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recover recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\nThis older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recovery queue is full or closing. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Looking for stored recordings…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording discovery failed: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%n recording(s) need review.",
+      "",
+      true
+    ],
+    [
+      "StudioWindow",
+      " %n additional job(s) are listed.",
+      "",
+      true
+    ],
+    [
+      "StudioWindow",
+      " Discovery limit reached; this list is incomplete.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " Some recovery metadata needs attention.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Stored recordings",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "This list shows checkpoint metadata. Review verifies the audio before offering a recovery copy. Active jobs cannot be reviewed.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Needs audio verification",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Needs verification — writer activity unconfirmed",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Active recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "No committed audio",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Different project, track, rate or layout",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Invalid checkpoint: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Matching recovered copy is attached",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · %1 claimed frames",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Metadata warning: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Discovery limit reached. The list is incomplete.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review audio…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Band",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Frequency (Hz)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Gain (dB)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Gain",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Q",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Band %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 frequency",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 gain",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 Q",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 gain slider",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The operation could not be completed: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " — unsaved changes",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 · %2 Hz · %n audio clip(s)",
+      "",
+      true
+    ],
+    [
+      "StudioWindow",
+      "This project has no audio tracks.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Exporting an immutable project snapshot…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verifying recorded take…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Saving project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Opening project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Creating project…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Unsaved changes",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Ready",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Close project",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Save your changes before closing?",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Tracks and timeline",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Audio tracks",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Selected track name",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Mono",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Stereo",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Discrete channels",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "New track channel count",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Track name",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Add track",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Audio %1",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Rename",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Remove track",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Up",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Down",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Clips in selected track",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Selected clip",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Timeline start frame",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Source start frame",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Length in frames",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Split at timeline frame",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Apply range",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Split",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Duplicate",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Remove clip",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Clip destination track",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Move to track",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Recorded media asset",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Insert media clip",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Timeline zoom",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Zoom",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Edit failed: %1",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "View could not be updated: %1",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Select a clip to edit its exact frame range. Raw media is preserved.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Stop audio preparation or recording to edit tracks and clips.",
+      "",
+      false
+    ],
+    [
+      "TimelineView",
+      "Audio clip timeline",
+      "",
+      false
+    ],
+    [
+      "TimelineView",
+      " s",
+      "",
+      false
+    ],
+    [
+      "TimelineView",
+      "Start %1 · source %2 · length %3 frames",
+      "",
+      false
+    ]
+  ]
+}

@@ -5,7 +5,7 @@
   "policy": "Read-only working snapshots; uncommitted source is identified by HEAD plus exact content hash. Archived reference C++ is not compiled. No automatic source adoption or upstream writes.",
   "repositories": {
     "soundcurrent-eq": {
-      "observed_head": "533492cfee9ae9a381ac126d4bd94ecb2a92512a",
+      "observed_head": "2f0a576e4ab752ec5c9343bbc39f09960845e143",
       "files": {
         "src/dsp.cpp": {
           "sha256": "273cbcbd1e2112f98d54840c1af7621f7339a4122624b53d50bc51086add9647",
@@ -22,11 +22,11 @@
           "source_revision": "533492cfee9ae9a381ac126d4bd94ecb2a92512a"
         },
         "src/equipment_profiles.cpp": {
-          "sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
-          "snapshot": "reuse/reviews/2026-10-06/soundcurrent-eq/src/equipment_profiles.cpp",
+          "sha256": "764681ba59eedafd5a6122805e5aa990a08f707082bb3e1516dbce94ed34a5ec",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/src/equipment_profiles.cpp",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
-          "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
         },
         "src/accelerating_spinbox.h": {
           "sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
@@ -90,12 +90,82 @@
           "source_state": "committed",
           "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
           "source_revision": "080195a85be163cf8e4b1516745c63f43f317700"
+        },
+        "src/localization.h": {
+          "sha256": "fe1ad7949a0f542c53a528d5359d43e8483530b54b75ae3a83c0311e4e47730e",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/src/localization.h",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "src/localization_text.h": {
+          "sha256": "10ca37d6fbee10f8bec9faf47ad356ffd6484a92055956d5c5297b053caa14d5",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/src/localization_text.h",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "scripts/localization.py": {
+          "sha256": "a5a2d0570933925e1579d7bc631bdd4bedc2c79920a7f3ec529d4c932bb36fed",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/scripts/localization.py",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "tests/localization.cpp": {
+          "sha256": "68322b6ef8546948f29e5bbe5bc70b2cd45b270504ad5e26b8f22b01362fc481",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/tests/localization.cpp",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "data/localization/seed-translations.json": {
+          "sha256": "f16e0380c8e3acda4d123f1d64872a0136714574018ffd13889d2d61176c1688",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/data/localization/seed-translations.json",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "data/localization/translation-context.json": {
+          "sha256": "daa6230a049c8ef43a022a4086a56f04f48969550299e4a7f67e2af62f1ef72d",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/data/localization/translation-context.json",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "data/localization/catalogs.json": {
+          "sha256": "0c82d17fd0d311072c370df17643963fa51ae5491599888eace3ba2d9ae16887",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/data/localization/catalogs.json",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "docs/localization.md": {
+          "sha256": "e5ecd470144b19843327a6ee16e336fbdea95b4b3f6ebacb41d3b352b7b62731",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/docs/localization.md",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "docs/translation-review.md": {
+          "sha256": "9716f1cca74a3e4cacd36afa9e3acc62a497f8733872a4668d9707cd80010574",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/docs/translation-review.md",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
+        },
+        "LICENSE": {
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-eq/LICENSE",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "2f0a576e4ab752ec5c9343bbc39f09960845e143"
         }
       },
       "previous_observed_head": "080195a85be163cf8e4b1516745c63f43f317700"
     },
     "soundcurrent-studio": {
-      "observed_head": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9",
+      "observed_head": "41c5655ce9f3d2703eacc3a8248559df0a375ac5",
       "files": {
         "src/dsp.cpp": {
           "sha256": "83d1ee61f49c7083645bcaae55943254acfd6d03275268f5041baf13c268afb8",
@@ -112,11 +182,11 @@
           "source_revision": "81d889d0359baf6f5f2e3e72fcbdf99f04fac9a9"
         },
         "src/equipment_profiles.cpp": {
-          "sha256": "579d6f9e7d810ca6ad351e9b950c241f9f7a5a1b6ff187bda0b6ff9e852998b7",
-          "snapshot": "reuse/reviews/2026-10-06/soundcurrent-studio/src/equipment_profiles.cpp",
+          "sha256": "764681ba59eedafd5a6122805e5aa990a08f707082bb3e1516dbce94ed34a5ec",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/src/equipment_profiles.cpp",
           "source_state": "committed",
-          "disposition": "Review only; existing DAW adaptations and catalog remain qualified independently",
-          "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
         },
         "src/accelerating_spinbox.h": {
           "sha256": "c28c8881c4e490e477d5a32a2391e8de1d0d6eb014c06c1bcde9d081659ee8d1",
@@ -180,6 +250,76 @@
           "source_state": "committed",
           "disposition": "Track the premium equipment copy independently; exact bytes match the retained GPL public snapshot.",
           "source_revision": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
+        },
+        "src/localization.h": {
+          "sha256": "fe1ad7949a0f542c53a528d5359d43e8483530b54b75ae3a83c0311e4e47730e",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/src/localization.h",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "src/localization_text.h": {
+          "sha256": "10ca37d6fbee10f8bec9faf47ad356ffd6484a92055956d5c5297b053caa14d5",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/src/localization_text.h",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "scripts/localization.py": {
+          "sha256": "a5a2d0570933925e1579d7bc631bdd4bedc2c79920a7f3ec529d4c932bb36fed",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/scripts/localization.py",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "tests/localization.cpp": {
+          "sha256": "68322b6ef8546948f29e5bbe5bc70b2cd45b270504ad5e26b8f22b01362fc481",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/tests/localization.cpp",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "data/localization/seed-translations.json": {
+          "sha256": "f16e0380c8e3acda4d123f1d64872a0136714574018ffd13889d2d61176c1688",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/data/localization/seed-translations.json",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "data/localization/translation-context.json": {
+          "sha256": "daa6230a049c8ef43a022a4086a56f04f48969550299e4a7f67e2af62f1ef72d",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/data/localization/translation-context.json",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "data/localization/catalogs.json": {
+          "sha256": "adf66b2ee7d0617125acc91a35c68c4490fe9b36151d8d54c6592a8f18031f73",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/data/localization/catalogs.json",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "docs/localization.md": {
+          "sha256": "e5ecd470144b19843327a6ee16e336fbdea95b4b3f6ebacb41d3b352b7b62731",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/docs/localization.md",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "docs/translation-review.md": {
+          "sha256": "9716f1cca74a3e4cacd36afa9e3acc62a497f8733872a4668d9707cd80010574",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/docs/translation-review.md",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
+        },
+        "LICENSE": {
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+          "snapshot": "reuse/reviews/2026-10-07-localization/soundcurrent-studio/LICENSE",
+          "source_state": "committed",
+          "disposition": "Reviewed localization source; DAW adapter retains contextual keys, independent settings, machine IDs and explicit partial/unverified status",
+          "source_revision": "41c5655ce9f3d2703eacc3a8248559df0a375ac5"
         }
       },
       "previous_observed_head": "a63cb44ab4f166dc101cb5e93f8336d33d7e6b26"
