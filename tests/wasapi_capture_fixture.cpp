@@ -58,7 +58,8 @@ json packetJson(const std::optional<WasapiPacketReceipt> &p) {
 }
 json captureTrace(WasapiCaptureTrace &trace) {
     const auto &i = trace.info();
-    json result{{"format","sc-wasapi-capture-lease-trace-v1"},{"qpcFrequency",i.qpcFrequency},
+    json result{{"format","sc-wasapi-capture-lease-trace-v2"},{"qpcFrequency",i.qpcFrequency},
+        {"processingAfterRelease",i.processingAfterRelease},
         {"sampleRate",i.sampleRate},{"channels",i.channels},{"bufferFrames",i.bufferFrames},
         {"devicePeriod100ns",i.devicePeriod100ns},{"streamLatency100ns",i.streamLatency100ns},
         {"capacity",WasapiCaptureTrace::capacity},{"dropped",trace.dropped()},

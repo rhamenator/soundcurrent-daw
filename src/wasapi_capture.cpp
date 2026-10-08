@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/wasapi_capture.hpp>
+#include <soundcurrent/wasapi_packet_copy.hpp>
 #include <initguid.h>
 #include "wasapi_support.hpp"
 
@@ -80,6 +81,7 @@ struct WasapiCaptureStream::State {
     std::atomic<unsigned> prepared{0}, failureReady{0};
     WasapiStreamFailure firstFailure{};
     std::uint32_t frames = 0;
+    std::unique_ptr<PreparedWasapiPacketCopy> packetCopy;
     bool activated = false, joined = false;
     State(WasapiCaptureOptions o, WasapiCaptureCallbacks c)
         : options(std::move(o)), callbacks(c) {
@@ -104,6 +106,31 @@ struct WasapiCaptureStream::State {
                 callbacks.unavailable(callbacks.context, static_cast<std::int32_t>(hr));
         }
     }
+    struct Lease {
+        IAudioCaptureClient *capture;
+        WasapiCaptureCallbacks &callbacks;
+        WasapiCaptureTrace *trace;
+        WasapiCaptureLeaseObservation &observation;
+        static std::int32_t release(void *context, std::uint32_t frames) noexcept {
+            auto &lease = *static_cast<Lease *>(context);
+            const auto hr = lease.capture->ReleaseBuffer(frames);
+            if (lease.trace) {
+                auto &o = lease.observation;
+                o.clockValid = traceClock(o.releasedTicks) && o.clockValid;
+                o.callbackReturnedTicks = o.releasedTicks; // No callback yet; explicit flag is false.
+                o.released = true; o.releaseHresult = static_cast<std::int32_t>(hr);
+            }
+            return static_cast<std::int32_t>(hr);
+        }
+        static void packet(void *context, const WasapiPacket &packet) noexcept {
+            auto &lease = *static_cast<Lease *>(context);
+            lease.callbacks.packet(lease.callbacks.context,packet);
+            if (lease.trace) {
+                auto &o = lease.observation; o.callbackInvoked = true;
+                o.clockValid = traceClock(o.callbackReturnedTicks) && o.clockValid;
+            }
+        }
+    };
     void run() noexcept {
         try {
             Apartment apartment;
@@ -155,6 +182,9 @@ struct WasapiCaptureStream::State {
             check(client->GetBufferSize(&frames), "Read capture capacity");
             if (!frames || frames > options.maximumPacketFrames)
                 throw ProjectError(ErrorCode::InvalidState, "Native capture buffer exceeds admission");
+            // SDK capacity is known now, before Start/AVRT activation. Storage
+            // stays with State until the owner joins and retires it on control.
+            packetCopy = std::make_unique<PreparedWasapiPacketCopy>(options.channels,frames,options.resources);
             if (options.trace) {
                 REFERENCE_TIME period = 0, minimum = 0, latency = 0;
                 check(client->GetDevicePeriod(&period, &minimum), "Read capture period for trace");
@@ -162,7 +192,7 @@ struct WasapiCaptureStream::State {
                 LARGE_INTEGER frequency{};
                 if (!QueryPerformanceFrequency(&frequency) || frequency.QuadPart <= 0 ||
                     !options.trace->prepare({static_cast<std::uint64_t>(frequency.QuadPart),
-                        period, latency, options.sampleRate, options.channels, frames}))
+                        period, latency, options.sampleRate, options.channels, frames, true}))
                     throw ProjectError(ErrorCode::InvalidState, "Native capture trace preparation refused");
             }
             check(client->SetEventHandle(audio.value), "Set capture notification");
@@ -231,26 +261,19 @@ struct WasapiCaptureStream::State {
                         observation.frames = packetFrames; observation.flags = packetFlags;
                         observation.devicePosition = position; observation.packetQpc100ns = qpc;
                     }
-                    if (packetFrames > frames) {
-                        fail(E_INVALIDARG, 2);
-                        end = true;
-                    } else {
-                        const WasapiPacket p{reinterpret_cast<const std::byte *>(data),
-                                             std::size_t(packetFrames) * options.channels * 4,
-                                             packetFrames, packetFlags, position, qpc};
-                        callbacks.packet(callbacks.context, p);
-                        observation.callbackInvoked = true;
+                    const WasapiPacket p{reinterpret_cast<const std::byte *>(data),
+                                         std::size_t(packetFrames) * options.channels * 4,
+                                         packetFrames, packetFlags, position, qpc};
+                    Lease lease{capture.p,callbacks,options.trace,observation};
+                    const auto delivery = packetCopy->deliver(p,{&lease,Lease::release,Lease::packet});
+                    if (options.trace) options.trace->publish(observation);
+                    if (delivery.releaseHresult < 0) {
+                        fail(static_cast<HRESULT>(delivery.releaseHresult),3); end = true; break;
                     }
-                    if (options.trace)
-                        observation.clockValid = traceClock(observation.callbackReturnedTicks) && observation.clockValid;
-                    const auto released = capture->ReleaseBuffer(packetFrames);
-                    if (options.trace) {
-                        observation.clockValid = traceClock(observation.releasedTicks) && observation.clockValid;
-                        observation.released = true;
-                        observation.releaseHresult = static_cast<std::int32_t>(released);
-                        options.trace->publish(observation);
+                    if (delivery.error == WasapiPacketCopyError::InvalidFrames ||
+                        delivery.error == WasapiPacketCopyError::InvalidCallbacks) {
+                        fail(E_INVALIDARG,2); end = true; break;
                     }
-                    if (FAILED(released)) { fail(released, 3); end = true; break; }
                     if (end || WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
                     if (count == 15) catchUp = true;
                 }

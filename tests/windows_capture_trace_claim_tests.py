@@ -12,6 +12,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
 from verify_windows_capture_trace import analyze, claims, executions, unpack
+from analyze_windows_capture_trace import lease_times
 
 
 def refused(call):
@@ -21,6 +22,16 @@ def refused(call):
 
 
 def run():
+    # Synthetic timestamp model only: never relabel original v1 native evidence.
+    ticks = dict(waitStartedTicks=100,wakeTicks=110,acquireStartedTicks=120,
+                 acquiredTicks=130,releasedTicks=140,callbackReturnedTicks=200)
+    assert lease_times(ticks,True) == [100,110,120,130,140,200]
+    refused(lambda: lease_times(ticks,False))
+    changed = dict(ticks,callbackReturnedTicks=135)
+    refused(lambda: lease_times(changed,True))
+    assert lease_times(changed,False) == [100,110,120,130,135,140]
+    refused(lambda: lease_times(dict(ticks,releasedTicks=140.0),True))
+    print('Synthetic v1/v2 timing model: valid controls and three order/type refusals passed')
     receipt = json.loads((ROOT/'tests/results/X007/2026-10-08-windows-capture-trace.json').read_text())
     claims(receipt); count = 0
     for key in ('installedWorkflowQualified','physicalAudioQualified','sustainedAudioQualified',

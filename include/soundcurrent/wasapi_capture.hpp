@@ -18,6 +18,7 @@ struct WasapiCaptureOptions {
     std::uint32_t sampleRate = 48000, channels = 1, maximumPacketFrames = 32768;
     bool loopback = false; // Explicit render endpoint; no cable/driver required.
     WasapiCaptureTrace *trace = nullptr; // Opt-in control-owned diagnostic; outlives stop/join.
+    std::optional<ResourceLedger> resources; // Prepared packet storage; never reserved in callbacks.
 };
 struct WasapiCaptureCallbacks {
     void *context = nullptr;

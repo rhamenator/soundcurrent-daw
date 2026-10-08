@@ -3084,3 +3084,21 @@ Next: pre-admitted packet copy and SDK release before DSP, with exact metadata,
 pointer lifetime and continuity evidence; use the independent installer clone
 for further native checks. Existing local preview/source pairs are unchanged;
 production-EQ Stop and all full-suite gates remain open. The goal stays active.
+
+## Capture packet ownership checkpoint (2026-10-08)
+
+PR #52 merged with protected checks passing. Capture now prepares a resource-
+admitted reusable packet copy, releases the native SDK lease before processing,
+and retires storage after join. Failed releases never reach DSP; silent/invalid
+backing and exact flags/timestamps retain existing strict input semantics.
+Poisoned SDK reuse through the real raw/EQ pipeline proves the consumer does not
+depend on released backing. Focused Linux and sanitizer checks pass 3/3; the
+actual Windows SDK adapter and packet tests cross-compile successfully. Historical
+v1 evidence and all original failed exits remain independently recomputable.
+
+V2 traces explicitly record release before processing; synthetic order/type
+controls keep v1/v2 timing separate. A Windows MSVC unit job is added with no
+endpoint/GUI dependency; its execution remains pending. No native endpoint test
+or installer refresh is claimed for this change. See [checkpoint 110](110-windows-packet-release.md).
+Next: isolated full native build and same-source bounded v2 capture comparisons
+on the installer clone, then exact installed qualification. The goal stays active.

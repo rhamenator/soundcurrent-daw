@@ -139,7 +139,8 @@ void WasapiRecording::connectInputs(const std::vector<PipeWirePort> &ports) {
     s.input = std::move(input);
     auto stream = std::make_unique<WasapiCaptureStream>(
         WasapiCaptureOptions{selected.endpointId, selected.sampleRate, selected.nativeChannels,
-            std::min<std::uint32_t>(65536, s.options.bridge.maximumFrames * 16), selected.loopback},
+            std::min<std::uint32_t>(65536, s.options.bridge.maximumFrames * 16), selected.loopback,
+            nullptr, s.options.bridge.resources},
         WasapiCaptureCallbacks{&s, State::packet, State::unavailable});
     s.stream = std::move(stream); s.inputRouted = true;
 }
