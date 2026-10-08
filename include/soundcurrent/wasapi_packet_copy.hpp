@@ -22,6 +22,10 @@ class PreparedWasapiPacketCopy {
   public:
     PreparedWasapiPacketCopy(std::uint32_t channels, std::uint32_t maximumFrames,
                             std::optional<ResourceLedger> resources = {});
+    PreparedWasapiPacketCopy(const PreparedWasapiPacketCopy &) = delete;
+    PreparedWasapiPacketCopy &operator=(const PreparedWasapiPacketCopy &) = delete;
+    PreparedWasapiPacketCopy(PreparedWasapiPacketCopy &&) = delete;
+    PreparedWasapiPacketCopy &operator=(PreparedWasapiPacketCopy &&) = delete;
     WasapiPacketCopyResult deliver(const WasapiPacket &, WasapiLeaseCallbacks) noexcept;
     std::size_t chargedBytes() const noexcept { return samples_.size()*sizeof(float)+sizeof(*this); }
   private:
