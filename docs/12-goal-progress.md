@@ -3038,3 +3038,24 @@ refused. Source-pinned native evidence is retained; see
 [checkpoint 107](107-windows-end-guard.md). No installer qualification or parity
 promotion is inferred. Next: installer refresh/installed runtime with limitations,
 then actual production lease tracing at Stop. The full goal stays active.
+
+## Installed Windows refresh checkpoint (2026-10-08)
+
+The startup/end-guard source is now paired with a refreshed local Windows setup
+and GPL/dependency sources. New-slot install, payload hashes, shortcuts, actual
+main normal launch/close, removal/reinstall and project/settings preservation pass
+on the independent installer clone with its existing Microsoft runtime. It does
+not establish fresh OS/runtime bootstrap acceptance.
+
+All three installed native workflows are refused for SDK packet discontinuities:
+the first preserves a full raw take then faults in the playback observer; two
+unchanged repeats preserve partial raw takes. Every saved raw sample matches the
+original source. All failures and final cleanup are retained, not replaced with
+success. See [checkpoint 108](108-windows-installer-refresh.md).
+
+The Ubuntu recording preview remains available. The refreshed Windows artifact
+is delivered locally as an installation/UI preview with experimental native audio
+and explicit abrupt-Stop/capture limitations. No public binary upload or parity
+promotion. Next: bounded native packet/lease telemetry and installed capture
+continuity qualification, plus the independent production-EQ Stop trace.
+The full frozen goal remains active and incomplete.

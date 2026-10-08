@@ -1,0 +1,294 @@
+{
+  "format": "sc-windows-installer-refresh-v1",
+  "scope": "Existing-runtime, independent Windows clone; normal installation/UI acceptance with all three installed native attempts refused for SDK packet discontinuities. No installed native workflow or fresh OS/runtime bootstrap qualification.",
+  "sourceHead": "e91585d523d651f75ad4a3fae71ef3d2dae8c8fb",
+  "nativeSourceEpoch": "87a74cb196b4ccd746e5d237e73e13d574598129",
+  "sequence": "20261008151000",
+  "installerSha256": "82f77b292765f8ca0a1eb9c0ebc02d746390dd90452b83bbea7d2c1e11b0a6f0",
+  "installerBytes": 33759781,
+  "installedUiQualified": true,
+  "installedNativeWorkflowQualified": false,
+  "cleanRuntimeBootstrapReplayed": false,
+  "captureDiscontinuityCauseIsolated": false,
+  "productionEqStopResolved": false,
+  "physicalOrSustainedQualified": false,
+  "releaseUploaded": false,
+  "fullParityPromoted": false,
+  "failures": {
+    "1": {
+      "committedFrames": 462720,
+      "expectedPosition": 463200,
+      "rejectedPosition": 463680,
+      "observer": true,
+      "rawFrames": 480000,
+      "stderr": "Native playback observer fault"
+    },
+    "2": {
+      "committedFrames": 215040,
+      "expectedPosition": 241920,
+      "rejectedPosition": 242400,
+      "observer": false,
+      "rawFrames": 215040,
+      "stderr": "Recording input/clock/capture stopped (status 6)"
+    },
+    "3": {
+      "committedFrames": 357120,
+      "expectedPosition": 384480,
+      "rejectedPosition": 384960,
+      "observer": false,
+      "rawFrames": 357120,
+      "stderr": "Recording input/clock/capture stopped (status 6)"
+    }
+  },
+  "rawEvidence": {
+    "1": {
+      "rawFrames": 480000,
+      "rawSourceOffset": 26336,
+      "rawMaximumError": 0,
+      "workflowQualified": false
+    },
+    "2": {
+      "rawFrames": 215040,
+      "rawSourceOffset": 26336,
+      "rawMaximumError": 0,
+      "workflowQualified": false
+    },
+    "3": {
+      "rawFrames": 357120,
+      "rawSourceOffset": 26816,
+      "rawMaximumError": 0,
+      "workflowQualified": false
+    }
+  },
+  "capsule": {
+    "name": "2026-10-08-windows-installer-refresh.zip",
+    "bytes": 15203590,
+    "sha256": "dcb0644286f5e0aa76934cbbba7596a8b6d1ea7a832740cb0312f82091708105",
+    "files": {
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-cc1480a3-d361-4435-9026-dd5074a902d5/first-fault.json": {
+        "bytes": 1207,
+        "sha256": "7de1763fbbcdaf8356add490a22630eef7602b0d88a2469529314e559e323774"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-cc1480a3-d361-4435-9026-dd5074a902d5/journal.json": {
+        "bytes": 908,
+        "sha256": "f12d9907ee7c26aa25d90272c84cca5aa9d2fc2d7168f88827506b8fd215979f"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-cc1480a3-d361-4435-9026-dd5074a902d5/take.wav": {
+        "bytes": 3701864,
+        "sha256": "abdd0145bf6ecc991a672de9a97f92aa5cb70a06a4773c3b995823f56b3be311"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/loopback/media/capture-cc1480a3-d361-4435-9026-dd5074a902d5/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-b1b08c78-e0e7-4ff8-ab44-0999c39de331/journal.json": {
+        "bytes": 908,
+        "sha256": "0f9f7426ca1093ef5b875dd047f22a4575c854e9208726b2e280724e5086781a"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-b1b08c78-e0e7-4ff8-ab44-0999c39de331/take.wav": {
+        "bytes": 1920104,
+        "sha256": "32f7203ba11378a344973b84b1ecf038af34d5cae7d0137e40897e3fd428d18a"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-b1b08c78-e0e7-4ff8-ab44-0999c39de331/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.json": {
+        "bytes": 1748,
+        "sha256": "9acdf208e1cf21178a8b9bc82e46816f6048e6564a3f1ac773f87d4a96831f45"
+      },
+      "attempt-1/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/source-stereo.f32": {
+        "bytes": 4608000,
+        "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
+      },
+      "attempt-1/endpoints.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/endpoints.stdout": {
+        "bytes": 900,
+        "sha256": "a86aa1d7c47de66065f4f94008326aeee0bb500923750cf5ef4c19b519c7115e"
+      },
+      "attempt-1/failure.txt": {
+        "bytes": 400,
+        "sha256": "c3acc16f2e549ec71cccb9720db67ead3e3f6f46333d45f587c635cbb26ca8b6"
+      },
+      "attempt-1/main-after-reinstall.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/main-after-reinstall.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/main-before-remove.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/main-before-remove.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/native-workflow.stderr": {
+        "bytes": 32,
+        "sha256": "9eff33f3b7cc726922fa96a661fcd4f047d7c9db3e6da6421e3075e70056db76"
+      },
+      "attempt-1/native-workflow.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/reinstall.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/reinstall.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/result.json": {
+        "bytes": 64312,
+        "sha256": "4d3c9d1b8c4cc557501fb4eca18fb9568bf86d08cba6937e59b1e0ab8b2cfdce"
+      },
+      "attempt-1/setup.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/setup.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/uninstall.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-1/uninstall.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-2/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-2/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-2a5f29c8-4e4a-43db-acde-f631541db5c3/first-fault.json": {
+        "bytes": 1205,
+        "sha256": "daaf49b8db751c0da21ef0749ab0c1d3047e281e4ad33e5e0c85b42bc574bdd4"
+      },
+      "attempt-2/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-2a5f29c8-4e4a-43db-acde-f631541db5c3/journal.json": {
+        "bytes": 907,
+        "sha256": "9879ce1456a63e1b2f3e8375bbbd8157f77be299cbc47ff969f0c5510dad7b36"
+      },
+      "attempt-2/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-2a5f29c8-4e4a-43db-acde-f631541db5c3/take.wav": {
+        "bytes": 860264,
+        "sha256": "d3f947db0007b2729bbb4ffc590da45db74cbfbaa493ae5891526757bce70c2f"
+      },
+      "attempt-2/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-2a5f29c8-4e4a-43db-acde-f631541db5c3/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-2/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.json": {
+        "bytes": 1748,
+        "sha256": "f3bf4a1de2c70ba8d2195352b5bf2f836cf0353f9695bf9796c229372f4faea7"
+      },
+      "attempt-2/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/source-stereo.f32": {
+        "bytes": 4608000,
+        "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
+      },
+      "attempt-2/endpoints.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-2/endpoints.stdout": {
+        "bytes": 900,
+        "sha256": "a86aa1d7c47de66065f4f94008326aeee0bb500923750cf5ef4c19b519c7115e"
+      },
+      "attempt-2/failure.txt": {
+        "bytes": 404,
+        "sha256": "864f8508b491bf622d4323a35df980b396f49c2c172ba10df7a2922d48cfc3c2"
+      },
+      "attempt-2/native-workflow.stderr": {
+        "bytes": 50,
+        "sha256": "84ea2b8ac1674db750b6147a41dd3ec8f137d05b69034a2ce658df04cf3cba1c"
+      },
+      "attempt-2/native-workflow.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-2/result.json": {
+        "bytes": 18949,
+        "sha256": "f9ed535f092d3807e9cbc621d2a73e3a4a082f34dd8573976a6f2200ca4eaa10"
+      },
+      "attempt-3/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-3/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-243d9bf1-08cf-4f99-984b-96ba475c8de5/first-fault.json": {
+        "bytes": 1205,
+        "sha256": "1639b3245b4631863bcfb62ed7d1d1ee5c8fc1a7981e66de76f93f9bb4963d9f"
+      },
+      "attempt-3/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-243d9bf1-08cf-4f99-984b-96ba475c8de5/journal.json": {
+        "bytes": 908,
+        "sha256": "01d2e45b4d09052fa388b730954de6757b76529d19e86b168c750bd1fa429798"
+      },
+      "attempt-3/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-243d9bf1-08cf-4f99-984b-96ba475c8de5/take.wav": {
+        "bytes": 1428584,
+        "sha256": "2cf05c0b8eb59db06b8148c8d77a741f8db71727ef99861bf132a96a7324ee67"
+      },
+      "attempt-3/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/media/capture-243d9bf1-08cf-4f99-984b-96ba475c8de5/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-3/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/project.json": {
+        "bytes": 1748,
+        "sha256": "685a8cf2a761f91d9b609ec2012fc90b2a4ce1fb1e6c1f985af0678f59764506"
+      },
+      "attempt-3/Installed workflow - \u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac/source-stereo.f32": {
+        "bytes": 4608000,
+        "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
+      },
+      "attempt-3/endpoints.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-3/endpoints.stdout": {
+        "bytes": 900,
+        "sha256": "a86aa1d7c47de66065f4f94008326aeee0bb500923750cf5ef4c19b519c7115e"
+      },
+      "attempt-3/failure.txt": {
+        "bytes": 404,
+        "sha256": "864f8508b491bf622d4323a35df980b396f49c2c172ba10df7a2922d48cfc3c2"
+      },
+      "attempt-3/native-workflow.stderr": {
+        "bytes": 50,
+        "sha256": "84ea2b8ac1674db750b6147a41dd3ec8f137d05b69034a2ce658df04cf3cba1c"
+      },
+      "attempt-3/native-workflow.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt-3/result.json": {
+        "bytes": 16941,
+        "sha256": "fe984a6e036edbb2e32d9182579b8fd220af58eb215e1e8fcdf272c2cb48a7e1"
+      },
+      "cleanup/result.json": {
+        "bytes": 420,
+        "sha256": "317c80e0f15930045e486c71d5a67969cc808d12a172555db9777cfdd90342a3"
+      },
+      "prepared/inputs.json": {
+        "bytes": 49996,
+        "sha256": "ec5f57d68d4308e6a6bbb3ff15c0c1c3dfffad4ae5b799c39a4497711e7f35c8"
+      },
+      "prepared/receipt.json": {
+        "bytes": 10239,
+        "sha256": "6abacd998208aec506233cc529db83087fcc59291dc19f2b5f0925fe657da063"
+      },
+      "prepared/test-tools.json": {
+        "bytes": 526,
+        "sha256": "48db251ac381b9153a5b0eb744fd3066417247eae6ddcb393eb3c01c0437de1f"
+      }
+    }
+  }
+}

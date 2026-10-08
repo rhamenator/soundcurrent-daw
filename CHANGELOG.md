@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- A refreshed local Windows installer/source pair passes normal installation,
+  shortcuts, main launch/close and preservation through removal/reinstall using
+  installed runtime DLLs. Three capture-discontinuity failures are retained;
+  this artifact is an installation/UI preview with experimental native audio.
+
 - WASAPI normal playback now submits a bounded native-only silent end guard.
   Owned native tests preserve all non-silent final samples and short ranges;
   startup/end/engine frames remain distinct. Cancellation during the guard stays
