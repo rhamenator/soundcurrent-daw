@@ -7,10 +7,12 @@ not promote a frozen parity row or establish a complete language/platform.
 ## First delivery
 
 Windows checkpoint, 2026-10-08: the [native single-track desktop workflow](99-windows-desktop-workflow.md)
-now passes owned loopback recording, live EQ/Undo, playback, save/reopen and WAV
-sample checks with a silent lead-in. This is developer-runtime evidence. The
-Windows installer/source pair, clean install and non-silent startup remain open;
-there is no Windows installer available for users yet.
+passes owned loopback recording, live EQ/Undo, playback, save/reopen and WAV
+sample checks with a silent lead-in. The subsequent
+[installed Windows preview](102-windows-installed-workflow-preview.md) now provides
+a local per-user setup/source pair with bounded clean-clone installation,
+recording and removal evidence. Physical, non-silent startup, sustained audio
+and broader installer qualification remain open; no binary release is uploaded.
 
 An Ubuntu 26.04 amd64 recording/EQ/project/WAV preview using the existing PipeWire
 backend. Include a normal DEB application package, desktop/menu icon, declared

@@ -2914,3 +2914,35 @@ Windows per-user installer/source preparation now has bounded input refusal
 tests, fixed-file removal and independent signed runtime setup; clean installed
 main/shortcut/audio/uninstall tests are the next gate. This is progress toward
 X007, not full-suite or installer qualification. See [checkpoint 101](101-windows-installer-preparation.md).
+
+## Windows installable workflow preview checkpoint (2026-10-08)
+
+Protected PR44 merged installer preparation and review corrections after both
+required checks passed. The source-paired Windows 11 x64 candidate now has scoped
+clean-clone installation, runtime bootstrap, shortcuts, actual-main/dependency
+launch, exact-file removal/reinstall and project/settings preservation evidence.
+A test-only production-UI/native-controller workflow uses installed DLLs; its
+unchanged retry passes independently checked raw/live-output/export samples.
+The original 480-frame observer discontinuity remains retained and unisolated.
+See [checkpoint 102](102-windows-installed-workflow-preview.md) and X007 receipt.
+This supports a useful local Windows preview alongside the Ubuntu DEB, with no
+public binary upload. Physical/sustained audio, monitoring/duplex, broader
+installer/language/release gates and full F/Q/C/N parity remain open. The full
+goal stays active and incomplete. Next: physical format/record/play diagnostics
+and startup/discontinuity qualification.
+
+## Installed preview evidence review checkpoint (2026-10-08)
+
+The Windows candidate's exact native source inputs now match its frozen Git
+commit, including the native fixture source. A new unchanged installed workflow
+records the fixture's own module paths and pinned executable identity; the five
+Qt/platform/media DLLs load from the installed slot. Independent samples again
+pass with zero raw/export errors and measured playback residual. Ten mutations
+refuse stale sources, SDK-loaded dependencies and incorrect fault claims.
+The expanded capsule preserves all original payloads and both failed inspection
+harnesses. The original observer discontinuity remains unisolated. The clean
+clone is shut down and temporary transfer infrastructure is removed.
+This strengthens the local preview evidence without changing installer bytes
+or claiming physical, sustained or full-suite qualification. The next concrete
+implementation remains actionable device-format diagnostics for recording and
+playback, followed by native physical workflow qualification.

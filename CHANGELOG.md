@@ -4,13 +4,16 @@
 
 - Local Windows 11 x64 installer preparation with per-user preview slots, desktop
   and Start-menu shortcuts, exact-file uninstall, signed Microsoft runtime setup
-  and paired GPL/dependency sources. Clean-installed workflows remain unqualified.
+  and paired GPL/dependency sources. A clean-clone install/main/shortcut/removal/
+  reinstall workflow and unchanged native recording/EQ/Undo/project/WAV retry
+  pass independent checks. The original observer discontinuity is retained.
 
 - Native Windows desktop playback and single-track recording factories, stable
   device/channel route identities, project sample-rate selection and visible
   monitoring limits. An owned native GUI record/EQ/Undo/play/save/reopen/WAV workflow
   passes independent media checks with a silent lead-in. Non-silent startup,
-  Windows monitoring/duplex and the installer remain unqualified.
+  Windows monitoring/duplex and broader installer/failure/upgrade qualification
+  remain open.
 - Late recording-writer failures are reported independently of completed audio
   processing, preserving other finalized lanes and the failed writer's checkpoint.
 
