@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "wasapi_input.hpp"
+#include "wasapi_capture_trace.hpp"
 #include <memory>
 #include <string>
 namespace soundcurrent::daw {
@@ -16,6 +17,7 @@ struct WasapiCaptureOptions {
     std::string endpointId;
     std::uint32_t sampleRate = 48000, channels = 1, maximumPacketFrames = 32768;
     bool loopback = false; // Explicit render endpoint; no cable/driver required.
+    WasapiCaptureTrace *trace = nullptr; // Opt-in control-owned diagnostic; outlives stop/join.
 };
 struct WasapiCaptureCallbacks {
     void *context = nullptr;
