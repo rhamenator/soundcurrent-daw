@@ -47,12 +47,13 @@ void plainFile(const std::filesystem::path &p) {
             "Media reparse point refused");
 #endif
 }
-File::File(const std::filesystem::path &p, bool create) {
+File::File(const std::filesystem::path &p, bool create, bool inspectActiveWriter) {
     if (!create)
         plainFile(p);
 #ifdef _WIN32
     const auto h = CreateFileW(p.c_str(), create ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ,
-                               FILE_SHARE_READ, nullptr, create ? CREATE_NEW : OPEN_EXISTING,
+                               FILE_SHARE_READ | (!create && inspectActiveWriter ? FILE_SHARE_WRITE : 0),
+                               nullptr, create ? CREATE_NEW : OPEN_EXISTING,
                                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
     require(h != INVALID_HANDLE_VALUE, "Cannot open media descriptor");
     FILE_ATTRIBUTE_TAG_INFO tag{};
@@ -66,6 +67,7 @@ File::File(const std::filesystem::path &p, bool create) {
     if (fd_ < 0)
         CloseHandle(h);
 #else
+    (void)inspectActiveWriter;
     fd_ = open(p.c_str(),
                create ? O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC | O_NOFOLLOW
                       : O_RDONLY | O_CLOEXEC | O_NOFOLLOW,

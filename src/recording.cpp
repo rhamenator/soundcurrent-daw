@@ -20,8 +20,9 @@ struct AudioFile {
     media_io::File descriptor;
     SNDFILE *file = nullptr;
     SF_INFO info{};
-    AudioFile(const std::filesystem::path &path, const RecordingSpec *spec = nullptr)
-        : descriptor(path, spec != nullptr) {
+    AudioFile(const std::filesystem::path &path, const RecordingSpec *spec = nullptr,
+              bool inspectActiveWriter = false)
+        : descriptor(path, spec != nullptr, inspectActiveWriter) {
         if (spec) {
             info.samplerate = static_cast<int>(spec->capture.sampleRate);
             info.channels = static_cast<int>(spec->capture.layout.channels);
@@ -601,7 +602,7 @@ RecordingRecovery inspectRecording(const std::filesystem::path &job,
         require(std::filesystem::equivalent(partial, final), "Ambiguous recording files");
     }
     r.source = hasPartial ? partial : final;
-    AudioFile audio(r.source);
+    AudioFile audio(r.source, nullptr, !requireInactive && !r.finalized);
     checkAudio(audio, r);
     r.observedFrames = audio.info.frames;
     media_io::SampleHash hash;

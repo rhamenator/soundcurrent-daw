@@ -1,0 +1,921 @@
+{
+  "format": "sc-windows-capture-evidence",
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "baseline": "SC-DAW-BASELINE-2026-10-05",
+  "sourceBase": "d2f1e234cfed054252cec3b6b3a74c2a3118d899",
+  "archive": {
+    "name": "2026-10-08-windows-capture-foundation.zip",
+    "bytes": 10394040,
+    "sha256": "fa2e33a477b49a48f2c8cf31f055e8b8a525338f9846ce8df739fa1181feddc8"
+  },
+  "payloadManifest": [
+    {
+      "path": "logs/verify-wasapi-native-v5.py",
+      "bytes": 2038,
+      "sha256": "f6968dee2690dfa7bac96be5fcf4f810b349b3731f2bead8eda305450517e13e"
+    },
+    {
+      "path": "logs/wasapi-asan-tests.log",
+      "bytes": 467,
+      "sha256": "d2c3043476b55b96d753bc86f7b2d1bfefeee2507e662154cd1d9802e97379d9"
+    },
+    {
+      "path": "logs/wasapi-linux-affected-tests.log",
+      "bytes": 354,
+      "sha256": "0272e61c0920fa942b8dc158b1ae40afa438546b791ae579893afe17142df99a"
+    },
+    {
+      "path": "logs/wasapi-linux-recording-tests.log",
+      "bytes": 250,
+      "sha256": "d8c2a812537fae98b07db2b44dcafd21cd85e3020165d053f18bd9468afc200c"
+    },
+    {
+      "path": "logs/wasapi-native-input-v4.log",
+      "bytes": 1171,
+      "sha256": "0858f7eff847508dfd8fab73fb2e1f3d06679f6d0e9982a3d5b4d5ed20101a44"
+    },
+    {
+      "path": "logs/wasapi-native-input.log",
+      "bytes": 966,
+      "sha256": "a020ff37ca49841952edff5b83d9fdee3d8e53fcb8b9ae2ca1f834b2725bf7e1"
+    },
+    {
+      "path": "logs/wasapi-native-interactive-v6-retry.log",
+      "bytes": 1648,
+      "sha256": "facb6c949757f0bbd3f6f4a71bef4cfa8d8702596d84e0ee831449a62e4df01b"
+    },
+    {
+      "path": "logs/wasapi-native-interactive-v6.log",
+      "bytes": 1536,
+      "sha256": "66ee1166d825a3b5429ccc382eb2ac60b389e1430d2a26f1e495369efde318e2"
+    },
+    {
+      "path": "logs/wasapi-native-interactive.log",
+      "bytes": 1649,
+      "sha256": "fbac17ddb106385bcae04b045ff92544063a73f64f1780dc4cea1ac863336465"
+    },
+    {
+      "path": "logs/wasapi-native-v1-inventory.log",
+      "bytes": 2357,
+      "sha256": "ea695098ee2a696980900aa4bbd17019918d3fd1cba0816519f05f22ae7bff25"
+    },
+    {
+      "path": "logs/wasapi-native-v1-tests.log",
+      "bytes": 3018,
+      "sha256": "ed83144aa3212d5f00c51cdd0246c9cc57435d3cb3d0833e195b07b77ed85a40"
+    },
+    {
+      "path": "logs/wasapi-native-v2-capture.log",
+      "bytes": 5136,
+      "sha256": "9ab427c8805f2065343057a6e4aaf47378dcbcd2ad2c6426425fd8dd83db8407"
+    },
+    {
+      "path": "logs/wasapi-native-v3-capture.log",
+      "bytes": 1745,
+      "sha256": "2e480a4441576c3f761bd284528cc42e1e83ec09306f7b05d93607acd290fff4"
+    },
+    {
+      "path": "logs/wasapi-native-v4-capture.log",
+      "bytes": 1832,
+      "sha256": "584e88b23b77b5616b1431273d58070c3bf4bfa55654d7622f0fb228eafbbb31"
+    },
+    {
+      "path": "logs/wasapi-native-v5-capture.log",
+      "bytes": 1238,
+      "sha256": "fc49fdcbc49b7e0f0934caf0b2bd90ee0c3a7b2641656d7d250e3e0b15b74fd9"
+    },
+    {
+      "path": "logs/wasapi-native-v6-final-oracle.json",
+      "bytes": 463,
+      "sha256": "bdcb9f3915a9e59ad4f231a3a7a41de072341818724498436fc0eb130cc7d6f9"
+    },
+    {
+      "path": "logs/wasapi-native-version.log",
+      "bytes": 269,
+      "sha256": "7ebf9b45a091fb157d3f250bde61f12685437c9481f11a1e9baec5075624110c"
+    },
+    {
+      "path": "logs/wasapi-windows-build-v10.log",
+      "bytes": 163,
+      "sha256": "2f0493948de96bca4c2fdee2a99fd88d8ad4021ac34d430e30e58e09c998567c"
+    },
+    {
+      "path": "logs/wasapi-windows-build-v3.log",
+      "bytes": 7254,
+      "sha256": "7c0f8173bc6bc65e452ed5387873d4d622d30192996b7bf1707448ecf8d48152"
+    },
+    {
+      "path": "logs/wasapi-windows-build-v4.log",
+      "bytes": 2278,
+      "sha256": "63d074bddd3f3cfb0c5cf3a837c00b57e29be6fb0af7066dbe3227b2bcb65f1f"
+    },
+    {
+      "path": "logs/wasapi-windows-build-v5.log",
+      "bytes": 201,
+      "sha256": "a1bd41b11f54bd6afe9910597769fa72ad4d4d5dc31cc70c90d498f69bbd9de1"
+    },
+    {
+      "path": "logs/wasapi-windows-build-v7.log",
+      "bytes": 692,
+      "sha256": "62f44b034868787da93f1dbcbfce057753cd8915bf85b1cbd9710ebc4a67637d"
+    },
+    {
+      "path": "logs/wasapi-windows-build-v8.log",
+      "bytes": 305,
+      "sha256": "1ebbf07aeb8c245e021f98acf0d837907d3cff267b5b032499f0fc1c48dca06e"
+    },
+    {
+      "path": "logs/wasapi-windows-build-v9.log",
+      "bytes": 163,
+      "sha256": "2f0493948de96bca4c2fdee2a99fd88d8ad4021ac34d430e30e58e09c998567c"
+    },
+    {
+      "path": "logs/windows-preview-reuse-audit.json",
+      "bytes": 12760,
+      "sha256": "b659a4c48559147103954590a0d32da33b01cd8b8a8c5a1d96d84f0a0d0e7bed"
+    },
+    {
+      "path": "oracle/verify_input_acquisition.py",
+      "bytes": 8827,
+      "sha256": "f8b330d1950dced7f54b2c8c0aae7850a3738ca8e851731d2789fa8244ca5e57"
+    },
+    {
+      "path": "oracle/verify_windows_capture.py",
+      "bytes": 2222,
+      "sha256": "d42d83cef10a97e05ecc55a418dfeac401676908394c321e8d9cbd22ddc15bc9"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/NativeInput-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/NativeInput-Δοκιμή/media/capture-f93ae67a-9a72-4399-9124-92b2e3fb37c7/first-fault.json",
+      "bytes": 1190,
+      "sha256": "514ff2cc162ab664379513739c9336a6e1033f9c65c047ca67bd2ff5fed3800d"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/NativeInput-Δοκιμή/media/capture-f93ae67a-9a72-4399-9124-92b2e3fb37c7/journal.json",
+      "bytes": 900,
+      "sha256": "2d0963526c0417203d5da439bad3fd3510596008fe52462d6074ac8dd9fd2280"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/NativeInput-Δοκιμή/media/capture-f93ae67a-9a72-4399-9124-92b2e3fb37c7/take.wav",
+      "bytes": 1916,
+      "sha256": "728a1c13157a85084707286f57f9da4560b310b115ce7c05fa12f3fc98e9919e"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/NativeInput-Δοκιμή/media/capture-f93ae67a-9a72-4399-9124-92b2e3fb37c7/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/NativeInput-Δοκιμή/probe.json",
+      "bytes": 744,
+      "sha256": "09b7f2044b0e1fa0b55f121134399c548c9d84288a344c6f0d7d148c7af0a26a"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/NativeInput-Δοκιμή/project.json",
+      "bytes": 1761,
+      "sha256": "6882c1bde79951029dbc75981ca46028d390e02613c5bf557a8aacc936a0aeb7"
+    },
+    {
+      "path": "runs/wasapi-native-input-results/input-result.json",
+      "bytes": 349,
+      "sha256": "3200ce8bcae05dad74962ae1b07042faaa9fe1c1c7ff0b89e5dffb4601497184"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/exports/native.wav",
+      "bytes": 352880,
+      "sha256": "6bd5336e9cedcdeabd3086b1faaef31015ec812fcbd0a42bae36bea3e2f96ccf"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/media/capture-30d223a1-bf58-409e-998d-4747bd4b8cfd/journal.json",
+      "bytes": 903,
+      "sha256": "a2f535e2c599a371a0db96529612f254c0c1f41998197f2457bb458a6107554d"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/media/capture-30d223a1-bf58-409e-998d-4747bd4b8cfd/take.wav",
+      "bytes": 352904,
+      "sha256": "aa44ddf1441cb89a4c3e785cb2e8ec83171b6e470aa5e9385a8b2314cbbcc415"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/media/capture-30d223a1-bf58-409e-998d-4747bd4b8cfd/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/probe.json",
+      "bytes": 949,
+      "sha256": "181ec906d7e0021f58e23ab15f50060676c4efb020cbf441e429c6cc1b200134"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/project.json",
+      "bytes": 2342,
+      "sha256": "c906e182b0350787159be98c93bef7f47b0b31c0a05dba5e83d2ac167f95c3e5"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/NativeInput-Δοκιμή/project.previous.json",
+      "bytes": 1761,
+      "sha256": "31faa04dbcabd61e20408db877445cceae040569f92261a966f34fe763cf753c"
+    },
+    {
+      "path": "runs/wasapi-native-input-v4-results/input-result.json",
+      "bytes": 349,
+      "sha256": "49ec2a138551709e072ded1d2ac9a4c5a9d76a1358b7c8f046c19c807438085b"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/exports/native.wav",
+      "bytes": 384080,
+      "sha256": "bef5fc054795810d4c9953ba848d52f84713d2359354e86a340bce29011b5ebb"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/generated-source.f32",
+      "bytes": 1536000,
+      "sha256": "69470af2d624b18e71f4df4822ea12cf6d836e6d035f4f0180da2e75926f6b66"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/media/capture-5c968786-88e1-4f82-8a2f-00c62a7a65ec/journal.json",
+      "bytes": 905,
+      "sha256": "5a9c2a3fabe9d2aa122d7507a4fc4556b51c8b900ef432eeb8af23b64bd71db2"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/media/capture-5c968786-88e1-4f82-8a2f-00c62a7a65ec/take.wav",
+      "bytes": 384104,
+      "sha256": "000910cbf2b1e84d42d8f46fc9b77a3896804bf624320045a59054044ea9fbef"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/media/capture-5c968786-88e1-4f82-8a2f-00c62a7a65ec/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/probe.json",
+      "bytes": 866,
+      "sha256": "2db6ab234d41c04c79ea23b8cb302935fc6be4f06fec6bebb6c2e0000cd076ab"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/project.json",
+      "bytes": 2342,
+      "sha256": "082b2f36abfeaa8ce3fde71d996201598fc1d313dd8cb19eb94b745258c1d41a"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/Native-Δοκιμή/project.previous.json",
+      "bytes": 1761,
+      "sha256": "42427e4421bdd640adb9b8fdde70f52e56c6d196b10cb11ac8f21c6cd2e8827f"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/inventory.json",
+      "bytes": 1544,
+      "sha256": "566022d1efaf29336a82146684d77cb6881110daadb51250a0ad92a150a5ee00"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/manifest.json",
+      "bytes": 3499,
+      "sha256": "a9ecbce7bb7242d461e85a5435d18cdd1c2be45b5e7d5b7c2c5ba002cde396ca"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/native-tests.json",
+      "bytes": 275,
+      "sha256": "fe8e92babd7220c8496ccb68fa9849e4fb8a2c97885e68e4012ad3ea608dd029"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/run-result.json",
+      "bytes": 384,
+      "sha256": "3edaddda6e1700442a93cd90819bf67d0ef11499e0eb9eab14ff0c430f68b717"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/CMakeLists.txt",
+      "bytes": 49899,
+      "sha256": "e9d49a576aa26ef5f7934347d0b97160398f2cfd6c584be7004c36aac6298195"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/include/soundcurrent/wasapi_capture.hpp",
+      "bytes": 1822,
+      "sha256": "543fb7e2df6965e5bcf5a31051ceab801f6007ff889ccb006e172ba049020d0c"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/include/soundcurrent/wasapi_input.hpp",
+      "bytes": 2120,
+      "sha256": "8634859fbbcd2f1316aea75943833f370aeb7ddcde18878bfacf5c84b24fc77a"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/src/media_io.cpp",
+      "bytes": 13222,
+      "sha256": "5368120ff436796fdcc4daedf2d83458aa24bef2253f76f865ccb43568ba5568"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/src/media_io.hpp",
+      "bytes": 2044,
+      "sha256": "ef4660bab281c183b01e8283cc8199ed408094d50eb44fb3cb0eb9967e4ff153"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/src/recording.cpp",
+      "bytes": 44421,
+      "sha256": "0c4630042b2a74da53c61f8c5e7b2c23e0110ccbb04a135213054ce5dfbc88d0"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/src/wasapi_capture.cpp",
+      "bytes": 15533,
+      "sha256": "83215720d32d476787686fd4bec970fba9b06e1dd5e52785d01103ba5afbd6b8"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/src/wasapi_input.cpp",
+      "bytes": 6563,
+      "sha256": "40096b6db873fce761b259975ae71e84e89d17b90fb7917362916f7558d013c6"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/tests/export_tests.cpp",
+      "bytes": 24052,
+      "sha256": "57690c3098d29d9c655af3c0806d161586feb03ffca4a16c6964e17b8c22bd30"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/tests/wasapi_capture_fixture.cpp",
+      "bytes": 7300,
+      "sha256": "0f53d462f65da41ac9e19fcdb1517e1b5d95515c42209764ae37e0aa2552d197"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/tests/wasapi_input_tests.cpp",
+      "bytes": 8324,
+      "sha256": "df6bda272908be13d273528167ea0a8d6106b8761bfe424d16113c8246caa282"
+    },
+    {
+      "path": "runs/wasapi-native-v3-results/wasapi-native-v3/source/tests/wasapi_test_source.hpp",
+      "bytes": 4548,
+      "sha256": "35eaa062aac3f1c02594746a485702a93b1eb7d88b1e8960cd7732bd947d2e54"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/exports/native.wav",
+      "bytes": 384080,
+      "sha256": "847946b69b560fcf05ccd292e05d4ee69a532a3bcea5e4fc2327ae41910ecc66"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/generated-source.f32",
+      "bytes": 1536000,
+      "sha256": "69470af2d624b18e71f4df4822ea12cf6d836e6d035f4f0180da2e75926f6b66"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/media/capture-0e247827-b83f-4cbf-965e-28a844c98e74/journal.json",
+      "bytes": 905,
+      "sha256": "b7c523bd7d794659c5a9b2d503ecee88b95c320e7f857c8cc29abc2bd40465a9"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/media/capture-0e247827-b83f-4cbf-965e-28a844c98e74/take.wav",
+      "bytes": 384104,
+      "sha256": "e81e1914981826d0f36bd384870ceaec24f175b660dce9f1928de7ef854b8a78"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/media/capture-0e247827-b83f-4cbf-965e-28a844c98e74/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/probe.json",
+      "bytes": 1021,
+      "sha256": "177ca6c9d8c90563e4d64cbb33fbc57604bf7561c8d2b7c6a2979812d07d16da"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/project.json",
+      "bytes": 2342,
+      "sha256": "d9bce7daf776646d6b919c313d4b44cb13896243e493f5824bbe263225a0d964"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Interactive-Δοκιμή/project.previous.json",
+      "bytes": 1761,
+      "sha256": "06518f5b5a61617aa422f45fc830b68554468385a7918be3daf3909b6e05fb80"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/exports/native.wav",
+      "bytes": 384080,
+      "sha256": "bef5fc054795810d4c9953ba848d52f84713d2359354e86a340bce29011b5ebb"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/generated-source.f32",
+      "bytes": 1536000,
+      "sha256": "69470af2d624b18e71f4df4822ea12cf6d836e6d035f4f0180da2e75926f6b66"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/media/capture-8fa9f09f-06e7-49e6-94af-3c912a7a106e/journal.json",
+      "bytes": 903,
+      "sha256": "18c416fe19c3aa3b7b788d1c7a052471708b4cdbba196845ea813d9fc2336d7f"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/media/capture-8fa9f09f-06e7-49e6-94af-3c912a7a106e/take.wav",
+      "bytes": 384104,
+      "sha256": "000910cbf2b1e84d42d8f46fc9b77a3896804bf624320045a59054044ea9fbef"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/media/capture-8fa9f09f-06e7-49e6-94af-3c912a7a106e/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/probe.json",
+      "bytes": 1016,
+      "sha256": "e4d6e689d53fc9852467c65eab0717b413f027a808836adfbf9a6eb9f9b24650"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/project.json",
+      "bytes": 2342,
+      "sha256": "8b2c2cae118be8019b2116111501e3e1cddee88cd9fdb51be29e069d2f157939"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/Native-Δοκιμή/project.previous.json",
+      "bytes": 1761,
+      "sha256": "d49dd0764a575054293ca2bfead101d05989ad192826cdb70a0887ce1fcbfe19"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/interactive-result.json",
+      "bytes": 373,
+      "sha256": "2ae3d84fbd064d765999ec9c547356d9225ac296f570483a01a91cfb1873449d"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/interactive.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/interactive.stdout.txt",
+      "bytes": 2044,
+      "sha256": "eab8fcf17d5216fd6bee24e359fc35f6cbeb7beaeeb50c51d34b750239521b3b"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/inventory.json",
+      "bytes": 1544,
+      "sha256": "566022d1efaf29336a82146684d77cb6881110daadb51250a0ad92a150a5ee00"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/manifest.json",
+      "bytes": 3499,
+      "sha256": "8b4046000e370a2ea063de8a965c69ec545ce5ceba49f4da7b060d6a73d6d234"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/run-result.json",
+      "bytes": 434,
+      "sha256": "15abb93360b6bc5bee1e3924f44ec8b93ccd56e85a75f0916c32cf89e73b4e62"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/CMakeLists.txt",
+      "bytes": 49899,
+      "sha256": "e9d49a576aa26ef5f7934347d0b97160398f2cfd6c584be7004c36aac6298195"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/include/soundcurrent/wasapi_capture.hpp",
+      "bytes": 1822,
+      "sha256": "543fb7e2df6965e5bcf5a31051ceab801f6007ff889ccb006e172ba049020d0c"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/include/soundcurrent/wasapi_input.hpp",
+      "bytes": 2120,
+      "sha256": "8634859fbbcd2f1316aea75943833f370aeb7ddcde18878bfacf5c84b24fc77a"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/src/media_io.cpp",
+      "bytes": 13222,
+      "sha256": "5368120ff436796fdcc4daedf2d83458aa24bef2253f76f865ccb43568ba5568"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/src/media_io.hpp",
+      "bytes": 2044,
+      "sha256": "ef4660bab281c183b01e8283cc8199ed408094d50eb44fb3cb0eb9967e4ff153"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/src/recording.cpp",
+      "bytes": 44421,
+      "sha256": "0c4630042b2a74da53c61f8c5e7b2c23e0110ccbb04a135213054ce5dfbc88d0"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/src/wasapi_capture.cpp",
+      "bytes": 16004,
+      "sha256": "9bcb92d68d9ac0717ca9755c7ad314e992c3f0ef95ce9333f4b38eb07cc4247b"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/src/wasapi_input.cpp",
+      "bytes": 6563,
+      "sha256": "40096b6db873fce761b259975ae71e84e89d17b90fb7917362916f7558d013c6"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/tests/export_tests.cpp",
+      "bytes": 24052,
+      "sha256": "57690c3098d29d9c655af3c0806d161586feb03ffca4a16c6964e17b8c22bd30"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/tests/wasapi_capture_fixture.cpp",
+      "bytes": 8626,
+      "sha256": "0290c7ad133c93dfbb3c1b9681bd6b3be836d55a0b6249116f5a41779588da2d"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/tests/wasapi_input_tests.cpp",
+      "bytes": 8324,
+      "sha256": "df6bda272908be13d273528167ea0a8d6106b8761bfe424d16113c8246caa282"
+    },
+    {
+      "path": "runs/wasapi-native-v5-results/wasapi-native-v5/source/tests/wasapi_test_source.hpp",
+      "bytes": 5336,
+      "sha256": "5ec8a08d74122f5d9c07208c2fad2f5f522bd439c05c5e1f8a0ac34af8d8a09d"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/generated-source.f32",
+      "bytes": 1536000,
+      "sha256": "69470af2d624b18e71f4df4822ea12cf6d836e6d035f4f0180da2e75926f6b66"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/media/capture-f6303bda-3d25-43df-8977-a7532f3086d2/first-fault.json",
+      "bytes": 1203,
+      "sha256": "81f8e037d4ee4205f36919898dea152d01d86450d95c18b413d888789ba25a90"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/media/capture-f6303bda-3d25-43df-8977-a7532f3086d2/journal.json",
+      "bytes": 905,
+      "sha256": "1eca2414fa9460df7c818535b49d52a6bf4ee94ceeb90f1c2cc099e836f90873"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/media/capture-f6303bda-3d25-43df-8977-a7532f3086d2/take.wav",
+      "bytes": 309224,
+      "sha256": "7869fa420119cec985bca50549aebcf749bac9caa1ab71e6fa09221eb39c0f8b"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/media/capture-f6303bda-3d25-43df-8977-a7532f3086d2/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/probe.json",
+      "bytes": 908,
+      "sha256": "6d59fa180ebe4824c238fee1e226877ea0740fa3ab4fdc7ace731ae2fe66c659"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή/project.json",
+      "bytes": 1761,
+      "sha256": "376e59a08846eb6c49c6f4f4fc54b6e16c85d6dfe3ee72195de599366042bb84"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/exports/native.wav",
+      "bytes": 384080,
+      "sha256": "847946b69b560fcf05ccd292e05d4ee69a532a3bcea5e4fc2327ae41910ecc66"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/generated-source.f32",
+      "bytes": 1536000,
+      "sha256": "69470af2d624b18e71f4df4822ea12cf6d836e6d035f4f0180da2e75926f6b66"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/media/capture-3d45db40-6974-4a7c-a537-aec5d3dec76e/journal.json",
+      "bytes": 905,
+      "sha256": "59ccf79a3e651934af3f74b7e4bd9683c0c2870164a3e0c8e4a48786a301d8a6"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/media/capture-3d45db40-6974-4a7c-a537-aec5d3dec76e/take.wav",
+      "bytes": 384104,
+      "sha256": "e81e1914981826d0f36bd384870ceaec24f175b660dce9f1928de7ef854b8a78"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/media/capture-3d45db40-6974-4a7c-a537-aec5d3dec76e/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/probe.json",
+      "bytes": 1020,
+      "sha256": "a479a18806f8d91c1e862de98da811728916bf0c6d8a3ca134a9b91578db878f"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/project.json",
+      "bytes": 2342,
+      "sha256": "aa52ef63f1f25709a4544f2f601dafe82797acbd4116e28806095d5ea3a8323d"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή/project.previous.json",
+      "bytes": 1761,
+      "sha256": "4fa074c39c6e5c7de666ce5a5c47b1fd55a7aa95c320c335cda08312efc3fc63"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/interactive-result.json",
+      "bytes": 373,
+      "sha256": "180476706cfe4a5c2b75f1bd96b9945a3becabba21f1fb3004fcd5b574ee11f0"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/interactive-retry-result.json",
+      "bytes": 373,
+      "sha256": "2ae3d84fbd064d765999ec9c547356d9225ac296f570483a01a91cfb1873449d"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/interactive-retry.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/interactive-retry.stdout.txt",
+      "bytes": 2042,
+      "sha256": "a7c4a3b432fe898c497675976d1d04b837862bc7636fb28996a5de6d1679ac4f"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/interactive.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/interactive.stdout.txt",
+      "bytes": 1818,
+      "sha256": "94589fea22c2a9cb016c4d119abef41eae75dbe58da27e590b4630aaf11f205f"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/inventory.json",
+      "bytes": 1544,
+      "sha256": "566022d1efaf29336a82146684d77cb6881110daadb51250a0ad92a150a5ee00"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/manifest.json",
+      "bytes": 3499,
+      "sha256": "cf2eda6da13979cd2bf795c16a3b54ad3146b6526272073baa7495783a6bf056"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/CMakeLists.txt",
+      "bytes": 49899,
+      "sha256": "e9d49a576aa26ef5f7934347d0b97160398f2cfd6c584be7004c36aac6298195"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/include/soundcurrent/wasapi_capture.hpp",
+      "bytes": 1822,
+      "sha256": "543fb7e2df6965e5bcf5a31051ceab801f6007ff889ccb006e172ba049020d0c"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/include/soundcurrent/wasapi_input.hpp",
+      "bytes": 2120,
+      "sha256": "8634859fbbcd2f1316aea75943833f370aeb7ddcde18878bfacf5c84b24fc77a"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/src/media_io.cpp",
+      "bytes": 13222,
+      "sha256": "5368120ff436796fdcc4daedf2d83458aa24bef2253f76f865ccb43568ba5568"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/src/media_io.hpp",
+      "bytes": 2044,
+      "sha256": "ef4660bab281c183b01e8283cc8199ed408094d50eb44fb3cb0eb9967e4ff153"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/src/recording.cpp",
+      "bytes": 44421,
+      "sha256": "0c4630042b2a74da53c61f8c5e7b2c23e0110ccbb04a135213054ce5dfbc88d0"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/src/wasapi_capture.cpp",
+      "bytes": 16004,
+      "sha256": "9bcb92d68d9ac0717ca9755c7ad314e992c3f0ef95ce9333f4b38eb07cc4247b"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/src/wasapi_input.cpp",
+      "bytes": 6563,
+      "sha256": "40096b6db873fce761b259975ae71e84e89d17b90fb7917362916f7558d013c6"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/tests/export_tests.cpp",
+      "bytes": 24052,
+      "sha256": "57690c3098d29d9c655af3c0806d161586feb03ffca4a16c6964e17b8c22bd30"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/tests/wasapi_capture_fixture.cpp",
+      "bytes": 8766,
+      "sha256": "cd85eb40d056a054fb377d286d37dc73c32c348aaffa82e296193d16d3fe1277"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/tests/wasapi_input_tests.cpp",
+      "bytes": 8324,
+      "sha256": "df6bda272908be13d273528167ea0a8d6106b8761bfe424d16113c8246caa282"
+    },
+    {
+      "path": "runs/wasapi-native-v6-results/wasapi-native-v6/source/tests/wasapi_test_source.hpp",
+      "bytes": 5336,
+      "sha256": "5ec8a08d74122f5d9c07208c2fad2f5f522bd439c05c5e1f8a0ac34af8d8a09d"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/Project/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/Project/media/capture-d31f90a0-341d-436b-a95e-6e6614c5d487/journal.json",
+      "bytes": 697,
+      "sha256": "8c284f16bce2ba70c6412e96ceb127a7727a23e3aa4894bd26eaeafafe8ccaa1"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/Project/media/capture-d31f90a0-341d-436b-a95e-6e6614c5d487/take.wav",
+      "bytes": 136160,
+      "sha256": "44902a45f11c70cfd7f10c49b5efa86f42c01914618e23ae9e377fb6771cbfae"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/Project/media/capture-d31f90a0-341d-436b-a95e-6e6614c5d487/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/Project/project.json",
+      "bytes": 2547,
+      "sha256": "9489f413b7f0743cd42c8de3ad723491d280ff0e17dbf97a1664a1ce3a2adaf5"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/output.wav",
+      "bytes": 48112,
+      "sha256": "67006332109ea5a5a427255499c361e335f29b50eb26d7e61deddfbc15e2e8b6"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/published.wav",
+      "bytes": 48112,
+      "sha256": "67006332109ea5a5a427255499c361e335f29b50eb26d7e61deddfbc15e2e8b6"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-export-Δ-9c34e106-df24-4316-9146-949ee4e8b4e2/race.wav",
+      "bytes": 12,
+      "sha256": "af04f7ac04a005e12d7eff92d719cea1a5f85e4218c3d3a8dd4744497603559d"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-record-5167d2de-9088-4d42-a58e-affe60016cb6/media/capture-f78966ee-7aff-4bd9-a0d6-dbfbf5bf6909/audio.partial.rf64",
+      "bytes": 1128,
+      "sha256": "2e7225b0eaac2609fc09817b9ea6b48c276943f0f6e2556f34ddc191bce4d186"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-record-5167d2de-9088-4d42-a58e-affe60016cb6/media/capture-f78966ee-7aff-4bd9-a0d6-dbfbf5bf6909/journal.json",
+      "bytes": 692,
+      "sha256": "c7023cc4cb0fbf1a4d1577e9a8f32e1abe0591e1a678b902297ada064b052617"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/sc-record-5167d2de-9088-4d42-a58e-affe60016cb6/media/capture-f78966ee-7aff-4bd9-a0d6-dbfbf5bf6909/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/Native-Δοκιμή/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/Native-Δοκιμή/generated-source.f32",
+      "bytes": 1536000,
+      "sha256": "69470af2d624b18e71f4df4822ea12cf6d836e6d035f4f0180da2e75926f6b66"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/Native-Δοκιμή/media/capture-23d0f897-fc05-45b7-9891-a33f79fef926/journal.json",
+      "bytes": 905,
+      "sha256": "a25b42bde725be78f818a9ffd314a7a2ceefff63b330da86a62e2bb273197e48"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/Native-Δοκιμή/media/capture-23d0f897-fc05-45b7-9891-a33f79fef926/take.wav",
+      "bytes": 384104,
+      "sha256": "000910cbf2b1e84d42d8f46fc9b77a3896804bf624320045a59054044ea9fbef"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/Native-Δοκιμή/media/capture-23d0f897-fc05-45b7-9891-a33f79fef926/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/Native-Δοκιμή/project.json",
+      "bytes": 2342,
+      "sha256": "c809ba55a058e0309c9ec428ed7396c854c514f9e9c7d33069468b9964f78997"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/Native-Δοκιμή/project.previous.json",
+      "bytes": 1761,
+      "sha256": "b2ff30b36ba98f9867cf044168f3f5740b30b2e23f45d2e4d1e9032f805db8e1"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/inventory.json",
+      "bytes": 1544,
+      "sha256": "566022d1efaf29336a82146684d77cb6881110daadb51250a0ad92a150a5ee00"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/manifest.json",
+      "bytes": 2178,
+      "sha256": "7ddcce79b1b4bc8b9dcc98458a427bee6ee9e527e833d68160c721a8b3299b41"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/run-result.json",
+      "bytes": 384,
+      "sha256": "805f78f73db47243b20b37da98e7ca1b47a87ab0882e9cf2e5b14cb3a1d0ef5d"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/CMakeLists.txt",
+      "bytes": 49899,
+      "sha256": "e9d49a576aa26ef5f7934347d0b97160398f2cfd6c584be7004c36aac6298195"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/include/soundcurrent/wasapi_capture.hpp",
+      "bytes": 1822,
+      "sha256": "543fb7e2df6965e5bcf5a31051ceab801f6007ff889ccb006e172ba049020d0c"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/include/soundcurrent/wasapi_input.hpp",
+      "bytes": 2120,
+      "sha256": "8634859fbbcd2f1316aea75943833f370aeb7ddcde18878bfacf5c84b24fc77a"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/src/wasapi_capture.cpp",
+      "bytes": 15533,
+      "sha256": "83215720d32d476787686fd4bec970fba9b06e1dd5e52785d01103ba5afbd6b8"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/src/wasapi_input.cpp",
+      "bytes": 6563,
+      "sha256": "40096b6db873fce761b259975ae71e84e89d17b90fb7917362916f7558d013c6"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/tests/wasapi_capture_fixture.cpp",
+      "bytes": 7236,
+      "sha256": "d40c6dce0fe8a3fd4f686ad1e4886e2281c30c2e238875cf5a45e2b0e374169b"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/tests/wasapi_input_tests.cpp",
+      "bytes": 8324,
+      "sha256": "df6bda272908be13d273528167ea0a8d6106b8761bfe424d16113c8246caa282"
+    },
+    {
+      "path": "runs/wasapi-original-native-failures/wasapi-native-v2/source/tests/wasapi_test_source.hpp",
+      "bytes": 4548,
+      "sha256": "35eaa062aac3f1c02594746a485702a93b1eb7d88b1e8960cd7732bd947d2e54"
+    }
+  ],
+  "localOnlyBinaryArchives": [
+    {
+      "name": "wasapi-original-native-failures.zip",
+      "bytes": 10993344,
+      "sha256": "c69d71a8f3bf334a5b84ef2d8d7038b1272013f3a412520135c9c388f5f04441"
+    },
+    {
+      "name": "wasapi-native-v3-results.zip",
+      "bytes": 12050895,
+      "sha256": "a941de102f21840d468cc6b3ad39154aaa3ae578039bb47db5de86f289afa4cf"
+    },
+    {
+      "name": "wasapi-native-input-results.zip",
+      "bytes": 4020,
+      "sha256": "711b01501dd8371d3b14471f282bf6d76ed6307cfac8f0e926b798c290e33091"
+    },
+    {
+      "name": "wasapi-native-input-v4-results.zip",
+      "bytes": 5346,
+      "sha256": "2538e018ff687969ea74ad620db8f98da7057280f7a6e891356d806f18dd647f"
+    },
+    {
+      "name": "wasapi-native-v5-results.zip",
+      "bytes": 14128504,
+      "sha256": "0c82c276cd71c6eb07c7723fab9cb776830de2924948b94ca6d890639d0b5e9f"
+    },
+    {
+      "name": "wasapi-native-v6-results.zip",
+      "bytes": 14399462,
+      "sha256": "fa54a5920c9539db537eebf640f9fc4d127f0a596a26a03e966beceb4b820235"
+    }
+  ],
+  "nativeWindowsVersion": "10.0.26300.9550",
+  "nativeRegression": {
+    "packet": 0,
+    "recordingChecks": 255,
+    "recordingExit": 0,
+    "exportChecks": 1062,
+    "exportExit": 0
+  },
+  "finalAcceptedProject": "runs/wasapi-native-v6-results/wasapi-native-v6/InteractiveRetry-Δοκιμή",
+  "preservedFinalSourceFaultProject": "runs/wasapi-native-v6-results/wasapi-native-v6/Interactive-Δοκιμή",
+  "qualified": {
+    "nativeVirtual48kCaptureAndOfflineEQ": true,
+    "nativeSilent44100CaptureState": true,
+    "nativeDesktopGUI": false,
+    "windowsInstaller": false,
+    "nativeLiveMonitoring": false,
+    "sustainedOrPhysicalOrRealtimeDeadlines": false,
+    "fullParity": false
+  },
+  "remaining": "Investigate retained natural SDK discontinuity and native scheduling; then Windows Qt recording/output owners and local installer. Existing cable is not a product prerequisite."
+}

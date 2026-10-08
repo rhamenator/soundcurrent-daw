@@ -538,3 +538,17 @@ Next account for copied owner Sessions and remaining IO/transient work, measure
 allocation/RSS, scale arm descriptors independently of native ports, then implement
 freeze/bounce and prepared scheduling with sustained Linux/Windows qualification.
 Full X006 and all frozen-reference contracts remain open.
+
+## Native Windows preview foundation (2026-10-08)
+
+Original WASAPI prepared packet/SDK ownership code now executes in an independent
+Windows26300.9550 VM. Native recording/recovery255 checks and export1,062 checks
+pass, alongside affected Linux Debug and sanitizer gates. An interactive-session
+48 kHz VM speaker loopback completes raw capture/save/reopen/non-flat WAV export;
+an independent recurrence checks the actual nonzero samples. Earlier all-zero
+SSH results and a453-frame resampling-clock fault are retained and excluded from
+signal acceptance. A native-rate44.1 kHz input run preserves genuine silence.
+[Checkpoint and exact limits](96-windows-capture-foundation.md): Windows GUI,
+monitoring/playback, rate-conversion timing, installation, sustained/physical and
+all full-parity/language gates remain open. Next connect the Windows device owner
+and output renderer to existing Qt controls and qualify an installable workflow.
