@@ -2903,3 +2903,14 @@ clone has been created with no backing disk. It is not an installer qualificatio
 yet. Next: compiler-free Windows installer/source pair and clean-clone normal
 launch/record/EQ/save/reopen/export/removal, then continue full-suite milestones.
 The existing Ubuntu preview remains available; no binary release upload.
+
+## Useful preview delivery checkpoint (2026-10-08)
+
+The reviewed equalizer localization/editor refresh and actual rendered RTL meter
+fix merged through protected PR43; required Linux and Windows cross-build checks
+passed at the corrected head. Windows native Qt checks are recorded separately.
+The existing local Ubuntu recording/EQ/save/reopen/WAV preview remains available.
+Windows per-user installer/source preparation now has bounded input refusal
+tests, fixed-file removal and independent signed runtime setup; clean installed
+main/shortcut/audio/uninstall tests are the next gate. This is progress toward
+X007, not full-suite or installer qualification. See [checkpoint 101](101-windows-installer-preparation.md).
