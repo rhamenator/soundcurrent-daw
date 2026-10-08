@@ -3187,3 +3187,19 @@ equality is still unverified. Follow the owner's latest policy: one local VM at 
 time, brief tests, check before boot and suspend the comparator during each test.
 Current available RAM/free disk and negligible swap use do not show swap shortage.
 The complete professional DAW goal remains active and incomplete.
+
+## Import worker checkpoint (2026-10-08, later)
+
+The RPP structural component at `2f81b97` passed nine hosted native MSVC
+unit/synthetic tests, including its 174 structural checks. Native writer/corpus
+and semantic compatibility remain unqualified. Exact native logs are retained.
+PR #56 merged after all required checks passed.
+
+A separate C++ inspection process now loads a selected plain file with shared
+payload admission, captures a structural byte inventory and streams a bounded,
+versioned SHA-256 report. Child-process tests cover cancellation/refusals,
+provenance and untouched source. See [checkpoint 114](114-import-inspection-worker.md).
+Linux Release/sanitizers and Windows cross-build pass; hosted native execution
+of the worker remains pending. GUI integration, hard process/sandbox policies,
+persistent opaque state and semantic conversion remain gates. Existing previews
+are unchanged; no local VM was started for this work.

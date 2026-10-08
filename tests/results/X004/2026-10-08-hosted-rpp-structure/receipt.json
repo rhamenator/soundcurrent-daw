@@ -1,0 +1,36 @@
+{
+  "format": "sc-hosted-rpp-structure-v1",
+  "sourceCommit": "2f81b9757877da86a8349b0ccd08d6d134fbf972",
+  "runId": 37857122595,
+  "jobId": 113583861666,
+  "artifact": {
+    "id": 11584078465,
+    "node_id": "MDg6QXJ0aWZhY3QxMTU4NDA3ODQ2NQ==",
+    "name": "windows-native-packet-unit-log",
+    "size_in_bytes": 1245,
+    "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11584078465",
+    "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11584078465/zip",
+    "expired": false,
+    "digest": "sha256:ffb53a4031fe3b4b2164f7fba5be5363e2f69f6fd76b079b100cc9ce40b55c79",
+    "created_at": "2026-10-08T23:06:06Z",
+    "updated_at": "2026-10-08T23:06:06Z",
+    "expires_at": "2027-01-06T23:02:11Z",
+    "workflow_run": {
+      "id": 37857122595,
+      "repository_id": 1407894149,
+      "head_repository_id": 1407894149,
+      "head_branch": "codex/reaper-import-structure",
+      "head_sha": "2f81b9757877da86a8349b0ccd08d6d134fbf972"
+    }
+  },
+  "artifactSha256": "ffb53a4031fe3b4b2164f7fba5be5363e2f69f6fd76b079b100cc9ce40b55c79",
+  "compiler": "MSVC 19.51.36260.0",
+  "selectedTests": 9,
+  "configuredTests": 40,
+  "totalTestSeconds": 54.2,
+  "structuralChecks": 174,
+  "jobConclusion": "success",
+  "nativeEndpointActivated": false,
+  "localVMStarted": false,
+  "scope": "Hosted structural/unit/synthetic disk tests; synthetic RPP grammar only; no source-suite native corpus or semantic conversion. New inspection worker is not part of this receipt."
+}

@@ -154,3 +154,9 @@ original GPL-3.0-only structural foundation; no new third-party code is adopted.
 WDL is a lexical research source with exact revision links, not a complete field
 schema or a dependency pin. Isolated loading, native corpus and semantic conversion
 remain required gates.
+
+The standalone import inspection worker reuses the existing OpenSSL/Linux or
+BCrypt/Windows SHA-256 provider. No library/license choice changes. Python3 is
+required only for native `BUILD_TESTING` worker-process acceptance tests; the
+worker and parser have no Python or Qt runtime dependency. Cross-builds compile
+the worker but do not run its Windows executable on Linux.
