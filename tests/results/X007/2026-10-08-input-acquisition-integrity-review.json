@@ -1,0 +1,23 @@
+{
+  "utc": "2026-10-08T04:49:08.499085+00:00",
+  "original_capsule_bytes_unchanged": true,
+  "review_threads": [
+    "PRRT_kwDOU-rChc6qMdTb",
+    "PRRT_kwDOU-rChc6qMdTp"
+  ],
+  "all_190_archive_entries_size_and_sha_verified": true,
+  "archive_size_sha_and_CRC_verified": true,
+  "all_callback_timestamps_positive_monotonic_and_origin_rate_consistent_within_one_sample": true,
+  "replayed_originals": 3,
+  "altered_claims_refused": 41,
+  "test_command": [
+    "python3",
+    "tests/input_acquisition_verifier_tests.py"
+  ],
+  "exit_code": 0,
+  "output": "Three relocated originals, all capsule payloads and timestamps pass; 41 altered claims/media refused\n",
+  "source_sha256": {
+    "tests/input_acquisition_verifier_tests.py": "4f63aac353e328299267cfe55d01b004335f5a37676998b2909645764974c5a9",
+    "tests/verify_input_acquisition.py": "3fecbb504cce3f61822f930486e81e0be6f9e6bbca269b8aa360c1b840555b1a"
+  }
+}
