@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- Opt-in direct Windows render diagnostics reproduce the retained non-silent
+  startup attenuation without invoking the DAW mixer/EQ. Independent media
+  checks preserve the failure; no production correction or installer change
+  is claimed.
+
 - Local Windows 11 x64 installer preparation with per-user preview slots, desktop
   and Start-menu shortcuts, exact-file uninstall, signed Microsoft runtime setup
   and paired GPL/dependency sources. A clean-clone install/main/shortcut/removal/

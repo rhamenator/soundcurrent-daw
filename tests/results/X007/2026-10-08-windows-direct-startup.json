@@ -1,0 +1,616 @@
+{
+  "format": "sc-retained-windows-direct-startup",
+  "schemaMajor": 1,
+  "nativeSourceHead": "7b497fa19d0c0d7b689cd7b2a1f4c278bd0359ca",
+  "analysisSourceHead": "3fe56d1fea75e98448a813c2c2d1d4cdd7aaa07c",
+  "sourceInputFiles": 338,
+  "native": {
+    "scope": "Native direct WASAPI render and owned endpoint loopback, no mixer or EQ",
+    "exitCode": 0,
+    "tests": [
+      {
+        "label": "immediate-1",
+        "exitCode": 0,
+        "sessionId": 1,
+        "exeBytes": 360448,
+        "exeSha256": "29b5cc5bb6e54087000e6940195ede570666ad723858fc5d386f0840d5b07565",
+        "mode": "immediate"
+      },
+      {
+        "label": "silent-lead",
+        "exitCode": 0,
+        "sessionId": 1,
+        "exeBytes": 360448,
+        "exeSha256": "29b5cc5bb6e54087000e6940195ede570666ad723858fc5d386f0840d5b07565",
+        "mode": "silent-lead"
+      },
+      {
+        "label": "immediate-2",
+        "exitCode": 0,
+        "sessionId": 1,
+        "exeBytes": 360448,
+        "exeSha256": "29b5cc5bb6e54087000e6940195ede570666ad723858fc5d386f0840d5b07565",
+        "mode": "immediate"
+      }
+    ],
+    "sessionId": 1
+  },
+  "analyses": {
+    "immediate-1": {
+      "format": "sc-wasapi-direct-startup-analysis",
+      "silentLeadFrames": 0,
+      "submittedLeaseEqualsIndependentSource": true,
+      "mixerOrEqInvoked": false,
+      "fixtureOffsetFrames": 64,
+      "measuredInteriorGain": 1.0,
+      "matchedFrames": 95936,
+      "first480MaximumResidual": 0.04969424841692671,
+      "after480MaximumResidual": 0.0,
+      "directPathAlterationObserved": true,
+      "firstAffectedFrame": 0,
+      "lastAffectedFrame": 479,
+      "startupBlocks": [
+        {
+          "firstFrame": 0,
+          "frames": 48,
+          "gainRelativeToInterior": 0.00692459985315016,
+          "maximumResidual": 0.04969424841692671
+        },
+        {
+          "firstFrame": 48,
+          "frames": 48,
+          "gainRelativeToInterior": 0.038131203365573796,
+          "maximumResidual": 0.047558536753058434
+        },
+        {
+          "firstFrame": 96,
+          "frames": 48,
+          "gainRelativeToInterior": 0.09059339450487894,
+          "maximumResidual": 0.04390376713126898
+        },
+        {
+          "firstFrame": 144,
+          "frames": 48,
+          "gainRelativeToInterior": 0.16133340792893736,
+          "maximumResidual": 0.04011606331914663
+        },
+        {
+          "firstFrame": 192,
+          "frames": 48,
+          "gainRelativeToInterior": 0.24819214218411076,
+          "maximumResidual": 0.037169529125094414
+        },
+        {
+          "firstFrame": 240,
+          "frames": 48,
+          "gainRelativeToInterior": 0.35031358853219,
+          "maximumResidual": 0.03129479195922613
+        },
+        {
+          "firstFrame": 288,
+          "frames": 48,
+          "gainRelativeToInterior": 0.46916984271728673,
+          "maximumResidual": 0.026776520535349846
+        },
+        {
+          "firstFrame": 336,
+          "frames": 48,
+          "gainRelativeToInterior": 0.6027639761578487,
+          "maximumResidual": 0.02225130796432495
+        },
+        {
+          "firstFrame": 384,
+          "frames": 48,
+          "gainRelativeToInterior": 0.7534531542753363,
+          "maximumResidual": 0.014620214700698853
+        },
+        {
+          "firstFrame": 432,
+          "frames": 48,
+          "gainRelativeToInterior": 0.9048845264546966,
+          "maximumResidual": 0.007578853517770767
+        },
+        {
+          "firstFrame": 480,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 528,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 576,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 624,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 672,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 720,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 768,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 816,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 864,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 912,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        }
+      ],
+      "physicalOrSustainedTimingQualified": false,
+      "driverOrOsCauseIsolated": false
+    },
+    "silent-lead": {
+      "format": "sc-wasapi-direct-startup-analysis",
+      "silentLeadFrames": 12000,
+      "submittedLeaseEqualsIndependentSource": true,
+      "mixerOrEqInvoked": false,
+      "fixtureOffsetFrames": 64,
+      "measuredInteriorGain": 1.0,
+      "matchedFrames": 95936,
+      "first480MaximumResidual": 0.0,
+      "after480MaximumResidual": 0.0,
+      "directPathAlterationObserved": false,
+      "firstAffectedFrame": null,
+      "lastAffectedFrame": null,
+      "startupBlocks": [
+        {
+          "firstFrame": 0,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 48,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 96,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 144,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 192,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 240,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 288,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 336,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 384,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 432,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 480,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 528,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 576,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 624,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 672,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 720,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 768,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 816,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 864,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 912,
+          "frames": 48,
+          "gainRelativeToInterior": null,
+          "maximumResidual": 0.0
+        }
+      ],
+      "physicalOrSustainedTimingQualified": false,
+      "driverOrOsCauseIsolated": false
+    },
+    "immediate-2": {
+      "format": "sc-wasapi-direct-startup-analysis",
+      "silentLeadFrames": 0,
+      "submittedLeaseEqualsIndependentSource": true,
+      "mixerOrEqInvoked": false,
+      "fixtureOffsetFrames": 64,
+      "measuredInteriorGain": 1.0,
+      "matchedFrames": 95936,
+      "first480MaximumResidual": 0.04969424841692671,
+      "after480MaximumResidual": 0.0,
+      "directPathAlterationObserved": true,
+      "firstAffectedFrame": 0,
+      "lastAffectedFrame": 479,
+      "startupBlocks": [
+        {
+          "firstFrame": 0,
+          "frames": 48,
+          "gainRelativeToInterior": 0.00692459985315016,
+          "maximumResidual": 0.04969424841692671
+        },
+        {
+          "firstFrame": 48,
+          "frames": 48,
+          "gainRelativeToInterior": 0.038131203365573796,
+          "maximumResidual": 0.047558536753058434
+        },
+        {
+          "firstFrame": 96,
+          "frames": 48,
+          "gainRelativeToInterior": 0.09059339450487894,
+          "maximumResidual": 0.04390376713126898
+        },
+        {
+          "firstFrame": 144,
+          "frames": 48,
+          "gainRelativeToInterior": 0.16133340792893736,
+          "maximumResidual": 0.04011606331914663
+        },
+        {
+          "firstFrame": 192,
+          "frames": 48,
+          "gainRelativeToInterior": 0.24819214218411076,
+          "maximumResidual": 0.037169529125094414
+        },
+        {
+          "firstFrame": 240,
+          "frames": 48,
+          "gainRelativeToInterior": 0.35031358853219,
+          "maximumResidual": 0.03129479195922613
+        },
+        {
+          "firstFrame": 288,
+          "frames": 48,
+          "gainRelativeToInterior": 0.46916984271728673,
+          "maximumResidual": 0.026776520535349846
+        },
+        {
+          "firstFrame": 336,
+          "frames": 48,
+          "gainRelativeToInterior": 0.6027639761578487,
+          "maximumResidual": 0.02225130796432495
+        },
+        {
+          "firstFrame": 384,
+          "frames": 48,
+          "gainRelativeToInterior": 0.7534531542753363,
+          "maximumResidual": 0.014620214700698853
+        },
+        {
+          "firstFrame": 432,
+          "frames": 48,
+          "gainRelativeToInterior": 0.9048845264546966,
+          "maximumResidual": 0.007578853517770767
+        },
+        {
+          "firstFrame": 480,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 528,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 576,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 624,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 672,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 720,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 768,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 816,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 864,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        },
+        {
+          "firstFrame": 912,
+          "frames": 48,
+          "gainRelativeToInterior": 1.0,
+          "maximumResidual": 0.0
+        }
+      ],
+      "physicalOrSustainedTimingQualified": false,
+      "driverOrOsCauseIsolated": false
+    }
+  },
+  "installedPreviewsRebuilt": false,
+  "physicalOrSustainedTimingQualified": false,
+  "driverOrOsCauseIsolated": false,
+  "parityPromoted": false,
+  "productWorkaroundAdded": false,
+  "ownedCloneShutDown": true,
+  "originalsAndTemplatePreserved": true,
+  "capsule": {
+    "name": "2026-10-08-windows-direct-startup.zip",
+    "bytes": 3045012,
+    "sha256": "759ae07a41a6769310e070af387d9072e24fbb6e054b25973587d11533cb4767",
+    "files": {
+      "analysis/immediate-1.json": {
+        "bytes": 3324,
+        "sha256": "110774a6c5d94b1f43fc59c95bce92e36131ecc63f7692562c3fb772dee5da57"
+      },
+      "analysis/immediate-2.json": {
+        "bytes": 3324,
+        "sha256": "110774a6c5d94b1f43fc59c95bce92e36131ecc63f7692562c3fb772dee5da57"
+      },
+      "analysis/silent-lead.json": {
+        "bytes": 3017,
+        "sha256": "9b5058d979819c6ce2591906f5adb905c459ee85bc8cce2bae398ae4f5f2e567"
+      },
+      "control/build.log": {
+        "bytes": 2494,
+        "sha256": "9d547f0ae18ea1edb7563b0d9f89cf00b10ba95fd8e82aff22e3d3045d61ac15"
+      },
+      "control/collection-note.json": {
+        "bytes": 392,
+        "sha256": "bd44013ba44eb2ec91b76ea95d51b60ea9421f2e090bc412d6296bcab635af05"
+      },
+      "control/dispatch.log": {
+        "bytes": 1485,
+        "sha256": "6451ef50c2f2d894073c2f7597ed89b363590c7c024cae2b219981e49ae6e844"
+      },
+      "control/inputs.json": {
+        "bytes": 49098,
+        "sha256": "e6c8c9b1baa7e841d83e136aef7b71f9dc54a84433a57a498998e09c441a5745"
+      },
+      "control/linux-build.log": {
+        "bytes": 454,
+        "sha256": "5c9e789c7e94cdd34546149ba7dc658d3378c8a3ab27319a75b6c6087526b1c4"
+      },
+      "control/linux-tests.log": {
+        "bytes": 469,
+        "sha256": "8c736105dcb3c0c201228d69f3ad9713cfd3c2c72f9e39c583017ca25b87487f"
+      },
+      "native/immediate-1.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/immediate-1.stdout": {
+        "bytes": 38165,
+        "sha256": "d23a794d717e5547e4b70a22ffde7b945375c309123f8eed7435f57a99052657"
+      },
+      "native/immediate-1/loopback/media/capture-dc5a623f-fb61-4cc0-9f88-ac8f12887cf1/journal.json": {
+        "bytes": 906,
+        "sha256": "5ae7e89bc5ed07829f38547e54c13d3916064de9a683e11e876bc1638a28e052"
+      },
+      "native/immediate-1/loopback/media/capture-dc5a623f-fb61-4cc0-9f88-ac8f12887cf1/take.wav": {
+        "bytes": 768104,
+        "sha256": "2c441ee45894bebd511c0db38287c31254eb6ae0621a8220064bfdc2bcd257c3"
+      },
+      "native/immediate-1/loopback/media/capture-dc5a623f-fb61-4cc0-9f88-ac8f12887cf1/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/immediate-1/probe.json": {
+        "bytes": 38165,
+        "sha256": "d23a794d717e5547e4b70a22ffde7b945375c309123f8eed7435f57a99052657"
+      },
+      "native/immediate-1/source-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "eda2f06b88cdf0c528ad749f62df851a73db45ef5948e6cfacacc88fb86cba13"
+      },
+      "native/immediate-1/submitted-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "eda2f06b88cdf0c528ad749f62df851a73db45ef5948e6cfacacc88fb86cba13"
+      },
+      "native/immediate-2.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/immediate-2.stdout": {
+        "bytes": 38166,
+        "sha256": "a7bbdbc44f9151ecb2e797b665c7b836efccd3932b0a3ac5fcc0a08a8392b20c"
+      },
+      "native/immediate-2/loopback/media/capture-3c70c9be-e477-41c7-912c-d8d3f5efa9a9/journal.json": {
+        "bytes": 906,
+        "sha256": "04c50fc6c87c15028bcc27452523e70d6fd10b1eab5cf9094117ffd101002ac5"
+      },
+      "native/immediate-2/loopback/media/capture-3c70c9be-e477-41c7-912c-d8d3f5efa9a9/take.wav": {
+        "bytes": 768104,
+        "sha256": "2c441ee45894bebd511c0db38287c31254eb6ae0621a8220064bfdc2bcd257c3"
+      },
+      "native/immediate-2/loopback/media/capture-3c70c9be-e477-41c7-912c-d8d3f5efa9a9/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/immediate-2/probe.json": {
+        "bytes": 38166,
+        "sha256": "a7bbdbc44f9151ecb2e797b665c7b836efccd3932b0a3ac5fcc0a08a8392b20c"
+      },
+      "native/immediate-2/source-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "eda2f06b88cdf0c528ad749f62df851a73db45ef5948e6cfacacc88fb86cba13"
+      },
+      "native/immediate-2/submitted-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "eda2f06b88cdf0c528ad749f62df851a73db45ef5948e6cfacacc88fb86cba13"
+      },
+      "native/result.json": {
+        "bytes": 1266,
+        "sha256": "0091ea0e5b94dd5bdd1614cfd4c2f0966226d6afb26e671e8bba3543ab2069e0"
+      },
+      "native/silent-lead.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/silent-lead.stdout": {
+        "bytes": 38170,
+        "sha256": "6218484ed97479a82b6e40009e672fdd169aabb8135c6c79074d0c5eb7958d74"
+      },
+      "native/silent-lead/loopback/media/capture-6777d5cd-8207-4d2c-8003-75279806795f/journal.json": {
+        "bytes": 906,
+        "sha256": "0189fc43aec312d86a62a8f3484f184cd5500360c9c315d16bddb5b19d5cf783"
+      },
+      "native/silent-lead/loopback/media/capture-6777d5cd-8207-4d2c-8003-75279806795f/take.wav": {
+        "bytes": 768104,
+        "sha256": "69cad3fd9c62c84a2db3b2bc700293e9770cc260ab1a019738bd6004931f4672"
+      },
+      "native/silent-lead/loopback/media/capture-6777d5cd-8207-4d2c-8003-75279806795f/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/silent-lead/probe.json": {
+        "bytes": 38170,
+        "sha256": "6218484ed97479a82b6e40009e672fdd169aabb8135c6c79074d0c5eb7958d74"
+      },
+      "native/silent-lead/source-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "f5711bda12c1964e923b7362da12686d1cc4301d4d998b8aa7093a8cdc6e71b3"
+      },
+      "native/silent-lead/submitted-stereo.f32": {
+        "bytes": 768000,
+        "sha256": "f5711bda12c1964e923b7362da12686d1cc4301d4d998b8aa7093a8cdc6e71b3"
+      },
+      "source/tests/analyze_windows_startup.py": {
+        "bytes": 6070,
+        "sha256": "0862898b679c863237787267260c8c5169d021c740bfbca53eda609c9208a95c"
+      },
+      "source/tests/wasapi_startup_fixture.cpp": {
+        "bytes": 8218,
+        "sha256": "540d23b62a9529649c858fe1b4d5f0fad946d2404124a1dadaa9f59d90b1da3a"
+      },
+      "source/tests/windows_startup_analysis_tests.py": {
+        "bytes": 3974,
+        "sha256": "ade6cffb0ecc3be909df1dbeecdb32f005fac101fbb0c2fdd7ac1fbcd5e469f8"
+      }
+    }
+  }
+}
