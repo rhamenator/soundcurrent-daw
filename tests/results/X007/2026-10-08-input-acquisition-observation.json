@@ -1,0 +1,845 @@
+{
+  "format": "sc-owned-input-acquisition-evidence",
+  "schemaMajor": 1,
+  "utc": "2026-10-08T04:19:48.744828+00:00",
+  "parent_commit": "bd7e547c9a1b95832d3631574949809f73746375",
+  "test_only": true,
+  "production_changes": false,
+  "prototype_runs": {
+    "direct": {
+      "format": "sc-input-acquisition-verification",
+      "schemaMajor": 1,
+      "frames": 96000,
+      "sample_rate": 48000,
+      "zero_prefix_frames": 2048,
+      "source_suffix_origin": 0,
+      "every_suffix_sample_exact": true,
+      "encoded_silent_frames_preserved": 4096,
+      "all_callback_clocks_continuous": true,
+      "all_leases_returned_once": true,
+      "declared_silence_frames": 2048,
+      "RT_audit_violations": 0,
+      "physical_audio_qualified": false,
+      "native_Windows_qualified": false,
+      "startup_alignment_corrected": false
+    },
+    "via-source": {
+      "format": "sc-input-acquisition-verification",
+      "schemaMajor": 1,
+      "frames": 96000,
+      "sample_rate": 48000,
+      "zero_prefix_frames": 2048,
+      "source_suffix_origin": 8192,
+      "every_suffix_sample_exact": true,
+      "encoded_silent_frames_preserved": 0,
+      "all_callback_clocks_continuous": true,
+      "all_leases_returned_once": true,
+      "declared_silence_frames": 2048,
+      "RT_audit_violations": 0,
+      "physical_audio_qualified": false,
+      "native_Windows_qualified": false,
+      "startup_alignment_corrected": false
+    }
+  },
+  "cmake_fixture_run": {
+    "format": "sc-input-acquisition-verification",
+    "schemaMajor": 1,
+    "frames": 96000,
+    "sample_rate": 48000,
+    "zero_prefix_frames": 2048,
+    "source_suffix_origin": 0,
+    "every_suffix_sample_exact": true,
+    "encoded_silent_frames_preserved": 4096,
+    "all_callback_clocks_continuous": true,
+    "all_leases_returned_once": true,
+    "declared_silence_frames": 2048,
+    "RT_audit_violations": 0,
+    "physical_audio_qualified": false,
+    "native_Windows_qualified": false,
+    "startup_alignment_corrected": false
+  },
+  "all_owned_launchers_exit_0_and_host_routes_preserved": true,
+  "original_setup_failure_preserved": {
+    "exit_code": 1,
+    "reason": "pw-play DSP port was not configured; owner refused before activation; no raw take",
+    "host_routes_preserved": true
+  },
+  "verifier_development_error": "First reader refused libsndfile extensible IEEE-float fmt; added exact GUID/mask/valid-bits support; native files untouched",
+  "original_installed_candidate_buffers_unobserved": true,
+  "startup_alignment_corrected": false,
+  "GUI_or_installed_application_run": false,
+  "physical_audio_qualified": false,
+  "RT_deadlines_qualified": false,
+  "native_Windows_qualified": false,
+  "scope": "Three bounded private production-owner runs plus retained initial setup refusal; no amplitude gate or trimming; no parity promotion",
+  "archive": {
+    "path": "tests/results/X007/2026-10-08-input-acquisition-observation.zip",
+    "bytes": 23570726,
+    "sha256": "259ef0644c00824608a592647f1170ce8270bb64d4e1e18d716cfcb027f38bd5",
+    "CRC_verified": true,
+    "every_entry_verified": true,
+    "logical_entries": 190
+  },
+  "entries": {
+    "runs/direct/launch.sh": {
+      "bytes": 1173,
+      "sha256": "4357b965ef1943c23de96480e2e50766e20512639bce14071fc5130512bda801"
+    },
+    "runs/direct/console.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/direct/graph-with-player.json": {
+      "bytes": 68819,
+      "sha256": "83836669cfa634fdd51d3a0cc8f2d35616f1be39a0b12fe993c0093ff35c3651"
+    },
+    "runs/direct/source.wav": {
+      "bytes": 480044,
+      "sha256": "08e6c8b33652eaeea03172cdf4bada5f9f6f0f5d28906f1c3037c9af4c4ecffa"
+    },
+    "runs/direct/probe": {
+      "bytes": 14600680,
+      "sha256": "f518f1245a82819b7f95aff815e3f15c1a82cb27a6c1b12428740c00abce4b12"
+    },
+    "runs/direct/verification.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/direct/host-route-before-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "runs/direct/graph-after-probe.json": {
+      "bytes": 69064,
+      "sha256": "7d571a5fcc34c901bcfcb8886768b56437290facc856e85bc1aa77eb19d6fa61"
+    },
+    "runs/direct/launch.json": {
+      "bytes": 1104,
+      "sha256": "ebd24a68849a7f6af6b2c3a914fe026dc3a6c128567a2d90551476b9eb047122"
+    },
+    "runs/direct/pipewire.conf": {
+      "bytes": 15065,
+      "sha256": "2f4693230fc8febbe75d191473662be420903c1faaa0d84e7d1bfca07e738303"
+    },
+    "runs/direct/pipewire.log": {
+      "bytes": 418,
+      "sha256": "f6c421a5cae0d0c49299ce7fa679e910d74b1eaf2d8d9df88b0f4e6a9b04da45"
+    },
+    "runs/direct/probe.log": {
+      "bytes": 645,
+      "sha256": "1168b2221fc0169486ad614a63fdf0864500ece888a7eee4b0e94dc64f4b3e1a"
+    },
+    "runs/direct/identity.txt": {
+      "bytes": 57,
+      "sha256": "e86dad7756a96bd79fd39cc793ea195f79a93a18386a0a7e1406b22a903cbe86"
+    },
+    "runs/direct/runner-process-status.txt": {
+      "bytes": 1488,
+      "sha256": "8cb541dd4b88e4e01596fcbd5870663b000a0a72f1e9c7e11f1b361454e2ae22"
+    },
+    "runs/direct/verification-corrected.json": {
+      "bytes": 509,
+      "sha256": "22014b2343d4250d5a4aa2a6ea8f3e2035a961d6c7faa4562aecba2adba232bc"
+    },
+    "runs/direct/runner.log": {
+      "bytes": 44,
+      "sha256": "d3ca44862a41e197b6c5a71cc180ba00088eb2be62c16c150149272ace1d8e51"
+    },
+    "runs/direct/player.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/direct/run.py": {
+      "bytes": 2146,
+      "sha256": "d0a7a1f8aed2b23f4c2b04ffdf21b41a90e2106ca0225beda47cca3b38f99ef3"
+    },
+    "runs/direct/preparation.json": {
+      "bytes": 666,
+      "sha256": "bdccd42d5b7a045cb5378f6d28be60952a8a72bf6ef1acd459a594cbec16d196"
+    },
+    "runs/direct/graph-initial.json": {
+      "bytes": 53342,
+      "sha256": "9d1a465bb229f9bdc418d48be2acf13f76a55541414e7c6bf589b378004da867"
+    },
+    "runs/direct/player-format.log": {
+      "bytes": 1262,
+      "sha256": "4fc8f7d91298ac00198759ffd65f46fbcecab79f05da08fcb7faac3144453400"
+    },
+    "runs/direct/host-route-after-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "runs/direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/probe.json": {
+      "bytes": 645,
+      "sha256": "1168b2221fc0169486ad614a63fdf0864500ece888a7eee4b0e94dc64f4b3e1a"
+    },
+    "runs/direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/.save.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/project.json": {
+      "bytes": 1747,
+      "sha256": "030ecc92308ab9c387f2fe0019d828b5b589aae9bfc699852e11a0ad1a55b7f0"
+    },
+    "runs/direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/handoffs.json": {
+      "bytes": 33783,
+      "sha256": "4a62a33da3a17035ad222c72ea29f076506f2c598d0caac72bd159793e7df7fc"
+    },
+    "runs/direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-c3ddd74b-8548-4313-ab1e-856e87e7f888/journal.json": {
+      "bytes": 916,
+      "sha256": "0e3487fea2fa55649f17fa0a47e1a93b0057316d655449c858b51211eb6da5d0"
+    },
+    "runs/direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-c3ddd74b-8548-4313-ab1e-856e87e7f888/writer.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-c3ddd74b-8548-4313-ab1e-856e87e7f888/take.wav": {
+      "bytes": 384104,
+      "sha256": "f52aaeac98deb7d61ff60fb5771317e6ab3a893d9c8e565f5432e97137febf51"
+    },
+    "runs/via-source/launch.sh": {
+      "bytes": 1251,
+      "sha256": "fc812166c2fb30ca12bd71c27cbf7c8e9a07a3c932e97689d434f20d6a9de8be"
+    },
+    "runs/via-source/console.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/via-source/graph-with-player.json": {
+      "bytes": 71808,
+      "sha256": "bd8e864d8bb90c032856d9b8a7e65c8b3f7b800e33b97fc35cc3838f8b7455cf"
+    },
+    "runs/via-source/source.wav": {
+      "bytes": 480044,
+      "sha256": "08e6c8b33652eaeea03172cdf4bada5f9f6f0f5d28906f1c3037c9af4c4ecffa"
+    },
+    "runs/via-source/probe": {
+      "bytes": 14600680,
+      "sha256": "f518f1245a82819b7f95aff815e3f15c1a82cb27a6c1b12428740c00abce4b12"
+    },
+    "runs/via-source/verification.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/via-source/host-route-before-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "runs/via-source/graph-after-probe.json": {
+      "bytes": 71808,
+      "sha256": "17224045c748188fdefc37915426251d0ef164c3b9458a615dab170a6870372c"
+    },
+    "runs/via-source/launch.json": {
+      "bytes": 1108,
+      "sha256": "ebe234952d803e8868e4dbff8b95398b422bf3d310226840c6beb510dee5a8eb"
+    },
+    "runs/via-source/pipewire.conf": {
+      "bytes": 15065,
+      "sha256": "2f4693230fc8febbe75d191473662be420903c1faaa0d84e7d1bfca07e738303"
+    },
+    "runs/via-source/pipewire.log": {
+      "bytes": 418,
+      "sha256": "440a5c2414eeeffebdf33f8647d8f9ac2b6c91d0ef4a61b83abeea6dd7059dc6"
+    },
+    "runs/via-source/probe.log": {
+      "bytes": 639,
+      "sha256": "df1b22895e254a07a7f87045e576e1767ad0ebc67a152280fd961ce9d418fa92"
+    },
+    "runs/via-source/identity.txt": {
+      "bytes": 57,
+      "sha256": "e86dad7756a96bd79fd39cc793ea195f79a93a18386a0a7e1406b22a903cbe86"
+    },
+    "runs/via-source/runner-process-status.txt": {
+      "bytes": 1488,
+      "sha256": "08a961978d63d5665644fb0f9f0afdd49659b3d3ab20888f31e18a0ac9b4fcf6"
+    },
+    "runs/via-source/verification-corrected.json": {
+      "bytes": 509,
+      "sha256": "9349321c84f9b64643245e10d1b6dc25949769aa176359ec38e37e8e4d359a19"
+    },
+    "runs/via-source/runner.log": {
+      "bytes": 44,
+      "sha256": "d3ca44862a41e197b6c5a71cc180ba00088eb2be62c16c150149272ace1d8e51"
+    },
+    "runs/via-source/player.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/via-source/run.py": {
+      "bytes": 2150,
+      "sha256": "c134133b5e437a2d2a43a84b795c973b76c6e936b586acd8070947d876316f1e"
+    },
+    "runs/via-source/preparation.json": {
+      "bytes": 670,
+      "sha256": "ca990b096f1f38180d1993c657ed0b9dc64eee283bf279b6124553b7e3db7730"
+    },
+    "runs/via-source/graph-initial.json": {
+      "bytes": 53342,
+      "sha256": "92e40c21a76152a3acf0f51125c0893737851abdf4e792837561436abe0dabc5"
+    },
+    "runs/via-source/player-format.log": {
+      "bytes": 1262,
+      "sha256": "4fc8f7d91298ac00198759ffd65f46fbcecab79f05da08fcb7faac3144453400"
+    },
+    "runs/via-source/host-route-after-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "runs/via-source/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/probe.json": {
+      "bytes": 639,
+      "sha256": "df1b22895e254a07a7f87045e576e1767ad0ebc67a152280fd961ce9d418fa92"
+    },
+    "runs/via-source/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/.save.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/via-source/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/project.json": {
+      "bytes": 1747,
+      "sha256": "ea58eb5f6757dd34e98eccd8e6ae2d9c8c7e9f5868ffd2aaef9978d742eab64e"
+    },
+    "runs/via-source/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/handoffs.json": {
+      "bytes": 33501,
+      "sha256": "159f29a9c77e3dd892f52ec1f5eeac9698a2bee23dffc71b90f2332d0a122cb8"
+    },
+    "runs/via-source/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-6c5ddb8e-d513-495e-bc3e-358d4cf624d0/journal.json": {
+      "bytes": 910,
+      "sha256": "ac55ac01a23dd44719021a3ecfca91b4cfeab210dc9f8fd77371a904ab60e52f"
+    },
+    "runs/via-source/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-6c5ddb8e-d513-495e-bc3e-358d4cf624d0/writer.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/via-source/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-6c5ddb8e-d513-495e-bc3e-358d4cf624d0/take.wav": {
+      "bytes": 384104,
+      "sha256": "5374d025610b961cb162ef26a91ba5ae476d80a1b094c34ffe98e8aa5225d6da"
+    },
+    "runs/cmake-direct/launch.sh": {
+      "bytes": 1173,
+      "sha256": "4357b965ef1943c23de96480e2e50766e20512639bce14071fc5130512bda801"
+    },
+    "runs/cmake-direct/console.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/cmake-direct/graph-with-player.json": {
+      "bytes": 68818,
+      "sha256": "7df082655385d951ab3d5b210945a9f9c0b7803b70896cdd46f1268e1e08762f"
+    },
+    "runs/cmake-direct/source.wav": {
+      "bytes": 480044,
+      "sha256": "08e6c8b33652eaeea03172cdf4bada5f9f6f0f5d28906f1c3037c9af4c4ecffa"
+    },
+    "runs/cmake-direct/probe": {
+      "bytes": 14600512,
+      "sha256": "74c23931c01d676147b457b8b4a9a409cbfd8c6826ffb6a744dc9088864e1b0e"
+    },
+    "runs/cmake-direct/verification.json": {
+      "bytes": 509,
+      "sha256": "22014b2343d4250d5a4aa2a6ea8f3e2035a961d6c7faa4562aecba2adba232bc"
+    },
+    "runs/cmake-direct/host-route-before-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "runs/cmake-direct/graph-after-probe.json": {
+      "bytes": 69063,
+      "sha256": "a221ab386a79d6ff4ab581b0cb291dcfd0e4ff5b62394ca92debe3252f8d059e"
+    },
+    "runs/cmake-direct/launch.json": {
+      "bytes": 1110,
+      "sha256": "4d619fa4044cdff8464ead9f1f2fe40d2558be342ca5f6d1550d1d851131bbc0"
+    },
+    "runs/cmake-direct/pipewire.conf": {
+      "bytes": 15065,
+      "sha256": "2f4693230fc8febbe75d191473662be420903c1faaa0d84e7d1bfca07e738303"
+    },
+    "runs/cmake-direct/pipewire.log": {
+      "bytes": 418,
+      "sha256": "4083879410bf29938deb4393fe59e1b022a513119c0abc59eec2b1c8fd0ee2be"
+    },
+    "runs/cmake-direct/probe.log": {
+      "bytes": 645,
+      "sha256": "e1505502f683fbb28847ff4f62b31fee8ae0c15b46e32c256dd4bd402793cef7"
+    },
+    "runs/cmake-direct/identity.txt": {
+      "bytes": 57,
+      "sha256": "e86dad7756a96bd79fd39cc793ea195f79a93a18386a0a7e1406b22a903cbe86"
+    },
+    "runs/cmake-direct/runner-process-status.txt": {
+      "bytes": 1488,
+      "sha256": "ad94f537979ffee8aa54cb74257557fc4b9cad06cd9dd3021b00a5219586c0e7"
+    },
+    "runs/cmake-direct/runner.log": {
+      "bytes": 44,
+      "sha256": "d3ca44862a41e197b6c5a71cc180ba00088eb2be62c16c150149272ace1d8e51"
+    },
+    "runs/cmake-direct/player.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/cmake-direct/run.py": {
+      "bytes": 2152,
+      "sha256": "14248c2fa70bf959abee1490bbdba3a0d570e72f96640de95d1fcd83cf7e77f6"
+    },
+    "runs/cmake-direct/preparation.json": {
+      "bytes": 9194,
+      "sha256": "961cd7419a2af3c795ab37f03d06a7f9bc73bee1c6ed60234a1339d5b4ced197"
+    },
+    "runs/cmake-direct/graph-initial.json": {
+      "bytes": 53341,
+      "sha256": "705f9a5c415a36498f6a0891ee62ec4670cf3a8a062de01f00d7cce3f1a41de0"
+    },
+    "runs/cmake-direct/player-format.log": {
+      "bytes": 1262,
+      "sha256": "4fc8f7d91298ac00198759ffd65f46fbcecab79f05da08fcb7faac3144453400"
+    },
+    "runs/cmake-direct/host-route-after-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "runs/cmake-direct/compiled-source/CMakeLists.txt": {
+      "bytes": 48658,
+      "sha256": "8eca463317fe8f02d8cdc4bdd2aa50f9445668d728488a7dd371e29796058c77"
+    },
+    "runs/cmake-direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/probe.json": {
+      "bytes": 645,
+      "sha256": "e1505502f683fbb28847ff4f62b31fee8ae0c15b46e32c256dd4bd402793cef7"
+    },
+    "runs/cmake-direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/.save.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/cmake-direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/project.json": {
+      "bytes": 1747,
+      "sha256": "e20c7ea9c285e4a7dc8895f3183d457c2d4166a4c68f15f4a3f7c0eb26502873"
+    },
+    "runs/cmake-direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/handoffs.json": {
+      "bytes": 33771,
+      "sha256": "0f531d9f71dbbf4267d2d8f329e1766780e1f68d3d16375f2c0d76e93b5d35a5"
+    },
+    "runs/cmake-direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-064a8bec-be53-406d-afc0-3590b863a7cc/journal.json": {
+      "bytes": 916,
+      "sha256": "5e0169056dba2d3b7742f50e6c27995c186a92b9ebf18ca181c3a8a61521de90"
+    },
+    "runs/cmake-direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-064a8bec-be53-406d-afc0-3590b863a7cc/writer.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/cmake-direct/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/media/capture-064a8bec-be53-406d-afc0-3590b863a7cc/take.wav": {
+      "bytes": 384104,
+      "sha256": "f52aaeac98deb7d61ff60fb5771317e6ab3a893d9c8e565f5432e97137febf51"
+    },
+    "runs/cmake-direct/compiled-source/third_party/manifest.json": {
+      "bytes": 2122,
+      "sha256": "a7453ea21aff05debcbfa8683d04cbbf75bf75ddcbb96a64d0006ca2bb22361a"
+    },
+    "runs/cmake-direct/compiled-source/src/recording_worker.cpp": {
+      "bytes": 4213,
+      "sha256": "6997c1dee88f4d88352788e71d20ffc7077aa57e483a34c0fd4c998ee314ddbd"
+    },
+    "runs/cmake-direct/compiled-source/src/pipewire_recording.cpp": {
+      "bytes": 11784,
+      "sha256": "47996a685a9b015789b98398bdc97b34273d7c11ebbd27af156c1ba83433c2ad"
+    },
+    "runs/cmake-direct/compiled-source/src/playback_reader.cpp": {
+      "bytes": 9217,
+      "sha256": "330fb6e546091cbf9310cbca59c896e86400e3cd4f38be4ac711ff0aeaa5ee56"
+    },
+    "runs/cmake-direct/compiled-source/src/mix_reader.cpp": {
+      "bytes": 5020,
+      "sha256": "644a15090048d85fdb6bff9719011856faff82df7c83adca8b21a2ad83ed4432"
+    },
+    "runs/cmake-direct/compiled-source/src/pipewire_manual_recording.cpp": {
+      "bytes": 7186,
+      "sha256": "0263b58aee2ba25171c0e373d85c549bd3e117564bf64771b64343016e772d2f"
+    },
+    "runs/cmake-direct/compiled-source/src/mix_playback.cpp": {
+      "bytes": 10155,
+      "sha256": "d524eed48e531df100dad575ec39498407fef0d762bb8a7a2b7b8193d5f903a7"
+    },
+    "runs/cmake-direct/compiled-source/src/pipewire_duplex_recording.cpp": {
+      "bytes": 5773,
+      "sha256": "8e9b12feba383ec328f4950b9458762e1f36decf7c5b9066058ee94e0aa4ab88"
+    },
+    "runs/cmake-direct/compiled-source/src/playback_bridge.cpp": {
+      "bytes": 8088,
+      "sha256": "1092567581e8d7482918d6a89f41449cc1bf66366079e2c0290635f1d1848677"
+    },
+    "runs/cmake-direct/compiled-source/src/pipewire_playback.cpp": {
+      "bytes": 7290,
+      "sha256": "31b54cc7d61f91587eb615e3feac394242b47ccf87a77b20eccdcfc985699ef7"
+    },
+    "runs/cmake-direct/compiled-source/src/capture.cpp": {
+      "bytes": 11416,
+      "sha256": "286672383a769727390ae7b75a7de53f084ae4dd2a3262191247755b840f79a0"
+    },
+    "runs/cmake-direct/compiled-source/src/mix.cpp": {
+      "bytes": 10743,
+      "sha256": "0d1cf5e2a7613c95ef036cb95b68c86746c4771742b1b5dbd39376a87d7fb12e"
+    },
+    "runs/cmake-direct/compiled-source/src/pipewire_filter.cpp": {
+      "bytes": 26087,
+      "sha256": "a79a1c16dc1e3ab705e6b4e376460c0c6e333162fb5d889ded9d8bf0be18c0c7"
+    },
+    "runs/cmake-direct/compiled-source/src/eq.cpp": {
+      "bytes": 13234,
+      "sha256": "22639eca5f4c588041486eee27b6bc315ccdaa2f6b649d640c5fbd19c854a201"
+    },
+    "runs/cmake-direct/compiled-source/src/export.cpp": {
+      "bytes": 17659,
+      "sha256": "b3d7c79838682af89bea3615e0269ecaeddf17eb7288c035f281571b72eda03e"
+    },
+    "runs/cmake-direct/compiled-source/src/media_io.hpp": {
+      "bytes": 1852,
+      "sha256": "3f3869437984f8688d30a6023b8921f2d5cbc63c4addeb2be8e468a5fb3ae250"
+    },
+    "runs/cmake-direct/compiled-source/src/project_store.cpp": {
+      "bytes": 29109,
+      "sha256": "292db7970929cc9e6e8fbccd453a3c7f1ca2e46ecc10deca1f22a2d48d9e7a15"
+    },
+    "runs/cmake-direct/compiled-source/src/manual_recording.cpp": {
+      "bytes": 20757,
+      "sha256": "3de2bc28cb213026aff1c5dc62f7fb875ede7642518335273953f6872d8d6db4"
+    },
+    "runs/cmake-direct/compiled-source/src/pipewire_buffer.cpp": {
+      "bytes": 3994,
+      "sha256": "8a52f7e5ce0c4e65e20acb49362a0c3481fdfc51a03c2d13c8ee76bd78fb7bc8"
+    },
+    "runs/cmake-direct/compiled-source/src/session.cpp": {
+      "bytes": 23731,
+      "sha256": "3d18bcb2810f30a3805833a0ababf8f97fb326907c3a7c4ffc29093635a45ee8"
+    },
+    "runs/cmake-direct/compiled-source/src/recording.cpp": {
+      "bytes": 44309,
+      "sha256": "0cfa784b928058d61cc830029235f07b1df8d4aa4016094130757a85164854c5"
+    },
+    "runs/cmake-direct/compiled-source/src/resource_ledger.cpp": {
+      "bytes": 8947,
+      "sha256": "531458368d17825a5744b1a0f59585ce2c6169041ceae648612f934e6fcb86e7"
+    },
+    "runs/cmake-direct/compiled-source/src/session_edits.cpp": {
+      "bytes": 21526,
+      "sha256": "18141c28451fb83052a1a04d8706e869202739439d57045bc10be1e520f4604f"
+    },
+    "runs/cmake-direct/compiled-source/src/duplex_recording.cpp": {
+      "bytes": 17900,
+      "sha256": "1513c84c026debca033ebe0a88e3b99c11fdd67ad72db46bf235c376c17ae407"
+    },
+    "runs/cmake-direct/compiled-source/src/manual_punch.cpp": {
+      "bytes": 30362,
+      "sha256": "2a0dbdc8e0c520f9764b702a142b98671aa8d03b34d0d1f5c81b70f659927d27"
+    },
+    "runs/cmake-direct/compiled-source/src/eq_coefficients.cpp": {
+      "bytes": 1654,
+      "sha256": "4fb2a3d4cd0c71e5e7723bdac7d8d00e4dcb1580a9620a95d39bae0ddd95d578"
+    },
+    "runs/cmake-direct/compiled-source/src/duplex_bridge.cpp": {
+      "bytes": 20183,
+      "sha256": "743f3e395b4e31928c7942281b2c08b404d9095a04d2aaf8716bba7de9ff6286"
+    },
+    "runs/cmake-direct/compiled-source/src/media_io.cpp": {
+      "bytes": 13076,
+      "sha256": "18f34e8bf1a1afc5913a4fbc782fb3d172f96eebfcf4fbdd51210a81ade985cf"
+    },
+    "runs/cmake-direct/compiled-source/src/routing.cpp": {
+      "bytes": 1081,
+      "sha256": "09b81ca59b08e38cfbd510aaaf88f93bc43485b1f29a17194b557fe352313b0c"
+    },
+    "runs/cmake-direct/compiled-source/src/mix_run.cpp": {
+      "bytes": 4408,
+      "sha256": "6696d37db2f601aab3a1f804ed5fd78b151f1777c9f0afd791c427d4eaa2a173"
+    },
+    "runs/cmake-direct/compiled-source/src/playback.cpp": {
+      "bytes": 9160,
+      "sha256": "8855074a6c7cdd6ae806ecf26101e13f7767972c5e725fa38adf53e2371cab09"
+    },
+    "runs/cmake-direct/compiled-source/src/audio_bridge.cpp": {
+      "bytes": 13095,
+      "sha256": "49d0c60457420848ead7ee4dd198b0935378797057c8d0395c346393be2150cb"
+    },
+    "runs/cmake-direct/compiled-source/src/pipewire_buffer.hpp": {
+      "bytes": 1524,
+      "sha256": "b4c1d998d158f917acd04f558e95a180f443eb3526c2d87ccb1ba1d3f46a77f1"
+    },
+    "runs/cmake-direct/compiled-source/src/media_cache.cpp": {
+      "bytes": 10519,
+      "sha256": "8dbddc5ab136ed426f6df4553ecc4630810bfdf115c60ff98de2cac7b7e12e75"
+    },
+    "runs/cmake-direct/compiled-source/src/playback_run.cpp": {
+      "bytes": 4798,
+      "sha256": "b87264b41e46be328cda79ea6358277715ee9be0bb2ebf19081591821bb8dcad"
+    },
+    "runs/cmake-direct/compiled-source/tests/native_port_markers.hpp": {
+      "bytes": 2444,
+      "sha256": "22ca0d9e4fe7377d8156197b6786987e6179480a46be7408d6ebbabb47983f70"
+    },
+    "runs/cmake-direct/compiled-source/tests/rt_audit.cpp": {
+      "bytes": 3052,
+      "sha256": "4190e02cc5f4e74f080b67b9718cbe7f98f3c65bb36fee66cf9efe758fc4c331"
+    },
+    "runs/cmake-direct/compiled-source/tests/native_port_handoff.cpp": {
+      "bytes": 20737,
+      "sha256": "6b6cee5a15183c3e5731dbaf75f4f949fca056d6cd9a2243e1b71267c0b8e378"
+    },
+    "runs/cmake-direct/compiled-source/tests/native_duration_timing.hpp": {
+      "bytes": 12673,
+      "sha256": "06650c67983eb6b97265483c0c48127a512d2601c57da8ea60d5e62a403b8929"
+    },
+    "runs/cmake-direct/compiled-source/tests/native_port_handoff.hpp": {
+      "bytes": 754,
+      "sha256": "165e4a73dfad25766f1545a168a5b55a28eb1f5b2a9358a1ae77ef9127fb727f"
+    },
+    "runs/cmake-direct/compiled-source/tests/native_port_markers.cpp": {
+      "bytes": 8432,
+      "sha256": "c8f3aeca8ef756172072123533698447ab6e674d4a8b13a582dcb9581b74d6b5"
+    },
+    "runs/cmake-direct/compiled-source/tests/pipewire_input_acquisition_fixture.cpp": {
+      "bytes": 4355,
+      "sha256": "a16ceec9cfe6b9c719f37af4aac73ab33ebb7a445955ef7b2eccf08d4728bc60"
+    },
+    "runs/cmake-direct/compiled-source/tests/rt_audit.hpp": {
+      "bytes": 497,
+      "sha256": "1a6e6161457c309531546607455cb46c38f27b0dc8e058bda40c7c9178251996"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/session.hpp": {
+      "bytes": 13926,
+      "sha256": "e800af9df5d78b7433cdbd6feb4bc838ddc76afc083f37c1bd8515ee03f5fb02"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/project_store.hpp": {
+      "bytes": 1815,
+      "sha256": "c8fe26ca494699a57c2baefeda853ebc8b2ab68476742287df323e2298d5648e"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/duplex_bridge.hpp": {
+      "bytes": 3710,
+      "sha256": "9ec10c1ca1bf17b3b40a0eb361b909160fd344a4d248fdd43294a81e3c2c34b5"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/pipewire_duplex_recording.hpp": {
+      "bytes": 1762,
+      "sha256": "51cd5bbfa24d9f76dbb30f46e0cbcfe67d01858020b1d5c58fe88079a3cdf2fb"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/audio_bridge.hpp": {
+      "bytes": 5260,
+      "sha256": "7cf3015eb18e8617e013e0343691f499e111a68e0a75be133e2ba1f6769d86ee"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/export.hpp": {
+      "bytes": 4046,
+      "sha256": "d90926709f24d34781333d9417aa269fe61516190e4e1b67add689a68f53b7eb"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/spsc_queue.hpp": {
+      "bytes": 2390,
+      "sha256": "d7b3d9763cc562c5444a9f87fa2ea1f3e32c38b45c55192439a2ee88015047cd"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/manual_recording.hpp": {
+      "bytes": 5380,
+      "sha256": "ef6d775d39f9a2c97ea42e05b3ad7df772ca5850a12e7dac793734702631f941"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/playback_bridge.hpp": {
+      "bytes": 2926,
+      "sha256": "2f986c3f2ecbd3c199589d9088f4695e05b0be0d0f04dc35c4d73419a59e8910"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/mix_playback.hpp": {
+      "bytes": 2367,
+      "sha256": "957fd28fc72c1d3aa0f5f28114b28c6729c4edf5200335555376f763793fdc3e"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/recording.hpp": {
+      "bytes": 7496,
+      "sha256": "0e795307f0028fa60088bfed870f5cfbf2dc9b440c2fba95b30bc3f06405dab8"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/media_cache.hpp": {
+      "bytes": 1883,
+      "sha256": "89644bd01dbe79281913df840fac5e5ffb2204b1e400243a37949467bf207360"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/pipewire_filter.hpp": {
+      "bytes": 2584,
+      "sha256": "63aa5ac8bad772bc75b5d3d10d5ddba867baa545e9d3b33b7e0cbb12ea00f767"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/rt_object_exchange.hpp": {
+      "bytes": 3114,
+      "sha256": "eda689a08bdaf92047d42881770d5ae5dc4b54b43e8066f2ebe7d6edf98ebb41"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/manual_punch.hpp": {
+      "bytes": 4252,
+      "sha256": "3d1768ee56ddc99281eff06a16ebcfe6e94090a856bfb1f07233ef824cebce9a"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/capture.hpp": {
+      "bytes": 6330,
+      "sha256": "73399adea28727bb2873f2407acee00e6bff08bc8062b6b3791556d5c299d589"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/mix_reader.hpp": {
+      "bytes": 2685,
+      "sha256": "28b13c16a49aff713eb8b1f5b6352718ada0b8310813b70dc1ec0ae6bff36ca9"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/routing.hpp": {
+      "bytes": 630,
+      "sha256": "66a68a0df135363e242510a9b9761f4cc02a3d9969757750a8ef80cb50c2293d"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/duplex_recording.hpp": {
+      "bytes": 4178,
+      "sha256": "6c6a44bf5493dc2b0ab0f19ba6b06481256db746cd9920363fd2c7efd7cee413"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/pipewire_playback.hpp": {
+      "bytes": 2691,
+      "sha256": "5351a52b17c97b78edff712ad979c125cba453c84c0a91bdd08be449cf50a2a8"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/playback_reader.hpp": {
+      "bytes": 3403,
+      "sha256": "19321fe2bfaf3aa5d5ff5904f0efadb1827ef42c2242e79e14dcf7434b7796e5"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/resource_ledger.hpp": {
+      "bytes": 3226,
+      "sha256": "9225bcc34e6c2d6bcd362840837ee7ac9b2bce3c31d7d72a230257479d015b17"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/pipewire_manual_recording.hpp": {
+      "bytes": 2502,
+      "sha256": "f082797966659e6e71dc3064c43d151200dda304d649fea7fa2e201df1995fe8"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/playback.hpp": {
+      "bytes": 3920,
+      "sha256": "e98ef42f61a6cb08fbb1e93b79783160b216ad7e8b7b8cb00a9c0a093ba8cfb9"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/mix.hpp": {
+      "bytes": 3071,
+      "sha256": "b2749045f9042e7e0a6dac79e16fc60a77f3f8b0fcf77496880655877c906db3"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/eq.hpp": {
+      "bytes": 6515,
+      "sha256": "a104ad97e9a694af075e3417627aa8a5bee5b6e8156e9d6ec233e7b22ea8de38"
+    },
+    "runs/cmake-direct/compiled-source/include/soundcurrent/pipewire_recording.hpp": {
+      "bytes": 2959,
+      "sha256": "5d1f77487b804aa8536e1180b4c96bb2080ef6f9388d6529704eabe21b88f716"
+    },
+    "runs/cmake-direct/compiled-source/third_party/nlohmann/LICENSE.MIT": {
+      "bytes": 1076,
+      "sha256": "46a65cffd1ea955132d95a8dd921640714a8d6b537d2e4e482d31145ae95b603"
+    },
+    "runs/cmake-direct/compiled-source/third_party/nlohmann/json.hpp": {
+      "bytes": 953436,
+      "sha256": "aaf127c04cb31c406e5b04a63f1ae89369fccde6d8fa7cdda1ed4f32dfc5de63"
+    },
+    "runs/cmake-direct/compiled-source/third_party/libsndfile/COPYING": {
+      "bytes": 26518,
+      "sha256": "ad01ea5cd2755f6048383c8d54c88459cd6fcb17757c5c8892f8c5ea060f6140"
+    },
+    "runs/cmake-direct/compiled-source/third_party/libsndfile/sndfile.h": {
+      "bytes": 29558,
+      "sha256": "911098ea4b66f0c5ad59785b176f2b19f6e657042c15c93791edb53467efd6c0"
+    },
+    "original-setup-failure/console.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "original-setup-failure/probe.cpp": {
+      "bytes": 4100,
+      "sha256": "a0e0911d91acb66bd2e9beb9d59359f1a9302e254537718cec99ead30b4b9cd6"
+    },
+    "original-setup-failure/probe": {
+      "bytes": 14595880,
+      "sha256": "07c14305bbc447f4a3e049662e749a76377d4414dae4aed0ebbada39e541205e"
+    },
+    "original-setup-failure/host-route-before-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "original-setup-failure/launch.json": {
+      "bytes": 1104,
+      "sha256": "bd76f416274f01c9416b20f810f21031c0e52eecd04dbfcab9ac44b6d921631e"
+    },
+    "original-setup-failure/runner.log": {
+      "bytes": 44,
+      "sha256": "eb3a468166e5234f723656568182d5fbf85d411558b718788dbd5dce78fafa13"
+    },
+    "original-setup-failure/run.py": {
+      "bytes": 2148,
+      "sha256": "9cb16a434b36351965f2ec8ca1ea48fa30ca94e0edec0b09006eb43dc92d40c6"
+    },
+    "original-setup-failure/build.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "original-setup-failure/preparation.json": {
+      "bytes": 430,
+      "sha256": "dec6eb4eade49299e7fe09aa61a22069ef0a73669034ad5377fc94dd67bd9a24"
+    },
+    "original-setup-failure/host-route-after-redacted.json": {
+      "bytes": 150,
+      "sha256": "d44f105ba1ce4defb5b131b78fff324b197f5f06aa86d26cc5cb193228d167a2"
+    },
+    "original-setup-failure/workspace/launch.sh": {
+      "bytes": 767,
+      "sha256": "473d35e6e269fd5b53e3d5cbe32c2a74b6542fa207e4037c5df910972a325127"
+    },
+    "original-setup-failure/workspace/graph-with-player.json": {
+      "bytes": 66485,
+      "sha256": "d2b45b6f6a030b01b67a330a3af9d7f3acdfcf57d123254c557fa3b9500c6ea5"
+    },
+    "original-setup-failure/workspace/source.wav": {
+      "bytes": 480044,
+      "sha256": "08e6c8b33652eaeea03172cdf4bada5f9f6f0f5d28906f1c3037c9af4c4ecffa"
+    },
+    "original-setup-failure/workspace/probe": {
+      "bytes": 14595880,
+      "sha256": "07c14305bbc447f4a3e049662e749a76377d4414dae4aed0ebbada39e541205e"
+    },
+    "original-setup-failure/workspace/pipewire.conf": {
+      "bytes": 15065,
+      "sha256": "2f4693230fc8febbe75d191473662be420903c1faaa0d84e7d1bfca07e738303"
+    },
+    "original-setup-failure/workspace/pipewire.log": {
+      "bytes": 418,
+      "sha256": "4b89571acedaf33865b00bc15b31cd8010f0435d14074556b521ec67640b69df"
+    },
+    "original-setup-failure/workspace/probe.log": {
+      "bytes": 26,
+      "sha256": "b4e41a9edfcbcfb7838831ba84f8f1e45516df6730935b1855d4b8e74218d692"
+    },
+    "original-setup-failure/workspace/identity.txt": {
+      "bytes": 57,
+      "sha256": "e86dad7756a96bd79fd39cc793ea195f79a93a18386a0a7e1406b22a903cbe86"
+    },
+    "original-setup-failure/workspace/runner-process-status.txt": {
+      "bytes": 1488,
+      "sha256": "2a4281eb91c9f49a735095743da1d33eaed40332364207069f610fd662e835b6"
+    },
+    "original-setup-failure/workspace/player.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "original-setup-failure/workspace/graph-initial.json": {
+      "bytes": 53341,
+      "sha256": "1619d6e89ceff85b1a5597c7d5da38a15597cbc2bcd87603105dab63b8ccac17"
+    },
+    "original-setup-failure/workspace/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/.save.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "original-setup-failure/workspace/project-\u0394\u03bf\u03ba\u03b9\u03bc\u03ae/project.json": {
+      "bytes": 1747,
+      "sha256": "81daeb7f4d212f4fe1948c3097f900cfd7a88d890b9d42695b066422139c753a"
+    },
+    "prototype/probe.cpp": {
+      "bytes": 4355,
+      "sha256": "a16ceec9cfe6b9c719f37af4aac73ab33ebb7a445955ef7b2eccf08d4728bc60"
+    },
+    "prototype/build.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "prototype/cmake-build.log": {
+      "bytes": 3323,
+      "sha256": "3b40154dfa62b8becf61bb244a320d708e70f3293a45dfdb39185a180e33eee3"
+    },
+    "replay-source/tests/verify_input_acquisition.py": {
+      "bytes": 8827,
+      "sha256": "f8b330d1950dced7f54b2c8c0aae7850a3738ca8e851731d2789fa8244ca5e57"
+    },
+    "replay-source/tests/pipewire_input_acquisition_fixture.cpp": {
+      "bytes": 4355,
+      "sha256": "a16ceec9cfe6b9c719f37af4aac73ab33ebb7a445955ef7b2eccf08d4728bc60"
+    },
+    "protected-source-backup/manifest.json": {
+      "bytes": 4492,
+      "sha256": "cca3698f6ee00db32bf1ddba45b42bd63505c6131d293e9810d723161b2ba8a5"
+    }
+  }
+}

@@ -2804,3 +2804,22 @@ are retained, exact periodic suffix equality cannot detect missing whole periods
 and original native71 remains unresolved. Complete desktop/physical/RT and native
 Windows, broader install/recovery, translations and full frozen F/Q/C/N/
 X004/X005/X006/Europe gates remain open; the full goal stays active.
+
+## 2026-10-08: bounded input-start observation after local preview delivery
+
+Protected PR37 merged the installed normal-workflow source/evidence as
+`bd7e547c9a1b95832d3631574949809f73746375`, with identical tested tree. Required
+hosted Linux passes 59/59 in139.99s; Windows core cross-build passes only. A new
+ZIP/bundle restores that exact main tree, full Git fsck and every source byte.
+No Windows transfer or release upload was performed.
+
+The [new input-acquisition observations](95-input-acquisition-observation.md)
+complete three private 96,000-frame production-owner runs. One native EMPTY
+2,048-frame lease precedes an exact nonperiodic source suffix; direct runs retain
+4,096 encoded silent frames. All callback clocks/lease ownership/RT counters pass
+within this diagnostic scope. Replay refuses33 altered claims. Original startup
+symptoms remain visible; no raw trimming, latency fix or installed-binary change.
+
+Next: input latency observations and explicit recording-start alignment, then
+native Windows workflow/installer previews. Source and local packages are useful
+previews; full-suite and platform/language gates remain incomplete.

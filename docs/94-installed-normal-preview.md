@@ -59,3 +59,8 @@ remain incomplete. This delivers a useful bounded Linux preview, not full parity
 Next: observe native input availability separately from sample amplitude, define
 a tested acquisition/alignment policy, then complete desktop/native Windows
 preview workflows. Keep original recordings while that work continues.
+
+A separate [production-owner input trace](95-input-acquisition-observation.md)
+now reproduces the 2,048-zero-frame prefix as one native EMPTY lease, with exact
+nonperiodic later samples and preserved encoded silence. Original installed
+callbacks remain unobserved; no package or recording alignment change.
