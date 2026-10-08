@@ -145,3 +145,12 @@ support script/territory selection, embedded standard actions and display-only
 number handling. GPL equalizer draft words are mapped to explicit DAW contexts;
 110 retained review inputs have exact source hashes/revisions. Original DSP and
 equipment pins remain immutable. Structural checks are not native-language review.
+
+## Foreign-project outline checkpoint (2026-10-08)
+
+[ADR081](decisions/081-bounded-foreign-project-outline.md) evaluates Cockos WDL,
+existing Qt facilities and an original bounded C++ outline for X004. Select the
+original GPL-3.0-only structural foundation; no new third-party code is adopted.
+WDL is a lexical research source with exact revision links, not a complete field
+schema or a dependency pin. Isolated loading, native corpus and semantic conversion
+remain required gates.

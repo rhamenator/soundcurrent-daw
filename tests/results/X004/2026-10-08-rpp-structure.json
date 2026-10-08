@@ -1,0 +1,98 @@
+{
+  "format": "sc-rpp-structure-local-v1",
+  "sourceBase": "c42cb7c05f949c977e95f4e1f6e74f1d9f88eb25",
+  "scope": "Original synthetic structural inspection only; no native writer, semantic conversion, UI/file worker, or native Windows execution qualification",
+  "nativeCompatibilityQualified": false,
+  "localVMStarted": false,
+  "steps": [
+    {
+      "name": "release-build",
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-desktop-release",
+        "--target",
+        "sc-reaper-structure-tests",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "seconds": 1.512,
+      "logSha256": "cfc19f4ca8eb99abcba0d043ce76ecf96d2471d862d272d6c91e1891b442c5c8"
+    },
+    {
+      "name": "release-test",
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^reaper-structure$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 0.071,
+      "logSha256": "08f8254b188a216d0dcf3fe3d6b829cc05eb82f88c5687461a1a4e7a9805ec1d",
+      "observedResult": "30: RPP structural checks=174; synthetic only; semantic/native compatibility unqualified"
+    },
+    {
+      "name": "sanitized-build",
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-desktop-sanitized",
+        "--target",
+        "sc-reaper-structure-tests",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "seconds": 1.674,
+      "logSha256": "cfc19f4ca8eb99abcba0d043ce76ecf96d2471d862d272d6c91e1891b442c5c8"
+    },
+    {
+      "name": "sanitized-test",
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^reaper-structure$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 0.184,
+      "logSha256": "65761715cf8b929b762e664ef29603856ebf8da94531f89ed889ea1a254c70e2",
+      "observedResult": "30: RPP structural checks=174; synthetic only; semantic/native compatibility unqualified"
+    },
+    {
+      "name": "windows-cross-build",
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-media",
+        "--target",
+        "sc-reaper-structure-tests",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "seconds": 1.616,
+      "logSha256": "56e2013b22978092c9f7bd2b52e6a86a25de9c344a12ce869021e36e44a07d9c"
+    }
+  ],
+  "sourceSha256": {
+    "CMakeLists.txt": "d0f804a2863520fae344f739011e3e324326b9ba26caea2968124d9b2cb79b1b",
+    ".github/workflows/ci.yml": "be96f86052ab303b6a1a75343cc7cb9b48b772bf044aab478433386e236282d7",
+    "include/soundcurrent/reaper_structure.hpp": "dd8cef361422f8a3423545707fb4aea5182d715829a0cfa55e30dfc1956e18aa",
+    "src/reaper_structure.cpp": "8c5db4ca25fe5a2a69b016d5ee73845c6646fab814c1a36825e6558629640c89",
+    "tests/reaper_structure_tests.cpp": "90cbeec244d322c432bd8fbf3332f58fa46027d1b2861fd2cbf90895cbef0742"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-reaper-structure-tests": "2af6368a3c02dd497ef39cde9fb0045b634b6480d69e035e01451e40f3d2bfe8",
+    ".cache/build-desktop-sanitized/sc-reaper-structure-tests": "8ec3442e33aa67ca99046bd7d005e698b5b5a122b4a086ce99318c7ac301f5d8",
+    ".cache/build-windows-media/sc-reaper-structure-tests.exe": "defd5bd017df4e82e3e5917bbd0aaf4b89322ba124c90e0aa63cc5305cb3229e"
+  }
+}

@@ -3167,3 +3167,23 @@ No VM is running. The existing image verifier is suspended; newly copied disk
 equality is not inferred. The owner's VM budget is one VM at a time, brief runs,
 and the verifier suspended during each run. Existing previews remain unchanged,
 and the full frozen Bitwig/Cubase/Linux/Windows/localization goal stays active.
+
+## Import feasibility and resource budget checkpoint (2026-10-08, later)
+
+PR #55 merged after all required checks passed. Eight hosted MSVC unit/synthetic
+tests passed at exact head `0ab4dbb`; the actual production render trace fixture
+compiled without endpoint activation. Its native log and receipt are retained at
+`tests/results/X007/2026-10-08-hosted-render-trace`. Native active-Stop and capture
+qualification remain pending; existing preview binaries are unchanged.
+
+The first X004 RPP structural library preserves source bytes and unknown state,
+requires shared admission and supports cancellation. Linux Release/sanitizers pass
+and Windows cross-build passes. Hosted execution of this addition is pending.
+It is not native compatibility or semantic track import; see
+[checkpoint 113](113-rpp-structural-inspection.md).
+
+All VMs remain off. The same clone comparator resumed at 8 MiB/s while no VM runs;
+equality is still unverified. Follow the owner's latest policy: one local VM at a
+time, brief tests, check before boot and suspend the comparator during each test.
+Current available RAM/free disk and negligible swap use do not show swap shortage.
+The complete professional DAW goal remains active and incomplete.

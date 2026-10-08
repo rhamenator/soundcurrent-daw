@@ -1,0 +1,35 @@
+{
+  "format": "sc-hosted-render-trace-v1",
+  "sourceCommit": "0ab4dbb4d382ea6e5891a370a69384fe2c574bf0",
+  "runId": 37855256843,
+  "jobId": 113578054283,
+  "artifact": {
+    "id": 11583443962,
+    "node_id": "MDg6QXJ0aWZhY3QxMTU4MzQ0Mzk2Mg==",
+    "name": "windows-native-packet-unit-log",
+    "size_in_bytes": 1163,
+    "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11583443962",
+    "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11583443962/zip",
+    "expired": false,
+    "digest": "sha256:c0400bda035b04e1c920db055f61230cf4bf635ebf64764c870751409aaecae9",
+    "created_at": "2026-10-08T22:48:29Z",
+    "updated_at": "2026-10-08T22:48:29Z",
+    "expires_at": "2027-01-06T22:43:32Z",
+    "workflow_run": {
+      "id": 37855256843,
+      "repository_id": 1407894149,
+      "head_repository_id": 1407894149,
+      "head_branch": "codex/windows-production-render-trace",
+      "head_sha": "0ab4dbb4d382ea6e5891a370a69384fe2c574bf0"
+    }
+  },
+  "artifactSha256": "c0400bda035b04e1c920db055f61230cf4bf635ebf64764c870751409aaecae9",
+  "compiler": "MSVC 19.51.36260.0",
+  "selectedTests": 8,
+  "configuredTests": 39,
+  "totalTestSeconds": 56.38,
+  "jobConclusion": "success",
+  "nativeEndpointActivated": false,
+  "localVMStarted": false,
+  "scope": "Hosted native unit and synthetic disk tests; actual production capture/playback SDK fixtures compiled; no endpoint activation, installer or GUI execution"
+}
