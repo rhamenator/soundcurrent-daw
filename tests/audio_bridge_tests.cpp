@@ -229,9 +229,14 @@ void concurrentFaultPublication() {
             check(bridge.status() == AudioBridgeStatus::DeviceLost &&
                       raw.endReason() == CaptureEndReason::DeviceLost,
                   "Completed audio overwrote an admitted device fault");
+            const auto first = bridge.firstFault();
+            check(first && first->status == AudioBridgeStatus::DeviceLost &&
+                      first->reason == AudioBridgeFaultReason::ControlRequest &&
+                      !first->callbackClock,
+                  "Concurrent terminal winner did not retain its control fault");
         } else
             check(bridge.status() == AudioBridgeStatus::Complete &&
-                      raw.endReason() == CaptureEndReason::RangeComplete,
+                      raw.endReason() == CaptureEndReason::RangeComplete && !bridge.firstFault(),
                   "Late device fault overwrote completed audio");
         check(raw.producerDone(), "Terminal race did not finish raw pipe");
     }
@@ -260,6 +265,18 @@ void faults() {
         }
         check(state == expected && pipe.producerDone() && bridge.capturedFrames() == 0,
               "Adapter fault accepted samples or failed to stop");
+        const auto fault = bridge.firstFault();
+        const auto reason = expected == AudioBridgeStatus::RateChanged
+                                ? AudioBridgeFaultReason::RateChanged
+                            : expected == AudioBridgeStatus::QuantumExceeded
+                                ? AudioBridgeFaultReason::InvalidQuantum
+                            : expected == AudioBridgeStatus::ClockDiscontinuity
+                                ? AudioBridgeFaultReason::Xrun
+                            : expected == AudioBridgeStatus::BufferUnavailable
+                                ? AudioBridgeFaultReason::InvalidBuffer
+                                : AudioBridgeFaultReason::ControlRequest;
+        check(fault && fault->status == expected && fault->reason == reason,
+              "Initial fault receipt has the wrong reason");
         check(std::all_of(f.output.begin(), f.output.end(), [](float v) { return v == 0; }),
               "Failure did not silence capacity-certified outputs");
     }
@@ -302,6 +319,126 @@ void faults() {
               pipe.status() == CaptureStatus::QueueFull && pipe.producerDone(),
           "Backend capture exhaustion not surfaced");
     check(bridge.droppedObservations() > 0, "Meter backpressure did not drop work");
+    const auto exhausted = bridge.firstFault();
+    check(exhausted && exhausted->reason == AudioBridgeFaultReason::CaptureFailed &&
+              exhausted->captureStatus == CaptureStatus::QueueFull,
+          "Capture exhaustion lost its precise first fault");
+}
+void firstFaultReceipts() {
+    for (auto reason : {AudioBridgeFaultReason::Xrun,
+                        AudioBridgeFaultReason::DiscontinuityFlag,
+                        AudioBridgeFaultReason::PositionOverflow,
+                        AudioBridgeFaultReason::ClockChanged,
+                        AudioBridgeFaultReason::PositionJump}) {
+        Fixture f;
+        CapturePipe pipe(f.config);
+        AudioBridge bridge(f.session, f.session.tracks.front().id, pipe);
+        check(!bridge.firstFault(), "Prepared bridge has a spurious fault");
+        const auto previous = f.clock;
+        bridge.process(f.clock, f.inputs, f.outputs, 127);
+        f.clock.position += 127;
+        ++f.clock.cycle;
+        switch (reason) {
+        case AudioBridgeFaultReason::Xrun: f.clock.xrun = true; break;
+        case AudioBridgeFaultReason::DiscontinuityFlag: f.clock.discontinuity = true; break;
+        case AudioBridgeFaultReason::PositionOverflow: f.clock.position = UINT64_MAX; break;
+        case AudioBridgeFaultReason::ClockChanged: ++f.clock.id; break;
+        default: ++f.clock.position; break;
+        }
+        {
+            rt_audit::Guard guard;
+            bridge.process(f.clock, f.inputs, f.outputs, 127);
+        }
+        const auto receipt = bridge.firstFault();
+        check(receipt && receipt->reason == reason &&
+                  receipt->status == AudioBridgeStatus::ClockDiscontinuity &&
+                  receipt->rejected == f.clock && receipt->previous == previous &&
+                  receipt->callbackClock && receipt->previousClock && receipt->engineFrame == 127 &&
+                  receipt->capturedFrames == 127 && receipt->bufferFrames == 127 &&
+                  receipt->inputChannels == 1 && receipt->outputChannels == 1 &&
+                  receipt->expectedRate == 48000 && receipt->generation == 1,
+              "Precise clock fault receipt differs");
+        f.clock.duration = 0;
+        bridge.requestFault(AudioBridgeStatus::DeviceLost);
+        bridge.process(f.clock, f.inputs, f.outputs, 127);
+        bridge.finishQuiescent();
+        check(bridge.firstFault() == receipt, "Late faults overwrote the first receipt");
+    }
+    Fixture f;
+    CapturePipe pipe(f.config);
+    AudioBridge bridge(f.session, f.session.tracks.front().id, pipe);
+    CapturedSlab slab;
+    // Fill the lossy meter queue while independently draining raw capture.
+    for (unsigned n = 0; n < 128; ++n) {
+        bridge.process(f.clock, f.inputs, f.outputs, 127);
+        f.clock.position += 127;
+        ++f.clock.cycle;
+        while (pipe.acquire(slab)) pipe.release(slab);
+    }
+    check(bridge.status() == AudioBridgeStatus::Running && bridge.droppedObservations() > 0,
+          "Meter overflow fixture failed");
+    ++f.clock.position;
+    std::optional<AudioBridgeFault> observed;
+    std::atomic<bool> done{false};
+    std::thread reader([&] {
+        while (!done.load(std::memory_order_acquire)) {
+            if (auto fault = bridge.firstFault()) {
+                observed = fault;
+                return;
+            }
+            std::this_thread::yield();
+        }
+        observed = bridge.firstFault();
+    });
+    {
+        rt_audit::Guard guard;
+        bridge.process(f.clock, f.inputs, f.outputs, 127);
+    }
+    done.store(true, std::memory_order_release);
+    reader.join();
+    check(observed && observed == bridge.firstFault() &&
+              observed->reason == AudioBridgeFaultReason::PositionJump &&
+              observed->engineFrame == 128 * 127,
+          "Meter pressure or concurrent reader lost the first fault");
+    Fixture control;
+    CapturePipe controlPipe(control.config);
+    AudioBridge controlled(control.session, control.session.tracks.front().id, controlPipe);
+    controlled.requestFault(AudioBridgeStatus::DeviceLost);
+    const auto controlFault = controlled.firstFault();
+    check(controlFault && !controlFault->callbackClock && !controlFault->previousClock &&
+              controlFault->reason == AudioBridgeFaultReason::ControlRequest &&
+              controlFault->status == AudioBridgeStatus::DeviceLost,
+          "Control failure falsely claims a callback clock");
+    controlled.finishQuiescent();
+    check(controlled.firstFault() == controlFault, "Retirement lost the first control fault");
+    Fixture origin;
+    CapturePipe originPipe(origin.config);
+    CaptureTimingOrigin foreign;
+    foreign.generation = 2;
+    foreign.devicePosition = 999;
+    check(originPipe.setTimingOrigin(foreign), "Timing origin fixture refused");
+    AudioBridge originBridge(origin.session, origin.session.tracks.front().id, originPipe);
+    {
+        rt_audit::Guard guard;
+        originBridge.process(origin.clock, origin.inputs, origin.outputs, 127);
+    }
+    check(originBridge.firstFault() &&
+              originBridge.firstFault()->reason == AudioBridgeFaultReason::TimingOriginRejected &&
+              originBridge.capturedFrames() == 0 && originPipe.timingOrigin() == foreign,
+          "Timing-origin refusal changed raw origin or lost its receipt");
+    Fixture overflow;
+    overflow.config.startFrame = std::numeric_limits<Frame>::max() - 64;
+    CapturePipe overflowPipe(overflow.config);
+    AudioBridge overflowBridge(overflow.session, overflow.session.tracks.front().id, overflowPipe);
+    {
+        rt_audit::Guard guard;
+        overflowBridge.process(overflow.clock, overflow.inputs, overflow.outputs, 127);
+    }
+    const auto failedProcessor = overflowBridge.firstFault();
+    check(failedProcessor && failedProcessor->reason == AudioBridgeFaultReason::ProcessorFailed &&
+              failedProcessor->processorStatus == ProcessStatus::TimingError &&
+              failedProcessor->engineFrame == overflow.config.startFrame,
+          "Processor timing refusal lost its precise receipt");
 }
 } // namespace
 int main() {
@@ -311,6 +448,7 @@ int main() {
         faults();
         aliasedRawCapture();
         concurrentFaultPublication();
+        firstFaultReceipts();
         auto a = rt_audit::counts;
         check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,
               "Bridge RT allocation/free/lock detected");

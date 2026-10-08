@@ -1819,6 +1819,62 @@ Stored recording: %1</translation>
       <translation>Monitor</translation>
     </message>
     <message>
+      <source>The audio backend stopped recording.</source>
+      <translation>The audio backend stopped recording.</translation>
+    </message>
+    <message>
+      <source>The audio block size was outside the prepared recording capacity.</source>
+      <translation>The audio block size was outside the prepared recording capacity.</translation>
+    </message>
+    <message>
+      <source>The input sample rate changed.</source>
+      <translation>The input sample rate changed.</translation>
+    </message>
+    <message>
+      <source>The recording input or output buffer was unavailable.</source>
+      <translation>The recording input or output buffer was unavailable.</translation>
+    </message>
+    <message>
+      <source>The audio backend reported a processing overrun.</source>
+      <translation>The audio backend reported a processing overrun.</translation>
+    </message>
+    <message>
+      <source>The audio backend reported a clock discontinuity.</source>
+      <translation>The audio backend reported a clock discontinuity.</translation>
+    </message>
+    <message>
+      <source>The audio clock position exceeded the supported range.</source>
+      <translation>The audio clock position exceeded the supported range.</translation>
+    </message>
+    <message>
+      <source>The recording clock changed while the take was running.</source>
+      <translation>The recording clock changed while the take was running.</translation>
+    </message>
+    <message>
+      <source>The recording clock position did not follow the previous block.</source>
+      <translation>The recording clock position did not follow the previous block.</translation>
+    </message>
+    <message>
+      <source>The recording timing origin could not be established.</source>
+      <translation>The recording timing origin could not be established.</translation>
+    </message>
+    <message>
+      <source>The raw recording queue or writer stopped.</source>
+      <translation>The raw recording queue or writer stopped.</translation>
+    </message>
+    <message>
+      <source>The prepared audio processor stopped.</source>
+      <translation>The prepared audio processor stopped.</translation>
+    </message>
+    <message>
+      <source>Clock %1 at position %2, block %3 frames; engine frame %4.</source>
+      <translation>Clock %1 at position %2, block %3 frames; engine frame %4.</translation>
+    </message>
+    <message>
+      <source>Previous clock %1 at position %2, block %3 frames.</source>
+      <translation>Previous clock %1 at position %2, block %3 frames.</translation>
+    </message>
+    <message>
       <source>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</source>
       <translation>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</translation>
     </message>

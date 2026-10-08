@@ -587,6 +587,44 @@ void recordingWorkflow(const std::filesystem::path &root, bool monitoring) {
     reopened.close();
     await([&] { return reopened.snapshot()->closed && reopened.recordingSnapshot()->closed; });
 }
+void recordingClockFaultWorkflow(const std::filesystem::path &root) {
+    auto session = makeOneTrackSession("Clock fault UI", "Raw input");
+    ProjectStore(root).save(session);
+    auto counters = std::make_shared<recording_fixture::Counters>();
+    StudioWindow window(nullptr, {}, recording_fixture::options(counters));
+    window.show();
+    window.openProject(root);
+    await([&] { return window.snapshot()->session && window.snapshot()->io == IoOperation::None; });
+    check(window.prepareRecording(), "Fault workflow preparation refused");
+    await([&] {
+        return window.recordingSnapshot()->phase == RecordingPhase::Ready &&
+               window.findChild<QComboBox *>("inputChannel0");
+    });
+    window.findChild<QComboBox *>("inputChannel0")->setCurrentIndex(1);
+    window.findChild<QCheckBox *>("armTrack")->setChecked(true);
+    auto *record = window.findChild<QPushButton *>("recordButton");
+    await([&] { return record->isEnabled(); });
+    record->click();
+    await([&] { return window.recordingSnapshot()->telemetry.capturedFrames >= 256; });
+    counters->jumpClock = true;
+    auto *notice = window.findChild<QLabel *>("previewNotice");
+    await([&] {
+        return window.recordingSnapshot()->phase == RecordingPhase::Fault &&
+               notice->text().contains("clock position did not follow") &&
+               notice->text().contains("Previous clock");
+    });
+    const auto fault = window.recordingSnapshot()->telemetry.firstFault;
+    check(fault && fault->reason == AudioBridgeFaultReason::PositionJump &&
+              fault->previousClock && fault->rejected.position ==
+                  fault->previous.position + fault->previous.duration + 1,
+          "UI clock fault lost its precise receipt");
+    await([&] { return window.snapshot()->session->assets.size() == 1; });
+    PromptChoice discard(QMessageBox::Discard);
+    window.close();
+    await([&] { return window.snapshot()->closed && window.recordingSnapshot()->closed; });
+    check(ProjectStore(root).load() == session,
+          "Fault receipt changed canonical project without a save");
+}
 void recordingRecoveryWorkflow(const std::filesystem::path &root) {
     auto s = makeOneTrackSession("Recovery – Σ", "Raw");
     ProjectStore(root).save(s);
@@ -1391,6 +1429,7 @@ int main(int argc, char **argv) {
                               RecordingMonitor::AutoRecording);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-off", false);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-monitor", true);
+        recordingClockFaultWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "clock-fault");
         recordingRecoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /
                                   "recording-recovery");
         for (unsigned mode = 0; mode < 4; ++mode)
