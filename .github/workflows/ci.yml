@@ -74,6 +74,11 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin 87a74cb196b4ccd746e5d237e73e13d574598129
           python3 tools/verify_windows_end_guard.py
+      - name: Verify refreshed Windows installation and retained capture failures (no native replay)
+        run: |
+          git fetch --no-tags --depth=1 origin e91585d523d651f75ad4a3fae71ef3d2dae8c8fb
+          python3 tools/verify_windows_installer_refresh.py
+          python3 tests/windows_refresh_claim_tests.py
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

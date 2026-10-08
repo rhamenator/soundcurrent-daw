@@ -22,8 +22,14 @@ through the native desktop, plays with live EQ/Undo, saves/reopens and exports W
 Independent raw/output/export sample checks pass on an owned loopback route with
 a silent lead-in. A [local Windows 11 x64 installer/source pair](docs/102-windows-installed-workflow-preview.md)
 now passes scoped clean-install, shortcut, normal removal/reinstall and installed
-native workflow acceptance. Non-silent startup, physical/sustained recording and
-monitoring/duplex remain open preview gates.
+native workflow acceptance. Bounded non-silent startup and normal endings now have
+[independent native evidence](docs/107-windows-end-guard.md). Physical/sustained
+recording and monitoring/duplex remain open preview gates. The
+[refreshed Windows installer](docs/108-windows-installer-refresh.md) passes normal
+installation/UI checks, but all three installed native attempts detected capture
+discontinuities. It is an installation/UI preview with experimental audio;
+the saved full/partial raw takes and failures remain retained. Abrupt production
+EQ Stop also remains unresolved.
 
 [Easy installation](docs/88-easy-installation.md) is required on supported Linux
 and Windows systems: normal packages/installers, no compiler or manual dependency
