@@ -2696,7 +2696,7 @@ details, saves a verified 1,024-frame raw prefix and attaches its asset/clip. It
 finalized journal preserves end reason6, zero rejected frames and timing origin.
 Normal Save/Quit and retirement complete; host default metadata/existing links
 remain identical. The [separate receipt](../tests/results/X007/2026-10-08-installed-recording-fault.json)
-retains original GUI screenshots, actions, take and package/upgrade metadata in a
+retains original GUI screenshots, stderr logs, take and package/upgrade metadata in a
 CRC/byte-verified **2,086,164-byte** capsule. Prior receipts/takes remain untouched.
 
 This new candidate's diagnostic-failure test does not qualify a sustained successful
@@ -2711,3 +2711,12 @@ and a tested startup/alignment policy, followed by new normal installed recordin
 and complete desktop/Windows preview workflows. Pending equalizer adaptations are
 still separately reviewed work. Every frozen F/Q/C/N contract and full Europe/
 X004/X005/X006 remains incomplete; the full goal stays active.
+
+Review identified that the initial action logs contained only shell stderr and
+that host graph inputs were kept private. An [additive supplement](../tests/results/X007/2026-10-08-installed-recording-fault-supplement.json)
+retains five actual completed command execution records and before/after redacted
+canonical fingerprints covering all default metadata and link objects. Its
+6,747-byte capsule leaves the original receipt/archive unchanged. The standalone
+`tools/verify_installed_fault_evidence.py` replays capsule integrity, command/exit
+records and route-fingerprint equality without private dumps or a live namespace.
+This is evidence replay, not a new GUI test or reconstruction of omitted host values.

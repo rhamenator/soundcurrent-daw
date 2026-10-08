@@ -134,3 +134,14 @@ and its **2,086,164-byte** capsule retain 39 logical entries, verified CRC and e
 selected byte, including visible GUI screenshots and the preserved take. Original
 receipts and takes were not rewritten. The candidate/source pair remains local;
 no binary release was uploaded.
+
+Review correction: the initial capsule's action logs were stderr-only and its
+verifier depended on private host dumps. The [additive supplement](../tests/results/X007/2026-10-08-installed-recording-fault-supplement.json)
+preserves five actual command execution records recovered from this chat, with
+timestamps and exit codes, plus redacted canonical fingerprints of every default
+metadata/link object before and after. Historical namespace PID targets are
+retired; a new GUI run needs a newly owned matching fixture and substituted PID.
+The standalone `tools/verify_installed_fault_evidence.py` checks both capsules,
+actions and equality inputs without audio/GUI or raw host dumps. It independently
+replays the retained fingerprint comparison; omitted host values cannot be
+reconstructed. The original receipt/archive remains unchanged.
