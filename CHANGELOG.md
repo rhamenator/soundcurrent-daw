@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- Opt-in bounded WASAPI capture lease metadata now separates SDK packet positions
+  from acquisition, callback and release timing. One complete and two refused
+  native recordings are retained with independently checked raw/export samples.
+  This diagnostic does not rebuild or qualify the installed Windows preview.
+
 - A refreshed local Windows installer/source pair passes normal installation,
   shortcuts, main launch/close and preservation through removal/reinstall using
   installed runtime DLLs. Three capture-discontinuity failures are retained;

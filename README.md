@@ -31,6 +31,10 @@ discontinuities. It is an installation/UI preview with experimental audio;
 the saved full/partial raw takes and failures remain retained. Abrupt production
 EQ Stop also remains unresolved.
 
+The [bounded Windows capture trace](docs/109-windows-capture-trace.md) retains
+one complete and two refused recordings, with exact raw samples and SDK packet
+gaps. It is diagnostic evidence; installed recording reliability remains open.
+
 [Easy installation](docs/88-easy-installation.md) is required on supported Linux
 and Windows systems: normal packages/installers, no compiler or manual dependency
 assembly, app-menu shortcuts, and tested upgrades/removal that preserve recordings.
