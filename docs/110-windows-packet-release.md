@@ -89,7 +89,16 @@ codec-disabled shared build as the Windows preview. Its archive is verified
 against SHA-256 `ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121`
 before extraction; no new dependency is selected. The hosted job also runs the
 existing recording/recovery, offline WAV export and resource-ledger tests,
-without activating audio endpoints. Execution of this expanded gate is pending.
+without activating audio endpoints. The expanded gate passed six selected tests at `58a23cb` on hosted
+MSVC 19.51.36260.0, run `37846953989`, job `113550078108`. Its retained
+[receipt and native CTest log](../tests/results/X007/2026-10-08-hosted-native-recording/receipt.json)
+record 255 recording/recovery checks on 480,000 synthetic raw frames, 1,062
+export checks across 1/2/8/32/256 channels and 44 resource-ledger checks, plus
+three packet/admission/trace tests. This ran six of 37 configured tests. The
+endpoint fixture and production recording owner compiled but were not activated.
+Recording/recovery took 57.17 seconds; its Windows CTest observation budget is
+extended from 60 to 180 seconds, with test cases and internal failure assertions
+unchanged. Linux retains 60 seconds. The timeout adjustment is pending its check.
 The local MinGW full fixture, including production admission code, compiles.
 This is compilation evidence, not execution of the inactive native route test.
 
@@ -110,9 +119,13 @@ audio and full frozen-reference parity remain open. The full goal stays active.
 
 A host reboot interrupted independent native test-workspace preparation. The new
 full-copy VM is defined and its qcow2 has no backing file, but equality with the
-powered-off source disk is still unverified; TPM state has not been copied and
-the test clone has not been booted. The owned read-only equality verifier is
-suspended in response to owner-reported disk contention. Originals and ongoing
-equalizer work remain untouched. Two other Windows VMs were observed running;
-no second DAW VM is started. Full native admission/endpoint tests and the source
+powered-off source disk is still unverified. Independent TPM and firmware copies
+are byte-verified. The test clone is prepared with 8 GiB RAM, four vCPUs capped
+at two CPU equivalents, 8 MiB/s guest read/write limits, an isolated network and
+no installer CDs; it has not been booted. The owned read-only equality verifier
+was suspended in response to owner-reported disk contention, then the same
+process resumed after host load fell. A systemd-managed scope enforces 16 MiB/s
+read and one-quarter CPU limits with idle I/O priority. A sampled disk utilization
+of 3–4% confirmed the cap, separately from throttling-induced pressure counters.
+Originals and ongoing equalizer work remain untouched. No second DAW VM is started. Full native admission/endpoint tests and the source
 PR's review resolution remain pending. Existing preview artifacts are unchanged.

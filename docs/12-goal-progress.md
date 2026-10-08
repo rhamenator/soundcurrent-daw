@@ -3111,12 +3111,19 @@ route-admission review is fixed in source but its inactive endpoint fixture has
 not yet executed. Full production recording and fixture code cross-compile.
 The hosted gate is extended with hash-pinned, codec-disabled shared libsndfile
 1.2.2 to compile that path and run existing disk recording/recovery, WAV export
-and resource tests; this expanded gate is pending execution. No endpoint or
-installed qualification is inferred from it.
+and resource tests; this expanded gate passed 6/6 at `58a23cb` on hosted MSVC 19.51.36260.0.
+Retained [native results](../tests/results/X007/2026-10-08-hosted-native-recording/receipt.json)
+include 255 recording/recovery checks and 1,062 export checks with raw headroom
+and live/offline comparisons. Six of 37 configured tests ran; no audio endpoint,
+GUI or installer executed. The 57.17-second Windows recovery suite gets a
+180-second CTest observation budget; assertions are unchanged and Linux retains
+60 seconds. That timeout adjustment awaits checks. No endpoint or installed
+qualification is inferred from the hosted pass.
 
 Host reboot/resource contention interrupted full independent clone preparation.
-The clone disk remains unverified; the owned equality verifier is suspended,
-TPM copying and clone boot are pending. Continue hosted verification while
-keeping additional local VM/disk load low, then resume this exact verifier
-before native route/capture comparison. Existing previews stay unchanged and
+The clone disk remains unverified. TPM and firmware copies are independently
+byte-verified; the clone is prepared with 8 GiB RAM, CPU/disk caps and isolated
+networking and remains off. The same suspended verifier resumed after host load
+fell, in a systemd-managed 16 MiB/s, idle-priority scope. Continue this exact
+verifier before native route/capture comparison while keeping local VM load low. Existing previews stay unchanged and
 the full frozen-reference goal remains active.

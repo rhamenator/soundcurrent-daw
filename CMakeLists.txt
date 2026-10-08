@@ -533,7 +533,14 @@ if(BUILD_TESTING)
     target_link_libraries(sc-recording-fault-tests PRIVATE sc-media Threads::Threads)
     target_include_directories(sc-recording-fault-tests SYSTEM PRIVATE third_party)
     add_test(NAME recording-fault-persistence COMMAND sc-recording-fault-tests)
-    set_tests_properties(recording-recovery PROPERTIES TIMEOUT 60)
+    # Native Windows filesystem flushes took 57.17 s on the hosted acceptance
+    # runner. Give that same bounded recovery suite headroom; keep Linux's
+    # existing budget and every failure/processing assertion unchanged.
+    if(WIN32)
+      set_tests_properties(recording-recovery PROPERTIES TIMEOUT 180)
+    else()
+      set_tests_properties(recording-recovery PROPERTIES TIMEOUT 60)
+    endif()
     add_executable(sc-playback-bridge-tests tests/playback_bridge_tests.cpp tests/rt_audit.cpp)
     target_link_libraries(sc-playback-bridge-tests PRIVATE sc-media Threads::Threads)
     add_test(NAME playback-native-clock COMMAND sc-playback-bridge-tests)
