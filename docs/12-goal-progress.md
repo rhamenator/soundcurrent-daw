@@ -2681,3 +2681,33 @@ observe native acquisition validity to choose a tested startup/alignment policy.
 Complete desktop integration and native Windows previews follow. All 92 frozen
 contracts and full X004/X005/X006/Europe requirements remain incomplete; the goal
 stays active.
+
+## Installed fault-diagnostic preview checkpoint (2026-10-08 UTC)
+
+This continuation is **progress** toward useful previews. Protected PR34 passed
+hosted Linux **58/58, 112.38 s** and Windows core cross-build, then merged the
+tested tree. The next local Ubuntu DEB/source pair is
+`0.1.0~preview.20261008013908.97a307fcf2ba`; all **710** tracked corresponding-source
+files were independently verified. Normal package-manager upgrade in the owned
+runtime rootfs succeeded without a downgrade override.
+
+The actual installed GUI displays the first rejected and previous recording clock
+details, saves a verified 1,024-frame raw prefix and attaches its asset/clip. Its
+finalized journal preserves end reason6, zero rejected frames and timing origin.
+Normal Save/Quit and retirement complete; host default metadata/existing links
+remain identical. The [separate receipt](../tests/results/X007/2026-10-08-installed-recording-fault.json)
+retains original GUI screenshots, actions, take and package/upgrade metadata in a
+CRC/byte-verified **2,086,164-byte** capsule. Prior receipts/takes remain untouched.
+
+This new candidate's diagnostic-failure test does not qualify a sustained successful
+recording/EQ/reopen/export workflow; the earlier preview's evidence keeps its own
+scope. The [guide](90-preview-guide.md) lists both local candidates and installation
+commands. No host package/audio, VM, equalizer writes or binary release upload.
+Shared-kernel Xvfb/private PipeWire evidence remains separate from complete desktop,
+physical/real-time audio and native Windows qualification.
+
+Next concrete task: portable failed-job fault state, then native input acquisition
+and a tested startup/alignment policy, followed by new normal installed recording
+and complete desktop/Windows preview workflows. Pending equalizer adaptations are
+still separately reviewed work. Every frozen F/Q/C/N contract and full Europe/
+X004/X005/X006 remains incomplete; the full goal stays active.

@@ -7,7 +7,7 @@ No GitHub binary release has been uploaded.
 
 ## Package and installation
 
-Candidate: `0.1.0~preview.20261008001000.85ec9552cdd7`
+Recording/EQ/export workflow candidate: `0.1.0~preview.20261008001000.85ec9552cdd7`
 
 - Application: `soundcurrent-daw_0.1.0~preview.20261008001000.85ec9552cdd7_amd64.deb`
 - SHA-256: `dd579bfd42cba5b21ff1b6de7588bcb260f395f63997a97338162d777a73a6e2`
@@ -34,6 +34,36 @@ is required. The package does not select audio devices or replace a daemon.
 
 Close the app before changing its installed package. The current package does
 not yet implement a running-recording upgrade guard.
+
+## New diagnostic candidate
+
+Version: `0.1.0~preview.20261008013908.97a307fcf2ba`.
+
+- Application: `soundcurrent-daw_0.1.0~preview.20261008013908.97a307fcf2ba_amd64.deb`
+- SHA-256: `9f99486260f4ccec270c7e6bf8d21a3960f6c58c3e6970bda98655885ec43abf`
+- Corresponding source: `soundcurrent-daw-0.1.0~preview.20261008013908.97a307fcf2ba-source.tar.gz`
+- Source SHA-256: `b2d8979367ff7a0d46f357c8f759953f1ffc9dbf478b634ea3399dbad29ae15d`
+
+Both are local in `.cache/preview-recording-faults-ubuntu-26.04/`; all 710 tracked
+source files were independently checked against
+[the exact commit](https://github.com/rhamenator/soundcurrent-daw/tree/97a307fcf2bae9ea2781de96a4e25dc76dbda001).
+From the directory containing the package, with the app closed:
+
+```sh
+sudo apt install ./soundcurrent-daw_0.1.0~preview.20261008013908.97a307fcf2ba_amd64.deb
+```
+
+This candidate adds precise recording failure explanations with current/previous
+clock details. Normal upgrade and an actual installed-GUI short-failure workflow
+pass in the owned Ubuntu rootfs: 1,024 raw frames survive, are verified and attach
+to the saved project. Detailed fault data remains in the recording session;
+reopening currently retains the journal end reason and timing origin only.
+
+Required hosted Linux checks pass 58/58; Windows passes its core cross-build only.
+The earlier candidate's successful ten-second recording/EQ/reopen/export evidence
+does not establish the same installed workflow for this newer binary. See the
+[installed diagnostic receipt](../tests/results/X007/2026-10-08-installed-recording-fault.json)
+and [diagnostic contract](91-recording-fault-diagnostics.md) for exact scopes.
 
 ## Try the recording workflow
 
@@ -77,8 +107,10 @@ Two recording limitations are retained in the evidence: an earlier audiotestsrc
 route stopped with a clock discontinuity after 1,024 frames, and the successful
 take starts with 2,048 silent frames (42.7 ms). Every subsequent raw sample matches
 the owned source period exactly, but a periodic signal cannot independently detect
-loss of whole periods. The rejected clock cause and startup alignment need further
-work; keep original takes and treat this as a development preview.
+loss of whole periods. The newer diagnostic candidate reproduces the audiotestsrc
+clock staying at position0 for the next block instead of advancing to1024. The
+old opaque fault and startup alignment still need further work; keep original
+takes and treat these as development previews.
 
 For removal, close the app and use the normal package manager to remove
 `soundcurrent-daw`. Scoped remove/reinstall testing preserved the owned project
@@ -88,5 +120,5 @@ required. Keep the supplied source with the candidate when redistributing it.
 The [runtime receipt](../tests/results/X007/2026-10-08-preview-runtime.json),
 [installed workflow receipt](../tests/results/X007/2026-10-08-installed-preview-workflow.json)
 and [delivery gates](89-workflow-previews.md) record hashes, original failures and
-remaining work. Next: precise recording fault diagnostics and a tested first-valid
+remaining work. Next: portable failed-job diagnostics and a tested first-valid
 input/alignment policy, then complete desktop and native Windows qualification.
