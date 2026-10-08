@@ -41,6 +41,7 @@ class WasapiPlayback {
     std::uint64_t missingFrames() const noexcept;
     bool drained() const noexcept;
     std::uint64_t submittedFrames() const noexcept;
+    std::uint32_t endGuardSubmittedFrames() const noexcept; // Exact after stop/drain.
     std::uint64_t emptyQueueObservations() const noexcept;
     std::uint32_t bufferFrames() const noexcept;
     std::optional<NativeRenderTiming> timing() const noexcept;

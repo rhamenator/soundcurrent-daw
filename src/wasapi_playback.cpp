@@ -152,6 +152,7 @@ std::uint64_t WasapiPlayback::droppedObservations() const noexcept { return stat
 std::uint64_t WasapiPlayback::missingFrames() const noexcept { return state_->run.missingTrackFrames(); }
 bool WasapiPlayback::drained() const noexcept { return state_->stream && state_->stream->drained(); }
 std::uint64_t WasapiPlayback::submittedFrames() const noexcept { return state_->stream ? state_->stream->submittedFrames() : 0; }
+std::uint32_t WasapiPlayback::endGuardSubmittedFrames() const noexcept { return state_->stream ? state_->stream->endGuardSubmittedFrames() : 0; }
 std::uint64_t WasapiPlayback::emptyQueueObservations() const noexcept { return state_->stream ? state_->stream->emptyQueueObservations() : 0; }
 std::uint32_t WasapiPlayback::bufferFrames() const noexcept { return state_->stream ? state_->stream->bufferFrames() : 0; }
 std::optional<NativeRenderTiming> WasapiPlayback::timing() const noexcept {
