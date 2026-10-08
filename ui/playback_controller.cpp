@@ -141,6 +141,7 @@ class NativeWindowsEndpoint : public PlaybackEndpoint {
         latest_.droppedMeters = owner_.droppedObservations();
         latest_.droppedReceipts = owner_.droppedAcknowledgements();
         latest_.callbackFault.reset();
+        latest_.nativeTiming = owner_.timing();
         return latest_;
     }
 };
@@ -283,6 +284,7 @@ struct PlaybackController::State : QThread {
         view.droppedMeters = t.droppedMeters;
         view.droppedReceipts = t.droppedReceipts;
         view.callbackFault = t.callbackFault;
+        view.nativeTiming = t.nativeTiming;
         processed = processed || t.processed;
         for (const auto &receipt : t.receipts)
             if (receipt.track < appliedByLane.size() &&
@@ -455,6 +457,7 @@ struct PlaybackController::State : QThread {
         nextInventory = std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
         view.nativeStatus = PlaybackBridgeStatus::Ready;
         view.callbackFault.reset();
+        view.nativeTiming.reset();
         view.phase = PlaybackPhase::Ready;
     }
     void execute(Queued &q) {

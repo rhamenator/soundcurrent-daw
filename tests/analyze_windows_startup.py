@@ -33,12 +33,15 @@ def analyze(root):
     submitted = samples(root / 'submitted-stereo.f32')
     require(submitted == source, 'SDK lease differs from source intent')
     seed = 0x1a2b3c4d
+    kind = report.get('sourceKind', 'noise')
+    require(kind in ('noise','impulse'), 'Unknown direct source recipe')
     f32 = lambda v: array('f', [v])[0]
     for n in range(96000):
         seed = (seed * 1664525 + 1013904223) & 0xffffffff
         expected = 0. if n < report['silentLeadFrames'] or n >= 84000 else \
             f32(f32((seed >> 8) / 16777216. - .5) * f32(.1))
         if n == 0 and not report['silentLeadFrames']: expected = f32(.04)
+        if kind == 'impulse' and n > 0: expected = 0.
         require(source[n * 2] == expected and source[n * 2 + 1] == 0., 'Source recipe differs')
     startup = report.get('startupFrames', 0)
     if 'startupFrames' in report:
@@ -73,14 +76,15 @@ def analyze(root):
     mono = source[::2]
     # Align using a nonperiodic interior segment, excluding the suspected startup.
     # This is fixture alignment, not production latency compensation.
-    anchor = max(8192, report['silentLeadFrames'] + 2048)
+    anchor = 0 if kind == 'impulse' else max(8192, report['silentLeadFrames'] + 2048)
     x = mono[anchor:anchor+128]; energy = sum(v*v for v in x)
     candidates = []
-    for offset in range(-2048, 2049):
+    for offset in range(0 if kind == 'impulse' else -2048, 2049):
         y = left[anchor+offset:anchor+offset+128]
         gain = sum(a*b for a, b in zip(x, y)) / energy
         error = max(abs(b-gain*a) for a, b in zip(x, y))
-        candidates.append((error, offset, gain))
+        if .05 <= gain <= 1.1: candidates.append((error, offset, gain))
+    require(candidates, 'Direct source onset/interior absent')
     error, offset, gain = min(candidates)
     require(error <= 5e-5 and .05 <= gain <= 1.1, 'Direct native interior signal missing/altered')
     begin, end = max(0, -offset), min(96000, len(left)-offset)
@@ -110,6 +114,7 @@ def analyze(root):
         result.update({'nativeStartupFrames': startup, 'devicePeriod100ns': period,
                        'streamLatency100ns': latency, 'projectSourceStartsAtNativeFrame': startup,
                        'sourceFrameZeroPreserved': not affected and report['silentLeadFrames'] == 0})
+    if 'sourceKind' in report: result['sourceKind'] = kind
     return result
 
 

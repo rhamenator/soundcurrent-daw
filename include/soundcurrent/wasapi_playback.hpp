@@ -42,6 +42,7 @@ class WasapiPlayback {
     std::uint64_t submittedFrames() const noexcept;
     std::uint64_t emptyQueueObservations() const noexcept;
     std::uint32_t bufferFrames() const noexcept;
+    std::optional<NativeRenderTiming> timing() const noexcept;
     std::optional<WasapiStreamFailure> failure() const noexcept;
   private:
     struct State;

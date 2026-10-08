@@ -38,15 +38,18 @@ void play(PlaybackController &controller, const std::shared_ptr<Counters> &count
 }
 void editsAndFailure() {
     auto c = std::make_shared<Counters>();
+    c->nativeTiming = NativeRenderTiming{100000,700000,480};
     PlaybackController controller(options(c));
     auto s = session();
     check(controller.submit(prepare(s)) == Admission::Accepted, "Preparation not admitted");
     await([&] { return controller.snapshot()->phase == PlaybackPhase::Ready; });
     auto ready = controller.snapshot();
     check(ready->acceptedRevision == 1 && !ready->appliedRevision && ready->ports &&
-              ready->ports->size() == 2 && !c->activated,
+              ready->ports->size() == 2 && !c->activated && !ready->nativeTiming,
           "Preparation silently played or claimed DSP application");
     play(controller, c);
+    check(controller.snapshot()->nativeTiming == c->nativeTiming && !ready->nativeTiming,
+          "Selected native timing missing or immutable prepared snapshot changed");
     await([&] { return controller.snapshot()->appliedRevision == 1; });
     c->full.store(true);
     s.tracks.front().eq.bands.front().gainDb = 6;
