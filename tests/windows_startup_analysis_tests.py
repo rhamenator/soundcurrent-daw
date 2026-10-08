@@ -10,13 +10,14 @@ import tempfile
 from analyze_windows_startup import analyze
 
 
-def make(root, lead=0, fade=False, startup=0):
+def make(root, lead=0, fade=False, startup=0, impulse=False):
     f32 = lambda v: array('f', [v])[0]
     source = array('f'); seed = 0x1a2b3c4d
     for n in range(96000):
         seed = (seed * 1664525 + 1013904223) & 0xffffffff
         v = 0. if n < lead or n >= 84000 else f32(f32((seed >> 8)/16777216.-.5)*f32(.1))
         if n == 0 and not lead: v = f32(.04)
+        if impulse and n > 0: v = 0.
         source.extend((v, 0.))
     data = source.tobytes()
     (root/'source-stereo.f32').write_bytes(data); (root/'submitted-stereo.f32').write_bytes(data)
@@ -41,6 +42,7 @@ def make(root, lead=0, fade=False, startup=0):
               'bufferFrames':4800,'submittedFrames':96000+startup,'observations':rows,'capturePath':'media/take.wav',
               'captureSha256':hashlib.sha256(capture.read_bytes()).hexdigest(),'captureFrames':96064+startup}
     if startup: report.update({'startupFrames':startup,'devicePeriod100ns':100000,'streamLatency100ns':700000})
+    if impulse: report['sourceKind'] = 'impulse'
     (root/'probe.json').write_text(json.dumps(report))
     return report, capture
 
@@ -79,4 +81,8 @@ with tempfile.TemporaryDirectory(prefix='sc-startup-analysis-') as directory:
     try: analyze(root)
     except ValueError: pass
     else: raise AssertionError('Accepted source timeline advanced through startup')
-print(json.dumps({'syntheticStartupAnalysisCases':9,'nativeAudioReplayed':False}))
+    root = parent/'single-impulse'; root.mkdir(); make(root,startup=480,impulse=True)
+    result = analyze(root)
+    assert result['sourceFrameZeroPreserved'] and result['sourceKind'] == 'impulse'
+    assert result['fixtureOffsetFrames'] == 544 and result['first480MaximumResidual'] == 0
+print(json.dumps({'syntheticStartupAnalysisCases':10,'nativeAudioReplayed':False}))
