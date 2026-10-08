@@ -9,7 +9,8 @@ struct WasapiRenderOptions {
     NativeRenderStartup startup = NativeRenderStartup::DevicePeriod;
 };
 // Separate timing domains. submittedFrames is a queue sequence, NOT an audible
-// device position. clockPosition / clockFrequency is the SDK stream clock in
+// device position. It includes startup silence; contentSubmittedFrames does not.
+// clockPosition / clockFrequency is the SDK stream clock in
 // seconds; qpc100ns timestamps that reading. Padding is a separate snapshot.
 struct WasapiRenderClock {
     std::uint64_t submittedFrames = 0, clockPosition = 0, clockFrequency = 0, qpc100ns = 0;

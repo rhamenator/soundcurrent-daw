@@ -59,6 +59,12 @@ jobs:
           git fetch --no-tags --depth=1 origin 7b497fa19d0c0d7b689cd7b2a1f4c278bd0359ca
           git fetch --no-tags --depth=1 origin 3fe56d1fea75e98448a813c2c2d1d4cdd7aaa07c
           python3 tools/verify_windows_direct_startup.py
+      - name: Verify retained Windows startup scheduling (no audio replay)
+        run: |
+          git fetch --no-tags --depth=1 origin 54354221720f247c0180fa1495b54bb6946943be
+          git fetch --no-tags --depth=1 origin f4fd822774acab970dec958465a23557e12af89e
+          git fetch --no-tags --depth=1 origin 9422b625b679e6f9de7bf55099c28f352a341122
+          python3 tools/verify_windows_startup_scheduling.py
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

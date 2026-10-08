@@ -8,6 +8,12 @@
 
 ## Unreleased — development preview
 
+- WASAPI playback now admits an explicit device-period startup interval with
+  separate native/content timing. Owned native noise, single-sample impulse and
+  non-silent desktop playback preserve the first source sample; prepared
+  cancellation and timing propagation are checked independently. Existing
+  installers and physical/sustained qualification remain separate.
+
 - Opt-in direct Windows render diagnostics reproduce the retained non-silent
   startup attenuation without invoking the DAW mixer/EQ. Independent media
   checks preserve the failure; no production correction or installer change

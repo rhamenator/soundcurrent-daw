@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Opt-in direct-render diagnostic on an explicit owned, quiet Windows endpoint.
-// No DAW mixer/EQ, no endpoint/session volume changes, no production workaround.
+// Direct production renderer; source and endpoint/session volumes stay unchanged.
 #include <soundcurrent/wasapi_render.hpp>
 #include <soundcurrent/wasapi_input.hpp>
 #include <soundcurrent/recording.hpp>

@@ -2979,3 +2979,20 @@ contracts pass. See [checkpoint 104](104-windows-direct-startup.md). The owned
 clone is shut down. Next: explicit startup scheduling with project/native timing
 separation and a device-period experiment, followed by physical qualification.
 Existing installers and all full-suite gates remain unchanged. The goal is active.
+
+## Native startup scheduling checkpoint (2026-10-08)
+
+WASAPI now owns one admitted device-period silent interval before content, with
+separate native/content queue coordinates and immutable timing in controller
+snapshots. Source/DSP frames and parameter receipts do not advance through startup.
+The owned endpoint's 480-frame interval preserves direct noise and a one-sample
+impulse exactly; an Immediate control retains the original first-480-frame failure.
+Prepared cancellation processes no source and is not promoted to completion.
+The integrated production desktop's non-silent take, live EQ/Undo, save/reopen and
+WAV export pass independent raw/export/native sample checking. Native full UI,
+controller and timing tests plus Linux affected/sanitizer checks pass. See
+[checkpoint 105](105-windows-startup-scheduling.md). The clone is shut down.
+This qualifies startup on one owned native endpoint, not arbitrary hardware,
+capture discontinuities, sustained audio or full parity. Next: refresh and qualify
+the exact local installer/runtime, then repeat/seek/end-boundary and physical
+workflows. The full goal remains active and incomplete.
