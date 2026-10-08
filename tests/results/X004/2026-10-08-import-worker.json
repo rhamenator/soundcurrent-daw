@@ -1,0 +1,99 @@
+{
+  "format": "sc-import-worker-local-v1",
+  "sourceBase": "be10b27e6f1eb7a8ff31396190a169f81bee7c00",
+  "scope": "Real separate-process synthetic structural inspection only; no native DAW corpus, semantic conversion, GUI integration, OS sandbox or native Windows execution qualification",
+  "nativeCompatibilityQualified": false,
+  "localVMStarted": false,
+  "steps": [
+    {
+      "name": "release-build",
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-desktop-release",
+        "--target",
+        "sc-import-inspect-worker",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "seconds": 0.035,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    {
+      "name": "release-test",
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^import-inspection-worker$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 0.372,
+      "logSha256": "a79aa389c7a0f31659db782473dd6f261c0ecfbda60617f0e684714a2f249793",
+      "observedResult": "31: {\"checks\": 140, \"processBoundary\": true, \"sourceUntouched\": true, \"nativeDAWCompatibilityQualified\": false, \"platform\": \"linux\"}"
+    },
+    {
+      "name": "sanitized-build",
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-desktop-sanitized",
+        "--target",
+        "sc-import-inspect-worker",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "seconds": 0.029,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    {
+      "name": "sanitized-test",
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^import-inspection-worker$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 1.179,
+      "logSha256": "127b2ca4c8c129629d5dab48698ba7f6857dae3d6be716630071f2ea71f83678",
+      "observedResult": "31: {\"checks\": 140, \"processBoundary\": true, \"sourceUntouched\": true, \"nativeDAWCompatibilityQualified\": false, \"platform\": \"linux\"}"
+    },
+    {
+      "name": "windows-cross-build",
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-media",
+        "--target",
+        "sc-import-inspect-worker",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "seconds": 0.03,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    }
+  ],
+  "sourceSha256": {
+    "CMakeLists.txt": "1a01b86bb3a3c41d730339d2a872143c61239bc539bb8e24886ee5aa57a786eb",
+    ".github/workflows/ci.yml": "ae2c8670dc423410c136f486ee5bb7eba35bf78e4a75201c64b949c318a7626e",
+    "tools/import_inspect_worker.cpp": "2f2c87c9eb9ffcd4463a80905ee835349a40634a83d7d9b3332c8cbcee10cbec",
+    "tests/import_inspect_worker_tests.py": "58314a964dd2328397d606045faaa1d2111c388f8395aec8d77b70b98c3bfe6b",
+    "include/soundcurrent/reaper_structure.hpp": "dd8cef361422f8a3423545707fb4aea5182d715829a0cfa55e30dfc1956e18aa",
+    "src/reaper_structure.cpp": "8c5db4ca25fe5a2a69b016d5ee73845c6646fab814c1a36825e6558629640c89"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-import-inspect-worker": "72decb14193c7ea1801836999a26dd3226f77d12794db38ff9e16501fd19f6f1",
+    ".cache/build-desktop-sanitized/sc-import-inspect-worker": "457d4517f1cec35f3d3af59d1fe7f4d47ae018e27ec2a043386f7bfeb620feb2",
+    ".cache/build-windows-media/sc-import-inspect-worker.exe": "a7ea69b7a08f8caa61e4036c8c6f34270ebea25cf35fd28809c087e925b8422b"
+  }
+}

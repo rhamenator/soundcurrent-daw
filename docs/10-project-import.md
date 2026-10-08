@@ -54,3 +54,8 @@ version/corpus, conversion, isolated file worker or import UI is qualified yet.
 See [checkpoint 113](113-rpp-structural-inspection.md) and
 [ADR081](decisions/081-bounded-foreign-project-outline.md). Native imports for the
 other registered suites remain required.
+
+The [separate inspection worker](114-import-inspection-worker.md) adds pinned
+read-only file loading, a bounded versioned source-hash/range report and actual
+child-process cancellation/refusal tests. Desktop integration, persistent opaque
+state, OS sandboxing, native version/corpus and semantic mapping remain open.
