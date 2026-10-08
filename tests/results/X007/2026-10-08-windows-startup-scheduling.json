@@ -984,6 +984,117 @@
           "sourceKind": "impulse"
         }
       }
+    },
+    "v3": {
+      "sourceHead": "1a48374e20aa8ce34942a1ce34fdb69fa2963c59",
+      "sourceInputFiles": 342,
+      "native": {
+        "scope": "Native direct WASAPI render and owned endpoint loopback, no mixer or EQ",
+        "exitCode": 0,
+        "tests": [
+          {
+            "label": "normal",
+            "exitCode": 0,
+            "sessionId": 1,
+            "exeBytes": 607232,
+            "exeSha256": "5b908ac2c80d872be73e761c92afe65646a64844d59d2c113233f433fce23887",
+            "mode": "normal"
+          },
+          {
+            "label": "cancel",
+            "exitCode": 0,
+            "sessionId": 1,
+            "exeBytes": 607232,
+            "exeSha256": "5b908ac2c80d872be73e761c92afe65646a64844d59d2c113233f433fce23887",
+            "mode": "cancel"
+          }
+        ],
+        "sessionId": 1
+      },
+      "normalIndependent": {
+        "format": "sc-native-windows-playback-verification",
+        "cancel": false,
+        "engineFrames": 192000,
+        "capturedFrames": 192480,
+        "nativeQueueDrained": true,
+        "independentEngineMaximumError": 0.0,
+        "nativeMaximumResidual": 0.0,
+        "fixtureOffsetFrames": 544,
+        "measuredPathGain": 1.0,
+        "matchedFrames": 191936,
+        "nativeClockUnitsDistinctFromQueueFrames": true,
+        "unselectedChannelSilent": true,
+        "GUIOrInstallerQualified": false,
+        "PhysicalLatencyOrSustainedSchedulingQualified": false
+      },
+      "cancelIndependentAccepted": false,
+      "cancelObservation": {
+        "report": {
+          "engineFrames": 48000,
+          "capturedFrames": 44160,
+          "submittedFrames": 48480,
+          "status": 4,
+          "liveFrame": 24000,
+          "missingFrames": 0,
+          "nativeCaptureFailure": null,
+          "nativePlaybackFailure": null,
+          "bufferFrames": 4800,
+          "startupFrames": 480
+        },
+        "candidateResiduals": [
+          {
+            "offset": 542,
+            "matchedFrames": 43618,
+            "maxResidual": 0.09967880696058273,
+            "firstAffected": 12000,
+            "lastAffected": 43617,
+            "beforeFinal960MaximumResidual": 0.09967880696058273,
+            "last960MaximumResidual": 0.09874285757541656
+          },
+          {
+            "offset": 543,
+            "matchedFrames": 43617,
+            "maxResidual": 0.09953217953443527,
+            "firstAffected": 12000,
+            "lastAffected": 43616,
+            "beforeFinal960MaximumResidual": 0.09953217953443527,
+            "last960MaximumResidual": 0.09752584248781204
+          },
+          {
+            "offset": 544,
+            "matchedFrames": 43616,
+            "maxResidual": 0.04706305544823408,
+            "firstAffected": 43202,
+            "lastAffected": 43615,
+            "beforeFinal960MaximumResidual": 0.0,
+            "last960MaximumResidual": 0.04706305544823408
+          },
+          {
+            "offset": 545,
+            "matchedFrames": 43615,
+            "maxResidual": 0.09953217953443527,
+            "firstAffected": 11999,
+            "lastAffected": 43614,
+            "beforeFinal960MaximumResidual": 0.09953217953443527,
+            "last960MaximumResidual": 0.09752584248781204
+          },
+          {
+            "offset": 546,
+            "matchedFrames": 43614,
+            "maxResidual": 0.09967880696058273,
+            "firstAffected": 11998,
+            "lastAffected": 43613,
+            "beforeFinal960MaximumResidual": 0.09967880696058273,
+            "last960MaximumResidual": 0.09874285757541656
+          }
+        ],
+        "originalIndependentOracleAccepted": false,
+        "causeIsolated": false
+      },
+      "harnessScopeCorrection": {
+        "originalScope": "Native direct WASAPI render and owned endpoint loopback, no mixer or EQ",
+        "actualScope": "Production WASAPI graph/reader/EQ playback and owned loopback; copied harness scope incorrectly said no mixer/EQ. Original report remains unmodified."
+      }
     }
   },
   "analysisSourceHead": "9422b625b679e6f9de7bf55099c28f352a341122",
@@ -1011,8 +1122,8 @@
   "originalsAndTemplatePreserved": true,
   "capsule": {
     "name": "2026-10-08-windows-startup-scheduling.zip",
-    "bytes": 13888876,
-    "sha256": "a9f85b2babca6052c232d05452ce28819e7f456690de577baba620697f478480",
+    "bytes": 17376075,
+    "sha256": "f257a1d29e6ce1defde3120849f2709cf580ce50be498a56688692293af83777",
     "files": {
       "linux/build.log": {
         "bytes": 4306,
@@ -1425,6 +1536,150 @@
       "v2/native/ui-full.stdout": {
         "bytes": 199,
         "sha256": "493e1021bc2ecd68e539325112a4f07225a3c80f3d3b93818bc2cc8adb4b8ef4"
+      },
+      "v3/analysis/cancel-analysis.stderr": {
+        "bytes": 715,
+        "sha256": "104a97cd81ea3ba185babc79f749681af52af867a2fe1091db19374919034968"
+      },
+      "v3/analysis/cancel-observation.json": {
+        "bytes": 1764,
+        "sha256": "5193f4a03be3b99f7e31cd4ff202cb7ab95f2b0d3704824fbda68ea41453875e"
+      },
+      "v3/analysis/normal-analysis.json": {
+        "bytes": 497,
+        "sha256": "91816f28bb9ef0b7bb8d84e93f445f7375960ed4a33dbc6cb2b04dcbe3fa687f"
+      },
+      "v3/control/build.log": {
+        "bytes": 22277,
+        "sha256": "283c2a27e80bfebda89352866d3211b6523751716196a92f3fb51d8b5380b784"
+      },
+      "v3/control/collect.log": {
+        "bytes": 11062,
+        "sha256": "b5ffe96c720a325d7c4139008101e67c6a37c2dad67fe19351ec5612fee8d829"
+      },
+      "v3/control/dispatch.log": {
+        "bytes": 1104,
+        "sha256": "b74547645835004370a11fcd7477dec6807dc952cb53d1ed87e149b750e3a664"
+      },
+      "v3/control/inputs.json": {
+        "bytes": 49702,
+        "sha256": "585b147a6388c89635e64b7073974a5b4125ac9f81de0839d894659cfe5a7372"
+      },
+      "v3/native/cancel.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/cancel.stdout": {
+        "bytes": 33414,
+        "sha256": "225ea50213d535440b0083a84b434521139075fd22d62d28df49fc94db87d63c"
+      },
+      "v3/native/cancel/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/cancel/expected-engine.f32": {
+        "bytes": 768000,
+        "sha256": "056151cc34d7c90d61af081eb8cb2a339fee8da67d0382ad7290ff7cfb52e28e"
+      },
+      "v3/native/cancel/loopback/media/capture-724729a0-affe-42c7-9be8-4756b48df059/journal.json": {
+        "bytes": 906,
+        "sha256": "6c0fc1ac0d68c635cfba8cbd0b605a7cce2914533841291a9de00c47a842a94b"
+      },
+      "v3/native/cancel/loopback/media/capture-724729a0-affe-42c7-9be8-4756b48df059/take.wav": {
+        "bytes": 353384,
+        "sha256": "8dd2a04ff9a775cc255a85c86518cbb37dffb7a77d019181d85b4cedc1d70688"
+      },
+      "v3/native/cancel/loopback/media/capture-724729a0-affe-42c7-9be8-4756b48df059/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/cancel/media/capture-0bee8a0a-0202-402a-b28f-887e3f9ef10a/journal.json": {
+        "bytes": 696,
+        "sha256": "c5c4756143e4c2a5454d344527149801a0fb96d53fa112d2810e0b675ccb6dd5"
+      },
+      "v3/native/cancel/media/capture-0bee8a0a-0202-402a-b28f-887e3f9ef10a/take.wav": {
+        "bytes": 768104,
+        "sha256": "56af0bfbb9be3118b4239f9760a8a5ee9a0d72308adc3614334c505822005f8e"
+      },
+      "v3/native/cancel/media/capture-0bee8a0a-0202-402a-b28f-887e3f9ef10a/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/cancel/probe.json": {
+        "bytes": 33414,
+        "sha256": "225ea50213d535440b0083a84b434521139075fd22d62d28df49fc94db87d63c"
+      },
+      "v3/native/cancel/project.json": {
+        "bytes": 2345,
+        "sha256": "18f875e40e034440a9aa61cb581beeff23f453cb9cca94a5083fca26d41e8136"
+      },
+      "v3/native/normal.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/normal.stdout": {
+        "bytes": 138222,
+        "sha256": "e156e61382d11c94d3659e76820f4b7cc7cc10046e1026152b44c7b4f6f43be6"
+      },
+      "v3/native/normal/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/normal/expected-engine.f32": {
+        "bytes": 768000,
+        "sha256": "056151cc34d7c90d61af081eb8cb2a339fee8da67d0382ad7290ff7cfb52e28e"
+      },
+      "v3/native/normal/loopback/media/capture-75076e54-9d44-4047-af40-80f9ba1cb4a6/journal.json": {
+        "bytes": 907,
+        "sha256": "65c80727d28e9fdea56656d0b172a857ec64626c02365e1c8c8e1f6fe3243e21"
+      },
+      "v3/native/normal/loopback/media/capture-75076e54-9d44-4047-af40-80f9ba1cb4a6/take.wav": {
+        "bytes": 1539944,
+        "sha256": "fdb78865a454542d368d31b3c406469f05b4f27f4c65a42a02e7856d379a96d1"
+      },
+      "v3/native/normal/loopback/media/capture-75076e54-9d44-4047-af40-80f9ba1cb4a6/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/normal/media/capture-1f8f2e19-ff5c-4465-88c2-46394c063557/journal.json": {
+        "bytes": 696,
+        "sha256": "d4198eeaa62e7224b355303242e658757f4d88e688abaeca6a72ba32cf0c572f"
+      },
+      "v3/native/normal/media/capture-1f8f2e19-ff5c-4465-88c2-46394c063557/take.wav": {
+        "bytes": 768104,
+        "sha256": "56af0bfbb9be3118b4239f9760a8a5ee9a0d72308adc3614334c505822005f8e"
+      },
+      "v3/native/normal/media/capture-1f8f2e19-ff5c-4465-88c2-46394c063557/writer.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "v3/native/normal/probe.json": {
+        "bytes": 138222,
+        "sha256": "e156e61382d11c94d3659e76820f4b7cc7cc10046e1026152b44c7b4f6f43be6"
+      },
+      "v3/native/normal/project.json": {
+        "bytes": 2345,
+        "sha256": "80c4cf90bd59348dace22e6f05ef104cd95d8904789df75ec3f921c82f699ca6"
+      },
+      "v3/native/result.json": {
+        "bytes": 885,
+        "sha256": "189f4fc1b67d1e7e5ca6325594c5767862728a90485bbffaa156201918ab3e3d"
+      },
+      "v3/source/include/soundcurrent/wasapi_playback.hpp": {
+        "bytes": 2597,
+        "sha256": "c020db140327ab8c2c4afb0113028dc3db0b764586be47e9cd1f7b7ae55f2627"
+      },
+      "v3/source/src/wasapi_playback.cpp": {
+        "bytes": 9695,
+        "sha256": "2a8590fd67ef085e983031f005755239b63506ab1ec7d94df83dca02b6425aa8"
+      },
+      "v3/source/tests/verify_windows_playback.py": {
+        "bytes": 10111,
+        "sha256": "97e37de89e7e54a8371d8916883443a57593468835d1efdeea37ed8ee62ebe6c"
+      },
+      "v3/source/tests/wasapi_playback_fixture.cpp": {
+        "bytes": 11964,
+        "sha256": "fd6cc022bc445ded3f4c32e42074ae6092c58bcb2a0ef282a1247a1124264403"
       }
     }
   }

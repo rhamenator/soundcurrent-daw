@@ -2996,3 +2996,10 @@ This qualifies startup on one owned native endpoint, not arbitrary hardware,
 capture discontinuities, sustained audio or full parity. Next: refresh and qualify
 the exact local installer/runtime, then repeat/seek/end-boundary and physical
 workflows. The full goal remains active and incomplete.
+
+Modernizing the older playback probe additionally qualifies native/content/end-
+slack accounting at normal completion. Active cancellation reveals altered
+final loopback samples and is independently refused despite SDK success.
+The retained failure remains open; next investigate the native Stop boundary,
+then refresh the installer. Prepared cancellation and non-silent startup evidence
+remain separately qualified on the owned endpoint.

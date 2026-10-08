@@ -75,9 +75,9 @@ preserved. No installed candidate or public binary is produced here.
 ## Retained evidence
 
 [Receipt](../tests/results/X007/2026-10-08-windows-startup-scheduling.json) and
-[103-payload capsule](../tests/results/X007/2026-10-08-windows-startup-scheduling.zip)
+[139-payload capsule](../tests/results/X007/2026-10-08-windows-startup-scheduling.zip)
 retain prototype/integrated media, actual lease samples, timing, exits, executable
-identities, source hashes and build/test logs. Capsule size: 13,888,876 bytes.
+identities, source hashes and build/test logs. Capsule size: 17,376,075 bytes.
 No executable, DLL or credential file is included.
 
 Both 342-input native snapshots match exact Git sources: prototype
@@ -96,9 +96,25 @@ single-sample impulse, the original ramp and poisoned/changed media. Existing
 historical media remains independently verifiable. The hosted read-only verifier
 relocates and recomputes both native phases without Windows or audio replay.
 
+The later modernized playback probe records full SDK lease extents separately
+from actual engine frames, preserving end-slack accounting. Its 342 inputs match
+`1a48374e20aa8ce34942a1ce34fdb69fa2963c59`; its normal-completion run passes
+independent DSP/timing/native checks with a 480-frame startup interval. Its
+active-cancellation run exits zero internally but is **refused** by independent
+sample checking. At fixture offset 544, captured source frames 43,202–43,615 are
+altered, maximum residual 0.04706305544823408; samples before the final 960-frame
+window match exactly. Engine position is 48,000, native submitted extent 48,480,
+and capture extent 44,160. Device/capture/reader faults are not reported. The
+cause is not isolated; an internal success flag does not qualify cancellation
+fidelity. Original media, refusal and observations remain retained. The copied
+run-harness scope label incorrectly says no mixer/EQ; a receipt correction
+identifies this executable as the production graph/reader/EQ playback probe,
+without altering the original report. No active-stop sample threshold is relaxed.
+
 ## Remaining work
 
-Refresh the exact local installer/source pair and qualify its installed runtime.
+Investigate and correct the retained active-stop boundary before claiming its
+fidelity. Then refresh the exact local installer/source pair and qualify its runtime.
 Continue with repeated GUI Stop/reprepare, nonzero seek/range boundaries and
 non-silent final-frame delivery, cancellation during activation, other device
 periods and physical/sustained tests. The earlier independent 480-frame capture

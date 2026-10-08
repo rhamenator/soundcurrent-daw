@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'tests'))
 from analyze_windows_startup import analyze
 from verify_windows_desktop import verify as verify_desktop
+from verify_windows_playback import verify as verify_playback
 
 
 def run():
@@ -21,7 +22,7 @@ def run():
     require(archive.stat().st_size == inventory['bytes'] and
             hashlib.sha256(archive.read_bytes()).hexdigest() == inventory['sha256'], 'Scheduling capsule identity differs')
     with zipfile.ZipFile(archive) as z, tempfile.TemporaryDirectory(prefix='sc-startup-scheduling-') as temp:
-        require(len(z.infolist()) == len(inventory['files']) <= 128 and
+        require(len(z.infolist()) == len(inventory['files']) <= 160 and
                 {i.filename for i in z.infolist()} == set(inventory['files']) and
                 sum(i.file_size for i in z.infolist()) <= 32*1024*1024, 'Scheduling membership/bounds differ')
         root = Path(temp)
@@ -90,10 +91,44 @@ def run():
             head = receipt['analysisSourceHead'] if name.endswith('.py') else receipt['phases']['v2']['sourceHead']
             require(subprocess.check_output(['git','show',head+':'+name],cwd=ROOT) == p.read_bytes(),
                     'Retained scheduling source differs')
+        # Modernized playback observations independently qualify queue/content
+        # accounting and normal completion. Preserve the failed active-stop media.
+        phase = receipt['phases']['v3']
+        manifest = json.loads((root/'v3/control/inputs.json').read_text())
+        require(len(manifest['files']) == phase['sourceInputFiles'] == 342 and
+                manifest['sourceCommit'] == phase['sourceHead'], 'Playback probe source differs')
+        verify_source_inputs(phase['sourceHead'],manifest)
+        native = json.loads((root/'v3/native/result.json').read_text(encoding='utf-8-sig'))
+        require(native == phase['native'] and native['exitCode'] == 0 and native['sessionId'] == 1 and
+                len(native['tests']) == 2 and {t['label'] for t in native['tests']} == {'normal','cancel'} and
+                all(t['exitCode'] == 0 and t['sessionId'] == 1 for t in native['tests']) and
+                len({(t['exeSha256'],t['exeBytes']) for t in native['tests']}) == 1,
+                'Playback probe execution identity differs')
+        actual = verify_playback(root/'v3/native/normal')
+        require(actual == phase['normalIndependent'] ==
+                json.loads((root/'v3/analysis/normal-analysis.json').read_text()) and
+                actual['nativeQueueDrained'] and actual['nativeMaximumResidual'] == 0,
+                'Normal playback queue/content accounting differs')
+        try:
+            verify_playback(root/'v3/native/cancel')
+        except ValueError as e:
+            require(str(e) == 'Native signal lost/repeated/altered', 'Active-stop refusal reason changed')
+        else:
+            raise ValueError('Original active-stop sample failure lost')
+        require(phase['cancelIndependentAccepted'] is False and
+                b'ValueError: Native signal lost/repeated/altered' in
+                (root/'v3/analysis/cancel-analysis.stderr').read_bytes() and
+                phase['harnessScopeCorrection']['originalScope'] == native['scope'],
+                'Active-stop failure or copied harness-scope correction lost')
+        for p in (root/'v3/source').rglob('*'):
+            if p.is_file():
+                name = p.relative_to(root/'v3/source').as_posix()
+                require(subprocess.check_output(['git','show',phase['sourceHead']+':'+name],cwd=ROOT) == p.read_bytes(),
+                        'Modern playback probe source differs')
         require(all(receipt[k] is False for k in ('installedPreviewsRebuilt','physicalOrSustainedTimingQualified',
                     'driverOrOsCauseIsolated','fullParityPromoted')), 'Correction proof promoted beyond scope')
     print(json.dumps({'retainedStartupSchedulingVerified':True,'ownedNonSilentStartupQualified':True,
-                      'nativeAudioReplayed':False,'physicalDevicesQualified':False}))
+                      'nativeAudioReplayed':False,'physicalDevicesQualified':False,'activeStopFidelityQualified':False}))
 
 
 if __name__ == '__main__': run()
