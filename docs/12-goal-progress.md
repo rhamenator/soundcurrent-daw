@@ -3020,3 +3020,21 @@ bounded native end guard with separate queue accounting and exact final-frame
 evidence; production EQ lease tracing at Stop; then installer/runtime refresh.
 Existing local Linux/Windows installers remain available at their earlier source.
 The full DAW goal remains active and incomplete.
+
+## Native end-guard checkpoint (2026-10-08)
+
+A device-period native-only end guard now follows normal Finish without source,
+DSP, project or receipt advancement. Total/native callback/guard extents are
+distinct, finite source mapping excludes both boundary intervals, and Stop/fault
+paths remain interruptible. Same-binary direct controls reproduce 64 missing
+frames with Immediate end and preserve the entire non-silent source with guard,
+including one-frame and 31-frame ranges. Guard cancellation is not completion.
+
+Native production playback matches all 192,000 source frames; the real desktop
+workflow matches all 480,000 raw/export/playback samples. Native main normal close,
+UI/controller and 28 timing checks pass, alongside Linux focused/sanitizer checks.
+The production-EQ active-Stop sample failure still reproduces and remains strictly
+refused. Source-pinned native evidence is retained; see
+[checkpoint 107](107-windows-end-guard.md). No installer qualification or parity
+promotion is inferred. Next: installer refresh/installed runtime with limitations,
+then actual production lease tracing at Stop. The full goal stays active.

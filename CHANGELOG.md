@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- WASAPI normal playback now submits a bounded native-only silent end guard.
+  Owned native tests preserve all non-silent final samples and short ranges;
+  startup/end/engine frames remain distinct. Cancellation during the guard stays
+  stopped, and the separate production-EQ active-Stop fidelity issue remains open.
+
 - WASAPI playback now admits an explicit device-period startup interval with
   separate native/content timing. Owned native noise, single-sample impulse and
   non-silent desktop playback preserve the first source sample; prepared
