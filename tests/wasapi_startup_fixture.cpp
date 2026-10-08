@@ -43,11 +43,12 @@ struct Source : Audit {
     bool overflow = false, fault = false;
     struct Row { WasapiRenderClock clock; std::uint32_t frames; };
     std::array<Row, 256> rows{};
-    explicit Source(std::uint32_t lead, bool impulse = false) : samples(sourceFrames * 2), submitted(sourceFrames * 2) {
+    explicit Source(std::uint32_t lead, bool impulse = false, bool nonSilentEnd = false)
+        : samples(sourceFrames * 2), submitted(sourceFrames * 2) {
         std::uint32_t seed = 0x1a2b3c4d;
         for (std::uint32_t n = 0; n < sourceFrames; ++n) {
             seed = seed * 1664525u + 1013904223u;
-            samples[n * 2] = impulse || n < lead || n >= sourceFrames - 12000 ? 0.f :
+            samples[n * 2] = impulse || n < lead || (!nonSilentEnd && n >= sourceFrames - 12000) ? 0.f :
                 float(double(seed >> 8) / 16777216.0 - .5) * .1f;
         }
         if (!lead) samples[0] = .04f;
@@ -78,8 +79,9 @@ void retain(const std::filesystem::path &p, const std::vector<float> &values) {
 }
 int run(const std::vector<std::filesystem::path> &args) {
     require(args.size() == 4 && (args[3] == "immediate" || args[3] == "silent-lead" ||
-            args[3] == "device-period" || args[3] == "impulse" || args[3] == "cancel-prepared"),
-            "Supply NEW_ROOT explicit owned stereo endpoint ID immediate|silent-lead|device-period|impulse|cancel-prepared");
+            args[3] == "device-period" || args[3] == "impulse" || args[3] == "cancel-prepared" ||
+            args[3] == "cancel-active" || args[3] == "non-silent-end"),
+            "Supply NEW_ROOT explicit owned stereo endpoint ID immediate|silent-lead|device-period|impulse|cancel-prepared|cancel-active|non-silent-end");
     const auto encoded = args[2].u8string(); const std::string id(encoded.begin(), encoded.end());
     const auto endpoints = wasapiEndpoints();
     const auto e = std::find_if(endpoints.begin(), endpoints.end(), [&](const auto &e) { return e.id == id; });
@@ -88,7 +90,9 @@ int run(const std::vector<std::filesystem::path> &args) {
     const auto defaults = wasapiDefaultEndpoints();
     const auto root = args[1]; require(std::filesystem::create_directory(root), "New result root required");
     const std::uint32_t lead = args[3] == "silent-lead" ? 12000 : 0;
-    Source source(lead, args[3] == "impulse");
+    const bool cancelActive = args[3] == "cancel-active";
+    const bool nonSilentEnd = args[3] == "non-silent-end";
+    Source source(lead, args[3] == "impulse", nonSilentEnd);
     if (args[3] == "cancel-prepared") {
         WasapiRenderStream render({id,48000,2,2048}, {&source,Source::fill,Source::unavailable});
         require(!source.calls && !render.submittedFrames() && !render.drained(), "Prepared stream processed content");
@@ -114,12 +118,15 @@ int run(const std::vector<std::filesystem::path> &args) {
     RecordingSpec spec; spec.projectId = session.id; spec.trackId = session.tracks.front().id;
     spec.capture = pipe.config(); RecordingWorker worker(pipe, root / "loopback", spec);
     WasapiRenderStream render({id, 48000, 2, 2048,
-        args[3] == "device-period" || args[3] == "impulse" ? NativeRenderStartup::DevicePeriod : NativeRenderStartup::Immediate},
+        args[3] == "device-period" || args[3] == "impulse" || cancelActive || nonSilentEnd ?
+            NativeRenderStartup::DevicePeriod : NativeRenderStartup::Immediate},
         {&source, Source::fill, Source::unavailable});
     require(!source.calls && !sink.calls, "Prepared stream activated processing");
     tap.activate(); render.activate();
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
-    while (!render.drained() && !render.failure() && !bridge.firstFault() &&
+    const auto startup = render.timing().startupFrames;
+    while (!(cancelActive && render.submittedFrames() >= startup + 48000) &&
+           !render.drained() && !render.failure() && !bridge.firstFault() &&
            std::chrono::steady_clock::now() < deadline)
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
     render.stop(); std::this_thread::sleep_for(std::chrono::milliseconds(150));
@@ -136,13 +143,25 @@ int run(const std::vector<std::filesystem::path> &args) {
             {"clockPosition", r.clock.clockPosition}, {"clockFrequency", r.clock.clockFrequency},
             {"qpc100ns", r.clock.qpc100ns}, {"paddingFrames", r.clock.paddingFrames}});
     }
-    const bool accepted = render.drained() && !render.failure() && !tap.failure() && !bridge.firstFault() &&
-        !source.overflow && !source.fault && source.cursor >= sourceFrames && source.submitted == source.samples &&
+    const auto contentSubmitted = render.submittedFrames() - startup;
+    const bool sourceCommitted = cancelActive ? contentSubmitted >= 48000 && contentSubmitted < sourceFrames &&
+        source.cursor == contentSubmitted &&
+        std::equal(source.samples.begin(), source.samples.begin() + std::size_t(contentSubmitted) * 2,
+                   source.submitted.begin()) &&
+        std::all_of(source.submitted.begin() + std::size_t(contentSubmitted) * 2, source.submitted.end(),
+                    [](float value) { return value == 0.f; }) :
+        source.cursor >= sourceFrames && source.submitted == source.samples;
+    const bool accepted = (cancelActive ? !render.drained() : render.drained()) &&
+        !render.failure() && !tap.failure() && !bridge.firstFault() &&
+        !source.overflow && !source.fault && sourceCommitted &&
         !source.allocations && !source.frees && !sink.allocations && !sink.frees &&
         defaults == wasapiDefaultEndpoints();
     json report{{"format", "sc-wasapi-direct-startup-probe"}, {"nativeSdkAccepted", accepted},
         {"silentLeadFrames", lead}, {"sourceFrames", sourceFrames}, {"rate", 48000},
         {"sourceKind",args[3] == "impulse" ? "impulse" : "noise"},
+        {"mode",cancelActive ? "cancel-active" : nonSilentEnd ? "non-silent-end" : "normal"},
+        {"sourceCursor",source.cursor},{"contentSubmittedFrames",contentSubmitted},
+        {"stopRequestedAtMinimumContentFrame",cancelActive ? 48000 : 0},
         {"capturePath", captured.asset.relativePath}, {"captureSha256", captured.asset.sha256},
         {"captureFrames", captured.asset.frames}, {"submittedFrames", render.submittedFrames()},
         {"bufferFrames", render.bufferFrames()}, {"drained", render.drained()}, {"observations", rows},
