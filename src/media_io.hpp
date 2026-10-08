@@ -12,7 +12,9 @@ void plainFile(const std::filesystem::path &);
 class File {
   public:
     // Exclusive creation or read-only open. No sharing a live writer handle.
-    File(const std::filesystem::path &, bool create);
+    // Active checkpoint inspection alone may coexist with an existing Windows
+    // writer. Normal media admission/hash/cache readers still deny mutations.
+    File(const std::filesystem::path &, bool create, bool inspectActiveWriter = false);
     ~File();
     File(const File &) = delete;
     File &operator=(const File &) = delete;

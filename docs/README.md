@@ -108,3 +108,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Configurable Undo resource settings](81-history-resource-admission.md)
 
 - [Retained immutable session resources](82-retained-session-resources.md)
+
+- [Native Windows capture foundation and honest waveform acceptance](96-windows-capture-foundation.md)

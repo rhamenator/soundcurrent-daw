@@ -12,6 +12,12 @@
 #include <limits>
 #include <thread>
 #include <vector>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 using namespace soundcurrent::daw;
 namespace {
 std::uint64_t checks = 0;
@@ -427,6 +433,27 @@ void transactions() {
     const auto source = root / utf8Path(s.assets.front().relativePath);
     const auto sourceBytes = contents(source);
     ExportOptions mutate;
+#ifdef _WIN32
+    // Native Windows cache handles deny writers. A failed malicious mutation
+    // leaves a valid source/export; do not weaken production sharing policy to
+    // make the Linux mutation fixture succeed on Windows.
+    bool mutationDenied = false;
+    mutate.boundary = [&](ExportBoundary b, Frame) {
+        if (b == ExportBoundary::BeforeFlush) {
+            const auto h = CreateFileW(source.c_str(), GENERIC_WRITE,
+                                       FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                                       OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+            const auto error = GetLastError();
+            if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+            mutationDenied = h == INVALID_HANDLE_VALUE && error == ERROR_SHARING_VIOLATION;
+            check(mutationDenied, "Active Windows source did not deny write access");
+        }
+    };
+    exportTrackWav(root, s, t.root / "mutation-denied.wav", spec, mutate);
+    check(mutationDenied && contents(source) == sourceBytes &&
+              Wave(t.root / "mutation-denied.wav").samples == reference(s, spec.endFrame, 127, spec.endFrame),
+          "Denied native mutation changed raw media or render");
+#else
     mutate.boundary = [&](ExportBoundary b, Frame) {
         if (b == ExportBoundary::BeforeFlush)
             store(source, sourceBytes + "changed");
@@ -434,6 +461,7 @@ void transactions() {
     rejects([&] { exportTrackWav(root, s, t.root / "mutated.wav", spec, mutate); });
     check(!std::filesystem::exists(t.root / "mutated.wav"), "Changed source export published");
     store(source, sourceBytes);
+#endif
     // A self-consistent asset hash cannot authorize silently sanitized source samples.
 #ifdef _WIN32
     SF_INFO badInfo{};

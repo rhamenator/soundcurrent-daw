@@ -99,3 +99,15 @@ CMake Threads facility; there is no additional third-party dependency or change
 to GPL-3.0-only source licensing. Platform thread/runtime redistribution still
 follows the existing packaging inventory. The ledger must never be acquired or
 released by an audio callback.
+
+## Native Windows capture foundation (2026-10-08)
+
+ADR075 selects an original Windows SDK WASAPI capture owner and an OS/Qt-free
+prepared packet adapter. No additional audio framework, driver or mandatory cable
+is introduced. COM/SDK import libraries (`ole32`, SDK GUIDs), existing MinGW/GCC
+runtimes and codec-disabled libsndfile1.2.2 support the current native developer
+fixture. These are local qualification inputs, not an end-user Windows package.
+Before distribution qualify the native Qt/runtime/toolchain combination and collect
+exact transitive notices/source/build configuration. Test-only existing cable
+endpoints do not become installer dependencies. Native SDK source-render pumping
+is fixture control work, not a selected production output engine.
