@@ -1,0 +1,149 @@
+{
+  "format": "soundcurrent-device-format-control-qualification",
+  "sourceHead": "54ca5d30703e5f6269327901cf148c78d34c1f94",
+  "scope": "Shared WASAPI shape admission and actual Qt controls with owned fake endpoints; no new installed/physical/audio-SDK qualification",
+  "linux": {
+    "focusedUiPassed": true,
+    "fullUiPassedAfterReadinessWait": true,
+    "portAdmissionChecks": 26,
+    "targetedTestsPassed": 5,
+    "sanitizerTestsPassed": 2,
+    "initialUiTimeoutRetained": true,
+    "productionInputsChangedForRetry": false,
+    "testChange": "Existing playback test waits for newly conditional Play readiness before clicking"
+  },
+  "windows": {
+    "scope": "Native Windows Qt and SDK-free port admission; UI uses owned fake audio endpoints, no physical/native audio activation",
+    "exitCode": 0,
+    "platform": "windows",
+    "tests": [
+      {
+        "label": "ui-focused",
+        "exitCode": 0,
+        "exeBytes": 2635264,
+        "name": "sc-ui-tests",
+        "exeSha256": "1253fdaace130049426cd85c5c2f26e86a4018bfd1d822158ba4bc7cb7f413c6"
+      },
+      {
+        "label": "ui-full",
+        "exitCode": 0,
+        "exeBytes": 2635264,
+        "name": "sc-ui-tests",
+        "exeSha256": "1253fdaace130049426cd85c5c2f26e86a4018bfd1d822158ba4bc7cb7f413c6"
+      },
+      {
+        "label": "localization",
+        "exitCode": 0,
+        "exeBytes": 2348032,
+        "name": "sc-localization-tests",
+        "exeSha256": "1102bbfcc2a97293d3090fb15c3247925f95f6d77dd496e28f6377395d29feae"
+      },
+      {
+        "label": "ports",
+        "exitCode": 0,
+        "exeBytes": 53760,
+        "name": "sc-wasapi-ports-tests",
+        "exeSha256": "1ccf7bba080fa67be84bb7da799a1aa48bd9937fb898112363f753118a295469"
+      }
+    ],
+    "sessionId": 1
+  },
+  "sourceInputFiles": 336,
+  "catalogs": {
+    "count": 34,
+    "sourceKeys": 568,
+    "draftTranslations": 3135,
+    "nativeReviewed": 0,
+    "fullyUiQualified": 0
+  },
+  "nativeAudioReplayed": false,
+  "physicalDevicesQualified": false,
+  "installedPreviewsRebuilt": false,
+  "parityPromoted": false,
+  "dependencyOrLicenseChanged": false,
+  "teardown": {
+    "independentDevelopmentCloneShutDown": true,
+    "originalsAndTemplatePreserved": true,
+    "limitedInteractiveTaskRemoved": true
+  },
+  "openGates": [
+    "Native physical recording/playback and sustained deadlines",
+    "Non-silent startup",
+    "Native sample-rate conversion and independent-clock adaptation",
+    "Windows monitoring/duplex/punch",
+    "Installer refresh/source-pair qualification for this new code",
+    "European native review and full language UI qualification",
+    "Remaining full frozen Bitwig/Cubase F/Q/C/N workflows"
+  ],
+  "capsule": {
+    "name": "2026-10-08-device-format-diagnostics.zip",
+    "bytes": 30075,
+    "sha256": "4a79046c58345211061d73de56d1c12cedf8227f0b7e70b8fdaae44613cb8e80",
+    "files": {
+      "linux/catalog-refresh.log": {
+        "bytes": 243,
+        "sha256": "cf8b6bfecd5d67f1c2b87ae84fdf809ce0e9111b3170c06a162a4757a07f00c9"
+      },
+      "linux/corrected-ui-run.log": {
+        "bytes": 242,
+        "sha256": "f177bec2d013a3164d4f246c69dc91c79fb228e9d77ce5bd334bf39f07bea36d"
+      },
+      "linux/focused-ui.log": {
+        "bytes": 651,
+        "sha256": "3d2a5bad01dbf3c3631463fd791b2e4a196799fae59ad618d38122cc72097df8"
+      },
+      "linux/initial-targeted-run.log": {
+        "bytes": 2169,
+        "sha256": "4f457cd38253ef1f05d7d31dc838d2d06d2d3a0534c22e9f6bb74c289dea12d9"
+      },
+      "linux/sanitizers.log": {
+        "bytes": 358,
+        "sha256": "b5dbebe8f428b4ff92a15d8877f20bb322ee68eac77cf632130be0c55abba352"
+      },
+      "native/build.log": {
+        "bytes": 382501,
+        "sha256": "d3241afd65c1438fd5dc4c82a02fb1c35f713afb4e7ac1db3065e7781bafaf1c"
+      },
+      "native/inputs.json": {
+        "bytes": 55964,
+        "sha256": "d09c3dba77d04538a04d58511a7c8d5b656a85cc5e769218ac9647f604894027"
+      },
+      "native/results/localization.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/results/localization.stdout": {
+        "bytes": 358,
+        "sha256": "2efa3fc3f712595f6038fc5a23d4521708f4adf505d8a181f240cdb7d3aed885"
+      },
+      "native/results/ports.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/results/ports.stdout": {
+        "bytes": 34,
+        "sha256": "198c304676c9aacc561e9d1b32f3671d71ecd47093a9fcb0fbdb27fa4e9e5470"
+      },
+      "native/results/result.json": {
+        "bytes": 1563,
+        "sha256": "f3de211b9459cfa95895a33e41ecdd522c6cff3588f812a421b582f1fa926590"
+      },
+      "native/results/ui-focused.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/results/ui-focused.stdout": {
+        "bytes": 102,
+        "sha256": "84aee37194edb0c99a9c154e0495ecd3cf57f45573ad3d374e48f9f4cf9b924f"
+      },
+      "native/results/ui-full.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/results/ui-full.stdout": {
+        "bytes": 199,
+        "sha256": "4c031200c6d8364748bfb80bbf16f6149b0214a81c653e61c544e14edb42efbc"
+      }
+    }
+  }
+}

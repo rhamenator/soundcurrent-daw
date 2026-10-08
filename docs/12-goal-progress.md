@@ -2946,3 +2946,22 @@ This strengthens the local preview evidence without changing installer bytes
 or claiming physical, sustained or full-suite qualification. The next concrete
 implementation remains actionable device-format diagnostics for recording and
 playback, followed by native physical workflow qualification.
+
+## Device-format control checkpoint (2026-10-08)
+
+Shared typed WASAPI admission now explains rate, device and channel conflicts
+before the GUI enables Play/Record. Input and monitor conflicts create no active
+endpoint or disk job; authored incompatible routes survive Save/reopen. Stop
+remains usable, and matching explicit choices can play and record. PipeWire
+keeps its rate-negotiation behavior. See [checkpoint 103](103-device-format-diagnostics.md).
+Linux focused/full UI, port admission, localization/catalog and affected
+sanitizer checks pass. Independent Windows MSVC/native Qt tests pass focused/full
+UI, localization and port admission in limited interactive session 1 with owned
+fake endpoints. The first Linux test timeout and its explicit readiness-wait
+correction are retained. Native source hashes match the frozen code commit.
+The clone is shut down; originals and the clean template remain preserved.
+These are source/control improvements; existing installers retain earlier
+frozen code. Native rate conversion, drift adaptation, physical/sustained audio,
+Windows monitoring/duplex, installer refresh and full frozen parity remain open.
+Next: owned non-silent native startup/timing observations and correction, then
+physical recording/playback qualification. The full goal remains active.
