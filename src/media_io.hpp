@@ -36,7 +36,7 @@ enum class LeaseStatus { Held, Busy, Absent };
 // Worker-side cooperative lifetime lock. Readers never create or modify a job.
 class JobLease {
   public:
-    JobLease(const std::filesystem::path &job, bool writer);
+    JobLease(const std::filesystem::path &job, bool writer, bool exclusiveExisting = false);
     ~JobLease();
     LeaseStatus status() const noexcept;
 

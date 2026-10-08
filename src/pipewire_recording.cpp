@@ -36,6 +36,7 @@ struct PipeWireRecording::State {
     std::unique_ptr<RecordingWorker> writer;
     std::optional<RecordingResult> result;
     std::exception_ptr error;
+    std::exception_ptr faultStorageError;
     bool inputRouted = false, outputRouted = false, activated = false, stopped = false;
     State(std::filesystem::path r, const Session &s, RecordingSpec specValue,
           PipeWireRecordingOptions o)
@@ -109,6 +110,13 @@ struct PipeWireRecording::State {
             } catch (...) {
                 error = std::current_exception();
             }
+            if (const auto fault = bridge.firstFault()) {
+                try {
+                    persistRecordingFault(writer->jobDirectory(), spec, *fault);
+                } catch (...) {
+                    faultStorageError = std::current_exception();
+                }
+            }
         }
         stopped = true;
     }
@@ -130,6 +138,17 @@ PipeWireRecording::PipeWireRecording(std::filesystem::path root, const Session &
         throw ProjectError(ErrorCode::Io, "PipeWire recording ports are not ready");
 }
 PipeWireRecording::~PipeWireRecording() = default;
+std::string PipeWireRecording::faultStorageDiagnostic() const {
+    if (!state_->faultStorageError)
+        return {};
+    try {
+        std::rethrow_exception(state_->faultStorageError);
+    } catch (const std::exception &e) {
+        return e.what();
+    } catch (...) {
+        return "Unknown recording fault storage error";
+    }
+}
 std::vector<PipeWirePort> PipeWireRecording::ports() const {
     return state_->filter->ports();
 }

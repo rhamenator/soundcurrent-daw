@@ -34,6 +34,7 @@ struct RecordingTelemetry {
     std::vector<Receipt> receipts;
     std::optional<DuplexCallbackFault> callbackFault;
     std::optional<AudioBridgeFault> firstFault;
+    std::string faultStorageDiagnostic;
     std::uint64_t missingTrackFrames = 0;
 };
 // Worker-side adapter seam only: no virtual calls occur in the native callback.

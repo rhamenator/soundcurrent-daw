@@ -1806,6 +1806,31 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Recording error details could not be saved: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recover recording</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>
+This older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recovery queue is full or closing. Please retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>The audio backend stopped recording.</source>
       <translation type="unfinished" />
     </message>
@@ -1862,27 +1887,6 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Recover recording</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>
-This older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Recovery queue is full or closing. Please retry.</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
       <source>Looking for stored recordings…</source>
       <translation type="unfinished" />
     </message>
@@ -1896,6 +1900,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message numerus="yes">
       <source> %n additional job(s) are listed.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> Saved recording error details are available.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1944,6 +1952,14 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source> · %1 claimed frames</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Stored recording error metadata is invalid: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Saved recording error — %1: %2</source>
       <translation type="unfinished" />
     </message>
     <message>

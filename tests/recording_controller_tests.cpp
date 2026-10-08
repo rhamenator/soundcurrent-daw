@@ -177,6 +177,10 @@ void invalidAndFault(const std::filesystem::path &root, RecordingMonitor mode) {
               r.snapshot()->telemetry.firstFault->reason == AudioBridgeFaultReason::ControlRequest &&
               !r.snapshot()->telemetry.firstFault->callbackClock,
           "Finalized take hid its first control fault receipt");
+    check(r.snapshot()->telemetry.faultStorageDiagnostic.empty() &&
+              inspectRecordingFault(*r.snapshot()->job, r.snapshot()->take->receipt->spec) ==
+                  r.snapshot()->telemetry.firstFault,
+          "Finalized controller fault was not persisted");
     r.requestShutdown();
     await([&] { return r.snapshot()->closed; });
     check(r.snapshot()->take && !c->wrongThread, "Shutdown discarded retained receipt");
@@ -185,6 +189,7 @@ void writerFailureAndRecovery(const std::filesystem::path &root) {
     auto s = project(root);
     auto c = std::make_shared<Counters>();
     c->writeFailure = true;
+    c->blockFaultStorage = true;
     RecordingController r(recording_fixture::options(c));
     Release release{c};
     r.submit(recording_fixture::prepare(root, s));
@@ -195,6 +200,8 @@ void writerFailureAndRecovery(const std::filesystem::path &root) {
     check(!fault->take && fault->errorCode == ErrorCode::Io &&
               fault->diagnostic == "Injected disk write failure" && !fault->backendFaultDiagnostic,
           "Disk error hidden by generic input fault");
+    check(!fault->telemetry.faultStorageDiagnostic.empty(),
+          "Diagnostic publication failure was hidden or replaced writer error");
     const auto original = *fault->job;
     const auto stored = inspectRecording(original);
     check(!stored.finalized && stored.committedFrames > 0, "Writer failure lost checkpoint");

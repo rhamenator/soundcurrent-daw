@@ -31,6 +31,9 @@ The installed app also passes a scoped owned-source ten-second recording,
 live EQ/Undo, save/reopen and independently checked WAV export workflow.
 Recording startup/clock diagnostics, full desktop/menu and physical/sustained
 recording qualification remain open.
+Single-track code now retains [portable recording error details](docs/92-portable-recording-faults.md)
+for reopening. The prepared installed candidate predates that feature; package
+and native Windows qualification are tracked separately.
 
 This is the DAW repository. [soundcurrent-eq](https://github.com/rhamenator/soundcurrent-eq)
 is the free equalizer; `soundcurrent-studio` is the separate premium equalizer.

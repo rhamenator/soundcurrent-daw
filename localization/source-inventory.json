@@ -24,14 +24,14 @@
     "ui/playback_controller.hpp": "1e7c28cf39f69f38fcd8c21485ecb5233e4fc684a50b226f16101abb6322781e",
     "ui/project_controller.cpp": "3fa855154336c4bea68e60e045fd0104fde7a9680f4f29041635b576f5434028",
     "ui/project_controller.hpp": "37286bc602ab1953043cc2dc66cc878bcf827610d994755ba5bf7103c4ae9dde",
-    "ui/recording_controller.cpp": "9da86aa31cab34a1047d5db244d84265a0741c9c9f43327b9a0bbbb7ce657142",
-    "ui/recording_controller.hpp": "aa038c12e2690d0e58b90af30956be8f0ff97e2b9d6b27faed06ffa7286d7bee",
+    "ui/recording_controller.cpp": "a24d72555641da589f24d3de70d6fa03ee58b236045c92ed48106987e851bf2c",
+    "ui/recording_controller.hpp": "be7018c703aa3a71852355b1070560b29dd36b8d9ea2ef436cfb74ef37578aee",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "4a4f0a394a9bbff8d5a6c8a37c0d5103e2dde6bedc9f67dd30a3af6f9eea8b09",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/studio_window.cpp": "3f5693482206d9074f9c36892733036c6284852906994a6f6bdf15d0a7c480c4",
-    "ui/studio_window.hpp": "d213c01e3967f1ef71b504b9588ecdd7054843164f1070bdf23a1532d0b24409",
+    "ui/studio_window.cpp": "dc6ed2ec3a7347c7645b8886d3cc594f61b0271b4bf14ee57736dae00984f138",
+    "ui/studio_window.hpp": "14c62cd62524cb9d7c5460c7743ba077cc2ae3b5b3be76ec2d19f57d5fff6013",
     "ui/timeline_editor.cpp": "f9f3ab72ad1cf57854ac51dfd60f749eef92e45af1f956e124ac88e81a9dc5ec",
     "ui/timeline_editor.hpp": "a7e56fc0955ecf21c54d9748a19ad61c2711c54d8890e34cea276d0edb1d8ada",
     "ui/timeline_view.cpp": "c9ffafee0c4a132c9a2ac41a11ed3cef86fd451b2eba8940817d71e9b26b27e1",
@@ -2693,6 +2693,42 @@
     ],
     [
       "StudioWindow",
+      "Recording error details could not be saved: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recording could not be completed: %1. Any stored checkpoint remains available for recovery.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recover recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "\nThis older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Recovery queue is full or closing. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "The audio backend stopped recording.",
       "",
       false
@@ -2777,36 +2813,6 @@
     ],
     [
       "StudioWindow",
-      "Recording could not be completed: %1. Any stored checkpoint remains available for recovery.",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "Recover recording",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "Verified %1 frames (%2 seconds). Recover a new copy into this project? The original recording is preserved.",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "\nThis older job has no writer lock; writer activity cannot be confirmed. Only the verified checkpoint will be copied.",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
-      "Recovery queue is full or closing. Please retry.",
-      "",
-      false
-    ],
-    [
-      "StudioWindow",
       "Looking for stored recordings…",
       "",
       false
@@ -2828,6 +2834,12 @@
       " %n additional job(s) are listed.",
       "",
       true
+    ],
+    [
+      "StudioWindow",
+      " Saved recording error details are available.",
+      "",
+      false
     ],
     [
       "StudioWindow",
@@ -2898,6 +2910,18 @@
     [
       "StudioWindow",
       " · %1 claimed frames",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Stored recording error metadata is invalid: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Saved recording error — %1: %2",
       "",
       false
     ],

@@ -2,9 +2,13 @@
 
 ## Unreleased — development preview
 
+- Single-track recording errors retain portable, versioned details beside the
+  take. Review recordings shows saved details after reopening, including attached
+  takes. Malformed metadata and storage failure report separately and preserve
+  raw checkpoint recovery. Native Windows and multi-track persistence remain open.
 - Desktop language and regional preferences, embedded contextual catalogs,
   independent number formatting and expanded/RTL developer test locales. English
-  plus 32 draft catalogs are partial; each draft translates 8 of 525 messages.
+  plus 32 draft catalogs are partial; each draft translates 8 of 543 messages.
   Native-speaker/full UI qualification remains open. Numerical timelines and
   equipment charts retain their direction under RTL layouts.
 - Easy Linux/Windows installation is an explicit product acceptance requirement.

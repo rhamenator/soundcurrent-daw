@@ -44,9 +44,9 @@ contexts, coverage counts, hashes, placeholders, literal ampersands and hidden
 bidi controls. Any UI source change requires regeneration.
 
 There are **33** nonempty catalogs: English source plus **32 partial, unverified
-drafts** reused from the equalizers. Each draft translates **8 of 539** contextual
+drafts** reused from the equalizers. Each draft translates **8 of 543** contextual
 keys; the aggregate 256 counts context/message entries, not 256 unique meanings or
-complete languages. English has 534 finished entries; five existing numerus source
+complete languages. English has 538 finished entries; five existing numerus source
 messages remain unfinished and use source fallback. Native-reviewed and fully
 UI-qualified languages remain **zero**. Developer expanded and RTL pseudo-locales
 are test tools and do not count as translated languages.

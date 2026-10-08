@@ -16,31 +16,31 @@ struct DeviceBlockClock {
     bool operator==(const DeviceBlockClock &) const = default;
 };
 enum class AudioBridgeStatus : std::uint32_t {
-    Ready,
-    Running,
-    Complete,
-    Stopped,
-    RateChanged,
-    QuantumExceeded,
-    ClockDiscontinuity,
-    BufferUnavailable,
-    DeviceLost,
-    CaptureFailed,
-    ProcessorFailed
+    Ready = 0,
+    Running = 1,
+    Complete = 2,
+    Stopped = 3,
+    RateChanged = 4,
+    QuantumExceeded = 5,
+    ClockDiscontinuity = 6,
+    BufferUnavailable = 7,
+    DeviceLost = 8,
+    CaptureFailed = 9,
+    ProcessorFailed = 10
 };
 enum class AudioBridgeFaultReason : std::uint32_t {
-    ControlRequest,
-    InvalidQuantum,
-    RateChanged,
-    InvalidBuffer,
-    Xrun,
-    DiscontinuityFlag,
-    PositionOverflow,
-    ClockChanged,
-    PositionJump,
-    TimingOriginRejected,
-    CaptureFailed,
-    ProcessorFailed
+    ControlRequest = 0,
+    InvalidQuantum = 1,
+    RateChanged = 2,
+    InvalidBuffer = 3,
+    Xrun = 4,
+    DiscontinuityFlag = 5,
+    PositionOverflow = 6,
+    ClockChanged = 7,
+    PositionJump = 8,
+    TimingOriginRejected = 9,
+    CaptureFailed = 10,
+    ProcessorFailed = 11
 };
 // Fixed-size first-fault receipt, independent of the lossy metering queue.
 // Control requests have no callback clock; legitimate silent samples are valid.

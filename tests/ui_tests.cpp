@@ -587,7 +587,7 @@ void recordingWorkflow(const std::filesystem::path &root, bool monitoring) {
     reopened.close();
     await([&] { return reopened.snapshot()->closed && reopened.recordingSnapshot()->closed; });
 }
-void recordingClockFaultWorkflow(const std::filesystem::path &root) {
+void recordingClockFaultWorkflow(const std::filesystem::path &root, bool save) {
     auto session = makeOneTrackSession("Clock fault UI", "Raw input");
     ProjectStore(root).save(session);
     auto counters = std::make_shared<recording_fixture::Counters>();
@@ -619,11 +619,52 @@ void recordingClockFaultWorkflow(const std::filesystem::path &root) {
                   fault->previous.position + fault->previous.duration + 1,
           "UI clock fault lost its precise receipt");
     await([&] { return window.snapshot()->session->assets.size() == 1; });
+    auto expected = session;
+    if (save) {
+        auto *action = window.findChild<QAction *>("saveAction");
+        await([&] { return action->isEnabled(); });
+        action->trigger();
+        await([&] { return !window.snapshot()->dirty && window.snapshot()->io == IoOperation::None; });
+        expected = ProjectStore(root).load();
+    }
     PromptChoice discard(QMessageBox::Discard);
     window.close();
     await([&] { return window.snapshot()->closed && window.recordingSnapshot()->closed; });
-    check(ProjectStore(root).load() == session,
+    check(ProjectStore(root).load() == expected,
           "Fault receipt changed canonical project without a save");
+    auto reopenedCounters = std::make_shared<recording_fixture::Counters>();
+    StudioWindow reopened(nullptr, {}, recording_fixture::options(reopenedCounters));
+    reopened.show();
+    reopened.openProject(root);
+    await([&] { const auto scan = reopened.recoverySnapshot();
+        return !scan->running && scan->discovery && scan->discovery->faults.size() == 1;
+    });
+    const auto stored = reopened.recoverySnapshot()->discovery->faults[0];
+    check(stored.fault == fault && stored.attached == save && !reopened.snapshot()->dirty &&
+              reopened.recordingSnapshot()->phase == RecordingPhase::Idle &&
+              !reopenedCounters->constructed && !reopenedCounters->activated,
+          "Reopened historical fault disappeared or activated recording");
+    auto *review = reopened.findChild<QPushButton *>("reviewRecordingsButton");
+    await([&] { return review->isEnabled(); });
+    bool inspected = false;
+    QTimer::singleShot(0, &reopened, [&] {
+        auto *dialog = reopened.findChild<QDialog *>("recordingRecoveryList");
+        if (!dialog) return;
+        auto *list = dialog->findChild<QListWidget *>("recoveryJobs");
+        for (int n = 0; n < list->count(); ++n)
+            if (list->item(n)->text().contains("Saved recording error")) {
+                list->setCurrentRow(n);
+                inspected = list->item(n)->text().contains("Previous clock") &&
+                    list->item(n)->text().contains("clock position did not follow") &&
+                    !dialog->findChild<QPushButton *>("reviewSelectedRecording")->isEnabled();
+            }
+        dialog->accept(); // A metadata row cannot become a recovery request.
+    });
+    review->click();
+    check(inspected && !reopened.recordingSnapshot()->preview && !reopened.snapshot()->dirty,
+          "Stored diagnostic was absent, lost clocks, or submitted a recovery request");
+    reopened.close();
+    await([&] { return reopened.snapshot()->closed; });
 }
 void recordingRecoveryWorkflow(const std::filesystem::path &root) {
     auto s = makeOneTrackSession("Recovery – Σ", "Raw");
@@ -1429,7 +1470,8 @@ int main(int argc, char **argv) {
                               RecordingMonitor::AutoRecording);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-off", false);
         recordingWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "recording-monitor", true);
-        recordingClockFaultWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "clock-fault");
+        recordingClockFaultWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "clock-fault", false);
+        recordingClockFaultWorkflow(utf8Path(temp.path().toUtf8().toStdString()) / "clock-fault-attached", true);
         recordingRecoveryWorkflow(utf8Path(temp.path().toUtf8().toStdString()) /
                                   "recording-recovery");
         for (unsigned mode = 0; mode < 4; ++mode)
