@@ -44,3 +44,13 @@ Every object/property is reported as **preserved**, **converted**, **unsupported
 5. M11: compare source and imported project structure, media hashes, notes/tempo timing, automation, routes and available plugin states; compare aligned renders and complete editing/reopen workflows. Run corruption, missing-media/plugin, cancellation and migration cases on Linux and Windows.
 
 Native compatibility is directional and versioned. A passing exchange conversion is not a passing native adapter. No native compatibility is currently claimed. Consequential rights/access gaps stay visible until resolved or explicitly accepted by the owner.
+
+## Structural feasibility checkpoint (2026-10-08)
+
+The original bounded RPP outline now preserves raw bytes and structural offsets
+under shared resource admission and cancellation. Synthetic tests cover unknown
+state and refusals; every semantic property remains unverified. No native writer
+version/corpus, conversion, isolated file worker or import UI is qualified yet.
+See [checkpoint 113](113-rpp-structural-inspection.md) and
+[ADR081](decisions/081-bounded-foreign-project-outline.md). Native imports for the
+other registered suites remain required.
