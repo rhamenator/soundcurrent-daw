@@ -27,7 +27,7 @@ portable queue tests additionally audit libc allocations/locks. These counts
 do not establish anything about allocation inside Windows SDK internals.
 
 Microsoft documents [capture buffer acquisition and release](https://learn.microsoft.com/en-us/windows/win32/api/audioclient/nf-audioclient-iaudiocaptureclient-getbuffer)
-and the [event-driven capture sequence](https://learn.microsoft.com/en-us/windows/win32/coreaudio/capturing-a-stream).
+and the [capture packet sequence](https://learn.microsoft.com/en-us/windows/win32/coreaudio/capturing-a-stream).
 Holding a packet beyond the processing period can risk loss. Elapsed lease
 time includes descheduling, SDK and callback time; it is not measured DSP CPU
 cost. Optional instrumentation can itself perturb timing.
