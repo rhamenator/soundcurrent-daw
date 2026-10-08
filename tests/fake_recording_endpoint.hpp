@@ -13,6 +13,7 @@ struct Counters {
     std::atomic<bool> full{false}, holdReceipts{false}, holdStop{false}, waitingStop{false};
     std::atomic<bool> badHash{false}, writeFailure{false}, noInput{false}, wrongThread{false};
     std::atomic<std::uint32_t> forcedStatus{0};
+    std::atomic<bool> jumpClock{false};
     std::atomic<unsigned> constructed{0}, activated{0}, stopped{0}, destroyed{0}, submitted{0};
     std::atomic<unsigned> acceptLimit{UINT_MAX};
     std::atomic<std::uint64_t> preparedCapacityFrames{0};
@@ -148,6 +149,8 @@ class Endpoint : public RecordingEndpoint {
         threadCheck();
         t_.receipt.reset();
         if (active_) {
+            if (c_->jumpClock.exchange(false))
+                ++clock_.position;
             if (const auto status = c_->forcedStatus.load())
                 bridge_.requestFault(static_cast<AudioBridgeStatus>(status));
             if (pipe_.status() == CaptureStatus::WriterFailed)
@@ -168,6 +171,7 @@ class Endpoint : public RecordingEndpoint {
                 t_.receipt = a;
         }
         t_.status = bridge_.status();
+        t_.firstFault = bridge_.firstFault();
         t_.captureStatus = pipe_.status();
         t_.endReason = pipe_.endReason();
         t_.capturedFrames = bridge_.capturedFrames();

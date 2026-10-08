@@ -172,6 +172,11 @@ void invalidAndFault(const std::filesystem::path &root, RecordingMonitor mode) {
     check(r.snapshot()->telemetry.endReason == CaptureEndReason::DeviceLost &&
               r.snapshot()->take->receipt->asset.frames >= 256,
           "Input loss hid a finalized incomplete take");
+    check(r.snapshot()->backendFaultDiagnostic && r.snapshot()->telemetry.firstFault &&
+              r.snapshot()->telemetry.firstFault->status == AudioBridgeStatus::DeviceLost &&
+              r.snapshot()->telemetry.firstFault->reason == AudioBridgeFaultReason::ControlRequest &&
+              !r.snapshot()->telemetry.firstFault->callbackClock,
+          "Finalized take hid its first control fault receipt");
     r.requestShutdown();
     await([&] { return r.snapshot()->closed; });
     check(r.snapshot()->take && !c->wrongThread, "Shutdown discarded retained receipt");
@@ -188,7 +193,7 @@ void writerFailureAndRecovery(const std::filesystem::path &root) {
     await([&] { return r.snapshot()->phase == RecordingPhase::Fault && r.snapshot()->job; });
     auto fault = r.snapshot();
     check(!fault->take && fault->errorCode == ErrorCode::Io &&
-              fault->diagnostic == "Injected disk write failure",
+              fault->diagnostic == "Injected disk write failure" && !fault->backendFaultDiagnostic,
           "Disk error hidden by generic input fault");
     const auto original = *fault->job;
     const auto stored = inspectRecording(original);

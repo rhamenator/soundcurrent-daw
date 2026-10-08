@@ -24,13 +24,13 @@
     "ui/playback_controller.hpp": "1e7c28cf39f69f38fcd8c21485ecb5233e4fc684a50b226f16101abb6322781e",
     "ui/project_controller.cpp": "3fa855154336c4bea68e60e045fd0104fde7a9680f4f29041635b576f5434028",
     "ui/project_controller.hpp": "37286bc602ab1953043cc2dc66cc878bcf827610d994755ba5bf7103c4ae9dde",
-    "ui/recording_controller.cpp": "dc6113efde6e81d5b36a8be0a3013d0aecc887dda0b47f30d8a1682eb2c0fa7a",
-    "ui/recording_controller.hpp": "53e298169ea6487cd733d6cc6acf5d1d700439d6919edfad9207c5ea2ea37fa4",
+    "ui/recording_controller.cpp": "9da86aa31cab34a1047d5db244d84265a0741c9c9f43327b9a0bbbb7ce657142",
+    "ui/recording_controller.hpp": "aa038c12e2690d0e58b90af30956be8f0ff97e2b9d6b27faed06ffa7286d7bee",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "4a4f0a394a9bbff8d5a6c8a37c0d5103e2dde6bedc9f67dd30a3af6f9eea8b09",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/studio_window.cpp": "49b0bed7a29e501a0f416ac805edcd76d7cf43c3d2741f04b4c7eb69fa2d16d8",
+    "ui/studio_window.cpp": "3f5693482206d9074f9c36892733036c6284852906994a6f6bdf15d0a7c480c4",
     "ui/studio_window.hpp": "d213c01e3967f1ef71b504b9588ecdd7054843164f1070bdf23a1532d0b24409",
     "ui/timeline_editor.cpp": "f9f3ab72ad1cf57854ac51dfd60f749eef92e45af1f956e124ac88e81a9dc5ec",
     "ui/timeline_editor.hpp": "a7e56fc0955ecf21c54d9748a19ad61c2711c54d8890e34cea276d0edb1d8ada",
@@ -2688,6 +2688,90 @@
     [
       "StudioWindow",
       "Monitor",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The audio backend stopped recording.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The audio block size was outside the prepared recording capacity.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The input sample rate changed.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The recording input or output buffer was unavailable.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The audio backend reported a processing overrun.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The audio backend reported a clock discontinuity.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The audio clock position exceeded the supported range.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The recording clock changed while the take was running.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The recording clock position did not follow the previous block.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The recording timing origin could not be established.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The raw recording queue or writer stopped.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The prepared audio processor stopped.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Clock %1 at position %2, block %3 frames; engine frame %4.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Previous clock %1 at position %2, block %3 frames.",
       "",
       false
     ],

@@ -65,6 +65,7 @@ class NativeRecordingEndpoint : public RecordingEndpoint {
         for (unsigned n = 0; n < 64 && owner_.acknowledgement(receipt); ++n)
             latest_.receipt = receipt;
         latest_.status = owner_.status();
+        latest_.firstFault = owner_.firstFault();
         latest_.captureStatus = owner_.captureStatus();
         latest_.endReason = owner_.endReason();
         latest_.capturedFrames = owner_.capturedFrames();
@@ -333,6 +334,7 @@ struct RecordingController::State : QThread {
         latest = std::move(snapshot);
     }
     void error(ErrorCode code, std::string detail) {
+        view.backendFaultDiagnostic = false;
         view.errorCode = code;
         view.diagnostic = std::move(detail);
         ++view.errorSerial;
@@ -797,10 +799,12 @@ struct RecordingController::State : QThread {
                         const auto errors = view.errorSerial;
                         stopEndpoint();
                         view.phase = RecordingPhase::Fault;
-                        if (view.errorSerial == errors)
+                        if (view.errorSerial == errors) {
                             error(ErrorCode::Io, "Recording input/clock/capture stopped (status " +
                                                      std::to_string(static_cast<unsigned>(cause)) +
                                                      ")");
+                            view.backendFaultDiagnostic = true;
+                        }
                     } else {
                         reconcile();
                         if (std::chrono::steady_clock::now() >= nextInventory) {

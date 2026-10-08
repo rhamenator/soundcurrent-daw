@@ -1806,6 +1806,62 @@ Stored recording: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>The audio backend stopped recording.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The audio block size was outside the prepared recording capacity.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The input sample rate changed.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The recording input or output buffer was unavailable.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The audio backend reported a processing overrun.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The audio backend reported a clock discontinuity.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The audio clock position exceeded the supported range.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The recording clock changed while the take was running.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The recording clock position did not follow the previous block.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The recording timing origin could not be established.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The raw recording queue or writer stopped.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The prepared audio processor stopped.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Clock %1 at position %2, block %3 frames; engine frame %4.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Previous clock %1 at position %2, block %3 frames.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recording could not be completed: %1. Any stored checkpoint remains available for recovery.</source>
       <translation type="unfinished" />
     </message>

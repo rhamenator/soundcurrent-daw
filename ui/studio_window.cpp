@@ -2094,9 +2094,53 @@ void StudioWindow::pollRecording() {
           r->projectMix ? tr("Project output") : tr("Monitor"));
     if (r->errorSerial != recordingError_) {
         recordingError_ = r->errorSerial;
+        auto diagnostic = text(r->diagnostic);
+        if (r->phase == RecordingPhase::Fault && r->backendFaultDiagnostic && r->telemetry.firstFault) {
+            const auto &fault = *r->telemetry.firstFault;
+            switch (fault.reason) {
+            case AudioBridgeFaultReason::ControlRequest:
+                diagnostic = tr("The audio backend stopped recording."); break;
+            case AudioBridgeFaultReason::InvalidQuantum:
+                diagnostic = tr("The audio block size was outside the prepared recording capacity."); break;
+            case AudioBridgeFaultReason::RateChanged:
+                diagnostic = tr("The input sample rate changed."); break;
+            case AudioBridgeFaultReason::InvalidBuffer:
+                diagnostic = tr("The recording input or output buffer was unavailable."); break;
+            case AudioBridgeFaultReason::Xrun:
+                diagnostic = tr("The audio backend reported a processing overrun."); break;
+            case AudioBridgeFaultReason::DiscontinuityFlag:
+                diagnostic = tr("The audio backend reported a clock discontinuity."); break;
+            case AudioBridgeFaultReason::PositionOverflow:
+                diagnostic = tr("The audio clock position exceeded the supported range."); break;
+            case AudioBridgeFaultReason::ClockChanged:
+                diagnostic = tr("The recording clock changed while the take was running."); break;
+            case AudioBridgeFaultReason::PositionJump:
+                diagnostic = tr("The recording clock position did not follow the previous block."); break;
+            case AudioBridgeFaultReason::TimingOriginRejected:
+                diagnostic = tr("The recording timing origin could not be established."); break;
+            case AudioBridgeFaultReason::CaptureFailed:
+                diagnostic = tr("The raw recording queue or writer stopped."); break;
+            case AudioBridgeFaultReason::ProcessorFailed:
+                diagnostic = tr("The prepared audio processor stopped."); break;
+            }
+            if (fault.callbackClock) {
+                diagnostic += QStringLiteral(" ") +
+                    tr("Clock %1 at position %2, block %3 frames; engine frame %4.")
+                        .arg(QLocale().toString(fault.rejected.id),
+                             QLocale().toString(fault.rejected.position),
+                             QLocale().toString(fault.rejected.duration),
+                             QLocale().toString(fault.engineFrame));
+                if (fault.previousClock)
+                    diagnostic += QStringLiteral(" ") +
+                        tr("Previous clock %1 at position %2, block %3 frames.")
+                            .arg(QLocale().toString(fault.previous.id),
+                                 QLocale().toString(fault.previous.position),
+                                 QLocale().toString(fault.previous.duration));
+            }
+        }
         notice_->setText(tr("Recording could not be completed: %1. Any stored checkpoint remains "
                             "available for recovery.")
-                             .arg(text(r->diagnostic)));
+                             .arg(diagnostic));
     }
     if (r->preview && r->previewSequence != previewShown_) {
         previewShown_ = r->previewSequence;

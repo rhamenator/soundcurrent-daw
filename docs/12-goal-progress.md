@@ -822,7 +822,7 @@ throughput. All eleven inherited failures, originals and source hashes are retai
 [Contract](41-checkpoint-burst-policy.md), [ADR-031](decisions/031-admitted-capture-reserve-and-checkpoint-phases.md)
 and [evidence](../tests/results/M2/2026-10-06-checkpoint-burst-policy.json) record scoped
 facts. All24equalizer snapshots/heads re-audit unchanged, with no writes. No new
-library/license choice, push or publication. All92frozen acceptance/quality/reference/
+library/license choice, push or publication. All 92frozen acceptance/quality/reference/
 F/Q/C/N contracts stay intact and unpromoted. M1/M2, Windows native/Qt/install,
 physical/load/filesystem/power-loss/unload/full professional workflows, X004, X005
 and all-Europe localization remain required; full goal remains **active/incomplete**.
@@ -883,7 +883,7 @@ before any relevant edit or next native launch.
 and [evidence](../tests/results/M2/2026-10-06-native-callback-cpu-diagnostics.json)
 retain original launchcommit/binary/sources, clock/timing/phase/media/scheduler and
 all twelve unresolved observations. All24EQsnapshots/heads match; no EQwrite/push/
-publication. All92frozen acceptance/quality/reference/F/Q/C/N contracts remain
+publication. All 92frozen acceptance/quality/reference/F/Q/C/N contracts remain
 intact/unpromoted. Full goal active/incomplete; Windows/physical/load/filesystem/
 power-loss/unload/full professional/X004/X005/all-Europe gates remain required.
 
@@ -1011,7 +1011,7 @@ Only parity implementation/gap/evidence annotations change after its source pins
 and [evidence](../tests/results/M2/2026-10-06-native-thread-resource-diagnostics.json)
 retain sixteen unresolved observations, exact launch/binary/source/phase/clock/
 media facts. All 24 borrowed equalizer inputs and heads match, no equalizer edits/
-new dependency/license/push/publication. All92 frozen acceptance/quality/reference/
+new dependency/license/push/publication. All 92 frozen acceptance/quality/reference/
 F/Q/C/N contracts remain intact and unpromoted; full goal active/incomplete.
 Windows, physical/load/filesystem/power-loss/unload, full professional workflows,
 X004/X005 and all-Europe qualification remain required.
@@ -1079,7 +1079,7 @@ interruption. These short successes do not qualify sustained native or erase fau
 [Contract](45-steady-eq-ramp-work.md), [ADR-035](decisions/035-skip-settled-eq-ramp-work.md)
 and [evidence](../tests/results/M2/2026-10-06-steady-eq-ramp-work.json) retain17unresolved
 observations, exact launch/binary/source/resource/clock/media and benchmark facts.
-All24reviewed EQinputs/heads match, no equalizer writes/push/publication. All92frozen
+All24reviewed EQinputs/heads match, no equalizer writes/push/publication. All 92frozen
 acceptance/quality/reference/F/Q/C/N contracts stay intact/unpromoted. Full goal
 active/incomplete; Windows, physical/load/filesystem/power-loss/unload, professional
 workflows, X004/X005 and all-Europe qualification remain required.
@@ -1137,7 +1137,7 @@ Averages are not native worst-case/physical evidence; the long gate stays open.
 and [evidence](../tests/results/M2/2026-10-06-native-processing-stage-diagnostics.json)
 retain eighteen unresolved observations and exact launch/source/binary/clock/phase/
 media facts. All24borrowed inputs/heads match; no equalizer edits/dependency/license/
-push/publication changes. All92frozen acceptance/quality/reference/F/Q/C/N contracts
+push/publication changes. All 92frozen acceptance/quality/reference/F/Q/C/N contracts
 remain unchanged and unpromoted. Full goal remains active/incomplete; full M2,
 physical/load/filesystem/power-loss/unload, Windows, professional features, imports,
 equipment routing/portability/rights and all-Europe delivery remain required.
@@ -1392,7 +1392,7 @@ prior-link preservation is not exercised.
 qualifies only ordinary/default full-range recording after punch infrastructure.
 No punch window, physical device,1800-second sustained or Windows qualification.
 All21historical observations remain, with original21artifact and prior20receipt
-hashes verified unchanged. All92frozencontract projections remain exact and
+hashes verified unchanged. All 92frozencontract projections remain exact and
 F/Q/C/N unpromoted.
 
 The owner signing-budget constraint remains in force. Read-only equalizer review
@@ -1699,7 +1699,7 @@ debugger replay. A valid initial nonfinalized zero-frame checkpoint has no origi
 validation now permits that case while keeping positive-prefix/finalized origin
 checks. Original unlogged individual terms remain unknown; replay evidence is
 separate. All prior27 observations, including sustained native failures, remain.
-All92 frozen contracts/projection and24 borrowed equalizer inputs remain unchanged;
+All 92 frozen contracts/projection and24 borrowed equalizer inputs remain unchanged;
 no schema change, new dependency, equalizer mutation or F/Q/C/N promotion.
 
 Next: an owned native PipeWire manual-recording adapter with control-worker joins,
@@ -1783,7 +1783,7 @@ checkpoint recovery, then canonical Qt manual controls with bounded service-work
 messages and rapid monitor edit/Undo binding checks. Windows native/Qt/installers,
 indefinite/loop/seek/quantized transport, full monitor/take/comping, physical/
 sustained, imports, profiles and European translation/review/UI gates remain open.
-All92 frozen contracts stay unpromoted; the full goal remains active/incomplete.
+All 92 frozen contracts stay unpromoted; the full goal remains active/incomplete.
 
 Final local Debug31/31 (32.49 s), ASan/UBSan/LSan31/31 (82.66 s), both
 new sanitized synthetic manual oracles and Windows media cross-compilation pass.
@@ -1923,7 +1923,7 @@ this failed run. Original46/37 missing IO/queue terms and earlier failures remai
 The [receipt](../tests/results/M2/2026-10-07-native-buffer-acquisition.json) pins
 compiled sources, exact native builds, complete original generated media/logs,
 SDK lifetime assessment, analyses, test logs and unchanged24-input reuse audit.
-All92 frozen projections remain at
+All 92 frozen projections remain at
 `8f82e44e0eac1facada5474c5a864a64cdd63947595cd73ef738c1c928c50d28`,
 with zero F/Q/C/N promotion. Current256-track limit and X004/X005/X006, Europe,
 independent native Windows/physical and full parity requirements remain open.
@@ -2006,7 +2006,7 @@ hashes/media/logs were retained before diagnosis; it is not a new native failure
 Debug39/39,45.07s; affected ASan/UBSan/LSan3/3,6.38s with leak detection; Windows
 media/controller/test compilation passes. No actual-widget/native-controller/
 Windows-runtime/sustained qualification follows.24 reviewed equalizer inputs are
-unchanged. All92 frozen contract projections remain unchanged/unpromoted.48 runtime
+unchanged. All 92 frozen contract projections remain unchanged/unpromoted.48 runtime
 observations, original48 CPU cause, X004/X005/X006, Europe and platform/installers
 remain open. See docs/75-manual-desktop-worker.md, ADR060 and the dated receipt.
 
@@ -2375,7 +2375,7 @@ ASan/UBSan/LSan5/5,29.64s pass. Windows core/media cross-build
 passes without GUI/native runtime qualification. This final compiled-source receipt
 supersedes the initial52/15 scope; that earlier evidence remains historical.
 The supplementary CRC/all-entry-byte verified archive is
-8,496,931bytes/685entries. All92 contracts,
+8,496,931bytes/685entries. All 92 contracts,
 24 reviewed reuse inputs, original71 unresolved cause and full X006/frozen scope
 remain unchanged. Next coordinate canonical/history/GUI/graph/IO resource leases.
 
@@ -2652,3 +2652,32 @@ recording startup/alignment policy, followed by complete desktop and native
 Windows preview installation/workflows. All 92 frozen contracts, original native71
 and full X004/X005/X006/Europe requirements remain open. The full goal is active
 and incomplete.
+
+## Recording first-fault preview checkpoint (2026-10-08 UTC)
+
+Previous turn was **progress**: installed Ubuntu preview workflow qualification
+and protected PR33/source backup. This continuation implements a fixed-size
+first-fault receipt independent of lossy meters, exact clock/buffer/rate reasons,
+control/callback ownership distinction and contextual GUI explanations. Backend
+diagnostics preserve later writer/take-verification errors. Normal retirement
+retains the receipt and raw prefix; Stop/completion do not fabricate failures.
+
+Linux Debug passes **62/62, 190.40 s**; extra origin/processor-overflow/writer-priority
+assertions pass **2/2, 1.42 s** with unchanged production inputs; affected
+ASan/UBSan/LSan passes **5/5, 20.10 s**. The private production-owner reproduction
+observed clock 29 cycle 1→2 with position 0→0 instead of 1024, same 48 kHz/duration 1024
+and no xrun/discontinuity flags. It preserves 1,024 raw frames and reports the
+precise position mismatch after joining. See [the contract and evidence](91-recording-fault-diagnostics.md).
+
+This diagnoses the reproduced audiotestsrc route; old opaque/native71 causes and
+2,048 leading silent frames remain open. No host packages/routes, VM or equalizer
+working trees were changed. The read-only audit found four changed working inputs
+per equalizer; review/adapt them separately before the next reuse-dependent
+localization/profile milestone. There are now 539 contextual keys, still only 8
+translated per non-English draft and zero reviewed/fully qualified languages.
+
+Next: qualify the next package/source pair, persist failed-job diagnostics and
+observe native acquisition validity to choose a tested startup/alignment policy.
+Complete desktop integration and native Windows previews follow. All 92 frozen
+contracts and full X004/X005/X006/Europe requirements remain incomplete; the goal
+stays active.

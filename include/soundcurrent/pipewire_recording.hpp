@@ -51,6 +51,7 @@ class PipeWireRecording {
     bool acknowledgement(ImmediateAcknowledgement &) noexcept;
     std::uint64_t droppedAcknowledgements() const noexcept;
     bool observation(BackendObservation &) noexcept;
+    std::optional<AudioBridgeFault> firstFault() const noexcept;
     std::uint64_t droppedObservations() const noexcept;
 
   private:

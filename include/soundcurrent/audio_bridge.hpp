@@ -13,6 +13,7 @@ struct DeviceBlockClock {
     std::uint32_t id = 0, cycle = 0, rateNumerator = 1, rateDenominator = 48000;
     std::int64_t delay = 0;
     bool xrun = false, discontinuity = false;
+    bool operator==(const DeviceBlockClock &) const = default;
 };
 enum class AudioBridgeStatus : std::uint32_t {
     Ready,
@@ -26,6 +27,34 @@ enum class AudioBridgeStatus : std::uint32_t {
     DeviceLost,
     CaptureFailed,
     ProcessorFailed
+};
+enum class AudioBridgeFaultReason : std::uint32_t {
+    ControlRequest,
+    InvalidQuantum,
+    RateChanged,
+    InvalidBuffer,
+    Xrun,
+    DiscontinuityFlag,
+    PositionOverflow,
+    ClockChanged,
+    PositionJump,
+    TimingOriginRejected,
+    CaptureFailed,
+    ProcessorFailed
+};
+// Fixed-size first-fault receipt, independent of the lossy metering queue.
+// Control requests have no callback clock; legitimate silent samples are valid.
+struct AudioBridgeFault {
+    AudioBridgeStatus status = AudioBridgeStatus::Ready;
+    AudioBridgeFaultReason reason = AudioBridgeFaultReason::ControlRequest;
+    DeviceBlockClock rejected{}, previous{};
+    Frame engineFrame = 0, capturedFrames = 0;
+    std::uint64_t inputChannels = 0, outputChannels = 0, generation = 0;
+    std::uint32_t bufferFrames = 0, maximumFrames = 0, expectedRate = 0, expectedChannels = 0;
+    ProcessStatus processorStatus = ProcessStatus::Ok;
+    CaptureStatus captureStatus = CaptureStatus::Running;
+    bool callbackClock = false, previousClock = false;
+    bool operator==(const AudioBridgeFault &) const = default;
 };
 struct BackendObservation {
     DeviceBlockClock device;
@@ -73,6 +102,7 @@ class AudioBridge {
     Frame capturedFrames() const noexcept;
     bool observation(BackendObservation &) noexcept; // One control consumer; lossy queue.
     std::uint64_t droppedObservations() const noexcept;
+    std::optional<AudioBridgeFault> firstFault() const noexcept;
 
   private:
     ResourceLease resourceLease_; // Declared first: releases after owned DSP destruction.
@@ -88,8 +118,12 @@ class AudioBridge {
     std::atomic<std::uint32_t> state_{0};
     std::atomic<Frame> publishedFrames_{0};
     std::atomic<std::uint64_t> dropped_{0};
+    // Only the winning terminal-state publisher writes; immutable after release.
+    AudioBridgeFault firstFault_{};
+    std::atomic<std::uint32_t> faultReady_{0};
     std::array<const float *, 256> tapPointers_{};
-    AudioBridgeStatus publish(AudioBridgeStatus) noexcept;
-    AudioBridgeStatus finish(AudioBridgeStatus) noexcept;
+    AudioBridgeStatus publish(AudioBridgeStatus, const AudioBridgeFault * = nullptr) noexcept;
+    AudioBridgeStatus finish(AudioBridgeStatus, const AudioBridgeFault * = nullptr) noexcept;
+    void retainFault(AudioBridgeStatus, const AudioBridgeFault *) noexcept;
 };
 } // namespace soundcurrent::daw

@@ -241,6 +241,9 @@ std::uint64_t PipeWireRecording::droppedAcknowledgements() const noexcept {
 bool PipeWireRecording::observation(BackendObservation &observation) noexcept {
     return state_->bridge.observation(observation);
 }
+std::optional<AudioBridgeFault> PipeWireRecording::firstFault() const noexcept {
+    return state_->bridge.firstFault();
+}
 std::uint64_t PipeWireRecording::droppedObservations() const noexcept {
     return state_->bridge.droppedObservations();
 }
