@@ -113,3 +113,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Native Windows playback toward a useful preview](97-windows-native-playback.md)
 - [Windows desktop foundation and independent storage faults](98-windows-desktop-foundation.md)
+
+- [Native Windows single-track desktop workflow and original sample refusals](99-windows-desktop-workflow.md)

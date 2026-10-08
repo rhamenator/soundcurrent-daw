@@ -17,9 +17,11 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
-The [Windows desktop checkpoint](docs/98-windows-desktop-foundation.md) now passes
-native MSVC/Qt GUI and disk tests and normal application launch/quit. Native audio
-through its GUI and the Windows installer are the next preview gates.
+The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records
+through the native desktop, plays with live EQ/Undo, saves/reopens and exports WAV.
+Independent raw/output/export sample checks pass on an owned loopback route with
+a silent lead-in. Non-silent startup, monitoring/duplex and the Windows installer
+remain open preview gates.
 
 [Easy installation](docs/88-easy-installation.md) is required on supported Linux
 and Windows systems: normal packages/installers, no compiler or manual dependency

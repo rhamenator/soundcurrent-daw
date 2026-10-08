@@ -1,0 +1,435 @@
+{
+  "format": "sc-windows-desktop-workflow",
+  "schemaMajor": 1,
+  "sourceBase": "43c61a14ff4c83ee7ed0e4b4f1392f823c349cb6",
+  "nativePlatform": "Windows 11 10.0.26300.9550; limited interactive session 1; native Windows QPA",
+  "compiler": "MSVC 19.44.35228.0, x64 Release /MD",
+  "qt": "6.12.0 MSVC x64",
+  "sndfile": "1.2.2 built with matching MSVC/UCRT; optional codecs disabled",
+  "nativeExeSha256": "b7dc651191419328d4261bc1435b06ff75cb554defef8f2b711c6c305fed6a3b",
+  "nativeExeBytes": 1967104,
+  "sourceClosure": {
+    "path": "control/workflow-v11-source-closure.json",
+    "count": 330,
+    "scope": "Conservative code/resource inputs checked against the final guest snapshot; two unrelated Linux synthetic manual tests excluded and not invoked"
+  },
+  "finalAcceptedProject": "observations/v11/Native desktop v11 — Ελληνικά",
+  "originalStartupProject": "observations/v10/Native desktop v10 — Ελληνικά",
+  "originalExportPolicyProject": "observations/v8/Native desktop v8 — Ελληνικά",
+  "verification": {
+    "format": "sc-native-desktop-media-verification",
+    "frames": 480000,
+    "rawMaximumError": 0.0,
+    "fixtureSourceOffsetFrames": 3776,
+    "exportMaximumError": 0.0,
+    "nativePlaybackMaximumResidual": 0.0,
+    "fixturePlaybackOffsetFrames": 64,
+    "measuredPlaybackPathGain": 1.0,
+    "matchedPlaybackFrames": 479936,
+    "unselectedChannelSilent": true,
+    "oneTrackNativeDesktopWorkflowQualified": true,
+    "installerQualified": false,
+    "physicalLatencyOrSustainedSchedulingQualified": false,
+    "nativeAudioReplayed": false
+  },
+  "limits": [
+    "Owned HDA render endpoint loopback, not physical microphone capture",
+    "Native single-track recording with monitoring Off; live recording edits acknowledged but no native monitor output qualified",
+    "A 480-frame non-silent playback startup attenuation remains unisolated; original failed media retained",
+    "No rate conversion, shared-clock Windows duplex/punch qualification, installer, sustained scheduling or physical latency claim",
+    "SDK/runtime provided by developer harness; no Windows preview release or binary upload",
+    "All-European localization remains incomplete"
+  ],
+  "archive": {
+    "name": "2026-10-08-windows-desktop-workflow.zip",
+    "bytes": 24280446,
+    "sha256": "053e8006e7b9c4bdf6049e30c683e984580f4cdcd0dd14bd50519cb936225fbc"
+  },
+  "payloadManifest": [
+    {
+      "path": "control/20261008-next-shutdown.log",
+      "bytes": 1666,
+      "sha256": "582604f239d825734774ee1ebf54b4b6c965d4954a9631611f72522748017f2f"
+    },
+    {
+      "path": "control/workflow-v10-build.log",
+      "bytes": 3495,
+      "sha256": "339910762f11a0ec1b65b43170288399024ded71890d9a22e4e6b1e0ed850f80"
+    },
+    {
+      "path": "control/workflow-v10-independent.log",
+      "bytes": 767,
+      "sha256": "3e5605eaa4ca48bac98597abdc7eb2b20bbff97e8955f08cc81f7674ed3ab278"
+    },
+    {
+      "path": "control/workflow-v10-receipt.json",
+      "bytes": 605,
+      "sha256": "1b89de50eab18529b954aef0b39d527aeb96612a1fc3e0a0e2e9fc1c610a06f0"
+    },
+    {
+      "path": "control/workflow-v10-startup-observation.json",
+      "bytes": 480,
+      "sha256": "53c8506305468a0d6da838798beba928b196541fe777119b19fefb92ab699e84"
+    },
+    {
+      "path": "control/workflow-v11-build.log",
+      "bytes": 3495,
+      "sha256": "167294a4f97c1c68abf85eb100a5f287c9be392eac64ac6443ebeaee35ec0f07"
+    },
+    {
+      "path": "control/workflow-v11-collect-v2.log",
+      "bytes": 426,
+      "sha256": "427bfd269555809c122cf6681bc024602ad6394a3fe68c2f50fad8ff83dc0caf"
+    },
+    {
+      "path": "control/workflow-v11-independent.log",
+      "bytes": 520,
+      "sha256": "f49f97e0ab2952cda89f64b134f5b28689f298334a2f579c28e5f451922ee79b"
+    },
+    {
+      "path": "control/workflow-v11-receipt.json",
+      "bytes": 605,
+      "sha256": "43cbc6e899cdf1ece5d8150b4282523d68b4b079d18000d380f0f048c121298b"
+    },
+    {
+      "path": "control/workflow-v11-source-closure.json",
+      "bytes": 51465,
+      "sha256": "54ed1409dfe3911dc6c41f9f4cdd9bb0f79faaba32981bd9f82d91e920c84025"
+    },
+    {
+      "path": "control/workflow-v8-build.log",
+      "bytes": 5357,
+      "sha256": "abd27317a85d83ae4e60242e74b17ea8f32d2d1160bda195e1c845ec895e3690"
+    },
+    {
+      "path": "control/workflow-v8-receipt.json",
+      "bytes": 605,
+      "sha256": "dc22fd0a8363312164c4653885b290cb0849948f92018c39a77f15c9287597be"
+    },
+    {
+      "path": "control/workflow-v9-build.log",
+      "bytes": 3554,
+      "sha256": "2ee3f1d17b4bd1f1c97a32f86a5b36823115a0f302a136cf5eb2fa8f23e61b5d"
+    },
+    {
+      "path": "control/workflow-v9-receipt.json",
+      "bytes": 605,
+      "sha256": "bbc64921f2191bd973710d4e9b055a0d8368dd27266a523c0014db8f7e44d09d"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/exports/Export — Ελληνικά.wav",
+      "bytes": 1920080,
+      "sha256": "6865fb8d5e32ab1cc6bbb12208daea81ee1e8f04fdaa1c1ff3a7e3e4f921ba8c"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/loopback/media/capture-d1520657-612c-405a-8434-3344521ff827/journal.json",
+      "bytes": 908,
+      "sha256": "72f3b301d84133f8db443cef47ce21fff8e912ed13a5867c3c43c7024b344e1a"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/loopback/media/capture-d1520657-612c-405a-8434-3344521ff827/take.wav",
+      "bytes": 3840104,
+      "sha256": "45c95cedaffe289de8a0758e833a2cf201332b93cfe7e03a174039c4bb14e297"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/loopback/media/capture-d1520657-612c-405a-8434-3344521ff827/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/media/capture-720c95cb-c023-4cd6-bad7-6c855220b877/journal.json",
+      "bytes": 907,
+      "sha256": "7074a81f93bd5bfa9c72547b7e8688b36aecc60becbeedfd461ce5aaec37f6d8"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/media/capture-720c95cb-c023-4cd6-bad7-6c855220b877/take.wav",
+      "bytes": 1920104,
+      "sha256": "39b93a91dd9697a0badd55df815134a6a1070d055c3393e456c488c886abe360"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/media/capture-720c95cb-c023-4cd6-bad7-6c855220b877/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/probe.json",
+      "bytes": 1276,
+      "sha256": "051fa4e6c5895425a5e7f3e5ca98c12703239ae77df814a227356c65e53bb47f"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/project.json",
+      "bytes": 2813,
+      "sha256": "b747b2903b17c727253c4d889fbaa8502ef056d11f27a2a4d158146feaebaa5f"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/project.previous.json",
+      "bytes": 1748,
+      "sha256": "1bfee6cfd1b764d8e76fd2761831534e03fbaa8e7d6b7e1bc553c1f4e88e5cb1"
+    },
+    {
+      "path": "observations/v10/Native desktop v10 — Ελληνικά/source-stereo.f32",
+      "bytes": 4608000,
+      "sha256": "b70dc33aa8045f5136b98382d45f7c46eed33cde4a5b88628f61d25808042fcd"
+    },
+    {
+      "path": "observations/v10/workflow-v10-result.json",
+      "bytes": 308,
+      "sha256": "f64db4c33ff0b19e12d733d441066a3f4e6c0461f54649a28cd19ed732af8cee"
+    },
+    {
+      "path": "observations/v10/workflow-v10.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v10/workflow-v10.stdout",
+      "bytes": 1276,
+      "sha256": "051fa4e6c5895425a5e7f3e5ca98c12703239ae77df814a227356c65e53bb47f"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/exports/Export — Ελληνικά.wav",
+      "bytes": 1920080,
+      "sha256": "dc8419f08055f97ff4e9c3adbc59ec35e371ce2990b4d9eaf35c128ad394bec1"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/loopback/media/capture-746f99df-2be9-43d7-9ddf-2454ebb9cec0/journal.json",
+      "bytes": 908,
+      "sha256": "02d0ae518e19df73e6d4fda8f2d8966af4483d44593510be2dcd153bfbaa8ebb"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/loopback/media/capture-746f99df-2be9-43d7-9ddf-2454ebb9cec0/take.wav",
+      "bytes": 3840104,
+      "sha256": "1c477bd784265e18094c7fb1ec68d07a6d538b8b2b3637b509d5bb589d710f20"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/loopback/media/capture-746f99df-2be9-43d7-9ddf-2454ebb9cec0/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/media/capture-3097c9a8-4cc5-4d5e-acc4-627e3f86c683/journal.json",
+      "bytes": 907,
+      "sha256": "65f4ef9a336f36b6901e360a50640aa44d865513994baeb23806d8abe76ed2e9"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/media/capture-3097c9a8-4cc5-4d5e-acc4-627e3f86c683/take.wav",
+      "bytes": 1920104,
+      "sha256": "376e6731ee4de039ffe0cd5f1a7c5ade4a36ff7db2466848b5a160d464225e1a"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/media/capture-3097c9a8-4cc5-4d5e-acc4-627e3f86c683/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/probe.json",
+      "bytes": 1276,
+      "sha256": "8150f99913527eafff0a41d2158a2eb98e47e2c1a2a6b56ca5a2d65ea4d30488"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/project.json",
+      "bytes": 2813,
+      "sha256": "c67df4fdc43d67a67c4574eee99526200aefe5ba531b49529a64296ef79550fa"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/project.previous.json",
+      "bytes": 1748,
+      "sha256": "c39b2d39052eff6f758c4435a0ed484eb2229d75dca3f4ffcb64c018c8aa83c7"
+    },
+    {
+      "path": "observations/v11/Native desktop v11 — Ελληνικά/source-stereo.f32",
+      "bytes": 4608000,
+      "sha256": "c015ddfff9e89a24c1b71e244223aab751b6bf331389a4ebfdd03a82d7728293"
+    },
+    {
+      "path": "observations/v11/workflow-v11-result.json",
+      "bytes": 308,
+      "sha256": "d1bf8bd53c563df6c7812b11e9d1dea9f02599edc68d8eeaf9b3949e115e8a44"
+    },
+    {
+      "path": "observations/v11/workflow-v11-source-check.json",
+      "bytes": 398,
+      "sha256": "0e68767180a4335fdcf6413af061b79873db2b882469f0a5f74a42a2daf1362d"
+    },
+    {
+      "path": "observations/v11/workflow-v11.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v11/workflow-v11.stdout",
+      "bytes": 1276,
+      "sha256": "8150f99913527eafff0a41d2158a2eb98e47e2c1a2a6b56ca5a2d65ea4d30488"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/.save.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/loopback/media/capture-3fa53dc5-70a3-453e-9cee-6b79533d932f/journal.json",
+      "bytes": 908,
+      "sha256": "86fd8908bb046a32a1e98c5f05519119959a640ef7a4d0b7fb8c3d1c3e08bba9"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/loopback/media/capture-3fa53dc5-70a3-453e-9cee-6b79533d932f/take.wav",
+      "bytes": 3840104,
+      "sha256": "d640ccc726eb632ce154c07b32d4ae08587bd181f1440d242f366c217fc7b34c"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/loopback/media/capture-3fa53dc5-70a3-453e-9cee-6b79533d932f/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/media/capture-4e61c26f-bfa8-4e3f-8afa-c30666433dc9/journal.json",
+      "bytes": 907,
+      "sha256": "c0f9fbffaec7891ca57c0374c8e3701e929f0165d22d7c9c1f677480fe4f2370"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/media/capture-4e61c26f-bfa8-4e3f-8afa-c30666433dc9/take.wav",
+      "bytes": 1920104,
+      "sha256": "3fb1feb90be0b0cc944fc1e647e18855aeb5d52e541cb248c27ffc13d6a1d525"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/media/capture-4e61c26f-bfa8-4e3f-8afa-c30666433dc9/writer.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/project.json",
+      "bytes": 2813,
+      "sha256": "3b31877ebe1cd4d0ec3b23a22d7d404a2d277166d6a270faf1398dd5733eca49"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/project.previous.json",
+      "bytes": 1748,
+      "sha256": "c3fe6c6c9f8c4907ef9639f574c81a0fe7b3229c1f7bfed4be981097c3aa9be5"
+    },
+    {
+      "path": "observations/v8/Native desktop v8 — Ελληνικά/source-stereo.f32",
+      "bytes": 4608000,
+      "sha256": "b70dc33aa8045f5136b98382d45f7c46eed33cde4a5b88628f61d25808042fcd"
+    },
+    {
+      "path": "observations/v8/workflow-v8-result.json",
+      "bytes": 310,
+      "sha256": "765011315327139487368b95b76a54f2f89eeb70b78c85d22806b76d83ff8e7b"
+    },
+    {
+      "path": "observations/v8/workflow-v8.stderr",
+      "bytes": 59,
+      "sha256": "2137afe12858ab3aebd063dd9c2c40fd64f88a665a2d5b6b6e14023bb5a72d5d"
+    },
+    {
+      "path": "observations/v8/workflow-v8.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "oracle/tests/verify_input_acquisition.py",
+      "bytes": 9526,
+      "sha256": "3fecbb504cce3f61822f930486e81e0be6f9e6bbca269b8aa360c1b840555b1a"
+    },
+    {
+      "path": "oracle/tests/verify_windows_desktop.py",
+      "bytes": 8058,
+      "sha256": "83b2d28935fd64980b535e3bd5112793674c38e2bfc8f3f4a2d7f002a6abe7ae"
+    },
+    {
+      "path": "oracle/tests/verify_windows_playback.py",
+      "bytes": 9437,
+      "sha256": "f394c8f46f10e0d3d74b6167c6bed846f9a3bf1d1ff12a2526ed9bf8a597abfd"
+    },
+    {
+      "path": "source/v10/CMakeLists.txt",
+      "bytes": 52934,
+      "sha256": "c1fe30889fca766d59d04030629e5aaa2cf6ec88806b65dea792cacf96298aab"
+    },
+    {
+      "path": "source/v10/tests/wasapi_test_source.hpp",
+      "bytes": 5613,
+      "sha256": "5c5125f65a7ef7b6e12ac41c8b2349d21a1220adacc249c2fbc540503d8fff34"
+    },
+    {
+      "path": "source/v10/tests/wasapi_ui_fixture.cpp",
+      "bytes": 17610,
+      "sha256": "e45abd314d682eac47d9fd6b668d32dbd5ca5025e224dc7a728d171cd2dec84c"
+    },
+    {
+      "path": "source/v10/workflow-v10-manifest.json",
+      "bytes": 390,
+      "sha256": "ea9c40afd4893378763762eb2e418a9dc237a1c4e071056489168462f1d826eb"
+    },
+    {
+      "path": "source/v11/CMakeLists.txt",
+      "bytes": 52934,
+      "sha256": "c1fe30889fca766d59d04030629e5aaa2cf6ec88806b65dea792cacf96298aab"
+    },
+    {
+      "path": "source/v11/tests/wasapi_test_source.hpp",
+      "bytes": 5660,
+      "sha256": "4e3e0d84bf43f7b94fa813f2c401a3da455dfb88123eb836a9ea47ec16b45120"
+    },
+    {
+      "path": "source/v11/tests/wasapi_ui_fixture.cpp",
+      "bytes": 17617,
+      "sha256": "f49f8dd1f8932250ff661b0e82c309d8b7c8e4c05453be42cba8177ef9441cf0"
+    },
+    {
+      "path": "source/v11/workflow-v11-manifest.json",
+      "bytes": 390,
+      "sha256": "6b4185c91c90495ef878f429453ef98d772d0b621f9d485a1489145eda8c51ac"
+    },
+    {
+      "path": "source/v8/CMakeLists.txt",
+      "bytes": 52842,
+      "sha256": "e7870f6c04262fd6470dc2d550d82514be28a929915f7b170c428c81d44ea717"
+    },
+    {
+      "path": "source/v8/tests/wasapi_test_source.hpp",
+      "bytes": 5613,
+      "sha256": "5c5125f65a7ef7b6e12ac41c8b2349d21a1220adacc249c2fbc540503d8fff34"
+    },
+    {
+      "path": "source/v8/tests/wasapi_ui_fixture.cpp",
+      "bytes": 17497,
+      "sha256": "04668a5368574bff51496c13e18f8e4f7766be6710b7591331433cb8c6baf95f"
+    },
+    {
+      "path": "source/v8/workflow-v8-manifest.json",
+      "bytes": 390,
+      "sha256": "3a0aebedb300a8d5a32dd9f1afe7a4e0fc1ef3a25a392f0cac0d48f4de80fffa"
+    },
+    {
+      "path": "source/v9/CMakeLists.txt",
+      "bytes": 52934,
+      "sha256": "c1fe30889fca766d59d04030629e5aaa2cf6ec88806b65dea792cacf96298aab"
+    },
+    {
+      "path": "source/v9/tests/wasapi_test_source.hpp",
+      "bytes": 5613,
+      "sha256": "5c5125f65a7ef7b6e12ac41c8b2349d21a1220adacc249c2fbc540503d8fff34"
+    },
+    {
+      "path": "source/v9/tests/wasapi_ui_fixture.cpp",
+      "bytes": 17497,
+      "sha256": "04668a5368574bff51496c13e18f8e4f7766be6710b7591331433cb8c6baf95f"
+    },
+    {
+      "path": "source/v9/workflow-v9-manifest.json",
+      "bytes": 390,
+      "sha256": "e7664a68b058173ca5021adaa69a4bd76fe90d475acd57571ded5a3163cea8e0"
+    }
+  ]
+}

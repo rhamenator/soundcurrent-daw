@@ -24,7 +24,7 @@ useful delivery independent of the eventual parity qualification date.
 | Notation/immersive/video | M9/M10 requirements remain intact | Models, rendering/routing/synchronization and hardware/quality qualification |
 | Native and exchange import | X004 contract plus P080/P081/P082/P091 | Versioned native/exchange adapters, source fixtures and preservation/loss/render reports |
 | Equipment profiles/editor | X005 pinned offline Qt library/editor, generated speaker catalog, strict import, custom-copy/undo and dirty-close evidence | Shared engine schema, monitoring/print routes, portable pins, capture/target curves, rights and platform/localization qualification |
-| Windows | Core/processor/capture/media/shared-bridge/tools/tests cross-link with pinned libsndfile DLL | Native execution, device/plugin/UI/file-fault tests, installer and same full workflows |
+| Windows | Native MSVC/Qt desktop/disk checks; native single-track record/EQ/Undo/play/save/reopen/WAV with independent retained media | Non-silent startup, physical input, monitoring/duplex, rate conversion, plugin/full workflows and installer |
 | All-Europe localization | Extensible 143-item planned inventory; partial contextual desktop catalogs/runtime and independent language/format settings | Complete coverage audit, remaining translations/plurals/diagnostics, native review, per-platform UI/help/installer qualification |
 | Distribution/security/licenses | GPL license, pinned source provenance/notices, local build/test evidence | Actual packages, SBOM/transitives, source delivery, untrusted-input/failure and clean-install gates |
 | Easy installation | X007 [Linux/Windows setup contract](88-easy-installation.md), explicit fresh-install/upgrade/failure/remove/localization/source workflows | Runtime/support audit, graphical packages/installers and native qualification without development tools |
@@ -2854,3 +2854,28 @@ Next: actual native GUI recording/attachment/playback/live EQ/Undo/save/reopen/W
 with owned Windows audio, then a compiler-free local installer/source pair and an
 independent clean-install clone. Original capture's SDK gap, native71, startup
 alignment, physical/sustained gates and full F/Q/C/N requirements remain open.
+
+## Native Windows desktop workflow checkpoint — 2026-10-08
+
+The [actual native one-track desktop workflow](99-windows-desktop-workflow.md)
+records 480,000 mono frames from an explicitly selected owned WASAPI loopback
+channel, acknowledges live EQ/Undo, finalizes/attaches, plays through the selected
+native output with two live edit/Undo receipts, saves/reopens passively and exports
+WAV through the desktop dialog. Independent source regeneration, raw and saved EQ
+export comparisons have zero maximum sample error. Native playback has zero
+residual across 479,936 matched frames; unmatched tail is below threshold and the
+unselected stereo output is silent. Nine evidence mutations are refused.
+
+The accepted source has a silent lead-in. An original non-silent run exposed an
+unisolated 480-frame startup attenuation and is retained without promotion.
+The 77-payload capsule contains original build/export/sample refusals, final
+native results, code/resource hashes, media and independent checks; no executable
+or credential helper. MSVC/Qt/UCRT runtime was supplied by the developer harness.
+PR 41's foundation changes merged after the corrected hosted checks passed.
+
+Next: review the 18 pending upstream equipment/localization inputs, prepare and
+qualify the Windows compiler-free installer/source pair on an independent clean
+clone, and investigate non-silent startup. Windows monitoring/duplex, conversion,
+physical inputs, sustained scheduling, original capture gap and native71 remain
+open alongside the unchanged full-suite scope. Existing Ubuntu preview unchanged;
+no Windows binary release uploaded.

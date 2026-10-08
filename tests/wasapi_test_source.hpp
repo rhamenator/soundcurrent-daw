@@ -33,13 +33,17 @@ class Source {
     Com<IAudioClient> client_;
     Com<IAudioRenderClient> render_;
     std::vector<float> samples_;
-    std::uint32_t channels_, capacity_ = 0, cursor_ = 0;
+    std::uint32_t channels_, frames_, capacity_ = 0, cursor_ = 0;
     bool started_ = false;
     float volume_ = 0;
     BOOL muted_ = TRUE;
   public:
-    Source(const std::wstring &id, std::uint32_t channels) : channels_(channels) {
+    Source(const std::wstring &id, std::uint32_t channels, std::uint32_t frames = 192000,
+           std::uint32_t silentFrom = UINT32_MAX, std::uint32_t silentLead = 2048)
+        : channels_(channels), frames_(frames) {
         if (!channels || channels > 256) throw std::runtime_error("Test source channel admission");
+        if (!frames || frames > 48000 * 60)
+            throw std::runtime_error("Test source duration admission");
         checked(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
                                  __uuidof(IMMDeviceEnumerator), reinterpret_cast<void **>(enumerator_.out())));
         checked(enumerator_->GetDevice(id.c_str(), device_.out()));
@@ -69,14 +73,14 @@ class Source {
         checked(client_->GetBufferSize(&capacity_));
         if (!capacity_ || capacity_ > 65536) throw std::runtime_error("Test source buffer admission");
         checked(client_->GetService(__uuidof(IAudioRenderClient), reinterpret_cast<void **>(render_.out())));
-        samples_.resize(std::size_t(192000) * channels);
+        samples_.resize(std::size_t(frames_) * channels);
         std::uint32_t state = 0x753bdce1;
-        for (unsigned frame = 0; frame < 192000; ++frame)
+        for (unsigned frame = 0; frame < frames_; ++frame)
             for (unsigned c = 0; c < channels; ++c) {
                 state = state * 1664525u + 1013904223u;
                 const auto value = (static_cast<float>(state >> 8) / 16777216.f - .5f) * .1f;
                 samples_[std::size_t(frame) * channels + c] =
-                    frame < 2048 || (frame >= 48000 && frame < 49024) ? 0.f : value;
+                    frame < silentLead || frame >= silentFrom || (frame >= 48000 && frame < 49024) ? 0.f : value;
             }
     }
     ~Source() { if (started_) client_->Stop(); }
@@ -91,7 +95,7 @@ class Source {
         UINT32 padding = 0;
         checked(client_->GetCurrentPadding(&padding));
         if (padding > capacity_) throw std::runtime_error("Test source padding exceeded capacity");
-        const auto count = std::min(capacity_ - padding, 192000 - cursor_);
+        const auto count = std::min(capacity_ - padding, frames_ - cursor_);
         if (!count) return;
         BYTE *data = nullptr;
         checked(render_->GetBuffer(count, &data));
