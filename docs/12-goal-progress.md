@@ -2965,3 +2965,17 @@ frozen code. Native rate conversion, drift adaptation, physical/sustained audio,
 Windows monitoring/duplex, installer refresh and full frozen parity remain open.
 Next: owned non-silent native startup/timing observations and correction, then
 physical recording/playback qualification. The full goal remains active.
+
+## Direct native startup checkpoint (2026-10-08)
+
+Two direct Windows render runs reproduce alteration in frames 0–479 without the
+DAW mixer/EQ. Actual SDK lease samples match independent source regeneration;
+later loopback samples match exactly. A defined silent-lead comparison has no
+observed alteration. This narrows the defect to the SDK lease through loopback
+path without identifying an OS/driver component or adding a workaround.
+Native hashes, media, timing, process identities and exits are retained and
+independently recomputed. Linux synthetic poisoning/ramp cases and output/route
+contracts pass. See [checkpoint 104](104-windows-direct-startup.md). The owned
+clone is shut down. Next: explicit startup scheduling with project/native timing
+separation and a device-period experiment, followed by physical qualification.
+Existing installers and all full-suite gates remain unchanged. The goal is active.

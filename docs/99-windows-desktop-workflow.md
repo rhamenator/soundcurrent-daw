@@ -57,6 +57,10 @@ The accepted run uses a defined silent lead-in, so it does **not** qualify that
 non-silent startup transient. The original media, report and refusal are retained;
 an internal success flag is not sufficient evidence.
 
+The later [direct-render investigation](104-windows-direct-startup.md) reproduces
+the first-480-frame alteration without a mixer/EQ and retains correct SDK lease
+samples. It narrows the native path investigation without resolving the defect.
+
 The owned development VM also powered off unexpectedly, with System event 1074
 identifying `winlogon.exe`, SYSTEM and reason `0x500ff`. The log does not establish
 an application crash or licensing cause. Testing used limited interactive session

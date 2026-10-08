@@ -54,6 +54,11 @@ jobs:
           git fetch --no-tags --depth=1 origin 54ca5d30703e5f6269327901cf148c78d34c1f94
           git fetch --no-tags --depth=1 origin d03ff77c8a47084ca9159aa2fa19b8fc5f06efcf
           python3 tools/verify_device_format_controls.py
+      - name: Verify retained direct Windows startup observations (no audio replay)
+        run: |
+          git fetch --no-tags --depth=1 origin 7b497fa19d0c0d7b689cd7b2a1f4c278bd0359ca
+          git fetch --no-tags --depth=1 origin 3fe56d1fea75e98448a813c2c2d1d4cdd7aaa07c
+          python3 tools/verify_windows_direct_startup.py
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
