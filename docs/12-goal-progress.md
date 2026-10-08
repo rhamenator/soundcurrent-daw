@@ -2749,3 +2749,28 @@ pair and installed reopen workflow, then native acquisition/startup alignment
 and complete desktop/native Windows previews. Original native71 and 2,048 leading
 silent frames, multi-track durable diagnostics and every full frozen F/Q/C/N,
 X004/X005/X006 and Europe gate remain unresolved; the full goal stays active.
+
+## Installed portable-error preview (2026-10-08 UTC)
+
+The next local Ubuntu 26.04 amd64 package/source pair is
+`0.1.0~preview.20261008034000.743392ece10a`; all **719** corresponding-source files are
+independently verified. Normal owned-rootfs upgrade and the actual installed GUI
+fault/verified raw prefix/Save/Quit/reopen/historical review pass. Both app exits
+and launcher exit0; original raw take, journal, sidecar and project bytes are
+unchanged on reopen/review. No recording endpoint or audio preview is started by
+the historical error row. Host default/link fingerprints match.
+
+The [separate receipt](93-installed-portable-fault-preview.md) retains exact
+commands/exits, screenshots and original bytes in a 2,304,204-byte capsule. The
+original package/evidence scopes remain unchanged. Initial hosted Linux passes
+**59/59, 110.37 s** and Windows core cross-build only. A review's normal-Stop concern is
+checked with explicit assertions: existing production guard already excludes
+normal Stop; added Debug **2/2, 1.45 s** and sanitizer **2/2, 3.69 s** checks pass with unchanged
+production inputs. Final protected checks for the added assertions are separate.
+
+This is **progress**, with a local installable candidate and matching GPL source,
+not a binary release upload or full DAW completion. Next: native acquisition/
+alignment and this candidate's normal installed recording/EQ/reopen/export,
+then full desktop/native Windows previews. No equalizer, VM, host package or
+audio configuration change. All full frozen parity/Europe/X004/X005/X006 and
+original native71/2,048-frame startup-silence gaps remain open; goal stays active.

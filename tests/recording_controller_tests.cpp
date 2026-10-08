@@ -126,6 +126,12 @@ void takeAndEdits(const std::filesystem::path &root) {
                recorder.snapshot()->take.has_value();
     });
     auto take = recorder.snapshot()->take;
+    check(recorder.snapshot()->telemetry.status == AudioBridgeStatus::Stopped &&
+              !recorder.snapshot()->telemetry.firstFault &&
+              recorder.snapshot()->telemetry.faultStorageDiagnostic.empty() &&
+              !std::filesystem::exists(take->root / utf8Path(take->receipt->asset.relativePath).parent_path() /
+                                       "first-fault.json"),
+          "Healthy manual Stop fabricated a receipt, sidecar or storage warning");
     check(take->root == root && take->receipt->asset.frames >= 256 && c->destroyed == 1 &&
               !c->wrongThread,
           "Joined take handoff invalid");

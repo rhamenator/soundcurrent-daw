@@ -89,10 +89,10 @@ inputs. All **2,912** logical entries and ZIP CRC are verified; the capsule is
 **65,419,989 bytes**. Initial native/cross-compile cohorts remain distinct from
 the latest control-observation correction and explicit enum IDs.
 
-The currently prepared DEB at commit `97a307fcf2ba` predates this feature. Code
-and private Debug checks do not establish an updated installed preview. Next:
-qualify a new package/source pair and reopened installed-GUI diagnostic workflow,
-then investigate native acquisition/startup alignment without discarding valid
-silence. The original native71 observations and 2,048-frame leading silence
+The prior DEB at commit `97a307fcf2ba` predates this feature. A subsequent
+[743392e candidate](93-installed-portable-fault-preview.md) qualifies an installed
+fault/reopen/review workflow separately. Next: investigate native acquisition/
+startup alignment without discarding valid silence, then qualify sustained normal
+recording on that candidate. Original native71 observations and 2,048-frame leading silence
 remain unresolved. Full desktop/physical/real-time and native Windows previews,
 X004/X005/X006 and all frozen F/Q/C/N parity contracts remain incomplete.

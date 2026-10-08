@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-08T03:35:26.081629+00:00",
+  "source_parent": "293c5dcf9bb69ab04c113896687a48213d20de22",
+  "review_thread": "PRRT_kwDOU-rChc6qLm1s",
+  "finding": "Reviewer suspected normal Stop published a Stopped first fault that would trigger a storage warning.",
+  "assessment": "The existing AudioBridge::retainFault guard returns for statuses below RateChanged; Stopped=3 is below RateChanged=4. firstFault() remains empty on a healthy Stop and the native persistence branch is not entered. No production change was needed. Added explicit prepared/running Stop, completed-range and controller manual-stop sidecar/warning regressions.",
+  "scope": "Additional regression assertions, not a new installed package or production code cohort",
+  "qualified_production_inputs_unchanged": true,
+  "full_production_receipt": "tests/results/X007/2026-10-08-portable-recording-faults.json",
+  "Debug": "2/2,1.45s",
+  "SAN_log": "Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized\n    Start 21: desktop-recording-controller\n1/2 Test #21: desktop-recording-controller .....   Passed    2.70 sec\n    Start 38: audio-bridge\n2/2 Test #38: audio-bridge .....................   Passed    0.99 sec\n\n100% tests passed, 0 tests failed out of 2\n\nTotal Test time (real) =   3.69 sec\n",
+  "initial_hosted_run": 37722633463,
+  "initial_hosted_head": "743392ece10afa4b27a0378d5f5961dad059c500",
+  "initial_hosted_Linux": "59/59,110.37s",
+  "initial_hosted_Windows": "core cross-build only",
+  "archive": {
+    "path": "tests/results/X007/2026-10-08-portable-fault-normal-stop.zip",
+    "bytes": 25046559,
+    "sha256": "b8790b5c905984daad196df9c85a37317ec01872db190759e22a8f2aab347543",
+    "logical_entries": 148,
+    "CRC_and_every_selected_byte_verified": true
+  },
+  "release_uploaded": false
+}

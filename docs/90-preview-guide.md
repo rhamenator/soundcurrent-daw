@@ -5,6 +5,12 @@ PipeWire enabled, prepared locally with its corresponding GPL source. Windows,
 Fedora/RHEL and other Ubuntu versions are not qualified by this package.
 No GitHub binary release has been uploaded.
 
+The latest local candidate is **0.1.0~preview.20261008034000.743392ece10a**, in
+`.cache/preview-portable-faults-ubuntu-26.04/`. It adds saved single-track error
+details after reopen and passes an actual installed fault/Save/Quit/reopen/review
+workflow. See [its package hashes, installation and evidence](93-installed-portable-fault-preview.md).
+The two earlier candidates below retain their original, different test scopes.
+
 ## Package and installation
 
 Recording/EQ/export workflow candidate: `0.1.0~preview.20261008001000.85ec9552cdd7`
