@@ -3150,3 +3150,20 @@ The verifier is currently suspended to reduce disk activity following the owner'
 report. Disk capacity, available RAM and unused disk swap do not show a shortage;
 the earlier crash remains undiagnosed. No new local VM or heavy build was started.
 The complete professional DAW scope stays active and incomplete.
+
+## Production output sample trace checkpoint (2026-10-08)
+
+PR #54 merged after all required checks passed, including seven hosted native
+MSVC tests. The output-credit rollback is qualified within its SDK-injected owner
+scope. A new optional, resource-admitted production render trace now retains actual
+post-EQ lease samples and native release results. Its SDK-free tests pass Linux
+Release and ASan/UBSan; the Windows fixture and trace test cross-compile. Synthetic
+analysis rejects missing/corrupted metadata and identifies altered sample banks,
+observer tails and unobserved committed extents without gain normalization.
+See [checkpoint 112](112-production-render-trace.md). Hosted MSVC execution of
+the addition and actual native endpoint/Stop qualification are still pending.
+
+No VM is running. The existing image verifier is suspended; newly copied disk
+equality is not inferred. The owner's VM budget is one VM at a time, brief runs,
+and the verifier suspended during each run. Existing previews remain unchanged,
+and the full frozen Bitwig/Cubase/Linux/Windows/localization goal stays active.

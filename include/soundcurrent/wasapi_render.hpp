@@ -3,11 +3,13 @@
 #include "wasapi_capture.hpp"
 #include "native_render_timing.hpp"
 namespace soundcurrent::daw {
+class WasapiRenderTrace;
 struct WasapiRenderOptions {
     std::string endpointId;
     std::uint32_t sampleRate = 48000, channels = 2, maximumFrames = 2048;
     NativeRenderStartup startup = NativeRenderStartup::DevicePeriod;
     NativeRenderEnd end = NativeRenderEnd::DevicePeriod;
+    WasapiRenderTrace *trace = nullptr; // Opt-in owner outlives stop/join; default disabled.
 };
 // Separate timing domains. submittedFrames is a queue sequence, NOT an audible
 // device position. It includes startup/end-guard silence; contentSubmittedFrames

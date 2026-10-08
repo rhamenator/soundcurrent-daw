@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Opt-in developer qualification on an owned, otherwise quiet Windows endpoint.
 #include <soundcurrent/wasapi_playback.hpp>
+#include <soundcurrent/wasapi_render_trace.hpp>
 #include <soundcurrent/recording.hpp>
 #include <soundcurrent/export.hpp>
 #include <nlohmann/json.hpp>
@@ -91,9 +92,14 @@ int run(const std::vector<std::filesystem::path> &args) {
     RecordingWorker worker(captured, root / "loopback", spec);
     auto plan = identityMix(session, std::span(&session.tracks.front().id, 1), {});
     MixPlaybackConfig playbackConfig; playbackConfig.endFrame = sourceFrames;
+    ResourceLedger resources(64*1024*1024,"Production playback trace experiment");
+    playbackConfig.graph.resources = resources;
+    ReadAheadOptions reader; reader.resources = resources;
+    WasapiRenderTrace trace(2,2048,sourceFrames+2048,512,resources);
+    WasapiRenderOptions native{id,48000,2,2048}; native.trace = &trace;
     Audit player;
-    WasapiPlayback playback(root, session, plan, playbackConfig, {id, 48000, 2, 2048}, {2, {0}, {}},
-                            {}, {&player, Audit::begin, Audit::end});
+    WasapiPlayback playback(root, session, plan, playbackConfig, native, {2, {0}, resources},
+                            reader, {&player, Audit::begin, Audit::end});
     auto changed = session; changed.tracks.front().eq.bands.front().gainDb = -3;
     const auto &track = changed.tracks.front();
     const ParameterAddress address{track.id, track.eq.id, track.eq.bands.front().id, BandParameter::GainDb};
@@ -127,6 +133,36 @@ int run(const std::vector<std::filesystem::path> &args) {
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
     playback.stop(); playback.stop(); playback.checkReader();
+    // Native producer is joined. Only now read/write diagnostic banks on control.
+    const auto leaseSamples = trace.samples();
+    {
+        std::ofstream f(root / "render-lease-samples.f32",std::ios::binary);
+        f.write(reinterpret_cast<const char *>(leaseSamples.data()),leaseSamples.size_bytes());
+        require(bool(f),"Cannot retain actual production render samples");
+    }
+    json leases = json::array();
+    for (const auto &o : trace.observations())
+        leases.push_back({{"sequence",o.sequence},{"sampleOffsetValues",o.sampleOffsetValues},
+            {"requestedFrames",o.requestedFrames},{"copiedFrames",o.copiedFrames},
+            {"releasedFrames",o.releasedFrames},{"action",unsigned(o.action)},
+            {"acquired",o.acquired},{"acquireHresult",o.acquireHresult},
+            {"releaseObserved",o.releaseObserved},{"releaseHresult",o.releaseHresult},
+            {"samplesComplete",o.samplesComplete},{"submittedFrames",o.clock.submittedFrames},
+            {"contentSubmittedFrames",o.clock.contentSubmittedFrames},{"startupFrames",o.clock.startupFrames},
+            {"clockPosition",o.clock.clockPosition},{"clockFrequency",o.clock.clockFrequency},
+            {"qpc100ns",o.clock.qpc100ns},{"paddingFrames",o.clock.paddingFrames}});
+    const bool traceComplete = !trace.lostRows() && !trace.lostSampleFrames() && !trace.malformed();
+    json traceReport{{"format","sc-wasapi-render-trace-v1"},{"channels",2},
+        {"sampleRate",48000},{"maximumFrames",2048},{"contentLeasesOnly",true},
+        {"sampleValues",leaseSamples.size()},{"samplePath","render-lease-samples.f32"},
+        {"sampleSha256",hashMediaFile(root / "render-lease-samples.f32")},
+        {"lostRows",trace.lostRows()},{"lostSampleFrames",trace.lostSampleFrames()},
+        {"malformed",trace.malformed()},{"joined",true},{"chargedBytes",trace.chargedBytes()},
+        {"observations",leases}};
+    {
+        std::ofstream f(root / "render-trace.json"); f << traceReport.dump(2) << '\n';
+        require(bool(f),"Cannot retain production render trace");
+    }
     // Capture the already drained endpoint tail; no fabricated data on idle loopback.
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
     capture.stop(); bridge.finishQuiescent();
@@ -151,7 +187,7 @@ int run(const std::vector<std::filesystem::path> &args) {
         f.write(reinterpret_cast<const char *>(expected.data()), expected.size() * sizeof(float));
         require(bool(f), "Cannot retain reference");
     }
-    const bool accepted = submitted && received && ack.revision == 17 && !player.allocations && !player.frees &&
+    const bool accepted = traceComplete && submitted && received && ack.revision == 17 && !player.allocations && !player.frees &&
         !sink.allocations && !sink.frees && !bridge.firstFault() && !capture.failure() && !playback.failure() &&
         !playback.missingFrames() && (cancel ? playback.status() == PlaybackBridgeStatus::Stopped &&
         playback.position() >= 48000 && playback.position() < sourceFrames && !playback.drained() :
@@ -159,6 +195,7 @@ int run(const std::vector<std::filesystem::path> &args) {
         defaults == wasapiDefaultEndpoints() && rawHash == hashMediaFile(root / utf8Path(session.assets.front().relativePath)) &&
         projectHash == hashMediaFile(root / "project.json") && ProjectStore(root).load() == session;
     json report{{"format","sc-wasapi-playback-probe"},{"nativeSdkAccepted",accepted},{"cancel",cancel},
+        {"renderTraceComplete",traceComplete},{"renderTracePath","render-trace.json"},
         {"status",unsigned(playback.status())},{"engineFrames",playback.position()},
         {"submittedFrames",playback.submittedFrames()},{"drained",playback.drained()},
         {"emptyQueueObservations",playback.emptyQueueObservations()},{"bufferFrames",playback.bufferFrames()},

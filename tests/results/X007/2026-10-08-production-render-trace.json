@@ -1,0 +1,48 @@
+{
+  "format": "sc-production-render-trace-source-checkpoint-v1",
+  "recordedAt": "2026-10-08T22:35:15.172803+00:00",
+  "sourceBaseCommit": "32e6f8161d988aadd04524d29f26ecad8019a7e6",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "832ec4d50d44b1eba0094609be7b406658a638634d4b6d9db89b7b0285ae459e",
+    "CMakeLists.txt": "f4020013e915c18d9be09f1ec6776e0b9be13e0a849d0b1bd36b62ca362b923b",
+    "include/soundcurrent/wasapi_render.hpp": "026983b53568dc953f09a5c1b366e4ac51e0f7dd522718b95a05ce40050ef72a",
+    "include/soundcurrent/wasapi_render_trace.hpp": "2393761ab5de290216c3990f3e19efbf3ac6d1433fffa1a8a0247393301c1ec7",
+    "src/wasapi_render.cpp": "6550a5ddde596954fe0c651a65f8ec43c3ffe2f7f42587172d1bb0e50d421d91",
+    "src/wasapi_render_trace.cpp": "d6aff43f8860a147d51d214dfa255ca74034392cc060a9d439b79cc70f3b3e4d",
+    "tests/wasapi_playback_fixture.cpp": "a62987f011b7e0723c0470493a7b0affc3a71b124dac448ea16cea879ebde617",
+    "tests/wasapi_render_trace_tests.cpp": "565120d3cdd81be46b2bc6c3b37dddb688e01b56e489cc1aab2b7c27d2a41897",
+    "tests/analyze_windows_render_trace.py": "f8c50c6a3229add5b5df7bcb0559aed472ce8bc5fd521dad9ea31ed123892d76",
+    "tests/windows_render_trace_analysis_tests.py": "2e937a2417c154005b20e85a267b501aec7d39bac0575c55506c621fa14b6c74"
+  },
+  "localRelease": {
+    "actualExitCode": 0,
+    "compiler": "GCC 15.2.0",
+    "binarySha256": "ab3941768f66a498a334c4c787aa34b23581a9b09937ad09be35713bf380f56b"
+  },
+  "sanitized": {
+    "actualExitCode": 0,
+    "addressSanitizer": true,
+    "undefinedBehaviorSanitizer": true,
+    "leakDetection": true,
+    "binarySha256": "e75841e381a7da09c344aa4a4743b6abbe78cdd66c3fe7b7fdc828d9b2ffcc45"
+  },
+  "pythonSyntheticAnalyzer": {
+    "actualExitCode": 0,
+    "metadataRefusals": 11,
+    "nativeQualification": false
+  },
+  "nativeMSVCAdditionExecuted": false,
+  "nativeEndpointExecuted": false,
+  "productionEqStopResolved": false,
+  "installedPreviewChanged": false,
+  "mingwCrossBuild": {
+    "actualBuildExitCode": 0,
+    "nativeExecution": false,
+    "targets": [
+      "sc-wasapi-playback-fixture",
+      "sc-wasapi-render-trace-tests"
+    ],
+    "fixtureSha256": "7e9ab3e0901f312f6c0f631b34069c836a5213d5d66dbe24068a7d32725b32ea",
+    "unitBinarySha256": "fcde4c15d87c2156d20307a1d51c1fb6996537150b87d1ed68115e55b823fc80"
+  }
+}
