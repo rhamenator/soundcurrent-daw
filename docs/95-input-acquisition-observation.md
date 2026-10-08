@@ -87,3 +87,21 @@ origins. Qualify stable, changing and unavailable latency plus silent sources;
 never infer invalid data from amplitude or assume every graph has this one-quantum
 prefix. Then continue native Windows recording/playback and installer previews.
 All frozen F/Q/C/N, X004/X005/X006/X007 and Europe completion gates remain open.
+
+## Review correction: complete payload and timestamp verification
+
+The original replay test checked waveform/position/cycle data, but did not enforce
+all capsule hashes or later `nsec` values. Protected PR38 review correctly found
+these gaps. The current gate first verifies archive size/SHA-256/CRC, unique and
+exact manifest membership, and every one of the190 payload size/hash pairs. It
+then checks every callback timestamp as a positive uint64, strictly increasing,
+and origin-relative sample-rate consistent within one sample (20,834ns at48kHz).
+This allows integer-frame/start-phase quantization; it is not a deadline gate.
+The original direct startup deltas have phase offsets of20,810ns/8,538ns; no
+recorded time was rewritten to pass an exact-period assumption.
+
+[Separate review evidence](../tests/results/X007/2026-10-08-input-acquisition-integrity-review.json)
+replays all three original observations and refuses41 changed claims, adding
+negative/backward/rate-wrong timestamps and unextracted executable/source/whole
+archive claims. All original capsule/receipt/media bytes remain unchanged. No
+new native run, product change, package or broader timing qualification.
