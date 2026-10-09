@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "date": "2026-10-09",
+  "originalNative": {
+    "head": "1e6eba1bffad3d2ae600842f7a34e8a9ed5f7f7c",
+    "run": 37887344028,
+    "artifact": 11596677365,
+    "sha256": "0ac62bf64e8083b054f04dacdbd14f6cb302cce1020f7d68d8365a4427e10b25",
+    "rootChecks": 141,
+    "probeChecks": 23
+  },
+  "caseRuleFollowUp": {
+    "baseHead": "1e6eba1bffad3d2ae600842f7a34e8a9ed5f7f7c",
+    "workingCode": true,
+    "sourceSha256": {
+      "src/approved_media.cpp": "5e8236ed5b03f9318f9deb24cad349484938c5d0c694b5091d2f225f767e02da",
+      "tests/approved_media_tests.cpp": "6a0945f55720d9390ddfa17ef94b0c6b34db3249991ecdf1146f64c57f598038"
+    },
+    "linuxReleaseChecks": 159,
+    "linuxSanitizedChecks": 159,
+    "actualCliChecks": 23,
+    "asan": true,
+    "ubsan": true,
+    "leakDetection": false,
+    "mingwCompiled": true,
+    "nativeExecution": false,
+    "priorWrongFileReadObserved": false
+  },
+  "scope": {
+    "localVmStarted": false,
+    "hostCasePolicyChanged": false,
+    "productInstallChanged": false,
+    "wavDecode": false,
+    "projectConversion": false,
+    "fullParity": false
+  },
+  "filesSha256": {
+    "original-native.zip": "0ac62bf64e8083b054f04dacdbd14f6cb302cce1020f7d68d8365a4427e10b25",
+    "original-native.log": "a66c6c48d4e5fb1f224b4af62d4fca57625b23b100b17a241e56b9be9caa4352",
+    "case-review-sanitized-build.log": "3a7752f040bc7993e3d86b05cba09b233f818466e4e6af1b1bab54058058a404",
+    "case-review-sanitized.log": "10d9902a94982bdef3e500e8b0fade250facc6148ca081b57413b12e790b33f3",
+    "case-review-release.log": "0fba4a039142ae127dfdd1bb6b88739a3497577322ca3fa0e29f57cc8acdbe60",
+    "original-native-artifact.json": "afa1a50377279723dd74fd89653e1bb767cb235155fdfaa161e88a17adbe9f06",
+    "case-review-cross-build.log": "42c6fdcf291dc735ce78e4d6958549a8c7a92214ea2390eafc7667075fe2c6c1",
+    "case-review-release-build.log": "468a361ea9fd94e78e1d1ca733f9146e09c0fc678afbd222cd9d913e8e632634"
+  }
+}

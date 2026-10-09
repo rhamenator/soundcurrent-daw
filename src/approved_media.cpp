@@ -209,8 +209,9 @@ ApprovedMediaFile ApprovedMediaRoot::open(std::string_view relative,std::uint64_
     for (int i=0;i<count;++i) if (name[static_cast<std::size_t>(i)]==L'/') name[static_cast<std::size_t>(i)]=L'\\';
     UNICODE_STRING unicode{};unicode.Buffer=name.data();unicode.Length=static_cast<USHORT>(count*sizeof(wchar_t));unicode.MaximumLength=unicode.Length;
     OBJECT_ATTRIBUTES attributes{};attributes.Length=sizeof(attributes);attributes.RootDirectory=state_->root.value;attributes.ObjectName=&unicode;
-    // Documented OBJ_CASE_INSENSITIVE and OBJ_DONT_REPARSE; SDK headers vary.
-    attributes.Attributes=0x40UL|0x1000UL;
+    // OBJ_DONT_REPARSE, with the OS/directory's default case rules. Do not
+    // request case folding: an approved NTFS subtree can be case-sensitive.
+    attributes.Attributes=0x1000UL;
     using Open=NTSTATUS (NTAPI *)(PHANDLE,ACCESS_MASK,POBJECT_ATTRIBUTES,PIO_STATUS_BLOCK,ULONG,ULONG);
     const auto module=GetModuleHandleW(L"ntdll.dll");
     const auto entry=module ? GetProcAddress(module,"NtOpenFile") : nullptr;

@@ -62,6 +62,47 @@ void link(const std::filesystem::path &target,const std::filesystem::path &name,
 void counters(const ResourceLedger &ledger,ResourceUsage baseline) {
     const auto now=ledger.usage();check(now.owners==baseline.owners && now.reservedBytes==baseline.reservedBytes,"Failed media admission retained ownership");
 }
+#ifdef _WIN32
+void caseSensitiveDirectory(const std::filesystem::path &path) {
+    const auto directory=CreateFileW(path.c_str(),FILE_READ_ATTRIBUTES|FILE_WRITE_ATTRIBUTES,
+        FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,nullptr);
+    check(directory!=INVALID_HANDLE_VALUE,"Cannot open owned case-sensitive fixture directory");
+    // FileCaseSensitiveInfo (23) is gated out by older SDK target macros.
+    constexpr auto informationClass=static_cast<FILE_INFO_BY_HANDLE_CLASS>(23);
+    FILE_CASE_SENSITIVE_INFO enabled{};enabled.Flags=1; // FILE_CS_FLAG_CASE_SENSITIVE_DIR
+    const bool changed=SetFileInformationByHandle(directory,informationClass,&enabled,sizeof(enabled))!=0;
+    const auto error=GetLastError();FILE_CASE_SENSITIVE_INFO actual{};
+    const bool queried=GetFileInformationByHandleEx(directory,informationClass,&actual,sizeof(actual))!=0;
+    CloseHandle(directory);
+    if (!changed) throw std::runtime_error("Owned NTFS case-sensitivity fixture unavailable; qualification fails; Windows error="+std::to_string(error));
+    check(queried && actual.Flags==1,"Owned NTFS case-sensitivity setting did not take effect");
+}
+#endif
+void caseReferences(const std::filesystem::path &fixture,const ResourceLedger &memory) {
+    const auto path=fixture/"case-sensitive";std::filesystem::create_directory(path);
+#ifdef _WIN32
+    caseSensitiveDirectory(path);
+#endif
+    write(path/"sample.wav","lower");write(path/"SAMPLE.wav","UPPER");
+    std::filesystem::create_directory(path/"takes");std::filesystem::create_directory(path/"TAKES");
+#ifdef _WIN32
+    caseSensitiveDirectory(path/"takes");caseSensitiveDirectory(path/"TAKES");
+#endif
+    write(path/"takes"/"part.wav","nested-lower");write(path/"TAKES"/"part.wav","nested-upper");
+    ApprovedMediaRoot root(path,memory);
+    for (const auto &[relative,expected] : std::array<std::pair<const char *,const char *>,4>{{
+             {"sample.wav","lower"},{"SAMPLE.wav","UPPER"},
+             {"takes/part.wav","nested-lower"},{"TAKES/part.wav","nested-upper"}}}) {
+        auto file=root.open(relative,100);std::array<char,32> bytes{};
+        file.readAt(0,std::span(bytes).first(static_cast<std::size_t>(file.size())));
+        check(std::string_view(bytes.data(),static_cast<std::size_t>(file.size()))==expected,
+              "Case-distinct media reference selected a different file");
+    }
+    refused([&]{root.open("Sample.wav",100);},ErrorCode::MissingMedia);
+    refused([&]{root.open("Takes/part.wav",100);},ErrorCode::MissingMedia);
+    check(root.openFiles()==0,"Case-distinct fixture retained file handles");
+}
 }
 int main() {
     const auto fixture=std::filesystem::temp_directory_path()/utf8("sc-approved-Κиїв-"+Id::generate().str());
@@ -149,6 +190,8 @@ int main() {
         }
         retired(memory);
         check(handles()==originalHandles,"Approved root leaked a native descriptor");
+        caseReferences(fixture,memory);retired(memory);
+        check(handles()==originalHandles,"Case-sensitive fixture leaked a native descriptor");
         {
             const auto original=fixture/"renamed-approved";std::filesystem::rename(path,original);
             ApprovedMediaRoot root(original,memory);

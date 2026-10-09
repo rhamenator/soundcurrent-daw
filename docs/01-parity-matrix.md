@@ -280,7 +280,8 @@ All92 frozen acceptance/quality/reference/F/Q/C/N contracts remain unpromoted.
 
 An explicitly approved directory resolves bounded plain media references by handle,
 retains exact bytes/hashes and refuses traversal/links/special files, missing/changed
-files and resource excess. Checkpoint122 records144 Linux root and23 actual probe
-checks; native Windows execution is pending. This is a prerequisite workflow, not
+files and resource excess. Checkpoint122 records original Linux144/CLI23 and native
+Windows141/CLI23 checks, then Linux159/CLI23 for case-rule follow-up fixtures;
+that changed revision's native run remains pending. This is a prerequisite workflow, not
 source-project conversion, decoded-audio quality, bundled content or native-project
 compatibility. All frozen F/Q/C/N family contracts remain unchanged/unpromoted.

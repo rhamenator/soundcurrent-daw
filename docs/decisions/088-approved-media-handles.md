@@ -1,6 +1,6 @@
 # ADR088: approved media folder/file capabilities
 
-Status: selected; Linux checked, native Windows execution pending.
+Status: selected; original Linux/native Windows checked; case-rule follow-up native execution pending.
 Date: 2026-10-09.
 
 Foreign media references need user-approved scope before any access. Existing

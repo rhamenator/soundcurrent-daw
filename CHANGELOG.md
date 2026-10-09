@@ -10,7 +10,8 @@
 
 - Developer import tooling can bind an explicitly approved media folder and read
   plain relative files through pinned handles with quotas and streaming checksums.
-  Linux/Windows source is provided; native Windows media execution is pending.
+  Original Linux/native Windows folder and checksum checks pass; additional
+  case-sensitive reference fixtures await the revised native Windows gate.
   Desktop media selection, audio decoding and destination conversion remain open.
 
 - REAPER inspection now shows original properties and source lines in separate

@@ -36,7 +36,13 @@ an approved RootDirectory and a counted Unicode relative name. Documented
 [OBJ_DONT_REPARSE](https://learn.microsoft.com/en-us/windows/win32/api/ntdef/ns-ntdef-_object_attributes)
 blocks reparse traversal. The synchronous non-directory handle is checked for
 plain disk-file identity and opens with read sharing, denying concurrent writers
-and deletion. There is no DLL search/load from a foreign path, driver install,
+and deletion. Lookup leaves case comparison to the OS/directory defaults, without
+requesting OBJ_CASE_INSENSITIVE. NTFS supports per-directory case sensitivity;
+our owned fixture checks distinct case-only files and intermediate directories.
+See [Microsoft's case-sensitivity guide](https://learn.microsoft.com/en-us/windows/wsl/case-sensitivity)
+and [object attributes](https://learn.microsoft.com/en-us/windows/win32/api/ntdef/ns-ntdef-_object_attributes).
+No claim is made that the earlier flag caused a wrong-file read in an observed run.
+There is no DLL search/load from a foreign path, driver install,
 elevated-access request or full-path fallback. Native execution is a separate gate
 from MinGW compilation.
 
@@ -80,11 +86,12 @@ resolution/checksum/decode work on its cancellable worker.
 
 | Workflow | Current evidence | Remaining gate |
 |---|---|---|
-| Exact plain-file reads/hash, Unicode, empty/binary data, positional reads |144 Linux Release checks; actual CLI23 | Actual native Windows execution |
-| Root pathname renamed/replaced; file survives facade; native handles retire | Resource and OS descriptor counts in the same144 checks | Native Windows handles and filesystem breadth |
-| Traversal, invalid encoding, reserved names, linked file/intermediate folder, directory/FIFO | Owned refusal fixtures; FIFO inspected without I/O | Windows reparse cases; mount/network/filesystem breadth |
+| Exact plain-file reads/hash, Unicode, empty/binary data, positional reads | Original Linux144/CLI23 and native Windows141/CLI23 checks | Final case-rule revision's native run |
+| Root pathname renamed/replaced; file survives facade; native handles retire | Resource and OS descriptor counts on Linux and native Windows | Filesystem breadth |
+| Traversal, invalid encoding, reserved names, linked file/intermediate folder, directory/FIFO | Owned refusal fixtures on both platforms; Linux FIFO inspected without I/O | Mount/network/filesystem breadth |
 | Byte/file/scratch quotas, missing file, mutation, cancellation | Typed refusals; original owned bytes checked | Hard interrupted-I/O/storage faults and privileged-filesystem behavior |
-| Developer argument boundary and binary Unicode file checksum |23 real subprocess checks; exact original two corpus-media bytes/hashes | Native Windows argv/filesystem gate |
+| Developer argument boundary and binary Unicode file checksum |23 real subprocess checks on Linux and Windows; exact original two corpus-media bytes/hashes | Filesystem breadth |
+| Distinct case-only file and intermediate-directory names |159 Linux Release/sanitized checks include owned distinct files and absent mixed-case references | Final native NTFS fixture gate, failing if the fixture cannot be enabled |
 | Project source/timeline/audio equivalence | None claimed | WAV decode/copy, reference choices, conversion, independent aligned renders |
 
 Release passes4 selected tests (new root/probe plus session-state/resource-ledger).
@@ -93,6 +100,16 @@ both native test/utility executables. The original local selected-run failure wa
 a missing resource-ledger binary in a partial cache; its log is retained before
 building that target. Native Windows tests are added to the existing protected
 headless job; no context name/protection requirement is removed.
+
+The first PR66 head1e6eba1bffad3d2ae600842f7a34e8a9ed5f7f7c passes all four
+protected checks in run37887344028. Its native headless artifact11596677365 has
+verified SHA256 0ac62bf64e8083b054f04dacdbd14f6cb302cce1020f7d68d8365a4427e10b25;
+actual folder141/CLI23 checks are retained separately from the earlier Linux144.
+An unresolved case-rule review prompted removal of the explicit case-folding flag
+and owned case-sensitive fixtures. Those follow-up source hashes and Linux159/23
+checks are recorded separately; the initial green run does not qualify changed code.
+Only the three owned Windows fixture directories receive a case-sensitivity flag;
+no host/VM-wide policy is changed. No new required check or relaxed gate is introduced.
 
 PR65 merged22bb64b after exact23cf5bf passes all four jobs. Its actual native Qt
 cohort is controller80/UI90/localization255 checks/34 draft catalogs; the prior

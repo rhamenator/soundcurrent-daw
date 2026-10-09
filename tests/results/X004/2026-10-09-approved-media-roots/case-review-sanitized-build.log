@@ -1,0 +1,10 @@
+[0/1] Re-running CMake...
+-- Configuring done (4.1s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/7] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.o
+[2/7] Linking CXX static library libsc-approved-media.a
+[3/7] Building CXX object CMakeFiles/sc-approved-media-tests.dir/tests/approved_media_tests.cpp.o
+[4/7] Linking CXX executable sc-approved-media-tests
+[5/7] Building CXX object CMakeFiles/sc-approved-media-probe.dir/tools/approved_media_probe.cpp.o
+[6/7] Linking CXX executable sc-approved-media-probe
