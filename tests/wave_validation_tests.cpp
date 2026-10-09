@@ -49,13 +49,21 @@ void usage(const ResourceLedger &memory,ResourceUsage before) {
 void sampleCase(const std::filesystem::path &path,ResourceLedger memory,unsigned bits,bool floating,bool big,bool ext,unsigned channels) {
     std::vector<double> expected;std::string data;constexpr std::array<std::int32_t,7> integers{-128,0,63,-57,127,-1,1};
     for (unsigned frame=0;frame<19;++frame) for (unsigned channel=0;channel<channels;++channel) {
-        const auto small=integers[(frame+3*channel)%integers.size()];
+        const auto index=(frame+3*channel)%integers.size();const auto small=integers[index];
         if (floating) {
-            const auto value=static_cast<double>(small)/32;expected.push_back(value);
+            const auto ordinary=static_cast<double>(small)/32;
+            // Check precision beyond float32 for float64; use the exact stored
+            // float32 neighbor as its independent expected representation.
+            const auto value=index==6 ? (bits==32 ? static_cast<double>(std::nextafter(0.03125F,1.0F)) :
+                std::nextafter(0.03125,1.0)) : ordinary;
+            expected.push_back(value);
             if (bits==32) put(data,std::bit_cast<std::uint32_t>(static_cast<float>(value)),4,big);
             else put(data,std::bit_cast<std::uint64_t>(value),8,big);
         } else {
-            const auto scale=std::int64_t{1}<<(bits-8);const auto value=static_cast<std::int64_t>(small)*scale;
+            const auto scale=std::int64_t{1}<<(bits-8);
+            // Lowest-bit positive/negative samples catch premature reduction
+            // of PCM24/32 to PCM16 rather than just testing the high byte.
+            const auto value=static_cast<std::int64_t>(small)*(index>=5 ? 1 : scale);
             expected.push_back(static_cast<double>(value)/std::ldexp(1.0,static_cast<int>(bits)-1));
             put(data,static_cast<std::uint64_t>(bits==8 ? value+128 : value),bits/8,big);
         }

@@ -94,6 +94,16 @@ probe). Source, binary and raw log hashes are retained in
 existing protected Windows headless context without removing another test/check;
 the cross-build with media disabled makes no WAVE compilation/runtime claim.
 
+The first PR67 head17c600ccf7293734d37b1b61479c64f23cac06ea passes actual native
+Windows20,503 WAVE checks/CLI64 in run37889809849. Artifact11597887600 has verified
+SHA256 2066bb5d6019fab0d1d9233ece6c79fea5ba10e840c5ecbbf651aa070275c3d1;
+its original metadata/ZIP/raw log is retained. The five additional Linux checks
+are the Linux-only mutation fixture, not a skipped Windows test. A subsequent
+test-only refinement adds lowest PCM bits and float32/64 adjacent representable
+values to the independent sample oracle. Its Linux20,508/CLI64 gates pass Release
+and sanitized; the final native cohort remains separate and pending. No decoder,
+policy, format or product behavior changed in that refinement.
+
 The prerequisite PR66 merged41e38af after exactbd9e8cb passes all four protected
 contexts in run37888375635. Its actual native folder162/CLI23 checks include owned
 NTFS case-distinct file and intermediate-folder fixtures. Artifact11596959423 has
