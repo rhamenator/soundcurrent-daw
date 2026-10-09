@@ -712,3 +712,15 @@ handshake, cancellation and completion markers. Completed artifacts pass shared
 live/export, seek/split/crop and Save/reopen tests. Next implement versioned editable
 source-span anchors and an aggregate-admitted supervised launcher before desktop
 controls. Full quality, higher rates, native Windows/installed and parity stay open.
+
+## M2 editable independent stretch state
+
+[Checkpoint 135](135-editable-stretch-state.md) adds schema 1.12 raw-span anchors,
+exact retiming, stale-safe transactional adoption and Undo/Redo without recursive
+derivative processing. The bounded parent verifies owned raw/output bytes and all
+RF64 samples. Next implement aggregate-admitted Qt process supervision and actual
+desktop duration/pitch/formant controls with project-epoch barriers, cancellation,
+uncertain-completion inspection and asynchronous shutdown. Qualify those workflows
+on Linux and native Windows before refreshing installed previews. Very short span
+context/alignment, dynamic warp, segmented pitch and full processing quality remain
+required; none of the frozen acceptance or F/Q/C/N gates is reduced.

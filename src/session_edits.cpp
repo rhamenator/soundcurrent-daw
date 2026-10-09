@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/session.hpp>
 #include <soundcurrent/clip_timing.hpp>
+#include <soundcurrent/stretch.hpp>
 #include <numeric>
 #include <algorithm>
 #include <cmath>
@@ -146,6 +147,10 @@ void dynamicWeight(PayloadCharge &charge, const Track &t) {
     for (const auto &c : t.clips) {
         stringWeight(charge, c.id.str());
         stringWeight(charge, c.assetId.str());
+        if(c.stretch) {
+            stringWeight(charge,c.stretch->sourceAssetId.str());
+            stringWeight(charge,c.stretch->sourceSha256);stringWeight(charge,c.stretch->renderKey);
+        }
     }
     dynamicWeight(charge, t.input);
     dynamicWeight(charge, t.output);
@@ -297,6 +302,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     }
                     require(low>0,"Playback rate leaves no source audio",ErrorCode::InvalidParameter);
                     c.lengthFrames=low;
+                } else if constexpr (std::is_same_v<E, ApplyClipStretch>) {
+                    adoptClipStretch(proposed,e);
                 } else if constexpr (std::is_same_v<E, MoveClip>) {
                     auto &from = track(proposed, e.from).clips;
                     auto &to = track(proposed, e.to).clips;

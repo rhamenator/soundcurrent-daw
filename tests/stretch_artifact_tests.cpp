@@ -1,3 +1,4 @@
+#include <soundcurrent/stretch_render_protocol.hpp>
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/mix_reader.hpp>
 #include <soundcurrent/export.hpp>
@@ -37,11 +38,71 @@ std::vector<float> live(const std::filesystem::path &root,const Session &s,Frame
 }
 }
 int run(const std::vector<std::string> &args){try{
-    check(args.size()==3,"Expected owned project root and relative derived artifact");auto root=utf8Path(args[1]);std::string relative=args[2];validateRelativeMediaPath(relative);
-    auto path=root/utf8Path(relative);std::ifstream receiptFile(path.parent_path()/"complete.json");nlohmann::json receipt;receiptFile>>receipt;
-    check(receipt["complete"]==true && receipt["processor"]=="soundcurrent.stretch-rubberband4-r3-v1","Expected completed stretch artifact");
-    Asset asset;asset.relativePath=relative;asset.sha256=receipt.at("audioSha256");asset.sampleRate=receipt.at("rate");asset.frames=receipt.at("writtenFrames");asset.layout={LayoutKind::Stereo,2};
-    auto s=makeOneTrackSession("Derived stretch","Audio",asset.sampleRate);s.assets={asset};s.tracks[0].layout=asset.layout;s.tracks[0].eq={};Clip c;c.assetId=asset.id;c.lengthFrames=asset.frames;s.tracks[0].clips={c};s.exportEndFrame=asset.frames;
+    check(args.size()==5,"Expected owned project root and relative derived artifact");auto root=utf8Path(args[1]);std::string relative=args[2];validateRelativeMediaPath(relative);
+    auto path=root/utf8Path(relative);std::ifstream receiptFile(path.parent_path()/"complete.json");nlohmann::json receipt;receiptFile>>receipt;receiptFile.close();
+    check(receipt["complete"]==true && receipt["processor"]=="soundcurrent.stretch-rubberband4-r3-positioned-v2","Expected completed stretch artifact");
+    const auto request=nlohmann::json::parse(args[3]);const auto operation=Id(request.at("operation").get<std::string>());
+    Asset raw;raw.id=Id(request.at("assetId").get<std::string>());raw.relativePath=request.at("relative");raw.sha256=request.at("sha256");raw.sampleRate=request.at("rate");raw.frames=request.at("sourceFrames");raw.layout={LayoutKind::Stereo,2};
+    auto s=makeOneTrackSession("Editable derived stretch","Audio",raw.sampleRate);s.assets={raw};s.tracks[0].layout=raw.layout;s.tracks[0].eq={};
+    Clip c;c.assetId=raw.id;c.sourceFrame=request.at("first");c.sourceTiming={request.at("firstFraction"),request.at("firstDenominator")};c.lengthFrames=request.at("frames");s.tracks[0].clips={c};
+    const auto original=s;StretchSettings settings{request.at("timeNumerator"),request.at("timeDenominator"),request.at("pitchMilliCents"),request.at("formantPreserved")};
+    auto plan=prepareClipStretch(s,s.tracks[0].id,c.id,settings);StretchRenderPolicy policy;policy.deadlineMilliseconds=10000;
+    {
+        ResourceLedger protocolLedger(32*1024*1024,"Parent stretch verification");
+        auto encoded=encodeStretchRenderRequest(plan,operation,policy,protocolLedger);check(nlohmann::json::parse(encoded.bytes())==request,"Parent request differs from actual worker request");
+        verifyStretchRenderReady(args[4],plan,operation,protocolLedger);
+        auto verified=verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);
+        check(verified.edit().rendered.relativePath==relative && verified.peak()>1,"Parent returned wrong owned artifact/headroom");
+        auto refusal=[&](auto action){try {action();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Unverified stretch completion accepted");};
+        for(unsigned mode=0;mode<20;++mode) {
+            auto bad=receipt;
+            if(mode==0) bad["renderKey"]=std::string(64,'f');
+            if(mode==1) bad["processor"]="unknown";
+            if(mode==2) bad["protocol"]="sc-stretch-render-v1";
+            if(mode==3) bad["operation"]=Id::generate().str();
+            if(mode==4) bad["assetId"]=Id::generate().str();
+            if(mode==5) bad["relative"]="media/other.wav";
+            if(mode==6) bad["firstFraction"]=0.0;
+            if(mode==7) bad["formantPreserved"]=0;
+            if(mode==8) bad["sourceAlgorithm"]="unknown";
+            if(mode==9) bad["target"]=18001;
+            if(mode==10) bad["memoryCeilingBytes"]=128*1024*1024;
+            if(mode==11) bad["payloadPeakBytes"]=0;
+            if(mode==12) bad["writtenFrames"]=true;
+            if(mode==13) bad["peakLinear"]=nullptr;
+            if(mode==14) bad["sampleSha256"]=std::string(64,'f');
+            if(mode==15) bad["audioSha256"]=std::string(64,'f');
+            if(mode==16) bad["unexpected"]=0;
+            if(mode==17) bad["peakLinear"]=nlohmann::json::object();
+            if(mode==18) bad.erase("memoryMetric");
+            const auto bytes=mode==19 ? "{\"complete\":true,"+bad.dump().substr(1) : bad.dump();
+            {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<bytes;}
+            refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
+            check(s==original,"Refused completion changed Session");
+        }
+        {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<receipt.dump();}
+        auto wrongPolicy=policy;wrongPolicy.maximumInputFrames=1;
+        refusal([&]{verifyOwnedClipStretch(root,plan,operation,wrongPolicy,protocolLedger);});
+        std::stop_source canceled;canceled.request_stop();refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger,canceled.get_token());});
+        for(const auto &bad:{std::string(16385,'x'),std::string("[]"),std::string("{\"event\":\"ready\",\"event\":\"ready\"}")})
+            refusal([&]{verifyStretchRenderReady(bad,plan,operation,protocolLedger);});
+        auto rawPath=root/utf8Path(raw.relativePath);std::ifstream input(rawPath,std::ios::binary);std::string rawBytes((std::istreambuf_iterator<char>(input)),{});input.close();
+        {std::ofstream changed(rawPath,std::ios::binary|std::ios::trunc);auto altered=rawBytes;altered.back()^=1;changed.write(altered.data(),std::streamsize(altered.size()));}
+        refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
+        {std::ofstream restore(rawPath,std::ios::binary|std::ios::trunc);restore.write(rawBytes.data(),std::streamsize(rawBytes.size()));}
+        std::ifstream renderedInput(path,std::ios::binary);
+        std::string renderedBytes((std::istreambuf_iterator<char>(renderedInput)),{});renderedInput.close();
+        {std::ofstream changed(path,std::ios::binary|std::ios::trunc);auto altered=renderedBytes;altered.back()^=1;changed.write(altered.data(),std::streamsize(altered.size()));}
+        refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
+        check(s==original,"Corrupted derived bytes changed Session");
+        {std::ofstream restore(path,std::ios::binary|std::ios::trunc);restore.write(renderedBytes.data(),std::streamsize(renderedBytes.size()));}
+        auto reverified=verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);
+        check(reverified.edit().value==verified.edit().value && reverified.edit().rendered==verified.edit().rendered,"Restored source/marker changed verified adoption");
+        EditHistory history(s);history.structural({verified.edit()});const auto adopted=s;
+        check(history.undo() && s==original && history.redo() && s==adopted,"Actual render adoption was not one exact Undo/Redo operation");
+        check(s.assets[0]==raw && s.tracks[0].clips[0].stretch==verified.edit().value,"Actual render lost raw anchor or immutable source");
+    }
+    const auto asset=s.assets.back();c=s.tracks[0].clips[0];s.exportEndFrame=asset.frames;
     ResourceLedger ledger(128*1024*1024,"Derived workflow");rt_audit::reset();auto expected=live(root,s,0,asset.frames,37,ledger);check(!ledger.usage().reservedBytes,"Derived reader grant retained");
     check(live(root,s,0,asset.frames,511,ledger)==expected,"Callback partitions changed derived audio");
     auto split=s;applySessionEdits(split,{SplitClip{s.tracks[0].id,c.id,Id::generate(),4097}});check(live(root,split,0,asset.frames,127,ledger)==expected,"Derived split restarted stretch phase");

@@ -74,7 +74,7 @@ void kernels(){double maximum=0;std::uint64_t samples=0;
 void state(){
  auto s=makeOneTrackSession("Fractional source","Track",44100);Asset a;a.sampleRate=48000;a.frames=100000;a.relativePath="media/owned.wav";a.sha256=std::string(64,'a');s.assets.push_back(a);
  Clip c;c.assetId=a.id;c.startFrame=17;c.sourceFrame=101;c.lengthFrames=1000;c.sourceTiming={1,7};c.processing.fadeIn={-3,700,ClipFadeCurve::Linear,1};s.tracks[0].clips.push_back(c);
- const auto original=s;auto json=nlohmann::json::parse(encodeProject(s));check(json["schemaMinor"]==11 && decodeProject(json.dump())==s,"Fractional project roundtrip differs");
+ const auto original=s;auto json=nlohmann::json::parse(encodeProject(s));check(json["schemaMinor"]==12 && decodeProject(json.dump())==s,"Fractional project roundtrip differs");
  for(unsigned mode=0;mode<11;++mode){auto bad=json;auto &timing=bad["tracks"][0]["clips"][0]["sourceTiming"];
   if(mode==0)timing["fraction"]=-1;
   if(mode==1)timing["denominator"]=0;
@@ -100,7 +100,7 @@ void state(){
  check(history.undo() && s==original,"Project crop undo differs");
  refuses([&]{history.structural({SetClipRange{s.tracks[0].id,c.id,17,102,900}});});check(s==original,"Off-grid trim partly changed state");
  auto neutral=original;neutral.sampleRate=48000;neutral.tracks[0].clips[0].sourceTiming={};neutral.tracks[0].clips[0].processing={};
- auto old=nlohmann::json::parse(encodeProject(neutral));old["schemaMinor"]=9;old["tracks"][0]["clips"][0].erase("sourceTiming");old["tracks"][0]["clips"][0].erase("playbackRate");check(decodeProject(old.dump())==neutral,"Schema1.9 neutral migration differs");
+ auto old=nlohmann::json::parse(encodeProject(neutral));old["schemaMinor"]=9;old["tracks"][0]["clips"][0].erase("sourceTiming");old["tracks"][0]["clips"][0].erase("playbackRate");old["tracks"][0]["clips"][0].erase("stretch");check(decodeProject(old.dump())==neutral,"Schema1.9 neutral migration differs");
  old["sampleRate"]=44100;
   refuses([&]{decodeProject(old.dump());});
 }
@@ -154,7 +154,7 @@ void rateState(){
   if(mode==11)rate["numerator"]=5;
   refuses([&]{decodeProject(bad.dump());});}
  check(history.undo(),"Rate restore missing");
- auto old=nlohmann::json::parse(encodeProject(s));old["schemaMinor"]=10;old["tracks"][0]["clips"][0].erase("playbackRate");
+ auto old=nlohmann::json::parse(encodeProject(s));old["schemaMinor"]=10;old["tracks"][0]["clips"][0].erase("playbackRate");old["tracks"][0]["clips"][0].erase("stretch");
  check(decodeProject(old.dump())==original,"Schema1.10 neutral rate migration differs");
  refuses([&]{history.structural({SetClipPlaybackRate{s.tracks[0].id,c.id,{1,2}},SetClipPlaybackRate{s.tracks[0].id,c.id,{5,1}}});});
  check(s==original,"Invalid grouped rate edit mutated project");

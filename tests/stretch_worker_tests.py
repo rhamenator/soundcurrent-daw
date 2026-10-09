@@ -47,7 +47,7 @@ def amplitude(samples,channels,ch,rate,hz):
 with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     root=Path(temporary)/'studio Δ';root.mkdir();(root/'media').mkdir();jobs=root/'media/derived';jobs.mkdir()
     path=root/'media/tone.wav';digest=owned_wave(path,48000,2,12000)
-    initial={'protocol':'sc-stretch-render-v1','operation':str(uuid.uuid4()),'assetId':str(uuid.uuid4()),'relative':'media/tone.wav','sha256':digest,'rate':48000,'channels':2,'sourceFrames':12000,'first':0,'frames':12000,'timeNumerator':3,'timeDenominator':2,'pitchMilliCents':1200000,'formantPreserved':False}
+    initial={'protocol':'sc-stretch-render-v2','operation':str(uuid.uuid4()),'assetId':str(uuid.uuid4()),'relative':'media/tone.wav','sha256':digest,'rate':48000,'channels':2,'sourceFrames':12000,'first':0,'firstFraction':0,'firstDenominator':1,'frames':12000,'timeNumerator':3,'timeDenominator':2,'pitchMilliCents':1200000,'formantPreserved':False}
     def command(memory=256,maximum=1000000,bytes_limit=64*1024*1024,deadline=10000):
         return [str(worker),'--project-root',str(root),'--jobs-root',str(jobs),'--memory-mib',str(memory),'--maximum-input-frames',str(maximum),'--maximum-output-bytes',str(bytes_limit),'--deadline-ms',str(deadline)]
     def run(request,**limits):
@@ -71,13 +71,35 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     check(amplitude(samples,2,0,48000,2000)>1 and amplitude(samples,2,1,48000,3000)>1,'Independent pitch or channel ordering differs')
     check(amplitude(samples,2,0,48000,1000)<.03,'Pitch left the original frequency')
     check(hashlib.sha256(path.read_bytes()).hexdigest()==digest,'Raw source changed')
-    artifact=subprocess.run([sys.argv[2],str(root),'media/derived/'+initial['operation']+'/audio.wav'],text=True,capture_output=True,timeout=15)
+    artifact=subprocess.run([sys.argv[2],str(root),'media/derived/'+initial['operation']+'/audio.wav',json.dumps(initial),json.dumps(reports[0])],text=True,capture_output=True,timeout=15)
     check(artifact.returncode==0,'Shared live/export workflow failed: '+artifact.stderr);print(artifact.stdout.strip())
     repeated=fresh();r,rr=run(repeated);check(r.returncode==0,'Repeat job failed');check(rr[-1]['renderKey']==receipt['renderKey'] and rr[-1]['audioSha256']==receipt['audioSha256'],'Repeated render identity/waveform differs')
     # Exact ceil counterexample from the candidate experiment, plus source anchor.
     short=fresh(first=17,frames=4816,timeNumerator=4,timeDenominator=3,pitchMilliCents=0)
     r,rr=run(short);check(r.returncode==0 and rr[-1]['writtenFrames']==6422,'Exact integer target drifted to vendor nearest rounding')
-    for changes in [{'rate':384000},{'frames':12001},{'timeDenominator':0},{'timeNumerator':True},{'pitchMilliCents':18446744073707151616},{'sha256':'0'*64},{'relative':'../media/tone.wav'},{'channels':0},{'formantPreserved':1},{'pitchMilliCents':2400001},{'first':11999,'frames':2}]:
+    # Actual neutral renders isolate exact fractional source phase from pitch/time processing.
+    base=fresh(first=2048,frames=4096,timeNumerator=1,timeDenominator=1,pitchMilliCents=0)
+    r,rr=run(base);check(r.returncode==0,'Neutral integer anchor failed')
+    floor_receipt=rr[-1];_,_,floor_data=read_rf64(jobs/base['operation']/'audio.wav')
+    half=dict(base,operation=str(uuid.uuid4()),firstFraction=1,firstDenominator=2)
+    r,rr=run(half);check(r.returncode==0,'Actual fractional origin failed');half_receipt=rr[-1]
+    _,_,half_data=read_rf64(jobs/half['operation']/'audio.wav')
+    check(half_receipt['firstFraction']==1 and half_receipt['firstDenominator']==2,'Fractional origin lost in completion')
+    check(half_receipt['sourceAlgorithm']=='soundcurrent.src-positioned-best-v1','Fractional source algorithm not bound')
+    floor_samples=struct.unpack('<'+'f'*(len(floor_data)//4),floor_data)
+    half_samples=struct.unpack('<'+'f'*(len(half_data)//4),half_data)
+    def tone_phase(values,ch,hz):
+        # Thirty/forty-five complete cycles avoid a finite-window phase bias.
+        return math.atan2(-sum(values[n*2+ch]*math.sin(2*math.pi*hz*n/48000) for n in range(1024,2464)),sum(values[n*2+ch]*math.cos(2*math.pi*hz*n/48000) for n in range(1024,2464)))
+    for ch,hz in [(0,1000),(1,1500)]:
+        delta=tone_phase(half_samples,ch,hz)-tone_phase(floor_samples,ch,hz)-2*math.pi*hz*.5/48000
+        check(abs(math.atan2(math.sin(delta),math.cos(delta)))<2e-4,'Fractional phase rounded or drifted')
+    check(floor_receipt['renderKey']!=half_receipt['renderKey'] and floor_data!=half_data,'Fractional render reused whole-frame identity/audio')
+    equivalent=dict(half,operation=str(uuid.uuid4()),firstFraction=2,firstDenominator=4)
+    r,rr=run(equivalent);check(r.returncode==0 and rr[-1]['renderKey']==half_receipt['renderKey'] and rr[-1]['audioSha256']==half_receipt['audioSha256'],'Equivalent rational anchors differ')
+    unsupported=fresh(protocol='sc-stretch-render-v1');r,rr=run(unsupported)
+    check(r.returncode!=0 and not (jobs/unsupported['operation']).exists(),'Older origin protocol silently interpreted')
+    for changes in [{'firstFraction':1,'firstDenominator':0},{'firstFraction':1,'firstDenominator':1},{'firstFraction':True},{'firstFraction':-1},{'firstDenominator':18446744073709551616},{'rate':384000},{'frames':12001},{'timeDenominator':0},{'timeNumerator':True},{'pitchMilliCents':18446744073707151616},{'sha256':'0'*64},{'relative':'../media/tone.wav'},{'channels':0},{'formantPreserved':1},{'pitchMilliCents':2400001},{'first':11999,'frames':2}]:
         req=fresh(**changes);r,rr=run(req);check(r.returncode!=0 and not (jobs/req['operation']/'complete.json').exists(),'Invalid source/parameters published completion');check(not (jobs/req['operation']).exists(),'Refusal occurred after destination mutation')
     duplicate=json.dumps(fresh()).replace('"timeNumerator": 3','"timeNumerator": 3, "timeNumerator": 4')
     r,rr=run(duplicate);check(r.returncode!=0,'Duplicate request key accepted')
@@ -122,4 +144,4 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
                 check(r.returncode==0 and rr[-1]['writtenFrames']==target,'Prepared window boundary did not render exact duration: '+r.stderr)
                 boundary_jobs+=1
     check(boundary_jobs==27,'Boundary workflow matrix incomplete')
-    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':3+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'nativePlatform':sys.platform,'nativeAudio':False}))
+    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':6+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'fractionalSourcePhase':True,'equivalentRationalAnchors':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'nativePlatform':sys.platform,'nativeAudio':False}))

@@ -30,8 +30,10 @@ for owned assets at different physical sample rates. The desktop shows exact
 fractional source positions and offers project-frame crop/split with Undo/Redo.
 An [isolated pitch/time-stretch worker](docs/134-isolated-stretch-worker.md) now
 renders owned source spans to floating RF64 with independent pitch and duration,
-resource limits and cancellation. Its CLI/reader workflow is implemented;
-desktop controls, editable stretch state and native qualification remain open.
+resource limits and cancellation. [Editable raw-anchor state and checked artifact
+adoption](docs/135-editable-stretch-state.md) retain raw media and derived assets
+through split/crop, re-render and Undo/Redo. Desktop process supervision, controls,
+processing-quality and native qualification remain open.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.

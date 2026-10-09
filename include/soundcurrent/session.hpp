@@ -192,6 +192,24 @@ struct ClipPlaybackRate {
     bool operator==(const ClipPlaybackRate &) const = default;
 };
 void validateClipPlaybackRate(const ClipPlaybackRate &);
+struct StretchSettings {
+    // Independent duration multiplier and pitch in stable integer milli-cents.
+    std::uint32_t timeNumerator = 1, timeDenominator = 1;
+    std::int32_t pitchMilliCents = 0;
+    bool formantPreserved = false;
+    bool operator==(const StretchSettings &) const = default;
+};
+struct ClipStretchAnchor {
+    Id sourceAssetId = Id::generate();
+    std::string sourceSha256;
+    SourcePosition sourceOrigin;
+    Frame sourceFrames = 0;
+    StretchSettings settings;
+    std::string renderKey;
+    // The clip addresses derived audio; this anchor always addresses raw audio.
+    // Split/crop/duplicate retain it and move only the derived source position.
+    bool operator==(const ClipStretchAnchor &) const = default;
+};
 struct Clip {
     Id id = Id::generate();
     Id assetId = Id::generate();
@@ -201,6 +219,7 @@ struct Clip {
     ClipProcessing processing;
     ClipSourceTiming sourceTiming;
     ClipPlaybackRate playbackRate;
+    std::optional<ClipStretchAnchor> stretch = {};
     bool operator==(const Clip &) const = default;
 };
 enum class RecordingMonitor { Off, PostEq, AutoRecording };
@@ -335,6 +354,12 @@ struct SetClipPlaybackRate {
     Id track, clip;
     ClipPlaybackRate value;
 };
+struct ApplyClipStretch {
+    Id track, clip;
+    Clip expected; // Reject stale asynchronous results before any model mutation.
+    Asset source, rendered;
+    ClipStretchAnchor value;
+};
 struct MoveClip {
     Id from, to, clip;
     Frame start;
@@ -356,7 +381,7 @@ struct SetInputLatency {
 };
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
+                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

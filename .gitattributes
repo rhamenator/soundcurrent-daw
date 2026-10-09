@@ -51,3 +51,4 @@ third_party/libsamplerate/** -text whitespace=-blank-at-eol,-blank-at-eof,-space
 tests/results/M2/2026-10-09-clip-playback-rate/*.log -text whitespace=-blank-at-eol,cr-at-eol
 tests/results/M2/2026-10-09-stretch-worker/*.log -text whitespace=-blank-at-eol,cr-at-eol
 third_party/rubberband/** -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+tests/results/M2/2026-10-09-editable-stretch/*.log -text whitespace=-blank-at-eol,cr-at-eol
