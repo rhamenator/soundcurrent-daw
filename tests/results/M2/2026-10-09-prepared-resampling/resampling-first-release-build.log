@@ -1,0 +1,106 @@
+[0/1] Re-running CMake...
+-- The C compiler identification is GNU 15.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+CMake Deprecation Warning at third_party/libsamplerate/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+CMake Deprecation Warning at third_party/libsamplerate/CMakeLists.txt:16 (cmake_policy):
+  The OLD behavior for policy CMP0091 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+
+
+CMake Warning (dev) at third_party/libsamplerate/CMakeLists.txt:30 (option):
+  Policy CMP0077 is not set: option() honors normal variables.  Run "cmake
+  --help-policy CMP0077" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, option is clearing the
+  normal variable 'LIBSAMPLERATE_EXAMPLES'.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at third_party/libsamplerate/CMakeLists.txt:31 (option):
+  Policy CMP0077 is not set: option() honors normal variables.  Run "cmake
+  --help-policy CMP0077" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, option is clearing the
+  normal variable 'LIBSAMPLERATE_INSTALL'.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Deprecation Warning at third_party/libsamplerate/CMakeLists.txt:46 (message):
+  LIBSAMPLERATE_TESTS option deprecated, use BUILD_TESTING option instead.
+
+
+-- Looking for stdbool.h
+-- Looking for stdbool.h - found
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+CMake Warning (dev) at third_party/libsamplerate/src/CMakeLists.txt:3 (option):
+  Policy CMP0077 is not set: option() honors normal variables.  Run "cmake
+  --help-policy CMP0077" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, option is clearing the
+  normal variable 'LIBSAMPLERATE_ENABLE_SINC_FAST_CONVERTER'.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at third_party/libsamplerate/src/CMakeLists.txt:4 (option):
+  Policy CMP0077 is not set: option() honors normal variables.  Run "cmake
+  --help-policy CMP0077" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, option is clearing the
+  normal variable 'LIBSAMPLERATE_ENABLE_SINC_MEDIUM_CONVERTER'.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at third_party/libsamplerate/src/CMakeLists.txt:5 (option):
+  Policy CMP0077 is not set: option() honors normal variables.  Run "cmake
+  --help-policy CMP0077" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, option is clearing the
+  normal variable 'LIBSAMPLERATE_ENABLE_SINC_BEST_CONVERTER'.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Checking processor clipping capabilities...
+-- Performing Test CPU_CLIPS_POSITIVE
+-- Performing Test CPU_CLIPS_POSITIVE - Failed
+-- Performing Test CPU_CLIPS_NEGATIVE
+-- Performing Test CPU_CLIPS_NEGATIVE - Failed
+-- Checking processor clipping capabilities... none
+-- Performing Test HAVE_VISIBILITY
+-- Performing Test HAVE_VISIBILITY - Success
+-- Configuring done (4.7s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/17] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.o
+[2/17] Building CXX object CMakeFiles/sc-session.dir/src/session_edits.cpp.o
+[3/17] Building CXX object CMakeFiles/sc-session.dir/src/routing.cpp.o
+[4/17] Building CXX object CMakeFiles/sc-session.dir/src/clip_timing.cpp.o
+[5/17] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/samplerate.c.o
+[6/17] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_linear.c.o
+[7/17] Building CXX object CMakeFiles/sc-session.dir/src/resource_ledger.cpp.o
+[8/17] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_zoh.c.o
+[9/17] Linking CXX static library libsc-session.a
+[10/17] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_sinc.c.o
+[11/17] Linking C static library third_party/libsamplerate/src/libsamplerate.a
+[12/17] Building CXX object CMakeFiles/sc-resampling.dir/src/resampling.cpp.o
+[13/17] Linking CXX static library libsc-resampling.a
+[14/17] Building CXX object CMakeFiles/sc-resampling-tests.dir/tests/rt_audit.cpp.o
+[15/17] Building CXX object CMakeFiles/sc-resampling-tests.dir/tests/resampling_tests.cpp.o
+[16/17] Linking CXX executable sc-resampling-tests

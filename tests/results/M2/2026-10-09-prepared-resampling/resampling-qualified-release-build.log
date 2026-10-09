@@ -1,0 +1,16 @@
+[0/1] Re-running CMake...
+CMake Deprecation Warning at third_party/libsamplerate/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- Checking processor clipping capabilities...
+-- Checking processor clipping capabilities... none
+-- Configuring done (5.3s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+ninja: no work to do.

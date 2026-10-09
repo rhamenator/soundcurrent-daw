@@ -1,0 +1,11 @@
+build third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_sinc.c.o: C_COMPILER__samplerate_unscanned_Debug /home/rich/dev/soundcurrent-daw/third_party/libsamplerate/src/src_sinc.c || cmake_object_order_depends_target_samplerate
+  CONFIG = Debug
+  DEFINES = -DCONFIG_CHAN_NR=256 -DHAVE_CONFIG_H
+  DEP_FILE = third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_sinc.c.o.d
+  FLAGS = -g -std=gnu99 -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
+  INCLUDES = -I/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/third_party/libsamplerate -I/home/rich/dev/soundcurrent-daw/third_party/libsamplerate/include
+  OBJECT_DIR = third_party/libsamplerate/src/CMakeFiles/samplerate.dir
+  OBJECT_FILE_DIR = third_party/libsamplerate/src/CMakeFiles/samplerate.dir
+  TARGET_COMPILE_PDB = third_party/libsamplerate/src/CMakeFiles/samplerate.dir/samplerate.pdb
+  TARGET_PDB = third_party/libsamplerate/src/libsamplerate.pdb
+  TARGET_SUPPORT_DIR = third_party/libsamplerate/src/CMakeFiles/samplerate.dir

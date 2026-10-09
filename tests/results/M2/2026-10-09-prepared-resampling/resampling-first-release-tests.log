@@ -1,0 +1,13 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 1: prepared-resampling
+1/1 Test #1: prepared-resampling ..............***Failed    0.03 sec
+Channel output lengths differ
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.03 sec
+
+The following tests FAILED:
+	  1 - prepared-resampling (Failed)
+Errors while running CTest

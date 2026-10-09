@@ -24,6 +24,35 @@ correction set. Complete per-source data-rights and corresponding-source qualifi
 remain a release gate. Install rules include catalog license and reuse provenance;
 these rules do not themselves qualify a distribution package.
 
+**libsamplerate0.2.2 compiled kernel/public API**, Erik de Castro Lopo and
+contributors, BSD-2-Clause. The
+complete unmodified source and copyright/license are retained in
+[third_party/libsamplerate](third_party/libsamplerate/COPYING). The manifest pins
+the official archive and every source file. The original DAW prepared component
+uses static best-sinc conversion outside callbacks; it is not yet linked into
+Session playback/export or the installed desktop. No new external codec/FFT
+library is linked. Native Windows, full processing quality and final binary
+notices remain separate gates. Fast/medium converters, upstream examples/tests
+and install rules are disabled in a scoped CMake adaptation; upstream source is
+unchanged. System C runtime/math dependencies require platform inventory.
+
+The complete source also retains separately licensed, unused helpers. Six
+Autoconf macros (`ax_append_compile_flags`, `ax_append_flag`,
+`ax_append_link_flags`, `ax_check_compile_flag`, `ax_check_link_flag`,
+`ax_compiler_vendor`) are GPL-3.0-or-later; `ax_recursive_eval` is
+GPL-2.0-or-later, distributed here under its later GPL-3.0 option. Each preserves
+its original copyright and special exception for Autoconf-generated configure
+scripts; that exception does not relicense the macro itself. The root LICENSE
+contains GPL-3.0. `ax_compiler_version` (Bastien Roucaries) and
+`ax_require_defined` (Mike Frysinger) preserve their
+[FSFAP notices](https://spdx.org/licenses/FSFAP.html). `clip_mode.m4` retains
+Erik de Castro Lopo's file-specific permission to use/copy/modify/distribute/sell
+with its notice and disclaimer. `cmake/FindFFTW3.cmake` retains Wenzel Jakob's
+2015 BSD-2-Clause notice. None of these helpers is used by the selected CMake
+kernel build. All original bytes, notices and exceptions remain hash-pinned;
+`additional_source_notices` records their exact paths. Files without a specific
+notice use upstream's COPYING; final distribution auditing remains a release gate.
+
 ## Linked system dependencies of the current core
 
 - Linux: OpenSSL Crypto, version **3.5.5** in this development build. Apache-2.0; [upstream license](https://github.com/openssl/openssl/blob/openssl-3.5.5/LICENSE.txt). It supplies worker-side media SHA-256. Source and binaries are not vendored. Distribution packaging must retain the actual linked version's notices/license and audit transitives.
