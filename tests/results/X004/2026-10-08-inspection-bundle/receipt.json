@@ -1,0 +1,192 @@
+{
+  "format": "sc-inspection-bundle-evidence-v1",
+  "utc": "2026-10-09T00:43:42.871399+00:00",
+  "sourceBase": "e391ee9d3d951dc7c518ff625e0649916e040e25",
+  "sourceIdentity": "Published base plus the exact modified/new input SHA-256 map below; unchanged build inputs are inherited from that base. Documentation/evidence changes are outside the binary identity.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "37fc05e2fe7a511f3ec69d4149ff7151e4d2ca7075a32a13d1725ba528166268",
+    "CMakeLists.txt": "dfe0de517bab2a7d4d4cf9c75520595f2b1524e5c26e90b26df7907fdd8b832e",
+    "include/soundcurrent/foreign_snapshot.hpp": "56c87fb89f7464bd0b1104f737ea85f2e31e0086e65d86fe80d4fa97b747f376",
+    "include/soundcurrent/import_inspection_report.hpp": "10847c5d9e78d3976faedbec8296eb316d95e20b2cfd1ec67585f1ec252a9806",
+    "include/soundcurrent/inspection_bundle.hpp": "2d563b7defc99a4ce892d049776cf9882d43bf7ca74908fbe10468eb6c16fc3e",
+    "localization/catalogs.json": "41d969ea5a1f31dc8a96aaea16cacfc105f5c2bcf4ad34007c1fee7ccd30b7c7",
+    "localization/soundcurrent_daw_ar.ts": "63ff6e622b60f87afc371a615b70a2bc318e24ceddf29d252250ee2619b15c47",
+    "localization/soundcurrent_daw_cs.ts": "68b4b87d7a7dab2b508c65df83d19e11e05b1a422548e66771369b51b8be7eb3",
+    "localization/soundcurrent_daw_da.ts": "bed6511d23fbe6cdd9df4f41f7531f8cf57f8fc550810779493c11d2a64504ec",
+    "localization/soundcurrent_daw_de.ts": "61244c1706d9b60917efeb976d506ed4bfe1baefde0c4fc493cb68b07fe290d5",
+    "localization/soundcurrent_daw_el.ts": "3a4515d581cb538fe845f00531ce644a839d68a1dfeb29c2557b6a6b24e514b6",
+    "localization/soundcurrent_daw_en.qm": "6cc5bd31cfbf3eb0bde2146fb97a1cdf3c9165ead137f570a4c67edf6197bcae",
+    "localization/soundcurrent_daw_en.ts": "8212ddacf0e7d95391ad72b755d7be59811bfd30382172db5ef3f5fc32ad121f",
+    "localization/soundcurrent_daw_es.ts": "27de60d7a82cac9a9c6cb84bae9c06f1b46c6293de0b6a92cf4165d1495645b9",
+    "localization/soundcurrent_daw_fa.ts": "fc11445a089475777c6b1d62365d0aa254ecf716d303f7dd737b1c3e567c204a",
+    "localization/soundcurrent_daw_fi.ts": "df2a0bfdf36c99f8023773987c07b9a55363641b6b9b0c7966f88b5fe6f5f7ab",
+    "localization/soundcurrent_daw_fr.ts": "0699aa80e6cb8e7e5882d38f4a20b3ad703f00a463fd705c59be3866fd2afea6",
+    "localization/soundcurrent_daw_he.ts": "44ee1a63af5b57526f9d088f2e90f9793ffc0177446994b5649a89417ad1fd25",
+    "localization/soundcurrent_daw_hi.ts": "e60d88a3955bf2ad4ad913d3b763029b958faed702db94ae807fec3bc229e6d9",
+    "localization/soundcurrent_daw_hu.ts": "52a07e7fe3ab6ed0f30145eecefaec850be144f7b3579b80d5b976fcf366a7c9",
+    "localization/soundcurrent_daw_id.ts": "746edcf66678747d67267aeb509d0bf70b876e9b62913c601a3dd78fdb1ee620",
+    "localization/soundcurrent_daw_it.ts": "5c6b2d2c1ffe7805f528ccc8553b270a1787d5c7ca790ac956c9c9eecbdbfa90",
+    "localization/soundcurrent_daw_ja.ts": "002841d7f5e7a2b2b19c34b93591d1d5ece71d83354182161d4cfbc5340274af",
+    "localization/soundcurrent_daw_ko.ts": "656c21ec5e75dd3b5294613f65a56c6ead5a83686fee2bacadc3758f718c0ec9",
+    "localization/soundcurrent_daw_nb.ts": "e12a5155e7111d5fb697ed1f03825a018f92e02f6f91dcbd0709b994450933ee",
+    "localization/soundcurrent_daw_nl.ts": "3236020d02935db126d30877bbb9b02fd9983a24e2efcb78fc9380d3bf4ba168",
+    "localization/soundcurrent_daw_nn.ts": "b7cd9e1a436f841b2eda47617e2e0bcfb43bd7f5d101d155a37458e04b21b9a7",
+    "localization/soundcurrent_daw_pl.ts": "8645d8823c855a4d3065ca49f31ad143fb0972b04dcf5f2eea8c222d4bf2f6cf",
+    "localization/soundcurrent_daw_pt-BR.ts": "5e3e62a08b43184349843e6fde37eb993d61cb9f31b775fd6aca3bf26442c201",
+    "localization/soundcurrent_daw_pt-PT.ts": "5423e8777dbd719978ebc02554224ed04ca446332442047e531d38ab5fc7e397",
+    "localization/soundcurrent_daw_ro.ts": "33f531900fff0df5c1ad5bd563787062fca6179aba577083eec0f221e752bd1d",
+    "localization/soundcurrent_daw_ru.ts": "2fe7cf2da7dd6daa95f3f236f981e9267b5548f4c9049f2384a094e869465bc6",
+    "localization/soundcurrent_daw_sk.ts": "40551ecc0521f71f3ff8da6b17104a13a9697f92002d04d8fcff2f3e2a7873c5",
+    "localization/soundcurrent_daw_sv.ts": "0cd2b809c9866960dce44469f64adb5edda87934f598d7c9f701225101fb3ebb",
+    "localization/soundcurrent_daw_sw.ts": "81e92cdfef7298cf64deb83693876ab4b279ee32ac94cbcac52958b2d657a057",
+    "localization/soundcurrent_daw_th.ts": "4b2717a7c0a24c16bff065bc730a0fbe6bff161c4395f5cf20f709ceb87d3bfc",
+    "localization/soundcurrent_daw_tr.ts": "48809b629e89ec1ccdbbd0025124fa4253a801631b4511120d3e81578dd145e1",
+    "localization/soundcurrent_daw_uk.ts": "f9d1e147683ae8e64543651e2ebea77cf3e411382a2e36cfd095ae2a37bdb4e3",
+    "localization/soundcurrent_daw_vi.ts": "b5d3d321fab7075d17ce9c402e1c20814a0af235153d4e7d7ae1dc7913744a33",
+    "localization/soundcurrent_daw_zh-Hans.ts": "f7aa58c62edd50c8eb8b76e60f3bd57533c6fd0e1cc13421e5171ab07382f183",
+    "localization/soundcurrent_daw_zh-Hant.ts": "1f43052558d3e40b59e04e2d1dc0767411c044e99ae9189c00a6cc61891429bf",
+    "localization/source-inventory.json": "4c0999681e9fceb4ba19ca540b87bcd6ade9fa5caed4c1a2637ced7c76836865",
+    "src/foreign_snapshot.cpp": "2df4168126711bdeeb0ad53dc067477a52d7670c80031cc7b71914149c2df4ae",
+    "src/import_inspection_report.cpp": "3881a1aba57effa413d84dd4aefbd6e5eb7fc9702e3358265e4b84eb2ab04a27",
+    "src/inspection_bundle.cpp": "b2a570f0285c81adabc62fed5bbf351b7a5aa364e4ae73492ecf53caf6adbb91",
+    "tests/import_controller_tests.cpp": "df8e068ba3b95567781e9c02a6aa629913e9b493a61b5c79679c635ccd297d09",
+    "tests/import_ui_tests.cpp": "3f470660e667da5428e6f7929d13eacbe88cd796a18cbdeebcbc8a135a825fc7",
+    "tests/inspection_bundle_tests.cpp": "b01c2ba99b1d807565b96ebd53f66386d004517a9f9def0b48f8d7a4748e02df",
+    "ui/import_inspection_controller.cpp": "ed74852bdcba60788684713503320775ea68d8b1f459842aa954044099e8bc70",
+    "ui/import_inspection_controller.hpp": "1eceb3b2a5384da610e86cb91e48e78aa4eeba714b1a6074555168149fc162f2",
+    "ui/import_inspection_dialog.cpp": "0ba0f8e960a0a86be10531ea6b537ceacb8db5312bf22f23b4fc24c47321959c",
+    "ui/import_inspection_dialog.hpp": "e3b0d6d73c3d6ec312931b52af56fd430b6708de7652ef7b6bb0795c025be525"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-inspection-bundle-tests": "340c35b2fc4f03efbcf2b5a56572c07c5ac3b38fb1a84656f0e0b14cfa0976c2",
+    ".cache/build-desktop-release/sc-import-controller-tests": "be5118344909da88263e95d482fafbd3f4bc11674ffc41222518370ca6b797f0",
+    ".cache/build-desktop-release/sc-import-ui-tests": "01633547b054f33586b2275f7866fcd9a7604cee5925b8500ffe3a9d08f4e0ec",
+    ".cache/build-desktop-release/sc-import-inspect-worker": "1ed1b3ebcdf5f0145bf1b9554c6252f1855c8d49ef04c9007c77fd1209dc8b64",
+    ".cache/build-desktop-sanitized/sc-inspection-bundle-tests": "043af8a5abf469cf6a3f07e113511240c0092c18fb4a36e17715341b4b6fcae4",
+    ".cache/build-desktop-sanitized/sc-import-controller-tests": "f09c730fb2656fb6867ad86107b5c3363bccabb702025b699fb95ed5d61c38bc",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "fc8cf3b7b2db0510f3976f7d033f818a6a810fef34e48f591d76dbeac2cd8ab0",
+    ".cache/build-desktop-sanitized/sc-import-inspect-worker": "b1ad89284d3bb0d311ececc16b0a9d3b131464de5566419a9c34ace26f50a4ed",
+    ".cache/build-desktop-release/soundcurrent-daw": "3585cc9d84ee5716eedd6ea7f6ccecb36694918f752c8a76c9848fceea55e08c",
+    ".cache/build-desktop-release/sc-localization-tests": "d5e74d25d9c69ab1da52e96f1865e313278420824bca6906a70d0e238e481431",
+    ".cache/build-windows-core/sc-inspection-bundle-tests.exe": "ab07a03e4fa60618771f26d3a98f375b2fac1cc165a11970b101681509a422c5"
+  },
+  "steps": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui|desktop-localization|daw-translation-catalogs|daw-translation-catalog-failures|import-inspection-worker|reaper-structure)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "environment": {
+        "QT_QPA_PLATFORM": "offscreen"
+      },
+      "actualExit": 0,
+      "seconds": 4.783,
+      "logSha256": "11b7b1c1ff54c2303f581f8895a7f7663d15c51ba0995bc72d73b570a480457d",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "4: PASS: 260 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.",
+        "5: {\"catalogs\": 34, \"source_keys\": 606, \"draft_translations\": 3135, \"native_reviewed\": 0, \"fully_UI_qualified\": 0}",
+        "6: PASS: matching retained catalogs",
+        "6: PASS: refused stale-ui",
+        "6: PASS: refused empty-finished",
+        "6: PASS: refused placeholder-loss",
+        "6: PASS: refused placeholder-duplication",
+        "6: PASS: refused file-filter-loss",
+        "6: PASS: refused rich-text-injection",
+        "6: PASS: refused hidden-bidi",
+        "6: PASS: refused ampersand-loss",
+        "6: PASS: refused duplicate-key",
+        "6: PASS: refused missing-key",
+        "6: PASS: refused empty-catalog",
+        "6: PASS: refused qm-corruption",
+        "6: PASS: refused wrong-resource-alias",
+        "6: PASS: actual Linguist update retained unfinished scalar/plural drafts and translator comments.",
+        "6: PASS: 13 isolated corruption/refusal workflows; originals untouched; no native language qualification.",
+        "32: Inspection bundle checks=64; synthetic originating PID, no native-suite compatibility claim",
+        "33: RPP structural checks=174; synthetic only; semantic/native compatibility unqualified",
+        "100% tests passed, 0 tests failed out of 8"
+      ]
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "environment": {
+        "QT_QPA_PLATFORM": "offscreen",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "actualExit": 0,
+      "seconds": 2.35,
+      "logSha256": "2ee36255e745a0f196680fa4aa8f2aec2e0f5165f34681791afaf4b2a9a6ef6d",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "32: Inspection bundle checks=64; synthetic originating PID, no native-suite compatibility claim",
+        "100% tests passed, 0 tests failed out of 3"
+      ]
+    },
+    {
+      "command": [
+        ".cache/build-desktop-release/sc-import-ui-tests",
+        "--screenshots"
+      ],
+      "actualExit": 0,
+      "seconds": 0.329,
+      "logSha256": "290262653d3295b46408acab30e28401fad191117f7efecbad2a98ff2c9a5f88",
+      "observedResult": [
+        "PASS: 48 import preview UI checks; actual child, no project mutation, async retirement."
+      ]
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-core",
+        "--parallel",
+        "2",
+        "--target",
+        "sc-inspection-bundle-tests"
+      ],
+      "actualExit": 0,
+      "seconds": 0.028,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+      "runtimeExecuted": false
+    }
+  ],
+  "screenshotSha256": "2c618f6ccb6d6d4bc44bfba3cab9f35336db9758725fb3604656cdd44470d7d2",
+  "builds": {
+    "linuxRelease": "CMake Release; Qt offscreen; native audio not activated",
+    "linuxSanitizer": "Debug ASan/UBSan CXX=-fsanitize=address,undefined -fno-omit-frame-pointer -fPIC; executable link=-fsanitize=address,undefined -no-pie; leak detection disabled",
+    "windowsCross": "MinGW x64, Release, media/desktop disabled; compiled only, not executed"
+  },
+  "scope": "Synthetic opaque-byte library failures/round-trip plus actual inspection child, GUI Save/Open with original source absent, collision preservation, shared-resource retirement, no canonical project/history mutation, localization/RTL checks. No native-source-suite compatibility.",
+  "localVMStarted": false,
+  "nativeEndpointActivated": false,
+  "windowsNativeBundleExecution": "pending hosted checks",
+  "windowsQtExecutionQualified": false,
+  "installedPreviewChanged": false,
+  "nativeProjectCompatibilityQualified": false,
+  "fullParityPromoted": false,
+  "remainingGates": [
+    "rights-cleared native-writer version corpus and semantic import IR/conversion",
+    "actual process death/power loss/disk-full/device failure",
+    "Linux unsupported filesystem publication fallback",
+    "Windows native/Qt/installed bundle workflows",
+    "cross-platform transfers and network/removable storage",
+    "adversarial directory replacement and cleanup failure",
+    "hard OS sandbox/RSS and blocking storage deadline",
+    "all-Europe translation/native review/UI qualification"
+  ]
+}

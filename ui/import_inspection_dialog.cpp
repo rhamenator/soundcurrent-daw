@@ -4,6 +4,7 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QHeaderView>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLocale>
 #include <QPushButton>
@@ -56,8 +57,12 @@ ImportInspectionDialog::ImportInspectionDialog(QWidget *parent,InspectionOptions
     table->horizontalHeader()->setResizeContentsPrecision(64);
     table->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
     table->verticalHeader()->hide(); layout->addWidget(table,1);
+    auto *files=new QHBoxLayout;
+    choose_=new QPushButton(this); choose_->setObjectName(QStringLiteral("chooseImportProject")); files->addWidget(choose_);
+    open_=new QPushButton(this); open_->setObjectName(QStringLiteral("openImportInspection")); files->addWidget(open_);
+    save_=new QPushButton(this); save_->setObjectName(QStringLiteral("saveImportInspection")); files->addWidget(save_);
+    layout->addLayout(files);
     auto *buttons=new QDialogButtonBox(this);
-    choose_=buttons->addButton(QString(),QDialogButtonBox::ActionRole); choose_->setObjectName(QStringLiteral("chooseImportProject"));
     cancel_=buttons->addButton(QString(),QDialogButtonBox::ActionRole); cancel_->setObjectName(QStringLiteral("cancelImportInspection"));
     close_=buttons->addButton(QDialogButtonBox::Close); layout->addWidget(buttons);
     connect(choose_,&QPushButton::clicked,this,[this] {
@@ -67,6 +72,28 @@ ImportInspectionDialog::ImportInspectionDialog(QWidget *parent,InspectionOptions
             inspect(std::filesystem::path(chosen.toStdWString()));
 #else
             inspect(utf8Path(chosen.toUtf8().toStdString()));
+#endif
+        }
+    });
+    connect(open_,&QPushButton::clicked,this,[this] {
+        const auto chosen=QFileDialog::getOpenFileName(this,tr("Open saved inspection"),{},tr("SoundCurrent inspections (*.scinspect)"));
+        if (!chosen.isEmpty()) {
+#ifdef _WIN32
+            openInspection(std::filesystem::path(chosen.toStdWString()));
+#else
+            openInspection(utf8Path(chosen.toUtf8().toStdString()));
+#endif
+        }
+    });
+    connect(save_,&QPushButton::clicked,this,[this] {
+        auto chosen=QFileDialog::getSaveFileName(this,tr("Save inspection to a new file"),{},
+            tr("SoundCurrent inspections (*.scinspect)"),nullptr,QFileDialog::DontConfirmOverwrite);
+        if (!chosen.isEmpty()) {
+            if (!chosen.endsWith(QStringLiteral(".scinspect"),Qt::CaseInsensitive)) chosen+=QStringLiteral(".scinspect");
+#ifdef _WIN32
+            saveInspection(std::filesystem::path(chosen.toStdWString()));
+#else
+            saveInspection(utf8Path(chosen.toUtf8().toStdString()));
 #endif
         }
     });
@@ -83,9 +110,24 @@ bool ImportInspectionDialog::inspect(const std::filesystem::path &path) {
     if (accepted) { shown_.reset(); model_.setReport({}); poll(); }
     return accepted;
 }
+bool ImportInspectionDialog::openInspection(const std::filesystem::path &path) {
+    if (closing_) return false;
+    const bool accepted=controller_.openBundle(path)==Admission::Accepted;
+    if (accepted) { shown_.reset(); model_.setReport({}); poll(); }
+    return accepted;
+}
+bool ImportInspectionDialog::saveInspection(const std::filesystem::path &path) {
+    if (closing_) return false;
+    const auto report=controller_.snapshot()->report;
+    if (!report) return false;
+    const bool accepted=controller_.saveBundle(path,report)==Admission::Accepted;
+    if (accepted) poll();
+    return accepted;
+}
 void ImportInspectionDialog::retranslate() {
     setWindowTitle(tr("Inspect foreign project")); choose_->setText(tr("Choose project…"));
-    cancel_->setText(tr("Cancel inspection")); close_->setText(tr("Close"));
+    open_->setText(tr("Open inspection…")); save_->setText(tr("Save inspection…"));
+    cancel_->setText(tr("Cancel")); close_->setText(tr("Close"));
     notice_->setText(tr("REAPER project inspection preview. Conversion is not available yet. "
                        "The original file and current project remain unchanged."));
     if (shown_) { model_.setReport({}); model_.setReport(shown_); }
@@ -93,15 +135,27 @@ void ImportInspectionDialog::retranslate() {
 void ImportInspectionDialog::poll() {
     const auto view=controller_.snapshot();
     choose_->setEnabled(!view->busy && !closing_); cancel_->setEnabled(view->busy && !closing_);
+    open_->setEnabled(!view->busy && !closing_);
+    save_->setEnabled(bool(view->report) && !view->busy && !closing_);
     const auto path=view->path.u8string(); file_->setText(QString::fromUtf8(reinterpret_cast<const char *>(path.data()),qsizetype(path.size())));
     if (view->report!=shown_) { shown_=view->report; model_.setReport(shown_); }
     if (closing_) summary_->setText(tr("Stopping inspection…"));
-    else if (view->busy) summary_->setText(tr("Inspecting project…"));
+    else if (view->busy) {
+        if (view->operation==InspectionOperation::SaveBundle) summary_->setText(tr("Saving inspection…"));
+        else if (view->operation==InspectionOperation::OpenBundle) summary_->setText(tr("Opening inspection…"));
+        else summary_->setText(tr("Inspecting project…"));
+    }
+    else if (view->phase==InspectionPhase::Complete && view->operation==InspectionOperation::SaveBundle)
+        summary_->setText(tr("Inspection saved with the original source bytes. Project properties remain unverified."));
     else if (view->phase==InspectionPhase::Complete) summary_->setText(
         tr("%n source line(s) inspected. Project properties are unverified.",nullptr,int(view->report->nodes().size())));
     else if (view->phase==InspectionPhase::Canceled) summary_->setText(tr("Inspection canceled."));
     else if (view->phase==InspectionPhase::Fault) {
-        if (view->timedOut) summary_->setText(tr("Inspection exceeded its time limit."));
+        if (view->operation==InspectionOperation::SaveBundle)
+            summary_->setText(tr("The inspection could not be saved. Choose a new file name in a writable folder; existing files are preserved."));
+        else if (view->operation==InspectionOperation::OpenBundle)
+            summary_->setText(tr("The inspection could not be opened. It may be unreadable, damaged, unsupported, or too large for the available import memory."));
+        else if (view->timedOut) summary_->setText(tr("Inspection exceeded its time limit."));
         else if (view->messageId=="import.resource_limit") summary_->setText(tr("There is not enough import memory, or the file exceeds the inspection limits."));
         else if (view->messageId=="import.invalid_structure") summary_->setText(tr("This project uses invalid or unsupported syntax for this inspector."));
         else if (view->messageId=="import.io_error") summary_->setText(tr("The selected project or inspection worker could not be read."));

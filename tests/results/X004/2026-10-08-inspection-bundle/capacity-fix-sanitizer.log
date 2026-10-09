@@ -1,0 +1,60 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 2
+    Start  2: desktop-import-controller
+
+2: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-controller-tests
+2: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+2: Test timeout computed to be: 60
+2: Import controller checks=73; real child, synthetic project, native compatibility unqualified
+1/4 Test  #2: desktop-import-controller ........   Passed    1.82 sec
+test 3
+    Start  3: desktop-import-ui
+
+3: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-ui-tests
+3: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+3: Environment variables: 
+3:  QT_QPA_PLATFORM=offscreen
+3: Test timeout computed to be: 60
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support raise()
+3: This plugin does not support raise()
+3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.
+2/4 Test  #3: desktop-import-ui ................   Passed    0.52 sec
+test 5
+    Start  5: daw-translation-catalogs
+
+5: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tools/localization.py" "--check"
+5: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+5: Test timeout computed to be: 1500
+5: {"catalogs": 34, "source_keys": 606, "draft_translations": 3135, "native_reviewed": 0, "fully_UI_qualified": 0}
+3/4 Test  #5: daw-translation-catalogs .........   Passed    0.38 sec
+test 32
+    Start 32: inspection-bundle
+
+32: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-inspection-bundle-tests
+32: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+32: Test timeout computed to be: 60
+32: Inspection bundle checks=90; synthetic originating PID, no native-suite compatibility claim
+4/4 Test #32: inspection-bundle ................   Passed    0.05 sec
+
+The following tests passed:
+	desktop-import-controller
+	desktop-import-ui
+	daw-translation-catalogs
+	inspection-bundle
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   2.78 sec

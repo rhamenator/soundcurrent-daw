@@ -12,10 +12,10 @@
     "ui/gui_resources.hpp": "6f1e4b9a8988bb79969c45eeaecda226d3319c3adc0b44938fa287c967f707c4",
     "ui/history_resources_dialog.cpp": "b8e4a2b0303b5bededad4b5b85a46307a3c0cf869da437b025f50c1f088dcdfb",
     "ui/history_resources_dialog.hpp": "f9ce0174b9f6a392b2a8f9af22d2f71d9eb11b4dd4c9eaad392bc62e2e85fad8",
-    "ui/import_inspection_controller.cpp": "7aa657711f99ea6015f90356ed2cad9a82a64a0b5a041601300172200f8c0503",
-    "ui/import_inspection_controller.hpp": "31c5e3a705342153b24db26150e40089df77ddaed0f022a5cd9a9e6a5c678ea5",
-    "ui/import_inspection_dialog.cpp": "079e9b18a48534fcd84341a560b153d55bf38fef553be717bcd4b132de492f1e",
-    "ui/import_inspection_dialog.hpp": "ba10e9c25c4f1d0fe66a0307997933ea1d46e77c7bb7395309bc8df90143423c",
+    "ui/import_inspection_controller.cpp": "3fb3524a8504ac45c0e74ecdeeb2592786c7768bfc0fb62c1f914314509e48b1",
+    "ui/import_inspection_controller.hpp": "1eceb3b2a5384da610e86cb91e48e78aa4eeba714b1a6074555168149fc162f2",
+    "ui/import_inspection_dialog.cpp": "0ba0f8e960a0a86be10531ea6b537ceacb8db5312bf22f23b4fc24c47321959c",
+    "ui/import_inspection_dialog.hpp": "e3b0d6d73c3d6ec312931b52af56fd430b6708de7652ef7b6bb0795c025be525",
     "ui/localization.cpp": "be5c1e4ce406ac5bdd58ba007d87f9043c2e4f13fa773286c7c6bce2c4d45693",
     "ui/localization.hpp": "60c9513cf542d243492c8f330090c05b4f114d5764101042fb984beffdf35bdf",
     "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
@@ -898,6 +898,24 @@
     ],
     [
       "ImportInspectionDialog",
+      "Open saved inspection",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "SoundCurrent inspections (*.scinspect)",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "Save inspection to a new file",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
       "Inspect foreign project",
       "",
       false
@@ -910,7 +928,19 @@
     ],
     [
       "ImportInspectionDialog",
-      "Cancel inspection",
+      "Open inspection…",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "Save inspection…",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "Cancel",
       "",
       false
     ],
@@ -934,7 +964,25 @@
     ],
     [
       "ImportInspectionDialog",
+      "Saving inspection…",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "Opening inspection…",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
       "Inspecting project…",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "Inspection saved with the original source bytes. Project properties remain unverified.",
       "",
       false
     ],
@@ -947,6 +995,18 @@
     [
       "ImportInspectionDialog",
       "Inspection canceled.",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "The inspection could not be saved. Choose a new file name in a writable folder; existing files are preserved.",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "The inspection could not be opened. It may be unreadable, damaged, unsupported, or too large for the available import memory.",
       "",
       false
     ],

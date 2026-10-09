@@ -145,6 +145,18 @@ ForeignSnapshot readForeignSnapshot(const std::filesystem::path &path, std::size
     return input;
 }
 
+ForeignSnapshot copyForeignSnapshot(std::string_view bytes, ResourceLedger resources, std::stop_token stop) {
+    poll(stop);
+    PayloadCharge charge("Owned foreign byte copy",resources.usage().limitBytes);
+    charge.add(sizeof(ForeignSnapshot)); charge.add(bytes.size()); charge.add(1);
+    ForeignSnapshot copy(resources.reserve(charge.bytes()),bytes.size());
+    for (std::size_t offset=0;offset<bytes.size();) {
+        poll(stop); const auto count=std::min<std::size_t>(65536,bytes.size()-offset);
+        std::copy_n(bytes.data()+offset,count,copy.bytes_.data()+offset); offset+=count;
+    }
+    return copy;
+}
+
 std::array<char, 64> hashForeignSnapshot(std::string_view bytes, ResourceLedger resources,
                                 std::stop_token stop) {
     // Existing platform SHA-256 providers. This allowance covers known object

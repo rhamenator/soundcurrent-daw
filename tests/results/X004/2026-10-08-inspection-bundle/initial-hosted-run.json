@@ -1,0 +1,56 @@
+{
+  "sourceCommit": "6804e482a73cfd4b767ebf0f29a844b68391b07d",
+  "runId": 37866371077,
+  "linux": {
+    "artifact": {
+      "id": 11588612993,
+      "node_id": "MDg6QXJ0aWZhY3QxMTU4ODYxMjk5Mw==",
+      "name": "linux-synthetic-test-log",
+      "size_in_bytes": 10151,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11588612993",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11588612993/zip",
+      "expired": false,
+      "digest": "sha256:23f31a1375c9088009e222861cb70ec725f6d1a89df926772a6ad6810495f7ee",
+      "created_at": "2026-10-09T00:53:24Z",
+      "updated_at": "2026-10-09T00:53:24Z",
+      "expires_at": "2027-01-07T00:45:18Z",
+      "workflow_run": {
+        "id": 37866371077,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/import-inspection-bundles",
+        "head_sha": "6804e482a73cfd4b767ebf0f29a844b68391b07d"
+      }
+    },
+    "sha256": "23f31a1375c9088009e222861cb70ec725f6d1a89df926772a6ad6810495f7ee",
+    "selectedPassed": 75,
+    "configured": [
+      75
+    ]
+  },
+  "windows": {
+    "artifact": {
+      "id": 11588263329,
+      "node_id": "MDg6QXJ0aWZhY3QxMTU4ODI2MzMyOQ==",
+      "name": "windows-native-packet-unit-log",
+      "size_in_bytes": 1669,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11588263329",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11588263329/zip",
+      "expired": false,
+      "digest": "sha256:c1c4cdb12d2ebb88f58d50029fd83edd1c159c9f0365443bde6f809686bc874e",
+      "created_at": "2026-10-09T00:48:58Z",
+      "updated_at": "2026-10-09T00:48:58Z",
+      "expires_at": "2027-01-07T00:45:18Z",
+      "workflow_run": {
+        "id": 37866371077,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/import-inspection-bundles",
+        "head_sha": "6804e482a73cfd4b767ebf0f29a844b68391b07d"
+      }
+    },
+    "result": "First publication failed; 10/11 selected passed, 42 configured"
+  },
+  "windowsCross": "passed; no runtime claim",
+  "scope": "Initial hosted failure and scoped Linux/native unit evidence; no Windows Qt or native DAW compatibility."
+}

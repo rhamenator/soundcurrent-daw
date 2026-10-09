@@ -1,0 +1,129 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 2
+    Start  2: desktop-import-controller
+
+2: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-controller-tests
+2: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+2: Test timeout computed to be: 60
+2: Import controller checks=73; real child, synthetic project, native compatibility unqualified
+1/8 Test  #2: desktop-import-controller ..........   Passed    0.80 sec
+test 3
+    Start  3: desktop-import-ui
+
+3: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-ui-tests
+3: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+3: Environment variables: 
+3:  QT_QPA_PLATFORM=offscreen
+3: Test timeout computed to be: 60
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support raise()
+3: This plugin does not support raise()
+3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.
+2/8 Test  #3: desktop-import-ui ..................   Passed    0.27 sec
+test 4
+    Start  4: desktop-localization
+
+4: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-localization-tests
+4: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+4: Environment variables: 
+4:  QT_QPA_PLATFORM=offscreen
+4: Test timeout computed to be: 90
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: Owned localization fixture root: /tmp/sc-localization-59055236-f367-447c-a70c-f6d95478b51a
+4: PASS: 260 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.
+3/8 Test  #4: desktop-localization ...............   Passed    0.66 sec
+test 5
+    Start  5: daw-translation-catalogs
+
+5: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tools/localization.py" "--check"
+5: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+5: Test timeout computed to be: 1500
+5: {"catalogs": 34, "source_keys": 606, "draft_translations": 3135, "native_reviewed": 0, "fully_UI_qualified": 0}
+4/8 Test  #5: daw-translation-catalogs ...........   Passed    0.37 sec
+test 6
+    Start  6: daw-translation-catalog-failures
+
+6: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/translation_catalog_tests.py"
+6: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+6: Test timeout computed to be: 1500
+6: Owned localization catalog fixture root: "/tmp/sc-localization-catalogs-1tneh8qc"
+6: Updating '../../../../../../tmp/sc-daw-translations-z1_bd4tj/source.ts'...
+6:     Found 606 source text(s) (606 new and 0 already existing)
+6: PASS: matching retained catalogs
+6: PASS: refused stale-ui
+6: PASS: refused empty-finished
+6: PASS: refused placeholder-loss
+6: PASS: refused placeholder-duplication
+6: PASS: refused file-filter-loss
+6: PASS: refused rich-text-injection
+6: PASS: refused hidden-bidi
+6: PASS: refused ampersand-loss
+6: PASS: refused duplicate-key
+6: PASS: refused missing-key
+6: PASS: refused empty-catalog
+6: PASS: refused qm-corruption
+6: PASS: refused wrong-resource-alias
+6: PASS: actual Linguist update retained unfinished scalar/plural drafts and translator comments.
+6: PASS: 13 isolated corruption/refusal workflows; originals untouched; no native language qualification.
+5/8 Test  #6: daw-translation-catalog-failures ...   Passed    2.18 sec
+test 32
+    Start 32: inspection-bundle
+
+32: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-inspection-bundle-tests
+32: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+32: Test timeout computed to be: 60
+32: Inspection bundle checks=64; synthetic originating PID, no native-suite compatibility claim
+6/8 Test #32: inspection-bundle ..................   Passed    0.01 sec
+test 33
+    Start 33: reaper-structure
+
+33: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-reaper-structure-tests
+33: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+33: Test timeout computed to be: 60
+33: RPP structural checks=174; synthetic only; semantic/native compatibility unqualified
+7/8 Test #33: reaper-structure ...................   Passed    0.05 sec
+test 34
+    Start 34: import-inspection-worker
+
+34: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/import_inspect_worker_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-inspect-worker"
+34: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+34: Test timeout computed to be: 60
+34: {"checks": 140, "processBoundary": true, "sourceUntouched": true, "nativeDAWCompatibilityQualified": false, "platform": "linux"}
+8/8 Test #34: import-inspection-worker ...........   Passed    0.42 sec
+
+The following tests passed:
+	desktop-import-controller
+	desktop-import-ui
+	desktop-localization
+	daw-translation-catalogs
+	daw-translation-catalog-failures
+	inspection-bundle
+	reaper-structure
+	import-inspection-worker
+
+100% tests passed, 0 tests failed out of 8
+
+Total Test time (real) =   4.77 sec

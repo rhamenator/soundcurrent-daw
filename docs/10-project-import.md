@@ -62,3 +62,14 @@ child-process cancellation/refusal tests. The [desktop inspection preview](115-d
 adds shared admission, strict report validation, async retirement and a read-only
 outline. Persistent opaque state, OS sandboxing, native version/corpus, semantic
 mapping and Windows Qt/installed qualification remain open.
+
+## Portable inspection checkpoint (2026-10-08, later)
+
+[Checkpoint 116](116-inspection-bundles.md) retains exact source/protocol bytes
+in a versioned `.scinspect` file. Save/Open run on the existing admitted I/O
+controller, preserve existing destinations, and keep every property unverified.
+Reopen can succeed with the original source absent and no child process. This
+is persistence of inspection evidence; the import IR, source-writer/version
+corpus, semantic mapping, approved conversion and full adapter program remain
+required. Windows native/Qt/filesystem/installed qualification is tracked
+separately. Existing preview installers are unchanged.

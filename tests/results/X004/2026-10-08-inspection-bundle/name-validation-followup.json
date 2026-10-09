@@ -1,0 +1,85 @@
+{
+  "format": "sc-inspection-name-validation-followup-v1",
+  "utc": "2026-10-09T01:24:26.741640+00:00",
+  "sourceBase": "756732759296151e54a93b999ce9b2f187165663",
+  "sourceSha256": {
+    "src/inspection_bundle.cpp": "1ee5f7f361bee773a963b77819b83a1a383c55e9c825f2a786bde9b22753c387",
+    "tests/inspection_bundle_tests.cpp": "04ce856f7937eb321c698d3ae2d7911aa204a92a737966acdf6e585c0c7f37ac"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-inspection-bundle-tests": "449203cc262f047d714acd7b88921d65761b52c18294bee8af0464832a2b0751",
+    ".cache/build-desktop-release/sc-import-controller-tests": "446a9de08e429cab4229a45e53e6e0bcb9ed7d6a282abb593ea3bfd1d31afb53",
+    ".cache/build-desktop-release/sc-import-ui-tests": "d6249918ba626d82083c4835b6991e84ebd12c8f306d0125d8525b0b0f43dd03",
+    ".cache/build-desktop-sanitized/sc-inspection-bundle-tests": "4be9597ad0feca9eddbd2709092d9ab40b6f07c19a3972442253abaf3a082248",
+    ".cache/build-desktop-sanitized/sc-import-controller-tests": "0239c3a601c4da8777de86c03d4aaee2c8f514ff253e3556e120a8c1e60593d8",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "87cd09d5b926481f06f3ddefac7cd22e83d7dbf04b18d94da204dbbe17bc48eb",
+    ".cache/build-windows-core/sc-inspection-bundle-tests.exe": "320563b6f61736e308ff701e7d2dabd115a705104edb7bdee53c1a99a14c1723"
+  },
+  "steps": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 1.105,
+      "logSha256": "28eb30c237ae4f728c5e51a352e327b1bf42337090bc70400238d521686a6195",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "32: Inspection bundle checks=91; synthetic originating PID, no native-suite compatibility claim",
+        "100% tests passed, 0 tests failed out of 3"
+      ]
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 2.346,
+      "logSha256": "e069c1f225a2371893e7bc07a40b4651c241fb7cac6fb4fd3bd6308965375faa",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "32: Inspection bundle checks=91; synthetic originating PID, no native-suite compatibility claim",
+        "100% tests passed, 0 tests failed out of 3"
+      ]
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-core",
+        "--parallel",
+        "2",
+        "--target",
+        "sc-inspection-bundle-tests"
+      ],
+      "actualExit": 0,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+      "runtimeExecuted": false
+    }
+  ],
+  "priorNativeRun": 37868511248,
+  "priorNativeJob": 113620876630,
+  "priorNativeResult": "Original Win32 probe error 87, then an unexpectedly accepted refusal case; ten other selected native tests passed. Failure artifact preserved. Exact refusal location not present in that earlier log.",
+  "change": "Validate supplied Windows basename before absolute normalization; reject reserved/control characters, device names, streams, drive-relative forms, NUL and trailing dot/space. Require final component unchanged. Preserve all refusal oracles with source-location diagnostics.",
+  "leakDetection": false,
+  "localVMStarted": false,
+  "nativeEndpointActivated": false,
+  "nativeFollowupExecution": "pending hosted checks",
+  "windowsQtQualified": false,
+  "installedPreviewChanged": false,
+  "fullParityPromoted": false
+}

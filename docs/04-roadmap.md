@@ -552,3 +552,13 @@ signal acceptance. A native-rate44.1 kHz input run preserves genuine silence.
 monitoring/playback, rate-conversion timing, installation, sustained/physical and
 all full-parity/language gates remain open. Next connect the Windows device owner
 and output renderer to existing Qt controls and qualify an installable workflow.
+
+## X004 persistence increment (2026-10-08)
+
+The read-only outline now has a bounded versioned exact-source/protocol bundle
+and off-thread desktop Save/Open. Linux synthetic tests are recorded separately
+from native writer/corpus or conversion qualification. See checkpoint 116 and
+ADR083. Next: rights-cleared pinned-writer corpus and a first track/clip import
+IR with explicit per-property loss, opaque state and preview before conversion.
+Complete Windows Qt, filesystem breadth, crash/storage faults and installed
+bundle workflows alongside it. The frozen parity milestones remain unchanged.

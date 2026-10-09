@@ -39,6 +39,34 @@ void directDialog(const std::filesystem::path &input) {
     check(table->editTriggers()==QAbstractItemView::NoEditTriggers,"Table enabled editing");
     check(dialog.width()<=dialog.screen()->availableGeometry().width() &&
           dialog.height()<=dialog.screen()->availableGeometry().height(),"Dialog exceeds display");
+    auto *save=find<QPushButton>(dialog,"saveImportInspection");
+    auto *open=find<QPushButton>(dialog,"openImportInspection");
+    check(save->isEnabled() && open->isEnabled(),"Completed inspection cannot be saved/reopened");
+    const auto originPid=dialog.snapshot()->childPid;
+    const auto destination=input.parent_path()/utf8Path("Inspection été.scinspect");
+    check(dialog.saveInspection(destination),"Save request refused");
+    await([&]{return !dialog.snapshot()->busy;});
+    check(dialog.snapshot()->phase==InspectionPhase::Complete && dialog.snapshot()->savedBytes &&
+          dialog.snapshot()->savedDurability && !dialog.snapshot()->childPid && !dialog.snapshot()->childExit,
+          "Save invented a new child or omitted publication receipt");
+    const auto saved=bytes(destination);
+    check(dialog.saveInspection(destination),"Collision was not reported asynchronously");
+    await([&]{return !dialog.snapshot()->busy;});
+    check(dialog.snapshot()->phase==InspectionPhase::Fault && dialog.snapshot()->report && bytes(destination)==saved,
+          "Save collision destroyed source preview or existing bundle");
+    const auto relocated=input.parent_path()/utf8Path("移動 inspection.scinspect");
+    std::filesystem::rename(destination,relocated);
+    const auto movedSource=input.parent_path()/"temporarily-moved-source.rpp";
+    std::filesystem::rename(input,movedSource);
+    check(dialog.openInspection(relocated),"Relocated bundle not admitted");
+    await([&]{return !dialog.snapshot()->busy;});
+    check(dialog.snapshot()->phase==InspectionPhase::Complete && dialog.snapshot()->report->workerPid()==originPid &&
+          !dialog.snapshot()->childPid && !dialog.snapshot()->childExit && !dialog.snapshot()->savedBytes,
+          "Reopening requires the original source or invents an active child");
+    await([&]{return table->model()->rowCount()==5;});
+    check(table->model()->data(table->model()->index(0,3)).toString()=="Unverified",
+          "Bundle reopened with a verified property");
+    std::filesystem::rename(movedSource,input);
     for (auto *button:dialog.findChildren<QPushButton *>())
         check(button->text()!="Apply","Unverified inspection exposed Apply");
     const auto originalLocale=QLocale();
@@ -85,6 +113,14 @@ void window(const std::filesystem::path &root,const std::filesystem::path &input
     check(w.inspectForeignProject(input),"Window inspection refused");
     await([&]{auto v=w.importInspectionSnapshot();return v && !v->busy;});
     check(w.importInspectionSnapshot()->phase==InspectionPhase::Complete,"Window real child failed");
+    const auto bundle=root/"window-preview.scinspect";
+    check(dialog->saveInspection(bundle),"Window inspection save refused");
+    await([&]{return !dialog->snapshot()->busy;});
+    check(dialog->snapshot()->phase==InspectionPhase::Complete,"Window inspection save failed");
+    check(dialog->openInspection(bundle),"Window inspection reopen refused");
+    await([&]{return !dialog->snapshot()->busy;});
+    check(dialog->snapshot()->phase==InspectionPhase::Complete && !dialog->snapshot()->childPid,
+          "Window inspection reopen failed or invented an active child");
     const auto after=w.snapshot();
     check(after->session==before->session && after->projectEpoch==before->projectEpoch &&
           after->modelRevision==before->modelRevision && after->savedRevision==before->savedRevision &&

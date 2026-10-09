@@ -160,3 +160,15 @@ BCrypt/Windows SHA-256 provider. No library/license choice changes. Python3 is
 required only for native `BUILD_TESTING` worker-process acceptance tests; the
 worker and parser have no Python or Qt runtime dependency. Cross-builds compile
 the worker but do not run its Windows executable on Linux.
+
+## Windows inspection publication follow-up (2026-10-08)
+
+ADR083 selects the documented Windows native `NtSetInformationFile` relative-root
+rename after the original hosted Win32 wrapper failed at new-file publication.
+Resolve from the already-loaded OS `ntdll` module, using an original ABI layout,
+`winternl` SDK types and a synchronous owned handle; refuse a missing API/status
+without a mutable-path fallback. There is no bundled DLL, driver, DLL search or
+new third-party source/dependency. The system-library use changes no GPL source
+license. Manual ABI/status handling and SDK/Windows/filesystem qualification are
+recorded integration/maintenance costs; Store/MSIX compatibility is not assumed.
+See Microsoft's [native rename contract](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information).

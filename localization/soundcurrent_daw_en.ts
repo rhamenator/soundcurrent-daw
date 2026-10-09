@@ -585,6 +585,18 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>REAPER projects (*.rpp)</translation>
     </message>
     <message>
+      <source>Open saved inspection</source>
+      <translation>Open saved inspection</translation>
+    </message>
+    <message>
+      <source>SoundCurrent inspections (*.scinspect)</source>
+      <translation>SoundCurrent inspections (*.scinspect)</translation>
+    </message>
+    <message>
+      <source>Save inspection to a new file</source>
+      <translation>Save inspection to a new file</translation>
+    </message>
+    <message>
       <source>Inspect foreign project</source>
       <translation>Inspect foreign project</translation>
     </message>
@@ -593,8 +605,16 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Choose project…</translation>
     </message>
     <message>
-      <source>Cancel inspection</source>
-      <translation>Cancel inspection</translation>
+      <source>Open inspection…</source>
+      <translation>Open inspection…</translation>
+    </message>
+    <message>
+      <source>Save inspection…</source>
+      <translation>Save inspection…</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancel</translation>
     </message>
     <message>
       <source>Close</source>
@@ -609,8 +629,20 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Stopping inspection…</translation>
     </message>
     <message>
+      <source>Saving inspection…</source>
+      <translation>Saving inspection…</translation>
+    </message>
+    <message>
+      <source>Opening inspection…</source>
+      <translation>Opening inspection…</translation>
+    </message>
+    <message>
       <source>Inspecting project…</source>
       <translation>Inspecting project…</translation>
+    </message>
+    <message>
+      <source>Inspection saved with the original source bytes. Project properties remain unverified.</source>
+      <translation>Inspection saved with the original source bytes. Project properties remain unverified.</translation>
     </message>
     <message numerus="yes">
       <source>%n source line(s) inspected. Project properties are unverified.</source>
@@ -619,6 +651,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Inspection canceled.</source>
       <translation>Inspection canceled.</translation>
+    </message>
+    <message>
+      <source>The inspection could not be saved. Choose a new file name in a writable folder; existing files are preserved.</source>
+      <translation>The inspection could not be saved. Choose a new file name in a writable folder; existing files are preserved.</translation>
+    </message>
+    <message>
+      <source>The inspection could not be opened. It may be unreadable, damaged, unsupported, or too large for the available import memory.</source>
+      <translation>The inspection could not be opened. It may be unreadable, damaged, unsupported, or too large for the available import memory.</translation>
     </message>
     <message>
       <source>Inspection exceeded its time limit.</source>

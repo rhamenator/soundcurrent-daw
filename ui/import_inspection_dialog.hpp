@@ -25,6 +25,8 @@ class ImportInspectionDialog : public QDialog {
   public:
     explicit ImportInspectionDialog(QWidget *,InspectionOptions);
     bool inspect(const std::filesystem::path &);
+    bool openInspection(const std::filesystem::path &);
+    bool saveInspection(const std::filesystem::path &);
     void requestShutdown();
     bool retired() const { return controller_.snapshot()->closed; }
     std::shared_ptr<const InspectionSnapshot> snapshot() const { return controller_.snapshot(); }
@@ -35,7 +37,7 @@ class ImportInspectionDialog : public QDialog {
     ImportInspectionController controller_;
     ImportPreviewModel model_;
     QLabel *file_,*summary_,*notice_;
-    QPushButton *choose_,*cancel_,*close_;
+    QPushButton *choose_,*open_,*save_,*cancel_,*close_;
     QTimer *timer_;
     bool closing_=false;
     std::shared_ptr<const ImportInspectionReport> shown_;

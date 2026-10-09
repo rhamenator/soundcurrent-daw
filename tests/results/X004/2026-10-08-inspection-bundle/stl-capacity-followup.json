@@ -1,0 +1,91 @@
+{
+  "format": "sc-inspection-stl-capacity-followup-v1",
+  "utc": "2026-10-09T01:09:04.747298+00:00",
+  "sourceBase": "a7fe8be538859ed43cd757d2b3c8d350b56500f6",
+  "sourceSha256": {
+    "include/soundcurrent/import_inspection_report.hpp": "bc93c1a1c0249f469d1a5daff85c5508445a7ca55d6df2b6aa9e08762bbea2ee",
+    "src/import_inspection_report.cpp": "f26c2602570c41f2b18f5142389d952730fd91db80e273820c747212f5f9cdf9",
+    "src/inspection_bundle.cpp": "1f21c1935680d84e612f3f4038d5f92ba081fc992846d8dfd168023a47b18349",
+    "ui/import_inspection_controller.cpp": "3fb3524a8504ac45c0e74ecdeeb2592786c7768bfc0fb62c1f914314509e48b1",
+    "localization/source-inventory.json": "aa4d780286f91fadea91c8f0e3791208907c7b59ab2d880e1030a7ccdc42cc90",
+    "tests/inspection_bundle_tests.cpp": "56d0fb6489b2fe65f05da87760c85d9425ddc46b5a91a2c095d3c7b86073cd85"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-inspection-bundle-tests": "39fd6afb5637fe597a340656b0a1ab4b92c09115470655f800e679758ff06514",
+    ".cache/build-desktop-release/sc-import-controller-tests": "f20c142bd05be933279775cd79a72b0335cc116af61eaeef00c2756d8a92d9a5",
+    ".cache/build-desktop-release/sc-import-ui-tests": "0df282eddd283101f66903639f912924ca8f4fb953fa4cad301f4149cb93abeb",
+    ".cache/build-desktop-sanitized/sc-inspection-bundle-tests": "e31f95dabfe4ac75feec78aad5a908edccca4dd41fa8e5a8717682f02b5d8e41",
+    ".cache/build-desktop-sanitized/sc-import-controller-tests": "c211d131328cb66bf910e085a8b6984993bb3c8eaac803bfd9f4888692cc836e",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "c3180a7d204bccc47e62308a203c7b4aceb71c29d3739e4afe01e808ab7d2f60",
+    ".cache/build-windows-core/sc-inspection-bundle-tests.exe": "dd526b37f028abaa560254c7a10e965bc1bbc8ce8ac88e116534f92300d52623"
+  },
+  "steps": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui|daw-translation-catalogs)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 1.537,
+      "logSha256": "a1ed12a16629d2d4bf72acfedcbfa5f0c15232aa73eb71543d3eb5ea440d6714",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "5: {\"catalogs\": 34, \"source_keys\": 606, \"draft_translations\": 3135, \"native_reviewed\": 0, \"fully_UI_qualified\": 0}",
+        "32: Inspection bundle checks=90; synthetic originating PID, no native-suite compatibility claim",
+        "100% tests passed, 0 tests failed out of 4"
+      ]
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui|daw-translation-catalogs)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 2.826,
+      "logSha256": "e8c6ee15ca40a919c5132bd14d6468d107953878455e28153cb6e98381152808",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "5: {\"catalogs\": 34, \"source_keys\": 606, \"draft_translations\": 3135, \"native_reviewed\": 0, \"fully_UI_qualified\": 0}",
+        "32: Inspection bundle checks=90; synthetic originating PID, no native-suite compatibility claim",
+        "100% tests passed, 0 tests failed out of 4"
+      ]
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-core",
+        "--parallel",
+        "2",
+        "--target",
+        "sc-inspection-bundle-tests"
+      ],
+      "actualExit": 0,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+      "runtimeExecuted": false
+    }
+  ],
+  "priorNativeRun": 37867398855,
+  "priorNativeJob": 113617297523,
+  "priorNativeResult": "Win32 probe error 87 confirmed; bundle reopening then refused unadmitted encoded protocol capacity. Ten other selected tests passed; 42 configured. Failed artifact retained.",
+  "change": "Admit 2*n+32 encoded-bank capacity before allocation in load and controller; check actual STL capacity and retire conservative surplus. Supported SSO/heap boundaries and undersized-grant retirement are tested. No after-allocation grant increase excuses shortage.",
+  "leakDetection": false,
+  "localVMStarted": false,
+  "nativeEndpointActivated": false,
+  "nativeFollowupExecution": "pending hosted checks",
+  "windowsQtQualified": false,
+  "installedPreviewChanged": false,
+  "fullParityPromoted": false
+}

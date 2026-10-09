@@ -3225,3 +3225,18 @@ and the complete X004 adapter program remain required. Existing end-user
 installers remain unchanged. All local VMs stayed off; the existing independent
 clone comparison remains pending under its 8 MiB/s cap. The full frozen-reference
 professional DAW goal remains active and incomplete.
+
+## Saved inspection checkpoint (2026-10-08, later)
+
+PR #58 merged at `4bc422c` after all required checks passed. Its exact prior
+head `e391ee9` has retained hosted evidence: 74 Linux tests, ten selected native
+MSVC tests of 41 configured, 129 worker-process checks and Windows cross-build.
+No Windows Qt controller or installed workflow is inferred from those checks.
+
+[Checkpoint 116](116-inspection-bundles.md) adds portable exact-byte inspection
+Save/Open, shared retained protocol admission and preservation of existing
+destinations. Library/controller/UI failure and relocation evidence is separate
+from native semantic import, source-version corpora and platform/install gates.
+34 catalogs now contain 606 source keys; no new reviewed/qualified languages.
+All local VMs stayed off. The same capped independent-clone comparison remains
+pending. The full frozen-reference DAW goal is active and incomplete.

@@ -31,7 +31,12 @@ struct ImportInspectionController::State : QThread {
     mutable QMutex mutex;
     QWaitCondition wake;
     InspectionOptions options;
-    std::optional<std::filesystem::path> queued;
+    struct Request {
+        InspectionOperation operation;
+        std::filesystem::path path;
+        std::shared_ptr<const ImportInspectionReport> report;
+    };
+    std::optional<Request> queued;
     std::stop_source activeStop;
     bool closing=false, busy=false;
     std::uint64_t sequence=0;
@@ -64,9 +69,9 @@ struct ImportInspectionController::State : QThread {
         const auto rowsBytes=inspectionRowsCharge(lines);
         const auto usage=options.memory.usage();
         PayloadCharge fixed("Inspection fixed work",usage.limitBytes);
-        fixed.add(rowsBytes); fixed.add(options.childMemoryBytes); fixed.add(32768);
+        fixed.add(rowsBytes); fixed.add(options.childMemoryBytes); fixed.add(32768+32);
         const auto available=usage.limitBytes-usage.reservedBytes;
-        constexpr auto expansion=inspectionDecoderExpansion+1; // Decoder plus encoded bank.
+        constexpr auto expansion=inspectionDecoderExpansion+2; // Decoder plus conservative string capacity.
         if (available<=fixed.bytes()+expansion*512)
             throw ResourceLimitError("Inspection work",fixed.bytes()+expansion*512,available);
         PayloadCharge encodedBound("Inspection report estimate",std::numeric_limits<std::size_t>::max());
@@ -74,8 +79,9 @@ struct ImportInspectionController::State : QThread {
         const auto reportBytes=std::min({encodedBound.bytes(),options.maximumReportBytes,
                                         (available-fixed.bytes())/expansion});
         const auto parserBytes=inspectionParserCharge(reportBytes);
+        const auto protocolBytes=inspectionProtocolCharge(reportBytes);
         PayloadCharge work("Inspection admitted work",usage.limitBytes);
-        work.add(rowsBytes); work.add(options.childMemoryBytes); work.add(parserBytes); work.add(reportBytes);
+        work.add(rowsBytes); work.add(options.childMemoryBytes); work.add(parserBytes); work.add(protocolBytes);
         auto loan=options.memory.reserve(work.bytes()); // Before any child or response bank.
         std::string output(reportBytes,'\0'); std::array<char,4096> errors{};
         std::size_t used=0, errorUsed=0;
@@ -158,31 +164,56 @@ struct ImportInspectionController::State : QThread {
         if (options.afterChild) options.afterChild(output,view.childPid);
         check(output.size()<=reportBytes,"Qualification hook exceeded admitted bank");
         view.phase=InspectionPhase::Decoding; publish();
-        ResourceLease rowGrant,parserGrant;
+        ResourceLease rowGrant,parserGrant,encodedGrant;
         loan.transferTo(rowGrant,rowsBytes); loan.transferTo(parserGrant,parserBytes);
-        auto result=decodeInspectionReport(output,std::move(source),hash,view.childPid,
+        loan.transferTo(encodedGrant,protocolBytes);
+        auto result=decodeInspectionReport(OwnedInspectionProtocol(std::move(encodedGrant),std::move(output)),
+            std::move(source),hash,view.childPid,
             options.memory,std::move(rowGrant),std::move(parserGrant),stop);
         view.report=std::make_shared<const ImportInspectionReport>(std::move(result));
         view.phase=InspectionPhase::Complete;
     }
     void run() override {
         for (;;) {
-            std::optional<std::filesystem::path> path;
+            std::optional<Request> request;
             std::stop_token stop;
             {
                 QMutexLocker lock(&mutex);
                 while (!queued && !closing) wake.wait(&mutex);
                 if (!queued) break;
-                path=std::move(queued); queued.reset(); view=*latest; stop=activeStop.get_token();
+                request=std::move(queued); queued.reset(); view=*latest; stop=activeStop.get_token();
             }
-            try { execute(*path,stop); }
+            try {
+                if (request->operation==InspectionOperation::InspectSource) execute(request->path,stop);
+                else {
+                    view.phase=request->operation==InspectionOperation::SaveBundle ? InspectionPhase::Saving : InspectionPhase::Loading;
+                    publish();
+                    if (options.beforeBundle) options.beforeBundle();
+                    canceled(stop);
+                    const InspectionBundleLimits limits{options.maximumInputBytes,options.maximumReportBytes};
+                    if (request->operation==InspectionOperation::SaveBundle) {
+                        check(bool(request->report),"No inspection result to save");
+                        auto saving=options.bundleSave; saving.stop=stop;
+                        const auto saved=saveInspectionBundle(request->path,*request->report,options.memory,limits,saving);
+                        view.savedBytes=saved.bytes; view.savedDurability=saved.durability;
+                    } else {
+                        auto result=loadInspectionBundle(request->path,options.memory,limits,stop);
+                        view.report=std::make_shared<const ImportInspectionReport>(std::move(result));
+                    }
+                    // Reopening a historical inspection never invents a child
+                    // process; the report's PID remains originating provenance.
+                    view.phase=InspectionPhase::Complete;
+                }
+            }
             catch (const ProjectError &error) {
                 view.error=error.code();
+                view.canceled=error.code()==ErrorCode::Canceled;
                 if (view.messageId.empty()) view.messageId=id(error.code());
                 view.phase=error.code()==ErrorCode::Canceled ? InspectionPhase::Canceled : InspectionPhase::Fault;
             } catch (const std::exception &) {
                 view.error=ErrorCode::Io; view.messageId="import.worker_failure"; view.phase=InspectionPhase::Fault;
             }
+            request.reset(); // Release the queued borrower before publishing retirement.
             view.busy=false;
             {
                 QMutexLocker lock(&mutex); busy=false;
@@ -197,13 +228,29 @@ ImportInspectionController::ImportInspectionController(InspectionOptions options
     : state_(std::make_unique<State>(std::move(options))) { state_->start(QThread::LowPriority); }
 ImportInspectionController::~ImportInspectionController() { requestShutdown(); state_->wait(); }
 Admission ImportInspectionController::submit(std::filesystem::path path) {
+    return enqueue(InspectionOperation::InspectSource,std::move(path));
+}
+Admission ImportInspectionController::openBundle(std::filesystem::path path) {
+    return enqueue(InspectionOperation::OpenBundle,std::move(path));
+}
+Admission ImportInspectionController::saveBundle(std::filesystem::path path,std::shared_ptr<const ImportInspectionReport> report) {
+    return enqueue(InspectionOperation::SaveBundle,std::move(path),std::move(report));
+}
+Admission ImportInspectionController::enqueue(InspectionOperation operation,std::filesystem::path path,
+    std::shared_ptr<const ImportInspectionReport> report) {
     QMutexLocker lock(&state_->mutex);
     if (state_->closing) return Admission::Closing;
     if (state_->busy || state_->sequence==std::numeric_limits<std::uint64_t>::max()) return Admission::Full;
-    InspectionSnapshot next; next.job=++state_->sequence; next.path=path;
+    InspectionSnapshot next; next.job=state_->sequence+1; next.path=path; next.operation=operation; next.report=report;
     next.busy=true; next.phase=InspectionPhase::Queued;
-    state_->activeStop=std::stop_source{}; state_->queued=std::move(path); state_->busy=true;
-    state_->latest=std::make_shared<const InspectionSnapshot>(std::move(next)); state_->wake.wakeOne();
+    auto prepared=std::make_shared<const InspectionSnapshot>(std::move(next));
+    std::stop_source nextStop;
+    State::Request request{operation,std::move(path),std::move(report)};
+    // Prepare allocating owners before changing admission; a construction
+    // failure must not strand busy=true with no published request/wakeup.
+    state_->activeStop=std::move(nextStop); state_->queued=std::move(request);
+    state_->sequence=prepared->job; state_->busy=true;
+    state_->latest=std::move(prepared); state_->wake.wakeOne();
     return Admission::Accepted;
 }
 void ImportInspectionController::requestCancel() noexcept {
