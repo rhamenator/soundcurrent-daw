@@ -1,0 +1,24 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 37
+    Start 37: import-property-protocol
+
+37: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/import_property_protocol_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-inspect-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-property-report-probe" "/home/rich/dev/soundcurrent-daw/tests/fixtures/reaper-7.82"
+37: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+37: Test timeout computed to be: 120
+37: {"checks": 569, "platform": "linux", "cases": [{"id": "empty", "pid": 618755, "sourceSha256": "7b2f0a838abc82cc0e8a8f3c55cfeda44d7223213bcb177eb56095fe72d54ae9", "objects": 1, "properties": 2}, {"id": "unicode-mono", "pid": 618762, "sourceSha256": "8e1aed49bba6867947c1cd90e43937389f17f87edd27cc4adb5429b3bbc79345", "objects": 4, "properties": 20}, {"id": "offset-fades", "pid": 618766, "sourceSha256": "ee2ca2e11ce52b37e3ef929798d8e73427f46acd7b70d04548a2d83a705bdc55", "objects": 6, "properties": 33}, {"id": "stereo-gain-pan", "pid": 618770, "sourceSha256": "0721d640a1a62b535a854f5a6d94eecd0fd0ccec7f054cde7a93b77f9e2e65e0", "objects": 4, "properties": 20}, {"id": "rate-pitch", "pid": 618777, "sourceSha256": "f4a62e9708daacf53c6282d19eff6c537377456896852b6b2da055c350a8b2e9", "objects": 4, "properties": 20}, {"id": "opaque-state-routing", "pid": 618781, "sourceSha256": "77ac5b159f5aa38091a8046f8bc8645b49c34223d5daa50bfa6fd8282b5c5241", "objects": 5, "properties": 25}, {"id": "midi-tempo", "pid": 618785, "sourceSha256": "bad42422264c44a6f46a702340ccb818b32fa747a0cee2b0efd7a2a84262ba5a", "objects": 4, "properties": 19}], "realWorkerAndIndependentDecoder": true, "corruptChecksumRecomputedCases": 28, "syntheticEvidenceCases": 7, "semanticImportQualified": false, "renderComparisonQualified": false}
+1/1 Test #37: import-property-protocol .........   Passed    5.29 sec
+
+The following tests passed:
+	import-property-protocol
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   5.29 sec

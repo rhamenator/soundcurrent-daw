@@ -51,10 +51,10 @@ def property_value(result, object_id, field_id, expected, status=0):
 with tempfile.TemporaryDirectory(prefix="sc-property-report-") as temporary:
     root = Path(temporary) / "été-Δοκιμή-Київ"
     root.mkdir()
-    manifest = json.loads((corpus / "manifest.json").read_text())
+    manifest = json.loads((corpus / "manifest.json").read_text(encoding="utf-8"))
     for case in manifest["cases"]:
         source = (corpus / case["file"]).read_bytes()
-        witness = json.loads((corpus / case["observation"]).read_text())["afterReopen"]
+        witness = json.loads((corpus / case["observation"]).read_text(encoding="utf-8"))["afterReopen"]
         selected = root / (case["id"] + ".rpp")
         selected.write_bytes(source)
         child = subprocess.Popen([str(worker), "--rpp-properties", str(selected),

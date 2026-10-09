@@ -79,7 +79,10 @@ The new boundary test runs real children on seven original REAPER7.82/Linux
 save/reopen witnesses and uses a separate C++ parent decoder. It also accepts seven
 truthful malformed/ambiguous synthetic cases and rejects28 corrupted reports with
 valid recomputed checksums, including same-line token swaps and false evidence.
-The original failing swap regression is retained before the correction.
+The original failing swap regression is retained before the correction. A later
+test-only follow-up reads native manifest/witness text explicitly as UTF-8 on
+every host; its separate Release/sanitizer receipts each retain569 checks without
+changing the product binaries or frozen source corpus.
 
 MinGW builds the worker, parent/probe, bundle and property targets without running
 Windows binaries. New native hosted execution and Windows Qt/installed workflow
