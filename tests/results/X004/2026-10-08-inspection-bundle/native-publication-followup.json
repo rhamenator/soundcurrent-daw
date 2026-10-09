@@ -1,0 +1,85 @@
+{
+  "format": "sc-inspection-native-publication-followup-v1",
+  "utc": "2026-10-09T00:56:21.093380+00:00",
+  "sourceBase": "6804e482a73cfd4b767ebf0f29a844b68391b07d",
+  "sourceSha256": {
+    "src/inspection_bundle.cpp": "5b4dd603077174bc4559e74d2d5c04eed42676d7291d1bab0abffdfc623994c5",
+    "tests/inspection_bundle_tests.cpp": "81c1da0ebea9cdd194d0da7f6d0665dd5da6e62f07297d7ecbe73bba7090e252"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-inspection-bundle-tests": "340c35b2fc4f03efbcf2b5a56572c07c5ac3b38fb1a84656f0e0b14cfa0976c2",
+    ".cache/build-desktop-release/sc-import-controller-tests": "be5118344909da88263e95d482fafbd3f4bc11674ffc41222518370ca6b797f0",
+    ".cache/build-desktop-release/sc-import-ui-tests": "ddd1f82234e61328d2d3c29026ab20e3928c5aa98206ce7d7e03c8f4769286e6",
+    ".cache/build-desktop-sanitized/sc-inspection-bundle-tests": "c201690a8eac014ae379ae5e44d732662c29b214a0ce9980d729d84d1d773431",
+    ".cache/build-desktop-sanitized/sc-import-controller-tests": "988585f571466198f6a135c4f350ea37e7094bb0f20d04dccafec94262bc4296",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "cc68c9da57d3965b030949eefa2f1349bef71cf7edaaa4f7362ae434f349918b",
+    ".cache/build-windows-core/sc-inspection-bundle-tests.exe": "6fa78b02d2571091917daa4b9cd8372ae5c08ca94d536dde9a61e2ff1e6930c5"
+  },
+  "steps": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 1.113,
+      "logSha256": "0c827a09604e99ef948a67d05f5b66afd12bb62370eee251c0e0054b5fa063bb",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "32: Inspection bundle checks=64; synthetic originating PID, no native-suite compatibility claim",
+        "100% tests passed, 0 tests failed out of 3"
+      ]
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^(inspection-bundle|desktop-import-controller|desktop-import-ui)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 2.296,
+      "logSha256": "bc5d51db869808fe6c59ddf09ca296d29d7bf8a96f0ef5c9f2ff1c64f86ab894",
+      "observedResult": [
+        "2: Import controller checks=73; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 47 import preview UI checks; actual child, no project mutation, async retirement.",
+        "32: Inspection bundle checks=64; synthetic originating PID, no native-suite compatibility claim",
+        "100% tests passed, 0 tests failed out of 3"
+      ]
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-core",
+        "--parallel",
+        "2",
+        "--target",
+        "sc-inspection-bundle-tests"
+      ],
+      "actualExit": 0,
+      "logSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+      "runtimeExecuted": false
+    }
+  ],
+  "initialNativeRun": 37866371077,
+  "initialNativeJob": 113613941170,
+  "initialNativeResult": "MSVC compilation passed; first bundle new-file publication failed, ten other selected tests passed from 42 configured. Complete failed CTest artifact retained.",
+  "change": "Use native relative-root NtSetInformationFile through already-loaded ntdll, retaining synchronous owned handles, fixed native ABI bank and no replacement. Native-only owned probe records old Win32 API result/error. No absolute destination or DLL path search fallback.",
+  "leakDetection": false,
+  "localVMStarted": false,
+  "nativeEndpointActivated": false,
+  "nativeFollowupExecution": "pending hosted checks",
+  "windowsQtQualified": false,
+  "installedPreviewChanged": false,
+  "fullParityPromoted": false
+}

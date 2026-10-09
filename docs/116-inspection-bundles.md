@@ -71,13 +71,20 @@ without the required procfs access, are refused; a portable safe fallback remain
 a delivery gate. This implementation follows the [Linux link API](https://man7.org/linux/man-pages/man2/link.2.html).
 
 On Windows, a unique new temporary is kept through an exclusive owned handle.
-The file is flushed and renamed relative to the selected directory handle with
-replacement disabled. Failure cleanup marks the owned file for deletion by
-handle. Reserved device names, alternate streams and trailing-dot/space names
-are refused. Windows reports file-flushed durability, not directory-flushed
-power-loss protection. See Microsoft's [rename structure](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_rename_info)
-and [handle-information API](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileinformationbyhandle).
-Native execution is a separate qualification gate from cross-compilation.
+The file is flushed and published relative to the selected directory with
+replacement disabled. The initial hosted Win32 `FileRenameInfo` relative-root
+call failed on its first new-file publication; the failed native log is retained.
+The follow-up uses the documented native `NtSetInformationFile` relative-root
+contract, resolving the function from the already-loaded Windows `ntdll` module.
+It opens the directory for traverse/read-attributes and keeps the synchronous
+file handle/buffer through completion. No mutable absolute destination fallback
+or DLL path search is used. Failure cleanup still marks the owned file for
+deletion by handle. Device names, streams and trailing-dot/space names are
+refused. Windows reports file-flushed durability, not directory-flushed power-loss
+protection. See Microsoft's [native rename structure](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information)
+and [native information API](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntsetinformationfile).
+The narrow OS API choice and remaining SDK/platform qualification costs are in
+ADR083. Follow-up native execution remains pending independently of cross-build.
 
 ## Evidence and open gates
 
@@ -97,6 +104,13 @@ tests (41 configured), including 129 actual worker-process checks. That
 [hosted receipt](../tests/results/X004/2026-10-08-hosted-desktop-inspection/receipt.json)
 qualifies the earlier controller/package revision only; it excludes this bundle
 change, Windows Qt execution, installed previews and audio endpoints.
+
+The first hosted bundle revision `6804e48` compiled with MSVC but failed its
+new-file publication check; ten other selected tests passed (42 configured).
+The [failed native artifact](../tests/results/X004/2026-10-08-inspection-bundle/initial-windows-ctest.zip)
+and metadata are retained. A follow-up native-only probe records the original
+Win32 call's actual error without treating it as an accepted fallback. No test
+oracle is relaxed; the complete bundle suite must pass with the corrected API.
 
 New strings are extracted into 34 partial/source catalogs with 606 contextual
 keys. Draft translations remain 3,135; no native-speaker or full UI qualification

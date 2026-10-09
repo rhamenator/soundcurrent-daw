@@ -4,6 +4,12 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 using namespace soundcurrent::daw;
 namespace {
 int checks=0;
@@ -19,6 +25,31 @@ template<class F> void refused(F f) {
     bool failed=false; try { f(); } catch(const ProjectError &) {failed=true;}
     check(failed,"Unsafe/truncated bundle operation accepted");
 }
+#ifdef _WIN32
+void legacyRenameProbe(const std::filesystem::path &root) {
+    const auto parent=CreateFileW(root.c_str(),FILE_READ_ATTRIBUTES|FILE_TRAVERSE,
+        FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,nullptr);
+    check(parent!=INVALID_HANDLE_VALUE,"Probe directory handle failed");
+    const auto file=CreateFileW((root/L"legacy-probe.partial").c_str(),GENERIC_WRITE|DELETE,0,
+        nullptr,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,nullptr);
+    if (file==INVALID_HANDLE_VALUE) {CloseHandle(parent);throw std::runtime_error("Probe file failed");}
+    check(file!=INVALID_HANDLE_VALUE,"Probe file handle failed");
+    constexpr wchar_t name[]=L"legacy-probe.scinspect";
+    alignas(FILE_RENAME_INFO) std::array<std::byte,512> bank{};
+    auto *info=reinterpret_cast<FILE_RENAME_INFO *>(bank.data());
+    info->RootDirectory=parent;info->FileNameLength=sizeof(name)-sizeof(wchar_t);
+    std::memcpy(info->FileName,name,sizeof(name));
+    const auto success=SetFileInformationByHandle(file,FileRenameInfo,info,
+        static_cast<DWORD>(sizeof(FILE_RENAME_INFO)+sizeof(name)));
+    const auto error=success ? 0 : GetLastError();
+    FILE_DISPOSITION_INFO dispose{};dispose.DeleteFile=TRUE;
+    const auto cleaned=SetFileInformationByHandle(file,FileDispositionInfo,&dispose,sizeof(dispose));
+    CloseHandle(file);CloseHandle(parent);
+    check(cleaned!=0,"Owned probe cleanup failed");
+    std::cout<<"Win32 relative-root rename probe success="<<success<<" error="<<error
+             <<"; original API observation, not a product fallback\n";
+}
+#endif
 ImportInspectionReport fixture(ResourceLedger ledger) {
     // Explicit synthetic inventory; no foreign grammar is parsed by the loader.
     const std::string text="<REAPER_PROJECT 0.1 7.74\r\n <TRACK foreign\r\n NAME opaque-\xff\r\n >\r\n>";
@@ -58,6 +89,9 @@ int main() {
     try {
         const auto root=std::filesystem::temp_directory_path()/std::filesystem::path("sc-bundle-"+Id::generate().str());
         std::filesystem::create_directory(root);
+#ifdef _WIN32
+        legacyRenameProbe(root);
+#endif
         ResourceLedger memory(8*1024*1024);
         {
             auto report=fixture(memory);

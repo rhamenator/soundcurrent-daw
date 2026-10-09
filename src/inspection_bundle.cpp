@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/inspection_bundle.hpp>
 #include <algorithm>
+#include <bit>
 #include <cstring>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
 #include <windows.h>
+#include <winternl.h>
 #else
 #include <cerrno>
 #include <fcntl.h>
@@ -60,7 +62,7 @@ class NewFile {
              ((prefix[3]>=L'1' && prefix[3]<=L'9') || prefix[3]==L'\u00b9' || prefix[3]==L'\u00b2' || prefix[3]==L'\u00b3'));
         check(!device,"Reserved Windows destination name refused",ErrorCode::InvalidParameter);
         const auto temporary=absolute.parent_path()/std::filesystem::path(".sc-inspection-"+Id::generate().str()+".partial");
-        parent_=CreateFileW(absolute.parent_path().c_str(),FILE_READ_ATTRIBUTES,
+        parent_=CreateFileW(absolute.parent_path().c_str(),FILE_READ_ATTRIBUTES|FILE_TRAVERSE,
             FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,nullptr);
         check(parent_!=INVALID_HANDLE_VALUE,"Cannot open inspection destination directory",ErrorCode::Io);
         BY_HANDLE_FILE_INFORMATION info{};
@@ -128,15 +130,29 @@ class NewFile {
 #ifdef _WIN32
         const auto name=destination_.native();
         const auto length=name.size()*sizeof(wchar_t);
-        alignas(FILE_RENAME_INFO) std::array<std::byte,4096> bank{};
-        check(length<=bank.size()-offsetof(FILE_RENAME_INFO,FileName),"Inspection destination name too long",ErrorCode::InvalidParameter);
-        auto *rename=reinterpret_cast<FILE_RENAME_INFO *>(bank.data());
-        rename->ReplaceIfExists=FALSE; rename->RootDirectory=parent_;
-        rename->FileNameLength=static_cast<DWORD>(length);
-        std::memcpy(rename->FileName,name.data(),length);
-        check(SetFileInformationByHandle(file_,FileRenameInfo,rename,
-              static_cast<DWORD>(offsetof(FILE_RENAME_INFO,FileName)+length))!=0,
-              "Cannot publish new inspection file; destination may already exist",ErrorCode::Io);
+        // Original layout of documented FILE_RENAME_INFORMATION; the desktop
+        // SDK's winternl.h does not expose this structure on every toolchain.
+        struct Rename { BOOLEAN replace; HANDLE root; ULONG length; WCHAR name[1]; };
+        alignas(Rename) std::array<std::byte,4096> bank{};
+        check(length<=bank.size()-sizeof(Rename),"Inspection destination name too long",ErrorCode::InvalidParameter);
+        auto *rename=reinterpret_cast<Rename *>(bank.data());
+        rename->replace=FALSE; rename->root=parent_; rename->length=static_cast<ULONG>(length);
+        std::memcpy(rename->name,name.data(),length);
+        // The initial hosted Win32 relative-root call failed. Use the documented
+        // native relative-root contract without resolving a mutable full path.
+        // ntdll is already loaded by Windows; no DLL path/search is performed.
+        using RenameFunction=NTSTATUS (NTAPI *)(HANDLE,PIO_STATUS_BLOCK,PVOID,ULONG,FILE_INFORMATION_CLASS);
+        const auto module=GetModuleHandleW(L"ntdll.dll");
+        const auto entry=module ? GetProcAddress(module,"NtSetInformationFile") : nullptr;
+        check(entry!=nullptr,"Windows native rename unavailable",ErrorCode::Io);
+        const auto renameFile=std::bit_cast<RenameFunction>(entry);
+        IO_STATUS_BLOCK completion{};
+        // CreateFileW above opens a synchronous file: the buffer/handles remain
+        // owned until this synchronous call returns its completion status.
+        const auto status=renameFile(file_,&completion,rename,static_cast<ULONG>(sizeof(Rename)+length),
+                                    static_cast<FILE_INFORMATION_CLASS>(10));
+        if (status!=0) throw ProjectError(ErrorCode::Io,
+            "Cannot publish new inspection file; native status="+std::to_string(static_cast<std::uint32_t>(status)));
         published_=true; return Durability::FileFlushed;
 #else
         const auto descriptor="/proc/self/fd/"+std::to_string(file_);

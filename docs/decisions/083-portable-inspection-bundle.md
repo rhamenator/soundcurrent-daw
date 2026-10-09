@@ -19,13 +19,27 @@ introduced; existing BCrypt/OpenSSL and platform APIs supply hashing/publication
 Publish only to new destinations. Linux uses an owned anonymous temporary plus
 `linkat` into a pinned directory, preventing replacement; this requires supporting
 filesystems and procfs, with no unqualified fallback. Windows keeps an exclusive
-new file handle through `FlushFileBuffers` and relative `FileRenameInfo` with
-`ReplaceIfExists=FALSE`; failed temporary cleanup uses `FileDispositionInfo` on
-the owned handle. No path-based recursive cleanup or unverified overwrite is
-performed. Microsoft's [rename contract](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_rename_info),
-[handle update API](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileinformationbyhandle)
-and the [Linux link contract](https://man7.org/linux/man-pages/man2/link.2.html)
-supply the platform rationale; passing native tests is still required.
+new file through `FlushFileBuffers`; failed cleanup uses `FileDispositionInfo` on
+the owned handle. The first hosted Win32 relative-root `FileRenameInfo` call
+failed at publication, despite successful cross-compilation. Retain that failure
+and use the native relative-root `NtSetInformationFile(FileRenameInformation)`
+contract with replacement disabled, synchronous file handles, a fixed original
+ABI layout, traverse/read-attribute directory access and checked completion.
+Resolve the entry from the already-loaded Windows `ntdll` module; fail if missing,
+and perform no DLL path search or absolute-destination fallback. An owned native
+probe records the old API observation while the unchanged publication/collision
+oracles qualify the new route.
+
+This uses an existing Windows OS component; it adds no redistributed library,
+third-party source or license obligation. Integration/maintenance costs: manual
+native ABI layout/function signature with Win32 `winternl` types, checking numeric
+NT completion status, SDK/toolchain differences, and separate native platform/
+filesystem qualification. Microsoft documents the [native rename structure](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information)
+and [NtSetInformationFile](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntsetinformationfile),
+including user-mode use. The [Linux link contract](https://man7.org/linux/man-pages/man2/link.2.html)
+supplies the Linux rationale. This is a narrowly selected desktop OS API, not a
+Windows Store/MSIX compatibility or all-filesystem claim. Native tests must pass.
+No path-based recursive cleanup or unverified overwrite is performed.
 
 Alternatives: ZIP adds decompression/archive-path complexity to a byte-preserving
 preview; a converted canonical project would falsely imply semantics; a source
