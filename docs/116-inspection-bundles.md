@@ -142,7 +142,7 @@ representation with per-property preservation/loss evidence, retained opaque
 state and unresolved media/plugin placeholders. Preview before an explicit new
 project conversion transaction; verify source preservation, cancellation, Undo,
 reopen and render alignment independently on Linux and Windows. Complete the
-bundle platform/filesystem/install gates alongside that work. Bitwig/Cubase and
+bundle platform/filesystem/install gates alongside that work. Reference A/Reference B and
 the other registered native/exchange adapters remain required.
 
 ## Windows destination-name follow-up

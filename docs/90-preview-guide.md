@@ -109,7 +109,7 @@ The container shares the host kernel and uses private Xvfb/PipeWire, not a compl
 fresh Ubuntu desktop. The installed-app workflow above uses an owned source and
 sink, with no physical audio device or real-time scheduling qualification. Menu
 launch, Wayland/HiDPI, physical latency, sustained sessions, setup failure/recovery
-and native Windows remain open. No frozen Bitwig/Cubase parity family is complete.
+and native Windows remain open. No frozen Reference A/Reference B parity family is complete.
 
 Two recording limitations are retained in the evidence: an earlier audiotestsrc
 route stopped with a clock discontinuity after 1,024 frames, and the successful

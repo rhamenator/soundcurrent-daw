@@ -1,7 +1,7 @@
 # Device-format diagnostics
 
 This checkpoint advances the recording/playback preview and X007 installation
-experience. The frozen Bitwig/Cubase target and F/Q/C/N gaps remain unchanged.
+experience. The frozen Reference A/Reference B target and F/Q/C/N gaps remain unchanged.
 
 ## Workflow
 

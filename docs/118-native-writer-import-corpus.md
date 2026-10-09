@@ -60,7 +60,7 @@ under `tests/results/X004/2026-10-09-native-writer-corpus`. Hosted MSVC inspecti
 of these **Linux-generated** bytes is pending. This does not exercise a Windows
 source writer, Qt/bundle workflow, media conversion, aligned rendering, complex
 plugin state, complete RPP grammar or the complete native compatibility program.
-Native Bitwig/Cubase and the other registered native/exchange adapters remain
+Native Reference A/Reference B and the other registered native/exchange adapters remain
 required. No local VM, user audio route or installed preview was changed.
 
 PR60's separate exact head `d1eafaeb` passed75 Linux tests and twelve selected

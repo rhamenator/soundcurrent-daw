@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin
 import hashlib, json, requests
 from bs4 import BeautifulSoup
+from reference_labels import neutral_title
 
 ROOT = Path(__file__).resolve().parents[1]
 if (ROOT / 'research' / 'sources.json').exists():
@@ -66,7 +67,7 @@ selected.update({
 def collect(item):
     url,title = item
     key = hashlib.sha256(url.encode()).hexdigest()[:16]
-    result = dict(id=key,title=title,url=url,accessed='2026-10-05')
+    result = dict(id=key,title=neutral_title(title),url=url,accessed='2026-10-05')
     try:
         raw = fetch(url)
         result.update(sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw),retrieved=True)

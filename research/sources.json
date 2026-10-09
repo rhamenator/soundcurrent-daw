@@ -307,7 +307,7 @@
   },
   {
     "id": "195d642f11e92105",
-    "title": "4. Browsers in Bitwig Studio",
+    "title": "4. Browsers in Reference A",
     "url": "https://www.bitwig.com/userguide/latest/browsers",
     "accessed": "2026-10-05",
     "sha256": "53f5519502b7e20a9ad05a6b5e35b51feb6f8709ab2b0ca88cd75ed3fa137116",
@@ -424,7 +424,7 @@
   },
   {
     "id": "0cbe36169752a815",
-    "title": "Bitwig release downloads",
+    "title": "Reference A release downloads",
     "url": "https://www.bitwig.com/download/",
     "accessed": "2026-10-05",
     "sha256": "8c90f779b499d37d823c839d57e7cae01c90fe4734f7d8d8f07262e7e7dfb4e0",
@@ -433,7 +433,7 @@
   },
   {
     "id": "f223318bb843b8d1",
-    "title": "Bitwig 6.1.3 release notes",
+    "title": "Reference A 6.1.3 release notes",
     "url": "https://www.bitwig.com/dl/Bitwig%20Studio/6.1.3/release_notes/",
     "accessed": "2026-10-05",
     "sha256": "1dd79ca8acc0a9dee8412d5be9a080afa0fbcc4f754e677d5ace001e90c7ac15",
@@ -442,7 +442,7 @@
   },
   {
     "id": "3440c86dbe452510",
-    "title": "Bitwig 6.1 and 6.0 documentation",
+    "title": "Reference A 6.1 and 6.0 documentation",
     "url": "https://downloads.bitwig.com/6.1/Release-Notes-6.1.pdf",
     "accessed": "2026-10-05",
     "sha256": "dccd1e1e60653ceb07086e57ad763b9b9a102135a3ce1bf02e89b286a74f9685",
@@ -451,7 +451,7 @@
   },
   {
     "id": "7ddc4671d6f91921",
-    "title": "Cubase 15 release downloads",
+    "title": "Reference B 15 release downloads",
     "url": "https://o.steinberg.net/en/support/downloads/cubase_15.html",
     "accessed": "2026-10-05",
     "sha256": "c5ca53a5e39fa282304bbbf1e847170004dac62aaf70383a89b122e85caa8b23",
@@ -460,7 +460,7 @@
   },
   {
     "id": "bb454d01ddfbbc68",
-    "title": "Cubase Pro 15 manual index",
+    "title": "Reference B 15 manual index",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en",
     "accessed": "2026-10-05",
     "sha256": "62a55e1c9f1e79514cd4ce2a25ac895fb7a9b021c848d3366645372101bd33a7",
@@ -469,7 +469,7 @@
   },
   {
     "id": "c9be5dc91d04bae7",
-    "title": "Bitwig general manual 5.3 index",
+    "title": "Reference A general manual 5.3 index",
     "url": "https://www.bitwig.com/userguide/latest/",
     "accessed": "2026-10-05",
     "sha256": "6b1b2dee2a5935c6bd1f33edd737c3710952d3b5e7f64f081cd89c3b5ffe4d12",
@@ -478,7 +478,7 @@
   },
   {
     "id": "a0bc197c2f59498e",
-    "title": "Cubase Pro 15 manual PDF",
+    "title": "Reference B 15 manual PDF",
     "url": "https://www.steinberg.help/api/khub/documents/O4PvzgK5U8lOyn4ANi_gKg/content",
     "accessed": "2026-10-05",
     "sha256": "59760cfc92d9c165cd0b2e7cad9c78f4dc9b04be4d70c11e77b0ff76126235b2",
@@ -560,7 +560,7 @@
   {
     "id": "8f7bc1c4dcdd44e8",
     "url": "https://github.com/bitwig/dawproject",
-    "title": "GitHub - bitwig/dawproject: Open exchange format for DAWs \u00b7 GitHub",
+    "title": "GitHub - Reference A/dawproject: Open exchange format for DAWs \u00b7 GitHub",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "f742e6d6c323df08df9cd4470c32455d72eacf13c8572527564f9d98c60860af",
@@ -713,7 +713,7 @@
   {
     "id": "3f20efce3a90e337",
     "url": "https://www.bitwig.com/userguide/latest/intro_to_tracks/",
-    "title": "Userguide | Bitwig",
+    "title": "Userguide | Reference A",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "54516a59ecac1f0e612de824066bb48272defe1890eef5f781331fe93a191ba5",
@@ -722,7 +722,7 @@
   {
     "id": "29952e7064892724",
     "url": "https://www.bitwig.com/userguide/latest/recording_clips/",
-    "title": "Userguide | Bitwig",
+    "title": "Userguide | Reference A",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "b386d53a420c8515c4072c0a07b8e596296d322da00326e5bba7c8fda5711ce6",
@@ -731,7 +731,7 @@
   {
     "id": "eb1e5097b94d6a63",
     "url": "https://www.bitwig.com/userguide/latest/recording_launcher_clips/",
-    "title": "Userguide | Bitwig",
+    "title": "Userguide | Reference A",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "a2958515607feccb64d14a5772ee79c66db68b6b0f825740bfa20d381d780a4c",
@@ -740,7 +740,7 @@
   {
     "id": "1e35d80edfe2fa7f",
     "url": "https://www.bitwig.com/userguide/latest/the_unified_modulation_system/",
-    "title": "Userguide | Bitwig",
+    "title": "Userguide | Reference A",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "6e35634e5acc4d1b88b6d118d9b3c9f313b9694eb55a28217f8619a08749a508",
@@ -749,7 +749,7 @@
   {
     "id": "c2c5f15e2102a1a7",
     "url": "https://www.bitwig.com/userguide/latest/triggering_launcher_clips_0/",
-    "title": "Userguide | Bitwig",
+    "title": "Userguide | Reference A",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "500299abe7d31dcdbc9c2dfc4d5afd6723cd0c90462e662b85b5fd881c1707ed",
@@ -758,7 +758,7 @@
   {
     "id": "5009c5dc074f9487",
     "url": "https://www.bitwig.com/userguide/latest/vst_plug-in_handling_and_options/",
-    "title": "Userguide | Bitwig",
+    "title": "Userguide | Reference A",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "7f6073e5a7ff8f9287e9b24d73c92e7c4e67565efa879910d20aa49f6034496e",
@@ -776,7 +776,7 @@
   {
     "id": "dbb0572e2ea166a5",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_external_effects_c.html?contentId=1L2LaWBT2NBSFeTzYlT07Q",
-    "title": "External Effects - Cubase Pro - 15.0",
+    "title": "External Effects - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "13a1100886db65953af24a3f5a391546b0f0299a06c9acdbbb4c58822735228c",
@@ -785,7 +785,7 @@
   {
     "id": "d46b006bd9bd9186",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/audio_effects/audio_effects_vst_3_standard_c.html?contentId=YGoJ2ZkdFZyrJI~UJu~mOA",
-    "title": "VST Standard - Cubase Pro - 15.0",
+    "title": "VST Standard - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "c510dc6193e9880f858f157dbf49a1336114e1884695987570eed0d061bd363d",
@@ -794,7 +794,7 @@
   {
     "id": "402b699cc248e462",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/exchanging_files_with_other_applications/exchanging_files_with_other_applications_dawproject_files_c.html?contentId=RGoAWE2opX7pZFS9SoYUWg",
-    "title": "DAWproject Files - Cubase Pro - 15.0",
+    "title": "DAWproject Files - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "75fb23d8dc7da559a4d0c450a17bbce068c55edd9695335de51812ba4f86328b",
@@ -803,7 +803,7 @@
   {
     "id": "f6cf655d88b7bca4",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/exchanging_files_with_other_applications/exchanging_files_with_other_applications_exporting_adm_files_t.html?contentId=06fUEzNewax7nfeV5dNt4g",
-    "title": "Exporting ADM Files - Cubase Pro - 15.0",
+    "title": "Exporting ADM Files - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "461d7e8c421c14f0da04e69246b9e80848a4b95ab70beb0c96d170be25d01631",
@@ -812,7 +812,7 @@
   {
     "id": "07737beea13bae7c",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_audio_c.html?contentId=uuFaWYxtMpkKKzCUA0JtDw",
-    "title": "Audio Recording - Cubase Pro - 15.0",
+    "title": "Audio Recording - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "219a946091903cabcac9af9191a79d22fdbdc793277bfd600249b1718f3e6d6f",
@@ -821,7 +821,7 @@
   {
     "id": "e418ec6a79bd1d29",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_recording_midi_c.html?contentId=zMkluR0omNKWXwZYqXajlg",
-    "title": "MIDI Recording - Cubase Pro - 15.0",
+    "title": "MIDI Recording - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "aca0867191598b440367e1e5b34409399bd3a450fab24a5fa6f754ac807349f5",
@@ -830,7 +830,7 @@
   {
     "id": "8ef3dbcdc061b8f1",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/surround_sound/surround_sound_ambisonics_head_tracking_data_c.html?contentId=VriSfIpHxRtLRV9wfeR7~A",
-    "title": "Head-Tracking Data from VR Controller Devices - Cubase Pro - 15.0",
+    "title": "Head-Tracking Data from VR Controller Devices - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "8175767c6c0909edeca7598381f70ea324faab2d4a1aa0114701ac9bda62cbfe",
@@ -839,7 +839,7 @@
   {
     "id": "f26332c9f5d0d187",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/track_handling/track_handling_trackversions_c.html?contentId=1gfDo1EXoVP~tQtYSUXjYw",
-    "title": "Track Versions - Cubase Pro - 15.0",
+    "title": "Track Versions - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "5eb2cc6cbbe3ab46df9bd4f66f7d2e92d65abc9acf04f5ce1df0fbcc41fd0f30",
@@ -848,7 +848,7 @@
   {
     "id": "6b03acda9dc5e9ee",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/vst_instruments/vst_instruments_instruments_external_c.html?contentId=GgfcH3Ew5uNUW3QtpTfjpw",
-    "title": "External Instruments - Cubase Pro - 15.0",
+    "title": "External Instruments - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "d7f94222a457b94d5510cc0cca7cce1119f5915b0d19e1ce832c1661976538bd",
@@ -857,7 +857,7 @@
   {
     "id": "b628590fa52eef1b",
     "url": "https://www.steinberg.help/r/cubase-pro/cubasescore/15.0/en",
-    "title": "Cubase Pro Score Editor Help - Cubase Pro - 15.0",
+    "title": "Reference B Score Editor Help - Reference B - 15.0",
     "accessed": "2026-10-05",
     "retrieved": true,
     "sha256": "5fbbe5ed2d99566447bc38377be4f0251b5437b098fc6664991ab1b3620346ae",
@@ -865,7 +865,7 @@
   },
   {
     "id": "92b00d6d4922494f",
-    "title": "Monitoring via Cubase",
+    "title": "Monitoring via Reference B",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_monitoring_via_cubase_t.html?contentId=2rERCFeCKHh9rlr9ISc9og",
     "accessed": "2026-10-05",
     "retrieved": true,
@@ -1189,7 +1189,7 @@
   },
   {
     "id": "a4cd242bd532234a",
-    "title": "Updating from a Previous Version of Cubase",
+    "title": "Updating from a Previous Version of Reference B",
     "url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/customizing/customizing_updating_from_previous_version_c.html?contentId=2PBY3UhsyKVA99amy5yo~g",
     "accessed": "2026-10-05",
     "retrieved": true,

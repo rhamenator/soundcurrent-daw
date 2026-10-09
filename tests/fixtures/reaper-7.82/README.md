@@ -2,7 +2,7 @@
 
 Writer envelope: **7.82/linux-x86_64**, unmodified official evaluation runtime.
 This is an import investigation corpus, not a supported-version announcement.
-Bitwig6.1.3/CubasePro15.0.30 and the DAW parity baseline remain unchanged.
+Reference A 6.1.3/Reference B 15.0.30 and the DAW parity baseline remain unchanged.
 
 The seven `.rpp` files were actually saved and reopened through public ReaScript
 APIs. Their exact hashes/bytes are frozen in `manifest.json`. The observed JSON

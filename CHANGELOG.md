@@ -199,7 +199,7 @@
   correction routing is still required.
 - Linux synthetic, sanitizer and short owned-native test evidence; Windows core
   cross-build evidence. Native Windows audio and installers remain unqualified.
-- Frozen Bitwig Studio 6.1.3 / Cubase Pro 15.0.30 parity plan, all-Europe language
+- Frozen Reference A 6.1.3 / Reference B 15.0.30 parity plan, all-Europe language
   inventory, and other-suite import requirements. These are product targets;
   full parity and reviewed translations have not been delivered.
 

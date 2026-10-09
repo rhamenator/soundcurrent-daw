@@ -1,6 +1,6 @@
 # Useful workflow previews
 
-Owner delivery priority, 2026-10-07. Full Bitwig 6.1.3/Cubase Pro 15.0.30 parity
+Owner delivery priority, 2026-10-07. Full Reference A 6.1.3/Reference B 15.0.30 parity
 remains the target. Deliver tested usable workflows incrementally; a preview does
 not promote a frozen parity row or establish a complete language/platform.
 

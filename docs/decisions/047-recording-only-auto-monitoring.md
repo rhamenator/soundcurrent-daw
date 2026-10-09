@@ -29,9 +29,9 @@ while live prevents correct resumption and hides failures. Separate EQ instances
 for file and input provide different history from a single continuously running
 track and would require a distinct documented policy.
 
-The setting explicitly names recording-only operation. Cubase's documented
+The setting explicitly names recording-only operation. Reference B's documented
 record-running policy motivates the workflow; its manual, record-enabled and
-tape-style policies remain required. Bitwig Auto has additional reference
+tape-style policies remain required. Reference A Auto has additional reference
 uncertainty. This is not a general armed/stopped monitor owner and does not
 qualify full frozen-reference parity. See [contract and source links](../61-auto-recording-monitoring.md).
 

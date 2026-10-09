@@ -10,7 +10,7 @@ changes system defaults or prints EQ/profile correction into the raw takes.
 This is a native engine/control foundation. [M2d3](37-desktop-duplex-recording.md)
 now connects desktop arm selection, grouped take verification and canonical
 history handoff; the evidence below retains the original M2d2 source scope. The frozen
-Bitwig/Cubase baseline and all functional/quality/content/native-format gates
+Reference A/Reference B baseline and all functional/quality/content/native-format gates
 remain unchanged.
 
 ## Preparation and admission
