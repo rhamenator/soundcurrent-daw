@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- Developer import tooling can bind an explicitly approved media folder and read
+  plain relative files through pinned handles with quotas and streaming checksums.
+  Linux/Windows source is provided; native Windows media execution is pending.
+  Desktop media selection, audio decoding and destination conversion remain open.
+
 - REAPER inspection now shows original properties and source lines in separate
   tabs, including distinct gain layers and explicit missing/unsupported state.
   Versioned reports receive independent shape/token/ownership validation. Saved

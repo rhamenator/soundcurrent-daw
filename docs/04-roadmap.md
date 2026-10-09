@@ -562,3 +562,12 @@ ADR083. Next: rights-cleared pinned-writer corpus and a first track/clip import
 IR with explicit per-property loss, opaque state and preview before conversion.
 Complete Windows Qt, filesystem breadth, crash/storage faults and installed
 bundle workflows alongside it. The frozen parity milestones remain unchanged.
+
+## X004 approved-media dependency (2026-10-09)
+
+Checkpoint122 implements the admitted root/file primitive before GUI media lookup.
+Next dependency chain: validated source references + explicit roots/replacements →
+pinned audio metadata/content check → cancellable desktop missing-media workflow →
+verified copies into a new transactional destination → extended timing/gain/fade/
+rate/pitch model and loss preview → Undo/reopen/independent aligned render gates.
+Native Windows/installed evidence and broader format adapters remain required.

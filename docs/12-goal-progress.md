@@ -3370,3 +3370,20 @@ worker-caught hook exceptions cannot masquerade as a decoder rejection; native
 follow-up is pending separately. No VM/audio/equalizer/installed preview changed.
 Next: bounded approved media roots/missing-media choices and explicit conversion;
 full frozen-reference and language qualification remain active/incomplete.
+
+## Approved-media folder capability (2026-10-09)
+
+The previous goal turn was progress: PR64 qualified/required native desktop tests;
+PR65 retained evidence and strengthened the refusal oracle. PR65 now merged22bb64b
+after exact23cf5bf passes all four jobs; its native Qt controller80/UI90/localization
+255 checks are separate from the earlier77-check cohort.
+
+This turn implements original C++ approved folder/file capabilities and an actual
+developer probe. Linux Release/sanitized root144/probe23 checks pass;4 selected
+Release tests pass after a retained missing-test-binary cache refusal. MinGW
+compilation and two original corpus byte/hash comparisons pass; native Windows
+media execution remains pending. No automatic inspection media lookup, WAV decode,
+GUI root picker, project conversion or installed preview is claimed. No local VM/
+user audio/equalizer/release changes. Next: validated references/root/replacement
+choices, pinned WAV checks and a cancellable desktop workflow, then verified copy/
+new-project mapping/Undo/reopen/aligned renders. Full parity remains incomplete.

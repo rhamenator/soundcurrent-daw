@@ -1,0 +1,51 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 32
+    Start 32: approved-media-root
+
+32: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-approved-media-tests
+32: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+32: Test timeout computed to be: 30
+32: PASS: 144 approved-root checks; owned files, bounded reads/hash, no audio or conversion
+1/4 Test #32: approved-media-root ..............   Passed    0.01 sec
+test 33
+    Start 33: approved-media-probe
+
+33: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/approved_media_probe_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-approved-media-probe"
+33: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+33: Test timeout computed to be: 60
+33: PASS: 23 actual approved-media CLI checks; no audio decode/conversion
+2/4 Test #33: approved-media-probe .............   Passed    0.25 sec
+test 42
+    Start 42: resource-ledger
+
+42: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-resource-ledger-tests
+42: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+42: Test timeout computed to be: 60
+42: Resource ledger checks=44
+3/4 Test #42: resource-ledger ..................   Passed    0.12 sec
+test 43
+    Start 43: session-state
+
+43: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-session-tests
+43: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+43: Test timeout computed to be: 1500
+43: 118 checks passed
+4/4 Test #43: session-state ....................   Passed    0.04 sec
+
+The following tests passed:
+	approved-media-root
+	approved-media-probe
+	resource-ledger
+	session-state
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   0.43 sec

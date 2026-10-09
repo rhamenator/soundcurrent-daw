@@ -213,3 +213,14 @@ official QtBase archive and independent product DLL/source hashes gate the hoste
 MSVC Qt tests. QtTest/offscreen code is test-only; no new product dependency,
 third-party source copy, SDK release or installer change occurs. Runner/compiler/
 archive availability and native-vs-interactive qualification are explicit costs.
+
+## Approved foreign-media handles (2026-10-09)
+
+[ADR088](decisions/088-approved-media-handles.md) adds original C++20 using Linux
+openat2/proc descriptors and Windows's existing OS NtOpenFile interface. Existing
+OpenSSL3/BCrypt provide streaming SHA256; existing nlohmann/Python serve the
+development probe/tests. No new library, copied OS implementation, driver, plugin,
+equalizer source or product runtime is selected. Native API/filesystem availability,
+serialized ownership and unsupported-feature refusal are explicit integration costs.
+Linux UAPI declarations retain their syscall-note boundary; release source/notices
+and each Windows/Linux qualification remain separate.

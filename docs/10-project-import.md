@@ -105,3 +105,14 @@ No media/plugin resolution or destination conversion occurs. Local Linux and
 MinGW evidence is separate from new native MSVC/Windows Qt qualification. Next:
 approved media roots/missing choices, explicit new-project mapping, Undo/reopen
 and aligned source/destination renders. Full registered import/parity scope remains.
+
+## Approved-media admission foundation (2026-10-09)
+
+[Checkpoint122](122-approved-media-roots.md) adds explicit directory capabilities,
+relative pinned plain-file reads and bounded checksums. Owned Linux tests cover
+Unicode/links/FIFO/root replacement/quotas/mutation/cancellation; native Windows
+execution is pending separately. The developer probe matches two original corpus
+media hashes without decoding audio. The desktop inspector still performs no media
+access. Next: explicit root/replacement choices, pinned WAV validation/copy and
+new-project mapping with loss/Undo/reopen/aligned-render evidence. The full native
+and exchange family register and all frozen parity axes remain unpromoted.

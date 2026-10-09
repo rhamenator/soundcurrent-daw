@@ -132,3 +132,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Source-property inspection preview and independent validation](120-import-property-preview.md)
 
 - [Native Windows desktop import/localization gate](121-windows-import-ui-gate.md)
+
+- [Approved media folder/file handles](122-approved-media-roots.md)

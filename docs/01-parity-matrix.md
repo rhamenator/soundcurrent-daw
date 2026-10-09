@@ -275,3 +275,12 @@ M2d4c6 retains another long-run sink-cycle gap with associated user-CPU outlier.
 independent overlap/reset/64band tests and full Debug/sanitizer passes. Standalone
 savings do not qualify composed native scheduling, long duration or Windows audio.
 All92 frozen acceptance/quality/reference/F/Q/C/N contracts remain unpromoted.
+
+## X004-MEDIA-001 admission prerequisite (2026-10-09)
+
+An explicitly approved directory resolves bounded plain media references by handle,
+retains exact bytes/hashes and refuses traversal/links/special files, missing/changed
+files and resource excess. Checkpoint122 records144 Linux root and23 actual probe
+checks; native Windows execution is pending. This is a prerequisite workflow, not
+source-project conversion, decoded-audio quality, bundled content or native-project
+compatibility. All frozen F/Q/C/N family contracts remain unchanged/unpromoted.
