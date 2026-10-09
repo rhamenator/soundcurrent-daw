@@ -3346,3 +3346,14 @@ existing hash-reviewed SDK. This avoids a long local VM session; actual native
 execution/protection promotion is pending. No product runtime dependency or
 installer changes; full frozen parity and European language qualification remain
 active/incomplete. Next: actual hosted UI evidence, media approval and conversion.
+
+### Native desktop first-run follow-up
+
+Exact df20653 builds the real Windows Qt application. UI90 and localization248
+checks pass, while controller truncation fails. Original digest-verified evidence
+and a controlled Linux CRLF reproduction are retained. A test-only corruption fix
+removes JSON syntax rather than newline bytes and covers actual/LF/CRLF endings;
+local Release controller77/UI90/localization259 and ASan/UBSan controller77 pass.
+Corrected hosted execution/protection promotion remain pending. No local VM,
+user audio route, equalizer repository or installed preview changed. Full parity
+and European language review/qualification remain incomplete.

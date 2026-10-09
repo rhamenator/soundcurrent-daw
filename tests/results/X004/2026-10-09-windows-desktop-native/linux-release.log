@@ -1,0 +1,70 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 2
+    Start 2: desktop-import-controller
+
+2: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-controller-tests
+2: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+2: Test timeout computed to be: 60
+2: Import controller checks=77; real child, synthetic project, native compatibility unqualified
+1/3 Test #2: desktop-import-controller ........   Passed    0.84 sec
+test 3
+    Start 3: desktop-import-ui
+
+3: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-ui-tests
+3: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+3: Environment variables: 
+3:  QT_QPA_PLATFORM=offscreen
+3: Test timeout computed to be: 60
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support raise()
+3: This plugin does not support raise()
+3: PASS: 90 import preview UI checks; actual child, no project mutation, async retirement.
+2/3 Test #3: desktop-import-ui ................   Passed    0.50 sec
+test 4
+    Start 4: desktop-localization
+
+4: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-localization-tests
+4: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+4: Environment variables: 
+4:  QT_QPA_PLATFORM=offscreen
+4: Test timeout computed to be: 90
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: This plugin does not support propagateSizeHints()
+4: Owned localization fixture root: /tmp/sc-localization-bfa943df-e255-43c1-b456-d2487820dbc3
+4: PASS: 259 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.
+3/3 Test #4: desktop-localization .............   Passed    0.63 sec
+
+The following tests passed:
+	desktop-import-controller
+	desktop-import-ui
+	desktop-localization
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   1.97 sec

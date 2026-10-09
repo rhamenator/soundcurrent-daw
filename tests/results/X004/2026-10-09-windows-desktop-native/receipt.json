@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-09",
+  "sourceBase": "df2065310350bcf60c20c569312dec13811f7d5f",
+  "nativeFailure": {
+    "run": 37882708133,
+    "job": 113665771573,
+    "artifact": 11595437373,
+    "archiveSha256": "fb46eae6544a78d32a20481df1ed4d8a91b246b02add5fd9704176b340ad40b3",
+    "result": "controller failed; UI 90 and localization 248 passed"
+  },
+  "controlledReproduction": {
+    "platform": "Linux",
+    "patch": "crlf-reproduction.patch",
+    "result": "exit 1; same malformed/deep/duplicate assertion; old mutation deletes CRLF only, leaves valid JSON"
+  },
+  "correction": {
+    "scope": "test-only; delete actual final object brace; verify malformed syntax; exercise actual worker ending plus forced LF/CRLF; refusal diagnostics identify fault case",
+    "testSourceSha256": "5e800f5af5b26baac377abcf103f1fcb14b48f0f5dd638d39a1e0a875d2e5bb3"
+  },
+  "localQualification": {
+    "release": "3 selected desktop tests pass: controller 77, UI 90, localization 259",
+    "sanitized": "controller 77; ASan/UBSan; ASAN_OPTIONS=detect_leaks=0",
+    "nativeCorrected": "pending"
+  },
+  "limits": [
+    "No product decoder/schema acceptance changes",
+    "Hosted offscreen only; no audio/installed/interactive qualification",
+    "No local VM or equalizer changes",
+    "Native/render/full-parity and language qualification incomplete"
+  ],
+  "evidenceSha256": {
+    "crlf-reproduction.log": "45db0e85c1c526880d373847f7f61c7fa9ee32569a318b4f995ca50b2a6546da",
+    "crlf-reproduction.patch": "79315d649a733a132044205ce4a5eebb38ac6a2737d088ea0b5783c513d40f58",
+    "first-failure-LastTest.log": "b9e59c78b1298c623b5f1783e7f7d1de22b7a8ac9a5c2f11a1243d3ee5a2c8ab",
+    "first-failure-artifact.zip": "fb46eae6544a78d32a20481df1ed4d8a91b246b02add5fd9704176b340ad40b3",
+    "linux-release.log": "961a8942313ce0366a1e5b95d3da1697dcb269eba35248cf295bf584e01bc19a",
+    "linux-sanitized.log": "15cef662fbe64a70889fbb0451b2a3ef1dc6f62b4f7334b213c1ebae0043c4c8"
+  }
+}

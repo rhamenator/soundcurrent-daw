@@ -1,0 +1,18 @@
+diff --git a/tests/import_controller_tests.cpp b/tests/import_controller_tests.cpp
+index 59497cd..fcc9df1 100644
+--- a/tests/import_controller_tests.cpp
++++ b/tests/import_controller_tests.cpp
+@@ -139,7 +139,12 @@ int main(int argc,char **argv) {
+             options.afterChild=[&](std::string &encoded,std::size_t) {
+                 if (fault==0) encoded.insert(1,"\"root\":0,"); // Duplicate, never normalize.
+                 if (fault==1) encoded=std::string(32,'[')+"0"+std::string(32,']');
+-                if (fault==2) encoded.erase(encoded.size()-2);
++                if (fault==2) {
++                    // Controlled reproduction of native Windows stdout CRLF.
++                    encoded.erase(encoded.find_last_not_of(" \t\r\n")+1);
++                    encoded+="\r\n";
++                    encoded.erase(encoded.size()-2);
++                }
+                 if (fault==3) {
+                     // Many tiny containers stress DOM overhead per encoded byte.
+                     // Still bounded by the response bank and rejected as schema.

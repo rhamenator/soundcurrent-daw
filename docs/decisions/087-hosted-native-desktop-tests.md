@@ -1,6 +1,6 @@
 # ADR087: hosted native Windows desktop workflow tests
 
-Status: selected; first native execution pending.
+Status: selected; first native execution exposed a test-fixture defect; corrected qualification pending.
 Date: 2026-10-09 UTC.
 
 ## Context/options
@@ -37,3 +37,11 @@ notice requirements for actual product installers remain separate.
 Offscreen native tests do not replace interactive accessibility, installed main,
 physical audio/driver/sustained workloads or full frozen-reference compatibility.
 All those gates and broad project import/conversion remain required.
+
+## First execution
+
+At df20653 the native SDK/build succeeded and UI90/localization248 passed; the
+controller's truncation fixture erased CRLF instead of JSON syntax. The retained
+original artifact and controlled Linux reproduction support a test-only fix with
+actual/LF/CRLF malformed cases. Local controller77 Release/sanitized checks pass;
+corrected native qualification and required-context promotion remain pending.

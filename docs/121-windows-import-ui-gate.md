@@ -72,8 +72,8 @@ Windows or semantic/render equivalence. Only logs and verified runtime metadata
 are retained by CI; no executable/DLL/product release is uploaded.
 
 Local preparation verifies the official archive against the existing SDK,
-PowerShell syntax and workflow parsing. Native acquisition/build/runtime checks
-remain pending until this exact job succeeds. No local VM, user audio route,
+PowerShell syntax and workflow parsing. Native acquisition and the application/test build succeeded in the first hosted
+run; corrected controller execution remains pending. No local VM, user audio route,
 equalizer checkout or installed preview changed.
 
 Next: qualify the actual new hosted UI workflow and retain its exact evidence;
@@ -81,3 +81,27 @@ then approved media roots/missing choices and opt-in new-project conversion with
 Undo/reopen and independently aligned renders. Refresh local installer/source
 pairs only after their concrete scope gates. All four full-parity axes remain
 active/incomplete.
+
+## First actual native run and test-fixture correction
+
+Exact `df2065310350bcf60c20c569312dec13811f7d5f`, run37882708133,
+job113665771573 builds the actual application and tests with the verified SDK.
+UI passes90 checks and localization passes248 checks/34 draft catalog loads.
+The controller fails `Malformed/deep/duplicate protocol accepted`; original
+metadata, digest-verified artifact, runtime record and log are retained under
+`tests/results/X004/2026-10-09-windows-desktop-native`.
+
+The old truncation test erases the final two response bytes. The worker writes a
+final newline through its text-mode standard stream; native Windows uses CRLF.
+Removing CRLF leaves valid JSON. A controlled Linux reproduction forces CRLF on
+the real child's response, applies that exact old mutation and reproduces the
+failure. The fixture now removes the final object brace, independently confirms
+malformed JSON and exercises actual stdout plus explicit LF/CRLF endings. It also
+identifies each fault in refusal diagnostics. Product schema/decoder, worker,
+quotas, deadlines and acceptance policy are unchanged.
+
+Local Release passes all three selected desktop tests (77 controller,90 UI,
+259 localization checks); ASan/UBSan passes77 controller checks with leak detection
+disabled. Corrected native execution is pending; the failing new context remains
+unpromoted and this PR must not merge until it passes. The previous three jobs
+pass at the original head. No local VM or installed preview changed.

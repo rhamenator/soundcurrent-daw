@@ -134,12 +134,26 @@ int main(int argc,char **argv) {
             check(failed->phase==InspectionPhase::Fault && failed->childPid && failed->childExit==0 && !failed->report,
                   "Invalid child protocol was published as an import result"); retired(memory);
         }
-        for (unsigned fault=0;fault<4;++fault) {
+        const char *faultNames[]={"duplicate root", "deep array", "truncated actual stdout",
+                                  "container overhead", "truncated LF", "truncated CRLF"};
+        for (unsigned fault=0;fault<6;++fault) {
             InspectionOptions options; options.memory=memory;
             options.afterChild=[&](std::string &encoded,std::size_t) {
                 if (fault==0) encoded.insert(1,"\"root\":0,"); // Duplicate, never normalize.
                 if (fault==1) encoded=std::string(32,'[')+"0"+std::string(32,']');
-                if (fault==2) encoded.erase(encoded.size()-2);
+                if (fault==2 || fault==4 || fault==5) {
+                    // Truncate JSON syntax, not platform-dependent trailing whitespace.
+                    const auto last=encoded.find_last_not_of(" \t\r\n");
+                    if (last==std::string::npos || encoded[last]!='}')
+                        throw std::runtime_error("Truncation fixture has no closing object");
+                    if (fault!=2) {
+                        encoded.erase(last+1);
+                        encoded+=fault==4 ? "\n" : "\r\n";
+                    }
+                    encoded.erase(last,1);
+                    if (nlohmann::json::accept(encoded))
+                        throw std::runtime_error("Truncation fixture is still valid JSON");
+                }
                 if (fault==3) {
                     // Many tiny containers stress DOM overhead per encoded byte.
                     // Still bounded by the response bank and rejected as schema.
@@ -150,6 +164,11 @@ int main(int argc,char **argv) {
             };
             ImportInspectionController controller(options); controller.submit(file);
             const auto failed=finish(controller);
+            if (failed->phase!=InspectionPhase::Fault || failed->report)
+                std::cerr<<"Fault case="<<faultNames[fault]<<" phase="<<static_cast<unsigned>(failed->phase)
+                         <<" error="<<(failed->error ? static_cast<int>(*failed->error) : -1)
+                         <<" pid="<<failed->childPid
+                         <<" report="<<bool(failed->report)<<'\n';
             check(failed->phase==InspectionPhase::Fault && !failed->report,"Malformed/deep/duplicate protocol accepted");
             retired(memory);
         }
