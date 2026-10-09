@@ -121,3 +121,15 @@ The generated Unicode installer uses **NSIS 3.10-2**. Its distribution copyright
 and license notices accompany setup. SoundCurrent's installer wrapper is unsigned.
 Source identity, SHA-256 pins and qualification boundaries are documented in
 [checkpoint 101](docs/101-windows-installer-preparation.md).
+
+## Rubber Band4.0.0 isolated stretch worker
+
+Copyright2007–2024 Particular Programs Ltd. Original GPL-2.0-or-later notices
+and [COPYING](third_party/rubberband/COPYING) are retained in the unchanged62
+Linux/Windows compile inputs plus license. The application's combined distribution
+uses the later GPL3 option. The exact official archive/tag and per-file hashes are
+in third_party/manifest.json. The builtin FFT/BQ single unit is linked only into
+sc-stretch-render-worker; the GUI and callback engine do not link Rubber Band.
+No optional IPP/FFTW/Sleef/KissFFT/getopt implementation is compiled or bundled.
+The corresponding source and notices must accompany any future worker distribution.
+Adoption and remaining gates: [ADR099](docs/decisions/099-isolated-stretch-rendering.md).
