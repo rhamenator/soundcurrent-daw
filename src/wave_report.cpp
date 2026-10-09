@@ -42,7 +42,9 @@ WaveCheckReport decodeWaveCheckReport(OwnedInspectionProtocol protocol,std::stri
         check(json.at("protocol")=="sc-approved-wave-validation-v2" && json.at("complete").is_boolean() &&
               json.at("complete").get<bool>(),"Unsupported/incomplete WAVE report protocol");
         check(integer("workerPid",std::numeric_limits<std::size_t>::max())==pid,"WAVE report child PID mismatch");
-        check(json.at("relative").is_string() && json.at("relative")==expected,"WAVE report reference mismatch");
+        check(json.at("relative").is_string() &&
+              std::string_view(json.at("relative").get_ref<const std::string &>())==expected,
+              "WAVE report reference mismatch");
         WaveCheckReport result(std::move(values),std::move(protocol));result.relative_=expected;result.pid_=pid;
         auto &a=result.audio_;const WaveValidationLimits limits;
         a.sourceBytes=integer("sourceBytes",std::min<std::uint64_t>(maximum,UINT32_MAX+8ULL));

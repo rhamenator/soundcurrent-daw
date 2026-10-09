@@ -96,3 +96,13 @@ current project intact on refusal/cancel/storage failure. Then extend destinatio
 timing/gain/fade/rate/pitch state, preview conversion, and qualify Undo/reopen and
 independently aligned renders. RF64/W64/compressed/partial-precision WAVE and other
 formats stay required. Full functional/quality/content/native parity is incomplete.
+
+## First native build and explicit comparison repair
+
+PR68 head9d2801d587279e8076ac09d4a60f12f226371aee, run37894662010,
+job113703163275 fails MSVC compilation of `src/wave_report.cpp`: a JSON value
+compared directly with `std::string_view` has ambiguous overloads. No new native
+Qt test executed. Original job metadata/log and digest-verified artifact11599218734
+(runtime metadata only) are retained separately. The repair explicitly extracts
+the already-type-checked string before comparison, preserving the same report
+contract and rejection tests. Corrected native execution remains pending.

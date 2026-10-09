@@ -1,0 +1,31 @@
+{
+  "utc": "2026-10-09T06:46:59.448199+00:00",
+  "sourceParent": "9d2801d587279e8076ac09d4a60f12f226371aee",
+  "change": "Explicit comparison of the validated JSON string with expected reference; no report contract/policy change",
+  "sourceSha256": {
+    "src/wave_report.cpp": "f0819348d32faeab691c723480dc51e6ec3bd8cd55614753b57d0b1ea3f2ff93"
+  },
+  "linuxReleaseSelectedTests": 2,
+  "linuxSanitizedSelectedTests": 2,
+  "controllerChecks": 85,
+  "mediaUiChecks": 45,
+  "leakDetection": false,
+  "newNativeExecution": false,
+  "binariesSha256": {
+    ".cache/build-desktop-release/sc-wave-controller-tests": "758e3d9cb21652631c4b447e799f88f88a094a9ecde602ed5da11e2a45343b38",
+    ".cache/build-desktop-release/sc-import-media-ui-tests": "ac8db9a29e0c4542df18b3ba4383146c46ea6052f84749b8a5760a48eb309346",
+    ".cache/build-desktop-release/soundcurrent-daw": "726c8de754f8aa0cd51b322f880d949471a96656c72014126d01869eec02a186",
+    ".cache/build-desktop-sanitized/sc-wave-controller-tests": "ce2b740ad4b391921827b67d3aad98fbb39b9c91a5f17aaabb6cf8abe5908c68",
+    ".cache/build-desktop-sanitized/sc-import-media-ui-tests": "a11d018f02aa1531b7c995b36e63215d9f55d90f0e21fc75dab385cd66c8cc21"
+  },
+  "filesSha256": {
+    "msvc-repair-sanitized-build.log": "cfd98e2df3295b77de341737bd5e93f8ab8c4426c6a2ae0485d0134e3044029c",
+    "original-native.zip": "c453566a75440d6334f3d4824834701d55bcd6ce5598133e0ee415ed5ba78974",
+    "msvc-repair-release.log": "d38d89a1679694c5a75be9bfbf65d664141bcf7cf44b5178b86e104a6d1f9e8a",
+    "original-native-failure-job.json": "ec334ccbcdc7342c60fd4ac029b67dad0b5aa347512f2e4cb6ebd18f9ad5f817",
+    "msvc-repair-release-build.log": "26c7f6b52e940f2461dcb942172bbaca2ecccc621b28c73cbf5e805e26b0882e",
+    "original-native-failure.log": "5f0b4ff11710186aa5f439ecaa496ec2208e205bc3d374281eee5dd89a06fa1d",
+    "msvc-repair-sanitized.log": "3f4776d3a427550dc06945314402c3891acdb223b0fc2f22412a508c9fca66a0",
+    "original-native-artifact.json": "c38cbb0716eace195b5dfcdbd23f86f50059229d5c522f959b65263ebcef6086"
+  }
+}
