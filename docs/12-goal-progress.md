@@ -3260,3 +3260,23 @@ Linux Release passes277 recording checks and the existing timing helper test;
 new Windows execution is pending. No Windows Qt, installed bundle workflow,
 native endpoint, sustained capture, semantic import or full-parity status follows
 from the scoped bundle success. No local VM started; the full goal remains active.
+
+## Native-writer corpus checkpoint (2026-10-09 UTC)
+
+PR60 merged through required checks at `40926f1`. Exact prior head `d1eafaeb`
+passes75 Linux and twelve selected MSVC tests, including256 instrumented recording
+checks and complete bounded phase pairs. Its47.8653604-second synthetic producer
+is not native timing evidence or an explanation of the retained earlier failure.
+
+[Checkpoint118](118-native-writer-import-corpus.md) adds seven original projects
+actually saved/reopened by unmodified REAPER7.82/Linux through public APIs, exact
+runtime/source/media hashes and matching native property observations. Original
+PCM and authoring code use GPL-3.0-only; proprietary runtime/assets remain private.
+An isolated, display/audio/network-free fresh reproduction completes under a
+32MiB individual-file bound after a retained8MiB default-theme extraction refusal.
+The real inspector preserves original bytes and matches native TRACK/ITEM counts;
+properties remain unverified. New hosted Windows inspection is pending, and a
+Windows source writer, semantic IR/conversion, independent renders and all other
+native/exchange formats remain gates. No local VM or user audio route changed;
+the existing comparator was paused when another testing VM was observed active.
+The full functional/quality/content/native parity goal remains active/incomplete.

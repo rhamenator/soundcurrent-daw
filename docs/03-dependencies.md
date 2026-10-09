@@ -172,3 +172,15 @@ new third-party source/dependency. The system-library use changes no GPL source
 license. Manual ABI/status handling and SDK/Windows/filesystem qualification are
 recorded integration/maintenance costs; Store/MSIX compatibility is not assumed.
 See Microsoft's [native rename contract](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information).
+
+## Optional native corpus authoring tool (2026-10-09)
+
+ADR084 selects private, unmodified REAPER7.82/Linux and its documented APIs to
+author original GPL project/media fixtures. Its proprietary evaluation/license
+terms require valid entitlement for new authoring; runtime, bundled assets and
+documentation are not redistributed or linked. Exact private archive/executable/
+libSwell/EULA hashes and original corpus hashes are retained. Current CI/product
+depend only on existing C++/crypto/Python infrastructure and frozen originals;
+no REAPER installation/account is needed. Future source-writer/OS/API versions,
+data rights and full semantic/render compatibility add independent maintenance
+and qualification costs; a native corpus is not a parser-schema specification.

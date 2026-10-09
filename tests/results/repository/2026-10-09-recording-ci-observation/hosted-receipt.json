@@ -1,0 +1,23 @@
+{
+  "format": "sc-recording-ci-observation-hosted-v1",
+  "sourceRevision": "d1eafaeb2d6a19c63b9c2f54d93b71c4459d1324",
+  "runId": 37870864872,
+  "nativeJobId": 113628401190,
+  "nativeSelectedTests": 12,
+  "nativeConfiguredTests": 42,
+  "nativeRecordingChecks": 256,
+  "nativeProducerWallSeconds": 47.8653604,
+  "nativeCaptureFrames": 480000,
+  "nativeMaximumReadySlabs": 1,
+  "nativePhasePairsComplete": true,
+  "nativeTimingQualified": false,
+  "originalFailureCauseEstablished": false,
+  "linuxTests": 75,
+  "linuxJobId": 113628401044,
+  "crossBuildJobId": 113628401125,
+  "allRequiredChecksPassed": true,
+  "mergeCommit": "40926f11f7e8f308f68f9c21d33eae28f310718c",
+  "pullRequest": 60,
+  "localVMStarted": false,
+  "nativeEndpointActivated": false
+}

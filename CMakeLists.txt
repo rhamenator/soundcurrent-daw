@@ -354,6 +354,10 @@ if(BUILD_TESTING)
     add_test(NAME import-inspection-worker COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/import_inspect_worker_tests.py $<TARGET_FILE:sc-import-inspect-worker>)
     set_tests_properties(import-inspection-worker PROPERTIES TIMEOUT 60)
+    add_test(NAME reaper-native-corpus COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/reaper_native_corpus_tests.py
+      $<TARGET_FILE:sc-import-inspect-worker> ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/reaper-7.82)
+    set_tests_properties(reaper-native-corpus PROPERTIES TIMEOUT 120)
   endif()
   add_executable(sc-track-scalability-tests tests/track_scalability_tests.cpp tests/rt_audit.cpp)
   target_link_libraries(sc-track-scalability-tests PRIVATE sc-project-store sc-playback)

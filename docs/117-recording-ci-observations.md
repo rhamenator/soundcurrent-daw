@@ -50,3 +50,14 @@ Next: qualify the instrumented fixture on native Windows. If a failure recurs,
 use its actual phase/backlog
 measurements to select a concrete next experiment before changing policy.
 Continue the exact-writer import corpus and semantic-IR task from checkpoint116.
+
+## Hosted instrumented follow-up
+
+PR60 merged through all required checks at `40926f1`. Exact source `d1eafaeb`
+passes75 Linux tests and twelve selected MSVC tests from42 configured, including
+the timing helper and256 recording checks. Native phase pairs are complete,
+maximum ready slabs1, and all480000 frames/raw/RT assertions pass. Its producer
+wall duration is47.8653604 seconds; this is not native timing qualification.
+[Separate hosted evidence](../tests/results/repository/2026-10-09-recording-ci-observation/hosted-receipt.json)
+retains actual timing output and both original artifacts. The original queue-full
+cause remains unknown. The frozen-reference professional goal is incomplete.
