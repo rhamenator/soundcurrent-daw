@@ -4,13 +4,22 @@ Decision date: **2026-10-05**. Baseline ID: **SC-DAW-BASELINE-2026-10-05**.
 
 ## Product commitment
 
-Build a Linux-first professional workstation that supports the combined workflows of **full Bitwig Studio** and **Cubase Pro**, including composition, recording, editing, sound design, live performance, mixing, immersive production, scoring, restoration, and reliable interchange. Milestones sequence the work; late milestones remain requirements. A recorder or a matching list of feature labels is not the finished product.
+Build a Linux-first professional workstation that supports the combined workflows of **full Reference A** and **Reference B**, including composition, recording, editing, sound design, live performance, mixing, immersive production, scoring, restoration, and reliable interchange. Milestones sequence the work; late milestones remain requirements. A recorder or a matching list of feature labels is not the finished product.
 
 C++20 and a CMake build are accepted defaults. Qt 6 is provisional for the GUI; the processing/session core must compile without Qt. Native PipeWire is the first Linux backend, with JACK support through existing infrastructure. The owner added **Windows functional parity** and **localization across all of Europe** on 2026-10-05; these are required staged deliverables, with portability starting in the core and native adapters/UI tests later. [Platform and language gates](08-platforms-and-localization.md) supplement the frozen vendor references without changing their versions. There is no commitment to commercial products' exact UI, proprietary DSP implementations, branded content, or undisclosed project file formats.
 
 This repository is `soundcurrent-daw`: `/home/rich/dev/soundcurrent-studio` already serves the premium equalizer. Initial planning inspected those repositories without changing their work. The owner subsequently activated the full implementation goal and authorized the public GPL source backup at https://github.com/rhamenator/soundcurrent-daw. Planning is no longer the stopping boundary; see [active goal](../GOAL.md) and [progress](12-goal-progress.md).
 
 The owner added **X006 studio track scalability** on2026-10-06: serve lower-budget studios, including studios with substantial hardware, without a fixed product/license ceiling on total project tracks. Real-time capacity and simultaneous hardware inputs remain separately admitted/measured. [Track scalability](67-track-scalability.md) defines staged acceptance and the present256-track implementation gap. This owner extension does not change the frozen vendor reference versions or claim unlimited processing throughput.
+
+## Reference naming
+
+Public descriptions and authored documentation use **Reference A/B**. These
+labels identify the same frozen products through the version table and primary
+source links below. Requirements and uncertainty remain unchanged. Current
+planning manifests use `reference_a`/`reference_b`; retrieved URLs, source IDs
+and byte hashes remain exact. Historical test evidence and dependency provenance
+are retained without rewriting their recorded bytes.
 
 ## Reference freeze
 
@@ -23,12 +32,12 @@ These priorities do not change the frozen versions or reduce full-suite parity.
 
 | Reference | Frozen executable baseline | Documentation baseline | Evidence and limitation |
 |---|---|---|---|
-| Bitwig Studio, full edition | **6.1.3**, released **2026-09-25** | General guide **5.3**, official 6.1 PDF incorporating 6.0 changes, 6.1.3 changelog | [Download page](https://www.bitwig.com/download/), [versioned release notes](https://www.bitwig.com/dl/Bitwig%20Studio/6.1.3/release_notes/), [6.1/6.0 documentation](https://downloads.bitwig.com/6.1/Release-Notes-6.1.pdf), [general guide](https://www.bitwig.com/userguide/latest/). Official release notes acknowledge the general manual overhaul. Old-guide evidence is provisional for unchanged 6.x workflows. |
-| Cubase Pro | **15.0.30**, updated **2026-06-03** | Pro 15.0 webhelp; operation PDF identifies **15.0.30**, dated **2026-06-03**; separate Pro 15 score guide | [Official download list](https://o.steinberg.net/en/support/downloads/cubase_15.html), [Pro operation manual](https://www.steinberg.help/r/cubase-pro/15.0/en), [operation PDF](https://www.steinberg.help/api/khub/documents/O4PvzgK5U8lOyn4ANi_gKg/content), [score guide](https://www.steinberg.help/r/cubase-pro/cubasescore/15.0/en). API document IDs and webhelp paths are mutable; retrieved-byte hashes capture the inspection snapshot. |
+| Reference A, full edition | **6.1.3**, released **2026-09-25** | General guide **5.3**, official 6.1 PDF incorporating 6.0 changes, 6.1.3 changelog | [Download page](https://www.bitwig.com/download/), [versioned release notes](https://www.bitwig.com/dl/Bitwig%20Studio/6.1.3/release_notes/), [6.1/6.0 documentation](https://downloads.bitwig.com/6.1/Release-Notes-6.1.pdf), [general guide](https://www.bitwig.com/userguide/latest/). Official release notes acknowledge the general manual overhaul. Old-guide evidence is provisional for unchanged 6.x workflows. |
+| Reference B, professional edition | **15.0.30**, updated **2026-06-03** | Pro 15.0 webhelp; operation PDF identifies **15.0.30**, dated **2026-06-03**; separate Pro 15 score guide | [Official download list](https://o.steinberg.net/en/support/downloads/cubase_15.html), [Pro operation manual](https://www.steinberg.help/r/cubase-pro/15.0/en), [operation PDF](https://www.steinberg.help/api/khub/documents/O4PvzgK5U8lOyn4ANi_gKg/content), [score guide](https://www.steinberg.help/r/cubase-pro/cubasescore/15.0/en). API document IDs and webhelp paths are mutable; retrieved-byte hashes capture the inspection snapshot. |
 
 These are the latest versions shown by the inspected official download pages on the freeze date. Do not advance the reference silently. A later baseline change requires an ADR, refreshed matrix evidence, and new regression fixtures. No reference executable was installed or evaluated in this planning task. A licensed reference application evaluation remains a milestone gate; documentary evidence alone cannot establish behavioral or sonic parity.
 
-The shorter cached Cubase search result suggested 15.0.20; the directly retrieved PDF and download page both establish 15.0.30. Bitwig search caches similarly lagged the live download page. Use the directly inspected versions above.
+The shorter cached Reference B search result suggested 15.0.20; the directly retrieved PDF and download page both establish 15.0.30. Reference A search caches similarly lagged the live download page. Use the directly inspected versions above.
 
 ## Four independent measures
 

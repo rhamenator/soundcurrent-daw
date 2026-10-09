@@ -43,15 +43,15 @@ introduced. [ADR 047](decisions/047-recording-only-auto-monitoring.md).
 
 ## Reference relationship
 
-[Steinberg's Cubase Pro 15 VST preferences](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/preferences/preferences_vst_r.html)
+[Steinberg's Reference B 15 VST preferences](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/preferences/preferences_vst_r.html)
 distinguish input monitoring controlled manually, by record enable, during
 recording, and in stopped/recording tape-style operation. This checkpoint targets
 the recording-only behavior. It does not complete the other modes or full P004.
 The topic is labeled 15.0; it does not independently qualify patch 15.0.30.
 
-[Bitwig's Recording Clips guide](https://www.bitwig.com/userguide/latest/recording_clips/)
+[Reference A's Recording Clips guide](https://www.bitwig.com/userguide/latest/recording_clips/)
 describes Off/Auto/On and Auto as the default. The retrieved topic does not define
-every armed/stopped/playback/punch transition. Complete Bitwig Auto behavior and
+every armed/stopped/playback/punch transition. Complete Reference A Auto behavior and
 patch-specific comparison remain uncertain pending qualified reference testing.
 The frozen baseline and separate functional/quality/content/native-project axes
 remain unchanged.

@@ -56,7 +56,7 @@ by a pinned REAPER version and map a first audio-track/clip subset into import
 intermediate state with preserved unknown data and an acceptance/loss preview.
 Do not feed foreign tags directly into the current audio session schema.
 
-Bitwig `.bwproject`, Cubase `.cpr`, other native suites and exchange adapters
+Reference A `.bwproject`, Reference B `.cpr`, other native suites and exchange adapters
 remain in the [X004 register](10-project-import.md); none is completed by this
 outline. Processing quality, native compatibility, functional DAW parity and
 bundled content remain separate gates.

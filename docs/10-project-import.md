@@ -8,15 +8,15 @@ Native project import is a required capability. Exchange formats are additional 
 
 | Target family | Initial route | Qualification status |
 |---|---|---|
-| Bitwig Studio projects | Native `.bwproject` investigation plus separate DAWproject adapter | No native parser/corpus qualified; required investigation starts in M0 |
-| Cubase projects | Native `.cpr` investigation plus separate DAWproject/AAF/OMF workflows | No native parser/corpus qualified; required investigation starts in M0 |
+| Reference A projects | Native `.bwproject` investigation plus separate DAWproject adapter | No native parser/corpus qualified; required investigation starts in M0 |
+| Reference Bjects | Native `.cpr` investigation plus separate DAWproject/AAF/OMF workflows | No native parser/corpus qualified; required investigation starts in M0 |
 | REAPER projects | Native `.rpp` adapter candidate | Seven original7.82/Linux native-writer projects frozen; owned scalar/byte IR added; worker property preview, conversion and render compatibility unqualified |
 | Ableton Live, FL Studio, Studio One, Pro Tools, Logic and other common suites | Inventory native containers, lawful documentation/fixtures and exchange options per suite | Required coverage program; exact version envelopes and parsers remain unqualified |
 | Standard exchange | DAWproject, AAF/OMF, SMF, MusicXML; other formats after evaluation | Separate semantic coverage and loss reports per format |
 
 This is a priority register, not a claim that each format is documented, legally redistributable, or already supported. Preserve the breadth while resolving feasibility rather than silently substituting media-only imports. Native version envelopes must be frozen per adapter independently of the product's reference baseline.
 
-Primary evidence: [DAWproject specification/reference](https://github.com/bitwig/dawproject), [Cubase Pro15 AAF import](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/exchanging_files_with_other_applications/exchanging_files_with_other_applications_importing_aaf_files_t.html), and [REAPER official guide](https://dlz.reaper.fm/userguide/ReaperUserGuide774.pdf). The REAPER guide is a project-file overview, not a complete parser specification. Documentation gaps remain unknowns.
+Primary evidence: [DAWproject specification/reference](https://github.com/bitwig/dawproject), [Reference B 15 AAF import](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/exchanging_files_with_other_applications/exchanging_files_with_other_applications_importing_aaf_files_t.html), and [REAPER official guide](https://dlz.reaper.fm/userguide/ReaperUserGuide774.pdf). The REAPER guide is a project-file overview, not a complete parser specification. Documentation gaps remain unknowns.
 
 ## Import contract
 
@@ -40,7 +40,7 @@ Every object/property is reported as **preserved**, **converted**, **unsupported
 1. M0: freeze per-adapter format versions, inspect lawful primary documentation and establish rights-cleared source projects. Make projects in source suites containing one representative instance of every claimed property and failure case.
 2. M1/M2: provide a media-safe transactional destination and non-destructive clip model. Current snapshot schema alone cannot represent the required import breadth.
 3. M3–M7/M9/M10: map timing/notes, routes/automation, plugin state, performance structures, notation and immersive/video data as their destination models become available. Preserve unsupported intermediate data meanwhile.
-4. M8: deliver import UI, worker adapters, mapping and persistent per-object loss reports. Prioritize Bitwig/Cubase and a documented native-format feasibility adapter early; extend the suite register rather than defer everything to M11.
+4. M8: deliver import UI, worker adapters, mapping and persistent per-object loss reports. Prioritize Reference A/Reference B and a documented native-format feasibility adapter early; extend the suite register rather than defer everything to M11.
 5. M11: compare source and imported project structure, media hashes, notes/tempo timing, automation, routes and available plugin states; compare aligned renders and complete editing/reopen workflows. Run corruption, missing-media/plugin, cancellation and migration cases on Linux and Windows.
 
 Native compatibility is directional and versioned. A passing exchange conversion is not a passing native adapter. No native compatibility is currently claimed. Consequential rights/access gaps stay visible until resolved or explicitly accepted by the owner.

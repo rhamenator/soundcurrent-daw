@@ -17,7 +17,7 @@ copied into the DAW. A new authoring run requires a valid license/evaluation;
 no purchase or continued-use entitlement is assumed.
 
 Freeze exact runtime hashes and generated project/media/observation hashes;
-pin7.82/Linux for this corpus independently of the unchanged Bitwig/Cubase
+pin7.82/Linux for this corpus independently of the unchanged Reference A/Reference B
 baseline. Newly generated GUIDs/timestamps legitimately differ. Preserve the
 original corpus and qualify new authoring by recorded property comparisons.
 Public code uses original scripts through supported APIs, not executable

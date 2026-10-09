@@ -9,7 +9,7 @@ Serve lower-budget recording studios, including studios with substantial audio
 hardware. Support any finite project track count that the configured machine can
 store and operate within admitted resources, without a fixed product or license
 ceiling. Track count grows independently of physical interface channel count.
-Keep the full frozen Bitwig/Cubase target and Linux/Windows functional parity.
+Keep the full frozen Reference A/Reference B target and Linux/Windows functional parity.
 
 Distinguish total project tracks, currently executing processors and concurrently
 recorded hardware inputs. A stereo interface can support a project with many audio,

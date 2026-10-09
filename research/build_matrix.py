@@ -5,9 +5,10 @@ from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
 import hashlib, json, requests
 from bs4 import BeautifulSoup
+from reference_labels import neutral_title
 ROOT=Path(__file__).resolve().parents[1]
 
-# Group | feature | Bitwig topic slug (or ?) | Cubase exact topic (or ?)
+# Group | feature | Reference A topic slug (or ?) | Reference B exact topic (or ?)
 # milestone | original acceptance workflow | measurable quality gate | known gap
 DATA='''Recording|Multitrack audio capture|recording_clips|Audio Recording|M2|Arm 32 mono tracks; record ten minutes; stop, reopen and verify every take and timestamp.|Zero missing frames in synthetic run; 30-minute native run with zero unreported gaps.|No DAW capture backend exists.
 Recording|MIDI record and overdub|recording_clips|MIDI Recording|M3|Record notes, sustain and CC while looping; select replace and overdub separately; reopen and replay.|Recorded events preserve timestamp/order and note-off pairing.|MIDI engine and take semantics are new.
@@ -126,8 +127,8 @@ def main():
         for url,title in [(bu,b),(cu,c)]:
             if url: chosen[url]=title
         rows.append(dict(id=f'P{i:03}',group=group,feature=feature,milestone=m,acceptance=workflow,
-                         quality=q,known_gap=gap,bitwig_url=bu,cubase_url=cu,
-                         bitwig_evidence='P' if bu else 'U',cubase_evidence='D' if cu else 'U',
+                         quality=q,known_gap=neutral_title(gap),reference_a_url=bu,reference_b_url=cu,
+                         reference_a_evidence='P' if bu else 'U',reference_b_evidence='D' if cu else 'U',
                          implementation='planned; not implemented',F='unverified',Q='unverified',
                          C='coverage pending' if group=='Content' else 'not applicable',
                          N='unverified' if group=='Compatibility' else 'not implied'))
@@ -135,7 +136,7 @@ def main():
     missing=[(u,t) for u,t in chosen.items() if u.rstrip('/') not in urls]
     def collect(pair):
         url,title=pair;key=hashlib.sha256(url.encode()).hexdigest()[:16]
-        r=dict(id=key,title=title,url=url,accessed='2026-10-05')
+        r=dict(id=key,title=neutral_title(title),url=url,accessed='2026-10-05')
         try:
             response=requests.get(url,timeout=35);response.raise_for_status();raw=response.content
             r.update(retrieved=True,sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw))
@@ -151,7 +152,7 @@ def main():
         sources=[replacement if r['url']==pair[0] else r for r in sources]
     urls={r['url'].rstrip('/'):r for r in sources}
     for row in rows:
-        for vendor in ['bitwig','cubase']:
+        for vendor in ['reference_a','reference_b']:
             url=row[vendor+'_url'];ref=urls.get(url.rstrip('/')) if url else None
             row[vendor+'_source_id']=ref['id'] if ref else None
             if ref and not ref.get('retrieved'):row[vendor+'_evidence']='U'
@@ -162,9 +163,9 @@ def main():
     (ROOT/'research/parity.json').write_text(json.dumps({'baseline':'SC-DAW-BASELINE-2026-10-05','rows':rows},indent=2)+'\n')
     preamble='''# Traceable parity matrix and acceptance register
 
-Baseline: full **Bitwig Studio 6.1.3** + **Cubase Pro 15.0.30**, frozen 2026-10-05. This is an authored acceptance register, not a claim of implemented parity.
+Baseline: full **Reference A 6.1.3** + **Reference B 15.0.30**, frozen 2026-10-05. This is an authored acceptance register, not a claim of implemented parity.
 
-**D** = a directly linked Cubase 15 topic documents the feature family. **P** = Bitwig documentation evidence is provisional because the general guide is 5.3; 6.x changes must be checked against the frozen changelog/PDF and licensed application. **U** = uncertain, undocumented here, or the examined source only offers an alternative. U never means absent. Desired acceptance behavior may exceed what the cited introductory topic proves. Detailed suboptions and defaults require M0 decomposition and hands-on fixtures. Every row currently has an implementation gap.
+**D** = a directly linked Reference B 15 topic documents the feature family. **P** = Reference A documentation evidence is provisional because the general guide is 5.3; 6.x changes must be checked against the frozen changelog/PDF and licensed application. **U** = uncertain, undocumented here, or the examined source only offers an alternative. U never means absent. Desired acceptance behavior may exceed what the cited introductory topic proves. Detailed suboptions and defaults require M0 decomposition and hands-on fixtures. Every row currently has an implementation gap.
 
 The acceptance workflows below are original specifications for SoundCurrent. Their numerical thresholds are proposed product gates, not published claims about either reference's performance. Quality gate IDs are defined in `docs/04-roadmap.md`. Milestones are dependencies, not feature exclusions.
 
@@ -175,18 +176,18 @@ Axes are separately stored per row in [parity.json](../research/parity.json): F/
     current=None
     for row in rows:
         if row['group']!=current:
-            current=row['group'];out+=['\n## '+current+'\n\n','| ID / target | Bitwig evidence | Cubase evidence | Acceptance workflow | Quality gate | Known gap |\n','|---|---|---|---|---|---|\n']
+            current=row['group'];out+=['\n## '+current+'\n\n','| ID / target | Reference A evidence | Reference B evidence | Acceptance workflow | Quality gate | Known gap |\n','|---|---|---|---|---|---|\n']
         refs=[]
-        for v in ['bitwig','cubase']:
+        for v in ['reference_a','reference_b']:
             u=row[v+'_url'];state=row[v+'_evidence']
             refs.append(f'[{state}: topic]({u})' if u else 'U — not established')
         out.append(f"| {row['id']} **{row['feature']}** ({row['milestone']}) | {refs[0]} | {refs[1]} | {row['acceptance']} | {row['quality']} | {row['known_gap']} |\n")
     out+=['''
 ## Baseline deltas and unresolved breadth
 
-- **Bitwig6.0/6.1**: the frozen [6.1/6.0 document](https://downloads.bitwig.com/6.1/Release-Notes-6.1.pdf) describes Sampler slicing/spectral changes, editing and automation work. Sampler, automation and performance families require release-specific subtests, not just 5.3 chapter assertions. Row IDs are stable once approved.
-- **Cubase15**: separately inventory its redesigned expression-map options, extended modulation/pattern tools, stem separation and bundled/beta/companion tools from [New Features](https://www.steinberg.help/r/cubase-pro/15.0/en) and licensed Pro installation. Main and Score documentation are separate. Cubase webhelp sometimes contains inherited overview inconsistencies (Ambisonics order count); use dedicated topic evidence and verify behavior.
-- No negative vendor assertions are made for LV2, CLAP in Cubase, notation in Bitwig, proprietary formats or interruption recovery where evidence is U.
+- **Reference A 6.0/6.1**: the frozen [6.1/6.0 document](https://downloads.bitwig.com/6.1/Release-Notes-6.1.pdf) describes Sampler slicing/spectral changes, editing and automation work. Sampler, automation and performance families require release-specific subtests, not just 5.3 chapter assertions. Row IDs are stable once approved.
+- **Reference B 15**: separately inventory its redesigned expression-map options, extended modulation/pattern tools, stem separation and bundled/beta/companion tools from [New Features](https://www.steinberg.help/r/cubase-pro/15.0/en) and licensed Pro installation. Main and Score documentation are separate. Reference B webhelp sometimes contains inherited overview inconsistencies (Ambisonics order count); use dedicated topic evidence and verify behavior.
+- No negative vendor assertions are made for LV2, CLAP in Reference B, notation in Reference A, proprietary formats or interruption recovery where evidence is U.
 - VST2/32-bit compatibility, object-audio/Dolby deliverables, Dorico/native projects, vendor controllers and bundled companion applications remain consequential rights/feasibility gaps. An alternative workflow is a proposed solution, not an automatic parity pass.
 - Before an F/Q/C/N claim, expand every family into observed suboptions and failure cases, run it in the frozen reference and SoundCurrent, keep evidence and record exceptions. All unknowns must be resolved or prominently accepted as known product gaps; marketing cannot silently drop them.
 ''']

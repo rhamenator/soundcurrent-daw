@@ -109,5 +109,5 @@ validation/deadline/cancel retirement and a read-only inspection/loss preview;
 persist exact opaque source with provenance under an approved new import bundle.
 Then create rights-cleared projects in a pinned source-suite version and map the
 first track/clip subset into versioned import intermediate state. The full
-Bitwig/Cubase/other native import program, conversion and editing/render fidelity
+Reference A/Reference B/other native import program, conversion and editing/render fidelity
 remain required. This tool does not replace them with a structural inventory.

@@ -121,5 +121,5 @@ property states into an owned new destination. Test interrupted writes, refusal
 of existing destinations, relocation, reopen and missing source. Then establish a
 rights-cleared corpus from a pinned REAPER writer and implement the first track/
 clip semantic subset with per-property preservation/loss evidence and explicit
-preview before a single undoable conversion transaction. Keep Bitwig/Cubase and
+preview before a single undoable conversion transaction. Keep Reference A/Reference B and
 other required adapter/version work visible.

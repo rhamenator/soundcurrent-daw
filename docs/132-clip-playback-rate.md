@@ -1,7 +1,7 @@
 # Linked clip playback-rate controls
 
 Date: 2026-10-09. Frozen baseline remains SC-DAW-BASELINE-2026-10-05:
-Bitwig6.1.3 plus Cubase Pro15.0.30. Full F/Q/C/N and all-Europe coverage remain
+Reference A 6.1.3 plus Reference B 15.0.30. Full F/Q/C/N and all-Europe coverage remain
 incomplete.
 
 ## Previous source qualification

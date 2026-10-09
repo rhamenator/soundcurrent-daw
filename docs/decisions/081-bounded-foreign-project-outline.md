@@ -5,7 +5,7 @@ Date: 2026-10-08. Status: selected for X004 structural feasibility only.
 The import contract requires native adapters, per-property loss reports and
 versioned intermediate state. Start with an original C++20 byte-preserving RPP
 outline. Do not interpret a recognized block name as an imported track, plugin or
-timing value. All semantic properties remain unverified. The Bitwig/Cubase product
+timing value. All semantic properties remain unverified. The Reference A/Reference Bduct
 reference baseline stays unchanged.
 
 ## Evaluated options
@@ -42,4 +42,4 @@ Before exposing imports to users, add a bounded isolated loader/worker and
 persistent structural/loss report, source provenance, rights-cleared native
 fixtures, semantic mappings, media approvals and preview/transactional UI.
 Unknown native formats remain required investigations; this choice does not
-replace Bitwig/Cubase native import with an exchange or media-only workflow.
+replace Reference A/Reference B native import with an exchange or media-only workflow.

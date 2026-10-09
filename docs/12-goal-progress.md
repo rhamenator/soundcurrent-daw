@@ -1575,8 +1575,8 @@ external links/default metadata are preserved. All 152 launch pins remain stable
 12 altered receipts fail. The prepared Auto screenshot is retained in source.
 No new failure occurred; all 25 historical observations remain preserved.
 
-Cubase's record-running policy motivates this bounded workflow; other monitor
-policies and complete Bitwig Auto transition behavior remain required. All 92
+Reference B's record-running policy motivates this bounded workflow; other monitor
+policies and complete Reference A Auto transition behavior remain required. All 92
 frozen contracts retain their F/Q/C/N acceptance projection and remain unpromoted.
 The 24 borrowed equalizer inputs and retained snapshots match; both equalizer
 checkouts remain read-only. No dependency is adopted and no release is uploaded.
@@ -3166,7 +3166,7 @@ the addition and actual native endpoint/Stop qualification are still pending.
 No VM is running. The existing image verifier is suspended; newly copied disk
 equality is not inferred. The owner's VM budget is one VM at a time, brief runs,
 and the verifier suspended during each run. Existing previews remain unchanged,
-and the full frozen Bitwig/Cubase/Linux/Windows/localization goal stays active.
+and the full frozen Reference A/Reference B/Linux/Windows/localization goal stays active.
 
 ## Import feasibility and resource budget checkpoint (2026-10-08, later)
 

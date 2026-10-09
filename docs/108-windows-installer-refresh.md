@@ -59,7 +59,7 @@ audio**, not a passed Windows recording preview. Its local INSTALL guide and
 QUALIFICATION receipt state that limitation. The previous preview keeps its own
 identities/evidence; the existing Ubuntu recording preview is unchanged because
 these guard changes affect Windows. Linux physical/sustained qualification remains
-open too. No full frozen Bitwig/Cubase parity family is promoted.
+open too. No full frozen Reference A/Reference B parity family is promoted.
 
 [Receipt](../tests/results/X007/2026-10-08-windows-installer-refresh.json) and
 [56-payload capsule](../tests/results/X007/2026-10-08-windows-installer-refresh.zip)

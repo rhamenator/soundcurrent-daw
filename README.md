@@ -7,8 +7,8 @@ with **C++20, CMake and Qt 6**, licensed **GPL-3.0-only**. The processing engine
 independent of Qt and shared by live audio and offline rendering.
 
 **Early development preview — not a production-ready DAW.** The target is the
-combined functional capabilities of **full Bitwig Studio 6.1.3** and **Cubase Pro
-15.0.30**, frozen as **SC-DAW-BASELINE-2026-10-05**. No matrix family is currently
+professional composition, recording, editing, mixing, sound design and live
+performance workflows in **SC-DAW-BASELINE-2026-10-05**. No matrix family is currently
 qualified as equivalent. Functional parity, processing quality, bundled content
 and native-project compatibility are tracked separately.
 
