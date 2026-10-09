@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "libsndfile": "libsndfile-1.2.2",
+  "library": "/usr/lib/x86_64-linux-gnu/libsndfile.so.1",
+  "newDependency": false
+}

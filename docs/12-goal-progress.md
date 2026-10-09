@@ -3387,3 +3387,24 @@ GUI root picker, project conversion or installed preview is claimed. No local VM
 user audio/equalizer/release changes. Next: validated references/root/replacement
 choices, pinned WAV checks and a cancellable desktop workflow, then verified copy/
 new-project mapping/Undo/reopen/aligned renders. Full parity remains incomplete.
+
+## Pinned WAVE validation checkpoint (2026-10-09)
+
+The previous goal turn was progress: approved-folder/file capabilities and the
+developer hash tool were coded. PR66 now merges41e38af after exactbd9e8cb passes
+all four contexts, including native folder162/CLI23 checks. Review prompted an
+explicit case-policy improvement and owned case-only file/intermediate-directory
+fixtures; earlier Windows141/CLI23 evidence is retained separately.
+
+This turn adds the original Qt-free WAVE preflight and existing libsndfile virtual
+I/O decoder over a pinned file. Linux20,508 independent PCM/float/endian/WAVEX/
+1024-channel/headroom/refusal checks plus64 actual child checks pass Release and
+ASan/UBSan with leak detection disabled. Four selected root/WAVE tests pass. The
+worker matches two original corpus hashes and checks complete frames without
+changing media. Native MSVC is added to its existing protected job, pending for
+this revision. See checkpoint123/ADR089; decoder internals are not hard memory/time
+bounded. No desktop media picker, asset copy, project conversion, installer refresh
+or full/native/render compatibility is claimed. No local VM/audio/equalizer/release
+change. Next: admitted child report/lifecycle and the explicit desktop root/missing/
+replacement workflow, then conversion/persistence/aligned renders. Full frozen
+Linux/Windows/all-Europe/FQCN goal stays active/incomplete.

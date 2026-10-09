@@ -571,3 +571,14 @@ pinned audio metadata/content check → cancellable desktop missing-media workfl
 verified copies into a new transactional destination → extended timing/gain/fade/
 rate/pitch model and loss preview → Undo/reopen/independent aligned render gates.
 Native Windows/installed evidence and broader format adapters remain required.
+
+## X004 pinned audio validation increment (2026-10-09)
+
+Checkpoint123 implements bounded RIFF/RIFX PCM/float and WAVEX validation through
+existing libsndfile virtual I/O on an approved handle. Next: independently admitted
+child report + terminal deadline/cancellation → validated SourceFile identities +
+explicit roots/replacements/portable mappings → desktop media checklist → verified
+transactional copies/new-project semantic state/loss review → Undo/reopen/aligned
+renders. RF64/W64/compressed/partial precision and broader sources stay in the full
+adapter backlog. Linux/native Windows/provider/installed/Europe qualification stay
+separate from this prerequisite; full milestone scope is unchanged.

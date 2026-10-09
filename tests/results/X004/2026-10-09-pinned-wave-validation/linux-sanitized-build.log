@@ -1,0 +1,4 @@
+[1/4] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[2/4] Linking CXX static library libsc-wave-validation.a
+[3/4] Linking CXX executable sc-wave-validation-tests
+[4/4] Linking CXX executable sc-approved-wave-probe

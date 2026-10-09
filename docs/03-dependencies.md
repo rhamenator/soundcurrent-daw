@@ -224,3 +224,13 @@ equalizer source or product runtime is selected. Native API/filesystem availabil
 serialized ownership and unsupported-feature refusal are explicit integration costs.
 Linux UAPI declarations retain their syscall-note boundary; release source/notices
 and each Windows/Linux qualification remain separate.
+
+## Approved WAVE virtual I/O (2026-10-09)
+
+[ADR089](decisions/089-pinned-wave-validation.md) reuses libsndfile1.2.2, its existing
+LGPL-2.1-or-later header/runtime/source pins and the approved-handle platform crypto.
+Original GPL preflight and virtual callbacks keep foreign pathname reopening/CRT
+crossing out of this boundary. No new runtime library, codec or copied vendor code.
+Callback budgets do not bound every decoder allocation/instruction; child deadlines,
+OS resource containment, broader formats/provider channel limits and final runtime/
+transitive/source-delivery packaging remain gates. This check stays off GUI/audio.

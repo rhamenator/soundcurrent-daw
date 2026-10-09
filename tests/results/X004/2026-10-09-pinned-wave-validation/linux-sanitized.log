@@ -1,0 +1,51 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 32
+    Start 32: approved-media-root
+
+32: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-approved-media-tests
+32: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+32: Test timeout computed to be: 30
+32: PASS: 159 approved-root checks; owned files, bounded reads/hash, no audio or conversion
+1/4 Test #32: approved-media-root ..............   Passed    0.05 sec
+test 33
+    Start 33: approved-media-probe
+
+33: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/approved_media_probe_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-approved-media-probe"
+33: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+33: Test timeout computed to be: 60
+33: PASS: 23 actual approved-media CLI checks; no audio decode/conversion
+2/4 Test #33: approved-media-probe .............   Passed    0.33 sec
+test 58
+    Start 58: approved-wave-content
+
+58: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-wave-validation-tests
+58: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+58: Test timeout computed to be: 60
+58: PASS: 20508 pinned WAVE checks; independent PCM/float samples, headroom, full bounded content; no project conversion
+3/4 Test #58: approved-wave-content ............   Passed    0.06 sec
+test 59
+    Start 59: approved-wave-probe
+
+59: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/approved_wave_probe_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-approved-wave-probe"
+59: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+59: Test timeout computed to be: 60
+59: {"checks": 64, "platform": "linux", "realWorker": true, "independentByteHashAndFloatHeadroom": true, "originalCorpusFiles": 2, "sourceUntouched": true, "projectConversion": false, "alignedRenderComparison": false}
+4/4 Test #59: approved-wave-probe ..............   Passed    0.48 sec
+
+The following tests passed:
+	approved-media-root
+	approved-media-probe
+	approved-wave-content
+	approved-wave-probe
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   0.91 sec

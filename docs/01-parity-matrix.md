@@ -285,3 +285,16 @@ Windows141/CLI23 checks, then Linux159/CLI23 for case-rule follow-up fixtures;
 that changed revision's native run remains pending. This is a prerequisite workflow, not
 source-project conversion, decoded-audio quality, bundled content or native-project
 compatibility. All frozen F/Q/C/N family contracts remain unchanged/unpromoted.
+
+## X004-MEDIA-002 content prerequisite (2026-10-09)
+
+[Checkpoint123](123-pinned-wave-validation.md) checks original RIFF/RIFX PCM/float
+and a full-precision WAVEX subset through pinned virtual I/O, with exact complete
+frame decode, finite/headroom checks, rate/channel/mask preservation and original
+byte hash. Linux20,508 independent checks and64 actual child checks include two
+frozen source-media files; native Windows follow-up remains a separate gate.
+The prerequisite folder revision now passes native162/CLI23 checks and merged
+PR66 after all four protected contexts. Content admission does not qualify source
+semantics, destination conversion, quality/render equivalence or an entire format.
+Broader formats, profiles/provider limits, UI/installation and all frozen F/Q/C/N
+contracts remain required and unpromoted.
