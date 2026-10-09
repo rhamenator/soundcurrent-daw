@@ -135,3 +135,13 @@ pass across the full timeline and three affected families. The separate
 separate-refresh-qualification.json binds the three revised source files,
 579 total inputs, executables, raw logs and review evidence. Native CI must
 qualify this subsequent production repair; earlier receipts retain their scopes.
+
+The subsequent run37964291200 at a29929a passes native Windows36/36 core and
+10/10 Qt, and Linux100/102 including all timeline workflows. Linux's two failures
+were the strict catalog/source-inventory gate and its malformed-catalog fixture:
+the UI refresh repair changed source hashes. Regeneration changes only the
+unembedded source-inventory.json; all770 keys/34 catalogs remain identical.
+The two local catalog gates now pass. Reviewed native archives and the separate
+reviewed-catalog-qualification.json retain exact source/count/digest scope.
+Revised protected CI remains required. [Checkpoint133](133-pitch-stretch-feasibility.md)
+records the separate bounded, unadopted pitch/stretch candidate experiment.

@@ -694,3 +694,12 @@ Current qualification is recorded separately. Full F/Q/C/N, independent pitch/
 stretch, tempo/rate automation, foreign conversion and installed/platform/European
 work remain required. No local VM or large installer archive is started during
 backup contention. Next: pin and qualify independent pitch/stretch preparation.
+
+## Independent stretch feasibility checkpoint (2026-10-09)
+
+[Checkpoint133](133-pitch-stretch-feasibility.md) records fifteen selected Linux
+synthetic configurations and Windows cross-build of pinned Rubber Band4.0.0,
+without adopting a dependency or promoting parity. Next: a resource-admitted,
+source-anchored stretch worker contract covering exact integer duration, derived
+cache lifecycle, cancellation/refusal, seek/split/crop consistency and shared
+live/export reads.384k processing, native Windows and full quality remain gates.
