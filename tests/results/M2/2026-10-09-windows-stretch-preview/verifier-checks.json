@@ -1,0 +1,30 @@
+{
+  "scope": "Retained-data verifier refusals; no native Windows replay",
+  "positiveWithCurrent661Inputs": true,
+  "cases": [
+    {
+      "case": "inflated-installed-scope",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError: cleanInstallQualified"
+    },
+    {
+      "case": "altered-counter",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "archive-identity",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "changed-raw-with-recomputed-manifest",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    }
+  ]
+}

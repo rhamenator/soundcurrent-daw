@@ -1,0 +1,285 @@
+{
+  "format": "sc-windows-stretch-preview-capture-v1",
+  "sourceCommit": "f9a63532685c988b4d7203da537957cab41dff92",
+  "sourceTree": "742b786db890a67bbefddcdac8bdb6125d2a481e",
+  "equivalentProtectedMerge": "8f65dfc6dd3aa078f810ee033cbd7d3f652a6a1e",
+  "nativePlatform": "win32",
+  "compiler": "MSVC 19.44.35228",
+  "qt": "6.12.0",
+  "sndfile": "1.2.2",
+  "nativeSourceInputs": 661,
+  "workerChecks": 173,
+  "completedJobs": 34,
+  "processReceiptChecks": 175,
+  "artifactVerifierChecks": 1045,
+  "desktopUiChecks": 48,
+  "desktopControllerChecks": 48,
+  "mainInteractiveSession": 1,
+  "mainExitCode": 0,
+  "cleanInstallQualified": false,
+  "nativeAudioActivated": false,
+  "releaseUploaded": false,
+  "vmStopped": true,
+  "archive": {
+    "path": "capture.zip",
+    "bytes": 108698,
+    "sha256": "bc5507b3a819f0f28d49447fc84aef39555ee728d08f83f0a5f002aac4523a89",
+    "entries": {
+      "commands/audit-first-attempt.json": {
+        "bytes": 306,
+        "sha256": "9c10820b6b03c389de7c6f461b09e5ffa06859a55bb092fbc9b78ffec16e6281"
+      },
+      "commands/audit-package.py": {
+        "bytes": 2185,
+        "sha256": "e34abc51ba9a9c06a2d3097fccf9e36eda31737dec2bd1773f1438d45087d0f9"
+      },
+      "commands/build-native.log": {
+        "bytes": 469338,
+        "sha256": "3286368522dd8537b9e8a410d0c3b39497d0adf694842674aa2609b2d9e97182"
+      },
+      "commands/build-native.ps1": {
+        "bytes": 950,
+        "sha256": "246322f3d319e4c6e19f74e537eaf212d5a0a06fd5fe4feb98b8080cd67d3447"
+      },
+      "commands/continue-copy-qualification.py": {
+        "bytes": 2424,
+        "sha256": "c3317eef84960b197217f083d4760ed189d4e6f8a3f126294924e29e5a8cc928"
+      },
+      "commands/continue-qualification.log": {
+        "bytes": 1196,
+        "sha256": "d3fb1ba39d9bf4ac42b810f34beaa824ba4b2ffa6039bb19b1ff6903d2f4137b"
+      },
+      "commands/continue-qualification.ps1": {
+        "bytes": 908,
+        "sha256": "7ca5567829cce6c491a3b8791a2b58e0eb4ddd01cbbb57c427211adf33b49fb6"
+      },
+      "commands/deploy-native.log": {
+        "bytes": 4924,
+        "sha256": "9756e1ce0961ff6e3e0aa7f1441d500fcb2f4c08966a045610fe1e140d053aeb"
+      },
+      "commands/deploy-native.ps1": {
+        "bytes": 1821,
+        "sha256": "708aaaf9c045a1af95ddf6ddb5dc0648f5aef08b6ff64d3644dd1160dbde6548"
+      },
+      "commands/main-dispatch.log": {
+        "bytes": 664,
+        "sha256": "836649b4e194371fbad58096fe5c33cbf8d36307a1957f159eef38928a576994"
+      },
+      "commands/main-interactive.ps1": {
+        "bytes": 2054,
+        "sha256": "a662d029fa5a24aea78093d80cfd6d6c50019f89d12107963d4d58f510d293a3"
+      },
+      "commands/package-audit.json": {
+        "bytes": 1173,
+        "sha256": "d6e0433649f3cb0fd91e31b53133330789086a942d92e21d5031fcce977d0c68"
+      },
+      "commands/package-audit.log": {
+        "bytes": 1173,
+        "sha256": "d6e0433649f3cb0fd91e31b53133330789086a942d92e21d5031fcce977d0c68"
+      },
+      "commands/package.log": {
+        "bytes": 336,
+        "sha256": "98b242eac2f2fa8af72420abfa79eed62d26952b61bef05c8a8fd3196b033001"
+      },
+      "commands/prepare-canonical.log": {
+        "bytes": 3346,
+        "sha256": "a7154e805fe6e868bd2cce5c811848a17ef61e0138640f00bbf079f31922409e"
+      },
+      "commands/prepare-canonical.ps1": {
+        "bytes": 1431,
+        "sha256": "09d06b286a767651afefa329c23b0db1952c5d17a496ba96804faabdda05b574"
+      },
+      "commands/qualify-helpers.py": {
+        "bytes": 5169,
+        "sha256": "9eb81d8b84f2873c69cd9c94632f566f67990e996e64cdd6413f88328c67b87c"
+      },
+      "commands/qualify-native.log": {
+        "bytes": 536,
+        "sha256": "08f799bf2166e9e40b82975eab1671b4c6ca0bf508817ab3ca64f7548efa35c5"
+      },
+      "commands/repair-index.log": {
+        "bytes": 455,
+        "sha256": "66c62cf7050ff7969aec2224951c61d4d22da98b174d0341cf6f2ccc9420c760"
+      },
+      "commands/repair-index.ps1": {
+        "bytes": 738,
+        "sha256": "4ff5fa244fe4551888ffe4e51f4b7db6b0ea5e5c8d29978a4b3731b3b7cee11c"
+      },
+      "commands/restore-exact-checkout.py": {
+        "bytes": 1547,
+        "sha256": "d7fa47256933556748074e7039f7d8812c6a181ea14cea25c6172aff5ef176a4"
+      },
+      "commands/retain-native.log": {
+        "bytes": 619,
+        "sha256": "9a01175264b9cc5e784d3b1be86cf7a8957a75268aaf4f5d6cd1f2f5109f924d"
+      },
+      "commands/retain-native.ps1": {
+        "bytes": 525,
+        "sha256": "823d112b363f87fbdd3bb9e95135bd4f522d2efa65ec144ec7fbff05f1128271"
+      },
+      "native/audio.wav": {
+        "bytes": 65580,
+        "sha256": "f524f28f7ea8ed9d2d2f3cc7d78b2eaf7155287f97db87a834f8f57ba5f2f52f"
+      },
+      "native/build-inputs.json": {
+        "bytes": 101544,
+        "sha256": "0f8251a97a9821b032e18dbb0d6e6f4dba492190ebd082b6b4f9083ab1040216"
+      },
+      "native/copy-qualified.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/copy-qualified.stdout": {
+        "bytes": 1153,
+        "sha256": "a984f4a9529981aa34e480ccebb5c67c3ce995a62b6b282a1e97952effe2d327"
+      },
+      "native/copy-worker-qualification.json": {
+        "bytes": 428,
+        "sha256": "73e8d811cac28ffef816f07a73a562deaca49162225f60d15a10eb632f3a74b0"
+      },
+      "native/deploy-manifest.json": {
+        "bytes": 3431,
+        "sha256": "f958d86d4065ff005c0be893dcbda52fb3e36585e2ad3d88b9371188ccfeff59"
+      },
+      "native/inspection-worker-qualification.json": {
+        "bytes": 307,
+        "sha256": "3db2a94e7d53aad7ee628bd550b5d35172d73d68f769a56d7f08d7c1a433a69c"
+      },
+      "native/main-qualification.json": {
+        "bytes": 445,
+        "sha256": "05dc08a8acd952804239b8d9ba4ff7020a5a27d000260de2513d891221f5ca14"
+      },
+      "native/main-window.json": {
+        "bytes": 307,
+        "sha256": "33ba3bda2a05d6957530f5540a6b2a5eb592c30a320a5dfeb619f9e6687aaeb9"
+      },
+      "native/main.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/main.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/media-worker-qualification.json": {
+        "bytes": 314,
+        "sha256": "e3b4da3b786a7caf8ffd424f7734c06dae130a56e3aeb3a82bf9a198356a8712"
+      },
+      "native/native-desktop-LastTest.log": {
+        "bytes": 2701,
+        "sha256": "90431a11952bf7ce36ccb558077b255d7eb72e795fee0c0a9d7af3961bac144a"
+      },
+      "native/owned.rpp": {
+        "bytes": 112,
+        "sha256": "14cb293f3a724cae4c342ad58023de3f8f814cfb603a8f73105477a5c3de0467"
+      },
+      "native/owned.scinspect": {
+        "bytes": 4572,
+        "sha256": "9fc6719c6e526a3bb512775c924c43bb1877f98844752f6c26a62f3e7eb35416"
+      },
+      "native/sc-approved-wave-probe.exe.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/sc-approved-wave-probe.exe.stdout": {
+        "bytes": 428,
+        "sha256": "05348c255b217b454f85c54ff0e5636497dbefb9c41a3a80b5b7b79aa1d05752"
+      },
+      "native/sc-import-inspect-worker.exe.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/sc-import-inspect-worker.exe.stdout": {
+        "bytes": 4366,
+        "sha256": "b38fcb0bf31caa9b615c266851cd7e50ccee4fd34c69748c821468df6d04e373"
+      },
+      "native/sc-media-import-worker.exe.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native/sc-media-import-worker.exe.stdout": {
+        "bytes": 1153,
+        "sha256": "949142215724e0bc0adf7d1d90d79274cd1dbed36a30f06ba8f4c2b7469adff2"
+      },
+      "native/stretch-worker-qualification.json": {
+        "bytes": 954,
+        "sha256": "c8b70b0ff95c9ed2e450f2166571241f23474b76fa4aecf78066d8c223364f7e"
+      },
+      "package/SHA256SUMS": {
+        "bytes": 478,
+        "sha256": "2780c9f774ffd81bc1076bc2295c8fafdb78d2a0e1bf3e1b4c3625a5e8f1ed7a"
+      },
+      "package/makensis.log": {
+        "bytes": 1251,
+        "sha256": "6b605869bc6cf6eefcba4f6ba3e9a42eec30a6b52f36225812a81aef2cea8959"
+      },
+      "package/payload.nsh": {
+        "bytes": 9611,
+        "sha256": "dc72d29eedf2b64cee931033310e13acfa8795c428fe4ae19a7852c0952dfc7b"
+      },
+      "package/preflight.nsh": {
+        "bytes": 5006,
+        "sha256": "93d04ef96d08eaa6a659f2ed3bd942968c2093db2c375dfa1c520e1db9e714e0"
+      },
+      "package/preview.nsi": {
+        "bytes": 6776,
+        "sha256": "02548a02005f2e7172c4bdcb1a1d346b127ff05589bef918770e573667671f8c"
+      },
+      "package/receipt.json": {
+        "bytes": 11575,
+        "sha256": "39c5032925333a64ec078b15ede7b694b5c9d51b2321936e3b5b0457fbebb718"
+      },
+      "package/remove.nsh": {
+        "bytes": 10735,
+        "sha256": "f25abd4c50a1da304ae4919174746e9d132d1c026539be508b6963a62cc5ee0b"
+      }
+    }
+  },
+  "localDeploymentArchives": {
+    "retained.zip": {
+      "sha256": "9c99a1673042d1ed9bced14cd91a0b05be2c3aedd76b2de277c4eb10ca215d4e",
+      "bytes": 69251
+    },
+    "deploy.zip": {
+      "sha256": "8af09f45a2fc9339b9f2e5e8bc3e269d01acfab1e9617a862fbb62012c615082",
+      "bytes": 16247075
+    }
+  },
+  "packaging": {
+    "format": "sc-windows-stretch-package-audit-v1",
+    "sourceHead": "f9a63532685c988b4d7203da537957cab41dff92",
+    "sourceTree": "742b786db890a67bbefddcdac8bdb6125d2a481e",
+    "nativeSourceInputs": 661,
+    "sourceArchiveInputsChecked": 662,
+    "artifactIdentities": {
+      "SoundCurrent-DAW-20261009232400-f9a63532685c-x64-setup.exe": {
+        "bytes": 35065933,
+        "sha256": "75af398f0c2cbbc36c0f236311745e89f34321ef59e9cde149da7d80dbefe302"
+      },
+      "soundcurrent-daw-20261009232400-f9a63532685c-source.tar.gz": {
+        "bytes": 720996128,
+        "sha256": "076a89a9e5cd1a0da02d8e721abadbbfc661a68afb3c33cd3985edbfeba8e776"
+      },
+      "dependency-source/libsndfile-1.2.2.tar.gz": {
+        "bytes": 684875,
+        "sha256": "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121"
+      },
+      "dependency-source/qtbase-everywhere-src-6.12.0.tar.xz": {
+        "bytes": 51220268,
+        "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307"
+      }
+    },
+    "payloadFiles": 64,
+    "artifactHashesVerified": true,
+    "payloadHashesVerified": true,
+    "sourceArchiveInputsVerified": true,
+    "nativeInstalledAcceptance": false,
+    "releaseUploaded": false
+  },
+  "failuresPreserved": [
+    "canonical checkout status/cache failures retained locally; index tree equality established before build",
+    "native helper harness KeyError sha256; new observed child validated sourceSha256/stagedSha256",
+    "first archive audit requested nonexistent README.md; corrected actual tracked-member audit passed"
+  ],
+  "scope": "Maintainer observations of actual developer-SDK native processes and a local unsigned package; retained data verification is not replay, installed acceptance, physical audio or quality parity"
+}

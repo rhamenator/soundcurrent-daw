@@ -3583,3 +3583,18 @@ exact derived/export PCM and repeat-export bytes pass. Both normal Quit exits0;
 package removal/reinstall preserves user data. No physical audio, host install,
 VM, binary upload or full F/Q/C/N completion. Current-source/native Windows
 installation remains next.
+
+## Native Windows stretch preview preparation (2026-10-09)
+
+Previous goal turn was progress: PR80 merged normally through unchanged protection
+as8f65dfc, with exact f9a6353 source/tree and four qualified CI gates. This increment
+adds actual local Windows MSVC/Qt6.12 build/process evidence, preserving the clean
+canonical 661-input checkout and failed qualification-script attempts. Actual
+173/34/1045 render checks, 48/48 desktop checks, four helper receipts and interactive
+main normal exit pass. [Checkpoint139](139-native-windows-stretch-preview.md)
+records the local unsigned installer/GPL source pair and independently checked
+payload/archive members. All VMs are stopped. No installer binary was uploaded,
+no development-VM installation or physical audio is claimed, and equalizers and
+original VMs/template remain unchanged. Next: actual installed Windows acceptance
+on an independent clone. Full F/Q/C/N parity and European translation delivery
+remain incomplete.
