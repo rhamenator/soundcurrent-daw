@@ -453,7 +453,7 @@
       }
     },
     "modifications": [],
-    "scope": "Prepared disk/read-ahead resampling component; not yet connected to Session playback or project conversion",
+    "scope": "Pinned worker-side streaming SRC and shared positioned clip playback/export; independent playback rate/pitch/stretch and import adoption remain separate",
     "build": {
       "linkage": "static",
       "bestSinc": true,
@@ -466,7 +466,7 @@
       "CONFIG_CHAN_NR": 256,
       "sanitizers": "Upstream C instrumented when application C++ sanitizer flags are enabled"
     },
-    "nativeWindowsQualification": "pending",
+    "nativeWindowsQualification": "Streaming component qualified at 07e9935abab04331a99e35e403cccf665206af40 (PR74); positioned integration pending exact-head native CI",
     "tagObject": "b9c20b93660c3683fda12e3c2a01f0021bf96c56",
     "sourceCommit": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7",
     "releaseDate": "2021-09-05T11:49:04Z",
@@ -519,6 +519,21 @@
         "usedInSelectedBuild": false,
         "noticeLocation": "Original Wenzel Jakob 2015 copyright, two conditions and disclaimer retained; this unused discovery module does not link FFTW."
       }
-    ]
+    ],
+    "positionedAdapter": {
+      "source": "src/positioned_resampling.cpp",
+      "license": "BSD-2-Clause",
+      "algorithmId": "soundcurrent.src-positioned-best-v1",
+      "coefficientSource": "src/high_qual_coeffs.h",
+      "recurrenceSource": "src/src_sinc.c",
+      "upstreamFilesModified": false,
+      "changes": [
+        "Immutable absolute-position FIR halves and interpolation",
+        "Exact rational source origin, bounded caller-owned context",
+        "No upstream private state ABI or prefix replay",
+        "Near-one phase carry and disjoint storage refusal"
+      ],
+      "processingOwner": "Serialized disk/read-ahead worker; callback only consumes prepared slabs"
+    }
   }
 }

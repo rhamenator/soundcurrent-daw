@@ -201,6 +201,7 @@ MediaReadCache::MediaReadCache(std::filesystem::path root, std::span<const Asset
                                std::uint32_t rate, MediaCacheConfig config,
                                const std::function<void()> &beforeRead) {
     const auto g = geometry(assets, config);
+    require(rate>=8000 && rate<=384000,"Invalid project rate for media cache");
     auto lease = config.resources ? config.resources->reserve(g.bytes) : ResourceLease{};
     state_ = std::make_unique<State>(std::move(lease));
     auto &s = *state_;
@@ -211,9 +212,6 @@ MediaReadCache::MediaReadCache(std::filesystem::path root, std::span<const Asset
     s.entries.reserve(assets.size());
     s.index.reserve(assets.size());
     for (const auto &a : assets) {
-        require(a.sampleRate == rate,
-                "Playback needs matching source rate; resampler is not prepared",
-                ErrorCode::MediaMismatch);
         require(s.index.emplace(a.id.str(), s.entries.size()).second,
                 "Duplicate cache asset identity");
         s.entries.push_back({a});

@@ -67,6 +67,7 @@ def verify_staged_install(stage, root, executable):
     expected = {
         'usr/bin/soundcurrent-daw': executable,
         'usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt': root/'reuse/equipment/upstream/data/equipment/LICENSE',
+        'usr/share/licenses/soundcurrent-daw/libsamplerate-BSD-2-Clause.txt': root/'third_party/libsamplerate/COPYING',
         'usr/share/doc/soundcurrent-daw/equipment-provenance.json': root/'reuse/equipment/provenance.json',
         'usr/share/applications/soundcurrent-daw.desktop': root/'packaging/soundcurrent-daw.desktop',
         'usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg': root/'packaging/soundcurrent-daw.svg',

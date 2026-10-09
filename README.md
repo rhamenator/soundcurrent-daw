@@ -25,6 +25,12 @@ checks. Original source bytes and floating headroom are preserved. Broader audio
 formats and destination project conversion remain required; installed previews
 need a refresh and separate qualification.
 
+Development also includes [exact positioned clip playback/export](docs/131-positioned-clip-playback.md)
+for owned assets at different physical sample rates. The desktop shows exact
+fractional source positions and offers project-frame crop/split with Undo/Redo.
+Independent pitch/stretch, foreign-property adoption and installed/native audio
+qualification remain open; existing installer previews contain earlier code.
+
 The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records
 through the native desktop, plays with live EQ/Undo, saves/reopens and exports WAV.
 Independent raw/output/export sample checks pass on an owned loopback route with

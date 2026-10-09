@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/session.hpp>
+#include <soundcurrent/clip_timing.hpp>
+#include <numeric>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -226,10 +228,25 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                 } else if constexpr (std::is_same_v<E, SetClipRange>) {
                     auto &c = *find(track(proposed, e.track).clips, e.clip);
                     require(e.source >= 0, "Invalid clip source frame");
-                    shiftClipProcessing(c.processing, e.source - c.sourceFrame);
+                    const auto &asset=*find(proposed.assets,c.assetId);
+                    const auto sourceDelta=e.source-c.sourceFrame;
+                    const auto magnitude=sourceDelta<0 ? -sourceDelta : sourceDelta;
+                    const auto delta=SourceFrameMap(proposed.sampleRate,asset.sampleRate).at(magnitude);
+                    require(delta.fraction==0,"Source trim is not on the project grid; use project-frame cropping");
+                    shiftClipProcessing(c.processing,sourceDelta<0 ? -delta.frame : delta.frame);
                     c.startFrame = e.start;
                     c.sourceFrame = e.source;
                     c.lengthFrames = e.length;
+                } else if constexpr (std::is_same_v<E, CropClip>) {
+                    auto &c=*find(track(proposed,e.track).clips,e.clip);
+                    const auto &asset=*find(proposed.assets,c.assetId);
+                    const auto source=clipSourceMap(c,asset.sampleRate,proposed.sampleRate)
+                        .translated(e.consumedProjectFrames).at(0);
+                    shiftClipProcessing(c.processing,e.consumedProjectFrames);
+                    c.startFrame=e.start;c.lengthFrames=e.length;
+                    const auto divisor=std::gcd(source.fraction,source.denominator);
+                    c.sourceFrame=source.frame;
+                    c.sourceTiming={source.fraction/divisor,source.denominator/divisor};
                 } else if constexpr (std::is_same_v<E, SetClipProcessing>) {
                     validateClipProcessing(e.value);
                     find(track(proposed, e.track).clips,e.clip)->processing = e.value;
@@ -257,7 +274,11 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     const auto leftLength = e.position - it->startFrame;
                     right.id = e.rightId;
                     right.startFrame = e.position;
-                    right.sourceFrame += leftLength;
+                    const auto &asset=*find(proposed.assets,it->assetId);
+                    const auto source=clipSourceMap(*it,asset.sampleRate,proposed.sampleRate).at(leftLength);
+                    const auto divisor=std::gcd(source.fraction,source.denominator);
+                    right.sourceFrame=source.frame;
+                    right.sourceTiming={source.fraction/divisor,source.denominator/divisor};
                     shiftClipProcessing(right.processing,leftLength);
                     right.lengthFrames -= leftLength;
                     it->lengthFrames = leftLength;

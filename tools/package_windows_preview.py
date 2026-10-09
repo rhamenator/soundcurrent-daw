@@ -204,6 +204,7 @@ def package(args):
                    require_media_worker=needs_media_worker,require_copy_worker=needs_copy_worker)
     legal=stage/'licenses';legal.mkdir()
     for name,path in {'GPL-3.0.txt':ROOT/'LICENSE','libsndfile-LGPL.txt':ROOT/'third_party/libsndfile/COPYING',
+                      'libsamplerate-BSD-2-Clause.txt':ROOT/'third_party/libsamplerate/COPYING',
                       'nlohmann-MIT.txt':ROOT/'third_party/nlohmann/LICENSE.MIT',
                       'equipment-GPL.txt':ROOT/'reuse/equipment/upstream/data/equipment/LICENSE',
                       'NSIS-copyright.txt':Path('/usr/share/doc/nsis/copyright')}.items():

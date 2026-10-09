@@ -5,6 +5,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <soundcurrent/project_store.hpp>
+#include <soundcurrent/positioned_resampling.hpp>
 #include <unordered_set>
 #ifdef SC_STORE_IMPORT_STATE
 #include <soundcurrent/project_import_state.hpp>
@@ -54,6 +55,12 @@ std::uint32_t u32(const Json &j) {
     const auto n = integer(j);
     require(n >= 0 && n <= std::numeric_limits<std::uint32_t>::max(), "Integer out of range");
     return static_cast<std::uint32_t>(n);
+}
+std::uint64_t u64(const Json &j) {
+    require(j.is_number_integer(),"Expected unsigned integer");
+    if(j.is_number_unsigned()) return j.get<std::uint64_t>();
+    require(j.get<Frame>()>=0,"Negative unsigned integer");
+    return std::uint64_t(j.get<Frame>());
 }
 bool boolean(const Json &j) {
     require(j.is_boolean(), "Expected boolean");
@@ -288,6 +295,9 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                              {"startFrame", c.startFrame},
                              {"sourceFrame", c.sourceFrame},
                              {"lengthFrames", c.lengthFrames},
+                             {"sourceTiming",{{"fraction",c.sourceTiming.fraction},
+                                 {"denominator",c.sourceTiming.denominator},
+                                 {"algorithm",positionedResamplingAlgorithmId}}},
                              {"processing", {{"gainDb",c.processing.gainDb},
                                  {"muted",c.processing.muted},
                                  {"polarityInverted",c.processing.polarityInverted},
@@ -322,7 +332,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 9},
+        {"schemaMinor", 10},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -464,7 +474,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 9),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 10),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -570,14 +580,27 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             for (const auto &c : t.at("clips")) {
                 if (minor < 9)
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames"});
-                else
+                else if(minor==9)
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing"});
+                else
+                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming"});
                 Clip clip;
                 clip.id = Id(string(c.at("id")));
                 clip.assetId = Id(string(c.at("assetId")));
                 clip.startFrame = integer(c.at("startFrame"));
                 clip.sourceFrame = integer(c.at("sourceFrame"));
                 clip.lengthFrames = integer(c.at("lengthFrames"));
+                if(minor>=10) {
+                    const auto &timing=c.at("sourceTiming");keys(timing,{"fraction","denominator","algorithm"});
+                    require(string(timing.at("algorithm"))==positionedResamplingAlgorithmId,
+                            "Unsupported clip source algorithm",ErrorCode::UnsupportedSchema);
+                    clip.sourceTiming={u64(timing.at("fraction")),u64(timing.at("denominator"))};
+                } else {
+                    const auto asset=std::find_if(s.assets.begin(),s.assets.end(),
+                        [&](const auto &a){return a.id==clip.assetId;});
+                    require(asset==s.assets.end() || asset->sampleRate==s.sampleRate,
+                            "Legacy mixed-rate timing requires explicit conversion",ErrorCode::UnsupportedSchema);
+                }
                 if (minor >= 9) {
                     const auto &p = c.at("processing");
                     keys(p,{"gainDb","muted","polarityInverted","fadeIn","fadeOut"});

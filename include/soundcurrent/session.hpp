@@ -172,9 +172,19 @@ struct ClipProcessing {
     bool operator==(const ClipProcessing &) const = default;
 };
 void validateClipProcessing(const ClipProcessing &);
-// Control only, strong exception guarantee, shift anchors by consumed source
-// frames. Today's clips are unity-rate; rate/pitch mapping remains separate work.
+// Control only, strong exception guarantee; shift clip-relative fade anchors by
+// consumed project frames, independently of the clip's source sample rate.
 void shiftClipProcessing(ClipProcessing &, Frame consumedFrames);
+struct SourcePosition {
+    Frame frame = 0;
+    std::uint64_t fraction = 0, denominator = 1;
+    bool operator==(const SourcePosition &) const = default;
+};
+struct ClipSourceTiming {
+    // Exact source fraction; length/start/fade anchors use project frames.
+    std::uint64_t fraction = 0, denominator = 1;
+    bool operator==(const ClipSourceTiming &) const = default;
+};
 struct Clip {
     Id id = Id::generate();
     Id assetId = Id::generate();
@@ -182,6 +192,7 @@ struct Clip {
     Frame sourceFrame = 0;
     Frame lengthFrames = 0;
     ClipProcessing processing;
+    ClipSourceTiming sourceTiming;
     bool operator==(const Clip &) const = default;
 };
 enum class RecordingMonitor { Off, PostEq, AutoRecording };
@@ -304,6 +315,10 @@ struct SetClipRange {
     Id track, clip;
     Frame start, source, length;
 };
+struct CropClip {
+    Id track, clip;
+    Frame start, consumedProjectFrames, length;
+};
 struct SetClipProcessing {
     Id track, clip;
     ClipProcessing value;
@@ -329,7 +344,7 @@ struct SetInputLatency {
 };
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
-                 SetClipRange, SetClipProcessing, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
+                 SetClipRange, CropClip, SetClipProcessing, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

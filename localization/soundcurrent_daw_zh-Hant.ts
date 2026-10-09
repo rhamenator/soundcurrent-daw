@@ -2941,7 +2941,11 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Length in frames</source>
+      <source>Integer source frame; the exact fractional part is preserved. Use project crop for edits between source frames.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Length in project frames</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2949,7 +2953,23 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Crop offset in project frames</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Positive values remove the beginning; negative values reveal earlier source audio. Timeline start and length are project frames.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Exact source position</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Apply range</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Apply project crop</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -3085,6 +3105,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>%1 + %2/%3 source frames · %4 Hz → %5 Hz project</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Select a clip to edit its exact frame range. Raw media is preserved.</source>
       <translation type="unfinished" />
     </message>
@@ -3104,7 +3128,7 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Start %1 · source %2 · length %3 frames</source>
+      <source>Start %1 · source %2 + %3/%4 · length %5 project frames</source>
       <translation type="unfinished" />
     </message>
   </context>

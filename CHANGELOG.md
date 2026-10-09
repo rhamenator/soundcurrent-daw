@@ -8,6 +8,13 @@
 
 ## Unreleased — development preview
 
+- Owned clips now retain exact fractional source positions at different physical
+  sample rates. Shared playback/export, project-frame crop/split, Undo/Redo and
+  save/reopen use schema1.10. The desktop shows source/project rates and offers
+  signed project crops. Updated installers require the pinned BSD kernel license;
+  installed preview refresh, pitch/stretch and foreign-project conversion remain
+  separate qualification gates. See [checkpoint131](docs/131-positioned-clip-playback.md).
+
 - Development WAVE checking now validates admitted PCM/float headers and complete
   samples through pinned virtual I/O, preserving original metadata, byte hashes
   and floating headroom. Linux gates pass; native Windows follow-up is separate.

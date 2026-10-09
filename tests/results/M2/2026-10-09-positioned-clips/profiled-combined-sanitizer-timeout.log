@@ -1,0 +1,44 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start  5: positioned-resampling-workflow
+1/6 Test  #5: positioned-resampling-workflow ...***Timeout  90.06 sec
+positioned_stage=start elapsed_ms=0
+positioned_pinned_samples=323574 maximum_difference=0 arbitrary_fraction_sine_error=3.43304e-07 layouts=1,2,3,4,6,8,32,128,256
+positioned_stage=kernels elapsed_ms=46242
+positioned_stage=state elapsed_ms=46334
+positioned_workflow=48000:44100 channels=1
+positioned_workflow=48000:44100 channels=2
+positioned_workflow=48000:44100 channels=8
+positioned_workflow=48000:44100 channels=32
+positioned_workflow=48000:44100 channels=256
+positioned_workflow=44100:48000 channels=1
+positioned_workflow=44100:48000 channels=2
+positioned_workflow=44100:48000 channels=8
+positioned_workflow=44100:48000 channels=32
+positioned_workflow=44100:48000 channels=256
+positioned_workflow=96000:48000 channels=1
+positioned_workflow=96000:48000 channels=2
+positioned_workflow=96000:48000 channels=8
+positioned_workflow=96000:48000 channels=32
+positioned_workflow=96000:48000 channels=256
+positioned_workflow=48000:48000 channels=1
+positioned_workflow=48000:48000 channels=2
+positioned_workflow=48000:48000 channels=8
+
+    Start  6: fractional-timing-oracle
+2/6 Test  #6: fractional-timing-oracle .........   Passed   15.33 sec
+    Start 37: desktop-clip-processing
+3/6 Test #37: desktop-clip-processing ..........   Passed    0.50 sec
+    Start 38: desktop-positioned-clips
+4/6 Test #38: desktop-positioned-clips .........   Passed    0.49 sec
+    Start 56: session-state
+5/6 Test #56: session-state ....................   Passed    0.43 sec
+    Start 59: multitrack-edits
+6/6 Test #59: multitrack-edits .................   Passed    6.73 sec
+
+83% tests passed, 1 tests failed out of 6
+
+Total Test time (real) = 113.55 sec
+
+The following tests FAILED:
+	  5 - positioned-resampling-workflow (Timeout)
+Errors while running CTest

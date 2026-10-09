@@ -24,7 +24,9 @@ struct MediaCacheStatistics {
 std::size_t mediaCachePayloadBytes(std::span<const Asset>, MediaCacheConfig = {});
 class MediaReadCache {
   public:
-    MediaReadCache(std::filesystem::path root, std::span<const Asset>, std::uint32_t sampleRate,
+    // Project rate is validated separately. Decoding/read coordinates always
+    // use each asset's own physical rate; conversion belongs to TrackReader.
+    MediaReadCache(std::filesystem::path root, std::span<const Asset>, std::uint32_t projectRate,
                    MediaCacheConfig = {}, const std::function<void()> &beforeAdmissionRead = {});
     ~MediaReadCache();
     MediaReadCache(const MediaReadCache &) = delete;

@@ -3,6 +3,7 @@
 #include "session_list_model.hpp"
 #include "timeline_view.hpp"
 #include "accelerating_spinbox.hpp"
+#include <soundcurrent/clip_timing.hpp>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
@@ -182,13 +183,25 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     };
     start_ = frameField("clipStartFrame", QT_TRANSLATE_NOOP("TimelineEditor", "Timeline start frame"));
     source_ = frameField("clipSourceFrame", QT_TRANSLATE_NOOP("TimelineEditor", "Source start frame"));
-    length_ = frameField("clipLengthFrames", QT_TRANSLATE_NOOP("TimelineEditor", "Length in frames"));
+    source_->setToolTip(tr("Integer source frame; the exact fractional part is preserved. Use project crop for edits between source frames."));
+    length_ = frameField("clipLengthFrames", QT_TRANSLATE_NOOP("TimelineEditor", "Length in project frames"));
     split_ = frameField("clipSplitFrame", QT_TRANSLATE_NOOP("TimelineEditor", "Split at timeline frame"));
+    consumed_ = frameField("clipConsumedProjectFrames", QT_TRANSLATE_NOOP("TimelineEditor", "Crop offset in project frames"));
+    consumed_->setToolTip(tr("Positive values remove the beginning; negative values reveal earlier source audio. Timeline start and length are project frames."));
+    sourceTiming_ = new QLabel;
+    sourceTiming_->setObjectName("clipSourceTiming");
+    sourceTiming_->setWordWrap(true);
+    sourceTiming_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    ranges->addRow(tr("Exact source position"), sourceTiming_);
     body->addLayout(ranges);
     auto *clipRow = new QHBoxLayout;
     button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Apply range"), "applyClipRange", [this] {
         if (clip_ && track_)
             mutate({SetClipRange{*track_, *clip_, frame(start_), frame(source_), frame(length_)}});
+    });
+    button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Apply project crop"), "cropAudioClip", [this] {
+        if (clip_ && track_)
+            mutate({CropClip{*track_, *clip_, frame(start_), frame(consumed_,true), frame(length_)}});
     });
     button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Split"), "splitAudioClip", [this] {
         if (clip_ && track_)
@@ -301,7 +314,7 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
         Clip c;
         c.assetId = id;
         c.startFrame = model_->playheadFrame;
-        c.lengthFrames = it->frames;
+        c.lengthFrames = SourceFrameMap(it->sampleRate,model_->sampleRate).projectFramesForSource(it->frames);
         mutate({InsertClip{*track_, std::move(c), {}}});
     });
     zoom_ = new QSlider(Qt::Horizontal);
@@ -361,7 +374,7 @@ Frame TimelineEditor::frame(QLineEdit *w, bool allowSigned) const {
         std::from_chars(bytes.constData(), bytes.constData() + bytes.size(), n);
     if (error != std::errc{} || end != bytes.constData() + bytes.size() || (!allowSigned && n < 0))
         throw ProjectError(ErrorCode::InvalidParameter,
-                           allowSigned ? "Fade frame must be a signed decimal integer" :
+                           allowSigned ? "Frame must be a signed decimal integer" :
                                          "Frame must be a nonnegative decimal integer");
     return n;
 }
@@ -570,17 +583,26 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
     field(fadeOutStart_,p.fadeOut.startFrame,forceProcessing);field(fadeOutEnd_,p.fadeOut.endFrame,forceProcessing);
     if (forceProcessing || !fadeInCurve_->hasFocus()) fadeInCurve_->setCurrentIndex(fadeInCurve_->findData(int(p.fadeIn.curve)));
     if (forceProcessing || !fadeOutCurve_->hasFocus()) fadeOutCurve_->setCurrentIndex(fadeOutCurve_->findData(int(p.fadeOut.curve)));
-    for (auto *w : {start_, source_, length_, split_})
+    for (auto *w : {start_, source_, length_, split_, consumed_})
         w->setEnabled(editable_ && c);
+    field(consumed_,0,force);
     if (c) {
         field(start_, c->startFrame, force);
         field(source_, c->sourceFrame, force);
         field(length_, c->lengthFrames, force);
         field(split_, c->startFrame + c->lengthFrames / 2, force);
+        const auto asset=std::find_if(model_->assets.begin(),model_->assets.end(),
+                                     [&](const auto &a){return a.id==c->assetId;});
+        sourceTiming_->setText(tr("%1 + %2/%3 source frames · %4 Hz → %5 Hz project")
+            .arg(QLocale().toString(c->sourceFrame),
+                 QLocale().toString(qulonglong(c->sourceTiming.fraction)),
+                 QLocale().toString(qulonglong(c->sourceTiming.denominator)),
+                 QLocale().toString(asset->sampleRate),QLocale().toString(model_->sampleRate)));
     } else
-        for (auto *w : {start_, source_, length_, split_})
+        for (auto *w : {start_, source_, length_, split_, consumed_})
             if (force || !w->hasFocus())
                 w->clear();
+    if(!c) sourceTiming_->clear();
     for (auto *b : mutations_) {
         const auto n = b->objectName();
         bool usable = bool(t);

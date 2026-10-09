@@ -243,7 +243,7 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/fades_crossfades_and_envelopes/fades_crossfades_c.html?contentId=iNGCanNPEOt7kqsEB6nWjA",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: schema1.9 original gain/mute/polarity and editable linear/equal-power/smoothstep fades; split/trim preserve sample gains; one Undo and exact save/reopen; shared live/export owned 1/2/8/32/256-channel samples.",
+      "implementation": "Partial: schema1.10 retains original gain/mute/polarity and editable linear/equal-power/smoothstep fades; project-domain split/crop preserve exact fractional source positions and sample gains at different physical rates; Undo/Redo/save-reopen; shared owned live/export waveform equality and desktop project crop. Independent pitch/stretch, interactive crossfade/reference variants remain open.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -256,7 +256,9 @@
         "tests/results/M2/2026-10-06-multitrack-edits.json",
         "tests/results/M2/2026-10-06-desktop-timeline.json",
         "docs/129-clip-gain-and-fades.md",
-        "tests/results/M2/2026-10-09-clip-processing/"
+        "tests/results/M2/2026-10-09-clip-processing/",
+        "docs/131-positioned-clip-playback.md",
+        "tests/results/M2/2026-10-09-positioned-clips/"
       ]
     },
     {

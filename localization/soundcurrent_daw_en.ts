@@ -2958,16 +2958,36 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Source start frame</translation>
     </message>
     <message>
-      <source>Length in frames</source>
-      <translation>Length in frames</translation>
+      <source>Integer source frame; the exact fractional part is preserved. Use project crop for edits between source frames.</source>
+      <translation>Integer source frame; the exact fractional part is preserved. Use project crop for edits between source frames.</translation>
+    </message>
+    <message>
+      <source>Length in project frames</source>
+      <translation>Length in project frames</translation>
     </message>
     <message>
       <source>Split at timeline frame</source>
       <translation>Split at timeline frame</translation>
     </message>
     <message>
+      <source>Crop offset in project frames</source>
+      <translation>Crop offset in project frames</translation>
+    </message>
+    <message>
+      <source>Positive values remove the beginning; negative values reveal earlier source audio. Timeline start and length are project frames.</source>
+      <translation>Positive values remove the beginning; negative values reveal earlier source audio. Timeline start and length are project frames.</translation>
+    </message>
+    <message>
+      <source>Exact source position</source>
+      <translation>Exact source position</translation>
+    </message>
+    <message>
       <source>Apply range</source>
       <translation>Apply range</translation>
+    </message>
+    <message>
+      <source>Apply project crop</source>
+      <translation>Apply project crop</translation>
     </message>
     <message>
       <source>Split</source>
@@ -3102,6 +3122,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>View could not be updated: %1</translation>
     </message>
     <message>
+      <source>%1 + %2/%3 source frames · %4 Hz → %5 Hz project</source>
+      <translation>%1 + %2/%3 source frames · %4 Hz → %5 Hz project</translation>
+    </message>
+    <message>
       <source>Select a clip to edit its exact frame range. Raw media is preserved.</source>
       <translation>Select a clip to edit its exact frame range. Raw media is preserved.</translation>
     </message>
@@ -3121,8 +3145,8 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation> s</translation>
     </message>
     <message>
-      <source>Start %1 · source %2 · length %3 frames</source>
-      <translation>Start %1 · source %2 · length %3 frames</translation>
+      <source>Start %1 · source %2 + %3/%4 · length %5 project frames</source>
+      <translation>Start %1 · source %2 + %3/%4 · length %5 project frames</translation>
     </message>
   </context>
 </TS>

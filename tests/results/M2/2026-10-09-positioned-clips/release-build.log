@@ -1,0 +1,37 @@
+[0/1] Re-running CMake...
+CMake Deprecation Warning at third_party/libsamplerate/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- Checking processor clipping capabilities...
+-- Checking processor clipping capabilities... none
+-- Configuring done (6.4s)
+-- Generating done (2.8s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/23] Building CXX object CMakeFiles/sc-reaper-import.dir/src/reaper_import.cpp.o
+[2/23] Building CXX object CMakeFiles/sc-positioned-resampling.dir/src/positioned_resampling.cpp.o
+[3/23] Linking CXX static library libsc-reaper-import.a
+[4/23] Linking CXX static library libsc-positioned-resampling.a
+[5/23] Building CXX object CMakeFiles/sc-approved-wave-probe.dir/tools/approved_wave_probe.cpp.o
+[6/23] Building CXX object CMakeFiles/sc-media-import-worker.dir/tools/media_import_worker.cpp.o
+[7/23] Linking CXX executable sc-media-import-worker
+[8/23] Linking CXX executable sc-approved-wave-probe
+[9/23] Building CXX object CMakeFiles/sc-import-inspect-worker.dir/tools/import_inspect_worker.cpp.o
+[10/23] Linking CXX executable sc-import-inspect-worker
+[11/23] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/main.cpp.o
+[12/23] Building CXX object CMakeFiles/sc-positioned-resampling-tests.dir/tests/positioned_resampling_tests.cpp.o
+[13/23] Linking CXX executable sc-positioned-resampling-tests
+[14/23] Linking CXX executable sc-localization-tests
+[15/23] Linking CXX executable sc-timeline-ui-tests
+[16/23] Linking CXX executable sc-project-import-state-tests
+[17/23] Linking CXX executable sc-mix-playback-tests
+[18/23] Linking CXX executable sc-media-cache-tests
+[19/23] Linking CXX executable sc-export-tests
+[20/23] Linking CXX executable sc-clip-processing-tests
+[21/23] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/studio_window.cpp.o
+[22/23] Linking CXX executable soundcurrent-daw
