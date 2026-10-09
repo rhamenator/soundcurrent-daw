@@ -84,7 +84,7 @@ void workflow() {
 void persistence() {
     auto plain=source();auto s=plain;auto c=result(s,s.tracks[0].clips[0].id,{3,2,1200000,false});applySessionEdits(s,{c});
     auto j=nlohmann::json::parse(encodeProject(s));check(j["schemaMinor"]==12,"Stretch schema did not advance");
-    check(j["tracks"][0]["clips"][0]["stretch"]["processor"]==stretchProcessorId,"Processor identity lost");
+    check(j["tracks"][0]["clips"][0]["stretch"]["processor"].get<std::string>()==stretchProcessorId,"Processor identity lost");
     for(unsigned mode=0;mode<22;++mode) {
         auto bad=j;auto &v=bad["tracks"][0]["clips"][0]["stretch"];auto &p=v["settings"];
         if(mode==0) v["processor"]="unknown";

@@ -90,3 +90,13 @@ recovery/cache lifecycle, very short clip context/alignment, dynamic warp maps,
 segmented pitch editing, wider rates/layouts and independent transient/formant/
 spatial processing-quality checks. No claim of reference parity follows from the
 processor name or successful bounced-media playback.
+
+## Native test compilation correction
+
+The first native MSVC job for source16914c1 (run37985229178) failed before runtime
+tests: comparing a JSON value directly with a `std::string_view` processor constant
+is ambiguous under that compiler's C++20 overload rules. The assertion now extracts
+`std::string` explicitly. No engine, schema, protocol or acceptance contract changes.
+The [failed raw job log and correction receipt](../tests/results/M2/2026-10-09-editable-stretch/msvc-correction-qualification.json)
+retain this limitation and the corrected local Release2/2 and ASan/UBSan2/2 checks.
+Current-head native qualification still requires a fresh protected CI run.
