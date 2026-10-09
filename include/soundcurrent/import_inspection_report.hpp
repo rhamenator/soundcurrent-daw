@@ -27,6 +27,7 @@ class ImportInspectionReport {
 };
 std::size_t foreignSnapshotLines(std::string_view, std::stop_token = {});
 std::size_t inspectionRowsCharge(std::size_t lines);
+inline constexpr std::size_t inspectionDecoderExpansion = 32;
 std::size_t inspectionParserCharge(std::size_t encodedBytes);
 // Control/I/O worker only. Validate the child's bounded ASCII protocol against
 // the parent's owned bytes/hash and actual child PID. Never reparse foreign RPP

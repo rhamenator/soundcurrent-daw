@@ -67,7 +67,7 @@ std::size_t inspectionParserCharge(std::size_t bytes) {
     // Conservative payload allowance, not exact allocator/RSS accounting or an
     // OS sandbox. Encoded bytes/depth/tokens/keys remain independently bounded.
     PayloadCharge charge("Inspection decoder",std::numeric_limits<std::size_t>::max());
-    charge.add(32768); charge.add(bytes,16); return charge.bytes();
+    charge.add(32768); charge.add(bytes,inspectionDecoderExpansion); return charge.bytes();
 }
 ImportInspectionReport decodeInspectionReport(std::string_view encoded, ForeignSnapshot &&source,
     std::array<char,64> hash, std::size_t childPid, ResourceLedger resources,
@@ -108,7 +108,9 @@ ImportInspectionReport decodeInspectionReport(std::string_view encoded, ForeignS
         const auto &provenance=root["source"];
         keys(provenance,{"bytes","sha256","storage","consistency"});
         check(integer(provenance["bytes"])==source.bytes().size() &&
-              provenance["sha256"]==std::string_view(hash.data(),hash.size()) &&
+              provenance["sha256"].is_string() &&
+              std::string_view(provenance["sha256"].get_ref<const std::string &>())==
+                  std::string_view(hash.data(),hash.size()) &&
               provenance["storage"]=="worker-memory-snapshot" &&
               provenance["consistency"]=="size-and-mtime-checked-not-atomic");
         const auto &writer=root["writerVersion"]; keys(writer,{"status","headerRange"});

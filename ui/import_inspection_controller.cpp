@@ -66,12 +66,13 @@ struct ImportInspectionController::State : QThread {
         PayloadCharge fixed("Inspection fixed work",usage.limitBytes);
         fixed.add(rowsBytes); fixed.add(options.childMemoryBytes); fixed.add(32768);
         const auto available=usage.limitBytes-usage.reservedBytes;
-        if (available<=fixed.bytes()+17*512)
-            throw ResourceLimitError("Inspection work",fixed.bytes()+17*512,available);
+        constexpr auto expansion=inspectionDecoderExpansion+1; // Decoder plus encoded bank.
+        if (available<=fixed.bytes()+expansion*512)
+            throw ResourceLimitError("Inspection work",fixed.bytes()+expansion*512,available);
         PayloadCharge encodedBound("Inspection report estimate",std::numeric_limits<std::size_t>::max());
         encodedBound.add(2048); encodedBound.add(lines,512);
         const auto reportBytes=std::min({encodedBound.bytes(),options.maximumReportBytes,
-                                        (available-fixed.bytes())/17});
+                                        (available-fixed.bytes())/expansion});
         const auto parserBytes=inspectionParserCharge(reportBytes);
         PayloadCharge work("Inspection admitted work",usage.limitBytes);
         work.add(rowsBytes); work.add(options.childMemoryBytes); work.add(parserBytes); work.add(reportBytes);

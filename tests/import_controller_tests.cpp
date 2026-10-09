@@ -93,12 +93,19 @@ int main(int argc,char **argv) {
             check(failed->phase==InspectionPhase::Fault && failed->childPid && failed->childExit==0 && !failed->report,
                   "Invalid child protocol was published as an import result"); retired(memory);
         }
-        for (unsigned fault=0;fault<3;++fault) {
+        for (unsigned fault=0;fault<4;++fault) {
             InspectionOptions options; options.memory=memory;
             options.afterChild=[&](std::string &encoded,std::size_t) {
                 if (fault==0) encoded.insert(1,"\"root\":0,"); // Duplicate, never normalize.
                 if (fault==1) encoded=std::string(32,'[')+"0"+std::string(32,']');
                 if (fault==2) encoded.erase(encoded.size()-2);
+                if (fault==3) {
+                    // Many tiny containers stress DOM overhead per encoded byte.
+                    // Still bounded by the response bank and rejected as schema.
+                    encoded="{\"nodes\":[";
+                    for (unsigned n=0;n<1000;++n) encoded+=(n ? ",{}" : "{}");
+                    encoded+="]}";
+                }
             };
             ImportInspectionController controller(options); controller.submit(file);
             const auto failed=finish(controller);

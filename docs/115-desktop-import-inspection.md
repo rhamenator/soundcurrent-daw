@@ -34,7 +34,9 @@ Both processes acquire checked read-only plain-file handles. The parent retains
 its own exact source bytes and hash. A shared application ledger reserves the
 child payload allowance, response bank, decoder allowance and row bank before
 spawn. Response capacity follows the input line count, configured maximum and
-remaining resource allowance. Source/row leases survive controller destruction
+remaining resource allowance. Decoder payload allowance is 32 times the response
+capacity plus 32 KiB, allowing for high container overhead per encoded byte;
+the encoded bank is admitted separately. Source/row leases survive controller destruction
 while any result borrower still owns them.
 
 Default input is at most 16 MiB; structural limits remain 200,000 lines and
@@ -94,6 +96,10 @@ The initial sanitizer GUI failure is retained: a minimal Qt typed-signal probe
 fails with the old `-fno-pie` compilation and succeeds with `-fPIC`. Rebuilding
 with `-fPIC` and `-no-pie` executable linking passes all three affected tests;
 ASan/UBSan runs disable leak detection, so no leak-sanitizer claim is made.
+A [follow-up receipt](../tests/results/X004/2026-10-08-desktop-inspection/decoder-followup.json)
+retains 62 controller checks, larger decoder admission, high-container-overhead
+refusal and the initial MSVC comparison compile failure/fix. Native follow-up
+execution remains pending; original earlier receipts are preserved.
 
 Payload admission is not an exact RSS ceiling: Qt/process/provider/runtime and
 allocator overhead remain outside it. Hard OS memory limits and access sandboxing
