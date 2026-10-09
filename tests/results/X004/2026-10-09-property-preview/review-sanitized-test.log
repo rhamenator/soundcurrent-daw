@@ -1,0 +1,37 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 3
+    Start 3: desktop-import-ui
+
+3: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-ui-tests
+3: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+3: Environment variables: 
+3:  QT_QPA_PLATFORM=offscreen
+3: Test timeout computed to be: 60
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support raise()
+3: This plugin does not support raise()
+3: PASS: 90 import preview UI checks; actual child, no project mutation, async retirement.
+1/1 Test #3: desktop-import-ui ................   Passed    1.14 sec
+
+The following tests passed:
+	desktop-import-ui
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.15 sec

@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-10-09T03:45:28.310186+00:00",
+  "pr": 63,
+  "run": 37880039173,
+  "job": 113657379652,
+  "originalHead": "1bb2afd391fb6041f780a3318f41252f11a847aa",
+  "artifact": 11593934175,
+  "archiveSha256": "372d1c7d1a9e4ee76a6fb1fa99d17d64e8d6a59c2ce43be41ee0682cecea8ab4",
+  "lastTestSha256": "7e06d4242ebfcede8083b0f38e4228130f738c66599d4cb7a6816d47b58774a0",
+  "selectedTests": 78,
+  "failedTests": [
+    "manual-recording-control"
+  ],
+  "passedTests": 77,
+  "failure": "Control owner command refused; original log lacks the admission/status/workflow/frame context needed to establish the cause.",
+  "cause": "unknown",
+  "importPropertyProtocolChecks": 569,
+  "nativeConversionQualified": false,
+  "next": "Retain this failure and emit bounded contextual diagnostics on refusal without changing control policy, acceptance, buffers, delays, or retrying refused commands."
+}

@@ -94,6 +94,23 @@ selected MSVC tests, including890 original property checks; its exact artifact
 metadata, archive digests and logs are retained separately. That predecessor run
 does not qualify this new protocol or GUI revision.
 
+The same original hosted Linux run passes77 of78 tests, including the new
+property protocol, but its existing manual-recording-control test refuses a
+command without contextual diagnostics. The original failure archive/log is
+retained and its cause remains unknown. A test-only diagnostic follow-up prints
+workflow/caller/action/frame/revision/take/admission/transport/position/slot data
+on refusal; it changes no product policy or acceptance condition. Its separate
+local pass is not an explanation of the original hosted failure.
+
+A review follow-up excludes missing and invalid unavailable entries from the
+summary of found values. The count is cached when an immutable report changes,
+so periodic GUI polling does not rescan the table. Empty, malformed and later
+valid-source fixtures verify0/0/1 values while retaining all property records.
+The corrected UI passes90 Release and90 ASan/UBSan checks with leak detection
+disabled; its separate review receipt pins the changed inputs and binaries. The
+manual diagnostic target passes65,141 local checks with its original acceptance
+policy; the original hosted refusal remains unexplained.
+
 Catalog extraction/checking records34 catalogs,669 source keys and3,135 existing
 draft translations. New entries remain unfinished outside English; no language
 receives native review or full UI qualification from these checks. All-Europe

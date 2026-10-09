@@ -1,0 +1,24 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 64
+    Start 64: manual-recording-control
+
+64: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-manual-recording-tests
+64: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+64: Test timeout computed to be: 60
+64: {"checks":65141,"repeated_workflows":3,"maximum_output_difference":0,"output_peak":2.14813,"rt_violations":0,"native_audio":false,"windows_runtime":false}
+1/1 Test #64: manual-recording-control .........   Passed    1.06 sec
+
+The following tests passed:
+	manual-recording-control
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.06 sec

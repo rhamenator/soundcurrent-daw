@@ -12,6 +12,7 @@
 #include <QTabWidget>
 #include <QTemporaryDir>
 #include <nlohmann/json.hpp>
+#include <array>
 #include <iostream>
 using namespace export_fixture;
 using namespace soundcurrent::daw::ui;
@@ -30,6 +31,8 @@ void directDialog(const std::filesystem::path &input) {
     check(dialog.snapshot()->report->hasProperties(),"Real inspection has no property metadata");
     auto *properties=find<QTableView>(dialog,"importPropertiesTable");
     await([&]{return properties->model()->rowCount()==7;});
+    check(find<QLabel>(dialog,"importInspectionStatus")->text().startsWith("1 original property value"),
+          "Summary counted unavailable property entries as found values");
     check(properties->model()->columnCount()==6,"Property/value/unit/status/detail columns missing");
     auto *tabs=find<QTabWidget>(dialog,"importInspectionTabs");
     check(tabs->currentIndex()==0,"Property preview is not the first page");
@@ -215,6 +218,28 @@ void window(const std::filesystem::path &root,const std::filesystem::path &input
     check(!w.inspectForeignProject(input),"Closed window admitted inspection");
 }
 }
+void valueSummary(const std::filesystem::path &root) {
+    ImportInspectionDialog dialog(nullptr,{}); dialog.show();
+    auto *table=find<QTableView>(dialog,"importPropertiesTable");
+    auto *summary=find<QLabel>(dialog,"importInspectionStatus");
+    const auto input=root/"summary.rpp";
+    const std::array<std::pair<std::string,int>,3> cases{{
+        {"<REAPER_PROJECT 0.1 7.82\n>\n",0},
+        {"<REAPER_PROJECT 0.1 7.82\n <TRACK\n NCHAN nan\n >\n>\n",0},
+        {"<REAPER_PROJECT 0.1 7.82\n <TRACK\n NCHAN 2\n >\n>\n",1}}};
+    for (const auto &[source,count]:cases) {
+        write(input,source); check(dialog.inspect(input),"Summary fixture was not admitted");
+        await([&]{return !dialog.snapshot()->busy;});
+        check(dialog.snapshot()->phase==InspectionPhase::Complete,"Summary fixture failed inspection");
+        await([&]{return table->model()->rowCount()==
+            int(dialog.snapshot()->report->properties().size());});
+        const auto expected=QString::number(count)+" original property value";
+        await([&]{return summary->text().startsWith(expected);});
+        check(summary->text().startsWith(expected),
+              "Missing or invalid values inflated the summary count");
+    }
+    dialog.close(); await([&]{return dialog.retired();});
+}
 int main(int argc,char **argv) {
     QApplication app(argc,argv); QApplication::setQuitOnLastWindowClosed(false);
     try {
@@ -224,7 +249,7 @@ int main(int argc,char **argv) {
         const std::string original="<REAPER_PROJECT 0.1 7.74\n <TRACK foreign\n NAME preserved\n >\n>\n";
         write(input,original);
         directDialog(input); nativeProperties(root); legacyOutline(input); escapedForeignText(root);
-        busyClose(input); window(root/"session",input);
+        valueSummary(root); busyClose(input); window(root/"session",input);
         check(bytes(input)==original,"Inspection modified original project bytes");
         std::cout<<"PASS: "<<checks<<" import preview UI checks; actual child, no project mutation, async retirement.\n";
         return 0;

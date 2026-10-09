@@ -60,6 +60,7 @@ class ImportInspectionDialog : public QDialog {
     QTimer *timer_;
     bool closing_=false;
     std::shared_ptr<const ImportInspectionReport> shown_;
+    int valueCount_ = 0;
     void poll();
     void retranslate();
 };

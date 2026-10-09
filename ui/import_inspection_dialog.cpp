@@ -277,6 +277,8 @@ void ImportInspectionDialog::poll() {
     const auto path=view->path.u8string(); file_->setText(QString::fromUtf8(reinterpret_cast<const char *>(path.data()),qsizetype(path.size())));
     if (view->report!=shown_) {
         shown_=view->report; model_.setReport(shown_); properties_.setReport(shown_);
+        valueCount_=shown_ ? int(std::count_if(shown_->properties().begin(),shown_->properties().end(),
+            [](const ImportProperty &p){return p.kind!=ImportValueKind::None;})) : 0;
         tabs_->setTabEnabled(0,shown_ && shown_->hasProperties());
         tabs_->setCurrentIndex(shown_ && shown_->hasProperties() ? 0 : 1);
     }
@@ -289,7 +291,7 @@ void ImportInspectionDialog::poll() {
     else if (view->phase==InspectionPhase::Complete && view->operation==InspectionOperation::SaveBundle)
         summary_->setText(tr("Inspection saved with the original source bytes. Project properties remain unverified."));
     else if (view->phase==InspectionPhase::Complete && view->report->hasProperties()) summary_->setText(
-        tr("%n original property value(s) found. Audio import is not available yet.",nullptr,int(view->report->properties().size())));
+        tr("%n original property value(s) found. Audio import is not available yet.",nullptr,valueCount_));
     else if (view->phase==InspectionPhase::Complete) summary_->setText(
         tr("%n source line(s) inspected. This saved outline has no property preview.",nullptr,int(view->report->nodes().size())));
     else if (view->phase==InspectionPhase::Canceled) summary_->setText(tr("Inspection canceled."));

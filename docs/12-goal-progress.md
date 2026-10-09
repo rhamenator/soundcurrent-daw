@@ -3317,3 +3317,16 @@ contain669 source keys,3,135 draft translations, no native-reviewed/fully-qualif
 language. No local VM or user audio/equalizer/installer changed. Next: approved
 media roots/missing choices and opt-in new-project conversion with aligned renders.
 All four parity axes and the full frozen-reference goal remain active/incomplete.
+
+### PR63 review/platform follow-up
+
+The initial exact `1bb2afd` passes the Windows cross-build and new Linux property
+boundary test but has two retained failures: native Windows defaults its witness
+reader to cp1252 (fixed by explicit UTF-8), and Linux manual-recording-control
+refuses a command with insufficient diagnostic context (cause unknown). Its
+original archives/logs remain in checkpoint120 evidence. A test-only refusal
+context adds no policy/oracle change; a local65,141-check pass does not explain
+that failure. The UI summary now excludes missing/invalid unavailable entries,
+caches the count on report change, and passes90 Release and90 ASan/UBSan checks.
+Corrected protected hosted checks remain pending; Windows Qt/install/native
+conversion and all full-parity axes remain incomplete. No local VM started.
