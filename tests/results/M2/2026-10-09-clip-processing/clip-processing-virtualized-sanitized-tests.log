@@ -1,0 +1,22 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start 32: desktop-clip-processing
+1/3 Test #32: desktop-clip-processing ..........   Passed    0.46 sec
+    Start 33: desktop-virtualized-views
+2/3 Test #33: desktop-virtualized-views ........***Timeout 180.22 sec
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-YonjYf
+Owned virtualized desktop project: "/tmp/sc-timeline-ui-tests-YonjYf/virtualized-project"
+This plugin does not support propagateSizeHints()
+Virtualized8192 Open elapsed ms=30294
+Paint at 818,110 actual=#50c371 expected=#50c371 row=8190 viewport=852x176
+This plugin does not support propagateSizeHints()
+
+    Start 34: desktop-track-scalability
+3/3 Test #34: desktop-track-scalability ........   Passed   48.12 sec
+
+67% tests passed, 1 tests failed out of 3
+
+Total Test time (real) = 228.81 sec
+
+The following tests FAILED:
+	 33 - desktop-virtualized-views (Timeout)
+Errors while running CTest

@@ -1,0 +1,17 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start  7: desktop-localization
+1/6 Test  #7: desktop-localization .............   Passed    0.66 sec
+    Start  8: daw-translation-catalogs
+2/6 Test  #8: daw-translation-catalogs .........   Passed    0.41 sec
+    Start 31: desktop-timeline
+3/6 Test #31: desktop-timeline .................   Passed    1.36 sec
+    Start 32: desktop-clip-processing
+4/6 Test #32: desktop-clip-processing ..........   Passed    0.30 sec
+    Start 33: desktop-virtualized-views
+5/6 Test #33: desktop-virtualized-views ........   Passed    5.54 sec
+    Start 34: desktop-track-scalability
+6/6 Test #34: desktop-track-scalability ........   Passed    1.45 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =   9.72 sec

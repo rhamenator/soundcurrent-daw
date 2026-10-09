@@ -32,3 +32,15 @@ timing slice; checkpoint129 links official licenses/APIs, maintenance observatio
 and bounded Linux feasibility. No production resampler or pitch/stretch dependency
 is selected by the four-tone experiment. Exact pins/transitives, processing-quality,
 platform/deadline/latency and full rate/layout gates precede adoption.
+
+## Focused processing fields and history
+
+Native Windows reproduced a focused gain control retaining stale display/canonical
+state after model Undo. Refresh compares the previous/current selected clip's
+stored processing and updates the processing fields when that value changes,
+including while focused. Unrelated publication retains in-progress focused input.
+The actual focused Undo/Redo assertion and deadline remain intact. The desktop
+repair changes neither processing, schema, resource grants nor callback ownership.
+Six affected local Release and three ASan/UBSan desktop tests pass; exact-source
+Windows qualification is a separate gate. Earlier hosted and large sanitizer
+failures remain retained; no deadline or protection was relaxed.

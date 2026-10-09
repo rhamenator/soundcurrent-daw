@@ -1,0 +1,44 @@
+{
+  "repair": "Refresh stored clip processing through focused controls on actual model change",
+  "nativeReproduction": {
+    "head": "e6d4edad2659b937b0803377011cc70e3ca6e6c2",
+    "run": 37926633504,
+    "failedTest": "desktop-clip-processing",
+    "assertionLine": 187,
+    "focusAssigned": true,
+    "linuxPassed": 92,
+    "windowsNativeCorePassed": 28,
+    "windowsNativeQtPassed": 7,
+    "windowsNativeQtTotal": 8
+  },
+  "newLocalRelease": {
+    "tests": 6,
+    "passed": 6,
+    "seconds": 9.72
+  },
+  "sourceSha256": {
+    "ui/timeline_editor.cpp": "307f8b1b095cdecae568ef55702140c79389220ee45c7e488b5f9ff6892c97fb",
+    "ui/timeline_editor.hpp": "e3741416d47f68134db79ee6fae17d9e5b67f41ced98da65faab0d21d755492c",
+    "tests/timeline_ui_tests.cpp": "5eaaed0bda71be493de00462acd739e5ac2656cce1e5bee7b00c9e326c28c65d",
+    "localization/source-inventory.json": "d21289d8f72c863894023bd6a8f52c2839fffe752312e754bde2acb5d6c4fd56"
+  },
+  "productionDSPChanged": false,
+  "assertionWeakened": false,
+  "nativeFocusTestTimeoutIncreased": false,
+  "largeSanitizerTimeoutErased": false,
+  "newNativeQualification": "pending",
+  "newLocalSanitizers": {
+    "tests": 3,
+    "passed": 3,
+    "seconds": 5.91,
+    "scope": [
+      "desktop-localization",
+      "desktop-timeline",
+      "desktop-clip-processing"
+    ],
+    "asan": true,
+    "ubsan": true,
+    "leakDetection": false,
+    "largeViewportTimeoutRepeated": false
+  }
+}

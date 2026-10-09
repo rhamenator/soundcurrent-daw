@@ -1,0 +1,15 @@
+[0/1] Re-running CMake...
+-- Configuring done (4.6s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/12] Automatic RCC for localization/daw_translations.qrc
+[2/12] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[3/12] Linking CXX static library libsc-ui-localization.a
+[4/12] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/timeline_editor.cpp.o
+[5/12] Linking CXX static library libsc-ui-timeline.a
+[6/12] Building CXX object CMakeFiles/sc-localization-tests.dir/tests/localization_tests.cpp.o
+[7/12] Building CXX object CMakeFiles/sc-localization-tests.dir/ui/studio_window.cpp.o
+[8/12] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o
+[9/12] Linking CXX executable sc-localization-tests
+[10/12] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/ui/studio_window.cpp.o
+[11/12] Linking CXX executable sc-timeline-ui-tests

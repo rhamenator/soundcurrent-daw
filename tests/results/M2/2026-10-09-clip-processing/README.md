@@ -72,3 +72,39 @@ no suspected focus defect was reproduced and no production refresh change was
 made. The stronger focus case remains in acceptance. The retained log named
 `focused-undo-original-failure` contains its actual passing result; its filename
 does not change that outcome.
+
+## Distinct second hosted cohort and Windows focused-Undo repair
+
+Head e6d4edad2659b937b0803377011cc70e3ca6e6c2 / run37926633504 passes
+all92 Linux tests and native Windows core28/cross-build. Native Qt7/8 passes;
+the added focus case times out at Undo's canonical-value assertion (line187).
+Focus was successfully assigned first. Unlike the preceding Linux exploratory
+pass, this native execution reproduces a stale focused gain display after the
+model's Undo. All three digest-verified archives and actual failure are retained.
+Neither earlier cohort substitutes for repaired-source qualification.
+
+The production refresh now compares the selected clip's previous/current stored
+processing. A changed value refreshes the processing fields even while focused;
+unrelated publications retain normal focused-input behavior. Schema, DSP, history,
+quotas and real-time ownership stay unchanged. The same focused Undo/Redo assertion
+remains, without increasing its timeout or moving focus away to hide the defect.
+
+The revised local sanitizer cohort has2/3 passes: focused clip processing and
+4096-track scalability. The8192-track viewport hits its existing180-second CTest
+limit (total228.81s), with no reported sanitizer defect before termination. Other
+compiler/Veeam processes were observed concurrently; that observation does not
+establish the timeout cause. The failure is retained, no repeat or deadline
+increase, and sanitizer qualification of that large workflow remains open.
+The earlier affected7/7 sanitizer cohort keeps its exact original scope; leak
+detection was disabled in both.
+
+## Repaired focused-control local acceptance
+
+The actual Windows reproduction prompted a stored-value refresh change, rather
+than weakening the focus test. Six affected local Release tests pass in9.72s;
+the three affected desktop ASan/UBSan tests pass in5.91s with leak detection
+disabled. The focused Undo/Redo, timeline and locale workflows exercise the repair.
+The1100×850 owned offscreen screenshot was inspected: controls and explanation
+fit with scrolling available. This does not qualify physical display scaling or
+native translated UI. The8192-track sanitizer timeout remains a distinct open gate.
+New exact-head hosted qualification is required, especially the Windows focus case.

@@ -3517,3 +3517,14 @@ pass. This does not expand production defaults or infer arbitrary capacity from
 a track count. User configuration of additional state/parser admission grants
 remains a separate X006 UI/product gate. New source/full/native gates are distinct
 from the preceding failing hosted source.
+
+## Native focused-Undo repair (2026-10-09)
+
+Second head e6d4eda/run37926633504 passes Linux92/native Windows core28 and
+cross-build, but native Qt7/8 reproduces stale focused gain state after Undo.
+The stored-value refresh now updates changed processing while focused. The actual
+assertion/deadline stay intact. Affected local Release6 and desktop ASan/UBSan3
+pass; leak detection is disabled and the separate8192-track sanitizer180-second
+timeout remains open. Digest-verified first/second hosted failures are retained.
+New exact-source native checks and installed preview refresh remain separate.
+Full frozen F/Q/C/N, Linux/Windows and European language goals remain incomplete.

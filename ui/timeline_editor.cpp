@@ -446,6 +446,8 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
     if (!p)
         return;
     const auto previous = track_;
+    const auto *previousClip = clip();
+    const auto previousProcessing = previousClip ? previousClip->processing : ClipProcessing{};
     const auto previousDestination = destination_->currentData().toString();
     const auto previousAsset = asset_->currentData().toString();
     const bool changed = model_ != p->model || epoch_ != p->epoch || track_ != p->track ||
@@ -465,8 +467,14 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         clip_ = std::move(p->clip);
         pendingTrack_ = std::move(p->pending);
     }
-    if (changed)
-        refresh(p->force, true, previousDestination, previousAsset);
+    if (changed) {
+        const auto *currentClip = clip();
+        const auto currentProcessing = currentClip ? currentClip->processing : ClipProcessing{};
+        // Stored changes (including Undo/Redo) must update these controls even
+        // while focused. Unrelated state publication preserves in-progress input.
+        refresh(p->force, true, previousDestination, previousAsset,
+                previousProcessing != currentProcessing);
+    }
     if (previous != track_ && selectionChanged)
         selectionChanged();
 }
@@ -513,7 +521,7 @@ bool TimelineEditor::selectTrack(const Id &id) {
     return select(id, track_ == std::optional<Id>(id) ? clip_ : std::optional<Id>{});
 }
 void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> destination,
-                             std::optional<QString> asset) {
+                             std::optional<QString> asset, bool forceProcessing) {
     QScopedValueRollback<bool> guard(refreshing_, true);
     QSignalBlocker block(tracks_);
     const auto previousDestination = destination.value_or(destination_->currentData().toString());
@@ -554,13 +562,14 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
     for (auto *w : {clipMuted_,clipInverted_}) w->setEnabled(editable_ && c);
     for (auto *w : {fadeInCurve_,fadeOutCurve_}) w->setEnabled(editable_ && c);
     const auto p = c ? c->processing : ClipProcessing{};
-    numericField(clipGain_,p.gainDb,force);numericField(fadeInShape_,p.fadeIn.shape,force);numericField(fadeOutShape_,p.fadeOut.shape,force);
-    if (force || !clipMuted_->hasFocus()) clipMuted_->setChecked(p.muted);
-    if (force || !clipInverted_->hasFocus()) clipInverted_->setChecked(p.polarityInverted);
-    field(fadeInStart_,p.fadeIn.startFrame,force);field(fadeInEnd_,p.fadeIn.endFrame,force);
-    field(fadeOutStart_,p.fadeOut.startFrame,force);field(fadeOutEnd_,p.fadeOut.endFrame,force);
-    if (force || !fadeInCurve_->hasFocus()) fadeInCurve_->setCurrentIndex(fadeInCurve_->findData(int(p.fadeIn.curve)));
-    if (force || !fadeOutCurve_->hasFocus()) fadeOutCurve_->setCurrentIndex(fadeOutCurve_->findData(int(p.fadeOut.curve)));
+    forceProcessing = forceProcessing || force;
+    numericField(clipGain_,p.gainDb,forceProcessing);numericField(fadeInShape_,p.fadeIn.shape,forceProcessing);numericField(fadeOutShape_,p.fadeOut.shape,forceProcessing);
+    if (forceProcessing || !clipMuted_->hasFocus()) clipMuted_->setChecked(p.muted);
+    if (forceProcessing || !clipInverted_->hasFocus()) clipInverted_->setChecked(p.polarityInverted);
+    field(fadeInStart_,p.fadeIn.startFrame,forceProcessing);field(fadeInEnd_,p.fadeIn.endFrame,forceProcessing);
+    field(fadeOutStart_,p.fadeOut.startFrame,forceProcessing);field(fadeOutEnd_,p.fadeOut.endFrame,forceProcessing);
+    if (forceProcessing || !fadeInCurve_->hasFocus()) fadeInCurve_->setCurrentIndex(fadeInCurve_->findData(int(p.fadeIn.curve)));
+    if (forceProcessing || !fadeOutCurve_->hasFocus()) fadeOutCurve_->setCurrentIndex(fadeOutCurve_->findData(int(p.fadeOut.curve)));
     for (auto *w : {start_, source_, length_, split_})
         w->setEnabled(editable_ && c);
     if (c) {
