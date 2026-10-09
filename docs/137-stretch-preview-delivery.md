@@ -73,3 +73,34 @@ actual render/verifier receipt and exact eleven-file CMake staging pass. The
 original pre-rebase local receipt remains historical, with its original identity;
 the current process receipt is retained separately. Native Windows receipt
 production and installer acceptance remain separate pending gates.
+
+Source95cfb7d passed all four CI gates in run37997241623: Linux108, native
+Windows core40, native Windows Qt12 and cross-build. The archived Windows process
+receipt passes the shared gate and binds its checkout tree to the exact qualified
+head. API SHA256, ZIP CRC, raw counters and659 source inputs were independently
+checked; retained `native-*` artifacts keep that exact scope.
+
+A local Ubuntu26.04 amd64 preview from95cfb7d was prepared as version
+`0.1.0~preview.20261009220811.95cfb7d92a01`. Its extracted payload bytes/modes and
+offscreen help/version pass. The3,329,414-byte DEB and719,323,438-byte matching
+source archive have retained hashes and packaging commands. Selected source
+archive inputs match the commit. Binaries remain local; clean installation,
+native audio and release upload are not claimed. Installed Windows delivery
+remains required.
+
+The existing32MiB resource test checks only nonzero exit and absence of completion.
+Its128-frame source is shorter than the prepared window, so that assertion alone
+cannot distinguish allocation failure from span refusal. A separate Linux probe
+uses a valid16,384-frame/192kHz/32-channel source:256MiB completes;32MiB emits
+`stretch.resource_limit` before creating job files. Vendor initialization occurs
+before the ready marker; requiring ready on the low-memory path was an incorrect
+initial fixture expectation, and that failure is preserved. Tighten the permanent
+fixture with the valid-span positive control and explicit error classification
+on Linux and native Windows before treating its counter as sufficient memory
+ceiling evidence. This does not change the frozen feature or quality scope.
+
+The permanent fixture now uses that valid16,384-frame source, requires the
+specific allocation-error identity with no job directory, and adds the256MiB
+completed positive control. Its new counters are173 acceptance checks and34
+completed jobs. Local and native execution of this revision must retain their
+own scope separately from the preceding172-check/33-job receipts.

@@ -1,0 +1,102 @@
+[
+  {
+    "argv": [
+      "cmake",
+      "--install",
+      "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release",
+      "--prefix",
+      "/usr"
+    ],
+    "exit": 0,
+    "stdout": "-- Install configuration: \"Release\"\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-stretch-render-worker\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/soundcurrent-daw\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-import-inspect-worker\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-approved-wave-probe\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-media-import-worker\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/share/licenses/soundcurrent-daw/libsamplerate-BSD-2-Clause.txt\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/share/doc/soundcurrent-daw/equipment-provenance.json\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/share/applications/soundcurrent-daw.desktop\n-- Installing: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "strip",
+      "--strip-unneeded",
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/soundcurrent-daw"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "dpkg-shlibdeps",
+      "-O",
+      "-e/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/soundcurrent-daw",
+      "-e/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-import-inspect-worker",
+      "-e/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-approved-wave-probe",
+      "-e/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-media-import-worker",
+      "-e/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/bin/sc-stretch-render-worker"
+    ],
+    "exit": 0,
+    "stdout": "shlibs:Depends=libc6 (>= 2.43), libgcc-s1 (>= 4.0), libpipewire-0.3-0t64 (>= 0.3.6), libqt6core6t64 (>= 6.10.2), libqt6gui6 (>= 6.9.1), libqt6widgets6 (>= 6.3.0), libsndfile1 (>= 1.0.20), libssl3t64 (>= 3.0.0), libstdc++6 (>= 14)\n",
+    "stderr": "dpkg-shlibdeps: warning: binaries to analyze should already be installed in their package's directory\ndpkg-shlibdeps: warning: binaries to analyze should already be installed in their package's directory\ndpkg-shlibdeps: warning: binaries to analyze should already be installed in their package's directory\ndpkg-shlibdeps: warning: binaries to analyze should already be installed in their package's directory\ndpkg-shlibdeps: warning: binaries to analyze should already be installed in their package's directory\n"
+  },
+  {
+    "argv": [
+      "desktop-file-validate",
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage/usr/share/applications/soundcurrent-daw.desktop"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "dpkg-deb",
+      "--root-owner-group",
+      "--build",
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/stage",
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/soundcurrent-daw_0.1.0~preview.20261009220811.95cfb7d92a01_amd64.deb"
+    ],
+    "exit": 0,
+    "stdout": "dpkg-deb: building package 'soundcurrent-daw' in '/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/soundcurrent-daw_0.1.0~preview.20261009220811.95cfb7d92a01_amd64.deb'.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "archive",
+      "--format=tar.gz",
+      "--prefix=soundcurrent-daw/",
+      "-o",
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/soundcurrent-daw-0.1.0~preview.20261009220811.95cfb7d92a01-source.tar.gz",
+      "95cfb7d92a01abf82fa7c7f0963aec0b1fcbf698"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "dpkg-deb",
+      "--extract",
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/soundcurrent-daw_0.1.0~preview.20261009220811.95cfb7d92a01_amd64.deb",
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/extracted"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/extracted/usr/bin/soundcurrent-daw",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "SoundCurrent DAW 0.1.0\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/extracted/usr/bin/soundcurrent-daw",
+      "--help"
+    ],
+    "exit": 0,
+    "stdout": "Usage: /home/rich/dev/soundcurrent-daw/.cache/stretch-preview-package-20261009220811/extracted/usr/bin/soundcurrent-daw [options] project\n\nOptions:\n  --language <tag>  Interface language tag (draft catalogs available)\n  -h, --help        Displays help on commandline options.\n  --help-all        Displays help, including generic Qt options.\n  -v, --version     Displays version information.\n\nArguments:\n  project           Project folder to open\n",
+    "stderr": ""
+  }
+]

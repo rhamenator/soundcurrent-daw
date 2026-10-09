@@ -1,0 +1,229 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+        Start   1: prepared-resampling
+  1/112 Test   #1: prepared-resampling ...................   Passed    1.68 sec
+        Start   2: prepared-timing-oracle
+  2/112 Test   #2: prepared-timing-oracle ................   Passed    0.93 sec
+        Start   3: resampler-source-integrity
+  3/112 Test   #3: resampler-source-integrity ............   Passed    0.24 sec
+        Start   4: native-buffer-acquisition
+  4/112 Test   #4: native-buffer-acquisition .............   Passed    0.01 sec
+        Start   5: stretch-worker-workflows
+  5/112 Test   #5: stretch-worker-workflows ..............   Passed    4.29 sec
+        Start   6: stretch-source-integrity
+  6/112 Test   #6: stretch-source-integrity ..............   Passed    0.19 sec
+        Start   7: positioned-resampling-kernel
+  7/112 Test   #7: positioned-resampling-kernel ..........   Passed    3.64 sec
+        Start   8: positioned-resampling-workflow
+  8/112 Test   #8: positioned-resampling-workflow ........   Passed    3.00 sec
+        Start   9: fractional-timing-oracle
+  9/112 Test   #9: fractional-timing-oracle ..............   Passed    3.37 sec
+        Start  10: clip-playback-rate
+ 10/112 Test  #10: clip-playback-rate ....................   Passed    1.58 sec
+        Start  11: playback-rate-timing-oracle
+ 11/112 Test  #11: playback-rate-timing-oracle ...........   Passed    1.60 sec
+        Start  12: desktop-stretch-ui
+ 12/112 Test  #12: desktop-stretch-ui ....................   Passed    1.20 sec
+        Start  13: desktop-stretch-controller
+ 13/112 Test  #13: desktop-stretch-controller ............   Passed    0.92 sec
+        Start  14: desktop-media-copy-controller
+ 14/112 Test  #14: desktop-media-copy-controller .........   Passed    1.57 sec
+        Start  15: desktop-media-controller
+ 15/112 Test  #15: desktop-media-controller ..............   Passed    0.74 sec
+        Start  16: desktop-import-media-ui
+ 16/112 Test  #16: desktop-import-media-ui ...............   Passed    0.83 sec
+        Start  17: desktop-import-controller
+ 17/112 Test  #17: desktop-import-controller .............   Passed    0.83 sec
+        Start  18: desktop-import-ui
+ 18/112 Test  #18: desktop-import-ui .....................   Passed    0.47 sec
+        Start  19: desktop-localization
+ 19/112 Test  #19: desktop-localization ..................   Passed    0.64 sec
+        Start  20: daw-translation-catalogs
+ 20/112 Test  #20: daw-translation-catalogs ..............   Passed    0.41 sec
+        Start  21: daw-translation-catalog-failures
+ 21/112 Test  #21: daw-translation-catalog-failures ......   Passed    2.74 sec
+        Start  22: windows-stop-analysis
+ 22/112 Test  #22: windows-stop-analysis .................   Passed    4.40 sec
+        Start  23: input-acquisition-evidence
+ 23/112 Test  #23: input-acquisition-evidence ............   Passed    2.57 sec
+        Start  24: windows-startup-analysis
+ 24/112 Test  #24: windows-startup-analysis ..............   Passed    2.84 sec
+        Start  25: preview-package-provenance
+ 25/112 Test  #25: preview-package-provenance ............   Passed    0.30 sec
+        Start  26: windows-package-inputs
+ 26/112 Test  #26: windows-package-inputs ................   Passed    0.24 sec
+        Start  27: desktop-snapshot-resources
+ 27/112 Test  #27: desktop-snapshot-resources ............   Passed    0.54 sec
+        Start  28: desktop-snapshot-attachment
+ 28/112 Test  #28: desktop-snapshot-attachment ...........   Passed    0.16 sec
+        Start  29: desktop-combined-resources
+ 29/112 Test  #29: desktop-combined-resources ............   Passed    0.27 sec
+        Start  30: desktop-export-controller
+ 30/112 Test  #30: desktop-export-controller .............   Passed    0.12 sec
+        Start  31: desktop-export-ui
+ 31/112 Test  #31: desktop-export-ui .....................   Passed    2.58 sec
+        Start  32: equipment-editor
+ 32/112 Test  #32: equipment-editor ......................   Passed    3.39 sec
+        Start  33: desktop-gui-resources
+ 33/112 Test  #33: desktop-gui-resources .................   Passed    1.39 sec
+        Start  34: desktop-gui-early-prepare
+ 34/112 Test  #34: desktop-gui-early-prepare .............   Passed    0.21 sec
+        Start  35: desktop-history-resources
+ 35/112 Test  #35: desktop-history-resources .............   Passed    6.67 sec
+        Start  36: desktop-history-startup-policy
+ 36/112 Test  #36: desktop-history-startup-policy ........   Passed    0.19 sec
+        Start  37: desktop-memory-resources
+ 37/112 Test  #37: desktop-memory-resources ..............   Passed    0.57 sec
+        Start  38: desktop-history-preflight-peak
+ 38/112 Test  #38: desktop-history-preflight-peak ........   Passed    0.06 sec
+        Start  39: desktop-controller
+ 39/112 Test  #39: desktop-controller ....................   Passed    0.33 sec
+        Start  40: desktop-configured-preflight
+ 40/112 Test  #40: desktop-configured-preflight ..........   Passed    0.03 sec
+        Start  41: desktop-playback-controller
+ 41/112 Test  #41: desktop-playback-controller ...........   Passed    0.68 sec
+        Start  42: desktop-recording-controller
+ 42/112 Test  #42: desktop-recording-controller ..........   Passed    0.88 sec
+        Start  43: desktop-timeline
+ 43/112 Test  #43: desktop-timeline ......................   Passed    1.35 sec
+        Start  44: desktop-clip-processing
+ 44/112 Test  #44: desktop-clip-processing ...............   Passed    0.26 sec
+        Start  45: desktop-playback-rate
+ 45/112 Test  #45: desktop-playback-rate .................   Passed    0.38 sec
+        Start  46: desktop-positioned-clips
+ 46/112 Test  #46: desktop-positioned-clips ..............   Passed    0.23 sec
+        Start  47: desktop-virtualized-views
+ 47/112 Test  #47: desktop-virtualized-views .............   Passed    6.44 sec
+        Start  48: desktop-track-scalability
+ 48/112 Test  #48: desktop-track-scalability .............   Passed    1.41 sec
+        Start  49: desktop-ui
+ 49/112 Test  #49: desktop-ui ............................   Passed    6.02 sec
+        Start  50: desktop-manual-recording
+ 50/112 Test  #50: desktop-manual-recording ..............   Passed    2.08 sec
+        Start  51: verified-media-staging
+ 51/112 Test  #51: verified-media-staging ................   Passed    0.06 sec
+        Start  52: approved-media-root
+ 52/112 Test  #52: approved-media-root ...................   Passed    0.01 sec
+        Start  53: verified-media-stage-worker
+ 53/112 Test  #53: verified-media-stage-worker ...........   Passed    0.30 sec
+        Start  54: approved-media-probe
+ 54/112 Test  #54: approved-media-probe ..................   Passed    0.25 sec
+        Start  55: inspection-bundle
+ 55/112 Test  #55: inspection-bundle .....................   Passed    0.01 sec
+        Start  56: reaper-structure
+ 56/112 Test  #56: reaper-structure ......................   Passed    0.05 sec
+        Start  57: reaper-import-properties
+ 57/112 Test  #57: reaper-import-properties ..............   Passed    0.02 sec
+        Start  58: import-inspection-worker
+ 58/112 Test  #58: import-inspection-worker ..............   Passed    0.39 sec
+        Start  59: reaper-native-corpus
+ 59/112 Test  #59: reaper-native-corpus ..................   Passed    0.37 sec
+        Start  60: import-property-protocol
+ 60/112 Test  #60: import-property-protocol ..............   Passed    0.72 sec
+        Start  61: resource-admitted-tracks
+ 61/112 Test  #61: resource-admitted-tracks ..............   Passed    3.85 sec
+        Start  62: native-duration-timing
+ 62/112 Test  #62: native-duration-timing ................   Passed    0.00 sec
+        Start  63: resource-ledger
+ 63/112 Test  #63: resource-ledger .......................   Passed    0.11 sec
+        Start  64: session-state
+ 64/112 Test  #64: session-state .........................   Passed    0.04 sec
+        Start  65: project-routing
+ 65/112 Test  #65: project-routing .......................   Passed    0.03 sec
+        Start  66: history-resources
+ 66/112 Test  #66: history-resources .....................   Passed    2.76 sec
+        Start  67: multitrack-edits
+ 67/112 Test  #67: multitrack-edits ......................   Passed    0.43 sec
+        Start  68: editable-stretch-state
+ 68/112 Test  #68: editable-stretch-state ................   Passed    0.01 sec
+        Start  69: stretch-timing-oracle
+ 69/112 Test  #69: stretch-timing-oracle .................   Passed    0.22 sec
+        Start  70: project-monitoring
+ 70/112 Test  #70: project-monitoring ....................   Passed    0.01 sec
+        Start  71: multitrack-mix-graph
+ 71/112 Test  #71: multitrack-mix-graph ..................   Passed    0.04 sec
+        Start  72: immediate-controls
+ 72/112 Test  #72: immediate-controls ....................   Passed    0.01 sec
+        Start  73: capture-transport
+ 73/112 Test  #73: capture-transport .....................   Passed    0.20 sec
+        Start  74: audio-bridge
+ 74/112 Test  #74: audio-bridge ..........................   Passed    0.06 sec
+        Start  75: wasapi-packet-admission
+ 75/112 Test  #75: wasapi-packet-admission ...............   Passed    0.00 sec
+        Start  76: wasapi-packet-copy
+ 76/112 Test  #76: wasapi-packet-copy ....................   Passed    0.01 sec
+        Start  77: wasapi-port-selection
+ 77/112 Test  #77: wasapi-port-selection .................   Passed    0.00 sec
+        Start  78: native-render-timing
+ 78/112 Test  #78: native-render-timing ..................   Passed    0.00 sec
+        Start  79: wasapi-capture-trace
+ 79/112 Test  #79: wasapi-capture-trace ..................   Passed    0.01 sec
+        Start  80: wasapi-render-trace
+ 80/112 Test  #80: wasapi-render-trace ...................   Passed    0.00 sec
+        Start  81: project-import-state
+ 81/112 Test  #81: project-import-state ..................   Passed    0.59 sec
+        Start  82: media-provenance-transaction
+ 82/112 Test  #82: media-provenance-transaction ..........   Passed    0.57 sec
+        Start  83: approved-wave-content
+ 83/112 Test  #83: approved-wave-content .................   Passed    0.01 sec
+        Start  84: approved-wave-probe
+ 84/112 Test  #84: approved-wave-probe ...................   Passed    0.33 sec
+        Start  85: wasapi-output-contract
+ 85/112 Test  #85: wasapi-output-contract ................   Passed    0.01 sec
+        Start  86: wasapi-playback-owner-rollback
+ 86/112 Test  #86: wasapi-playback-owner-rollback ........   Passed    0.01 sec
+        Start  87: writer-phase-timing
+ 87/112 Test  #87: writer-phase-timing ...................   Passed    0.01 sec
+        Start  88: processing-stage-observation
+ 88/112 Test  #88: processing-stage-observation ..........   Passed    0.01 sec
+        Start  89: manual-processing-stage-observation
+ 89/112 Test  #89: manual-processing-stage-observation ...   Passed    0.01 sec
+        Start  90: native-port-marker-observation
+ 90/112 Test  #90: native-port-marker-observation ........   Passed    0.00 sec
+        Start  91: duplex-recording-owner
+ 91/112 Test  #91: duplex-recording-owner ................   Passed    0.48 sec
+        Start  92: punch-boundaries
+ 92/112 Test  #92: punch-boundaries ......................   Passed    0.65 sec
+        Start  93: manual-recording-control
+ 93/112 Test  #93: manual-recording-control ..............   Passed    1.08 sec
+        Start  94: manual-desktop-control
+ 94/112 Test  #94: manual-desktop-control ................   Passed    0.67 sec
+        Start  95: manual-priority-interruption
+ 95/112 Test  #95: manual-priority-interruption ..........   Passed    0.21 sec
+        Start  96: manual-punch-owner
+ 96/112 Test  #96: manual-punch-owner ....................   Passed    0.19 sec
+        Start  97: shared-playback-capture
+ 97/112 Test  #97: shared-playback-capture ...............   Passed    0.16 sec
+        Start  98: multitrack-mix-playback
+ 98/112 Test  #98: multitrack-mix-playback ...............   Passed    0.15 sec
+        Start  99: graph-resources
+ 99/112 Test  #99: graph-resources .......................   Passed    0.82 sec
+        Start 100: shared-media-cache
+100/112 Test #100: shared-media-cache ....................   Passed    1.04 sec
+        Start 101: offline-export
+101/112 Test #101: offline-export ........................   Passed    2.71 sec
+        Start 102: offline-export-media-policy
+102/112 Test #102: offline-export-media-policy ...........   Passed    0.02 sec
+        Start 103: clip-processing
+103/112 Test #103: clip-processing .......................   Passed    0.12 sec
+        Start 104: recording-discovery
+104/112 Test #104: recording-discovery ...................   Passed    0.02 sec
+        Start 105: recording-recovery
+105/112 Test #105: recording-recovery ....................   Passed   10.50 sec
+        Start 106: recording-fault-persistence
+106/112 Test #106: recording-fault-persistence ...........   Passed    0.03 sec
+        Start 107: playback-native-clock
+107/112 Test #107: playback-native-clock .................   Passed    0.15 sec
+        Start 108: playback-read-ahead
+108/112 Test #108: playback-read-ahead ...................   Passed    0.75 sec
+        Start 109: native-startup-gate-observe
+109/112 Test #109: native-startup-gate-observe ...........   Passed    0.05 sec
+        Start 110: native-startup-gate-defer
+110/112 Test #110: native-startup-gate-defer .............   Passed    0.05 sec
+        Start 111: native-port-handoff-observation
+111/112 Test #111: native-port-handoff-observation .......   Passed    0.27 sec
+        Start 112: prepared-eq
+112/112 Test #112: prepared-eq ...........................   Passed    0.34 sec
+
+100% tests passed, 0 tests failed out of 112
+
+Total Test time (real) = 109.54 sec

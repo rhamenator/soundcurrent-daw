@@ -1,0 +1,23 @@
+{
+  "format": "sc-stretch-worker-qualification-v1",
+  "sourceCommit": "33d99f131ede539c9604edd4713c67070ee742ef",
+  "sourceTree": "2e93a7b34c367c1e7a16b93c0437cd795998db9f",
+  "nativePlatform": "win32",
+  "exeSha256": "87b4a570ea10d2fc1d0b91b1f28966135fec01d6a81ff7f840200b26cf7ba924",
+  "verifierExeSha256": "e1244280e163f15de7191ef97b802cc631c1dd43c4bea2ee39296136eecfdb1e",
+  "pid": 7216,
+  "exitCode": 0,
+  "verifierPid": 1620,
+  "verifierExitCode": 0,
+  "verifierChecks": 1045,
+  "checks": 174,
+  "verifiedArtifact": true,
+  "nativeAudio": false,
+  "protocol": "sc-stretch-render-v2",
+  "processor": "soundcurrent.stretch-rubberband4-r3-positioned-v2",
+  "operation": "1d82764c-f21f-4ce7-8da2-ae5c86dd01c8",
+  "complete": true,
+  "writtenFrames": 18000,
+  "audioSha256": "45ddab38350a2367152a404074a1811a470e0a6457e568f927f82c10f5b920f2",
+  "sampleSha256": "d07935849f0fc63fb9876d23d76ef5bd6146b7cd010e4725d1e276b63994d45e"
+}

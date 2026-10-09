@@ -151,8 +151,17 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     before=time.monotonic();r,rr=run(req,deadline=100);elapsed=time.monotonic()-before
     check(r.returncode==2 and elapsed<3 and not (jobs/req['operation']/'complete.json').exists(),'Hard deadline failed to retire uncommitted job')
     # Opaque workspace exceeds an OS-enforced child ceiling, not a guessed allowance.
-    digest_wide=owned_wave(path,192000,32,128);req=fresh(sha256=digest_wide,rate=192000,channels=32,sourceFrames=128,frames=128)
-    r,rr=run(req,memory=32);check(r.returncode!=0 and not (jobs/req['operation']/'complete.json').exists(),'Opaque vendor workspace bypassed memory ceiling')
+    digest_wide=owned_wave(path,192000,32,16384);req=fresh(sha256=digest_wide,rate=192000,channels=32,sourceFrames=16384,frames=16384)
+    r,rr=run(req,memory=32)
+    error=json.loads(r.stderr)
+    check(r.returncode!=0 and error.get('messageId')=='stretch.resource_limit' and
+          not (jobs/req['operation']).exists(),'Opaque vendor initialization did not refuse allocation before mutation')
+    # Same valid geometry succeeds with a larger ceiling. A span-validation
+    # refusal therefore cannot satisfy the low-memory assertion above.
+    control=dict(req,operation=str(uuid.uuid4()));r,rr=run(control,memory=256)
+    check(r.returncode==0 and rr[0].get('event')=='ready' and rr[-1]['writtenFrames']==24576 and
+          rr[-1]['memoryCeilingBytes']==256*1024*1024 and (jobs/control['operation']/'complete.json').is_file(),
+          'Memory-ceiling positive control did not complete the admitted source span')
     # Reviewed one-frame drain counterexample: conservative prepared-window
     # admission refuses BEFORE any operation/intent. Actual boundary renders
     # cover rates and both extreme pitch/time settings; no repaired output.
@@ -169,7 +178,7 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
                 check(r.returncode==0 and rr[-1]['writtenFrames']==target,'Prepared window boundary did not render exact duration: '+r.stderr)
                 boundary_jobs+=1
     check(boundary_jobs==27,'Boundary workflow matrix incomplete')
-    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':6+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'fractionalSourcePhase':True,'equivalentRationalAnchors':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'nativePlatform':sys.platform,'nativeAudio':False}))
+    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':7+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'fractionalSourcePhase':True,'equivalentRationalAnchors':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'memoryValidSpanPositiveControl':True,'nativePlatform':sys.platform,'nativeAudio':False}))
     if args.qualification:
         check(not git('status','--porcelain','--untracked-files=no') and git('rev-parse','HEAD')==source_commit,
               'Qualification source changed during acceptance')

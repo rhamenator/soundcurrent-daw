@@ -1,0 +1,47 @@
+{
+  "utc": "2026-10-09T22:08:11.770133+00:00",
+  "source_head": "95cfb7d92a01abf82fa7c7f0963aec0b1fcbf698",
+  "source_tree": "2e93a7b34c367c1e7a16b93c0437cd795998db9f",
+  "platform": "Ubuntu 26.04 amd64",
+  "build_type": "Release",
+  "version": "0.1.0~preview.20261009220811.95cfb7d92a01",
+  "qualified_executable_sha256": "028aed9a01a477639ebd8fb6334e1b54747dda45af2c51785a2684ee379a432c",
+  "qualification_sha256": "a4a126d23aafa13c14b145bb8d9bbff5e2c8837d9d8b3e82e5d2108ee21785fa",
+  "stretch_worker_qualification_sha256": "24f769c0afb3a98a8f2bca389fb846ad7889ebf5e305b0167c8a00368c2e16d2",
+  "native_audio_run": false,
+  "system_installation": false,
+  "clean_install_qualified": false,
+  "release_uploaded": false,
+  "preview_sequence": "20261009220811",
+  "previous_version": null,
+  "previous_package_version_order_verified": false,
+  "install_input_sha256": {
+    "usr/bin/soundcurrent-daw": "028aed9a01a477639ebd8fb6334e1b54747dda45af2c51785a2684ee379a432c",
+    "usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "usr/share/licenses/soundcurrent-daw/libsamplerate-BSD-2-Clause.txt": "2c1f76ce2effdddb425018405d5690c0b1ab4e6976e35296b0a6db65c5e1a55d",
+    "usr/share/doc/soundcurrent-daw/equipment-provenance.json": "34a364e2b2d31e017550717f2eb90470777faa0085cce76faf7cafb55605f0fb",
+    "usr/share/applications/soundcurrent-daw.desktop": "e5e9bb758dd67e94439a8cbe7cd387d79a9f17380e64515883e6bf63659dfb25",
+    "usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg": "6bc559e288aec6b5eab049387afaef74253805ed568ad50179f0e958d6a5f760",
+    "usr/bin/sc-import-inspect-worker": "db485fce5bf8611e682199fe4d032596202cefcec96bf95f4d68889c9a975fe6",
+    "usr/bin/sc-approved-wave-probe": "29403ecbdcdc9183b5168fb70c8c61b006f2ecc8c6100270fd4382ba4a2dd6ef",
+    "usr/bin/sc-media-import-worker": "5920b6fe5357f16feac4698ee7b163f8aa4496a5fe603657a805630dfe4fb0fa",
+    "usr/bin/sc-stretch-render-worker": "65899cc5ed579de6c950702eba511e6008556e9de9710c0970e9147917f5450e",
+    "usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt": "cedd4c1885d75991bf1077cc6e33359103cf04fbc996f20d30ab043d5fc5fcc5"
+  },
+  "every_CMake_install_input_matches_current_source": true,
+  "status": "prepared-local-preview",
+  "depends": "libc6 (>= 2.43), libgcc-s1 (>= 4.0), libpipewire-0.3-0t64 (>= 0.3.6), libqt6core6t64 (>= 6.10.2), libqt6gui6 (>= 6.9.1), libqt6widgets6 (>= 6.3.0), libsndfile1 (>= 1.0.20), libssl3t64 (>= 3.0.0), libstdc++6 (>= 14), qt6-qpa-plugins (>= 6.10.2), pipewire (>= 1.6.2), libpipewire-0.3-0t64 (>= 1.6.2)",
+  "artifacts": {
+    "soundcurrent-daw_0.1.0~preview.20261009220811.95cfb7d92a01_amd64.deb": {
+      "bytes": 3329414,
+      "sha256": "b959eae7715d92155f617a6d0bd79743dfc658e5e12451aded7753fb1cc59534"
+    },
+    "soundcurrent-daw-0.1.0~preview.20261009220811.95cfb7d92a01-source.tar.gz": {
+      "bytes": 719323438,
+      "sha256": "2bfadf3331834d940b15f79e74b983a8580d297e2c8714b540675abe1a111395"
+    }
+  },
+  "packaged_executable_sha256": "0efcd3ea6b808846b9cabb618afaa5a79b7dede8d81aeedbbaee468b8ad55a08",
+  "all_extracted_payload_bytes_match": true,
+  "offscreen_startup_help_version": true
+}
