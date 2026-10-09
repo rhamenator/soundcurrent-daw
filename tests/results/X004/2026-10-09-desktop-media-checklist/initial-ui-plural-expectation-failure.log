@@ -1,0 +1,25 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start  2: desktop-media-controller
+1/6 Test  #2: desktop-media-controller .........   Passed    0.92 sec
+    Start  3: desktop-import-media-ui
+2/6 Test  #3: desktop-import-media-ui ..........***Failed    0.14 sec
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Channel format was not displayed
+
+    Start  4: desktop-import-controller
+3/6 Test  #4: desktop-import-controller ........   Passed    0.99 sec
+    Start  5: desktop-import-ui
+4/6 Test  #5: desktop-import-ui ................   Passed    0.47 sec
+    Start  6: desktop-localization
+5/6 Test  #6: desktop-localization .............   Passed    0.67 sec
+    Start 34: approved-media-root
+6/6 Test #34: approved-media-root ..............   Passed    0.01 sec
+
+83% tests passed, 1 tests failed out of 6
+
+Total Test time (real) =   3.21 sec
+
+The following tests FAILED:
+	  3 - desktop-import-media-ui (Failed)
+Errors while running CTest

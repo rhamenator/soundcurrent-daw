@@ -152,6 +152,16 @@ int main() {
             refused([&]{root.open("nested/missing.wav",100);},ErrorCode::MissingMedia);
             refused([&]{root.open("abc.wav",0);},ErrorCode::InvalidParameter);
             refused([&]{root.open("abc.wav",2);},ErrorCode::ResourceLimit);
+            refused([&]{root.openSelectedFilename("../outside.wav",100);},ErrorCode::InvalidParameter);
+            refused([&]{root.openSelectedFilename(".",100);},ErrorCode::InvalidParameter);
+            {auto selected=root.openSelectedFilename("abc.wav",3);check(hash(selected)=="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad","Explicit selected file changed bytes");}
+#ifndef _WIN32
+            write(path/"native?name.wav","abc");
+            {auto selected=root.openSelectedFilename("native?name.wav",3);check(hash(selected)=="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad","Explicit native basename was normalized");}
+            refused([&]{root.open("native?name.wav",100);},ErrorCode::InvalidParameter);
+#else
+            refused([&]{root.openSelectedFilename("abc.wav:stream",100);},ErrorCode::InvalidParameter);
+#endif
             link(fixture/"outside"/"outside.wav",path/"linked.wav");
             link(fixture/"outside",path/"linked-dir",true);
             refused([&]{root.open("linked.wav",100);},ErrorCode::InvalidParameter);

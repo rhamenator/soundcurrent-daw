@@ -298,3 +298,14 @@ PR66 after all four protected contexts. Content admission does not qualify sourc
 semantics, destination conversion, quality/render equivalence or an entire format.
 Broader formats, profiles/provider limits, UI/installation and all frozen F/Q/C/N
 contracts remain required and unpromoted.
+
+## X004-MEDIA-003 desktop check prerequisite (2026-10-09)
+
+[Checkpoint124](124-desktop-media-checklist.md): inspect WAVE references → explicitly
+select folder/replacement → actual child checks → read-only format/sample peak →
+cancel/clear/reopen without inherited approval. Linux controller/UI and refusal
+evidence is separate from new native Windows/installed qualification. Merged
+PR67 final head passes native20,503 WAV/64 CLI checks; that prerequisite is not
+qualification of this new GUI/report code. Transactional copying, semantic mapping,
+loss review, Undo/reopen, independently aligned renders and broader formats remain
+required. No functional/quality/content/native family has been promoted to parity.

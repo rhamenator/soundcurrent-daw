@@ -9,38 +9,57 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 using namespace soundcurrent::daw;
 int run(const std::vector<std::string> &args) {
+    const bool selected=args.size()>1 && args[1]=="--desktop-file";
+    const bool desktop=selected || (args.size()>1 && args[1]=="--desktop-check");
+    const std::size_t start=desktop ? 2 : 1;
+    const char *protocol=desktop ? "sc-approved-wave-validation-v2" : "sc-approved-wave-validation-v1";
     try {
         if (args.size()==2 && args[1]=="--help") {
-            std::cout<<"sc-approved-wave-probe --root ABSOLUTE_DIRECTORY --relative PORTABLE_REFERENCE --maximum-bytes N\n";return 0;
+            std::cout<<"sc-approved-wave-probe --root ABSOLUTE_DIRECTORY --relative PORTABLE_REFERENCE --maximum-bytes N\n"
+                     <<"Desktop: prefix --desktop-check for a reference, or --desktop-file for an explicitly selected native basename.\n";return 0;
         }
-        if (args.size()!=7 || args[1]!="--root" || args[3]!="--relative" || args[5]!="--maximum-bytes" ||
-            args[2].size()>4096 || !validUtf8(args[2]))
+        if (args.size()!=start+6 || args[start]!="--root" || args[start+2]!="--relative" || args[start+4]!="--maximum-bytes" ||
+            args[start+1].size()>4096 || !validUtf8(args[start+1]))
             throw ProjectError(ErrorCode::InvalidParameter,"Invalid approved WAVE check arguments");
-        std::uint64_t maximum=0;const auto &raw=args[6];
+        std::uint64_t maximum=0;const auto &raw=args[start+5];
         const auto parsed=std::from_chars(raw.data(),raw.data()+raw.size(),maximum);
         if (parsed.ec!=std::errc{} || parsed.ptr!=raw.data()+raw.size() || !maximum)
             throw ProjectError(ErrorCode::InvalidParameter,"Invalid approved WAVE byte limit");
-        const auto path=std::filesystem::path(std::u8string(reinterpret_cast<const char8_t *>(args[2].data()),args[2].size()));
+        const auto &chosenRoot=args[start+1];
+        const auto path=std::filesystem::path(std::u8string(reinterpret_cast<const char8_t *>(chosenRoot.data()),chosenRoot.size()));
         ResourceLedger resources(16*1024*1024,"Approved WAVE check payload");
-        ApprovedMediaRoot root(path,resources,{1});auto file=root.open(args[4],maximum);
+        const auto &name=args[start+3];
+        ApprovedMediaRoot root(path,resources,{1});auto file=selected ?
+            root.openSelectedFilename(std::filesystem::path(std::u8string(reinterpret_cast<const char8_t *>(name.data()),name.size())),maximum) :
+            root.open(name,maximum);
         const auto result=validateApprovedWave(file);
-        std::cout<<nlohmann::json({{"protocol","sc-approved-wave-validation-v1"},{"complete",true},
-            {"relative",args[4]},{"sourceBytes",result.sourceBytes},
+        auto report=nlohmann::json({{"protocol",protocol},{"complete",true},
+            {"relative",args[start+3]},{"sourceBytes",result.sourceBytes},
             {"sourceSha256",std::string(result.sourceSha256.data(),result.sourceSha256.size())},
             {"frames",result.frames},{"decodedFrames",result.decodedFrames},{"rateHz",result.rate},
             {"channels",result.channels},{"containerId",result.bigEndian ? "rifx" : "riff"},
             {"extensible",result.extensible},{"encodingId",static_cast<unsigned>(result.encoding)},
             {"bitsPerSample",result.bitsPerSample},{"channelMask",result.channelMask},{"peakLinear",result.peak},
-            {"bytesRead",result.bytesRead},{"ioOperations",result.ioOperations}}).dump(-1,' ',true)<<'\n';
+            {"bytesRead",result.bytesRead},{"ioOperations",result.ioOperations}});
+        if (desktop) {
+#ifdef _WIN32
+            report["workerPid"]=GetCurrentProcessId();
+#else
+            report["workerPid"]=getpid();
+#endif
+        }
+        std::cout<<report.dump(-1,' ',true)<<'\n';
         return std::cout ? 0 : 1;
     } catch (const ProjectError &error) {
-        std::cerr<<nlohmann::json({{"protocol","sc-approved-wave-validation-v1"},{"complete",false},
+        std::cerr<<nlohmann::json({{"protocol",protocol},{"complete",false},
             {"messageId","import.wave_validation_failed"},{"errorCode",static_cast<unsigned>(error.code())}}).dump()<<'\n';return 1;
     } catch (const std::exception &) {
-        std::cerr<<"{\"protocol\":\"sc-approved-wave-validation-v1\",\"complete\":false,\"messageId\":\"import.wave_validation_failed\"}\n";return 1;
+        std::cerr<<"{\"protocol\":\""<<protocol<<"\",\"complete\":false,\"messageId\":\"import.wave_validation_failed\"}\n";return 1;
     }
 }
 #ifdef _WIN32

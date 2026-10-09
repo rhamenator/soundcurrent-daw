@@ -183,11 +183,11 @@ jobs:
           if errorlevel 1 exit /b 1
           cmake -S . -B build-desktop-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=ON -DSC_BUILD_DESKTOP=ON "-DCMAKE_PREFIX_PATH=%CD%/native-ui-dependencies/qt" "-DSNDFILE_LIBRARY=%CD%/native-dependencies/sndfile-build/sndfile.lib"
           if errorlevel 1 exit /b 1
-          cmake --build build-desktop-native --parallel 2 --target soundcurrent-daw sc-import-ui-tests sc-import-controller-tests sc-localization-tests
+          cmake --build build-desktop-native --parallel 2 --target soundcurrent-daw sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-import-media-ui-tests sc-localization-tests
           if errorlevel 1 exit /b 1
           set "PATH=%CD%\native-ui-dependencies\qt\bin;%CD%\native-dependencies\sndfile-build;%PATH%"
           set "QT_PLUGIN_PATH=%CD%\native-ui-dependencies\qt\plugins"
-          ctest --test-dir build-desktop-native -R "^(desktop-import-controller|desktop-import-ui|desktop-localization)$" --output-on-failure --no-tests=error -V
+          ctest --test-dir build-desktop-native -R "^(desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-import-media-ui|desktop-localization|windows-package-inputs)$" --output-on-failure --no-tests=error -V
           if errorlevel 1 exit /b 1
       - name: Retain native desktop evidence
         if: always()

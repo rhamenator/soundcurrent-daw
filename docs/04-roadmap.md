@@ -582,3 +582,12 @@ transactional copies/new-project semantic state/loss review → Undo/reopen/alig
 renders. RF64/W64/compressed/partial precision and broader sources stay in the full
 adapter backlog. Linux/native Windows/provider/installed/Europe qualification stay
 separate from this prerequisite; full milestone scope is unchanged.
+
+## X004 desktop media check increment (2026-10-09)
+
+Checkpoint124 implements explicit folder/replacement checks and independent child
+report/lifecycle admission. Next dependency: verified transactional media copy
+with unchanged-source/mapping/cancel/storage-failure evidence → extended destination
+semantics/loss preview → Undo/reopen/independent aligned rendering → refreshed
+installed preview pairs. Native Windows, OS containment, broader media/registered
+formats and European localization remain parallel gates. Full scope is unchanged.

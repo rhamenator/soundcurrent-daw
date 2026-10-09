@@ -1,0 +1,141 @@
+[0/1] Re-running CMake...
+-- Configuring done (5.1s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/83] Building CXX object CMakeFiles/sc-engine.dir/src/eq_coefficients.cpp.o
+[2/83] Building CXX object CMakeFiles/sc-engine.dir/src/eq.cpp.o
+[3/83] Building CXX object CMakeFiles/sc-capture.dir/src/capture.cpp.o
+[4/83] Building CXX object CMakeFiles/sc-engine.dir/src/mix.cpp.o
+[5/83] Linking CXX static library libsc-capture.a
+[6/83] Linking CXX static library libsc-engine.a
+[7/83] Building CXX object CMakeFiles/sc-playback.dir/src/playback.cpp.o
+[8/83] Building CXX object CMakeFiles/sc-audio-bridge.dir/src/audio_bridge.cpp.o
+[9/83] Building CXX object CMakeFiles/sc-playback.dir/src/mix_playback.cpp.o
+In file included from /usr/include/c++/15/bits/shared_ptr.h:53,
+                 from /usr/include/c++/15/memory:82,
+                 from /home/rich/dev/soundcurrent-daw/include/soundcurrent/resource_ledger.hpp:4,
+                 from /home/rich/dev/soundcurrent-daw/include/soundcurrent/mix.hpp:3,
+                 from /home/rich/dev/soundcurrent-daw/include/soundcurrent/mix_playback.hpp:3,
+                 from /home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:2:
+In constructor ‘std::__shared_ptr<_Tp, _Lp>::__shared_ptr(std::__shared_ptr<_Tp, _Lp>&&) [with _Tp = soundcurrent::daw::ResourceLedgerState; __gnu_cxx::_Lock_policy _Lp = __gnu_cxx::_S_atomic]’,
+    inlined from ‘std::shared_ptr<_Tp>::shared_ptr(std::shared_ptr<_Tp>&&) [with _Tp = soundcurrent::daw::ResourceLedgerState]’ at /usr/include/c++/15/bits/shared_ptr.h:359:41,
+    inlined from ‘soundcurrent::daw::ResourceLedger::ResourceLedger(soundcurrent::daw::ResourceLedger&&)’ at /home/rich/dev/soundcurrent-daw/include/soundcurrent/resource_ledger.hpp:39:7,
+    inlined from ‘constexpr void std::_Construct(_Tp*, _Args&& ...) [with _Tp = soundcurrent::daw::ResourceLedger; _Args = {soundcurrent::daw::ResourceLedger}]’ at /usr/include/c++/15/bits/stl_construct.h:133:7,
+    inlined from ‘constexpr void std::_Optional_payload_base<_Tp>::_M_construct(_Args&& ...) [with _Args = {soundcurrent::daw::ResourceLedger}; _Tp = soundcurrent::daw::ResourceLedger]’ at /usr/include/c++/15/optional:298:19,
+    inlined from ‘constexpr std::_Optional_payload_base<_Tp>::_Optional_payload_base(bool, std::_Optional_payload_base<_Tp>&&) [with _Tp = soundcurrent::daw::ResourceLedger]’ at /usr/include/c++/15/optional:154:22,
+    inlined from ‘constexpr std::_Optional_payload_base<_Tp>::_Optional_payload_base(bool, std::_Optional_payload_base<_Tp>&&) [with _Tp = soundcurrent::daw::ResourceLedger]’ at /usr/include/c++/15/optional:150:7,
+    inlined from ‘constexpr std::_Optional_payload<soundcurrent::daw::ResourceLedger, true, false, false>::_Optional_payload(bool, std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>&&) [inherited from std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>]’ at /usr/include/c++/15/optional:419:42,
+    inlined from ‘constexpr std::_Optional_payload<soundcurrent::daw::ResourceLedger, false, false, false>::_Optional_payload(bool, std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>&&) [inherited from std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>]’ at /usr/include/c++/15/optional:453:57,
+    inlined from ‘constexpr std::_Optional_base<_Tp, <anonymous>, <anonymous> >::_Optional_base(std::_Optional_base<_Tp, <anonymous>, <anonymous> >&&) [with _Tp = soundcurrent::daw::ResourceLedger; bool <anonymous> = false; bool <anonymous> = false]’ at /usr/include/c++/15/optional:519:9,
+    inlined from ‘constexpr std::optional<soundcurrent::daw::ResourceLedger>::optional(std::optional<soundcurrent::daw::ResourceLedger>&&)’ at /usr/include/c++/15/optional:778:11,
+    inlined from ‘constexpr soundcurrent::daw::MixConfig::MixConfig(soundcurrent::daw::MixConfig&&)’ at /home/rich/dev/soundcurrent-daw/include/soundcurrent/mix.hpp:11:8,
+    inlined from ‘static soundcurrent::daw::MixConfig soundcurrent::daw::MixPlayback::State::nestedConfig(soundcurrent::daw::MixConfig)’ at /home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:70:16,
+    inlined from ‘soundcurrent::daw::MixPlayback::State::State(soundcurrent::daw::ResourceLease, std::size_t, const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig)’ at /home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:74:46,
+    inlined from ‘std::__detail::__unique_ptr_t<_Tp> std::make_unique(_Args&& ...) [with _Tp = soundcurrent::daw::MixPlayback::State; _Args = {soundcurrent::daw::ResourceLease, const long unsigned int&, const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig&}]’ at /usr/include/c++/15/bits/unique_ptr.h:1084:30,
+    inlined from ‘soundcurrent::daw::MixPlayback::MixPlayback(const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig)’ at /home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:79:37:
+/usr/include/c++/15/bits/shared_ptr_base.h:1539:20: warning: ‘*(__vector(2) long unsigned int*)((char*)&<unnamed> + offsetof(soundcurrent::daw::MixConfig, soundcurrent::daw::MixConfig::resources.std::optional<soundcurrent::daw::ResourceLedger>::<unnamed>.std::_Optional_base<soundcurrent::daw::ResourceLedger, false, false>::_M_payload.std::_Optional_payload<soundcurrent::daw::ResourceLedger, false, false, false>::<unnamed>.std::_Optional_payload<soundcurrent::daw::ResourceLedger, true, false, false>::<unnamed>.std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>::_M_payload))’ may be used uninitialized [-Wmaybe-uninitialized]
+ 1539 |       : _M_ptr(__r._M_ptr), _M_refcount()
+      |                ~~~~^~~~~~
+/home/rich/dev/soundcurrent-daw/src/mix_playback.cpp: In constructor ‘soundcurrent::daw::MixPlayback::MixPlayback(const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig)’:
+/home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:74:46: note: ‘<anonymous>’ declared here
+   74 |           graph(s, std::move(p), nestedConfig(c.graph)) {}
+      |                                  ~~~~~~~~~~~~^~~~~~~~~
+In constructor ‘std::__shared_ptr<_Tp, _Lp>::__shared_ptr(std::__shared_ptr<_Tp, _Lp>&&) [with _Tp = soundcurrent::daw::ResourceLedgerState; __gnu_cxx::_Lock_policy _Lp = __gnu_cxx::_S_atomic]’,
+    inlined from ‘std::shared_ptr<_Tp>::shared_ptr(std::shared_ptr<_Tp>&&) [with _Tp = soundcurrent::daw::ResourceLedgerState]’ at /usr/include/c++/15/bits/shared_ptr.h:359:41,
+    inlined from ‘soundcurrent::daw::ResourceLedger::ResourceLedger(soundcurrent::daw::ResourceLedger&&)’ at /home/rich/dev/soundcurrent-daw/include/soundcurrent/resource_ledger.hpp:39:7,
+    inlined from ‘constexpr void std::_Construct(_Tp*, _Args&& ...) [with _Tp = soundcurrent::daw::ResourceLedger; _Args = {soundcurrent::daw::ResourceLedger}]’ at /usr/include/c++/15/bits/stl_construct.h:133:7,
+    inlined from ‘constexpr void std::_Optional_payload_base<_Tp>::_M_construct(_Args&& ...) [with _Args = {soundcurrent::daw::ResourceLedger}; _Tp = soundcurrent::daw::ResourceLedger]’ at /usr/include/c++/15/optional:298:19,
+    inlined from ‘constexpr std::_Optional_payload_base<_Tp>::_Optional_payload_base(bool, std::_Optional_payload_base<_Tp>&&) [with _Tp = soundcurrent::daw::ResourceLedger]’ at /usr/include/c++/15/optional:154:22,
+    inlined from ‘constexpr std::_Optional_payload_base<_Tp>::_Optional_payload_base(bool, std::_Optional_payload_base<_Tp>&&) [with _Tp = soundcurrent::daw::ResourceLedger]’ at /usr/include/c++/15/optional:150:7,
+    inlined from ‘constexpr std::_Optional_payload<soundcurrent::daw::ResourceLedger, true, false, false>::_Optional_payload(bool, std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>&&) [inherited from std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>]’ at /usr/include/c++/15/optional:419:42,
+    inlined from ‘constexpr std::_Optional_payload<soundcurrent::daw::ResourceLedger, false, false, false>::_Optional_payload(bool, std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>&&) [inherited from std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>]’ at /usr/include/c++/15/optional:453:57,
+    inlined from ‘constexpr std::_Optional_base<_Tp, <anonymous>, <anonymous> >::_Optional_base(std::_Optional_base<_Tp, <anonymous>, <anonymous> >&&) [with _Tp = soundcurrent::daw::ResourceLedger; bool <anonymous> = false; bool <anonymous> = false]’ at /usr/include/c++/15/optional:519:9,
+    inlined from ‘constexpr std::optional<soundcurrent::daw::ResourceLedger>::optional(std::optional<soundcurrent::daw::ResourceLedger>&&)’ at /usr/include/c++/15/optional:778:11,
+    inlined from ‘constexpr soundcurrent::daw::MixConfig::MixConfig(soundcurrent::daw::MixConfig&&)’ at /home/rich/dev/soundcurrent-daw/include/soundcurrent/mix.hpp:11:8,
+    inlined from ‘static soundcurrent::daw::MixConfig soundcurrent::daw::MixPlayback::State::nestedConfig(soundcurrent::daw::MixConfig)’ at /home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:70:16,
+    inlined from ‘soundcurrent::daw::MixPlayback::State::State(soundcurrent::daw::ResourceLease, std::size_t, const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig)’ at /home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:74:46,
+    inlined from ‘std::__detail::__unique_ptr_t<_Tp> std::make_unique(_Args&& ...) [with _Tp = soundcurrent::daw::MixPlayback::State; _Args = {soundcurrent::daw::ResourceLease, const long unsigned int&, const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig&}]’ at /usr/include/c++/15/bits/unique_ptr.h:1084:30,
+    inlined from ‘soundcurrent::daw::MixPlayback::MixPlayback(const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig)’ at /home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:79:37:
+/usr/include/c++/15/bits/shared_ptr_base.h:1539:20: warning: ‘((__vector(2) long unsigned int*)((char*)&<unnamed> + offsetof(soundcurrent::daw::MixConfig, soundcurrent::daw::MixConfig::resources.std::optional<soundcurrent::daw::ResourceLedger>::<unnamed>.std::_Optional_base<soundcurrent::daw::ResourceLedger, false, false>::_M_payload.std::_Optional_payload<soundcurrent::daw::ResourceLedger, false, false, false>::<unnamed>.std::_Optional_payload<soundcurrent::daw::ResourceLedger, true, false, false>::<unnamed>.std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>::_M_payload)))[1]’ may be used uninitialized [-Wmaybe-uninitialized]
+ 1539 |       : _M_ptr(__r._M_ptr), _M_refcount()
+      |                ~~~~^~~~~~
+/home/rich/dev/soundcurrent-daw/src/mix_playback.cpp: In constructor ‘soundcurrent::daw::MixPlayback::MixPlayback(const soundcurrent::daw::Session&, soundcurrent::daw::MixPlan, soundcurrent::daw::MixPlaybackConfig)’:
+/home/rich/dev/soundcurrent-daw/src/mix_playback.cpp:74:46: note: ‘<anonymous>’ declared here
+   74 |           graph(s, std::move(p), nestedConfig(c.graph)) {}
+      |                                  ~~~~~~~~~~~~^~~~~~~~~
+[10/83] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.o
+[11/83] Linking CXX static library libsc-audio-bridge.a
+[12/83] Linking CXX static library libsc-playback.a
+[13/83] Building CXX object CMakeFiles/sc-media.dir/src/media_io.cpp.o
+[14/83] Building CXX object CMakeFiles/sc-pipewire.dir/src/pipewire_filter.cpp.o
+[15/83] Building CXX object CMakeFiles/sc-media.dir/src/media_cache.cpp.o
+[16/83] Building CXX object CMakeFiles/sc-media.dir/src/recording_worker.cpp.o
+[17/83] Building CXX object CMakeFiles/sc-media.dir/src/playback_reader.cpp.o
+[18/83] Building CXX object CMakeFiles/sc-media.dir/src/playback_run.cpp.o
+[19/83] Building CXX object CMakeFiles/sc-media.dir/src/mix_reader.cpp.o
+/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp: In function ‘soundcurrent::daw::{anonymous}::ReaderDeclaration soundcurrent::daw::{anonymous}::declareReaders(const soundcurrent::daw::ValidatedSession&, const soundcurrent::daw::MixPlan&, const soundcurrent::daw::MixPlaybackConfig&, soundcurrent::daw::ReadAheadOptions, uint32_t)’:
+/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp:18:17: warning: unused variable ‘s’ [-Wunused-variable]
+   18 |     const auto &s = validated.session();
+      |                 ^
+[20/83] Building CXX object CMakeFiles/sc-media.dir/src/mix_run.cpp.o
+[21/83] Building CXX object CMakeFiles/sc-media.dir/src/recording.cpp.o
+[22/83] Building CXX object CMakeFiles/sc-media.dir/src/playback_bridge.cpp.o
+[23/83] Building CXX object CMakeFiles/sc-media.dir/src/duplex_bridge.cpp.o
+[24/83] Building CXX object CMakeFiles/sc-media.dir/src/manual_punch.cpp.o
+[25/83] Building CXX object CMakeFiles/sc-media.dir/src/manual_recording.cpp.o
+[26/83] Building CXX object CMakeFiles/sc-media.dir/src/duplex_recording.cpp.o
+[27/83] Building CXX object CMakeFiles/sc-media.dir/src/export.cpp.o
+[28/83] Linking CXX static library libsc-approved-media.a
+[29/83] Building CXX object CMakeFiles/sc-wasapi-input.dir/src/wasapi_input.cpp.o
+[30/83] Building CXX object CMakeFiles/sc-wasapi-input.dir/src/wasapi_packet_copy.cpp.o
+[31/83] Linking CXX static library libsc-pipewire.a
+[32/83] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[33/83] Building CXX object CMakeFiles/sc-wave-report.dir/src/wave_report.cpp.o
+[34/83] Linking CXX static library libsc-media.a
+[35/83] Automatic RCC for localization/daw_translations.qrc
+[36/83] Linking CXX static library libsc-wave-report.a
+[37/83] Building CXX object CMakeFiles/sc-pipewire-manual-recording.dir/src/pipewire_manual_recording.cpp.o
+[38/83] Linking CXX static library libsc-wasapi-input.a
+[39/83] Linking CXX static library libsc-wave-validation.a
+[40/83] Building CXX object CMakeFiles/sc-wasapi-ports.dir/src/wasapi_ports.cpp.o
+[41/83] Building CXX object CMakeFiles/sc-pipewire-recording.dir/src/pipewire_recording.cpp.o
+[42/83] Building CXX object CMakeFiles/sc-approved-wave-probe.dir/tools/approved_wave_probe.cpp.o
+[43/83] Linking CXX static library libsc-pipewire-manual-recording.a
+[44/83] Building CXX object CMakeFiles/sc-pipewire-duplex-recording.dir/src/pipewire_duplex_recording.cpp.o
+[45/83] Building CXX object CMakeFiles/sc-pipewire-playback.dir/src/pipewire_playback.cpp.o
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp: In function ‘soundcurrent::daw::MixPlaybackConfig soundcurrent::daw::{anonymous}::singleConfig(const soundcurrent::daw::PlaybackConfig&)’:
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp:65:32: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+   65 |             prepared.slabFrames};
+      |                                ^
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp:65:32: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+[46/83] Building CXX object CMakeFiles/sc-manual-controller.dir/ui/manual_recording_controller.cpp.o
+[47/83] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[48/83] Building CXX object CMakeFiles/sc-ui-localization.dir/ui/localization.cpp.o
+[49/83] Building CXX object CMakeFiles/sc-ui-controller.dir/ui/project_controller.cpp.o
+[50/83] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/wave_check_controller.cpp.o
+[51/83] Linking CXX static library libsc-wasapi-ports.a
+[52/83] Linking CXX executable sc-approved-wave-probe
+[53/83] Linking CXX static library libsc-pipewire-recording.a
+[54/83] Linking CXX static library libsc-pipewire-duplex-recording.a
+[55/83] Linking CXX static library libsc-pipewire-playback.a
+[56/83] Linking CXX static library libsc-manual-controller.a
+[57/83] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o
+FAILED: [code=1] CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o 
+/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_WIDGETS_LIB -I/home/rich/dev/soundcurrent-daw/ui -I/home/rich/dev/soundcurrent-daw/include -isystem /home/rich/dev/soundcurrent-daw/third_party -isystem /usr/include/x86_64-linux-gnu/qt6/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt6 -isystem /usr/include/x86_64-linux-gnu/qt6/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt6/QtGui -O3 -DNDEBUG -std=c++20 -Wall -Wextra -Wpedantic -Wconversion -MD -MT CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o -MF CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o.d -o CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o -c /home/rich/dev/soundcurrent-daw/ui/import_media_dialog.cpp
+In file included from /home/rich/dev/soundcurrent-daw/ui/import_media_dialog.cpp:2:
+/home/rich/dev/soundcurrent-daw/ui/import_media_dialog.hpp:13:5: error: ISO C++ forbids declaration of ‘Q_DECLARE_TR_FUNCTIONS’ with no type [-fpermissive]
+   13 |     Q_DECLARE_TR_FUNCTIONS(ImportMediaModel)
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/rich/dev/soundcurrent-daw/ui/import_media_dialog.hpp:13:44: error: expected ‘;’ at end of member declaration
+   13 |     Q_DECLARE_TR_FUNCTIONS(ImportMediaModel)
+      |                                            ^
+      |                                             ;
+/home/rich/dev/soundcurrent-daw/ui/import_media_dialog.hpp:33:5: error: ISO C++ forbids declaration of ‘Q_DECLARE_TR_FUNCTIONS’ with no type [-fpermissive]
+   33 |     Q_DECLARE_TR_FUNCTIONS(ImportMediaDialog)
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/rich/dev/soundcurrent-daw/ui/import_media_dialog.hpp:33:45: error: expected ‘;’ at end of member declaration
+   33 |     Q_DECLARE_TR_FUNCTIONS(ImportMediaDialog)
+      |                                             ^
+      |                                              ;
+[58/83] Linking CXX static library libsc-ui-localization.a
+ninja: build stopped: subcommand failed.

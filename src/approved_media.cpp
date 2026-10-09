@@ -195,9 +195,25 @@ ApprovedMediaRoot::ApprovedMediaRoot(ApprovedMediaRoot &&) noexcept=default;
 ApprovedMediaRoot::~ApprovedMediaRoot()=default;
 std::size_t ApprovedMediaRoot::openFiles() const { require(bool(state_),"Retired approved root",ErrorCode::InvalidState);return state_->activeFiles; }
 ApprovedMediaFile ApprovedMediaRoot::open(std::string_view relative,std::uint64_t maximumBytes,std::stop_token stop) const {
+    return openImpl(relative,maximumBytes,stop,false);
+}
+ApprovedMediaFile ApprovedMediaRoot::openSelectedFilename(const std::filesystem::path &basename,std::uint64_t maximumBytes,std::stop_token stop) const {
+    require(!basename.empty() && !basename.has_parent_path() && !basename.has_root_name() && basename.filename()==basename &&
+        basename!="." && basename!="..","Explicit media selection must name one native file",ErrorCode::InvalidParameter);
+    const auto bytes=basename.u8string();
+    return openImpl(std::string_view(reinterpret_cast<const char *>(bytes.data()),bytes.size()),maximumBytes,stop,true);
+}
+ApprovedMediaFile ApprovedMediaRoot::openImpl(std::string_view relative,std::uint64_t maximumBytes,std::stop_token stop,bool selectedLeaf) const {
     poll(stop);require(bool(state_),"Retired approved root",ErrorCode::InvalidState);
     auto work=state_->resources.reserve(8192); // Bounded path/native-open scratch, retired before return.
-    portableReference(relative);
+    if (!selectedLeaf) portableReference(relative);
+    else {
+        require(!relative.empty() && relative.size()<=1024 && validUtf8(relative) && relative.find('\0')==relative.npos &&
+            relative.find('/')==relative.npos,"Invalid explicit native filename",ErrorCode::InvalidParameter);
+#ifdef _WIN32
+        require(relative.find_first_of("\\:")==relative.npos,"Native selection cannot name a path or alternate stream",ErrorCode::InvalidParameter);
+#endif
+    }
     require(maximumBytes>0,"Invalid approved media byte limit",ErrorCode::InvalidParameter);
     if (state_->activeFiles>=state_->limits.maximumOpenFiles)
         throw ResourceLimitError("Approved media handles",state_->activeFiles+1,state_->limits.maximumOpenFiles);

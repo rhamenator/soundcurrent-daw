@@ -58,8 +58,10 @@ void directDialog(const std::filesystem::path &input) {
     check(!table->model()->setData(table->model()->index(0,0),"overwrite"),
           "Read-only model accepted mutation");
     check(table->editTriggers()==QAbstractItemView::NoEditTriggers,"Table enabled editing");
-    check(dialog.width()<=dialog.screen()->availableGeometry().width() &&
-          dialog.height()<=dialog.screen()->availableGeometry().height(),"Dialog exceeds display");
+    const auto area=dialog.screen()->availableGeometry();
+    if (dialog.width()>area.width() || dialog.height()>area.height())
+        std::cerr<<"Inspector "<<dialog.width()<<'x'<<dialog.height()<<"; available "<<area.width()<<'x'<<area.height()<<'\n';
+    check(dialog.width()<=area.width() && dialog.height()<=area.height(),"Dialog exceeds display");
     auto *save=find<QPushButton>(dialog,"saveImportInspection");
     auto *open=find<QPushButton>(dialog,"openImportInspection");
     check(save->isEnabled() && open->isEnabled(),"Completed inspection cannot be saved/reopened");

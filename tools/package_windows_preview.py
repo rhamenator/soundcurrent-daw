@@ -47,7 +47,7 @@ def relative(value):
             'Unsafe Windows payload component')
     return p
 
-def deploy_payload(archive, manifest, destination, *, require_worker=False):
+def deploy_payload(archive, manifest, destination, *, require_worker=False, require_media_worker=False):
     expected = {}
     for row in manifest['files']:
         name = relative(row['path']).as_posix()
@@ -56,6 +56,7 @@ def deploy_payload(archive, manifest, destination, *, require_worker=False):
     required = {'soundcurrent-daw.exe','sndfile.dll','Qt6Core.dll','Qt6Gui.dll',
                 'Qt6Widgets.dll','platforms/qwindows.dll'}
     if require_worker: required.add('sc-import-inspect-worker.exe')
+    if require_media_worker: required.add('sc-approved-wave-probe.exe')
     require(required <= set(expected) and len(expected)<=64, 'Missing/excess deployment payload')
     require(all(0<r['bytes']<=64*1024*1024 for r in expected.values()) and
             sum(r['bytes'] for r in expected.values())<=256*1024*1024,
@@ -92,7 +93,8 @@ def qualified_dependencies(manifest):
     trusted = read_json(ROOT/'research/windows-preview-dependencies.json')
     require(trusted['qtSourceSha256']==QT_SOURCE and
             trusted['sndfileSourceSha256']==SNDFILE_SOURCE, 'Dependency source anchor differs')
-    dependencies = {r['path']:r for r in manifest['files'] if r['path'] not in {'soundcurrent-daw.exe','sc-import-inspect-worker.exe'}}
+    dependencies = {r['path']:r for r in manifest['files'] if r['path'] not in
+                    {'soundcurrent-daw.exe','sc-import-inspect-worker.exe','sc-approved-wave-probe.exe'}}
     require(dependencies==trusted['files'], 'Unqualified dependency binary identity')
 
 def qualify_worker(manifest, qualification, head):
@@ -102,6 +104,17 @@ def qualify_worker(manifest, qualification, head):
             type(qualification.get('pid')) is int and qualification['pid']>0 and
             row.get('sha256')==qualification.get('exeSha256') and bool(row),
             'Deployed inspection worker differs from qualified native process/source')
+
+def qualify_media_worker(manifest, qualification, head):
+    require(qualification is not None, 'Native media worker qualification required')
+    row=next((r for r in manifest['files'] if r['path']=='sc-approved-wave-probe.exe'),{})
+    require(qualification.get('sourceCommit')==head and qualification.get('exitCode')==0 and
+            type(qualification.get('pid')) is int and qualification['pid']>0 and
+            type(qualification.get('reportedPid')) is int and
+            qualification['reportedPid']==qualification['pid'] and
+            qualification.get('protocol')=='sc-approved-wave-validation-v2' and
+            row.get('sha256')==qualification.get('exeSha256') and bool(row),
+            'Deployed media worker differs from qualified native process/source/protocol')
 
 def nsis_path(path):
     text = str(path.resolve())
@@ -163,11 +176,15 @@ def package(args):
     needs_worker=(ROOT/'ui/import_inspection_dialog.cpp').is_file()
     if needs_worker:
         qualify_worker(manifest,read_json(args.worker_qualification) if args.worker_qualification else None,head)
+    needs_media_worker=(ROOT/'ui/import_media_dialog.cpp').is_file()
+    if needs_media_worker:
+        qualify_media_worker(manifest,read_json(args.media_worker_qualification) if args.media_worker_qualification else None,head)
     row=next((r for r in manifest['files'] if r['path']=='soundcurrent-daw.exe'),{})
     require(row.get('sha256')==qualification['exeSha256'], 'Deployed main differs from qualified main')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     stage=output/'payload';stage.mkdir()
-    deploy_payload(args.deploy_zip,manifest,stage,require_worker=needs_worker)
+    deploy_payload(args.deploy_zip,manifest,stage,require_worker=needs_worker,
+                   require_media_worker=needs_media_worker)
     legal=stage/'licenses';legal.mkdir()
     for name,path in {'GPL-3.0.txt':ROOT/'LICENSE','libsndfile-LGPL.txt':ROOT/'third_party/libsndfile/COPYING',
                       'nlohmann-MIT.txt':ROOT/'third_party/nlohmann/LICENSE.MIT',
@@ -202,6 +219,7 @@ def package(args):
              'cleanInstallQualified':False,'nativeAudioReplayed':False,'releaseUploaded':False,
              'buildInputsReceiptSha256':digest(args.build_inputs),'mainQualificationSha256':digest(args.main_qualification),
              'workerQualificationSha256':digest(args.worker_qualification) if needs_worker else None,
+             'mediaWorkerQualificationSha256':digest(args.media_worker_qualification) if needs_media_worker else None,
              'deploymentManifestSha256':digest(args.deploy_manifest),'officialRuntimeSha256':REDIST,
              'installerSourceSha256':digest(ROOT/'packaging/windows/preview.nsi.in'),
              'payload':{p.relative_to(stage).as_posix():{'bytes':p.stat().st_size,'sha256':digest(p)} for p in sorted(stage.rglob('*')) if p.is_file()},
@@ -218,5 +236,7 @@ if __name__=='__main__':
         parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--worker-qualification',type=Path,
                         help='Actual matching-source native worker PID/exit/executable receipt')
+    parser.add_argument('--media-worker-qualification',type=Path,
+                        help='Matching native media checker PID/report/exit/source/executable receipt')
     parser.add_argument('--sequence',required=True)
     package(parser.parse_args())

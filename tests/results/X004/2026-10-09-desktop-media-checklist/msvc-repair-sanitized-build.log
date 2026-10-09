@@ -1,0 +1,26 @@
+[0/1] Re-running CMake...
+-- Configuring done (4.2s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/23] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.o
+[2/23] Linking CXX static library libsc-approved-media.a
+[3/23] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[4/23] Linking CXX static library libsc-wave-validation.a
+[5/23] Building CXX object CMakeFiles/sc-wave-report.dir/src/wave_report.cpp.o
+[6/23] Linking CXX static library libsc-wave-report.a
+[7/23] Building CXX object CMakeFiles/sc-approved-wave-probe.dir/tools/approved_wave_probe.cpp.o
+[8/23] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o
+[9/23] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/wave_check_controller.cpp.o
+[10/23] Automatic RCC for localization/daw_translations.qrc
+[11/23] Linking CXX executable sc-approved-wave-probe
+[12/23] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[13/23] Building CXX object CMakeFiles/sc-import-lifecycle-probe.dir/tests/import_lifecycle_probe.cpp.o
+[14/23] Linking CXX static library libsc-ui-wave.a
+[15/23] Linking CXX executable sc-import-lifecycle-probe
+[16/23] Linking CXX static library libsc-ui-localization.a
+[17/23] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_dialog.cpp.o
+[18/23] Linking CXX static library libsc-ui-import.a
+[19/23] Building CXX object CMakeFiles/sc-import-media-ui-tests.dir/tests/import_media_ui_tests.cpp.o
+[20/23] Building CXX object CMakeFiles/sc-wave-controller-tests.dir/tests/wave_controller_tests.cpp.o
+[21/23] Linking CXX executable sc-wave-controller-tests
+[22/23] Linking CXX executable sc-import-media-ui-tests

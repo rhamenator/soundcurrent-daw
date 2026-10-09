@@ -73,11 +73,22 @@ installed.write_bytes(worker.read_bytes())
 assert len(builder.verify_staged_install(stage,source,binary))==6
 print('New desktop payload: qualified worker required; missing/stale worker refused.')
 
-for executable in ('soundcurrent-daw','sc-import-inspect-worker'):
+# Media checks need the second exact-build executable as well.
+(source/'ui/import_media_dialog.cpp').write_text('fixture marker')
+media_worker=binary.parent/'sc-approved-wave-probe';media_worker.write_bytes(b'qualified media worker')
+refuse('missing-media-worker')
+media_installed=stage/'usr/bin/sc-approved-wave-probe';media_installed.write_bytes(media_worker.read_bytes())
+builder.normalize_staged_permissions(stage)
+assert len(builder.verify_staged_install(stage,source,binary))==7
+media_installed.write_bytes(b'stale media worker');refuse('stale-media-worker')
+media_installed.write_bytes(media_worker.read_bytes())
+print('Media desktop payload: exact qualified media worker required; missing/stale worker refused.')
+
+for executable in ('soundcurrent-daw','sc-import-inspect-worker','sc-approved-wave-probe'):
     p=stage/'usr/bin'/executable;p.chmod(0o644);refuse('non-executable-'+executable)
     builder.normalize_staged_permissions(stage)
     assert p.stat().st_mode&0o777==0o755
-    assert len(builder.verify_staged_install(stage,source,binary))==6
+    assert len(builder.verify_staged_install(stage,source,binary))==7
 assert (stage/'usr/share/applications/soundcurrent-daw.desktop').stat().st_mode&0o777==0o644
 # Verify Debian preserves the normalized mode, independently of input byte hashes.
 control=stage/'DEBIAN';control.mkdir()
@@ -89,4 +100,5 @@ extracted=owned/'extracted';subprocess.run(['dpkg-deb','--extract',archive,extra
 for relative in inputs:
     builder.verify_payload_mode(extracted/relative,relative)
 builder.verify_payload_mode(extracted/'usr/bin/sc-import-inspect-worker','usr/bin/sc-import-inspect-worker')
-print('PASS: both executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')
+builder.verify_payload_mode(extracted/'usr/bin/sc-approved-wave-probe','usr/bin/sc-approved-wave-probe')
+print('PASS: all three executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')

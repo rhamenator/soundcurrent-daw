@@ -14,8 +14,10 @@
     "ui/history_resources_dialog.hpp": "f9ce0174b9f6a392b2a8f9af22d2f71d9eb11b4dd4c9eaad392bc62e2e85fad8",
     "ui/import_inspection_controller.cpp": "5dd62cc547fa79ac859a7b672ab530935ff720fd0dcca2139391b430eb2350c2",
     "ui/import_inspection_controller.hpp": "1eceb3b2a5384da610e86cb91e48e78aa4eeba714b1a6074555168149fc162f2",
-    "ui/import_inspection_dialog.cpp": "b46ba38e3fe0f062742a091afa12ee3bc809ed7b06779eb5df096e897dd107aa",
-    "ui/import_inspection_dialog.hpp": "e5ab6f55d2f7a7a01a392b9b6dc7319c6b8f61c3302bd53812d6acf036d0cb18",
+    "ui/import_inspection_dialog.cpp": "74cc23a808888b86d4e49b25e35845329ce221319a03d40b544a77dc6202e243",
+    "ui/import_inspection_dialog.hpp": "c16e071ade61c6c4c8390d199aa830c7ea7b0c7cd61a7e4754ac8bb58d5beb59",
+    "ui/import_media_dialog.cpp": "b884fcd90d707e4a9b122f273a72df0a5ef7b4024e7328dd83c064beb08cc3ae",
+    "ui/import_media_dialog.hpp": "b2d0881a6ce5312aa0c9c2176a002619d8bdfcd62779af8433d65f93e01cf5d3",
     "ui/localization.cpp": "be5c1e4ce406ac5bdd58ba007d87f9043c2e4f13fa773286c7c6bce2c4d45693",
     "ui/localization.hpp": "60c9513cf542d243492c8f330090c05b4f114d5764101042fb984beffdf35bdf",
     "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
@@ -40,7 +42,9 @@
     "ui/timeline_editor.hpp": "a7e56fc0955ecf21c54d9748a19ad61c2711c54d8890e34cea276d0edb1d8ada",
     "ui/timeline_view.cpp": "c9ffafee0c4a132c9a2ac41a11ed3cef86fd451b2eba8940817d71e9b26b27e1",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
-    "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47"
+    "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
+    "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
+    "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9"
   },
   "seed_sha256": "e9e3d7955a3fb640581c02d47fae53d1efd801350da019d91b0ea40c27e787f6",
   "translator_notes_sha256": "6216767f12f3b4801cc3c8bbc7273ccff973738ee33915779de9407d1644d950",
@@ -940,6 +944,12 @@
     ],
     [
       "ImportInspectionDialog",
+      "Check media…",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
       "Cancel",
       "",
       false
@@ -1061,6 +1071,270 @@
     [
       "ImportInspectionDialog",
       "Choose a project to inspect.",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "Media check unavailable",
+      "",
+      false
+    ],
+    [
+      "ImportInspectionDialog",
+      "There is not enough import memory to display the media checklist.",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Choose the folder containing this project's media",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Choose a replacement audio file",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "WAVE audio (*.wav);;All files (*)",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "No media folder selected. Opening an inspection does not grant access to its media.",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Selected media folder: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Stopping media check…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "The check could not be started. Check the selected path and available import memory.",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Checking selected audio…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Choose a media folder and check a reference, or explicitly choose a replacement. Choices stay local to this window.",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Check project media",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Maximum file size for this check (MiB):",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Choose media folder…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Check selected reference",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Choose replacement…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Clear local choices",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Cancel",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Close",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Reference unavailable",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Selected replacement: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Selected folder: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Ambiguous or unsupported source; no reference selected",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Not checked",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Checking…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Checked snapshot",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Canceled",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Check exceeded its time limit",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "File not found in the selected folder",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Audio format not supported by this check yet",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "File or check exceeds resource limits",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "File changed during the check",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Invalid audio or a reference requiring an explicit replacement",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Check unavailable or result could not be verified",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "%1 Hz · %2 · %3-bit",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "%n channel(s)",
+      "",
+      true
+    ],
+    [
+      "ImportMediaModel",
+      "Silent",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "%1 dBFS",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Original reference",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Local media choice",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Status",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Audio format",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Sample peak",
       "",
       false
     ],

@@ -127,3 +127,14 @@ media copied or destination state changed. Linux independent sample/real-child
 gates pass; native Windows follows independently. Remaining WAVE/other formats
 are explicit gaps. Next: parent report validation, explicit roots/replacements and
 the cancellable media checklist, then the complete conversion/loss/render chain.
+
+## Explicit desktop media choices (2026-10-09)
+
+[Checkpoint124](124-desktop-media-checklist.md) connects the pinned checker to a
+read-only virtual media table. Explicit folders/replacements, independent v2
+report/PID validation, cancellation/deadlines and terminal child retirement are
+implemented. Choices are local to the window and excluded from saved inspections;
+missing/duplicate/unsupported evidence and original references survive. Linux
+checks are distinct from new native Windows/installed gates. Next: verified
+transactional copying/new-project semantic state, loss preview, Undo/reopen and
+aligned renders. All registered formats and frozen parity contracts remain open.

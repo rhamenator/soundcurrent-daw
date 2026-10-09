@@ -234,3 +234,13 @@ crossing out of this boundary. No new runtime library, codec or copied vendor co
 Callback budgets do not bound every decoder allocation/instruction; child deadlines,
 OS resource containment, broader formats/provider channel limits and final runtime/
 transitive/source-delivery packaging remain gates. This check stays off GUI/audio.
+
+## Desktop media checks (2026-10-09)
+
+[ADR090](decisions/090-isolated-desktop-media-checks.md) adapts original GPL import
+lifecycle code using existing Qt QProcess/threads, same-ledger report ownership and
+libsndfile/crypto worker. No new vendor library, asset or equalizer change. Both
+installer builders now require the media checker from matching qualified inputs;
+Linux dependency scanning covers all installed executables. Native process receipt
+checks and separate runtime/install qualification are integration costs. Declared
+child work credit is not OS memory/CPU containment or full security isolation.

@@ -9,6 +9,7 @@ class QPushButton;
 class QTimer;
 class QTabWidget;
 namespace soundcurrent::daw::ui {
+class ImportMediaDialog;
 class ImportPreviewModel : public QAbstractTableModel {
     Q_DECLARE_TR_FUNCTIONS(ImportPreviewModel)
   public:
@@ -45,7 +46,8 @@ class ImportInspectionDialog : public QDialog {
     bool openInspection(const std::filesystem::path &);
     bool saveInspection(const std::filesystem::path &);
     void requestShutdown();
-    bool retired() const { return controller_.snapshot()->closed; }
+    bool retired() const;
+    ImportMediaDialog *openMediaCheck();
     std::shared_ptr<const InspectionSnapshot> snapshot() const { return controller_.snapshot(); }
   protected:
     void closeEvent(QCloseEvent *) override;
@@ -56,7 +58,9 @@ class ImportInspectionDialog : public QDialog {
     ImportPropertyModel properties_;
     QTabWidget *tabs_;
     QLabel *file_,*summary_,*notice_;
-    QPushButton *choose_,*open_,*save_,*cancel_,*close_;
+    QPushButton *choose_,*open_,*save_,*mediaButton_,*cancel_,*close_;
+    ImportMediaDialog *media_=nullptr;
+    ResourceLedger mediaMemory_;
     QTimer *timer_;
     bool closing_=false;
     std::shared_ptr<const ImportInspectionReport> shown_;

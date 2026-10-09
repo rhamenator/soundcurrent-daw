@@ -1,0 +1,54 @@
+{
+  "utc": "2026-10-09T07:04:32.755201+00:00",
+  "sourceParent": "3baa4b9a65384de6caa09adbdfa6b2d0a6eeb902",
+  "change": "Two-column action grids in inspector and media checker; existing fit assertion preserved, new media fit assertion and dimensions on inspector refusal",
+  "sourceSha256": {
+    "ui/import_inspection_dialog.cpp": "74cc23a808888b86d4e49b25e35845329ce221319a03d40b544a77dc6202e243",
+    "ui/import_media_dialog.cpp": "b884fcd90d707e4a9b122f273a72df0a5ef7b4024e7328dd83c064beb08cc3ae",
+    "tests/import_media_ui_tests.cpp": "9cac43c2a600cf69102c08a4386b98c89c40273ccb3bbaad06621707f9df3647",
+    "tests/import_ui_tests.cpp": "0adfe163389822f66c0af14d523cdb9f3bafedcf69fa9096547f15231d067472",
+    "localization/source-inventory.json": "bb6945c1dbfff6dbb05c8af95c6ba4b4837c18000a6500b35bd5ddec98689d33"
+  },
+  "linuxReleaseSelectedTests": 5,
+  "linuxSanitizedSelectedTests": 2,
+  "diagnosticReleaseTest": 1,
+  "mediaUiChecks": 46,
+  "screenshotUiChecks": 47,
+  "leakDetection": false,
+  "correctedNativeExecution": false,
+  "secondNative": {
+    "runId": 37895399944,
+    "jobId": 113705696499,
+    "controllerChecks": 83,
+    "mediaUiChecks": 45,
+    "importControllerChecks": 80,
+    "localizationChecks": 281,
+    "inspectorUi": "Dialog exceeds display",
+    "otherThreeRequiredContexts": "success",
+    "wholeGatePassed": false
+  },
+  "binariesSha256": {
+    ".cache/build-desktop-release/sc-import-media-ui-tests": "93434b3d46a540135040c5e1b7c65319e5fb26b00ad854db110bf9c47ae8859d",
+    ".cache/build-desktop-release/sc-import-ui-tests": "92ef1f5c83f650f67205ef6800e54f3e37ef2fc633b69531a88be5aa7972c767",
+    ".cache/build-desktop-release/soundcurrent-daw": "23c094fe9043514e2df77f3e0fd08866fce377d6a00f6df745d7b0f07b11caf4",
+    ".cache/build-desktop-sanitized/sc-import-media-ui-tests": "15faa42cfd7a9359e1ebdae26219a8a65d01a5b5756bfab1e1b9133befea5b22",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "08395c99f52dba5f2eaaa795a272c81573c350af0e66b4d33a494e3019e133be"
+  },
+  "filesSha256": {
+    "layout-screenshot.log": "df439b6503edba89ea4026ca10219c3c242b8c8fcc359ba948ee110dd6de21eb",
+    "layout-sanitized.log": "da928e97728ce1ba2a4db6bb20aab80931e3e29d04e8e14ac84a92c3ac85c739",
+    "layout-preview.png": "0d6b320ca923908179ad0fe57a4e7d2e535b7d8a91977c945d23b7399d63579f",
+    "layout-release-build.log": "b539b67a42f365f88a4dc14b2fd6b9b481694e24a78affb0059f258a4a8f8551",
+    "second-native.zip": "f2fbfb65ecfc1868830013beeb64c0495ec1d210eb91c97a2f0f62e30750832c",
+    "second-native-artifact.json": "62af86da66fbdb742991f1f78895ce94a791e7faeb3ba43bd67685b4901ab1bf",
+    "second-run-final.json": "93724e1944bf8758fead42045c2dfe2c0c3ab39a43a62f33e2f52276ea2606b4",
+    "second-native-job.log": "9f650a122bdd5353df416fc7d84114df6ecd477d81b9551014b6516a39c5ded5",
+    "layout-diagnostic-test.log": "87198008118b5eb45805600d07f3691fb8d2a3214abe5e7ea86614cfee8dee16",
+    "second-native-lasttest.log": "cc7aaff88a527db62c4cb0a6523517e105dccb1ad80c0f8e4ecae2308400feb5",
+    "layout-catalog.log": "7744b8d03aafec054f9a67f868796d531a4be348614f54cbca896d1024f4942e",
+    "layout-release.log": "39bfe96409821f481efd48c0e439cdb24bb4f7d5e1c7f2398efb7bf2beae318f",
+    "layout-diagnostic-build.log": "266bdf17f62ee88221dc933f802c49f4dda87f96ec93d9167fd013e2f5f61887",
+    "second-native-failure-job.json": "c53b64eee0df3ff0454910ff9e6da19525f8f50547df8661d6c1ef183e990a74",
+    "layout-sanitized-build.log": "ce201bc233902d647b85eab711e4af0223a5d6548616d5a869c8b4e569b18fed"
+  }
+}
