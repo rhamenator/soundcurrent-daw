@@ -14,6 +14,7 @@ class PreparedPositionedResampling {
   public:
     PreparedPositionedResampling(std::uint32_t sourceRate,std::uint32_t projectRate,
                                 std::uint32_t channels);
+    PreparedPositionedResampling(const SourceFrameMap &,std::uint32_t channels);
     std::uint32_t sourceContextFrames() const noexcept;
     std::size_t maximumSourceWindowFrames(std::uint32_t outputFrames) const;
     SourceReadRange sourceRange(const SourceFrameMap &,Frame firstProject,
@@ -23,7 +24,7 @@ class PreparedPositionedResampling {
     void process(const SourceFrameMap &,Frame firstProject,Frame sourceFrames,
                  Frame firstSource,std::span<const float> source,std::span<float> output) const;
   private:
-    std::uint32_t sourceRate_,projectRate_,channels_;
+    std::uint32_t numerator_,denominator_,channels_;
     double floatIncrement_,scale_;
     std::int64_t increment_;
 };

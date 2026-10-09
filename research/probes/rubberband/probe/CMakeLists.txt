@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.24)
+project(sc_rubberband_feasibility LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+add_library(rb STATIC ../rubberband-4.0.0/single/RubberBandSingle.cpp)
+target_include_directories(rb SYSTEM PUBLIC ../rubberband-4.0.0)
+add_executable(probe probe.cpp)
+target_compile_options(probe PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(probe PRIVATE rb)

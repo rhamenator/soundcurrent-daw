@@ -109,7 +109,7 @@ Then add approved media roots and missing-media choices, explicit new-project
 mapping, Undo/reopen and independently aligned native/source render comparisons.
 Track/frame timing, gain/pan/fade conventions, multiple takes, MIDI, tempo,
 routes, automation and plugin/container state require their own acceptance cases.
-Native Bitwig/Cubase and every other registered native/exchange family remain
+Native Reference A/Reference B and every other registered native/exchange family remain
 required, with separate version envelopes and rights-cleared corpora.
 
 ## Line-evidence review follow-up

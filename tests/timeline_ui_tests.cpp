@@ -273,6 +273,77 @@ void positionedClipWorkflow(const std::filesystem::path &root) {
     close(w,true);check(ProjectStore(root).load()==cropped && hashMediaFile(raw)==rawHash,
                         "Desktop crop Save/reopen changed raw media or exact timing");
 }
+void playbackRateWorkflow(const std::filesystem::path &root) {
+    auto initial=fixture(root);auto &c=initial.tracks[0].clips[0];
+    c.sourceFrame=17;c.lengthFrames=800;c.processing.fadeIn={-3,200,ClipFadeCurve::EqualPower,1};
+    ProjectStore(root).save(initial);const auto raw=root/utf8Path(initial.assets[0].relativePath);const auto hash=hashMediaFile(raw);
+    auto playback=std::make_shared<playback_fixture::Counters>();auto recording=std::make_shared<recording_fixture::Counters>();
+    StudioWindow w(nullptr,playback_fixture::options(playback),recording_fixture::options(recording));
+    w.resize(1100,850);w.show();w.openProject(root);
+    await([&]{return w.snapshot()->session && widget<QComboBox>(w,"timelineClips")->count()>1;});
+    widget<QComboBox>(w,"timelineClips")->setCurrentIndex(1);
+    auto *rate=widget<QDoubleSpinBox>(w,"clipPlaybackRate");auto *apply=widget<QPushButton>(w,"applyClipPlaybackRate");
+    check(rate->value()==1 && apply->isEnabled() && !rate->accessibleName().isEmpty(),"Accessible neutral playback rate missing");
+    rate->setValue(1.25);apply->click();await([&]{return w.snapshot()->session->tracks[0].clips[0].playbackRate==ClipPlaybackRate{5,4} &&
+        widget<QLabel>(w,"clipSourceTiming")->text().contains("5/4");});
+    const auto changed=*w.snapshot()->session;const auto &now=changed.tracks[0].clips[0];
+    check(widget<QLabel>(w,"clipSourceTiming")->text().contains("5/4"),"Exact rate not visible");
+    check(now.lengthFrames==640 && now.startFrame==c.startFrame && now.sourceFrame==17 && now.processing.fadeIn.startFrame==-3 && now.processing.fadeIn.endFrame==160,"Desktop rate changed source/start or wrong duration/fades");
+    undo(w);await([&]{return *w.snapshot()->session==initial && rate->value()==1;});
+    check(w.submitEdit(ProjectCommand{CommandKind::Redo}),"Rate Redo refused");await([&]{return *w.snapshot()->session==changed && rate->value()==1.25;});
+    widget<QLineEdit>(w,"clipSplitFrame")->setText("113");click(w,"splitAudioClip");await([&]{return w.snapshot()->session->tracks[0].clips.size()==2;});
+    check(w.snapshot()->session->tracks[0].clips[1].playbackRate==ClipPlaybackRate{5,4},"Desktop split lost playback speed");
+    undo(w);await([&]{return *w.snapshot()->session==changed;});
+    widget<QLineEdit>(w,"clipLengthFrames")->setFocus();const QPointF local=rate->rect().center();
+    QWheelEvent wheel(local,rate->mapToGlobal(local.toPoint()),{}, {0,120},Qt::NoButton,Qt::NoModifier,Qt::NoScrollPhase,false);
+    QApplication::sendEvent(rate,&wheel);check(rate->value()==1.25,"Unfocused wheel changed clip playback speed");
+    const auto screenshot=qEnvironmentVariable("SC_DAW_RATE_SCREENSHOT");if(!screenshot.isEmpty()){
+        auto *scroll=qobject_cast<QScrollArea *>(w.centralWidget());check(scroll,"Missing desktop scroll area");scroll->ensureWidgetVisible(rate);QTest::qWait(5);check(w.grab().save(screenshot),"Cannot save rate screenshot");}
+    click(w,"preparePlaybackButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Ready && widget<QPushButton>(w,"stopButton")->isEnabled();});
+    check(!apply->isEnabled() && !rate->isEnabled(),"Prepared playback permitted stale rate edits");
+    click(w,"stopButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Idle && apply->isEnabled() && rate->isEnabled();});
+    auto noFade=now.processing;noFade.fadeIn={};
+    ProjectCommand removeFade{CommandKind::Structural};removeFade.edits={SetClipProcessing{initial.tracks[0].id,c.id,noFade}};
+    check(w.submitEdit(removeFade),"Cannot prepare no-fade rate undo case");await([&]{return w.snapshot()->session->tracks[0].clips[0].processing==noFade &&
+        widget<QLineEdit>(w,"clipFadeInStart")->text()=="0" && apply->isEnabled();});
+    rate->setValue(2);apply->click();await([&]{return w.snapshot()->session->tracks[0].clips[0].playbackRate==ClipPlaybackRate{2,1};});
+    rate->setFocus();undo(w);
+    try {await([&]{return w.snapshot()->session->tracks[0].clips[0].playbackRate==ClipPlaybackRate{5,4} && rate->value()==1.25;});}
+    catch(...) {const auto actual=w.snapshot()->session->tracks[0].clips[0].playbackRate;
+        std::cerr<<"rate_undo_model="<<actual.numerator<<"/"<<actual.denominator<<" field="<<rate->value()<<" focus="<<rate->hasFocus()<<" error="<<w.snapshot()->errorSerial<<'\n';throw;}
+    undo(w);await([&]{return *w.snapshot()->session==changed;});
+    close(w,true);check(ProjectStore(root).load()==changed && hashMediaFile(raw)==hash,"Rate UI Save/reopen altered raw media");
+    const auto exactRoot=root/"rational";auto precise=fixture(exactRoot);precise.tracks[0].clips[0].playbackRate={1,3};
+    ProjectStore(exactRoot).save(precise);StudioWindow exact;exact.show();exact.openProject(exactRoot);
+    await([&]{return exact.snapshot()->session && widget<QComboBox>(exact,"timelineClips")->count()>1;});
+    widget<QComboBox>(exact,"timelineClips")->setCurrentIndex(1);
+    check(widget<QDoubleSpinBox>(exact,"clipPlaybackRate")->value()==.333,"Exact ratio did not round for display");
+    click(exact,"applyClipPlaybackRate");QTest::qWait(30);
+    check(*exact.snapshot()->session==precise,"Unchanged Apply rounded stored1/3 rate");close(exact,true);
+    check(ProjectStore(exactRoot).load()==precise,"Exact rate Save/reopen drifted");
+    // Deterministic coalesced publication: Apply2x, then publish the Undo's
+    // original state without ever publishing the intermediate2x GUI model.
+    TimelineEditor coalesced;coalesced.show();coalesced.updateModel(std::make_shared<const Session>(changed),7,true);
+    auto *choices=coalesced.findChild<QComboBox *>("timelineClips");check(choices && choices->count()>1,"Coalesced clip selector missing");choices->setCurrentIndex(1);
+    auto *speed=coalesced.findChild<QDoubleSpinBox *>("clipPlaybackRate");auto *applySpeed=coalesced.findChild<QPushButton *>("applyClipPlaybackRate");
+    check(speed && applySpeed && applySpeed->isEnabled(),"Coalesced rate controls missing");
+    bool admitted=false;coalesced.submit=[&](std::vector<SessionEdit> edits){
+        admitted=edits.size()==1 && std::holds_alternative<SetClipPlaybackRate>(edits[0]);return admitted;};
+    speed->setValue(2);applySpeed->click();speed->setFocus();QApplication::processEvents();
+    check(admitted && speed->hasFocus(),"Coalesced Apply/focus was not exercised");
+    coalesced.updateModel(std::make_shared<const Session>(changed),7,true);
+    check(speed->value()==1.25,"Coalesced Undo publication retained admitted focused2x input");
+    speed->setFocus();speed->setValue(1.7);
+    auto processingOnly=changed;processingOnly.tracks[0].clips[0].processing.gainDb=2;
+    coalesced.updateModel(std::make_shared<const Session>(processingOnly),7,true);
+    check(speed->hasFocus() && speed->value()==1.7,"Processing-only publication overwrote focused unapplied speed");
+    auto *gain=coalesced.findChild<QDoubleSpinBox *>("clipGainDb");
+    check(gain,"Coalesced gain control missing");gain->setFocus();gain->setValue(3.5);
+    auto rateOnly=processingOnly;rateOnly.tracks[0].clips[0].playbackRate={2,1};
+    coalesced.updateModel(std::make_shared<const Session>(rateOnly),7,true);
+    check(gain->hasFocus() && gain->value()==3.5 && speed->value()==2,
+        "Rate-only publication overwrote focused unapplied gain or failed canonical speed refresh");
+}
 void editing(const std::filesystem::path &root) {
     const auto original = fixture(root);
     const auto first = original.tracks[0].id, second = original.tracks[1].id;
@@ -1098,6 +1169,10 @@ int main(int argc, char **argv) {
         std::cerr << "Owned timeline fixture root: " << temp.path().toStdString() << '\n';
         check(temp.isValid(), "Temporary directory failed");
         const auto root = utf8Path(temp.path().toUtf8().toStdString());
+        if(argc==2 && std::string_view(argv[1])=="--playback-rate-only") {
+            playbackRateWorkflow(root/"playback-rate");
+            std::cout<<"PASS: "<<checks<<" desktop linked playback-rate checks\n";return 0;
+        }
         if(argc==2 && std::string_view(argv[1])=="--positioned-clips-only") {
             positionedClipWorkflow(root/"positioned-clips");
             std::cout<<checks<<" desktop positioned-clip checks passed; exact fractional display, signed project crop, Undo/Redo, split, mixed-rate insertion, Save/reopen and raw hashes; no native audio\n";

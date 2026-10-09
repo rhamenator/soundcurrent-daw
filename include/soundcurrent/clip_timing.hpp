@@ -9,8 +9,9 @@ namespace soundcurrent::daw {
 class SourceFrameMap {
   public:
     SourceFrameMap(std::uint32_t sourceRate, std::uint32_t projectRate,
-                   Frame sourceOrigin = 0);
-    SourceFrameMap(std::uint32_t sourceRate, std::uint32_t projectRate, SourcePosition);
+                   Frame sourceOrigin = 0, ClipPlaybackRate = {});
+    SourceFrameMap(std::uint32_t sourceRate, std::uint32_t projectRate, SourcePosition,
+                   ClipPlaybackRate = {});
     SourcePosition at(Frame projectOffset) const;
     SourceFrameMap advanced(Frame projectOffset) const;
     SourceFrameMap translated(Frame signedProjectOffset) const;

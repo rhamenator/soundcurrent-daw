@@ -1,0 +1,9 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 5: stretch-worker-workflows
+1/2 Test #5: stretch-worker-workflows .........   Passed    1.24 sec
+    Start 6: stretch-source-integrity
+2/2 Test #6: stretch-source-integrity .........   Passed    0.20 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   1.44 sec

@@ -7,8 +7,8 @@ with **C++20, CMake and Qt 6**, licensed **GPL-3.0-only**. The processing engine
 independent of Qt and shared by live audio and offline rendering.
 
 **Early development preview — not a production-ready DAW.** The target is the
-combined functional capabilities of **full Bitwig Studio 6.1.3** and **Cubase Pro
-15.0.30**, frozen as **SC-DAW-BASELINE-2026-10-05**. No matrix family is currently
+professional composition, recording, editing, mixing, sound design and live
+performance workflows in **SC-DAW-BASELINE-2026-10-05**. No matrix family is currently
 qualified as equivalent. Functional parity, processing quality, bundled content
 and native-project compatibility are tracked separately.
 
@@ -28,6 +28,13 @@ need a refresh and separate qualification.
 Development also includes [exact positioned clip playback/export](docs/131-positioned-clip-playback.md)
 for owned assets at different physical sample rates. The desktop shows exact
 fractional source positions and offers project-frame crop/split with Undo/Redo.
+An [isolated pitch/time-stretch worker](docs/134-isolated-stretch-worker.md) now
+renders owned source spans to floating RF64 with independent pitch and duration,
+resource limits and cancellation. Its CLI/reader workflow is implemented;
+desktop controls, editable stretch state and native qualification remain open.
+
+The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
+and fades with exact rational state and Undo/Redo; pitch follows speed.
 Independent pitch/stretch, foreign-property adoption and installed/native audio
 qualification remain open; existing installer previews contain earlier code.
 

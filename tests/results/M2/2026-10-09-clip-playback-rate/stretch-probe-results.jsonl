@@ -1,0 +1,17 @@
+{"rate":8000,"channels":1,"inputFrames":2000,"outputFrames":3000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.255963,"expected2kAmplitude":0.198684,"original1kAmplitude":1.70603e-06}
+{"rate":8000,"channels":2,"inputFrames":2000,"outputFrames":3000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.255963,"expected2kAmplitude":0.198684,"original1kAmplitude":1.70762e-06}
+{"rate":8000,"channels":3,"inputFrames":2000,"outputFrames":3000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.255963,"expected2kAmplitude":0.198684,"original1kAmplitude":1.70762e-06}
+{"rate":8000,"channels":8,"inputFrames":2000,"outputFrames":3000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.255963,"expected2kAmplitude":0.198684,"original1kAmplitude":1.70762e-06}
+{"rate":8000,"channels":32,"inputFrames":2000,"outputFrames":3000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.255963,"expected2kAmplitude":0.198684,"original1kAmplitude":1.70762e-06}
+{"rate":48000,"channels":1,"inputFrames":12000,"outputFrames":18000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.29824,"expected2kAmplitude":0.198809,"original1kAmplitude":6.21487e-06}
+{"rate":48000,"channels":2,"inputFrames":12000,"outputFrames":18000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.29824,"expected2kAmplitude":0.198809,"original1kAmplitude":6.21482e-06}
+{"rate":48000,"channels":3,"inputFrames":12000,"outputFrames":18000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.29824,"expected2kAmplitude":0.198809,"original1kAmplitude":6.21482e-06}
+{"rate":48000,"channels":8,"inputFrames":12000,"outputFrames":18000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.29824,"expected2kAmplitude":0.198809,"original1kAmplitude":6.21482e-06}
+{"rate":48000,"channels":32,"inputFrames":12000,"outputFrames":18000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.29824,"expected2kAmplitude":0.198809,"original1kAmplitude":6.21482e-06}
+{"rate":192000,"channels":1,"inputFrames":48000,"outputFrames":72000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.213683,"expected2kAmplitude":0.20009,"original1kAmplitude":9.95736e-07}
+{"rate":192000,"channels":2,"inputFrames":48000,"outputFrames":72000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.213683,"expected2kAmplitude":0.20009,"original1kAmplitude":9.9567e-07}
+{"rate":192000,"channels":3,"inputFrames":48000,"outputFrames":72000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.213683,"expected2kAmplitude":0.20009,"original1kAmplitude":9.9567e-07}
+{"rate":192000,"channels":8,"inputFrames":48000,"outputFrames":72000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.213683,"expected2kAmplitude":0.20009,"original1kAmplitude":9.9567e-07}
+{"rate":192000,"channels":32,"inputFrames":48000,"outputFrames":72000,"partitionMaximumDifference":0,"identicalChannelMaximumDifference":0,"peak":0.213683,"expected2kAmplitude":0.20009,"original1kAmplitude":9.9567e-07}
+{"durationInput":4816,"output":6421,"rounded":6421,"ceil":6422}
+{"durationInput":4817,"output":6423,"rounded":6423,"ceil":6423}

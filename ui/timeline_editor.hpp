@@ -60,7 +60,8 @@ class TimelineEditor : public QGroupBox {
     QComboBox *layout_, *destination_, *asset_, *clips_;
     QSpinBox *channels_;
     QSlider *zoom_;
-    QDoubleSpinBox *clipGain_, *fadeInShape_, *fadeOutShape_;
+    QDoubleSpinBox *clipGain_, *fadeInShape_, *fadeOutShape_, *clipRate_;
+    ClipPlaybackRate displayedRate_;
     QCheckBox *clipMuted_, *clipInverted_;
     QLineEdit *fadeInStart_, *fadeInEnd_, *fadeOutStart_, *fadeOutEnd_;
     QComboBox *fadeInCurve_, *fadeOutCurve_;
@@ -70,7 +71,7 @@ class TimelineEditor : public QGroupBox {
     const Clip *clip() const;
     void refresh(bool forceFields = false, bool redraw = true,
                  std::optional<QString> destination = {}, std::optional<QString> asset = {},
-                 bool forceProcessing = false);
+                 bool forceProcessing = false, bool forceRate = false);
     void draw();
     void mutate(std::vector<SessionEdit>);
     void operation(const std::function<void()> &);

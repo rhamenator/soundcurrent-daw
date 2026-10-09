@@ -8,8 +8,8 @@ Work in `/home/rich/dev/soundcurrent-daw`. Begin by reading applicable `AGENTS.m
 
 Deliver the combined functional capabilities of these frozen references:
 
-- **Full Bitwig Studio 6.1.3**
-- **Cubase Pro 15.0.30**
+- **Full Reference A 6.1.3**
+- **Reference B 15.0.30**
 - Baseline: **SC-DAW-BASELINE-2026-10-05**
 
 Preserve this baseline until I explicitly change it. Use the existing source-linked parity matrix and expand feature families into detailed, testable workflows. Do not silently exclude difficult features, substitute a basic recorder for the intended product, or claim parity from feature names alone.

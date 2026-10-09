@@ -1,0 +1,42 @@
+{
+  "utc": "2026-10-09T15:51:16.163129+00:00",
+  "sourceHead": "5b8e35ce38ef4b3cd653474a467160fd20428f79",
+  "run": 37952810083,
+  "requiredChecks": {
+    "Linux desktop and synthetic tests": "SUCCESS",
+    "Windows core cross-build (no native runtime claim)": "SUCCESS",
+    "Windows native packet ownership tests": "SUCCESS",
+    "Windows desktop import and localization tests": "SUCCESS",
+    "Socket Security: Project Report": "SUCCESS",
+    "Socket Security: Pull Request Alerts": "SUCCESS"
+  },
+  "archives": {
+    "linux": {
+      "id": 11627376890,
+      "sha256": "b50ddf7122ac227a70e99825690951b2121568da03c0a3d89ee18d40bb1dacbf",
+      "passed": 99,
+      "rawLogSha256": "7133117ae00c6c75354375b61c16f4b423b84327a39ed9c844b58da288eaa555"
+    },
+    "core": {
+      "id": 11626722709,
+      "sha256": "73ec774e434be5f5e729c34a5a4aa019fa5b5e4eb699d3d6b343cfa61a981f8b",
+      "passed": 34,
+      "rawLogSha256": "6985dcbf0f24a38c1e324a75e630ecab0b0f8a3c34a33462f90a2054d809f4e6"
+    },
+    "qt": {
+      "id": 11627391047,
+      "sha256": "0115897d3b5dcf63dd6215f143ce300fbf9c2193d1c1726a665f44ecb5122851",
+      "passed": 9,
+      "rawLogSha256": "5ba13ac560cc8a68f0a2801d368aaa29bdca4b6479488a68543eb40af15c0c6e"
+    }
+  },
+  "sourceHashesVerified": 578,
+  "committedEvidenceHashesVerified": 22,
+  "protectedMergeReady": true,
+  "noUnresolvedReviewThreads": true,
+  "scope": "99 Linux synthetic; 34 native Windows core and9 Qt. No native audio/installed positioned workflow/full parity; previous8192-track sanitizer timeout open.",
+  "merged": true,
+  "mergeCommit": "902fc7723593ca31c021c257aa9ed42a3b1b1b2c",
+  "mergedUtc": "2026-10-09T15:53:56Z",
+  "testedAndMergedTreesEqual": true
+}

@@ -129,5 +129,5 @@ opt-in new-project conversion with Undo/save/reopen and independently aligned
 source/destination renders. Establish track/frame timing, gain/pan/fade conventions,
 rate/pitch handling and losses before conversion. Multiple takes, MIDI, tempo,
 routing, automation and opaque plugin/device/container state require further
-workflows. Every registered native/exchange family, including frozen Bitwig and
-Cubase references, remains in scope.
+workflows. Every registered native/exchange family, including frozen Reference A and
+Reference B references, remains in scope.

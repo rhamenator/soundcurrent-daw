@@ -193,6 +193,25 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
     sourceTiming_->setWordWrap(true);
     sourceTiming_->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ranges->addRow(tr("Exact source position"), sourceTiming_);
+    clipRate_=new FocusDoubleSpin;
+    clipRate_->setObjectName("clipPlaybackRate");
+    clipRate_->setRange(.25,4);clipRate_->setDecimals(3);clipRate_->setSingleStep(.01);
+    clipRate_->setAccessibleName(tr("Clip playback speed; pitch follows speed"));
+    clipRate_->setToolTip(tr("0.250–4.000 times normal speed. Keeps the clip start and source origin; adjusts duration and fades. Export range stays as set. Undo restores the exact previous clip."));
+    auto *rateRow=new QHBoxLayout;rateRow->addWidget(clipRate_);
+    button(rateRow,QT_TRANSLATE_NOOP("TimelineEditor", "Apply speed"),"applyClipPlaybackRate",[this] {
+        if(clip_ && track_) {
+            // Preserve an unchanged exact ratio even if its three-decimal
+            // display rounds. Mark admitted input for coalesced Apply/Undo:
+            // the GUI may never receive the intermediate stored rate.
+            const auto rate=clipRate_->value()==clipRate_->property("displayValue").toDouble()
+                ? displayedRate_ : ClipPlaybackRate{std::uint32_t(std::llround(clipRate_->value()*1000)),1000};
+            mutate({SetClipPlaybackRate{*track_,*clip_,rate}});
+            displayedRate_=rate;
+            numericField(clipRate_,double(rate.numerator)/rate.denominator,true);
+        }
+    });
+    ranges->addRow(tr("Playback speed (pitch follows)"),rateRow);
     body->addLayout(ranges);
     auto *clipRow = new QHBoxLayout;
     button(clipRow, QT_TRANSLATE_NOOP("TimelineEditor", "Apply range"), "applyClipRange", [this] {
@@ -461,6 +480,7 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
     const auto previous = track_;
     const auto *previousClip = clip();
     const auto previousProcessing = previousClip ? previousClip->processing : ClipProcessing{};
+    const auto previousRate = previousClip ? previousClip->playbackRate : ClipPlaybackRate{};
     const auto previousDestination = destination_->currentData().toString();
     const auto previousAsset = asset_->currentData().toString();
     const bool changed = model_ != p->model || epoch_ != p->epoch || track_ != p->track ||
@@ -483,10 +503,11 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
     if (changed) {
         const auto *currentClip = clip();
         const auto currentProcessing = currentClip ? currentClip->processing : ClipProcessing{};
+        const auto currentRate = currentClip ? currentClip->playbackRate : ClipPlaybackRate{};
         // Stored changes (including Undo/Redo) must update these controls even
         // while focused. Unrelated state publication preserves in-progress input.
         refresh(p->force, true, previousDestination, previousAsset,
-                previousProcessing != currentProcessing);
+                previousProcessing != currentProcessing, previousRate != currentRate);
     }
     if (previous != track_ && selectionChanged)
         selectionChanged();
@@ -534,7 +555,7 @@ bool TimelineEditor::selectTrack(const Id &id) {
     return select(id, track_ == std::optional<Id>(id) ? clip_ : std::optional<Id>{});
 }
 void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> destination,
-                             std::optional<QString> asset, bool forceProcessing) {
+                             std::optional<QString> asset, bool forceProcessing, bool forceRate) {
     QScopedValueRollback<bool> guard(refreshing_, true);
     QSignalBlocker block(tracks_);
     const auto previousDestination = destination.value_or(destination_->currentData().toString());
@@ -571,11 +592,15 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
         name_->setText(t ? text(t->name) : QString());
     name_->setEnabled(editable_ && t);
     for (auto *w : {fadeInStart_,fadeInEnd_,fadeOutStart_,fadeOutEnd_}) w->setEnabled(editable_ && c);
-    for (auto *w : {clipGain_,fadeInShape_,fadeOutShape_}) w->setEnabled(editable_ && c);
+    for (auto *w : {clipGain_,fadeInShape_,fadeOutShape_,clipRate_}) w->setEnabled(editable_ && c);
     for (auto *w : {clipMuted_,clipInverted_}) w->setEnabled(editable_ && c);
     for (auto *w : {fadeInCurve_,fadeOutCurve_}) w->setEnabled(editable_ && c);
     const auto p = c ? c->processing : ClipProcessing{};
     forceProcessing = forceProcessing || force;
+    const auto rate=c ? c->playbackRate : ClipPlaybackRate{};
+    const bool rateChanged=rate!=displayedRate_;
+    numericField(clipRate_,double(rate.numerator)/rate.denominator,force || forceRate || rateChanged);
+    displayedRate_=rate;
     numericField(clipGain_,p.gainDb,forceProcessing);numericField(fadeInShape_,p.fadeIn.shape,forceProcessing);numericField(fadeOutShape_,p.fadeOut.shape,forceProcessing);
     if (forceProcessing || !clipMuted_->hasFocus()) clipMuted_->setChecked(p.muted);
     if (forceProcessing || !clipInverted_->hasFocus()) clipInverted_->setChecked(p.polarityInverted);
@@ -593,11 +618,12 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
         field(split_, c->startFrame + c->lengthFrames / 2, force);
         const auto asset=std::find_if(model_->assets.begin(),model_->assets.end(),
                                      [&](const auto &a){return a.id==c->assetId;});
-        sourceTiming_->setText(tr("%1 + %2/%3 source frames · %4 Hz → %5 Hz project")
+        sourceTiming_->setText(tr("%1 + %2/%3 source frames · %4 Hz → %5 Hz project · speed %6/%7")
             .arg(QLocale().toString(c->sourceFrame),
                  QLocale().toString(qulonglong(c->sourceTiming.fraction)),
                  QLocale().toString(qulonglong(c->sourceTiming.denominator)),
-                 QLocale().toString(asset->sampleRate),QLocale().toString(model_->sampleRate)));
+                 QLocale().toString(asset->sampleRate),QLocale().toString(model_->sampleRate),
+                 QLocale().toString(c->playbackRate.numerator),QLocale().toString(c->playbackRate.denominator)));
     } else
         for (auto *w : {start_, source_, length_, split_, consumed_})
             if (force || !w->hasFocus())

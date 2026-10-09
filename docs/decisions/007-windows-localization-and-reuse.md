@@ -6,7 +6,7 @@ The owner requested Windows alongside Linux, clarified localization as **all of 
 
 ## Decisions
 
-- Keep the frozen Bitwig 6.1.3 / Cubase Pro 15.0.30 references unchanged. Windows and localization are additional SoundCurrent requirements, not an assertion about either reference's language coverage.
+- Keep the frozen Reference A 6.1.3 / Reference B 15.0.30 references unchanged. Windows and localization are additional SoundCurrent requirements, not an assertion about either reference's language coverage.
 - Windows must reach the same functional acceptance workflows as Linux. Platform build success does not prove device, MIDI, plugin, UI or recording parity. Linux remains first for native audio experiments.
 - Keep session, graph, processors and offline rendering independent of Qt and OS audio headers. Native backend adapters use existing audio infrastructure. Evaluate WASAPI shared/exclusive and lawful ASIO integration; a virtual cable is not a prerequisite for ordinary DAW I/O.
 - Treat national, non-EU and regional/minority European languages as part of the localization program. The initial register is extensible and is not a claim of exhaustive language coverage or completed translation.

@@ -681,3 +681,34 @@ evidence is recorded; final source/platform/sanitizer/preview qualification is
 separate. Rate automation, independent pitch/stretch, foreign-property adoption
 and full F/Q/C/N/European/native quality gates remain required. No VM was started;
 large preview archives are deferred while Veeam owns substantial disk I/O.
+
+## Constant linked clip speed (2026-10-09)
+
+PR75 exact source5b8e35c merged as902fc77, identical trees;99 Linux/34 native
+Windows core/9 Qt protected checks passed. Its final receipts are carried forward.
+[Checkpoint132](132-clip-playback-rate.md) and
+[ADR098](decisions/098-linked-clip-playback-rate.md) implement exact rational
+linked speed/pitch, retimed duration/fades, effective-ratio worker context,
+schema1.11 migration, shared live/export and guarded accessible desktop controls.
+Current qualification is recorded separately. Full F/Q/C/N, independent pitch/
+stretch, tempo/rate automation, foreign conversion and installed/platform/European
+work remain required. No local VM or large installer archive is started during
+backup contention. Next: pin and qualify independent pitch/stretch preparation.
+
+## Independent stretch feasibility checkpoint (2026-10-09)
+
+[Checkpoint133](133-pitch-stretch-feasibility.md) records fifteen selected Linux
+synthetic configurations and Windows cross-build of pinned Rubber Band4.0.0,
+without adopting a dependency or promoting parity. Next: a resource-admitted,
+source-anchored stretch worker contract covering exact integer duration, derived
+cache lifecycle, cancellation/refusal, seek/split/crop consistency and shared
+live/export reads.384k processing, native Windows and full quality remain gates.
+
+## M2 isolated independent stretch worker
+
+[Checkpoint134](134-isolated-stretch-worker.md): actual floating RF64 render jobs,
+independent pitch/time, exact duration, OS memory/deadline containment, ready/start
+handshake, cancellation and completion markers. Completed artifacts pass shared
+live/export, seek/split/crop and Save/reopen tests. Next implement versioned editable
+source-span anchors and an aggregate-admitted supervised launcher before desktop
+controls. Full quality, higher rates, native Windows/installed and parity stay open.

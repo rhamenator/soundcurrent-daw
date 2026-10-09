@@ -1,0 +1,35 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+      Start  5: positioned-resampling-kernel
+ 1/11 Test  #5: positioned-resampling-kernel .....   Passed   45.11 sec
+      Start  6: positioned-resampling-workflow
+ 2/11 Test  #6: positioned-resampling-workflow ...   Passed   54.28 sec
+      Start  7: fractional-timing-oracle
+ 3/11 Test  #7: fractional-timing-oracle .........   Passed   13.50 sec
+      Start  8: clip-playback-rate
+ 4/11 Test  #8: clip-playback-rate ...............   Passed   21.40 sec
+      Start  9: playback-rate-timing-oracle
+ 5/11 Test  #9: playback-rate-timing-oracle ......   Passed    6.47 sec
+      Start 40: desktop-clip-processing
+ 6/11 Test #40: desktop-clip-processing ..........   Passed    0.50 sec
+      Start 41: desktop-playback-rate
+ 7/11 Test #41: desktop-playback-rate ............***Failed   10.47 sec
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-VVwfwq
+This plugin does not support propagateSizeHints()
+Timeline timeout at 308
+
+      Start 42: desktop-positioned-clips
+ 8/11 Test #42: desktop-positioned-clips .........   Passed    0.44 sec
+      Start 60: session-state
+ 9/11 Test #60: session-state ....................   Passed    0.40 sec
+      Start 63: multitrack-edits
+10/11 Test #63: multitrack-edits .................   Passed    6.11 sec
+      Start 97: clip-processing
+11/11 Test #97: clip-processing ..................   Passed    1.29 sec
+
+91% tests passed, 1 tests failed out of 11
+
+Total Test time (real) = 159.97 sec
+
+The following tests FAILED:
+	 41 - desktop-playback-rate (Failed)
+Errors while running CTest

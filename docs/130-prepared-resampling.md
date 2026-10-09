@@ -1,7 +1,7 @@
 # Prepared resampling and exact source/project coordinates
 
 Date: 2026-10-09. Frozen baseline remains **SC-DAW-BASELINE-2026-10-05**:
-Bitwig6.1.3 and Cubase Pro15.0.30. F/Q/C/N parity remains incomplete.
+Reference A 6.1.3 and Reference B 15.0.30. F/Q/C/N parity remains incomplete.
 
 Previous goal turn was **progress**: PR73 merged exact qualified1849bde into
 2882f11 after all four unchanged protected contexts passed. Linux92, native

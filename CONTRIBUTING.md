@@ -33,7 +33,17 @@ change. Local VM credentials and testing policies belong outside source control.
 No contributor agreement or transfer of copyright is required. Maintainers review
 changes; an open issue or pull request does not promise an implementation date.
 
-`main` is protected: use a feature branch and pull request, pass both required CI
+`main` is protected: use a feature branch and pull request, pass all four required CI
 jobs, update against current `main`, and resolve review conversations before a
 squash/rebase merge. The rules apply to administrators too. See the
 [branch-protection policy](docs/58-repository-branch-protection.md).
+
+## Reference naming in documentation
+
+Use **Reference A** (full edition, 6.1.3) and **Reference B** (professional
+edition, 15.0.30) for the frozen baseline in authored descriptions and
+documentation. Describe SoundCurrent features by their workflows. Keep the
+baseline ID, acceptance requirements, uncertainty, exact source URLs, source
+IDs and retrieved-byte hashes traceable; use neutral link labels. The research
+manifest titles are display labels. Historical raw test evidence and third-party
+provenance retain their original bytes and names.

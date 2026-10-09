@@ -1,0 +1,4 @@
+[1/4] Building CXX object CMakeFiles/probe.dir/probe.cpp.obj
+[2/4] Building CXX object CMakeFiles/rb.dir/home/rich/dev/soundcurrent-daw/.cache/rubberband-review/rubberband-4.0.0/single/RubberBandSingle.cpp.obj
+[3/4] Linking CXX static library librb.a
+[4/4] Linking CXX executable probe.exe

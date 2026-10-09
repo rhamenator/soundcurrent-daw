@@ -1,7 +1,6 @@
 # Positioned clip playback and export
 
-Date: 2026-10-09. **SC-DAW-BASELINE-2026-10-05** remains Bitwig6.1.3 and Cubase
-Pro15.0.30. Functional/quality/content/native compatibility remain incomplete.
+Date: 2026-10-09. **SC-DAW-BASELINE-2026-10-05** remains Reference A 6.1.3 and Reference B 15.0.30. Functional/quality/content/native compatibility remain incomplete.
 
 ## Previous checkpoint
 
