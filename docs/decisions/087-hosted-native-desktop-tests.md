@@ -1,6 +1,6 @@
 # ADR087: hosted native Windows desktop workflow tests
 
-Status: selected; first native execution exposed a test-fixture defect; corrected qualification pending.
+Status: selected and qualified for the tested native offscreen workflows.
 Date: 2026-10-09 UTC.
 
 ## Context/options
@@ -45,3 +45,12 @@ controller's truncation fixture erased CRLF instead of JSON syntax. The retained
 original artifact and controlled Linux reproduction support a test-only fix with
 actual/LF/CRLF malformed cases. Local controller77 Release/sanitized checks pass;
 corrected native qualification and required-context promotion remain pending.
+
+## Qualification/protection
+
+PR64 merged becfaf3 after exact429d69a passes all four jobs. Native Qt passes
+controller77/UI90/localization256 checks;34 draft catalog loads do not qualify a
+language. The new context is now required alongside the original three, tied to
+Actions app15368, with all other protection settings preserved. Original failure
+and corrected exact artifacts/read-backs are retained. A following test-only
+80-check construction assertion is separate from that77-check native cohort.

@@ -93,7 +93,9 @@ metadata, digest-verified artifact, runtime record and log are retained under
 
 The old truncation test erases the final two response bytes. The worker writes a
 final newline through its text-mode standard stream; native Windows uses CRLF.
-Removing CRLF leaves valid JSON. A controlled Linux reproduction forces CRLF on
+Removing CRLF leaves valid JSON, consistent with Microsoft’s documented
+[text-mode stdout defaults](https://learn.microsoft.com/en-us/cpp/c-runtime-library/text-and-binary-mode-file-i-o?view=msvc-170)
+and [LF-to-CRLF output translation](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setmode?view=msvc-170). A controlled Linux reproduction forces CRLF on
 the real child's response, applies that exact old mutation and reproduces the
 failure. The fixture now removes the final object brace, independently confirms
 malformed JSON and exercises actual stdout plus explicit LF/CRLF endings. It also
@@ -105,3 +107,35 @@ Local Release passes all three selected desktop tests (77 controller,90 UI,
 disabled. Corrected native execution is pending; the failing new context remains
 unpromoted and this PR must not merge until it passes. The previous three jobs
 pass at the original head. No local VM or installed preview changed.
+
+## Corrected native qualification and protection
+
+PR64 merged at `becfaf330a674b4606e589481b6be56e1d004145`. Exact corrected head
+`429d69af5b3d0164acd238e9ba11076741a4eefe`, run37883629027 passes all four jobs:
+78 Linux tests,15 selected native engine tests, the cross-build and3 selected
+native Qt tests. Windows controller77, UI90 and localization256 checks pass;
+34 catalogs remain drafts, with no language fully qualified. Exact metadata,
+digest-verified archives, raw logs and SDK verification record are retained in
+`tests/results/X004/2026-10-09-windows-desktop-qualified`.
+
+The new desktop context is required from GitHub Actions app15368. Fresh protection
+read-back preserves the existing three checks, strict/up-to-date requirement,
+administrator enforcement, PR/review policy, linear history, conversation
+resolution and no force pushes/deletion. The exact-head auto-squash merged after
+the Linux job passed. No setting was weakened to publish this checkpoint.
+
+A following test-only refinement asserts malformed fixture construction on the
+calling test thread. The worker catches hook exceptions as faults; a fixture
+error must fail the test, rather than satisfy the rejection oracle. The assertion
+now observes an atomic construction result and all corrupted responses require
+an actual child with exit0. This adds3 assertions; its80-check native execution
+is separate from the retained77-check Windows cohort above. Product behavior is
+unchanged. Local follow-up results and pending native status are pinned in the
+new receipt; do not relabel old evidence as the new cohort.
+
+Next: approved media-root handles and missing-media choices, then opt-in new
+project conversion with independent aligned renders, Undo/reopen and visible
+unsupported state. Current owned-media APIs are insufficient for foreign root
+containment. Installer refresh/native audio/interactive workflows remain separate.
+No VM, host route, equalizer or installed preview changed; full parity remains
+active/incomplete.

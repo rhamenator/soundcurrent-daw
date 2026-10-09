@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-09",
+  "qualifiedHead": "429d69af5b3d0164acd238e9ba11076741a4eefe",
+  "merge": {
+    "headRefOid": "429d69af5b3d0164acd238e9ba11076741a4eefe",
+    "mergeCommit": {
+      "oid": "becfaf330a674b4606e589481b6be56e1d004145"
+    },
+    "mergedAt": "2026-10-09T04:30:53Z",
+    "state": "MERGED",
+    "url": "https://github.com/rhamenator/soundcurrent-daw/pull/64"
+  },
+  "run": 37883629027,
+  "results": {
+    "linux": {
+      "selectedTests": 78
+    },
+    "windowsNativeEngine": {
+      "selectedTests": 15,
+      "originalPropertyChecks": 890,
+      "propertyProtocolChecks": 569
+    },
+    "windowsNativeQt": {
+      "selectedTests": 3,
+      "controllerChecks": 77,
+      "uiChecks": 90,
+      "localizationChecks": 256,
+      "draftCatalogsLoaded": 34
+    },
+    "crossBuild": "success; no runtime claim"
+  },
+  "protection": {
+    "requiredContexts": [
+      {
+        "context": "Linux desktop and synthetic tests",
+        "app_id": 15368
+      },
+      {
+        "context": "Windows core cross-build (no native runtime claim)",
+        "app_id": 15368
+      },
+      {
+        "context": "Windows native packet ownership tests",
+        "app_id": 15368
+      },
+      {
+        "context": "Windows desktop import and localization tests",
+        "app_id": 15368
+      }
+    ],
+    "allOtherSettingsUnchanged": true,
+    "reference": "https://docs.github.com/en/rest/branches/branch-protection#update-status-check-protection"
+  },
+  "originalFailure": "../2026-10-09-windows-desktop-native/receipt.json",
+  "testOnlyFollowup": {
+    "baseHead": "becfaf330a674b4606e589481b6be56e1d004145",
+    "sourceSha256": "18712d1e88d4c75882388ac82d8f93a0cfa418e08522f3964cd41f9cb6b693aa",
+    "releaseChecks": 80,
+    "sanitizedChecks": 80,
+    "asan": true,
+    "ubsan": true,
+    "leakDetection": false,
+    "nativeWindows": "pending",
+    "reason": "Caller assertion cannot be swallowed by worker hook exception handling; actual normal child required"
+  },
+  "limits": {
+    "nativeAudio": false,
+    "installer": false,
+    "interactiveDesktop": false,
+    "nativeProjectConversion": false,
+    "fullParity": false,
+    "languageFullyQualified": false,
+    "localVmStarted": false,
+    "userAudioRouteChanged": false,
+    "equalizerChanged": false,
+    "installedPreviewChanged": false,
+    "publicProductBinaryReleaseUploaded": false
+  },
+  "evidenceSha256": {
+    "jobs.json": "0221c9dc4b943f59a71935d3fd61c41f33e331029438b1e1e106e365a529c6f1",
+    "linux-LastTest.log": "12cb9f8901f7003057680116556662d6eabf3335986181d7550be6ce9287ab6a",
+    "linux-artifact.json": "6fe4436749e71ff862f3b80f963b93e4eb280fadd85f0a2297494553bd5218c1",
+    "linux.zip": "453268f1efc9969486ec43943552ffd9fb853fd15aa0904ff64e9ff0b975052d",
+    "merged-pr.json": "62ee32cfb42fcc4f41ff1c428f20a10311c272c8b505842138ef37bedf2d6bbc",
+    "oracle-linux-release.log": "e7de996aeaf978ab3c13b8b3ee17cb119b4d15c386a4ad7a3b053e2622ecbbd3",
+    "oracle-linux-sanitized.log": "a996ac449a794f280814ea13cbc7faa04e20fbf448bd56d7b8a0f176f3f7ad8f",
+    "protection-after.json": "189825e96e10a1783b3fb28b8dfe5eba110d960afbe5224b935f7194c9aad2d4",
+    "protection-before.json": "e6a29c479242fc7d79cb453cd1f57064c42e4df2e2439e3974f19325136ff5da",
+    "qualified-checks.json": "0cbc40950e085a46a16ac740472d5434d1a240045ec95905c6b0bc36d5cdcde1",
+    "run.json": "76f48406c1a062ead90b214ddee75f0408171fd39f4000bdfb9eaf8033c60ead",
+    "windows-core-native-LastTest.log": "82565679249a3067d6a9e21e2bd0c204230d90a2b6bcc9ecbb1931ba8f32b537",
+    "windows-core-native-artifact.json": "6e4fcada0e51a1a0dd90c2ef08114f06d1fe3e0ad3465ab06aa1da9f32c86441",
+    "windows-core-native.zip": "50dcf0dc1f10f2daeac7ddc403b59b45d49251779adb6824b5b60b4577c4c8b5",
+    "windows-qt-LastTest.log": "975f5004e7d3c3ec7e61baa7f2dab35d81d7b0b72b6c3e40a889511777ca5d30",
+    "windows-qt-artifact.json": "ec3124375efd7a698980a457778675faacdc2009575bf0e80f87db95b0a64f03",
+    "windows-qt-runtime.json": "c197f4c1791eed7fdc124565e5c7232164521ff876c34842a60561d6f4bf3ca8",
+    "windows-qt.zip": "eef63b9b044cc4b3af9b21d57fb36ad1b3ef9bd92a518c0e396716851f87b47a"
+  }
+}

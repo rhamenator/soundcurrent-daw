@@ -3357,3 +3357,16 @@ local Release controller77/UI90/localization259 and ASan/UBSan controller77 pass
 Corrected hosted execution/protection promotion remain pending. No local VM,
 user audio route, equalizer repository or installed preview changed. Full parity
 and European language review/qualification remain incomplete.
+
+### Native desktop gate qualified/protected
+
+PR64 merged becfaf3 after exact429d69a passes all four jobs:78 Linux tests,
+15 selected native MSVC tests, cross-build and3 actual native Qt tests. Windows
+controller77/UI90/localization256 checks pass with34 draft catalog loads. Exact
+passing and original failed archives remain retained. The additional desktop
+context is required with all existing protection settings preserved. A following
+test-only80-check refinement makes fixture construction assert on the caller so
+worker-caught hook exceptions cannot masquerade as a decoder rejection; native
+follow-up is pending separately. No VM/audio/equalizer/installed preview changed.
+Next: bounded approved media roots/missing-media choices and explicit conversion;
+full frozen-reference and language qualification remain active/incomplete.

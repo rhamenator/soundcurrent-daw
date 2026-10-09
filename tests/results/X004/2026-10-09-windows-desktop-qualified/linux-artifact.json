@@ -1,0 +1,20 @@
+{
+  "id": 11596185202,
+  "node_id": "MDg6QXJ0aWZhY3QxMTU5NjE4NTIwMg==",
+  "name": "linux-synthetic-test-log",
+  "size_in_bytes": 11641,
+  "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11596185202",
+  "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11596185202/zip",
+  "expired": false,
+  "digest": "sha256:453268f1efc9969486ec43943552ffd9fb853fd15aa0904ff64e9ff0b975052d",
+  "created_at": "2026-10-09T04:30:34Z",
+  "updated_at": "2026-10-09T04:30:34Z",
+  "expires_at": "2027-01-07T04:23:10Z",
+  "workflow_run": {
+    "id": 37883629027,
+    "repository_id": 1407894149,
+    "head_repository_id": 1407894149,
+    "head_branch": "codex/windows-import-ui",
+    "head_sha": "429d69af5b3d0164acd238e9ba11076741a4eefe"
+  }
+}

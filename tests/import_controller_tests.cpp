@@ -137,6 +137,7 @@ int main(int argc,char **argv) {
         const char *faultNames[]={"duplicate root", "deep array", "truncated actual stdout",
                                   "container overhead", "truncated LF", "truncated CRLF"};
         for (unsigned fault=0;fault<6;++fault) {
+            std::atomic<bool> malformedSyntax=false;
             InspectionOptions options; options.memory=memory;
             options.afterChild=[&](std::string &encoded,std::size_t) {
                 if (fault==0) encoded.insert(1,"\"root\":0,"); // Duplicate, never normalize.
@@ -151,8 +152,7 @@ int main(int argc,char **argv) {
                         encoded+=fault==4 ? "\n" : "\r\n";
                     }
                     encoded.erase(last,1);
-                    if (nlohmann::json::accept(encoded))
-                        throw std::runtime_error("Truncation fixture is still valid JSON");
+                    malformedSyntax=!nlohmann::json::accept(encoded);
                 }
                 if (fault==3) {
                     // Many tiny containers stress DOM overhead per encoded byte.
@@ -164,12 +164,17 @@ int main(int argc,char **argv) {
             };
             ImportInspectionController controller(options); controller.submit(file);
             const auto failed=finish(controller);
+            // The worker catches hook exceptions as faults. Check the fixture on
+            // the test thread so a construction error cannot satisfy the oracle.
+            if (fault==2 || fault==4 || fault==5)
+                check(malformedSyntax.load(),"Truncation fixture did not produce malformed JSON");
             if (failed->phase!=InspectionPhase::Fault || failed->report)
                 std::cerr<<"Fault case="<<faultNames[fault]<<" phase="<<static_cast<unsigned>(failed->phase)
                          <<" error="<<(failed->error ? static_cast<int>(*failed->error) : -1)
                          <<" pid="<<failed->childPid
                          <<" report="<<bool(failed->report)<<'\n';
-            check(failed->phase==InspectionPhase::Fault && !failed->report,"Malformed/deep/duplicate protocol accepted");
+            check(failed->phase==InspectionPhase::Fault && failed->childPid && failed->childExit==0 && !failed->report,
+                  "Malformed/deep/duplicate protocol accepted");
             retired(memory);
         }
         {
