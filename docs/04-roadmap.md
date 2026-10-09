@@ -734,3 +734,11 @@ independent pitch/formant controls and explicit render/review/apply. Local actua
 helper tests cover Undo, save/reopen/export and quitting during an active render.
 Native Windows qualification and exact preview helper deployment remain next.
 Full processing-quality and frozen-reference workflow scope remain required.
+
+## M2 stretch preview payload gate
+
+[Checkpoint 137](137-stretch-preview-delivery.md) requires the render helper and
+its license in Linux/Windows previews, with a matching native process/artifact
+receipt. Owned package fixtures cover missing/stale inputs, executable modes and
+37 invalid render receipts. Fresh installed previews remain the next delivery
+task; this builder change does not establish installed or release acceptance.

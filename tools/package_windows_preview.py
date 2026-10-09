@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import tarfile
 import zipfile
+from stretch_worker_qualification import qualify_stretch_worker as qualify_native_stretch
 
 ROOT = Path(__file__).resolve().parents[1]
 QT_SOURCE = 'a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307'
@@ -47,7 +48,7 @@ def relative(value):
             'Unsafe Windows payload component')
     return p
 
-def deploy_payload(archive, manifest, destination, *, require_worker=False, require_media_worker=False, require_copy_worker=False):
+def deploy_payload(archive, manifest, destination, *, require_worker=False, require_media_worker=False, require_copy_worker=False, require_stretch_worker=False):
     expected = {}
     for row in manifest['files']:
         name = relative(row['path']).as_posix()
@@ -58,6 +59,7 @@ def deploy_payload(archive, manifest, destination, *, require_worker=False, requ
     if require_worker: required.add('sc-import-inspect-worker.exe')
     if require_media_worker: required.add('sc-approved-wave-probe.exe')
     if require_copy_worker: required.add('sc-media-import-worker.exe')
+    if require_stretch_worker: required.add('sc-stretch-render-worker.exe')
     require(required <= set(expected) and len(expected)<=64, 'Missing/excess deployment payload')
     require(all(0<r['bytes']<=64*1024*1024 for r in expected.values()) and
             sum(r['bytes'] for r in expected.values())<=256*1024*1024,
@@ -95,7 +97,7 @@ def qualified_dependencies(manifest):
     require(trusted['qtSourceSha256']==QT_SOURCE and
             trusted['sndfileSourceSha256']==SNDFILE_SOURCE, 'Dependency source anchor differs')
     dependencies = {r['path']:r for r in manifest['files'] if r['path'] not in
-                    {'soundcurrent-daw.exe','sc-import-inspect-worker.exe','sc-approved-wave-probe.exe','sc-media-import-worker.exe'}}
+                    {'soundcurrent-daw.exe','sc-import-inspect-worker.exe','sc-approved-wave-probe.exe','sc-media-import-worker.exe','sc-stretch-render-worker.exe'}}
     require(dependencies==trusted['files'], 'Unqualified dependency binary identity')
 
 def qualify_worker(manifest, qualification, head):
@@ -134,6 +136,11 @@ def qualify_copy_worker(manifest, qualification, head):
             re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}',qualification['operation']) and
             row.get('sha256')==qualification.get('exeSha256') and bool(row),
             'Deployed copy worker differs from qualified native process/source/receipt protocol')
+
+def qualify_stretch_worker(manifest, qualification, head, source_tree):
+    rows=[r for r in manifest['files'] if r['path']=='sc-stretch-render-worker.exe']
+    require(len(rows)==1, 'Exactly one qualified stretch helper required')
+    qualify_native_stretch(qualification,head,source_tree,rows[0].get('sha256'),'win32')
 
 def scripts(stage, output, sequence, head, runtime):
     entries = sorted(p for p in stage.rglob('*') if p.is_file())
@@ -196,15 +203,21 @@ def package(args):
     needs_copy_worker=(ROOT/'ui/media_copy_controller.cpp').is_file()
     if needs_copy_worker:
         qualify_copy_worker(manifest,read_json(args.copy_worker_qualification) if args.copy_worker_qualification else None,head)
+    needs_stretch_worker=(ROOT/'ui/stretch_controller.cpp').is_file()
+    if needs_stretch_worker:
+        qualify_stretch_worker(manifest,read_json(args.stretch_worker_qualification) if args.stretch_worker_qualification else None,head,
+                              subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip())
     row=next((r for r in manifest['files'] if r['path']=='soundcurrent-daw.exe'),{})
     require(row.get('sha256')==qualification['exeSha256'], 'Deployed main differs from qualified main')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     stage=output/'payload';stage.mkdir()
     deploy_payload(args.deploy_zip,manifest,stage,require_worker=needs_worker,
-                   require_media_worker=needs_media_worker,require_copy_worker=needs_copy_worker)
+                   require_media_worker=needs_media_worker,require_copy_worker=needs_copy_worker,
+                   require_stretch_worker=needs_stretch_worker)
     legal=stage/'licenses';legal.mkdir()
     for name,path in {'GPL-3.0.txt':ROOT/'LICENSE','libsndfile-LGPL.txt':ROOT/'third_party/libsndfile/COPYING',
                       'libsamplerate-BSD-2-Clause.txt':ROOT/'third_party/libsamplerate/COPYING',
+                      'RubberBand-GPL-2.0-or-later.txt':ROOT/'third_party/rubberband/COPYING',
                       'nlohmann-MIT.txt':ROOT/'third_party/nlohmann/LICENSE.MIT',
                       'equipment-GPL.txt':ROOT/'reuse/equipment/upstream/data/equipment/LICENSE',
                       'NSIS-copyright.txt':Path('/usr/share/doc/nsis/copyright')}.items():
@@ -239,6 +252,7 @@ def package(args):
              'workerQualificationSha256':digest(args.worker_qualification) if needs_worker else None,
              'mediaWorkerQualificationSha256':digest(args.media_worker_qualification) if needs_media_worker else None,
              'copyWorkerQualificationSha256':digest(args.copy_worker_qualification) if needs_copy_worker else None,
+             'stretchWorkerQualificationSha256':digest(args.stretch_worker_qualification) if needs_stretch_worker else None,
              'deploymentManifestSha256':digest(args.deploy_manifest),'officialRuntimeSha256':REDIST,
              'installerSourceSha256':digest(ROOT/'packaging/windows/preview.nsi.in'),
              'payload':{p.relative_to(stage).as_posix():{'bytes':p.stat().st_size,'sha256':digest(p)} for p in sorted(stage.rglob('*')) if p.is_file()},
@@ -259,5 +273,7 @@ if __name__=='__main__':
                         help='Matching native media checker PID/report/exit/source/executable receipt')
     parser.add_argument('--copy-worker-qualification',type=Path,
                         help='Matching native checked-copy PID/report/commit/source/executable receipt')
+    parser.add_argument('--stretch-worker-qualification',type=Path,
+                        help='Matching native render PID/exit/source/hash and verified artifact receipt')
     parser.add_argument('--sequence',required=True)
     package(parser.parse_args())
