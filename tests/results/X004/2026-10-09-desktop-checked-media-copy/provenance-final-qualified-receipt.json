@@ -1,0 +1,73 @@
+{
+  "utc": "2026-10-09T08:45:53.832215+00:00",
+  "pr": "https://github.com/rhamenator/soundcurrent-daw/pull/70",
+  "head": "3f5ad5d98ad4ec1b2089cb00ac45d8d4a99a17f5",
+  "merge": "d5f44fb236c9642038c4ca11f5db21dfc277baa0",
+  "run": 37906089136,
+  "allFourRequiredChecks": "SUCCESS",
+  "protectionBypass": false,
+  "sourceSha256": {
+    "include/soundcurrent/media_provenance.hpp": "8b78917998dd9d497c973df0991447edb06e666250c0ffc299068396b3361fde",
+    "include/soundcurrent/media_recovery.hpp": "41f6250f84a86d73a650b0aefa3efbcf316802292b000ec8cc96b5b31aed5a77",
+    "include/soundcurrent/media_staging.hpp": "83569394d2db469276eb6c944c16cdd45ffa17706ef3953bc4fa725fd1ec5960",
+    "src/media_provenance.cpp": "cd468441ec39191e4d85c3d7373d731d70cadf0eded0c765bd73dafb790219fe",
+    "src/media_recovery.cpp": "6de0714b1829d31f4cfb48099e132efd560af2068f4e85fef2dd415b2b7e93d5",
+    "src/media_staging.cpp": "3050c411b28d031a325da516485e36249cf93d52ef7913b92809229e0d11bd02",
+    "tools/media_import_worker.cpp": "f9410c7c99e03af05f28316dacc0cbf730fb63f7ed05da9f0833ff006a8e3d7b",
+    "tests/media_transaction_tests.cpp": "683b14f1855e24b5f8911399e96801addbbae8a65266f9bb705df083059bf71b",
+    "tests/media_transaction_workflows.py": "720c6c56f6e3c767900262c9d11f5c55fa033fc8dc7cb184ae375a1027226f00",
+    "CMakeLists.txt": "592c9004ef3e3a30b18a48c86caa47cd960af9bca1b5d63ed48a56c1af72d8f7",
+    ".github/workflows/ci.yml": "1f2148302c21ce4ae32d9906653784f52f85214970daf9418a7692499782a489"
+  },
+  "evidenceSha256": {
+    "provenance-final-pr.json": "1322488d027e80fa439eb5f87db25c581b3a3f7acff2563a87cd0f6736b3a9cb",
+    "provenance-final-run.json": "87b8f5b1a3844456d46b01076e85d8e497e32406e73f286a5741db0da76e859b",
+    "provenance-final-review-threads.json": "41aeb6f0b1637a4efc5c37cb0e47797c832b8582b70af2ac844f38a484b3a0b8",
+    "provenance-final-protection.json": "512b71f165bb8ea361949546be8f4f970bf2c718af007372878f2dc90a706eab",
+    "provenance-final-artifacts.json": "4ec0db82d12f1dcd03c76b045c6061694581932ffafac870ce02993f51244cb5",
+    "provenance-merged.json": "9641d74138eeddc0756615d7dd7ce788135ef26d5972d0f6fedead07512fae61",
+    "provenance-final-core-artifact.json": "122bc4d53a60142ae85faaff7e680a26d3716284ff6203a5260c9d72335a7bc0",
+    "provenance-final-core.zip": "84e1ff754733e22030c71e20cc0b0fa15eca1316f659c99cfbf7916c6dd6d7bf",
+    "provenance-final-core-lasttest.log": "c0b1e1daf5cc0c3893c3bace33d52b97ee16caf676805710d6e2394342a6a0ac",
+    "provenance-final-qt-artifact.json": "acd4f128cd189cd86d0a77cee52892e2567a9ec251973d17ba367f067d9ad270",
+    "provenance-final-qt.zip": "396a7956d6baa19bc68da37b512a93b4ddc6e2e4d8e8edf6d70895bb005af368",
+    "provenance-final-qt-lasttest.log": "7f8c6a77212eb679e4e293a898edd14940db88602c95bc58436ba33f9b5a9071",
+    "provenance-final-linux-artifact.json": "4022d254912220a5cce2a1cdab24ea9f0327d399fd1c2c0090e69d9149b04c2f",
+    "provenance-final-linux.zip": "e844bd95e19deb1338a9b73c7ed9231f2fe70ba3d6ba0d64c060eebf59b8cc24",
+    "provenance-final-linux-lasttest.log": "cba2a7eb4adcb370b2b33e7778f5740f95828c11db9b72f6ee0f95f2325ab291"
+  },
+  "platforms": {
+    "linux": {
+      "selectedTests": 88,
+      "transactionChecks": 252,
+      "actualWorkflowChecks": 114
+    },
+    "windowsNativeCore": {
+      "selectedTests": 22,
+      "transactionChecks": 228,
+      "actualWorkflowChecks": 114,
+      "stagingChecks": 152,
+      "stagingActualWorkerChecks": 61
+    },
+    "windowsNativeQt": {
+      "selectedTests": 6,
+      "mediaControllerChecks": 83,
+      "mediaUIChecks": 46,
+      "importControllerChecks": 80,
+      "importUIChecks": 91,
+      "localizationChecks": 272
+    },
+    "windowsCrossCompile": "no native runtime claim"
+  },
+  "scope": {
+    "vmStarted": false,
+    "audioChanged": false,
+    "equalizerChanged": false,
+    "guiCopy": false,
+    "sessionAdoption": false,
+    "installedPreviewRefresh": false,
+    "publicBinaryRelease": false,
+    "fullParity": false
+  },
+  "nextTask": "Freeze checked-row copy requests, owned child/deadline/PID/outcome retirement and explicit commit/recovery UI; qualify cancellation/termination races at publication"
+}

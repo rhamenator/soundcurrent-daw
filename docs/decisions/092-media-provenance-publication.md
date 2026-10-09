@@ -1,6 +1,6 @@
 # ADR092: bound provenance and exclusive media receipt publication
 
-Status: selected; local Linux qualification, new native Windows execution pending.
+Status: selected; Linux and native Windows receipt primitive qualified through PR70.
 Date: 2026-10-09.
 
 | Alternative | Functionality / license / maintenance / integration cost | Decision |

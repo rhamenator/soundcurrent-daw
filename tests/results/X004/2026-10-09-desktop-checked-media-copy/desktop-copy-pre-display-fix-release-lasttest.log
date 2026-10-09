@@ -1,0 +1,242 @@
+Start testing: Oct 09 05:17 EDT
+----------------------------------------------------------
+2/93 Testing: desktop-media-copy-controller
+2/93 Test: desktop-media-copy-controller
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-media-copy-controller-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"desktop-media-copy-controller" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+PASS: 119 actual checked-copy/controller checks; frozen source, PID/receipt, pre/post publication interruption, recovery and retirement; no audio device
+<end of output>
+Test time =   1.59 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-media-copy-controller" end time: Oct 09 05:17 EDT
+"desktop-media-copy-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+3/93 Testing: desktop-media-controller
+3/93 Test: desktop-media-controller
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-wave-controller-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"desktop-media-controller" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+PASS: 85 actual media-child/controller checks; PID/report, quotas, Unicode, cancel/deadline/flood and retirement; no audio device
+<end of output>
+Test time =   0.73 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-media-controller" end time: Oct 09 05:17 EDT
+"desktop-media-controller" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/93 Testing: desktop-import-media-ui
+4/93 Test: desktop-import-media-ui
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-media-ui-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"desktop-import-media-ui" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+PASS: 74 actual media UI checks; explicit root/replacement, original bytes, missing/duplicate/unsupported, safe labels, reopen/retirement
+<end of output>
+Test time =   0.94 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-media-ui" end time: Oct 09 05:17 EDT
+"desktop-import-media-ui" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/93 Testing: desktop-import-controller
+5/93 Test: desktop-import-controller
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-controller-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"desktop-import-controller" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+Import controller checks=80; real child, synthetic project, native compatibility unqualified
+<end of output>
+Test time =   0.82 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-controller" end time: Oct 09 05:17 EDT
+"desktop-import-controller" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/93 Testing: desktop-import-ui
+6/93 Test: desktop-import-ui
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-ui-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"desktop-import-ui" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+PASS: 91 import preview UI checks; actual child, no project mutation, async retirement.
+<end of output>
+Test time =   0.49 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-ui" end time: Oct 09 05:17 EDT
+"desktop-import-ui" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/93 Testing: desktop-localization
+7/93 Test: desktop-localization
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-localization-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"desktop-localization" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned localization fixture root: /tmp/sc-localization-43820882-3ec4-43ca-b501-6475f1d3bb9d
+PASS: 261 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.
+<end of output>
+Test time =   0.62 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-localization" end time: Oct 09 05:17 EDT
+"desktop-localization" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/93 Testing: daw-translation-catalogs
+8/93 Test: daw-translation-catalogs
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tools/localization.py" "--check"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"daw-translation-catalogs" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+{"catalogs": 34, "source_keys": 738, "draft_translations": 3135, "native_reviewed": 0, "fully_UI_qualified": 0}
+<end of output>
+Test time =   0.37 sec
+----------------------------------------------------------
+Test Passed.
+"daw-translation-catalogs" end time: Oct 09 05:17 EDT
+"daw-translation-catalogs" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/93 Testing: daw-translation-catalog-failures
+9/93 Test: daw-translation-catalog-failures
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/translation_catalog_tests.py"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"daw-translation-catalog-failures" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+Owned localization catalog fixture root: "/tmp/sc-localization-catalogs-34l8o4f1"
+Updating '../../../../../../tmp/sc-daw-translations-3tvdklsc/source.ts'...
+    Found 738 source text(s) (738 new and 0 already existing)
+PASS: matching retained catalogs
+PASS: refused stale-ui
+PASS: refused empty-finished
+PASS: refused placeholder-loss
+PASS: refused placeholder-duplication
+PASS: refused file-filter-loss
+PASS: refused rich-text-injection
+PASS: refused hidden-bidi
+PASS: refused ampersand-loss
+PASS: refused duplicate-key
+PASS: refused missing-key
+PASS: refused empty-catalog
+PASS: refused qm-corruption
+PASS: refused wrong-resource-alias
+PASS: actual Linguist update retained unfinished scalar/plural drafts and translator comments.
+PASS: 13 isolated corruption/refusal workflows; originals untouched; no native language qualification.
+<end of output>
+Test time =   2.39 sec
+----------------------------------------------------------
+Test Passed.
+"daw-translation-catalog-failures" end time: Oct 09 05:17 EDT
+"daw-translation-catalog-failures" time elapsed: 00:00:02
+----------------------------------------------------------
+
+13/93 Testing: preview-package-provenance
+13/93 Test: preview-package-provenance
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/preview_package_tests.py"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"preview-package-provenance" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+Owned preview package fixture root: "/tmp/sc-preview-package-8axeixl3"
+PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.
+New desktop payload: qualified worker required; missing/stale worker refused.
+Media desktop payload: exact qualified media worker required; missing/stale worker refused.
+Copy desktop payload: exact qualified copy worker required; missing/stale worker refused.
+PASS: all four executable modes; mode-only refusals; extracted DEB modes; data stays 0644.
+<end of output>
+Test time =   0.28 sec
+----------------------------------------------------------
+Test Passed.
+"preview-package-provenance" end time: Oct 09 05:17 EDT
+"preview-package-provenance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/93 Testing: windows-package-inputs
+14/93 Test: windows-package-inputs
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/windows_package_input_tests.py"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"windows-package-inputs" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+Media deployment: all three sibling workers required; exact native PID/protocol/commit/source/hash qualification enforced
+Pinned native dependencies: accepted qualified identities; refused replacement DLL
+Windows deployment inputs: accepted native separators; refused 14 mutations
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"windows-package-inputs" end time: Oct 09 05:17 EDT
+"windows-package-inputs" time elapsed: 00:00:00
+----------------------------------------------------------
+
+64/93 Testing: media-provenance-transaction
+64/93 Test: media-provenance-transaction
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/media_transaction_workflows.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-inspect-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-media-import-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-media-transaction-tests" "/home/rich/dev/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"media-provenance-transaction" start time: Oct 09 05:17 EDT
+Output:
+----------------------------------------------------------
+Passed 252 media transaction checks
+Passed 114 actual media transaction workflow checks
+<end of output>
+Test time =   0.56 sec
+----------------------------------------------------------
+Test Passed.
+"media-provenance-transaction" end time: Oct 09 05:17 EDT
+"media-provenance-transaction" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 09 05:17 EDT

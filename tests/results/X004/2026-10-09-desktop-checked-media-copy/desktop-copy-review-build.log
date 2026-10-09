@@ -1,0 +1,18 @@
+[0/1] Re-running CMake...
+-- Configuring done (3.9s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/15] Automatic RCC for localization/daw_translations.qrc
+[2/15] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[3/15] Building CXX object CMakeFiles/sc-ui-media-copy.dir/ui/media_copy_controller.cpp.o
+[4/15] Linking CXX static library libsc-ui-media-copy.a
+[5/15] Linking CXX static library libsc-ui-localization.a
+[6/15] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o
+[7/15] Linking CXX static library libsc-ui-wave.a
+[8/15] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_dialog.cpp.o
+[9/15] Linking CXX static library libsc-ui-import.a
+[10/15] Building CXX object CMakeFiles/sc-import-media-ui-tests.dir/tests/import_media_ui_tests.cpp.o
+[11/15] Linking CXX executable soundcurrent-daw
+[12/15] Linking CXX executable sc-import-media-ui-tests
+[13/15] Building CXX object CMakeFiles/sc-media-copy-controller-tests.dir/tests/media_copy_controller_tests.cpp.o
+[14/15] Linking CXX executable sc-media-copy-controller-tests

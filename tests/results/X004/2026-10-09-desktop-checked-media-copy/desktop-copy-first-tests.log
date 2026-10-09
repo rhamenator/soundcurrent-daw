@@ -1,0 +1,9 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 2: desktop-media-copy-controller
+1/2 Test #2: desktop-media-copy-controller ....   Passed    1.55 sec
+    Start 4: desktop-import-media-ui
+2/2 Test #4: desktop-import-media-ui ..........   Passed    0.60 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   2.16 sec

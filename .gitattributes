@@ -35,3 +35,5 @@ CMakeLists.txt text eol=lf
 /tests/results/X004/2026-10-09-verified-media-staging/*.log -text whitespace=-blank-at-eol,cr-at-eol
 
 /tests/results/X004/2026-10-09-media-provenance-transaction/*.log -text whitespace=-blank-at-eol,cr-at-eol
+
+/tests/results/X004/2026-10-09-desktop-checked-media-copy/*.log -text whitespace=-blank-at-eol,cr-at-eol

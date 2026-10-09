@@ -84,11 +84,21 @@ media_installed.write_bytes(b'stale media worker');refuse('stale-media-worker')
 media_installed.write_bytes(media_worker.read_bytes())
 print('Media desktop payload: exact qualified media worker required; missing/stale worker refused.')
 
-for executable in ('soundcurrent-daw','sc-import-inspect-worker','sc-approved-wave-probe'):
+(source/'ui/media_copy_controller.cpp').write_text('fixture marker')
+copy_worker=binary.parent/'sc-media-import-worker';copy_worker.write_bytes(b'qualified copy worker')
+refuse('missing-copy-worker')
+copy_installed=stage/'usr/bin/sc-media-import-worker';copy_installed.write_bytes(copy_worker.read_bytes())
+builder.normalize_staged_permissions(stage)
+assert len(builder.verify_staged_install(stage,source,binary))==8
+copy_installed.write_bytes(b'stale copy worker');refuse('stale-copy-worker')
+copy_installed.write_bytes(copy_worker.read_bytes())
+print('Copy desktop payload: exact qualified copy worker required; missing/stale worker refused.')
+
+for executable in ('soundcurrent-daw','sc-import-inspect-worker','sc-approved-wave-probe','sc-media-import-worker'):
     p=stage/'usr/bin'/executable;p.chmod(0o644);refuse('non-executable-'+executable)
     builder.normalize_staged_permissions(stage)
     assert p.stat().st_mode&0o777==0o755
-    assert len(builder.verify_staged_install(stage,source,binary))==7
+    assert len(builder.verify_staged_install(stage,source,binary))==8
 assert (stage/'usr/share/applications/soundcurrent-daw.desktop').stat().st_mode&0o777==0o644
 # Verify Debian preserves the normalized mode, independently of input byte hashes.
 control=stage/'DEBIAN';control.mkdir()
@@ -101,4 +111,5 @@ for relative in inputs:
     builder.verify_payload_mode(extracted/relative,relative)
 builder.verify_payload_mode(extracted/'usr/bin/sc-import-inspect-worker','usr/bin/sc-import-inspect-worker')
 builder.verify_payload_mode(extracted/'usr/bin/sc-approved-wave-probe','usr/bin/sc-approved-wave-probe')
-print('PASS: all three executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')
+builder.verify_payload_mode(extracted/'usr/bin/sc-media-import-worker','usr/bin/sc-media-import-worker')
+print('PASS: all four executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')

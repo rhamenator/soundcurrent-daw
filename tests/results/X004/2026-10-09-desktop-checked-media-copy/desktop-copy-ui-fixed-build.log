@@ -1,0 +1,6 @@
+[1/6] Building CXX object CMakeFiles/sc-media-import-worker.dir/tools/media_import_worker.cpp.o
+[2/6] Linking CXX executable sc-media-import-worker
+[3/6] Building CXX object CMakeFiles/sc-media-copy-lifecycle-probe.dir/tools/media_import_worker.cpp.o
+[4/6] Linking CXX executable sc-media-copy-lifecycle-probe
+[5/6] Building CXX object CMakeFiles/sc-import-media-ui-tests.dir/tests/import_media_ui_tests.cpp.o
+[6/6] Linking CXX executable sc-import-media-ui-tests
