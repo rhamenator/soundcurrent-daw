@@ -1,0 +1,4 @@
+[1/4] Building CXX object CMakeFiles/sc-wave-validation-tests.dir/tests/wave_validation_tests.cpp.o
+[2/4] Linking CXX executable sc-wave-validation-tests
+[3/4] Building CXX object CMakeFiles/sc-stretch-artifact-tests.dir/tests/stretch_artifact_tests.cpp.o
+[4/4] Linking CXX executable sc-stretch-artifact-tests

@@ -5,6 +5,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <soundcurrent/project_store.hpp>
+#include <soundcurrent/stretch.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
 #include <unordered_set>
 #ifdef SC_STORE_IMPORT_STATE
@@ -282,6 +283,17 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
         return Json{{"startFrame",f.startFrame},{"endFrame",f.endFrame},
                     {"curve",curve},{"shape",f.shape}};
     };
+    const auto stretch = [&](const std::optional<ClipStretchAnchor> &v) -> Json {
+        if(!v) return nullptr;
+        const auto &p=*v;
+        return {{"processor",std::string(stretchProcessorId)},{"version",1},
+            {"sourceAssetId",p.sourceAssetId.str()},{"sourceSha256",p.sourceSha256},
+            {"sourceOrigin",{{"frame",p.sourceOrigin.frame},{"fraction",p.sourceOrigin.fraction},
+                {"denominator",p.sourceOrigin.denominator},{"algorithm",positionedResamplingAlgorithmId}}},
+            {"sourceFrames",p.sourceFrames},{"settings",{{"timeNumerator",p.settings.timeNumerator},
+                {"timeDenominator",p.settings.timeDenominator},{"pitchMilliCents",p.settings.pitchMilliCents},
+                {"formantPreserved",p.settings.formantPreserved}}},{"renderKey",p.renderKey}};
+    };
     for (const auto &t : s.tracks) {
         Json bands = Json::array(), clips = Json::array();
         for (const auto &b : t.eq.bands)
@@ -295,6 +307,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                              {"startFrame", c.startFrame},
                              {"sourceFrame", c.sourceFrame},
                              {"lengthFrames", c.lengthFrames},
+                             {"stretch",stretch(c.stretch)},
                              {"playbackRate",{{"numerator",c.playbackRate.numerator},
                                  {"denominator",c.playbackRate.denominator},
                                  {"mode","speed-pitch-linked-v1"}}},
@@ -335,7 +348,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 11},
+        {"schemaMinor", 12},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -477,7 +490,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 11),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 12),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -587,14 +600,35 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing"});
                 else if(minor==10)
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming"});
-                else
+                else if(minor==11)
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate"});
+                else
+                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch"});
                 Clip clip;
                 clip.id = Id(string(c.at("id")));
                 clip.assetId = Id(string(c.at("assetId")));
                 clip.startFrame = integer(c.at("startFrame"));
                 clip.sourceFrame = integer(c.at("sourceFrame"));
                 clip.lengthFrames = integer(c.at("lengthFrames"));
+                if(minor>=12 && !c.at("stretch").is_null()) {
+                    const auto &p=c.at("stretch");
+                    keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey"});
+                    require(string(p.at("processor"))==stretchProcessorId && integer(p.at("version"))==1,
+                            "Unsupported stretch processor",ErrorCode::UnsupportedSchema);
+                    ClipStretchAnchor v;
+                    v.sourceAssetId=Id(string(p.at("sourceAssetId")));v.sourceSha256=string(p.at("sourceSha256"));
+                    v.sourceFrames=integer(p.at("sourceFrames"));v.renderKey=string(p.at("renderKey"));
+                    const auto &origin=p.at("sourceOrigin");keys(origin,{"frame","fraction","denominator","algorithm"});
+                    require(string(origin.at("algorithm"))==positionedResamplingAlgorithmId,
+                            "Unsupported raw anchor algorithm",ErrorCode::UnsupportedSchema);
+                    v.sourceOrigin={integer(origin.at("frame")),u64(origin.at("fraction")),u64(origin.at("denominator"))};
+                    const auto &settings=p.at("settings");keys(settings,{"timeNumerator","timeDenominator","pitchMilliCents","formantPreserved"});
+                    const auto pitch=integer(settings.at("pitchMilliCents"));
+                    require(pitch>=-2400000 && pitch<=2400000,"Stretch pitch out of range");
+                    v.settings={u32(settings.at("timeNumerator")),u32(settings.at("timeDenominator")),
+                        std::int32_t(pitch),boolean(settings.at("formantPreserved"))};
+                    clip.stretch=std::move(v);
+                }
                 if(minor>=11) {
                     const auto &rate=c.at("playbackRate");keys(rate,{"numerator","denominator","mode"});
                     require(string(rate.at("mode"))=="speed-pitch-linked-v1",

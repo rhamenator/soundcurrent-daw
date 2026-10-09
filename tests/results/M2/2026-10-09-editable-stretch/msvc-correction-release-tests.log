@@ -1,0 +1,9 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 66: editable-stretch-state
+1/2 Test #66: editable-stretch-state ...........   Passed    0.02 sec
+    Start 67: stretch-timing-oracle
+2/2 Test #67: stretch-timing-oracle ............   Passed    0.22 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.24 sec

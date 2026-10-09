@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <soundcurrent/session.hpp>
 #include <soundcurrent/clip_timing.hpp>
+#include <soundcurrent/stretch.hpp>
 #include <set>
 #include <filesystem>
 #include <unordered_map>
@@ -316,6 +317,10 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
             validateClipProcessing(c.processing);
             id(c.id);
             string(c.assetId.str());
+            if(c.stretch) {
+                string(c.stretch->sourceAssetId.str());
+                string(c.stretch->sourceSha256);string(c.stretch->renderKey);
+            }
         }
     }
     if (s.master) {
@@ -442,6 +447,11 @@ void validate(const Session &s, StateBudget budget) {
             check(c.startFrame <= std::numeric_limits<Frame>::max() - c.lengthFrames,
                   "Clip timeline overflow");
             check(t.layout == a.layout, "Clip/track layout mismatch");
+            if(c.stretch) {
+                const auto raw=assets.find(c.stretch->sourceAssetId.str());
+                check(raw!=assets.end(),"Stretch refers to missing raw asset");
+                validateClipStretch(*c.stretch,*raw->second,a);
+            }
         }
     }
 }

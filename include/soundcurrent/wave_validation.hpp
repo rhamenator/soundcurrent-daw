@@ -22,7 +22,8 @@ struct WaveValidation {
     double peak=0;
     std::array<char,64> sourceSha256{};
 };
-// Serialized control/I/O only. RIFF/RIFX uncompressed PCM/IEEE float WAVE;
+// Serialized control/I/O only. RIFF/RIFX/RF64 uncompressed PCM/IEEE float WAVE;
+// RF64 ds64 extents/tables are bounded and checked against pinned file bytes.
 // WAVEX with the same PCM/float subtype and full container precision.
 // Other formats/precision/containers return UnsupportedSchema; they remain
 // required follow-up work, not silently interpreted as empty/missing audio.

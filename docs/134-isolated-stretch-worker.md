@@ -134,3 +134,15 @@ run37971111413; exact ZIP/raw hashes/counts and646 inputs are retained. That
 preceding source lacks this short-span fix. Current-head native CI remains required.
 Resource-allocation failures also retain the possible-publication flag; a parent
 must inspect the bound completion marker after any ambiguous termination.
+
+## Final qualification of this preceding worker checkpoint
+
+Source `357c86d2665aaf095281934869e3fd68fb24c429` passed protected run37972440205:
+Linux104, native Windows core38 and Windows Qt10, plus the Windows cross-build.
+Actual worker logs contain137 workflow checks,30 completed jobs and992 shared
+reader/export checks. The [exact final receipt, raw logs and ZIPs](../tests/results/M2/2026-10-09-stretch-worker/final-native-qualification.json)
+retain646 source hashes and verified artifact digests/CRC. PR77 merged the identical
+tree as `a622a149459fe3fdf52f5c27191916d511e0597f`. This is scoped synthetic worker
+qualification; it does not establish native audio, desktop stretch controls or
+installed previews. [Checkpoint135](135-editable-stretch-state.md) has different
+source/state/protocol inputs and requires its own qualification.

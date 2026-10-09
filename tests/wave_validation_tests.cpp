@@ -39,6 +39,18 @@ std::string wave(unsigned bits,unsigned channels,std::string_view data,bool floa
     for (unsigned i=0;i<extraChunks;++i) chunk(body,"JUNK","odd",big);
     chunk(body,"data",data,big);std::string out=big ? "RIFX" : "RIFF";put(out,body.size(),4,big);return out+body;
 }
+std::string rf64(std::string riff,std::uint64_t dataBytes,std::uint64_t frames,bool table=false) {
+    std::string size;put(size,0,8);put(size,dataBytes,8);put(size,frames,8);put(size,table?1:0,4);
+    if(table) {size+="JUNK";put(size,3,8);}
+    std::string body="WAVE";chunk(body,"ds64",size);
+    if(table) {body+="JUNK";put(body,UINT32_MAX,4);body.append("odd\0",4);}
+    auto chunks=riff.substr(12);for(std::size_t at=0;at<chunks.size();) {
+        std::uint32_t length=0;for(unsigned i=0;i<4;++i) length|=std::uint32_t(static_cast<unsigned char>(chunks[at+4+i]))<<(8*i);
+        if(chunks.substr(at,4)=="data") set(chunks,at+4,UINT32_MAX,4);
+        at+=8+length+(length&1);
+    }
+    body+=chunks;std::string out="RF64";put(out,UINT32_MAX,4);out+=body;set(out,20,out.size()-8,8);return out;
+}
 void write(const std::filesystem::path &path,std::string_view data) {
     std::ofstream out(path,std::ios::binary|std::ios::trunc);out.write(data.data(),static_cast<std::streamsize>(data.size()));out.close();
     check(bool(out),"Cannot write owned WAVE fixture");
@@ -46,7 +58,7 @@ void write(const std::filesystem::path &path,std::string_view data) {
 void usage(const ResourceLedger &memory,ResourceUsage before) {
     const auto now=memory.usage();check(now.owners==before.owners && now.reservedBytes==before.reservedBytes,"WAVE work lease leaked");
 }
-void sampleCase(const std::filesystem::path &path,ResourceLedger memory,unsigned bits,bool floating,bool big,bool ext,unsigned channels) {
+void sampleCase(const std::filesystem::path &path,ResourceLedger memory,unsigned bits,bool floating,bool big,bool ext,unsigned channels,bool large=false) {
     std::vector<double> expected;std::string data;constexpr std::array<std::int32_t,7> integers{-128,0,63,-57,127,-1,1};
     for (unsigned frame=0;frame<19;++frame) for (unsigned channel=0;channel<channels;++channel) {
         const auto index=(frame+3*channel)%integers.size();const auto small=integers[index];
@@ -68,7 +80,7 @@ void sampleCase(const std::filesystem::path &path,ResourceLedger memory,unsigned
             put(data,static_cast<std::uint64_t>(bits==8 ? value+128 : value),bits/8,big);
         }
     }
-    const auto mask=ext && channels==2 ? 3U : 0U;const auto bytes=wave(bits,channels,data,floating,big,ext,mask,3,12345);write(path/"samples.wav",bytes);
+    const auto mask=ext && channels==2 ? 3U : 0U;auto bytes=wave(bits,channels,data,floating,big,ext,mask,3,12345);if(large) bytes=rf64(bytes,data.size(),19);write(path/"samples.wav",bytes);
     ApprovedMediaRoot root(path,memory);auto file=root.open("samples.wav",bytes.size());const auto baseline=memory.usage();
     WaveValidationLimits limits;limits.blockFrames=3;std::size_t seen=0;
     const auto result=validateApprovedWave(file,limits,{},[&](std::uint64_t first,std::span<const double> block) {
@@ -79,7 +91,7 @@ void sampleCase(const std::filesystem::path &path,ResourceLedger memory,unsigned
     check(result.channels==channels && result.rate==12345 && result.bitsPerSample==bits,"Original WAVE metadata lost");
     check(result.bigEndian==big && result.extensible==ext && result.channelMask==mask,"WAVE layout/container metadata lost");
     double peak=0;for (const auto x:expected) peak=std::max(peak,std::abs(x));check(result.peak==peak,"Floating headroom/sample peak changed");
-    check(result.sourceBytes==bytes.size() && result.bytesRead>=bytes.size()*2 && result.ioOperations>0,"WAVE work counters/byte extent wrong");
+    check(result.sourceBytes==bytes.size() && result.bytesRead>=(large ? bytes.size()+data.size() : bytes.size()*2) && result.ioOperations>0,"WAVE work counters/byte extent wrong");
     const auto digest=file.digest();check(result.sourceSha256==digest,"WAVE original-byte digest changed");usage(memory,baseline);
 }
 }
@@ -91,6 +103,12 @@ int main() {
         for (const auto bits:{32U,64U}) for (const auto big:{false,true}) sampleCase(path,memory,bits,true,big,false,2);
         sampleCase(path,memory,24,false,false,true,2);sampleCase(path,memory,32,true,false,true,2);
         sampleCase(path,memory,16,false,false,true,8);sampleCase(path,memory,16,false,false,false,1024);
+        sampleCase(path,memory,8,false,false,false,1,true);
+        sampleCase(path,memory,16,false,false,false,2,true);
+        sampleCase(path,memory,24,false,false,true,8,true);
+        sampleCase(path,memory,32,false,false,false,2,true);
+        sampleCase(path,memory,32,true,false,true,2,true);
+        sampleCase(path,memory,64,true,false,false,1,true);
         const auto valid=wave(16,1,std::string(1024,'\0'));write(path/"valid.wav",valid);
         {
             ApprovedMediaRoot root(path,memory);auto file=root.open("valid.wav",valid.size());const auto before=memory.usage();
@@ -118,6 +136,23 @@ int main() {
             write(path/"bad.wav",bytes);ApprovedMediaRoot root(path,memory);auto file=root.open("bad.wav",65536);const auto before=memory.usage();
             refused([&]{validateApprovedWave(file,limits);},code);usage(memory,before);
         };
+        auto large=rf64(valid,1024,512);
+        write(path/"large.wav",large);
+        {ApprovedMediaRoot root(path,memory);auto file=root.open("large.wav",65536);const auto before=memory.usage();check(validateApprovedWave(file).frames==512,"Owned RF64 failed");usage(memory,before);}
+        for(unsigned mode=0;mode<8;++mode) {
+            auto altered=large;
+            if(mode==0) set(altered,20,altered.size()-9,8);
+            if(mode==1) set(altered,28,UINT64_MAX,8);
+            if(mode==2) set(altered,36,513,8);
+            if(mode==3) set(altered,44,1,4);
+            if(mode==4) altered.replace(12,4,"JUNK");
+            if(mode==5) {altered.append(large.substr(12,36));set(altered,20,altered.size()-8,8);}
+            if(mode==6) set(altered,16,27,4);
+            if(mode==7) set(altered,44,UINT32_MAX,4);
+            bad(altered,mode==7?ErrorCode::ResourceLimit:ErrorCode::InvalidParameter);
+        }
+        const auto withTable=rf64(valid,1024,512,true);write(path/"table.wav",withTable);
+        {ApprovedMediaRoot root(path,memory);auto file=root.open("table.wav",65536);const auto before=memory.usage();check(validateApprovedWave(file).frames==512,"RF64 auxiliary size table failed");usage(memory,before);}
         bad("RIFF",ErrorCode::InvalidParameter);
         auto corrupt=valid;corrupt.pop_back();bad(corrupt,ErrorCode::InvalidParameter);
         corrupt=valid;set(corrupt,40,1026,4);bad(corrupt,ErrorCode::InvalidParameter);
@@ -127,7 +162,7 @@ int main() {
         corrupt=valid;set(corrupt,32,7,2);bad(corrupt,ErrorCode::InvalidParameter);
         corrupt=valid;set(corrupt,20,17,2);bad(corrupt,ErrorCode::UnsupportedSchema);
         corrupt=valid;set(corrupt,34,20,2);bad(corrupt,ErrorCode::UnsupportedSchema);
-        corrupt=valid;corrupt.replace(0,4,"RF64");bad(corrupt,ErrorCode::UnsupportedSchema);
+        corrupt=valid;corrupt.replace(0,4,"RF64");bad(corrupt,ErrorCode::InvalidParameter);
         corrupt=valid;corrupt.replace(8,4,"AVI ");bad(corrupt,ErrorCode::UnsupportedSchema);
         bad(wave(16,1,"x"),ErrorCode::InvalidParameter);
         corrupt=valid;chunk(corrupt,"data","");set(corrupt,4,corrupt.size()-8,4);bad(corrupt,ErrorCode::InvalidParameter);
@@ -142,6 +177,7 @@ int main() {
             if (bits==32) put(data,std::bit_cast<std::uint32_t>(static_cast<float>(value)),4);
             else put(data,std::bit_cast<std::uint64_t>(value),8);
             bad(wave(bits,1,data,true),ErrorCode::InvalidParameter);
+            bad(rf64(wave(bits,1,data,true),data.size(),1),ErrorCode::InvalidParameter);
         }
         write(path/"empty.wav",wave(16,1,""));
         {ApprovedMediaRoot root(path,memory);auto file=root.open("empty.wav",100);const auto report=validateApprovedWave(file);check(report.frames==0 && report.decodedFrames==0 && report.peak==0,"Empty WAVE mishandled");}

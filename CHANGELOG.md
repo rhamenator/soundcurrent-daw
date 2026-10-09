@@ -8,6 +8,12 @@
 
 ## Unreleased — development preview
 
+- Independent stretch now has schema 1.12 raw anchors, exact retiming and checked
+  rendered-audio adoption with Undo/Redo. The parent verifies raw/output bytes and
+  all RF64 samples before creating an edit. Desktop supervision and controls remain
+  unfinished; existing installed previews contain older code. See
+  [checkpoint 135](docs/135-editable-stretch-state.md).
+
 - Clip playback speed now supports0.250–4.000 times normal speed, with linked
   pitch, retimed duration/fades, exact origin, Undo/Redo and schema1.11 state.
   Shared live/export processing preserves raw media and split/crop/seek phase.

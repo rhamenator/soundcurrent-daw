@@ -294,7 +294,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_window/sample_editor_inspector_audiowarp_r.html?contentId=AkpkpXrJu3zK1xrNBilJzg",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Foundation only: exact constant linked speed/pitch and shared playback/export, with non-destructive duration/fade retiming and versioned state (checkpoint132). Pitch-preserving stretch, warp markers, tempo ramps, transient accuracy, flatten/recovery and Q-STRETCH/reference workflows remain unimplemented/unqualified.",
+      "implementation": "Foundation: constant independent pitch/time rendering from versioned immutable raw anchors, exact fractional retiming, split/crop re-render, checked artifact adoption and Undo/Redo (checkpoint135). Shared live/export reads completed floating derivatives. Desktop supervision/controls, warp markers, tempo ramps, short-span context/alignment, transient accuracy, flatten/recovery and Q-STRETCH/reference workflows remain required and unqualified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -302,7 +302,8 @@
       "reference_a_source_id": "7165879928ab22b7",
       "reference_b_source_id": "653e48fd8714613b",
       "implementation_evidence": [
-        "docs/132-clip-playback-rate.md"
+        "docs/132-clip-playback-rate.md",
+        "docs/135-editable-stretch-state.md"
       ]
     },
     {
@@ -317,14 +318,17 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_variaudio/sample_editor_variaudio_c.html?contentId=5yUrlQRlm0KjuaiN1feyWQ",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Foundation: independent constant pitch and formant settings in the isolated renderer and editable raw-anchor state (checkpoint135). No desktop segmented pitch editor, note segmentation, formant-quality gate or Q-PITCH/reference qualification yet.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "reference_a_source_id": "7165879928ab22b7",
       "reference_b_source_id": "81f6e3a04a5f00d5",
-      "reference_limit": "Topic supports the feature family; detailed workflow equivalence is unresolved."
+      "reference_limit": "Topic supports the feature family; detailed workflow equivalence is unresolved.",
+      "implementation_evidence": [
+        "docs/135-editable-stretch-state.md"
+      ]
     },
     {
       "id": "P013",

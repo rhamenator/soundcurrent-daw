@@ -1,0 +1,597 @@
+[1/332] Building CXX object CMakeFiles/sc-pipewire.dir/src/pipewire_filter.cpp.o
+[2/332] Building CXX object CMakeFiles/sc-media-staging.dir/src/media_staging.cpp.o
+[3/332] Building CXX object CMakeFiles/sc-media-copy-protocol.dir/src/media_copy_protocol.cpp.o
+[4/332] Linking CXX static library libsc-media-copy-protocol.a
+[5/332] Building CXX object CMakeFiles/sc-reaper-import.dir/src/reaper_import.cpp.o
+[6/332] Building CXX object CMakeFiles/sc-wasapi-input.dir/src/wasapi_input.cpp.o
+[7/332] Linking CXX static library libsc-pipewire.a
+[8/332] Building CXX object CMakeFiles/sc-wasapi-input.dir/src/wasapi_packet_copy.cpp.o
+[9/332] Building CXX object CMakeFiles/sc-media-recovery.dir/src/media_recovery.cpp.o
+[10/332] Building CXX object CMakeFiles/sc-pipewire-manual-recording.dir/src/pipewire_manual_recording.cpp.o
+[11/332] Automatic RCC for localization/daw_translations.qrc
+[12/332] Linking CXX static library libsc-media-staging.a
+[13/332] Linking CXX static library libsc-reaper-import.a
+[14/332] Linking CXX static library libsc-wasapi-input.a
+[15/332] Building CXX object CMakeFiles/sc-wasapi-ports.dir/src/wasapi_ports.cpp.o
+[16/332] Linking CXX static library libsc-media-recovery.a
+[17/332] Building CXX object CMakeFiles/sc-ui-media-copy.dir/ui/media_copy_controller.cpp.o
+[18/332] Building CXX object CMakeFiles/sc-media-import-worker.dir/tools/media_import_worker.cpp.o
+[19/332] Building CXX object CMakeFiles/sc-approved-wave-probe.dir/tools/approved_wave_probe.cpp.o
+[20/332] Building CXX object CMakeFiles/sc-pipewire-recording.dir/src/pipewire_recording.cpp.o
+[21/332] Linking CXX static library libsc-pipewire-manual-recording.a
+[22/332] Building CXX object CMakeFiles/sc-pipewire-duplex-recording.dir/src/pipewire_duplex_recording.cpp.o
+[23/332] Building CXX object CMakeFiles/sc-pipewire-playback.dir/src/pipewire_playback.cpp.o
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp: In function ‘soundcurrent::daw::MixPlaybackConfig soundcurrent::daw::{anonymous}::singleConfig(const soundcurrent::daw::PlaybackConfig&)’:
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp:65:32: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+   65 |             prepared.slabFrames};
+      |                                ^
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp:65:32: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+[24/332] Building CXX object CMakeFiles/sc-import-inspect-worker.dir/tools/import_inspect_worker.cpp.o
+[25/332] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[26/332] Building CXX object CMakeFiles/sc-manual-controller.dir/ui/manual_recording_controller.cpp.o
+[27/332] Linking CXX static library libsc-ui-media-copy.a
+[28/332] Building CXX object CMakeFiles/sc-ui-controller.dir/ui/project_controller.cpp.o
+[29/332] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/wave_check_controller.cpp.o
+[30/332] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o
+[31/332] Building CXX object CMakeFiles/sc-media-copy-lifecycle-probe.dir/tools/media_import_worker.cpp.o
+[32/332] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/samplerate.c.o
+[33/332] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_linear.c.o
+[34/332] Building CXX object CMakeFiles/sc-import-lifecycle-probe.dir/tests/import_lifecycle_probe.cpp.o
+[35/332] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_zoh.c.o
+[36/332] Building C object third_party/libsamplerate/src/CMakeFiles/samplerate.dir/src_sinc.c.o
+[37/332] Linking CXX static library libsc-wasapi-ports.a
+[38/332] Building CXX object CMakeFiles/sc-resampling.dir/src/resampling.cpp.o
+[39/332] Building CXX object CMakeFiles/sc-native-render-timing.dir/src/native_render_timing.cpp.o
+[40/332] Linking CXX executable sc-media-import-worker
+[41/332] Linking CXX executable sc-approved-wave-probe
+[42/332] Building CXX object CMakeFiles/sc-wasapi-render-trace.dir/src/wasapi_render_trace.cpp.o
+[43/332] Linking CXX static library libsc-pipewire-recording.a
+[44/332] Linking CXX static library libsc-pipewire-duplex-recording.a
+[45/332] Linking CXX static library libsc-pipewire-playback.a
+[46/332] Linking CXX static library libsc-manual-controller.a
+[47/332] Linking CXX executable sc-import-inspect-worker
+[48/332] Linking CXX static library libsc-ui-localization.a
+[49/332] Building CXX object CMakeFiles/sc-wasapi-output.dir/src/wasapi_output.cpp.o
+[50/332] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/timeline_editor.cpp.o
+[51/332] Building CXX object CMakeFiles/sc-ui-equipment.dir/ui/equipment_profiles.cpp.o
+[52/332] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/session_list_model.cpp.o
+[53/332] Linking CXX static library libsc-ui-controller.a
+[54/332] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/timeline_view.cpp.o
+[55/332] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_controller.cpp.o
+[56/332] Linking CXX static library libsc-ui-wave.a
+[57/332] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_dialog.cpp.o
+[58/332] Building CXX object CMakeFiles/sc-ui-playback.dir/ui/playback_controller.cpp.o
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp: In constructor ‘soundcurrent::daw::ui::{anonymous}::NativeEndpoint::NativeEndpoint(const soundcurrent::daw::ui::PlaybackPreparation&, soundcurrent::daw::PlaybackCallbackInstrumentation)’:
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:27:11: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+   27 |         : owner_(p.root, *p.session, p.plan,
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   28 |                  {{p.config.maximumCallbackFrames, p.config.startFrame, p.config.generation,
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   29 |                    p.config.memoryBudgetBytes},
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   30 |                   p.config.endFrame,
+      |                   ~~~~~~~~~~~~~~~~~~
+   31 |                   p.config.slabFrames},
+      |                   ~~~~~~~~~~~~~~~~~~~~~
+   32 |                  p.reader, std::chrono::seconds(3), audit) {}
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:27:11: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp: In member function ‘void soundcurrent::daw::ui::PlaybackController::State::prepare(soundcurrent::daw::ui::PlaybackCommand&, uint64_t)’:
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:404:65: warning: missing initializer for member ‘soundcurrent::daw::ui::PlaybackPreparation::reader’ [-Wmissing-field-initializers]
+  404 |                                  {},     {},        bool(c.plan)};
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:414:24: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  414 |         mixPayloadBytes(*c.session, next.plan,
+      |         ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+  415 |                         {next.config.maximumCallbackFrames, next.config.startFrame,
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  416 |                          next.config.generation, next.config.memoryBudgetBytes});
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:414:24: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+[59/332] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/recovery_controller.cpp.o
+[60/332] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/recording_controller.cpp.o
+[61/332] Building CXX object CMakeFiles/sc-ui-export.dir/ui/export_controller.cpp.o
+[62/332] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/manual_recording_panel.cpp.o
+[63/332] Building CXX object CMakeFiles/sc-ui-export.dir/ui/export_dialog.cpp.o
+[64/332] Linking CXX executable sc-media-copy-lifecycle-probe
+[65/332] Linking CXX executable sc-import-lifecycle-probe
+[66/332] Linking C static library third_party/libsamplerate/src/libsamplerate.a
+[67/332] Linking CXX static library libsc-resampling.a
+[68/332] Building CXX object CMakeFiles/sc-resampling-tests.dir/tests/resampling_tests.cpp.o
+[69/332] Building CXX object CMakeFiles/sc-ui-history.dir/ui/history_resources_dialog.cpp.o
+[70/332] Linking CXX static library libsc-native-render-timing.a
+[71/332] Linking CXX static library libsc-wasapi-render-trace.a
+[72/332] Building CXX object CMakeFiles/sc-native-buffer-tests.dir/tests/native_buffer_tests.cpp.o
+[73/332] Building CXX object CMakeFiles/sc-native-buffer-tests.dir/tests/native_port_markers.cpp.o
+[74/332] Building CXX object CMakeFiles/sc-media-stage-worker.dir/tools/media_stage_worker.cpp.o
+[75/332] Linking CXX static library libsc-wasapi-output.a
+[76/332] Building CXX object CMakeFiles/sc-play-tool.dir/tools/play_tool.cpp.o
+[77/332] Building CXX object CMakeFiles/sc-export-tool.dir/tools/export_tool.cpp.o
+[78/332] Building CXX object CMakeFiles/sc-record-tool.dir/tools/record_tool.cpp.o
+[79/332] Building CXX object CMakeFiles/sc-project-tool.dir/tools/project_tool.cpp.o
+[80/332] Building CXX object CMakeFiles/sc-positioned-resampling-tests.dir/tests/positioned_resampling_tests.cpp.o
+[81/332] Linking CXX static library libsc-ui-equipment.a
+[82/332] Linking CXX static library libsc-ui-timeline.a
+[83/332] Linking CXX static library libsc-ui-import.a
+[84/332] Linking CXX static library libsc-ui-playback.a
+[85/332] Linking CXX static library libsc-ui-recording.a
+[86/332] Linking CXX static library libsc-ui-export.a
+[87/332] Linking CXX static library libsc-ui-history.a
+[88/332] Building CXX object CMakeFiles/sc-approved-media-probe.dir/tools/approved_media_probe.cpp.o
+[89/332] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/main.cpp.o
+[90/332] Building CXX object CMakeFiles/sc-media-copy-controller-tests.dir/tests/media_copy_controller_tests.cpp.o
+[91/332] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/studio_window.cpp.o
+[92/332] Building CXX object CMakeFiles/sc-wave-controller-tests.dir/tests/wave_controller_tests.cpp.o
+[93/332] Building CXX object CMakeFiles/sc-import-media-ui-tests.dir/tests/import_media_ui_tests.cpp.o
+[94/332] Building CXX object CMakeFiles/sc-import-controller-tests.dir/tests/import_controller_tests.cpp.o
+[95/332] Building CXX object CMakeFiles/sc-import-ui-tests.dir/tests/import_ui_tests.cpp.o
+[96/332] Building CXX object CMakeFiles/sc-import-ui-tests.dir/ui/studio_window.cpp.o
+[97/332] Building CXX object CMakeFiles/sc-localization-tests.dir/tests/localization_tests.cpp.o
+[98/332] Building CXX object CMakeFiles/sc-snapshot-resource-tests.dir/tests/snapshot_resource_tests.cpp.o
+[99/332] Building CXX object CMakeFiles/sc-export-controller-tests.dir/tests/export_controller_tests.cpp.o
+[100/332] Building CXX object CMakeFiles/sc-localization-tests.dir/ui/studio_window.cpp.o
+[101/332] Building CXX object CMakeFiles/sc-export-ui-tests.dir/tests/export_ui_tests.cpp.o
+[102/332] Building CXX object CMakeFiles/sc-gui-resource-tests.dir/tests/gui_resource_tests.cpp.o
+[103/332] Building CXX object CMakeFiles/sc-export-ui-tests.dir/ui/studio_window.cpp.o
+[104/332] Building CXX object CMakeFiles/sc-history-ui-tests.dir/tests/history_resource_ui_tests.cpp.o
+[105/332] Building CXX object CMakeFiles/sc-gui-resource-tests.dir/ui/studio_window.cpp.o
+[106/332] Building CXX object CMakeFiles/sc-history-ui-tests.dir/ui/studio_window.cpp.o
+[107/332] Building CXX object CMakeFiles/sc-controller-tests.dir/tests/controller_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::saveWhileEditing(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:152:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  152 |     ProjectController controller({{}, [&] { gate.block(); }, {}});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::closeDuringSave(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:177:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  177 |     ProjectController controller({{}, [&] { gate.block(); }, {}});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::recordedTakeAttachment(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:222:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  222 |     ProjectController controller({[&] { gate.block(); }, {}, {}});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::closeDuringAttachment(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:313:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  313 |     ProjectController controller({[&] { gate.block(); }, {}, {}});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::queuePressure(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:332:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  332 |     ProjectController controller({{}, {}, [&] { gate.block(); }});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::exactBarrierReceipt(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:356:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  356 |     ProjectController controller({{}, {}, [&] { gate.block(); }});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::routePatches(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:389:95: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  389 |     ProjectController controller({{}, [&] { saveGate.block(); }, [&] { commandGate.block(); }});
+      |                                                                                               ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::monitoringEdits(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:483:69: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  483 |     ProjectController controller({{}, [&] { saveGate.block(); }, {}});
+      |                                                                     ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::structuralEdits(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:568:69: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  568 |     ProjectController controller({[&] { saveGate.block(); }, {}, {}});
+      |                                                                     ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::structuralDuringAdmission(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:635:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  635 |     ProjectController controller({[&] { gate.block(); }, {}, {}});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::groupedTakeAdmission(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:700:65: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  700 |     ProjectController controller({[&] { gate.block(); }, {}, {}});
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp: In function ‘void {anonymous}::groupedRemovalDuringAdmission(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/controller_tests.cpp:779:56: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+  779 |     ProjectController c({[&] { gate.block(); }, {}, {}});
+      |                                                        ^
+[108/332] Building CXX object CMakeFiles/sc-playback-controller-tests.dir/tests/playback_controller_tests.cpp.o
+[109/332] Building CXX object CMakeFiles/sc-recording-controller-tests.dir/tests/recording_controller_tests.cpp.o
+[110/332] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/tests/pipewire_ui_fixture.cpp.o
+[111/332] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/ui/studio_window.cpp.o
+[112/332] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/tests/pipewire_punch_ui_fixture.cpp.o
+[113/332] Building CXX object CMakeFiles/sc-pipewire-manual-panel-fixture.dir/tests/pipewire_manual_panel_fixture.cpp.o
+[114/332] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/ui/studio_window.cpp.o
+[115/332] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/tests/pipewire_duplex_ui_fixture.cpp.o
+[116/332] Building CXX object CMakeFiles/sc-pipewire-manual-panel-fixture.dir/ui/studio_window.cpp.o
+[117/332] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/tests/pipewire_recording_ui_fixture.cpp.o
+[118/332] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/ui/studio_window.cpp.o
+[119/332] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/ui/studio_window.cpp.o
+[120/332] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o
+[121/332] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/ui/studio_window.cpp.o
+[122/332] Building CXX object CMakeFiles/sc-ui-tests.dir/tests/ui_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/ui_tests.cpp: In function ‘void {anonymous}::recoveryDiscoveryWorkflow(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/ui_tests.cpp:918:51: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  918 |         CaptureWriter writer(root, spec, {128, {}});
+      |                                                   ^
+[123/332] Building CXX object CMakeFiles/sc-ui-tests.dir/ui/studio_window.cpp.o
+[124/332] Building CXX object CMakeFiles/sc-manual-panel-tests.dir/tests/manual_panel_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/manual_panel_tests.cpp: In constructor ‘{anonymous}::Fixture::Fixture()’:
+/home/rich/dev/soundcurrent-daw/tests/manual_panel_tests.cpp:64:33: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+   64 |                               {}});
+      |                                 ^
+[125/332] Building CXX object CMakeFiles/sc-media-staging-tests.dir/tests/media_staging_tests.cpp.o
+[126/332] Building CXX object CMakeFiles/sc-approved-media-tests.dir/tests/approved_media_tests.cpp.o
+[127/332] Building CXX object CMakeFiles/sc-inspection-bundle-tests.dir/tests/inspection_bundle_tests.cpp.o
+[128/332] Building CXX object CMakeFiles/sc-import-property-report-probe.dir/tests/import_property_report_probe.cpp.o
+[129/332] Building CXX object CMakeFiles/sc-reaper-structure-tests.dir/tests/reaper_structure_tests.cpp.o
+[130/332] Building CXX object CMakeFiles/sc-manual-panel-tests.dir/ui/studio_window.cpp.o
+[131/332] Building CXX object CMakeFiles/sc-reaper-import-tests.dir/tests/reaper_import_tests.cpp.o
+[132/332] Building CXX object CMakeFiles/sc-track-scalability-tests.dir/tests/track_scalability_tests.cpp.o
+[133/332] Building CXX object CMakeFiles/sc-native-duration-timing-tests.dir/tests/native_duration_timing_tests.cpp.o
+[134/332] Building CXX object CMakeFiles/sc-resource-ledger-tests.dir/tests/resource_ledger_tests.cpp.o
+[135/332] Building CXX object CMakeFiles/sc-history-resource-tests.dir/tests/history_resource_tests.cpp.o
+[136/332] Building CXX object CMakeFiles/sc-routing-tests.dir/tests/routing_tests.cpp.o
+[137/332] Building CXX object CMakeFiles/sc-stretch-state-tests.dir/tests/stretch_state_tests.cpp.o
+[138/332] Building CXX object CMakeFiles/sc-monitoring-tests.dir/tests/monitoring_tests.cpp.o
+[139/332] Building CXX object CMakeFiles/sc-engine-tests.dir/tests/engine_tests.cpp.o
+[140/332] Building CXX object CMakeFiles/sc-mix-graph-tests.dir/tests/mix_graph_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp: In function ‘void {anonymous}::quality()’:
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:75:60: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+   75 |     PreparedMixGraph g(s, stereo(s), {.maximumFrames = 127});
+      |                                                            ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:75:60: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp: In lambda function:
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:130:71: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  130 |     rejects([&] { PreparedMixGraph g(s, p, {.memoryBudgetBytes = 8192}); });
+      |                                                                       ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:130:71: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp: In lambda function:
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:131:72: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  131 |     rejects([&] { PreparedMixGraph g(s, p, {.maximumRoutingEntries = 1}); });
+      |                                                                        ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:131:72: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp: In lambda function:
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:132:61: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  132 |     rejects([&] { PreparedMixGraph g(s, p, {.generation = 0}); });
+      |                                                             ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:132:61: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp: In function ‘void {anonymous}::limitsAndEvents()’:
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:142:68: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  142 |     PreparedMixGraph g(s, p, {.maximumFrames = 64, .generation = 7});
+      |                                                                    ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:142:68: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:166:83: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  166 |     PreparedMixGraph reordered(s, reversed, {.maximumFrames = 64, .generation = 9});
+      |                                                                                   ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:166:83: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:181:87: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  181 |     PreparedMixGraph overflow(s, p, {.maximumFrames = 64, .startFrame = INT64_MAX - 1});
+      |                                                                                       ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:181:87: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:187:55: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  187 |     PreparedMixGraph sanit(s, p, {.maximumFrames = 64});
+      |                                                       ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:187:55: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:195:60: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  195 |     PreparedMixGraph numeric(s, huge, {.maximumFrames = 64});
+      |                                                            ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:195:60: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp: In function ‘void {anonymous}::scaleAndRetirement()’:
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:207:64: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  207 |     PreparedMixGraph hybrid(mixed, matrix, {.maximumFrames = 1});
+      |                                                                ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:207:64: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:222:51: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  222 |     PreparedMixGraph g(s, p, {.maximumFrames = 64});
+      |                                                   ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:222:51: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:237:53: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  237 |                                 {.maximumFrames = 1});
+      |                                                     ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:237:53: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:250:79: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  250 |         std::make_unique<PreparedMixGraph>(s, p, MixConfig{.maximumFrames = 64}));
+      |                                                                               ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:250:79: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:252:96: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  252 |         std::make_unique<PreparedMixGraph>(s, p, MixConfig{.maximumFrames = 64, .generation = 2});
+      |                                                                                                ^
+/home/rich/dev/soundcurrent-daw/tests/mix_graph_tests.cpp:252:96: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+[141/332] Building CXX object CMakeFiles/sc-immediate-tests.dir/tests/immediate_tests.cpp.o
+[142/332] Building CXX object CMakeFiles/sc-capture-tests.dir/tests/capture_tests.cpp.o
+[143/332] Building CXX object CMakeFiles/sc-audio-bridge-tests.dir/tests/audio_bridge_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/audio_bridge_tests.cpp: In function ‘void {anonymous}::captureAndEvents()’:
+/home/rich/dev/soundcurrent-daw/tests/audio_bridge_tests.cpp:38:95: warning: missing initializer for member ‘soundcurrent::daw::AudioBridgeOptions::resources’ [-Wmissing-field-initializers]
+   38 |         AudioBridge bridge(f.session, f.session.tracks.front().id, raw, {2048, 1, 10003}, &wet);
+      |                                                                                               ^
+/home/rich/dev/soundcurrent-daw/tests/audio_bridge_tests.cpp: In function ‘void {anonymous}::concurrentFaultPublication()’:
+/home/rich/dev/soundcurrent-daw/tests/audio_bridge_tests.cpp:202:84: warning: missing initializer for member ‘soundcurrent::daw::AudioBridgeOptions::resources’ [-Wmissing-field-initializers]
+  202 |         AudioBridge bridge(session, session.tracks.front().id, raw, {2048, 1, 2048});
+      |                                                                                    ^
+[144/332] Building CXX object CMakeFiles/sc-wasapi-input-tests.dir/tests/wasapi_input_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp: In function ‘void {anonymous}::validCapture()’:
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp:44:66: warning: missing initializer for member ‘soundcurrent::daw::AudioBridgeOptions::resources’ [-Wmissing-field-initializers]
+   44 |                        {64, 1, 202, CaptureBackend::Wasapi}, &wet);
+      |                                                                  ^
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp:48:32: warning: conversion from ‘unsigned int’ to ‘float’ may change value [-Wconversion]
+   48 |         source[3 * n] = -2.f + n * .01f;
+      |                                ^
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp:50:35: warning: conversion from ‘unsigned int’ to ‘float’ may change value [-Wconversion]
+   50 |         source[3 * n + 2] = 2.f + n * .02f;
+      |                                   ^
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp: In function ‘void {anonymous}::refusals()’:
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp:96:62: warning: missing initializer for member ‘soundcurrent::daw::AudioBridgeOptions::resources’ [-Wmissing-field-initializers]
+   96 |                            {64, 1, 0, CaptureBackend::Wasapi});
+      |                                                              ^
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp:128:59: warning: missing initializer for member ‘soundcurrent::daw::AudioBridgeOptions::resources’ [-Wmissing-field-initializers]
+  128 |                        {64, 1, 32, CaptureBackend::Wasapi});
+      |                                                           ^
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp: In function ‘void {anonymous}::admission()’:
+/home/rich/dev/soundcurrent-daw/tests/wasapi_input_tests.cpp:140:103: warning: missing initializer for member ‘soundcurrent::daw::AudioBridgeOptions::resources’ [-Wmissing-field-initializers]
+  140 |     AudioBridge bridge(f.session, f.session.tracks.front().id, raw, {64, 1, 0, CaptureBackend::Wasapi});
+      |                                                                                                       ^
+[145/332] Building CXX object CMakeFiles/sc-wasapi-packet-copy-tests.dir/tests/wasapi_packet_copy_tests.cpp.o
+[146/332] Building CXX object CMakeFiles/sc-wasapi-ports-tests.dir/tests/wasapi_ports_tests.cpp.o
+[147/332] Building CXX object CMakeFiles/sc-native-render-timing-tests.dir/tests/rt_audit.cpp.o
+[148/332] Building CXX object CMakeFiles/sc-native-render-timing-tests.dir/tests/native_render_timing_tests.cpp.o
+[149/332] Building CXX object CMakeFiles/sc-wasapi-capture-trace-tests.dir/tests/rt_audit.cpp.o
+[150/332] Building CXX object CMakeFiles/sc-wasapi-capture-trace-tests.dir/tests/wasapi_capture_trace_tests.cpp.o
+[151/332] Building CXX object CMakeFiles/sc-wasapi-render-trace-tests.dir/tests/wasapi_render_trace_tests.cpp.o
+[152/332] Building CXX object CMakeFiles/sc-media-transaction-tests.dir/tests/media_transaction_tests.cpp.o
+[153/332] Building CXX object CMakeFiles/sc-project-import-state-tests.dir/tests/project_import_state_tests.cpp.o
+[154/332] Building CXX object CMakeFiles/sc-wasapi-output-tests.dir/tests/rt_audit.cpp.o
+[155/332] Building CXX object CMakeFiles/sc-wasapi-playback-owner-tests.dir/tests/wasapi_playback_owner_tests.cpp.o
+[156/332] Building CXX object CMakeFiles/sc-wasapi-output-tests.dir/tests/wasapi_output_tests.cpp.o
+[157/332] Building CXX object CMakeFiles/sc-wasapi-playback-owner-tests.dir/src/wasapi_playback.cpp.o
+[158/332] Building CXX object CMakeFiles/sc-writer-timing-tests.dir/tests/writer_timing_tests.cpp.o
+[159/332] Building CXX object CMakeFiles/sc-pipewire-duration-fixture.dir/tests/pipewire_duration_fixture.cpp.o
+[160/332] Building CXX object CMakeFiles/sc-pipewire-stage-fixture.dir/tests/native_processing_stages.cpp.o
+[161/332] Building CXX object CMakeFiles/sc-pipewire-stage-fixture.dir/tests/pipewire_duration_fixture.cpp.o
+[162/332] Building CXX object CMakeFiles/sc-processing-stage-tests.dir/tests/native_processing_stages.cpp.o
+[163/332] Building CXX object CMakeFiles/sc-processing-stage-tests.dir/tests/native_processing_stage_tests.cpp.o
+[164/332] Building CXX object CMakeFiles/sc-manual-processing-stage-tests.dir/tests/native_processing_stages.cpp.o
+[165/332] Building CXX object CMakeFiles/sc-manual-processing-stage-tests.dir/tests/native_manual_processing_stage_tests.cpp.o
+[166/332] Building CXX object CMakeFiles/sc-port-marker-tests.dir/tests/native_port_marker_fake.cpp.o
+[167/332] Building CXX object CMakeFiles/sc-port-marker-tests.dir/tests/native_port_markers.cpp.o
+[168/332] Building CXX object CMakeFiles/sc-port-marker-tests.dir/tests/native_port_marker_tests.cpp.o
+[169/332] Building CXX object CMakeFiles/sc-duplex-duration-fixture.dir/tests/duplex_duration_fixture.cpp.o
+[170/332] Building CXX object CMakeFiles/sc-duplex-recording-tests.dir/tests/duplex_recording_tests.cpp.o
+[171/332] Building CXX object CMakeFiles/sc-punch-tests.dir/tests/punch_tests.cpp.o
+[172/332] Building CXX object CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.o
+[173/332] Building CXX object CMakeFiles/sc-manual-controller-tests.dir/tests/rt_audit.cpp.o
+[174/332] Building CXX object CMakeFiles/sc-manual-interrupt-tests.dir/tests/manual_interrupt_tests.cpp.o
+[175/332] Building CXX object CMakeFiles/sc-manual-controller-tests.dir/tests/manual_controller_tests.cpp.o
+[176/332] Building CXX object CMakeFiles/sc-manual-interrupt-tests.dir/tests/manual_verification_gate.cpp.o
+[177/332] Building CXX object CMakeFiles/sc-manual-punch-tests.dir/tests/rt_audit.cpp.o
+[178/332] Building CXX object CMakeFiles/sc-manual-punch-tests.dir/tests/manual_punch_tests.cpp.o
+[179/332] Building CXX object CMakeFiles/sc-duplex-tests.dir/tests/duplex_tests.cpp.o
+[180/332] Building CXX object CMakeFiles/sc-mix-playback-tests.dir/tests/mix_playback_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp: In function ‘void {anonymous}::offsets(const soundcurrent::daw::Session&, const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:152:59: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  152 |     MixPlaybackConfig c{{.maximumFrames = 512}, 29000, 256};
+      |                                                           ^
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:152:59: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp: In function ‘void {anonymous}::liveIntervals()’:
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:221:80: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  221 |                         {{.maximumFrames = 32, .startFrame = first}, last, 256});
+      |                                                                                ^
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:221:80: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp: In function ‘void {anonymous}::lateData()’:
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:268:84: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  268 |     MixPlayback mix(s, identityMix(s, ids, {}), {{.maximumFrames = 512}, 1024, 256});
+      |                                                                                    ^
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:268:84: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp: In function ‘void {anonymous}::worker(const soundcurrent::daw::Session&, const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:307:87: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  307 |     MixPlaybackRun run(root, s, plan(s), {{.maximumFrames = 512}, 29000, 256}, options);
+      |                                                                                       ^
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:307:87: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:335:87: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  335 |     MixPlaybackRun broken(root, s, plan(s), {{.maximumFrames = 512}, 29000, 256}, fail);
+      |                                                                                       ^
+/home/rich/dev/soundcurrent-daw/tests/mix_playback_tests.cpp:335:87: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+[181/332] Building CXX object CMakeFiles/sc-graph-resource-tests.dir/tests/rt_audit.cpp.o
+[182/332] Building CXX object CMakeFiles/sc-graph-resource-tests.dir/tests/graph_resource_tests.cpp.o
+[183/332] Building CXX object CMakeFiles/sc-media-cache-tests.dir/tests/media_cache_tests.cpp.o
+[184/332] Building CXX object CMakeFiles/sc-export-tests.dir/tests/export_tests.cpp.o
+[185/332] Building CXX object CMakeFiles/sc-discovery-tests.dir/tests/discovery_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp: In function ‘void {anonymous}::inventory()’:
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp:72:53: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+   72 |         CaptureWriter writer(t.root, spec, {128, {}});
+      |                                                     ^
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp:116:60: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  116 |         CaptureWriter writer(t.root, foreignSpec, {128, {}});
+      |                                                            ^
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp:197:57: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  197 |         CaptureWriter writer(t.root, mismatch, {128, {}});
+      |                                                         ^
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp: In function ‘void {anonymous}::copyCancellation()’:
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp:224:57: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  224 |             CaptureWriter writer(t.root, spec, {128, {}});
+      |                                                         ^
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp: In function ‘void {anonymous}::killedWriter()’:
+/home/rich/dev/soundcurrent-daw/tests/discovery_tests.cpp:284:57: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  284 |             CaptureWriter writer(t.root, spec, {128, {}});
+      |                                                         ^
+[186/332] Building CXX object CMakeFiles/sc-clip-processing-tests.dir/tests/clip_processing_tests.cpp.o
+[187/332] Building CXX object CMakeFiles/sc-recording-fault-tests.dir/tests/recording_fault_tests.cpp.o
+[188/332] Building CXX object CMakeFiles/sc-recording-tests.dir/tests/recording_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::layoutsAndAlignment()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:353:56: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  353 |         CaptureWriter writer(temp.root, spec, {256, {}});
+      |                                                        ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::workerCancellation()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:437:64: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  437 |         RecordingWorker worker(pipe, temp.root, spec, {256, {}});
+      |                                                                ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::queuedGap()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:471:52: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  471 |     CaptureWriter writer(temp.root, spec, {256, {}});
+      |                                                    ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::sanitizedJournal()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:492:52: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  492 |     CaptureWriter writer(temp.root, spec, {256, {}});
+      |                                                    ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::interruptedBoundary(soundcurrent::daw::RecordingBoundary, bool)’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:524:35: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  524 |                                  }};
+      |                                   ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::checkedFlushFailure()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:574:35: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  574 |                                  }};
+      |                                   ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::invalidRecoveryAndNoOverwrite()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:637:56: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  637 |         CaptureWriter writer(temp.root, spec, {256, {}});
+      |                                                        ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::processKill()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:724:60: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  724 |             CaptureWriter writer(temp.root, spec, {256, {}});
+      |                                                            ^
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp: In function ‘void {anonymous}::writeLimitFailure()’:
+/home/rich/dev/soundcurrent-daw/tests/recording_tests.cpp:752:60: warning: missing initializer for member ‘soundcurrent::daw::RecordingOptions::resources’ [-Wmissing-field-initializers]
+  752 |             CaptureWriter writer(temp.root, spec, {256, {}});
+      |                                                            ^
+[189/332] Building CXX object CMakeFiles/sc-playback-bridge-tests.dir/tests/playback_bridge_tests.cpp.o
+[190/332] Building CXX object CMakeFiles/sc-playback-tests.dir/tests/playback_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/playback_tests.cpp: In function ‘void {anonymous}::readerAndSeek()’:
+/home/rich/dev/soundcurrent-daw/tests/playback_tests.cpp:330:27: warning: missing initializer for member ‘soundcurrent::daw::ReadAheadOptions::resources’ [-Wmissing-field-initializers]
+  330 |                         }});
+      |                           ^
+/home/rich/dev/soundcurrent-daw/tests/playback_tests.cpp: In lambda function:
+/home/rich/dev/soundcurrent-daw/tests/playback_tests.cpp:348:91: warning: missing initializer for member ‘soundcurrent::daw::ReadAheadOptions::resources’ [-Wmissing-field-initializers]
+  348 |             {64, [](Frame) { throw ProjectError(ErrorCode::Io, "Preparation canceled"); }});
+      |                                                                                           ^
+[191/332] Building CXX object CMakeFiles/sc-pipewire-input-acquisition-fixture.dir/tests/rt_audit.cpp.o
+[192/332] Building CXX object CMakeFiles/sc-pipewire-input-acquisition-fixture.dir/tests/native_port_markers.cpp.o
+[193/332] Building CXX object CMakeFiles/sc-pipewire-input-acquisition-fixture.dir/tests/pipewire_input_acquisition_fixture.cpp.o
+[194/332] Building CXX object CMakeFiles/sc-pipewire-input-acquisition-fixture.dir/tests/native_port_handoff.cpp.o
+[195/332] Building CXX object CMakeFiles/sc-pipewire-manual-trace-fixture.dir/tests/rt_audit.cpp.o
+[196/332] Building CXX object CMakeFiles/sc-pipewire-manual-trace-fixture.dir/tests/native_port_markers.cpp.o
+[197/332] Building CXX object CMakeFiles/sc-pipewire-manual-trace-fixture.dir/tests/native_processing_stages.cpp.o
+[198/332] Building CXX object CMakeFiles/sc-pipewire-manual-trace-fixture.dir/tests/pipewire_manual_fault_fixture.cpp.o
+[199/332] Building CXX object CMakeFiles/sc-pipewire-manual-priority-fixture.dir/tests/rt_audit.cpp.o
+[200/332] Building CXX object CMakeFiles/sc-pipewire-manual-priority-fixture.dir/tests/native_port_markers.cpp.o
+[201/332] Building CXX object CMakeFiles/sc-pipewire-manual-priority-fixture.dir/tests/native_processing_stages.cpp.o
+[202/332] Building CXX object CMakeFiles/sc-pipewire-manual-priority-fixture.dir/tests/pipewire_manual_fault_fixture.cpp.o
+[203/332] Building CXX object CMakeFiles/sc-pipewire-manual-handoff-fixture.dir/tests/native_port_markers.cpp.o
+[204/332] Building CXX object CMakeFiles/sc-pipewire-manual-handoff-fixture.dir/tests/native_port_handoff.cpp.o
+[205/332] Building CXX object CMakeFiles/sc-pipewire-manual-handoff-fixture.dir/tests/native_processing_stages.cpp.o
+[206/332] Building CXX object CMakeFiles/sc-pipewire-manual-handoff-fixture.dir/tests/pipewire_manual_fault_fixture.cpp.o
+[207/332] Building CXX object CMakeFiles/sc-pipewire-manual-startup-fixture.dir/tests/native_port_markers.cpp.o
+[208/332] Building CXX object CMakeFiles/sc-pipewire-manual-startup-fixture.dir/tests/native_port_handoff.cpp.o
+[209/332] Building CXX object CMakeFiles/sc-pipewire-manual-startup-fixture.dir/tests/native_startup_gate.cpp.o
+[210/332] Building CXX object CMakeFiles/sc-pipewire-manual-startup-fixture.dir/tests/native_processing_stages.cpp.o
+[211/332] Building CXX object CMakeFiles/sc-pipewire-manual-startup-fixture.dir/tests/pipewire_manual_fault_fixture.cpp.o
+[212/332] Building CXX object CMakeFiles/sc-startup-gate-tests.dir/tests/native_port_handoff.cpp.o
+[213/332] Building CXX object CMakeFiles/sc-startup-gate-tests.dir/tests/native_port_markers.cpp.o
+[214/332] Building CXX object CMakeFiles/sc-startup-gate-tests.dir/tests/native_startup_gate_tests.cpp.o
+[215/332] Building CXX object CMakeFiles/sc-startup-gate-tests.dir/tests/native_startup_gate.cpp.o
+[216/332] Building CXX object CMakeFiles/sc-handoff-tests.dir/tests/native_port_handoff_fake.cpp.o
+[217/332] Building CXX object CMakeFiles/sc-handoff-tests.dir/tests/native_port_handoff_tests.cpp.o
+[218/332] Building CXX object CMakeFiles/sc-handoff-tests.dir/tests/native_port_handoff.cpp.o
+[219/332] Building CXX object CMakeFiles/sc-handoff-tests.dir/tests/native_port_markers.cpp.o
+[220/332] Building CXX object CMakeFiles/sc-pipewire-manual-stage-fixture.dir/tests/native_processing_stages.cpp.o
+[221/332] Building CXX object CMakeFiles/sc-pipewire-manual-stage-fixture.dir/tests/pipewire_manual_fixture.cpp.o
+[222/332] Building CXX object CMakeFiles/sc-pipewire-manual-fault-fixture.dir/tests/pipewire_manual_fault_fixture.cpp.o
+[223/332] Building CXX object CMakeFiles/sc-pipewire-manual-fixture.dir/tests/pipewire_manual_fixture.cpp.o
+[224/332] Building CXX object CMakeFiles/sc-pipewire-punch-fault-fixture.dir/tests/pipewire_punch_fault_fixture.cpp.o
+[225/332] Building CXX object CMakeFiles/sc-pipewire-duplex-fixture.dir/tests/pipewire_duplex_fixture.cpp.o
+[226/332] Building CXX object CMakeFiles/sc-pipewire-punch-fixture.dir/tests/pipewire_punch_fixture.cpp.o
+[227/332] Building CXX object CMakeFiles/sc-pipewire-fixture.dir/tests/pipewire_fixture.cpp.o
+[228/332] Building CXX object CMakeFiles/sc-pipewire-clock-fault-fixture.dir/tests/pipewire_clock_fault_fixture.cpp.o
+[229/332] Linking CXX executable sc-resampling-tests
+[230/332] Linking CXX executable sc-media-stage-worker
+[231/332] Linking CXX executable sc-native-buffer-tests
+[232/332] Linking CXX executable sc-positioned-resampling-tests
+[233/332] Building CXX object CMakeFiles/sc-pipewire-playback-fixture.dir/tests/pipewire_playback_fixture.cpp.o
+[234/332] Linking CXX executable sc-play-tool
+[235/332] Linking CXX executable sc-export-tool
+[236/332] Linking CXX executable sc-record-tool
+[237/332] Linking CXX executable sc-project-tool
+[238/332] Linking CXX executable sc-approved-media-probe
+[239/332] Linking CXX executable sc-media-copy-controller-tests
+[240/332] Linking CXX executable sc-wave-controller-tests
+[241/332] Linking CXX executable soundcurrent-daw
+[242/332] Linking CXX executable sc-import-controller-tests
+[243/332] Linking CXX executable sc-import-media-ui-tests
+[244/332] Linking CXX executable sc-import-ui-tests
+[245/332] Linking CXX executable sc-snapshot-resource-tests
+[246/332] Linking CXX executable sc-localization-tests
+[247/332] Linking CXX executable sc-export-controller-tests
+[248/332] Linking CXX executable sc-export-ui-tests
+[249/332] Linking CXX executable sc-equipment-tests
+[250/332] Linking CXX executable sc-gui-resource-tests
+[251/332] Linking CXX executable sc-history-ui-tests
+[252/332] Linking CXX executable sc-controller-tests
+[253/332] Linking CXX executable sc-playback-controller-tests
+[254/332] Linking CXX executable sc-recording-controller-tests
+[255/332] Linking CXX executable sc-pipewire-ui-fixture
+[256/332] Linking CXX executable sc-pipewire-punch-ui-fixture
+[257/332] Linking CXX executable sc-pipewire-manual-panel-fixture
+[258/332] Linking CXX executable sc-pipewire-duplex-ui-fixture
+[259/332] Linking CXX executable sc-pipewire-recording-ui-fixture
+[260/332] Linking CXX executable sc-timeline-ui-tests
+[261/332] Linking CXX executable sc-ui-tests
+[262/332] Linking CXX executable sc-media-staging-tests
+[263/332] Linking CXX executable sc-manual-panel-tests
+[264/332] Linking CXX executable sc-approved-media-tests
+[265/332] Linking CXX executable sc-inspection-bundle-tests
+[266/332] Linking CXX executable sc-import-property-report-probe
+[267/332] Linking CXX executable sc-reaper-structure-tests
+[268/332] Linking CXX executable sc-reaper-import-tests
+[269/332] Linking CXX executable sc-native-duration-timing-tests
+[270/332] Linking CXX executable sc-track-scalability-tests
+[271/332] Linking CXX executable sc-resource-ledger-tests
+[272/332] Linking CXX executable sc-session-tests
+[273/332] Linking CXX executable sc-routing-tests
+[274/332] Linking CXX executable sc-history-resource-tests
+[275/332] Linking CXX executable sc-editing-tests
+[276/332] Linking CXX executable sc-stretch-state-tests
+[277/332] Linking CXX executable sc-engine-tests
+[278/332] Linking CXX executable sc-monitoring-tests
+[279/332] Linking CXX executable sc-mix-graph-tests
+[280/332] Linking CXX executable sc-immediate-tests
+[281/332] Linking CXX executable sc-capture-tests
+[282/332] Linking CXX executable sc-audio-bridge-tests
+[283/332] Linking CXX executable sc-wasapi-input-tests
+[284/332] Linking CXX executable sc-wasapi-packet-copy-tests
+[285/332] Linking CXX executable sc-wasapi-ports-tests
+[286/332] Linking CXX executable sc-native-render-timing-tests
+[287/332] Linking CXX executable sc-wasapi-capture-trace-tests
+[288/332] Linking CXX executable sc-wasapi-render-trace-tests
+[289/332] Linking CXX executable sc-project-import-state-tests
+[290/332] Linking CXX executable sc-media-transaction-tests
+[291/332] Linking CXX executable sc-wasapi-output-tests
+[292/332] Linking CXX executable sc-wasapi-playback-owner-tests
+[293/332] Linking CXX executable sc-writer-timing-tests
+[294/332] Linking CXX executable sc-pipewire-duration-fixture
+[295/332] Linking CXX executable sc-pipewire-stage-fixture
+[296/332] Linking CXX executable sc-processing-stage-tests
+[297/332] Linking CXX executable sc-manual-processing-stage-tests
+[298/332] Linking CXX executable sc-port-marker-tests
+[299/332] Linking CXX executable sc-duplex-duration-fixture
+[300/332] Linking CXX executable sc-duplex-recording-tests
+[301/332] Linking CXX executable sc-punch-tests
+[302/332] Linking CXX executable sc-manual-recording-tests
+[303/332] Linking CXX executable sc-manual-controller-tests
+[304/332] Linking CXX executable sc-manual-interrupt-tests
+[305/332] Linking CXX executable sc-manual-punch-tests
+[306/332] Linking CXX executable sc-duplex-tests
+[307/332] Linking CXX executable sc-graph-resource-tests
+[308/332] Linking CXX executable sc-mix-playback-tests
+[309/332] Linking CXX executable sc-media-cache-tests
+[310/332] Linking CXX executable sc-export-tests
+[311/332] Linking CXX executable sc-discovery-tests
+[312/332] Linking CXX executable sc-clip-processing-tests
+[313/332] Linking CXX executable sc-recording-tests
+[314/332] Linking CXX executable sc-recording-fault-tests
+[315/332] Linking CXX executable sc-playback-bridge-tests
+[316/332] Linking CXX executable sc-playback-tests
+[317/332] Linking CXX executable sc-pipewire-input-acquisition-fixture
+[318/332] Linking CXX executable sc-pipewire-manual-trace-fixture
+[319/332] Linking CXX executable sc-pipewire-manual-priority-fixture
+[320/332] Linking CXX executable sc-pipewire-manual-handoff-fixture
+[321/332] Linking CXX executable sc-startup-gate-tests
+[322/332] Linking CXX executable sc-handoff-tests
+[323/332] Linking CXX executable sc-pipewire-manual-startup-fixture
+[324/332] Linking CXX executable sc-pipewire-manual-stage-fixture
+[325/332] Linking CXX executable sc-pipewire-manual-fault-fixture
+[326/332] Linking CXX executable sc-pipewire-manual-fixture
+[327/332] Linking CXX executable sc-pipewire-punch-fault-fixture
+[328/332] Linking CXX executable sc-pipewire-punch-fixture
+[329/332] Linking CXX executable sc-pipewire-duplex-fixture
+[330/332] Linking CXX executable sc-pipewire-fixture
+[331/332] Linking CXX executable sc-pipewire-clock-fault-fixture
+[332/332] Linking CXX executable sc-pipewire-playback-fixture

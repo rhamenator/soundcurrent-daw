@@ -1,0 +1,84 @@
+[0/1] Re-running CMake...
+CMake Deprecation Warning at third_party/libsamplerate/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- Checking processor clipping capabilities...
+-- Checking processor clipping capabilities... none
+-- Configuring done (6.7s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/66] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.o
+[2/66] Building CXX object CMakeFiles/sc-session.dir/src/routing.cpp.o
+[3/66] Building CXX object CMakeFiles/sc-session.dir/src/session_edits.cpp.o
+[4/66] Building CXX object CMakeFiles/sc-session.dir/src/clip_timing.cpp.o
+[5/66] Building CXX object CMakeFiles/sc-session.dir/src/resource_ledger.cpp.o
+[6/66] Building CXX object CMakeFiles/sc-session.dir/src/stretch.cpp.o
+[7/66] Linking CXX static library libsc-session.a
+[8/66] Building CXX object CMakeFiles/sc-foreign-snapshot.dir/src/foreign_snapshot.cpp.o
+[9/66] Linking CXX static library libsc-foreign-snapshot.a
+[10/66] Building CXX object CMakeFiles/sc-reaper-structure.dir/src/reaper_structure.cpp.o
+[11/66] Linking CXX static library libsc-reaper-structure.a
+[12/66] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.o
+[13/66] Building CXX object CMakeFiles/sc-import-report.dir/src/import_inspection_report.cpp.o
+[14/66] Linking CXX static library libsc-import-report.a
+[15/66] Linking CXX static library libsc-approved-media.a
+[16/66] Building CXX object CMakeFiles/sc-wave-report.dir/src/wave_report.cpp.o
+[17/66] Linking CXX static library libsc-wave-report.a
+[18/66] Building CXX object CMakeFiles/sc-inspection-bundle.dir/src/inspection_bundle.cpp.o
+[19/66] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[20/66] Linking CXX static library libsc-inspection-bundle.a
+[21/66] Building CXX object CMakeFiles/sc-engine.dir/src/eq_coefficients.cpp.o
+[22/66] Building CXX object CMakeFiles/sc-engine.dir/src/eq.cpp.o
+[23/66] Building CXX object CMakeFiles/sc-media-provenance.dir/src/media_provenance.cpp.o
+[24/66] Linking CXX static library libsc-media-provenance.a
+[25/66] Building CXX object CMakeFiles/sc-engine.dir/src/clip_processing.cpp.o
+[26/66] Building CXX object CMakeFiles/sc-engine.dir/src/mix.cpp.o
+[27/66] Linking CXX static library libsc-wave-validation.a
+[28/66] Building CXX object CMakeFiles/sc-capture.dir/src/capture.cpp.o
+[29/66] Building CXX object CMakeFiles/sc-project-import-state.dir/src/project_import_state.cpp.o
+[30/66] Linking CXX static library libsc-engine.a
+[31/66] Linking CXX static library libsc-capture.a
+[32/66] Building CXX object CMakeFiles/sc-positioned-resampling.dir/src/positioned_resampling.cpp.o
+[33/66] Building CXX object CMakeFiles/sc-audio-bridge.dir/src/audio_bridge.cpp.o
+[34/66] Building CXX object CMakeFiles/sc-playback.dir/src/playback.cpp.o
+[35/66] Building CXX object CMakeFiles/sc-playback.dir/src/mix_playback.cpp.o
+[36/66] Linking CXX static library libsc-project-import-state.a
+[37/66] Linking CXX static library libsc-positioned-resampling.a
+[38/66] Linking CXX static library libsc-audio-bridge.a
+[39/66] Linking CXX static library libsc-playback.a
+[40/66] Building CXX object CMakeFiles/sc-media.dir/src/media_io.cpp.o
+[41/66] Building CXX object CMakeFiles/sc-media.dir/src/media_cache.cpp.o
+[42/66] Building CXX object CMakeFiles/sc-project-store.dir/src/project_store.cpp.o
+[43/66] Linking CXX static library libsc-project-store.a
+[44/66] Building CXX object CMakeFiles/sc-media.dir/src/recording_worker.cpp.o
+[45/66] Building CXX object CMakeFiles/sc-media.dir/src/recording.cpp.o
+[46/66] Building CXX object CMakeFiles/sc-media.dir/src/playback_reader.cpp.o
+[47/66] Building CXX object CMakeFiles/sc-media.dir/src/playback_run.cpp.o
+[48/66] Building CXX object CMakeFiles/sc-media.dir/src/mix_reader.cpp.o
+/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp: In function ‘soundcurrent::daw::{anonymous}::ReaderDeclaration soundcurrent::daw::{anonymous}::declareReaders(const soundcurrent::daw::ValidatedSession&, const soundcurrent::daw::MixPlan&, const soundcurrent::daw::MixPlaybackConfig&, soundcurrent::daw::ReadAheadOptions, uint32_t)’:
+/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp:18:17: warning: unused variable ‘s’ [-Wunused-variable]
+   18 |     const auto &s = validated.session();
+      |                 ^
+[49/66] Building CXX object CMakeFiles/sc-media.dir/src/playback_bridge.cpp.o
+[50/66] Building CXX object CMakeFiles/sc-media.dir/src/mix_run.cpp.o
+[51/66] Building CXX object CMakeFiles/sc-media.dir/src/duplex_bridge.cpp.o
+[52/66] Building CXX object CMakeFiles/sc-media.dir/src/manual_punch.cpp.o
+[53/66] Building CXX object CMakeFiles/sc-media.dir/src/manual_recording.cpp.o
+[54/66] Building CXX object CMakeFiles/sc-media.dir/src/duplex_recording.cpp.o
+[55/66] Building CXX object CMakeFiles/sc-media.dir/src/export.cpp.o
+[56/66] Linking CXX static library libsc-media.a
+[57/66] Building CXX object CMakeFiles/sc-stretch-render-protocol.dir/src/stretch_render_protocol.cpp.o
+[58/66] Linking CXX static library libsc-stretch-render-protocol.a
+[59/66] Building CXX object CMakeFiles/sc-stretch-artifact-tests.dir/tests/rt_audit.cpp.o
+[60/66] Building CXX object CMakeFiles/sc-stretch-artifact-tests.dir/tests/stretch_artifact_tests.cpp.o
+[61/66] Building CXX object CMakeFiles/sc-wave-validation-tests.dir/tests/wave_validation_tests.cpp.o
+[62/66] Linking CXX executable sc-stretch-artifact-tests
+[63/66] Linking CXX executable sc-wave-validation-tests
+[64/66] Building CXX object CMakeFiles/sc-stretch-state-tests.dir/tests/stretch_state_tests.cpp.o
+[65/66] Linking CXX executable sc-stretch-state-tests
