@@ -91,10 +91,15 @@ inspection = read('native/sc-import-inspect-worker.exe.stdout')
 assert inspection['source']['sha256'] == sha(data['native/owned.rpp'])
 package = read('package/receipt.json')
 audit = read('commands/package-audit.json')
+assert r['packaging'] == audit
+assert audit['nativeInstalledAcceptance'] is False and audit['releaseUploaded'] is False
 assert package['sourceHead'] == audit['sourceHead'] == r['sourceCommit']
-assert package['artifacts'] == audit['artifactIdentities'] == r['packaging']['artifactIdentities']
+assert audit['sourceTree'] == r['sourceTree'] and audit['nativeSourceInputs'] == 661
+assert package['artifacts'] == audit['artifactIdentities']
 assert len(package['payload']) == audit['payloadFiles'] == 64
-assert audit['sourceArchiveInputsChecked'] == 662 and audit['sourceArchiveInputsVerified']
+assert audit['sourceArchiveInputsChecked'] == 662
+for k in ('sourceArchiveInputsVerified', 'artifactHashesVerified', 'payloadHashesVerified'):
+    assert audit[k] is True, k
 assert not package['cleanInstallQualified'] and not package['nativeAudioReplayed'] and not package['releaseUploaded']
 assert 'KeyError' in data['commands/qualify-native.log'].decode()
 print('Retained Windows observations verified: 52 members, native receipt/manifest bindings, 173/34/1045 and 48/48 counters, owned raw/provenance, main session and local package metadata; no native or installer replay.')
