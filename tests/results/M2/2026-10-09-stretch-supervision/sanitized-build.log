@@ -1,0 +1,102 @@
+[0/1] Re-running CMake...
+CMake Deprecation Warning at third_party/libsamplerate/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- Checking processor clipping capabilities...
+-- Checking processor clipping capabilities... none
+-- Configuring done (6.6s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/56] Building CXX object CMakeFiles/sc-pipewire.dir/src/pipewire_filter.cpp.o
+[2/56] Building CXX object CMakeFiles/sc-wasapi-input.dir/src/wasapi_input.cpp.o
+[3/56] Building CXX object CMakeFiles/sc-wasapi-input.dir/src/wasapi_packet_copy.cpp.o
+[4/56] Linking CXX static library libsc-pipewire.a
+[5/56] Building CXX object CMakeFiles/sc-media-copy-protocol.dir/src/media_copy_protocol.cpp.o
+[6/56] Linking CXX static library libsc-media-copy-protocol.a
+[7/56] Building CXX object CMakeFiles/sc-pipewire-manual-recording.dir/src/pipewire_manual_recording.cpp.o
+[8/56] Automatic RCC for localization/daw_translations.qrc
+[9/56] Linking CXX static library libsc-wasapi-input.a
+[10/56] Building CXX object CMakeFiles/sc-wasapi-ports.dir/src/wasapi_ports.cpp.o
+[11/56] Building CXX object CMakeFiles/sc-pipewire-recording.dir/src/pipewire_recording.cpp.o
+[12/56] Building CXX object CMakeFiles/sc-ui-media-copy.dir/ui/media_copy_controller.cpp.o
+[13/56] Linking CXX static library libsc-pipewire-manual-recording.a
+[14/56] Building CXX object CMakeFiles/sc-pipewire-duplex-recording.dir/src/pipewire_duplex_recording.cpp.o
+[15/56] Building CXX object CMakeFiles/sc-pipewire-playback.dir/src/pipewire_playback.cpp.o
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp: In function ‘soundcurrent::daw::MixPlaybackConfig soundcurrent::daw::{anonymous}::singleConfig(const soundcurrent::daw::PlaybackConfig&)’:
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp:65:32: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+   65 |             prepared.slabFrames};
+      |                                ^
+/home/rich/dev/soundcurrent-daw/src/pipewire_playback.cpp:65:32: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+[16/56] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[17/56] Linking CXX static library libsc-ui-media-copy.a
+[18/56] Building CXX object CMakeFiles/sc-manual-controller.dir/ui/manual_recording_controller.cpp.o
+[19/56] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/wave_check_controller.cpp.o
+[20/56] Linking CXX static library libsc-wasapi-ports.a
+[21/56] Linking CXX static library libsc-pipewire-recording.a
+[22/56] Linking CXX static library libsc-pipewire-duplex-recording.a
+[23/56] Linking CXX static library libsc-pipewire-playback.a
+[24/56] Linking CXX static library libsc-manual-controller.a
+[25/56] Linking CXX static library libsc-ui-localization.a
+[26/56] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o
+[27/56] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/timeline_editor.cpp.o
+[28/56] Building CXX object CMakeFiles/sc-ui-equipment.dir/ui/equipment_profiles.cpp.o
+[29/56] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/session_list_model.cpp.o
+[30/56] Building CXX object CMakeFiles/sc-ui-timeline.dir/ui/timeline_view.cpp.o
+[31/56] Building CXX object CMakeFiles/sc-ui-stretch.dir/ui/stretch_dialog.cpp.o
+[32/56] Building CXX object CMakeFiles/sc-ui-stretch.dir/ui/stretch_controller.cpp.o
+[33/56] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_controller.cpp.o
+[34/56] Linking CXX static library libsc-ui-wave.a
+[35/56] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_dialog.cpp.o
+[36/56] Building CXX object CMakeFiles/sc-ui-playback.dir/ui/playback_controller.cpp.o
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp: In constructor ‘soundcurrent::daw::ui::{anonymous}::NativeEndpoint::NativeEndpoint(const soundcurrent::daw::ui::PlaybackPreparation&, soundcurrent::daw::PlaybackCallbackInstrumentation)’:
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:27:11: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+   27 |         : owner_(p.root, *p.session, p.plan,
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   28 |                  {{p.config.maximumCallbackFrames, p.config.startFrame, p.config.generation,
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   29 |                    p.config.memoryBudgetBytes},
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   30 |                   p.config.endFrame,
+      |                   ~~~~~~~~~~~~~~~~~~
+   31 |                   p.config.slabFrames},
+      |                   ~~~~~~~~~~~~~~~~~~~~~
+   32 |                  p.reader, std::chrono::seconds(3), audit) {}
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:27:11: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp: In member function ‘void soundcurrent::daw::ui::PlaybackController::State::prepare(soundcurrent::daw::ui::PlaybackCommand&, uint64_t)’:
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:404:65: warning: missing initializer for member ‘soundcurrent::daw::ui::PlaybackPreparation::reader’ [-Wmissing-field-initializers]
+  404 |                                  {},     {},        bool(c.plan)};
+      |                                                                 ^
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:414:24: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::stateBudget’ [-Wmissing-field-initializers]
+  414 |         mixPayloadBytes(*c.session, next.plan,
+      |         ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+  415 |                         {next.config.maximumCallbackFrames, next.config.startFrame,
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  416 |                          next.config.generation, next.config.memoryBudgetBytes});
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/rich/dev/soundcurrent-daw/ui/playback_controller.cpp:414:24: warning: missing initializer for member ‘soundcurrent::daw::MixConfig::resources’ [-Wmissing-field-initializers]
+[37/56] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/recovery_controller.cpp.o
+[38/56] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/recording_controller.cpp.o
+[39/56] Building CXX object CMakeFiles/sc-ui-export.dir/ui/export_controller.cpp.o
+[40/56] Building CXX object CMakeFiles/sc-ui-export.dir/ui/export_dialog.cpp.o
+[41/56] Building CXX object CMakeFiles/sc-ui-recording.dir/ui/manual_recording_panel.cpp.o
+[42/56] Linking CXX static library libsc-ui-equipment.a
+[43/56] Linking CXX static library libsc-ui-timeline.a
+[44/56] Linking CXX static library libsc-ui-stretch.a
+[45/56] Linking CXX static library libsc-ui-import.a
+[46/56] Linking CXX static library libsc-ui-playback.a
+[47/56] Linking CXX static library libsc-ui-recording.a
+[48/56] Linking CXX static library libsc-ui-export.a
+[49/56] Building CXX object CMakeFiles/sc-ui-history.dir/ui/history_resources_dialog.cpp.o
+[50/56] Linking CXX static library libsc-ui-history.a
+[51/56] Building CXX object CMakeFiles/sc-stretch-ui-tests.dir/tests/stretch_ui_tests.cpp.o
+[52/56] Building CXX object CMakeFiles/sc-stretch-controller-tests.dir/tests/stretch_controller_tests.cpp.o
+[53/56] Linking CXX executable sc-stretch-controller-tests
+[54/56] Building CXX object CMakeFiles/sc-stretch-ui-tests.dir/ui/studio_window.cpp.o
+[55/56] Linking CXX executable sc-stretch-ui-tests

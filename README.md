@@ -32,12 +32,16 @@ An [isolated pitch/time-stretch worker](docs/134-isolated-stretch-worker.md) now
 renders owned source spans to floating RF64 with independent pitch and duration,
 resource limits and cancellation. [Editable raw-anchor state and checked artifact
 adoption](docs/135-editable-stretch-state.md) retain raw media and derived assets
-through split/crop, re-render and Undo/Redo. Desktop process supervision, controls,
-processing-quality and native qualification remain open.
+through split/crop, re-render and Undo/Redo. Full processing-quality and current
+native qualification remain open.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.
-Independent pitch/stretch, foreign-property adoption and installed/native audio
+The [clip pitch/stretch dialog](docs/136-stretch-supervision.md) now provides
+background rendering and explicit verified, undoable adoption. Native Windows
+qualification and installer helper delivery remain pending.
+
+Full pitch/stretch quality, foreign-property adoption and installed/native audio
 qualification remain open; existing installer previews contain earlier code.
 
 The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records

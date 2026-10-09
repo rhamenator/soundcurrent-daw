@@ -100,3 +100,17 @@ is ambiguous under that compiler's C++20 overload rules. The assertion now extra
 The [failed raw job log and correction receipt](../tests/results/M2/2026-10-09-editable-stretch/msvc-correction-qualification.json)
 retain this limitation and the corrected local Release2/2 and ASan/UBSan2/2 checks.
 Current-head native qualification still requires a fresh protected CI run.
+
+## Qualified core checkpoint
+
+Corrected source783aa0c passed all four protected jobs on run37986298426: Linux106,
+native Windows core40, Windows Qt10 and the Windows core cross-build. Downloaded
+ZIP digests/CRC, actual raw test counts and all652 source hashes were verified in
+the [final native receipt](../tests/results/M2/2026-10-09-editable-stretch/final-native-qualification.json).
+Both core platforms report172 worker checks,33 completed jobs,1,045 shared
+live/export checks,61 state checks and the1,663-case timing oracle. WAVE counts are
+20,956 on Linux and20,951 on Windows: five mutation checks use a Linux-only
+write-during-read fixture; that workflow is not claimed for Windows by this receipt.
+PR78 merged the identical tree as77fc547. This qualifies the core checkpoint's
+synthetic state/render/adoption workflows; it does not establish desktop stretch
+controls, installed previews, physical audio or frozen-reference processing quality.

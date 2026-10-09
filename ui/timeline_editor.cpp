@@ -257,6 +257,13 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
                              {}}});
     });
     body->addLayout(clipRow);
+    auto *stretchButton = new QPushButton(tr("Pitch and stretch…"));
+    stretchButton->setObjectName("clipStretchButton");
+    mutations_.push_back(stretchButton);
+    body->addWidget(stretchButton);
+    connect(stretchButton,&QPushButton::clicked,this,[this]{
+        if(editable_ && track_ && clip_ && pitchStretchRequested)pitchStretchRequested(*track_,*clip_);
+    });
     auto *processingToggle = new QPushButton(tr("Clip gain and fades"));
     processingToggle->setObjectName("clipProcessingToggle");
     processingToggle->setCheckable(true);

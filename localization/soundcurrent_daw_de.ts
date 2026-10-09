@@ -1766,6 +1766,109 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
   </context>
   <context>
+    <name>StretchDialog</name>
+    <message>
+      <source>Clip pitch and stretch</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Duration multiplier numerator</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Duration multiplier denominator</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Pitch (semitones)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Preserve formants</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Render</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Apply verified result</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel render</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Close</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Apply reviewed completed result</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Applying the verified result as one undoable edit…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose settings, render, then apply the verified result.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Preparing the original audio and reserving render resources…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rendering pitch and duration in the background…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Checking the completed audio before it can be applied…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Render verified. Choose Apply to replace this clip as one undoable edit.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Canceled before rendering. No project edit was made.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rendering could not start. Check the source, helper installation, settings, and available memory. No project edit was made.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The renderer stopped without a verified completed result. Its owned job files were retained for inspection. No project edit was made.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The duration multiplier must be between 0.25 and 4.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verified result: duration %1/%2, pitch %3 semitones, formants %4.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>preserved</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>shifted</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
     <name>StudioWindow</name>
     <message>
       <source>SoundCurrent DAW</source>
@@ -2097,6 +2200,30 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The render queue is unavailable. Please retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This dialog belongs to a previous project opening. Close it and select a clip in the current project.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The current render belongs to a different clip. Finish or cancel that render before starting this one.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>A different clip has the retained render result. Rendering this clip replaces that pending preview; its owned files are retained.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -3006,6 +3133,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Move to track</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Pitch and stretch…</source>
       <translation type="unfinished" />
     </message>
     <message>

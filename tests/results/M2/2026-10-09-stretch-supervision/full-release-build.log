@@ -1,0 +1,71 @@
+ninja: warning: premature end of file; recovering
+[1/66] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[2/66] Linking CXX static library libsc-ui-localization.a
+[3/66] Building CXX object CMakeFiles/sc-ui-stretch.dir/ui/stretch_dialog.cpp.o
+[4/66] Linking CXX static library libsc-ui-stretch.a
+[5/66] Building CXX object CMakeFiles/sc-stretch-artifact-tests.dir/tests/stretch_artifact_tests.cpp.o
+[6/66] Building CXX object CMakeFiles/soundcurrent-daw.dir/ui/studio_window.cpp.o
+[7/66] Building CXX object CMakeFiles/sc-media-copy-controller-tests.dir/tests/media_copy_controller_tests.cpp.o
+[8/66] Building CXX object CMakeFiles/sc-stretch-ui-tests.dir/tests/stretch_ui_tests.cpp.o
+[9/66] Building CXX object CMakeFiles/sc-wave-controller-tests.dir/tests/wave_controller_tests.cpp.o
+[10/66] Building CXX object CMakeFiles/sc-stretch-ui-tests.dir/ui/studio_window.cpp.o
+[11/66] Building CXX object CMakeFiles/sc-import-media-ui-tests.dir/tests/import_media_ui_tests.cpp.o
+[12/66] Building CXX object CMakeFiles/sc-import-controller-tests.dir/tests/import_controller_tests.cpp.o
+[13/66] Building CXX object CMakeFiles/sc-import-ui-tests.dir/tests/import_ui_tests.cpp.o
+[14/66] Building CXX object CMakeFiles/sc-localization-tests.dir/tests/localization_tests.cpp.o
+[15/66] Building CXX object CMakeFiles/sc-import-ui-tests.dir/ui/studio_window.cpp.o
+[16/66] Building CXX object CMakeFiles/sc-snapshot-resource-tests.dir/tests/snapshot_resource_tests.cpp.o
+[17/66] Building CXX object CMakeFiles/sc-export-controller-tests.dir/tests/export_controller_tests.cpp.o
+[18/66] Building CXX object CMakeFiles/sc-localization-tests.dir/ui/studio_window.cpp.o
+[19/66] Building CXX object CMakeFiles/sc-export-ui-tests.dir/tests/export_ui_tests.cpp.o
+[20/66] Building CXX object CMakeFiles/sc-gui-resource-tests.dir/tests/gui_resource_tests.cpp.o
+[21/66] Building CXX object CMakeFiles/sc-export-ui-tests.dir/ui/studio_window.cpp.o
+[22/66] Building CXX object CMakeFiles/sc-history-ui-tests.dir/tests/history_resource_ui_tests.cpp.o
+[23/66] Building CXX object CMakeFiles/sc-gui-resource-tests.dir/ui/studio_window.cpp.o
+[24/66] Building CXX object CMakeFiles/sc-playback-controller-tests.dir/tests/playback_controller_tests.cpp.o
+[25/66] Building CXX object CMakeFiles/sc-history-ui-tests.dir/ui/studio_window.cpp.o
+[26/66] Building CXX object CMakeFiles/sc-recording-controller-tests.dir/tests/recording_controller_tests.cpp.o
+[27/66] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/tests/pipewire_ui_fixture.cpp.o
+[28/66] Building CXX object CMakeFiles/sc-pipewire-ui-fixture.dir/ui/studio_window.cpp.o
+[29/66] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/tests/pipewire_punch_ui_fixture.cpp.o
+[30/66] Building CXX object CMakeFiles/sc-pipewire-punch-ui-fixture.dir/ui/studio_window.cpp.o
+[31/66] Building CXX object CMakeFiles/sc-pipewire-manual-panel-fixture.dir/tests/pipewire_manual_panel_fixture.cpp.o
+[32/66] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/tests/pipewire_duplex_ui_fixture.cpp.o
+[33/66] Building CXX object CMakeFiles/sc-pipewire-manual-panel-fixture.dir/ui/studio_window.cpp.o
+[34/66] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/tests/pipewire_recording_ui_fixture.cpp.o
+[35/66] Building CXX object CMakeFiles/sc-pipewire-duplex-ui-fixture.dir/ui/studio_window.cpp.o
+[36/66] Building CXX object CMakeFiles/sc-pipewire-recording-ui-fixture.dir/ui/studio_window.cpp.o
+[37/66] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o
+[38/66] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/ui/studio_window.cpp.o
+[39/66] Building CXX object CMakeFiles/sc-ui-tests.dir/ui/studio_window.cpp.o
+[40/66] Building CXX object CMakeFiles/sc-manual-panel-tests.dir/tests/manual_panel_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/manual_panel_tests.cpp: In constructor ‘{anonymous}::Fixture::Fixture()’:
+/home/rich/dev/soundcurrent-daw/tests/manual_panel_tests.cpp:64:33: warning: missing initializer for member ‘soundcurrent::daw::ui::ControllerOptions::beforeInitialPublish’ [-Wmissing-field-initializers]
+   64 |                               {}});
+      |                                 ^
+[41/66] Linking CXX executable sc-stretch-artifact-tests
+[42/66] Linking CXX executable soundcurrent-daw
+[43/66] Linking CXX executable sc-media-copy-controller-tests
+[44/66] Linking CXX executable sc-stretch-ui-tests
+[45/66] Linking CXX executable sc-stretch-controller-tests
+[46/66] Linking CXX executable sc-wave-controller-tests
+[47/66] Linking CXX executable sc-import-controller-tests
+[48/66] Linking CXX executable sc-import-media-ui-tests
+[49/66] Linking CXX executable sc-import-ui-tests
+[50/66] Linking CXX executable sc-localization-tests
+[51/66] Linking CXX executable sc-snapshot-resource-tests
+[52/66] Linking CXX executable sc-export-controller-tests
+[53/66] Linking CXX executable sc-export-ui-tests
+[54/66] Linking CXX executable sc-gui-resource-tests
+[55/66] Linking CXX executable sc-history-ui-tests
+[56/66] Linking CXX executable sc-playback-controller-tests
+[57/66] Linking CXX executable sc-recording-controller-tests
+[58/66] Linking CXX executable sc-pipewire-ui-fixture
+[59/66] Linking CXX executable sc-pipewire-punch-ui-fixture
+[60/66] Linking CXX executable sc-pipewire-manual-panel-fixture
+[61/66] Linking CXX executable sc-pipewire-duplex-ui-fixture
+[62/66] Linking CXX executable sc-pipewire-recording-ui-fixture
+[63/66] Linking CXX executable sc-timeline-ui-tests
+[64/66] Linking CXX executable sc-ui-tests
+[65/66] Building CXX object CMakeFiles/sc-manual-panel-tests.dir/ui/studio_window.cpp.o
+[66/66] Linking CXX executable sc-manual-panel-tests
