@@ -267,3 +267,13 @@ asset, driver or equalizer input is introduced. [ADR093](decisions/093-checked-c
 records frozen approval, uncertain outcomes, child/codec admission and installation
 closure. Exact source notices/pins, OS containment, native storage and installed
 qualification remain independent obligations.
+
+## Portable import evidence (2026-10-09)
+
+[ADR094](decisions/094-portable-import-original-evidence.md) reuses original GPL
+inspection bundles, typed provenance, pinned files, native new-file publication,
+existing crypto/JSON/libsndfile and resource admission. No new runtime vendor or
+equalizer input. Media-enabled ProjectStore verification integrates the original
+import module/decoder; strict schema migration, quotas, typed verification, storage
+trust/residue and native/installed/conversion qualification are integration costs.
+Existing dependency versions/notices/source obligations remain unchanged.

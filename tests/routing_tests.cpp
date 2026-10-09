@@ -94,6 +94,7 @@ void migrationsAndValidation() {
     legacy.erase("master");
     legacy.erase("punchRecording");
     legacy["schemaMinor"] = 0;
+    legacy.erase("imports");
     for (auto &t : legacy["tracks"]) {
         t.erase("monitorIntent");
         t.erase("monitoringMode");
@@ -102,8 +103,8 @@ void migrationsAndValidation() {
         t["outputIntent"].erase("ports");
     }
     check(decodeProject(legacy.dump()) == s, "v1.0 migration changed identities/EQ/legacy routes");
-    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 7,
-          "Migrated state did not write v1.7");
+    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 8,
+          "Migrated state did not write v1.8");
     auto bad = legacy;
     bad["tracks"][0]["monitorIntent"] = nlohmann::json::object();
     rejects([&] { decodeProject(bad.dump()); });
@@ -223,6 +224,7 @@ void legacyMediaMigration() {
     j.erase("master");
     j.erase("punchRecording");
     j["schemaMinor"] = 0;
+    j.erase("imports");
     for (auto &t : j["tracks"]) {
         t.erase("monitorIntent");
         t.erase("monitoringMode");
@@ -324,9 +326,10 @@ void masterState() {
     check(h.structural({SetMaster{m}}), "Master not admitted");
     check(decodeProject(encodeProject(s)) == s, "Master exact schema roundtrip differs");
     auto j = nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 7, "Master schema not 1.6");
+    check(j["schemaMinor"] == 8, "Master schema not 1.8");
     auto old = j;
     old["schemaMinor"] = 2;
+    old.erase("imports");
     old.erase("master");
     old.erase("punchRecording");
     for (auto &t : old["tracks"])

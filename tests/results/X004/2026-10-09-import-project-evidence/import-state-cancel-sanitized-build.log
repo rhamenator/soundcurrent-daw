@@ -1,0 +1,59 @@
+[0/1] Re-running CMake...
+-- Configuring done (3.9s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/52] Building CXX object CMakeFiles/sc-wave-report.dir/src/wave_report.cpp.o
+[2/52] Linking CXX static library libsc-wave-report.a
+[3/52] Building CXX object CMakeFiles/sc-inspection-bundle.dir/src/inspection_bundle.cpp.o
+[4/52] Building CXX object CMakeFiles/sc-media-provenance.dir/src/media_provenance.cpp.o
+[5/52] Linking CXX static library libsc-media-provenance.a
+[6/52] Linking CXX static library libsc-inspection-bundle.a
+[7/52] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[8/52] Building CXX object CMakeFiles/sc-engine.dir/src/eq_coefficients.cpp.o
+[9/52] Building CXX object CMakeFiles/sc-engine.dir/src/eq.cpp.o
+[10/52] Building CXX object CMakeFiles/sc-engine.dir/src/mix.cpp.o
+[11/52] Linking CXX static library libsc-wave-validation.a
+[12/52] Building CXX object CMakeFiles/sc-capture.dir/src/capture.cpp.o
+[13/52] Linking CXX static library libsc-engine.a
+[14/52] Linking CXX static library libsc-capture.a
+[15/52] Building CXX object CMakeFiles/sc-audio-bridge.dir/src/audio_bridge.cpp.o
+[16/52] Building CXX object CMakeFiles/sc-project-import-state.dir/src/project_import_state.cpp.o
+[17/52] Building CXX object CMakeFiles/sc-playback.dir/src/playback.cpp.o
+[18/52] Building CXX object CMakeFiles/sc-playback.dir/src/mix_playback.cpp.o
+[19/52] Linking CXX static library libsc-project-import-state.a
+[20/52] Building CXX object CMakeFiles/sc-media-staging.dir/src/media_staging.cpp.o
+[21/52] Linking CXX static library libsc-audio-bridge.a
+[22/52] Linking CXX static library libsc-playback.a
+[23/52] Building CXX object CMakeFiles/sc-media-recovery.dir/src/media_recovery.cpp.o
+[24/52] Building CXX object CMakeFiles/sc-media.dir/src/media_io.cpp.o
+[25/52] Building CXX object CMakeFiles/sc-media.dir/src/media_cache.cpp.o
+[26/52] Building CXX object CMakeFiles/sc-project-store.dir/src/project_store.cpp.o
+[27/52] Linking CXX static library libsc-project-store.a
+[28/52] Building CXX object CMakeFiles/sc-media.dir/src/recording_worker.cpp.o
+[29/52] Building CXX object CMakeFiles/sc-media.dir/src/playback_reader.cpp.o
+[30/52] Building CXX object CMakeFiles/sc-media.dir/src/recording.cpp.o
+[31/52] Building CXX object CMakeFiles/sc-media.dir/src/playback_run.cpp.o
+[32/52] Building CXX object CMakeFiles/sc-media.dir/src/mix_reader.cpp.o
+/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp: In function ‘soundcurrent::daw::{anonymous}::ReaderDeclaration soundcurrent::daw::{anonymous}::declareReaders(const soundcurrent::daw::ValidatedSession&, const soundcurrent::daw::MixPlan&, const soundcurrent::daw::MixPlaybackConfig&, soundcurrent::daw::ReadAheadOptions, uint32_t)’:
+/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp:18:17: warning: unused variable ‘s’ [-Wunused-variable]
+   18 |     const auto &s = validated.session();
+      |                 ^
+[33/52] Building CXX object CMakeFiles/sc-media.dir/src/mix_run.cpp.o
+[34/52] Building CXX object CMakeFiles/sc-media.dir/src/playback_bridge.cpp.o
+[35/52] Building CXX object CMakeFiles/sc-media.dir/src/duplex_bridge.cpp.o
+[36/52] Building CXX object CMakeFiles/sc-media.dir/src/manual_punch.cpp.o
+[37/52] Building CXX object CMakeFiles/sc-media.dir/src/manual_recording.cpp.o
+[38/52] Building CXX object CMakeFiles/sc-media.dir/src/duplex_recording.cpp.o
+[39/52] Linking CXX static library libsc-media-staging.a
+[40/52] Linking CXX static library libsc-media-recovery.a
+[41/52] Building CXX object CMakeFiles/sc-media.dir/src/export.cpp.o
+[42/52] Linking CXX static library libsc-media.a
+[43/52] Building CXX object CMakeFiles/sc-inspection-bundle-tests.dir/tests/inspection_bundle_tests.cpp.o
+[44/52] Building CXX object CMakeFiles/sc-wave-validation-tests.dir/tests/wave_validation_tests.cpp.o
+[45/52] Building CXX object CMakeFiles/sc-project-import-state-tests.dir/tests/project_import_state_tests.cpp.o
+[46/52] Building CXX object CMakeFiles/sc-export-tests.dir/tests/rt_audit.cpp.o
+[47/52] Linking CXX executable sc-inspection-bundle-tests
+[48/52] Linking CXX executable sc-project-import-state-tests
+[49/52] Building CXX object CMakeFiles/sc-export-tests.dir/tests/export_tests.cpp.o
+[50/52] Linking CXX executable sc-wave-validation-tests
+[51/52] Linking CXX executable sc-export-tests

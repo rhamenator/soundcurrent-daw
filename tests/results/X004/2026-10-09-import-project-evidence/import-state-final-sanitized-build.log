@@ -1,0 +1,11 @@
+[1/11] Building CXX object CMakeFiles/sc-project-import-state.dir/src/project_import_state.cpp.o
+[2/11] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.o
+[3/11] Linking CXX static library libsc-session.a
+[4/11] Linking CXX static library libsc-project-import-state.a
+[5/11] Linking CXX executable sc-import-inspect-worker
+[6/11] Linking CXX executable sc-inspection-bundle-tests
+[7/11] Linking CXX executable sc-session-tests
+[8/11] Linking CXX executable sc-routing-tests
+[9/11] Linking CXX executable sc-monitoring-tests
+[10/11] Building CXX object CMakeFiles/sc-project-import-state-tests.dir/tests/project_import_state_tests.cpp.o
+[11/11] Linking CXX executable sc-project-import-state-tests

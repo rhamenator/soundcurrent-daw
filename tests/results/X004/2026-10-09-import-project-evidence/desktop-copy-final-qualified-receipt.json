@@ -1,0 +1,81 @@
+{
+  "utc": "2026-10-09T09:44:19.843412+00:00",
+  "pr": "https://github.com/rhamenator/soundcurrent-daw/pull/71",
+  "head": "c1a371717e606e3c2cbb3327eabaa8b9e58c7ad8",
+  "merge": "a6c099cfa8b888d3e67d0506f515486d96c3962d",
+  "run": 37912006077,
+  "allFourRequiredChecks": "SUCCESS",
+  "protectionBypass": false,
+  "sourceSha256": {
+    "include/soundcurrent/media_copy_protocol.hpp": "7dd520f9a4aa8578cdcb18235a774a3935bacbf6250c3031342426da06ea2faf",
+    "src/media_copy_protocol.cpp": "5fd7fd72c8dcbefbdd48d7c107c45a441cf92782eeb766331db8c30d4741545b",
+    "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
+    "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
+    "ui/import_media_dialog.hpp": "c7f05dc4db564b305b54ba3b532445592451b0bc4883cd11ea750a94309431f9",
+    "ui/import_media_dialog.cpp": "0eb6e39467a8227fd780f1f75b27e11193c7b1fd3f123119db6c5a1e7c8e25d0",
+    "tools/media_import_worker.cpp": "36bae7b8ca43b4d0d41a7072fddc63c1c208a6c985b0b7dbdf2e809f2291562f",
+    "tests/media_copy_controller_tests.cpp": "90ca86c0bd0a7ed8d3c9c45a5a285792d2c06c5963a3516c6e74eb8ca8f99504",
+    "tests/import_media_ui_tests.cpp": "fc36f5685a4336c8999b92b0e3ea8d68d2a09ea68f1ba49ab982a545f89ff22f",
+    "tools/package_linux_preview.py": "29632fa4bb9e392ae17219ae27401aeaf9d43e46987edce0698f42ee185d64ac",
+    "tools/package_windows_preview.py": "c74a9aa6e0d27499ffcc5813cd2e02d5b7b9fd5b9c89300c997bc525341c367e",
+    "tests/windows_package_input_tests.py": "558c64894dd54a0c54e786d4e6bb3e020d5af616848aee2dd3785d2b9a39c11c",
+    "tests/preview_package_tests.py": "4c97b452f2dfa99658c23b7db144360905a8489b671075e2b288ca9c89f316fe",
+    "CMakeLists.txt": "ed9cea7192563a0639549d196b4d96a0ab560d459797b4ff278ff7890b6ba6c3",
+    ".github/workflows/ci.yml": "c47ae7574ff446ac13bd82dd6d4cae17f489acb75691e6b14f378e657d12aff5",
+    "localization/source-inventory.json": "4cfaf4f50ce1dcbd5c8f927c382d304abb6230b1fed2e3007c87dd716f9d2ae4",
+    "localization/catalogs.json": "d0e7d8a6456f3c023e8ebb07647b8c27623daf904e257a35f81f0369dd4902dc"
+  },
+  "evidenceSha256": {
+    "desktop-copy-final-pr.json": "27781c84316b73511382a4924b8c98699d949d49edfe89a9e2b0d7d9bd7239d9",
+    "desktop-copy-final-run.json": "17f90cd086039a6dbed9f88140e34716625d854f8a16b2c252e68b9e2eea57f7",
+    "desktop-copy-final-review-threads.json": "943139ff88c1af523e37f7d36c0473dd9f28cce4bf1753ef237c97bbbd84c2b0",
+    "desktop-copy-final-protection.json": "512b71f165bb8ea361949546be8f4f970bf2c718af007372878f2dc90a706eab",
+    "desktop-copy-final-artifacts.json": "eafad4fc223b45985622ca9ffbe674c4afc3273bcdac4a933dd93f325c1ba334",
+    "desktop-copy-merged.json": "b2c2f7e79237ce4bcbd9a9d8a0ea9d855d1914ff27644b9f9eecd8076a82a23b",
+    "desktop-copy-final-core-artifact.json": "4d8fe03ced72ee73a62fa2d307d09a0c435daaa4bd92d91199c1cf7ca0b25fc8",
+    "desktop-copy-final-core.zip": "032c0f377e00800189f3ae4450f06ee8a0eabe8d1d8940eaf033205e8694cf99",
+    "desktop-copy-final-core-lasttest.log": "3ac7f51a031f4b2df00f4162e41af7f2e5d130e400f0a0cf42f65562f4a700db",
+    "desktop-copy-final-qt-artifact.json": "e9836a7d347db49aeded2124df0f9555305a9442704772ab2d97ff0437d89100",
+    "desktop-copy-final-qt.zip": "a4ea4db54788f76d403bde6a64e152dfbfcc1e36a420b52f1318b73735688e40",
+    "desktop-copy-final-qt-lasttest.log": "eb640eb650092c0ac32f2ab5d7d4c0e79dfa87c27ccc8e7ca77f9b9a5c2165a6",
+    "desktop-copy-final-linux-artifact.json": "9aa81d2ec38c0b4b1d7eb04f88678de871ad86f4637186d776c26b5fc0b806b2",
+    "desktop-copy-final-linux.zip": "b90f0bdc7d62f226fd5578922757386547e670f915839b897fddc4dbe2b45a5a",
+    "desktop-copy-final-linux-lasttest.log": "c5d1cbfe8ba28efcef45f4a0523dd47d8756c3f1f229b80f69668f96f7e0deb8"
+  },
+  "platforms": {
+    "linux": {
+      "selectedTests": 89,
+      "copyControllerChecks": 119,
+      "mediaUIChecks": 74,
+      "localizationChecks": 264
+    },
+    "windowsNativeCore": {
+      "selectedTests": 22,
+      "transactionChecks": 228,
+      "actualWorkflowChecks": 114,
+      "stagingChecks": 152,
+      "stagingActualWorkerChecks": 61
+    },
+    "windowsNativeQt": {
+      "selectedTests": 7,
+      "copyControllerChecks": 119,
+      "mediaControllerChecks": 83,
+      "mediaUIChecks": 74,
+      "importControllerChecks": 80,
+      "importUIChecks": 91,
+      "localizationChecks": 253
+    },
+    "windowsCrossCompile": "no native runtime claim"
+  },
+  "scope": {
+    "vmStarted": false,
+    "audioChanged": false,
+    "equalizerChanged": false,
+    "guiCopy": true,
+    "sessionAdoption": false,
+    "installedPreviewRefresh": false,
+    "publicBinaryRelease": false,
+    "fullParity": false
+  },
+  "nextTask": "Persist original inspection/loss/provenance state, extend destination clip timing/gain/fades/rate/pitch, then conversion preview, one Undo, save/reopen/aligned reference renders and installed preview qualification"
+}

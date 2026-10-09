@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <soundcurrent/session.hpp>
 #include <set>
+#include <filesystem>
 #include <unordered_map>
 #include <unordered_set>
 #ifdef _WIN32
@@ -167,6 +168,44 @@ void validateRelativeMediaPath(std::string_view p) {
     check(p.back() != '/', "Media path must name a file");
     check(p.starts_with("media/"), "Media must reside in the media directory");
 }
+void validateImportedProjectSource(const ImportedProjectSource &source) {
+    PayloadCharge work("Imported source validation indices", 64 * 1024 * 1024);
+    work.add(source.media.size(), 256); // Before constructing uniqueness sets.
+    const auto digest = [](std::string_view value) {
+        check(value.size() == 64 && std::all_of(value.begin(), value.end(), lowerHex),
+              "Invalid imported evidence SHA-256");
+    };
+    check(source.adapterId == "reaper-rpp-properties-v1" ||
+              source.adapterId == "reaper-rpp-outline-v1", "Unsupported import evidence adapter",
+          ErrorCode::UnsupportedSchema);
+    digest(source.sourceSha256);
+    check(source.sourceBytes > 0 && source.sourceBytes <= 16 * 1024 * 1024,
+          "Imported source exceeds preserved-source envelope");
+    const auto prefix = "imports/" + source.id.str() + "/";
+    check(source.inspection.relativePath == prefix + "inspection.scinspect",
+          "Imported inspection path differs from owned identity");
+    digest(source.inspection.sha256);
+    check(source.inspection.bytes >= source.sourceBytes + 96 &&
+              source.inspection.bytes <= 80 * 1024 * 1024 + 96,
+          "Imported inspection extent differs");
+    std::set<std::uint64_t> properties;
+    std::set<std::string_view> operations;
+    for (const auto &media : source.media) {
+        check(media.sourceProperty < 1000000 && properties.insert(media.sourceProperty).second &&
+                  operations.insert(media.operation.str()).second,
+              "Duplicate or out-of-envelope imported media origin");
+        check(media.receipt.relativePath == prefix + media.operation.str() + ".json",
+              "Imported receipt path differs from owned operation");
+        digest(media.receipt.sha256);
+        check(media.receipt.bytes > 0 && media.receipt.bytes <= 16384,
+              "Imported receipt extent differs");
+    }
+}
+std::filesystem::path utf8Path(std::string_view s) {
+    check(validUtf8(s) && s.find('\0') == s.npos, "Invalid UTF-8 path");
+    return std::filesystem::path(
+        std::u8string(reinterpret_cast<const char8_t *>(s.data()), s.size()));
+}
 ParameterDescriptor descriptor(BandParameter p) {
     switch (p) {
     case BandParameter::FrequencyHz:
@@ -248,6 +287,19 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
         string(a.relativePath);
         string(a.sha256);
     }
+    bytes.add(s.imports.capacity(), sizeof(ImportedProjectSource));
+    const auto evidence = [&](const ProjectEvidenceFile &f) {
+        string(f.relativePath); string(f.sha256);
+    };
+    for (const auto &source : s.imports) {
+        id(source.id); string(source.adapterId); string(source.sourceSha256);
+        evidence(source.inspection);
+        bytes.add(source.media.capacity(), sizeof(ImportedMediaOrigin));
+        for (const auto &media : source.media) {
+            string(media.assetId.str()); id(media.operation); evidence(media.receipt);
+            bytes.add(128); // Per-source property uniqueness index.
+        }
+    }
     for (const auto &t : s.tracks) {
         id(t.id);
         id(t.eq.id);
@@ -302,6 +354,14 @@ void validate(const Session &s, StateBudget budget) {
         check(a.frames > 0 && a.sampleRate >= 8000 && a.sampleRate <= 384000,
               "Invalid asset extent/rate");
         assets.emplace(a.id.str(), &a);
+    }
+    for (const auto &source : s.imports) {
+        unique(source.id);
+        validateImportedProjectSource(source);
+        for (const auto &media : source.media) {
+            unique(media.operation);
+            check(assets.contains(media.assetId.str()), "Imported origin refers to missing asset");
+        }
     }
     const auto checkRoute = [&](const RouteIntent &r, std::uint32_t channels) {
         text(r.backendId);
@@ -390,6 +450,15 @@ ValidatedSession::ValidatedSession(const Session &s, StateBudget budget) : sessi
     assets_.reserve(s.assets.size());
     for (const auto &a : s.assets)
         assets_.emplace(a.id.str(), &a);
+    imports_.reserve(s.imports.size());
+    for (const auto &source : s.imports)
+        imports_.emplace(source.id.str(), &source);
+}
+const ImportedProjectSource &ValidatedSession::importedSource(const Id &id) const {
+    const auto found = imports_.find(id.str());
+    if (found == imports_.end())
+        throw ProjectError(ErrorCode::InvalidId, "Unknown imported source");
+    return *found->second;
 }
 const Track &ValidatedSession::track(const Id &id) const {
     const auto found = tracks_.find(id.str());

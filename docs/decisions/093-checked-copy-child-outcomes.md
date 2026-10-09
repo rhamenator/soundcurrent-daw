@@ -1,6 +1,6 @@
 # ADR093: frozen checked copy requests and explicit uncertain outcomes
 
-Status: selected; local desktop qualification, native Windows revision pending.
+Status: selected; Linux/native Windows qualification at PR71 exact head c1a3717.
 Date: 2026-10-09.
 
 | Alternative | Functionality / licensing / maintenance / integration cost | Decision |

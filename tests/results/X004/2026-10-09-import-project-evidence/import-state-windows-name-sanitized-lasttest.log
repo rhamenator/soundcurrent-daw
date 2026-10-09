@@ -1,0 +1,22 @@
+Start testing: Oct 09 06:32 EDT
+----------------------------------------------------------
+64/94 Testing: project-import-state
+64/94 Test: project-import-state
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/project_import_state_workflows.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-inspect-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-project-import-state-tests" "/home/rich/dev/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"project-import-state" start time: Oct 09 06:32 EDT
+Output:
+----------------------------------------------------------
+PASS: 153 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 153 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 153 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 39 independent import-state workflow checks; source/loss/provenance persistence, not conversion parity
+<end of output>
+Test time =   6.63 sec
+----------------------------------------------------------
+Test Passed.
+"project-import-state" end time: Oct 09 06:32 EDT
+"project-import-state" time elapsed: 00:00:06
+----------------------------------------------------------
+
+End testing: Oct 09 06:32 EDT

@@ -334,3 +334,13 @@ Actual occurrence/hash/PID/byte and interruption checks support that bounded
 workflow; they do not qualify semantic source-suite conversion or promote F/Q/C/N
 status. Original/loss persistence, extended clip semantics, preview/Undo/reopen
 and aligned reference renders remain required across the adapter register.
+
+### X004 original-state persistence increment
+
+[Checkpoint128](128-portable-import-project-evidence.md) supplies portable
+original inspection/loss and per-asset occurrence provenance with full Save/reopen
+verification. Preservation is distinct from destination semantics and native
+compatibility; F/Q/C/N rows remain unpromoted. Complete destination clip semantics,
+explicit mapping/loss acceptance, one Undo and aligned reference renders next.
+All native/exchange suite families and independent platform/install/Europe gates
+remain required.

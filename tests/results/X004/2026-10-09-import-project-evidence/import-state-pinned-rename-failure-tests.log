@@ -1,0 +1,48 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+      Start  2: desktop-media-copy-controller
+ 1/12 Test  #2: desktop-media-copy-controller ....   Passed    1.60 sec
+      Start  4: desktop-import-media-ui
+ 2/12 Test  #4: desktop-import-media-ui ..........   Passed    0.86 sec
+      Start  6: desktop-import-ui
+ 3/12 Test  #6: desktop-import-ui ................   Passed    0.48 sec
+      Start  7: desktop-localization
+ 4/12 Test  #7: desktop-localization .............   Passed    0.66 sec
+      Start 40: inspection-bundle
+ 5/12 Test #40: inspection-bundle ................   Passed    0.01 sec
+      Start 48: resource-ledger
+ 6/12 Test #48: resource-ledger ..................   Passed    0.11 sec
+      Start 49: session-state
+ 7/12 Test #49: session-state ....................   Passed    0.04 sec
+      Start 50: project-routing
+ 8/12 Test #50: project-routing ..................   Passed    0.02 sec
+      Start 52: multitrack-edits
+ 9/12 Test #52: multitrack-edits .................   Passed    0.34 sec
+      Start 53: project-monitoring
+10/12 Test #53: project-monitoring ...............   Passed    0.01 sec
+      Start 64: project-import-state
+11/12 Test #64: project-import-state .............***Failed    0.29 sec
+Traceback (most recent call last):
+  File "/home/rich/dev/soundcurrent-daw/tests/project_import_state_workflows.py", line 87, in <module>
+    case(root / "synthetic", source, wave)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rich/dev/soundcurrent-daw/tests/project_import_state_workflows.py", line 48, in case
+    check(result.returncode == 0, "Actual project state workflow failed: "
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          + result.stderr.decode(errors="replace")[:2048])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rich/dev/soundcurrent-daw/tests/project_import_state_workflows.py", line 22, in check
+    assert ok, why
+           ^^
+AssertionError: Actual project state workflow failed: Approved media changed during reading
+
+
+      Start 84: offline-export
+12/12 Test #84: offline-export ...................   Passed    2.67 sec
+
+92% tests passed, 1 tests failed out of 12
+
+Total Test time (real) =   7.10 sec
+
+The following tests FAILED:
+	 64 - project-import-state (Failed)
+Errors while running CTest

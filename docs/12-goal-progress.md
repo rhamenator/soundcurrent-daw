@@ -3467,3 +3467,17 @@ No Session conversion, frozen F/Q/C/N completion or reviewed language is inferre
 Next preserve source/loss state and destination semantic clip controls, then
 conversion preview/one Undo/Save-reopen/aligned renders and installed previews.
 The full goal remains active and incomplete.
+
+## 2026-10-09: original import state survives owned project persistence
+
+Previous turn was progress: PR71 merged exact head c1a3717 through unchanged
+protection, with89 Linux,22 native Windows core and7 native Windows Qt tests.
+Desktop checked copying/recovery is qualified at that revision; no Session adoption.
+
+This increment implements [portable original/loss/provenance state](128-portable-import-project-evidence.md)
+in schema1.8, full Save/reopen verification, pinned bundle authority and indexed
+source/asset lookup. Actual synthetic/known-writer tests cover independent bytes,
+source absence/relocation, backup/history, malformed/planned evidence, refusal
+before mutation and ownership. Native Windows and installed preview qualification
+are recorded separately. Full goal remains active and incomplete. Next: extended
+destination clip semantics and approved conversion/loss/Undo/aligned render flows.

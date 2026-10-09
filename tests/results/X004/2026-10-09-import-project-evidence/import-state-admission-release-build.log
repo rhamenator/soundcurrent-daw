@@ -1,0 +1,22 @@
+[1/22] Building CXX object CMakeFiles/sc-project-import-state.dir/src/project_import_state.cpp.o
+[2/22] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.o
+[3/22] Linking CXX static library libsc-session.a
+[4/22] Linking CXX static library libsc-project-import-state.a
+[5/22] Linking CXX executable sc-media-import-worker
+[6/22] Linking CXX executable sc-approved-wave-probe
+[7/22] Linking CXX executable sc-import-inspect-worker
+[8/22] Linking CXX executable sc-media-copy-lifecycle-probe
+[9/22] Linking CXX executable soundcurrent-daw
+[10/22] Linking CXX executable sc-media-copy-controller-tests
+[11/22] Linking CXX executable sc-import-media-ui-tests
+[12/22] Linking CXX executable sc-import-ui-tests
+[13/22] Linking CXX executable sc-localization-tests
+[14/22] Linking CXX executable sc-inspection-bundle-tests
+[15/22] Linking CXX executable sc-session-tests
+[16/22] Linking CXX executable sc-resource-ledger-tests
+[17/22] Linking CXX executable sc-routing-tests
+[18/22] Linking CXX executable sc-editing-tests
+[19/22] Linking CXX executable sc-monitoring-tests
+[20/22] Linking CXX executable sc-export-tests
+[21/22] Building CXX object CMakeFiles/sc-project-import-state-tests.dir/tests/project_import_state_tests.cpp.o
+[22/22] Linking CXX executable sc-project-import-state-tests
