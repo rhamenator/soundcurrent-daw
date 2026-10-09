@@ -244,3 +244,11 @@ installer builders now require the media checker from matching qualified inputs;
 Linux dependency scanning covers all installed executables. Native process receipt
 checks and separate runtime/install qualification are integration costs. Declared
 child work credit is not OS memory/CPU containment or full security isolation.
+
+## Verified staging (2026-10-09)
+
+[ADR091](decisions/091-owned-media-staging.md) selects original GPL handle-relative
+copying, private reuse of the unchanged SHA-256 helper and existing OpenSSL/BCrypt.
+No new runtime dependency or equalizer change. Native APIs, directory authority/
+durability, payload versus OS limits, storage failure qualification and later
+provenance/recovery/publication are integration costs; see checkpoint125.

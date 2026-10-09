@@ -309,3 +309,12 @@ PR67 final head passes native20,503 WAV/64 CLI checks; that prerequisite is not
 qualification of this new GUI/report code. Transactional copying, semantic mapping,
 loss review, Undo/reopen, independently aligned renders and broader formats remain
 required. No functional/quality/content/native family has been promoted to parity.
+
+## X004-MEDIA-004 staging prerequisite (2026-10-09)
+
+[Checkpoint125](125-verified-media-staging.md): checked source → exclusive UUID
+staging → bounded copy/flush/same-handle checksum readback → final source check.
+Linux/core/actual-child evidence is separate from pending native Windows execution.
+No completed asset, durable provenance, project conversion, Undo/reopen or render
+equivalence is claimed; those remain acceptance gates. No frozen F/Q/C/N family
+is promoted to parity. PR68 final protected native GUI evidence is now retained.

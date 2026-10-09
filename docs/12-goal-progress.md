@@ -3423,3 +3423,18 @@ is714 keys across34 draft catalogs; no reviewed/full-European claim. No local VM
 user audio route, equalizer checkout, installed preview or public binary release
 changed. Next: verified transactional copying, destination semantics/loss preview
 and Undo/reopen/aligned renders. Full frozen F/Q/C/N goal stays active/incomplete.
+
+## Verified partial media staging checkpoint (2026-10-09)
+
+The previous goal turn was progress: explicit desktop media choices, native compile
+repair and viewport correction. PR68 mergedf783684 after finala99576e passes all
+four required contexts; exact final native/Linux receipts are retained here.
+This turn implements original bounded handle-relative byte staging and an actual
+development worker, with fresh source hashes, flush/readback, retained native
+ownership, cooperative cancellation and no overwrite/removal/project mutation.
+Linux Release163/actual-worker61 checks and focused ASan/UBSan pass; MinGW compiles.
+New native Windows execution remains pending. See checkpoint125/ADR091. No local
+VM/audio/equalizer/installed preview/public binary release changed. Next: durable
+versioned provenance/occurrence binding and exclusive commit/recovery, then desktop
+conversion/loss/Undo/reopen/aligned renders and installed previews. Full frozen
+Linux/Windows/Europe/F/Q/C/N goal remains active and incomplete.

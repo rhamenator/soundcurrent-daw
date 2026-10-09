@@ -134,3 +134,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native Windows desktop import/localization gate](121-windows-import-ui-gate.md)
 
 - [Approved media folder/file handles](122-approved-media-roots.md)
+
+- [Verified owned media staging foundation](125-verified-media-staging.md)

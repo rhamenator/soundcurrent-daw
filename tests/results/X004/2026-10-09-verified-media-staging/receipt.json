@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-09T07:31:46.238733+00:00",
+  "baseMerge": "f783684e06e6b53f0a48c96dc95e6c58cc35450c",
+  "sourceSha256": {
+    "include/soundcurrent/media_staging.hpp": "5beeaffe570f969b134d4a43e301fb7758ac3ce4926dc3171c44e8e96edae54b",
+    "src/media_staging.cpp": "03f57f27a8e3bdf9d79b9032e029738181f0d2fc5b6f11d4c9d7257187045016",
+    "src/media_hash.hpp": "8e9b4aa16d094d00525bf36d945ba9fc677c60a1b24bd878d5fd3924dec534bf",
+    "src/approved_media.cpp": "605bcd61f2a8b1f57db2fdfa7883d1b17bf31693dd788537f76929b05f08ae97",
+    "tools/media_stage_worker.cpp": "d7a39876b16f70a4a58a1e76863d95316f50b45ce0db396974a7293b5c87d213",
+    "tests/media_staging_tests.cpp": "f94e23600072c1a88e2f06c30acc7191d079c2bca9c08b5b76e6d33392570cdc",
+    "tests/media_stage_worker_tests.py": "4b8bac860de733e6ab8c77d74420ce81441f33581f9d35b6681a4d8c42b6ef56",
+    "CMakeLists.txt": "b34b5455ed8b3c1036df5613a9f62d62c4d7f352a8dd8a4a0a1787c28662fe31",
+    ".github/workflows/ci.yml": "01c7b59c07472d113a7c536f3c237e08f24baeba4889d1a8807f060ce811dff3"
+  },
+  "evidenceSha256": {
+    "import-media-final-core-artifact.json": "1e41b83d889ca8494da6cba05ec3258868cdba20d85502ad964e3ad7b5e06e45",
+    "import-media-final-core-lasttest.log": "e7344469355fd2b00be997a5abe3c3eef4b988936c7d7e54822d94f0a0a84e74",
+    "import-media-final-core.zip": "3b7a70d7ed79533f4053585fdd8996ae35d884e271897255fc62fab4f65444ef",
+    "import-media-final-linux-artifact.json": "7eb5767ac012fe692d14941544094d707e2ef72ba6d114a2e7fb98a5d16df9cc",
+    "import-media-final-linux-lasttest.log": "3fe2c5b67b05fbea9f7d3af31ba1f68a6ab62e74341663e36c139bb235d136ee",
+    "import-media-final-linux.zip": "705794d562a622621d7e7e00aea8f5cfb58dcbc7e648b3db72f4684bae3b99a9",
+    "import-media-final-pr.json": "43d9cb6be5430e4c9f149013d9895f2a07d2db161d75f029e892b205fc28e464",
+    "import-media-final-qt-artifact.json": "efcd9babc4924194d035cd9e2c885d4a6f6911f2ef8025c990e9b5bc8b8fb767",
+    "import-media-final-qt-lasttest.log": "97d7ee235089429b832784d6ce515da533d1112e9aa55f0f1b91920e9ffd818c",
+    "import-media-final-qt.zip": "12255d3bf28c71adaa53da37da1b854d1f8b4d00b277bc50ee17dab2bf76d0b8",
+    "import-media-final-qualified-receipt.json": "369834366f0cc76e5120a52d712d5ef0618e0e2a987d03e2fdf23b28b8ed1c6b",
+    "import-media-final-review-threads.json": "62cf4a2a96701dd234684b3ab49f9a68f28dd80998835f4866a381eeb07210c6",
+    "import-media-final-run.json": "b053a3dd7f1840adb2d046223afff9a7ae97dc81ef5505aa9bf2577069de8f20",
+    "import-media-merged.json": "89d655cf293e2c3eeaa4b54bda03c4586a13a275060d574281549fb7f995f536",
+    "staging-build-mingw.log": "b20d194ab3bd2b15f5eeea36965599ed58617442e33148ab8efd8629e8357d8a",
+    "staging-build-release.log": "f2c384c275a5e463c5918b12295386461629deb958b06ec958ce39d8f4e4cc31",
+    "staging-build-sanitized.log": "14a2db02651277015592df83f17125a2299f6ce71a5971a49c412c515cfcf3f4",
+    "staging-release-first-decoder-assertion-failure.log": "267b539b6634dbafb55e7696efad48a706161fd0062e6e48ac8259255812a6ff",
+    "staging-release-lasttest.log": "6d83a503c556aa8b591bda806d64fba49ef0cd0f4fac7fddde501c52eeacaa86",
+    "staging-release-tests.log": "858521ced6196180272ef689d7b9eeb2ccaf1e5ced000277d94a5d3e6b77240d",
+    "staging-sanitized-lasttest.log": "56000e6450d84c270b18c3a414c22ba7ae1cd36294402a1d45291b570816736e",
+    "staging-sanitized-tests.log": "a91cad9bb23f55a74cb57369a7258d737d80b081fb20177de44c4900722a3c4b"
+  },
+  "local": {
+    "releaseSelectedTests": 5,
+    "sanitizedSelectedTests": 3,
+    "leakDetection": false,
+    "stagingChecks": 163,
+    "actualWorkerChecks": 61,
+    "crossCompileOnly": true
+  },
+  "scope": {
+    "localVmStarted": false,
+    "audioRouteChanged": false,
+    "equalizerChanged": false,
+    "installedWorker": false,
+    "publishedAsset": false,
+    "projectConversion": false,
+    "durableProvenance": false,
+    "publicBinaryRelease": false,
+    "fullParity": false
+  },
+  "nativeWindowsNewRevision": "pending protected CI"
+}

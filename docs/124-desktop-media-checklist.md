@@ -118,3 +118,14 @@ four-button action row is changed to a two-column grid in both dialogs; the medi
 UI now also asserts that its window fits the available display. The original
 failed archive/artifact metadata/job log and scoped Linux layout gates remain
 separate from the corrected native qualification, which is still pending.
+
+## Final protected native qualification
+
+Final heada99576e5a7c97cabab05e0f7e97ecafc798226c0, run37896975094 passes all four
+required contexts, and PR68 merges f783684e06e6b53f0a48c96dc95e6c58cc35450c without
+bypass. Native Windows controller83/media UI46/inspector UI91/localization243 and
+six selected desktop tests pass; native core169/WAVE20,503/CLI64 also pass. Final
+metadata/digest-verified archives/logs are retained in the following
+`tests/results/X004/2026-10-09-verified-media-staging/` checkpoint. Earlier failed
+native cohorts remain separate. This qualifies offscreen app/checker behavior,
+not installed operation, reviewed languages, source-project conversion or parity.

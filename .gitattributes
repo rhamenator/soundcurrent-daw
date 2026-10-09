@@ -31,3 +31,5 @@ CMakeLists.txt text eol=lf
 /tests/results/X004/2026-10-09-pinned-wave-validation/*.log -text whitespace=-blank-at-eol,cr-at-eol
 
 /tests/results/X004/2026-10-09-desktop-media-checklist/*.log -text whitespace=-blank-at-eol,cr-at-eol
+
+/tests/results/X004/2026-10-09-verified-media-staging/*.log -text whitespace=-blank-at-eol,cr-at-eol

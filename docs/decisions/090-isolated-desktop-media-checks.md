@@ -1,6 +1,7 @@
 # ADR090: explicit media choices and an isolated checker
 
-Status: selected; local Linux qualification, new native Windows gate pending.
+Status: selected; Linux and protected native Windows offscreen qualification
+complete for final PR68 head; installed/conversion/full-parity gates remain open.
 Date: 2026-10-09.
 
 | Route | Functionality, license and integration cost | Decision |
