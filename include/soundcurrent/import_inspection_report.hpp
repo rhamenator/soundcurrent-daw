@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "foreign_snapshot.hpp"
-#include "reaper_structure.hpp"
+#include "reaper_import.hpp"
 
 namespace soundcurrent::daw {
 // One admitted encoded bank. Parameter/exception retirement destroys bytes
@@ -34,8 +34,13 @@ class ImportInspectionReport {
     std::string_view sha256() const noexcept { return {sha_.data(),sha_.size()}; }
     std::size_t root() const noexcept { return root_; }
     std::size_t workerPid() const noexcept { return pid_; }
+    bool hasProperties() const noexcept { return propertiesVersion_==1; }
+    std::span<const ImportObject> objects() const noexcept { return objects_; }
+    std::span<const ImportProperty> properties() const noexcept { return properties_; }
+    std::span<const ImportLineEvidence> lineEvidence() const noexcept { return evidence_; }
     std::size_t chargedBytes() const noexcept { return lease_.bytes()+source_.chargedBytes()+protocol_.chargedBytes(); }
   private:
+    friend struct InspectionPropertyDecoder;
     friend ImportInspectionReport decodeInspectionReport(OwnedInspectionProtocol, ForeignSnapshot &&,
         std::array<char,64>, std::size_t, ResourceLedger, ResourceLease, ResourceLease, std::stop_token);
     ImportInspectionReport(ResourceLease lease, ForeignSnapshot &&source, OwnedInspectionProtocol protocol)
@@ -44,11 +49,17 @@ class ImportInspectionReport {
     ForeignSnapshot source_;
     OwnedInspectionProtocol protocol_;
     std::vector<ReaperStructureNode> nodes_;
+    std::vector<ImportObject> objects_;
+    std::vector<ImportProperty> properties_;
+    std::vector<ImportLineEvidence> evidence_;
     std::array<char,64> sha_{};
     std::size_t root_ = 0, pid_ = 0;
+    unsigned propertiesVersion_ = 0;
 };
 std::size_t foreignSnapshotLines(std::string_view, std::stop_token = {});
-std::size_t inspectionRowsCharge(std::size_t lines);
+std::size_t inspectionRowsCharge(std::size_t lines, bool properties = false);
+// Conservative admission hint only; the complete decoder still checks schema.
+bool inspectionProtocolHasProperties(std::string_view) noexcept;
 inline constexpr std::size_t inspectionDecoderExpansion = 32;
 std::size_t inspectionParserCharge(std::size_t encodedBytes);
 std::size_t inspectionProtocolCharge(std::size_t encodedBytes);

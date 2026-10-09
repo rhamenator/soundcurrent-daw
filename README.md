@@ -280,3 +280,8 @@ reusable. No dual-license rights are implied.
 GitHub backs up tracked source, history, documentation and committed receipts.
 Build caches, local recordings and ignored failure executables/media are excluded;
 back those up separately if needed. [Windows copy and backup instructions](docs/57-repository-backup.md).
+
+The development [foreign-project inspection](docs/120-import-property-preview.md)
+shows original REAPER property values and preserved source lines, including
+missing/unsupported state. Saved inspections reopen without the original file;
+importing their audio into a destination project remains under development.

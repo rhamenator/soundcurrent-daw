@@ -128,3 +128,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Frozen original native-writer import corpus](118-native-writer-import-corpus.md)
 
 - [Owned import intermediate properties and loss evidence](119-import-intermediate-properties.md)
+
+- [Source-property inspection preview and independent validation](120-import-property-preview.md)

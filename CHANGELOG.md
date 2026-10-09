@@ -8,6 +8,12 @@
 
 ## Unreleased — development preview
 
+- REAPER inspection now shows original properties and source lines in separate
+  tabs, including distinct gain layers and explicit missing/unsupported state.
+  Versioned reports receive independent shape/token/ownership validation. Saved
+  inspections retain properties, and older outline-only files still reopen.
+  Destination project conversion and native/render equivalence remain open.
+
 - Owned C++ import intermediate model preserves original track/item scalar values,
   Unicode byte tokens and opaque state with explicit missing, duplicate, ambiguous
   and unsupported evidence. Source gain layers remain separate. Property preview

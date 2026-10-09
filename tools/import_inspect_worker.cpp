@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Separate-process inspection protocol; never linked into an audio callback.
-#include <soundcurrent/reaper_structure.hpp>
+#include <soundcurrent/reaper_import.hpp>
 #include <soundcurrent/foreign_snapshot.hpp>
 #include <algorithm>
 #include <array>
@@ -63,13 +63,19 @@ class Chunk {
     Chunk &range(ForeignByteRange range) {
         return text("[").number(range.begin).text(",").number(range.length).text("]");
     }
+    Chunk &real(double value) {
+        const auto result=std::to_chars(bytes_.data()+length_,bytes_.data()+bytes_.size(),value,
+                                       std::chars_format::general,std::numeric_limits<double>::max_digits10);
+        require(result.ec==std::errc{},"Report scalar exceeds fixed bank",ErrorCode::InvalidState);
+        length_=static_cast<std::size_t>(result.ptr-bytes_.data()); return *this;
+    }
     std::string_view bytes() const noexcept { return {bytes_.data(), length_}; }
   private:
     std::array<char, 2048> bytes_{};
     std::size_t length_ = 0;
 };
 void report(const ReaperStructure &doc, std::string_view hash, std::size_t maximum,
-            std::ostream *output, std::stop_source &stop) {
+            std::ostream *output, std::stop_source &stop, const ReaperImportPreview *preview=nullptr) {
     PayloadCharge charge("Import report bytes", maximum);
     auto put = [&](std::string_view bytes) {
         poll(stop);
@@ -84,7 +90,10 @@ void report(const ReaperStructure &doc, std::string_view hash, std::size_t maxim
 #else
     const auto pid = static_cast<std::size_t>(getpid());
 #endif
-    const auto header = Chunk{}.text("{\"protocol\":\"sc-import-inspection-v1\",\"adapter\":\"rpp-outline-v1\","
+    const auto header = Chunk{}.text(preview ?
+        "{\"protocol\":\"sc-import-inspection-v2\",\"adapter\":\"rpp-source-properties-v1\"," :
+        "{\"protocol\":\"sc-import-inspection-v1\",\"adapter\":\"rpp-outline-v1\",")
+        .text(
         "\"sourceFormat\":\"reaper-rpp\",\"workerPid\":").number(pid)
         .text(",\"source\":{\"bytes\":").number(doc.source().size()).text(",\"sha256\":\"").text(hash)
         .text("\",\"storage\":\"worker-memory-snapshot\",\"consistency\":\"size-and-mtime-checked-not-atomic\"},"
@@ -111,7 +120,40 @@ void report(const ReaperStructure &doc, std::string_view hash, std::size_t maxim
             .text(",\"status\":\"unverified\",\"originalBytesRetained\":true}");
         put(row.bytes());
     }
-    put("],\"complete\":true}\n");
+    put("]");
+    if (preview) {
+        put(",\"preview\":{\"schema\":1,\"objects\":[");
+        for (std::size_t i=0;i<preview->objects().size();++i) {
+            const auto &o=preview->objects()[i];
+            auto row=Chunk{}.text(i ? ",{\"index\":" : "{\"index\":").number(i)
+                .text(",\"node\":").number(o.node).text(",\"parent\":");
+            if (o.parent==ReaperStructureNode::noParent) row.text("null"); else row.number(o.parent);
+            row.text(",\"kind\":").number(static_cast<unsigned>(o.kind))
+                .text(",\"sourceType\":").range(o.sourceType)
+                .text(",\"singleTake\":").text(o.singleTake ? "true}" : "false}"); put(row.bytes());
+        }
+        put("],\"properties\":[");
+        for (std::size_t i=0;i<preview->properties().size();++i) {
+            const auto &p=preview->properties()[i];
+            auto row=Chunk{}.text(i ? ",{\"object\":" : "{\"object\":").number(p.object).text(",\"node\":");
+            if (p.node==ReaperStructureNode::noParent) row.text("null"); else row.number(p.node);
+            row.text(",\"id\":").number(static_cast<unsigned>(p.id))
+                .text(",\"kind\":").number(static_cast<unsigned>(p.kind))
+                .text(",\"status\":").number(static_cast<unsigned>(p.status))
+                .text(",\"reason\":").number(static_cast<unsigned>(p.reason))
+                .text(",\"valueRange\":").range(p.value).text(",\"number\":");
+            if (p.kind==ImportValueKind::Number) row.real(p.number); else row.text("null");
+            row.text("}"); put(row.bytes());
+        }
+        put("],\"lines\":[");
+        for (std::size_t i=0;i<preview->lines().size();++i) {
+            const auto &e=preview->lines()[i];
+            put(Chunk{}.text(i ? ",[" : "[").number(static_cast<unsigned>(e.status))
+                .text(",").number(static_cast<unsigned>(e.reason)).text("]").bytes());
+        }
+        put("]}");
+    }
+    put(",\"complete\":true}\n");
     if (output) { output->flush(); require(bool(*output), "Import report flush failed"); }
 }
 std::string_view errorId(ErrorCode code) noexcept {
@@ -126,7 +168,7 @@ std::string_view errorId(ErrorCode code) noexcept {
 }
 int run(const std::vector<std::string> &args) {
     try {
-        require(args.size() >= 3 && args[1] == "--rpp" && (args.size()-3)%2 == 0,
+        require(args.size() >= 3 && (args[1] == "--rpp" || args[1] == "--rpp-properties") && (args.size()-3)%2 == 0,
                 "Expected selected RPP and trusted limits", ErrorCode::InvalidParameter);
         ReaperStructureLimits limits;
         std::size_t memory = 64*1024*1024, reportBytes = 64*1024*1024;
@@ -154,8 +196,18 @@ int run(const std::vector<std::string> &args) {
         auto reportCredit = resources.reserve(sizeof(Chunk)+4096);
         const auto path = std::filesystem::path(std::u8string(
             reinterpret_cast<const char8_t *>(args[2].data()), args[2].size()));
+        const bool properties=args[1]=="--rpp-properties";
+        auto source = readForeignSnapshot(path,limits.maximumInputBytes,resources,stop.get_token());
+        if (properties) {
+            ReaperImportLimits mapping; mapping.structure=limits;
+            auto preview=inspectReaperImport(source.bytes(),mapping,resources,stop.get_token());
+            const auto hash=hashForeignSnapshot(preview.structure().source(),resources,stop.get_token());
+            const std::string_view digest(hash.data(),hash.size());
+            report(preview.structure(),digest,reportBytes,nullptr,stop,&preview);
+            report(preview.structure(),digest,reportBytes,&std::cout,stop,&preview);
+            return 0;
+        }
         auto doc = [&] {
-            auto source = readForeignSnapshot(path,limits.maximumInputBytes,resources,stop.get_token());
             return inspectReaperStructure(source.bytes(),limits,resources,stop.get_token());
         }();
         const auto hash = hashForeignSnapshot(doc.source(), resources, stop.get_token());

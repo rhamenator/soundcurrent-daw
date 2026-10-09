@@ -19,3 +19,5 @@ CMakeLists.txt text eol=lf
 # Exact native-writer bytes, including their original CRLF endings.
 /tests/fixtures/reaper-7.82/*.rpp -text whitespace=cr-at-eol
 /tests/fixtures/reaper-7.82/projects/*.rpp -text whitespace=cr-at-eol
+# Preserve generated evidence logs exactly, including CRLF and trailing spaces.
+/tests/results/X004/2026-10-09-property-preview/*.log -text whitespace=-blank-at-eol,cr-at-eol
