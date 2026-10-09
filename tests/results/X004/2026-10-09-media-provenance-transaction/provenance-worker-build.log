@@ -1,0 +1,21 @@
+[0/1] Re-running CMake...
+-- Configuring done (4.0s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/11] Building CXX object CMakeFiles/sc-media-staging.dir/src/media_staging.cpp.o
+[2/11] Building CXX object CMakeFiles/sc-media-recovery.dir/src/media_recovery.cpp.o
+[3/11] Building CXX object CMakeFiles/sc-media-provenance.dir/src/media_provenance.cpp.o
+[4/11] Linking CXX static library libsc-media-provenance.a
+[5/11] Linking CXX static library libsc-media-staging.a
+[6/11] Linking CXX static library libsc-media-recovery.a
+[7/11] Linking CXX executable sc-media-stage-worker
+[8/11] Linking CXX executable sc-media-staging-tests
+[9/11] Building CXX object CMakeFiles/sc-media-import-worker.dir/tools/media_import_worker.cpp.o
+/home/rich/dev/soundcurrent-daw/tools/media_import_worker.cpp: In function ‘uint64_t {anonymous}::number(std::string_view)’:
+/home/rich/dev/soundcurrent-daw/tools/media_import_worker.cpp:25:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   25 |     if (result.ec!=std::errc{} || result.ptr!=s.data()+s.size()) throw ProjectError(ErrorCode::InvalidParameter,"Invalid media transaction number");return n;
+      |     ^~
+/home/rich/dev/soundcurrent-daw/tools/media_import_worker.cpp:25:149: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   25 |     if (result.ec!=std::errc{} || result.ptr!=s.data()+s.size()) throw ProjectError(ErrorCode::InvalidParameter,"Invalid media transaction number");return n;
+      |                                                                                                                                                     ^~~~~~
+[10/11] Linking CXX executable sc-media-import-worker

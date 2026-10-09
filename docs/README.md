@@ -136,3 +136,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Approved media folder/file handles](122-approved-media-roots.md)
 
 - [Verified owned media staging foundation](125-verified-media-staging.md)
+
+- [Owned media provenance, publication and interruption recovery](126-media-provenance-transaction.md)

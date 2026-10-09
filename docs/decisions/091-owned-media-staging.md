@@ -1,6 +1,7 @@
 # ADR091: verified owned media staging before project conversion
 
-Status: selected; Linux qualification, new native Windows execution pending.
+Status: selected; Linux and protected native Windows byte-staging qualification
+complete for PR69; publication/recovery/installed/full-parity gates tracked separately.
 Date: 2026-10-09.
 
 | Alternative | Functionality, license, maintenance and cost | Decision |

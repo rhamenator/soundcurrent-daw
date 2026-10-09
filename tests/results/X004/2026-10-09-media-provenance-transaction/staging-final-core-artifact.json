@@ -1,0 +1,20 @@
+{
+  "id": 11602357344,
+  "node_id": "MDg6QXJ0aWZhY3QxMTYwMjM1NzM0NA==",
+  "name": "windows-native-packet-unit-log",
+  "size_in_bytes": 3785,
+  "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11602357344",
+  "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11602357344/zip",
+  "expired": false,
+  "digest": "sha256:9b38824210744ae62d028e20ff1285a3fffc5fce23291108492d90d4c5e8925a",
+  "created_at": "2026-10-09T07:46:55Z",
+  "updated_at": "2026-10-09T07:46:55Z",
+  "expires_at": "2027-01-07T07:42:19Z",
+  "workflow_run": {
+    "id": 37900548308,
+    "repository_id": 1407894149,
+    "head_repository_id": 1407894149,
+    "head_branch": "codex/verified-media-staging",
+    "head_sha": "0b5e1291171b772d3c3eddf9350e457214a35393"
+  }
+}

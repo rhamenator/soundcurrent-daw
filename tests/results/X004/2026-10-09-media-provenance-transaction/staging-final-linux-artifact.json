@@ -1,0 +1,20 @@
+{
+  "id": 11602407600,
+  "node_id": "MDg6QXJ0aWZhY3QxMTYwMjQwNzYwMA==",
+  "name": "linux-synthetic-test-log",
+  "size_in_bytes": 12586,
+  "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11602407600",
+  "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11602407600/zip",
+  "expired": false,
+  "digest": "sha256:5db3a8afcda08fc91281656203b53228df9ca6d6bdce87e4d03536b9b5ae8cc0",
+  "created_at": "2026-10-09T07:48:22Z",
+  "updated_at": "2026-10-09T07:48:22Z",
+  "expires_at": "2027-01-07T07:42:19Z",
+  "workflow_run": {
+    "id": 37900548308,
+    "repository_id": 1407894149,
+    "head_repository_id": 1407894149,
+    "head_branch": "codex/verified-media-staging",
+    "head_sha": "0b5e1291171b772d3c3eddf9350e457214a35393"
+  }
+}

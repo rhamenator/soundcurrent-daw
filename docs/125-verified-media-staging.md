@@ -122,3 +122,15 @@ changed, and the original failure is not erased or reported as passing. Scoped
 Release and sanitized staging tests pass; new native qualification is pending.
 The initial receipt/source hashes describe the first revision; the separate
 warm-oracle receipt hashes the changed test and follow-up logs.
+
+## Final protected native qualification
+
+Final head0b5e1291171b772d3c3eddf9350e457214a35393, run37900548308 passes all four
+required contexts and PR69 merges937f83b57a0c889c09f5d7faafa58f552a30fdc8 without
+bypass. Native staging152/actual child61 checks pass, with the warm-up process
+handle count86 ->87 and strict subsequent +3/retirement assertions intact. The
+first retained handle's source is not independently attributed. Native root169,
+WAVE20,503/CLI64 and Qt controller83/media UI46/inspector UI91/localization252 also
+pass. Exact final metadata/digest-verified archives/logs are retained in the following
+checkpoint126 evidence folder; earlier failure stays separate. This qualifies
+local byte staging, not new publication/recovery, installed workflows or parity.

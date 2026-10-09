@@ -138,3 +138,13 @@ missing/duplicate/unsupported evidence and original references survive. Linux
 checks are distinct from new native Windows/installed gates. Next: verified
 transactional copying/new-project semantic state, loss preview, Undo/reopen and
 aligned renders. All registered formats and frozen parity contracts remain open.
+
+## Bound staging publication checkpoint (2026-10-09)
+
+[Checkpoint126](126-media-provenance-transaction.md) records exact original
+occurrence/selection evidence, planned intent, exclusive verified media receipt
+and source-free full decoded/hash recovery. Original known-writer files remain
+unchanged. This is media publication, not project/session semantic conversion,
+multi-file atomicity, Undo/render equivalence or full native compatibility.
+Desktop copy/recovery, destination semantic state, loss review, installed previews
+and every registered native/exchange adapter remain required.

@@ -600,3 +600,14 @@ occurrence/format/replacement provenance → exclusive commit + interrupted-job
 recovery → desktop owned copy lifecycle → extended destination semantics/loss review
 → Undo/reopen/aligned renders → installed preview pairs. Staging alone publishes no
 Session asset. Native/storage/OS-containment/format/Europe gates remain required.
+
+## X004 provenance/publication/recovery increment (2026-10-09)
+
+Checkpoint126 binds original occurrence/selection/checked bytes, writes planned
+intent, exclusively publishes a verified receipt and reopens owned data after
+interruption without source approval. Next: frozen checked-row child request with
+explicit destination and terminal deadline/cancellation → commit/planned/recovery
+UI → persistent original/loss state + destination gain/fade/rate/pitch/timing →
+conversion preview/Undo/reopen/aligned renders → installed preview pairs.
+Multi-file/project atomicity, broader media/native/exchange families, Windows/
+storage/OS-containment/Europe and full frozen parity gates stay required.

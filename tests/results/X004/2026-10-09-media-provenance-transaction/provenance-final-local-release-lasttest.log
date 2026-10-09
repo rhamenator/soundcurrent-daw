@@ -1,0 +1,20 @@
+Start testing: Oct 09 04:36 EDT
+----------------------------------------------------------
+63/92 Testing: media-provenance-transaction
+63/92 Test: media-provenance-transaction
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/media_transaction_workflows.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-inspect-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-media-import-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-media-transaction-tests" "/home/rich/dev/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"media-provenance-transaction" start time: Oct 09 04:36 EDT
+Output:
+----------------------------------------------------------
+Passed 252 media transaction checks
+Passed 114 actual media transaction workflow checks
+<end of output>
+Test time =   0.53 sec
+----------------------------------------------------------
+Test Passed.
+"media-provenance-transaction" end time: Oct 09 04:36 EDT
+"media-provenance-transaction" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 09 04:36 EDT

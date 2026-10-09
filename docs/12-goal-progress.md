@@ -3438,3 +3438,19 @@ VM/audio/equalizer/installed preview/public binary release changed. Next: durabl
 versioned provenance/occurrence binding and exclusive commit/recovery, then desktop
 conversion/loss/Undo/reopen/aligned renders and installed previews. Full frozen
 Linux/Windows/Europe/F/Q/C/N goal remains active and incomplete.
+
+## Media provenance transaction checkpoint (2026-10-09)
+
+The previous goal turn was progress: verified byte staging with an actual worker,
+native ownership-oracle repair and protected PR69 merge937f83b after exact0b5e129
+passes all four contexts. Its final native152/child61 receipts are retained here.
+This turn binds original source/selection evidence, writes a planned intent before
+copy, exclusively publishes a verified receipt and reopens/re-decodes only owned
+media. Linux final252 unit/114 actual workflow checks pass Release and ASan/UBSan,
+including forced live-child termination, visible-commit post-flush failure, no
+source dependency and two frozen native-writer corpus media cases. Core MinGW
+compiles; new native publication/GUI/installed/storage gates remain pending.
+No VM/audio/equalizer/installed preview/public product release changed. Next: owned
+frozen checked-row copy/controller/recovery UI, extended conversion/loss/persistence/
+Undo/aligned renders and preview refresh. Full frozen Linux/Windows/Europe/F/Q/C/N
+goal stays active and incomplete.
