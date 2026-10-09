@@ -1,0 +1,10 @@
+[0/1] Re-running CMake...
+-- Configuring done (0.9s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-windows-core
+[1/7] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.obj
+[2/7] Linking CXX static library libsc-approved-media.a
+[3/7] Building CXX object CMakeFiles/sc-approved-media-probe.dir/tools/approved_media_probe.cpp.obj
+[4/7] Linking CXX executable sc-approved-media-probe.exe
+[5/7] Building CXX object CMakeFiles/sc-approved-media-tests.dir/tests/approved_media_tests.cpp.obj
+[6/7] Linking CXX executable sc-approved-media-tests.exe

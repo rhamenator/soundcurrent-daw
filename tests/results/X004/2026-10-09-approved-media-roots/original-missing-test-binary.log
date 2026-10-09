@@ -1,0 +1,74 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 32
+    Start 32: approved-media-root
+
+32: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-approved-media-tests
+32: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+32: Test timeout computed to be: 30
+32: PASS: 139 approved-root checks; owned files, bounded reads/hash, no audio or conversion
+1/3 Test #32: approved-media-root ..............   Passed    0.01 sec
+test 41
+    Start 41: resource-ledger
+Could not find executable /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-resource-ledger-tests
+Looked in the following places:
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Release/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Release/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Debug/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Debug/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/MinSizeRel/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/MinSizeRel/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/RelWithDebInfo/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/RelWithDebInfo/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Deployment/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Deployment/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Development/sc-resource-ledger-tests
+/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Development/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Release/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Release/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Debug/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Debug/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/MinSizeRel/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/MinSizeRel/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/RelWithDebInfo/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/RelWithDebInfo/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Deployment/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Deployment/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Development/sc-resource-ledger-tests
+home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/Development/sc-resource-ledger-tests
+
+41: Test command: 
+41: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Unable to find executable: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-resource-ledger-tests
+2/3 Test #41: resource-ledger ..................***Not Run   0.00 sec
+test 42
+    Start 42: session-state
+
+42: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-session-tests
+42: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+42: Test timeout computed to be: 1500
+42: 80 checks passed
+3/3 Test #42: session-state ....................   Passed    0.02 sec
+
+The following tests passed:
+	approved-media-root
+	session-state
+
+67% tests passed, 1 tests failed out of 3
+
+Total Test time (real) =   0.03 sec
+
+The following tests FAILED:
+	 41 - resource-ledger (Not Run)
+Errors while running CTest

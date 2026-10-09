@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "date": "2026-10-09",
+  "testedSource": {
+    "baseHead": "23cf5bf0b417a34a7dfad77dc9932aabfb8065ed",
+    "workingCode": true,
+    "sourceSha256": {
+      "CMakeLists.txt": "849f8e7067836884a4d19b5add57fc5482f26bedb6486a587565404bb2a914ef",
+      ".github/workflows/ci.yml": "e19ab32c6234607554443a727a108159b040f3b942828c4d2cc4d05bee399a7c",
+      "include/soundcurrent/approved_media.hpp": "66537d19c4074ba4fdc2c8434e6670f0b55cbd3fc62059ce7387e0e9d5a4ed1e",
+      "src/approved_media.cpp": "68c55b949b3cda39ee6ec4db10eddd298f9de894913113b232d4c11782edb01c",
+      "tests/approved_media_tests.cpp": "40c1bee440839da878b0c661cc41b895b0606a074e6d431b6fa1862a0ac7a47a",
+      "tests/approved_media_probe_tests.py": "f219df383eb78a969625c4483606bf4ff8c5f89b3d9628bfb5a91948704c6586",
+      "tools/approved_media_probe.cpp": "adb34217a86fcb7f31cdfc5b76f2e66a45d5b66f4094372f8ee57e51c1304c5c",
+      "include/soundcurrent/resource_ledger.hpp": "9225bcc34e6c2d6bcd362840837ee7ac9b2bce3c31d7d72a230257479d015b17",
+      "src/resource_ledger.cpp": "531458368d17825a5744b1a0f59585ce2c6169041ceae648612f934e6fcb86e7",
+      "include/soundcurrent/session.hpp": "5e53fede4ef6b4218284edb37e1e3006c80889eb1395360a895cb6e89d8d96c4",
+      "src/session.cpp": "6ec1f7e8602654d82bec9401ea64906dc417e6709b0f7dc2a9811755827968ef"
+    }
+  },
+  "linuxRelease": {
+    "selectedTests": 4,
+    "rootChecks": 144,
+    "actualProbeChecks": 23,
+    "sessionChecks": 118,
+    "nativeDescriptorsMeasured": true
+  },
+  "linuxSanitized": {
+    "selectedTests": 2,
+    "rootChecks": 144,
+    "actualProbeChecks": 23,
+    "asan": true,
+    "ubsan": true,
+    "leakDetection": false
+  },
+  "windowsCrossBuild": {
+    "compiled": [
+      "sc-approved-media-tests.exe",
+      "sc-approved-media-probe.exe"
+    ],
+    "nativeExecution": false
+  },
+  "originalLocalRefusal": {
+    "scope": "Partial build cache missing resource-ledger executable; session-state and new root test passed",
+    "log": "original-missing-test-binary.log"
+  },
+  "predecessor": {
+    "pr": 65,
+    "exactHead": "23cf5bf0b417a34a7dfad77dc9932aabfb8065ed",
+    "merge": "22bb64bd9bf97c308c54eba4c99125f6794ce92e",
+    "run": 37884643978,
+    "nativeDesktopArtifact": 11596091902,
+    "controllerChecks": 80,
+    "uiChecks": 90,
+    "localizationChecks": 255,
+    "scope": "Prior refusal-oracle/native Qt cohort; not the new media code"
+  },
+  "binariesSha256": {
+    ".cache/build-desktop-release/sc-approved-media-tests": "6efb111e3126031ded0616d63ec9dfb46e78e8736bc7dc410ca6c944b1a18f14",
+    ".cache/build-desktop-release/sc-approved-media-probe": "40c3d4c07cd79c8368c3eeb4bbf064b70d3475335cadcb0e6b23ca2eb0ff5632",
+    ".cache/build-desktop-sanitized/sc-approved-media-tests": "090215cf577ae11f69a3cba17fe65a3294925bb234cfdf3bd335fb14f9f536b1",
+    ".cache/build-desktop-sanitized/sc-approved-media-probe": "f7081b8429a85b10283e4f89cf0c849ebda1cdec871583ba2d8f7a8889ab2370",
+    ".cache/build-windows-core/sc-approved-media-tests.exe": "4bf79fd68b829b31da311ebe61cc9b1337efc957e49563b3b83dd1a9e3295be9",
+    ".cache/build-windows-core/sc-approved-media-probe.exe": "01070ee4c8df809201b173a777452bd79560733a45e80d48aae577ea3bd1bf17"
+  },
+  "limits": {
+    "mediaGui": false,
+    "wavDecode": false,
+    "nativeWindowsMediaRuntime": false,
+    "projectConversion": false,
+    "renderEquivalence": false,
+    "hardOsSandbox": false,
+    "hardIoCancellation": false,
+    "hostileFilesystemSnapshot": false,
+    "fullParity": false,
+    "installedPreviewChanged": false,
+    "localVmStarted": false,
+    "userAudioRouteChanged": false,
+    "equalizerChanged": false,
+    "publicProductBinaryReleaseUploaded": false
+  },
+  "next": "Validated source-reference/root/replacement choices, pinned WAV validation and cancellable desktop workflow; then verified owned copy and transactional conversion with Undo/reopen/aligned renders",
+  "evidenceSha256": {
+    "corpus-byte-check.json": "77ae46342480f6a393a3e4362f088b9a30679daf5f13dd316f441abceb75bd2d",
+    "linux-release-build.log": "adc070ff3d08cd264881f548079b44caf9ee93d08a69754d9dfadf0cd7213fe9",
+    "linux-release.log": "286b5f242b89d0a503372fda74796014c303f7fa9b5a59fca065aaba0e959807",
+    "linux-sanitized-build.log": "adc070ff3d08cd264881f548079b44caf9ee93d08a69754d9dfadf0cd7213fe9",
+    "linux-sanitized.log": "85c09a5b0e9a8a3c62f27dac9208986cc270dc2aedb85cf02e0df80acb14125a",
+    "original-missing-test-binary.log": "b3de4f051e6962fb04e5410488ed1d1bb547267a55aa76fa4aeda79c6716c0b9",
+    "predecessor-native-desktop-artifact.json": "76516aa5114df3eba1c371c970f4d237cebffa822cf32b5aaf489b9106ce8926",
+    "predecessor-native-desktop.log": "8d841d4c07250a89d21c4c81bd36c3f20791f5048bea94c3b3afa8ead24d96e6",
+    "predecessor-native-desktop.zip": "b13e678626307c8c65d1ad4f90411379028890a92072b3f8c52d2b45bdfbb22b",
+    "windows-cross-build.log": "9dae2ef94849d4b6f6926d501d9025bfdf3825e80b35396dd4a67f5332e123a3"
+  }
+}

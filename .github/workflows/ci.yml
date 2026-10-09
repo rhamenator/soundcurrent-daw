@@ -136,10 +136,10 @@ jobs:
           if errorlevel 1 exit /b 1
           cmake -S . -B build-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=ON -DSC_BUILD_DESKTOP=OFF "-DSNDFILE_LIBRARY=%CD%/native-dependencies/sndfile-build/sndfile.lib"
           if errorlevel 1 exit /b 1
-          cmake --build build-native --parallel 2 --target sc-import-property-report-probe sc-reaper-import-tests sc-inspection-bundle-tests sc-import-report sc-import-inspect-worker sc-reaper-structure-tests sc-writer-timing-tests sc-wasapi-capture-fixture sc-wasapi-playback-fixture sc-wasapi-packet-copy-tests sc-wasapi-input-tests sc-wasapi-capture-trace-tests sc-wasapi-render-trace-tests sc-recording-tests sc-export-tests sc-resource-ledger-tests sc-wasapi-playback-owner-tests
+          cmake --build build-native --parallel 2 --target sc-approved-media-tests sc-approved-media-probe sc-import-property-report-probe sc-reaper-import-tests sc-inspection-bundle-tests sc-import-report sc-import-inspect-worker sc-reaper-structure-tests sc-writer-timing-tests sc-wasapi-capture-fixture sc-wasapi-playback-fixture sc-wasapi-packet-copy-tests sc-wasapi-input-tests sc-wasapi-capture-trace-tests sc-wasapi-render-trace-tests sc-recording-tests sc-export-tests sc-resource-ledger-tests sc-wasapi-playback-owner-tests
           if errorlevel 1 exit /b 1
           set "PATH=%CD%\native-dependencies\sndfile-build;%PATH%"
-          ctest --test-dir build-native -R "^(inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
+          ctest --test-dir build-native -R "^(approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
           if errorlevel 1 exit /b 1
       - name: Retain native unit log
         if: always()

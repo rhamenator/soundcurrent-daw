@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "bytes": 192044,
+      "complete": true,
+      "decodedAudio": false,
+      "protocol": "sc-approved-media-check-v1",
+      "relative": "media/mono.wav",
+      "sha256": "b6e3da19c650ae458f6e09055fe37a0ca23446e924f028e0b995b79ba1ef2a00"
+    },
+    {
+      "bytes": 384044,
+      "complete": true,
+      "decodedAudio": false,
+      "protocol": "sc-approved-media-check-v1",
+      "relative": "media/stereo.wav",
+      "sha256": "199a76b2a2d74ab1da037086d92e1188f6366791da978fffe83870d8d36a2ded"
+    }
+  ],
+  "scope": "Pinned approved-root reads/hash of original owned Linux-writer media; no decode/conversion/audio"
+}
