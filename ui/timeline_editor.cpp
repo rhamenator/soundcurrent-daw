@@ -507,7 +507,7 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         // Stored changes (including Undo/Redo) must update these controls even
         // while focused. Unrelated state publication preserves in-progress input.
         refresh(p->force, true, previousDestination, previousAsset,
-                previousProcessing != currentProcessing || previousRate != currentRate);
+                previousProcessing != currentProcessing, previousRate != currentRate);
     }
     if (previous != track_ && selectionChanged)
         selectionChanged();
@@ -555,7 +555,7 @@ bool TimelineEditor::selectTrack(const Id &id) {
     return select(id, track_ == std::optional<Id>(id) ? clip_ : std::optional<Id>{});
 }
 void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> destination,
-                             std::optional<QString> asset, bool forceProcessing) {
+                             std::optional<QString> asset, bool forceProcessing, bool forceRate) {
     QScopedValueRollback<bool> guard(refreshing_, true);
     QSignalBlocker block(tracks_);
     const auto previousDestination = destination.value_or(destination_->currentData().toString());
@@ -599,7 +599,7 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
     forceProcessing = forceProcessing || force;
     const auto rate=c ? c->playbackRate : ClipPlaybackRate{};
     const bool rateChanged=rate!=displayedRate_;
-    numericField(clipRate_,double(rate.numerator)/rate.denominator,forceProcessing || rateChanged);
+    numericField(clipRate_,double(rate.numerator)/rate.denominator,force || forceRate || rateChanged);
     displayedRate_=rate;
     numericField(clipGain_,p.gainDb,forceProcessing);numericField(fadeInShape_,p.fadeIn.shape,forceProcessing);numericField(fadeOutShape_,p.fadeOut.shape,forceProcessing);
     if (forceProcessing || !clipMuted_->hasFocus()) clipMuted_->setChecked(p.muted);

@@ -71,7 +71,7 @@ class TimelineEditor : public QGroupBox {
     const Clip *clip() const;
     void refresh(bool forceFields = false, bool redraw = true,
                  std::optional<QString> destination = {}, std::optional<QString> asset = {},
-                 bool forceProcessing = false);
+                 bool forceProcessing = false, bool forceRate = false);
     void draw();
     void mutate(std::vector<SessionEdit>);
     void operation(const std::function<void()> &);

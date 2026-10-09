@@ -125,3 +125,13 @@ the revised test, executable hashes and raw logs. Initial failed CI archives
 retain original ZIP digests, CRC checks, raw logs and exact counts. The original
 29/29 and11/11 local receipt retains its original input scope. Revised native CI
 must qualify the new head before merge; these local checks do not close that gate.
+
+The review also identified combined rate/processing refresh flags discarding
+unapplied focused input on an unrelated edit. The flags are now separate. New
+regressions preserve focused1.7x input across processing-only publication and
+focused3.5dB gain across rate-only publication while showing canonical2x speed.
+The coalesced Undo regression remains. Release4/4 and Debug O0 ASan/UBSan4/4
+pass across the full timeline and three affected families. The separate
+separate-refresh-qualification.json binds the three revised source files,
+579 total inputs, executables, raw logs and review evidence. Native CI must
+qualify this subsequent production repair; earlier receipts retain their scopes.

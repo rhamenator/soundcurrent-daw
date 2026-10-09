@@ -1,0 +1,13 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start 39: desktop-timeline
+1/4 Test #39: desktop-timeline .................   Passed    3.67 sec
+    Start 40: desktop-clip-processing
+2/4 Test #40: desktop-clip-processing ..........   Passed    0.49 sec
+    Start 41: desktop-playback-rate
+3/4 Test #41: desktop-playback-rate ............   Passed    0.71 sec
+    Start 42: desktop-positioned-clips
+4/4 Test #42: desktop-positioned-clips .........   Passed    0.43 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   5.31 sec

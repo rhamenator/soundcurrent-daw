@@ -333,6 +333,16 @@ void playbackRateWorkflow(const std::filesystem::path &root) {
     check(admitted && speed->hasFocus(),"Coalesced Apply/focus was not exercised");
     coalesced.updateModel(std::make_shared<const Session>(changed),7,true);
     check(speed->value()==1.25,"Coalesced Undo publication retained admitted focused2x input");
+    speed->setFocus();speed->setValue(1.7);
+    auto processingOnly=changed;processingOnly.tracks[0].clips[0].processing.gainDb=2;
+    coalesced.updateModel(std::make_shared<const Session>(processingOnly),7,true);
+    check(speed->hasFocus() && speed->value()==1.7,"Processing-only publication overwrote focused unapplied speed");
+    auto *gain=coalesced.findChild<QDoubleSpinBox *>("clipGainDb");
+    check(gain,"Coalesced gain control missing");gain->setFocus();gain->setValue(3.5);
+    auto rateOnly=processingOnly;rateOnly.tracks[0].clips[0].playbackRate={2,1};
+    coalesced.updateModel(std::make_shared<const Session>(rateOnly),7,true);
+    check(gain->hasFocus() && gain->value()==3.5 && speed->value()==2,
+        "Rate-only publication overwrote focused unapplied gain or failed canonical speed refresh");
 }
 void editing(const std::filesystem::path &root) {
     const auto original = fixture(root);
