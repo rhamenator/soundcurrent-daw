@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "utc": "2026-10-09T04:10:05.964154+00:00",
+  "base": "3a02b573e3290953060288ded9dc6fca75843057",
+  "indexedInputsSha256": {
+    ".github/workflows/ci.yml": "06520d4e66108687d40e07bb855e0f5b30c7e77edb8ef170812e00de64e6cddb",
+    ".github/scripts/prepare-windows-desktop.ps1": "0e5f8f31bfdb21cb2f83fe298fa3da461d2ac5a91e700973f7651deb8af51bd3",
+    "research/windows-desktop-test-dependencies.json": "e7c3f65e60ac2fbff556ca3cb140933a261b0cdc11a851ec21c590d25d76fec9",
+    "research/windows-preview-dependencies.json": "3d4ceb871cb1a34e01942ec793f3fa021990a208988673de96b9209ac4bfc5b5"
+  },
+  "workflowYamlParse": "passed; four jobs, existing three contexts retained",
+  "powershellParse": "passed on host pwsh, no Windows acquisition or runtime executed",
+  "officialArchive": {
+    "url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6120/qt6_6120_msvc2022_64/qt.qt6.6120.win64_msvc2022_64/6.12.0-0-202609280346qtbase-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z",
+    "sha256": "219d1b86def3be418e31d704572bc4acc91b2ec373c65595c9fb12b42bf098dc",
+    "bytes": 40184745
+  },
+  "freshOfficialArchiveShaVerified": true,
+  "retainedIndependentSdkRuntimeHashesVerified": true,
+  "nativeExecutionPending": true,
+  "localVmStarted": false,
+  "sourceEquivalentProductDependencyUnchanged": true,
+  "notQualified": [
+    "Windows Qt execution of new workflow",
+    "interactive desktop/accessibility",
+    "installer",
+    "audio endpoints/hardware/driver behavior",
+    "native project conversion/render equivalence",
+    "fullParity"
+  ],
+  "filesSha256": {
+    "powershell-parse.log": "9886c846c33ca9739be3f2d21d5978c498d04d3ae20266cbdbc75446bcbfb859",
+    "official-archive-sha256.log": "28dbb70c0ca7edb94c4963c21b71343b209554be3d9cfa1f91d0242600522fe5"
+  }
+}

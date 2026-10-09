@@ -130,3 +130,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Owned import intermediate properties and loss evidence](119-import-intermediate-properties.md)
 
 - [Source-property inspection preview and independent validation](120-import-property-preview.md)
+
+- [Native Windows desktop import/localization gate](121-windows-import-ui-gate.md)

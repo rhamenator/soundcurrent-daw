@@ -205,3 +205,11 @@ and Python boundary tests are test-only. Separate lexical/field validation adds
 intentional source-contract maintenance cost; original and corrupted witnesses
 must qualify future schema changes. MinGW compilation, native MSVC, Windows Qt
 and installation remain distinct gates.
+
+## Hosted native desktop tests (2026-10-09)
+
+ADR087 reuses the existing QtBase6.12.0 and libsndfile1.2.2 choices. A fixed
+official QtBase archive and independent product DLL/source hashes gate the hosted
+MSVC Qt tests. QtTest/offscreen code is test-only; no new product dependency,
+third-party source copy, SDK release or installer change occurs. Runner/compiler/
+archive availability and native-vs-interactive qualification are explicit costs.

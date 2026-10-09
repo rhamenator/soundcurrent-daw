@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "utc": "2026-10-09T04:06:34.110448+00:00",
+  "pr": 63,
+  "head": "387022d982728756aeb53853ec95bd7796353f43",
+  "merge": "3a02b573e3290953060288ded9dc6fca75843057",
+  "run": 37881235447,
+  "runAttempt": 1,
+  "linuxTests": 78,
+  "windowsNativeTests": 15,
+  "windowsNativePropertyProtocolChecks": 569,
+  "windowsNativeSourcePropertyChecks": 890,
+  "crossBuild": "success, no Windows execution",
+  "originalFailuresRetained": "../2026-10-09-property-preview",
+  "manualRefusalCause": "unknown; a passing diagnostic run does not explain the original refusal",
+  "qualification": {
+    "propertyWorkerParentWindows": true,
+    "windowsQt": false,
+    "installer": false,
+    "nativeWriterWindows": false,
+    "semanticConversion": false,
+    "renderEquivalence": false,
+    "fullParity": false
+  },
+  "filesSha256": {
+    "native-artifact.json": "b70b4f933fa0f1c9e773fd599c877bc617558484d6630ae421ed0530e587a00f",
+    "run.json": "134c27897379fab78886a137007d3904021ed73417f7b36932ae4e243a5d0ef2",
+    "linux.zip": "4306a342bdf3f55c7c780f34bda26078baa19563f00a78a0c3efcc37ffcf520d",
+    "jobs.json": "0475f8c86efda8381f30d9f32860ed4e41e39da1a010e08a9dc24eaf0074243a",
+    "native-lasttest.log": "367c77fb2ff81ba9507585002f97cb684e5a6669739cbdfc1a6980939d4320ee",
+    "native.zip": "bdbbfcf0a10dbaa223cfe122eeaedac012a41b9a05515c89d45eb96e8f87525f",
+    "linux-artifact.json": "1d4d6859a2749d900cb89902af654b7043c8cf6bb8f4a38c44dfa1174a95e89a",
+    "linux-lasttest.log": "45245c192d70af917812dfebc45a322bd5e9253be27ce0ee39b6eec6c902d6f4"
+  }
+}
