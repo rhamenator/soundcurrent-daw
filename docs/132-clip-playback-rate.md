@@ -107,3 +107,21 @@ fraction probes. All34 draft catalogs pass structural checks with770 source keys
 Desktop test check counts can differ with polling/screenshot execution; raw logs
 record exact observed successful counts. Current exact-source native Windows CI,
 installed/native audio, installer refresh and full F/Q/C/N remain separate gates.
+
+## Initial native CI and UI synchronization
+
+Run37961071889 at2e390e1 failed: Linux101/102, native Windows core36/36,
+native Windows Qt9/10. Only desktop-playback-rate failed. Windows observed the
+controller's5/4 ratio before the queued label update; Linux clicked Apply after
+the stopped/edit snapshot but before the queued controls became enabled.
+The revised test awaits both model and observable GUI readiness. It retains
+the same assertions and deadlines; production implementation is unchanged.
+
+A deterministic regression now admits2x in a focused control, skips the
+intermediate GUI publication, then publishes canonical Undo5/4 and asserts1.25.
+The three affected UI families pass Release3/3 and Debug O0 ASan/UBSan3/3
+(leak detection off). The separate synchronized-ui-qualification.json binds
+the revised test, executable hashes and raw logs. Initial failed CI archives
+retain original ZIP digests, CRC checks, raw logs and exact counts. The original
+29/29 and11/11 local receipt retains its original input scope. Revised native CI
+must qualify the new head before merge; these local checks do not close that gate.

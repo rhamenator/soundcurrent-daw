@@ -284,7 +284,8 @@ void playbackRateWorkflow(const std::filesystem::path &root) {
     widget<QComboBox>(w,"timelineClips")->setCurrentIndex(1);
     auto *rate=widget<QDoubleSpinBox>(w,"clipPlaybackRate");auto *apply=widget<QPushButton>(w,"applyClipPlaybackRate");
     check(rate->value()==1 && apply->isEnabled() && !rate->accessibleName().isEmpty(),"Accessible neutral playback rate missing");
-    rate->setValue(1.25);apply->click();await([&]{return w.snapshot()->session->tracks[0].clips[0].playbackRate==ClipPlaybackRate{5,4};});
+    rate->setValue(1.25);apply->click();await([&]{return w.snapshot()->session->tracks[0].clips[0].playbackRate==ClipPlaybackRate{5,4} &&
+        widget<QLabel>(w,"clipSourceTiming")->text().contains("5/4");});
     const auto changed=*w.snapshot()->session;const auto &now=changed.tracks[0].clips[0];
     check(widget<QLabel>(w,"clipSourceTiming")->text().contains("5/4"),"Exact rate not visible");
     check(now.lengthFrames==640 && now.startFrame==c.startFrame && now.sourceFrame==17 && now.processing.fadeIn.startFrame==-3 && now.processing.fadeIn.endFrame==160,"Desktop rate changed source/start or wrong duration/fades");
@@ -300,10 +301,11 @@ void playbackRateWorkflow(const std::filesystem::path &root) {
         auto *scroll=qobject_cast<QScrollArea *>(w.centralWidget());check(scroll,"Missing desktop scroll area");scroll->ensureWidgetVisible(rate);QTest::qWait(5);check(w.grab().save(screenshot),"Cannot save rate screenshot");}
     click(w,"preparePlaybackButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Ready && widget<QPushButton>(w,"stopButton")->isEnabled();});
     check(!apply->isEnabled() && !rate->isEnabled(),"Prepared playback permitted stale rate edits");
-    click(w,"stopButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Idle;});
+    click(w,"stopButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Idle && apply->isEnabled() && rate->isEnabled();});
     auto noFade=now.processing;noFade.fadeIn={};
     ProjectCommand removeFade{CommandKind::Structural};removeFade.edits={SetClipProcessing{initial.tracks[0].id,c.id,noFade}};
-    check(w.submitEdit(removeFade),"Cannot prepare no-fade rate undo case");await([&]{return w.snapshot()->session->tracks[0].clips[0].processing==noFade;});
+    check(w.submitEdit(removeFade),"Cannot prepare no-fade rate undo case");await([&]{return w.snapshot()->session->tracks[0].clips[0].processing==noFade &&
+        widget<QLineEdit>(w,"clipFadeInStart")->text()=="0" && apply->isEnabled();});
     rate->setValue(2);apply->click();await([&]{return w.snapshot()->session->tracks[0].clips[0].playbackRate==ClipPlaybackRate{2,1};});
     rate->setFocus();undo(w);
     try {await([&]{return w.snapshot()->session->tracks[0].clips[0].playbackRate==ClipPlaybackRate{5,4} && rate->value()==1.25;});}
@@ -319,6 +321,18 @@ void playbackRateWorkflow(const std::filesystem::path &root) {
     click(exact,"applyClipPlaybackRate");QTest::qWait(30);
     check(*exact.snapshot()->session==precise,"Unchanged Apply rounded stored1/3 rate");close(exact,true);
     check(ProjectStore(exactRoot).load()==precise,"Exact rate Save/reopen drifted");
+    // Deterministic coalesced publication: Apply2x, then publish the Undo's
+    // original state without ever publishing the intermediate2x GUI model.
+    TimelineEditor coalesced;coalesced.show();coalesced.updateModel(std::make_shared<const Session>(changed),7,true);
+    auto *choices=coalesced.findChild<QComboBox *>("timelineClips");check(choices && choices->count()>1,"Coalesced clip selector missing");choices->setCurrentIndex(1);
+    auto *speed=coalesced.findChild<QDoubleSpinBox *>("clipPlaybackRate");auto *applySpeed=coalesced.findChild<QPushButton *>("applyClipPlaybackRate");
+    check(speed && applySpeed && applySpeed->isEnabled(),"Coalesced rate controls missing");
+    bool admitted=false;coalesced.submit=[&](std::vector<SessionEdit> edits){
+        admitted=edits.size()==1 && std::holds_alternative<SetClipPlaybackRate>(edits[0]);return admitted;};
+    speed->setValue(2);applySpeed->click();speed->setFocus();QApplication::processEvents();
+    check(admitted && speed->hasFocus(),"Coalesced Apply/focus was not exercised");
+    coalesced.updateModel(std::make_shared<const Session>(changed),7,true);
+    check(speed->value()==1.25,"Coalesced Undo publication retained admitted focused2x input");
 }
 void editing(const std::filesystem::path &root) {
     const auto original = fixture(root);
