@@ -1,0 +1,15 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 2: desktop-media-controller
+1/5 Test #2: desktop-media-controller .........   Passed    0.74 sec
+    Start 3: desktop-import-media-ui
+2/5 Test #3: desktop-import-media-ui ..........   Passed    0.52 sec
+    Start 5: desktop-import-ui
+3/5 Test #5: desktop-import-ui ................   Passed    0.48 sec
+    Start 6: desktop-localization
+4/5 Test #6: desktop-localization .............   Passed    0.62 sec
+    Start 7: daw-translation-catalogs
+5/5 Test #7: daw-translation-catalogs .........   Passed    0.41 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   2.78 sec

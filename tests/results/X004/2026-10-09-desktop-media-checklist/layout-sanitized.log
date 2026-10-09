@@ -1,0 +1,9 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start 3: desktop-import-media-ui
+1/2 Test #3: desktop-import-media-ui ..........   Passed    1.00 sec
+    Start 5: desktop-import-ui
+2/2 Test #5: desktop-import-ui ................   Passed    1.18 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   2.18 sec

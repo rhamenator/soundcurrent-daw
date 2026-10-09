@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLocale>
 #include <QMessageBox>
@@ -195,11 +196,11 @@ ImportInspectionDialog::ImportInspectionDialog(QWidget *parent,InspectionOptions
     properties->horizontalHeader()->setSectionResizeMode(5,QHeaderView::Interactive);
     properties->setColumnWidth(5,160); properties->verticalHeader()->hide();
     tabs_->addTab(properties,QString()); tabs_->addTab(table,QString()); layout->addWidget(tabs_,1);
-    auto *files=new QHBoxLayout;
-    choose_=new QPushButton(this); choose_->setObjectName(QStringLiteral("chooseImportProject")); files->addWidget(choose_);
-    open_=new QPushButton(this); open_->setObjectName(QStringLiteral("openImportInspection")); files->addWidget(open_);
-    save_=new QPushButton(this); save_->setObjectName(QStringLiteral("saveImportInspection")); files->addWidget(save_);
-    mediaButton_=new QPushButton(this);mediaButton_->setObjectName(QStringLiteral("checkImportMedia"));files->addWidget(mediaButton_);
+    auto *files=new QGridLayout;
+    choose_=new QPushButton(this); choose_->setObjectName(QStringLiteral("chooseImportProject")); files->addWidget(choose_,0,0);
+    open_=new QPushButton(this); open_->setObjectName(QStringLiteral("openImportInspection")); files->addWidget(open_,0,1);
+    save_=new QPushButton(this); save_->setObjectName(QStringLiteral("saveImportInspection")); files->addWidget(save_,1,0);
+    mediaButton_=new QPushButton(this);mediaButton_->setObjectName(QStringLiteral("checkImportMedia"));files->addWidget(mediaButton_,1,1);
     layout->addLayout(files);
     auto *buttons=new QDialogButtonBox(this);
     cancel_=buttons->addButton(QString(),QDialogButtonBox::ActionRole); cancel_->setObjectName(QStringLiteral("cancelImportInspection"));

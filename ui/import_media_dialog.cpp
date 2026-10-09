@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QItemSelectionModel>
 #include <QLocale>
@@ -115,10 +116,10 @@ ImportMediaDialog::ImportMediaDialog(QWidget *parent,std::shared_ptr<const Impor
     table_->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);table_->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Stretch);
     table_->setColumnWidth(0,170);table_->setColumnWidth(1,170);table_->setColumnWidth(3,220);table_->setColumnWidth(4,110);
     table_->verticalHeader()->hide();layout->addWidget(table_,1);
-    auto *choices=new QHBoxLayout;chooseRoot_=new QPushButton(this);chooseRoot_->setObjectName(QStringLiteral("chooseMediaRoot"));choices->addWidget(chooseRoot_);
-    check_=new QPushButton(this);check_->setObjectName(QStringLiteral("checkSelectedMedia"));choices->addWidget(check_);
-    replace_=new QPushButton(this);replace_->setObjectName(QStringLiteral("chooseMediaReplacement"));choices->addWidget(replace_);
-    clear_=new QPushButton(this);clear_->setObjectName(QStringLiteral("clearMediaChecks"));choices->addWidget(clear_);layout->addLayout(choices);
+    auto *choices=new QGridLayout;chooseRoot_=new QPushButton(this);chooseRoot_->setObjectName(QStringLiteral("chooseMediaRoot"));choices->addWidget(chooseRoot_,0,0);
+    check_=new QPushButton(this);check_->setObjectName(QStringLiteral("checkSelectedMedia"));choices->addWidget(check_,0,1);
+    replace_=new QPushButton(this);replace_->setObjectName(QStringLiteral("chooseMediaReplacement"));choices->addWidget(replace_,1,0);
+    clear_=new QPushButton(this);clear_->setObjectName(QStringLiteral("clearMediaChecks"));choices->addWidget(clear_,1,1);layout->addLayout(choices);
     status_=new QLabel(this);status_->setWordWrap(true);status_->setTextFormat(Qt::PlainText);layout->addWidget(status_);
     auto *buttons=new QDialogButtonBox(this);cancel_=buttons->addButton(QString(),QDialogButtonBox::ActionRole);cancel_->setObjectName(QStringLiteral("cancelMediaCheck"));
     close_=buttons->addButton(QDialogButtonBox::Close);layout->addWidget(buttons);

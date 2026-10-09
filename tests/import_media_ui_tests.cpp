@@ -10,6 +10,7 @@
 #include <QTemporaryDir>
 #include <QTimer>
 #include <QLocale>
+#include <QScreen>
 #include <fstream>
 #include <iostream>
 using namespace soundcurrent::daw;
@@ -36,6 +37,8 @@ int main(int argc,char **argv) {
             ImportInspectionDialog inspector(nullptr,options);inspector.show();check(inspector.inspect(file),"Project inspection refused");
             wait([&]{return !inspector.snapshot()->busy;});check(inspector.snapshot()->report && inspector.snapshot()->report->source()==original,"Source report missing");
             auto *media=inspector.openMediaCheck();check(media!=nullptr,"Media button did not open checklist");
+            check(media->width()<=media->screen()->availableGeometry().width() &&
+                  media->height()<=media->screen()->availableGeometry().height(),"Media checklist exceeds display");
             auto *table=media->findChild<QTableView *>(QStringLiteral("importMediaTable"));
             check(table && table->model()->rowCount()==1,"Source-file media inventory wrong");
             check(!media->snapshot()->childPid && !media->snapshot()->selection,"Opening checklist accessed media automatically");

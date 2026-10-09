@@ -106,3 +106,15 @@ Qt test executed. Original job metadata/log and digest-verified artifact11599218
 (runtime metadata only) are retained separately. The repair explicitly extracts
 the already-type-checked string before comparison, preserving the same report
 contract and rejection tests. Corrected native execution remains pending.
+
+## Native layout regression and correction
+
+Corrected head3baa4b9a65384de6caa09adbdfa6b2d0a6eeb902, run37895399944,
+job113705696499 builds the real Windows Qt app and passes media controller83,
+media UI45, import controller80, localization281 and deployment-input checks.
+The existing inspector UI test refuses `Dialog exceeds display`. This is retained
+as an actual regression, not accepted by relaxing the fit assertion. The new
+four-button action row is changed to a two-column grid in both dialogs; the media
+UI now also asserts that its window fits the available display. The original
+failed archive/artifact metadata/job log and scoped Linux layout gates remain
+separate from the corrected native qualification, which is still pending.
