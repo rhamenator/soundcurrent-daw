@@ -55,3 +55,5 @@ tests/results/M2/2026-10-09-editable-stretch/*.log -text whitespace=-blank-at-eo
 /tests/results/M2/2026-10-09-stretch-supervision/*.log -text whitespace=-blank-at-eol,cr-at-eol
 
 /tests/results/M2/2026-10-09-stretch-preview-delivery/*.log -text whitespace=-blank-at-eol,cr-at-eol
+
+/tests/results/M2/2026-10-09-stretch-preview-delivery/native-native-worker-qualification.json -text whitespace=cr-at-eol
