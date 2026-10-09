@@ -57,6 +57,14 @@ bool takeField(FieldId id) {
     return id==FieldId::TakeName || id==FieldId::ItemGain || id==FieldId::TakeGain || id==FieldId::TakePan ||
            id==FieldId::TakeSourceOffset || id==FieldId::TakeRate || id==FieldId::TakePitch;
 }
+unsigned evidencePriority(const ImportLineEvidence &e) {
+    if (e.status==Status::Unverified) {
+        if (e.reason==Reason::InvalidNumber || e.reason==Reason::UnknownShape || e.reason==Reason::InvalidToken) return 4;
+        if (e.reason==Reason::DuplicateProperty) return 3;
+        if (e.reason==Reason::AmbiguousTake) return 2;
+    }
+    return e.status==Status::Unsupported ? 1 : 0;
+}
 bool numberValid(FieldId id, double value) {
     if (!std::isfinite(value)) return false;
     switch (id) {
@@ -257,7 +265,11 @@ ReaperImportPreview inspectReaperImport(std::string_view source, ReaperImportLim
             } else if (takeField(p.id) && !result.objects_[p.object].singleTake) {
                 p.status=Status::Unverified; p.reason=Reason::AmbiguousTake;
             }
-            if (p.status!=Status::Preserved && p.node!=absent) result.lines_[p.node]={p.status,p.reason};
+            if (p.status!=Status::Preserved && p.node!=absent) {
+                const ImportLineEvidence next{p.status,p.reason};
+                auto &line=result.lines_[p.node];
+                if (evidencePriority(next)>evidencePriority(line)) line=next;
+            }
         }
         for (std::size_t i=0;i<result.objects_.size();++i) {
             canceled(stop);

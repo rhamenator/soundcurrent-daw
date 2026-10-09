@@ -168,6 +168,14 @@ void opaqueAndRefusals() {
         check(field(p,1,FieldId::TrackChannels).reason==Reason::InvalidNumber,"Invalid layout count mapped");
     }
     empty(resources);
+    {
+        auto p=inspectReaperImport(replace(single,"PLAYRATE 1 1 0 -1 0 0.0025","PLAYRATE nan 1 0 -1 0 0.0025"),{},resources);
+        const auto &rate=field(p,2,FieldId::TakeRate), &pitch=field(p,2,FieldId::TakePitch);
+        check(rate.status==Status::Unverified && pitch.status==Status::Unsupported,"Mixed malformed/unsupported fields disappeared");
+        check(p.lines()[rate.node].status==Status::Unverified && p.lines()[rate.node].reason==Reason::InvalidNumber,
+              "Later unsupported field masked malformed line evidence");
+    }
+    empty(resources);
     for (const auto badName:{"NAME \"unterminated", "NAME \"closed\"adjacent", "NAME one two"}) {
         auto p=inspectReaperImport(replace(single,"NAME `Voix 'été'`",badName),{},resources);
         check(field(p,1,FieldId::TrackName).status==Status::Unverified,"Unqualified lexical shape mapped");

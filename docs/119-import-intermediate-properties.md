@@ -111,3 +111,12 @@ Track/frame timing, gain/pan/fade conventions, multiple takes, MIDI, tempo,
 routes, automation and plugin/container state require their own acceptance cases.
 Native Bitwig/Cubase and every other registered native/exchange family remain
 required, with separate version envelopes and rights-cleared corpora.
+
+## Line-evidence review follow-up
+
+A mixed `PLAYRATE nan ...` line initially let a later unsupported pitch overwrite
+its malformed-rate line evidence. Explicit precedence now keeps malformed fields,
+duplicates and ambiguous selection ahead of unsupported processing. Individual
+property records stay intact. The added regression passes with890 Linux Release
+checks; its separate receipt pins the tested source and scope. Original885-check
+evidence remains historical. New hosted execution of this repair is pending.
