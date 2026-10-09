@@ -138,3 +138,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Verified owned media staging foundation](125-verified-media-staging.md)
 
 - [Owned media provenance, publication and interruption recovery](126-media-provenance-transaction.md)
+
+- [127: desktop checked-media copying and explicit recovery](127-desktop-checked-media-copy.md)
+- [ADR093: frozen checked copy child outcomes](decisions/093-checked-copy-child-outcomes.md)

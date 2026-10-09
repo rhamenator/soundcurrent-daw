@@ -3454,3 +3454,16 @@ No VM/audio/equalizer/installed preview/public product release changed. Next: ow
 frozen checked-row copy/controller/recovery UI, extended conversion/loss/persistence/
 Undo/aligned renders and preview refresh. Full frozen Linux/Windows/Europe/F/Q/C/N
 goal stays active and incomplete.
+
+## Desktop checked-copy checkpoint (2026-10-09)
+
+Previous goal turn was **progress**: PR70 qualified and merged original receipt
+publication/recovery on Linux and native Windows. This turn connects the checked
+selection to actual desktop copying, independent child retirement, uncertain
+outcome/recovery UI, original provenance and expanded package closure.
+[Checkpoint127](127-desktop-checked-media-copy.md) separates new local evidence
+from prior native receipts and pending new Windows/installed qualification.
+No Session conversion, frozen F/Q/C/N completion or reviewed language is inferred.
+Next preserve source/loss state and destination semantic clip controls, then
+conversion preview/one Undo/Save-reopen/aligned renders and installed previews.
+The full goal remains active and incomplete.

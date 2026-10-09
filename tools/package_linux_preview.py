@@ -52,7 +52,7 @@ def verify_build_source(cache, root):
     require(len(entries)==1 and Path(entries[0]).resolve()==root.resolve(),
             'Build tree belongs to another source checkout')
 EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker',
-                    'usr/bin/sc-approved-wave-probe'}
+                    'usr/bin/sc-approved-wave-probe','usr/bin/sc-media-import-worker'}
 def installed_mode(relative):
     return 0o755 if relative in EXECUTABLE_PAYLOAD else 0o644
 def normalize_staged_permissions(stage):
@@ -75,6 +75,8 @@ def verify_staged_install(stage, root, executable):
         expected['usr/bin/sc-import-inspect-worker']=executable.parent/'sc-import-inspect-worker'
     if (root/'ui/import_media_dialog.cpp').is_file():
         expected['usr/bin/sc-approved-wave-probe']=executable.parent/'sc-approved-wave-probe'
+    if (root/'ui/media_copy_controller.cpp').is_file():
+        expected['usr/bin/sc-media-import-worker']=executable.parent/'sc-media-import-worker'
     found = {}
     for path in stage.rglob('*'):
         require(not path.is_symlink(), 'Unexpected install payload symlink: '+str(path))
@@ -106,6 +108,10 @@ def package(args):
         worker=build/'sc-approved-wave-probe'
         require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
                 'Media worker differs from qualified worker')
+    if (ROOT/'ui/media_copy_controller.cpp').is_file():
+        worker=build/'sc-media-import-worker'
+        require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
+                'Copy worker differs from qualified worker')
     for relative, sha in qualification['source_sha256'].items():
         require(digest(ROOT/relative)==sha, 'Tested input changed: '+relative)
     cache = (build/'CMakeCache.txt').read_text()

@@ -720,6 +720,22 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Choose a destination for the verified media copy</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose the copied operation's UUID folder</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Check last copy outcome</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recover copied media…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>No media folder selected. Opening an inspection does not grant access to its media.</source>
       <translation type="unfinished" />
     </message>
@@ -728,11 +744,47 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Stopping media check…</source>
+      <source>Copy or recovery in progress. Operation folder: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>The check could not be started. Check the selected path and available import memory.</source>
+      <source>Media is committed and verified, but directory durability is unconfirmed. Folder: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Media is committed and verified. Folder: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The checked media or inspection changed. Check the copy outcome, then check the source again. Operation folder: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The copy outcome is uncertain. Recover this operation folder before using its media: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This operation has planned intent but no committed receipt. Partial data is preserved: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No intent or receipt was found. No completed copy is established: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The copy did not start. Check the selected row, destination and available import memory.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verified copies preserve the original reference and audio bytes. They are not attached to the current project. Clearing choices leaves copied files intact.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Stopping media jobs…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The media job could not be started. Check the selected path and available import memory.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -744,11 +796,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Check project media</source>
+      <source>Check and copy project media</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.</source>
+      <source>Project conversion is in development. Check media, then copy checked files to a new destination. The checked snapshot is verified again before copying. The current project stays unchanged.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -779,9 +831,49 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <source>Close</source>
       <translation type="unfinished" />
     </message>
+    <message>
+      <source>Copy checked media…</source>
+      <translation type="unfinished" />
+    </message>
   </context>
   <context>
     <name>ImportMediaModel</name>
+    <message>
+      <source>Not copied</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Copying or recovering…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verified copy; directory durability unconfirmed</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verified copy</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Outcome uncertain; recover this operation</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Planned copy; no committed receipt</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No intent or receipt found</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Canceled before copying</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Copy could not start</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <source>Reference unavailable</source>
       <translation type="unfinished" />
@@ -876,6 +968,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Sample peak</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Copy state</source>
       <translation type="unfinished" />
     </message>
   </context>

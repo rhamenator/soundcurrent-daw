@@ -260,3 +260,10 @@ provenance/recovery using existing JSON, crypto, libsndfile and native rename AP
 No new vendor runtime or equalizer change. Exact schema maintenance, platform
 sharing/flush/acknowledgement behavior, storage breadth, worker containment and
 later GUI/installed/semantic qualification remain integration costs.
+
+Desktop copying adds original GPL request/reply codec and QProcess ownership
+using existing Qt/JSON/crypto/libsndfile modules. No new runtime library, vendor
+asset, driver or equalizer input is introduced. [ADR093](decisions/093-checked-copy-child-outcomes.md)
+records frozen approval, uncertain outcomes, child/codec admission and installation
+closure. Exact source notices/pins, OS containment, native storage and installed
+qualification remain independent obligations.

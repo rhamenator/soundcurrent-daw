@@ -328,3 +328,9 @@ child, abrupt termination and known-writer source/media evidence is separate fro
 pending native Windows publication qualification. No Session conversion, multi-file
 project atomicity, semantic/render equivalence or installed flow is claimed; these
 remain required. No frozen F/Q/C/N family is promoted to parity.
+
+X004 media preparation now includes [desktop checked-copy and recovery](127-desktop-checked-media-copy.md).
+Actual occurrence/hash/PID/byte and interruption checks support that bounded
+workflow; they do not qualify semantic source-suite conversion or promote F/Q/C/N
+status. Original/loss persistence, extended clip semantics, preview/Undo/reopen
+and aligned reference renders remain required across the adapter register.

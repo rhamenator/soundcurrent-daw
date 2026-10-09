@@ -47,7 +47,7 @@ def relative(value):
             'Unsafe Windows payload component')
     return p
 
-def deploy_payload(archive, manifest, destination, *, require_worker=False, require_media_worker=False):
+def deploy_payload(archive, manifest, destination, *, require_worker=False, require_media_worker=False, require_copy_worker=False):
     expected = {}
     for row in manifest['files']:
         name = relative(row['path']).as_posix()
@@ -57,6 +57,7 @@ def deploy_payload(archive, manifest, destination, *, require_worker=False, requ
                 'Qt6Widgets.dll','platforms/qwindows.dll'}
     if require_worker: required.add('sc-import-inspect-worker.exe')
     if require_media_worker: required.add('sc-approved-wave-probe.exe')
+    if require_copy_worker: required.add('sc-media-import-worker.exe')
     require(required <= set(expected) and len(expected)<=64, 'Missing/excess deployment payload')
     require(all(0<r['bytes']<=64*1024*1024 for r in expected.values()) and
             sum(r['bytes'] for r in expected.values())<=256*1024*1024,
@@ -94,7 +95,7 @@ def qualified_dependencies(manifest):
     require(trusted['qtSourceSha256']==QT_SOURCE and
             trusted['sndfileSourceSha256']==SNDFILE_SOURCE, 'Dependency source anchor differs')
     dependencies = {r['path']:r for r in manifest['files'] if r['path'] not in
-                    {'soundcurrent-daw.exe','sc-import-inspect-worker.exe','sc-approved-wave-probe.exe'}}
+                    {'soundcurrent-daw.exe','sc-import-inspect-worker.exe','sc-approved-wave-probe.exe','sc-media-import-worker.exe'}}
     require(dependencies==trusted['files'], 'Unqualified dependency binary identity')
 
 def qualify_worker(manifest, qualification, head):
@@ -120,6 +121,19 @@ def nsis_path(path):
     text = str(path.resolve())
     require(not any(c in text for c in '$"\r\n'), 'Unsupported NSIS source path')
     return text
+
+def qualify_copy_worker(manifest, qualification, head):
+    require(qualification is not None, 'Native checked-copy worker qualification required')
+    row=next((r for r in manifest['files'] if r['path']=='sc-media-import-worker.exe'),{})
+    require(qualification.get('sourceCommit')==head and type(qualification.get('exitCode')) is int and qualification['exitCode']==0 and
+            type(qualification.get('pid')) is int and qualification['pid']>0 and
+            type(qualification.get('reportedPid')) is int and qualification['reportedPid']==qualification['pid'] and
+            qualification.get('protocol')=='sc-media-copy-v1' and type(qualification.get('phase')) is int and
+            qualification['phase']==2 and qualification.get('committed') is True and qualification.get('sessionAssetPublished') is False and
+            type(qualification.get('operation')) is str and
+            re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}',qualification['operation']) and
+            row.get('sha256')==qualification.get('exeSha256') and bool(row),
+            'Deployed copy worker differs from qualified native process/source/receipt protocol')
 
 def scripts(stage, output, sequence, head, runtime):
     entries = sorted(p for p in stage.rglob('*') if p.is_file())
@@ -179,12 +193,15 @@ def package(args):
     needs_media_worker=(ROOT/'ui/import_media_dialog.cpp').is_file()
     if needs_media_worker:
         qualify_media_worker(manifest,read_json(args.media_worker_qualification) if args.media_worker_qualification else None,head)
+    needs_copy_worker=(ROOT/'ui/media_copy_controller.cpp').is_file()
+    if needs_copy_worker:
+        qualify_copy_worker(manifest,read_json(args.copy_worker_qualification) if args.copy_worker_qualification else None,head)
     row=next((r for r in manifest['files'] if r['path']=='soundcurrent-daw.exe'),{})
     require(row.get('sha256')==qualification['exeSha256'], 'Deployed main differs from qualified main')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     stage=output/'payload';stage.mkdir()
     deploy_payload(args.deploy_zip,manifest,stage,require_worker=needs_worker,
-                   require_media_worker=needs_media_worker)
+                   require_media_worker=needs_media_worker,require_copy_worker=needs_copy_worker)
     legal=stage/'licenses';legal.mkdir()
     for name,path in {'GPL-3.0.txt':ROOT/'LICENSE','libsndfile-LGPL.txt':ROOT/'third_party/libsndfile/COPYING',
                       'nlohmann-MIT.txt':ROOT/'third_party/nlohmann/LICENSE.MIT',
@@ -220,6 +237,7 @@ def package(args):
              'buildInputsReceiptSha256':digest(args.build_inputs),'mainQualificationSha256':digest(args.main_qualification),
              'workerQualificationSha256':digest(args.worker_qualification) if needs_worker else None,
              'mediaWorkerQualificationSha256':digest(args.media_worker_qualification) if needs_media_worker else None,
+             'copyWorkerQualificationSha256':digest(args.copy_worker_qualification) if needs_copy_worker else None,
              'deploymentManifestSha256':digest(args.deploy_manifest),'officialRuntimeSha256':REDIST,
              'installerSourceSha256':digest(ROOT/'packaging/windows/preview.nsi.in'),
              'payload':{p.relative_to(stage).as_posix():{'bytes':p.stat().st_size,'sha256':digest(p)} for p in sorted(stage.rglob('*')) if p.is_file()},
@@ -238,5 +256,7 @@ if __name__=='__main__':
                         help='Actual matching-source native worker PID/exit/executable receipt')
     parser.add_argument('--media-worker-qualification',type=Path,
                         help='Matching native media checker PID/report/exit/source/executable receipt')
+    parser.add_argument('--copy-worker-qualification',type=Path,
+                        help='Matching native checked-copy PID/report/commit/source/executable receipt')
     parser.add_argument('--sequence',required=True)
     package(parser.parse_args())

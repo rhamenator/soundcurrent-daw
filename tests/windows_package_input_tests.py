@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker
+from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker, qualify_copy_worker
 import json
 
 
@@ -77,6 +77,9 @@ def run():
                 try:deploy_payload(archive,m,destination,require_media_worker=True)
                 except ValueError:pass
                 else:raise AssertionError('Media desktop payload admitted missing worker')
+                try:deploy_payload(archive,m,destination,require_copy_worker=True)
+                except ValueError:pass
+                else:raise AssertionError('Copy desktop payload admitted missing worker')
     trusted = json.loads((Path(__file__).resolve().parents[1] /
                           'research/windows-preview-dependencies.json').read_text())
     pinned = {'files': list(trusted['files'].values())}
@@ -112,18 +115,35 @@ def run():
     try:qualify_media_worker(with_worker,media_receipt,head)
     except ValueError:pass
     else:raise AssertionError('Missing native media worker accepted')
+    copy={'path':'sc-media-import-worker.exe','bytes':125,'sha256':'e'*64}
+    with_copy={'files':with_media['files']+[copy]};qualified_dependencies(with_copy)
+    copy_receipt={'sourceCommit':head,'exitCode':0,'pid':1234,'reportedPid':1234,'exeSha256':'e'*64,
+                  'protocol':'sc-media-copy-v1','phase':2,'committed':True,'sessionAssetPublished':False,
+                  'operation':'12345678-1234-1234-1234-123456789abc'}
+    qualify_copy_worker(with_copy,copy_receipt,head)
+    for bad in (None,{**copy_receipt,'sourceCommit':'c'*40},{**copy_receipt,'exitCode':1},{**copy_receipt,'exitCode':False},
+                {**copy_receipt,'pid':False},{**copy_receipt,'reportedPid':1235},
+                {**copy_receipt,'phase':True},{**copy_receipt,'phase':1},{**copy_receipt,'committed':False},
+                {**copy_receipt,'sessionAssetPublished':True},{**copy_receipt,'operation':'../outside'},{**copy_receipt,'operation':123},
+                {**copy_receipt,'protocol':'sc-media-import-v1'},{**copy_receipt,'exeSha256':'0'*64}):
+        try:qualify_copy_worker(with_copy,bad,head)
+        except ValueError:pass
+        else:raise AssertionError('Unqualified native checked-copy worker accepted')
+    try:qualify_copy_worker(with_media,copy_receipt,head)
+    except ValueError:pass
+    else:raise AssertionError('Missing native checked-copy worker accepted')
     with tempfile.TemporaryDirectory(prefix='sc-media-package-') as tmp:
         root=Path(tmp);all_data={**data,'sc-import-inspect-worker.exe':b'owned inspection worker',
-                               'sc-approved-wave-probe.exe':b'owned media worker'}
+                               'sc-approved-wave-probe.exe':b'owned media worker','sc-media-import-worker.exe':b'owned copy worker'}
         all_manifest={'files':[{'path':n,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
                                for n,b in all_data.items()]}
         archive=root/'complete.zip'
         with zipfile.ZipFile(archive,'w') as z:
             for n,b in all_data.items():z.writestr(n,b)
         destination=root/'payload';destination.mkdir()
-        deploy_payload(archive,all_manifest,destination,require_worker=True,require_media_worker=True)
+        deploy_payload(archive,all_manifest,destination,require_worker=True,require_media_worker=True,require_copy_worker=True)
         assert all((destination/n).read_bytes()==b for n,b in all_data.items())
-    print('Media deployment: both sibling workers required; exact native PID/protocol/source/hash qualification enforced')
+    print('Media deployment: all three sibling workers required; exact native PID/protocol/commit/source/hash qualification enforced')
     wrong = deepcopy(pinned)
     wrong['files'][0]['sha256'] = '0' * 64
     try:

@@ -134,3 +134,14 @@ flattening them, then implement conversion preview, one Undo, save/reopen and
 independently aligned renders. Refresh and qualify Linux/Windows installed previews.
 Multi-file/project atomicity, broader media and all registered native/exchange
 adapters, full frozen F/Q/C/N scope and all-Europe localization remain required.
+
+## Final protected platform qualification
+
+PR 70 head 3f5ad5d98ad4ec1b2089cb00ac45d8d4a99a17f5, run 37906089136 passes
+all four strict required contexts and merges d5f44fb236c9642038c4ca11f5db21dfc277baa0
+without bypass. Linux 88 tests include 252 transaction/114 actual workflow checks.
+Native Windows 22 selected core tests include 228 transaction/114 actual workflow
+checks; its six desktop tests include 83 media controller/46 media UI/91 inspector
+UI/272 localization checks. Native archive digests and exact logs are retained in
+the following desktop-copy checkpoint. This qualifies the prior receipt primitive,
+not installed operation, semantic conversion, reviewed languages or full parity.

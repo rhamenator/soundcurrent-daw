@@ -16,8 +16,8 @@
     "ui/import_inspection_controller.hpp": "1eceb3b2a5384da610e86cb91e48e78aa4eeba714b1a6074555168149fc162f2",
     "ui/import_inspection_dialog.cpp": "74cc23a808888b86d4e49b25e35845329ce221319a03d40b544a77dc6202e243",
     "ui/import_inspection_dialog.hpp": "c16e071ade61c6c4c8390d199aa830c7ea7b0c7cd61a7e4754ac8bb58d5beb59",
-    "ui/import_media_dialog.cpp": "b884fcd90d707e4a9b122f273a72df0a5ef7b4024e7328dd83c064beb08cc3ae",
-    "ui/import_media_dialog.hpp": "b2d0881a6ce5312aa0c9c2176a002619d8bdfcd62779af8433d65f93e01cf5d3",
+    "ui/import_media_dialog.cpp": "0eb6e39467a8227fd780f1f75b27e11193c7b1fd3f123119db6c5a1e7c8e25d0",
+    "ui/import_media_dialog.hpp": "c7f05dc4db564b305b54ba3b532445592451b0bc4883cd11ea750a94309431f9",
     "ui/localization.cpp": "be5c1e4ce406ac5bdd58ba007d87f9043c2e4f13fa773286c7c6bce2c4d45693",
     "ui/localization.hpp": "60c9513cf542d243492c8f330090c05b4f114d5764101042fb984beffdf35bdf",
     "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
@@ -26,6 +26,8 @@
     "ui/manual_recording_panel.cpp": "b7db2392cff9e7c7f03c7bd39909ed860966d2ccd2a1b0416aa50a303de125f2",
     "ui/manual_recording_panel.hpp": "eaf6ca2ab3c499813f4f6d929f61cbfe94f9c25d6c7ef6977f914db056c5908b",
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
+    "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
+    "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
     "ui/playback_controller.cpp": "1400ea40e34ee71c1ace0fc5b3e67df595be22c8612ea723f74dc2072a19440d",
     "ui/playback_controller.hpp": "55eb2c9d62a12cad72c2fe93fe4d6eb3d60a8a35d9bfe99fe26e49ded7382e4f",
     "ui/project_controller.cpp": "08286812231a78a86cb4f4e99b50fc80c6d662fdb03d8c03aed310555b9df71d",
@@ -1106,6 +1108,30 @@
     ],
     [
       "ImportMediaDialog",
+      "Choose a destination for the verified media copy",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Choose the copied operation's UUID folder",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Check last copy outcome",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Recover copied media…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
       "No media folder selected. Opening an inspection does not grant access to its media.",
       "",
       false
@@ -1118,13 +1144,67 @@
     ],
     [
       "ImportMediaDialog",
-      "Stopping media check…",
+      "Copy or recovery in progress. Operation folder: %1",
       "",
       false
     ],
     [
       "ImportMediaDialog",
-      "The check could not be started. Check the selected path and available import memory.",
+      "Media is committed and verified, but directory durability is unconfirmed. Folder: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Media is committed and verified. Folder: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "The checked media or inspection changed. Check the copy outcome, then check the source again. Operation folder: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "The copy outcome is uncertain. Recover this operation folder before using its media: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "This operation has planned intent but no committed receipt. Partial data is preserved: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "No intent or receipt was found. No completed copy is established: %1",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "The copy did not start. Check the selected row, destination and available import memory.",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Verified copies preserve the original reference and audio bytes. They are not attached to the current project. Clearing choices leaves copied files intact.",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Stopping media jobs…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "The media job could not be started. Check the selected path and available import memory.",
       "",
       false
     ],
@@ -1142,13 +1222,13 @@
     ],
     [
       "ImportMediaDialog",
-      "Check project media",
+      "Check and copy project media",
       "",
       false
     ],
     [
       "ImportMediaDialog",
-      "Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.",
+      "Project conversion is in development. Check media, then copy checked files to a new destination. The checked snapshot is verified again before copying. The current project stays unchanged.",
       "",
       false
     ],
@@ -1191,6 +1271,66 @@
     [
       "ImportMediaDialog",
       "Close",
+      "",
+      false
+    ],
+    [
+      "ImportMediaDialog",
+      "Copy checked media…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Not copied",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Copying or recovering…",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Verified copy; directory durability unconfirmed",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Verified copy",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Outcome uncertain; recover this operation",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Planned copy; no committed receipt",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "No intent or receipt found",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Canceled before copying",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Copy could not start",
       "",
       false
     ],
@@ -1335,6 +1475,12 @@
     [
       "ImportMediaModel",
       "Sample peak",
+      "",
+      false
+    ],
+    [
+      "ImportMediaModel",
+      "Copy state",
       "",
       false
     ],

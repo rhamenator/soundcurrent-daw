@@ -148,3 +148,12 @@ unchanged. This is media publication, not project/session semantic conversion,
 multi-file atomicity, Undo/render equivalence or full native compatibility.
 Desktop copy/recovery, destination semantic state, loss review, installed previews
 and every registered native/exchange adapter remain required.
+
+## Desktop checked-copy checkpoint
+
+[Checkpoint127](127-desktop-checked-media-copy.md) connects frozen checked rows to
+owned copy children and explicit recovery. Changed snapshots refuse before writes;
+stopped/unverified children retain uncertain outcomes. This preserves media and
+provenance without Session conversion. Next extend/persist original loss state and
+destination timing/gain/fades/rate/pitch, then preview/Undo/reopen/aligned renders.
+All registered adapters and native compatibility remain required and incomplete.

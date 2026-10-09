@@ -611,3 +611,10 @@ UI → persistent original/loss state + destination gain/fade/rate/pitch/timing 
 conversion preview/Undo/reopen/aligned renders → installed preview pairs.
 Multi-file/project atomicity, broader media/native/exchange families, Windows/
 storage/OS-containment/Europe and full frozen parity gates stay required.
+
+[Desktop checked-copy/recovery](127-desktop-checked-media-copy.md) now carries
+frozen inspected/checked rows to admitted children and preserves uncertain
+post-start outcomes until explicit recovery. Extend the owned import state and
+destination semantic clip model next, then conversion approval/Undo/reopen/render
+qualification. Refresh installed previews; native adapters and every independent
+M1/M2/full-suite and localization gate remain required.

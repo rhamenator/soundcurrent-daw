@@ -1,0 +1,19 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start  2: desktop-media-copy-controller
+1/7 Test  #2: desktop-media-copy-controller ....   Passed    3.35 sec
+    Start  3: desktop-media-controller
+2/7 Test  #3: desktop-media-controller .........   Passed    1.23 sec
+    Start  4: desktop-import-media-ui
+3/7 Test  #4: desktop-import-media-ui ..........   Passed    1.90 sec
+    Start  5: desktop-import-controller
+4/7 Test  #5: desktop-import-controller ........   Passed    1.91 sec
+    Start  6: desktop-import-ui
+5/7 Test  #6: desktop-import-ui ................   Passed    1.13 sec
+    Start  7: desktop-localization
+6/7 Test  #7: desktop-localization .............   Passed    1.37 sec
+    Start 64: media-provenance-transaction
+7/7 Test #64: media-provenance-transaction .....   Passed    1.90 sec
+
+100% tests passed, 0 tests failed out of 7
+
+Total Test time (real) =  12.81 sec

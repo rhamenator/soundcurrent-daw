@@ -1,0 +1,44 @@
+[0/1] Re-running CMake...
+-- Configuring done (3.9s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/20] Building CXX object CMakeFiles/sc-ui-media-copy.dir/ui/media_copy_controller.cpp.o
+/home/rich/dev/soundcurrent-daw/ui/media_copy_controller.cpp: In member function ‘void soundcurrent::daw::ui::MediaCopyController::State::execute(std::stop_token)’:
+/home/rich/dev/soundcurrent-daw/ui/media_copy_controller.cpp:95:13: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   95 |             if(view.childPid) view.childExit=child.exitCode();throw;
+      |             ^~
+/home/rich/dev/soundcurrent-daw/ui/media_copy_controller.cpp:95:63: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   95 |             if(view.childPid) view.childExit=child.exitCode();throw;
+      |                                                               ^~~~~
+[2/20] Building CXX object CMakeFiles/sc-media-copy-protocol.dir/src/media_copy_protocol.cpp.o
+[3/20] Linking CXX static library libsc-media-copy-protocol.a
+[4/20] Linking CXX static library libsc-ui-media-copy.a
+[5/20] Building CXX object CMakeFiles/sc-media-import-worker.dir/tools/media_import_worker.cpp.o
+[6/20] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/wave_check_controller.cpp.o
+[7/20] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/import_media_dialog.cpp.o
+/home/rich/dev/soundcurrent-daw/ui/import_media_dialog.cpp: In member function ‘void soundcurrent::daw::ui::ImportMediaModel::setCopyResult(int, std::shared_ptr<const soundcurrent::daw::ui::MediaCopySnapshot>)’:
+/home/rich/dev/soundcurrent-daw/ui/import_media_dialog.cpp:116:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  116 |     if(!property(row)) return;auto &saved=rows_[static_cast<std::size_t>(row)].copied;if(saved==result) return;
+      |     ^~
+/home/rich/dev/soundcurrent-daw/ui/import_media_dialog.cpp:116:31: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  116 |     if(!property(row)) return;auto &saved=rows_[static_cast<std::size_t>(row)].copied;if(saved==result) return;
+      |                               ^~~~
+[8/20] Linking CXX executable sc-media-import-worker
+[9/20] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_controller.cpp.o
+[10/20] Building CXX object CMakeFiles/sc-media-copy-lifecycle-probe.dir/tools/media_import_worker.cpp.o
+[11/20] Linking CXX static library libsc-ui-wave.a
+[12/20] Linking CXX executable sc-media-copy-lifecycle-probe
+[13/20] Building CXX object CMakeFiles/sc-ui-import.dir/ui/import_inspection_dialog.cpp.o
+[14/20] Linking CXX static library libsc-ui-import.a
+[15/20] Building CXX object CMakeFiles/sc-import-media-ui-tests.dir/tests/import_media_ui_tests.cpp.o
+[16/20] Linking CXX executable soundcurrent-daw
+[17/20] Linking CXX executable sc-import-media-ui-tests
+[18/20] Building CXX object CMakeFiles/sc-media-copy-controller-tests.dir/tests/media_copy_controller_tests.cpp.o
+/home/rich/dev/soundcurrent-daw/tests/media_copy_controller_tests.cpp: In function ‘std::string {anonymous}::wave()’:
+/home/rich/dev/soundcurrent-daw/tests/media_copy_controller_tests.cpp:26:5: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   26 |     for(unsigned n:{0,1,32767,32768}) put(s,n,2);return s;
+      |     ^~~
+/home/rich/dev/soundcurrent-daw/tests/media_copy_controller_tests.cpp:26:50: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   26 |     for(unsigned n:{0,1,32767,32768}) put(s,n,2);return s;
+      |                                                  ^~~~~~
+[19/20] Linking CXX executable sc-media-copy-controller-tests

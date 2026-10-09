@@ -1,0 +1,17 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 4: desktop-import-media-ui
+1/1 Test #4: desktop-import-media-ui ..........***Failed   10.43 sec
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Media UI failed after 49 checks: Media UI test deadline
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =  10.43 sec
+
+The following tests FAILED:
+	  4 - desktop-import-media-ui (Failed)
+Errors while running CTest

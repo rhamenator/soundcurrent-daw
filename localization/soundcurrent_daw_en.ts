@@ -724,6 +724,22 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>WAVE audio (*.wav);;All files (*)</translation>
     </message>
     <message>
+      <source>Choose a destination for the verified media copy</source>
+      <translation>Choose a destination for the verified media copy</translation>
+    </message>
+    <message>
+      <source>Choose the copied operation's UUID folder</source>
+      <translation>Choose the copied operation's UUID folder</translation>
+    </message>
+    <message>
+      <source>Check last copy outcome</source>
+      <translation>Check last copy outcome</translation>
+    </message>
+    <message>
+      <source>Recover copied media…</source>
+      <translation>Recover copied media…</translation>
+    </message>
+    <message>
       <source>No media folder selected. Opening an inspection does not grant access to its media.</source>
       <translation>No media folder selected. Opening an inspection does not grant access to its media.</translation>
     </message>
@@ -732,12 +748,48 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Selected media folder: %1</translation>
     </message>
     <message>
-      <source>Stopping media check…</source>
-      <translation>Stopping media check…</translation>
+      <source>Copy or recovery in progress. Operation folder: %1</source>
+      <translation>Copy or recovery in progress. Operation folder: %1</translation>
     </message>
     <message>
-      <source>The check could not be started. Check the selected path and available import memory.</source>
-      <translation>The check could not be started. Check the selected path and available import memory.</translation>
+      <source>Media is committed and verified, but directory durability is unconfirmed. Folder: %1</source>
+      <translation>Media is committed and verified, but directory durability is unconfirmed. Folder: %1</translation>
+    </message>
+    <message>
+      <source>Media is committed and verified. Folder: %1</source>
+      <translation>Media is committed and verified. Folder: %1</translation>
+    </message>
+    <message>
+      <source>The checked media or inspection changed. Check the copy outcome, then check the source again. Operation folder: %1</source>
+      <translation>The checked media or inspection changed. Check the copy outcome, then check the source again. Operation folder: %1</translation>
+    </message>
+    <message>
+      <source>The copy outcome is uncertain. Recover this operation folder before using its media: %1</source>
+      <translation>The copy outcome is uncertain. Recover this operation folder before using its media: %1</translation>
+    </message>
+    <message>
+      <source>This operation has planned intent but no committed receipt. Partial data is preserved: %1</source>
+      <translation>This operation has planned intent but no committed receipt. Partial data is preserved: %1</translation>
+    </message>
+    <message>
+      <source>No intent or receipt was found. No completed copy is established: %1</source>
+      <translation>No intent or receipt was found. No completed copy is established: %1</translation>
+    </message>
+    <message>
+      <source>The copy did not start. Check the selected row, destination and available import memory.</source>
+      <translation>The copy did not start. Check the selected row, destination and available import memory.</translation>
+    </message>
+    <message>
+      <source>Verified copies preserve the original reference and audio bytes. They are not attached to the current project. Clearing choices leaves copied files intact.</source>
+      <translation>Verified copies preserve the original reference and audio bytes. They are not attached to the current project. Clearing choices leaves copied files intact.</translation>
+    </message>
+    <message>
+      <source>Stopping media jobs…</source>
+      <translation>Stopping media jobs…</translation>
+    </message>
+    <message>
+      <source>The media job could not be started. Check the selected path and available import memory.</source>
+      <translation>The media job could not be started. Check the selected path and available import memory.</translation>
     </message>
     <message>
       <source>Checking selected audio…</source>
@@ -748,12 +800,12 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Choose a media folder and check a reference, or explicitly choose a replacement. Choices stay local to this window.</translation>
     </message>
     <message>
-      <source>Check project media</source>
-      <translation>Check project media</translation>
+      <source>Check and copy project media</source>
+      <translation>Check and copy project media</translation>
     </message>
     <message>
-      <source>Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.</source>
-      <translation>Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.</translation>
+      <source>Project conversion is in development. Check media, then copy checked files to a new destination. The checked snapshot is verified again before copying. The current project stays unchanged.</source>
+      <translation>Project conversion is in development. Check media, then copy checked files to a new destination. The checked snapshot is verified again before copying. The current project stays unchanged.</translation>
     </message>
     <message>
       <source>Maximum file size for this check (MiB):</source>
@@ -783,9 +835,49 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <source>Close</source>
       <translation>Close</translation>
     </message>
+    <message>
+      <source>Copy checked media…</source>
+      <translation>Copy checked media…</translation>
+    </message>
   </context>
   <context>
     <name>ImportMediaModel</name>
+    <message>
+      <source>Not copied</source>
+      <translation>Not copied</translation>
+    </message>
+    <message>
+      <source>Copying or recovering…</source>
+      <translation>Copying or recovering…</translation>
+    </message>
+    <message>
+      <source>Verified copy; directory durability unconfirmed</source>
+      <translation>Verified copy; directory durability unconfirmed</translation>
+    </message>
+    <message>
+      <source>Verified copy</source>
+      <translation>Verified copy</translation>
+    </message>
+    <message>
+      <source>Outcome uncertain; recover this operation</source>
+      <translation>Outcome uncertain; recover this operation</translation>
+    </message>
+    <message>
+      <source>Planned copy; no committed receipt</source>
+      <translation>Planned copy; no committed receipt</translation>
+    </message>
+    <message>
+      <source>No intent or receipt found</source>
+      <translation>No intent or receipt found</translation>
+    </message>
+    <message>
+      <source>Canceled before copying</source>
+      <translation>Canceled before copying</translation>
+    </message>
+    <message>
+      <source>Copy could not start</source>
+      <translation>Copy could not start</translation>
+    </message>
     <message>
       <source>Reference unavailable</source>
       <translation>Reference unavailable</translation>
@@ -884,6 +976,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Sample peak</source>
       <translation>Sample peak</translation>
+    </message>
+    <message>
+      <source>Copy state</source>
+      <translation>Copy state</translation>
     </message>
   </context>
   <context>

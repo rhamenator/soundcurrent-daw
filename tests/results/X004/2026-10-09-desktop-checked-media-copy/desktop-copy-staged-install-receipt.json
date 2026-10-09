@@ -1,0 +1,17 @@
+{
+  "stage": "/home/rich/dev/soundcurrent-daw/.cache/desktop-copy-stage-31244e68-7d01-46b8-909e-d66509ae55e6",
+  "payloadSha256": {
+    "usr/bin/soundcurrent-daw": "dfa0d80f0b4a1a7400b909956679233fd2035f793e3465c068f6030f0f94f48d",
+    "usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "usr/share/doc/soundcurrent-daw/equipment-provenance.json": "34a364e2b2d31e017550717f2eb90470777faa0085cce76faf7cafb55605f0fb",
+    "usr/share/applications/soundcurrent-daw.desktop": "e5e9bb758dd67e94439a8cbe7cd387d79a9f17380e64515883e6bf63659dfb25",
+    "usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg": "6bc559e288aec6b5eab049387afaef74253805ed568ad50179f0e958d6a5f760",
+    "usr/bin/sc-import-inspect-worker": "ad414f13b083494a771b44630d89f3009edad37b43d1804f68b57ad3a632333b",
+    "usr/bin/sc-approved-wave-probe": "81b1734ad7e0202196596b40c22a54383da46787a21bba21f4853b90d5feaeac",
+    "usr/bin/sc-media-import-worker": "5bceda0ad5a68c603224fa0a6e700b606d6695d88a13c9d9f8aea11bb25f814c"
+  },
+  "actualCMakeInstall": true,
+  "systemInstalled": false,
+  "allFourExecutablesMatch": true,
+  "publicBinaryRelease": false
+}
