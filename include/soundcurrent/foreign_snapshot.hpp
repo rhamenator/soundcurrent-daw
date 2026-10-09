@@ -13,8 +13,10 @@ class ForeignSnapshot {
     ForeignSnapshot(const ForeignSnapshot &) = delete;
     ForeignSnapshot &operator=(const ForeignSnapshot &) = delete;
     std::string_view bytes() const noexcept { return bytes_; }
+    bool ownedBy(const ResourceLedger &ledger) const { return ledger.owns(lease_); }
     std::size_t chargedBytes() const noexcept { return lease_.bytes(); }
   private:
+    friend ForeignSnapshot copyForeignSnapshot(std::string_view, ResourceLedger, std::stop_token);
     friend ForeignSnapshot readForeignSnapshot(const std::filesystem::path &, std::size_t,
                                                 ResourceLedger, std::stop_token);
     explicit ForeignSnapshot(ResourceLease lease, std::size_t size)
@@ -26,5 +28,6 @@ class ForeignSnapshot {
 // consistency checks. This does not parse or follow foreign dependency tokens.
 ForeignSnapshot readForeignSnapshot(const std::filesystem::path &, std::size_t maximumBytes,
                                      ResourceLedger, std::stop_token = {});
+ForeignSnapshot copyForeignSnapshot(std::string_view, ResourceLedger, std::stop_token = {});
 std::array<char,64> hashForeignSnapshot(std::string_view, ResourceLedger, std::stop_token = {});
 } // namespace soundcurrent::daw

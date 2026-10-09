@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- Save/Open portable `.scinspect` files with exact original bytes, retained
+  unverified outline and checksum validation. Disk work runs on the admitted
+  worker; existing destinations are preserved and missing original sources are
+  supported. Native conversion and Windows Qt/install qualification remain open.
+
 - File menu REAPER project inspection preview with a separate worker, bounded
   shared resource admission, strict source/hash/report validation and async
   cancellation/close. Read-only outlines preserve the current project and source.

@@ -1,0 +1,83 @@
+{
+  "format": "sc-hosted-desktop-inspection-v1",
+  "sourceCommit": "e391ee9d3d951dc7c518ff625e0649916e040e25",
+  "runId": 37864224057,
+  "jobs": {
+    "linux": 113607003632,
+    "nativeWindows": 113607003809,
+    "windowsCross": 113607003854
+  },
+  "artifacts": [
+    {
+      "metadata": {
+        "id": 11587119751,
+        "node_id": "MDg6QXJ0aWZhY3QxMTU4NzExOTc1MQ==",
+        "name": "windows-native-packet-unit-log",
+        "size_in_bytes": 1436,
+        "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11587119751",
+        "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11587119751/zip",
+        "expired": false,
+        "digest": "sha256:743992eab3a88d1ede04cfd476988059e1e57ef83d0573a39cfb36f4d0a27af6",
+        "created_at": "2026-10-09T00:24:44Z",
+        "updated_at": "2026-10-09T00:24:44Z",
+        "expires_at": "2027-01-07T00:20:01Z",
+        "workflow_run": {
+          "id": 37864224057,
+          "repository_id": 1407894149,
+          "head_repository_id": 1407894149,
+          "head_branch": "codex/import-preview-controller",
+          "head_sha": "e391ee9d3d951dc7c518ff625e0649916e040e25"
+        }
+      },
+      "retainedFile": "windows-ctest.zip",
+      "sha256": "743992eab3a88d1ede04cfd476988059e1e57ef83d0573a39cfb36f4d0a27af6",
+      "selectedTests": 10,
+      "configuredTests": [
+        41
+      ],
+      "observedResult": [
+        "RPP structural checks=174; synthetic only; semantic/native compatibility unqualified",
+        "{\"checks\": 129, \"processBoundary\": true, \"sourceUntouched\": true, \"nativeDAWCompatibilityQualified\": false, \"platform\": \"win32\"}"
+      ]
+    },
+    {
+      "metadata": {
+        "id": 11587517810,
+        "node_id": "MDg6QXJ0aWZhY3QxMTU4NzUxNzgxMA==",
+        "name": "linux-synthetic-test-log",
+        "size_in_bytes": 10083,
+        "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11587517810",
+        "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11587517810/zip",
+        "expired": false,
+        "digest": "sha256:73ebd2121a992f78ced3e00975f6f9879714b08c2dcf556fcf521af2b409d6a9",
+        "created_at": "2026-10-09T00:28:01Z",
+        "updated_at": "2026-10-09T00:28:01Z",
+        "expires_at": "2027-01-07T00:20:01Z",
+        "workflow_run": {
+          "id": 37864224057,
+          "repository_id": 1407894149,
+          "head_repository_id": 1407894149,
+          "head_branch": "codex/import-preview-controller",
+          "head_sha": "e391ee9d3d951dc7c518ff625e0649916e040e25"
+        }
+      },
+      "retainedFile": "linux-ctest.zip",
+      "sha256": "73ebd2121a992f78ced3e00975f6f9879714b08c2dcf556fcf521af2b409d6a9",
+      "selectedTests": 74,
+      "configuredTests": [
+        74
+      ],
+      "observedResult": [
+        "Import controller checks=62; real child, synthetic project, native compatibility unqualified",
+        "PASS: 31 import preview UI checks; actual child, no project mutation, async retirement.",
+        "PASS: both executable modes; mode-only refusals; extracted DEB modes; data stays 0644.",
+        "RPP structural checks=174; synthetic only; semantic/native compatibility unqualified"
+      ]
+    }
+  ],
+  "scope": "All Linux synthetic/offscreen checks including controller/UI and helper mode fixture. Native Windows actual worker processes and selected disk/unit tests; report decoder compiles but Qt controller/dialog execution and bundle work are outside this receipt.",
+  "nativeEndpointActivated": false,
+  "localVMStarted": false,
+  "WindowsQtQualified": false,
+  "fullParityPromoted": false
+}

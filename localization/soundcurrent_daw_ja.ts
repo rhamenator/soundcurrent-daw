@@ -581,6 +581,18 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Open saved inspection</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>SoundCurrent inspections (*.scinspect)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Save inspection to a new file</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Inspect foreign project</source>
       <translation type="unfinished" />
     </message>
@@ -589,7 +601,15 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Cancel inspection</source>
+      <source>Open inspection…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Save inspection…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -605,7 +625,19 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Saving inspection…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Opening inspection…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Inspecting project…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspection saved with the original source bytes. Project properties remain unverified.</source>
       <translation type="unfinished" />
     </message>
     <message numerus="yes">
@@ -614,6 +646,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Inspection canceled.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The inspection could not be saved. Choose a new file name in a writable folder; existing files are preserved.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The inspection could not be opened. It may be unreadable, damaged, unsupported, or too large for the available import memory.</source>
       <translation type="unfinished" />
     </message>
     <message>

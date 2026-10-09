@@ -120,3 +120,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Windows clean-installed workflow preview](102-windows-installed-workflow-preview.md)
 
 - [Desktop foreign-project inspection preview and retirement](115-desktop-import-inspection.md)
+
+- [Portable saved inspection bundles](116-inspection-bundles.md)

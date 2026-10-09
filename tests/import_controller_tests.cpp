@@ -13,6 +13,7 @@ using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
 unsigned checks=0;
+struct ReleaseFlag { std::atomic<bool> &flag; ~ReleaseFlag() { flag=true; } };
 void check(bool value,const char *message) { ++checks; if (!value) throw std::runtime_error(message); }
 template<class F> void wait(F condition) {
     QElapsedTimer clock; clock.start();
@@ -50,6 +51,46 @@ int main(int argc,char **argv) {
         }
         check(held->report->source()==original,"Result did not survive controller facade");
         held.reset(); retired(memory);
+        {
+            std::atomic<bool> reached=false,release=false,offGui=false;
+            InspectionOptions options; options.memory=memory;
+            options.bundleSave.beforePublish=[&] {
+                offGui=QThread::currentThread()!=app.thread();
+                reached=true; while (!release) QThread::msleep(1);
+            };
+            ImportInspectionController controller(options); ReleaseFlag cleanup{release}; controller.submit(file);
+            auto originalResult=finish(controller)->report;
+            const auto bundle=file.parent_path()/"canceled-after-flush.scinspect";
+            check(controller.saveBundle(bundle,originalResult)==Admission::Accepted,"Bundle save was not admitted");
+            wait([&]{return reached.load();});
+            check(offGui,"Bundle disk hook ran on GUI thread");
+            check(controller.openBundle(bundle)==Admission::Full,"Bundle load bypassed single-flight admission");
+            controller.requestCancel(); release=true;
+            const auto result=finish(controller);
+            check(result->phase==InspectionPhase::Canceled && result->canceled && result->report==originalResult &&
+                  !result->childPid && !result->childExit && !result->savedBytes && !result->savedDurability,
+                  "Canceled save lost retained source or claimed publication/child");
+            check(!std::filesystem::exists(bundle),"Canceled flushed bundle was published");
+            controller.requestShutdown(); wait([&]{return controller.snapshot()->closed;});
+            check(originalResult->source()==original,"Save borrower did not survive shutdown");
+        }
+        retired(memory);
+        {
+            std::atomic<bool> reached=false,release=false;
+            InspectionOptions options; options.memory=memory;
+            options.program=QStringLiteral("/missing-owned-import-worker");
+            options.beforeBundle=[&] {reached=true; while (!release) QThread::msleep(1);};
+            ImportInspectionController controller(options);
+            ReleaseFlag cleanup{release};
+            check(controller.openBundle(file)==Admission::Accepted,"Bundle load not queued");
+            wait([&]{return reached.load();});
+            controller.requestShutdown(); release=true;
+            wait([&]{return controller.snapshot()->closed;});
+            check(!controller.snapshot()->report && !controller.snapshot()->childPid && !controller.snapshot()->childExit,
+                  "Closing bundle request published a result or invented a process");
+            check(controller.openBundle(file)==Admission::Closing,"Closed controller admitted bundle load");
+        }
+        retired(memory);
         {
             std::atomic<bool> reached=false, release=false;
             InspectionOptions options; options.memory=memory;

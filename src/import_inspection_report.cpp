@@ -69,10 +69,12 @@ std::size_t inspectionParserCharge(std::size_t bytes) {
     PayloadCharge charge("Inspection decoder",std::numeric_limits<std::size_t>::max());
     charge.add(32768); charge.add(bytes,inspectionDecoderExpansion); return charge.bytes();
 }
-ImportInspectionReport decodeInspectionReport(std::string_view encoded, ForeignSnapshot &&source,
+ImportInspectionReport decodeInspectionReport(OwnedInspectionProtocol protocol, ForeignSnapshot &&source,
     std::array<char,64> hash, std::size_t childPid, ResourceLedger resources,
     ResourceLease rowsGrant, ResourceLease parserGrant, std::stop_token stop) {
     canceled(stop);
+    const auto encoded=protocol.bytes();
+    check(protocol.ownedBy(resources) && source.ownedBy(resources),"Unadmitted encoded/source inspection bank");
     const auto lineCount=foreignSnapshotLines(source.bytes(),stop);
     check(childPid && lineCount && lineCount<=ReaperStructureLimits{}.maximumLines);
     check(resources.owns(rowsGrant) && resources.owns(parserGrant) &&
@@ -116,7 +118,7 @@ ImportInspectionReport decodeInspectionReport(std::string_view encoded, ForeignS
         const auto &writer=root["writerVersion"]; keys(writer,{"status","headerRange"});
         check(writer["status"]=="unverified");
         const auto &rows=root["nodes"]; check(rows.is_array() && rows.size()==lineCount);
-        ImportInspectionReport result(std::move(rowsGrant),std::move(source));
+        ImportInspectionReport result(std::move(rowsGrant),std::move(source),std::move(protocol));
         result.sha_=hash; result.pid_=childPid; result.root_=integer(root["root"]);
         check(result.root_<lineCount);
         result.nodes_.reserve(lineCount);
