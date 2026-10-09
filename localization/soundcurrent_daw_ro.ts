@@ -2207,6 +2207,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Rendering could not start: %1. Check Project resources and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.</source>
       <translation type="unfinished" />
     </message>

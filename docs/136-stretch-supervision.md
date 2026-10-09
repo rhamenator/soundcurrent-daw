@@ -117,3 +117,32 @@ result before its next timer refresh. Apply now checks track, clip and project
 opening again when invoked. The acceptance workflow freezes the button state,
 renders a second clip, refuses the stale Apply, explicitly adopts the current
 result, saves/reopens, and refuses a dialog retained from the preceding opening.
+
+## Review corrections
+
+The preceding source8a107ab passed protected Linux108/native Windows core40/
+Windows Qt12 plus cross-build in run37995301593. Its three archived logs passed
+API SHA256, ZIP CRC, raw counter and 658-source-hash checks. The exact receipt is
+retained as `preceding-native-qualification.json`; it qualifies the preceding
+source, before these review corrections.
+
+The actual low-resource button workflow reproduced an uncaught synchronous
+64 KiB selection admission error. The window now catches standard admission
+exceptions, reports the failure through the dialog, and permits retry after
+resources are restored. The regression requires no child, no derived namespace
+and unchanged project state on refusal, then continues the normal successful
+render/review/Apply workflow.
+
+Desktop configuration now requires the render worker. An owned configuration
+with desktop enabled and worker disabled previously succeeded; it now fails with
+a clear requirement. Core-only configuration with the worker disabled remains
+available. Current review corrections require their own Linux/native Windows
+qualification before merge or installer refresh.
+
+The corrected source passes all112 local Release tests, including48 actual
+application-window checks. Raw before/after failures, all configuration logs,
+the full test log, current executables and658 source inputs are retained in
+`review-correction-qualification.json`. Earlier sanitizer/screenshots and native
+CI receipts retain their earlier scopes; no current sanitizer, installed preview
+or native audio result is inferred from them. Native Windows checks of this
+corrected source remain pending.

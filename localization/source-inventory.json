@@ -42,7 +42,7 @@
     "ui/stretch_controller.hpp": "cdf669084fe43c8121ad6f8b7be84376e4d8c21914c2f83d49b6891549698717",
     "ui/stretch_dialog.cpp": "0738148fce09cce31ee3235e20d6a851135984ec6f10e38af9e4b01704844854",
     "ui/stretch_dialog.hpp": "ab3b202dd961995942fca25620238fc9eef3de8c48dfef6f3fe523ef69b4d31e",
-    "ui/studio_window.cpp": "779ad251449d8cfcf9cfb4abfd52111e2c24ebb30bc31b57bcfd12dc3d78edf1",
+    "ui/studio_window.cpp": "220fa9068ce2d1fddc712c74f6cac81767a13b4794aff358e4cc469f2c3a193f",
     "ui/studio_window.hpp": "4444c6cb2c409a7ae4c2e088f8258d6dc8db7d889c89959344404a6f7554a914",
     "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
     "ui/timeline_editor.hpp": "a48e52f31f5064f49c126fdd01d12b56b53c68d3d3f73b786b24a3d98cba2081",
@@ -3285,6 +3285,12 @@
     [
       "StudioWindow",
       "The render queue is unavailable. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendering could not start: %1. Check Project resources and retry.",
       "",
       false
     ],

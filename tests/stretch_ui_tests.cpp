@@ -58,6 +58,17 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.findChild<QComboBox *>("timelineClips")->count()>1;});
         auto *dialog=openDialog(window);auto *n=dialog->findChild<QSpinBox *>("stretchNumerator");auto *d=dialog->findChild<QSpinBox *>("stretchDenominator");auto *pitch=dialog->findChild<QDoubleSpinBox *>("stretchPitch");
         check(n->value()==1 && d->value()==1 && pitch->value()==0,"Raw clip settings not neutral");
+        {
+            const auto ledger=window.resourceLedger();const auto usage=ledger.usage();
+            check(usage.limitBytes-usage.reservedBytes>65536,"Insufficient allowance for owned exhaustion fixture");
+            const auto occupied=ledger.reserve(usage.limitBytes-usage.reservedBytes-32768);
+            dialog->refresh();dialog->findChild<QPushButton *>("renderStretch")->click();
+            check(!window.stretchSnapshot()->busy && !window.stretchSnapshot()->childPid &&
+                  *window.snapshot()->session==original && !std::filesystem::exists(root/"media/derived"),
+                  "Exhausted GUI admission mutated the project or launched a helper");
+            check(dialog->findChild<QLabel *>("stretchStatus")->text().contains("Project resources"),
+                  "GUI resource refusal was not displayed");
+        }
         dialog->setFocus();QWheelEvent wheel(n->rect().center(),n->mapToGlobal(n->rect().center()),{},{0,120},Qt::NoButton,Qt::NoModifier,Qt::NoScrollPhase,false);QApplication::sendEvent(n,&wheel);check(n->value()==1,"Unfocused duration changed on wheel scroll");
         n->setValue(5);d->setValue(1);dialog->refresh();check(!dialog->findChild<QPushButton *>("renderStretch")->isEnabled(),"Out-of-range multiplier render enabled");
         n->setValue(3);d->setValue(2);pitch->setValue(7.00007);dialog->findChild<QCheckBox *>("stretchFormant")->setChecked(true);dialog->refresh();dialog->findChild<QPushButton *>("renderStretch")->click();

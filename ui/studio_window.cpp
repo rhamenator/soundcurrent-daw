@@ -730,11 +730,17 @@ bool StudioWindow::stretchCanApply() const {
 }
 bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSettings settings) {
     if(!stretchCanRender())return false;
-    if(!stretch_.clearResult())return false;
-    stretchMessage_.clear();
-    const auto admission=stretch_.render(controller_.snapshot(),track,clip,settings);
-    if(admission!=Admission::Accepted){stretchMessage_=tr("The render queue is unavailable. Please retry.");return false;}
-    return true;
+    try {
+        if(!stretch_.clearResult())return false;
+        stretchMessage_.clear();
+        const auto admission=stretch_.render(controller_.snapshot(),track,clip,settings);
+        if(admission!=Admission::Accepted){stretchMessage_=tr("The render queue is unavailable. Please retry.");return false;}
+        return true;
+    } catch(const std::exception &error) {
+        stretchMessage_=tr("Rendering could not start: %1. Check Project resources and retry.")
+            .arg(QString::fromUtf8(error.what()));
+        return false;
+    }
 }
 bool StudioWindow::applyClipStretch() {
     if(!stretchCanApply())return false;
