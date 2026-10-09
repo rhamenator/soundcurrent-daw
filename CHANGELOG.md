@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- Owned C++ import intermediate model preserves original track/item scalar values,
+  Unicode byte tokens and opaque state with explicit missing, duplicate, ambiguous
+  and unsupported evidence. Source gain layers remain separate. Property preview
+  integration, destination conversion and rendered equivalence remain open.
+
 - Original REAPER7.82/Linux saved/reopened project corpus with native property
   witnesses and byte-preserving worker acceptance. Semantic conversion, rendered
   equivalence and Windows source-writer qualification remain open.

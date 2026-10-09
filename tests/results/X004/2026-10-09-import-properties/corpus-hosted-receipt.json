@@ -1,0 +1,34 @@
+{
+  "format": "sc-hosted-corpus-inspection-receipt-v1",
+  "sourceHead": "96ffb4eae3d11e632035e0d036c16cb579922d38",
+  "mergeCommit": "801871510b56785c738b3c868f9fae0c21cb78b1",
+  "runId": 37873863721,
+  "artifacts": [
+    {
+      "platform": "windows",
+      "artifactId": 11591886001,
+      "zipSha256": "ae34843ac3e8b55946b4b9b2bf3b922cd7d8abfc9cd225954ff4d4fab7486a31",
+      "nativeCorpusChecks": 6013,
+      "corpusInspectionPlatform": "win32",
+      "selectedTests": 13,
+      "jobId": 113638036939
+    },
+    {
+      "platform": "linux",
+      "artifactId": 11591408465,
+      "zipSha256": "0d715c2f34aba23dbd9fdfcaed23fab2f6752ddf66e0b037450d01b1b772361e",
+      "nativeCorpusChecks": 6013,
+      "corpusInspectionPlatform": "linux",
+      "selectedTests": 76,
+      "jobId": 113638036671
+    }
+  ],
+  "sourceWriter": "7.82/linux-x86_64",
+  "nativeSourceWriterExecutedInCI": false,
+  "newImportPropertyLayerExecutedInThisRun": false,
+  "semanticImportQualified": false,
+  "windowsWriterQualified": false,
+  "renderComparisonQualified": false,
+  "windowsQtOrInstallerQualified": false,
+  "originalCheckoutFailureRetained": "../2026-10-09-native-writer-corpus/hosted-windows-original-failure.zip"
+}

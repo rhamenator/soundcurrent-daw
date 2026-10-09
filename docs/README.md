@@ -126,3 +126,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Bounded synthetic recording CI writer observations](117-recording-ci-observations.md)
 
 - [Frozen original native-writer import corpus](118-native-writer-import-corpus.md)
+
+- [Owned import intermediate properties and loss evidence](119-import-intermediate-properties.md)

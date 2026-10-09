@@ -10,7 +10,7 @@ Native project import is a required capability. Exchange formats are additional 
 |---|---|---|
 | Bitwig Studio projects | Native `.bwproject` investigation plus separate DAWproject adapter | No native parser/corpus qualified; required investigation starts in M0 |
 | Cubase projects | Native `.cpr` investigation plus separate DAWproject/AAF/OMF workflows | No native parser/corpus qualified; required investigation starts in M0 |
-| REAPER projects | Native `.rpp` adapter candidate | Seven original7.82/Linux native-writer projects frozen; structural inspection only, property mapping/render compatibility unqualified |
+| REAPER projects | Native `.rpp` adapter candidate | Seven original7.82/Linux native-writer projects frozen; owned scalar/byte IR added; worker property preview, conversion and render compatibility unqualified |
 | Ableton Live, FL Studio, Studio One, Pro Tools, Logic and other common suites | Inventory native containers, lawful documentation/fixtures and exchange options per suite | Required coverage program; exact version envelopes and parsers remain unqualified |
 | Standard exchange | DAWproject, AAF/OMF, SMF, MusicXML; other formats after evaluation | Separate semantic coverage and loss reports per format |
 
@@ -84,3 +84,13 @@ native compatibility. Windows inspection of the Linux-generated corpus is a
 separate gate from a Windows writer. The next task is the admitted import IR and
 per-property mapping/loss report, followed by approved conversion and independent
 render comparisons. All other registered suites/formats remain required.
+
+## Source-property IR checkpoint (2026-10-09 UTC, later)
+
+[Checkpoint119](119-import-intermediate-properties.md) adds an original admitted
+C++ model with stable field IDs, source-side scalar/byte values, exact opaque state
+and preserved/unsupported/missing/unverified records. Tests compare seven actual
+writer witnesses and exercise malformed/duplicate/missing/ambiguous state and
+retirement. No field is converted and no media is resolved. Property worker/report,
+parent validation/UI, approved destination mapping and aligned renders follow;
+the installed preview and complete adapter/parity scope remain unchanged.

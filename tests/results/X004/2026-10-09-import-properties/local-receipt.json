@@ -1,0 +1,113 @@
+{
+  "format": "sc-import-ir-local-evidence-v1",
+  "sourceBase": "96ffb4eae3d11e632035e0d036c16cb579922d38",
+  "sameBaseTreeAsMerge": "801871510b56785c738b3c868f9fae0c21cb78b1",
+  "sourceInputsSha256": {
+    "CMakeLists.txt": "2f8c5931bace6191197673348fb697179c569127041fb764c83ead31c02b4b6d",
+    ".github/workflows/ci.yml": "6074ba28c4f6917e95840ec78b99f1369bdc892bef0135420ca82260e3b3f32b",
+    ".gitattributes": "e06acabfea8e532b744c378dad9b30f88af95425fab0dfa3fb0fbbd00a030295",
+    "include/soundcurrent/reaper_import.hpp": "04aa941929aa1607059281252f55b3624c210342980aa0022e1a2b901efc61cb",
+    "src/reaper_import.cpp": "64c6204be9e2f4097b49f0e7cf65f970fbcd8bae777b1dc0290292e630c8e24d",
+    "include/soundcurrent/reaper_structure.hpp": "dd8cef361422f8a3423545707fb4aea5182d715829a0cfa55e30dfc1956e18aa",
+    "src/reaper_structure.cpp": "8c5db4ca25fe5a2a69b016d5ee73845c6646fab814c1a36825e6558629640c89",
+    "include/soundcurrent/resource_ledger.hpp": "9225bcc34e6c2d6bcd362840837ee7ac9b2bce3c31d7d72a230257479d015b17",
+    "src/resource_ledger.cpp": "531458368d17825a5744b1a0f59585ce2c6169041ceae648612f934e6fcb86e7",
+    "tests/reaper_import_tests.cpp": "45aa0c05e84c19b614612053cf4e9145a1e38267827277e3e725d99310ea98c2",
+    "tests/reaper_native_corpus_tests.py": "f86cec1453420c6c8cba88d82d2ba193a9824161934bcae232e35e6fe1829d00",
+    "tests/fixtures/reaper-7.82/manifest.json": "ebc5d5d39fb9058f77033392ce25be820001799ce655a4242fb16ee773891fdd",
+    "tests/fixtures/reaper-7.82/blank.rpp": "d778dcbab988c8f465e170e40abaa78b2a4861d1644280066660e78683cb3bbc",
+    "tests/fixtures/reaper-7.82/generate.lua": "7c9c45587bacf335a703ef7cdf9d035d5e3accad609f3f299a493bf29b620192",
+    "tests/fixtures/reaper-7.82/generate_media.py": "72d8e9a4f8fc5af14daf694c842ee7b5c8f0ce868e66133722af56c7d0b1bcc2",
+    "tests/fixtures/reaper-7.82/projects/empty.observed.json": "8ef68659c8b6e037f07f0721d1bb8b700877a905fe15314d905d87912945a4a0",
+    "tests/fixtures/reaper-7.82/projects/empty.rpp": "7b2f0a838abc82cc0e8a8f3c55cfeda44d7223213bcb177eb56095fe72d54ae9",
+    "tests/fixtures/reaper-7.82/projects/media/mono.wav": "b6e3da19c650ae458f6e09055fe37a0ca23446e924f028e0b995b79ba1ef2a00",
+    "tests/fixtures/reaper-7.82/projects/media/stereo.wav": "199a76b2a2d74ab1da037086d92e1188f6366791da978fffe83870d8d36a2ded",
+    "tests/fixtures/reaper-7.82/projects/midi-tempo.observed.json": "396d76af27ddeda8ba9bcf08d4b9d355e8baa5de7df04335dca16fb30a15cdf6",
+    "tests/fixtures/reaper-7.82/projects/midi-tempo.rpp": "bad42422264c44a6f46a702340ccb818b32fa747a0cee2b0efd7a2a84262ba5a",
+    "tests/fixtures/reaper-7.82/projects/offset-fades.observed.json": "4f0759a16ecf17430c90895b23f431764773d787851b09c9075d508b4ddd7308",
+    "tests/fixtures/reaper-7.82/projects/offset-fades.rpp": "ee2ca2e11ce52b37e3ef929798d8e73427f46acd7b70d04548a2d83a705bdc55",
+    "tests/fixtures/reaper-7.82/projects/opaque-state-routing.observed.json": "2025138713d4f975c7fa20744772f1243748a801ff1371248e9fb7bbfb9e9004",
+    "tests/fixtures/reaper-7.82/projects/opaque-state-routing.rpp": "77ac5b159f5aa38091a8046f8bc8645b49c34223d5daa50bfa6fd8282b5c5241",
+    "tests/fixtures/reaper-7.82/projects/rate-pitch.observed.json": "d30a405433b1e0d1522668a9fd29f5e962f8f3f973e9b222a8d30caa8d6ce032",
+    "tests/fixtures/reaper-7.82/projects/rate-pitch.rpp": "f4a62e9708daacf53c6282d19eff6c537377456896852b6b2da055c350a8b2e9",
+    "tests/fixtures/reaper-7.82/projects/stereo-gain-pan.observed.json": "808a974cd1a06712dd7f99ce713e16884a888d329f38eb95b0e6a0daf74f523e",
+    "tests/fixtures/reaper-7.82/projects/stereo-gain-pan.rpp": "0721d640a1a62b535a854f5a6d94eecd0fd0ccec7f054cde7a93b77f9e2e65e0",
+    "tests/fixtures/reaper-7.82/projects/unicode-mono.observed.json": "84db80075689f6abc94633de2138a76e5e0da0b82f84fd2897cd99b1012e3299",
+    "tests/fixtures/reaper-7.82/projects/unicode-mono.rpp": "8e1aed49bba6867947c1cd90e43937389f17f87edd27cc4adb5429b3bbc79345",
+    "tests/fixtures/reaper-7.82/projects/writer-complete.json": "7de59e92f1355e8105a4fe8b021077e637afbd131ca5bc5e2005e9bc14cb6ea4",
+    "tests/fixtures/reaper-7.82/author_in_lab.py": "6dabbd4badd982f589f5fa6bcf45242da1e3f44353c6a31a8c709beed5a71368"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-reaper-import-tests": "7834ef065153f3c2d9519fcc83f366fdf663a13758c8a1555be5aa27c931d365",
+    ".cache/build-desktop-sanitized/sc-reaper-import-tests": "333210138c8eda31e4dfc37a3ed61697c84764064dd1ade82bfd0793402694df",
+    ".cache/build-windows-core/sc-reaper-import-tests.exe": "f09bfcd93e6258fd76b6928cf9ea9630a478e06820b38d843873d2e71fa2a860"
+  },
+  "evidenceSha256": {
+    "tests/results/X004/2026-10-09-import-properties/local-release-build.log": "56022bb4f5dc8a7d5f2156d748c58a53763ff048b36167e6ec56a890a5101827",
+    "tests/results/X004/2026-10-09-import-properties/local-release-test.log": "81d6492baa5709908514801de4b625e781cac5f95f77c48d755ef29ce43133bb",
+    "tests/results/X004/2026-10-09-import-properties/local-sanitized-build.log": "56022bb4f5dc8a7d5f2156d748c58a53763ff048b36167e6ec56a890a5101827",
+    "tests/results/X004/2026-10-09-import-properties/local-sanitized-test.log": "b78fac027a5f87520031e39567bed2fb9db994a89984375a6ba502254a082b43",
+    "tests/results/X004/2026-10-09-import-properties/local-cross-build.log": "0dbb5614ba82323a1c4e15e03455dad52df234b4ad293544fcc52aac97b7f536"
+  },
+  "commands": [
+    {
+      "command": "cmake --build .cache/build-desktop-release --parallel 2 --target sc-reaper-import-tests",
+      "exit": 0
+    },
+    {
+      "command": "ctest --test-dir .cache/build-desktop-release -R '^(reaper-import-properties|reaper-structure|reaper-native-corpus|import-inspection-worker|inspection-bundle)$' --output-on-failure --no-tests=error -V",
+      "exit": 0,
+      "selectedTests": 5,
+      "propertyChecks": 885
+    },
+    {
+      "command": "cmake --build .cache/build-desktop-sanitized --parallel 2 --target sc-reaper-import-tests",
+      "exit": 0
+    },
+    {
+      "command": "ASAN_OPTIONS=detect_leaks=0 ctest --test-dir .cache/build-desktop-sanitized -R '^reaper-import-properties$' --output-on-failure --no-tests=error -V",
+      "exit": 0,
+      "selectedTests": 1,
+      "propertyChecks": 885,
+      "leakDetection": false
+    },
+    {
+      "command": "cmake --build .cache/build-windows-core --parallel 2 --target sc-reaper-import-tests",
+      "exit": 0,
+      "execution": false
+    }
+  ],
+  "schemaVersion": 1,
+  "propertyIds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "nativeWindowsPropertyChecksQualified": false,
+  "workerPropertyProtocolImplemented": false,
+  "parentPropertyDecoderImplemented": false,
+  "qtPropertyPreviewImplemented": false,
+  "semanticImportQualified": false,
+  "renderComparisonQualified": false,
+  "installerChanged": false,
+  "localVMStarted": false,
+  "equalizerWorktreesModified": false,
+  "userAudioRouteChanged": false
+}
