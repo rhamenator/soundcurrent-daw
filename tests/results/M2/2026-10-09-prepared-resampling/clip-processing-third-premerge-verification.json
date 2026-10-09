@@ -1,0 +1,39 @@
+{
+  "head": "1849bde9a588cb2d05cd6429a997371e2dba9707",
+  "run": 37928624392,
+  "requiredChecksPassed": [
+    "Linux desktop and synthetic tests",
+    "Windows core cross-build (no native runtime claim)",
+    "Windows native packet ownership tests",
+    "Windows desktop import and localization tests"
+  ],
+  "protectionUnchanged": true,
+  "bypass": false,
+  "unresolvedThreads": 0,
+  "artifactsVerified": [
+    {
+      "artifact": "core",
+      "id": 11615452438,
+      "archiveSha256": "aed01a837d59b282e961ab4bf32ab795416d72ed4e62794b01a449054a4d2892",
+      "rawLogSha256": "3994c6e759c575d855617b1534badf48e7b16a03c217f7e8741dc66ba449f5f0",
+      "passedTests": 28
+    },
+    {
+      "artifact": "qt",
+      "id": 11615037913,
+      "archiveSha256": "c4d2df473dd0b63f54e0be6c624d27fbc5b619d03309d13404420d1fab0b8ba4",
+      "rawLogSha256": "2d10979c63ed1c85feb3def67240f0c26aa6f90ac33730feb0bed4ef15a51893",
+      "passedTests": 8
+    },
+    {
+      "artifact": "linux",
+      "id": 11614764985,
+      "archiveSha256": "70ccbc4971dd1a2dfd50510e9dc54f8fe766597a77aada967ccea0377e1b4289",
+      "rawLogSha256": "cf9b066a03b47222c951386608ffa67b02e2a702c2152dd92597f4c578b0b0b1",
+      "passedTests": 92
+    }
+  ],
+  "nativeWindowsFocusedUndoPassed": true,
+  "largeProjectSanitizer": "separate180s timeout remains open",
+  "fullParity": false
+}

@@ -53,5 +53,472 @@
     "linux_package": "libsndfile1:amd64 1.2.2-4",
     "script": "scripts/build_windows_media.py",
     "distribution_inventory": "Incomplete: exact transitives/compiler runtimes/embedded notices/source delivery remain release gates"
+  },
+  "libsamplerate_source": {
+    "version": "0.2.2",
+    "license": "BSD-2-Clause",
+    "archive": {
+      "url": "https://codeload.github.com/libsndfile/libsamplerate/tar.gz/refs/tags/0.2.2",
+      "bytes": 3954784,
+      "sha256": "16e881487f184250deb4fcb60432d7556ab12cb58caea71ef23960aec6c0405a",
+      "extractedEntries": 107,
+      "regularFiles": 96,
+      "directories": 11
+    },
+    "vendored": true,
+    "files": {
+      "AUTHORS": {
+        "sha256": "1407129d9cf9ee8444e0a397577fa384c945646d74beb3c66aab626024418230",
+        "bytes": 326
+      },
+      "CMakeLists.txt": {
+        "sha256": "c0bae086aed726a1b64d79f7f8ab62f56e28e77ae5f9100c1a646ebcd7f50bf4",
+        "bytes": 3860
+      },
+      "COPYING": {
+        "sha256": "2c1f76ce2effdddb425018405d5690c0b1ab4e6976e35296b0a6db65c5e1a55d",
+        "bytes": 1334
+      },
+      "ChangeLog": {
+        "sha256": "fe5dd16be3b89a0468500f0a72c5a612ddb73f61edd1d71afc0d73780645cb79",
+        "bytes": 36486
+      },
+      "INSTALL": {
+        "sha256": "c2ff1b5c839b30964c4d9007daed3d9f0f5502dfb4ce7062dbe94e41bec03abe",
+        "bytes": 3397
+      },
+      "Makefile.am": {
+        "sha256": "66a03b192e3ceb9a5ced0c3e8fe55a582b1b73b649337cb0b31e5d4260dff42b",
+        "bytes": 5602
+      },
+      "NEWS": {
+        "sha256": "71965e70caf5ff05d614e172d6da81e6ca09ba246455bb3ed2b294ff819c5983",
+        "bytes": 3068
+      },
+      "Octave/Readme.md": {
+        "sha256": "bb10db576a66700aa6013f51687272772f167d35dcc10733ba112381105abd6a",
+        "bytes": 929
+      },
+      "Octave/generate_filter.m": {
+        "sha256": "79c99f4fdcd098fd95b07ad78a66c83f36f10433e9e8439438ed52dd9ec1caa1",
+        "bytes": 692
+      },
+      "Octave/make_filter.m": {
+        "sha256": "a8cae2ad0469949bd323c59d873224ab2c53fc0fb7c5d575952b06445560c223",
+        "bytes": 4113
+      },
+      "Octave/measure_filter.m": {
+        "sha256": "0d4ebaddb715b355ea06eddc04d4d38a38b46df2d657cec7e033d6d1bb3f53e6",
+        "bytes": 1893
+      },
+      "README.md": {
+        "sha256": "9541335f7b04a302fd908f51fdce851ebe1f146e2d37124eb37550bdd7ae847c",
+        "bytes": 2496
+      },
+      "Win32/libsamplerate-0.def": {
+        "sha256": "be5c2d301193247d6841a65ddb2d53f7720006174c93862afb31078a712851cc",
+        "bytes": 477
+      },
+      "autogen.sh": {
+        "sha256": "23983b51d79f04b0de26910dcebfe71f46cfac1a2271c5233e12e42a2c871ba2",
+        "bytes": 3675
+      },
+      "cmake/ClipMode.cmake": {
+        "sha256": "9d5548a88cd4f9a223d8d5f13cd8d392876bbf7bdeaf4e644407cafefd55cf94",
+        "bytes": 2007
+      },
+      "cmake/FindFFTW3.cmake": {
+        "sha256": "2e73c2ea5314c7e481e4895cd29037d29984015e36f5238c70f04f0671b895ca",
+        "bytes": 2959
+      },
+      "cmake/FindFLAC.cmake": {
+        "sha256": "2c9f6adca8e48d6a60ea32c681848dc1f1439a3639a01d2e2b69e7831a208694",
+        "bytes": 1697
+      },
+      "cmake/FindOgg.cmake": {
+        "sha256": "483931c94c78bc7b1bdda010df853e31a242312408d436c0c55b84751a2d1acb",
+        "bytes": 1419
+      },
+      "cmake/FindOpus.cmake": {
+        "sha256": "95a93461a3b707ef8d22ee3ced913f843f3164da50511d50dd84f6c49ae4f065",
+        "bytes": 1571
+      },
+      "cmake/FindSndFile.cmake": {
+        "sha256": "e913c028eead9f9a9c9c0ddfae3172eb4526b7eaac8209d5133f273ba3cdbe7d",
+        "bytes": 1532
+      },
+      "cmake/FindVorbis.cmake": {
+        "sha256": "c924f6ca4f9ba0076e68415079498518481a8c02871cb51e502b7fda6e08293e",
+        "bytes": 5671
+      },
+      "cmake/SampleRateConfig.cmake.in": {
+        "sha256": "e35421250cf4b716b366dfa1f321b5dde80aaeae61b37f54a6a99b010b1f056c",
+        "bytes": 59
+      },
+      "config.h.cmake": {
+        "sha256": "acb737b94fe8d3d067edb853c3e26251a582c9ae2409a959a666d2790fa5c36c",
+        "bytes": 1994
+      },
+      "configure.ac": {
+        "sha256": "fcb88541354bdd41bafe2d9041277790d232df8433074dcc9f14606f05b5f6a9",
+        "bytes": 13867
+      },
+      "docs/CMakeLists.txt": {
+        "sha256": "4e791c96bfa70d19424afaeb87837ba409a63bf9441cdb6bdb9dd9743ea1da6d",
+        "bytes": 277
+      },
+      "docs/SRC.css": {
+        "sha256": "a0f9417d431cc2274c44bdf0d646d3e717217cc4a1e9712bdebede13dce0f575",
+        "bytes": 650
+      },
+      "docs/SRC.png": {
+        "sha256": "1eb21d2890118cf1b78a36b7b710ac2105890c3bb0a53c1631221a8a3b62472d",
+        "bytes": 22775
+      },
+      "docs/_config.yml": {
+        "sha256": "1d1fb6a14a65e0f2054c27151ba82c02183c8bfb9fbe5a8507568360eddfd932",
+        "bytes": 205
+      },
+      "docs/_layouts/default.html": {
+        "sha256": "212f5f2ce7f692d4ec61ee1539a238eb22a147ece9c77b572c3d4af9b9c7a379",
+        "bytes": 1416
+      },
+      "docs/api.md": {
+        "sha256": "18e67d73db8b49bc2fdcb3a02e10bb3dca16b8caffb201cf48a5fdfaecf0fb08",
+        "bytes": 1950
+      },
+      "docs/api_callback.md": {
+        "sha256": "4b58ae6c37104cd5cb702e8e9e772400b96b6c98689ab1b87f0a1600eea08743",
+        "bytes": 3588
+      },
+      "docs/api_full.md": {
+        "sha256": "74b58d6402938120302b6288cffd755fa8ee559d55e9d2da9994b209bf362543",
+        "bytes": 4614
+      },
+      "docs/api_misc.md": {
+        "sha256": "16654b85973d9680f87bee7b94205628cde2ca7893f930490578e92724216cfe",
+        "bytes": 5789
+      },
+      "docs/api_simple.md": {
+        "sha256": "8bf42fb81bfad8d5f92960b0a1b8b65a69da806c4d1db3fff87ab38bbb8e389a",
+        "bytes": 2429
+      },
+      "docs/bugs.md": {
+        "sha256": "fa2344fc8d23d14e96e3ace544292ed3306223b3e0689d6fdbab66fba21d707f",
+        "bytes": 1791
+      },
+      "docs/download.md": {
+        "sha256": "125ff9e2c3e2235516dedb5884fd5b8e15468ced663d79221e19c60853cba4f3",
+        "bytes": 515
+      },
+      "docs/faq.md": {
+        "sha256": "897f617b3a377b6a70480a02037a74313b41721fdd3bacaed3b6b2579e1e098c",
+        "bytes": 10249
+      },
+      "docs/foo_dsp_src9.png": {
+        "sha256": "08c53db4428dcf731f4ffa35448438f6986108aeadbbfad68b1971abdef6157a",
+        "bytes": 8846
+      },
+      "docs/history.md": {
+        "sha256": "0035cb40d41b9abdbc8e9040fdde5c2bf3ba6fcb4fcf259ebe6be35a4e3b6774",
+        "bytes": 1933
+      },
+      "docs/index.md": {
+        "sha256": "39df050e4a1243fb08f795c12ab3ea4cbd9212c2482ff38cdea9964e3f9ca49c",
+        "bytes": 9180
+      },
+      "docs/license.md": {
+        "sha256": "9722032e4b5684f0ecd399480183a9029623636add1e9515621defaf8dbcf3ed",
+        "bytes": 377
+      },
+      "docs/lists.md": {
+        "sha256": "a9d37b1a2802cd5999d55d149c69c325bc51e1be95456ecd94516238e82beb6b",
+        "bytes": 479
+      },
+      "docs/paypal.png": {
+        "sha256": "a49e6087fa53b889b39b214c7ab00f7658f158754e93884486d584cfaa3a775f",
+        "bytes": 770
+      },
+      "docs/quality.md": {
+        "sha256": "137f9c66d3570fb59c45c7cb13603877e361d913c8b5c3919a571198450554ce",
+        "bytes": 4060
+      },
+      "docs/win32.md": {
+        "sha256": "6338af0904d8e6a0d3c5c59f745eb9f30b379328183351eeda42ee350f40bc76",
+        "bytes": 694
+      },
+      "examples/CMakeLists.txt": {
+        "sha256": "c5d01bf7d05d0bbf876331441b4ff21d53c4c380b39188a7bc5fefab098bc83a",
+        "bytes": 983
+      },
+      "examples/audio_out.c": {
+        "sha256": "9fc6cda3f8b0f0d6630646a0fa3de163739aab67771ef2eeec5c4501da6eeb4c",
+        "bytes": 31012
+      },
+      "examples/audio_out.h": {
+        "sha256": "8703cb3866a4444b0730d5ac61f7607055d4779985bc19e6fa1c4b4a016bb6a5",
+        "bytes": 842
+      },
+      "examples/timewarp-file.c": {
+        "sha256": "80c7fd9a445502cc5ab388f6da2b60539431fd98b9d3f752cca754917a047f7f",
+        "bytes": 6050
+      },
+      "examples/varispeed-play.c": {
+        "sha256": "51d9e5f56486664b5dc8d30bc632be8e9949db00f89a36f5c1540c1a83ac87fe",
+        "bytes": 6167
+      },
+      "include/samplerate.h": {
+        "sha256": "dfe5f4107782bcf6e9b8421a9e7c4772e19446a4c18727c73b22286d3fbb6626",
+        "bytes": 4971
+      },
+      "libsamplerate.spec.in": {
+        "sha256": "d2d1d10278a7e65d34bd394e512914c178f3649eccc8cc4a09e37b473ce39702",
+        "bytes": 1455
+      },
+      "m4/ax_append_compile_flags.m4": {
+        "sha256": "71173f317bd5d915f6c215569cf2e7dc092bde838fc07b8ef7ed99f6bad58176",
+        "bytes": 2992
+      },
+      "m4/ax_append_flag.m4": {
+        "sha256": "06c86faf340a11a68c24115751de99247d56836810ef7723a4c0c01d827d0a5b",
+        "bytes": 2779
+      },
+      "m4/ax_append_link_flags.m4": {
+        "sha256": "91f7cba5211e332ebc30bd6d163db08474fb4d2237650f82f9b02f039a933fb6",
+        "bytes": 2938
+      },
+      "m4/ax_check_compile_flag.m4": {
+        "sha256": "302601f55edc1c28382e383e4c96ee3820f56df01964350a8bae16afd2f27f78",
+        "bytes": 3331
+      },
+      "m4/ax_check_link_flag.m4": {
+        "sha256": "602348be096fb9883e6a12a5619021e8daa2d6b41294ae8ef7701dd62f3d2662",
+        "bytes": 3183
+      },
+      "m4/ax_compiler_vendor.m4": {
+        "sha256": "47bced48ffa93fa6b1169581df1d6af1120bdcf824d5aa51453bd8a320cad1ff",
+        "bytes": 3606
+      },
+      "m4/ax_compiler_version.m4": {
+        "sha256": "19c12d301755172be8fc18792105cef9992c7e9470404dd0de27d527f775491b",
+        "bytes": 21739
+      },
+      "m4/ax_recursive_eval.m4": {
+        "sha256": "e03d2fcb4617102f534439279e152862ff1291f3d4d1b7244022d5950a09b565",
+        "bytes": 2408
+      },
+      "m4/ax_require_defined.m4": {
+        "sha256": "d870b21e817747c6a61a9dd72e06ea45f87e012c7a1a9aa5ff90cd3af89b3774",
+        "bytes": 1218
+      },
+      "m4/check_signal.m4": {
+        "sha256": "dd41be14c8e2f528b42ffec64836f00d5ed228bb2f9753fc968947b87654486a",
+        "bytes": 487
+      },
+      "m4/clip_mode.m4": {
+        "sha256": "8999dc496d005f398937b57805a58adb96b3b3ca282f7b124ddfd263e9027ef0",
+        "bytes": 2378
+      },
+      "samplerate.pc.in": {
+        "sha256": "05ec5da75de1971ac36518b0612db9578926406d762333fd00623e7b10fb78d4",
+        "bytes": 260
+      },
+      "src/CMakeLists.txt": {
+        "sha256": "97996654b1058fb65a4acc7f02efa6c280d3fd0e5d007a4a366a05fbcf5432b3",
+        "bytes": 6093
+      },
+      "src/Version_script.in": {
+        "sha256": "cdfbf22bb0d9e58e77fb8b55a9da944060a992700550a8ecc7c84bac4e108a8a",
+        "bytes": 689
+      },
+      "src/check_asm.sh": {
+        "sha256": "d38af21dfbbc96cbfe172edda3a7b2f5ad80e7ad1615d30d21ca5815dd8370fc",
+        "bytes": 1475
+      },
+      "src/common.h": {
+        "sha256": "0826d52807152f5577ecb519c3df46f4453a9b7e55ad9b2880ff82a95977c3ca",
+        "bytes": 4113
+      },
+      "src/fastest_coeffs.h": {
+        "sha256": "60b342165e7be7c58efd9002163c07b65ece52994ee839dbe06908991ef1fb1b",
+        "bytes": 72194
+      },
+      "src/high_qual_coeffs.h": {
+        "sha256": "35d4bc6ed93cbd5a89510d7d7efda00116b5c28a25369c07288bc7d25a937df6",
+        "bytes": 9187199
+      },
+      "src/mid_qual_coeffs.h": {
+        "sha256": "22b2b75ef0344f60787f19c3bfd594d47303c0fafe7e13d0e7517612b8963d7d",
+        "bytes": 606564
+      },
+      "src/samplerate.c": {
+        "sha256": "ecc11b6bec5bd8131a3dd510a7017a5b7b503573d9b49b7e02ee5c3c86568717",
+        "bytes": 12962
+      },
+      "src/src_linear.c": {
+        "sha256": "f04a3e79b7150f2f6e6ad2b05979d874e03bf567a682bbb6507c797d4ea8a972",
+        "bytes": 7532
+      },
+      "src/src_sinc.c": {
+        "sha256": "8e59137d758dae5027410af7f81010e7a9c33892070091866510f0f8b638237e",
+        "bytes": 41430
+      },
+      "src/src_zoh.c": {
+        "sha256": "c089678c9e6463896507a8d476fc4a33641c46fbe94aa8243acf725d4c203adb",
+        "bytes": 6893
+      },
+      "tests/CMakeLists.txt": {
+        "sha256": "d8ac00c76d30b24ceaaa3a47b676077a11ead7b9da4b23e91f0d26e980533f28",
+        "bytes": 3967
+      },
+      "tests/calc_snr.c": {
+        "sha256": "6a8064e21d5eee13bc2c5c58bf6267f6aebdea668b21aa16ffcf60e9ab0d14d4",
+        "bytes": 6309
+      },
+      "tests/callback_hang_test.c": {
+        "sha256": "b3af2cdb0bc12eea731569c20a43f5f3c0702f25b7873ff46833ee9acb8f3d3a",
+        "bytes": 2496
+      },
+      "tests/callback_test.c": {
+        "sha256": "4f66366336b71abe6df647a1dcf55b57c0ecaf11c86380cdc6699edf62a912e0",
+        "bytes": 6140
+      },
+      "tests/clone_test.c": {
+        "sha256": "a3d2c9f366ffe78f9370436ea73762cd8f7b308c88e3cfe0cf90808860207638",
+        "bytes": 4228
+      },
+      "tests/downsample_test.c": {
+        "sha256": "42ef9e2f9ddcaef3112d4ab1c963202b47ed9b6a98e668331154a9f26b5736a9",
+        "bytes": 1271
+      },
+      "tests/float_short_test.c": {
+        "sha256": "5e67c416855b2fc42578ac7c2cb914335b9c8857820b416485233915743eaecd",
+        "bytes": 4754
+      },
+      "tests/misc_test.c": {
+        "sha256": "57d13ee8fc46a026cd24419eae8e7332ebc7179de34c08259095c5383650dd2a",
+        "bytes": 4694
+      },
+      "tests/multi_channel_test.c": {
+        "sha256": "ec127a4f11ef5171e3318182a1170582999ea86aa1c4920deccfbc12772372a6",
+        "bytes": 11144
+      },
+      "tests/multichan_throughput_test.c": {
+        "sha256": "46d94966929c5982f67dba9981cc4df451da080c6a5d754a9cdfb8e7249d000c",
+        "bytes": 6281
+      },
+      "tests/nullptr_test.c": {
+        "sha256": "008306440cb9959f11ff647df78da857200298a083c905482875a3c3e817f3e4",
+        "bytes": 2465
+      },
+      "tests/reset_test.c": {
+        "sha256": "700acaad7ecd6ba90407ecf8b5571cb8287118298a11c160aa7ef9bb8d7e2bd1",
+        "bytes": 6055
+      },
+      "tests/simple_test.c": {
+        "sha256": "0939e630a5f9e945b1e41fafce8c644ff74ff946ad3d5179fd1cd6aa39545769",
+        "bytes": 4518
+      },
+      "tests/snr_bw_test.c": {
+        "sha256": "7e782d69397eb4b7b12cb0e68a22373540ce5fa584305f787f91da8ea9d52219",
+        "bytes": 10686
+      },
+      "tests/src-evaluate.c": {
+        "sha256": "e05db0831fcaa783a3bedfef93c1c863146a59f7533e355c598aaa6c8a2812b5",
+        "bytes": 13364
+      },
+      "tests/streaming_test.c": {
+        "sha256": "3468932eb008ac26d0fbfd94b88e4ac142b1e9cd345f2e21a6d633e9cc9fa4da",
+        "bytes": 3817
+      },
+      "tests/termination_test.c": {
+        "sha256": "aed8de138e10641241efd83ecc8ba507f829eefcba7709decfb4e88da690684c",
+        "bytes": 9698
+      },
+      "tests/throughput_test.c": {
+        "sha256": "512b6bd9d0fa2c628921bd8978d902f953d9df0b45b08827e944c8f2b0704d29",
+        "bytes": 6171
+      },
+      "tests/util.c": {
+        "sha256": "ad54f1c53468130cfe1a266b5cac88a427fb9e6475bf33acc65e113ac98006db",
+        "bytes": 5288
+      },
+      "tests/util.h": {
+        "sha256": "3de5558f9cad059654d8e818dcf6a3fa5383f7e657b392930778e89d5a6e7eba",
+        "bytes": 1245
+      },
+      "tests/varispeed_test.c": {
+        "sha256": "b900953d87e444afdacc056556e6cddd707dce0ef02e727fc1d09c32db39dcd1",
+        "bytes": 7838
+      }
+    },
+    "modifications": [],
+    "scope": "Prepared disk/read-ahead resampling component; not yet connected to Session playback or project conversion",
+    "build": {
+      "linkage": "static",
+      "bestSinc": true,
+      "fastSinc": false,
+      "mediumSinc": false,
+      "upstreamExamples": false,
+      "upstreamTests": false,
+      "upstreamInstall": false,
+      "externalLibraries": "none; platform C runtime/math",
+      "CONFIG_CHAN_NR": 256,
+      "sanitizers": "Upstream C instrumented when application C++ sanitizer flags are enabled"
+    },
+    "nativeWindowsQualification": "pending",
+    "tagObject": "b9c20b93660c3683fda12e3c2a01f0021bf96c56",
+    "sourceCommit": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7",
+    "releaseDate": "2021-09-05T11:49:04Z",
+    "licenseScope": "BSD-2-Clause applies to the compiled kernel/public API and upstream default; separately licensed complete-source helpers are inventoried below.",
+    "additional_source_notices": [
+      {
+        "files": [
+          "m4/ax_append_compile_flags.m4",
+          "m4/ax_append_flag.m4",
+          "m4/ax_append_link_flags.m4",
+          "m4/ax_check_compile_flag.m4",
+          "m4/ax_check_link_flag.m4",
+          "m4/ax_compiler_vendor.m4"
+        ],
+        "license": "GPL-3.0-or-later with the file\u2019s Autoconf-generated-configure exception",
+        "usedInSelectedBuild": false,
+        "noticeLocation": "Original license/exception and copyright headers retained in every listed file; root LICENSE contains GPL-3.0 text."
+      },
+      {
+        "files": [
+          "m4/ax_recursive_eval.m4"
+        ],
+        "license": "GPL-2.0-or-later with the file\u2019s Autoconf-generated-configure exception",
+        "usedInSelectedBuild": false,
+        "noticeLocation": "Original license/exception and Alexandre Duret-Lutz copyright header retained; distributed under later GPL-3.0 option, text in root LICENSE."
+      },
+      {
+        "files": [
+          "m4/ax_compiler_version.m4",
+          "m4/ax_require_defined.m4"
+        ],
+        "license": "FSFAP",
+        "usedInSelectedBuild": false,
+        "noticeLocation": "Original permissive notices and Bastien Roucaries / Mike Frysinger copyright headers retained.",
+        "reference": "https://spdx.org/licenses/FSFAP.html"
+      },
+      {
+        "files": [
+          "m4/clip_mode.m4"
+        ],
+        "license": "File-specific historical permission notice: use/copy/modify/distribute/sell without fee; retain copyright and permission notice; as-is disclaimer",
+        "usedInSelectedBuild": false,
+        "noticeLocation": "Exact Erik de Castro Lopo permission header retained; no SPDX identifier inferred."
+      },
+      {
+        "files": [
+          "cmake/FindFFTW3.cmake"
+        ],
+        "license": "BSD-2-Clause",
+        "usedInSelectedBuild": false,
+        "noticeLocation": "Original Wenzel Jakob 2015 copyright, two conditions and disclaimer retained; this unused discovery module does not link FFTW."
+      }
+    ]
   }
 }

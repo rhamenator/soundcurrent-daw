@@ -1,0 +1,9 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start 1: prepared-resampling
+1/2 Test #1: prepared-resampling ..............   Passed   11.99 sec
+    Start 2: prepared-timing-oracle
+2/2 Test #2: prepared-timing-oracle ...........   Passed    2.58 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  14.57 sec

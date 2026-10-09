@@ -1,0 +1,36 @@
+Start testing: Oct 09 09:11 EDT
+----------------------------------------------------------
+1/98 Testing: prepared-resampling
+1/98 Test: prepared-resampling
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-resampling-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"prepared-resampling" start time: Oct 09 09:11 EDT
+Output:
+----------------------------------------------------------
+Rate pairs=121 matrix_output_frames=323574 exact_rational_durations=true passband_max_error=3.48573e-07 alias_amplitude_23k_to_21.1k=6.52547e-09; not full quality/latency/deadline qualification
+PASS: 405827 prepared-resampling checks; exact timing/fractional split, fixed best-sinc stream/drain, bounded ownership, partitions, rate/layout coverage and float headroom; Session/UI/native audio, seek, independent pitch/stretch and full quality unqualified
+<end of output>
+Test time =  11.99 sec
+----------------------------------------------------------
+Test Passed.
+"prepared-resampling" end time: Oct 09 09:11 EDT
+"prepared-resampling" time elapsed: 00:00:11
+----------------------------------------------------------
+
+2/98 Testing: prepared-timing-oracle
+2/98 Test: prepared-timing-oracle
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/timing_oracle_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-resampling-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"prepared-timing-oracle" start time: Oct 09 09:11 EDT
+Output:
+----------------------------------------------------------
+{"checks": 324, "oracle": "independent Python arbitrary precision integers", "actualCppExecuted": true, "sourceProjectMappingOnly": true, "sessionConversion": false, "nativeAudio": false}
+<end of output>
+Test time =   2.58 sec
+----------------------------------------------------------
+Test Passed.
+"prepared-timing-oracle" end time: Oct 09 09:11 EDT
+"prepared-timing-oracle" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Oct 09 09:11 EDT

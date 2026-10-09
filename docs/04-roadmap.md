@@ -654,3 +654,17 @@ pass. This does not expand production defaults or infer arbitrary capacity from
 a track count. User configuration of additional state/parser admission grants
 remains a separate X006 UI/product gate. New source/full/native gates are distinct
 from the preceding failing hosted source.
+
+## Prepared resampling component (2026-10-09)
+
+Previous turn was progress: PR73 merged exact qualified1849bde through unchanged
+protection, Linux92/native Windows core28/Qt8, with identical merge tree. Its
+final verified receipt is retained in checkpoint130. This increment implements
+[exact source/project coordinates and pinned best-sinc streaming](130-prepared-resampling.md),
+bounded ownership/drain/context, neutral copies and full admitted channel layouts.
+The retained mono/stereo end discrepancy and128-channel default refusal prompted
+real production/build repairs. Local Release2 and ASan/UBSan2 pass; upstream C is
+instrumented, leak detection disabled. Exact-source native and full quality gates
+remain separate. Full F/Q/C/N parity stays incomplete. Next: versioned clip timing,
+shared reader/export integration, phase/history-preserving seek/split, rate/pitch/
+stretch, explicit conversion/loss/Undo/reopen/aligned renders and installed previews.
