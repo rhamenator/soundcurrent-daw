@@ -122,3 +122,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Desktop foreign-project inspection preview and retirement](115-desktop-import-inspection.md)
 
 - [Portable saved inspection bundles](116-inspection-bundles.md)
+
+- [Bounded synthetic recording CI writer observations](117-recording-ci-observations.md)

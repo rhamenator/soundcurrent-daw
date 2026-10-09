@@ -8,6 +8,10 @@
 
 ## Unreleased — development preview
 
+- Synthetic concurrent recording tests retain bounded writer phase/backlog
+  diagnostics without changing capture policy. Original failed and passing
+  native runs are recorded separately; sustained native qualification stays open.
+
 - Save/Open portable `.scinspect` files with exact original bytes, retained
   unverified outline and checksum validation. Disk work runs on the admitted
   worker; existing destinations are preserved and missing original sources are

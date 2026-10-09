@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <sndfile.h>
 #include "rt_audit.hpp"
+#include "writer_timing.hpp"
 #include <soundcurrent/recording.hpp>
 #include <array>
 #include <atomic>
@@ -255,12 +256,26 @@ void concurrentTake() {
     auto session = makeOneTrackSession("Enregistrement – Aufnahme", "Prise / Aufnahme");
     const auto spec = specFor(session);
     CapturePipe pipe(spec.capture);
-    RecordingWorker worker(pipe, temp.root, spec);
+    struct DiskTiming {
+        native_fixture::WriterTiming timing;
+        bool onAudio = false;
+        static void observe(void *context, const RecordingWriterObservation &observation) noexcept {
+            auto &self = *static_cast<DiskTiming *>(context);
+            self.onAudio |= rt_audit::active;
+            const auto now = std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+            self.timing.record(observation, now);
+        }
+    } disk;
+    RecordingOptions options;
+    options.instrumentation = {&disk, DiskTiming::observe};
+    RecordingWorker worker(pipe, temp.root, spec, options);
     Source source(1, 127);
     constexpr Frame total = 480000;
     bool correct = true;
     CaptureReport last;
     Frame attemptedFrame = 0;
+    const auto producerStart = std::chrono::steady_clock::now();
     for (Frame f = 0; f < total;) {
         const auto n = static_cast<std::uint32_t>(std::min<Frame>(source.quantum, total - f));
         const auto r = source.push(pipe, f, n);
@@ -277,11 +292,26 @@ void concurrentTake() {
         std::this_thread::sleep_for(
             std::chrono::nanoseconds(std::uint64_t(n) * 1000000000ULL / spec.capture.sampleRate));
     }
+    const auto producerEnd = std::chrono::steady_clock::now();
     {
         rt_audit::Guard guard;
         pipe.finish();
     }
     const auto result = worker.wait();
+    // Fixed disk-owner aggregates are read only after join. These wall intervals
+    // include scheduling; they cannot identify filesystem service time or turn
+    // a later passing run into proof of the original failure's cause.
+    std::cout << "Concurrent synthetic capture producer_elapsed_ns="
+              << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                     producerEnd - producerStart).count()
+              << " intended_frames=" << total
+              << " sample_rate=" << spec.capture.sampleRate
+              << " pool_slabs=" << spec.capture.poolSlabs
+              << " slab_frames=" << spec.capture.slabFrames
+              << " writer_timing=";
+    disk.timing.write(std::cout);
+    std::cout << '\n';
+    check(!disk.onAudio, "Concurrent writer diagnostics ran on audio");
     if (!correct || !worker.complete() || result.asset.frames != total ||
         worker.writtenFrames() != total)
         std::cerr << "Concurrent capture correct=" << correct << " complete=" << worker.complete()

@@ -1,0 +1,25 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 72
+    Start 72: recording-recovery
+
+72: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-recording-tests
+72: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+72: Test timeout computed to be: 60
+72: Concurrent synthetic capture producer_elapsed_ns=10422044995 intended_frames=480000 sample_rate=48000 pool_slabs=32 slab_frames=1024 writer_timing={"maximum_ready_slabs":1,"maximum_queued_frame_upper_bound":1024,"capacity_frames":32768,"maximum_write_gap_ns":32140713,"missing_phase_pairs":0,"phase_pairs_complete":true,"phase_summaries":[{"phase":"write_hash","count":469,"maximum_ns":679548,"maximum_begin_monotonic_ns":25708533705868,"maximum_end_monotonic_ns":25708534385416,"begin_written_frames":166912,"end_written_frames":167936,"begin_committed_frames":144384,"end_committed_frames":144384,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":1024,"end_acquired_frames":1024},{"phase":"audio_flush","count":10,"maximum_ns":32083,"maximum_begin_monotonic_ns":25708009499030,"maximum_end_monotonic_ns":25708009531113,"begin_written_frames":144384,"end_written_frames":144384,"begin_committed_frames":96256,"end_committed_frames":96256,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0},{"phase":"journal_publish","count":11,"maximum_ns":380324,"maximum_begin_monotonic_ns":25705908659306,"maximum_end_monotonic_ns":25705909039630,"begin_written_frames":48128,"end_written_frames":48128,"begin_committed_frames":0,"end_committed_frames":48128,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0},{"phase":"idle_wait","count":9724,"maximum_ns":10375811,"maximum_begin_monotonic_ns":25708516030368,"maximum_end_monotonic_ns":25708526406179,"begin_written_frames":166912,"end_written_frames":166912,"begin_committed_frames":144384,"end_committed_frames":144384,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0}]}
+72: {"checks":277,"synthetic_recorded_frames":480000,"rate_hz":48000,"concurrent_disk_worker":true,"rt_allocations":0,"rt_frees":0,"rt_blocking_locks":0,"raw_overs_preserved":true,"prefix_recovery":true,"native_audio_device":false}
+1/1 Test #72: recording-recovery ...............   Passed   10.52 sec
+
+The following tests passed:
+	recording-recovery
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  10.53 sec

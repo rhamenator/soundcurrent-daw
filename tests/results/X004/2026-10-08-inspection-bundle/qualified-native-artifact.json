@@ -1,0 +1,20 @@
+{
+  "id": 11589638848,
+  "node_id": "MDg6QXJ0aWZhY3QxMTU4OTYzODg0OA==",
+  "name": "windows-native-packet-unit-log",
+  "size_in_bytes": 1801,
+  "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11589638848",
+  "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11589638848/zip",
+  "expired": false,
+  "digest": "sha256:cee2ad66007fab1f821deffd49710bf92cc883e32210875caed53b9c39af610a",
+  "created_at": "2026-10-09T01:28:53Z",
+  "updated_at": "2026-10-09T01:28:53Z",
+  "expires_at": "2027-01-07T01:25:08Z",
+  "workflow_run": {
+    "id": 37869674726,
+    "repository_id": 1407894149,
+    "head_repository_id": 1407894149,
+    "head_branch": "codex/import-inspection-bundles",
+    "head_sha": "939850c13f2421be78baf03fa90e50c36b7ee02d"
+  }
+}

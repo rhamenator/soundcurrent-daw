@@ -1,0 +1,44 @@
+{
+  "format": "sc-recording-ci-observation-local-v1",
+  "utc": "2026-10-09T01:35:24.882165+00:00",
+  "sourceBase": "939850c13f2421be78baf03fa90e50c36b7ee02d",
+  "sourceSha256": {
+    "tests/recording_tests.cpp": "a07f15b5448c86288bc9a79c487fa1c30f24c6c86364cf4310c7a3577af7f43b",
+    "tests/writer_timing.hpp": "dcd4f2d07d839491e684d159bc628df93d12abd6d4025a9f19003f761110a9fb"
+  },
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-recording-tests": "9e7f0f70e8fa5722c9c354749cb7193fcf88cc0c4caa572178c191f00c9f150f",
+    ".cache/build-desktop-release/sc-writer-timing-tests": "1e50900fd86870de5bac6eb4c8a7a237e9ed8765cc5f4087564beba860d394db"
+  },
+  "command": [
+    "ctest",
+    "--test-dir",
+    ".cache/build-desktop-release",
+    "-R",
+    "^(recording-recovery|writer-backlog-timing)$",
+    "-V",
+    "--no-tests=error"
+  ],
+  "actualExit": 0,
+  "seconds": 10.551,
+  "logSha256": "85fa4270595e8a26dc5b8ca1d99c4135a34f5e3dcfd61d630b55755f83968c2f",
+  "capturePolicyChanged": false,
+  "nativeTimingQualified": false,
+  "localVMStarted": false,
+  "originalFailureCauseEstablished": false,
+  "selectedTests": 1,
+  "separatePhaseHelperTest": {
+    "command": [
+      "ctest",
+      "--test-dir",
+      ".cache/build-desktop-release",
+      "-R",
+      "^writer-phase-timing$",
+      "-V",
+      "--no-tests=error"
+    ],
+    "actualExit": 0,
+    "selectedTests": 1,
+    "logSha256": "2bb8318224252c92a910422184445b8b0c670a98e3b889d2888670f41682fbdb"
+  }
+}
