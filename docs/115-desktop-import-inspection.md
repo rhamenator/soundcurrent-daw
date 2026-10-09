@@ -70,7 +70,11 @@ CMake installs the helper beside the application. New Linux package preparation
 requires its tested executable hash and rejects missing/stale helper payloads.
 New Windows preparation requires a matching source commit, actual native worker
 PID/exit and helper executable hash, independently from pinned third-party DLLs.
-These checks do not qualify a new installer: existing preview binaries are unchanged.
+Linux permission normalization preserves 0755 for both binaries; staged and
+extracted payload checks refuse mode-only damage. The reviewer-found initial
+helper execute-bit bug and the [fix receipt](../tests/results/X004/2026-10-08-desktop-inspection/helper-permissions.json)
+are separate from full installed-payload qualification. These checks do not
+qualify a new installer: existing preview binaries are unchanged.
 
 New controls, statuses, errors, columns and plural counts are extracted into the
 DAW catalogs. Line numbers follow QLocale; RTL layout is exercised. There are

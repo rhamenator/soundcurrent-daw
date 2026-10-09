@@ -41,6 +41,7 @@ for installed,relative in inputs.items():
     original=source/relative;original.parent.mkdir(parents=True,exist_ok=True)
     original.write_bytes(('Independent source fixture: '+relative+'\n').encode())
     payload=stage/installed;payload.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(original,payload)
+builder.normalize_staged_permissions(stage)
 binary=source/'qualified-binary'
 assert len(builder.verify_staged_install(stage,source,binary))==5
 def refuse(name):
@@ -56,7 +57,7 @@ extra=stage/'usr/share/applications/old-unqualified.desktop';extra.write_text('S
 refuse('extra-install-file');extra.unlink()
 icon=stage/'usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg';before=icon.read_bytes();icon.unlink()
 refuse('missing-icon');icon.symlink_to(source/'packaging/soundcurrent-daw.svg')
-refuse('symlink-payload');icon.unlink();icon.write_bytes(before)
+refuse('symlink-payload');icon.unlink();icon.write_bytes(before);icon.chmod(0o644)
 assert len(builder.verify_staged_install(stage,source,binary))==5
 print('PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.')
 
@@ -65,8 +66,27 @@ print('PASS: build-source binding; five independent stale payloads, extra/missin
 worker=binary.parent/'sc-import-inspect-worker';worker.write_bytes(b'qualified worker')
 refuse('missing-worker')
 installed=stage/'usr/bin/sc-import-inspect-worker';installed.write_bytes(worker.read_bytes())
+builder.normalize_staged_permissions(stage)
 assert len(builder.verify_staged_install(stage,source,binary))==6
 installed.write_bytes(b'stale worker');refuse('stale-worker')
 installed.write_bytes(worker.read_bytes())
 assert len(builder.verify_staged_install(stage,source,binary))==6
 print('New desktop payload: qualified worker required; missing/stale worker refused.')
+
+for executable in ('soundcurrent-daw','sc-import-inspect-worker'):
+    p=stage/'usr/bin'/executable;p.chmod(0o644);refuse('non-executable-'+executable)
+    builder.normalize_staged_permissions(stage)
+    assert p.stat().st_mode&0o777==0o755
+    assert len(builder.verify_staged_install(stage,source,binary))==6
+assert (stage/'usr/share/applications/soundcurrent-daw.desktop').stat().st_mode&0o777==0o644
+# Verify Debian preserves the normalized mode, independently of input byte hashes.
+control=stage/'DEBIAN';control.mkdir()
+(control/'control').write_text('Package: sc-permission-fixture\nVersion: 1\nArchitecture: all\nMaintainer: Test <test@example.invalid>\nDescription: owned permission fixture\n')
+builder.normalize_staged_permissions(stage)
+archive=owned/'permission-fixture.deb'
+subprocess.run(['dpkg-deb','--root-owner-group','--build',stage,archive],check=True,capture_output=True)
+extracted=owned/'extracted';subprocess.run(['dpkg-deb','--extract',archive,extracted],check=True)
+for relative in inputs:
+    builder.verify_payload_mode(extracted/relative,relative)
+builder.verify_payload_mode(extracted/'usr/bin/sc-import-inspect-worker','usr/bin/sc-import-inspect-worker')
+print('PASS: both executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')
