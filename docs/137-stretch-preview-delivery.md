@@ -64,3 +64,12 @@ application and matching helper receipts, and exercise installed workflows and
 upgrade/uninstall preservation. Current distribution dependency reviews and
 source delivery remain required. No VM, system installation, installer upload or
 new release is claimed by this checkpoint.
+
+Current local evidence in
+[the final qualification receipt](../tests/results/M2/2026-10-09-stretch-preview-delivery/final-local-qualification.json)
+was repeated after the GUI review corrections. All compiled inputs match the
+corrected6734a53 Release build, which passed112 tests. Current package fixtures,
+actual render/verifier receipt and exact eleven-file CMake staging pass. The
+original pre-rebase local receipt remains historical, with its original identity;
+the current process receipt is retained separately. Native Windows receipt
+production and installer acceptance remain separate pending gates.

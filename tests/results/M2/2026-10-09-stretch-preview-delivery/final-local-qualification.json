@@ -1,0 +1,44 @@
+{
+  "qualifiedHead": "e03e2a66381428f29283e5209b5757928d37263a",
+  "sourceSha256": {
+    "tools/stretch_worker_qualification.py": "4afd5281ee40749241d1b748ad3879508cf6141f1ee03643268c433000adafa3",
+    "tools/package_linux_preview.py": "aa1071b2c1cfe46c616b55da38e07c68a417a6413167ac75238ee31ad57db0a0",
+    "tools/package_windows_preview.py": "69b33a58ac2c9171e53d6601b968ee486a20596b63891b91f90a1f986c3462cc",
+    "tests/stretch_worker_tests.py": "d509ef61852d9b3b09668f3eb0b3cbf1eb635b6ec00b71a29960a9aad6f76ee5",
+    "tests/preview_package_tests.py": "af8a134114958a9698b6188b84b69f83aedd9c563b62f94ec28d271b42264976",
+    "tests/windows_package_input_tests.py": "dd8f4c7731d3e53d2e4e815c9a049707a84f7dfb47ba71970b103f40c42151eb",
+    ".github/workflows/ci.yml": "31f6076745d14d6240fd17743d771d0b281bd9a9ea7e714ebd8f8b9203f97fa6",
+    "CMakeLists.txt": "4f9d222d856a252161af82db41a4c01dd804755aad2d38b97cba803b1e11ebcc",
+    "third_party/rubberband/COPYING": "cedd4c1885d75991bf1077cc6e33359103cf04fbc996f20d30ab043d5fc5fcc5",
+    "docs/137-stretch-preview-delivery.md": "8befa9649a5c8548b8ae668d4983fe7371753581f91c7c38995677676e58272d"
+  },
+  "evidenceSha256": {
+    "final-linux-package-inputs.log": "84b577c6ed8b4b4709f965233676b44833f634d72cd5bd46bda20f095e613765",
+    "final-windows-package-inputs.log": "e566c3f0fccd2d1aa00c4a0c1d9626d9377ce1deb1178db5b2ccec68a288e4a9",
+    "final-worker-qualification.log": "95e1f3a66a885e67b220a872fddbf311a5aed5e413c7ab77a2379e1cbd9e4ec5",
+    "final-worker-qualification.json": "029f98ad56a25923e4cc695c16d18652fea71d3424cdd0eb14b8bbc754a71ea2",
+    "final-actual-install.log": "627b692c1343483c50d9161e0fbf50d818f6e3dc83f9b07906d8b577f5e3692d",
+    "final-actual-install-inputs.json": "ab00da40a1bf1ee4c2d45000574e5c87556d82c2a9d17b32a6b32cd997c53c4a"
+  },
+  "actualCMakeStagedInputs": 11,
+  "actualExecutableModesVerified": 5,
+  "receiptRefusals": 37,
+  "ownedRenderAcceptanceChecks": 172,
+  "processReceiptIncludesAdditionalIdentityChecks": 2,
+  "artifactVerifierChecks": 1045,
+  "localWorkerReceiptValidated": true,
+  "sourceCompilerInputs": "All compiled inputs of the corrected 6734a53 Release build match. Only Python package/tests, CI and evidence attributes changed. All112 Release gates passed there; current package/worker/receipt tests and staging run independently here.",
+  "nativeWindowsReceiptProducer": "pending stacked PR CI",
+  "systemInstallation": false,
+  "installerCreated": false,
+  "releaseUploaded": false,
+  "nativeAudio": false,
+  "vmStarted": false,
+  "fullParity": {
+    "functional": false,
+    "processingQuality": false,
+    "bundledContent": false,
+    "nativeProjects": false
+  },
+  "previousLocalReceipt": "Original pre-rebase 9e11d2f receipt remains historical; current exact e03e2a6 process receipt is separate"
+}
