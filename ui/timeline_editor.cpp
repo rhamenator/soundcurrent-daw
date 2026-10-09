@@ -2,6 +2,8 @@
 #include "timeline_editor.hpp"
 #include "session_list_model.hpp"
 #include "timeline_view.hpp"
+#include "accelerating_spinbox.hpp"
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
@@ -32,6 +34,24 @@ class FocusCombo : public QComboBox {
             e->ignore();
     }
 };
+class FocusDoubleSpin : public widgets::AcceleratingDoubleSpinBox {
+    void wheelEvent(QWheelEvent *e) override {
+        if (hasFocus()) widgets::AcceleratingDoubleSpinBox::wheelEvent(e);
+        else e->ignore();
+    }
+};
+void numericField(QDoubleSpinBox *w, double value, bool force) {
+    if (force || !w->hasFocus()) {
+        w->setValue(value);
+        w->setProperty("canonicalValue",value);
+        w->setProperty("displayValue",w->value());
+    }
+}
+double numericValue(QDoubleSpinBox *w) {
+    return w->property("canonicalValue").isValid() &&
+           w->value() == w->property("displayValue").toDouble() ?
+        w->property("canonicalValue").toDouble() : w->value();
+}
 QString text(const std::string &s) {
     return QString::fromUtf8(s);
 }
@@ -205,6 +225,62 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
                              {}}});
     });
     body->addLayout(clipRow);
+    auto *processingToggle = new QPushButton(tr("Clip gain and fades"));
+    processingToggle->setObjectName("clipProcessingToggle");
+    processingToggle->setCheckable(true);
+    body->addWidget(processingToggle);
+    auto *processingBody = new QWidget;
+    processingBody->setObjectName("clipProcessingFields");
+    auto *processingForm = new QFormLayout(processingBody);
+    clipGain_ = new FocusDoubleSpin;
+    clipGain_->setObjectName("clipGainDb");
+    clipGain_->setRange(-120,60);clipGain_->setDecimals(6);clipGain_->setSingleStep(.1);
+    clipGain_->setAccessibleName(tr("Clip gain in decibels"));
+    auto *gainRow = new QHBoxLayout;
+    gainRow->addWidget(clipGain_);
+    clipMuted_ = new QCheckBox(tr("Mute clip"));clipMuted_->setObjectName("clipMuted");
+    clipInverted_ = new QCheckBox(tr("Invert clip polarity"));clipInverted_->setObjectName("clipPolarityInverted");
+    gainRow->addWidget(clipMuted_);gainRow->addWidget(clipInverted_);
+    processingForm->addRow(tr("Clip gain (dB)"),gainRow);
+    const auto fadeFields = [&](bool out) {
+        auto *row = new QHBoxLayout;
+        auto *start = new QLineEdit;auto *end = new QLineEdit;
+        start->setObjectName(out ? "clipFadeOutStart" : "clipFadeInStart");
+        end->setObjectName(out ? "clipFadeOutEnd" : "clipFadeInEnd");
+        start->setAccessibleName(out ? tr("Fade out start frame") : tr("Fade in start frame"));
+        end->setAccessibleName(out ? tr("Fade out end frame") : tr("Fade in end frame"));
+        start->setLayoutDirection(Qt::LeftToRight);end->setLayoutDirection(Qt::LeftToRight);
+        auto *curve = new FocusCombo;curve->setObjectName(out ? "clipFadeOutCurve" : "clipFadeInCurve");
+        curve->setAccessibleName(out ? tr("Fade out curve") : tr("Fade in curve"));
+        curve->addItem(tr("Linear"),int(ClipFadeCurve::Linear));
+        curve->addItem(tr("Equal power"),int(ClipFadeCurve::EqualPower));
+        curve->addItem(tr("Smoothstep"),int(ClipFadeCurve::Smoothstep));
+        auto *shape = new FocusDoubleSpin;shape->setObjectName(out ? "clipFadeOutShape" : "clipFadeInShape");
+        shape->setRange(.25,4);shape->setDecimals(6);shape->setSingleStep(.05);
+        shape->setAccessibleName(out ? tr("Fade out shape") : tr("Fade in shape"));
+        row->addWidget(new QLabel(tr("Start")));row->addWidget(start);
+        row->addWidget(new QLabel(tr("End")));row->addWidget(end);
+        row->addWidget(curve);row->addWidget(shape);
+        processingForm->addRow(out ? tr("Fade out") : tr("Fade in"),row);
+        if (out) {fadeOutStart_=start;fadeOutEnd_=end;fadeOutCurve_=curve;fadeOutShape_=shape;}
+        else {fadeInStart_=start;fadeInEnd_=end;fadeInCurve_=curve;fadeInShape_=shape;}
+    };
+    fadeFields(false);fadeFields(true);
+    auto *explanation = new QLabel(tr("Fade windows use clip-relative frames: start is included, end is excluded. Set both to 0 to disable. Signed positions preserve fades after trimming or splitting; raw media stays unchanged."));
+    explanation->setWordWrap(true);explanation->setTextFormat(Qt::PlainText);
+    processingForm->addRow(explanation);
+    auto *applyProcessing = new QHBoxLayout;
+    button(applyProcessing,QT_TRANSLATE_NOOP("TimelineEditor", "Apply clip processing"),"applyClipProcessing",[this] {
+        if (!clip_ || !track_) return;
+        ClipProcessing p;
+        p.gainDb=numericValue(clipGain_);p.muted=clipMuted_->isChecked();p.polarityInverted=clipInverted_->isChecked();
+        p.fadeIn={frame(fadeInStart_,true),frame(fadeInEnd_,true),ClipFadeCurve(fadeInCurve_->currentData().toInt()),numericValue(fadeInShape_)};
+        p.fadeOut={frame(fadeOutStart_,true),frame(fadeOutEnd_,true),ClipFadeCurve(fadeOutCurve_->currentData().toInt()),numericValue(fadeOutShape_)};
+        mutate({SetClipProcessing{*track_,*clip_,p}});
+    });
+    processingForm->addRow(applyProcessing);
+    body->addWidget(processingBody);processingBody->hide();
+    connect(processingToggle,&QPushButton::toggled,processingBody,&QWidget::setVisible);
     auto *assetRow = new QHBoxLayout;
     asset_ = new FocusCombo;
     assets_ = new SessionListModel(SessionListModel::Kind::Assets, this, false, memory);
@@ -278,14 +354,15 @@ const Clip *TimelineEditor::clip() const {
                                  [&](const auto &c) { return c.id == *clip_; });
     return it == t->clips.end() ? nullptr : &*it;
 }
-Frame TimelineEditor::frame(QLineEdit *w) const {
+Frame TimelineEditor::frame(QLineEdit *w, bool allowSigned) const {
     const auto bytes = w->text().toLatin1();
     Frame n = 0;
     const auto [end, error] =
         std::from_chars(bytes.constData(), bytes.constData() + bytes.size(), n);
-    if (error != std::errc{} || end != bytes.constData() + bytes.size() || n < 0)
+    if (error != std::errc{} || end != bytes.constData() + bytes.size() || (!allowSigned && n < 0))
         throw ProjectError(ErrorCode::InvalidParameter,
-                           "Frame must be a nonnegative decimal integer");
+                           allowSigned ? "Fade frame must be a signed decimal integer" :
+                                         "Frame must be a nonnegative decimal integer");
     return n;
 }
 void TimelineEditor::operation(const std::function<void()> &f) {
@@ -369,6 +446,8 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
     if (!p)
         return;
     const auto previous = track_;
+    const auto *previousClip = clip();
+    const auto previousProcessing = previousClip ? previousClip->processing : ClipProcessing{};
     const auto previousDestination = destination_->currentData().toString();
     const auto previousAsset = asset_->currentData().toString();
     const bool changed = model_ != p->model || epoch_ != p->epoch || track_ != p->track ||
@@ -388,8 +467,14 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         clip_ = std::move(p->clip);
         pendingTrack_ = std::move(p->pending);
     }
-    if (changed)
-        refresh(p->force, true, previousDestination, previousAsset);
+    if (changed) {
+        const auto *currentClip = clip();
+        const auto currentProcessing = currentClip ? currentClip->processing : ClipProcessing{};
+        // Stored changes (including Undo/Redo) must update these controls even
+        // while focused. Unrelated state publication preserves in-progress input.
+        refresh(p->force, true, previousDestination, previousAsset,
+                previousProcessing != currentProcessing);
+    }
     if (previous != track_ && selectionChanged)
         selectionChanged();
 }
@@ -436,7 +521,7 @@ bool TimelineEditor::selectTrack(const Id &id) {
     return select(id, track_ == std::optional<Id>(id) ? clip_ : std::optional<Id>{});
 }
 void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> destination,
-                             std::optional<QString> asset) {
+                             std::optional<QString> asset, bool forceProcessing) {
     QScopedValueRollback<bool> guard(refreshing_, true);
     QSignalBlocker block(tracks_);
     const auto previousDestination = destination.value_or(destination_->currentData().toString());
@@ -472,6 +557,19 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
     if (force || !name_->hasFocus())
         name_->setText(t ? text(t->name) : QString());
     name_->setEnabled(editable_ && t);
+    for (auto *w : {fadeInStart_,fadeInEnd_,fadeOutStart_,fadeOutEnd_}) w->setEnabled(editable_ && c);
+    for (auto *w : {clipGain_,fadeInShape_,fadeOutShape_}) w->setEnabled(editable_ && c);
+    for (auto *w : {clipMuted_,clipInverted_}) w->setEnabled(editable_ && c);
+    for (auto *w : {fadeInCurve_,fadeOutCurve_}) w->setEnabled(editable_ && c);
+    const auto p = c ? c->processing : ClipProcessing{};
+    forceProcessing = forceProcessing || force;
+    numericField(clipGain_,p.gainDb,forceProcessing);numericField(fadeInShape_,p.fadeIn.shape,forceProcessing);numericField(fadeOutShape_,p.fadeOut.shape,forceProcessing);
+    if (forceProcessing || !clipMuted_->hasFocus()) clipMuted_->setChecked(p.muted);
+    if (forceProcessing || !clipInverted_->hasFocus()) clipInverted_->setChecked(p.polarityInverted);
+    field(fadeInStart_,p.fadeIn.startFrame,forceProcessing);field(fadeInEnd_,p.fadeIn.endFrame,forceProcessing);
+    field(fadeOutStart_,p.fadeOut.startFrame,forceProcessing);field(fadeOutEnd_,p.fadeOut.endFrame,forceProcessing);
+    if (forceProcessing || !fadeInCurve_->hasFocus()) fadeInCurve_->setCurrentIndex(fadeInCurve_->findData(int(p.fadeIn.curve)));
+    if (forceProcessing || !fadeOutCurve_->hasFocus()) fadeOutCurve_->setCurrentIndex(fadeOutCurve_->findData(int(p.fadeOut.curve)));
     for (auto *w : {start_, source_, length_, split_})
         w->setEnabled(editable_ && c);
     if (c) {

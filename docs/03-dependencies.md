@@ -6,6 +6,20 @@ Repository head/commit dates and archive flags are captured in [dependency-obser
 
 Recent commits are a maintenance signal, not a guarantee of support, review quality or a stable release. Libraries not compiled here retain an integration gate; no untested candidate is presented as a finished component choice.
 
+## Clip rendering candidate review (2026-10-09)
+
+Original clip gain/fades add no dependency. Existing C++20 math and the shared
+reader/history/schema/resource infrastructure implement the processor; the reviewed
+Qt spin-box adaptation remains unchanged. [Checkpoint129](129-clip-gain-and-fades.md)
+and ADR095 evaluate libsamplerate0.2.2 (BSD-2-Clause), Rubber Band4.0.0
+(GPL-2.0-or-later/alternate commercial) and soxr0.1.3 (LGPL-2.1-or-later) against
+functionality, official license/API, maintenance and integration cost. They remain
+provisional. An already installed Linux libsamplerate binary passes a bounded
+four-tone/partition feasibility probe; exact source/build/transitive pins and
+quality, seek/delay/tail, full-rate/layout, native Windows and ownership/deadline
+qualification are required before adoption. No system package or dependency binary
+was installed or copied into the repository.
+
 ## Recommended boundaries
 
 | Candidate and primary source | Functionality / Linux fit | License assessment | Maintenance evidence / cost | Decision and required gate |

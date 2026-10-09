@@ -1,0 +1,29 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+      Start  7: desktop-localization
+ 1/12 Test  #7: desktop-localization ...............   Passed    0.65 sec
+      Start  8: daw-translation-catalogs
+ 2/12 Test  #8: daw-translation-catalogs ...........   Passed    0.40 sec
+      Start  9: daw-translation-catalog-failures
+ 3/12 Test  #9: daw-translation-catalog-failures ...   Passed    2.43 sec
+      Start 31: desktop-timeline
+ 4/12 Test #31: desktop-timeline ...................   Passed    1.36 sec
+      Start 32: desktop-clip-processing
+ 5/12 Test #32: desktop-clip-processing ............   Passed    0.29 sec
+      Start 50: session-state
+ 6/12 Test #50: session-state ......................   Passed    0.04 sec
+      Start 51: project-routing
+ 7/12 Test #51: project-routing ....................   Passed    0.02 sec
+      Start 53: multitrack-edits
+ 8/12 Test #53: multitrack-edits ...................   Passed    0.35 sec
+      Start 54: project-monitoring
+ 9/12 Test #54: project-monitoring .................   Passed    0.01 sec
+      Start 65: project-import-state
+10/12 Test #65: project-import-state ...............   Passed    0.55 sec
+      Start 85: offline-export
+11/12 Test #85: offline-export .....................   Passed    2.72 sec
+      Start 87: clip-processing
+12/12 Test #87: clip-processing ....................   Passed    0.11 sec
+
+100% tests passed, 0 tests failed out of 12
+
+Total Test time (real) =   8.95 sec

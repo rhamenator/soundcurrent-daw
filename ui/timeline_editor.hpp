@@ -15,6 +15,8 @@ class QSpinBox;
 class QPushButton;
 class QLabel;
 class QSlider;
+class QDoubleSpinBox;
+class QCheckBox;
 namespace soundcurrent::daw::ui {
 class SessionListModel;
 class TimelineView;
@@ -57,15 +59,20 @@ class TimelineEditor : public QGroupBox {
     QComboBox *layout_, *destination_, *asset_, *clips_;
     QSpinBox *channels_;
     QSlider *zoom_;
+    QDoubleSpinBox *clipGain_, *fadeInShape_, *fadeOutShape_;
+    QCheckBox *clipMuted_, *clipInverted_;
+    QLineEdit *fadeInStart_, *fadeInEnd_, *fadeOutStart_, *fadeOutEnd_;
+    QComboBox *fadeInCurve_, *fadeOutCurve_;
     QLabel *status_;
     std::vector<QPushButton *> mutations_;
     const Track *track() const;
     const Clip *clip() const;
     void refresh(bool forceFields = false, bool redraw = true,
-                 std::optional<QString> destination = {}, std::optional<QString> asset = {});
+                 std::optional<QString> destination = {}, std::optional<QString> asset = {},
+                 bool forceProcessing = false);
     void draw();
     void mutate(std::vector<SessionEdit>);
     void operation(const std::function<void()> &);
-    Frame frame(QLineEdit *) const;
+    Frame frame(QLineEdit *, bool allowSigned = false) const;
 };
 } // namespace soundcurrent::daw::ui

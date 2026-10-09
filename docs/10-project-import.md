@@ -167,3 +167,10 @@ roots remain absent; unsupported units/opaque state remain intact. This is libra
 preservation, not approved semantic/native conversion. Next: destination clip
 semantics, conversion/loss review, one Undo, Save/reopen/aligned renders and installed
 preview pairs. The complete adapter register and frozen parity scope stay required.
+
+[Clip-processing checkpoint129](129-clip-gain-and-fades.md) adds original destination
+gain/mute/polarity and sample-defined fades, with anchor-preserving split/trim and
+shared playback/export. It does not relabel preserved original source properties
+as converted. Independent source/project timing and rate/stretch/pitch, loss-aware
+preview/acceptance, one Undo and aligned source-suite renders remain the next
+semantic conversion gates. Original import evidence stays portable in schema1.9.

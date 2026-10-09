@@ -1,0 +1,1 @@
+{"data":{"repository":{"pullRequest":{"reviewThreads":{"pageInfo":{"hasNextPage":false},"nodes":[{"id":"PRRT_kwDOU-rChc6qvdRi","isResolved":true}]},"reviews":{"pageInfo":{"hasNextPage":false},"nodes":[{"state":"COMMENTED","author":{"login":"chatgpt-codex-connector"}}]}}}}}

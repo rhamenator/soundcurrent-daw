@@ -1,0 +1,9 @@
+[1/10] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o
+FAILED: [code=1] CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o 
+/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_TESTCASE_BUILDDIR=\"/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release\" -DQT_TESTCASE_SOURCEDIR=\"/home/rich/dev/soundcurrent-daw\" -DQT_TESTLIB_LIB -DQT_WIDGETS_LIB -I/home/rich/dev/soundcurrent-daw/ui -I/home/rich/dev/soundcurrent-daw/include -isystem /usr/include/x86_64-linux-gnu/qt6/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt6 -isystem /usr/include/x86_64-linux-gnu/qt6/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt6/QtGui -isystem /usr/include/x86_64-linux-gnu/qt6/QtTest -O3 -DNDEBUG -std=c++20 -Wall -Wextra -Wpedantic -Wconversion -MD -MT CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o -MF CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o.d -o CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o -c /home/rich/dev/soundcurrent-daw/tests/timeline_ui_tests.cpp
+/home/rich/dev/soundcurrent-daw/tests/timeline_ui_tests.cpp: In function ‘void {anonymous}::clipProcessingWorkflow(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/timeline_ui_tests.cpp:153:19: error: ‘soundcurrent::locale’ has not been declared
+  153 |     soundcurrent::locale::Runtime language("de","de-DE");
+      |                   ^~~~~~
+[2/10] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/ui/studio_window.cpp.o
+ninja: build stopped: subcommand failed.

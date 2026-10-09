@@ -2973,6 +2973,94 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Clip gain and fades</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Clip gain in decibels</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Mute clip</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Invert clip polarity</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Clip gain (dB)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade out start frame</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade in start frame</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade out end frame</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade in end frame</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade out curve</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade in curve</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Linear</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Equal power</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Smoothstep</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade out shape</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade in shape</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Start</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>End</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade out</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade in</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade windows use clip-relative frames: start is included, end is excluded. Set both to 0 to disable. Signed positions preserve fades after trimming or splitting; raw media stays unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Apply clip processing</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recorded media asset</source>
       <translation type="unfinished" />
     </message>

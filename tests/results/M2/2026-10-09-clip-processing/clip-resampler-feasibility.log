@@ -1,0 +1,81 @@
+{
+  "experiment": "candidate-libsamplerate-offline-feasibility-only",
+  "libraryPath": "/usr/lib/x86_64-linux-gnu/libsamplerate.so.0.2.2",
+  "librarySha256": "51384a99b784ab85ee51fc274536cb40ab2c52d3338195824826b572e59063bb",
+  "runtimeVersion": "libsamplerate-0.2.2 (c) 2002-2008 Erik de Castro Lopo",
+  "packageVersion": "0.2.2-4build2",
+  "scriptSha256": "e9e7300a594928dda1a21572523d8013cb448152257442fb2f1d14a3ecd834de",
+  "mode": "SRC_SINC_BEST_QUALITY (0)",
+  "inputRate": 48000,
+  "outputRate": 44100,
+  "checks": 4883,
+  "elapsedSeconds": 0.6999579010007437,
+  "tones": [
+    {
+      "inputToneHz": 1000,
+      "analysisToneHz": 1000,
+      "generatedFrames": 44100,
+      "interiorGainDb": 1.1134181945647401e-07,
+      "partitionComparisons": [
+        {
+          "inputChunk": 37,
+          "outputBlock": 64,
+          "calls": 1301,
+          "maximumFloatDifference": 0.0
+        },
+        {
+          "inputChunk": 211,
+          "outputBlock": 256,
+          "calls": 229,
+          "maximumFloatDifference": 0.0
+        },
+        {
+          "inputChunk": 4096,
+          "outputBlock": 511,
+          "calls": 88,
+          "maximumFloatDifference": 0.0
+        }
+      ]
+    },
+    {
+      "inputToneHz": 10000,
+      "analysisToneHz": 10000,
+      "generatedFrames": 44100,
+      "interiorGainDb": -1.3423879521536727e-07
+    },
+    {
+      "inputToneHz": 19000,
+      "analysisToneHz": 19000,
+      "generatedFrames": 44100,
+      "interiorGainDb": -8.858387940952141e-07
+    },
+    {
+      "inputToneHz": 23000,
+      "analysisToneHz": 21100,
+      "generatedFrames": 44100,
+      "interiorGainDb": -163.73127293536785
+    }
+  ],
+  "headroomInteriorMin": 2.5,
+  "headroomInteriorMax": 2.500000238418579,
+  "scope": {
+    "productionDependencyAdopted": false,
+    "qualityParity": false,
+    "fullQResampleGate": false,
+    "realTimeQualification": false,
+    "windowsQualification": false,
+    "audioDevice": false,
+    "vm": false,
+    "systemInstall": false
+  },
+  "remaining": [
+    "exact source/build/transitive pin and notices",
+    "all declared ratios/rates/channel layouts",
+    "delay/tail alignment and seeks",
+    "alias/ripple sweep beyond four tones",
+    "allocation/deadline characterization",
+    "native Windows same-mode execution",
+    "shared clip timing/reader integration",
+    "independent pitch/stretch processor evaluation"
+  ]
+}

@@ -3481,3 +3481,50 @@ source absence/relocation, backup/history, malformed/planned evidence, refusal
 before mutation and ownership. Native Windows and installed preview qualification
 are recorded separately. Full goal remains active and incomplete. Next: extended
 destination clip semantics and approved conversion/loss/Undo/aligned render flows.
+
+## 2026-10-09: original clip gain and editable fades
+
+Previous goal turn was **progress**: PR72 merged exact repaired cca9735 through
+unchanged four-context protection; source/merge trees agree. Run37920106044 passed
+Linux90, native Windows core26 and native Windows Qt7. The cancellation repair
+reaches typed bundle/receipt/WAVE verification during export; final digest-verified
+archives and17 source/65 prior evidence hashes are retained in checkpoint129.
+
+This increment supplies original [clip gain/mute/polarity and fades](129-clip-gain-and-fades.md),
+schema1.9 explicit migration, checked signed anchor shifts, per-clip evaluation
+before summation, shared live/export float headroom and actual desktop one Undo/
+Redo/save/reopen with canonical precision. Local Release12 selected tests pass:
+185303 core checks,63 screenshot-enabled Qt checks. First UI readiness failure and
+compile namespace diagnostics are retained; visible state synchronization was
+repaired without weakening product guards. Sanitizer and new native gates remain
+separately recorded. No VM/audio/equalizer/installed preview/product release changed.
+
+A bounded already-installed libsamplerate feasibility probe and official dependency
+review do not select a production processor or qualify full resampling/stretch/pitch.
+Next: independent source/project timing and qualified rate/pitch/stretch, explicit
+conversion/loss preview, grouped Undo/reopen/aligned renders and installed preview
+pairs. Full frozen Linux/Windows/Europe/F/Q/C/N goal stays active and incomplete.
+
+## Configured 8192-track viewport gate (2026-10-09)
+
+Schema1.9 increases the conservative JSON-to-canonical preflight charge. The first
+hosted run retained a64MiB refusal for the8192-track viewport fixture; native
+Windows core28/Qt8 and the new processing workflow passed separately. The viewport
+fixture now declares96MiB through trusted ControllerOptions/ProjectStore, asserts
+the unchanged64MiB default refusal, and retains all8192 tracks and existing paint/
+hit/identity/history/raw-media/Save-reopen checks. Local affected Release3 tests
+pass. This does not expand production defaults or infer arbitrary capacity from
+a track count. User configuration of additional state/parser admission grants
+remains a separate X006 UI/product gate. New source/full/native gates are distinct
+from the preceding failing hosted source.
+
+## Native focused-Undo repair (2026-10-09)
+
+Second head e6d4eda/run37926633504 passes Linux92/native Windows core28 and
+cross-build, but native Qt7/8 reproduces stale focused gain state after Undo.
+The stored-value refresh now updates changed processing while focused. The actual
+assertion/deadline stay intact. Affected local Release6 and desktop ASan/UBSan3
+pass; leak detection is disabled and the separate8192-track sanitizer180-second
+timeout remains open. Digest-verified first/second hosted failures are retained.
+New exact-source native checks and installed preview refresh remain separate.
+Full frozen F/Q/C/N, Linux/Windows and European language goals remain incomplete.

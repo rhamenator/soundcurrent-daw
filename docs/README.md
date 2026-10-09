@@ -68,6 +68,8 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 [Architecture decisions](decisions/) · [Acceptance receipts](../tests/results/) · [Active goal](../GOAL.md)
 
+- [Original clip gain, editable fades and bounded resampler feasibility](129-clip-gain-and-fades.md)
+
 - [Saved per-track input latency controls](60-input-latency-controls.md)
 
 - [Recording-only Auto monitoring](61-auto-recording-monitoring.md)

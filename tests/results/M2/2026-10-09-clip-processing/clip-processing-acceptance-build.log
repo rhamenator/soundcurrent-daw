@@ -1,0 +1,19 @@
+[0/1] Re-running CMake...
+-- Configuring done (4.0s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/17] Automatic RCC for localization/daw_translations.qrc
+[2/17] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[3/17] Linking CXX static library libsc-ui-localization.a
+[4/17] Building CXX object CMakeFiles/sc-localization-tests.dir/tests/localization_tests.cpp.o
+[5/17] Building CXX object CMakeFiles/sc-routing-tests.dir/tests/routing_tests.cpp.o
+[6/17] Building CXX object CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o
+FAILED: [code=1] CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o 
+/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_TESTCASE_BUILDDIR=\"/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release\" -DQT_TESTCASE_SOURCEDIR=\"/home/rich/dev/soundcurrent-daw\" -DQT_TESTLIB_LIB -DQT_WIDGETS_LIB -I/home/rich/dev/soundcurrent-daw/ui -I/home/rich/dev/soundcurrent-daw/include -isystem /usr/include/x86_64-linux-gnu/qt6/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt6 -isystem /usr/include/x86_64-linux-gnu/qt6/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt6/QtGui -isystem /usr/include/x86_64-linux-gnu/qt6/QtTest -O3 -DNDEBUG -std=c++20 -Wall -Wextra -Wpedantic -Wconversion -MD -MT CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o -MF CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o.d -o CMakeFiles/sc-timeline-ui-tests.dir/tests/timeline_ui_tests.cpp.o -c /home/rich/dev/soundcurrent-daw/tests/timeline_ui_tests.cpp
+/home/rich/dev/soundcurrent-daw/tests/timeline_ui_tests.cpp: In function ‘void {anonymous}::clipProcessingWorkflow(const std::filesystem::__cxx11::path&)’:
+/home/rich/dev/soundcurrent-daw/tests/timeline_ui_tests.cpp:153:5: error: ‘locale’ has not been declared; did you mean ‘QLocale’?
+  153 |     locale::Runtime language("de","de-DE");
+      |     ^~~~~~
+      |     QLocale
+[7/17] Building CXX object CMakeFiles/sc-localization-tests.dir/ui/studio_window.cpp.o
+ninja: build stopped: subcommand failed.

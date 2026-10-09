@@ -1,0 +1,66 @@
+Start testing: Oct 09 07:52 EDT
+----------------------------------------------------------
+32/96 Testing: desktop-clip-processing
+32/96 Test: desktop-clip-processing
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-timeline-ui-tests" "--clip-processing-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-clip-processing" start time: Oct 09 07:52 EDT
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-JkMvXt
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+50 desktop clip-processing checks passed; locale/exact precision, grouped Undo/Redo, signed anchors, split, readonly preparation and Save/reopen; no native audio
+<end of output>
+Test time =   0.46 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-clip-processing" end time: Oct 09 07:52 EDT
+"desktop-clip-processing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/96 Testing: desktop-virtualized-views
+33/96 Test: desktop-virtualized-views
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-timeline-ui-tests" "--viewport-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-virtualized-views" start time: Oct 09 07:52 EDT
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-YonjYf
+Owned virtualized desktop project: "/tmp/sc-timeline-ui-tests-YonjYf/virtualized-project"
+This plugin does not support propagateSizeHints()
+Virtualized8192 Open elapsed ms=30294
+Paint at 818,110 actual=#50c371 expected=#50c371 row=8190 viewport=852x176
+This plugin does not support propagateSizeHints()
+<end of output>
+Test time = 180.22 sec
+----------------------------------------------------------
+Test Failed.
+"desktop-virtualized-views" end time: Oct 09 07:55 EDT
+"desktop-virtualized-views" time elapsed: 00:03:00
+----------------------------------------------------------
+
+34/96 Testing: desktop-track-scalability
+34/96 Test: desktop-track-scalability
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-timeline-ui-tests" "--large-project-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-track-scalability" start time: Oct 09 07:55 EDT
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-Eymlsx
+Owned large desktop project: "/tmp/sc-timeline-ui-tests-Eymlsx/large-project"
+This plugin does not support propagateSizeHints()
+Large Add observed canonical tracks=4097 GUI rows=4096 selected=6f5efc29-4011-4219-942a-5dd16b4eefb4 prior=6f5efc29-4011-4219-942a-5dd16b4eefb4
+This plugin does not support propagateSizeHints()
+Large desktop Close/Save elapsed ms=14813
+4096-track actual desktop Open/last-track edit/Add4097/Undo/Redo/Save/reopen passed
+20 large-project desktop checks passed
+<end of output>
+Test time =  48.12 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-track-scalability" end time: Oct 09 07:56 EDT
+"desktop-track-scalability" time elapsed: 00:00:48
+----------------------------------------------------------
+
+End testing: Oct 09 07:56 EDT

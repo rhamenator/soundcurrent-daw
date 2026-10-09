@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/playback_reader.hpp>
+#include <soundcurrent/clip_processing.hpp>
 #include <algorithm>
 #include <cmath>
 #include <unordered_set>
@@ -21,7 +22,7 @@ std::size_t trackReaderPayloadBytes(const ValidatedSession &s, const Id &id,
     charge.add(4096);
     for (const auto &clip : t.clips)
         if (clip.startFrame < c.endFrame && clip.startFrame + clip.lengthFrames > c.startFrame)
-            charge.add(512);
+            charge.add(sizeof(Clip) + sizeof(PreparedClipProcessing) + sizeof(std::size_t) + 256);
     charge.add(std::size_t(c.slabFrames) * c.layout.channels, sizeof(float) + sizeof(double));
     return charge.bytes();
 }
@@ -45,6 +46,7 @@ struct TrackReader::State {
     struct Binding {
         Clip clip;
         std::size_t source = 0;
+        PreparedClipProcessing processing;
     };
     std::shared_ptr<MediaReadCache> media;
     std::vector<Binding> bindings;
@@ -91,7 +93,7 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
     for (const auto &clip : track.clips)
         if (clip.startFrame < config.endFrame &&
             clip.startFrame + clip.lengthFrames > config.startFrame)
-            state_->bindings.push_back({clip, state_->media->assetIndex(clip.assetId)});
+            state_->bindings.push_back({clip, state_->media->assetIndex(clip.assetId), PreparedClipProcessing(clip.processing)});
     const auto size = std::size_t(config.slabFrames) * config.layout.channels;
     state_->readBuffer.resize(size, 0.f);
     state_->sumBuffer.resize(size, 0.);
@@ -118,7 +120,7 @@ TrackReader::TrackReader(PlaybackPipe &pipe, const ValidatedSession &validated, 
             const auto asset = state_->media->assetIndex(clip.assetId);
             require(state_->media->assetDescription(asset) == validated.asset(clip.assetId),
                     "Shared cache asset differs from prepared session", ErrorCode::MediaMismatch);
-            state_->bindings.push_back({clip, asset});
+            state_->bindings.push_back({clip, asset, PreparedClipProcessing(clip.processing)});
         }
     const auto size = std::size_t(config.slabFrames) * config.layout.channels;
     state_->readBuffer.resize(size, 0.f);
@@ -153,11 +155,16 @@ bool TrackReader::fillOne() {
             const auto count = end - begin;
             s.media->read(b.source, source, {s.readBuffer.data(), std::size_t(count) * channels});
             const auto offset = std::size_t(begin - s.next) * channels;
-            for (std::size_t n = 0; n < std::size_t(count) * channels; ++n) {
-                if (std::isfinite(s.readBuffer[n]))
-                    s.sumBuffer[offset + n] += s.readBuffer[n];
-                else
-                    ++invalid;
+            for (Frame frame = 0; frame < count; ++frame) {
+                const auto gain = b.processing.unity() ? 1. :
+                    b.processing.gainAt(begin - b.clip.startFrame + frame);
+                for (std::uint32_t channel = 0; channel < channels; ++channel) {
+                    const auto n = std::size_t(frame) * channels + channel;
+                    if (std::isfinite(s.readBuffer[n]))
+                        s.sumBuffer[offset + n] += gain == 1 ? s.readBuffer[n] :
+                            double(s.readBuffer[n]) * gain;
+                    else ++invalid;
+                }
             }
         }
         for (std::size_t n = 0; n < samples; ++n) {

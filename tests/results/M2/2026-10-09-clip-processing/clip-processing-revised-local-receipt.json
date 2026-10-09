@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-09T11:58:58.809753+00:00",
+  "sourceHead": "e6d4edad2659b937b0803377011cc70e3ca6e6c2",
+  "sourceSha256": {
+    "tests/timeline_ui_tests.cpp": "5eaaed0bda71be493de00462acd739e5ac2656cce1e5bee7b00c9e326c28c65d"
+  },
+  "revisedRelease": {
+    "tests": 3,
+    "passed": 3,
+    "seconds": 7.17
+  },
+  "revisedSanitizer": {
+    "tests": 3,
+    "passed": 2,
+    "failed": 1,
+    "failure": "desktop-virtualized-views CTest180-second timeout",
+    "seconds": 228.81,
+    "leakDetection": false,
+    "deadlineRaised": false,
+    "retry": false,
+    "causeEstablished": false
+  },
+  "originalSanitizer": {
+    "tests": 7,
+    "passed": 7,
+    "seconds": 25.54,
+    "leakDetection": false
+  },
+  "newProductInputsChangedAfterFirstHead": false,
+  "concurrentHostObservation": "Other compiler and Veeam processes were active; not proof of timeout cause",
+  "logs": {
+    "clip-processing-virtualized-sanitized-build.log": "260554cedd3b70a48e40919f2b5c1395585f90a1a0cee6c7e937a243f78331e7",
+    "clip-processing-virtualized-sanitized-tests.log": "c8ca16586f078df1030cbf95f9bb5de32fa65e8e5a9cdd59ef839220cd80e14b",
+    "clip-processing-virtualized-sanitized-lasttest.log": "79891620b9035f97468421f034080f67c640d01e7c0ed721f14d47c2c6ef2785"
+  },
+  "fullParityPromoted": false,
+  "newNativeCI": "pending"
+}

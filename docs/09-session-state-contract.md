@@ -2,13 +2,13 @@
 
 The root CMake build exposes Qt-free `SoundCurrent::Session` and `SoundCurrent::ProjectStore`. These two state components contain no playback or capture callbacks. Their methods allocate and run only on the control/disk side; they are **not real-time APIs**.
 
-## Schema v1.8 (with explicit v1.0–v1.7 migration)
+## Schema v1.9 (with explicit v1.0–v1.8 migration)
 
 [encodeProject](../src/project_store.cpp) defines the exact JSON fields; tests exercise inverse decoding. `project.json` stores session/track/processor/band/clip/asset UUIDs, names, sample rate, playhead/export frames, layout, backend/port intent, EQ enable/frequency/gain/Q and relative hashed media. No machine-specific numeric device ID is persisted.
 
-Canonical lowercase UUIDs identify objects; parameter addresses use track + processor + band UUID and fixed descriptor IDs. Track names and band order can change without changing parameter addresses. One drag gesture produces one undo item; cancel restores its initial value. Scalar EQ gestures, input/output/monitor route edits and recording-monitor preferences share a configurable admitted history (256 commands by default); history is not serialized. Schema 1.1 adds strict per-channel descriptors and a separate monitor intent. Schema 1.2 adds stable Off/Post-EQ `monitoringMode`. The decoder explicitly migrates v1.0/v1.1, defaulting monitoring Off and preserving opaque legacy route strings; the writer emits 1.8. See [routing](26-project-routing.md) for matching, limits and named placeholders. See [monitoring preferences](27-monitoring-preferences.md) for passive restore and accepted-prefix preparation. Schema 1.3 adds the saved master layout/matrix/output intent; 1.4 adds desired project-frame punch settings, disabled by default for older projects. See [master matrix](33-master-matrix.md) and [project punch controls](54-project-punch-controls.md). Schema 1.5 adds strict per-track whole-frame `inputLatencyFrames`, defaulting to zero for v1.0–v1.4. [Input latency controls](60-input-latency-controls.md) freeze this declaration at preparation; restore never activates audio. Schema 1.6 adds explicit `auto-recording` monitoring without changing older Off/Post-EQ preferences; older schemas reject the new identifier. See [Auto monitoring](61-auto-recording-monitoring.md). Structural track/clip/master/punch/input-delay edits share the bounded transactional history. General tempo, plugin and loop/take state remain future schema work.
+Canonical lowercase UUIDs identify objects; parameter addresses use track + processor + band UUID and fixed descriptor IDs. Track names and band order can change without changing parameter addresses. One drag gesture produces one undo item; cancel restores its initial value. Scalar EQ gestures, input/output/monitor route edits and recording-monitor preferences share a configurable admitted history (256 commands by default); history is not serialized. Schema 1.1 adds strict per-channel descriptors and a separate monitor intent. Schema 1.2 adds stable Off/Post-EQ `monitoringMode`. The decoder explicitly migrates v1.0/v1.1, defaulting monitoring Off and preserving opaque legacy route strings; the writer now emits 1.9. See [routing](26-project-routing.md) for matching, limits and named placeholders. See [monitoring preferences](27-monitoring-preferences.md) for passive restore and accepted-prefix preparation. Schema 1.3 adds the saved master layout/matrix/output intent; 1.4 adds desired project-frame punch settings, disabled by default for older projects. See [master matrix](33-master-matrix.md) and [project punch controls](54-project-punch-controls.md). Schema 1.5 adds strict per-track whole-frame `inputLatencyFrames`, defaulting to zero for v1.0–v1.4. [Input latency controls](60-input-latency-controls.md) freeze this declaration at preparation; restore never activates audio. Schema 1.6 adds explicit `auto-recording` monitoring without changing older Off/Post-EQ preferences; older schemas reject the new identifier. See [Auto monitoring](61-auto-recording-monitoring.md). Structural track/clip/master/punch/input-delay edits share the bounded transactional history. General tempo, plugin and loop/take state remain future schema work.
 
-Trusted default grants are 32 MiB project text, 256 MiB parser staging and 64 MiB canonical state; JSON nesting depth is32. Track, asset and clip counts are admitted by configured payload budgets, rather than fixed product ceilings. Current EQ/layout envelopes remain64 bands per track and1–256 channels; text fields remain4096-byte UTF-8. See [resource-admitted tracks](78-resource-admitted-projects.md) for implementation and explicit remaining scalability gates. Frames are nonnegative int64; overflow and float-to-frame conversion are rejected. IDs must be globally unique. Unknown fields, processor versions or schema versions fail explicitly rather than disappear during load/save. A later migration must be explicit and tested before accepting a newer schema.
+Trusted default grants are 32 MiB project text, 256 MiB parser staging and 64 MiB canonical state; JSON nesting depth is32. Track, asset and clip counts are admitted by configured payload budgets, rather than fixed product ceilings. Current EQ/layout envelopes remain64 bands per track and1–256 channels; text fields remain4096-byte UTF-8. See [resource-admitted tracks](78-resource-admitted-projects.md) for implementation and explicit remaining scalability gates. Timeline/source extents are nonnegative int64; clip fade anchors are signed int64. Overflow and float-to-frame conversion are rejected. IDs must be globally unique. Unknown fields, processor versions or schema versions fail explicitly rather than disappear during load/save. A later migration must be explicit and tested before accepting a newer schema.
 
 ## Media and paths
 
@@ -32,7 +32,7 @@ Remaining fault gates include physical disk-full/permission/I/O failure, kill/po
 
 ## Schema1.8: portable original import evidence
 
-The writer now emits1.8. Older1.0–1.7 states explicitly default to an empty import
+Schema1.8 added portable imports. Older1.0–1.7 states explicitly default to an empty import
 list; older schemas reject the new key. Generated source/operation IDs and exact
 relative `imports/` paths bind original byte counts/hashes, immutable inspection
 bundles and verified per-asset occurrence receipts. Save/reopen verifies complete
@@ -42,3 +42,14 @@ repeated whole-project validation per archive. [Checkpoint128](128-portable-impo
 details grants, cancellation/residue, migration tests and semantic conversion gaps.
 Original properties retain source units/status; gain/fade/rate/pitch/timing mapping
 and full native compatibility remain unqualified.
+
+## Schema1.9: original clip processing
+
+The writer emits1.9. Each clip requires explicit gain/mute/polarity and two signed
+fade windows, stable curve IDs and shape. Schemas1.0–1.8 migrate to neutral
+processing; older schemas reject the new key. Strict numeric/boolean/integer/type/
+curve validation and checked anchor shifts refuse before state mutation. Structural
+processing shares the bounded grouped Undo/Redo history. [Checkpoint129](129-clip-gain-and-fades.md)
+defines exact endpoints, curves, singleton behavior, split/trim preservation,
+shared playback/export, canonical precision and current native/quality gaps.
+Independent source/project rate, stretch and pitch remain new schema/reader work.

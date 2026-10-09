@@ -5,6 +5,7 @@
 #include <QSpinBox>
 #include <QTableWidget>
 #include "timeline_editor.hpp"
+#include "localization.hpp"
 #include "track_view.hpp"
 #include "fake_playback_endpoint.hpp"
 #include "fake_recording_endpoint.hpp"
@@ -64,7 +65,8 @@ template <class T> T *widget(StudioWindow &w, const char *n) {
 }
 void click(StudioWindow &w, const char *n) {
     auto *b = widget<QPushButton>(w, n);
-    check(b->isEnabled(), "Timeline action disabled");
+    if (!b->isEnabled())
+        throw std::runtime_error(std::string("Timeline action disabled: ") + n);
     b->click();
 }
 void undo(StudioWindow &w) {
@@ -141,6 +143,76 @@ Session fixture(const std::filesystem::path &root) {
     s.tracks.push_back(t);
     ProjectStore(root).save(s);
     return s;
+}
+void clipProcessingWorkflow(const std::filesystem::path &root) {
+    const auto initial=fixture(root);const auto raw=root/utf8Path(initial.assets[0].relativePath);
+    const auto rawHash=hashMediaFile(raw);
+    auto highPrecision=initial;
+    highPrecision.tracks[0].clips[0].processing.gainDb=.12345678901234567;
+    highPrecision.tracks[0].clips[0].processing.fadeIn.shape=.7123456789012345;
+    ProjectStore(root).save(highPrecision);
+    soundcurrent::daw::i18n::Runtime language("de","de-DE");
+    auto playback=std::make_shared<playback_fixture::Counters>();
+    auto recording=std::make_shared<recording_fixture::Counters>();
+    StudioWindow w(nullptr,playback_fixture::options(playback),recording_fixture::options(recording));
+    w.resize(1100,850);w.show();w.openProject(root);
+    await([&]{return w.snapshot()->session && w.findChild<QComboBox *>("timelineClips")->count()>1;});
+    auto *clips=widget<QComboBox>(w,"timelineClips");clips->setCurrentIndex(1);
+    await([&]{return widget<TimelineEditor>(w,"timelineEditor")->selectedClip().has_value();});
+    auto *toggle=widget<QPushButton>(w,"clipProcessingToggle");
+    check(!widget<QWidget>(w,"clipProcessingFields")->isVisible(),"Processing panel did not start collapsed");
+    toggle->click();check(widget<QWidget>(w,"clipProcessingFields")->isVisible(),"Processing panel did not expand");
+    auto *gain=widget<QDoubleSpinBox>(w,"clipGainDb");auto *shape=widget<QDoubleSpinBox>(w,"clipFadeInShape");
+    check(gain->text().contains(',') && shape->text().contains(','),"Clip controls ignored decimal format locale");
+    widget<QCheckBox>(w,"clipMuted")->setChecked(true);click(w,"applyClipProcessing");
+    await([&]{return w.snapshot()->session->tracks[0].clips[0].processing.muted;});
+    check(w.snapshot()->session->tracks[0].clips[0].processing.gainDb==highPrecision.tracks[0].clips[0].processing.gainDb &&
+          w.snapshot()->session->tracks[0].clips[0].processing.fadeIn.shape==highPrecision.tracks[0].clips[0].processing.fadeIn.shape,
+          "Unedited rounded fields lost exact canonical precision");
+    undo(w);await([&]{return *w.snapshot()->session==highPrecision &&
+        !widget<QCheckBox>(w,"clipMuted")->isChecked() &&
+        gain->property("canonicalValue").toDouble()==highPrecision.tracks[0].clips[0].processing.gainDb;});
+    gain->setValue(6);shape->setValue(.75);
+    widget<QCheckBox>(w,"clipPolarityInverted")->setChecked(true);
+    widget<QLineEdit>(w,"clipFadeInStart")->setText("-10");widget<QLineEdit>(w,"clipFadeInEnd")->setText("65");
+    widget<QComboBox>(w,"clipFadeInCurve")->setCurrentIndex(widget<QComboBox>(w,"clipFadeInCurve")->findData(int(ClipFadeCurve::EqualPower)));
+    widget<QLineEdit>(w,"clipFadeOutStart")->setText("900");widget<QLineEdit>(w,"clipFadeOutEnd")->setText("1024");
+    click(w,"applyClipProcessing");
+    await([&]{return w.snapshot()->session->tracks[0].clips[0].processing.gainDb==6;});
+    const auto changed=*w.snapshot()->session;
+    check(changed.tracks[0].clips[0].processing.fadeIn.startFrame==-10 && changed.tracks[0].clips[0].processing.fadeIn.shape==.75 &&
+          changed.tracks[0].clips[0].processing.polarityInverted && changed.tracks[1]==initial.tracks[1],"UI clip processing values/scoping differ");
+    gain->setFocus();
+    await([&]{return gain->hasFocus();});
+    undo(w);await([&]{return *w.snapshot()->session==highPrecision &&
+        gain->property("canonicalValue").toDouble()==highPrecision.tracks[0].clips[0].processing.gainDb;});
+    ProjectCommand redo{CommandKind::Redo};check(w.submitEdit(redo),"Clip processing Redo refused");
+    await([&]{return *w.snapshot()->session==changed && gain->value()==6 &&
+        widget<QLineEdit>(w,"clipFadeInStart")->text()=="-10";});
+    const auto revision=w.snapshot()->modelRevision;
+    widget<QLineEdit>(w,"clipFadeInEnd")->setText("-11");click(w,"applyClipProcessing");
+    check(w.snapshot()->modelRevision==revision && !widget<QLabel>(w,"timelineStatus")->text().isEmpty(),"Invalid fade window mutated project");
+    widget<QLineEdit>(w,"clipFadeInEnd")->setText("65");
+    widget<QLineEdit>(w,"clipSplitFrame")->setText("113");click(w,"splitAudioClip");
+    await([&]{return w.snapshot()->session->tracks[0].clips.size()==2;});
+    check(w.snapshot()->session->tracks[0].clips[1].processing.fadeIn.startFrame==-123,"UI split restarted source fade");
+    undo(w);await([&]{return *w.snapshot()->session==changed &&
+        widget<QLineEdit>(w,"clipLengthFrames")->text()==QString::number(changed.tracks[0].clips[0].lengthFrames);});
+    // The new spin boxes must not change through an unfocused wheel while scrolling.
+    widget<QLineEdit>(w,"clipFadeInStart")->setFocus();
+    const auto before=gain->value();const QPointF local=gain->rect().center();
+    QWheelEvent wheel(local,gain->mapToGlobal(local.toPoint()),{}, {0,120},Qt::NoButton,Qt::NoModifier,Qt::NoScrollPhase,false);
+    QApplication::sendEvent(gain,&wheel);check(gain->value()==before,"Unfocused wheel changed clip gain");
+    if(!qEnvironmentVariableIsEmpty("SC_CLIP_SCREENSHOT")) {
+        auto *scroll=qobject_cast<QScrollArea *>(w.centralWidget());scroll->ensureWidgetVisible(toggle);
+        QTest::qWait(5);check(w.grab().save(qEnvironmentVariable("SC_CLIP_SCREENSHOT")),"Clip editor screenshot failed");
+    }
+    click(w,"preparePlaybackButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Ready &&
+        widget<QPushButton>(w,"stopButton")->isEnabled();});
+    check(!widget<QPushButton>(w,"applyClipProcessing")->isEnabled() && !gain->isEnabled(),"Prepared playback allowed stale-prefill clip edits");
+    click(w,"stopButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Idle;});
+    close(w,true);
+    check(ProjectStore(root).load()==changed && hashMediaFile(raw)==rawHash,"Clip UI Save/reopen altered processing/raw media");
 }
 void editing(const std::filesystem::path &root) {
     const auto original = fixture(root);
@@ -781,6 +853,11 @@ void largeProjectDesktop(const std::filesystem::path &root) {
 
 void virtualizedDesktop(const std::filesystem::path &root) {
     std::cerr << "Owned virtualized desktop project: " << root << '\n';
+    // This fixture qualifies viewport scaling under a declared state grant.
+    // Schema1.9 has more JSON objects per clip; keep production defaults and
+    // explicit conservative decoding refusal rather than reducing track count.
+    ProjectBudget admission;
+    admission.state.memoryBudgetBytes = 96 * 1024 * 1024;
     auto s = fixture(root);
     s.tracks.clear();
     for (unsigned n = 0; n < 8192; ++n) {
@@ -794,10 +871,21 @@ void virtualizedDesktop(const std::filesystem::path &root) {
         s.tracks.push_back(std::move(t));
     }
     s.exportEndFrame = 5000;
-    ProjectStore(root).save(s);
+    ProjectStore(root, admission).save(s);
     const auto original = encodeProject(s);
     const auto rawHash = hashMediaFile(root / utf8Path(s.assets.front().relativePath));
-    StudioWindow w;
+    bool defaultRefused = false;
+    try {
+        (void)ProjectStore(root).load();
+    } catch (const ResourceLimitError &e) {
+        defaultRefused = e.code() == ErrorCode::ResourceLimit &&
+                         e.requiredBytes() > e.availableBytes() &&
+                         e.availableBytes() == 64 * 1024 * 1024;
+    }
+    check(defaultRefused, "Default state grant failed to refuse the enlarged fixture");
+    ControllerOptions options;
+    options.admission = admission;
+    StudioWindow w(nullptr, {}, {}, {}, {}, options);
     w.resize(1100, 900);
     w.show();
     const auto openBegan = std::chrono::steady_clock::now();
@@ -883,7 +971,7 @@ void virtualizedDesktop(const std::filesystem::path &root) {
     await([&] { return w.snapshot()->session->tracks.back().name == "Renamed — Українська"; });
     const auto saved = *w.snapshot()->session;
     close(w, true, std::chrono::seconds(60));
-    check(ProjectStore(root).load() == saved, "Virtualized edit/Undo/Redo/Save lost project state");
+    check(ProjectStore(root, admission).load() == saved, "Virtualized edit/Undo/Redo/Save lost project state");
     std::cout << "Virtualized8192 rows: painted=" << before.rows << " clips=" << before.clips
               << " interval_nodes=" << before.intervalNodes
               << " snapshot_builds=" << before.snapshotBuilds
@@ -951,6 +1039,11 @@ int main(int argc, char **argv) {
         std::cerr << "Owned timeline fixture root: " << temp.path().toStdString() << '\n';
         check(temp.isValid(), "Temporary directory failed");
         const auto root = utf8Path(temp.path().toUtf8().toStdString());
+        if(argc==2 && std::string_view(argv[1])=="--clip-processing-only") {
+            clipProcessingWorkflow(root/"clip-processing");
+            std::cout<<checks<<" desktop clip-processing checks passed; locale/exact precision, grouped Undo/Redo, signed anchors, split, readonly preparation and Save/reopen; no native audio\n";
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--large-project-only") {
             largeProjectDesktop(root / "large-project");
             std::cout << checks << " large-project desktop checks passed\n";
