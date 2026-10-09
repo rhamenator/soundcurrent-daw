@@ -20,16 +20,29 @@ SourcePosition scale(std::uint64_t frames, std::uint32_t numerator, std::uint32_
     return {Frame(base + add),partial % denominator,denominator};
 }
 }
-SourceFrameMap::SourceFrameMap(std::uint32_t source, std::uint32_t project, Frame origin) {
+void validateClipPlaybackRate(const ClipPlaybackRate &rate) {
+    require(rate.numerator && rate.denominator && rate.numerator<=4000 && rate.denominator<=4000,
+            "Playback rate components must be between 1 and 4000");
+    require(std::uint64_t(rate.numerator)*4>=rate.denominator &&
+            rate.numerator<=std::uint64_t(rate.denominator)*4,
+            "Playback rate must be between 0.25 and 4");
+}
+SourceFrameMap::SourceFrameMap(std::uint32_t source, std::uint32_t project, Frame origin,
+                             ClipPlaybackRate rate) {
     require(source >= 8000 && source <= 384000 && project >= 8000 && project <= 384000,
             "Invalid source/project sample rate");
     require(origin >= 0,"Negative source origin");
-    const auto divisor=std::gcd(source,project);
-    numerator_=source/divisor;denominator_=project/divisor;
+    validateClipPlaybackRate(rate);
+    // Both products <= 1,536,000,000. Quotient/remainder products in scale()
+    // therefore fit uint64, including the maximum admitted physical rate.
+    const auto n=source*rate.numerator,d=project*rate.denominator;
+    const auto divisor=std::gcd(n,d);
+    numerator_=n/divisor;denominator_=d/divisor;
     origin_={origin,0,denominator_};
 }
-SourceFrameMap::SourceFrameMap(std::uint32_t source, std::uint32_t project, SourcePosition origin)
-    :SourceFrameMap(source,project,origin.frame) {
+SourceFrameMap::SourceFrameMap(std::uint32_t source, std::uint32_t project, SourcePosition origin,
+                             ClipPlaybackRate rate)
+    :SourceFrameMap(source,project,origin.frame,rate) {
     require(origin.denominator && origin.fraction<origin.denominator,"Invalid source fraction");
     const auto divisor=std::gcd(origin.fraction,origin.denominator);
     origin.fraction/=divisor;origin.denominator/=divisor;
@@ -74,6 +87,6 @@ Frame SourceFrameMap::projectFramesForSource(Frame frames) const {
     return p.frame + (p.fraction ? 1 : 0);
 }
 SourceFrameMap clipSourceMap(const Clip &c,std::uint32_t source,std::uint32_t project) {
-    return SourceFrameMap(source,project,SourcePosition{c.sourceFrame,c.sourceTiming.fraction,c.sourceTiming.denominator});
+    return SourceFrameMap(source,project,SourcePosition{c.sourceFrame,c.sourceTiming.fraction,c.sourceTiming.denominator},c.playbackRate);
 }
 } // namespace soundcurrent::daw

@@ -18,7 +18,7 @@ ReaderGeometry geometry(const ValidatedSession &s,const Track &track,const Playb
     for(const auto &clip:track.clips) if(clip.startFrame<config.endFrame &&
             clip.startFrame+clip.lengthFrames>config.startFrame) {
         const auto &asset=s.asset(clip.assetId);
-        PreparedPositionedResampling kernel(asset.sampleRate,config.sampleRate,config.layout.channels);
+        PreparedPositionedResampling kernel(clipSourceMap(clip,asset.sampleRate,config.sampleRate),config.layout.channels);
         if(!kernel.exactCopy(clipSourceMap(clip,asset.sampleRate,config.sampleRate))) {
             g.positioned=true;g.sourceFrames=std::max(g.sourceFrames,kernel.maximumSourceWindowFrames(config.slabFrames));
         }
@@ -115,7 +115,7 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
             clip.startFrame + clip.lengthFrames > config.startFrame)
             state_->bindings.push_back({clip, state_->media->assetIndex(clip.assetId), PreparedClipProcessing(clip.processing),
                 clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),
-                PreparedPositionedResampling(validated.asset(clip.assetId).sampleRate,config.sampleRate,config.layout.channels)});
+                PreparedPositionedResampling(clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),config.layout.channels)});
     const auto size = std::size_t(config.slabFrames) * config.layout.channels;
     const auto g=geometry(validated,track,config);
     state_->readBuffer.resize(g.sourceFrames*config.layout.channels, 0.f);
@@ -146,7 +146,7 @@ TrackReader::TrackReader(PlaybackPipe &pipe, const ValidatedSession &validated, 
                     "Shared cache asset differs from prepared session", ErrorCode::MediaMismatch);
             state_->bindings.push_back({clip, asset, PreparedClipProcessing(clip.processing),
                 clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),
-                PreparedPositionedResampling(validated.asset(clip.assetId).sampleRate,config.sampleRate,config.layout.channels)});
+                PreparedPositionedResampling(clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),config.layout.channels)});
         }
     const auto size = std::size_t(config.slabFrames) * config.layout.channels;
     const auto g=geometry(validated,track,config);

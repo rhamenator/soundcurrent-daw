@@ -185,6 +185,13 @@ struct ClipSourceTiming {
     std::uint64_t fraction = 0, denominator = 1;
     bool operator==(const ClipSourceTiming &) const = default;
 };
+struct ClipPlaybackRate {
+    // Exact speed multiplier, 1/4..4; pitch follows speed. Components 1..4000.
+    // Independent pitch-preserving stretching uses a separate processor/state.
+    std::uint32_t numerator = 1, denominator = 1;
+    bool operator==(const ClipPlaybackRate &) const = default;
+};
+void validateClipPlaybackRate(const ClipPlaybackRate &);
 struct Clip {
     Id id = Id::generate();
     Id assetId = Id::generate();
@@ -193,6 +200,7 @@ struct Clip {
     Frame lengthFrames = 0;
     ClipProcessing processing;
     ClipSourceTiming sourceTiming;
+    ClipPlaybackRate playbackRate;
     bool operator==(const Clip &) const = default;
 };
 enum class RecordingMonitor { Off, PostEq, AutoRecording };
@@ -323,6 +331,10 @@ struct SetClipProcessing {
     Id track, clip;
     ClipProcessing value;
 };
+struct SetClipPlaybackRate {
+    Id track, clip;
+    ClipPlaybackRate value;
+};
 struct MoveClip {
     Id from, to, clip;
     Frame start;
@@ -344,7 +356,7 @@ struct SetInputLatency {
 };
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
+                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

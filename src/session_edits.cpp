@@ -25,6 +25,22 @@ template <class T> auto position(std::vector<T> &objects, const std::optional<Id
 Track &track(Session &s, const Id &id) {
     return *find(s.tracks, id);
 }
+// Exact signed floor/ceiling for rescaling project-frame fade anchors and clip
+// duration. The admitted component products are <=16,000,000; no float timing.
+Frame retimeFrame(Frame value,std::uint32_t numerator,std::uint32_t denominator,bool ceiling) {
+    const bool negative=value<0;
+    const auto magnitude=negative ? std::uint64_t(-(value+1))+1 : std::uint64_t(value);
+    const auto whole=magnitude/denominator,partial=(magnitude%denominator)*numerator;
+    const auto limit=std::uint64_t(INT64_MAX)+std::uint64_t(negative);
+    require(whole<=limit/numerator,"Playback-rate duration overflow",ErrorCode::InvalidParameter);
+    const auto base=whole*numerator,extra=partial/denominator;
+    const auto round=std::uint64_t(partial%denominator && (negative ? !ceiling : ceiling));
+    require(extra<=limit-base && round<=limit-base-extra,
+            "Playback-rate anchor overflow",ErrorCode::InvalidParameter);
+    const auto result=base+extra+round;
+    if(negative && result==std::uint64_t(INT64_MAX)+1) return INT64_MIN;
+    return negative ? -Frame(result) : Frame(result);
+}
 template <class T> std::vector<Id> order(const std::vector<T> &objects) {
     std::vector<Id> ids;
     ids.reserve(objects.size());
@@ -231,7 +247,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     const auto &asset=*find(proposed.assets,c.assetId);
                     const auto sourceDelta=e.source-c.sourceFrame;
                     const auto magnitude=sourceDelta<0 ? -sourceDelta : sourceDelta;
-                    const auto delta=SourceFrameMap(proposed.sampleRate,asset.sampleRate).at(magnitude);
+                    const auto delta=SourceFrameMap(proposed.sampleRate,asset.sampleRate,0,
+                        ClipPlaybackRate{c.playbackRate.denominator,c.playbackRate.numerator}).at(magnitude);
                     require(delta.fraction==0,"Source trim is not on the project grid; use project-frame cropping");
                     shiftClipProcessing(c.processing,sourceDelta<0 ? -delta.frame : delta.frame);
                     c.startFrame = e.start;
@@ -250,6 +267,36 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                 } else if constexpr (std::is_same_v<E, SetClipProcessing>) {
                     validateClipProcessing(e.value);
                     find(track(proposed, e.track).clips,e.clip)->processing = e.value;
+                } else if constexpr (std::is_same_v<E, SetClipPlaybackRate>) {
+                    validateClipPlaybackRate(e.value);
+                    auto &c=*find(track(proposed,e.track).clips,e.clip);
+                    const auto n=c.playbackRate.numerator*e.value.denominator;
+                    const auto d=c.playbackRate.denominator*e.value.numerator;
+                    const auto length=retimeFrame(c.lengthFrames,n,d,true);
+                    for(auto *fade:{&c.processing.fadeIn,&c.processing.fadeOut})
+                        if(fade->startFrame!=fade->endFrame) {
+                            fade->startFrame=retimeFrame(fade->startFrame,n,d,false);
+                            fade->endFrame=retimeFrame(fade->endFrame,n,d,true);
+                        }
+                    const auto divisor=std::gcd(e.value.numerator,e.value.denominator);
+                    c.playbackRate={e.value.numerator/divisor,e.value.denominator/divisor};
+                    const auto &asset=*find(proposed.assets,c.assetId);
+                    const auto map=clipSourceMap(c,asset.sampleRate,proposed.sampleRate);
+                    // Old validation bounds the last sample, not an exclusive
+                    // source endpoint. Slower playback must not invent samples
+                    // after that asset; clamp rounded duration to its exact end.
+                    Frame low=0,high=length;
+                    while(low<high) {
+                        const auto mid=low+(high-low)/2+1;
+                        bool fits=false;
+                        try {fits=map.at(mid-1).frame<asset.frames;}
+                        catch(const ProjectError &error) {
+                            if(error.code()!=ErrorCode::InvalidParameter) throw;
+                        }
+                        if(fits) low=mid; else high=mid-1;
+                    }
+                    require(low>0,"Playback rate leaves no source audio",ErrorCode::InvalidParameter);
+                    c.lengthFrames=low;
                 } else if constexpr (std::is_same_v<E, MoveClip>) {
                     auto &from = track(proposed, e.from).clips;
                     auto &to = track(proposed, e.to).clips;

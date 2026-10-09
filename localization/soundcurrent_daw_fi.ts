@@ -2965,6 +2965,22 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Clip playback speed; pitch follows speed</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>0.250–4.000 times normal speed. Keeps the clip start and source origin; adjusts duration and fades. Export range stays as set. Undo restores the exact previous clip.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Apply speed</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Playback speed (pitch follows)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Apply range</source>
       <translation type="unfinished" />
     </message>
@@ -3105,7 +3121,7 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
-      <source>%1 + %2/%3 source frames · %4 Hz → %5 Hz project</source>
+      <source>%1 + %2/%3 source frames · %4 Hz → %5 Hz project · speed %6/%7</source>
       <translation type="unfinished" />
     </message>
     <message>

@@ -48,15 +48,35 @@ for _ in range(256):
                   rng.choice([0, 113, (1 << 53) + 17, MAX_FRAME]),
                   rng.choice([-37, 0, 113, -(1 << 63)])))
 
+if len(sys.argv)==3 and sys.argv[2]=='--playback-rate':
+    cases=[]
+    for source in [8000,44100,48000,384000]:
+        for project in [8000,44100,48000,384000]:
+            for speed in [(1,4),(1,2),(1333,1000),(4,1),(3999,4000)]:
+                for fraction,denominator in [(0,1),(1,7),(MAX_DENOMINATOR-1,MAX_DENOMINATOR)]:
+                    cases.append((source,project,4096,fraction,denominator,113,-7,*speed))
+    for _ in range(100):
+        n=rng.randint(1,4000);d=rng.randint(1,4000)
+        cases.append((rng.randint(8000,384000),rng.randint(8000,384000),
+                      rng.choice([4096,(1<<53)+17,MAX_FRAME-100000]),1,997,
+                      rng.choice([0,113,MAX_FRAME]),rng.choice([-37,0,113,-(1<<63)]),n,d))
+    for speed in [(0,1),(1,0),(4001,4000),(1,5),(5,1),(-1,1),(1,4294967295)]:
+        cases.append((48000,44100,4096,1,7,113,-37,*speed))
+    cases += [(384000,8000,MAX_FRAME,0,1,MAX_FRAME,0,4,1),
+              (8000,384000,MAX_FRAME,1,7,0,-(1<<63),1,4)]
+
 accepted = refused = 0
 for case in cases:
-    source, project, frame, numerator, denominator, offset, translation = case
+    source, project, frame, numerator, denominator, offset, translation = case[:7]
+    rate_n,rate_d=case[7:] if len(case)==9 else (1,1)
     valid = (8000 <= source <= 384000 and 8000 <= project <= 384000
              and 0 <= frame <= MAX_FRAME and 0 < denominator <= MAX_DENOMINATOR
-             and 0 <= numerator < denominator and offset >= 0)
+             and 0 <= numerator < denominator and offset >= 0
+             and 0<rate_n<=4000 and 0<rate_d<=4000
+             and rate_n*4>=rate_d and rate_n<=rate_d*4)
     if valid:
         origin = frame + Fraction(numerator, denominator)
-        step = Fraction(source, project)
+        step = Fraction(source, project)*Fraction(rate_n,rate_d)
         common = math.lcm(Fraction(numerator, denominator).denominator,
                           step.denominator)
         translated = origin + translation * step

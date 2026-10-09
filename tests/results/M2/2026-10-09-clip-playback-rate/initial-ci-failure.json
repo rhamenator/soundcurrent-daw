@@ -1,0 +1,51 @@
+{
+  "runId": 37961071889,
+  "head": "2e390e1f6ec578a75fcc5cf46711f577064f9eca",
+  "conclusion": "failure",
+  "artifacts": [
+    {
+      "platform": "linux",
+      "artifactId": 11632255955,
+      "archiveSha256": "b113c28877d499dd5f72b4f03733cb9d40f4eb073baef28551430765955a1b76",
+      "rawLogSha256": "7b9076296c97c57f69bbf3345d2771554e08cc774be3c87caaace300ee730bb3",
+      "entries": [
+        "LastTest.log",
+        "LastTestsFailed.log"
+      ],
+      "tests": 102,
+      "passed": 101,
+      "failed": 1
+    },
+    {
+      "platform": "core",
+      "artifactId": 11631745789,
+      "archiveSha256": "cae4d2a9ad90dd88bb9f2866f3920c89e3663348ec82c054b5ca21f1e9e44be9",
+      "rawLogSha256": "88645e7f72914518edcc3ea03f66a37982efb8dda0ebeb07407d6964d40a6cd2",
+      "entries": [
+        "LastTest.log"
+      ],
+      "tests": 36,
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "platform": "qt",
+      "artifactId": 11631695838,
+      "archiveSha256": "951778917cd7dcfb6edfc52911fb3b5f5e9db1cd4173f0721d441aad5431be36",
+      "rawLogSha256": "a265199897cd3226eccc28ed2af1bc073cb2c3f7b2a7f17a144785bf6b635cf7",
+      "entries": [
+        "build-desktop-native/Testing/Temporary/LastTest.log",
+        "build-desktop-native/Testing/Temporary/LastTestsFailed.log",
+        "native-ui-dependencies/verified-runtime.json"
+      ],
+      "tests": 10,
+      "passed": 9,
+      "failed": 1
+    }
+  ],
+  "diagnosis": {
+    "Windows Qt": "Controller snapshot published before queued exact ratio label refresh. Test must wait for both.",
+    "Linux": "Stopped/edit snapshot published before enabled Apply and fade widget refresh. Test clicked a still disabled Apply."
+  },
+  "repair": "Retain existing assertions/timeouts, await observable GUI readiness, add deterministic focused coalesced Apply/Undo regression. Production source unchanged."
+}
