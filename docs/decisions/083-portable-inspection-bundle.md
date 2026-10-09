@@ -65,3 +65,10 @@ actual capacity. Keep the original failure artifact and check SSO/heap boundary
 lengths on the real standard library. This allowance qualifies the tested STLs,
 not arbitrary allocator behavior or exact process RSS. Unknown excess capacity
 still refuses; no after-allocation credit growth is used to excuse a short grant.
+
+Validate the supplied Windows basename before `std::filesystem::absolute`, rather
+than rely on a possibly normalized final name. Require that normalization retain
+the basename; reject device names, streams and trailing dots/spaces before opening
+handles. Preserve the `7567327` refusal failure and add caller locations without
+relaxing any oracle. Follow the [Windows naming contract](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file);
+confirmation on the native runner remains a gate.

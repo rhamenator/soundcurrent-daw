@@ -44,6 +44,27 @@ class NewFile {
   public:
     explicit NewFile(const std::filesystem::path &requested) {
         check(!requested.empty(),"Empty inspection destination",ErrorCode::InvalidParameter);
+        check(requested.native().find(std::filesystem::path::value_type(0))==std::filesystem::path::string_type::npos,
+              "NUL in inspection destination refused",ErrorCode::InvalidParameter);
+#ifdef _WIN32
+        // Check the supplied final component before GetFullPathName-style
+        // normalization can trim dots/spaces or turn a device name into an alias.
+        check(!requested.has_root_name() || requested.has_root_directory(),
+              "Drive-relative inspection destination refused",ErrorCode::InvalidParameter);
+        const auto rawName=requested.filename().native();
+        check(!rawName.empty(),"Empty inspection destination name",ErrorCode::InvalidParameter);
+        check(rawName.find_first_of(L"<>:\"/\\|?*")==std::wstring::npos &&
+              std::none_of(rawName.begin(),rawName.end(),[](wchar_t value){return value>0 && value<32;}),
+              "Reserved Windows destination character/stream refused",ErrorCode::InvalidParameter);
+        check(rawName.back()!=L'.' && rawName.back()!=L' ',"Nonportable Windows destination name refused",ErrorCode::InvalidParameter);
+        auto prefix=rawName.substr(0,rawName.find(L'.'));
+        while (!prefix.empty() && prefix.back()==L' ') prefix.pop_back();
+        for (auto &letter:prefix) if (letter>=L'a' && letter<=L'z') letter=wchar_t(letter-L'a'+L'A');
+        const bool device=prefix==L"CON" || prefix==L"PRN" || prefix==L"AUX" || prefix==L"NUL" ||
+            (prefix.size()==4 && (prefix.substr(0,3)==L"COM" || prefix.substr(0,3)==L"LPT") &&
+             ((prefix[3]>=L'1' && prefix[3]<=L'9') || prefix[3]==L'\u00b9' || prefix[3]==L'\u00b2' || prefix[3]==L'\u00b3'));
+        check(!device,"Reserved Windows destination name refused",ErrorCode::InvalidParameter);
+#endif
         const auto absolute=std::filesystem::absolute(requested);
         const auto name=absolute.filename().native();
         check(!requested.empty() && !name.empty() && name!=std::filesystem::path(".").native() &&
@@ -52,15 +73,7 @@ class NewFile {
               "Invalid inspection destination",ErrorCode::InvalidParameter);
         destination_=absolute.filename();
 #ifdef _WIN32
-        check(name.find(L':')==std::wstring::npos,"Alternate stream destination refused",ErrorCode::InvalidParameter);
-        check(name.back()!=L'.' && name.back()!=L' ',"Nonportable Windows destination name refused",ErrorCode::InvalidParameter);
-        auto prefix=name.substr(0,name.find(L'.'));
-        while (!prefix.empty() && prefix.back()==L' ') prefix.pop_back();
-        for (auto &letter:prefix) if (letter>=L'a' && letter<=L'z') letter=wchar_t(letter-L'a'+L'A');
-        const bool device=prefix==L"CON" || prefix==L"PRN" || prefix==L"AUX" || prefix==L"NUL" ||
-            (prefix.size()==4 && (prefix.substr(0,3)==L"COM" || prefix.substr(0,3)==L"LPT") &&
-             ((prefix[3]>=L'1' && prefix[3]<=L'9') || prefix[3]==L'\u00b9' || prefix[3]==L'\u00b2' || prefix[3]==L'\u00b3'));
-        check(!device,"Reserved Windows destination name refused",ErrorCode::InvalidParameter);
+        check(name==rawName,"Normalized Windows destination name differs",ErrorCode::InvalidParameter);
         const auto temporary=absolute.parent_path()/std::filesystem::path(".sc-inspection-"+Id::generate().str()+".partial");
         parent_=CreateFileW(absolute.parent_path().c_str(),FILE_READ_ATTRIBUTES|FILE_TRAVERSE,
             FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,nullptr);

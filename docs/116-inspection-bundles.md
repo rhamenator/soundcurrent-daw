@@ -143,3 +143,14 @@ project conversion transaction; verify source preservation, cancellation, Undo,
 reopen and render alignment independently on Linux and Windows. Complete the
 bundle platform/filesystem/install gates alongside that work. Bitwig/Cubase and
 the other registered native/exchange adapters remain required.
+
+## Windows destination-name follow-up
+
+Native head `7567327` reaches a remaining refusal that unexpectedly accepts an
+operation. Its complete failed test artifact is retained. Validate the supplied
+Windows basename before full-path normalization, including device names, streams, reserved/control characters,
+drive-relative forms and trailing dot/space; require the normalized final component to remain equal.
+NUL is rejected in the supplied path before normalization. The refusal oracles remain intact and now report their caller line for a precise
+failure location. Native rerun is required to qualify the correction. The
+[Microsoft naming rules](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file)
+explain why reserved and shell-incompatible final names are excluded.

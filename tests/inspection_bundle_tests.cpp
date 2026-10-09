@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <source_location>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -21,9 +22,10 @@ void write(const std::filesystem::path &p,std::string_view b) {
     std::ofstream s(p,std::ios::binary|std::ios::trunc); s.write(b.data(),std::streamsize(b.size()));
     check(bool(s),"Owned bundle fixture write failed");
 }
-template<class F> void refused(F f) {
+template<class F> void refused(F f,std::source_location where=std::source_location::current()) {
     bool failed=false; try { f(); } catch(const ProjectError &) {failed=true;}
-    check(failed,"Unsafe/truncated bundle operation accepted");
+    ++checks;
+    if (!failed) throw std::runtime_error("Unsafe/truncated bundle operation accepted at line "+std::to_string(where.line()));
 }
 #ifdef _WIN32
 void legacyRenameProbe(const std::filesystem::path &root) {
@@ -114,6 +116,9 @@ int main() {
             auto report=fixture(memory);
             check(memory.usage().reservedBytes==report.chargedBytes(),"Fixture retained decoder scratch");
             refused([&]{saveInspectionBundle({},report,memory);});
+            const auto nulName=std::filesystem::path::string_type{std::filesystem::path("odd").native()}+
+                std::filesystem::path::value_type(0)+std::filesystem::path("tail").native();
+            refused([&]{saveInspectionBundle(root/std::filesystem::path(nulName),report,memory);});
             const auto target=root/std::filesystem::path(u8"Séance Ελληνικά.scinspect");
             const auto saved=saveInspectionBundle(target,report,memory);
             check(saved.bytes==std::filesystem::file_size(target),"Published byte count differs");
@@ -169,7 +174,8 @@ int main() {
             refused([&]{saveInspectionBundle(dir,report,memory);});
             check(std::filesystem::is_directory(dir),"Existing directory replaced");
 #ifdef _WIN32
-            for (const auto *name:{L"NUL.scinspect",L"con",L"x:ads",L"trailing.",L"trailing "})
+            for (const auto *name:{L"NUL.scinspect",L"con",L"x:ads",L"trailing.",L"trailing ",
+                                  L"angle<name",L"pipe|name",L"wild?name",L"control\x01name"})
                 refused([&]{saveInspectionBundle(root/std::filesystem::path(name),report,memory);});
 #else
             const auto link=root/"link.scinspect";std::filesystem::create_symlink(moved.filename(),link);
