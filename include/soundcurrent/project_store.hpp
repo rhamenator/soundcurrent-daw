@@ -11,6 +11,7 @@ struct ProjectBudget {
     StateBudget state;
     std::size_t encodedBytes = maxProjectBytes;
     std::size_t parserBytes = 256 * 1024 * 1024;
+    std::size_t importEvidenceBytes = 256 * 1024 * 1024;
 };
 std::string encodeProject(const Session &, ProjectBudget = {});
 Session decodeProject(std::string_view, ProjectBudget = {});

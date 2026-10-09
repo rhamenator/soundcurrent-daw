@@ -157,3 +157,13 @@ stopped/unverified children retain uncertain outcomes. This preserves media and
 provenance without Session conversion. Next extend/persist original loss state and
 destination timing/gain/fades/rate/pitch, then preview/Undo/reopen/aligned renders.
 All registered adapters and native compatibility remain required and incomplete.
+
+## Portable imported-project evidence checkpoint
+
+[Checkpoint128](128-portable-import-project-evidence.md) adds schema1.8 portable
+original source/loss and per-owned-asset provenance descriptors. Full pinned bundle,
+receipt and owned audio agreement is checked before Save/reopen. Original source
+roots remain absent; unsupported units/opaque state remain intact. This is library
+preservation, not approved semantic/native conversion. Next: destination clip
+semantics, conversion/loss review, one Undo, Save/reopen/aligned renders and installed
+preview pairs. The complete adapter register and frozen parity scope stay required.

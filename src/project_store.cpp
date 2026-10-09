@@ -6,6 +6,9 @@
 #include <nlohmann/json.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <unordered_set>
+#ifdef SC_STORE_IMPORT_STATE
+#include <soundcurrent/project_import_state.hpp>
+#endif
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -261,11 +264,6 @@ Durability publish(const std::filesystem::path &destination, std::string_view by
 #endif
 }
 } // namespace
-std::filesystem::path utf8Path(std::string_view s) {
-    require(validUtf8(s) && s.find('\0') == s.npos, "Invalid UTF-8 path");
-    return std::filesystem::path(
-        std::u8string(reinterpret_cast<const char8_t *>(s.data()), s.size()));
-}
 std::string encodeProject(const Session &s, ProjectBudget budget) {
     validate(s, budget.state);
     PayloadCharge staging("Project encoding staging", budget.parserBytes);
@@ -313,7 +311,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 7},
+        {"schemaMinor", 8},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -325,6 +323,19 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
           {"endFrame", s.punch.endFrame}}},
         {"tracks", tracks},
         {"assets", assets}};
+    root["imports"] = Json::array();
+    const auto file = [](const ProjectEvidenceFile &f) {
+        return Json{{"path", f.relativePath}, {"sha256", f.sha256}, {"bytes", f.bytes}};
+    };
+    for (const auto &source : s.imports) {
+        Json media = Json::array();
+        for (const auto &origin : source.media)
+            media.push_back({{"assetId", origin.assetId.str()}, {"operation", origin.operation.str()},
+                             {"sourceProperty", origin.sourceProperty}, {"receipt", file(origin.receipt)}});
+        root["imports"].push_back({{"id", source.id.str()}, {"adapterId", source.adapterId},
+                                  {"sourceSha256", source.sourceSha256}, {"sourceBytes", source.sourceBytes},
+                                  {"inspection", file(source.inspection)}, {"media", media}});
+    }
     root["master"] = nullptr;
     if (s.master) {
         Json lanes = Json::array();
@@ -442,7 +453,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 7),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 8),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -450,10 +461,14 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         else if (minor == 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                      "playheadFrame", "exportRange", "tracks", "assets", "master"});
-        else
+        else if (minor < 8)
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording"});
+        else
+            keys(j,
+                 {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                  "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         PayloadCharge canonical("Project canonical staging", budget.state.memoryBudgetBytes);
         canonicalPreflight(j, canonical); // Before constructing canonical vectors/strings.
@@ -576,6 +591,42 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             }
             s.master = std::move(master);
         }
+        if (minor >= 8) {
+            const auto file = [&](const Json &f) {
+                keys(f, {"path", "sha256", "bytes"});
+                const auto bytes = integer(f.at("bytes"));
+                require(bytes > 0, "Invalid project evidence extent");
+                return ProjectEvidenceFile{string(f.at("path")), string(f.at("sha256")),
+                                           static_cast<std::uint64_t>(bytes)};
+            };
+            array(j.at("imports"), budget.state.memoryBudgetBytes / sizeof(ImportedProjectSource));
+            s.imports.reserve(j.at("imports").size());
+            for (const auto &i : j.at("imports")) {
+                keys(i, {"id", "adapterId", "sourceSha256", "sourceBytes", "inspection", "media"});
+                ImportedProjectSource source;
+                source.id = Id(string(i.at("id")));
+                source.adapterId = string(i.at("adapterId"));
+                source.sourceSha256 = string(i.at("sourceSha256"));
+                const auto bytes = integer(i.at("sourceBytes"));
+                require(bytes > 0, "Invalid imported source extent");
+                source.sourceBytes = static_cast<std::uint64_t>(bytes);
+                source.inspection = file(i.at("inspection"));
+                array(i.at("media"), budget.state.memoryBudgetBytes / sizeof(ImportedMediaOrigin));
+                source.media.reserve(i.at("media").size());
+                for (const auto &m : i.at("media")) {
+                    keys(m, {"assetId", "operation", "sourceProperty", "receipt"});
+                    ImportedMediaOrigin origin;
+                    origin.assetId = Id(string(m.at("assetId")));
+                    origin.operation = Id(string(m.at("operation")));
+                    const auto property = integer(m.at("sourceProperty"));
+                    require(property >= 0, "Invalid imported source property");
+                    origin.sourceProperty = static_cast<std::uint64_t>(property);
+                    origin.receipt = file(m.at("receipt"));
+                    source.media.push_back(std::move(origin));
+                }
+                s.imports.push_back(std::move(source));
+            }
+        }
         validate(s, budget.state);
         return s;
     } catch (const Json::exception &) {
@@ -649,7 +700,7 @@ std::string hashMediaFile(const std::filesystem::path &p, const std::function<vo
     return out;
 }
 void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &beforeRead) const {
-    validate(s, budget_.state);
+    const ValidatedSession checked(s, budget_.state);
     noLink(root_);
     require(std::filesystem::is_directory(root_), "Project directory unavailable", ErrorCode::Io);
     for (const auto &a : s.assets) {
@@ -661,6 +712,38 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
         }
         require(hashMediaFile(p, beforeRead) == a.sha256, "Media hash mismatch",
                 ErrorCode::MediaMismatch);
+    }
+    const auto evidence = [&](const ProjectEvidenceFile &f) {
+        auto path = root_;
+        for (const auto &part : utf8Path(f.relativePath)) { path /= part; noLink(path); }
+        require(plainFile(path), "Imported evidence missing or not a plain file", ErrorCode::MissingMedia);
+        require(std::filesystem::file_size(path) == f.bytes, "Imported evidence size differs",
+                ErrorCode::MediaMismatch);
+        std::uint64_t reads = 0;
+        const auto maximumReads = f.bytes / 65536 + 1;
+        const auto digest = hashMediaFile(path, [&] {
+            require(++reads <= maximumReads, "Imported evidence grew during bounded hashing",
+                    ErrorCode::MediaMismatch);
+            if (beforeRead) beforeRead();
+        });
+        require(digest == f.sha256 && std::filesystem::file_size(path) == f.bytes,
+                "Imported evidence checksum differs", ErrorCode::MediaMismatch);
+    };
+    for (const auto &source : s.imports) {
+        evidence(source.inspection);
+        for (const auto &origin : source.media) evidence(origin.receipt);
+    }
+    if (!s.imports.empty()) {
+#ifdef SC_STORE_IMPORT_STATE
+        ResourceLedger memory(budget_.importEvidenceBytes, "Project import evidence verification");
+        for (const auto &source : s.imports) {
+            if (beforeRead) beforeRead();
+            auto verified = openProjectImportEvidence(root_, checked, source.id, memory);
+            (void)verified;
+        }
+#else
+        fail("Import evidence verification requires media support", ErrorCode::UnsupportedSchema);
+#endif
     }
 }
 SaveResult ProjectStore::save(const Session &s, const SaveOptions &options) const {

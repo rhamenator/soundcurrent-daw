@@ -196,6 +196,26 @@ struct PunchSettings {
     Frame startFrame = 0, endFrame = 0; // Desired project frames, before input latency.
     bool operator==(const PunchSettings &) const = default;
 };
+// Portable evidence only. These paths never grant access to original sources.
+struct ProjectEvidenceFile {
+    std::string relativePath, sha256;
+    std::uint64_t bytes = 0;
+    bool operator==(const ProjectEvidenceFile &) const = default;
+};
+struct ImportedMediaOrigin {
+    Id assetId = Id::generate(), operation = Id::generate();
+    std::uint64_t sourceProperty = 0;
+    ProjectEvidenceFile receipt;
+    bool operator==(const ImportedMediaOrigin &) const = default;
+};
+struct ImportedProjectSource {
+    Id id = Id::generate();
+    std::string adapterId, sourceSha256;
+    std::uint64_t sourceBytes = 0;
+    ProjectEvidenceFile inspection;
+    std::vector<ImportedMediaOrigin> media;
+    bool operator==(const ImportedProjectSource &) const = default;
+};
 struct Session {
     Id id = Id::generate();
     std::string name;
@@ -207,10 +227,12 @@ struct Session {
     std::vector<Asset> assets;
     std::optional<MasterBus> master;
     PunchSettings punch;
+    std::vector<ImportedProjectSource> imports;
     bool operator==(const Session &) const = default;
 };
 bool validUtf8(std::string_view text) noexcept;
 void validateRelativeMediaPath(std::string_view path);
+void validateImportedProjectSource(const ImportedProjectSource &);
 std::size_t sessionPayloadBytes(const Session &, StateBudget = {});
 void validate(const Session &session, StateBudget = {});
 // Preparation-only immutable borrow: do not mutate/destroy the session while
@@ -223,11 +245,13 @@ class ValidatedSession {
     }
     const Track &track(const Id &) const;
     const Asset &asset(const Id &) const;
+    const ImportedProjectSource &importedSource(const Id &) const;
 
   private:
     const Session &session_;
     std::unordered_map<std::string_view, const Track *> tracks_;
     std::unordered_map<std::string_view, const Asset *> assets_;
+    std::unordered_map<std::string_view, const ImportedProjectSource *> imports_;
 };
 Session makeOneTrackSession(std::string name, std::string trackName,
                            std::uint32_t sampleRate = 48000);

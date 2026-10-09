@@ -1,0 +1,43 @@
+[1/43] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.o
+[2/43] Building CXX object CMakeFiles/sc-session.dir/src/session_edits.cpp.o
+[3/43] Building CXX object CMakeFiles/sc-session.dir/src/routing.cpp.o
+[4/43] Building CXX object CMakeFiles/sc-foreign-snapshot.dir/src/foreign_snapshot.cpp.o
+[5/43] Building CXX object CMakeFiles/sc-session.dir/src/resource_ledger.cpp.o
+[6/43] Linking CXX static library libsc-session.a
+[7/43] Linking CXX static library libsc-foreign-snapshot.a
+[8/43] Building CXX object CMakeFiles/sc-reaper-structure.dir/src/reaper_structure.cpp.o
+[9/43] Linking CXX static library libsc-reaper-structure.a
+[10/43] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.o
+[11/43] Building CXX object CMakeFiles/sc-import-report.dir/src/import_inspection_report.cpp.o
+[12/43] Linking CXX static library libsc-import-report.a
+[13/43] Linking CXX static library libsc-approved-media.a
+[14/43] Building CXX object CMakeFiles/sc-wave-report.dir/src/wave_report.cpp.o
+[15/43] Linking CXX static library libsc-wave-report.a
+[16/43] Building CXX object CMakeFiles/sc-inspection-bundle.dir/src/inspection_bundle.cpp.o
+[17/43] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[18/43] Linking CXX static library libsc-inspection-bundle.a
+[19/43] Linking CXX static library libsc-wave-validation.a
+[20/43] Building CXX object CMakeFiles/sc-project-import-state.dir/src/project_import_state.cpp.o
+[21/43] Building CXX object CMakeFiles/sc-media-provenance.dir/src/media_provenance.cpp.o
+[22/43] Linking CXX static library libsc-media-provenance.a
+[23/43] Building CXX object CMakeFiles/sc-media-staging.dir/src/media_staging.cpp.o
+[24/43] Building CXX object CMakeFiles/sc-reaper-import.dir/src/reaper_import.cpp.o
+[25/43] Linking CXX static library libsc-project-import-state.a
+[26/43] Building CXX object CMakeFiles/sc-media-recovery.dir/src/media_recovery.cpp.o
+[27/43] Linking CXX static library libsc-media-staging.a
+[28/43] Linking CXX static library libsc-reaper-import.a
+[29/43] Linking CXX static library libsc-media-recovery.a
+[30/43] Building CXX object CMakeFiles/sc-import-inspect-worker.dir/tools/import_inspect_worker.cpp.o
+[31/43] Building CXX object CMakeFiles/sc-project-store.dir/src/project_store.cpp.o
+[32/43] Building CXX object CMakeFiles/sc-inspection-bundle-tests.dir/tests/inspection_bundle_tests.cpp.o
+[33/43] Linking CXX static library libsc-project-store.a
+[34/43] Building CXX object CMakeFiles/sc-session-tests.dir/tests/session_tests.cpp.o
+[35/43] Building CXX object CMakeFiles/sc-routing-tests.dir/tests/routing_tests.cpp.o
+[36/43] Building CXX object CMakeFiles/sc-monitoring-tests.dir/tests/monitoring_tests.cpp.o
+[37/43] Linking CXX executable sc-import-inspect-worker
+[38/43] Linking CXX executable sc-inspection-bundle-tests
+[39/43] Linking CXX executable sc-session-tests
+[40/43] Linking CXX executable sc-routing-tests
+[41/43] Linking CXX executable sc-monitoring-tests
+[42/43] Building CXX object CMakeFiles/sc-project-import-state-tests.dir/tests/project_import_state_tests.cpp.o
+[43/43] Linking CXX executable sc-project-import-state-tests

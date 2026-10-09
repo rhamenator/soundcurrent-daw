@@ -1,0 +1,15 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start 40: inspection-bundle
+1/5 Test #40: inspection-bundle ................   Passed    0.05 sec
+    Start 49: session-state
+2/5 Test #49: session-state ....................   Passed    0.43 sec
+    Start 50: project-routing
+3/5 Test #50: project-routing ..................   Passed    0.64 sec
+    Start 53: project-monitoring
+4/5 Test #53: project-monitoring ...............   Passed    0.21 sec
+    Start 64: project-import-state
+5/5 Test #64: project-import-state .............   Passed    6.93 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   8.26 sec

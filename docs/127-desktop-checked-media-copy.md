@@ -85,8 +85,12 @@ source/inspection mismatch, Unicode, original preservation, quotas/single flight
 PID/receipt corruption, pre/post publication termination, deadline, output flood,
 lost report, explicit recovery and lifecycle retirement. Existing inspection,
 WAVE/transaction/localization and package refusal gates remain separate. Leak
-detection is disabled. New native Windows execution is pending protected CI;
-cross-compilation is not native runtime qualification.
+detection is disabled. Protected PR71 qualified exact head c1a371717e606e3c2cbb3327eabaa8b9e58c7ad8:
+89 Linux tests,22 native Windows core tests and7 native Windows Qt tests pass.
+Both Linux/Windows execute119 copy-controller and74 media-UI checks. All four
+strict contexts passed without bypass; merge a6c099cfa8b888d3e67d0506f515486d96c3962d
+has identical source/evidence bytes. Archives and digest receipts are retained in
+the checkpoint128 result folder. Cross-compilation is not native runtime qualification.
 
 The first extended UI test timed out because the MiB UI rounded the helper's
 byte-limit selector; diagnostics and the corrected test-only selector are retained.

@@ -618,3 +618,13 @@ post-start outcomes until explicit recovery. Extend the owned import state and
 destination semantic clip model next, then conversion approval/Undo/reopen/render
 qualification. Refresh installed previews; native adapters and every independent
 M1/M2/full-suite and localization gate remain required.
+
+## X004 portable original/loss state increment (2026-10-09)
+
+[Checkpoint128](128-portable-import-project-evidence.md) persists original inspection/loss
+and per-asset verified occurrence provenance in schema1.8. Save/reopen validates
+owned evidence; relocation/source absence, corruption/quota/cancellation and
+borrower retirement have actual-worker fixtures. Next implement destination
+timing/gain/fades/rate/pitch, explicit conversion/loss preview, one Undo and aligned
+source-suite renders; refresh installed previews. Every broader adapter, independent
+platform/storage/recording/Europe and full frozen parity gate remains required.

@@ -1,0 +1,86 @@
+Start testing: Oct 09 06:17 EDT
+----------------------------------------------------------
+40/94 Testing: inspection-bundle
+40/94 Test: inspection-bundle
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-inspection-bundle-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"inspection-bundle" start time: Oct 09 06:17 EDT
+Output:
+----------------------------------------------------------
+Inspection bundle checks=91; synthetic originating PID, no native-suite compatibility claim
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"inspection-bundle" end time: Oct 09 06:17 EDT
+"inspection-bundle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+49/94 Testing: session-state
+49/94 Test: session-state
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-session-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"session-state" start time: Oct 09 06:17 EDT
+Output:
+----------------------------------------------------------
+118 checks passed
+<end of output>
+Test time =   0.43 sec
+----------------------------------------------------------
+Test Passed.
+"session-state" end time: Oct 09 06:17 EDT
+"session-state" time elapsed: 00:00:00
+----------------------------------------------------------
+
+50/94 Testing: project-routing
+50/94 Test: project-routing
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-routing-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"project-routing" start time: Oct 09 06:17 EDT
+Output:
+----------------------------------------------------------
+604 routing checks passed
+<end of output>
+Test time =   0.64 sec
+----------------------------------------------------------
+Test Passed.
+"project-routing" end time: Oct 09 06:17 EDT
+"project-routing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+53/94 Testing: project-monitoring
+53/94 Test: project-monitoring
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-monitoring-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"project-monitoring" start time: Oct 09 06:17 EDT
+Output:
+----------------------------------------------------------
+40 monitoring checks passed
+<end of output>
+Test time =   0.21 sec
+----------------------------------------------------------
+Test Passed.
+"project-monitoring" end time: Oct 09 06:17 EDT
+"project-monitoring" time elapsed: 00:00:00
+----------------------------------------------------------
+
+64/94 Testing: project-import-state
+64/94 Test: project-import-state
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/project_import_state_workflows.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-inspect-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-project-import-state-tests" "/home/rich/dev/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"project-import-state" start time: Oct 09 06:17 EDT
+Output:
+----------------------------------------------------------
+PASS: 153 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 153 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 153 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 39 independent import-state workflow checks; source/loss/provenance persistence, not conversion parity
+<end of output>
+Test time =   6.93 sec
+----------------------------------------------------------
+Test Passed.
+"project-import-state" end time: Oct 09 06:18 EDT
+"project-import-state" time elapsed: 00:00:06
+----------------------------------------------------------
+
+End testing: Oct 09 06:18 EDT

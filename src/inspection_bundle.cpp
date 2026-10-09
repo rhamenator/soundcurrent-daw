@@ -209,10 +209,9 @@ InspectionBundleSaveResult saveInspectionBundle(const std::filesystem::path &pat
     poll(options.stop); // Publication is the point of no cancellation rollback.
     return {size,file.publish()};
 }
-ImportInspectionReport loadInspectionBundle(const std::filesystem::path &path,
-    ResourceLedger memory,InspectionBundleLimits limits,std::stop_token stop) {
-    const auto maximum=totalBytes(limits.sourceBytes,limits.protocolBytes,std::numeric_limits<std::size_t>::max());
-    auto container=readForeignSnapshot(path,maximum,memory,stop);
+namespace {
+ImportInspectionReport decodeContainer(ForeignSnapshot container,ResourceLedger memory,
+    InspectionBundleLimits limits,std::stop_token stop,InspectionBundleFingerprint *fingerprint) {
     const auto bytes=container.bytes();
     check(bytes.size()>=headerBytes+footerBytes && bytes.substr(0,8)==magic,"Unsupported/truncated inspection bundle");
     const auto sourceSize=get64(bytes.data()+8),protocolSize=get64(bytes.data()+16),originPid=get64(bytes.data()+24);
@@ -231,7 +230,49 @@ ImportInspectionReport loadInspectionBundle(const std::filesystem::path &path,
     auto parser=memory.reserve(inspectionParserCharge(encoded.size()));
     auto protocolLease=memory.reserve(inspectionProtocolCharge(encoded.size()));
     OwnedInspectionProtocol protocol(std::move(protocolLease),std::string(encoded));
-    return decodeInspectionReport(std::move(protocol),std::move(source),sourceHash,originPid,
-                                  memory,std::move(rows),std::move(parser),stop);
+    auto result=decodeInspectionReport(std::move(protocol),std::move(source),sourceHash,originPid,
+                                      memory,std::move(rows),std::move(parser),stop);
+    if (fingerprint) {
+        // Hash the EXACT admitted container decoded above, never reopen its path.
+        const auto digest=hashForeignSnapshot(bytes,memory,stop);
+        *fingerprint={bytes.size(),digest};
+    }
+    return result;
+}
+}
+ImportInspectionReport loadInspectionBundle(const std::filesystem::path &path,
+    ResourceLedger memory,InspectionBundleLimits limits,std::stop_token stop,
+    InspectionBundleFingerprint *fingerprint) {
+    const auto maximum=totalBytes(limits.sourceBytes,limits.protocolBytes,std::numeric_limits<std::size_t>::max());
+    return decodeContainer(readForeignSnapshot(path,maximum,memory,stop),memory,limits,stop,fingerprint);
+}
+ImportInspectionReport loadInspectionBundle(ApprovedMediaFile &file,ResourceLedger memory,
+    InspectionBundleLimits limits,std::stop_token stop,InspectionBundleFingerprint *fingerprint) {
+    const auto maximum=totalBytes(limits.sourceBytes,limits.protocolBytes,std::numeric_limits<std::size_t>::max());
+    check(file.size()<=maximum,"Pinned inspection exceeds envelope",ErrorCode::ResourceLimit);
+    PayloadCharge charge("Pinned inspection staging",std::numeric_limits<std::size_t>::max());
+    charge.add(static_cast<std::size_t>(file.size()),2);charge.add(65536);
+    auto bank=memory.reserve(charge.bytes());
+    check(file.resourceLedger().owns(bank),"Pinned inspection belongs to another resource scope");
+    std::string bytes(static_cast<std::size_t>(file.size()),'\0');
+    for (std::size_t position=0;position<bytes.size();) {
+        const auto count=std::min<std::size_t>(65536,bytes.size()-position);
+        file.readAt(position,std::span<char>(bytes.data()+position,count),stop);position+=count;
+    }
+    file.verifyUnchanged();
+    InspectionBundleFingerprint actual;
+    auto result=decodeContainer(copyForeignSnapshot(bytes,memory,stop),memory,limits,stop,
+                                fingerprint ? &actual : nullptr);
+    file.verifyUnchanged();
+    if (fingerprint) *fingerprint=actual;
+    return result;
+}
+InspectionBundleSaveResult saveNewProjectEvidenceFile(const std::filesystem::path &path,
+    std::string_view bytes,ResourceLedger memory,std::stop_token stop) {
+    check(!bytes.empty() && bytes.size()<=16384,"Project receipt exceeds evidence envelope",
+          ErrorCode::ResourceLimit);
+    auto bank=memory.reserve(65536);poll(stop);
+    NewFile file(path);file.write(bytes,stop);file.flush();poll(stop);
+    return {bytes.size(),file.publish()};
 }
 } // namespace soundcurrent::daw

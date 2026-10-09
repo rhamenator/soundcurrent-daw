@@ -1,0 +1,120 @@
+Start testing: Oct 09 09:38 Coordinated Universal Time
+----------------------------------------------------------
+1/86 Testing: desktop-media-copy-controller
+1/86 Test: desktop-media-copy-controller
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-media-copy-controller-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-media-copy-controller" start time: Oct 09 09:38 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 119 actual checked-copy/controller checks; frozen source, PID/receipt, pre/post publication interruption, recovery and retirement; no audio device
+<end of output>
+Test time =   4.26 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-media-copy-controller" end time: Oct 09 09:38 Coordinated Universal Time
+"desktop-media-copy-controller" time elapsed: 00:00:04
+----------------------------------------------------------
+
+2/86 Testing: desktop-media-controller
+2/86 Test: desktop-media-controller
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-wave-controller-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-media-controller" start time: Oct 09 09:38 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 83 actual media-child/controller checks; PID/report, quotas, Unicode, cancel/deadline/flood and retirement; no audio device
+<end of output>
+Test time =   1.06 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-media-controller" end time: Oct 09 09:38 Coordinated Universal Time
+"desktop-media-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+3/86 Testing: desktop-import-media-ui
+3/86 Test: desktop-import-media-ui
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-import-media-ui-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-import-media-ui" start time: Oct 09 09:38 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 74 actual media UI checks; explicit root/replacement, original bytes, missing/duplicate/unsupported, safe labels, reopen/retirement
+<end of output>
+Test time =   1.19 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-media-ui" end time: Oct 09 09:38 Coordinated Universal Time
+"desktop-import-media-ui" time elapsed: 00:00:01
+----------------------------------------------------------
+
+4/86 Testing: desktop-import-controller
+4/86 Test: desktop-import-controller
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-import-controller-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-import-controller" start time: Oct 09 09:38 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Import controller checks=80; real child, synthetic project, native compatibility unqualified
+<end of output>
+Test time =   1.72 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-controller" end time: Oct 09 09:38 Coordinated Universal Time
+"desktop-import-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+5/86 Testing: desktop-import-ui
+5/86 Test: desktop-import-ui
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-import-ui-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-import-ui" start time: Oct 09 09:38 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 91 import preview UI checks; actual child, no project mutation, async retirement.
+<end of output>
+Test time =   0.56 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-ui" end time: Oct 09 09:38 Coordinated Universal Time
+"desktop-import-ui" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/86 Testing: desktop-localization
+6/86 Test: desktop-localization
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-localization-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-localization" start time: Oct 09 09:38 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Owned localization fixture root: C:\Users\RUNNER~1\AppData\Local\Temp\sc-localization-96762a26-0731-4e15-82a4-f5a0d36979d5
+PASS: 253 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.
+<end of output>
+Test time =   0.86 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-localization" end time: Oct 09 09:38 Coordinated Universal Time
+"desktop-localization" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/86 Testing: windows-package-inputs
+13/86 Test: windows-package-inputs
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/windows_package_input_tests.py"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"windows-package-inputs" start time: Oct 09 09:38 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+C:\hostedtoolcache\windows\Python\3.14.7\x64\Lib\zipfile\__init__.py:1730: UserWarning: Duplicate name: 'platforms/qwindows.dll'
+  return self._open_to_write(zinfo, force_zip64=force_zip64)
+Media deployment: all three sibling workers required; exact native PID/protocol/commit/source/hash qualification enforced
+Pinned native dependencies: accepted qualified identities; refused replacement DLL
+Windows deployment inputs: accepted native separators; refused 14 mutations
+<end of output>
+Test time =   1.88 sec
+----------------------------------------------------------
+Test Passed.
+"windows-package-inputs" end time: Oct 09 09:38 Coordinated Universal Time
+"windows-package-inputs" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Oct 09 09:38 Coordinated Universal Time

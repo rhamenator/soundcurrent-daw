@@ -141,3 +141,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [127: desktop checked-media copying and explicit recovery](127-desktop-checked-media-copy.md)
 - [ADR093: frozen checked copy child outcomes](decisions/093-checked-copy-child-outcomes.md)
+
+- [128 — portable original import state and verified media provenance](128-portable-import-project-evidence.md)
+- [ADR094 — owned original/loss evidence alongside destination state](decisions/094-portable-import-original-evidence.md)

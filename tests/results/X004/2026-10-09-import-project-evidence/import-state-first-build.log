@@ -1,0 +1,31 @@
+[1/31] Building CXX object CMakeFiles/sc-session.dir/src/session.cpp.o
+[2/31] Building CXX object CMakeFiles/sc-session.dir/src/session_edits.cpp.o
+[3/31] Building CXX object CMakeFiles/sc-session.dir/src/routing.cpp.o
+[4/31] Building CXX object CMakeFiles/sc-foreign-snapshot.dir/src/foreign_snapshot.cpp.o
+[5/31] Building CXX object CMakeFiles/sc-session.dir/src/resource_ledger.cpp.o
+[6/31] Linking CXX static library libsc-session.a
+[7/31] Linking CXX static library libsc-foreign-snapshot.a
+[8/31] Building CXX object CMakeFiles/sc-reaper-structure.dir/src/reaper_structure.cpp.o
+[9/31] Linking CXX static library libsc-reaper-structure.a
+[10/31] Building CXX object CMakeFiles/sc-approved-media.dir/src/approved_media.cpp.o
+[11/31] Building CXX object CMakeFiles/sc-import-report.dir/src/import_inspection_report.cpp.o
+[12/31] Linking CXX static library libsc-import-report.a
+[13/31] Linking CXX static library libsc-approved-media.a
+[14/31] Building CXX object CMakeFiles/sc-wave-report.dir/src/wave_report.cpp.o
+[15/31] Linking CXX static library libsc-wave-report.a
+[16/31] Building CXX object CMakeFiles/sc-inspection-bundle.dir/src/inspection_bundle.cpp.o
+[17/31] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[18/31] Linking CXX static library libsc-inspection-bundle.a
+[19/31] Linking CXX static library libsc-wave-validation.a
+[20/31] Building CXX object CMakeFiles/sc-media-provenance.dir/src/media_provenance.cpp.o
+[21/31] Linking CXX static library libsc-media-provenance.a
+[22/31] Building CXX object CMakeFiles/sc-project-import-state.dir/src/project_import_state.cpp.o
+[23/31] Linking CXX static library libsc-project-import-state.a
+[24/31] Building CXX object CMakeFiles/sc-session-tests.dir/tests/session_tests.cpp.o
+[25/31] Building CXX object CMakeFiles/sc-project-store.dir/src/project_store.cpp.o
+[26/31] Linking CXX static library libsc-project-store.a
+[27/31] Building CXX object CMakeFiles/sc-routing-tests.dir/tests/routing_tests.cpp.o
+[28/31] Linking CXX executable sc-session-tests
+[29/31] Linking CXX executable sc-routing-tests
+[30/31] Building CXX object CMakeFiles/sc-monitoring-tests.dir/tests/monitoring_tests.cpp.o
+[31/31] Linking CXX executable sc-monitoring-tests
