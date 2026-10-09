@@ -51,7 +51,11 @@ corruption/resource/cancellation tests stay separate.
 
 Linux Release and ASan/UBSan acceptance each pass6,013 checks (leak detection
 disabled). Git-index hashes confirm every registered native/source/media blob;
-scoped attributes preserve original CRLF on Linux/Windows checkouts. Source/binary/test/authoring receipts are stored
+scoped attributes preserve original project CRLF. The first hosted Windows run
+refused the frozen `generate.lua` hash because its default text checkout became
+CRLF. An explicit Lua LF attribute fixes source checkout without changing any
+frozen bytes or weakening the hash oracle. A simulated CRLF-default checkout
+checks every manifest file before the corrected hosted run. Source/binary/test/authoring receipts are stored
 under `tests/results/X004/2026-10-09-native-writer-corpus`. Hosted MSVC inspection
 of these **Linux-generated** bytes is pending. This does not exercise a Windows
 source writer, Qt/bundle workflow, media conversion, aligned rendering, complex

@@ -1,0 +1,123 @@
+{
+  "format": "sc-checkout-byte-preservation-v1",
+  "failedHead": "b2cc60871dfb646b91363a3ead1fda40ad2f1671",
+  "runId": 37873315803,
+  "jobId": 113636059739,
+  "artifactId": 11591034836,
+  "artifactSha256": "sha256:07edab0d720b14da5bce6a3fb0b06b2b4cc34c1b3b61b00d6b2a280ff1a5d92b",
+  "result": "12 of 13 selected tests passed; corpus refused generate.lua frozen hash after CRLF-default text checkout",
+  "repair": "Explicit *.lua text eol=lf; original RPP -text retained; no fixture or expected hash changed",
+  "simulatedCheckout": [
+    "core.autocrlf=true",
+    "core.eol=crlf"
+  ],
+  "files": [
+    {
+      "file": "blank.rpp",
+      "bytes": 2115,
+      "sha256": "d778dcbab988c8f465e170e40abaa78b2a4861d1644280066660e78683cb3bbc"
+    },
+    {
+      "file": "generate.lua",
+      "bytes": 8007,
+      "sha256": "7c9c45587bacf335a703ef7cdf9d035d5e3accad609f3f299a493bf29b620192"
+    },
+    {
+      "file": "generate_media.py",
+      "bytes": 1110,
+      "sha256": "72d8e9a4f8fc5af14daf694c842ee7b5c8f0ce868e66133722af56c7d0b1bcc2"
+    },
+    {
+      "file": "projects/empty.observed.json",
+      "bytes": 265,
+      "sha256": "8ef68659c8b6e037f07f0721d1bb8b700877a905fe15314d905d87912945a4a0"
+    },
+    {
+      "file": "projects/empty.rpp",
+      "bytes": 2245,
+      "sha256": "7b2f0a838abc82cc0e8a8f3c55cfeda44d7223213bcb177eb56095fe72d54ae9"
+    },
+    {
+      "file": "projects/media/mono.wav",
+      "bytes": 192044,
+      "sha256": "b6e3da19c650ae458f6e09055fe37a0ca23446e924f028e0b995b79ba1ef2a00"
+    },
+    {
+      "file": "projects/media/stereo.wav",
+      "bytes": 384044,
+      "sha256": "199a76b2a2d74ab1da037086d92e1188f6366791da978fffe83870d8d36a2ded"
+    },
+    {
+      "file": "projects/midi-tempo.observed.json",
+      "bytes": 1055,
+      "sha256": "396d76af27ddeda8ba9bcf08d4b9d355e8baa5de7df04335dca16fb30a15cdf6"
+    },
+    {
+      "file": "projects/midi-tempo.rpp",
+      "bytes": 3858,
+      "sha256": "bad42422264c44a6f46a702340ccb818b32fa747a0cee2b0efd7a2a84262ba5a"
+    },
+    {
+      "file": "projects/offset-fades.observed.json",
+      "bytes": 1669,
+      "sha256": "4f0759a16ecf17430c90895b23f431764773d787851b09c9075d508b4ddd7308"
+    },
+    {
+      "file": "projects/offset-fades.rpp",
+      "bytes": 3900,
+      "sha256": "ee2ca2e11ce52b37e3ef929798d8e73427f46acd7b70d04548a2d83a705bdc55"
+    },
+    {
+      "file": "projects/opaque-state-routing.observed.json",
+      "bytes": 1461,
+      "sha256": "2025138713d4f975c7fa20744772f1243748a801ff1371248e9fb7bbfb9e9004"
+    },
+    {
+      "file": "projects/opaque-state-routing.rpp",
+      "bytes": 4031,
+      "sha256": "77ac5b159f5aa38091a8046f8bc8645b49c34223d5daa50bfa6fd8282b5c5241"
+    },
+    {
+      "file": "projects/rate-pitch.observed.json",
+      "bytes": 1133,
+      "sha256": "d30a405433b1e0d1522668a9fd29f5e962f8f3f973e9b222a8d30caa8d6ce032"
+    },
+    {
+      "file": "projects/rate-pitch.rpp",
+      "bytes": 3371,
+      "sha256": "f4a62e9708daacf53c6282d19eff6c537377456896852b6b2da055c350a8b2e9"
+    },
+    {
+      "file": "projects/stereo-gain-pan.observed.json",
+      "bytes": 1133,
+      "sha256": "808a974cd1a06712dd7f99ce713e16884a888d329f38eb95b0e6a0daf74f523e"
+    },
+    {
+      "file": "projects/stereo-gain-pan.rpp",
+      "bytes": 3376,
+      "sha256": "0721d640a1a62b535a854f5a6d94eecd0fd0ccec7f054cde7a93b77f9e2e65e0"
+    },
+    {
+      "file": "projects/unicode-mono.observed.json",
+      "bytes": 1119,
+      "sha256": "84db80075689f6abc94633de2138a76e5e0da0b82f84fd2897cd99b1012e3299"
+    },
+    {
+      "file": "projects/unicode-mono.rpp",
+      "bytes": 3366,
+      "sha256": "8e1aed49bba6867947c1cd90e43937389f17f87edd27cc4adb5429b3bbc79345"
+    },
+    {
+      "file": "projects/writer-complete.json",
+      "bytes": 203,
+      "sha256": "7de59e92f1355e8105a4fe8b021077e637afbd131ca5bc5e2005e9bc14cb6ea4"
+    },
+    {
+      "file": "author_in_lab.py",
+      "bytes": 5213,
+      "sha256": "6dabbd4badd982f589f5fa6bcf45242da1e3f44353c6a31a8c709beed5a71368"
+    }
+  ],
+  "windowsNativeCorrectedRunQualified": false,
+  "semanticImportQualified": false
+}
