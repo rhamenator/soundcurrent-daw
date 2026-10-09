@@ -98,3 +98,14 @@ ready/start/cancel/exit/deadline and uncertain completion; verify marker/audio;
 atomically attach a derived asset while retaining raw source and Undo/Redo state.
 Desktop clip controls, project cache reuse/invalidations/recovery and Windows
 native/installed workflows follow. Keep all full parity and higher-rate gates open.
+
+## Native compiler correction
+
+The first CI attempt for source11d0bd9 (run37970165708) failed during native
+MSVC compilation, before any worker runtime test. Windows headers in the
+unchanged vendor single unit introduced `min`/`max` macros which broke qualified
+`std::min`/`std::max` calls. The application's Windows-only target definition
+`NOMINMAX` prevents those macros; no upstream source/hash is changed. The raw
+failed job log and a separate local correction receipt are retained alongside
+the original qualification. Native runtime qualification still requires the
+corrected head's protected CI; neither the failed run nor Linux rechecks establish it.
