@@ -1,0 +1,19 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start  5: positioned-resampling-kernel
+1/7 Test  #5: positioned-resampling-kernel .....   Passed   46.84 sec
+    Start  6: positioned-resampling-workflow
+2/7 Test  #6: positioned-resampling-workflow ...   Passed   56.85 sec
+    Start  7: fractional-timing-oracle
+3/7 Test  #7: fractional-timing-oracle .........   Passed   17.36 sec
+    Start 38: desktop-clip-processing
+4/7 Test #38: desktop-clip-processing ..........   Passed    0.52 sec
+    Start 39: desktop-positioned-clips
+5/7 Test #39: desktop-positioned-clips .........   Passed    0.48 sec
+    Start 57: session-state
+6/7 Test #57: session-state ....................   Passed    0.44 sec
+    Start 60: multitrack-edits
+7/7 Test #60: multitrack-edits .................   Passed    6.67 sec
+
+100% tests passed, 0 tests failed out of 7
+
+Total Test time (real) = 129.17 sec

@@ -1,0 +1,122 @@
+{
+  "utc": "2026-10-09T13:50:30.802284+00:00",
+  "sourceHead": "07e9935abab04331a99e35e403cccf665206af40",
+  "run": 37938183942,
+  "requiredChecks": {
+    "Linux desktop and synthetic tests": "SUCCESS",
+    "Windows core cross-build (no native runtime claim)": "SUCCESS",
+    "Windows native packet ownership tests": "SUCCESS",
+    "Windows desktop import and localization tests": "SUCCESS",
+    "Socket Security: Project Report": "SUCCESS",
+    "Socket Security: Pull Request Alerts": "SUCCESS"
+  },
+  "protectedMergeReady": true,
+  "noUnresolvedReviewThreads": true,
+  "sourceHashesVerified": 15,
+  "committedEvidenceHashesVerified": 48,
+  "archives": {
+    "linux": {
+      "id": 11621195695,
+      "sha256": "fe0305385a161dd63f5778e09a0fbf72f60a779ba0c94035230a35e83b403710",
+      "passed": 95,
+      "rawLogSha256": "a4cde1cdb26802bc747efcb33beb3acfb05efd37b465ac9352437d73886a162c"
+    },
+    "core": {
+      "id": 11620660346,
+      "sha256": "3ba8fd8865618732cd90b352a7100f516f6230aa49494ddef67f1971a0ba2cf1",
+      "passed": 31,
+      "rawLogSha256": "b56bd0835e96138607e97104ed51e36726d6d09407d45f6731953bd116df62d9"
+    },
+    "qt": {
+      "id": 11620401463,
+      "sha256": "b44d490f515e6e5d870c639aae3bb0bbfafb64c1cb162cd162b08239370587c4",
+      "passed": 8,
+      "rawLogSha256": "8c47e97bb4e3c96a8bca1bb2de2cdc2c4d58b190e2ba08fc831319a04725653a"
+    }
+  },
+  "verificationRepair": "Initial metadata verifier expected wrong Linux artifact name; actual linux-synthetic-test-log selected; original count/digest/CRC/head assertions preserved.",
+  "scope": "No Session/native-audio integration; narrow component/native unit and desktop checks, full F/Q/C/N incomplete.",
+  "merged": true,
+  "mergeCommit": "cb16dfcdec4b1bf2ceec9ea7ca7a965fb485d235",
+  "testedAndMergedTreesEqual": true,
+  "mergedUtc": "2026-10-09T13:50:33Z",
+  "nativeQualificationScope": "95 Linux synthetic tests; 31 native Windows core and 8 native Qt tests. No native audio/hardware replay or installed SRC workflow.",
+  "localPreview": {
+    "utc": "2026-10-09T13:44:39.232252+00:00",
+    "source_head": "07e9935abab04331a99e35e403cccf665206af40",
+    "source_tree": "b9d7e53138d9403402f696c04468123aadc4e8ec",
+    "platform": "Ubuntu 26.04 amd64",
+    "build_type": "Release",
+    "version": "0.1.0~preview.20261009134438.07e9935abab0",
+    "qualified_executable_sha256": "2884cdd6a10fc2ec2ed57038efaab5a91f85879448a426c73231b80ab9bbb8a1",
+    "qualification_sha256": "247c729e153c6abf2bd3d29638a351d7cfd34b1d5ac7e411bad3eab7c2f9bb7b",
+    "native_audio_run": false,
+    "system_installation": false,
+    "clean_install_qualified": false,
+    "release_uploaded": false,
+    "preview_sequence": "20261009134438",
+    "previous_version": "0.1.0~preview.20261009113900.b1a4c3025cf3",
+    "previous_package_version_order_verified": true,
+    "install_input_sha256": {
+      "usr/bin/soundcurrent-daw": "2884cdd6a10fc2ec2ed57038efaab5a91f85879448a426c73231b80ab9bbb8a1",
+      "usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "usr/share/doc/soundcurrent-daw/equipment-provenance.json": "34a364e2b2d31e017550717f2eb90470777faa0085cce76faf7cafb55605f0fb",
+      "usr/share/applications/soundcurrent-daw.desktop": "e5e9bb758dd67e94439a8cbe7cd387d79a9f17380e64515883e6bf63659dfb25",
+      "usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg": "6bc559e288aec6b5eab049387afaef74253805ed568ad50179f0e958d6a5f760",
+      "usr/bin/sc-import-inspect-worker": "9e3d510761943f3e06d428c980551d2cb0b2916dadbe5dae3e747d14885b64a1",
+      "usr/bin/sc-approved-wave-probe": "5c0a1dc0b481dbb536cada6e03207ef0c23ae0a72d4a9d7963cdfae3f9b99170",
+      "usr/bin/sc-media-import-worker": "3f9661bbbb2934c0ce06719684bfda95c8a03393ef6ea6b51ad70a3130a9cb85"
+    },
+    "every_CMake_install_input_matches_current_source": true,
+    "status": "prepared-local-preview",
+    "depends": "libc6 (>= 2.38), libgcc-s1 (>= 4.0), libpipewire-0.3-0t64 (>= 0.3.6), libqt6core6t64 (>= 6.10.2), libqt6gui6 (>= 6.9.1), libqt6widgets6 (>= 6.3.0), libsndfile1 (>= 1.0.20), libssl3t64 (>= 3.0.0), libstdc++6 (>= 14), qt6-qpa-plugins (>= 6.10.2), pipewire (>= 1.6.2), libpipewire-0.3-0t64 (>= 1.6.2)",
+    "artifacts": {
+      "soundcurrent-daw_0.1.0~preview.20261009134438.07e9935abab0_amd64.deb": {
+        "bytes": 1671376,
+        "sha256": "f05ec2ab9eb5f174c655466c004d96ab7fc7546233a3e3468014095558d3a08a"
+      },
+      "soundcurrent-daw-0.1.0~preview.20261009134438.07e9935abab0-source.tar.gz": {
+        "bytes": 717606431,
+        "sha256": "9ec69d91a59f30519fab9fdee89901d1356023c8d9603dc975295614ce92bfd5"
+      }
+    },
+    "packaged_executable_sha256": "5bf70d8a2e9625e14fe116ba9e1128733b4ae1b696d0a15dd79ae986ac40100d",
+    "all_extracted_payload_bytes_match": true,
+    "offscreen_startup_help_version": true
+  },
+  "localPreviewTests": {
+    "passed": 11,
+    "seconds": 9.68,
+    "qualifiedInputs": 495
+  },
+  "preparedResamplerConnectedToPlayback": false,
+  "fullFQCNParity": false,
+  "goalComplete": false,
+  "VMStarted": false,
+  "equalizerModified": false,
+  "largeViewportSanitizer": "Prior 180s timeout retained; remains open. New component sanitizer passes do not close it.",
+  "nextTask": "Version independent clip source/project timing with fractional origins and history/phase-safe split/trim/seek; integrate one shared prepared read-ahead/export path, then independent rate/stretch/pitch and explicit import conversion/loss workflows.",
+  "evidenceSha256": {
+    ".cache/resampling-run-final.json": "2c71a64fa204ad5c49d5a006cc970e1d4633080c4f50f92fbaf953f5dc5849b8",
+    ".cache/resampling-pr-final.json": "e75b19c739c9eb8fbbe7cf04cd1e64d435ffc2d81a634544e20d7cb7649f6ef1",
+    ".cache/resampling-artifacts-final.json": "b0b154d8bbe466e60db16d1bf55a2e5a8a787161eb3ac9869c4dcade02b19139",
+    ".cache/resampling-protection-final.json": "512b71f165bb8ea361949546be8f4f970bf2c718af007372878f2dc90a706eab",
+    ".cache/resampling-review-threads-final.json": "1988a34c5fc887077134fe4f1ccf8ff0aeaeca958e71603088b0f445eacbfaea",
+    ".cache/resampling-merged.json": "b21157572c7b86720dbe2c719843e9ffbada77c79ca50783f45c8494704a699f",
+    ".cache/resampling-premerge-verification.json": "b58c0ac04397cc58720a6e2e47f698b3e31514e6035196386510cacf410a5d98",
+    ".cache/resampling-linux.zip": "fe0305385a161dd63f5778e09a0fbf72f60a779ba0c94035230a35e83b403710",
+    ".cache/resampling-core.zip": "3ba8fd8865618732cd90b352a7100f516f6230aa49494ddef67f1971a0ba2cf1",
+    ".cache/resampling-qt.zip": "b44d490f515e6e5d870c639aae3bb0bbfafb64c1cb162cd162b08239370587c4",
+    ".cache/resampling-linux-lasttest.log": "a4cde1cdb26802bc747efcb33beb3acfb05efd37b465ac9352437d73886a162c",
+    ".cache/resampling-core-lasttest.log": "b56bd0835e96138607e97104ed51e36726d6d09407d45f6731953bd116df62d9",
+    ".cache/resampling-qt-lasttest.log": "8c47e97bb4e3c96a8bca1bb2de2cdc2c4d58b190e2ba08fc831319a04725653a",
+    ".cache/resampling-preview-qualification.json": "247c729e153c6abf2bd3d29638a351d7cfd34b1d5ac7e411bad3eab7c2f9bb7b",
+    ".cache/resampling-preview-release-tests.log": "a84f5e67397aba25cd0ecdd5a5559b9976a9787b91348478d908cc9bfa1f0fee",
+    ".cache/resampling-preview-release-lasttest.log": "73c1baceb8660c0a36175036c790922d7c53647c4f618512e80660f4f436a178",
+    ".cache/resampling-preview-release-build.log": "b06846f4d50f09ccf7299402550ef0a7695604d619464dbdca97eb5056517e33",
+    ".cache/resampling-preview-build-argv.json": "aeb23a9d62e39151dd18dcb40f8acfa3e2b5dee36ca4730d7b306b98ec40cbf2",
+    ".cache/preview-20261009-clip-processing-refresh-ubuntu-26.04/receipt.json": "119657e1435aa725c7a04006dc0b89e86ce4e18a9fda47ea4fb7f895777c3ebf",
+    ".cache/preview-20261009-clip-processing-refresh-ubuntu-26.04/commands.json": "4d704889b6490bb5f3384b8e58278cf2cab9ee7a8a6a6d20eed2932d50e8dc6c",
+    ".cache/resampling-final-pr-api.json": "d43f4e0035169694cc3228eebd67f1c54e25bdb1a0751689fffbebc9538a63eb"
+  }
+}

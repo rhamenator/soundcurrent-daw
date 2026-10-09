@@ -32,6 +32,7 @@ for cache in [f'CMAKE_HOME_DIRECTORY:INTERNAL={other}\n','',
 inputs={
     'usr/bin/soundcurrent-daw':'qualified-binary',
     'usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt':'reuse/equipment/upstream/data/equipment/LICENSE',
+    'usr/share/licenses/soundcurrent-daw/libsamplerate-BSD-2-Clause.txt':'third_party/libsamplerate/COPYING',
     'usr/share/doc/soundcurrent-daw/equipment-provenance.json':'reuse/equipment/provenance.json',
     'usr/share/applications/soundcurrent-daw.desktop':'packaging/soundcurrent-daw.desktop',
     'usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg':'packaging/soundcurrent-daw.svg',
@@ -43,7 +44,7 @@ for installed,relative in inputs.items():
     payload=stage/installed;payload.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(original,payload)
 builder.normalize_staged_permissions(stage)
 binary=source/'qualified-binary'
-assert len(builder.verify_staged_install(stage,source,binary))==5
+assert len(builder.verify_staged_install(stage,source,binary))==6
 def refuse(name):
     try:builder.verify_staged_install(stage,source,binary)
     except RuntimeError as error:(owned/(name+'.txt')).write_text(str(error)+'\n')
@@ -53,12 +54,16 @@ for installed,relative in inputs.items():
     payload.write_bytes(before+b'Stale build payload\n');refuse('stale-'+Path(relative).name)
     assert (source/relative).read_bytes()==before,'Verification wrote the original'
     payload.write_bytes(before)
+license_file=stage/'usr/share/licenses/soundcurrent-daw/libsamplerate-BSD-2-Clause.txt'
+license_bytes=license_file.read_bytes();license_file.unlink();refuse('missing-samplerate-license')
+license_file.write_bytes(license_bytes)
+builder.normalize_staged_permissions(stage)
 extra=stage/'usr/share/applications/old-unqualified.desktop';extra.write_text('Stale extra payload')
 refuse('extra-install-file');extra.unlink()
 icon=stage/'usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg';before=icon.read_bytes();icon.unlink()
 refuse('missing-icon');icon.symlink_to(source/'packaging/soundcurrent-daw.svg')
 refuse('symlink-payload');icon.unlink();icon.write_bytes(before);icon.chmod(0o644)
-assert len(builder.verify_staged_install(stage,source,binary))==5
+assert len(builder.verify_staged_install(stage,source,binary))==6
 print('PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.')
 
 # New desktop versions require the sibling worker from the exact qualified build.
@@ -67,10 +72,10 @@ worker=binary.parent/'sc-import-inspect-worker';worker.write_bytes(b'qualified w
 refuse('missing-worker')
 installed=stage/'usr/bin/sc-import-inspect-worker';installed.write_bytes(worker.read_bytes())
 builder.normalize_staged_permissions(stage)
-assert len(builder.verify_staged_install(stage,source,binary))==6
+assert len(builder.verify_staged_install(stage,source,binary))==7
 installed.write_bytes(b'stale worker');refuse('stale-worker')
 installed.write_bytes(worker.read_bytes())
-assert len(builder.verify_staged_install(stage,source,binary))==6
+assert len(builder.verify_staged_install(stage,source,binary))==7
 print('New desktop payload: qualified worker required; missing/stale worker refused.')
 
 # Media checks need the second exact-build executable as well.
@@ -79,7 +84,7 @@ media_worker=binary.parent/'sc-approved-wave-probe';media_worker.write_bytes(b'q
 refuse('missing-media-worker')
 media_installed=stage/'usr/bin/sc-approved-wave-probe';media_installed.write_bytes(media_worker.read_bytes())
 builder.normalize_staged_permissions(stage)
-assert len(builder.verify_staged_install(stage,source,binary))==7
+assert len(builder.verify_staged_install(stage,source,binary))==8
 media_installed.write_bytes(b'stale media worker');refuse('stale-media-worker')
 media_installed.write_bytes(media_worker.read_bytes())
 print('Media desktop payload: exact qualified media worker required; missing/stale worker refused.')
@@ -89,7 +94,7 @@ copy_worker=binary.parent/'sc-media-import-worker';copy_worker.write_bytes(b'qua
 refuse('missing-copy-worker')
 copy_installed=stage/'usr/bin/sc-media-import-worker';copy_installed.write_bytes(copy_worker.read_bytes())
 builder.normalize_staged_permissions(stage)
-assert len(builder.verify_staged_install(stage,source,binary))==8
+assert len(builder.verify_staged_install(stage,source,binary))==9
 copy_installed.write_bytes(b'stale copy worker');refuse('stale-copy-worker')
 copy_installed.write_bytes(copy_worker.read_bytes())
 print('Copy desktop payload: exact qualified copy worker required; missing/stale worker refused.')
@@ -98,7 +103,7 @@ for executable in ('soundcurrent-daw','sc-import-inspect-worker','sc-approved-wa
     p=stage/'usr/bin'/executable;p.chmod(0o644);refuse('non-executable-'+executable)
     builder.normalize_staged_permissions(stage)
     assert p.stat().st_mode&0o777==0o755
-    assert len(builder.verify_staged_install(stage,source,binary))==8
+    assert len(builder.verify_staged_install(stage,source,binary))==9
 assert (stage/'usr/share/applications/soundcurrent-daw.desktop').stat().st_mode&0o777==0o644
 # Verify Debian preserves the normalized mode, independently of input byte hashes.
 control=stage/'DEBIAN';control.mkdir()

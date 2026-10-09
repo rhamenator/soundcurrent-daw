@@ -668,3 +668,16 @@ instrumented, leak detection disabled. Exact-source native and full quality gate
 remain separate. Full F/Q/C/N parity stays incomplete. Next: versioned clip timing,
 shared reader/export integration, phase/history-preserving seek/split, rate/pitch/
 stretch, explicit conversion/loss/Undo/reopen/aligned renders and installed previews.
+
+## Positioned clip playback/export (2026-10-09)
+
+[Checkpoint131](131-positioned-clip-playback.md) and
+[ADR097](decisions/097-positioned-clip-reader.md) add schema1.10 exact fractional
+source origins, physical-rate-aware shared reader/export, signed project crops
+and non-destructive desktop controls. The pinned BSD FIR adaptation uses the
+unmodified upstream coefficient source and explicit bounded worker buffers.
+Initial actual WAV, partition/seek/split/crop and independent rational oracle
+evidence is recorded; final source/platform/sanitizer/preview qualification is
+separate. Rate automation, independent pitch/stretch, foreign-property adoption
+and full F/Q/C/N/European/native quality gates remain required. No VM was started;
+large preview archives are deferred while Veeam owns substantial disk I/O.

@@ -1,0 +1,22 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start  5: positioned-resampling-workflow
+1/6 Test  #5: positioned-resampling-workflow ...***Timeout  90.17 sec
+
+    Start  6: fractional-timing-oracle
+2/6 Test  #6: fractional-timing-oracle .........   Passed   15.57 sec
+    Start 37: desktop-clip-processing
+3/6 Test #37: desktop-clip-processing ..........   Passed    0.48 sec
+    Start 38: desktop-positioned-clips
+4/6 Test #38: desktop-positioned-clips .........   Passed    0.46 sec
+    Start 56: session-state
+5/6 Test #56: session-state ....................   Passed    0.45 sec
+    Start 59: multitrack-edits
+6/6 Test #59: multitrack-edits .................   Passed    6.60 sec
+
+83% tests passed, 1 tests failed out of 6
+
+Total Test time (real) = 118.64 sec
+
+The following tests FAILED:
+	  5 - positioned-resampling-workflow (Timeout)
+Errors while running CTest

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/playback_reader.hpp>
 #include <soundcurrent/clip_processing.hpp>
+#include <soundcurrent/positioned_resampling.hpp>
 #include <algorithm>
 #include <cmath>
 #include <unordered_set>
@@ -10,6 +11,19 @@ namespace {
 void require(bool ok, const char *message, ErrorCode code = ErrorCode::MediaMismatch) {
     if (!ok)
         throw ProjectError(code, message);
+}
+struct ReaderGeometry { std::size_t sourceFrames=0;bool positioned=false; };
+ReaderGeometry geometry(const ValidatedSession &s,const Track &track,const PlaybackConfig &config) {
+    ReaderGeometry g{config.slabFrames,false};
+    for(const auto &clip:track.clips) if(clip.startFrame<config.endFrame &&
+            clip.startFrame+clip.lengthFrames>config.startFrame) {
+        const auto &asset=s.asset(clip.assetId);
+        PreparedPositionedResampling kernel(asset.sampleRate,config.sampleRate,config.layout.channels);
+        if(!kernel.exactCopy(clipSourceMap(clip,asset.sampleRate,config.sampleRate))) {
+            g.positioned=true;g.sourceFrames=std::max(g.sourceFrames,kernel.maximumSourceWindowFrames(config.slabFrames));
+        }
+    }
+    return g;
 }
 } // namespace
 std::size_t trackReaderPayloadBytes(const ValidatedSession &s, const Id &id,
@@ -22,8 +36,11 @@ std::size_t trackReaderPayloadBytes(const ValidatedSession &s, const Id &id,
     charge.add(4096);
     for (const auto &clip : t.clips)
         if (clip.startFrame < c.endFrame && clip.startFrame + clip.lengthFrames > c.startFrame)
-            charge.add(sizeof(Clip) + sizeof(PreparedClipProcessing) + sizeof(std::size_t) + 256);
-    charge.add(std::size_t(c.slabFrames) * c.layout.channels, sizeof(float) + sizeof(double));
+            charge.add(sizeof(Clip) + sizeof(PreparedClipProcessing) + sizeof(SourceFrameMap) +
+                       sizeof(PreparedPositionedResampling) + sizeof(std::size_t) + 256);
+    const auto g=geometry(s,t,c);
+    charge.add(g.sourceFrames*c.layout.channels,sizeof(float));
+    charge.add(std::size_t(c.slabFrames)*c.layout.channels,sizeof(double)+(g.positioned ? sizeof(float) : 0));
     return charge.bytes();
 }
 std::size_t playbackRunPayloadBytes(const ValidatedSession &s, const Id &id,
@@ -47,10 +64,13 @@ struct TrackReader::State {
         Clip clip;
         std::size_t source = 0;
         PreparedClipProcessing processing;
+        SourceFrameMap map;
+        PreparedPositionedResampling resampling;
     };
     std::shared_ptr<MediaReadCache> media;
     std::vector<Binding> bindings;
     std::vector<float> readBuffer;
+    std::vector<float> positionedBuffer;
     std::vector<double> sumBuffer;
     Frame next;
     std::atomic<std::uint64_t> sanitized{0};
@@ -93,9 +113,13 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
     for (const auto &clip : track.clips)
         if (clip.startFrame < config.endFrame &&
             clip.startFrame + clip.lengthFrames > config.startFrame)
-            state_->bindings.push_back({clip, state_->media->assetIndex(clip.assetId), PreparedClipProcessing(clip.processing)});
+            state_->bindings.push_back({clip, state_->media->assetIndex(clip.assetId), PreparedClipProcessing(clip.processing),
+                clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),
+                PreparedPositionedResampling(validated.asset(clip.assetId).sampleRate,config.sampleRate,config.layout.channels)});
     const auto size = std::size_t(config.slabFrames) * config.layout.channels;
-    state_->readBuffer.resize(size, 0.f);
+    const auto g=geometry(validated,track,config);
+    state_->readBuffer.resize(g.sourceFrames*config.layout.channels, 0.f);
+    if(g.positioned) state_->positionedBuffer.resize(size,0.f);
     state_->sumBuffer.resize(size, 0.);
 }
 TrackReader::TrackReader(PlaybackPipe &pipe, const ValidatedSession &validated, const Id &trackId,
@@ -120,10 +144,14 @@ TrackReader::TrackReader(PlaybackPipe &pipe, const ValidatedSession &validated, 
             const auto asset = state_->media->assetIndex(clip.assetId);
             require(state_->media->assetDescription(asset) == validated.asset(clip.assetId),
                     "Shared cache asset differs from prepared session", ErrorCode::MediaMismatch);
-            state_->bindings.push_back({clip, asset, PreparedClipProcessing(clip.processing)});
+            state_->bindings.push_back({clip, asset, PreparedClipProcessing(clip.processing),
+                clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),
+                PreparedPositionedResampling(validated.asset(clip.assetId).sampleRate,config.sampleRate,config.layout.channels)});
         }
     const auto size = std::size_t(config.slabFrames) * config.layout.channels;
-    state_->readBuffer.resize(size, 0.f);
+    const auto g=geometry(validated,track,config);
+    state_->readBuffer.resize(g.sourceFrames*config.layout.channels, 0.f);
+    if(g.positioned) state_->positionedBuffer.resize(size,0.f);
     state_->sumBuffer.resize(size, 0.);
 }
 TrackReader::~TrackReader() = default;
@@ -151,18 +179,31 @@ bool TrackReader::fillOne() {
             const auto end = std::min(s.next + frames, b.clip.startFrame + b.clip.lengthFrames);
             if (end <= begin)
                 continue;
-            const auto source = b.clip.sourceFrame + (begin - b.clip.startFrame);
             const auto count = end - begin;
-            s.media->read(b.source, source, {s.readBuffer.data(), std::size_t(count) * channels});
+            const auto clipOffset=begin-b.clip.startFrame;
+            const float *rendered=s.readBuffer.data();
+            if(b.resampling.exactCopy(b.map)) {
+                s.media->read(b.source,b.map.at(clipOffset).frame,
+                             {s.readBuffer.data(),std::size_t(count)*channels});
+            } else {
+                const auto total=s.media->assetDescription(b.source).frames;
+                const auto range=b.resampling.sourceRange(b.map,clipOffset,std::uint32_t(count),total);
+                require(range.frames*channels<=s.readBuffer.size(),"Positioned source window exceeds admitted buffer");
+                const std::span<float> input{s.readBuffer.data(),range.frames*channels};
+                s.media->read(b.source,range.first,input);
+                b.resampling.process(b.map,clipOffset,total,range.first,input,
+                                     {s.positionedBuffer.data(),std::size_t(count)*channels});
+                rendered=s.positionedBuffer.data();
+            }
             const auto offset = std::size_t(begin - s.next) * channels;
             for (Frame frame = 0; frame < count; ++frame) {
                 const auto gain = b.processing.unity() ? 1. :
                     b.processing.gainAt(begin - b.clip.startFrame + frame);
                 for (std::uint32_t channel = 0; channel < channels; ++channel) {
                     const auto n = std::size_t(frame) * channels + channel;
-                    if (std::isfinite(s.readBuffer[n]))
-                        s.sumBuffer[offset + n] += gain == 1 ? s.readBuffer[n] :
-                            double(s.readBuffer[n]) * gain;
+                    if (std::isfinite(rendered[n]))
+                        s.sumBuffer[offset + n] += gain == 1 ? rendered[n] :
+                            double(rendered[n]) * gain;
                     else ++invalid;
                 }
             }

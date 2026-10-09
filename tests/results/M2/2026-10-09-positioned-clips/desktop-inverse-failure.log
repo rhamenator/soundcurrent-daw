@@ -1,0 +1,23 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start  5: positioned-resampling-workflow
+1/5 Test  #5: positioned-resampling-workflow ...   Passed    9.93 sec
+    Start  6: fractional-timing-oracle
+2/5 Test  #6: fractional-timing-oracle .........   Passed    3.71 sec
+    Start 12: desktop-localization
+3/5 Test #12: desktop-localization .............   Passed    0.65 sec
+    Start 37: desktop-clip-processing
+4/5 Test #37: desktop-clip-processing ..........   Passed    0.45 sec
+    Start 38: desktop-positioned-clips
+5/5 Test #38: desktop-positioned-clips .........***Failed   10.16 sec
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-SDOeyB
+This plugin does not support propagateSizeHints()
+Timeline timeout at 249
+
+
+80% tests passed, 1 tests failed out of 5
+
+Total Test time (real) =  24.92 sec
+
+The following tests FAILED:
+	 38 - desktop-positioned-clips (Failed)
+Errors while running CTest

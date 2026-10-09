@@ -89,7 +89,7 @@ Session canonical() {
 void stateAndEdits() {
     auto s=canonical();const auto original=s;
     auto j=nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"]==9 && decodeProject(j.dump())==s,"Clip processing exact state roundtrip failed");
+    check(j["schemaMinor"]==10 && decodeProject(j.dump())==s,"Clip processing exact state roundtrip failed");
     for(unsigned mode=0;mode<14;++mode) {
         auto bad=j;auto &c=bad["tracks"][0]["clips"][0];auto &p=c["processing"];
         if(mode==0) p["gainDb"]=true;
@@ -114,7 +114,7 @@ void stateAndEdits() {
         if(minor<4) legacy.erase("punchRecording");
         if(minor<3) legacy.erase("master");
         for(auto &t:legacy["tracks"]) {
-            for(auto &c:t["clips"]) c.erase("processing");
+            for(auto &c:t["clips"]) {c.erase("processing");c.erase("sourceTiming");}
             if(minor<5) t.erase("inputLatencyFrames");
             if(minor<2) t.erase("monitoringMode");
             if(minor==0) {t.erase("monitorIntent");t["inputIntent"].erase("ports");t["outputIntent"].erase("ports");}

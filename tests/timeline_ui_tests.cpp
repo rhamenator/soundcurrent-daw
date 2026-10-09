@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
 #include "master_dialog.hpp"
+#include <soundcurrent/clip_timing.hpp>
 #include <QDialogButtonBox>
 #include <QSpinBox>
 #include <QTableWidget>
@@ -213,6 +214,64 @@ void clipProcessingWorkflow(const std::filesystem::path &root) {
     click(w,"stopButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Idle;});
     close(w,true);
     check(ProjectStore(root).load()==changed && hashMediaFile(raw)==rawHash,"Clip UI Save/reopen altered processing/raw media");
+}
+void positionedClipWorkflow(const std::filesystem::path &root) {
+    auto initial=fixture(root);
+    initial.sampleRate=44100;
+    auto &c=initial.tracks[0].clips[0];c.sourceFrame=17;c.sourceTiming={1,7};c.lengthFrames=800;
+    c.processing.fadeIn={-3,200,ClipFadeCurve::EqualPower,1};
+    ProjectStore(root).save(initial);
+    const auto raw=root/utf8Path(initial.assets[0].relativePath);
+    const auto rawHash=hashMediaFile(raw);
+    auto playback=std::make_shared<playback_fixture::Counters>();
+    auto recording=std::make_shared<recording_fixture::Counters>();
+    StudioWindow w(nullptr,playback_fixture::options(playback),recording_fixture::options(recording));
+    w.resize(1100,850);w.show();w.openProject(root);
+    await([&]{return w.snapshot()->session && widget<QComboBox>(w,"timelineClips")->count()>1;});
+    widget<QComboBox>(w,"timelineClips")->setCurrentIndex(1);
+    auto *crop=widget<QPushButton>(w,"cropAudioClip");
+    auto *consumed=widget<QLineEdit>(w,"clipConsumedProjectFrames");
+    check(crop->isEnabled() && !consumed->accessibleName().isEmpty() &&
+          widget<QLabel>(w,"clipSourceTiming")->text().contains("1/7"),
+          "Fractional source display or accessible project crop missing");
+    widget<QLineEdit>(w,"clipStartFrame")->setText("37");
+    widget<QLineEdit>(w,"clipLengthFrames")->setText("763");consumed->setText("37");crop->click();
+    await([&]{return w.snapshot()->session->tracks[0].clips[0].startFrame==37;});
+    const auto cropped=*w.snapshot()->session;
+    check(clipSourceMap(cropped.tracks[0].clips[0],48000,44100).at(0)==
+          clipSourceMap(initial.tracks[0].clips[0],48000,44100).at(37),
+          "Desktop crop rounded source position");
+    undo(w);await([&]{return *w.snapshot()->session==initial && consumed->text()=="0";});
+    check(w.submitEdit(ProjectCommand{CommandKind::Redo}),"Crop Redo refused");
+    await([&]{return *w.snapshot()->session==cropped;});
+    widget<QLineEdit>(w,"clipStartFrame")->setText("0");
+    widget<QLineEdit>(w,"clipLengthFrames")->setText("800");consumed->setText("-37");crop->click();
+    await([&]{return *w.snapshot()->session==initial;});
+    undo(w);await([&]{return *w.snapshot()->session==cropped;});
+    undo(w);await([&]{return *w.snapshot()->session==initial;});
+    widget<QLineEdit>(w,"clipSplitFrame")->setText("113");click(w,"splitAudioClip");
+    await([&]{return w.snapshot()->session->tracks[0].clips.size()==2;});
+    check(clipSourceMap(w.snapshot()->session->tracks[0].clips[1],48000,44100).at(0)==
+          clipSourceMap(initial.tracks[0].clips[0],48000,44100).at(113),
+          "Desktop split lost fractional source");
+    undo(w);await([&]{return *w.snapshot()->session==initial;});
+    check(widget<QComboBox>(w,"timelineAsset")->count()==1,"Mixed-rate owned asset hidden");
+    click(w,"insertMediaClip");
+    await([&]{return w.snapshot()->session->tracks[0].clips.size()==2;});
+    check(w.snapshot()->session->tracks[0].clips.back().lengthFrames==941,
+          "Mixed-rate insertion used source frames for project length");
+    undo(w);await([&]{return *w.snapshot()->session==initial;});
+    widget<QComboBox>(w,"timelineClips")->setCurrentIndex(1);
+    const auto error=w.snapshot()->errorSerial;consumed->setText("-100000");crop->click();
+    await([&]{return w.snapshot()->errorSerial>error;});
+    check(*w.snapshot()->session==initial,"Invalid crop partly changed canonical state");
+    consumed->setText("37");widget<QLineEdit>(w,"clipStartFrame")->setText("37");
+    widget<QLineEdit>(w,"clipLengthFrames")->setText("763");crop->click();
+    await([&]{return *w.snapshot()->session==cropped;});
+    const auto screenshot=qEnvironmentVariable("SC_DAW_POSITIONED_CLIP_SCREENSHOT");
+    if(!screenshot.isEmpty())check(w.grab().save(screenshot),"Cannot save positioned clip screenshot");
+    close(w,true);check(ProjectStore(root).load()==cropped && hashMediaFile(raw)==rawHash,
+                        "Desktop crop Save/reopen changed raw media or exact timing");
 }
 void editing(const std::filesystem::path &root) {
     const auto original = fixture(root);
@@ -854,7 +913,7 @@ void largeProjectDesktop(const std::filesystem::path &root) {
 void virtualizedDesktop(const std::filesystem::path &root) {
     std::cerr << "Owned virtualized desktop project: " << root << '\n';
     // This fixture qualifies viewport scaling under a declared state grant.
-    // Schema1.9 has more JSON objects per clip; keep production defaults and
+    // Schema1.10 has more JSON objects per clip; keep production defaults and
     // explicit conservative decoding refusal rather than reducing track count.
     ProjectBudget admission;
     admission.state.memoryBudgetBytes = 96 * 1024 * 1024;
@@ -1039,6 +1098,11 @@ int main(int argc, char **argv) {
         std::cerr << "Owned timeline fixture root: " << temp.path().toStdString() << '\n';
         check(temp.isValid(), "Temporary directory failed");
         const auto root = utf8Path(temp.path().toUtf8().toStdString());
+        if(argc==2 && std::string_view(argv[1])=="--positioned-clips-only") {
+            positionedClipWorkflow(root/"positioned-clips");
+            std::cout<<checks<<" desktop positioned-clip checks passed; exact fractional display, signed project crop, Undo/Redo, split, mixed-rate insertion, Save/reopen and raw hashes; no native audio\n";
+            return 0;
+        }
         if(argc==2 && std::string_view(argv[1])=="--clip-processing-only") {
             clipProcessingWorkflow(root/"clip-processing");
             std::cout<<checks<<" desktop clip-processing checks passed; locale/exact precision, grouped Undo/Redo, signed anchors, split, readonly preparation and Save/reopen; no native audio\n";

@@ -53,6 +53,18 @@ kernel build. All original bytes, notices and exceptions remain hash-pinned;
 `additional_source_notices` records their exact paths. Files without a specific
 notice use upstream's COPYING; final distribution auditing remains a release gate.
 
+## Positioned kernel adaptation (2026-10-09)
+
+`src/positioned_resampling.cpp` is a modified BSD-2-Clause adaptation of the
+pinned `src/src_sinc.c` FIR halves/interpolation. Its original Erik de Castro Lopo
+notice is retained; [COPYING](third_party/libsamplerate/COPYING) supplies the
+conditions and disclaimer. The unmodified `src/high_qual_coeffs.h` table is compiled
+into the shared reader's immutable kernel. New rational/window/phase/ownership
+adaptations and the separate stable algorithm ID are recorded in the manifest
+and [ADR097](docs/decisions/097-positioned-clip-reader.md). The GUI now links this
+coefficient kernel through the media reader; binary notices and corresponding
+source must accompany its next preview. No upstream file was changed.
+
 ## Linked system dependencies of the current core
 
 - Linux: OpenSSL Crypto, version **3.5.5** in this development build. Apache-2.0; [upstream license](https://github.com/openssl/openssl/blob/openssl-3.5.5/LICENSE.txt). It supplies worker-side media SHA-256. Source and binaries are not vendored. Distribution packaging must retain the actual linked version's notices/license and audit transitives.

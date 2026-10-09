@@ -1,0 +1,3 @@
+Media deployment: all three sibling workers required; exact native PID/protocol/commit/source/hash qualification enforced
+Pinned native dependencies: accepted qualified identities; refused replacement DLL
+Windows deployment inputs: accepted native separators; refused 14 mutations

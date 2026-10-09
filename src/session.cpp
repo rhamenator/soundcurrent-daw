@@ -5,6 +5,7 @@
 #include <limits>
 #include <type_traits>
 #include <soundcurrent/session.hpp>
+#include <soundcurrent/clip_timing.hpp>
 #include <set>
 #include <filesystem>
 #include <unordered_map>
@@ -435,7 +436,8 @@ void validate(const Session &s, StateBudget budget) {
             const auto &a = *it->second;
             check(c.startFrame >= 0 && c.sourceFrame >= 0 && c.lengthFrames > 0,
                   "Invalid clip frame range");
-            check(c.sourceFrame <= a.frames && c.lengthFrames <= a.frames - c.sourceFrame,
+            const auto map=clipSourceMap(c,a.sampleRate,s.sampleRate);
+            check(map.at(c.lengthFrames-1).frame<a.frames,
                   "Clip exceeds source extent");
             check(c.startFrame <= std::numeric_limits<Frame>::max() - c.lengthFrames,
                   "Clip timeline overflow");
