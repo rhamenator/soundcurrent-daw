@@ -77,14 +77,25 @@ int main() {
         std::optional<StagedMedia> retained;std::string staged;
         {
             ApprovedMediaRoot root(input,resources);auto source=root.openSelectedFilename(name,bytes.size());
-            const CheckedMediaBytes checked{source.size(),source.digest()};const auto before=resources.usage();const auto oldHandles=handles();
+            const CheckedMediaBytes checked{source.size(),source.digest()};
+            // Native provider/OS initialization may retain process-global work
+            // on the first full copy. Prime before the stable handle oracle,
+            // just as approved-media tests prime their crypto provider.
+            const auto coldHandles=handles();
+            {auto warm=stageVerifiedMedia(source,output,checked,bytes.size());}
+            const auto primedHandles=handles();
+            std::cout<<"Staging warm-up process handles: "<<coldHandles<<" -> "<<primedHandles<<'\n';
+            const auto before=resources.usage();const auto oldHandles=handles();
             {
                 const auto id=Id::generate();auto result=stageVerifiedMedia(source,output,checked,bytes.size(),id);
                 staged=result.relativePath();check(result.operation()==id,"Operation identity changed");
                 check(staged==id.str()+"/media.partial","Foreign reference became destination path");
                 check(result.checkedBytes().sha256==checked.sha256 && result.checkedBytes().bytes==bytes.size(),"Copy snapshot changed");
                 check(result.chargedBytes()>0,"Verified result has no retained credit");
-                check(handles()==oldHandles+3,"Native staging ownership exceeds three handles");
+                const auto heldHandles=handles();
+                const auto diagnostic="Native staging ownership differs: baseline="+std::to_string(oldHandles)+
+                    ", held="+std::to_string(heldHandles)+", expected="+std::to_string(oldHandles+3);
+                check(heldHandles==oldHandles+3,diagnostic.c_str());
 #ifdef _WIN32
                 check(result.durability()==StageDurability::FileFlushed,"Windows claimed unsupported directory durability");
 #else

@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-09T07:42:12.328295+00:00",
+  "firstSourceHead": "e94c1ce3c438f91afbd25e9fce1a1005a8a76295",
+  "firstRun": 37899638411,
+  "firstNativeJob": 113718920483,
+  "firstNativeStatus": "failure after 9 checks: first-copy process handle delta",
+  "actualWorkerChecksPassed": 61,
+  "otherRequiredContexts": "all three success",
+  "followupChange": "prime one full copy before exact +3/retirement handle oracle; keep strict assertions and print measured counts",
+  "followupTestSha256": "7235981c0beac3fd2835ae29aefde5942097efa9bea6999e23b2b9a056a448db",
+  "followupLocal": "Release and ASan/UBSan scoped staging tests pass; leak detection disabled",
+  "evidenceSha256": {
+    "staging-native-first-core-artifact.json": "8c9e39155ef8562a96a814cf008ee3ace4d01be234ffcfd10405e5843cbe2abd",
+    "staging-native-first-core-lasttest.log": "80fc6e285e8c77e4f6572a9adfe7343492be14bf97cc55aafb06392a34daf234",
+    "staging-native-first-core.zip": "d203bc58871addca9301796abc32c5fd9129293c03fe9cd948aeaf5d8b897d5a",
+    "staging-native-first-job.log": "0e59677b2b2c8e992906a039af5fa23e3bf62f840a28fb1da5c552271abe97b7",
+    "staging-native-first-run.json": "2afd542873093d63faf1746951e3011155b385aefb4fd5cc08c04349c2b5611e",
+    "staging-warm-oracle-build-release.log": "a0568e8ce1474bf53bbe09c6c3ad00cac267e2a9300a57b4fa5424ca311ee270",
+    "staging-warm-oracle-build-sanitized.log": "a0568e8ce1474bf53bbe09c6c3ad00cac267e2a9300a57b4fa5424ca311ee270",
+    "staging-warm-oracle-release-lasttest.log": "d9edb1563108ea63d95646e08054795372e10dd1947df9e4d8ebb87999597820",
+    "staging-warm-oracle-release-tests.log": "c8e309197bc85eff12a73f1ba3f8bbc3445cf5fcd62530a0cce43bda5afb6ce1",
+    "staging-warm-oracle-sanitized-lasttest.log": "a6e7a335f77899b3b1aa621dbe0f971a6d5f674c36884125c8d2ea514a675d3c",
+    "staging-warm-oracle-sanitized-tests.log": "3319580b7f46e0a7ada19934814b35cec385a221126abc270d0ba65de7d97c22"
+  },
+  "nativeFollowup": "pending"
+}

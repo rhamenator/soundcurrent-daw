@@ -103,3 +103,22 @@ convert projects, carry a durable provenance receipt, implement cleanup/recovery
 or claim native-project compatibility. Other registered native/exchange families,
 broader formats, Windows/audio/alignment, all-Europe localization and full frozen
 functional/quality/content/native parity remain required and incomplete.
+
+## First native execution and ownership-oracle follow-up
+
+First heade94c1ce3c438f91afbd25e9fce1a1005a8a76295, run37899638411, native
+job113718920483 builds the new core/worker. The actual worker61 checks pass,
+including source/staged decoder agreement. Its staging unit test fails after9
+checks at the first-copy process-wide handle-delta assertion; remaining unit
+checks in that executable are not qualified. The other three protected contexts
+pass. Original job log and digest-verified artifact11601886358, hash
+`d203bc58871addca9301796abc32c5fd9129293c03fe9cd948aeaf5d8b897d5a`, are retained.
+
+The follow-up primes one complete copy before measuring stable process handles,
+matching the existing approved-root test's provider-priming approach. It keeps
+exact +3 handles and terminal retirement assertions, prints warm-up counts and
+reports baseline/held/expected counts on failure. No product ownership logic is
+changed, and the original failure is not erased or reported as passing. Scoped
+Release and sanitized staging tests pass; new native qualification is pending.
+The initial receipt/source hashes describe the first revision; the separate
+warm-oracle receipt hashes the changed test and follow-up logs.

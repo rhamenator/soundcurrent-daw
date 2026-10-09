@@ -1,0 +1,20 @@
+Start testing: Oct 09 03:41 EDT
+----------------------------------------------------------
+35/91 Testing: verified-media-staging
+35/91 Test: verified-media-staging
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-media-staging-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"verified-media-staging" start time: Oct 09 03:41 EDT
+Output:
+----------------------------------------------------------
+Staging warm-up process handles: 7 -> 7
+Passed 163 media staging checks
+<end of output>
+Test time =   1.12 sec
+----------------------------------------------------------
+Test Passed.
+"verified-media-staging" end time: Oct 09 03:41 EDT
+"verified-media-staging" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Oct 09 03:41 EDT

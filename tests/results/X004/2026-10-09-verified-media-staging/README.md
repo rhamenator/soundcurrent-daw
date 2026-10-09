@@ -10,3 +10,9 @@ metadata/ZIP digests and extracted LastTest logs are retained byte-for-byte.
 Their original `.cache/` hash-map paths map to same-basename files in this folder.
 They qualify the prior GUI/checker, not this new staging implementation.
 No product binaries, credentials, VM or user recording data are included.
+
+The first native staging cohort (e94c1ce/run37899638411) fails its first-copy
+process handle oracle after9 checks while actual worker61 passes. The verified
+original core archive/job log and follow-up primed-oracle logs are separate.
+`warm-oracle-receipt.json` hashes the changed test and retained failure evidence;
+it does not relabel the initial receipt/source hashes or assert native completion.
