@@ -104,3 +104,17 @@ specific allocation-error identity with no job directory, and adds the256MiB
 completed positive control. Its new counters are173 acceptance checks and34
 completed jobs. Local and native execution of this revision must retain their
 own scope separately from the preceding172-check/33-job receipts.
+
+The first final Linux hosted run of the strengthened fixture failed at its32MiB
+assertion; its raw failure log is retained. A local Debug probe reproduced a
+generic initialization error at16/32MiB, an allocation refusal at64MiB and actual
+ready at256MiB. A constrained watchdog thread can throw `std::system_error`
+before vendor allocation. Resource-unavailable/not-enough-memory conditions now
+receive the stable resource identity; other OS errors retain the generic identity.
+The positive control gets its own60-second deadline to accommodate Debug builds.
+This fixture proves initialization resource refusal, not a particular allocator
+stage. New-source local/native qualification must be recorded separately.
+
+[Checkpoint138](138-installed-stretch-preview.md) records actual installed Linux
+acceptance of the preceding95cfb7d package. That receipt does not qualify the
+subsequent initialization-diagnostic change or a current Windows installer.

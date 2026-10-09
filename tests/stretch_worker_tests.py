@@ -150,15 +150,16 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     req=fresh(sha256=digest_long,sourceFrames=480000,frames=480000)
     before=time.monotonic();r,rr=run(req,deadline=100);elapsed=time.monotonic()-before
     check(r.returncode==2 and elapsed<3 and not (jobs/req['operation']/'complete.json').exists(),'Hard deadline failed to retire uncommitted job')
-    # Opaque workspace exceeds an OS-enforced child ceiling, not a guessed allowance.
+    # Valid geometry exceeds an OS-enforced child ceiling. A larger Debug/runtime
+    # footprint may refuse watchdog thread creation before the opaque workspace.
     digest_wide=owned_wave(path,192000,32,16384);req=fresh(sha256=digest_wide,rate=192000,channels=32,sourceFrames=16384,frames=16384)
     r,rr=run(req,memory=32)
     error=json.loads(r.stderr)
     check(r.returncode!=0 and error.get('messageId')=='stretch.resource_limit' and
-          not (jobs/req['operation']).exists(),'Opaque vendor initialization did not refuse allocation before mutation')
+          not (jobs/req['operation']).exists(),'Worker initialization did not report resource refusal before mutation: '+json.dumps({'exit':r.returncode,'stdout':r.stdout,'stderr':r.stderr,'jobExists':(jobs/req['operation']).exists()}))
     # Same valid geometry succeeds with a larger ceiling. A span-validation
     # refusal therefore cannot satisfy the low-memory assertion above.
-    control=dict(req,operation=str(uuid.uuid4()));r,rr=run(control,memory=256)
+    control=dict(req,operation=str(uuid.uuid4()));r,rr=run(control,memory=256,deadline=60000)
     check(r.returncode==0 and rr[0].get('event')=='ready' and rr[-1]['writtenFrames']==24576 and
           rr[-1]['memoryCeilingBytes']==256*1024*1024 and (jobs/control['operation']/'complete.json').is_file(),
           'Memory-ceiling positive control did not complete the admitted source span')

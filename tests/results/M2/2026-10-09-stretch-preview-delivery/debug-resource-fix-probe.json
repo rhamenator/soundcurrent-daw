@@ -1,0 +1,47 @@
+[
+  {
+    "memoryMiB": 16,
+    "pid": 1998646,
+    "ready": {},
+    "exitCode": 1,
+    "intent": false,
+    "complete": false,
+    "stdout": "",
+    "stderr": "{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"systemErrorCode\":11,\"publicationMayHaveCommitted\":false}\n"
+  },
+  {
+    "memoryMiB": 32,
+    "pid": 1998647,
+    "ready": {},
+    "exitCode": 1,
+    "intent": false,
+    "complete": false,
+    "stdout": "",
+    "stderr": "{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"systemErrorCode\":11,\"publicationMayHaveCommitted\":false}\n"
+  },
+  {
+    "memoryMiB": 64,
+    "pid": 1998648,
+    "ready": {},
+    "exitCode": 1,
+    "intent": false,
+    "complete": false,
+    "stdout": "",
+    "stderr": "{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":false}\n"
+  },
+  {
+    "memoryMiB": 256,
+    "pid": 1998650,
+    "ready": {
+      "event": "ready",
+      "operation": "f108e055-4096-4085-b3ca-76abfd74266a",
+      "protocol": "sc-stretch-render-v2",
+      "renderKey": "338038ccb0975739226b811829a067f02c8ac8797d81be871f84c10faad174b7"
+    },
+    "exitCode": 0,
+    "intent": true,
+    "complete": true,
+    "stdout": "{\"assetId\":\"35a2a50b-cd35-403f-9825-8dd8dc2ad6f0\",\"audioSha256\":\"dd8654f1634ddcbb03a1fcf475838cf0fc5ec90d5b76f1d6a4a8001143ed81ef\",\"channelPolicy\":\"discrete-apart\",\"channels\":32,\"complete\":true,\"deadlineMilliseconds\":60000,\"durabilityMinimum\":\"file-flushed\",\"first\":0,\"firstDenominator\":1,\"firstFraction\":0,\"formantPreserved\":false,\"frames\":16384,\"memoryCeilingBytes\":268435456,\"memoryMetric\":\"address-space\",\"operation\":\"f108e055-4096-4085-b3ca-76abfd74266a\",\"payloadPeakBytes\":477248,\"peakLinear\":0.32084324955940247,\"pitchMilliCents\":1200000,\"processor\":\"soundcurrent.stretch-rubberband4-r3-positioned-v2\",\"protocol\":\"sc-stretch-render-v2\",\"rate\":192000,\"relative\":\"media/raw.wav\",\"renderKey\":\"338038ccb0975739226b811829a067f02c8ac8797d81be871f84c10faad174b7\",\"sampleSha256\":\"5e437b11a33cea0287809ee23d8ee34d1671514a5ac62b25f59a2e94f08a36ee\",\"sourceAlgorithm\":\"soundcurrent.src-positioned-best-v1\",\"sourceFrames\":16384,\"sourceSha256\":\"3dca8add2a6e7ddeb49349688560624580f4f7d3015a6630ff544c1468580714\",\"target\":24576,\"writtenFrames\":24576}\n",
+    "stderr": ""
+  }
+]

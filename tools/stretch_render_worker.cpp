@@ -15,6 +15,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <thread>
+#include <system_error>
 #include <cmath>
 #include <iostream>
 #include <numeric>
@@ -140,6 +141,13 @@ int run(const std::vector<std::string> &args){
         // No cancellation check after commit. A valid marker is the terminal result.
         std::cout<<receiptText<<'\n';return std::cout?0:1;
     }catch(const std::bad_alloc &){std::cerr<<"{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
+    }catch(const std::system_error &e){
+        // Thread creation under the process ceiling can fail before the vendor
+        // allocation, particularly with Debug binaries and larger runtime maps.
+        // Preserve an actual resource refusal without treating every OS error
+        // as exhaustion. Avoid constructing JSON while memory is constrained.
+        const bool resource=e.code()==std::errc::resource_unavailable_try_again || e.code()==std::errc::not_enough_memory;
+        std::cerr<<"{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\""<<(resource?"stretch.resource_limit":"stretch.render_failed")<<"\",\"systemErrorCode\":"<<e.code().value()<<",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
     }catch(const ProjectError &e){std::cerr<<Json({{"protocol",protocol},{"complete",false},{"messageId","stretch.render_failed"},{"errorCode",unsigned(e.code())},{"publicationMayHaveCommitted",publicationMayHaveCommitted}}).dump()<<'\n';return 1;
     }catch(...){std::cerr<<"{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;}
 }

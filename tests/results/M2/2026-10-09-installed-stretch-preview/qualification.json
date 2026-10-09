@@ -1,0 +1,409 @@
+{
+  "utc": "2026-10-09T22:39:28.425809+00:00",
+  "sourceCommit": "95cfb7d92a01abf82fa7c7f0963aec0b1fcbf698",
+  "sourceTree": "2e93a7b34c367c1e7a16b93c0437cd795998db9f",
+  "packageSha256": "b959eae7715d92155f617a6d0bd79743dfc658e5e12451aded7753fb1cc59534",
+  "version": "0.1.0~preview.20261009220811.95cfb7d92a01",
+  "priorVersion": "0.1.0~preview.20261008034000.743392ece10a",
+  "raw": {
+    "channels": 2,
+    "rate": 48000,
+    "frames": 12000,
+    "peak": 1.5,
+    "fileSha256": "6e22cfd507c93dc03681618c2e3a1e2970d9547263f148c10b76c0c3b71bd2b2",
+    "sampleSha256": "55a11edfde3dd6301c4a6879bcb72d460e25f1f7b03e7174ab83b2adb66d1064"
+  },
+  "derived": {
+    "channels": 2,
+    "rate": 48000,
+    "frames": 12288,
+    "peak": 2.226808547973633,
+    "fileSha256": "62d734b51cb2b7856000ba74b6c20c6ac84b96980c21ef8ee5ea57544692411d",
+    "sampleSha256": "d4d56d5d23790ceb2f04d38c380e6693adc8023506ace1b975e9864f868fa0ad"
+  },
+  "export": {
+    "channels": 2,
+    "rate": 48000,
+    "frames": 12288,
+    "peak": 2.226808547973633,
+    "fileSha256": "f7cab8fadd079d39b25a30f0897a954efedd5ebf17de26c9fc26ff74f366f9a5",
+    "sampleSha256": "d4d56d5d23790ceb2f04d38c380e6693adc8023506ace1b975e9864f868fa0ad"
+  },
+  "exactPcmEquality": true,
+  "repeatedExportByteEquality": true,
+  "undoRedoSemanticEquality": true,
+  "reopenedSavedByteEquality": true,
+  "packageManagerUpgradeRemoveReinstall": true,
+  "userMediaPreservedOnRemove": true,
+  "normalQuitExits": [
+    0,
+    0
+  ],
+  "normalUserHelperCapabilities": 0,
+  "physicalAudio": false,
+  "vmStarted": false,
+  "hostPackageInstalled": false,
+  "fullParity": false,
+  "limitations": [
+    "Owned synthetic media only; isolated Ubuntu Base overlay with private PipeWire and Xvfb",
+    "No physical endpoint, listening, hard real-time, Windows installed, or release qualification"
+  ],
+  "archive": {
+    "bytes": 1474438,
+    "sha256": "4b42dee64f78e5d34c70c0674397ffff87bc8cd7742f884a321197aee7b9172c",
+    "entries": {
+      "workspace/app-pid.txt": {
+        "bytes": 3,
+        "sha256": "f4ccd05b3271c386ee55d9876c7450012a3b361e5065c09dc22075e38b3cc35c"
+      },
+      "workspace/application.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "workspace/applied-project.json": {
+        "bytes": 4239,
+        "sha256": "09b9733050000a1e57c9c6f0711932d005b38d0fabb82779fc1cd11b3dc3209e"
+      },
+      "workspace/applied-review.png": {
+        "bytes": 112177,
+        "sha256": "b287451818b58c9ed18c858c340f0921a59f799d27987d29e9a5f97f2bd0a6d5"
+      },
+      "workspace/applied.png": {
+        "bytes": 63068,
+        "sha256": "258bc6ccafae642e5e43fdc1e3d94e14052d4d7a108c4500def98fdb262b456b"
+      },
+      "workspace/apply-undo-redo.sh": {
+        "bytes": 649,
+        "sha256": "43fa0cb757c5fe11bc5ea7ebc6f6f849a61f268b416d6ecbeed543a040e0ab8e"
+      },
+      "workspace/before-render.png": {
+        "bytes": 107896,
+        "sha256": "578f0eef83aa50f6f3076f04a493722823f55584d5f7eebee0b3449fc7a531d0"
+      },
+      "workspace/before-reopen-project.json": {
+        "bytes": 4239,
+        "sha256": "09b9733050000a1e57c9c6f0711932d005b38d0fabb82779fc1cd11b3dc3209e"
+      },
+      "workspace/cycle-data-after.sha256": {
+        "bytes": 1208,
+        "sha256": "6aec8b9ad54eb1a333fd1f90eb5d412389a1d87b86e73d51ca817955c1d7fd76"
+      },
+      "workspace/cycle-data-before.sha256": {
+        "bytes": 1208,
+        "sha256": "6aec8b9ad54eb1a333fd1f90eb5d412389a1d87b86e73d51ca817955c1d7fd76"
+      },
+      "workspace/cycle-install.log": {
+        "bytes": 370,
+        "sha256": "ca22eaac4de6a3cd3c8383fc6f0935ae50550ba6a665380e1d99e7a307b96009"
+      },
+      "workspace/cycle-reinstall.log": {
+        "bytes": 379,
+        "sha256": "17cef2a6e4231b4e72713ff15ea77b16e5bae7be3b01a1494537b0f99c4e1da7"
+      },
+      "workspace/cycle-reinstalled-binaries.sha256": {
+        "bytes": 192,
+        "sha256": "ebd0d6a6d539eff586f905d5f88d02e0befe30ff4e648e2ea5113bf952316d64"
+      },
+      "workspace/cycle-reinstalled-version.txt": {
+        "bytes": 23,
+        "sha256": "2af2dc1374f9ee6b361ca37958e08c92dc2a9d56e0855164f417006c46e044a7"
+      },
+      "workspace/cycle-remove.log": {
+        "bytes": 208,
+        "sha256": "66fc70a1e2c5bceba4fe2251252c4784c4246be639f34c2591b3a18d7b0180cd"
+      },
+      "workspace/dialog-id.txt": {
+        "bytes": 8,
+        "sha256": "23deaf6dbc95a89d284a226165aa37a1f469dff9fa946f538aaf81ede517e090"
+      },
+      "workspace/export-and-reopen.sh": {
+        "bytes": 840,
+        "sha256": "6bdb259e497763942b69b576053966bacb7df9577f36144b8e86d5fc06df3428"
+      },
+      "workspace/export-dialog.png": {
+        "bytes": 92729,
+        "sha256": "759245d80b265977b87fb7eb9992a9d4a2ed41b04536f09f1d4b2e3cb776b3aa"
+      },
+      "workspace/exported.png": {
+        "bytes": 63068,
+        "sha256": "057e2e8a47b2955c0120b14cb81321dd502eef678657e4480c9995a35ad1ec10"
+      },
+      "workspace/first-closed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "workspace/first-exit.txt": {
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "workspace/graph-after-first.json": {
+        "bytes": 53420,
+        "sha256": "33859cb5274f7c75d4b03cecb8386b23958e48542b8e87fd92371c1b9f0c7d28"
+      },
+      "workspace/graph-after.json": {
+        "bytes": 53420,
+        "sha256": "42367f4edce5b64d9bd7a5f70aae421025e1722ebf9c92f47350eeefdffc258f"
+      },
+      "workspace/graph-before.json": {
+        "bytes": 53417,
+        "sha256": "09410282558bc170e97f5a485c9db08f891b32da06876eb15448173debc35ae6"
+      },
+      "workspace/helper-command.txt": {
+        "bytes": 254,
+        "sha256": "3117b24fda2c880a2d162d259fca34e2128f2713fa757a253b45477dd5dd31a5"
+      },
+      "workspace/helper-executable.txt": {
+        "bytes": 34,
+        "sha256": "a3e938204c532028380136414bd0163da0319212cc4cbbaeb2c2ff60fa44a9d3"
+      },
+      "workspace/helper-pid.txt": {
+        "bytes": 3,
+        "sha256": "d867d3f88fa20d7cb936ecd93651adeedf473a6177218cd0987f462ff5511cb6"
+      },
+      "workspace/helper-status.txt": {
+        "bytes": 1509,
+        "sha256": "bfa260bc3cf0ff331debc15b1bd211643da72f295fbb562ad2e5dcc0cb81335c"
+      },
+      "workspace/identity.txt": {
+        "bytes": 57,
+        "sha256": "e86dad7756a96bd79fd39cc793ea195f79a93a18386a0a7e1406b22a903cbe86"
+      },
+      "workspace/initial-project.json": {
+        "bytes": 3110,
+        "sha256": "f9ae3bf852f2c2a9e8bd95414afc75cd0bcf665e6383ea33988f19cc2e460c29"
+      },
+      "workspace/install.log": {
+        "bytes": 370,
+        "sha256": "ca22eaac4de6a3cd3c8383fc6f0935ae50550ba6a665380e1d99e7a307b96009"
+      },
+      "workspace/installed-binaries.sha256": {
+        "bytes": 488,
+        "sha256": "71a2a5e6422dbaa55fe364f4a4ec097deebbb6ee2ee5cf1c5e6ab434c57406c8"
+      },
+      "workspace/installed-version.txt": {
+        "bytes": 42,
+        "sha256": "9a91a17545b1d10e0edfd40a9a36215e5bbdcdcd52b600b01cfb0ee44448a258"
+      },
+      "workspace/open-export.sh": {
+        "bytes": 152,
+        "sha256": "1474ccdebd51dd0f0027f9a25c7c55d8afafdb25498b958720b92a0ade6d84d3"
+      },
+      "workspace/open-stretch.sh": {
+        "bytes": 307,
+        "sha256": "b4e347975c7d6d669b15771ab64ee95a21f3cdd935c749baefb53b1a77e68af1"
+      },
+      "workspace/opened.png": {
+        "bytes": 63068,
+        "sha256": "893e1c3318c10c023c0f17807656dfcab9711fe59e59392125f70feb426bb888"
+      },
+      "workspace/package-cycle.sh": {
+        "bytes": 1116,
+        "sha256": "6e7c2a9eda2be2d0ed8c82d90095912a203ee4037a3982f5f665c8344ed84d2f"
+      },
+      "workspace/pipewire.conf": {
+        "bytes": 15065,
+        "sha256": "2f4693230fc8febbe75d191473662be420903c1faaa0d84e7d1bfca07e738303"
+      },
+      "workspace/pipewire.log": {
+        "bytes": 418,
+        "sha256": "41199357a3cfce816b612859bae77310e6e4e9a8b414fadb1d5ba97c4875482c"
+      },
+      "workspace/prior-version.txt": {
+        "bytes": 42,
+        "sha256": "872294df185a06ef1cdf58baceca82e4141ecfb45ce80f4ede41795ff36a6670"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432/media/derived/9145e77c-8167-4d14-9dd7-20c216be42c2/audio.wav": {
+        "bytes": 98408,
+        "sha256": "62d734b51cb2b7856000ba74b6c20c6ac84b96980c21ef8ee5ea57544692411d"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432/media/derived/9145e77c-8167-4d14-9dd7-20c216be42c2/complete.json": {
+        "bytes": 1047,
+        "sha256": "5b8db0e5303395c294adbf174326090c641fc72fb970ba222e5389243b51b94c"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432/media/derived/9145e77c-8167-4d14-9dd7-20c216be42c2/intent.json": {
+        "bytes": 601,
+        "sha256": "0d54a94c9f29be5a65f0731d81d35a0c15e980715f518432d4bd90e4d72e9114"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432/media/derived/9145e77c-8167-4d14-9dd7-20c216be42c2/start.request": {
+        "bytes": 5,
+        "sha256": "cced28c6dc3f99c2396a5eaad732bf6b28142335892b1cd0e6af6cdb53f5ccfa"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432/media/raw-\u00e9t\u00e9.wav": {
+        "bytes": 96044,
+        "sha256": "6e22cfd507c93dc03681618c2e3a1e2970d9547263f148c10b76c0c3b71bd2b2"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432/project.json": {
+        "bytes": 4239,
+        "sha256": "09b9733050000a1e57c9c6f0711932d005b38d0fabb82779fc1cd11b3dc3209e"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432/project.previous.json": {
+        "bytes": 3095,
+        "sha256": "4bbec433c1505e95a32b0cdbb64a109b0882c8a6ab9174b79974bc400c027d97"
+      },
+      "workspace/project-\u00e9t\u00e9-\u039a\u0438\u0457\u0432-mix.wav": {
+        "bytes": 98392,
+        "sha256": "f7cab8fadd079d39b25a30f0897a954efedd5ebf17de26c9fc26ff74f366f9a5"
+      },
+      "workspace/raw-before-reopen.sha256": {
+        "bytes": 109,
+        "sha256": "127df5fef320f5bf8107a4c94ab12dbb399751c98952c90726b85bc3b4f98a1b"
+      },
+      "workspace/ready": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "workspace/redone-project.json": {
+        "bytes": 4239,
+        "sha256": "09b9733050000a1e57c9c6f0711932d005b38d0fabb82779fc1cd11b3dc3209e"
+      },
+      "workspace/redone.png": {
+        "bytes": 63068,
+        "sha256": "258bc6ccafae642e5e43fdc1e3d94e14052d4d7a108c4500def98fdb262b456b"
+      },
+      "workspace/reexport-and-quit.sh": {
+        "bytes": 579,
+        "sha256": "43230fadb725a04a8517123cf7ab9ea156d92181cf1cb4842ac74e790e9d75b5"
+      },
+      "workspace/render-stretch.sh": {
+        "bytes": 1023,
+        "sha256": "fb827270b70f48d5e8f4cafc6b70a760b4406611047a11ce0ec8939f45cf8e57"
+      },
+      "workspace/render-verified.png": {
+        "bytes": 115278,
+        "sha256": "b923adb3b3235a7de43b2a0c4d79f8b7b6f9b671497675adf5d297b217c90670"
+      },
+      "workspace/reopened-application.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "workspace/reopened-export-dialog.png": {
+        "bytes": 92297,
+        "sha256": "1d9d875e268e8ef6717da797dfefd2c9d285d6bf6aaf3478bb63118b9db443dd"
+      },
+      "workspace/reopened-exported.png": {
+        "bytes": 70300,
+        "sha256": "c98c1b5078ba6a7fbbed267e05bab088dbf84cc891729f5ec46e362d62fd8a96"
+      },
+      "workspace/reopened-ready": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "workspace/reopened-stretch.png": {
+        "bytes": 107635,
+        "sha256": "056885a1f5c60a3ed01f9a80ae16d7ac41e631030943b21efc881e8406d195f9"
+      },
+      "workspace/reopened-window-id.txt": {
+        "bytes": 8,
+        "sha256": "c2b401c52534ca4003a9ff1ed1aef38ffcea2021dae51b222c16208cc00a7fd4"
+      },
+      "workspace/reopened.png": {
+        "bytes": 63068,
+        "sha256": "258bc6ccafae642e5e43fdc1e3d94e14052d4d7a108c4500def98fdb262b456b"
+      },
+      "workspace/reopened.wav": {
+        "bytes": 98392,
+        "sha256": "f7cab8fadd079d39b25a30f0897a954efedd5ebf17de26c9fc26ff74f366f9a5"
+      },
+      "workspace/root-launch.sh": {
+        "bytes": 628,
+        "sha256": "9247de7f1c5ac6c982538937fb0cf7c442aa802d12e8236e9f859f26684a9299"
+      },
+      "workspace/second-exit.txt": {
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "workspace/stretch-opened.png": {
+        "bytes": 107382,
+        "sha256": "6357fdeac13a8b762ccfcffa6c2f3711ca893ad7eb8a69cb220338b40795d05d"
+      },
+      "workspace/undone-project.json": {
+        "bytes": 3095,
+        "sha256": "4bbec433c1505e95a32b0cdbb64a109b0882c8a6ab9174b79974bc400c027d97"
+      },
+      "workspace/undone.png": {
+        "bytes": 63068,
+        "sha256": "893e1c3318c10c023c0f17807656dfcab9711fe59e59392125f70feb426bb888"
+      },
+      "workspace/user-launch.sh": {
+        "bytes": 1219,
+        "sha256": "0385d839a6d357d423fa645e17a302ab0abd32fa56d0411e98c7ac37ad66f5f0"
+      },
+      "workspace/user-process-status.txt": {
+        "bytes": 1497,
+        "sha256": "9b7c6e2b3b3ee8fc3bc203b8bc634898649bf5a48202476873388a30a28b910b"
+      },
+      "workspace/window-id.txt": {
+        "bytes": 8,
+        "sha256": "c2b401c52534ca4003a9ff1ed1aef38ffcea2021dae51b222c16208cc00a7fd4"
+      },
+      "workspace/xvfb.log": {
+        "bytes": 81,
+        "sha256": "e2861dbf17c9cb74d57668ceaa0ec8111c014cd26d10d2d0dffdf37188dac690"
+      },
+      "action.py": {
+        "bytes": 969,
+        "sha256": "d3befe2b8f22d7d7c5f54f0cef650b3c51ca096a67fd449e9b9d548128f4bad1"
+      },
+      "apply-undo-redo-command.json": {
+        "bytes": 1268,
+        "sha256": "aa26e72245334e9c77f806eb659a23b7746e430b7ede9e33928e3973ca90abd3"
+      },
+      "apply-undo-redo.log": {
+        "bytes": 50,
+        "sha256": "172c677affa3181fda70316b9e506a4b6685dfb811f4e068d51978943ab93607"
+      },
+      "container.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "export-and-reopen-command.json": {
+        "bytes": 1520,
+        "sha256": "850c9df1d6df894481b40429b6e1c9a0a7684d9c4d51ae213d03f34f820aff4a"
+      },
+      "export-and-reopen.log": {
+        "bytes": 50,
+        "sha256": "172c677affa3181fda70316b9e506a4b6685dfb811f4e068d51978943ab93607"
+      },
+      "open-export-command.json": {
+        "bytes": 677,
+        "sha256": "6958145c56aaf69848e135956cc562c0d4ad3f8fe2ac309b679f9a62b384ed8b"
+      },
+      "open-export.log": {
+        "bytes": 50,
+        "sha256": "172c677affa3181fda70316b9e506a4b6685dfb811f4e068d51978943ab93607"
+      },
+      "open-stretch-command.json": {
+        "bytes": 837,
+        "sha256": "d10d30652a188282044b2fc808218266fdf6a7f9d10547ad1020e37e46df9c29"
+      },
+      "open-stretch.log": {
+        "bytes": 50,
+        "sha256": "172c677affa3181fda70316b9e506a4b6685dfb811f4e068d51978943ab93607"
+      },
+      "package-cycle-container.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "reexport-and-quit-command.json": {
+        "bytes": 1148,
+        "sha256": "5408d4af5122eba6e6c441ec6e85cee35186b952391894c9ca6a4e46dca28961"
+      },
+      "reexport-and-quit.log": {
+        "bytes": 50,
+        "sha256": "172c677affa3181fda70316b9e506a4b6685dfb811f4e068d51978943ab93607"
+      },
+      "render-stretch-command.json": {
+        "bytes": 1619,
+        "sha256": "0f318da52458a5d23bb41579ce344ff2223e1592502065d614b55b00a888ebd6"
+      },
+      "render-stretch.log": {
+        "bytes": 50,
+        "sha256": "172c677affa3181fda70316b9e506a4b6685dfb811f4e068d51978943ab93607"
+      },
+      "verify-at-capture.py": {
+        "bytes": 5939,
+        "sha256": "26ef1bb39555dbc09d4b3932a01bfee2fa78bfb000c17aa899d75d904e70400a"
+      }
+    }
+  }
+}

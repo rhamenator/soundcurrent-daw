@@ -3573,3 +3573,13 @@ backup contention. Next: pin and qualify independent pitch/stretch preparation.
 and merged as1232106 with identical tree. Checkpoint134 adds the independent
 stretch CLI worker and55 owned-WAV/992 shared-reader checks; application editing
 state/supervision and native qualification remain gates. No F/Q/C/N completion.
+
+## Installed Linux pitch/stretch preview (2026-10-09)
+
+[Checkpoint138](138-installed-stretch-preview.md) adds actual package upgrade and
+installed GUI/default helper acceptance for source95cfb7d. Owned fractional raw
+anchor, duration3/2, pitch+7.00007/formants, Apply/Undo/Redo/save/new-process reopen,
+exact derived/export PCM and repeat-export bytes pass. Both normal Quit exits0;
+package removal/reinstall preserves user data. No physical audio, host install,
+VM, binary upload or full F/Q/C/N completion. Current-source/native Windows
+installation remains next.

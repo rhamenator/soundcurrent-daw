@@ -36,7 +36,10 @@ jobs:
           python3 tests/recording_feedback_archive_tests.py
           python3 tests/native_manual_panel_archive_tests.py
       - name: Verify installed fault evidence (no audio replay)
-        run: python3 tools/verify_installed_fault_evidence.py
+        run: |
+          python3 tools/verify_installed_fault_evidence.py
+          python3 tools/verify_installed_stretch_preview.py
+          python3 tests/installed_stretch_evidence_tests.py
       - name: Verify retained Windows media (no native audio replay)
         run: |
           python3 tests/windows_capture_verifier_tests.py
