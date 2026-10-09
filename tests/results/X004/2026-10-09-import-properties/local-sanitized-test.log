@@ -1,0 +1,24 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 34
+    Start 34: reaper-import-properties
+
+34: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-reaper-import-tests "/home/rich/dev/soundcurrent-daw/tests/fixtures/reaper-7.82/projects"
+34: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+34: Test timeout computed to be: 60
+34: Reaper import properties: 885 checks; original scalar/byte preservation only, conversion/render unqualified
+1/1 Test #34: reaper-import-properties .........   Passed    0.23 sec
+
+The following tests passed:
+	reaper-import-properties
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.23 sec

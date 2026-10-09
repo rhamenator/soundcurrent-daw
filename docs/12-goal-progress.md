@@ -3280,3 +3280,20 @@ Windows source writer, semantic IR/conversion, independent renders and all other
 native/exchange formats remain gates. No local VM or user audio route changed;
 the existing comparator was paused when another testing VM was observed active.
 The full functional/quality/content/native parity goal remains active/incomplete.
+
+## Source-property intermediate model (2026-10-09 UTC, later)
+
+PR61's corrected exact `96ffb4e` passes76 Linux tests and13 selected MSVC tests . The original Lua CRLF-default checkout hash failure is retained;
+explicit LF fixes it without altering frozen fixture bytes. MSVC structural
+inspection passes6,013 corpus checks; Windows writer/semantic conversion remains
+unqualified.
+
+[Checkpoint119](119-import-intermediate-properties.md) adds a resource-owned
+framework-independent C++20 import representation with stable source-property IDs,
+separate original gain layers, exact opaque bytes and explicit missing/ambiguous/
+unsupported state. Linux Release/ASan/UBSan each pass885 new checks and five related
+Release tests pass. MinGW compilation is separate from pending native execution.
+The next task is isolated property protocol, independent parent validation and
+read-only loss preview, then approved media/new-project mapping and aligned render
+workflows. Existing installers/equalizers/user audio remain unchanged, no local
+VM started, and the full frozen-reference DAW goal remains active/incomplete.

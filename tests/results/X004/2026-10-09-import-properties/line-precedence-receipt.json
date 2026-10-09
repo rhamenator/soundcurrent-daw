@@ -1,0 +1,21 @@
+{
+  "format": "sc-import-line-evidence-precedence-v1",
+  "sourceBase": "de3adc9fd7615c7f62d82f47e792a1acefa73131",
+  "scope": "sc-reaper-import and its test only; unrelated protocol/UI work is unstaged",
+  "inputs": {
+    "src/reaper_import.cpp": "7d21e286b56234e33073d6aa498bdd44b929366efeb8668f952ca4a542006197",
+    "tests/reaper_import_tests.cpp": "7cae40a79bc9f4b5e3db547c8e965645b44836ca0b1a26f3fd3670a83327a06a",
+    "include/soundcurrent/reaper_import.hpp": "04aa941929aa1607059281252f55b3624c210342980aa0022e1a2b901efc61cb",
+    "include/soundcurrent/reaper_structure.hpp": "dd8cef361422f8a3423545707fb4aea5182d715829a0cfa55e30dfc1956e18aa",
+    "src/reaper_structure.cpp": "8c5db4ca25fe5a2a69b016d5ee73845c6646fab814c1a36825e6558629640c89"
+  },
+  "actualConfigureFileSha256": "8fa5c6587a624a2852fe4f98c5665742c3d8ab4b22f11877d3eb104cb398b579",
+  "actualConfigureIncludesUncommittedWorkerLinkChange": true,
+  "testedTargetDeclarationUnchanged": true,
+  "runtime": "Linux Release",
+  "checks": 890,
+  "oracle": "Malformed rate must remain unverified/InvalidNumber at line level while pitch remains individually unsupported",
+  "command": "ctest --test-dir .cache/build-desktop-release -R '^reaper-import-properties$' --no-tests=error --output-on-failure -V",
+  "exit": 0,
+  "nativeWindowsExecutionQualified": false
+}

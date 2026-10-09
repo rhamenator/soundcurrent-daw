@@ -184,3 +184,14 @@ depend only on existing C++/crypto/Python infrastructure and frozen originals;
 no REAPER installation/account is needed. Future source-writer/OS/API versions,
 data rights and full semantic/render compatibility add independent maintenance
 and qualification costs; a native corpus is not a parser-schema specification.
+
+## Original import intermediate layer (2026-10-09)
+
+ADR085 adds `sc-reaper-import`, original GPL-3.0-only C++20 source-property code
+using the existing owned outline and session resource ledger. No new product
+dependency, vendor lexer/code/algorithms or assets are linked/copied. Standard
+library finite `from_chars`, fixed token scratch and admitted vectors support
+Linux and Windows; MinGW compilation is not native runtime qualification. The
+existing JSON test dependency reads the original native API witness files only.
+Format evolution and complete semantics/worker/UI/render qualification remain
+explicit integration costs.
