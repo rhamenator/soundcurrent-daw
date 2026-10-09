@@ -51,7 +51,8 @@
     "archiveSha256": "16e881487f184250deb4fcb60432d7556ab12cb58caea71ef23960aec6c0405a",
     "sourceFilesVerified": 96,
     "upstreamModified": false,
-    "maxChannelsBuildOverride": 256
+    "maxChannelsBuildOverride": 256,
+    "archiveEntryCountNote": "Historical download receipt extractedFiles=107 counted tar entries: 96 regular files and 11 directories; current manifest distinguishes these."
   },
   "failuresRetained": [
     "CMake normal option policy ignored; repaired through CMP0077 NEW",
@@ -62,7 +63,7 @@
     "CMakeLists.txt": "4ffe91eac11d8611b4e769b99ed767b6fe5dabe5b96b9fbd30265d5f14f67b9c",
     ".github/workflows/ci.yml": "ceed1ef073936153068f4c67d07901a3165eeb9d0d25f76a6cb2285999f5bd00",
     "cmake/toolchains/windows-mingw.cmake": "51c232275e3a570150c96399cdbdd88ed4d27803fbb6d182bd5c73ee521d130c",
-    "third_party/manifest.json": "f56345196405ed590113062f7b5859fee7cabe4093bda87c2a160d0b2e58a3b2",
+    "third_party/manifest.json": "e1bf14134aba6bb8849e99a75e9e07791da82691ae01da92ce5773844e67d5f4",
     "include/soundcurrent/clip_timing.hpp": "b2a2b0a55cc63fd89bacf2610ab717e2277bf605483bb266925a37aeb85b59ce",
     "src/clip_timing.cpp": "af1ab454e341c7fb829814c1e6392145678a64e698bdf707735c9211f614e035",
     "include/soundcurrent/resampling.hpp": "b46a24f3f32c6545a3704078d79db81781c813e38d2f8748f63cf0f8f56af722",
