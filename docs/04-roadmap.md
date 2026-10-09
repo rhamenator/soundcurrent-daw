@@ -591,3 +591,12 @@ with unchanged-source/mapping/cancel/storage-failure evidence → extended desti
 semantics/loss preview → Undo/reopen/independent aligned rendering → refreshed
 installed preview pairs. Native Windows, OS containment, broader media/registered
 formats and European localization remain parallel gates. Full scope is unchanged.
+
+## X004 verified partial staging increment (2026-10-09)
+
+Checkpoint125 implements bounded verified bytes into an exclusive owned destination
+with actual core/child cancellation/refusal evidence. Next: versioned original
+occurrence/format/replacement provenance → exclusive commit + interrupted-job
+recovery → desktop owned copy lifecycle → extended destination semantics/loss review
+→ Undo/reopen/aligned renders → installed preview pairs. Staging alone publishes no
+Session asset. Native/storage/OS-containment/format/Europe gates remain required.

@@ -1,0 +1,46 @@
+{
+  "utc": "2026-10-09T07:15:34.824542+00:00",
+  "sourceHead": "a99576e5a7c97cabab05e0f7e97ecafc798226c0",
+  "mergeCommit": "f783684e06e6b53f0a48c96dc95e6c58cc35450c",
+  "pr": 68,
+  "runId": 37896975094,
+  "allFourRequiredContextsPassed": true,
+  "nativeQt": {
+    "controllerChecks": 83,
+    "mediaUiChecks": 46,
+    "inspectorUiChecks": 91,
+    "localizationChecks": 243,
+    "selectedTests": 6
+  },
+  "nativeCore": {
+    "approvedRootChecks": 169,
+    "waveChecks": 20503,
+    "waveCliChecks": 64
+  },
+  "artifactsSha256": {
+    ".cache/import-media-final-run.json": "b053a3dd7f1840adb2d046223afff9a7ae97dc81ef5505aa9bf2577069de8f20",
+    ".cache/import-media-final-pr.json": "43d9cb6be5430e4c9f149013d9895f2a07d2db161d75f029e892b205fc28e464",
+    ".cache/import-media-final-review-threads.json": "62cf4a2a96701dd234684b3ab49f9a68f28dd80998835f4866a381eeb07210c6",
+    ".cache/import-media-merged.json": "89d655cf293e2c3eeaa4b54bda03c4586a13a275060d574281549fb7f995f536",
+    ".cache/import-media-final-qt-artifact.json": "efcd9babc4924194d035cd9e2c885d4a6f6911f2ef8025c990e9b5bc8b8fb767",
+    ".cache/import-media-final-qt.zip": "12255d3bf28c71adaa53da37da1b854d1f8b4d00b277bc50ee17dab2bf76d0b8",
+    ".cache/import-media-final-qt-lasttest.log": "97d7ee235089429b832784d6ce515da533d1112e9aa55f0f1b91920e9ffd818c",
+    ".cache/import-media-final-core-artifact.json": "1e41b83d889ca8494da6cba05ec3258868cdba20d85502ad964e3ad7b5e06e45",
+    ".cache/import-media-final-core.zip": "3b7a70d7ed79533f4053585fdd8996ae35d884e271897255fc62fab4f65444ef",
+    ".cache/import-media-final-core-lasttest.log": "e7344469355fd2b00be997a5abe3c3eef4b988936c7d7e54822d94f0a0a84e74",
+    ".cache/import-media-final-linux-artifact.json": "7eb5767ac012fe692d14941544094d707e2ef72ba6d114a2e7fb98a5d16df9cc",
+    ".cache/import-media-final-linux.zip": "705794d562a622621d7e7e00aea8f5cfb58dcbc7e648b3db72f4684bae3b99a9",
+    ".cache/import-media-final-linux-lasttest.log": "3fe2c5b67b05fbea9f7d3af31ba1f68a6ab62e74341663e36c139bb235d136ee"
+  },
+  "scope": {
+    "nativeOffscreenOnly": true,
+    "installerRefreshed": false,
+    "projectConversion": false,
+    "fullParity": false,
+    "localVmStarted": false,
+    "audioRouteChanged": false,
+    "equalizerChanged": false,
+    "productReleaseUploaded": false
+  },
+  "nextTask": "Verified transactional media staging; see docs/124-desktop-media-checklist.md and .cache/next-media-copy-plan.md"
+}

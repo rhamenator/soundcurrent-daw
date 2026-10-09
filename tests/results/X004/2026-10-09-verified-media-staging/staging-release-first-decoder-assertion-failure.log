@@ -1,0 +1,25 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 35: verified-media-staging
+1/5 Test #35: verified-media-staging ...........   Passed    0.06 sec
+    Start 36: approved-media-root
+2/5 Test #36: approved-media-root ..............   Passed    0.01 sec
+    Start 37: verified-media-stage-worker
+3/5 Test #37: verified-media-stage-worker ......***Failed    0.31 sec
+Traceback (most recent call last):
+  File "/home/rich/dev/soundcurrent-daw/tests/media_stage_worker_tests.py", line 66, in <module>
+    check(audio["sha256"] == digest and audio["peakLinear"] == 2.5 and audio["frames"] == len(samples) // 2,
+          ~~~~~^^^^^^^^^^
+KeyError: 'sha256'
+
+    Start 63: approved-wave-content
+4/5 Test #63: approved-wave-content ............   Passed    0.02 sec
+    Start 64: approved-wave-probe
+5/5 Test #64: approved-wave-probe ..............   Passed    0.28 sec
+
+80% tests passed, 1 tests failed out of 5
+
+Total Test time (real) =   0.69 sec
+
+The following tests FAILED:
+	 37 - verified-media-stage-worker (Failed)
+Errors while running CTest
