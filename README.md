@@ -28,6 +28,8 @@ need a refresh and separate qualification.
 Development also includes [exact positioned clip playback/export](docs/131-positioned-clip-playback.md)
 for owned assets at different physical sample rates. The desktop shows exact
 fractional source positions and offers project-frame crop/split with Undo/Redo.
+The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
+and fades with exact rational state and Undo/Redo; pitch follows speed.
 Independent pitch/stretch, foreign-property adoption and installed/native audio
 qualification remain open; existing installer previews contain earlier code.
 

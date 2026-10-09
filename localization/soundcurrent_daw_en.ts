@@ -2982,6 +2982,22 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Exact source position</translation>
     </message>
     <message>
+      <source>Clip playback speed; pitch follows speed</source>
+      <translation>Clip playback speed; pitch follows speed</translation>
+    </message>
+    <message>
+      <source>0.250–4.000 times normal speed. Keeps the clip start and source origin; adjusts duration and fades. Export range stays as set. Undo restores the exact previous clip.</source>
+      <translation>0.250–4.000 times normal speed. Keeps the clip start and source origin; adjusts duration and fades. Export range stays as set. Undo restores the exact previous clip.</translation>
+    </message>
+    <message>
+      <source>Apply speed</source>
+      <translation>Apply speed</translation>
+    </message>
+    <message>
+      <source>Playback speed (pitch follows)</source>
+      <translation>Playback speed (pitch follows)</translation>
+    </message>
+    <message>
       <source>Apply range</source>
       <translation>Apply range</translation>
     </message>
@@ -3122,8 +3138,8 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>View could not be updated: %1</translation>
     </message>
     <message>
-      <source>%1 + %2/%3 source frames · %4 Hz → %5 Hz project</source>
-      <translation>%1 + %2/%3 source frames · %4 Hz → %5 Hz project</translation>
+      <source>%1 + %2/%3 source frames · %4 Hz → %5 Hz project · speed %6/%7</source>
+      <translation>%1 + %2/%3 source frames · %4 Hz → %5 Hz project · speed %6/%7</translation>
     </message>
     <message>
       <source>Select a clip to edit its exact frame range. Raw media is preserved.</source>

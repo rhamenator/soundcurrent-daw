@@ -40,8 +40,8 @@
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
     "ui/studio_window.cpp": "390c2e991adb3f0d29f57b14f3ff2ef859a86e59fa5906ab472a2b5ea022003e",
     "ui/studio_window.hpp": "a25bac74864833b8e06177ea6f27103c76e4f48d07bd76828865863d01bec1ad",
-    "ui/timeline_editor.cpp": "68b8a577a8f4ede59131406c8e4283accd339e230920e4320772535ea156d1b9",
-    "ui/timeline_editor.hpp": "22798294ff8108a1899863ec2778bdf337fc2cff3e1674f16b3a38a609b4eddb",
+    "ui/timeline_editor.cpp": "6e485fc67ef334332423ff8ee49850b4c53240f0148e493756128422568b3b8c",
+    "ui/timeline_editor.hpp": "c66bfa79826fb6176398d68cc277d7397976382f748b93092d1dfd35d64306fb",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
@@ -4408,6 +4408,30 @@
     ],
     [
       "TimelineEditor",
+      "Clip playback speed; pitch follows speed",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "0.250–4.000 times normal speed. Keeps the clip start and source origin; adjusts duration and fades. Export range stays as set. Undo restores the exact previous clip.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Apply speed",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Playback speed (pitch follows)",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "Apply range",
       "",
       false
@@ -4618,7 +4642,7 @@
     ],
     [
       "TimelineEditor",
-      "%1 + %2/%3 source frames · %4 Hz → %5 Hz project",
+      "%1 + %2/%3 source frames · %4 Hz → %5 Hz project · speed %6/%7",
       "",
       false
     ],

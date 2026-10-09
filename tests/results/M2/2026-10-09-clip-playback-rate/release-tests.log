@@ -1,0 +1,63 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+      Start   1: prepared-resampling
+ 1/29 Test   #1: prepared-resampling ..............   Passed    1.55 sec
+      Start   2: prepared-timing-oracle
+ 2/29 Test   #2: prepared-timing-oracle ...........   Passed    0.97 sec
+      Start   3: resampler-source-integrity
+ 3/29 Test   #3: resampler-source-integrity .......   Passed    0.22 sec
+      Start   5: positioned-resampling-kernel
+ 4/29 Test   #5: positioned-resampling-kernel .....   Passed    3.66 sec
+      Start   6: positioned-resampling-workflow
+ 5/29 Test   #6: positioned-resampling-workflow ...   Passed    2.96 sec
+      Start   7: fractional-timing-oracle
+ 6/29 Test   #7: fractional-timing-oracle .........   Passed    3.52 sec
+      Start   8: clip-playback-rate
+ 7/29 Test   #8: clip-playback-rate ...............   Passed    1.51 sec
+      Start   9: playback-rate-timing-oracle
+ 8/29 Test   #9: playback-rate-timing-oracle ......   Passed    1.66 sec
+      Start  15: desktop-localization
+ 9/29 Test  #15: desktop-localization .............   Passed    0.63 sec
+      Start  16: daw-translation-catalogs
+10/29 Test  #16: daw-translation-catalogs .........   Passed    0.38 sec
+      Start  21: preview-package-provenance
+11/29 Test  #21: preview-package-provenance .......   Passed    0.29 sec
+      Start  22: windows-package-inputs
+12/29 Test  #22: windows-package-inputs ...........   Passed    0.23 sec
+      Start  39: desktop-timeline
+13/29 Test  #39: desktop-timeline .................   Passed    1.31 sec
+      Start  40: desktop-clip-processing
+14/29 Test  #40: desktop-clip-processing ..........   Passed    0.24 sec
+      Start  41: desktop-playback-rate
+15/29 Test  #41: desktop-playback-rate ............   Passed    0.42 sec
+      Start  42: desktop-positioned-clips
+16/29 Test  #42: desktop-positioned-clips .........   Passed    0.20 sec
+      Start  60: session-state
+17/29 Test  #60: session-state ....................   Passed    0.04 sec
+      Start  61: project-routing
+18/29 Test  #61: project-routing ..................   Passed    0.02 sec
+      Start  63: multitrack-edits
+19/29 Test  #63: multitrack-edits .................   Passed    0.39 sec
+      Start  64: project-monitoring
+20/29 Test  #64: project-monitoring ...............   Passed    0.01 sec
+      Start  75: project-import-state
+21/29 Test  #75: project-import-state .............   Passed    0.54 sec
+      Start  92: multitrack-mix-playback
+22/29 Test  #92: multitrack-mix-playback ..........   Passed    0.13 sec
+      Start  94: shared-media-cache
+23/29 Test  #94: shared-media-cache ...............   Passed    1.03 sec
+      Start  95: offline-export
+24/29 Test  #95: offline-export ...................   Passed    2.67 sec
+      Start  97: clip-processing
+25/29 Test  #97: clip-processing ..................   Passed    0.12 sec
+      Start  99: recording-recovery
+26/29 Test  #99: recording-recovery ...............   Passed   10.61 sec
+      Start 100: recording-fault-persistence
+27/29 Test #100: recording-fault-persistence ......   Passed    0.02 sec
+      Start 102: playback-read-ahead
+28/29 Test #102: playback-read-ahead ..............   Passed    0.74 sec
+      Start 106: prepared-eq
+29/29 Test #106: prepared-eq ......................   Passed    0.30 sec
+
+100% tests passed, 0 tests failed out of 29
+
+Total Test time (real) =  36.39 sec

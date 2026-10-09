@@ -243,7 +243,7 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/fades_crossfades_and_envelopes/fades_crossfades_c.html?contentId=iNGCanNPEOt7kqsEB6nWjA",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: schema1.10 retains original gain/mute/polarity and editable linear/equal-power/smoothstep fades; project-domain split/crop preserve exact fractional source positions and sample gains at different physical rates; Undo/Redo/save-reopen; shared owned live/export waveform equality and desktop project crop. Independent pitch/stretch, interactive crossfade/reference variants remain open.",
+      "implementation": "Partial: schema1.10 retains original gain/mute/polarity and editable linear/equal-power/smoothstep fades; project-domain split/crop preserve exact fractional source positions and sample gains at different physical rates; Undo/Redo/save-reopen; shared owned live/export waveform equality and desktop project crop. Independent pitch/stretch, interactive crossfade/reference variants remain open. Linked constant speed now retimes clip duration/fades with schema1.11 exact ratio and shared positioned playback/export; qualification in checkpoint132. Independent pitch/stretch and full quality/reference workflows remain required.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -258,7 +258,8 @@
         "docs/129-clip-gain-and-fades.md",
         "tests/results/M2/2026-10-09-clip-processing/",
         "docs/131-positioned-clip-playback.md",
-        "tests/results/M2/2026-10-09-positioned-clips/"
+        "tests/results/M2/2026-10-09-positioned-clips/",
+        "docs/132-clip-playback-rate.md"
       ]
     },
     {
@@ -293,13 +294,16 @@
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_window/sample_editor_inspector_audiowarp_r.html?contentId=AkpkpXrJu3zK1xrNBilJzg",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "planned; not implemented",
+      "implementation": "Foundation only: exact constant linked speed/pitch and shared playback/export, with non-destructive duration/fade retiming and versioned state (checkpoint132). Pitch-preserving stretch, warp markers, tempo ramps, transient accuracy, flatten/recovery and Q-STRETCH/reference workflows remain unimplemented/unqualified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
       "N": "not implied",
       "bitwig_source_id": "7165879928ab22b7",
-      "cubase_source_id": "653e48fd8714613b"
+      "cubase_source_id": "653e48fd8714613b",
+      "implementation_evidence": [
+        "docs/132-clip-playback-rate.md"
+      ]
     },
     {
       "id": "P012",

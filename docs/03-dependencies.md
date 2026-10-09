@@ -318,3 +318,26 @@ evidence is recorded; final source/platform/sanitizer/preview qualification is
 separate. Rate automation, independent pitch/stretch, foreign-property adoption
 and full F/Q/C/N/European/native quality gates remain required. No VM was started;
 large preview archives are deferred while Veeam owns substantial disk I/O.
+
+## Constant linked clip speed (2026-10-09)
+
+PR75 exact source5b8e35c merged as902fc77, identical trees;99 Linux/34 native
+Windows core/9 Qt protected checks passed. Its final receipts are carried forward.
+[Checkpoint132](132-clip-playback-rate.md) and
+[ADR098](decisions/098-linked-clip-playback-rate.md) implement exact rational
+linked speed/pitch, retimed duration/fades, effective-ratio worker context,
+schema1.11 migration, shared live/export and guarded accessible desktop controls.
+Current qualification is recorded separately. Full F/Q/C/N, independent pitch/
+stretch, tempo/rate automation, foreign conversion and installed/platform/European
+work remain required. No local VM or large installer archive is started during
+backup contention. Next: pin and qualify independent pitch/stretch preparation.
+
+## Independent pitch/stretch candidate experiment (2026-10-09)
+
+[Checkpoint133](133-pitch-stretch-feasibility.md) pins unmodified Rubber Band4.0.0
+source and the builtin FFT/BQ single compilation unit. Fifteen selected synthetic
+rate/channel pairs pass Linux tone/duration/partition checks; Windows cross-build
+passes without native execution. Exact source, commands, binary and raw results
+are retained. The candidate remains unadopted: documented192k ceiling versus
+DAW384k, duration rounding, stateful seek/split/crop, workspace admission, spatial
+layouts and reference quality require explicit decisions and acceptance.

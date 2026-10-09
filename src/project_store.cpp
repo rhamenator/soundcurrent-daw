@@ -295,6 +295,9 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                              {"startFrame", c.startFrame},
                              {"sourceFrame", c.sourceFrame},
                              {"lengthFrames", c.lengthFrames},
+                             {"playbackRate",{{"numerator",c.playbackRate.numerator},
+                                 {"denominator",c.playbackRate.denominator},
+                                 {"mode","speed-pitch-linked-v1"}}},
                              {"sourceTiming",{{"fraction",c.sourceTiming.fraction},
                                  {"denominator",c.sourceTiming.denominator},
                                  {"algorithm",positionedResamplingAlgorithmId}}},
@@ -332,7 +335,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 10},
+        {"schemaMinor", 11},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -474,7 +477,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 10),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 11),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -582,14 +585,25 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames"});
                 else if(minor==9)
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing"});
-                else
+                else if(minor==10)
                     keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming"});
+                else
+                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate"});
                 Clip clip;
                 clip.id = Id(string(c.at("id")));
                 clip.assetId = Id(string(c.at("assetId")));
                 clip.startFrame = integer(c.at("startFrame"));
                 clip.sourceFrame = integer(c.at("sourceFrame"));
                 clip.lengthFrames = integer(c.at("lengthFrames"));
+                if(minor>=11) {
+                    const auto &rate=c.at("playbackRate");keys(rate,{"numerator","denominator","mode"});
+                    require(string(rate.at("mode"))=="speed-pitch-linked-v1",
+                            "Unsupported clip playback mode",ErrorCode::UnsupportedSchema);
+                    const auto numerator=u64(rate.at("numerator")),denominator=u64(rate.at("denominator"));
+                    require(numerator<=4000 && denominator<=4000,"Playback rate component exceeds bound");
+                    clip.playbackRate={std::uint32_t(numerator),std::uint32_t(denominator)};
+                    validateClipPlaybackRate(clip.playbackRate);
+                }
                 if(minor>=10) {
                     const auto &timing=c.at("sourceTiming");keys(timing,{"fraction","denominator","algorithm"});
                     require(string(timing.at("algorithm"))==positionedResamplingAlgorithmId,

@@ -1,0 +1,33 @@
+{
+  "runId": 37964291200,
+  "head": "a29929a04506afcd07c39d0d3a3067167f98f5de",
+  "conclusion": "failure",
+  "artifacts": [
+    {
+      "platform": "linux",
+      "artifactId": 11633790304,
+      "archiveSha256": "f4bd5b8a7916466c1880a8f5d13eb7ad0995be320e272caf892cf3db5ebac1f1",
+      "rawLogSha256": "94a11c0f4f1d6c47e497a6e4f2ca377f534dc5df64cf600686c320712e252b6b",
+      "passed": 100,
+      "failed": 2
+    },
+    {
+      "platform": "core",
+      "artifactId": 11632624491,
+      "archiveSha256": "437e4062e8b389decb77a6498000dee3a36c79a580b7e75930639f1c924ccd8e",
+      "rawLogSha256": "03cc795fef960798df1e24d658415f3d010ceb3d5150eb18982754fbff97cd0f",
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "platform": "qt",
+      "artifactId": 11633305364,
+      "archiveSha256": "f5c7bcb9a127562d575b97f8f816d7ec526fbf7bb6dc47edcbc5b6c3cb03163c",
+      "rawLogSha256": "aad1b8638dca5d90b71611370787d254d0c2f8da3bdac90ddbfbc5a2a29eac23",
+      "passed": 10,
+      "failed": 0
+    }
+  ],
+  "remainingFailure": "Localization source hash inventory was stale after UI refresh repair. All actual timeline tests passed; all native Windows tests passed.",
+  "repair": "Regenerate catalogs/source inventory; validate strict catalog gate and malformed-catalog refusals."
+}
