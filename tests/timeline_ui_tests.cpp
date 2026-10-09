@@ -182,6 +182,8 @@ void clipProcessingWorkflow(const std::filesystem::path &root) {
     const auto changed=*w.snapshot()->session;
     check(changed.tracks[0].clips[0].processing.fadeIn.startFrame==-10 && changed.tracks[0].clips[0].processing.fadeIn.shape==.75 &&
           changed.tracks[0].clips[0].processing.polarityInverted && changed.tracks[1]==initial.tracks[1],"UI clip processing values/scoping differ");
+    gain->setFocus();
+    await([&]{return gain->hasFocus();});
     undo(w);await([&]{return *w.snapshot()->session==highPrecision &&
         gain->property("canonicalValue").toDouble()==highPrecision.tracks[0].clips[0].processing.gainDb;});
     ProjectCommand redo{CommandKind::Redo};check(w.submitEdit(redo),"Clip processing Redo refused");
@@ -851,6 +853,11 @@ void largeProjectDesktop(const std::filesystem::path &root) {
 
 void virtualizedDesktop(const std::filesystem::path &root) {
     std::cerr << "Owned virtualized desktop project: " << root << '\n';
+    // This fixture qualifies viewport scaling under a declared state grant.
+    // Schema1.9 has more JSON objects per clip; keep production defaults and
+    // explicit conservative decoding refusal rather than reducing track count.
+    ProjectBudget admission;
+    admission.state.memoryBudgetBytes = 96 * 1024 * 1024;
     auto s = fixture(root);
     s.tracks.clear();
     for (unsigned n = 0; n < 8192; ++n) {
@@ -864,10 +871,21 @@ void virtualizedDesktop(const std::filesystem::path &root) {
         s.tracks.push_back(std::move(t));
     }
     s.exportEndFrame = 5000;
-    ProjectStore(root).save(s);
+    ProjectStore(root, admission).save(s);
     const auto original = encodeProject(s);
     const auto rawHash = hashMediaFile(root / utf8Path(s.assets.front().relativePath));
-    StudioWindow w;
+    bool defaultRefused = false;
+    try {
+        (void)ProjectStore(root).load();
+    } catch (const ResourceLimitError &e) {
+        defaultRefused = e.code() == ErrorCode::ResourceLimit &&
+                         e.requiredBytes() > e.availableBytes() &&
+                         e.availableBytes() == 64 * 1024 * 1024;
+    }
+    check(defaultRefused, "Default state grant failed to refuse the enlarged fixture");
+    ControllerOptions options;
+    options.admission = admission;
+    StudioWindow w(nullptr, {}, {}, {}, {}, options);
     w.resize(1100, 900);
     w.show();
     const auto openBegan = std::chrono::steady_clock::now();
@@ -953,7 +971,7 @@ void virtualizedDesktop(const std::filesystem::path &root) {
     await([&] { return w.snapshot()->session->tracks.back().name == "Renamed — Українська"; });
     const auto saved = *w.snapshot()->session;
     close(w, true, std::chrono::seconds(60));
-    check(ProjectStore(root).load() == saved, "Virtualized edit/Undo/Redo/Save lost project state");
+    check(ProjectStore(root, admission).load() == saved, "Virtualized edit/Undo/Redo/Save lost project state");
     std::cout << "Virtualized8192 rows: painted=" << before.rows << " clips=" << before.clips
               << " interval_nodes=" << before.intervalNodes
               << " snapshot_builds=" << before.snapshotBuilds

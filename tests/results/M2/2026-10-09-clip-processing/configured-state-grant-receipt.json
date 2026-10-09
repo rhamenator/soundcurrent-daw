@@ -1,0 +1,43 @@
+{
+  "firstHead": "b1a4c3025cf385956379f3a871aa94a968582b39",
+  "firstRun": 37924685019,
+  "linuxTests": {
+    "passed": 91,
+    "total": 92,
+    "failed": "desktop-virtualized-views",
+    "diagnostic": "canonical staging needs at least67109210 bytes; default grant67108864"
+  },
+  "windowsNativeCoreTests": 28,
+  "windowsNativeQtTests": 8,
+  "firstArchiveDigestsVerified": 3,
+  "productionDefaultsChanged": false,
+  "fixtureTracks": 8192,
+  "fixtureTrustedStateGrantBytes": 100663296,
+  "defaultRefusalAsserted": true,
+  "focusedUndoDefectReproduced": false,
+  "localAffectedRelease": {
+    "tests": 3,
+    "seconds": 7.17
+  },
+  "revisedSourceSha256": {
+    "tests/timeline_ui_tests.cpp": "5eaaed0bda71be493de00462acd739e5ac2656cce1e5bee7b00c9e326c28c65d"
+  },
+  "evidenceSha256": {
+    "clip-processing-first-pr.json": "fa38404610a4f4ba65c1bfb8dc0f80b50ab699a6d113a00b327c6d142fbf5fb6",
+    "clip-processing-first-run.json": "d98e0265e8f80ba204278d63579785bc6ebf10c34505b729571250cff922e280",
+    "clip-processing-first-artifacts.json": "a05ca1652d2f54ee4d7e92d3b80c6d9059df652c62b7c64504961410acb7cf7b",
+    "clip-processing-first-linux.zip": "48a2bf55546b44a993cc50425e209796efb680c23a3e4a8344c2e6a6ebf25b8c",
+    "clip-processing-first-core.zip": "dfc1c4c8f51ed896ae03adc2102226b4dca3837c3bbc6c5a10e99ef8743a6062",
+    "clip-processing-first-qt.zip": "70f6cf22b8176fc8e8a3da89d2815d2801390f79feb28bc2f7a62418db46c5c0",
+    "clip-processing-first-linux-lasttest.log": "aece5b1d5010ec6ef867fb1a75bbab7f8337413f939e825a8e263f5460a073a6",
+    "clip-processing-first-core-lasttest.log": "1f11951e5e648659ba68611fd8c7a140edafa1e805d65b62985371bfeaab0ff6",
+    "clip-processing-first-qt-lasttest.log": "3a9e522aa482e7b0fc9417f887b27ed28df3eaf63c02275f069fef406e920932",
+    "clip-processing-linux-first-failure.log": "5c64af96dcef050864fa7c542dd3c15c7c85f3c177bb964b14a35e3579d6f1b2",
+    "clip-processing-virtualized-grant-build.log": "260554cedd3b70a48e40919f2b5c1395585f90a1a0cee6c7e937a243f78331e7",
+    "clip-processing-virtualized-release-tests.log": "4ef92a97577dee935ecd03dfef54ace6d5a48dce6fc378b1db09fcf161d7a265",
+    "clip-processing-virtualized-release-lasttest.log": "45a79a6cd8fded6415fd8885840e70d81b71d0c305805785274c5abeb9f83f44",
+    "clip-processing-focused-undo-test-build.log": "260554cedd3b70a48e40919f2b5c1395585f90a1a0cee6c7e937a243f78331e7",
+    "clip-processing-focused-undo-original-failure.log": "f82ab305cead77d4086da1ea66c39550964de0275cf213177bc52e44d0ec1278"
+  },
+  "newNativeQualification": "pending"
+}

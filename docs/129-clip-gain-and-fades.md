@@ -126,3 +126,27 @@ not an LSan qualification. The current core185303-check processor and desktop
 workflow pass alongside actual session state, history, import persistence, timeline
 and offline export. No runtime sanitizer report occurred in the retained logs.
 Native Windows/exact-source hosted gates and installed previews remain separate.
+
+## First hosted cohort and configured large-project admission
+
+Head b1a4c3025cf385956379f3a871aa94a968582b39 / run37924685019:
+Windows cross-build and native core28/native Qt8 pass. All three artifact
+archive digests and raw logs are retained. Linux passed91/92; the8192-track
+viewport fixture failed its default64MiB conservative canonical decoding grant
+after schema1.9 added more JSON objects per clip. This is retained failure
+evidence, not all-green qualification. The processor185303 checks and Qt
+workflow passed on both platforms in that cohort.
+
+The fixture now explicitly declares a trusted96MiB state grant for its unchanged
+8192-track workload, checks that the default64MiB still refuses before adoption,
+and uses that declared grant through Open and Save/reopen. Production defaults,
+quotas, track count, paint/hit/identity/history/raw-media assertions and strict
+refusal remain intact. GUI configuration of additional admission envelopes stays
+a separate X006 product task. Local affected Release3 tests pass in7.17s.
+New native/full Linux qualification is required for the revised test source.
+
+A focused-Undo exploratory check passed on the existing actual StudioWindow path;
+no suspected focus defect was reproduced and no production refresh change was
+made. The stronger focus case remains in acceptance. The retained log named
+`focused-undo-original-failure` contains its actual passing result; its filename
+does not change that outcome.

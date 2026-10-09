@@ -1,0 +1,206 @@
+Linux desktop and synthetic tests	Test synthetic workflows	﻿2026-10-09T11:41:39.4003935Z ##[group]Run ctest --test-dir build --output-on-failure --parallel 1
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4004458Z [36;1mctest --test-dir build --output-on-failure --parallel 1[0m
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4064701Z shell: /usr/bin/bash -e {0}
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4065010Z env:
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4065240Z   QT_QPA_PLATFORM: offscreen
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4065527Z ##[endgroup]
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4395475Z Internal ctest changing into directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4447726Z Test project /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:39.4507086Z       Start  1: desktop-media-copy-controller
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:41.0360104Z  1/92 Test  #1: desktop-media-copy-controller .........   Passed    1.58 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:41.0682261Z       Start  2: desktop-media-controller
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:41.7019837Z  2/92 Test  #2: desktop-media-controller ..............   Passed    0.63 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:41.7020814Z       Start  3: desktop-import-media-ui
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:42.6849589Z  3/92 Test  #3: desktop-import-media-ui ...............   Passed    0.98 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:42.6850994Z       Start  4: desktop-import-controller
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:43.4925299Z  4/92 Test  #4: desktop-import-controller .............   Passed    0.81 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:43.4926373Z       Start  5: desktop-import-ui
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:43.9227415Z  5/92 Test  #5: desktop-import-ui .....................   Passed    0.43 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:43.9228637Z       Start  6: desktop-localization
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:44.4413278Z  6/92 Test  #6: desktop-localization ..................   Passed    0.52 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:44.4416419Z       Start  7: daw-translation-catalogs
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:44.6362948Z  7/92 Test  #7: daw-translation-catalogs ..............   Passed    0.19 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:44.6364694Z       Start  8: daw-translation-catalog-failures
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:46.9643834Z  8/92 Test  #8: daw-translation-catalog-failures ......   Passed    2.33 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:46.9645737Z       Start  9: windows-stop-analysis
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:50.9127787Z  9/92 Test  #9: windows-stop-analysis .................   Passed    3.95 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:50.9129733Z       Start 10: input-acquisition-evidence
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:52.4918185Z 10/92 Test #10: input-acquisition-evidence ............   Passed    1.58 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:52.4919521Z       Start 11: windows-startup-analysis
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:54.9499250Z 11/92 Test #11: windows-startup-analysis ..............   Passed    2.46 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:54.9500096Z       Start 12: preview-package-provenance
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:55.0697616Z 12/92 Test #12: preview-package-provenance ............   Passed    0.12 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:55.0698805Z       Start 13: windows-package-inputs
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:55.1383252Z 13/92 Test #13: windows-package-inputs ................   Passed    0.07 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:55.1385270Z       Start 14: desktop-snapshot-resources
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:58.4270777Z 14/92 Test #14: desktop-snapshot-resources ............   Passed    3.29 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:58.4272226Z       Start 15: desktop-snapshot-attachment
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:59.7474754Z 15/92 Test #15: desktop-snapshot-attachment ...........   Passed    1.32 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:41:59.7476173Z       Start 16: desktop-combined-resources
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:01.3508834Z 16/92 Test #16: desktop-combined-resources ............   Passed    1.60 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:01.3510131Z       Start 17: desktop-export-controller
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:01.5010343Z 17/92 Test #17: desktop-export-controller .............   Passed    0.15 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:01.5011837Z       Start 18: desktop-export-ui
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:04.7006617Z 18/92 Test #18: desktop-export-ui .....................   Passed    3.20 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:04.7008202Z       Start 19: equipment-editor
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:09.2184304Z 19/92 Test #19: equipment-editor ......................   Passed    4.52 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:09.2185191Z       Start 20: desktop-gui-resources
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:13.0120450Z 20/92 Test #20: desktop-gui-resources .................   Passed    3.79 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:13.0121996Z       Start 21: desktop-gui-early-prepare
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:13.1664924Z 21/92 Test #21: desktop-gui-early-prepare .............   Passed    0.15 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:13.1666371Z       Start 22: desktop-history-resources
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:29.7152037Z 22/92 Test #22: desktop-history-resources .............   Passed   16.55 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:29.7153972Z       Start 23: desktop-history-startup-policy
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:29.8605731Z 23/92 Test #23: desktop-history-startup-policy ........   Passed    0.14 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:29.8607580Z       Start 24: desktop-memory-resources
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.0728289Z 24/92 Test #24: desktop-memory-resources ..............   Passed    1.21 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.0729656Z       Start 25: desktop-history-preflight-peak
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.1097126Z 25/92 Test #25: desktop-history-preflight-peak ........   Passed    0.04 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.1098307Z       Start 26: desktop-controller
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.4828497Z 26/92 Test #26: desktop-controller ....................   Passed    0.37 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.4830059Z       Start 27: desktop-configured-preflight
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.5109260Z 27/92 Test #27: desktop-configured-preflight ..........   Passed    0.03 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:31.5110745Z       Start 28: desktop-playback-controller
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:33.0097821Z 28/92 Test #28: desktop-playback-controller ...........   Passed    1.50 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:33.0099123Z       Start 29: desktop-recording-controller
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:34.3481091Z 29/92 Test #29: desktop-recording-controller ..........   Passed    1.34 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:34.3482930Z       Start 30: desktop-timeline
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:35.8574341Z 30/92 Test #30: desktop-timeline ......................   Passed    1.51 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:35.8575864Z       Start 31: desktop-clip-processing
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:36.0333405Z 31/92 Test #31: desktop-clip-processing ...............   Passed    0.18 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:36.0334904Z       Start 32: desktop-virtualized-views
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:45.1968174Z 32/92 Test #32: desktop-virtualized-views .............***Failed    9.16 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:45.1969355Z Owned timeline fixture root: /tmp/sc-timeline-ui-tests-dxRIJx
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:45.1970582Z Owned virtualized desktop project: "/tmp/sc-timeline-ui-tests-dxRIJx/virtualized-project"
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:45.1972109Z This plugin does not support propagateSizeHints()
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:45.1973526Z Large project Open: Project canonical staging needs at least 67109210 bytes; budget is 67108864 bytes
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:45.1974196Z 
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:45.1974384Z       Start 33: desktop-track-scalability
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:53.4174248Z 33/92 Test #33: desktop-track-scalability .............   Passed    8.22 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:53.4175997Z       Start 34: desktop-ui
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:59.8299448Z 34/92 Test #34: desktop-ui ............................   Passed    6.41 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:42:59.8300879Z       Start 35: desktop-manual-recording
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:01.9253385Z 35/92 Test #35: desktop-manual-recording ..............   Passed    2.09 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:01.9255052Z       Start 36: verified-media-staging
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.1263915Z 36/92 Test #36: verified-media-staging ................   Passed    0.20 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.1265880Z       Start 37: approved-media-root
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.1346820Z 37/92 Test #37: approved-media-root ...................   Passed    0.01 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.1348034Z       Start 38: verified-media-stage-worker
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.2278337Z 38/92 Test #38: verified-media-stage-worker ...........   Passed    0.09 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.2279450Z       Start 39: approved-media-probe
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.2896316Z 39/92 Test #39: approved-media-probe ..................   Passed    0.06 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.2897648Z       Start 40: inspection-bundle
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.3025282Z 40/92 Test #40: inspection-bundle .....................   Passed    0.01 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.3029060Z       Start 41: reaper-structure
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.3307999Z 41/92 Test #41: reaper-structure ......................   Passed    0.03 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.3309224Z       Start 42: reaper-import-properties
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.3731301Z 42/92 Test #42: reaper-import-properties ..............   Passed    0.04 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.3732965Z       Start 43: import-inspection-worker
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.6111341Z 43/92 Test #43: import-inspection-worker ..............   Passed    0.24 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.6112737Z       Start 44: reaper-native-corpus
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.7701205Z 44/92 Test #44: reaper-native-corpus ..................   Passed    0.16 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:02.7703097Z       Start 45: import-property-protocol
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:03.7490544Z 45/92 Test #45: import-property-protocol ..............   Passed    0.98 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:03.7492226Z       Start 46: resource-admitted-tracks
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:25.7445679Z 46/92 Test #46: resource-admitted-tracks ..............   Passed   22.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:25.7447417Z       Start 47: native-duration-timing
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:25.7536733Z 47/92 Test #47: native-duration-timing ................   Passed    0.01 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:25.7538339Z       Start 48: resource-ledger
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:26.2573896Z 48/92 Test #48: resource-ledger .......................   Passed    0.50 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:26.2575559Z       Start 49: session-state
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:26.3357375Z 49/92 Test #49: session-state .........................   Passed    0.08 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:26.3358532Z       Start 50: project-routing
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:26.4657687Z 50/92 Test #50: project-routing .......................   Passed    0.13 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:26.4658955Z       Start 51: history-resources
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:35.6666067Z 51/92 Test #51: history-resources .....................   Passed    9.20 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:35.6667333Z       Start 52: multitrack-edits
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.7765313Z 52/92 Test #52: multitrack-edits ......................   Passed    1.11 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.7767426Z       Start 53: project-monitoring
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.8150421Z 53/92 Test #53: project-monitoring ....................   Passed    0.04 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.8152191Z       Start 54: multitrack-mix-graph
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.8580252Z 54/92 Test #54: multitrack-mix-graph ..................   Passed    0.04 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.8581951Z       Start 55: immediate-controls
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.8837117Z 55/92 Test #55: immediate-controls ....................   Passed    0.03 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:36.8838533Z       Start 56: capture-transport
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.3356501Z 56/92 Test #56: capture-transport .....................   Passed    0.45 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.3357882Z       Start 57: audio-bridge
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5578123Z 57/92 Test #57: audio-bridge ..........................   Passed    0.22 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5579525Z       Start 58: wasapi-packet-admission
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5619805Z 58/92 Test #58: wasapi-packet-admission ...............   Passed    0.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5621406Z       Start 59: wasapi-packet-copy
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5651663Z 59/92 Test #59: wasapi-packet-copy ....................   Passed    0.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5653352Z       Start 60: wasapi-port-selection
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5669307Z 60/92 Test #60: wasapi-port-selection .................   Passed    0.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5670666Z       Start 61: native-render-timing
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5686872Z 61/92 Test #61: native-render-timing ..................   Passed    0.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5688330Z       Start 62: wasapi-capture-trace
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5912228Z 62/92 Test #62: wasapi-capture-trace ..................   Passed    0.02 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5913696Z       Start 63: wasapi-render-trace
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5929523Z 63/92 Test #63: wasapi-render-trace ...................   Passed    0.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:37.5930898Z       Start 64: project-import-state
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.0972225Z 64/92 Test #64: project-import-state ..................   Passed    1.50 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.0973967Z       Start 65: media-provenance-transaction
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.4976096Z 65/92 Test #65: media-provenance-transaction ..........   Passed    0.40 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.4977409Z       Start 66: approved-wave-content
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.5161349Z 66/92 Test #66: approved-wave-content .................   Passed    0.02 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.5163347Z       Start 67: approved-wave-probe
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6077172Z 67/92 Test #67: approved-wave-probe ...................   Passed    0.09 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6078524Z       Start 68: wasapi-output-contract
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6253008Z 68/92 Test #68: wasapi-output-contract ................   Passed    0.02 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6254390Z       Start 69: wasapi-playback-owner-rollback
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6312992Z 69/92 Test #69: wasapi-playback-owner-rollback ........   Passed    0.01 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6314452Z       Start 70: writer-phase-timing
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6339913Z 70/92 Test #70: writer-phase-timing ...................   Passed    0.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6341314Z       Start 71: processing-stage-observation
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6409990Z 71/92 Test #71: processing-stage-observation ..........   Passed    0.01 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6411366Z       Start 72: manual-processing-stage-observation
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6468579Z 72/92 Test #72: manual-processing-stage-observation ...   Passed    0.01 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6469803Z       Start 73: native-port-marker-observation
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6501210Z 73/92 Test #73: native-port-marker-observation ........   Passed    0.00 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:39.6502701Z       Start 74: duplex-recording-owner
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:40.5395598Z 74/92 Test #74: duplex-recording-owner ................   Passed    0.89 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:40.5396706Z       Start 75: punch-boundaries
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:43.8672804Z 75/92 Test #75: punch-boundaries ......................   Passed    3.33 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:43.8674424Z       Start 76: manual-recording-control
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:45.4562006Z 76/92 Test #76: manual-recording-control ..............   Passed    1.59 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:45.4564027Z       Start 77: manual-desktop-control
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:46.1464324Z 77/92 Test #77: manual-desktop-control ................   Passed    0.69 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:46.1466066Z       Start 78: manual-priority-interruption
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:47.0355867Z 78/92 Test #78: manual-priority-interruption ..........   Passed    0.89 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:47.0358312Z       Start 79: manual-punch-owner
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:47.7715512Z 79/92 Test #79: manual-punch-owner ....................   Passed    0.74 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:47.7717001Z       Start 80: shared-playback-capture
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:48.2583385Z 80/92 Test #80: shared-playback-capture ...............   Passed    0.49 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:48.2584793Z       Start 81: multitrack-mix-playback
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:48.6845857Z 81/92 Test #81: multitrack-mix-playback ...............   Passed    0.43 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:48.6847247Z       Start 82: graph-resources
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:49.6479890Z 82/92 Test #82: graph-resources .......................   Passed    0.96 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:49.6481621Z       Start 83: shared-media-cache
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:51.8989634Z 83/92 Test #83: shared-media-cache ....................   Passed    2.25 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:51.8991335Z       Start 84: offline-export
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:54.8579298Z 84/92 Test #84: offline-export ........................   Passed    2.96 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:54.8580633Z       Start 85: offline-export-media-policy
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:54.8745362Z 85/92 Test #85: offline-export-media-policy ...........   Passed    0.02 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:54.8747052Z       Start 86: clip-processing
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:55.1874553Z 86/92 Test #86: clip-processing .......................   Passed    0.31 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:55.1876358Z       Start 87: recording-discovery
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:55.2647888Z 87/92 Test #87: recording-discovery ...................   Passed    0.08 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:43:55.2648931Z       Start 88: recording-recovery
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:05.8118196Z 88/92 Test #88: recording-recovery ....................   Passed   10.55 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:05.8120060Z       Start 89: recording-fault-persistence
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:05.9198222Z 89/92 Test #89: recording-fault-persistence ...........   Passed    0.11 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:05.9199708Z       Start 90: playback-native-clock
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:06.1283728Z 90/92 Test #90: playback-native-clock .................   Passed    0.21 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:06.1284844Z       Start 91: playback-read-ahead
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:07.1920039Z 91/92 Test #91: playback-read-ahead ...................   Passed    1.06 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:07.1921892Z       Start 92: prepared-eq
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2067127Z 92/92 Test #92: prepared-eq ...........................   Passed    1.01 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2072849Z 
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2073246Z 99% tests passed, 1 tests failed out of 92
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2073671Z 
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2073861Z Total Test time (real) = 148.76 sec
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2074255Z 
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2074474Z The following tests FAILED:
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2076713Z 	 32 - desktop-virtualized-views (Failed)
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2080879Z Errors while running CTest
+Linux desktop and synthetic tests	Test synthetic workflows	2026-10-09T11:44:08.2133714Z ##[error]Process completed with exit code 8.

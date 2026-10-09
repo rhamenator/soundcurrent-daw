@@ -3504,3 +3504,16 @@ review do not select a production processor or qualify full resampling/stretch/p
 Next: independent source/project timing and qualified rate/pitch/stretch, explicit
 conversion/loss preview, grouped Undo/reopen/aligned renders and installed preview
 pairs. Full frozen Linux/Windows/Europe/F/Q/C/N goal stays active and incomplete.
+
+## Configured 8192-track viewport gate (2026-10-09)
+
+Schema1.9 increases the conservative JSON-to-canonical preflight charge. The first
+hosted run retained a64MiB refusal for the8192-track viewport fixture; native
+Windows core28/Qt8 and the new processing workflow passed separately. The viewport
+fixture now declares96MiB through trusted ControllerOptions/ProjectStore, asserts
+the unchanged64MiB default refusal, and retains all8192 tracks and existing paint/
+hit/identity/history/raw-media/Save-reopen checks. Local affected Release3 tests
+pass. This does not expand production defaults or infer arbitrary capacity from
+a track count. User configuration of additional state/parser admission grants
+remains a separate X006 UI/product gate. New source/full/native gates are distinct
+from the preceding failing hosted source.
