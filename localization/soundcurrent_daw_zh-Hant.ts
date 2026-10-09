@@ -621,6 +621,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Properties</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original source</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Stopping inspection…</source>
       <translation type="unfinished" />
     </message>
@@ -641,7 +649,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message numerus="yes">
-      <source>%n source line(s) inspected. Project properties are unverified.</source>
+      <source>%n original property value(s) found. Audio import is not available yet.</source>
+      <translation type="unfinished" />
+    </message>
+    <message numerus="yes">
+      <source>%n source line(s) inspected. This saved outline has no property preview.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -704,6 +716,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Unsupported</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Bytes retained</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Unverified</source>
       <translation type="unfinished" />
     </message>
@@ -721,6 +741,241 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Status</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original line</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>ImportPropertyModel</name>
+    <message>
+      <source>Project sample rate</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Use project sample rate</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track identity</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track name</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track gain</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track pan</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track channels</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Item identity</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Item position</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Item length</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade-in length</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Fade-out length</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take name</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Item gain</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take gain</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take pan</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source offset</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take rate</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take pitch</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source file</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Hz</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>0 / 1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>channels</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>linear gain</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>source pan</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>seconds</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>ratio</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>semitones</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>original bytes</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Value retained</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Converted</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Unsupported</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Missing</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Unverified</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original value; audio import is not available yet.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original state has not been interpreted.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Invalid or out-of-range original number.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Unverified original field layout.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Malformed original token.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Repeated field; no occurrence selected.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The source project does not specify this value.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take selection is ambiguous.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This processing setting cannot be imported yet.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This source type is not implemented.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original file bytes: %1 + %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Project</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Track</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Item</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>%1 · %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Unavailable</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Source object</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Property</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original value</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Units</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Status</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Details</source>
       <translation type="unfinished" />
     </message>
   </context>

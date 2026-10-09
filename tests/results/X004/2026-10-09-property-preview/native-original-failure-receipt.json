@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-10-09T03:41:58.008947+00:00",
+  "pr": 63,
+  "run": 37880039173,
+  "job": 113657379483,
+  "originalHead": "1bb2afd391fb6041f780a3318f41252f11a847aa",
+  "artifact": 11593764337,
+  "archiveSha256": "eef0a15f5070949928345950f0ad92192b0ef8bac524e6948c4f4879f401a25b",
+  "lastTestSha256": "b01b7b9d147cb78242b1be695828e40b0c18d1b35ea04a6ffeb29b4397a45812",
+  "nativeSelectedTests": 15,
+  "failedTests": [
+    "import-property-protocol"
+  ],
+  "passedTests": 14,
+  "failure": "The Python3.14.7 Windows host used cp1252 to read the UTF-8 original property witness, failing at byte0x81 before inspecting its Unicode fixture.",
+  "correction": "Explicit encoding=utf-8 for both manifest and native witness reads; frozen files and product code unchanged.",
+  "localCorrectedTests": "utf8-test-receipt.json",
+  "newNativeCorrectionExecutionPending": true,
+  "sourceProjectConversionQualified": false,
+  "windowsQtQualified": false,
+  "installerQualified": false
+}

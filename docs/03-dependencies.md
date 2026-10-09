@@ -195,3 +195,13 @@ Linux and Windows; MinGW compilation is not native runtime qualification. The
 existing JSON test dependency reads the original native API witness files only.
 Format evolution and complete semantics/worker/UI/render qualification remain
 explicit integration costs.
+
+## Property inspection protocol and desktop (2026-10-09)
+
+ADR086 uses the existing C++20/resource/crypto/nlohmann JSON/Qt libraries; no new
+product dependency, vendor source, asset or equalizer changes are introduced.
+Original worker/validator/UI changes are GPL-3.0-only. The additional C++ probe
+and Python boundary tests are test-only. Separate lexical/field validation adds
+intentional source-contract maintenance cost; original and corrupted witnesses
+must qualify future schema changes. MinGW compilation, native MSVC, Windows Qt
+and installation remain distinct gates.

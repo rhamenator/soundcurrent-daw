@@ -66,7 +66,7 @@ struct ImportInspectionController::State : QThread {
         const auto lines=foreignSnapshotLines(source.bytes(),stop);
         check(lines && lines<=ReaperStructureLimits{}.maximumLines,"Input outside inspection line envelope");
         const auto hash=hashForeignSnapshot(source.bytes(),options.memory,stop);
-        const auto rowsBytes=inspectionRowsCharge(lines);
+        const auto rowsBytes=inspectionRowsCharge(lines,true);
         const auto usage=options.memory.usage();
         PayloadCharge fixed("Inspection fixed work",usage.limitBytes);
         fixed.add(rowsBytes); fixed.add(options.childMemoryBytes); fixed.add(32768+32);
@@ -75,7 +75,7 @@ struct ImportInspectionController::State : QThread {
         if (available<=fixed.bytes()+expansion*512)
             throw ResourceLimitError("Inspection work",fixed.bytes()+expansion*512,available);
         PayloadCharge encodedBound("Inspection report estimate",std::numeric_limits<std::size_t>::max());
-        encodedBound.add(2048); encodedBound.add(lines,512);
+        encodedBound.add(2048); encodedBound.add(lines,4096);
         const auto reportBytes=std::min({encodedBound.bytes(),options.maximumReportBytes,
                                         (available-fixed.bytes())/expansion});
         const auto parserBytes=inspectionParserCharge(reportBytes);
@@ -92,7 +92,7 @@ struct ImportInspectionController::State : QThread {
         QObject::connect(&child,&QProcess::started,&child,[&] {
             view.childPid=static_cast<std::size_t>(child.processId()); publish();
         });
-        const QStringList arguments{QStringLiteral("--rpp"),qpath(path),QStringLiteral("--memory-bytes"),
+        const QStringList arguments{QStringLiteral("--rpp-properties"),qpath(path),QStringLiteral("--memory-bytes"),
             QString::number(options.childMemoryBytes),QStringLiteral("--maximum-input-bytes"),
             QString::number(options.maximumInputBytes),QStringLiteral("--maximum-report-bytes"),
             QString::number(reportBytes)};

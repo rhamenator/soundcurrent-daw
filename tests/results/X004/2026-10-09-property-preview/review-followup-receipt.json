@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-10-09T03:52:03.741449+00:00",
+  "baseHead": "b11f523bc98432abf5369bd0fe0cf064b9fef017",
+  "originalEvidence": "local-receipt.json",
+  "originalEvidenceSha256": "f8f361a35fac0cd32cfa53116f8da07caec03fdf23b089242f5efe4242da00f8",
+  "sourceOverrides": {
+    "localization/source-inventory.json": {
+      "beforeSha256": "453c8baf6a8e2c41ab2be918db43f173cbd45313c204a4f7247db37f29f7a54c",
+      "afterSha256": "3a9b9faddc19fe44a42c2aa19c92da6936f88d90a497dab7b042e25f3b413561"
+    },
+    "tests/import_property_protocol_tests.py": {
+      "beforeSha256": "75f1b911cdf750fffc7cf1bf4638199bc75c98c35f9546df21f5663f746cae45",
+      "afterSha256": "2d62715e845c36e0d0c4fd67c6544b72b9d993283e68204e789cf12e88a02db7"
+    },
+    "tests/import_ui_tests.cpp": {
+      "beforeSha256": "7d8b1133af537ca2a5eb9d7a86c33809cc62ffbeea771fce0ef2f11b835ee25a",
+      "afterSha256": "4b42c97d1739e3a8e4c7117e20f7b66decedad50839ffc473936eb7b09234306"
+    },
+    "tests/manual_recording_tests.cpp": {
+      "beforeSha256": "be35764b6ed21e0d4af91851d04cb1c51031c4e8ab2ce95da55819ff0f8bc09c",
+      "afterSha256": "55910bf0da8bc92e1fc33d635e6f5de3b9f65d2938e83a37a700e1093485932a"
+    },
+    "ui/import_inspection_dialog.cpp": {
+      "beforeSha256": "ebba58d43b0f7577fbfeec32ef174c0c3df47bff33b0fe689ea7219c009c0a33",
+      "afterSha256": "b46ba38e3fe0f062742a091afa12ee3bc809ed7b06779eb5df096e897dd107aa"
+    },
+    "ui/import_inspection_dialog.hpp": {
+      "beforeSha256": "4f583343c25a6f95e78c94dd26146cd43e21e3a4513b7655d1c9c8ca1b0612d8",
+      "afterSha256": "e5ab6f55d2f7a7a01a392b9b6dc7319c6b8f61c3302bd53812d6acf036d0cb18"
+    }
+  },
+  "uiReview": {
+    "thread": "PRRT_kwDOU-rChc6qoxFR",
+    "change": "Count only entries with actual Number/Bytes values; cache at immutable report change. Missing and invalid None entries remain visible without inflating the summary.",
+    "releaseChecks": 90,
+    "sanitizedChecks": 90,
+    "leakDetection": false,
+    "cases": "Absent project values0, invalid channel value0, valid later channel value1; source/portable/legacy/lifetime workflows remain in the same actual-child test."
+  },
+  "manualDiagnostic": {
+    "command": "cmake --build .cache/build-desktop-release --parallel 2 --target sc-manual-recording-tests && ctest --test-dir .cache/build-desktop-release -R ^manual-recording-control$ --output-on-failure --no-tests=error -V",
+    "exit": 0,
+    "checks": 65141,
+    "productPolicyChanged": false,
+    "originalHostedFailure": "linux-original-failure-receipt.json",
+    "originalCause": "unknown",
+    "interpretation": "This scoped local pass does not reproduce or explain the earlier hosted command refusal. Additional fields print only on refusal; no acceptance, wait, queue, buffer, command or retry policy is changed."
+  },
+  "catalogs": {
+    "catalogs": 34,
+    "source_keys": 669,
+    "draft_translations": 3135,
+    "native_reviewed": 0,
+    "fully_UI_qualified": 0
+  },
+  "binariesSha256": {
+    ".cache/build-desktop-release/sc-import-ui-tests": "7b8974b8595b59783534f7384e10b7d8a636934ad1b2d26df653a4529a0005b3",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "a206f4e00df53436d611ae1a47f7300cdf000c098813865a9f7556a454e2d73e",
+    ".cache/build-desktop-release/sc-manual-recording-tests": "15131605c866f424ca6195a18092c9962571af60b24d81c9ff2859d75275786e",
+    ".cache/build-desktop-release/soundcurrent-daw": "faa73138ff4ef323c1d7449166656a544b94a571bfc23f284d0d5d718c0589d2"
+  },
+  "evidenceSha256": {
+    "manual-diagnostic-build.log": "73f679782f2744574b1d3ea510348daf79c20c0c3f7ca0d212e8531ea77760db",
+    "manual-diagnostic-test.log": "ae9dfe53bb8866d2d8d72897913feeecceedc029f68d557fb55b0e82e901e3f3",
+    "review-release-build.log": "d0463ef5abaff1a20750e423e878ce9728ad1255ca454fb9a4a8280082783ea8",
+    "review-release-test.log": "3d538226c946caf683f72e8b67c54294838b2d5e9dc6a05bb06602e0cc7c409b",
+    "review-sanitized-build.log": "266bdf17f62ee88221dc933f802c49f4dda87f96ec93d9167fd013e2f5f61887",
+    "review-sanitized-test.log": "f22cb81f9a5a88a1d6062c46c52ac976d89f349d0cecc96e7638c361c8a4fa33",
+    "review-catalog-check.log": "03ab729081c55ddfeeeef165d234ae9e39f4923b80a8c1aa219a4f6012da2622"
+  },
+  "newHostedExecutionPending": true,
+  "semanticImportQualified": false,
+  "renderEquivalenceQualified": false,
+  "windowsQtQualified": false,
+  "installerQualified": false,
+  "localVmStarted": false
+}

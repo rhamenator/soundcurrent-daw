@@ -227,7 +227,7 @@ ImportInspectionReport loadInspectionBundle(const std::filesystem::path &path,
     const auto sourceHash=hashForeignSnapshot(source.bytes(),memory,stop);
     const auto lines=foreignSnapshotLines(source.bytes(),stop);
     check(lines && lines<=ReaperStructureLimits{}.maximumLines,"Inspection source line envelope differs");
-    auto rows=memory.reserve(inspectionRowsCharge(lines));
+    auto rows=memory.reserve(inspectionRowsCharge(lines,inspectionProtocolHasProperties(encoded)));
     auto parser=memory.reserve(inspectionParserCharge(encoded.size()));
     auto protocolLease=memory.reserve(inspectionProtocolCharge(encoded.size()));
     OwnedInspectionProtocol protocol(std::move(protocolLease),std::string(encoded));

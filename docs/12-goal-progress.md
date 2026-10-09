@@ -3297,3 +3297,36 @@ The next task is isolated property protocol, independent parent validation and
 read-only loss preview, then approved media/new-project mapping and aligned render
 workflows. Existing installers/equalizers/user audio remain unchanged, no local
 VM started, and the full frozen-reference DAW goal remains active/incomplete.
+
+## Source-property desktop checkpoint (2026-10-09 UTC)
+
+PR62 merged at `20321cc0a50813e7641641048a17d49a6b009739`. Its repaired exact
+`5704601` passes77 hosted Linux tests and14 selected MSVC tests, including890
+property checks. The original line-evidence review and correction remain retained.
+Those results qualify the original model, not the following protocol/UI changes.
+
+[Checkpoint120](120-import-property-preview.md) adds a versioned isolated property
+report, independent complete ownership/shape/token/evidence validation, read-only
+Properties/Original source tabs and portable persistence with old-v1 compatibility.
+Seven selected local Release tests and six ASan/UBSan import tests pass; leak
+detection is disabled.569 boundary checks include seven original writer projects,
+seven malformed/ambiguous fixtures and28 corruption refusals. The original
+same-line token-swap failure is retained before correction. MinGW compilation
+passes; new hosted native and Windows Qt/install gates remain separate. Catalogs
+contain669 source keys,3,135 draft translations, no native-reviewed/fully-qualified
+language. No local VM or user audio/equalizer/installer changed. Next: approved
+media roots/missing choices and opt-in new-project conversion with aligned renders.
+All four parity axes and the full frozen-reference goal remain active/incomplete.
+
+### PR63 review/platform follow-up
+
+The initial exact `1bb2afd` passes the Windows cross-build and new Linux property
+boundary test but has two retained failures: native Windows defaults its witness
+reader to cp1252 (fixed by explicit UTF-8), and Linux manual-recording-control
+refuses a command with insufficient diagnostic context (cause unknown). Its
+original archives/logs remain in checkpoint120 evidence. A test-only refusal
+context adds no policy/oracle change; a local65,141-check pass does not explain
+that failure. The UI summary now excludes missing/invalid unavailable entries,
+caches the count on report change, and passes90 Release and90 ASan/UBSan checks.
+Corrected protected hosted checks remain pending; Windows Qt/install/native
+conversion and all full-parity axes remain incomplete. No local VM started.

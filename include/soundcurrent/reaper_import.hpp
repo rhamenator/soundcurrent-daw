@@ -5,7 +5,7 @@
 namespace soundcurrent::daw {
 // Stable, language-independent schema IDs. Values are in the ORIGINAL suite's
 // units. Preserved means retained/decoded, never equivalent destination DSP.
-enum class ImportObjectKind { Project, Track, Item, Source };
+enum class ImportObjectKind { Project=0, Track=1, Item=2, Source=3 };
 enum class ImportPropertyId : unsigned {
     ProjectSampleRate = 1, ProjectSampleRateEnabled = 2,
     TrackIdentity = 3, TrackName = 4, TrackGain = 5, TrackPan = 6, TrackChannels = 7,
@@ -13,12 +13,12 @@ enum class ImportPropertyId : unsigned {
     TakeName = 13, ItemGain = 14, TakeGain = 15, TakePan = 16, TakeSourceOffset = 17,
     TakeRate = 18, TakePitch = 19, SourceFile = 20
 };
-enum class ImportValueKind { None, Number, Bytes };
-enum class ImportEvidenceStatus { Preserved, Converted, Unsupported, Missing, Unverified };
+enum class ImportValueKind { None=0, Number=1, Bytes=2 };
+enum class ImportEvidenceStatus { Preserved=0, Converted=1, Unsupported=2, Missing=3, Unverified=4 };
 enum class ImportEvidenceReason {
-    OriginalValue, UnknownSemantics, InvalidNumber, UnknownShape, InvalidToken,
-    DuplicateProperty, MissingProperty, AmbiguousTake, ProcessingNotImplemented,
-    SourceNotImplemented
+    OriginalValue=0, UnknownSemantics=1, InvalidNumber=2, UnknownShape=3, InvalidToken=4,
+    DuplicateProperty=5, MissingProperty=6, AmbiguousTake=7, ProcessingNotImplemented=8,
+    SourceNotImplemented=9
 };
 struct ImportObject {
     // Ordinal is stable for these exact source bytes, not a destination UUID.

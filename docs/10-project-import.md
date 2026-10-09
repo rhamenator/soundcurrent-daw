@@ -94,3 +94,14 @@ writer witnesses and exercise malformed/duplicate/missing/ambiguous state and
 retirement. No field is converted and no media is resolved. Property worker/report,
 parent validation/UI, approved destination mapping and aligned renders follow;
 the installed preview and complete adapter/parity scope remain unchanged.
+
+## Source-property preview checkpoint (2026-10-09 UTC)
+
+[Checkpoint120](120-import-property-preview.md) connects the owned model to a
+versioned isolated worker report and independently admitted parent validator.
+Read-only Properties/Original source tabs show original values/units and losses;
+Save/Open retains them and continues to support older outline-only inspections.
+No media/plugin resolution or destination conversion occurs. Local Linux and
+MinGW evidence is separate from new native MSVC/Windows Qt qualification. Next:
+approved media roots/missing choices, explicit new-project mapping, Undo/reopen
+and aligned source/destination renders. Full registered import/parity scope remains.

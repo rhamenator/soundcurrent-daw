@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-10-09T03:40:46.286429+00:00",
+  "baseHead": "1bb2afd391fb6041f780a3318f41252f11a847aa",
+  "changedSource": {
+    "path": "tests/import_property_protocol_tests.py",
+    "beforeSha256": "75f1b911cdf750fffc7cf1bf4638199bc75c98c35f9546df21f5663f746cae45",
+    "afterSha256": "2d62715e845c36e0d0c4fd67c6544b72b9d993283e68204e789cf12e88a02db7"
+  },
+  "change": "Read original native manifest/property witnesses explicitly as UTF-8 on every OS, independently of the host default encoding. Original corpus bytes and product code/binaries unchanged.",
+  "originalEvidence": "local-receipt.json",
+  "originalEvidenceSha256": "f8f361a35fac0cd32cfa53116f8da07caec03fdf23b089242f5efe4242da00f8",
+  "tests": [
+    {
+      "command": "ctest --test-dir .cache/build-desktop-release -R '^import-property-protocol$' --output-on-failure --no-tests=error -V",
+      "exit": 0,
+      "checks": 569,
+      "log": "utf8-release-test.log"
+    },
+    {
+      "command": "ASAN_OPTIONS=detect_leaks=0 ctest --test-dir .cache/build-desktop-sanitized -R '^import-property-protocol$' --output-on-failure --no-tests=error -V",
+      "exit": 0,
+      "checks": 569,
+      "log": "utf8-sanitized-test.log"
+    }
+  ],
+  "logSha256": {
+    "utf8-release-test.log": "0851593ee6e472d573541600c8126502fddee516bc5ea449dc7ace6a24602c32",
+    "utf8-sanitized-test.log": "95c393dc91fce255190f78bec50de1352b41520ffd11f2945edf40f971ef5fe2"
+  },
+  "windowsRuntimeQualified": false,
+  "nativeConversionQualified": false
+}

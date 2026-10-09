@@ -7,6 +7,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <source_location>
 #include <limits>
 #include <stdexcept>
 #include <atomic>
@@ -150,9 +151,19 @@ std::vector<ManualRecordingArm> arms(const Session &s, bool delayed = true) {
     return a;
 }
 void submit(ManualRecordingRun &run, ManualPunchAction action, Frame at, std::uint64_t revision,
-            std::uint64_t take = 0) {
-    check(run.submit({action, at, 43, revision, take}) == ManualPunchSubmit::Accepted,
-          "Control owner command refused");
+            std::uint64_t take = 0,
+            std::source_location caller = std::source_location::current()) {
+    const auto result = run.submit({action, at, 43, revision, take});
+    if (result != ManualPunchSubmit::Accepted)
+        std::cerr << "manual_submit_refusal workflow=" << workflows
+                  << " caller=" << caller.file_name() << ':' << caller.line()
+                  << " action=" << static_cast<unsigned>(action) << " frame=" << at
+                  << " revision=" << revision << " take=" << take
+                  << " admission=" << static_cast<unsigned>(result)
+                  << " transport=" << static_cast<unsigned>(run.status())
+                  << " position=" << run.position() << " occupied_slots=" << run.occupiedSlots()
+                  << '\n';
+    check(result == ManualPunchSubmit::Accepted, "Control owner command refused");
 }
 void verifiedGroup(const ManualRecordedGroup &group, Session &canonical, const Session &original,
                    const std::filesystem::path &root) {

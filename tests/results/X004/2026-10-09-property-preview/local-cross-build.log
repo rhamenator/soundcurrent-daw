@@ -1,0 +1,18 @@
+[0/1] Re-running CMake...
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-windows-core
+[1/15] Building CXX object CMakeFiles/sc-reaper-import.dir/src/reaper_import.cpp.obj
+[2/15] Building CXX object CMakeFiles/sc-import-report.dir/src/import_inspection_report.cpp.obj
+[3/15] Linking CXX static library libsc-import-report.a
+[4/15] Linking CXX static library libsc-reaper-import.a
+[5/15] Building CXX object CMakeFiles/sc-inspection-bundle.dir/src/inspection_bundle.cpp.obj
+[6/15] Linking CXX static library libsc-inspection-bundle.a
+[7/15] Building CXX object CMakeFiles/sc-import-inspect-worker.dir/tools/import_inspect_worker.cpp.obj
+[8/15] Building CXX object CMakeFiles/sc-inspection-bundle-tests.dir/tests/inspection_bundle_tests.cpp.obj
+[9/15] Building CXX object CMakeFiles/sc-import-property-report-probe.dir/tests/import_property_report_probe.cpp.obj
+[10/15] Linking CXX executable sc-import-inspect-worker.exe
+[11/15] Linking CXX executable sc-inspection-bundle-tests.exe
+[12/15] Linking CXX executable sc-import-property-report-probe.exe
+[13/15] Building CXX object CMakeFiles/sc-reaper-import-tests.dir/tests/reaper_import_tests.cpp.obj
+[14/15] Linking CXX executable sc-reaper-import-tests.exe

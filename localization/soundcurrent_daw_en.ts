@@ -625,6 +625,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>REAPER project inspection preview. Conversion is not available yet. The original file and current project remain unchanged.</translation>
     </message>
     <message>
+      <source>Properties</source>
+      <translation>Properties</translation>
+    </message>
+    <message>
+      <source>Original source</source>
+      <translation>Original source</translation>
+    </message>
+    <message>
       <source>Stopping inspection…</source>
       <translation>Stopping inspection…</translation>
     </message>
@@ -645,7 +653,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Inspection saved with the original source bytes. Project properties remain unverified.</translation>
     </message>
     <message numerus="yes">
-      <source>%n source line(s) inspected. Project properties are unverified.</source>
+      <source>%n original property value(s) found. Audio import is not available yet.</source>
+      <translation type="unfinished" />
+    </message>
+    <message numerus="yes">
+      <source>%n source line(s) inspected. This saved outline has no property preview.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -708,6 +720,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Property</translation>
     </message>
     <message>
+      <source>Unsupported</source>
+      <translation>Unsupported</translation>
+    </message>
+    <message>
+      <source>Bytes retained</source>
+      <translation>Bytes retained</translation>
+    </message>
+    <message>
       <source>Unverified</source>
       <translation>Unverified</translation>
     </message>
@@ -726,6 +746,241 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Status</source>
       <translation>Status</translation>
+    </message>
+    <message>
+      <source>Original line</source>
+      <translation>Original line</translation>
+    </message>
+  </context>
+  <context>
+    <name>ImportPropertyModel</name>
+    <message>
+      <source>Project sample rate</source>
+      <translation>Project sample rate</translation>
+    </message>
+    <message>
+      <source>Use project sample rate</source>
+      <translation>Use project sample rate</translation>
+    </message>
+    <message>
+      <source>Track identity</source>
+      <translation>Track identity</translation>
+    </message>
+    <message>
+      <source>Track name</source>
+      <translation>Track name</translation>
+    </message>
+    <message>
+      <source>Track gain</source>
+      <translation>Track gain</translation>
+    </message>
+    <message>
+      <source>Track pan</source>
+      <translation>Track pan</translation>
+    </message>
+    <message>
+      <source>Track channels</source>
+      <translation>Track channels</translation>
+    </message>
+    <message>
+      <source>Item identity</source>
+      <translation>Item identity</translation>
+    </message>
+    <message>
+      <source>Item position</source>
+      <translation>Item position</translation>
+    </message>
+    <message>
+      <source>Item length</source>
+      <translation>Item length</translation>
+    </message>
+    <message>
+      <source>Fade-in length</source>
+      <translation>Fade-in length</translation>
+    </message>
+    <message>
+      <source>Fade-out length</source>
+      <translation>Fade-out length</translation>
+    </message>
+    <message>
+      <source>Take name</source>
+      <translation>Take name</translation>
+    </message>
+    <message>
+      <source>Item gain</source>
+      <translation>Item gain</translation>
+    </message>
+    <message>
+      <source>Take gain</source>
+      <translation>Take gain</translation>
+    </message>
+    <message>
+      <source>Take pan</source>
+      <translation>Take pan</translation>
+    </message>
+    <message>
+      <source>Source offset</source>
+      <translation>Source offset</translation>
+    </message>
+    <message>
+      <source>Take rate</source>
+      <translation>Take rate</translation>
+    </message>
+    <message>
+      <source>Take pitch</source>
+      <translation>Take pitch</translation>
+    </message>
+    <message>
+      <source>Source file</source>
+      <translation>Source file</translation>
+    </message>
+    <message>
+      <source>Hz</source>
+      <translation>Hz</translation>
+    </message>
+    <message>
+      <source>0 / 1</source>
+      <translation>0 / 1</translation>
+    </message>
+    <message>
+      <source>channels</source>
+      <translation>channels</translation>
+    </message>
+    <message>
+      <source>linear gain</source>
+      <translation>linear gain</translation>
+    </message>
+    <message>
+      <source>source pan</source>
+      <translation>source pan</translation>
+    </message>
+    <message>
+      <source>seconds</source>
+      <translation>seconds</translation>
+    </message>
+    <message>
+      <source>ratio</source>
+      <translation>ratio</translation>
+    </message>
+    <message>
+      <source>semitones</source>
+      <translation>semitones</translation>
+    </message>
+    <message>
+      <source>original bytes</source>
+      <translation>original bytes</translation>
+    </message>
+    <message>
+      <source>Value retained</source>
+      <translation>Value retained</translation>
+    </message>
+    <message>
+      <source>Converted</source>
+      <translation>Converted</translation>
+    </message>
+    <message>
+      <source>Unsupported</source>
+      <translation>Unsupported</translation>
+    </message>
+    <message>
+      <source>Missing</source>
+      <translation>Missing</translation>
+    </message>
+    <message>
+      <source>Unverified</source>
+      <translation>Unverified</translation>
+    </message>
+    <message>
+      <source>Original value; audio import is not available yet.</source>
+      <translation>Original value; audio import is not available yet.</translation>
+    </message>
+    <message>
+      <source>Original state has not been interpreted.</source>
+      <translation>Original state has not been interpreted.</translation>
+    </message>
+    <message>
+      <source>Invalid or out-of-range original number.</source>
+      <translation>Invalid or out-of-range original number.</translation>
+    </message>
+    <message>
+      <source>Unverified original field layout.</source>
+      <translation>Unverified original field layout.</translation>
+    </message>
+    <message>
+      <source>Malformed original token.</source>
+      <translation>Malformed original token.</translation>
+    </message>
+    <message>
+      <source>Repeated field; no occurrence selected.</source>
+      <translation>Repeated field; no occurrence selected.</translation>
+    </message>
+    <message>
+      <source>The source project does not specify this value.</source>
+      <translation>The source project does not specify this value.</translation>
+    </message>
+    <message>
+      <source>Take selection is ambiguous.</source>
+      <translation>Take selection is ambiguous.</translation>
+    </message>
+    <message>
+      <source>This processing setting cannot be imported yet.</source>
+      <translation>This processing setting cannot be imported yet.</translation>
+    </message>
+    <message>
+      <source>This source type is not implemented.</source>
+      <translation>This source type is not implemented.</translation>
+    </message>
+    <message>
+      <source>Original file bytes: %1 + %2</source>
+      <translation>Original file bytes: %1 + %2</translation>
+    </message>
+    <message>
+      <source>Project</source>
+      <translation>Project</translation>
+    </message>
+    <message>
+      <source>Track</source>
+      <translation>Track</translation>
+    </message>
+    <message>
+      <source>Item</source>
+      <translation>Item</translation>
+    </message>
+    <message>
+      <source>Source</source>
+      <translation>Source</translation>
+    </message>
+    <message>
+      <source>%1 · %2</source>
+      <translation>%1 · %2</translation>
+    </message>
+    <message>
+      <source>Unavailable</source>
+      <translation>Unavailable</translation>
+    </message>
+    <message>
+      <source>Source object</source>
+      <translation>Source object</translation>
+    </message>
+    <message>
+      <source>Property</source>
+      <translation>Property</translation>
+    </message>
+    <message>
+      <source>Original value</source>
+      <translation>Original value</translation>
+    </message>
+    <message>
+      <source>Units</source>
+      <translation>Units</translation>
+    </message>
+    <message>
+      <source>Status</source>
+      <translation>Status</translation>
+    </message>
+    <message>
+      <source>Details</source>
+      <translation>Details</translation>
     </message>
   </context>
   <context>

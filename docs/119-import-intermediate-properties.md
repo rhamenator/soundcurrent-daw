@@ -120,3 +120,12 @@ duplicates and ambiguous selection ahead of unsupported processing. Individual
 property records stay intact. The added regression passes with890 Linux Release
 checks; its separate receipt pins the tested source and scope. Original885-check
 evidence remains historical. New hosted execution of this repair is pending.
+
+## Subsequent qualification and desktop integration
+
+PR62 repaired head `5704601568eec0d80b60b68d40ad621f74387050` passes77 hosted
+Linux tests and14 selected native MSVC tests, including890 property checks.
+The original885-check evidence remains historical. [Checkpoint120](120-import-property-preview.md)
+now supplies the isolated property protocol, independently validated parent/UI
+and portable property persistence. Conversion, media resolution, aligned renders
+and complete native/exchange compatibility remain required.
