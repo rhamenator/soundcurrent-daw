@@ -239,7 +239,7 @@ SessionListModel::prepare(std::shared_ptr<const Session> s, std::optional<Channe
         } else if (kind_ == Kind::Assets) {
             rows.reserve(s->assets.size());
             for (std::size_t n = 0; n < s->assets.size(); ++n)
-                if ((!f || s->assets[n].layout == *f) && s->assets[n].sampleRate == s->sampleRate)
+                if (!f || s->assets[n].layout == *f)
                     rows.push_back(n);
         } else if (clipTrack) {
             const auto it = std::find_if(s->tracks.begin(), s->tracks.end(),

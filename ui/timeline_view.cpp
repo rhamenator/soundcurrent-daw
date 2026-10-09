@@ -376,9 +376,11 @@ bool TimelineView::viewportEvent(QEvent *e) {
             const auto c = std::find_if(t.clips.begin(), t.clips.end(),
                                         [&](const auto &v) { return v.id == *clip; });
             QToolTip::showText(help->globalPos(),
-                               tr("Start %1 · source %2 · length %3 frames")
+                               tr("Start %1 · source %2 + %3/%4 · length %5 project frames")
                                    .arg(QLocale().toString(c->startFrame),
                                         QLocale().toString(c->sourceFrame),
+                                        QLocale().toString(qulonglong(c->sourceTiming.fraction)),
+                                        QLocale().toString(qulonglong(c->sourceTiming.denominator)),
                                         QLocale().toString(c->lengthFrames)),
                                viewport());
         } else

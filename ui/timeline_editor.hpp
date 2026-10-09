@@ -55,7 +55,8 @@ class TimelineEditor : public QGroupBox {
     QListView *tracks_;
     TimelineView *view_;
     SessionListModel *trackList_, *destinations_, *assets_, *clipList_;
-    QLineEdit *name_, *start_, *source_, *length_, *split_;
+    QLineEdit *name_, *start_, *source_, *length_, *split_, *consumed_;
+    QLabel *sourceTiming_;
     QComboBox *layout_, *destination_, *asset_, *clips_;
     QSpinBox *channels_;
     QSlider *zoom_;
