@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "date": "2026-10-09",
+  "firstNativeWave": {
+    "head": "17c600ccf7293734d37b1b61479c64f23cac06ea",
+    "run": 37889809849,
+    "artifact": 11597887600,
+    "sha256": "2066bb5d6019fab0d1d9233ece6c79fea5ba10e840c5ecbbf651aa070275c3d1",
+    "waveChecks": 20503,
+    "cliChecks": 64,
+    "linuxOnlyMutationChecks": 5
+  },
+  "precisionFollowUp": {
+    "baseHead": "17c600ccf7293734d37b1b61479c64f23cac06ea",
+    "workingCode": true,
+    "sourceSha256": {
+      "tests/wave_validation_tests.cpp": "65cf8e577d86bec4d3edd30fdf29542f0b87347de1463befd39922bf12f17f57"
+    },
+    "implementationChanged": false,
+    "linuxReleaseChecks": 20508,
+    "linuxSanitizedChecks": 20508,
+    "cliChecks": 64,
+    "asan": true,
+    "ubsan": true,
+    "leakDetection": false,
+    "nativeExecution": false,
+    "binariesSha256": {
+      ".cache/build-desktop-release/sc-wave-validation-tests": "8f99017791ef9ee09990df349a89b75b1449055ef2d045cba0e394b6939199f6",
+      ".cache/build-desktop-sanitized/sc-wave-validation-tests": "48a5027b9138943f24fafbdcd7422e699d80baefbca6359e9a59c18bfee41413"
+    }
+  },
+  "filesSha256": {
+    "original-wave-native-artifact.json": "466cd9e0e3585f332c40cae4047cc3de452b93bed4775b34cd90d3e7e97411c6",
+    "original-wave-native.log": "58f30aa9cca999d6fec04265a79ac359667740e1521d1ae0822ff8bca3c1413d",
+    "original-wave-native.zip": "2066bb5d6019fab0d1d9233ece6c79fea5ba10e840c5ecbbf651aa070275c3d1",
+    "precision-sanitized.log": "bd5e29d03de9a537b14addc2f7bd88b5dd941227138fa1f094fd03d34720a888",
+    "precision-sanitized-build.log": "c0cba5a7a6965a166411f6fe8ea9d3d5445ea305ae151163bca143e341297adc",
+    "precision-release.log": "81acf309b4271f8b0ddbd4ad24089226c7a42a7d2257c358a6955e429eb502a3",
+    "precision-release-build.log": "8f4b1c296657e36b7b5f3b79cf3d4ffb3d7da7638f34f5416e3efa0befd8cc2b"
+  },
+  "scope": {
+    "projectConversion": false,
+    "alignedRenderEquivalence": false,
+    "fullParity": false,
+    "installedPreviewChanged": false,
+    "localVmStarted": false,
+    "equalizerChanged": false
+  }
+}

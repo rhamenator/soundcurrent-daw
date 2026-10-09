@@ -17,6 +17,11 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
+Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
+and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).
+These preserve original source bytes and floating headroom; desktop root/replacement
+choices, broader audio formats and destination project conversion are still required.
+
 The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records
 through the native desktop, plays with live EQ/Undo, saves/reopens and exports WAV.
 Independent raw/output/export sample checks pass on an owned loopback route with

@@ -30,6 +30,8 @@ class ApprovedMediaFile {
     // each chunk off audio; cancellation is cooperative around OS I/O.
     std::array<char,64> digest(std::stop_token = {}, const std::function<void()> &beforeChunk = {});
     std::size_t chargedBytes() const;
+    // Shared control/I/O admission scope for work performed on this owned file.
+    ResourceLedger resourceLedger() const;
   private:
     friend class ApprovedMediaRoot;
     explicit ApprovedMediaFile(std::unique_ptr<ApprovedMediaFileState>);

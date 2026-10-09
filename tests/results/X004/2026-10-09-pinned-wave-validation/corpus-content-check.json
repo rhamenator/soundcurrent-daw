@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "reports": [
+    {
+      "bitsPerSample": 16,
+      "bytesRead": 384136,
+      "channelMask": 0,
+      "channels": 1,
+      "complete": true,
+      "containerId": "riff",
+      "decodedFrames": 96000,
+      "encodingId": 2,
+      "extensible": false,
+      "frames": 96000,
+      "ioOperations": 793,
+      "peakLinear": 0.06243896484375,
+      "protocol": "sc-approved-wave-validation-v1",
+      "rateHz": 48000,
+      "relative": "media/mono.wav",
+      "sourceBytes": 192044,
+      "sourceSha256": "b6e3da19c650ae458f6e09055fe37a0ca23446e924f028e0b995b79ba1ef2a00"
+    },
+    {
+      "bitsPerSample": 16,
+      "bytesRead": 768136,
+      "channelMask": 0,
+      "channels": 2,
+      "complete": true,
+      "containerId": "riff",
+      "decodedFrames": 96000,
+      "encodingId": 2,
+      "extensible": false,
+      "frames": 96000,
+      "ioOperations": 796,
+      "peakLinear": 0.06243896484375,
+      "protocol": "sc-approved-wave-validation-v1",
+      "rateHz": 48000,
+      "relative": "media/stereo.wav",
+      "sourceBytes": 384044,
+      "sourceSha256": "199a76b2a2d74ab1da037086d92e1188f6366791da978fffe83870d8d36a2ded"
+    }
+  ],
+  "originalBytesUntouched": true,
+  "projectConversion": false,
+  "alignedRenderComparison": false
+}

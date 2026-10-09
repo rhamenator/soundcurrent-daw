@@ -116,3 +116,14 @@ media hashes without decoding audio. The desktop inspector still performs no med
 access. Next: explicit root/replacement choices, pinned WAV validation/copy and
 new-project mapping with loss/Undo/reopen/aligned-render evidence. The full native
 and exchange family register and all frozen parity axes remain unpromoted.
+
+## Pinned WAVE content increment (2026-10-09)
+
+[Checkpoint123](123-pinned-wave-validation.md) adds original strict WAVE preflight
+and existing libsndfile virtual I/O over the approved file object. Complete finite
+sample decoding preserves float headroom, source rate/count/mask/precision and byte
+hash. No filename is reopened, reference occurrence selected, correction printed,
+media copied or destination state changed. Linux independent sample/real-child
+gates pass; native Windows follows independently. Remaining WAVE/other formats
+are explicit gaps. Next: parent report validation, explicit roots/replacements and
+the cancellable media checklist, then the complete conversion/loss/render chain.

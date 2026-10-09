@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "date": "2026-10-09",
+  "testedSource": {
+    "baseHead": "bd9e8cb96e87f75a92e53541f7ab9cb52ccddf6e",
+    "workingCode": true,
+    "sourceSha256": {
+      "CMakeLists.txt": "51b56097821d6a7521f547fff85687d77a30f8c17f4c4d7d2f837429f61992a2",
+      ".github/workflows/ci.yml": "eed5d6f2112e7cdcbc5ef6996429fca39fe22be7bf2d7821944cb64b54b63507",
+      "include/soundcurrent/approved_media.hpp": "056bc1e7a74e92ea586d2f7eda63abc64c5906c991210d432bb401851978651f",
+      "src/approved_media.cpp": "faf30619ab7418a91a7475a79bc5565173e980a61a5162e80541cb609d7f4e1e",
+      "include/soundcurrent/wave_validation.hpp": "b2b7390404f606c763b44f86ee6377634edd4709a0e0b5de54773bb99b768ea7",
+      "src/wave_validation.cpp": "4cc0f8857e73bd732523018fbbf80dc9987f0f26ca0acfd8fc95b32e6e89bf87",
+      "tools/approved_wave_probe.cpp": "9c556350b9513500eca23840a45df3b8aceacd7b5572fbaee395a2a1ccf77c74",
+      "tests/wave_validation_tests.cpp": "22bfde9053126bb7fd59bbd5a65b17c1de6eea43dce0c3c3646bbeb7bec9ac92",
+      "tests/approved_wave_probe_tests.py": "51aa33ff500890e8700e8d3e65db14c56c307e46d40481ed49cd769d4b5945fa",
+      "third_party/libsndfile/sndfile.h": "911098ea4b66f0c5ad59785b176f2b19f6e657042c15c93791edb53467efd6c0",
+      "third_party/manifest.json": "a7453ea21aff05debcbfa8683d04cbbf75bf75ddcbb96a64d0006ca2bb22361a"
+    }
+  },
+  "linuxRelease": {
+    "selectedTests": 4,
+    "waveSampleAndRefusalChecks": 20508,
+    "actualWaveCliChecks": 64,
+    "rootChecks": 159,
+    "actualRootCliChecks": 23
+  },
+  "linuxSanitized": {
+    "selectedTests": 4,
+    "waveSampleAndRefusalChecks": 20508,
+    "actualWaveCliChecks": 64,
+    "asan": true,
+    "ubsan": true,
+    "leakDetection": false
+  },
+  "prerequisite": {
+    "pr": 66,
+    "head": "bd9e8cb96e87f75a92e53541f7ab9cb52ccddf6e",
+    "merge": "41e38af7b35d527d56625b05cb89c06207afec32",
+    "run": 37888375635,
+    "nativeArtifact": 11596959423,
+    "nativeRootChecks": 162,
+    "nativeActualCliChecks": 23,
+    "scope": "Prior root/case-rule code, not this WAVE revision"
+  },
+  "binariesSha256": {
+    ".cache/build-desktop-release/sc-wave-validation-tests": "1fead60ab13d36fd85634ef8856b95f1cc056c2827c1c5c54321bf35758c1163",
+    ".cache/build-desktop-release/sc-approved-wave-probe": "1cc3091b6630459dd6e909683a8ed8d0cfceb240670f0668b499708bd3ae368f",
+    ".cache/build-desktop-sanitized/sc-wave-validation-tests": "94cf9414506b21d0d9ad051fc0a9feb565a38c06baa5da4faff5492f73b971b5",
+    ".cache/build-desktop-sanitized/sc-approved-wave-probe": "f17ff94573452995c5119e31557fb70da0f7e3ceb4d8acb741822940ef65772d"
+  },
+  "filesSha256": {
+    "linux-sanitized-build.log": "0d86bc41f9d07dae8cc45f133218da1a74f718dfe23898d123271ab54412f431",
+    "linux-sanitized.log": "93e5611c54450ad3331284e219f84337ce8433dafc2b72096241371a610f1c82",
+    "linux-release.log": "e21c755bd9886ba0a600d092b3a7eefe361a6df9ba2eee82f6cff6ccf091c394",
+    "linux-release-build.log": "c2c569d4a8b5aad470ef9141c56ae5a0893eecb2d018df7567848a278791531e",
+    "linux-runtime.json": "ce5546eefa7566b057356d0c85a8b9cc403b5d232651210c6982dd8000754b98",
+    "corpus-content-check.json": "db160e63db68b8e12526a172df938d14a809fe40ac8fd836050adabe94a7b789",
+    "prerequisite-native-artifact.json": "bb9da6b98ad0856156c2926742188e36c49108c84ef4fecac4b790a0793f8b1a",
+    "prerequisite-native.log": "2e1c623a908900cdc00855e26eade2177cf23e2c78bc29d39a197da329dad06f",
+    "prerequisite-merged.json": "adf983e7d7f9d3da7ad79419d9c7fc3af7f99e47ae58532e6c1489e30c61d6ef",
+    "prerequisite-native.zip": "e25275d54fd007c94e55c2dce46a8aaff0f52ea6b4d473e79c7a320a0e258eda"
+  },
+  "limits": {
+    "nativeWindowsWaveExecuted": false,
+    "mingwWaveCompiled": false,
+    "mediaDesktopIntegrated": false,
+    "installedPreviewChanged": false,
+    "fullAudioFormatCoverage": false,
+    "projectConversion": false,
+    "alignedRenderComparison": false,
+    "hardDecoderMemoryLimit": false,
+    "hardOsSandbox": false,
+    "fullParity": false,
+    "localVmStarted": false,
+    "userAudioRouteChanged": false,
+    "equalizerChanged": false,
+    "publicBinaryReleaseUploaded": false
+  }
+}

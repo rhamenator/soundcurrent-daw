@@ -8,6 +8,11 @@
 
 ## Unreleased — development preview
 
+- Development WAVE checking now validates admitted PCM/float headers and complete
+  samples through pinned virtual I/O, preserving original metadata, byte hashes
+  and floating headroom. Linux gates pass; native Windows follow-up is separate.
+  Broader formats, desktop media selection and project conversion remain open.
+
 - Developer import tooling can bind an explicitly approved media folder and read
   plain relative files through pinned handles with quotas and streaming checksums.
   Original Linux/native Windows folder and checksum checks pass; additional
