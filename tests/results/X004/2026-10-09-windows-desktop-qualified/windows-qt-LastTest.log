@@ -1,0 +1,52 @@
+Start testing: Oct 09 04:28 Coordinated Universal Time
+----------------------------------------------------------
+1/75 Testing: desktop-import-controller
+1/75 Test: desktop-import-controller
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-import-controller-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-import-controller" start time: Oct 09 04:28 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Import controller checks=77; real child, synthetic project, native compatibility unqualified
+<end of output>
+Test time =   1.76 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-controller" end time: Oct 09 04:28 Coordinated Universal Time
+"desktop-import-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+2/75 Testing: desktop-import-ui
+2/75 Test: desktop-import-ui
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-import-ui-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-import-ui" start time: Oct 09 04:28 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 90 import preview UI checks; actual child, no project mutation, async retirement.
+<end of output>
+Test time =   0.71 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-ui" end time: Oct 09 04:28 Coordinated Universal Time
+"desktop-import-ui" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/75 Testing: desktop-localization
+3/75 Test: desktop-localization
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native/sc-localization-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-desktop-native
+"desktop-localization" start time: Oct 09 04:28 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Owned localization fixture root: C:\Users\RUNNER~1\AppData\Local\Temp\sc-localization-678403bc-89f0-4913-91ff-89d657b526e1
+PASS: 256 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.
+<end of output>
+Test time =   0.80 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-localization" end time: Oct 09 04:28 Coordinated Universal Time
+"desktop-localization" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 09 04:28 Coordinated Universal Time

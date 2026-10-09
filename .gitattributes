@@ -25,3 +25,5 @@ CMakeLists.txt text eol=lf
 /tests/results/X004/2026-10-09-windows-desktop-gate-preparation/*.log -text whitespace=-blank-at-eol,cr-at-eol
 /tests/results/X004/2026-10-09-windows-desktop-native/*.log -text whitespace=-blank-at-eol,cr-at-eol
 /tests/results/X004/2026-10-09-windows-desktop-native/*-runtime.json -text whitespace=cr-at-eol
+/tests/results/X004/2026-10-09-windows-desktop-qualified/*.log -text whitespace=-blank-at-eol,cr-at-eol
+/tests/results/X004/2026-10-09-windows-desktop-qualified/*-runtime.json -text whitespace=cr-at-eol

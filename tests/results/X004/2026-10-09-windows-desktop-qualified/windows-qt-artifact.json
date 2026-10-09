@@ -1,0 +1,20 @@
+{
+  "id": 11595815969,
+  "node_id": "MDg6QXJ0aWZhY3QxMTU5NTgxNTk2OQ==",
+  "name": "windows-desktop-import-test-log",
+  "size_in_bytes": 1976,
+  "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11595815969",
+  "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11595815969/zip",
+  "expired": false,
+  "digest": "sha256:eef63b9b044cc4b3af9b21d57fb36ad1b3ef9bd92a518c0e396716851f87b47a",
+  "created_at": "2026-10-09T04:28:54Z",
+  "updated_at": "2026-10-09T04:28:54Z",
+  "expires_at": "2027-01-07T04:23:10Z",
+  "workflow_run": {
+    "id": 37883629027,
+    "repository_id": 1407894149,
+    "head_repository_id": 1407894149,
+    "head_branch": "codex/windows-import-ui",
+    "head_sha": "429d69af5b3d0164acd238e9ba11076741a4eefe"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "format": "sc-windows-desktop-test-dependencies-v1",
+  "qtVersion": "6.12.0",
+  "module": "QtBase",
+  "archive": {
+    "url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6120/qt6_6120_msvc2022_64/qt.qt6.6120.win64_msvc2022_64/6.12.0-0-202609280346qtbase-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z",
+    "sha256": "219d1b86def3be418e31d704572bc4acc91b2ec373c65595c9fb12b42bf098dc",
+    "bytes": 40184745
+  },
+  "sourceSha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+  "sourceUrl": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz",
+  "files": {
+    "bin/Qt6Core.dll": {
+      "sha256": "39175459c4837c8cc0f709a637fb6eadb25d696785109c8393559ec876f02703",
+      "bytes": 10472760
+    },
+    "bin/Qt6Gui.dll": {
+      "sha256": "37c79b48b9cc2d9a03d21410c26fea683d236f9280f5c9aaab85d980759f2835",
+      "bytes": 9683256
+    },
+    "bin/Qt6Widgets.dll": {
+      "sha256": "74138ca203c378a62367cc398e4dac07dec729b5a121486dbb26109854c17ae5",
+      "bytes": 6520120
+    },
+    "bin/Qt6Test.dll": {
+      "sha256": "7be9d6feb4fd064fc451e904c15365800d16eebc3b295e89691858edad00196a",
+      "bytes": 383800
+    },
+    "plugins/platforms/qoffscreen.dll": {
+      "sha256": "54b0bc9a4aa9b1e1406e359569a8f2858ab368255f1e53c71d1fc405c2dbd32b",
+      "bytes": 111928
+    }
+  },
+  "scope": "Native hosted MSVC offscreen desktop import/localization testing, no audio endpoint or installer. Core/Gui/Widgets match the separately pinned product SDK. QtTest and offscreen plugin are test-only. No product dependency version change, SDK binaries or test executables are committed/uploaded."
+}
