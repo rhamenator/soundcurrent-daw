@@ -1,0 +1,90 @@
+{
+  "format": "sc-inspection-decoder-followup-v1",
+  "sourceBase": "dc95653ada4da8a60b24a4eec6544348ca6c6e61",
+  "previousEvidence": "receipt.json",
+  "change": "Raise DOM payload expansion allowance from 16 to 32 and derive the encoded/decoder admission ratio from one constant; reject high-container-overhead malformed shape. Explicit string-view operands avoid MSVC ambiguous nlohmann comparison.",
+  "sourceSha256": {
+    "include/soundcurrent/import_inspection_report.hpp": "8d154ba78eb41f54f6b32e30ac08306e52ada54302a784254e6f2197b55c5bbd",
+    "src/import_inspection_report.cpp": "24d62fce537daf34ecae6c50e1bea1c1cdffd5c327a701c390367f0f08b4eeed",
+    "ui/import_inspection_controller.cpp": "7aa657711f99ea6015f90356ed2cad9a82a64a0b5a041601300172200f8c0503",
+    "tests/import_controller_tests.cpp": "8fa06f0f96b8e11bfae045568b8289e2b0f84391b06337c58266abcb17739474",
+    "localization/source-inventory.json": "3fd7a835c320b2cbb32b5234775e1a48819275ab96164fbd1d0e0cd403ad4638"
+  },
+  "steps": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-release",
+        "-R",
+        "^(desktop-import-controller|desktop-import-ui)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 1.054,
+      "logSha256": "d49bac0730b4289198b934694cf3df97239aa8693bebb9dd072aa616f3c850c9",
+      "observedResult": [
+        "2: Import controller checks=62; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 31 import preview UI checks; actual child, no project mutation, async retirement.",
+        "100% tests passed, 0 tests failed out of 2"
+      ]
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        ".cache/build-desktop-sanitized",
+        "-R",
+        "^(desktop-import-controller|desktop-import-ui)$",
+        "-V",
+        "--no-tests=error"
+      ],
+      "actualExit": 0,
+      "seconds": 2.212,
+      "logSha256": "4d1f6b0c3ad8e125eaae7ec1266e60af50fa9fbd496dc6d1b09a66d639d64dec",
+      "observedResult": [
+        "2: Import controller checks=62; real child, synthetic project, native compatibility unqualified",
+        "3: PASS: 31 import preview UI checks; actual child, no project mutation, async retirement.",
+        "100% tests passed, 0 tests failed out of 2"
+      ]
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        ".cache/build-windows-core",
+        "--target",
+        "sc-import-report",
+        "--parallel",
+        "2"
+      ],
+      "actualExit": 0,
+      "logSha256": "6520343c5c8e86e7b2c08160cb8c9ab558c9614521676cc1b83a6d231205ea51"
+    }
+  ],
+  "controllerChecks": 62,
+  "uiChecks": 31,
+  "nativeBuildRefusal": {
+    "sourceCommit": "dc95653ada4da8a60b24a4eec6544348ca6c6e61",
+    "runId": 37862352114,
+    "jobId": 113600817821,
+    "conclusion": "failure",
+    "error": "C2666 at report source-hash comparison; no native tests executed",
+    "originalJobLogSha256": "8d3b50beb24264dcfc86f7326cf8a4fc803305c11cc3aeef0242dd7a63d4375d",
+    "retainedErrorSha256": "de12d21083eb7d33129ac289cfaf9dc03c6d75c85faf38e6a01c6a891d4d247b"
+  },
+  "nativeWindowsExecutionOfFollowup": false,
+  "WindowsQtQualified": false,
+  "OSHardMemorySandboxQualified": false,
+  "localVMStarted": false,
+  "nativeProjectConversionQualified": false,
+  "binarySha256": {
+    ".cache/build-desktop-release/sc-import-controller-tests": "f307a9c9370f02fc75f7f903f067f4f9e26c9815f1711fdbb09ddf5d2c8d7fd6",
+    ".cache/build-desktop-release/sc-import-ui-tests": "125e63354b2c29fabdbdb2cd0d3d4b02788f21ca88917de32f6f7e9486037451",
+    ".cache/build-desktop-release/soundcurrent-daw": "b28120e8bef36fc09e64401e807706d43a863855fd3dc0802e7c396bdc17cdf7",
+    ".cache/build-desktop-sanitized/sc-import-controller-tests": "936525d83c7ac6e2be000fcbffb5a638c25a8f9a934abd159df81df19ce559d1",
+    ".cache/build-desktop-sanitized/sc-import-ui-tests": "2c03a4399bb41e4a3d881f57bafd26405f3915828f3d257e99e3d9b6ee906b6a",
+    ".cache/build-windows-core/libsc-import-report.a": "66946f81632654ad5632391d60060962658e730862b73e669205b65778080336"
+  }
+}

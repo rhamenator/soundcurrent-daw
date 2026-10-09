@@ -1,0 +1,50 @@
+UpdateCTestConfiguration  from :/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Parse Config file:/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/DartConfiguration.tcl
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 2
+    Start  2: desktop-import-controller
+
+2: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-controller-tests
+2: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+2: Test timeout computed to be: 60
+2: Import controller checks=60; real child, synthetic project, native compatibility unqualified
+1/3 Test  #2: desktop-import-controller ........   Passed    1.35 sec
+test 3
+    Start  3: desktop-import-ui
+
+3: Test command: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-ui-tests
+3: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+3: Environment variables: 
+3:  QT_QPA_PLATFORM=offscreen
+3: Test timeout computed to be: 60
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support propagateSizeHints()
+3: This plugin does not support raise()
+3: This plugin does not support raise()
+3: PASS: 31 import preview UI checks; actual child, no project mutation, async retirement.
+2/3 Test  #3: desktop-import-ui ................   Passed    0.45 sec
+test 33
+    Start 33: import-inspection-worker
+
+33: Test command: /home/rich/.pyenv/shims/python3 "/home/rich/dev/soundcurrent-daw/tests/import_inspect_worker_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-inspect-worker"
+33: Working Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+33: Test timeout computed to be: 60
+33: {"checks": 140, "processBoundary": true, "sourceUntouched": true, "nativeDAWCompatibilityQualified": false, "platform": "linux"}
+3/3 Test #33: import-inspection-worker .........   Passed    0.87 sec
+
+The following tests passed:
+	desktop-import-controller
+	desktop-import-ui
+	import-inspection-worker
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   2.68 sec

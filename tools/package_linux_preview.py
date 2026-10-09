@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 from pathlib import Path
 import shutil
 import subprocess
@@ -50,6 +51,17 @@ def verify_build_source(cache, root):
                if line.startswith('CMAKE_HOME_DIRECTORY:INTERNAL=')]
     require(len(entries)==1 and Path(entries[0]).resolve()==root.resolve(),
             'Build tree belongs to another source checkout')
+EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker'}
+def installed_mode(relative):
+    return 0o755 if relative in EXECUTABLE_PAYLOAD else 0o644
+def normalize_staged_permissions(stage):
+    for p in stage.rglob('*'):
+        require(not p.is_symlink(),'Unexpected permission-normalization symlink')
+        if p.is_file():p.chmod(installed_mode(p.relative_to(stage).as_posix()))
+        elif p.is_dir():p.chmod(0o755)
+def verify_payload_mode(path,relative):
+    require(not path.is_symlink() and stat.S_IMODE(path.stat().st_mode)==installed_mode(relative),
+            'Installed payload mode differs: '+relative)
 def verify_staged_install(stage, root, executable):
     expected = {
         'usr/bin/soundcurrent-daw': executable,
@@ -58,12 +70,15 @@ def verify_staged_install(stage, root, executable):
         'usr/share/applications/soundcurrent-daw.desktop': root/'packaging/soundcurrent-daw.desktop',
         'usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg': root/'packaging/soundcurrent-daw.svg',
     }
+    if (root/'ui/import_inspection_dialog.cpp').is_file():
+        expected['usr/bin/sc-import-inspect-worker']=executable.parent/'sc-import-inspect-worker'
     found = {}
     for path in stage.rglob('*'):
         require(not path.is_symlink(), 'Unexpected install payload symlink: '+str(path))
         if path.is_file(): found[str(path.relative_to(stage))]=path
     require(set(found)==set(expected), 'Install payload file set differs from current source')
     for relative, source in expected.items():
+        verify_payload_mode(found[relative],relative)
         require(digest(found[relative])==digest(source),
                 'Install payload differs from qualified source: '+relative)
     return {relative:digest(source) for relative,source in expected.items()}
@@ -80,6 +95,10 @@ def package(args):
     require(qualification.get('exit_code')==0, 'Qualification did not pass')
     require(qualification.get('executable_sha256',{}).get('soundcurrent-daw')==digest(executable),
             'Desktop executable differs from the tested executable')
+    if (ROOT/'ui/import_inspection_dialog.cpp').is_file():
+        worker=build/'sc-import-inspect-worker'
+        require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
+                'Inspection worker differs from qualified worker')
     for relative, sha in qualification['source_sha256'].items():
         require(digest(ROOT/relative)==sha, 'Tested input changed: '+relative)
     cache = (build/'CMakeCache.txt').read_text()
@@ -136,9 +155,7 @@ def package(args):
         depends+=', qt6-qpa-plugins (>= 6.10.2), pipewire (>= 1.6.2), libpipewire-0.3-0t64 (>= 1.6.2)'
         control=stage/'DEBIAN';control.mkdir()
         (control/'control').write_text(f'Package: soundcurrent-daw\nVersion: {version}\nArchitecture: {arch}\nMaintainer: {maintainer}\nSection: sound\nPriority: optional\nDepends: {depends}\nHomepage: https://github.com/rhamenator/soundcurrent-daw\nDescription: SoundCurrent DAW recording workflow preview\n Early GPL recording, in-process EQ, project and WAV-export preview.\n Tested Ubuntu 26.04 amd64 only; full DAW parity and sustained hardware\n recording qualification remain unfinished.\n')
-        for p in stage.rglob('*'):
-            if p.is_file():p.chmod(0o755 if p==stage/'usr/bin/soundcurrent-daw' else 0o644)
-            elif p.is_dir():p.chmod(0o755)
+        normalize_staged_permissions(stage)
         run(['desktop-file-validate',stage/'usr/share/applications/soundcurrent-daw.desktop'])
         deb=output/f'soundcurrent-daw_{version}_{arch}.deb'
         run(['dpkg-deb','--root-owner-group','--build',stage,deb])
@@ -149,6 +166,8 @@ def package(args):
         require(digest(installed_binary)==digest(stage/'usr/bin/soundcurrent-daw'),'Extracted executable changed')
         for p in stage.rglob('*'):
             if p.is_file() and 'DEBIAN' not in p.relative_to(stage).parts:
+                relative=p.relative_to(stage).as_posix()
+                verify_payload_mode(extracted/p.relative_to(stage),relative)
                 require(digest(p)==digest(extracted/p.relative_to(stage)),'Extracted payload changed')
         probe_env=dict(os.environ,QT_QPA_PLATFORM='offscreen',XDG_CONFIG_HOME=str(output/'probe-preferences'))
         run([installed_binary,'--version'],env=probe_env)

@@ -1,0 +1,22 @@
+{
+  "format": "sc-inspection-helper-permissions-v1",
+  "sourceBase": "ecc08fef2b352bd3443b93765deb2e83e5b7bd2b",
+  "reviewThread": "PRRT_kwDOU-rChc6qmS8M",
+  "change": "Normalize both installed binaries to 0755 and verify staged/extracted modes; all data files stay 0644.",
+  "command": [
+    "python3",
+    "tests/preview_package_tests.py"
+  ],
+  "actualExit": 0,
+  "seconds": 0.268,
+  "observedResult": [
+    "PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.",
+    "PASS: both executable modes; mode-only refusals; extracted DEB modes; data stays 0644."
+  ],
+  "testLogSha256": "6a7f0d76006b0850ebccb70cad2d4c993d5b6486585c8f4fd96d749139a617c6",
+  "sourceSha256": {
+    "tools/package_linux_preview.py": "c73cc4c39ee55edbce3a8c84c97141f1cbb6c9d2c994235cd69c7a520389dc52",
+    "tests/preview_package_tests.py": "cd3edb5ce454795843f3da1e837a7abf2dd9b631626b7d204a873cac595ebc06"
+  },
+  "scope": "Independent owned fake payload fixture: file modes, source-byte refusals and actual DEB build/extraction. No real app/worker executable launch, full installation, VM or native audio qualification."
+}

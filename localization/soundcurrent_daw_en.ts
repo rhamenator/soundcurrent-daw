@@ -575,6 +575,120 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     </message>
   </context>
   <context>
+    <name>ImportInspectionDialog</name>
+    <message>
+      <source>Choose a REAPER project</source>
+      <translation>Choose a REAPER project</translation>
+    </message>
+    <message>
+      <source>REAPER projects (*.rpp)</source>
+      <translation>REAPER projects (*.rpp)</translation>
+    </message>
+    <message>
+      <source>Inspect foreign project</source>
+      <translation>Inspect foreign project</translation>
+    </message>
+    <message>
+      <source>Choose project…</source>
+      <translation>Choose project…</translation>
+    </message>
+    <message>
+      <source>Cancel inspection</source>
+      <translation>Cancel inspection</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Close</translation>
+    </message>
+    <message>
+      <source>REAPER project inspection preview. Conversion is not available yet. The original file and current project remain unchanged.</source>
+      <translation>REAPER project inspection preview. Conversion is not available yet. The original file and current project remain unchanged.</translation>
+    </message>
+    <message>
+      <source>Stopping inspection…</source>
+      <translation>Stopping inspection…</translation>
+    </message>
+    <message>
+      <source>Inspecting project…</source>
+      <translation>Inspecting project…</translation>
+    </message>
+    <message numerus="yes">
+      <source>%n source line(s) inspected. Project properties are unverified.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspection canceled.</source>
+      <translation>Inspection canceled.</translation>
+    </message>
+    <message>
+      <source>Inspection exceeded its time limit.</source>
+      <translation>Inspection exceeded its time limit.</translation>
+    </message>
+    <message>
+      <source>There is not enough import memory, or the file exceeds the inspection limits.</source>
+      <translation>There is not enough import memory, or the file exceeds the inspection limits.</translation>
+    </message>
+    <message>
+      <source>This project uses invalid or unsupported syntax for this inspector.</source>
+      <translation>This project uses invalid or unsupported syntax for this inspector.</translation>
+    </message>
+    <message>
+      <source>The selected project or inspection worker could not be read.</source>
+      <translation>The selected project or inspection worker could not be read.</translation>
+    </message>
+    <message>
+      <source>The inspection failed or its result could not be verified.</source>
+      <translation>The inspection failed or its result could not be verified.</translation>
+    </message>
+    <message>
+      <source>Choose a project to inspect.</source>
+      <translation>Choose a project to inspect.</translation>
+    </message>
+  </context>
+  <context>
+    <name>ImportPreviewModel</name>
+    <message>
+      <source>Original file bytes: %1 + %2</source>
+      <translation>Original file bytes: %1 + %2</translation>
+    </message>
+    <message>
+      <source>Blank line</source>
+      <translation>Blank line</translation>
+    </message>
+    <message>
+      <source>Group</source>
+      <translation>Group</translation>
+    </message>
+    <message>
+      <source>End of group</source>
+      <translation>End of group</translation>
+    </message>
+    <message>
+      <source>Property</source>
+      <translation>Property</translation>
+    </message>
+    <message>
+      <source>Unverified</source>
+      <translation>Unverified</translation>
+    </message>
+    <message>
+      <source>Item</source>
+      <translation>Item</translation>
+    </message>
+    <message>
+      <source>Type</source>
+      <translation>Type</translation>
+    </message>
+    <message>
+      <source>Line</source>
+      <translation>Line</translation>
+    </message>
+    <message>
+      <source>Status</source>
+      <translation>Status</translation>
+    </message>
+  </context>
+  <context>
     <name>Localization</name>
     <message>
       <source>Language preferences could not be saved.</source>
@@ -1104,6 +1218,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>&amp;Save</source>
       <translation>&amp;Save</translation>
+    </message>
+    <message>
+      <source>Inspect foreign project…</source>
+      <translation>Inspect foreign project…</translation>
     </message>
     <message>
       <source>&amp;Export WAV…</source>

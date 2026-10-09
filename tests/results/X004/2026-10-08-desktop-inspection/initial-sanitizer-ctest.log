@@ -1,0 +1,89 @@
+Start testing: Oct 08 19:51 EDT
+----------------------------------------------------------
+2/78 Testing: desktop-import-controller
+2/78 Test: desktop-import-controller
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-controller-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-import-controller" start time: Oct 08 19:51 EDT
+Output:
+----------------------------------------------------------
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+Import controller checks=60; real child, synthetic project, native compatibility unqualified
+<end of output>
+Test time =   1.39 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-controller" end time: Oct 08 19:51 EDT
+"desktop-import-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+3/78 Testing: desktop-import-ui
+3/78 Test: desktop-import-ui
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-ui-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-import-ui" start time: Oct 08 19:51 EDT
+Output:
+----------------------------------------------------------
+qt.core.qobject.connect: QObject::connect(QItemSelectionModel, QHeaderView): signal not found
+qt.core.qobject.connect: QObject::connect(QItemSelectionModel, QHeaderView): signal not found
+qt.core.qobject.connect: QObject::disconnect: signal not found in QItemSelectionModel
+qt.core.qobject.connect: QObject::connect(QItemSelectionModel, QHeaderView): signal not found
+qt.core.qobject.connect: QObject::disconnect: signal not found in QItemSelectionModel
+qt.core.qobject.connect: QObject::connect(QItemSelectionModel, QHeaderView): signal not found
+qt.core.qobject.connect: QObject::connect(QItemSelectionModel, QTableView): signal not found
+qt.core.qobject.connect: QObject::connect(QPushButton, QDialog): signal not found
+qt.core.qobject.connect: QObject::connect(QPushButton, QDialog): signal not found
+qt.core.qobject.connect: QObject::connect(QPushButton, QDialog): signal not found
+qt.core.qobject.connect: QObject::connect(QTimer, QDialog): signal not found
+This plugin does not support propagateSizeHints()
+qt.core.qobject.connect: QObject::connect(QProcess, QProcess): signal not found
+qt.core.qobject.connect: QObject::disconnect: signal not found in QItemSelectionModel
+qt.core.qobject.connect: QObject::disconnect: signal not found in QItemSelectionModel
+qt.core.qobject.connect: QObject::disconnect: signal not found in QItemSelectionModel
+Export fixture timed out at line 29
+<end of output>
+Test time =  15.21 sec
+----------------------------------------------------------
+Test Failed.
+"desktop-import-ui" end time: Oct 08 19:51 EDT
+"desktop-import-ui" time elapsed: 00:00:15
+----------------------------------------------------------
+
+33/78 Testing: import-inspection-worker
+33/78 Test: import-inspection-worker
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/import_inspect_worker_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-import-inspect-worker"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"import-inspection-worker" start time: Oct 08 19:51 EDT
+Output:
+----------------------------------------------------------
+{"checks": 140, "processBoundary": true, "sourceUntouched": true, "nativeDAWCompatibilityQualified": false, "platform": "linux"}
+<end of output>
+Test time =   0.85 sec
+----------------------------------------------------------
+Test Passed.
+"import-inspection-worker" end time: Oct 08 19:51 EDT
+"import-inspection-worker" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 08 19:51 EDT

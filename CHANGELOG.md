@@ -8,6 +8,12 @@
 
 ## Unreleased — development preview
 
+- File menu REAPER project inspection preview with a separate worker, bounded
+  shared resource admission, strict source/hash/report validation and async
+  cancellation/close. Read-only outlines preserve the current project and source.
+  Native format conversion, hard sandboxing and Windows Qt qualification remain
+  pending; existing installers do not contain this revision.
+
 - Native capture now copies into prepared resource-admitted storage and releases
   the SDK packet before processing. Poisoned SDK reuse, strict error/metadata
   behavior and memory retirement are tested; native endpoint and installer

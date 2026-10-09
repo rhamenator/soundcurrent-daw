@@ -1,0 +1,37 @@
+{
+  "format": "sc-hosted-import-worker-v1",
+  "sourceCommit": "8d65af63ce6ecfa336fddeb1cb058459f4d912c6",
+  "runId": 37858771609,
+  "jobId": 113589388090,
+  "artifact": {
+    "id": 11585421210,
+    "node_id": "MDg6QXJ0aWZhY3QxMTU4NTQyMTIxMA==",
+    "name": "windows-native-packet-unit-log",
+    "size_in_bytes": 1438,
+    "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11585421210",
+    "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11585421210/zip",
+    "expired": false,
+    "digest": "sha256:fafe7a1439c4802871297f5a24d020d4f53c8b208174d728c9c8a12f699a12b5",
+    "created_at": "2026-10-08T23:23:44Z",
+    "updated_at": "2026-10-08T23:23:44Z",
+    "expires_at": "2027-01-06T23:19:19Z",
+    "workflow_run": {
+      "id": 37858771609,
+      "repository_id": 1407894149,
+      "head_repository_id": 1407894149,
+      "head_branch": "codex/import-inspection-worker",
+      "head_sha": "8d65af63ce6ecfa336fddeb1cb058459f4d912c6"
+    }
+  },
+  "artifactSha256": "fafe7a1439c4802871297f5a24d020d4f53c8b208174d728c9c8a12f699a12b5",
+  "compiler": "MSVC 19.51.36260.0",
+  "selectedTests": 10,
+  "configuredTests": 41,
+  "totalTestSeconds": 58.76,
+  "structuralChecks": 174,
+  "workerProcessChecks": 129,
+  "jobConclusion": "success",
+  "nativeEndpointActivated": false,
+  "localVMStarted": false,
+  "scope": "Actual hosted Windows worker processes on synthetic RPP data, plus selected unit/synthetic recording/export tests. Current Qt controller/dialog and semantic/native compatibility are outside this receipt."
+}

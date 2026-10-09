@@ -118,3 +118,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Reviewed localization and equipment-editor refresh](100-localization-reuse-refresh.md)
 - [Windows installer and source-pair preparation](101-windows-installer-preparation.md)
 - [Windows clean-installed workflow preview](102-windows-installed-workflow-preview.md)
+
+- [Desktop foreign-project inspection preview and retirement](115-desktop-import-inspection.md)

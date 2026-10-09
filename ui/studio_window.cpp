@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "import_inspection_dialog.hpp"
 #include "localization.hpp"
 #include "history_resources_dialog.hpp"
 #include "session_list_model.hpp"
@@ -140,6 +141,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     save_ = file->addAction(tr("&Save"), QKeySequence::Save, this,
                             [this] { submitEdit({CommandKind::Save}); });
     save_->setObjectName(QStringLiteral("saveAction"));
+    auto *inspectAction=file->addAction(tr("Inspect foreign project…"),this,&StudioWindow::showImportInspection);
+    inspectAction->setObjectName(QStringLiteral("inspectForeignProjectAction"));
     exportAction_ =
         file->addAction(tr("&Export WAV…"), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E), this,
                         [this] { requestExport(); });
@@ -2425,6 +2428,7 @@ void StudioWindow::reviewRecordings() {
 }
 
 void StudioWindow::shutdownWorkers() {
+    if (importDialog_) importDialog_->requestShutdown();
     manual_->requestShutdown();
     recoveryScanner_.requestShutdown();
     exporter_.requestShutdown();
@@ -2596,7 +2600,7 @@ void StudioWindow::poll() {
     pollExport();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed &&
-        manual_->snapshot()->closed && closing_) {
+        manual_->snapshot()->closed && (!importDialog_ || importDialog_->retired()) && closing_) {
         close();
         return;
     }
@@ -2737,7 +2741,7 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = inspectorSnapshot();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed &&
-        manual_->snapshot()->closed) {
+        manual_->snapshot()->closed && (!importDialog_ || importDialog_->retired())) {
         event->accept();
         return;
     }
@@ -2783,5 +2787,21 @@ void StudioWindow::confirmClose() {
     }
     closing_ = true;
     shutdownWorkers();
+}
+void StudioWindow::showImportInspection() {
+    if (closing_ || closeRequested_ || closeAfterSave_) return;
+    if (!importDialog_) {
+        InspectionOptions options; options.memory=controller_.resourceLedger();
+        importDialog_=new ImportInspectionDialog(this,std::move(options));
+        importDialog_->setAttribute(Qt::WA_DeleteOnClose);
+    }
+    importDialog_->show(); importDialog_->raise(); importDialog_->activateWindow();
+}
+bool StudioWindow::inspectForeignProject(const std::filesystem::path &path) {
+    if (closing_ || closeRequested_ || closeAfterSave_) return false;
+    showImportInspection(); return importDialog_ && importDialog_->inspect(path);
+}
+std::shared_ptr<const InspectionSnapshot> StudioWindow::importInspectionSnapshot() const {
+    return importDialog_ ? importDialog_->snapshot() : std::shared_ptr<const InspectionSnapshot>{};
 }
 } // namespace soundcurrent::daw::ui
