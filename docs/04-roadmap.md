@@ -703,3 +703,12 @@ without adopting a dependency or promoting parity. Next: a resource-admitted,
 source-anchored stretch worker contract covering exact integer duration, derived
 cache lifecycle, cancellation/refusal, seek/split/crop consistency and shared
 live/export reads.384k processing, native Windows and full quality remain gates.
+
+## M2 isolated independent stretch worker
+
+[Checkpoint134](134-isolated-stretch-worker.md): actual floating RF64 render jobs,
+independent pitch/time, exact duration, OS memory/deadline containment, ready/start
+handshake, cancellation and completion markers. Completed artifacts pass shared
+live/export, seek/split/crop and Save/reopen tests. Next implement versioned editable
+source-span anchors and an aggregate-admitted supervised launcher before desktop
+controls. Full quality, higher rates, native Windows/installed and parity stay open.

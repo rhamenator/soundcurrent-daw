@@ -3568,3 +3568,8 @@ Current qualification is recorded separately. Full F/Q/C/N, independent pitch/
 stretch, tempo/rate automation, foreign conversion and installed/platform/European
 work remain required. No local VM or large installer archive is started during
 backup contention. Next: pin and qualify independent pitch/stretch preparation.
+
+2026-10-09: PR76's exact source1428389 qualified Linux102/Windows core36/Qt10
+and merged as1232106 with identical tree. Checkpoint134 adds the independent
+stretch CLI worker and55 owned-WAV/992 shared-reader checks; application editing
+state/supervision and native qualification remain gates. No F/Q/C/N completion.

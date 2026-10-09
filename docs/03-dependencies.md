@@ -341,3 +341,12 @@ passes without native execution. Exact source, commands, binary and raw results
 are retained. The candidate remains unadopted: documented192k ceiling versus
 DAW384k, duration rounding, stateful seek/split/crop, workspace admission, spatial
 layouts and reference quality require explicit decisions and acceptance.
+
+## Isolated stretch worker adoption
+
+Rubber Band4.0.0's unchanged63-file GPL-2.0-or-later subset is selected for the
+isolated R3 offline worker only, with builtin FFT/BQ and no internal threading.
+[ADR099](decisions/099-isolated-stretch-rendering.md) and checkpoint134 record
+resource containment, exact duration and actual owned-WAV/shared-reader evidence.
+No optional FFT/codec/runtime is introduced. Full quality,192k+ adaptation,
+application launcher/state, native Windows and installed packaging remain gates.

@@ -536,5 +536,342 @@
       ],
       "processingOwner": "Serialized disk/read-ahead worker; callback only consumes prepared slabs"
     }
+  },
+  "rubberband": {
+    "version": "4.0.0",
+    "tagCommit": "1d95888bec3ae0a17c0c4af791810d5a63f6bc35",
+    "archive": {
+      "url": "https://breakfastquay.com/files/releases/rubberband-4.0.0.tar.bz2",
+      "sha256": "af050313ee63bc18b35b2e064e5dce05b276aaf6d1aa2b8a82ced1fe2f8028e9"
+    },
+    "license": "GPL-2.0-or-later",
+    "scope": "Single compilation unit and actual62 Linux/Windows inputs plus COPYING; worker process only",
+    "files": {
+      "COPYING": {
+        "sha256": "cedd4c1885d75991bf1077cc6e33359103cf04fbc996f20d30ab043d5fc5fcc5",
+        "bytes": 30260,
+        "license": "GPL-2.0-or-later"
+      },
+      "rubberband/RubberBandLiveShifter.h": {
+        "sha256": "59bbc6f89327beb984558cb0395b4317a3da2af4845937d0e0c8f559aee25fc1",
+        "bytes": 13213,
+        "license": "GPL-2.0-or-later"
+      },
+      "rubberband/RubberBandStretcher.h": {
+        "sha256": "deaf2147bd57a72aeec876f8dd76a6e282282d8dd1f52d8aa01f93fa70b5ed44",
+        "bytes": 48566,
+        "license": "GPL-2.0-or-later"
+      },
+      "rubberband/rubberband-c.h": {
+        "sha256": "ccdb6fbad995ae924219ea89598b2dafbcea2e4fb4bb5e211b3dde589f7b9453",
+        "bytes": 8249,
+        "license": "GPL-2.0-or-later"
+      },
+      "single/RubberBandSingle.cpp": {
+        "sha256": "991566737e449c3cc0f7b3bf7d7c21dc2b9fc52ea7479fa4165145d220b9a2fb",
+        "bytes": 3227,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/RubberBandLiveShifter.cpp": {
+        "sha256": "c607803905682d95f6109ab2e2935a2a42e947cb3dbce88f7d02dbdc003e28d4",
+        "bytes": 6192,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/RubberBandStretcher.cpp": {
+        "sha256": "1579a21a2e7287b332c6551c6dc80bc1ec6fcd67c5bb8bc1799fe3453adea4e0",
+        "bytes": 13329,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Allocators.cpp": {
+        "sha256": "980c132bdd47a094de06778846025670ae5cde5889132347d5ec8d05a44a0bf6",
+        "bytes": 1607,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Allocators.h": {
+        "sha256": "633db49f3055fc3390ac855dd71ecf05550a6b7d29e689b8d08fbbfbabdda35d",
+        "bytes": 10207,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/BQResampler.cpp": {
+        "sha256": "50a49325106e4089da964c206ff8dc287f0ad5837465db9571f87c76308a01df",
+        "bytes": 20180,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/BQResampler.h": {
+        "sha256": "73482771ec0411c47ebb1d691fc46661b60abe98a58723d41e4e90ab29b3d1b3",
+        "bytes": 5173,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/FFT.cpp": {
+        "sha256": "7eedf926879554d8b5b5d615a1af1a48ab155787ab71097361ad23d2abf69c14",
+        "bytes": 100296,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/FFT.h": {
+        "sha256": "aeeeb173fd6bd2372676bb30da6f009bf0c7b4b65f20086b4f5a910d31f556da",
+        "bytes": 4976,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/FixedVector.h": {
+        "sha256": "2ff73e424a54dd62fcb0e938195d68232e2d34e5cde8b61a1c4c63f3404f2a9b",
+        "bytes": 1484,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/HistogramFilter.h": {
+        "sha256": "6fbc9cca9513b9890509d70d832d5968afd00b3eec3d13c0759be2b95f49f940",
+        "bytes": 5707,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Log.cpp": {
+        "sha256": "f0a540f6261a22906b547756028a4fa7bf30f0e1eab11efb7eac46152b65b0b8",
+        "bytes": 1061,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Log.h": {
+        "sha256": "c9369df32bca91436de21c8fded5b6d56f8b43006395b2a242b14b1c356e31ad",
+        "bytes": 2402,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/MovingMedian.h": {
+        "sha256": "335632d24b3854572e6126efb0414e8eb6834f55e1d1a6aeccdc45742b866d68",
+        "bytes": 7239,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Profiler.cpp": {
+        "sha256": "4bc2ae615459e26d763ae401e86cc9f2ae16f9602ae4e40babc3f8543a7b6822",
+        "bytes": 5889,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Profiler.h": {
+        "sha256": "9772d1196a787e64f5325b31b656d55df6fb8f15f913cb406aaccc5a9a3a3d75",
+        "bytes": 2834,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Resampler.cpp": {
+        "sha256": "2c6fa571d8f2378f44e84f40f38233f5d59c77451976172004adaec372878efe",
+        "bytes": 39750,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Resampler.h": {
+        "sha256": "1914843c85f8e01096eb968103a4f9d38040ac9d56bfe5fec975543899b82d93",
+        "bytes": 6269,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/RingBuffer.h": {
+        "sha256": "288997402d3bfc7af8792fac2f0cc7559735eea330a17c54d96ab1dbfd3d02d8",
+        "bytes": 12776,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/SampleFilter.h": {
+        "sha256": "eacf3bd3e0c38c26dd0c423d66ee3453f3b69dfba3aef8d8748f409647064dac",
+        "bytes": 1323,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Scavenger.h": {
+        "sha256": "574392a75ffa484e92ce0e0b18de15556921032e99e04dacee39cac58fdd1892",
+        "bytes": 5900,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/SingleThreadRingBuffer.h": {
+        "sha256": "72ce61dcc75240c78c23725c06aaaceb022af61c7546c189fd92076b673e24fa",
+        "bytes": 4392,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/StretchCalculator.cpp": {
+        "sha256": "12d328d5e80d383b0f5352be49d75cda3492d85b5f4600d9b88cd9fc3f342e34",
+        "bytes": 27166,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/StretchCalculator.h": {
+        "sha256": "4b6d87cb277fafadf453fb1141ef02c388c5bf4cf57c8af45c6c2edfa017bd4c",
+        "bytes": 4121,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Thread.cpp": {
+        "sha256": "822e053f6a8a279929a70c4c12b2d63ac89c8ef687e9a43888b85059f3129f2f",
+        "bytes": 14912,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Thread.h": {
+        "sha256": "38bbd4c252e6b036444e36700cd2a59738b28af38bbe05f10ff45977b10ffeb5",
+        "bytes": 4248,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/VectorOps.h": {
+        "sha256": "9acec29d83112ea53deb65d8605867419b800e35d1f7c4da83d1e4cc7403f2c2",
+        "bytes": 21760,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/VectorOpsComplex.h": {
+        "sha256": "560ba0ad55538f69ca46523a7505f2d60d30c09d44b96d1876636a827576d538",
+        "bytes": 10172,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/Window.h": {
+        "sha256": "d25765e59b53c588e3b61d5b9e0c2755ec7252abf95d8b3dd6374798085b0204",
+        "bytes": 7584,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/mathmisc.cpp": {
+        "sha256": "3621e3a820cd44452f11a39fd4ac58324a61239356f3a5e3cc25d9de6fcdd5fc",
+        "bytes": 2499,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/mathmisc.h": {
+        "sha256": "d116b8cb49f0e69872c20f9307ca5785ba82878ff482f5ef12ba1d98c542581f",
+        "bytes": 1962,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/sysutils.cpp": {
+        "sha256": "8bfc4cc42e595507e62134987b7489d75675357f9a9b6c6d651e325f980be9f8",
+        "bytes": 3591,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/common/sysutils.h": {
+        "sha256": "f7f26a93aaa2b715dcb7a475b88dac5a97d0346c3f405ca517641117c02c3cc1",
+        "bytes": 2966,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/AudioCurveCalculator.cpp": {
+        "sha256": "4df7e93f79b2c0becc5708d4c72d4aa27632f96952d6aa078176c57e1a130ed6",
+        "bytes": 1892,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/AudioCurveCalculator.h": {
+        "sha256": "4927d8a8fdcadd8e0226218176178f7e63aeb6805b91ff35e7e699e6fa0a1045",
+        "bytes": 4465,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/CompoundAudioCurve.cpp": {
+        "sha256": "998cef4bdc80ca9f1fd7d1eb0298d42a26d95973a793e71e571167abdeb98a81",
+        "bytes": 3995,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/CompoundAudioCurve.h": {
+        "sha256": "14069bfc808909c4b1ff88c059df3a1c6dc666f07ab78480b856e4b7ab88247f",
+        "bytes": 2054,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/HighFrequencyAudioCurve.cpp": {
+        "sha256": "7e8c9f766b2391dca580bb29b4e44de7a930fb579a9e322b270d96cd3f540eac",
+        "bytes": 1754,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/HighFrequencyAudioCurve.h": {
+        "sha256": "baa886f737bd354f1d5183762939087e4bf72671e1a500de8aaa8137f4d804f1",
+        "bytes": 1540,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/PercussiveAudioCurve.cpp": {
+        "sha256": "729d3cdb7ed0ba77ab3a1d76ae349e34f6904043efba7f15e682fb0199426f97",
+        "bytes": 3104,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/PercussiveAudioCurve.h": {
+        "sha256": "774d16e564efd20313d7db07f0fdaef2944a96d487727e32ac4f2c6d408d0131",
+        "bytes": 1614,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/R2Stretcher.cpp": {
+        "sha256": "bf07ca4d5be2c568f8f302662b4eca0334dba6c22b65aa26a7395815c0852314",
+        "bytes": 43152,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/R2Stretcher.h": {
+        "sha256": "8a24136115a16b9df54c382ff6e9cccb4b86d5ea38f0ec0d2d1843e353b0be78",
+        "bytes": 8127,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/SilentAudioCurve.cpp": {
+        "sha256": "56b6d93f493537c7b35eec4fdac34f6c3e991f55fb1f8ff6287a65364ece07b5",
+        "bytes": 1773,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/SilentAudioCurve.h": {
+        "sha256": "25585b865585d16665e21840a1adf9aead3e4ed0dde7c43d74cccc98c39a5948",
+        "bytes": 1504,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/SincWindow.h": {
+        "sha256": "049139e6d52ab445d32a2108c8c57fc71243adff172d56a01c06dc9c8895b0e7",
+        "bytes": 4477,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/StretcherChannelData.cpp": {
+        "sha256": "d18abaa9025f2c891a5e8a88cbd8649dd5e5a0d348be4a2562854103f795546b",
+        "bytes": 8388,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/StretcherChannelData.h": {
+        "sha256": "0025fa970246c6cc0d56190b958438806ad6b069e608ea6ff2e11e8056d6f377",
+        "bytes": 4611,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/faster/StretcherProcess.cpp": {
+        "sha256": "1684af34ac58e4143a0bcf02212a8176c0b19a58eca6673c5e6a1efbd6395a29",
+        "bytes": 41181,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/BinClassifier.h": {
+        "sha256": "ac46eee51c70c57288b3506a6f88b6bfaaf39a8455d5e1031cd6ac8465afeede",
+        "bytes": 5252,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/BinSegmenter.h": {
+        "sha256": "bb61787c361736d8c2d4f3c7832387c92d743fd50b2686190463889a36cb44d8",
+        "bytes": 4894,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/Guide.h": {
+        "sha256": "fdcda0ec555c97c59c17dc730f4b4e72d747218ed2a11d115547390be1e44f58",
+        "bytes": 21714,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/Peak.h": {
+        "sha256": "01c69c30068b8b57dcf169ae428bfcad6090f939a9be48378c30599b8d1601b0",
+        "bytes": 4409,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/PhaseAdvance.h": {
+        "sha256": "ee9c164d50cba827160480ff6eb2fa2d6c2dce30b7615e753a10e077b4032f73",
+        "bytes": 10577,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/R3LiveShifter.cpp": {
+        "sha256": "d6f28fdb9542d6a509cdde9e9859831ece1426cd489e4f788431fa133fe5172f",
+        "bytes": 41795,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/R3LiveShifter.h": {
+        "sha256": "90f6320171d395523eb10e05dcd94643d0f7645cc8d492d0f0a8e2e278d86958",
+        "bytes": 14989,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/R3Stretcher.cpp": {
+        "sha256": "99bae620129131cf0a74e85ad6ceaa5310a4b93cd98d2568a1d3a0e09c0efe4c",
+        "bytes": 57579,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/finer/R3Stretcher.h": {
+        "sha256": "54b11cba18bfebb4c179931aab2f3c770947279c16f8d3e15c8f7dfbd963f4b9",
+        "bytes": 18646,
+        "license": "GPL-2.0-or-later"
+      },
+      "src/rubberband-c.cpp": {
+        "sha256": "c39855cc3600f15b460e1255c919445f7db3c9f11969d30bedde1cb021f55488",
+        "bytes": 7646,
+        "license": "GPL-2.0-or-later"
+      }
+    },
+    "patches": [],
+    "build": {
+      "builtinFFT": true,
+      "BQResampler": true,
+      "threading": false,
+      "timing": false,
+      "R3Offline": true,
+      "noFastMath": true
+    },
+    "qualification": "Candidate selected for isolated worker; reference quality, higher-rate route, application integration and packaging/native gates remain open"
   }
 }
