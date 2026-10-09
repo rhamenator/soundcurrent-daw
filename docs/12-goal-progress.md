@@ -3330,3 +3330,19 @@ that failure. The UI summary now excludes missing/invalid unavailable entries,
 caches the count on report change, and passes90 Release and90 ASan/UBSan checks.
 Corrected protected hosted checks remain pending; Windows Qt/install/native
 conversion and all full-parity axes remain incomplete. No local VM started.
+
+## Corrected import boundary/native desktop gate (2026-10-09)
+
+Previous goal turn was progress: PR63 implements and publishes the property UI,
+independent validation, persistence and review/platform corrections. It merged at
+3a02b57 after exact387022d passes78 Linux tests,15 selected native MSVC tests and
+the cross-build. Windows passes569 property-protocol and890 original-model checks;
+original UTF-8 and unknown recording-refusal failures remain retained. New source
+conversion/render compatibility and Windows Qt/install still remain separate.
+
+[Checkpoint121](121-windows-import-ui-gate.md) adds a separate native MSVC/Qt
+hosted job for the new import and localization desktop workflows using the
+existing hash-reviewed SDK. This avoids a long local VM session; actual native
+execution/protection promotion is pending. No product runtime dependency or
+installer changes; full frozen parity and European language qualification remain
+active/incomplete. Next: actual hosted UI evidence, media approval and conversion.

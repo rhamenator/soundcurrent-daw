@@ -148,3 +148,53 @@ jobs:
           name: windows-native-packet-unit-log
           path: build-native/Testing/Temporary/*.log
           if-no-files-found: ignore
+  windows-desktop-import-tests:
+    name: Windows desktop import and localization tests
+    runs-on: windows-2025
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Prepare the reviewed QtBase test SDK
+        shell: pwsh
+        run: ./.github/scripts/prepare-windows-desktop.ps1
+      - name: Prepare hash-pinned media dependency
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory native-dependencies | Out-Null
+          Invoke-WebRequest -Uri "https://codeload.github.com/libsndfile/libsndfile/tar.gz/refs/tags/1.2.2" -OutFile native-dependencies/libsndfile-1.2.2.tar.gz
+          if ((Get-FileHash native-dependencies/libsndfile-1.2.2.tar.gz).Hash.ToLowerInvariant() -ne "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121") { throw "libsndfile source differs from qualified dependency" }
+          tar -xzf native-dependencies/libsndfile-1.2.2.tar.gz -C native-dependencies
+          if ($LASTEXITCODE -ne 0) { throw "libsndfile extraction failed" }
+      - name: Build and test native desktop workflows without audio endpoints
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "SC_DESKTOP_VS_PATH=%%i"
+          if not defined SC_DESKTOP_VS_PATH exit /b 1
+          call "%SC_DESKTOP_VS_PATH%\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
+          if errorlevel 1 exit /b 1
+          cmake -S native-dependencies/libsndfile-1.2.2 -B native-dependencies/sndfile-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DBUILD_SHARED_LIBS=ON -DENABLE_EXTERNAL_LIBS=OFF -DENABLE_MPEG=OFF -DBUILD_PROGRAMS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DBUILD_REGTEST=OFF -DENABLE_EXPERIMENTAL=OFF -DINSTALL_PKGCONFIG_MODULE=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          if errorlevel 1 exit /b 1
+          cmake --build native-dependencies/sndfile-build --parallel 2 --target sndfile
+          if errorlevel 1 exit /b 1
+          cmake -S . -B build-desktop-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=ON -DSC_BUILD_DESKTOP=ON "-DCMAKE_PREFIX_PATH=%CD%/native-ui-dependencies/qt" "-DSNDFILE_LIBRARY=%CD%/native-dependencies/sndfile-build/sndfile.lib"
+          if errorlevel 1 exit /b 1
+          cmake --build build-desktop-native --parallel 2 --target soundcurrent-daw sc-import-ui-tests sc-import-controller-tests sc-localization-tests
+          if errorlevel 1 exit /b 1
+          set "PATH=%CD%\native-ui-dependencies\qt\bin;%CD%\native-dependencies\sndfile-build;%PATH%"
+          set "QT_PLUGIN_PATH=%CD%\native-ui-dependencies\qt\plugins"
+          ctest --test-dir build-desktop-native -R "^(desktop-import-controller|desktop-import-ui|desktop-localization)$" --output-on-failure --no-tests=error -V
+          if errorlevel 1 exit /b 1
+      - name: Retain native desktop evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-desktop-import-test-log
+          path: |
+            build-desktop-native/Testing/Temporary/*.log
+            native-ui-dependencies/verified-runtime.json
+          if-no-files-found: ignore
