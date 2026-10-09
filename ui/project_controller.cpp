@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include <soundcurrent/stretch_render_protocol.hpp>
 #include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
@@ -431,9 +432,19 @@ struct ProjectController::State : QThread {
             requireModel();
             if (view.io == IoOperation::Create || view.io == IoOperation::Open)
                 throw ProjectError(ErrorCode::InvalidState, "Project replacement is in progress");
+            if(command.structuralGuard){const auto &g=*command.structuralGuard;
+                if(g.projectEpoch!=view.projectEpoch || g.project!=model->id || g.root!=view.root)
+                    throw ProjectError(ErrorCode::InvalidState,"Background edit belongs to a replaced project");
+            }
+            if(command.stretchResult && (!command.structuralGuard || !command.edits.empty() || !command.stretchResult->ownedBy(memory)))
+                throw ProjectError(ErrorCode::InvalidState,"Unbound or unadmitted stretch result");
+            if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<ApplyClipStretch>(e);}))
+                throw ProjectError(ErrorCode::InvalidState,"Desktop stretch adoption requires a verified result");
             OperationWork work(*this, stagingBytes());
             auto proposed = *model;
-            applySessionEdits(proposed, command.edits,
+            std::vector<SessionEdit> verified;
+            if(command.stretchResult)verified.push_back(command.stretchResult->edit());
+            applySessionEdits(proposed, command.stretchResult?verified:command.edits,
                               admission.state); // Reject before committing a gesture.
             if (proposed != *model &&
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())
@@ -446,6 +457,7 @@ struct ProjectController::State : QThread {
                 revised();
             view.session = std::move(publication);
             history->acceptPreflight(preflightPeak);
+            if(command.structuralRequest)view.structuralCompleted={command.structuralRequest,{}, {}};
             break;
         }
         case CommandKind::CancelGesture:
@@ -606,6 +618,7 @@ struct ProjectController::State : QThread {
                 view.attachedRecordings = 0;
                 view.attachmentCompleted = {};
                 view.attachmentRejected = {};
+                view.structuralCompleted={};view.structuralRejected={};
                 view.lastAttachedAsset.reset();
                 view.lastAttachedAssets.clear();
                 view.root = std::move(result.job.root);
@@ -648,6 +661,8 @@ struct ProjectController::State : QThread {
                         break;
                     execute(*command);
                 } catch (const ProjectError &e) {
+                    if(command->kind==CommandKind::Structural && command->structuralRequest)
+                        view.structuralRejected={command->structuralRequest,e.code(),e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)
                         view.memoryCompleted = {command->memoryRequest, e.code(), e.what()};
                     if (command->kind == CommandKind::SnapshotLimits && command->snapshotRequest)
@@ -658,6 +673,8 @@ struct ProjectController::State : QThread {
                         view.attachmentRejected = {command->attachmentRequest, e.code(), e.what()};
                     error(e.code(), e.what());
                 } catch (const std::exception &e) {
+                    if(command->kind==CommandKind::Structural && command->structuralRequest)
+                        view.structuralRejected={command->structuralRequest,ErrorCode::InvalidState,e.what()};
                     if (command->kind == CommandKind::MemoryLimits && command->memoryRequest)
                         view.memoryCompleted = {command->memoryRequest, ErrorCode::InvalidState,
                                                 e.what()};

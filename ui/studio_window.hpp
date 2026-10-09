@@ -9,6 +9,7 @@
 #include "export_controller.hpp"
 #include "export_dialog.hpp"
 #include "import_inspection_controller.hpp"
+#include "stretch_controller.hpp"
 #include <QPointer>
 #include <QMainWindow>
 #include <QCoreApplication>
@@ -31,6 +32,7 @@ class QSpinBox;
 namespace soundcurrent::daw::ui {
 class SessionListModel;
 class ImportInspectionDialog;
+class StretchDialog;
 struct MemoryPreferences;
 class StudioWindow : public QMainWindow {
     Q_DECLARE_TR_FUNCTIONS(StudioWindow)
@@ -39,7 +41,11 @@ class StudioWindow : public QMainWindow {
                           RecordingControllerOptions = {}, ExportControllerOptions = {},
                           ManualControlOptions = {}, ControllerOptions = {},
                           std::function<void(HistoryBudget)> historyAccepted = {},
-                          std::function<void(MemoryPreferences)> memoryAccepted = {});
+                          std::function<void(MemoryPreferences)> memoryAccepted = {},
+                          StretchOptions stretchOptions = {});
+    bool requestClipStretch(const Id &, const Id &, StretchSettings);
+    bool applyClipStretch();
+    std::shared_ptr<const StretchSnapshot> stretchSnapshot() const;
     std::shared_ptr<const ManualControlSnapshot> manualRecordingSnapshot() const;
     void openProject(const std::filesystem::path &);
     bool submitEdit(ProjectCommand); // Shared entry for bindings/UI acceptance.
@@ -72,6 +78,14 @@ class StudioWindow : public QMainWindow {
 
   private:
     ProjectController controller_;
+    StretchController stretch_;
+    QPointer<StretchDialog> stretchDialog_;
+    QString stretchMessage_;
+    std::uint64_t stretchAdopting_ = 0;
+    bool stretchCanApply() const;
+    bool stretchCanRender() const;
+    void showClipStretch(const Id &, const Id &);
+    void pollStretch(const std::shared_ptr<const ControllerSnapshot> &);
     QPointer<ImportInspectionDialog> importDialog_;
     void showImportInspection();
     QPointer<QDialog> historyDialog_;

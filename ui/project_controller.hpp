@@ -6,6 +6,7 @@
 #include <memory>
 #include <optional>
 
+namespace soundcurrent::daw {class VerifiedClipStretch;}
 namespace soundcurrent::daw::ui {
 enum class CommandKind {
     Create,
@@ -24,6 +25,11 @@ enum class CommandKind {
     SnapshotLimits,
     MemoryLimits
 };
+struct StructuralGuard {
+    std::uint64_t projectEpoch;
+    Id project;
+    std::filesystem::path root;
+};
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
     CommandKind kind = CommandKind::Save;
@@ -34,6 +40,9 @@ struct ProjectCommand {
     std::shared_ptr<const std::vector<RecordingResult>>
         recordings; // Alternative atomic group, admitted against trusted receipt/state resources.
     std::vector<SessionEdit> edits; // One atomic group, at most 64 operations.
+    std::shared_ptr<const VerifiedClipStretch> stretchResult; // Retains admitted result credit through queue/adoption.
+    std::optional<StructuralGuard> structuralGuard;
+    std::uint64_t structuralRequest=0;
     std::optional<RouteAddress> routeAddress;
     RouteIntent route;
     std::optional<Id> monitoringTrack;
@@ -80,6 +89,7 @@ struct ControllerSnapshot {
     // Single serialized desktop attachment owner. Unrelated errors cannot
     // replace these separately retained IO and command-rejection receipts.
     AttachmentCompletion attachmentCompleted, attachmentRejected;
+    AttachmentCompletion structuralCompleted,structuralRejected;
     std::optional<ErrorCode> errorCode;
     std::string diagnostic;
     HistoryBudget historyBudget{};

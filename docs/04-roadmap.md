@@ -724,3 +724,13 @@ uncertain-completion inspection and asynchronous shutdown. Qualify those workflo
 on Linux and native Windows before refreshing installed previews. Very short span
 context/alignment, dynamic warp, segmented pitch and full processing quality remain
 required; none of the frozen acceptance or F/Q/C/N gates is reduced.
+
+## M2 supervised clip pitch/stretch
+
+[Checkpoint 136](136-stretch-supervision.md) adds one aggregate-admitted Qt render
+job, asynchronous cancellation/reaping, exact project-epoch/root/ID adoption and
+canonical verified-payload ownership. The selected-clip dialog has exact duration,
+independent pitch/formant controls and explicit render/review/apply. Local actual
+helper tests cover Undo, save/reopen/export and quitting during an active render.
+Native Windows qualification and exact preview helper deployment remain next.
+Full processing-quality and frozen-reference workflow scope remain required.

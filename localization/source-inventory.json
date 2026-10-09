@@ -30,18 +30,22 @@
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
     "ui/playback_controller.cpp": "1400ea40e34ee71c1ace0fc5b3e67df595be22c8612ea723f74dc2072a19440d",
     "ui/playback_controller.hpp": "55eb2c9d62a12cad72c2fe93fe4d6eb3d60a8a35d9bfe99fe26e49ded7382e4f",
-    "ui/project_controller.cpp": "08286812231a78a86cb4f4e99b50fc80c6d662fdb03d8c03aed310555b9df71d",
-    "ui/project_controller.hpp": "fcac0f627feccd35ba4d56c7f21ab02938e296d0306baf66d6095d9c4bc3a71f",
+    "ui/project_controller.cpp": "79b8d53afd052d49e4d43183d52424dbb85231fcac9e57dc03edb107eac93a85",
+    "ui/project_controller.hpp": "b0e26f24d5c4f934cfbf93165508c97d8c50861eb97851546ac907b67523c3bc",
     "ui/recording_controller.cpp": "1b352cf625fd226040e8e9ad7da661bbd28127350af2a26f851dcaff546dff6e",
     "ui/recording_controller.hpp": "59c6024d7f8caaf83a2070ce634f529013ab6a71c845c1a162e5c935ce23a147",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "755ba8c2d96caa02e275e62a30f53cada9c326252d84057c7257c686fe38a808",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/studio_window.cpp": "390c2e991adb3f0d29f57b14f3ff2ef859a86e59fa5906ab472a2b5ea022003e",
-    "ui/studio_window.hpp": "a25bac74864833b8e06177ea6f27103c76e4f48d07bd76828865863d01bec1ad",
-    "ui/timeline_editor.cpp": "6e485fc67ef334332423ff8ee49850b4c53240f0148e493756128422568b3b8c",
-    "ui/timeline_editor.hpp": "c66bfa79826fb6176398d68cc277d7397976382f748b93092d1dfd35d64306fb",
+    "ui/stretch_controller.cpp": "15f4bfa3caa9975d81a31d513f50124905e4ec4349ce8383132e22fc93021006",
+    "ui/stretch_controller.hpp": "cdf669084fe43c8121ad6f8b7be84376e4d8c21914c2f83d49b6891549698717",
+    "ui/stretch_dialog.cpp": "0738148fce09cce31ee3235e20d6a851135984ec6f10e38af9e4b01704844854",
+    "ui/stretch_dialog.hpp": "ab3b202dd961995942fca25620238fc9eef3de8c48dfef6f3fe523ef69b4d31e",
+    "ui/studio_window.cpp": "220fa9068ce2d1fddc712c74f6cac81767a13b4794aff358e4cc469f2c3a193f",
+    "ui/studio_window.hpp": "4444c6cb2c409a7ae4c2e088f8258d6dc8db7d889c89959344404a6f7554a914",
+    "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
+    "ui/timeline_editor.hpp": "a48e52f31f5064f49c126fdd01d12b56b53c68d3d3f73b786b24a3d98cba2081",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
@@ -2631,6 +2635,156 @@
       false
     ],
     [
+      "StretchDialog",
+      "Clip pitch and stretch",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Duration multiplier numerator",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Duration multiplier denominator",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Pitch (semitones)",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Preserve formants",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Render",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Apply verified result",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Cancel render",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Close",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Apply reviewed completed result",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Applying the verified result as one undoable edit…",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Choose settings, render, then apply the verified result.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Preparing the original audio and reserving render resources…",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Rendering pitch and duration in the background…",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Checking the completed audio before it can be applied…",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Render verified. Choose Apply to replace this clip as one undoable edit.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Canceled before rendering. No project edit was made.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Rendering could not start. Check the source, helper installation, settings, and available memory. No project edit was made.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "The renderer stopped without a verified completed result. Its owned job files were retained for inspection. No project edit was made.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "The duration multiplier must be between 0.25 and 4.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Verified result: duration %1/%2, pitch %3 semitones, formants %4.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "preserved",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "shifted",
+      "",
+      false
+    ],
+    [
       "StudioWindow",
       "SoundCurrent DAW",
       "",
@@ -3125,6 +3279,48 @@
     [
       "StudioWindow",
       "Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The render queue is unavailable. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Rendering could not start: %1. Check Project resources and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "This dialog belongs to a previous project opening. Close it and select a clip in the current project.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The current render belongs to a different clip. Finish or cancel that render before starting this one.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "A different clip has the retained render result. Rendering this clip replaces that pending preview; its owned files are retained.",
       "",
       false
     ],
@@ -4469,6 +4665,12 @@
     [
       "TimelineEditor",
       "Move to track",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Pitch and stretch…",
       "",
       false
     ],

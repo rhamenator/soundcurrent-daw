@@ -1774,6 +1774,109 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     </message>
   </context>
   <context>
+    <name>StretchDialog</name>
+    <message>
+      <source>Clip pitch and stretch</source>
+      <translation>Clip pitch and stretch</translation>
+    </message>
+    <message>
+      <source>Duration multiplier numerator</source>
+      <translation>Duration multiplier numerator</translation>
+    </message>
+    <message>
+      <source>Duration multiplier denominator</source>
+      <translation>Duration multiplier denominator</translation>
+    </message>
+    <message>
+      <source>Pitch (semitones)</source>
+      <translation>Pitch (semitones)</translation>
+    </message>
+    <message>
+      <source>Preserve formants</source>
+      <translation>Preserve formants</translation>
+    </message>
+    <message>
+      <source>This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.</source>
+      <translation>This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.</translation>
+    </message>
+    <message>
+      <source>Render</source>
+      <translation>Render</translation>
+    </message>
+    <message>
+      <source>Apply verified result</source>
+      <translation>Apply verified result</translation>
+    </message>
+    <message>
+      <source>Cancel render</source>
+      <translation>Cancel render</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Close</translation>
+    </message>
+    <message>
+      <source>Apply reviewed completed result</source>
+      <translation>Apply reviewed completed result</translation>
+    </message>
+    <message>
+      <source>Applying the verified result as one undoable edit…</source>
+      <translation>Applying the verified result as one undoable edit…</translation>
+    </message>
+    <message>
+      <source>Choose settings, render, then apply the verified result.</source>
+      <translation>Choose settings, render, then apply the verified result.</translation>
+    </message>
+    <message>
+      <source>Preparing the original audio and reserving render resources…</source>
+      <translation>Preparing the original audio and reserving render resources…</translation>
+    </message>
+    <message>
+      <source>Rendering pitch and duration in the background…</source>
+      <translation>Rendering pitch and duration in the background…</translation>
+    </message>
+    <message>
+      <source>Checking the completed audio before it can be applied…</source>
+      <translation>Checking the completed audio before it can be applied…</translation>
+    </message>
+    <message>
+      <source>A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.</source>
+      <translation>A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.</translation>
+    </message>
+    <message>
+      <source>Render verified. Choose Apply to replace this clip as one undoable edit.</source>
+      <translation>Render verified. Choose Apply to replace this clip as one undoable edit.</translation>
+    </message>
+    <message>
+      <source>Canceled before rendering. No project edit was made.</source>
+      <translation>Canceled before rendering. No project edit was made.</translation>
+    </message>
+    <message>
+      <source>Rendering could not start. Check the source, helper installation, settings, and available memory. No project edit was made.</source>
+      <translation>Rendering could not start. Check the source, helper installation, settings, and available memory. No project edit was made.</translation>
+    </message>
+    <message>
+      <source>The renderer stopped without a verified completed result. Its owned job files were retained for inspection. No project edit was made.</source>
+      <translation>The renderer stopped without a verified completed result. Its owned job files were retained for inspection. No project edit was made.</translation>
+    </message>
+    <message>
+      <source>The duration multiplier must be between 0.25 and 4.</source>
+      <translation>The duration multiplier must be between 0.25 and 4.</translation>
+    </message>
+    <message>
+      <source>Verified result: duration %1/%2, pitch %3 semitones, formants %4.</source>
+      <translation>Verified result: duration %1/%2, pitch %3 semitones, formants %4.</translation>
+    </message>
+    <message>
+      <source>preserved</source>
+      <translation>preserved</translation>
+    </message>
+    <message>
+      <source>shifted</source>
+      <translation>shifted</translation>
+    </message>
+  </context>
+  <context>
     <name>StudioWindow</name>
     <message>
       <source>SoundCurrent DAW</source>
@@ -2106,6 +2209,34 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</source>
       <translation>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</translation>
+    </message>
+    <message>
+      <source>The render queue is unavailable. Please retry.</source>
+      <translation>The render queue is unavailable. Please retry.</translation>
+    </message>
+    <message>
+      <source>Rendering could not start: %1. Check Project resources and retry.</source>
+      <translation>Rendering could not start: %1. Check Project resources and retry.</translation>
+    </message>
+    <message>
+      <source>The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.</source>
+      <translation>The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.</translation>
+    </message>
+    <message>
+      <source>Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.</source>
+      <translation>Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.</translation>
+    </message>
+    <message>
+      <source>This dialog belongs to a previous project opening. Close it and select a clip in the current project.</source>
+      <translation>This dialog belongs to a previous project opening. Close it and select a clip in the current project.</translation>
+    </message>
+    <message>
+      <source>The current render belongs to a different clip. Finish or cancel that render before starting this one.</source>
+      <translation>The current render belongs to a different clip. Finish or cancel that render before starting this one.</translation>
+    </message>
+    <message>
+      <source>A different clip has the retained render result. Rendering this clip replaces that pending preview; its owned files are retained.</source>
+      <translation>A different clip has the retained render result. Rendering this clip replaces that pending preview; its owned files are retained.</translation>
     </message>
     <message>
       <source>An export is already running or closing. Please retry.</source>
@@ -3024,6 +3155,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Move to track</source>
       <translation>Move to track</translation>
+    </message>
+    <message>
+      <source>Pitch and stretch…</source>
+      <translation>Pitch and stretch…</translation>
     </message>
     <message>
       <source>Clip gain and fades</source>

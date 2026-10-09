@@ -33,6 +33,7 @@ class VerifiedClipStretch {
     VerifiedClipStretch(VerifiedClipStretch &&) noexcept=default;
     const ApplyClipStretch &edit() const noexcept {return edit_;}
     double peak() const noexcept {return peak_;}
+    bool ownedBy(ResourceLedger ledger) const noexcept {return ledger.owns(lease_);}
  private:
     friend VerifiedClipStretch verifyOwnedClipStretch(const std::filesystem::path &,const ClipStretchPlan &,const Id &,const StretchRenderPolicy &,ResourceLedger,std::stop_token);
     VerifiedClipStretch(ResourceLease lease,ApplyClipStretch edit,double peak):lease_(std::move(lease)),edit_(std::move(edit)),peak_(peak) {}

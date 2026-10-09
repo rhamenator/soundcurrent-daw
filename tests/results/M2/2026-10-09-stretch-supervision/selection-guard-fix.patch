@@ -1,0 +1,16 @@
+--- a/ui/studio_window.cpp
++++ b/ui/studio_window.cpp
+@@ -786,7 +786,12 @@
+     dialog->render=[this,track,clip,epoch](StretchSettings settings){
+         return controller_.snapshot()->projectEpoch==epoch && requestClipStretch(track,clip,settings);
+     };
+-    dialog->apply=[this]{return applyClipStretch();};
++    dialog->apply=[this,track,clip,epoch]{
++        const auto current=stretch_.snapshot();
++        return current->selection && current->selection->track==track &&
++            current->selection->clip==clip && current->selection->project->projectEpoch==epoch &&
++            applyClipStretch();
++    };
+     dialog->cancel=[this]{stretch_.requestCancel();};dialog->refresh();dialog->show();
+ }
+ std::shared_ptr<const ExportSnapshot> StudioWindow::exportSnapshot() const {

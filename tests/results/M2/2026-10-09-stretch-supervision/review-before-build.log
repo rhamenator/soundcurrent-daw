@@ -1,0 +1,8 @@
+ninja: warning: premature end of file; recovering
+[1/7] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[2/7] Linking CXX static library libsc-ui-localization.a
+[3/7] Building CXX object CMakeFiles/sc-ui-stretch.dir/ui/stretch_dialog.cpp.o
+[4/7] Linking CXX static library libsc-ui-stretch.a
+[5/7] Building CXX object CMakeFiles/sc-stretch-ui-tests.dir/tests/stretch_ui_tests.cpp.o
+[6/7] Building CXX object CMakeFiles/sc-stretch-ui-tests.dir/ui/studio_window.cpp.o
+[7/7] Linking CXX executable sc-stretch-ui-tests

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include "stretch_dialog.hpp"
 #include "import_inspection_dialog.hpp"
 #include "localization.hpp"
 #include "history_resources_dialog.hpp"
@@ -116,8 +117,11 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            ExportControllerOptions exportOptions,
                            ManualControlOptions manualOptions, ControllerOptions projectOptions,
                            std::function<void(HistoryBudget)> historyAccepted,
-                           std::function<void(MemoryPreferences)> memoryAccepted)
-    : QMainWindow(parent), controller_(std::move(projectOptions)), playback_([&] {
+                           std::function<void(MemoryPreferences)> memoryAccepted,
+                           StretchOptions stretchOptions)
+    : QMainWindow(parent), controller_(std::move(projectOptions)), stretch_([&]{
+          stretchOptions.memory=controller_.resourceLedger();return std::move(stretchOptions);
+      }()), playback_([&] {
           options.projectMemory = controller_.resourceLedger();
           return std::move(options);
       }()),
@@ -256,6 +260,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     project_->setWordWrap(true);
     layout->addWidget(project_);
     timeline_ = new TimelineEditor(body, controller_.resourceLedger());
+    timeline_->pitchStretchRequested=[this](Id track,Id clip){showClipStretch(track,clip);};
     layout->addWidget(timeline_);
     timeline_->submit = [this](std::vector<SessionEdit> edits) {
         const auto phase = playback_.snapshot()->phase;
@@ -706,6 +711,95 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
 std::shared_ptr<const ControllerSnapshot> StudioWindow::snapshot() const {
     return controller_.snapshot();
 }
+std::shared_ptr<const StretchSnapshot> StudioWindow::stretchSnapshot() const {
+    return stretch_.snapshot();
+}
+bool StudioWindow::stretchCanRender() const {
+    const auto m=controller_.snapshot();const auto p=playback_.snapshot()->phase;
+    return m->session && m->io==IoOperation::None && !guiBlocked_ && !closing_ &&
+        !closeRequested_ && !closeAfterSave_ && !stretch_.snapshot()->busy && !stretchAdopting_ &&
+        !recordingBusy() && !attachingTake_ && !playbackPrepareBarrier_ && !recordPrepareBarrier_ &&
+        !manual_->busy() && (p==PlaybackPhase::Idle || p==PlaybackPhase::Fault || p==PlaybackPhase::Unsupported);
+}
+bool StudioWindow::stretchCanApply() const {
+    const auto s=stretch_.snapshot();const auto m=controller_.snapshot();
+    return stretchCanRender() && s->result && s->selection &&
+        s->selection->project->projectEpoch==m->projectEpoch &&
+        s->selection->project->root==m->root &&
+        s->selection->project->session->id==m->session->id;
+}
+bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSettings settings) {
+    if(!stretchCanRender())return false;
+    try {
+        if(!stretch_.clearResult())return false;
+        stretchMessage_.clear();
+        const auto admission=stretch_.render(controller_.snapshot(),track,clip,settings);
+        if(admission!=Admission::Accepted){stretchMessage_=tr("The render queue is unavailable. Please retry.");return false;}
+        return true;
+    } catch(const std::exception &error) {
+        stretchMessage_=tr("Rendering could not start: %1. Check Project resources and retry.")
+            .arg(QString::fromUtf8(error.what()));
+        return false;
+    }
+}
+bool StudioWindow::applyClipStretch() {
+    if(!stretchCanApply())return false;
+    const auto s=stretch_.snapshot();const auto &source=*s->selection->project;
+    ProjectCommand command{CommandKind::Structural};command.stretchResult=s->result;
+    command.structuralGuard=StructuralGuard{source.projectEpoch,source.session->id,source.root};
+    command.structuralRequest=nextGesture_++;const auto token=command.structuralRequest;
+    if(!submitEdit(std::move(command)))return false;
+    stretchAdopting_=token;stretchMessage_.clear();return true;
+}
+void StudioWindow::pollStretch(const std::shared_ptr<const ControllerSnapshot> &m) {
+    if(stretchAdopting_){
+        const auto *receipt=m->structuralCompleted.request==stretchAdopting_?&m->structuralCompleted:
+            m->structuralRejected.request==stretchAdopting_?&m->structuralRejected:nullptr;
+        if(receipt){
+            stretchMessage_=receipt->error?tr("The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained."):
+                tr("Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.");
+            stretchAdopting_=0;stretch_.clearResult();
+        }
+    }
+}
+void StudioWindow::showClipStretch(const Id &track,const Id &clip) {
+    if(closing_ || closeRequested_ || closeAfterSave_)return;
+    if(stretchDialog_){stretchDialog_->show();stretchDialog_->raise();stretchDialog_->activateWindow();return;}
+    const auto source=controller_.snapshot();if(!source->session)return;
+    const Clip *selected=nullptr;
+    for(const auto &t:source->session->tracks)if(t.id==track)
+        for(const auto &c:t.clips)if(c.id==clip)selected=&c;
+    if(!selected)return;
+    const auto active=stretch_.snapshot();
+    const bool owns=active->selection && active->selection->track==track && active->selection->clip==clip &&
+        active->selection->project->projectEpoch==source->projectEpoch;
+    auto *dialog=new StretchDialog(owns?active->selection->settings:selected->stretch?selected->stretch->settings:StretchSettings{},this);
+    stretchDialog_=dialog;
+    const auto epoch=source->projectEpoch;
+    dialog->read=[this,track,clip,epoch]{
+        StretchUiState view;view.render=stretch_.snapshot();view.adopting=bool(stretchAdopting_);
+        const bool sameProject=controller_.snapshot()->projectEpoch==epoch;
+        const bool sameSelection=view.render->selection && view.render->selection->track==track &&
+            view.render->selection->clip==clip && view.render->selection->project->projectEpoch==epoch;
+        view.canRender=sameProject && stretchCanRender();
+        view.canApply=sameSelection && stretchCanApply();view.message=stretchMessage_;
+        if(!sameProject)view.message=tr("This dialog belongs to a previous project opening. Close it and select a clip in the current project.");
+        else if(view.render->selection && !sameSelection)view.message=view.render->busy?
+            tr("The current render belongs to a different clip. Finish or cancel that render before starting this one."):
+            tr("A different clip has the retained render result. Rendering this clip replaces that pending preview; its owned files are retained.");
+        return view;
+    };
+    dialog->render=[this,track,clip,epoch](StretchSettings settings){
+        return controller_.snapshot()->projectEpoch==epoch && requestClipStretch(track,clip,settings);
+    };
+    dialog->apply=[this,track,clip,epoch]{
+        const auto current=stretch_.snapshot();
+        return current->selection && current->selection->track==track &&
+            current->selection->clip==clip && current->selection->project->projectEpoch==epoch &&
+            applyClipStretch();
+    };
+    dialog->cancel=[this]{stretch_.requestCancel();};dialog->refresh();dialog->show();
+}
 std::shared_ptr<const ExportSnapshot> StudioWindow::exportSnapshot() const {
     return exporter_.snapshot();
 }
@@ -867,6 +961,7 @@ void StudioWindow::pollExport() {
     exportState_->setText(status);
 }
 bool StudioWindow::submitEdit(ProjectCommand command) {
+    if(stretchAdopting_ && (command.kind==CommandKind::Open || command.kind==CommandKind::Create))return false;
     if (manual_ && manual_->busy() &&
         (command.kind == CommandKind::Structural || command.kind == CommandKind::Monitoring ||
          command.kind == CommandKind::Open || command.kind == CommandKind::Create)) {
@@ -2428,6 +2523,7 @@ void StudioWindow::reviewRecordings() {
 }
 
 void StudioWindow::shutdownWorkers() {
+    stretch_.requestShutdown();
     if (importDialog_) importDialog_->requestShutdown();
     manual_->requestShutdown();
     recoveryScanner_.requestShutdown();
@@ -2559,6 +2655,7 @@ void StudioWindow::poll() {
         return;
     QScopedValueRollback<bool> guard(polling_, true);
     const auto canonical = controller_.snapshot();
+    pollStretch(canonical);
     if (!closeRequested_)
         manual_->cancelClose();
     manual_->poll();
@@ -2599,7 +2696,7 @@ void StudioWindow::poll() {
     pollPlayback();
     pollExport();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed &&
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed &&
         manual_->snapshot()->closed && (!importDialog_ || importDialog_->retired()) && closing_) {
         close();
         return;
@@ -2716,6 +2813,7 @@ void StudioWindow::poll() {
     if (closeRequested_ && !closing_ && !closeAfterSave_ && !closePromptActive_ && !closeBarrier_ &&
         recording_.snapshot()->stopAcknowledged >= closeDrainToken_ &&
         !recording_.snapshot()->take && !attachingTake_ && !exporter_.snapshot()->busy &&
+        !stretch_.snapshot()->busy && !stretchAdopting_ &&
         view->io == IoOperation::None && manualCloseReady == 1) {
         ProjectCommand barrier{CommandKind::Barrier};
         barrier.barrier = nextGesture_++;
@@ -2740,7 +2838,7 @@ void StudioWindow::poll() {
 void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = inspectorSnapshot();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
-        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed &&
+        exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed &&
         manual_->snapshot()->closed && (!importDialog_ || importDialog_->retired())) {
         event->accept();
         return;
@@ -2752,6 +2850,8 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     if (auto *focused = focusWidget())
         focused->clearFocus();
     closeRequested_ = true;
+    stretch_.requestCancel();
+    if(stretchDialog_)stretchDialog_->close();
     manual_->beginClose();
     recoveryScanner_.cancel();
     if (recoveryDialog_)
