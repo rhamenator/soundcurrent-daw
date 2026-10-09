@@ -85,8 +85,10 @@ every host; its separate Release/sanitizer receipts each retain569 checks withou
 changing the product binaries or frozen source corpus.
 
 MinGW builds the worker, parent/probe, bundle and property targets without running
-Windows binaries. New native hosted execution and Windows Qt/installed workflow
-qualification remain separate pending gates. The predecessor PR62 repaired exact
+Windows binaries. The first hosted native run at `1bb2afd` passes14 of15 selected tests but fails
+the new protocol test when Python3.14.7 reads the UTF-8 witness using cp1252.
+Its exact archive/metadata/log are retained. Explicit UTF-8 fixes the test reader;
+corrected native execution and Windows Qt/installed workflow remain separate gates. The predecessor PR62 repaired exact
 head `5704601568eec0d80b60b68d40ad621f74387050` passes77 hosted Linux tests and14
 selected MSVC tests, including890 original property checks; its exact artifact
 metadata, archive digests and logs are retained separately. That predecessor run
