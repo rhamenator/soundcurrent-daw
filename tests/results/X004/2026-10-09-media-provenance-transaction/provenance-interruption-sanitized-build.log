@@ -1,0 +1,14 @@
+[0/1] Re-running CMake...
+-- Configuring done (4.0s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/11] Building CXX object CMakeFiles/sc-media-staging.dir/src/media_staging.cpp.o
+[2/11] Linking CXX static library libsc-media-staging.a
+[3/11] Building CXX object CMakeFiles/sc-media-stage-worker.dir/tools/media_stage_worker.cpp.o
+[4/11] Building CXX object CMakeFiles/sc-media-import-worker.dir/tools/media_import_worker.cpp.o
+[5/11] Building CXX object CMakeFiles/sc-media-staging-tests.dir/tests/media_staging_tests.cpp.o
+[6/11] Linking CXX executable sc-media-stage-worker
+[7/11] Linking CXX executable sc-media-import-worker
+[8/11] Linking CXX executable sc-media-staging-tests
+[9/11] Building CXX object CMakeFiles/sc-media-transaction-tests.dir/tests/media_transaction_tests.cpp.o
+[10/11] Linking CXX executable sc-media-transaction-tests

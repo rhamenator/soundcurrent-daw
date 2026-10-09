@@ -252,3 +252,11 @@ copying, private reuse of the unchanged SHA-256 helper and existing OpenSSL/BCry
 No new runtime dependency or equalizer change. Native APIs, directory authority/
 durability, payload versus OS limits, storage failure qualification and later
 provenance/recovery/publication are integration costs; see checkpoint125.
+
+## Bound media publication (2026-10-09)
+
+[ADR092](decisions/092-media-provenance-publication.md) adds original GPL typed
+provenance/recovery using existing JSON, crypto, libsndfile and native rename APIs.
+No new vendor runtime or equalizer change. Exact schema maintenance, platform
+sharing/flush/acknowledgement behavior, storage breadth, worker containment and
+later GUI/installed/semantic qualification remain integration costs.

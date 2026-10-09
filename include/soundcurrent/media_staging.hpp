@@ -4,19 +4,26 @@
 
 namespace soundcurrent::daw {
 struct StagedMediaState;
+class MediaProvenance;
 struct CheckedMediaBytes {
     std::uint64_t bytes = 0;
     std::array<char,64> sha256{};
 };
 enum class StageBoundary {
     BeforeDirectory, BeforeFile, BeforeWrite, BeforeFileFlush,
-    BeforeReadback, BeforeFinalSourceCheck, BeforeDirectoryFlush
+    BeforeReadback, BeforeFinalSourceCheck, BeforeDirectoryFlush,
+    BeforeIntentWrite, BeforeIntentFlush, BeforeAssetRename, BeforeReceiptWrite,
+    BeforeReceiptFlush, BeforeCommit, AfterCommitBeforeDirectoryFlush
 };
 // Trusted control/test seam only. No callback runs on the audio thread. A
 // callback may throw to exercise failure retirement; foreign input cannot
 // select hooks. Cancellation is cooperative around blocking native I/O.
 using StageObserver = std::function<void(StageBoundary,std::uint64_t)>;
 enum class StageDurability { FileFlushed=1, FileAndDirectoriesFlushed=2 };
+struct MediaCommitOutcome {
+    bool published=false,postCommitFlushFailed=false;
+    StageDurability durability=StageDurability::FileFlushed;
+};
 class StagedMedia {
   public:
     StagedMedia(StagedMedia &&) noexcept;
@@ -25,8 +32,8 @@ class StagedMedia {
     StagedMedia &operator=(const StagedMedia &) = delete;
     const Id &operation() const;
     // Generated portable path below the selected destination parent. The
-    // .partial suffix remains even after verification; this is NOT a published
-    // Session asset or recoverable project transaction.
+    // .partial suffix remains until a bound owner commits it to media.wav.
+    // Neither state attaches a Session asset or commits a project transaction.
     const std::string &relativePath() const;
     CheckedMediaBytes checkedBytes() const;
     StageDurability durability() const;
@@ -34,6 +41,12 @@ class StagedMedia {
   private:
     friend StagedMedia stageVerifiedMedia(ApprovedMediaFile &,const std::filesystem::path &,
         CheckedMediaBytes,std::uint64_t,Id,std::stop_token,const StageObserver &);
+    friend StagedMedia stageBoundMedia(ApprovedMediaFile &,const std::filesystem::path &,
+        const MediaProvenance &,std::uint64_t,std::stop_token,const StageObserver &);
+    friend MediaCommitOutcome commitStagedMedia(StagedMedia &,const MediaProvenance &,
+        std::stop_token,const StageObserver &);
+    friend StagedMedia stageMediaImpl(ApprovedMediaFile &,const std::filesystem::path &,
+        CheckedMediaBytes,std::uint64_t,Id,std::stop_token,const StageObserver &,const MediaProvenance *);
     explicit StagedMedia(std::unique_ptr<StagedMediaState>);
     std::unique_ptr<StagedMediaState> state_;
 };
@@ -51,5 +64,16 @@ class StagedMedia {
 // until result retirement. No durable provenance/commit marker is claimed yet.
 StagedMedia stageVerifiedMedia(ApprovedMediaFile &,const std::filesystem::path &destinationParent,
     CheckedMediaBytes,std::uint64_t maximumBytes,Id operation=Id::generate(),
+    std::stop_token = {},const StageObserver & = {});
+// Writes/flushed planned intent before media I/O. The receipt supplies exact
+// expected bytes/hash and operation ID; no saved reference grants source access.
+StagedMedia stageBoundMedia(ApprovedMediaFile &,const std::filesystem::path &,
+    const MediaProvenance &,std::uint64_t maximumBytes,std::stop_token = {},const StageObserver & = {});
+// One attempt per live owner. Both records and media are reverified; publication
+// is an exclusive receipt rename. Cancellation/throws before that point publish
+// no verified receipt. After publication, no exception/cancellation is reported
+// as an unpublished failure: directory-flush errors are returned explicitly.
+// Does not attach a Session asset or commit a multi-file/project transaction.
+MediaCommitOutcome commitStagedMedia(StagedMedia &,const MediaProvenance &,
     std::stop_token = {},const StageObserver & = {});
 } // namespace soundcurrent::daw

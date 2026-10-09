@@ -1,0 +1,17 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 35: verified-media-staging
+1/6 Test #35: verified-media-staging ...........   Passed    0.06 sec
+    Start 36: approved-media-root
+2/6 Test #36: approved-media-root ..............   Passed    0.01 sec
+    Start 37: verified-media-stage-worker
+3/6 Test #37: verified-media-stage-worker ......   Passed    0.29 sec
+    Start 63: media-provenance-transaction
+4/6 Test #63: media-provenance-transaction .....   Passed    0.47 sec
+    Start 64: approved-wave-content
+5/6 Test #64: approved-wave-content ............   Passed    0.01 sec
+    Start 65: approved-wave-probe
+6/6 Test #65: approved-wave-probe ..............   Passed    0.28 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =   1.12 sec

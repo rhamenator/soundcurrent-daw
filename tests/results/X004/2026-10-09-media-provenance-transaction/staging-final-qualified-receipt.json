@@ -1,0 +1,66 @@
+{
+  "utc": "2026-10-09T07:50:38.348012+00:00",
+  "sourceHead": "0b5e1291171b772d3c3eddf9350e457214a35393",
+  "mergeCommit": "937f83b57a0c889c09f5d7faafa58f552a30fdc8",
+  "pr": 69,
+  "runId": 37900548308,
+  "allFourRequiredContextsPassed": true,
+  "nativeCore": {
+    "stagingChecks": 152,
+    "actualStagingWorkerChecks": 61,
+    "coldAndPrimedProcessHandles": [
+      86,
+      87
+    ],
+    "approvedRootChecks": 169,
+    "waveChecks": 20503,
+    "waveCliChecks": 64
+  },
+  "linux": {
+    "stagingChecks": 163,
+    "actualStagingWorkerChecks": 61,
+    "coldAndPrimedProcessHandles": [
+      9,
+      9
+    ]
+  },
+  "nativeQt": {
+    "controllerChecks": 83,
+    "mediaUiChecks": 46,
+    "inspectorUiChecks": 91,
+    "localizationChecks": 252
+  },
+  "selectedTestCounts": {
+    "linux": 87,
+    "core": 21,
+    "qt": 6
+  },
+  "artifactsSha256": {
+    "staging-final-run.json": "889081fbf7458bdd8e2ac46f0c78f1a918c42700d874af92fc37884cbfa34ade",
+    "staging-final-pr.json": "24aad1f8762e53de2f90e7ccad8dc4384480d941a3386558ff3bef06605000e9",
+    "staging-final-review-threads.json": "ba9d801e3c80f8c348b9148fdb6b5128b3485b856daa9efff76843a423b77b4d",
+    "staging-merged.json": "6c64d366ec4f39d751f02ca8ecc75a457b72f7daa8c56e90e39a583b4dddb4e1",
+    "staging-final-linux-artifact.json": "4e4b79ecd29b19677af4fb454e4e2180719086432844ab2322153adf038ff604",
+    "staging-final-linux.zip": "5db3a8afcda08fc91281656203b53228df9ca6d6bdce87e4d03536b9b5ae8cc0",
+    "staging-final-linux-lasttest.log": "0d4b74ce9dc689dd9f4383b3ebf27ee2a0bd7677cca989f7fd850907a55e4725",
+    "staging-final-core-artifact.json": "33ce54a82d5fd8f91d28685a5321e7065088d9dcfb5015b7c235f6ca45b747e5",
+    "staging-final-core.zip": "9b38824210744ae62d028e20ff1285a3fffc5fce23291108492d90d4c5e8925a",
+    "staging-final-core-lasttest.log": "f075f7d16754a2af21c8df4f260664ccc261c42f9558a58cccb263a110d0eca6",
+    "staging-final-qt-artifact.json": "f6564a49584512408a687964ad6896082f5447ee222a1076365e5047965444e4",
+    "staging-final-qt.zip": "23a7cba27d5d5ac681e53151a9d379c6a4efc50128fd4560a295c9a336f979a8",
+    "staging-final-qt-lasttest.log": "cb5f6431d30c73ec9ae4f66f4725c92f3cbe9135c159d6170279649a21a476de"
+  },
+  "scope": {
+    "localVmStarted": false,
+    "audioRouteChanged": false,
+    "equalizerChanged": false,
+    "installedWorker": false,
+    "previewInstallersRefreshed": false,
+    "projectConversion": false,
+    "durableProvenance": false,
+    "publicBinaryRelease": false,
+    "fullParity": false
+  },
+  "nextTask": "Versioned staging provenance with original occurrence/selection binding, exclusive commit and interrupted-job recovery; see docs/125 and .cache/next-staging-provenance-plan.md",
+  "retentionTask": "Carry this exact final native/Linux artifact cohort into next coherent public source checkpoint; earlier failed cohort remains separate."
+}

@@ -1,0 +1,11 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start 35: verified-media-staging
+1/3 Test #35: verified-media-staging ...........   Passed    1.20 sec
+    Start 37: verified-media-stage-worker
+2/3 Test #37: verified-media-stage-worker ......   Passed    0.44 sec
+    Start 63: media-provenance-transaction
+3/3 Test #63: media-provenance-transaction .....   Passed    1.43 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   3.07 sec

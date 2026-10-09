@@ -318,3 +318,13 @@ Linux/core/actual-child evidence is separate from pending native Windows executi
 No completed asset, durable provenance, project conversion, Undo/reopen or render
 equivalence is claimed; those remain acceptance gates. No frozen F/Q/C/N family
 is promoted to parity. PR68 final protected native GUI evidence is now retained.
+
+## X004-MEDIA-005 provenance/commit/recovery prerequisite (2026-10-09)
+
+[Checkpoint126](126-media-provenance-transaction.md): exact original occurrence
+and selection → planned intent → checked copy → exclusive verified receipt →
+source-free full audio/hash revalidation after reopen. Linux actual inspector,
+child, abrupt termination and known-writer source/media evidence is separate from
+pending native Windows publication qualification. No Session conversion, multi-file
+project atomicity, semantic/render equivalence or installed flow is claimed; these
+remain required. No frozen F/Q/C/N family is promoted to parity.
