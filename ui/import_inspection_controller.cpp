@@ -69,9 +69,9 @@ struct ImportInspectionController::State : QThread {
         const auto rowsBytes=inspectionRowsCharge(lines);
         const auto usage=options.memory.usage();
         PayloadCharge fixed("Inspection fixed work",usage.limitBytes);
-        fixed.add(rowsBytes); fixed.add(options.childMemoryBytes); fixed.add(32768);
+        fixed.add(rowsBytes); fixed.add(options.childMemoryBytes); fixed.add(32768+32);
         const auto available=usage.limitBytes-usage.reservedBytes;
-        constexpr auto expansion=inspectionDecoderExpansion+1; // Decoder plus encoded bank.
+        constexpr auto expansion=inspectionDecoderExpansion+2; // Decoder plus conservative string capacity.
         if (available<=fixed.bytes()+expansion*512)
             throw ResourceLimitError("Inspection work",fixed.bytes()+expansion*512,available);
         PayloadCharge encodedBound("Inspection report estimate",std::numeric_limits<std::size_t>::max());
@@ -79,8 +79,9 @@ struct ImportInspectionController::State : QThread {
         const auto reportBytes=std::min({encodedBound.bytes(),options.maximumReportBytes,
                                         (available-fixed.bytes())/expansion});
         const auto parserBytes=inspectionParserCharge(reportBytes);
+        const auto protocolBytes=inspectionProtocolCharge(reportBytes);
         PayloadCharge work("Inspection admitted work",usage.limitBytes);
-        work.add(rowsBytes); work.add(options.childMemoryBytes); work.add(parserBytes); work.add(reportBytes);
+        work.add(rowsBytes); work.add(options.childMemoryBytes); work.add(parserBytes); work.add(protocolBytes);
         auto loan=options.memory.reserve(work.bytes()); // Before any child or response bank.
         std::string output(reportBytes,'\0'); std::array<char,4096> errors{};
         std::size_t used=0, errorUsed=0;
@@ -165,7 +166,7 @@ struct ImportInspectionController::State : QThread {
         view.phase=InspectionPhase::Decoding; publish();
         ResourceLease rowGrant,parserGrant,encodedGrant;
         loan.transferTo(rowGrant,rowsBytes); loan.transferTo(parserGrant,parserBytes);
-        loan.transferTo(encodedGrant,reportBytes);
+        loan.transferTo(encodedGrant,protocolBytes);
         auto result=decodeInspectionReport(OwnedInspectionProtocol(std::move(encodedGrant),std::move(output)),
             std::move(source),hash,view.childPid,
             options.memory,std::move(rowGrant),std::move(parserGrant),stop);

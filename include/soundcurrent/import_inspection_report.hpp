@@ -12,6 +12,7 @@ class OwnedInspectionProtocol {
         : lease_(std::move(lease)), bytes_(std::move(bytes)) {
         if (lease_.bytes()<bytes_.capacity())
             throw ProjectError(ErrorCode::ResourceLimit,"Unadmitted inspection protocol capacity");
+        lease_.resize(bytes_.capacity()); // Retire conservative constructor allowance.
     }
     OwnedInspectionProtocol(OwnedInspectionProtocol &&) noexcept = default;
     OwnedInspectionProtocol &operator=(OwnedInspectionProtocol &&) = delete;
@@ -50,6 +51,7 @@ std::size_t foreignSnapshotLines(std::string_view, std::stop_token = {});
 std::size_t inspectionRowsCharge(std::size_t lines);
 inline constexpr std::size_t inspectionDecoderExpansion = 32;
 std::size_t inspectionParserCharge(std::size_t encodedBytes);
+std::size_t inspectionProtocolCharge(std::size_t encodedBytes);
 // Control/I/O worker only. Validate the child's bounded ASCII protocol against
 // the parent's owned bytes/hash and independently observed child PID. Bundle
 // reopening instead supplies the recorded originating PID, not a running child.

@@ -69,6 +69,13 @@ std::size_t inspectionParserCharge(std::size_t bytes) {
     PayloadCharge charge("Inspection decoder",std::numeric_limits<std::size_t>::max());
     charge.add(32768); charge.add(bytes,inspectionDecoderExpansion); return charge.bytes();
 }
+std::size_t inspectionProtocolCharge(std::size_t bytes) {
+    // Admit before string construction. Supported STL implementations can round
+    // capacity above length (MSVC notably rounds to a character-allocation block).
+    // The owned constructor checks actual capacity and retires unused allowance.
+    PayloadCharge charge("Inspection encoded bank",std::numeric_limits<std::size_t>::max());
+    charge.add(32); charge.add(bytes,2); return charge.bytes();
+}
 ImportInspectionReport decodeInspectionReport(OwnedInspectionProtocol protocol, ForeignSnapshot &&source,
     std::array<char,64> hash, std::size_t childPid, ResourceLedger resources,
     ResourceLease rowsGrant, ResourceLease parserGrant, std::stop_token stop) {

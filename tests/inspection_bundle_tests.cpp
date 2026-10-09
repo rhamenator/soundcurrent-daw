@@ -79,7 +79,7 @@ ImportInspectionReport fixture(ResourceLedger ledger) {
         {"writerVersion",{{"status","unverified"},{"headerRange",{0,lines[0].length}}}},
         {"root",0},{"nodes",nodes},{"complete",true}};
     auto encoded=j.dump();
-    auto bank=ledger.reserve(encoded.capacity());
+    auto bank=ledger.reserve(inspectionProtocolCharge(encoded.size()));
     auto rows=ledger.reserve(inspectionRowsCharge(5)); auto parser=ledger.reserve(inspectionParserCharge(encoded.size()));
     return decodeInspectionReport(OwnedInspectionProtocol(std::move(bank),std::move(encoded)),std::move(source),
                                   hash,123456,ledger,std::move(rows),std::move(parser));
@@ -87,6 +87,23 @@ ImportInspectionReport fixture(ResourceLedger ledger) {
 }
 int main() {
     try {
+        ResourceLedger capacity(65536);
+        for (const auto length:{0u,1u,15u,16u,31u,32u,63u,64u}) {
+            {
+                auto grant=capacity.reserve(inspectionProtocolCharge(length));
+                std::string bytes(length,'x');const auto actual=bytes.capacity();
+                OwnedInspectionProtocol owned(std::move(grant),std::move(bytes));
+                check(owned.bytes()==std::string(length,'x'),"Encoded capacity admission lost bytes");
+                check(owned.chargedBytes()==actual && capacity.usage().reservedBytes==actual,
+                      "Conservative capacity allowance did not retire to actual STL bank");
+            }
+            check(!capacity.usage().reservedBytes,"Encoded capacity borrower leaked credit");
+        }
+        refused([&] {
+            std::string bytes(64,'x');auto grant=capacity.reserve(bytes.capacity()-1);
+            OwnedInspectionProtocol insufficient(std::move(grant),std::move(bytes));
+        });
+        check(!capacity.usage().reservedBytes,"Unadmitted encoded constructor leaked credit");
         const auto root=std::filesystem::temp_directory_path()/std::filesystem::path("sc-bundle-"+Id::generate().str());
         std::filesystem::create_directory(root);
 #ifdef _WIN32

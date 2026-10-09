@@ -34,7 +34,10 @@ Checksums detect corruption; they do not authenticate an author or source suite.
 Rewriting a bundle and its checksums cannot promote semantic compatibility.
 
 Default envelopes remain 16 MiB source and 64 MiB protocol, subject to shared
-memory admission. The source, exact encoded bank and decoded rows keep their
+memory admission. String construction is admitted conservatively at twice the requested encoded
+length plus 32 bytes, then checked and reduced to actual STL capacity. This
+covers the observed MSVC rounding above length in both load and the controller.
+The source, exact encoded bank and decoded rows keep their
 leases for the complete immutable-result lifetime. Reopen also admits the input
 container, copied source, decoder allowance (32 times encoded bytes plus 32 KiB),
 row storage and crypto work before those allocations. Transient container/decoder
@@ -111,6 +114,12 @@ The [failed native artifact](../tests/results/X004/2026-10-08-inspection-bundle/
 and metadata are retained. A follow-up native-only probe records the original
 Win32 call's actual error without treating it as an accepted fallback. No test
 oracle is relaxed; the complete bundle suite must pass with the corrected API.
+The next exact head `a7fe8be` records the original Win32 error 87, then fails
+protocol-capacity admission on reopening. Its failed native artifact is retained.
+The follow-up admits construction capacity before allocation, verifies actual
+capacity and retires conservative surplus. Boundary tests exercise SSO and heap
+lengths on each actual STL; both bundle loading and desktop output use the same
+charge. Native rerun remains required; existing receipts are not overwritten.
 
 New strings are extracted into 34 partial/source catalogs with 606 contextual
 keys. Draft translations remain 3,135; no native-speaker or full UI qualification

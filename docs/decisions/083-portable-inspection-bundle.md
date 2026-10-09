@@ -54,3 +54,14 @@ Windows native/Qt/installed workflows and hard OS sandbox/deadline qualification
 remain open. Windows named partials can survive forced process death or failed
 handle cleanup; no complete crash-recovery claim is made. Source-suite version/
 corpus, semantic mapping, approved conversion and full X004 remain required.
+
+## Capacity qualification follow-up
+
+Hosted MSVC at `a7fe8be` records the old Win32 error 87 and reaches a distinct
+reopen refusal: the encoded string's capacity is rounded above its length.
+Admit `2 * requestedBytes + 32` before constructing strings in load and the
+controller, enforce actual capacity against that grant, then shrink credit to
+actual capacity. Keep the original failure artifact and check SSO/heap boundary
+lengths on the real standard library. This allowance qualifies the tested STLs,
+not arbitrary allocator behavior or exact process RSS. Unknown excess capacity
+still refuses; no after-allocation credit growth is used to excuse a short grant.
