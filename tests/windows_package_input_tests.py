@@ -9,7 +9,8 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker, qualify_copy_worker
+from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker, qualify_copy_worker, qualify_stretch_worker
+from stretch_worker_qualification import qualify_stretch_worker as qualify_native_stretch
 import json
 
 
@@ -80,6 +81,9 @@ def run():
                 try:deploy_payload(archive,m,destination,require_copy_worker=True)
                 except ValueError:pass
                 else:raise AssertionError('Copy desktop payload admitted missing worker')
+                try:deploy_payload(archive,m,destination,require_stretch_worker=True)
+                except ValueError:pass
+                else:raise AssertionError('Stretch desktop payload admitted missing worker')
     trusted = json.loads((Path(__file__).resolve().parents[1] /
                           'research/windows-preview-dependencies.json').read_text())
     pinned = {'files': list(trusted['files'].values())}
@@ -132,18 +136,50 @@ def run():
     try:qualify_copy_worker(with_media,copy_receipt,head)
     except ValueError:pass
     else:raise AssertionError('Missing native checked-copy worker accepted')
+    stretch={'path':'sc-stretch-render-worker.exe','bytes':126,'sha256':'f'*64}
+    with_stretch={'files':with_copy['files']+[stretch]};qualified_dependencies(with_stretch)
+    tree='c'*40
+    stretch_receipt={'format':'sc-stretch-worker-qualification-v1','sourceCommit':head,'sourceTree':tree,
+                     'nativePlatform':'win32','exeSha256':'f'*64,'pid':1234,'exitCode':0,
+                     'verifierPid':5678,'verifierExitCode':0,'verifierExeSha256':'1'*64,
+                     'protocol':'sc-stretch-render-v2','processor':'soundcurrent.stretch-rubberband4-r3-positioned-v2',
+                     'operation':copy_receipt['operation'],'complete':True,'verifiedArtifact':True,
+                     'writtenFrames':18000,'checks':174,'verifierChecks':1045,
+                     'audioSha256':'2'*64,'sampleSha256':'3'*64,'nativeAudio':False}
+    qualify_stretch_worker(with_stretch,stretch_receipt,head,tree)
+    qualify_native_stretch({**stretch_receipt,'nativePlatform':'linux'},head,tree,'f'*64,'linux')
+    bad_values={'format':['old'],'sourceCommit':['0'*40],'sourceTree':['0'*40],
+                'nativePlatform':['linux'],'exeSha256':['0'*64], 'pid':[0,True],
+                'exitCode':[1,False],'verifierPid':[0,True],'verifierExitCode':[1,False],
+                'verifierExeSha256':['bad'],'protocol':['sc-stretch-render-v1'],
+                'processor':['unknown'],'operation':['../foreign',123],
+                'complete':[False,1],'verifiedArtifact':[False,1],'writtenFrames':[17999,True],
+                'checks':[0,True,171],'verifierChecks':[0,True,1044],
+                'audioSha256':['bad'],'sampleSha256':['bad'],'nativeAudio':[True,0]}
+    stretch_refusals=0
+    for key,values in bad_values.items():
+        for value in values:
+            try:qualify_stretch_worker(with_stretch,{**stretch_receipt,key:value},head,tree)
+            except ValueError:stretch_refusals+=1
+            else:raise AssertionError('Unqualified stretch receipt accepted: '+key)
+    for q,m in [(None,with_stretch),(stretch_receipt,with_copy),
+                (stretch_receipt,{'files':with_stretch['files']+[stretch]})]:
+        try:qualify_stretch_worker(m,q,head,tree)
+        except ValueError:stretch_refusals+=1
+        else:raise AssertionError('Missing/duplicate/unqualified native stretch helper accepted')
     with tempfile.TemporaryDirectory(prefix='sc-media-package-') as tmp:
         root=Path(tmp);all_data={**data,'sc-import-inspect-worker.exe':b'owned inspection worker',
-                               'sc-approved-wave-probe.exe':b'owned media worker','sc-media-import-worker.exe':b'owned copy worker'}
+                               'sc-approved-wave-probe.exe':b'owned media worker','sc-media-import-worker.exe':b'owned copy worker',
+                               'sc-stretch-render-worker.exe':b'owned stretch worker'}
         all_manifest={'files':[{'path':n,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
                                for n,b in all_data.items()]}
         archive=root/'complete.zip'
         with zipfile.ZipFile(archive,'w') as z:
             for n,b in all_data.items():z.writestr(n,b)
         destination=root/'payload';destination.mkdir()
-        deploy_payload(archive,all_manifest,destination,require_worker=True,require_media_worker=True,require_copy_worker=True)
+        deploy_payload(archive,all_manifest,destination,require_worker=True,require_media_worker=True,require_copy_worker=True,require_stretch_worker=True)
         assert all((destination/n).read_bytes()==b for n,b in all_data.items())
-    print('Media deployment: all three sibling workers required; exact native PID/protocol/commit/source/hash qualification enforced')
+    print(f'Stretch deployment: four sibling workers; {stretch_refusals} native render receipt refusals; Linux/Windows identity separated')
     wrong = deepcopy(pinned)
     wrong['files'][0]['sha256'] = '0' * 64
     try:

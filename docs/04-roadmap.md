@@ -734,3 +734,21 @@ independent pitch/formant controls and explicit render/review/apply. Local actua
 helper tests cover Undo, save/reopen/export and quitting during an active render.
 Native Windows qualification and exact preview helper deployment remain next.
 Full processing-quality and frozen-reference workflow scope remain required.
+
+## M2 stretch preview payload gate
+
+[Checkpoint 137](137-stretch-preview-delivery.md) requires the render helper and
+its license in Linux/Windows previews, with a matching native process/artifact
+receipt. Owned package fixtures cover missing/stale inputs, executable modes and
+37 invalid render receipts. Fresh installed previews remain the next delivery
+task; this builder change does not establish installed or release acceptance.
+
+## M2 installed Linux pitch/stretch preview
+
+[Checkpoint138](138-installed-stretch-preview.md) verifies the actual source95cfb7d
+DEB upgrade, installed normal-user GUI/default helper, explicit render/apply,
+Undo/Redo/save/new-process reopen and repeated byte-identical WAV exports. Package
+remove/reinstall preserves all owned project/media files. Private synthetic
+container evidence does not qualify physical audio or a newer source build.
+Next qualify and install the matching native Windows preview, retaining independent
+quality, localization, short-span and full frozen F/Q/C/N requirements.

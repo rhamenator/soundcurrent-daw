@@ -15,6 +15,7 @@ import stat
 from pathlib import Path
 import shutil
 import subprocess
+from stretch_worker_qualification import qualify_stretch_worker
 
 ROOT = Path(__file__).resolve().parents[1]
 def digest(path):
@@ -52,7 +53,8 @@ def verify_build_source(cache, root):
     require(len(entries)==1 and Path(entries[0]).resolve()==root.resolve(),
             'Build tree belongs to another source checkout')
 EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker',
-                    'usr/bin/sc-approved-wave-probe','usr/bin/sc-media-import-worker'}
+                    'usr/bin/sc-approved-wave-probe','usr/bin/sc-media-import-worker',
+                    'usr/bin/sc-stretch-render-worker'}
 def installed_mode(relative):
     return 0o755 if relative in EXECUTABLE_PAYLOAD else 0o644
 def normalize_staged_permissions(stage):
@@ -78,6 +80,9 @@ def verify_staged_install(stage, root, executable):
         expected['usr/bin/sc-approved-wave-probe']=executable.parent/'sc-approved-wave-probe'
     if (root/'ui/media_copy_controller.cpp').is_file():
         expected['usr/bin/sc-media-import-worker']=executable.parent/'sc-media-import-worker'
+    if (root/'ui/stretch_controller.cpp').is_file():
+        expected['usr/bin/sc-stretch-render-worker']=executable.parent/'sc-stretch-render-worker'
+        expected['usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt']=root/'third_party/rubberband/COPYING'
     found = {}
     for path in stage.rglob('*'):
         require(not path.is_symlink(), 'Unexpected install payload symlink: '+str(path))
@@ -120,6 +125,13 @@ def package(args):
     require('SC_BUILD_PIPEWIRE:BOOL=ON' in cache,'A recording preview requires native PipeWire')
     build_type = next(line.split('=',1)[1] for line in cache.splitlines() if line.startswith('CMAKE_BUILD_TYPE:'))
     head = command(['git','rev-parse','HEAD'])
+    needs_stretch_worker=(ROOT/'ui/stretch_controller.cpp').is_file()
+    if needs_stretch_worker:
+        require(args.stretch_worker_qualification is not None,
+                'Actual native stretch helper qualification required')
+        qualify_stretch_worker(json.loads(args.stretch_worker_qualification.read_text()),
+                              head,command(['git','rev-parse','HEAD^{tree}']),
+                              digest(build/'sc-stretch-render-worker'),'linux')
     maintainer = command(['git','show','-s','--format=%an <%ae>',head])
     version = preview_version(args.preview_sequence,head,args.previous_version)
     output = args.output.resolve(); output.mkdir(parents=True,exist_ok=False)
@@ -129,6 +141,7 @@ def package(args):
                'platform':'Ubuntu 26.04 amd64','build_type':build_type,'version':version,
                'qualified_executable_sha256':digest(executable),
                'qualification_sha256':digest(args.qualification),
+               'stretch_worker_qualification_sha256':digest(args.stretch_worker_qualification) if needs_stretch_worker else None,
                'native_audio_run':False,'system_installation':False,'clean_install_qualified':False,
                'release_uploaded':False,'preview_sequence':args.preview_sequence,
                'previous_version':args.previous_version,
@@ -203,6 +216,8 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-dir',type=Path,required=True)
     parser.add_argument('--qualification',type=Path,required=True)
+    parser.add_argument('--stretch-worker-qualification',type=Path,
+                        help='Matching native helper PID/exit/source/hash and verified artifact receipt')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--preview-sequence',required=True,
                         help='Frozen increasing UTC timestamp YYYYMMDDHHMMSS')

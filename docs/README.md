@@ -147,3 +147,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [128 — portable original import state and verified media provenance](128-portable-import-project-evidence.md)
 - [ADR094 — owned original/loss evidence alongside destination state](decisions/094-portable-import-original-evidence.md)
+
+- [Installed Linux pitch/stretch preview](138-installed-stretch-preview.md)

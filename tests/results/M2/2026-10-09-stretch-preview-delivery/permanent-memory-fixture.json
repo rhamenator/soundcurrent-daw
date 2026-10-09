@@ -1,0 +1,21 @@
+{
+  "sourceSha256": {
+    "tests/stretch_worker_tests.py": "cfb4b2fea97fc79da54e98eeda8a802b77a6aed28ce41bd1061781be7487409a"
+  },
+  "rawLogSha256": "c0e0aafd6cfc915c921bec3fc78ac6df45d34f1d30bb34b6391461b8b24da741",
+  "checks": 173,
+  "actualOwnedCompletedJobs": 34,
+  "positiveControlFrames": 16384,
+  "rate": 192000,
+  "channels": 32,
+  "lowCeilingMiB": 32,
+  "positiveCeilingMiB": 256,
+  "lowErrorIdentity": "stretch.resource_limit",
+  "lowJobDirectoryCreated": false,
+  "sharedArtifactChecks": 1045,
+  "platform": "Linux",
+  "nativeWindows": "pending updated fixture",
+  "compiledInputsChanged": false,
+  "nativeAudio": false,
+  "installedPreview": false
+}

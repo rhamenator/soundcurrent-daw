@@ -1,0 +1,47 @@
+[
+  {
+    "memoryMiB": 16,
+    "pid": 1992714,
+    "ready": {},
+    "exitCode": 1,
+    "intent": false,
+    "complete": false,
+    "stdout": "",
+    "stderr": "{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":false}\n"
+  },
+  {
+    "memoryMiB": 32,
+    "pid": 1992807,
+    "ready": {},
+    "exitCode": 1,
+    "intent": false,
+    "complete": false,
+    "stdout": "",
+    "stderr": "{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":false}\n"
+  },
+  {
+    "memoryMiB": 64,
+    "pid": 1992809,
+    "ready": {},
+    "exitCode": 1,
+    "intent": false,
+    "complete": false,
+    "stdout": "",
+    "stderr": "{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":false}\n"
+  },
+  {
+    "memoryMiB": 256,
+    "pid": 1992811,
+    "ready": {
+      "event": "ready",
+      "operation": "9d7656a3-a0d6-4af0-b916-8827e5e71500",
+      "protocol": "sc-stretch-render-v2",
+      "renderKey": "338038ccb0975739226b811829a067f02c8ac8797d81be871f84c10faad174b7"
+    },
+    "exitCode": 2,
+    "intent": true,
+    "complete": false,
+    "stdout": "",
+    "stderr": ""
+  }
+]

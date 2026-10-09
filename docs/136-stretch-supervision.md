@@ -146,3 +146,10 @@ the full test log, current executables and658 source inputs are retained in
 CI receipts retain their earlier scopes; no current sanitizer, installed preview
 or native audio result is inferred from them. Native Windows checks of this
 corrected source remain pending.
+
+Final native qualification: corrected6734a53 passed Linux108, native Windows
+core40, native Windows Qt12 and cross-build in run37997034663. API archive hashes,
+ZIP CRC, raw48-controller/48-UI counters and658 source inputs match. The normal
+protected squash merge49fa988 has exactly the qualified tree. Current logs and
+receipt are retained as `final-native-*`. These remain synthetic media/control
+workflows, with no physical audio, installer or full-parity claim.

@@ -1,0 +1,2 @@
+derived_shared_live_export_checks=1045 callback_audit=0 seek_split_crop_equal=true save_reopen=true
+{"checks": 172, "actualOwnedCompletedJobs": 33, "preparedBoundaryCompletedJobs": 27, "shortSpanRefusalBeforeMutation": true, "headroom": true, "fractionalSourcePhase": true, "equivalentRationalAnchors": true, "exactCeilCounterexample": 6422, "cooperativeCancel": true, "midRenderCancel": true, "hardDeadline": true, "OSMemoryRefusal": true, "nativePlatform": "linux", "nativeAudio": false}

@@ -1,0 +1,45 @@
+{
+  "qualifiedHead": "9e11d2f37d9109318f7b0b02f4e14b6ae7acb870",
+  "sourceSha256": {
+    "tools/stretch_worker_qualification.py": "4afd5281ee40749241d1b748ad3879508cf6141f1ee03643268c433000adafa3",
+    "tools/package_linux_preview.py": "aa1071b2c1cfe46c616b55da38e07c68a417a6413167ac75238ee31ad57db0a0",
+    "tools/package_windows_preview.py": "69b33a58ac2c9171e53d6601b968ee486a20596b63891b91f90a1f986c3462cc",
+    "tests/stretch_worker_tests.py": "d509ef61852d9b3b09668f3eb0b3cbf1eb635b6ec00b71a29960a9aad6f76ee5",
+    "tests/preview_package_tests.py": "af8a134114958a9698b6188b84b69f83aedd9c563b62f94ec28d271b42264976",
+    "tests/windows_package_input_tests.py": "dd8f4c7731d3e53d2e4e815c9a049707a84f7dfb47ba71970b103f40c42151eb",
+    ".github/workflows/ci.yml": "31f6076745d14d6240fd17743d771d0b281bd9a9ea7e714ebd8f8b9203f97fa6",
+    "CMakeLists.txt": "a0d28f242d58f2cebd1bb9ebc53980cb978f1c2cc6cae246bd9d884e0e62c911",
+    "third_party/rubberband/COPYING": "cedd4c1885d75991bf1077cc6e33359103cf04fbc996f20d30ab043d5fc5fcc5",
+    "docs/137-stretch-preview-delivery.md": "8befa9649a5c8548b8ae668d4983fe7371753581f91c7c38995677676e58272d"
+  },
+  "evidenceSha256": {
+    "worker-acceptance.log": "95e1f3a66a885e67b220a872fddbf311a5aed5e413c7ab77a2379e1cbd9e4ec5",
+    "actual-install.log": "28f7c434e75f6a38157019f743e0a085cd8fea877418d6feaaf98d07f7a9cacb",
+    "actual-install-inputs.json": "4fb4d8aa1bfa8a4188355831595d5cc3c6a2aca3ec46619dc6d0d582eb89cddf",
+    "worker-qualification.json": "8c2b1549d43020ab9d1d5fbcc50cd3ea5d23f23b08cf7bdb5a0b78ba80e7ac8b",
+    "worker-qualification.log": "95e1f3a66a885e67b220a872fddbf311a5aed5e413c7ab77a2379e1cbd9e4ec5",
+    "existing-receipt-refusal.log": "23c7cfbe034ca5f62d011cbd4d997525903f8a628a338c2bc283815635ce3818",
+    "linux-package-inputs.log": "15b762636133fe8cdede156ae49559c215fc2392a6638756383e8447b4bb1241",
+    "windows-package-inputs.log": "e566c3f0fccd2d1aa00c4a0c1d9626d9377ce1deb1178db5b2ccec68a288e4a9"
+  },
+  "actualCMakeStagedInputs": 11,
+  "actualExecutableModesVerified": 5,
+  "receiptRefusals": 37,
+  "ownedRenderAcceptanceChecks": 172,
+  "processReceiptIncludesAdditionalIdentityChecks": 2,
+  "artifactVerifierChecks": 1045,
+  "localWorkerReceiptValidated": true,
+  "sourceCompilerInputs": "Helper/verifier binaries retained from the locally qualified 8a107ab workflow; no C++ or CMake source changed in this packaging-only checkpoint",
+  "nativeWindowsReceiptProducer": "pending current source CI",
+  "systemInstallation": false,
+  "installerCreated": false,
+  "releaseUploaded": false,
+  "nativeAudio": false,
+  "vmStarted": false,
+  "fullParity": {
+    "functional": false,
+    "processingQuality": false,
+    "bundledContent": false,
+    "nativeProjects": false
+  }
+}

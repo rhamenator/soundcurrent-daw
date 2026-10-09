@@ -6,7 +6,9 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import sys
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'tools'))
 spec=importlib.util.spec_from_file_location('preview_builder',ROOT/'tools/package_linux_preview.py')
 builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
 legacy='0.1.0~preview.20261007.d23d3632f09e'
@@ -99,11 +101,26 @@ copy_installed.write_bytes(b'stale copy worker');refuse('stale-copy-worker')
 copy_installed.write_bytes(copy_worker.read_bytes())
 print('Copy desktop payload: exact qualified copy worker required; missing/stale worker refused.')
 
-for executable in ('soundcurrent-daw','sc-import-inspect-worker','sc-approved-wave-probe','sc-media-import-worker'):
+(source/'ui/stretch_controller.cpp').write_text('fixture marker')
+stretch_worker=binary.parent/'sc-stretch-render-worker';stretch_worker.write_bytes(b'qualified stretch worker')
+license_source=source/'third_party/rubberband/COPYING';license_source.parent.mkdir(parents=True)
+license_source.write_bytes(b'Independent Rubber Band license fixture')
+refuse('missing-stretch-payload')
+stretch_installed=stage/'usr/bin/sc-stretch-render-worker';stretch_installed.write_bytes(stretch_worker.read_bytes())
+refuse('missing-stretch-license')
+stretch_license=stage/'usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt'
+stretch_license.write_bytes(license_source.read_bytes());builder.normalize_staged_permissions(stage)
+assert len(builder.verify_staged_install(stage,source,binary))==11
+for path,original,name in [(stretch_installed,stretch_worker,'stale-stretch-worker'),
+                           (stretch_license,license_source,'stale-stretch-license')]:
+    path.write_bytes(b'stale bytes');refuse(name);path.write_bytes(original.read_bytes())
+print('Stretch payload: matching helper and GPL license required; missing/stale inputs refused.')
+
+for executable in ('soundcurrent-daw','sc-import-inspect-worker','sc-approved-wave-probe','sc-media-import-worker','sc-stretch-render-worker'):
     p=stage/'usr/bin'/executable;p.chmod(0o644);refuse('non-executable-'+executable)
     builder.normalize_staged_permissions(stage)
     assert p.stat().st_mode&0o777==0o755
-    assert len(builder.verify_staged_install(stage,source,binary))==9
+    assert len(builder.verify_staged_install(stage,source,binary))==11
 assert (stage/'usr/share/applications/soundcurrent-daw.desktop').stat().st_mode&0o777==0o644
 # Verify Debian preserves the normalized mode, independently of input byte hashes.
 control=stage/'DEBIAN';control.mkdir()
@@ -117,4 +134,6 @@ for relative in inputs:
 builder.verify_payload_mode(extracted/'usr/bin/sc-import-inspect-worker','usr/bin/sc-import-inspect-worker')
 builder.verify_payload_mode(extracted/'usr/bin/sc-approved-wave-probe','usr/bin/sc-approved-wave-probe')
 builder.verify_payload_mode(extracted/'usr/bin/sc-media-import-worker','usr/bin/sc-media-import-worker')
-print('PASS: all four executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')
+builder.verify_payload_mode(extracted/'usr/bin/sc-stretch-render-worker','usr/bin/sc-stretch-render-worker')
+builder.verify_payload_mode(extracted/'usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt','usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt')
+print('PASS: all five executable modes; mode-only refusals; extracted DEB modes; data stays 0644.')

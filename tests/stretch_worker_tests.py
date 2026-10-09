@@ -2,8 +2,27 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Actual isolated stretch worker, owned WAVs and independent RF64/sample checks."""
 from pathlib import Path
-import hashlib,json,math,struct,subprocess,sys,tempfile,uuid,time
-worker=Path(sys.argv[1]).resolve()
+import argparse,hashlib,json,math,os,re,struct,subprocess,sys,tempfile,uuid,time
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('worker',type=Path)
+parser.add_argument('verifier',type=Path)
+parser.add_argument('--qualification',type=Path,
+                    default=os.environ.get('SC_STRETCH_WORKER_QUALIFICATION'))
+args=parser.parse_args()
+worker=args.worker.resolve();verifier=args.verifier.resolve()
+root_source=Path(__file__).resolve().parents[1]
+def git(*command):
+    return subprocess.check_output(['git',*command],cwd=root_source,text=True).strip()
+def executable_hash(path):
+    h=hashlib.sha256()
+    with path.open('rb') as f:
+        for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
+    return h.hexdigest()
+if args.qualification:
+    if args.qualification.exists():raise RuntimeError('Qualification output already exists')
+    if git('status','--porcelain','--untracked-files=no'):raise RuntimeError('Commit the qualification source first')
+    source_commit=git('rev-parse','HEAD');source_tree=git('rev-parse','HEAD^{tree}')
+    worker_hash=executable_hash(worker);verifier_hash=executable_hash(verifier)
 checks=0
 
 def check(value,message):
@@ -59,7 +78,9 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
             (jobs/reports[0]['operation']/'start.request').write_text('start\n')
         output=process.stdout.read();error=process.stderr.read();process.wait(timeout=15)
         reports.extend(json.loads(line) for line in output.splitlines())
-        return subprocess.CompletedProcess(command(**limits),process.returncode,first+output,error),reports
+        completed=subprocess.CompletedProcess(command(**limits),process.returncode,first+output,error)
+        completed.pid=process.pid
+        return completed,reports
     def fresh(**changes):
         value=dict(initial,operation=str(uuid.uuid4()));value.update(changes);return value
     result,reports=run(initial);check(result.returncode==0,'Actual stretch failed: '+result.stderr)
@@ -71,7 +92,11 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     check(amplitude(samples,2,0,48000,2000)>1 and amplitude(samples,2,1,48000,3000)>1,'Independent pitch or channel ordering differs')
     check(amplitude(samples,2,0,48000,1000)<.03,'Pitch left the original frequency')
     check(hashlib.sha256(path.read_bytes()).hexdigest()==digest,'Raw source changed')
-    artifact=subprocess.run([sys.argv[2],str(root),'media/derived/'+initial['operation']+'/audio.wav',json.dumps(initial),json.dumps(reports[0])],text=True,capture_output=True,timeout=15)
+    artifact_process=subprocess.Popen([str(verifier),str(root),'media/derived/'+initial['operation']+'/audio.wav',json.dumps(initial),json.dumps(reports[0])],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    try:artifact_out,artifact_err=artifact_process.communicate(timeout=15)
+    except subprocess.TimeoutExpired:
+        artifact_process.kill();artifact_process.communicate();raise
+    artifact=subprocess.CompletedProcess(artifact_process.args,artifact_process.returncode,artifact_out,artifact_err)
     check(artifact.returncode==0,'Shared live/export workflow failed: '+artifact.stderr);print(artifact.stdout.strip())
     repeated=fresh();r,rr=run(repeated);check(r.returncode==0,'Repeat job failed');check(rr[-1]['renderKey']==receipt['renderKey'] and rr[-1]['audioSha256']==receipt['audioSha256'],'Repeated render identity/waveform differs')
     # Exact ceil counterexample from the candidate experiment, plus source anchor.
@@ -125,9 +150,19 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     req=fresh(sha256=digest_long,sourceFrames=480000,frames=480000)
     before=time.monotonic();r,rr=run(req,deadline=100);elapsed=time.monotonic()-before
     check(r.returncode==2 and elapsed<3 and not (jobs/req['operation']/'complete.json').exists(),'Hard deadline failed to retire uncommitted job')
-    # Opaque workspace exceeds an OS-enforced child ceiling, not a guessed allowance.
-    digest_wide=owned_wave(path,192000,32,128);req=fresh(sha256=digest_wide,rate=192000,channels=32,sourceFrames=128,frames=128)
-    r,rr=run(req,memory=32);check(r.returncode!=0 and not (jobs/req['operation']/'complete.json').exists(),'Opaque vendor workspace bypassed memory ceiling')
+    # Valid geometry exceeds an OS-enforced child ceiling. A larger Debug/runtime
+    # footprint may refuse watchdog thread creation before the opaque workspace.
+    digest_wide=owned_wave(path,192000,32,16384);req=fresh(sha256=digest_wide,rate=192000,channels=32,sourceFrames=16384,frames=16384)
+    r,rr=run(req,memory=32)
+    error=json.loads(r.stderr)
+    check(r.returncode!=0 and error.get('messageId')=='stretch.resource_limit' and
+          not (jobs/req['operation']).exists(),'Worker initialization did not report resource refusal before mutation: '+json.dumps({'exit':r.returncode,'stdout':r.stdout,'stderr':r.stderr,'jobExists':(jobs/req['operation']).exists()}))
+    # Same valid geometry succeeds with a larger ceiling. A span-validation
+    # refusal therefore cannot satisfy the low-memory assertion above.
+    control=dict(req,operation=str(uuid.uuid4()));r,rr=run(control,memory=256,deadline=60000)
+    check(r.returncode==0 and rr[0].get('event')=='ready' and rr[-1]['writtenFrames']==24576 and
+          rr[-1]['memoryCeilingBytes']==256*1024*1024 and (jobs/control['operation']/'complete.json').is_file(),
+          'Memory-ceiling positive control did not complete the admitted source span')
     # Reviewed one-frame drain counterexample: conservative prepared-window
     # admission refuses BEFORE any operation/intent. Actual boundary renders
     # cover rates and both extreme pitch/time settings; no repaired output.
@@ -144,4 +179,19 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
                 check(r.returncode==0 and rr[-1]['writtenFrames']==target,'Prepared window boundary did not render exact duration: '+r.stderr)
                 boundary_jobs+=1
     check(boundary_jobs==27,'Boundary workflow matrix incomplete')
-    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':6+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'fractionalSourcePhase':True,'equivalentRationalAnchors':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'nativePlatform':sys.platform,'nativeAudio':False}))
+    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':7+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'fractionalSourcePhase':True,'equivalentRationalAnchors':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'memoryValidSpanPositiveControl':True,'nativePlatform':sys.platform,'nativeAudio':False}))
+    if args.qualification:
+        check(not git('status','--porcelain','--untracked-files=no') and git('rev-parse','HEAD')==source_commit,
+              'Qualification source changed during acceptance')
+        check(executable_hash(worker)==worker_hash and executable_hash(verifier)==verifier_hash,
+              'Qualification executables changed during acceptance')
+        verifier_checks=int(re.search(r'derived_shared_live_export_checks=(\d+)',artifact.stdout)[1])
+        qualification={'format':'sc-stretch-worker-qualification-v1','sourceCommit':source_commit,
+                       'sourceTree':source_tree,'nativePlatform':sys.platform,'exeSha256':worker_hash,
+                       'verifierExeSha256':verifier_hash,'pid':result.pid,'exitCode':result.returncode,
+                       'verifierPid':artifact_process.pid,'verifierExitCode':artifact.returncode,
+                       'verifierChecks':verifier_checks,'checks':checks,'verifiedArtifact':True,
+                       'nativeAudio':False,**{key:receipt[key] for key in
+                        ('protocol','processor','operation','complete','writtenFrames','audioSha256','sampleSha256')}}
+        args.qualification.parent.mkdir(parents=True,exist_ok=True)
+        with args.qualification.open('x',encoding='utf-8') as f:f.write(json.dumps(qualification,indent=2)+'\n')

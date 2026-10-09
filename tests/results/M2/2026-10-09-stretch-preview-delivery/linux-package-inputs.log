@@ -1,0 +1,7 @@
+Owned preview package fixture root: "/tmp/sc-preview-package-uvjztqbr"
+PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.
+New desktop payload: qualified worker required; missing/stale worker refused.
+Media desktop payload: exact qualified media worker required; missing/stale worker refused.
+Copy desktop payload: exact qualified copy worker required; missing/stale worker refused.
+Stretch payload: matching helper and GPL license required; missing/stale inputs refused.
+PASS: all five executable modes; mode-only refusals; extracted DEB modes; data stays 0644.

@@ -1,0 +1,2137 @@
+Start testing: Oct 09 22:09 UTC
+----------------------------------------------------------
+1/108 Testing: prepared-resampling
+1/108 Test: prepared-resampling
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-resampling-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"prepared-resampling" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+Rate pairs=121 matrix_output_frames=323574 exact_rational_durations=true passband_max_error=3.48573e-07 alias_amplitude_23k_to_21.1k=6.52547e-09; not full quality/latency/deadline qualification
+PASS: 405827 prepared-resampling checks; exact timing/fractional split, fixed best-sinc stream/drain, bounded ownership, partitions, rate/layout coverage and float headroom; Session/UI/native audio, seek, independent pitch/stretch and full quality unqualified
+<end of output>
+Test time =   1.95 sec
+----------------------------------------------------------
+Test Passed.
+"prepared-resampling" end time: Oct 09 22:09 UTC
+"prepared-resampling" time elapsed: 00:00:01
+----------------------------------------------------------
+
+2/108 Testing: prepared-timing-oracle
+2/108 Test: prepared-timing-oracle
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/timing_oracle_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-resampling-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"prepared-timing-oracle" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+{"checks": 324, "oracle": "independent Python arbitrary precision integers", "actualCppExecuted": true, "sourceProjectMappingOnly": true, "sessionConversion": false, "nativeAudio": false}
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"prepared-timing-oracle" end time: Oct 09 22:09 UTC
+"prepared-timing-oracle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/108 Testing: resampler-source-integrity
+3/108 Test: resampler-source-integrity
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/resampler_source_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"resampler-source-integrity" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+{"sourceFilesVerified": 96, "bytes": 10352083, "sourceVersion": "0.2.2", "upstreamModified": false, "localPGPVerification": false, "binaryRuntimeQualification": false}
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"resampler-source-integrity" end time: Oct 09 22:09 UTC
+"resampler-source-integrity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/108 Testing: stretch-worker-workflows
+4/108 Test: stretch-worker-workflows
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/stretch_worker_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-render-worker" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-artifact-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"stretch-worker-workflows" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+derived_shared_live_export_checks=1045 callback_audit=0 seek_split_crop_equal=true save_reopen=true
+{"checks": 172, "actualOwnedCompletedJobs": 33, "preparedBoundaryCompletedJobs": 27, "shortSpanRefusalBeforeMutation": true, "headroom": true, "fractionalSourcePhase": true, "equivalentRationalAnchors": true, "exactCeilCounterexample": 6422, "cooperativeCancel": true, "midRenderCancel": true, "hardDeadline": true, "OSMemoryRefusal": true, "nativePlatform": "linux", "nativeAudio": false}
+<end of output>
+Test time =   6.03 sec
+----------------------------------------------------------
+Test Passed.
+"stretch-worker-workflows" end time: Oct 09 22:09 UTC
+"stretch-worker-workflows" time elapsed: 00:00:06
+----------------------------------------------------------
+
+5/108 Testing: stretch-source-integrity
+5/108 Test: stretch-source-integrity
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/stretch_source_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"stretch-source-integrity" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+Rubber Band4.0.0:62 unchanged compiled inputs plus COPYING; exact hashes and GPL-or-later notices verified
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"stretch-source-integrity" end time: Oct 09 22:09 UTC
+"stretch-source-integrity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/108 Testing: positioned-resampling-kernel
+6/108 Test: positioned-resampling-kernel
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-positioned-resampling-tests" "--kernel-state-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"positioned-resampling-kernel" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+positioned_stage=start elapsed_ms=0
+positioned_pinned_samples=323574 maximum_difference=0 arbitrary_fraction_sine_error=3.43304e-07 layouts=1,2,3,4,6,8,32,128,256
+positioned_stage=kernels elapsed_ms=4642
+positioned_stage=state elapsed_ms=4650
+PASS: 750959 positioned kernel/state checks. Native audio, quality parity, rate automation and independent pitch/stretch remain unqualified
+<end of output>
+Test time =   4.65 sec
+----------------------------------------------------------
+Test Passed.
+"positioned-resampling-kernel" end time: Oct 09 22:09 UTC
+"positioned-resampling-kernel" time elapsed: 00:00:04
+----------------------------------------------------------
+
+7/108 Testing: positioned-resampling-workflow
+7/108 Test: positioned-resampling-workflow
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-positioned-resampling-tests" "--workflows-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"positioned-resampling-workflow" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+positioned_stage=start elapsed_ms=0
+positioned_workflow=48000:44100 channels=1
+positioned_workflow=48000:44100 channels=2
+positioned_workflow=48000:44100 channels=8
+positioned_workflow=48000:44100 channels=32
+positioned_workflow=48000:44100 channels=256
+positioned_workflow=44100:48000 channels=1
+positioned_workflow=44100:48000 channels=2
+positioned_workflow=44100:48000 channels=8
+positioned_workflow=44100:48000 channels=32
+positioned_workflow=44100:48000 channels=256
+positioned_workflow=96000:48000 channels=1
+positioned_workflow=96000:48000 channels=2
+positioned_workflow=96000:48000 channels=8
+positioned_workflow=96000:48000 channels=32
+positioned_workflow=96000:48000 channels=256
+positioned_workflow=48000:48000 channels=1
+positioned_workflow=48000:48000 channels=2
+positioned_workflow=48000:48000 channels=8
+positioned_workflow=48000:48000 channels=32
+positioned_workflow=48000:48000 channels=256
+positioned_stage=workflows elapsed_ms=7294
+PASS: 2216 positioned owned-WAV live/export checks. Native audio, quality parity, rate automation and independent pitch/stretch remain unqualified
+<end of output>
+Test time =   7.30 sec
+----------------------------------------------------------
+Test Passed.
+"positioned-resampling-workflow" end time: Oct 09 22:09 UTC
+"positioned-resampling-workflow" time elapsed: 00:00:07
+----------------------------------------------------------
+
+8/108 Testing: fractional-timing-oracle
+8/108 Test: fractional-timing-oracle
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/fractional_timing_oracle_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-positioned-resampling-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"fractional-timing-oracle" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+{"checks": 755, "accepted": 509, "refused": 246, "oracle": "independent Python arbitrary-precision Fraction", "actualCppExecuted": true, "nativeAudio": false}
+<end of output>
+Test time =   1.04 sec
+----------------------------------------------------------
+Test Passed.
+"fractional-timing-oracle" end time: Oct 09 22:09 UTC
+"fractional-timing-oracle" time elapsed: 00:00:01
+----------------------------------------------------------
+
+9/108 Testing: clip-playback-rate
+9/108 Test: clip-playback-rate
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-positioned-resampling-tests" "--rate-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"clip-playback-rate" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+rate_sine_max_error=1.94677e-07 rejected_alias_peak=1.70386e-12 effective_step_max=192 channels_max=256
+clip_speed=1/4
+positioned_workflow=48000:44100 channels=1
+clip_speed=1333/1000
+positioned_workflow=48000:44100 channels=1
+clip_speed=4/1
+positioned_workflow=48000:44100 channels=1
+clip_speed=1/4
+positioned_workflow=48000:44100 channels=2
+clip_speed=1333/1000
+positioned_workflow=48000:44100 channels=2
+clip_speed=4/1
+positioned_workflow=48000:44100 channels=2
+clip_speed=1/4
+positioned_workflow=48000:44100 channels=8
+clip_speed=1333/1000
+positioned_workflow=48000:44100 channels=8
+clip_speed=4/1
+positioned_workflow=48000:44100 channels=8
+clip_speed=1/4
+positioned_workflow=44100:48000 channels=1
+clip_speed=1333/1000
+positioned_workflow=44100:48000 channels=1
+clip_speed=4/1
+positioned_workflow=44100:48000 channels=1
+clip_speed=1/4
+positioned_workflow=44100:48000 channels=2
+clip_speed=1333/1000
+positioned_workflow=44100:48000 channels=2
+clip_speed=4/1
+positioned_workflow=44100:48000 channels=2
+clip_speed=1/4
+positioned_workflow=44100:48000 channels=8
+clip_speed=1333/1000
+positioned_workflow=44100:48000 channels=8
+clip_speed=4/1
+positioned_workflow=44100:48000 channels=8
+PASS: 4655 linked clip playback-rate checks; independent pitch/stretch unqualified
+<end of output>
+Test time =   2.46 sec
+----------------------------------------------------------
+Test Passed.
+"clip-playback-rate" end time: Oct 09 22:09 UTC
+"clip-playback-rate" time elapsed: 00:00:02
+----------------------------------------------------------
+
+10/108 Testing: playback-rate-timing-oracle
+10/108 Test: playback-rate-timing-oracle
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/fractional_timing_oracle_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-positioned-resampling-tests" "--playback-rate"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"playback-rate-timing-oracle" start time: Oct 09 22:09 UTC
+Output:
+----------------------------------------------------------
+{"checks": 349, "accepted": 221, "refused": 128, "oracle": "independent Python arbitrary-precision Fraction", "actualCppExecuted": true, "nativeAudio": false}
+<end of output>
+Test time =   0.50 sec
+----------------------------------------------------------
+Test Passed.
+"playback-rate-timing-oracle" end time: Oct 09 22:10 UTC
+"playback-rate-timing-oracle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/108 Testing: desktop-stretch-ui
+11/108 Test: desktop-stretch-ui
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-ui-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-render-worker"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-stretch-ui" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+stretch_ui_checks=48 actual_helper=true render_review_apply=true undo_save_reopen_export=true active_close_reaped=true native_audio=false
+<end of output>
+Test time =   1.77 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-stretch-ui" end time: Oct 09 22:10 UTC
+"desktop-stretch-ui" time elapsed: 00:00:01
+----------------------------------------------------------
+
+12/108 Testing: desktop-stretch-controller
+12/108 Test: desktop-stretch-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-controller-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-render-worker"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-stretch-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+stretch_controller_checks=48 actual_owned_render=true whole_child_credit=true immutable_snapshots=true cancel_and_ambiguous_commit=true native_audio=false
+<end of output>
+Test time =   1.20 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-stretch-controller" end time: Oct 09 22:10 UTC
+"desktop-stretch-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+13/108 Testing: desktop-media-copy-controller
+13/108 Test: desktop-media-copy-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-media-copy-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-media-copy-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+PASS: 119 actual checked-copy/controller checks; frozen source, PID/receipt, pre/post publication interruption, recovery and retirement; no audio device
+<end of output>
+Test time =   1.70 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-media-copy-controller" end time: Oct 09 22:10 UTC
+"desktop-media-copy-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+14/108 Testing: desktop-media-controller
+14/108 Test: desktop-media-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wave-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-media-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+PASS: 85 actual media-child/controller checks; PID/report, quotas, Unicode, cancel/deadline/flood and retirement; no audio device
+<end of output>
+Test time =   0.63 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-media-controller" end time: Oct 09 22:10 UTC
+"desktop-media-controller" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/108 Testing: desktop-import-media-ui
+15/108 Test: desktop-import-media-ui
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-media-ui-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-import-media-ui" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+PASS: 74 actual media UI checks; explicit root/replacement, original bytes, missing/duplicate/unsupported, safe labels, reopen/retirement
+<end of output>
+Test time =   1.95 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-media-ui" end time: Oct 09 22:10 UTC
+"desktop-import-media-ui" time elapsed: 00:00:01
+----------------------------------------------------------
+
+16/108 Testing: desktop-import-controller
+16/108 Test: desktop-import-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-import-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Import controller checks=80; real child, synthetic project, native compatibility unqualified
+<end of output>
+Test time =   0.76 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-controller" end time: Oct 09 22:10 UTC
+"desktop-import-controller" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/108 Testing: desktop-import-ui
+17/108 Test: desktop-import-ui
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-ui-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-import-ui" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+PASS: 91 import preview UI checks; actual child, no project mutation, async retirement.
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-import-ui" end time: Oct 09 22:10 UTC
+"desktop-import-ui" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/108 Testing: desktop-localization
+18/108 Test: desktop-localization
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-localization-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-localization" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+  OpenType support missing for "DejaVu Sans", script 11
+  OpenType support missing for "DejaVu Math TeX Gyre", script 11
+  OpenType support missing for "DejaVu Sans Mono", script 11
+  OpenType support missing for "DejaVu Serif", script 11
+  OpenType support missing for "Liberation Mono", script 11
+  OpenType support missing for "Liberation Sans", script 11
+  OpenType support missing for "Liberation Serif", script 11
+  OpenType support missing for "Lato", script 11
+  OpenType support missing for "Noto Color Emoji", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+  OpenType support missing for "", script 11
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned localization fixture root: /tmp/sc-localization-1f94bf73-7bab-425b-b6a6-a29b539c9f60
+PASS: 253 checks; 34 draft catalog loads, real DAW contexts, localized standard actions, signed RTL numeric input, decimal edit/Save/reopen, settings, stable render samples and RTL charts. No native audio; no language fully qualified.
+<end of output>
+Test time =   0.37 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-localization" end time: Oct 09 22:10 UTC
+"desktop-localization" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/108 Testing: daw-translation-catalogs
+19/108 Test: daw-translation-catalogs
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tools/localization.py" "--check"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"daw-translation-catalogs" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+{"catalogs": 34, "source_keys": 803, "draft_translations": 3135, "native_reviewed": 0, "fully_UI_qualified": 0}
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"daw-translation-catalogs" end time: Oct 09 22:10 UTC
+"daw-translation-catalogs" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/108 Testing: daw-translation-catalog-failures
+20/108 Test: daw-translation-catalog-failures
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/translation_catalog_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"daw-translation-catalog-failures" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned localization catalog fixture root: "/tmp/sc-localization-catalogs-vgokag55"
+Updating '../../../../../../tmp/sc-daw-translations-4r8u8jw6/source.ts'...
+    Found 803 source text(s) (803 new and 0 already existing)
+PASS: matching retained catalogs
+PASS: refused stale-ui
+PASS: refused empty-finished
+PASS: refused placeholder-loss
+PASS: refused placeholder-duplication
+PASS: refused file-filter-loss
+PASS: refused rich-text-injection
+PASS: refused hidden-bidi
+PASS: refused ampersand-loss
+PASS: refused duplicate-key
+PASS: refused missing-key
+PASS: refused empty-catalog
+PASS: refused qm-corruption
+PASS: refused wrong-resource-alias
+PASS: actual Linguist update retained unfinished scalar/plural drafts and translator comments.
+PASS: 13 isolated corruption/refusal workflows; originals untouched; no native language qualification.
+<end of output>
+Test time =   1.42 sec
+----------------------------------------------------------
+Test Passed.
+"daw-translation-catalog-failures" end time: Oct 09 22:10 UTC
+"daw-translation-catalog-failures" time elapsed: 00:00:01
+----------------------------------------------------------
+
+21/108 Testing: windows-stop-analysis
+21/108 Test: windows-stop-analysis
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/windows_stop_analysis_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"windows-stop-analysis" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+{"syntheticStopAnalysisCases": 18, "nativeAudioReplayed": false}
+<end of output>
+Test time =   2.45 sec
+----------------------------------------------------------
+Test Passed.
+"windows-stop-analysis" end time: Oct 09 22:10 UTC
+"windows-stop-analysis" time elapsed: 00:00:02
+----------------------------------------------------------
+
+22/108 Testing: input-acquisition-evidence
+22/108 Test: input-acquisition-evidence
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/input_acquisition_verifier_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"input-acquisition-evidence" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Three relocated originals, all capsule payloads and timestamps pass; 41 altered claims/media refused
+<end of output>
+Test time =   1.41 sec
+----------------------------------------------------------
+Test Passed.
+"input-acquisition-evidence" end time: Oct 09 22:10 UTC
+"input-acquisition-evidence" time elapsed: 00:00:01
+----------------------------------------------------------
+
+23/108 Testing: windows-startup-analysis
+23/108 Test: windows-startup-analysis
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/windows_startup_analysis_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"windows-startup-analysis" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+{"syntheticStartupAnalysisCases": 10, "nativeAudioReplayed": false}
+<end of output>
+Test time =   1.51 sec
+----------------------------------------------------------
+Test Passed.
+"windows-startup-analysis" end time: Oct 09 22:10 UTC
+"windows-startup-analysis" time elapsed: 00:00:01
+----------------------------------------------------------
+
+24/108 Testing: preview-package-provenance
+24/108 Test: preview-package-provenance
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/preview_package_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"preview-package-provenance" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned preview package fixture root: "/tmp/sc-preview-package-xyipjw2w"
+PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.
+New desktop payload: qualified worker required; missing/stale worker refused.
+Media desktop payload: exact qualified media worker required; missing/stale worker refused.
+Copy desktop payload: exact qualified copy worker required; missing/stale worker refused.
+Stretch payload: matching helper and GPL license required; missing/stale inputs refused.
+PASS: all five executable modes; mode-only refusals; extracted DEB modes; data stays 0644.
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"preview-package-provenance" end time: Oct 09 22:10 UTC
+"preview-package-provenance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/108 Testing: windows-package-inputs
+25/108 Test: windows-package-inputs
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/windows_package_input_tests.py"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"windows-package-inputs" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Stretch deployment: four sibling workers; 37 native render receipt refusals; Linux/Windows identity separated
+Pinned native dependencies: accepted qualified identities; refused replacement DLL
+Windows deployment inputs: accepted native separators; refused 14 mutations
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"windows-package-inputs" end time: Oct 09 22:10 UTC
+"windows-package-inputs" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/108 Testing: desktop-snapshot-resources
+26/108 Test: desktop-snapshot-resources
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-snapshot-resource-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-snapshot-resources" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned snapshot fixture root: "/tmp/sc-snapshot-resource-tests-kxtGtn"
+512-track retained snapshot refusal, Cancel, Undo/Redo, save/reopen qualified
+In-flight Save and barrier share counted immutable owners
+Full-budget attachment error= owned blocks=2
+Snapshot resource checks=99
+<end of output>
+Test time =   1.71 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-snapshot-resources" end time: Oct 09 22:10 UTC
+"desktop-snapshot-resources" time elapsed: 00:00:01
+----------------------------------------------------------
+
+27/108 Testing: desktop-snapshot-attachment
+27/108 Test: desktop-snapshot-attachment
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-snapshot-resource-tests" "--attachment-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-snapshot-attachment" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned snapshot fixture root: "/tmp/sc-snapshot-resource-tests-oPpLLf"
+Full-budget attachment error= owned blocks=2
+<end of output>
+Test time =   0.45 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-snapshot-attachment" end time: Oct 09 22:10 UTC
+"desktop-snapshot-attachment" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/108 Testing: desktop-combined-resources
+28/108 Test: desktop-combined-resources
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-snapshot-resource-tests" "--combined-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-combined-resources" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned snapshot fixture root: "/tmp/sc-snapshot-resource-tests-KQAseD"
+512-track combined parent/child limits, Cancel, growth, Undo/Redo and surviving readers qualified
+<end of output>
+Test time =   0.83 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-combined-resources" end time: Oct 09 22:10 UTC
+"desktop-combined-resources" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/108 Testing: desktop-export-controller
+29/108 Test: desktop-export-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-export-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-export-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+1162 export controller/inspection checks passed.
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-export-controller" end time: Oct 09 22:10 UTC
+"desktop-export-controller" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/108 Testing: desktop-export-ui
+30/108 Test: desktop-export-ui
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-export-ui-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-export-ui" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+2017 desktop export UI checks passed.
+<end of output>
+Test time =   2.50 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-export-ui" end time: Oct 09 22:10 UTC
+"desktop-export-ui" time elapsed: 00:00:02
+----------------------------------------------------------
+
+31/108 Testing: equipment-editor
+31/108 Test: equipment-editor
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-equipment-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"equipment-editor" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+2233 equipment checks passed; 1092 catalog entries validated.
+<end of output>
+Test time =   4.16 sec
+----------------------------------------------------------
+Test Passed.
+"equipment-editor" end time: Oct 09 22:10 UTC
+"equipment-editor" time elapsed: 00:00:04
+----------------------------------------------------------
+
+32/108 Testing: desktop-gui-resources
+32/108 Test: desktop-gui-resources
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-gui-resource-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-gui-resources" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+Mouse event "MouseRelease" not accepted by receiving widget
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned GUI resource fixture root: "/tmp/GuiResources-NrHTqv"
+512-row list/projection and 10000-clip timeline ownership/refusal/reuse qualified
+512/513-track actual desktop atomic refusal, resource editor, display retry and save qualified
+Monitoring before initial display preserves the requested mode and exact prepare prefix
+Arming before the initial display synchronizes the admitted inventory without audio activation
+GUI resource checks=76
+<end of output>
+Test time =   2.23 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-gui-resources" end time: Oct 09 22:10 UTC
+"desktop-gui-resources" time elapsed: 00:00:02
+----------------------------------------------------------
+
+33/108 Testing: desktop-gui-early-prepare
+33/108 Test: desktop-gui-early-prepare
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-gui-resource-tests" "--early-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-gui-early-prepare" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned GUI resource fixture root: "/tmp/GuiResources-RqbQpu"
+Monitoring before initial display preserves the requested mode and exact prepare prefix
+Arming before the initial display synchronizes the admitted inventory without audio activation
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-gui-early-prepare" end time: Oct 09 22:10 UTC
+"desktop-gui-early-prepare" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/108 Testing: desktop-history-resources
+34/108 Test: desktop-history-resources
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-history-ui-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-history-resources" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned history UI fixture root: "/tmp/sc-history-ui-47db8db1-a4aa-4152-b815-506acaae71e8"
+512-track GUI, 300 Undo/Redo steps, German numeric input, refused reduction and retry passed
+328 history desktop checks passed
+<end of output>
+Test time =   9.58 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-history-resources" end time: Oct 09 22:10 UTC
+"desktop-history-resources" time elapsed: 00:00:09
+----------------------------------------------------------
+
+35/108 Testing: desktop-history-startup-policy
+35/108 Test: desktop-history-startup-policy
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-history-ui-tests" "--review-startup-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-history-startup-policy" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned history UI fixture root: "/tmp/sc-history-ui-3986612e-9e46-4ffd-b28e-17d1272cd05a"
+Startup policy before initial worker publication preserved byte-exact limits
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-history-startup-policy" end time: Oct 09 22:10 UTC
+"desktop-history-startup-policy" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/108 Testing: desktop-memory-resources
+36/108 Test: desktop-memory-resources
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-history-ui-tests" "--memory-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-memory-resources" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned history UI fixture root: "/tmp/sc-history-ui-19870264-67ae-498d-a98e-b0e72eba14e9"
+Startup policy before initial worker publication preserved byte-exact limits
+512-track desktop memory policies, atomic refusal, persistence failure and edit retry qualified
+<end of output>
+Test time =   0.80 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-memory-resources" end time: Oct 09 22:10 UTC
+"desktop-memory-resources" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/108 Testing: desktop-history-preflight-peak
+37/108 Test: desktop-history-preflight-peak
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-history-ui-tests" "--review-peak-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-history-preflight-peak" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned history UI fixture root: "/tmp/sc-history-ui-e2470f67-bf72-4615-89d7-6a915d905f0a"
+Accepted preflight expected=40072 published=40072
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-history-preflight-peak" end time: Oct 09 22:10 UTC
+"desktop-history-preflight-peak" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/108 Testing: desktop-controller
+38/108 Test: desktop-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+{"checks":358,"asynchronous_io":true,"save_revision_checked":true,"shutdown_join_checked":true}
+<end of output>
+Test time =   0.36 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-controller" end time: Oct 09 22:10 UTC
+"desktop-controller" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/108 Testing: desktop-configured-preflight
+39/108 Test: desktop-configured-preflight
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-controller-tests" "--configured-preflight-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-configured-preflight" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned configured preflight root: "/tmp/sc-controller-tests-fOzJtG"
+Routing configured preflight preserved active gesture=1
+Structural configured preflight preserved active gesture=1
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-configured-preflight" end time: Oct 09 22:10 UTC
+"desktop-configured-preflight" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/108 Testing: desktop-playback-controller
+40/108 Test: desktop-playback-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-playback-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-playback-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+{"checks":75,"dsp_backpressure_retry":true,"accepted_applied_distinct":true,"latest_model_reconciled":true,"priority_shutdown":true,"native_audio":false}
+<end of output>
+Test time =   0.85 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-playback-controller" end time: Oct 09 22:10 UTC
+"desktop-playback-controller" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/108 Testing: desktop-recording-controller
+41/108 Test: desktop-recording-controller
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-recording-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-recording-controller" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+{"checks":211,"synthetic_endpoint":true,"actual_disk_takes":true,"retained_handoff":true,"preview_copy_recovery":true,"bounded_pressure_stop":true}
+<end of output>
+Test time =   1.26 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-recording-controller" end time: Oct 09 22:10 UTC
+"desktop-recording-controller" time elapsed: 00:00:01
+----------------------------------------------------------
+
+42/108 Testing: desktop-timeline
+42/108 Test: desktop-timeline
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-timeline-ui-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-timeline" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-vSlpIB
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+209 timeline/selection UI checks passed
+<end of output>
+Test time =   1.31 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-timeline" end time: Oct 09 22:10 UTC
+"desktop-timeline" time elapsed: 00:00:01
+----------------------------------------------------------
+
+43/108 Testing: desktop-clip-processing
+43/108 Test: desktop-clip-processing
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-timeline-ui-tests" "--clip-processing-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-clip-processing" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-tiZBMz
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+59 desktop clip-processing checks passed; locale/exact precision, grouped Undo/Redo, signed anchors, split, readonly preparation and Save/reopen; no native audio
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-clip-processing" end time: Oct 09 22:10 UTC
+"desktop-clip-processing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+44/108 Testing: desktop-playback-rate
+44/108 Test: desktop-playback-rate
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-timeline-ui-tests" "--playback-rate-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-playback-rate" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-xCFtyS
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+PASS: 66 desktop linked playback-rate checks
+<end of output>
+Test time =   0.32 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-playback-rate" end time: Oct 09 22:10 UTC
+"desktop-playback-rate" time elapsed: 00:00:00
+----------------------------------------------------------
+
+45/108 Testing: desktop-positioned-clips
+45/108 Test: desktop-positioned-clips
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-timeline-ui-tests" "--positioned-clips-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-positioned-clips" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-uRQeyG
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+33 desktop positioned-clip checks passed; exact fractional display, signed project crop, Undo/Redo, split, mixed-rate insertion, Save/reopen and raw hashes; no native audio
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-positioned-clips" end time: Oct 09 22:10 UTC
+"desktop-positioned-clips" time elapsed: 00:00:00
+----------------------------------------------------------
+
+46/108 Testing: desktop-virtualized-views
+46/108 Test: desktop-virtualized-views
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-timeline-ui-tests" "--viewport-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-virtualized-views" start time: Oct 09 22:10 UTC
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-nWTELA
+Owned virtualized desktop project: "/tmp/sc-timeline-ui-tests-nWTELA/virtualized-project"
+This plugin does not support propagateSizeHints()
+Virtualized8192 Open elapsed ms=2718
+Paint at 818,110 actual=#50c371 expected=#50c371 row=8190 viewport=852x176
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Large desktop Close/Save elapsed ms=4586
+Virtualized8192 rows: painted=2 clips=2 interval_nodes=2 snapshot_builds=1 actual_widgets=243
+Virtualized10000 clips: painted=304 interval_nodes=631
+63 virtualized desktop checks passed
+<end of output>
+Test time =  21.67 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-virtualized-views" end time: Oct 09 22:11 UTC
+"desktop-virtualized-views" time elapsed: 00:00:21
+----------------------------------------------------------
+
+47/108 Testing: desktop-track-scalability
+47/108 Test: desktop-track-scalability
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-timeline-ui-tests" "--large-project-only"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-track-scalability" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-bXcoyn
+Owned large desktop project: "/tmp/sc-timeline-ui-tests-bXcoyn/large-project"
+This plugin does not support propagateSizeHints()
+Large Add observed canonical tracks=4097 GUI rows=4096 selected=b2011aee-ff3d-461e-be82-a706ee43f4d3 prior=b2011aee-ff3d-461e-be82-a706ee43f4d3
+This plugin does not support propagateSizeHints()
+Large desktop Close/Save elapsed ms=1330
+4096-track actual desktop Open/last-track edit/Add4097/Undo/Redo/Save/reopen passed
+16 large-project desktop checks passed
+<end of output>
+Test time =   4.33 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-track-scalability" end time: Oct 09 22:11 UTC
+"desktop-track-scalability" time elapsed: 00:00:04
+----------------------------------------------------------
+
+48/108 Testing: desktop-ui
+48/108 Test: desktop-ui
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-ui-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"desktop-ui" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+{"checks":692,"ui_keyboard_undo":true,"focus_safe_wheel":true,"scrollable_bands":32,"dirty_close_choices":3,"playback_ui_fake_endpoint":true,"colorized_meter":true,"close_waits_playback_join":true}
+<end of output>
+Test time =   5.98 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-ui" end time: Oct 09 22:11 UTC
+"desktop-ui" time elapsed: 00:00:05
+----------------------------------------------------------
+
+49/108 Testing: desktop-manual-recording
+49/108 Test: desktop-manual-recording
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-manual-panel-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw
+"desktop-manual-recording" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Owned manual panel project: "/tmp/sc-manual-panel-4d20e98c-e9ce-4640-aae3-b0d9433ca75f"
+This plugin does not support propagateSizeHints()
+Manual panel: prefix barrier, explicit routes, disconnect/reconnect, three two-lane takes, exact raw, explicit adoption, Undo/Redo, EQ audio acknowledgement, Save/reopen, async close
+Owned manual panel project: "/tmp/sc-manual-panel-aabb3c3d-9c49-4bda-8b00-b6e0b33d579b"
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned manual panel project: "/tmp/sc-manual-panel-70990498-0fae-4a8f-91a8-5eb1ea2de03b"
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+Owned manual panel project: "/tmp/sc-manual-panel-95524d53-9cfa-4370-9825-338940a5ff82"
+This plugin does not support propagateSizeHints()
+Owned manual panel project: "/tmp/sc-manual-panel-c0b493f1-4413-4d4f-9bb6-a99eb656f2fd"
+This plugin does not support propagateSizeHints()
+Held attachment: unrelated Save rejected, preview remains pending, successful IO consumes exactly once
+Manual desktop panel acceptance passed
+<end of output>
+Test time =   2.05 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-manual-recording" end time: Oct 09 22:11 UTC
+"desktop-manual-recording" time elapsed: 00:00:02
+----------------------------------------------------------
+
+50/108 Testing: verified-media-staging
+50/108 Test: verified-media-staging
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-media-staging-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"verified-media-staging" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Staging warm-up process handles: 9 -> 9
+Passed 163 media staging checks
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"verified-media-staging" end time: Oct 09 22:11 UTC
+"verified-media-staging" time elapsed: 00:00:00
+----------------------------------------------------------
+
+51/108 Testing: approved-media-root
+51/108 Test: approved-media-root
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-approved-media-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"approved-media-root" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+PASS: 168 approved-root checks; owned files, bounded reads/hash, no audio or conversion
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"approved-media-root" end time: Oct 09 22:11 UTC
+"approved-media-root" time elapsed: 00:00:00
+----------------------------------------------------------
+
+52/108 Testing: verified-media-stage-worker
+52/108 Test: verified-media-stage-worker
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/media_stage_worker_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-media-stage-worker" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-approved-wave-probe"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"verified-media-stage-worker" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Passed 61 actual media staging worker checks
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"verified-media-stage-worker" end time: Oct 09 22:11 UTC
+"verified-media-stage-worker" time elapsed: 00:00:00
+----------------------------------------------------------
+
+53/108 Testing: approved-media-probe
+53/108 Test: approved-media-probe
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/approved_media_probe_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-approved-media-probe"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"approved-media-probe" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+PASS: 23 actual approved-media CLI checks; no audio decode/conversion
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"approved-media-probe" end time: Oct 09 22:11 UTC
+"approved-media-probe" time elapsed: 00:00:00
+----------------------------------------------------------
+
+54/108 Testing: inspection-bundle
+54/108 Test: inspection-bundle
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-inspection-bundle-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"inspection-bundle" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Inspection bundle checks=91; synthetic originating PID, no native-suite compatibility claim
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"inspection-bundle" end time: Oct 09 22:11 UTC
+"inspection-bundle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+55/108 Testing: reaper-structure
+55/108 Test: reaper-structure
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-reaper-structure-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"reaper-structure" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+RPP structural checks=174; synthetic only; semantic/native compatibility unqualified
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"reaper-structure" end time: Oct 09 22:11 UTC
+"reaper-structure" time elapsed: 00:00:00
+----------------------------------------------------------
+
+56/108 Testing: reaper-import-properties
+56/108 Test: reaper-import-properties
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-reaper-import-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82/projects"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"reaper-import-properties" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Reaper import properties: 890 checks; original scalar/byte preservation only, conversion/render unqualified
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"reaper-import-properties" end time: Oct 09 22:11 UTC
+"reaper-import-properties" time elapsed: 00:00:00
+----------------------------------------------------------
+
+57/108 Testing: import-inspection-worker
+57/108 Test: import-inspection-worker
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/import_inspect_worker_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-inspect-worker"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"import-inspection-worker" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks": 140, "processBoundary": true, "sourceUntouched": true, "nativeDAWCompatibilityQualified": false, "platform": "linux"}
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"import-inspection-worker" end time: Oct 09 22:11 UTC
+"import-inspection-worker" time elapsed: 00:00:00
+----------------------------------------------------------
+
+58/108 Testing: reaper-native-corpus
+58/108 Test: reaper-native-corpus
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/reaper_native_corpus_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-inspect-worker" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"reaper-native-corpus" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks": 6013, "writer": "7.82/linux-x86_64", "inspectionPlatform": "linux", "cases": [{"case": "empty", "workerPid": 8281, "sourceSha256": "7b2f0a838abc82cc0e8a8f3c55cfeda44d7223213bcb177eb56095fe72d54ae9", "bytes": 2245, "nodes": 113, "trackBlocks": 0, "itemBlocks": 0}, {"case": "unicode-mono", "workerPid": 8283, "sourceSha256": "8e1aed49bba6867947c1cd90e43937389f17f87edd27cc4adb5429b3bbc79345", "bytes": 3366, "nodes": 161, "trackBlocks": 1, "itemBlocks": 1}, {"case": "offset-fades", "workerPid": 8285, "sourceSha256": "ee2ca2e11ce52b37e3ef929798d8e73427f46acd7b70d04548a2d83a705bdc55", "bytes": 3900, "nodes": 183, "trackBlocks": 1, "itemBlocks": 2}, {"case": "stereo-gain-pan", "workerPid": 8287, "sourceSha256": "0721d640a1a62b535a854f5a6d94eecd0fd0ccec7f054cde7a93b77f9e2e65e0", "bytes": 3376, "nodes": 161, "trackBlocks": 1, "itemBlocks": 1}, {"case": "rate-pitch", "workerPid": 8289, "sourceSha256": "f4a62e9708daacf53c6282d19eff6c537377456896852b6b2da055c350a8b2e9", "bytes": 3371, "nodes": 161, "trackBlocks": 1, "itemBlocks": 1}, {"case": "opaque-state-routing", "workerPid": 8291, "sourceSha256": "77ac5b159f5aa38091a8046f8bc8645b49c34223d5daa50bfa6fd8282b5c5241", "bytes": 4031, "nodes": 189, "trackBlocks": 2, "itemBlocks": 1}, {"case": "midi-tempo", "workerPid": 8293, "sourceSha256": "bad42422264c44a6f46a702340ccb818b32fa747a0cee2b0efd7a2a84262ba5a", "bytes": 3858, "nodes": 176, "trackBlocks": 1, "itemBlocks": 1}], "nativeWriterExecutedByThisTest": false, "semanticImportQualified": false, "renderComparisonQualified": false}
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"reaper-native-corpus" end time: Oct 09 22:11 UTC
+"reaper-native-corpus" time elapsed: 00:00:00
+----------------------------------------------------------
+
+59/108 Testing: import-property-protocol
+59/108 Test: import-property-protocol
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/import_property_protocol_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-inspect-worker" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-property-report-probe" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"import-property-protocol" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks": 569, "platform": "linux", "cases": [{"id": "empty", "pid": 8296, "sourceSha256": "7b2f0a838abc82cc0e8a8f3c55cfeda44d7223213bcb177eb56095fe72d54ae9", "objects": 1, "properties": 2}, {"id": "unicode-mono", "pid": 8300, "sourceSha256": "8e1aed49bba6867947c1cd90e43937389f17f87edd27cc4adb5429b3bbc79345", "objects": 4, "properties": 20}, {"id": "offset-fades", "pid": 8304, "sourceSha256": "ee2ca2e11ce52b37e3ef929798d8e73427f46acd7b70d04548a2d83a705bdc55", "objects": 6, "properties": 33}, {"id": "stereo-gain-pan", "pid": 8308, "sourceSha256": "0721d640a1a62b535a854f5a6d94eecd0fd0ccec7f054cde7a93b77f9e2e65e0", "objects": 4, "properties": 20}, {"id": "rate-pitch", "pid": 8312, "sourceSha256": "f4a62e9708daacf53c6282d19eff6c537377456896852b6b2da055c350a8b2e9", "objects": 4, "properties": 20}, {"id": "opaque-state-routing", "pid": 8316, "sourceSha256": "77ac5b159f5aa38091a8046f8bc8645b49c34223d5daa50bfa6fd8282b5c5241", "objects": 5, "properties": 25}, {"id": "midi-tempo", "pid": 8320, "sourceSha256": "bad42422264c44a6f46a702340ccb818b32fa747a0cee2b0efd7a2a84262ba5a", "objects": 4, "properties": 19}], "realWorkerAndIndependentDecoder": true, "corruptChecksumRecomputedCases": 28, "syntheticEvidenceCases": 7, "semanticImportQualified": false, "renderComparisonQualified": false}
+<end of output>
+Test time =   0.56 sec
+----------------------------------------------------------
+Test Passed.
+"import-property-protocol" end time: Oct 09 22:11 UTC
+"import-property-protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+60/108 Testing: resource-admitted-tracks
+60/108 Test: resource-admitted-tracks
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-track-scalability-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/track-scalability-projects"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"resource-admitted-tracks" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"result":{"media_cache_qualified":false,"native_runtime_qualified":false,"passed":true,"sustained_qualified":false,"track_counts_are_regressions_not_product_limits":true,"virtualized_ui_qualified":false,"workflows":[{"all_ids_routes_state_preserved":true,"encoded_bytes":302048,"group_undo_redo":true,"mix_workflow_ns":48771847,"mixer":{"duplicate_and_invalid_ordinal_transactional":true,"exact_sample_difference":0,"frames":32,"high_ordinal_parameter_receipt":true,"left_peak":32.875,"playback_payload_bytes":102140585,"right_peak":32.0,"rt_violations":0},"save_reopen_previous":true,"small_budgets_refused_without_mutation":true,"state_validation_payload_bytes":484435,"state_workflow_ns":469308837,"tracks":257},{"all_ids_routes_state_preserved":true,"encoded_bytes":601163,"group_undo_redo":true,"mix_workflow_ns":92214541,"mixer":{"duplicate_and_invalid_ordinal_transactional":true,"exact_sample_difference":0,"frames":32,"high_ordinal_parameter_receipt":true,"left_peak":63.875,"playback_payload_bytes":203481920,"right_peak":64.75,"rt_violations":0},"save_reopen_previous":true,"small_budgets_refused_without_mutation":true,"state_validation_payload_bytes":964090,"state_workflow_ns":913222885,"tracks":512},{"all_ids_routes_state_preserved":true,"encoded_bytes":1201763,"group_undo_redo":true,"mix_workflow_ns":175574100,"mixer":{"duplicate_and_invalid_ordinal_transactional":true,"exact_sample_difference":0,"frames":32,"high_ordinal_parameter_receipt":true,"left_peak":127.8125,"playback_payload_bytes":406959424,"right_peak":129.625,"rt_violations":0},"save_reopen_previous":true,"small_budgets_refused_without_mutation":true,"state_validation_payload_bytes":1927162,"state_workflow_ns":1829423270,"tracks":1024},{"all_ids_routes_state_preserved":true,"encoded_bytes":4808291,"group_undo_redo":true,"mix_workflow_ns":636673064,"mixer":{"duplicate_and_invalid_ordinal_transactional":true,"exact_sample_difference":0,"frames":32,"high_ordinal_parameter_receipt":true,"left_peak":511.875,"playback_payload_bytes":1627824448,"right_peak":513.875,"rt_violations":0},"save_reopen_previous":true,"small_budgets_refused_without_mutation":true,"state_validation_payload_bytes":7705594,"state_workflow_ns":7343098434,"tracks":4096}]},"root":"/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/track-scalability-projects/sc-track-scale-9a1b636f-e84d-493d-b5c6-3e3169534077"}
+<end of output>
+Test time =  11.61 sec
+----------------------------------------------------------
+Test Passed.
+"resource-admitted-tracks" end time: Oct 09 22:11 UTC
+"resource-admitted-tracks" time elapsed: 00:00:11
+----------------------------------------------------------
+
+61/108 Testing: native-duration-timing
+61/108 Test: native-duration-timing
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-native-duration-timing-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"native-duration-timing" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"native-duration-timing" end time: Oct 09 22:11 UTC
+"native-duration-timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+62/108 Testing: resource-ledger
+62/108 Test: resource-ledger
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-resource-ledger-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"resource-ledger" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Resource ledger checks=44
+<end of output>
+Test time =   0.32 sec
+----------------------------------------------------------
+Test Passed.
+"resource-ledger" end time: Oct 09 22:11 UTC
+"resource-ledger" time elapsed: 00:00:00
+----------------------------------------------------------
+
+63/108 Testing: session-state
+63/108 Test: session-state
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-session-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"session-state" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+118 checks passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"session-state" end time: Oct 09 22:11 UTC
+"session-state" time elapsed: 00:00:00
+----------------------------------------------------------
+
+64/108 Testing: project-routing
+64/108 Test: project-routing
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-routing-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"project-routing" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+604 routing checks passed
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"project-routing" end time: Oct 09 22:11 UTC
+"project-routing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+65/108 Testing: history-resources
+65/108 Test: history-resources
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-history-resource-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"history-resources" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Owned history fixture root: "/tmp/sc-history-438158f2-d7e5-4320-b7ae-1ecfbf02b48f"
+512 tracks, 400 Undo/Redo groups, retained bytes=1036400, operation peak=4378747
+829 history resource checks passed
+<end of output>
+Test time =   4.67 sec
+----------------------------------------------------------
+Test Passed.
+"history-resources" end time: Oct 09 22:11 UTC
+"history-resources" time elapsed: 00:00:04
+----------------------------------------------------------
+
+66/108 Testing: multitrack-edits
+66/108 Test: multitrack-edits
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-editing-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"multitrack-edits" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+73 multitrack edit checks passed
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"multitrack-edits" end time: Oct 09 22:11 UTC
+"multitrack-edits" time elapsed: 00:00:00
+----------------------------------------------------------
+
+67/108 Testing: editable-stretch-state
+67/108 Test: editable-stretch-state
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-state-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"editable-stretch-state" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+stretch_state_checks=61 raw_anchor_retained=true split_crop_rerender=true undo_redo=true schema=1.12
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"editable-stretch-state" end time: Oct 09 22:11 UTC
+"editable-stretch-state" time elapsed: 00:00:00
+----------------------------------------------------------
+
+68/108 Testing: stretch-timing-oracle
+68/108 Test: stretch-timing-oracle
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/stretch_timing_oracle.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-stretch-state-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"stretch-timing-oracle" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"cases": 1663, "accepted": 1262, "refused": 401, "intermediateDenominatorRefusals": 0, "independentArbitraryPrecision": true, "exactAcceptedCoordinates": true}
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"stretch-timing-oracle" end time: Oct 09 22:11 UTC
+"stretch-timing-oracle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+69/108 Testing: project-monitoring
+69/108 Test: project-monitoring
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-monitoring-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"project-monitoring" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+40 monitoring checks passed
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"project-monitoring" end time: Oct 09 22:11 UTC
+"project-monitoring" time elapsed: 00:00:00
+----------------------------------------------------------
+
+70/108 Testing: multitrack-mix-graph
+70/108 Test: multitrack-mix-graph
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-mix-graph-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"multitrack-mix-graph" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":273,"oracle_difference":0,"peak":4.62478,"rt_violations":0}
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"multitrack-mix-graph" end time: Oct 09 22:11 UTC
+"multitrack-mix-graph" time elapsed: 00:00:00
+----------------------------------------------------------
+
+71/108 Testing: immediate-controls
+71/108 Test: immediate-controls
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-immediate-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"immediate-controls" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":44252,"replay_difference":0,"concurrent_updates":20000,"rt_cpp_allocations":0,"rt_cpp_frees":0,"rt_c_allocations":0,"rt_c_frees":0,"rt_blocking_locks":0}
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"immediate-controls" end time: Oct 09 22:11 UTC
+"immediate-controls" time elapsed: 00:00:00
+----------------------------------------------------------
+
+72/108 Testing: capture-transport
+72/108 Test: capture-transport
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-capture-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"capture-transport" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":14970210,"rt_allocations":0,"rt_frees":0,"rt_blocking_locks":0,"pool_slabs":32,"default_reserve_seconds":2}
+<end of output>
+Test time =   0.30 sec
+----------------------------------------------------------
+Test Passed.
+"capture-transport" end time: Oct 09 22:11 UTC
+"capture-transport" time elapsed: 00:00:00
+----------------------------------------------------------
+
+73/108 Testing: audio-bridge
+73/108 Test: audio-bridge
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-audio-bridge-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"audio-bridge" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":140490,"concurrent_fault_winners":16,"raw_alias_layouts":5,"live_offline_sample_difference":0,"exact_capture_frames":10003,"rt_allocations":0,"rt_frees":0,"rt_blocking_locks":0,"faults":9}
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"audio-bridge" end time: Oct 09 22:11 UTC
+"audio-bridge" time elapsed: 00:00:00
+----------------------------------------------------------
+
+74/108 Testing: wasapi-packet-admission
+74/108 Test: wasapi-packet-admission
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wasapi-input-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"wasapi-packet-admission" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+WASAPI packet/channel/silence/time/EQ/RT contracts pass
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-packet-admission" end time: Oct 09 22:11 UTC
+"wasapi-packet-admission" time elapsed: 00:00:00
+----------------------------------------------------------
+
+75/108 Testing: wasapi-packet-copy
+75/108 Test: wasapi-packet-copy
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wasapi-packet-copy-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"wasapi-packet-copy" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Packet copy: SDK reuse, release/error order, raw/EQ fidelity and bounded admission passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-packet-copy" end time: Oct 09 22:11 UTC
+"wasapi-packet-copy" time elapsed: 00:00:00
+----------------------------------------------------------
+
+76/108 Testing: wasapi-port-selection
+76/108 Test: wasapi-port-selection
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wasapi-ports-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"wasapi-port-selection" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+26 route admission checks passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-port-selection" end time: Oct 09 22:11 UTC
+"wasapi-port-selection" time elapsed: 00:00:00
+----------------------------------------------------------
+
+77/108 Testing: native-render-timing
+77/108 Test: native-render-timing
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-native-render-timing-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"native-render-timing" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+28 native boundary timing checks passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"native-render-timing" end time: Oct 09 22:11 UTC
+"native-render-timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+78/108 Testing: wasapi-capture-trace
+78/108 Test: wasapi-capture-trace
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wasapi-capture-trace-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"wasapi-capture-trace" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Native capture trace: bounded loss, exact metadata and concurrent publication passed
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-capture-trace" end time: Oct 09 22:11 UTC
+"wasapi-capture-trace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+79/108 Testing: wasapi-render-trace
+79/108 Test: wasapi-render-trace
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wasapi-render-trace-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"wasapi-render-trace" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Native render trace: owned samples, raw headroom/errors, abort, bounded loss, admission and RT audit passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-render-trace" end time: Oct 09 22:11 UTC
+"wasapi-render-trace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+80/108 Testing: project-import-state
+80/108 Test: project-import-state
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/project_import_state_workflows.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-inspect-worker" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-project-import-state-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"project-import-state" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+PASS: 173 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 173 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 173 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 39 independent import-state workflow checks; source/loss/provenance persistence, not conversion parity
+<end of output>
+Test time =   0.81 sec
+----------------------------------------------------------
+Test Passed.
+"project-import-state" end time: Oct 09 22:11 UTC
+"project-import-state" time elapsed: 00:00:00
+----------------------------------------------------------
+
+81/108 Testing: media-provenance-transaction
+81/108 Test: media-provenance-transaction
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/media_transaction_workflows.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-import-inspect-worker" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-media-import-worker" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-media-transaction-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"media-provenance-transaction" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Passed 252 media transaction checks
+Passed 114 actual media transaction workflow checks
+<end of output>
+Test time =   0.31 sec
+----------------------------------------------------------
+Test Passed.
+"media-provenance-transaction" end time: Oct 09 22:11 UTC
+"media-provenance-transaction" time elapsed: 00:00:00
+----------------------------------------------------------
+
+82/108 Testing: approved-wave-content
+82/108 Test: approved-wave-content
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wave-validation-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"approved-wave-content" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+PASS: 20956 pinned WAVE checks; independent PCM/float samples, headroom, full bounded content; no project conversion
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"approved-wave-content" end time: Oct 09 22:11 UTC
+"approved-wave-content" time elapsed: 00:00:00
+----------------------------------------------------------
+
+83/108 Testing: approved-wave-probe
+83/108 Test: approved-wave-probe
+Command: "/usr/bin/python3.12" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/tests/approved_wave_probe_tests.py" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-approved-wave-probe"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"approved-wave-probe" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks": 64, "platform": "linux", "realWorker": true, "independentByteHashAndFloatHeadroom": true, "originalCorpusFiles": 2, "sourceUntouched": true, "projectConversion": false, "alignedRenderComparison": false}
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"approved-wave-probe" end time: Oct 09 22:11 UTC
+"approved-wave-probe" time elapsed: 00:00:00
+----------------------------------------------------------
+
+84/108 Testing: wasapi-output-contract
+84/108 Test: wasapi-output-contract
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wasapi-output-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"wasapi-output-contract" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Prepared output routing/headroom/live EQ/end slack/refusal/RT/persistence pass
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-output-contract" end time: Oct 09 22:11 UTC
+"wasapi-output-contract" time elapsed: 00:00:00
+----------------------------------------------------------
+
+85/108 Testing: wasapi-playback-owner-rollback
+85/108 Test: wasapi-playback-owner-rollback
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-wasapi-playback-owner-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"wasapi-playback-owner-rollback" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Production playback owner: repeated admission rollback, inactive retry, replacement and full resource retirement passed; SDK boundary injected
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-playback-owner-rollback" end time: Oct 09 22:11 UTC
+"wasapi-playback-owner-rollback" time elapsed: 00:00:00
+----------------------------------------------------------
+
+86/108 Testing: writer-phase-timing
+86/108 Test: writer-phase-timing
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-writer-timing-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"writer-phase-timing" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Writer phase pairing, fixed maxima/context, backlog, gap, construction exclusion and missing observations passed.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"writer-phase-timing" end time: Oct 09 22:11 UTC
+"writer-phase-timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+87/108 Testing: processing-stage-observation
+87/108 Test: processing-stage-observation
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-processing-stage-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"processing-stage-observation" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"processing-stage-observation" end time: Oct 09 22:11 UTC
+"processing-stage-observation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+88/108 Testing: manual-processing-stage-observation
+88/108 Test: manual-processing-stage-observation
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-manual-processing-stage-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"manual-processing-stage-observation" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"manual-processing-stage-observation" end time: Oct 09 22:11 UTC
+"manual-processing-stage-observation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+89/108 Testing: native-port-marker-observation
+89/108 Test: native-port-marker-observation
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-port-marker-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"native-port-marker-observation" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"native-port-marker-observation" end time: Oct 09 22:11 UTC
+"native-port-marker-observation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+90/108 Testing: duplex-recording-owner
+90/108 Test: duplex-recording-owner
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-duplex-recording-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"duplex-recording-owner" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Duplex recording owner: 509572 checks; callback allocations/frees/blocking locks 0
+<end of output>
+Test time =   0.85 sec
+----------------------------------------------------------
+Test Passed.
+"duplex-recording-owner" end time: Oct 09 22:11 UTC
+"duplex-recording-owner" time elapsed: 00:00:00
+----------------------------------------------------------
+
+91/108 Testing: punch-boundaries
+91/108 Test: punch-boundaries
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-punch-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"punch-boundaries" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":13596029,"boundary_partition_workflows":25,"raw_sample_oracle":true,"aliased_monitor_file_oracle":true,"origin_alignment_save_reopen_undo":true,"interrupted_prefix_recovery":true,"musical_latency_partition_workflows":28,"per_lane_origins_postroll":true,"auto_monitor_partition_workflows":13,"continuous_eq_selection_oracle":true,"rt_violations":0,"native_audio":false}
+<end of output>
+Test time =   2.99 sec
+----------------------------------------------------------
+Test Passed.
+"punch-boundaries" end time: Oct 09 22:11 UTC
+"punch-boundaries" time elapsed: 00:00:02
+----------------------------------------------------------
+
+92/108 Testing: manual-recording-control
+92/108 Test: manual-recording-control
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-manual-recording-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"manual-recording-control" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":65202,"repeated_workflows":3,"maximum_output_difference":0,"output_peak":2.14813,"rt_violations":0,"native_audio":false,"windows_runtime":false}
+<end of output>
+Test time =   1.67 sec
+----------------------------------------------------------
+Test Passed.
+"manual-recording-control" end time: Oct 09 22:11 UTC
+"manual-recording-control" time elapsed: 00:00:01
+----------------------------------------------------------
+
+93/108 Testing: manual-desktop-control
+93/108 Test: manual-desktop-control
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-manual-controller-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"manual-desktop-control" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Owned manual controller project: "/tmp/sc-manual-control-44448f6c-3c2e-478f-bb12-103fb882c41d"
+Controller repeated takes: original raw, audio replies, history, Save/reopen, one graph
+Owned manual controller project: "/tmp/sc-manual-control-08ccd1c2-37dc-48a2-9cff-bd36b9a7a814"
+Controller saturation:16 queued, immediate Cancel, all17 terminal receipts
+Owned manual controller project: "/tmp/sc-manual-control-69043b06-49db-4485-a023-d1aeb2eadeb5"
+Controller pressure:8 slots,64 retained replies, explicit replenishment, closed receipts
+Owned manual controller project: "/tmp/sc-manual-control-48805ebf-6d19-48ac-80b1-8c6acfa2a0ca"
+Owned manual controller project: "/tmp/sc-manual-control-15f6ed10-f2b5-4d6b-a0fa-cff710d403d6"
+Controller Stop-to-Cancel during held finalization: next callback stopped, joined before close, raw retained
+Owned manual controller project: "/tmp/sc-manual-control-81b1f26c-d2e4-4a9c-8663-e95000df069f"
+Owned manual controller project: "/tmp/sc-manual-control-5d5a0d6a-78ab-4885-bf08-1db486a841c9"
+Acknowledgments during last Close iteration: remaining_control=0 remaining_audio=0 remaining_groups=0
+Owned manual controller project: "/tmp/sc-manual-control-fd9f2fd6-ea54-4b9c-bdd9-6351c14cd5d6"
+Manual parameter following: partial/backpressure/latest/Undo/Redo on one graph, safe structural refusal
+<end of output>
+Test time =   0.72 sec
+----------------------------------------------------------
+Test Passed.
+"manual-desktop-control" end time: Oct 09 22:11 UTC
+"manual-desktop-control" time elapsed: 00:00:00
+----------------------------------------------------------
+
+94/108 Testing: manual-priority-interruption
+94/108 Test: manual-priority-interruption
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-manual-interrupt-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"manual-priority-interruption" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Owned interruption project: "/tmp/sc-manual-interrupt-da7232a6-4df9-41b8-957b-5cfc8429364f"
+Owned interruption project: "/tmp/sc-manual-interrupt-28f26eab-e7f7-401f-9216-b0469a840612"
+Owned interruption project: "/tmp/sc-manual-interrupt-2bf21c3e-da1e-460a-987a-75ff6a6299f1"
+Priority Stop: 32lanes, blocked real disk construction, next-boundary stop, verified=24, zeroRT, saved original retained
+Owned interruption project: "/tmp/sc-manual-interrupt-899fbbc5-c83a-4b54-869f-abfdcd8a315d"
+Priority Cancel: 32lanes, blocked real disk construction, next-boundary stop, verified=23, zeroRT, saved original retained
+Owned interruption project: "/tmp/sc-manual-interrupt-047722e2-de0f-4db9-bf81-f744d5d66a9f"
+Late Cancel after Stop via method: pending canceled, delivered unchanged, every raw sample preserved
+Owned interruption project: "/tmp/sc-manual-interrupt-39a7befb-e299-4885-8c22-e9b1cbc26637"
+Late Cancel after Stop via token: pending canceled, delivered unchanged, every raw sample preserved
+Owned interruption project: "/tmp/sc-manual-interrupt-decfbb8e-d401-48b2-ac5d-8492cc6b6d09"
+Late Cancel during held writer finalization: all32 lanes preserved
+Owned interruption project: "/tmp/sc-manual-interrupt-5af92cf1-2c24-4ab4-a3d3-707de8cdace4"
+Late Cancel during held verification: all32 lanes canceled and preserved
+Owned interruption project: "/tmp/sc-manual-interrupt-25e43a86-53a1-4dfd-a3d0-23ca9067fcef"
+Nonblocking inspections after priority signal: 1
+<end of output>
+Test time =   0.94 sec
+----------------------------------------------------------
+Test Passed.
+"manual-priority-interruption" end time: Oct 09 22:11 UTC
+"manual-priority-interruption" time elapsed: 00:00:00
+----------------------------------------------------------
+
+95/108 Testing: manual-punch-owner
+95/108 Test: manual-punch-owner
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-manual-punch-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"manual-punch-owner" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":58138,"repeated_workflows":3,"maximum_output_difference":0,"output_peak":2.14813,"native_audio":false,"windows_runtime":false,"rt_violations":0}
+<end of output>
+Test time =   0.75 sec
+----------------------------------------------------------
+Test Passed.
+"manual-punch-owner" end time: Oct 09 22:11 UTC
+"manual-punch-owner" time elapsed: 00:00:00
+----------------------------------------------------------
+
+96/108 Testing: shared-playback-capture
+96/108 Test: shared-playback-capture
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-duplex-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"shared-playback-capture" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":374866,"simultaneous_armed_tracks":32,"captured_frames_per_track":9866,"matrix_difference":0,"native_clock_faults":14,"raw_off_post_eq_exact":true,"save_reopen_alignment":true,"rt_violations":0,"native_audio":false}
+<end of output>
+Test time =   0.45 sec
+----------------------------------------------------------
+Test Passed.
+"shared-playback-capture" end time: Oct 09 22:11 UTC
+"shared-playback-capture" time elapsed: 00:00:00
+----------------------------------------------------------
+
+97/108 Testing: multitrack-mix-playback
+97/108 Test: multitrack-mix-playback
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-mix-playback-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"multitrack-mix-playback" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"checks":306,"tracks":32,"frames":29000,"oracle_difference":0,"rt_violations":0}
+<end of output>
+Test time =   0.25 sec
+----------------------------------------------------------
+Test Passed.
+"multitrack-mix-playback" end time: Oct 09 22:11 UTC
+"multitrack-mix-playback" time elapsed: 00:00:00
+----------------------------------------------------------
+
+98/108 Testing: graph-resources
+98/108 Test: graph-resources
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-graph-resource-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/graph-resource-projects"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"graph-resources" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Owned graph resource fixture root: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build/graph-resource-projects/sc-graph-resources-316d37ba-00a6-4112-9fd1-7ebb2b9149d3
+{"Windows_runtime_qualified":false,"native_audio":false,"passed":true,"rt_violations":0,"sustained_qualified":false,"tracks":512}
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"graph-resources" end time: Oct 09 22:11 UTC
+"graph-resources" time elapsed: 00:00:00
+----------------------------------------------------------
+
+99/108 Testing: shared-media-cache
+99/108 Test: shared-media-cache
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-media-cache-tests" "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/shared-media-projects"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"shared-media-cache" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+{"result":{"Windows_runtime_qualified":false,"native_audio":false,"passed":true,"rt_violations":0,"sustained_qualified":false,"workflows":[{"OS_descriptor_bound_qualified":true,"charged_cache_registry_bytes":1127680,"compared_output_samples":16384,"decoded_pages":3,"frames":8192,"handle_evictions":0,"oracle_difference":0,"page_hits":8444,"page_slots":63,"peak_open_files":1,"tracks":257,"unique_assets":1,"verified_opens":1},{"OS_descriptor_bound_qualified":true,"charged_cache_registry_bytes":1127680,"compared_output_samples":16384,"decoded_pages":3,"frames":8192,"handle_evictions":0,"oracle_difference":0,"page_hits":33937,"page_slots":63,"peak_open_files":1,"tracks":1024,"unique_assets":1,"verified_opens":1},{"OS_descriptor_bound_qualified":true,"charged_cache_registry_bytes":232632,"compared_output_samples":1536,"decoded_pages":288,"frames":768,"handle_evictions":382,"oracle_difference":0,"page_hits":0,"page_slots":12,"peak_open_files":2,"tracks":96,"unique_assets":96,"verified_opens":384}]},"root":"/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/shared-media-projects/sc-shared-media-991701d2-c376-4da0-8ec8-d7ffe5ad816c"}
+<end of output>
+Test time =   1.47 sec
+----------------------------------------------------------
+Test Passed.
+"shared-media-cache" end time: Oct 09 22:11 UTC
+"shared-media-cache" time elapsed: 00:00:01
+----------------------------------------------------------
+
+100/108 Testing: offline-export
+100/108 Test: offline-export
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-export-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"offline-export" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+1019 offline export checks passed; exact live/range/tail, transactions and 1/2/8/32/256 channels.
+<end of output>
+Test time =   2.80 sec
+----------------------------------------------------------
+Test Passed.
+"offline-export" end time: Oct 09 22:11 UTC
+"offline-export" time elapsed: 00:00:02
+----------------------------------------------------------
+
+101/108 Testing: offline-export-media-policy
+101/108 Test: offline-export-media-policy
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-export-tests" "--media-policy"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"offline-export-media-policy" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Export registry policy: track_refused=1 mix_refused=1 root="/tmp/sc-export-Δ-0ace39e9-cffd-4965-9280-1b007a71f6b3"
+Retained offline export fixture: "/tmp/sc-export-Δ-0ace39e9-cffd-4965-9280-1b007a71f6b3"
+80 offline export checks passed; exact live/range/tail, transactions and 1/2/8/32/256 channels.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"offline-export-media-policy" end time: Oct 09 22:11 UTC
+"offline-export-media-policy" time elapsed: 00:00:00
+----------------------------------------------------------
+
+102/108 Testing: clip-processing
+102/108 Test: clip-processing
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-clip-processing-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"clip-processing" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+PASS: 185303 clip-processing checks; neutral/migrations, curves/crossfade invariants, split/trim exactness, Undo/Redo, owned 1/2/8/32/256-channel live/offline WAV/headroom; no audio device, rate/pitch or source-suite conversion qualification
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"clip-processing" end time: Oct 09 22:11 UTC
+"clip-processing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+103/108 Testing: recording-discovery
+103/108 Test: recording-discovery
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-discovery-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"recording-discovery" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+46 discovery checks passed
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"recording-discovery" end time: Oct 09 22:11 UTC
+"recording-discovery" time elapsed: 00:00:00
+----------------------------------------------------------
+
+104/108 Testing: recording-recovery
+104/108 Test: recording-recovery
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-recording-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"recording-recovery" start time: Oct 09 22:11 UTC
+Output:
+----------------------------------------------------------
+Concurrent synthetic capture producer_elapsed_ns=10285252521 intended_frames=480000 sample_rate=48000 pool_slabs=32 slab_frames=1024 writer_timing={"maximum_ready_slabs":1,"maximum_queued_frame_upper_bound":1024,"capacity_frames":32768,"maximum_write_gap_ns":24677441,"missing_phase_pairs":0,"phase_pairs_complete":true,"phase_summaries":[{"phase":"write_hash","count":469,"maximum_ns":60132,"maximum_begin_monotonic_ns":431588468486,"maximum_end_monotonic_ns":431588528618,"begin_written_frames":403456,"end_written_frames":404480,"begin_committed_frames":385024,"end_committed_frames":385024,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":1024,"end_acquired_frames":1024},{"phase":"audio_flush","count":10,"maximum_ns":1179789,"maximum_begin_monotonic_ns":433207678782,"maximum_end_monotonic_ns":433208858571,"begin_written_frames":480000,"end_written_frames":480000,"begin_committed_frames":433152,"end_committed_frames":433152,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0},{"phase":"journal_publish","count":11,"maximum_ns":2118502,"maximum_begin_monotonic_ns":433208859119,"maximum_end_monotonic_ns":433210977621,"begin_written_frames":480000,"end_written_frames":480000,"begin_committed_frames":433152,"end_committed_frames":480000,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0},{"phase":"idle_wait","count":9580,"maximum_ns":1229917,"maximum_begin_monotonic_ns":431813221631,"maximum_end_monotonic_ns":431814451548,"begin_written_frames":414720,"end_written_frames":414720,"begin_committed_frames":385024,"end_committed_frames":385024,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0}]}
+{"checks":277,"synthetic_recorded_frames":480000,"rate_hz":48000,"concurrent_disk_worker":true,"rt_allocations":0,"rt_frees":0,"rt_blocking_locks":0,"raw_overs_preserved":true,"prefix_recovery":true,"native_audio_device":false}
+<end of output>
+Test time =  10.57 sec
+----------------------------------------------------------
+Test Passed.
+"recording-recovery" end time: Oct 09 22:12 UTC
+"recording-recovery" time elapsed: 00:00:10
+----------------------------------------------------------
+
+105/108 Testing: recording-fault-persistence
+105/108 Test: recording-fault-persistence
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-recording-fault-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"recording-fault-persistence" start time: Oct 09 22:12 UTC
+Output:
+----------------------------------------------------------
+{"checks":147,"portable_fault":true,"raw_preserved":true,"audio_device":false}
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"recording-fault-persistence" end time: Oct 09 22:12 UTC
+"recording-fault-persistence" time elapsed: 00:00:00
+----------------------------------------------------------
+
+106/108 Testing: playback-native-clock
+106/108 Test: playback-native-clock
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-playback-bridge-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"playback-native-clock" start time: Oct 09 22:12 UTC
+Output:
+----------------------------------------------------------
+{"checks":4321,"native_clock_faults":12,"layouts":[1,2,8,32,256],"file_offline_exact":true,"rt_allocations":0,"rt_frees":0,"rt_blocking_locks":0}
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"playback-native-clock" end time: Oct 09 22:12 UTC
+"playback-native-clock" time elapsed: 00:00:00
+----------------------------------------------------------
+
+107/108 Testing: playback-read-ahead
+107/108 Test: playback-read-ahead
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-playback-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"playback-read-ahead" start time: Oct 09 22:12 UTC
+Output:
+----------------------------------------------------------
+{"checks":15133451,"live_offline_difference":0,"timeline_frames":52750,"seek_generation_retired":true,"rt_allocations":0,"rt_frees":0,"rt_blocking_locks":0}
+<end of output>
+Test time =   0.80 sec
+----------------------------------------------------------
+Test Passed.
+"playback-read-ahead" end time: Oct 09 22:12 UTC
+"playback-read-ahead" time elapsed: 00:00:00
+----------------------------------------------------------
+
+108/108 Testing: prepared-eq
+108/108 Test: prepared-eq
+Command: "/home/runner/work/soundcurrent-daw/soundcurrent-daw/build/sc-engine-tests"
+Directory: /home/runner/work/soundcurrent-daw/soundcurrent-daw/build
+"prepared-eq" start time: Oct 09 22:12 UTC
+Output:
+----------------------------------------------------------
+{"checks":232422,"gain_error_db":0.000315653,"partition_error":0,"float_overs_peak":1.79575,"rt_cpp_allocations":0,"rt_cpp_frees":0,"rt_c_allocations":0,"rt_c_frees":0,"rt_blocking_locks":0,"queue_packets":1000000}
+<end of output>
+Test time =   0.64 sec
+----------------------------------------------------------
+Test Passed.
+"prepared-eq" end time: Oct 09 22:12 UTC
+"prepared-eq" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 09 22:12 UTC
