@@ -1,0 +1,16 @@
+[0/1] Re-running CMake...
+-- Configuring done (6.0s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+[1/13] Automatic RCC for localization/daw_translations.qrc
+[2/13] Building CXX object CMakeFiles/sc-ui-localization.dir/sc-ui-localization_autogen/2OJM5CPMFW/qrc_daw_translations.cpp.o
+[3/13] Building CXX object CMakeFiles/sc-import-lifecycle-probe.dir/tests/import_lifecycle_probe.cpp.o
+[4/13] Linking CXX static library libsc-ui-localization.a
+[5/13] Linking CXX executable sc-import-lifecycle-probe
+[6/13] Building CXX object CMakeFiles/sc-ui-wave.dir/ui/wave_check_controller.cpp.o
+[7/13] Linking CXX static library libsc-ui-wave.a
+[8/13] Linking CXX executable sc-import-controller-tests
+[9/13] Linking CXX executable sc-import-media-ui-tests
+[10/13] Linking CXX executable sc-import-ui-tests
+[11/13] Building CXX object CMakeFiles/sc-wave-controller-tests.dir/tests/wave_controller_tests.cpp.o
+[12/13] Linking CXX executable sc-wave-controller-tests

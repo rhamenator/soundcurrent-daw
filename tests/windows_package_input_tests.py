@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker
+from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker
 import json
 
 
@@ -74,6 +74,9 @@ def run():
                 try:deploy_payload(archive,m,destination,require_worker=True)
                 except ValueError:pass
                 else:raise AssertionError('New desktop payload admitted missing worker')
+                try:deploy_payload(archive,m,destination,require_media_worker=True)
+                except ValueError:pass
+                else:raise AssertionError('Media desktop payload admitted missing worker')
     trusted = json.loads((Path(__file__).resolve().parents[1] /
                           'research/windows-preview-dependencies.json').read_text())
     pinned = {'files': list(trusted['files'].values())}
@@ -92,6 +95,35 @@ def run():
     try:qualify_worker(pinned,receipt,head)
     except ValueError:pass
     else:raise AssertionError('Missing worker accepted')
+    media={'path':'sc-approved-wave-probe.exe','bytes':124,'sha256':'d'*64}
+    with_media={'files':with_worker['files']+[media]}
+    qualified_dependencies(with_media)
+    media_receipt={'sourceCommit':head,'exitCode':0,'pid':1234,'reportedPid':1234,
+                   'exeSha256':'d'*64,'protocol':'sc-approved-wave-validation-v2'}
+    qualify_media_worker(with_media,media_receipt,head)
+    for bad in (None,{**media_receipt,'sourceCommit':'c'*40},
+                {**media_receipt,'exitCode':1},{**media_receipt,'pid':0},
+                {**media_receipt,'pid':True},{**media_receipt,'reportedPid':1},
+                {**media_receipt,'reportedPid':True},{**media_receipt,'exeSha256':'0'*64},
+                {**media_receipt,'protocol':'sc-approved-wave-validation-v1'}):
+        try:qualify_media_worker(with_media,bad,head)
+        except ValueError:pass
+        else:raise AssertionError('Unqualified native media worker accepted')
+    try:qualify_media_worker(with_worker,media_receipt,head)
+    except ValueError:pass
+    else:raise AssertionError('Missing native media worker accepted')
+    with tempfile.TemporaryDirectory(prefix='sc-media-package-') as tmp:
+        root=Path(tmp);all_data={**data,'sc-import-inspect-worker.exe':b'owned inspection worker',
+                               'sc-approved-wave-probe.exe':b'owned media worker'}
+        all_manifest={'files':[{'path':n,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+                               for n,b in all_data.items()]}
+        archive=root/'complete.zip'
+        with zipfile.ZipFile(archive,'w') as z:
+            for n,b in all_data.items():z.writestr(n,b)
+        destination=root/'payload';destination.mkdir()
+        deploy_payload(archive,all_manifest,destination,require_worker=True,require_media_worker=True)
+        assert all((destination/n).read_bytes()==b for n,b in all_data.items())
+    print('Media deployment: both sibling workers required; exact native PID/protocol/source/hash qualification enforced')
     wrong = deepcopy(pinned)
     wrong['files'][0]['sha256'] = '0' * 64
     try:

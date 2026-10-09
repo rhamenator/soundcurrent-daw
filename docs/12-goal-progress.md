@@ -3408,3 +3408,18 @@ or full/native/render compatibility is claimed. No local VM/audio/equalizer/rele
 change. Next: admitted child report/lifecycle and the explicit desktop root/missing/
 replacement workflow, then conversion/persistence/aligned renders. Full frozen
 Linux/Windows/all-Europe/FQCN goal stays active/incomplete.
+
+## Desktop media checklist checkpoint (2026-10-09)
+
+The previous goal turn was progress: pinned WAV validation and precision oracles.
+PR67 now merged fa6b380 after exact1ad6153 passes all four required contexts; final
+native20,503 WAV/64 CLI evidence is retained separately. This turn adds original
+report validation, an owned child controller and the explicit folder/replacement
+media UI. Linux acceptance covers malformed reports, missing/duplicate/unsupported
+references, cancellation/deadline/flood, unchanged tokens, safe labels, source-only
+save/reopen, clear choices and live-child retirement. Checkpoint124/ADR090 record
+remaining native Windows/installed/containment/conversion gates. Catalog inventory
+is714 keys across34 draft catalogs; no reviewed/full-European claim. No local VM,
+user audio route, equalizer checkout, installed preview or public binary release
+changed. Next: verified transactional copying, destination semantics/loss preview
+and Undo/reopen/aligned renders. Full frozen F/Q/C/N goal stays active/incomplete.

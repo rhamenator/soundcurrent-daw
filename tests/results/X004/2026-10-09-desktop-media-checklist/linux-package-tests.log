@@ -1,0 +1,5 @@
+Owned preview package fixture root: "/tmp/sc-preview-package-nv_ytx_t"
+PASS: build-source binding; five independent stale payloads, extra/missing/symlink refusal; exact payload retry; originals unchanged.
+New desktop payload: qualified worker required; missing/stale worker refused.
+Media desktop payload: exact qualified media worker required; missing/stale worker refused.
+PASS: all three executable modes; mode-only refusals; extracted DEB modes; data stays 0644.

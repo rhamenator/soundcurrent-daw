@@ -51,7 +51,8 @@ def verify_build_source(cache, root):
                if line.startswith('CMAKE_HOME_DIRECTORY:INTERNAL=')]
     require(len(entries)==1 and Path(entries[0]).resolve()==root.resolve(),
             'Build tree belongs to another source checkout')
-EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker'}
+EXECUTABLE_PAYLOAD={'usr/bin/soundcurrent-daw','usr/bin/sc-import-inspect-worker',
+                    'usr/bin/sc-approved-wave-probe'}
 def installed_mode(relative):
     return 0o755 if relative in EXECUTABLE_PAYLOAD else 0o644
 def normalize_staged_permissions(stage):
@@ -72,6 +73,8 @@ def verify_staged_install(stage, root, executable):
     }
     if (root/'ui/import_inspection_dialog.cpp').is_file():
         expected['usr/bin/sc-import-inspect-worker']=executable.parent/'sc-import-inspect-worker'
+    if (root/'ui/import_media_dialog.cpp').is_file():
+        expected['usr/bin/sc-approved-wave-probe']=executable.parent/'sc-approved-wave-probe'
     found = {}
     for path in stage.rglob('*'):
         require(not path.is_symlink(), 'Unexpected install payload symlink: '+str(path))
@@ -99,6 +102,10 @@ def package(args):
         worker=build/'sc-import-inspect-worker'
         require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
                 'Inspection worker differs from qualified worker')
+    if (ROOT/'ui/import_media_dialog.cpp').is_file():
+        worker=build/'sc-approved-wave-probe'
+        require(qualification.get('executable_sha256',{}).get(worker.name)==digest(worker),
+                'Media worker differs from qualified worker')
     for relative, sha in qualification['source_sha256'].items():
         require(digest(ROOT/relative)==sha, 'Tested input changed: '+relative)
     cache = (build/'CMakeCache.txt').read_text()
@@ -149,7 +156,8 @@ def package(args):
         run(['strip','--strip-unneeded',stage/'usr/bin/soundcurrent-daw'])
         (output/'debian').mkdir()
         (output/'debian/control').write_text(f'Source: soundcurrent-daw\nSection: sound\nPriority: optional\nMaintainer: {maintainer}\nStandards-Version: 4.7.0\n\nPackage: soundcurrent-daw\nArchitecture: amd64\nDescription: SoundCurrent DAW workflow preview\n')
-        shlibs=run(['dpkg-shlibdeps','-O','-e'+str(stage/'usr/bin/soundcurrent-daw')],cwd=output)
+        shlibs=run(['dpkg-shlibdeps','-O',*('-e'+str(stage/p) for p in
+                   receipt['install_input_sha256'] if p in EXECUTABLE_PAYLOAD)],cwd=output)
         depends=next(line[len('shlibs:Depends='):] for line in shlibs.splitlines() if line.startswith('shlibs:Depends='))
         # Runtime-loaded Qt plugins and the existing user daemon are not in ELF NEEDED.
         depends+=', qt6-qpa-plugins (>= 6.10.2), pipewire (>= 1.6.2), libpipewire-0.3-0t64 (>= 1.6.2)'

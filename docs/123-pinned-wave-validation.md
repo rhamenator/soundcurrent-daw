@@ -104,6 +104,13 @@ values to the independent sample oracle. Its Linux20,508/CLI64 gates pass Releas
 and sanitized; the final native cohort remains separate and pending. No decoder,
 policy, format or product behavior changed in that refinement.
 
+The final PR67 head1ad6153c67dccaf03188d10665f1f693695f583b subsequently passes
+native20,503 WAVE/64 CLI checks in run37890424413 and mergesfa6b380 after all four
+required contexts succeed. Artifact11598123196 digest is
+8329c1ce3a08768be6ab63c362d4d2ea2614f0c1314fd9cffee0b66f740e0f7b;
+the exact metadata/ZIP/raw log is retained with checkpoint124 as prerequisite
+evidence. That final precision cohort is separate from the new desktop/report code.
+
 The prerequisite PR66 merged41e38af after exactbd9e8cb passes all four protected
 contexts in run37888375635. Its actual native folder162/CLI23 checks include owned
 NTFS case-distinct file and intermediate-folder fixtures. Artifact11596959423 has

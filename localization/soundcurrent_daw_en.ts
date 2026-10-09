@@ -613,6 +613,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Save inspection…</translation>
     </message>
     <message>
+      <source>Check media…</source>
+      <translation>Check media…</translation>
+    </message>
+    <message>
       <source>Cancel</source>
       <translation>Cancel</translation>
     </message>
@@ -695,6 +699,191 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Choose a project to inspect.</source>
       <translation>Choose a project to inspect.</translation>
+    </message>
+    <message>
+      <source>Media check unavailable</source>
+      <translation>Media check unavailable</translation>
+    </message>
+    <message>
+      <source>There is not enough import memory to display the media checklist.</source>
+      <translation>There is not enough import memory to display the media checklist.</translation>
+    </message>
+  </context>
+  <context>
+    <name>ImportMediaDialog</name>
+    <message>
+      <source>Choose the folder containing this project's media</source>
+      <translation>Choose the folder containing this project's media</translation>
+    </message>
+    <message>
+      <source>Choose a replacement audio file</source>
+      <translation>Choose a replacement audio file</translation>
+    </message>
+    <message>
+      <source>WAVE audio (*.wav);;All files (*)</source>
+      <translation>WAVE audio (*.wav);;All files (*)</translation>
+    </message>
+    <message>
+      <source>No media folder selected. Opening an inspection does not grant access to its media.</source>
+      <translation>No media folder selected. Opening an inspection does not grant access to its media.</translation>
+    </message>
+    <message>
+      <source>Selected media folder: %1</source>
+      <translation>Selected media folder: %1</translation>
+    </message>
+    <message>
+      <source>Stopping media check…</source>
+      <translation>Stopping media check…</translation>
+    </message>
+    <message>
+      <source>The check could not be started. Check the selected path and available import memory.</source>
+      <translation>The check could not be started. Check the selected path and available import memory.</translation>
+    </message>
+    <message>
+      <source>Checking selected audio…</source>
+      <translation>Checking selected audio…</translation>
+    </message>
+    <message>
+      <source>Choose a media folder and check a reference, or explicitly choose a replacement. Choices stay local to this window.</source>
+      <translation>Choose a media folder and check a reference, or explicitly choose a replacement. Choices stay local to this window.</translation>
+    </message>
+    <message>
+      <source>Check project media</source>
+      <translation>Check project media</translation>
+    </message>
+    <message>
+      <source>Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.</source>
+      <translation>Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.</translation>
+    </message>
+    <message>
+      <source>Maximum file size for this check (MiB):</source>
+      <translation>Maximum file size for this check (MiB):</translation>
+    </message>
+    <message>
+      <source>Choose media folder…</source>
+      <translation>Choose media folder…</translation>
+    </message>
+    <message>
+      <source>Check selected reference</source>
+      <translation>Check selected reference</translation>
+    </message>
+    <message>
+      <source>Choose replacement…</source>
+      <translation>Choose replacement…</translation>
+    </message>
+    <message>
+      <source>Clear local choices</source>
+      <translation>Clear local choices</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancel</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Close</translation>
+    </message>
+  </context>
+  <context>
+    <name>ImportMediaModel</name>
+    <message>
+      <source>Reference unavailable</source>
+      <translation>Reference unavailable</translation>
+    </message>
+    <message>
+      <source>Selected replacement: %1</source>
+      <translation>Selected replacement: %1</translation>
+    </message>
+    <message>
+      <source>Selected folder: %1</source>
+      <translation>Selected folder: %1</translation>
+    </message>
+    <message>
+      <source>Ambiguous or unsupported source; no reference selected</source>
+      <translation>Ambiguous or unsupported source; no reference selected</translation>
+    </message>
+    <message>
+      <source>Not checked</source>
+      <translation>Not checked</translation>
+    </message>
+    <message>
+      <source>Checking…</source>
+      <translation>Checking…</translation>
+    </message>
+    <message>
+      <source>Checked snapshot</source>
+      <translation>Checked snapshot</translation>
+    </message>
+    <message>
+      <source>Canceled</source>
+      <translation>Canceled</translation>
+    </message>
+    <message>
+      <source>Check exceeded its time limit</source>
+      <translation>Check exceeded its time limit</translation>
+    </message>
+    <message>
+      <source>File not found in the selected folder</source>
+      <translation>File not found in the selected folder</translation>
+    </message>
+    <message>
+      <source>Audio format not supported by this check yet</source>
+      <translation>Audio format not supported by this check yet</translation>
+    </message>
+    <message>
+      <source>File or check exceeds resource limits</source>
+      <translation>File or check exceeds resource limits</translation>
+    </message>
+    <message>
+      <source>File changed during the check</source>
+      <translation>File changed during the check</translation>
+    </message>
+    <message>
+      <source>Invalid audio or a reference requiring an explicit replacement</source>
+      <translation>Invalid audio or a reference requiring an explicit replacement</translation>
+    </message>
+    <message>
+      <source>Check unavailable or result could not be verified</source>
+      <translation>Check unavailable or result could not be verified</translation>
+    </message>
+    <message>
+      <source>%1 Hz · %2 · %3-bit</source>
+      <translation>%1 Hz · %2 · %3-bit</translation>
+    </message>
+    <message numerus="yes">
+      <source>%n channel(s)</source>
+      <translation>
+        <numerusform>%n channel</numerusform>
+        <numerusform>%n channels</numerusform>
+      </translation>
+    </message>
+    <message>
+      <source>Silent</source>
+      <translation>Silent</translation>
+    </message>
+    <message>
+      <source>%1 dBFS</source>
+      <translation>%1 dBFS</translation>
+    </message>
+    <message>
+      <source>Original reference</source>
+      <translation>Original reference</translation>
+    </message>
+    <message>
+      <source>Local media choice</source>
+      <translation>Local media choice</translation>
+    </message>
+    <message>
+      <source>Status</source>
+      <translation>Status</translation>
+    </message>
+    <message>
+      <source>Audio format</source>
+      <translation>Audio format</translation>
+    </message>
+    <message>
+      <source>Sample peak</source>
+      <translation>Sample peak</translation>
     </message>
   </context>
   <context>

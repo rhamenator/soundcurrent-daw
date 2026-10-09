@@ -1,0 +1,21 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start  2: desktop-media-controller
+1/8 Test  #2: desktop-media-controller .........   Passed    1.26 sec
+    Start  3: desktop-import-media-ui
+2/8 Test  #3: desktop-import-media-ui ..........   Passed    1.01 sec
+    Start  4: desktop-import-controller
+3/8 Test  #4: desktop-import-controller ........   Passed    2.00 sec
+    Start  5: desktop-import-ui
+4/8 Test  #5: desktop-import-ui ................   Passed    1.17 sec
+    Start 35: approved-media-root
+5/8 Test #35: approved-media-root ..............   Passed    0.05 sec
+    Start 36: approved-media-probe
+6/8 Test #36: approved-media-probe .............   Passed    0.36 sec
+    Start 61: approved-wave-content
+7/8 Test #61: approved-wave-content ............   Passed    0.07 sec
+    Start 62: approved-wave-probe
+8/8 Test #62: approved-wave-probe ..............   Passed    0.48 sec
+
+100% tests passed, 0 tests failed out of 8
+
+Total Test time (real) =   9.30 sec

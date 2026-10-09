@@ -51,8 +51,14 @@ class ApprovedMediaRoot {
     // Maximum size is trusted policy, never read from a foreign project.
     ApprovedMediaFile open(std::string_view relative, std::uint64_t maximumBytes,
                            std::stop_token = {}) const;
+    // Explicit user-selected native leaf name only, never a foreign reference.
+    // Allows the platform's nonportable filename characters without path
+    // expansion/traversal; the approved parent and plain-file rules still apply.
+    ApprovedMediaFile openSelectedFilename(const std::filesystem::path &basename,
+        std::uint64_t maximumBytes,std::stop_token = {}) const;
     std::size_t openFiles() const;
   private:
     std::shared_ptr<ApprovedMediaRootState> state_;
+    ApprovedMediaFile openImpl(std::string_view,std::uint64_t,std::stop_token,bool selectedLeaf) const;
 };
 } // namespace soundcurrent::daw

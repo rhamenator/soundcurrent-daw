@@ -609,6 +609,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Check media…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Cancel</source>
       <translation type="unfinished" />
     </message>
@@ -690,6 +694,188 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Choose a project to inspect.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Media check unavailable</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>There is not enough import memory to display the media checklist.</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>ImportMediaDialog</name>
+    <message>
+      <source>Choose the folder containing this project's media</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose a replacement audio file</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>WAVE audio (*.wav);;All files (*)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No media folder selected. Opening an inspection does not grant access to its media.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Selected media folder: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Stopping media check…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The check could not be started. Check the selected path and available import memory.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Checking selected audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose a media folder and check a reference, or explicitly choose a replacement. Choices stay local to this window.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Check project media</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Audio import is not available yet. These checks leave the current project and original media unchanged. A checked snapshot must be verified again before copying.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Maximum file size for this check (MiB):</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose media folder…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Check selected reference</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose replacement…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Clear local choices</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Close</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
+    <name>ImportMediaModel</name>
+    <message>
+      <source>Reference unavailable</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Selected replacement: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Selected folder: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Ambiguous or unsupported source; no reference selected</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Not checked</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Checking…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Checked snapshot</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Canceled</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Check exceeded its time limit</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>File not found in the selected folder</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Audio format not supported by this check yet</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>File or check exceeds resource limits</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>File changed during the check</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Invalid audio or a reference requiring an explicit replacement</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Check unavailable or result could not be verified</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>%1 Hz · %2 · %3-bit</source>
+      <translation type="unfinished" />
+    </message>
+    <message numerus="yes">
+      <source>%n channel(s)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Silent</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>%1 dBFS</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original reference</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Local media choice</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Status</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Audio format</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Sample peak</source>
       <translation type="unfinished" />
     </message>
   </context>

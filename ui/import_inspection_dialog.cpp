@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "import_inspection_dialog.hpp"
+#include "import_media_dialog.hpp"
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -7,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLocale>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QScreen>
 #include <QTableView>
@@ -171,7 +173,7 @@ void ImportPreviewModel::setReport(std::shared_ptr<const ImportInspectionReport>
     beginResetModel(); report_=std::move(report); endResetModel();
 }
 ImportInspectionDialog::ImportInspectionDialog(QWidget *parent,InspectionOptions options)
-    : QDialog(parent),controller_(std::move(options)),model_(this),properties_(this) {
+    : QDialog(parent),controller_(options),model_(this),properties_(this),mediaMemory_(options.memory) {
     setObjectName(QStringLiteral("importInspectionDialog"));
     auto *layout=new QVBoxLayout(this);
     notice_=new QLabel(this); notice_->setWordWrap(true); notice_->setTextFormat(Qt::PlainText); layout->addWidget(notice_);
@@ -197,6 +199,7 @@ ImportInspectionDialog::ImportInspectionDialog(QWidget *parent,InspectionOptions
     choose_=new QPushButton(this); choose_->setObjectName(QStringLiteral("chooseImportProject")); files->addWidget(choose_);
     open_=new QPushButton(this); open_->setObjectName(QStringLiteral("openImportInspection")); files->addWidget(open_);
     save_=new QPushButton(this); save_->setObjectName(QStringLiteral("saveImportInspection")); files->addWidget(save_);
+    mediaButton_=new QPushButton(this);mediaButton_->setObjectName(QStringLiteral("checkImportMedia"));files->addWidget(mediaButton_);
     layout->addLayout(files);
     auto *buttons=new QDialogButtonBox(this);
     cancel_=buttons->addButton(QString(),QDialogButtonBox::ActionRole); cancel_->setObjectName(QStringLiteral("cancelImportInspection"));
@@ -234,6 +237,7 @@ ImportInspectionDialog::ImportInspectionDialog(QWidget *parent,InspectionOptions
         }
     });
     connect(cancel_,&QPushButton::clicked,this,[this]{controller_.requestCancel();});
+    connect(mediaButton_,&QPushButton::clicked,this,[this]{openMediaCheck();});
     connect(close_,&QPushButton::clicked,this,&QWidget::close);
     timer_=new QTimer(this); timer_->setInterval(20); connect(timer_,&QTimer::timeout,this,&ImportInspectionDialog::poll);
     timer_->start(); retranslate();
@@ -241,13 +245,13 @@ ImportInspectionDialog::ImportInspectionDialog(QWidget *parent,InspectionOptions
     poll();
 }
 bool ImportInspectionDialog::inspect(const std::filesystem::path &path) {
-    if (closing_) return false;
+    if (closing_ || (media_ && !media_->retired())) return false;
     const bool accepted=controller_.submit(path)==Admission::Accepted;
     if (accepted) { shown_.reset(); model_.setReport({}); properties_.setReport({}); poll(); }
     return accepted;
 }
 bool ImportInspectionDialog::openInspection(const std::filesystem::path &path) {
-    if (closing_) return false;
+    if (closing_ || (media_ && !media_->retired())) return false;
     const bool accepted=controller_.openBundle(path)==Admission::Accepted;
     if (accepted) { shown_.reset(); model_.setReport({}); properties_.setReport({}); poll(); }
     return accepted;
@@ -263,6 +267,7 @@ bool ImportInspectionDialog::saveInspection(const std::filesystem::path &path) {
 void ImportInspectionDialog::retranslate() {
     setWindowTitle(tr("Inspect foreign project")); choose_->setText(tr("Choose project…"));
     open_->setText(tr("Open inspection…")); save_->setText(tr("Save inspection…"));
+    mediaButton_->setText(tr("Check media…"));
     cancel_->setText(tr("Cancel")); close_->setText(tr("Close"));
     notice_->setText(tr("REAPER project inspection preview. Conversion is not available yet. "
                        "The original file and current project remain unchanged."));
@@ -274,6 +279,7 @@ void ImportInspectionDialog::poll() {
     choose_->setEnabled(!view->busy && !closing_); cancel_->setEnabled(view->busy && !closing_);
     open_->setEnabled(!view->busy && !closing_);
     save_->setEnabled(bool(view->report) && !view->busy && !closing_);
+    mediaButton_->setEnabled(view->report && view->report->hasProperties() && !view->busy && !closing_);
     const auto path=view->path.u8string(); file_->setText(QString::fromUtf8(reinterpret_cast<const char *>(path.data()),qsizetype(path.size())));
     if (view->report!=shown_) {
         shown_=view->report; model_.setReport(shown_); properties_.setReport(shown_);
@@ -306,9 +312,18 @@ void ImportInspectionDialog::poll() {
         else if (view->messageId=="import.io_error") summary_->setText(tr("The selected project or inspection worker could not be read."));
         else summary_->setText(tr("The inspection failed or its result could not be verified."));
     } else summary_->setText(tr("Choose a project to inspect."));
-    if (closing_ && view->closed) { shown_.reset(); model_.setReport({}); properties_.setReport({}); close(); }
+    if (closing_ && retired()) { shown_.reset(); model_.setReport({}); properties_.setReport({}); close(); }
 }
-void ImportInspectionDialog::requestShutdown() { closing_=true; controller_.requestShutdown(); }
+ImportMediaDialog *ImportInspectionDialog::openMediaCheck() {
+    const auto view=controller_.snapshot();if (closing_ || view->busy || !view->report || !view->report->hasProperties()) return nullptr;
+    if (media_ && !media_->retired()) {media_->show();media_->raise();return media_;}
+    try {
+        delete media_;media_=nullptr;WaveCheckOptions options;options.memory=mediaMemory_;
+        media_=new ImportMediaDialog(this,view->report,std::move(options));media_->show();return media_;
+    } catch (const ProjectError &) {QMessageBox::warning(this,tr("Media check unavailable"),tr("There is not enough import memory to display the media checklist."));return nullptr;}
+}
+bool ImportInspectionDialog::retired() const {return controller_.snapshot()->closed && (!media_ || media_->retired());}
+void ImportInspectionDialog::requestShutdown() { closing_=true;if (media_) media_->requestShutdown();controller_.requestShutdown(); }
 void ImportInspectionDialog::closeEvent(QCloseEvent *event) {
     if (retired()) { event->accept(); return; }
     event->ignore(); requestShutdown();
