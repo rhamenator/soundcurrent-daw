@@ -247,7 +247,9 @@ ImportInspectionReport loadInspectionBundle(const std::filesystem::path &path,
     return decodeContainer(readForeignSnapshot(path,maximum,memory,stop),memory,limits,stop,fingerprint);
 }
 ImportInspectionReport loadInspectionBundle(ApprovedMediaFile &file,ResourceLedger memory,
-    InspectionBundleLimits limits,std::stop_token stop,InspectionBundleFingerprint *fingerprint) {
+    InspectionBundleLimits limits,std::stop_token stop,InspectionBundleFingerprint *fingerprint,
+    const std::function<void()> &beforeRead) {
+    if (beforeRead) beforeRead();
     const auto maximum=totalBytes(limits.sourceBytes,limits.protocolBytes,std::numeric_limits<std::size_t>::max());
     check(file.size()<=maximum,"Pinned inspection exceeds envelope",ErrorCode::ResourceLimit);
     PayloadCharge charge("Pinned inspection staging",std::numeric_limits<std::size_t>::max());
@@ -256,14 +258,17 @@ ImportInspectionReport loadInspectionBundle(ApprovedMediaFile &file,ResourceLedg
     check(file.resourceLedger().owns(bank),"Pinned inspection belongs to another resource scope");
     std::string bytes(static_cast<std::size_t>(file.size()),'\0');
     for (std::size_t position=0;position<bytes.size();) {
+        if (beforeRead) beforeRead();
         const auto count=std::min<std::size_t>(65536,bytes.size()-position);
         file.readAt(position,std::span<char>(bytes.data()+position,count),stop);position+=count;
     }
     file.verifyUnchanged();
     InspectionBundleFingerprint actual;
+    if (beforeRead) beforeRead();
     auto result=decodeContainer(copyForeignSnapshot(bytes,memory,stop),memory,limits,stop,
                                 fingerprint ? &actual : nullptr);
     file.verifyUnchanged();
+    if (beforeRead) beforeRead();
     if (fingerprint) *fingerprint=actual;
     return result;
 }

@@ -25,3 +25,11 @@ workflow explicitly. No foreign assets/algorithms or equalizer changes are intro
 Directory trust, independent file/project publication, quotas, storage/platform breadth
 and later conversion/installed qualification are material integration costs.
 See checkpoint128 for exact limits, evidence and remaining full-scope tasks.
+
+Review repair: propagate the existing serialized I/O-owner `beforeRead` callback
+into typed import evidence reads/decoder operations rather than invent a polling
+thread around a caller-owned cancellation function. A polling thread would change
+callback ownership and introduce races/lifetime costs. Retain explicit stop tokens
+and cooperative boundaries; exercise cancellation inside the final typed WAVE pass
+through actual export, with no publication/temp residue/state mutation. The initial
+four-green source head and the repaired revision require distinct qualification.

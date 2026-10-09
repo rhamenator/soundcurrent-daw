@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-09T10:47:59.473872+00:00",
+  "pr": "https://github.com/rhamenator/soundcurrent-daw/pull/72",
+  "head": "e51bc30902e0bbed1901e930f5a2cfd0bb37add2",
+  "run": 37918375128,
+  "requiredChecks": "all4SUCCESS",
+  "merged": false,
+  "reason": "Review exposed ProjectStore/export cancellation not propagated into typed bundle/receipt/WAVE reads; keep this cohort separate from forthcoming repair",
+  "linux": {
+    "tests": 90,
+    "importChecksPerCase": 153,
+    "independentChecks": 39,
+    "localizationChecks": 265
+  },
+  "nativeWindowsCore": {
+    "tests": 26,
+    "importChecksPerCase": 148,
+    "independentChecks": 39
+  },
+  "nativeWindowsQt": {
+    "tests": 7,
+    "localizationChecks": 245
+  },
+  "localizationCountNote": "Checks include timeout polling iterations in tests/localization_tests.cpp:41; total varies with timing, source/assertions unchanged. No fully qualified language claim.",
+  "artifactDigests": {
+    "core": "d7dcb7f1dcfadde0b82610d307d6ad4c08d393adbe2f17e21cfac4188bfec958",
+    "qt": "70c91163031a3ddc6020b28bb39c830377fc3ef62625c17a2c28ba8926803c84",
+    "linux": "be595675c9c9a49abd781477888f4aaef52295dcce7c811f7d16142b9fb63979"
+  }
+}

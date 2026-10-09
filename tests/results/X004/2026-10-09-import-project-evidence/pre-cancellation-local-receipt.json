@@ -1,33 +1,33 @@
 {
-  "utc": "2026-10-09T10:50:19.141443+00:00",
+  "utc": "2026-10-09T10:22:12.172719+00:00",
   "baseMerge": "a6c099cfa8b888d3e67d0506f515486d96c3962d",
   "sourceSha256": {
     "include/soundcurrent/session.hpp": "a229bef2014530c150ec3e880f59dabf1d6efd7acaa9e5724619bdf4b765fbbd",
     "include/soundcurrent/project_store.hpp": "70f825c07fadb85bd4e40fe8788ffda75556b07289512438d80f30488631baed",
-    "include/soundcurrent/inspection_bundle.hpp": "4c2ef10941a3a7ae9467893c9f51844245a2e52545017fbe11f03d5d7b41a9e6",
-    "include/soundcurrent/project_import_state.hpp": "c30f6d7520f9ab43aa7affa31697a18efe299027e1e28832f94966c2e19cb37b",
+    "include/soundcurrent/inspection_bundle.hpp": "5a87e988fcbcb2e4dd6e1a0e192727009e41c9beadc63f316b542a8866a45dc2",
+    "include/soundcurrent/project_import_state.hpp": "acedbf786eb31bb070fd2afc8ce71fd4873f160ad46efe7405424353fc6fa5d8",
     "src/session.cpp": "fb0848dd3979f05016556de89666e93b4e83e83864af79edbe10b30baec1ac03",
-    "src/project_store.cpp": "8a513328b3b089e431a93565d7dfc8bfc7485b3941e4fff2df9694119cd509cf",
-    "src/inspection_bundle.cpp": "33c0975ffaee886a65728c3c125e46e02e633024b8854a25476641dcf72e0259",
-    "src/project_import_state.cpp": "13ccf55d25636f78dceccb2611c31a3e2db9b00bdf6f167aec7f2c80391018b2",
-    "tests/project_import_state_tests.cpp": "6c7c658d5771c02f347f1a50588f46fddc52f1c71f652fe32756d1c7fb940fa7",
+    "src/project_store.cpp": "4f5f9175c26f56ea67000e7aff244375227a9e78044ae85e7101df9fb9663cc7",
+    "src/inspection_bundle.cpp": "abd0de5e896caae803a99f947136a7ae4f535048e9d762a9f247fcbaf5336178",
+    "src/project_import_state.cpp": "b88c9d65ae00b412525df79a10b9e0d5510bc29f59739e2943d664846a9e9824",
+    "tests/project_import_state_tests.cpp": "ea67d6e79e1ce95dc4f2769ee8761c0205852e391f5be3687088fbf2ee910c05",
     "tests/project_import_state_workflows.py": "8d3d0f9b00662f7d2330759b100bfb7157d5392a253d42e7e490132e1928302b",
     "tests/session_tests.cpp": "d122c9b16b795b9272e6de6482ff1460413b6a1f1b860cb2e56211ded1a74703",
     "tests/routing_tests.cpp": "6a1432b911a1eda2eb4a62829cbeaecce7f243de02aa6b12f69385d73a3a56db",
     "tests/monitoring_tests.cpp": "d08343bf5e7f59fa4e0ce772071604b6c9bed211166a6caf41316cc8bd10af6a",
-    "CMakeLists.txt": "00923e2dcee1070259122cff29de96bf4fd5052a2a7264eb48e8242d69469765",
-    ".github/workflows/ci.yml": "75ac50b0c1620c88c95f83ad9b8ccc519718e6990b02a0305540b94863628b49",
-    "include/soundcurrent/wave_validation.hpp": "9ecacf75b108763f45f713fe426a9cdd7f556812d1fd9b8991d713c0415ff581",
-    "src/wave_validation.cpp": "33bfc14fc334d0a69578baa0c22a6d106f93f54e45c53a715263b5ab04e53dc5"
+    "CMakeLists.txt": "e24893c8cd3aa23adefcd11937b20811a8a0108c8d4ff6590838da41417d9123",
+    ".github/workflows/ci.yml": "75ac50b0c1620c88c95f83ad9b8ccc519718e6990b02a0305540b94863628b49"
   },
   "executableSha256": {
-    "sc-project-import-state-tests": "a6593d0e8253be6752c818e76dc03fa24648bde6af4be9f2390e1f1d24931142",
-    "sc-inspection-bundle-tests": "e84f89b57a5214709946eff18a287049982641027b157ea154779aefc91053c3",
-    "sc-wave-validation-tests": "efdc766c7e1c7098a453eff5088221c985fd22bc6949d2e1f2bd1ba884779e14",
-    "sc-export-tests": "959962e86f22f625484adab85213eb6dab9eff53972a3e3f299dc48c8675c40b"
+    "soundcurrent-daw": "2a79148ceead16f948aa4ebf4fd44f7f84c2638c80f31cfb5d4f529b7db97506",
+    "sc-project-import-state-tests": "819b45f55df438a54910407dac40b0e86bc0a8e1a61b8d9d3fdf10db194a0157",
+    "sc-import-inspect-worker": "7f8c37c53157acc0eaa41b8904500c8601c0cc978b7b3a63fb8a8ab24d98e395",
+    "sc-session-tests": "435d867a853a53a1ee85ff6b53d9739982f2d168eb9186f374be99e603aed258",
+    "sc-routing-tests": "58c2af19c267828d53d56dd9d10a1c0986de8461feb8d40ddf2852006e866ac9",
+    "sc-monitoring-tests": "275c314b5aa118e0cb822ccc823892d63721776efedd42ae4a537858e7fcd26d",
+    "sc-inspection-bundle-tests": "5382b448e20d4150ecb568a0953afa66ea11336b33aed923d768281dc1a7c4fb"
   },
   "evidenceSha256": {
-    "README.md": "c31dfff3b8c3faac1ffd6a193fb565578dcde24eec2efc9ed058756449978556",
     "desktop-copy-final-artifacts.json": "eafad4fc223b45985622ca9ffbe674c4afc3273bcdac4a933dd93f325c1ba334",
     "desktop-copy-final-core-artifact.json": "4d8fe03ced72ee73a62fa2d307d09a0c435daaa4bd92d91199c1cf7ca0b25fc8",
     "desktop-copy-final-core-lasttest.log": "3ac7f51a031f4b2df00f4162e41af7f2e5d130e400f0a0cf42f65562f4a700db",
@@ -45,12 +45,6 @@
     "desktop-copy-final-run.json": "17f90cd086039a6dbed9f88140e34716625d854f8a16b2c252e68b9e2eea57f7",
     "desktop-copy-merged.json": "b2c2f7e79237ce4bcbd9a9d8a0ea9d855d1914ff27644b9f9eecd8076a82a23b",
     "import-state-admission-release-build.log": "47c8687f201ab5c02a1b9df867aa5f4b417c5ae5dcd6f7811319eb2a8d47669d",
-    "import-state-cancel-release-build.log": "451f0309f4c7e802be3a6e624b3ac25b0e892a5adab1307ebf3b00cebefee9d9",
-    "import-state-cancel-release-lasttest.log": "d9274f5234cd03a7971218787f1e2925cf8c5f0aa6197ab27f4caa8cb534a835",
-    "import-state-cancel-release-tests.log": "311afb4b2064d01b88359aa420746c191fdc3fd9feac986cacc3cd507e191d4f",
-    "import-state-cancel-sanitized-build.log": "ba1feef8e174b4005d9c944487f534b35fe7734ccc8d7d938b2589876244c629",
-    "import-state-cancel-sanitized-lasttest.log": "2ffc20f9018b8eee8917bbe93dc18d1ca478818954e6d43590a9755391b5d166",
-    "import-state-cancel-sanitized-tests.log": "edc6f88af15fcb5fe3c9b50113017bf293703ecfde96e443fe10b17e97a4ad04",
     "import-state-configure.log": "702058c3fbc06630e43ed7643e294e30ec6a1328b400deb5a523754b2c54f8a2",
     "import-state-desktop-build.log": "d6efd6ba8d0b5fa401d0bdd2421ec7dcc8b9336b3c7007c126df0259fbb52515",
     "import-state-final-release-build.log": "850622ac7c0797fdc7ed59ba729943b0c3579328c1fb19c28f2256493a06ec2b",
@@ -61,7 +55,6 @@
     "import-state-final-sanitized-tests.log": "e6031d54b1ad846827e11a0e42baa372df2f2fbe89822d4f12afa84bd5248e5b",
     "import-state-first-build.log": "9e6abdc4d1b0829687c90f2f6b13d05a8131a8da187b4bba53bec9aa728f21fc",
     "import-state-first-lasttest.log": "7a0107efa8277b9c4537e31002752258dc7e18b9394f4d03af628d86848c1581",
-    "import-state-first-native-core-job.log": "96a73281a8a1119da496b43457bd8f9f56fc61b5f8fbc061040e9c7f4cece519",
     "import-state-first-tests.log": "9f17de4a91c55c1db51d75667d84f1ef09f960ae6bf2cece9d17a8b7887e80c7",
     "import-state-pinned-fixture-build.log": "1bae4acfb7280dad954c10564f0689b5f5deccd53fe356bee34e7f3fae18e0a2",
     "import-state-pinned-rename-failure-lasttest.log": "62f66a3e369d8baa60e9df1d0db07b98c598a0f18420ca5ce8b350efbf900eba",
@@ -70,49 +63,39 @@
     "import-state-sanitized-configure.log": "b24e7ff5dd4e9ecca22e83270f5d40bbd348384d5b0ae73738e3649666113099",
     "import-state-test-build.log": "e389eed3f9c68cf3d96069eb49b3a02e49fe1b02336a325e1b261e3b175f57d5",
     "import-state-test-configure.log": "702058c3fbc06630e43ed7643e294e30ec6a1328b400deb5a523754b2c54f8a2",
+    "import-state-first-native-core-job.log": "96a73281a8a1119da496b43457bd8f9f56fc61b5f8fbc061040e9c7f4cece519",
     "import-state-windows-name-release-build.log": "1bae4acfb7280dad954c10564f0689b5f5deccd53fe356bee34e7f3fae18e0a2",
-    "import-state-windows-name-release-lasttest.log": "cd27332831b0d098817bdd741f202fd8933b884fa6257dc67a35f04b54eece44",
     "import-state-windows-name-release-tests.log": "680dedb2a10450a0453e245cee3715e30557217b4baf599bee86520eb819bfed",
+    "import-state-windows-name-release-lasttest.log": "cd27332831b0d098817bdd741f202fd8933b884fa6257dc67a35f04b54eece44",
     "import-state-windows-name-sanitized-build.log": "1bae4acfb7280dad954c10564f0689b5f5deccd53fe356bee34e7f3fae18e0a2",
-    "import-state-windows-name-sanitized-lasttest.log": "d79b7179f966517bb87563a5629f0e42b9b4167b85e80fba960d116347a50d79",
     "import-state-windows-name-sanitized-tests.log": "631b39af941bfaf916a437838c247f5e6434598687980d2a6d0f1609169efdc8",
-    "pre-cancellation-artifacts.json": "346b247a7d6f85197ef65093ca56e386f1e2994f0638b543ed234398513bc3a3",
-    "pre-cancellation-core-artifact.json": "3d4c99f57f124a27b9c8f3dcb408764265e1f434ac205309310f876b8ec44915",
-    "pre-cancellation-core-lasttest.log": "06eabbe0c2c1039ea3f8fa09c2337f69b01f7711e234b0664364da7f2446d673",
-    "pre-cancellation-core.zip": "d7dcb7f1dcfadde0b82610d307d6ad4c08d393adbe2f17e21cfac4188bfec958",
-    "pre-cancellation-linux-artifact.json": "f8c60b2f1aa9868b67643ab408a90f444eeb3dad89e4e4f42727efb64c82058d",
-    "pre-cancellation-linux-lasttest.log": "871ee87d72465c9216a63d4db2ae7a0634fd778e18b6e862cfc9f71204862965",
-    "pre-cancellation-linux.zip": "be595675c9c9a49abd781477888f4aaef52295dcce7c811f7d16142b9fb63979",
-    "pre-cancellation-local-receipt.json": "34d1f68e39c44321f59436b7fb4987099f43638c44f0605cc9e14bcf4dedd5b3",
-    "pre-cancellation-pr.json": "3ceea782940c39cedcb0e3577a0b5fe16c492c787039372a7fde080cb20162c9",
-    "pre-cancellation-protection.json": "512b71f165bb8ea361949546be8f4f970bf2c718af007372878f2dc90a706eab",
-    "pre-cancellation-qt-artifact.json": "9f0c4cf051fa74b31948df6d35ab185ceca61dc6d0bc26f9bcf72d603fde442d",
-    "pre-cancellation-qt-lasttest.log": "feffdbade2be50cae93474b34c1bbfc0a4d1cd6ff978a2cc557a6363f6f749bb",
-    "pre-cancellation-qt.zip": "70c91163031a3ddc6020b28bb39c830377fc3ef62625c17a2c28ba8926803c84",
-    "pre-cancellation-qualified.json": "b3908e50211b2be53c5df77e9ada3dfde0e812a462e6d9a64376488d87d06daa",
-    "pre-cancellation-review-threads.json": "412017c0ab0e72ab9ef93d8738729acc5bcc04cb9491df9e2f0723ba96c6ecec",
-    "pre-cancellation-run.json": "36afaf2828df6ad2f17b9cd400ccf6054563c1a20a67e40c8fc5a614f6e85972"
+    "import-state-windows-name-sanitized-lasttest.log": "d79b7179f966517bb87563a5629f0e42b9b4167b85e80fba960d116347a50d79"
   },
   "local": {
-    "releaseSelectedTests": 4,
-    "sanitizedSelectedTests": 4,
-    "coreChecksPerCase": 173,
-    "independentWorkflowChecks": 39,
+    "releaseSelectedTests": 12,
+    "sanitizedSelectedTests": 5,
+    "coreChecksPerCase": 153,
     "cases": [
       "synthetic",
       "unicode-mono",
       "stereo-gain-pan"
     ],
+    "independentWorkflowChecks": 39,
     "sanitizers": "ASan/UBSan; leak detection disabled",
-    "schema": "1.8; explicit 1.0–1.7 migration",
-    "cancellation": "actual typed WAVE ProjectStore/export pass; pinned bundle; decoder first frame; no publication/temp residue/project mutation; resource retirement"
+    "schema": "1.8; explicit 1.0\u20131.7 migration",
+    "draftCatalogs": 34,
+    "sourceKeys": 738,
+    "draftTranslations": 3135,
+    "finalTestNameRevision": {
+      "releaseSelectedTests": 1,
+      "sanitizedSelectedTests": 1,
+      "productionSourceUnchanged": true,
+      "coreChecksPerCase": 153,
+      "independentWorkflowChecks": 39
+    }
   },
-  "precedingCohorts": [
-    "pre-cancellation-local-receipt.json",
-    "pre-cancellation-qualified.json"
-  ],
   "scope": {
-    "nativeWindowsThisRevision": "pending protected CI after typed cancellation repair",
+    "nativeWindowsThisRevision": "pending protected CI",
     "vmStarted": false,
     "audioChanged": false,
     "equalizerChanged": false,
@@ -127,14 +110,7 @@
       "run": 37917546470,
       "head": "91adef2327360a72d78cdfcefffb49cbb1ba50f8",
       "result": "test compilation refused by Windows small macro; variable rename, assertion unchanged"
-    },
-    "installedDesktopRefresh": false,
-    "previous12Release5Sanitized": "separate preceding cohort; no revised desktop executable qualification"
-  },
-  "reviewRepair": {
-    "thread": "PRRT_kwDOU-rChc6qvdRi",
-    "reviewedHead": "91adef2327360a72d78cdfcefffb49cbb1ba50f8",
-    "repair": "Forward existing I/O-owner beforeRead through typed import bundle/receipt/WAVE validation; no new cancellation thread, guard/quotas unchanged"
+    }
   },
   "nextTask": "Extend destination clip timing/gain/fades/rate/pitch and shared live/offline readers, then approved per-property conversion/loss preview, one Undo, Save/reopen/aligned source-suite renders and installed preview qualification"
 }

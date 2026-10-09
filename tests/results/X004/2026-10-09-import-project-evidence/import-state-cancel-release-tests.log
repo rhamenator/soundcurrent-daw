@@ -1,0 +1,13 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+    Start 40: inspection-bundle
+1/4 Test #40: inspection-bundle ................   Passed    0.01 sec
+    Start 64: project-import-state
+2/4 Test #64: project-import-state .............   Passed    0.58 sec
+    Start 66: approved-wave-content
+3/4 Test #66: approved-wave-content ............   Passed    0.02 sec
+    Start 84: offline-export
+4/4 Test #84: offline-export ...................   Passed    2.69 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   3.30 sec

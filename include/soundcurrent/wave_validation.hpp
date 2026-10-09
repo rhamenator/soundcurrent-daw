@@ -31,6 +31,9 @@ struct WaveValidation {
 // Observer receives borrowed, normalized interleaved doubles for one block;
 // float source headroom is preserved. It must not retain the span or publish a
 // completed asset until successful return; a later block/hash may still fail.
+// beforeRead runs on this I/O owner before decoder operations/read/hash chunks.
+// Exceptions cross the C decoder boundary via a stored exception and rethrow.
 WaveValidation validateApprovedWave(ApprovedMediaFile &, WaveValidationLimits = {},
-    std::stop_token = {}, const std::function<void(std::uint64_t,std::span<const double>)> &observer = {});
+    std::stop_token = {}, const std::function<void(std::uint64_t,std::span<const double>)> &observer = {},
+    const std::function<void()> &beforeRead = {});
 } // namespace soundcurrent::daw

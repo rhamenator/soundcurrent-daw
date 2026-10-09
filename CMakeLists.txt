@@ -590,7 +590,7 @@ if(BUILD_TESTING)
 
   if(SC_BUILD_MEDIA)
     add_executable(sc-project-import-state-tests tests/project_import_state_tests.cpp)
-    target_link_libraries(sc-project-import-state-tests PRIVATE sc-project-import-state sc-project-store sc-media-staging sc-media-recovery)
+    target_link_libraries(sc-project-import-state-tests PRIVATE sc-project-import-state sc-project-store sc-media-staging sc-media-recovery sc-media)
     target_include_directories(sc-project-import-state-tests SYSTEM PRIVATE third_party)
     if(MINGW)
       target_link_options(sc-project-import-state-tests PRIVATE -municode)

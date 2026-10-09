@@ -2,6 +2,7 @@
 #include <soundcurrent/project_import_state.hpp>
 #include <soundcurrent/media_staging.hpp>
 #include <soundcurrent/media_recovery.hpp>
+#include <soundcurrent/export.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
@@ -113,6 +114,68 @@ int test(const std::filesystem::path &input) {
         }
         balanced(memory,stable);
         ProjectStore(root).save(session);check(ProjectStore(root).load()==session,"Imported state save/reopen differs");
+        {
+            // Determine the complete WAVE validation polling extent on this
+            // platform, then cancel inside that extent through ProjectStore and
+            // the real export workflow. Earlier manifest hashing cannot satisfy
+            // these tests: the requested point lies in the final typed WAVE pass.
+            const auto projectBytes=read(root/"project.json");
+            ApprovedMediaRoot approved(root,memory,{2});
+            auto wave=approved.open(asset.relativePath,1024*1024);
+            std::size_t wavePolls=0;
+            validateApprovedWave(wave,{}, {}, {},[&]{++wavePolls;});
+            check(wavePolls>4,"WAVE validation did not poll content reads");
+            std::size_t decodedBlocks=0;
+            WaveValidationLimits blocks;blocks.blockFrames=1;
+            refuses([&]{validateApprovedWave(wave,blocks,{},
+                [&](std::uint64_t,std::span<const double>){++decodedBlocks;},[&]{
+                    if(decodedBlocks) throw ProjectError(ErrorCode::Canceled,"Cancel after first decoded frame");
+                });},ErrorCode::Canceled);
+            check(decodedBlocks==1 && audio.frames>1,"Content cancellation decoded the whole source");
+            auto bundle=approved.open(archive.inspection.relativePath,80ULL*1024*1024+96);
+            InspectionBundleFingerprint untouched;untouched.bytes=123;
+            std::size_t bundlePolls=0;
+            refuses([&]{loadInspectionBundle(bundle,memory,{}, {},&untouched,[&]{
+                if(++bundlePolls==2) throw ProjectError(ErrorCode::Canceled,"Cancel pinned bundle read");
+            });},ErrorCode::Canceled);
+            check(bundlePolls==2 && untouched.bytes==123,"Canceled bundle published a fingerprint");
+            std::size_t verifyPolls=0;
+            ProjectStore(root).verifyMedia(session,[&]{++verifyPolls;});
+            check(verifyPolls>wavePolls,"Typed evidence reads did not reach ProjectStore callback");
+            const auto stopAt=verifyPolls-wavePolls+wavePolls/2;
+            std::size_t canceledPolls=0;
+            refuses([&]{ProjectStore(root).verifyMedia(session,[&]{
+                if(++canceledPolls==stopAt) throw ProjectError(ErrorCode::Canceled,"Cancel typed imported WAVE");
+            });},ErrorCode::Canceled);
+            check(canceledPolls==stopAt && canceledPolls<verifyPolls,"Imported WAVE cancellation waited for full validation");
+            std::filesystem::create_directory(root/"exports");
+            ExportSpec spec(session.tracks.front().id);spec.endFrame=asset.frames;
+            bool late=false;std::size_t latePolls=0,beforePublication=0;
+            ExportOptions observe;observe.resources=memory;
+            observe.canceled=[&]{if(late) ++latePolls;return false;};
+            observe.boundary=[&](ExportBoundary b,Frame){
+                if(b==ExportBoundary::BeforeFlush) late=true;
+                if(b==ExportBoundary::BeforePublish) beforePublication=latePolls;
+            };
+            const auto result=exportTrackWav(root,session,root/"exports"/"observed.wav",spec,observe);
+            check(result.frames==asset.frames && beforePublication>wavePolls+1,"Observed import export did not complete validation");
+            // BeforePublish's initial poll follows the final typed WAVE poll.
+            const auto exportStopAt=beforePublication-1-wavePolls+wavePolls/2;
+            late=false;latePolls=0;bool publishedBoundary=false;
+            ExportOptions cancel;cancel.resources=memory;
+            cancel.canceled=[&]{return late && ++latePolls==exportStopAt;};
+            cancel.boundary=[&](ExportBoundary b,Frame){
+                if(b==ExportBoundary::BeforeFlush) late=true;
+                if(b==ExportBoundary::BeforePublish) publishedBoundary=true;
+            };
+            refuses([&]{exportTrackWav(root,session,root/"exports"/"canceled.wav",spec,cancel);},ErrorCode::Canceled);
+            check(latePolls==exportStopAt && !publishedBoundary &&
+                  !std::filesystem::exists(root/"exports"/"canceled.wav"),"Canceled typed import validation published an export");
+            check(std::distance(std::filesystem::directory_iterator(root/"exports"),std::filesystem::directory_iterator{})==1,
+                  "Canceled export leaked a temporary file");
+            check(read(root/"project.json")==projectBytes,"Read cancellation changed the saved project");
+        }
+        balanced(memory,stable);
         EditHistory history(session);const auto &track=session.tracks.front();
         ParameterAddress gain{track.id,track.eq.id,track.eq.bands.front().id,BandParameter::GainDb};
         history.begin(gain);history.update(3);history.commit();

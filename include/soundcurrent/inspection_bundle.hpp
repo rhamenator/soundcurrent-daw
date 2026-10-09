@@ -31,8 +31,10 @@ ImportInspectionReport loadInspectionBundle(const std::filesystem::path &,
     ResourceLedger,InspectionBundleLimits={},std::stop_token={},
     InspectionBundleFingerprint * = nullptr);
 // Pinned project-directory capability variant: never reopens a pathname.
+// beforeRead polls on the I/O owner before 64KiB reads and decode boundaries.
 ImportInspectionReport loadInspectionBundle(ApprovedMediaFile &,ResourceLedger,
-    InspectionBundleLimits={},std::stop_token={},InspectionBundleFingerprint * = nullptr);
+    InspectionBundleLimits={},std::stop_token={},InspectionBundleFingerprint * = nullptr,
+    const std::function<void()> &beforeRead = {});
 // Original bounded receipt bytes, new-file publication only. No generic overwrite.
 InspectionBundleSaveResult saveNewProjectEvidenceFile(const std::filesystem::path &,
     std::string_view,ResourceLedger,std::stop_token={});

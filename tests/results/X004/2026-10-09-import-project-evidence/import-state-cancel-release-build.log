@@ -1,0 +1,27 @@
+[0/1] Re-running CMake...
+-- Configuring done (4.1s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+[1/24] Building CXX object CMakeFiles/sc-wave-report.dir/src/wave_report.cpp.o
+[2/24] Linking CXX static library libsc-wave-report.a
+[3/24] Building CXX object CMakeFiles/sc-inspection-bundle.dir/src/inspection_bundle.cpp.o
+[4/24] Building CXX object CMakeFiles/sc-media-provenance.dir/src/media_provenance.cpp.o
+[5/24] Linking CXX static library libsc-media-provenance.a
+[6/24] Linking CXX static library libsc-inspection-bundle.a
+[7/24] Building CXX object CMakeFiles/sc-wave-validation.dir/src/wave_validation.cpp.o
+[8/24] Linking CXX static library libsc-wave-validation.a
+[9/24] Building CXX object CMakeFiles/sc-project-import-state.dir/src/project_import_state.cpp.o
+[10/24] Linking CXX static library libsc-project-import-state.a
+[11/24] Building CXX object CMakeFiles/sc-media-staging.dir/src/media_staging.cpp.o
+[12/24] Building CXX object CMakeFiles/sc-media-recovery.dir/src/media_recovery.cpp.o
+[13/24] Linking CXX static library libsc-media-staging.a
+[14/24] Linking CXX static library libsc-media-recovery.a
+[15/24] Building CXX object CMakeFiles/sc-inspection-bundle-tests.dir/tests/inspection_bundle_tests.cpp.o
+[16/24] Building CXX object CMakeFiles/sc-project-store.dir/src/project_store.cpp.o
+[17/24] Linking CXX static library libsc-project-store.a
+[18/24] Building CXX object CMakeFiles/sc-wave-validation-tests.dir/tests/wave_validation_tests.cpp.o
+[19/24] Linking CXX executable sc-inspection-bundle-tests
+[20/24] Linking CXX executable sc-wave-validation-tests
+[21/24] Linking CXX executable sc-export-tests
+[22/24] Building CXX object CMakeFiles/sc-project-import-state-tests.dir/tests/project_import_state_tests.cpp.o
+[23/24] Linking CXX executable sc-project-import-state-tests

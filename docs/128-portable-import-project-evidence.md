@@ -111,3 +111,34 @@ Native Windows first-run diagnostic: the test variable `small` collided with the
 rpcndr.h `small` macro and prevented test compilation. Its retained job log and
 exact first head remain separate evidence. Renaming the variable preserves the
 budget/refusal assertion; no production behavior or required gate is weakened.
+
+## Cancellation repair and distinct qualification cohorts
+
+Head e51bc30902e0bbed1901e930f5a2cfd0bb37add2 completed all four required checks
+in run37918375128: Linux90 tests, native Windows core26 and native Windows Qt7.
+The actual import cases executed153 checks each on Linux and148 on Windows,
+with39 independent checks. Digest-verified archives and API metadata are retained
+as `pre-cancellation-*`. Localization assertion totals include timeout polling
+iterations and vary with execution timing; this cohort reported265 Linux/245
+Windows checks with the same source. It does not qualify a revised source tree.
+
+Before merge, review identified a real cancellation gap: ProjectStore's existing
+`beforeRead` export cancellation callback reached raw manifest hashes, but not the
+typed import pass. The repair propagates that same caller-owned callback through
+pinned bundle reads/decode boundaries, receipt reads/hashes, WAVE header/decoder
+operations, content blocks and final64KiB hash reads. C decoder callbacks capture
+exceptions and rethrow them on the I/O owner; no exception crosses the C ABI.
+Stop-token support, quotas, pinned identity and complete validation remain intact.
+Cancellation remains cooperative around native calls and bounded parse operations,
+not a hard filesystem/third-party execution deadline.
+
+Acceptance determines each platform's WAVE polling extent, requests cancellation
+inside that extent through both ProjectStore and actual offline export, and checks
+that publication was not reached, no temporary export leaked, saved state is
+unchanged and all resource ownership retires. Separate checks cancel a pinned
+bundle without publishing its fingerprint and a decoder after its first frame.
+The repair's source/logs and subsequent native gates remain separately recorded;
+the preceding green cohort is never substituted for revised-source qualification.
+Repaired local Release4 / ASan+UBSan4 selected tests pass (leak detection disabled);
+each of three actual-inspector cases executes173 core checks plus39 independent
+workflow checks. Revised native Windows/full Linux CI remains a separate gate.

@@ -37,7 +37,9 @@ std::size_t descriptorCharge(const ImportedProjectSource &source) {
     return charge.bytes();
 }
 ImportInspectionReport inspection(ApprovedMediaRoot &root,const ImportedProjectSource &source,
-    ResourceLedger memory,InspectionBundleLimits limits,std::stop_token stop) {
+    ResourceLedger memory,InspectionBundleLimits limits,std::stop_token stop,
+    const std::function<void()> &beforeRead = {}) {
+    if (beforeRead) beforeRead();
     validateImportedProjectSource(source);
     check(limits.sourceBytes>0 && limits.sourceBytes<=16*1024*1024 &&
           limits.protocolBytes>0 && limits.protocolBytes<=64*1024*1024,
@@ -45,7 +47,7 @@ ImportInspectionReport inspection(ApprovedMediaRoot &root,const ImportedProjectS
     const std::uint64_t maximum=std::uint64_t(limits.sourceBytes)+limits.protocolBytes+96;
     auto file=root.open(source.inspection.relativePath,maximum,stop);
     InspectionBundleFingerprint fingerprint;
-    auto report=loadInspectionBundle(file,memory,limits,stop,&fingerprint);
+    auto report=loadInspectionBundle(file,memory,limits,stop,&fingerprint,beforeRead);
     check(fingerprint.bytes==source.inspection.bytes && digest(fingerprint.sha256)==source.inspection.sha256 &&
           report.source().size()==source.sourceBytes && report.sha256()==source.sourceSha256,
           "Owned import inspection differs from project evidence");
@@ -54,12 +56,14 @@ ImportInspectionReport inspection(ApprovedMediaRoot &root,const ImportedProjectS
     return report;
 }
 void agrees(const ImportInspectionReport &report,const MediaProvenance &origin,const Asset &asset,
-    ApprovedMediaRoot &root,ResourceLedger memory,std::uint64_t maximum,std::stop_token stop) {
+    ApprovedMediaRoot &root,ResourceLedger memory,std::uint64_t maximum,std::stop_token stop,
+    const std::function<void()> &beforeRead = {}) {
+    if (beforeRead) beforeRead();
     check(report.ownedBy(memory) && origin.ownedBy(memory),"Import evidence belongs to another scope",ErrorCode::InvalidState);
     check(origin.data().phase==MediaReceiptPhase::Verified,"Imported media is not a verified receipt",ErrorCode::InvalidState);
     validateRelativeMediaPath(asset.relativePath);
     auto file=root.open(asset.relativePath,maximum,stop);
-    const auto audio=validateApprovedWave(file,{},stop);
+    const auto audio=validateApprovedWave(file,{},stop,{},beforeRead);
     check(digest(audio.sourceSha256)==asset.sha256 && audio.frames==std::uint64_t(asset.frames) &&
           audio.rate==asset.sampleRate && audio.channels==asset.layout.channels,
           "Imported media asset differs from actual owned audio");
@@ -126,31 +130,37 @@ ImportedMediaOrigin preserveProjectImportMedia(const std::filesystem::path &root
     file.verifyUnchanged();return result;
 }
 ProjectImportEvidence openProjectImportEvidence(const std::filesystem::path &root,const Session &session,
-    const Id &sourceId,ResourceLedger memory,ProjectImportLimits limits,std::stop_token stop) {
+    const Id &sourceId,ResourceLedger memory,ProjectImportLimits limits,std::stop_token stop,
+    const std::function<void()> &beforeRead) {
     poll(stop);ValidatedSession checked(session);
-    return openProjectImportEvidence(root,checked,sourceId,memory,limits,stop);
+    return openProjectImportEvidence(root,checked,sourceId,memory,limits,stop,beforeRead);
 }
 ProjectImportEvidence openProjectImportEvidence(const std::filesystem::path &root,const ValidatedSession &session,
-    const Id &sourceId,ResourceLedger memory,ProjectImportLimits limits,std::stop_token stop) {
+    const Id &sourceId,ResourceLedger memory,ProjectImportLimits limits,std::stop_token stop,
+    const std::function<void()> &beforeRead) {
+    if (beforeRead) beforeRead();
     poll(stop);const auto *found=&session.importedSource(sourceId);
     check(limits.maximumMediaBytes>0 && limits.maximumMediaBytes<=8192ULL*1024*1024,
           "Invalid import media policy",ErrorCode::InvalidParameter);
     auto work=memory.reserve(descriptorCharge(*found));
     ApprovedMediaRoot approved(std::filesystem::absolute(root),memory,{2});
-    auto report=inspection(approved,*found,memory,limits.inspection,stop);
+    auto report=inspection(approved,*found,memory,limits.inspection,stop,beforeRead);
     ProjectImportEvidence result(std::move(work),*found,std::move(report));
     result.media_.reserve(found->media.size());
     for (const auto &media:found->media) {
+        if (beforeRead) beforeRead();
         poll(stop);auto bank=memory.reserve(mediaReceiptMaximumBytes*2+1024);
         auto file=approved.open(media.receipt.relativePath,mediaReceiptMaximumBytes,stop);
-        check(file.size()==media.receipt.bytes && digest(file.digest(stop))==media.receipt.sha256,
+        check(file.size()==media.receipt.bytes && digest(file.digest(stop,beforeRead))==media.receipt.sha256,
               "Imported receipt differs from manifest");
-        std::string bytes(static_cast<std::size_t>(file.size()),'\0');file.readAt(0,bytes,stop);
+        std::string bytes(static_cast<std::size_t>(file.size()),'\0');
+        if (beforeRead) beforeRead();
+        file.readAt(0,bytes,stop);
         auto origin=std::make_unique<MediaProvenance>(decodeMediaProvenance(bytes,memory,stop));file.verifyUnchanged();
         check(origin->data().operation==media.operation && origin->data().sourceProperty==media.sourceProperty,
               "Imported receipt identity differs");
         const auto &asset=session.asset(media.assetId);
-        agrees(result.inspection_,*origin,asset,approved,memory,limits.maximumMediaBytes,stop);
+        agrees(result.inspection_,*origin,asset,approved,memory,limits.maximumMediaBytes,stop,beforeRead);
         result.media_.push_back(std::move(origin));
     }
     return result;

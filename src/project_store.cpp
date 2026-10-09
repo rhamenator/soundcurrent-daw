@@ -738,7 +738,7 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
         ResourceLedger memory(budget_.importEvidenceBytes, "Project import evidence verification");
         for (const auto &source : s.imports) {
             if (beforeRead) beforeRead();
-            auto verified = openProjectImportEvidence(root_, checked, source.id, memory);
+            auto verified = openProjectImportEvidence(root_, checked, source.id, memory, {}, {}, beforeRead);
             (void)verified;
         }
 #else

@@ -1,0 +1,70 @@
+Start testing: Oct 09 06:47 EDT
+----------------------------------------------------------
+40/94 Testing: inspection-bundle
+40/94 Test: inspection-bundle
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-inspection-bundle-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"inspection-bundle" start time: Oct 09 06:47 EDT
+Output:
+----------------------------------------------------------
+Inspection bundle checks=91; synthetic originating PID, no native-suite compatibility claim
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"inspection-bundle" end time: Oct 09 06:47 EDT
+"inspection-bundle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+64/94 Testing: project-import-state
+64/94 Test: project-import-state
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/project_import_state_workflows.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-import-inspect-worker" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-project-import-state-tests" "/home/rich/dev/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"project-import-state" start time: Oct 09 06:47 EDT
+Output:
+----------------------------------------------------------
+PASS: 173 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 173 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 173 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 39 independent import-state workflow checks; source/loss/provenance persistence, not conversion parity
+<end of output>
+Test time =   0.58 sec
+----------------------------------------------------------
+Test Passed.
+"project-import-state" end time: Oct 09 06:47 EDT
+"project-import-state" time elapsed: 00:00:00
+----------------------------------------------------------
+
+66/94 Testing: approved-wave-content
+66/94 Test: approved-wave-content
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-wave-validation-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"approved-wave-content" start time: Oct 09 06:47 EDT
+Output:
+----------------------------------------------------------
+PASS: 20508 pinned WAVE checks; independent PCM/float samples, headroom, full bounded content; no project conversion
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"approved-wave-content" end time: Oct 09 06:47 EDT
+"approved-wave-content" time elapsed: 00:00:00
+----------------------------------------------------------
+
+84/94 Testing: offline-export
+84/94 Test: offline-export
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-release/sc-export-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-release
+"offline-export" start time: Oct 09 06:47 EDT
+Output:
+----------------------------------------------------------
+1019 offline export checks passed; exact live/range/tail, transactions and 1/2/8/32/256 channels.
+<end of output>
+Test time =   2.69 sec
+----------------------------------------------------------
+Test Passed.
+"offline-export" end time: Oct 09 06:47 EDT
+"offline-export" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Oct 09 06:47 EDT

@@ -20,7 +20,8 @@ class ProjectImportEvidence {
     bool ownedBy(const ResourceLedger &ledger) const;
   private:
     friend ProjectImportEvidence openProjectImportEvidence(const std::filesystem::path &,
-        const ValidatedSession &,const Id &,ResourceLedger,ProjectImportLimits,std::stop_token);
+        const ValidatedSession &,const Id &,ResourceLedger,ProjectImportLimits,std::stop_token,
+        const std::function<void()> &);
     ProjectImportEvidence(ResourceLease lease,ImportedProjectSource source,ImportInspectionReport report)
         :lease_(std::move(lease)),source_(std::move(source)),inspection_(std::move(report)) {}
     ResourceLease lease_;
@@ -40,8 +41,12 @@ ImportedMediaOrigin preserveProjectImportMedia(const std::filesystem::path &,
     const Asset &,ResourceLedger,std::stop_token={});
 // Save/reopen review: full pinned bundle + receipts + original property bindings
 // + full bounded owned WAVE decode. Caller owns a serialized control/I/O worker.
+// beforeRead runs on that caller before bounded bundle/receipt/audio reads and
+// decoder operations; exceptions propagate, including export cancellation.
 ProjectImportEvidence openProjectImportEvidence(const std::filesystem::path &,
-    const Session &,const Id &sourceId,ResourceLedger,ProjectImportLimits={},std::stop_token={});
+    const Session &,const Id &sourceId,ResourceLedger,ProjectImportLimits={},std::stop_token={},
+    const std::function<void()> &beforeRead = {});
 ProjectImportEvidence openProjectImportEvidence(const std::filesystem::path &,
-    const ValidatedSession &,const Id &sourceId,ResourceLedger,ProjectImportLimits={},std::stop_token={});
+    const ValidatedSession &,const Id &sourceId,ResourceLedger,ProjectImportLimits={},std::stop_token={},
+    const std::function<void()> &beforeRead = {});
 } // namespace soundcurrent::daw

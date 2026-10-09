@@ -19,11 +19,16 @@ struct Io {
     ApprovedMediaFile &file;
     WaveValidationLimits limits;
     std::stop_token stop;
+    const std::function<void()> &beforeRead;
     std::uint64_t position=0,bytes=0,operations=0;
     std::exception_ptr failure;
-    Io(ApprovedMediaFile &owned,WaveValidationLimits policy,std::stop_token token)
-        :file(owned),limits(policy),stop(token) {}
-    void poll() const { require(!stop.stop_requested(),"Wave validation canceled",ErrorCode::Canceled); }
+    Io(ApprovedMediaFile &owned,WaveValidationLimits policy,std::stop_token token,
+       const std::function<void()> &callback)
+        :file(owned),limits(policy),stop(token),beforeRead(callback) {}
+    void poll() const {
+        require(!stop.stop_requested(),"Wave validation canceled",ErrorCode::Canceled);
+        if (beforeRead) beforeRead();
+    }
     void account(std::uint64_t count=0) {
         poll();require(operations<limits.maximumIoOperations,"Wave validation I/O operation limit exceeded",ErrorCode::ResourceLimit);
         require(count<=limits.maximumBytesRead-bytes,"Wave validation read-byte limit exceeded",ErrorCode::ResourceLimit);
@@ -168,14 +173,16 @@ struct Decoder {
 };
 } // namespace
 WaveValidation validateApprovedWave(ApprovedMediaFile &file,WaveValidationLimits limits,
-    std::stop_token stop,const std::function<void(std::uint64_t,std::span<const double>)> &observer) {
+    std::stop_token stop,const std::function<void(std::uint64_t,std::span<const double>)> &observer,
+    const std::function<void()> &beforeRead) {
+    if (beforeRead) beforeRead();
     require(limits.maximumFrames && limits.maximumBytesRead && limits.maximumIoOperations && limits.maximumChunks &&
         limits.maximumChannels && limits.maximumChannels<=1024 && limits.blockFrames && limits.blockFrames<=8192,"Invalid wave validation policy");
     require(file.size()<=static_cast<std::uint64_t>(std::numeric_limits<sf_count_t>::max()),"Approved file exceeds decoder address range",ErrorCode::ResourceLimit);
     require(!stop.stop_requested(),"Wave validation canceled",ErrorCode::Canceled);file.verifyUnchanged();
     // Admitted work allowance is not an OS memory limit for third-party parsing.
     auto decoderWork=file.resourceLedger().reserve(256*1024);
-    Io io{file,limits,stop};
+    Io io{file,limits,stop,beforeRead};
     auto header=inspect(io);auto result=header.result;
     const auto samples=std::size_t(limits.blockFrames)*result.channels;
     auto blockWork=file.resourceLedger().reserve(samples*sizeof(double));std::vector<double> buffer(samples);
