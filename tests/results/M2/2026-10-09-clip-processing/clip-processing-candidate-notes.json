@@ -1,0 +1,64 @@
+{
+  "status": "candidate evaluation; no dependency adopted",
+  "date": "2026-10-09",
+  "scope": "next shared clip rendering slice, exact frozen baseline unchanged",
+  "architectureEvidence": {
+    "sharedReader": [
+      "src/playback_reader.cpp",
+      "src/mix_reader.cpp",
+      "src/export.cpp"
+    ],
+    "currentClip": "schema1.9 sourceFrame/startFrame/lengthFrames with original gain/mute/polarity/fades; source/project sample domains remain conflated; cache requires equal asset/project rates",
+    "currentPrefill": "per-track slabs already sum overlapping clips; per-clip live gain cannot be applied after that summation",
+    "nextImplementation": "independent source/project domain validation, qualified rate/stretch/pitch and loss-aware import acceptance/shared render qualification"
+  },
+  "candidates": [
+    {
+      "library": "libsamplerate",
+      "function": "sample rate conversion; playback-rate change couples pitch/duration unless paired with independent stretch",
+      "license": "BSD-2-Clause; exact chosen source/transitive notices still needed",
+      "latestRelease": "0.2.2; 2021-09-05",
+      "inspectedHead": "0844c208f683527c08ea8a80acc13b398aa9c8bf",
+      "headDate": "2026-08-13",
+      "evidence": [
+        "https://libsndfile.github.io/libsamplerate/license.html",
+        "https://libsndfile.github.io/libsamplerate/api_full.html",
+        "https://github.com/libsndfile/libsamplerate/releases/tag/0.2.2"
+      ],
+      "integrationCost": "consumed/generated extents, flush, reset/seek/preroll, source/project fractional phase, exact output trims, per-processor preparation/resource/latency qualification",
+      "localExperiment": "clip-resampler-feasibility.json; installed Ubuntu binary only, not reproducible source adoption or native Windows qualification"
+    },
+    {
+      "library": "Rubber Band",
+      "function": "independent time/pitch, R2/R3 algorithms and modes; quality not established by API names",
+      "license": "GPL-2.0-or-later or alternate commercial terms; exact FFT/resampler configuration requires separate audit",
+      "latestTag": "v4.0.0",
+      "tagCommit": "1d95888bec3ae0a17c0c4af791810d5a63f6bc35",
+      "inspectedHead": "e4296ac80b1170018a110bc326fd0d45a0eb27d6",
+      "headDate": "2025-02-27",
+      "evidence": [
+        "https://breakfastquay.com/rubberband/license.html",
+        "https://breakfastquay.com/rubberband/integration.html",
+        "https://breakfastquay.com/rubberband/code-doc/classRubberBand_1_1RubberBandStretcher.html",
+        "https://github.com/breakfastquay/rubberband/tree/v4.0.0"
+      ],
+      "integrationCost": "variable input/output, pad/start delay/drain, sample timing ratio updates, mode parity and thread/allocation characterization, source license/build matrix; documented 8\u2013192kHz restriction must not silently shrink existing project scope",
+      "localExperiment": null
+    },
+    {
+      "library": "soxr",
+      "function": "constant/variable-ratio resampling with configurable filter/phase; not independent pitch/time processor",
+      "license": "LGPL-2.1-or-later; optional FFT source license separate",
+      "latestTag": "0.1.3",
+      "inspectedHead": "945b592b70470e29f917f4de89b4281fbbd540c0",
+      "headDate": "2018-02-24",
+      "evidence": [
+        "https://github.com/chirlu/soxr",
+        "https://raw.githubusercontent.com/chirlu/soxr/master/LICENCE"
+      ],
+      "integrationCost": "FFT latency, flush/seek and variable ratio quality/delay; older official history is maintenance risk, not proof of platform failure",
+      "localExperiment": null
+    }
+  ],
+  "decision": "Retain provisional candidates. Four local sine measurements and partition equality are bounded feasibility only; complete Q-RESAMPLE/Q-STRETCH/Q-PITCH and native platform/resource/quality gates before selecting default modes."
+}

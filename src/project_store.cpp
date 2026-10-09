@@ -269,6 +269,12 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     PayloadCharge staging("Project encoding staging", budget.parserBytes);
     staging.add(sessionPayloadBytes(s, budget.state), 8);
     Json tracks = Json::array(), assets = Json::array();
+    const auto fade = [](const ClipFade &f) {
+        const char *curve = f.curve == ClipFadeCurve::Linear ? "linear" :
+            f.curve == ClipFadeCurve::EqualPower ? "equal-power" : "smoothstep";
+        return Json{{"startFrame",f.startFrame},{"endFrame",f.endFrame},
+                    {"curve",curve},{"shape",f.shape}};
+    };
     for (const auto &t : s.tracks) {
         Json bands = Json::array(), clips = Json::array();
         for (const auto &b : t.eq.bands)
@@ -281,7 +287,12 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                              {"assetId", c.assetId.str()},
                              {"startFrame", c.startFrame},
                              {"sourceFrame", c.sourceFrame},
-                             {"lengthFrames", c.lengthFrames}});
+                             {"lengthFrames", c.lengthFrames},
+                             {"processing", {{"gainDb",c.processing.gainDb},
+                                 {"muted",c.processing.muted},
+                                 {"polarityInverted",c.processing.polarityInverted},
+                                 {"fadeIn",fade(c.processing.fadeIn)},
+                                 {"fadeOut",fade(c.processing.fadeOut)}}}});
         Json processor = {{"id", t.eq.id.str()},
                           {"type", "sc.eq"},
                           {"version", 1},
@@ -311,7 +322,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 8},
+        {"schemaMinor", 9},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -453,7 +464,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 8),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 9),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -557,13 +568,35 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             array(t.at("clips"), budget.state.memoryBudgetBytes / sizeof(Clip));
             track.clips.reserve(t.at("clips").size());
             for (const auto &c : t.at("clips")) {
-                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames"});
+                if (minor < 9)
+                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames"});
+                else
+                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing"});
                 Clip clip;
                 clip.id = Id(string(c.at("id")));
                 clip.assetId = Id(string(c.at("assetId")));
                 clip.startFrame = integer(c.at("startFrame"));
                 clip.sourceFrame = integer(c.at("sourceFrame"));
                 clip.lengthFrames = integer(c.at("lengthFrames"));
+                if (minor >= 9) {
+                    const auto &p = c.at("processing");
+                    keys(p,{"gainDb","muted","polarityInverted","fadeIn","fadeOut"});
+                    clip.processing.gainDb = number(p.at("gainDb"));
+                    clip.processing.muted = boolean(p.at("muted"));
+                    clip.processing.polarityInverted = boolean(p.at("polarityInverted"));
+                    const auto readFade = [&](const Json &f) {
+                        keys(f,{"startFrame","endFrame","curve","shape"});
+                        const auto curve = string(f.at("curve"));
+                        require(curve=="linear" || curve=="equal-power" || curve=="smoothstep",
+                                "Unknown clip fade curve",ErrorCode::UnsupportedSchema);
+                        return ClipFade{integer(f.at("startFrame")),integer(f.at("endFrame")),
+                            curve=="linear" ? ClipFadeCurve::Linear :
+                            curve=="equal-power" ? ClipFadeCurve::EqualPower : ClipFadeCurve::Smoothstep,
+                            number(f.at("shape"))};
+                    };
+                    clip.processing.fadeIn = readFade(p.at("fadeIn"));
+                    clip.processing.fadeOut = readFade(p.at("fadeOut"));
+                }
                 track.clips.push_back(std::move(clip));
             }
             s.tracks.push_back(std::move(track));

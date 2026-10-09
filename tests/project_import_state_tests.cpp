@@ -182,7 +182,7 @@ int test(const std::filesystem::path &input) {
         ProjectStore(root).save(session);check(ProjectStore(root).load().imports==session.imports && history.undo() && history.redo(),"Edit/save/history dropped import evidence");
         check(ProjectStore(root).loadPrevious().imports==session.imports,"Backup dropped original loss state");
         auto j=nlohmann::json::parse(encodeProject(session));
-        check(j["schemaMinor"]==8 && j["imports"][0]["media"][0]["sourceProperty"]==ordinal,"Stable import identifiers differ");
+        check(j["schemaMinor"]==9 && j["imports"][0]["media"][0]["sourceProperty"]==ordinal,"Stable import identifiers differ");
         for (unsigned mode=0;mode<20;++mode) {
             auto bad=j;auto &i=bad["imports"][0];auto &m=i["media"][0];
             switch(mode) {
@@ -216,6 +216,7 @@ int test(const std::filesystem::path &input) {
             if (minor<4) old.erase("punchRecording");
             if (minor<3) old.erase("master");
             for (auto &t:old["tracks"]) {
+                for (auto &c:t["clips"]) c.erase("processing");
                 if (minor<5) t.erase("inputLatencyFrames");
                 if (minor<2) t.erase("monitoringMode");
                 if (minor==0) {t.erase("monitorIntent");t["inputIntent"].erase("ports");t["outputIntent"].erase("ports");}

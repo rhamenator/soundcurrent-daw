@@ -628,3 +628,16 @@ borrower retirement have actual-worker fixtures. Next implement destination
 timing/gain/fades/rate/pitch, explicit conversion/loss preview, one Undo and aligned
 source-suite renders; refresh installed previews. Every broader adapter, independent
 platform/storage/recording/Europe and full frozen parity gate remains required.
+
+## Original clip processing increment (2026-10-09)
+
+[Checkpoint129](129-clip-gain-and-fades.md) implements original per-clip gain,
+mute/polarity and editable sample-defined fades before overlap summation in shared
+playback/export. Schema1.9, neutral legacy migration, anchor-preserving split/trim,
+grouped Undo/Redo, exact canonical UI precision and owned multichannel sample
+acceptance are concrete partial P009 evidence. Reference-specific curves/defaults,
+linked handles, comp/group/warp, immediate live clip automation and installed
+platform qualification remain required. Next: independent source/project domains
+→ qualified rate/stretch/pitch → explicit import conversion/loss preview
+→ one Undo/reopen/aligned source-suite renders → refreshed installed preview pairs.
+Full F/Q/C/N and Europe gates remain unchanged.

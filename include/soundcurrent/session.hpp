@@ -156,12 +156,32 @@ struct EqSettings {
     std::vector<EqBand> bands;
     bool operator==(const EqSettings &) const = default;
 };
+enum class ClipFadeCurve { Linear = 0, EqualPower = 1, Smoothstep = 2 };
+struct ClipFade {
+    // Clip-relative frame window [startFrame,endFrame). Signed anchors preserve
+    // the exact original envelope when a clip is cropped/split. 0,0 disables.
+    Frame startFrame = 0, endFrame = 0;
+    ClipFadeCurve curve = ClipFadeCurve::Linear;
+    double shape = 1;
+    bool operator==(const ClipFade &) const = default;
+};
+struct ClipProcessing {
+    double gainDb = 0;
+    bool muted = false, polarityInverted = false;
+    ClipFade fadeIn, fadeOut;
+    bool operator==(const ClipProcessing &) const = default;
+};
+void validateClipProcessing(const ClipProcessing &);
+// Control only, strong exception guarantee, shift anchors by consumed source
+// frames. Today's clips are unity-rate; rate/pitch mapping remains separate work.
+void shiftClipProcessing(ClipProcessing &, Frame consumedFrames);
 struct Clip {
     Id id = Id::generate();
     Id assetId = Id::generate();
     Frame startFrame = 0;
     Frame sourceFrame = 0;
     Frame lengthFrames = 0;
+    ClipProcessing processing;
     bool operator==(const Clip &) const = default;
 };
 enum class RecordingMonitor { Off, PostEq, AutoRecording };
@@ -284,6 +304,10 @@ struct SetClipRange {
     Id track, clip;
     Frame start, source, length;
 };
+struct SetClipProcessing {
+    Id track, clip;
+    ClipProcessing value;
+};
 struct MoveClip {
     Id from, to, clip;
     Frame start;
@@ -305,7 +329,7 @@ struct SetInputLatency {
 };
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
-                 SetClipRange, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
+                 SetClipRange, SetClipProcessing, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

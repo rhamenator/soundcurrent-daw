@@ -3481,3 +3481,26 @@ source absence/relocation, backup/history, malformed/planned evidence, refusal
 before mutation and ownership. Native Windows and installed preview qualification
 are recorded separately. Full goal remains active and incomplete. Next: extended
 destination clip semantics and approved conversion/loss/Undo/aligned render flows.
+
+## 2026-10-09: original clip gain and editable fades
+
+Previous goal turn was **progress**: PR72 merged exact repaired cca9735 through
+unchanged four-context protection; source/merge trees agree. Run37920106044 passed
+Linux90, native Windows core26 and native Windows Qt7. The cancellation repair
+reaches typed bundle/receipt/WAVE verification during export; final digest-verified
+archives and17 source/65 prior evidence hashes are retained in checkpoint129.
+
+This increment supplies original [clip gain/mute/polarity and fades](129-clip-gain-and-fades.md),
+schema1.9 explicit migration, checked signed anchor shifts, per-clip evaluation
+before summation, shared live/export float headroom and actual desktop one Undo/
+Redo/save/reopen with canonical precision. Local Release12 selected tests pass:
+185303 core checks,63 screenshot-enabled Qt checks. First UI readiness failure and
+compile namespace diagnostics are retained; visible state synchronization was
+repaired without weakening product guards. Sanitizer and new native gates remain
+separately recorded. No VM/audio/equalizer/installed preview/product release changed.
+
+A bounded already-installed libsamplerate feasibility probe and official dependency
+review do not select a production processor or qualify full resampling/stretch/pitch.
+Next: independent source/project timing and qualified rate/pitch/stretch, explicit
+conversion/loss preview, grouped Undo/reopen/aligned renders and installed preview
+pairs. Full frozen Linux/Windows/Europe/F/Q/C/N goal stays active and incomplete.

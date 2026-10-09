@@ -69,7 +69,7 @@ void inputLatencyState() {
               h.redo() && s.tracks.back().inputLatencyFrames == 4097,
           "Latency history lost reordered stable track identity");
     auto j = Json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 8 && j["tracks"][1]["inputLatencyFrames"] == 4097 &&
+    check(j["schemaMinor"] == 9 && j["tracks"][1]["inputLatencyFrames"] == 4097 &&
               decodeProject(j.dump()) == s,
           "Latency exact serialization differs");
     for (unsigned mode = 0; mode < 8; ++mode) {
@@ -102,6 +102,7 @@ void inputLatencyState() {
         if (minor < 3)
             legacy.erase("master");
         for (auto &t : legacy["tracks"]) {
+        for (auto &c : t["clips"]) c.erase("processing");
             t.erase("inputLatencyFrames");
             if (minor < 2)
                 t.erase("monitoringMode");
@@ -154,7 +155,7 @@ void punchState() {
         check(s == before, "Invalid punch edit changed canonical state/history");
     }
     auto j = Json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 8 && j["punchRecording"]["startFrame"] == 503,
+    check(j["schemaMinor"] == 9 && j["punchRecording"]["startFrame"] == 503,
           "Punch stable schema representation differs");
     for (unsigned mode = 0; mode < 6; ++mode) {
         auto bad = j;
@@ -180,6 +181,7 @@ void punchState() {
         if (minor < 3)
             legacy.erase("master");
         for (auto &t : legacy["tracks"]) {
+        for (auto &c : t["clips"]) c.erase("processing");
             t.erase("inputLatencyFrames");
             if (minor < 2)
                 t.erase("monitoringMode");
@@ -246,7 +248,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 9;
+        j["schemaMinor"] = 10;
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;

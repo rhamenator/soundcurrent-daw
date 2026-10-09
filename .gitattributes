@@ -39,3 +39,5 @@ CMakeLists.txt text eol=lf
 /tests/results/X004/2026-10-09-desktop-checked-media-copy/*.log -text whitespace=-blank-at-eol,cr-at-eol
 
 /tests/results/X004/2026-10-09-import-project-evidence/*.log -text whitespace=-blank-at-eol,cr-at-eol
+
+/tests/results/M2/2026-10-09-clip-processing/*.log -text whitespace=-blank-at-eol,cr-at-eol

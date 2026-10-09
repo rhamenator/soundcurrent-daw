@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/session.hpp>
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <type_traits>
 
@@ -133,6 +134,40 @@ void dynamicWeight(PayloadCharge &charge, const Track &t) {
     dynamicWeight(charge, t.monitor);
 }
 } // namespace
+void validateClipProcessing(const ClipProcessing &p) {
+    require(std::isfinite(p.gainDb) && p.gainDb >= -120 && p.gainDb <= 60,
+            "Clip gain must be between -120 and 60 dB", ErrorCode::InvalidParameter);
+    for (const auto *f : {&p.fadeIn, &p.fadeOut}) {
+        require(f->curve == ClipFadeCurve::Linear || f->curve == ClipFadeCurve::EqualPower ||
+                    f->curve == ClipFadeCurve::Smoothstep,
+                "Unknown clip fade curve", ErrorCode::InvalidParameter);
+        require(std::isfinite(f->shape) && f->shape >= .25 && f->shape <= 4,
+                "Clip fade shape must be between 0.25 and 4", ErrorCode::InvalidParameter);
+        require((f->startFrame == 0 && f->endFrame == 0) || f->endFrame > f->startFrame,
+                "Clip fade requires a positive frame window or disabled 0,0", ErrorCode::InvalidParameter);
+        if (f->startFrame < 0)
+            require(f->endFrame <= std::numeric_limits<Frame>::max() + f->startFrame,
+                    "Clip fade duration overflow", ErrorCode::InvalidParameter);
+    }
+}
+void shiftClipProcessing(ClipProcessing &p, Frame consumed) {
+    validateClipProcessing(p);
+    auto proposed = p;
+    const auto shift = [&](Frame value) {
+        require(consumed <= 0 || value >= std::numeric_limits<Frame>::min() + consumed,
+                "Clip fade anchor underflow", ErrorCode::InvalidParameter);
+        require(consumed >= 0 || value <= std::numeric_limits<Frame>::max() + consumed,
+                "Clip fade anchor overflow", ErrorCode::InvalidParameter);
+        return value - consumed;
+    };
+    for (auto *f : {&proposed.fadeIn,&proposed.fadeOut})
+        if (f->startFrame != f->endFrame) {
+            f->startFrame = shift(f->startFrame);
+            f->endFrame = shift(f->endFrame);
+        }
+    validateClipProcessing(proposed);
+    p = proposed;
+}
 Track makeAudioTrack(std::string name, ChannelLayout channels, std::uint32_t rate) {
     Session s;
     s.sampleRate = rate;
@@ -190,9 +225,14 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     clips.erase(find(clips, e.clip));
                 } else if constexpr (std::is_same_v<E, SetClipRange>) {
                     auto &c = *find(track(proposed, e.track).clips, e.clip);
+                    require(e.source >= 0, "Invalid clip source frame");
+                    shiftClipProcessing(c.processing, e.source - c.sourceFrame);
                     c.startFrame = e.start;
                     c.sourceFrame = e.source;
                     c.lengthFrames = e.length;
+                } else if constexpr (std::is_same_v<E, SetClipProcessing>) {
+                    validateClipProcessing(e.value);
+                    find(track(proposed, e.track).clips,e.clip)->processing = e.value;
                 } else if constexpr (std::is_same_v<E, MoveClip>) {
                     auto &from = track(proposed, e.from).clips;
                     auto &to = track(proposed, e.to).clips;
@@ -218,6 +258,7 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     right.id = e.rightId;
                     right.startFrame = e.position;
                     right.sourceFrame += leftLength;
+                    shiftClipProcessing(right.processing,leftLength);
                     right.lengthFrames -= leftLength;
                     it->lengthFrames = leftLength;
                     clips.insert(it + 1, std::move(right));

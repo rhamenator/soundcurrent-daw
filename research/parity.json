@@ -238,12 +238,12 @@
       "milestone": "M2",
       "acceptance": "Split two clips, apply editable curved fades/crossfade, trim and undo without changing source.",
       "quality": "Gain curve matches specified samples; peak remains predictable.",
-      "known_gap": "Fade/crossfade model, curves, UI/render, defaults and reference comparison remain required.",
+      "known_gap": "Reference curve/default/range variants, linked interactive crossfade/comp/group/warp, live clip automation, installed platform and full F/Q/N qualification remain required.",
       "bitwig_url": "https://www.bitwig.com/userguide/latest/working_with_audio_events/",
       "cubase_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/fades_crossfades_and_envelopes/fades_crossfades_c.html?contentId=iNGCanNPEOt7kqsEB6nWjA",
       "bitwig_evidence": "P",
       "cubase_evidence": "D",
-      "implementation": "Partial: non-destructive range/split commands and desktop controls, raw hash, Undo and save/reopen.",
+      "implementation": "Partial: schema1.9 original gain/mute/polarity and editable linear/equal-power/smoothstep fades; split/trim preserve sample gains; one Undo and exact save/reopen; shared live/export owned 1/2/8/32/256-channel samples.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -254,7 +254,9 @@
         "docs/29-multitrack-edits.md",
         "docs/30-desktop-timeline.md",
         "tests/results/M2/2026-10-06-multitrack-edits.json",
-        "tests/results/M2/2026-10-06-desktop-timeline.json"
+        "tests/results/M2/2026-10-06-desktop-timeline.json",
+        "docs/129-clip-gain-and-fades.md",
+        "tests/results/M2/2026-10-09-clip-processing/"
       ]
     },
     {

@@ -1,0 +1,426 @@
+Start testing: Oct 09 10:55 Coordinated Universal Time
+----------------------------------------------------------
+1/53 Testing: verified-media-staging
+1/53 Test: verified-media-staging
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-media-staging-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"verified-media-staging" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Staging warm-up process handles: 86 -> 87
+Passed 152 media staging checks
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"verified-media-staging" end time: Oct 09 10:55 Coordinated Universal Time
+"verified-media-staging" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/53 Testing: approved-media-root
+2/53 Test: approved-media-root
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-approved-media-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"approved-media-root" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 169 approved-root checks; owned files, bounded reads/hash, no audio or conversion
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"approved-media-root" end time: Oct 09 10:55 Coordinated Universal Time
+"approved-media-root" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/53 Testing: verified-media-stage-worker
+3/53 Test: verified-media-stage-worker
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/media_stage_worker_tests.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-media-stage-worker.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-approved-wave-probe.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"verified-media-stage-worker" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Passed 61 actual media staging worker checks
+<end of output>
+Test time =   0.90 sec
+----------------------------------------------------------
+Test Passed.
+"verified-media-stage-worker" end time: Oct 09 10:55 Coordinated Universal Time
+"verified-media-stage-worker" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/53 Testing: approved-media-probe
+4/53 Test: approved-media-probe
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/approved_media_probe_tests.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-approved-media-probe.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"approved-media-probe" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 23 actual approved-media CLI checks; no audio decode/conversion
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"approved-media-probe" end time: Oct 09 10:55 Coordinated Universal Time
+"approved-media-probe" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/53 Testing: inspection-bundle
+5/53 Test: inspection-bundle
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-inspection-bundle-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"inspection-bundle" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Win32 relative-root rename probe success=0 error=87; original API observation, not a product fallback
+Inspection bundle checks=100; synthetic originating PID, no native-suite compatibility claim
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"inspection-bundle" end time: Oct 09 10:55 Coordinated Universal Time
+"inspection-bundle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/53 Testing: reaper-structure
+6/53 Test: reaper-structure
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-reaper-structure-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"reaper-structure" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+RPP structural checks=174; synthetic only; semantic/native compatibility unqualified
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"reaper-structure" end time: Oct 09 10:55 Coordinated Universal Time
+"reaper-structure" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/53 Testing: reaper-import-properties
+7/53 Test: reaper-import-properties
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-reaper-import-tests.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82/projects"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"reaper-import-properties" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Reaper import properties: 890 checks; original scalar/byte preservation only, conversion/render unqualified
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"reaper-import-properties" end time: Oct 09 10:55 Coordinated Universal Time
+"reaper-import-properties" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/53 Testing: import-inspection-worker
+8/53 Test: import-inspection-worker
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/import_inspect_worker_tests.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-import-inspect-worker.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"import-inspection-worker" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+{"checks": 129, "processBoundary": true, "sourceUntouched": true, "nativeDAWCompatibilityQualified": false, "platform": "win32"}
+<end of output>
+Test time =   0.36 sec
+----------------------------------------------------------
+Test Passed.
+"import-inspection-worker" end time: Oct 09 10:55 Coordinated Universal Time
+"import-inspection-worker" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/53 Testing: reaper-native-corpus
+9/53 Test: reaper-native-corpus
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/reaper_native_corpus_tests.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-import-inspect-worker.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"reaper-native-corpus" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+{"checks": 6013, "writer": "7.82/linux-x86_64", "inspectionPlatform": "win32", "cases": [{"case": "empty", "workerPid": 2096, "sourceSha256": "7b2f0a838abc82cc0e8a8f3c55cfeda44d7223213bcb177eb56095fe72d54ae9", "bytes": 2245, "nodes": 113, "trackBlocks": 0, "itemBlocks": 0}, {"case": "unicode-mono", "workerPid": 6532, "sourceSha256": "8e1aed49bba6867947c1cd90e43937389f17f87edd27cc4adb5429b3bbc79345", "bytes": 3366, "nodes": 161, "trackBlocks": 1, "itemBlocks": 1}, {"case": "offset-fades", "workerPid": 7312, "sourceSha256": "ee2ca2e11ce52b37e3ef929798d8e73427f46acd7b70d04548a2d83a705bdc55", "bytes": 3900, "nodes": 183, "trackBlocks": 1, "itemBlocks": 2}, {"case": "stereo-gain-pan", "workerPid": 6304, "sourceSha256": "0721d640a1a62b535a854f5a6d94eecd0fd0ccec7f054cde7a93b77f9e2e65e0", "bytes": 3376, "nodes": 161, "trackBlocks": 1, "itemBlocks": 1}, {"case": "rate-pitch", "workerPid": 6264, "sourceSha256": "f4a62e9708daacf53c6282d19eff6c537377456896852b6b2da055c350a8b2e9", "bytes": 3371, "nodes": 161, "trackBlocks": 1, "itemBlocks": 1}, {"case": "opaque-state-routing", "workerPid": 5332, "sourceSha256": "77ac5b159f5aa38091a8046f8bc8645b49c34223d5daa50bfa6fd8282b5c5241", "bytes": 4031, "nodes": 189, "trackBlocks": 2, "itemBlocks": 1}, {"case": "midi-tempo", "workerPid": 9140, "sourceSha256": "bad42422264c44a6f46a702340ccb818b32fa747a0cee2b0efd7a2a84262ba5a", "bytes": 3858, "nodes": 176, "trackBlocks": 1, "itemBlocks": 1}], "nativeWriterExecutedByThisTest": false, "semanticImportQualified": false, "renderComparisonQualified": false}
+<end of output>
+Test time =   0.28 sec
+----------------------------------------------------------
+Test Passed.
+"reaper-native-corpus" end time: Oct 09 10:55 Coordinated Universal Time
+"reaper-native-corpus" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/53 Testing: import-property-protocol
+10/53 Test: import-property-protocol
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/import_property_protocol_tests.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-import-inspect-worker.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-import-property-report-probe.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"import-property-protocol" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+{"checks": 569, "platform": "win32", "cases": [{"id": "empty", "pid": 3852, "sourceSha256": "7b2f0a838abc82cc0e8a8f3c55cfeda44d7223213bcb177eb56095fe72d54ae9", "objects": 1, "properties": 2}, {"id": "unicode-mono", "pid": 7252, "sourceSha256": "8e1aed49bba6867947c1cd90e43937389f17f87edd27cc4adb5429b3bbc79345", "objects": 4, "properties": 20}, {"id": "offset-fades", "pid": 7904, "sourceSha256": "ee2ca2e11ce52b37e3ef929798d8e73427f46acd7b70d04548a2d83a705bdc55", "objects": 6, "properties": 33}, {"id": "stereo-gain-pan", "pid": 6152, "sourceSha256": "0721d640a1a62b535a854f5a6d94eecd0fd0ccec7f054cde7a93b77f9e2e65e0", "objects": 4, "properties": 20}, {"id": "rate-pitch", "pid": 7548, "sourceSha256": "f4a62e9708daacf53c6282d19eff6c537377456896852b6b2da055c350a8b2e9", "objects": 4, "properties": 20}, {"id": "opaque-state-routing", "pid": 500, "sourceSha256": "77ac5b159f5aa38091a8046f8bc8645b49c34223d5daa50bfa6fd8282b5c5241", "objects": 5, "properties": 25}, {"id": "midi-tempo", "pid": 8624, "sourceSha256": "bad42422264c44a6f46a702340ccb818b32fa747a0cee2b0efd7a2a84262ba5a", "objects": 4, "properties": 19}], "realWorkerAndIndependentDecoder": true, "corruptChecksumRecomputedCases": 28, "syntheticEvidenceCases": 7, "semanticImportQualified": false, "renderComparisonQualified": false}
+<end of output>
+Test time =   0.87 sec
+----------------------------------------------------------
+Test Passed.
+"import-property-protocol" end time: Oct 09 10:55 Coordinated Universal Time
+"import-property-protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/53 Testing: resource-ledger
+12/53 Test: resource-ledger
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-resource-ledger-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"resource-ledger" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Resource ledger checks=44
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"resource-ledger" end time: Oct 09 10:55 Coordinated Universal Time
+"resource-ledger" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/53 Testing: session-state
+13/53 Test: session-state
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-session-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"session-state" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+117 checks passed
+<end of output>
+Test time =   0.21 sec
+----------------------------------------------------------
+Test Passed.
+"session-state" end time: Oct 09 10:55 Coordinated Universal Time
+"session-state" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/53 Testing: project-routing
+14/53 Test: project-routing
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-routing-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"project-routing" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+604 routing checks passed
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"project-routing" end time: Oct 09 10:55 Coordinated Universal Time
+"project-routing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/53 Testing: project-monitoring
+17/53 Test: project-monitoring
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-monitoring-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"project-monitoring" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+40 monitoring checks passed
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"project-monitoring" end time: Oct 09 10:55 Coordinated Universal Time
+"project-monitoring" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/53 Testing: wasapi-packet-admission
+22/53 Test: wasapi-packet-admission
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-wasapi-input-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"wasapi-packet-admission" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+WASAPI packet/channel/silence/time/EQ/RT contracts pass
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-packet-admission" end time: Oct 09 10:55 Coordinated Universal Time
+"wasapi-packet-admission" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/53 Testing: wasapi-packet-copy
+23/53 Test: wasapi-packet-copy
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-wasapi-packet-copy-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"wasapi-packet-copy" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Packet copy: SDK reuse, release/error order, raw/EQ fidelity and bounded admission passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-packet-copy" end time: Oct 09 10:55 Coordinated Universal Time
+"wasapi-packet-copy" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/53 Testing: wasapi-capture-trace
+26/53 Test: wasapi-capture-trace
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-wasapi-capture-trace-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"wasapi-capture-trace" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Native capture trace: bounded loss, exact metadata and concurrent publication passed
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-capture-trace" end time: Oct 09 10:55 Coordinated Universal Time
+"wasapi-capture-trace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/53 Testing: wasapi-render-trace
+27/53 Test: wasapi-render-trace
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-wasapi-render-trace-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"wasapi-render-trace" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Native render trace: owned samples, raw headroom/errors, abort, bounded loss, admission and RT audit passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-render-trace" end time: Oct 09 10:55 Coordinated Universal Time
+"wasapi-render-trace" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/53 Testing: project-import-state
+29/53 Test: project-import-state
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/project_import_state_workflows.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-import-inspect-worker.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-project-import-state-tests.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"project-import-state" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 168 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 168 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 168 import-state checks; actual inspector, immutable loss/provenance, save/reopen/relocation, refusals and ownership; conversion unqualified
+PASS: 39 independent import-state workflow checks; source/loss/provenance persistence, not conversion parity
+<end of output>
+Test time =   1.15 sec
+----------------------------------------------------------
+Test Passed.
+"project-import-state" end time: Oct 09 10:55 Coordinated Universal Time
+"project-import-state" time elapsed: 00:00:01
+----------------------------------------------------------
+
+30/53 Testing: media-provenance-transaction
+30/53 Test: media-provenance-transaction
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/media_transaction_workflows.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-import-inspect-worker.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-media-import-worker.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-media-transaction-tests.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/fixtures/reaper-7.82"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"media-provenance-transaction" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Passed 228 media transaction checks
+Passed 114 actual media transaction workflow checks
+<end of output>
+Test time =   0.96 sec
+----------------------------------------------------------
+Test Passed.
+"media-provenance-transaction" end time: Oct 09 10:55 Coordinated Universal Time
+"media-provenance-transaction" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/53 Testing: approved-wave-content
+31/53 Test: approved-wave-content
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-wave-validation-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"approved-wave-content" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 20503 pinned WAVE checks; independent PCM/float samples, headroom, full bounded content; no project conversion
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"approved-wave-content" end time: Oct 09 10:55 Coordinated Universal Time
+"approved-wave-content" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/53 Testing: approved-wave-probe
+32/53 Test: approved-wave-probe
+Command: "C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe" "D:/a/soundcurrent-daw/soundcurrent-daw/tests/approved_wave_probe_tests.py" "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-approved-wave-probe.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"approved-wave-probe" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+{"checks": 64, "platform": "win32", "realWorker": true, "independentByteHashAndFloatHeadroom": true, "originalCorpusFiles": 2, "sourceUntouched": true, "projectConversion": false, "alignedRenderComparison": false}
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"approved-wave-probe" end time: Oct 09 10:55 Coordinated Universal Time
+"approved-wave-probe" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/53 Testing: wasapi-playback-owner-rollback
+34/53 Test: wasapi-playback-owner-rollback
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-wasapi-playback-owner-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"wasapi-playback-owner-rollback" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Production playback owner: repeated admission rollback, inactive retry, replacement and full resource retirement passed; SDK boundary injected
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"wasapi-playback-owner-rollback" end time: Oct 09 10:55 Coordinated Universal Time
+"wasapi-playback-owner-rollback" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/53 Testing: writer-phase-timing
+35/53 Test: writer-phase-timing
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-writer-timing-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"writer-phase-timing" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Writer phase pairing, fixed maxima/context, backlog, gap, construction exclusion and missing observations passed.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"writer-phase-timing" end time: Oct 09 10:55 Coordinated Universal Time
+"writer-phase-timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+46/53 Testing: offline-export
+46/53 Test: offline-export
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-export-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"offline-export" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+1062 offline export checks passed; exact live/range/tail, transactions and 1/2/8/32/256 channels.
+<end of output>
+Test time =   3.82 sec
+----------------------------------------------------------
+Test Passed.
+"offline-export" end time: Oct 09 10:55 Coordinated Universal Time
+"offline-export" time elapsed: 00:00:03
+----------------------------------------------------------
+
+49/53 Testing: recording-recovery
+49/53 Test: recording-recovery
+Command: "D:/a/soundcurrent-daw/soundcurrent-daw/build-native/sc-recording-tests.exe"
+Directory: D:/a/soundcurrent-daw/soundcurrent-daw/build-native
+"recording-recovery" start time: Oct 09 10:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Concurrent synthetic capture producer_elapsed_ns=48882762000 intended_frames=480000 sample_rate=48000 pool_slabs=32 slab_frames=1024 writer_timing={"maximum_ready_slabs":1,"maximum_queued_frame_upper_bound":1024,"capacity_frames":32768,"maximum_write_gap_ns":158375900,"missing_phase_pairs":0,"phase_pairs_complete":true,"phase_summaries":[{"phase":"write_hash","count":469,"maximum_ns":1481900,"maximum_begin_monotonic_ns":600106885400,"maximum_end_monotonic_ns":600108367300,"begin_written_frames":0,"end_written_frames":1024,"begin_committed_frames":0,"end_committed_frames":0,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":1024,"end_acquired_frames":1024},{"phase":"audio_flush","count":10,"maximum_ns":10670800,"maximum_begin_monotonic_ns":648897482300,"maximum_end_monotonic_ns":648908153100,"begin_written_frames":480000,"end_written_frames":480000,"begin_committed_frames":433152,"end_committed_frames":433152,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0},{"phase":"journal_publish","count":11,"maximum_ns":22678500,"maximum_begin_monotonic_ns":648908153500,"maximum_end_monotonic_ns":648930832000,"begin_written_frames":480000,"end_written_frames":480000,"begin_committed_frames":433152,"end_committed_frames":480000,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0},{"phase":"idle_wait","count":3816,"maximum_ns":17079800,"maximum_begin_monotonic_ns":609490356500,"maximum_end_monotonic_ns":609507436300,"begin_written_frames":96256,"end_written_frames":96256,"begin_committed_frames":96256,"end_committed_frames":96256,"begin_ready_slabs":0,"end_ready_slabs":0,"begin_acquired_frames":0,"end_acquired_frames":0}]}
+{"checks":256,"synthetic_recorded_frames":480000,"rate_hz":48000,"concurrent_disk_worker":true,"rt_allocations":0,"rt_frees":0,"rt_blocking_locks":0,"raw_overs_preserved":true,"prefix_recovery":true,"native_audio_device":false}
+<end of output>
+Test time =  51.06 sec
+----------------------------------------------------------
+Test Passed.
+"recording-recovery" end time: Oct 09 10:56 Coordinated Universal Time
+"recording-recovery" time elapsed: 00:00:51
+----------------------------------------------------------
+
+End testing: Oct 09 10:56 Coordinated Universal Time

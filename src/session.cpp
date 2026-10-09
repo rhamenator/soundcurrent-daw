@@ -312,6 +312,7 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
             id(b.id);
         bytes.add(t.clips.capacity(), sizeof(Clip));
         for (const auto &c : t.clips) {
+            validateClipProcessing(c.processing);
             id(c.id);
             string(c.assetId.str());
         }

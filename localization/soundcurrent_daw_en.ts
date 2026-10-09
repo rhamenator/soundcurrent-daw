@@ -2990,6 +2990,94 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Move to track</translation>
     </message>
     <message>
+      <source>Clip gain and fades</source>
+      <translation>Clip gain and fades</translation>
+    </message>
+    <message>
+      <source>Clip gain in decibels</source>
+      <translation>Clip gain in decibels</translation>
+    </message>
+    <message>
+      <source>Mute clip</source>
+      <translation>Mute clip</translation>
+    </message>
+    <message>
+      <source>Invert clip polarity</source>
+      <translation>Invert clip polarity</translation>
+    </message>
+    <message>
+      <source>Clip gain (dB)</source>
+      <translation>Clip gain (dB)</translation>
+    </message>
+    <message>
+      <source>Fade out start frame</source>
+      <translation>Fade out start frame</translation>
+    </message>
+    <message>
+      <source>Fade in start frame</source>
+      <translation>Fade in start frame</translation>
+    </message>
+    <message>
+      <source>Fade out end frame</source>
+      <translation>Fade out end frame</translation>
+    </message>
+    <message>
+      <source>Fade in end frame</source>
+      <translation>Fade in end frame</translation>
+    </message>
+    <message>
+      <source>Fade out curve</source>
+      <translation>Fade out curve</translation>
+    </message>
+    <message>
+      <source>Fade in curve</source>
+      <translation>Fade in curve</translation>
+    </message>
+    <message>
+      <source>Linear</source>
+      <translation>Linear</translation>
+    </message>
+    <message>
+      <source>Equal power</source>
+      <translation>Equal power</translation>
+    </message>
+    <message>
+      <source>Smoothstep</source>
+      <translation>Smoothstep</translation>
+    </message>
+    <message>
+      <source>Fade out shape</source>
+      <translation>Fade out shape</translation>
+    </message>
+    <message>
+      <source>Fade in shape</source>
+      <translation>Fade in shape</translation>
+    </message>
+    <message>
+      <source>Start</source>
+      <translation>Start</translation>
+    </message>
+    <message>
+      <source>End</source>
+      <translation>End</translation>
+    </message>
+    <message>
+      <source>Fade out</source>
+      <translation>Fade out</translation>
+    </message>
+    <message>
+      <source>Fade in</source>
+      <translation>Fade in</translation>
+    </message>
+    <message>
+      <source>Fade windows use clip-relative frames: start is included, end is excluded. Set both to 0 to disable. Signed positions preserve fades after trimming or splitting; raw media stays unchanged.</source>
+      <translation>Fade windows use clip-relative frames: start is included, end is excluded. Set both to 0 to disable. Signed positions preserve fades after trimming or splitting; raw media stays unchanged.</translation>
+    </message>
+    <message>
+      <source>Apply clip processing</source>
+      <translation>Apply clip processing</translation>
+    </message>
+    <message>
       <source>Recorded media asset</source>
       <translation>Recorded media asset</translation>
     </message>

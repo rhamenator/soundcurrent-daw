@@ -293,3 +293,13 @@ The development [foreign-project inspection](docs/120-import-property-preview.md
 shows original REAPER property values and preserved source lines, including
 missing/unsupported state. Saved inspections reopen without the original file;
 importing their audio into a destination project remains under development.
+
+### Editable clip gain and fades (development source)
+
+Select a clip and expand **Clip gain and fades** to set gain, mute, polarity and
+linear/equal-power/smoothstep fades. Apply is one Undo/Redo item; save/reopen
+preserves exact settings. Split/trim retain the source envelope and raw recordings
+stay unchanged. The shared playback/export reader preserves float headroom.
+Controls are read-only while audio is prepared; live clip automation, timing/rate/
+pitch and refreshed installed packages remain separate work. See
+[the workflow, evidence and remaining gaps](docs/129-clip-gain-and-fades.md).

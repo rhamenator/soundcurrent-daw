@@ -1,0 +1,19 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+    Start 31: desktop-timeline
+1/7 Test #31: desktop-timeline .................   Passed    3.91 sec
+    Start 32: desktop-clip-processing
+2/7 Test #32: desktop-clip-processing ..........   Passed    0.50 sec
+    Start 50: session-state
+3/7 Test #50: session-state ....................   Passed    0.44 sec
+    Start 53: multitrack-edits
+4/7 Test #53: multitrack-edits .................   Passed    6.31 sec
+    Start 65: project-import-state
+5/7 Test #65: project-import-state .............   Passed    8.08 sec
+    Start 85: offline-export
+6/7 Test #85: offline-export ...................   Passed    4.88 sec
+    Start 87: clip-processing
+7/7 Test #87: clip-processing ..................   Passed    1.41 sec
+
+100% tests passed, 0 tests failed out of 7
+
+Total Test time (real) =  25.54 sec
