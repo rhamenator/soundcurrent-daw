@@ -752,3 +752,15 @@ remove/reinstall preserves all owned project/media files. Private synthetic
 container evidence does not qualify physical audio or a newer source build.
 Next qualify and install the matching native Windows preview, retaining independent
 quality, localization, short-span and full frozen F/Q/C/N requirements.
+
+## M2 native Windows stretch preview preparation
+
+[Checkpoint139](139-native-windows-stretch-preview.md) records a real clean Git
+checkout, 661 canonical inputs, native MSVC/Qt6.12 build, actual four-helper
+processes, 173/34/1045 render/artifact checks and 48/48 desktop checks. The real
+interactive main exits normally. A local unsigned installer/source pair includes
+the reviewed nine DLLs and matching licenses/source; no binary upload or installed
+acceptance is claimed. Next install this exact pair on an independent acceptance
+clone, qualify the actual installed Unicode render/edit/reopen/export and removal
+workflow, then continue the remaining M2 quality and editing gates. Full frozen
+parity, native recording reliability and all-Europe localization remain open.

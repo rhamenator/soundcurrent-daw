@@ -39,10 +39,12 @@ The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes durati
 and fades with exact rational state and Undo/Redo; pitch follows speed.
 The [clip pitch/stretch dialog](docs/136-stretch-supervision.md) now provides
 background rendering and explicit verified, undoable adoption. Native Windows
-qualification and installer helper delivery remain pending.
+build/process qualification and a [local installer/source pair](docs/139-native-windows-stretch-preview.md)
+now include the required helper; installed Windows stretch acceptance remains pending.
 
 Full pitch/stretch quality, foreign-property adoption and installed/native audio
-qualification remain open; existing installer previews contain earlier code.
+qualification remain open. [Installed Linux evidence](docs/138-installed-stretch-preview.md)
+covers its recorded earlier source; current Windows installation is the next gate.
 
 The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records
 through the native desktop, plays with live EQ/Undo, saves/reopens and exports WAV.

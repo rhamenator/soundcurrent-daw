@@ -1,0 +1,55 @@
+{
+  "scope": "Retained-data verifier refusals; no native Windows replay",
+  "positiveWithCurrent661Inputs": true,
+  "reviewFinding": "PR81 discussion_r4235391578: nested packaging status must agree with retained audit and stay unqualified",
+  "cases": [
+    {
+      "case": "inflated-installed-scope",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError: cleanInstallQualified"
+    },
+    {
+      "case": "altered-counter",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "archive-identity",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "changed-raw-with-recomputed-manifest",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "nested-installed-scope",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "nested-release-scope",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "nested-source-count",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    },
+    {
+      "case": "nested-and-retained-installed-scope",
+      "refused": true,
+      "exitCode": 1,
+      "diagnostic": "AssertionError"
+    }
+  ]
+}
