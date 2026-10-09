@@ -87,7 +87,8 @@ refused. Windows reports file-flushed durability, not directory-flushed power-lo
 protection. See Microsoft's [native rename structure](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information)
 and [native information API](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntsetinformationfile).
 The narrow OS API choice and remaining SDK/platform qualification costs are in
-ADR083. Follow-up native execution remains pending independently of cross-build.
+ADR083. The complete native bundle suite subsequently passes at exact head
+`939850c`; the evidence and separate recording failure are described below.
 
 ## Evidence and open gates
 
@@ -154,3 +155,38 @@ NUL is rejected in the supplied path before normalization. The refusal oracles r
 failure location. Native rerun is required to qualify the correction. The
 [Microsoft naming rules](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file)
 explain why reserved and shell-incompatible final names are excluded.
+
+## Scoped native qualification (2026-10-09 UTC)
+
+Exact source `939850c13f2421be78baf03fa90e50c36b7ee02d`, hosted run
+[37869674726, attempt 1](https://github.com/rhamenator/soundcurrent-daw/actions/runs/37869674726/attempts/1),
+passes all **100 Windows bundle checks**, including new-file publication,
+round trips, opaque/Unicode paths, all refusal cases and retained-bank retirement.
+The separate probe of the original Win32 relative-root API still reports error87;
+the product uses the corrected native call. The rename review thread is resolved
+from this actual suite evidence. The exact prior unexpectedly accepted refusal
+case was not identified in its older log; a later pass does not identify it.
+
+The [native receipt](../tests/results/X004/2026-10-08-inspection-bundle/qualified-native-receipt.json)
+and digest-verified original ZIP retain both the bundle success and the separate
+`recording-recovery` failure: ten of eleven selected tests pass (42 configured),
+but synthetic capture latches QueueFull at frame392176, accepts16 and rejects111,
+and finalizes a392192-frame prefix instead of the required480000-frame take.
+Its original writer phase timings are unavailable; the cause remains unknown.
+The worker's complete flag means retirement/finalization, not a complete intended
+take. Recording policy and acceptance criteria are not changed to obtain a pass.
+
+At the same source, all75 Linux tests and Windows cross-compilation pass. The
+[Linux artifact](../tests/results/X004/2026-10-08-inspection-bundle/qualified-linux-artifact.json)
+identifies its retained digest-verified ZIP. Windows Qt, installed Save/Open,
+cross-platform transfer, filesystem/power-loss gates and native-project semantic
+compatibility remain unqualified. No local VM or audio endpoint was started.
+
+The single unchanged native rerun, attempt2/job113626579065, passes all eleven
+selected tests, including100 bundle checks and255 Windows recording checks with
+the required480000-frame take. Its [separate receipt](../tests/results/X004/2026-10-08-inspection-bundle/qualified-native-rerun-receipt.json)
+and digest-verified ZIP retain that result without replacing attempt1. The original
+queue-exhaustion cause remains unknown. PR59 merged through required checks at
+`e23e3dc65004d7cc4f4eafa565d21e0d2279fe92`; this is no promotion of native timing,
+Windows Qt/install workflow or sustained recording. Checkpoint117 adds bounded
+diagnostics for future actual failures.

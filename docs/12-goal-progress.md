@@ -3240,3 +3240,23 @@ from native semantic import, source-version corpora and platform/install gates.
 34 catalogs now contain 606 source keys; no new reviewed/qualified languages.
 All local VMs stayed off. The same capped independent-clone comparison remains
 pending. The full frozen-reference DAW goal is active and incomplete.
+
+## Scoped Windows bundle qualification and recording CI observation (2026-10-09 UTC)
+
+Exact `939850c` passes100 actual MSVC bundle checks,174 structural checks and129
+worker-process checks. All75 Linux tests and Windows cross-compilation pass.
+The native job fails its separate recording-recovery test: QueueFull produces a
+392192-frame prefix rather than480000 frames. Original failure artifacts and
+exact source/runner identities are retained; the cause is unknown without writer
+phase timings. A single unchanged native job rerun passes all eleven selected
+tests, including255 Windows recording checks and480000 frames. It is separate
+evidence, not an explanation of the original failure. PR59 merged through all
+required checks at `e23e3dc`.
+
+[Checkpoint117](117-recording-ci-observations.md) adds existing bounded
+disk-worker wall/occupancy diagnostics to the concurrent synthetic recording
+fixture without changing capture policy or relaxing its acceptance criteria.
+Linux Release passes277 recording checks and the existing timing helper test;
+new Windows execution is pending. No Windows Qt, installed bundle workflow,
+native endpoint, sustained capture, semantic import or full-parity status follows
+from the scoped bundle success. No local VM started; the full goal remains active.

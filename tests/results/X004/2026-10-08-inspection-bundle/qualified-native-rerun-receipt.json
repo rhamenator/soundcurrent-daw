@@ -1,0 +1,20 @@
+{
+  "sourceRevision": "939850c13f2421be78baf03fa90e50c36b7ee02d",
+  "runId": 37869674726,
+  "attempt": 2,
+  "jobId": 113626579065,
+  "bundleChecks": 100,
+  "selectedTests": 11,
+  "passedTests": 11,
+  "configuredTests": 42,
+  "overallJob": "success",
+  "recordingChecks": 255,
+  "originalFailureCauseEstablished": false,
+  "originalFailureArtifact": 11589638848,
+  "productPolicyChanged": false,
+  "mergedPullRequest": 59,
+  "mergeCommit": "e23e3dc65004d7cc4f4eafa565d21e0d2279fe92",
+  "localVMStarted": false,
+  "nativeEndpointActivated": false,
+  "windowsQtQualified": false
+}
