@@ -30,9 +30,12 @@ void require(bool value,const char *message) {
 }
 namespace soundcurrent::daw {
 PreparedPositionedResampling::PreparedPositionedResampling(std::uint32_t source,
-        std::uint32_t project,std::uint32_t channels):sourceRate_(source),projectRate_(project),channels_(channels) {
-    (void)SourceFrameMap(source,project);require(channels && channels<=256,"Invalid positioned channel layout");
-    scale_=std::min(1.,double(project)/source);
+        std::uint32_t project,std::uint32_t channels)
+    :PreparedPositionedResampling(SourceFrameMap(source,project),channels) {}
+PreparedPositionedResampling::PreparedPositionedResampling(const SourceFrameMap &map,
+        std::uint32_t channels):numerator_(map.numerator()),denominator_(map.denominator()),channels_(channels) {
+    require(channels && channels<=256,"Invalid positioned channel layout");
+    scale_=std::min(1.,double(denominator_)/numerator_);
     floatIncrement_=slow_high_qual_coeffs.increment*scale_;
     increment_=nearestEven(floatIncrement_*fixedOne);
 }
@@ -41,13 +44,13 @@ std::uint32_t PreparedPositionedResampling::sourceContextFrames() const noexcept
 }
 std::size_t PreparedPositionedResampling::maximumSourceWindowFrames(std::uint32_t frames) const {
     require(frames && frames<=65536,"Invalid positioned output block");
-    const auto extent=(std::uint64_t(frames-1)*sourceRate_+projectRate_-1)/projectRate_;
+    const auto extent=(std::uint64_t(frames-1)*numerator_+denominator_-1)/denominator_;
     return std::size_t(extent+2*sourceContextFrames()+2);
 }
 bool PreparedPositionedResampling::exactCopy(const SourceFrameMap &map) const {
-    require(map.numerator()*std::uint64_t(projectRate_)==map.denominator()*std::uint64_t(sourceRate_),
+    require(map.numerator()==numerator_ && map.denominator()==denominator_,
             "Positioned source map differs from prepared ratio");
-    return sourceRate_==projectRate_ && map.at(0).fraction==0;
+    return numerator_==denominator_ && map.at(0).fraction==0;
 }
 SourceReadRange PreparedPositionedResampling::sourceRange(const SourceFrameMap &map,
         Frame first,std::uint32_t frames,Frame total) const {

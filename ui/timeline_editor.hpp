@@ -60,7 +60,8 @@ class TimelineEditor : public QGroupBox {
     QComboBox *layout_, *destination_, *asset_, *clips_;
     QSpinBox *channels_;
     QSlider *zoom_;
-    QDoubleSpinBox *clipGain_, *fadeInShape_, *fadeOutShape_;
+    QDoubleSpinBox *clipGain_, *fadeInShape_, *fadeOutShape_, *clipRate_;
+    ClipPlaybackRate displayedRate_;
     QCheckBox *clipMuted_, *clipInverted_;
     QLineEdit *fadeInStart_, *fadeInEnd_, *fadeOutStart_, *fadeOutEnd_;
     QComboBox *fadeInCurve_, *fadeOutCurve_;

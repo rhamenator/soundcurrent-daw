@@ -1,0 +1,252 @@
+Start testing: Oct 09 12:35 EDT
+----------------------------------------------------------
+5/106 Testing: positioned-resampling-kernel
+5/106 Test: positioned-resampling-kernel
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-positioned-resampling-tests" "--kernel-state-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"positioned-resampling-kernel" start time: Oct 09 12:35 EDT
+Output:
+----------------------------------------------------------
+positioned_stage=start elapsed_ms=0
+positioned_pinned_samples=323574 maximum_difference=0 arbitrary_fraction_sine_error=3.43304e-07 layouts=1,2,3,4,6,8,32,128,256
+positioned_stage=kernels elapsed_ms=42697
+positioned_stage=state elapsed_ms=42787
+PASS: 750959 positioned kernel/state checks. Native audio, quality parity, rate automation and independent pitch/stretch remain unqualified
+<end of output>
+Test time =  42.83 sec
+----------------------------------------------------------
+Test Passed.
+"positioned-resampling-kernel" end time: Oct 09 12:36 EDT
+"positioned-resampling-kernel" time elapsed: 00:00:42
+----------------------------------------------------------
+
+6/106 Testing: positioned-resampling-workflow
+6/106 Test: positioned-resampling-workflow
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-positioned-resampling-tests" "--workflows-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"positioned-resampling-workflow" start time: Oct 09 12:36 EDT
+Output:
+----------------------------------------------------------
+positioned_stage=start elapsed_ms=0
+positioned_workflow=48000:44100 channels=1
+positioned_workflow=48000:44100 channels=2
+positioned_workflow=48000:44100 channels=8
+positioned_workflow=48000:44100 channels=32
+positioned_workflow=48000:44100 channels=256
+positioned_workflow=44100:48000 channels=1
+positioned_workflow=44100:48000 channels=2
+positioned_workflow=44100:48000 channels=8
+positioned_workflow=44100:48000 channels=32
+positioned_workflow=44100:48000 channels=256
+positioned_workflow=96000:48000 channels=1
+positioned_workflow=96000:48000 channels=2
+positioned_workflow=96000:48000 channels=8
+positioned_workflow=96000:48000 channels=32
+positioned_workflow=96000:48000 channels=256
+positioned_workflow=48000:48000 channels=1
+positioned_workflow=48000:48000 channels=2
+positioned_workflow=48000:48000 channels=8
+positioned_workflow=48000:48000 channels=32
+positioned_workflow=48000:48000 channels=256
+positioned_stage=workflows elapsed_ms=53988
+PASS: 2216 positioned owned-WAV live/export checks. Native audio, quality parity, rate automation and independent pitch/stretch remain unqualified
+<end of output>
+Test time =  54.05 sec
+----------------------------------------------------------
+Test Passed.
+"positioned-resampling-workflow" end time: Oct 09 12:36 EDT
+"positioned-resampling-workflow" time elapsed: 00:00:54
+----------------------------------------------------------
+
+7/106 Testing: fractional-timing-oracle
+7/106 Test: fractional-timing-oracle
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/fractional_timing_oracle_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-positioned-resampling-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"fractional-timing-oracle" start time: Oct 09 12:36 EDT
+Output:
+----------------------------------------------------------
+{"checks": 755, "accepted": 509, "refused": 246, "oracle": "independent Python arbitrary-precision Fraction", "actualCppExecuted": true, "nativeAudio": false}
+<end of output>
+Test time =  13.89 sec
+----------------------------------------------------------
+Test Passed.
+"fractional-timing-oracle" end time: Oct 09 12:37 EDT
+"fractional-timing-oracle" time elapsed: 00:00:13
+----------------------------------------------------------
+
+8/106 Testing: clip-playback-rate
+8/106 Test: clip-playback-rate
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-positioned-resampling-tests" "--rate-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"clip-playback-rate" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+rate_sine_max_error=1.94677e-07 rejected_alias_peak=1.70386e-12 effective_step_max=192 channels_max=256
+clip_speed=1/4
+positioned_workflow=48000:44100 channels=1
+clip_speed=1333/1000
+positioned_workflow=48000:44100 channels=1
+clip_speed=4/1
+positioned_workflow=48000:44100 channels=1
+clip_speed=1/4
+positioned_workflow=48000:44100 channels=2
+clip_speed=1333/1000
+positioned_workflow=48000:44100 channels=2
+clip_speed=4/1
+positioned_workflow=48000:44100 channels=2
+clip_speed=1/4
+positioned_workflow=48000:44100 channels=8
+clip_speed=1333/1000
+positioned_workflow=48000:44100 channels=8
+clip_speed=4/1
+positioned_workflow=48000:44100 channels=8
+clip_speed=1/4
+positioned_workflow=44100:48000 channels=1
+clip_speed=1333/1000
+positioned_workflow=44100:48000 channels=1
+clip_speed=4/1
+positioned_workflow=44100:48000 channels=1
+clip_speed=1/4
+positioned_workflow=44100:48000 channels=2
+clip_speed=1333/1000
+positioned_workflow=44100:48000 channels=2
+clip_speed=4/1
+positioned_workflow=44100:48000 channels=2
+clip_speed=1/4
+positioned_workflow=44100:48000 channels=8
+clip_speed=1333/1000
+positioned_workflow=44100:48000 channels=8
+clip_speed=4/1
+positioned_workflow=44100:48000 channels=8
+PASS: 4655 linked clip playback-rate checks; independent pitch/stretch unqualified
+<end of output>
+Test time =  21.29 sec
+----------------------------------------------------------
+Test Passed.
+"clip-playback-rate" end time: Oct 09 12:37 EDT
+"clip-playback-rate" time elapsed: 00:00:21
+----------------------------------------------------------
+
+9/106 Testing: playback-rate-timing-oracle
+9/106 Test: playback-rate-timing-oracle
+Command: "/home/rich/.pyenv/shims/python3" "/home/rich/dev/soundcurrent-daw/tests/fractional_timing_oracle_tests.py" "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-positioned-resampling-tests" "--playback-rate"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"playback-rate-timing-oracle" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+{"checks": 349, "accepted": 221, "refused": 128, "oracle": "independent Python arbitrary-precision Fraction", "actualCppExecuted": true, "nativeAudio": false}
+<end of output>
+Test time =   6.49 sec
+----------------------------------------------------------
+Test Passed.
+"playback-rate-timing-oracle" end time: Oct 09 12:37 EDT
+"playback-rate-timing-oracle" time elapsed: 00:00:06
+----------------------------------------------------------
+
+40/106 Testing: desktop-clip-processing
+40/106 Test: desktop-clip-processing
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-timeline-ui-tests" "--clip-processing-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-clip-processing" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-UoRXOK
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+59 desktop clip-processing checks passed; locale/exact precision, grouped Undo/Redo, signed anchors, split, readonly preparation and Save/reopen; no native audio
+<end of output>
+Test time =   0.50 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-clip-processing" end time: Oct 09 12:37 EDT
+"desktop-clip-processing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/106 Testing: desktop-playback-rate
+41/106 Test: desktop-playback-rate
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-timeline-ui-tests" "--playback-rate-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-playback-rate" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-vIuOdn
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+PASS: 43 desktop linked playback-rate checks
+<end of output>
+Test time =   0.68 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-playback-rate" end time: Oct 09 12:37 EDT
+"desktop-playback-rate" time elapsed: 00:00:00
+----------------------------------------------------------
+
+42/106 Testing: desktop-positioned-clips
+42/106 Test: desktop-positioned-clips
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-timeline-ui-tests" "--positioned-clips-only"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"desktop-positioned-clips" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+Owned timeline fixture root: /tmp/sc-timeline-ui-tests-LLCpzq
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+33 desktop positioned-clip checks passed; exact fractional display, signed project crop, Undo/Redo, split, mixed-rate insertion, Save/reopen and raw hashes; no native audio
+<end of output>
+Test time =   0.45 sec
+----------------------------------------------------------
+Test Passed.
+"desktop-positioned-clips" end time: Oct 09 12:37 EDT
+"desktop-positioned-clips" time elapsed: 00:00:00
+----------------------------------------------------------
+
+60/106 Testing: session-state
+60/106 Test: session-state
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-session-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"session-state" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+118 checks passed
+<end of output>
+Test time =   0.40 sec
+----------------------------------------------------------
+Test Passed.
+"session-state" end time: Oct 09 12:37 EDT
+"session-state" time elapsed: 00:00:00
+----------------------------------------------------------
+
+63/106 Testing: multitrack-edits
+63/106 Test: multitrack-edits
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-editing-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"multitrack-edits" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+73 multitrack edit checks passed
+<end of output>
+Test time =   6.16 sec
+----------------------------------------------------------
+Test Passed.
+"multitrack-edits" end time: Oct 09 12:37 EDT
+"multitrack-edits" time elapsed: 00:00:06
+----------------------------------------------------------
+
+97/106 Testing: clip-processing
+97/106 Test: clip-processing
+Command: "/home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized/sc-clip-processing-tests"
+Directory: /home/rich/dev/soundcurrent-daw/.cache/build-desktop-sanitized
+"clip-processing" start time: Oct 09 12:37 EDT
+Output:
+----------------------------------------------------------
+PASS: 185303 clip-processing checks; neutral/migrations, curves/crossfade invariants, split/trim exactness, Undo/Redo, owned 1/2/8/32/256-channel live/offline WAV/headroom; no audio device, rate/pitch or source-suite conversion qualification
+<end of output>
+Test time =   1.29 sec
+----------------------------------------------------------
+Test Passed.
+"clip-processing" end time: Oct 09 12:37 EDT
+"clip-processing" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Oct 09 12:37 EDT

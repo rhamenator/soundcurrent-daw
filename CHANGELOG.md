@@ -8,6 +8,12 @@
 
 ## Unreleased — development preview
 
+- Clip playback speed now supports0.250–4.000 times normal speed, with linked
+  pitch, retimed duration/fades, exact origin, Undo/Redo and schema1.11 state.
+  Shared live/export processing preserves raw media and split/crop/seek phase.
+  Independent pitch/stretch and current installed workflows remain open. See
+  [checkpoint132](docs/132-clip-playback-rate.md).
+
 - Owned clips now retain exact fractional source positions at different physical
   sample rates. Shared playback/export, project-frame crop/split, Undo/Redo and
   save/reopen use schema1.10. The desktop shows source/project rates and offers

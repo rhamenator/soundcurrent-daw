@@ -453,7 +453,7 @@
       }
     },
     "modifications": [],
-    "scope": "Pinned worker-side streaming SRC and shared positioned clip playback/export; independent playback rate/pitch/stretch and import adoption remain separate",
+    "scope": "Pinned worker-side streaming SRC and shared positioned clip playback/export, with linked constant clip speed; independent pitch/stretch and import adoption remain separate",
     "build": {
       "linkage": "static",
       "bestSinc": true,
@@ -466,7 +466,7 @@
       "CONFIG_CHAN_NR": 256,
       "sanitizers": "Upstream C instrumented when application C++ sanitizer flags are enabled"
     },
-    "nativeWindowsQualification": "Streaming component qualified at 07e9935abab04331a99e35e403cccf665206af40 (PR74); positioned integration pending exact-head native CI",
+    "nativeWindowsQualification": "Positioned integration qualified at 5b8e35ce38ef4b3cd653474a467160fd20428f79 (PR75); current linked-speed increment pending exact-source native CI",
     "tagObject": "b9c20b93660c3683fda12e3c2a01f0021bf96c56",
     "sourceCommit": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7",
     "releaseDate": "2021-09-05T11:49:04Z",
@@ -531,7 +531,8 @@
         "Immutable absolute-position FIR halves and interpolation",
         "Exact rational source origin, bounded caller-owned context",
         "No upstream private state ABI or prefix replay",
-        "Near-one phase carry and disjoint storage refusal"
+        "Near-one phase carry and disjoint storage refusal",
+        "Prepare exact effective ratio including bounded linked clip speed; neutral algorithm unchanged"
       ],
       "processingOwner": "Serialized disk/read-ahead worker; callback only consumes prepared slabs"
     }
