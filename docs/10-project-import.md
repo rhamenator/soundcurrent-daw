@@ -10,7 +10,7 @@ Native project import is a required capability. Exchange formats are additional 
 |---|---|---|
 | Bitwig Studio projects | Native `.bwproject` investigation plus separate DAWproject adapter | No native parser/corpus qualified; required investigation starts in M0 |
 | Cubase projects | Native `.cpr` investigation plus separate DAWproject/AAF/OMF workflows | No native parser/corpus qualified; required investigation starts in M0 |
-| REAPER projects | Native `.rpp` adapter candidate | Official guide identifies RPP as text; that does not prove complete field semantics |
+| REAPER projects | Native `.rpp` adapter candidate | Seven original7.82/Linux native-writer projects frozen; structural inspection only, property mapping/render compatibility unqualified |
 | Ableton Live, FL Studio, Studio One, Pro Tools, Logic and other common suites | Inventory native containers, lawful documentation/fixtures and exchange options per suite | Required coverage program; exact version envelopes and parsers remain unqualified |
 | Standard exchange | DAWproject, AAF/OMF, SMF, MusicXML; other formats after evaluation | Separate semantic coverage and loss reports per format |
 
@@ -73,3 +73,14 @@ is persistence of inspection evidence; the import IR, source-writer/version
 corpus, semantic mapping, approved conversion and full adapter program remain
 required. Windows native/Qt/filesystem/installed qualification is tracked
 separately. Existing preview installers are unchanged.
+
+## Known-writer corpus checkpoint (2026-10-09 UTC)
+
+[Checkpoint118](118-native-writer-import-corpus.md) adds original projects actually
+saved/reopened by REAPER7.82/Linux through public APIs, matching property witnesses
+and exact hashes. The real inspector preserves complete bytes and unverified
+TRACK/ITEM inventories; it does not resolve media, convert properties or qualify
+native compatibility. Windows inspection of the Linux-generated corpus is a
+separate gate from a Windows writer. The next task is the admitted import IR and
+per-property mapping/loss report, followed by approved conversion and independent
+render comparisons. All other registered suites/formats remain required.

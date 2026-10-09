@@ -1,0 +1,20 @@
+{
+  "id": 11590486570,
+  "node_id": "MDg6QXJ0aWZhY3QxMTU5MDQ4NjU3MA==",
+  "name": "linux-synthetic-test-log",
+  "size_in_bytes": 10631,
+  "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11590486570",
+  "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11590486570/zip",
+  "expired": false,
+  "digest": "sha256:23ace2ef3ae769b3c7a08d755636ce3c78e4dd671e638c3056612314dbe494b9",
+  "created_at": "2026-10-09T01:47:25Z",
+  "updated_at": "2026-10-09T01:47:25Z",
+  "expires_at": "2027-01-07T01:39:55Z",
+  "workflow_run": {
+    "id": 37870864872,
+    "repository_id": 1407894149,
+    "head_repository_id": 1407894149,
+    "head_branch": "codex/recording-ci-observations",
+    "head_sha": "d1eafaeb2d6a19c63b9c2f54d93b71c4459d1324"
+  }
+}

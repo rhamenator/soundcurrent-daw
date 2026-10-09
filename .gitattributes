@@ -3,6 +3,7 @@
 *.hpp text eol=lf
 *.h text eol=lf
 *.py text eol=lf
+*.lua text eol=lf
 *.sh text eol=lf
 *.md text eol=lf
 *.json text eol=lf
@@ -15,3 +16,6 @@ CMakeLists.txt text eol=lf
 *.png binary
 *.wav binary
 *.bundle binary
+# Exact native-writer bytes, including their original CRLF endings.
+/tests/fixtures/reaper-7.82/*.rpp -text whitespace=cr-at-eol
+/tests/fixtures/reaper-7.82/projects/*.rpp -text whitespace=cr-at-eol

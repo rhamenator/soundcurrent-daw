@@ -1,0 +1,11 @@
+{
+  "nativeNamespacePid": 3,
+  "completeReceiptWritten": false,
+  "exitBeforeStop": -25,
+  "actualExitAfterStop": -25,
+  "seconds": 2.7631909439987794,
+  "termination": "owned supervisor shutdown",
+  "displayExposed": false,
+  "hostAudioDevicesExposed": false,
+  "networkNamespaceIsolated": true
+}

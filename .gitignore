@@ -2,6 +2,9 @@
 build/
 __pycache__/
 *.wav
+# Original licensed corpus sources; ordinary recordings stay ignored.
+!tests/fixtures/reaper-7.82/projects/media/mono.wav
+!tests/fixtures/reaper-7.82/projects/media/stereo.wav
 *.partial
 *.bundle
 .env

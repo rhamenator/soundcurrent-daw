@@ -8,6 +8,10 @@
 
 ## Unreleased — development preview
 
+- Original REAPER7.82/Linux saved/reopened project corpus with native property
+  witnesses and byte-preserving worker acceptance. Semantic conversion, rendered
+  equivalence and Windows source-writer qualification remain open.
+
 - Synthetic concurrent recording tests retain bounded writer phase/backlog
   diagnostics without changing capture policy. Original failed and passing
   native runs are recorded separately; sustained native qualification stays open.
