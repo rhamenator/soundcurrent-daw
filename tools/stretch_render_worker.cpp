@@ -93,6 +93,13 @@ int run(const std::vector<std::string> &args){
         require(target<= (UINT64_MAX-1048576)/(channels*4ULL),"Stretch output size overflow");const auto admittedBytes=target*channels*4ULL+1048576;
         if(admittedBytes>maximumBytes)throw ResourceLimitError("Stretch output file",std::size_t(admittedBytes),std::size_t(maximumBytes));
         ResourceLedger ledger(std::size_t(mib*1024*1024),"Stretch worker owned payload");auto scratchLease=ledger.reserve(samples*sizeof(float)*3+65536);
+        using RB=RubberBand::RubberBandStretcher;
+        auto options=RB::OptionProcessOffline|RB::OptionEngineFiner|RB::OptionThreadingNever|(channels<=2?RB::OptionChannelsTogether:RB::OptionChannelsApart)|(formant?RB::OptionFormantPreserved:RB::OptionFormantShifted);
+        RB rb(asset.sampleRate,channels,options,double(target)/double(frames),std::exp2(double(pitch)/1200000.));rb.setDebugLevel(0);rb.setMaxProcessSize(512);rb.setExpectedInputDuration(std::size_t(frames));
+        // Conservative offline admission from the prepared public API. Very
+        // short R3 spans can drain no audio after its internal startup skip.
+        // Refuse before any operation directory/intent, without padding takes.
+        require(frames>=rb.getSamplesRequired(),"Source span is shorter than the prepared stretch window",ErrorCode::UnsupportedSchema);
         auto sourceRoot=native(args[2]),jobsRoot=native(args[4]);plainAncestors(sourceRoot);plainAncestors(jobsRoot);
         MediaCacheConfig cacheConfig;cacheConfig.maximumOpenFiles=1;cacheConfig.pageFrames=256;cacheConfig.cacheBudgetBytes=std::size_t(256)*channels*sizeof(float)+256;cacheConfig.registryBudgetBytes=256*1024;cacheConfig.resources=ledger;
         MediaReadCache cache(sourceRoot,std::span<const Asset>(&asset,1),asset.sampleRate,cacheConfig);
@@ -102,13 +109,10 @@ int run(const std::vector<std::string> &args){
         auto keyText=key.dump();media_io::SampleHash keyHash;keyHash.updateBytes({reinterpret_cast<const std::byte *>(keyText.data()),keyText.size()});auto renderKey=keyHash.digest();
         auto intent=key;intent["protocol"]=protocol;intent["operation"]=operation.str();intent["complete"]=false;media_io::publishJournal(job/"intent.json",intent.dump());
         std::cout<<Json({{"protocol",protocol},{"event","ready"},{"operation",operation.str()},{"renderKey",renderKey}}).dump()<<'\n'<<std::flush;
-        // Parent acknowledges the prepared identity before opaque processing.
+        // Parent acknowledges the prepared identity before study/process/drain.
         // Cancellation and the hard deadline remain active during this wait.
         while(!std::filesystem::exists(std::filesystem::symlink_status(job/"start.request"))){cancel();std::this_thread::sleep_for(std::chrono::milliseconds(1));}
         cancel();
-        using RB=RubberBand::RubberBandStretcher;
-        auto options=RB::OptionProcessOffline|RB::OptionEngineFiner|RB::OptionThreadingNever|(channels<=2?RB::OptionChannelsTogether:RB::OptionChannelsApart)|(formant?RB::OptionFormantPreserved:RB::OptionFormantShifted);
-        RB rb(asset.sampleRate,channels,options,double(target)/double(frames),std::exp2(double(pitch)/1200000.));rb.setDebugLevel(0);rb.setMaxProcessSize(512);rb.setExpectedInputDuration(std::size_t(frames));
         std::vector<float> interleaved(samples),planar(samples),output(samples);std::vector<const float *> inputPointers(channels);std::vector<float *> outputPointers(channels);
         auto read=[&](std::uint64_t pos,std::size_t n){cancel();cache.read(0,Frame(first+pos),{interleaved.data(),n*channels});for(std::size_t ch=0;ch<channels;++ch){inputPointers[ch]=planar.data()+ch*512;for(std::size_t f=0;f<n;++f){auto x=interleaved[f*channels+ch];require(std::isfinite(x),"Nonfinite stretch source",ErrorCode::MediaMismatch);planar[ch*512+f]=x;}}};
         for(std::uint64_t pos=0;pos<frames;pos+=512){auto n=std::size_t(std::min<std::uint64_t>(512,frames-pos));read(pos,n);rb.study(inputPointers.data(),n,pos+n==frames);cancel();}
@@ -127,7 +131,7 @@ int run(const std::vector<std::string> &args){
         media_io::publishMedia(audio,job/"audio.wav");cancel();auto receiptText=receipt.dump();publicationMayHaveCommitted=true;media_io::publishJournal(job/"complete.json",receiptText);
         // No cancellation check after commit. A valid marker is the terminal result.
         std::cout<<receiptText<<'\n';return std::cout?0:1;
-    }catch(const std::bad_alloc &){std::cerr<<"{\"protocol\":\"sc-stretch-render-v1\",\"complete\":false,\"messageId\":\"stretch.resource_limit\"}\n";return 1;
+    }catch(const std::bad_alloc &){std::cerr<<"{\"protocol\":\"sc-stretch-render-v1\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
     }catch(const ProjectError &e){std::cerr<<Json({{"protocol",protocol},{"complete",false},{"messageId","stretch.render_failed"},{"errorCode",unsigned(e.code())},{"publicationMayHaveCommitted",publicationMayHaveCommitted}}).dump()<<'\n';return 1;
     }catch(...){std::cerr<<"{\"protocol\":\"sc-stretch-render-v1\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;}
 }

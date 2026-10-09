@@ -15,7 +15,7 @@ project-rate conversion remains the existing shared reader's job.
 The worker verifies the source, creates an exclusive operation directory and
 publishes intent. A `ready` event includes operation and content/processor render
 key. The parent writes `start.request` to acknowledge that identity. A
-`cancel.request` cancels before opaque work, during study/process/drain, and
+`cancel.request` cancels before study/process, during study/process/drain, and
 before the completion marker. A process watchdog also stops blocked opaque work.
 These are trusted owned-directory control tokens, not foreign-project paths.
 
@@ -109,3 +109,28 @@ unchanged vendor single unit introduced `min`/`max` macros which broke qualified
 failed job log and a separate local correction receipt are retained alongside
 the original qualification. Native runtime qualification still requires the
 corrected head's protected CI; neither the failed run nor Linux rechecks establish it.
+
+## Prepared short-span admission
+
+Review exposed a one-frame R3 input which drained zero frames at time ratios
+1/4,1 and4. The child now prepares its contained backend before creating an
+operation directory, then requires at least its initial public-API
+`getSamplesRequired()` window. This conservative boundary rejects short spans
+without destination mutation; it neither pads raw takes nor repairs output.
+Preparation may allocate before `ready`; acknowledgment gates study/process/drain.
+The process memory ceiling and watchdog cover preparation too. Very short clip
+processing remains required future work, with explicit context/alignment evidence.
+
+Actual local Release recheck:2/2 families,137 Python checks,992 shared-reader
+checks,30 completed owned jobs. Of these,27 are mono boundary renders at
+8k/48k/192k, time1/4,1,4 and pitch-24,0,+24 semitones. The observed conservative
+minimums are2048/4096/16384 respectively. One frame and minimum-minus-one refuse
+before any job directory at each of the27 settings; each admitted boundary
+drains exactly its integer target. These are geometry/admission tests, not new
+pitch-quality or all-layout claims. Previous137-vs55 checks have distinct receipts.
+
+Source1b863bf separately passed native Windows38 and Windows Qt10 on
+run37971111413; exact ZIP/raw hashes/counts and646 inputs are retained. That
+preceding source lacks this short-span fix. Current-head native CI remains required.
+Resource-allocation failures also retain the possible-publication flag; a parent
+must inspect the bound completion marker after any ambiguous termination.

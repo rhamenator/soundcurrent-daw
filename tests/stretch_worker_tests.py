@@ -106,4 +106,20 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     # Opaque workspace exceeds an OS-enforced child ceiling, not a guessed allowance.
     digest_wide=owned_wave(path,192000,32,128);req=fresh(sha256=digest_wide,rate=192000,channels=32,sourceFrames=128,frames=128)
     r,rr=run(req,memory=32);check(r.returncode!=0 and not (jobs/req['operation']/'complete.json').exists(),'Opaque vendor workspace bypassed memory ceiling')
-    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':3,'headroom':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'nativePlatform':sys.platform,'nativeAudio':False}))
+    # Reviewed one-frame drain counterexample: conservative prepared-window
+    # admission refuses BEFORE any operation/intent. Actual boundary renders
+    # cover rates and both extreme pitch/time settings; no repaired output.
+    boundary_jobs=0
+    for rate,minimum in [(8000,2048),(48000,4096),(192000,16384)]:
+        digest_boundary=owned_wave(path,rate,1,minimum+512)
+        for time_n,time_d in [(1,4),(1,1),(4,1)]:
+            for pitch in [-2400000,0,2400000]:
+                for frames in [1,minimum-1]:
+                    req=fresh(sha256=digest_boundary,rate=rate,channels=1,sourceFrames=minimum+512,frames=frames,timeNumerator=time_n,timeDenominator=time_d,pitchMilliCents=pitch)
+                    r,rr=run(req);check(r.returncode!=0 and not (jobs/req['operation']).exists(),'Short span reached destination mutation')
+                req=fresh(sha256=digest_boundary,rate=rate,channels=1,sourceFrames=minimum+512,frames=minimum,timeNumerator=time_n,timeDenominator=time_d,pitchMilliCents=pitch)
+                r,rr=run(req);target=(minimum*time_n+time_d-1)//time_d
+                check(r.returncode==0 and rr[-1]['writtenFrames']==target,'Prepared window boundary did not render exact duration: '+r.stderr)
+                boundary_jobs+=1
+    check(boundary_jobs==27,'Boundary workflow matrix incomplete')
+    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':3+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'nativePlatform':sys.platform,'nativeAudio':False}))
