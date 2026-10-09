@@ -106,3 +106,8 @@ state portable throughout. Qualify updated installed Linux/Windows previews with
 the four-executable closure. All registered native/exchange adapters, full F/Q/C/N
 frozen parity, independent recording/storage gates and all-Europe language coverage
 remain required.
+
+Native Windows first-run diagnostic: the test variable `small` collided with the
+rpcndr.h `small` macro and prevented test compilation. Its retained job log and
+exact first head remain separate evidence. Renaming the variable preserves the
+budget/refusal assertion; no production behavior or required gate is weakened.

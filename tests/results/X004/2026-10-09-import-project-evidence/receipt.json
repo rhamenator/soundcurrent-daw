@@ -10,7 +10,7 @@
     "src/project_store.cpp": "4f5f9175c26f56ea67000e7aff244375227a9e78044ae85e7101df9fb9663cc7",
     "src/inspection_bundle.cpp": "abd0de5e896caae803a99f947136a7ae4f535048e9d762a9f247fcbaf5336178",
     "src/project_import_state.cpp": "b88c9d65ae00b412525df79a10b9e0d5510bc29f59739e2943d664846a9e9824",
-    "tests/project_import_state_tests.cpp": "1ae3ddd4fd424510e55bede38f8c9385b87a94d5d50f083c6dc2bdfb279cdfdd",
+    "tests/project_import_state_tests.cpp": "ea67d6e79e1ce95dc4f2769ee8761c0205852e391f5be3687088fbf2ee910c05",
     "tests/project_import_state_workflows.py": "8d3d0f9b00662f7d2330759b100bfb7157d5392a253d42e7e490132e1928302b",
     "tests/session_tests.cpp": "d122c9b16b795b9272e6de6482ff1460413b6a1f1b860cb2e56211ded1a74703",
     "tests/routing_tests.cpp": "6a1432b911a1eda2eb4a62829cbeaecce7f243de02aa6b12f69385d73a3a56db",
@@ -62,7 +62,14 @@
     "import-state-sanitized-build.log": "bff521a00b51f27463fabb62afab6c5c5bdaf09cbe6bbde7eddde852770d2345",
     "import-state-sanitized-configure.log": "b24e7ff5dd4e9ecca22e83270f5d40bbd348384d5b0ae73738e3649666113099",
     "import-state-test-build.log": "e389eed3f9c68cf3d96069eb49b3a02e49fe1b02336a325e1b261e3b175f57d5",
-    "import-state-test-configure.log": "702058c3fbc06630e43ed7643e294e30ec6a1328b400deb5a523754b2c54f8a2"
+    "import-state-test-configure.log": "702058c3fbc06630e43ed7643e294e30ec6a1328b400deb5a523754b2c54f8a2",
+    "import-state-first-native-core-job.log": "96a73281a8a1119da496b43457bd8f9f56fc61b5f8fbc061040e9c7f4cece519",
+    "import-state-windows-name-release-build.log": "1bae4acfb7280dad954c10564f0689b5f5deccd53fe356bee34e7f3fae18e0a2",
+    "import-state-windows-name-release-tests.log": "680dedb2a10450a0453e245cee3715e30557217b4baf599bee86520eb819bfed",
+    "import-state-windows-name-release-lasttest.log": "cd27332831b0d098817bdd741f202fd8933b884fa6257dc67a35f04b54eece44",
+    "import-state-windows-name-sanitized-build.log": "1bae4acfb7280dad954c10564f0689b5f5deccd53fe356bee34e7f3fae18e0a2",
+    "import-state-windows-name-sanitized-tests.log": "631b39af941bfaf916a437838c247f5e6434598687980d2a6d0f1609169efdc8",
+    "import-state-windows-name-sanitized-lasttest.log": "d79b7179f966517bb87563a5629f0e42b9b4167b85e80fba960d116347a50d79"
   },
   "local": {
     "releaseSelectedTests": 12,
@@ -78,7 +85,14 @@
     "schema": "1.8; explicit 1.0\u20131.7 migration",
     "draftCatalogs": 34,
     "sourceKeys": 738,
-    "draftTranslations": 3135
+    "draftTranslations": 3135,
+    "finalTestNameRevision": {
+      "releaseSelectedTests": 1,
+      "sanitizedSelectedTests": 1,
+      "productionSourceUnchanged": true,
+      "coreChecksPerCase": 153,
+      "independentWorkflowChecks": 39
+    }
   },
   "scope": {
     "nativeWindowsThisRevision": "pending protected CI",
@@ -91,7 +105,12 @@
     "sourceLossProvenancePreserved": true,
     "sessionSemanticConversion": false,
     "desktopImportAcceptance": false,
-    "fullParity": false
+    "fullParity": false,
+    "nativeWindowsFirstRun": {
+      "run": 37917546470,
+      "head": "91adef2327360a72d78cdfcefffb49cbb1ba50f8",
+      "result": "test compilation refused by Windows small macro; variable rename, assertion unchanged"
+    }
   },
   "nextTask": "Extend destination clip timing/gain/fades/rate/pitch and shared live/offline readers, then approved per-property conversion/loss preview, one Undo, Save/reopen/aligned source-suite renders and installed preview qualification"
 }

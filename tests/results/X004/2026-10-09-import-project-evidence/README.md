@@ -22,3 +22,9 @@ public product release changed. No executables/credentials are included here.
 Original opaque source/status/units are preserved; conversion preview, destination
 clip processing semantics, one Undo, independent aligned renders, installed
 qualification, all registered formats and full frozen F/Q/C/N/Europe remain open.
+
+The first native Windows run37917546470 / source91adef2 reached a compile refusal
+in the new test: Windows rpcndr.h defines `small` as `char`. The local variable
+name collided with that SDK macro. The retained raw job log shows the exact failure;
+renaming the test variable keeps the budget/refusal assertion and production code
+unchanged. Final revision/native execution remain separate qualification.

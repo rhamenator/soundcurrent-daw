@@ -215,7 +215,7 @@ int test(const std::filesystem::path &input) {
         }
         auto tiny=memory.child(1,"Evidence refusal");refuses([&]{openProjectImportEvidence(root,session,archive.id,tiny);});
         balanced(memory,stable);
-        ProjectBudget small;small.importEvidenceBytes=1;refuses([&]{ProjectStore(root,small).load();});
+        ProjectBudget importWorkBudget;importWorkBudget.importEvidenceBytes=1;refuses([&]{ProjectStore(root,importWorkBudget).load();});
         const auto archivedPath=root/utf8Path(archive.inspection.relativePath);const auto archivedBytes=read(archivedPath);
         write(archivedPath,archivedBytes.substr(0,archivedBytes.size()-1));refuses([&]{ProjectStore(root).load();});
         write(archivedPath,archivedBytes);
