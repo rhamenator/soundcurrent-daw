@@ -1,0 +1,13 @@
+{
+  "usr/bin/soundcurrent-daw": "005e121e1607812c8bf5ee0cc11515cb48b51add4541df282f41484e0242f6de",
+  "usr/share/licenses/soundcurrent-daw/equipment-GPL-3.0.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+  "usr/share/licenses/soundcurrent-daw/libsamplerate-BSD-2-Clause.txt": "2c1f76ce2effdddb425018405d5690c0b1ab4e6976e35296b0a6db65c5e1a55d",
+  "usr/share/doc/soundcurrent-daw/equipment-provenance.json": "34a364e2b2d31e017550717f2eb90470777faa0085cce76faf7cafb55605f0fb",
+  "usr/share/applications/soundcurrent-daw.desktop": "e5e9bb758dd67e94439a8cbe7cd387d79a9f17380e64515883e6bf63659dfb25",
+  "usr/share/icons/hicolor/scalable/apps/soundcurrent-daw.svg": "6bc559e288aec6b5eab049387afaef74253805ed568ad50179f0e958d6a5f760",
+  "usr/bin/sc-import-inspect-worker": "db485fce5bf8611e682199fe4d032596202cefcec96bf95f4d68889c9a975fe6",
+  "usr/bin/sc-approved-wave-probe": "29403ecbdcdc9183b5168fb70c8c61b006f2ecc8c6100270fd4382ba4a2dd6ef",
+  "usr/bin/sc-media-import-worker": "5920b6fe5357f16feac4698ee7b163f8aa4496a5fe603657a805630dfe4fb0fa",
+  "usr/bin/sc-stretch-render-worker": "65899cc5ed579de6c950702eba511e6008556e9de9710c0970e9147917f5450e",
+  "usr/share/licenses/soundcurrent-daw/RubberBand-GPL-2.0-or-later.txt": "cedd4c1885d75991bf1077cc6e33359103cf04fbc996f20d30ab043d5fc5fcc5"
+}
