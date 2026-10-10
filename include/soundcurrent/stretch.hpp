@@ -4,6 +4,9 @@
 #include <string_view>
 namespace soundcurrent::daw {
 inline constexpr std::string_view stretchProcessorId = "soundcurrent.stretch-rubberband4-r3-positioned-v2";
+inline constexpr std::string_view unityStretchProcessorId = "soundcurrent.stretch-positioned-copy-v1";
+std::string_view stretchProcessorFor(const StretchSettings &);
+void validateStretchProcessor(std::string_view, const StretchSettings &);
 void validateStretchSettings(const StretchSettings &);
 StretchSettings canonicalStretchSettings(StretchSettings);
 Frame stretchOutputFrames(Frame inputFrames, const StretchSettings &);

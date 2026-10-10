@@ -35,9 +35,11 @@ std::size_t trackReaderPayloadBytes(const ValidatedSession &s, const Id &id,
     PayloadCharge charge("Track reader payload", c.memoryBudgetBytes);
     charge.add(4096);
     for (const auto &clip : t.clips)
-        if (clip.startFrame < c.endFrame && clip.startFrame + clip.lengthFrames > c.startFrame)
+        if (clip.startFrame < c.endFrame && clip.startFrame + clip.lengthFrames > c.startFrame) {
             charge.add(sizeof(Clip) + sizeof(PreparedClipProcessing) + sizeof(SourceFrameMap) +
                        sizeof(PreparedPositionedResampling) + sizeof(std::size_t) + 256);
+            if(clip.stretch)charge.add(clip.stretch->processor.capacity()+1);
+        }
     const auto g=geometry(s,t,c);
     charge.add(g.sourceFrames*c.layout.channels,sizeof(float));
     charge.add(std::size_t(c.slabFrames)*c.layout.channels,sizeof(double)+(g.positioned ? sizeof(float) : 0));

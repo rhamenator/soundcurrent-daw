@@ -206,6 +206,8 @@ struct ClipStretchAnchor {
     Frame sourceFrames = 0;
     StretchSettings settings;
     std::string renderKey;
+    // Persisted algorithm identity; legacy 1.12 projects retain their R3 assets.
+    std::string processor = "soundcurrent.stretch-rubberband4-r3-positioned-v2";
     // The clip addresses derived audio; this anchor always addresses raw audio.
     // Split/crop/duplicate retain it and move only the derived source position.
     bool operator==(const ClipStretchAnchor &) const = default;

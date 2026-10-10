@@ -319,7 +319,7 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
             string(c.assetId.str());
             if(c.stretch) {
                 string(c.stretch->sourceAssetId.str());
-                string(c.stretch->sourceSha256);string(c.stretch->renderKey);
+                string(c.stretch->sourceSha256);string(c.stretch->renderKey);string(c.stretch->processor);
             }
         }
     }

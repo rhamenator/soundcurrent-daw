@@ -3630,3 +3630,19 @@ receiver/firewall removed and original template checks pass. No equalizer change
 binary upload, physical audio, complete quality or full F/Q/C/N/Europe claim.
 Next broaden short-span/transient quality acceptance, then explicit tempo/warp
 workflows and continued recording reliability. The completion goal stays active.
+
+## M2 unity preservation (2026-10-10 UTC)
+
+[Checkpoint143](143-unity-stretch-copy.md) adds an explicitly identified positioned
+copy for duration1/1 and pitch zero, one-frame spans, exact integer sample bytes,
+fractional preparation and384k/256-channel copy admission. Schema1.13 preserves
+legacy R3 identities/keys; protocol3 and stricter package receipts prevent old
+helpers qualifying the new app. Linux local111 regressions and a corrected67-check
+UI workflow pass, with68 state/48 controller/241 worker/1045 artifact checks.
+The initial fixture export-path refusal and damaged ignored build-cache metadata
+are retained with their corrections; no installed/native Windows or full quality
+claim is made. Historical preview evidence stays separately scoped. PR83 merged
+normally with four exact-head qualified gates; no protection weakening or binary
+upload. Next specify explicit processing regions/context/output mapping before
+short non-unity renders, then warp/pitch and recording reliability. Full frozen
+F/Q/C/N parity and European language delivery remain open; the goal is active.

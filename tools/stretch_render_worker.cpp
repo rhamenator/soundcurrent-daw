@@ -19,6 +19,7 @@
 #include <cmath>
 #include <iostream>
 #include <numeric>
+#include <memory>
 #include <set>
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -31,8 +32,7 @@
 using namespace soundcurrent::daw;
 using Json=nlohmann::json;
 namespace {
-constexpr const char *protocol="sc-stretch-render-v2";
-constexpr auto processor=stretchProcessorId;
+constexpr const char *protocol="sc-stretch-render-v3";
 void require(bool ok,const char *message,ErrorCode code=ErrorCode::InvalidParameter){if(!ok)throw ProjectError(code,message);}
 std::uint64_t decimal(const std::string &s){std::uint64_t n=0;auto r=std::from_chars(s.data(),s.data()+s.size(),n);require(r.ec==std::errc{} && r.ptr==s.data()+s.size(),"Invalid trusted worker limit");return n;}
 void processLimit(std::uint64_t bytes){
@@ -56,7 +56,7 @@ Json request(){
     while(std::cin.get(c)){require(n<16384,"Stretch request exceeds protocol bound");raw[n++]=c;}
     std::array<std::set<std::string>,9> keys;
     auto callback=[&](int depth,Json::parse_event_t event,Json &v){require(depth>=0 && depth<8,"Stretch request nesting exceeds bound");if(event==Json::parse_event_t::object_start)keys[std::size_t(depth+1)].clear();if(event==Json::parse_event_t::key)require(keys[std::size_t(depth)].insert(v.get<std::string>()).second,"Duplicate stretch request field");return true;};
-    auto j=Json::parse(raw.data(),raw.data()+n,callback);require(j.is_object() && j.size()==16,"Unexpected stretch request fields");return j;
+    auto j=Json::parse(raw.data(),raw.data()+n,callback);require(j.is_object() && j.size()==17,"Unexpected stretch request fields");return j;
 }
 std::filesystem::path native(const std::string &s){require(s.size()<=4096 && validUtf8(s) && s.find('\0')==std::string::npos,"Invalid stretch root");return utf8Path(s);}
 void plainAncestors(const std::filesystem::path &p){require(p.is_absolute() && p==p.lexically_normal(),"Stretch root must be canonical absolute path");auto at=p.root_path();media_io::plainDirectory(at);for(const auto &part:p.relative_path()){at/=part;media_io::plainDirectory(at);}}
@@ -83,7 +83,6 @@ int run(const std::vector<std::string> &args){
         Asset asset{Id(j.at("assetId").get<std::string>()),j.at("relative").get<std::string>(),j.at("sha256").get<std::string>(),48000,{},0};
         require(asset.sha256.size()==64 && std::all_of(asset.sha256.begin(),asset.sha256.end(),[](char c){return(c>='0' && c<='9')||(c>='a' && c<='f');}),"Invalid source digest");
         asset.sampleRate=std::uint32_t(number(j,"rate",384000));require(asset.sampleRate>=8000,"Invalid stretch physical rate");
-        require(asset.sampleRate<=192000,"Stretch backend above192k remains unsupported",ErrorCode::UnsupportedSchema);
         asset.layout.channels=std::uint32_t(number(j,"channels",256));require(asset.layout.channels>0,"Invalid stretch channel count");asset.layout.kind=asset.layout.channels==1?LayoutKind::Mono:asset.layout.channels==2?LayoutKind::Stereo:LayoutKind::Discrete;
         asset.frames=Frame(number(j,"sourceFrames",INT64_MAX));const auto first=number(j,"first",std::uint64_t(asset.frames)),frames=number(j,"frames",maximumInput);
         require(frames>0 && frames<=std::uint64_t(asset.frames)-first,"Invalid stretch source span");
@@ -97,6 +96,10 @@ int run(const std::vector<std::string> &args){
         require(target>0 && target<=1000000000,"Stretch target exceeds exact admitted duration");
         auto cents=j.at("pitchMilliCents");require(cents.is_number_integer(),"Pitch must use stable integer milli-cents");if(cents.is_number_unsigned())require(cents.get<std::uint64_t>()<=2400000,"Pitch integer exceeds range");auto pitch=cents.get<std::int64_t>();require(pitch>=-2400000 && pitch<=2400000,"Invalid pitch range");
         require(j.at("formantPreserved").is_boolean(),"Invalid formant option");bool formant=j.at("formantPreserved").get<bool>();
+        const auto processor=j.at("processor").get<std::string>();
+        require(processor==stretchProcessorFor({std::uint32_t(numerator),std::uint32_t(denominator),std::int32_t(pitch),formant}),"Requested processor differs from render settings",ErrorCode::UnsupportedSchema);
+        const bool copy=processor==unityStretchProcessorId;
+        require(copy || asset.sampleRate<=192000,"Stretch backend above192k remains unsupported",ErrorCode::UnsupportedSchema);
         const auto channels=asset.layout.channels;const auto samples=std::size_t(512)*channels;
         require(target<= (UINT64_MAX-1048576)/(channels*4ULL),"Stretch output size overflow");const auto admittedBytes=target*channels*4ULL+1048576;
         if(admittedBytes>maximumBytes)throw ResourceLimitError("Stretch output file",std::size_t(admittedBytes),std::size_t(maximumBytes));
@@ -104,11 +107,14 @@ int run(const std::vector<std::string> &args){
         auto scratchLease=ledger.reserve((samples*3+sourceWindowSamples)*sizeof(float)+65536);
         using RB=RubberBand::RubberBandStretcher;
         auto options=RB::OptionProcessOffline|RB::OptionEngineFiner|RB::OptionThreadingNever|(channels<=2?RB::OptionChannelsTogether:RB::OptionChannelsApart)|(formant?RB::OptionFormantPreserved:RB::OptionFormantShifted);
-        RB rb(asset.sampleRate,channels,options,double(target)/double(frames),std::exp2(double(pitch)/1200000.));rb.setDebugLevel(0);rb.setMaxProcessSize(512);rb.setExpectedInputDuration(std::size_t(frames));
+        std::unique_ptr<RB> rb;
+        if(!copy) {
+            rb=std::make_unique<RB>(asset.sampleRate,channels,options,double(target)/double(frames),std::exp2(double(pitch)/1200000.));rb->setDebugLevel(0);rb->setMaxProcessSize(512);rb->setExpectedInputDuration(std::size_t(frames));
         // Conservative offline admission from the prepared public API. Very
         // short R3 spans can drain no audio after its internal startup skip.
         // Refuse before any operation directory/intent, without padding takes.
-        require(frames>=rb.getSamplesRequired(),"Source span is shorter than the prepared stretch window",ErrorCode::UnsupportedSchema);
+            require(frames>=rb->getSamplesRequired(),"Source span is shorter than the prepared stretch window",ErrorCode::UnsupportedSchema);
+        }
         auto sourceRoot=native(args[2]),jobsRoot=native(args[4]);plainAncestors(sourceRoot);plainAncestors(jobsRoot);
         MediaCacheConfig cacheConfig;cacheConfig.maximumOpenFiles=1;cacheConfig.pageFrames=256;cacheConfig.cacheBudgetBytes=std::size_t(256)*channels*sizeof(float)+256;cacheConfig.registryBudgetBytes=256*1024;cacheConfig.resources=ledger;
         MediaReadCache cache(sourceRoot,std::span<const Asset>(&asset,1),asset.sampleRate,cacheConfig);
@@ -124,11 +130,34 @@ int run(const std::vector<std::string> &args){
         cancel();
         std::vector<float> interleaved(samples),planar(samples),output(samples),sourceWindow(sourceWindowSamples);std::vector<const float *> inputPointers(channels);std::vector<float *> outputPointers(channels);
         auto read=[&](std::uint64_t pos,std::size_t n){cancel();const auto range=sourceKernel.sourceRange(sourceMap,Frame(pos),std::uint32_t(n),asset.frames);cache.read(0,range.first,{sourceWindow.data(),range.frames*channels});sourceKernel.process(sourceMap,Frame(pos),asset.frames,range.first,{sourceWindow.data(),range.frames*channels},{interleaved.data(),n*channels});for(std::size_t ch=0;ch<channels;++ch){inputPointers[ch]=planar.data()+ch*512;for(std::size_t f=0;f<n;++f){auto x=interleaved[f*channels+ch];require(std::isfinite(x),"Nonfinite stretch source",ErrorCode::MediaMismatch);planar[ch*512+f]=x;}}};
-        for(std::uint64_t pos=0;pos<frames;pos+=512){auto n=std::size_t(std::min<std::uint64_t>(512,frames-pos));read(pos,n);rb.study(inputPointers.data(),n,pos+n==frames);cancel();}
+        if(rb)for(std::uint64_t pos=0;pos<frames;pos+=512){auto n=std::size_t(std::min<std::uint64_t>(512,frames-pos));read(pos,n);rb->study(inputPointers.data(),n,pos+n==frames);cancel();}
         Wave wave(job/"audio.partial",asset.sampleRate,channels);media_io::SampleHash sampleHash;std::uint64_t written=0;double peak=0;
-        auto drain=[&]{while(rb.available()>0){cancel();auto n=std::min(512,rb.available());for(std::size_t ch=0;ch<channels;++ch)outputPointers[ch]=output.data()+ch*512;auto got=rb.retrieve(outputPointers.data(),std::size_t(n));require(got>0 && got<=std::size_t(n),"Stretch output stalled",ErrorCode::InvalidState);require(got<=target-written,"Stretch backend exceeded exact duration",ErrorCode::MediaMismatch);for(std::size_t f=0;f<got;++f)for(std::size_t ch=0;ch<channels;++ch){auto x=output[ch*512+f];require(std::isfinite(x),"Nonfinite stretch output",ErrorCode::MediaMismatch);interleaved[f*channels+ch]=x;peak=std::max(peak,std::abs(double(x)));}require(sf_writef_float(wave.file,interleaved.data(),sf_count_t(got))==sf_count_t(got) && sf_error(wave.file)==SF_ERR_NO_ERROR,"Stretch WAV write failed",ErrorCode::Io);sampleHash.update({interleaved.data(),got*channels});written+=got;}};
-        for(std::uint64_t pos=0;pos<frames;pos+=512){auto n=std::size_t(std::min<std::uint64_t>(512,frames-pos));read(pos,n);rb.process(inputPointers.data(),n,pos+n==frames);drain();cancel();}
-        drain();require(rb.available()==-1 && written==target,"Stretch did not drain to exact duration",ErrorCode::MediaMismatch);wave.close();cancel();
+        auto write=[&](std::size_t n) {
+            require(n<=target-written,"Stretch backend exceeded exact duration",ErrorCode::MediaMismatch);
+            for(std::size_t i=0;i<n*channels;++i) {
+                const auto x=interleaved[i];require(std::isfinite(x),"Nonfinite stretch output",ErrorCode::MediaMismatch);
+                peak=std::max(peak,std::abs(double(x)));
+            }
+            require(sf_writef_float(wave.file,interleaved.data(),sf_count_t(n))==sf_count_t(n) && sf_error(wave.file)==SF_ERR_NO_ERROR,"Stretch WAV write failed",ErrorCode::Io);
+            sampleHash.update({interleaved.data(),n*channels});written+=n;
+        };
+        auto drain=[&] {
+            while(rb->available()>0) {
+                cancel();const auto n=std::min(512,rb->available());
+                for(std::size_t ch=0;ch<channels;++ch)outputPointers[ch]=output.data()+ch*512;
+                const auto got=rb->retrieve(outputPointers.data(),std::size_t(n));
+                require(got>0 && got<=std::size_t(n),"Stretch output stalled",ErrorCode::InvalidState);
+                for(std::size_t f=0;f<got;++f)for(std::size_t ch=0;ch<channels;++ch)interleaved[f*channels+ch]=output[ch*512+f];
+                write(got);
+            }
+        };
+        for(std::uint64_t pos=0;pos<frames;pos+=512) {
+            const auto n=std::size_t(std::min<std::uint64_t>(512,frames-pos));read(pos,n);
+            if(copy)write(n);else {rb->process(inputPointers.data(),n,pos+n==frames);drain();}
+            cancel();
+        }
+        if(rb) {drain();require(rb->available()==-1,"Stretch did not fully drain",ErrorCode::MediaMismatch);}
+        require(written==target,"Stretch did not drain to exact duration",ErrorCode::MediaMismatch);wave.close();cancel();
         auto audio=job/"audio.partial";require(std::filesystem::file_size(audio)<=maximumBytes,"Stretch file exceeds admitted byte ceiling",ErrorCode::ResourceLimit);auto hash=hashMediaFile(audio,cancel);require(hashMediaFile(sourceRoot/utf8Path(asset.relativePath),cancel)==asset.sha256,"Source changed during stretch",ErrorCode::MediaMismatch);cancel();
         auto receipt=key;receipt["assetId"]=asset.id.str();receipt["relative"]=asset.relativePath;receipt["sourceFrames"]=asset.frames;receipt["protocol"]=protocol;receipt["operation"]=operation.str();receipt["renderKey"]=renderKey;receipt["complete"]=true;receipt["writtenFrames"]=written;receipt["audioSha256"]=hash;receipt["sampleSha256"]=sampleHash.digest();receipt["peakLinear"]=peak;receipt["memoryCeilingBytes"]=mib*1024*1024;receipt["memoryMetric"]=
 #ifdef _WIN32
@@ -140,16 +169,16 @@ int run(const std::vector<std::string> &args){
         media_io::publishMedia(audio,job/"audio.wav");cancel();auto receiptText=receipt.dump();publicationMayHaveCommitted=true;media_io::publishJournal(job/"complete.json",receiptText);
         // No cancellation check after commit. A valid marker is the terminal result.
         std::cout<<receiptText<<'\n';return std::cout?0:1;
-    }catch(const std::bad_alloc &){std::cerr<<"{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
+    }catch(const std::bad_alloc &){std::cerr<<"{\"protocol\":\"sc-stretch-render-v3\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
     }catch(const std::system_error &e){
         // Thread creation under the process ceiling can fail before the vendor
         // allocation, particularly with Debug binaries and larger runtime maps.
         // Preserve an actual resource refusal without treating every OS error
         // as exhaustion. Avoid constructing JSON while memory is constrained.
         const bool resource=e.code()==std::errc::resource_unavailable_try_again || e.code()==std::errc::not_enough_memory;
-        std::cerr<<"{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\""<<(resource?"stretch.resource_limit":"stretch.render_failed")<<"\",\"systemErrorCode\":"<<e.code().value()<<",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
+        std::cerr<<"{\"protocol\":\"sc-stretch-render-v3\",\"complete\":false,\"messageId\":\""<<(resource?"stretch.resource_limit":"stretch.render_failed")<<"\",\"systemErrorCode\":"<<e.code().value()<<",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
     }catch(const ProjectError &e){std::cerr<<Json({{"protocol",protocol},{"complete",false},{"messageId","stretch.render_failed"},{"errorCode",unsigned(e.code())},{"publicationMayHaveCommitted",publicationMayHaveCommitted}}).dump()<<'\n';return 1;
-    }catch(...){std::cerr<<"{\"protocol\":\"sc-stretch-render-v2\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;}
+    }catch(...){std::cerr<<"{\"protocol\":\"sc-stretch-render-v3\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;}
 }
 }
 #ifdef _WIN32

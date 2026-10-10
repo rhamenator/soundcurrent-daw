@@ -1,0 +1,52 @@
+{
+  "format": "sc-short-span-alignment-capture-v1",
+  "bytes": 10675,
+  "sha256": "728ca372979b6682d5a85e43456b8e9aca1ef059130e4002a401ba8e4cf4373f",
+  "entries": {
+    "analysis-summary.json": {
+      "bytes": 247,
+      "sha256": "e6b349830f1dff09c3b8f5dad0024fc675cdaa3a8c1da0d7626eef874356dcfb"
+    },
+    "build/build.log": {
+      "bytes": 136,
+      "sha256": "4077564e1f207cf510f907a69e2f5ad877dd26f6a5dc9fce12e0b16cd50b384b"
+    },
+    "build/configure.log": {
+      "bytes": 534,
+      "sha256": "a74d3e06ffb3d38389c2b44bff101e8f50b0531a8f2138312d85c963935d4791"
+    },
+    "results.jsonl": {
+      "bytes": 24858,
+      "sha256": "470343804aab2d4c8d59084c3510f570aa051c6848ec48264a6650abeaa80765"
+    },
+    "run.json": {
+      "bytes": 1379,
+      "sha256": "5ff8ea033c23058f3a9f4f43cc70d3a2fbb9dfdd078fe4fa338197b208338f49"
+    },
+    "run.py": {
+      "bytes": 1807,
+      "sha256": "493858fe18dc9270405506f8e17c3728bd775d373733e994eba3ba2b53cae2a2"
+    },
+    "runner.log": {
+      "bytes": 1379,
+      "sha256": "5ff8ea033c23058f3a9f4f43cc70d3a2fbb9dfdd078fe4fa338197b208338f49"
+    },
+    "source/CMakeLists.txt": {
+      "bytes": 1424,
+      "sha256": "930ef9227559045e5696f7e071ca2eaa36ff69f99db12b52166a5ddb99224781"
+    },
+    "source/probe.cpp": {
+      "bytes": 7095,
+      "sha256": "8e78bc5864caf77064f691b5062bcb509cefc214226d92e2af9e2341533102f1"
+    },
+    "stderr.log": {
+      "bytes": 10890,
+      "sha256": "f3ffe1a877d6501f1c3675cc24c3a2132968c431db56bbded21a040046e9edf2"
+    }
+  },
+  "scope": "Original bounded Linux experiments with the existing pinned source/Release libraries. Neither is installed/Windows behavior or processing-quality parity. Whole-source crops are comparisons, not acoustic ground truth. No product algorithm changed during these runs.",
+  "automaticContextQualified": false,
+  "fullProcessingQuality": false,
+  "nativeWindowsReplayed": false,
+  "productionChanged": false
+}

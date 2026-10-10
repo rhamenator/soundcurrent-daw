@@ -15,7 +15,7 @@ import shutil
 import subprocess
 import tarfile
 import zipfile
-from stretch_worker_qualification import qualify_stretch_worker as qualify_native_stretch
+from stretch_worker_qualification import qualify_stretch_worker as qualify_native_stretch, PROTOCOL as STRETCH_PROTOCOL
 
 ROOT = Path(__file__).resolve().parents[1]
 QT_SOURCE = 'a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307'
@@ -137,10 +137,10 @@ def qualify_copy_worker(manifest, qualification, head):
             row.get('sha256')==qualification.get('exeSha256') and bool(row),
             'Deployed copy worker differs from qualified native process/source/receipt protocol')
 
-def qualify_stretch_worker(manifest, qualification, head, source_tree):
+def qualify_stretch_worker(manifest, qualification, head, source_tree, *, protocol=STRETCH_PROTOCOL):
     rows=[r for r in manifest['files'] if r['path']=='sc-stretch-render-worker.exe']
     require(len(rows)==1, 'Exactly one qualified stretch helper required')
-    qualify_native_stretch(qualification,head,source_tree,rows[0].get('sha256'),'win32')
+    qualify_native_stretch(qualification,head,source_tree,rows[0].get('sha256'),'win32',protocol=protocol)
 
 def scripts(stage, output, sequence, head, runtime):
     entries = sorted(p for p in stage.rglob('*') if p.is_file())

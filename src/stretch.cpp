@@ -62,6 +62,15 @@ StretchSettings canonicalStretchSettings(StretchSettings p) {
     validateStretchSettings(p);const auto g=std::gcd(p.timeNumerator,p.timeDenominator);
     p.timeNumerator/=g;p.timeDenominator/=g;return p;
 }
+std::string_view stretchProcessorFor(const StretchSettings &p) {
+    validateStretchSettings(p);
+    return p.timeNumerator==p.timeDenominator && p.pitchMilliCents==0 ? unityStretchProcessorId : stretchProcessorId;
+}
+void validateStretchProcessor(std::string_view id,const StretchSettings &p) {
+    validateStretchSettings(p);
+    require(id==stretchProcessorId || (id==unityStretchProcessorId && stretchProcessorFor(p)==unityStretchProcessorId),
+            "Unsupported stretch processor/settings",ErrorCode::UnsupportedSchema);
+}
 Frame stretchOutputFrames(Frame frames,const StretchSettings &p) {
     validateStretchSettings(p);require(frames>0 && frames<=1000000000,"Stretch input span exceeds admission");
     const auto product=std::uint64_t(frames)*p.timeNumerator;
@@ -109,6 +118,7 @@ SourcePosition scaleSourcePosition(SourcePosition p,std::uint64_t n,std::uint64_
     return canonical({Frame(whole.quotient+fraction.quotient+std::uint64_t(carry)),remainder,resultDen});
 }
 void validateClipStretch(const ClipStretchAnchor &p,const Asset &source,const Asset &rendered) {
+    validateStretchProcessor(p.processor,p.settings);
     require(p.sourceAssetId==source.id && source.id!=rendered.id && p.sourceSha256==source.sha256 &&
             digest(p.sourceSha256) && digest(p.renderKey),"Stretch source/artifact identity mismatch");
     require(source.sampleRate==rendered.sampleRate && source.layout==rendered.layout,
@@ -137,6 +147,7 @@ ClipStretchPlan prepareClipStretch(const Session &s,const Id &track,const Id &cl
                                              current.frames-result.anchor.sourceOrigin.frame);
     }
     result.anchor.settings=canonicalStretchSettings(settings);result.anchor.renderKey.clear();
+    result.anchor.processor=stretchProcessorFor(result.anchor.settings);
     (void)stretchOutputFrames(result.anchor.sourceFrames,result.anchor.settings);
     return result;
 }

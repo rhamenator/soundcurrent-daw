@@ -46,6 +46,11 @@ pass payload, shortcut, Unicode project-open and normal-exit checks. The
 also passes render/review/Apply, Undo/Redo/save, new-process reopen, identical repeat
 WAV exports and removal/reinstallation preservation on an owned synthetic project.
 
+A [separately identified unity render](docs/143-unity-stretch-copy.md) now preserves
+prepared source samples at duration 1/1 and pitch zero, including one-frame clips.
+Existing rendered assets retain their original algorithm identity. Current-source
+Windows and installed acceptance for this increment remain pending.
+
 Full pitch/stretch quality, foreign-property adoption and installed/native audio
 qualification remain open. [Installed Linux evidence](docs/138-installed-stretch-preview.md)
 covers its recorded earlier source. Short-span/transient quality, tempo/warp
