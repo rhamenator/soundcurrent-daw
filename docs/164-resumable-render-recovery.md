@@ -106,3 +106,19 @@ old dialog while a newer render is deliberately held before spawn permits the
 new render to complete normally. These amended tests need their own current-head
 Linux/Windows gates. Original a8bf340 evidence remains at its original scope;
 it does not acquire the new scoped-retirement qualification retrospectively.
+
+## Localization gate correction
+
+Current-head Linux CI correctly refused the stale Qt source inventory/catalogs.
+The paging UI introduced seven source keys and superseded two descriptions;
+regenerating with actual Qt lupdate/lrelease preserves all28,866 existing
+translation entries and translator comments shared across34 catalogs. New terms
+remain unfinished outside the English source catalog. All34 catalogs retain
+their previous partial/unverified status; no native review or European-language
+completion is claimed.
+
+The two catalog gates, desktop localization and desktop stretch UI pass locally
+after regeneration (four tests, UI283 checks, callback audit0, no audio route).
+Original failed current-head Linux receipts remain local. Fresh protected gates
+must qualify the amended catalog head; old-head Windows success is not promoted
+to the new head.

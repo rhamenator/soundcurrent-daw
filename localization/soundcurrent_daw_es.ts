@@ -2319,11 +2319,15 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</source>
+      <source>Scan verifies retained jobs in bounded pages. Next page replaces this list; Scan again starts at the beginning. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</source>
       <translation type="unfinished" />
     </message>
     <message>
       <source>Scan again</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Next page</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2336,6 +2340,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Retained render scan could not start. Check Project resources.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The scan expired or the project changed. Scan again.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2387,7 +2395,19 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message numerus="yes">
-      <source>%n retained job(s) inspected. No project edit was made.</source>
+      <source>%n retained job(s) inspected on this page.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Page %1: %2 No project edit was made.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>More entries remain. Choose Next page to continue.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Scan finished.</source>
       <translation type="unfinished" />
     </message>
     <message>
