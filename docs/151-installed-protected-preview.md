@@ -46,7 +46,10 @@ European translation/review/UI coverage.
 [Retained results](../tests/results/M2/2026-10-10-installed-protected-preview/README.md)
 contain bounded original synthetic WAVs, saved project states, raw process/exit
 logs and screenshots. The portable verifier inspects exact member hashes, full
-float PCM, saved history/reopen, helper identity and graph retirement. It runs no
+float PCM, saved history/reopen, helper identity and graph retirement. Before/after
+package versions, the actual unpack-over/setup log, upgrade-base claim and paired
+package/source receipts are cross-checked; identical payloads alone cannot establish
+an upgrade. It runs no
 captured scripts, installation or audio. System configuration copies and bytecode
 are explicitly filtered; executables, installers and personal recordings are absent.
 
@@ -58,6 +61,14 @@ Its matching source archive SHA256 is
 All 2,179 archive blobs matched the exact Git export policy, including the explicit
 PowerShell CRLF rule. Source archives/binaries remain local; source/evidence
 repository backup is separately owner-authorized. No product release upload.
+
+## Review correction
+
+PR92 review found that the first retained verifier checked payload identity without
+binding the actual package upgrade. A regenerated old-package capture was admitted
+by the earlier checker. The corrected verifier refuses an unchanged installed
+version, a fresh-install log and a mismatched upgrade base even when envelope/member
+hashes are regenerated. The original captured observations are unchanged.
 
 ## Next implementation and delivery gate
 

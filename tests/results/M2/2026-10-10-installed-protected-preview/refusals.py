@@ -5,12 +5,12 @@ from pathlib import Path
 import hashlib,json,shutil,subprocess,sys,tempfile,zipfile
 root=Path(__file__).resolve().parent
 sha=lambda b:hashlib.sha256(b).hexdigest()
-for case in ['scope','member-bytes','path','pcm-summary','undo','marker','windows-scope']:
+for case in ['scope','member-bytes','path','pcm-summary','undo','marker','windows-scope','retained-old-version','fresh-install','upgrade-source']:
  with tempfile.TemporaryDirectory(prefix='sc-retained-guard-') as directory:
   target=Path(directory)
-  for name in ['verify.py','capture.zip','manifest.json','windows-attempt.json','windows-attempt.zip']:shutil.copyfile(root/name,target/name)
+  for name in ['verify.py','capture.zip','manifest.json','windows-attempt.json','windows-attempt.zip','package-receipt.json','source-archive-qualified.json']:shutil.copyfile(root/name,target/name)
   manifest=json.loads((target/'manifest.json').read_text())
-  expected={'scope':'Conservative scope','member-bytes':'Exact entry bytes','path':'Safe member path','pcm-summary':'Independent retained media summaries','undo':'Saved Undo/Redo project states','marker':'Exact persisted marker controls','windows-scope':'Windows unqualified scope'}[case]
+  expected={'scope':'Conservative scope','member-bytes':'Exact entry bytes','path':'Safe member path','pcm-summary':'Independent retained media summaries','undo':'Saved Undo/Redo project states','marker':'Exact persisted marker controls','windows-scope':'Windows unqualified scope','retained-old-version':'Installed package version receipts','fresh-install':'Actual package upgrade log','upgrade-source':'Actual upgrade base'}[case]
   if case=='windows-scope':
    d=json.loads((target/'windows-attempt.json').read_text());d['nativeDesktopStartupQualified']=True;(target/'windows-attempt.json').write_text(json.dumps(d)+'\n')
   elif case=='scope':manifest['fullQualityQualified']=True
@@ -18,6 +18,11 @@ for case in ['scope','member-bytes','path','pcm-summary','undo','marker','window
    with zipfile.ZipFile(target/'capture.zip') as z:files={n:z.read(n) for n in z.namelist()}
    if case=='member-bytes':files['first/workspace/helper-command.txt']+=b'changed'
    if case=='path':files['../unowned']=b'No execution'
+   if case=='retained-old-version':files['upgraded/workspace/installed-version.txt']=files['upgraded/workspace/prior-version.txt']
+   if case=='fresh-install':
+    before=files['upgraded/workspace/prior-version.txt'].decode().strip();files['upgraded/workspace/install.log']=files['upgraded/workspace/install.log'].replace((' over ('+before+')').encode(),b'')
+   if case=='upgrade-source':
+    d=json.loads(files['upgraded/qualification.json']);d['actualUpgradeFrom']='0.1.0~preview.20261009232400.f9a63532685c';files['upgraded/qualification.json']=(json.dumps(d)+'\n').encode()
    if case=='pcm-summary':
     d=json.loads(files['first/qualification.json']);d['derived']['frames']+=1;files['first/qualification.json']=(json.dumps(d)+'\n').encode()
    if case=='undo':
@@ -33,4 +38,4 @@ for case in ['scope','member-bytes','path','pcm-summary','undo','marker','window
   observed=subprocess.run([sys.executable,str(target/'verify.py')],capture_output=True,text=True,timeout=30)
   assert observed.returncode!=0 and expected in observed.stderr,(case,observed.returncode,observed.stderr)
   print(case+': refused for '+expected)
-print('installed_protected_retained_refusals: 7 exact negative cases; no captured script/audio/install execution')
+print('installed_protected_retained_refusals: 10 exact negative cases; no captured script/audio/install execution')

@@ -12,8 +12,8 @@ WAV/PCM hashes and headroom, saved Undo/Redo state, persisted marker coordinates
 save/reopen identity, installed five-executable identities, private graph teardown,
 application/overlay terminal exits and unprivileged parent/helper process state.
 It does not rerun DSP, image recognition, installation, a native audio adapter or
-full processing quality. `python3 refusals.py` exercises seven exact scope, member,
-path, PCM-summary, history, marker and Windows-scope refusals after their envelope hashes are
+full processing quality. `python3 refusals.py` exercises ten exact scope, member,
+path, PCM-summary, history, marker, Windows-scope and actual upgrade refusals after their envelope hashes are
 updated where appropriate. Screenshots are reviewed observations, not automated UI
 proof derived from the images.
 

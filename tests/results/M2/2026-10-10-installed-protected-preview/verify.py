@@ -45,6 +45,23 @@ with zipfile.ZipFile(archive) as z:
  check(first['source']=='b0e61308e0531d45a2a5abab9d8a6cde5cc10999' and latest['source']=='083aefed3afd027406e1bb78e6f2d66b2f4dbfd8','Exact installed sources')
  check(latest['tree']=='fe3197c30e20c30493f03eb9ba9720a12f7de2e2','Reviewed final tree')
  check(latest['packageSha256']=='067abefdd87e554fd33712731aa051807e152908a97e6509c4e7ea0d3b10ed39','Paired package digest')
+ package=json.loads((root/'package-receipt.json').read_text())
+ prior=z.read('upgraded/workspace/prior-version.txt').decode().strip()
+ installed=z.read('upgraded/workspace/installed-version.txt').decode().strip()
+ check(prior==package['previous_version'] and installed==package['version']==latest['version'] and prior!=installed,'Installed package version receipts')
+ check(latest['actualUpgradeFrom']==prior,'Actual upgrade base')
+ check(package['source_head']==latest['source'] and package['source_tree']==latest['tree'] and package['previous_package_version_order_verified'] is True,'Paired source/version-order receipt')
+ check(prior=='0.1.0~preview.20261010093051.b0e61308e053' and installed=='0.1.0~preview.20261010095352.083aefed3afd','Frozen actual package versions')
+ upgrade=z.read('upgraded/workspace/install.log').decode()
+ unpack=f'Unpacking soundcurrent-daw ({installed}) over ({prior}) ...'
+ setup=f'Setting up soundcurrent-daw ({installed}) ...'
+ check(upgrade.splitlines().count(unpack)==1 and upgrade.splitlines().count(setup)==1 and upgrade.index(unpack)<upgrade.index(setup),'Actual package upgrade log')
+ check(all(z.read(prefix+'/workspace/installed-version.txt').decode().strip()==prior for prefix in ['first','reopened']),'Earlier installed package version')
+ artifacts=package['artifacts']
+ check(artifacts['soundcurrent-daw_'+installed+'_amd64.deb']['sha256']==latest['packageSha256'],'Exact installed package artifact receipt')
+ source=json.loads((root/'source-archive-qualified.json').read_text())
+ check(source['source']==latest['source'] and source['tree']==latest['tree'] and source['allArchiveContentsMatchGitExportPolicy'] is True and type(source['trackedBlobsCompared']) is int and source['trackedBlobsCompared']==2179,'Exact source archive observation')
+ check(artifacts['soundcurrent-daw-'+installed+'-source.tar.gz']['sha256']==source['archiveSha256'],'Paired source archive digest')
  for observation in [first,latest]:
   for key in ['physicalAudio','nativePlaybackStarted','fullQualityQualified','hostPackageChanges']:check(observation[key] is False,'Installed observed scope')
   check(observation['normalQuitExit']==0,'Actual normal application exit')
