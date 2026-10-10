@@ -3598,3 +3598,17 @@ no development-VM installation or physical audio is claimed, and equalizers and
 original VMs/template remain unchanged. Next: actual installed Windows acceptance
 on an independent clone. Full F/Q/C/N parity and European translation delivery
 remain incomplete.
+
+## Installed Windows stretch preview startup (2026-10-10 UTC)
+
+[Checkpoint140](140-windows-installed-stretch-startup.md) records actual setup and
+installed-main acceptance for the exact f9a6353 local pair. Microsoft runtime
+consent was observed, setup exited 0, 64 payload files matched and both shortcuts
+and uninstall registration passed. Main PID5308 loaded local installed Qt/sndfile,
+opened the owned Unicode project and closed normally with exit 0. Raw project/media
+bytes remained unchanged. The first live-process observation deadline, missing
+runtime diagnosis and two test-harness corrections remain separate retained results.
+All VMs are off; the receiver and scoped temporary firewall rule are removed.
+No binary/release upload or equalizer change occurred. Installed rendering/export,
+removal/reinstallation, physical audio and full frozen F/Q/C/N/Europe delivery
+remain open. This is progress; the active completion goal is not achieved.

@@ -764,3 +764,14 @@ acceptance is claimed. Next install this exact pair on an independent acceptance
 clone, qualify the actual installed Unicode render/edit/reopen/export and removal
 workflow, then continue the remaining M2 quality and editing gates. Full frozen
 parity, native recording reliability and all-Europe localization remain open.
+
+## M2 installed Windows stretch preview startup
+
+[Checkpoint140](140-windows-installed-stretch-startup.md) adds actual installation
+of the exact f9a6353 unsigned preview on a full independent Windows clone. Runtime
+consent, normal setup exit, 64 payload checks, both shortcuts, uninstall registration,
+installed dependency paths, owned Unicode project open and normal main exit pass.
+Original failed observations and harness corrections are retained. The clone is
+stopped; no product binary was uploaded. Next qualify installed stretch
+render/review/apply/Undo/reopen/export and removal/reinstallation, then continue
+the remaining quality/editing gates and full frozen F/Q/C/N/Europe requirements.
