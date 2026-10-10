@@ -3863,3 +3863,23 @@ acceptance does not qualify the native Windows bank. Next: obtain the actual
 failing native probe outcome, resolve its cause, then refresh normal-window and
 installed Windows restart acceptance. Full scope, quality, M2–M11, X004/X005 and
 all-Europe localization remain incomplete; the goal stays active.
+
+## Refreshed native Windows and local installer checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: PR97 merged through all four protected gates
+with exact tested/merged tree agreement. Fresh clean `4fb8c1c` native qualification
+now passes both original-budget diagnostics, synthetic helpers, the V4 bank,
+519-check V5 bank with all 18 full-PCM comparisons and six selected desktop groups.
+[Checkpoint157](157-native-windows-restart-preview.md) records the successful
+SDK-free staged main, local unsigned preview production, 2,235-member matching
+source archive audit, actual 64-file side-by-side installation and installed main
+Unicode project opening/normal exit. Historical failures remain failed; current
+operator staging/automation/deadline failures are retained separately. No DSP
+change, physical audio test, pristine-runtime qualification or product upload.
+
+All VMs shut down normally; the temporary receiver/firewall rule is removed.
+Next: one brief already-installed Windows render/normal-restart/Ready-review,
+marker guard, Apply/Undo/Redo and repeat export session. This installed workflow
+is not yet qualified. Abrupt death/power loss, scalable recovery, broad M2 quality,
+M2–M11, X004/X005 and all-Europe qualification remain open. The full goal stays
+active and incomplete.

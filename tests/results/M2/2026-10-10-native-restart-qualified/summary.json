@@ -1,0 +1,100 @@
+{
+  "sourceHead": "4fb8c1cdf1b1365e5834256f4b39b51566dbed52",
+  "sourceTree": "d1b6be0bd9114af21d73a5dd6ba8172b53510c44",
+  "scope": "native synthetic qualification, local package/source audit, SDK-free existing-clone installation and Unicode project opening; installed render restart still untested",
+  "buildSeconds": 27.798194799999997,
+  "diagnostics": [
+    {
+      "request": {
+        "family": "impulse",
+        "profile": "identity"
+      },
+      "pid": 5204,
+      "exitCode": 0,
+      "seconds": 0.2913250000000005,
+      "observationTimedOut": false
+    },
+    {
+      "request": {
+        "family": "cancellation",
+        "profile": "uniform"
+      },
+      "pid": 5228,
+      "exitCode": 0,
+      "seconds": 1.801946600000008,
+      "observationTimedOut": false
+    }
+  ],
+  "v4Checks": 385,
+  "v4VerifierChecks": 1045,
+  "v5Checks": 519,
+  "v5CompletedRenders": 21,
+  "v5FullPcmComparisons": 18,
+  "qualificationExit": 0,
+  "installedSetupPid": 260,
+  "installedPayloadFiles": 64,
+  "installedMainPid": 5076,
+  "installedMainExit": 0,
+  "installedMainForced": false,
+  "developerSdkUsed": false,
+  "pristineOs": false,
+  "nativeAudioActivated": false,
+  "rawMediaUnchanged": true,
+  "rawMediaSha256": "3ab3b2a8d0d9219453eae135e9351bb5a66b7f954bed4f3da4233ca0a4059922",
+  "sourceArchiveAudit": {
+    "sourceHead": "4fb8c1cdf1b1365e5834256f4b39b51566dbed52",
+    "sourceTree": "d1b6be0bd9114af21d73a5dd6ba8172b53510c44",
+    "archive": "soundcurrent-daw-20261010183111-4fb8c1cdf1b1-source.tar.gz",
+    "archiveSha256": "69291b50e789d53bdc9adefc2d425d933f8e9ab1a9f34e103ac6aee735439afa",
+    "trackedMembersVerified": 2235,
+    "uncompressedMemberBytes": 877736904,
+    "gitExportCrlfPowerShellFiles": [
+      ".github/scripts/prepare-windows-desktop.ps1"
+    ],
+    "everyTrackedBlobAndModeVerified": true,
+    "extractionPerformed": false
+  },
+  "localArtifacts": {
+    "SoundCurrent-DAW-20261010183111-4fb8c1cdf1b1-x64-setup.exe": {
+      "sha256": "d96c0e996a0c0e291c91c803c934c165d1635a5cfe9cd2ab367e5d52128c78fd",
+      "bytes": 35151880,
+      "localOnly": true
+    },
+    "soundcurrent-daw-20261010183111-4fb8c1cdf1b1-source.tar.gz": {
+      "sha256": "69291b50e789d53bdc9adefc2d425d933f8e9ab1a9f34e103ac6aee735439afa",
+      "bytes": 805752964,
+      "localOnly": true
+    },
+    "dependency-source/libsndfile-1.2.2.tar.gz": {
+      "sha256": "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121",
+      "bytes": 684875,
+      "localOnly": true
+    },
+    "dependency-source/qtbase-everywhere-src-6.12.0.tar.xz": {
+      "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+      "bytes": 51220268,
+      "localOnly": true
+    }
+  },
+  "excludedNativeProductMembers": [
+    "deploy/Qt6Core.dll",
+    "deploy/Qt6Gui.dll",
+    "deploy/Qt6Widgets.dll",
+    "deploy/sc-approved-wave-probe.exe",
+    "deploy/sc-import-inspect-worker.exe",
+    "deploy/sc-media-import-worker.exe",
+    "deploy/sc-stretch-render-worker.exe",
+    "deploy/sndfile.dll",
+    "deploy/soundcurrent-daw.exe",
+    "deploy/imageformats/qgif.dll",
+    "deploy/imageformats/qico.dll",
+    "deploy/imageformats/qjpeg.dll",
+    "deploy/platforms/qwindows.dll",
+    "deploy/styles/qmodernwindowsstyle.dll",
+    "deploy.zip"
+  ],
+  "captureSha256": "d44e7cc2c18feb57fa798d369df49fd2c0cc35daec218d73a32fe3a3b3eab5d4",
+  "productReleaseUploaded": false,
+  "installedRestartQualified": false,
+  "fullGoalComplete": false
+}
