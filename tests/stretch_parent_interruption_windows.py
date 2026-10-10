@@ -75,9 +75,11 @@ def wait_for(predicate, seconds=12):
         time.sleep(.001)
 
 
-def inventory(root):
+def inventory(root, active=False):
+    # Windows writer.lock is intentionally opened with no sharing. Its complete
+    # file hash is captured after actual termination, never guessed while active.
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in root.rglob("*") if p.is_file()}
+            for p in root.rglob("*") if p.is_file() and not (active and p.name == "writer.lock")}
 
 
 def parent_pid(pid):
@@ -194,13 +196,15 @@ def run_case(probe, helper, directory, stage):
     report = {"stage": stage, "fixtureBefore": baseline}
 
     def scan(expected):
-        before = inventory(root)
+        before = inventory(root, active=expected == "Active")
         run = subprocess.run([str(probe), "--scan", str(root)], capture_output=True, text=True,
                              encoding="utf-8", timeout=10, check=True, creationflags=0x08004000)
         response = json.loads(run.stdout)
         assert response["status"] == expected, response
         assert response["reviewed"] == (expected == "Ready") and not response["attached"]
-        assert response["projectSha256"] == baseline["project.json"] and inventory(root) == before
+        assert response["projectSha256"] == baseline["project.json"] and inventory(root, active=expected == "Active") == before
+        if expected == "Active":
+            response["exclusiveLockHashDeferredUntilTerminal"] = True
         return response
 
     try:
@@ -272,15 +276,19 @@ def run_case(probe, helper, directory, stage):
     finally:
         if frozen:
             frozen.resume()
+        cleanup = []
         for process, code in [(parent, PARENT_EXIT), (child, HELPER_EXIT)]:
             if process:
                 if process.running():
                     process.kill(code)
-                assert process.terminal()
+                actual_terminal = process.terminal()
+                assert actual_terminal
+                cleanup.append(actual_terminal)
                 process.close()
         if launcher.poll() is None:
             launcher.kill()  # Popen owns the exact instance even if identity query failed.
         launcher.wait(timeout=5)
+        (directory / "cleanup-terminal.json").write_text(json.dumps(cleanup, indent=2) + "\n", encoding="utf-8")
         parent_log.close()
 
 
