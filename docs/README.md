@@ -152,3 +152,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Explicit stretch processing regions and nominal visible crops](144-explicit-stretch-context.md) · [ADR103](decisions/103-explicit-stretch-processing-region.md)
 - [Retained context, local timing and grouped-channel quality observations](145-stretch-region-quality.md) · [ADR104](decisions/104-local-warp-and-group-quality.md)
+- [Exact normalized warp-map planner and multiple-anchor experiment](146-normalized-warp-map-planner.md) · [ADR105](decisions/105-normalized-warp-map-planner.md)

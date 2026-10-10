@@ -3674,3 +3674,18 @@ Independent retained inspection passes7233 checks without DSP/native replay.
 P012 contracts and makes a normalized map/planned-adapter experiment next.
 No production DSP/default, VM, physical audio, installer or equalizer change.
 All frozen F/Q/C/N and all-Europe/native/recovery goals remain incomplete and active.
+
+## M2/M8 exact warp-map foundation (2026-10-10 UTC)
+
+Previous goal turn was progress: PR86 merged normally as a40e0b5 with exact tree
+3ff8fbf9, four protected gates and109 Linux/41 native core/12 Qt checks. This turn
+implements [the original normalized C++ planner](146-normalized-warp-map-planner.md)
+and passes23,083 Fraction-oracle checks per actual run. Opt-in CMake builds it
+outside shipping/editor installation; a fresh ten-step build/final two-step
+rebuild and repeatable CTest pass locally.52 actual pinned R3/R2 processes drain
+exactly, with full waveform/map/outcome retention, multiple nonuniform anchors,
+partition/channel-policy effects and34 censored onset observations kept explicit.
+Retained inspection passes46,911 checks. Native Windows planner qualification,
+an acoustically supported marker processor, editor/persistence/shared output and
+full P008/P011/P012 remain gates. No product binary, VM/audio or equalizer change.
+Full F/Q/C/N/all-Europe and all completion requirements remain active/incomplete.

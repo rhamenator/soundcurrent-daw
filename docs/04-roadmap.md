@@ -828,3 +828,14 @@ Only qualified supported cases then advance to a versioned production adapter
 and one explicit editable anchor with review/Apply, Undo/reopen and shared export.
 Tempo ramps, segmented pitch, phase-coherent recording groups, remaining M2–M8,
 Linux/Windows installation, all-Europe localization and full F/Q/C/N remain required.
+
+## M2/M8 exact planner and processor choice
+
+[Checkpoint146](146-normalized-warp-map-planner.md) implements the isolated C++
+normalized rational planner and independent geometry/refusal/resource oracle.
+The multi-anchor R3/R2 experiment retains exact durations plus local timing,
+partition and group-policy limits; these do not qualify a shipping marker mode.
+Next compare a pinned alternative or original anchored strategy with fixed
+measurement/edge/chunk definitions, then adopt supported processing into one
+editable raw-relative marker/Undo/reopen/shared export workflow. Native planner
+acceptance is separate. All other milestones and full frozen F/Q/C/N remain.
