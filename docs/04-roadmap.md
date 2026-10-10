@@ -839,3 +839,19 @@ Next compare a pinned alternative or original anchored strategy with fixed
 measurement/edge/chunk definitions, then adopt supported processing into one
 editable raw-relative marker/Undo/reopen/shared export workflow. Native planner
 acceptance is separate. All other milestones and full frozen F/Q/C/N remain.
+
+## M2/M8 anchored processor experiment (2026-10-10 UTC)
+
+PR87 merged normally as a08eb0e; full DAW goal remains ACTIVE and incomplete.
+[Checkpoint147](147-anchored-stretch-candidate.md) implements an original exact
+scheduler over a source-pinned alternative, with contract/analyzer frozen before
+24 actual terminal renders. Full source/generated/trimmed PCM retained;20,909
+inspection checks. Impulse timing passes selected diagnostics; nonunity attacks
+fail (<48-frame gate versus maximum146.5), group arrival changes reach1frame,
+cancellation/phase and pre-echo diagnostics remain unqualified. No shipping
+adoption, native audio/VM/equalizer or current installer change.
+[ADR106](decisions/106-transient-protected-warp-next.md) selects original explicit
+protected spans and derived unity-slope map points as the next implementation,
+then supported editable marker/reviewApply/Undo/reopen/shared output. General
+warp/group/pitch/comp/native/installed/recovery and every other milestone, X004/
+X005 and all-Europe/F/Q/C/N remain required.

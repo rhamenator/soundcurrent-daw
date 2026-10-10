@@ -55,6 +55,7 @@ jobs:
           python3 tests/results/M2/2026-10-10-explicit-stretch-context/verify.py
           python3 tests/results/M2/2026-10-10-stretch-region-quality/verify.py
           python3 tests/results/M8/2026-10-10-warp-map-planner/verify.py
+          python3 tests/results/M8/2026-10-10-anchored-stretch/verify.py
       - name: Verify retained installed Windows preview (no native replay)
         run: |
           git fetch --no-tags --depth=1 origin b8cdb3e00da524e5be51b007c1f81d6e51806d72
