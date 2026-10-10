@@ -186,6 +186,27 @@ void regions() {
     json["tracks"][0]["clips"][0]["stretch"].erase("warp");
     check(decodeProject(json.dump())==old,"Schema1.13 migration changed legacy rounded maps or keys");
 }
+void firstWarpEndpoint() {
+    // Independent rational oracles for an 8,193-frame visible interval. The
+    // prepared raw buffer rounds upward; that last partial frame is not visible.
+    struct Case {std::uint32_t rate;ClipPlaybackRate speed;Frame span,doubledLength;};
+    const Case cases[]={{44100,{1,1},7528,16385},{48000,{3,2},12290,16386},{44100,{5,4},9410,16386}};
+    for(const auto &test:cases)for(const Frame ratio:{1,2}) {
+        auto s=source();s.assets[0].sampleRate=test.rate;
+        auto &clip=s.tracks[0].clips[0];clip.sourceTiming={};clip.lengthFrames=8193;clip.playbackRate=test.speed;
+        const auto original=s;const auto id=clip.id;
+        WarpSettings warp;warp.markers.push_back({Id::generate(),{4096,0,1},{4096*ratio,0,1}});
+        auto command=result(s,id,{std::uint64_t(ratio),1,0,true},{},warp);
+        check(command.value.sourceFrames==test.span,"First warp did not retain its rounded preparation span");
+        EditHistory history(s);history.structural({command});const auto adopted=s;
+        const auto &actual=s.tracks[0].clips[0];
+        check(actual.lengthFrames==(ratio==1?8193:test.doubledLength),"First warp exposed a rounded partial source frame");
+        check(actual.sourceFrame==0 && actual.sourceTiming==ClipSourceTiming{} && actual.playbackRate==test.speed,"First warp folded source/project timing domains");
+        if(ratio==1)check(actual.processing==original.tracks[0].clips[0].processing,"Identity first warp moved clip fades");
+        check(decodeProject(encodeProject(s))==s,"Fractional-end first warp did not roundtrip");
+        check(history.undo() && s==original && history.redo() && s==adopted,"Fractional-end first warp lost exact Undo/Redo");
+    }
+}
 void warpWorkflow() {
     auto s=source();auto &raw=s.tracks[0].clips[0];raw.sourceTiming={};raw.lengthFrames=32768;
     const auto original=s;const auto track=s.tracks[0].id,clip=raw.id;
@@ -272,5 +293,5 @@ int probe() {
 int main(int argc,char **argv) {try {
     if(argc==2 && std::string_view(argv[1])=="--arithmetic-probe") return probe();
     if(argc==2 && std::string_view(argv[1])=="--geometry-probe") return geometryProbe();
-    workflow();persistence();unityIdentity();regions();warpWorkflow();std::cout<<"stretch_state_checks="<<checks<<" raw_anchor_retained=true split_crop_rerender=true undo_redo=true unity_identity=true legacy_r3_preserved=true nominal_region_map=true schema=1.15\n";return 0;
+    workflow();persistence();unityIdentity();regions();firstWarpEndpoint();warpWorkflow();std::cout<<"stretch_state_checks="<<checks<<" raw_anchor_retained=true split_crop_rerender=true undo_redo=true unity_identity=true legacy_r3_preserved=true nominal_region_map=true schema=1.15\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

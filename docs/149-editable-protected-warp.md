@@ -31,6 +31,13 @@ the old derivative as raw input. Fade envelopes remain affine, clip-relative
 shapes retimed by new visible length / old visible length, with signed exact
 floor/ceiling anchors; they are not raw-position warp envelopes.
 
+For a first warp, the original clip's exact source map defines its visible end.
+The prepared raw buffer may round upward to cover a partial physical frame;
+that rounded buffer extent does not enlarge the visible interval. Independent
+44.1/48 kHz and linked 3/2 or 5/4 rate fixtures preserve an 8,193-frame identity
+interval, and use separately calculated nonlinear length oracles. The identity
+regression fails before the endpoint fix; persistence and Undo/Redo preserve it.
+
 ## Explicit first-mode limits
 
 The processor identity is

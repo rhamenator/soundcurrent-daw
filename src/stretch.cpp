@@ -251,6 +251,13 @@ void adoptClipStretch(Session &s,const ApplyClipStretch &e) {
     if(nonlinear){
         SourcePosition rawBegin{0,0,1},rawEnd{e.value.sourceFrames,0,1};
         if(c.stretch){const auto oldMap=clipSourceMap(c,find(s.assets,c.assetId).sampleRate,s.sampleRate);auto end=oldMap.at(c.lengthFrames);if(sourcePositionLess(previous.visibleEnd,end))end=previous.visibleEnd;rawBegin=stretchOutputToSource(*c.stretch,oldMap.at(0));rawEnd=stretchOutputToSource(*c.stretch,end);}
+        else {
+            const auto oldMap=clipSourceMap(c,e.source.sampleRate,s.sampleRate);
+            const auto exactEnd=subtractSourcePosition(oldMap.at(c.lengthFrames),oldMap.at(0));
+            // Preparation rounds its buffer upward; preserve the original
+            // visible interval independently of that owned buffer extent.
+            if(sourcePositionLess(exactEnd,rawEnd))rawEnd=exactEnd;
+        }
         origin=stretchSourceToOutput(e.value,rawBegin);const auto end=stretchSourceToOutput(e.value,rawEnd);
         auto duration=subtractSourcePosition(end,origin);duration=scaleSourcePosition(duration,std::uint64_t(s.sampleRate)*c.playbackRate.denominator,std::uint64_t(e.rendered.sampleRate)*c.playbackRate.numerator);
         require(duration.frame<INT64_MAX || !duration.fraction,"Warped clip duration overflow");mappedLength=duration.frame+Frame(duration.fraction!=0);
