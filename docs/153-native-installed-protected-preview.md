@@ -14,8 +14,12 @@ installed protected-marker workflow on the separate acceptance clone.
 [Retained observations and scope](../tests/results/M2/2026-10-10-windows-protected-preview/README.md)
 pin original source/tree, requests, protocol packets, real exits, float WAVs,
 installed module paths, package/source identities and actual saved project states.
-The retained inspector passes 882 checks and 12 altered-claim/content refusals;
+The retained inspector passes 959 checks and 17 altered-claim/content refusals;
 CI inspects the capsule without executing its scripts or replaying native audio.
+Review-driven checks directly bind each request/completion map to its claimed
+profile and each installed completion to persisted controls. Seventeen refusals
+include altered request/completion markers with recomputed archive hashes and
+floating-point duration fields.
 
 | Acceptance workflow | Actual result | Limit |
 | --- | --- | --- |

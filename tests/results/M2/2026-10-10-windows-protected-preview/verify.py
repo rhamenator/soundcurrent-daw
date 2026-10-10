@@ -22,6 +22,29 @@ EXPECTED=frozenset(['controls/capture.ps1', 'controls/history.ps1', 'controls/re
 def safe(name):
     check('\\' not in name and ':' not in name and not name.startswith('/') and '..' not in PurePosixPath(name).parts,'Safe captured path')
     check(PurePosixPath(name).name not in ('private-transport.json','receiver-private.json') and PurePosixPath(name).suffix.lower() not in ('.exe','.dll','.msi'),'No secret or product executable capture')
+def strict(a,b):
+    # Python otherwise equates True/1 and 3/3.0, unlike this protocol contract.
+    if type(a) is not type(b):return False
+    if isinstance(a,dict):return a.keys()==b.keys() and all(strict(a[k],b[k]) for k in a)
+    if isinstance(a,list):return len(a)==len(b) and all(strict(x,y) for x,y in zip(a,b))
+    return a==b
+def bind_request(q,c):
+    fields=('protocol','processor','operation','assetId','relative','rate','channels','sourceFrames','first','firstFraction','firstDenominator','frames','pitchMilliCents','formantPreserved','warp')
+    check(all(k in c and strict(q[k],c[k]) for k in fields) and strict(q['sha256'],c['sourceSha256']),'Native request/completion geometry binding')
+    check(type(q['timeNumerator']) is int and type(q['timeDenominator']) is int and q['timeNumerator']>0 and q['timeDenominator']>0 and q['contextEnabled'] is False and q['contextBefore']==q['contextAfter']==0,'Native requested duration/context controls')
+    target=(q['frames']*q['timeNumerator']+q['timeDenominator']-1)//q['timeDenominator']
+    check(type(c['target']) is int and c['target']==c['writtenFrames']==target and c['sourceAlgorithm']=='soundcurrent.src-positioned-best-v1','Native exact duration/source timing binding')
+def expected_warp(outputs):
+    source_positions=[4096,12288,20480,28672]
+    markers=[];spans=[];points=[{'source':[0,0,1],'output':[0,0,1]}]
+    for i,(x,y) in enumerate(zip(source_positions,outputs)):
+        owner=f'00000000-0000-0000-0000-{i+1:012x}'
+        markers.append({'id':owner,'source':[x,0,1],'output':[y,0,1]})
+        spans.append({'owner':owner,'sourceBegin':[x-256,0,1],'sourceAnchor':[x,0,1],'sourceEnd':[x+2048,0,1],'outputBegin':[y-256,0,1],'outputAnchor':[y,0,1],'outputEnd':[y+2048,0,1]})
+        points.extend([{'source':[x-256,0,1],'output':[y-256,0,1]},{'source':[x,0,1],'output':[y,0,1]},{'source':[x+2048,0,1],'output':[y+2048,0,1]}])
+    target=32768 if outputs==source_positions else 49152
+    points.append({'source':[32768,0,1],'output':[target,0,1]})
+    return {'mode':'transient-protected-v1','before':256,'after':2048,'halo':64,'minimumNonunityGap':64,'chunkFrames':512,'map':'soundcurrent.warp-piecewise-rational-v1','markers':markers,'spans':spans,'points':points}
 manifest=decode((root/'manifest.json').read_bytes())
 check(manifest['format']=='sc-windows-protected-preview-observation-v1','Observation format')
 check(manifest['sourceCommit']==COMMIT and manifest['sourceTree']==TREE,'Exact retained source')
@@ -58,6 +81,7 @@ for w in v5['workers']:
     check(w['pid']>0 and w['request']['protocol']=='sc-stretch-render-v5','Owned v5 process/request')
     if w['exit']==0:
         check(w['ready']['operation']==w['request']['operation'] and len(w['completion'])==1 and w['completion'][0]['complete'] and w['completion'][0]['operation']==w['request']['operation'],'Actual ready/completion identity')
+        bind_request(w['request'],w['completion'][0])
     else:
         check(not w['completion'] and (w['ready'] is None or w['ready']['operation']==w['request']['operation']) and not decode(w['stderr'].encode())['publicationMayHaveCommitted'],'Expected prepublication refusal')
 check(len(v5['comparisons'])==18 and all(c['allPcmEqual'] and c['prototypePcmSha256']==c['workerPcmSha256'] for c in v5['comparisons']),'Native reported whole PCM comparisons')
@@ -93,6 +117,11 @@ profiles=[]
 for profile in ('identity','uniform','nonuniform'):
     base='native/'+profile+'/'
     request=bound(base+'request.json');terminal=bound(base+'terminal.json');complete=read(base+'complete.json')
+    q=request['request'];bind_request(q,complete)
+    outputs={'identity':[4096,12288,20480,28672],'uniform':[6144,18432,30720,43008],'nonuniform':[6144,16384,32768,43008]}[profile]
+    expected={'rate':48000,'channels':2,'sourceFrames':32768,'first':0,'firstFraction':0,'firstDenominator':1,'frames':32768,'timeNumerator':1 if profile=='identity' else 3,'timeDenominator':1 if profile=='identity' else 2,'pitchMilliCents':0,'formantPreserved':True,'contextEnabled':False,'contextBefore':0,'contextAfter':0}
+    check(all(strict(q[k],v) for k,v in expected.items()) and strict(q['warp'],expected_warp(outputs)),'Exact claimed native profile geometry')
+
     check(request['workerSha256']==terminal['workerSha256']==WORKER and request['observerSha256']==terminal['observerSha256']==sha(files['native/observer.py']) and request['producerSha256']==sha(files['native/producer.py']),'Actual observer/producer/binary provenance')
     check(terminal['exitCode']==0 and terminal['exitCodeHex']=='00000000' and terminal['pid']>0 and terminal['seconds']<1 and not terminal['observationTimedOut'] and not terminal['outputLimited'] and not terminal['retirementPending'] and not terminal['inputError'],'Actual bounded v5 terminal')
     packets=[json.loads(s) for s in files[base+'worker.stdout'].decode().splitlines() if s.strip()]
@@ -155,8 +184,11 @@ stretch=clip(opened)['stretch'];marker=stretch['warp']['markers']
 check(clip(opened)['lengthFrames']==49152 and stretch['settings']=={'formantPreserved':True,'pitchMilliCents':0,'timeDenominator':2,'timeNumerator':3} and len(marker)==1 and marker[0]['source']==[4096,0,1] and marker[0]['output']==[6144,0,1],'Exact persisted protected controls')
 check(first[raw_name]==second[raw_name]==setup[raw_name] and sha(first[raw_name])==stretch['sourceSha256'],'Untouched retained original source')
 job='project-été-Κиїв/media/derived/'+clip(opened)['assetId']+'/'
+check(first[job+'complete.json']==second[job+'complete.json'] and first[job+'audio.wav']==second[job+'audio.wav'],'Retained artifact unchanged across installed reopen')
 complete=decode(first[job+'complete.json']);data,values=pcm(first[job+'audio.wav']);export,ev=pcm(first[mix]);repeat,rv=pcm(second[mix])
 check(complete['protocol']=='sc-stretch-render-v5' and complete['complete'] and complete['renderKey']==stretch['renderKey'] and complete['sampleSha256']==sha(data),'Installed complete artifact/selection binding')
+check(strict(complete['warp'],stretch['warp']) and complete['processor']==stretch['processor'] and complete['assetId']==stretch['sourceAssetId'] and complete['sourceSha256']==stretch['sourceSha256'] and complete['sourceFrames']==32768 and complete['frames']==stretch['sourceFrames']==32768 and complete['first']==stretch['sourceOrigin']['frame']==0 and complete['firstFraction']==stretch['sourceOrigin']['fraction']==0 and complete['firstDenominator']==stretch['sourceOrigin']['denominator']==1 and complete['sourceAlgorithm']==stretch['sourceOrigin']['algorithm'] and strict(complete['pitchMilliCents'],stretch['settings']['pitchMilliCents']) and strict(complete['formantPreserved'],stretch['settings']['formantPreserved']) and complete['rate']==48000 and complete['channels']==2 and complete['target']==complete['writtenFrames']==clip(opened)['lengthFrames']==49152,'Installed completion/persisted geometry binding')
+
 check(len(data)==len(export)==49152*8 and values==ev==rv and export==repeat and max(map(abs,values))==max(map(abs,ev))==1.5,'Whole installed exported PCM values/headroom and repeated export')
 # Mixing accumulation turns -0 into +0; no nonzero sample differs.
 zero_sign_changes=sum(x!=y for x,y in zip(struct.iter_unpack('<I',data),struct.iter_unpack('<I',export)))

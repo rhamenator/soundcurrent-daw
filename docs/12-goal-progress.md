@@ -1193,7 +1193,7 @@ b18b0a6, is not an engine input and leaves all62native source/binary/library pin
 unchanged. No timeout-based restarts or CPU experiments overlap the native run.
 
 Sink skips2048frames betweencycles183967and183970 around447.32audio seconds.
-Owner25.097698mswall/25.095800msCPU atfirstmissedcycle starts17.261859msaftercycle,
+Owner25.097698mswall/25.095900msCPU atfirstmissedcycle starts17.261859msaftercycle,
 ends42.359557ms. Source8.394433mswall/8.391981msCPU shares that clock, starts4.633199ms
 late. Both outlierfaults/switches0; ownerreported24.019msuser/1.074mssystem. Matching
 stage snapshot raw5.806479msCPU,EQdrivers18.350076msCPU,inclusivemix19.171763msCPU.
@@ -1325,7 +1325,7 @@ handle terminated before inspecting/correcting expectations. Written568/committe
 512 and retained56-frame suffix are now explicit, with capture reason separate
 from checkpoint reason. No durability implementation/threshold was changed.
 
-All build handles46048/71296/10236/99585/6667/49559 and tests68412/18184/97512 are
+All build handles46048/71296/10236/99595/6667/49559 and tests68412/18184/97512 are
 terminal before subsequent source changes. Full Linux Debug29/29 passes46.81s;
 Release oracle passes25partition/boundary workflows and zero RT violations.
 Linux Debug/SAN/Release and Windows headless core/tests all compile/link.
@@ -2808,7 +2808,7 @@ X004/X005/X006/Europe gates remain open; the full goal stays active.
 ## 2026-10-08: bounded input-start observation after local preview delivery
 
 Protected PR37 merged the installed normal-workflow source/evidence as
-`bd7e547c9a1b95832d3631574949809f73746375`, with identical tested tree. Required
+`bd7e547c9a1b95932d3631574949809f73746375`, with identical tested tree. Required
 hosted Linux passes 59/59 in139.99s; Windows core cross-build passes only. A new
 ZIP/bundle restores that exact main tree, full Git fsck and every source byte.
 No Windows transfer or release upload was performed.
@@ -3792,8 +3792,8 @@ retains scope and original source/binary identities. The new local unsigned
 Windows preview has an actual SDK-free side-by-side install, protected render,
 UI guard, Prepare/Stop, saved Apply/Undo/Redo, Unicode fresh-process reopen and
 repeat export. Both exports preserve 49,152 stereo sample values and 1.5 headroom;
-derivative/export differ only at signed zeros. Retained inspection passes 882
-checks plus 12 meaningful refusals. Existing clone/runtime acceptance is not
+derivative/export differ only at signed zeros. Retained inspection passes 959
+checks plus 17 meaningful refusals. Existing clone/runtime acceptance is not
 pristine installation or physical audio qualification. No product release upload;
 all VMs are stopped. Next: parent-owned rendered-job restart inventory/review with
 stale-target guards, followed by independent native/installed acceptance. Full

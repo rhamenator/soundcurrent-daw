@@ -27,6 +27,12 @@ cases={
     'undo':'Saved actual Apply/Undo/Redo/reopen states',
     'marker':'Exact persisted protected controls',
     'export-samples':'Whole installed exported PCM values/headroom and repeated export',
+    'native-request-marker':'Native request/completion geometry binding',
+    'native-profile':'Exact claimed native profile geometry',
+    'duration-type':'Native requested duration/context controls',
+    'installed-completion-marker':'Installed completion/persisted geometry binding',
+    'installed-completion-pitch':'Installed completion/persisted geometry binding',
+
 }
 for case,expected in cases.items():
     with tempfile.TemporaryDirectory(prefix='sc-win-retained-refusal-') as td:
@@ -39,6 +45,16 @@ for case,expected in cases.items():
         elif case=='native-head':change_json(files,'native/source-before.json',lambda d:d.update(sourceCommit='0'*40))
         elif case=='lost-terminal':change_json(files,'native/uniform/terminal.json',lambda d:d.update(exitCode=None,retirementPending=True))
         elif case=='installer-source':change_json(files,'package/receipt.json',lambda d:d.update(sourceHead='0'*40))
+        elif case in ('native-request-marker','native-profile','duration-type'):
+            request='native/nonuniform/request.json'
+            if case=='duration-type':change_json(files,request,lambda d:d['request'].update(timeDenominator=2.0))
+            else:
+                def update(d):d['request']['warp']['markers'][1]['output'][0]=18432
+                change_json(files,request,update)
+                if case=='native-profile':
+                    def update(d):d['warp']['markers'][1]['output'][0]=18432
+                    change_json(files,'native/nonuniform/complete.json',update)
+
         else:
             name='installed/cceed-history.zip' if case=='undo' else 'installed/diagnostic2.zip' if case=='fresh-os' else 'installed/closed-20261010125851896.zip'
             with ZipFile(BytesIO(files[name])) as z:inner={n:z.read(n) for n in z.namelist()}
@@ -65,6 +81,15 @@ for case,expected in cases.items():
                             change_json(content,n,update)
                     files[outer]=packed(content)
                 inner=None
+            elif case in ('installed-completion-marker','installed-completion-pitch'):
+                for outer in ['installed/closed-20261010124948390.zip','installed/closed-20261010125851896.zip']:
+                    with ZipFile(BytesIO(files[outer])) as z:content={n:z.read(n) for n in z.namelist()}
+                    n=next(n for n in content if n.replace('\\','/').endswith('/complete.json'))
+                    def update(d):
+                        if case=='installed-completion-marker':d['warp']['markers'][0]['output'][0]=8192
+                        else:d['pitchMilliCents']=500
+                    change_json(content,n,update);files[outer]=packed(content)
+                inner=None
             elif case=='export-samples':
                 n=named('project-été-Κиїв-mix.wav');raw=bytearray(inner[n]);at=12
                 while at+8<=len(raw):
@@ -81,4 +106,4 @@ for case,expected in cases.items():
         p=subprocess.run([sys.executable,str(target/'verify.py')],capture_output=True,text=True,timeout=30)
         assert p.returncode!=0 and expected in p.stderr,(case,p.returncode,p.stderr)
         print(case+': refused for '+expected)
-print('windows_protected_preview_refusals: 12 meaningful negative cases; no native replay')
+print('windows_protected_preview_refusals: 17 meaningful negative cases; no native replay')

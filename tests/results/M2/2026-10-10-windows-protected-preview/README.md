@@ -91,7 +91,7 @@ exact source/binary/observer/producer bindings, actual protocol and process exit
 whole retained WAVs, deployment source/payload receipts, Undo/Redo/reopen states,
 installed DLL paths and signed-zero-only export differences. The full bank report
 is retained, but its other generated media are not independently replayed here.
-`refusals.py` rejects 12 meaningful altered-content/claim cases, including changed
+`refusals.py` rejects 17 meaningful altered-content/claim cases, including changed
 PCM after recalculating archive/member hashes. Verification is not native replay.
 
 ```sh
