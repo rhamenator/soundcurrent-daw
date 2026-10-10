@@ -3927,3 +3927,23 @@ rules removed. Next: actual-parent interruption probes and production recovery
 on Linux, then Windows, followed by resumable larger inventories. Broad M2 quality,
 power-loss/scalability, M2–M11, X004/X005, all-Europe, content and native compatibility
 remain open. Full scope and separate F/Q/C/N gates remain intact; goal stays active.
+
+## Linux actual-parent interruption checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: installed Windows recovery guards, corrected
+UTF-8 fixture refusal and control-side Prepare/Stop passed with four normal exits.
+PR100 carries that evidence through ordinary protected review; attachment creation
+hit the chat's 100-attachment limit, without affecting its GitHub existence.
+
+[Checkpoint160](160-linux-parent-interruption.md) implements a production-controller
+subprocess probe and four actual Linux interruption workflows. A targeted Release
+CTest passed; retained observations independently qualify Active exclusion,
+Incomplete intent/partial retention and Ready review after parent death, including
+an orphan that commits before SIGPIPE. No automatic helper termination claim.
+Saved project/raw hashes remain unchanged; unity-copy results preserve float peak
+2.0. Initial relative-root operator refusal remains recorded. No VM or endpoint.
+
+Next: native Windows actual-parent interruption, then installed GUI interruption
+on both platforms and bounded resumable inventories. These, broad M2 quality,
+power-loss/scalability, M2–M11, X004/X005, all-Europe and separate F/Q/C/N gates
+remain open. Product uploads remain unauthorized; full goal active and incomplete.
