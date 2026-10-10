@@ -3695,7 +3695,7 @@ Full F/Q/C/N/all-Europe and all completion requirements remain active/incomplete
 PR87 merged normally as a08eb0e; full DAW goal remains ACTIVE and incomplete.
 [Checkpoint147](147-anchored-stretch-candidate.md) implements an original exact
 scheduler over a source-pinned alternative, with contract/analyzer frozen before
-24 actual terminal renders. Full source/generated/trimmed PCM retained;20,896
+24 actual terminal renders. Full source/generated/trimmed PCM retained;20,907
 inspection checks. Impulse timing passes selected diagnostics; nonunity attacks
 fail (<48-frame gate versus maximum146.5), group arrival changes reach1frame,
 cancellation/phase and pre-echo diagnostics remain unqualified. No shipping

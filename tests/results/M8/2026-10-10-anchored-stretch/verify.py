@@ -52,8 +52,13 @@ with zipfile.ZipFile(archive) as z:
  for file in sourceReview['files']:
   folder='signalsmith-stretch' if file['repository'].endswith('/signalsmith-stretch') else 'linear';data=z.read('candidate-source/'+folder+'/'+file['path']);check(sha(data)==file['sha256'] and len(data)==file['bytes'],'Reviewed primary source hash')
   check(hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==file['gitBlob'],'Primary git blob identity')
+  if file['path'].endswith(('.h','.txt')):
+   matches=[value for path,value in preflight['files'].items() if path.endswith('/'+folder+'/'+file['path'])]
+   check(len(matches)==1 and matches[0]==sha(data),'Build-time candidate source/license binding')
  for file in get('candidate-source/include-layout.json')['exactTrackedIncludeFiles']:
   data=z.read('candidate-source/linear/'+file['path']);check(sha(data)==file['sha256'] and data.decode()==file['text'],'Exact include wrapper')
+  matches=[value for path,value in preflight['files'].items() if path.endswith('/linear/'+file['path'])]
+  check(len(matches)==1 and matches[0]==sha(data),'Build-time include wrapper binding')
  expectedRequests=[{'family':family,'profile':profile,'block':block} for family in ['impulse','attack','sustain','cancellation'] for profile in ['identity','uniform','nonuniform'] for block in [97,512]]
  check([r['request'] for r in records]==expectedRequests and [r['id'] for r in records]==list(range(24)),'Complete frozen matrix')
  waves={};pcm={}
