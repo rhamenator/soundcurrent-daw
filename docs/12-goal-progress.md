@@ -4045,3 +4045,11 @@ page/model references; unrelated newer scans/renders are preserved. New tests
 measure exact resource return and a deliberately held newer render during stale
 UI Close. Original paging evidence/source identity remains separate; qualify
 this corrected head through fresh protected gates before merge.
+
+PR104/105 Linux CI refused an out-of-date localization source inventory after
+the paging UI changes. Regenerate with actual Qt Linguist, adding seven keys and
+superseding two. All28,866 existing shared translation entries/comments across34
+catalogs are preserved; new non-English entries remain unfinished and catalog
+review/status is unchanged. Four focused catalog/localization/stretch UI tests
+now pass locally (UI283 checks). Fresh current-head protected gates remain
+required; no language completeness claim is added.
