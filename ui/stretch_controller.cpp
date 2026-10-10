@@ -11,6 +11,7 @@
 #include <QWaitCondition>
 #include <array>
 #include <chrono>
+#include <limits>
 namespace soundcurrent::daw::ui {
 namespace {
 void check(bool good,const char *message,ErrorCode code=ErrorCode::InvalidState){if(!good)throw ProjectError(code,message);}
@@ -34,6 +35,7 @@ struct StretchController::State : QThread {
     std::optional<Id> reviewOperation;
     std::stop_source stop;
     bool busy=false,closing=false,continueScan=false,retireScan=false,cursorAvailable=false;
+    std::uint64_t nextRecoveryId=0;
     StretchSnapshot view;
     std::shared_ptr<const StretchSnapshot> latest=std::make_shared<const StretchSnapshot>();
     explicit State(StretchOptions value):options(std::move(value)) {
@@ -170,6 +172,7 @@ struct StretchController::State : QThread {
             if(!selection && !recovery){
                 QMutexLocker lock(&mutex);
                 if(!busy && latest->recoveryPage){auto canceled=*latest;canceled.inventory.reset();canceled.recoveryPage.reset();canceled.inventoryProject.reset();canceled.phase=StretchPhase::Canceled;canceled.canceled=true;canceled.error=ErrorCode::Canceled;latest=std::make_shared<const StretchSnapshot>(std::move(canceled));}
+                view=*latest; // Retire the worker's previous page/model references too.
                 continue;
             }
             try {
@@ -226,6 +229,9 @@ Admission StretchController::recover(std::shared_ptr<const ControllerSnapshot> p
         old->inventoryProject->root==project->root && old->inventoryProject->session==project->session,
         "Recovery scan expired or belongs to a different project snapshot");
     StretchSnapshot view;view.phase=StretchPhase::Queued;view.busy=true;view.inventoryPage=operation?0:continuation?old->inventoryPage+1:1;
+    if(continuation)view.recoveryId=old->recoveryId;
+    else {check(state_->nextRecoveryId<std::numeric_limits<std::uint64_t>::max(),"Recovery request ID exhausted");view.recoveryId=++state_->nextRecoveryId;}
+    view.inventoryProject=project;
     auto published=std::make_shared<const StretchSnapshot>(std::move(view));std::stop_source prepared;
     state_->stop=std::move(prepared);state_->queuedRecovery=std::move(project);state_->reviewOperation=std::move(operation);state_->continueScan=continuation;
     state_->busy=true;state_->cursorAvailable=false;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;
@@ -234,6 +240,10 @@ Admission StretchController::scan(std::shared_ptr<const ControllerSnapshot> proj
 Admission StretchController::nextScanPage(std::shared_ptr<const ControllerSnapshot> project){return recover(std::move(project),{},true);}
 Admission StretchController::review(std::shared_ptr<const ControllerSnapshot> project,Id op){return recover(std::move(project),std::move(op));}
 void StretchController::requestCancel() noexcept {QMutexLocker lock(&state_->mutex);state_->cursorAvailable=false;state_->retireScan=true;if(state_->busy)state_->stop.request_stop();state_->wake.wakeOne();}
+bool StretchController::requestRecoveryCancel(std::uint64_t id) noexcept {
+    QMutexLocker lock(&state_->mutex);if(!id || state_->latest->recoveryId!=id)return false;
+    state_->cursorAvailable=false;state_->retireScan=true;if(state_->busy)state_->stop.request_stop();state_->wake.wakeOne();return true;
+}
 void StretchController::requestShutdown() noexcept {QMutexLocker lock(&state_->mutex);state_->closing=true;state_->cursorAvailable=false;state_->stop.request_stop();state_->wake.wakeOne();}
 std::shared_ptr<const StretchSnapshot> StretchController::snapshot() const {QMutexLocker lock(&state_->mutex);return state_->latest;}
 bool StretchController::clearResult(){QMutexLocker lock(&state_->mutex);if(state_->busy || state_->closing)return false;

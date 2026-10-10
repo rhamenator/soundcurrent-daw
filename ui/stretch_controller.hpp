@@ -30,6 +30,7 @@ struct StretchSnapshot {
     std::shared_ptr<const StretchRecoveryPage> recoveryPage;
     std::shared_ptr<const ControllerSnapshot> inventoryProject;
     std::size_t inventoryPage=0;
+    std::uint64_t recoveryId=0;
 };
 struct StretchOptions {
     ResourceLedger memory{512*1024*1024,"Background stretch"};
@@ -50,6 +51,9 @@ class StretchController {
     Admission nextScanPage(std::shared_ptr<const ControllerSnapshot>);
     Admission review(std::shared_ptr<const ControllerSnapshot>,Id operation);
     void requestCancel() noexcept;
+    // Scoped to a recovery dialog/request; never cancels a newer recovery or
+    // render. A terminal Review result is preserved for explicit Apply.
+    bool requestRecoveryCancel(std::uint64_t recoveryId) noexcept;
     void requestShutdown() noexcept;
     bool clearResult();
     std::shared_ptr<const StretchSnapshot> snapshot() const;
