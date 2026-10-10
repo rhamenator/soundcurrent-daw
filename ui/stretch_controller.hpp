@@ -27,6 +27,9 @@ struct StretchSnapshot {
     bool busy=false,closed=false,canceled=false,timedOut=false,abnormalExit=false;
     bool recovered=false;
     std::shared_ptr<const std::vector<StretchRecoveryEntry>> inventory;
+    std::shared_ptr<const StretchRecoveryPage> recoveryPage;
+    std::shared_ptr<const ControllerSnapshot> inventoryProject;
+    std::size_t inventoryPage=0;
 };
 struct StretchOptions {
     ResourceLedger memory{512*1024*1024,"Background stretch"};
@@ -44,6 +47,7 @@ class StretchController {
     ~StretchController();
     Admission render(std::shared_ptr<const ControllerSnapshot>,Id track,Id clip,StretchSettings,std::optional<StretchContext> = {},const std::optional<WarpSettings> & = {});
     Admission scan(std::shared_ptr<const ControllerSnapshot>);
+    Admission nextScanPage(std::shared_ptr<const ControllerSnapshot>);
     Admission review(std::shared_ptr<const ControllerSnapshot>,Id operation);
     void requestCancel() noexcept;
     void requestShutdown() noexcept;
@@ -52,6 +56,6 @@ class StretchController {
  private:
     struct State;
     std::unique_ptr<State> state_;
-    Admission recover(std::shared_ptr<const ControllerSnapshot>,std::optional<Id>);
+    Admission recover(std::shared_ptr<const ControllerSnapshot>,std::optional<Id>,bool continuation=false);
 };
 } // namespace soundcurrent::daw::ui

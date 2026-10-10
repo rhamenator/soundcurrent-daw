@@ -4022,3 +4022,16 @@ removed. No driver/host route/equalizer change, product rebuild or upload.
 Next: bounded resumable recovery inventories. Additional boundaries/selection
 properties, M2 quality, power-loss/scalability, M2–M11/X004/X005/all-Europe and
 separate F/Q/C/N goals remain open; full goal stays active and incomplete.
+
+## 2026-10-10: bounded retained-render inventory pages
+
+[Checkpoint164](164-resumable-render-recovery.md) adds an explicit Next page
+workflow with original128-entry/8MiB per-page bounds and worker-owned cursor
+retirement. Directory changes, cancellation and changed project snapshots expire
+continuation. Review still verifies before explicit Apply. Linux synthetic/core
+and offscreen Qt workflows pass, including259 directory entries, byte-limited
+pages and129-row UI pagination. Invalid generated jobs are not a many-completed-
+render quality/throughput qualification. Windows paging remains pending native
+CI and installed UI evidence. New publication still retains its whole-directory
+128-entry/8MiB ceiling; a bounded publication/index design is the next task.
+Full goal remains active/incomplete; no VM or audible route used for this step.

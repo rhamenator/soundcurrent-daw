@@ -13,6 +13,10 @@ struct ApprovedMediaFileState;
 struct ApprovedMediaLimits {
     std::size_t maximumOpenFiles = 32;
 };
+struct ApprovedDirectoryStamp {
+    std::array<std::uint64_t,7> identity{};
+    bool operator==(const ApprovedDirectoryStamp &) const = default;
+};
 // Control/I/O only. A root and its files have one serialized caller, including
 // retirement. No Qt, audio callbacks, implicit root selection or foreign code.
 // Files keep the approved directory handle/credit alive beyond its facade.
@@ -57,6 +61,9 @@ class ApprovedMediaRoot {
     ApprovedMediaFile openSelectedFilename(const std::filesystem::path &basename,
         std::uint64_t maximumBytes,std::stop_token = {}) const;
     std::size_t openFiles() const;
+    // Control-side directory entry identity/change stamp, read from the owned
+    // handle. Not a digest of file contents; those still need verification.
+    ApprovedDirectoryStamp directoryStamp() const;
   private:
     std::shared_ptr<ApprovedMediaRootState> state_;
     ApprovedMediaFile openImpl(std::string_view,std::uint64_t,std::stop_token,bool selectedLeaf) const;

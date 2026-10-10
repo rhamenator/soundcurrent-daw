@@ -5,6 +5,7 @@
 #include <soundcurrent/mix_reader.hpp>
 #include <soundcurrent/wave_validation.hpp>
 #include "rt_audit.hpp"
+#include "media_io.hpp"
 #include <array>
 #include <algorithm>
 #include <QApplication>
@@ -116,6 +117,24 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             check(list->item(0)->text().contains("Already attached") && !window.findChild<QPushButton *>("reviewRetainedStretch")->isEnabled(),"Attached job was offered for adoption again");
             window.findChild<QDialog *>("stretchRecoveryDialog")->close();window.close();wait([&]{return !window.isVisible();});
         }
+    }
+    {
+        const auto pagedRoot=base/utf8Path("pages-ui-été-Κиїв");const auto saved=fixture(pagedRoot);
+        const auto directory=pagedRoot/"media"/"stretch-selections";std::filesystem::create_directory(directory);
+        {media_io::JobLease marker(directory,true);check(marker.status()==media_io::LeaseStatus::Held,"Cannot create UI page fixture");}
+        for(unsigned i=0;i<129;++i){std::ofstream out(directory/(Id::generate().str()+".json"));out<<"{bad";out.close();check(bool(out),"Cannot write UI inventory fixture");}
+        StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.show();window.openProject(pagedRoot);
+        wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});check(window.scanStretchRenders(),"UI page scan refused");
+        auto *list=window.findChild<QListWidget *>("stretchRecoveryList");auto *next=window.findChild<QPushButton *>("nextStretchRecoveryPage");
+        auto *review=window.findChild<QPushButton *>("reviewRetainedStretch");
+        wait([&]{return list && list->count()==128 && next && next->isEnabled();});list->setCurrentRow(0);QTest::qWait(110);
+        check(!review->isEnabled() && window.stretchSnapshot()->inventoryPage==1,"Invalid first-page job reviewable");
+        next->click();wait([&]{return list->count()==1 && window.stretchSnapshot()->inventoryPage==2 && !next->isEnabled();});
+        check(!review->isEnabled() && *window.snapshot()->session==saved && !window.snapshot()->dirty,"UI continuation edited project or admitted invalid result");
+        window.findChild<QDialog *>("stretchRecoveryDialog")->close();wait([&]{return window.stretchSnapshot()->canceled;});
+        check(!window.stretchSnapshot()->recoveryPage,"Closing recovery retained page cursor state");
+        check(window.scanStretchRenders(),"Closed inventory could not be reopened");wait([&]{return window.stretchSnapshot()->inventoryPage==1 && !window.stretchSnapshot()->busy;});
+        window.findChild<QDialog *>("stretchRecoveryDialog")->close();window.close();wait([&]{return !window.isVisible();});
     }
     {
         StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.resize(1280,720);window.show();window.openProject(root);

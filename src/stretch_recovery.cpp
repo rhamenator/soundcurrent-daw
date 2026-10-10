@@ -196,4 +196,73 @@ std::vector<StretchRecoveryEntry> inventoryStretchSelections(const std::filesyst
     std::vector<StretchRecoveryEntry> result;result.reserve(ids.size());
     for(const auto &op:ids){poll(stop);result.push_back(inspectStretchSelection(root,s,op,ledger,l,stop));}return result;
 }
+struct StretchRecoveryScan::State {
+    ResourceLease lease;
+    ResourceLedger ledger;
+    std::filesystem::path root,directory;
+    std::shared_ptr<const Session> session;
+    StretchRecoveryLimits bounds;
+    std::unique_ptr<ApprovedMediaRoot> entries;
+    ApprovedDirectoryStamp initial;
+    std::filesystem::directory_iterator cursor;
+    bool started=false,done=false,failed=false;
+    State(const std::filesystem::path &r,const Session &s,ResourceLedger bank,StretchRecoveryLimits l)
+        :lease(bank.reserve(65536)),ledger(bank),root(r),directory(r/"media"/"stretch-selections"),
+         session(SessionSnapshots(bank).copy(s)),bounds(l) {}
+    void unchanged() {
+        media_io::plainDirectory(root/"media");media_io::plainDirectory(directory);
+        ApprovedMediaRoot current(directory,ledger,{1});
+        check(entries->directoryStamp()==initial && current.directoryStamp()==initial,
+            "Render inventory changed; restart the scan");
+    }
+    StretchRecoveryPage page(std::stop_token stop) {
+        check(!failed,"Render inventory cursor expired; restart the scan");poll(stop);
+        ApprovedMediaRoot projectRoot(root,ledger,{1});
+        StretchRecoveryPage result;
+        if(done)return result;
+        if(!started && !std::filesystem::exists(std::filesystem::symlink_status(directory))){done=true;return result;}
+        media_io::plainDirectory(root/"media");media_io::plainDirectory(directory);
+        // Shared only during this page. A publisher can proceed while the user
+        // reviews the page; its directory change invalidates continuation.
+        media_io::JobLease publication(directory,false);
+        check(publication.status()==media_io::LeaseStatus::Held,"Render selection inventory is busy or unowned",ErrorCode::Io);
+        if(!started){
+            entries=std::make_unique<ApprovedMediaRoot>(directory,ledger,ApprovedMediaLimits{1});
+            initial=entries->directoryStamp();cursor=std::filesystem::directory_iterator(directory);started=true;
+        }
+        unchanged();
+        result.lease=ledger.reserve(bounds.maximumEntries*8192);
+        std::vector<Id> ids;ids.reserve(bounds.maximumEntries);
+        while(cursor!=std::filesystem::directory_iterator{}){
+            poll(stop);const auto name=cursor->path().filename();
+            if(name=="writer.lock"){++cursor;continue;}
+            if(result.examined==bounds.maximumEntries)break;
+            auto file=entries->openSelectedFilename(name,bounds.maximumManifestBytes,stop);
+            const auto size=std::size_t(file.size());file.verifyUnchanged();
+            if(size>bounds.maximumTotalBytes-result.manifestBytes)break;
+            ++result.examined;result.manifestBytes+=size;
+            const auto bytes=name.u8string();const std::string token(reinterpret_cast<const char *>(bytes.data()),bytes.size());
+            if(token.size()==41 && token.substr(36)==".json"){
+                try{ids.emplace_back(token.substr(0,36));}
+                catch(const ProjectError &e){if(e.code()!=ErrorCode::InvalidId)throw;}
+            }
+            ++cursor;
+        }
+        std::sort(ids.begin(),ids.end(),[](const auto &a,const auto &b){return a.str()<b.str();});
+        result.entries.reserve(ids.size());
+        for(const auto &op:ids){poll(stop);unchanged();result.entries.push_back(inspectStretchSelection(root,*session,op,ledger,bounds,stop));}
+        poll(stop);unchanged();result.hasMore=cursor!=std::filesystem::directory_iterator{};
+        done=!result.hasMore;return result;
+    }
+};
+StretchRecoveryScan::StretchRecoveryScan(const std::filesystem::path &root,const Session &s,ResourceLedger ledger,StretchRecoveryLimits l) {
+    limits(l);check(root.is_absolute() && root.native().size()<=4096 &&
+        root.native().find(std::filesystem::path::value_type(0))==root.native().npos,"Invalid render inventory root");
+    state_=std::make_unique<State>(root,s,ledger,l);
+}
+StretchRecoveryScan::~StretchRecoveryScan()=default;
+StretchRecoveryPage StretchRecoveryScan::next(std::stop_token stop) {
+    try{return state_->page(stop);}
+    catch(...){state_->failed=true;state_->cursor={};state_->entries.reset();throw;}
+}
 } // namespace soundcurrent::daw
