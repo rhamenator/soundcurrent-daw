@@ -84,8 +84,9 @@ int run(const std::vector<std::string> &args){
         // reaps it on ordinary exit; expiration stops even a blocked vendor call.
         std::thread([deadline]{std::this_thread::sleep_for(std::chrono::milliseconds(deadline));std::_Exit(2);}).detach();
         std::size_t requestBytes=0;auto j=request(requestBytes);
-        const bool protectedMode=j.at("protocol")==warpRenderProtocol;
-        require(protectedMode || j.at("protocol")==stretchRenderProtocol,"Unsupported stretch protocol",ErrorCode::UnsupportedSchema);
+        const auto requestedProtocol=j.at("protocol").get<std::string>();
+        const bool protectedMode=requestedProtocol==warpRenderProtocol;
+        require(protectedMode || requestedProtocol==stretchRenderProtocol,"Unsupported stretch protocol",ErrorCode::UnsupportedSchema);
         protocol=protectedMode?"sc-stretch-render-v5":"sc-stretch-render-v4";
         require((protectedMode && j.size()==21 && j.contains("warp")) || (!protectedMode && j.size()==20 && !j.contains("warp") && requestBytes<=stretchProtocolMaximum),"Stretch request differs from its protocol envelope");
         const auto operation=Id(j.at("operation").get<std::string>());
