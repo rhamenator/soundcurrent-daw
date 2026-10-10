@@ -60,11 +60,11 @@ void mkdir(const std::filesystem::path &p){
 StretchRecoveryEntry inspect(const std::filesystem::path &root,const Session &current,const Id &op,
                             ResourceLedger ledger,const StretchRecoveryLimits &l,std::stop_token stop){
     poll(stop);limits(l);auto work=ledger.reserve(codecCredit);
-    ApprovedMediaRoot owned(root,ledger,{2});auto file=owned.open(relative(op),l.maximumManifestBytes,stop);
+    ApprovedMediaRoot owned(root,ledger,{3});auto file=owned.open(relative(op),l.maximumManifestBytes,stop);
     auto bank=ledger.reserve(std::size_t(file.size())*2);std::string bytes(std::size_t(file.size()),'\0');
     for(std::size_t at=0;at<bytes.size();at+=65536){poll(stop);file.readAt(at,{bytes.data()+at,std::min<std::size_t>(65536,bytes.size()-at)},stop);}
-    auto j=parse(bytes);check(j.size()==6 && j.at("format")==format && j.at("operation").is_string() &&
-        j.at("operation")==op.str() && j.at("selection").is_string() && j.at("renderKey").is_string(),"Unexpected render selection identity/fields");
+    auto j=parse(bytes);check(j.size()==6 && j.at("format").is_string() && j.at("format").get_ref<const std::string &>()==format && j.at("operation").is_string() &&
+        j.at("operation").get_ref<const std::string &>()==op.str() && j.at("selection").is_string() && j.at("renderKey").is_string(),"Unexpected render selection identity/fields");
     const auto saved=policy(j.at("policy"),l);check(warp_codec::unsignedInteger(j.at("policy").at("version"),1)==1,"Unsupported render selection policy");
     auto s=decodeProject(j.at("selection").get_ref<const std::string &>(),budget());
     check(s.tracks.size()==1 && s.tracks[0].clips.size()==1 && s.assets.size()>=1 && s.assets.size()<=2,"Expected minimal render selection");
@@ -82,7 +82,7 @@ StretchRecoveryEntry inspect(const std::filesystem::path &root,const Session &cu
     auto p=prepareClipStretch(s,s.tracks[0].id,s.tracks[0].clips[0].id,settings,context,warp);
     check(minimal(s,p)==s,"Unrelated state in render selection");
     auto request=encodeStretchRenderRequest(p,op,saved,ledger);
-    check(warp_codec::exact(r,parse(request.bytes())) && j.at("renderKey")==stretchRenderKey(p.source,p.anchor,ledger),"Recovered settings differ from render identity");
+    check(warp_codec::exact(r,parse(request.bytes())) && j.at("renderKey").get_ref<const std::string &>()==stretchRenderKey(p.source,p.anchor,ledger),"Recovered settings differ from render identity");
     file.verifyUnchanged();poll(stop);
     PayloadCharge payload("Retained render recovery",SIZE_MAX);payload.add(65536);payload.add(sessionPayloadBytes(s));
     if(p.anchor.warp)payload.add(warpPayloadBytes(*p.anchor.warp));
@@ -95,6 +95,9 @@ StretchRecoveryEntry inspect(const std::filesystem::path &root,const Session &cu
     if(lock.status()==media_io::LeaseStatus::Busy){result.status=StretchRecoveryStatus::Active;return result;}
     check(lock.status()==media_io::LeaseStatus::Held,"Render job ownership marker missing");
     if(!std::filesystem::exists(std::filesystem::symlink_status(job/"complete.json"))){result.status=StretchRecoveryStatus::Incomplete;return result;}
+    auto binding=owned.open("media/derived/"+op.str()+"/selection.sha256",64,stop);
+    check(binding.size()==64,"Invalid parent selection binding");std::array<char,64> captured{};binding.readAt(0,captured,stop);
+    check(captured==file.digest(stop),"Original parent selection bytes changed");binding.verifyUnchanged();
     auto intentFile=owned.open("media/derived/"+op.str()+"/intent.json",stretchProtocolLimit(result.plan->anchor),stop);
     auto intentCredit=ledger.reserve(std::size_t(intentFile.size())*2);std::string intentBytes(std::size_t(intentFile.size()),'\0');
     for(std::size_t at=0;at<intentBytes.size();at+=65536){poll(stop);intentFile.readAt(at,{intentBytes.data()+at,std::min<std::size_t>(65536,intentBytes.size()-at)},stop);}
@@ -103,7 +106,7 @@ StretchRecoveryEntry inspect(const std::filesystem::path &root,const Session &cu
     intent["assetId"]=result.plan->source.id.str();intent["relative"]=result.plan->source.relativePath;intent["sourceFrames"]=result.plan->source.frames;
     check(warp_codec::exact(parse(intentBytes),intent),"Retained render intent differs from selection");intentFile.verifyUnchanged();
     auto verified=verifyOwnedClipStretch(root,*result.plan,op,saved,ledger,stop);file.verifyUnchanged();poll(stop);
-    intentFile.verifyUnchanged();
+    intentFile.verifyUnchanged();binding.verifyUnchanged();
     const auto &edit=verified.edit();
     const auto asset=std::find_if(current.assets.begin(),current.assets.end(),[&](const auto &v){return v.id==op;});
     if(asset!=current.assets.end())check(*asset==edit.rendered,"Render operation already names different media");
@@ -118,7 +121,7 @@ StretchRecoveryEntry inspect(const std::filesystem::path &root,const Session &cu
     result.verified=std::make_shared<const VerifiedClipStretch>(std::move(verified));result.status=StretchRecoveryStatus::Ready;return result;
 }
 }
-void persistStretchSelection(const std::filesystem::path &root,const Session &s,const ClipStretchPlan &p,const Id &op,
+std::string persistStretchSelection(const std::filesystem::path &root,const Session &s,const ClipStretchPlan &p,const Id &op,
     const StretchRenderPolicy &policyValue,ResourceLedger ledger,StretchRecoveryLimits l,std::stop_token stop){
     limits(l);poll(stop);auto work=ledger.reserve(codecCredit);auto bank=ledger.reserve(l.maximumManifestBytes*2);
     auto request=encodeStretchRenderRequest(p,op,policyValue,ledger);auto m=minimal(s,p);
@@ -128,6 +131,7 @@ void persistStretchSelection(const std::filesystem::path &root,const Session &s,
     Json j={{"format",format},{"operation",op.str()},{"selection",encodeProject(m,budget())},
         {"request",parse(request.bytes())},{"policy",policyObject},{"renderKey",stretchRenderKey(p.source,p.anchor,ledger)}};
     auto bytes=j.dump();check(bytes.size()<=l.maximumManifestBytes,"Render selection exceeds bank",ErrorCode::ResourceLimit);
+    media_io::SampleHash hash;hash.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});const auto selectionDigest=hash.digest();
     media_io::plainDirectory(root);mkdir(root/"media");mkdir(root/"media"/"stretch-selections");
     const auto selections=root/"media"/"stretch-selections";
     const bool newLock=!std::filesystem::exists(std::filesystem::symlink_status(selections/"writer.lock"));
@@ -148,6 +152,17 @@ void persistStretchSelection(const std::filesystem::path &root,const Session &s,
     bool owned=false;
     try{media_io::File out(temp,true);owned=true;out.write(bytes);out.flush();out.close();poll(stop);media_io::publishMedia(temp,destination);owned=false;}
     catch(...){if(owned){std::error_code ignored;std::filesystem::remove(temp,ignored);}throw;}
+    return selectionDigest;
+}
+void bindStretchSelection(const std::filesystem::path &root,const Id &op,std::string_view expected,
+    ResourceLedger ledger,StretchRecoveryLimits l,std::stop_token stop){
+    limits(l);poll(stop);check(expected.size()==64,"Invalid parent selection digest");auto credit=ledger.reserve(8192);
+    ApprovedMediaRoot owned(root,ledger,{1});auto selection=owned.open(relative(op),l.maximumManifestBytes,stop);
+    const auto actual=selection.digest(stop);check(std::string_view(actual.data(),actual.size())==expected,"Parent selection changed before rendering");
+    const auto job=root/"media"/"derived"/op.str();media_io::plainDirectory(root/"media");media_io::plainDirectory(root/"media"/"derived");media_io::plainDirectory(job);
+    const auto destination=job/"selection.sha256",temp=job/("selection-"+Id::generate().str()+".partial");bool created=false;
+    try{media_io::File out(temp,true);created=true;out.write(expected);out.flush();out.close();selection.verifyUnchanged();poll(stop);media_io::publishMedia(temp,destination);created=false;}
+    catch(...){if(created){std::error_code ignored;std::filesystem::remove(temp,ignored);}throw;}
 }
 StretchRecoveryEntry inspectStretchSelection(const std::filesystem::path &root,const Session &s,const Id &op,
     ResourceLedger ledger,StretchRecoveryLimits l,std::stop_token stop){
@@ -170,9 +185,12 @@ std::vector<StretchRecoveryEntry> inventoryStretchSelections(const std::filesyst
         check(++count<=l.maximumEntries,"Render inventory entry limit",ErrorCode::ResourceLimit);
         auto file=entries.openSelectedFilename(entry.path().filename(),l.maximumManifestBytes,stop);
         const auto name=entry.path().filename().u8string();const std::string token(reinterpret_cast<const char *>(name.data()),name.size());
-        if(token.size()==41 && token.substr(36)==".json")ids.emplace_back(token.substr(0,36));
         const auto n=file.size();file.verifyUnchanged();
         check(n<=l.maximumManifestBytes && n<=l.maximumTotalBytes-total,"Render inventory byte limit",ErrorCode::ResourceLimit);total+=std::size_t(n);
+        if(token.size()==41 && token.substr(36)==".json"){
+            try{ids.emplace_back(token.substr(0,36));}
+            catch(const ProjectError &e){if(e.code()!=ErrorCode::InvalidId)throw;}
+        }
     }
     std::sort(ids.begin(),ids.end(),[](const auto &a,const auto &b){return a.str()<b.str();});
     std::vector<StretchRecoveryEntry> result;result.reserve(ids.size());

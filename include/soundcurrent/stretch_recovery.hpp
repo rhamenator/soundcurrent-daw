@@ -22,9 +22,14 @@ struct StretchRecoveryEntry {
 };
 // Serialized control/I/O only. Parent selections live outside the helper's
 // exclusively created job directory. Publication never replaces a selection.
-void persistStretchSelection(const std::filesystem::path &,const Session &,
+std::string persistStretchSelection(const std::filesystem::path &,const Session &,
     const ClipStretchPlan &,const Id &,const StretchRenderPolicy &,ResourceLedger,
     StretchRecoveryLimits={},std::stop_token={});
+// After the parent has verified ready, before acknowledging start. The digest
+// returned by publication binds the exact original controls even where helper
+// render keys omit ratios that round to the same geometry.
+void bindStretchSelection(const std::filesystem::path &,const Id &,std::string_view,
+    ResourceLedger,StretchRecoveryLimits={},std::stop_token={});
 // Explicit bounded inventory/review. Rehashes raw input and all completed audio;
 // never attaches, resumes a child, deletes files, or changes the current Session.
 StretchRecoveryEntry inspectStretchSelection(const std::filesystem::path &,const Session &,

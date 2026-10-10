@@ -79,6 +79,11 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
         check(!std::filesystem::exists(manifest.parent_path()/(refusedOperation.str()+".json")),"Refused selection was published");
         refuses([&]{persistStretchSelection(source->root,original,plan,*retained,o.policy,memory,l);});
         check(read(manifest)==pristine,"Duplicate operation overwrote manifest");
+        const auto stray=manifest.parent_path()/(std::string(36,'g')+".json");const auto nil=manifest.parent_path()/"00000000-0000-0000-0000-000000000000.json";
+        write(stray,"stray");write(nil,"nil");
+        const auto isolated=inventoryStretchSelections(source->root,original,memory,l);
+        check(isolated.size()==1 && isolated[0].status==StretchRecoveryStatus::Ready,"Malformed or nil selection name hid valid jobs");
+        std::filesystem::remove(stray);std::filesystem::remove(nil);
         StretchController reopened(o);check(reopened.scan(source)==Admission::Accepted,"Restart inventory refused");
         const auto scan=finish(reopened);
         if(scan->inventory)for(const auto &v:*scan->inventory)if(v.status!=StretchRecoveryStatus::Ready)std::cerr<<"inventory status="<<int(v.status)<<" detail="<<v.diagnostic<<'\n';
@@ -97,9 +102,14 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
         stale=original;stale.tracks[0].name="Unrelated rename";stale.tracks[0].eq.bands[0].gainDb=3;
         check(inspectStretchSelection(source->root,stale,*retained,memory,l).status==StretchRecoveryStatus::Ready,"Unrelated controls invalidated render");
         const auto job=source->root/"media"/"derived"/retained->str();
+        check(read(job/"selection.sha256")==hashMediaFile(manifest),"Original selection not bound to owned job");
+        refuses([&]{bindStretchSelection(source->root,*retained,hashMediaFile(manifest),memory,l);});
         {media_io::JobLease writer(job,false,true);check(writer.status()==media_io::LeaseStatus::Held,"Cannot own live-writer fixture");check(inspectStretchSelection(source->root,original,*retained,memory,l).status==StretchRecoveryStatus::Active,"Held job was inspected/admitted");}
         auto malformed=[&](nlohmann::json value){write(manifest,value.dump());check(inspectStretchSelection(source->root,original,*retained,memory,l).status==StretchRecoveryStatus::Invalid,"Altered parent selection admitted");write(manifest,pristine);};
         auto j=document;j["operation"]=Id::generate().str();malformed(j);
+        const auto alias=prepareClipStretch(original,track,clip,{999998,666666,700000,true});
+        j=document;j["request"]["timeNumerator"]=alias.anchor.settings.timeNumerator;j["request"]["timeDenominator"]=alias.anchor.settings.timeDenominator;
+        check(stretchRenderKey(alias.source,alias.anchor,memory)==document.at("renderKey").get<std::string>(),"Rounded-ratio alias fixture differs from render key");malformed(j);
         j=document;j["request"]["timeNumerator"]=2;malformed(j);
         j=document;j["request"]["timeNumerator"]=3.0;malformed(j);
         j=document;j["request"]["contextEnabled"]=1;malformed(j);
@@ -111,6 +121,8 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
         j=document;j["extra"]=nlohmann::json::array();for(unsigned i=0;i<20;++i)j["extra"]=nlohmann::json::array({j["extra"]});malformed(j);
         const auto complete=read(job/"complete.json");write(job/"complete.json","{}");check(inspectStretchSelection(source->root,original,*retained,memory,l).status==StretchRecoveryStatus::Invalid,"Tampered completion accepted");write(job/"complete.json",complete);
         const auto intent=read(job/"intent.json");write(job/"intent.json","{}");check(inspectStretchSelection(source->root,original,*retained,memory,l).status==StretchRecoveryStatus::Invalid,"Tampered render intent accepted");write(job/"intent.json",intent);
+        const auto binding=read(job/"selection.sha256");write(job/"selection.sha256",std::string(64,'0'));
+        check(inspectStretchSelection(source->root,original,*retained,memory,l).status==StretchRecoveryStatus::Invalid,"Tampered selection binding accepted");write(job/"selection.sha256",binding);
         std::filesystem::rename(job/"complete.json",job/"held-complete.json");check(inspectStretchSelection(source->root,original,*retained,memory,l).status==StretchRecoveryStatus::Incomplete,"Partial job became complete");std::filesystem::rename(job/"held-complete.json",job/"complete.json");
         const auto raw=source->root/utf8Path("media/raw-été.wav");const auto rawBytes=read(raw);auto changed=rawBytes;changed.back()^=1;write(raw,changed);
         check(inspectStretchSelection(source->root,original,*retained,memory,l).status==StretchRecoveryStatus::Invalid,"Changed source digest accepted");write(raw,rawBytes);
@@ -143,6 +155,13 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
         check(activeSeen,"Real live helper ownership was not detected");
         const auto job=source->root/"media"/"derived"/done->selection->operation.str();
         check(std::filesystem::exists(job/"intent.json") && !std::filesystem::exists(job/"complete.json"),"Incomplete canceled job not retained");
+    }
+    {
+        auto o=options(memory,helper);StretchController *owner=nullptr;
+        o.afterReady=[&]{const auto op=owner->snapshot()->selection->operation;const auto manifest=source->root/"media"/"stretch-selections"/(op.str()+".json");write(manifest,read(manifest)+" ");};
+        StretchController c(o);owner=&c;c.render(source,track,clip,{3,2,0,false});const auto done=finish(c);
+        const auto job=source->root/"media"/"derived"/done->selection->operation.str();
+        check(done->phase==StretchPhase::RecoveryRequired && !done->result && !std::filesystem::exists(job/"start.request") && !std::filesystem::exists(job/"selection.sha256"),"Changed pre-start selection acknowledged rendering");
     }
     {
         auto o=options(memory,helper);StretchController *owner=nullptr;o.afterChild=[&]{owner->requestCancel();throw ProjectError(ErrorCode::Io,"Owned ambiguous post-exit fixture");};

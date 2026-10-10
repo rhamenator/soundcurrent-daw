@@ -3816,6 +3816,10 @@ bounds. The new UI strings are registered; untranslated entries remain
 unfinished. Local test failures exposed a regenerated minimal-snapshot EQ ID
 and a missing helper lease, both fixed. A stale local geometry probe was rebuilt;
 it did not establish a new processing defect.
+Final review adds an original-byte selection binding for rounded-ratio aliases
+and isolates malformed/nil UUID filenames without losing valid jobs. The initial
+PR head exposed an MSVC-only ambiguous JSON comparison; explicit string extraction
+fixes it. Only subsequent exact-head CI can qualify the corrected Windows source.
 
 This checkpoint does not qualify installed restart, abrupt parent death,
 power-loss durability, large-inventory archival, new installers, physical audio

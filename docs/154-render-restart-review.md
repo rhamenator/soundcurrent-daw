@@ -35,6 +35,11 @@ publication and inventory. Recording journals retain their existing replacement
 semantics and 16-KiB limit. Interrupted `.partial` files are counted and preserved.
 New stretch helpers hold `writer.lock` from intent preparation through exit.
 This preserves existing v4/v5 requests/completions and enables active-job refusal.
+After verifying ready and before acknowledging start, the parent publishes its
+original selection digest as `selection.sha256` in that owned job, without
+overwriting. Recovery compares the pinned original bytes against this separate
+binding. A changed ratio cannot pass merely because it rounds to the same
+helper render key. Changing the selection before start also refuses the render.
 
 ## Admission, verification and stale targets
 
@@ -71,6 +76,10 @@ not launch another child or overwrite a selection. The 128-entry preview limit
 is not a completed scalable lifetime job-management policy: pagination and
 explicit archival remain required. Legacy jobs without parent selections are
 not reconstructed by inference.
+Stray plain filenames, including malformed/nil UUIDs, consume the inventory
+count/byte allowance but are not treated as owned operations. They cannot hide
+otherwise valid jobs solely by failing UUID parsing. Links and unexpected file
+types still refuse admission.
 
 ## Acceptance and remaining gates
 

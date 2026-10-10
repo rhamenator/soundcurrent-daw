@@ -81,7 +81,7 @@ struct StretchController::State : QThread {
         }
         poll(token);
         StretchRecoveryLimits recoveryLimits;recoveryLimits.render=limits;
-        persistStretchSelection(selection->project->root,*selection->project->session,plan,selection->operation,limits,options.memory,recoveryLimits,token);
+        const auto selectionDigest=persistStretchSelection(selection->project->root,*selection->project->session,plan,selection->operation,limits,options.memory,recoveryLimits,token);
         poll(token);
         QProcess child;child.setProcessChannelMode(QProcess::SeparateChannels);
         QObject::connect(&child,&QProcess::started,&child,[&]{view.childPid=std::size_t(child.processId());publish();});
@@ -124,6 +124,8 @@ struct StretchController::State : QThread {
                         ready=true;view.phase=StretchPhase::Running;publish();
                         if(options.afterReady)options.afterReady();
                         if(!token.stop_requested() && std::chrono::steady_clock::now()-begun<std::chrono::milliseconds(limits.deadlineMilliseconds)){
+                            bindStretchSelection(selection->project->root,selection->operation,selectionDigest,options.memory,recoveryLimits,token);
+                            poll(token);
                             media_io::plainDirectory(job);media_io::publishJournal(job/"start.request","start");
                         }
                     }
