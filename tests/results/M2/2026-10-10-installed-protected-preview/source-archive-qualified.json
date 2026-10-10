@@ -1,0 +1,11 @@
+{
+  "source": "083aefed3afd027406e1bb78e6f2d66b2f4dbfd8",
+  "tree": "fe3197c30e20c30493f03eb9ba9720a12f7de2e2",
+  "trackedBlobsCompared": 2179,
+  "archiveSha256": "91b6e06cbb4c0b82b69350dcb403a9aa363a512d330e6741e4a71173a0cba772",
+  "allArchiveContentsMatchGitExportPolicy": true,
+  "powershellExplicitCrlfExports": [
+    ".github/scripts/prepare-windows-desktop.ps1"
+  ],
+  "productUploaded": false
+}

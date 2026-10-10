@@ -101,6 +101,10 @@ jobs:
         run: |
           python3 tests/results/M2/2026-10-10-windows-installed-stretch-workflow/verify.py
           python3 tests/results/M2/2026-10-10-windows-installed-stretch-workflow/refusals.py
+      - name: Verify retained installed protected preview observations (no native replay)
+        run: |
+          python3 tests/results/M2/2026-10-10-installed-protected-preview/verify.py
+          python3 tests/results/M2/2026-10-10-installed-protected-preview/refusals.py
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

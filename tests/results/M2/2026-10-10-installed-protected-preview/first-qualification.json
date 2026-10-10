@@ -1,0 +1,47 @@
+{
+  "source": "b0e61308e0531d45a2a5abab9d8a6cde5cc10999",
+  "raw": {
+    "channels": 2,
+    "rate": 48000,
+    "frames": 32768,
+    "peak": 1.5,
+    "fileSha256": "288913a9d64d212bf61c3b91bdb39851320d55152036e23fe7dd2340c4ea1e43",
+    "sampleSha256": "567ee27854156c8c7b3520142f54eb6f63f95fe5e58edc7492e0eaf536b3c3bd"
+  },
+  "derived": {
+    "channels": 2,
+    "rate": 48000,
+    "frames": 49152,
+    "peak": 1.5,
+    "fileSha256": "fa99da98c1f6686fe4aed9435b3d183a6f0c6e2ee985f05c905f9bb5e2ad1fa7",
+    "sampleSha256": "0b21645c184cfb034b0016ac2023a70e9e9881827bd1e8fbc5456311ece6d2e2"
+  },
+  "export": {
+    "channels": 2,
+    "rate": 48000,
+    "frames": 49152,
+    "peak": 1.5,
+    "fileSha256": "cae3ba8618f8d7d2a60d577187643125e92ee4624de8546b4ca5b609f8b29e70",
+    "sampleSha256": "0b21645c184cfb034b0016ac2023a70e9e9881827bd1e8fbc5456311ece6d2e2"
+  },
+  "pcmEqual": true,
+  "applyUndoRedoSavedStates": true,
+  "defaultInstalledHelper": true,
+  "normalQuitExit": 0,
+  "physicalAudio": false,
+  "nativePlaybackStarted": false,
+  "fullQualityQualified": false,
+  "hostPackageChanges": false,
+  "reopenPending": false,
+  "laterReceiptCheckerSourceNotQualifiedByThisInstaller": true,
+  "reopenedControlsObserved": true,
+  "reopenedSavedByteEquality": true,
+  "repeatedExportByteEquality": true,
+  "normalQuitExits": [
+    0,
+    0
+  ],
+  "privateGraphNodesRestored": true,
+  "syntheticSourceRights": "Original project fixtures, GPL-3.0-only",
+  "installerReleaseUploaded": false
+}
