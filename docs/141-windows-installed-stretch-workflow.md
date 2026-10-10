@@ -84,9 +84,10 @@ python3 tests/results/M2/2026-10-10-windows-installed-stretch-workflow/verify.py
 python3 tests/results/M2/2026-10-10-windows-installed-stretch-workflow/refusals.py
 ```
 
-Ten positive/refusal cases check scope inflation, SDK paths, helper identity,
-fractional source anchors, Undo state, repeat-export samples, removal-preservation
+Eleven positive/refusal cases check scope inflation, SDK paths, helper identity,
+fractional source anchors, contradictory recorded UI parameters, Undo state, repeat-export samples, removal-preservation
 hashes and immutable builder scope, including consistently recomputed ZIP manifests.
+Both commands run in the Linux CI retained-evidence step, without native replay.
 
 Next broaden short-span, transient and rate/pitch quality acceptance, then develop
 explicit tempo/warp workflows with shared playback/export timing and preservation

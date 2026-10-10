@@ -5,7 +5,7 @@ import hashlib, json, subprocess, sys, tempfile, zipfile
 
 root = Path(__file__).resolve().parent
 cases = ('positive', 'summary_quality', 'nested_audio', 'sdk_module', 'helper_identity',
-         'source_anchor', 'undo_state', 'repeat_export', 'cycle_preservation', 'builder_scope')
+         'source_anchor', 'action_parameters', 'undo_state', 'repeat_export', 'cycle_preservation', 'builder_scope')
 with tempfile.TemporaryDirectory(prefix='sc-installed-stretch-proof-') as tmp:
     out = Path(tmp)
     for case in cases:
@@ -38,6 +38,11 @@ with tempfile.TemporaryDirectory(prefix='sc-installed-stretch-proof-') as tmp:
                     change(n, edit)
         elif case == 'undo_state':
             change('first/undone-project.json', lambda v: v.update(name='Changed'))
+        elif case == 'action_parameters':
+            change('observations/actions.json', lambda v: v.update(
+                selectedExactSourceOrigin={'frame': 19, 'fraction': 0, 'denominator': 1},
+                sourceFrames=128, timeNumerator=2, timeDenominator=1,
+                pitchMilliCents=-100000, formantPreserved=False))
         elif case == 'repeat_export':
             name = 'second/project-été-Κиїв-mix.wav'
             b = bytearray(data[name]); b[-1] ^= 1; data[name] = bytes(b)
@@ -59,4 +64,4 @@ with tempfile.TemporaryDirectory(prefix='sc-installed-stretch-proof-') as tmp:
         p = subprocess.run([sys.executable, str(root / 'verify.py'), '--receipt',
                             str(out / 'qualification.json')], capture_output=True, text=True, timeout=15)
         assert (p.returncode == 0) == (case == 'positive'), (case, p.stdout, p.stderr)
-print('Retained installed stretch workflow: 10 positive/refusal cases pass; no guest or installer replay.')
+print('Retained installed stretch workflow: 11 positive/refusal cases pass; no guest or installer replay.')

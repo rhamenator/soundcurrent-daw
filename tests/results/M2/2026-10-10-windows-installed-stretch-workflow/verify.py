@@ -96,6 +96,16 @@ assert stretch['sourceFrames'] == 8192 and stretch['sourceSha256'] == raw_sha
 assert stretch['settings'] == {'timeNumerator': 3, 'timeDenominator': 2, 'pitchMilliCents': 700007, 'formantPreserved': True}
 assert stretch['processor'] == 'soundcurrent.stretch-rubberband4-r3-positioned-v2'
 assert stretch['sourceAssetId'] == p['assets'][0]['id'] and clip['assetId'] == p['assets'][1]['id']
+# The recorded UI parameters must agree with the adopted source/processor state.
+# JSON booleans are not integer timing or pitch values.
+origin = actions['selectedExactSourceOrigin']
+assert set(origin) == {'frame', 'fraction', 'denominator'}
+for key, value in origin.items():
+    assert type(value) is int and value == stretch['sourceOrigin'][key]
+assert type(actions['sourceFrames']) is int and actions['sourceFrames'] == stretch['sourceFrames']
+for key in ('timeNumerator', 'timeDenominator', 'pitchMilliCents'):
+    assert type(actions[key]) is int and actions[key] == stretch['settings'][key]
+assert actions['formantPreserved'] is stretch['settings']['formantPreserved']
 for prefix in ('second', 'cycle'):
     for n in data:
         if n.startswith('first/' + folder):
