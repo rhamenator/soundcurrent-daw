@@ -775,3 +775,16 @@ Original failed observations and harness corrections are retained. The clone is
 stopped; no product binary was uploaded. Next qualify installed stretch
 render/review/apply/Undo/reopen/export and removal/reinstallation, then continue
 the remaining quality/editing gates and full frozen F/Q/C/N/Europe requirements.
+
+## M2 installed Windows stretch editing/export
+
+[Checkpoint141](141-windows-installed-stretch-workflow.md) completes the bounded
+installed synthetic render/review/Apply, Undo/Redo/save, new-process reopen and two
+actual WAV exports for the exact f9a6353 preview. Independent finite PCM equals
+the derived clip, repeated exports are byte-identical and float headroom remains.
+Actual normal removal/reinstallation preserves project/media/export bytes and
+sentinel settings/user files; post-reinstallation startup and normal close pass.
+All VMs are off, temporary transport is removed and originals are preserved.
+No binary upload, complete quality, physical audio or language delivery is claimed.
+Next broaden short-span/transient quality acceptance and implement explicit
+tempo/warp editing with shared render/playback timing and preservation evidence.
