@@ -350,3 +350,37 @@ isolated R3 offline worker only, with builtin FFT/BQ and no internal threading.
 resource containment, exact duration and actual owned-WAV/shared-reader evidence.
 No optional FFT/codec/runtime is introduced. Full quality,192k+ adaptation,
 application launcher/state, native Windows and installed packaging remain gates.
+
+## Local warp candidate review (2026-10-10)
+
+No new dependency is selected. [ADR104](decisions/104-local-warp-and-group-quality.md)
+first investigates the already pinned Rubber Band 4.0.0 R3/R2 map adapters against
+local-event and grouped-phase contracts. Its GPL-2.0-or-later source remains
+compatible with this GPL-3.0-only application; notices and existing source pins
+remain required. Current Linux/Windows worker acceptance does not qualify new
+map usage, phase-preserving multitrack operation or a replacement algorithm.
+
+| Candidate | Functionality / license | Platform, maintenance and integration cost | Decision |
+| --- | --- | --- | --- |
+| Existing Rubber Band 4.0.0 R3/R2 | Offline key-frame maps, separate total ratio, together/apart channel policies; GPL-2.0-or-later subset already pinned | Existing Linux/Windows builds. Local feature-dependent timing and stereo-specific synchronization tradeoffs require acoustic evidence. R3 must omit a zero first map key; exact drain, crop geometry and group policy need versioned adapters. | Evaluate bounded map adapter; no changed production default. |
+| Signalsmith Stretch a670068d9aeb64913331d5cc29337b19a457a7df | C++ pitch/time processing, split latency, seek/flush and formant compensation; MIT notices required | Upstream reports primary testing on AppleClang/MSVC. GCC/Linux and this DAW's full rate/channel/domain/quality envelope are unqualified. Template integration, latency/edge/drain adaptation, child resource admission, formant estimation and source/GPL delivery are costs. | Evaluated alternative; not fetched into the build, vendored, compiled or adopted. |
+
+The alternative's [official README](https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/a670068d9aeb64913331d5cc29337b19a457a7df/README.md)
+describes best time-stretch results around 0.75–1.5x; it does not establish the
+DAW's extreme-ratio or grouped-microphone quality gates. Its
+[MIT license](https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/a670068d9aeb64913331d5cc29337b19a457a7df/LICENSE.txt)
+is GPL-compatible with retained notices. The inspected
+[CMake file](https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/a670068d9aeb64913331d5cc29337b19a457a7df/CMakeLists.txt)
+requires CMake 3.24 and defaults to fetching Signalsmith Linear tag0.6.4,
+resolved here to **de55e6a50ffcf6f8f43f649692d94691c7025151**. Linear is also
+[MIT](https://github.com/Signalsmith-Audio/linear/blob/de55e6a50ffcf6f8f43f649692d94691c7025151/LICENSE.txt).
+Any experiment must pin that transitive source independently, disable build-time
+network fetching and optional unreviewed FFT/SIMD dependencies, and retain exact
+source/checksums/notices. Main Linear146b26f9 is an investigation snapshot, not
+the declared transitive tag or an adopted dependency.
+
+The [dated API/source metadata](../research/observations/stretch-candidates-2026-10-10.json)
+records exact revisions, document/license/CMake hashes and unarchived repository
+observations. Stretch's September25 and Linear main's October4 commits indicate
+recent activity, not support guarantees or accepted releases. No equalizer,
+system package, audio driver, vendor source or runtime binary was changed.

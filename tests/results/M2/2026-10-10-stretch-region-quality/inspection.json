@@ -1,0 +1,16 @@
+{
+  "retainedInspectionChecks": 7233,
+  "fullRenderedWaves": 63,
+  "cropPairs": 37,
+  "toneObservations": 24,
+  "actualDSPReplayed": false,
+  "nativeWindowsReplayed": false,
+  "QStretchPassed": false,
+  "QPitchPassed": false,
+  "format": "sc-region-quality-local-inspection-v1",
+  "scriptSha256": "42e7eb91d7ab5cddb0f78c0d2fbcdf8e1623af8dddda3d2f2ec220e70ae1a311",
+  "observedProductionBase": "e73eef65e7a4c16c7d949ef3aaffd24a0ef31dd0",
+  "command": "ionice -c3 nice -n19 python3 tests/results/M2/2026-10-10-stretch-region-quality/verify.py",
+  "sourceWasUncommitted": true,
+  "exitCode": 0
+}

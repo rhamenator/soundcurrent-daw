@@ -55,6 +55,11 @@ lets short clips use chosen neighboring audio, with nominal visible duration,
 restored controls, Undo and shared playback/export acceptance. Acoustic transient
 alignment and current-source installed qualification remain open.
 
+[Retained quality diagnostics](docs/145-stretch-region-quality.md) now include
+63 full synthetic renders and 37 crop comparisons. Unity copies remain exact;
+non-unity output depends on processing context. Local attack timing and grouped
+microphone phase remain explicit gates before warp-marker delivery.
+
 Full pitch/stretch quality, foreign-property adoption and installed/native audio
 qualification remain open. [Installed Linux evidence](docs/138-installed-stretch-preview.md)
 covers its recorded earlier source. Short-span/transient quality, tempo/warp

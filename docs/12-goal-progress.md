@@ -3659,3 +3659,18 @@ Historical installed evidence remains separately scoped. Next qualify musical
 transients, local landmarks, edge/fractional/group behavior and a bounded warp-map
 contract; current installed/native Windows/audio and full Q-STRETCH/F/Q/C/N/Europe
 requirements remain open. No VM or product upload; the full goal stays active.
+
+## M2/M8 region quality gate (2026-10-10 UTC)
+
+Previous goal turn was progress: PR85 merged through unchanged protection as
+e73eef65 with identical production tree5d8ed137 and exact-source Linux109/native
+Windows core41/Qt12 CI evidence. This turn is progress: [checkpoint145](145-stretch-region-quality.md)
+adds a Linux-only bounded diagnostic,63 helper/226 parent processes and37 crop
+pairs, retaining all original/full/cropped synthetic PCM. All12 unity comparisons
+are exact; all25 non-unity comparisons differ. Selected steady-tone frequency
+error is small, while local attack and group phase quality remain unqualified.
+Independent retained inspection passes7233 checks without DSP/native replay.
+[ADR104](decisions/104-local-warp-and-group-quality.md) retains the full P008/P011/
+P012 contracts and makes a normalized map/planned-adapter experiment next.
+No production DSP/default, VM, physical audio, installer or equalizer change.
+All frozen F/Q/C/N and all-Europe/native/recovery goals remain incomplete and active.

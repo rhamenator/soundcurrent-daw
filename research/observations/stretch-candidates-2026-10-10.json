@@ -1,0 +1,85 @@
+{
+  "format": "sc-stretch-candidate-review-v1",
+  "observedAtUtc": "2026-10-10T03:19:23.010179+00:00",
+  "newDependencyAdopted": false,
+  "newDependencyBuilt": false,
+  "sources": {
+    "Signalsmith-Audio/signalsmith-stretch": {
+      "revision": "a670068d9aeb64913331d5cc29337b19a457a7df",
+      "commitDate": "2026-09-25T10:04:02Z",
+      "archived": false,
+      "pushedAt": "2026-09-25T10:05:51Z",
+      "files": {
+        "README.md": {
+          "url": "https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/a670068d9aeb64913331d5cc29337b19a457a7df/README.md",
+          "gitBlob": "c3c57e737003bb671abb95158ef3f1e4aa318ab3",
+          "sha256": "d2c43d92312154a09660bffbb06b408f3b470662f89cb4123fa5268a4ced444c",
+          "bytes": 8205
+        },
+        "LICENSE.txt": {
+          "url": "https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/a670068d9aeb64913331d5cc29337b19a457a7df/LICENSE.txt",
+          "gitBlob": "889031e63236bb72aa28ff2ec2362db1691723d1",
+          "sha256": "ee2ef82481ffb445ecdd4b3a4c1f82c0cddb2da8fe39d8e8dc384fffb3e7f06f",
+          "bytes": 1093
+        },
+        "CMakeLists.txt": {
+          "url": "https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/a670068d9aeb64913331d5cc29337b19a457a7df/CMakeLists.txt",
+          "gitBlob": "a859cf2ba08ae0df9716ff3582c40df2f3fca396",
+          "sha256": "2c6ada4752690efac4bbd2c263dfebeccd7d3bc941efbb615944fc6a88a5d2dd",
+          "bytes": 533
+        }
+      }
+    },
+    "Signalsmith-Audio/linear": {
+      "revision": "146b26f91b48835d665fa0498d64d9617818d27a",
+      "commitDate": "2026-10-04T20:36:39Z",
+      "archived": false,
+      "pushedAt": "2026-10-04T20:40:28Z",
+      "files": {
+        "README.md": {
+          "url": "https://github.com/Signalsmith-Audio/linear/blob/146b26f91b48835d665fa0498d64d9617818d27a/README.md",
+          "gitBlob": "177b7c02277aeb9c1ade2a3dc8c8c97558201115",
+          "sha256": "4cdc3a2a10f6beb5b3c6ca63d27e0daadaba488fe6e13b73045e755ba190ed43",
+          "bytes": 5155
+        },
+        "LICENSE.txt": {
+          "url": "https://github.com/Signalsmith-Audio/linear/blob/146b26f91b48835d665fa0498d64d9617818d27a/LICENSE.txt",
+          "gitBlob": "c2569820cd018245f891b974048dc4ab128f43b1",
+          "sha256": "072b5e9eb5b22880bdf6256324654cf3ce53dba828edb911921121e1be09d9c3",
+          "bytes": 1074
+        },
+        "CMakeLists.txt": {
+          "url": "https://github.com/Signalsmith-Audio/linear/blob/146b26f91b48835d665fa0498d64d9617818d27a/CMakeLists.txt",
+          "gitBlob": "c121c66a23540557feaf9e0471f3212e998c5a6c",
+          "sha256": "cad3daf9db34e75ae775ca590e64549c0790b7b5decb0666364d718bd4bc6d09",
+          "bytes": 5077
+        }
+      }
+    }
+  },
+  "declaredTransitiveTag": {
+    "name": "Signalsmith-Audio/linear@0.6.4",
+    "revision": "de55e6a50ffcf6f8f43f649692d94691c7025151",
+    "commitDate": "2026-09-25T09:48:45Z",
+    "files": {
+      "README.md": {
+        "url": "https://github.com/Signalsmith-Audio/linear/blob/de55e6a50ffcf6f8f43f649692d94691c7025151/README.md",
+        "gitBlob": "177b7c02277aeb9c1ade2a3dc8c8c97558201115",
+        "sha256": "4cdc3a2a10f6beb5b3c6ca63d27e0daadaba488fe6e13b73045e755ba190ed43",
+        "bytes": 5155
+      },
+      "LICENSE.txt": {
+        "url": "https://github.com/Signalsmith-Audio/linear/blob/de55e6a50ffcf6f8f43f649692d94691c7025151/LICENSE.txt",
+        "gitBlob": "c2569820cd018245f891b974048dc4ab128f43b1",
+        "sha256": "072b5e9eb5b22880bdf6256324654cf3ce53dba828edb911921121e1be09d9c3",
+        "bytes": 1074
+      },
+      "CMakeLists.txt": {
+        "url": "https://github.com/Signalsmith-Audio/linear/blob/de55e6a50ffcf6f8f43f649692d94691c7025151/CMakeLists.txt",
+        "gitBlob": "c121c66a23540557feaf9e0471f3212e998c5a6c",
+        "sha256": "cad3daf9db34e75ae775ca590e64549c0790b7b5decb0666364d718bd4bc6d09",
+        "bytes": 5077
+      }
+    }
+  }
+}
