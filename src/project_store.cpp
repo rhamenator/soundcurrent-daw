@@ -290,7 +290,8 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
             {"sourceAssetId",p.sourceAssetId.str()},{"sourceSha256",p.sourceSha256},
             {"sourceOrigin",{{"frame",p.sourceOrigin.frame},{"fraction",p.sourceOrigin.fraction},
                 {"denominator",p.sourceOrigin.denominator},{"algorithm",positionedResamplingAlgorithmId}}},
-            {"sourceFrames",p.sourceFrames},{"settings",{{"timeNumerator",p.settings.timeNumerator},
+            {"sourceFrames",p.sourceFrames},{"context",p.context?Json{{"before",p.context->before},{"after",p.context->after}}:Json(nullptr)},
+            {"settings",{{"timeNumerator",p.settings.timeNumerator},
                 {"timeDenominator",p.settings.timeDenominator},{"pitchMilliCents",p.settings.pitchMilliCents},
                 {"formantPreserved",p.settings.formantPreserved}}},{"renderKey",p.renderKey}};
     };
@@ -348,7 +349,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 13},
+        {"schemaMinor", 14},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -490,7 +491,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 13),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 14),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -612,13 +613,18 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                 clip.lengthFrames = integer(c.at("lengthFrames"));
                 if(minor>=12 && !c.at("stretch").is_null()) {
                     const auto &p=c.at("stretch");
-                    keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey"});
+                    if(minor>=14) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context"});
+                    else keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey"});
                     require((minor>=13 || string(p.at("processor"))==stretchProcessorId) && integer(p.at("version"))==1,
                             "Unsupported stretch processor",ErrorCode::UnsupportedSchema);
                     ClipStretchAnchor v;
                     v.processor=string(p.at("processor"));
                     v.sourceAssetId=Id(string(p.at("sourceAssetId")));v.sourceSha256=string(p.at("sourceSha256"));
                     v.sourceFrames=integer(p.at("sourceFrames"));v.renderKey=string(p.at("renderKey"));
+                    if(minor>=14 && !p.at("context").is_null()) {
+                        const auto &context=p.at("context");keys(context,{"before","after"});
+                        v.context=StretchContext{integer(context.at("before")),integer(context.at("after"))};
+                    }
                     const auto &origin=p.at("sourceOrigin");keys(origin,{"frame","fraction","denominator","algorithm"});
                     require(string(origin.at("algorithm"))==positionedResamplingAlgorithmId,
                             "Unsupported raw anchor algorithm",ErrorCode::UnsupportedSchema);

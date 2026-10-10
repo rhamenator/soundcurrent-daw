@@ -52,6 +52,7 @@ jobs:
         run: |
           python3 tools/verify_short_span_experiments.py
           python3 tests/results/M2/2026-10-10-unity-stretch-copy/verify.py
+          python3 tests/results/M2/2026-10-10-explicit-stretch-context/verify.py
       - name: Verify retained installed Windows preview (no native replay)
         run: |
           git fetch --no-tags --depth=1 origin b8cdb3e00da524e5be51b007c1f81d6e51806d72
@@ -152,7 +153,7 @@ jobs:
           if errorlevel 1 exit /b 1
           set "PATH=%CD%\native-dependencies\sndfile-build;%PATH%"
           set "SC_STRETCH_WORKER_QUALIFICATION=%CD%\build-native\stretch-worker-qualification.json"
-          ctest --test-dir build-native -R "^(editable-stretch-state|stretch-timing-oracle|stretch-source-integrity|stretch-worker-workflows|clip-playback-rate|playback-rate-timing-oracle|positioned-resampling-kernel|positioned-resampling-workflow|fractional-timing-oracle|prepared-resampling|prepared-timing-oracle|resampler-source-integrity|clip-processing|multitrack-edits|project-import-state|session-state|project-routing|project-monitoring|media-provenance-transaction|verified-media-staging|verified-media-stage-worker|approved-wave-content|approved-wave-probe|approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
+          ctest --test-dir build-native -R "^(editable-stretch-state|stretch-timing-oracle|stretch-region-geometry|stretch-source-integrity|stretch-worker-workflows|clip-playback-rate|playback-rate-timing-oracle|positioned-resampling-kernel|positioned-resampling-workflow|fractional-timing-oracle|prepared-resampling|prepared-timing-oracle|resampler-source-integrity|clip-processing|multitrack-edits|project-import-state|session-state|project-routing|project-monitoring|media-provenance-transaction|verified-media-staging|verified-media-stage-worker|approved-wave-content|approved-wave-probe|approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
           if errorlevel 1 exit /b 1
       - name: Retain native unit log
         if: always()

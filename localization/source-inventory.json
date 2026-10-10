@@ -38,12 +38,12 @@
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "755ba8c2d96caa02e275e62a30f53cada9c326252d84057c7257c686fe38a808",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/stretch_controller.cpp": "15f4bfa3caa9975d81a31d513f50124905e4ec4349ce8383132e22fc93021006",
-    "ui/stretch_controller.hpp": "cdf669084fe43c8121ad6f8b7be84376e4d8c21914c2f83d49b6891549698717",
-    "ui/stretch_dialog.cpp": "0738148fce09cce31ee3235e20d6a851135984ec6f10e38af9e4b01704844854",
-    "ui/stretch_dialog.hpp": "ab3b202dd961995942fca25620238fc9eef3de8c48dfef6f3fe523ef69b4d31e",
-    "ui/studio_window.cpp": "220fa9068ce2d1fddc712c74f6cac81767a13b4794aff358e4cc469f2c3a193f",
-    "ui/studio_window.hpp": "4444c6cb2c409a7ae4c2e088f8258d6dc8db7d889c89959344404a6f7554a914",
+    "ui/stretch_controller.cpp": "105e0c1be45bd163858609dcc05486b29b9026f9c80352f9374c66cb71499edc",
+    "ui/stretch_controller.hpp": "f65b5f92b815d9055d4fa79679a89fedfd9ccc6603150668e72261e22b3b7041",
+    "ui/stretch_dialog.cpp": "28f3de933431cb48a3f5c651b025d69b8a65e64f09ad8d6cab8f031e185e745f",
+    "ui/stretch_dialog.hpp": "031270786ab79d4cf1cb8007ec6e91984374665324921c1ba4b3608a50f97f86",
+    "ui/studio_window.cpp": "9dc0473f3baa37282f1701a29c59f29fc454851d7f7d40b63025df3b97e9e6c3",
+    "ui/studio_window.hpp": "1defce26e0676f546aeb6cbd46eb5245dcdbd931eb84f62efb03d69af9a0bbc9",
     "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
     "ui/timeline_editor.hpp": "a48e52f31f5064f49c126fdd01d12b56b53c68d3d3f73b786b24a3d98cba2081",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -2666,7 +2666,31 @@
     ],
     [
       "StretchDialog",
+      "Use neighboring source context",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Context before (source frames)",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Context after (source frames)",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
       "This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Apply, listen, and use Undo to return to the original.",
       "",
       false
     ],
@@ -2781,6 +2805,12 @@
     [
       "StretchDialog",
       "shifted",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Verified source context: %1 frames before, %2 frames after.",
       "",
       false
     ],

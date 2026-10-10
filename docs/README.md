@@ -149,3 +149,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [ADR094 — owned original/loss evidence alongside destination state](decisions/094-portable-import-original-evidence.md)
 
 - [Installed Linux pitch/stretch preview](138-installed-stretch-preview.md)
+
+- [Explicit stretch processing regions and nominal visible crops](144-explicit-stretch-context.md) · [ADR103](decisions/103-explicit-stretch-processing-region.md)

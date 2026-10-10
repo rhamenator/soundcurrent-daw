@@ -451,6 +451,7 @@ void validate(const Session &s, StateBudget budget) {
                 const auto raw=assets.find(c.stretch->sourceAssetId.str());
                 check(raw!=assets.end(),"Stretch refers to missing raw asset");
                 validateClipStretch(*c.stretch,*raw->second,a);
+                validateStretchClipWindow(c,*raw->second,a,s.sampleRate);
             }
         }
     }

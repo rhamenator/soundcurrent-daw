@@ -43,7 +43,7 @@ class StudioWindow : public QMainWindow {
                           std::function<void(HistoryBudget)> historyAccepted = {},
                           std::function<void(MemoryPreferences)> memoryAccepted = {},
                           StretchOptions stretchOptions = {});
-    bool requestClipStretch(const Id &, const Id &, StretchSettings);
+    bool requestClipStretch(const Id &, const Id &, StretchSettings,std::optional<StretchContext> = {});
     bool applyClipStretch();
     std::shared_ptr<const StretchSnapshot> stretchSnapshot() const;
     std::shared_ptr<const ManualControlSnapshot> manualRecordingSnapshot() const;

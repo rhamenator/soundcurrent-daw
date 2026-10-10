@@ -38,9 +38,9 @@ struct StretchController::State : QThread {
         poll(token);view.phase=StretchPhase::Preparing;publish();
         check(QFileInfo(options.program).isAbsolute(),"Stretch helper path must be absolute");
         auto preparation=options.memory.reserve(sessionPayloadBytes(*selection->project->session));
-        auto prepared=std::make_shared<StretchSelection>(options.memory.reserve(65536),selection->project,selection->track,selection->clip,selection->settings);
+        auto prepared=std::make_shared<StretchSelection>(options.memory.reserve(65536),selection->project,selection->track,selection->clip,selection->settings,selection->context);
         prepared->operation=selection->operation;
-        prepared->plan=prepareClipStretch(*selection->project->session,selection->track,selection->clip,selection->settings);
+        prepared->plan=prepareClipStretch(*selection->project->session,selection->track,selection->clip,selection->settings,selection->context);
         selection=std::move(prepared);view.selection=selection;publish();
         const auto &plan=*selection->plan;const auto &limits=options.policy;
         auto request=encodeStretchRenderRequest(plan,selection->operation,limits,options.memory);
@@ -154,11 +154,11 @@ struct StretchController::State : QThread {
 };
 StretchController::StretchController(StretchOptions options):state_(std::make_unique<State>(std::move(options))){state_->start(QThread::LowPriority);}
 StretchController::~StretchController(){requestShutdown();state_->wait();}
-Admission StretchController::render(std::shared_ptr<const ControllerSnapshot> project,Id track,Id clip,StretchSettings settings){
+Admission StretchController::render(std::shared_ptr<const ControllerSnapshot> project,Id track,Id clip,StretchSettings settings,std::optional<StretchContext> context){
     QMutexLocker lock(&state_->mutex);if(state_->closing)return Admission::Closing;if(state_->busy)return Admission::Full;
     check(project && project->session && project->projectEpoch && project->root.is_absolute() && project->root.native().size()<=4096 &&
         project->root.native().find(std::filesystem::path::value_type(0))==project->root.native().npos,"Invalid stretch project selection");
-    auto selection=std::make_shared<StretchSelection>(state_->options.memory.reserve(65536),std::move(project),std::move(track),std::move(clip),canonicalStretchSettings(settings));
+    auto selection=std::make_shared<StretchSelection>(state_->options.memory.reserve(65536),std::move(project),std::move(track),std::move(clip),canonicalStretchSettings(settings),context);
     StretchSnapshot view;view.phase=StretchPhase::Queued;view.selection=selection;view.busy=true;
     auto published=std::make_shared<const StretchSnapshot>(std::move(view));std::stop_source prepared;
     state_->stop=std::move(prepared);state_->queued=std::move(selection);state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;

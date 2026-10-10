@@ -139,26 +139,35 @@ def run():
     stretch={'path':'sc-stretch-render-worker.exe','bytes':126,'sha256':'f'*64}
     with_stretch={'files':with_copy['files']+[stretch]};qualified_dependencies(with_stretch)
     tree='c'*40
-    stretch_receipt={'format':'sc-stretch-worker-qualification-v2','sourceCommit':head,'sourceTree':tree,
+    stretch_receipt={'format':'sc-stretch-worker-qualification-v3','sourceCommit':head,'sourceTree':tree,
                      'nativePlatform':'win32','exeSha256':'f'*64,'pid':1234,'exitCode':0,
                      'verifierPid':5678,'verifierExitCode':0,'verifierExeSha256':'1'*64,
-                     'protocol':'sc-stretch-render-v3','processor':'soundcurrent.stretch-rubberband4-r3-positioned-v2',
+                     'protocol':'sc-stretch-render-v4','processor':'soundcurrent.stretch-rubberband4-r3-positioned-v2',
                      'operation':copy_receipt['operation'],'complete':True,'verifiedArtifact':True,
-                     'writtenFrames':18000,'checks':241,'verifierChecks':1045,
+                     'writtenFrames':18000,'checks':383,'verifierChecks':1045,
                      'audioSha256':'2'*64,'sampleSha256':'3'*64,'nativeAudio':False,
-                     'unityShortCompletedJobs':7,'unityIntegerCopyExact':True,'unity384kDiscreteCopyExact':True}
+                     'unityShortCompletedJobs':7,'unityIntegerCopyExact':True,'unity384kDiscreteCopyExact':True,
+                     'explicitRegionCompletedJobs':12,'regionCopyExact':True,
+                     'sameRoundedTargetDistinctKeys':True,'realContextRefusalBeforeMutation':True}
     qualify_stretch_worker(with_stretch,stretch_receipt,head,tree)
     qualify_native_stretch({**stretch_receipt,'nativePlatform':'linux'},head,tree,'f'*64,'linux')
-    bad_values={'format':['old','sc-stretch-worker-qualification-v1'],'sourceCommit':['0'*40],'sourceTree':['0'*40],
+    # Old retained receipts need an explicitly trusted protocol; they cannot qualify current packages.
+    for protocol,fmt,minimum in [('sc-stretch-render-v2','sc-stretch-worker-qualification-v1',172),
+                                 ('sc-stretch-render-v3','sc-stretch-worker-qualification-v2',241)]:
+        historical={**stretch_receipt,'protocol':protocol,'format':fmt,'checks':minimum}
+        qualify_native_stretch(historical,head,tree,'f'*64,'win32',protocol=protocol)
+    bad_values={'format':['old','sc-stretch-worker-qualification-v1','sc-stretch-worker-qualification-v2'],'sourceCommit':['0'*40],'sourceTree':['0'*40],
                 'nativePlatform':['linux'],'exeSha256':['0'*64], 'pid':[0,True],
                 'exitCode':[1,False],'verifierPid':[0,True],'verifierExitCode':[1,False],
-                'verifierExeSha256':['bad'],'protocol':['sc-stretch-render-v1','sc-stretch-render-v2'],
+                'verifierExeSha256':['bad'],'protocol':['sc-stretch-render-v1','sc-stretch-render-v2','sc-stretch-render-v3'],
                 'processor':['unknown'],'operation':['../foreign',123],
                 'complete':[False,1],'verifiedArtifact':[False,1],'writtenFrames':[17999,True],
-                'checks':[0,True,171,240],'verifierChecks':[0,True,1044],
+                'checks':[0,True,171,240,382],'verifierChecks':[0,True,1044],
                 'audioSha256':['bad'],'sampleSha256':['bad'],'nativeAudio':[True,0],
                 'unityShortCompletedJobs':[6,True], 'unityIntegerCopyExact':[False,1],
-                'unity384kDiscreteCopyExact':[False,1]}
+                'unity384kDiscreteCopyExact':[False,1], 'explicitRegionCompletedJobs':[11,True],
+                'regionCopyExact':[False,1],'sameRoundedTargetDistinctKeys':[False,1],
+                'realContextRefusalBeforeMutation':[False,1]}
     stretch_refusals=0
     for key,values in bad_values.items():
         for value in values:

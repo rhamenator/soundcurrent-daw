@@ -17,16 +17,18 @@ struct StretchUiState {
 class StretchDialog : public QDialog {
     Q_DECLARE_TR_FUNCTIONS(StretchDialog)
  public:
-    StretchDialog(StretchSettings, QWidget *parent=nullptr);
+    StretchDialog(StretchSettings, QWidget *parent=nullptr,std::optional<StretchContext> = {});
+    void setContextBounds(Frame before,Frame after);
     std::function<StretchUiState()> read;
-    std::function<bool(StretchSettings)> render;
+    std::function<bool(StretchSettings,std::optional<StretchContext>)> render;
     std::function<bool()> apply;
     std::function<void()> cancel;
     void refresh();
  private:
     QSpinBox *numerator_,*denominator_;
+    QSpinBox *before_,*after_;
     QDoubleSpinBox *pitch_;
-    QCheckBox *formant_;
+    QCheckBox *formant_,*context_;
     QLabel *status_;
     QPushButton *render_,*apply_,*cancel_;
 };

@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <stop_token>
 namespace soundcurrent::daw {
-inline constexpr std::string_view stretchRenderProtocol="sc-stretch-render-v3";
+inline constexpr std::string_view stretchRenderProtocol="sc-stretch-render-v4";
 inline constexpr std::size_t stretchProtocolMaximum=16384;
 struct StretchRenderPolicy {
     std::uint64_t memoryBytes=256ULL*1024*1024;

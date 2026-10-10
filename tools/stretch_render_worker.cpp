@@ -32,7 +32,7 @@
 using namespace soundcurrent::daw;
 using Json=nlohmann::json;
 namespace {
-constexpr const char *protocol="sc-stretch-render-v3";
+constexpr const char *protocol="sc-stretch-render-v4";
 void require(bool ok,const char *message,ErrorCode code=ErrorCode::InvalidParameter){if(!ok)throw ProjectError(code,message);}
 std::uint64_t decimal(const std::string &s){std::uint64_t n=0;auto r=std::from_chars(s.data(),s.data()+s.size(),n);require(r.ec==std::errc{} && r.ptr==s.data()+s.size(),"Invalid trusted worker limit");return n;}
 void processLimit(std::uint64_t bytes){
@@ -56,7 +56,7 @@ Json request(){
     while(std::cin.get(c)){require(n<16384,"Stretch request exceeds protocol bound");raw[n++]=c;}
     std::array<std::set<std::string>,9> keys;
     auto callback=[&](int depth,Json::parse_event_t event,Json &v){require(depth>=0 && depth<8,"Stretch request nesting exceeds bound");if(event==Json::parse_event_t::object_start)keys[std::size_t(depth+1)].clear();if(event==Json::parse_event_t::key)require(keys[std::size_t(depth)].insert(v.get<std::string>()).second,"Duplicate stretch request field");return true;};
-    auto j=Json::parse(raw.data(),raw.data()+n,callback);require(j.is_object() && j.size()==17,"Unexpected stretch request fields");return j;
+    auto j=Json::parse(raw.data(),raw.data()+n,callback);require(j.is_object() && j.size()==20,"Unexpected stretch request fields");return j;
 }
 std::filesystem::path native(const std::string &s){require(s.size()<=4096 && validUtf8(s) && s.find('\0')==std::string::npos,"Invalid stretch root");return utf8Path(s);}
 void plainAncestors(const std::filesystem::path &p){require(p.is_absolute() && p==p.lexically_normal(),"Stretch root must be canonical absolute path");auto at=p.root_path();media_io::plainDirectory(at);for(const auto &part:p.relative_path()){at/=part;media_io::plainDirectory(at);}}
@@ -84,21 +84,29 @@ int run(const std::vector<std::string> &args){
         require(asset.sha256.size()==64 && std::all_of(asset.sha256.begin(),asset.sha256.end(),[](char c){return(c>='0' && c<='9')||(c>='a' && c<='f');}),"Invalid source digest");
         asset.sampleRate=std::uint32_t(number(j,"rate",384000));require(asset.sampleRate>=8000,"Invalid stretch physical rate");
         asset.layout.channels=std::uint32_t(number(j,"channels",256));require(asset.layout.channels>0,"Invalid stretch channel count");asset.layout.kind=asset.layout.channels==1?LayoutKind::Mono:asset.layout.channels==2?LayoutKind::Stereo:LayoutKind::Discrete;
-        asset.frames=Frame(number(j,"sourceFrames",INT64_MAX));const auto first=number(j,"first",std::uint64_t(asset.frames)),frames=number(j,"frames",maximumInput);
-        require(frames>0 && frames<=std::uint64_t(asset.frames)-first,"Invalid stretch source span");
+        asset.frames=Frame(number(j,"sourceFrames",INT64_MAX));const auto first=number(j,"first",std::uint64_t(asset.frames)),selectedFrames=number(j,"frames",maximumInput);
+        require(selectedFrames>0 && selectedFrames<=std::uint64_t(asset.frames)-first,"Invalid stretch source span");
         auto fraction=number(j,"firstFraction",UINT64_MAX),fractionDenominator=number(j,"firstDenominator",UINT64_MAX);
         require(fractionDenominator && fraction<fractionDenominator,"Invalid exact stretch source origin");
         const auto fractionDivisor=std::gcd(fraction,fractionDenominator);fraction/=fractionDivisor;fractionDenominator/=fractionDivisor;
-        const SourceFrameMap sourceMap(asset.sampleRate,asset.sampleRate,SourcePosition{Frame(first),fraction,fractionDenominator});
-        const PreparedPositionedResampling sourceKernel(sourceMap,asset.layout.channels);
         auto numerator=number(j,"timeNumerator",1000000),denominator=number(j,"timeDenominator",1000000);require(numerator && denominator && numerator*4>=denominator && denominator*4>=numerator,"Invalid constant stretch ratio");auto gcd=std::gcd(numerator,denominator);numerator/=gcd;denominator/=gcd;
-        const auto product=frames*numerator,target=product/denominator+(product%denominator!=0);
-        require(target>0 && target<=1000000000,"Stretch target exceeds exact admitted duration");
         auto cents=j.at("pitchMilliCents");require(cents.is_number_integer(),"Pitch must use stable integer milli-cents");if(cents.is_number_unsigned())require(cents.get<std::uint64_t>()<=2400000,"Pitch integer exceeds range");auto pitch=cents.get<std::int64_t>();require(pitch>=-2400000 && pitch<=2400000,"Invalid pitch range");
         require(j.at("formantPreserved").is_boolean(),"Invalid formant option");bool formant=j.at("formantPreserved").get<bool>();
         const auto processor=j.at("processor").get<std::string>();
-        require(processor==stretchProcessorFor({std::uint32_t(numerator),std::uint32_t(denominator),std::int32_t(pitch),formant}),"Requested processor differs from render settings",ErrorCode::UnsupportedSchema);
-        const bool copy=processor==unityStretchProcessorId;
+        require(j.at("contextEnabled").is_boolean(),"Invalid explicit context mode");
+        const auto before=number(j,"contextBefore",1000000000),after=number(j,"contextAfter",1000000000);
+        const bool contextEnabled=j.at("contextEnabled").get<bool>();
+        require(contextEnabled || (!before && !after),"Context frames require explicit region mode");
+        ClipStretchAnchor anchor;anchor.sourceOrigin={Frame(first),fraction,fractionDenominator};anchor.sourceFrames=Frame(selectedFrames);
+        anchor.settings={std::uint32_t(numerator),std::uint32_t(denominator),std::int32_t(pitch),formant};anchor.processor=processor;
+        if(contextEnabled)anchor.context=StretchContext{Frame(before),Frame(after)};
+        require(processor==stretchProcessorFor(anchor.settings,anchor.context),"Requested processor differs from render settings",ErrorCode::UnsupportedSchema);
+        const auto geometry=stretchGeometry(anchor,asset.frames);
+        const auto frames=std::uint64_t(geometry.inputFrames),target=std::uint64_t(geometry.outputFrames);
+        require(frames<=maximumInput,"Whole processing region exceeds input frame grant",ErrorCode::ResourceLimit);
+        const SourceFrameMap sourceMap(asset.sampleRate,asset.sampleRate,geometry.inputOrigin);
+        const PreparedPositionedResampling sourceKernel(sourceMap,asset.layout.channels);
+        const bool copy=processor==unityStretchProcessorId || processor==regionCopyProcessorId;
         require(copy || asset.sampleRate<=192000,"Stretch backend above192k remains unsupported",ErrorCode::UnsupportedSchema);
         const auto channels=asset.layout.channels;const auto samples=std::size_t(512)*channels;
         require(target<= (UINT64_MAX-1048576)/(channels*4ULL),"Stretch output size overflow");const auto admittedBytes=target*channels*4ULL+1048576;
@@ -120,7 +128,8 @@ int run(const std::vector<std::string> &args){
         MediaReadCache cache(sourceRoot,std::span<const Asset>(&asset,1),asset.sampleRate,cacheConfig);
         auto job=jobsRoot/operation.str();require(std::filesystem::create_directory(job),"Stretch operation already exists",ErrorCode::Io);
         auto cancel=[&]{if(std::filesystem::exists(std::filesystem::symlink_status(job/"cancel.request")))throw ProjectError(ErrorCode::Canceled,"Stretch job canceled before commit");};
-        Json key={{"processor",processor},{"sourceSha256",asset.sha256},{"rate",asset.sampleRate},{"channels",channels},{"first",first},{"firstFraction",fraction},{"firstDenominator",fractionDenominator},{"sourceAlgorithm",positionedResamplingAlgorithmId},{"frames",frames},{"target",target},{"pitchMilliCents",pitch},{"formantPreserved",formant},{"channelPolicy",channels<=2?"mono-stereo-together":"discrete-apart"}};
+        Json key={{"processor",processor},{"sourceSha256",asset.sha256},{"rate",asset.sampleRate},{"channels",channels},{"first",first},{"firstFraction",fraction},{"firstDenominator",fractionDenominator},{"sourceAlgorithm",positionedResamplingAlgorithmId},{"frames",selectedFrames},{"target",target},{"pitchMilliCents",pitch},{"formantPreserved",formant},{"channelPolicy",channels<=2?"mono-stereo-together":"discrete-apart"}};
+        if(contextEnabled) {key["contextBefore"]=before;key["contextAfter"]=after;key["timeNumerator"]=numerator;key["timeDenominator"]=denominator;key["cropMap"]=stretchRegionMapId;}
         auto keyText=key.dump();media_io::SampleHash keyHash;keyHash.updateBytes({reinterpret_cast<const std::byte *>(keyText.data()),keyText.size()});auto renderKey=keyHash.digest();
         auto intent=key;intent["protocol"]=protocol;intent["operation"]=operation.str();intent["complete"]=false;intent["assetId"]=asset.id.str();intent["relative"]=asset.relativePath;intent["sourceFrames"]=asset.frames;media_io::publishJournal(job/"intent.json",intent.dump());
         std::cout<<Json({{"protocol",protocol},{"event","ready"},{"operation",operation.str()},{"renderKey",renderKey}}).dump()<<'\n'<<std::flush;
@@ -169,16 +178,16 @@ int run(const std::vector<std::string> &args){
         media_io::publishMedia(audio,job/"audio.wav");cancel();auto receiptText=receipt.dump();publicationMayHaveCommitted=true;media_io::publishJournal(job/"complete.json",receiptText);
         // No cancellation check after commit. A valid marker is the terminal result.
         std::cout<<receiptText<<'\n';return std::cout?0:1;
-    }catch(const std::bad_alloc &){std::cerr<<"{\"protocol\":\"sc-stretch-render-v3\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
+    }catch(const std::bad_alloc &){std::cerr<<"{\"protocol\":\"sc-stretch-render-v4\",\"complete\":false,\"messageId\":\"stretch.resource_limit\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
     }catch(const std::system_error &e){
         // Thread creation under the process ceiling can fail before the vendor
         // allocation, particularly with Debug binaries and larger runtime maps.
         // Preserve an actual resource refusal without treating every OS error
         // as exhaustion. Avoid constructing JSON while memory is constrained.
         const bool resource=e.code()==std::errc::resource_unavailable_try_again || e.code()==std::errc::not_enough_memory;
-        std::cerr<<"{\"protocol\":\"sc-stretch-render-v3\",\"complete\":false,\"messageId\":\""<<(resource?"stretch.resource_limit":"stretch.render_failed")<<"\",\"systemErrorCode\":"<<e.code().value()<<",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
+        std::cerr<<"{\"protocol\":\"sc-stretch-render-v4\",\"complete\":false,\"messageId\":\""<<(resource?"stretch.resource_limit":"stretch.render_failed")<<"\",\"systemErrorCode\":"<<e.code().value()<<",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;
     }catch(const ProjectError &e){std::cerr<<Json({{"protocol",protocol},{"complete",false},{"messageId","stretch.render_failed"},{"errorCode",unsigned(e.code())},{"publicationMayHaveCommitted",publicationMayHaveCommitted}}).dump()<<'\n';return 1;
-    }catch(...){std::cerr<<"{\"protocol\":\"sc-stretch-render-v3\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;}
+    }catch(...){std::cerr<<"{\"protocol\":\"sc-stretch-render-v4\",\"complete\":false,\"messageId\":\"stretch.render_failed\",\"publicationMayHaveCommitted\":"<<(publicationMayHaveCommitted?"true":"false")<<"}\n";return 1;}
 }
 }
 #ifdef _WIN32

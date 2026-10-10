@@ -53,7 +53,7 @@ def case(root, source, media):
           "Original preservation/source-absence fixture differs")
     relocated = root / "Relocated — Łódź"
     saved = json.loads((relocated / "project.json").read_text())
-    check(saved["schemaMinor"] == 13 and len(saved["imports"]) == 1,
+    check(saved["schemaMinor"] == 14 and len(saved["imports"]) == 1,
           "Portable import manifest missing")
     source_record = saved["imports"][0]
     check(source_record["sourceSha256"] == hashlib.sha256(source).hexdigest(),

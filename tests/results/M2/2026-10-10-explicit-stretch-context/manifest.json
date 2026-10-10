@@ -1,0 +1,79 @@
+{
+  "format": "sc-local-explicit-region-capture-v1",
+  "bytes": 48456,
+  "sha256": "630e61d44e99bbdb105349cfa6d9c0f59b8b9217f6007b6094e418aacabf94f5",
+  "entries": {
+    "executables.json": {
+      "bytes": 976,
+      "sha256": "163d60a0eeb305a7a083798cd4f400d26be02cb2c12dbc5a5c69ec03362f1253"
+    },
+    "experiment/probe.cpp": {
+      "bytes": 2973,
+      "sha256": "181f77f298602e4b7622f23d9adca00ce4a727a9fac7729337875a232c2dac09"
+    },
+    "experiment/region-ratio-build.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "experiment/region-ratio-results.jsonl": {
+      "bytes": 6315,
+      "sha256": "aace847a10f65689fc43a51cb3dbf7e8b757b3a3fcab0e09d0557e7ef402b6a5"
+    },
+    "experiment/region-ratio-run.json": {
+      "bytes": 527,
+      "sha256": "fcfb04321bd59dc403acf386b15606d4af68ccff6a415579df2702cbc0abf63a"
+    },
+    "experiment/region-ratio-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "extra-checks.json": {
+      "bytes": 1791,
+      "sha256": "f63824e012697045f37522de047f876919ac7bf563a89a2b0022d574ee818a37"
+    },
+    "logs/region-build.log": {
+      "bytes": 23758,
+      "sha256": "932de80b2916c536ec8ab20b29a45a928b2da1cb3ef1164deca3434fb6c052da"
+    },
+    "logs/region-configure.log": {
+      "bytes": 2169,
+      "sha256": "234d7d69e7c5910feee2d84d29d0b0b4f6eb9a69f5502afed8c2a6e84a1e6b32"
+    },
+    "logs/region-core-tests.log": {
+      "bytes": 12191,
+      "sha256": "83499564b84132dc621bb203791762116d8a61c65cf0193e02676c2a8c1a83bb"
+    },
+    "logs/region-final-build.log": {
+      "bytes": 1505,
+      "sha256": "de9804508eb4651ea425c40d1dd23dd96a80a7221b5aa61e32632480bd76690f"
+    },
+    "logs/region-localization-final.log": {
+      "bytes": 243,
+      "sha256": "9cd7620f77fae72089e8d5fdcb34bfdcb0c8c1bc7637f571d2fc8a084e68d285"
+    },
+    "logs/region-package-final.log": {
+      "bytes": 269,
+      "sha256": "62f6c606b2e2da9647688e037ba366704e86ba9dfae2777ad33a5b071d04b1c9"
+    },
+    "logs/region-ui-tests.log": {
+      "bytes": 5842,
+      "sha256": "3e18c9717069261c60b711d8ffac47b17fe0fb2eac8e1aa36d1825dac2bcbbcb"
+    },
+    "source-inputs.json": {
+      "bytes": 74507,
+      "sha256": "23cf710657cb36d7f96f7f2fe3fbd209b3ba1dd6aacffb4c939189bc33b98692"
+    },
+    "summary.json": {
+      "bytes": 1696,
+      "sha256": "d962d1efccb40c521bb60ddd866ecc537afab8178b69fe42500308e24332edec"
+    },
+    "verifier-history.json": {
+      "bytes": 619,
+      "sha256": "8b00d748b8dd0bcfe9fddd36fa74325311783569c72939e6a5459e575be08bf9"
+    }
+  },
+  "nativeAudio": false,
+  "installedReplayed": false,
+  "fullProcessingQuality": false,
+  "productBinaryUploaded": false
+}
