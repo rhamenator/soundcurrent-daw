@@ -68,3 +68,6 @@ tests/results/M2/2026-10-09-editable-stretch/*.log -text whitespace=-blank-at-eo
 /tests/results/M2/2026-10-10-windows-bounded-observation/worker.stderr -text whitespace=cr-at-eol
 
 /tests/results/M2/2026-10-10-windows-protected-preview/manifest.json -text
+
+# Keep captured CTest bytes, including its intentional trailing spaces.
+/tests/results/M2/2026-10-10-render-restart-review/local-linux-tests.log -text whitespace=-blank-at-eol,cr-at-eol
