@@ -14,6 +14,9 @@ See [checkpoint 157](../../../../docs/157-native-windows-restart-preview.md).
 - `final-vm-state.json`: all VMs off; owned acceptance CD ejected.
 - `verify.py`: checks retained bytes/identities/outcomes without replaying Windows,
   processing audio or accessing the local product/source archives.
+- `capture_safety.py` / `capture_safety_tests.py`: bounded recursive refusal of
+  Windows case variants, forbidden metadata names, renamed binary signatures,
+  path escapes and oversized members. Checks preserve original captured bytes.
 
 Run from any directory:
 

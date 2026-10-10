@@ -13,13 +13,13 @@ build exited zero in 27.798 seconds. No C++ processing change was introduced.
 
 | Gate | Observed outcome | Boundary |
 | --- | --- | --- |
-| Original-budget comparison diagnostics | impulse/identity PID 5204 exited0 in 0.291 s; cancellation/uniform PID 5228 exited0 in 1.802 s | Same ten-second budget, improved observer; cause of historical timeouts remains unproved |
+| Original-budget comparison diagnostics | impulse/identity PID 5204 exited 0 in 0.291 s; cancellation/uniform PID 5228 exited 0 in 1.802 s | Same ten-second budget, improved observer; cause of historical timeouts remains unproved |
 | Inspection, approved WAV probe, checked copy | Actual owned helpers and protocol/binary identities passed | Synthetic owned files, no physical audio |
 | V4 stretch bank | 385 receipt checks and 1,045 verifier checks passed | Bound to the current native source and binaries |
 | Protected V5 bank | 519 checks, 21 completed renders and 18 complete PCM comparisons passed | Experimental protected processing; broad quality remains unqualified |
 | Desktop acceptance | All six selected groups passed | Offscreen Qt, including seven observer failure cases; independent of installed UI acceptance |
 | SDK-free main probe | PID 912 opened a normal window, then closed normally with exit 0 | Staged deployment in an existing Windows clone, no audio activated |
-| Actual installer | Setup PID 260 exited0;64 payload files, shortcuts and uninstall registration verified | Side-by-side unsigned local preview; existing runtime/OS, not pristine installation |
+| Actual installer | Setup PID 260 exited 0; 64 payload files, shortcuts and uninstall registration verified | Side-by-side unsigned local preview; existing runtime/OS, not pristine installation |
 | Actual installed app | PID 5076 opened the Unicode project and closed normally with exit 0 | No render, recovery review, Apply, audition or export performed in this installed process |
 
 The six desktop groups were worker-observation-failures, desktop-stretch-ui,
@@ -92,6 +92,10 @@ the pristine template, host audio routes and equalizer repositories were unchang
 preserves native receipts, original captures/logs, source audit and final VM state.
 Product binaries and private transport/credential material are excluded. Retained
 record verification does not replay Windows or prove physical audio behavior.
+PR review found case-sensitive exclusions and a missing nested binary-signature
+guard in the new verifier. Bounded recursive checks and six targeted refusal
+tests now cover mixed-case names, renamed binaries, nested archives, Windows
+path escapes and declared oversized members. Original evidence bytes are unchanged.
 
 Next: use this already installed preview in one brief SDK-free clone session to
 render a protected derivative, quit normally, restart, explicitly review Ready

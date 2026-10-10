@@ -7,6 +7,8 @@ import io
 import json
 import zipfile
 
+from capture_safety import check_member
+
 
 ROOT = Path(__file__).resolve().parent
 HEAD = "4fb8c1cdf1b1365e5834256f4b39b51566dbed52"
@@ -15,6 +17,7 @@ summary = json.loads((ROOT / "summary.json").read_text())
 manifest = json.loads((ROOT / "capture-members.json").read_text())
 archive = (ROOT / "capture.zip").read_bytes()
 assert hashlib.sha256(archive).hexdigest() == summary["captureSha256"]
+check_member("capture.zip", archive)
 with zipfile.ZipFile(io.BytesIO(archive)) as z:
     names = z.namelist()
     assert len(names) == len(set(names)) and set(names) == set(manifest)
@@ -22,10 +25,6 @@ with zipfile.ZipFile(io.BytesIO(archive)) as z:
 for name, data in blobs.items():
     assert len(data) == manifest[name]["bytes"], name
     assert hashlib.sha256(data).hexdigest() == manifest[name]["sha256"], name
-    assert ".." not in Path(name).parts and not name.startswith("/"), name
-    assert not name.endswith((".exe", ".dll", ".iso")), name
-    assert not data.startswith(b"MZ"), name
-    assert "private-transport" not in name and "CREDENTIALS" not in name, name
 
 
 def native(name):
@@ -38,13 +37,6 @@ def captured(archive_name, suffix):
         assert len(matches) == 1, (archive_name, suffix)
         return z.read(matches[0])
 
-
-for name, data in blobs.items():
-    if name.startswith("captures/"):
-        with zipfile.ZipFile(io.BytesIO(data)) as z:
-            for member in z.namelist():
-                assert not member.endswith((".exe", ".dll", ".iso")), member
-                assert "private-transport" not in member and "CREDENTIALS" not in member
 
 build = native("build-terminal.json")
 terminal = native("qualification-terminal.json")
