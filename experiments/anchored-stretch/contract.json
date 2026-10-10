@@ -1,0 +1,53 @@
+{
+  "format": "sc-anchored-stretch-contract-v1",
+  "frozenAtUtc": "2026-10-10T04:46:55.981535+00:00",
+  "sourceBase": "a08eb0e81114e21d24fff56905e42a4d5a9b2b29",
+  "candidate": "Signalsmith Stretch a670068d9aeb64913331d5cc29337b19a457a7df / Linear de55e6a50ffcf6f8f43f649692d94691c7025151",
+  "seed": 20261010,
+  "sampleRate": 48000,
+  "sourceFrames": 32768,
+  "profiles": {
+    "identity": 32768,
+    "uniform": 49152,
+    "nonuniform": 49152
+  },
+  "events": [
+    4096,
+    12288,
+    20480,
+    28672
+  ],
+  "nonuniformTargets": [
+    6144,
+    16384,
+    32768,
+    43008
+  ],
+  "scheduler": "seek actual first inputLatency frames; processing-centre output domain 0..target; chunks split at every anchor and at 97/512 output frames; source cursor=floor(exact inverse(output))+inputLatency; record every exact inverse and residual fraction without modifying markers; append inputLatency zeros beyond asset end; process target outputs then flush outputLatency; retain complete generated pre-roll+output and crop exactly outputLatency from start by prescribed policy",
+  "edgePolicy": "explicit actual-initial-seek and zero-final-lookahead plus vendor-flush-v1; no invented raw context; not production default",
+  "families": [
+    "impulse stereo",
+    "attack eight channels with 0,3,...,21 raw-frame offsets and signed gains",
+    "sustain eight channels with same offsets/gains at 440/730Hz",
+    "cancellation eight coincident +/- channel pairs"
+  ],
+  "matrix": "4 families x 3 profiles x 2 output chunks=24 terminal cases, zero pitch; default spectral configuration, no split computation, deterministic seed",
+  "analysis": {
+    "onset": "32-frame causal rectangular RMS; first >=10% maximum in [target-3072,target+4096); source-bias calibrated first. Missing, boundary-censored or overlap ambiguous observations unresolved. Source first-event window is similarly defined. Record both nominal source event and calibrated detector displacement.",
+    "markedEventGate": "strictly <48 frames at 48kHz, only resolved observations; source detector bias mapped exactly, physical channel delay retained independently",
+    "groupArrival": "compare output-channel-to-reference onset offsets with raw original offsets; numerical identity required for this diagnostic, no tolerance weakens exact metadata contract",
+    "preecho": "RMS in [target-1024,target-48) versus [target,target+1536), diagnostic <=-40dB; zero-signal denominator unresolved, does not qualify listening",
+    "phase": "2048-frame Hann carrier projections centered in each output segment, source inverse centre, sign-normalized channels; compare output/source relative phase; diagnostic residual <=0.0001degree, estimator scope remains synthetic",
+    "cancellation": "each coincident +/- pair max absolute output sum <=1e-6 float numerical diagnostic, raw sum exactzero",
+    "partition": "retain all complete PCM, compare97/512 outputs separately; canonical production policy absent",
+    "quality": "synthetic measurements never establish Q-STRETCH, Q-PITCH or full phase-preserving microphone parity"
+  },
+  "limits": {
+    "childSeconds": 10,
+    "bankSeconds": 60,
+    "addressSpaceMiB": 512,
+    "threads": 1
+  },
+  "shippingAdoption": false,
+  "nativeAudio": false
+}

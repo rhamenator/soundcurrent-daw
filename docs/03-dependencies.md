@@ -363,7 +363,7 @@ map usage, phase-preserving multitrack operation or a replacement algorithm.
 | Candidate | Functionality / license | Platform, maintenance and integration cost | Decision |
 | --- | --- | --- | --- |
 | Existing Rubber Band 4.0.0 R3/R2 | Offline key-frame maps, separate total ratio, together/apart channel policies; GPL-2.0-or-later subset already pinned | Existing Linux/Windows builds. Local feature-dependent timing and stereo-specific synchronization tradeoffs require acoustic evidence. R3 must omit a zero first map key; exact drain, crop geometry and group policy need versioned adapters. | Evaluate bounded map adapter; no changed production default. |
-| Signalsmith Stretch a670068d9aeb64913331d5cc29337b19a457a7df | C++ pitch/time processing, split latency, seek/flush and formant compensation; MIT notices required | Upstream reports primary testing on AppleClang/MSVC. GCC/Linux and this DAW's full rate/channel/domain/quality envelope are unqualified. Template integration, latency/edge/drain adaptation, child resource admission, formant estimation and source/GPL delivery are costs. | Evaluated alternative; not fetched into the build, vendored, compiled or adopted. |
+| Signalsmith Stretch a670068d9aeb64913331d5cc29337b19a457a7df | C++ pitch/time processing, split latency, seek/flush and formant compensation; MIT notices required | Upstream reports primary testing on AppleClang/MSVC. GCC/Linux and this DAW's full rate/channel/domain/quality envelope are unqualified. Template integration, latency/edge/drain adaptation, child resource admission, formant estimation and source/GPL delivery are costs. | Evaluated alternative; checkpoint147 compiles/renders an isolated Linux candidate and retains full MIT source/notices. Not part of the shipping build or adopted. |
 
 The alternative's [official README](https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/a670068d9aeb64913331d5cc29337b19a457a7df/README.md)
 describes best time-stretch results around 0.75–1.5x; it does not establish the
@@ -384,3 +384,12 @@ records exact revisions, document/license/CMake hashes and unarchived repository
 observations. Stretch's September25 and Linear main's October4 commits indicate
 recent activity, not support guarantees or accepted releases. No equalizer,
 system package, audio driver, vendor source or runtime binary was changed.
+
+[Checkpoint147](147-anchored-stretch-candidate.md) now records24 actual Linux
+processes with an original exact-map/latency scheduler and a contract frozen
+before rendering. Complete pinned source/notices are evidence payload, not an
+installed/shipping SDK. Source/binary/seed/chunk/edge identities are retained.
+Attack timing and grouped-phase/cancellation limits reject this configuration
+for shipping; Windows/full-rate/ratio/listening coverage is unqualified.
+[ADR106](decisions/106-transient-protected-warp-next.md) makes the next original
+transient-protected map implementation concrete without selecting a dependency.

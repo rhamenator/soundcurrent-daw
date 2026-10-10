@@ -3689,3 +3689,19 @@ Retained inspection passes46,911 checks. Native Windows planner qualification,
 an acoustically supported marker processor, editor/persistence/shared output and
 full P008/P011/P012 remain gates. No product binary, VM/audio or equalizer change.
 Full F/Q/C/N/all-Europe and all completion requirements remain active/incomplete.
+
+## M2/M8 anchored processor experiment (2026-10-10 UTC)
+
+PR87 merged normally as a08eb0e; full DAW goal remains ACTIVE and incomplete.
+[Checkpoint147](147-anchored-stretch-candidate.md) implements an original exact
+scheduler over a source-pinned alternative, with contract/analyzer frozen before
+24 actual terminal renders. Full source/generated/trimmed PCM retained;14,274
+inspection checks. Impulse timing passes selected diagnostics; nonunity attacks
+fail (<48-frame gate versus maximum146.5), group arrival changes reach1frame,
+cancellation/phase and pre-echo diagnostics remain unqualified. No shipping
+adoption, native audio/VM/equalizer or current installer change.
+[ADR106](decisions/106-transient-protected-warp-next.md) selects original explicit
+protected spans and derived unity-slope map points as the next implementation,
+then supported editable marker/reviewApply/Undo/reopen/shared output. General
+warp/group/pitch/comp/native/installed/recovery and every other milestone, X004/
+X005 and all-Europe/F/Q/C/N remain required.

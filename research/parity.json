@@ -216,7 +216,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/parts_events/parts_and_events_group_editing_mode_c.html?contentId=66hmyonQqPz8EmJo9uNsKA",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Partial: M2a grouped stable-ID coordinate commands and M2b single-track/clip desktop selection/move. Checkpoint145/ADR104 retain eight-channel impulse/attack diagnostics and define exact physical group offset plus separate event/phase gates. Discrete-apart output is not qualified phase-preserving group warp; linked markers, grouped recording/comp and full workflow/quality remain required. Checkpoint146 implements an opt-in original normalized exact C++ warp-map planner, stable IDs/domains/resource admission and 23083 independent Fraction checks. 52 actual multi-anchor R3/R2 renders retain timing/partition/group limits; production editor, supported acoustic warp, persistence/native/installed and full workflow/quality remain unqualified.",
+      "implementation": "Partial: M2a grouped stable-ID coordinate commands and M2b single-track/clip desktop selection/move. Checkpoint145/ADR104 retain eight-channel impulse/attack diagnostics and define exact physical group offset plus separate event/phase gates. Discrete-apart output is not qualified phase-preserving group warp; linked markers, grouped recording/comp and full workflow/quality remain required. Checkpoint146 implements an opt-in original normalized exact C++ warp-map planner, stable IDs/domains/resource admission and 23083 independent Fraction checks. 52 actual multi-anchor R3/R2 renders retain timing/partition/group limits; production editor, supported acoustic warp, persistence/native/installed and full workflow/quality remain unqualified. Checkpoint147 adds a preregistered original anchored alternative scheduler and 24 actual render outcomes. Nonunity attack/group quality gates remain unmet; ADR106 selects explicit transient-protected maps next, not shipping adoption.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -234,7 +234,10 @@
         "tests/results/M2/2026-10-10-stretch-region-quality/",
         "docs/146-normalized-warp-map-planner.md",
         "docs/decisions/105-normalized-warp-map-planner.md",
-        "tests/results/M8/2026-10-10-warp-map-planner/"
+        "tests/results/M8/2026-10-10-warp-map-planner/",
+        "docs/147-anchored-stretch-candidate.md",
+        "docs/decisions/106-transient-protected-warp-next.md",
+        "tests/results/M8/2026-10-10-anchored-stretch/"
       ]
     },
     {
@@ -300,7 +303,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_window/sample_editor_inspector_audiowarp_r.html?contentId=AkpkpXrJu3zK1xrNBilJzg",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Foundation: editable independent constant pitch/time derivatives, supervised review/Apply, legacy/unity identity, explicit real source context and nominal visible maps, retained raw anchors, exact fractional split/crop/rerender, Undo/Redo/save/reopen and shared live/export acceptance (checkpoints135/136/143/144). Warp markers, tempo ramps, transient accuracy, flatten/recovery, current-source installed qualification and Q-STRETCH/reference workflows remain required and unqualified. Checkpoint145 retains 63 full renders/37 crop pairs: all12 unity crops exact, all25 non-unity context/whole pairs different. Local timing/markers/tempo/flatten/Q-STRETCH remain unqualified; ADR104 schedules normalized rational maps and bounded candidate-adapter/event/group gates. Checkpoint146 implements an opt-in original normalized exact C++ warp-map planner, stable IDs/domains/resource admission and 23083 independent Fraction checks. 52 actual multi-anchor R3/R2 renders retain timing/partition/group limits; production editor, supported acoustic warp, persistence/native/installed and full workflow/quality remain unqualified.",
+      "implementation": "Foundation: editable independent constant pitch/time derivatives, supervised review/Apply, legacy/unity identity, explicit real source context and nominal visible maps, retained raw anchors, exact fractional split/crop/rerender, Undo/Redo/save/reopen and shared live/export acceptance (checkpoints135/136/143/144). Warp markers, tempo ramps, transient accuracy, flatten/recovery, current-source installed qualification and Q-STRETCH/reference workflows remain required and unqualified. Checkpoint145 retains 63 full renders/37 crop pairs: all12 unity crops exact, all25 non-unity context/whole pairs different. Local timing/markers/tempo/flatten/Q-STRETCH remain unqualified; ADR104 schedules normalized rational maps and bounded candidate-adapter/event/group gates. Checkpoint146 implements an opt-in original normalized exact C++ warp-map planner, stable IDs/domains/resource admission and 23083 independent Fraction checks. 52 actual multi-anchor R3/R2 renders retain timing/partition/group limits; production editor, supported acoustic warp, persistence/native/installed and full workflow/quality remain unqualified. Checkpoint147 adds a preregistered original anchored alternative scheduler and 24 actual render outcomes. Nonunity attack/group quality gates remain unmet; ADR106 selects explicit transient-protected maps next, not shipping adoption.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -318,7 +321,10 @@
         "tests/results/M2/2026-10-10-stretch-region-quality/",
         "docs/146-normalized-warp-map-planner.md",
         "docs/decisions/105-normalized-warp-map-planner.md",
-        "tests/results/M8/2026-10-10-warp-map-planner/"
+        "tests/results/M8/2026-10-10-warp-map-planner/",
+        "docs/147-anchored-stretch-candidate.md",
+        "docs/decisions/106-transient-protected-warp-next.md",
+        "tests/results/M8/2026-10-10-anchored-stretch/"
       ]
     },
     {
