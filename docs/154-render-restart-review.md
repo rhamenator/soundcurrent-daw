@@ -97,16 +97,19 @@ third window. It uses actual helper processes and synthetic owned audio; it does
 not open native endpoints. These tests are included in the existing Linux and
 native Windows desktop CI gates.
 
-Installed Linux/Windows restart workflows, abrupt parent termination,
+[Installed Linux normal restart workflows](155-installed-linux-render-restart.md)
+are qualified separately against implementation source `5300010`. Installed
+Windows restart workflows, abrupt parent termination,
 interrupted publication durability, Windows reparse/held-writer qualification,
 large-inventory management and native-speaker review of the new strings remain
 separate gates. Updated catalogs include English source text and unfinished
 entries for other languages; they do not establish all-Europe localization.
 The previous installed Windows checkpoint remains bound to its original source,
 not this changed implementation. No refreshed installer is qualified by these
-synthetic tests.
+synthetic tests; the separately installed Linux checkpoint qualifies its stated
+normal restart scope only.
 
-Next: qualify the actual installed restart/review workflow on Linux and Windows,
+Next: qualify the actual installed restart/review workflow on Windows,
 then continue M2 processing-quality and scalable recovery work. Full M2–M11,
 X004/X005, functional/quality/content/native-compatibility and European language
 requirements remain active.

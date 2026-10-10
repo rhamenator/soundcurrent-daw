@@ -1,0 +1,13 @@
+{
+  "producerSource": "5300010ab521917027501c831b550092e535c210",
+  "positiveAndRefusalCases": 15,
+  "passed": true,
+  "nativeReplay": false,
+  "sha256": {
+    "tools/verify_installed_render_recovery.py": "01c71846f9bf0c0738612da4ed1a7fab054b601878a1d91c6e9c826515c927b5",
+    "tests/installed_render_recovery_evidence_tests.py": "ffee0d7ebe912f98c2517aeae1f4ed287081e7046e07ea0a30587ae2d4c63ca3",
+    "capture.zip": "ce262d5f2c4a698f8788149597232ae0783cb402c60d09f979b217a81fd3c167",
+    "qualification.json": "e261a3dc91e3e8222b1dfa290f99a3d25a352e4da11866af61509f9cebdc3c00",
+    "source-archive-digest.json": "143def12d3bde550b59d867b1e16e0adb571928c2c026731fc07c28432f522fd"
+  }
+}

@@ -3827,3 +3827,21 @@ or full localization. The earlier Windows installer still targets cceedcc6.
 Next: installed Linux/Windows restart/review qualification, then M2 quality and
 scalable recovery work. The full goal remains active and incomplete, including
 M2–M11, X004/X005 and all functional/quality/content/native compatibility gates.
+
+## Installed Linux render restart checkpoint (2026-10-10)
+
+[Checkpoint155](155-installed-linux-render-restart.md) qualifies the actual
+installed normal restart/review flow at source `5300010`: five sequential
+unprivileged app processes, Ready review with exact protected controls,
+changed/restored marker guards, Prepare/Stop, Apply/Save/Undo/Redo, reopened
+Attached refusal, changed-target and altered-manifest refusals, normal Quit and
+repeat WAV export. Retained evidence independently verifies every sample,
+protected unity span, float headroom, unchanged raw bytes and package/source
+identity. The matching source archive verifies 2,223 tracked blobs and modes.
+The runtime was an isolated SDK-free Ubuntu overlay with an owned virtual graph;
+no VM, physical playback, host installation or installer upload occurred.
+
+The full goal remains active and incomplete. Next is current-source Windows
+installed restart/review qualification; its earlier installer remains bound to
+`cceedcc6`. Abrupt death/power loss, scalable recovery, M2 quality, M2–M11,
+X004/X005 and European language qualification remain open.
