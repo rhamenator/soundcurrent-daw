@@ -3,6 +3,7 @@
 """Audit retained installed Windows observations; no archived/native/audio replay."""
 from pathlib import Path
 import hashlib
+import datetime
 import io
 import importlib.util
 import json
@@ -19,6 +20,21 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 reference_inputs = module.reference_inputs
 sha = lambda b: hashlib.sha256(b).hexdigest()
+
+
+def expected_payload():
+    # Independently retained package receipt, before this interruption session.
+    # Fixed identities prevent a reduced/rebound session receipt from qualifying
+    # the operator's installed-payload loop. No product payload is loaded.
+    prior = (REPO / 'tests/results/M2/2026-10-10-native-restart-qualified/capture.zip').read_bytes()
+    assert sha(prior) == 'd44e7cc2c18feb57fa798d369df49fd2c0cc35daec218d73a32fe3a3b3eab5d4'
+    check_member('capture.zip', prior)
+    with zipfile.ZipFile(io.BytesIO(prior)) as z:
+        receipt = z.read('package/receipt.json')
+    assert sha(receipt) == '937b0ddc4d902a53dc6a3026a14e21c63ad0f36a9dc0bbc82a759e5930685d7b'
+    payload = json.loads(receipt.decode('utf-8-sig'))['payload']
+    assert len(payload) == 64
+    return payload
 
 
 def unpack(data):
@@ -63,11 +79,14 @@ def audit(root=ROOT):
     expected = ['20261010222200313', '20261010222419043', '20261010222736887', '20261010223018382']
     captures = [n for n in b if n.startswith('captures/')]
     assert len(captures) == 4
+    payload = expected_payload()
     all_parents = set()
     for index, stamp in enumerate(expected):
         name = 'captures/installed-interruption-' + stamp + '.zip'
         files = unpack(b[name]); project = 'project-été-Κиїв/'
         events = j(files['records/interruption-' + stamp + '.json'])
+        receipt = j(files['records/installed-receipt.json'])
+        assert receipt['payload'] == payload
         event = lambda name: next(e['data'] for e in events if e['name'] == name)
         opened = files['records/project-restart-' + stamp + '-opened-source.json']
         assert opened == files[project + 'project.json']
@@ -92,7 +111,15 @@ def audit(root=ROOT):
             assert all(p['exitCode'] in (1396899841, 1396899842) for p in cleanup['processes'])
             continue
         assert not any(e['name'] == 'operator-failure' for e in events)
-        receipt = j(files['records/installed-receipt.json'])
+        ordered = ['launch-source', 'opened-source', 'source-identity', 'helper-candidate',
+                   'helper-observed', 'source-terminal', 'launch-recovery', 'opened-recovery',
+                   'fresh-identity', 'inventory-active', 'active-refused', 'helper-terminal',
+                   'threads-retired', 'incomplete-refused', 'final-recovery', 'quit-recovery',
+                   'completed', 'cleanup']
+        assert [e['name'] for e in events] == ordered
+        times = [datetime.datetime.fromisoformat(e['utc'].replace('Z', '+00:00')) for e in events]
+        assert all(t.tzinfo is not None and t.utcoffset() == datetime.timedelta(0) for t in times)
+        assert all(a < c for a, c in zip(times, times[1:]))
         assert receipt['sourceHead'] == s['installedSource'] and receipt['sequence'] == s['sequence']
         assert receipt['payload']['soundcurrent-daw.exe']['sha256'] == s['guiSha256']
         assert receipt['payload']['sc-stretch-render-worker.exe']['sha256'] == s['helperSha256']

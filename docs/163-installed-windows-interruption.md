@@ -94,9 +94,13 @@ PR102 ordinarily protected-merged as
 exact test-merge/tree and all nine reviewed blobs were verified. Initial-head
 results remain separate. No administrative bypass or protection change.
 
-Seven semantic refusals rebind nested/outer hashes to exercise altered button
-state, helper exit, partial/opened-project bytes, missing source binding and
-power-loss overclaim. The clone shut down gracefully; actual VM state is off,
+Twelve semantic refusals rebind nested/outer hashes to exercise altered button
+state, helper exit, partial/opened-project bytes, missing source binding,
+power-loss overclaim, reordered death/Active events, regressed timestamps,
+reduced payload inventories and changed DLL hashes. Review corrections enforce
+the successful event sequence and increasing UTC times, plus equality of every
+installed payload entry with the independently retained, hash-pinned original
+64-file package receipt. Original native observations remain unchanged. The clone shut down gracefully; actual VM state is off,
 receiver exit0, owned CD ejected, temporary firewall rule removed and all four
 owned private CDs removed after hash/ownership checks. All VMs are off.
 
