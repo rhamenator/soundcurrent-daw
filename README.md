@@ -41,13 +41,15 @@ The [clip pitch/stretch dialog](docs/136-stretch-supervision.md) now provides
 background rendering and explicit verified, undoable adoption. Native Windows
 build/process qualification and a [local installer/source pair](docs/139-native-windows-stretch-preview.md)
 now include the required helper. [Installed Windows setup and startup](docs/140-windows-installed-stretch-startup.md)
-pass payload, shortcut, Unicode project-open and normal-exit checks; installed
-stretch render/edit/export acceptance remains pending.
+pass payload, shortcut, Unicode project-open and normal-exit checks. The
+[installed Windows editing/export workflow](docs/141-windows-installed-stretch-workflow.md)
+also passes render/review/Apply, Undo/Redo/save, new-process reopen, identical repeat
+WAV exports and removal/reinstallation preservation on an owned synthetic project.
 
 Full pitch/stretch quality, foreign-property adoption and installed/native audio
 qualification remain open. [Installed Linux evidence](docs/138-installed-stretch-preview.md)
-covers its recorded earlier source; the installed Windows render/export and
-removal/reinstallation workflows are the next gates.
+covers its recorded earlier source. Short-span/transient quality, tempo/warp
+editing and sustained native recording remain separate gates.
 
 The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records
 through the native desktop, plays with live EQ/Undo, saves/reopens and exports WAV.

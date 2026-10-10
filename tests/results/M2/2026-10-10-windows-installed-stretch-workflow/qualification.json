@@ -1,0 +1,266 @@
+{
+  "format": "sc-installed-windows-stretch-workflow-v1",
+  "sourceCommit": "f9a63532685c988b4d7203da537957cab41dff92",
+  "sourceTree": "742b786db890a67bbefddcdac8bdb6125d2a481e",
+  "installerSha256": "75af398f0c2cbbc36c0f236311745e89f34321ef59e9cde149da7d80dbefe302",
+  "positionedStretchWorkflowQualified": true,
+  "removalReinstallationQualified": true,
+  "nativeAudioActivated": false,
+  "fullProcessingQuality": false,
+  "releaseUploaded": false,
+  "fullParity": false,
+  "mainPids": [
+    9136,
+    1880,
+    1880
+  ],
+  "helperPid": 2236,
+  "normalMainExits": [
+    0,
+    0,
+    0
+  ],
+  "scope": "Maintainer observations of one owned synthetic installed workflow, Undo/Redo/save, new-process reopen, repeated WAV export, normal removal/reinstallation and post-reinstall startup. No physical audio, complete quality, translated-language delivery or full parity claim. PID 1880 was reused after normal termination.",
+  "archive": {
+    "bytes": 1831189,
+    "sha256": "2fe31f2c681ff08e03ff986f59971c9eed7c7e1a3828245417871864e374a797",
+    "entries": {
+      "commands/collect.ps1": {
+        "bytes": 1266,
+        "sha256": "e943bc158118d93d7315ee23751878a1daa30715ddfed0a7eab5835d7b12b8e5"
+      },
+      "commands/continue.ps1": {
+        "bytes": 545,
+        "sha256": "09e9680ba3987f0dfe9de70d41e7bdf51655c4cbd99a6b78e1dd692f3ce02427"
+      },
+      "commands/cycle.ps1": {
+        "bytes": 5080,
+        "sha256": "2346eb2d3d20a88e493d5c5faf3b9458623dc48635d9e426a7730ea248a9f62d"
+      },
+      "commands/observe.ps1": {
+        "bytes": 2386,
+        "sha256": "01f6ed2bd346333e7d2fd4fdb2ed1d1b22f818bbe12d03525ec6104f1b46c6c9"
+      },
+      "commands/open-main.ps1": {
+        "bytes": 2736,
+        "sha256": "f68fbd715cb46d48e51a894234f661afaa2b3f823f177f4377ab8408b8677a8b"
+      },
+      "commands/open-observed.ps1": {
+        "bytes": 3320,
+        "sha256": "4accf934bf7cc5527bc495d7f2ccfc161e096d855d1dea7a51d1447d31bc7740"
+      },
+      "commands/reopen.ps1": {
+        "bytes": 582,
+        "sha256": "171dad8c7af71e534a45d3a508d9f94b7466d199e6b5fc6aac0ee32e176f56b6"
+      },
+      "commands/state-actions.ps1": {
+        "bytes": 2066,
+        "sha256": "775a09b0454b7eceb8c527edc64e401d734026a5b5782f79b5e3410277eae43e"
+      },
+      "cycle/cycle-result.json": {
+        "bytes": 4336,
+        "sha256": "d0e8ab9f63116517c9b68849d4bb003bc023d74bdc8dd3b18c5d5094d0d7ad48"
+      },
+      "cycle/main-20261010005338195.json": {
+        "bytes": 16111,
+        "sha256": "29163db03967242b93f49adeecb65091b3e789a49fc777d2dd2b53cae3752031"
+      },
+      "cycle/main-20261010005338195.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "cycle/main-20261010005338195.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "cycle/project-été-Κиїв-mix.wav": {
+        "bytes": 98392,
+        "sha256": "cf7378b79ee37642b0a8591ecc5221a6b57f9f83915820206ef461a78a4dd76c"
+      },
+      "cycle/project-été-Κиїв/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "cycle/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/audio.wav": {
+        "bytes": 98408,
+        "sha256": "a1545dde204ab2cdfbc642d31a8325fd5ab8a5a945abd23eab629552141a44bf"
+      },
+      "cycle/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/complete.json": {
+        "bytes": 1048,
+        "sha256": "46933c24a2cbea4ef750ca5b3c686e25bcb57533e67830a05dbd456d7e649806"
+      },
+      "cycle/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/intent.json": {
+        "bytes": 601,
+        "sha256": "586839bbc3888050d29f27085fa3ce15e3b5aae6faf11357df77680db80ece2a"
+      },
+      "cycle/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/start.request": {
+        "bytes": 5,
+        "sha256": "cced28c6dc3f99c2396a5eaad732bf6b28142335892b1cd0e6af6cdb53f5ccfa"
+      },
+      "cycle/project-été-Κиїв/media/raw-été.wav": {
+        "bytes": 96044,
+        "sha256": "6e22cfd507c93dc03681618c2e3a1e2970d9547263f148c10b76c0c3b71bd2b2"
+      },
+      "cycle/project-été-Κиїв/project.json": {
+        "bytes": 4239,
+        "sha256": "1a8fbe21c27935e4c1539eb0f4b9a6226f59c64b47bad7b45f027a7a79db97f1"
+      },
+      "cycle/project-été-Κиїв/project.previous.json": {
+        "bytes": 3095,
+        "sha256": "4bbec433c1505e95a32b0cdbb64a109b0882c8a6ab9174b79974bc400c027d97"
+      },
+      "first/applied-project.json": {
+        "bytes": 4239,
+        "sha256": "1a8fbe21c27935e4c1539eb0f4b9a6226f59c64b47bad7b45f027a7a79db97f1"
+      },
+      "first/helper-observer.json": {
+        "bytes": 4926,
+        "sha256": "8243e8ed838eabed834883be3f17cd49b5fcc44fe0c47ee9cec8401ab6206e12"
+      },
+      "first/main-20261010003809896.json": {
+        "bytes": 16110,
+        "sha256": "ce88b1a27c63e152846951babe749e15cb3ff199cb3a71ef44d0ba066feb702e"
+      },
+      "first/main-20261010003809896.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "first/main-20261010003809896.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "first/project-été-Κиїв-mix.wav": {
+        "bytes": 98392,
+        "sha256": "cf7378b79ee37642b0a8591ecc5221a6b57f9f83915820206ef461a78a4dd76c"
+      },
+      "first/project-été-Κиїв/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "first/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/audio.wav": {
+        "bytes": 98408,
+        "sha256": "a1545dde204ab2cdfbc642d31a8325fd5ab8a5a945abd23eab629552141a44bf"
+      },
+      "first/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/complete.json": {
+        "bytes": 1048,
+        "sha256": "46933c24a2cbea4ef750ca5b3c686e25bcb57533e67830a05dbd456d7e649806"
+      },
+      "first/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/intent.json": {
+        "bytes": 601,
+        "sha256": "586839bbc3888050d29f27085fa3ce15e3b5aae6faf11357df77680db80ece2a"
+      },
+      "first/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/start.request": {
+        "bytes": 5,
+        "sha256": "cced28c6dc3f99c2396a5eaad732bf6b28142335892b1cd0e6af6cdb53f5ccfa"
+      },
+      "first/project-été-Κиїв/media/raw-été.wav": {
+        "bytes": 96044,
+        "sha256": "6e22cfd507c93dc03681618c2e3a1e2970d9547263f148c10b76c0c3b71bd2b2"
+      },
+      "first/project-été-Κиїв/project.json": {
+        "bytes": 4239,
+        "sha256": "1a8fbe21c27935e4c1539eb0f4b9a6226f59c64b47bad7b45f027a7a79db97f1"
+      },
+      "first/project-été-Κиїв/project.previous.json": {
+        "bytes": 3095,
+        "sha256": "4bbec433c1505e95a32b0cdbb64a109b0882c8a6ab9174b79974bc400c027d97"
+      },
+      "first/receipt.json": {
+        "bytes": 11575,
+        "sha256": "39c5032925333a64ec078b15ede7b694b5c9d51b2321936e3b5b0457fbebb718"
+      },
+      "first/redone-project.json": {
+        "bytes": 4239,
+        "sha256": "1a8fbe21c27935e4c1539eb0f4b9a6226f59c64b47bad7b45f027a7a79db97f1"
+      },
+      "first/state-actions.json": {
+        "bytes": 156,
+        "sha256": "ccb391144e1c948015959f835b1cb52623f0f5ab8dd42880dde4816b513ad6a8"
+      },
+      "first/undone-project.json": {
+        "bytes": 3095,
+        "sha256": "4bbec433c1505e95a32b0cdbb64a109b0882c8a6ab9174b79974bc400c027d97"
+      },
+      "initial/project.json": {
+        "bytes": 3110,
+        "sha256": "f9ae3bf852f2c2a9e8bd95414afc75cd0bcf665e6383ea33988f19cc2e460c29"
+      },
+      "observations/actions.json": {
+        "bytes": 700,
+        "sha256": "45ac5816936019b2937303a5984c7838a9ca36ff2a6f1d72e241999e360e6202"
+      },
+      "observations/cleanup.json": {
+        "bytes": 278,
+        "sha256": "8248b773d629c2d162ce5b6fae16f2c4f9fa4c67c7cc7ecd0c2095bbe42c9028"
+      },
+      "screenshots/cycle-finished.png": {
+        "bytes": 271371,
+        "sha256": "27f78fe5ae7252e3ca947d9f7eefd728e84ddf5daadc6b6671a185fdda1083e2"
+      },
+      "screenshots/render-applied-saved.png": {
+        "bytes": 290856,
+        "sha256": "a2b34b3f1b2809466c176e9aba4b9b456f82ade1745a533e0315fb39b7cf9f11"
+      },
+      "screenshots/render-reviewed.png": {
+        "bytes": 322144,
+        "sha256": "f210358787116189aa7ac7e17334fb04222dfebce67de9d13684b0d506622106"
+      },
+      "screenshots/reopen-confirmed.png": {
+        "bytes": 265359,
+        "sha256": "472b18d13e29775b2e9c882da203e7bcea13da06e6ada1d573fd2441e0da8880"
+      },
+      "second/before-reopen-project.json": {
+        "bytes": 4239,
+        "sha256": "1a8fbe21c27935e4c1539eb0f4b9a6226f59c64b47bad7b45f027a7a79db97f1"
+      },
+      "second/main-20261010004655681.json": {
+        "bytes": 16111,
+        "sha256": "2e3477edc6f939f42d0f981b998129ec2c2c2c1babebec4fc212ba81f4d38559"
+      },
+      "second/main-20261010004655681.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "second/main-20261010004655681.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "second/project-été-Κиїв-mix.wav": {
+        "bytes": 98392,
+        "sha256": "cf7378b79ee37642b0a8591ecc5221a6b57f9f83915820206ef461a78a4dd76c"
+      },
+      "second/project-été-Κиїв/.save.lock": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "second/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/audio.wav": {
+        "bytes": 98408,
+        "sha256": "a1545dde204ab2cdfbc642d31a8325fd5ab8a5a945abd23eab629552141a44bf"
+      },
+      "second/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/complete.json": {
+        "bytes": 1048,
+        "sha256": "46933c24a2cbea4ef750ca5b3c686e25bcb57533e67830a05dbd456d7e649806"
+      },
+      "second/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/intent.json": {
+        "bytes": 601,
+        "sha256": "586839bbc3888050d29f27085fa3ce15e3b5aae6faf11357df77680db80ece2a"
+      },
+      "second/project-été-Κиїв/media/derived/d4507657-88e1-48ca-a3d0-137e46d597db/start.request": {
+        "bytes": 5,
+        "sha256": "cced28c6dc3f99c2396a5eaad732bf6b28142335892b1cd0e6af6cdb53f5ccfa"
+      },
+      "second/project-été-Κиїв/media/raw-été.wav": {
+        "bytes": 96044,
+        "sha256": "6e22cfd507c93dc03681618c2e3a1e2970d9547263f148c10b76c0c3b71bd2b2"
+      },
+      "second/project-été-Κиїв/project.json": {
+        "bytes": 4239,
+        "sha256": "1a8fbe21c27935e4c1539eb0f4b9a6226f59c64b47bad7b45f027a7a79db97f1"
+      },
+      "second/project-été-Κиїв/project.previous.json": {
+        "bytes": 3095,
+        "sha256": "4bbec433c1505e95a32b0cdbb64a109b0882c8a6ab9174b79974bc400c027d97"
+      }
+    }
+  }
+}

@@ -3612,3 +3612,21 @@ All VMs are off; the receiver and scoped temporary firewall rule are removed.
 No binary/release upload or equalizer change occurred. Installed rendering/export,
 removal/reinstallation, physical audio and full frozen F/Q/C/N/Europe delivery
 remain open. This is progress; the active completion goal is not achieved.
+
+## Installed Windows stretch editing/export (2026-10-10 UTC)
+
+[Checkpoint141](141-windows-installed-stretch-workflow.md) qualifies one actual
+installed synthetic workflow for unchanged f9a6353: exact source 17+1/2, duration
+3/2, independent pitch +7.00007/formants, verified review/Apply, Undo/Redo/save,
+normal exit, new-process reopen and two byte-identical WAV exports. Independent
+48 kHz stereo PCM equals the derived 12,288-frame clip; finite peak2.22680855
+preserves float headroom. Actual installed helper identity/hash was captured by
+polling; non-admin process-start tracing was denied and remains explicitly limited.
+Normal uninstall and same-build reinstall exit0, payload/shortcuts/registration
+checks pass, project/media/export and sentinel settings/user files survive unchanged.
+Post-reinstallation startup and normal exit pass. Windows reused a terminated PID;
+the three sequential reports retain their distinct timestamps. All VMs are off,
+receiver/firewall removed and original template checks pass. No equalizer change,
+binary upload, physical audio, complete quality or full F/Q/C/N/Europe claim.
+Next broaden short-span/transient quality acceptance, then explicit tempo/warp
+workflows and continued recording reliability. The completion goal stays active.
