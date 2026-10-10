@@ -182,7 +182,7 @@ int test(const std::filesystem::path &input) {
         ProjectStore(root).save(session);check(ProjectStore(root).load().imports==session.imports && history.undo() && history.redo(),"Edit/save/history dropped import evidence");
         check(ProjectStore(root).loadPrevious().imports==session.imports,"Backup dropped original loss state");
         auto j=nlohmann::json::parse(encodeProject(session));
-        check(j["schemaMinor"]==13 && j["imports"][0]["media"][0]["sourceProperty"]==ordinal,"Stable import identifiers differ");
+        check(j["schemaMinor"]==14 && j["imports"][0]["media"][0]["sourceProperty"]==ordinal,"Stable import identifiers differ");
         for (unsigned mode=0;mode<20;++mode) {
             auto bad=j;auto &i=bad["imports"][0];auto &m=i["media"][0];
             switch(mode) {

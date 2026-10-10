@@ -89,7 +89,7 @@ Session canonical() {
 void stateAndEdits() {
     auto s=canonical();const auto original=s;
     auto j=nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"]==13 && decodeProject(j.dump())==s,"Clip processing exact state roundtrip failed");
+    check(j["schemaMinor"]==14 && decodeProject(j.dump())==s,"Clip processing exact state roundtrip failed");
     for(unsigned mode=0;mode<14;++mode) {
         auto bad=j;auto &c=bad["tracks"][0]["clips"][0];auto &p=c["processing"];
         if(mode==0) p["gainDb"]=true;

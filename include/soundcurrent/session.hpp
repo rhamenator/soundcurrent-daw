@@ -199,6 +199,11 @@ struct StretchSettings {
     bool formantPreserved = false;
     bool operator==(const StretchSettings &) const = default;
 };
+struct StretchContext {
+    // Real neighboring frames at the physical source rate; never inferred.
+    Frame before = 0, after = 0;
+    bool operator==(const StretchContext &) const = default;
+};
 struct ClipStretchAnchor {
     Id sourceAssetId = Id::generate();
     std::string sourceSha256;
@@ -208,6 +213,9 @@ struct ClipStretchAnchor {
     std::string renderKey;
     // Persisted algorithm identity; legacy 1.12 projects retain their R3 assets.
     std::string processor = "soundcurrent.stretch-rubberband4-r3-positioned-v2";
+    // Presence opts into a separately versioned nominal visible-crop map,
+    // including an explicitly selected zero-context region.
+    std::optional<StretchContext> context;
     // The clip addresses derived audio; this anchor always addresses raw audio.
     // Split/crop/duplicate retain it and move only the derived source position.
     bool operator==(const ClipStretchAnchor &) const = default;

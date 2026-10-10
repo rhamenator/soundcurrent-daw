@@ -21,11 +21,11 @@ Session source() {
     c.processing.gainDb=4;c.processing.fadeIn={-33,100,ClipFadeCurve::EqualPower,.7};
     c.processing.fadeOut={5120,8000,ClipFadeCurve::Smoothstep,1.2};s.tracks[0].clips={c};validate(s);return s;
 }
-ApplyClipStretch result(const Session &s,const Id &clip,StretchSettings settings) {
-    const auto plan=prepareClipStretch(s,s.tracks[0].id,clip,settings);
+ApplyClipStretch result(const Session &s,const Id &clip,StretchSettings settings,std::optional<StretchContext> context={}) {
+    const auto plan=prepareClipStretch(s,s.tracks[0].id,clip,settings,context);
     Asset rendered=plan.source;rendered.id=Id::generate();
     rendered.relativePath="media/derived/"+rendered.id.str()+"/audio.wav";
-    rendered.sha256=std::string(64,'b');rendered.frames=stretchOutputFrames(plan.anchor.sourceFrames,plan.anchor.settings);
+    rendered.sha256=std::string(64,'b');rendered.frames=stretchGeometry(plan.anchor,plan.source.frames).outputFrames;
     auto anchor=plan.anchor;anchor.renderKey=std::string(64,'c');
     return {plan.trackId,plan.expectedClip.id,plan.expectedClip,plan.source,rendered,std::move(anchor)};
 }
@@ -83,7 +83,7 @@ void workflow() {
 }
 void persistence() {
     auto plain=source();auto s=plain;auto c=result(s,s.tracks[0].clips[0].id,{3,2,1200000,false});applySessionEdits(s,{c});
-    auto j=nlohmann::json::parse(encodeProject(s));check(j["schemaMinor"]==13,"Stretch schema did not advance");
+    auto j=nlohmann::json::parse(encodeProject(s));check(j["schemaMinor"]==14,"Stretch schema did not advance");
     check(j["tracks"][0]["clips"][0]["stretch"]["processor"].get<std::string>()==stretchProcessorId,"Processor identity lost");
     for(unsigned mode=0;mode<22;++mode) {
         auto bad=j;auto &v=bad["tracks"][0]["clips"][0]["stretch"];auto &p=v["settings"];
@@ -106,7 +106,7 @@ void persistence() {
         if(mode==16) v["unknown"]=0;
         if(mode==17) v.erase("settings");
         if(mode==18) bad["tracks"][0]["clips"][0].erase("stretch");
-        if(mode==19) bad["schemaMinor"]=14;
+        if(mode==19) bad["schemaMinor"]=15;
         if(mode==20) p["timeNumerator"]=6; // Noncanonical 6/4.
         if(mode==20) p["timeDenominator"]=4;
         if(mode==21) v["sourceOrigin"]["fraction"]=2;
@@ -138,11 +138,68 @@ void unityIdentity() {
     // Existing 1.12 R3 unity assets must remain R3 and keep their original keys.
     auto legacy=adopted;legacy.tracks[0].clips[0].stretch->processor=stretchProcessorId;
     auto json=nlohmann::json::parse(encodeProject(legacy));json["schemaMinor"]=12;
+    json["tracks"][0]["clips"][0]["stretch"].erase("context");
     check(decodeProject(json.dump())==legacy,"Legacy R3 unity asset was silently reidentified");
     json["tracks"][0]["clips"][0]["stretch"]["processor"]=unityStretchProcessorId;
     refuses([&]{decodeProject(json.dump());});
     check(prepareClipStretch(legacy,legacy.tracks[0].id,legacy.tracks[0].clips[0].id,{1,1,0,false}).anchor.processor==unityStretchProcessorId,
           "Explicit legacy rerender did not select the new unity algorithm");
+}
+void regions() {
+    auto s=source();auto &raw=s.tracks[0].clips[0];raw.startFrame=0;raw.sourceFrame=4096;raw.sourceTiming={1,2};raw.lengthFrames=128;
+    raw.processing={};const auto original=s;
+    const auto command=result(s,raw.id,{3,2,0,true},StretchContext{4095,4096});
+    const auto g=stretchGeometry(command.value,command.source.frames);
+    check(g.inputOrigin==SourcePosition{1,1,2} && g.inputFrames==8319 && g.outputFrames==12479 &&
+          g.visibleBegin==SourcePosition{6142,1,2} && g.visibleEnd==SourcePosition{6334,1,2},"Odd context geometry lost requested crop phase");
+    EditHistory history(s);history.structural({command});const auto adopted=s;
+    check(s.tracks[0].clips[0].lengthFrames==192 && s.tracks[0].clips[0].sourceFrame==6142 &&
+          s.tracks[0].clips[0].sourceTiming==ClipSourceTiming{1,2},"Full-region rounding changed192-frame visible duration");
+    check(s.assets.back().frames==12479 && decodeProject(encodeProject(s))==s,"Full region/visible crop did not persist separately");
+    check(history.undo() && s==original && history.redo() && s==adopted,"Context adoption lost semantic Undo/Redo");
+    const auto right=Id::generate();history.structural({SplitClip{s.tracks[0].id,s.tracks[0].clips[0].id,right,96}});
+    const auto split=s;const auto rerender=result(s,right,{1,1,0,true},StretchContext{2,3});history.structural({rerender});
+    const auto &c=s.tracks[0].clips[1];check(c.sourceFrame==66 && c.sourceTiming==ClipSourceTiming{} && c.lengthFrames==64 &&
+          c.stretch->sourceOrigin==SourcePosition{4096,1,2} && c.stretch->context==std::optional(StretchContext{2,3}),
+          "Split rerender recursed into derivative or lost exact raw-relative crop");
+    check(s.tracks[0].clips[0]==split.tracks[0].clips[0] && history.undo() && s==split,"Context rerender changed sibling or Undo media");
+    for(auto bad:{StretchContext{-1,0},StretchContext{4097,0},StretchContext{0,60000},StretchContext{1000000000,1000000000}})
+        refuses([&]{prepareClipStretch(original,original.tracks[0].id,original.tracks[0].clips[0].id,{3,2,0,false},bad);});
+    auto malformed=adopted;malformed.tracks[0].clips[0].sourceFrame=0;refuses([&]{validate(malformed);});
+    auto json=nlohmann::json::parse(encodeProject(adopted));
+    for(unsigned mode=0;mode<8;++mode) {
+        auto bad=json;auto &p=bad["tracks"][0]["clips"][0]["stretch"];
+        if(mode==0)p["context"]["before"]=-1;
+        if(mode==1)p["context"]["after"]=true;
+        if(mode==2)p["context"]["unknown"]=1;
+        if(mode==3)p["context"].erase("after");
+        if(mode==4)p["processor"]=stretchProcessorId;
+        if(mode==5)p["context"]=nullptr;
+        if(mode==6)bad["schemaMinor"]=13;
+        if(mode==7)p.erase("context");
+        refuses([&]{decodeProject(bad.dump());});
+    }
+    auto old=adopted;old.tracks[0].clips[0].stretch->context.reset();old.tracks[0].clips[0].stretch->processor=stretchProcessorId;
+    old.assets.back().frames=192;old.tracks[0].clips[0].sourceFrame=0;old.tracks[0].clips[0].sourceTiming={};
+    json=nlohmann::json::parse(encodeProject(old));json["schemaMinor"]=13;json["tracks"][0]["clips"][0]["stretch"].erase("context");
+    check(decodeProject(json.dump())==old,"Schema1.13 migration changed legacy rounded maps or keys");
+}
+int geometryProbe() {
+    std::string line;unsigned count=0;
+    while(std::getline(std::cin,line)) {
+        if(++count>4096 || line.size()>4096)return 1;
+        auto j=nlohmann::json::parse(line);nlohmann::json out;
+        try {
+            ClipStretchAnchor p;p.sourceOrigin=scaleSourcePosition({j["first"].get<Frame>(),j["fraction"].get<std::uint64_t>(),j["fractionDenominator"].get<std::uint64_t>()},1,1);
+            p.sourceFrames=j["frames"].get<Frame>();p.settings=canonicalStretchSettings({j["n"].get<std::uint32_t>(),j["d"].get<std::uint32_t>(),j["pitch"].get<std::int32_t>(),true});
+            if(j["context"].get<bool>())p.context=StretchContext{j["before"].get<Frame>(),j["after"].get<Frame>()};
+            p.processor=stretchProcessorFor(p.settings,p.context);const auto g=stretchGeometry(p,j["available"].get<Frame>());
+            auto position=[](SourcePosition v){return nlohmann::json::array({v.frame,v.fraction,v.denominator});};
+            out={{"accepted",true},{"inputOrigin",position(g.inputOrigin)},{"inputFrames",g.inputFrames},{"outputFrames",g.outputFrames},
+                {"visibleBegin",position(g.visibleBegin)},{"visibleEnd",position(g.visibleEnd)},{"map",nlohmann::json::array({g.mapNumerator,g.mapDenominator})}};
+        }catch(const ProjectError &){out={{"accepted",false}};}
+        std::cout<<out.dump()<<'\n';
+    }return 0;
 }
 int probe() {
     std::string line;unsigned count=0;
@@ -163,5 +220,6 @@ int probe() {
 }
 int main(int argc,char **argv) {try {
     if(argc==2 && std::string_view(argv[1])=="--arithmetic-probe") return probe();
-    workflow();persistence();unityIdentity();std::cout<<"stretch_state_checks="<<checks<<" raw_anchor_retained=true split_crop_rerender=true undo_redo=true unity_identity=true legacy_r3_preserved=true schema=1.13\n";return 0;
+    if(argc==2 && std::string_view(argv[1])=="--geometry-probe") return geometryProbe();
+    workflow();persistence();unityIdentity();regions();std::cout<<"stretch_state_checks="<<checks<<" raw_anchor_retained=true split_crop_rerender=true undo_redo=true unity_identity=true legacy_r3_preserved=true nominal_region_map=true schema=1.14\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

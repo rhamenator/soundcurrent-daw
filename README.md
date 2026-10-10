@@ -49,7 +49,11 @@ WAV exports and removal/reinstallation preservation on an owned synthetic projec
 A [separately identified unity render](docs/143-unity-stretch-copy.md) now preserves
 prepared source samples at duration 1/1 and pitch zero, including one-frame clips.
 Existing rendered assets retain their original algorithm identity. Current-source
-Windows and installed acceptance for this increment remain pending.
+Windows and installed acceptance for this increment are independently scoped.
+An [explicit source-context workflow](docs/144-explicit-stretch-context.md) now
+lets short clips use chosen neighboring audio, with nominal visible duration,
+restored controls, Undo and shared playback/export acceptance. Acoustic transient
+alignment and current-source installed qualification remain open.
 
 Full pitch/stretch quality, foreign-property adoption and installed/native audio
 qualification remain open. [Installed Linux evidence](docs/138-installed-stretch-preview.md)

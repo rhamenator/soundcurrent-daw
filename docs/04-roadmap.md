@@ -800,3 +800,16 @@ native Windows/current installed evidence remains pending. Next version the
 processing-region versus visible-crop contract and source context/edge policy,
 define exact output maps and test retained transient counterexamples before
 enabling short non-unity processing. All broader F/Q/C/N requirements remain.
+
+## M2 explicit processing context (2026-10-10 UTC)
+
+[Checkpoint144](144-explicit-stretch-context.md) implements opt-in real-source
+context, nominal visible crops and separately versioned region processors with
+schema1.14/protocol4. Fresh low-priority Linux builds and twenty focused workflows
+pass: 88 state, 975 independent geometry checks, 383 worker checks/53 completed
+jobs, 1045 artifact, 118 UI and 48 supervisor checks. Shared live/export/split/
+seek/crop output agrees with zero audited callback allocation/free/locks.
+Historical installed evidence remains separately scoped. Next qualify musical
+transients, local landmarks, edge/fractional/group behavior and a bounded warp-map
+contract; current installed/native Windows/audio and full Q-STRETCH/F/Q/C/N/Europe
+requirements remain open. No VM or product upload; the full goal stays active.

@@ -728,12 +728,12 @@ bool StudioWindow::stretchCanApply() const {
         s->selection->project->root==m->root &&
         s->selection->project->session->id==m->session->id;
 }
-bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSettings settings) {
+bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context) {
     if(!stretchCanRender())return false;
     try {
         if(!stretch_.clearResult())return false;
         stretchMessage_.clear();
-        const auto admission=stretch_.render(controller_.snapshot(),track,clip,settings);
+        const auto admission=stretch_.render(controller_.snapshot(),track,clip,settings,context);
         if(admission!=Admission::Accepted){stretchMessage_=tr("The render queue is unavailable. Please retry.");return false;}
         return true;
     } catch(const std::exception &error) {
@@ -773,7 +773,12 @@ void StudioWindow::showClipStretch(const Id &track,const Id &clip) {
     const auto active=stretch_.snapshot();
     const bool owns=active->selection && active->selection->track==track && active->selection->clip==clip &&
         active->selection->project->projectEpoch==source->projectEpoch;
-    auto *dialog=new StretchDialog(owns?active->selection->settings:selected->stretch?selected->stretch->settings:StretchSettings{},this);
+    auto *dialog=new StretchDialog(owns?active->selection->settings:selected->stretch?selected->stretch->settings:StretchSettings{},this,
+        owns?active->selection->context:selected->stretch?selected->stretch->context:std::nullopt);
+    try {
+        const auto initial=prepareClipStretch(*source->session,track,clip,selected->stretch?selected->stretch->settings:StretchSettings{});
+        dialog->setContextBounds(initial.anchor.sourceOrigin.frame,initial.source.frames-initial.anchor.sourceOrigin.frame-initial.anchor.sourceFrames);
+    } catch(const ProjectError &) {dialog->setContextBounds(0,0);}
     stretchDialog_=dialog;
     const auto epoch=source->projectEpoch;
     dialog->read=[this,track,clip,epoch]{
@@ -789,8 +794,8 @@ void StudioWindow::showClipStretch(const Id &track,const Id &clip) {
             tr("A different clip has the retained render result. Rendering this clip replaces that pending preview; its owned files are retained.");
         return view;
     };
-    dialog->render=[this,track,clip,epoch](StretchSettings settings){
-        return controller_.snapshot()->projectEpoch==epoch && requestClipStretch(track,clip,settings);
+    dialog->render=[this,track,clip,epoch](StretchSettings settings,std::optional<StretchContext> context){
+        return controller_.snapshot()->projectEpoch==epoch && requestClipStretch(track,clip,settings,context);
     };
     dialog->apply=[this,track,clip,epoch]{
         const auto current=stretch_.snapshot();

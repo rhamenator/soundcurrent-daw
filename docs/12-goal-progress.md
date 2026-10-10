@@ -3646,3 +3646,16 @@ normally with four exact-head qualified gates; no protection weakening or binary
 upload. Next specify explicit processing regions/context/output mapping before
 short non-unity renders, then warp/pitch and recording reliability. Full frozen
 F/Q/C/N parity and European language delivery remain open; the goal is active.
+
+## M2 explicit processing context (2026-10-10 UTC)
+
+[Checkpoint144](144-explicit-stretch-context.md) implements opt-in real-source
+context, nominal visible crops and separately versioned region processors with
+schema1.14/protocol4. Fresh low-priority Linux builds and twenty focused workflows
+pass: 88 state, 975 independent geometry checks, 383 worker checks/53 completed
+jobs, 1045 artifact, 118 UI and 48 supervisor checks. Shared live/export/split/
+seek/crop output agrees with zero audited callback allocation/free/locks.
+Historical installed evidence remains separately scoped. Next qualify musical
+transients, local landmarks, edge/fractional/group behavior and a bounded warp-map
+contract; current installed/native Windows/audio and full Q-STRETCH/F/Q/C/N/Europe
+requirements remain open. No VM or product upload; the full goal stays active.

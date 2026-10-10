@@ -24,22 +24,28 @@ void policy(const StretchRenderPolicy &p){
           "Invalid trusted stretch policy");
 }
 Json key(const Asset &a,const ClipStretchAnchor &v){
-    validateStretchProcessor(v.processor,v.settings);
+    const auto geometry=stretchGeometry(v,a.frames);
     validateRelativeMediaPath(a.relativePath);
     check(v.sourceAssetId==a.id && digest(a.sha256) && v.sourceSha256==a.sha256 && a.sampleRate>=8000 && a.sampleRate<=384000 &&
-          (a.sampleRate<=192000 || v.processor==unityStretchProcessorId) &&
+          (a.sampleRate<=192000 || v.processor==unityStretchProcessorId || v.processor==regionCopyProcessorId) &&
           a.layout.channels>0 && a.layout.channels<=256 && a.frames>0,"Invalid stretch source identity or format");
     check(v.sourceOrigin.frame>=0 && v.sourceOrigin.denominator>0 && v.sourceOrigin.fraction<v.sourceOrigin.denominator &&
           std::gcd(v.sourceOrigin.fraction,v.sourceOrigin.denominator)==1,"Noncanonical stretch source origin");
     check(canonicalStretchSettings(v.settings)==v.settings,"Noncanonical stretch settings");
     const SourceFrameMap map(a.sampleRate,a.sampleRate,v.sourceOrigin);
-    const auto target=stretchOutputFrames(v.sourceFrames,v.settings);
+    const auto target=geometry.outputFrames;
     check(v.sourceFrames<=a.frames-v.sourceOrigin.frame && map.at(v.sourceFrames-1).frame<a.frames,"Stretch source extent differs");
-    return Json{{"processor",v.processor},{"sourceSha256",a.sha256},{"rate",a.sampleRate},{"channels",a.layout.channels},
+    auto result=Json{{"processor",v.processor},{"sourceSha256",a.sha256},{"rate",a.sampleRate},{"channels",a.layout.channels},
         {"first",v.sourceOrigin.frame},{"firstFraction",v.sourceOrigin.fraction},{"firstDenominator",v.sourceOrigin.denominator},
         {"sourceAlgorithm",positionedResamplingAlgorithmId},{"frames",v.sourceFrames},{"target",target},
         {"pitchMilliCents",v.settings.pitchMilliCents},{"formantPreserved",v.settings.formantPreserved},
         {"channelPolicy",a.layout.channels<=2?"mono-stereo-together":"discrete-apart"}};
+    if(v.context) {
+        result["contextBefore"]=v.context->before;result["contextAfter"]=v.context->after;
+        result["timeNumerator"]=v.settings.timeNumerator;result["timeDenominator"]=v.settings.timeDenominator;
+        result["cropMap"]=stretchRegionMapId;
+    }
+    return result;
 }
 Json parse(std::string_view raw){
     check(!raw.empty() && raw.size()<=stretchProtocolMaximum,"Stretch response exceeds admitted bank");
@@ -74,14 +80,16 @@ OwnedStretchProtocol encodeStretchRenderKey(const Asset &a,const ClipStretchAnch
 std::string stretchRenderKey(const Asset &a,const ClipStretchAnchor &v,ResourceLedger ledger){auto bytes=encodeStretchRenderKey(a,v,ledger);return hash(bytes.bytes());}
 OwnedStretchProtocol encodeStretchRenderRequest(const ClipStretchPlan &p,const Id &op,const StretchRenderPolicy &limits,ResourceLedger ledger){
     auto work=ledger.reserve(codecBytes);auto grant=ledger.reserve(stretchProtocolMaximum*2);policy(limits);(void)key(p.source,p.anchor);
-    const auto frames=std::uint64_t(stretchOutputFrames(p.anchor.sourceFrames,p.anchor.settings));
-    check(std::uint64_t(p.anchor.sourceFrames)<=limits.maximumInputFrames && frames<=(limits.maximumOutputBytes-std::min<std::uint64_t>(limits.maximumOutputBytes,1048576))/(p.source.layout.channels*4ULL),"Stretch request exceeds frame/file grant",ErrorCode::ResourceLimit);
-    check(p.anchor.processor==stretchProcessorFor(p.anchor.settings),"Requested processor differs from selected render settings");
+    const auto geometry=stretchGeometry(p.anchor,p.source.frames);const auto frames=std::uint64_t(geometry.outputFrames);
+    check(std::uint64_t(geometry.inputFrames)<=limits.maximumInputFrames && frames<=(limits.maximumOutputBytes-std::min<std::uint64_t>(limits.maximumOutputBytes,1048576))/(p.source.layout.channels*4ULL),"Stretch request exceeds frame/file grant",ErrorCode::ResourceLimit);
+    check(p.anchor.processor==stretchProcessorFor(p.anchor.settings,p.anchor.context),"Requested processor differs from selected render settings");
     auto bytes=Json{{"protocol",stretchRenderProtocol},{"processor",p.anchor.processor},{"operation",op.str()},{"assetId",p.source.id.str()},{"relative",p.source.relativePath},
         {"sha256",p.source.sha256},{"rate",p.source.sampleRate},{"channels",p.source.layout.channels},{"sourceFrames",p.source.frames},
         {"first",p.anchor.sourceOrigin.frame},{"firstFraction",p.anchor.sourceOrigin.fraction},{"firstDenominator",p.anchor.sourceOrigin.denominator},
         {"frames",p.anchor.sourceFrames},{"timeNumerator",p.anchor.settings.timeNumerator},{"timeDenominator",p.anchor.settings.timeDenominator},
-        {"pitchMilliCents",p.anchor.settings.pitchMilliCents},{"formantPreserved",p.anchor.settings.formantPreserved}}.dump();
+        {"pitchMilliCents",p.anchor.settings.pitchMilliCents},{"formantPreserved",p.anchor.settings.formantPreserved},
+        {"contextEnabled",bool(p.anchor.context)},{"contextBefore",p.anchor.context?p.anchor.context->before:0},
+        {"contextAfter",p.anchor.context?p.anchor.context->after:0}}.dump();
     check(bytes.size()<=stretchProtocolMaximum,"Stretch request exceeds bank");return {std::move(grant),std::move(bytes)};
 }
 void verifyStretchRenderReady(std::string_view raw,const ClipStretchPlan &p,const Id &op,ResourceLedger ledger){
@@ -101,7 +109,7 @@ VerifiedClipStretch verifyOwnedClipStretch(const std::filesystem::path &root,con
     const std::array<const char *,9> extra{"writtenFrames","audioSha256","sampleSha256","peakLinear","memoryCeilingBytes","memoryMetric","payloadPeakBytes","deadlineMilliseconds","durabilityMinimum"};
     expected["protocol"]=stretchRenderProtocol;expected["operation"]=op.str();expected["renderKey"]=renderKey;expected["complete"]=true;expected["assetId"]=p.source.id.str();expected["relative"]=p.source.relativePath;expected["sourceFrames"]=p.source.frames;
     auto shape=j;for(const auto *field:extra){check(shape.contains(field),"Missing stretch completion field");shape.erase(field);}exact(shape,expected);
-    const auto target=std::uint64_t(stretchOutputFrames(p.anchor.sourceFrames,p.anchor.settings));
+    const auto target=std::uint64_t(stretchGeometry(p.anchor,p.source.frames).outputFrames);
     check(integer(j,"writtenFrames",1000000000)==target && integer(j,"memoryCeilingBytes",4096ULL*1024*1024)==limits.memoryBytes &&
           integer(j,"payloadPeakBytes",limits.memoryBytes)>0 && integer(j,"deadlineMilliseconds",3600000)==limits.deadlineMilliseconds,"Stretch completion differs from child grant");
 #ifdef _WIN32

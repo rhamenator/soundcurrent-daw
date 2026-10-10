@@ -150,6 +150,7 @@ void dynamicWeight(PayloadCharge &charge, const Track &t) {
         if(c.stretch) {
             stringWeight(charge,c.stretch->sourceAssetId.str());
             stringWeight(charge,c.stretch->sourceSha256);stringWeight(charge,c.stretch->renderKey);
+            stringWeight(charge,c.stretch->processor);
         }
     }
     dynamicWeight(charge, t.input);

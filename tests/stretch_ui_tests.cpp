@@ -2,6 +2,11 @@
 #include "studio_window.hpp"
 #include "stretch_dialog.hpp"
 #include <soundcurrent/export.hpp>
+#include <soundcurrent/mix_reader.hpp>
+#include <soundcurrent/wave_validation.hpp>
+#include "rt_audit.hpp"
+#include <array>
+#include <algorithm>
 #include <QApplication>
 #include <QComboBox>
 #include <QSpinBox>
@@ -38,6 +43,22 @@ Session fixture(const std::filesystem::path &root){
     std::ofstream out(file,std::ios::binary);out.write(bytes.data(),std::streamsize(bytes.size()));out.close();check(bool(out),"Cannot write owned UI source");
     auto s=makeOneTrackSession("Pitch — Київ","Audio");Asset a;a.relativePath=relative;a.sha256=hashMediaFile(file);a.frames=12000;a.layout={LayoutKind::Stereo,2};s.assets={a};s.tracks[0]=makeAudioTrack("Audio",a.layout,s.sampleRate);
     Clip c;c.assetId=a.id;c.sourceFrame=17;c.sourceTiming={1,2};c.lengthFrames=8192;s.tracks[0].clips={c};ProjectStore(root).save(s);return s;
+}
+std::vector<float> live(const std::filesystem::path &root,const Session &s,Frame first,Frame end,std::uint32_t block,ResourceLedger ledger){
+    auto channels=s.tracks[0].layout.channels;MixPlan plan;plan.output=s.tracks[0].layout;TrackMix route{s.tracks[0].id,{}};
+    for(std::uint32_t ch=0;ch<channels;++ch)route.channels.push_back({ch,ch,1});
+    plan.tracks.push_back(route);
+    MixPlaybackConfig config;config.graph.startFrame=first;config.endFrame=end;config.slabFrames=512;config.graph.maximumFrames=block;config.graph.resources=ledger;
+    MixPlayback mix(s,plan,config);ReadAheadOptions options;options.resources=ledger;options.cache.resources=ledger;MixReader reader(mix,root,s,options);
+    std::vector<float> slab(std::size_t(block)*channels),result(std::size_t(end-first)*channels);std::array<float *,256> output{};
+    for(std::uint32_t ch=0;ch<channels;++ch)output[ch]=slab.data()+std::size_t(ch)*block;
+    for(Frame at=first;at<end;){while(reader.fillRound()){}auto n=std::uint32_t(std::min<Frame>(block,end-at));MixPlaybackReport report;
+        {rt_audit::Guard guard;report=mix.process({output.data(),channels},n);}
+        check(!report.missingTrackFrames && report.mix.status==ProcessStatus::Ok && report.timelineFrames==n,"Context live playback lost samples");
+        for(std::uint32_t f=0;f<n;++f)for(std::uint32_t ch=0;ch<channels;++ch)result[std::size_t(at-first+f)*channels+ch]=output[ch][f];
+        at+=n;
+    }
+    return result;
 }
 struct ClosePrompts {
     QTimer timer;
@@ -129,6 +150,53 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         dialog->close();window.close();wait([&]{return !window.isVisible();});
     }
     {
+        const auto regionRoot=base/utf8Path("context-128-frame-Κиїв");auto selected=fixture(regionRoot);
+        auto &rawClip=selected.tracks[0].clips[0];rawClip.sourceFrame=4096;rawClip.sourceTiming={1,2};rawClip.lengthFrames=128;
+        selected.tracks[0].eq={};ProjectStore(regionRoot).save(selected);
+        StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.show();window.openProject(regionRoot);
+        wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.findChild<QComboBox *>("timelineClips")->count()>1;});
+        auto *dialog=openDialog(window);auto *enabled=dialog->findChild<QCheckBox *>("stretchContextEnabled");
+        auto *before=dialog->findChild<QSpinBox *>("stretchContextBefore"),*after=dialog->findChild<QSpinBox *>("stretchContextAfter");
+        check(enabled && before && after && !enabled->isChecked() && !before->isEnabled() && !after->isEnabled(),"Raw context must be an explicit opt-in");
+        check(before->maximum()==4096 && after->maximum()==7776,"Context controls did not use the original asset bounds");
+        enabled->setChecked(true);before->setValue(4095);after->setValue(4096);
+        dialog->findChild<QSpinBox *>("stretchNumerator")->setValue(3);dialog->findChild<QSpinBox *>("stretchDenominator")->setValue(2);
+        dialog->refresh();dialog->findChild<QPushButton *>("renderStretch")->click();
+        wait([&]{return !window.stretchSnapshot()->busy;});dialog->refresh();
+        check(window.stretchSnapshot()->result && *window.snapshot()->session==selected,"Context render failed or adopted without review");
+        check(dialog->findChild<QLabel *>("stretchStatus")->text().contains("4,095") || dialog->findChild<QLabel *>("stretchStatus")->text().contains("4095"),"Verified source context missing from review");
+        dialog->findChild<QPushButton *>("applyStretch")->click();
+        wait([&]{return window.snapshot()->session->tracks[0].clips[0].stretch.has_value() && window.stretchSnapshot()->phase==StretchPhase::Idle;});
+        const auto applied=*window.snapshot()->session;const auto &clip=applied.tracks[0].clips[0];
+        check(clip.lengthFrames==192 && clip.sourceFrame==6142 && clip.sourceTiming==ClipSourceTiming{1,2} &&
+              clip.stretch->sourceOrigin==SourcePosition{4096,1,2} && clip.stretch->sourceFrames==128 &&
+              clip.stretch->context==StretchContext{4095,4096} && clip.stretch->processor==regionStretchProcessorId &&
+              applied.assets.back().frames==12479,"Odd processing region changed nominal visible duration or crop phase");
+        check(window.submitEdit({CommandKind::Undo}),"Context UI Undo refused");wait([&]{return *window.snapshot()->session==selected;});
+        check(window.submitEdit({CommandKind::Redo}),"Context UI Redo refused");wait([&]{return *window.snapshot()->session==applied;});
+        check(window.submitEdit({CommandKind::Save}),"Context UI save refused");wait([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
+        check(ProjectStore(regionRoot).load()==applied && hashMediaFile(regionRoot/utf8Path(applied.assets[0].relativePath))==applied.assets[0].sha256,"Context save/reopen lost state or changed original bytes");
+        const auto ledger=window.resourceLedger();rt_audit::reset();const auto expected=live(regionRoot,applied,0,192,37,ledger);
+        check(live(regionRoot,applied,0,192,127,ledger)==expected,"Context fractional crop changed with callback partitions");
+        auto split=applied;applySessionEdits(split,{SplitClip{applied.tracks[0].id,clip.id,Id::generate(),96}});
+        check(live(regionRoot,split,0,192,31,ledger)==expected,"Context split restarted source phase");
+        const auto suffix=live(regionRoot,applied,37,192,53,ledger);
+        check(std::equal(suffix.begin(),suffix.end(),expected.begin()+74),"Context seek restarted source phase");
+        auto crop=applied;applySessionEdits(crop,{CropClip{applied.tracks[0].id,clip.id,37,37,155}});
+        check(live(regionRoot,crop,37,192,17,ledger)==suffix,"Context crop restarted source phase");
+        ExportSpec spec(applied.tracks[0].id);spec.endFrame=192;spec.blockFrames=41;ExportOptions output;output.resources=ledger;
+        const auto exported=exportTrackWav(regionRoot,applied,base/"context-export.wav",spec,output);
+        ApprovedMediaRoot approved(base,ledger);auto file=approved.open("context-export.wav",1024*1024);std::vector<float> actual;
+        validateApprovedWave(file,{}, {},[&](std::uint64_t,std::span<const double> samples){for(auto sample:samples)actual.push_back(float(sample));});
+        check(actual==expected && exported.frames==192 && exported.peak>0,"Context shared live graph and WAV export differ");
+        check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Context callback performed audited allocation/free/lock");
+        dialog->close();QTest::qWait(2);dialog=openDialog(window);
+        check(dialog->findChild<QCheckBox *>("stretchContextEnabled")->isChecked() &&
+              dialog->findChild<QSpinBox *>("stretchContextBefore")->value()==4095 &&
+              dialog->findChild<QSpinBox *>("stretchContextAfter")->value()==4096,"Reopened dialog lost explicit source context");
+        dialog->close();window.close();wait([&]{return !window.isVisible();});
+    }
+    {
         std::atomic<bool> entered=false,release=false;auto gated=options;gated.afterReady=[&]{entered=true;while(!release)QThread::msleep(1);};
         struct Release{std::atomic<bool>&flag;~Release(){flag=true;}};
         StudioWindow window(nullptr,{},{},{},{},{},{},{},gated);Release unlock{release};window.show();window.openProject(root);wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.findChild<QComboBox *>("timelineClips")->count()>1;});
@@ -172,5 +240,5 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         check(*window.snapshot()->session==saved && window.stretchSnapshot()->result,"A previous-opening dialog adopted the new opening's result");
         dialog->close();window.close();wait([&]{return !window.isVisible();});
     }
-    std::cout<<"stretch_ui_checks="<<checks<<" actual_helper=true render_review_apply=true undo_save_reopen_export=true active_close_reaped=true native_audio=false\n";return 0;
+    std::cout<<"stretch_ui_checks="<<checks<<" actual_helper=true render_review_apply=true undo_save_reopen_export=true active_close_reaped=true explicit_context_128_frame=true context_live_export_split_seek_crop=true callback_audit=0 native_audio=false\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

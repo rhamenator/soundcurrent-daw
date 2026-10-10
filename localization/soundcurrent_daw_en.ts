@@ -1796,8 +1796,24 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Preserve formants</translation>
     </message>
     <message>
+      <source>Use neighboring source context</source>
+      <translation>Use neighboring source context</translation>
+    </message>
+    <message>
+      <source>Context before (source frames)</source>
+      <translation>Context before (source frames)</translation>
+    </message>
+    <message>
+      <source>Context after (source frames)</source>
+      <translation>Context after (source frames)</translation>
+    </message>
+    <message>
       <source>This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.</source>
       <translation>This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.</translation>
+    </message>
+    <message>
+      <source>Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Apply, listen, and use Undo to return to the original.</source>
+      <translation>Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Apply, listen, and use Undo to return to the original.</translation>
     </message>
     <message>
       <source>Render</source>
@@ -1874,6 +1890,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>shifted</source>
       <translation>shifted</translation>
+    </message>
+    <message>
+      <source>Verified source context: %1 frames before, %2 frames after.</source>
+      <translation>Verified source context: %1 frames before, %2 frames after.</translation>
     </message>
   </context>
   <context>

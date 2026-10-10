@@ -10,9 +10,10 @@ struct StretchSelection {
     std::shared_ptr<const ControllerSnapshot> project;
     Id track,clip,operation=Id::generate();
     StretchSettings settings;
+    std::optional<StretchContext> context;
     std::optional<ClipStretchPlan> plan;
-    StretchSelection(ResourceLease credit,std::shared_ptr<const ControllerSnapshot> source,Id t,Id c,StretchSettings value)
-        :lease(std::move(credit)),project(std::move(source)),track(std::move(t)),clip(std::move(c)),settings(value) {}
+    StretchSelection(ResourceLease credit,std::shared_ptr<const ControllerSnapshot> source,Id t,Id c,StretchSettings value,std::optional<StretchContext> region={})
+        :lease(std::move(credit)),project(std::move(source)),track(std::move(t)),clip(std::move(c)),settings(value),context(region) {}
 };
 struct StretchSnapshot {
     StretchPhase phase=StretchPhase::Idle;
@@ -37,7 +38,7 @@ class StretchController {
  public:
     explicit StretchController(StretchOptions={});
     ~StretchController();
-    Admission render(std::shared_ptr<const ControllerSnapshot>,Id track,Id clip,StretchSettings);
+    Admission render(std::shared_ptr<const ControllerSnapshot>,Id track,Id clip,StretchSettings,std::optional<StretchContext> = {});
     void requestCancel() noexcept;
     void requestShutdown() noexcept;
     bool clearResult();

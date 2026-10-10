@@ -53,3 +53,13 @@ processing shares the bounded grouped Undo/Redo history. [Checkpoint129](129-cli
 defines exact endpoints, curves, singleton behavior, split/trim preservation,
 shared playback/export, canonical precision and current native/quality gaps.
 Independent source/project rate, stretch and pitch remain new schema/reader work.
+
+## Schema 1.14: explicit stretch context
+
+The current writer stores nullable physical-source context alongside retained raw
+anchors. Legacy 1.0–1.13 states default to absent context, preserving processor
+IDs, rounded maps, render keys and derivative samples. Explicit regions use
+separate algorithm identities and a nominal visible map with bounded real-source
+geometry. [Checkpoint144](144-explicit-stretch-context.md) records validation,
+Undo/Redo, shared rendering and migration acceptance; local acoustic alignment
+and warp/pitch quality gates remain open.

@@ -294,7 +294,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_window/sample_editor_inspector_audiowarp_r.html?contentId=AkpkpXrJu3zK1xrNBilJzg",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Foundation: constant independent pitch/time rendering from versioned immutable raw anchors, exact fractional retiming, split/crop re-render, checked artifact adoption and Undo/Redo (checkpoint135). Shared live/export reads completed floating derivatives. Desktop supervision/controls, warp markers, tempo ramps, short-span context/alignment, transient accuracy, flatten/recovery and Q-STRETCH/reference workflows remain required and unqualified.",
+      "implementation": "Foundation: editable independent constant pitch/time derivatives, supervised review/Apply, legacy/unity identity, explicit real source context and nominal visible maps, retained raw anchors, exact fractional split/crop/rerender, Undo/Redo/save/reopen and shared live/export acceptance (checkpoints135/136/143/144). Warp markers, tempo ramps, transient accuracy, flatten/recovery, current-source installed qualification and Q-STRETCH/reference workflows remain required and unqualified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -303,7 +303,10 @@
       "reference_b_source_id": "653e48fd8714613b",
       "implementation_evidence": [
         "docs/132-clip-playback-rate.md",
-        "docs/135-editable-stretch-state.md"
+        "docs/135-editable-stretch-state.md",
+        "docs/136-stretch-supervision.md",
+        "docs/143-unity-stretch-copy.md",
+        "docs/144-explicit-stretch-context.md"
       ]
     },
     {
