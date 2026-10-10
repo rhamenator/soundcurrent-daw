@@ -3798,3 +3798,28 @@ pristine installation or physical audio qualification. No product release upload
 all VMs are stopped. Next: parent-owned rendered-job restart inventory/review with
 stale-target guards, followed by independent native/installed acceptance. Full
 suite, F/Q/C/N, broad quality, M2–M11/X004/X005 and European coverage remain open.
+
+## Retained render restart review checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: PR94 normally merged with four required
+green gates and exact source/evidence bindings. [Checkpoint154](154-render-restart-review.md)
+adds immutable parent selections outside helper job directories, bounded
+background inventory, repeated independent verification and explicit UI review.
+New helpers hold a lifetime lease. Ready, attached, stale, incomplete, active and
+invalid cases are distinct; no scan attaches or restarts a job. Existing
+epoch/root/project and expected-clip guards still govern Apply.
+
+Synthetic acceptance covers new-controller/new-window recovery, exact controls
+and protected markers, Apply/Undo/Redo, save/reopen/export, live helper refusal,
+changed sources/media/intent/completion, malformed metadata and resource/count
+bounds. The new UI strings are registered; untranslated entries remain
+unfinished. Local test failures exposed a regenerated minimal-snapshot EQ ID
+and a missing helper lease, both fixed. A stale local geometry probe was rebuilt;
+it did not establish a new processing defect.
+
+This checkpoint does not qualify installed restart, abrupt parent death,
+power-loss durability, large-inventory archival, new installers, physical audio
+or full localization. The earlier Windows installer still targets cceedcc6.
+Next: installed Linux/Windows restart/review qualification, then M2 quality and
+scalable recovery work. The full goal remains active and incomplete, including
+M2–M11, X004/X005 and all functional/quality/content/native compatibility gates.

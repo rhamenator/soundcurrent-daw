@@ -38,12 +38,12 @@
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "755ba8c2d96caa02e275e62a30f53cada9c326252d84057c7257c686fe38a808",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/stretch_controller.cpp": "f7e2ca32ffda45dddc4b72ad8c60c49dc43f31fd522cddb873b52b24685a982a",
-    "ui/stretch_controller.hpp": "30f4a34f550f78475376c09c2882b7c94648e64ba41902d9be42415721c231a9",
-    "ui/stretch_dialog.cpp": "4428e14f7f3e7a8cc88bedbf1ee5300a0ab059eb249288d8ba711e2f0b40b1ee",
+    "ui/stretch_controller.cpp": "63fb88333dd9ef21356a55b48ae7d8e9ddd27b632c37bb54f62fd02a20edf2f0",
+    "ui/stretch_controller.hpp": "b736f1c94d53a52a7e8758093cdf4424cbfb88bf9ba2f9ef4485c1e4ac1a0117",
+    "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "257a69af8e96e34a166ed6930b7dd6384d4614f2e388ac78d3e8fed18ef65f7e",
-    "ui/studio_window.hpp": "48ff916e3d2ef6da891b067c37f9b26006aadb3a393ca712f28a2658ab5ab7d9",
+    "ui/studio_window.cpp": "965d3fe7fa6265382f16c1d69b6e0fc4f2c7360bbcc36f939d53677018496266",
+    "ui/studio_window.hpp": "db3131e1ff66e4be14501840ab26ba1e509a40855126e9261afc1d29c23b0789",
     "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
     "ui/timeline_editor.hpp": "a48e52f31f5064f49c126fdd01d12b56b53c68d3d3f73b786b24a3d98cba2081",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -2840,6 +2840,12 @@
     ],
     [
       "StretchDialog",
+      "This retained result was independently verified after reopening. Review these settings before choosing Apply. No project edit has been made.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
       "A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.",
       "",
       false
@@ -3015,6 +3021,12 @@
     [
       "StudioWindow",
       "Project resources…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review retained pitch/stretch renders…",
       "",
       false
     ],
@@ -3419,6 +3431,126 @@
       "Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.",
       "",
       false
+    ],
+    [
+      "StudioWindow",
+      "Retained render review needs more Project resources. Close unused previews and retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Retained pitch/stretch renders",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Scan again",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Review selected result",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Cancel verification",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Retained render scan could not start. Check Project resources.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Retained render review could not start. Check Project resources.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "This review belongs to a previous project opening. Close it and scan the current project.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verifying retained jobs in the background…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The selected job could not be reviewed. Its source, target or files may have changed. Scan again.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Verification stopped. Check files and Project resources, then scan again. No project edit was made.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Ready for review",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Already attached",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Target changed or missing",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Incomplete render",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Renderer still owns this job",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Invalid or missing files",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "duration %1/%2, pitch %3 semitones",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%n retained job(s) inspected. No project edit was made.",
+      "",
+      true
     ],
     [
       "StudioWindow",

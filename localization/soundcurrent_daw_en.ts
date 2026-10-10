@@ -1919,6 +1919,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Checking the completed audio before it can be applied…</translation>
     </message>
     <message>
+      <source>This retained result was independently verified after reopening. Review these settings before choosing Apply. No project edit has been made.</source>
+      <translation>This retained result was independently verified after reopening. Review these settings before choosing Apply. No project edit has been made.</translation>
+    </message>
+    <message>
       <source>A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.</source>
       <translation>A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.</translation>
     </message>
@@ -2041,6 +2045,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Project resources…</source>
       <translation>Project resources…</translation>
+    </message>
+    <message>
+      <source>Review retained pitch/stretch renders…</source>
+      <translation>Review retained pitch/stretch renders…</translation>
     </message>
     <message>
       <source>Retry project display</source>
@@ -2309,6 +2317,86 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</source>
       <translation>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</translation>
+    </message>
+    <message>
+      <source>Retained render review needs more Project resources. Close unused previews and retry.</source>
+      <translation>Retained render review needs more Project resources. Close unused previews and retry.</translation>
+    </message>
+    <message>
+      <source>Retained pitch/stretch renders</source>
+      <translation>Retained pitch/stretch renders</translation>
+    </message>
+    <message>
+      <source>Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</source>
+      <translation>Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</translation>
+    </message>
+    <message>
+      <source>Scan again</source>
+      <translation>Scan again</translation>
+    </message>
+    <message>
+      <source>Review selected result</source>
+      <translation>Review selected result</translation>
+    </message>
+    <message>
+      <source>Cancel verification</source>
+      <translation>Cancel verification</translation>
+    </message>
+    <message>
+      <source>Retained render scan could not start. Check Project resources.</source>
+      <translation>Retained render scan could not start. Check Project resources.</translation>
+    </message>
+    <message>
+      <source>Retained render review could not start. Check Project resources.</source>
+      <translation>Retained render review could not start. Check Project resources.</translation>
+    </message>
+    <message>
+      <source>This review belongs to a previous project opening. Close it and scan the current project.</source>
+      <translation>This review belongs to a previous project opening. Close it and scan the current project.</translation>
+    </message>
+    <message>
+      <source>Verifying retained jobs in the background…</source>
+      <translation>Verifying retained jobs in the background…</translation>
+    </message>
+    <message>
+      <source>The selected job could not be reviewed. Its source, target or files may have changed. Scan again.</source>
+      <translation>The selected job could not be reviewed. Its source, target or files may have changed. Scan again.</translation>
+    </message>
+    <message>
+      <source>Verification stopped. Check files and Project resources, then scan again. No project edit was made.</source>
+      <translation>Verification stopped. Check files and Project resources, then scan again. No project edit was made.</translation>
+    </message>
+    <message>
+      <source>Ready for review</source>
+      <translation>Ready for review</translation>
+    </message>
+    <message>
+      <source>Already attached</source>
+      <translation>Already attached</translation>
+    </message>
+    <message>
+      <source>Target changed or missing</source>
+      <translation>Target changed or missing</translation>
+    </message>
+    <message>
+      <source>Incomplete render</source>
+      <translation>Incomplete render</translation>
+    </message>
+    <message>
+      <source>Renderer still owns this job</source>
+      <translation>Renderer still owns this job</translation>
+    </message>
+    <message>
+      <source>Invalid or missing files</source>
+      <translation>Invalid or missing files</translation>
+    </message>
+    <message>
+      <source>duration %1/%2, pitch %3 semitones</source>
+      <translation>duration %1/%2, pitch %3 semitones</translation>
+    </message>
+    <message numerus="yes">
+      <source>%n retained job(s) inspected. No project edit was made.</source>
+      <translation type="unfinished" />
     </message>
     <message>
       <source>The render queue is unavailable. Please retry.</source>
