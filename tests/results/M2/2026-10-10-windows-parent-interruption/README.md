@@ -10,7 +10,7 @@ source copies and future merge/CI metadata do not relabel that compilation.
 
 `capture.zip` contains 143 exact members: four final cases, original failed
 lock/publication-read sessions, source/input manifests, native/host logs,
-per-case terminal receipts and shutdown state. Its 113-MiB uncompressed contents
+per-case terminal receipts and shutdown state. Its roughly 108-MiB uncompressed contents
 fit the existing 128-MiB recursive guard; no limit was raised. All programs in
 the evidence are source text under this repository's GPL-3.0-only license.
 No product EXE/DLL, installer, credential or private transport is included.
