@@ -137,17 +137,11 @@ std::string persistStretchSelection(const std::filesystem::path &root,const Sess
     const bool newLock=!std::filesystem::exists(std::filesystem::symlink_status(selections/"writer.lock"));
     media_io::JobLease publication(selections,newLock,!newLock);
     check(publication.status()==media_io::LeaseStatus::Held,"Render selection publication is busy",ErrorCode::Io);
-    ApprovedMediaRoot entries(selections,ledger,{1});
-    // Count all entries (including interrupted publication remnants), bounded
-    // before admitting another manifest. No cleanup or recursive traversal.
-    std::size_t count=0,total=0;
-    for(const auto &entry:std::filesystem::directory_iterator(selections)){
-        poll(stop);if(entry.path().filename()=="writer.lock")continue;
-        check(++count<l.maximumEntries,"Render selection count limit",ErrorCode::ResourceLimit);
-        auto file=entries.openSelectedFilename(entry.path().filename(),l.maximumManifestBytes,stop);
-        const auto size=file.size();check(size<=l.maximumTotalBytes-total,"Render selection total byte limit",ErrorCode::ResourceLimit);total+=std::size_t(size);file.verifyUnchanged();
-    }
-    check(bytes.size()<=l.maximumTotalBytes-total,"Render selection total byte limit",ErrorCode::ResourceLimit);poll(stop);
+    // Admission covers this immutable manifest, independent of project history.
+    // Recovery's entry/total-byte limits apply per page. No directory inventory,
+    // aggregate counter or persistent index is needed to publish one new leaf.
+    // OS write/flush/publish failures retain the existing no-overwrite cleanup.
+    poll(stop);
     const auto destination=root/utf8Path(relative(op)),temp=destination.parent_path()/("selection-"+Id::generate().str()+".partial");
     bool owned=false;
     try{media_io::File out(temp,true);owned=true;out.write(bytes);out.flush();out.close();poll(stop);media_io::publishMedia(temp,destination);owned=false;}

@@ -218,6 +218,60 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
         }
     }
     {
+        // Exercise real parent publication/helper completion beyond the previous
+        // whole-directory ceiling, then verify every Ready job across pages.
+        auto large=project(base/utf8Path("publication-été-Κиїв"),memory);const auto saved=*large->session;
+        ProjectStore(large->root).save(saved);const auto savedBytes=read(large->root/"project.json");
+        const auto rawPath=large->root/utf8Path(saved.assets[0].relativePath);const auto rawBytes=read(rawPath);
+        const auto t=saved.tracks[0].id,cid=saved.tracks[0].clips[0].id;
+        auto o=options(memory,helper);StretchController c(o);std::set<std::string> expected;
+        std::size_t maximumRetained=0;
+        for(unsigned i=0;i<129;++i){
+            check(c.render(large,t,cid,{1,1,0,false})==Admission::Accepted,"Large project render publication refused");
+            const auto done=finish(c);check(done->phase==StretchPhase::Complete && done->result && done->childExit==0,"Render beyond old publication cap failed");
+            expected.insert(done->selection->operation.str());maximumRetained=std::max(maximumRetained,memory.usage().reservedBytes);
+            check(done->result->edit().rendered.frames==8192 && *large->session==saved,"Large project render changed source or geometry");
+        }
+        check(expected.size()==129 && maximumRetained<64*1024*1024,"Repeated completed jobs accumulated controller credit");
+        const auto directory=large->root/"media"/"stretch-selections";
+        for(unsigned i=0;i<20;++i)write(directory/("owned-remnant-"+std::to_string(i)+".partial"),std::string(512*1024,'x'));
+        // More than8MiB of unrelated retained entries cannot block this bounded
+        // publication. Existing manifest bytes and raw input remain immutable.
+        const auto existing=directory/(*expected.begin()+".json");const auto before=read(existing);
+        const auto plan=prepareClipStretch(saved,t,cid,{1,1,0,false});const auto incomplete=Id::generate();
+        check(persistStretchSelection(large->root,saved,plan,incomplete,o.policy,memory).size()==64,"Aggregate retained bytes blocked publication");
+        check(read(existing)==before,"New publication rewrote previous manifest");
+        {
+            StretchRecoveryScan scan(large->root,saved,memory);std::set<std::string> seen;std::size_t examined=0,pages=0;
+            for(;;){auto page=scan.next();++pages;examined+=page.examined;
+                check(page.examined<=128 && page.manifestBytes<=8*1024*1024,"Completed inventory exceeded page bounds");
+                for(const auto &v:page.entries){
+                    if(v.operation==incomplete)check(v.status==StretchRecoveryStatus::Incomplete && !v.verified,"Unrendered selection was reviewable");
+                    else {check(v.status==StretchRecoveryStatus::Ready && v.verified && expected.contains(v.operation.str()),"Completed job lost independent verification");check(seen.insert(v.operation.str()).second,"Completed job repeated across pages");}
+                }
+                if(!page.hasMore)break;
+            }
+            check(pages>=2 && examined==150 && seen==expected,"Paged inventory lost completed jobs or remnants");
+        }
+        const auto target=Id::generate();
+        std::stop_source stop;stop.request_stop();refuses([&]{persistStretchSelection(large->root,saved,plan,target,o.policy,memory,{},stop.get_token());});
+        check(!std::filesystem::exists(directory/(target.str()+".json")),"Canceled publication left destination");
+        {media_io::JobLease reader(directory,false);check(reader.status()==media_io::LeaseStatus::Held,"Cannot hold publication read lease");refuses([&]{persistStretchSelection(large->root,saved,plan,target,o.policy,memory);});}
+        check(!std::filesystem::exists(directory/(target.str()+".json")),"Busy publication wrote destination");
+        auto small=StretchRecoveryLimits{};small.maximumManifestBytes=1;
+        refuses([&]{persistStretchSelection(large->root,saved,plan,target,o.policy,memory,small);});
+        check(!std::filesystem::exists(directory/(target.str()+".json")),"Oversized manifest was published");
+        ResourceLedger exhausted(1024,"Publication refusal");refuses([&]{persistStretchSelection(large->root,saved,plan,target,o.policy,exhausted);});
+        check(exhausted.usage().owners==0,"Failed publication retained credit");
+        refuses([&]{persistStretchSelection(large->root,saved,plan,incomplete,o.policy,memory);});
+        check(read(existing)==before && *large->session==saved,"Refused publications changed existing state");
+        check(read(large->root/"project.json")==savedBytes && read(rawPath)==rawBytes && ProjectStore(large->root).load()==saved,"Saved project/raw changed across large publication workflow");
+        check(c.review(large,Id(*expected.begin()))==Admission::Accepted,"Large inventory explicit Review refused");
+        const auto reviewed=finish(c);check(reviewed->recovered && reviewed->result,"Completed job could not be reverified for explicit Review");
+        auto edited=saved;EditHistory history(edited);check(history.structural({reviewed->result->edit()}) && history.undo() && edited==saved,"Large inventory Apply/Undo failed");
+        c.requestShutdown();wait([&]{return c.snapshot()->closed;});
+    }
+    {
         std::atomic<bool> entered=false,release=false;auto o=options(memory,helper);o.beforeSpawn=[&]{entered=true;while(!release)QThread::msleep(1);};
         StretchController c(o);Release unlock{release};c.render(source,track,clip,{});wait([&]{return entered.load();});c.requestCancel();release=true;
         const auto done=finish(c);check(done->phase==StretchPhase::Canceled && done->canceled && !done->childPid && !done->result,"Cancel before spawn failed");

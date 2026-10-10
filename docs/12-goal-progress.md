@@ -4038,3 +4038,16 @@ render quality/throughput qualification. Windows paging remains pending native
 CI and installed UI evidence. New publication still retains its whole-directory
 128-entry/8MiB ceiling; a bounded publication/index design is the next task.
 Full goal remains active/incomplete; no VM or audible route used for this step.
+
+## 2026-10-10: render publication independent of retained history
+
+[Checkpoint165](165-bounded-selection-publication.md) replaces the whole-directory
+publication inventory with one bounded immutable-manifest write under the
+existing writer lease. Recovery page budgets and all per-job render/resource
+admission remain. The flat-v1 format/parent binding remain unchanged; no index or
+migration is introduced. Acceptance now exercises129 actual sequential completed
+helper jobs,10MiB of owned remnants, one additional Incomplete selection, paged
+verification and explicit Review/Apply/Undo. Native Windows/installed workflows,
+concurrent/storage-fault interruption, processing quality and full parity remain
+open. Source/evidence backup and ordinary protected reviews remain separate from
+product release publication.
