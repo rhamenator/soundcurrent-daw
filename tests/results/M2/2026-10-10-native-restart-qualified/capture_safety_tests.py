@@ -27,8 +27,11 @@ class CaptureSafetyTests(unittest.TestCase):
             check_member("owned.zip", nested("records/report.json", b"MZsynthetic fixture"))
 
     def test_second_level_archive_cannot_hide_forbidden_material(self):
-        with self.assertRaises(AssertionError):
-            check_member("owned.zip", nested("records/INNER.ZIP", nested("private-Transport.json", b"fixture")))
+        for name in ("records/INNER.ZIP", "records/notes.json"):
+            for member, payload in (("private-Transport.json", b"fixture"),
+                                    ("report.txt", b"MZsynthetic fixture")):
+                with self.subTest(name=name, member=member), self.assertRaises(AssertionError):
+                    check_member("owned.zip", nested(name, nested(member, payload)))
 
     def test_windows_path_escape_is_refused(self):
         for name in ("..\\outside.json", "C:\\outside.json", "\\outside.json"):

@@ -20,7 +20,8 @@ def check_member(name, data, depth=0, budget=None):
         budget = [128 * 1024 * 1024]
     budget[0] -= len(data)
     assert budget[0] >= 0, "Evidence byte budget exceeded"
-    if windows_name.endswith(".zip"):
+    # A renamed archive must not conceal forbidden members either.
+    if windows_name.endswith(".zip") or zipfile.is_zipfile(io.BytesIO(data)):
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             members = archive.infolist()
             assert len(members) <= 512
