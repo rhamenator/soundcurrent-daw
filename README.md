@@ -269,6 +269,11 @@ Trusted distribution and installers remain separate gates; see
 
 ## Plan, evidence and next task
 
+The [native and installed protected Windows preview](docs/153-native-installed-protected-preview.md)
+now has retained marker-render, Undo/Redo, Unicode reopen and float export evidence.
+The refreshed unsigned installer and corresponding source are prepared locally;
+physical audio, pristine Windows installation and full-suite qualification remain open.
+
 - [Scope and frozen baseline](docs/00-scope-baseline.md)
 - [Source-linked parity matrix](docs/01-parity-matrix.md) · [machine-readable requirements](research/parity.json)
 - [Architecture and real-time threading contracts](docs/02-architecture.md)
