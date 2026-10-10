@@ -196,7 +196,7 @@ void firstWarpEndpoint() {
         auto &clip=s.tracks[0].clips[0];clip.sourceTiming={};clip.lengthFrames=8193;clip.playbackRate=test.speed;
         const auto original=s;const auto id=clip.id;
         WarpSettings warp;warp.markers.push_back({Id::generate(),{4096,0,1},{4096*ratio,0,1}});
-        auto command=result(s,id,{std::uint64_t(ratio),1,0,true},{},warp);
+        auto command=result(s,id,{std::uint32_t(ratio),1,0,true},{},warp);
         check(command.value.sourceFrames==test.span,"First warp did not retain its rounded preparation span");
         EditHistory history(s);history.structural({command});const auto adopted=s;
         const auto &actual=s.tracks[0].clips[0];
