@@ -4025,3 +4025,31 @@ removed. No driver/host route/equalizer change, product rebuild or upload.
 Next: bounded resumable recovery inventories. Additional boundaries/selection
 properties, M2 quality, power-loss/scalability, M2–M11/X004/X005/all-Europe and
 separate F/Q/C/N goals remain open; full goal stays active and incomplete.
+
+## 2026-10-10: bounded retained-render inventory pages
+
+[Checkpoint164](164-resumable-render-recovery.md) adds an explicit Next page
+workflow with original128-entry/8MiB per-page bounds and worker-owned cursor
+retirement. Directory changes, cancellation and changed project snapshots expire
+continuation. Review still verifies before explicit Apply. Linux synthetic/core
+and offscreen Qt workflows pass, including259 directory entries, byte-limited
+pages and129-row UI pagination. Invalid generated jobs are not a many-completed-
+render quality/throughput qualification. Windows paging remains pending native
+CI and installed UI evidence. New publication still retains its whole-directory
+128-entry/8MiB ceiling; a bounded publication/index design is the next task.
+Full goal remains active/incomplete; no VM or audible route used for this step.
+
+PR104 review correction: scope recovery cancellation by a monotonic request ID.
+Changing projects/closing a stale dialog retires its cursor and worker-held
+page/model references; unrelated newer scans/renders are preserved. New tests
+measure exact resource return and a deliberately held newer render during stale
+UI Close. Original paging evidence/source identity remains separate; qualify
+this corrected head through fresh protected gates before merge.
+
+PR104/105 Linux CI refused an out-of-date localization source inventory after
+the paging UI changes. Regenerate with actual Qt Linguist, adding seven keys and
+superseding two. All28,866 existing shared translation entries/comments across34
+catalogs are preserved; new non-English entries remain unfinished and catalog
+review/status is unchanged. Four focused catalog/localization/stretch UI tests
+now pass locally (UI283 checks). Fresh current-head protected gates remain
+required; no language completeness claim is added.

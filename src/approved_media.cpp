@@ -145,6 +145,24 @@ ApprovedMediaRoot::ApprovedMediaRoot(const std::filesystem::path &path,ResourceL
 ApprovedMediaRoot::ApprovedMediaRoot(ApprovedMediaRoot &&) noexcept=default;
 ApprovedMediaRoot::~ApprovedMediaRoot()=default;
 std::size_t ApprovedMediaRoot::openFiles() const { require(bool(state_),"Retired approved root",ErrorCode::InvalidState);return state_->activeFiles; }
+ApprovedDirectoryStamp ApprovedMediaRoot::directoryStamp() const {
+    require(bool(state_),"Retired approved root",ErrorCode::InvalidState);
+#ifdef _WIN32
+    BY_HANDLE_FILE_INFORMATION info{}; FILE_BASIC_INFO basic{};
+    require(GetFileInformationByHandle(state_->root.value,&info) &&
+        GetFileInformationByHandleEx(state_->root.value,FileBasicInfo,&basic,sizeof(basic)) &&
+        (info.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && !(info.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT),
+        "Cannot inspect approved directory");
+    return {{{info.dwVolumeSerialNumber,(std::uint64_t(info.nFileIndexHigh)<<32)|info.nFileIndexLow,
+        0,std::uint64_t(basic.LastWriteTime.QuadPart),0,std::uint64_t(basic.ChangeTime.QuadPart),0}}};
+#else
+    struct stat info{};
+    require(fstat(state_->root.value,&info)==0 && S_ISDIR(info.st_mode),"Cannot inspect approved directory");
+    return {{{std::uint64_t(info.st_dev),std::uint64_t(info.st_ino),std::uint64_t(info.st_size),
+        std::uint64_t(info.st_mtim.tv_sec),std::uint64_t(info.st_mtim.tv_nsec),
+        std::uint64_t(info.st_ctim.tv_sec),std::uint64_t(info.st_ctim.tv_nsec)}}};
+#endif
+}
 ApprovedMediaFile ApprovedMediaRoot::open(std::string_view relative,std::uint64_t maximumBytes,std::stop_token stop) const {
     return openImpl(relative,maximumBytes,stop,false);
 }

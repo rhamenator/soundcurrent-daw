@@ -36,4 +36,27 @@ StretchRecoveryEntry inspectStretchSelection(const std::filesystem::path &,const
     const Id &,ResourceLedger,StretchRecoveryLimits={},std::stop_token={});
 std::vector<StretchRecoveryEntry> inventoryStretchSelections(const std::filesystem::path &,
     const Session &,ResourceLedger,StretchRecoveryLimits={},std::stop_token={});
+struct StretchRecoveryPage {
+    ResourceLease lease;
+    std::vector<StretchRecoveryEntry> entries;
+    std::size_t examined=0,manifestBytes=0;
+    bool hasMore=false;
+};
+// Serialized control/I/O cursor, including destruction. One immutable Session
+// per scan; each page retains the existing entry/byte bounds. Directory order
+// is native (only each page is sorted). No lock is held between pages. Changed
+// directory entries, cancellation or failure invalidate the cursor; restart.
+// Review must independently reverify a selected result before applying it.
+class StretchRecoveryScan {
+  public:
+    StretchRecoveryScan(const std::filesystem::path &,const Session &,ResourceLedger,
+        StretchRecoveryLimits={});
+    ~StretchRecoveryScan();
+    StretchRecoveryScan(const StretchRecoveryScan &)=delete;
+    StretchRecoveryScan &operator=(const StretchRecoveryScan &)=delete;
+    StretchRecoveryPage next(std::stop_token={});
+  private:
+    struct State;
+    std::unique_ptr<State> state_;
+};
 } // namespace soundcurrent::daw

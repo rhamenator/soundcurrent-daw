@@ -11,6 +11,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <nlohmann/json.hpp>
 #include "media_io.hpp"
 using namespace soundcurrent::daw;
@@ -138,6 +139,104 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
         bounded=l;bounded.maximumEntries=1;const auto extra=manifest.parent_path()/"interrupted.partial";write(extra,"partial");refuses([&]{inventoryStretchSelections(source->root,original,memory,bounded);});std::filesystem::remove(extra);
         reopened.requestShutdown();wait([&]{return reopened.snapshot()->closed;});
         check(*source->session==original,"Restart review changed immutable project");
+    }
+    {
+        // A foreign/older project may retain more entries than new publication
+        // admits. Pages bound work and memory without silently dropping jobs.
+        auto paged=project(base/utf8Path("pages-été-Κиїв"),memory);
+        const auto directory=paged->root/"media"/"stretch-selections";std::filesystem::create_directory(directory);
+        {media_io::JobLease marker(directory,true);check(marker.status()==media_io::LeaseStatus::Held,"Cannot create page ownership fixture");}
+        std::set<std::string> expected;
+        for(unsigned i=0;i<257;++i){const auto id=Id::generate().str();expected.insert(id);write(directory/(id+".json"),"{bad");}
+        write(directory/"interrupted.partial","partial");write(directory/"00000000-0000-0000-0000-000000000000.json","nil");
+        const auto baseline=memory.usage().reservedBytes;
+        {
+            StretchRecoveryScan scan(paged->root,*paged->session,memory);std::set<std::string> seen;std::size_t examined=0,pages=0;
+            for(;;){auto page=scan.next();++pages;examined+=page.examined;
+                check(page.examined<=128 && page.manifestBytes<=8*1024*1024 && page.entries.size()<=128,"Page exceeded original bounds");
+                check(memory.usage().reservedBytes-baseline<4*1024*1024,"Inventory memory grew beyond one page");
+                for(const auto &v:page.entries)check(v.status==StretchRecoveryStatus::Invalid && !v.verified && seen.insert(v.operation.str()).second,"Malformed job accepted or duplicated across pages");
+                if(!page.hasMore)break;
+            }
+            check(pages==3 && examined==259 && seen==expected,"Pagination omitted entries beyond the first 128");
+            check(scan.next().entries.empty(),"Completed cursor repeated its last page");
+        }
+        check(memory.usage().reservedBytes==baseline,"Retired page cursor retained resources");
+        {
+            StretchRecoveryLimits one;one.maximumEntries=1;
+            StretchRecoveryScan scan(paged->root,*paged->session,memory,one);check(scan.next().hasMore,"Expected continuing directory");
+            write(directory/(Id::generate().str()+".json"),"changed");
+            refuses([&]{scan.next();});refuses([&]{scan.next();});
+        }
+        {
+            StretchRecoveryLimits one;one.maximumEntries=1;StretchRecoveryScan scan(paged->root,*paged->session,memory,one);
+            check(scan.next().hasMore,"Expected publication continuation");
+            {media_io::JobLease publisher(directory,false,true);check(publisher.status()==media_io::LeaseStatus::Held,"Scan held publication lock between pages");refuses([&]{scan.next();});}
+            refuses([&]{scan.next();});
+        }
+        {
+            StretchRecoveryLimits one;one.maximumEntries=1;StretchRecoveryScan scan(paged->root,*paged->session,memory,one);
+            check(scan.next().hasMore,"Expected cancelable continuation");std::stop_source stop;stop.request_stop();
+            try{scan.next(stop.get_token());throw std::runtime_error("Canceled page accepted");}catch(const ProjectError &e){check(e.code()==ErrorCode::Canceled,"Wrong page cancellation result");}
+            refuses([&]{scan.next();});
+        }
+        {
+            StretchRecoveryLimits one;one.maximumEntries=1;StretchRecoveryScan scan(paged->root,*paged->session,memory,one);
+            check(scan.next().hasMore,"Expected replacement continuation");
+            const auto held=directory.parent_path()/"held-selections";std::filesystem::rename(directory,held);std::filesystem::create_directory(directory);
+            {media_io::JobLease marker(directory,true);}
+            refuses([&]{scan.next();});std::filesystem::remove_all(directory);std::filesystem::rename(held,directory);
+        }
+        {
+            const auto bytesRoot=base/"byte-pages";std::filesystem::create_directory(bytesRoot);std::filesystem::create_directory(bytesRoot/"media");
+            const auto dir=bytesRoot/"media"/"stretch-selections";std::filesystem::create_directory(dir);{media_io::JobLease marker(dir,true);}
+            for(unsigned i=0;i<3;++i)write(dir/(Id::generate().str()+".json"),std::string(512*1024,'x'));
+            StretchRecoveryLimits bounds;bounds.maximumTotalBytes=512*1024;
+            StretchRecoveryScan scan(bytesRoot,*paged->session,memory,bounds);std::size_t n=0;
+            for(;;){auto page=scan.next();check(page.examined==1 && page.manifestBytes==512*1024,"Byte budget did not defer next entry");++n;if(!page.hasMore)break;}
+            check(n==3,"Byte-bound pages lost manifests");
+        }
+        {
+            auto o=options(memory,helper);StretchController c(o);check(c.scan(paged)==Admission::Accepted,"Controller paged scan refused");
+            auto first=finish(c);check(first->recoveryPage && first->recoveryPage->hasMore && first->inventoryPage==1,"Controller lost continuation");
+            auto stale=std::make_shared<ControllerSnapshot>(*paged);++stale->modelRevision;
+            refuses([&]{c.nextScanPage(stale);});stale=std::make_shared<ControllerSnapshot>(*paged);++stale->projectEpoch;
+            refuses([&]{c.nextScanPage(stale);});
+            check(c.nextScanPage(paged)==Admission::Accepted,"Controller continuation refused");auto second=finish(c);
+            check(second->inventoryPage==2 && second->recoveryPage && second->recoveryPage->hasMore,"Controller second page lost cursor");
+            check(first->recoveryId && first->recoveryId==second->recoveryId,"Continuation changed recovery ownership token");
+            std::set<std::string> seen;for(const auto &v:*first->inventory)seen.insert(v.operation.str());
+            for(const auto &v:*second->inventory)check(seen.insert(v.operation.str()).second,"Controller duplicated first-page entries");
+            c.requestCancel();refuses([&]{c.nextScanPage(paged);});wait([&]{return c.snapshot()->canceled;});
+            check(c.scan(paged)==Admission::Accepted && finish(c)->inventoryPage==1,"Canceled scan failed to restart");
+            write(directory/(Id::generate().str()+".json"),"changed again");
+            check(c.nextScanPage(paged)==Admission::Accepted,"Changed directory refused before worker validation");
+            const auto changed=finish(c);check(changed->phase==StretchPhase::Fault && !changed->inventory && !changed->result,"Changed inventory published stale page");
+            check(c.clearResult(),"Faulted page could not be cleared");
+            check(c.scan(paged)==Admission::Accepted && finish(c)->inventoryPage==1,"Cleared scan did not restart");
+            check(*paged->session==*c.snapshot()->inventoryProject->session,"Page scan mutated project");
+            c.requestShutdown();wait([&]{return c.snapshot()->closed;});
+        }
+    }
+    {
+        auto paged=project(base/"scoped-retirement",memory);const auto directory=paged->root/"media"/"stretch-selections";
+        std::filesystem::create_directory(directory);{media_io::JobLease marker(directory,true);}
+        for(unsigned i=0;i<129;++i)write(directory/(Id::generate().str()+".json"),"{bad");
+        std::atomic<bool> entered=false,release=false;auto o=options(memory,helper);
+        o.beforeSpawn=[&]{entered=true;while(!release)QThread::msleep(1);};
+        StretchController c(o);Release unlock{release};const auto baseline=memory.usage().reservedBytes;
+        check(c.scan(paged)==Admission::Accepted,"Scoped retirement scan refused");
+        auto page=finish(c);const auto oldId=page->recoveryId;check(oldId && page->recoveryPage->hasMore,"Scoped retirement token missing");page.reset();
+        check(c.requestRecoveryCancel(oldId),"Owning dialog could not retire cursor");wait([&]{return c.snapshot()->canceled;});
+        check(memory.usage().reservedBytes==baseline,"Cursor retirement retained worker page/session credit");
+        check(c.scan(paged)==Admission::Accepted,"New scoped scan refused");page=finish(c);const auto newId=page->recoveryId;
+        check(newId!=oldId && !c.requestRecoveryCancel(oldId) && !c.snapshot()->canceled,"Stale dialog canceled newer inventory");page.reset();
+        check(c.requestRecoveryCancel(newId),"New dialog could not retire its cursor");wait([&]{return c.snapshot()->canceled;});
+        check(memory.usage().reservedBytes==baseline,"Second scoped retirement retained credit");
+        check(c.render(source,track,clip,{1,1,0,false})==Admission::Accepted,"Newer render refused after recovery retirement");wait([&]{return entered.load();});
+        check(!c.requestRecoveryCancel(oldId) && !c.requestRecoveryCancel(newId),"Stale recovery dialog targeted unrelated live render");
+        release=true;const auto done=finish(c);check(done->result && !done->canceled && done->childExit==0,"Stale dialog interrupted newer render");
+        c.requestShutdown();wait([&]{return c.snapshot()->closed;});
     }
     {
         std::atomic<bool> entered=false,release=false;auto o=options(memory,helper);o.beforeSpawn=[&]{entered=true;while(!release)QThread::msleep(1);};

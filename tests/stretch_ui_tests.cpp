@@ -5,6 +5,7 @@
 #include <soundcurrent/mix_reader.hpp>
 #include <soundcurrent/wave_validation.hpp>
 #include "rt_audit.hpp"
+#include "media_io.hpp"
 #include <array>
 #include <algorithm>
 #include <QApplication>
@@ -116,6 +117,44 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
             check(list->item(0)->text().contains("Already attached") && !window.findChild<QPushButton *>("reviewRetainedStretch")->isEnabled(),"Attached job was offered for adoption again");
             window.findChild<QDialog *>("stretchRecoveryDialog")->close();window.close();wait([&]{return !window.isVisible();});
         }
+    }
+    {
+        const auto pagedRoot=base/utf8Path("pages-ui-été-Κиїв");const auto saved=fixture(pagedRoot);
+        const auto directory=pagedRoot/"media"/"stretch-selections";std::filesystem::create_directory(directory);
+        {media_io::JobLease marker(directory,true);check(marker.status()==media_io::LeaseStatus::Held,"Cannot create UI page fixture");}
+        for(unsigned i=0;i<129;++i){std::ofstream out(directory/(Id::generate().str()+".json"));out<<"{bad";out.close();check(bool(out),"Cannot write UI inventory fixture");}
+        StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.show();window.openProject(pagedRoot);
+        wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});check(window.scanStretchRenders(),"UI page scan refused");
+        auto *list=window.findChild<QListWidget *>("stretchRecoveryList");auto *next=window.findChild<QPushButton *>("nextStretchRecoveryPage");
+        auto *review=window.findChild<QPushButton *>("reviewRetainedStretch");
+        wait([&]{return list && list->count()==128 && next && next->isEnabled();});list->setCurrentRow(0);QTest::qWait(110);
+        check(!review->isEnabled() && window.stretchSnapshot()->inventoryPage==1,"Invalid first-page job reviewable");
+        next->click();wait([&]{return list->count()==1 && window.stretchSnapshot()->inventoryPage==2 && !next->isEnabled();});
+        check(!review->isEnabled() && *window.snapshot()->session==saved && !window.snapshot()->dirty,"UI continuation edited project or admitted invalid result");
+        window.findChild<QDialog *>("stretchRecoveryDialog")->close();wait([&]{return window.stretchSnapshot()->canceled;});
+        check(!window.stretchSnapshot()->recoveryPage,"Closing recovery retained page cursor state");
+        check(window.scanStretchRenders(),"Closed inventory could not be reopened");wait([&]{return window.stretchSnapshot()->inventoryPage==1 && !window.stretchSnapshot()->busy;});
+        window.findChild<QDialog *>("stretchRecoveryDialog")->close();window.close();wait([&]{return !window.isVisible();});
+    }
+    {
+        const auto oldRoot=base/"stale-recovery-ui";fixture(oldRoot);
+        const auto newRoot=base/"new-recovery-ui";const auto saved=fixture(newRoot);
+        const auto directory=oldRoot/"media"/"stretch-selections";std::filesystem::create_directory(directory);{media_io::JobLease marker(directory,true);}
+        for(unsigned i=0;i<129;++i){std::ofstream out(directory/(Id::generate().str()+".json"));out<<"{bad";}
+        std::atomic<bool> entered=false,release=false;auto guarded=options;guarded.beforeSpawn=[&]{entered=true;while(!release)QThread::msleep(1);};
+        StudioWindow window(nullptr,{},{},{},{},{},{},{},guarded);
+        struct Unlock {std::atomic<bool> &value;~Unlock(){value=true;}} unlock{release};
+        window.show();window.openProject(oldRoot);wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+        check(window.scanStretchRenders(),"Stale UI scan refused");wait([&]{return !window.stretchSnapshot()->busy && window.stretchSnapshot()->recoveryPage;});
+        const auto oldId=window.stretchSnapshot()->recoveryId;check(window.stretchSnapshot()->recoveryPage->hasMore,"Expected stale continuing cursor");
+        auto *dialog=window.findChild<QDialog *>("stretchRecoveryDialog");window.openProject(newRoot);
+        wait([&]{return window.snapshot()->session && window.snapshot()->session->id==saved.id && window.snapshot()->io==IoOperation::None;});
+        wait([&]{return window.stretchSnapshot()->canceled && !window.stretchSnapshot()->recoveryPage;});
+        check(window.requestClipStretch(saved.tracks[0].id,saved.tracks[0].clips[0].id,{1,1,0,false}),"New project render refused");wait([&]{return entered.load();});
+        check(window.stretchSnapshot()->busy && window.stretchSnapshot()->recoveryId!=oldId,"New render inherited stale recovery token");
+        dialog->close();release=true;wait([&]{return !window.stretchSnapshot()->busy;});
+        check(window.stretchSnapshot()->result && !window.stretchSnapshot()->canceled && *window.snapshot()->session==saved,"Closing stale dialog interrupted new project render");
+        window.close();wait([&]{return !window.isVisible();});
     }
     {
         StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.resize(1280,720);window.show();window.openProject(root);

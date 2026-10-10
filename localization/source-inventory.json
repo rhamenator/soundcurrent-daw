@@ -38,11 +38,11 @@
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "755ba8c2d96caa02e275e62a30f53cada9c326252d84057c7257c686fe38a808",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/stretch_controller.cpp": "7989e3f497f9a70e07ec58dc239295967e8eea8786b8d992c6af1f2f9a942f7b",
-    "ui/stretch_controller.hpp": "b736f1c94d53a52a7e8758093cdf4424cbfb88bf9ba2f9ef4485c1e4ac1a0117",
+    "ui/stretch_controller.cpp": "1c55869440fa6155c75bde3818a737d63f2da1489ec3764d7464071e2f72f117",
+    "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "965d3fe7fa6265382f16c1d69b6e0fc4f2c7360bbcc36f939d53677018496266",
+    "ui/studio_window.cpp": "79dc80711136176bfadb13471c7714d2678d1673ef313538238532f8d1440493",
     "ui/studio_window.hpp": "db3131e1ff66e4be14501840ab26ba1e509a40855126e9261afc1d29c23b0789",
     "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
     "ui/timeline_editor.hpp": "a48e52f31f5064f49c126fdd01d12b56b53c68d3d3f73b786b24a3d98cba2081",
@@ -3446,13 +3446,19 @@
     ],
     [
       "StudioWindow",
-      "Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.",
+      "Scan verifies retained jobs in bounded pages. Next page replaces this list; Scan again starts at the beginning. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.",
       "",
       false
     ],
     [
       "StudioWindow",
       "Scan again",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Next page",
       "",
       false
     ],
@@ -3471,6 +3477,12 @@
     [
       "StudioWindow",
       "Retained render scan could not start. Check Project resources.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The scan expired or the project changed. Scan again.",
       "",
       false
     ],
@@ -3548,9 +3560,27 @@
     ],
     [
       "StudioWindow",
-      "%n retained job(s) inspected. No project edit was made.",
+      "%n retained job(s) inspected on this page.",
       "",
       true
+    ],
+    [
+      "StudioWindow",
+      "Page %1: %2 No project edit was made.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "More entries remain. Choose Next page to continue.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Scan finished.",
+      "",
+      false
     ],
     [
       "StudioWindow",
