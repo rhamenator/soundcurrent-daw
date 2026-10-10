@@ -4058,3 +4058,18 @@ verification and explicit Review/Apply/Undo. Native Windows/installed workflows,
 concurrent/storage-fault interruption, processing quality and full parity remain
 open. Source/evidence backup and ordinary protected reviews remain separate from
 product release publication.
+
+## 2026-10-10: owned publication fault and interruption acceptance
+
+[Checkpoint166](166-selection-publication-faults.md) adds focused acceptance of
+selection writes, file/directory flush and no-overwrite publication failures.
+Linux351 parent assertions cover six injected native error boundaries, short
+write/EINTR retry, cancellation after actual flush, a child-only kernel EFBIG
+refusal and four actual SIGKILL publication boundaries. Existing project/raw/
+older manifests and read-only recovery remnants remain unchanged; native file
+descriptors, resource reservations and publication leases return to baseline.
+A post-link failure can retain an Incomplete final manifest; it never returns a
+success digest or attaches an edit. No VM/audio route/host disk filling was used.
+Native Windows faults, actual filesystem exhaustion, installed publication,
+power loss, processing quality and full parity remain open. Next: protected
+paging/publication gates, then owned Windows failure fixtures and M2 quality.
