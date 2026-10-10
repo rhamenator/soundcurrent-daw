@@ -1,0 +1,43 @@
+{
+  "format": "sc-local-render-restart-review-v1",
+  "utc": "2026-10-10T16:17:42.086605+00:00",
+  "baseCommit": "ceb35306235c9891baa465490ec4a5859ba4adc4",
+  "sourceSha256": {
+    "CMakeLists.txt": "274ad0309368c7dd799e7ac7ac4612232b979d27ec977a8fc691a3802d067b78",
+    "include/soundcurrent/stretch_recovery.hpp": "b19cfbe1b8065d390ca13273f2927914ecc30b107c39fa5c97ae88e64915f256",
+    "src/stretch_recovery.cpp": "fef7828718f02899677ae570206993c273b7f37801a8d449bfe73df1069f2ea7",
+    "tools/stretch_render_worker.cpp": "df63c8877c057a870637b5d7655a1b28ed2ac4d383638d41c2872ec25825855e",
+    "ui/stretch_controller.hpp": "b736f1c94d53a52a7e8758093cdf4424cbfb88bf9ba2f9ef4485c1e4ac1a0117",
+    "ui/stretch_controller.cpp": "63fb88333dd9ef21356a55b48ae7d8e9ddd27b632c37bb54f62fd02a20edf2f0",
+    "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
+    "ui/studio_window.hpp": "db3131e1ff66e4be14501840ab26ba1e509a40855126e9261afc1d29c23b0789",
+    "ui/studio_window.cpp": "965d3fe7fa6265382f16c1d69b6e0fc4f2c7360bbcc36f939d53677018496266",
+    "tests/stretch_controller_tests.cpp": "55088f9a7f5185d2d028b8106a24857f29a5849c61d16cedf3fc3ab5947daab9",
+    "tests/stretch_ui_tests.cpp": "c6cd77b8da9ad2f953c16ec8208f9ac928de645a7d36bf9ed0cc23833ebc5580",
+    "localization/source-inventory.json": "f0230d59e5c9088c7b7f248486fc3d0380a17cd494e5b6af661e4a9ffa2c681f"
+  },
+  "testLog": {
+    "relative": "local-linux-tests.log",
+    "bytes": 94199,
+    "sha256": "d1ccc370f1bd183c0a334d044349aa62caec989ef224db0421158b39b15128c0"
+  },
+  "build": "GCC Release, Qt offscreen, actual isolated helper, maximum two build workers, nice19/idle I/O",
+  "selectedTestGroups": 10,
+  "checks": {
+    "stretch_ui_checks": 140,
+    "protected_ui_checks": 37,
+    "stretch_controller_checks": 128
+  },
+  "nativeLinuxOs": true,
+  "nativeEndpointsOpened": false,
+  "actualHelper": true,
+  "installedQualification": false,
+  "windowsExecution": false,
+  "abruptParentTermination": false,
+  "powerLossDurability": false,
+  "allEuropeLocalized": false,
+  "releaseUploaded": false,
+  "productComplete": false,
+  "next": "Installed Linux/Windows restart/review qualification; scalable lifetime inventory and remaining M2 quality.",
+  "freshControllerAndUiWindows": true
+}

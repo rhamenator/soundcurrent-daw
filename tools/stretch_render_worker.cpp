@@ -150,6 +150,7 @@ int run(const std::vector<std::string> &args){
         }
         auto job=jobsRoot/operation.str();require(std::filesystem::create_directory(job),"Stretch operation already exists",ErrorCode::Io);
         auto cancel=[&]{if(std::filesystem::exists(std::filesystem::symlink_status(job/"cancel.request")))throw ProjectError(ErrorCode::Canceled,"Stretch job canceled before commit");};
+        media_io::JobLease writer(job,true);
         auto intent=key;intent["protocol"]=protocol;intent["operation"]=operation.str();intent["complete"]=false;intent["assetId"]=asset.id.str();intent["relative"]=asset.relativePath;intent["sourceFrames"]=asset.frames;media_io::publishJournal(job/"intent.json",intent.dump());
         std::cout<<Json({{"protocol",protocol},{"event","ready"},{"operation",operation.str()},{"renderKey",renderKey}}).dump()<<'\n'<<std::flush;
         // Parent acknowledges the prepared identity before study/process/drain.

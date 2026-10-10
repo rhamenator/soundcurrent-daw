@@ -207,7 +207,7 @@ void StretchDialog::refresh() {
       case StretchPhase::Queued:case StretchPhase::Preparing:text=tr("Preparing the original audio and reserving render resources…");break;
       case StretchPhase::Running:text=tr("Rendering pitch and duration in the background…");break;
       case StretchPhase::Verifying:text=tr("Checking the completed audio before it can be applied…");break;
-      case StretchPhase::Complete:text=ambiguous?tr("A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made."):tr("Render verified. Choose Apply to replace this clip as one undoable edit.");break;
+      case StretchPhase::Complete:text=s->recovered?tr("This retained result was independently verified after reopening. Review these settings before choosing Apply. No project edit has been made."):ambiguous?tr("A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made."):tr("Render verified. Choose Apply to replace this clip as one undoable edit.");break;
       case StretchPhase::Canceled:text=tr("Canceled before rendering. No project edit was made.");break;
       case StretchPhase::Fault:text=tr("Rendering could not start. Check the source, helper installation, settings, and available memory. No project edit was made.");break;
       case StretchPhase::RecoveryRequired:text=tr("The renderer stopped without a verified completed result. Its owned job files were retained for inspection. No project edit was made.");break;

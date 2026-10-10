@@ -2,6 +2,7 @@
 #include "stretch_controller.hpp"
 #include "media_io.hpp"
 #include <soundcurrent/approved_media.hpp>
+#include <soundcurrent/stretch_recovery.hpp>
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QMutex>
@@ -29,6 +30,8 @@ struct StretchController::State : QThread {
     QWaitCondition wake;
     StretchOptions options;
     std::shared_ptr<StretchSelection> queued;
+    std::shared_ptr<const ControllerSnapshot> queuedRecovery;
+    std::optional<Id> reviewOperation;
     std::stop_source stop;
     bool busy=false,closing=false;
     StretchSnapshot view;
@@ -76,6 +79,9 @@ struct StretchController::State : QThread {
             }
             media_io::plainDirectory(directory);
         }
+        poll(token);
+        StretchRecoveryLimits recoveryLimits;recoveryLimits.render=limits;
+        persistStretchSelection(selection->project->root,*selection->project->session,plan,selection->operation,limits,options.memory,recoveryLimits,token);
         poll(token);
         QProcess child;child.setProcessChannelMode(QProcess::SeparateChannels);
         QObject::connect(&child,&QProcess::started,&child,[&]{view.childPid=std::size_t(child.processId());publish();});
@@ -148,10 +154,28 @@ struct StretchController::State : QThread {
     }
     void run() override {
         for(;;){
-            std::shared_ptr<StretchSelection> selection;std::stop_token token;
-            {QMutexLocker lock(&mutex);while(!queued && !closing)wake.wait(&mutex);if(!queued)break;
-             selection=std::move(queued);view=*latest;token=stop.get_token();}
-            try {execute(selection,token);}
+            std::shared_ptr<StretchSelection> selection;std::shared_ptr<const ControllerSnapshot> recovery;
+            std::optional<Id> operation;std::stop_token token;
+            {QMutexLocker lock(&mutex);while(!queued && !queuedRecovery && !closing)wake.wait(&mutex);if(!queued && !queuedRecovery)break;
+             selection=std::move(queued);recovery=std::move(queuedRecovery);operation=std::move(reviewOperation);reviewOperation.reset();view=*latest;token=stop.get_token();}
+            try {
+                if(selection)execute(selection,token);
+                else {
+                    poll(token);view.phase=StretchPhase::Verifying;publish();StretchRecoveryLimits limits;limits.render=options.policy;
+                    if(operation){
+                        auto entry=inspectStretchSelection(recovery->root,*recovery->session,*operation,options.memory,limits,token);
+                        check(entry.status==StretchRecoveryStatus::Ready && entry.plan && entry.verified,"Retained render is not ready for review");
+                        const auto &plan=*entry.plan;
+                        auto selected=std::make_shared<StretchSelection>(options.memory.reserve(markerSelectionBytes(*recovery->session,plan.trackId,plan.expectedClip.id,plan.anchor.warp)),recovery,plan.trackId,plan.expectedClip.id,plan.anchor.settings,plan.anchor.context,plan.anchor.warp);
+                        selected->operation=*operation;selected->plan=std::move(entry.plan);
+                        view.selection=std::move(selected);view.result=std::move(entry.verified);view.recovered=true;
+                    }else{
+                        auto entries=inventoryStretchSelections(recovery->root,*recovery->session,options.memory,limits,token);
+                        view.inventory=std::make_shared<const std::vector<StretchRecoveryEntry>>(std::move(entries));
+                    }
+                    poll(token);view.phase=StretchPhase::Complete;
+                }
+            }
             catch(const ProjectError &e){view.error=e.code();view.canceled=view.canceled || e.code()==ErrorCode::Canceled;
                 view.phase=view.childPid?StretchPhase::RecoveryRequired:view.canceled?StretchPhase::Canceled:StretchPhase::Fault;}
             catch(...){view.error=ErrorCode::Io;view.phase=view.childPid?StretchPhase::RecoveryRequired:StretchPhase::Fault;}
@@ -172,6 +196,17 @@ Admission StretchController::render(std::shared_ptr<const ControllerSnapshot> pr
     auto published=std::make_shared<const StretchSnapshot>(std::move(view));std::stop_source prepared;
     state_->stop=std::move(prepared);state_->queued=std::move(selection);state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;
 }
+Admission StretchController::recover(std::shared_ptr<const ControllerSnapshot> project,std::optional<Id> operation){
+    QMutexLocker lock(&state_->mutex);if(state_->closing)return Admission::Closing;if(state_->busy)return Admission::Full;
+    check(project && project->session && project->projectEpoch && project->root.is_absolute() && project->root.native().size()<=4096 &&
+        project->root.native().find(std::filesystem::path::value_type(0))==project->root.native().npos,"Invalid render recovery project");
+    StretchSnapshot view;view.phase=StretchPhase::Queued;view.busy=true;
+    auto published=std::make_shared<const StretchSnapshot>(std::move(view));std::stop_source prepared;
+    state_->stop=std::move(prepared);state_->queuedRecovery=std::move(project);state_->reviewOperation=std::move(operation);
+    state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;
+}
+Admission StretchController::scan(std::shared_ptr<const ControllerSnapshot> project){return recover(std::move(project),{});}
+Admission StretchController::review(std::shared_ptr<const ControllerSnapshot> project,Id op){return recover(std::move(project),std::move(op));}
 void StretchController::requestCancel() noexcept {QMutexLocker lock(&state_->mutex);if(state_->busy)state_->stop.request_stop();state_->wake.wakeOne();}
 void StretchController::requestShutdown() noexcept {QMutexLocker lock(&state_->mutex);state_->closing=true;state_->stop.request_stop();state_->wake.wakeOne();}
 std::shared_ptr<const StretchSnapshot> StretchController::snapshot() const {QMutexLocker lock(&state_->mutex);return state_->latest;}

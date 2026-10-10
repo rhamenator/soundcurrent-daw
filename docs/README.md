@@ -163,3 +163,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Installed protected stretch preview observations](151-installed-protected-preview.md)
 - [Bounded render-worker acceptance observation](152-bounded-worker-observation.md)
+- [Native and installed protected Windows preview](153-native-installed-protected-preview.md)
+- [Retained render review after restarting](154-render-restart-review.md)
