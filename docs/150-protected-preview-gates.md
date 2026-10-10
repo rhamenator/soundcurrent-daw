@@ -21,7 +21,12 @@ The shared validator checks source commit/tree and the packaged helper SHA256,
 native platform, actual process records, success/refusal counts, exact typed
 coordinates and normalized owner/span/point identity, complete duration and
 resource policy, and all 18 full-PCM prototype comparison identities. It
-independently reconstructs canonical cache-key hashes. The Linux builder hashes
+independently reconstructs canonical cache-key hashes. Scenario labels bind to
+the prototype request, exact bank geometry and frozen input WAV/PCM hashes. Each
+of the twelve refusals must match its specific malformed request or cancellation/
+source-mutation case, expected typed error and nonpublication packet; unrelated
+exit-1 jobs cannot substitute for coverage. Owned filesystem absence/intent checks
+remain the producer’s actual observations, not replayed by the package checker. The Linux builder hashes
 the actual input helper; Windows binds the exact single deployment manifest row.
 Missing or stale receipts refuse before creating a package output directory.
 The prepared receipt records the v5 report hash and a bounded scope summary.
@@ -67,7 +72,7 @@ and recovery remain the next gate before delivering this workflow in a preview.
 The final controls/resource fix built successfully with two low-priority workers.
 All six focused tests passed: constant/context Qt, protected-marker Qt, desktop
 localization, Linux payload provenance, Windows package inputs and the new
-protected receipt inputs. The new receipt test performs 86 provenance/positive/refusal
+protected receipt inputs. The new receipt test performs 116 provenance/positive/refusal
 checks; its retained platform observations are not freshly replayed audio. The
 Qt workflows execute the real helper with owned synthetic endpoints. The real
 Linguist audit records 34 catalogs, 829 source keys and 3,135 draft translations,
@@ -85,3 +90,14 @@ No F/Q/C/N family or European translation/review/UI gate is promoted. Refresh
 corresponding-source/installer pairs locally and verify installed Unicode
 render/edit/audition/Stop/Apply/Undo/Redo/reopen/export, cancellation and restart.
 Product binary/release upload remains separately authorized work.
+
+## Review correction
+
+The first PR91 head passed 118 local native-enabled tests and hosted 115 Linux /
+46 Windows core / 14 Windows Qt tests, but review found that scenario labels and
+refusal purpose were not fully bound by the package checker. A new swapped-label
+regression fails before the correction. The checker now binds both exact source
+hashes and prototype geometry to the named bank, and all twelve typed refusal
+scenarios to their intended input/error/publication state. Final source/native
+qualification must be refreshed after this correction; preceding reports and
+local installer artifacts do not qualify that newer tree.

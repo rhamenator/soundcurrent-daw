@@ -23,3 +23,10 @@ audio replay. The producer tests and frozen prototype are in this repository.
 - Scope: 33 actual processes, 21 completed renders, 18 prototype PCM comparisons.
 - Physical audio/full processing quality: unqualified.
 
+
+The shared package checker freezes the six original source WAV/PCM hash pairs
+from these independently matching platform captures. Named comparisons must
+bind those input pairs, channels, geometry and the actual prototype request.
+Refusal requests must match all twelve distinct intended scenarios and exact
+typed failure/nonpublication packets. These additional consistency checks do
+not authenticate reports or replay filesystem/audio observations.
