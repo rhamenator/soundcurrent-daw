@@ -25,7 +25,7 @@ are GPL-3.0-only. Earlier native/installed app receipts retain their own scopes.
 python3 tests/results/M8/2026-10-10-warp-map-planner/verify.py
 ```
 
-The standard-library inspection passes46,909 checks. It independently checks
+The standard-library inspection passes46,911 checks. It independently checks
 archive/member/WAVE hashes, finite exact PCM geometry/peaks, process/report/source
 bindings, Fraction forward/inverse/raw/visible values, stable IDs, integer-only
 vendor refusal, resource-lifetime observations and partition sample differences.

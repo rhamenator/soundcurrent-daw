@@ -38,6 +38,8 @@ with zipfile.ZipFile(archive) as z:
         check(z.read(scope+'/stderr.log')==b'' and summary['nativeAudio'] is False and summary['shippingMapImplemented'] is False,'Geometry scope')
         prefix='executed-initial/' if scope=='geometry-initial' else 'experiment/'
         check(sha(z.read(prefix+'geometry_oracle.py'))==summary['oracleSha256'],'Executed oracle source')
+        executable='initialGeometry' if scope=='geometry-initial' else 'finalGeometry'
+        check(summary['probeSha256']==build['executables'][executable]['sha256'],'Recorded geometry probe identity')
         for j,c,r in zip(requests,contracts,responses):
             check(r['accepted']==c['accepted'],'Geometry contract')
             if not r['accepted']:

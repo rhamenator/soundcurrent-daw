@@ -3685,7 +3685,7 @@ outside shipping/editor installation; a fresh ten-step build/final two-step
 rebuild and repeatable CTest pass locally.52 actual pinned R3/R2 processes drain
 exactly, with full waveform/map/outcome retention, multiple nonuniform anchors,
 partition/channel-policy effects and34 censored onset observations kept explicit.
-Retained inspection passes46,909 checks. Native Windows planner qualification,
+Retained inspection passes46,911 checks. Native Windows planner qualification,
 an acoustically supported marker processor, editor/persistence/shared output and
 full P008/P011/P012 remain gates. No product binary, VM/audio or equalizer change.
 Full F/Q/C/N/all-Europe and all completion requirements remain active/incomplete.

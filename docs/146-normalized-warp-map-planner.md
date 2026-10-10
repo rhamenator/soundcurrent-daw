@@ -132,7 +132,7 @@ The first archive exceeded its16 MiB cap before publishing a manifest; its
 failure/source and first failed inspection are preserved. Exact-byte content
 addressing now shares identical WAVs while resolving every source/render hash;
 no audio is omitted or reconstructed. The final archive is10,064,797 bytes.
-Standard-library retained inspection passes46,909 checks, independently verifying
+Standard-library retained inspection passes46,911 checks, independently verifying
 exact map/WAVE/partition evidence; onset/phase analysis is retained and source-bound,
 not rerun or promoted by that inspection.
 
