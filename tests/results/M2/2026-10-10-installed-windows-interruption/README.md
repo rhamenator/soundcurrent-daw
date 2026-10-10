@@ -19,9 +19,11 @@ python3 tests/results/M2/2026-10-10-installed-windows-interruption/verify_tests.
 
 Git objects for4fb8c1c anddb20b36 must be available locally; CI fetches those exact
 commits. File audits execute no archived code, GUI, native audio or installation.
-Seven semantic refusals rebuild nested/outer ZIP checksums to isolate changed
+Twelve semantic refusals rebuild nested/outer ZIP checksums to isolate changed
 Review state, actual helper exit, partial/opened-project bytes, omitted processing
-input and power-loss overclaim. Recursive bounds inspect nested archive names and
+input, power-loss overclaim, incorrect event order/times and reduced/changed
+installed payload entries. The independent original package receipt fixes all64
+expected names, sizes and hashes. Recursive bounds inspect nested archive names and
 bytes without extraction or raising the existing evidence limits.
 
 The operator focuses the list and sends Home; IsEnabled is recorded, but the

@@ -4015,7 +4015,10 @@ Three operator failures remain in original archives with actual cleanup. The
 successful parsed command demonstrates a valid mixed-separator root that the old
 substring guard rejects; original missing-control/CIM predicate causes are not
 silently asserted. Shared partial-file reads succeeded after stock hashing refused.
-Independent archive/file/control/process audits and seven semantic refusals pass.
+Independent archive/file/control/process audits and twelve semantic refusals pass.
+PR103 review corrections bind the full installed64-file payload to the original
+package receipt and enforce the successful event order/increasing UTC times.
+Native archives and original package/source identities remain unchanged.
 
 All VMs are off; receiver exited0, owned CDs ejected/removed and temporary rule
 removed. No driver/host route/equalizer change, product rebuild or upload.
