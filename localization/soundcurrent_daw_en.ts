@@ -1947,6 +1947,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>The duration multiplier must be between 0.25 and 4.</translation>
     </message>
     <message>
+      <source>Settings have changed. Render again before audition or Apply.</source>
+      <translation>Settings have changed. Render again before audition or Apply.</translation>
+    </message>
+    <message>
+      <source>Not enough Project resources to compare settings. Wait or close this dialog.</source>
+      <translation>Not enough Project resources to compare settings. Wait or close this dialog.</translation>
+    </message>
+    <message>
       <source>Verified result: duration %1/%2, pitch %3 semitones, formants %4.</source>
       <translation>Verified result: duration %1/%2, pitch %3 semitones, formants %4.</translation>
     </message>

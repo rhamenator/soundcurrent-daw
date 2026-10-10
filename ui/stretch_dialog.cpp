@@ -127,12 +127,19 @@ StretchDialog::StretchDialog(StretchSettings value,QWidget *parent,std::optional
         }catch(const ProjectError &){status_->setText(tr("Check marker positions: use integer source frames, ordered targets and nonoverlapping protected regions. No project edit was made."));return;}
         refresh();
     });
-    connect(audition_,&QPushButton::clicked,this,[this]{if(audition)audition();refresh();});
+    connect(audition_,&QPushButton::clicked,this,[this]{refresh();if(audition_->isEnabled() && audition)audition();refresh();});
     connect(stopAudition_,&QPushButton::clicked,this,[this]{if(stopAudition)stopAudition();refresh();});
-    connect(apply_,&QPushButton::clicked,this,[this]{if(apply)apply();refresh();});
+    connect(apply_,&QPushButton::clicked,this,[this]{refresh();if(apply_->isEnabled() && apply)apply();refresh();});
     connect(cancel_,&QPushButton::clicked,this,[this]{if(cancel)cancel();refresh();});
     connect(close,&QPushButton::clicked,this,&QDialog::close);
     connect(context_,&QCheckBox::toggled,this,&StretchDialog::refresh);
+    auto changed=[this]{inputsDirty_=true;refresh();};
+    for(auto *field:{numerator_,denominator_,before_,after_})connect(field,&QSpinBox::valueChanged,this,changed);
+    connect(pitch_,&QDoubleSpinBox::valueChanged,this,changed);
+    for(auto *field:{formant_,context_,warp_})connect(field,&QCheckBox::toggled,this,changed);
+    connect(markers_,&QTableWidget::itemChanged,this,changed);
+    connect(markers_->model(),&QAbstractItemModel::rowsInserted,this,changed);
+    connect(markers_->model(),&QAbstractItemModel::rowsRemoved,this,changed);
     auto *timer=new QTimer(this);connect(timer,&QTimer::timeout,this,&StretchDialog::refresh);timer->start(100);
     const auto available=screen()->availableGeometry();resize(std::min(760,available.width()),std::min(680,available.height()));refresh();
 }
@@ -147,9 +154,36 @@ void StretchDialog::setWarpBounds(Frame frames,bool integerOrigin){rawFrames_=fr
 void StretchDialog::setContextBounds(Frame before,Frame after){
     before_->setMaximum(int(std::clamp<Frame>(before,0,1000000000)));after_->setMaximum(int(std::clamp<Frame>(after,0,1000000000)));refresh();
 }
+bool StretchDialog::inputsMatch(const std::shared_ptr<const StretchSelection> &selection){
+    if(!inputsDirty_ && comparedSelection_==selection)return matchedInputs_;
+    inputsDirty_=false;comparedSelection_=selection;matchedInputs_=false;comparisonUnavailable_=false;
+    if(!selection)return false;
+    try {
+        const StretchSettings settings{std::uint32_t(numerator_->value()),std::uint32_t(denominator_->value()),std::int32_t(std::llround(pitch_->value()*100000.0)),formant_->isChecked()};
+        const auto context=context_->isChecked()?std::optional(StretchContext{before_->value(),after_->value()}):std::nullopt;
+        if(canonicalStretchSettings(settings)!=canonicalStretchSettings(selection->settings) || context!=selection->context || warp_->isChecked()!=selection->warp.has_value())return false;
+        if(selection->warp){
+            if(std::size_t(markers_->rowCount())!=selection->warp->markers.size())return false;
+            auto credit=markerMemory_.reserve(8192+std::size_t(markers_->rowCount())*(sizeof(WarpAnchor)+1024));
+            WarpSettings current;current.protection=protection_;current.markers.reserve(std::size_t(markers_->rowCount()));
+            for(int row=0;row<markers_->rowCount();++row){
+                if(!markers_->item(row,0) || !markers_->item(row,1) || !markers_->item(row,2))return false;
+                current.markers.push_back({Id(markers_->item(row,0)->data(Qt::UserRole).toString().toStdString()),coordinate(markers_->item(row,1)->text()),coordinate(markers_->item(row,2)->text())});
+            }
+            std::sort(current.markers.begin(),current.markers.end(),[](const auto &a,const auto &b){return sourcePositionLess(a.source,b.source);});
+            if(current!=*selection->warp)return false;
+        }
+        matchedInputs_=true;
+    }catch(const ProjectError &error){if(error.code()==ErrorCode::ResourceLimit){comparisonUnavailable_=true;inputsDirty_=true;}return false;}
+    catch(const std::bad_alloc &){comparisonUnavailable_=true;inputsDirty_=true;return false;}
+    return matchedInputs_;
+}
 void StretchDialog::refresh() {
     const auto state=read?read():StretchUiState{};const auto s=state.render;
     const bool busy=s && s->busy;
+    const bool hasResult=s && s->result && s->selection;
+    const bool matching=!hasResult || inputsMatch(s->selection);
+    if(!hasResult){comparedSelection_.reset();inputsDirty_=true;matchedInputs_=false;comparisonUnavailable_=false;}
     for(auto *field:{numerator_,denominator_})field->setEnabled(!busy && !state.adopting && !state.audition);
     const bool editing=!busy && !state.adopting && !state.audition;
     pitch_->setEnabled(editing && !warp_->isChecked());formant_->setEnabled(editing && !warp_->isChecked());
@@ -159,10 +193,10 @@ void StretchDialog::refresh() {
     context_->setEnabled(editing && !warp_->isChecked());
     for(auto *field:{before_,after_})field->setEnabled(editing && context_->isChecked());
     const auto ratio=double(numerator_->value())/denominator_->value();
-    render_->setEnabled(state.canRender && ratio>=.25 && ratio<=4 && (!warp_->isChecked() || (integerOrigin_ && markers_->rowCount()>0)));
-    audition_->setEnabled(state.canAudition && (!state.audition || state.auditionReady));
+    render_->setEnabled(state.canRender && !state.audition && ratio>=.25 && ratio<=4 && (!warp_->isChecked() || (integerOrigin_ && markers_->rowCount()>0)));
+    audition_->setEnabled(state.canAudition && matching && (!state.audition || state.auditionReady));
     audition_->setText(state.auditionReady?tr("Play audition"):tr("Prepare audition"));stopAudition_->setEnabled(state.audition);
-    apply_->setEnabled(state.canApply);cancel_->setEnabled(busy && !s->canceled);
+    apply_->setEnabled(state.canApply && matching);cancel_->setEnabled(busy && !s->canceled);
     const bool ambiguous=s && (s->canceled || s->timedOut || s->abnormalExit);
     apply_->setText(ambiguous?tr("Apply reviewed completed result"):tr("Apply verified result"));
     QString text;
@@ -180,6 +214,8 @@ void StretchDialog::refresh() {
     }
     if(warp_->isChecked() && !integerOrigin_)text=tr("This protected renderer requires an integer retained raw origin. Constant pitch/stretch remains available for this clip.");
     if(ratio<.25 || ratio>4)text=tr("The duration multiplier must be between 0.25 and 4.");
+    if(hasResult && !matching && !state.adopting)text=tr("Settings have changed. Render again before audition or Apply.");
+    if(hasResult && comparisonUnavailable_ && !state.adopting)text=tr("Not enough Project resources to compare settings. Wait or close this dialog.");
     if(s && s->result && s->selection){
         const auto settings=s->selection->settings;
         text+=QStringLiteral("\n")+tr("Verified result: duration %1/%2, pitch %3 semitones, formants %4.")

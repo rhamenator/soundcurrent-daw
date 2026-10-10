@@ -16,6 +16,7 @@ import subprocess
 import tarfile
 import zipfile
 from stretch_worker_qualification import qualify_stretch_worker as qualify_native_stretch, PROTOCOL as STRETCH_PROTOCOL
+from protected_warp_qualification import qualify_protected_warp
 
 ROOT = Path(__file__).resolve().parents[1]
 QT_SOURCE = 'a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307'
@@ -142,6 +143,11 @@ def qualify_stretch_worker(manifest, qualification, head, source_tree, *, protoc
     require(len(rows)==1, 'Exactly one qualified stretch helper required')
     qualify_native_stretch(qualification,head,source_tree,rows[0].get('sha256'),'win32',protocol=protocol)
 
+def qualify_protected_worker(manifest, qualification, head, source_tree):
+    rows=[r for r in manifest['files'] if r['path']=='sc-stretch-render-worker.exe']
+    require(len(rows)==1, 'Exactly one qualified protected stretch helper required')
+    return qualify_protected_warp(qualification,head,source_tree,rows[0].get('sha256'),'win32')
+
 def scripts(stage, output, sequence, head, runtime):
     entries = sorted(p for p in stage.rglob('*') if p.is_file())
     put, remove, preflight = [], [], []
@@ -207,6 +213,11 @@ def package(args):
     if needs_stretch_worker:
         qualify_stretch_worker(manifest,read_json(args.stretch_worker_qualification) if args.stretch_worker_qualification else None,head,
                               subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip())
+    needs_protected_warp=needs_stretch_worker and (ROOT/'include/soundcurrent/protected_warp_render.hpp').is_file()
+    protected_summary=None
+    if needs_protected_warp:
+        protected_summary=qualify_protected_worker(manifest,read_json(args.protected_warp_qualification) if args.protected_warp_qualification else None,head,
+                              subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip())
     row=next((r for r in manifest['files'] if r['path']=='soundcurrent-daw.exe'),{})
     require(row.get('sha256')==qualification['exeSha256'], 'Deployed main differs from qualified main')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=False)
@@ -253,6 +264,8 @@ def package(args):
              'mediaWorkerQualificationSha256':digest(args.media_worker_qualification) if needs_media_worker else None,
              'copyWorkerQualificationSha256':digest(args.copy_worker_qualification) if needs_copy_worker else None,
              'stretchWorkerQualificationSha256':digest(args.stretch_worker_qualification) if needs_stretch_worker else None,
+             'protectedWarpQualificationSha256':digest(args.protected_warp_qualification) if needs_protected_warp else None,
+             'protectedWarpQualification':protected_summary,
              'deploymentManifestSha256':digest(args.deploy_manifest),'officialRuntimeSha256':REDIST,
              'installerSourceSha256':digest(ROOT/'packaging/windows/preview.nsi.in'),
              'payload':{p.relative_to(stage).as_posix():{'bytes':p.stat().st_size,'sha256':digest(p)} for p in sorted(stage.rglob('*')) if p.is_file()},
@@ -275,5 +288,7 @@ if __name__=='__main__':
                         help='Matching native checked-copy PID/report/commit/source/executable receipt')
     parser.add_argument('--stretch-worker-qualification',type=Path,
                         help='Matching native render PID/exit/source/hash and verified artifact receipt')
+    parser.add_argument('--protected-warp-qualification',type=Path,
+                        help='Matching native v5 worker bank, source/hash, full PCM and refusal receipt')
     parser.add_argument('--sequence',required=True)
     package(parser.parse_args())

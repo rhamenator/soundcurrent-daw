@@ -158,3 +158,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Original transient-protected experiment](148-transient-protected-warp.md) · [ADR107](decisions/107-protected-warp-integration-scope.md)
 - [Editable protected stretch and uncommitted audition](149-editable-protected-warp.md) · [ADR108](decisions/108-editable-protected-warp.md)
+
+- [Protected preview receipts and current inputs](150-protected-preview-gates.md) · [ADR109](decisions/109-protected-preview-gates.md)

@@ -43,6 +43,9 @@ class StretchDialog : public QDialog {
     Frame rawFrames_=0;
     bool integerOrigin_=false;
     void appendMarker(const WarpAnchor &);
+    bool inputsMatch(const std::shared_ptr<const StretchSelection> &);
+    std::shared_ptr<const StretchSelection> comparedSelection_;
+    bool inputsDirty_=true,matchedInputs_=false,comparisonUnavailable_=false;
     QLabel *status_;
     QPushButton *render_,*apply_,*cancel_;
 };

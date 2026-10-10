@@ -96,6 +96,15 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         wait([&]{return !window.stretchSnapshot()->busy;});check(window.stretchSnapshot()->result && window.stretchSnapshot()->phase==StretchPhase::Complete,"Actual UI render not verified");
         check(*window.snapshot()->session==original,"Rendering mutated project before Apply");dialog->refresh();
         check(dialog->findChild<QLabel *>("stretchStatus")->text().contains("3/2"),"Verified settings missing from review");
+        auto *apply=dialog->findChild<QPushButton *>("applyStretch");
+        pitch->setValue(12);check(!apply->isEnabled(),"Changed pitch admitted the previous render");
+        pitch->setValue(7.00007);check(apply->isEnabled(),"Restored pitch lost the verified result");
+        auto *formant=dialog->findChild<QCheckBox *>("stretchFormant");
+        formant->setChecked(false);check(!apply->isEnabled(),"Changed formants admitted the previous render");formant->setChecked(true);
+        auto *context=dialog->findChild<QCheckBox *>("stretchContextEnabled");
+        context->setChecked(true);check(!apply->isEnabled(),"Changed context admitted the previous render");context->setChecked(false);
+        n->setValue(6);d->setValue(4);check(apply->isEnabled(),"Equivalent canonical duration required a new render");
+        n->setValue(3);d->setValue(2);check(apply->isEnabled(),"Restored duration lost the verified result");
         const auto capture=qEnvironmentVariable("SC_STRETCH_UI_SCREENSHOTS");
         if(!capture.isEmpty()){
             check(dialog->grab().save(capture+QStringLiteral("/stretch-dialog.png")),"Cannot save stretch review screenshot");
