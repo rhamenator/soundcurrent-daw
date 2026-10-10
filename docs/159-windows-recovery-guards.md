@@ -48,6 +48,9 @@ Ready project and used an explicitly UTF-8 host-generated manifest. Independent
 comparison restores the two changed ratio integers and requires complete JSON
 equality with the original, including the exact nested selection string. The
 new installed process independently refused that corrected fixture. The verifier
+also binds its captured opened/final project snapshots byte-for-byte to the
+corrected fixture, as for the first three processes. Those links were added after
+review identified the omission; the original native records are unchanged. The verifier
 audits both the original encoding contamination and the corrected result; it
 does not normalize or silently replace either receipt.
 

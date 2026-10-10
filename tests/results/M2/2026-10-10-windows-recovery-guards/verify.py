@@ -176,6 +176,10 @@ with zipfile.ZipFile(io.BytesIO(blobs["captures/guards-corrected-202610102105502
     before, after = corrected_load("records/fixture-invalid-utf8-before.json"), corrected_load("records/fixture-invalid-utf8-after.json")
     assert before == after
     fixture = "project-invalid-utf8-été-Κиїв/"
+    current = corrected_data(fixture + "project.json")
+    for stage in ["opened-invalid-utf8", "final-invalid-utf8"]:
+        runtime_snapshot = corrected_data("records/project-restart-20261010210550204-" + stage + ".json")
+        assert runtime_snapshot == current, ("Corrected runtime project differs from fixture", stage)
     for file in after:
         b = corrected_data(fixture + file["path"].replace("\\", "/"))
         assert sha(b) == file["sha256"] and len(b) == file["bytes"]
