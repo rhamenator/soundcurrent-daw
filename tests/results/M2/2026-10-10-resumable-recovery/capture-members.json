@@ -1,0 +1,42 @@
+{
+  "configure.txt": {
+    "bytes": 2259,
+    "sha256": "688d34d3a72809011b7d12ceef34a68fcb99ee1f274c000396e183da6746531a"
+  },
+  "initial-build-refused.txt": {
+    "bytes": 15457,
+    "sha256": "a0c39e180b27fecf55cac1804d6102a70f2f740788b612b68a663d8afea8adfe"
+  },
+  "test-include-rebuild.txt": {
+    "bytes": 3876,
+    "sha256": "ad261216c7e7ce9540f741f06a154ee511c0cc334a11d3a88630db022d571645"
+  },
+  "tests-before-admission-race-fix.txt": {
+    "bytes": 3088,
+    "sha256": "46efe219efeaa82740175bdfc9c17227f87d124dfd853c79cfd5c6d4fe69e225"
+  },
+  "final-rebuild.txt": {
+    "bytes": 2785,
+    "sha256": "be7694492f4d72ced31aee33f6b1bc1ae9eced428713aefc6a42ee8ea0555a21"
+  },
+  "final-stretch-tests.txt": {
+    "bytes": 3088,
+    "sha256": "e1e9b30e9d688c5d7f44189f06372be7d7ccfbbf137431d51257525c8d262585"
+  },
+  "approved-build.txt": {
+    "bytes": 266,
+    "sha256": "5970a9831c995ada472df9d48d80b2274ed4072325ae34d5b13ffff6227f1c07"
+  },
+  "incorrect-selector-refused.txt": {
+    "bytes": 544,
+    "sha256": "2ab966fdeaaab09944c704232f78bfaa1261240cd89506cf37594609681dc799"
+  },
+  "final-approved-tests.txt": {
+    "bytes": 1051,
+    "sha256": "8e66667f81f7aa41747fe5397f5b125e523ed518f95f1319088515357f4ca1cb"
+  },
+  "build-inputs.json": {
+    "bytes": 58927,
+    "sha256": "febb8e977631d8e79da3dff8abef7d78eadc9e161a1b6fa0dba2e0bdac484550"
+  }
+}

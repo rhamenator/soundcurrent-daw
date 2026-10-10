@@ -1,0 +1,38 @@
+{
+  "format": "sc-resumable-recovery-linux-evidence-v1",
+  "sourceCommit": "a8bf340ed233daaffc48523774000e776ba0c397",
+  "sourceTree": "253f8945193dd65ed39401ae18fcdbfa0783567a",
+  "captureSha256": "1ce4a86d702c7a66e0d085bd8dd85876ccdc14d1aa9d59d35e086e8fff887c25",
+  "captureBytes": 31800,
+  "sourceInputs": 309,
+  "tests": {
+    "desktop-stretch-controller": {
+      "checks": 831,
+      "passed": true
+    },
+    "desktop-stretch-ui": {
+      "checks": 276,
+      "passed": true
+    },
+    "approved-media-root": {
+      "checks": 168,
+      "passed": true
+    }
+  },
+  "scope": "Linux Debug synthetic files, actual controller/helper, offscreen Qt UI; final logs paired with unchanged frozen source inputs",
+  "initialFailureLogs": "diagnostics only; original bytes preserved; not rebound as final qualification",
+  "compiler": "c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "cmake": "cmake version 4.2.3",
+  "maximumCompileJobs": 2,
+  "nice": 10,
+  "ioniceClass": 2,
+  "ioniceLevel": 7,
+  "nativeAudioActivated": false,
+  "vmStarted": false,
+  "windowsNativePagingQualified": false,
+  "installedPagingQualified": false,
+  "manyCompletedJobsQualified": false,
+  "unboundedNewPublicationQualified": false,
+  "fullGoalComplete": false,
+  "productUploaded": false
+}
