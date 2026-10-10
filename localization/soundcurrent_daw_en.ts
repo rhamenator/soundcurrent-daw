@@ -1808,12 +1808,56 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Context after (source frames)</translation>
     </message>
     <message>
+      <source>Experimental protected stretch markers</source>
+      <translation>Experimental protected stretch markers</translation>
+      <extracomment>Explicit transient-protected offline editing mode. Broader acoustic and sustained multichannel phase quality remain unqualified; preserve the experimental scope.</extracomment>
+    </message>
+    <message>
+      <source>Stretch markers in retained original source frames</source>
+      <translation>Stretch markers in retained original source frames</translation>
+    </message>
+    <message>
+      <source>Marker</source>
+      <translation>Marker</translation>
+      <extracomment>A stable user stretch anchor. Its displayed UUID prefix is not translated. This is not a project navigation marker.</extracomment>
+    </message>
+    <message>
+      <source>Source position</source>
+      <translation>Source position</translation>
+      <extracomment>Protected stretch marker offset in physical source-sample frames from the retained nominal raw origin; not an absolute project frame or a filename. Integer acoustic positions use ungrouped digits.</extracomment>
+    </message>
+    <message>
+      <source>Target position</source>
+      <translation>Target position</translation>
+      <extracomment>Protected stretch marker offset in physical frames in the prepared derivative, independent of project sample rate or linked playback speed.</extracomment>
+    </message>
+    <message>
+      <source>Add marker</source>
+      <translation>Add marker</translation>
+    </message>
+    <message>
+      <source>Remove selected marker</source>
+      <translation>Remove selected marker</translation>
+    </message>
+    <message>
+      <source>Markers use positions relative to the retained original span, at its physical sample rate. Moving a target protects the attack around that marker. Source and target positions must remain ordered. This first renderer requires integer positions, zero pitch and no neighboring context. Sustained multichannel phase quality is still unqualified.</source>
+      <translation>Markers use positions relative to the retained original span, at its physical sample rate. Moving a target protects the attack around that marker. Source and target positions must remain ordered. This first renderer requires integer positions, zero pitch and no neighboring context. Sustained multichannel phase quality is still unqualified.</translation>
+    </message>
+    <message>
+      <source>Protected region: %1 source frames before and %2 after each marker; %3-frame blending boundaries. Fades follow the visible clip length.</source>
+      <translation>Protected region: %1 source frames before and %2 after each marker; %3-frame blending boundaries. Fades follow the visible clip length.</translation>
+    </message>
+    <message>
+      <source>Not enough Project resources to add a marker. No marker was added.</source>
+      <translation>Not enough Project resources to add a marker. No marker was added.</translation>
+    </message>
+    <message>
       <source>This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.</source>
       <translation>This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.</translation>
     </message>
     <message>
-      <source>Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Apply, listen, and use Undo to return to the original.</source>
-      <translation>Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Apply, listen, and use Undo to return to the original.</translation>
+      <source>Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Prepare audition, choose playback outputs and play the verified result before Apply. Stop audition to apply it as one undoable edit.</source>
+      <translation>Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Prepare audition, choose playback outputs and play the verified result before Apply. Stop audition to apply it as one undoable edit.</translation>
     </message>
     <message>
       <source>Render</source>
@@ -1830,6 +1874,25 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Close</source>
       <translation>Close</translation>
+    </message>
+    <message>
+      <source>Prepare audition</source>
+      <translation>Prepare audition</translation>
+      <extracomment>Prepare an ephemeral playback model for the verified derivative without modifying the project or playing automatically. Output channels are chosen before Play audition.</extracomment>
+    </message>
+    <message>
+      <source>Stop audition</source>
+      <translation>Stop audition</translation>
+      <extracomment>Retire the temporary playback endpoint; keep the pending verified result available for Apply. This does not cancel a render or undo an edit.</extracomment>
+    </message>
+    <message>
+      <source>Check marker positions: use integer source frames, ordered targets and nonoverlapping protected regions. No project edit was made.</source>
+      <translation>Check marker positions: use integer source frames, ordered targets and nonoverlapping protected regions. No project edit was made.</translation>
+    </message>
+    <message>
+      <source>Play audition</source>
+      <translation>Play audition</translation>
+      <extracomment>Play the verified pending derivative on the explicitly chosen outputs before committing Apply. Audition output choices do not change saved project routes.</extracomment>
     </message>
     <message>
       <source>Apply reviewed completed result</source>
@@ -1876,6 +1939,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>The renderer stopped without a verified completed result. Its owned job files were retained for inspection. No project edit was made.</translation>
     </message>
     <message>
+      <source>This protected renderer requires an integer retained raw origin. Constant pitch/stretch remains available for this clip.</source>
+      <translation>This protected renderer requires an integer retained raw origin. Constant pitch/stretch remains available for this clip.</translation>
+    </message>
+    <message>
       <source>The duration multiplier must be between 0.25 and 4.</source>
       <translation>The duration multiplier must be between 0.25 and 4.</translation>
     </message>
@@ -1890,6 +1957,11 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>shifted</source>
       <translation>shifted</translation>
+    </message>
+    <message numerus="yes">
+      <source>Verified protected marker plan: %n marker(s).</source>
+      <translation type="unfinished" />
+      <extracomment>Count of original user marker owners in the verified derivative plan. Numerus entry; retain %n and provide the language plural forms when reviewed.</extracomment>
     </message>
     <message>
       <source>Verified source context: %1 frames before, %2 frames after.</source>
@@ -2239,12 +2311,20 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Rendering could not start: %1. Check Project resources and retry.</translation>
     </message>
     <message>
+      <source>Audition prepared without a project edit. Choose playback outputs, then Play audition. Stop before Apply.</source>
+      <translation>Audition prepared without a project edit. Choose playback outputs, then Play audition. Stop before Apply.</translation>
+    </message>
+    <message>
       <source>The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.</source>
       <translation>The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.</translation>
     </message>
     <message>
       <source>Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.</source>
       <translation>Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.</translation>
+    </message>
+    <message>
+      <source>The marker editor needs more Project resources. Close unused previews and retry.</source>
+      <translation>The marker editor needs more Project resources. Close unused previews and retry.</translation>
     </message>
     <message>
       <source>This dialog belongs to a previous project opening. Close it and select a clip in the current project.</source>
@@ -2531,6 +2611,10 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source> · Another track is prepared. Stop or prepare the selected track.</source>
       <translation> · Another track is prepared. Stop or prepare the selected track.</translation>
+    </message>
+    <message>
+      <source>Audition — project unchanged. </source>
+      <translation>Audition — project unchanged. </translation>
     </message>
     <message>
       <source>Output: %1</source>

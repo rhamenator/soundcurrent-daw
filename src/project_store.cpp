@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <soundcurrent/stretch.hpp>
+#include "warp_codec.hpp"
 #include <soundcurrent/positioned_resampling.hpp>
 #include <unordered_set>
 #ifdef SC_STORE_IMPORT_STATE
@@ -290,6 +291,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
             {"sourceAssetId",p.sourceAssetId.str()},{"sourceSha256",p.sourceSha256},
             {"sourceOrigin",{{"frame",p.sourceOrigin.frame},{"fraction",p.sourceOrigin.fraction},
                 {"denominator",p.sourceOrigin.denominator},{"algorithm",positionedResamplingAlgorithmId}}},
+            {"warp",p.warp?warp_codec::encode(*p.warp,p.sourceFrames,stretchOutputFrames(p.sourceFrames,p.settings)):Json(nullptr)},
             {"sourceFrames",p.sourceFrames},{"context",p.context?Json{{"before",p.context->before},{"after",p.context->after}}:Json(nullptr)},
             {"settings",{{"timeNumerator",p.settings.timeNumerator},
                 {"timeDenominator",p.settings.timeDenominator},{"pitchMilliCents",p.settings.pitchMilliCents},
@@ -349,7 +351,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 14},
+        {"schemaMinor", 15},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -491,7 +493,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 14),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 15),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -613,7 +615,8 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                 clip.lengthFrames = integer(c.at("lengthFrames"));
                 if(minor>=12 && !c.at("stretch").is_null()) {
                     const auto &p=c.at("stretch");
-                    if(minor>=14) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context"});
+                    if(minor>=15) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context","warp"});
+                    else if(minor>=14) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context"});
                     else keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey"});
                     require((minor>=13 || string(p.at("processor"))==stretchProcessorId) && integer(p.at("version"))==1,
                             "Unsupported stretch processor",ErrorCode::UnsupportedSchema);
@@ -634,6 +637,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                     require(pitch>=-2400000 && pitch<=2400000,"Stretch pitch out of range");
                     v.settings={u32(settings.at("timeNumerator")),u32(settings.at("timeDenominator")),
                         std::int32_t(pitch),boolean(settings.at("formantPreserved"))};
+                    if(minor>=15 && !p.at("warp").is_null())v.warp=warp_codec::decode(p.at("warp"),v.sourceFrames,stretchOutputFrames(v.sourceFrames,v.settings),budget.state.memoryBudgetBytes);
                     clip.stretch=std::move(v);
                 }
                 if(minor>=11) {

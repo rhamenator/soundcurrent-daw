@@ -3721,3 +3721,19 @@ MSVC CI executes the new probe without audio endpoints. [ADR107](decisions/107-p
 makes a versioned worker/state and editable-marker/reviewApply/Undo/reopen/shared
 playback/export integration next. General/group/pitch/comp/native/installed/
 recovery, other milestones, X004/X005 and all-Europe requirements remain open.
+
+## M2/M8 editable protected-marker integration (2026-10-10 UTC)
+
+Starting from normally merged PR89 / 471f975, [checkpoint149](149-editable-protected-warp.md)
+adds schema1.15 original marker IDs/exact positions/normalized boundaries,
+a distinct v5 supervised worker and bounded streaming derivatives, editable
+marker controls and ephemeral audible audition before guarded Apply. Crop
+rerender maps old output back to raw, then forward through the new map. Affine
+visible-length fades, legacy constant/context keys and raw/derived Undo media
+are retained. State tests and the 18-case full-PCM prototype comparison provide
+synthetic integration evidence; native MSVC/Qt and installed workflows are
+independent gates. Nonunity acoustic gaps below2,048 frames refuse explicitly.
+Sustained phase, general/group/pitch/tempo/comp, all other milestones, X004/X005
+and all-Europe requirements remain open. No F/Q/C/N family promotion; the full
+goal remains active and incomplete. [ADR108](decisions/108-editable-protected-warp.md)
+selects exact-source native/installed preview qualification next.

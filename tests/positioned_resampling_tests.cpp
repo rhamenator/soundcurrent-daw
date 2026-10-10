@@ -74,7 +74,7 @@ void kernels(){double maximum=0;std::uint64_t samples=0;
 void state(){
  auto s=makeOneTrackSession("Fractional source","Track",44100);Asset a;a.sampleRate=48000;a.frames=100000;a.relativePath="media/owned.wav";a.sha256=std::string(64,'a');s.assets.push_back(a);
  Clip c;c.assetId=a.id;c.startFrame=17;c.sourceFrame=101;c.lengthFrames=1000;c.sourceTiming={1,7};c.processing.fadeIn={-3,700,ClipFadeCurve::Linear,1};s.tracks[0].clips.push_back(c);
- const auto original=s;auto json=nlohmann::json::parse(encodeProject(s));check(json["schemaMinor"]==14 && decodeProject(json.dump())==s,"Fractional project roundtrip differs");
+ const auto original=s;auto json=nlohmann::json::parse(encodeProject(s));check(json["schemaMinor"]==15 && decodeProject(json.dump())==s,"Fractional project roundtrip differs");
  for(unsigned mode=0;mode<11;++mode){auto bad=json;auto &timing=bad["tracks"][0]["clips"][0]["sourceTiming"];
   if(mode==0)timing["fraction"]=-1;
   if(mode==1)timing["denominator"]=0;

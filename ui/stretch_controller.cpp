@@ -13,6 +13,14 @@
 namespace soundcurrent::daw::ui {
 namespace {
 void check(bool good,const char *message,ErrorCode code=ErrorCode::InvalidState){if(!good)throw ProjectError(code,message);}
+std::size_t markerSelectionBytes(const Session &session,const Id &trackId,const Id &clipId,const std::optional<WarpSettings> &warp) {
+    PayloadCharge charge("Prepared marker selection",SIZE_MAX);charge.add(65536);
+    if(warp)charge.add(warpPayloadBytes(*warp),3);
+    // A retained expected clip may also contain the previous marker plan.
+    for(const auto &track:session.tracks)if(track.id==trackId)for(const auto &clip:track.clips)
+        if(clip.id==clipId && clip.stretch && clip.stretch->warp)charge.add(warpPayloadBytes(*clip.stretch->warp),2);
+    return charge.bytes();
+}
 void poll(std::stop_token token){check(!token.stop_requested(),"Stretch canceled",ErrorCode::Canceled);}
 QString native(const std::filesystem::path &path){const auto bytes=path.u8string();return QString::fromUtf8(reinterpret_cast<const char *>(bytes.data()),qsizetype(bytes.size()));}
 }
@@ -38,9 +46,9 @@ struct StretchController::State : QThread {
         poll(token);view.phase=StretchPhase::Preparing;publish();
         check(QFileInfo(options.program).isAbsolute(),"Stretch helper path must be absolute");
         auto preparation=options.memory.reserve(sessionPayloadBytes(*selection->project->session));
-        auto prepared=std::make_shared<StretchSelection>(options.memory.reserve(65536),selection->project,selection->track,selection->clip,selection->settings,selection->context);
+        auto prepared=std::make_shared<StretchSelection>(options.memory.reserve(markerSelectionBytes(*selection->project->session,selection->track,selection->clip,selection->warp)),selection->project,selection->track,selection->clip,selection->settings,selection->context,selection->warp);
         prepared->operation=selection->operation;
-        prepared->plan=prepareClipStretch(*selection->project->session,selection->track,selection->clip,selection->settings,selection->context);
+        prepared->plan=prepareClipStretch(*selection->project->session,selection->track,selection->clip,selection->settings,selection->context,selection->warp);
         selection=std::move(prepared);view.selection=selection;publish();
         const auto &plan=*selection->plan;const auto &limits=options.policy;
         auto request=encodeStretchRenderRequest(plan,selection->operation,limits,options.memory);
@@ -52,8 +60,9 @@ struct StretchController::State : QThread {
         // only after QProcess has observed/reaped the terminal child.
         check(limits.memoryBytes<=SIZE_MAX,"Stretch child ceiling exceeds address range",ErrorCode::ResourceLimit);
         auto childGrant=options.memory.reserve(std::size_t(limits.memoryBytes));
-        auto channelGrant=options.memory.reserve(256*1024+stretchProtocolMaximum*4);
-        std::array<char,stretchProtocolMaximum*2+2> output{};std::array<char,4096> errors{};
+        const auto protocolCapacity=stretchProtocolLimit(plan.anchor);
+        auto channelGrant=options.memory.reserve(256*1024+protocolCapacity*4);
+        std::vector<char> output(protocolCapacity*2+2);std::array<char,4096> errors{};
         std::size_t used=0,errorUsed=0;bool overflow=false,sent=false,ready=false;
         const auto jobs=selection->project->root/"media"/"derived",job=jobs/selection->operation.str();
         if(options.beforeSpawn)options.beforeSpawn();
@@ -154,11 +163,11 @@ struct StretchController::State : QThread {
 };
 StretchController::StretchController(StretchOptions options):state_(std::make_unique<State>(std::move(options))){state_->start(QThread::LowPriority);}
 StretchController::~StretchController(){requestShutdown();state_->wait();}
-Admission StretchController::render(std::shared_ptr<const ControllerSnapshot> project,Id track,Id clip,StretchSettings settings,std::optional<StretchContext> context){
+Admission StretchController::render(std::shared_ptr<const ControllerSnapshot> project,Id track,Id clip,StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp){
     QMutexLocker lock(&state_->mutex);if(state_->closing)return Admission::Closing;if(state_->busy)return Admission::Full;
     check(project && project->session && project->projectEpoch && project->root.is_absolute() && project->root.native().size()<=4096 &&
         project->root.native().find(std::filesystem::path::value_type(0))==project->root.native().npos,"Invalid stretch project selection");
-    auto selection=std::make_shared<StretchSelection>(state_->options.memory.reserve(65536),std::move(project),std::move(track),std::move(clip),canonicalStretchSettings(settings),context);
+    auto selection=std::make_shared<StretchSelection>(state_->options.memory.reserve(markerSelectionBytes(*project->session,track,clip,warp)),project,track,clip,canonicalStretchSettings(settings),context,warp);
     StretchSnapshot view;view.phase=StretchPhase::Queued;view.selection=selection;view.busy=true;
     auto published=std::make_shared<const StretchSnapshot>(std::move(view));std::stop_source prepared;
     state_->stop=std::move(prepared);state_->queued=std::move(selection);state_->busy=true;state_->latest=std::move(published);state_->wake.wakeOne();return Admission::Accepted;

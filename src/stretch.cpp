@@ -62,14 +62,16 @@ StretchSettings canonicalStretchSettings(StretchSettings p) {
     validateStretchSettings(p);const auto g=std::gcd(p.timeNumerator,p.timeDenominator);
     p.timeNumerator/=g;p.timeDenominator/=g;return p;
 }
-std::string_view stretchProcessorFor(const StretchSettings &p,std::optional<StretchContext> context) {
+std::string_view stretchProcessorFor(const StretchSettings &p,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
+    if(warp){validateStretchSettings(p);validateWarpSettings(*warp);require(!context && p.pitchMilliCents==0 && p.formantPreserved,"Protected warp currently requires zero pitch, preserved formants and no extra context",ErrorCode::UnsupportedSchema);return protectedWarpProcessorId;}
     validateStretchSettings(p);
     if(context)require(context->before>=0 && context->after>=0 && context->before<=1000000000 && context->after<=1000000000,
                        "Invalid explicit stretch context");
     const bool unity=p.timeNumerator==p.timeDenominator && p.pitchMilliCents==0;
     return context ? (unity?regionCopyProcessorId:regionStretchProcessorId) : (unity?unityStretchProcessorId:stretchProcessorId);
 }
-void validateStretchProcessor(std::string_view id,const StretchSettings &p,std::optional<StretchContext> context) {
+void validateStretchProcessor(std::string_view id,const StretchSettings &p,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
+    if(warp){require(id==stretchProcessorFor(p,context,warp),"Unsupported protected warp processor",ErrorCode::UnsupportedSchema);return;}
     validateStretchSettings(p);
     require(context ? id==stretchProcessorFor(p,context) : (id==stretchProcessorId || (id==unityStretchProcessorId && stretchProcessorFor(p)==unityStretchProcessorId)),
             "Unsupported stretch processor/settings",ErrorCode::UnsupportedSchema);
@@ -126,8 +128,50 @@ bool sourcePositionLess(SourcePosition a,SourcePosition b) {
     const auto left=multiply(a.fraction,b.denominator),right=multiply(b.fraction,a.denominator);
     return left.high!=right.high?left.high<right.high:left.low<right.low;
 }
+SourcePosition subtractSourcePosition(SourcePosition a,SourcePosition b) {
+    a=canonical(a);b=canonical(b);require(!sourcePositionLess(a,b),"Negative source-position interval");
+    const auto reduced=a.denominator/std::gcd(a.denominator,b.denominator);
+    require(reduced<=UINT64_MAX/b.denominator,"Source-position difference denominator overflow");
+    const auto denominator=reduced*b.denominator,left=a.fraction*(denominator/a.denominator),right=b.fraction*(denominator/b.denominator);
+    const bool borrow=left<right;
+    return canonical({a.frame-b.frame-Frame(borrow),borrow?denominator-(right-left):left-right,denominator});
+}
+namespace {
+Frame nominalProcessingFrames(const ClipStretchAnchor &p) {
+    validateStretchProcessor(p.processor,p.settings,p.context,p.warp);
+    require(p.sourceFrames>0 && p.sourceFrames<=1000000000,"Invalid retained raw span");
+    const Frame before=p.context?p.context->before:0,after=p.context?p.context->after:0;
+    require(before>=0 && after>=0 && before<=1000000000-p.sourceFrames &&
+            after<=1000000000-p.sourceFrames-before,"Context exceeds position-map admission");
+    return before+p.sourceFrames+after;
+}
+ProtectedWarpPlan positionWarp(const ClipStretchAnchor &p,ResourceLedger ledger) {
+    require(bool(p.warp),"Missing protected warp state");
+    validateStretchProcessor(p.processor,p.settings,p.context,p.warp);
+    return {{{0,0,1},48000,p.sourceFrames,p.sourceFrames,stretchOutputFrames(p.sourceFrames,p.settings),{0,0,1},{p.sourceFrames,0,1}},
+            p.warp->markers,p.warp->protection,ledger};
+}
+}
+SourcePosition stretchSourceToOutput(const ClipStretchAnchor &p,SourcePosition source) {
+    const auto input=nominalProcessingFrames(p);
+    source=canonical(source);require(!sourcePositionLess({p.sourceFrames,0,1},source),"Raw position exceeds retained stretch span");
+    if(p.warp){ResourceLedger ledger(8*1024*1024,"Warp position map");return positionWarp(p,ledger).map().sourceToOutput(source);}
+    const auto before=p.context?p.context->before:0;
+    require(before>=0 && source.frame<=INT64_MAX-before,"Context position exceeds representation");source.frame+=before;
+    return scaleSourcePosition(source,p.context?p.settings.timeNumerator:std::uint64_t(stretchOutputFrames(input,p.settings)),
+                               p.context?p.settings.timeDenominator:std::uint64_t(input));
+}
+SourcePosition stretchOutputToSource(const ClipStretchAnchor &p,SourcePosition output) {
+    const auto input=nominalProcessingFrames(p);
+    if(p.warp){ResourceLedger ledger(8*1024*1024,"Warp position map");return positionWarp(p,ledger).map().outputToSource(output);}
+    const auto before=p.context?p.context->before:0;
+    auto source=scaleSourcePosition(output,p.context?p.settings.timeDenominator:std::uint64_t(input),
+                                   p.context?p.settings.timeNumerator:std::uint64_t(stretchOutputFrames(input,p.settings)));
+    require(before>=0 && source.frame>=before,"Position precedes retained nominal raw span");source.frame-=before;
+    require(!sourcePositionLess({p.sourceFrames,0,1},source),"Position exceeds retained nominal raw span");return source;
+}
 StretchGeometry stretchGeometry(const ClipStretchAnchor &p,Frame available) {
-    validateStretchProcessor(p.processor,p.settings,p.context);
+    validateStretchProcessor(p.processor,p.settings,p.context,p.warp);
     require(canonicalStretchSettings(p.settings)==p.settings,"Stretch settings must be canonical");
     require(canonical(p.sourceOrigin)==p.sourceOrigin && available>0 && p.sourceOrigin.frame<available &&
             p.sourceFrames>0 && p.sourceFrames<=1000000000,"Invalid stretch source region");
@@ -152,6 +196,7 @@ void validateClipStretch(const ClipStretchAnchor &p,const Asset &source,const As
             "Stretch changed physical source rate or channel layout");
     require(rendered.frames==geometry.outputFrames,
             "Stretch artifact duration differs from processor state");
+    if(p.warp){ResourceLedger ledger(8*1024*1024,"Persisted warp geometry");ProtectedWarpPlan plan({{0,0,1},source.sampleRate,p.sourceFrames,p.sourceFrames,geometry.outputFrames,{0,0,1},{p.sourceFrames,0,1}},p.warp->markers,p.warp->protection,ledger);}
     const auto origin=canonical(p.sourceOrigin);
     require(origin==p.sourceOrigin,"Stretch source origin must be canonical");
     const SourceFrameMap map(source.sampleRate,source.sampleRate,origin);
@@ -160,13 +205,13 @@ void validateClipStretch(const ClipStretchAnchor &p,const Asset &source,const As
 }
 void validateStretchClipWindow(const Clip &c,const Asset &source,const Asset &rendered,std::uint32_t projectRate) {
     require(c.stretch.has_value(),"Missing stretch window anchor");
-    if(!c.stretch->context)return;
+    if(!c.stretch->context && !c.stretch->warp)return;
     const auto g=stretchGeometry(*c.stretch,source.frames);
     const auto map=clipSourceMap(c,rendered.sampleRate,projectRate);
     require(!sourcePositionLess(map.at(0),g.visibleBegin) && sourcePositionLess(map.at(c.lengthFrames-1),g.visibleEnd),
             "Clip exceeds its explicit stretch visible interval");
 }
-ClipStretchPlan prepareClipStretch(const Session &s,const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context) {
+ClipStretchPlan prepareClipStretch(const Session &s,const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
     validate(s);const auto &c=find(find(s.tracks,track).clips,clip);
     const auto &current=find(s.assets,c.assetId);
     ClipStretchPlan result{track,c,{}, {}};
@@ -182,7 +227,8 @@ ClipStretchPlan prepareClipStretch(const Session &s,const Id &track,const Id &cl
                                              current.frames-result.anchor.sourceOrigin.frame);
     }
     result.anchor.settings=canonicalStretchSettings(settings);result.anchor.renderKey.clear();
-    result.anchor.context=context;result.anchor.processor=stretchProcessorFor(result.anchor.settings,context);
+    result.anchor.context=context;result.anchor.warp=warp;result.anchor.processor=stretchProcessorFor(result.anchor.settings,context,warp);
+    if(warp){ResourceLedger ledger(8*1024*1024,"Prepared warp geometry");ProtectedWarpPlan plan({{0,0,1},result.source.sampleRate,result.anchor.sourceFrames,result.anchor.sourceFrames,stretchOutputFrames(result.anchor.sourceFrames,result.anchor.settings),{0,0,1},{result.anchor.sourceFrames,0,1}},warp->markers,warp->protection,ledger);}
     (void)stretchGeometry(result.anchor,result.source.frames);
     return result;
 }
@@ -191,7 +237,7 @@ void adoptClipStretch(Session &s,const ApplyClipStretch &e) {
     auto &destination=find(clips,e.clip);
     auto c=destination;
     require(c==e.expected,"Clip changed before stretch adoption",ErrorCode::InvalidState);
-    const auto plan=prepareClipStretch(s,e.track,e.clip,e.value.settings,e.value.context);
+    const auto plan=prepareClipStretch(s,e.track,e.clip,e.value.settings,e.value.context,e.value.warp);
     auto intended=plan.anchor;intended.renderKey=e.value.renderKey;
     require(plan.source==e.source && intended==e.value,"Stretch raw anchor changed before adoption",ErrorCode::InvalidState);
     validateClipStretch(e.value,e.source,e.rendered);
@@ -200,7 +246,22 @@ void adoptClipStretch(Session &s,const ApplyClipStretch &e) {
     const auto numerator=geometry.mapNumerator*previous.mapDenominator;
     const auto denominator=geometry.mapDenominator*previous.mapNumerator;
     auto origin=geometry.visibleBegin;
-    if(c.stretch) {
+    const bool nonlinear=bool(e.value.warp)||(c.stretch && c.stretch->warp);
+    Frame mappedLength=0;
+    if(nonlinear){
+        SourcePosition rawBegin{0,0,1},rawEnd{e.value.sourceFrames,0,1};
+        if(c.stretch){const auto oldMap=clipSourceMap(c,find(s.assets,c.assetId).sampleRate,s.sampleRate);auto end=oldMap.at(c.lengthFrames);if(sourcePositionLess(previous.visibleEnd,end))end=previous.visibleEnd;rawBegin=stretchOutputToSource(*c.stretch,oldMap.at(0));rawEnd=stretchOutputToSource(*c.stretch,end);}
+        else {
+            const auto oldMap=clipSourceMap(c,e.source.sampleRate,s.sampleRate);
+            const auto exactEnd=subtractSourcePosition(oldMap.at(c.lengthFrames),oldMap.at(0));
+            // Preparation rounds its buffer upward; preserve the original
+            // visible interval independently of that owned buffer extent.
+            if(sourcePositionLess(exactEnd,rawEnd))rawEnd=exactEnd;
+        }
+        origin=stretchSourceToOutput(e.value,rawBegin);const auto end=stretchSourceToOutput(e.value,rawEnd);
+        auto duration=subtractSourcePosition(end,origin);duration=scaleSourcePosition(duration,std::uint64_t(s.sampleRate)*c.playbackRate.denominator,std::uint64_t(e.rendered.sampleRate)*c.playbackRate.numerator);
+        require(duration.frame<INT64_MAX || !duration.fraction,"Warped clip duration overflow");mappedLength=duration.frame+Frame(duration.fraction!=0);
+    } else if(c.stretch) {
         if(!c.stretch->context && !e.value.context) {
             origin=scaleSourcePosition({c.sourceFrame,c.sourceTiming.fraction,c.sourceTiming.denominator},
                                       std::uint64_t(newFrames),std::uint64_t(previous.outputFrames));
@@ -212,7 +273,7 @@ void adoptClipStretch(Session &s,const ApplyClipStretch &e) {
         origin=scaleSourcePosition(raw,geometry.mapNumerator,geometry.mapDenominator);
         }
     }
-    auto length=scaleStretchFrame(c.lengthFrames,numerator,denominator,true);
+    auto length=nonlinear?mappedLength:scaleStretchFrame(c.lengthFrames,numerator,denominator,true);
     const SourceFrameMap map(e.rendered.sampleRate,s.sampleRate,origin,c.playbackRate);
     // A rounded interval can reach the physical end; retain only real samples.
     Frame low=0,high=length;
@@ -224,8 +285,8 @@ void adoptClipStretch(Session &s,const ApplyClipStretch &e) {
     }
     require(low>0,"Stretch leaves no source audio");length=low;
     for(auto *fade:{&c.processing.fadeIn,&c.processing.fadeOut}) if(fade->startFrame!=fade->endFrame) {
-        fade->startFrame=scaleStretchFrame(fade->startFrame,numerator,denominator,false);
-        fade->endFrame=scaleStretchFrame(fade->endFrame,numerator,denominator,true);
+        fade->startFrame=scaleStretchFrame(fade->startFrame,nonlinear?std::uint64_t(length):numerator,nonlinear?std::uint64_t(c.lengthFrames):denominator,false);
+        fade->endFrame=scaleStretchFrame(fade->endFrame,nonlinear?std::uint64_t(length):numerator,nonlinear?std::uint64_t(c.lengthFrames):denominator,true);
     }
     auto found=std::find_if(s.assets.begin(),s.assets.end(),[&](const auto &a){return a.id==e.rendered.id;});
     if(found==s.assets.end()) s.assets.push_back(e.rendered);

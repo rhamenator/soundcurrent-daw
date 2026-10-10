@@ -5,6 +5,7 @@
 #include <soundcurrent/wave_validation.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <nlohmann/json.hpp>
+#include "warp_codec.hpp"
 #include "rt_audit.hpp"
 #include <array>
 #include <fstream>
@@ -40,21 +41,23 @@ std::vector<float> live(const std::filesystem::path &root,const Session &s,Frame
 int run(const std::vector<std::string> &args){try{
     check(args.size()==5,"Expected owned project root and relative derived artifact");auto root=utf8Path(args[1]);std::string relative=args[2];validateRelativeMediaPath(relative);
     auto path=root/utf8Path(relative);std::ifstream receiptFile(path.parent_path()/"complete.json");nlohmann::json receipt;receiptFile>>receipt;receiptFile.close();
-    check(receipt["complete"]==true && receipt["processor"]=="soundcurrent.stretch-rubberband4-r3-positioned-v2","Expected completed stretch artifact");
+    const auto processor=receipt.at("processor").get<std::string>();
+    check(receipt["complete"]==true && (processor==stretchProcessorId || processor==protectedWarpProcessorId),"Expected completed stretch artifact");
     const auto request=nlohmann::json::parse(args[3]);const auto operation=Id(request.at("operation").get<std::string>());
-    Asset raw;raw.id=Id(request.at("assetId").get<std::string>());raw.relativePath=request.at("relative");raw.sha256=request.at("sha256");raw.sampleRate=request.at("rate");raw.frames=request.at("sourceFrames");raw.layout={LayoutKind::Stereo,2};
+    Asset raw;raw.id=Id(request.at("assetId").get<std::string>());raw.relativePath=request.at("relative");raw.sha256=request.at("sha256");raw.sampleRate=request.at("rate");raw.frames=request.at("sourceFrames");const auto channels=request.at("channels").get<std::uint32_t>();raw.layout={channels==1?LayoutKind::Mono:channels==2?LayoutKind::Stereo:LayoutKind::Discrete,channels};
     auto s=makeOneTrackSession("Editable derived stretch","Audio",raw.sampleRate);s.assets={raw};s.tracks[0].layout=raw.layout;s.tracks[0].eq={};
     Clip c;c.assetId=raw.id;c.sourceFrame=request.at("first");c.sourceTiming={request.at("firstFraction"),request.at("firstDenominator")};c.lengthFrames=request.at("frames");s.tracks[0].clips={c};
     const auto original=s;StretchSettings settings{request.at("timeNumerator"),request.at("timeDenominator"),request.at("pitchMilliCents"),request.at("formantPreserved")};
-    auto plan=prepareClipStretch(s,s.tracks[0].id,c.id,settings);StretchRenderPolicy policy;policy.deadlineMilliseconds=10000;
+    std::optional<WarpSettings> warp;if(request.contains("warp"))warp=warp_codec::decode(request.at("warp"),c.lengthFrames,stretchOutputFrames(c.lengthFrames,settings),8*1024*1024);
+    auto plan=prepareClipStretch(s,s.tracks[0].id,c.id,settings,{},warp);StretchRenderPolicy policy;policy.deadlineMilliseconds=10000;
     {
         ResourceLedger protocolLedger(32*1024*1024,"Parent stretch verification");
         auto encoded=encodeStretchRenderRequest(plan,operation,policy,protocolLedger);check(nlohmann::json::parse(encoded.bytes())==request,"Parent request differs from actual worker request");
         verifyStretchRenderReady(args[4],plan,operation,protocolLedger);
         auto verified=verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);
-        check(verified.edit().rendered.relativePath==relative && verified.peak()>1,"Parent returned wrong owned artifact/headroom");
+        check(verified.edit().rendered.relativePath==relative && (warp?verified.peak()>0:verified.peak()>1),"Parent returned wrong owned artifact/headroom");
         auto refusal=[&](auto action){try {action();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Unverified stretch completion accepted");};
-        for(unsigned mode=0;mode<20;++mode) {
+        for(unsigned mode=0;mode<(warp?24u:20u);++mode) {
             auto bad=receipt;
             if(mode==0) bad["renderKey"]=std::string(64,'f');
             if(mode==1) bad["processor"]="unknown";
@@ -75,6 +78,10 @@ int run(const std::vector<std::string> &args){try{
             if(mode==16) bad["unexpected"]=0;
             if(mode==17) bad["peakLinear"]=nlohmann::json::object();
             if(mode==18) bad.erase("memoryMetric");
+            if(mode==20)bad["warp"]["points"][0]["source"][0]=0.0;
+            if(mode==21)bad["warp"]["spans"][0]["owner"]=Id::generate().str();
+            if(mode==22)bad["warp"]["markers"][0]["output"][0]=true;
+            if(mode==23)bad["warp"]["points"][0]["extra"]=0;
             const auto bytes=mode==19 ? "{\"complete\":true,"+bad.dump().substr(1) : bad.dump();
             {std::ofstream marker(path.parent_path()/"complete.json",std::ios::binary|std::ios::trunc);marker<<bytes;}
             refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger);});
@@ -84,7 +91,7 @@ int run(const std::vector<std::string> &args){try{
         auto wrongPolicy=policy;wrongPolicy.maximumInputFrames=1;
         refusal([&]{verifyOwnedClipStretch(root,plan,operation,wrongPolicy,protocolLedger);});
         std::stop_source canceled;canceled.request_stop();refusal([&]{verifyOwnedClipStretch(root,plan,operation,policy,protocolLedger,canceled.get_token());});
-        for(const auto &bad:{std::string(16385,'x'),std::string("[]"),std::string("{\"event\":\"ready\",\"event\":\"ready\"}")})
+        for(const auto &bad:{std::string(stretchProtocolLimit(plan.anchor)+1,'x'),std::string("[]"),std::string("{\"event\":\"ready\",\"event\":\"ready\"}")})
             refusal([&]{verifyStretchRenderReady(bad,plan,operation,protocolLedger);});
         auto rawPath=root/utf8Path(raw.relativePath);std::ifstream input(rawPath,std::ios::binary);std::string rawBytes((std::istreambuf_iterator<char>(input)),{});input.close();
         {std::ofstream changed(rawPath,std::ios::binary|std::ios::trunc);auto altered=rawBytes;altered.back()^=1;changed.write(altered.data(),std::streamsize(altered.size()));}
@@ -106,12 +113,12 @@ int run(const std::vector<std::string> &args){try{
     ResourceLedger ledger(128*1024*1024,"Derived workflow");rt_audit::reset();auto expected=live(root,s,0,asset.frames,37,ledger);check(!ledger.usage().reservedBytes,"Derived reader grant retained");
     check(live(root,s,0,asset.frames,511,ledger)==expected,"Callback partitions changed derived audio");
     auto split=s;applySessionEdits(split,{SplitClip{s.tracks[0].id,c.id,Id::generate(),4097}});check(live(root,split,0,asset.frames,127,ledger)==expected,"Derived split restarted stretch phase");
-    auto suffix=live(root,s,257,asset.frames,113,ledger);check(std::equal(suffix.begin(),suffix.end(),expected.begin()+257*2),"Derived seek changed waveform");
-    auto crop=s;applySessionEdits(crop,{CropClip{s.tracks[0].id,c.id,37,37,asset.frames-37}});check(live(root,crop,37,asset.frames,113,ledger)==std::vector<float>(expected.begin()+37*2,expected.end()),"Derived crop restarted processor");
+    auto suffix=live(root,s,257,asset.frames,113,ledger);check(std::equal(suffix.begin(),suffix.end(),expected.begin()+257*channels),"Derived seek changed waveform");
+    auto crop=s;applySessionEdits(crop,{CropClip{s.tracks[0].id,c.id,37,37,asset.frames-37}});check(live(root,crop,37,asset.frames,113,ledger)==std::vector<float>(expected.begin()+37*channels,expected.end()),"Derived crop restarted processor");
     std::filesystem::create_directory(root/"exports");ExportSpec spec(s.tracks[0].id);spec.endFrame=asset.frames;spec.blockFrames=127;ExportOptions options;options.resources=ledger;
-    auto exported=exportTrackWav(root,s,root/"exports/stretch.wav",spec,options);ApprovedMediaRoot approved(root,ledger);auto file=approved.open("exports/stretch.wav",16*1024*1024);std::vector<float> actual;
+    auto exported=exportTrackWav(root,s,root/"exports"/("stretch-"+operation.str()+".wav"),spec,options);ApprovedMediaRoot approved(root,ledger);auto file=approved.open("exports/stretch-"+operation.str()+".wav",16*1024*1024);std::vector<float> actual;
     validateApprovedWave(file,{}, {},[&](std::uint64_t,std::span<const double> samples){for(auto sample:samples)actual.push_back(float(sample));});
-    check(actual==expected && exported.peak>1 && exported.frames==asset.frames,"Derived offline export differs from live/headroom");
+    check(actual==expected && (warp?exported.peak>0:exported.peak>1) && exported.frames==asset.frames,"Derived offline export differs from live/headroom");
     ProjectStore(root).save(s);check(ProjectStore(root).load()==s && hashMediaFile(path)==asset.sha256,"Derived Save/reopen or immutable bytes differ");
     check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Derived callback performed audited allocation/free/lock");
     std::cout<<"derived_shared_live_export_checks="<<checks<<" callback_audit=0 seek_split_crop_equal=true save_reopen=true\n";return 0;

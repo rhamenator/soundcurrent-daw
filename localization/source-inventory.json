@@ -28,9 +28,9 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/playback_controller.cpp": "1400ea40e34ee71c1ace0fc5b3e67df595be22c8612ea723f74dc2072a19440d",
-    "ui/playback_controller.hpp": "55eb2c9d62a12cad72c2fe93fe4d6eb3d60a8a35d9bfe99fe26e49ded7382e4f",
-    "ui/project_controller.cpp": "79b8d53afd052d49e4d43183d52424dbb85231fcac9e57dc03edb107eac93a85",
+    "ui/playback_controller.cpp": "3ff7157488c1b825eec2e08325ce040f4e3c4458341fd8dbf118005225f547cc",
+    "ui/playback_controller.hpp": "b9b6a504e79afb359d1c3d14b15a57d99d84f2fae106dec382bf6d63424a916a",
+    "ui/project_controller.cpp": "0f29f7ed5914754238b19a754b276ce9cdd09455c83b3c75154a9b5934d4d058",
     "ui/project_controller.hpp": "b0e26f24d5c4f934cfbf93165508c97d8c50861eb97851546ac907b67523c3bc",
     "ui/recording_controller.cpp": "1b352cf625fd226040e8e9ad7da661bbd28127350af2a26f851dcaff546dff6e",
     "ui/recording_controller.hpp": "59c6024d7f8caaf83a2070ce634f529013ab6a71c845c1a162e5c935ce23a147",
@@ -38,12 +38,12 @@
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "755ba8c2d96caa02e275e62a30f53cada9c326252d84057c7257c686fe38a808",
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
-    "ui/stretch_controller.cpp": "105e0c1be45bd163858609dcc05486b29b9026f9c80352f9374c66cb71499edc",
-    "ui/stretch_controller.hpp": "f65b5f92b815d9055d4fa79679a89fedfd9ccc6603150668e72261e22b3b7041",
-    "ui/stretch_dialog.cpp": "28f3de933431cb48a3f5c651b025d69b8a65e64f09ad8d6cab8f031e185e745f",
-    "ui/stretch_dialog.hpp": "031270786ab79d4cf1cb8007ec6e91984374665324921c1ba4b3608a50f97f86",
-    "ui/studio_window.cpp": "9dc0473f3baa37282f1701a29c59f29fc454851d7f7d40b63025df3b97e9e6c3",
-    "ui/studio_window.hpp": "1defce26e0676f546aeb6cbd46eb5245dcdbd931eb84f62efb03d69af9a0bbc9",
+    "ui/stretch_controller.cpp": "f7e2ca32ffda45dddc4b72ad8c60c49dc43f31fd522cddb873b52b24685a982a",
+    "ui/stretch_controller.hpp": "30f4a34f550f78475376c09c2882b7c94648e64ba41902d9be42415721c231a9",
+    "ui/stretch_dialog.cpp": "fc167c158b3158834426e0481d86020793372afb6bb4f861ec6aa4737e1e0227",
+    "ui/stretch_dialog.hpp": "c1277e172e6a4b794f98786994f90509da27b52dbffc4c6549dc19db82b4df9b",
+    "ui/studio_window.cpp": "257a69af8e96e34a166ed6930b7dd6384d4614f2e388ac78d3e8fed18ef65f7e",
+    "ui/studio_window.hpp": "48ff916e3d2ef6da891b067c37f9b26006aadb3a393ca712f28a2658ab5ab7d9",
     "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
     "ui/timeline_editor.hpp": "a48e52f31f5064f49c126fdd01d12b56b53c68d3d3f73b786b24a3d98cba2081",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -53,7 +53,7 @@
     "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9"
   },
   "seed_sha256": "e9e3d7955a3fb640581c02d47fae53d1efd801350da019d91b0ea40c27e787f6",
-  "translator_notes_sha256": "6216767f12f3b4801cc3c8bbc7273ccff973738ee33915779de9407d1644d950",
+  "translator_notes_sha256": "7bd09dee3f5a9a02e0438410be9265e3d82fdb05c243837723edaf5320c8b9bb",
   "reviewed_words_sha256": "f27f25569669ec85d2e4d9f8a1ca7ca153fcaca7c7852b76c0f7075a321eb72b",
   "tools": {
     "lupdate": "lupdate version 6.10.2",
@@ -2684,13 +2684,73 @@
     ],
     [
       "StretchDialog",
+      "Experimental protected stretch markers",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Stretch markers in retained original source frames",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Marker",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Source position",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Target position",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Add marker",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Remove selected marker",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Markers use positions relative to the retained original span, at its physical sample rate. Moving a target protects the attack around that marker. Source and target positions must remain ordered. This first renderer requires integer positions, zero pitch and no neighboring context. Sustained multichannel phase quality is still unqualified.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Protected region: %1 source frames before and %2 after each marker; %3-frame blending boundaries. Fades follow the visible clip length.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Not enough Project resources to add a marker. No marker was added.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
       "This dialog stays bound to the clip selected when it opened. Close it before choosing another clip. Duration can be 0.25 to 4 times the source duration. Pitch and duration are independent. Rendering starts from the retained original audio. Linked playback speed remains a separate control. Closing this dialog leaves rendering in the background.",
       "",
       false
     ],
     [
       "StretchDialog",
-      "Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Apply, listen, and use Undo to return to the original.",
+      "Context extends the retained original span with real neighboring audio at the source sample rate. The visible duration follows the requested multiplier. Prepare audition, choose playback outputs and play the verified result before Apply. Stop audition to apply it as one undoable edit.",
       "",
       false
     ],
@@ -2715,6 +2775,30 @@
     [
       "StretchDialog",
       "Close",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Prepare audition",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Stop audition",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Check marker positions: use integer source frames, ordered targets and nonoverlapping protected regions. No project edit was made.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Play audition",
       "",
       false
     ],
@@ -2786,6 +2870,12 @@
     ],
     [
       "StretchDialog",
+      "This protected renderer requires an integer retained raw origin. Constant pitch/stretch remains available for this clip.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
       "The duration multiplier must be between 0.25 and 4.",
       "",
       false
@@ -2807,6 +2897,12 @@
       "shifted",
       "",
       false
+    ],
+    [
+      "StretchDialog",
+      "Verified protected marker plan: %n marker(s).",
+      "",
+      true
     ],
     [
       "StretchDialog",
@@ -3326,6 +3422,12 @@
     ],
     [
       "StudioWindow",
+      "Audition prepared without a project edit. Choose playback outputs, then Play audition. Stop before Apply.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "The result could not be applied. The project or clip may have changed; render it again. The owned render files were retained.",
       "",
       false
@@ -3333,6 +3435,12 @@
     [
       "StudioWindow",
       "Pitch and stretch applied. Undo restores the previous clip; save to retain these settings.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The marker editor needs more Project resources. Close unused previews and retry.",
       "",
       false
     ],
@@ -3741,6 +3849,12 @@
     [
       "StudioWindow",
       " · Another track is prepared. Stop or prepare the selected track.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Audition — project unchanged. ",
       "",
       false
     ],
