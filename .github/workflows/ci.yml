@@ -65,6 +65,8 @@ jobs:
           python3 tests/results/M2/2026-10-10-native-restart-qualified/verify.py
           python3 tests/results/M2/2026-10-10-windows-installed-normal-restart/verify.py
           python3 tests/results/M2/2026-10-10-windows-recovery-guards/verify.py
+          python3 tests/results/M2/2026-10-10-linux-parent-interruption/verify.py
+          python3 tests/results/M2/2026-10-10-windows-parent-interruption/verify.py
       - name: Verify retained installed Windows preview (no native replay)
         run: |
           git fetch --no-tags --depth=1 origin b8cdb3e00da524e5be51b007c1f81d6e51806d72
@@ -224,11 +226,11 @@ jobs:
           if errorlevel 1 exit /b 1
           cmake -S . -B build-desktop-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=ON -DSC_BUILD_DESKTOP=ON "-DCMAKE_PREFIX_PATH=%CD%/native-ui-dependencies/qt" "-DSNDFILE_LIBRARY=%CD%/native-dependencies/sndfile-build/sndfile.lib"
           if errorlevel 1 exit /b 1
-          cmake --build build-desktop-native --parallel 2 --target soundcurrent-daw sc-stretch-controller-tests sc-stretch-ui-tests sc-protected-warp-ui-tests sc-timeline-ui-tests sc-media-copy-controller-tests sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-import-media-ui-tests sc-localization-tests
+          cmake --build build-desktop-native --parallel 2 --target soundcurrent-daw sc-stretch-parent-probe sc-stretch-controller-tests sc-stretch-ui-tests sc-protected-warp-ui-tests sc-timeline-ui-tests sc-media-copy-controller-tests sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-import-media-ui-tests sc-localization-tests
           if errorlevel 1 exit /b 1
           set "PATH=%CD%\native-ui-dependencies\qt\bin;%CD%\native-dependencies\sndfile-build;%PATH%"
           set "QT_PLUGIN_PATH=%CD%\native-ui-dependencies\qt\plugins"
-          ctest --test-dir build-desktop-native -R "^(desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$" --output-on-failure --no-tests=error -V
+          ctest --test-dir build-desktop-native -R "^(desktop-stretch-parent-interruption|desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$" --output-on-failure --no-tests=error -V
           if errorlevel 1 exit /b 1
       - name: Retain native desktop evidence
         if: always()
