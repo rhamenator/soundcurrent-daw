@@ -1,0 +1,13 @@
+{
+  "retainedInspectionChecks": 46909,
+  "geometryRuns": 2,
+  "geometryRequestsPerRun": 516,
+  "fullCandidateWaves": 52,
+  "actualDSPReplayed": false,
+  "nativeAudio": false,
+  "fullQualityQualified": false,
+  "scriptSha256": "dc250086def6ae78e5ee6d71e4d47294c02ba17231c2f495945a610a0fe49aa3",
+  "exitCode": 0,
+  "observedProductionBase": "a40e0b5fb1430ca1f3bd42793fb870c3b918b8ab",
+  "sourceWasUncommitted": true
+}
