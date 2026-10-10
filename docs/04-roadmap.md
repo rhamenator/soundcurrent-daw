@@ -855,3 +855,15 @@ protected spans and derived unity-slope map points as the next implementation,
 then supported editable marker/reviewApply/Undo/reopen/shared output. General
 warp/group/pitch/comp/native/installed/recovery and every other milestone, X004/
 X005 and all-Europe/F/Q/C/N remain required.
+
+## M2/M8 original protected processing (2026-10-10 UTC)
+
+[Checkpoint148](148-transient-protected-warp.md) implements original exact
+protected spans, admitted normalized boundaries and actual R3 gap processing.
+54 local renders retain complete source/gap/output PCM. Annotated attacks and
+cores improve; nonunity sustained gaps and background-bed event interpretation
+remain unqualified. [ADR107](decisions/107-protected-warp-integration-scope.md)
+selects a versioned worker/state and one editable marker with review/Apply,
+Undo/reopen/crop/split/shared output next. The opt-in prototype is not an
+installed usable marker workflow. Full general/group/tempo/pitch/comp and all
+other milestones, import/equipment, native recovery and Europe remain required.
