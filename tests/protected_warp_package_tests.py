@@ -3,7 +3,7 @@
 """Source/helper binding and receipt refusal fixtures, without installer/audio execution."""
 from pathlib import Path
 from copy import deepcopy
-import json,importlib.util
+import json,hashlib,importlib.util
 import sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -12,6 +12,8 @@ import package_linux_preview as linux_builder
 import package_windows_preview as windows_builder
 root=ROOT/'tests/fixtures/protected-warp-qualification'
 checks=0
+for name,digest in [("linux.json","cd97a639d19d37eed264b682ebfc29bbe8a6fdeabd621f6d4104c232cce3531c"),("windows.json","dcd77ce3ea835311daa9ce3bb52890b46f8a56cbd9350f3e8603604d3c5dc2db")]:
+ assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest,"Captured report bytes changed";checks+=1
 for path,platform in [('linux.json','linux'),('windows.json','win32')]:
  original=json.loads((root/path).read_text());expected=(original['sourceCommit'],original['sourceTree'],original['workerSha256'],platform)
  assert gate.qualify_protected_warp(original,*expected)['fullPcmComparisons']==18;checks+=1
