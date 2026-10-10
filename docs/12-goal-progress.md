@@ -3883,3 +3883,26 @@ marker guard, Apply/Undo/Redo and repeat export session. This installed workflow
 is not yet qualified. Abrupt death/power loss, scalable recovery, broad M2 quality,
 M2–M11, X004/X005 and all-Europe qualification remain open. The full goal stays
 active and incomplete.
+
+## Installed Windows normal restart checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: PR98 normally protected-merged after all four
+gates, exact reviewed/tested/merged tree agreement and bounded evidence-safety
+repairs. Current progress extends the installed `4fb8c1c` preview through actual
+protected render, normal quit, fresh-process Ready review, exact marker
+changed/restored guards, Apply, saved Undo/Redo, a second normal process's Attached
+refusal and repeated byte-identical WAV export. All three actual main handles
+exited 0; the installed helper's path/hash was observed.
+
+[Checkpoint158](158-windows-installed-normal-restart.md) and its retained verifier
+bind every original capture, preserve operator failures, distinguish schema
+normalization from history changes and check complete PCM/headroom. Protected
+core bits match; the span has 128 signed-zero differences and exported PCM has
+2,175 signed-zero differences, with numerical equality throughout. This does not
+qualify broader processing quality. No DSP change, audible audio or product upload.
+
+All VMs are off; receiver actual exit 0, owned CD ejected, narrow firewall rule
+removed. Next: installed Windows stale/altered-selection guards and owned virtual
+Prepare/Stop audition, then abrupt death/interrupted output and larger recovery
+inventory qualification. These gates, broad M2 quality, M2–M11, X004/X005 and
+all-Europe qualification remain open. The full goal stays active and incomplete.

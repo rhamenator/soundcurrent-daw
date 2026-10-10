@@ -1,0 +1,74 @@
+{
+  "captures/main-4fb8-second-20261010195312642.zip": {
+    "bytes": 5126,
+    "sha256": "fa1b7b397585c18189773207ec80f548241efea81dde474d83f60f02ad53f541"
+  },
+  "captures/action-4fb8-second-render-200546665.zip": {
+    "bytes": 215468,
+    "sha256": "ed0a9de0fc9e74fc311a2b057746364ebb67372d284196607256fba40a68f1af"
+  },
+  "captures/action-4fb8-second-quit-200942092.zip": {
+    "bytes": 217177,
+    "sha256": "788419e901e00ec1c43b1e315364f9c33d901d11fedf6a8a15241d8a1695175d"
+  },
+  "captures/restart-failed-20261010202152514.zip": {
+    "bytes": 228770,
+    "sha256": "28385fade272de90f104e0dc4d9bfab88f8c6c7a4964d9fc4a57efdae9817133"
+  },
+  "captures/restart-failed-20261010202336365.zip": {
+    "bytes": 240970,
+    "sha256": "a0e386b9ef82d1cc39ac291836ea770b83042f3d5d2159d97e237a97d992feac"
+  },
+  "captures/restart-failed-20261010202504192.zip": {
+    "bytes": 290884,
+    "sha256": "60ff5f7ec876c9f51454fb29834b58efc4f8943cf420d9fe650d88056acb38dd"
+  },
+  "captures/restart-recovered-20261010202735184.zip": {
+    "bytes": 475629,
+    "sha256": "517bfe72f4aecccb7e5e7ba38751211ec3d335686edb7dcb97fb9a74591ef56e"
+  },
+  "captures/restart-failed-20261010202735184.zip": {
+    "bytes": 486506,
+    "sha256": "e571a680ed8699404fe52e072c51e60be1fc3362f452a540c8c5be19b0f05315"
+  },
+  "captures/restart-complete-20261010202950277.zip": {
+    "bytes": 657310,
+    "sha256": "ea471ffb123a1ea13ba00b762eaa908802b580562c20ce59946d64e5fc14d436"
+  },
+  "operator/restart.ps1": {
+    "bytes": 11717,
+    "sha256": "eb2c4122ce51a7c11d551d5f9b36b520373d1f68b5d3b43c5f8b363692fe7d9d"
+  },
+  "operator/resume.ps1": {
+    "bytes": 12274,
+    "sha256": "ce068b96ab04c090f0f476ec18504d306ffc98a07038c34c14e86d35b3a9f7d0"
+  },
+  "operator/resume-name.ps1": {
+    "bytes": 12533,
+    "sha256": "8063b04203b9b7678696fd40976564ca16c26bea5fdc8660335575d05b12e9f8"
+  },
+  "operator/history.ps1": {
+    "bytes": 10994,
+    "sha256": "5523a2caf2d472993dbe087a9f65e56c17306ba4e038f69dd3544e7317e3bebe"
+  },
+  "operator/finish.ps1": {
+    "bytes": 10955,
+    "sha256": "9db30fe68430b4828582146823347d50ac6f52d5ec61a97aebb8c47061fcccf3"
+  },
+  "render-ready-verification.json": {
+    "bytes": 1455,
+    "sha256": "09ae6d652e4b977b71dd626789fa139f4169fb1b7b4abc8d556c0e50f6333ce4"
+  },
+  "final-state.json": {
+    "bytes": 701,
+    "sha256": "cc8989ce9d2cd97649cedbde11a6ed280a7aa74a6062661ba83109a1b45acd03"
+  },
+  "operator/history-progress.png": {
+    "bytes": 259418,
+    "sha256": "1465e2e142ccc67694975467f875f89b33775c289790323b083f013bd6e27950"
+  },
+  "operator/review.png": {
+    "bytes": 393024,
+    "sha256": "a3f598d3aa7e48d22f46372c7a10beea2e35932715ebeff9471f18021c626ac5"
+  }
+}

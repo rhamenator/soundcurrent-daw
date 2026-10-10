@@ -1,0 +1,22 @@
+{
+  "sourceHead": "4fb8c1cdf1b1365e5834256f4b39b51566dbed52",
+  "sourceTree": "d1b6be0bd9114af21d73a5dd6ba8172b53510c44",
+  "installedSequence": "20261010183111",
+  "captureSha256": "5f93fd52375d64da4f96266f3d9168b214f5b0d3c1338ee0ee33134c1b63b868",
+  "renderPid": 3376,
+  "helperPid": 6584,
+  "reviewPid": 6568,
+  "attachedPid": 3644,
+  "operation": "eee85921-5fd6-497f-88be-ecfd1a260bca",
+  "normalReadyApplyUndoRedoAttachedExportQualified": true,
+  "nativeAuditionQualified": false,
+  "staleInvalidInstalledWindowsQualified": false,
+  "abruptParentTerminationQualified": false,
+  "powerLossQualified": false,
+  "scalableRecoveryQualified": false,
+  "helperModulesQualified": false,
+  "physicalAudioQualified": false,
+  "fullQualityQualified": false,
+  "fullGoalComplete": false,
+  "installerUploaded": false
+}
