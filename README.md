@@ -274,6 +274,11 @@ now has retained marker-render, Undo/Redo, Unicode reopen and float export evide
 The refreshed unsigned installer and corresponding source are prepared locally;
 physical audio, pristine Windows installation and full-suite qualification remain open.
 
+[Retained render review](docs/154-render-restart-review.md) adds explicit background
+scan and review after reopening a project, with source/media verification,
+stale-target guards and transactional Apply/Undo. Installed restart qualification
+and scalable lifetime job management remain open.
+
 - [Scope and frozen baseline](docs/00-scope-baseline.md)
 - [Source-linked parity matrix](docs/01-parity-matrix.md) · [machine-readable requirements](research/parity.json)
 - [Architecture and real-time threading contracts](docs/02-architecture.md)

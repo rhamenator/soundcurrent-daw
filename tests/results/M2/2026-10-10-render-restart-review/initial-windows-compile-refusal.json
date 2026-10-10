@@ -1,0 +1,17 @@
+{
+  "format": "sc-render-restart-ci-initial-v1",
+  "head": "5c19221c0404aa7c3492e617d61c9e63450ef4f2",
+  "run": 38067117848,
+  "windowsJobs": [
+    114256906663,
+    114256906552
+  ],
+  "result": "compile refused before acceptance execution",
+  "diagnostic": "MSVC C2666 at src/stretch_recovery.cpp:66: ambiguous nlohmann::json comparison with string_view",
+  "fix": "Extract and compare explicit string values. Final exact-head CI required.",
+  "qualifiedWindows": false,
+  "jobUrls": [
+    "https://github.com/rhamenator/soundcurrent-daw/actions/runs/38067117848/job/114256906663",
+    "https://github.com/rhamenator/soundcurrent-daw/actions/runs/38067117848/job/114256906552"
+  ]
+}

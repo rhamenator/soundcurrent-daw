@@ -1911,6 +1911,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>This retained result was independently verified after reopening. Review these settings before choosing Apply. No project edit has been made.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>A complete result was verified after cancellation, a deadline, or an abnormal exit. Review these settings before choosing Apply. No project edit has been made.</source>
       <translation type="unfinished" />
     </message>
@@ -2032,6 +2036,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Project resources…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Review retained pitch/stretch renders…</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2300,6 +2308,86 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Development preview: selected-track recording and shared-clock playback are available on Linux. Captured audio stays raw; track EQ affects monitoring, playback and WAV export.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retained render review needs more Project resources. Close unused previews and retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retained pitch/stretch renders</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Scan again</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Review selected result</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel verification</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retained render scan could not start. Check Project resources.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retained render review could not start. Check Project resources.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This review belongs to a previous project opening. Close it and scan the current project.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verifying retained jobs in the background…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The selected job could not be reviewed. Its source, target or files may have changed. Scan again.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verification stopped. Check files and Project resources, then scan again. No project edit was made.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Ready for review</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Already attached</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Target changed or missing</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Incomplete render</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Renderer still owns this job</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Invalid or missing files</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>duration %1/%2, pitch %3 semitones</source>
+      <translation type="unfinished" />
+    </message>
+    <message numerus="yes">
+      <source>%n retained job(s) inspected. No project edit was made.</source>
       <translation type="unfinished" />
     </message>
     <message>

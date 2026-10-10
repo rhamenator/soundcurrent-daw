@@ -46,6 +46,7 @@ class StudioWindow : public QMainWindow {
     bool requestClipStretch(const Id &, const Id &, StretchSettings,std::optional<StretchContext> = {},const std::optional<WarpSettings> & = {});
     bool applyClipStretch();
     bool auditionClipStretch();
+    bool scanStretchRenders();
     std::shared_ptr<const StretchSnapshot> stretchSnapshot() const;
     std::shared_ptr<const ManualControlSnapshot> manualRecordingSnapshot() const;
     void openProject(const std::filesystem::path &);
@@ -81,6 +82,7 @@ class StudioWindow : public QMainWindow {
     ProjectController controller_;
     StretchController stretch_;
     QPointer<StretchDialog> stretchDialog_;
+    QPointer<QDialog> stretchRecoveryDialog_;
     QString stretchMessage_;
     std::uint64_t stretchAdopting_ = 0;
     bool stretchCanApply() const;

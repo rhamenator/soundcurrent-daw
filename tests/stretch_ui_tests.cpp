@@ -14,6 +14,7 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QListWidget>
 #include <QTemporaryDir>
 #include <QTest>
 #include <QElapsedTimer>
@@ -74,6 +75,48 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
     check(app.arguments().size()==2,"Expected actual stretch helper");QTemporaryDir tmp;check(tmp.isValid(),"Cannot create owned UI folder");
     const auto base=utf8Path(tmp.path().toUtf8().toStdString());const auto root=base/utf8Path("été-Κиїв");const auto original=fixture(root);
     StretchOptions options;options.program=app.arguments()[1];options.policy.maximumInputFrames=100000;options.policy.maximumOutputBytes=4*1024*1024;options.policy.maximumSourceBytes=4*1024*1024;
+    {
+        const auto restartRoot=base/utf8Path("restart-été-Κиїв");const auto pristine=fixture(restartRoot);
+        std::optional<Id> operation;
+        {
+            StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.show();window.openProject(restartRoot);
+            wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+            check(window.requestClipStretch(pristine.tracks[0].id,pristine.tracks[0].clips[0].id,{3,2,700000,true}),"Restart fixture render refused");
+            wait([&]{return !window.stretchSnapshot()->busy;});check(bool(window.stretchSnapshot()->result),"Restart fixture did not complete");
+            operation=window.stretchSnapshot()->selection->operation;
+            check(*window.snapshot()->session==pristine && !window.snapshot()->dirty,"Unattached render changed saved project");
+            window.close();wait([&]{return !window.isVisible();});
+        }
+        {
+            StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.show();window.openProject(restartRoot);
+            wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+            check(!window.stretchSnapshot()->result && window.scanStretchRenders(),"New window did not admit explicit recovery scan");
+            auto *list=window.findChild<QListWidget *>("stretchRecoveryList");auto *review=window.findChild<QPushButton *>("reviewRetainedStretch");
+            wait([&]{return list && list->count()==1;});list->setCurrentRow(0);wait([&]{return review->isEnabled();});
+            check(list->item(0)->text().contains("Ready for review") && *window.snapshot()->session==pristine,"Restart scan failed or auto-attached");
+            review->click();wait([&]{return window.stretchSnapshot()->recovered && window.findChild<QDialog *>("clipStretchDialog");});
+            auto *dialog=window.findChild<QDialog *>("clipStretchDialog");auto *pitch=dialog->findChild<QDoubleSpinBox *>("stretchPitch");
+            auto *apply=dialog->findChild<QPushButton *>("applyStretch");wait([&]{return apply->isEnabled();});
+            check(pitch->value()==7 && dialog->findChild<QSpinBox *>("stretchNumerator")->value()==3 && !window.stretchSnapshot()->childPid,"Restart controls changed or spawned helper");
+            pitch->setValue(8);check(!apply->isEnabled(),"Changed recovery controls applied old result");pitch->setValue(7);check(apply->isEnabled(),"Restored recovery controls failed");
+            apply->click();wait([&]{return window.snapshot()->session->tracks[0].clips[0].assetId==*operation && window.stretchSnapshot()->phase==StretchPhase::Idle;});
+            const auto applied=*window.snapshot()->session;
+            check(window.submitEdit({CommandKind::Undo}),"Recovery Undo refused");wait([&]{return *window.snapshot()->session==pristine;});
+            check(window.submitEdit({CommandKind::Redo}),"Recovery Redo refused");wait([&]{return *window.snapshot()->session==applied;});
+            check(window.submitEdit({CommandKind::Save}),"Recovery save refused");wait([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
+            check(ProjectStore(restartRoot).load()==applied,"Recovery save lost result");
+            ExportSpec spec(pristine.tracks[0].id);spec.endFrame=12288;ExportOptions out;out.resources=window.resourceLedger();
+            check(exportTrackWav(restartRoot,applied,base/"restart-export.wav",spec,out).frames==12288,"Recovered result export failed");
+            dialog->close();window.close();wait([&]{return !window.isVisible();});
+        }
+        {
+            StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.show();window.openProject(restartRoot);
+            wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});check(window.scanStretchRenders(),"Saved attachment scan refused");
+            auto *list=window.findChild<QListWidget *>("stretchRecoveryList");wait([&]{return list && list->count()==1;});list->setCurrentRow(0);QTest::qWait(110);
+            check(list->item(0)->text().contains("Already attached") && !window.findChild<QPushButton *>("reviewRetainedStretch")->isEnabled(),"Attached job was offered for adoption again");
+            window.findChild<QDialog *>("stretchRecoveryDialog")->close();window.close();wait([&]{return !window.isVisible();});
+        }
+    }
     {
         StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.resize(1280,720);window.show();window.openProject(root);
         wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.findChild<QComboBox *>("timelineClips")->count()>1;});

@@ -35,6 +35,7 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QVBoxLayout>
 #include <QListWidget>
 #include <QListView>
 #include <QPushButton>
@@ -189,6 +190,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
             historyDialog_->show();
         });
     historyAction->setObjectName("historyResourcesAction");
+    auto *rendersAction=editMenu->addAction(tr("Review retained pitch/stretch renders…"),this,[this]{scanStretchRenders();});
+    rendersAction->setObjectName("reviewStretchRendersAction");
     retryGui_ = editMenu->addAction(tr("Retry project display"), this, [this] {
         guiRefusedSource_.reset();
         guiRefusedEpoch_ = 0;
@@ -728,6 +731,82 @@ bool StudioWindow::stretchCanApply() const {
         s->selection->project->projectEpoch==m->projectEpoch &&
         s->selection->project->root==m->root &&
         s->selection->project->session->id==m->session->id;
+}
+bool StudioWindow::scanStretchRenders() {
+    if(stretchRecoveryDialog_){stretchRecoveryDialog_->show();stretchRecoveryDialog_->raise();return true;}
+    if(!stretchCanRender())return false;
+    const auto source=controller_.snapshot();
+    struct ReviewView {
+        ResourceLease lease;
+        std::shared_ptr<const std::vector<StretchRecoveryEntry>> listed;
+        bool reviewing=false;
+    };
+    std::shared_ptr<ReviewView> state;
+    try {
+        state=std::make_shared<ReviewView>();state->lease=controller_.resourceLedger().reserve(128*8192);
+        if(stretch_.scan(source)!=Admission::Accepted)return false;
+    }catch(const std::exception &){notice_->setText(tr("Retained render review needs more Project resources. Close unused previews and retry."));return false;}
+    if(stretchDialog_)stretchDialog_->close();
+    stretchMessage_.clear();
+    auto *dialog=new QDialog(this);dialog->setObjectName("stretchRecoveryDialog");dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Retained pitch/stretch renders"));stretchRecoveryDialog_=dialog;
+    auto *layout=new QVBoxLayout(dialog);auto *help=new QLabel(tr("Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit."));help->setWordWrap(true);layout->addWidget(help);
+    auto *list=new QListWidget;list->setObjectName("stretchRecoveryList");layout->addWidget(list);
+    auto *status=new QLabel;status->setWordWrap(true);status->setObjectName("stretchRecoveryStatus");layout->addWidget(status);
+    auto *buttons=new QDialogButtonBox;auto *scan=buttons->addButton(tr("Scan again"),QDialogButtonBox::ActionRole);
+    auto *review=buttons->addButton(tr("Review selected result"),QDialogButtonBox::ActionRole);review->setObjectName("reviewRetainedStretch");
+    auto *cancel=buttons->addButton(tr("Cancel verification"),QDialogButtonBox::ActionRole);
+    auto *close=buttons->addButton(QDialogButtonBox::Close);layout->addWidget(buttons);
+    connect(close,&QPushButton::clicked,dialog,&QDialog::close);
+    connect(cancel,&QPushButton::clicked,dialog,[this]{stretch_.requestCancel();});
+    connect(scan,&QPushButton::clicked,dialog,[this,source,state]{
+        if(controller_.snapshot()->projectEpoch!=source->projectEpoch || !stretchCanRender())return;
+        try{if(stretch_.scan(controller_.snapshot())==Admission::Accepted){state->listed.reset();state->reviewing=false;}}catch(const std::exception &){stretchMessage_=tr("Retained render scan could not start. Check Project resources.");}
+    });
+    connect(review,&QPushButton::clicked,dialog,[this,list,source,state]{
+        auto *item=list->currentItem();if(!item || !stretchCanRender() || controller_.snapshot()->projectEpoch!=source->projectEpoch)return;
+        try {
+            const Id op(item->data(Qt::UserRole).toString().toStdString());
+            if(stretch_.review(controller_.snapshot(),op)==Admission::Accepted)state->reviewing=true;
+        }catch(const std::exception &){stretchMessage_=tr("Retained render review could not start. Check Project resources.");}
+    });
+    auto *timer=new QTimer(dialog);connect(timer,&QTimer::timeout,dialog,[this,dialog,list,status,scan,review,cancel,source,state]{
+        const auto s=stretch_.snapshot();const auto project=controller_.snapshot();const bool same=project->projectEpoch==source->projectEpoch;
+        const bool enabled=same && stretchCanRender();scan->setEnabled(enabled);cancel->setEnabled(s->busy);
+        review->setEnabled(enabled && list->currentItem() && list->currentItem()->data(Qt::UserRole+1).toBool());
+        if(!same){status->setText(tr("This review belongs to a previous project opening. Close it and scan the current project."));return;}
+        if(s->busy){status->setText(tr("Verifying retained jobs in the background…"));return;}
+        if(state->reviewing){
+            state->reviewing=false;
+            if(s->recovered && s->result && s->selection){const auto track=s->selection->track,clip=s->selection->clip;dialog->close();showClipStretch(track,clip);return;}
+            status->setText(tr("The selected job could not be reviewed. Its source, target or files may have changed. Scan again."));return;
+        }
+        if(s->error){status->setText(tr("Verification stopped. Check files and Project resources, then scan again. No project edit was made."));return;}
+        if(s->inventory && state->listed!=s->inventory){
+            state->listed=s->inventory;list->clear();
+            for(const auto &entry:*state->listed){
+                QString label;
+                switch(entry.status){
+                    case StretchRecoveryStatus::Ready:label=tr("Ready for review");break;
+                    case StretchRecoveryStatus::Attached:label=tr("Already attached");break;
+                    case StretchRecoveryStatus::Stale:label=tr("Target changed or missing");break;
+                    case StretchRecoveryStatus::Incomplete:label=tr("Incomplete render");break;
+                    case StretchRecoveryStatus::Active:label=tr("Renderer still owns this job");break;
+                    case StretchRecoveryStatus::Invalid:label=tr("Invalid or missing files");break;
+                }
+                if(entry.plan){
+                    const auto &session=*project->session;
+                    const auto target=std::find_if(session.tracks.begin(),session.tracks.end(),[&](const auto &t){return t.id==entry.plan->trackId;});
+                    if(target!=session.tracks.end())label=text(target->name)+QStringLiteral(" — ")+label;
+                    const auto &value=entry.plan->anchor.settings;
+                    label+=QStringLiteral(" — ")+tr("duration %1/%2, pitch %3 semitones").arg(QLocale().toString(value.timeNumerator),QLocale().toString(value.timeDenominator),QLocale().toString(double(value.pitchMilliCents)/100000.0,'f',5));
+                }
+                auto *item=new QListWidgetItem(label,list);item->setToolTip(text(entry.operation.str()));
+                item->setData(Qt::UserRole,text(entry.operation.str()));item->setData(Qt::UserRole+1,entry.status==StretchRecoveryStatus::Ready);
+            }
+            status->setText(tr("%n retained job(s) inspected. No project edit was made.",nullptr,int(state->listed->size())));
+        }
+    });timer->start(100);dialog->resize(650,420);dialog->show();return true;
 }
 bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
     if(!stretchCanRender())return false;

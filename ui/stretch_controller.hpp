@@ -2,6 +2,7 @@
 #pragma once
 #include "project_controller.hpp"
 #include <soundcurrent/stretch_render_protocol.hpp>
+#include <soundcurrent/stretch_recovery.hpp>
 #include <QString>
 namespace soundcurrent::daw::ui {
 enum class StretchPhase {Idle,Queued,Preparing,Running,Verifying,Complete,Canceled,Fault,RecoveryRequired};
@@ -24,6 +25,8 @@ struct StretchSnapshot {
     std::optional<int> childExit;
     std::optional<ErrorCode> error;
     bool busy=false,closed=false,canceled=false,timedOut=false,abnormalExit=false;
+    bool recovered=false;
+    std::shared_ptr<const std::vector<StretchRecoveryEntry>> inventory;
 };
 struct StretchOptions {
     ResourceLedger memory{512*1024*1024,"Background stretch"};
@@ -40,6 +43,8 @@ class StretchController {
     explicit StretchController(StretchOptions={});
     ~StretchController();
     Admission render(std::shared_ptr<const ControllerSnapshot>,Id track,Id clip,StretchSettings,std::optional<StretchContext> = {},const std::optional<WarpSettings> & = {});
+    Admission scan(std::shared_ptr<const ControllerSnapshot>);
+    Admission review(std::shared_ptr<const ControllerSnapshot>,Id operation);
     void requestCancel() noexcept;
     void requestShutdown() noexcept;
     bool clearResult();
@@ -47,5 +52,6 @@ class StretchController {
  private:
     struct State;
     std::unique_ptr<State> state_;
+    Admission recover(std::shared_ptr<const ControllerSnapshot>,std::optional<Id>);
 };
 } // namespace soundcurrent::daw::ui
