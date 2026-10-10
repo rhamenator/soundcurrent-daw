@@ -2327,12 +2327,16 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Retained pitch/stretch renders</translation>
     </message>
     <message>
-      <source>Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</source>
-      <translation>Scan verifies the original source and every rendered sample. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</translation>
+      <source>Scan verifies retained jobs in bounded pages. Next page replaces this list; Scan again starts at the beginning. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</source>
+      <translation>Scan verifies retained jobs in bounded pages. Next page replaces this list; Scan again starts at the beginning. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit.</translation>
     </message>
     <message>
       <source>Scan again</source>
       <translation>Scan again</translation>
+    </message>
+    <message>
+      <source>Next page</source>
+      <translation>Next page</translation>
     </message>
     <message>
       <source>Review selected result</source>
@@ -2345,6 +2349,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Retained render scan could not start. Check Project resources.</source>
       <translation>Retained render scan could not start. Check Project resources.</translation>
+    </message>
+    <message>
+      <source>The scan expired or the project changed. Scan again.</source>
+      <translation>The scan expired or the project changed. Scan again.</translation>
     </message>
     <message>
       <source>Retained render review could not start. Check Project resources.</source>
@@ -2395,8 +2403,20 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>duration %1/%2, pitch %3 semitones</translation>
     </message>
     <message numerus="yes">
-      <source>%n retained job(s) inspected. No project edit was made.</source>
+      <source>%n retained job(s) inspected on this page.</source>
       <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Page %1: %2 No project edit was made.</source>
+      <translation>Page %1: %2 No project edit was made.</translation>
+    </message>
+    <message>
+      <source>More entries remain. Choose Next page to continue.</source>
+      <translation>More entries remain. Choose Next page to continue.</translation>
+    </message>
+    <message>
+      <source>Scan finished.</source>
+      <translation>Scan finished.</translation>
     </message>
     <message>
       <source>The render queue is unavailable. Please retry.</source>
