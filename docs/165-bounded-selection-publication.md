@@ -55,3 +55,11 @@ Complete the protected paging/publication review and native Windows checks, then
 qualify interrupted publication and storage-error preservation with owned failure
 fixtures. Continue M2 editing/quality acceptance and the full M2–M11/X004/X005,
 Europe-wide translation/review/UI and separate F/Q/C/N targets.
+
+## Scoped-retirement integration
+
+The PR104 stale-dialog/resource review correction is integrated here too. Linux
+combined controller1662/UI283 assertions pass with the129-completed-job corpus,
+exact resource return and held newer-render preservation. Original bff863a
+publication evidence remains frozen at its original1520/276 scope; current-head
+CI and native Windows qualification remain separate.
