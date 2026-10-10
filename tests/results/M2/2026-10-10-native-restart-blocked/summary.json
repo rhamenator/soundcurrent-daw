@@ -1,0 +1,24 @@
+{
+  "format": "sc-native-restart-blocked-v1",
+  "observedSourceCommit": "f1f4dbc4307b5d65ed600068be6f2139e86bf26f",
+  "observedSourceTree": "e27f96712e8d35ce8621219481a4c211f0e6e22d",
+  "nativeArchiveSha256": "79fff9281fc93c29d587b736ff0c241c71813734f979c66cd19c8460b5a4fa23",
+  "nativeBuildExit": 0,
+  "nativeDesktopGroupsPassed": 6,
+  "nativeProtectedBankQualified": false,
+  "normalWindowQualified": false,
+  "installedRestartQualified": false,
+  "nativeAudio": false,
+  "newInstallerProduced": false,
+  "allVmsShutOff": true,
+  "retainedFiles": {
+    "capture.zip": {
+      "bytes": 314982,
+      "sha256": "12c97f4c3b1f86a6d5c98d397ee9f1f5d068bceaf538c0955773fb391c28bab8"
+    },
+    "vm-final-state.txt": {
+      "bytes": 468,
+      "sha256": "00c4d87dc1daaa4075c50097784ac884f69cfd31672a2dd79f6e83ddb51e6d1f"
+    }
+  }
+}

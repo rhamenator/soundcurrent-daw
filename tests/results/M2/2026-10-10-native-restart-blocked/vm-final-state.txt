@@ -1,0 +1,10 @@
+ Id   Name                                 State
+-----------------------------------------------------
+ -    copperfin-access365-win11            shut off
+ -    copperfin-clean-win11                shut off
+ -    copperfin-rocky8-cave                shut off
+ -    copperfin-ubuntu26-deb               shut off
+ -    copperfin-vfp9-win11                 shut off
+ -    soundcurrent-stretch-install-win11   shut off
+ -    soundcurrent-win11-dev               shut off
+
