@@ -3,6 +3,7 @@
 """Audit retained installed restart captures; never run archived code or audio."""
 from pathlib import Path, PurePosixPath
 import argparse
+import copy
 import hashlib
 import json
 import math
@@ -137,7 +138,17 @@ for doc in [complete, intent]:
         assert doc[key] == settings[key]
 assert complete['renderKey'] == anchor['renderKey']
 assert applied['assets'][0] == initial['assets'][0] and len(applied['assets']) == 2
-assert applied['assets'][1]['sha256'] == rendered['sha256']
+assert applied['assets'][1] == {
+    'id': operation, 'path': 'media/derived/' + operation + '/audio.wav',
+    'sha256': rendered['sha256'], 'frames': 49152, 'sampleRate': 48000,
+    'layout': {'channels': 2, 'kind': 'stereo'}}
+expected_clip = copy.deepcopy(original)
+expected_clip.update(assetId=operation, lengthFrames=49152, stretch=anchor)
+assert clip == expected_clip
+expected_applied = copy.deepcopy(initial)
+expected_applied['assets'].append(applied['assets'][1])
+expected_applied['tracks'][0]['clips'][0] = expected_clip
+assert applied == expected_applied  # No unrelated project/track/EQ edits.
 pids = [text(w + f'app-pid-{i}.txt').strip() for i in range(1, 6)]
 assert len(set(pids)) == 5 and all(p.isdecimal() for p in pids)
 assert receipt['normalQuitExits'] == [0] * 5

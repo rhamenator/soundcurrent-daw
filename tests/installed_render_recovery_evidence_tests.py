@@ -16,7 +16,9 @@ verifier = root / 'tools/verify_installed_render_recovery.py'
 cases = ['positive', 'bad_archive_hash', 'wrong_scope', 'undo_changed', 'export_changed',
          'raw_changed', 'manifest_changed', 'binding_changed', 'helper_changed',
          'duplicate_process', 'failed_quit', 'extra_audio_node', 'package_helper_changed',
-         'source_changed', 'ui_capture_binding_changed', 'native_helper_changed']
+         'source_changed', 'ui_capture_binding_changed', 'native_helper_changed',
+         'applied_asset_id_changed', 'applied_asset_path_changed', 'applied_asset_format_changed',
+         'unrelated_applied_edit', 'worker_qualification_changed', 'protected_qualification_changed']
 sha = lambda b: hashlib.sha256(b).hexdigest()
 with tempfile.TemporaryDirectory(prefix='sc-render-restart-proof-') as td:
     out = Path(td)
@@ -64,6 +66,22 @@ with tempfile.TemporaryDirectory(prefix='sc-render-restart-proof-') as td:
                 'sc-stretch-render-worker': '0' * 64}))
             change('package-receipt.json', lambda j: j.update(qualification_sha256=sha(
                 entries['native-linux-qualification.json'])))
+        if case.startswith('applied_asset_') or case == 'unrelated_applied_edit':
+            def corrupt_applied(j):
+                if case == 'applied_asset_id_changed':
+                    j['assets'][1]['id'] = '11111111-1111-4111-8111-111111111111'
+                elif case == 'applied_asset_path_changed':
+                    j['assets'][1]['path'] = 'media/unregistered.wav'
+                elif case == 'applied_asset_format_changed':
+                    j['assets'][1]['sampleRate'] = 44100
+                else:
+                    j['tracks'][0]['name'] = 'Unexpected unrelated edit'
+            for n in ['applied-project.json', 'redone-project.json', 'before-reopen-project.json']:
+                change('workspace/' + n, corrupt_applied)
+        if case == 'worker_qualification_changed':
+            change('native-v4.json', lambda j: j.update(exeSha256='0' * 64))
+        if case == 'protected_qualification_changed':
+            change('native-v5.json', lambda j: j.update(workerSha256='0' * 64))
         if case == 'ui_capture_binding_changed':
             entries['workspace/attached-selected.png'] += b'changed'
         with zipfile.ZipFile(out / 'capture.zip', 'w', zipfile.ZIP_DEFLATED) as z:

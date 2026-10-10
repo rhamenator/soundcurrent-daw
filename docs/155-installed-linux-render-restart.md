@@ -72,9 +72,10 @@ python3 tests/installed_render_recovery_evidence_tests.py
 ```
 
 The audit checks bounded ZIP integrity, retained media/state and source/package
-identity. Sixteen positive/refusal cases include modified raw/export/selection/
+identity. Twenty-two positive/refusal cases include modified raw/export/selection/
 binding, wrong helper/package/source identity, duplicate process IDs, failed Quit,
-unexpected graph nodes and broader scope claims. These commands audit retained
+unexpected graph nodes, inconsistent asset ID/path/format, unrelated edits,
+changed worker/protected qualifications and broader scope claims. These commands audit retained
 evidence; they do not replay installation, GUI interaction or native audio.
 
 This qualifies upgrade in an isolated Ubuntu runtime, not a fresh physical OS or
