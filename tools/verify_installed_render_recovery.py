@@ -177,6 +177,17 @@ for path, digest in installed.items():
     if path != '/usr/bin/soundcurrent-daw':
         assert package['install_input_sha256'][path.lstrip('/')] == digest
 native = load('native-linux-qualification.json')
+assert sha(z.read('native-linux-qualification.json')) == package['qualification_sha256']
+assert native['executable_sha256']['soundcurrent-daw'] == package['qualified_executable_sha256']
+for path, digest in installed.items():
+    if path != '/usr/bin/soundcurrent-daw':
+        assert native['executable_sha256'][PurePosixPath(path).name] == digest
+for name, key in [('native-v4.json', 'stretch_worker_qualification_sha256'),
+                  ('native-v5.json', 'protected_warp_qualification_sha256')]:
+    assert sha(z.read(name)) == package[key]
+    producer = load(name)
+    assert producer['sourceCommit'] == receipt['sourceCommit']
+    assert producer['sourceTree'] == receipt['sourceTree'] and producer['nativeAudio'] is False
 assert native['source_head'] == receipt['sourceCommit'] and native['source_tree'] == receipt['sourceTree']
 assert native['exit_code'] == 0 and native['selectedGroups'] == 7
 assert native['input_hashes_unchanged_after_test'] is True
