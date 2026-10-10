@@ -210,9 +210,15 @@ def run_case(probe, helper, directory, stage):
     try:
         parent = Process(launcher.pid, probe)
         report["parentIdentity"] = parent.identity
+        report["boundaryReadRefusals"] = 0
         def boundary():
             if ticket.exists():
-                return json.loads(ticket.read_bytes())
+                try:
+                    return json.loads(ticket.read_bytes())
+                except PermissionError:
+                    # A visible Windows publication may still refuse an open.
+                    # Keep the same owned instance and original bounded deadline.
+                    report["boundaryReadRefusals"] += 1
             if not parent.running():
                 raise RuntimeError(f"Parent exited before boundary: {parent.terminal()}")
             return None
@@ -308,7 +314,9 @@ def main():
                   "probeSha256": hashlib.sha256(args.probe.read_bytes()).hexdigest(),
                   "helperSha256": hashlib.sha256(args.helper.read_bytes()).hexdigest(), "cases": []}
         for stage in ("before-ack", "during-processing", "during-processing-helper-death", "after-complete"):
-            report["cases"].append(run_case(args.probe.resolve(), args.helper.resolve(), root / stage, stage))
+            case = run_case(args.probe.resolve(), args.helper.resolve(), root / stage, stage)
+            (root / stage / "case-report.json").write_text(json.dumps(case, indent=2) + "\n", encoding="utf-8")
+            report["cases"].append(case)
         (root / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"passed": True, "cases": [{"stage": c["stage"], "status": c["terminalRecovery"]["status"],
                          "helperExit": c.get("helperTerminal", {}).get("exitCode")} for c in report["cases"]]}))
