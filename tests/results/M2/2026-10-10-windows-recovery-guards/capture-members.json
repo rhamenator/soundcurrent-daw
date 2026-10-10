@@ -1,0 +1,26 @@
+{
+  "captures/guards-complete-20261010205716841.zip": {
+    "bytes": 1520133,
+    "sha256": "2917bb41d28eee5640620f434676201474db3bc9d64b17e620aba22b3e8343ed"
+  },
+  "operator/guards.ps1": {
+    "bytes": 13087,
+    "sha256": "e01ef0df8f45d0a7d29505338a7c71f159c7ea027ded6910198c73c16f62c191"
+  },
+  "final-state.json": {
+    "bytes": 761,
+    "sha256": "c7c97551a97e30b799e4200680949dc8715d75c065e0782f5b44374216e6c600"
+  },
+  "captures/guards-corrected-20261010210550204.zip": {
+    "bytes": 2023028,
+    "sha256": "8226ed7c344dc31f0bdc98f5c8a2cb354c1ae0e6e69647d12fdfcb57d8ffdeb3"
+  },
+  "operator/corrected.ps1": {
+    "bytes": 10070,
+    "sha256": "5ae21a4678d0ccebf678525ae6c35e8182b690e80675f6c53713039062acc121"
+  },
+  "encoding-audit.json": {
+    "bytes": 754,
+    "sha256": "1b19680a7926ef120ce57866947094a5e9dcb1268674eb05193eb7a76512cae3"
+  }
+}
