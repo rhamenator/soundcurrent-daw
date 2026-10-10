@@ -3780,3 +3780,21 @@ All VMs are shut off. Next: reproduce one protected native request with the new
 observer, resolve its actual failure, refresh native/installed Windows preview,
 then parent-owned rendered-job restart recovery. Full-suite/quality/F/Q/C/N and
 European-language completion remain open.
+
+## Native and installed protected Windows preview checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: PR93 normally merged after required gates,
+exact captured bytes and tested/merged tree agreement. The exact cceedcc6 source
+now has fresh native Windows v4/v5/helper/UI qualification. Three bounded original
+v5 requests and the 519-check bank complete; the old timeout does not recur but
+its cause remains unproved. [Checkpoint153](153-native-installed-protected-preview.md)
+retains scope and original source/binary identities. The new local unsigned
+Windows preview has an actual SDK-free side-by-side install, protected render,
+UI guard, Prepare/Stop, saved Apply/Undo/Redo, Unicode fresh-process reopen and
+repeat export. Both exports preserve 49,152 stereo sample values and 1.5 headroom;
+derivative/export differ only at signed zeros. Retained inspection passes 882
+checks plus 12 meaningful refusals. Existing clone/runtime acceptance is not
+pristine installation or physical audio qualification. No product release upload;
+all VMs are stopped. Next: parent-owned rendered-job restart inventory/review with
+stale-target guards, followed by independent native/installed acceptance. Full
+suite, F/Q/C/N, broad quality, M2–M11/X004/X005 and European coverage remain open.
