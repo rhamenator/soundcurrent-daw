@@ -1,0 +1,66 @@
+{
+  "format": "sc-protected-warp-contract-v1",
+  "frozenAtUtc": "2026-10-10T05:34:05.749290+00:00",
+  "sourceBase": "a8fa5f143e8b5d44b06ad6fe2be10f7b62c7360f",
+  "algorithm": "soundcurrent.experimental.transient-protected-r3-v1",
+  "policy": {
+    "beforeFrames": 256,
+    "afterFrames": 2048,
+    "haloFrames": 64,
+    "minimumNonunityGapFrames": 64
+  },
+  "map": "original user anchor IDs retained; protected start/anchor/end points explicitly derived with owner ID + role; unity slope in each protected span; gaps connect these new points. This changes the map under a separately named mode.",
+  "renderer": "copy every protected core [begin+halo,end-halo) exactly at the unchanged physical offsets. Stretch each real-source gap with pinned unchanged R3 offline,512-input chunks,no threads,explicit adjacent64-frame actual-source halo context only,omitting zero/end map keys; fixed gap output duration. Crossfade copied and gap-derived halo samples with complementary linear weights, outside core. No automatic context beyond halo; preserve full gap outputs/source and assembled final PCM. Unity gaps copy exactly.",
+  "bank": {
+    "rate": 48000,
+    "frames": 32768,
+    "events": [
+      4096,
+      12288,
+      20480,
+      28672
+    ],
+    "nonuniformTargets": [
+      6144,
+      16384,
+      32768,
+      43008
+    ],
+    "profiles": [
+      "identity",
+      "uniform",
+      "nonuniform"
+    ],
+    "families": [
+      "impulse",
+      "attack",
+      "long-attack",
+      "attack-bed",
+      "sustain",
+      "cancellation"
+    ],
+    "channels": "impulse2;others8",
+    "duration": "identity32768;other49152",
+    "chunks": [
+      512
+    ]
+  },
+  "diagnostics": {
+    "eventTiming": "strictly<48frames;32-frame causal RMS first10%windowmax, source calibration mapped through new protected map; physical channel delay independently retained; missing/boundary/background-above-threshold is unresolved",
+    "preecho": "silent attack cases <=-40dB pre/event RMS; continuous-background cases record original baseline and output excess, never force silent-floor interpretation",
+    "physicalOffset": "original channel offsets0,3,..,21frames remain exact metadata; measure arrival offset change without adding tolerance",
+    "phase": "Separate2048Hann440/730 projections wholly inside copied cores and centered in sufficiently long gaps; record source/output windows and phase change, .0001degree numerical diagnostic only. Tiny intervals have no phase window and remain outside this estimate.",
+    "cancellation": "coincident+/- pairs <=1e-6 numerical diagnostic; preserve raw exactzero and fulloutput",
+    "protectedCore": "every original/assembled protected-core sample byte-exact acrossallchannels, independent of vendor gap output; this does not qualify stretched gaps/general material/listening",
+    "fullQualityQualified": false
+  },
+  "limits": {
+    "childSeconds": 10,
+    "bankSeconds": 60,
+    "linuxAddressSpaceMiB": 512,
+    "threads": 1
+  },
+  "shippingAdopted": false,
+  "nativeAudio": false,
+  "channelPolicy": "stereo Together; eight-channel discrete Apart inherited from pinned existing worker, explicitly not phase-preserving group qualification"
+}

@@ -393,3 +393,11 @@ Attack timing and grouped-phase/cancellation limits reject this configuration
 for shipping; Windows/full-rate/ratio/listening coverage is unqualified.
 [ADR106](decisions/106-transient-protected-warp-next.md) makes the next original
 transient-protected map implementation concrete without selecting a dependency.
+
+[Checkpoint148](148-transient-protected-warp.md) implements original protected
+map/copy/halo/gap assembly over the existing unchanged GPL Rubber Band4.0.0
+source pin. It adds no shipping dependency or algorithm-quality equivalence.
+54 local terminal renders and complete PCM retain attack-core gains and
+nonunity sustained-group phase failures. [ADR107](decisions/107-protected-warp-integration-scope.md)
+selects a separately versioned experimental worker/state/editor slice next;
+general/group/listening/native-install and remaining F/Q/C/N gates stay open.

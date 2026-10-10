@@ -3705,3 +3705,19 @@ protected spans and derived unity-slope map points as the next implementation,
 then supported editable marker/reviewApply/Undo/reopen/shared output. General
 warp/group/pitch/comp/native/installed/recovery and every other milestone, X004/
 X005 and all-Europe/F/Q/C/N remain required.
+
+## M2/M8 original transient-protected processing (2026-10-10 UTC)
+
+PR88 merged normally as a8fa5f1; full goal stays active and incomplete.
+[Checkpoint148](148-transient-protected-warp.md) implements original protected
+spans and derived unity-slope boundaries with stable user owners and resource
+admission.54 actual local renders retain648 complete PCM references; all72
+cores are byte exact and312 annotated silent/long attack onsets have exact timing.
+Sustained nonunity gaps fail selected phase diagnostics; background-bed events
+remain ambiguous or fail. No full quality/F/Q/C/N promotion. Two local CTests
+pass35 admission requests/470 Fraction checks and18 actual renders/1296 assembly
+checks; bounded retained inspection passes2730 checks. Opt-in-only Linux/native
+MSVC CI executes the new probe without audio endpoints. [ADR107](decisions/107-protected-warp-integration-scope.md)
+makes a versioned worker/state and editable-marker/reviewApply/Undo/reopen/shared
+playback/export integration next. General/group/pitch/comp/native/installed/
+recovery, other milestones, X004/X005 and all-Europe requirements remain open.
