@@ -60,3 +60,9 @@ tests/results/M2/2026-10-09-editable-stretch/*.log -text whitespace=-blank-at-eo
 
 # Preserve native qualification reports as captured, including Windows CRLF.
 /tests/fixtures/protected-warp-qualification/*.json -text whitespace=cr-at-eol
+
+# Original bounded Windows observations are hash-pinned with native line endings.
+/tests/results/M2/2026-10-10-windows-bounded-observation/*.json -text whitespace=cr-at-eol
+/tests/results/M2/2026-10-10-windows-bounded-observation/*.log -text whitespace=-blank-at-eol,cr-at-eol
+/tests/results/M2/2026-10-10-windows-bounded-observation/worker.stdout -text whitespace=cr-at-eol
+/tests/results/M2/2026-10-10-windows-bounded-observation/worker.stderr -text whitespace=cr-at-eol

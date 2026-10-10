@@ -3765,3 +3765,18 @@ native failure events/exit/module identities, resolve initialization/render
 failures, then installed Windows workflows and parent-owned render restart
 recovery. No F/Q/C/N family, broad quality or European-language gate is promoted;
 the full suite goal remains active and incomplete.
+
+## Bounded Windows worker observation checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: PR92 merged through the normal protected
+checks, with its tested/merged tree verified. [Checkpoint152](152-bounded-worker-observation.md)
+now corrects acceptance pipe observation and retains exact exits/protocol output
+instead of an empty-stderr message. Six real failure cases and both real Linux
+render banks pass. In a brief single-clone rebooted session the historical8b46
+native v4 bank passed and the default-style desktop opened/closed with exit0;
+v5 still timed out without a completed report or known cause. The observations
+retain8b46 source identity and do not qualify this new head's native bank or installer.
+All VMs are shut off. Next: reproduce one protected native request with the new
+observer, resolve its actual failure, refresh native/installed Windows preview,
+then parent-owned rendered-job restart recovery. Full-suite/quality/F/Q/C/N and
+European-language completion remain open.

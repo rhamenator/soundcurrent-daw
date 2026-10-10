@@ -4,6 +4,7 @@
 import os
 import argparse, hashlib, json, shutil, struct, subprocess, tempfile, uuid, time, platform
 from pathlib import Path
+from worker_observation import observe, diagnostic
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('worker',type=Path);p.add_argument('verifier',type=Path);p.add_argument('prototype',type=Path)
 p.add_argument('--qualification',type=Path,default=os.environ.get('SC_PROTECTED_WARP_QUALIFICATION'))
@@ -59,19 +60,26 @@ with tempfile.TemporaryDirectory(prefix='sc-protected-owned-') as temporary:
         return {'protocol':'sc-stretch-render-v5','processor':'soundcurrent.stretch-transient-protected-rubberband4-r3-v1','operation':str(uuid.uuid4()),'assetId':str(uuid.uuid4()),'relative':'media/source.wav','sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'rate':48000,'channels':channels,'sourceFrames':32768,'first':0,'firstFraction':0,'firstDenominator':1,'frames':32768,'timeNumerator':1 if profile=='identity' else 3,'timeDenominator':1 if profile=='identity' else 2,'pitchMilliCents':0,'formantPreserved':True,'contextEnabled':False,'contextBefore':0,'contextAfter':0,'warp':normalized(events,targets,target=target)}
     def run(q,after_ready=None):
         command=[str(worker),'--project-root',str(root),'--jobs-root',str(jobs),'--memory-mib','256','--maximum-input-frames','100000','--maximum-output-bytes',str(8*1024*1024),'--deadline-ms','10000']
-        child=subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-        try:
-            child.stdin.write(json.dumps(q));child.stdin.close();child.stdin=None
-            first=child.stdout.readline();ready=json.loads(first) if first else None
-            if ready and ready.get('event')=='ready':
-                if after_ready:after_ready(jobs/ready['operation'])
-                (jobs/ready['operation']/'start.request').write_text('start')
-            out,err=child.communicate(timeout=12)
-            reports=[json.loads(line) for line in out.splitlines()]
-            records.append({'pid':child.pid,'exit':child.returncode,'request':q,'ready':ready,'completion':reports,'stderr':err})
-            return child.returncode,ready,reports,err
-        finally:
-            if child.poll() is None:child.kill();child.communicate(timeout=3)
+        ready=None
+        def acknowledge(line):
+            nonlocal ready
+            try:packet=json.loads(line)
+            except json.JSONDecodeError:return
+            if packet.get('event')=='ready' and ready is None:
+                if packet.get('operation')!=q['operation']:raise AssertionError('Ready operation differs from owned request')
+                ready=packet
+                if after_ready:after_ready(jobs/q['operation'])
+                (jobs/q['operation']/'start.request').write_text('start')
+        child=observe(command,json.dumps(q),acknowledge,timeout=15)
+        detail='Owned v5 request '+json.dumps(q)+' outcome '+diagnostic(child)
+        if child.observation_timed_out or child.output_limited or child.retirement_pending:
+            raise AssertionError(detail)
+        try:packets=[json.loads(line) for line in child.stdout.splitlines()]
+        except json.JSONDecodeError as error:raise AssertionError(detail) from error
+        reports=[packet for packet in packets if packet.get('event')!='ready']
+        records.append({'pid':child.pid,'exit':child.returncode,'request':q,'ready':ready,'completion':reports,'stderr':child.stderr})
+        if child.returncode!=0:print(detail,flush=True)
+        return child.returncode,ready,reports,child.stderr
     for family in ['impulse','attack','long-attack','attack-bed','sustain','cancellation']:
         for profile in ['identity','uniform','nonuniform']:
             folder=root/f'{family}-{profile}'

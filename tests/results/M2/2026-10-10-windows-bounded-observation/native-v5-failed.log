@@ -1,0 +1,29 @@
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+Traceback (most recent call last):
+  File "C:\Users\claude\soundcurrent-daw-stretch-f9a6353\tests\protected_warp_worker_tests.py", line 69, in run
+    out,err=child.communicate(timeout=12)
+            ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\claude\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\claude\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1665, in _communicate
+    raise TimeoutExpired(self.args, orig_timeout)
+subprocess.TimeoutExpired: Command '['C:\\Users\\claude\\soundcurrent-daw-stretch-f9a6353\\build\\Release\\sc-stretch-render-worker.exe', '--project-root', 'C:\\Users\\claude\\AppData\\Local\\Temp\\sc-protected-owned-7yrb2k6q\\studio été', '--jobs-root', 'C:\\Users\\claude\\AppData\\Local\\Temp\\sc-protected-owned-7yrb2k6q\\studio été\\media\\derived', '--memory-mib', '256', '--maximum-input-frames', '100000', '--maximum-output-bytes', '8388608', '--deadline-ms', '10000']' timed out after 12 seconds
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\claude\soundcurrent-daw-stretch-f9a6353\tests\protected_warp_worker_tests.py", line 81, in <module>
+    code,ready,reports,err=run(q);renders+=1
+                           ~~~^^^
+  File "C:\Users\claude\soundcurrent-daw-stretch-f9a6353\tests\protected_warp_worker_tests.py", line 74, in run
+    if child.poll() is None:child.kill();child.communicate(timeout=3)
+                                         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\claude\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\claude\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1665, in _communicate
+    raise TimeoutExpired(self.args, orig_timeout)
+subprocess.TimeoutExpired: Command '['C:\\Users\\claude\\soundcurrent-daw-stretch-f9a6353\\build\\Release\\sc-stretch-render-worker.exe', '--project-root', 'C:\\Users\\claude\\AppData\\Local\\Temp\\sc-protected-owned-7yrb2k6q\\studio été', '--jobs-root', 'C:\\Users\\claude\\AppData\\Local\\Temp\\sc-protected-owned-7yrb2k6q\\studio été\\media\\derived', '--memory-mib', '256', '--maximum-input-frames', '100000', '--maximum-output-bytes', '8388608', '--deadline-ms', '10000']' timed out after 3 seconds

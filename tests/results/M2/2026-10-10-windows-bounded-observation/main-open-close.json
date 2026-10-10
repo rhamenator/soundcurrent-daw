@@ -1,0 +1,15 @@
+﻿{
+    "pid":  8532,
+    "exeSha256":  "f4e50623f7e5e204f9ce5695304bad77ef7f145333c4d7c2b266904435de1ed7",
+    "sourceCommit":  "8b46e8975e832edc3fc8c19b1c62d3edf96277e2",
+    "sourceTree":  "fe3197c30e20c30493f03eb9ba9720a12f7de2e2",
+    "styleOverride":  false,
+    "nativeAudio":  false,
+    "seconds":  3.1276398999999997,
+    "windowHandle":  66190,
+    "title":  "SoundCurrent DAW",
+    "sessionId":  1,
+    "normalClose":  true,
+    "forcedRetirement":  false,
+    "exitCode":  0
+}
