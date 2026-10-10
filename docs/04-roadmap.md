@@ -813,3 +813,18 @@ Historical installed evidence remains separately scoped. Next qualify musical
 transients, local landmarks, edge/fractional/group behavior and a bounded warp-map
 contract; current installed/native Windows/audio and full Q-STRETCH/F/Q/C/N/Europe
 requirements remain open. No VM or product upload; the full goal stays active.
+
+## M2/M8 local map and group quality gate
+
+[Checkpoint145](145-stretch-region-quality.md) retains all63 full synthetic
+outputs/37 crop pairs and independent sample/frequency inspection. Exact unity
+and shared rendering pass; local non-unity/context/group-quality promotion does
+not. [ADR104](decisions/104-local-warp-and-group-quality.md) makes an original
+normalized rational warp-map planner and bounded R3/R2 adapter experiment the
+next slice: implicit endpoints, multiple nonuniform anchors, characterized event
+estimators, preserved physical group offsets, partition/drain/warning/refusal
+evidence and complete PCM. A pinned alternative is evaluated, not adopted.
+Only qualified supported cases then advance to a versioned production adapter
+and one explicit editable anchor with review/Apply, Undo/reopen and shared export.
+Tempo ramps, segmented pitch, phase-coherent recording groups, remaining M2–M8,
+Linux/Windows installation, all-Europe localization and full F/Q/C/N remain required.

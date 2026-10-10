@@ -216,7 +216,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/parts_events/parts_and_events_group_editing_mode_c.html?contentId=66hmyonQqPz8EmJo9uNsKA",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Partial: M2a grouped stable-ID coordinate commands and M2b single-track/clip desktop selection/move.",
+      "implementation": "Partial: M2a grouped stable-ID coordinate commands and M2b single-track/clip desktop selection/move. Checkpoint145/ADR104 retain eight-channel impulse/attack diagnostics and define exact physical group offset plus separate event/phase gates. Discrete-apart output is not qualified phase-preserving group warp; linked markers, grouped recording/comp and full workflow/quality remain required.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -228,7 +228,10 @@
         "docs/29-multitrack-edits.md",
         "docs/30-desktop-timeline.md",
         "tests/results/M2/2026-10-06-multitrack-edits.json",
-        "tests/results/M2/2026-10-06-desktop-timeline.json"
+        "tests/results/M2/2026-10-06-desktop-timeline.json",
+        "docs/145-stretch-region-quality.md",
+        "docs/decisions/104-local-warp-and-group-quality.md",
+        "tests/results/M2/2026-10-10-stretch-region-quality/"
       ]
     },
     {
@@ -294,7 +297,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_window/sample_editor_inspector_audiowarp_r.html?contentId=AkpkpXrJu3zK1xrNBilJzg",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Foundation: editable independent constant pitch/time derivatives, supervised review/Apply, legacy/unity identity, explicit real source context and nominal visible maps, retained raw anchors, exact fractional split/crop/rerender, Undo/Redo/save/reopen and shared live/export acceptance (checkpoints135/136/143/144). Warp markers, tempo ramps, transient accuracy, flatten/recovery, current-source installed qualification and Q-STRETCH/reference workflows remain required and unqualified.",
+      "implementation": "Foundation: editable independent constant pitch/time derivatives, supervised review/Apply, legacy/unity identity, explicit real source context and nominal visible maps, retained raw anchors, exact fractional split/crop/rerender, Undo/Redo/save/reopen and shared live/export acceptance (checkpoints135/136/143/144). Warp markers, tempo ramps, transient accuracy, flatten/recovery, current-source installed qualification and Q-STRETCH/reference workflows remain required and unqualified. Checkpoint145 retains 63 full renders/37 crop pairs: all12 unity crops exact, all25 non-unity context/whole pairs different. Local timing/markers/tempo/flatten/Q-STRETCH remain unqualified; ADR104 schedules normalized rational maps and bounded candidate-adapter/event/group gates.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -306,7 +309,10 @@
         "docs/135-editable-stretch-state.md",
         "docs/136-stretch-supervision.md",
         "docs/143-unity-stretch-copy.md",
-        "docs/144-explicit-stretch-context.md"
+        "docs/144-explicit-stretch-context.md",
+        "docs/145-stretch-region-quality.md",
+        "docs/decisions/104-local-warp-and-group-quality.md",
+        "tests/results/M2/2026-10-10-stretch-region-quality/"
       ]
     },
     {
@@ -321,7 +327,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_variaudio/sample_editor_variaudio_c.html?contentId=5yUrlQRlm0KjuaiN1feyWQ",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Foundation: independent constant pitch and formant settings in the isolated renderer and editable raw-anchor state (checkpoint135). No desktop segmented pitch editor, note segmentation, formant-quality gate or Q-PITCH/reference qualification yet.",
+      "implementation": "Foundation: independent constant pitch and formant settings in the isolated renderer and editable raw-anchor state (checkpoint135). No desktop segmented pitch editor, note segmentation, formant-quality gate or Q-PITCH/reference qualification yet. Checkpoint145 retains24 selected steady-tone frequency observations with0.1577331764-cent maximum error. This does not qualify segmented vocal pitch, formants or Q-PITCH; those remain required.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -330,7 +336,10 @@
       "reference_b_source_id": "81f6e3a04a5f00d5",
       "reference_limit": "Topic supports the feature family; detailed workflow equivalence is unresolved.",
       "implementation_evidence": [
-        "docs/135-editable-stretch-state.md"
+        "docs/135-editable-stretch-state.md",
+        "docs/145-stretch-region-quality.md",
+        "docs/decisions/104-local-warp-and-group-quality.md",
+        "tests/results/M2/2026-10-10-stretch-region-quality/"
       ]
     },
     {
