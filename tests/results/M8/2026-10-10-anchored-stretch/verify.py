@@ -31,6 +31,23 @@ with zipfile.ZipFile(archive) as z:
  for name,key in [('contract.json','contractSha256'),('render_probe.cpp','rendererSourceSha256'),('run_bank.py','runnerSha256'),('analyze_bank.py','analysisSourceSha256BeforeRun')]:check(sha(z.read('experiment/'+name))==summary[key],'Executed/preregistered source identity')
  check(analysis['analysisSourceSha256']==summary['analysisSourceSha256BeforeRun'] and analysis['contractSha256']==summary['contractSha256'] and z.read('experiment/contract.json')==z.read('run/contract.json'),'Analysis/source contract')
  check(summary['probeSha256']==build['executables']['renderer']['sha256'],'Recorded renderer binary identity')
+ qualified=get('run-qualified/summary.json');receipt=get('qualified-build/receipt.json');preflight=get('qualified-build/preflight.json');repeat=get('qualified-build/anchored-repeat-inspection.json');qualifiedRecords=get('run-qualified/processes.json')
+ check(receipt['pid']>0 and receipt['exitCode']==0 and receipt['seconds']<60 and receipt['unchangedSourcesAndLibrary'] and receipt['preflight']==preflight and receipt['after']==preflight['files'],'Actual build preflight/postflight')
+ check(sha(z.read('qualified-build/preflight.json'))==receipt['preflightSha256'] and z.read('qualified-build/stdout.log')==z.read('qualified-build/stderr.log')==b'','Retained actual build outcome')
+ check(sha(z.read('qualified-build/receipt.json'))==qualified['buildReceiptSha256'] and z.read('qualified-build/receipt.json')==z.read('run-qualified/build-receipt.json'),'Build receipt execution binding')
+ check(receipt['probeSha256']==qualified['probeSha256']==summary['probeSha256'],'Byte-identical reproduced original renderer')
+ for name in ['warp_map.cpp','warp_map.hpp']:
+  matches=[v for k,v in preflight['files'].items() if k.endswith('/experiments/warp-map/'+name)]
+  check(len(matches)==1 and matches[0]==sha(z.read('planner/'+name)),'Build-time planner source binding')
+ matches=[v for k,v in preflight['files'].items() if k.endswith('/experiments/anchored-stretch/render_probe.cpp')]
+ check(len(matches)==1 and matches[0]==summary['rendererSourceSha256'],'Build-time renderer source binding')
+ check(qualified['actualProcesses']==qualified['terminalSuccesses']==len(qualifiedRecords)==24 and qualified['seconds']<60 and qualified['sourceBase']==summary['sourceBase'] and qualified['sourceCommit']==preflight['sourceCommit'] and qualified['sourceWasUncommitted'],'Qualified repeat source/outcomes')
+ check(sha(z.read('qualified-sources/run_bank.py'))==qualified['runnerSha256'] and qualified['analysisSourceSha256BeforeRun']==summary['analysisSourceSha256BeforeRun'] and qualified['contractSha256']==summary['contractSha256'],'Repeat runner/preregistered analysis/contract')
+ for original,current in zip(records,qualifiedRecords):
+  check(current['pid']>0 and current['exitCode']==0 and not current['timeout'] and current['seconds']<10 and current['stderr']=='','Repeat terminal child')
+  check(original['id']==current['id'] and original['request']==current['request'] and original['waves']==current['waves'] and original['result']==current['result']==json.loads(current['stdout'])==get(f"run-qualified/case-{current['id']:02d}/render.json"),'Complete repeat PCM/report/schedule identity')
+ check(repeat['actualAdditionalProcesses']==24 and repeat['matchingCompleteWaveReferences']==72 and repeat['allReportsAndScheduleMatch'] and repeat['originalAndRebuiltProbeSha256Match'],'Repeat inspection scope')
+ qualifiedAnalysis=get('run-qualified/analysis.json');check(qualifiedAnalysis==analysis,'Exact repeated diagnostics')
  sourceReview=get('candidate-source/source-review.json')
  for file in sourceReview['files']:
   folder='signalsmith-stretch' if file['repository'].endswith('/signalsmith-stretch') else 'linear';data=z.read('candidate-source/'+folder+'/'+file['path']);check(sha(data)==file['sha256'] and len(data)==file['bytes'],'Reviewed primary source hash')
@@ -82,4 +99,4 @@ with zipfile.ZipFile(archive) as z:
  for o in analysis['partitionComparisons']:
   a,b=pcm[(o['case'],'rendered')],pcm[(o['partner'],'rendered')];check((waves[(o['case'],'rendered')]==waves[(o['partner'],'rendered')])==o['exactSampleBytes'],'Partition sample identity');check(max(abs(float(x)-float(y)) for x,y in zip(a,b))==o['maximumSampleDifference'],'Independent partition difference')
  for key in ['fullQualityQualified','QStretchPassed','groupPhaseQualified','nativeAudio']:check(analysis[key] is False,'No unsupported quality promotion')
-print(json.dumps({'retainedInspectionChecks':checks,'actualRecordedProcesses':24,'completeWaveReferences':72,'nativeAudio':False,'processorReplayed':False,'fullQualityQualified':False}))
+print(json.dumps({'retainedInspectionChecks':checks,'actualRecordedProcesses':48,'completeWaveReferences':144,'nativeAudio':False,'processorReplayed':False,'fullQualityQualified':False}))

@@ -17,10 +17,15 @@ The actual source review was staged under `.cache/warp-map-plan/alternative-revi
 With those exact sources and the independently qualified session support library:
 
 ```sh
-ionice -c3 nice -n19 c++ -std=c++20 -O2 -DNDEBUG -fno-fast-math -Wall -Wextra -Wpedantic -Iinclude -Ithird_party -I.cache/warp-map-plan/alternative-review/signalsmith-stretch -I.cache/warp-map-plan/alternative-review/linear/include experiments/anchored-stretch/render_probe.cpp experiments/warp-map/warp_map.cpp .cache/build-warp-map-geometry/libsc-session.a -pthread -o .cache/warp-map-plan/sc-anchored-stretch-probe
-ionice -c3 nice -n19 python3 experiments/anchored-stretch/run_bank.py .cache/warp-map-plan/sc-anchored-stretch-probe .cache/warp-map-plan/NEW-EXCLUSIVE-BANK
+ionice -c3 nice -n19 python3 experiments/anchored-stretch/build_probe.py .cache/warp-map-plan/alternative-review .cache/build-warp-map-geometry/libsc-session.a .cache/warp-map-plan/NEW-EXCLUSIVE-BUILD
+ionice -c3 nice -n19 python3 experiments/anchored-stretch/run_bank.py .cache/warp-map-plan/NEW-EXCLUSIVE-BUILD/sc-anchored-stretch-probe .cache/warp-map-plan/NEW-EXCLUSIVE-BANK --build-receipt .cache/warp-map-plan/NEW-EXCLUSIVE-BUILD/receipt.json
 ionice -c3 nice -n19 python3 experiments/anchored-stretch/analyze_bank.py .cache/warp-map-plan/NEW-EXCLUSIVE-BANK
 ```
+
+The builder records source/library/compiler hashes before and after compilation.
+The bank requires that actual receipt and its exact executable identity. The
+original unbound build/run remains historical evidence; the actual repeat rebuild
+produces the same binary and all complete PCM/report/diagnostic results.
 
 Do not substitute an unknown session ABI or overwrite evidence. The analyzer
 requires NumPy; actual2.3.5. Geometry/retained inspection is standard-library only.
