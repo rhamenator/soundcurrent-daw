@@ -3845,3 +3845,21 @@ The full goal remains active and incomplete. Next is current-source Windows
 installed restart/review qualification; its earlier installer remains bound to
 `cceedcc6`. Abrupt death/power loss, scalable recovery, M2 quality, M2–M11,
 X004/X005 and European language qualification remain open.
+
+## Current native Windows restart gaps (2026-10-10)
+
+[Checkpoint156](156-native-windows-restart-gaps.md) records a successful native
+`f1f4dbc` build, actual synthetic helpers, the V4 bank and six offscreen desktop
+groups. The protected bank twice timed out in its experimental comparison probe;
+a separate completed diagnostic does not qualify either failed run. Normal
+window startup did not launch because no interactive user was logged in. No
+fresh installer was produced. Failed source guards and collection diagnostics
+are retained. All VMs shut down normally; originals remain untouched.
+
+The comparison probe now uses the bounded observer with its original ten-second
+budget, exact request/PID/terminal diagnostics and the same required cases.
+Seven local process tests and all 18 full-PCM comparisons pass. This harness
+acceptance does not qualify the native Windows bank. Next: obtain the actual
+failing native probe outcome, resolve its cause, then refresh normal-window and
+installed Windows restart acceptance. Full scope, quality, M2–M11, X004/X005 and
+all-Europe localization remain incomplete; the goal stays active.

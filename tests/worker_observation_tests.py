@@ -26,6 +26,19 @@ class WorkerObservation(unittest.TestCase):
         self.assertFalse(details["observationTimedOut"])
         self.assertGreater(details["pid"], 0)
 
+    def test_argv_only_probe_drains_pipes_and_observes_terminal(self):
+        # Comparison probes take their request in argv and receive stdin EOF.
+        request = '{"family":"impulse","output":"studio été"}'
+        code = ("import sys; sys.stdout.reconfigure(encoding='utf-8'); assert sys.stdin.read()==''; "
+                "sys.stderr.write('x'*100000); print(sys.argv[1]); sys.exit(32)")
+        result = observe([sys.executable, "-u", "-c", code, request], "", timeout=10)
+        self.assertEqual(result.returncode, 32)
+        self.assertEqual(result.stdout.strip(), request)
+        self.assertEqual(len(result.stderr), 100000)
+        self.assertFalse(result.observation_timed_out)
+        self.assertFalse(result.retirement_pending)
+        self.assertFalse(result.output_limited)
+
     def test_stderr_refusal_drains_concurrently(self):
         result = self.worker("import sys; sys.stderr.write('x'*100000); sys.exit(7)")
         self.assertEqual(result.returncode, 7)

@@ -83,8 +83,11 @@ with tempfile.TemporaryDirectory(prefix='sc-protected-owned-') as temporary:
     for family in ['impulse','attack','long-attack','attack-bed','sustain','cancellation']:
         for profile in ['identity','uniform','nonuniform']:
             folder=root/f'{family}-{profile}'
-            probe=subprocess.run([str(prototype),json.dumps({'family':family,'profile':profile}),str(folder)],capture_output=True,text=True,timeout=10)
-            check(probe.returncode==0 and not probe.stderr,'Unchanged PR89 prototype actually completed')
+            probe_request={'family':family,'profile':profile}
+            probe=observe([str(prototype),json.dumps(probe_request),str(folder)],'',timeout=10)
+            check(not (probe.observation_timed_out or probe.output_limited or probe.retirement_pending)
+                  and probe.returncode==0 and not probe.stderr,
+                  'Owned comparison probe '+json.dumps(probe_request)+' outcome '+diagnostic(probe))
             shutil.copyfile(folder/'source.wav',path);q=request(2 if family=='impulse' else 8,profile)
             code,ready,reports,err=run(q);renders+=1
             check(code==0 and not err and ready['protocol']=='sc-stretch-render-v5','Actual v5 worker completed')
