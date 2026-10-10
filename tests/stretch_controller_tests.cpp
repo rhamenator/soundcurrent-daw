@@ -204,6 +204,7 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
             refuses([&]{c.nextScanPage(stale);});
             check(c.nextScanPage(paged)==Admission::Accepted,"Controller continuation refused");auto second=finish(c);
             check(second->inventoryPage==2 && second->recoveryPage && second->recoveryPage->hasMore,"Controller second page lost cursor");
+            check(first->recoveryId && first->recoveryId==second->recoveryId,"Continuation changed recovery ownership token");
             std::set<std::string> seen;for(const auto &v:*first->inventory)seen.insert(v.operation.str());
             for(const auto &v:*second->inventory)check(seen.insert(v.operation.str()).second,"Controller duplicated first-page entries");
             c.requestCancel();refuses([&]{c.nextScanPage(paged);});wait([&]{return c.snapshot()->canceled;});
@@ -216,6 +217,26 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
             check(*paged->session==*c.snapshot()->inventoryProject->session,"Page scan mutated project");
             c.requestShutdown();wait([&]{return c.snapshot()->closed;});
         }
+    }
+    {
+        auto paged=project(base/"scoped-retirement",memory);const auto directory=paged->root/"media"/"stretch-selections";
+        std::filesystem::create_directory(directory);{media_io::JobLease marker(directory,true);}
+        for(unsigned i=0;i<129;++i)write(directory/(Id::generate().str()+".json"),"{bad");
+        std::atomic<bool> entered=false,release=false;auto o=options(memory,helper);
+        o.beforeSpawn=[&]{entered=true;while(!release)QThread::msleep(1);};
+        StretchController c(o);Release unlock{release};const auto baseline=memory.usage().reservedBytes;
+        check(c.scan(paged)==Admission::Accepted,"Scoped retirement scan refused");
+        auto page=finish(c);const auto oldId=page->recoveryId;check(oldId && page->recoveryPage->hasMore,"Scoped retirement token missing");page.reset();
+        check(c.requestRecoveryCancel(oldId),"Owning dialog could not retire cursor");wait([&]{return c.snapshot()->canceled;});
+        check(memory.usage().reservedBytes==baseline,"Cursor retirement retained worker page/session credit");
+        check(c.scan(paged)==Admission::Accepted,"New scoped scan refused");page=finish(c);const auto newId=page->recoveryId;
+        check(newId!=oldId && !c.requestRecoveryCancel(oldId) && !c.snapshot()->canceled,"Stale dialog canceled newer inventory");page.reset();
+        check(c.requestRecoveryCancel(newId),"New dialog could not retire its cursor");wait([&]{return c.snapshot()->canceled;});
+        check(memory.usage().reservedBytes==baseline,"Second scoped retirement retained credit");
+        check(c.render(source,track,clip,{1,1,0,false})==Admission::Accepted,"Newer render refused after recovery retirement");wait([&]{return entered.load();});
+        check(!c.requestRecoveryCancel(oldId) && !c.requestRecoveryCancel(newId),"Stale recovery dialog targeted unrelated live render");
+        release=true;const auto done=finish(c);check(done->result && !done->canceled && done->childExit==0,"Stale dialog interrupted newer render");
+        c.requestShutdown();wait([&]{return c.snapshot()->closed;});
     }
     {
         // Exercise real parent publication/helper completion beyond the previous

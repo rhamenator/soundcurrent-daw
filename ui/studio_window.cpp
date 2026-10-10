@@ -739,12 +739,14 @@ bool StudioWindow::scanStretchRenders() {
     struct ReviewView {
         ResourceLease lease;
         std::shared_ptr<const std::vector<StretchRecoveryEntry>> listed;
+        std::uint64_t recoveryId=0;
         bool reviewing=false;
     };
     std::shared_ptr<ReviewView> state;
     try {
         state=std::make_shared<ReviewView>();state->lease=controller_.resourceLedger().reserve(128*8192);
         if(stretch_.scan(source)!=Admission::Accepted)return false;
+        state->recoveryId=stretch_.snapshot()->recoveryId;
     }catch(const std::exception &){notice_->setText(tr("Retained render review needs more Project resources. Close unused previews and retry."));return false;}
     if(stretchDialog_)stretchDialog_->close();
     stretchMessage_.clear();
@@ -759,11 +761,11 @@ bool StudioWindow::scanStretchRenders() {
     auto *cancel=buttons->addButton(tr("Cancel verification"),QDialogButtonBox::ActionRole);
     auto *close=buttons->addButton(QDialogButtonBox::Close);layout->addWidget(buttons);
     connect(close,&QPushButton::clicked,dialog,&QDialog::close);
-    connect(dialog,&QDialog::finished,this,[this,source]{if(controller_.snapshot()->projectEpoch==source->projectEpoch)stretch_.requestCancel();});
-    connect(cancel,&QPushButton::clicked,dialog,[this]{stretch_.requestCancel();});
+    connect(dialog,&QDialog::finished,this,[this,state]{stretch_.requestRecoveryCancel(state->recoveryId);});
+    connect(cancel,&QPushButton::clicked,dialog,[this,state]{stretch_.requestRecoveryCancel(state->recoveryId);});
     connect(scan,&QPushButton::clicked,dialog,[this,list,source,state]{
         if(controller_.snapshot()->projectEpoch!=source->projectEpoch || !stretchCanRender())return;
-        try{if(stretch_.scan(controller_.snapshot())==Admission::Accepted){state->listed.reset();list->clear();state->reviewing=false;}}catch(const std::exception &){stretchMessage_=tr("Retained render scan could not start. Check Project resources.");}
+        try{if(stretch_.scan(controller_.snapshot())==Admission::Accepted){state->recoveryId=stretch_.snapshot()->recoveryId;state->listed.reset();list->clear();state->reviewing=false;}}catch(const std::exception &){stretchMessage_=tr("Retained render scan could not start. Check Project resources.");}
     });
     connect(next,&QPushButton::clicked,dialog,[this,list,source,state]{
         if(controller_.snapshot()->projectEpoch!=source->projectEpoch || !stretchCanRender())return;
@@ -774,7 +776,7 @@ bool StudioWindow::scanStretchRenders() {
         auto *item=list->currentItem();if(!item || !stretchCanRender() || controller_.snapshot()->projectEpoch!=source->projectEpoch)return;
         try {
             const Id op(item->data(Qt::UserRole).toString().toStdString());
-            if(stretch_.review(controller_.snapshot(),op)==Admission::Accepted)state->reviewing=true;
+            if(stretch_.review(controller_.snapshot(),op)==Admission::Accepted){state->recoveryId=stretch_.snapshot()->recoveryId;state->reviewing=true;}
         }catch(const std::exception &){stretchMessage_=tr("Retained render review could not start. Check Project resources.");}
     });
     auto *timer=new QTimer(dialog);connect(timer,&QTimer::timeout,dialog,[this,dialog,list,status,scan,next,review,cancel,source,state]{
@@ -784,7 +786,7 @@ bool StudioWindow::scanStretchRenders() {
         next->setEnabled(enabled && currentPage && s->recoveryPage && s->recoveryPage->hasMore && s->inventoryProject &&
             s->inventoryProject->session==project->session && s->inventoryProject->modelRevision==project->modelRevision);
         review->setEnabled(enabled && currentPage && list->currentItem() && list->currentItem()->data(Qt::UserRole+1).toBool());
-        if(!same){status->setText(tr("This review belongs to a previous project opening. Close it and scan the current project."));return;}
+        if(!same){stretch_.requestRecoveryCancel(state->recoveryId);state->recoveryId=0;list->clear();state->listed.reset();state->lease.resize(0);cancel->setEnabled(false);status->setText(tr("This review belongs to a previous project opening. Close it and scan the current project."));return;}
         if(s->busy){status->setText(tr("Verifying retained jobs in the background…"));return;}
         if(state->reviewing){
             state->reviewing=false;

@@ -86,3 +86,23 @@ migration, interrupted index publication, cancellation and stale-entry handling.
 Keep monitoring correction/raw takes/default exports independent. Full
 M2–M11/X004/X005, European translation/review/UI coverage, processing quality,
 content coverage and project compatibility remain active and incomplete.
+
+## Review correction: scoped retirement after project replacement
+
+PR104 review identified a stale-dialog leak: the old epoch guard could suppress
+cursor retirement after a new project opened. A related worker-view reference
+kept an already-retired page/model charged while idle. The correction adds a
+controller-local monotonic recovery request ID, retained across Next page and
+renewed for Scan again/Review. GUI cancellation, stale-project detection and
+Close target only that ID; a newer inventory or ordinary render is unaffected.
+The worker also replaces its previous view references during idle retirement.
+No cursor/file handle is destroyed on the GUI. A terminal Review result remains
+available for explicit Apply.
+
+New acceptance measures return to the exact resource baseline after scoped
+retirement, rejects old IDs against newer scans/live renders, and opens a second
+project while the old UI remains present. The stale cursor retires; closing that
+old dialog while a newer render is deliberately held before spawn permits the
+new render to complete normally. These amended tests need their own current-head
+Linux/Windows gates. Original a8bf340 evidence remains at its original scope;
+it does not acquire the new scoped-retirement qualification retrospectively.
