@@ -40,11 +40,14 @@ and fades with exact rational state and Undo/Redo; pitch follows speed.
 The [clip pitch/stretch dialog](docs/136-stretch-supervision.md) now provides
 background rendering and explicit verified, undoable adoption. Native Windows
 build/process qualification and a [local installer/source pair](docs/139-native-windows-stretch-preview.md)
-now include the required helper; installed Windows stretch acceptance remains pending.
+now include the required helper. [Installed Windows setup and startup](docs/140-windows-installed-stretch-startup.md)
+pass payload, shortcut, Unicode project-open and normal-exit checks; installed
+stretch render/edit/export acceptance remains pending.
 
 Full pitch/stretch quality, foreign-property adoption and installed/native audio
 qualification remain open. [Installed Linux evidence](docs/138-installed-stretch-preview.md)
-covers its recorded earlier source; current Windows installation is the next gate.
+covers its recorded earlier source; the installed Windows render/export and
+removal/reinstallation workflows are the next gates.
 
 The [Windows desktop workflow](docs/99-windows-desktop-workflow.md) now records
 through the native desktop, plays with live EQ/Undo, saves/reopens and exports WAV.

@@ -1,0 +1,143 @@
+{
+  "format": "sc-windows-installed-startup-capture-v1",
+  "sourceCommit": "f9a63532685c988b4d7203da537957cab41dff92",
+  "sourceTree": "742b786db890a67bbefddcdac8bdb6125d2a481e",
+  "installerSha256": "75af398f0c2cbbc36c0f236311745e89f34321ef59e9cde149da7d80dbefe302",
+  "setupExit": 0,
+  "payloadFilesVerified": 64,
+  "mainPid": 5308,
+  "normalMainExit": 0,
+  "installationStartupQualified": true,
+  "vmStopped": true,
+  "fullStretchAcceptance": false,
+  "nativeAudioActivated": false,
+  "releaseUploaded": false,
+  "fullParity": false,
+  "archive": {
+    "bytes": 961657,
+    "sha256": "739c646bb098b3c6266f85594bef822cfad08acad915e8aa266a457066e99be5",
+    "entries": {
+      "commands/diagnose.ps1": {
+        "bytes": 1869,
+        "sha256": "3cee3e95c9efb0edb58a22aa4e40c15f3633c1a1d7ee803e66e681d89ea60434"
+      },
+      "commands/retry-harness-observations.json": {
+        "bytes": 709,
+        "sha256": "0c0d0fd46ae248a5be92c1dd829ea91931bcd6aa8a637816d93a423ceb5d9e8c"
+      },
+      "commands/retry.ps1": {
+        "bytes": 4439,
+        "sha256": "cd20b3373dc8384572f42609585ba2297936dea48284e2849e32181c386ce8b1"
+      },
+      "first/collect.ps1": {
+        "bytes": 1266,
+        "sha256": "e943bc158118d93d7315ee23751878a1daa30715ddfed0a7eab5835d7b12b8e5"
+      },
+      "first/cycle.ps1": {
+        "bytes": 4274,
+        "sha256": "fcaa7f78027ef3c799f63bb40cf540824437967a77eb18c1d02c142443766fc7"
+      },
+      "first/open-main.ps1": {
+        "bytes": 2736,
+        "sha256": "f68fbd715cb46d48e51a894234f661afaa2b3f823f177f4377ab8408b8677a8b"
+      },
+      "first/receipt.json": {
+        "bytes": 11575,
+        "sha256": "39c5032925333a64ec078b15ede7b694b5c9d51b2321936e3b5b0457fbebb718"
+      },
+      "first/setup-failure.txt": {
+        "bytes": 438,
+        "sha256": "09b1a4729886b3d78b7dee53f83c795fbe917f17e2ffb149ab4649a595949dc5"
+      },
+      "first/setup-result.json": {
+        "bytes": 772,
+        "sha256": "57f263b39b6425ddb626ec41ee78a8abb255c185a47d76a9388047377410a66a"
+      },
+      "installed/collect.ps1": {
+        "bytes": 1266,
+        "sha256": "e943bc158118d93d7315ee23751878a1daa30715ddfed0a7eab5835d7b12b8e5"
+      },
+      "installed/cycle.ps1": {
+        "bytes": 4274,
+        "sha256": "fcaa7f78027ef3c799f63bb40cf540824437967a77eb18c1d02c142443766fc7"
+      },
+      "installed/installed-verification.json": {
+        "bytes": 1597,
+        "sha256": "b2861d2c2cd9dba2b913d0eb422e3db8dd3183e6d77e897c54bf8c3cc31c833f"
+      },
+      "installed/main-20261010002451001.json": {
+        "bytes": 16278,
+        "sha256": "2b4d7f2283d7565896694a8324516f655ac79dfdf1e74289b01100425fffcf3a"
+      },
+      "installed/main-20261010002451001.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "installed/main-20261010002451001.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "installed/main-pid.txt": {
+        "bytes": 4,
+        "sha256": "344510415bf330aa4ea4f2753d1d9f380c6af46c4cbb73755176c98d089fd068"
+      },
+      "installed/open-main.ps1": {
+        "bytes": 2736,
+        "sha256": "f68fbd715cb46d48e51a894234f661afaa2b3f823f177f4377ab8408b8677a8b"
+      },
+      "installed/project-été-Κиїв/media/raw-été.wav": {
+        "bytes": 96044,
+        "sha256": "6e22cfd507c93dc03681618c2e3a1e2970d9547263f148c10b76c0c3b71bd2b2"
+      },
+      "installed/project-été-Κиїв/project.json": {
+        "bytes": 3110,
+        "sha256": "f9ae3bf852f2c2a9e8bd95414afc75cd0bcf665e6383ea33988f19cc2e460c29"
+      },
+      "installed/receipt.json": {
+        "bytes": 11575,
+        "sha256": "39c5032925333a64ec078b15ede7b694b5c9d51b2321936e3b5b0457fbebb718"
+      },
+      "installed/retry-setup-failure.txt": {
+        "bytes": 331,
+        "sha256": "6057d0359f6c877e7f3d5476a683a38e50d8b2b9ed1a2a8fd32f405d94d2e8b7"
+      },
+      "installed/retry-setup-result.json": {
+        "bytes": 931,
+        "sha256": "9e7513ad278e2f9ae2befd320493d0784b6001f5f16e30aa900077241b6c66ce"
+      },
+      "installed/runtime-diagnostic-20261010002018130/diagnostic.json": {
+        "bytes": 353,
+        "sha256": "5e5b4498a0ab8dd2c41e8164f80628b2615fd02c427a99675a7917e7c02effbc"
+      },
+      "installed/setup-failure.txt": {
+        "bytes": 438,
+        "sha256": "09b1a4729886b3d78b7dee53f83c795fbe917f17e2ffb149ab4649a595949dc5"
+      },
+      "installed/setup-result.json": {
+        "bytes": 772,
+        "sha256": "57f263b39b6425ddb626ec41ee78a8abb255c185a47d76a9388047377410a66a"
+      },
+      "installed/verify-installed.ps1": {
+        "bytes": 2923,
+        "sha256": "a1a3c75587dabe65406a4968b2113057767fbe7223a4858cac0594ab1d845015"
+      },
+      "observations/actions.json": {
+        "bytes": 526,
+        "sha256": "368c8806b05dd7cbc46dc004905b9c513b3caa49b49b25fd62ad410fd6080df1"
+      },
+      "observations/cleanup.json": {
+        "bytes": 198,
+        "sha256": "dfdbbe34d4d625b5ff5fdff29c2bae0a10f011d5046bbad6d5e83867a25159d0"
+      },
+      "screenshots/installed-unicode-project.png": {
+        "bytes": 263828,
+        "sha256": "fae5001d9784b5dd65424f1a078f75a53d15a6c3627ce3934ee45ff37b7954c4"
+      },
+      "screenshots/retry-runtime-prompt.png": {
+        "bytes": 636134,
+        "sha256": "ea8216a1afb9a5503357ad1569201d48784b1cd71f15f547b6bafda24da7ae4f"
+      }
+    }
+  },
+  "scope": "Maintainer observations of actual setup, payload/shortcuts/registration, installed module paths, Unicode project open and normal close. No installed render, export, reinstall or physical audio qualification."
+}
