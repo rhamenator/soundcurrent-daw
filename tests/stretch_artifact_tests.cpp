@@ -41,7 +41,8 @@ std::vector<float> live(const std::filesystem::path &root,const Session &s,Frame
 int run(const std::vector<std::string> &args){try{
     check(args.size()==5,"Expected owned project root and relative derived artifact");auto root=utf8Path(args[1]);std::string relative=args[2];validateRelativeMediaPath(relative);
     auto path=root/utf8Path(relative);std::ifstream receiptFile(path.parent_path()/"complete.json");nlohmann::json receipt;receiptFile>>receipt;receiptFile.close();
-    check(receipt["complete"]==true && (receipt["processor"]==stretchProcessorId || receipt["processor"]==protectedWarpProcessorId),"Expected completed stretch artifact");
+    const auto processor=receipt.at("processor").get<std::string>();
+    check(receipt["complete"]==true && (processor==stretchProcessorId || processor==protectedWarpProcessorId),"Expected completed stretch artifact");
     const auto request=nlohmann::json::parse(args[3]);const auto operation=Id(request.at("operation").get<std::string>());
     Asset raw;raw.id=Id(request.at("assetId").get<std::string>());raw.relativePath=request.at("relative");raw.sha256=request.at("sha256");raw.sampleRate=request.at("rate");raw.frames=request.at("sourceFrames");const auto channels=request.at("channels").get<std::uint32_t>();raw.layout={channels==1?LayoutKind::Mono:channels==2?LayoutKind::Stereo:LayoutKind::Discrete,channels};
     auto s=makeOneTrackSession("Editable derived stretch","Audio",raw.sampleRate);s.assets={raw};s.tracks[0].layout=raw.layout;s.tracks[0].eq={};
