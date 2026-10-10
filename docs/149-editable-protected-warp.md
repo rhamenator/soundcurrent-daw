@@ -92,7 +92,10 @@ through the existing shared engine.
 - [Worker tests](../tests/protected_warp_worker_tests.py): actual supervised v5
   children; all 18 regular-bank complete PCM outputs match the unchanged PR89
   prototype; nonzero raw origin, endpoint/touching spans, short-gap refusal, cancellation, changed
-  raw media and forged state are exercised. Stereo/eight-channel parent verifiers
+  raw media and forged state are exercised. Linux changes raw media after ready;
+  Windows checks held-reader mutation denial and rejects a changed source hash
+  before opening a job. These are distinct platform observations.
+  Stereo/eight-channel parent verifiers
   perform adoption, live seek/split/crop, export, save/reopen and callback audits.
 - [Qt workflow](../tests/protected_warp_ui_tests.cpp): actual worker, marker
   identity/editing, resource refusal, complete audition PCM, unchanged canonical

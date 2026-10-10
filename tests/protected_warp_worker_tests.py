@@ -10,6 +10,7 @@ p.add_argument('--qualification',type=Path,default=os.environ.get('SC_PROTECTED_
 a=p.parse_args();worker=a.worker.resolve();verifier=a.verifier.resolve();prototype=a.prototype.resolve()
 checks=renders=0
 records=[];comparisons=[];started=time.monotonic()
+sourceMutation={}
 source=Path(__file__).resolve().parents[1]
 def git(*args):return subprocess.check_output(['git',*args],cwd=source,text=True).strip()
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -106,10 +107,27 @@ with tempfile.TemporaryDirectory(prefix='sc-protected-owned-') as temporary:
     path.write_bytes(original)
     short=request(8,'nonuniform',[320],[384]);code,ready,reports,err=run(short)
     check(code!=0 and ready is None and not (jobs/short['operation']).exists(),'Short acoustic gap was repaired or published')
-    canceled=request(8,'nonuniform');code,ready,reports,err=run(canceled,lambda job:(job/'cancel.request').write_text('cancel'))
+    def cancel_owned_job(job):
+        if os.name=='nt':
+            before=path.read_bytes()
+            try:path.write_bytes(before+b'changed')
+            except PermissionError as error:
+                unchanged=path.read_bytes()==before
+                check(unchanged,'Denied Windows source mutation changed raw bytes')
+                sourceMutation['heldReadWriteDenied']={'errno':error.errno,'winerror':getattr(error,'winerror',None),'rawUnchanged':unchanged}
+            else:raise AssertionError('Windows approved read handle admitted raw source mutation')
+        (job/'cancel.request').write_text('cancel')
+    canceled=request(8,'nonuniform');code,ready,reports,err=run(canceled,cancel_owned_job)
     check(code!=0 and (jobs/canceled['operation']/'intent.json').exists() and not (jobs/canceled['operation']/'complete.json').exists(),'Canceled v5 job did not retain incomplete intent')
     original=path.read_bytes();changed=request(8,'nonuniform')
-    code,ready,reports,err=run(changed,lambda job:path.write_bytes(original+b'changed'))
+    if os.name=='nt':
+        path.write_bytes(original+b'changed')
+        code,ready,reports,err=run(changed)
+        check(ready is None and not (jobs/changed['operation']).exists(),'Stale Windows raw hash created a v5 job')
+        sourceMutation['changedRawTiming']='before-read'
+    else:
+        code,ready,reports,err=run(changed,lambda job:path.write_bytes(original+b'changed'))
+        sourceMutation['changedRawTiming']='after-ready'
     check(code!=0 and not (jobs/changed['operation']/'complete.json').exists(),'Changed raw source acquired a completed v5 artifact')
     path.write_bytes(original)
     base=request(8,'nonuniform')
@@ -129,6 +147,6 @@ with tempfile.TemporaryDirectory(prefix='sc-protected-owned-') as temporary:
 if a.qualification:
     check(binding['sourceCommit']==git('rev-parse','HEAD') and binding['sourceTree']==git('rev-parse','HEAD^{tree}') and not git('status','--porcelain','--untracked-files=no'),'Source identity changed during qualification')
     check(all(binding[k]==digest(path) for k,path in [('workerSha256',worker),('verifierSha256',verifier),('prototypeSha256',prototype)]),'Executable identity changed during qualification')
-    report={'schema':'soundcurrent.protected-warp-integration-evidence-v1',**binding,'platform':platform.platform(),'workerProcesses':len(records),'completedRenders':renders,'checks':checks,'elapsedSeconds':time.monotonic()-started,'comparisons':comparisons,'workers':records,'nativeAudio':False,'fullQualityQualified':False,'syntheticSourceRights':'Original project fixtures, GPL-3.0-only','minimumNonunityAcousticGapFrames':2048}
+    report={'schema':'soundcurrent.protected-warp-integration-evidence-v1',**binding,'platform':platform.platform(),'workerProcesses':len(records),'completedRenders':renders,'checks':checks,'elapsedSeconds':time.monotonic()-started,'comparisons':comparisons,'workers':records,'sourceMutation':sourceMutation,'nativeAudio':False,'fullQualityQualified':False,'syntheticSourceRights':'Original project fixtures, GPL-3.0-only','minimumNonunityAcousticGapFrames':2048}
     a.qualification.parent.mkdir(parents=True,exist_ok=True);a.qualification.write_text(json.dumps(report,indent=2)+'\n')
 print(f'protected_worker_renders={renders} checks={checks} frozen_full_pcm_equal=18 parent_live_export_reopen=2 quality_qualified=false')
