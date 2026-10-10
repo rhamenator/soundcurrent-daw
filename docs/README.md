@@ -160,3 +160,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Editable protected stretch and uncommitted audition](149-editable-protected-warp.md) · [ADR108](decisions/108-editable-protected-warp.md)
 
 - [Protected preview receipts and current inputs](150-protected-preview-gates.md) · [ADR109](decisions/109-protected-preview-gates.md)
+
+- [Installed protected stretch preview observations](151-installed-protected-preview.md)

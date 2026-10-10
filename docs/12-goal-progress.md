@@ -3748,3 +3748,20 @@ refusal fixtures and actual Qt stale-control regressions precede installation.
 Installer/source refresh and installed owned Unicode/refusal/cancellation/restart
 workflows remain next; no product release, F/Q/C/N or European qualification claim.
 The full goal remains active and incomplete; all remaining milestones remain.
+
+## Installed protected preview checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: PR91 merged normally with its tested tree
+verified against the squash. Three owned installed Ubuntu overlays now retain
+marker render/edit guards, prepared audition retirement, Apply/Undo/Redo,
+Unicode save/reopen, identical float export and an actual package upgrade.
+[Checkpoint151](151-installed-protected-preview.md) and
+[retained observations](../tests/results/M2/2026-10-10-installed-protected-preview/README.md)
+separate exact source/payload identities, processing scope and historical failures.
+Native Windows compilation and three independent helper receipts succeeded, but
+local stretch-bank and desktop-startup qualification failed; the refreshed
+Windows installer remains withheld. The clone is shut down. Next: retain exact
+native failure events/exit/module identities, resolve initialization/render
+failures, then installed Windows workflows and parent-owned render restart
+recovery. No F/Q/C/N family, broad quality or European-language gate is promoted;
+the full suite goal remains active and incomplete.

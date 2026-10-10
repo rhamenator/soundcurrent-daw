@@ -1,0 +1,18 @@
+{
+  "source": "083aefed3afd027406e1bb78e6f2d66b2f4dbfd8",
+  "tree": "fe3197c30e20c30493f03eb9ba9720a12f7de2e2",
+  "version": "0.1.0~preview.20261010095352.083aefed3afd",
+  "actualUpgradeFrom": "0.1.0~preview.20261010093051.b0e61308e053",
+  "allFiveInstalledHashesMatchPackage": true,
+  "allFivePayloadsIdenticalToOwnedRenderWorkflow": true,
+  "savedMarkerControlsObserved": true,
+  "savedProjectBytesUnchanged": true,
+  "exportBytesIdenticalToOwnedRenderWorkflow": true,
+  "normalQuitExit": 0,
+  "physicalAudio": false,
+  "nativePlaybackStarted": false,
+  "fullQualityQualified": false,
+  "hostPackageChanges": false,
+  "releaseUploaded": false,
+  "packageSha256": "067abefdd87e554fd33712731aa051807e152908a97e6509c4e7ea0d3b10ed39"
+}
