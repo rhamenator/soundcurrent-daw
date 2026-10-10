@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-10T19:18:21.430759+00:00",
+  "allVmState": " Id   Name                                 State\n-----------------------------------------------------\n -    copperfin-access365-win11            shut off\n -    copperfin-clean-win11                shut off\n -    copperfin-rocky8-cave                shut off\n -    copperfin-ubuntu26-deb               shut off\n -    copperfin-vfp9-win11                 shut off\n -    soundcurrent-stretch-install-win11   shut off\n -    soundcurrent-win11-dev               shut off\n\n",
+  "developmentCloneUuid": "e4180a05-3756-43a2-aa76-a2f8f9f8237c",
+  "acceptanceCloneUuid": "670168f5-4e3f-4e7f-b218-3583db31f0f8",
+  "acceptanceCd": " Target   Source\n------------------------------------------------------------------------------\n sda      /var/lib/libvirt/images/soundcurrent-stretch-install-f9a6353.qcow2\n sdb      -\n\n",
+  "receiverExited": true,
+  "ownedFirewallRuleRemoved": true,
+  "productUpload": false,
+  "originalsAndPristineTemplateModified": false
+}
