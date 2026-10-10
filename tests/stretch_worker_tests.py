@@ -66,7 +66,7 @@ def amplitude(samples,channels,ch,rate,hz):
 with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     root=Path(temporary)/'studio Δ';root.mkdir();(root/'media').mkdir();jobs=root/'media/derived';jobs.mkdir()
     path=root/'media/tone.wav';digest=owned_wave(path,48000,2,12000)
-    initial={'protocol':'sc-stretch-render-v2','operation':str(uuid.uuid4()),'assetId':str(uuid.uuid4()),'relative':'media/tone.wav','sha256':digest,'rate':48000,'channels':2,'sourceFrames':12000,'first':0,'firstFraction':0,'firstDenominator':1,'frames':12000,'timeNumerator':3,'timeDenominator':2,'pitchMilliCents':1200000,'formantPreserved':False}
+    initial={'protocol':'sc-stretch-render-v3','processor':'soundcurrent.stretch-rubberband4-r3-positioned-v2','operation':str(uuid.uuid4()),'assetId':str(uuid.uuid4()),'relative':'media/tone.wav','sha256':digest,'rate':48000,'channels':2,'sourceFrames':12000,'first':0,'firstFraction':0,'firstDenominator':1,'frames':12000,'timeNumerator':3,'timeDenominator':2,'pitchMilliCents':1200000,'formantPreserved':False}
     def command(memory=256,maximum=1000000,bytes_limit=64*1024*1024,deadline=10000):
         return [str(worker),'--project-root',str(root),'--jobs-root',str(jobs),'--memory-mib',str(memory),'--maximum-input-frames',str(maximum),'--maximum-output-bytes',str(bytes_limit),'--deadline-ms',str(deadline)]
     def run(request,**limits):
@@ -82,7 +82,9 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
         completed.pid=process.pid
         return completed,reports
     def fresh(**changes):
-        value=dict(initial,operation=str(uuid.uuid4()));value.update(changes);return value
+        value=dict(initial,operation=str(uuid.uuid4()));value.update(changes)
+        value['processor']='soundcurrent.stretch-positioned-copy-v1' if value['timeNumerator']==value['timeDenominator'] and value['pitchMilliCents']==0 else 'soundcurrent.stretch-rubberband4-r3-positioned-v2'
+        return value
     result,reports=run(initial);check(result.returncode==0,'Actual stretch failed: '+result.stderr)
     receipt=reports[-1];job=jobs/initial['operation'];check(receipt['complete'] and receipt['writtenFrames']==18000,'Exact independent duration failed')
     check(json.loads((job/'complete.json').read_text())==receipt,'Published completion receipt differs')
@@ -106,6 +108,9 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
     base=fresh(first=2048,frames=4096,timeNumerator=1,timeDenominator=1,pitchMilliCents=0)
     r,rr=run(base);check(r.returncode==0,'Neutral integer anchor failed')
     floor_receipt=rr[-1];_,_,floor_data=read_rf64(jobs/base['operation']/'audio.wav')
+    check(floor_receipt['processor']=='soundcurrent.stretch-positioned-copy-v1' and
+          floor_data==path.read_bytes()[44+2048*8:44+(2048+4096)*8],
+          'Unity integer render did not preserve exact source sample bits')
     half=dict(base,operation=str(uuid.uuid4()),firstFraction=1,firstDenominator=2)
     r,rr=run(half);check(r.returncode==0,'Actual fractional origin failed');half_receipt=rr[-1]
     _,_,half_data=read_rf64(jobs/half['operation']/'audio.wav')
@@ -173,24 +178,49 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
             for pitch in [-2400000,0,2400000]:
                 for frames in [1,minimum-1]:
                     req=fresh(sha256=digest_boundary,rate=rate,channels=1,sourceFrames=minimum+512,frames=frames,timeNumerator=time_n,timeDenominator=time_d,pitchMilliCents=pitch)
-                    r,rr=run(req);check(r.returncode!=0 and not (jobs/req['operation']).exists(),'Short span reached destination mutation')
+                    r,rr=run(req)
+                    if time_n==time_d and pitch==0:
+                        check(r.returncode==0 and rr[-1]['writtenFrames']==frames and rr[-1]['processor']=='soundcurrent.stretch-positioned-copy-v1','Short unity span did not copy exactly')
+                        _,_,copied=read_rf64(jobs/req['operation']/'audio.wav')
+                        check(copied==path.read_bytes()[44:44+frames*4],'Unity render changed the raw samples')
+                    else:
+                        check(r.returncode!=0 and not (jobs/req['operation']).exists(),'Short processed span reached destination mutation')
                 req=fresh(sha256=digest_boundary,rate=rate,channels=1,sourceFrames=minimum+512,frames=minimum,timeNumerator=time_n,timeDenominator=time_d,pitchMilliCents=pitch)
                 r,rr=run(req);target=(minimum*time_n+time_d-1)//time_d
                 check(r.returncode==0 and rr[-1]['writtenFrames']==target,'Prepared window boundary did not render exact duration: '+r.stderr)
                 boundary_jobs+=1
     check(boundary_jobs==27,'Boundary workflow matrix incomplete')
-    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':7+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'shortSpanRefusalBeforeMutation':True,'headroom':True,'fractionalSourcePhase':True,'equivalentRationalAnchors':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'memoryValidSpanPositiveControl':True,'nativePlatform':sys.platform,'nativeAudio':False}))
+    # The copy route retains full-bandwidth source data at the DAW's 384k limit
+    # and does not fold/reorder distinct discrete channels.
+    copy_digest=owned_wave(path,384000,256,64)
+    bits=bytearray(path.read_bytes())
+    for ch,value in enumerate((0x80000000,0x00000001,0x80000001,0x3f800000,0xbf800000,0x40000000)):
+        struct.pack_into('<I',bits,44+(17*256+ch)*4,value)
+    path.write_bytes(bits);copy_digest=hashlib.sha256(bits).hexdigest()
+    copy_request=fresh(sha256=copy_digest,rate=384000,channels=256,sourceFrames=64,
+                       first=17,frames=1,timeNumerator=1,timeDenominator=1,pitchMilliCents=0)
+    r,rr=run(copy_request);check(r.returncode==0 and rr[-1]['writtenFrames']==1,'384k/256-channel one-frame copy refused')
+    cc,cr,cp=read_rf64(jobs/copy_request['operation']/'audio.wav')
+    check(cc==256 and cr==384000 and cp==path.read_bytes()[44+17*256*4:44+18*256*4],
+          '384k discrete unity copy changed bandwidth/channel order/sample bits')
+    for change in [{'protocol':'sc-stretch-render-v2'}, {'processor':'unknown'},
+                   {'processor':'soundcurrent.stretch-rubberband4-r3-positioned-v2'}]:
+        bad=dict(copy_request,operation=str(uuid.uuid4()),**change)
+        r,rr=run(bad);check(r.returncode!=0 and not (jobs/bad['operation']).exists(),
+                           'Legacy protocol or wrong unity algorithm reached destination mutation')
+    print(json.dumps({'checks':checks,'actualOwnedCompletedJobs':14+boundary_jobs,'preparedBoundaryCompletedJobs':boundary_jobs,'unityShortCompletedJobs':7,'shortProcessedSpanRefusalBeforeMutation':True,'unityIntegerCopyExact':True,'unity384kDiscreteCopyExact':True,'headroom':True,'fractionalSourcePhase':True,'equivalentRationalAnchors':True,'exactCeilCounterexample':6422,'cooperativeCancel':True,'midRenderCancel':True,'hardDeadline':True,'OSMemoryRefusal':True,'memoryValidSpanPositiveControl':True,'nativePlatform':sys.platform,'nativeAudio':False}))
     if args.qualification:
         check(not git('status','--porcelain','--untracked-files=no') and git('rev-parse','HEAD')==source_commit,
               'Qualification source changed during acceptance')
         check(executable_hash(worker)==worker_hash and executable_hash(verifier)==verifier_hash,
               'Qualification executables changed during acceptance')
         verifier_checks=int(re.search(r'derived_shared_live_export_checks=(\d+)',artifact.stdout)[1])
-        qualification={'format':'sc-stretch-worker-qualification-v1','sourceCommit':source_commit,
+        qualification={'format':'sc-stretch-worker-qualification-v2','sourceCommit':source_commit,
                        'sourceTree':source_tree,'nativePlatform':sys.platform,'exeSha256':worker_hash,
                        'verifierExeSha256':verifier_hash,'pid':result.pid,'exitCode':result.returncode,
                        'verifierPid':artifact_process.pid,'verifierExitCode':artifact.returncode,
                        'verifierChecks':verifier_checks,'checks':checks,'verifiedArtifact':True,
+                       'unityShortCompletedJobs':7,'unityIntegerCopyExact':True,'unity384kDiscreteCopyExact':True,
                        'nativeAudio':False,**{key:receipt[key] for key in
                         ('protocol','processor','operation','complete','writtenFrames','audioSha256','sampleSha256')}}
         args.qualification.parent.mkdir(parents=True,exist_ok=True)

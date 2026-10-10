@@ -83,7 +83,7 @@ void workflow() {
 }
 void persistence() {
     auto plain=source();auto s=plain;auto c=result(s,s.tracks[0].clips[0].id,{3,2,1200000,false});applySessionEdits(s,{c});
-    auto j=nlohmann::json::parse(encodeProject(s));check(j["schemaMinor"]==12,"Stretch schema did not advance");
+    auto j=nlohmann::json::parse(encodeProject(s));check(j["schemaMinor"]==13,"Stretch schema did not advance");
     check(j["tracks"][0]["clips"][0]["stretch"]["processor"].get<std::string>()==stretchProcessorId,"Processor identity lost");
     for(unsigned mode=0;mode<22;++mode) {
         auto bad=j;auto &v=bad["tracks"][0]["clips"][0]["stretch"];auto &p=v["settings"];
@@ -106,7 +106,7 @@ void persistence() {
         if(mode==16) v["unknown"]=0;
         if(mode==17) v.erase("settings");
         if(mode==18) bad["tracks"][0]["clips"][0].erase("stretch");
-        if(mode==19) bad["schemaMinor"]=13;
+        if(mode==19) bad["schemaMinor"]=14;
         if(mode==20) p["timeNumerator"]=6; // Noncanonical 6/4.
         if(mode==20) p["timeDenominator"]=4;
         if(mode==21) v["sourceOrigin"]["fraction"]=2;
@@ -123,6 +123,26 @@ void persistence() {
     }
     const auto bytes=sessionPayloadBytes(s);refuses([&]{validate(s,StateBudget{bytes-1});});
     check(bytes>sessionPayloadBytes(plain),"Raw anchor/asset payload was not charged");
+}
+void unityIdentity() {
+    auto s=source();const auto original=s;
+    auto command=result(s,s.tracks[0].clips[0].id,{1,1,0,true});
+    check(command.value.processor==unityStretchProcessorId,"Unity settings selected the phase processor");
+    EditHistory history(s);history.structural({command});const auto adopted=s;
+    check(s.tracks[0].clips[0].lengthFrames==8192 && decodeProject(encodeProject(s))==s,
+          "Unity state lost exact duration or persisted processor identity");
+    check(history.undo() && s==original && history.redo() && s==adopted,
+          "Unity adoption did not retain raw/derived Undo state");
+    auto invalid=command.value;invalid.settings.pitchMilliCents=1;
+    refuses([&]{validateClipStretch(invalid,command.source,command.rendered);});
+    // Existing 1.12 R3 unity assets must remain R3 and keep their original keys.
+    auto legacy=adopted;legacy.tracks[0].clips[0].stretch->processor=stretchProcessorId;
+    auto json=nlohmann::json::parse(encodeProject(legacy));json["schemaMinor"]=12;
+    check(decodeProject(json.dump())==legacy,"Legacy R3 unity asset was silently reidentified");
+    json["tracks"][0]["clips"][0]["stretch"]["processor"]=unityStretchProcessorId;
+    refuses([&]{decodeProject(json.dump());});
+    check(prepareClipStretch(legacy,legacy.tracks[0].id,legacy.tracks[0].clips[0].id,{1,1,0,false}).anchor.processor==unityStretchProcessorId,
+          "Explicit legacy rerender did not select the new unity algorithm");
 }
 int probe() {
     std::string line;unsigned count=0;
@@ -143,5 +163,5 @@ int probe() {
 }
 int main(int argc,char **argv) {try {
     if(argc==2 && std::string_view(argv[1])=="--arithmetic-probe") return probe();
-    workflow();persistence();std::cout<<"stretch_state_checks="<<checks<<" raw_anchor_retained=true split_crop_rerender=true undo_redo=true schema=1.12\n";return 0;
+    workflow();persistence();unityIdentity();std::cout<<"stretch_state_checks="<<checks<<" raw_anchor_retained=true split_crop_rerender=true undo_redo=true unity_identity=true legacy_r3_preserved=true schema=1.13\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

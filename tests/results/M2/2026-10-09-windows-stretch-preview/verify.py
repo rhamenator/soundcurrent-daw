@@ -45,7 +45,7 @@ gate.qualify_worker(manifest, read('native/inspection-worker-qualification.json'
 gate.qualify_media_worker(manifest, read('native/media-worker-qualification.json'), r['sourceCommit'])
 gate.qualify_copy_worker(manifest, read('native/copy-worker-qualification.json'), r['sourceCommit'])
 s = read('native/stretch-worker-qualification.json')
-gate.qualify_stretch_worker(manifest, s, r['sourceCommit'], r['sourceTree'])
+gate.qualify_stretch_worker(manifest, s, r['sourceCommit'], r['sourceTree'], protocol='sc-stretch-render-v2')
 assert s['checks'] == r['processReceiptChecks'] == 175
 assert s['verifierChecks'] == r['artifactVerifierChecks'] == 1045
 log = data['commands/continue-qualification.log'].decode()

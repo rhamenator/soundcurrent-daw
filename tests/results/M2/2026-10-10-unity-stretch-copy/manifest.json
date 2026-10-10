@@ -1,0 +1,64 @@
+{
+  "format": "sc-unity-local-verification-capture-v1",
+  "bytes": 76351,
+  "sha256": "1833fdf4c193870d42103fa68c9b27628dd4366d7b63e6adbb1bcaf749ae1b8c",
+  "entries": {
+    "extra-checks.json": {
+      "bytes": 2286,
+      "sha256": "a0207c3a9e3d06ace8f95839ba4bab54e6f92a38c8f84af120dd67e9c8c4a6a8"
+    },
+    "logs/aborted-tests.log": {
+      "bytes": 19553,
+      "sha256": "26c9bac3ae9f2e11d7fcaac863b9501a6bcf23e3557b2eec6136ccd9f5f6be30"
+    },
+    "logs/corrected-ui-tests.log": {
+      "bytes": 1793,
+      "sha256": "0d884b92faaa795655a2c8adbd72a430797efd98717c6bfb40bb16e032d20c4e"
+    },
+    "logs/focused-tests.log": {
+      "bytes": 4629,
+      "sha256": "616184d39fad25a58e0a97c32930b96c238ecd256a1d62836f84de10bed840c8"
+    },
+    "logs/full-build.log": {
+      "bytes": 73813,
+      "sha256": "2574bade152efba02c244f2d146eab4ae890f9403ce73077420319e73d087544"
+    },
+    "logs/full-tests.log": {
+      "bytes": 88670,
+      "sha256": "b940b1b79243a48a3520b5c57c5aecbaac230fe3be1d0c02d0a6677d688e8e54"
+    },
+    "logs/incremental-build.log": {
+      "bytes": 15937,
+      "sha256": "ba1fe786d4763b5308709c183d2a4880fed6ca9c9f289f711ddef4041ba392c1"
+    },
+    "logs/input-verification.log": {
+      "bytes": 259,
+      "sha256": "a9fd4a71811a424510782759442cd7239e49038de0c14ec0b29c894d40de1b4b"
+    },
+    "logs/routing-rebuild.log": {
+      "bytes": 947,
+      "sha256": "2d525497d14265a51c92a82cfbe0821eddcdd1c699d30de8cf90ba8161742568"
+    },
+    "logs/ui-rebuild.log": {
+      "bytes": 2533,
+      "sha256": "8fe900b46c71ccd326b3bfa83612967c8b4411e94d9cc8a278326c5b6174c51b"
+    },
+    "logs/worker-precision.log": {
+      "bytes": 636,
+      "sha256": "fc242434da4605ba9863b76dc07e15ff6d1586e786362ca463be3b60762d2919"
+    },
+    "source-inputs-initial.json": {
+      "bytes": 42369,
+      "sha256": "8114b9bb449941bc3427351c0e90f9b81537dd673fa22cf4fb3561d8562dbb4e"
+    },
+    "source-inputs.json": {
+      "bytes": 42369,
+      "sha256": "2c5be28863b40a44e9f266b9f2b873cd040f193b0c75cd10e64ba7302ec5f71e"
+    },
+    "summary.json": {
+      "bytes": 2697,
+      "sha256": "77f447516bca3c1b72842e8ee10be7f4d98be720d436bad81d4eaad18f7484eb"
+    }
+  },
+  "scope": "Retained Linux synthetic/local build observations;111 unchanged workflows and corrected one-frame UI rerun. No native audio, native Windows, installed preview, clean-commit package receipt or full quality qualification."
+}

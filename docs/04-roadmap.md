@@ -788,3 +788,15 @@ All VMs are off, temporary transport is removed and originals are preserved.
 No binary upload, complete quality, physical audio or language delivery is claimed.
 Next broaden short-span/transient quality acceptance and implement explicit
 tempo/warp editing with shared render/playback timing and preservation evidence.
+
+## M2 unity copy and short-span experiments
+
+[The bounded context/alignment experiments](142-short-clip-context-and-alignment.md)
+retain actual counterexamples without qualifying automatic context. The
+[unity copy increment](143-unity-stretch-copy.md) preserves prepared audio at1/1,
+pitch zero, admits one-frame copies and retains legacy algorithm identity. Scoped
+Linux state/helper/UI/export evidence passes after an owned fixture correction;
+native Windows/current installed evidence remains pending. Next version the
+processing-region versus visible-crop contract and source context/edge policy,
+define exact output maps and test retained transient counterexamples before
+enabling short non-unity processing. All broader F/Q/C/N requirements remain.

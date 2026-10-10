@@ -93,6 +93,42 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         window.close();wait([&]{return !window.isVisible();});check(window.stretchSnapshot()->closed,"Window exited before stretch shutdown");
     }
     {
+        const auto unityRoot=base/utf8Path("unity-one-frame-été");auto one=fixture(unityRoot);
+        one.tracks[0].clips[0].lengthFrames=1;one.tracks[0].clips[0].sourceTiming={};
+        ProjectStore(unityRoot).save(one);
+        StudioWindow window(nullptr,{},{},{},{},{},{},{},options);window.show();window.openProject(unityRoot);
+        wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.findChild<QComboBox *>("timelineClips")->count()>1;});
+        auto *dialog=openDialog(window);dialog->findChild<QPushButton *>("renderStretch")->click();
+        wait([&]{return !window.stretchSnapshot()->busy;});dialog->refresh();
+        check(window.stretchSnapshot()->result && dialog->findChild<QPushButton *>("applyStretch")->isEnabled(),
+              "One-frame unity result was not verified for explicit review");
+        dialog->findChild<QPushButton *>("applyStretch")->click();
+        wait([&]{return window.snapshot()->session->tracks[0].clips[0].stretch.has_value() && window.stretchSnapshot()->phase==StretchPhase::Idle;});
+        const auto copied=*window.snapshot()->session;const auto &clip=copied.tracks[0].clips[0];
+        check(clip.lengthFrames==1 && clip.stretch->sourceOrigin==SourcePosition{17,0,1} &&
+              clip.stretch->processor==unityStretchProcessorId && copied.assets.back().frames==1,
+              "Unity UI render changed source, duration or algorithm identity");
+        check(window.submitEdit({CommandKind::Undo}),"Unity UI Undo refused");wait([&]{return *window.snapshot()->session==one;});
+        check(window.submitEdit({CommandKind::Redo}),"Unity UI Redo refused");wait([&]{return *window.snapshot()->session==copied;});
+        check(window.submitEdit({CommandKind::Save}),"Unity UI save refused");wait([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
+        check(ProjectStore(unityRoot).load()==copied,"Unity algorithm identity lost on reopen");
+        ExportSpec spec(copied.tracks[0].id);spec.endFrame=1;ExportOptions output;output.resources=window.resourceLedger();
+        const auto exported=exportTrackWav(unityRoot,copied,base/"unity-export.wav",spec,output);
+        check(exported.frames==1 && exported.peak>1,"Unity export lost a short clip or float headroom");
+        std::ifstream raw(unityRoot/"media"/utf8Path("raw-été.wav"),std::ios::binary);
+        raw.seekg(44+17*8);std::string expected(8,'\0');raw.read(expected.data(),8);check(bool(raw),"Cannot read unity source oracle");
+        std::ifstream wave(exported.destination,std::ios::binary);std::string bytes((std::istreambuf_iterator<char>(wave)),{});
+        check(bytes.size()<1024*1024 && bytes.substr(0,4)=="RIFF" && bytes.substr(8,4)=="WAVE","Unity export is not bounded RIFF");
+        auto u32=[&](std::size_t at) {std::uint32_t n=0;for(unsigned i=0;i<4;++i)n|=std::uint32_t(static_cast<unsigned char>(bytes.at(at+i)))<<(8*i);return n;};
+        std::string actual;for(std::size_t at=12;at+8<=bytes.size();) {
+            const auto size=u32(at+4);check(size<=bytes.size()-at-8,"Unity export chunk exceeds file");
+            if(bytes.substr(at,4)=="data") {check(size==8,"Unity export did not contain one stereo frame");actual=bytes.substr(at+8,size);}
+            at+=8+size+(size&1);
+        }
+        check(actual==expected,"Unity UI/save/export changed the exact raw sample bits");
+        dialog->close();window.close();wait([&]{return !window.isVisible();});
+    }
+    {
         std::atomic<bool> entered=false,release=false;auto gated=options;gated.afterReady=[&]{entered=true;while(!release)QThread::msleep(1);};
         struct Release{std::atomic<bool>&flag;~Release(){flag=true;}};
         StudioWindow window(nullptr,{},{},{},{},{},{},{},gated);Release unlock{release};window.show();window.openProject(root);wait([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None && window.findChild<QComboBox *>("timelineClips")->count()>1;});

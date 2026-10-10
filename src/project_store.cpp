@@ -286,7 +286,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     const auto stretch = [&](const std::optional<ClipStretchAnchor> &v) -> Json {
         if(!v) return nullptr;
         const auto &p=*v;
-        return {{"processor",std::string(stretchProcessorId)},{"version",1},
+        return {{"processor",p.processor},{"version",1},
             {"sourceAssetId",p.sourceAssetId.str()},{"sourceSha256",p.sourceSha256},
             {"sourceOrigin",{{"frame",p.sourceOrigin.frame},{"fraction",p.sourceOrigin.fraction},
                 {"denominator",p.sourceOrigin.denominator},{"algorithm",positionedResamplingAlgorithmId}}},
@@ -348,7 +348,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 12},
+        {"schemaMinor", 13},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -490,7 +490,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 12),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 13),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -613,9 +613,10 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
                 if(minor>=12 && !c.at("stretch").is_null()) {
                     const auto &p=c.at("stretch");
                     keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey"});
-                    require(string(p.at("processor"))==stretchProcessorId && integer(p.at("version"))==1,
+                    require((minor>=13 || string(p.at("processor"))==stretchProcessorId) && integer(p.at("version"))==1,
                             "Unsupported stretch processor",ErrorCode::UnsupportedSchema);
                     ClipStretchAnchor v;
+                    v.processor=string(p.at("processor"));
                     v.sourceAssetId=Id(string(p.at("sourceAssetId")));v.sourceSha256=string(p.at("sourceSha256"));
                     v.sourceFrames=integer(p.at("sourceFrames"));v.renderKey=string(p.at("renderKey"));
                     const auto &origin=p.at("sourceOrigin");keys(origin,{"frame","fraction","denominator","algorithm"});

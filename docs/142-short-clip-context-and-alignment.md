@@ -85,6 +85,11 @@ not all 120 output waveforms. Neither receipt authenticates untrusted data or
 qualifies installed behavior. The historical worker/library bytes remain tied to
 their recorded hashes, independently of later source edits.
 
+`python3 tools/verify_short_span_experiments.py` checks the retained manifests,
+original raw and rendered PCM hashes, all twenty crop comparisons and the forty
+alignment/partition metric rows. CI runs this portable inspection without
+replaying the helper or asserting current-source DSP qualification.
+
 To build the standalone probe against a qualified Release build:
 
 ```sh

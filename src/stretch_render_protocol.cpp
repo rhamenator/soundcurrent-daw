@@ -24,8 +24,10 @@ void policy(const StretchRenderPolicy &p){
           "Invalid trusted stretch policy");
 }
 Json key(const Asset &a,const ClipStretchAnchor &v){
+    validateStretchProcessor(v.processor,v.settings);
     validateRelativeMediaPath(a.relativePath);
-    check(v.sourceAssetId==a.id && digest(a.sha256) && v.sourceSha256==a.sha256 && a.sampleRate>=8000 && a.sampleRate<=192000 &&
+    check(v.sourceAssetId==a.id && digest(a.sha256) && v.sourceSha256==a.sha256 && a.sampleRate>=8000 && a.sampleRate<=384000 &&
+          (a.sampleRate<=192000 || v.processor==unityStretchProcessorId) &&
           a.layout.channels>0 && a.layout.channels<=256 && a.frames>0,"Invalid stretch source identity or format");
     check(v.sourceOrigin.frame>=0 && v.sourceOrigin.denominator>0 && v.sourceOrigin.fraction<v.sourceOrigin.denominator &&
           std::gcd(v.sourceOrigin.fraction,v.sourceOrigin.denominator)==1,"Noncanonical stretch source origin");
@@ -33,7 +35,7 @@ Json key(const Asset &a,const ClipStretchAnchor &v){
     const SourceFrameMap map(a.sampleRate,a.sampleRate,v.sourceOrigin);
     const auto target=stretchOutputFrames(v.sourceFrames,v.settings);
     check(v.sourceFrames<=a.frames-v.sourceOrigin.frame && map.at(v.sourceFrames-1).frame<a.frames,"Stretch source extent differs");
-    return Json{{"processor",stretchProcessorId},{"sourceSha256",a.sha256},{"rate",a.sampleRate},{"channels",a.layout.channels},
+    return Json{{"processor",v.processor},{"sourceSha256",a.sha256},{"rate",a.sampleRate},{"channels",a.layout.channels},
         {"first",v.sourceOrigin.frame},{"firstFraction",v.sourceOrigin.fraction},{"firstDenominator",v.sourceOrigin.denominator},
         {"sourceAlgorithm",positionedResamplingAlgorithmId},{"frames",v.sourceFrames},{"target",target},
         {"pitchMilliCents",v.settings.pitchMilliCents},{"formantPreserved",v.settings.formantPreserved},
@@ -74,7 +76,8 @@ OwnedStretchProtocol encodeStretchRenderRequest(const ClipStretchPlan &p,const I
     auto work=ledger.reserve(codecBytes);auto grant=ledger.reserve(stretchProtocolMaximum*2);policy(limits);(void)key(p.source,p.anchor);
     const auto frames=std::uint64_t(stretchOutputFrames(p.anchor.sourceFrames,p.anchor.settings));
     check(std::uint64_t(p.anchor.sourceFrames)<=limits.maximumInputFrames && frames<=(limits.maximumOutputBytes-std::min<std::uint64_t>(limits.maximumOutputBytes,1048576))/(p.source.layout.channels*4ULL),"Stretch request exceeds frame/file grant",ErrorCode::ResourceLimit);
-    auto bytes=Json{{"protocol",stretchRenderProtocol},{"operation",op.str()},{"assetId",p.source.id.str()},{"relative",p.source.relativePath},
+    check(p.anchor.processor==stretchProcessorFor(p.anchor.settings),"Requested processor differs from selected render settings");
+    auto bytes=Json{{"protocol",stretchRenderProtocol},{"processor",p.anchor.processor},{"operation",op.str()},{"assetId",p.source.id.str()},{"relative",p.source.relativePath},
         {"sha256",p.source.sha256},{"rate",p.source.sampleRate},{"channels",p.source.layout.channels},{"sourceFrames",p.source.frames},
         {"first",p.anchor.sourceOrigin.frame},{"firstFraction",p.anchor.sourceOrigin.fraction},{"firstDenominator",p.anchor.sourceOrigin.denominator},
         {"frames",p.anchor.sourceFrames},{"timeNumerator",p.anchor.settings.timeNumerator},{"timeDenominator",p.anchor.settings.timeDenominator},
