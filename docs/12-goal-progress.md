@@ -3737,3 +3737,14 @@ Sustained phase, general/group/pitch/tempo/comp, all other milestones, X004/X005
 and all-Europe requirements remain open. No F/Q/C/N family promotion; the full
 goal remains active and incomplete. [ADR108](decisions/108-editable-protected-warp.md)
 selects exact-source native/installed preview qualification next.
+
+## Protected preview delivery guards (2026-10-10 UTC)
+
+Normally merged PR90 / 5ec3ba1 has exact-tree Linux114/native Windows45/Qt13
+acceptance. [Checkpoint150](150-protected-preview-gates.md) adds native v5
+receipt admission to both preview builders alongside v4, and makes Apply/audition
+follow current verified editing inputs. Scope/type/source/helper/geometry/cache/PCM
+refusal fixtures and actual Qt stale-control regressions precede installation.
+Installer/source refresh and installed owned Unicode/refusal/cancellation/restart
+workflows remain next; no product release, F/Q/C/N or European qualification claim.
+The full goal remains active and incomplete; all remaining milestones remain.

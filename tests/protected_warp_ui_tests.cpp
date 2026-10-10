@@ -101,7 +101,25 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
     const auto owner=table->item(0,0)->data(Qt::UserRole).toString();table->item(0,1)->setText("4096");table->item(0,2)->setText("6144");
     dialog->findChild<QPushButton *>("renderStretch")->click();wait([&]{return !window.stretchSnapshot()->busy;});if(!window.stretchSnapshot()->result){const auto v=window.stretchSnapshot();std::cerr<<"phase="<<unsigned(v->phase)<<" error="<<int(v->error.value_or(ErrorCode::InvalidId))<<" pid="<<v->childPid<<" exit="<<v->childExit.value_or(-99)<<" status="<<dialog->findChild<QLabel *>("stretchStatus")->text().toStdString()<<'\n';}check(window.stretchSnapshot()->result && window.stretchSnapshot()->phase==StretchPhase::Complete,"Actual marker UI v5 render verified");
     check(*window.snapshot()->session==original && !window.snapshot()->dirty,"Marker render changed canonical project");dialog->refresh();check(dialog->findChild<QPushButton *>("auditionStretch")->isEnabled(),"Verified audible preview unavailable");
+    {
+        ResourceLedger memory(48*1024,"Input comparison fixture");auto held=memory.reserve(16*1024);
+        const auto selection=window.stretchSnapshot()->selection;
+        StretchDialog limited(selection->settings,nullptr,selection->context,selection->warp,memory);
+        limited.read=[&]{StretchUiState state;state.render=window.stretchSnapshot();state.canApply=true;state.canAudition=true;return state;};
+        limited.refresh();check(!limited.findChild<QPushButton *>("applyStretch")->isEnabled() && limited.findChild<QLabel *>("stretchStatus")->text().contains("resources"),"Input comparison exceeded payload admission");
+        held.resize(0);limited.refresh();check(limited.findChild<QPushButton *>("applyStretch")->isEnabled(),"Temporary input comparison pressure did not recover");
+    }
+    table->item(0,2)->setText("8192");dialog->refresh();
+    check(!dialog->findChild<QPushButton *>("applyStretch")->isEnabled() && !dialog->findChild<QPushButton *>("auditionStretch")->isEnabled(),"Edited markers admitted stale verified audio");
+    dialog->findChild<QPushButton *>("applyStretch")->click();dialog->findChild<QPushButton *>("auditionStretch")->click();QTest::qWait(2);
+    check(*window.snapshot()->session==original && window.playbackSnapshot()->phase==PlaybackPhase::Idle,"Stale marker result changed project or prepared playback");
+    table->item(0,2)->setText("6144");dialog->refresh();
+    check(dialog->findChild<QPushButton *>("applyStretch")->isEnabled() && dialog->findChild<QPushButton *>("auditionStretch")->isEnabled(),"Restored matching markers lost verified audio");
+    table->item(0,1)->setText("4097");check(!dialog->findChild<QPushButton *>("applyStretch")->isEnabled(),"Edited source marker admitted stale audio");table->item(0,1)->setText("4096");
+    dialog->findChild<QPushButton *>("addStretchMarker")->click();check(!dialog->findChild<QPushButton *>("applyStretch")->isEnabled(),"Added marker admitted stale audio");table->setCurrentCell(1,0);dialog->findChild<QPushButton *>("removeStretchMarker")->click();
+    check(dialog->findChild<QPushButton *>("applyStretch")->isEnabled(),"Restoring marker owners lost the verified result");
     rt_audit::reset();dialog->findChild<QPushButton *>("auditionStretch")->click();wait([&]{return window.playbackSnapshot()->audition && window.playbackSnapshot()->phase==PlaybackPhase::Ready;});
+    dialog->refresh();check(!dialog->findChild<QPushButton *>("renderStretch")->isEnabled(),"Render was available while the audition endpoint was held");
     dialog->refresh();check(!dialog->findChild<QPushButton *>("applyStretch")->isEnabled(),"Apply available with prepared audition graph");
     {QMutexLocker lock(&observation->mutex);check(observation->prepared && observation->prepared->tracks[0].clips[0].stretch->warp->markers[0].id.str()==owner.toStdString(),"Audition selected canonical raw instead of verified derivative");}
     wait([&]{const auto *left=window.findChild<QComboBox *>("outputChannel0");const auto *right=window.findChild<QComboBox *>("outputChannel1");return left && right && left->count()==3 && right->count()==3;});

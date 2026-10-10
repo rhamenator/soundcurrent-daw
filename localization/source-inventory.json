@@ -40,8 +40,8 @@
     "ui/session_list_model.hpp": "4b92b7677f673c833dfb3a205c782d441b6bff7ccf7dd4bf3ce795cbfbc9fffa",
     "ui/stretch_controller.cpp": "f7e2ca32ffda45dddc4b72ad8c60c49dc43f31fd522cddb873b52b24685a982a",
     "ui/stretch_controller.hpp": "30f4a34f550f78475376c09c2882b7c94648e64ba41902d9be42415721c231a9",
-    "ui/stretch_dialog.cpp": "fc167c158b3158834426e0481d86020793372afb6bb4f861ec6aa4737e1e0227",
-    "ui/stretch_dialog.hpp": "c1277e172e6a4b794f98786994f90509da27b52dbffc4c6549dc19db82b4df9b",
+    "ui/stretch_dialog.cpp": "4428e14f7f3e7a8cc88bedbf1ee5300a0ab059eb249288d8ba711e2f0b40b1ee",
+    "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
     "ui/studio_window.cpp": "257a69af8e96e34a166ed6930b7dd6384d4614f2e388ac78d3e8fed18ef65f7e",
     "ui/studio_window.hpp": "48ff916e3d2ef6da891b067c37f9b26006aadb3a393ca712f28a2658ab5ab7d9",
     "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
@@ -2877,6 +2877,18 @@
     [
       "StretchDialog",
       "The duration multiplier must be between 0.25 and 4.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Settings have changed. Render again before audition or Apply.",
+      "",
+      false
+    ],
+    [
+      "StretchDialog",
+      "Not enough Project resources to compare settings. Wait or close this dialog.",
       "",
       false
     ],

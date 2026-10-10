@@ -16,6 +16,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from stretch_worker_qualification import qualify_stretch_worker
+from protected_warp_qualification import qualify_protected_warp
 
 ROOT = Path(__file__).resolve().parents[1]
 def digest(path):
@@ -93,6 +94,9 @@ def verify_staged_install(stage, root, executable):
         require(digest(found[relative])==digest(source),
                 'Install payload differs from qualified source: '+relative)
     return {relative:digest(source) for relative,source in expected.items()}
+def qualify_protected_worker(qualification, head, source_tree, executable):
+    return qualify_protected_warp(qualification,head,source_tree,digest(executable),'linux')
+
 def package(args):
     require(not command(['git','status','--porcelain']), 'Commit the tested source before packaging')
     host = dict(line.split('=',1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
@@ -132,6 +136,14 @@ def package(args):
         qualify_stretch_worker(json.loads(args.stretch_worker_qualification.read_text()),
                               head,command(['git','rev-parse','HEAD^{tree}']),
                               digest(build/'sc-stretch-render-worker'),'linux')
+    needs_protected_warp=needs_stretch_worker and (ROOT/'include/soundcurrent/protected_warp_render.hpp').is_file()
+    protected_summary=None
+    if needs_protected_warp:
+        require(args.protected_warp_qualification is not None,
+                'Actual native protected stretch helper qualification required')
+        protected_summary=qualify_protected_worker(json.loads(args.protected_warp_qualification.read_text()),
+                              head,command(['git','rev-parse','HEAD^{tree}']),
+                              build/'sc-stretch-render-worker')
     maintainer = command(['git','show','-s','--format=%an <%ae>',head])
     version = preview_version(args.preview_sequence,head,args.previous_version)
     output = args.output.resolve(); output.mkdir(parents=True,exist_ok=False)
@@ -142,6 +154,8 @@ def package(args):
                'qualified_executable_sha256':digest(executable),
                'qualification_sha256':digest(args.qualification),
                'stretch_worker_qualification_sha256':digest(args.stretch_worker_qualification) if needs_stretch_worker else None,
+               'protected_warp_qualification_sha256':digest(args.protected_warp_qualification) if needs_protected_warp else None,
+               'protected_warp_qualification':protected_summary,
                'native_audio_run':False,'system_installation':False,'clean_install_qualified':False,
                'release_uploaded':False,'preview_sequence':args.preview_sequence,
                'previous_version':args.previous_version,
@@ -218,6 +232,8 @@ if __name__=='__main__':
     parser.add_argument('--qualification',type=Path,required=True)
     parser.add_argument('--stretch-worker-qualification',type=Path,
                         help='Matching native helper PID/exit/source/hash and verified artifact receipt')
+    parser.add_argument('--protected-warp-qualification',type=Path,
+                        help='Matching native v5 worker bank, source/hash, full PCM and refusal receipt')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--preview-sequence',required=True,
                         help='Frozen increasing UTC timestamp YYYYMMDDHHMMSS')
