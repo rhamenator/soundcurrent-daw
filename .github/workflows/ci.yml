@@ -67,6 +67,8 @@ jobs:
           python3 tests/results/M2/2026-10-10-windows-recovery-guards/verify.py
           python3 tests/results/M2/2026-10-10-linux-parent-interruption/verify.py
           python3 tests/results/M2/2026-10-10-windows-parent-interruption/verify.py
+          git fetch --no-tags --depth=1 origin 5300010ab521917027501c831b550092e535c210
+          git fetch --no-tags --depth=1 origin b525b81c3cbe69cd8325fcaa6843df64913a14c7
           python3 tests/results/M2/2026-10-10-installed-linux-interruption/verify_tests.py
       - name: Verify retained installed Windows preview (no native replay)
         run: |

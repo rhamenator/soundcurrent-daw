@@ -19,9 +19,11 @@ python3 tests/results/M2/2026-10-10-installed-linux-interruption/verify_tests.py
 ```
 
 Audits execute no archived program, script, GUI, native audio or installation.
-Seven semantic refusal cases rebind ZIP/member hashes to isolate wrong actual
+Ten semantic refusal cases rebind ZIP/member hashes to isolate wrong actual
 exit, modified project/partial/selection, unrelated helper identity, leaked SDK
-and power-loss overclaim. The positive audit checks process identity, actual
+and power-loss overclaim, plus omitted/corrupt source bindings. The source check
+compares every path, SHA-256 and Git blob against all184 inputs in both original
+Git commits; those objects must be present locally (CI fetches them explicitly). The positive audit checks process identity, actual
 termination, privileges, request/target binding, unchanged files and exact preview.
 
 Not qualified here: installed Windows, pre-acknowledgement GUI, completed orphan

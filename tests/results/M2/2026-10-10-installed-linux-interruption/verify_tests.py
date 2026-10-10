@@ -22,7 +22,18 @@ def change_json(blobs, name, field, value):
     blobs[name] = json.dumps(doc).encode()
 
 
+def change_binding(blobs, kind):
+    name = 'workspace/processing-input-binding.json'
+    doc = json.loads(blobs[name]); target = 'ui/stretch_controller.cpp'
+    if kind == 'omit': del doc['files'][target]
+    else: doc['files'][target][kind] = '0' * (64 if kind == 'sha256' else 40)
+    blobs[name] = json.dumps(doc).encode()
+
+
 cases = [
+    ('missing source input', lambda b, s: change_binding(b, 'omit')),
+    ('corrupt source digest', lambda b, s: change_binding(b, 'sha256')),
+    ('wrong source Git blob', lambda b, s: change_binding(b, 'gitBlob')),
     ('wrong actual helper exit', lambda b, s: change_json(b, 'workspace/helper-exit.json', 'exitCode', 0)),
     ('changed saved project', lambda b, s: change_json(b, prefix + 'project.json', 'playheadFrame', 1)),
     ('changed partial audio', lambda b, s: b.__setitem__(job + 'audio.partial', b[job + 'audio.partial'][:-1] + b'\xff')),
@@ -47,4 +58,4 @@ for name, mutate in cases:
         try: verify(root)
         except (AssertionError, KeyError): pass
         else: raise AssertionError('Admitted modified witness: ' + name)
-print('Installed Linux GUI evidence: original and seven semantic refusal cases passed; no native replay')
+print('Installed Linux GUI evidence: original and ten semantic refusal cases passed; no native replay')

@@ -68,7 +68,10 @@ boundaries; their evidence retains its own scope.
 [Capture and bounded audit](../tests/results/M2/2026-10-10-installed-linux-interruption/README.md)
 retain original logs/scripts/receipts, project/raw/partial data, source/package
 bindings and screenshots. No executables, installers, credentials or personal
-recordings are included. File audits execute no archived code or audio.
+recordings are included. File audits execute no archived code or audio. The source-binding audit reads
+trusted Git objects from both recorded commits and compares all184 paths, SHA-256
+values and blob IDs. Ten semantic refusal cases include three source-inventory
+corruptions after ZIP/member hashes are rebound.
 
 PR101 ordinarily protected-merged as `b525b81c3cbe69cd8325fcaa6843df64913a14c7`.
 All four required current-head jobs passed with exact test-merge checkout binding:

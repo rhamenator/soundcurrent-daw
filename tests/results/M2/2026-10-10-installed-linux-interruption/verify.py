@@ -3,9 +3,11 @@
 """Audit retained installed GUI evidence; execute no archived program or audio."""
 from pathlib import Path
 import hashlib
+from functools import lru_cache
 import io
 import json
 import struct
+import subprocess
 import sys
 import zipfile
 
@@ -14,6 +16,38 @@ sys.path.insert(0, str(ROOT.parent / '2026-10-10-native-restart-qualified'))
 from capture_safety import check_member
 
 sha = lambda b: hashlib.sha256(b).hexdigest()
+
+
+@lru_cache(maxsize=2)
+def reference_inputs(commit):
+    """Read trusted Git objects, independently of the captured input inventory."""
+    command = ['git', '-C', str(ROOT.parents[3])]
+    tree = subprocess.check_output(command + ['ls-tree', '-rz', '--full-tree', commit, '--',
+                                              'src', 'include', 'ui', 'tools/stretch_render_worker.cpp'])
+    rows = []
+    for entry in tree.split(b'\0'):
+        if not entry:
+            continue
+        metadata, name = entry.split(b'\t', 1)
+        mode, kind, oid = metadata.split()
+        assert kind == b'blob' and mode in (b'100644', b'100755')
+        rows.append((name.decode('utf-8'), oid.decode('ascii')))
+    assert len(rows) == 184 and len({name for name, _ in rows}) == 184
+    batch = subprocess.check_output(command + ['cat-file', '--batch'],
+                                    input=('\n'.join(oid for _, oid in rows) + '\n').encode())
+    position, result = 0, {}
+    for name, oid in rows:
+        end = batch.index(b'\n', position)
+        header_oid, kind, size = batch[position:end].split()
+        assert header_oid.decode() == oid and kind == b'blob'
+        position = end + 1
+        data = batch[position:position + int(size)]
+        position += int(size)
+        assert batch[position:position + 1] == b'\n'
+        position += 1
+        result[name] = {'sha256': sha(data), 'gitBlob': oid}
+    assert position == len(batch)
+    return result
 
 
 def verify(root=ROOT):
@@ -138,7 +172,9 @@ def verify(root=ROOT):
         assert b[w + image].startswith(b'\x89PNG\r\n\x1a\n')
     bindings = j(w + 'processing-input-binding.json')
     assert bindings['installedSource'] == s['installedSource'] and bindings['comparedTo'] == 'b525b81c3cbe69cd8325fcaa6843df64913a14c7'
-    assert {'ui/stretch_controller.cpp', 'ui/studio_window.cpp', 'tools/stretch_render_worker.cpp'} <= set(bindings['files'])
+    original_inputs = reference_inputs('5300010ab521917027501c831b550092e535c210')
+    comparison_inputs = reference_inputs('b525b81c3cbe69cd8325fcaa6843df64913a14c7')
+    assert bindings['files'] == original_inputs == comparison_inputs
     assert s['recoveryStatuses'] == ['Active', 'Incomplete'] and s['separateHelperDeath']
     assert (s['parentExitCode'], s['helperExitCode'], s['recoveryExitCode']) == (-9, -9, 0)
     for key in ['installedGuiPartialInterruptionQualified', 'savedProjectAndRawUnchanged', 'noAttachment']:
