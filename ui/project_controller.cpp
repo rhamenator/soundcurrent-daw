@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include <soundcurrent/warp.hpp>
 #include <soundcurrent/stretch_render_protocol.hpp>
 #include <QMutex>
 #include <QThread>
@@ -440,7 +441,13 @@ struct ProjectController::State : QThread {
                 throw ProjectError(ErrorCode::InvalidState,"Unbound or unadmitted stretch result");
             if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<ApplyClipStretch>(e);}))
                 throw ProjectError(ErrorCode::InvalidState,"Desktop stretch adoption requires a verified result");
-            OperationWork work(*this, stagingBytes());
+            PayloadCharge stretchStaging("Verified stretch candidate staging",SIZE_MAX);
+            stretchStaging.add(stagingBytes());
+            if(command.stretchResult){
+                const auto &edit=command.stretchResult->edit();stretchStaging.add(128*1024);
+                if(edit.value.warp)stretchStaging.add(warpPayloadBytes(*edit.value.warp),4);
+            }
+            OperationWork work(*this, stretchStaging.bytes());
             auto proposed = *model;
             std::vector<SessionEdit> verified;
             if(command.stretchResult)verified.push_back(command.stretchResult->edit());

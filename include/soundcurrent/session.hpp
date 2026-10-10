@@ -180,6 +180,22 @@ struct SourcePosition {
     std::uint64_t fraction = 0, denominator = 1;
     bool operator==(const SourcePosition &) const = default;
 };
+// Exact physical-frame offsets from the retained nominal raw origin.
+struct WarpAnchor {
+    Id id = Id::generate();
+    SourcePosition source, output;
+    bool operator==(const WarpAnchor &) const = default;
+};
+struct WarpProtection {
+    Frame before=256, after=2048, halo=64, minimumNonunityGap=64;
+    bool operator==(const WarpProtection &) const = default;
+};
+struct WarpSettings {
+    std::string mode="transient-protected-v1";
+    WarpProtection protection;
+    std::vector<WarpAnchor> markers;
+    bool operator==(const WarpSettings &) const = default;
+};
 struct ClipSourceTiming {
     // Exact source fraction; length/start/fade anchors use project frames.
     std::uint64_t fraction = 0, denominator = 1;
@@ -216,6 +232,7 @@ struct ClipStretchAnchor {
     // Presence opts into a separately versioned nominal visible-crop map,
     // including an explicitly selected zero-context region.
     std::optional<StretchContext> context;
+    std::optional<WarpSettings> warp;
     // The clip addresses derived audio; this anchor always addresses raw audio.
     // Split/crop/duplicate retain it and move only the derived source position.
     bool operator==(const ClipStretchAnchor &) const = default;

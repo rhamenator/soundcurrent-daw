@@ -5,6 +5,7 @@
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/positioned_resampling.hpp>
 #include "media_io.hpp"
+#include "warp_codec.hpp"
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <chrono>
@@ -23,7 +24,7 @@ void policy(const StretchRenderPolicy &p){
           p.maximumSourceBytes>0 && p.maximumSourceBytes<=INT64_MAX && p.deadlineMilliseconds>=100 && p.deadlineMilliseconds<=3600000,
           "Invalid trusted stretch policy");
 }
-Json key(const Asset &a,const ClipStretchAnchor &v){
+Json key(const Asset &a,const ClipStretchAnchor &v,ResourceLedger ledger){
     const auto geometry=stretchGeometry(v,a.frames);
     validateRelativeMediaPath(a.relativePath);
     check(v.sourceAssetId==a.id && digest(a.sha256) && v.sourceSha256==a.sha256 && a.sampleRate>=8000 && a.sampleRate<=384000 &&
@@ -45,15 +46,16 @@ Json key(const Asset &a,const ClipStretchAnchor &v){
         result["timeNumerator"]=v.settings.timeNumerator;result["timeDenominator"]=v.settings.timeDenominator;
         result["cropMap"]=stretchRegionMapId;
     }
+    if(v.warp){check(!v.sourceOrigin.fraction,"Protected renderer refuses fractional raw origin",ErrorCode::UnsupportedSchema);result["warp"]=warp_codec::encode(*v.warp,v.sourceFrames,target,ledger);}
     return result;
 }
-Json parse(std::string_view raw){
-    check(!raw.empty() && raw.size()<=stretchProtocolMaximum,"Stretch response exceeds admitted bank");
-    std::set<std::string> fields;
+Json parse(std::string_view raw,std::size_t maximum){
+    check(!raw.empty() && raw.size()<=maximum,"Stretch response exceeds admitted bank");
+    std::array<std::set<std::string>,9> fields;
     auto callback=[&](int depth,Json::parse_event_t event,Json &value){
-        check(depth<=1,"Nested stretch response");
-        if(event==Json::parse_event_t::key) check(fields.insert(value.get<std::string>()).second,"Duplicate stretch response field");
-        if(event==Json::parse_event_t::array_start || (event==Json::parse_event_t::object_start && depth!=0)) check(false,"Unexpected stretch response container");
+        check(depth>=0 && depth<8,"Stretch response nesting exceeds bound");
+        if(event==Json::parse_event_t::object_start)fields[std::size_t(depth+1)].clear();
+        if(event==Json::parse_event_t::key)check(fields[std::size_t(depth)].insert(value.get<std::string>()).second,"Duplicate stretch response field");
         return true;
     };
     try {auto j=Json::parse(raw.begin(),raw.end(),callback);check(j.is_object(),"Stretch response must be an object");return j;}
@@ -69,45 +71,50 @@ void exact(const Json &j,const Json &expected){
     for(const auto &[k,v]:expected.items()) {
         check(j.contains(k),"Missing stretch response field");const auto &actual=j.at(k);
         // JSON numbers compare across types; reject booleans/floats for integer contracts.
-        check((v.is_number_integer()?actual.is_number_integer():actual.type()==v.type()) && actual==v,"Stretch response differs from prepared identity");
+        check(warp_codec::exact(actual,v),"Stretch response differs from prepared identity");
     }
 }
 }
 OwnedStretchProtocol encodeStretchRenderKey(const Asset &a,const ClipStretchAnchor &v,ResourceLedger ledger){
-    auto work=ledger.reserve(codecBytes);auto grant=ledger.reserve(stretchProtocolMaximum*2);auto bytes=key(a,v).dump();
-    check(bytes.size()<=stretchProtocolMaximum,"Stretch key exceeds bank");return {std::move(grant),std::move(bytes)};
+    auto work=ledger.reserve(codecBytes);auto grant=ledger.reserve(stretchProtocolLimit(v)*2);auto bytes=key(a,v,ledger).dump();
+    check(bytes.size()<=stretchProtocolLimit(v),"Stretch key exceeds bank");return {std::move(grant),std::move(bytes)};
 }
 std::string stretchRenderKey(const Asset &a,const ClipStretchAnchor &v,ResourceLedger ledger){auto bytes=encodeStretchRenderKey(a,v,ledger);return hash(bytes.bytes());}
 OwnedStretchProtocol encodeStretchRenderRequest(const ClipStretchPlan &p,const Id &op,const StretchRenderPolicy &limits,ResourceLedger ledger){
-    auto work=ledger.reserve(codecBytes);auto grant=ledger.reserve(stretchProtocolMaximum*2);policy(limits);(void)key(p.source,p.anchor);
+    auto work=ledger.reserve(codecBytes);auto grant=ledger.reserve(stretchProtocolLimit(p.anchor)*2);policy(limits);(void)key(p.source,p.anchor,ledger);
     const auto geometry=stretchGeometry(p.anchor,p.source.frames);const auto frames=std::uint64_t(geometry.outputFrames);
     check(std::uint64_t(geometry.inputFrames)<=limits.maximumInputFrames && frames<=(limits.maximumOutputBytes-std::min<std::uint64_t>(limits.maximumOutputBytes,1048576))/(p.source.layout.channels*4ULL),"Stretch request exceeds frame/file grant",ErrorCode::ResourceLimit);
-    check(p.anchor.processor==stretchProcessorFor(p.anchor.settings,p.anchor.context),"Requested processor differs from selected render settings");
-    auto bytes=Json{{"protocol",stretchRenderProtocol},{"processor",p.anchor.processor},{"operation",op.str()},{"assetId",p.source.id.str()},{"relative",p.source.relativePath},
+    check(p.anchor.processor==stretchProcessorFor(p.anchor.settings,p.anchor.context,p.anchor.warp),"Requested processor differs from selected render settings");
+    auto request=Json{{"protocol",stretchProtocolFor(p.anchor)},{"processor",p.anchor.processor},{"operation",op.str()},{"assetId",p.source.id.str()},{"relative",p.source.relativePath},
         {"sha256",p.source.sha256},{"rate",p.source.sampleRate},{"channels",p.source.layout.channels},{"sourceFrames",p.source.frames},
         {"first",p.anchor.sourceOrigin.frame},{"firstFraction",p.anchor.sourceOrigin.fraction},{"firstDenominator",p.anchor.sourceOrigin.denominator},
         {"frames",p.anchor.sourceFrames},{"timeNumerator",p.anchor.settings.timeNumerator},{"timeDenominator",p.anchor.settings.timeDenominator},
         {"pitchMilliCents",p.anchor.settings.pitchMilliCents},{"formantPreserved",p.anchor.settings.formantPreserved},
         {"contextEnabled",bool(p.anchor.context)},{"contextBefore",p.anchor.context?p.anchor.context->before:0},
-        {"contextAfter",p.anchor.context?p.anchor.context->after:0}}.dump();
-    check(bytes.size()<=stretchProtocolMaximum,"Stretch request exceeds bank");return {std::move(grant),std::move(bytes)};
+        {"contextAfter",p.anchor.context?p.anchor.context->after:0}};
+    if(p.anchor.warp)request["warp"]=warp_codec::encode(*p.anchor.warp,p.anchor.sourceFrames,geometry.outputFrames,ledger);
+    auto bytes=request.dump();
+    check(bytes.size()<=stretchProtocolLimit(p.anchor),"Stretch request exceeds bank");return {std::move(grant),std::move(bytes)};
 }
 void verifyStretchRenderReady(std::string_view raw,const ClipStretchPlan &p,const Id &op,ResourceLedger ledger){
-    auto work=ledger.reserve(codecBytes);auto j=parse(raw);
-    exact(j,Json{{"protocol",stretchRenderProtocol},{"event","ready"},{"operation",op.str()},{"renderKey",stretchRenderKey(p.source,p.anchor,ledger)}});
+    auto work=ledger.reserve(codecBytes);auto j=parse(raw,stretchProtocolLimit(p.anchor));
+    exact(j,Json{{"protocol",stretchProtocolFor(p.anchor)},{"event","ready"},{"operation",op.str()},{"renderKey",stretchRenderKey(p.source,p.anchor,ledger)}});
 }
 VerifiedClipStretch verifyOwnedClipStretch(const std::filesystem::path &root,const ClipStretchPlan &p,const Id &op,const StretchRenderPolicy &limits,ResourceLedger ledger,std::stop_token stop){
-    auto work=ledger.reserve(codecBytes);auto grant=ledger.reserve(128*1024);policy(limits);
+    auto work=ledger.reserve(codecBytes);PayloadCharge retained("Verified stretch edit",SIZE_MAX);retained.add(128*1024);
+    if(p.anchor.warp)retained.add(warpPayloadBytes(*p.anchor.warp));
+    if(p.expectedClip.stretch && p.expectedClip.stretch->warp)retained.add(warpPayloadBytes(*p.expectedClip.stretch->warp));
+    auto grant=ledger.reserve(retained.bytes());policy(limits);
     auto deadline=std::chrono::steady_clock::now()+std::chrono::milliseconds(limits.deadlineMilliseconds);
     auto poll=[&]{check(!stop.stop_requested(),"Stretch verification canceled",ErrorCode::Canceled);check(std::chrono::steady_clock::now()<deadline,"Stretch verification deadline exceeded",ErrorCode::ResourceLimit);};poll();
     auto requestAdmission=encodeStretchRenderRequest(p,op,limits,ledger);
-    auto expected=key(p.source,p.anchor);const auto renderKey=stretchRenderKey(p.source,p.anchor,ledger);
+    auto expected=key(p.source,p.anchor,ledger);const auto renderKey=stretchRenderKey(p.source,p.anchor,ledger);
     ApprovedMediaRoot owned(root,ledger,{2});const auto relative="media/derived/"+op.str()+"/audio.wav";
-    auto marker=owned.open("media/derived/"+op.str()+"/complete.json",stretchProtocolMaximum,stop);
-    auto bank=ledger.reserve(stretchProtocolMaximum*2);std::string bytes(std::size_t(marker.size()),'\0');marker.readAt(0,bytes,stop);
-    auto j=parse(bytes);marker.verifyUnchanged();
+    auto marker=owned.open("media/derived/"+op.str()+"/complete.json",stretchProtocolLimit(p.anchor),stop);
+    auto bank=ledger.reserve(stretchProtocolLimit(p.anchor)*2);std::string bytes(std::size_t(marker.size()),'\0');marker.readAt(0,bytes,stop);
+    auto j=parse(bytes,stretchProtocolLimit(p.anchor));marker.verifyUnchanged();
     const std::array<const char *,9> extra{"writtenFrames","audioSha256","sampleSha256","peakLinear","memoryCeilingBytes","memoryMetric","payloadPeakBytes","deadlineMilliseconds","durabilityMinimum"};
-    expected["protocol"]=stretchRenderProtocol;expected["operation"]=op.str();expected["renderKey"]=renderKey;expected["complete"]=true;expected["assetId"]=p.source.id.str();expected["relative"]=p.source.relativePath;expected["sourceFrames"]=p.source.frames;
+    expected["protocol"]=stretchProtocolFor(p.anchor);expected["operation"]=op.str();expected["renderKey"]=renderKey;expected["complete"]=true;expected["assetId"]=p.source.id.str();expected["relative"]=p.source.relativePath;expected["sourceFrames"]=p.source.frames;
     auto shape=j;for(const auto *field:extra){check(shape.contains(field),"Missing stretch completion field");shape.erase(field);}exact(shape,expected);
     const auto target=std::uint64_t(stretchGeometry(p.anchor,p.source.frames).outputFrames);
     check(integer(j,"writtenFrames",1000000000)==target && integer(j,"memoryCeilingBytes",4096ULL*1024*1024)==limits.memoryBytes &&

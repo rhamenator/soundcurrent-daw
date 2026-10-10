@@ -7,6 +7,10 @@
 namespace soundcurrent::daw {
 inline constexpr std::string_view stretchRenderProtocol="sc-stretch-render-v4";
 inline constexpr std::size_t stretchProtocolMaximum=16384;
+inline constexpr std::string_view warpRenderProtocol="sc-stretch-render-v5";
+inline constexpr std::size_t warpProtocolMaximum=256*1024;
+inline std::string_view stretchProtocolFor(const ClipStretchAnchor &v){return v.warp?warpRenderProtocol:stretchRenderProtocol;}
+inline std::size_t stretchProtocolLimit(const ClipStretchAnchor &v){return v.warp?warpProtocolMaximum:stretchProtocolMaximum;}
 struct StretchRenderPolicy {
     std::uint64_t memoryBytes=256ULL*1024*1024;
     std::uint64_t maximumInputFrames=1000000000;

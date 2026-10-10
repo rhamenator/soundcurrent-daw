@@ -60,6 +60,13 @@ alignment and current-source installed qualification remain open.
 non-unity output depends on processing context. Local attack timing and grouped
 microphone phase remain explicit gates before warp-marker delivery.
 
+An [experimental protected-marker editor](docs/149-editable-protected-warp.md)
+now prepares verified derivatives with **audition before Apply**, Undo/Redo,
+save/reopen and shared playback/export. Audition uses an ephemeral project model
+and temporary output choices. Integer/spacing/pitch/context limits are explicit;
+sustained grouped-phase and broader quality, native and installed gates remain
+open. This is a source development workflow, not a newly qualified installer.
+
 Full pitch/stretch quality, foreign-property adoption and installed/native audio
 qualification remain open. [Installed Linux evidence](docs/138-installed-stretch-preview.md)
 covers its recorded earlier source. Short-span/transient quality, tempo/warp

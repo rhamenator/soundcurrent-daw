@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "project_controller.hpp"
+#include <soundcurrent/stretch_render_protocol.hpp>
 #include <soundcurrent/pipewire_filter.hpp>
 #include <soundcurrent/pipewire_playback.hpp>
 #include <soundcurrent/playback_bridge.hpp>
@@ -72,7 +73,7 @@ struct PlaybackSnapshot {
     std::uint64_t appliedEventRevision = 0, missingFrames = 0, droppedMeters = 0,
                   droppedReceipts = 0;
     double peak = 0;
-    bool supported = false, pending = false, closed = false;
+    bool supported = false, pending = false, closed = false, audition = false;
     std::optional<PlaybackCallbackFault> callbackFault;
     std::optional<NativeRenderTiming> nativeTiming;
 };
@@ -91,6 +92,8 @@ struct PlaybackCommand {
     std::vector<PipeWirePort> outputs;
     // Explicit static plan for project/submix; absent retains selected-track behavior.
     std::optional<MixPlan> plan;
+    // Verified owned derivative, applied only to an ephemeral off-GUI model.
+    std::shared_ptr<const VerifiedClipStretch> audition;
 };
 // Qt desktop worker. Prepare/Play use a16-command FIFO. Canonical full models
 // have one explicitly coalescing latest slot; gestures/history stay in ProjectController.

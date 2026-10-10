@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
+#include <soundcurrent/clip_timing.hpp>
 #include "stretch_dialog.hpp"
 #include "import_inspection_dialog.hpp"
 #include "localization.hpp"
@@ -728,12 +729,12 @@ bool StudioWindow::stretchCanApply() const {
         s->selection->project->root==m->root &&
         s->selection->project->session->id==m->session->id;
 }
-bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context) {
+bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp) {
     if(!stretchCanRender())return false;
     try {
         if(!stretch_.clearResult())return false;
         stretchMessage_.clear();
-        const auto admission=stretch_.render(controller_.snapshot(),track,clip,settings,context);
+        const auto admission=stretch_.render(controller_.snapshot(),track,clip,settings,context,warp);
         if(admission!=Admission::Accepted){stretchMessage_=tr("The render queue is unavailable. Please retry.");return false;}
         return true;
     } catch(const std::exception &error) {
@@ -741,6 +742,21 @@ bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSett
             .arg(QString::fromUtf8(error.what()));
         return false;
     }
+}
+bool StudioWindow::auditionClipStretch() {
+    const auto p=playback_.snapshot();
+    if(p->audition){
+        if(p->phase==PlaybackPhase::Ready){playSelected();return true;}
+        playback_.requestStop();return true;
+    }
+    if(!p->supported || !stretchCanApply())return false;
+    const auto m=controller_.snapshot();const auto rendered=stretch_.snapshot();
+    PlaybackCommand command;command.root=m->root;command.session=m->session;
+    command.modelRevision=m->modelRevision;command.audition=rendered->result;
+    if(playback_.submit(std::move(command))!=Admission::Accepted)return false;
+    playbackTrack_=rendered->selection->track;
+    stretchMessage_=tr("Audition prepared without a project edit. Choose playback outputs, then Play audition. Stop before Apply.");
+    return true;
 }
 bool StudioWindow::applyClipStretch() {
     if(!stretchCanApply())return false;
@@ -773,11 +789,22 @@ void StudioWindow::showClipStretch(const Id &track,const Id &clip) {
     const auto active=stretch_.snapshot();
     const bool owns=active->selection && active->selection->track==track && active->selection->clip==clip &&
         active->selection->project->projectEpoch==source->projectEpoch;
-    auto *dialog=new StretchDialog(owns?active->selection->settings:selected->stretch?selected->stretch->settings:StretchSettings{},this,
-        owns?active->selection->context:selected->stretch?selected->stretch->context:std::nullopt);
+    StretchDialog *dialog=nullptr;
+    try {dialog=new StretchDialog(owns?active->selection->settings:selected->stretch?selected->stretch->settings:StretchSettings{},this,
+        owns?active->selection->context:selected->stretch?selected->stretch->context:std::nullopt,
+        owns?active->selection->warp:selected->stretch?selected->stretch->warp:std::nullopt,controller_.resourceLedger());}
+    catch(const ProjectError &){stretchMessage_=tr("The marker editor needs more Project resources. Close unused previews and retry.");notice_->setText(stretchMessage_);return;}
     try {
-        const auto initial=prepareClipStretch(*source->session,track,clip,selected->stretch?selected->stretch->settings:StretchSettings{});
-        dialog->setContextBounds(initial.anchor.sourceOrigin.frame,initial.source.frames-initial.anchor.sourceOrigin.frame-initial.anchor.sourceFrames);
+        // Published model is already validated. Derive only this clip's bounds;
+        // full Session validation/copy and warp planning belong to the worker.
+        const auto assetId=selected->stretch?selected->stretch->sourceAssetId:selected->assetId;
+        const auto asset=std::find_if(source->session->assets.begin(),source->session->assets.end(),[&](const auto &a){return a.id==assetId;});
+        if(asset==source->session->assets.end())throw ProjectError(ErrorCode::InvalidState,"Missing raw stretch source");
+        const auto origin=selected->stretch?selected->stretch->sourceOrigin:clipSourceMap(*selected,asset->sampleRate,source->session->sampleRate).at(0);
+        const auto duration=SourceFrameMap(asset->sampleRate,source->session->sampleRate,Frame(0),selected->playbackRate).at(selected->lengthFrames);
+        const auto frames=selected->stretch?selected->stretch->sourceFrames:std::min(duration.frame+Frame(duration.fraction!=0),asset->frames-origin.frame);
+        dialog->setContextBounds(origin.frame,asset->frames-origin.frame-frames);
+        dialog->setWarpBounds(frames,!origin.fraction);
     } catch(const ProjectError &) {dialog->setContextBounds(0,0);}
     stretchDialog_=dialog;
     const auto epoch=source->projectEpoch;
@@ -788,14 +815,18 @@ void StudioWindow::showClipStretch(const Id &track,const Id &clip) {
             view.render->selection->clip==clip && view.render->selection->project->projectEpoch==epoch;
         view.canRender=sameProject && stretchCanRender();
         view.canApply=sameSelection && stretchCanApply();view.message=stretchMessage_;
+        const auto playback=playback_.snapshot();
+        view.audition=playback->audition;
+        view.auditionReady=playback->audition && playback->phase==PlaybackPhase::Ready;
+        view.canAudition=sameSelection && playback->supported && (view.canApply || playback->audition);
         if(!sameProject)view.message=tr("This dialog belongs to a previous project opening. Close it and select a clip in the current project.");
         else if(view.render->selection && !sameSelection)view.message=view.render->busy?
             tr("The current render belongs to a different clip. Finish or cancel that render before starting this one."):
             tr("A different clip has the retained render result. Rendering this clip replaces that pending preview; its owned files are retained.");
         return view;
     };
-    dialog->render=[this,track,clip,epoch](StretchSettings settings,std::optional<StretchContext> context){
-        return controller_.snapshot()->projectEpoch==epoch && requestClipStretch(track,clip,settings,context);
+    dialog->render=[this,track,clip,epoch](StretchSettings settings,std::optional<StretchContext> context,const std::optional<WarpSettings> &warp){
+        return controller_.snapshot()->projectEpoch==epoch && requestClipStretch(track,clip,settings,context,warp);
     };
     dialog->apply=[this,track,clip,epoch]{
         const auto current=stretch_.snapshot();
@@ -803,6 +834,8 @@ void StudioWindow::showClipStretch(const Id &track,const Id &clip) {
             current->selection->clip==clip && current->selection->project->projectEpoch==epoch &&
             applyClipStretch();
     };
+    dialog->audition=[this]{return auditionClipStretch();};
+    dialog->stopAudition=[this]{playback_.requestStop();};
     dialog->cancel=[this]{stretch_.requestCancel();};dialog->refresh();dialog->show();
 }
 std::shared_ptr<const ExportSnapshot> StudioWindow::exportSnapshot() const {
@@ -1254,6 +1287,9 @@ void StudioWindow::populateRoutes(const std::vector<QComboBox *> &combos,
     }
 }
 void StudioWindow::selectRoute(RouteTarget target, std::size_t channel, QComboBox *combo) {
+    // Audition output choices belong to the ephemeral playback generation.
+    if(target==RouteTarget::Output && playback_.snapshot()->audition)return;
+
     auto model = inspectorSnapshot();
     if (target == RouteTarget::Output && playback_.snapshot()->projectMix) {
         auto canonical = controller_.snapshot();
@@ -1464,6 +1500,7 @@ void StudioWindow::pollPlayback() {
             status += tr(" · Shared output routes: %1").arg(text(anchor->name));
     } else if (playbackTrack_ && selectedTrack() != playbackTrack_ && p->ports)
         status += tr(" · Another track is prepared. Stop or prepare the selected track.");
+    if(p->audition)status=tr("Audition — project unchanged. ")+status;
     playbackState_->setText(status);
     const auto peak = std::isfinite(p->peak) ? std::max(0.0, p->peak) : 0.0;
     meter_->setValue(int(std::lround(std::min(1.2, peak) * 1000)));

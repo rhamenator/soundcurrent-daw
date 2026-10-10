@@ -155,3 +155,6 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Exact normalized warp-map planner and multiple-anchor experiment](146-normalized-warp-map-planner.md) · [ADR105](decisions/105-normalized-warp-map-planner.md)
 
 - [Anchored alternative scheduler and measured acoustic limits](147-anchored-stretch-candidate.md) · [ADR106](decisions/106-transient-protected-warp-next.md)
+
+- [Original transient-protected experiment](148-transient-protected-warp.md) · [ADR107](decisions/107-protected-warp-integration-scope.md)
+- [Editable protected stretch and uncommitted audition](149-editable-protected-warp.md) · [ADR108](decisions/108-editable-protected-warp.md)

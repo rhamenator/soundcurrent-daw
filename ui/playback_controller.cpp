@@ -272,6 +272,7 @@ struct PlaybackController::State : QThread {
         std::vector<std::uint64_t>().swap(appliedByLane);
         receiptsLease = {};
         prepared.reset();
+        view.audition = false;
         acceptedModel.reset();
         view.ports.reset();
         view.peak = 0;
@@ -309,6 +310,11 @@ struct PlaybackController::State : QThread {
     void reconcile(bool admitReady = false) {
         if (!prepared || !desired || !endpoint)
             return;
+        if(view.audition){
+            if(desired->revision>prepared->modelRevision)
+                throw ProjectError(ErrorCode::InvalidState,"Project changed; prepare audition again");
+            return; // Canonical models cannot replace an uncommitted audible derivative.
+        }
         if (desired->revision < prepared->modelRevision)
             return;
         view.desiredRevision = desired->revision;
@@ -400,8 +406,27 @@ struct PlaybackController::State : QThread {
             return;
         if (view.generation == UINT64_MAX)
             throw ProjectError(ErrorCode::InvalidState, "Playback generation exhausted");
+        std::optional<Frame> auditionEnd;
+        if(c.audition){
+            if(!c.audition->ownedBy(options.projectMemory))throw ProjectError(ErrorCode::InvalidState,"Audition result belongs to another resource owner");
+            const auto &edit=c.audition->edit();
+            PayloadCharge charge("Ephemeral stretch audition",SIZE_MAX);
+            charge.add(sessionPayloadBytes(*c.session),3);charge.add(128*1024);
+            if(edit.value.warp)charge.add(warpPayloadBytes(*edit.value.warp),3);
+            auto reservation=options.projectMemory.reserve(charge.bytes());
+            Session ephemeral=*c.session;applySessionEdits(ephemeral,{edit});
+            const auto *track=trackForId(&ephemeral,edit.track);
+            if(!track)throw ProjectError(ErrorCode::InvalidState,"Audition track disappeared");
+            const auto clip=std::find_if(track->clips.begin(),track->clips.end(),[&](const auto &v){return v.id==edit.clip;});
+            if(clip==track->clips.end())throw ProjectError(ErrorCode::InvalidState,"Audition clip disappeared");
+            ephemeral.playheadFrame=clip->startFrame;auditionEnd=clip->startFrame+clip->lengthFrames;
+            for(auto &t:ephemeral.tracks)if(t.id==edit.track)for(auto &sibling:t.clips)if(sibling.id!=edit.clip)sibling.processing.muted=true;
+            SessionSnapshots snapshots(options.projectMemory,StateBudget{options.projectMemory.usage().limitBytes});c.session=snapshots.adopt(std::move(ephemeral),std::move(reservation));
+            c.session=sessionForTrack(c.session,edit.track,options.projectMemory);
+            c.plan.reset();
+        }
         PlaybackPreparation next{c.root, c.session, c.modelRevision, c.session->tracks.front().id,
-                                 {},     {},        bool(c.plan)};
+                                 {},     {},        bool(c.plan),{}};
         next.reader.resources = options.projectMemory;
         next.config.memoryBudgetBytes = options.projectMemory.usage().limitBytes;
         next.config.sampleRate = c.session->sampleRate;
@@ -411,13 +436,15 @@ struct PlaybackController::State : QThread {
         next.config.layout = next.plan.output;
         next.config.generation = view.generation + 1;
         next.config.startFrame = c.session->playheadFrame;
-        mixPayloadBytes(*c.session, next.plan,
-                        {next.config.maximumCallbackFrames, next.config.startFrame,
-                         next.config.generation, next.config.memoryBudgetBytes});
+        MixConfig admission;admission.maximumFrames=next.config.maximumCallbackFrames;
+        admission.startFrame=next.config.startFrame;admission.generation=next.config.generation;
+        admission.memoryBudgetBytes=next.config.memoryBudgetBytes;admission.resources=options.projectMemory;
+        mixPayloadBytes(*c.session,next.plan,admission);
         for (const auto &lane : next.plan.tracks)
             for (const auto &clip : findTrack(*c.session, lane.track)->clips)
                 next.config.endFrame =
                     std::max(next.config.endFrame, clip.startFrame + clip.lengthFrames);
+        if(auditionEnd)next.config.endFrame=*auditionEnd;
         if (next.config.endFrame <= next.config.startFrame)
             throw ProjectError(ErrorCode::InvalidState,
                                "Prepared track has no audio beyond the playhead");
@@ -435,6 +462,7 @@ struct PlaybackController::State : QThread {
             return;
         }
         prepared = std::move(next);
+        view.audition = bool(c.audition);
         acceptedModel = prepared->session;
         bundle.reset();
         eventRevision = 0;

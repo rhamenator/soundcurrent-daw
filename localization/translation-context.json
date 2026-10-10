@@ -13,5 +13,13 @@
   "Listening preset": "Saved equalizer settings for playback. Not a listening device.",
   "Lock EQ": "Prevent accidental editing of EQ controls; not encryption or a security lock.",
   "Undo": "Reverse the previous editable setting change.",
-  "Filter Q": "Dimensionless filter quality factor, not bandwidth in Hz. Processing parameter and stable identifier remain q."
+  "Filter Q": "Dimensionless filter quality factor, not bandwidth in Hz. Processing parameter and stable identifier remain q.",
+  "Source position": "Protected stretch marker offset in physical source-sample frames from the retained nominal raw origin; not an absolute project frame or a filename. Integer acoustic positions use ungrouped digits.",
+  "Target position": "Protected stretch marker offset in physical frames in the prepared derivative, independent of project sample rate or linked playback speed.",
+  "Marker": "A stable user stretch anchor. Its displayed UUID prefix is not translated. This is not a project navigation marker.",
+  "Prepare audition": "Prepare an ephemeral playback model for the verified derivative without modifying the project or playing automatically. Output channels are chosen before Play audition.",
+  "Play audition": "Play the verified pending derivative on the explicitly chosen outputs before committing Apply. Audition output choices do not change saved project routes.",
+  "Stop audition": "Retire the temporary playback endpoint; keep the pending verified result available for Apply. This does not cancel a render or undo an edit.",
+  "Experimental protected stretch markers": "Explicit transient-protected offline editing mode. Broader acoustic and sustained multichannel phase quality remain unqualified; preserve the experimental scope.",
+  "Verified protected marker plan: %n marker(s).": "Count of original user marker owners in the verified derivative plan. Numerus entry; retain %n and provide the language plural forms when reviewed."
 }
