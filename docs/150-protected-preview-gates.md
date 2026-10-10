@@ -72,7 +72,7 @@ and recovery remain the next gate before delivering this workflow in a preview.
 The final controls/resource fix built successfully with two low-priority workers.
 All six focused tests passed: constant/context Qt, protected-marker Qt, desktop
 localization, Linux payload provenance, Windows package inputs and the new
-protected receipt inputs. The new receipt test performs 116 provenance/positive/refusal
+protected receipt inputs. The new receipt test performs 118 provenance/positive/refusal
 checks; its retained platform observations are not freshly replayed audio. The
 Qt workflows execute the real helper with owned synthetic endpoints. The real
 Linguist audit records 34 catalogs, 829 source keys and 3,135 draft translations,

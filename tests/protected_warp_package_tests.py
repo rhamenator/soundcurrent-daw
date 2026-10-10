@@ -55,6 +55,7 @@ for path,platform in [('linux.json','linux'),('windows.json','win32')]:
   'scenario_source_pcm':lambda q:q['comparisons'][0].update(sourcePcmSha256='0'*64),
   'scenario_geometry':lambda q:q['comparisons'][0]['prototypeReport'].update(target=1),
   'scenario_source_file':lambda q:q['workers'][0]['request'].update(sha256='0'*64),
+  'refusal_ready_key':lambda q:q['workers'][22]['ready'].update(renderKey='0'*64),
   'refusal_stderr_missing':lambda q:q['workers'][-1].update(stderr=''),
   'refusal_generic_error':lambda q:q['workers'][22].update(stderr=q['workers'][21]['stderr']),
   'refusal_publication':lambda q:q['workers'][-1].update(stderr=json.dumps({**json.loads(q['workers'][-1]['stderr']),'publicationMayHaveCommitted':True})),

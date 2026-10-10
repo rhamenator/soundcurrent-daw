@@ -150,6 +150,9 @@ def qualify_protected_warp(q,head,tree,worker_sha256,platform):
         require(same(error,packet))
         cases=[name for name,invalid,code,ready in refusal_cases if same(body,invalid) and error['errorCode']==code and (child['ready'] is not None)==ready]
         require(len(cases)==1 and cases[0] not in seen_refusals);seen_refusals.add(cases[0])
+        if child['ready'] is not None:
+            identity={'processor':body['processor'],'sourceSha256':body['sha256'],'rate':body['rate'],'channels':body['channels'],'first':body['first'],'firstFraction':body['firstFraction'],'firstDenominator':body['firstDenominator'],'sourceAlgorithm':'soundcurrent.src-positioned-best-v1','frames':body['frames'],'target':49152,'pitchMilliCents':body['pitchMilliCents'],'formantPreserved':body['formantPreserved'],'channelPolicy':'discrete-apart','warp':body['warp']}
+            require(child['ready']['renderKey']==hashlib.sha256(json.dumps(identity,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode('utf-8')).hexdigest())
     require(len(seen_refusals)==12)
     requests={child['request']['operation']:child['request'] for child in q['workers']}
     comparisons=q.get('comparisons');require(type(comparisons) is list and len(comparisons)==18)
