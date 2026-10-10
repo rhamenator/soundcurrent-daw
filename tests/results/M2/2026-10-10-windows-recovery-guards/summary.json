@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-10T21:07:38.195844+00:00",
+  "sourceHead": "4fb8c1cdf1b1365e5834256f4b39b51566dbed52",
+  "sourceTree": "d1b6be0bd9114af21d73a5dd6ba8172b53510c44",
+  "installedSequence": "20261010183111",
+  "captureSha256": "4a9485d0f265a54754d12593d9eb0f536b48f1541fee9c368c2087eef4e8d48e",
+  "mainPids": [
+    8452,
+    9012,
+    2832,
+    2120
+  ],
+  "operation": "eee85921-5fd6-497f-88be-ecfd1a260bca",
+  "controlSideAuditionPrepareStopQualified": true,
+  "staleInvalidInstalledWindowsQualified": true,
+  "projectFixturesUnchanged": true,
+  "provenOriginalProjectUnchanged": true,
+  "newRenderRequested": false,
+  "nativeAuditionPacketPlaybackQualified": false,
+  "audiblePlaybackQualified": false,
+  "physicalAudioQualified": false,
+  "abruptParentTerminationQualified": false,
+  "powerLossQualified": false,
+  "scalableRecoveryQualified": false,
+  "fullQualityQualified": false,
+  "fullGoalComplete": false,
+  "installerUploaded": false,
+  "ratioOnlyAlteredManifestQualified": true,
+  "initialEncodingContaminatedFixturePreserved": true
+}

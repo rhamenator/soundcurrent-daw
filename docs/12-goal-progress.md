@@ -3906,3 +3906,24 @@ removed. Next: installed Windows stale/altered-selection guards and owned virtua
 Prepare/Stop audition, then abrupt death/interrupted output and larger recovery
 inventory qualification. These gates, broad M2 quality, M2–M11, X004/X005 and
 all-Europe qualification remain open. The full goal stays active and incomplete.
+
+## Installed Windows recovery guard checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: PR99 normally protected-merged through all
+four gates, with identical reviewed/tested/merged tree and all eight reviewed
+blobs. The next actual installed `4fb8c1c` acceptance now qualifies Ready
+Prepare/Stop and its Apply barrier, moved-target refusal, and a corrected
+ratio-only altered-manifest refusal. Four actual main handles exited normally
+with code 0. Proven original and all fixture file hashes stay unchanged.
+
+[Checkpoint159](159-windows-recovery-guards.md) preserves an initial PowerShell
+ANSI/UTF-8 fixture contamination and the separate corrected process; the retained
+verifier checks both without replacing original evidence. Preparation did not
+select an endpoint or request Play: native packet/audio/physical audition remains
+unqualified. No product input change, build, new render or release upload.
+
+All VMs are off; both receivers exited 0, owned CD ejected, temporary firewall
+rules removed. Next: actual-parent interruption probes and production recovery
+on Linux, then Windows, followed by resumable larger inventories. Broad M2 quality,
+power-loss/scalability, M2–M11, X004/X005, all-Europe, content and native compatibility
+remain open. Full scope and separate F/Q/C/N gates remain intact; goal stays active.
