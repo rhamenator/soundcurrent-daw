@@ -8,6 +8,14 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <aclapi.h>
+#include <cstring>
+#endif
 #ifdef SC_SELECTION_IO_WRAP
 #include <cerrno>
 #include <csignal>
@@ -55,6 +63,62 @@ template<class F>void ioRefusal(F f) {
     bool refused=false;try{f();}catch(const ProjectError &e){refused=true;check(e.code()==ErrorCode::Io,"Publication fault lost I/O classification");}
     check(refused,"Publication fault returned a success digest");
 }
+#ifdef _WIN32
+struct NativeHandle {
+    HANDLE value=nullptr;
+    ~NativeHandle(){if(value && value!=INVALID_HANDLE_VALUE)CloseHandle(value);}
+    NativeHandle()=default;
+    NativeHandle(const NativeHandle &)=delete;
+    NativeHandle &operator=(const NativeHandle &)=delete;
+};
+struct LocalBuffer {
+    void *value=nullptr;
+    ~LocalBuffer(){if(value)LocalFree(value);}
+    LocalBuffer()=default;
+    LocalBuffer(const LocalBuffer &)=delete;
+    LocalBuffer &operator=(const LocalBuffer &)=delete;
+};
+// Only the already-created, owned fixture directory is altered. Deny creation
+// to the current user without inheriting the deny into existing files. Capture
+// the original DACL before setting it, and restore before removing any fixture.
+class CreationDenial {
+  public:
+    explicit CreationDenial(const std::filesystem::path &directory):path(directory.wstring()) {
+        NativeHandle token;
+        check(OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&token.value)!=0,"Cannot query owned fixture user token");
+        DWORD bytes=0;
+        check(!GetTokenInformation(token.value,TokenUser,nullptr,0,&bytes) && GetLastError()==ERROR_INSUFFICIENT_BUFFER && bytes>0 && bytes<65536,"Invalid fixture token buffer bound");
+        std::vector<std::byte> user(bytes);
+        check(GetTokenInformation(token.value,TokenUser,user.data(),bytes,&bytes)!=0,"Cannot read fixture token user");
+        check(GetNamedSecurityInfoW(path.data(),SE_FILE_OBJECT,DACL_SECURITY_INFORMATION,nullptr,nullptr,&originalAcl,nullptr,reinterpret_cast<PSECURITY_DESCRIPTOR *>(&original.value))==ERROR_SUCCESS && originalAcl,"Cannot retain owned directory DACL");
+        EXPLICIT_ACCESS_W deny{};deny.grfAccessPermissions=FILE_ADD_FILE;deny.grfAccessMode=DENY_ACCESS;
+        deny.grfInheritance=NO_INHERITANCE;deny.Trustee.TrusteeForm=TRUSTEE_IS_SID;deny.Trustee.TrusteeType=TRUSTEE_IS_USER;
+        deny.Trustee.ptstrName=reinterpret_cast<LPWSTR>(reinterpret_cast<TOKEN_USER *>(user.data())->User.Sid);
+        check(SetEntriesInAclW(1,&deny,originalAcl,reinterpret_cast<PACL *>(&replacement.value))==ERROR_SUCCESS,"Cannot prepare owned creation denial");
+        check(SetNamedSecurityInfoW(path.data(),SE_FILE_OBJECT,DACL_SECURITY_INFORMATION,nullptr,nullptr,static_cast<PACL>(replacement.value),nullptr)==ERROR_SUCCESS,"Cannot set owned creation denial");
+        active=true;
+    }
+    ~CreationDenial(){if(active)restore();}
+    bool restore() noexcept {
+        if(!active)return true;
+        if(SetNamedSecurityInfoW(path.data(),SE_FILE_OBJECT,DACL_SECURITY_INFORMATION,nullptr,nullptr,originalAcl,nullptr)!=ERROR_SUCCESS)return false;
+        LocalBuffer restored;PACL acl=nullptr;
+        const auto status=GetNamedSecurityInfoW(path.data(),SE_FILE_OBJECT,DACL_SECURITY_INFORMATION,nullptr,nullptr,&acl,nullptr,reinterpret_cast<PSECURITY_DESCRIPTOR *>(&restored.value));
+        if(status!=ERROR_SUCCESS || !acl || acl->AclSize!=originalAcl->AclSize || std::memcmp(acl,originalAcl,acl->AclSize)!=0)return false;
+        active=false;return true;
+    }
+    CreationDenial(const CreationDenial &)=delete;
+    CreationDenial &operator=(const CreationDenial &)=delete;
+  private:
+    std::wstring path;
+    LocalBuffer original,replacement;
+    PACL originalAcl=nullptr;
+    bool active=false;
+};
+DWORD processHandles() {
+    DWORD n=0;check(GetProcessHandleCount(GetCurrentProcess(),&n)!=0,"Cannot count native publication handles");return n;
+}
+#endif
 #ifdef SC_SELECTION_IO_WRAP
 enum class Fault {None,ShortWrites,DiskFull,ZeroWrite,FileFlush,Link,Unlink,DirectoryFlush,CancelAfterFileFlush,KillAfterWrite,KillAfterFileFlush,KillAfterLink,KillAfterUnlink};
 Fault fault=Fault::None;
@@ -139,6 +203,49 @@ int main() {
         };
         ioRefusal([&]{persistStretchSelection(base,s,plan,retained,policy,memory,limits);});
         check(files(directory)==pristine,"Duplicate refusal retained a temporary file");unchanged();
+#ifdef _WIN32
+        const auto coldHandles=processHandles();
+        {CreationDenial warm(directory);check(warm.restore(),"Cannot restore native security API warm-up");}
+        const auto nativeHandles=processHandles();
+        std::cout<<"Native Windows security API handle warm-up: "<<coldHandles<<" -> "<<nativeHandles<<'\n';
+        {
+            const auto op=Id::generate();CreationDenial denial(directory);
+            // Confirm the OS refuses FILE_ADD_FILE, then run the actual parent
+            // API under the same denial. Existing writer.lock remains readable.
+            const auto probe=directory/"owned-denial-probe.partial";
+            NativeHandle denied;denied.value=CreateFileW(probe.c_str(),GENERIC_WRITE,0,nullptr,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,nullptr);
+            const auto nativeError=GetLastError();
+            check(denied.value==INVALID_HANDLE_VALUE && nativeError==ERROR_ACCESS_DENIED,"Owned creation denial did not cause real access refusal");
+            ioRefusal([&]{persistStretchSelection(base,s,plan,op,policy,memory,limits);});
+            check(files(directory)==pristine,"Denied parent publication altered leaves or retained temporary data");
+            unchanged();check(denial.restore(),"Cannot restore owned publication directory DACL");
+            const auto successful=persistStretchSelection(base,s,plan,op,policy,memory,limits);
+            check(successful==hashMediaFile(directory/(op.str()+".json")),"Restored permissions did not permit correct parent publication");
+            {const auto entry=inspectStretchSelection(base,s,op,memory,limits);check(entry.status==StretchRecoveryStatus::Incomplete && !entry.verified,"Unrendered Windows selection became verified");}
+            std::filesystem::remove(directory/(op.str()+".json"));unchanged();
+            std::cout<<"Native Windows parent creation denied with ERROR_ACCESS_DENIED; original DACL restored and retry verified\n";
+        }
+        {
+            // Test the actual native no-overwrite primitive used by the parent.
+            // A read handle that omits FILE_SHARE_DELETE prevents rename; this
+            // is a primitive sharing-error test, not a parent timing hook.
+            const auto temp=directory/("selection-"+Id::generate().str()+".partial");
+            const auto final=directory/(Id::generate().str()+".native-fixture");
+            const std::string payload="owned Windows sharing publication fixture";
+            {media_io::File out(temp,true);out.write(payload);out.flush();out.close();}
+            {
+                NativeHandle hold;hold.value=CreateFileW(temp.c_str(),GENERIC_READ,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
+                check(hold.value!=INVALID_HANDLE_VALUE,"Cannot hold owned publication source without delete sharing");
+                ioRefusal([&]{media_io::publishMedia(temp,final);});
+                check(!std::filesystem::exists(final) && read(temp)==payload,"Native sharing refusal changed source or published final file");
+            }
+            media_io::publishMedia(temp,final);
+            check(!std::filesystem::exists(temp) && read(final)==payload,"Native publication retry after handle release failed");
+            std::filesystem::remove(final);unchanged();
+            std::cout<<"Native Windows no-overwrite primitive refused while source handle denied delete sharing; release/retry preserved payload\n";
+        }
+        check(processHandles()==nativeHandles,"Windows publication leaked native process handles");
+#endif
 #ifdef SC_SELECTION_IO_WRAP
         ownedDirectory=directory.string();
         for(const auto f:{Fault::DiskFull,Fault::ZeroWrite,Fault::FileFlush,Fault::Link,Fault::Unlink,Fault::DirectoryFlush}) {
@@ -220,7 +327,11 @@ int main() {
         }
 #endif
         std::filesystem::remove_all(base);
+#ifdef _WIN32
+        std::cout<<"PASS: "<<checks<<" owned selection publication checks; windows_access_denied_parent=true; windows_sharing_primitive=true; native audio=false; Windows-process-interruption/full-disk/power-loss qualification=false\n";
+#else
         std::cout<<"PASS: "<<checks<<" owned selection publication checks; native audio=false; full-disk/power-loss/Windows-fault qualification=false\n";
+#endif
         return 0;
     }catch(const std::exception &e) {
         std::cerr<<"Publication test failed after "<<checks<<" checks: "<<e.what()<<'\n';std::error_code ec;std::filesystem::remove_all(base,ec);return 1;
