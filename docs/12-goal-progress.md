@@ -3972,3 +3972,24 @@ originals/template/equalizers/host routes untouched; no receiver/firewall/produc
 upload. Next: installed GUI interruption both platforms, then bounded resumable
 inventories. Broad M2 quality, power-loss/scalability, M2–M11, X004/X005, all-Europe
 and separate F/Q/C/N requirements remain open; full goal active and incomplete.
+
+## Installed Linux GUI interruption checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: native Windows production-controller
+interruption and preserved operator failures, source/evidence backup and PR101.
+PR101 now ordinarily protected-merged as `b525b81`: four required jobs pass on
+verified exact test merge/tree; all18 reviewed blobs match merged tree.
+
+[Checkpoint162](162-installed-linux-interruption.md) qualifies actual installed
+source5300010 GUI interruption in a disposable SDK-free Ubuntu overlay. Source
+GUI dies after helper writes4120 bytes; fresh GUI shows Active and blocks selected
+Review. Separate helper death produces Incomplete and preserves partial bytes.
+Actual exits are parent-9, helper-9, fresh GUI0, services0 and container0. Project/
+raw unchanged; original four virtual nodes retained. Manual screenshot evidence
+and independent file/process assertions remain distinct. Two pre-GUI runtime
+setup failures retain their original logs and actual exit receipts.
+
+No VM, physical device, host package/route change or product upload. Next: actual
+installed Windows GUI interruption/recovery, then bounded resumable inventories.
+Broader boundaries, M2 quality, power-loss/scalability, M2–M11/X004/X005,
+all-Europe and separate F/Q/C/N goals remain open; full goal stays active.
