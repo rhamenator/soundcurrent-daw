@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/rich/dev/soundcurrent-daw/tests/stretch_worker_tests.py", line 97, in <module>
+    result,reports=run(initial);check(result.returncode==0,'Actual stretch failed: '+diagnostic(result))
+                                ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rich/dev/soundcurrent-daw/tests/stretch_worker_tests.py", line 32, in check
+    if not value:raise AssertionError(message)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Actual stretch failed: {"pid": 2831504, "exitCode": 1, "exitCodeHex": "00000001", "seconds": 0.015709073981270194, "observationTimedOut": false, "outputLimited": false, "inputError": null, "stdout": "", "stderr": "{\"complete\":false,\"errorCode\":3,\"messageId\":\"stretch.render_failed\",\"protocol\":\"sc-stretch-render-v3\",\"publicationMayHaveCommitted\":false}\n"}

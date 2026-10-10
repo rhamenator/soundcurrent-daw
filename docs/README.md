@@ -162,3 +162,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Protected preview receipts and current inputs](150-protected-preview-gates.md) · [ADR109](decisions/109-protected-preview-gates.md)
 
 - [Installed protected stretch preview observations](151-installed-protected-preview.md)
+- [Bounded render-worker acceptance observation](152-bounded-worker-observation.md)

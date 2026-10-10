@@ -1,0 +1,71 @@
+{
+  "format": "sc-windows-bounded-observation-v1",
+  "scope": "Retained exact 8b46 native development-SDK observations; not installed, not audio, not current-head qualification. v5 remains incomplete.",
+  "sourceCommit": "8b46e8975e832edc3fc8c19b1c62d3edf96277e2",
+  "sourceTree": "fe3197c30e20c30493f03eb9ba9720a12f7de2e2",
+  "nativeV4Completed": true,
+  "nativeDesktopOpenCloseCompleted": true,
+  "nativeV5Completed": false,
+  "installedPreviewQualified": false,
+  "causeResolved": false,
+  "physicalAudio": false,
+  "fullQualityQualified": false,
+  "members": {
+    "before.json": {
+      "bytes": 1621,
+      "sha256": "624adf863e7df2c3da11ae29862100a24013229bc5b31a0b6643912103010203"
+    },
+    "complete.json": {
+      "bytes": 1047,
+      "sha256": "80d84d3b536ee3e97b81128d71cf62c1efd4eebe1461913868950faf98afeefc"
+    },
+    "intent.json": {
+      "bytes": 598,
+      "sha256": "0a0a4c3ff2d08a8eced7f2015070eb00af10b3bbab31ec5f6dfd2782da86ecd4"
+    },
+    "linux-observation-tests.log": {
+      "bytes": 488,
+      "sha256": "c5a4f3d38dea6d1c9bb5d6ba73eeca968265392d1df473b4069c0ca97e5c720f"
+    },
+    "linux-stale-worker-refusal.log": {
+      "bytes": 909,
+      "sha256": "f925e3d90f026feb2a55ce2f8e7365f43734302fe700b472c4ecc8328748b92e"
+    },
+    "main-open-close.json": {
+      "bytes": 506,
+      "sha256": "dbcc8bf79606bc3edee4c59e07399c2595c8490a6b2efbe1899a0fe3883ac5a6"
+    },
+    "native-v4.log": {
+      "bytes": 1001,
+      "sha256": "2537dea735f08ab0aa7cc96275248a64ab678f5d95f6aef1e8c3e3434875ca6e"
+    },
+    "native-v5-failed.log": {
+      "bytes": 2839,
+      "sha256": "791bd635d7f9065285fb3d016afadee375fe274983102694c7ac0ff75a326457"
+    },
+    "raw-tone.wav": {
+      "bytes": 96044,
+      "sha256": "eefb791625aca8c542e400137e55be76744044f9bf376aa9a7e02cd26f8c194c"
+    },
+    "rendered-tone.wav": {
+      "bytes": 144104,
+      "sha256": "45ddab38350a2367152a404074a1811a470e0a6457e568f927f82c10f5b920f2"
+    },
+    "terminal.json": {
+      "bytes": 2453,
+      "sha256": "a44af30db80a97686aef1704ce45d69cc028b55b9d37777c93dbf6685d24c6c0"
+    },
+    "v4-qualification.json": {
+      "bytes": 1213,
+      "sha256": "091c78de0c59427cf0bc2c12e99dacceb9723fdd247a3f731c47e0fb2548d9c2"
+    },
+    "worker.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker.stdout": {
+      "bytes": 1232,
+      "sha256": "47848b046dffe732f8b71361ccdfc83b2cfdc573dfa67cddf7b228aa300144b9"
+    }
+  }
+}

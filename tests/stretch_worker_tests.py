@@ -3,6 +3,7 @@
 """Actual isolated stretch worker, owned WAVs and independent RF64/sample checks."""
 from pathlib import Path
 import argparse,hashlib,json,math,os,re,struct,subprocess,sys,tempfile,uuid,time
+from worker_observation import observe, diagnostic
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('worker',type=Path)
 parser.add_argument('verifier',type=Path)
@@ -71,22 +72,30 @@ with tempfile.TemporaryDirectory(prefix='sc-stretch-owned-') as temporary:
         return [str(worker),'--project-root',str(root),'--jobs-root',str(jobs),'--memory-mib',str(memory),'--maximum-input-frames',str(maximum),'--maximum-output-bytes',str(bytes_limit),'--deadline-ms',str(deadline)]
     def run(request,**limits):
         raw=request if isinstance(request,str) else json.dumps(request)
-        process=subprocess.Popen(command(**limits),stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-        process.stdin.write(raw);process.stdin.close()
-        first=process.stdout.readline();reports=[json.loads(first)] if first else []
-        if reports and reports[0].get('event')=='ready':
-            (jobs/reports[0]['operation']/'start.request').write_text('start\n')
-        output=process.stdout.read();error=process.stderr.read();process.wait(timeout=15)
-        reports.extend(json.loads(line) for line in output.splitlines())
-        completed=subprocess.CompletedProcess(command(**limits),process.returncode,first+output,error)
-        completed.pid=process.pid
+        acknowledged=False
+        def ready(line):
+            nonlocal acknowledged
+            try: packet=json.loads(line)
+            except json.JSONDecodeError:return
+            if packet.get('event')=='ready' and not acknowledged:
+                expected=json.loads(raw)['operation']
+                if packet.get('operation')!=expected:raise AssertionError('Ready operation differs from owned request')
+                (jobs/expected/'start.request').write_text('start\n');acknowledged=True
+        completed=observe(command(**limits),raw,ready,
+                          timeout=max(15,limits.get('deadline',10000)/1000+5))
+        if completed.observation_timed_out or completed.output_limited or completed.retirement_pending:
+            raise AssertionError('Owned worker observation failed: '+diagnostic(completed))
+        try:reports=[json.loads(line) for line in completed.stdout.splitlines()]
+        except json.JSONDecodeError as error:
+            raise AssertionError('Invalid owned worker output: '+diagnostic(completed)) from error
+        if completed.returncode!=0:print('Owned v4 request '+raw+' outcome '+diagnostic(completed),flush=True)
         return completed,reports
     def fresh(**changes):
         value=dict(initial,operation=str(uuid.uuid4()));value.update(changes)
         unity=value['timeNumerator']==value['timeDenominator'] and value['pitchMilliCents']==0
         value['processor']=('soundcurrent.stretch-positioned-copy-region-v1' if unity else 'soundcurrent.stretch-rubberband4-r3-region-v1') if value['contextEnabled'] else ('soundcurrent.stretch-positioned-copy-v1' if unity else 'soundcurrent.stretch-rubberband4-r3-positioned-v2')
         return value
-    result,reports=run(initial);check(result.returncode==0,'Actual stretch failed: '+result.stderr)
+    result,reports=run(initial);check(result.returncode==0,'Actual stretch failed: '+diagnostic(result))
     receipt=reports[-1];job=jobs/initial['operation'];check(receipt['complete'] and receipt['writtenFrames']==18000,'Exact independent duration failed')
     check(json.loads((job/'complete.json').read_text())==receipt,'Published completion receipt differs')
     channels,rate,data=read_rf64(job/'audio.wav');check(channels==2 and rate==48000 and len(data)==18000*2*4,'RF64 actual geometry differs')

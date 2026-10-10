@@ -105,6 +105,7 @@ jobs:
         run: |
           python3 tests/results/M2/2026-10-10-installed-protected-preview/verify.py
           python3 tests/results/M2/2026-10-10-installed-protected-preview/refusals.py
+          python3 tests/results/M2/2026-10-10-windows-bounded-observation/verify.py
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -162,7 +163,7 @@ jobs:
           set "PATH=%CD%\native-dependencies\sndfile-build;%PATH%"
           set "SC_STRETCH_WORKER_QUALIFICATION=%CD%\build-native\stretch-worker-qualification.json"
           set "SC_PROTECTED_WARP_QUALIFICATION=%CD%\build-native\protected-warp-integration-qualification.json"
-          ctest --test-dir build-native -R "^(experimental-protected-warp-geometry|experimental-protected-warp-rendering|experimental-warp-map-geometry|editable-stretch-state|stretch-timing-oracle|stretch-region-geometry|stretch-source-integrity|stretch-worker-workflows|protected-warp-worker-workflows|protected-warp-package-inputs|clip-playback-rate|playback-rate-timing-oracle|positioned-resampling-kernel|positioned-resampling-workflow|fractional-timing-oracle|prepared-resampling|prepared-timing-oracle|resampler-source-integrity|clip-processing|multitrack-edits|project-import-state|session-state|project-routing|project-monitoring|media-provenance-transaction|verified-media-staging|verified-media-stage-worker|approved-wave-content|approved-wave-probe|approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
+          ctest --test-dir build-native -R "^(experimental-protected-warp-geometry|experimental-protected-warp-rendering|experimental-warp-map-geometry|editable-stretch-state|stretch-timing-oracle|stretch-region-geometry|stretch-source-integrity|stretch-worker-workflows|worker-observation-failures|protected-warp-worker-workflows|protected-warp-package-inputs|clip-playback-rate|playback-rate-timing-oracle|positioned-resampling-kernel|positioned-resampling-workflow|fractional-timing-oracle|prepared-resampling|prepared-timing-oracle|resampler-source-integrity|clip-processing|multitrack-edits|project-import-state|session-state|project-routing|project-monitoring|media-provenance-transaction|verified-media-staging|verified-media-stage-worker|approved-wave-content|approved-wave-probe|approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
           if errorlevel 1 exit /b 1
       - name: Retain native unit log
         if: always()

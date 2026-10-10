@@ -1,0 +1,11 @@
+Test project /home/rich/dev/soundcurrent-daw/.cache/build-stretch-region
+    Start 7: stretch-worker-workflows
+1/3 Test #7: stretch-worker-workflows ..........   Passed   13.92 sec
+    Start 8: worker-observation-failures
+2/3 Test #8: worker-observation-failures .......   Passed    4.59 sec
+    Start 9: protected-warp-worker-workflows
+3/3 Test #9: protected-warp-worker-workflows ...   Passed   21.53 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =  40.04 sec
