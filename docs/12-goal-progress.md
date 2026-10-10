@@ -3947,3 +3947,28 @@ Next: native Windows actual-parent interruption, then installed GUI interruption
 on both platforms and bounded resumable inventories. These, broad M2 quality,
 power-loss/scalability, M2–M11, X004/X005, all-Europe and separate F/Q/C/N gates
 remain open. Product uploads remain unauthorized; full goal active and incomplete.
+
+## Native Windows parent interruption checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: four Linux controller interruption cases,
+retained-file/CTest evidence and source backup; PR100 runtime-snapshot link fix.
+PR100 now ordinarily protected-merged as `673e9e5`: all four current-head CI jobs,
+exact test merge/tree and eight reviewed blobs verified, review resolved, no bypass.
+
+[Checkpoint161](161-windows-parent-interruption.md) adds Windows native process-
+handle supervision, owned debugger-style thread pauses and platform CTest/CI
+registration. Native MSVC/Qt probe build passed31.56s; final four-case acceptance
+passed13.04s. Source613-input before/after audits passed. Exact compilation46a6d3f
+and executed driver8fc9db6 stay separate; only Python changed between them.
+
+Original exclusive-lock and published-marker read refusals remain retained.
+Windows orphan completion exited0; Linux's earlier SIGPIPE witness is not
+relabeled. Final source/raw/project hashes stay unchanged, partial bytes retained,
+Ready review explicit, no auto-attach/new render. Successful marker reads needed
+zero retries; cause/retry-branch runtime qualification remains unproved.
+
+All VMs are off and owned probe/helper instances terminal. Installed preview,
+originals/template/equalizers/host routes untouched; no receiver/firewall/product
+upload. Next: installed GUI interruption both platforms, then bounded resumable
+inventories. Broad M2 quality, power-loss/scalability, M2–M11, X004/X005, all-Europe
+and separate F/Q/C/N requirements remain open; full goal active and incomplete.

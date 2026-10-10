@@ -1,0 +1,31 @@
+{
+  "format": "sc-windows-parent-interruption-evidence-v1",
+  "platform": "Windows native MSVC/Qt Core development clone",
+  "compiledSourceCommit": "46a6d3f8f754e08785f2b841a6d18c1379bc0f5e",
+  "compiledSourceTree": "3014b5afc78b93854d0f99872faf0f520a8de40b",
+  "executedDriverCommit": "8fc9db65a0aa69d3220fdff8583e26d2fa5fe846",
+  "executedDriverTree": "3d2c39bc2eb8b3d1df93c9441a781714fbf6ade5",
+  "compiledInputsChanged": false,
+  "changedScriptInputs": [
+    "tests/stretch_parent_interruption_windows.py"
+  ],
+  "nativeSourceInputs": 613,
+  "probeSourceSha256": "7d115396a7fb8f476ecfd175c25a50de32033d240798358f9affc6a1f691c35f",
+  "driverSourceSha256": "bdc4adbf8ba872b5187f3440d500d9601a35418638dc142df388c392cb18a721",
+  "captureSha256": "1b6066442c5150ea84ad048cd0fe2c7413daa671eeb85c405878ce0c26a054e4",
+  "cases": 4,
+  "actualWindowsParentInterruptionQualified": true,
+  "incompletePartialPreserved": true,
+  "savedProjectAndRawUnchanged": true,
+  "noAutomaticAttachment": true,
+  "initialLockRefusalPreserved": true,
+  "initialPublicationRefusalPreserved": true,
+  "publicationRetryObservedInSuccessfulRun": false,
+  "installedGuiQualified": false,
+  "audioEndpointActivated": false,
+  "rubberBandQualityQualified": false,
+  "powerLossQualified": false,
+  "largeInventoryQualified": false,
+  "fullGoalComplete": false,
+  "productUploaded": false
+}
