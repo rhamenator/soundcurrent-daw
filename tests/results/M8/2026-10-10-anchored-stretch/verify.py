@@ -37,6 +37,8 @@ with zipfile.ZipFile(archive) as z:
   check(hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==file['gitBlob'],'Primary git blob identity')
  for file in get('candidate-source/include-layout.json')['exactTrackedIncludeFiles']:
   data=z.read('candidate-source/linear/'+file['path']);check(sha(data)==file['sha256'] and data.decode()==file['text'],'Exact include wrapper')
+ expectedRequests=[{'family':family,'profile':profile,'block':block} for family in ['impulse','attack','sustain','cancellation'] for profile in ['identity','uniform','nonuniform'] for block in [97,512]]
+ check([r['request'] for r in records]==expectedRequests and [r['id'] for r in records]==list(range(24)),'Complete frozen matrix')
  waves={};pcm={}
  for r in records:
   check(r['pid']>0 and r['exitCode']==0 and not r['timeout'] and r['seconds']<10 and r['stderr']=='','Terminal child outcome')
@@ -44,9 +46,15 @@ with zipfile.ZipFile(archive) as z:
   check(report['frames']==32768 and report['target']==report['writtenFrames'] and report['generatedFrames']==report['target']+report['outputLatency'] and report['trimmedLeadingFrames']==report['outputLatency']==2880 and report['zeroFinalLookaheadFrames']==report['inputLatency']==2880,'Explicit latency/edge extent')
   check(report['seed']==20261010 and report['blockFrames']==5760 and report['intervalFrames']==1440,'Processor configuration')
   for key in ['nativeAudio','shippingAdopted','fullQualityQualified']:check(report[key] is False,'Renderer scope')
-  points=[(F(v['output']),F(v['source'])) for v in report['points']];cursor=2880;at=0;ends=[]
+  profile=r['request']['profile'];expectedTarget=contract['profiles'][profile]
+  targetEvents=contract['events'] if profile=='identity' else ([v*3//2 for v in contract['events']] if profile=='uniform' else contract['nonuniformTargets'])
+  expectedPoints=[{'source':0,'output':0,'id':None}]+[{'source':source,'output':output,'id':f'00000000-0000-0000-0000-00000000000{i+1}'} for i,(source,output) in enumerate(zip(contract['events'],targetEvents))]+[{'source':32768,'output':expectedTarget,'id':None}]
+  check(report['target']==expectedTarget and report['channels']==(2 if r['request']['family']=='impulse' else 8) and report['points']==expectedPoints,'Independent frozen markers/domains/identities')
+  points=[(F(v['output']),F(v['source'])) for v in expectedPoints];cursor=2880;at=0;ends=[]
   for step in report['schedule']:
    end=step['outputEnd'];exact=mapping(points,F(end));nextCursor=exact.numerator//exact.denominator+2880
+   expectedEnd=min(expectedTarget,at+r['request']['block'],next(p['output'] for p in expectedPoints if p['output']>at))
+   check(end==expectedEnd,'Canonical chunk/anchor boundary')
    check(step['outputBegin']==at and 0<end-at<=r['request']['block'] and step['inputCursor']==cursor and step['nextInputCursor']==nextCursor and 0<=nextCursor-cursor<=512,'Bounded continuous exact scheduler')
    check(step['inverseEnd']==[exact.numerator//exact.denominator,exact.numerator%exact.denominator,exact.denominator],'Exact inverse and retained residual')
    at=end;cursor=nextCursor;ends.append(end)

@@ -92,7 +92,7 @@ finite output and impulse timing alone do not promote P008/P011 or Q-STRETCH.
 complete PCM/source/outcome/contract observations, candidate notices and earlier
 setup/admission failures. The original archive exceeds32MiB; the explicit64MiB
 storage allowance retains110 members /36,864,850 bytes without altering signal,
-processing or quality criteria. Standard-library inspection passes14,274 checks,
+processing or quality criteria. Standard-library inspection passes20,759 checks,
 including independent rational scheduling, exact latency slice, cancellation and
 partition samples. It does not rerun NumPy phase/onset measurement or DSP.
 
