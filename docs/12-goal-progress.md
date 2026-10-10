@@ -3993,3 +3993,35 @@ No VM, physical device, host package/route change or product upload. Next: actua
 installed Windows GUI interruption/recovery, then bounded resumable inventories.
 Broader boundaries, M2 quality, power-loss/scalability, M2–M11/X004/X005,
 all-Europe and separate F/Q/C/N goals remain open; full goal stays active.
+
+## Installed Windows GUI interruption checkpoint (2026-10-10)
+
+Previous goal turn was **progress**: installed Linux interruption/recovery, retained
+files, ordinary PR101 merge and PR102 source backup. PR102 review now identified
+an incomplete processing-input audit; it was fixed to compare all184 paths/digests/
+blobs against both Git commits, with three additional semantic refusal cases.
+Original-head green checks remain separate from corrected-head admission.
+
+[Checkpoint163](163-installed-windows-interruption.md) qualifies one actual
+installed Windows partial-render interruption. Original source4fb8c1c preview stays
+unchanged. Source3012/helper8304 have exact native handle/creation/image binding;
+parent death leaves a live writer unavailable for review in fresh GUI6448.
+Separate helper death changes the recovery row to Incomplete and keeps Review
+IsEnabled=false. Partial4120 bytes/hash, project/raw and prior proven fixture
+stay unchanged. Fresh GUI normal exit0; all owned handles terminal/thread joined.
+List focus/Home actions are recorded; separate IsSelected properties are not.
+
+Three operator failures remain in original archives with actual cleanup. The
+successful parsed command demonstrates a valid mixed-separator root that the old
+substring guard rejects; original missing-control/CIM predicate causes are not
+silently asserted. Shared partial-file reads succeeded after stock hashing refused.
+Independent archive/file/control/process audits and twelve semantic refusals pass.
+PR103 review corrections bind the full installed64-file payload to the original
+package receipt and enforce the successful event order/increasing UTC times.
+Native archives and original package/source identities remain unchanged.
+
+All VMs are off; receiver exited0, owned CDs ejected/removed and temporary rule
+removed. No driver/host route/equalizer change, product rebuild or upload.
+Next: bounded resumable recovery inventories. Additional boundaries/selection
+properties, M2 quality, power-loss/scalability, M2–M11/X004/X005/all-Europe and
+separate F/Q/C/N goals remain open; full goal stays active and incomplete.
