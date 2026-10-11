@@ -1,0 +1,54 @@
+{
+  "build-inputs.json": {
+    "bytes": 54019,
+    "sha256": "f65f6db84f9aac0e94ce944851ad88bea987315aabb2273870e9404b58d78f3c"
+  },
+  "configure.txt": {
+    "bytes": 638,
+    "sha256": "983d29ecb8f72b49e4aef71c70400ea1093a273a8771e20e07904fffe8c5eeed"
+  },
+  "build.txt": {
+    "bytes": 22,
+    "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+  },
+  "loop-stdout.json": {
+    "bytes": 1015,
+    "sha256": "0cf9eff848c32d3419af3e963fafde984191dd29291c81051a10dd958e8b92eb"
+  },
+  "loop-stderr.txt": {
+    "bytes": 284,
+    "sha256": "d5684639292ced408cfe4a64b395093974b3296dd6e3815254035c54123dd5ab"
+  },
+  "loop-invocation.json": {
+    "bytes": 647,
+    "sha256": "9e4fa7c401f16d5f79704d4a9b8a0895764aec7db8a76e914ed56e29c8fb9c79"
+  },
+  "loop-owned.conf": {
+    "bytes": 14469,
+    "sha256": "84d63ace40d4cc73f07fc6a88ccc9958b99bae53bf4e22f7a59b8fd9f48bfafa"
+  },
+  "loop-owned-media.json": {
+    "bytes": 827,
+    "sha256": "530a925ee103ccc5bf139a85a5e9757cb64f24edb31dc947c5d3d6f537f5c721"
+  },
+  "linear-stdout.json": {
+    "bytes": 1003,
+    "sha256": "780385dc52920faa82bba1cfdaa481a393fb2cf73ddc3b08cc829306c11b166d"
+  },
+  "linear-stderr.txt": {
+    "bytes": 284,
+    "sha256": "ed6b51a6e5d171fe26d0972b65d96b23379368a369166f2f20178ffb2f434738"
+  },
+  "linear-invocation.json": {
+    "bytes": 649,
+    "sha256": "380e29a9269e88dfd570830b837b1e65fa67e87214271d0b840b94800e29f909"
+  },
+  "linear-owned.conf": {
+    "bytes": 14469,
+    "sha256": "84d63ace40d4cc73f07fc6a88ccc9958b99bae53bf4e22f7a59b8fd9f48bfafa"
+  },
+  "linear-owned-media.json": {
+    "bytes": 828,
+    "sha256": "5f7d3161e26bede8ad75fce9319d51f8bbdc006528a4dffcda07fede94b18675"
+  }
+}

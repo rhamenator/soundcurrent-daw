@@ -133,3 +133,13 @@ sc-stretch-render-worker; the GUI and callback engine do not link Rubber Band.
 No optional IPP/FFTW/Sleef/KissFFT/getopt implementation is compiled or bundled.
 The corresponding source and notices must accompany any future worker distribution.
 Adoption and remaining gates: [ADR099](docs/decisions/099-isolated-stretch-rendering.md).
+
+## Native loop test configurations
+
+The two configuration text members in the checkpoint174 observation packet derive
+from the installed PipeWire1.6.2 distribution configuration. Their original and
+modified hashes and changes are recorded with the observations. The applicable
+copyright and Expat permission notice is retained in
+[PIPEWIRE-NOTICE.txt](tests/results/M2/2026-10-11-native-loop-preview/PIPEWIRE-NOTICE.txt).
+The daemon remains an installed system dependency; no PipeWire implementation is
+bundled or forked.
