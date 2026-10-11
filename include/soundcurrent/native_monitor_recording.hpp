@@ -47,8 +47,11 @@ struct NativeMonitorRecordingResult {
     std::optional<MonitorProcessingFault> processingFault;
     std::optional<MonitorDriftFault> processingClockFault;
     std::optional<MonitorBufferFault> processingBufferFault;
+    std::optional<EqReport> equalizerFault;
     std::optional<CaptureFanoutFault> captureFault;
     std::exception_ptr activationFailure, diskFailure, storageFailure, recoveryFailure;
+    std::uint64_t firstWaitFailure = 0; // Upper32 owner1=processing/2=disk, lower32 original OS error.
+    std::uint64_t processingWaitCalls = 0, processingWaitMaximumNs = 0, diskWaitCalls = 0, diskWaitMaximumNs = 0;
 };
 struct NativeMonitorRecordingProgress {
     bool processingDone = false, diskDone = false, captureEnded = false, renderEnded = false;
@@ -77,6 +80,10 @@ class NativeMonitorRecording {
     NativeMonitorRecordingResult cancelAndWait(); // Immediate cancel, joins before settlement.
     const NativeOriginalRecordingSpec &declared() const noexcept;
     const std::filesystem::path &jobDirectory() const noexcept;
+    EqEvent equalizerEvent(const EqSettings &,const ParameterAddress &,MonitorOutputOrdinal) const; // Control, off RT.
+    EqEvent equalizerEnableEvent(bool,MonitorOutputOrdinal) const;
+    SubmitStatus submitEqualizer(const EqEvent &,std::uint64_t revision) noexcept; // Immediate controls.
+    bool equalizerAcknowledgement(ImmediateAcknowledgement &) noexcept;
   private:
     struct State;
     std::unique_ptr<State> state_;

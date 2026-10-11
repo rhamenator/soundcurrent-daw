@@ -19,6 +19,7 @@
 #endif
 using namespace soundcurrent::daw;
 unsigned ownedNativeMonitorRouteTests();
+unsigned monitorEqTests();
 #ifdef SC_NATIVE_STARTUP_STATE
 unsigned ownedNativeMonitorRecordingTests();
 #endif
@@ -215,7 +216,7 @@ void persistState(Model &m,NativeOriginalCaptureWriter &writer,const NativeOrigi
     o.captureRequest=MonitorCaptureStopRequest{spec.runGeneration,MonitorCaptureStopKind::Horizon,result.monitorEnd->value,result.monitorEnd->value,m.rawFrames};o.render=result;
     const auto saved=writer.finalize(m.capture,o);const auto verified=inspectNativeOriginalRecording(writer.jobDirectory(),spec);
     const auto &v=verified.outcome->render;const auto &a=*v.original;const auto &b=*result.original;
-    check((saved.schemaMinor==1 || saved.schemaMinor==2) && verified.schemaMinor==saved.schemaMinor && saved.status==verified.status &&
+    check((saved.schemaMinor==1 || saved.schemaMinor==2 || saved.schemaMinor==3) && verified.schemaMinor==saved.schemaMinor && saved.status==verified.status &&
         saved.status==(result.status==WasapiMonitorRenderStatus::Complete?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Failed) &&
         verified.raw.committedFrames==m.rawFrames && verified.raw.committedPackets==m.rawPackets && verified.raw.finalized &&
         verified.raw.sampleSha256==saved.raw.sampleSha256 && verified.raw.stampSha256==saved.raw.stampSha256 &&
@@ -275,7 +276,7 @@ void persistState(Model &m,NativeOriginalCaptureWriter &writer,const NativeOrigi
     }
     if(saved.schemaMinor==1){
         const auto before=readState(writer.jobDirectory()/"native-run.json"),raw=readState(writer.jobDirectory()/"journal.json");
-        const auto migrated=migrateNativeOriginalRecording(writer.jobDirectory(),spec);
+        const auto migrated=migrateNativeOriginalRecording(writer.jobDirectory(),spec,{}, {},2);
         check(migrated.schemaMinor==2 && !migrated.declared->channelMap && migrated.outcome->render.startupReady==result.startupReady &&
             migrated.outcome->render.original->firstWarmupLease==result.original->firstWarmupLease && migrated.status==saved.status &&
             migrated.raw.sampleSha256==saved.raw.sampleSha256 && migrated.raw.stampSha256==saved.raw.stampSha256 &&
@@ -300,7 +301,7 @@ void diagnosticState(bool mapped=false){
         if(kind==6 || !m.rawFrames){if(m.rawFrames)writer->checkpoint();writer.reset();m.writer=nullptr;saved=reportNativeOriginalRecording(job,spec,o);}
         else saved=writer->finalize(m.capture,o);
         const auto verified=inspectNativeOriginalRecording(job,spec);const auto &v=verified.outcome->render;
-        check(verified.schemaMinor==2 && verified.raw.committedFrames==m.rawFrames && verified.raw.finalized==(kind!=6 && m.rawFrames!=0) &&
+        check(verified.schemaMinor==3 && verified.raw.committedFrames==m.rawFrames && verified.raw.finalized==(kind!=6 && m.rawFrames!=0) &&
             verified.outcome->captureStatus==MonitorCaptureEndStatus::OwnerLost && !verified.outcome->captureOriginal &&
             v.status==original.status && v.warmupLimits==original.warmupLimits && v.preLeaseCalls==original.preLeaseCalls &&
             v.readyAcquiredQpc100ns==original.readyAcquiredQpc100ns && v.startupReady==original.startupReady &&
@@ -329,7 +330,7 @@ void success(unsigned channels,unsigned rate,bool failedStop=false,bool mapped=f
         StateTemp temp;const auto spec=stateSpec(m);NativeOriginalRecordingOptions opts;opts.raw.resources=m.ledger;
         opts.schemaMinor=legacy?1:2;
         NativeOriginalCaptureWriter writer(temp.root,spec,opts);m.writer=&writer;
-        refuses([&]{migrateNativeOriginalRecording(writer.jobDirectory(),spec);});
+        refuses([&]{migrateNativeOriginalRecording(writer.jobDirectory(),spec,{}, {},2);});
 #endif
         m.ready();const auto original=m.startup.ready();
         rt([&]{m.capture.finish();m.clocks.finishCapture();});
@@ -555,6 +556,7 @@ void admissions(){
 }
 int main(){try{rt_audit::reset();
     checks += ownedNativeMonitorRouteTests();
+    checks += monitorEqTests();
 #ifdef SC_NATIVE_STARTUP_STATE
     checks += ownedNativeMonitorRecordingTests();
     diagnosticState();diagnosticState(true);

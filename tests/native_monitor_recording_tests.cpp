@@ -2,6 +2,7 @@
 #include <soundcurrent/native_monitor_recording.hpp>
 #include <soundcurrent/wasapi_render_lifecycle.hpp>
 #include "../src/media_io.hpp"
+#include "../src/native_poll_wait.hpp"
 #include "rt_audit.hpp"
 #include <sndfile.h>
 #include <nlohmann/json.hpp>
@@ -33,6 +34,7 @@ struct Spy {
     std::atomic<std::uint64_t> writtenPackets{0}, qpc{100000000}, callbackCalls{0};
     std::atomic<std::uint32_t> captureActive{0}, captureStop{0}, renderStop{0}, captureJoined{0}, renderJoined{0};
     rt_audit::Counts callbackAudit;
+    double outputPeak = 0;
     bool failBind = false, failRenderActivation = false, failCaptureActivation = false,
         missingCaptureEnd = false, missingRenderEnd = false, missingNow = false, independentCapture = false;
     std::int32_t captureStopResult = 1, renderStopResult = 1;
@@ -56,8 +58,9 @@ class FakeStreams final : public NativeMonitorStreams {
     const unsigned actualPacketFrames_;
     bool captureEnded_ = false, renderEnded_ = false, captureStarted_ = false, renderStarted_ = false;
     std::uint64_t rawFrames_ = 0, rawPackets_ = 0, submitted_ = 0, content_ = 0, tick_ = 0;
+    detail::NativePollWait idleWait_, packetWait_{10000};
     static WasapiMonitorRenderOptions renderOptions() { WasapiMonitorRenderOptions o; o.warmup = WasapiWarmupLimits{288000,50000000}; return o; }
-    void idle() { std::this_thread::sleep_for(std::chrono::microseconds(100)); }
+    void idle() { if(idleWait_.wait())std::terminate(); }
     void endCapture() {
         if (captureEnded_) return;
         captureEnded_ = true;
@@ -122,6 +125,8 @@ class FakeStreams final : public NativeMonitorStreams {
                         const auto fill = rt([&] { return rb_.fill(rb_.context,output_.data() + 1,480,clock); });
                         rt([&] { renderLife_.contentReleased({clock,480,fill == WasapiRenderAction::Abort ? 0u : 480u,fill,2,true}); });
                         if (fill != WasapiRenderAction::Abort) { submitted_ += 480; content_ += 480; }
+                        if(fill!=WasapiRenderAction::Abort)for(std::size_t n=1;n+1<output_.size();++n)
+                            spy_->outputPeak=std::max(spy_->outputPeak,std::abs(double(output_[n])));
                         if (fill == WasapiRenderAction::Abort) endRender();
                         else if (fill == WasapiRenderAction::Finish) {
                             rt([&] { renderLife_.silenceReleased({WasapiSilenceKind::EndGuard,32,2});
@@ -132,7 +137,7 @@ class FakeStreams final : public NativeMonitorStreams {
             }
             // Each declared packet/lease is ten milliseconds of native audio.
             // Pace this fake device accordingly instead of overfeeding it 100x.
-            ++tick_; std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            ++tick_;if(packetWait_.wait())std::terminate();
         }
         spy_->callbackAudit = rt_audit::counts;
     }
@@ -211,13 +216,18 @@ void rawBits(const NativeOriginalRecordingPrefix &prefix) {
         first += count;
     }
 }
-void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureStop = false, unsigned declaredPacketBound = 0) {
+void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureStop = false, unsigned declaredPacketBound = 0, bool equalized = false) {
     Temp temp; auto spy = std::make_shared<Spy>(); if (failedCaptureStop) spy->captureStopResult = -31;
-    const auto o = options(spy,channels,mapped); NativeMonitorRecording run(temp.root,std::make_unique<FakeStreams>(spy,rate,channels,mapped,declaredPacketBound),o);
+    auto o = options(spy,channels,mapped);
+    if(equalized){MonitorEqSpec e;e.settings.bands.push_back({Id::generate(),double(rate)*.017/(2*3.14159265358979323846),6,1});o.route.equalizer=e;}
+    NativeMonitorRecording run(temp.root,std::make_unique<FakeStreams>(spy,rate,channels,mapped,declaredPacketBound),o);
     { std::ifstream f(run.jobDirectory()/"native-run.json"); auto j = nlohmann::json::parse(f);
         check(j.at("phase") == "pending" && j.at("outcome").is_null(),"Owner did not publish pending state before activation"); }
     check(!run.progress().rawAcceptedFrames && run.declared().raw.sampleRate == rate && run.declared().capture.channels == channels,
         "Owner guessed format or processed before activation");
+    if(equalized){auto updated=o.route.equalizer->settings;updated.bands[0].gainDb=12;
+        const ParameterAddress a{o.route.equalizer->track,updated.id,updated.bands[0].id,BandParameter::GainDb};
+        const auto event=run.equalizerEvent(updated,a,{1024});check(run.submitEqualizer(event,1)==SubmitStatus::Accepted,"Owned immediate monitor EQ edit refused");}
     run.activate(); check(run.requestStopAt({9216}) == MonitorControlCode::Accepted,"Owned finite Stop request refused");
     MonitorControlReceipt receipt; bool planned = false;
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
@@ -233,6 +243,12 @@ void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureSt
     }
     if (!planned && run.receiveStopReceipt(receipt) == MonitorControlCode::Ready) planned = receipt.result == MonitorControlResult::Planned;
     const auto r = run.wait(); joined(*spy);
+    check(!r.firstWaitFailure,"Owned worker lost original native wait error");
+    if(equalized){ImmediateAcknowledgement a;check(run.equalizerAcknowledgement(a) && a.revision==1 && a.frame==0,
+        "Owned monitor EQ edit did not apply at first processed monitor sample");
+        check(!r.equalizerFault && spy->outputPeak>7 && spy->outputPeak<12,"Owned monitor EQ boost had no effect or lost float headroom");
+        check(r.prefix && r.prefix->declared->equalizer==o.route.equalizer && r.native.render.startupReady->admitted.equalizer==
+            monitorEqReceipt(*o.route.equalizer,48000,mapped?2:channels),"Owned native state/startup lost initial monitoring EQ declaration");}
     if (!failedCaptureStop) check(run.progress().copiedMonitorSourceFrames == run.progress().monitorAcceptedFrames,
         "Owned processing receipt lost copied/released original source frames");
     check(run.requestStopAt({9216}) == MonitorControlCode::Stopped,"Retired processing owner admitted another Stop request");
@@ -258,8 +274,10 @@ void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureSt
         verified.status == r.prefix->status,"Owned original state changed on inactive reopen"); rawBits(verified);
     check(run.cancelAndWait().prefix->raw.sampleSha256 == r.prefix->raw.sampleSha256,"Repeated owner closure changed result");
     std::cout << "owned_native_recording source_rate=" << rate << " source_channels=" << channels << " mapped=" << mapped
-        << " packet_bound=" << run.declared().capture.maximumPacketFrames
+        << " equalized=" << equalized << " packet_bound=" << run.declared().capture.maximumPacketFrames
         << " raw_frames=" << r.prefix->raw.committedFrames << " monitor_frames=" << r.native.render.consumedMonitorFrames << " failed_stop=" << failedCaptureStop
+        << " processing_wait_calls="<<r.processingWaitCalls<<" processing_wait_max_ns="<<r.processingWaitMaximumNs
+        << " disk_wait_calls="<<r.diskWaitCalls<<" disk_wait_max_ns="<<r.diskWaitMaximumNs
         << " raw_bits_exact=true joined=true simulated_sdk=true\n";
 }
 void preparationAndActivationFailures() {
@@ -378,6 +396,7 @@ void controlPressure() {
 unsigned ownedNativeMonitorRecordingTests() {
     success(48000,1,false); success(44100,1,true); success(96000,2,false); success(48000,1,false,true);
     success(48000,2,false,false,2048);
+    success(48000,1,true,false,0,true);
     preparationAndActivationFailures(); cancelAndLostOwners(); diskAndClockFailures(); controlPressure(); metadataAndReservation();
     std::cout << checks << " owned native recording checks passed; actual processing/disk threads; simulated SDK\n";
     return checks;

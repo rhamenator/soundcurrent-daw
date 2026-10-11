@@ -16,6 +16,11 @@ ResourceLease admit(MonitorStartupAdmission a,std::size_t budget,const std::opti
            !std::all_of(m.sha256.begin(),m.sha256.end(),[](char c){return (c>='0' && c<='9') || (c>='a' && c<='f');}))
             throw ProjectError(ErrorCode::InvalidParameter,"Invalid native startup matrix receipt");
     }
+    if(a.equalizer){const auto &e=*a.equalizer;
+        if(e.sampleRate!=a.outputRate || e.channels!=a.channels ||
+           !std::all_of(e.sha256.begin(),e.sha256.end(),[](char c){return (c>='0' && c<='9') || (c>='a' && c<='f');}))
+            throw ProjectError(ErrorCode::InvalidParameter,"Invalid native startup EQ receipt");
+    }
     PayloadCharge charge("Monitor startup handoff",budget);charge.add(sizeof(PreparedMonitorStartupHandoff));
     return r?r->reserve(charge.bytes()):ResourceLease{};
 }

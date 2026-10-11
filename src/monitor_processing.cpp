@@ -15,6 +15,7 @@ ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutpu
                       const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks,
                       const PreparedMonitorControl *control, const PreparedMonitorCaptureStop *stop, const PreparedMonitorStartupHandoff *startup) {
     require(!c.channelMap || !c.startup || startup,"Mapped startup requires immutable receipt handoff");
+    require(!c.equalizer || !c.startup || startup,"EQ startup requires immutable receipt handoff");
     if (stop) {
         const auto &s=stop->config();const auto &b=c.buffer;
         require(s.runGeneration==b.runGeneration && s.sourceRate==b.sourceRate && s.channels==b.channels &&
@@ -41,6 +42,7 @@ ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutpu
             a.runGeneration==b.runGeneration && a.captureIdentity==d.captureIdentity && a.renderIdentity==d.renderIdentity &&
             a.sourceRate==b.sourceRate && a.outputRate==b.outputRate && a.channels==o.config().channels &&
             a.channelMap==(c.channelMap?std::optional(monitorChannelMapReceipt(*c.channelMap)):std::nullopt) &&
+            a.equalizer==(c.equalizer?std::optional(monitorEqReceipt(*c.equalizer,o.config().sampleRate,o.config().channels)):std::nullopt) &&
             a.renderFrequency==d.renderFrequency && a.nativeCapacityFrames==c.startup->nativeCapacityFrames &&
             a.maximumNativeFillFrames==c.startup->maximumNativeFillFrames && a.maximumWait100ns==c.startup->maximumWait100ns,
             "Monitor startup handoff configuration mismatch or reused");
@@ -92,6 +94,10 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
         charge.add(c.channelMap->routes.size(),sizeof(ChannelMix));
         charge.add(std::size_t(PreparedMonitorBuffer::gridFrames)*o.channels,sizeof(float));
     }
+    if(c.equalizer){
+        charge.add(monitorEqPayloadBytes(*c.equalizer,o.sampleRate,o.channels,PreparedMonitorBuffer::gridFrames,c.memoryBudgetBytes));
+        charge.add(c.equalizer->settings.bands.capacity(),sizeof(EqBand)+128);
+    }
     if (c.startup) {
         const auto frames = monitorStartupRetainedFrames(b,d,*c.startup);
         require(o.maximumPullFrames >= c.startup->maximumNativeFillFrames &&
@@ -118,6 +124,8 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
         channelMap_.emplace(*config_.channelMap,PreparedMonitorBuffer::gridFrames,config_.memoryBudgetBytes);
         mappedPending_.resize(std::size_t(PreparedMonitorBuffer::gridFrames)*o.config().channels);
     }
+    if(config_.equalizer)equalizer_=std::make_unique<PreparedMonitorEq>(*config_.equalizer,o.config().sampleRate,
+        o.config().channels,PreparedMonitorBuffer::gridFrames,config_.buffer.runGeneration,o.config().first,config_.memoryBudgetBytes);
     if (config_.startup) {
         static_assert(sizeof(StartupPacket) <= sizeof(CaptureBankStamp) + 16);
         startup_.capacityFrames = monitorStartupRetainedFrames(config_.buffer,config_.drift,*config_.startup);
@@ -363,6 +371,13 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
             {pending_.data(),std::size_t(read.frames)*config_.buffer.channels},
             {mappedPending_.data(),std::size_t(read.frames)*output_.config().channels},read.frames)!=MonitorChannelMapCode::Mapped)
             return fail(MonitorProcessingCause::ChannelMap);
+        if(equalizer_){
+            const auto report=equalizer_->process({channelMap_?mappedPending_.data():pending_.data(),
+                std::size_t(read.frames)*output_.config().channels},read.frames,{ordinal});
+            if(report.status!=ProcessStatus::Ok || report.invalidInputSamples || report.numericFaultSamples){
+                equalizerFault_=report;return fail(MonitorProcessingCause::Equalizer);
+            }
+        }
         pendingStamp_ = {config_.buffer.runGeneration,{ordinal},read.frames};
         return MonitorProcessingCode::Progress;
     }

@@ -12,6 +12,7 @@ struct NativeOriginalRecordingSpec {
     WasapiPreparedRenderFormat render;
     MonitorOutputOrdinal monitorFirst;
     std::optional<MonitorChannelMap> channelMap = {};
+    std::optional<MonitorEqSpec> equalizer = {};
     bool operator==(const NativeOriginalRecordingSpec &) const = default;
 };
 struct NativeOriginalRunOutcome {
@@ -31,11 +32,11 @@ struct NativeOriginalRecordingPrefix {
     std::optional<std::uint32_t> schemaMinor; // Absent for raw-only jobs; no invented native state.
 };
 enum class NativeOriginalRecordingBoundary { PendingPublished, RawFinalized, BeforeOutcomePublish, OutcomePublished,
-    BeforeMigrationPublish, MigrationPublished, ChannelMapPublished };
+    BeforeMigrationPublish, MigrationPublished, ChannelMapPublished, EqualizerPublished };
 struct NativeOriginalRecordingOptions {
     OriginalRecordingOptions raw;
     std::function<void(NativeOriginalRecordingBoundary)> boundary; // Disk/control ONLY.
-    std::uint32_t schemaMinor = 2; // Declare before pending publication. Legacy0/1 are explicit.
+    std::uint32_t schemaMinor = 3; // Declare before pending publication. Legacy0/1/2 are explicit.
 };
 // Disk owner only. Begins a pending native transaction BEFORE audio activation.
 // Delegates original raw capture, retaining legacy raw-journal meaning/schema.
@@ -74,5 +75,5 @@ NativeOriginalRecordingPrefix migrateNativeOriginalRecording(const std::filesyst
     const std::optional<NativeOriginalRecordingSpec> &expected = {},
     std::optional<ResourceLedger> resources = {},
     const std::function<void(NativeOriginalRecordingBoundary)> &boundary = {},
-    std::uint32_t targetMinor = 2);
+    std::uint32_t targetMinor = 3);
 }

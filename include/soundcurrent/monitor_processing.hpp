@@ -29,13 +29,14 @@ struct MonitorProcessingConfig {
     // Monitor-only, after conversion. Absence means exact same-width identity.
     // Startup handoffs must admit its canonical immutable fingerprint.
     std::optional<MonitorChannelMap> channelMap;
+    std::optional<MonitorEqSpec> equalizer;
 };
 enum class MonitorProcessingCode {
     Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault, ControlFull
 };
 enum class MonitorProcessingCause {
     Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd,
-    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff, ChannelMap
+    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff, ChannelMap, Equalizer
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -101,6 +102,8 @@ class PreparedMonitorProcessing {
     std::optional<MonitorProcessingFault> firstFault() const noexcept { return fault_; }
     std::optional<MonitorDriftFault> clockFault() const noexcept { return drift_.firstFault(); }
     std::optional<MonitorBufferFault> bufferFault() const noexcept { return buffer_.firstFault(); }
+    PreparedMonitorEq *equalizer() noexcept { return equalizer_.get(); } // Role-specific driver access, not mutable DSP state.
+    std::optional<EqReport> equalizerFault() const noexcept { return equalizerFault_; } // Joined/processing owner only.
     std::size_t chargedBytes() const noexcept { return bytes_; }
   private:
     ResourceLease lease_;
@@ -130,6 +133,8 @@ class PreparedMonitorProcessing {
     std::size_t bytes_ = 0;
     bool holding_ = false, done_ = false, cancelled_ = false, clockEstablished_ = false;
     std::atomic<std::uint64_t> copiedSourceFrames_{0};
+    std::unique_ptr<PreparedMonitorEq> equalizer_;
+    std::optional<EqReport> equalizerFault_;
     MonitorProcessingCode fail(MonitorProcessingCause) noexcept;
     bool release(bool copied = false) noexcept;
     MonitorProcessingCode schedule(Qpc100ns) noexcept;

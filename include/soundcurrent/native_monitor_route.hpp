@@ -14,6 +14,7 @@ struct NativeMonitorRouteOptions {
     std::uint64_t maximumWait100ns = 50000000;
     std::uint64_t maximumWarmupFrames = 0; // Zero selects six seconds at actual render rate.
     std::optional<MonitorChannelMap> channelMap;
+    std::optional<MonitorEqSpec> equalizer;
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     std::optional<ResourceLedger> resources;
 };

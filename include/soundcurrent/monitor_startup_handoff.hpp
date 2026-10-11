@@ -4,6 +4,7 @@
 #include "resource_ledger.hpp"
 #include <atomic>
 #include "monitor_channel_map.hpp"
+#include "monitor_eq.hpp"
 namespace soundcurrent::daw {
 enum class MonitorStartupPhase { Disabled, Observing, Transferring, Live };
 struct MonitorStartupSource {
@@ -30,6 +31,7 @@ struct MonitorStartupAdmission {
     std::uint32_t nativeCapacityFrames = 0, maximumNativeFillFrames = 0;
     std::uint64_t maximumWait100ns = 0;
     std::optional<MonitorChannelMapReceipt> channelMap = {};
+    std::optional<MonitorEqReceipt> equalizer = {};
     bool operator==(const MonitorStartupAdmission &) const = default;
 };
 struct MonitorStartupReady {

@@ -43,6 +43,7 @@ NativeMonitorRoutePlan prepareNativeMonitorRoute(WasapiPreparedCaptureFormat cap
     d.renderFrequency = render.clockFrequency; d.targetQueuedSourceFrames = o.targetQueuedSourceFrames;
     c.startup = MonitorStartupConfig{render.capacityFrames, render.maximumFillFrames, o.maximumWait100ns};
     c.channelMap = std::move(o.channelMap);
+    c.equalizer = std::move(o.equalizer);
     auto &q = p.clocks_;
     q.captureIdentity = capture.identity; q.renderIdentity = render.identity;
     q.renderFrequency = render.clockFrequency; q.runGeneration = o.runGeneration;
@@ -57,6 +58,7 @@ NativeMonitorRoutePlan prepareNativeMonitorRoute(WasapiPreparedCaptureFormat cap
     p.startup_ = {o.runGeneration, capture.identity, render.identity, capture.sampleRate, render.sampleRate,
         render.channels, render.clockFrequency, render.capacityFrames, render.maximumFillFrames, o.maximumWait100ns,
         c.channelMap ? std::optional(monitorChannelMapReceipt(*c.channelMap)) : std::nullopt};
+    p.startup_.equalizer=c.equalizer?std::optional(monitorEqReceipt(*c.equalizer,render.sampleRate,render.channels)):std::nullopt;
     p.renderOptions_.memoryBudgetBytes = p.budget_;
     const auto warmup = o.maximumWarmupFrames ? o.maximumWarmupFrames : std::uint64_t(render.sampleRate) * 6;
     require(warmup <= std::uint64_t(render.sampleRate) * 60);
@@ -76,6 +78,7 @@ NativeMonitorRoutePlan prepareNativeMonitorRoute(WasapiPreparedCaptureFormat cap
     // The retained plan owns one further declaration, in addition to the
     // processing configuration and prepared immutable matrix already charged.
     if (c.channelMap) charge.add(c.channelMap->routes.size(), sizeof(ChannelMix));
+    if (c.equalizer) charge.add(c.equalizer->settings.bands.capacity(),sizeof(EqBand)+128);
     p.bytes_ = charge.bytes();
     return p;
 }
