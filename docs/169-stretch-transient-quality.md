@@ -69,3 +69,14 @@ as a failing quality baseline for later mode/landmark work. Do not delay useful
 recording previews by endlessly adding optional DSP diagnostics. Full marker/
 tempo editing, other rates/layouts, music/listening and native Windows quality
 remain required, along with the full M2–M11/X004/X005 and European F/Q/C/N scope.
+
+## Portable source audit review
+
+The audit now carries a bounded source proof: 411 original commit/tree/blob
+payloads, 4,101,542 bytes expanded in a 1,194,851-byte ZIP. Both source commit IDs
+and all 309 declared code inputs plus runner/contract/helper/observer paths are
+resolved and checked in memory. No local historical Git objects, parent closure,
+object import or signature-authentication claim is needed. An owned minimal
+repository missing both commits fails with the prior audit and passes the new
+one; mutating a blob and rebinding packet metadata still refuses. Original PCM
+and outcome capture bytes are unchanged, and all known failures remain visible.

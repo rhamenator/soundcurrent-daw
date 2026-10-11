@@ -36,3 +36,14 @@ Successful audit means these retained results were reproduced, including their
 failures. It does not mean Q-STRETCH passed. Listening, general/music onset,
 protected/group phase, editable markers and tempo workflows, native Windows,
 installation and full parity remain open. See [checkpoint169](../../../../docs/169-stretch-transient-quality.md).
+
+## Portable source proof
+
+`source-provenance.zip` supplies bounded original Git commit/tree/blob payloads
+for both recorded source snapshots and the declared input paths. The verifier
+checks content IDs and resolves paths in memory; it neither needs historical
+objects in the checkout nor imports objects or follows commit parents. Signatures
+are not authenticated. Original PCM archive, member hashes and observations are
+unchanged. A minimal owned repository lacking both historical commits reproduces
+the old audit's refusal and the corrected audit's success. A mutated source blob
+with rebound ZIP/SHA-256 metadata is refused by its fixed Git object ID.

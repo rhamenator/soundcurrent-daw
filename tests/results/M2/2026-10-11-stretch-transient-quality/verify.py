@@ -12,16 +12,15 @@ import io
 import json
 import math
 import struct
-import subprocess
 import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parent
-REPO = next(p for p in ROOT.parents if (p/'.git').exists())
 HEAD = 'd54dd878644b1075fb88b2f0eaa5609c4e39c775'
 BUILD = '20a062dbf8449cd6e6c2b167b2ed12a3320e46f1'
 sha = lambda b: hashlib.sha256(b).hexdigest()
-git = lambda *args: subprocess.check_output(['git', *args], cwd=REPO)
+from frozen_source import FrozenSource
+provenance = FrozenSource(ROOT, (HEAD, BUILD))
 
 
 def pcm(raw):
@@ -121,15 +120,15 @@ def main():
             return json.loads(read(name))
         inputs, contract = js('inputs.json'), js('contract.json')
         assert inputs['sourceCommit'] == s['sourceCommit'] == HEAD and inputs['originalBuildSource'] == BUILD
-        assert git('rev-parse', HEAD+'^{tree}').decode().strip() == inputs['sourceTree']
-        paths = {p for p in git('ls-tree', '-r', '--name-only', HEAD, '--', 'include', 'src', 'ui', 'worker', 'tests', 'CMakeLists.txt').decode().splitlines() if p.endswith(('.cpp', '.hpp', '.h', '.c')) or p == 'CMakeLists.txt'}
+        assert provenance.roots[HEAD] == inputs['sourceTree']
+        paths = provenance.files(HEAD)
         assert paths == set(inputs['files']) and len(paths) == s['sourceInputs'] == 309
         for path in paths:
-            assert sha(git('show', HEAD+':'+path)) == inputs['files'][path] == sha(git('show', BUILD+':'+path))
+            assert sha(provenance.read(HEAD,path)) == inputs['files'][path] == sha(provenance.read(BUILD,path))
         bindings = {'runnerSha256': 'experiments/stretch-transient-quality/run_bank.py', 'contractSha256': 'experiments/stretch-transient-quality/contract.json', 'sharedParsingHelperSha256': 'experiments/stretch-rate-quality/run.py', 'observerSha256': 'tests/worker_observation.py'}
         for key, path in bindings.items():
-            assert inputs[key] == sha(git('show', HEAD+':'+path))
-        assert contract == json.loads(git('show', HEAD+':experiments/stretch-transient-quality/contract.json'))
+            assert inputs[key] == sha(provenance.read(HEAD,path))
+        assert contract == json.loads(provenance.read(HEAD,'experiments/stretch-transient-quality/contract.json'))
         prior = js('prior-build-inputs.json')
         assert prior['sourceCommit'] == BUILD and inputs['workerSha256'] == prior['workerSha256'] and prior['files'] == inputs['files']
         assert b'Linking CXX executable sc-stretch-render-worker' in read('build.txt')
