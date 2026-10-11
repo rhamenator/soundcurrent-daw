@@ -37,8 +37,9 @@ counts were0. The60,724-byte [packet](../tests/results/M2/2026-10-11-native-loop
 retains25 logs/configurations/context/project/hash members,504 selected source
 inputs and four executable hashes. Incremental build was a no-op after identical
 fixture bytes had been compiled/linked. Standalone packet validation and optional
-source-byte comparison passed; they provide no audio/UI replay or signature claim. Reproduce with `tools/run_native_loop_recording.py --mode loop
---delayed-inputs`, then `--mode until-stop --delayed-inputs`. Zero-delay timed
+source-byte comparison passed; they provide no audio/UI replay or signature claim.
+Reproduce with `python3 tools/run_native_loop_recording.py --mode loop --delayed-inputs`,
+then `python3 tools/run_native_loop_recording.py --mode until-stop --delayed-inputs`. Zero-delay timed
 recording remains a native regression workflow. No production DSP/schema or
 third-party dependency change was required.
 
