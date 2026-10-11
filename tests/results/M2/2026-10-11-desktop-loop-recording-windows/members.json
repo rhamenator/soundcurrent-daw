@@ -1,0 +1,14 @@
+{
+  "windows-job.txt": {
+    "bytes": 656928,
+    "sha256": "c43b7c6ce232a18829f19512fd1c7b896e94d1cb4a622a17ece4ae2b75dbec0d"
+  },
+  "tested-inputs.json": {
+    "bytes": 11826,
+    "sha256": "faeb0a16c473204cc2346348acfcaa7ada29739b25e7df0149fab8843e0b846d"
+  },
+  "job-status.json": {
+    "bytes": 330,
+    "sha256": "24846ddd3bcef79b157f4a63fd1b8ed0311e87c512caecc9fd834fe410da8733"
+  }
+}

@@ -4334,3 +4334,12 @@ callback allocation/free/lock0, contexts/window groups/UndoRedo/save/reopen chec
 The60,284-byte/25-member packet binds504 source inputs/four executable hashes.
 Packet validation and optional source comparison passed. Original PCM stays local;
 installed/physical/native latency/postroll/Windows duplex/full goal stay open.
+
+[Checkpoint178](178-native-loop-recording-latency.md) exercises actual owned native
+Linux generated input delays7/29/2053 with finite postroll and unequal until-Stop
+prefixes. Every raw/output sample, original native origin normalization, retained
+source window/group and raw hash/history/save/reload passed in development; the
+source-frozen gate follows separately. Windows checkpoint176 independently passed
+19 desktop suites/66.24s and36 GUI checks with simulated endpoints. Its50,548-byte
+job-log packet binds59 reviewed changed files; optional source-byte comparison
+passed. Native Windows duplex/installed/language/full-goal qualification stays open.
