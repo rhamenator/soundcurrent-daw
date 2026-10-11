@@ -1,0 +1,21 @@
+{
+  "format": "sc-controller-localization-inventory-v1",
+  "sourceCommit": "d254183bc0b7b021ca9752f5fbaede09eade4b5b",
+  "captureBytes": 71095,
+  "captureSha256": "cf7fb9c69bba8537af54776e7d479a4b6abe180ccd5b7a4dde5f417c4400ba44",
+  "members": 5,
+  "sourceKeys": 917,
+  "catalogs": 34,
+  "draftTranslations": 3135,
+  "nativeReviewed": 0,
+  "fullyUiQualified": 0,
+  "unchangedCatalogFiles": 75,
+  "isolatedRefusals": 13,
+  "actualTranslatorWorkPreservationPassed": true,
+  "originalRun": 38118823925,
+  "failedLinuxJob": 114409143864,
+  "originalNativeWindowsPassed": true,
+  "freshCurrentMainCohortRequired": true,
+  "executablesIncluded": false,
+  "fullGoalComplete": false
+}

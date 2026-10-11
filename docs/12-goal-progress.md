@@ -4558,3 +4558,13 @@ controller0.21s. A66,251-byte packet binds full job/API evidence and17 reviewed
 blobs; [Checkpoint184](184-monitor-drift-control.md) distinguishes this platform
 observation from current-MAIN admission. No native duplex/installed/physical/load/
 complete DAW or localization claim follows. Full goal remains incomplete.
+
+## Catalog inventory after the Windows observer change (2026-10-11)
+
+Run38118823925 passed all three Windows checks; Linux passed123/125 and refused
+the stale whole-source digest for stretch_controller.cpp. Actual Linguist update
+on d254183 refreshed only that digest:917keys/34catalogs/3,135drafts and75 other
+localization files byte-identical. Actual13 isolated refusals and translator-work
+preservation passed. Native review/full UI remains zero. The71,095-byte packet and
+[Checkpoint185](185-logical-recording-credit.md) retain original failure/new binding.
+Fresh current-head checks remain required; no stale Windows cohort is admitted.
