@@ -1,0 +1,22 @@
+{
+  "format": "sc-qualified-monitor-recording-main-v1",
+  "pr": 129,
+  "run": 38134067183,
+  "main": "f1f025d33c0f4cffa324aac7925e4150355259ae",
+  "head": "0173462cedde998a023238c264eadb1892c38a94",
+  "base": "0b7a8d25ebc7045f5336595dbd97ca310b0872d4",
+  "testedMerge": "782267d7911e9b72b7a73e9edac965f17a9897b3",
+  "tree": "65499f4bac4a8fbc20d5706acb156242d2a2c836",
+  "blobs": 8,
+  "captureBytes": 139977,
+  "captureSha256": "c7206c012ac63b4c8cfb0ffd4ae68c015a41af5782c86a8c091c47ab4a2121e5",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "jobTextEncoding": "UTF-8; original BOM retained for byte-exact job hashes",
+  "adminBypass": false,
+  "policyChanged": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

@@ -1,0 +1,22 @@
+{
+  "format": "sc-qualified-finite-monitor-main-v1",
+  "pr": 130,
+  "run": 38135204341,
+  "main": "26700297151cb1b8284596c9bcf9fa0ce27406a4",
+  "head": "e2d5a7e7008c74959b394b9fb47b2c959584ed4a",
+  "base": "f1f025d33c0f4cffa324aac7925e4150355259ae",
+  "testedMerge": "bbcfd52952cff3b132ed627c30a3e07e7ae50746",
+  "tree": "cf6b54c988489b172935d8e899ac732f4c8b3d05",
+  "blobs": 18,
+  "captureBytes": 142315,
+  "captureSha256": "aeee3a37447a560d1e5d0d2704393661039c8cef217abb0d6eefdfed7b700baf",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "jobTextEncoding": "UTF-8; original BOM retained",
+  "adminBypass": false,
+  "policyChanged": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

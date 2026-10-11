@@ -155,3 +155,13 @@ on actual native adapters and installed desktop workflows before activation.
 Raw-to-project mapping, playable finite-prefix admission, repeated punch/loop,
 EQ/mix execution, processing quality, localization and the full M2–M11 scope
 remain open. See [ADR127](decisions/127-native-capture-stop.md).
+
+[Checkpoint196](196-native-monitor-capture-context.md) now implements and
+component-tests the actual-format capture binding/context. Native render drain,
+durable original-end transaction binding and installed SDK workflows stay gated.
+It also retains the subsequent independent Windows195 execution: MSVC
+job114455972193/run38134654956 passed65 suites150.11s, including captureStop5.38s.
+The [47,862-byte/three-member packet](../tests/results/M2/2026-10-11-monitor-capture-stop-windows/summary.json)
+binds28 reviewed blobs, tested merge/tree/parents and the full original job/API,
+matching frozen4e6cba4 C++ with separate679a644 CMake gating. This is stacked
+portable fake-SDK execution, not current-MAIN admission or native SDK runtime.
