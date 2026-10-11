@@ -4349,3 +4349,14 @@ head01b0dc8d/baseaab9ca5b, actual tested merge473db99da4a0d1bf0f220e3e0af3aab453
 Run38110705676 had all four terminal successful required checks. All59 reviewed
 blobs and the whole tree matched. Desktop checkpoint176 is integrated; this does
 not qualify native Windows duplex or expand its simulated endpoint scope.
+
+Checkpoint178 committed-source c104d06b51fbca182e6fda4de9656a022334f7a6 passed
+three owned native workflows and three synthetic suites/1.20s. Native finite
+postroll228calls captured231,049 frames/input; until-Stop240calls preserved unequal
+245,753/245,731/243,707 raw lengths and13complete+12,658partial common frames.
+Every raw/output sample matched; callbacks allocate/free/lock0. The60,724-byte
+25-member packet binds504 selected inputs/four executable hashes, with packet
+and optional source-byte checks passing. Native shared-clock latency/postroll now
+has short generated-device evidence; hardware/load/fault/recovery/Windows/native
+installed/full F/Q/C/N remain open. ADR114 pins Windows independent clock handling
+and the next typed correlation primitive; no native Windows duplex claim follows.
