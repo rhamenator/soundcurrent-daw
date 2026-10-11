@@ -4360,3 +4360,15 @@ and optional source-byte checks passing. Native shared-clock latency/postroll no
 has short generated-device evidence; hardware/load/fault/recovery/Windows/native
 installed/full F/Q/C/N remain open. ADR114 pins Windows independent clock handling
 and the next typed correlation primitive; no native Windows duplex claim follows.
+
+## Protected integration: native loop recording (2026-10-11)
+
+PR117 was ordinarily squash-merged as `9b751205eddd99f3d0bedef77933d21cce33b002`.
+Qualified head `084c56e1135f1665ca003f76a6df07e3ee2c27a9` against MAIN
+`0e9f69f52987723bc2cdc1882d375a637f4e1622` used tested merge
+`88dd2fea8f9056ffe8a687d87dc7c8c1909a50b3`. CI run38111695853 had all four
+required jobs terminal SUCCESS. Eleven reviewed blobs and the complete tree
+matched the resulting MAIN. Existing branch protection remained enabled, with
+no administrative bypass. Native delayed-input checkpoint178 remains separately
+qualified on its frozen source; this integration adds no Windows native duplex
+or physical-device evidence.
