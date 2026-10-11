@@ -4921,3 +4921,10 @@ Next: inspect actual bounded Windows diagnosis, correct an established cause, or
 record limited non-reproduction and continue actual native warmup/handoff/state
 migration. Factory/native/installed/professional latency/EQmix/alignment and full
 M2–M11/F/Q/C/N/X004/X005/all-Europe work remain incomplete.
+
+Subsequent201 MSVC114500534997/run38149747511 passed68suites148.01s and allthree
+additional original20-take diagnostics; allfour original jobs passed. A51,006-byte/
+four-member packet binds13blobs/full native job/API/original merge and actual
+completion markers. This is limited non-reproduction, not a causal resolution of
+the original group wait. Current-MAIN refresh remains independently qualified;
+full native warmup/installed and parity scope remains open.

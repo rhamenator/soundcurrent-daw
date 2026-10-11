@@ -88,7 +88,7 @@ Checks vary with owner polling; every profile includes1,000 held-finalization
 queries and actual worker/producer/delivery boundaries. Maximum output difference
 remains0 with floating-point headroom preserved. Final TSan reports no counter
 race or other race in this cohort. Windows owner/fixture objects compile without
-warnings; new Windows execution is pending.
+warnings; subsequent independent Windows execution is recorded below.
 
 [Qualification evidence](../tests/results/M2/2026-10-11-manual-group-owner-diagnostics/summary.json)
 is a66,163-byte/23-member packet binding588 selected source/checkout inputs,
@@ -124,6 +124,23 @@ nor actual native SDK activation/installed audio. The original Windows root
 failures remain open. Native startup still needs the explicit SDK warmup lease,
 generation-ready handoff, durable disposition migration, native/installed checks,
 short-take/Stop and professional latency/full EQ/mix/alignment gates.
+
+## Subsequent actual Windows execution
+
+MSVC114500534997/run38149747511 passed68 suites148.01s and allthree additional
+original20-take workflows with the unchanged five-second acceptance condition.
+Allfour original jobs succeeded. The timeout was not reproduced in this bounded
+experiment; its root cause is not established or declared resolved.
+
+[Original Windows evidence](../tests/results/M2/2026-10-11-manual-group-owner-diagnostics-windows/summary.json)
+is a51,006-byte/four-member packet binding13 reviewed files, full native job,
+all-four terminal API, original tested merge
+`c443e8e82aa3d62e363104c9eb1a52e2e29b2936` and verification of allthree actual
+completion markers. An initial log verifier confused an echoed source literal
+with a runtime unavailable message; the corrected verifier checks runtime lines
+and actual completion markers. This did not change the fixture or recording code.
+A standalone original20-take mode also passed locally. Later current-MAIN parent
+refreshes need their own qualification, and native/installed audio remains open.
 
 ## Next task
 
