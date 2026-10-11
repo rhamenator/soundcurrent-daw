@@ -4876,3 +4876,32 @@ No bypass occurred. PR133 now inherits current MAIN and awaits fresh qualificati
 Original Windows owner failures remain unresolved. Next: durable original SDK-end
 transaction state, explicit native startup capacity/confidence, then SDK/installed
 Stop/cancel/loss/retirement. Full M2–M11/F/Q/C/N/localization goal remains incomplete.
+
+## Durable original native outcomes and common-prefix recovery (2026-10-11)
+
+[Checkpoint199](199-durable-native-outcomes.md)/ADR131 add a disk-only versioned
+native auxiliary transaction around unchanged original raw schema1.0. Pending
+before activation and immutable original SDK reporting bind exact raw journal/
+sample/stamp hashes, identity, extent and phase. One inactive exclusive lease covers
+paired verification/publication. Raw-only or missing native outcomes cannot become
+completed monitoring. Verified partial raw failure can retain actual SDK-delivered
+frames and failed Stop even when original media never finalized.
+
+Frozenbccfd29 passes ten suites Release0.69s/ASanUBSan5.14s/TSan5.72s. Native outcome
+checks cover1/2/8/256 channels, nine distinct outcomes, four actual process-exit
+boundaries and malformed/foreign/contradictory state. Thirteen composed source/
+processing/disk/render cases retain original failures and exact raw/PCM evidence;
+14,509 captureStop checks/profile. Guarded prepared allocation/free/locks zero.
+64,739-byte/20-member packet binds592 inputs/30 binaries/15 Windows object-library
+hashes/full logs. Three new Windows objects compile; unchanged SDK hashes match198.
+No new persistence Windows execution, SDK device or power-loss claim. Live startup,
+clock confidence, installed recovery and native factory activation remain gated.
+
+Preceding198 MSVC114476838419/run38141745128 passed68 suites186.46s, binding0.08s;
+49,349-byte/three-member packet retains19 reviewed blobs/full job/API/tree/parents.
+Protected133 MAINbcfa9c8 matches whole tree/base/21blobs from38141363539;145,185-byte/
+eight-member packet retains all four byte-exact jobs/admission/merge. No bypass.
+PR134 inherits this MAIN and awaits fresh38143651032 qualification. Original Windows
+owner failures stay open. Next: explicit startup/warmup/prefill/capacity/clock quality,
+then actual native/installed Stop/cancel/loss/recovery/retirement. Full frozen
+M2–M11/F/Q/C/N/import/localization target remains ACTIVE/incomplete.

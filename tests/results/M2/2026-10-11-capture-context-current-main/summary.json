@@ -1,0 +1,22 @@
+{
+  "format": "sc-qualified-capture-context-main-v1",
+  "pr": 133,
+  "run": 38141363539,
+  "main": "bcfa9c86c64b6f20097654fafc59eb673c477889",
+  "head": "2b5fe08346c4b2438541f508a8a6789d15a6e9e2",
+  "base": "c828bd44b08b34bb02f82c5baf8a4bb202baba26",
+  "testedMerge": "462c3cb437e00542c8747c7238d58c741e0bf2f6",
+  "tree": "43ec8de050549768219f7a059d0679b9c5ff275b",
+  "blobs": 21,
+  "captureBytes": 145185,
+  "captureSha256": "9d6b91670758106fa633a1260fc9c6d073348cb262943756ef6adbff6a710e39",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "jobTextEncoding": "UTF-8; original BOM retained",
+  "adminBypass": false,
+  "policyChanged": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}
