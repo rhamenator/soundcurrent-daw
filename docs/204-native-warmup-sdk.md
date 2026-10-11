@@ -95,11 +95,30 @@ No VM or physical audio route was used.
 
 ## Next implementation task
 
-The first implementation bounds QPC frequency to1GHz to keep fractional scaling
-within64-bit multiplication. Replace that implementation restriction with bounded
-integer conversion before native qualification. Windows exposes the actual boot-
-fixed frequency; it must not be inferred from CPU frequency or a fixed10MHz
-assumption. See [Microsoft QPC guidance](https://learn.microsoft.com/en-us/windows/win32/sysinfo/acquiring-high-resolution-time-stamps).
+The initial implementation bounded QPC frequency to1GHz to protect multiplication.
+That restriction is removed in source `b5f2a29cbf4694c1e6e9dead39f8496c60b0a5d6`.
+Windows exposes the actual boot-fixed frequency; it must not be inferred from CPU
+frequency or a fixed10MHz assumption. See [Microsoft QPC guidance](https://learn.microsoft.com/en-us/windows/win32/sysinfo/acquiring-high-resolution-time-stamps).
+
+The follow-up converts ticks to100ns with checked64-bit arithmetic. Ordinary
+frequencies use a checked multiply/divide; larger frequencies use exactly24 bounded
+modular steps. No floating point, allocation, loop over elapsed time or compiler-
+specific128-bit type is needed. Zero frequency and an unrepresentable result are
+refused. This scales the independent current-QPC wait clock; original SDK audio-
+clock fields are unchanged.
+
+Eighty literal oracles were generated using independent Python arbitrary-precision
+multiply/divide, including low/high frequencies,3GHz, the fast/fallback boundary,
+zero frequency, maximum ticks/frequency and result-overflow edges. The four suites
+pass Release1.14s, ASan/UBSan11.58s and TSan17.69s, with157 lifecycle checks per
+profile and zero guarded allocation/free/lock. The earlier Debug evidence remains
+explicitly bound to initial source; the follow-up does not claim a new Debug run.
+Five Windows source/test objects again compile without warnings; SDK and three
+Windows test targets compile/link. [Counter follow-up](../tests/results/M2/2026-10-11-native-warmup-qpc/summary.json)
+binds595 inputs,15 executable hashes, five Windows objects, exact-source delta,
+commands, configurations and full logs. Original initial-source proof remains
+separate. Boundary/representative conversion checks do not constitute native
+activation, installed playback or full device qualification.
 
 Connect the optional monitor binding/context hook to the immutable startup receipt.
 Admit exact native format/run/stream identities and matching wait/frame budgets.

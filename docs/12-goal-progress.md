@@ -14,8 +14,12 @@ refuses new observations until migration; ten refusals leave pending state intac
 Four suites/profile pass Debug3.86s/Release1.14s/ASanUBSan11.78s/TSan18.24s with77
 lifecycle/19,698 startup checks and guarded allocate/free/lock0.595 inputs/19 executable
 hashes/five Windows objects/full logs retained; Windows SDK and three targets link.
-Protected-MAIN inheritance preserves the entire qualified source tree. Native
-execution/installed audio remains pending. Next: monitor readiness consumption,
+A subsequent QPC conversion removes the initial1GHz implementation restriction;
+80 independent integer literal oracles/four suites pass Release1.14s/ASan11.58s/
+TSan17.69s with157 lifecycle checks and RT audit0.595 inputs/15 follow-up hashes/
+five Windows objects/full logs remain separately bound; no new Debug/native runtime
+claim. Protected-MAIN inheritance preserved the initial qualified source tree.
+Native execution/installed audio remains pending. Next: monitor readiness consumption,
 original-clock handoff without duplicate publication, explicit1.1 migration and
 native/installed/latency/EQmix/alignment gates. Factory disabled; full goal
 M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.

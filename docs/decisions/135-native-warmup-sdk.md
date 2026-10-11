@@ -17,6 +17,11 @@ explicit1.1 migration can retain it; old records remain readable without invente
 observations. Compose monitor readiness consumption next, with exact descriptor/
 identity admission, one clock publication per lease and terminal-state checks.
 
+Scale the actual cached QPC frequency without a1GHz restriction: checked64-bit
+multiply/divide for the common path and a fixed24-step modular fallback. Keep the
+independent wait clock separate from original SDK timestamp fields. An independent
+integer oracle covers conversion boundaries, representative frequencies and overflow.
+
 Bounded fixtures qualify the portable lifecycle and old-format refusal. SDK cross-
 compilation does not qualify native activation, installed audio or low latency.
 Keep the native monitoring factory disabled until those dependent gates pass.
