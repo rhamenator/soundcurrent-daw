@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+#include "project_schema_fixture.hpp"
 #include <soundcurrent/stretch.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/project_store.hpp>
@@ -83,7 +84,7 @@ void workflow() {
 }
 void persistence() {
     auto plain=source();auto s=plain;auto c=result(s,s.tracks[0].clips[0].id,{3,2,1200000,false});applySessionEdits(s,{c});
-    auto j=nlohmann::json::parse(encodeProject(s));check(j["schemaMinor"]==15,"Stretch schema did not advance");
+    auto j=nlohmann::json::parse(encodeProject(s));check(j["schemaMinor"]==16,"Stretch schema did not advance");
     check(j["tracks"][0]["clips"][0]["stretch"]["processor"].get<std::string>()==stretchProcessorId,"Processor identity lost");
     for(unsigned mode=0;mode<22;++mode) {
         auto bad=j;auto &v=bad["tracks"][0]["clips"][0]["stretch"];auto &p=v["settings"];
@@ -106,7 +107,7 @@ void persistence() {
         if(mode==16) v["unknown"]=0;
         if(mode==17) v.erase("settings");
         if(mode==18) bad["tracks"][0]["clips"][0].erase("stretch");
-        if(mode==19) bad["schemaMinor"]=16;
+        if(mode==19) { bad["schemaMinor"]=17;sc_test::eraseSchema16FixtureKeys(bad); }
         if(mode==20) p["timeNumerator"]=6; // Noncanonical 6/4.
         if(mode==20) p["timeDenominator"]=4;
         if(mode==21) v["sourceOrigin"]["fraction"]=2;
@@ -115,7 +116,7 @@ void persistence() {
     }
     const auto raw=nlohmann::json::parse(encodeProject(plain));
     for(unsigned minor=9;minor<=11;++minor) {
-        auto old=raw;old["schemaMinor"]=minor;auto &clip=old["tracks"][0]["clips"][0];clip.erase("stretch");
+        auto old=raw;old["schemaMinor"]=minor;sc_test::eraseSchema16FixtureKeys(old);auto &clip=old["tracks"][0]["clips"][0];clip.erase("stretch");
         if(minor<11) clip.erase("playbackRate");
         if(minor<10) clip.erase("sourceTiming");
         auto expected=plain;if(minor<10) expected.tracks[0].clips[0].sourceTiming={};
@@ -137,7 +138,7 @@ void unityIdentity() {
     refuses([&]{validateClipStretch(invalid,command.source,command.rendered);});
     // Existing 1.12 R3 unity assets must remain R3 and keep their original keys.
     auto legacy=adopted;legacy.tracks[0].clips[0].stretch->processor=stretchProcessorId;
-    auto json=nlohmann::json::parse(encodeProject(legacy));json["schemaMinor"]=12;
+    auto json=nlohmann::json::parse(encodeProject(legacy));json["schemaMinor"]=12;sc_test::eraseSchema16FixtureKeys(json);
     json["tracks"][0]["clips"][0]["stretch"].erase("context");
     json["tracks"][0]["clips"][0]["stretch"].erase("warp");
     check(decodeProject(json.dump())==legacy,"Legacy R3 unity asset was silently reidentified");
@@ -176,13 +177,13 @@ void regions() {
         if(mode==3)p["context"].erase("after");
         if(mode==4)p["processor"]=stretchProcessorId;
         if(mode==5)p["context"]=nullptr;
-        if(mode==6)bad["schemaMinor"]=13;
+        if(mode==6) { bad["schemaMinor"]=13;sc_test::eraseSchema16FixtureKeys(bad); }
         if(mode==7)p.erase("context");
         refuses([&]{decodeProject(bad.dump());});
     }
     auto old=adopted;old.tracks[0].clips[0].stretch->context.reset();old.tracks[0].clips[0].stretch->processor=stretchProcessorId;
     old.assets.back().frames=192;old.tracks[0].clips[0].sourceFrame=0;old.tracks[0].clips[0].sourceTiming={};
-    json=nlohmann::json::parse(encodeProject(old));json["schemaMinor"]=13;json["tracks"][0]["clips"][0]["stretch"].erase("context");
+    json=nlohmann::json::parse(encodeProject(old));json["schemaMinor"]=13;sc_test::eraseSchema16FixtureKeys(json);json["tracks"][0]["clips"][0]["stretch"].erase("context");
     json["tracks"][0]["clips"][0]["stretch"].erase("warp");
     check(decodeProject(json.dump())==old,"Schema1.13 migration changed legacy rounded maps or keys");
 }
@@ -238,7 +239,7 @@ void warpWorkflow() {
         if(mode==12)b["points"][0]["id"]=Id::generate().str();
         if(mode==13)v["settings"]["pitchMilliCents"]=1;
         if(mode==14)v["context"]={{"before",0},{"after",0}};
-        if(mode==15)bad["schemaMinor"]=14;
+        if(mode==15) { bad["schemaMinor"]=14;sc_test::eraseSchema16FixtureKeys(bad); }
         refuses([&]{decodeProject(bad.dump());});
     }
     check(history.undo() && s==original && history.redo() && s==adopted,"Warp was not one exact Undo/Redo operation");
@@ -253,7 +254,7 @@ void warpWorkflow() {
     auto invalid=command.value;invalid.sourceFrames=INT64_MAX;invalid.context=StretchContext{INT64_MAX,INT64_MAX};invalid.warp.reset();invalid.processor=std::string(regionStretchProcessorId);
     refuses([&]{stretchSourceToOutput(invalid,{0,0,1});});refuses([&]{stretchOutputToSource(invalid,{0,0,1});});
     auto legacy=source();auto legacyEdit=result(legacy,legacy.tracks[0].clips[0].id,{3,2,0,true});applySessionEdits(legacy,{legacyEdit});
-    auto old=nlohmann::json::parse(encodeProject(legacy));old["schemaMinor"]=14;old["tracks"][0]["clips"][0]["stretch"].erase("warp");
+    auto old=nlohmann::json::parse(encodeProject(legacy));old["schemaMinor"]=14;sc_test::eraseSchema16FixtureKeys(old);old["tracks"][0]["clips"][0]["stretch"].erase("warp");
     check(decodeProject(old.dump())==legacy,"Schema1.14 context/constant migration changed legacy state");
 }
 int geometryProbe() {

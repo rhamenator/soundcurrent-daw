@@ -51,6 +51,33 @@ Session withManualRecording(const Session &s, const ManualRecordedGroup &group, 
     require(added != 0, "Manual group has no verified takes to adopt");
     return copy;
 }
+Session withManualTakeLanes(const Session &s, const ManualRecordedGroup &group,
+                           std::string name, std::optional<Frame> projectStart) {
+    require(group.complete(), "Retained take lanes require a complete verified group");
+    require(!projectStart || *projectStart >= 0, "Invalid retained take project placement");
+    auto copy = withManualRecording(s, group);
+    const auto groupId = Id::generate();
+    std::set<std::string> tracks;
+    for (const auto &lane : group.lanes) {
+        require(tracks.insert(lane.spec.trackId.str()).second,
+                "Retained group contains duplicate tracks");
+        auto track = std::find_if(copy.tracks.begin(), copy.tracks.end(),
+                                 [&](const auto &t) { return t.id == lane.spec.trackId; });
+        require(track != copy.tracks.end() && !track->clips.empty() &&
+                    track->clips.back().assetId == lane.result->asset.id,
+                "Retained group lost verified clip identity");
+        TakeLane retained;
+        retained.groupId = groupId; retained.name = name;
+        retained.captureStartFrame = group.beginFrame; retained.captureEndFrame = group.endFrame;
+        auto clip = std::move(track->clips.back());
+        track->clips.pop_back();
+        if (projectStart) clip.startFrame = *projectStart;
+        retained.clips.push_back(std::move(clip));
+        track->takeLanes.push_back(std::move(retained));
+    }
+    validate(copy);
+    return copy;
+}
 struct ManualRecordingRun::State {
     struct Consumer {
         std::unique_ptr<RecordingWorker> worker;

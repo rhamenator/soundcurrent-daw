@@ -2,6 +2,7 @@
 #include <soundcurrent/session.hpp>
 #include <soundcurrent/clip_timing.hpp>
 #include <soundcurrent/stretch.hpp>
+#include <soundcurrent/warp.hpp>
 #include <numeric>
 #include <algorithm>
 #include <cmath>
@@ -136,6 +137,22 @@ void dynamicWeight(PayloadCharge &charge, const std::optional<MasterBus> &m) {
         charge.add(t.channels.capacity(), sizeof(ChannelMix));
     }
 }
+void dynamicWeight(PayloadCharge &charge, const Clip &c) {
+    stringWeight(charge, c.id.str());
+    stringWeight(charge, c.assetId.str());
+    if (c.stretch) {
+        stringWeight(charge, c.stretch->sourceAssetId.str());
+        stringWeight(charge, c.stretch->sourceSha256);
+        stringWeight(charge, c.stretch->renderKey);
+        stringWeight(charge, c.stretch->processor);
+        if (c.stretch->warp) charge.add(warpPayloadBytes(*c.stretch->warp));
+    }
+    if (c.takeOrigin) {
+        stringWeight(charge, c.takeOrigin->trackId.str());
+        stringWeight(charge, c.takeOrigin->laneId.str());
+        stringWeight(charge, c.takeOrigin->clipId.str());
+    }
+}
 void dynamicWeight(PayloadCharge &charge, const Track &t) {
     stringWeight(charge, t.id.str());
     stringWeight(charge, t.name);
@@ -144,18 +161,97 @@ void dynamicWeight(PayloadCharge &charge, const Track &t) {
     charge.add(t.clips.capacity(), sizeof(Clip));
     for (const auto &b : t.eq.bands)
         stringWeight(charge, b.id.str());
-    for (const auto &c : t.clips) {
-        stringWeight(charge, c.id.str());
-        stringWeight(charge, c.assetId.str());
-        if(c.stretch) {
-            stringWeight(charge,c.stretch->sourceAssetId.str());
-            stringWeight(charge,c.stretch->sourceSha256);stringWeight(charge,c.stretch->renderKey);
-            stringWeight(charge,c.stretch->processor);
-        }
+    for (const auto &c : t.clips) dynamicWeight(charge, c);
+    charge.add(t.takeLanes.capacity(), sizeof(TakeLane));
+    for (const auto &lane : t.takeLanes) {
+        stringWeight(charge, lane.id.str()); stringWeight(charge, lane.groupId.str());
+        stringWeight(charge, lane.name);
+        charge.add(lane.clips.capacity(), sizeof(Clip));
+        for (const auto &c : lane.clips) dynamicWeight(charge, c);
     }
     dynamicWeight(charge, t.input);
     dynamicWeight(charge, t.output);
     dynamicWeight(charge, t.monitor);
+}
+Clip croppedCopy(const Session &s, const Clip &original, Frame first, Frame end,
+                 bool newIdentity) {
+    require(first >= original.startFrame && end <= original.startFrame+original.lengthFrames &&
+                first < end, "Invalid comp crop");
+    auto result = original;
+    if (newIdentity) result.id = Id::generate();
+    const auto consumed = first-original.startFrame;
+    const auto asset = std::find_if(s.assets.begin(), s.assets.end(),
+                                   [&](const auto &a) { return a.id == original.assetId; });
+    require(asset != s.assets.end(), "Comp asset is missing");
+    const auto source = clipSourceMap(original, asset->sampleRate, s.sampleRate).at(consumed);
+    const auto divisor = std::gcd(source.fraction, source.denominator);
+    result.startFrame = first; result.sourceFrame = source.frame;
+    result.sourceTiming = {source.fraction/divisor, source.denominator/divisor};
+    result.lengthFrames = end-first;
+    shiftClipProcessing(result.processing, consumed);
+    return result;
+}
+void selectTake(Session &s, const SelectTakeRegion &e, StateBudget budget) {
+    require(e.startFrame >= 0 && e.endFrame > e.startFrame, "Invalid comp selection range");
+    auto &t = track(s, e.track);
+    const auto &lane = *find(t.takeLanes, e.lane);
+    PayloadCharge staging("Comp selection staging", budget.memoryBudgetBytes);
+    staging.add(t.clips.size(), 2*sizeof(Clip));
+    staging.add(t.clips.size(), 256); // Existing identity/origin indexes and pointer lists.
+    staging.add(lane.clips.size(), sizeof(Clip)+sizeof(const Clip *));
+    for (const auto &c : t.clips) { dynamicWeight(staging, c); dynamicWeight(staging, c); }
+    for (const auto &c : lane.clips) dynamicWeight(staging, c);
+    std::unordered_map<std::string_view, const Clip *> existingIds;
+    std::unordered_map<std::string_view, std::vector<const Clip *>> existingOrigins;
+    for (const auto &c : t.clips) {
+        existingIds.emplace(c.id.str(), &c);
+        if (c.takeOrigin) existingOrigins[c.takeOrigin->clipId.str()].push_back(&c);
+    }
+    std::vector<const Clip *> selected;
+    selected.reserve(lane.clips.size());
+    for (const auto &c : lane.clips)
+        if (c.startFrame < e.endFrame && c.startFrame+c.lengthFrames > e.startFrame)
+            selected.push_back(&c);
+    std::sort(selected.begin(), selected.end(),
+              [](const auto *a, const auto *b) { return a->startFrame < b->startFrame; });
+    Frame cursor = e.startFrame;
+    for (const auto *c : selected) {
+        require(c->startFrame <= cursor, "Selected take does not cover the comp region");
+        cursor = std::min(e.endFrame, c->startFrame+c->lengthFrames);
+    }
+    require(cursor == e.endFrame, "Selected take does not cover the comp region");
+    std::vector<Clip> result;
+    result.reserve(t.clips.size()*2+selected.size()); // Arithmetic admitted above.
+    for (const auto &c : t.clips) {
+        const auto end = c.startFrame+c.lengthFrames;
+        if (end <= e.startFrame || c.startFrame >= e.endFrame) result.push_back(c);
+        else {
+            if (c.startFrame < e.startFrame)
+                result.push_back(croppedCopy(s, c, c.startFrame, e.startFrame, false));
+            if (end > e.endFrame)
+                result.push_back(croppedCopy(s, c, e.endFrame, end, c.startFrame < e.startFrame));
+        }
+    }
+    for (const auto *c : selected) {
+        auto copy = croppedCopy(s, *c, std::max(c->startFrame, e.startFrame),
+                                std::min(c->startFrame+c->lengthFrames, e.endFrame), true);
+        copy.takeOrigin = ClipTakeOrigin{t.id, lane.id, c->id};
+        if (const auto prior = existingOrigins.find(c->id.str()); prior != existingOrigins.end())
+            for (const auto *old : prior->second) {
+                copy.id = old->id;
+                if (copy == *old) break;
+                copy.id = Id::generate();
+            }
+        result.push_back(std::move(copy));
+    }
+    // A repeated identical selection is a no-op; preserve the original ordering.
+    if (result.size() == t.clips.size() &&
+        std::all_of(result.begin(), result.end(), [&](const auto &c) {
+            const auto old = existingIds.find(c.id.str());
+            return old != existingIds.end() && *old->second == c;
+        })) return;
+    // Kept fragments retain their original summation order outside the comp region.
+    t.clips = std::move(result);
 }
 } // namespace
 void validateClipProcessing(const ClipProcessing &p) {
@@ -229,6 +325,26 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     proposed.punch = e.value;
                 } else if constexpr (std::is_same_v<E, SetInputLatency>) {
                     track(proposed, e.track).inputLatencyFrames = e.frames;
+                } else if constexpr (std::is_same_v<E, InsertTakeLane>) {
+                    auto &lanes = track(proposed, e.track).takeLanes;
+                    lanes.insert(position(lanes, e.before), e.lane);
+                } else if constexpr (std::is_same_v<E, RemoveTakeLane>) {
+                    auto &lanes = track(proposed, e.track).takeLanes;
+                    // Active comp references must first be explicitly removed or replaced.
+                    lanes.erase(find(lanes, e.lane));
+                } else if constexpr (std::is_same_v<E, RenameTakeLane>) {
+                    find(track(proposed, e.track).takeLanes, e.lane)->name = e.name;
+                } else if constexpr (std::is_same_v<E, MoveTakeLane>) {
+                    auto &lanes = track(proposed, e.track).takeLanes;
+                    (void)find(lanes, e.lane);
+                    if (e.before) (void)find(lanes, *e.before);
+                    if (e.before == std::optional<Id>(e.lane)) return;
+                    auto it = find(lanes, e.lane);
+                    auto moved = std::move(*it);
+                    lanes.erase(it);
+                    lanes.insert(position(lanes, e.before), std::move(moved));
+                } else if constexpr (std::is_same_v<E, SelectTakeRegion>) {
+                    selectTake(proposed, e, budget);
                 } else if constexpr (std::is_same_v<E, RenameTrack>) {
                     track(proposed, e.track).name = e.name;
                 } else if constexpr (std::is_same_v<E, MoveTrack>) {

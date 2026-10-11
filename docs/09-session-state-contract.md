@@ -63,3 +63,15 @@ separate algorithm identities and a nominal visible map with bounded real-source
 geometry. [Checkpoint144](144-explicit-stretch-context.md) records validation,
 Undo/Redo, shared rendering and migration acceptance; local acoustic alignment
 and warp/pitch quality gates remain open.
+
+## Schema 1.16: retained takes and comp provenance
+
+The writer stores inactive take lanes with stable lane/group identities, original
+project-rate recording transport ranges and clips. Selected arrangement clips
+retain nullable source track/lane/clip identities; inactive clips cannot recursively
+reference takes. The shared clip codec preserves processing, fades, exact timing
+and stretch metadata in both lists. Older 1.0–1.15 schemas default to empty lanes
+and absent provenance, and reject the newer keys. State/history budgets cover
+nested clips and warp data. [Checkpoint170](170-retained-take-lanes.md) records
+transactional comp selection, raw preservation, migrations and remaining UI/loop
+and native-platform work. Device-clock origins remain in raw-media journals.

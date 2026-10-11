@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-3.0-only
+#pragma once
+#include <stdexcept>
+namespace sc_test {
+// Construct legacy fixtures from a neutral current writer. Production loading
+// remains strict: old schemas reject these keys. Never discard an actual take.
+template<class Json> void eraseSchema16FixtureKeys(Json &value) {
+    if (value.at("schemaMinor") > 15) return;
+    for (auto &track : value.at("tracks")) {
+        if (track.contains("takeLanes") && !track.at("takeLanes").empty())
+            throw std::runtime_error("Legacy fixture cannot discard retained takes");
+        track.erase("takeLanes");
+        for (auto &clip : track.at("clips")) {
+            if (clip.contains("takeOrigin") && !clip.at("takeOrigin").is_null())
+                throw std::runtime_error("Legacy fixture cannot discard comp provenance");
+            clip.erase("takeOrigin");
+        }
+    }
+}
+}

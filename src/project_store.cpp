@@ -297,20 +297,15 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                 {"timeDenominator",p.settings.timeDenominator},{"pitchMilliCents",p.settings.pitchMilliCents},
                 {"formantPreserved",p.settings.formantPreserved}}},{"renderKey",p.renderKey}};
     };
-    for (const auto &t : s.tracks) {
-        Json bands = Json::array(), clips = Json::array();
-        for (const auto &b : t.eq.bands)
-            bands.push_back({{"id", b.id.str()},
-                             {"frequencyHz", b.frequencyHz},
-                             {"gainDb", b.gainDb},
-                             {"q", b.q}});
-        for (const auto &c : t.clips)
-            clips.push_back({{"id", c.id.str()},
+    const auto encodeClip = [&](const Clip &c) -> Json {
+        return {{"id", c.id.str()},
                              {"assetId", c.assetId.str()},
                              {"startFrame", c.startFrame},
                              {"sourceFrame", c.sourceFrame},
                              {"lengthFrames", c.lengthFrames},
                              {"stretch",stretch(c.stretch)},
+                             {"takeOrigin", c.takeOrigin ? Json{{"trackId",c.takeOrigin->trackId.str()},
+                                 {"laneId",c.takeOrigin->laneId.str()},{"clipId",c.takeOrigin->clipId.str()}} : Json(nullptr)},
                              {"playbackRate",{{"numerator",c.playbackRate.numerator},
                                  {"denominator",c.playbackRate.denominator},
                                  {"mode","speed-pitch-linked-v1"}}},
@@ -321,7 +316,24 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                                  {"muted",c.processing.muted},
                                  {"polarityInverted",c.processing.polarityInverted},
                                  {"fadeIn",fade(c.processing.fadeIn)},
-                                 {"fadeOut",fade(c.processing.fadeOut)}}}});
+                                 {"fadeOut",fade(c.processing.fadeOut)}}}};
+    };
+    for (const auto &t : s.tracks) {
+        Json bands = Json::array(), clips = Json::array();
+        for (const auto &b : t.eq.bands)
+            bands.push_back({{"id", b.id.str()},
+                             {"frequencyHz", b.frequencyHz},
+                             {"gainDb", b.gainDb},
+                             {"q", b.q}});
+        for (const auto &c : t.clips) clips.push_back(encodeClip(c));
+        Json takeLanes = Json::array();
+        for (const auto &lane : t.takeLanes) {
+            Json retained = Json::array();
+            for (const auto &c : lane.clips) retained.push_back(encodeClip(c));
+            takeLanes.push_back({{"id",lane.id.str()},{"groupId",lane.groupId.str()},
+                {"name",lane.name},{"captureStartFrame",lane.captureStartFrame},
+                {"captureEndFrame",lane.captureEndFrame},{"clips",retained}});
+        }
         Json processor = {{"id", t.eq.id.str()},
                           {"type", "sc.eq"},
                           {"version", 1},
@@ -339,7 +351,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
                                                                            : "auto-recording"},
              {"inputLatencyFrames", t.inputLatencyFrames},
              {"processors", Json::array({processor})},
-             {"clips", clips}});
+             {"clips", clips}, {"takeLanes",takeLanes}});
     }
     for (const auto &a : s.assets)
         assets.push_back({{"id", a.id.str()},
@@ -351,7 +363,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 15},
+        {"schemaMinor", 16},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -493,7 +505,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 15),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 16),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -542,6 +554,99 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         }
         array(j.at("tracks"), budget.state.memoryBudgetBytes / sizeof(Track));
         s.tracks.reserve(j.at("tracks").size());
+        const auto readClip = [&](const Json &c) -> Clip {
+            if (minor < 9)
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames"});
+            else if(minor==9)
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing"});
+            else if(minor==10)
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming"});
+            else if(minor==11)
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate"});
+            else if (minor < 16)
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch"});
+            else
+                keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch", "takeOrigin"});
+            Clip clip;
+            clip.id = Id(string(c.at("id")));
+            clip.assetId = Id(string(c.at("assetId")));
+            clip.startFrame = integer(c.at("startFrame"));
+            clip.sourceFrame = integer(c.at("sourceFrame"));
+            clip.lengthFrames = integer(c.at("lengthFrames"));
+            if(minor>=12 && !c.at("stretch").is_null()) {
+                const auto &p=c.at("stretch");
+                if(minor>=15) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context","warp"});
+                else if(minor>=14) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context"});
+                else keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey"});
+                require((minor>=13 || string(p.at("processor"))==stretchProcessorId) && integer(p.at("version"))==1,
+                        "Unsupported stretch processor",ErrorCode::UnsupportedSchema);
+                ClipStretchAnchor v;
+                v.processor=string(p.at("processor"));
+                v.sourceAssetId=Id(string(p.at("sourceAssetId")));v.sourceSha256=string(p.at("sourceSha256"));
+                v.sourceFrames=integer(p.at("sourceFrames"));v.renderKey=string(p.at("renderKey"));
+                if(minor>=14 && !p.at("context").is_null()) {
+                    const auto &context=p.at("context");keys(context,{"before","after"});
+                    v.context=StretchContext{integer(context.at("before")),integer(context.at("after"))};
+                }
+                const auto &origin=p.at("sourceOrigin");keys(origin,{"frame","fraction","denominator","algorithm"});
+                require(string(origin.at("algorithm"))==positionedResamplingAlgorithmId,
+                        "Unsupported raw anchor algorithm",ErrorCode::UnsupportedSchema);
+                v.sourceOrigin={integer(origin.at("frame")),u64(origin.at("fraction")),u64(origin.at("denominator"))};
+                const auto &settings=p.at("settings");keys(settings,{"timeNumerator","timeDenominator","pitchMilliCents","formantPreserved"});
+                const auto pitch=integer(settings.at("pitchMilliCents"));
+                require(pitch>=-2400000 && pitch<=2400000,"Stretch pitch out of range");
+                v.settings={u32(settings.at("timeNumerator")),u32(settings.at("timeDenominator")),
+                    std::int32_t(pitch),boolean(settings.at("formantPreserved"))};
+                if(minor>=15 && !p.at("warp").is_null())v.warp=warp_codec::decode(p.at("warp"),v.sourceFrames,stretchOutputFrames(v.sourceFrames,v.settings),budget.state.memoryBudgetBytes);
+                clip.stretch=std::move(v);
+            }
+            if(minor>=11) {
+                const auto &rate=c.at("playbackRate");keys(rate,{"numerator","denominator","mode"});
+                require(string(rate.at("mode"))=="speed-pitch-linked-v1",
+                        "Unsupported clip playback mode",ErrorCode::UnsupportedSchema);
+                const auto numerator=u64(rate.at("numerator")),denominator=u64(rate.at("denominator"));
+                require(numerator<=4000 && denominator<=4000,"Playback rate component exceeds bound");
+                clip.playbackRate={std::uint32_t(numerator),std::uint32_t(denominator)};
+                validateClipPlaybackRate(clip.playbackRate);
+            }
+            if(minor>=10) {
+                const auto &timing=c.at("sourceTiming");keys(timing,{"fraction","denominator","algorithm"});
+                require(string(timing.at("algorithm"))==positionedResamplingAlgorithmId,
+                        "Unsupported clip source algorithm",ErrorCode::UnsupportedSchema);
+                clip.sourceTiming={u64(timing.at("fraction")),u64(timing.at("denominator"))};
+            } else {
+                const auto asset=std::find_if(s.assets.begin(),s.assets.end(),
+                    [&](const auto &a){return a.id==clip.assetId;});
+                require(asset==s.assets.end() || asset->sampleRate==s.sampleRate,
+                        "Legacy mixed-rate timing requires explicit conversion",ErrorCode::UnsupportedSchema);
+            }
+            if (minor >= 9) {
+                const auto &p = c.at("processing");
+                keys(p,{"gainDb","muted","polarityInverted","fadeIn","fadeOut"});
+                clip.processing.gainDb = number(p.at("gainDb"));
+                clip.processing.muted = boolean(p.at("muted"));
+                clip.processing.polarityInverted = boolean(p.at("polarityInverted"));
+                const auto readFade = [&](const Json &f) {
+                    keys(f,{"startFrame","endFrame","curve","shape"});
+                    const auto curve = string(f.at("curve"));
+                    require(curve=="linear" || curve=="equal-power" || curve=="smoothstep",
+                            "Unknown clip fade curve",ErrorCode::UnsupportedSchema);
+                    return ClipFade{integer(f.at("startFrame")),integer(f.at("endFrame")),
+                        curve=="linear" ? ClipFadeCurve::Linear :
+                        curve=="equal-power" ? ClipFadeCurve::EqualPower : ClipFadeCurve::Smoothstep,
+                        number(f.at("shape"))};
+                };
+                clip.processing.fadeIn = readFade(p.at("fadeIn"));
+                clip.processing.fadeOut = readFade(p.at("fadeOut"));
+            }
+            if (minor >= 16 && !c.at("takeOrigin").is_null()) {
+                const auto &origin = c.at("takeOrigin");
+                keys(origin, {"trackId", "laneId", "clipId"});
+                clip.takeOrigin = ClipTakeOrigin{Id(string(origin.at("trackId"))),
+                    Id(string(origin.at("laneId"))), Id(string(origin.at("clipId")))};
+            }
+            return clip;
+        };
         for (const auto &t : j.at("tracks")) {
             if (minor == 0)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "processors",
@@ -552,9 +657,12 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             else if (minor < 5)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "monitoringMode", "processors", "clips"});
-            else
+            else if (minor < 16)
                 keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
                          "monitoringMode", "inputLatencyFrames", "processors", "clips"});
+            else
+                keys(t, {"id", "name", "layout", "inputIntent", "outputIntent", "monitorIntent",
+                         "monitoringMode", "inputLatencyFrames", "processors", "clips", "takeLanes"});
             Track track;
             track.id = Id(string(t.at("id")));
             track.name = string(t.at("name"));
@@ -596,90 +704,22 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             }
             array(t.at("clips"), budget.state.memoryBudgetBytes / sizeof(Clip));
             track.clips.reserve(t.at("clips").size());
-            for (const auto &c : t.at("clips")) {
-                if (minor < 9)
-                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames"});
-                else if(minor==9)
-                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing"});
-                else if(minor==10)
-                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming"});
-                else if(minor==11)
-                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate"});
-                else
-                    keys(c, {"id", "assetId", "startFrame", "sourceFrame", "lengthFrames", "processing", "sourceTiming", "playbackRate", "stretch"});
-                Clip clip;
-                clip.id = Id(string(c.at("id")));
-                clip.assetId = Id(string(c.at("assetId")));
-                clip.startFrame = integer(c.at("startFrame"));
-                clip.sourceFrame = integer(c.at("sourceFrame"));
-                clip.lengthFrames = integer(c.at("lengthFrames"));
-                if(minor>=12 && !c.at("stretch").is_null()) {
-                    const auto &p=c.at("stretch");
-                    if(minor>=15) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context","warp"});
-                    else if(minor>=14) keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey","context"});
-                    else keys(p,{"processor","version","sourceAssetId","sourceSha256","sourceOrigin","sourceFrames","settings","renderKey"});
-                    require((minor>=13 || string(p.at("processor"))==stretchProcessorId) && integer(p.at("version"))==1,
-                            "Unsupported stretch processor",ErrorCode::UnsupportedSchema);
-                    ClipStretchAnchor v;
-                    v.processor=string(p.at("processor"));
-                    v.sourceAssetId=Id(string(p.at("sourceAssetId")));v.sourceSha256=string(p.at("sourceSha256"));
-                    v.sourceFrames=integer(p.at("sourceFrames"));v.renderKey=string(p.at("renderKey"));
-                    if(minor>=14 && !p.at("context").is_null()) {
-                        const auto &context=p.at("context");keys(context,{"before","after"});
-                        v.context=StretchContext{integer(context.at("before")),integer(context.at("after"))};
-                    }
-                    const auto &origin=p.at("sourceOrigin");keys(origin,{"frame","fraction","denominator","algorithm"});
-                    require(string(origin.at("algorithm"))==positionedResamplingAlgorithmId,
-                            "Unsupported raw anchor algorithm",ErrorCode::UnsupportedSchema);
-                    v.sourceOrigin={integer(origin.at("frame")),u64(origin.at("fraction")),u64(origin.at("denominator"))};
-                    const auto &settings=p.at("settings");keys(settings,{"timeNumerator","timeDenominator","pitchMilliCents","formantPreserved"});
-                    const auto pitch=integer(settings.at("pitchMilliCents"));
-                    require(pitch>=-2400000 && pitch<=2400000,"Stretch pitch out of range");
-                    v.settings={u32(settings.at("timeNumerator")),u32(settings.at("timeDenominator")),
-                        std::int32_t(pitch),boolean(settings.at("formantPreserved"))};
-                    if(minor>=15 && !p.at("warp").is_null())v.warp=warp_codec::decode(p.at("warp"),v.sourceFrames,stretchOutputFrames(v.sourceFrames,v.settings),budget.state.memoryBudgetBytes);
-                    clip.stretch=std::move(v);
+            for (const auto &c : t.at("clips")) track.clips.push_back(readClip(c));
+            if (minor >= 16) {
+                array(t.at("takeLanes"), budget.state.memoryBudgetBytes / sizeof(TakeLane));
+                track.takeLanes.reserve(t.at("takeLanes").size());
+                for (const auto &value : t.at("takeLanes")) {
+                    keys(value, {"id", "groupId", "name", "captureStartFrame", "captureEndFrame", "clips"});
+                    TakeLane lane;
+                    lane.id = Id(string(value.at("id"))); lane.groupId = Id(string(value.at("groupId")));
+                    lane.name = string(value.at("name"));
+                    lane.captureStartFrame = integer(value.at("captureStartFrame"));
+                    lane.captureEndFrame = integer(value.at("captureEndFrame"));
+                    array(value.at("clips"), budget.state.memoryBudgetBytes / sizeof(Clip));
+                    lane.clips.reserve(value.at("clips").size());
+                    for (const auto &c : value.at("clips")) lane.clips.push_back(readClip(c));
+                    track.takeLanes.push_back(std::move(lane));
                 }
-                if(minor>=11) {
-                    const auto &rate=c.at("playbackRate");keys(rate,{"numerator","denominator","mode"});
-                    require(string(rate.at("mode"))=="speed-pitch-linked-v1",
-                            "Unsupported clip playback mode",ErrorCode::UnsupportedSchema);
-                    const auto numerator=u64(rate.at("numerator")),denominator=u64(rate.at("denominator"));
-                    require(numerator<=4000 && denominator<=4000,"Playback rate component exceeds bound");
-                    clip.playbackRate={std::uint32_t(numerator),std::uint32_t(denominator)};
-                    validateClipPlaybackRate(clip.playbackRate);
-                }
-                if(minor>=10) {
-                    const auto &timing=c.at("sourceTiming");keys(timing,{"fraction","denominator","algorithm"});
-                    require(string(timing.at("algorithm"))==positionedResamplingAlgorithmId,
-                            "Unsupported clip source algorithm",ErrorCode::UnsupportedSchema);
-                    clip.sourceTiming={u64(timing.at("fraction")),u64(timing.at("denominator"))};
-                } else {
-                    const auto asset=std::find_if(s.assets.begin(),s.assets.end(),
-                        [&](const auto &a){return a.id==clip.assetId;});
-                    require(asset==s.assets.end() || asset->sampleRate==s.sampleRate,
-                            "Legacy mixed-rate timing requires explicit conversion",ErrorCode::UnsupportedSchema);
-                }
-                if (minor >= 9) {
-                    const auto &p = c.at("processing");
-                    keys(p,{"gainDb","muted","polarityInverted","fadeIn","fadeOut"});
-                    clip.processing.gainDb = number(p.at("gainDb"));
-                    clip.processing.muted = boolean(p.at("muted"));
-                    clip.processing.polarityInverted = boolean(p.at("polarityInverted"));
-                    const auto readFade = [&](const Json &f) {
-                        keys(f,{"startFrame","endFrame","curve","shape"});
-                        const auto curve = string(f.at("curve"));
-                        require(curve=="linear" || curve=="equal-power" || curve=="smoothstep",
-                                "Unknown clip fade curve",ErrorCode::UnsupportedSchema);
-                        return ClipFade{integer(f.at("startFrame")),integer(f.at("endFrame")),
-                            curve=="linear" ? ClipFadeCurve::Linear :
-                            curve=="equal-power" ? ClipFadeCurve::EqualPower : ClipFadeCurve::Smoothstep,
-                            number(f.at("shape"))};
-                    };
-                    clip.processing.fadeIn = readFade(p.at("fadeIn"));
-                    clip.processing.fadeOut = readFade(p.at("fadeOut"));
-                }
-                track.clips.push_back(std::move(clip));
             }
             s.tracks.push_back(std::move(track));
         }
