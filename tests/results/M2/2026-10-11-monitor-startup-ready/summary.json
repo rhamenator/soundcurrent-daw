@@ -1,0 +1,61 @@
+{
+  "format": "sc-monitor-startup-ready-v1",
+  "sourceCommit": "d89d4501c46ae98a281fe386e74933ed57a3a27c",
+  "sourceTree": "4392806a090fdf396fd1b302e15b708e7a2f86cc",
+  "fullQualificationSource": "1617560d96b8715cfb0b5e03fd4048761f49d30c",
+  "protectedBase": "e926e275c22b169cb8829e8bdaf396d7c8e96e8c",
+  "captureBytes": 122546,
+  "captureSha256": "11bfd4a8926f8c55df7a4794aad2ef045039409552f67c579947861c56499a2c",
+  "members": 64,
+  "selectedInputs": 595,
+  "finalExecutableHashes": 48,
+  "profiles": {
+    "release": {
+      "fullSuites": 16,
+      "fullSource": "1617560d96b8715cfb0b5e03fd4048761f49d30c",
+      "fullSeconds": 3.33,
+      "startupChecks": 19698,
+      "concurrentReaderCases": 6,
+      "directReferenceMaxError": 0,
+      "guardedAllocationFreeLock": 0,
+      "changedFixtureSuites": 1,
+      "changedFixtureSource": "d89d4501c46ae98a281fe386e74933ed57a3a27c",
+      "changedFixtureSeconds": 0.24
+    },
+    "sanitizer": {
+      "fullSuites": 16,
+      "fullSource": "1617560d96b8715cfb0b5e03fd4048761f49d30c",
+      "fullSeconds": 23.02,
+      "startupChecks": 19698,
+      "concurrentReaderCases": 6,
+      "directReferenceMaxError": 0,
+      "guardedAllocationFreeLock": 0,
+      "changedFixtureSuites": 1,
+      "changedFixtureSource": "d89d4501c46ae98a281fe386e74933ed57a3a27c",
+      "changedFixtureSeconds": 1.2
+    },
+    "tsan": {
+      "fullSuites": 16,
+      "fullSource": "1617560d96b8715cfb0b5e03fd4048761f49d30c",
+      "fullSeconds": 28.15,
+      "startupChecks": 19698,
+      "concurrentReaderCases": 6,
+      "directReferenceMaxError": 0,
+      "guardedAllocationFreeLock": 0,
+      "changedFixtureSuites": 1,
+      "changedFixtureSource": "d89d4501c46ae98a281fe386e74933ed57a3a27c",
+      "changedFixtureSeconds": 2.59
+    }
+  },
+  "newWindowsObjects": 3,
+  "windowsCoreCompiled": true,
+  "windowsRuntimeQualified": false,
+  "nativeWarmupImplemented": false,
+  "nativeAudioQualified": false,
+  "schema11Implemented": false,
+  "factoryEnabled": false,
+  "originalGroupTimeoutCauseResolved": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

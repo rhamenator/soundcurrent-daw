@@ -6,30 +6,16 @@
 #include "monitor_clock_handoff.hpp"
 #include "monitor_control.hpp"
 #include "monitor_capture_stop.hpp"
+#include "monitor_startup_handoff.hpp"
 
 namespace soundcurrent::daw {
 // Opt-in prepared startup admission. The caller supplies ACTUAL native geometry,
 // keeps native content pulls gated, and delivers original moving clock readings.
-// This does not start an SDK owner or publish a cross-thread readiness signal.
+// This does not start an SDK owner. An optional external handoff publishes
+// immutable full-FIFO readiness; otherwise statistics remain owner-only.
 struct MonitorStartupConfig {
     std::uint32_t nativeCapacityFrames = 0, maximumNativeFillFrames = 0;
     std::uint64_t maximumWait100ns = 50000000;
-};
-enum class MonitorStartupPhase { Disabled, Observing, Transferring, Live };
-struct MonitorStartupSource {
-    CaptureBankStamp original;
-    std::uint32_t packetOffsetFrames = 0;
-    bool operator==(const MonitorStartupSource &) const = default;
-};
-struct MonitorStartupStatistics {
-    MonitorStartupPhase phase = MonitorStartupPhase::Disabled;
-    std::uint64_t acceptedFrames = 0, discardedFrames = 0, transferredFrames = 0, abandonedFrames = 0;
-    std::uint32_t retainedFrames = 0, capacityFrames = 0;
-    // Kernel context begins here; this is NOT a first-audible-frame/alignment map.
-    std::optional<MonitorStartupSource> firstTransferred;
-    std::optional<CaptureBankStamp> lastAccepted;
-    bool contentReady = false;
-    bool operator==(const MonitorStartupStatistics &) const = default;
 };
 std::uint32_t monitorStartupRetainedFrames(const MonitorBufferConfig &,
     const MonitorDriftConfig &, const MonitorStartupConfig &); // Admission, off RT.
@@ -45,7 +31,7 @@ enum class MonitorProcessingCode {
 };
 enum class MonitorProcessingCause {
     Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd,
-    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull
+    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -67,7 +53,8 @@ struct MonitorClockPump {
 std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &,
     const MonitorOutputBankConfig &, const MonitorProcessingConfig &);
 // ONE processing owner. External fanout and output bank outlive this object;
-// construct and retire off RT, after all owners join. This is monitor resampling
+// construct and retire off RT, after all owners join. Any supplied startup handoff
+// outlives this object and all readers. This is monitor resampling
 // composition, not an SDK adapter, native activation or recording alignment.
 // observe receives original readings via a caller-owned bounded handoff, never
 // concurrent native-owner calls. step's asOf must be the actual current QPC time.
@@ -75,7 +62,8 @@ class PreparedMonitorProcessing {
   public:
     PreparedMonitorProcessing(PreparedCaptureFanout &, PreparedMonitorOutputBank &,
                               MonitorProcessingConfig, PreparedMonitorClockHandoff * = nullptr,
-                              PreparedMonitorControl * = nullptr, PreparedMonitorCaptureStop * = nullptr);
+                              PreparedMonitorControl * = nullptr, PreparedMonitorCaptureStop * = nullptr,
+                              PreparedMonitorStartupHandoff * = nullptr);
     ~PreparedMonitorProcessing();
     PreparedMonitorProcessing(const PreparedMonitorProcessing &) = delete;
     PreparedMonitorProcessing &operator=(const PreparedMonitorProcessing &) = delete;
@@ -113,6 +101,7 @@ class PreparedMonitorProcessing {
     PreparedMonitorClockHandoff *clocks_ = nullptr;
     PreparedMonitorControl *control_ = nullptr;
     PreparedMonitorCaptureStop *captureStop_ = nullptr;
+    PreparedMonitorStartupHandoff *startupHandoff_ = nullptr;
     MonitorProcessingConfig config_;
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;

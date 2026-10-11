@@ -14,9 +14,9 @@ void check(bool ok, const char *why) { ++checks; if(!ok) throw std::runtime_erro
 template<class F> auto rt(F f) { rt_audit::Guard g; return f(); }
 template<class F> void refuses(F f) { try { f(); } catch(const ProjectError &) { check(true,"refused"); return; } check(false,"Bad configuration accepted"); }
 struct Config {
-    CaptureFanoutConfig capture;
-    MonitorOutputBankConfig output;
-    MonitorProcessingConfig processing;
+    CaptureFanoutConfig capture{};
+    MonitorOutputBankConfig output{};
+    MonitorProcessingConfig processing{};
     Config(unsigned channels = 3) {
         capture.capture.identity = {11,31,7}; capture.capture.channels = channels;
         capture.capture.maximumPacketFrames = 64; capture.capture.slots = 32; capture.monitorSlots = 32;

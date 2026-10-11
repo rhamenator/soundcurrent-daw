@@ -6,6 +6,8 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <thread>
+#include <chrono>
 
 using namespace soundcurrent::daw;
 namespace {
@@ -14,9 +16,9 @@ void check(bool ok,const char *why) { ++checks; if (!ok) throw std::runtime_erro
 template<class F> auto rt(F &&f) { rt_audit::Guard guard; return f(); }
 constexpr std::uint64_t origin = std::uint64_t(1)<<63, qpc = std::uint64_t(1)<<54;
 struct Config {
-    CaptureFanoutConfig capture;
-    MonitorOutputBankConfig output;
-    MonitorProcessingConfig processing;
+    CaptureFanoutConfig capture{};
+    MonitorOutputBankConfig output{};
+    MonitorProcessingConfig processing{};
     Config(unsigned channels=1,unsigned sourceRate=48000,unsigned fifo=4097) {
         capture.capture.identity={11,31,7}; capture.capture.channels=channels;
         capture.capture.sampleRate=sourceRate; capture.capture.maximumPacketFrames=sourceRate/100;
@@ -32,6 +34,11 @@ struct Config {
         processing.startup=MonitorStartupConfig{fifo,fifo,50000000};
     }
 };
+MonitorStartupAdmission readyAdmission(const Config &c) {
+    const auto &b=c.processing.buffer;const auto &d=c.processing.drift;const auto &s=*c.processing.startup;
+    return {b.runGeneration,d.captureIdentity,d.renderIdentity,b.sourceRate,b.outputRate,b.channels,
+        d.renderFrequency,s.nativeCapacityFrames,s.maximumNativeFillFrames,s.maximumWait100ns};
+}
 float sample(std::uint64_t frame,unsigned ch) {
     return float(2.5*std::sin(double(frame)*.019+ch*.1));
 }
@@ -63,7 +70,28 @@ void success(unsigned channels,unsigned rate) {
     PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
     std::vector<float> pcm(std::size_t(c.capture.capture.maximumPacketFrames)*channels);
     {
-        PreparedMonitorProcessing p(f,o,c.processing);
+        PreparedMonitorStartupHandoff handoff(readyAdmission(c),65536,ledger);
+        PreparedMonitorProcessing p(f,o,c.processing,nullptr,nullptr,nullptr,&handoff);
+        std::optional<MonitorStartupReady> observedReady;
+        bool readerFailed=false;std::uint64_t readerPolls=0;rt_audit::Counts readerAudit;
+        std::jthread reader([&](std::stop_token stop) {
+            rt_audit::reset();const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);
+            while(!stop.stop_requested() && std::chrono::steady_clock::now()<deadline) {
+                const auto state=rt([&]{return handoff.phase();});
+                auto original=rt([&]{return handoff.ready();});++readerPolls;
+                if(original) {
+                    if(original->admitted!=readyAdmission(c) || !original->original.contentReady ||
+                       original->publishedFrames<c.processing.startup->nativeCapacityFrames)
+                        readerFailed=true;
+                    observedReady=original;break;
+                }
+                if(state!=MonitorStartupHandoffPhase::Pending && state!=MonitorStartupHandoffPhase::Ready) {
+                    readerFailed=true;break;
+                }
+                std::this_thread::yield();
+            }
+            readerAudit=rt_audit::counts;
+        }); // Joins/stops BEFORE processing teardown on every exceptional path.
         unsigned tick=0;
         for(;tick<250;++tick) {
             observe(p,c,tick);publishRaw(f,c,tick,pcm);
@@ -100,7 +128,16 @@ void success(unsigned channels,unsigned rate) {
         check(firstFrame==initial.discardedFrames && first.original.qpc.value>=qpc &&
             first.original.identity==c.capture.capture.identity && first.packetOffsetFrames<first.original.frames,
             "First transferred source stamp/partial-packet offset changed");
-        check(ledger.usage().reservedBytes==p.chargedBytes(),"Startup credit was not charged once");
+        reader.join();
+        check(!readerFailed && observedReady && readerPolls &&
+            observedReady->original==ready.startup && observedReady->admitted==handoff.admission() &&
+            observedReady->publishedFrames==ready.publishedFrames && observedReady->asOfQpc100ns==now,
+            "Concurrent native reader missed or mutated full-FIFO original readiness");
+        check(!readerAudit.cppAllocate && !readerAudit.cppFree && !readerAudit.cAllocate &&
+            !readerAudit.cFree && !readerAudit.blockingLock,"Readiness reader allocated/freed/locked");
+        check(ledger.usage().reservedBytes==p.chargedBytes()+handoff.chargedBytes(),"Startup credit was not charged once");
+        const auto immutable=handoff.ready();
+        check(immutable && !rt([&]{return handoff.publish(*immutable);}),"Readiness was published/reused twice");
         // Independent causal converter with the SAME retained actual source, no
         // wrapper or seeded clocks. This checks trimming/wrap/transfer sample order.
         PreparedMonitorBuffer reference(c.processing.buffer);
@@ -126,12 +163,86 @@ void success(unsigned channels,unsigned rate) {
         double error=0;for(std::size_t n=0;n<actual.size();++n)error=std::max(error,std::abs(double(actual[n])-expected[n]));
         check(error<1e-5,"Startup tail sample order/wrap differs from independent converter");
         rt([&]{p.cancel();});p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();
+        check(handoff.phase()==MonitorStartupHandoffPhase::Cancelled && handoff.ready()==immutable,
+            "Cancel erased or modified the immutable ready source evidence");
+        std::cout<<"generation-bound full-FIFO receipt; concurrent reader audit=0; " ;
         std::cout<<"unseeded original observations; channels="<<channels<<" sourceRate="<<rate
             <<" firstReadyTick="<<tick<<" raw="<<f.rawAcceptedFrames()<<" monitorDiscard="<<initial.discardedFrames
             <<" retained="<<initial.capacityFrames<<" fullFifo="<<pulled.frames<<" maxError="<<error<<"\n";
     }
     check(!ledger.usage().reservedBytes && !ledger.usage().owners,"Startup credit leaked on retirement");
 }
+void handoffFailures() {
+    for(unsigned kind=0;kind<4;++kind) {
+        Config c;PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
+        PreparedMonitorStartupHandoff h(readyAdmission(c));
+        PreparedMonitorProcessing p(f,o,c.processing,nullptr,nullptr,nullptr,&h);
+        if(kind==0) {
+            rt([&]{p.step({qpc});p.step({qpc+c.processing.startup->maximumWait100ns});});
+            check(h.phase()==MonitorStartupHandoffPhase::Fault && !h.ready(),"Timeout invented full FIFO readiness");
+        } else if(kind==1) {
+            rt([&]{f.finish();p.step({qpc});});
+            check(h.phase()==MonitorStartupHandoffPhase::InputEnd && !h.ready(),"Early capture EOF invented readiness or lost cause");
+        } else if(kind==2) {
+            rt([&]{h.requestCancel();});
+            check(rt([&]{return p.step({qpc});})==MonitorProcessingCode::Cancelled &&
+                h.phase()==MonitorStartupHandoffPhase::Cancelled && !h.ready(),"Control cancel did not reach processing startup");
+        } else {
+            p.settleAfterJoin();
+            check(h.phase()==MonitorStartupHandoffPhase::Fault && !h.ready(),"Abandoned processing owner fabricated readiness");
+        }
+        p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();h.settleAfterProducerJoin();
+    }
+    Config c;PreparedMonitorStartupHandoff abandoned(readyAdmission(c));
+    rt([&]{abandoned.settleAfterProducerJoin();});
+    check(abandoned.phase()==MonitorStartupHandoffPhase::OwnerLost && !abandoned.ready(),"Unstarted/lost publisher fabricated an original ready receipt");
+    for(unsigned kind=0;kind<6;++kind) {
+        auto a=readyAdmission(c);
+        if(kind==0)++a.runGeneration;
+        if(kind==1)++a.captureIdentity.endpoint;
+        if(kind==2)++a.renderIdentity.stream;
+        if(kind==3)++a.renderFrequency;
+        if(kind==4)++a.nativeCapacityFrames;
+        if(kind==5)++a.maximumWait100ns;
+        PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);PreparedMonitorStartupHandoff h(a);
+        ResourceLedger ledger(256*1024*1024);c.processing.resources=ledger;bool refused=false;
+        try {PreparedMonitorProcessing p(f,o,c.processing,nullptr,nullptr,nullptr,&h);}catch(const ProjectError &){refused=true;}
+        check(refused && !ledger.usage().reservedBytes,"Foreign/stale native handoff admission accepted or leaked credit");
+    }
+    {
+        PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
+        PreparedMonitorStartupHandoff h(readyAdmission(c));
+        PreparedMonitorProcessing first(f,o,c.processing,nullptr,nullptr,nullptr,&h);
+        const auto before=c.processing.resources->usage().reservedBytes;bool refused=false;
+        try {PreparedMonitorProcessing duplicate(f,o,c.processing,nullptr,nullptr,nullptr,&h);}catch(const ProjectError &){refused=true;}
+        check(refused && h.claimed() && c.processing.resources->usage().reservedBytes==before,
+            "Second processing publisher admitted or changed original ownership credit");
+        rt([&]{first.cancel();});first.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();
+    }
+    PreparedMonitorStartupHandoff malformed(readyAdmission(c));
+    check(malformed.claimProcessingOwner(),"Malformed receipt fixture did not claim its single owner");
+    for(unsigned kind=0;kind<8;++kind) {
+        MonitorStartupReady r;r.admitted=readyAdmission(c);r.publishedFrames=c.processing.startup->nativeCapacityFrames;r.asOfQpc100ns=qpc;
+        r.original.phase=MonitorStartupPhase::Live;r.original.contentReady=true;r.original.capacityFrames=100;
+        r.original.acceptedFrames=200;r.original.discardedFrames=100;r.original.transferredFrames=100;
+        const CaptureBankStamp stamp{c.capture.capture.identity,{origin},{qpc},480,0};
+        r.original.firstTransferred=MonitorStartupSource{stamp,0};r.original.lastAccepted=stamp;
+        if(kind==0)r.publishedFrames--;
+        if(kind==1)r.asOfQpc100ns=0;
+        if(kind==2)r.original.contentReady=false;
+        if(kind==3)r.original.retainedFrames=1;
+        if(kind==4)r.original.acceptedFrames++;
+        if(kind==5)r.original.firstTransferred->packetOffsetFrames=480;
+        if(kind==6)r.original.discardedFrames=UINT64_MAX;
+        if(kind==7)r.original.lastAccepted->identity.endpoint++;
+        check(!rt([&]{return malformed.publish(r);}) && !malformed.ready() &&
+            malformed.phase()==MonitorStartupHandoffPhase::Pending,"Malformed receipt changed pending handoff or became ready");
+    }
+    ResourceLedger tiny(1);bool refused=false;
+    try {PreparedMonitorStartupHandoff h(readyAdmission(c),65536,tiny);}catch(const ProjectError &){refused=true;}
+    check(refused && !tiny.usage().owners && !tiny.usage().reservedBytes,"Ready-handoff resource refusal leaked");
+}
+
 void failures() {
     for(unsigned kind=0;kind<7;++kind) {
         Config c;PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
@@ -239,7 +350,7 @@ void oneFramePackets() {
 int main() {
     try {
         rt_audit::reset();for(unsigned channels:{1u,2u,8u,256u})success(channels,48000);
-        success(2,44100);success(2,96000);failures();admission();oneFramePackets();
+        success(2,44100);success(2,96000);failures();admission();oneFramePackets();handoffFailures();
         const auto a=rt_audit::counts;
         check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared startup allocated/freed/locked");
         std::cout<<checks<<" startup checks; guarded allocate/free/lock=0; no SDK/hardware claim\n";return 0;
