@@ -86,3 +86,21 @@ Audition/comp crossfades, project automation/tempo/MIDI repetition, live locator
 edits, external/hardware/load/interruption gates and all frozen-reference submodes
 remain open. F/Q/C/N, M2–M11, X004/X005 and European delivery remain incomplete;
 existing stretch-quality failures remain unchanged.
+
+## Source-bound local result
+
+Frozen source `0e65fc33d8e89df60f2fd50360bcd61cdadc8af9` passed19 distinct
+Linux suites in two sequential cohorts:18 suites in41.06s and the separately
+selected `manual-desktop-control` suite in0.75s. The focused simulated desktop
+workflow reported16 checks; the shared-reader loop test reported32129 checks,
+five actual two-input recorded passes and callback allocation/free/blocking-lock
+counts of zero. These are separate synthetic/controller gates, not19 native tests.
+
+The [result packet](../tests/results/M2/2026-10-11-desktop-loop-playback/summary.json)
+contains a31,754-byte bounded ZIP of eight text/JSON members,498 source-file
+hashes and local executable hashes for17 built targets. The standalone verifier
+checks packet consistency; optional `--source-dir` explicitly compares the frozen
+source bytes. Both modes have no Git-history dependency, code/audio replay or
+signature claim. The frozen source comparison passed locally before evidence was
+committed. Earlier failed development runs and an empty test selection are not
+admitted. No executable, installer or release was uploaded.

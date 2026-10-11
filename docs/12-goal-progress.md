@@ -4231,3 +4231,13 @@ mapping within its finite range. The GUI workflow uses a simulated endpoint;
 native/physical/installed qualification and automatic recorded-pass scheduling
 remain required. Ordinary exports keep explicit range semantics. Full F/Q/C/N,
 M2–M11/X004/X005/Europe and existing stretch-quality gaps remain open.
+
+Checkpoint173 local qualification freezes source0e65fc33d8e89df60f2fd50360bcd61cdadc8af9:
+19 distinct Linux suites passed in18+1 sequential cohorts, with16 simulated GUI
+loop checks and the32129-check shared-reader gate. The bounded source-linked
+packet compares498 frozen input files and records17 local executable hashes.
+Saved schema1.17 loop intent, localized whole-frame input, keyboard Undo/Redo,
+Save/reopen, until-Stop preparation, pass/project status and restored linear
+playback have controller/UI evidence. Native endpoints, automatic recorded-pass
+scheduling and installed preview qualification remain open; no Windows parity,
+full language, processing-quality or M2 completion claim follows from these gates.
