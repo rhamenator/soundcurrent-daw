@@ -4849,3 +4849,15 @@ and admission/post-merge receipts. No protection/admin bypass. PR132 inherits
 this MAIN and awaits a fresh cohort. Previous Windows owner-failure causes,
 startup clock/capacity, alignment, punch/loop, EQ/mix, quality, localization and
 the full DAW goal remain open.
+
+## Current-MAIN Windows owner failures retained (2026-10-11)
+
+Output gate38127318120 separately failed manual takeGroup waiting (caller807) and
+Windows parent-interruption recovery (Incomplete instead of Ready). No stale
+stacked success is admitted. Frozenaa62e910 adds take/status/file-size and exact
+owned-child terminal/case-report diagnostics; assertions/deadlines/production
+behavior unchanged. Linux Debug manual control passed1.57s/65,182 observed checks,
+callback audit zero; Windows syntax checked but execution pending. A109,965-byte/
+nine-member packet binds416 inputs/local binary/logs and both original failed
+Windows jobs/API/16 reviewed blobs. [Checkpoint181](181-durable-prefix-regression.md)
+records original unresolved causes. Fresh current-MAIN checks are still required.
