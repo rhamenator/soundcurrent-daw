@@ -13,14 +13,32 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include <sstream>
 using namespace soundcurrent::daw;
 namespace {
 unsigned checks = 0, workflows = 0;
 double maximumDifference = 0, outputPeak = 0;
-void check(bool ok, const char *message) {
+void check(bool ok, const char *message,
+           std::source_location caller = std::source_location::current()) {
     ++checks;
-    if (!ok)
+    if (!ok) {
+        std::cerr << "manual_check_failure workflow=" << workflows
+                  << " file=" << caller.file_name() << " line=" << caller.line()
+                  << " message=" << message << '\n';
         throw std::runtime_error(message);
+    }
+}
+void preservedFailureDiagnostic(std::ostream &out, const std::filesystem::path &root) noexcept {
+    // Native path insertion narrows through the locale on Windows and can throw
+    // for this Unicode fixture while already unwinding, masking the first error.
+    try {
+        const auto utf8 = root.u8string();
+        out << "preserved_failure_project=";
+        out.write(reinterpret_cast<const char *>(utf8.data()), std::streamsize(utf8.size()));
+        out << '\n';
+    } catch (...) {
+        // Failure diagnostics must not replace the original test exception.
+    }
 }
 template <class F> void rejects(F f) {
     bool caught = false;
@@ -39,13 +57,28 @@ struct Directory {
     }
     ~Directory() {
         if (std::uncaught_exceptions()) {
-            std::cerr << "preserved_failure_project=" << root << '\n';
+            preservedFailureDiagnostic(std::cerr, root);
             return;
         }
         std::error_code e;
         std::filesystem::remove_all(root, e);
     }
 };
+void unicodeFailureDiagnostic() {
+    const auto root = std::filesystem::temp_directory_path() / utf8Path("sc-manual-Ελληνικά-Україна");
+    std::ostringstream out;
+    out.imbue(std::locale::classic());
+    preservedFailureDiagnostic(out, root);
+    const auto bytes = root.u8string();
+    check(out.str() == "preserved_failure_project=" +
+                          std::string(reinterpret_cast<const char *>(bytes.data()), bytes.size()) + "\n",
+          "Failure diagnostic lost original Unicode path in the C locale");
+    std::ostringstream unavailable;
+    unavailable.exceptions(std::ios::badbit | std::ios::failbit);
+    try { unavailable.setstate(std::ios::badbit); } catch (const std::ios_base::failure &) {}
+    preservedFailureDiagnostic(unavailable, root); // Must not throw on a failed sink.
+    check(unavailable.bad(), "Failure diagnostic fabricated a recovered output sink");
+}
 float raw(Frame f, unsigned lane) {
     return float(double((f + lane * 37) % 97 - 48) * .0625);
 }
@@ -704,6 +737,7 @@ void concurrentOwner() {
     double difference = 0;
     std::jthread audioOwner([&](std::stop_token stop) {
         rt_audit::reset();
+        unicodeFailureDiagnostic();
         std::array<float, 256> expected{};
         float *expectedOut = expected.data();
         const MixInput oracleInput{f.in.data(), 1};

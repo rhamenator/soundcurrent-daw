@@ -91,3 +91,18 @@ stream's original clock observations. Preserve original raw samples and durable
 versioned raw-to-project mappings separately. Then compose native capture/render
 owners, raw writers, playback/EQ and finite/punch/loop/Stop postroll before enabling
 the Windows desktop duplex factory and qualifying owned native endpoints.
+## Independent Windows MSVC observation
+
+Actual Windows native-unit job114396486497 in run38114463559 passed54
+synthetic suites in197.10s, including stamped-capture-bank in0.03s. Tested merge
+`ab12250419fb1329e33964a48d3a7bd535cd44a0` binds head
+`d55b6661f19db96a4ae10f9b49006d1af672e166` and stacked base
+`9c8f8cfa9f29631850bd80df1085f76977024903`; the API-verified merge tree matched
+the reviewed head. This is actual Windows/MSVC execution with simulated original
+packets, not native endpoint or installed duplex qualification.
+
+The [38,461-byte/three-member packet](../tests/results/M2/2026-10-11-stamped-capture-bank-windows/summary.json)
+retains the complete job log/status and15 changed-file hashes. Archive/member
+validation passed. Per-bank check counts and executable hashes were not exposed;
+neither is invented. The successful stacked cohort is not current-MAIN admission.
+Subsequent manual-owner diagnostics and fresh protected checks remain required.

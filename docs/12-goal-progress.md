@@ -4457,3 +4457,27 @@ Unmodified upstream source integrity passed. A43,992-byte/15-member packet binds
 from control stability/quality/deadline/native workflow qualification. No production
 monitor, audible UI or raw/project schema change. Next: charged causal buffer/
 converter, clock/buffer controller, durable raw mappings and native composition.
+
+## Windows manual-owner failure diagnostics (2026-10-11)
+
+Refreshed run38115064831 passed the repaired interrupted-loop suite4.96s but
+failed manual-recording-control with0xc0000409; all other52 suites passed.
+Truncated Unicode path output during unwinding may mask its initiating assertion.
+Frozen a9d7271 adds UTF-8/noexcept failure reporting, classic-locale/failed-sink
+tests and source-location diagnostics. Linux Debug manual control passed1.63s,
+65,181 observed scheduling-dependent checks and callback audit zero. A38,556-byte/
+five-member packet retains the full failed job/status and local diagnostic logs.
+[Checkpoint181](181-durable-prefix-regression.md) records this separate unresolved
+failure. No production behavior is changed. PR119 stays draft/unadmitted pending
+fresh Windows/current-MAIN checks; do not rerun an old successful stacked cohort
+or suppress the manual workflow to obtain green status.
+
+## Independent Windows capture-bank execution (2026-10-11)
+
+Actual MSVC job114396486497/run38114463559 passed54 synthetic suites197.10s,
+including the bank suite0.03s. API-verified tested mergeab122504 binds
+headd55b666/base9c8f8cf and exact reviewed tree. A38,461-byte/three-member packet
+retains full job/status and15 changed-file hashes; no per-bank check count or
+executable hash is invented. [Checkpoint180](180-stamped-capture-bank.md) records
+this independent platform observation. Native endpoints/installed/physical/full
+product qualification and refreshed current-MAIN protection gates remain open.

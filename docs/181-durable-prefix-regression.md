@@ -50,3 +50,30 @@ remain open.
 
 Next implementation remains the causal monitor buffer and drift-resampling owner,
 separate from original raw capture and durable clock/project mapping.
+
+## Refreshed Windows observation and separate unresolved failure
+
+Run38115064831, head `7ea4813fbc894d20fa33a229a6544cb4683dbf06`,
+passed the repaired continuous-loop-recording suite in4.96s. Its native-unit job
+114398212849 failed manual-recording-control after51.91s with0xc0000409 instead.
+The log ends just after `preserved_failure_project=` during unwinding. This is
+consistent with the Unicode path diagnostic narrowing through the Windows locale
+and throwing while another exception is active; it does not identify the original
+manual-owner assertion or establish a production memory-corruption diagnosis.
+All other52 suites passed. This failed cohort is not admitted for merge.
+
+Frozen diagnostic repair `a9d727152d2799ba96511c79814329bdb128443b` formats
+the path as UTF-8 under a noexcept/catch boundary and reports assertion source
+locations before unwinding. The test checks Greek/Ukrainian path preservation
+with the classic locale and a failed output sink. Linux Debug manual-control
+passed in1.63s with65,181 observed checks and callback audit zero. Polling checks
+vary with scheduling; that count is this execution, not a fixed acceptance total.
+Production manual recording/capture/writers remain unchanged. The original
+Windows manual failure remains unresolved until a fresh diagnostic cohort
+exposes it or independently passes the workflow.
+
+The [38,556-byte packet](../tests/results/M2/2026-10-11-manual-failure-diagnostic/summary.json)
+retains five members: complete failed native job/API status, local diagnostic
+build/CTest logs, six selected input hashes and the local executable hash.
+Standalone compressed-byte/member validation passed; inputs are not a full
+dependency/toolchain closure and executables/media are not included.
