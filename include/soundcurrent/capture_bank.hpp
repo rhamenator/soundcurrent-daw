@@ -34,6 +34,7 @@ struct CaptureBankConfig {
     std::uint32_t initialQueueSequence=0;
     std::uint64_t initialPacketSequence=0;
 };
+std::size_t captureBankPayloadBytes(CaptureBankConfig); // Admission only, off RT.
 enum class CaptureBankStatus : std::uint32_t {
     Running, Stopped, Cancelled, ConsumerFailed, IdentityChanged, InvalidFrames,
     InvalidData, InvalidFlags, TimestampUnavailable, Discontinuity,
