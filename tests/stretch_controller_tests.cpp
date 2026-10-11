@@ -45,6 +45,25 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
     const auto track=source->session->tracks[0].id,clip=source->session->tracks[0].clips[0].id;const auto original=*source->session;
     std::optional<Id> retained;
     {
+        const auto plan=prepareClipStretch(original,track,clip,{3,2,0,true});const auto policy=options(memory,helper).policy;
+        const auto baseline=memory.usage();
+        auto nul=source->root.native();nul+=std::filesystem::path::value_type(0);nul+=std::filesystem::path("ignored").native();
+        auto longName=source->root.native();longName.append(4097,std::filesystem::path::value_type('x'));
+        const auto previousDirectory=std::filesystem::current_path();
+        struct RestoreDirectory {std::filesystem::path value;~RestoreDirectory(){std::error_code error;std::filesystem::current_path(value,error);}} restore{previousDirectory};
+        // The Windows runner's checkout and temp folder can be on different
+        // drives. Use only this owned parent as cwd while exercising the API.
+        std::filesystem::current_path(source->root.parent_path());
+        const auto relative=source->root.filename();check(!relative.empty() && !relative.is_absolute(),"Owned relative-root fixture unavailable");
+        for(const auto &root:{relative,std::filesystem::path(nul),std::filesystem::path(longName)}) {
+            bool rejected=false;try{persistStretchSelection(root,original,plan,Id::generate(),policy,memory);}
+            catch(const ProjectError &e){rejected=true;check(e.code()==ErrorCode::InvalidParameter,"Invalid publication root lost parameter classification");}
+            check(rejected,"Invalid publication root was accepted");
+            check(!std::filesystem::exists(source->root/"media"/"stretch-selections"),"Invalid root mutated owned selection directory");
+            const auto after=memory.usage();check(after.owners==baseline.owners && after.reservedBytes==baseline.reservedBytes,"Invalid root retained publication credit");
+        }
+    }
+    {
         std::atomic<bool> entered=false,release=false;auto o=options(memory,helper);
         o.beforeSpawn=[&]{entered=true;while(!release)QThread::msleep(1);};
         bool childReleased=false;o.afterChild=[&]{childReleased=memory.usage().reservedBytes<256*1024*1024;};

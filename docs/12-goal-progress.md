@@ -4074,3 +4074,10 @@ dialog's identity/reference immediately, preserving scoped cancellation and Qt
 object ownership. The amended UI285 checks and both catalog gates pass locally;
 catalog content/856 keys are unchanged. Native current-head qualification remains
 required; the original Windows failure is preserved.
+
+PR105 root-admission review is addressed with equivalent absolute/bounded/no-NUL
+validation before any publication encoding/credits/I/O. Owned direct API cases
+confirm InvalidParameter and no directory/credit mutation. Controller1675/UI285
+assertions pass, preserving the129-render corpus and independent history bounds.
+Fresh platform gates remain required; original source qualifications are not
+relabeled.

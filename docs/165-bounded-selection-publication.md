@@ -83,3 +83,20 @@ callback audit0, no audio). Qt Linguist refresh changes only the UI source hash;
 856 source keys and all catalog bytes remain unchanged. Original bff/423/a84
 acceptance and the original failed Windows log retain their original scope.
 Fresh current-head native Windows checks are still required.
+
+## Publication root admission
+
+PR105 review found that removing the directory inventory also removed the
+ApprovedMediaRoot constructor's lexical root validation. Restore its equivalent
+absolute-path,4096-native-unit and embedded-NUL checks at the public publication
+entry point, before encoding, credit reservation or filesystem access. The owned
+directory/no-reparse checks, writer lease and per-manifest admission remain.
+
+Direct API tests reject a relative path naming the owned project, a NUL-containing
+path and an overlong absolute path as InvalidParameter. No selection directory
+is created and resource credit returns to baseline. The portable fixture changes
+only its own test process's cwd to an owned parent, restoring it on exit; this
+works when Windows checkout/temp paths are on different drives. The original
+Linux red case accepted the relative root; the corrected controller1675/UI285
+checks pass, including all129 actual retained renders. Native current-head gates
+remain required; no aggregate history scan or admission ceiling is reintroduced.
