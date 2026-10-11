@@ -4176,7 +4176,8 @@ verified manual recording groups can be retained without entering the arrangemen
 incomplete/canceled groups remain refused. Actual two-source and declared eight-
 track sample oracles verify selected audio, inactive silence, raw preservation,
 shared live/export, exact crop/fades and Undo/Redo/save/reopen. The comp workflow
-passes5,257 assertions with callback audit0; manual recording passes65,187, and
+passes5,257 assertions with callback audit0; final source-bound manual recording
+passes65,183 (the earlier development run reported65,187), and
 16 targeted suites passed during development. Desktop lane/comp controls, actual
 loop transport, crossfades and native Windows/UI/installed qualification remain
 required. No quality/content/native-project or full frozen parity promotion.

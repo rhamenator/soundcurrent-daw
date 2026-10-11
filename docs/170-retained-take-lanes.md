@@ -76,9 +76,9 @@ retained lanes serialize without a small fixed lane cap.
 
 The final comp workflow passes 5,257 assertions, with zero measured callback
 allocation/free/blocking-lock events. Existing manual recording tests pass
-65,187 assertions across three repeated workflows, including actual complete
+65,183 assertions in the final source-bound run across three repeated workflows, including actual complete
 group retention and incomplete-group refusal. Sixteen targeted regression suites
-passed during development; the final focused acceptance covers comping, manual
+passed during development (an earlier manual run reported 65,187); the final focused acceptance covers comping, manual
 recording, structural edits and history resources. Builds use two jobs, nice 10
 and ionice class 2/level 7. No audio endpoint or VM is used. Hosted native Windows
 CI now includes the comp and manual-recording suites; its current-source results
