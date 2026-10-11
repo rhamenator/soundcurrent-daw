@@ -71,13 +71,11 @@ separate functional/quality/content/native-project goals remain incomplete.
 
 ## Next implementation task
 
-Add a bounded original transient-onset diagnostic with a known source landmark,
-calibrate its estimator on original/unity fixtures, and retain unresolved noisy
-or background-bed cases explicitly. Exercise constant stretch across the same
-rates and duration ratios before deciding which mode needs a processing change.
-Existing protected-core passes must not hide sustained-gap or group-phase gaps.
-Finish the pending protected publication PRs alongside that work, then deliver
-loop-recording/take-lane and comping workflows within the full staged backlog.
+The preregistered bank and independent retained-PCM audit are now recorded in
+[checkpoint169](169-stretch-transient-quality.md): four timing failures, 160
+unresolved measurements and 108 silent-family pre-echo failures remain visible.
+Deliver loop-recording/take-lane and comping workflows next while retaining
+this failing quality baseline within the full staged backlog.
 
 ## Retry audio/source binding review
 

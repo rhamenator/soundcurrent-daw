@@ -1,0 +1,12 @@
+{
+  "format": "sc-git-source-packet-v1",
+  "bytes": 1194851,
+  "sha256": "42ae11d360cfaeb06f9655f22cb297f9dd4e890ea3c55bd9d399d2eb80f9f8e0",
+  "objects": 411,
+  "expandedBytes": 4101542,
+  "commits": [
+    "d54dd878644b1075fb88b2f0eaa5609c4e39c775",
+    "20a062dbf8449cd6e6c2b167b2ed12a3320e46f1"
+  ],
+  "scope": "Exact Git commit/tree/blob content IDs for declared source paths; no parent closure, signature authentication, build or DSP replay."
+}
