@@ -4372,3 +4372,21 @@ matched the resulting MAIN. Existing branch protection remained enabled, with
 no administrative bypass. Native delayed-input checkpoint178 remains separately
 qualified on its frozen source; this integration adds no Windows native duplex
 or physical-device evidence.
+
+## 179 — independent native clock correlation core (2026-10-11)
+
+Original GPL C++20 typed capture/render/QPC/project correlation is implemented,
+with checked wide arithmetic, bounded fits/extrapolation, original metadata,
+startup/reliability policies and sticky reset/drift/overflow faults. Frozen
+`6d45a86ad87c7d91fb7b56ea723a069a5289e316` passed four Linux Release suites
+(0.05s) and its sanitizer suite (0.12s): 4,728 checks, 768 independent Fraction
+vectors and 20,000 rolling RT observations/projections. C++ and Linux interposed
+libc/pthread allocation/free/blocking-lock counts were zero; this is not every
+library/syscall path. The 29,497-byte/seven-member packet binds 535 selected
+inputs and five executable hashes; standalone/source-byte validation passed.
+[Checkpoint179](179-native-clock-correlation.md) and ADR115 record limits.
+Explicit Windows MSVC CI inclusion is added, but actual native audio integration
+and its independent qualification are still required. No audible UI, raw-media
+schema, dependency or certificate change. P005/M2/full F/Q/C/N/localization remain
+open. Next: stamped capture bank/SPSC handoff, causal monitor delay/drift correction,
+durable original mappings, SDK composition and Windows desktop duplex factory.

@@ -1,0 +1,30 @@
+{
+  "build-inputs.json": {
+    "bytes": 60636,
+    "sha256": "918e06156d6ab1dbf0ab863f6f227be08329e6fc42781e86a0ef779445000356"
+  },
+  "release-build.log": {
+    "bytes": 309,
+    "sha256": "134490d376d9a2d5a262d361629633c1413f26c18f15297aca6b5249d21c7820"
+  },
+  "release-ctest.log": {
+    "bytes": 2467,
+    "sha256": "85837fb82737b324b4efdf2eedaae2e6fb9408c461a95e87d2b78258e242fb9c"
+  },
+  "sanitizer-build.log": {
+    "bytes": 309,
+    "sha256": "fc123c4c32ce7e09bfa59038e03ff63e420b6897851267bd8e10b81e9d37544d"
+  },
+  "sanitizer-ctest.log": {
+    "bytes": 1150,
+    "sha256": "8a29a503a57c425aa4ed5db05fbef7e388599a681dc15f4384ae77ab50979421"
+  },
+  "release-lasttest.log": {
+    "bytes": 3017,
+    "sha256": "d5d2944874b359d3053646deead1832b4d518892b44e3f5455ec0a42460988d6"
+  },
+  "sanitizer-lasttest.log": {
+    "bytes": 929,
+    "sha256": "9220411ad05ef618d415cde1e52ca3835d575b789b9563e337cc4a9ece4a543d"
+  }
+}
