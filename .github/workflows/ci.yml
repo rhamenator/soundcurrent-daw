@@ -196,8 +196,18 @@ jobs:
           $env:PATH = "$PWD/native-dependencies/sndfile-build;$env:PATH"
           for ($ownerAttempt = 1; $ownerAttempt -le 3; ++$ownerAttempt) {
             Write-Output "Original concurrent-owner diagnostic attempt=$ownerAttempt of=3; unchanged20takes/5sdeadline"
-            & $ownerProbePath --concurrent-owner-diagnostics 2>&1 | Tee-Object -FilePath build-native/manual-owner-diagnostic.log -Append
-            if ($LASTEXITCODE -ne 0) { throw "Original concurrent owner diagnostic failed; retain original take/worker state." }
+            $ownerStdoutPath = Join-Path $PWD "build-native/manual-owner-$ownerAttempt-stdout.log"
+            $ownerStderrPath = Join-Path $PWD "build-native/manual-owner-$ownerAttempt-stderr.log"
+            $ownerProcess = Start-Process -FilePath $ownerProbePath -ArgumentList "--concurrent-owner-diagnostics" -PassThru -NoNewWindow -RedirectStandardOutput $ownerStdoutPath -RedirectStandardError $ownerStderrPath
+            $ownerExited = $ownerProcess.WaitForExit(60000)
+            if (-not $ownerExited) {
+              $ownerProcess.Kill($true)
+              if (-not $ownerProcess.WaitForExit(5000)) { throw "Owned diagnostic did not terminate after its outer experiment deadline." }
+            }
+            Get-Content -LiteralPath $ownerStdoutPath
+            Get-Content -LiteralPath $ownerStderrPath
+            if (-not $ownerExited) { throw "Owned concurrent diagnostic exceeded outer60s budget; original5s acceptance deadline unchanged." }
+            if ($ownerProcess.ExitCode -ne 0) { throw "Original concurrent owner diagnostic failed; retain original take/worker state." }
           }
       - name: Retain native unit log
         if: always()
@@ -207,7 +217,8 @@ jobs:
           name: windows-native-packet-unit-log
           path: |
             build-native/Testing/Temporary/*.log
-            build-native/manual-owner-diagnostic.log
+            build-native/manual-owner-*-stdout.log
+            build-native/manual-owner-*-stderr.log
             build-native/warp-map-geometry-evidence/**
             build-native/protected-warp-geometry-evidence/**
             build-native/protected-warp-render-evidence/**
