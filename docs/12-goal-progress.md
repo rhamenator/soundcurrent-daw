@@ -4317,3 +4317,11 @@ Run38109587287 had all four terminal successful required checks;17 exact reviewe
 blobs and the whole tree matched. Windows MSVC ran52 synthetic suites including
 continuous-loop-recording (3.32s). This qualifies core execution on Windows,
 not native endpoints or the newer checkpoint176 desktop workflow.
+
+[Checkpoint177](177-native-loop-recording-preview.md) adds opt-in owned native
+Linux desktop loop capture workflows (three generated inputs, periodic backing,
+live EQ/Undo, finite13 passes and until-Stop partial retention). Development runs
+compared every raw/output sample exactly, checked original contexts/clock origins,
+paged windows/history/save/reopen and zero callback allocation/free/locking.
+A committed-source gate follows separately. Native delayed-input/postroll/faults,
+Windows duplex, installed/physical workflows and full P005/M2/F/Q/C/N stay open.

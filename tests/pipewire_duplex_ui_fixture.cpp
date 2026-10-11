@@ -9,6 +9,9 @@
 #include <QAbstractButton>
 #include <QComboBox>
 #include <QDoubleSpinBox>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QCheckBox>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTemporaryDir>
@@ -88,12 +91,13 @@ struct Source {
 struct Sink {
     Audit audit;
     CapturePipe &pipe;
+    const Frame goal;
     Frame count = 0;
     DeviceBlockClock previous{};
     std::uint64_t origin = 0;
     bool started = false;
     std::atomic<bool> complete{false}, failed{false};
-    explicit Sink(CapturePipe &p) : pipe(p) {}
+    explicit Sink(CapturePipe &p, Frame frames) : pipe(p), goal(frames) {}
     static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const> input,
                         std::span<float *const>, std::uint32_t capacity) noexcept {
         auto &s = *static_cast<Sink *>(p);
@@ -118,7 +122,7 @@ struct Sink {
             s.failed = true;
             return;
         }
-        const auto n = unsigned(std::min<Frame>(clock.duration, target - s.count));
+        const auto n = unsigned(std::min<Frame>(clock.duration, s.goal - s.count));
         const auto r = s.pipe.push(input, n, s.count);
         s.count += r.acceptedFrames;
         s.previous = clock;
@@ -126,7 +130,7 @@ struct Sink {
             s.failed = true;
             return;
         }
-        if (s.count == target) {
+        if (s.count == s.goal) {
             s.pipe.finish();
             s.complete = true;
         }
@@ -210,7 +214,12 @@ int main(int argc, char **argv) {
     qputenv("XDG_CONFIG_HOME", config.path().toUtf8());
     QApplication app(argc, argv);
     try {
-        require(argc == 3, "Supply owned project folder and armed track count (3 or 32)");
+        require(argc == 3 || argc == 4, "Supply owned project folder, track count and optional loop/until-stop mode");
+        const bool looping = argc == 4;
+        const bool untilStop = looping && std::string_view(argv[3]) == "until-stop";
+        require(!looping || untilStop || std::string_view(argv[3]) == "loop", "Unknown recording mode");
+        constexpr Frame loopPeriod = 17773;
+        const Frame monitorFrames = looping && !untilStop ? 13 * loopPeriod : target;
         const auto count = unsigned(std::stoul(argv[2]));
         require(count == 3 || count == 32, "Unknown native UI scale");
         const auto root = utf8Path(argv[1]);
@@ -231,6 +240,7 @@ int main(int argc, char **argv) {
             initial.tracks.push_back(std::move(track));
         }
         initial.playheadFrame = start;
+        if (looping) initial.loop = {true, start, start + loopPeriod};
         initial.master = MasterBus{Id::generate(), plan, {}};
         ProjectStore(root).save(initial);
         Source source;
@@ -243,7 +253,7 @@ int main(int argc, char **argv) {
         config.maximumCallbackFrames = 65536;
         config.slabFrames = 65536;
         CapturePipe sinkPipe(config);
-        Sink sink(sinkPipe);
+        Sink sink(sinkPipe, monitorFrames);
         RecordingWorker sinkWriter(sinkPipe, root,
                                    spec(initial, Id::generate(), sinkPipe.config()));
         PipeWireFilter sinkNode({prefix + "-sink", 2, 0, 65536, true},
@@ -261,8 +271,15 @@ int main(int argc, char **argv) {
         await([&] {
             return window.snapshot()->session && window.snapshot()->io == IoOperation::None;
         });
-        require(window.configureArmedRecording(arms, target) && window.prepareRecording(),
-                "Native GUI arms/prepare refused");
+        require(window.configureArmedRecording(arms, target), "Native GUI arms refused");
+        if (looping) {
+            auto *mode = window.findChild<QComboBox *>("loopRecordingMode");
+            auto *passes = window.findChild<QLineEdit *>("loopRecordingPasses");
+            require(mode && passes, "Native loop controls missing");
+            mode->setCurrentIndex(mode->findData(int(untilStop ? RecordingMode::LoopUntilStop : RecordingMode::LoopPasses)));
+            passes->setText(QStringLiteral("13"));
+        }
+        require(window.prepareRecording(), "Native GUI prepare refused");
         await([&] {
             return window.recordingSnapshot()->phase == RecordingPhase::Ready &&
                    window.findChild<QComboBox *>(QStringLiteral("inputChannel%1").arg(count - 1));
@@ -333,6 +350,11 @@ int main(int argc, char **argv) {
             healthy();
             return window.recordingSnapshot()->telemetry.capturedFrames >= 24000;
         });
+        if (looping) {
+            const auto active = window.recordingSnapshot();
+            require(active->job && inspectLoopRecordingContext(*active->job).has_value(),
+                    "Native capture started without its durable loop context");
+        }
         const auto generation = window.recordingSnapshot()->generation;
         std::vector<std::vector<EqEvent>> events(count);
         auto edited = initial;
@@ -377,13 +399,49 @@ int main(int argc, char **argv) {
             window.recordingSnapshot()->appliedFrame));
         await([&] {
             healthy();
-            return window.recordingSnapshot()->phase == RecordingPhase::Complete && sink.complete;
+            return sink.complete && (untilStop || window.recordingSnapshot()->phase == RecordingPhase::Complete);
         });
         window.findChild<QPushButton *>("recordStopButton")->click();
-        await([&] {
-            return window.snapshot()->session->assets.size() == count + 1 &&
-                   !window.recordingSnapshot()->take;
-        });
+        std::shared_ptr<const LoopRecordedTake> loopTake;
+        LoopRecordingExtent loopExtent;
+        if (looping) {
+            await([&] { return window.recordingSnapshot()->take && window.recordingSnapshot()->take->loop; });
+            loopTake = window.recordingSnapshot()->take->loop;
+            loopExtent = loopRecordingExtent(loopTake->context.intent, loopTake->sources);
+            require(loopTake->context.intent.projectLoop == PlaybackLoopRegion{start, start + loopPeriod} &&
+                        loopTake->context.intent.passes == (untilStop ? std::optional<std::uint64_t>{} : std::optional<std::uint64_t>{13}) &&
+                        (untilStop ? (loopExtent.completePasses >= 13 && loopExtent.partialFrames != 0) : (loopExtent.completePasses == 13 && !loopExtent.partialFrames)),
+                    "Native complete/partial loop extent differs");
+            require(window.snapshot()->session->assets.size() == 1 && ProjectStore(root).load() == initial,
+                    "Native loop capture automatically attached or saved takes");
+            for (const auto &raw : loopTake->sources) {
+                const auto job = root / "media" / ("capture-" + raw.recording.asset.id.str());
+                const auto context = inspectLoopRecordingContext(job);
+                const auto journal = inspectRecording(job, {}, true);
+                require(context && *context == loopTake->context && journal.finalized &&
+                            journal.timingOrigin == std::optional(raw.origin) &&
+                            raw.endReason == (untilStop ? CaptureEndReason::UserStop : CaptureEndReason::RangeComplete) &&
+                            raw.origin.backend == CaptureBackend::PipeWire, "Native original context/origin/end reason not persisted");
+                validateLoopRecordingCheckpoint(*context, journal);
+            }
+            auto *retain = window.findChild<QPushButton *>("loopTakeRetain");
+            auto *first = window.findChild<QLineEdit *>("loopTakeFirst");
+            auto *page = window.findChild<QSpinBox *>("loopTakeCount");
+            auto *partial = window.findChild<QCheckBox *>("loopTakePartial");
+            auto *name = window.findChild<QLineEdit *>("loopTakeName");
+            await([&] { return retain && retain->isVisible() && retain->isEnabled() && !first->text().isEmpty(); });
+            name->setText(QString::fromUtf8("Прохід "));
+            page->setValue(5); retain->click();
+            await([&] { return window.snapshot()->session->tracks[1].takeLanes.size() == 5 && retain->isEnabled(); });
+            const auto remaining = loopExtent.windows() - 5;
+            require(remaining <= 128, "Native fixture exceeded bounded second page");
+            first->setText(QStringLiteral("6")); page->setValue(int(remaining));
+            partial->setChecked(loopExtent.partialFrames != 0); retain->click();
+            await([&] { return window.snapshot()->session->tracks[1].takeLanes.size() == loopExtent.windows() && retain->isEnabled(); });
+            auto *finish = window.findChild<QPushButton *>("keepTakeButton");
+            await([&] { return finish->isEnabled(); }); finish->click();
+        }
+        await([&] { return window.snapshot()->session->assets.size() == count + 1 && !window.recordingSnapshot()->take; });
         sourceNode.stop();
         sinkNode.stop();
         sinkPipe.finish();
@@ -391,7 +449,7 @@ int main(int argc, char **argv) {
         const auto wet = samples(root, monitor.asset);
         auto model = *window.snapshot()->session;
         require(window.snapshot()->lastAttachedAssets.size() == count &&
-                    window.snapshot()->attachedRecordings == count,
+                    window.snapshot()->attachedRecordings == (looping ? 2 * count : count),
                 "Native GUI grouped receipt differs");
         std::vector<std::vector<float>> raw(count), processed(count);
         std::uint64_t origin = 0;
@@ -399,7 +457,7 @@ int main(int argc, char **argv) {
             const auto &asset = model.assets[n + 1];
             const auto journal =
                 inspectRecording(root / "media" / ("capture-" + asset.id.str()), {}, true);
-            require(journal.finalized && journal.timingOrigin && asset.frames == target &&
+            require(journal.finalized && journal.timingOrigin && asset.frames == (looping ? loopExtent.commonFrames : target) &&
                         journal.spec.trackId == arms[n] && journal.spec.capture.startFrame == start,
                     "Native GUI raw take journal/extent/identity differs");
             if (n == 0)
@@ -410,11 +468,11 @@ int main(int argc, char **argv) {
             for (std::size_t f = 0; f < raw[n].size(); ++f)
                 require(raw[n][f] == inputSignal(origin + f, n),
                         "Native GUI live EQ changed raw input");
-            processed[n].resize(std::size_t(target));
+            processed[n].resize(std::size_t(asset.frames));
             PreparedEq oracle(initial, arms[n], 127, generation);
             std::size_t event = 0;
-            for (Frame at = 0; at < target;) {
-                const auto frames = unsigned(std::min<Frame>(127, target - at));
+            for (Frame at = 0; at < asset.frames;) {
+                const auto frames = unsigned(std::min<Frame>(127, asset.frames - at));
                 auto end = event;
                 while (end < events[n].size() && events[n][end].frame < start + at + frames)
                     ++end;
@@ -429,12 +487,36 @@ int main(int argc, char **argv) {
                 at += frames;
             }
         }
-        require(monitor.asset.frames == target && !sink.failed,
+        if (looping) {
+            std::size_t contextJobs = 0;
+            for (const auto &entry : std::filesystem::directory_iterator(root / "media"))
+                if (entry.is_directory() && std::filesystem::exists(entry.path() / "loop-context.json"))
+                    ++contextJobs;
+            require(contextJobs == count, "Native loop created per-pass raw jobs");
+            for (unsigned n = 0; n < count; ++n) {
+                const auto &track = model.tracks[n + 1];
+                require(track.clips.empty() && track.takeLanes.size() == loopExtent.windows(),
+                        "Native retention became audible or lost views");
+                for (std::uint64_t pass = 0; pass < loopExtent.windows(); ++pass) {
+                    const auto &lane = track.takeLanes[std::size_t(pass)];
+                    const auto view = loopRecordingWindow(loopTake->context.intent, loopTake->sources, pass);
+                    require(view && lane.clips.size() == 1 && !lane.groupId.str().empty() &&
+                                lane.groupId == model.tracks[1].takeLanes[std::size_t(pass)].groupId &&
+                                lane.clips[0].assetId == model.assets[n + 1].id &&
+                                lane.clips[0].sourceFrame == Frame(pass) * loopPeriod &&
+                                lane.clips[0].startFrame == start && lane.clips[0].lengthFrames == view->sources[n].frames &&
+                                lane.name.starts_with("Прохід "),
+                            "Native retained raw window/length/group/Unicode name differs");
+                }
+            }
+        }
+        require(monitor.asset.frames == monitorFrames && !sink.failed,
                 "Native GUI monitor prefix incomplete");
         double difference = 0;
-        for (Frame f = 0; f < target; ++f) {
-            std::array<double, 2> sum{double(fileSignal(start + f)) * .125,
-                                      double(fileSignal(start + f)) * -.25};
+        for (Frame f = 0; f < monitorFrames; ++f) {
+            const auto projectFrame = start + (looping ? f % loopPeriod : f);
+            std::array<double, 2> sum{double(fileSignal(projectFrame)) * .125,
+                                      double(fileSignal(projectFrame)) * -.25};
             for (unsigned n = 0; n < count; ++n)
                 if (initial.tracks[n + 1].monitoring == RecordingMonitor::PostEq)
                     sum[n % 2] += double(processed[n][std::size_t(f)]) * (n % 3 ? .125 : -.25);
@@ -451,7 +533,7 @@ int main(int argc, char **argv) {
         sink.audit.check();
         const auto hashes = model.assets;
         window.findChild<QAction *>("undoAction")->trigger();
-        await([&] { return window.snapshot()->session->assets.size() == 1; });
+        await([&] { return looping ? window.snapshot()->session->tracks[1].takeLanes.size() == 5 : window.snapshot()->session->assets.size() == 1; });
         require(window.snapshot()->session->tracks[1].eq.bands[0].gainDb == 6 &&
                     window.snapshot()->session->master->output == model.master->output,
                 "Native grouped Undo lost live EQ/route edits");
@@ -477,7 +559,12 @@ int main(int argc, char **argv) {
         });
         require(ProjectStore(root).load() == model, "Native GUI group did not save/reopen");
         std::cout << "{\"mode\":\"" << count << "\",\"armed_tracks\":" << count
-                  << ",\"frames_per_raw_take\":" << target
+                  << ",\"frames_per_raw_take\":" << (looping ? loopExtent.commonFrames : target)
+                  << ",\"native_loop_recording\":" << (looping ? "true" : "false")
+                  << ",\"until_stop\":" << (untilStop ? "true" : "false")
+                  << ",\"complete_passes\":" << loopExtent.completePasses
+                  << ",\"partial_frames\":" << loopExtent.partialFrames
+                  << ",\"loop_context_verified\":" << (looping ? "true" : "false")
                   << ",\"production_gui_duplex\":true,\"raw_samples_exact\":true,\"missing_track_"
                      "frames\":0,\"output_max_difference\":"
                   << difference
