@@ -169,3 +169,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native monitor matrix state and composed startup](209-native-channel-state.md) · [ADR139](decisions/139-native-channel-matrix-state.md)
 
 - [Original writer backlog and measured write spans](210-writer-backlog-timing.md)
+- [Owned prepared native monitoring route](211-owned-native-monitor-route.md) · [ADR140](decisions/140-owned-native-monitor-route.md)

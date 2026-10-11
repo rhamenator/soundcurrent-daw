@@ -1,5 +1,24 @@
 # Active full-suite goal: progress and completion evidence
 
+## Owned prepared native monitoring route (2026-10-11)
+
+[Checkpoint211](211-owned-native-monitor-route.md) derives immutable matching
+queues/callbacks from actual native descriptors and owns them in stable storage,
+with one aggregate lease before bank allocation. Seven owned startup routes pass
+at 44.1/48/96 kHz, including explicit mono-to-stereo. Raw bits/stamps/headroom,
+full-FIFO admission, memory refusal and missing-owner/raw-prefix settlement are
+qualified. The expanded existing suite passes Release 0.64 s, ASan/UBSan 6.10 s and
+TSan 8.39 s; guarded allocate/free/lock=0. Windows compile/link passes warning-free;
+new native runtime still needs its own CI qualification.
+
+Preceding PR145 passed all four required jobs, 71 native suites and three actual
+original standalone runs. Original held-write timing/backlog and full-prefix
+recovery executed on Windows; full logs/source bindings are retained. That pass
+does not establish the earlier intermittent delay's cause. The owned SDK/thread/
+disk factory, monitoring EQ integration, larger FIFO geometry, physical tests and
+desktop activation remain next. Full-suite M2–M11/F/Q/C/N/imports/profiles/platform/
+European localization goals remain active and incomplete.
+
 ## Original writer backlog and measured spans (2026-10-11)
 
 [Checkpoint210](210-writer-backlog-timing.md) adds test-only retention of original
