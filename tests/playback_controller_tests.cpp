@@ -358,10 +358,35 @@ void masterCompatibility() {
     }
 }
 
+void loopCompatibility() {
+    auto counters=std::make_shared<Counters>();PlaybackController controller(options(counters));
+    auto model=session();model.loop={true,103,157};
+    check(controller.submit(prepare(model))==Admission::Accepted,"Loop controller prepare refused");
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Ready;});
+    check(counters->preparedLoop==std::optional(PlaybackLoopRegion{103,157})&&
+          counters->preparedEndFrame==std::numeric_limits<Frame>::max()&&
+          controller.snapshot()->projectPosition==103,"Loop preparation lost range/project position");
+    play(controller,counters);await([&]{return controller.snapshot()->position>=256;});
+    model.tracks[0].eq.bands[0].gainDb=3;
+    check(controller.follow(utf8Path("owned-Σ"),std::make_shared<const Session>(model),2),
+          "Loop scalar model follow refused");
+    await([&]{return controller.snapshot()->appliedRevision==2;});
+    const auto running=controller.snapshot();
+    check(running->projectPosition==103+running->position%54&&
+          running->loopPass==std::uint64_t(running->position/54),"Loop snapshot clock domains differ");
+    model.loop.endFrame=158;
+    controller.follow(utf8Path("owned-Σ"),std::make_shared<const Session>(model),3);
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Fault;});
+    check(controller.snapshot()->errorCode==ErrorCode::InvalidState&&counters->destroyed==1&&
+          !counters->wrongThread,"External loop edit left stale prepared transport");
+    controller.requestShutdown();await([&]{return controller.snapshot()->closed;});
+}
+
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
     try {
+        loopCompatibility();
         editsAndFailure();
         priorityCloseAndCancellation();
         faultsAndGenerations();

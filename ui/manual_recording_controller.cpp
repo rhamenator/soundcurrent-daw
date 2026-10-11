@@ -252,7 +252,8 @@ struct ManualRecordingController::State {
         if (checkedRevision != desired->revision) {
             require(desired->root == prepared->root &&
                         desired->session->id == prepared->session->id &&
-                        desired->session->sampleRate == prepared->session->sampleRate,
+                        desired->session->sampleRate == prepared->session->sampleRate &&
+                        desired->session->loop == prepared->session->loop,
                     "Prepared manual project changed");
             validate(*desired->session);
             require(desired->session->tracks.size() == prepared->session->tracks.size(),

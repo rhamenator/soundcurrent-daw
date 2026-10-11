@@ -21,15 +21,15 @@
     "ui/localization.cpp": "be5c1e4ce406ac5bdd58ba007d87f9043c2e4f13fa773286c7c6bce2c4d45693",
     "ui/localization.hpp": "60c9513cf542d243492c8f330090c05b4f114d5764101042fb984beffdf35bdf",
     "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
-    "ui/manual_recording_controller.cpp": "d7007294c7b9cbdb630d02662773f50df7b3eebbc977a6ec8322dd84764e80ee",
+    "ui/manual_recording_controller.cpp": "e44ff8293af64cf5cd6ffa5d29ef6519a421c4a909352145aa0e12ea573bc587",
     "ui/manual_recording_controller.hpp": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2",
-    "ui/manual_recording_panel.cpp": "061c75edbb840f05558bfdc5e6b42edfec9c30741c3d2b58021dc7af3f21ce9c",
+    "ui/manual_recording_panel.cpp": "5f066fb8fd3c8744319ad1e2a2b19a73925faaf3a0d4bc1afe6022ab6d92fe1c",
     "ui/manual_recording_panel.hpp": "147ab63cda54d6c61a160d0d94233d0789e1f3adedcacf5eeb9c57d495278868",
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/playback_controller.cpp": "3ff7157488c1b825eec2e08325ce040f4e3c4458341fd8dbf118005225f547cc",
-    "ui/playback_controller.hpp": "b9b6a504e79afb359d1c3d14b15a57d99d84f2fae106dec382bf6d63424a916a",
+    "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
+    "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
     "ui/project_controller.cpp": "be7b8de435c86ede8fe590862e4297046a50895199dd03bbcf7c395bf03aa2f2",
     "ui/project_controller.hpp": "42fdac994335e2011950ac6c345268ad9bd35897486abddf0210b80d0b17024d",
     "ui/recording_controller.cpp": "1b352cf625fd226040e8e9ad7da661bbd28127350af2a26f851dcaff546dff6e",
@@ -42,8 +42,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "71dbfef566d8c878bbc61d679c34c3670401087629fa414503a30c8ddb6bf019",
-    "ui/studio_window.hpp": "db3131e1ff66e4be14501840ab26ba1e509a40855126e9261afc1d29c23b0789",
+    "ui/studio_window.cpp": "f374b03aa18093da14c74a09f68da0dacf0c7926b9c82bb86f89d825d6fe18b1",
+    "ui/studio_window.hpp": "f445ef1c569817cb32e0fd4a71e07911eacf926685d950468c755f158b4fbe65",
     "ui/timeline_editor.cpp": "8c594fe27a88b6c69dd2555cafcc7bca1e82185a5e81a55d46aec625550a6944",
     "ui/timeline_editor.hpp": "5e0065240440cd13e317de4bd207bea262f966eec92c18ba15bd7ccbaf5ee26e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -2402,6 +2402,12 @@
     ],
     [
       "ManualRecordingPanel",
+      " · Loop pass %1 · project frame %2",
+      "",
+      false
+    ],
+    [
+      "ManualRecordingPanel",
       " EQ changes pending audio acknowledgement.",
       "",
       false
@@ -3189,6 +3195,36 @@
     [
       "StudioWindow",
       "Master change was not admitted. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop playback",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Repeat the saved loop range until Stop. Stop playback before changing the range.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Set loop range…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "There is no room for a loop range at this position.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop settings could not be changed. Stop transport setup and retry.",
       "",
       false
     ],
@@ -4064,6 +4100,12 @@
     ],
     [
       "StudioWindow",
+      " · Loop pass %1 · project frame %2",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Audition — project unchanged. ",
       "",
       false
@@ -4083,6 +4125,18 @@
     [
       "StudioWindow",
       "Select at least one track to arm.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop %1 to %2 samples. Playback repeats until Stop.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop is off. Saved range: %1 to %2 samples.",
       "",
       false
     ],
@@ -4125,6 +4179,48 @@
     [
       "StudioWindow",
       "Enter nonnegative whole sample positions, with punch out after punch in when enabled.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Playback loop range",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Positions are sample frames at %1 Hz. The loop end is excluded; Stop ends repeated playback.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Enable loop playback",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop start (samples)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop end (samples)",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The project changed. Close this dialog and reopen its loop settings.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Enter nonnegative whole sample positions, with loop end after loop start when enabled.",
       "",
       false
     ],

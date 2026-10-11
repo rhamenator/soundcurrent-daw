@@ -4220,3 +4220,34 @@ stop/cancel checkpoints are tested. Callback allocation/free/lock counters stay
 zero. Desktop loop controls, persistent intent, native Linux/Windows/installed,
 indefinite slot replenishment, audition/crossfades and full workflow/quality gates
 remain open. No endpoint/VM/equalizer changes or product release upload.
+
+## 2026-10-11: saved desktop loop playback and pass status
+
+[Checkpoint173](173-desktop-loop-playback.md) adds schema1.17 loop intent, strict
+migration, semantic Undo/Redo, localized range/enable controls and pass/project
+status. Desktop PipeWire/WASAPI preparation carries the shared mapping and repeats
+until Stop using bounded read-ahead storage. Manual playback/monitor uses the
+mapping within its finite range. The GUI workflow uses a simulated endpoint;
+native/physical/installed qualification and automatic recorded-pass scheduling
+remain required. Ordinary exports keep explicit range semantics. Full F/Q/C/N,
+M2–M11/X004/X005/Europe and existing stretch-quality gaps remain open.
+
+Checkpoint173 local qualification freezes source0e65fc33d8e89df60f2fd50360bcd61cdadc8af9:
+19 distinct Linux suites passed in18+1 sequential cohorts, with16 simulated GUI
+loop checks and the32129-check shared-reader gate. The bounded source-linked
+packet compares498 frozen input files and records17 local executable hashes.
+Saved schema1.17 loop intent, localized whole-frame input, keyboard Undo/Redo,
+Save/reopen, until-Stop preparation, pass/project status and restored linear
+playback have controller/UI evidence. Native endpoints, automatic recorded-pass
+scheduling and installed preview qualification remain open; no Windows parity,
+full language, processing-quality or M2 completion claim follows from these gates.
+
+Checkpoint173 has independent Windows OS/controller evidence at head61c6918 and
+actual testedmergebf0a22236c7399f6d5b47c7a5cd2a29750092e86/base92b7355:
+18Windows desktop suites passed61.56s, with15 loop GUI checks and simulated audio.
+The optional screenshot adds the16th Linux check. The bounded48193-byte job archive
+records70 exact changed/tested blobs. No native WASAPI/installed/physical or full
+parity claim. PR112 merged ordinarily asb927e7177468bee3199d823f67c7cee13cdecd75
+from head92b7355/base0bb383a, testedc9eaea51c02609446174b1b4bc763958671e6ed2,
+run38106541229all4success,23exactblobs+whole tree. The desktop branch inherited
+main ordinarily; its fresh current-base cohort is still required for merge.

@@ -70,7 +70,7 @@ void inputLatencyState() {
               h.redo() && s.tracks.back().inputLatencyFrames == 4097,
           "Latency history lost reordered stable track identity");
     auto j = Json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 16 && j["tracks"][1]["inputLatencyFrames"] == 4097 &&
+    check(j["schemaMinor"] == 17 && j["tracks"][1]["inputLatencyFrames"] == 4097 &&
               decodeProject(j.dump()) == s,
           "Latency exact serialization differs");
     for (unsigned mode = 0; mode < 8; ++mode) {
@@ -156,7 +156,7 @@ void punchState() {
         check(s == before, "Invalid punch edit changed canonical state/history");
     }
     auto j = Json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 16 && j["punchRecording"]["startFrame"] == 503,
+    check(j["schemaMinor"] == 17 && j["punchRecording"]["startFrame"] == 503,
           "Punch stable schema representation differs");
     for (unsigned mode = 0; mode < 6; ++mode) {
         auto bad = j;
@@ -203,9 +203,47 @@ void punchState() {
     check(decodeProject(encodeProject(s)) == s,
           "High-frame punch positions lost integer precision");
 }
+void loopState() {
+    auto session = makeOneTrackSession("Boucle — Україна", "Track");
+    const auto original = session;EditHistory history(session);
+    const LoopSettings value{true, 103, 157};
+    check(history.structural({SetLoop{value}}) && session.loop == value,
+          "Saved loop semantic edit missing");
+    check(decodeProject(encodeProject(session)) == session, "Loop state codec differs");
+    check(history.undo() && session == original && history.redo() && session.loop == value,
+          "Loop Undo/Redo changed unrelated session state");
+    const auto edited = session;
+    rejects([&] {history.structural({RenameTrack{session.tracks[0].id,"Rejected"},SetLoop{{true,157,157}}});});
+    check(session == edited, "Invalid grouped loop edit mutated state");
+    for (int mode=0;mode<8;++mode) {
+        auto bad = Json::parse(encodeProject(session));auto &loop = bad["loopPlayback"];
+        if(mode==0)loop.erase("enabled");
+        if(mode==1)loop["enabled"]=1;
+        if(mode==2)loop["startFrame"]=-1;
+        if(mode==3)loop["endFrame"]=true;
+        if(mode==4)loop["endFrame"]=103;
+        if(mode==5)loop["startFrame"]=103.5;
+        if(mode==6)loop["unknown"]=true;
+        if(mode==7)bad["schemaMinor"]=16;
+        rejects([&]{decodeProject(bad.dump());});
+    }
+    for (int minor=15;minor<=16;++minor) {
+        auto old=Json::parse(encodeProject(original));old["schemaMinor"]=minor;
+        sc_test::eraseSchema16FixtureKeys(old);
+        check(decodeProject(old.dump())==original,"Legacy migration invented loop intent");
+    }
+    check(history.structural({SetLoop{{false,103,157}}}) && !session.loop.enabled &&
+          session.loop.startFrame==103 && session.loop.endFrame==157,
+          "Disabling loop discarded its saved locators");
+    const auto disabled=session;
+    check(!history.structural({SetLoop{session.loop}}) && session==disabled,
+          "Identical loop intent created a history edit");
+}
+
 } // namespace
 int main() {
     try {
+        loopState();
         inputLatencyState();
         punchState();
         auto s = makeOneTrackSession("Été · Ελληνικά · Українська · עברית", "Łódź — voix");
@@ -249,7 +287,7 @@ int main() {
         std::locale::global(oldLocale);
         check(localized == encoded, "Locale changed project numeric data");
         Json j = Json::parse(encoded);
-        j["schemaMinor"] = 17;sc_test::eraseSchema16FixtureKeys(j);
+        j["schemaMinor"] = 18;sc_test::eraseSchema16FixtureKeys(j);
         rejects([&] { decodeProject(j.dump()); }, ErrorCode::UnsupportedSchema);
         j = Json::parse(encoded);
         j["schemaMajor"] = 2;

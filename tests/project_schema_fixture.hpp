@@ -5,6 +5,12 @@ namespace sc_test {
 // Construct legacy fixtures from a neutral current writer. Production loading
 // remains strict: old schemas reject these keys. Never discard an actual take.
 template<class Json> void eraseSchema16FixtureKeys(Json &value) {
+    if (value.at("schemaMinor") < 17 && value.contains("loopPlayback")) {
+        const auto &loop = value.at("loopPlayback");
+        if (loop.at("enabled") != false || loop.at("startFrame") != 0 || loop.at("endFrame") != 0)
+            throw std::runtime_error("Legacy fixture cannot discard saved loop intent");
+        value.erase("loopPlayback");
+    }
     if (value.at("schemaMinor") > 15) return;
     for (auto &track : value.at("tracks")) {
         if (track.contains("takeLanes") && !track.at("takeLanes").empty())

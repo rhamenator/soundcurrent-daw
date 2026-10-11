@@ -357,6 +357,9 @@ void validate(const Session &s, StateBudget budget) {
     check(s.punch.startFrame >= 0 && s.punch.endFrame >= s.punch.startFrame &&
               (!s.punch.enabled || s.punch.endFrame > s.punch.startFrame),
           "Invalid punch recording locators");
+    check(s.loop.startFrame >= 0 && s.loop.endFrame >= s.loop.startFrame &&
+              (!s.loop.enabled || s.loop.endFrame > s.loop.startFrame),
+          "Invalid loop playback locators");
     std::unordered_set<std::string_view> ids;
     std::unordered_map<std::string_view, std::pair<Frame, Frame>> takeGroups;
     struct RetainedClip { const Track *track; const TakeLane *lane; const Clip *clip; };

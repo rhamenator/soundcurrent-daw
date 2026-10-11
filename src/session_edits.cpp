@@ -323,6 +323,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                     proposed.master = e.value;
                 } else if constexpr (std::is_same_v<E, SetPunch>) {
                     proposed.punch = e.value;
+                } else if constexpr (std::is_same_v<E, SetLoop>) {
+                    proposed.loop = e.value;
                 } else if constexpr (std::is_same_v<E, SetInputLatency>) {
                     track(proposed, e.track).inputLatencyFrames = e.frames;
                 } else if constexpr (std::is_same_v<E, InsertTakeLane>) {
@@ -636,6 +638,8 @@ EditHistory::StructureChange EditHistory::difference(const Session &value) const
         change.master = {{session_.master, value.master}};
     if (value.punch != session_.punch)
         change.punch = {{session_.punch, value.punch}};
+    if (value.loop != session_.loop)
+        change.loop = {{session_.loop, value.loop}};
     return change;
 }
 bool EditHistory::adopt(const Session &value) {
@@ -685,6 +689,11 @@ Session EditHistory::proposed(const Change &change, bool forward) const {
                     require(proposed.punch == (forward ? c.punch->first : c.punch->second),
                             "Undo punch locators conflict with current state");
                     proposed.punch = forward ? c.punch->second : c.punch->first;
+                }
+                if (c.loop) {
+                    require(proposed.loop == (forward ? c.loop->first : c.loop->second),
+                            "Undo loop locators conflict with current state");
+                    proposed.loop = forward ? c.loop->second : c.loop->first;
                 }
                 validate(proposed, budget_);
             }

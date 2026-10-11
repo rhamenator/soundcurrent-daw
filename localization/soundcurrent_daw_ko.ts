@@ -1600,6 +1600,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source> · Loop pass %1 · project frame %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source> EQ changes pending audio acknowledgement.</source>
       <translation type="unfinished" />
     </message>
@@ -2148,6 +2152,26 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Master change was not admitted. Please retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop playback</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Repeat the saved loop range until Stop. Stop playback before changing the range.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Set loop range…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>There is no room for a loop range at this position.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop settings could not be changed. Stop transport setup and retry.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2738,6 +2762,10 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source> · Loop pass %1 · project frame %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Audition — project unchanged. </source>
       <translation type="unfinished" />
     </message>
@@ -2751,6 +2779,14 @@ The complete file was published with a warning: %1</source>
     </message>
     <message>
       <source>Select at least one track to arm.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop %1 to %2 samples. Playback repeats until Stop.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop is off. Saved range: %1 to %2 samples.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2779,6 +2815,34 @@ The complete file was published with a warning: %1</source>
     </message>
     <message>
       <source>Enter nonnegative whole sample positions, with punch out after punch in when enabled.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Playback loop range</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Positions are sample frames at %1 Hz. The loop end is excluded; Stop ends repeated playback.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Enable loop playback</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop start (samples)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop end (samples)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The project changed. Close this dialog and reopen its loop settings.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Enter nonnegative whole sample positions, with loop end after loop start when enabled.</source>
       <translation type="unfinished" />
     </message>
     <message>

@@ -1,0 +1,49 @@
+{
+  "format": "sc-desktop-loop-log-capture-v1",
+  "sourceCommit": "0e65fc33d8e89df60f2fd50360bcd61cdadc8af9",
+  "sourceTree": "51af63bcae49cdb682204f99d1ac6c9566731f4e",
+  "sourceInputs": 498,
+  "captureBytes": 31754,
+  "captureSha256": "c6e4817f20db61806cc203a62be909a7b80678d818d04a24a9846ae665a44312",
+  "qualifiedLocalSuites": 19,
+  "localCohorts": [
+    {
+      "suites": 18,
+      "seconds": 41.06,
+      "ctest": "ctest.txt",
+      "lasttest": "lasttest.txt"
+    },
+    {
+      "suites": 1,
+      "seconds": 0.75,
+      "ctest": "manual-ctest.txt",
+      "lasttest": "manual-lasttest.txt"
+    }
+  ],
+  "desktopLoopChecks": 16,
+  "loopChecks": 32129,
+  "callbackAudit": 0,
+  "actualPasses": 5,
+  "projectSchema": "1.17",
+  "rawTakesUnchanged": true,
+  "saveReopen": true,
+  "undoRedo": true,
+  "loopPreparationUntilStopQualified": true,
+  "desktopSimulatedLoopQualified": true,
+  "nativeLinuxLoopQualified": false,
+  "nativeWindowsLoopQualified": false,
+  "automaticLoopRecordingQualified": false,
+  "physicalLoopQualified": false,
+  "installedPreviewQualified": false,
+  "compCrossfadesQualified": false,
+  "M2Complete": false,
+  "fullGoalComplete": false,
+  "productArtifactUploaded": false,
+  "localization": {
+    "sourceKeys": 893,
+    "partialCatalogs": 34,
+    "draftTranslations": 3135,
+    "nativeReviewed": 0,
+    "fullyUIQualified": 0
+  }
+}

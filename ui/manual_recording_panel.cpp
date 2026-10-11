@@ -588,6 +588,8 @@ void ManualRecordingPanel::poll() {
             if (session.playheadFrame > std::numeric_limits<Frame>::max() - duration - maxDelay)
                 throw ProjectError(ErrorCode::InvalidState, "Manual transport duration overflows");
             run.playback.endFrame = session.playheadFrame + duration + maxDelay;
+            if (session.loop.enabled)
+                run.playback.loop = PlaybackLoopRegion{session.loop.startFrame, session.loop.endFrame};
             run.capture.sampleRate = session.sampleRate;
             run.capture.maximumCallbackFrames = 2048;
             run.capture = withCaptureReserve(run.capture, std::uint32_t(barrierReserve_) * 1000);
@@ -725,6 +727,15 @@ void ManualRecordingPanel::poll() {
                          ? tr("Stopping; draining and verifying recordings…")
                      : s->closed ? tr("Recording worker closed.")
                                  : tr("Transport stopped.");
+    if ((ready || playing) && prepared_ && prepared_->options.run.playback.loop) {
+        const auto &config = prepared_->options.run.playback;
+        const PlaybackTimeline timeline(config.graph.startFrame, config.endFrame, config.loop);
+        Frame project = 0;std::uint64_t pass = 0;
+        if (timeline.position(s->position, project, pass))
+            status += tr(" · Loop pass %1 · project frame %2")
+                .arg(QLocale().toString(static_cast<qulonglong>(pass + 1)),
+                     QLocale().toString(static_cast<qlonglong>(project)));
+    }
     if ((ready || playing) && s->parametersPending)
         status += tr(" EQ changes pending audio acknowledgement.");
     status_->setText(status);

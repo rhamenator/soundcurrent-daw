@@ -75,3 +75,12 @@ and absent provenance, and reject the newer keys. State/history budgets cover
 nested clips and warp data. [Checkpoint170](170-retained-take-lanes.md) records
 transactional comp selection, raw preservation, migrations and remaining UI/loop
 and native-platform work. Device-clock origins remain in raw-media journals.
+
+## Schema1.17: saved playback loop intent
+
+Required `loopPlayback` stores enabled plus half-open project start/end frames.
+The writer preserves disabled locators; schemas1.0–1.16 migrate to disabled0/0
+and reject new keys. Strict values and semantic SetLoop/Undo conflict checks are
+described in [checkpoint173](173-desktop-loop-playback.md). Opening saved state
+never activates audio. Ordinary export and automatic loop recording are separate
+explicit intents; this schema adds no implicit repeat/record policy.

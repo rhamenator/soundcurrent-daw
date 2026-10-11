@@ -1608,6 +1608,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Transport stopped.</translation>
     </message>
     <message>
+      <source> · Loop pass %1 · project frame %2</source>
+      <translation> · Loop pass %1 · project frame %2</translation>
+    </message>
+    <message>
       <source> EQ changes pending audio acknowledgement.</source>
       <translation> EQ changes pending audio acknowledgement.</translation>
     </message>
@@ -2157,6 +2161,26 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Master change was not admitted. Please retry.</source>
       <translation>Master change was not admitted. Please retry.</translation>
+    </message>
+    <message>
+      <source>Loop playback</source>
+      <translation>Loop playback</translation>
+    </message>
+    <message>
+      <source>Repeat the saved loop range until Stop. Stop playback before changing the range.</source>
+      <translation>Repeat the saved loop range until Stop. Stop playback before changing the range.</translation>
+    </message>
+    <message>
+      <source>Set loop range…</source>
+      <translation>Set loop range…</translation>
+    </message>
+    <message>
+      <source>There is no room for a loop range at this position.</source>
+      <translation>There is no room for a loop range at this position.</translation>
+    </message>
+    <message>
+      <source>Loop settings could not be changed. Stop transport setup and retry.</source>
+      <translation>Loop settings could not be changed. Stop transport setup and retry.</translation>
     </message>
     <message>
       <source>Output peak level</source>
@@ -2753,6 +2777,10 @@ The complete file was published with a warning: %1</translation>
       <translation> · Another track is prepared. Stop or prepare the selected track.</translation>
     </message>
     <message>
+      <source> · Loop pass %1 · project frame %2</source>
+      <translation> · Loop pass %1 · project frame %2</translation>
+    </message>
+    <message>
       <source>Audition — project unchanged. </source>
       <translation>Audition — project unchanged. </translation>
     </message>
@@ -2767,6 +2795,14 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source>Select at least one track to arm.</source>
       <translation>Select at least one track to arm.</translation>
+    </message>
+    <message>
+      <source>Loop %1 to %2 samples. Playback repeats until Stop.</source>
+      <translation>Loop %1 to %2 samples. Playback repeats until Stop.</translation>
+    </message>
+    <message>
+      <source>Loop is off. Saved range: %1 to %2 samples.</source>
+      <translation>Loop is off. Saved range: %1 to %2 samples.</translation>
     </message>
     <message>
       <source>Punch recording range</source>
@@ -2795,6 +2831,34 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source>Enter nonnegative whole sample positions, with punch out after punch in when enabled.</source>
       <translation>Enter nonnegative whole sample positions, with punch out after punch in when enabled.</translation>
+    </message>
+    <message>
+      <source>Playback loop range</source>
+      <translation>Playback loop range</translation>
+    </message>
+    <message>
+      <source>Positions are sample frames at %1 Hz. The loop end is excluded; Stop ends repeated playback.</source>
+      <translation>Positions are sample frames at %1 Hz. The loop end is excluded; Stop ends repeated playback.</translation>
+    </message>
+    <message>
+      <source>Enable loop playback</source>
+      <translation>Enable loop playback</translation>
+    </message>
+    <message>
+      <source>Loop start (samples)</source>
+      <translation>Loop start (samples)</translation>
+    </message>
+    <message>
+      <source>Loop end (samples)</source>
+      <translation>Loop end (samples)</translation>
+    </message>
+    <message>
+      <source>The project changed. Close this dialog and reopen its loop settings.</source>
+      <translation>The project changed. Close this dialog and reopen its loop settings.</translation>
+    </message>
+    <message>
+      <source>Enter nonnegative whole sample positions, with loop end after loop start when enabled.</source>
+      <translation>Enter nonnegative whole sample positions, with loop end after loop start when enabled.</translation>
     </message>
     <message>
       <source> · captured %1 / written %2</source>
