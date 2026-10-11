@@ -1,6 +1,31 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/wasapi_render_lifecycle.hpp>
 namespace soundcurrent::daw {
+std::optional<Qpc100ns> convertWasapiQpc(std::uint64_t ticks,std::uint64_t frequency) noexcept {
+    if(!frequency)return {};
+    constexpr std::uint64_t scale=10000000;
+    const auto seconds=ticks/frequency,remainder=ticks%frequency;
+    if(seconds>UINT64_MAX/scale)return {};
+    std::uint64_t fraction=0;
+    if(frequency<=UINT64_MAX/scale)fraction=remainder*scale/frequency;
+    else {
+        // Multiply/divide the fractional numerator with exactly 24 bounded
+        // bit steps. Modular addition/doubling avoids every wide product.
+        std::uint64_t carryRemainder=0;
+        for(int bit=23;bit>=0;--bit) {
+            fraction*=2;
+            if(carryRemainder>=frequency-carryRemainder){carryRemainder-=frequency-carryRemainder;++fraction;}
+            else carryRemainder+=carryRemainder;
+            if((scale>>bit)&1) {
+                if(carryRemainder>=frequency-remainder){carryRemainder-=frequency-remainder;++fraction;}
+                else carryRemainder+=remainder;
+            }
+        }
+    }
+    const auto whole=seconds*scale;
+    if(whole>UINT64_MAX-fraction)return {};
+    return Qpc100ns{whole+fraction};
+}
 void PreparedWasapiRenderLifecycle::prepared(WasapiPreparedRenderFormat f) noexcept {
     if (ended_) return;
     if (prepared_) { end_.invalidReceipt=true;return; }

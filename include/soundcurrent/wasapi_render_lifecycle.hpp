@@ -2,6 +2,10 @@
 #pragma once
 #include "wasapi_render.hpp"
 namespace soundcurrent::daw {
+// Exact floor(ticks * 10,000,000 / frequency), with checked uint64 result.
+// Pure conversion for the independent wait clock, NEVER a replacement SDK reading.
+// Zero frequency/overflow return empty; no floating point, allocation or lock.
+std::optional<Qpc100ns> convertWasapiQpc(std::uint64_t ticks,std::uint64_t frequency) noexcept;
 struct WasapiRenderLifecycleCallbacks {
     void *context = nullptr;
     void (*finished)(void *, const WasapiRenderEnd &) noexcept = nullptr;

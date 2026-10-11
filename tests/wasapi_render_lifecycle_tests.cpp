@@ -72,6 +72,96 @@ void malformed(){for(unsigned kind=0;kind<10;++kind){PreparedWasapiRenderLifecyc
     if(kind==9)rt([&]{l.silenceReleased({WasapiSilenceKind::Startup,49,0});});
     rt([&]{l.finish({});});check(l.afterJoin()->invalidReceipt,"Inconsistent original receipt represented as valid");
 }}
+void qpcConversion() {
+    struct Case {std::uint64_t ticks,frequency;bool valid;std::uint64_t expected;};
+    // Frozen literals generated with independent Python arbitrary-precision arithmetic.
+    constexpr Case cases[]{
+        {0ULL,1ULL,true,0ULL},
+        {1ULL,1ULL,true,10000000ULL},
+        {2ULL,1ULL,true,20000000ULL},
+        {9223372036854775807ULL,1ULL,false,0ULL},
+        {18446744073709551615ULL,1ULL,false,0ULL},
+        {0ULL,2ULL,true,0ULL},
+        {1ULL,2ULL,true,5000000ULL},
+        {2ULL,2ULL,true,10000000ULL},
+        {3ULL,2ULL,true,15000000ULL},
+        {9223372036854775807ULL,2ULL,false,0ULL},
+        {18446744073709551615ULL,2ULL,false,0ULL},
+        {0ULL,48000ULL,true,0ULL},
+        {1ULL,48000ULL,true,208ULL},
+        {47999ULL,48000ULL,true,9999791ULL},
+        {48000ULL,48000ULL,true,10000000ULL},
+        {48001ULL,48000ULL,true,10000208ULL},
+        {9223372036854775807ULL,48000ULL,false,0ULL},
+        {18446744073709551615ULL,48000ULL,false,0ULL},
+        {0ULL,9999999ULL,true,0ULL},
+        {1ULL,9999999ULL,true,1ULL},
+        {9999998ULL,9999999ULL,true,9999998ULL},
+        {9999999ULL,9999999ULL,true,10000000ULL},
+        {10000000ULL,9999999ULL,true,10000001ULL},
+        {9223372036854775807ULL,9999999ULL,true,9223372959192071726ULL},
+        {18446744073709551615ULL,9999999ULL,false,0ULL},
+        {0ULL,10000000ULL,true,0ULL},
+        {1ULL,10000000ULL,true,1ULL},
+        {9999999ULL,10000000ULL,true,9999999ULL},
+        {10000000ULL,10000000ULL,true,10000000ULL},
+        {10000001ULL,10000000ULL,true,10000001ULL},
+        {9223372036854775807ULL,10000000ULL,true,9223372036854775807ULL},
+        {18446744073709551615ULL,10000000ULL,true,18446744073709551615ULL},
+        {0ULL,10000001ULL,true,0ULL},
+        {1ULL,10000001ULL,true,0ULL},
+        {10000000ULL,10000001ULL,true,9999999ULL},
+        {10000001ULL,10000001ULL,true,10000000ULL},
+        {10000002ULL,10000001ULL,true,10000000ULL},
+        {9223372036854775807ULL,10000001ULL,true,9223371114517664355ULL},
+        {18446744073709551615ULL,10000001ULL,true,18446742229035328711ULL},
+        {0ULL,1000000000ULL,true,0ULL},
+        {1ULL,1000000000ULL,true,0ULL},
+        {999999999ULL,1000000000ULL,true,9999999ULL},
+        {1000000000ULL,1000000000ULL,true,10000000ULL},
+        {1000000001ULL,1000000000ULL,true,10000000ULL},
+        {9223372036854775807ULL,1000000000ULL,true,92233720368547758ULL},
+        {18446744073709551615ULL,1000000000ULL,true,184467440737095516ULL},
+        {0ULL,3000000000ULL,true,0ULL},
+        {1ULL,3000000000ULL,true,0ULL},
+        {2999999999ULL,3000000000ULL,true,9999999ULL},
+        {3000000000ULL,3000000000ULL,true,10000000ULL},
+        {3000000001ULL,3000000000ULL,true,10000000ULL},
+        {9223372036854775807ULL,3000000000ULL,true,30744573456182586ULL},
+        {18446744073709551615ULL,3000000000ULL,true,61489146912365172ULL},
+        {0ULL,1844674407370ULL,true,0ULL},
+        {1ULL,1844674407370ULL,true,0ULL},
+        {1844674407369ULL,1844674407370ULL,true,9999999ULL},
+        {1844674407370ULL,1844674407370ULL,true,10000000ULL},
+        {1844674407371ULL,1844674407370ULL,true,10000000ULL},
+        {9223372036854775807ULL,1844674407370ULL,true,50000000000025ULL},
+        {18446744073709551615ULL,1844674407370ULL,true,100000000000051ULL},
+        {0ULL,1844674407371ULL,true,0ULL},
+        {1ULL,1844674407371ULL,true,0ULL},
+        {1844674407370ULL,1844674407371ULL,true,9999999ULL},
+        {1844674407371ULL,1844674407371ULL,true,10000000ULL},
+        {1844674407372ULL,1844674407371ULL,true,10000000ULL},
+        {9223372036854775807ULL,1844674407371ULL,true,49999999999998ULL},
+        {18446744073709551615ULL,1844674407371ULL,true,99999999999997ULL},
+        {0ULL,9223372036854775807ULL,true,0ULL},
+        {1ULL,9223372036854775807ULL,true,0ULL},
+        {9223372036854775806ULL,9223372036854775807ULL,true,9999999ULL},
+        {9223372036854775807ULL,9223372036854775807ULL,true,10000000ULL},
+        {9223372036854775808ULL,9223372036854775807ULL,true,10000000ULL},
+        {18446744073709551615ULL,9223372036854775807ULL,true,20000000ULL},
+        {0ULL,18446744073709551615ULL,true,0ULL},
+        {1ULL,18446744073709551615ULL,true,0ULL},
+        {9223372036854775807ULL,18446744073709551615ULL,true,4999999ULL},
+        {18446744073709551614ULL,18446744073709551615ULL,true,9999999ULL},
+        {18446744073709551615ULL,18446744073709551615ULL,true,10000000ULL},
+        {0ULL,0ULL,false,0ULL},
+        {18446744073709551615ULL,0ULL,false,0ULL},
+    };
+    for(const auto &c:cases) {
+        const auto result=rt([&]{return convertWasapiQpc(c.ticks,c.frequency);});
+        check(bool(result)==c.valid && (!result || result->value==c.expected),"Independent full-width QPC oracle differs");
+    }
+}
 void warmup() {
     const WasapiWarmupLimits limits{192,500000};
     auto original=lease(64,WasapiRenderAction::Continue).original;
@@ -153,4 +243,4 @@ void nativeOwner(){Context c;PreparedWasapiRenderLifecycle l({&c,Context::finish
     });source.join();const auto e=l.afterJoin();audit(sourceAudit);check(e && c.ends==1 && e->callbackLeases==20001 && e->callbackFrames==1280007 && e->contentCommittedFrames==1280007 && e->queueDrainObserved && !e->invalidReceipt,"Joined long native-owner bookkeeping failed");
 }
 }
-int main(){try{rt_audit::reset();healthy();failures();malformed();warmup();nativeOwner();audit(rt_audit::counts);std::cout<<checks<<" render SDK lifecycle checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
+int main(){try{rt_audit::reset();healthy();failures();malformed();qpcConversion();warmup();nativeOwner();audit(rt_audit::counts);std::cout<<checks<<" render SDK lifecycle checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

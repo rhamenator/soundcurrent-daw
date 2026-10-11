@@ -105,15 +105,14 @@ struct WasapiRenderStream::State {
             if (!frequency) throw ProjectError(ErrorCode::InvalidState, "Invalid playback clock frequency");
             LARGE_INTEGER qpcFrequency{};
             if(callbacks.beforeLease && (!QueryPerformanceFrequency(&qpcFrequency) ||
-                qpcFrequency.QuadPart<=0 || qpcFrequency.QuadPart>1000000000))
+                qpcFrequency.QuadPart<=0))
                 throw ProjectError(ErrorCode::InvalidState,"Native warmup QPC frequency unavailable");
             const auto currentQpc=[&](Qpc100ns &now) noexcept {
                 LARGE_INTEGER value{};
                 if(!QueryPerformanceCounter(&value) || value.QuadPart<=0)return false;
-                const auto ticks=std::uint64_t(value.QuadPart),freq=std::uint64_t(qpcFrequency.QuadPart);
-                const auto seconds=ticks/freq,fraction=(ticks%freq)*10000000/freq;
-                if(seconds>UINT64_MAX/10000000 || seconds*10000000>UINT64_MAX-fraction)return false;
-                now={seconds*10000000+fraction};return now.value!=0;
+                const auto converted=convertWasapiQpc(std::uint64_t(value.QuadPart),std::uint64_t(qpcFrequency.QuadPart));
+                if(!converted)return false;
+                now=*converted;return now.value!=0;
             };
             Scheduling scheduling;
             this->format={options.sampleRate,options.channels,frames,std::min(frames,options.maximumFrames),
