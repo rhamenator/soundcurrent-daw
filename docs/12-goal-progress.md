@@ -4458,3 +4458,13 @@ and exact whole-packet logical-time advancement. Original480,000 sample/recovery
 callback and separate overflow assertions remain; production behavior/deadlines
 unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
 retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
+
+## Catalog inventory after the Windows observer change (2026-10-11)
+
+Run38118823925 passed all three Windows checks; Linux passed123/125 and refused
+the stale whole-source digest for stretch_controller.cpp. Actual Linguist update
+on d254183 refreshed only that digest:917keys/34catalogs/3,135drafts and75 other
+localization files byte-identical. Actual13 isolated refusals and translator-work
+preservation passed. Native review/full UI remains zero. The71,095-byte packet and
+[Checkpoint185](185-logical-recording-credit.md) retain original failure/new binding.
+Fresh current-head checks remain required; no stale Windows cohort is admitted.
