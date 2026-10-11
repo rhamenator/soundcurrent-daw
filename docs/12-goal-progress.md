@@ -4637,3 +4637,14 @@ Independent actual MSVC raw writer1.11s passed within60 suites141.76s. A65,713-b
 packet binds its full job/API and17 original Git blobs; [Checkpoint189](189-original-raw-recording.md)
 records process-interruption/platform scope. Current-MAIN admission remains a
 separate protected gate. Full DAW goal is active and incomplete.
+## Current-MAIN Windows owner failures retained (2026-10-11)
+
+Output gate38127318120 separately failed manual takeGroup waiting (caller807) and
+Windows parent-interruption recovery (Incomplete instead of Ready). No stale
+stacked success is admitted. Frozenaa62e910 adds take/status/file-size and exact
+owned-child terminal/case-report diagnostics; assertions/deadlines/production
+behavior unchanged. Linux Debug manual control passed1.57s/65,182 observed checks,
+callback audit zero; Windows syntax checked but execution pending. A109,965-byte/
+nine-member packet binds416 inputs/local binary/logs and both original failed
+Windows jobs/API/16 reviewed blobs. [Checkpoint181](181-durable-prefix-regression.md)
+records original unresolved causes. Fresh current-MAIN checks are still required.
