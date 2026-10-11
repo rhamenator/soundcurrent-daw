@@ -39,11 +39,20 @@ only dummy/freewheel drivers; owned nodes, links and daemon must retire. Logs,
 configuration and media remain local even on failure. The runner rejects runtime
 paths exceeding the Unix socket limit rather than falling back to user audio.
 Configuration derives from the distribution file; its upstream Expat notice is
-retained in PIPEWIRE-NOTICE.txt and THIRD-PARTY-NOTICES.md.
+retained in the [packet notice](../tests/results/M2/2026-10-11-native-loop-recording/PIPEWIRE-NOTICE.txt) and THIRD-PARTY-NOTICES.md.
 
-Development finite and until-Stop runs passed with exact input/output samples and
-callback audits0. Committed-source observations are recorded after the source
-freeze; variable until-Stop lengths are observations, not deterministic promises.
+Committed source `9457f8747afb80a70ac4a096efacba4babef8f5c` passed all three
+native workflows and three relevant synthetic regression suites (1.24 seconds).
+Finite capture has231,049 frames per raw input (13 passes); until-Stop retained
+240,640 frames (13 complete passes plus9,591 partial frames). Timed capture has
+240,000 frames. All captured input/output samples matched exactly and callback
+allocation/free/lock counts were0. The60,284-byte [packet](../tests/results/M2/2026-10-11-native-loop-recording/summary.json)
+retains25 log/configuration/context/project/hash members,504 selected source
+inputs and four executable hashes. The committed incremental build had no work,
+after the fixture was compiled/linked from identical frozen source bytes. Packet
+validation and optional source-byte comparison passed. No audio/UI replay,
+historical Git dependency or signature claim follows from these checks.
+Variable until-Stop lengths are observations, not deterministic promises.
 Timing summaries describe these short idle-machine runs, not load/performance
 qualification. All PCM remains local; public evidence contains logs and hashes.
 

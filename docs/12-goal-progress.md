@@ -4325,3 +4325,12 @@ compared every raw/output sample exactly, checked original contexts/clock origin
 paged windows/history/save/reopen and zero callback allocation/free/locking.
 A committed-source gate follows separately. Native delayed-input/postroll/faults,
 Windows duplex, installed/physical workflows and full P005/M2/F/Q/C/N stay open.
+
+Checkpoint177 committed-source gate at9457f8747afb80a70ac4a096efacba4babef8f5c
+passed three owned native GUI workflows plus three synthetic suites/1.24s.
+Finite13 passes have231,049 raw frames per input; until-Stop has13 complete+
+9,591 partial frames; timed regression240,000. Every raw/output sample matched,
+callback allocation/free/lock0, contexts/window groups/UndoRedo/save/reopen checked.
+The60,284-byte/25-member packet binds504 source inputs/four executable hashes.
+Packet validation and optional source comparison passed. Original PCM stays local;
+installed/physical/native latency/postroll/Windows duplex/full goal stay open.
