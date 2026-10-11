@@ -1,0 +1,18 @@
+{
+  "format": "sc-control-diagnostic-observer-v1",
+  "sourceCommit": "4b0721d8b57573c4be6345f70a71071ac789c2f8",
+  "captureBytes": 85200,
+  "captureSha256": "2233406fed4b45616233745d7865b5bc1c864d4df74d8b8870e06743244030ee",
+  "members": 10,
+  "selectedInputs": 6,
+  "linuxControllerSuites": 1,
+  "linuxParentManualSuites": 2,
+  "linuxControllerChecksObserved": 1676,
+  "manualInitiatingWaitKnown": false,
+  "stretchInitiatingChildOutcomeKnown": false,
+  "windowsCohortRequired": true,
+  "productionTerminalSnapshotChanged": true,
+  "nativeAudioQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false
+}

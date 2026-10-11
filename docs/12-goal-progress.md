@@ -4497,3 +4497,17 @@ inputs/five executable hashes; fresh Release compilation reproduced the tested
 binary hash. [Checkpoint183](183-causal-monitor-buffer.md) records actual scope.
 Clock/buffer controller, raw/output SPSC/native composition, durable mappings and
 Windows duplex UI/native/installed/physical/load/quality/localization remain open.
+
+## More precise manual/child-terminal observations (2026-10-11)
+
+Current-MAIN native job114400815807 exposed the original manual wait timeout with
+an intact Unicode path. The exact caller was hidden by the shared wait helper;
+e442fc89 forwards caller location and early callback-failure status/frame. A
+separate Windows desktop parent-interruption case lacked completion markers.
+Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit0/
+busy/unverified regression, and records timeout/exit/error/deadline/job inventory
+at the interruption boundary. Deadlines/assertions remain unchanged. Linux Debug
+controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-byte/
+10-member packet retains both failed jobs/status and local logs/hashes; original
+Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
+records scope; no stale downstream success is admitted as a current-MAIN gate.
