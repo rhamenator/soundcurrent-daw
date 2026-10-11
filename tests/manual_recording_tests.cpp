@@ -185,6 +185,19 @@ void verifiedGroup(const ManualRecordedGroup &group, Session &canonical, const S
               "Control origin fabricated at worker startup");
     }
     const auto before = canonical;
+    const auto retained = withManualTakeLanes(canonical, group, "Take — Ελληνικά", 11);
+    for (std::size_t n = 0; n < retained.tracks.size(); ++n) {
+        const auto &t = retained.tracks[n];
+        const auto &take = t.takeLanes.back();
+        check(t.clips == canonical.tracks[n].clips && take.name == "Take — Ελληνικά" &&
+                  take.captureStartFrame == group.beginFrame && take.captureEndFrame == group.endFrame &&
+                  take.clips.size() == 1 && take.clips[0].startFrame == 11 &&
+                  take.clips[0].lengthFrames == group.endFrame-group.beginFrame &&
+                  take.groupId == retained.tracks[0].takeLanes.back().groupId,
+              "Retained complete group changed active clips or lost capture/group coordinates");
+    }
+    check(decodeProject(encodeProject(retained)) == retained,
+          "Retained verified group did not survive portable serialization");
     const auto candidate = withManualRecording(canonical, group);
     EditHistory history(canonical);
     check(history.adopt(candidate) && history.undo() && canonical == before && history.redo() &&
@@ -390,6 +403,7 @@ void emptyAndMixed(bool early, bool mixed) {
     else
         check(!empty.job, "Late empty lane created an unnecessary fake recording job");
     rejects([&] { withManualRecording(f.s, group); });
+    rejects([&] { withManualTakeLanes(f.s, group, "Incomplete"); });
     if (mixed) {
         check(group.lanes[0].result && group.lanes[0].capturedFrames == 225,
               "Mixed group lost independently completed prefix");

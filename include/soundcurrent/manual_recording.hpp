@@ -66,6 +66,11 @@ struct ManualRecordedGroup {
 // empty/failed lanes remain visible in the receipt and are never fabricated.
 Session withManualRecording(const Session &, const ManualRecordedGroup &,
                             bool allowPartial = false);
+// Retain a complete verified group as inactive take lanes. Explicit project
+// placement may differ from the original recording transport range (e.g. loops).
+// No partial/canceled adoption, automatic selection, media rewrite or disk I/O.
+Session withManualTakeLanes(const Session &, const ManualRecordedGroup &, std::string name,
+                           std::optional<Frame> projectStart = {});
 
 // One serialized disk/control owner plus one audio callback owner. Prepare and
 // service may perform filesystem work, allocation and worker joins: never call

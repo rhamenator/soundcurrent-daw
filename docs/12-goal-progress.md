@@ -4178,3 +4178,18 @@ and qualified receipts retain their own source scope. The sample-rate quality
 branch now inherits this main state by a regular merge; fresh current-head gates
 are required before its admission. No product release upload or broad parity
 promotion.
+
+## 2026-10-11: retained take state and comp engine foundation
+
+[Checkpoint170](170-retained-take-lanes.md) adds schema1.16 inactive take lanes
+and stable cross-track comp source identities, one shared clip codec, nested
+state/history resource accounting and transactional region selection. Complete
+verified manual recording groups can be retained without entering the arrangement;
+incomplete/canceled groups remain refused. Actual two-source and declared eight-
+track sample oracles verify selected audio, inactive silence, raw preservation,
+shared live/export, exact crop/fades and Undo/Redo/save/reopen. The comp workflow
+passes5,257 assertions with callback audit0; final source-bound manual recording
+passes65,183 (the earlier development run reported65,187), and
+16 targeted suites passed during development. Desktop lane/comp controls, actual
+loop transport, crossfades and native Windows/UI/installed qualification remain
+required. No quality/content/native-project or full frozen parity promotion.

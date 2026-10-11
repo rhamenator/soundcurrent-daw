@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+#include "project_schema_fixture.hpp"
 #include <soundcurrent/project_store.hpp>
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -28,7 +29,7 @@ void state() {
     check(monitoringValue(s, id) == RecordingMonitor::Off, "New project monitoring is not off");
     setMonitoringValue(s, id, RecordingMonitor::PostEq);
     const auto j = nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 15 && j["tracks"][0]["monitoringMode"] == "post-eq",
+    check(j["schemaMinor"] == 16 && j["tracks"][0]["monitoringMode"] == "post-eq",
           "Monitoring state uses wrong stable representation");
     check(decodeProject(j.dump()) == s, "Monitoring round trip differs");
     auto automatic = s;
@@ -39,7 +40,7 @@ void state() {
           "Auto monitoring lost stable state or identity");
     for (unsigned minor = 2; minor < 6; ++minor) {
         auto legacy = j;
-        legacy["schemaMinor"] = minor;
+        legacy["schemaMinor"] = minor;sc_test::eraseSchema16FixtureKeys(legacy);
         legacy.erase("imports");
         if (minor < 3)
             legacy.erase("master");
@@ -78,7 +79,7 @@ void state() {
         auto legacy = j;
         legacy.erase("master");
         legacy.erase("punchRecording");
-        legacy["schemaMinor"] = minor;
+        legacy["schemaMinor"] = minor;sc_test::eraseSchema16FixtureKeys(legacy);
         legacy.erase("imports");
         for (auto &t : legacy["tracks"]) {
         for (auto &c : t["clips"]) {c.erase("processing");c.erase("sourceTiming");c.erase("playbackRate");c.erase("stretch");}
