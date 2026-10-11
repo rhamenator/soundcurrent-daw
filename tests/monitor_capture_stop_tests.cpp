@@ -4,6 +4,7 @@
 #include <soundcurrent/wasapi_packet_copy.hpp>
 #include <soundcurrent/wasapi_monitor_capture.hpp>
 #include <soundcurrent/wasapi_monitor_render.hpp>
+#include <soundcurrent/native_original_recording.hpp>
 #include <soundcurrent/wasapi_render_lifecycle.hpp>
 #include "rt_audit.hpp"
 #include "../src/media_io.hpp"
@@ -115,7 +116,7 @@ struct Temp {
     Temp(){std::filesystem::create_directory(path);}
     ~Temp(){if(!std::uncaught_exceptions()){std::error_code e;std::filesystem::remove_all(path,e);}else std::cerr<<"Retained stop fixture: "<<path<<'\n';}
 };
-void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool nativeRender=false) {
+void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool nativeRender=false,unsigned renderEndKind=0) {
     Config c(nativeContext);PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
     PreparedMonitorCaptureStop stop(c.stop);MonitorControlConfig qc;PreparedMonitorControl control(qc);
     MonitorClockHandoffConfig hc;hc.captureIdentity=c.capture.capture.identity;
@@ -133,7 +134,11 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool native
     const MonitorControlRequest intent{1,1,MonitorControlKind::Stop,{base+length}};
     check(control.submit(intent)==MonitorControlCode::Accepted,"Pipeline intent");
     Temp temp;OriginalRecordingSpec spec;spec.identity=c.capture.capture.identity;spec.maximumPacketFrames=64;spec.sampleRate=c.capture.capture.sampleRate;
-    OriginalCaptureWriter writer(temp.path,spec);std::exception_ptr diskError;
+    NativeOriginalRecordingSpec nativeSpec;nativeSpec.raw=spec;nativeSpec.capture=format;nativeSpec.render=renderFormat;nativeSpec.monitorFirst={base};
+    std::unique_ptr<OriginalCaptureWriter> writer;std::unique_ptr<NativeOriginalCaptureWriter> nativeWriter;
+    if(nativeRender)nativeWriter=std::make_unique<NativeOriginalCaptureWriter>(temp.path,nativeSpec);
+    else writer=std::make_unique<OriginalCaptureWriter>(temp.path,spec);
+    const auto job=nativeRender?nativeWriter->jobDirectory():writer->jobDirectory();std::exception_ptr diskError;
     struct Native {
         PreparedCaptureFanout &f;PreparedMonitorCaptureStop &stop;WasapiCaptureCallbacks bound;bool useContext;
         std::array<float,64> sdk{};unsigned releases=0,callbacks=0;bool bad=false;
@@ -184,7 +189,7 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool native
         for(unsigned r=0;r<rounds;++r) {
             phase.arrive_and_wait();
             if(!diskError)try {CaptureBankView v;const auto code=rt([&]{return f.acquireRaw(v);});
-                if(code==CaptureBankRead::Ready){writer.append(v);rawFrames+=v.token.original.frames;if(!rt([&]{return f.releaseRaw(v);}))failed.store(true);}
+                if(code==CaptureBankRead::Ready){if(nativeRender)nativeWriter->append(v);else writer->append(v);rawFrames+=v.token.original.frames;if(!rt([&]{return f.releaseRaw(v);}))failed.store(true);}
                 else if(code!=CaptureBankRead::Empty && code!=CaptureBankRead::Drained)failed.store(true);
             }catch(...){diskError=std::current_exception();failed.store(true);}
             phase.arrive_and_wait();phase.arrive_and_wait();
@@ -218,6 +223,9 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool native
         }
         // Fake SDK pacing deliberately waits for a complete bank block. This
         // exercises composed owners; it is NOT a native startup/deadline policy.
+        if(nativeRender && !renderEnded && rt([&]{return renderCallbacks.shouldStop(renderCallbacks.context);})) {
+            rt([&]{if(renderStarted)renderLife.stopped(0);renderLife.finish({});});renderEnded=true;
+        }
         if(nativeRender && !renderEnded && (o.acceptedFrames()-o.deliveredFrames()>=64 || o.producerDone())) {
             if(!renderStarted){rt([&]{renderLife.started();});renderStarted=true;}
             nativeOut.fill(-999.f);const auto before=o.deliveredFrames();
@@ -231,8 +239,15 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool native
             if(action==WasapiRenderAction::Finish) {
                 for(unsigned n=unsigned(consumed);n<64;++n)check(nativeOut[n+1]==0,"Composed finite slack not zero");
                 check(!renderContext.result() && !clocks.renderDone(),"Composed content Finish hid SDK drain/Stop");
-                rt([&]{renderLife.padding(0);renderLife.queueDrained();renderLife.stopped(0);renderLife.finish({});});renderEnded=true;
-            }else if(action==WasapiRenderAction::Abort){failed.store(true);rt([&]{renderLife.stopped(0);renderLife.finish({});});renderEnded=true;}
+                rt([&]{
+                    if(renderEndKind!=2){
+                        if(renderEndKind==3)renderContext.requestCancel();
+                        if(renderEndKind!=3 && renderEndKind!=4){renderLife.padding(0);renderLife.queueDrained();}
+                        renderLife.stopped(renderEndKind==1?-29:0);
+                        renderLife.finish(renderEndKind==1?std::optional(WasapiStreamFailure{-29,4}):std::nullopt);
+                    }
+                });renderEnded=true;
+            }else if(action==WasapiRenderAction::Abort){if(!kind)failed.store(true);rt([&]{renderLife.stopped(0);renderLife.finish({});});renderEnded=true;}
         }
         for(unsigned n=0;!nativeRender && n<4;++n)if(o.acceptedFrames()-o.deliveredFrames()>=17 || o.producerDone()) {
             const auto result=rt([&]{return o.pull(scratch);});
@@ -245,7 +260,10 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool native
         context.settleAfterJoin();
         if(nativeRender){
             renderContext.settleAfterJoin();const auto result=renderContext.result();
-            check(renderEnded && result && result->status==WasapiMonitorRenderStatus::Complete && result->original && result->original->queueDrainObserved && result->original->stopHresult==0 && result->consumedMonitorFrames==length && result->requestedNativeFrames==nativeFrames && result->finalSlackFrames==nativeFrames-length && result->monitorEnd->value==base+length && renderBinding.originalEnd(),"Composed original native render receipt/extent lost");
+            const auto wanted=kind>=4?WasapiMonitorRenderStatus::Cancelled:kind?WasapiMonitorRenderStatus::Fault:renderEndKind==1?WasapiMonitorRenderStatus::NativeFailure:renderEndKind==2?WasapiMonitorRenderStatus::OwnerLost:renderEndKind==3?WasapiMonitorRenderStatus::Cancelled:renderEndKind==4?WasapiMonitorRenderStatus::Interrupted:WasapiMonitorRenderStatus::Complete;
+            check(renderEnded && result && result->status==wanted && result->consumedMonitorFrames==rendered.size() && (kind || (result->requestedNativeFrames==nativeFrames && result->finalSlackFrames==nativeFrames-length && result->monitorEnd && result->monitorEnd->value==base+length)),"Composed original native render receipt/extent lost");
+            if(renderEndKind==2)check(!result->original && !renderBinding.originalEnd(),"Missing composed SDK end invented");
+            else check(result->original && result->original->stopHresult==(renderStarted?std::optional<std::int32_t>(renderEndKind==1?-29:0):std::nullopt) && result->original->queueDrainObserved==(!kind && renderEndKind!=3 && renderEndKind!=4) && renderBinding.originalEnd(),"Composed drain and original failed Stop collapsed");
         }else clocks.finishRender();
         clocks.settleAfterJoin();
         check(binding.originalEnd() && binding.originalEnd()->stopHresult==life.afterJoin()->stopHresult &&
@@ -256,7 +274,15 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool native
     check(!failed.load() && !native.bad && ended && f.rawDrained() && rawFrames==f.rawAcceptedFrames(),"Source Stop composed owners failed");
     const auto end=stop.endReceipt();check(end && end->original.deliveredFrames==rawFrames && end->original.deliveredPackets==native.callbacks && native.callbacks==native.releases,"SDK delivery/raw/release extent");
     check(stop.originalRequest()->runGeneration==1 && end->original.lastDelivered->devicePosition+64==origin+rawFrames,"Original last SDK metadata");
-    const auto saved=writer.finalize(f);const auto verified=inspectOriginalRecording(writer.jobDirectory(),spec);
+    OriginalRecordingPrefix saved;
+    if(nativeRender){NativeOriginalRunOutcome outcome;outcome.captureGeneration=end->runGeneration;outcome.captureStatus=end->status;outcome.captureOriginal=end->original;outcome.captureUnavailable=context.firstUnavailable();outcome.captureRequest=stop.originalRequest();outcome.render=*renderContext.result();
+        const auto nativeSaved=nativeWriter->finalize(f,outcome);saved=nativeSaved.raw;
+        const auto recovered=inspectNativeOriginalRecording(job,nativeSpec);
+        const auto wanted=kind==4?NativeOriginalRecordingStatus::Cancelled:kind?NativeOriginalRecordingStatus::Failed:renderEndKind==1?NativeOriginalRecordingStatus::Failed:renderEndKind==2 || renderEndKind==4?NativeOriginalRecordingStatus::Interrupted:renderEndKind==3?NativeOriginalRecordingStatus::Cancelled:NativeOriginalRecordingStatus::Complete;
+        check(recovered.status==wanted && nativeSaved.status==wanted && recovered.raw.finalized && recovered.outcome && recovered.outcome->render.status==outcome.render.status && recovered.outcome->render.original.has_value()==outcome.render.original.has_value(),"Composed durable raw/native outcome falsely completed or changed");
+        if(renderEndKind==1)check(recovered.outcome->render.original->queueDrainObserved && recovered.outcome->render.original->stopHresult==-29,"Durable empty queue erased failed Stop");
+    }else saved=writer->finalize(f);
+    const auto verified=inspectOriginalRecording(job,spec);
     std::vector<float> expected(rawFrames);for(std::uint64_t n=0;n<rawFrames;++n)expected[n]=(kind==1 || kind==3) && n==515?std::bit_cast<float>(std::uint32_t{0x7fc01234}):sample(n);
     media_io::SampleHash hash;hash.update(expected);check(saved.finalized && verified.sampleSha256==hash.digest(),"Stopped original disk bytes");
     for(const auto &a:audits)audit(a);
@@ -280,7 +306,7 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool native
         check(cancelSubmitted && p.statistics().cancelled && stop.originalRequest()->kind==MonitorCaptureStopKind::Cancel && rendered.size()<length,"Cancel did not reach capture owner");
         check(end->status==(kind==5?MonitorCaptureEndStatus::NativeFailure:MonitorCaptureEndStatus::Healthy),"Cancellation lost actual native end result");
     }
-    std::cout<<(nativeRender?"production capture+render contexts; fake 64k SDK/pacing, synthetic prior clock fit; ":nativeContext?"production capture context; fake 64k source, synthetic prior clock fit; ":"source-stop fake SDK; ")<<"owners=4 phased; kind="<<kind<<" requested="<<length<<" raw="<<rawFrames<<" monitor="<<rendered.size()<<" actual postroll="<<(rawFrames>=length?rawFrames-length:0)<<"\n";
+    std::cout<<(nativeRender?"production capture+render contexts; fake 64k SDK/pacing, synthetic prior clock fit; ":nativeContext?"production capture context; fake 64k source, synthetic prior clock fit; ":"source-stop fake SDK; ")<<"owners=4 phased; kind="<<kind<<" requested="<<length<<" raw="<<rawFrames<<" monitor="<<rendered.size()<<" renderEndKind="<<renderEndKind<<" actual postroll="<<(rawFrames>=length?rawFrames-length:0)<<"\n";
 }
 } // namespace
 int main() {
@@ -289,6 +315,8 @@ int main() {
         for(unsigned n:{0u,7u,512u,3072u})pipeline(n,0,true);
         for(unsigned kind=1;kind<=5;++kind)pipeline(kind>=4?3072:512,kind,true);
         for(unsigned n:{0u,7u,512u,3072u})pipeline(n,0,true,true);
+        for(unsigned kind=1;kind<=4;++kind)pipeline(512,0,true,true,kind);
+        for(unsigned kind=1;kind<=5;++kind)pipeline(kind>=4?3072:512,kind,true,true);
         audit(rt_audit::counts);
         std::cout<<checks<<" capture Stop lifecycle checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;
     }catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}

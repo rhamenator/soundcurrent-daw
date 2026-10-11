@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: GPL-3.0-only
+#pragma once
+#include "original_recording.hpp"
+#include "wasapi_monitor_render.hpp"
+#include "monitor_capture_stop.hpp"
+namespace soundcurrent::daw {
+struct NativeOriginalRecordingSpec {
+    Id run = Id::generate();
+    std::uint64_t runGeneration = 1;
+    OriginalRecordingSpec raw;
+    WasapiPreparedCaptureFormat capture;
+    WasapiPreparedRenderFormat render;
+    MonitorOutputOrdinal monitorFirst;
+    bool operator==(const NativeOriginalRecordingSpec &) const = default;
+};
+struct NativeOriginalRunOutcome {
+    std::uint64_t captureGeneration = 0;
+    MonitorCaptureEndStatus captureStatus = MonitorCaptureEndStatus::OwnerLost;
+    std::optional<WasapiCaptureEnd> captureOriginal; // OwnerLost has NO invented original.
+    std::optional<std::int32_t> captureUnavailable;
+    std::optional<MonitorCaptureStopRequest> captureRequest;
+    WasapiMonitorRenderResult render;
+};
+enum class NativeOriginalRecordingStatus { NoNativeEvidence, Pending, Complete, Cancelled, Failed, Interrupted };
+struct NativeOriginalRecordingPrefix {
+    OriginalRecordingPrefix raw;
+    std::optional<NativeOriginalRecordingSpec> declared;
+    std::optional<NativeOriginalRunOutcome> outcome;
+    NativeOriginalRecordingStatus status = NativeOriginalRecordingStatus::NoNativeEvidence;
+};
+enum class NativeOriginalRecordingBoundary { PendingPublished, RawFinalized, BeforeOutcomePublish, OutcomePublished };
+struct NativeOriginalRecordingOptions {
+    OriginalRecordingOptions raw;
+    std::function<void(NativeOriginalRecordingBoundary)> boundary; // Disk/control ONLY.
+};
+// Disk owner only. Begins a pending native transaction BEFORE audio activation.
+// Delegates original raw capture, retaining legacy raw-journal meaning/schema.
+// Finalization requires joined/settled fanout and copied joined native outcomes.
+// Neither saved raw PCM nor a missing native result implies completed monitoring.
+class NativeOriginalCaptureWriter {
+  public:
+    NativeOriginalCaptureWriter(std::filesystem::path,NativeOriginalRecordingSpec,NativeOriginalRecordingOptions = {});
+    ~NativeOriginalCaptureWriter();
+    NativeOriginalCaptureWriter(const NativeOriginalCaptureWriter &) = delete;
+    NativeOriginalCaptureWriter &operator=(const NativeOriginalCaptureWriter &) = delete;
+    void append(const CaptureBankView &);
+    void checkpoint();
+    NativeOriginalRecordingPrefix finalize(const PreparedCaptureFanout &,const NativeOriginalRunOutcome &);
+    const std::filesystem::path &jobDirectory() const noexcept;
+  private:
+    struct State;
+    std::unique_ptr<State> state_;
+};
+// One exclusive inactive job lease covers BOTH raw verification and native state.
+// Old/raw-only jobs return NoNativeEvidence, never monitoring Complete.
+NativeOriginalRecordingPrefix inspectNativeOriginalRecording(const std::filesystem::path &,
+    const std::optional<NativeOriginalRecordingSpec> &expected = {},
+    const std::function<void()> &boundary = {},std::optional<ResourceLedger> resources = {});
+// Persist copied joined native ends against a VERIFIED inactive common raw prefix,
+// including one whose raw writer failed/interrupted before media finalization.
+// Requires an existing matching pending declaration; never resumes/replaces PCM.
+NativeOriginalRecordingPrefix reportNativeOriginalRecording(const std::filesystem::path &,
+    const NativeOriginalRecordingSpec &,const NativeOriginalRunOutcome &,
+    std::optional<ResourceLedger> resources = {},
+    const std::function<void(NativeOriginalRecordingBoundary)> &boundary = {});
+}
