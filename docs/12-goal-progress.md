@@ -4683,3 +4683,20 @@ merge32e4dc2c. [Checkpoint191](191-original-clock-handoff.md) separates platform
 execution from current-MAIN/native-duplex/installed/combined-disk qualification.
 Refreshed current-MAIN125 separately failed manual take-group waiting and Windows
 parent-interruption Ready recovery; successful128 cannot replace that gate.
+
+## Reserved finite monitor end and independent Windows disk composition (2026-10-11)
+
+Frozen726886b adds immutable processing-owner end reservation, capped partial
+grids/open-input waiting and bounded actual postroll/automatic EOF. Late/conflicting
+ends refuse without mutation; postroll capacity loss is explicit. Three suites
+passed Release2.67s/ASan-UBSan23.86s/TSan35.14s; each3,845,710 buffer/489,463
+processing/9,251 combined checks, guarded intercepted operations zero. Early
+3,072-frame reservation preserves4,004 raw frames/real932 postroll without the
+prior late-end overshoot. A66,710-byte/17-member packet binds569 inputs/nine
+executables. [Checkpoint193](193-finite-monitor-end.md)/ADR125 retain scope.
+
+Separately actual MSVC job114435986700/run38127902259 passed63 suites154.46s,
+combined disk fixture0.60s. A54,455-byte/three-member packet binds eight reviewed
+blobs/full native job/API evidence. This is the earlier explicit3,600 end, without
+new reservation; not current-MAIN, SDK/installed qualification. Next bounded Stop
+intent/native lifecycle/postroll admission. Quality/localization/full goal open.

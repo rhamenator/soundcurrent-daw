@@ -1,0 +1,46 @@
+{
+  "format": "sc-finite-monitor-end-v1",
+  "sourceCommit": "726886b703d7d8992523d78fcb097b28709cdf33",
+  "sourceTree": "594e7dfee8dc798e73b224b188ed07f65ff50a76",
+  "captureBytes": 66710,
+  "captureSha256": "2b1f59d389ff39e4df15dd5a185be3c7355a47b8eedab482ad6366a08dd4286a",
+  "members": 17,
+  "selectedInputs": 569,
+  "executableHashes": 9,
+  "profiles": {
+    "release": {
+      "bufferChecks": 3845710,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 2.67
+    },
+    "asanUbsan": {
+      "bufferChecks": 3845710,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 23.86
+    },
+    "tsan": {
+      "bufferChecks": 3845710,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 35.14
+    }
+  },
+  "healthyOriginalFrames": 4004,
+  "healthyMonitorFrames": 3072,
+  "actualPostrollFrames": 932,
+  "healthyOriginalClockReadings": 518,
+  "outputPressureCalls": 406,
+  "combinedOwners": 4,
+  "phasedLogicalSchedule": true,
+  "guardedAllocateFreeLock": 0,
+  "nonmutatingLateEndRefusal": true,
+  "postrollCapacityFaultExplicit": true,
+  "windowsFiniteEndExecuted": false,
+  "nativeSdkQualified": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
