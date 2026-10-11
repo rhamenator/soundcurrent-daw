@@ -4790,6 +4790,36 @@ sanitizers qualify unchanged C++/fixture code, not a new execution of this fix.
 Fresh current-head qualification remains required; the native factory/full DAW
 goal stay gated/incomplete.
 
+## Actual prepared capture binding and qualified finite MAIN (2026-10-11)
+
+[Checkpoint196](196-native-monitor-capture-context.md) binds the inactive native
+capture source to its actual SDK format/capacity before activation. Original
+packets/clocks, first availability HRESULTs and original SDK end precede source
+EOF without manufacturing hardware/project mappings. Stable binding handles
+control-versus-SDK exit races and joins before retirement. The factory remains
+disabled; native render drain, durable SDK-end transaction state and startup
+capacity while initial clocks gain confidence remain implementation gates.
+
+Frozen67b7004 passes six suites in Release0.47s, ASan/UBSan2.39s and TSan4.03s,
+including1,000 actual binding races per profile,7,747 composed capture checks and
+zero guarded allocation/free/blocking locks. Observed context check counts vary
+with race winners. The62,240-byte/17-member packet binds581 selected inputs,
+18 executable hashes/seven Windows object-library hashes/full logs. Actual SDK
+wrapper plus complete core-only Windows targets compile. New composed cases use
+fake64k capture and an explicitly synthetic prior clock fit; no native startup,
+runtime, hardware latency or installed workflow claim follows.
+
+Earlier195 Windows job114455972193/run38134654956 passed65 suites150.11s; its
+47,862-byte/three-member packet binds28 blobs/full original job/API. That qualifies
+the earlier portable capture Stop fixture, separately from the new context.
+PR129's protected MAINf1f025d matches whole tested tree/base/eight blobs from
+run38134067183;139,977-byte/eight-member packet retains all four byte-exact jobs.
+PR130's protected MAIN2670029 matches whole tested tree/base/18 blobs from
+run38135204341;142,315-byte/eight-member packet preserves its four jobs/receipts.
+No protection/admin bypass occurred. PR131 now inherits current MAIN and awaits
+its own fresh cohort. Original Windows owner-failure root causes, processing
+quality, alignment, punch/loop, EQ/mix, localization and full goal remain open.
+
 ## Current-MAIN Windows owner failures retained (2026-10-11)
 
 Output gate38127318120 separately failed manual takeGroup waiting (caller807) and

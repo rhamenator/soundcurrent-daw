@@ -82,6 +82,7 @@ struct WasapiCaptureStream::State {
     std::atomic<unsigned> prepared{0}, failureReady{0};
     WasapiStreamFailure firstFailure{};
     std::uint32_t frames = 0;
+    WasapiPreparedCaptureFormat format;
     std::unique_ptr<PreparedWasapiPacketCopy> packetCopy;
     bool activated = false, joined = false;
     State(WasapiCaptureOptions o, WasapiCaptureCallbacks c)
@@ -201,6 +202,7 @@ struct WasapiCaptureStream::State {
             check(client->GetService(__uuidof(IAudioCaptureClient),
                                      reinterpret_cast<void **>(capture.out())), "Prepare capture lease service");
             Scheduling scheduling;
+            this->format = {options.sampleRate, options.channels, frames, format.dwChannelMask, options.loopback, options.identity};
             struct EndReceipt {
                 State &state;
                 ~EndReceipt() {
@@ -328,6 +330,7 @@ void WasapiCaptureStream::activate() {
 void WasapiCaptureStream::stop() noexcept { state_->join(); }
 void WasapiCaptureStream::requestStop() noexcept { SetEvent(state_->stop.value); }
 std::uint32_t WasapiCaptureStream::bufferFrames() const noexcept { return state_->frames; }
+WasapiPreparedCaptureFormat WasapiCaptureStream::preparedFormat() const noexcept { return state_->format; }
 std::optional<WasapiStreamFailure> WasapiCaptureStream::failure() const noexcept {
     return state_->failureReady.load(std::memory_order_acquire) ?
            std::optional{state_->firstFailure} : std::nullopt;
