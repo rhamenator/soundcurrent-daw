@@ -4583,3 +4583,19 @@ A55,006-byte/10-member packet binds559 source inputs/three executable hashes.
 [Checkpoint187](187-monitor-output-transport.md) and ADR120 record remaining native,
 Windows, processing composition/quality and complete-product/localization gates.
 Next: durable original raw metadata and the composed bounded processing owner.
+
+## Windows capture handoff and raw storage boundary (2026-10-11)
+
+Actual MSVC job114416549160 passed58 suites151.32s, including fanout0.08s.
+A42,140-byte packet binds the original tested merge/tree/parents and19 reviewed
+blobs; [Checkpoint186](186-capture-raw-monitor-fanout.md) records independent scope.
+Current-MAIN admission and native/installed/physical qualification remain separate.
+
+The old capture pipe sanitizes nonfinite values and journals engine-frame starts;
+it cannot substitute for original stamped raw recording. A bounded Linux RF64
+experiment retained16/16 float bit patterns in eight stereo frames. A1,780-byte
+source/log packet retains compiler/runtime/hash binding, with no media/executable.
+[Checkpoint188](188-original-raw-storage-boundary.md) specifies the next direct
+writer, durable common audio/metadata prefix, original integer timing records,
+finite playable admission and exact mapping/recovery gates. No production writer,
+Windows storage or native/full-product claim is made from this observation.

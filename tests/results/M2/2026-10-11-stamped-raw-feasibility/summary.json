@@ -1,0 +1,19 @@
+{
+  "format": "sc-stamped-raw-storage-feasibility-v1",
+  "sourceHead": "51c75c2fa130a32d71a502e5ecd493762cd247fc",
+  "captureBytes": 1780,
+  "captureSha256": "9e541fedadf18890f434a76f3293d1b133d6c2fc4151d0801b52aef8c18fbaa5",
+  "members": 4,
+  "floatPatterns": 16,
+  "bitExactPatterns": 16,
+  "frames": 8,
+  "channels": 2,
+  "runtime": "libsndfile-1.2.2",
+  "linuxStorageObservationOnly": true,
+  "productionStampedWriterImplemented": false,
+  "windowsQualified": false,
+  "nativeDuplexQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "testMediaIncluded": false
+}

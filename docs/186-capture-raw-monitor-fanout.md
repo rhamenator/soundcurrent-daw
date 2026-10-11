@@ -82,7 +82,19 @@ build/CTest/LastTest logs. Fresh Release bank/fanout/test compilation produced t
 exact previously executed binary hashes. Worktree and Git blob hashes are separate;
 the Windows desktop preparation script has an explicitly verified CRLF checkout
 of its LF Git blob. Standalone gzip/member and frozen source checks passed.
-No executable or test media is included. Windows fanout execution remains pending.
+No executable or test media is included.
+
+## Independent Windows execution
+
+Actual MSVC job114416549160/run38121349153 passed58 synthetic suites151.32s,
+including fanout0.08s. Its original tested merge
+`02e5ac9491a77702ff3a314170d8b1eddb6fc2df` binds headba0a2048/basedac5a591
+and exact treea9e07a98. A [42,140-byte packet](../tests/results/M2/2026-10-11-capture-fanout-windows/summary.json)
+retains full native job/API state and19 reviewed source hashes, checked against
+the exact Git blobs. Standalone member integrity passed. Per-component check
+counts and executable hashes are not exposed by this log and are not inferred.
+This is independent synthetic Windows execution; a stacked successful cohort
+does not qualify current-MAIN admission, native SDK, installed or physical audio.
 
 ## Next implementation
 
