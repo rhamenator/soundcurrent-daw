@@ -16,9 +16,9 @@ void check(bool ok,const char *why) { ++checks; if (!ok) throw std::runtime_erro
 template<class F> auto rt(F &&f) { rt_audit::Guard guard; return f(); }
 constexpr std::uint64_t origin = std::uint64_t(1)<<63, qpc = std::uint64_t(1)<<54;
 struct Config {
-    CaptureFanoutConfig capture;
-    MonitorOutputBankConfig output;
-    MonitorProcessingConfig processing;
+    CaptureFanoutConfig capture{};
+    MonitorOutputBankConfig output{};
+    MonitorProcessingConfig processing{};
     Config(unsigned channels=1,unsigned sourceRate=48000,unsigned fifo=4097) {
         capture.capture.identity={11,31,7}; capture.capture.channels=channels;
         capture.capture.sampleRate=sourceRate; capture.capture.maximumPacketFrames=sourceRate/100;
