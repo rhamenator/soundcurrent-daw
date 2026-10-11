@@ -4673,3 +4673,13 @@ A60,948-byte/18-member packet binds569 inputs and three executable hashes.
 end refusal: explicit3,072 was behind3,596 already generated. Native advance end
 planning, SDK activation, Windows execution, finite playable admission/alignment,
 EQ/mix integration, quality/localization and full product remain open.
+
+## Independent Windows original clock handoff (2026-10-11)
+
+Actual MSVC job114434358685/run38127347962 passed62 suites145.62s, clock handoff
+0.02s and processing0.09s. All four stacked128 checks succeeded. A63,227-byte/
+three-member packet binds17 reviewed blobs/full job/API evidence and tested
+merge32e4dc2c. [Checkpoint191](191-original-clock-handoff.md) separates platform
+execution from current-MAIN/native-duplex/installed/combined-disk qualification.
+Refreshed current-MAIN125 separately failed manual take-group waiting and Windows
+parent-interruption Ready recovery; successful128 cannot replace that gate.
