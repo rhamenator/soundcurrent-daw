@@ -83,14 +83,25 @@ the new early reservation now reaches that end without overshoot.
 This is one finite processing run, not repeated punch/loop end scheduling or a
 native/GUI Stop workflow. No actual SDK activation, control-to-processing request
 handoff, hardware latency/alignment, uncontrolled pacing/disk stalls, installed
-preview or Windows execution of this new reservation is qualified. Earlier
+preview is qualified. Earlier
 [Windows combined recording](192-combined-monitor-recording.md) tested the prior
 explicit-end revision. EQ/mix integration, recording mappings, portable finite
 playable admission, DSP quality and European translation/UI gates remain open.
 See [ADR125](decisions/125-finite-monitor-end.md).
 
-Next compose generation-bound Stop intent delivery with the processing owner and
-native capture/render lifecycle. Admit real postroll/capacity before activation,
+Actual MSVC job114440502333/run38129436958 subsequently passed 63 synthetic
+suites in147.65s, including combined recording1.20s and processing0.15s. The
+[43,913-byte/three-member packet](../tests/results/M2/2026-10-11-monitor-finite-end-windows/summary.json)
+retains full job/API evidence and18 reviewed Git blobs, with exact tested
+merge/tree/parents and matching frozen finite-end source. This tests the new
+reservation, separately from the prior explicit-end Windows run. It is stacked
+qualification; current-MAIN admission, SDK/hardware and installed workflows
+remain separate. Per-check counts and executable hashes were not exposed or
+claimed by this Windows job. No executables or test media are included.
+
+[Checkpoint194](194-monitor-stop-handoff.md) now supplies portable generation-bound
+Stop intent delivery to the processing owner. Next compose it with the native
+capture/render lifecycle. Admit real postroll/capacity before activation,
 reject stale/late requests with original receipts, and qualify actual endpoint
 startup, short/long Stop, cancellation, loss, joins and retirement on Windows.
 Keep the native duplex factory disabled until SDK and desktop gates pass.

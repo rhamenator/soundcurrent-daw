@@ -1,0 +1,21 @@
+{
+  "format": "sc-qualified-original-raw-main-v1",
+  "pr": 126,
+  "run": 38129668670,
+  "main": "f1c81a321a75a54d535909d34e623757e094b0e2",
+  "head": "8916d5a515d3841f85c0258d14e33ff537302e3e",
+  "base": "62a700204659d29d016bbddabc1e3475673833bc",
+  "testedMerge": "bef84696618bac8b785e0fbd71c6ebe37e6c914d",
+  "tree": "e1ce7773b762a14d9216ddcae501d2cab10a4bd0",
+  "blobs": 17,
+  "captureBytes": 139166,
+  "captureSha256": "60e95ca986a9fc8f241d109d1c496eabea73b92e2db5f1548012ece7892e44de",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "policyChanged": false,
+  "adminBypass": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

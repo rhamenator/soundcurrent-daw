@@ -4701,6 +4701,37 @@ blobs/full native job/API evidence. This is the earlier explicit3,600 end, witho
 new reservation; not current-MAIN, SDK/installed qualification. Next bounded Stop
 intent/native lifecycle/postroll admission. Quality/localization/full goal open.
 
+## Owned monitor Stop intent and qualified writer MAIN (2026-10-11)
+
+[Checkpoint194](194-monitor-stop-handoff.md) supplies two bounded owned request/
+receipt lanes, generation/sequence refusals, before-action original receipts and
+joined loss dispositions. Receipt pressure pauses PCM while route/time/clock-age
+checks remain active. Release0.31s, ASan/UBSan1.73s and TSan3.32s each pass6,158
+control/489,463 processing/9,251 combined checks with zero prepared allocation/
+free/blocking-lock audits. Two actual threads exchange20,000 stale requests plus
+accepted Stop/Cancel; finite zero/seven/512 output and late refusal retain exact
+raw PCM. The59,080-byte/13-member packet binds572 selected inputs/nine executable
+hashes. This is portable control composition; native postroll/adapters, installed
+workflow, repeated punch/loop, mapping, quality and localization remain open.
+
+Finite-end Windows run38129436958 independently passed all four jobs; native
+job114440502333 passed63 suites in147.65s. Its43,913-byte/three-member packet binds
+18 reviewed blobs and actual tested merge/tree/parents, matching the new finite
+source. [Checkpoint193](193-finite-monitor-end.md) separates stacked Windows
+qualification from current-MAIN/native/installed gates and the new Stop handoff.
+
+Original writer PR126 passed current-MAIN run38129668670, exact head8916d5a/base
+62a7002/tested bef84696618bac8b785e0fbd71c6ebe37e6c914d/tree
+e1ce7773b762a14d9216ddcae501d2cab10a4bd0. Ordinary protected squash MAIN
+f1c81a321a75a54d535909d34e623757e094b0e2 was verified against the whole tested
+tree/base parent/all17 reviewed blobs. No policy/admin bypass occurred. The
+[retained current-MAIN packet](../tests/results/M2/2026-10-11-original-raw-current-main/summary.json)
+binds all four complete qualified job logs, exact review/admission and post-merge
+receipts. Earlier Windows output failures remain retained with unresolved causes;
+this passing run does not establish their root-cause resolution. PR127 now
+inherits this qualified MAIN and has a fresh cohort; old stacked greens are not
+admission evidence. Full frozen-reference DAW goal remains active/incomplete.
+
 ## Current-MAIN Windows owner failures retained (2026-10-11)
 
 Output gate38127318120 separately failed manual takeGroup waiting (caller807) and
