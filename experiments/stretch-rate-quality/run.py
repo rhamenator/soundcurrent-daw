@@ -70,6 +70,31 @@ def frequency(audio, rate, channel, expected):
     error = float(1200*math.log2(measured/expected))
     return {'channel': channel, 'expectedHz': expected, 'measuredHz': float(measured), 'errorCents': error, 'withinFiveCents': abs(error) <= 5, 'firstAnalysisFrame': first, 'analysisFrames': n, 'centralAmplitudeAtTarget': amplitude}
 
+def parent_workflow(verifier, original_root, fresh_root, request, ready, timeout):
+    """Each verifier creates a new project identity: give it a distinct root."""
+    operation = request['operation']
+    assert str(uuid.UUID(operation)) == operation
+    assert request['relative'] == 'media/tone-été.wav'
+    leaves = [request['relative']] + ['media/derived/'+operation+'/'+n for n in ['audio.wav', 'complete.json', 'intent.json']]
+    originals = {}
+    assert not fresh_root.exists()
+    for relative in leaves:
+        src = original_root/relative
+        assert src.is_file() and not src.is_symlink() and src.stat().st_size <= 4194304
+        raw = src.read_bytes()
+        originals[relative] = {'bytes': len(raw), 'sha256': sha(raw)}
+        dst = fresh_root/relative
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        with dst.open('xb') as f:
+            f.write(raw)
+    assert originals[request['relative']]['sha256'] == request['sha256']
+    p = subprocess.run([str(verifier), str(fresh_root), 'media/derived/'+operation+'/audio.wav', json.dumps(request), json.dumps(ready)], capture_output=True, text=True, timeout=timeout)
+    assert len(p.stdout)+len(p.stderr) < 65536
+    assert originals == {relative: {'bytes': (original_root/relative).stat().st_size, 'sha256': sha((original_root/relative).read_bytes())} for relative in leaves}
+    for relative in [request['relative'], 'media/derived/'+operation+'/audio.wav']:
+        assert originals[relative]['sha256'] == sha((fresh_root/relative).read_bytes())
+    return p, originals
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('worker', type=Path)
@@ -140,9 +165,9 @@ def main():
                     observations = [frequency(audio, rate, ch, hz*2**(pitch/1200000)) for ch, hz in enumerate([1000., 1500.])]
                     row.update({'complete': True, 'relativeAudio': str((job/'audio.wav').relative_to(output)), 'audioSha256': audio_sha, 'sampleSha256': sample_sha, 'frames': target, 'peak': float(np.max(np.abs(audio))), 'floatHeadroom': bool(np.max(np.abs(audio)) > 1), 'unityExact': unity, 'frequency': observations})
                     if (n, d, pitch) == (3, 2, 1200000) or (rate, n, d, pitch) == (48000, 1, 2, -1200000):
-                        p = subprocess.run([str(verifier), str(root), 'media/derived/'+request['operation']+'/audio.wav', json.dumps(request), json.dumps(packets[0])], capture_output=True, text=True, timeout=limits['childSeconds'])
-                        assert len(p.stdout)+len(p.stderr) < 65536
-                        processes.append({'kind': 'parent-verifier', 'operation': request['operation'], 'exitCode': p.returncode, 'stdout': p.stdout, 'stderr': p.stderr})
+                        fresh_root = output/'parents'/request['operation']
+                        p, originals_copy = parent_workflow(verifier, root, fresh_root, request, packets[0], limits['childSeconds'])
+                        processes.append({'kind': 'parent-verifier', 'operation': request['operation'], 'exitCode': p.returncode, 'stdout': p.stdout, 'stderr': p.stderr, 'originalsUnchanged': originals_copy})
                         row['parentWorkflowPassed'] = p.returncode == 0
                         assert sha(path.read_bytes()) == digest and sha((job/'audio.wav').read_bytes()) == audio_sha
                     save('results.json', rows)
