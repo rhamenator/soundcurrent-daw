@@ -1,5 +1,33 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native monitor matrix state and composed startup (2026-10-11)
+
+[Checkpoint209](209-native-channel-state.md) adds auxiliary native state 1.2,
+a canonical bounded matrix artifact and a fixed startup fingerprint. Raw capture
+and retained source PCM keep their original width; startup and saved state bind
+the explicit output width and matrix. Legacy 1.0/1.1 writing refuses matrices;
+explicit migration preserves original outcomes and absent mapping. Full-size
+65,536-route state, malformed references/artifacts and two actual matrix
+publication interruptions pass alongside existing native/migration boundaries.
+
+Four suites pass Release 2.34s, ASan/UBSan 34.82s and TSan 31.66s: 3,589,544
+composed checks, 498,462 processing checks and guarded allocation/free/lock 0 per
+profile. Twelve composed persistence runs include four mono-to-stereo runs at
+44.1/48/96kHz and failed Stop, plus actual legacy startup migration; fourteen
+diagnostic outcomes retain original evidence. Mapped reference PCM error is 0.
+The packet binds 636 inputs, Linux/Windows hashes, commands and complete logs.
+Windows SDK/three fixtures compile/link; seven changed objects are warning-free.
+New Windows runtime and the ordinary factory remain unqualified/disabled.
+
+PR143 remains draft after required native Windows run38171414742 failed: all 71
+CTest suites and two standalone 20-take/five-second runs passed; the third
+exhausted capture at take16/identity17 while WriteHashBegin remained pending with
+written0/committed0. Full original job logs and selected artifact logs are
+retained. The writer delay's cause remains open; passing simulated tests or an
+unchanged CI retry does not resolve it. Next retain backlog and disk write timing,
+then qualify a concrete correction before factory activation. The complete
+M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe goal remains ACTIVE/incomplete.
+
 ## Explicit monitor channel matrix (2026-10-11)
 
 [Checkpoint208](208-explicit-monitor-channel-map.md) adds an immutable prepared
