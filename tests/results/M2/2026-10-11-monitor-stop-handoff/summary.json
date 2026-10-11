@@ -1,0 +1,50 @@
+{
+  "format": "sc-monitor-stop-handoff-v1",
+  "sourceCommit": "220bb1e064d0e29383ae08b4afcc8c411d2e15a5",
+  "sourceTree": "f1b9fc78d8af39bb618ccb953567baf7c5d38a3f",
+  "captureBytes": 59080,
+  "captureSha256": "044166a322a231c914cf9ffddd8725c90af3be911e481eb627fafb7a46e94698",
+  "members": 13,
+  "selectedInputs": 572,
+  "executableHashes": 9,
+  "profiles": {
+    "release": {
+      "checks": {
+        "control": 6158,
+        "processing": 489463,
+        "combined": 9251
+      },
+      "seconds": 0.31
+    },
+    "sanitizer": {
+      "checks": {
+        "control": 6158,
+        "processing": 489463,
+        "combined": 9251
+      },
+      "seconds": 1.73
+    },
+    "tsan": {
+      "checks": {
+        "control": 6158,
+        "processing": 489463,
+        "combined": 9251
+      },
+      "seconds": 3.32
+    }
+  },
+  "concurrentOwners": 2,
+  "concurrentStaleRequests": 20000,
+  "concurrentAcceptedStopAndCancel": true,
+  "receiptPressurePausesPcm": true,
+  "lossAndAgeRemainObservableUnderPressure": true,
+  "originalIntentsRetainedAfterJoin": true,
+  "guardedAllocateFreeLock": 0,
+  "windowsControlExecuted": false,
+  "nativeSdkQualified": false,
+  "nativePostrollPolicyAdmitted": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
