@@ -85,6 +85,17 @@ assert failed['stderr'] == 'Refusing to overwrite another project\n'
 retry = json.loads(b['parent-retry-receipt.json'])
 assert (retry['originalSource'], retry['retrySource']) == (HEAD, RETRY)
 assert retry['originalOperation'] == failed['operation'] and retry['exitCode'] == 0 and retry['stderr'] == ''
+failed_rows = [r for r in rows if r['request']['operation'] == failed['operation']]
+assert len(failed_rows) == 1
+failed_row = failed_rows[0]
+assert retry['request'] == failed_row['request']
+copied = retry['copiedInputsOriginalsUnchanged']
+operation_path = 'media/derived/' + failed['operation'] + '/'
+assert set(copied) == {failed_row['request']['relative']} | {operation_path+n for n in ('audio.wav', 'complete.json', 'intent.json')}
+assert copied[operation_path+'audio.wav']['sha256'] == failed_row['audioSha256']
+assert copied[failed_row['request']['relative']]['sha256'] == failed_row['request']['sha256']
+assert copied[failed_row['request']['relative']]['bytes'] == 44 + 8*failed_row['request']['sourceFrames']
+assert all(0 < record['bytes'] <= 4194304 and len(record['sha256']) == 64 for record in copied.values())
 assert retry['verifierSha256'] == i['verifierSha256']
 assert 'derived_shared_live_export_checks=7919 callback_audit=0 seek_split_crop_equal=true save_reopen=true' in retry['stdout']
 assert retry['rerenderedAudio'] is False and retry['originalBankChanged'] is False
