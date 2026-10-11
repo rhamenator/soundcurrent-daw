@@ -3,6 +3,7 @@
 #include "capture_bank.hpp"
 #include "resource_ledger.hpp"
 #include <atomic>
+#include "monitor_channel_map.hpp"
 namespace soundcurrent::daw {
 enum class MonitorStartupPhase { Disabled, Observing, Transferring, Live };
 struct MonitorStartupSource {
@@ -28,6 +29,7 @@ struct MonitorStartupAdmission {
     std::uint64_t renderFrequency = 0;
     std::uint32_t nativeCapacityFrames = 0, maximumNativeFillFrames = 0;
     std::uint64_t maximumWait100ns = 0;
+    std::optional<MonitorChannelMapReceipt> channelMap = {};
     bool operator==(const MonitorStartupAdmission &) const = default;
 };
 struct MonitorStartupReady {
