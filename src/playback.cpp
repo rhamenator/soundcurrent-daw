@@ -10,6 +10,7 @@ PlaybackConfig preparePlaybackConfig(PlaybackConfig c) {
                                               c.slabFrames, c.memoryBudgetBytes, c.startFrame});
     if (c.endFrame <= c.startFrame || !c.generation)
         throw ProjectError(ErrorCode::InvalidState, "Invalid playback range/generation");
+    (void)PlaybackTimeline(c.startFrame, c.endFrame, c.loop);
     c.slabFrames = bounds.slabFrames;
     return c;
 }

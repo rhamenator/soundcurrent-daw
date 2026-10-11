@@ -15,6 +15,7 @@ PlaybackConfig mixPlaybackLaneConfig(const ValidatedSession &validated, const Id
     p.startFrame = c.graph.startFrame;
     p.endFrame = c.endFrame;
     p.generation = c.graph.generation;
+    p.loop = c.loop;
     p.memoryBudgetBytes = std::min<std::size_t>(c.graph.memoryBudgetBytes, 256 * 1024 * 1024);
     return preparePlaybackConfig(p);
 }
@@ -59,6 +60,7 @@ struct MixPlayback::State {
     ResourceLease resourceLease;
     const std::size_t payloadBytes;
     MixPlaybackConfig config;
+    PlaybackTimeline timeline;
     PreparedMixGraph graph;
     std::vector<std::unique_ptr<Lane>> lanes;
     std::vector<MixInput> inputs;
@@ -70,7 +72,7 @@ struct MixPlayback::State {
         return c;
     }
     State(ResourceLease lease, std::size_t bytes, const Session &s, MixPlan p, MixPlaybackConfig c)
-        : resourceLease(std::move(lease)), payloadBytes(bytes), config(c),
+        : resourceLease(std::move(lease)), payloadBytes(bytes), config(c), timeline(c.graph.startFrame, c.endFrame, c.loop),
           graph(s, std::move(p), nestedConfig(c.graph)) {}
 };
 MixPlayback::MixPlayback(const Session &s, MixPlan p, MixPlaybackConfig c) {
@@ -93,6 +95,7 @@ MixPlaybackReport MixPlayback::process(std::span<float *const> out, std::uint32_
     auto &s = *state_;
     MixPlaybackReport r;
     r.startFrame = s.graph.position();
+    (void)s.timeline.position(r.startFrame, r.projectStartFrame, r.loopPass);
     if (!n || n > s.config.graph.maximumFrames || out.size() != s.graph.plan().output.channels ||
         std::any_of(out.begin(), out.end(), [](auto *p) { return !p; })) {
         r.status = PlaybackStatus::InvalidBuffer;
