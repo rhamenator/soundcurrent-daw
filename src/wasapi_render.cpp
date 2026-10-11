@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/wasapi_render.hpp>
+#include <soundcurrent/wasapi_render_lifecycle.hpp>
 #include <soundcurrent/wasapi_render_trace.hpp>
 #include "wasapi_support.hpp"
 namespace soundcurrent::daw {
@@ -7,6 +8,8 @@ using namespace wasapi_detail;
 struct WasapiRenderStream::State {
     WasapiRenderOptions options;
     WasapiRenderCallbacks callbacks;
+    PreparedWasapiRenderLifecycle lifecycle;
+    WasapiPreparedRenderFormat format;
     Event ready, start, stop;
     Event audio{false};
     std::thread thread;
@@ -19,7 +22,7 @@ struct WasapiRenderStream::State {
     NativeRenderTiming timing{};
     bool activated = false, joined = false;
     State(WasapiRenderOptions o, WasapiRenderCallbacks c)
-        : options(std::move(o)), callbacks(c) {
+        : options(std::move(o)), callbacks(c),lifecycle({c.context,c.finished,c.shouldStop}) {
         if (!callbacks.fill || !options.channels || options.channels > 256 ||
             options.sampleRate < 8000 || options.sampleRate > 384000 ||
             !options.maximumFrames || options.maximumFrames > 65536)
@@ -97,6 +100,17 @@ struct WasapiRenderStream::State {
             check(clock->GetFrequency(&frequency), "Read playback clock units");
             if (!frequency) throw ProjectError(ErrorCode::InvalidState, "Invalid playback clock frequency");
             Scheduling scheduling;
+            this->format={options.sampleRate,options.channels,frames,std::min(frames,options.maximumFrames),
+                format.dwChannelMask,frequency,timing,options.identity};
+            lifecycle.prepared(this->format);
+            struct EndReceipt {
+                State &state;
+                ~EndReceipt() {
+                    state.lifecycle.finish(state.failureReady.load(std::memory_order_acquire)?
+                        std::optional<WasapiStreamFailure>(state.firstFailure):std::nullopt,
+                        std::uncaught_exceptions()!=0);
+                }
+            } endReceipt{*this};
             prepared.store(1, std::memory_order_release); SetEvent(ready.value);
             HANDLE initial[]{stop.value, start.value};
             if (WaitForMultipleObjects(2, initial, FALSE, INFINITE) != WAIT_OBJECT_0 + 1) return;
@@ -106,19 +120,22 @@ struct WasapiRenderStream::State {
             HANDLE events[]{stop.value, audio.value};
             // Prime before Start. No processing while prepared/inactive.
             while (!end) {
+                if(lifecycle.shouldStop()) break;
                 UINT32 padding = 0;
                 auto hr = client->GetCurrentPadding(&padding);
+                if(SUCCEEDED(hr)) lifecycle.padding(padding);
                 if (FAILED(hr) || padding > frames) { fail(FAILED(hr) ? hr : E_INVALIDARG, 5); break; }
                 if (began && !padding && !finishing) emptyQueue.fetch_add(1, std::memory_order_relaxed);
-                if (finishing && !padding && !guardRemaining) { normal = true; break; }
+                if (finishing && !padding && !guardRemaining) { lifecycle.queueDrained();normal = true; break; }
                 if (finishing && guardRemaining && padding < frames) {
-                    if (WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
+                    if (lifecycle.shouldStop() || WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
                     const auto count = std::min(frames - padding, guardRemaining);
                     if (sequence > UINT64_MAX - count) { fail(E_INVALIDARG, 6); break; }
                     BYTE *silence = nullptr;
                     hr = render->GetBuffer(count, &silence);
                     if (FAILED(hr)) { fail(hr, 2); break; }
                     hr = render->ReleaseBuffer(count, AUDCLNT_BUFFERFLAGS_SILENT);
+                    lifecycle.silenceReleased({WasapiSilenceKind::EndGuard,count,static_cast<std::int32_t>(hr)});
                     if (FAILED(hr)) { fail(hr, 3); break; }
                     // Native-only post-roll. No source/DSP callback, parameter
                     // receipt or project position advances through this lease.
@@ -131,18 +148,19 @@ struct WasapiRenderStream::State {
                     if (!sequence && timing.startupFrames) {
                         // Explicit native startup interval. No source/DSP callback
                         // runs, and no project frame or parameter receipt advances.
-                        if (WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
+                        if (lifecycle.shouldStop() || WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) break;
                         if (timing.startupFrames > available) { fail(E_INVALIDARG, 5); break; }
                         BYTE *silence = nullptr;
                         hr = render->GetBuffer(timing.startupFrames, &silence);
                         if (FAILED(hr)) { fail(hr, 2); break; }
                         hr = render->ReleaseBuffer(timing.startupFrames, AUDCLNT_BUFFERFLAGS_SILENT);
+                        lifecycle.silenceReleased({WasapiSilenceKind::Startup,timing.startupFrames,static_cast<std::int32_t>(hr)});
                         if (FAILED(hr)) { fail(hr, 3); break; }
                         sequence = timing.startupFrames; submitted.store(sequence, std::memory_order_release);
                         available -= timing.startupFrames; padding += timing.startupFrames;
                     }
                     for (unsigned batch = 0; batch < 16 && available; ++batch) {
-                        if (WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) { end = true; break; }
+                        if (lifecycle.shouldStop() || WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) { end = true; break; }
                         const auto count = std::min(available, options.maximumFrames);
                         if (sequence > UINT64_MAX - count) { fail(E_INVALIDARG, 6); end = true; break; }
                         WasapiRenderClock reading{sequence, 0, frequency, 0, padding};
@@ -167,6 +185,7 @@ struct WasapiRenderStream::State {
                                    std::span<const float>{}) : WasapiRenderTrace::invalidToken;
                         const auto releaseFrames = action == WasapiRenderAction::Abort ? 0 : count;
                         hr = render->ReleaseBuffer(releaseFrames, 0);
+                        lifecycle.contentReleased({reading,count,releaseFrames,action,static_cast<std::int32_t>(hr),bool(data)});
                         if (options.trace) options.trace->released(token,hr,releaseFrames);
                         if (FAILED(hr)) { fail(hr, 3); end = true; break; }
                         if (!data) { fail(E_POINTER, 2); end = true; break; }
@@ -180,9 +199,10 @@ struct WasapiRenderStream::State {
                 }
                 if (end) break;
                 if (!began) {
+                    if(lifecycle.shouldStop()) break;
                     hr = client->Start();
                     if (FAILED(hr)) { fail(hr, 1); break; }
-                    began = true;
+                    began = true;lifecycle.started();
                 }
                 const auto waited = WaitForMultipleObjects(2, events, FALSE, 2000);
                 if (waited == WAIT_OBJECT_0) break;
@@ -195,6 +215,7 @@ struct WasapiRenderStream::State {
             }
             if (began) {
                 const auto hr = client->Stop();
+                lifecycle.stopped(static_cast<std::int32_t>(hr));
                 if (FAILED(hr)) fail(hr, 4);
                 else if (normal) drained.store(1, std::memory_order_release);
             }
@@ -226,6 +247,10 @@ std::uint32_t WasapiRenderStream::endGuardSubmittedFrames() const noexcept { ret
 std::uint64_t WasapiRenderStream::emptyQueueObservations() const noexcept { return state_->emptyQueue.load(std::memory_order_relaxed); }
 std::uint32_t WasapiRenderStream::bufferFrames() const noexcept { return state_->frames; }
 NativeRenderTiming WasapiRenderStream::timing() const noexcept { return state_->timing; }
+WasapiPreparedRenderFormat WasapiRenderStream::preparedFormat() const noexcept { return state_->format; }
+std::optional<WasapiRenderEnd> WasapiRenderStream::endAfterJoin() const noexcept {
+    return state_->joined?state_->lifecycle.afterJoin():std::nullopt;
+}
 std::optional<WasapiStreamFailure> WasapiRenderStream::failure() const noexcept {
     return state_->failureReady.load(std::memory_order_acquire) ? std::optional{state_->firstFailure} : std::nullopt;
 }

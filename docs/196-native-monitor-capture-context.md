@@ -138,3 +138,12 @@ discontinuities, timestamp availability, fit readiness and queue bounds together
 Raw-to-project alignment, playable finite-prefix admission, repeated punch/loop,
 EQ/mix execution, processing quality, European language qualification and the
 full M2–M11 product scope remain open. See [ADR128](decisions/128-native-monitor-capture-context.md).
+
+Independent MSVC job114465301918/run38137846669 subsequently passed66 suites
+in147.13s, including this binding in0.07s. All four original stacked jobs passed.
+The [48,090-byte/three-member native packet](../tests/results/M2/2026-10-11-native-capture-context-windows/summary.json)
+binds21 reviewed blobs, full original job/API and exact tested merge/tree/parents;
+all seven changed C++ files match frozen67b7004. It qualifies portable callbacks/
+races on Windows, not native SDK activation or current-MAIN/installed workflows.
+[Checkpoint197](197-original-native-render-end.md) adds compiled original render
+lease/end hooks; prepared output-bank fill and durable end-state binding are next.

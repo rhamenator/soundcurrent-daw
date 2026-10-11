@@ -10,6 +10,15 @@ struct WasapiRenderOptions {
     NativeRenderStartup startup = NativeRenderStartup::DevicePeriod;
     NativeRenderEnd end = NativeRenderEnd::DevicePeriod;
     WasapiRenderTrace *trace = nullptr; // Opt-in owner outlives stop/join; default disabled.
+    ClockStreamIdentity identity; // Declared immutable route, not a native clock reading.
+};
+struct WasapiPreparedRenderFormat {
+    std::uint32_t sampleRate = 0, channels = 0, capacityFrames = 0,
+        maximumFillFrames = 0, channelMask = 0;
+    std::uint64_t clockFrequency = 0;
+    NativeRenderTiming timing;
+    ClockStreamIdentity identity;
+    bool operator==(const WasapiPreparedRenderFormat &) const = default;
 };
 // Separate timing domains. submittedFrames is a queue sequence, NOT an audible
 // device position. It includes startup/end-guard silence; contentSubmittedFrames
@@ -24,6 +33,32 @@ struct WasapiRenderClock {
     std::uint32_t startupFrames = 0;
 };
 enum class WasapiRenderAction { Continue, Finish, Abort };
+struct WasapiRenderLeaseResult {
+    WasapiRenderClock original;
+    std::uint32_t requestedFrames = 0, releaseFrames = 0;
+    WasapiRenderAction action = WasapiRenderAction::Abort;
+    std::int32_t releaseHresult = 0; // Actual SDK return, including nonzero success.
+    bool callbackInvoked = false;
+};
+enum class WasapiSilenceKind { Startup, EndGuard };
+struct WasapiSilenceLeaseResult {
+    WasapiSilenceKind kind;
+    std::uint32_t frames = 0;
+    std::int32_t releaseHresult = 0;
+};
+struct WasapiRenderEnd {
+    WasapiPreparedRenderFormat prepared;
+    bool started = false, finishRequested = false, queueDrainObserved = false,
+        ownerException = false, counterOverflow = false, invalidReceipt = false;
+    std::optional<std::int32_t> stopHresult; // Absent when SDK Stop was not called.
+    std::optional<WasapiStreamFailure> failure;
+    std::optional<WasapiRenderLeaseResult> lastContentLease;
+    std::optional<WasapiSilenceLeaseResult> lastSilenceLease;
+    std::optional<std::uint32_t> lastPadding; // Last actual GetCurrentPadding result.
+    std::uint64_t callbackLeases = 0, callbackFrames = 0,
+        contentCommittedFrames = 0, startupCommittedFrames = 0, guardCommittedFrames = 0;
+    // Native lease/queue counters, not monitor/project frames or audible position.
+};
 struct WasapiRenderCallbacks {
     void *context = nullptr;
     // Fill ALL requested interleaved frames, including silent end slack. The
@@ -31,6 +66,8 @@ struct WasapiRenderCallbacks {
     WasapiRenderAction (*fill)(void *, float *, std::uint32_t,
                               const WasapiRenderClock &) noexcept = nullptr;
     void (*unavailable)(void *, std::int32_t hresult) noexcept = nullptr;
+    void (*finished)(void *, const WasapiRenderEnd &) noexcept = nullptr;
+    bool (*shouldStop)(void *) noexcept = nullptr; // Cancel/fault, NOT content Finish awaiting drain.
 };
 class WasapiRenderStream {
   public:
@@ -48,6 +85,8 @@ class WasapiRenderStream {
     std::uint64_t emptyQueueObservations() const noexcept; // Diagnostic, not xrun proof.
     std::uint32_t bufferFrames() const noexcept;
     NativeRenderTiming timing() const noexcept; // Immutable after preparation.
+    WasapiPreparedRenderFormat preparedFormat() const noexcept;
+    std::optional<WasapiRenderEnd> endAfterJoin() const noexcept; // Serialized joined control only.
     std::optional<WasapiStreamFailure> failure() const noexcept;
   private:
     struct State;
