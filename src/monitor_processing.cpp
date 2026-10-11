@@ -11,7 +11,13 @@ CaptureFanoutConfig geometry(const PreparedCaptureFanout &f) {
     CaptureFanoutConfig c; c.capture = f.captureConfig(); return c;
 }
 ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutputBank &o,
-                      const MonitorProcessingConfig &c) {
+                      const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks) {
+    if (clocks) {
+        const auto &q = clocks->config();
+        require(q.captureIdentity == c.drift.captureIdentity && q.renderIdentity == c.drift.renderIdentity &&
+            q.runGeneration == c.drift.runGeneration && q.renderFrequency == c.drift.renderFrequency,
+            "Original clock handoff configuration mismatch");
+    }
     require(!f.producerDone() && f.status() == CaptureFanoutStatus::Running &&
         !f.rawAcceptedFrames() && !f.monitorAcceptedFrames() && !o.producerDone() &&
         o.phase() == MonitorOutputPhase::Running && !o.acceptedFrames() && !o.deliveredFrames(),
@@ -41,8 +47,8 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     return charge.bytes();
 }
 PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
-    PreparedMonitorOutputBank &o, MonitorProcessingConfig c)
-    : lease_(reserve(f,o,c)), capture_(f), output_(o), config_(std::move(c)),
+    PreparedMonitorOutputBank &o, MonitorProcessingConfig c, PreparedMonitorClockHandoff *clocks)
+    : lease_(reserve(f,o,c,clocks)), capture_(f), output_(o), clocks_(clocks), config_(std::move(c)),
       drift_(config_.drift), buffer_(config_.buffer),
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
@@ -60,6 +66,7 @@ MonitorProcessingCode PreparedMonitorProcessing::fail(MonitorProcessingCause cau
         holding_ ? std::optional<CaptureBankStamp>(held_.token.original) : std::nullopt,
         buffer_.statistics().nextOutputFrame};
     release(); capture_.monitorConsumerFailed(); output_.processingFailed();
+    if (clocks_) clocks_->consumerFailed();
     return MonitorProcessingCode::Fault;
 }
 ClockCorrelationStatus PreparedMonitorProcessing::observe(const CaptureClockReading &r) noexcept {
@@ -80,10 +87,44 @@ ClockCorrelationStatus PreparedMonitorProcessing::observe(const RenderClockReadi
               code == ClockCorrelationStatus::WaitingMotion)) renderQpc_ = r.qpc.value;
     return code;
 }
+MonitorClockPump PreparedMonitorProcessing::pumpClocks() noexcept {
+    MonitorClockPump result{MonitorProcessingCode::NeedInput};
+    if (fault_) { result.code = MonitorProcessingCode::Fault; return result; }
+    if (cancelled_) { result.code = MonitorProcessingCode::Cancelled; return result; }
+    if (done_) { result.code = MonitorProcessingCode::Done; return result; }
+    if (!clocks_) return result;
+    if (clocks_->phase() == MonitorClockPhase::Fault) { result.code = fail(MonitorProcessingCause::Clock); return result; }
+    if (clocks_->phase() == MonitorClockPhase::Cancelled) { cancel(); result.code = MonitorProcessingCode::Cancelled; return result; }
+    // Fixed work bound, including concurrently arriving observations. There is
+    // no global ordering between sources; each fit consumes only its own sequence.
+    for (unsigned n=0;n<4;++n) {
+        MonitorClockRecord<CaptureClockReading> r;
+        const auto read = clocks_->read(r);
+        if (read.phase == MonitorClockPhase::Fault) { result.code = fail(MonitorProcessingCause::Clock); return result; }
+        if (read.phase == MonitorClockPhase::Cancelled) { cancel(); result.code = MonitorProcessingCode::Cancelled; return result; }
+        if (read.code != MonitorClockCode::Ready) break;
+        ++result.captureReadings; observe(r.original);
+        if (fault_) { result.code = MonitorProcessingCode::Fault; return result; }
+    }
+    for (unsigned n=0;n<4;++n) {
+        MonitorClockRecord<RenderClockReading> r;
+        const auto read = clocks_->read(r);
+        if (read.phase == MonitorClockPhase::Fault) { result.code = fail(MonitorProcessingCause::Clock); return result; }
+        if (read.phase == MonitorClockPhase::Cancelled) { cancel(); result.code = MonitorProcessingCode::Cancelled; return result; }
+        if (read.code != MonitorClockCode::Ready) break;
+        ++result.renderReadings; observe(r.original);
+        if (fault_) { result.code = MonitorProcessingCode::Fault; return result; }
+    }
+    if (clocks_->phase() == MonitorClockPhase::Fault) result.code = fail(MonitorProcessingCause::Clock);
+    else if (result.captureReadings || result.renderReadings) result.code = MonitorProcessingCode::Progress;
+    return result;
+}
 MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     if (fault_) return MonitorProcessingCode::Fault;
     if (cancelled_) return MonitorProcessingCode::Cancelled;
     if (done_) return MonitorProcessingCode::Done;
+    if (clocks_ && clocks_->phase() == MonitorClockPhase::Fault) return fail(MonitorProcessingCause::Clock);
+    if (clocks_ && clocks_->phase() == MonitorClockPhase::Cancelled) { cancel(); return MonitorProcessingCode::Cancelled; }
     if (output_.phase() == MonitorOutputPhase::Fault) return fail(MonitorProcessingCause::Output);
     if (output_.phase() == MonitorOutputPhase::Cancelled) { cancel(); return MonitorProcessingCode::Cancelled; }
     if (output_.phase() == MonitorOutputPhase::Stopped) return fail(MonitorProcessingCause::Output);
@@ -167,6 +208,7 @@ void PreparedMonitorProcessing::cancel() noexcept {
     if (done_ || cancelled_) return;
     cancelled_ = true; discarded_ += pendingStamp_.frames; pendingStamp_ = {};
     release(); buffer_.cancel(); drift_.cancel(); capture_.requestStop(); output_.requestCancel();
+    if (clocks_) clocks_->requestCancel();
 }
 void PreparedMonitorProcessing::settleAfterJoin() noexcept {
     if (!done_ && !cancelled_ && !fault_) fail(MonitorProcessingCause::Abandoned);

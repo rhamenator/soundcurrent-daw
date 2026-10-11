@@ -3,6 +3,7 @@
 #include "capture_fanout.hpp"
 #include "monitor_drift.hpp"
 #include "monitor_output_bank.hpp"
+#include "monitor_clock_handoff.hpp"
 
 namespace soundcurrent::daw {
 struct MonitorProcessingConfig {
@@ -29,6 +30,10 @@ struct MonitorProcessingStatistics {
     std::uint32_t pendingOutputFrames = 0;
     bool holdingInput = false, done = false, cancelled = false;
 };
+struct MonitorClockPump {
+    MonitorProcessingCode code;
+    std::uint32_t captureReadings = 0, renderReadings = 0;
+};
 std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &,
     const MonitorOutputBankConfig &, const MonitorProcessingConfig &);
 // ONE processing owner. External fanout and output bank outlive this object;
@@ -39,12 +44,16 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &,
 class PreparedMonitorProcessing {
   public:
     PreparedMonitorProcessing(PreparedCaptureFanout &, PreparedMonitorOutputBank &,
-                              MonitorProcessingConfig);
+                              MonitorProcessingConfig, PreparedMonitorClockHandoff * = nullptr);
     ~PreparedMonitorProcessing();
     PreparedMonitorProcessing(const PreparedMonitorProcessing &) = delete;
     PreparedMonitorProcessing &operator=(const PreparedMonitorProcessing &) = delete;
     ClockCorrelationStatus observe(const CaptureClockReading &) noexcept;
     ClockCorrelationStatus observe(const RenderClockReading &) noexcept;
+    // Processing owner; at most four original readings per source. If supplied,
+    // the external handoff must outlive this owner and join before retirement.
+    // Call before step; step also checks handoff terminal state before progress.
+    MonitorClockPump pumpClocks() noexcept;
     // One input acquisition/copy, one kernel call, or one output handoff per step.
     // Output pressure retains exact pending PCM; no further DSP/input progress.
     MonitorProcessingCode step(Qpc100ns asOf) noexcept;
@@ -63,6 +72,7 @@ class PreparedMonitorProcessing {
     ResourceLease lease_;
     PreparedCaptureFanout &capture_;
     PreparedMonitorOutputBank &output_;
+    PreparedMonitorClockHandoff *clocks_ = nullptr;
     MonitorProcessingConfig config_;
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;

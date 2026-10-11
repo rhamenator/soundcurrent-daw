@@ -270,10 +270,67 @@ void concurrentOwners() {
     check(compared==rendered.size(),"Concurrent reference output extent");
     std::cout<<"concurrent owners=4 packets=256 rawFrames="<<inputFrames<<" outputFrames=3072; source credit waits and synthetic time outside prepared methods\n";
 }
+void originalClockIntegration() {
+    for(unsigned kind=0;kind<6;++kind) {
+        Config c;MonitorClockHandoffConfig qconfig;
+        qconfig.captureIdentity=c.processing.drift.captureIdentity;qconfig.renderIdentity=c.processing.drift.renderIdentity;
+        qconfig.runGeneration=c.processing.drift.runGeneration;qconfig.renderFrequency=c.processing.drift.renderFrequency;
+        if(kind==1)++qconfig.runGeneration;
+        if(kind==2)qconfig.slots=1;
+        PreparedMonitorClockHandoff clocks(qconfig);PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
+        if(kind==1) {
+            refuses([&]{PreparedMonitorProcessing p(f,o,c.processing,&clocks);});
+            clocks.finishCapture();clocks.finishRender();clocks.settleAfterJoin();continue;
+        }
+        PreparedMonitorProcessing p(f,o,c.processing,&clocks);const auto pcm=signal(3);publish(f,c,pcm);
+        for(unsigned n=0;n<6;++n) {
+            const auto pos=(std::uint64_t(1)<<63)+std::uint64_t(n)*48000;
+            const auto q=now-50000000+std::uint64_t(n)*10000000;
+            const auto a=CaptureClockReading{qconfig.captureIdentity,{pos},{q}};
+            const auto b=RenderClockReading{qconfig.renderIdentity,{pos},{q},48000};
+            const auto ca=rt([&]{return clocks.publish(a);});const auto cb=rt([&]{return clocks.publish(b);});
+            if(kind==2 && n==1){check(ca==MonitorClockCode::Fault,"Overflow clock source hidden");break;}
+            check(ca==MonitorClockCode::Accepted && cb==MonitorClockCode::Accepted,"Clock integration publication");
+        }
+        if(kind==2) {
+            const auto pumped=rt([&]{return p.pumpClocks();});
+            check(pumped.code==MonitorProcessingCode::Fault && !pumped.captureReadings && !pumped.renderReadings &&
+                  !p.statistics().buffer.generatedOutputFrames,"Diagnostic clock prefix fitted as healthy");
+        } else if(kind==3) {
+            rt([&]{clocks.requestCancel();});
+            check(rt([&]{return p.step({now});})==MonitorProcessingCode::Cancelled,"Clock cancellation not propagated");
+        } else {
+            const auto a=rt([&]{return p.pumpClocks();});const auto b=rt([&]{return p.pumpClocks();});
+            check(a.captureReadings==4 && a.renderReadings==4 && b.captureReadings==2 && b.renderReadings==2,"Clock pump work bound/original prefix");
+            if(kind==4) {
+                rt([&]{clocks.finishCapture();clocks.finishRender();clocks.consumerFailed();});
+                check(rt([&]{return p.step({now});})==MonitorProcessingCode::Fault,"Late clock route loss bypassed step gate");
+            } else if(kind==5) {
+                const auto q=now+c.processing.drift.maximumAge100ns+1;
+                rt([&]{clocks.publish(CaptureClockReading{qconfig.captureIdentity,{UINT64_MAX},{q},ClockReliability::Missing});
+                        clocks.publish(RenderClockReading{qconfig.renderIdentity,{UINT64_MAX},{q},48000,ClockReliability::Delayed});});
+                check(rt([&]{return p.pumpClocks();}).code==MonitorProcessingCode::Progress,"Unreliable originals not delivered");
+                check(rt([&]{return p.step({q});})==MonitorProcessingCode::Fault && p.firstFault()->cause==MonitorProcessingCause::Clock,"Unreliable readings refreshed accurate clock age");
+            } else {
+                bool closed=false;std::array<float,192> out{};
+                for(unsigned i=0;i<20000 && !p.statistics().done;++i) {
+                    const auto code=rt([&]{return p.step({now});});
+                    check(code!=MonitorProcessingCode::Fault,"Pumped clocks failed healthy processing");
+                    if(code==MonitorProcessingCode::NeedEnd && !closed){closed=rt([&]{return p.finishAt({c.output.first.value+512});});check(closed,"Pumped clock postroll refused");}
+                    rt([&]{return o.pull(out);});
+                }
+                check(p.statistics().done && p.statistics().publishedFrames==512,"Pumped clock processing extent");
+            }
+        }
+        drainRaw(f,pcm,3);p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();
+        rt([&]{clocks.finishCapture();clocks.finishRender();});clocks.settleAfterJoin();
+        check(f.rawAcceptedFrames()==1024,"Clock handoff failure changed original raw prefix");
+    }
+}
 } // namespace
 int main() {
     try {
-        rt_audit::reset();parityAndPressure(3);parityAndPressure(256);faultsAndAdmission();clockStartupAndPostroll();concurrentOwners();
+        rt_audit::reset();parityAndPressure(3);parityAndPressure(256);faultsAndAdmission();clockStartupAndPostroll();concurrentOwners();originalClockIntegration();
         check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate &&
               !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared processing RT audit");
         std::cout<<checks<<" bounded monitor processing checks passed; guarded allocate/free/lock=0; synthetic clock observations only\n";return 0;
