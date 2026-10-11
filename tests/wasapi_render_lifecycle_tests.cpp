@@ -72,6 +72,80 @@ void malformed(){for(unsigned kind=0;kind<10;++kind){PreparedWasapiRenderLifecyc
     if(kind==9)rt([&]{l.silenceReleased({WasapiSilenceKind::Startup,49,0});});
     rt([&]{l.finish({});});check(l.afterJoin()->invalidReceipt,"Inconsistent original receipt represented as valid");
 }}
+void warmup() {
+    const WasapiWarmupLimits limits{192,500000};
+    auto original=lease(64,WasapiRenderAction::Continue).original;
+    Context c;PreparedWasapiRenderLifecycle l({&c,Context::finished,Context::poll},limits);
+    rt([&]{l.prepared(format());l.silenceReleased({WasapiSilenceKind::Startup,48,3});});
+    for(unsigned n=0;n<3;++n) {
+        original.submittedFrames=48+n*64;original.clockPosition=ticks+n*128;
+        original.qpc100ns=qpc+n*100000;original.contentSubmittedFrames=0;
+        check(rt([&]{return l.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,original,{qpc+n*100000+1});}),"Finite warmup refused");
+        rt([&]{l.warmupReleased({original,{qpc+n*100000+1},64,1,2});});
+        if(!n)rt([&]{l.started();});
+    }
+    original.submittedFrames=240;original.clockPosition=ticks+384;original.qpc100ns=qpc+300000;
+    check(rt([&]{return l.beforeLease(WasapiPreLeaseAction::Content,64,original,{qpc+300001});}),"Full warmup prevented content switch");
+    auto first=lease(64,WasapiRenderAction::Finish,4);first.original=original;
+    rt([&]{l.contentReleased(first);l.silenceReleased({WasapiSilenceKind::EndGuard,48,5});
+        l.padding(0);l.queueDrained();l.stopped(6);l.finish({});});
+    const auto end=l.afterJoin();
+    check(end && c.ends==1 && !end->invalidReceipt && !end->counterOverflow && !end->preLeaseStop &&
+        end->warmupLimits==limits && end->preLeaseCalls==4 && end->warmupLeaseAttempts==3 &&
+        end->warmupCommittedFrames==192 && end->startupCommittedFrames==48 && end->guardCommittedFrames==48 &&
+        end->callbackFrames==64 && end->contentCommittedFrames==64 && end->callbackLeases==1 && end->contentBegan,
+        "Warmup advanced PCM domain or altered actual start/content/guard counts");
+    check(end->firstWarmupLease->original.clockPosition==ticks && end->lastWarmupLease->original.clockPosition==ticks+256 &&
+        end->lastWarmupLease->original.qpc100ns==qpc+200000 && end->lastWarmupLease->asOf.value==qpc+200001 &&
+        end->lastWarmupLease->acquireHresult==1 && end->lastWarmupLease->releaseHresult==2 &&
+        end->firstPreLeaseQpc100ns==qpc+1 && end->lastPreLeaseQpc100ns==qpc+300001,
+        "Original SDK clock/current QPC/success HRESULT was synthesized or narrowed");
+    check(!rt([&]{return l.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,original,{qpc+400000});}) &&
+        l.afterJoin()->preLeaseCalls==4,"Ended owner changed its immutable receipt");
+    for(unsigned kind=0;kind<9;++kind) {
+        PreparedWasapiRenderLifecycle test({},limits);rt([&]{test.prepared(format());});auto r=original;
+        if(kind==0) {
+            check(rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc});}),"Acquire-failure admission failed");
+            rt([&]{test.warmupReleased({r,{qpc},64,-17,{}});});
+        } else if(kind==1) {
+            check(rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc});}),"Release-failure admission failed");
+            rt([&]{test.warmupReleased({r,{qpc},64,1,-19});});
+        } else if(kind==2) {
+            check(rt([&]{return test.beforeLease(WasapiPreLeaseAction::Content,64,r,{qpc});}),"Content admission failed");
+            check(!rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc+1});}),"Live underflow fell back to warmup");
+        } else if(kind==3) {
+            check(!rt([&]{return test.beforeLease(WasapiPreLeaseAction::Abort,64,r,{qpc});}),"Pre-lease Abort acquired PCM");
+        } else if(kind==4) {
+            for(unsigned n=0;n<3;++n) {
+                check(rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc+n});}),"Frame budget refused early");
+                rt([&]{test.warmupReleased({r,{qpc+n},64,0,0});});
+            }
+            check(!rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,1,r,{qpc+3});}),"Frame budget exceeded");
+        } else if(kind==5) {
+            check(rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc});}),"QPC budget refused early");
+            rt([&]{test.warmupReleased({r,{qpc},64,0,0});});
+            check(!rt([&]{return test.beforeLease(WasapiPreLeaseAction::Content,64,r,{qpc+limits.maximumWait100ns});}),"Expired readiness admitted content");
+        } else if(kind==6) {
+            r.clockFrequency=0;check(!rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc});}),"Foreign clock admitted warmup");
+        } else if(kind==7) {
+            check(rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc});}),"Original QPC admission failed");
+            rt([&]{test.warmupReleased({r,{qpc},64,0,0});});
+            check(!rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc-1});}),"Backward actual QPC admitted warmup");
+        } else {
+            check(rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc});}),"Pending receipt admission failed");
+            check(!rt([&]{return test.beforeLease(WasapiPreLeaseAction::NativeWarmup,64,r,{qpc+1});}),"Second outstanding native lease admitted");
+        }
+        rt([&]{test.finish(kind==0?std::optional(WasapiStreamFailure{-17,2}):kind==1?std::optional(WasapiStreamFailure{-19,3}):std::nullopt);});
+        const auto e=test.afterJoin();check(e && !e->callbackLeases && !e->callbackFrames && !e->contentCommittedFrames && !e->started && !e->stopHresult,"Warmup failure fabricated content/Start/Stop");
+        if(kind<=1)check(!e->warmupCommittedFrames && e->warmupLeaseAttempts==1 &&
+            e->lastWarmupLease->acquireHresult==(kind==0?-17:1) &&
+            (kind==0?!e->lastWarmupLease->releaseHresult:e->lastWarmupLease->releaseHresult==-19),"Failed SDK warmup normalized or committed");
+        if(kind==2 || kind==6 || kind==7 || kind==8)check(e->invalidReceipt && e->preLeaseStop==WasapiPreLeaseStop::Invalid,"Malformed original warmup omitted fault");
+        if(kind==3)check(e->preLeaseStop==WasapiPreLeaseStop::Abort,"Abort cause lost");
+        if(kind==4)check(e->preLeaseStop==WasapiPreLeaseStop::FrameBudget && e->warmupCommittedFrames==192,"Frame exhaustion erased original commits");
+        if(kind==5)check(e->preLeaseStop==WasapiPreLeaseStop::Timeout,"Original QPC timeout cause lost");
+    }
+}
 void nativeOwner(){Context c;PreparedWasapiRenderLifecycle l({&c,Context::finished,Context::poll});rt_audit::Counts sourceAudit{};
     std::thread source([&]{rt_audit::reset();rt([&]{l.prepared(format());l.started();});
         for(unsigned n=0;n<20000;++n)rt([&]{auto r=lease(64,WasapiRenderAction::Continue);r.original.clockPosition=ticks+n*128;r.original.qpc100ns=qpc+n*13333;l.contentReleased(r);});
@@ -79,4 +153,4 @@ void nativeOwner(){Context c;PreparedWasapiRenderLifecycle l({&c,Context::finish
     });source.join();const auto e=l.afterJoin();audit(sourceAudit);check(e && c.ends==1 && e->callbackLeases==20001 && e->callbackFrames==1280007 && e->contentCommittedFrames==1280007 && e->queueDrainObserved && !e->invalidReceipt,"Joined long native-owner bookkeeping failed");
 }
 }
-int main(){try{rt_audit::reset();healthy();failures();malformed();nativeOwner();audit(rt_audit::counts);std::cout<<checks<<" render SDK lifecycle checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
+int main(){try{rt_audit::reset();healthy();failures();malformed();warmup();nativeOwner();audit(rt_audit::counts);std::cout<<checks<<" render SDK lifecycle checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

@@ -4,6 +4,10 @@
 #include "native_render_timing.hpp"
 namespace soundcurrent::daw {
 class WasapiRenderTrace;
+struct WasapiWarmupLimits {
+    std::uint64_t maximumFrames = 0, maximumWait100ns = 0;
+    bool operator==(const WasapiWarmupLimits &) const = default;
+};
 struct WasapiRenderOptions {
     std::string endpointId;
     std::uint32_t sampleRate = 48000, channels = 2, maximumFrames = 2048;
@@ -11,6 +15,7 @@ struct WasapiRenderOptions {
     NativeRenderEnd end = NativeRenderEnd::DevicePeriod;
     WasapiRenderTrace *trace = nullptr; // Opt-in owner outlives stop/join; default disabled.
     ClockStreamIdentity identity; // Declared immutable route, not a native clock reading.
+    std::optional<WasapiWarmupLimits> warmup = {}; // Requires the optional pre-lease hook.
 };
 struct WasapiPreparedRenderFormat {
     std::uint32_t sampleRate = 0, channels = 0, capacityFrames = 0,
@@ -21,7 +26,7 @@ struct WasapiPreparedRenderFormat {
     bool operator==(const WasapiPreparedRenderFormat &) const = default;
 };
 // Separate timing domains. submittedFrames is a queue sequence, NOT an audible
-// device position. It includes startup/end-guard silence; contentSubmittedFrames
+// device position. It includes startup/warmup/end-guard silence; contentSubmittedFrames
 // describes callback leases only, including certified end slack. No callback
 // runs for guard leases. Actual project frames are reported by the engine.
 // clockPosition / clockFrequency is the SDK stream clock in
@@ -34,6 +39,16 @@ struct WasapiRenderClock {
     bool operator==(const WasapiRenderClock &) const = default;
 };
 enum class WasapiRenderAction { Continue, Finish, Abort };
+enum class WasapiPreLeaseAction { Content, NativeWarmup, Abort };
+enum class WasapiPreLeaseStop { Abort, Invalid, Timeout, FrameBudget };
+struct WasapiWarmupLeaseResult {
+    WasapiRenderClock original;
+    Qpc100ns asOf;
+    std::uint32_t requestedFrames = 0;
+    std::int32_t acquireHresult = 0;
+    std::optional<std::int32_t> releaseHresult = {}; // Absent when acquisition failed.
+    bool operator==(const WasapiWarmupLeaseResult &o) const { return original==o.original && asOf.value==o.asOf.value && requestedFrames==o.requestedFrames && acquireHresult==o.acquireHresult && releaseHresult==o.releaseHresult; }
+};
 struct WasapiRenderLeaseResult {
     WasapiRenderClock original;
     std::uint32_t requestedFrames = 0, releaseFrames = 0;
@@ -59,6 +74,12 @@ struct WasapiRenderEnd {
     std::uint64_t callbackLeases = 0, callbackFrames = 0,
         contentCommittedFrames = 0, startupCommittedFrames = 0, guardCommittedFrames = 0;
     // Native lease/queue counters, not monitor/project frames or audible position.
+    std::optional<WasapiWarmupLimits> warmupLimits = {};
+    std::uint64_t preLeaseCalls = 0, firstPreLeaseQpc100ns = 0, lastPreLeaseQpc100ns = 0,
+        warmupLeaseAttempts = 0, warmupCommittedFrames = 0;
+    std::optional<WasapiWarmupLeaseResult> firstWarmupLease = {}, lastWarmupLease = {};
+    bool contentBegan = false;
+    std::optional<WasapiPreLeaseStop> preLeaseStop = {};
 };
 struct WasapiRenderCallbacks {
     void *context = nullptr;
@@ -69,6 +90,10 @@ struct WasapiRenderCallbacks {
     void (*unavailable)(void *, std::int32_t hresult) noexcept = nullptr;
     void (*finished)(void *, const WasapiRenderEnd &) noexcept = nullptr;
     bool (*shouldStop)(void *) noexcept = nullptr; // Cancel/fault, NOT content Finish awaiting drain.
+    // Before GetBuffer; original SDK clock and separate actual current QPC.
+    // NativeWarmup never calls fill, touches PCM, or advances engine positions.
+    WasapiPreLeaseAction (*beforeLease)(void *, std::uint32_t,
+        const WasapiRenderClock &, Qpc100ns) noexcept = nullptr;
 };
 class WasapiRenderStream {
   public:

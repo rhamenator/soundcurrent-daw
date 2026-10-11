@@ -63,6 +63,22 @@ void interrupted(){for(unsigned stage=0;stage<4;++stage){Temp t;auto s=spec();Pr
 }}
 void refusals(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);packets(w,f,s);auto valid=outcome(s);
     for(unsigned kind=0;kind<7;++kind){auto o=valid;if(kind==0)o.captureGeneration++;if(kind==1)o.captureOriginal->stopHresult=-1;if(kind==2)o.render.original->stopHresult=-1;if(kind==3)o.render.original->contentCommittedFrames++;if(kind==4)o.render.monitorEnd->value++;if(kind==5)o.render.original->prepared.channelMask++;if(kind==6)o.captureRequest->runGeneration++;refuses([&]{w.finalize(f,o);});}
+    const auto pendingNative=read(w.jobDirectory()/"native-run.json");
+    for(unsigned kind=0;kind<10;++kind) {
+        auto o=valid;auto &e=*o.render.original;
+        if(kind==0)e.warmupLimits=WasapiWarmupLimits{1,1};
+        if(kind==1)e.preLeaseCalls=1;
+        if(kind==2)e.firstPreLeaseQpc100ns=1;
+        if(kind==3)e.lastPreLeaseQpc100ns=1;
+        if(kind==4)e.warmupLeaseAttempts=1;
+        if(kind==5)e.warmupCommittedFrames=1;
+        if(kind==6)e.firstWarmupLease=WasapiWarmupLeaseResult{};
+        if(kind==7)e.lastWarmupLease=WasapiWarmupLeaseResult{};
+        if(kind==8)e.contentBegan=true;
+        if(kind==9)e.preLeaseStop=WasapiPreLeaseStop::Abort;
+        refuses([&]{w.finalize(f,o);});
+        check(read(w.jobDirectory()/"native-run.json")==pendingNative,"Schema1.0 refusal changed original pending transaction");
+    }
     const auto saved=w.finalize(f,valid);check(saved.status==NativeOriginalRecordingStatus::Complete,"Refused finalization mutated valid writer");auto job=w.jobDirectory();const auto original=read(job/"native-run.json");
     for(unsigned kind=0;kind<15;++kind){auto j=J::parse(original);if(kind==0)j["schemaMinor"]=1;if(kind==1)j["declared"]["raw"]["asset"]=Id::generate().str();if(kind==2)j["declared"]["capture"]["identity"]["endpoint"]=999;if(kind==3)j["boundRaw"]["samples"]=std::string(64,'0');if(kind==4)j["outcome"]["render"]["original"]["callbackFrames"]=16.0;if(kind==5)j["outcome"]["captureOriginal"]["stop"]=std::uint64_t(UINT64_MAX);if(kind==6)j["outcome"]["render"]["original"]["started"]=1;if(kind==7)j["outcome"]["render"]["status"]="future-state";if(kind==8)j["unknown"]=true;if(kind==9)j["phase"]="complete";if(kind==10)j["outcome"]["render"]["original"]["guardCommitted"]=1;if(kind==11)j["outcome"]["captureOriginal"]["last"]["position"]=pos+9;if(kind==12)j["outcome"]["captureRequest"]["generatedEnd"]=base+17;if(kind==13)j["outcome"]["render"]["original"]["lastContent"]["clock"]["frequency"]=48000;if(kind==14)j["outcome"]["render"]["original"]["contentCommitted"]=15;write(job/"native-run.json",j.dump());refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);}
     auto duplicate=original;duplicate.insert(duplicate.find('{')+1,"\"phase\":\"reported\",");write(job/"native-run.json",duplicate);refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",std::string(16385,'x'));refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);

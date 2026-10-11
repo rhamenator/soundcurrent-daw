@@ -22,11 +22,15 @@ struct WasapiRenderStream::State {
     NativeRenderTiming timing{};
     bool activated = false, joined = false;
     State(WasapiRenderOptions o, WasapiRenderCallbacks c)
-        : options(std::move(o)), callbacks(c),lifecycle({c.context,c.finished,c.shouldStop}) {
+        : options(std::move(o)), callbacks(c),lifecycle({c.context,c.finished,c.shouldStop},options.warmup) {
         if (!callbacks.fill || !options.channels || options.channels > 256 ||
             options.sampleRate < 8000 || options.sampleRate > 384000 ||
             !options.maximumFrames || options.maximumFrames > 65536)
             throw ProjectError(ErrorCode::InvalidState, "Invalid native render admission");
+        if(bool(callbacks.beforeLease)!=bool(options.warmup) || (options.warmup &&
+           (!options.warmup->maximumFrames || options.warmup->maximumFrames>std::uint64_t(options.sampleRate)*60 ||
+            !options.warmup->maximumWait100ns || options.warmup->maximumWait100ns>600000000)))
+            throw ProjectError(ErrorCode::InvalidState,"Native warmup hook needs finite frame and QPC admission");
         wide(options.endpointId);
         if (options.trace && !options.trace->prepare(options.channels,options.maximumFrames))
             throw ProjectError(ErrorCode::InvalidState, "Render trace preparation mismatch or reuse");
@@ -99,6 +103,18 @@ struct WasapiRenderStream::State {
             UINT64 frequency = 0;
             check(clock->GetFrequency(&frequency), "Read playback clock units");
             if (!frequency) throw ProjectError(ErrorCode::InvalidState, "Invalid playback clock frequency");
+            LARGE_INTEGER qpcFrequency{};
+            if(callbacks.beforeLease && (!QueryPerformanceFrequency(&qpcFrequency) ||
+                qpcFrequency.QuadPart<=0 || qpcFrequency.QuadPart>1000000000))
+                throw ProjectError(ErrorCode::InvalidState,"Native warmup QPC frequency unavailable");
+            const auto currentQpc=[&](Qpc100ns &now) noexcept {
+                LARGE_INTEGER value{};
+                if(!QueryPerformanceCounter(&value) || value.QuadPart<=0)return false;
+                const auto ticks=std::uint64_t(value.QuadPart),freq=std::uint64_t(qpcFrequency.QuadPart);
+                const auto seconds=ticks/freq,fraction=(ticks%freq)*10000000/freq;
+                if(seconds>UINT64_MAX/10000000 || seconds*10000000>UINT64_MAX-fraction)return false;
+                now={seconds*10000000+fraction};return now.value!=0;
+            };
             Scheduling scheduling;
             this->format={options.sampleRate,options.channels,frames,std::min(frames,options.maximumFrames),
                 format.dwChannelMask,frequency,timing,options.identity};
@@ -115,7 +131,7 @@ struct WasapiRenderStream::State {
             HANDLE initial[]{stop.value, start.value};
             if (WaitForMultipleObjects(2, initial, FALSE, INFINITE) != WAIT_OBJECT_0 + 1) return;
             bool finishing = false, began = false, end = false, normal = false;
-            std::uint64_t sequence = 0;
+            std::uint64_t sequence = 0, warmupSubmitted = 0;
             std::uint32_t guardRemaining = 0;
             HANDLE events[]{stop.value, audio.value};
             // Prime before Start. No processing while prepared/inactive.
@@ -164,10 +180,29 @@ struct WasapiRenderStream::State {
                         const auto count = std::min(available, options.maximumFrames);
                         if (sequence > UINT64_MAX - count) { fail(E_INVALIDARG, 6); end = true; break; }
                         WasapiRenderClock reading{sequence, 0, frequency, 0, padding};
-                        reading.contentSubmittedFrames = sequence - timing.startupFrames;
+                        reading.contentSubmittedFrames = sequence - timing.startupFrames - warmupSubmitted;
                         reading.startupFrames = timing.startupFrames;
                         hr = clock->GetPosition(&reading.clockPosition, &reading.qpc100ns);
                         if (FAILED(hr)) { fail(hr, 6); end = true; break; }
+                        if(callbacks.beforeLease) {
+                            Qpc100ns now;
+                            if(!currentQpc(now)){fail(E_INVALIDARG,7);end=true;break;}
+                            const auto decision=callbacks.beforeLease(callbacks.context,count,reading,now);
+                            if(!lifecycle.beforeLease(decision,count,reading,now)){end=true;break;}
+                            if(decision==WasapiPreLeaseAction::NativeWarmup) {
+                                BYTE *silence=nullptr;
+                                hr=render->GetBuffer(count,&silence);
+                                WasapiWarmupLeaseResult receipt{reading,now,count,static_cast<std::int32_t>(hr),{}};
+                                if(FAILED(hr)){lifecycle.warmupReleased(receipt);fail(hr,2);end=true;break;}
+                                hr=render->ReleaseBuffer(count,AUDCLNT_BUFFERFLAGS_SILENT);
+                                receipt.releaseHresult=static_cast<std::int32_t>(hr);lifecycle.warmupReleased(receipt);
+                                if(FAILED(hr)){fail(hr,3);end=true;break;}
+                                warmupSubmitted+=count;sequence+=count;
+                                submitted.store(sequence,std::memory_order_release);
+                                available-=count;padding+=count;
+                                continue;
+                            }
+                        }
                         BYTE *data = nullptr;
                         hr = render->GetBuffer(count, &data);
                         if (FAILED(hr)) {
