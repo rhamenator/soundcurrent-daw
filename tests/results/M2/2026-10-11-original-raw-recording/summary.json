@@ -1,0 +1,41 @@
+{
+  "format": "sc-original-raw-recording-v1",
+  "sourceCommit": "08bc409287fb8a05f787ba75e6c5093699ef773d",
+  "sourceTree": "0c4c94f306da4291cb55bd9582434c61d2fb12c6",
+  "captureBytes": 62213,
+  "captureSha256": "ae2521c28718318ad60e6d0138bb06278578b5d0cb13ecc69eeb426c75a0c105",
+  "members": 19,
+  "selectedInputs": 562,
+  "executableHashes": 6,
+  "profiles": {
+    "release": {
+      "observedRawChecks": 594,
+      "seconds": 0.14
+    },
+    "asanUbsan": {
+      "observedRawChecks": 610,
+      "seconds": 1.0
+    },
+    "tsan": {
+      "observedRawChecks": 606,
+      "seconds": 1.08
+    }
+  },
+  "processInterruptionBoundaries": 10,
+  "concurrentOwners": 3,
+  "concurrentPackets": 400,
+  "concurrentFrames": 6358,
+  "sampleComparisonsPerConsumer": 19074,
+  "maximumChannelsTested": 256,
+  "guardedAllocateFreeLock": 0,
+  "existingRecordingExportRegressionSuites": 4,
+  "checksAreSchedulingDependent": true,
+  "windowsWriterExecuted": false,
+  "originalToProjectMappingQualified": false,
+  "recoveryCopyImplemented": false,
+  "nativeDuplexQualified": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}

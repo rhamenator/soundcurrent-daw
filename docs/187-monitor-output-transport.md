@@ -79,7 +79,17 @@ retains10 members,559 selected source inputs, three executable hashes and full
 verbose build/CTest/LastTest logs for each profile. Git blob and working-tree
 hashes distinguish the explicitly verified CRLF checkout of the Windows
 preparation script. Standalone gzip/member and frozen source checks passed.
-No executable/media is included. Actual MSVC execution is still required.
+No executable/media is included.
+
+Independent actual MSVC job114419088894/run38122194240 passed59 synthetic suites
+in126.86s, including output bank0.03s. Tested merge29032020b59bec1581838d85b511c819944aee50
+has parentsdec761b570d89b0a62f2427bd3511bb10c89d831 and
+ba0a2048ecab7fddb5bf653b56cf96714246be1b, tree2b6a99afa27f8132cbae2ed927cf21f457c27aaf.
+The [42,258-byte packet](../tests/results/M2/2026-10-11-monitor-output-windows/summary.json)
+retains the complete native log/API evidence and16 reviewed Git file hashes.
+Per-check counts and executable hashes are not exposed or claimed. This confirms
+MSVC synthetic execution, not current-MAIN admission, native SDK, installed,
+physical or complete-product qualification.
 
 ## Next workflow
 

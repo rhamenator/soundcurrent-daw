@@ -4599,3 +4599,21 @@ source/log packet retains compiler/runtime/hash binding, with no media/executabl
 writer, durable common audio/metadata prefix, original integer timing records,
 finite playable admission and exact mapping/recovery gates. No production writer,
 Windows storage or native/full-product claim is made from this observation.
+
+## Original stamped raw persistence (2026-10-11)
+
+Frozen08bc409 implements direct raw-bank disk persistence and inactive streaming
+common-prefix verification. Original uint64 native positions/QPC/sequence, float
+bits/headroom, fault disposition and context survive; finite playable prefix is
+separate. Audio/metadata flushes precede journal publication; no take-length
+metadata array or monitor-derived recording alignment is introduced.
+Release0.14s, ASan/UBSan1.00s and TSan1.08s passed both focused suites, including
+actual three-owner400-packet/6,358-frame disk concurrency and ten real process
+interruptions. [Checkpoint189](189-original-raw-recording.md)/ADR121 retain
+schema, corruption/admission/retirement and platform/workflow limits. Next is the
+bounded processing owner and separate portable finite-prefix mapping/recovery.
+
+Independent actual MSVC output-bank0.03s passed within59 suites126.86s; the
+42,258-byte packet binds full job/API evidence and16 original blobs. See
+[Checkpoint187](187-monitor-output-transport.md). No native SDK, installed,
+physical/load, complete-product, processing-quality or localization claim follows.
