@@ -1,0 +1,134 @@
+{
+  "source": "aecc0b79934a89a428e914e61ee20eb294538f85",
+  "tree": "dabb2958bae1dab828a3264396165a4e117a8156",
+  "targets": [
+    "sc-monitor-processing-tests",
+    "sc-monitor-startup-tests",
+    "sc-native-monitor-startup-tests",
+    "sc-wasapi-monitor-render"
+  ],
+  "commands": [
+    [
+      "configure",
+      [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        ".cache/monitor-channel-map/build-windows",
+        "-G",
+        "Ninja",
+        "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-mingw.cmake",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DSC_BUILD_MEDIA=OFF",
+        "-DSC_BUILD_DESKTOP=OFF"
+      ]
+    ],
+    [
+      "build",
+      [
+        "cmake",
+        "--build",
+        ".cache/monitor-channel-map/build-windows",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-monitor-processing-tests",
+        "sc-monitor-startup-tests",
+        "sc-native-monitor-startup-tests",
+        "sc-wasapi-monitor-render"
+      ]
+    ]
+  ],
+  "objects": {
+    "map": {
+      "source": "src/monitor_channel_map.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-DSC_NATIVE_STARTUP_STATE",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "src/monitor_channel_map.cpp",
+        "-o",
+        ".cache/monitor-channel-map/windows-map.obj"
+      ],
+      "sha256": "1205c86e34c14a5d014da79d5c7b1fe90193b7b788a5c0b7a948782c855563eb"
+    },
+    "processing": {
+      "source": "src/monitor_processing.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-DSC_NATIVE_STARTUP_STATE",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "src/monitor_processing.cpp",
+        "-o",
+        ".cache/monitor-channel-map/windows-processing.obj"
+      ],
+      "sha256": "eb43afe2cffec724a9eddad1016baabb4dcd28e5abb0618435800654967ba126"
+    },
+    "processing-fixture": {
+      "source": "tests/monitor_processing_tests.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-DSC_NATIVE_STARTUP_STATE",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "tests/monitor_processing_tests.cpp",
+        "-o",
+        ".cache/monitor-channel-map/windows-processing-fixture.obj"
+      ],
+      "sha256": "ce0909df4e22dab6fa791b7dc8bd422254d16207d5a3240e7d45e89091c8a15d"
+    }
+  },
+  "nativeSdkCompiled": true,
+  "nativeSdkRuntimeExecuted": false
+}

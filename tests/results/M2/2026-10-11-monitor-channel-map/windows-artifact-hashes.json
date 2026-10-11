@@ -1,0 +1,22 @@
+{
+  "sc-monitor-processing-tests.exe": {
+    "bytes": 2259670,
+    "sha256": "a4cb72da3c946d6ad35265d4e64c5756a35381065d4e75cbc39c71162cc5e68b",
+    "executed": false
+  },
+  "sc-monitor-startup-tests.exe": {
+    "bytes": 2252484,
+    "sha256": "6efda51364ae5665762d65aa77c6b99e25f7a27b82e347f9f7a7a99f7ac01cfe",
+    "executed": false
+  },
+  "sc-native-monitor-startup-tests.exe": {
+    "bytes": 2286616,
+    "sha256": "bed277b0f3e47f05e50942e90d0457ab41812fa3ca381a6a18b2b01de73cc4d9",
+    "executed": false
+  },
+  "libsc-wasapi-monitor-render.a": {
+    "bytes": 19994,
+    "sha256": "5a094b0eead7026af79b9d6498efcb974483d0db1b441392237c9666c8bbd47e",
+    "executed": false
+  }
+}

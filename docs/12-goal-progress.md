@@ -1,5 +1,27 @@
 # Active full-suite goal: progress and completion evidence
 
+## Explicit monitor channel matrix (2026-10-11)
+
+[Checkpoint208](208-explicit-monitor-channel-map.md) adds an immutable prepared
+matrix after causal conversion, with original raw/input width preserved. Explicit
+mono-to-stereo, stereo downmix, sparse polarity/gain and silent slots are bounded,
+charged before activation and checked for whole-block finite float-range output.
+Mapped bytes survive output pressure; overflow preserves the raw route and first
+monitor fault. Absent-map identity retains its preceding path.
+
+Four selected suites pass Release1.69s/ASanUBSan17.15s/TSan26.35s, with498,462
+processing checks/profile and guarded allocation/free/lock0.636 input bindings,
+12 Linux executables/nine objects and three Windows objects/executables plus SDK
+archive hashes/full logs are retained. Windows compile/link passed; new Windows
+runtime remains unqualified. Protected PR142 merged at MAIN143c76a after four
+fresh green jobs/native71 suites185.83s; exact protected evidence is retained.
+
+Native1.1 has no channel-matrix declaration. Explicit map+startup admission is
+refused before ownership/PCM; next version that state and its migration, then
+compose mono-input/stereo-output full-FIFO/native SDK/save/recovery workflows.
+Factory/UI activation and physical/native deadline/alignment gates remain open.
+The complete M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe goal is ACTIVE.
+
 ## Versioned native state and migration (2026-10-11)
 
 [Checkpoint207](207-native-state11.md) records protected PR141 integration at
