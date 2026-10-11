@@ -70,8 +70,14 @@ File::File(const std::filesystem::path &p, bool create, bool inspectActiveWriter
     (void)inspectActiveWriter;
     fd_ = open(p.c_str(),
                create ? O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC | O_NOFOLLOW
-                      : O_RDONLY | O_CLOEXEC | O_NOFOLLOW,
+                      : O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK,
                0600);
+    if (fd_ >= 0) {
+        struct stat status{};
+        if (fstat(fd_, &status) != 0 || !S_ISREG(status.st_mode)) {
+            ::close(fd_);fd_=-1;
+        }
+    }
 #endif
     require(fd_ >= 0, "Cannot exclusively create/read media");
 }
@@ -114,6 +120,23 @@ void File::write(std::string_view bytes) {
 #endif
         require(n > 0, "Journal write failed");
         offset += static_cast<std::size_t>(n);
+    }
+}
+std::string File::readBounded(std::size_t limit) {
+    require(limit && limit <= 128*1024, "Metadata read budget refused");
+    std::string result;
+    std::array<char,1024> buffer{};
+    for (;;) {
+#ifdef _WIN32
+        const auto n = _read(fd_,buffer.data(),unsigned(buffer.size()));
+#else
+        const auto n = ::read(fd_,buffer.data(),buffer.size());
+        if (n < 0 && errno == EINTR) continue;
+#endif
+        require(n >= 0, "Metadata descriptor read failed");
+        if (!n) return result;
+        require(std::size_t(n) <= limit-result.size(), "Metadata size limit exceeded");
+        result.append(buffer.data(),std::size_t(n));
     }
 }
 Durability flushDirectory(const std::filesystem::path &p) {

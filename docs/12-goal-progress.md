@@ -4263,3 +4263,26 @@ parity claim. PR112 merged ordinarily asb927e7177468bee3199d823f67c7cee13cdecd75
 from head92b7355/base0bb383a, testedc9eaea51c02609446174b1b4bc763958671e6ed2,
 run38106541229all4success,23exactblobs+whole tree. The desktop branch inherited
 main ordinarily; its fresh current-base cohort is still required for merge.
+
+[Checkpoint175](175-continuous-loop-recording.md) adds continuous loop capture
+through the existing duplex owner, with one full raw source per input, monotonic
+clocks, explicit paged inactive take windows and durable original intent sidecars.
+Synthetic two-input workflows exercise thirteen passes with delays7/29 and loop
+periods1/2/7/53, partial Stop, grouped comp/export, Undo/Redo/save/reopen and
+interrupted-prefix recovery. This is core groundwork; desktop automatic capture/
+retention, recovered-copy reconciliation, portable sidecar copying and native
+Windows duplex remain open. It does not complete P005/M2 or F/Q/C/N/localization
+parity. Source-frozen evidence is retained after the committed-source run.
+
+Checkpoint175 committed-source gate at e84eaaac83a18742754368b619d43213d41224f7
+passed11 Linux suites/20.75s and4,629 continuous-loop checks, with callback audit0.
+Its28,988-byte retained packet binds504 selected source inputs and ten executable
+hashes; the optional source-byte comparison passed. Windows/native/desktop loop
+recording and full-suite completion remain unqualified. This increment does not
+change earlier processing-quality failures.
+
+PR113 merged under existing protection as3a232fad467a8ef928e5a36ddaa4ceed11c4933d.
+The current-main cohort tested merge6ea8f3253e952c95e5b0e7c1766c03660f1ff915
+at head92b467611601eec1880d837897d332ef0f1eec0b/baseb927e717, with all four
+required checks successful and73 exact reviewed blobs plus whole-tree comparison.
+This protects integration of checkpoint173; it does not expand its endpoint scope.
