@@ -123,6 +123,9 @@ StretchRecoveryEntry inspect(const std::filesystem::path &root,const Session &cu
 }
 std::string persistStretchSelection(const std::filesystem::path &root,const Session &s,const ClipStretchPlan &p,const Id &op,
     const StretchRenderPolicy &policyValue,ResourceLedger ledger,StretchRecoveryLimits l,std::stop_token stop){
+    check(root.is_absolute() && root.native().size()<=4096 &&
+        root.native().find(std::filesystem::path::value_type(0))==root.native().npos,
+        "Render selection root must be an explicit absolute directory",ErrorCode::InvalidParameter);
     limits(l);poll(stop);auto work=ledger.reserve(codecCredit);auto bank=ledger.reserve(l.maximumManifestBytes*2);
     auto request=encodeStretchRenderRequest(p,op,policyValue,ledger);auto m=minimal(s,p);
     const auto recomputed=prepareClipStretch(m,p.trackId,p.expectedClip.id,p.anchor.settings,p.anchor.context,p.anchor.warp);
