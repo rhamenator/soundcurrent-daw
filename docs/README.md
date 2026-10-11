@@ -170,3 +170,4 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 
 - [Original writer backlog and measured write spans](210-writer-backlog-timing.md)
 - [Owned prepared native monitoring route](211-owned-native-monitor-route.md) · [ADR140](decisions/140-owned-native-monitor-route.md)
+- [Native monitored recording owner](212-native-monitored-recording-owner.md) · [ADR141](decisions/141-native-recording-worker-ownership.md)

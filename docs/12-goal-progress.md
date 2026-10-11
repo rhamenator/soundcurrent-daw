@@ -1,5 +1,25 @@
 # Active full-suite goal: progress and completion evidence
 
+## Owned native monitored recording workers (2026-10-11)
+
+[Checkpoint212](212-native-monitored-recording-owner.md) codes the genuine WASAPI
+prepared-stream adapter and an owner for route, original writer and processing/disk
+workers. Pending state precedes activation; partial-start rollback and finalization
+join callbacks before storage retirement. Stop/cancel, missing native ends, failed
+writes/clocks, empty cancellation, original raw bits/reopen, metadata and reservation
+release are qualified. Bounded copied/released receipts avoid mutable statistics
+reads. Independent control pressure still requires actual monitor QueueFull and
+retains the full raw prefix; original capacities/deadlines/cohort remain unchanged.
+
+Expanded suite passes Release 12.57 s, ASan/UBSan 19.25 s and TSan 22.78 s. Seven
+current Windows objects compile warning-free, including the real SDK adapter;
+native link/runtime and physical endpoints remain unqualified. Preceding PR146
+passed all four required jobs/71 native suites/seven owned routes/three actual
+standalone runs; its original logs/artifact bindings are retained. Older manual
+writer-delay cause remains unresolved. Next is prepared monitoring EQ plus Windows
+desktop/controller integration, followed by hardware/scheduling/alignment gates.
+Full-suite M2–M11/F/Q/C/N/imports/profiles/platform/localization remains active.
+
 ## Owned prepared native monitoring route (2026-10-11)
 
 [Checkpoint211](211-owned-native-monitor-route.md) derives immutable matching
