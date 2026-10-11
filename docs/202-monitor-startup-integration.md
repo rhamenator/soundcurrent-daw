@@ -18,7 +18,10 @@ Protected commit `e92736e28192ad01bae9b8bda4d30bb8bf66fe10` matches the tested
 whole tree `ca4593aafd76fec321d50301b7ef189a8de17559`, original base parent and
 all32 reviewed blobs. GitHub and the remote main ref were verified after merging.
 [Protected receipt](../tests/results/M2/2026-10-11-render-context-owner-current-main/summary.json)
-retains all four full job logs, terminal API, review, admission and merge bindings.
+retains all four full job logs, including their original UTF-8 byte-order marks,
+terminal API, review, admission and merge bindings. A first local serialization
+normalized those marks; the original bytes were restored and hash-checked before
+publication. The earlier unpublished packet remains archived.
 
 Native MSVC passed68 suites170.97s and three additional original20-take workflows.
 Their five-second acceptance deadline and recording behavior are unchanged. The

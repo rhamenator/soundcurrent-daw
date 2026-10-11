@@ -6,8 +6,8 @@
   "testedMerge": "bac8e7a02dfef9eb499e9186f678dbd4da480a1a",
   "tree": "ca4593aafd76fec321d50301b7ef189a8de17559",
   "run": 38151379969,
-  "captureBytes": 154366,
-  "captureSha256": "9e71e5b8ad82e2f5a09d4f63c7ddfefa7a05775e74645725d4635270c6d1f5f6",
+  "captureBytes": 154381,
+  "captureSha256": "9f3a1fcdf826192d37524ea26695a214aa58d1727d63c1114ca1d8c09f5c2940",
   "members": 10,
   "reviewedBlobs": 32,
   "requiredJobs": 4,
@@ -21,5 +21,7 @@
   "nativeAudioQualified": false,
   "factoryEnabled": false,
   "executablesIncluded": false,
-  "mediaIncluded": false
+  "mediaIncluded": false,
+  "jobLogEncoding": "UTF-8; original byte-order mark preserved in each member",
+  "originalBomNormalizationCorrectedBeforePublication": true
 }
