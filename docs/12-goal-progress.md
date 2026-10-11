@@ -4343,3 +4343,9 @@ source-frozen gate follows separately. Windows checkpoint176 independently passe
 19 desktop suites/66.24s and36 GUI checks with simulated endpoints. Its50,548-byte
 job-log packet binds59 reviewed changed files; optional source-byte comparison
 passed. Native Windows duplex/installed/language/full-goal qualification stays open.
+
+PR116 merged under existing protection as0e9f69f52987723bc2cdc1882d375a637f4e1622,
+head01b0dc8d/baseaab9ca5b, actual tested merge473db99da4a0d1bf0f220e3e0af3aab4533d3c2a.
+Run38110705676 had all four terminal successful required checks. All59 reviewed
+blobs and the whole tree matched. Desktop checkpoint176 is integrated; this does
+not qualify native Windows duplex or expand its simulated endpoint scope.
