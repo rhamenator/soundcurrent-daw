@@ -1,0 +1,22 @@
+{
+  "format": "sc-qualified-capture-stop-main-v1",
+  "pr": 132,
+  "run": 38138835329,
+  "main": "c828bd44b08b34bb02f82c5baf8a4bb202baba26",
+  "head": "d70b9b969820c26305d066c4755e0c75f6cb841b",
+  "base": "4342ec6ca465c03316115c4d20762962f287da79",
+  "testedMerge": "3118a4bf6a839b35518e5f982cb6317993f590f8",
+  "tree": "cbb65e59c40170f036283cd2d48bf4e10d59d425",
+  "blobs": 28,
+  "captureBytes": 145457,
+  "captureSha256": "5da862e35ca9d103dc58f67b9315eca8847ea5af5b01b752582f9fa42817f2c6",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "jobTextEncoding": "UTF-8; original BOM retained",
+  "adminBypass": false,
+  "policyChanged": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

@@ -4849,3 +4849,30 @@ and admission/post-merge receipts. No protection/admin bypass. PR132 inherits
 this MAIN and awaits a fresh cohort. Previous Windows owner-failure causes,
 startup clock/capacity, alignment, punch/loop, EQ/mix, quality, localization and
 the full DAW goal remain open.
+
+## Prepared monitor render context and composed native-end evidence (2026-10-11)
+
+[Checkpoint198](198-native-monitor-render-context.md) binds the inactive actual
+WASAPI descriptor to the monitor bank and original render-clock handoff. Underflow
+aborts without filling missing live audio; only healthy finite end certifies final
+slack. Original SDK drain/Stop precedes result/clock EOF. Bank consumption, native
+commitment and monitor end retain distinct domains. Stable binding, first failures,
+missing owner and retirement are covered; the factory remains disabled.
+
+Frozen0a36c81 passes eight suites in Release0.47s, ASan/UBSan2.67s and TSan4.09s.
+Each profile includes1,000 actual render bind/end races,1,000 phased output leases
+and four composed capture/processing/disk/render cases. Guarded allocation/free/
+blocking locks are zero. The64,059-byte/17-member packet binds588 inputs/24 binary
+hashes/12 Windows object-library hashes/full logs. Actual SDK wrapper and full
+core-only Windows targets compile. Synthetic64k source/prior fits/pacing do not
+qualify live startup, deadlines, hardware latency or full EQ/mix execution.
+
+Preceding197 MSVC114469974987/run38139406261 passed67 suites144.24s, including
+render lifecycle0.01s; its48,150-byte/three-member packet retains17 reviewed blobs
+and original native job/API. It does not execute this new context. Protected132
+MAINc828bd4 matches its whole tested tree/base/28blobs from38138835329;145,457-byte/
+eight-member packet retains all four byte-exact jobs/admission/merge receipts.
+No bypass occurred. PR133 now inherits current MAIN and awaits fresh qualification.
+Original Windows owner failures remain unresolved. Next: durable original SDK-end
+transaction state, explicit native startup capacity/confidence, then SDK/installed
+Stop/cancel/loss/retirement. Full M2–M11/F/Q/C/N/localization goal remains incomplete.

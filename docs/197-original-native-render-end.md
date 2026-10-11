@@ -125,3 +125,11 @@ admission gate; synthetic prior fits cannot qualify them. Alignment, playable
 finite-prefix admission, repeated punch/loop, EQ/mix execution, processing quality,
 European language qualification and full M2–M11 scope remain open. See
 [ADR129](decisions/129-original-native-render-end.md).
+
+[Checkpoint198](198-native-monitor-render-context.md) now implements the prepared
+monitor output context/binding and compiled SDK wrapper, with explicit finite
+slack and original clock/end evidence. It also retains independent preceding
+Windows197 execution: MSVC114469974987/run38139406261 passed67 suites144.24s,
+render lifecycle0.01s; the48,150-byte/three-member packet binds17 blobs/full job.
+Durable original SDK-end state, live startup and actual SDK/installed qualification
+remain gates. This new context's Windows execution is not yet claimed.
