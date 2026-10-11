@@ -4732,6 +4732,64 @@ this passing run does not establish their root-cause resolution. PR127 now
 inherits this qualified MAIN and has a fresh cohort; old stacked greens are not
 admission evidence. Full frozen-reference DAW goal remains active/incomplete.
 
+## Original native capture Stop and qualified processing MAIN (2026-10-11)
+
+[Checkpoint195](195-native-capture-stop.md)/ADR127 add a generation-bound fixed
+capture Stop/end handoff, conservative source-ring admission and actual WASAPI
+per-lease stop polling/original end hooks. Horizon signals before render pressure;
+first failure and actual Stop HRESULT/native packet facts remain separate.
+Missing end is OwnerLost; joined capture reads never invent successful receipts.
+Frozen4e6cba4 passed five suites per profile: Release0.40s/ASan-UBSan1.97s/TSan3.53s,
+each3,880 captureStop/6,158 control/489,463 processing/9,251 combined checks with
+zero guarded/interposed allocation/free/blocking-lock audits. Four fake-SDK
+owners preserve exact raw data and exact finite monitor output for0/7/512/3,072;
+Cancel/fault/failedStop combinations preserve original causes. The61,922-byte/
+16-member packet binds577 selected inputs/15 executable hashes/four compiled SDK
+object-library hashes/full logs. SDK cross-build passed; actual context/render
+drain/durable SDK-end transaction binding/native/installed qualification remain
+open and the native factory is disabled. Synthetic counts do not map raw/project
+positions. Processing quality, localization and the full DAW scope remain open.
+
+Independently stacked131 run38131360155 passed all four jobs; actual MSVC
+job114446184652 passed64 suites147.82s/control0.02s. Its44,798-byte/three-member
+packet binds17 reviewed blobs and full original job/API; [Checkpoint194](194-monitor-stop-handoff.md)
+separates this original control execution from new capture hooks/current-MAIN.
+
+PR127 passed current-MAIN run38130947054, exact head76ac401/basef1c81a3/tested
+40514f65577b7615fb78526518a5067d6760b684/tree0caa3c0309436790506e86323e8beda7e8659fd8.
+Ordinary protected squash MAINcb8fa2d10bc3fbb2dea88663e805e4e0c382b65c was checked
+against the whole tested tree/base parent/all14 reviewed blobs. The
+[139,297-byte/eight-member packet](../tests/results/M2/2026-10-11-monitor-processing-current-main/summary.json)
+retains four byte-exact complete jobs including their UTF-8 BOM, review/admission
+and post-merge receipts. No protection/admin bypass occurred. Earlier Windows
+owner failures still have unresolved causes; fresh success does not explain them.
+PR128 inherits this MAIN and awaits its own fresh cohort before admission.
+
+## Qualified clock MAIN and capture fixture build correction (2026-10-11)
+
+PR128 passed current-MAIN run38132987584: headabbedee8/basecb8fa2d/tested
+f268a2d3ffe60eaefbf9081cd69114551e534681/treeae308729806966728bc9ccb67161567885107049.
+Ordinary protected squash MAIN0b7a8d25ebc7045f5336595dbd97ca310b0872d4 matches the
+whole tested tree, base parent and all17 reviewed blobs. Its
+[140,004-byte/eight-member packet](../tests/results/M2/2026-10-11-monitor-clock-current-main/summary.json)
+retains four byte-exact jobs including UTF-8 BOM, admission and post-merge
+receipts. No protection/admin bypass occurred. PR129 now inherits this MAIN;
+its previous stacked checks are not admission evidence.
+
+The first capture-stop draft132 cross job114453966338/run38133989863 failed because
+the composed disk fixture linked unavailable `sc-media` in a media-disabled
+build. Original full failure evidence is retained, and the SDK-only compile
+proof is not substituted for this all-target configuration. Frozen679a644 gates
+the fixture on its actual media dependency, preserving complete coverage in
+media-enabled Linux/native Windows jobs. Production C++ and fixture checks are
+unchanged. The full core-only Windows cross-build and all five media-enabled
+Release suites subsequently passed (0.37s); a27,042-byte/16-member correction
+packet binds the frozen CMake revision/full build/test/configuration records/
+executable hashes and original byte-exact failed job/API/review. Earlier
+sanitizers qualify unchanged C++/fixture code, not a new execution of this fix.
+Fresh current-head qualification remains required; the native factory/full DAW
+goal stay gated/incomplete.
+
 ## Current-MAIN Windows owner failures retained (2026-10-11)
 
 Output gate38127318120 separately failed manual takeGroup waiting (caller807) and

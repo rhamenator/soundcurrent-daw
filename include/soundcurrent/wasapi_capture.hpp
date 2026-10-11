@@ -2,6 +2,7 @@
 #pragma once
 #include "wasapi_input.hpp"
 #include "wasapi_capture_trace.hpp"
+#include "wasapi_capture_lifecycle.hpp"
 #include <memory>
 #include <string>
 namespace soundcurrent::daw {
@@ -24,10 +25,12 @@ struct WasapiCaptureCallbacks {
     void *context = nullptr;
     void (*packet)(void *, const WasapiPacket &) noexcept = nullptr;
     void (*unavailable)(void *, std::int32_t hresult) noexcept = nullptr;
-};
-struct WasapiStreamFailure {
-    std::int32_t hresult = 0;
-    std::uint32_t operation = 0; // 1 wait, 2 acquire, 3 release, 4 stop.
+    // Optional SDK-owner checks before Start, at wake/timeout and BETWEEN leases.
+    // Must be bounded/noexcept and must not join, allocate or call GUI/disk APIs.
+    bool (*shouldStop)(void *) noexcept = nullptr;
+    // Optional actual owner-end receipt, once after Stop/exit. Context outlives
+    // stop/join. This is quiescence of packet callbacks, not a joined thread.
+    void (*finished)(void *, const WasapiCaptureEnd &) noexcept = nullptr;
 };
 // Windows-only native owner. COM/device/event preparation is complete before
 // construction returns; no packets until explicit activate. stop joins the
@@ -39,9 +42,11 @@ class WasapiCaptureStream {
     WasapiCaptureStream(const WasapiCaptureStream &) = delete;
     WasapiCaptureStream &operator=(const WasapiCaptureStream &) = delete;
     void activate();
+    void requestStop() noexcept; // Control only, event notification; does not join.
     void stop() noexcept;
     std::uint32_t bufferFrames() const noexcept;
     std::optional<WasapiStreamFailure> failure() const noexcept;
+    std::optional<WasapiCaptureEnd> endAfterJoin() const noexcept; // Serialized joined control only.
   private:
     struct State;
     std::unique_ptr<State> state_;

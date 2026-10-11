@@ -12,7 +12,15 @@ CaptureFanoutConfig geometry(const PreparedCaptureFanout &f) {
 }
 ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutputBank &o,
                       const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks,
-                      const PreparedMonitorControl *control) {
+                      const PreparedMonitorControl *control, const PreparedMonitorCaptureStop *stop) {
+    if (stop) {
+        const auto &s=stop->config();const auto &b=c.buffer;
+        require(s.runGeneration==b.runGeneration && s.sourceRate==b.sourceRate && s.channels==b.channels &&
+            s.maximumPacketFrames==b.maximumInputFrames && s.monitorSlots==f.monitorSlots() &&
+            s.inputCapacityFrames==b.inputCapacityFrames && s.targetQueuedSourceFrames==c.drift.targetQueuedSourceFrames &&
+            s.warmupInputFrames==monitorBufferWarmupInputFrames(b) && !stop->requested() && !stop->endReceipt(),
+            "Native capture stop handoff configuration mismatch or already started");
+    }
     if (control) require(control->config().runGeneration == c.buffer.runGeneration && !control->failed() && !control->producerDone() &&
         !control->counts().accepted, "Monitor control handoff configuration mismatch or already started");
     if (clocks) {
@@ -51,8 +59,8 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
 }
 PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
     PreparedMonitorOutputBank &o, MonitorProcessingConfig c, PreparedMonitorClockHandoff *clocks,
-    PreparedMonitorControl *control)
-    : lease_(reserve(f,o,c,clocks,control)), capture_(f), output_(o), clocks_(clocks), control_(control), config_(std::move(c)),
+    PreparedMonitorControl *control, PreparedMonitorCaptureStop *stop)
+    : lease_(reserve(f,o,c,clocks,control,stop)), capture_(f), output_(o), clocks_(clocks), control_(control), captureStop_(stop), config_(std::move(c)),
       drift_(config_.drift), buffer_(config_.buffer),
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
@@ -69,6 +77,7 @@ MonitorProcessingCode PreparedMonitorProcessing::fail(MonitorProcessingCause cau
     if (!fault_) fault_ = MonitorProcessingFault{cause,
         holding_ ? std::optional<CaptureBankStamp>(held_.token.original) : std::nullopt,
         buffer_.statistics().nextOutputFrame};
+    stopCapture(MonitorCaptureStopKind::Fault);
     release(); capture_.monitorConsumerFailed(); output_.processingFailed();
     if (clocks_) clocks_->consumerFailed();
     return MonitorProcessingCode::Fault;
@@ -138,6 +147,10 @@ MonitorProcessingCode PreparedMonitorProcessing::schedule(Qpc100ns now) noexcept
     return MonitorProcessingCode::Progress;
 }
 MonitorProcessingCode PreparedMonitorProcessing::validate(Qpc100ns now) noexcept {
+    if (captureStop_) {
+        const auto end=captureStop_->endReceipt();
+        if (end && end->status!=MonitorCaptureEndStatus::Healthy) return fail(MonitorProcessingCause::CaptureEnd);
+    }
     if (clocks_ && clocks_->phase() == MonitorClockPhase::Fault) return fail(MonitorProcessingCause::Clock);
     if (clocks_ && clocks_->phase() == MonitorClockPhase::Cancelled) { cancel(); return MonitorProcessingCode::Cancelled; }
     if (output_.phase() == MonitorOutputPhase::Fault) return fail(MonitorProcessingCause::Output);
@@ -167,6 +180,9 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     if (done_) return MonitorProcessingCode::Done;
     if (control == MonitorControlCode::ReceiptFull) return MonitorProcessingCode::ControlFull;
     if (control == MonitorControlCode::Handled) return MonitorProcessingCode::Progress;
+    const auto horizon=buffer_.statistics();
+    if (horizon.plannedOutputEnd && horizon.nextOutputFrame==*horizon.plannedOutputEnd)
+        stopCapture(MonitorCaptureStopKind::Horizon);
     // Retain a pulled block across arbitrary output pressure. Neither input nor
     // converter/controller advances until these exact bytes have been accepted.
     if (pendingStamp_.frames) {
@@ -231,6 +247,9 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     }
     if (calls_ == UINT64_MAX) { buffer_.signalFault(MonitorBufferFaultCode::CounterOverflow); return fail(MonitorProcessingCause::Buffer); }
     const auto code = buffer_.service(); ++calls_;
+    const auto horizonAfter=buffer_.statistics();
+    if (horizonAfter.plannedOutputEnd && horizonAfter.nextOutputFrame==*horizonAfter.plannedOutputEnd)
+        stopCapture(MonitorCaptureStopKind::Horizon);
     if (code == MonitorBufferCode::Fault) return fail(MonitorProcessingCause::Buffer);
     if (code == MonitorBufferCode::NeedInput || code == MonitorBufferCode::Priming)
         return MonitorProcessingCode::NeedInput;
@@ -255,8 +274,14 @@ bool PreparedMonitorProcessing::finishAt(MonitorOutputOrdinal end) noexcept {
 void PreparedMonitorProcessing::cancel() noexcept {
     if (done_ || cancelled_) return;
     cancelled_ = true; discarded_ += pendingStamp_.frames; pendingStamp_ = {};
+    stopCapture(MonitorCaptureStopKind::Cancel);
     release(); buffer_.cancel(); drift_.cancel(); capture_.requestStop(); output_.requestCancel();
     if (clocks_) clocks_->requestCancel();
+}
+void PreparedMonitorProcessing::stopCapture(MonitorCaptureStopKind kind) noexcept {
+    if (!captureStop_ || captureStop_->requested() || capture_.producerDone()) return;
+    const auto s=buffer_.statistics();
+    captureStop_->request({config_.buffer.runGeneration,kind,s.plannedOutputEnd,s.nextOutputFrame,s.acceptedInputFrames});
 }
 void PreparedMonitorProcessing::settleAfterJoin() noexcept {
     if (!done_ && !cancelled_ && !fault_) fail(MonitorProcessingCause::Abandoned);

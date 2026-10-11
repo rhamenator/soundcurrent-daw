@@ -1,0 +1,50 @@
+{
+  "format": "sc-monitor-native-capture-stop-v1",
+  "sourceCommit": "4e6cba432c871a118fe10f19ef50d83941f8f388",
+  "sourceTree": "6b5c2fc228dcbefefa767adaec07e3e53ec23015",
+  "captureBytes": 61922,
+  "captureSha256": "ada619f767cca30be41db2d9e5acbc9488ec21b833cd99c6f9df9ca545a0fa2c",
+  "members": 16,
+  "selectedInputs": 577,
+  "executableHashes": 15,
+  "windowsCrossObjectHashes": 4,
+  "profiles": {
+    "release": {
+      "suites": 5,
+      "captureStopChecks": 3880,
+      "controlChecks": 6158,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 0.4
+    },
+    "sanitizer": {
+      "suites": 5,
+      "captureStopChecks": 3880,
+      "controlChecks": 6158,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 1.97
+    },
+    "tsan": {
+      "suites": 5,
+      "captureStopChecks": 3880,
+      "controlChecks": 6158,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 3.53
+    }
+  },
+  "concurrentOwners": 4,
+  "captureSource": "fake SDK with original packet-copy lease path",
+  "phasedLogicalTime": true,
+  "guardedAllocateFreeLock": 0,
+  "nativeSourceStopHooksCompiled": true,
+  "nativeCaptureRuntimeQualified": false,
+  "windowsCaptureStopExecuted": false,
+  "nativeFactoryEnabled": false,
+  "sdkEndPersistedInRecordingTransaction": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
