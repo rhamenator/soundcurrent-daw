@@ -4132,7 +4132,7 @@ locally; its original log lacks both hashes, so pending-I/O causation remains
 unproved. The supervisor now records both snapshots and establishes its exact
 read-only recovery baseline after waiting for the owned helper's terminal handle.
 Active checks defer only the still-owned writer's partial/lock hashes; immutable
-project/raw/intent files and all terminal files remain checked. Seven owned
+project/raw/intent files and all terminal files remain checked. Six owned
 filesystem/actual-function boundary checks and Python compilation pass locally;
 these are not native Windows execution. Fresh native CI remains required.
 No product DSP/I/O/API or deadline change; old qualified captures remain frozen.
