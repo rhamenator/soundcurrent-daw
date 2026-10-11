@@ -411,3 +411,12 @@ production builds consume its committed golden table and do not call Python in
 audio processing. Dynamic arbitrary precision and floating absolute-position
 conversion were rejected for bounded RT ownership and exact large offsets.
 Native SDK integration and drift-resampler qualification remain separate gates.
+
+## Stamped capture handoff (2026-10-11)
+
+Checkpoint180/ADR116 add original GPL C++20 code using this repository's existing
+SpscQueue, ResourceLedger and typed clock state. SDK/callback scratch is copied
+into charged prepared storage; no SDK library, driver, resampler or runtime
+dependency is newly redistributed. Windows tests compile-check native flag values
+against the build SDK, without calling endpoints. Drift correction and its
+quality/adaptive control still require separate decisions and evidence.

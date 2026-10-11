@@ -4408,6 +4408,27 @@ and reviewed tree. A38,166-byte/three-member packet binds full job log/status an
 is still required. Source check counts/executable hashes were not exposed by CI.
 PR119 admission must use its refreshed current-MAIN cohort, not this stacked run.
 
+## 180 — original stamped capture-bank handoff (2026-10-11)
+
+Prepared GPL C++20 bank reuses charged storage and bounded SPSC queues. Complete
+original packets retain identity/frame/QPC/flags, float bits and channel order;
+SDK/scratch reuse cannot corrupt queued copies. One consumer lease, exact release,
+explicit Empty, sticky loss/error prefixes, cancellation/Done publication and
+joined-owner retirement are tested. No native origin or project mapping is made.
+Frozen `2da7a3e2f664963f9230161031fa04290969527c` passed three Linux Release
+suites (0.07s), ASan/UBSan (0.13s) and ThreadSanitizer (0.26s):3,179 bank checks,
+20,000 concurrent packets/319,935 frames, unchanged admitted credit and zero
+C++/interposed libc allocation/free/pthread blocking-lock calls on audited paths.
+The 31,729-byte/11-member packet binds538 selected inputs/five executable hashes;
+standalone/source-byte validation passed. [Checkpoint180](180-stamped-capture-bank.md)
+and ADR116 record scope. Windows MSVC target/allowlist and compile-time SDK flag
+checks are included; actual bank execution remains independently required.
+No new dependency, driver/certificate, raw/project schema or audible UI change.
+Native duplex, drift/causal monitoring, durable raw mappings, installed/physical/
+load/localization/full P005/M2/F/Q/C/N remain open; earlier quality failures stay.
+Next: causal monitor buffering and bounded drift correction, original raw writers/
+versioned mappings, SDK composition and Windows desktop duplex factory.
+
 ## Interrupted-loop fixture disk readiness (2026-10-11)
 
 The current-MAIN Windows cohort38114113389 failed its interrupted-loop test;
@@ -4434,6 +4455,16 @@ failure. No production behavior is changed. PR119 stays draft/unadmitted pending
 fresh Windows/current-MAIN checks; do not rerun an old successful stacked cohort
 or suppress the manual workflow to obtain green status.
 
+## Independent Windows capture-bank execution (2026-10-11)
+
+Actual MSVC job114396486497/run38114463559 passed54 synthetic suites197.10s,
+including the bank suite0.03s. API-verified tested mergeab122504 binds
+headd55b666/base9c8f8cf and exact reviewed tree. A38,461-byte/three-member packet
+retains full job/status and15 changed-file hashes; no per-bank check count or
+executable hash is invented. [Checkpoint180](180-stamped-capture-bank.md) records
+this independent platform observation. Native endpoints/installed/physical/full
+product qualification and refreshed current-MAIN protection gates remain open.
+
 ## More precise manual/child-terminal observations (2026-10-11)
 
 Current-MAIN native job114400815807 exposed the original manual wait timeout with
@@ -4448,6 +4479,7 @@ controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-b
 Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
 records scope; no stale downstream success is admitted as a current-MAIN gate.
 
+
 ## Logical recording credit after an observed Windows disk stall (2026-10-11)
 
 MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
@@ -4458,6 +4490,7 @@ and exact whole-packet logical-time advancement. Original480,000 sample/recovery
 callback and separate overflow assertions remain; production behavior/deadlines
 unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
 retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
+
 
 ## Catalog inventory after the Windows observer change (2026-10-11)
 
