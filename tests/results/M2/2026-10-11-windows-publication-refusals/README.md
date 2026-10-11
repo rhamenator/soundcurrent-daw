@@ -15,7 +15,11 @@ extracted. No executable, synthetic WAV, installer or credential is included.
 Run `python3 tests/results/M2/2026-10-11-windows-publication-refusals/verify.py`
 in a full clone to audit exact members, source path set/blobs, tested merge
 parents/tree, checkout identities and native refusal events. Historical source
-and tested merge are retained on source-backup branches. No code/audio replay.
+and tested merge are retained on source-backup branches. The exact signed Git
+commit payload is also retained as `tested-merge.commit`: the verifier checks its
+Git object identity, SHA-256, tree and parents in memory, so a checkout need not
+contain the synthetic merge object. This does not authenticate a PGP signature.
+The original eight-member capture and its hashes stay unchanged. No code/audio replay.
 
 This source predates the later publication-root validation correction. These
 logs qualify the original refusals; they do not qualify an updated head,

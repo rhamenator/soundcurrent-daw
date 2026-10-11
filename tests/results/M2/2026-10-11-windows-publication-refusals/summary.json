@@ -17,5 +17,7 @@
   "fullDiskPowerLossQualified": false,
   "nativeAudioActivated": false,
   "vmStarted": false,
-  "productUploaded": false
+  "productUploaded": false,
+  "testedMergeObjectBytes": 1201,
+  "testedMergeObjectSha256": "e9d837b53b0328bde33ee8acc676ebf64f6880f7479bdcffe8a03fe22b71acd7"
 }

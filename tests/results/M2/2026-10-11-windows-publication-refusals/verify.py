@@ -41,8 +41,17 @@ binding = json.loads(b['build-inputs.json'])
 assert binding['sourceCommit'] == HEAD
 assert binding['sourceTree'] == s['sourceTree'] == TREE
 assert git('rev-parse', HEAD + '^{tree}').decode().strip() == TREE
-assert git('rev-parse', MERGE + '^{tree}').decode().strip() == TREE
-assert set(git('show', '-s', '--format=%P', MERGE).decode().split()) == {HEAD, BASE}
+# Synthetic CI merge objects need not exist in a checkout that fetched only
+# the feature history. Audit its exact captured Git commit bytes in memory.
+commit = (ROOT / 'tested-merge.commit').read_bytes()
+assert len(commit) == s['testedMergeObjectBytes'] and len(commit) < 32768
+assert sha(commit) == s['testedMergeObjectSha256']
+assert hashlib.sha1(b'commit ' + str(len(commit)).encode() + b'\0' + commit,
+                    usedforsecurity=False).hexdigest() == MERGE
+header = commit.split(b'\n\n', 1)[0].splitlines()
+trees = [line[5:].decode() for line in header if line.startswith(b'tree ')]
+parents = [line[7:].decode() for line in header if line.startswith(b'parent ')]
+assert trees == [TREE] and len(parents) == 2 and set(parents) == {HEAD, BASE}
 paths = {p for p in git('ls-tree', '-r', '--name-only', HEAD, '--', 'include', 'src', 'ui', 'worker', 'tests', 'CMakeLists.txt').decode().splitlines() if p.endswith(('.cpp', '.hpp', '.c', '.h')) or p == 'CMakeLists.txt'}
 assert paths == set(binding['files']) and len(paths) == s['sourceInputs'] == 310
 for p in paths:

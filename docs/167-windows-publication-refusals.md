@@ -75,3 +75,20 @@ job fails a separate interruption-supervisor partial-hash assertion. See
 The test now distinguishes a pretermination snapshot from the immutable baseline
 after the exact helper process becomes terminal. Updated native CI remains
 required; no production DSP or I/O code changes for this fixture correction.
+
+## Portable audit of the original tested merge
+
+Review identified that the original evidence verifier assumed the synthetic CI
+merge object was present locally. A checkout containing only the feature's
+history need not have it, even though a source-backup ref preserves it remotely.
+The exact 1,201-byte signed Git commit payload is now delivered beside the
+unchanged original capture. The verifier checks its object identity, SHA-256,
+tree and parent IDs in memory; it does not authenticate the PGP signature.
+
+An owned minimal repository was constructed with 484 exact source/base/tree/blob
+objects (4,100,934 uncompressed bytes) and deliberately no synthetic merge object.
+The old verifier fails with the missing object; the corrected verifier passes.
+Changing the captured tree while rebinding its SHA-256 still refuses because
+the original Git object identity is fixed. No archive code, audio or native
+process was replayed, and the original eight-member capture remains unchanged.
+This repairs audit portability without expanding the original 90-assertion scope.
