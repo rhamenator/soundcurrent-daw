@@ -122,6 +122,20 @@ void File::write(std::string_view bytes) {
         offset += static_cast<std::size_t>(n);
     }
 }
+void File::readExact(std::span<std::byte> bytes) {
+    require(!bytes.empty() && bytes.size() <= 65536, "Metadata record read budget refused");
+    std::size_t offset = 0;
+    while (offset < bytes.size()) {
+#ifdef _WIN32
+        const auto n = _read(fd_, bytes.data() + offset, unsigned(bytes.size() - offset));
+#else
+        const auto n = ::read(fd_, bytes.data() + offset, bytes.size() - offset);
+        if (n < 0 && errno == EINTR) continue;
+#endif
+        require(n > 0, "Metadata record truncated or unreadable");
+        offset += std::size_t(n);
+    }
+}
 std::string File::readBounded(std::size_t limit) {
     require(limit && limit <= 128*1024, "Metadata read budget refused");
     std::string result;
