@@ -1,0 +1,13 @@
+{
+  "protectedMain": "c5e15a119f697fb3cf284a8206827273d74398e3",
+  "baseParent": "7d800f210258d77c82b3f43fa904c6e1a29d9a6c",
+  "testedMerge": "e5364ad7c2b4c20a1e6cc7277fd5c570ab383924",
+  "tree": "3b8cb50a2981b3c37392195493500070b3d91a56",
+  "head": "6c2a90344e52b61d955b5dc0efc84a0a5ebf9f8e",
+  "exactBlobs": 66,
+  "ordinarySquash": true,
+  "apiRemoteTreeMatched": true,
+  "requiredCurrentChecks": 4,
+  "adminBypass": false,
+  "policyChanged": false
+}

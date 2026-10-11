@@ -1,0 +1,14 @@
+{
+  "job": 114546749421,
+  "nativeSuites": 71,
+  "seconds": 160.35,
+  "startupCompositionPassed": true,
+  "originalDiagnosticCompletions": [
+    "2026-10-11T18:57:39.8594997Z original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false",
+    "2026-10-11T18:57:48.0506519Z original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false",
+    "2026-10-11T18:57:55.8996550Z original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false"
+  ],
+  "simulatedSdkOnly": true,
+  "nativeHardwareQualified": false,
+  "originalWindowsRootsResolved": false
+}

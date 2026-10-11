@@ -1,0 +1,75 @@
+{
+  "members": {
+    "reviewed-blobs.json": {
+      "bytes": 15436,
+      "sha256": "3cf44bbac014e61f47a9a696b4bf57cb1c0edb40420607d1fa0007f52f079f57",
+      "originalBytes": 15436,
+      "originalSha256": "3cf44bbac014e61f47a9a696b4bf57cb1c0edb40420607d1fa0007f52f079f57"
+    },
+    "qualified-ci-log-binding.json": {
+      "bytes": 1153,
+      "sha256": "b67f502cc995cca70b9558e9ed669556e87e81581904b4d2162a6abd1f6aeb66",
+      "originalBytes": 1153,
+      "originalSha256": "b67f502cc995cca70b9558e9ed669556e87e81581904b4d2162a6abd1f6aeb66"
+    },
+    "qualified-native-workflows.json": {
+      "bytes": 641,
+      "sha256": "a9bc868c7227a9c60829d453c40154417418ef9b52fad97bd52cf9368dd3622c",
+      "originalBytes": 641,
+      "originalSha256": "a9bc868c7227a9c60829d453c40154417418ef9b52fad97bd52cf9368dd3622c"
+    },
+    "pr141-admission-audit.json": {
+      "bytes": 16246,
+      "sha256": "2ae1419e848c7d608ed9f1bd9fe5d4015355d7b37e17f1cdc2286ff3628c6c84",
+      "originalBytes": 16246,
+      "originalSha256": "2ae1419e848c7d608ed9f1bd9fe5d4015355d7b37e17f1cdc2286ff3628c6c84"
+    },
+    "postmerge-receipt.json": {
+      "bytes": 453,
+      "sha256": "b485dfd7eb9fc1a19d6e13fd1b05062f1145d76fbc71f8c1ccfad100736013be",
+      "originalBytes": 453,
+      "originalSha256": "b485dfd7eb9fc1a19d6e13fd1b05062f1145d76fbc71f8c1ccfad100736013be"
+    },
+    "qualify-current-ci.py": {
+      "bytes": 2651,
+      "sha256": "c7bb9911ce5de38feaac3c3ca317581905a8c63e1de36aefd3207ff88abfa6e6",
+      "originalBytes": 2651,
+      "originalSha256": "c7bb9911ce5de38feaac3c3ca317581905a8c63e1de36aefd3207ff88abfa6e6"
+    },
+    "audit-pr141.py": {
+      "bytes": 3327,
+      "sha256": "979976aa6075eaa9302e35558789f5aa515f24378d6871ac0ef9610081a17cea",
+      "originalBytes": 3327,
+      "originalSha256": "979976aa6075eaa9302e35558789f5aa515f24378d6871ac0ef9610081a17cea"
+    },
+    "114546749132.txt.gz": {
+      "bytes": 15557,
+      "sha256": "03a941ab8e415b2722af5b6d3e8f953c4478640c4058a67f4de7a6d6980b0446",
+      "originalBytes": 91830,
+      "originalSha256": "a3902bdfe4fe8732a76a6df5beb68305bffd78414151d3669b35239f2c3b69d5"
+    },
+    "114546749318.txt.gz": {
+      "bytes": 46446,
+      "sha256": "dfb80cc5e5fde09932df9649223760fbab83bd8fe74f95ce926dd641f0f7ac77",
+      "originalBytes": 678453,
+      "originalSha256": "4c94964674185807c853c4d619975d76f82a3a85479f2e8233a78a2560e541e9"
+    },
+    "114546749337.txt.gz": {
+      "bytes": 41947,
+      "sha256": "bb62902c0fdd491532daf121120e84a6a6562442c0430d14653fa80661411dd2",
+      "originalBytes": 236041,
+      "originalSha256": "f9566ab680fb9b0481c0b4917703357038450b5fd67f9ce7dfc3cad60b0bb0db"
+    },
+    "114546749421.txt.gz": {
+      "bytes": 48098,
+      "sha256": "ce1c5b32f321d62ffae7789f11289acff8ef249c82b50137a2e3baf4efbece0f",
+      "originalBytes": 711925,
+      "originalSha256": "0306d2ca62e85d1c8c9224e7e830dacf249bd65391abde1baa18439ed754bc42"
+    },
+    "summary.json": {
+      "bytes": 758,
+      "sha256": "35c0f90c70b7e2eda714ace018cae80cc1f9bfb1d8810482083064e0a70f36a2"
+    }
+  },
+  "scope": "Exact protected PR141 source/log/admission/postmerge binding, byteexact original full logs losslessly compressed"
+}
