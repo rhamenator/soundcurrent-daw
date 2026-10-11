@@ -76,3 +76,13 @@ The preregistered bank and independent retained-PCM audit are now recorded in
 unresolved measurements and 108 silent-family pre-echo failures remain visible.
 Deliver loop-recording/take-lane and comping workflows next while retaining
 this failing quality baseline within the full staged backlog.
+
+## Retry audio/source binding review
+
+The compact audit now connects the retry's copied WAV hash directly to the
+original failed row's audio hash, and its copied source hash to that exact
+request. The request and four expected copied paths must agree, with bounded
+byte counts. Review reproduced the omission: replacing either copied hash and
+rebinding archive/member hashes passed the prior verifier but is refused by the
+corrected verifier. Original reports and archive bytes remain unchanged; no DSP
+was rerun and this compact audit still does not recompute spectra from PCM.

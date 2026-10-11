@@ -4082,6 +4082,61 @@ assertions pass, preserving the129-render corpus and independent history bounds.
 Fresh platform gates remain required; original source qualifications are not
 relabeled.
 
+## 2026-10-10: owned publication fault and interruption acceptance
+
+[Checkpoint166](166-selection-publication-faults.md) adds focused acceptance of
+selection writes, file/directory flush and no-overwrite publication failures.
+Linux351 parent assertions cover six injected native error boundaries, short
+write/EINTR retry, cancellation after actual flush, a child-only kernel EFBIG
+refusal and four actual SIGKILL publication boundaries. Existing project/raw/
+older manifests and read-only recovery remnants remain unchanged; native file
+descriptors, resource reservations and publication leases return to baseline.
+A post-link failure can retain an Incomplete final manifest; it never returns a
+success digest or attaches an edit. No VM/audio route/host disk filling was used.
+Native Windows faults, actual filesystem exhaustion, installed publication,
+power loss, processing quality and full parity remain open. Next: protected
+paging/publication gates, then owned Windows failure fixtures and M2 quality.
+
+## 2026-10-10: Windows publication refusal fixtures
+
+[Checkpoint167](167-windows-publication-refusals.md) adds real parent access-denied
+and native primitive sharing-refusal workflows using only owned Windows files
+and the fixture directory's restorable DACL. Original project/raw/manifest bytes,
+resource/handle baselines and lease availability remain explicit oracles. The
+Windows translation unit compiles without diagnostics; Linux351 assertions
+still pass. Native MSVC execution is pending current-head CI, with no inference
+from cross-build success. No VM, audio endpoint, privilege enablement, production
+hook or bundled dependency was introduced. Installed/interrupted/full-disk/
+power-loss/quality/full-parity requirements remain open.
+
+## 2026-10-11: original native publication refusal qualification
+
+The original Windows refusal source 0b68766 passes all four development jobs;
+native MSVC execution reports 90 actual publication assertions. Owned parent
+creation denial, exact original DACL restoration/retry and primitive sharing
+refusal/release/retry pass with stable 93 process handles after API warm-up.
+[Retained original receipt](../tests/results/M2/2026-10-11-windows-publication-refusals/README.md)
+binds 310 source inputs, complete job logs and the native CTest log to the tested
+merge/parents/tree. Historical source and tested merge have source-only backups.
+This receipt predates the later reviewed root-validation correction; updated
+head requires fresh checks. Linux root integration passes 1675 controller,
+285 UI and 351 publication assertions. No VM/audio endpoint or product upload.
+Protected main integration remains pending; full parity requirements remain open.
+
+## 2026-10-11: Windows interruption terminal-baseline correction
+
+PR107 source 4cccc97 passes native publication tests but fails a separate desktop
+interruption supervisor assertion comparing a pretermination partial snapshot
+with the later terminal file. The complete failed job is source/merge-bound
+locally; its original log lacks both hashes, so pending-I/O causation remains
+unproved. The supervisor now records both snapshots and establishes its exact
+read-only recovery baseline after waiting for the owned helper's terminal handle.
+Active checks defer only the still-owned writer's partial/lock hashes; immutable
+project/raw/intent files and all terminal files remain checked. Six owned
+filesystem/actual-function boundary checks and Python compilation pass locally;
+these are not native Windows execution. Fresh native CI remains required.
+No product DSP/I/O/API or deadline change; old qualified captures remain frozen.
+
 ## 2026-10-11: bounded sample-rate stretch/pitch observations
 
 PR105 has merged through ordinary protection at `d85c97e`, with 13 reviewed
@@ -4112,3 +4167,14 @@ library verifier recomputes onsets/energy and reproduces the failures. No DSP
 change, VM, audio endpoint or product artifact upload. Q-STRETCH, listening,
 native Windows quality and complete F/Q/C/N parity remain open. Next useful
 implementation is versioned loop/take-lane state followed by comp selection.
+## 2026-10-11: protected publication integration
+
+PR106 and PR107 merged through ordinary main protection at `78099b8` and
+`174813c`. PR107 current head `8e1b4f4` passed all four required Linux/Windows
+jobs in run38100485116. Twelve reviewed blobs and the whole tree match the
+actual tested merge and protected squash. The Windows interruption-fixture
+correction and portable original-evidence audit are integrated; original failed
+and qualified receipts retain their own source scope. The sample-rate quality
+branch now inherits this main state by a regular merge; fresh current-head gates
+are required before its admission. No product release upload or broad parity
+promotion.
