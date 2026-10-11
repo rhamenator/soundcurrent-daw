@@ -4136,3 +4136,33 @@ project/raw/intent files and all terminal files remain checked. Six owned
 filesystem/actual-function boundary checks and Python compilation pass locally;
 these are not native Windows execution. Fresh native CI remains required.
 No product DSP/I/O/API or deadline change; old qualified captures remain frozen.
+
+## 2026-10-11: bounded sample-rate stretch/pitch observations
+
+PR105 has merged through ordinary protection at `d85c97e`, with 13 reviewed
+blobs and the whole tree identical to the four-job tested merge. Dependent
+Linux/Windows publication-refusal PRs retain their own current-head gates.
+
+[Checkpoint168](168-stretch-rate-quality.md) records 36 actual isolated renders
+at 44.1/48/96 kHz, ratios 0.5–2 and shifts −12/0/+12 semitones. All exact lengths,
+finite float headroom and three unity PCM identities pass. All 72 selected
+steady-tone measurements meet five cents, maximum 2.663972 cents. The original
+parent verifier passes three workflows and refuses a reused project identity;
+a distinct-root retry passes 7,919 assertions without rerendering audio or
+rewriting the original failure. Full generated PCM remains local; compact
+public reports bind 309 source inputs and audit provenance/protocol arithmetic,
+not spectral recomputation. No production DSP, VM/audio endpoint or product
+upload. Transient/group phase, listening, native Windows/installed quality,
+M2–M11/X004/X005 and all-European F/Q/C/N qualification remain open.
+
+## 2026-10-11: protected publication integration
+
+PR106 and PR107 merged through ordinary main protection at `78099b8` and
+`174813c`. PR107 current head `8e1b4f4` passed all four required Linux/Windows
+jobs in run38100485116. Twelve reviewed blobs and the whole tree match the
+actual tested merge and protected squash. The Windows interruption-fixture
+correction and portable original-evidence audit are integrated; original failed
+and qualified receipts retain their own source scope. The sample-rate quality
+branch now inherits this main state by a regular merge; fresh current-head gates
+are required before its admission. No product release upload or broad parity
+promotion.

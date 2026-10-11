@@ -1,0 +1,46 @@
+{
+  "build.txt": {
+    "bytes": 1598,
+    "sha256": "7f790159ffa58cac3332f06685b5baf1607cf7d03357bc5db4d15d2134e63273"
+  },
+  "configure.txt": {
+    "bytes": 638,
+    "sha256": "983d29ecb8f72b49e4aef71c70400ea1093a273a8771e20e07904fffe8c5eeed"
+  },
+  "contract.json": {
+    "bytes": 2173,
+    "sha256": "74622bff3279686bd68ae63a9e6fd25ae15338ace14bade8c252bb01a23ae931"
+  },
+  "inputs.json": {
+    "bytes": 33037,
+    "sha256": "eb6cc2d779525f822a75f0ac5dea8e1d6622ec90af8281043760cdbf91eba043"
+  },
+  "originals.json": {
+    "bytes": 2445,
+    "sha256": "b064e04cb7fdf20f12c4f67bcdf2552859b05162c08c3c5cc52786034a5b07b8"
+  },
+  "parent-retry-receipt.json": {
+    "bytes": 2113,
+    "sha256": "09e4ce3326929b9174c7dfbe60d7c0e878c66cb7fa328185739616afe78267c1"
+  },
+  "parent-retry.txt": {
+    "bytes": 1903,
+    "sha256": "f1c0f5af1923987882ae832bd785ee558bfdf454fcf65696b9ae29fdadf3160b"
+  },
+  "processes.json": {
+    "bytes": 86346,
+    "sha256": "2447fc6b9a5e54ca7d0195a7518abf37dabcab88d99c81ae76a1ee875495744d"
+  },
+  "results.json": {
+    "bytes": 68938,
+    "sha256": "3aecc13f2ea738f07e43884f7a37a2ba0ebba984242d96765ecca81050354460"
+  },
+  "run-original.txt": {
+    "bytes": 3794,
+    "sha256": "1425008d09c7199f2529642582a6017ce23215e139a92185dc70faa93bd2c235"
+  },
+  "summary.json": {
+    "bytes": 734,
+    "sha256": "a90cbfd76fe0d99b65866e001ba6528340a893e88a4df38d093e0ccd16cad596"
+  }
+}

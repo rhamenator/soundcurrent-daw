@@ -339,7 +339,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/sample_editor_variaudio/sample_editor_variaudio_c.html?contentId=5yUrlQRlm0KjuaiN1feyWQ",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Foundation: independent constant pitch and formant settings in the isolated renderer and editable raw-anchor state (checkpoint135). No desktop segmented pitch editor, note segmentation, formant-quality gate or Q-PITCH/reference qualification yet. Checkpoint145 retains24 selected steady-tone frequency observations with0.1577331764-cent maximum error. This does not qualify segmented vocal pitch, formants or Q-PITCH; those remain required.",
+      "implementation": "Foundation: independent constant pitch and formant settings in the isolated renderer and editable raw-anchor state (checkpoint135). No desktop segmented pitch editor, note segmentation, formant-quality gate or Q-PITCH/reference qualification yet. Checkpoint145 retains24 selected steady-tone frequency observations with0.1577331764-cent maximum error. This does not qualify segmented vocal pitch, formants or Q-PITCH; those remain required. Checkpoint168 adds 36 actual Linux steady-carrier renders at 44.1/48/96 kHz, ratios 0.5–2 and shifts −12/0/+12 semitones: 72 observations within five cents, maximum 2.663972. Exact durations/unity PCM/headroom pass; three original parent workflows plus separate unchanged-audio isolated retry are retained. Compact public evidence audits provenance/protocol arithmetic, not spectral recomputation; full PCM is local. Transients/formants/segmentation/listening/native Windows/Q-PITCH remain unqualified.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",
@@ -351,7 +351,9 @@
         "docs/135-editable-stretch-state.md",
         "docs/145-stretch-region-quality.md",
         "docs/decisions/104-local-warp-and-group-quality.md",
-        "tests/results/M2/2026-10-10-stretch-region-quality/"
+        "tests/results/M2/2026-10-10-stretch-region-quality/",
+        "docs/168-stretch-rate-quality.md",
+        "tests/results/M2/2026-10-11-stretch-rate-quality/"
       ]
     },
     {
