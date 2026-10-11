@@ -4066,3 +4066,11 @@ verification and explicit Review/Apply/Undo. Native Windows/installed workflows,
 concurrent/storage-fault interruption, processing quality and full parity remain
 open. Source/evidence backup and ordinary protected reviews remain separate from
 product release publication.
+
+Dependent Windows desktop CI exposed immediate reopening of a recovery dialog
+awaiting Qt DeferredDelete. A deterministic local regression confirms the old
+reference blocks a fresh request. Finish now stops the timer and clears that
+dialog's identity/reference immediately, preserving scoped cancellation and Qt
+object ownership. The amended UI285 checks and both catalog gates pass locally;
+catalog content/856 keys are unchanged. Native current-head qualification remains
+required; the original Windows failure is preserved.

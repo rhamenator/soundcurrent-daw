@@ -63,3 +63,23 @@ combined controller1662/UI283 assertions pass with the129-completed-job corpus,
 exact resource return and held newer-render preservation. Original bff863a
 publication evidence remains frozen at its original1520/276 scope; current-head
 CI and native Windows qualification remain separate.
+
+## Closed-dialog reopening correction
+
+A dependent Windows desktop run failed while reopening recovery at test line136.
+The closed dialog was still referenced until Qt processed DeferredDelete; an
+immediate reopen could show that closing QObject instead of admitting a new scan.
+A deterministic Linux regression leaves deferred deletion pending while the
+worker retires, then requires a newer request ID and a different dialog. It fails
+against the previous implementation and passes after the lifecycle correction.
+
+On finished, stop the dialog timer, clear its automation identity and clear the
+stored dialog reference only when it still names that dialog. Scoped backend
+cancellation remains unchanged; cursor/file destruction stays on the worker.
+The old QObject remains owned by Qt until normal deferred deletion.
+
+Local stretch UI285 checks and both catalog gates pass (three tests,9.51s;
+callback audit0, no audio). Qt Linguist refresh changes only the UI source hash;
+856 source keys and all catalog bytes remain unchanged. Original bff/423/a84
+acceptance and the original failed Windows log retain their original scope.
+Fresh current-head native Windows checks are still required.
