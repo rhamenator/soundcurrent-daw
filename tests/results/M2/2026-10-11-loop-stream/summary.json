@@ -1,0 +1,31 @@
+{
+  "format": "sc-finite-loop-log-capture-v1",
+  "sourceCommit": "c6a4fa2e6a9ce143792e3440af90db0a135e4a5b",
+  "sourceTree": "1d9bdeb81ccff5b1eee720fea7a09de1e680641f",
+  "sourceInputs": 401,
+  "captureBytes": 23578,
+  "captureSha256": "581b2aeaefb21651db066ed3dd2524334f95c701ca1654729fdcb04f257b5e02",
+  "qualifiedLocalSuites": 12,
+  "loopChecks": 32129,
+  "callbackAudit": 0,
+  "actualPasses": 5,
+  "delayedInputs": 2,
+  "delaysFrames": [
+    7,
+    29
+  ],
+  "rawTakesUnchanged": true,
+  "liveExportEqual": true,
+  "saveReopen": true,
+  "undoRedo": true,
+  "finiteSyntheticLoopQualified": true,
+  "desktopLoopControlsQualified": false,
+  "indefiniteLoopQualified": false,
+  "nativeWindowsLoopQualified": false,
+  "physicalLoopQualified": false,
+  "installedPreviewQualified": false,
+  "compCrossfadesQualified": false,
+  "M2Complete": false,
+  "fullGoalComplete": false,
+  "productArtifactUploaded": false
+}
