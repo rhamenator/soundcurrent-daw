@@ -136,6 +136,58 @@ void ownerDiagnostic(std::ostream &out,const ManualRecordingRun &run,std::uint64
     } catch(...) { // Retain the original failure even if a diagnostic sink fails.
     }
 }
+// Serialized control owner only; diagnostic facts never authorize reclamation.
+void concurrentFailureDiagnostic(std::ostream &out, const ManualRecordingRun &run,
+                                 std::uint64_t id, const WriterDiagnostic &writer,
+                                 unsigned take, std::string_view stage) noexcept {
+    try {
+        out << "concurrent_owner_failure take=" << take << " identity=" << id
+            << " stage=" << stage << " occupied=" << run.occupiedSlots()
+            << " status=" << int(run.status()) << " position=" << run.position() << '\n';
+        ownerDiagnostic(out, run, id, writer);
+        const auto f = run.callbackFault();
+        out << "concurrent_callback_fault present=" << bool(f);
+        if (f)
+            out << " detected=" << int(f->detected) << " engine_position=" << f->enginePosition
+                << " failed_capture=" << f->failedCapture << " generation=" << f->generation
+                << " received_position=" << f->received.position
+                << " received_cycle=" << f->received.cycle
+                << " received_monotonic_ns=" << f->received.monotonicNs
+                << " previous_position=" << f->previous.position
+                << " previous_cycle=" << f->previous.cycle
+                << " had_previous=" << f->hadPrevious;
+        out << '\n';
+        // Const rethrow only: no service, Stop, consumption or inference.
+        try {
+            run.checkError();
+            out << "concurrent_retained_error present=0\n";
+        } catch (const ProjectError &e) {
+            out << "concurrent_retained_error present=1 code=" << int(e.code())
+                << " message=" << e.what() << '\n';
+        } catch (const std::exception &e) {
+            out << "concurrent_retained_error present=1 code=unavailable message="
+                << e.what() << '\n';
+        } catch (...) {
+            out << "concurrent_retained_error present=1 code=unavailable type=unknown\n";
+        }
+    } catch (...) { // A failed diagnostic sink must not replace the initiating exception.
+    }
+}
+void concurrentFilesDiagnostic(std::ostream &out, const std::filesystem::path &root) noexcept {
+    try {
+        std::error_code ec;
+        for (std::filesystem::recursive_directory_iterator it(root, ec), end;
+             !ec && it != end; it.increment(ec)) {
+            if (!it->is_regular_file(ec)) continue;
+            const auto bytes = it->file_size(ec);
+            const auto u8 = it->path().lexically_relative(root).generic_u8string();
+            out << "concurrent_group_file name="
+                << std::string(reinterpret_cast<const char *>(u8.data()), u8.size())
+                << " bytes=" << bytes << " error=" << ec.value() << '\n';
+        }
+    } catch (...) { // Preserve the first failure during path conversion or listing.
+    }
+}
 float raw(Frame f, unsigned lane) {
     return float(double((f + lane * 37) % 97 - 48) * .0625);
 }
@@ -635,6 +687,18 @@ void activeDiskFailure() {
         f.run->service();
         return f.run->status() == DuplexStatus::CaptureFailed;
     });
+    WriterDiagnostic diagnostic;
+    std::ostringstream observed;
+    concurrentFailureDiagnostic(observed, *f.run, id, diagnostic, 0, "writer-failure");
+    check(observed.str().find("concurrent_retained_error present=1 code=") != std::string::npos &&
+              observed.str().find("message=active audio write failure") != std::string::npos,
+          "Failure diagnostic lost original active writer error");
+    std::ostringstream broken;
+    broken.exceptions(std::ios::badbit | std::ios::failbit);
+    try { broken.setstate(std::ios::badbit); } catch (const std::ios_base::failure &) {}
+    concurrentFailureDiagnostic(broken, *f.run, id, diagnostic, 0, "writer-failure");
+    concurrentFilesDiagnostic(broken, f.directory.root);
+    check(broken.bad(), "Diagnostic sink failure invented a recovered sink");
     f.run->stop();
     bool original = false;
     try {
@@ -664,6 +728,23 @@ void poolExhaustion() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     check(status == DuplexStatus::CaptureFailed, "Unserviced capture pool did not refuse overflow");
+    check(f.run->submit({ManualPunchAction::Out, -1, 43, 2, 0}) == ManualPunchSubmit::Stopped,
+          "Faulted capture incorrectly accepted the subsequent punch-out");
+    WriterDiagnostic diagnostic;
+    std::ostringstream observed;
+    concurrentFailureDiagnostic(observed, *f.run, id, diagnostic, 0, "submit-out");
+    const auto d = f.run->diagnoseLane(id, 0);
+    const auto fault = f.run->callbackFault();
+    check(d && d->captureStatus == CaptureStatus::QueueFull && d->producerDone == true &&
+              d->retiredFrames == 8192 && !d->workerPresent && fault &&
+              fault->detected == DuplexStatus::CaptureFailed && fault->failedCapture == 0 &&
+              observed.str().find("stage=submit-out") != std::string::npos &&
+              observed.str().find("capture_status=2") != std::string::npos &&
+              observed.str().find("retired=8192") != std::string::npos &&
+              observed.str().find("concurrent_callback_fault present=1 detected=12") != std::string::npos &&
+              observed.str().find("failed_capture=0") != std::string::npos &&
+              observed.str().find("concurrent_retained_error present=0") != std::string::npos,
+          "Refused punch-out diagnostic lost actual exhausted-pool cause or invented a disk error");
     f.run->stop();
     f.run->checkError();
     ManualRecordedGroup group;
@@ -912,61 +993,67 @@ void concurrentOwner() {
         check(false, "Concurrent audio owner failed before control condition", caller);
     };
     for (unsigned take = 0; take < 20; ++take) {
-        const auto id = f.run->prepareTake();
-        check(id > prior, "Concurrent production owner reused reclaimed identity");
-        prior = id;
-        submit(*f.run, ManualPunchAction::In, -1, take * 2 + 1, id);
-        ManualPunchReceipt receipt;
-        eventually([&] {
-            checkAudioOwner();
-            f.run->service();
-            return f.run->acknowledgement(receipt);
-        });
-        check(receipt.result == ManualPunchResult::Applied, "Concurrent production start failed");
-        submit(*f.run, ManualPunchAction::Out, -1, take * 2 + 2);
-        eventually([&] {
-            checkAudioOwner();
-            f.run->service();
-            return f.run->acknowledgement(receipt);
-        });
-        check(receipt.result == ManualPunchResult::Applied, "Concurrent production stop failed");
-        ManualRecordedGroup group;
+        std::uint64_t id = 0;
+        std::string_view stage = "prepare-take";
         try {
+            id = f.run->prepareTake();
+            check(id > prior, "Concurrent production owner reused reclaimed identity");
+            prior = id;
+            stage = "submit-in";
+            submit(*f.run, ManualPunchAction::In, -1, take * 2 + 1, id);
+            stage = "start-acknowledgement";
+            ManualPunchReceipt receipt;
+            eventually([&] {
+                checkAudioOwner();
+                f.run->service();
+                return f.run->acknowledgement(receipt);
+            });
+            check(receipt.result == ManualPunchResult::Applied, "Concurrent production start failed");
+            stage = "submit-out";
+            submit(*f.run, ManualPunchAction::Out, -1, take * 2 + 2);
+            stage = "stop-acknowledgement";
+            eventually([&] {
+                checkAudioOwner();
+                f.run->service();
+                return f.run->acknowledgement(receipt);
+            });
+            check(receipt.result == ManualPunchResult::Applied, "Concurrent production stop failed");
+            ManualRecordedGroup group;
+            stage = "group-wait";
             eventually([&] {
                 checkAudioOwner();
                 f.run->service();
                 f.run->checkError();
                 return f.run->takeGroup(group);
             });
+            stage = "verify-group";
+            check(group.complete() && !f.run->occupiedSlots(),
+                  "Concurrent disk join/retirement/replenishment leaked consumer slot");
+            const auto data = audio(f.directory.root, group.lanes[0].result->asset);
+            for (Frame n = 0; n < group.endFrame - group.beginFrame; ++n)
+                check(data[std::size_t(n)] == raw(group.beginFrame + n, 0),
+                      "Concurrent control owner raw sample differs");
+            f.run->checkError();
+            if (failed.load())
+                std::cerr << "concurrent first_callback_status=" << firstCallbackStatus.load()
+                          << " first_oracle_status=" << firstOracleStatus.load()
+                          << " first_failure_frame=" << firstFailureAt.load() << '\n';
+            check(!failed.load(), "Concurrent control owner stopped/reset active playback");
         } catch (...) {
-            std::cerr << "concurrent_group_wait take=" << take << " identity=" << id
-                      << " occupied=" << f.run->occupiedSlots() << " status=" << int(f.run->status())
-                      << " callback_failed=" << failed.load() << '\n';
-            ownerDiagnostic(std::cerr,*f.run,id,writerDiagnostic);
-            std::error_code ec;
-            for (std::filesystem::recursive_directory_iterator it(f.directory.root, ec), end;
-                 !ec && it != end; it.increment(ec)) {
-                if (!it->is_regular_file(ec)) continue;
-                const auto bytes = it->file_size(ec);
-                const auto u8 = it->path().lexically_relative(f.directory.root).generic_u8string();
-                std::cerr << "concurrent_group_file name="
-                          << std::string(reinterpret_cast<const char *>(u8.data()), u8.size())
-                          << " bytes=" << bytes << " error=" << ec.value() << '\n';
-            }
+            concurrentFailureDiagnostic(std::cerr, *f.run, id, writerDiagnostic, take, stage);
+            try {
+                std::cerr << "concurrent first_callback_status=" << firstCallbackStatus.load()
+                          << " first_oracle_status=" << firstOracleStatus.load()
+                          << " first_failure_frame=" << firstFailureAt.load() << '\n';
+                if (stage == "group-wait")
+                    std::cerr << "concurrent_group_wait take=" << take << " identity=" << id
+                              << " occupied=" << f.run->occupiedSlots()
+                              << " status=" << int(f.run->status())
+                              << " callback_failed=" << failed.load() << '\n';
+            } catch (...) {}
+            concurrentFilesDiagnostic(std::cerr, f.directory.root);
             throw;
         }
-        check(group.complete() && !f.run->occupiedSlots(),
-              "Concurrent disk join/retirement/replenishment leaked consumer slot");
-        const auto data = audio(f.directory.root, group.lanes[0].result->asset);
-        for (Frame n = 0; n < group.endFrame - group.beginFrame; ++n)
-            check(data[std::size_t(n)] == raw(group.beginFrame + n, 0),
-                  "Concurrent control owner raw sample differs");
-        f.run->checkError();
-        if (failed.load())
-            std::cerr << "concurrent first_callback_status=" << firstCallbackStatus.load()
-                      << " first_oracle_status=" << firstOracleStatus.load()
-                      << " first_failure_frame=" << firstFailureAt.load() << '\n';
-        check(!failed.load(), "Concurrent control owner stopped/reset active playback");
     }
     audioOwner.request_stop();
     audioOwner.join(); // Exact native callback ownership analogue, before stop/destruction.
