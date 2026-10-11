@@ -4273,3 +4273,16 @@ interrupted-prefix recovery. This is core groundwork; desktop automatic capture/
 retention, recovered-copy reconciliation, portable sidecar copying and native
 Windows duplex remain open. It does not complete P005/M2 or F/Q/C/N/localization
 parity. Source-frozen evidence is retained after the committed-source run.
+
+Checkpoint175 committed-source gate at e84eaaac83a18742754368b619d43213d41224f7
+passed11 Linux suites/20.75s and4,629 continuous-loop checks, with callback audit0.
+Its28,988-byte retained packet binds504 selected source inputs and ten executable
+hashes; the optional source-byte comparison passed. Windows/native/desktop loop
+recording and full-suite completion remain unqualified. This increment does not
+change earlier processing-quality failures.
+
+PR113 merged under existing protection as3a232fad467a8ef928e5a36ddaa4ceed11c4933d.
+The current-main cohort tested merge6ea8f3253e952c95e5b0e7c1766c03660f1ff915
+at head92b467611601eec1880d837897d332ef0f1eec0b/baseb927e717, with all four
+required checks successful and73 exact reviewed blobs plus whole-tree comparison.
+This protects integration of checkpoint173; it does not expand its endpoint scope.

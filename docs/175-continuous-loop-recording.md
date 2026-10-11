@@ -78,3 +78,18 @@ take retention with verified journal admission and structural history guards.
 Then qualify real owned Linux duplex and add the missing native Windows duplex
 owner. Take audition/crossfades, musical automation/MIDI loops and full P005/M2,
 processing-quality, content, native-project and localization parity remain open.
+
+## Committed-source observation
+
+Frozen source `e84eaaac83a18742754368b619d43213d41224f7` passed11 Linux
+suites in20.75 seconds, including4,629 continuous-loop checks. The incremental
+committed-source build had no work, following the recorded build of identical
+inputs. All504 selected C++/CMake/test/localization/CI inputs were compared to
+that revision and the ten test executables were hashed.
+
+The [28,988-byte retained packet](../tests/results/M2/2026-10-11-continuous-loop/summary.json)
+contains build inputs, build/CTest logs and the actual LastTest log. Its standalone
+verifier checks retained consistency and can compare supplied frozen source bytes;
+that comparison passed before committing evidence. It needs no historical Git
+objects and does not replay audio, authenticate a signature or qualify a native
+endpoint. Windows current-source observation is pending separately.
