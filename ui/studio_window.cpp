@@ -751,6 +751,7 @@ bool StudioWindow::scanStretchRenders() {
     if(stretchDialog_)stretchDialog_->close();
     stretchMessage_.clear();
     auto *dialog=new QDialog(this);dialog->setObjectName("stretchRecoveryDialog");dialog->setAttribute(Qt::WA_DeleteOnClose);
+    auto *timer=new QTimer(dialog);
     dialog->setWindowTitle(tr("Retained pitch/stretch renders"));stretchRecoveryDialog_=dialog;
     auto *layout=new QVBoxLayout(dialog);auto *help=new QLabel(tr("Scan verifies retained jobs in bounded pages. Next page replaces this list; Scan again starts at the beginning. Select a ready job to review its settings, then choose Apply in the clip dialog. Files are preserved; scanning makes no project edit."));help->setWordWrap(true);layout->addWidget(help);
     auto *list=new QListWidget;list->setObjectName("stretchRecoveryList");layout->addWidget(list);
@@ -761,7 +762,11 @@ bool StudioWindow::scanStretchRenders() {
     auto *cancel=buttons->addButton(tr("Cancel verification"),QDialogButtonBox::ActionRole);
     auto *close=buttons->addButton(QDialogButtonBox::Close);layout->addWidget(buttons);
     connect(close,&QPushButton::clicked,dialog,&QDialog::close);
-    connect(dialog,&QDialog::finished,this,[this,state]{stretch_.requestRecoveryCancel(state->recoveryId);});
+    connect(dialog,&QDialog::finished,this,[this,state,dialog,timer]{
+        timer->stop();dialog->setObjectName(QString());
+        if(stretchRecoveryDialog_==dialog)stretchRecoveryDialog_.clear();
+        stretch_.requestRecoveryCancel(state->recoveryId);
+    });
     connect(cancel,&QPushButton::clicked,dialog,[this,state]{stretch_.requestRecoveryCancel(state->recoveryId);});
     connect(scan,&QPushButton::clicked,dialog,[this,list,source,state]{
         if(controller_.snapshot()->projectEpoch!=source->projectEpoch || !stretchCanRender())return;
@@ -779,7 +784,7 @@ bool StudioWindow::scanStretchRenders() {
             if(stretch_.review(controller_.snapshot(),op)==Admission::Accepted){state->recoveryId=stretch_.snapshot()->recoveryId;state->reviewing=true;}
         }catch(const std::exception &){stretchMessage_=tr("Retained render review could not start. Check Project resources.");}
     });
-    auto *timer=new QTimer(dialog);connect(timer,&QTimer::timeout,dialog,[this,dialog,list,status,scan,next,review,cancel,source,state]{
+    connect(timer,&QTimer::timeout,dialog,[this,dialog,list,status,scan,next,review,cancel,source,state]{
         const auto s=stretch_.snapshot();const auto project=controller_.snapshot();const bool same=project->projectEpoch==source->projectEpoch;
         const bool enabled=same && stretchCanRender();scan->setEnabled(enabled);cancel->setEnabled(s->busy);
         const bool currentPage=s->inventory && state->listed==s->inventory && !s->error;

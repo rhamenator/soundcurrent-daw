@@ -42,7 +42,7 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "79dc80711136176bfadb13471c7714d2678d1673ef313538238532f8d1440493",
+    "ui/studio_window.cpp": "71dbfef566d8c878bbc61d679c34c3670401087629fa414503a30c8ddb6bf019",
     "ui/studio_window.hpp": "db3131e1ff66e4be14501840ab26ba1e509a40855126e9261afc1d29c23b0789",
     "ui/timeline_editor.cpp": "2e47d263a511ae586a087a3d6ee50aca2b7da5036de4304f5fd24c8c1e6692d6",
     "ui/timeline_editor.hpp": "a48e52f31f5064f49c126fdd01d12b56b53c68d3d3f73b786b24a3d98cba2081",
