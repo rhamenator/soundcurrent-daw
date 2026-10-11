@@ -82,6 +82,7 @@ class PreparedMonitorOutputBank {
     std::uint64_t deliveredFrames() const noexcept;
     std::uint64_t discardedFrames() const noexcept;
     std::size_t chargedBytes() const noexcept { return bytes_; }
+    const MonitorOutputBankConfig &config() const noexcept { return config_; }
   private:
     struct Token { MonitorOutputStamp stamp; std::uint32_t slot = 0; };
     ResourceLease lease_; // Last retired, after sample storage and joined owners.
