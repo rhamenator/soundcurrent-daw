@@ -1398,6 +1398,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Add verified complete lanes</translation>
     </message>
     <message>
+      <source>Retain as take lanes</source>
+      <translation>Retain as take lanes</translation>
+    </message>
+    <message>
+      <source>Keep a complete group silent. Choose a take region in the timeline to make it audible.</source>
+      <translation>Keep a complete group silent. Choose a take region in the timeline to make it audible.</translation>
+    </message>
+    <message>
       <source>Keep files for recovery</source>
       <translation>Keep files for recovery</translation>
     </message>
@@ -1496,6 +1504,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>retained for review / recovery</translation>
     </message>
     <message>
+      <source>Take %1</source>
+      <translation>Take %1</translation>
+    </message>
+    <message>
       <source>Files kept in the project for later recovery.</source>
       <translation>Files kept in the project for later recovery.</translation>
     </message>
@@ -1550,6 +1562,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Punch refused: %1.</source>
       <translation>Punch refused: %1.</translation>
+    </message>
+    <message>
+      <source>Take lanes retained silently. Choose a comp region in the timeline; Save persists the lanes.</source>
+      <translation>Take lanes retained silently. Choose a comp region in the timeline; Save persists the lanes.</translation>
     </message>
     <message>
       <source>Take added. Save to persist the project changes. Reprepare playback to hear new clips.</source>
@@ -1674,8 +1690,16 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
   <context>
     <name>SessionListModel</name>
     <message>
+      <source>Select a take lane</source>
+      <translation>Select a take lane</translation>
+    </message>
+    <message>
       <source>Select a clip</source>
       <translation>Select a clip</translation>
+    </message>
+    <message>
+      <source>%1 · captured %2–%3 frames</source>
+      <translation>%1 · captured %2–%3 frames</translation>
     </message>
     <message>
       <source>Clip %1 · %2 frames</source>
@@ -3293,6 +3317,54 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Down</translation>
     </message>
     <message>
+      <source>Retained take lanes in selected track</source>
+      <translation>Retained take lanes in selected track</translation>
+    </message>
+    <message>
+      <source>Retained take</source>
+      <translation>Retained take</translation>
+    </message>
+    <message>
+      <source>Take lane name</source>
+      <translation>Take lane name</translation>
+    </message>
+    <message>
+      <source>Comp start frame (inclusive)</source>
+      <translation>Comp start frame (inclusive)</translation>
+    </message>
+    <message>
+      <source>Comp end frame (exclusive)</source>
+      <translation>Comp end frame (exclusive)</translation>
+    </message>
+    <message>
+      <source>Select matching recorded group across tracks</source>
+      <translation>Select matching recorded group across tracks</translation>
+    </message>
+    <message>
+      <source>Comp source</source>
+      <translation>Comp source</translation>
+    </message>
+    <message>
+      <source>Use take region</source>
+      <translation>Use take region</translation>
+    </message>
+    <message>
+      <source>Rename take</source>
+      <translation>Rename take</translation>
+    </message>
+    <message>
+      <source>Take up</source>
+      <translation>Take up</translation>
+    </message>
+    <message>
+      <source>Take down</source>
+      <translation>Take down</translation>
+    </message>
+    <message>
+      <source>Remove unused take</source>
+      <translation>Remove unused take</translation>
+    </message>
+    <message>
       <source>Clips in selected track</source>
       <translation>Clips in selected track</translation>
     </message>
@@ -3503,6 +3575,18 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Stop audio preparation or recording to edit tracks and clips.</source>
       <translation>Stop audio preparation or recording to edit tracks and clips.</translation>
+    </message>
+    <message>
+      <source>Selected clip uses %1. Other retained lanes are silent.</source>
+      <translation>Selected clip uses %1. Other retained lanes are silent.</translation>
+    </message>
+    <message>
+      <source>Missing take lane</source>
+      <translation>Missing take lane</translation>
+    </message>
+    <message>
+      <source>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</source>
+      <translation>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</translation>
     </message>
   </context>
   <context>

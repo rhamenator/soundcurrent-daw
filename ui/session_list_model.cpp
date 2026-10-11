@@ -19,10 +19,10 @@ void increment(std::uint64_t &v) {
 SessionListModel::SessionListModel(Kind k, QObject *parent, bool checkable, ResourceLedger memory)
     : QAbstractListModel(parent), memory_(std::move(memory)), kind_(k), checkable_(checkable) {}
 int SessionListModel::rowCount(const QModelIndex &parent) const {
-    return parent.isValid() ? 0 : int(rows_.size()) + (kind_ == Kind::Clips);
+    return parent.isValid() ? 0 : int(rows_.size()) + ((kind_ == Kind::Clips || kind_ == Kind::TakeLanes));
 }
 const Id *SessionListModel::identity(int row) const {
-    if (kind_ == Kind::Clips)
+    if ((kind_ == Kind::Clips || kind_ == Kind::TakeLanes))
         --row;
     if (!session_ || row < 0 || std::size_t(row) >= rows_.size())
         return nullptr;
@@ -31,7 +31,7 @@ const Id *SessionListModel::identity(int row) const {
         return &session_->tracks[n].id;
     if (kind_ == Kind::Assets)
         return &session_->assets[n].id;
-    return clips_ ? &clips_->clips[n].id : nullptr;
+    return !clips_ ? nullptr : kind_ == Kind::TakeLanes ? &clips_->takeLanes[n].id : &clips_->clips[n].id;
 }
 std::optional<Id> SessionListModel::idAt(int row) const {
     if (const auto *id = identity(row))
@@ -47,8 +47,8 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || index.model() != this || index.column() || index.row() < 0 ||
         index.row() >= rowCount())
         return {};
-    if (kind_ == Kind::Clips && index.row() == 0)
-        return role == Qt::DisplayRole ? QVariant(tr("Select a clip"))
+    if ((kind_ == Kind::Clips || kind_ == Kind::TakeLanes) && index.row() == 0)
+        return role == Qt::DisplayRole ? QVariant(kind_ == Kind::TakeLanes ? tr("Select a take lane") : tr("Select a clip"))
                : role == Qt::UserRole  ? QVariant(QString())
                                        : QVariant();
     const auto *id = identity(index.row());
@@ -65,9 +65,11 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
         return QBrush(d->second.color);
     if (role != Qt::DisplayRole)
         return {};
-    const auto n = rows_[std::size_t(index.row() - (kind_ == Kind::Clips))];
+    const auto n = rows_[std::size_t(index.row() - ((kind_ == Kind::Clips || kind_ == Kind::TakeLanes)))];
     if (kind_ == Kind::Assets)
         return text(session_->assets[n].relativePath);
+    if (kind_ == Kind::TakeLanes)
+        return tr("%1 · captured %2–%3 frames").arg(text(clips_->takeLanes[n].name), QLocale().toString(clips_->takeLanes[n].captureStartFrame), QLocale().toString(clips_->takeLanes[n].captureEndFrame));
     if (kind_ == Kind::Clips)
         return tr("Clip %1 · %2 frames")
             .arg(QLocale().toString(n + 1), QLocale().toString(clips_->clips[n].lengthFrames));
@@ -176,9 +178,15 @@ SessionListModel::prepare(std::shared_ptr<const Session> s, std::optional<Channe
                     next = &t;
             same = bool(next) == bool(clips_);
             if (same && next) {
-                same = next->clips.size() == clips_->clips.size();
-                for (std::size_t n = 0; same && n < next->clips.size(); ++n)
-                    same = next->clips[n].id == clips_->clips[n].id;
+                if (kind_ == Kind::TakeLanes) {
+                    same = next->takeLanes.size() == clips_->takeLanes.size();
+                    for (std::size_t n = 0; same && n < next->takeLanes.size(); ++n)
+                        same = next->takeLanes[n].id == clips_->takeLanes[n].id;
+                } else {
+                    same = next->clips.size() == clips_->clips.size();
+                    for (std::size_t n = 0; same && n < next->clips.size(); ++n)
+                        same = next->clips[n].id == clips_->clips[n].id;
+                }
             }
         }
     }
@@ -201,7 +209,7 @@ SessionListModel::prepare(std::shared_ptr<const Session> s, std::optional<Channe
                                                : [&] {
                                                      for (const auto &t : s->tracks)
                                                          if (clipTrack && t.id == *clipTrack)
-                                                             return t.clips.size();
+                                                             return kind_ == Kind::TakeLanes ? t.takeLanes.size() : t.clips.size();
                                                      return std::size_t{0};
                                                  }();
     auto allowance = guiCharge("GUI list indices");
@@ -222,9 +230,10 @@ SessionListModel::prepare(std::shared_ptr<const Session> s, std::optional<Channe
                 key(a.id);
         else
             for (const auto &t : s->tracks)
-                if (clipTrack && t.id == *clipTrack)
-                    for (const auto &c : t.clips)
-                        key(c.id);
+                if (clipTrack && t.id == *clipTrack) {
+                    if (kind_ == Kind::TakeLanes) for (const auto &lane : t.takeLanes) key(lane.id);
+                    else for (const auto &c : t.clips) key(c.id);
+                }
     }
     mapAllowance(allowance, count, keys, sizeof(std::pair<const std::string, int>));
     auto prepared = std::make_shared<Prepared>();
@@ -246,13 +255,13 @@ SessionListModel::prepare(std::shared_ptr<const Session> s, std::optional<Channe
                                          [&](const auto &t) { return t.id == *clipTrack; });
             if (it != s->tracks.end()) {
                 clips = &*it;
-                rows.resize(clips->clips.size());
+                rows.resize(kind_ == Kind::TakeLanes ? clips->takeLanes.size() : clips->clips.size());
                 for (std::size_t n = 0; n < rows.size(); ++n)
                     rows[n] = n;
             }
         }
     }
-    if (rows.size() > std::size_t(std::numeric_limits<int>::max() - (kind_ == Kind::Clips)))
+    if (rows.size() > std::size_t(std::numeric_limits<int>::max() - ((kind_ == Kind::Clips || kind_ == Kind::TakeLanes))))
         throw ResourceLimitError("Qt list row representation", rows.size(),
                                  std::numeric_limits<int>::max());
     auto &ids = prepared->ids;
@@ -261,8 +270,8 @@ SessionListModel::prepare(std::shared_ptr<const Session> s, std::optional<Channe
         const auto at = rows[n];
         const auto &id = kind_ == Kind::Tracks   ? s->tracks[at].id
                          : kind_ == Kind::Assets ? s->assets[at].id
-                                                 : clips->clips[at].id;
-        ids.emplace(id.str(), int(n) + (kind_ == Kind::Clips));
+                                                 : kind_ == Kind::TakeLanes ? clips->takeLanes[at].id : clips->clips[at].id;
+        ids.emplace(id.str(), int(n) + ((kind_ == Kind::Clips || kind_ == Kind::TakeLanes)));
     }
     auto actual = guiCharge("GUI list indices");
     actual.add(rows.capacity(), sizeof(std::size_t));

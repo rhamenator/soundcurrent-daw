@@ -4181,3 +4181,17 @@ passes65,183 (the earlier development run reported65,187), and
 16 targeted suites passed during development. Desktop lane/comp controls, actual
 loop transport, crossfades and native Windows/UI/installed qualification remain
 required. No quality/content/native-project or full frozen parity promotion.
+
+## 2026-10-11: explicit desktop retained-take and comp workflow
+
+[Checkpoint171](171-desktop-retained-takes.md) connects complete manual groups to
+silent lane retention after journal/media verification, preserving concurrent
+scalar edits and one bounded undo entry. The desktop offers lane/name/order,
+project-frame comp ranges, recorded-group selection and source labels. Actual
+two-track synthetic capture, live/export/partition sample oracles, refusal/retry,
+Undo/Redo and Unicode save/reopen pass locally. The chooser uses charged immutable
+indices; its declared 131-lane projection and budget refusal are separate from
+recording counts. Native Windows CI adds this exact workflow. Catalogs have877
+source keys and no native-review/full-UI language promotion. Real loop transport,
+crossfades/audition and full frozen-reference parity remain open. No endpoint, VM,
+product installer/binary/release upload or equalizer-tree change.

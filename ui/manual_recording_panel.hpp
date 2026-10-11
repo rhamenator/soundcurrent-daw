@@ -34,7 +34,7 @@ class ManualRecordingPanel final : public QGroupBox {
     std::function<bool()> mayPrepare_;
     ManualRecordingController worker_;
     QPushButton *prepare_, *play_, *prepareTake_, *punchIn_, *punchOut_, *stop_, *cancel_;
-    QPushButton *add_, *addPartial_, *keep_;
+    QPushButton *add_, *addPartial_, *retain_, *keep_;
     QLabel *status_, *receipt_, *preview_;
     QListWidget *arms_;
     QSpinBox *seconds_, *reserve_;
@@ -53,7 +53,7 @@ class ManualRecordingPanel final : public QGroupBox {
     std::optional<ManualControlGroup> attaching_;
     std::vector<Id> attachmentAssets_;
     std::uint64_t attachmentCount_ = 0, attachmentRequest_ = 0;
-    bool closingIntent_ = false, prompting_ = false;
+    bool closingIntent_ = false, prompting_ = false, retaining_ = false;
     bool send(ManualControlCommand);
     void prepare();
     void activate();
@@ -63,7 +63,7 @@ class ManualRecordingPanel final : public QGroupBox {
     void setRoute(bool output, std::size_t channel, QComboBox *);
     void refreshGroups(const ManualControlSnapshot &);
     std::optional<ManualControlGroup> selectedGroup() const;
-    void adopt(bool partial);
+    void adopt(bool partial, bool retained = false);
     void keep();
 };
 } // namespace soundcurrent::daw::ui

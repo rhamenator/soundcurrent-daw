@@ -1391,6 +1391,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Retain as take lanes</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Keep a complete group silent. Choose a take region in the timeline to make it audible.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Keep files for recovery</source>
       <translation type="unfinished" />
     </message>
@@ -1488,6 +1496,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Take %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Files kept in the project for later recovery.</source>
       <translation type="unfinished" />
     </message>
@@ -1541,6 +1553,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Punch refused: %1.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take lanes retained silently. Choose a comp region in the timeline; Save persists the lanes.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1666,7 +1682,15 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
   <context>
     <name>SessionListModel</name>
     <message>
+      <source>Select a take lane</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Select a clip</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>%1 · captured %2–%3 frames</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -3276,6 +3300,54 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Retained take lanes in selected track</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retained take</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take lane name</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Comp start frame (inclusive)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Comp end frame (exclusive)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Select matching recorded group across tracks</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Comp source</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Use take region</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Rename take</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take up</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take down</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Remove unused take</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Clips in selected track</source>
       <translation type="unfinished" />
     </message>
@@ -3485,6 +3557,18 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Stop audio preparation or recording to edit tracks and clips.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Selected clip uses %1. Other retained lanes are silent.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Missing take lane</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp.</source>
       <translation type="unfinished" />
     </message>
   </context>
