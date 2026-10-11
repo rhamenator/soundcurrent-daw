@@ -4,6 +4,7 @@
 #include "monitor_drift.hpp"
 #include "monitor_output_bank.hpp"
 #include "monitor_clock_handoff.hpp"
+#include "monitor_control.hpp"
 
 namespace soundcurrent::daw {
 struct MonitorProcessingConfig {
@@ -13,10 +14,10 @@ struct MonitorProcessingConfig {
     std::optional<ResourceLedger> resources;
 };
 enum class MonitorProcessingCode {
-    Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault
+    Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault, ControlFull
 };
 enum class MonitorProcessingCause {
-    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity
+    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -44,7 +45,8 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &,
 class PreparedMonitorProcessing {
   public:
     PreparedMonitorProcessing(PreparedCaptureFanout &, PreparedMonitorOutputBank &,
-                              MonitorProcessingConfig, PreparedMonitorClockHandoff * = nullptr);
+                              MonitorProcessingConfig, PreparedMonitorClockHandoff * = nullptr,
+                              PreparedMonitorControl * = nullptr);
     ~PreparedMonitorProcessing();
     PreparedMonitorProcessing(const PreparedMonitorProcessing &) = delete;
     PreparedMonitorProcessing &operator=(const PreparedMonitorProcessing &) = delete;
@@ -54,6 +56,9 @@ class PreparedMonitorProcessing {
     // the external handoff must outlive this owner and join before retirement.
     // Call before step; step also checks handoff terminal state before progress.
     MonitorClockPump pumpClocks() noexcept;
+    // One intent/receipt per call, processing owner only. May service terminal
+    // refusals after Done/Cancelled/Fault. External handoff outlives this owner.
+    MonitorControlCode pumpControl() noexcept;
     // One input acquisition/copy, one kernel call, or one output handoff per step.
     // Output pressure retains exact pending PCM; no further DSP/input progress.
     MonitorProcessingCode step(Qpc100ns asOf) noexcept;
@@ -77,6 +82,7 @@ class PreparedMonitorProcessing {
     PreparedCaptureFanout &capture_;
     PreparedMonitorOutputBank &output_;
     PreparedMonitorClockHandoff *clocks_ = nullptr;
+    PreparedMonitorControl *control_ = nullptr;
     MonitorProcessingConfig config_;
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;
@@ -91,5 +97,6 @@ class PreparedMonitorProcessing {
     MonitorProcessingCode fail(MonitorProcessingCause) noexcept;
     bool release() noexcept;
     MonitorProcessingCode schedule(Qpc100ns) noexcept;
+    MonitorProcessingCode validate(Qpc100ns) noexcept;
 };
 } // namespace soundcurrent::daw

@@ -11,7 +11,10 @@ CaptureFanoutConfig geometry(const PreparedCaptureFanout &f) {
     CaptureFanoutConfig c; c.capture = f.captureConfig(); return c;
 }
 ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutputBank &o,
-                      const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks) {
+                      const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks,
+                      const PreparedMonitorControl *control) {
+    if (control) require(control->config().runGeneration == c.buffer.runGeneration && !control->failed() && !control->producerDone() &&
+        !control->counts().accepted, "Monitor control handoff configuration mismatch or already started");
     if (clocks) {
         const auto &q = clocks->config();
         require(q.captureIdentity == c.drift.captureIdentity && q.renderIdentity == c.drift.renderIdentity &&
@@ -47,8 +50,9 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     return charge.bytes();
 }
 PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
-    PreparedMonitorOutputBank &o, MonitorProcessingConfig c, PreparedMonitorClockHandoff *clocks)
-    : lease_(reserve(f,o,c,clocks)), capture_(f), output_(o), clocks_(clocks), config_(std::move(c)),
+    PreparedMonitorOutputBank &o, MonitorProcessingConfig c, PreparedMonitorClockHandoff *clocks,
+    PreparedMonitorControl *control)
+    : lease_(reserve(f,o,c,clocks,control)), capture_(f), output_(o), clocks_(clocks), control_(control), config_(std::move(c)),
       drift_(config_.drift), buffer_(config_.buffer),
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
@@ -133,10 +137,7 @@ MonitorProcessingCode PreparedMonitorProcessing::schedule(Qpc100ns now) noexcept
     clockEstablished_ = true;
     return MonitorProcessingCode::Progress;
 }
-MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
-    if (fault_) return MonitorProcessingCode::Fault;
-    if (cancelled_) return MonitorProcessingCode::Cancelled;
-    if (done_) return MonitorProcessingCode::Done;
+MonitorProcessingCode PreparedMonitorProcessing::validate(Qpc100ns now) noexcept {
     if (clocks_ && clocks_->phase() == MonitorClockPhase::Fault) return fail(MonitorProcessingCause::Clock);
     if (clocks_ && clocks_->phase() == MonitorClockPhase::Cancelled) { cancel(); return MonitorProcessingCode::Cancelled; }
     if (output_.phase() == MonitorOutputPhase::Fault) return fail(MonitorProcessingCause::Output);
@@ -151,6 +152,21 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     if ((captureQpc_ && now.value - captureQpc_ > config_.drift.maximumAge100ns) ||
         (renderQpc_ && now.value - renderQpc_ > config_.drift.maximumAge100ns))
         return fail(MonitorProcessingCause::Clock);
+    return MonitorProcessingCode::Progress;
+}
+MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
+    // Route loss and clock age remain observable even during receipt pressure.
+    if (!fault_ && !cancelled_ && !done_) validate(now);
+    // Intent is handled by THIS owner, before advancing PCM. A full reply lane
+    // leaves the original request queued and pauses DSP/input/output publication.
+    // Terminal owners can still return explicit refusals for queued requests.
+    const auto control = pumpControl();
+    if (control == MonitorControlCode::Fault && !fault_) return fail(MonitorProcessingCause::Control);
+    if (fault_) return MonitorProcessingCode::Fault;
+    if (cancelled_) return MonitorProcessingCode::Cancelled;
+    if (done_) return MonitorProcessingCode::Done;
+    if (control == MonitorControlCode::ReceiptFull) return MonitorProcessingCode::ControlFull;
+    if (control == MonitorControlCode::Handled) return MonitorProcessingCode::Progress;
     // Retain a pulled block across arbitrary output pressure. Neither input nor
     // converter/controller advances until these exact bytes have been accepted.
     if (pendingStamp_.frames) {
@@ -224,6 +240,12 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
 bool PreparedMonitorProcessing::planEnd(MonitorOutputOrdinal end) noexcept {
     if (fault_ || done_ || cancelled_) return false;
     return buffer_.planEnd(end.value) == MonitorBufferCode::Accepted;
+}
+MonitorControlCode PreparedMonitorProcessing::pumpControl() noexcept {
+    if (!control_) return MonitorControlCode::Empty;
+    const auto result = control_->service(*this);
+    if (result == MonitorControlCode::Fault && !fault_) fail(MonitorProcessingCause::Control);
+    return result;
 }
 bool PreparedMonitorProcessing::finishAt(MonitorOutputOrdinal end) noexcept {
     if (fault_ || done_ || cancelled_ || !clockEstablished_ || holding_ ||
