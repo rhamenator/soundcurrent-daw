@@ -8,17 +8,44 @@
 #include "monitor_capture_stop.hpp"
 
 namespace soundcurrent::daw {
+// Opt-in prepared startup admission. The caller supplies ACTUAL native geometry,
+// keeps native content pulls gated, and delivers original moving clock readings.
+// This does not start an SDK owner or publish a cross-thread readiness signal.
+struct MonitorStartupConfig {
+    std::uint32_t nativeCapacityFrames = 0, maximumNativeFillFrames = 0;
+    std::uint64_t maximumWait100ns = 50000000;
+};
+enum class MonitorStartupPhase { Disabled, Observing, Transferring, Live };
+struct MonitorStartupSource {
+    CaptureBankStamp original;
+    std::uint32_t packetOffsetFrames = 0;
+    bool operator==(const MonitorStartupSource &) const = default;
+};
+struct MonitorStartupStatistics {
+    MonitorStartupPhase phase = MonitorStartupPhase::Disabled;
+    std::uint64_t acceptedFrames = 0, discardedFrames = 0, transferredFrames = 0, abandonedFrames = 0;
+    std::uint32_t retainedFrames = 0, capacityFrames = 0;
+    // Kernel context begins here; this is NOT a first-audible-frame/alignment map.
+    std::optional<MonitorStartupSource> firstTransferred;
+    std::optional<CaptureBankStamp> lastAccepted;
+    bool contentReady = false;
+    bool operator==(const MonitorStartupStatistics &) const = default;
+};
+std::uint32_t monitorStartupRetainedFrames(const MonitorBufferConfig &,
+    const MonitorDriftConfig &, const MonitorStartupConfig &); // Admission, off RT.
 struct MonitorProcessingConfig {
     MonitorBufferConfig buffer;
     MonitorDriftConfig drift;
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     std::optional<ResourceLedger> resources;
+    std::optional<MonitorStartupConfig> startup;
 };
 enum class MonitorProcessingCode {
     Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault, ControlFull
 };
 enum class MonitorProcessingCause {
-    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd
+    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd,
+    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -31,6 +58,7 @@ struct MonitorProcessingStatistics {
     std::uint64_t publishedFrames = 0, discardedPendingFrames = 0, serviceCalls = 0;
     std::uint32_t pendingOutputFrames = 0;
     bool holdingInput = false, done = false, cancelled = false;
+    MonitorStartupStatistics startup;
 };
 struct MonitorClockPump {
     MonitorProcessingCode code;
@@ -89,6 +117,12 @@ class PreparedMonitorProcessing {
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;
     std::vector<float> pending_;
+    struct StartupPacket { CaptureBankStamp original; std::uint32_t offset = 0; };
+    std::vector<float> startupSamples_;
+    std::vector<StartupPacket> startupPackets_;
+    MonitorStartupStatistics startup_;
+    std::uint32_t startupRead_ = 0, startupPacketRead_ = 0, startupPacketCount_ = 0;
+    std::uint64_t startupFirstTime_ = 0;
     CaptureBankView held_;
     MonitorOutputStamp pendingStamp_;
     std::optional<MonitorProcessingFault> fault_;
@@ -100,6 +134,9 @@ class PreparedMonitorProcessing {
     bool release() noexcept;
     MonitorProcessingCode schedule(Qpc100ns) noexcept;
     MonitorProcessingCode validate(Qpc100ns) noexcept;
+    MonitorProcessingCode startupStep(Qpc100ns) noexcept;
+    bool retainStartup() noexcept;
+    void consumeStartup(std::uint32_t) noexcept;
     void stopCapture(MonitorCaptureStopKind) noexcept;
 };
 } // namespace soundcurrent::daw
