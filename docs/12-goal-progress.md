@@ -4428,3 +4428,15 @@ Native duplex, drift/causal monitoring, durable raw mappings, installed/physical
 load/localization/full P005/M2/F/Q/C/N remain open; earlier quality failures stay.
 Next: causal monitor buffering and bounded drift correction, original raw writers/
 versioned mappings, SDK composition and Windows desktop duplex factory.
+
+## Interrupted-loop fixture disk readiness (2026-10-11)
+
+The current-MAIN Windows cohort38114113389 failed its interrupted-loop test;
+the clock suite passed. Frozen repair492673d makes interruption wait for each
+disk owner's completed first checkpoint and adds an explicitly gated delayed
+writer case. Linux Debug passed5,034 checks with callback audit zero. Original
+prefix/recovery/hash/context assertions remain; production cancellation is
+unchanged. [Checkpoint181](181-durable-prefix-regression.md) preserves the full
+failed Windows job/status and local regression logs in a41,237-byte/five-member
+packet. Fresh Windows/current-MAIN checks are required before PR119 admission.
+This does not establish native duplex or full product parity.
