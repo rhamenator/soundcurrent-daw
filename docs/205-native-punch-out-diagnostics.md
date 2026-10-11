@@ -31,7 +31,8 @@ retains all four full original job logs, terminal run/job/PR state, tested
 parents/tree and16 reviewed source blobs. Logs are losslessly gzip compressed;
 decompression preserves their original byte-order marks and line endings, with
 original-byte hashes in the summary and compressed-member hashes in the manifest.
-No executables or media are included. PR140 remains unadmitted.
+No executables or media are included. This original failed head was not admitted;
+see the later protected integration below.
 
 ## Diagnostic change
 
@@ -100,9 +101,13 @@ provenance; no flags were suppressed. An initial input collector refused the
 known PowerShell CRLF checkout; the corrected collector records both hashes and
 verifies that single line-ending conversion without modifying files.
 
-Fresh native Windows CI must execute the new fixture independently. Compilation
-alone is not runtime evidence, and the original failed head is never admissible
-through its subsequent standalone completions.
+The revised fixture subsequently executed in native Windows CI on38161752733:
+all four required jobs passed, with70 MSVC suites166.67s and three original20-take
+completions. Exact head0d50, tested merge597b418 and53 reviewed blobs were checked
+before ordinary protected integration into MAIN7d800f. The [protected receipt](../tests/results/M2/2026-10-11-native-take-diagnostics-protected-main/summary.json)
+retains all four original full logs and source/admission/postmerge bindings.
+The original failed head remains separate; its subsequent standalone successes
+never constituted admission or causal resolution.
 
 Keep the original PR140 failure and prior unresolved roots visible. A later green
 can establish only bounded non-reproduction unless new observations identify a

@@ -1,23 +1,30 @@
 # Active full-suite goal: progress and completion evidence
 
-## Native early punch-out failure (2026-10-11)
+## Native readiness consumption (2026-10-11)
 
-[Checkpoint205](205-native-punch-out-diagnostics.md) preserves PR140's original
-four CI logs and exact a0/base31/tested merge/tree/16 blobs. Three required jobs
-passed; Windows native failed one of70 suites118.22s. The first Out/revision2 was
-refused after CaptureFailed at position8192, before the group-wait diagnostic.
-Three later original20-take completions do not resolve that failure. PR140 is
-unadmitted; no deadline/assertion/protection change or retry-until-green is used.
+[Checkpoint206](206-native-ready-consumer.md) records immutable full-FIFO readiness
+consumption through the actual optional pre-lease API, original render clocks
+published once per attempt, exact Content authorization and no live warmup fallback.
+Real prepared processing with simulated SDK calls passes mono/stereo44.1/48/96k
+composition, entire generated-prefix comparison, native drain/Stop and three-owner
+concurrency. Failure/cancel/underflow/budget/owner-loss evidence stays distinct.
+Nine suites/profile pass Release1.63s/ASanUBSan15.24s/TSan25.97s,1,979,916 composed
+checks, PCM error0 and audited allocation/free/lock0.634 exact inputs,27 Linux
+executable hashes/11 object hashes and full logs are retained. Windows SDK/four
+tests compile/link; five objects are warning-free, with no new native execution.
+Schema1.0 refuses unsupported fields; next implement native-state1.1 migration
+and recovery. Factory remains disabled; full goal remains ACTIVE/incomplete.
 
-The fixture now reports every take-stage failure, original callback fault/lane/
-clocks and retained first control/disk error. Deterministic existing pool exhaustion
-and active writer-failure workflows qualify the observations and error preservation.
-Six selected suites at6b6d683 pass Release1.65s/ASanUBSan8.61s/TSan7.55s;
-output difference0/headroom2.14813/RT violations0,632 inputs/18 Linux executable
-hashes/four fixture-object hashes/full logs retained. The Windows fixture compiles
-without warnings; new native Windows execution remains required. Production
-behavior is unchanged and original Windows causes remain unresolved. Full goal
-remains ACTIVE/incomplete.
+## Native early punch-out failure and protected diagnostics (2026-10-11)
+
+[Checkpoint205](205-native-punch-out-diagnostics.md) preserves the original failed
+PR140/native run separately from the revised diagnostic fixture and fresh passing
+run38161752733. All four revised jobs passed; native MSVC70suites166.67s and three
+original20-take/five-second completions. Exact head0d50/base31/tested597/treef3c/
+53 blobs and enforced required checks were verified before ordinary protected
+merge MAIN7d800f, with all four full logs retained. Earlier Windows failure roots
+remain unresolved. Deterministic pool/write-failure diagnostic qualification is
+bounded observation/error-preservation evidence, not a causal correction.
 
 ## Finite SDK warmup hook (2026-10-11)
 

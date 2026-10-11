@@ -1,0 +1,26 @@
+{
+  "before": "44b3b9f838a475e778a9970f77216b2bdb26deb9",
+  "protectedMain": "7d800f210258d77c82b3f43fa904c6e1a29d9a6c",
+  "stages": [
+    {
+      "path": "tests/native_original_recording_tests.cpp",
+      "stage": "1",
+      "blob": "c55273c802e894467de0e7f4134f29cc159d1f3a",
+      "sha256": "c10ef8b92a57006b9692222d6fef1bd5941fded70b127e0d4fd816e0baa9d955"
+    },
+    {
+      "path": "tests/native_original_recording_tests.cpp",
+      "stage": "2",
+      "blob": "5be547f6d98ff6b90d248341c61cbe3827370611",
+      "sha256": "70be39e414d600229701c6b14cee9a48f1faa6feee4906253b4253bcd3ff8a4b"
+    },
+    {
+      "path": "tests/native_original_recording_tests.cpp",
+      "stage": "3",
+      "blob": "e0ad450763614fafa28d363e7e52f8ada83e8d55",
+      "sha256": "522857704a4af820d202dea85728d648f691f81213d87d0f772ab2c1eebd2be0"
+    }
+  ],
+  "entireResolvedTreeEqualsSource": true,
+  "resolution": "Retain complete frozen candidate file, including all15 refusal cases; main has original10 cases. Both retain all original assertions."
+}
