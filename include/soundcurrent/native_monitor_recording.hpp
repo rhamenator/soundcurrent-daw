@@ -53,7 +53,7 @@ struct NativeMonitorRecordingResult {
 struct NativeMonitorRecordingProgress {
     bool processingDone = false, diskDone = false, captureEnded = false, renderEnded = false;
     std::uint64_t rawAcceptedFrames = 0, monitorAcceptedFrames = 0,
-        publishedMonitorFrames = 0, deliveredMonitorFrames = 0;
+        publishedMonitorFrames = 0, deliveredMonitorFrames = 0, copiedMonitorSourceFrames = 0;
 };
 // Control-side owner. Native callbacks and bounded processing never touch disk,
 // GUI or this control object. Construction binds the prepared route and publishes

@@ -112,6 +112,7 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
       drift_(config_.drift), buffer_(config_.buffer),
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
+    static_assert(std::atomic<std::uint64_t>::is_always_lock_free);
     bytes_ = monitorProcessingPayloadBytes(geometry(f),o.config(),config_);
     if (config_.channelMap) {
         channelMap_.emplace(*config_.channelMap,PreparedMonitorBuffer::gridFrames,config_.memoryBudgetBytes);
@@ -128,10 +129,13 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
     if(startupHandoff_)require(startupHandoff_->claimProcessingOwner(),"Monitor startup publisher already claimed");
 }
 PreparedMonitorProcessing::~PreparedMonitorProcessing() { settleAfterJoin(); }
-bool PreparedMonitorProcessing::release() noexcept {
+bool PreparedMonitorProcessing::release(bool copied) noexcept {
     if (!holding_) return true;
     const bool ok = capture_.releaseMonitor(held_);
-    if (ok) { holding_ = false; held_ = {}; }
+    if (ok) {
+        if (copied) copiedSourceFrames_.fetch_add(held_.token.original.frames,std::memory_order_release);
+        holding_ = false; held_ = {};
+    }
     return ok;
 }
 MonitorProcessingCode PreparedMonitorProcessing::fail(MonitorProcessingCause cause) noexcept {
@@ -312,7 +316,7 @@ MonitorProcessingCode PreparedMonitorProcessing::startupStep(Qpc100ns now) noexc
     if (code != CaptureBankRead::Ready) return fail(MonitorProcessingCause::CaptureLease);
     holding_ = true;
     if (!retainStartup()) return fail(MonitorProcessingCause::StartupInput);
-    if (!release()) return fail(MonitorProcessingCause::CaptureLease);
+    if (!release(true)) return fail(MonitorProcessingCause::CaptureLease);
     return MonitorProcessingCode::Progress;
 }
 MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
@@ -387,7 +391,7 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         if (holding_) {
             const auto code = buffer_.push(held_.interleaved);
             if (code == MonitorBufferCode::Accepted) {
-                if (!release()) return fail(MonitorProcessingCause::CaptureLease);
+                if (!release(true)) return fail(MonitorProcessingCause::CaptureLease);
                 return MonitorProcessingCode::Progress;
             }
             if (code != MonitorBufferCode::InputFull) return fail(MonitorProcessingCause::Buffer);

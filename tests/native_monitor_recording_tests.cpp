@@ -34,7 +34,7 @@ struct Spy {
     std::atomic<std::uint32_t> captureActive{0}, captureStop{0}, renderStop{0}, captureJoined{0}, renderJoined{0};
     rt_audit::Counts callbackAudit;
     bool failBind = false, failRenderActivation = false, failCaptureActivation = false,
-        missingCaptureEnd = false, missingRenderEnd = false, missingNow = false;
+        missingCaptureEnd = false, missingRenderEnd = false, missingNow = false, independentCapture = false;
     std::int32_t captureStopResult = 1, renderStopResult = 1;
 };
 // One simulated SDK service thread serializes its capture/render producer roles;
@@ -92,6 +92,12 @@ class FakeStreams final : public NativeMonitorStreams {
                     // Disk-side acknowledgement is an explicit fake-device pace,
                     // not concurrent access to raw consumer-owned mutable state.
                     while (spy_->writtenPackets.load(std::memory_order_acquire) < rawPackets_ &&
+                        !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) idle();
+                    // Controlled virtual-device scheduling, not a physical
+                    // deadline claim under sanitizers. Receipt is atomic, never
+                    // a cross-owner mutable statistics read. Pressure tests
+                    // explicitly keep capture independent of this receipt.
+                    while (!spy_->independentCapture && route_->processing().copiedSourceFrames() < rawFrames_ &&
                         !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) idle();
                 }
             }
@@ -227,6 +233,8 @@ void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureSt
     }
     if (!planned && run.receiveStopReceipt(receipt) == MonitorControlCode::Ready) planned = receipt.result == MonitorControlResult::Planned;
     const auto r = run.wait(); joined(*spy);
+    if (!failedCaptureStop) check(run.progress().copiedMonitorSourceFrames == run.progress().monitorAcceptedFrames,
+        "Owned processing receipt lost copied/released original source frames");
     check(run.requestStopAt({9216}) == MonitorControlCode::Stopped,"Retired processing owner admitted another Stop request");
     if (r.processingFault) std::cerr << "owned_native_failure rate=" << rate << " cause=" << int(r.processingFault->cause)
         << " drift=" << (r.processingClockFault ? int(r.processingClockFault->code) : -1)
@@ -344,7 +352,7 @@ void diskAndClockFailures() {
     }
 }
 void controlPressure() {
-    Temp temp; auto spy = std::make_shared<Spy>(); auto o = options(spy,2);
+    Temp temp; auto spy = std::make_shared<Spy>(); spy->independentCapture = true; auto o = options(spy,2);
     NativeMonitorRecording run(temp.root,std::make_unique<FakeStreams>(spy,96000,2),o); run.activate();
     // Deliberately leave the 64-entry reply queue unread and deliver further
     // valid requests. Existing receipt backpressure pauses processing; the

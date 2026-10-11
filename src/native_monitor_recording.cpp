@@ -128,7 +128,7 @@ struct NativeMonitorRecording::State {
         return {bool(processingDone.load(std::memory_order_acquire)), bool(diskDone.load(std::memory_order_acquire)),
             bool(route->captureStop().endReceipt()), bool(route->renderContext().result()),
             route->capture().rawAcceptedFrames(), route->capture().monitorAcceptedFrames(),
-            route->output().acceptedFrames(), route->output().deliveredFrames()};
+            route->output().acceptedFrames(), route->output().deliveredFrames(), route->processing().copiedSourceFrames()};
     }
     bool ready() const noexcept {
         const auto p = progress(); return p.processingDone && p.diskDone && p.captureEnded && p.renderEnded;

@@ -94,6 +94,10 @@ class PreparedMonitorProcessing {
     void cancel() noexcept; // Stops future capture; preserves accepted raw route.
     void settleAfterJoin() noexcept; // Control only AFTER processing owner joins.
     MonitorProcessingStatistics statistics() const noexcept;
+    // Fixed atomic receipt: original source frames copied into the startup ring
+    // or converter AND released back to the capture bank. Includes subsequently
+    // discarded startup history; NOT audible/DSP/output/project frame mapping.
+    std::uint64_t copiedSourceFrames() const noexcept { return copiedSourceFrames_.load(std::memory_order_acquire); }
     std::optional<MonitorProcessingFault> firstFault() const noexcept { return fault_; }
     std::optional<MonitorDriftFault> clockFault() const noexcept { return drift_.firstFault(); }
     std::optional<MonitorBufferFault> bufferFault() const noexcept { return buffer_.firstFault(); }
@@ -125,8 +129,9 @@ class PreparedMonitorProcessing {
     std::uint64_t published_ = 0, discarded_ = 0, calls_ = 0;
     std::size_t bytes_ = 0;
     bool holding_ = false, done_ = false, cancelled_ = false, clockEstablished_ = false;
+    std::atomic<std::uint64_t> copiedSourceFrames_{0};
     MonitorProcessingCode fail(MonitorProcessingCause) noexcept;
-    bool release() noexcept;
+    bool release(bool copied = false) noexcept;
     MonitorProcessingCode schedule(Qpc100ns) noexcept;
     MonitorProcessingCode validate(Qpc100ns) noexcept;
     MonitorProcessingCode startupStep(Qpc100ns) noexcept;
