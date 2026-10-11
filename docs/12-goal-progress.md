@@ -1,5 +1,25 @@
 # Active full-suite goal: progress and completion evidence
 
+## Finite SDK warmup hook (2026-10-11)
+
+[Checkpoint204](204-native-warmup-sdk.md) records ordinary protected PR139 at
+MAIN31db463, exact tested tree/base/14blobs and all four original byte-exact logs.
+MSVC70suites179.80s/newstartup and three original20-take diagnostics passed;
+original Windows failure roots remain unresolved.
+
+The optional native pre-lease hook now admits finite frame/QPC budgets, actual SDK
+SILENT leases and ordinary Start, preserving original clocks/HRESULTs and separate
+warmup/startup/guard/content counters. Content latches Live. Schema1.0 explicitly
+refuses new observations until migration; ten refusals leave pending state intact.
+Four suites/profile pass Debug3.86s/Release1.14s/ASanUBSan11.78s/TSan18.24s with77
+lifecycle/19,698 startup checks and guarded allocate/free/lock0.595 inputs/19 executable
+hashes/five Windows objects/full logs retained; Windows SDK and three targets link.
+Protected-MAIN inheritance preserves the entire qualified source tree. Native
+execution/installed audio remains pending. Next: monitor readiness consumption,
+original-clock handoff without duplicate publication, explicit1.1 migration and
+native/installed/latency/EQmix/alignment gates. Factory disabled; full goal
+M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.
+
 ## Immutable startup receipt and protected integration (2026-10-11)
 
 [Checkpoint203](203-monitor-startup-ready.md) records ordinary protected PR136 at

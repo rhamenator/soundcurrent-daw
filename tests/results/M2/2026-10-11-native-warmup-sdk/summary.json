@@ -1,0 +1,76 @@
+{
+  "format": "sc-native-warmup-sdk-v1",
+  "sourceCommit": "fa1d55f3b0148ae035c4c5b0081a629352ee78c1",
+  "sourceTree": "624e0e6699efcc25fc6c6ef0e2a9f8ff42786634",
+  "inheritedProtectedMain": "31db463ba36b568ce83e52a37476f228d9ca3afd",
+  "captureBytes": 110253,
+  "captureSha256": "9c3bdabc0ab5ab4afe8d65836caf22e4b895bc18ddbb54707b74863703530f86",
+  "members": 42,
+  "selectedInputs": 595,
+  "executableHashes": 19,
+  "windowsObjects": 5,
+  "profiles": {
+    "frozen-debug": {
+      "suites": 4,
+      "seconds": 3.86,
+      "checks": {
+        "lifecycle": 77,
+        "startup": 19698,
+        "nativeOutcomes": 715,
+        "monitorRender": 18912
+      },
+      "guardedAllocationFreeLock": 0,
+      "concurrentReaderCases": 6,
+      "directReferenceMaxError": 0
+    },
+    "release": {
+      "suites": 4,
+      "seconds": 1.14,
+      "checks": {
+        "lifecycle": 77,
+        "startup": 19698,
+        "nativeOutcomes": 714,
+        "monitorRender": 18973
+      },
+      "guardedAllocationFreeLock": 0,
+      "concurrentReaderCases": 6,
+      "directReferenceMaxError": 0
+    },
+    "sanitizer": {
+      "suites": 4,
+      "seconds": 11.78,
+      "checks": {
+        "lifecycle": 77,
+        "startup": 19698,
+        "nativeOutcomes": 731,
+        "monitorRender": 19259
+      },
+      "guardedAllocationFreeLock": 0,
+      "concurrentReaderCases": 6,
+      "directReferenceMaxError": 0
+    },
+    "tsan": {
+      "suites": 4,
+      "seconds": 18.24,
+      "checks": {
+        "lifecycle": 77,
+        "startup": 19698,
+        "nativeOutcomes": 725,
+        "monitorRender": 19107
+      },
+      "guardedAllocationFreeLock": 0,
+      "concurrentReaderCases": 6,
+      "directReferenceMaxError": 0
+    }
+  },
+  "nativeSdkCompiled": true,
+  "nativeSdkRuntimeExecuted": false,
+  "monitorReadyConsumptionImplemented": false,
+  "schema11Implemented": false,
+  "schema10WarmupEvidenceRefused": true,
+  "factoryEnabled": false,
+  "originalWindowsFailureRootsResolved": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}
