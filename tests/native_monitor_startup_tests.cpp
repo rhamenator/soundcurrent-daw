@@ -19,6 +19,9 @@
 #endif
 using namespace soundcurrent::daw;
 unsigned ownedNativeMonitorRouteTests();
+#ifdef SC_NATIVE_STARTUP_STATE
+unsigned ownedNativeMonitorRecordingTests();
+#endif
 namespace {
 std::atomic<unsigned> checks{0};
 static_assert(std::atomic<unsigned>::is_always_lock_free);
@@ -553,6 +556,7 @@ void admissions(){
 int main(){try{rt_audit::reset();
     checks += ownedNativeMonitorRouteTests();
 #ifdef SC_NATIVE_STARTUP_STATE
+    checks += ownedNativeMonitorRecordingTests();
     diagnosticState();diagnosticState(true);
 #endif
     for(unsigned ch:{1u,2u}){for(unsigned rate:{44100u,48000u,96000u})success(ch,rate);}
