@@ -1,5 +1,27 @@
 # Active full-suite goal: progress and completion evidence
 
+## Versioned native state and migration (2026-10-11)
+
+[Checkpoint207](207-native-state11.md) records protected PR141 integration at
+MAINc5e15a1: four required jobs, native71suites160.35s/newstartup and three original
+20-take/five-second completions. Exact tested tree/base/66blobs/full logs and
+strict protection/admission/postmerge are retained; original Windows causes
+remain unresolved.
+
+New auxiliary1.1 preserves startup readiness/dispositions/original clocks and
+warmup/Stop outcomes, with explicit legacy writing and inactive leased1.0
+migration. General project/raw schemas are unchanged. Seven actual prepared
+composition persistence runs, seven terminal/partial cases, malformed-field
+rejection, legacy status/absence preservation, four original process interruptions
+and two migration process boundaries pass. Six suites/profile pass
+Release0.67s/ASanUBSan6.88s/TSan6.72s,2,475,990 composed checks/PCM error0/RT audit0;
+634 input bindings/18 executable/14 object hashes/full logs are retained. Windows
+SDK/four tests compile/link and five persistence-enabled objects are warning-free;
+new native execution remains required. Protected-MAIN inheritance leaves the
+whole qualified source tree unchanged. Next compose owned native routes and
+explicit mono-input/stereo-monitor mapping. Factory remains disabled; full goal
+M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.
+
 ## Native readiness consumption (2026-10-11)
 
 [Checkpoint206](206-native-ready-consumer.md) records immutable full-FIFO readiness

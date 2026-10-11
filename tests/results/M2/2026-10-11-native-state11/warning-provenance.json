@@ -1,0 +1,33 @@
+{
+  "originalWarningLines": {
+    "release": [],
+    "sanitizer": [
+      "/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp:18:17: warning: unused variable \u2018s\u2019 [-Wunused-variable]"
+    ],
+    "tsan": [
+      "/usr/include/c++/15/bits/shared_ptr_base.h:1097:32: warning: \u2018((std::__shared_count<__gnu_cxx::_S_atomic>*)((char*)&<unnamed> + offsetof(soundcurrent::daw::MixConfig, soundcurrent::daw::MixConfig::resources.std::optional<soundcurrent::daw::ResourceLedger>::<unnamed>.std::_Optional_base<soundcurrent::daw::ResourceLedger, false, false>::_M_payload.std::_Optional_payload<soundcurrent::daw::ResourceLedger, false, false, false>::<unnamed>.std::_Optional_payload<soundcurrent::daw::ResourceLedger, true, false, false>::<unnamed>.std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>::_M_payload)))[1].std::__shared_count<>::_M_pi\u2019 may be used uninitialized [-Wmaybe-uninitialized]",
+      "/usr/include/c++/15/bits/shared_ptr_base.h:1097:32: warning: \u2018((std::__shared_count<__gnu_cxx::_S_atomic>*)((char*)&<unnamed> + offsetof(soundcurrent::daw::MixConfig, soundcurrent::daw::MixConfig::resources.std::optional<soundcurrent::daw::ResourceLedger>::<unnamed>.std::_Optional_base<soundcurrent::daw::ResourceLedger, false, false>::_M_payload.std::_Optional_payload<soundcurrent::daw::ResourceLedger, false, false, false>::<unnamed>.std::_Optional_payload<soundcurrent::daw::ResourceLedger, true, false, false>::<unnamed>.std::_Optional_payload_base<soundcurrent::daw::ResourceLedger>::_M_payload)))[3].std::__shared_count<>::_M_pi\u2019 may be used uninitialized [-Wmaybe-uninitialized]",
+      "/home/rich/dev/soundcurrent-daw/src/mix_reader.cpp:18:17: warning: unused variable \u2018s\u2019 [-Wunused-variable]"
+    ]
+  },
+  "unchangedSources": {
+    "src/mix_reader.cpp": {
+      "gitBlob": "aa09b651b13d1ffa8df5eacc23de9acf3df3b8af",
+      "unchangedFromPrecedingProtectedSource": true
+    },
+    "src/mix_playback.cpp": {
+      "gitBlob": "97d4f7aa032b77b645c6dfc2759639dee022b2df",
+      "unchangedFromPrecedingProtectedSource": true
+    },
+    "include/soundcurrent/mix.hpp": {
+      "gitBlob": "b0c0db0ac0e6afeddf22ab27b5658f2afee374d0",
+      "unchangedFromPrecedingProtectedSource": true
+    }
+  },
+  "systemHeaderHashes": {
+    "/usr/include/c++/15/bits/shared_ptr_base.h": "a78944127d78c48425125f4bc16f1e3fb5b66d3adf381d4168f0298425172e96",
+    "/usr/include/c++/15/optional": "92ef82c491c1349505c4867683106c648e1e315c25d05fa50782f26ed1f75db1"
+  },
+  "flagsSuppressed": false,
+  "warningsAreNotClassifiedAsFalsePositives": true
+}
