@@ -119,6 +119,20 @@ MonitorClockPump PreparedMonitorProcessing::pumpClocks() noexcept {
     else if (result.captureReadings || result.renderReadings) result.code = MonitorProcessingCode::Progress;
     return result;
 }
+MonitorProcessingCode PreparedMonitorProcessing::schedule(Qpc100ns now) noexcept {
+    const auto s = buffer_.statistics();
+    if (s.nextOutputFrame != drift_.nextOutputFrame()) return MonitorProcessingCode::Progress;
+    const auto proposal = drift_.propose({config_.buffer.runGeneration,s.nextOutputFrame,now,s.queuedInputFrames});
+    if (proposal.code == MonitorDriftCode::WaitingClock || proposal.code == MonitorDriftCode::WaitingConfidence)
+        return MonitorProcessingCode::WaitingClock;
+    if (proposal.code != MonitorDriftCode::Ready) return fail(MonitorProcessingCause::Clock);
+    if (buffer_.enqueue(proposal.event) != MonitorBufferCode::Accepted ||
+        drift_.commit(proposal.event) != MonitorDriftCode::Committed) {
+        drift_.rejectEvent(); return fail(MonitorProcessingCause::Clock);
+    }
+    clockEstablished_ = true;
+    return MonitorProcessingCode::Progress;
+}
 MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     if (fault_) return MonitorProcessingCode::Fault;
     if (cancelled_) return MonitorProcessingCode::Cancelled;
@@ -157,11 +171,21 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         return MonitorProcessingCode::Progress;
     }
     if (s.ended) { output_.finish(); done_ = true; return MonitorProcessingCode::Done; }
-    if (!s.closing && (holding_ || s.queuedInputFrames < std::max(s.warmupInputFrames,
+    const bool atPlannedEnd = s.plannedOutputEnd && s.nextOutputFrame == *s.plannedOutputEnd;
+    if (!s.closing && (holding_ || atPlannedEnd || s.queuedInputFrames < std::max(s.warmupInputFrames,
                                                config_.drift.targetQueuedSourceFrames))) {
         if (!holding_) {
             const auto code = capture_.acquireMonitor(held_);
             if (code == CaptureBankRead::Ready) holding_ = true;
+            else if (code == CaptureBankRead::Drained && s.plannedOutputEnd) {
+                if (!clockEstablished_ && *s.plannedOutputEnd > config_.buffer.outputFrameBase) {
+                    const auto scheduled = schedule(now);
+                    if (scheduled != MonitorProcessingCode::Progress) return scheduled;
+                }
+                if (buffer_.finishAt(*s.plannedOutputEnd) != MonitorBufferCode::Accepted)
+                    return fail(MonitorProcessingCause::Buffer);
+                return MonitorProcessingCode::Progress;
+            }
             else if (code == CaptureBankRead::Drained && clockEstablished_) return MonitorProcessingCode::NeedEnd;
             else if (code == CaptureBankRead::Drained && s.queuedInputFrames < s.warmupInputFrames)
                 return MonitorProcessingCode::NeedEnd;
@@ -175,21 +199,19 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
                 return MonitorProcessingCode::Progress;
             }
             if (code != MonitorBufferCode::InputFull) return fail(MonitorProcessingCause::Buffer);
+            if (atPlannedEnd) {
+                buffer_.signalFault(MonitorBufferFaultCode::InputOverrun);
+                return fail(MonitorProcessingCause::PostrollCapacity);
+            }
         }
     }
     s = buffer_.statistics();
     if (!s.closing && !s.primed && s.queuedInputFrames < s.warmupInputFrames)
         return MonitorProcessingCode::NeedInput;
-    if (!s.closing && s.nextOutputFrame == drift_.nextOutputFrame()) {
-        const auto proposal = drift_.propose({config_.buffer.runGeneration,s.nextOutputFrame,now,s.queuedInputFrames});
-        if (proposal.code == MonitorDriftCode::WaitingClock || proposal.code == MonitorDriftCode::WaitingConfidence)
-            return MonitorProcessingCode::WaitingClock;
-        if (proposal.code != MonitorDriftCode::Ready) return fail(MonitorProcessingCause::Clock);
-        if (buffer_.enqueue(proposal.event) != MonitorBufferCode::Accepted ||
-            drift_.commit(proposal.event) != MonitorDriftCode::Committed) {
-            drift_.rejectEvent(); return fail(MonitorProcessingCause::Clock);
-        }
-        clockEstablished_ = true;
+    if (atPlannedEnd && !s.closing) return MonitorProcessingCode::NeedInput;
+    if (!s.closing) {
+        const auto scheduled = schedule(now);
+        if (scheduled != MonitorProcessingCode::Progress) return scheduled;
     }
     if (calls_ == UINT64_MAX) { buffer_.signalFault(MonitorBufferFaultCode::CounterOverflow); return fail(MonitorProcessingCause::Buffer); }
     const auto code = buffer_.service(); ++calls_;
@@ -198,6 +220,10 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         return MonitorProcessingCode::NeedInput;
     if (code == MonitorBufferCode::Cancelled) { cancel(); return MonitorProcessingCode::Cancelled; }
     return MonitorProcessingCode::Progress;
+}
+bool PreparedMonitorProcessing::planEnd(MonitorOutputOrdinal end) noexcept {
+    if (fault_ || done_ || cancelled_) return false;
+    return buffer_.planEnd(end.value) == MonitorBufferCode::Accepted;
 }
 bool PreparedMonitorProcessing::finishAt(MonitorOutputOrdinal end) noexcept {
     if (fault_ || done_ || cancelled_ || !clockEstablished_ || holding_ ||

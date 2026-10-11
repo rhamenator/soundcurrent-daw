@@ -42,6 +42,7 @@ void compose(unsigned kind) {
     PreparedMonitorProcessing p(f,o,pc,&clocks);
     OriginalRecordingOptions options;options.resources=ledger;options.checkpointFrames=512;
     OriginalCaptureWriter writer(t.root,spec,options);
+    check(rt([&]{return p.planEnd({oc.first.value+3072});}),"Combined early end refused");
     unsigned inputFrames=0;for(unsigned n=0;n<256;++n)inputFrames+=1+n%31;
     std::vector<float> source(std::size_t(inputFrames)*channels);
     for(unsigned n=0;n<inputFrames;++n)for(unsigned c=0;c<channels;++c)
@@ -51,7 +52,7 @@ void compose(unsigned kind) {
     std::barrier phase(4);std::atomic<bool> failed{false},terminal{false};std::atomic<unsigned> failedLine{0};
     const auto fail=[&](unsigned line){unsigned zero=0;failedLine.compare_exchange_strong(zero,line);failed.store(true);};
     std::array<rt_audit::Counts,4> audits{};
-    std::vector<float> rendered;rendered.reserve(3600*channels);
+    std::vector<float> rendered;rendered.reserve(3072*channels);
     std::uint64_t rawSeen=0,rawPackets=0,clockPumps=0,pressure=0,primedAt=0;bool activated=false,closed=false;
     std::optional<CaptureBankStamp> firstRaw,lastRaw;
     std::exception_ptr diskError;
@@ -90,7 +91,8 @@ void compose(unsigned kind) {
                         const auto retry=rt([&]{return p.step({qpc(r)+1});});const auto after=p.statistics();
                         if(retry!=code || before.buffer!=after.buffer || before.pendingOutputFrames!=after.pendingOutputFrames || before.serviceCalls!=after.serviceCalls)fail(__LINE__);
                     }
-                    if(code==MonitorProcessingCode::NeedEnd && !closed){closed=rt([&]{return p.finishAt({oc.first.value+3600});});if(!closed)fail(__LINE__);}
+                    if(code==MonitorProcessingCode::NeedEnd)fail(__LINE__);
+                    closed=p.statistics().buffer.closing;
                     if(code==MonitorProcessingCode::Done || code==MonitorProcessingCode::Fault || code==MonitorProcessingCode::Cancelled){terminal.store(true);break;}
                 }
             }
@@ -148,7 +150,7 @@ void compose(unsigned kind) {
     for(const auto &a:audits)check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Combined guarded audit");
     if(kind==0){
         check(p.statistics().done && closed && activated && primedAt>3 && pressure>0,"Healthy startup/priming/pressure/end");
-        check(rawSeen==4004 && rendered.size()==3600*channels && o.drained(),"Healthy original/monitor extents");
+        check(rawSeen==4004 && rendered.size()==3072*channels && o.drained(),"Healthy original/monitor extents");
         bool headroom=false;for(float x:rendered){check(std::isfinite(x),"Nonfinite healthy output");headroom|=std::abs(x)>1.f;}
         check(headroom && verified.finitePrefixFrames==4004 && !verified.endFault,"Headroom or original finite prefix lost");
         check(clockPumps>512,"Advancing observations not consumed");

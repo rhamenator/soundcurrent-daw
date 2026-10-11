@@ -159,6 +159,8 @@ MonitorBufferCode PreparedMonitorBuffer::service() noexcept {
     auto &s = *state_;
     const auto t = s.terminal();
     if (t != MonitorBufferCode::Accepted) return t;
+    if (s.stats.plannedOutputEnd && s.stats.nextOutputFrame == *s.stats.plannedOutputEnd && !s.stats.closing)
+        return MonitorBufferCode::WaitingEndInput;
     if (s.stats.closing && s.stats.nextOutputFrame == s.outputEnd) {
         if (s.stats.pendingGridFrames > s.config.outputCapacityFrames - s.stats.queuedOutputFrames)
             return MonitorBufferCode::NeedOutput;
@@ -172,7 +174,10 @@ MonitorBufferCode PreparedMonitorBuffer::service() noexcept {
         s.stats.primed = true;
     }
     auto gridTarget = gridFrames;
-    if (s.stats.closing) gridTarget = std::uint32_t(std::min<std::uint64_t>(gridTarget, s.outputEnd - s.gridStart));
+    if (s.stats.closing || s.stats.plannedOutputEnd) {
+        const auto end = s.stats.closing ? s.outputEnd : *s.stats.plannedOutputEnd;
+        gridTarget = std::uint32_t(std::min<std::uint64_t>(gridTarget, end - s.gridStart));
+    }
     if (gridTarget > s.config.outputCapacityFrames - s.stats.queuedOutputFrames)
         return MonitorBufferCode::NeedOutput;
     if (!s.gridStarted) {
@@ -248,11 +253,21 @@ MonitorBufferRead PreparedMonitorBuffer::pull(std::span<float> out) noexcept {
     s.stats.deliveredOutputFrames += n; // Bounded by generatedOutputFrames.
     return {MonitorBufferCode::OutputReady, n};
 }
+MonitorBufferCode PreparedMonitorBuffer::planEnd(std::uint64_t end) noexcept {
+    auto &s = *state_;
+    const auto t = s.terminal();
+    if (t != MonitorBufferCode::Accepted) return t;
+    if (s.stats.closing || end < s.stats.nextOutputFrame ||
+        (s.stats.plannedOutputEnd && *s.stats.plannedOutputEnd != end)) return MonitorBufferCode::InvalidEnd;
+    s.stats.plannedOutputEnd = end;
+    return MonitorBufferCode::Accepted;
+}
 MonitorBufferCode PreparedMonitorBuffer::finishAt(std::uint64_t end) noexcept {
     auto &s = *state_;
     const auto t = s.terminal();
     if (t != MonitorBufferCode::Accepted) return t;
-    if (s.stats.closing || end < s.stats.nextOutputFrame) return MonitorBufferCode::InvalidEnd;
+    if (s.stats.closing || end < s.stats.nextOutputFrame ||
+        (s.stats.plannedOutputEnd && *s.stats.plannedOutputEnd != end)) return MonitorBufferCode::InvalidEnd;
     s.outputEnd = end;
     s.stats.closing = true;
     return MonitorBufferCode::Accepted;
