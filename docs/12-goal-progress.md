@@ -4568,3 +4568,18 @@ localization files byte-identical. Actual13 isolated refusals and translator-wor
 preservation passed. Native review/full UI remains zero. The71,095-byte packet and
 [Checkpoint185](185-logical-recording-credit.md) retain original failure/new binding.
 Fresh current-head checks remain required; no stale Windows cohort is admitted.
+
+## Typed monitor output transport (2026-10-11)
+
+Frozen65924c67 adds an original charged two-owner output slab/SPSC bank with
+generation-bound integer monitor ordinals, finite/headroom-preserving whole
+blocks, nonmutating retryable backpressure and bounded partial render pulls.
+Empty never synthesizes silence or underflow. Distinct immutable producer/render
+faults survive late dual-owner loss; Stop drains, monitor cancel/consumer loss
+discard only after join, and abandoned producer is faulted explicitly.
+Linux Release0.04s, ASan/UBSan0.69s and TSan0.59s passed788 checks plus actual
+two-owner3/256-channel bit comparisons. Guarded intercepted operations zero.
+A55,006-byte/10-member packet binds559 source inputs/three executable hashes.
+[Checkpoint187](187-monitor-output-transport.md) and ADR120 record remaining native,
+Windows, processing composition/quality and complete-product/localization gates.
+Next: durable original raw metadata and the composed bounded processing owner.
