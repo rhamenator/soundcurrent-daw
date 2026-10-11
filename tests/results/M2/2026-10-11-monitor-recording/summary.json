@@ -1,0 +1,41 @@
+{
+  "format": "sc-combined-monitor-recording-v1",
+  "sourceCommit": "618d5ef50fb0796fb30caa932601e8e1546079c8",
+  "sourceTree": "47fd5cecb7590a46c9700a56239aed51c452ce3a",
+  "captureBytes": 60948,
+  "captureSha256": "97ed2746ee4160e539a0a9d223c7f2a1e46c8c6b90faca04734d78c287254f21",
+  "members": 18,
+  "selectedInputs": 569,
+  "executableHashes": 3,
+  "profiles": {
+    "release": {
+      "checks": 10832,
+      "seconds": 0.05
+    },
+    "asanUbsan": {
+      "checks": 10832,
+      "seconds": 0.32
+    },
+    "tsan": {
+      "checks": 10832,
+      "seconds": 0.38
+    }
+  },
+  "owners": 4,
+  "schedule": "three phased fixture barriers per advancing logical-time round; not uncontrolled native pace",
+  "healthyRawFrames": 4004,
+  "healthyRawPackets": 256,
+  "healthyMonitorFrames": 3600,
+  "healthyOriginalClockReadings": 518,
+  "faultRawFrames": 1999,
+  "faultRawPackets": 129,
+  "guardedAllocateFreeLock": 0,
+  "diskWritesAndInspectionsExecuted": true,
+  "originalSampleAndStampDigestsVerified": true,
+  "nativeSdkQualified": false,
+  "windowsExecuted": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
