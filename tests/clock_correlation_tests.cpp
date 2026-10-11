@@ -204,10 +204,15 @@ void admissionAndRealtime() {
     ok &= fault.observe(capture(1440,10300000))==S::Discontinuity;
     rt_audit::active=false;
     require(ok,"rolling fit long-session RT mapping");
-    require(rt_audit::counts.cppAllocate==0 && rt_audit::counts.cppFree==0 &&
-            rt_audit::counts.cAllocate==0 && rt_audit::counts.cFree==0 &&
-            rt_audit::counts.blockingLock==0,"RT allocation/free/blocking-lock audit");
-    std::cout << "20000 rolling RT observations/projections: allocations=0 frees=0 blockingLocks=0\n";
+    require(rt_audit::counts.cppAllocate==0 && rt_audit::counts.cppFree==0,"RT C++ allocation/free audit");
+    std::cout << "20000 rolling RT observations/projections: cppAllocations=0 cppFrees=0";
+#ifdef SC_WRAP_LIBC
+    require(rt_audit::counts.cAllocate==0 && rt_audit::counts.cFree==0 &&
+            rt_audit::counts.blockingLock==0,"RT interposed libc/pthread audit");
+    std::cout << " libcInterposition=enabled cAllocations=0 cFrees=0 blockingLocks=0\n";
+#else
+    std::cout << " libcInterposition=disabled (C allocations and blocking locks not intercepted)\n";
+#endif
 }
 }
 int main() {
