@@ -188,7 +188,7 @@ struct FailureTiming {
         }
     }
 };
-Session source(const std::filesystem::path &root, bool mix) {
+Session source(const std::filesystem::path &root, bool mix, bool loop) {
     auto s = makeOneTrackSession("Native GUI – Δοκιμή", "Owned file");
     CapturePipe pipe({});
     RecordingSpec spec;
@@ -198,8 +198,9 @@ Session source(const std::filesystem::path &root, bool mix) {
     CaptureWriter writer(root, spec);
     std::array<float, 1024> input{};
     std::array<const float *, 1> views{input.data()};
-    for (Frame f = 0; f < 480000; f += 1024) {
-        const auto n = static_cast<std::uint32_t>(std::min<Frame>(1024, 480000 - f));
+    const Frame sourceFrames = loop ? 96000 : 480000;
+    for (Frame f = 0; f < sourceFrames; f += 1024) {
+        const auto n = static_cast<std::uint32_t>(std::min<Frame>(1024, sourceFrames - f));
         for (std::uint32_t k = 0; k < n; ++k)
             input[k] = signal(f + k);
         require(pipe.push(views, n, f).acceptedFrames == n, "Owned source write failed");
@@ -230,6 +231,8 @@ Session source(const std::filesystem::path &root, bool mix) {
             master.plan.tracks.push_back({s.tracks[t].id, {{0, 0, .125 * double(1 + t % 3)}}});
         s.master = std::move(master);
     }
+    if (loop)
+        s.loop = {true, 1003, 18776}; // Non-quantum-aligned, persisted project range.
     ProjectStore(root).save(s);
     return ProjectStore(root).load();
 }
@@ -237,19 +240,21 @@ Session source(const std::filesystem::path &root, bool mix) {
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
     try {
-        require(argc == 3, "Supply new owned project folder and normal/disconnect");
+        require(argc == 3, "Supply new owned project folder and native GUI mode");
+        const bool looping = std::string_view(argv[2]) == "loop";
         const bool injectGap = std::string_view(argv[2]) == "mix-gap";
         const bool mix = injectGap || std::string_view(argv[2]) == "mix" ||
                          std::string_view(argv[2]) == "mix-disconnect";
         const bool disconnect = std::string_view(argv[2]) == "disconnect" ||
                                 std::string_view(argv[2]) == "mix-disconnect";
         const bool exporting = std::string_view(argv[2]) == "export";
-        require(mix || disconnect || exporting || std::string_view(argv[2]) == "normal",
+        require(looping || mix || disconnect || exporting || std::string_view(argv[2]) == "normal",
                 "Unknown native GUI mode");
         const auto root = utf8Path(argv[1]);
         require(std::filesystem::create_directory(root), "Owned project already exists");
         std::cerr << "Preparing owned GUI file source\n";
-        const auto s = source(root, mix);
+        const auto s = source(root, mix, looping);
+        const auto rawHash = hashMediaFile(root / utf8Path(s.assets.front().relativePath));
         const std::size_t editedLane = mix ? 17 : 0;
         const auto projectHash = hashMediaFile(root / "project.json");
         CapturePipe captured({});
@@ -306,6 +311,12 @@ int main(int argc, char **argv) {
         require(window.playbackSnapshot()->tracks == s.tracks.size() &&
                     window.playbackSnapshot()->projectMix == mix,
                 "Native GUI mix shape differs");
+        if (looping) {
+            auto *loop = window.findChild<QCheckBox *>("loopPlaybackEnabled");
+            require(loop && loop->isChecked() && !loop->isEnabled() &&
+                        window.playbackSnapshot()->loop == std::optional(PlaybackLoopRegion{1003,18776}),
+                    "Saved native loop intent was not prepared or active controls were editable");
+        }
         require(!player.calls && window.playbackSnapshot()->appliedRevision == 0,
                 "Preparation played without output selection");
         auto *combo = window.findChild<QComboBox *>(QStringLiteral("outputChannel0"));
@@ -400,6 +411,8 @@ int main(int argc, char **argv) {
                     "Native GUI export failed or interrupted playback");
         }
 
+        Frame loopStopPosition = 0;
+        std::uint64_t loopPasses = 0;
         auto edited = s;
         edited.tracks[editedLane].eq.bands.front().gainDb = -3;
         PreparedEq offline(s, s.tracks[editedLane].id, 2048, firstReceipt.generation);
@@ -451,7 +464,7 @@ int main(int argc, char **argv) {
             events.push_back(
                 offline.parameterEvent(s, address, window.playbackSnapshot()->appliedFrame));
             await([&] {
-                return (window.playbackSnapshot()->phase == PlaybackPhase::Complete &&
+                return ((looping || window.playbackSnapshot()->phase == PlaybackPhase::Complete) &&
                         sink.complete) ||
                        window.playbackSnapshot()->phase == PlaybackPhase::Fault || sink.gap;
             });
@@ -466,9 +479,36 @@ int main(int argc, char **argv) {
                           << sink.gapExpected.load() << '/' << sink.gapObserved.load() << '/'
                           << sink.gapDuration.load() << '/' << sink.unavailableInputs.load()
                           << '\n';
-            require(window.playbackSnapshot()->phase == PlaybackPhase::Complete && sink.complete &&
-                        !sink.gap,
-                    "GUI file playback did not complete");
+            if (looping) {
+                await([&] { return window.playbackSnapshot()->position >= 480000 || window.playbackSnapshot()->phase == PlaybackPhase::Fault; });
+                const auto running = window.playbackSnapshot();
+                loopStopPosition = running->position;
+                loopPasses = running->loopPass;
+                require(running->phase == PlaybackPhase::Playing && sink.complete && !sink.gap &&
+                            !running->missingFrames && !running->droppedReceipts &&
+                            running->position >= 480000 && running->position > s.assets.front().frames &&
+                            running->projectPosition == 1003 + running->position % 17773 &&
+                            running->loopPass == std::uint64_t(running->position / 17773) &&
+                            loopPasses >= 27 &&
+                            window.findChild<QLabel *>("playbackStatus")->text().contains("Loop pass"),
+                        "Native loop status or until-Stop lifetime differs");
+                auto *stop = window.findChild<QPushButton *>("stopButton");
+                await([&] { return stop->isEnabled(); });
+                QTest::mouseClick(stop, Qt::LeftButton);
+                auto *enabled = window.findChild<QCheckBox *>("loopPlaybackEnabled");
+                await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Idle && enabled->isEnabled(); });
+                enabled->setFocus();QTest::keyClick(enabled, Qt::Key_Space);
+                await([&] { return window.snapshot()->session->loop == LoopSettings{false,1003,18776}; });
+                require(window.preparePlayback(), "Native restored linear preparation refused");
+                await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Ready; });
+                require(!window.playbackSnapshot()->loop, "Native linear reprepare retained a stale loop");
+                await([&] { return stop->isEnabled(); });
+                QTest::mouseClick(stop, Qt::LeftButton);
+                await([&] { return window.playbackSnapshot()->phase == PlaybackPhase::Idle; });
+            } else
+                require(window.playbackSnapshot()->phase == PlaybackPhase::Complete && sink.complete &&
+                            !sink.gap,
+                        "GUI file playback did not complete");
             monitor.stop();
         }
         std::cerr << "Native GUI terminal; closing window\n";
@@ -522,7 +562,8 @@ int main(int argc, char **argv) {
             for (std::size_t t = 0; t < s.tracks.size(); ++t) {
                 const auto &clip = s.tracks[t].clips.front();
                 for (std::uint32_t k = 0; k < n; ++k) {
-                    const auto at = f + k;
+                    // Independent expected project cursor; do not replay the production mapper.
+                    const auto at = looping ? 1003 + (f + k) % 17773 : f + k;
                     input[k] = at >= clip.startFrame && at < clip.startFrame + clip.lengthFrames
                                    ? signal(clip.sourceFrame + at - clip.startFrame)
                                    : 0.f;
@@ -559,11 +600,18 @@ int main(int argc, char **argv) {
         require(!player.allocations && !player.frees && !player.locks && !sink.allocations &&
                     !sink.frees && !sink.locks,
                 "GUI integration introduced callback allocation/free/lock");
-        require(hashMediaFile(root / "project.json") == projectHash &&
+        require(hashMediaFile(root / utf8Path(s.assets.front().relativePath)) == rawHash &&
+                    hashMediaFile(root / "project.json") == projectHash &&
                     ProjectStore(root).load() == s,
                 "GUI playback/discard modified saved project");
         std::cout << "{\"mode\":\"" << argv[2] << "\",\"frames\":" << result.asset.frames
                   << ",\"tracks\":" << s.tracks.size()
+                  << ",\"native_loop_playback\":" << (looping ? "true" : "false")
+                  << ",\"loop_start\":" << (looping ? 1003 : 0)
+                  << ",\"loop_end\":" << (looping ? 18776 : 0)
+                  << ",\"loop_stop_position\":" << loopStopPosition
+                  << ",\"loop_passes\":" << loopPasses
+                  << ",\"raw_unchanged\":true"
                   << ",\"saved_master\":" << (s.master ? "true" : "false")
                   << ",\"gui_export_during_playback\":" << (exporting ? "true" : "false")
                   << ",\"export_live_prefix_frames\":"
