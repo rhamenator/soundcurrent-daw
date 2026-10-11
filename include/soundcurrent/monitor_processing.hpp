@@ -7,6 +7,7 @@
 #include "monitor_control.hpp"
 #include "monitor_capture_stop.hpp"
 #include "monitor_startup_handoff.hpp"
+#include "monitor_channel_map.hpp"
 
 namespace soundcurrent::daw {
 // Opt-in prepared startup admission. The caller supplies ACTUAL native geometry,
@@ -25,13 +26,16 @@ struct MonitorProcessingConfig {
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     std::optional<ResourceLedger> resources;
     std::optional<MonitorStartupConfig> startup;
+    // Monitor-only, after conversion. Absence means exact same-width identity.
+    // Startup handoffs must admit its canonical immutable fingerprint.
+    std::optional<MonitorChannelMap> channelMap;
 };
 enum class MonitorProcessingCode {
     Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault, ControlFull
 };
 enum class MonitorProcessingCause {
     Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd,
-    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff
+    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff, ChannelMap
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -90,6 +94,10 @@ class PreparedMonitorProcessing {
     void cancel() noexcept; // Stops future capture; preserves accepted raw route.
     void settleAfterJoin() noexcept; // Control only AFTER processing owner joins.
     MonitorProcessingStatistics statistics() const noexcept;
+    // Fixed atomic receipt: original source frames copied into the startup ring
+    // or converter AND released back to the capture bank. Includes subsequently
+    // discarded startup history; NOT audible/DSP/output/project frame mapping.
+    std::uint64_t copiedSourceFrames() const noexcept { return copiedSourceFrames_.load(std::memory_order_acquire); }
     std::optional<MonitorProcessingFault> firstFault() const noexcept { return fault_; }
     std::optional<MonitorDriftFault> clockFault() const noexcept { return drift_.firstFault(); }
     std::optional<MonitorBufferFault> bufferFault() const noexcept { return buffer_.firstFault(); }
@@ -106,6 +114,8 @@ class PreparedMonitorProcessing {
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;
     std::vector<float> pending_;
+    std::optional<PreparedMonitorChannelMap> channelMap_;
+    std::vector<float> mappedPending_;
     struct StartupPacket { CaptureBankStamp original; std::uint32_t offset = 0; };
     std::vector<float> startupSamples_;
     std::vector<StartupPacket> startupPackets_;
@@ -119,8 +129,9 @@ class PreparedMonitorProcessing {
     std::uint64_t published_ = 0, discarded_ = 0, calls_ = 0;
     std::size_t bytes_ = 0;
     bool holding_ = false, done_ = false, cancelled_ = false, clockEstablished_ = false;
+    std::atomic<std::uint64_t> copiedSourceFrames_{0};
     MonitorProcessingCode fail(MonitorProcessingCause) noexcept;
-    bool release() noexcept;
+    bool release(bool copied = false) noexcept;
     MonitorProcessingCode schedule(Qpc100ns) noexcept;
     MonitorProcessingCode validate(Qpc100ns) noexcept;
     MonitorProcessingCode startupStep(Qpc100ns) noexcept;

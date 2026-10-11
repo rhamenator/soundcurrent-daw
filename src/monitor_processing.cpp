@@ -14,6 +14,7 @@ CaptureFanoutConfig geometry(const PreparedCaptureFanout &f) {
 ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutputBank &o,
                       const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks,
                       const PreparedMonitorControl *control, const PreparedMonitorCaptureStop *stop, const PreparedMonitorStartupHandoff *startup) {
+    require(!c.channelMap || !c.startup || startup,"Mapped startup requires immutable receipt handoff");
     if (stop) {
         const auto &s=stop->config();const auto &b=c.buffer;
         require(s.runGeneration==b.runGeneration && s.sourceRate==b.sourceRate && s.channels==b.channels &&
@@ -38,7 +39,8 @@ ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutpu
         const auto &a=startup->admission();const auto &b=c.buffer;const auto &d=c.drift;
         require(c.startup && !startup->claimed() && startup->phase()==MonitorStartupHandoffPhase::Pending && !startup->ready() &&
             a.runGeneration==b.runGeneration && a.captureIdentity==d.captureIdentity && a.renderIdentity==d.renderIdentity &&
-            a.sourceRate==b.sourceRate && a.outputRate==b.outputRate && a.channels==b.channels &&
+            a.sourceRate==b.sourceRate && a.outputRate==b.outputRate && a.channels==o.config().channels &&
+            a.channelMap==(c.channelMap?std::optional(monitorChannelMapReceipt(*c.channelMap)):std::nullopt) &&
             a.renderFrequency==d.renderFrequency && a.nativeCapacityFrames==c.startup->nativeCapacityFrames &&
             a.maximumNativeFillFrames==c.startup->maximumNativeFillFrames && a.maximumWait100ns==c.startup->maximumWait100ns,
             "Monitor startup handoff configuration mismatch or reused");
@@ -70,7 +72,7 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     require(!b.resources && !d.resources, "Use the processing group's resource ledger");
     require(f.capture.channels == b.channels && f.capture.sampleRate == b.sourceRate &&
         f.capture.maximumPacketFrames == b.maximumInputFrames && f.capture.identity == d.captureIdentity &&
-        o.channels == b.channels && o.sampleRate == b.outputRate && o.generation == b.runGeneration &&
+        (c.channelMap || o.channels == b.channels) && o.sampleRate == b.outputRate && o.generation == b.runGeneration &&
         o.first.value == b.outputFrameBase && o.maximumBlockFrames >= PreparedMonitorBuffer::gridFrames &&
         b.sourceRate == d.sourceRate && b.outputRate == d.outputRate &&
         b.runGeneration == d.runGeneration && b.outputFrameBase == d.outputFrameBase &&
@@ -82,6 +84,14 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     PayloadCharge charge("Monitor processing group", c.memoryBudgetBytes);
     charge.add(monitorBufferPayloadBytes(b)); charge.add(PreparedMonitorDrift::payloadBytes);
     charge.add(8192); charge.add(std::size_t(PreparedMonitorBuffer::gridFrames) * b.channels, sizeof(float));
+    if (c.channelMap) {
+        require(c.channelMap->inputChannels==b.channels && c.channelMap->outputChannels==o.channels,
+            "Monitor channel map configuration mismatch");
+        charge.add(monitorChannelMapPayloadBytes(*c.channelMap,PreparedMonitorBuffer::gridFrames,c.memoryBudgetBytes));
+        // Both the retained declaration and the prepared immutable matrix own routes.
+        charge.add(c.channelMap->routes.size(),sizeof(ChannelMix));
+        charge.add(std::size_t(PreparedMonitorBuffer::gridFrames)*o.channels,sizeof(float));
+    }
     if (c.startup) {
         const auto frames = monitorStartupRetainedFrames(b,d,*c.startup);
         require(o.maximumPullFrames >= c.startup->maximumNativeFillFrames &&
@@ -102,7 +112,12 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
       drift_(config_.drift), buffer_(config_.buffer),
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
+    static_assert(std::atomic<std::uint64_t>::is_always_lock_free);
     bytes_ = monitorProcessingPayloadBytes(geometry(f),o.config(),config_);
+    if (config_.channelMap) {
+        channelMap_.emplace(*config_.channelMap,PreparedMonitorBuffer::gridFrames,config_.memoryBudgetBytes);
+        mappedPending_.resize(std::size_t(PreparedMonitorBuffer::gridFrames)*o.config().channels);
+    }
     if (config_.startup) {
         static_assert(sizeof(StartupPacket) <= sizeof(CaptureBankStamp) + 16);
         startup_.capacityFrames = monitorStartupRetainedFrames(config_.buffer,config_.drift,*config_.startup);
@@ -114,10 +129,13 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
     if(startupHandoff_)require(startupHandoff_->claimProcessingOwner(),"Monitor startup publisher already claimed");
 }
 PreparedMonitorProcessing::~PreparedMonitorProcessing() { settleAfterJoin(); }
-bool PreparedMonitorProcessing::release() noexcept {
+bool PreparedMonitorProcessing::release(bool copied) noexcept {
     if (!holding_) return true;
     const bool ok = capture_.releaseMonitor(held_);
-    if (ok) { holding_ = false; held_ = {}; }
+    if (ok) {
+        if (copied) copiedSourceFrames_.fetch_add(held_.token.original.frames,std::memory_order_release);
+        holding_ = false; held_ = {};
+    }
     return ok;
 }
 MonitorProcessingCode PreparedMonitorProcessing::fail(MonitorProcessingCause cause) noexcept {
@@ -298,7 +316,7 @@ MonitorProcessingCode PreparedMonitorProcessing::startupStep(Qpc100ns now) noexc
     if (code != CaptureBankRead::Ready) return fail(MonitorProcessingCause::CaptureLease);
     holding_ = true;
     if (!retainStartup()) return fail(MonitorProcessingCause::StartupInput);
-    if (!release()) return fail(MonitorProcessingCause::CaptureLease);
+    if (!release(true)) return fail(MonitorProcessingCause::CaptureLease);
     return MonitorProcessingCode::Progress;
 }
 MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
@@ -322,8 +340,9 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     // Retain a pulled block across arbitrary output pressure. Neither input nor
     // converter/controller advances until these exact bytes have been accepted.
     if (pendingStamp_.frames) {
-        const auto code = output_.publish(pendingStamp_, std::span<const float>(pending_.data(),
-            std::size_t(pendingStamp_.frames) * config_.buffer.channels));
+        const auto code = output_.publish(pendingStamp_, std::span<const float>(
+            channelMap_?mappedPending_.data():pending_.data(),
+            std::size_t(pendingStamp_.frames) * output_.config().channels));
         if (code == MonitorOutputCode::Backpressure) return MonitorProcessingCode::OutputFull;
         if (code != MonitorOutputCode::Accepted) return fail(MonitorProcessingCause::Output);
         published_ += pendingStamp_.frames; pendingStamp_ = {};
@@ -340,6 +359,10 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         const auto read = buffer_.pull(pending_);
         if (read.code != MonitorBufferCode::OutputReady || !read.frames)
             return fail(MonitorProcessingCause::Buffer);
+        if (channelMap_ && channelMap_->process(
+            {pending_.data(),std::size_t(read.frames)*config_.buffer.channels},
+            {mappedPending_.data(),std::size_t(read.frames)*output_.config().channels},read.frames)!=MonitorChannelMapCode::Mapped)
+            return fail(MonitorProcessingCause::ChannelMap);
         pendingStamp_ = {config_.buffer.runGeneration,{ordinal},read.frames};
         return MonitorProcessingCode::Progress;
     }
@@ -368,7 +391,7 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         if (holding_) {
             const auto code = buffer_.push(held_.interleaved);
             if (code == MonitorBufferCode::Accepted) {
-                if (!release()) return fail(MonitorProcessingCause::CaptureLease);
+                if (!release(true)) return fail(MonitorProcessingCause::CaptureLease);
                 return MonitorProcessingCode::Progress;
             }
             if (code != MonitorBufferCode::InputFull) return fail(MonitorProcessingCause::Buffer);
