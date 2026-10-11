@@ -12,6 +12,11 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#ifdef SC_NATIVE_STARTUP_STATE
+#include <soundcurrent/native_original_recording.hpp>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#endif
 using namespace soundcurrent::daw;
 namespace {
 std::atomic<unsigned> checks{0};
@@ -68,6 +73,10 @@ struct Model {
     WasapiRenderCallbacks cb;
     PreparedWasapiRenderLifecycle life;
     std::vector<float> pcm,backing;
+#ifdef SC_NATIVE_STARTUP_STATE
+    NativeOriginalCaptureWriter *writer=nullptr; // Synthetic disk owner, outside every RT guard.
+    std::uint64_t rawPackets=0,rawFrames=0;std::optional<CaptureBankStamp> lastRaw;
+#endif
     bool started=false;
     std::uint64_t submitted=64,contentSubmitted=0;
     unsigned tick=0;
@@ -107,6 +116,10 @@ struct Model {
         check(p.rawAcceptedFrames==frames && p.monitorAcceptedFrames==frames,"Original raw/monitor publication lost frames");
         CaptureBankView v;check(rt([&]{return capture.acquireRaw(v);})==CaptureBankRead::Ready && v.token.original==s,"Original raw stamp changed");
         for(std::size_t n=0;n<pcm.size();++n)check(std::bit_cast<std::uint32_t>(v.interleaved[n])==std::bit_cast<std::uint32_t>(pcm[n]),"Warmup altered raw PCM bits");
+#ifdef SC_NATIVE_STARTUP_STATE
+        if(writer)writer->append(v);
+        ++rawPackets;rawFrames+=frames;lastRaw=s;
+#endif
         check(rt([&]{return capture.releaseRaw(v);}),"Raw lease not returned");
         check(rt([&]{return clocks.publish(CaptureClockReading{s.identity,s.position,s.qpc});})==MonitorClockCode::Accepted,"Original capture clock refused");
     }
@@ -173,10 +186,116 @@ std::vector<float> reference(Model &m,std::uint64_t extent){
     }
     check(expected.size()>=extent*m.g.output.channels,"Independent converter prefix missing");return expected;
 }
+#ifdef SC_NATIVE_STARTUP_STATE
+struct StateTemp {
+    std::filesystem::path root=std::filesystem::temp_directory_path()/std::filesystem::path(u8"sc-startup-é-日本-")/Id::generate().str();
+    StateTemp(){std::filesystem::create_directories(root);}
+    ~StateTemp(){if(std::uncaught_exceptions()){std::cerr<<"Retained composed state "<<root<<'\n';return;}std::error_code ec;std::filesystem::remove_all(root,ec);}
+};
+NativeOriginalRecordingSpec stateSpec(const Model &m){
+    NativeOriginalRecordingSpec s;s.runGeneration=m.g.processing.buffer.runGeneration;
+    s.raw.identity=m.g.capture.capture.identity;s.raw.layout={LayoutKind::Discrete,m.g.output.channels};
+    s.raw.sampleRate=m.g.capture.capture.sampleRate;s.raw.maximumPacketFrames=m.g.capture.capture.maximumPacketFrames;
+    s.capture={s.raw.sampleRate,m.g.output.channels,s.raw.maximumPacketFrames,0,false,s.raw.identity};
+    s.render=m.g.format();s.monitorFirst=m.g.output.first;return s;
+}
+std::string readState(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);return {std::istreambuf_iterator<char>(f),{}};}
+void persistState(Model &m,NativeOriginalCaptureWriter &writer,const NativeOriginalRecordingSpec &spec,const WasapiMonitorRenderResult &result){
+    NativeOriginalRunOutcome o;o.captureGeneration=spec.runGeneration;o.captureStatus=MonitorCaptureEndStatus::Healthy;
+    WasapiCaptureEnd c;c.started=true;c.stopHresult=1;c.deliveredPackets=m.rawPackets;c.deliveredFrames=m.rawFrames;
+    const auto &last=*m.lastRaw;c.lastDelivered=WasapiDeliveredPacket{last.frames,last.flags,last.position.value,last.qpc.value};o.captureOriginal=c;
+    o.captureRequest=MonitorCaptureStopRequest{spec.runGeneration,MonitorCaptureStopKind::Horizon,result.monitorEnd->value,result.monitorEnd->value,m.rawFrames};o.render=result;
+    const auto saved=writer.finalize(m.capture,o);const auto verified=inspectNativeOriginalRecording(writer.jobDirectory(),spec);
+    const auto &v=verified.outcome->render;const auto &a=*v.original;const auto &b=*result.original;
+    check(saved.schemaMinor==1 && verified.schemaMinor==1 && saved.status==verified.status &&
+        saved.status==(result.status==WasapiMonitorRenderStatus::Complete?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Failed) &&
+        verified.raw.committedFrames==m.rawFrames && verified.raw.committedPackets==m.rawPackets && verified.raw.finalized &&
+        verified.raw.sampleSha256==saved.raw.sampleSha256 && verified.raw.stampSha256==saved.raw.stampSha256 &&
+        v.startupReady==result.startupReady && v.startupPhaseAtEnd==result.startupPhaseAtEnd && v.warmupLimits==result.warmupLimits &&
+        v.preLeaseCalls==result.preLeaseCalls && v.readyAcquiredQpc100ns==result.readyAcquiredQpc100ns &&
+        a.warmupLimits==b.warmupLimits && a.preLeaseCalls==b.preLeaseCalls && a.firstPreLeaseQpc100ns==b.firstPreLeaseQpc100ns &&
+        a.lastPreLeaseQpc100ns==b.lastPreLeaseQpc100ns && a.warmupLeaseAttempts==b.warmupLeaseAttempts &&
+        a.warmupCommittedFrames==b.warmupCommittedFrames && a.firstWarmupLease==b.firstWarmupLease && a.lastWarmupLease==b.lastWarmupLease &&
+        a.contentBegan==b.contentBegan && a.preLeaseStop==b.preLeaseStop && a.stopHresult==b.stopHresult,
+        "Actual composed startup lost original state/raw/SDK commitment");
+    if(m.g.output.channels==1 && m.g.capture.capture.sampleRate==48000 && result.status==WasapiMonitorRenderStatus::Complete){
+        using J=nlohmann::json;const auto path=writer.jobDirectory()/"native-run.json";const auto original=readState(path);
+        for(unsigned bad=0;bad<24;++bad){auto j=J::parse(original);auto &r=j["outcome"]["render"];auto &ready=r["startupReady"];auto &e=r["original"];
+            if(bad==0)ready["admitted"]["generation"]=2;
+            if(bad==1)ready["admitted"]["sourceRate"]=44100;
+            if(bad==2)ready["admitted"]["capture"]["stream"]=99;
+            if(bad==3)ready["admitted"]["nativeCapacity"]=4096;
+            if(bad==4)ready["published"]=4096;
+            if(bad==5)ready["original"]["retained"]=1;
+            if(bad==6)ready["original"]["transferred"]=1;
+            if(bad==7)ready["original"]["accepted"]=UINT64_MAX;
+            if(bad==8)ready["original"]["firstTransferred"]["packetOffset"]=UINT32_MAX;
+            if(bad==9)r["readyAcquired100ns"]=0;
+            if(bad==10)r["startupPhaseAtEnd"]="fault";
+            if(bad==11)r["preLeaseCalls"]=1;
+            if(bad==12)e["warmupCommitted"]=UINT64_MAX;
+            if(bad==13)e["contentBegan"]=false;
+            if(bad==14)e["preLeaseStop"]="timeout";
+            if(bad==15)e["firstWarmup"]["release"]=nullptr;
+            if(bad==16)e["lastWarmup"]["acquire"]=-1;
+            if(bad==17)e["lastWarmup"]["clock"]["qpc100ns"]=UINT64_MAX;
+            if(bad==18)r["warmupLimits"]["maximumWait100ns"]=0;
+            if(bad==19)ready["asOf100ns"]=1.0;
+            if(bad==20)ready["extra"]=0;
+            if(bad==21)e["firstWarmup"]["release"]=UINT64_MAX;
+            if(bad==22)ready["original"]["phase"]="future";
+            if(bad==23)e["firstWarmup"].erase("clock");
+            {std::ofstream f(path,std::ios::binary|std::ios::trunc);f<<j.dump();check(bool(f),"Mutation write failed");}
+            refuses([&]{inspectNativeOriginalRecording(writer.jobDirectory(),spec);});
+            {std::ofstream f(path,std::ios::binary|std::ios::trunc);f<<original;check(bool(f),"Restore original state failed");}
+        }
+        check(inspectNativeOriginalRecording(writer.jobDirectory(),spec).status==NativeOriginalRecordingStatus::Complete,"Mutation refusal altered original run");
+    }
+    std::cout<<"composed state1.1 rawFrames="<<m.rawFrames<<" retainedRawHash=true fullReadyRoundtrip=true fakeSDK=true\n";
+}
+void diagnosticState(){
+    for(unsigned kind=0;kind<7;++kind){StateTemp temp;Model m;const auto spec=stateSpec(m);NativeOriginalRecordingOptions opts;opts.raw.resources=m.ledger;
+        auto writer=std::make_unique<NativeOriginalCaptureWriter>(temp.root,spec,opts);m.writer=writer.get();
+        if((kind>=1 && kind<=4) || kind==6)m.ready();
+        if(kind==0 || kind==1 || kind==6){if(kind==1)m.content();m.binding.requestCancel();}
+        if(kind==2)m.startup.fail();
+        if(kind==3){check(m.content()==WasapiRenderAction::Continue,"Diagnostic initial content lost");++m.tick;check(m.content()==WasapiRenderAction::Abort,"Diagnostic underflow hidden");}
+        if(kind==4)m.context.settleAfterJoin();
+        else if(kind==5){m.warm(480,-17,{});m.cb.unavailable(m.cb.context,-17);m.end(1,WasapiStreamFailure{-17,2});}
+        else {if(kind!=3){const auto r=m.reading();const auto action=m.pre();check(action==WasapiPreLeaseAction::Abort,"Terminal diagnostic authorized lease");m.life.beforeLease(action,480,r,m.now());}m.end();}
+        const auto original=*m.context.result();m.settle();NativeOriginalRunOutcome o;o.captureGeneration=spec.runGeneration;o.captureStatus=MonitorCaptureEndStatus::OwnerLost;o.render=original;
+        const auto job=writer->jobDirectory();NativeOriginalRecordingPrefix saved;
+        if(kind==6 || !m.rawFrames){if(m.rawFrames)writer->checkpoint();writer.reset();m.writer=nullptr;saved=reportNativeOriginalRecording(job,spec,o);}
+        else saved=writer->finalize(m.capture,o);
+        const auto verified=inspectNativeOriginalRecording(job,spec);const auto &v=verified.outcome->render;
+        check(verified.schemaMinor==1 && verified.raw.committedFrames==m.rawFrames && verified.raw.finalized==(kind!=6 && m.rawFrames!=0) &&
+            verified.outcome->captureStatus==MonitorCaptureEndStatus::OwnerLost && !verified.outcome->captureOriginal &&
+            v.status==original.status && v.warmupLimits==original.warmupLimits && v.preLeaseCalls==original.preLeaseCalls &&
+            v.readyAcquiredQpc100ns==original.readyAcquiredQpc100ns && v.startupReady==original.startupReady &&
+            v.startupPhaseAtEnd==original.startupPhaseAtEnd && bool(v.original)==bool(original.original) &&
+            bool(v.firstFault)==bool(original.firstFault) && v.consumedMonitorFrames==original.consumedMonitorFrames &&
+            v.requestedNativeFrames==original.requestedNativeFrames && v.firstUnavailable==original.firstUnavailable && saved.status==verified.status,
+            "Original diagnostic/partial startup disposition normalized in recovery");
+        if(v.firstFault)check(v.firstFault->cause==original.firstFault->cause && bool(v.firstFault->attempted)==bool(original.firstFault->attempted),"Startup fault token lost");
+        if(v.original){const auto &a=*v.original;const auto &b=*original.original;
+            check(a.preLeaseCalls==b.preLeaseCalls && a.firstWarmupLease==b.firstWarmupLease && a.lastWarmupLease==b.lastWarmupLease &&
+                a.warmupCommittedFrames==b.warmupCommittedFrames && a.preLeaseStop==b.preLeaseStop && a.contentBegan==b.contentBegan &&
+                a.contentCommittedFrames==b.contentCommittedFrames,"Failed/partial SDK commitment replaced by consumed PCM");}
+        std::cout<<"diagnostic state1.1 kind="<<kind<<" rawFrames="<<m.rawFrames<<" status="<<unsigned(v.status)<<" partial="<<(!verified.raw.finalized)<<" fakeSDK=true\n";
+    }
+}
+
+#endif
 void success(unsigned channels,unsigned rate,bool failedStop=false){
     ResourceLedger credit(256*1024*1024);
     {
-        Model m(channels,rate);credit=m.ledger;m.ready();const auto original=m.startup.ready();
+        Model m(channels,rate);credit=m.ledger;
+#ifdef SC_NATIVE_STARTUP_STATE
+        StateTemp temp;const auto spec=stateSpec(m);NativeOriginalRecordingOptions opts;opts.raw.resources=m.ledger;
+        NativeOriginalCaptureWriter writer(temp.root,spec,opts);m.writer=&writer;
+        refuses([&]{migrateNativeOriginalRecording(writer.jobDirectory(),spec);});
+#endif
+        m.ready();const auto original=m.startup.ready();
         rt([&]{m.capture.finish();m.clocks.finishCapture();});
         // The clock-establishing packet can remain queued when startup switches
         // to retained-source transfer. Drain that real postroll through the
@@ -225,6 +344,9 @@ void success(unsigned channels,unsigned rate,bool failedStop=false){
             result.original->firstWarmupLease->asOf.value==qpc && result.original->queueDrainObserved &&
             result.original->stopHresult==(failedStop?-31:1),"Complete/failed Stop lost distinct warmup/content/ready/SDK facts");
         m.processing.settleAfterJoin();m.output.settleAfterJoin();m.capture.settleAfterJoin();m.clocks.settleAfterJoin();m.startup.settleAfterProducerJoin();
+#ifdef SC_NATIVE_STARTUP_STATE
+        persistState(m,writer,spec,result);m.writer=nullptr;
+#endif
         std::cout<<"composed startup channels="<<channels<<" sourceRate="<<rate<<" nativeCapacity=4097 firstReadyTick="<<m.tick-3
             <<" fullFifo="<<extent<<" warmup="<<result.original->warmupCommittedFrames<<" content="<<result.requestedNativeFrames
             <<" consumed="<<result.consumedMonitorFrames<<" slack="<<result.finalSlackFrames<<" maxError="<<error
@@ -384,7 +506,12 @@ void admissions(){
     m.end();m.settle();
 }
 }
-int main(){try{rt_audit::reset();for(unsigned ch:{1u,2u})for(unsigned rate:{44100u,48000u,96000u})success(ch,rate);success(1,48000,true);
+int main(){try{rt_audit::reset();
+#ifdef SC_NATIVE_STARTUP_STATE
+    diagnosticState();
+#endif
+    for(unsigned ch:{1u,2u}){for(unsigned rate:{44100u,48000u,96000u})success(ch,rate);}
+    success(1,48000,true);
     terminalAndProtocol();nativeFailures();concurrentOwners();admissions();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared native readiness allocated/freed/locked");
     std::cout<<checks<<" composed native monitor startup checks passed; guarded allocate/free/lock=0; simulated SDK only\n";return 0;

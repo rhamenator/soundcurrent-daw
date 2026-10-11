@@ -27,11 +27,14 @@ struct NativeOriginalRecordingPrefix {
     std::optional<NativeOriginalRecordingSpec> declared;
     std::optional<NativeOriginalRunOutcome> outcome;
     NativeOriginalRecordingStatus status = NativeOriginalRecordingStatus::NoNativeEvidence;
+    std::optional<std::uint32_t> schemaMinor; // Absent for raw-only jobs; no invented native state.
 };
-enum class NativeOriginalRecordingBoundary { PendingPublished, RawFinalized, BeforeOutcomePublish, OutcomePublished };
+enum class NativeOriginalRecordingBoundary { PendingPublished, RawFinalized, BeforeOutcomePublish, OutcomePublished,
+    BeforeMigrationPublish, MigrationPublished };
 struct NativeOriginalRecordingOptions {
     OriginalRecordingOptions raw;
     std::function<void(NativeOriginalRecordingBoundary)> boundary; // Disk/control ONLY.
+    std::uint32_t schemaMinor = 1; // Declare before pending publication. Legacy0 is explicit.
 };
 // Disk owner only. Begins a pending native transaction BEFORE audio activation.
 // Delegates original raw capture, retaining legacy raw-journal meaning/schema.
@@ -61,6 +64,13 @@ NativeOriginalRecordingPrefix inspectNativeOriginalRecording(const std::filesyst
 // Requires an existing matching pending declaration; never resumes/replaces PCM.
 NativeOriginalRecordingPrefix reportNativeOriginalRecording(const std::filesystem::path &,
     const NativeOriginalRecordingSpec &,const NativeOriginalRunOutcome &,
+    std::optional<ResourceLedger> resources = {},
+    const std::function<void(NativeOriginalRecordingBoundary)> &boundary = {});
+// Explicit, idempotent1.0 ->1.1 migration under the SAME exclusive inactive lease
+// and verified raw binding. Preserves original outcomes; never invents startup,
+// changes raw media/journals, resumes capture or downgrades newer state.
+NativeOriginalRecordingPrefix migrateNativeOriginalRecording(const std::filesystem::path &,
+    const std::optional<NativeOriginalRecordingSpec> &expected = {},
     std::optional<ResourceLedger> resources = {},
     const std::function<void(NativeOriginalRecordingBoundary)> &boundary = {});
 }
