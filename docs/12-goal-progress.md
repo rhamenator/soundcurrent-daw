@@ -4512,23 +4512,6 @@ controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-b
 Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
 records scope; no stale downstream success is admitted as a current-MAIN gate.
 
-## Prepared clock/occupancy monitor control and independent Windows kernel (2026-10-11)
-
-Frozen5935e92 adds original single-owner control: overlapping original clock fits,
-independent age/uncertainty, native tick frequency, bounded proportional/filter/
-ratio/slew policy and propose/enqueue/commit without progress on queue refusal.
-Linux Release0.20s, ASan/UBSan two suites2.54s and TSan0.92s passed. Each controller
-run made4,088,610 checks/225 Fraction vectors/one million analytic reservoir grids
-and an8,192-frame actual stereo buffer composition. Guarded intercepted operations
-zero. A29,681-byte/15-member packet binds553 selected inputs/four test binaries;
-fresh Release recompilation matched tested bytes. [Checkpoint184](184-monitor-drift-control.md)
-and ADR118 record startup/native/plant/quality limitations and the next SPSC/SDK gate.
-
-Separately MSVC job114401243742/run38116107337 passed the kernel probe0.65s/55
-suites173.64s. Its original merge/tree/parents and nine changed blobs are bound by
-a54,839-byte packet. This stacked run is not current-MAIN admission. No executable/
-installer/release uploaded, audible UI or raw schema changed. Full goal incomplete.
-
 ## Logical recording credit after an observed Windows disk stall (2026-10-11)
 
 MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
@@ -4568,3 +4551,20 @@ localization files byte-identical. Actual13 isolated refusals and translator-wor
 preservation passed. Native review/full UI remains zero. The71,095-byte packet and
 [Checkpoint185](185-logical-recording-credit.md) retain original failure/new binding.
 Fresh current-head checks remain required; no stale Windows cohort is admitted.
+
+## Prepared clock/occupancy monitor control and independent Windows kernel (2026-10-11)
+
+Frozen5935e92 adds original single-owner control: overlapping original clock fits,
+independent age/uncertainty, native tick frequency, bounded proportional/filter/
+ratio/slew policy and propose/enqueue/commit without progress on queue refusal.
+Linux Release0.20s, ASan/UBSan two suites2.54s and TSan0.92s passed. Each controller
+run made4,088,610 checks/225 Fraction vectors/one million analytic reservoir grids
+and an8,192-frame actual stereo buffer composition. Guarded intercepted operations
+zero. A29,681-byte/15-member packet binds553 selected inputs/four test binaries;
+fresh Release recompilation matched tested bytes. [Checkpoint184](184-monitor-drift-control.md)
+and ADR118 record startup/native/plant/quality limitations and the next SPSC/SDK gate.
+
+Separately MSVC job114401243742/run38116107337 passed the kernel probe0.65s/55
+suites173.64s. Its original merge/tree/parents and nine changed blobs are bound by
+a54,839-byte packet. This stacked run is not current-MAIN admission. No executable/
+installer/release uploaded, audible UI or raw schema changed. Full goal incomplete.
