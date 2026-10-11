@@ -44,6 +44,9 @@ std::size_t monitorBufferPayloadBytes(const MonitorBufferConfig &c) {
     charge.add(std::size_t(PreparedMonitorBuffer::gridFrames) * c.channels, sizeof(float));
     return charge.bytes();
 }
+std::uint32_t monitorBufferWarmupInputFrames(const MonitorBufferConfig &c) {
+    monitorBufferPayloadBytes(c); return warmup(c);
+}
 struct PreparedMonitorBuffer::State {
     struct Delete { void operator()(SRC_STATE *p) const noexcept { if (p) src_delete(p); } };
     ResourceLease lease; // Retires last, after all payload/state/config owners.

@@ -51,6 +51,7 @@ class PreparedCaptureFanout {
     void settleAfterJoin() noexcept;
     bool settledAfterJoin() const noexcept { return settled_; } // Joined control owner only.
     const CaptureBankConfig &captureConfig() const noexcept { return raw_.config(); }
+    std::uint32_t monitorSlots() const noexcept { return monitor_.config().slots; }
     CaptureBankRead acquireRaw(CaptureBankView &) noexcept;
     CaptureBankRead acquireMonitor(CaptureBankView &) noexcept;
     bool releaseRaw(const CaptureBankView &) noexcept;

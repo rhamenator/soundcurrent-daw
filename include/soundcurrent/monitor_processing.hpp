@@ -5,6 +5,7 @@
 #include "monitor_output_bank.hpp"
 #include "monitor_clock_handoff.hpp"
 #include "monitor_control.hpp"
+#include "monitor_capture_stop.hpp"
 
 namespace soundcurrent::daw {
 struct MonitorProcessingConfig {
@@ -17,7 +18,7 @@ enum class MonitorProcessingCode {
     Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault, ControlFull
 };
 enum class MonitorProcessingCause {
-    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control
+    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -46,7 +47,7 @@ class PreparedMonitorProcessing {
   public:
     PreparedMonitorProcessing(PreparedCaptureFanout &, PreparedMonitorOutputBank &,
                               MonitorProcessingConfig, PreparedMonitorClockHandoff * = nullptr,
-                              PreparedMonitorControl * = nullptr);
+                              PreparedMonitorControl * = nullptr, PreparedMonitorCaptureStop * = nullptr);
     ~PreparedMonitorProcessing();
     PreparedMonitorProcessing(const PreparedMonitorProcessing &) = delete;
     PreparedMonitorProcessing &operator=(const PreparedMonitorProcessing &) = delete;
@@ -83,6 +84,7 @@ class PreparedMonitorProcessing {
     PreparedMonitorOutputBank &output_;
     PreparedMonitorClockHandoff *clocks_ = nullptr;
     PreparedMonitorControl *control_ = nullptr;
+    PreparedMonitorCaptureStop *captureStop_ = nullptr;
     MonitorProcessingConfig config_;
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;
@@ -98,5 +100,6 @@ class PreparedMonitorProcessing {
     bool release() noexcept;
     MonitorProcessingCode schedule(Qpc100ns) noexcept;
     MonitorProcessingCode validate(Qpc100ns) noexcept;
+    void stopCapture(MonitorCaptureStopKind) noexcept;
 };
 } // namespace soundcurrent::daw

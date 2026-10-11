@@ -48,6 +48,7 @@ struct MonitorBufferRead {
     std::uint32_t frames = 0;
 };
 std::size_t monitorBufferPayloadBytes(const MonitorBufferConfig &);
+std::uint32_t monitorBufferWarmupInputFrames(const MonitorBufferConfig &); // Validated, off RT.
 // One serialized processing owner; NOT concurrent control/capture/render access.
 // Publish copied output through an external prepared SPSC route before rendering.
 // Admission and destruction are off RT, after owners join. Prepared methods do

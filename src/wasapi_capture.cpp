@@ -74,6 +74,7 @@ std::array<std::string, 6> wasapiDefaultEndpoints() {
 struct WasapiCaptureStream::State {
     WasapiCaptureOptions options;
     WasapiCaptureCallbacks callbacks;
+    PreparedWasapiCaptureLifecycle lifecycle;
     Event ready, start, stop;
     Event audio{false};
     std::thread thread;
@@ -84,7 +85,7 @@ struct WasapiCaptureStream::State {
     std::unique_ptr<PreparedWasapiPacketCopy> packetCopy;
     bool activated = false, joined = false;
     State(WasapiCaptureOptions o, WasapiCaptureCallbacks c)
-        : options(std::move(o)), callbacks(c) {
+        : options(std::move(o)), callbacks(c), lifecycle({c.context,c.shouldStop,c.finished}) {
         if (!callbacks.packet || options.channels == 0 || options.channels > 256 ||
             options.sampleRate < 8000 || options.sampleRate > 384000 ||
             !options.maximumPacketFrames || options.maximumPacketFrames > 65536)
@@ -200,17 +201,31 @@ struct WasapiCaptureStream::State {
             check(client->GetService(__uuidof(IAudioCaptureClient),
                                      reinterpret_cast<void **>(capture.out())), "Prepare capture lease service");
             Scheduling scheduling;
+            struct EndReceipt {
+                State &state;
+                ~EndReceipt() {
+                    state.lifecycle.finish(state.failureReady.load(std::memory_order_acquire) ?
+                        std::optional<WasapiStreamFailure>(state.firstFailure) : std::nullopt,
+                        std::uncaught_exceptions() != 0);
+                }
+            } endReceipt{*this};
             prepared.store(1, std::memory_order_release);
             SetEvent(ready.value);
             HANDLE initial[]{stop.value, start.value};
-            if (WaitForMultipleObjects(2, initial, FALSE, INFINITE) != WAIT_OBJECT_0 + 1)
-                return;
+            const auto initialWait=WaitForMultipleObjects(2, initial, FALSE, INFINITE);
+            if (initialWait==WAIT_OBJECT_0) return;
+            if (initialWait!=WAIT_OBJECT_0+1) {
+                fail(initialWait==WAIT_FAILED ? HRESULT_FROM_WIN32(GetLastError()) : E_UNEXPECTED,1); return;
+            }
+            if (lifecycle.shouldStop()) return;
             const auto began = client->Start();
             if (FAILED(began)) { fail(began, 1); return; }
+            lifecycle.started();
             HANDLE events[]{stop.value, audio.value};
             bool end = false, catchUp = false;
             std::uint64_t wakeSequence = 0;
             while (!end) {
+                if (lifecycle.shouldStop()) break;
                 const bool resumed = catchUp;
                 std::uint64_t waitStarted = 0, wake = 0;
                 bool traceClockValid = options.trace ? traceClock(waitStarted) : false;
@@ -222,6 +237,7 @@ struct WasapiCaptureStream::State {
                 if (options.trace) traceClockValid = traceClock(wake) && traceClockValid;
                 catchUp = false;
                 if (waited == WAIT_OBJECT_0) break;
+                if (lifecycle.shouldStop()) break;
                 // Idle loopback may publish no packet. Event absence is not
                 // silent media or evidence that the endpoint disconnected.
                 if (waited == WAIT_TIMEOUT) continue;
@@ -235,6 +251,9 @@ struct WasapiCaptureStream::State {
                 // Return every nonempty lease once, on this same thread,
                 // including refused packets.
                 for (std::uint32_t count = 0; count < 16; ++count) {
+                    if (lifecycle.shouldStop() || WaitForSingleObject(stop.value, 0) == WAIT_OBJECT_0) {
+                        end = true; break;
+                    }
                     BYTE *data = nullptr;
                     UINT32 packetFrames = 0;
                     DWORD packetFlags = 0;
@@ -266,6 +285,7 @@ struct WasapiCaptureStream::State {
                                          packetFrames, packetFlags, position, qpc};
                     Lease lease{capture.p,callbacks,options.trace,observation};
                     const auto delivery = packetCopy->deliver(p,{&lease,Lease::release,Lease::packet});
+                    if (delivery.callbackInvoked) lifecycle.delivered(p);
                     if (options.trace) options.trace->publish(observation);
                     if (delivery.releaseHresult < 0) {
                         fail(static_cast<HRESULT>(delivery.releaseHresult),3); end = true; break;
@@ -279,6 +299,7 @@ struct WasapiCaptureStream::State {
                 }
             }
             const auto ended = client->Stop();
+            lifecycle.stopped(static_cast<std::int32_t>(ended));
             if (FAILED(ended)) fail(ended, 4);
         } catch (...) {
             // Exceptions belong to COM/preparation only. Packet callbacks are noexcept.
@@ -305,6 +326,7 @@ void WasapiCaptureStream::activate() {
     state_->activated = true;
 }
 void WasapiCaptureStream::stop() noexcept { state_->join(); }
+void WasapiCaptureStream::requestStop() noexcept { SetEvent(state_->stop.value); }
 std::uint32_t WasapiCaptureStream::bufferFrames() const noexcept { return state_->frames; }
 std::optional<WasapiStreamFailure> WasapiCaptureStream::failure() const noexcept {
     return state_->failureReady.load(std::memory_order_acquire) ?
