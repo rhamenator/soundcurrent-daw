@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/monitor_processing.hpp>
 #include <algorithm>
+#include <cmath>
 
 namespace soundcurrent::daw {
 namespace {
@@ -37,6 +38,23 @@ ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutpu
     return c.resources ? c.resources->reserve(bytes) : ResourceLease{};
 }
 } // namespace
+std::uint32_t monitorStartupRetainedFrames(const MonitorBufferConfig &b,
+    const MonitorDriftConfig &d, const MonitorStartupConfig &s) {
+    require(s.nativeCapacityFrames && s.maximumNativeFillFrames &&
+        s.maximumNativeFillFrames <= s.nativeCapacityFrames &&
+        s.nativeCapacityFrames <= 262144 && s.maximumWait100ns > d.minimumSpan100ns &&
+        s.maximumWait100ns <= 600000000, "Invalid native monitor startup admission");
+    const auto warmup = monitorBufferWarmupInputFrames(b);
+    // Source demand uses the LOWEST admitted output/source ratio, rounded up.
+    // Include a grid beyond the full FIFO, causal context, occupancy reservoir,
+    // and one actual input packet. No minimum clock-span PCM backlog is needed.
+    const double lower = double(b.outputRate) / b.sourceRate * (1 - b.maximumDriftPpm * 1e-6);
+    const auto demand = std::uint64_t(std::ceil((double(s.nativeCapacityFrames) +
+        PreparedMonitorBuffer::gridFrames) / lower));
+    const auto frames = demand + warmup + d.targetQueuedSourceFrames + b.maximumInputFrames;
+    require(frames <= b.inputCapacityFrames, "Monitor input ring cannot hold native startup tail");
+    return std::uint32_t(frames);
+}
 std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     const MonitorOutputBankConfig &o, const MonitorProcessingConfig &c) {
     const auto &b = c.buffer; const auto &d = c.drift;
@@ -55,6 +73,17 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     PayloadCharge charge("Monitor processing group", c.memoryBudgetBytes);
     charge.add(monitorBufferPayloadBytes(b)); charge.add(PreparedMonitorDrift::payloadBytes);
     charge.add(8192); charge.add(std::size_t(PreparedMonitorBuffer::gridFrames) * b.channels, sizeof(float));
+    if (c.startup) {
+        const auto frames = monitorStartupRetainedFrames(b,d,*c.startup);
+        require(o.maximumPullFrames >= c.startup->maximumNativeFillFrames &&
+            std::uint64_t(o.slots) * PreparedMonitorBuffer::gridFrames >=
+                std::uint64_t(c.startup->nativeCapacityFrames) + PreparedMonitorBuffer::gridFrames,
+            "Monitor output bank cannot prime actual native FIFO geometry");
+        charge.add(std::size_t(frames) * b.channels, sizeof(float));
+        // One descriptor per retained frame bounds even one-frame input packets.
+        // Conservative credit includes padding of the private packet structure.
+        charge.add(frames, sizeof(CaptureBankStamp) + 16);
+    }
     return charge.bytes();
 }
 PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
@@ -65,6 +94,13 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
     bytes_ = monitorProcessingPayloadBytes(geometry(f),o.config(),config_);
+    if (config_.startup) {
+        static_assert(sizeof(StartupPacket) <= sizeof(CaptureBankStamp) + 16);
+        startup_.capacityFrames = monitorStartupRetainedFrames(config_.buffer,config_.drift,*config_.startup);
+        startupSamples_.resize(std::size_t(startup_.capacityFrames) * config_.buffer.channels);
+        startupPackets_.resize(startup_.capacityFrames);
+        startup_.phase = MonitorStartupPhase::Observing;
+    }
 }
 PreparedMonitorProcessing::~PreparedMonitorProcessing() { settleAfterJoin(); }
 bool PreparedMonitorProcessing::release() noexcept {
@@ -78,6 +114,7 @@ MonitorProcessingCode PreparedMonitorProcessing::fail(MonitorProcessingCause cau
         holding_ ? std::optional<CaptureBankStamp>(held_.token.original) : std::nullopt,
         buffer_.statistics().nextOutputFrame};
     stopCapture(MonitorCaptureStopKind::Fault);
+    startup_.abandonedFrames += startup_.retainedFrames; startup_.retainedFrames = 0; startupPacketCount_ = 0;
     release(); capture_.monitorConsumerFailed(); output_.processingFailed();
     if (clocks_) clocks_->consumerFailed();
     return MonitorProcessingCode::Fault;
@@ -162,9 +199,91 @@ MonitorProcessingCode PreparedMonitorProcessing::validate(Qpc100ns now) noexcept
     if (!now.value || now.value < lastTime_ || now.value < captureQpc_ || now.value < renderQpc_)
         return fail(MonitorProcessingCause::ControlTime);
     lastTime_ = now.value;
+    if (config_.startup && !startup_.contentReady && output_.deliveredFrames())
+        return fail(MonitorProcessingCause::StartupPrematurePull);
+    if (config_.startup && !startup_.contentReady && startupFirstTime_ &&
+        now.value-startupFirstTime_ >= config_.startup->maximumWait100ns)
+        return fail(MonitorProcessingCause::StartupTimeout);
     if ((captureQpc_ && now.value - captureQpc_ > config_.drift.maximumAge100ns) ||
         (renderQpc_ && now.value - renderQpc_ > config_.drift.maximumAge100ns))
         return fail(MonitorProcessingCause::Clock);
+    return MonitorProcessingCode::Progress;
+}
+void PreparedMonitorProcessing::consumeStartup(std::uint32_t frames) noexcept {
+    startupRead_ = (startupRead_ + frames) % startup_.capacityFrames;
+    startup_.retainedFrames -= frames;
+    while (frames) { // At most maximumInputFrames one-frame descriptors.
+        auto &p = startupPackets_[startupPacketRead_];
+        const auto n = std::min(frames,p.original.frames-p.offset);
+        frames -= n; p.offset += n;
+        if (p.offset == p.original.frames) {
+            startupPacketRead_ = (startupPacketRead_ + 1) % startup_.capacityFrames;
+            --startupPacketCount_;
+        }
+    }
+}
+bool PreparedMonitorProcessing::retainStartup() noexcept {
+    const auto &stamp = held_.token.original;
+    const auto frames = stamp.frames, channels = config_.buffer.channels;
+    if (!frames || frames > config_.buffer.maximumInputFrames ||
+        held_.interleaved.size() != std::size_t(frames) * channels ||
+        startup_.acceptedFrames > UINT64_MAX - frames) return false;
+    // Validate the ENTIRE actual packet before dropping any older monitor tail.
+    for (const auto x : held_.interleaved) if (!std::isfinite(x)) return false;
+    const auto drop = frames > startup_.capacityFrames - startup_.retainedFrames ?
+        frames - (startup_.capacityFrames - startup_.retainedFrames) : 0;
+    if (drop) { consumeStartup(drop); startup_.discardedFrames += drop; }
+    const auto write = (startupRead_ + startup_.retainedFrames) % startup_.capacityFrames;
+    const auto first = std::min(frames,startup_.capacityFrames-write);
+    std::copy_n(held_.interleaved.data(),std::size_t(first)*channels,
+        startupSamples_.data()+std::size_t(write)*channels);
+    std::copy_n(held_.interleaved.data()+std::size_t(first)*channels,
+        std::size_t(frames-first)*channels,startupSamples_.data());
+    startupPackets_[(startupPacketRead_+startupPacketCount_)%startup_.capacityFrames] = {stamp,0};
+    ++startupPacketCount_; startup_.retainedFrames += frames; startup_.acceptedFrames += frames;
+    startup_.lastAccepted = stamp;
+    return true;
+}
+MonitorProcessingCode PreparedMonitorProcessing::startupStep(Qpc100ns now) noexcept {
+    if (!startupFirstTime_) startupFirstTime_ = now.value;
+    if (now.value-startupFirstTime_ >= config_.startup->maximumWait100ns)
+        return fail(MonitorProcessingCause::StartupTimeout);
+    if (startup_.phase == MonitorStartupPhase::Transferring) {
+        const auto &p = startupPackets_[startupPacketRead_];
+        const auto frames = std::min({p.original.frames-p.offset,config_.buffer.maximumInputFrames,
+            startup_.capacityFrames-startupRead_});
+        const auto code = buffer_.push({startupSamples_.data()+std::size_t(startupRead_)*config_.buffer.channels,
+            std::size_t(frames)*config_.buffer.channels});
+        if (code != MonitorBufferCode::Accepted) return fail(MonitorProcessingCause::Buffer);
+        if (!startup_.firstTransferred) startup_.firstTransferred = MonitorStartupSource{p.original,p.offset};
+        consumeStartup(frames); startup_.transferredFrames += frames;
+        if (!startup_.retainedFrames) startup_.phase = MonitorStartupPhase::Live;
+        return MonitorProcessingCode::Progress;
+    }
+    // Never seed a fit or relax its confidence to break the native startup cycle.
+    // Commit the first real proposal BEFORE handing retained PCM to the kernel.
+    MonitorDriftProposal proposal;
+    proposal.code = MonitorDriftCode::WaitingClock;
+    if (startup_.retainedFrames == startup_.capacityFrames)
+        proposal = drift_.propose({config_.buffer.runGeneration,config_.buffer.outputFrameBase,
+            now,startup_.retainedFrames});
+    if (proposal.code == MonitorDriftCode::Ready) {
+        if (buffer_.enqueue(proposal.event) != MonitorBufferCode::Accepted ||
+            drift_.commit(proposal.event) != MonitorDriftCode::Committed) {
+            drift_.rejectEvent(); return fail(MonitorProcessingCause::Clock);
+        }
+        clockEstablished_ = true; startup_.phase = MonitorStartupPhase::Transferring;
+        return MonitorProcessingCode::Progress;
+    }
+    if (proposal.code != MonitorDriftCode::WaitingClock && proposal.code != MonitorDriftCode::WaitingConfidence)
+        return fail(MonitorProcessingCause::Clock);
+    const auto code = capture_.acquireMonitor(held_);
+    if (code == CaptureBankRead::Empty) return MonitorProcessingCode::WaitingClock;
+    if (code == CaptureBankRead::Drained) return fail(MonitorProcessingCause::StartupInputEnd);
+    if (code != CaptureBankRead::Ready) return fail(MonitorProcessingCause::CaptureLease);
+    holding_ = true;
+    if (!retainStartup()) return fail(MonitorProcessingCause::StartupInput);
+    if (!release()) return fail(MonitorProcessingCause::CaptureLease);
     return MonitorProcessingCode::Progress;
 }
 MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
@@ -180,6 +299,8 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     if (done_) return MonitorProcessingCode::Done;
     if (control == MonitorControlCode::ReceiptFull) return MonitorProcessingCode::ControlFull;
     if (control == MonitorControlCode::Handled) return MonitorProcessingCode::Progress;
+    if (startup_.phase == MonitorStartupPhase::Observing || startup_.phase == MonitorStartupPhase::Transferring)
+        return startupStep(now);
     const auto horizon=buffer_.statistics();
     if (horizon.plannedOutputEnd && horizon.nextOutputFrame==*horizon.plannedOutputEnd)
         stopCapture(MonitorCaptureStopKind::Horizon);
@@ -191,6 +312,8 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         if (code == MonitorOutputCode::Backpressure) return MonitorProcessingCode::OutputFull;
         if (code != MonitorOutputCode::Accepted) return fail(MonitorProcessingCause::Output);
         published_ += pendingStamp_.frames; pendingStamp_ = {};
+        if (config_.startup && !startup_.contentReady && published_ >= config_.startup->nativeCapacityFrames)
+            startup_.contentReady = true;
         return MonitorProcessingCode::Progress;
     }
     auto s = buffer_.statistics();
@@ -274,6 +397,7 @@ bool PreparedMonitorProcessing::finishAt(MonitorOutputOrdinal end) noexcept {
 void PreparedMonitorProcessing::cancel() noexcept {
     if (done_ || cancelled_) return;
     cancelled_ = true; discarded_ += pendingStamp_.frames; pendingStamp_ = {};
+    startup_.abandonedFrames += startup_.retainedFrames; startup_.retainedFrames = 0; startupPacketCount_ = 0;
     stopCapture(MonitorCaptureStopKind::Cancel);
     release(); buffer_.cancel(); drift_.cancel(); capture_.requestStop(); output_.requestCancel();
     if (clocks_) clocks_->requestCancel();
@@ -288,6 +412,6 @@ void PreparedMonitorProcessing::settleAfterJoin() noexcept {
     release(); output_.finish();
 }
 MonitorProcessingStatistics PreparedMonitorProcessing::statistics() const noexcept {
-    return {buffer_.statistics(),published_,discarded_,calls_,pendingStamp_.frames,holding_,done_,cancelled_};
+    return {buffer_.statistics(),published_,discarded_,calls_,pendingStamp_.frames,holding_,done_,cancelled_,startup_};
 }
 } // namespace soundcurrent::daw

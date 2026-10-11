@@ -144,3 +144,11 @@ Raw-to-project alignment, playable finite-prefix admission, repeated punch/loop,
 EQ/mix processing quality, European localization and full M2–M11/frozen-reference
 functional, quality, content and compatibility scope remain open. See
 [ADR130](decisions/130-native-monitor-render-context.md).
+
+[Checkpoint199](199-durable-native-outcomes.md) now binds copied joined original
+outcomes to versioned disk-side native transaction state, including partial raw
+failure and abrupt process-exit recovery. It also retains this preceding context's
+independent MSVC114476838419/run38141745128 execution:68 suites186.46s, binding0.08s,
+49,349-byte/three-member packet/19 reviewed blobs. That portable execution does not
+qualify the new persistence code or native SDK/installed startup. Explicit startup
+capacity/confidence and actual native transaction qualification remain gates.

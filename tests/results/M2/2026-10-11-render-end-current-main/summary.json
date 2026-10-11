@@ -1,0 +1,23 @@
+{
+  "format": "sc-protected-render-end-main-v1",
+  "pullRequest": 134,
+  "head": "6b1be388da9dd1cb3bed5f998da8f75d20af3458",
+  "base": "bcfa9c86c64b6f20097654fafc59eb673c477889",
+  "testedMerge": "d9cdf8dc23936148ad5b970434fc6a6b2d250cf0",
+  "tree": "c80742c13cfc3c0407f3fd6a3dc70c318fc51a64",
+  "mergedMain": "387df5847b8726f9071380bcf541584ac1efc49e",
+  "run": 38143651032,
+  "captureBytes": 147898,
+  "captureSha256": "1878fd92ed402a79b11d16b77f2c07dafb80ce452e628260a0f28376310fc76c",
+  "members": 8,
+  "reviewedBlobs": 17,
+  "fullByteExactJobs": 4,
+  "wholeTreeVerified": true,
+  "ordinarySquash": true,
+  "policyChanged": false,
+  "adminBypass": false,
+  "originalWindowsFailuresResolved": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}

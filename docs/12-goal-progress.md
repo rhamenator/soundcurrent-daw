@@ -4877,6 +4877,69 @@ Original Windows owner failures remain unresolved. Next: durable original SDK-en
 transaction state, explicit native startup capacity/confidence, then SDK/installed
 Stop/cancel/loss/retirement. Full M2–M11/F/Q/C/N/localization goal remains incomplete.
 
+## Durable original native outcomes and common-prefix recovery (2026-10-11)
+
+[Checkpoint199](199-durable-native-outcomes.md)/ADR131 add a disk-only versioned
+native auxiliary transaction around unchanged original raw schema1.0. Pending
+before activation and immutable original SDK reporting bind exact raw journal/
+sample/stamp hashes, identity, extent and phase. One inactive exclusive lease covers
+paired verification/publication. Raw-only or missing native outcomes cannot become
+completed monitoring. Verified partial raw failure can retain actual SDK-delivered
+frames and failed Stop even when original media never finalized.
+
+Frozenbccfd29 passes ten suites Release0.69s/ASanUBSan5.14s/TSan5.72s. Native outcome
+checks cover1/2/8/256 channels, nine distinct outcomes, four actual process-exit
+boundaries and malformed/foreign/contradictory state. Thirteen composed source/
+processing/disk/render cases retain original failures and exact raw/PCM evidence;
+14,509 captureStop checks/profile. Guarded prepared allocation/free/locks zero.
+64,739-byte/20-member packet binds592 inputs/30 binaries/15 Windows object-library
+hashes/full logs. Three new Windows objects compile; unchanged SDK hashes match198.
+No new persistence Windows execution, SDK device or power-loss claim. Live startup,
+clock confidence, installed recovery and native factory activation remain gated.
+
+Preceding198 MSVC114476838419/run38141745128 passed68 suites186.46s, binding0.08s;
+49,349-byte/three-member packet retains19 reviewed blobs/full job/API/tree/parents.
+Protected133 MAINbcfa9c8 matches whole tree/base/21blobs from38141363539;145,185-byte/
+eight-member packet retains all four byte-exact jobs/admission/merge. No bypass.
+PR134 inherits this MAIN and awaits fresh38143651032 qualification. Original Windows
+owner failures stay open. Next: explicit startup/warmup/prefill/capacity/clock quality,
+then actual native/installed Stop/cancel/loss/recovery/retirement. Full frozen
+M2–M11/F/Q/C/N/import/localization target remains ACTIVE/incomplete.
+
+## Bounded monitor startup with original unseeded clocks (2026-10-11)
+
+[Checkpoint200](200-monitor-startup-preroll.md) adds opt-in actual-FIFO geometry
+admission and prepared rolling monitor preroll. Raw capture keeps its complete
+prefix; trim/transfer/abandon counts and original packet/partial offset remain
+explicit. The first real clock proposal is committed before converter input;
+whole-FIFO output publication precedes content readiness. Clock confidence is
+unchanged. Statistics are not yet a cross-thread authorization or durable state.
+
+Frozen1dbcea2 passes eleven suites each: Release1.69s, ASan/UBSan14.14s and
+TSan20.00s. New19,652 startup checks/profile cover unseeded two-second observations,
+1/2/8/256 channels,44.1/48/96k source,4,097-frame FIFO, zero error versus independent
+conversion, one-frame descriptors, original raw bits/stamps, failure/budget cases
+and guarded allocation/free/lock0. The68,378-byte/15-member packet binds593inputs,
+33binary hashes and15Windowsobject/library hashes/full logs. New objects and native
+wrappers/full core targets cross-compile; new Windows execution is not claimed.
+
+Preceding199 MSVC114485524060/run38144707175 passed69suites164.08s, native-outcomes
+3.22s, with allfour original jobs terminal success. Its51,584-byte/three-member
+packet binds18reviewedfiles and original checkout. Protected134 MAIN387df58 matches
+its whole tested tree/base/17blobs;147,898-byte/eight-member packet publishes original
+four byte-exact jobs/admission/merge receipts. No bypass. Original caller807 and
+parentInterrupted Windows failures remain unresolved. PR135 inherits MAIN134
+through an ordinary reviewed merge. Fresh38145862264 passed three required jobs
+but native114488944113 failed manual takeGroup waiting again (caller808, take12,
+identity13, occupied1, callback_failed0). Assertions/deadlines remain unchanged.
+The full original failed cohort and checkout are retained in Checkpoint200; no
+protected merge is admitted. Ownership/finalization diagnosis is the next gate.
+
+Next: actual native-only warmup leases/clock motion, explicit generation-ready
+handoff, warmup/disposition state migration, SDK/installed Linux+Windows deadlines,
+short take/Stop/cancel/loss, professional latency, EQ/mix and alignment. Factory
+remains disabled. Full M2–M11/F/Q/C/N/X004/X005/all-Europe goal remains incomplete.
+
 ## Current-MAIN Windows owner failures retained (2026-10-11)
 
 Output gate38127318120 separately failed manual takeGroup waiting (caller807) and
@@ -4928,3 +4991,22 @@ four-member packet binds13blobs/full native job/API/original merge and actual
 completion markers. This is limited non-reproduction, not a causal resolution of
 the original group wait. Current-MAIN refresh remains independently qualified;
 full native warmup/installed and parity scope remains open.
+
+
+## Combined monitoring startup and native recovery review (2026-10-11)
+
+[Checkpoint202](202-monitor-startup-integration.md) records ordinary protected PR135
+admission at MAINe92736e, exact whole tree/base/32blobs, all four required full logs
+and unchanged protection. MSVC passed68suites170.97s plus three original20-take
+attempts; the original timeout and interrupted-parent roots remain unresolved.
+
+Queued199/200 source and201 diagnostics now compose in one reviewed source tree.
+All16 selected suites pass Release3.34s/ASanUBSan22.45s/TSan26.87s, each with19,652
+startup checks,1,000 held writer queries and zero guarded allocation/free/locks.
+593 inputs/48 executable hashes/full logs are retained. Both initial progress
+sections and all five MAIN conflict stages/diffs are preserved; whole resolved
+tree matches the qualified combined source and MAIN diagnostics remain exact.
+Fresh final-head/current-MAIN Windows and Linux CI is still required. Factory stays
+disabled. Next: actual SDK warmup, generation readiness, native schema1.1 migration,
+short-take/Stop/native/installed/latency gates. Full M2–M11/F/Q/C/N/X004/X005 and
+all-Europe goal remains ACTIVE/incomplete.

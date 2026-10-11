@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/original_recording.hpp>
 #include "media_io.hpp"
+#include "original_recording_internal.hpp"
 #include <sndfile.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -267,13 +268,13 @@ OriginalRecordingPrefix OriginalCaptureWriter::finalize(const PreparedCaptureFan
         s.at(OriginalRecordingBoundary::AfterJournal);s.prefix.source=s.job/"take.wav";s.finalized=true;s.lease.reset();return s.prefix;
     }catch(...){s.fail();throw;}
 }
-OriginalRecordingPrefix inspectOriginalRecording(const std::filesystem::path &job,const std::optional<OriginalRecordingSpec> &expected,
-                                                  const std::function<void()> &boundary,std::optional<ResourceLedger> resources) {
+OriginalRecordingPrefix detail::inspectOriginalRecordingHeld(const std::filesystem::path &job,const media_io::JobLease &lease,
+    const std::optional<OriginalRecordingSpec> &expected,const std::function<void()> &boundary,std::optional<ResourceLedger> resources) {
     PayloadCharge charge("Original prefix inspection workspace",SIZE_MAX);charge.add(128*1024);
     charge.add(job.native().size(),8*sizeof(std::filesystem::path::value_type));
     auto reservation=resources ? resources->reserve(charge.bytes()) : ResourceLease{};
     auto at=[&]{if(boundary)boundary();};at();media_io::plainDirectory(job);
-    media_io::JobLease lease(job,false,true);require(lease.status() != media_io::LeaseStatus::Busy,"Original writer active");
+    require(lease.status() != media_io::LeaseStatus::Busy,"Original writer active");
     auto p=decode(media_io::readJournal(job/"journal.json"));
     require(job.filename() == "original-"+p.spec.asset.str() && (!expected || *expected == p.spec),"Original recording context mismatch");
     charge.add(1024*std::size_t(p.spec.layout.channels),sizeof(float));
@@ -306,5 +307,11 @@ OriginalRecordingPrefix inspectOriginalRecording(const std::filesystem::path &jo
     require(!p.endFault || !p.endFault->rawPacketAccepted || p.endFault->attempted == p.last,"Original fault accepted stamp mismatch");
     require(frames == p.committedFrames && finite == p.finitePrefixFrames && samples.digest() == p.sampleSha256 && stamps.digest() == p.stampSha256,
             "Original common prefix checksum/extent mismatch");at();return p;
+}
+OriginalRecordingPrefix inspectOriginalRecording(const std::filesystem::path &job,const std::optional<OriginalRecordingSpec> &expected,
+    const std::function<void()> &boundary,std::optional<ResourceLedger> resources) {
+    if(boundary)boundary();
+    media_io::plainDirectory(job);media_io::JobLease lease(job,false,true);
+    return detail::inspectOriginalRecordingHeld(job,lease,expected,boundary,std::move(resources));
 }
 } // namespace soundcurrent::daw

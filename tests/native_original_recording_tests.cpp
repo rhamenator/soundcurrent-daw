@@ -1,0 +1,107 @@
+// SPDX-License-Identifier: GPL-3.0-only
+#include <soundcurrent/native_original_recording.hpp>
+#include <soundcurrent/wasapi_render_lifecycle.hpp>
+#include "rt_audit.hpp"
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <iostream>
+#include <bit>
+#include <chrono>
+#include <thread>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
+using namespace soundcurrent::daw;
+namespace {
+using J=nlohmann::json;unsigned checks=0;
+void check(bool ok,const char *why){++checks;if(!ok)throw std::runtime_error(why);}
+template<class F> void refuses(F f){try{f();}catch(const ProjectError &){check(true,"Refused");return;}check(false,"Invalid transaction admitted");}
+template<class F> auto rt(F f){rt_audit::Guard g;return f();}
+struct Temp {std::filesystem::path root=std::filesystem::temp_directory_path()/std::filesystem::path(u8"sc-native-é-日本-")/Id::generate().str();Temp(){std::filesystem::create_directories(root);}~Temp(){if(std::uncaught_exceptions()){std::cerr<<"Retained native transaction "<<root<<'\n';return;}std::error_code e;std::filesystem::remove_all(root,e);}};
+std::string read(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);return {std::istreambuf_iterator<char>(f),{}};}
+void write(const std::filesystem::path &p,std::string s){std::ofstream f(p,std::ios::binary|std::ios::trunc);f<<s;check(bool(f),"Fixture write failed");}
+constexpr std::uint64_t pos=(std::uint64_t{1}<<63)+71,qpc=(std::uint64_t{1}<<54)+91,base=(std::uint64_t{1}<<54)+401;
+NativeOriginalRecordingSpec spec(unsigned channels=1){NativeOriginalRecordingSpec s;s.runGeneration=7;s.raw.identity={11,31,7};s.raw.layout={LayoutKind::Discrete,channels};s.raw.maximumPacketFrames=8;s.capture={48000,channels,8,0,false,s.raw.identity};s.render={48000,channels,32,8,0,96000,{10000,30000,0,0},{22,31,7}};s.monitorFirst={base};return s;}
+CaptureFanoutConfig config(const NativeOriginalRecordingSpec &s){CaptureFanoutConfig c;c.capture.identity=s.raw.identity;c.capture.sampleRate=s.raw.sampleRate;c.capture.channels=s.raw.layout.channels;c.capture.maximumPacketFrames=s.raw.maximumPacketFrames;c.capture.slots=4;c.monitorSlots=4;return c;}
+template<class W> void packets(W &w,PreparedCaptureFanout &f,const NativeOriginalRecordingSpec &s){std::vector<float> data(std::size_t(8)*s.raw.layout.channels);for(unsigned packet=0;packet<2;++packet){for(unsigned j=0;j<data.size();++j)data[j]=float(int(packet*8+j)-7)/3.f;CaptureBankStamp stamp{s.raw.identity,{pos+packet*8},{qpc+packet*1680},8,0};check(rt([&]{return f.publish({stamp,reinterpret_cast<const std::byte *>(data.data()),data.size()*4});}).rawAcceptedFrames==8,"Raw publication");CaptureBankView v;check(rt([&]{return f.acquireRaw(v);})==CaptureBankRead::Ready,"Raw acquire");w.append(v);check(rt([&]{return f.releaseRaw(v);}),"Raw release");check(rt([&]{return f.acquireMonitor(v);})==CaptureBankRead::Ready && rt([&]{return f.releaseMonitor(v);}),"Monitor release");}rt([&]{f.finish();});f.settleAfterJoin();}
+NativeOriginalRunOutcome outcome(const NativeOriginalRecordingSpec &s,unsigned kind=0){
+    NativeOriginalRunOutcome o;o.captureGeneration=s.runGeneration;o.captureStatus=MonitorCaptureEndStatus::Healthy;o.captureRequest=MonitorCaptureStopRequest{s.runGeneration,MonitorCaptureStopKind::Horizon,base+16,base+16,16};
+    WasapiCaptureEnd c;c.started=true;c.stopHresult=1;c.deliveredPackets=2;c.deliveredFrames=16;c.lastDelivered=WasapiDeliveredPacket{8,0,pos+8,qpc+1680};o.captureOriginal=c;
+    auto &r=o.render;r.status=WasapiMonitorRenderStatus::Complete;r.callbackCalls=2;r.requestedNativeFrames=16;r.consumedMonitorFrames=16;r.monitorEnd=MonitorOutputOrdinal{base+16};
+    PreparedWasapiRenderLifecycle life;life.prepared(s.render);life.started();for(unsigned n=0;n<2;++n){WasapiRenderClock clock{std::uint64_t(n)*8,pos+std::uint64_t(n)*16,96000,qpc+std::uint64_t(n)*1680,0,std::uint64_t(n)*8,0};life.contentReleased({clock,8,8,n?WasapiRenderAction::Finish:WasapiRenderAction::Continue,1,true});}life.padding(0);life.queueDrained();life.stopped(1);life.finish({});r.original=life.afterJoin();
+    if(kind==1){r.status=WasapiMonitorRenderStatus::NativeFailure;r.firstUnavailable=-29;r.original->stopHresult=-29;r.original->failure=WasapiStreamFailure{-29,4};}
+    if(kind==2){o.captureStatus=MonitorCaptureEndStatus::NativeFailure;o.captureUnavailable=-17;o.captureOriginal->stopHresult=-17;o.captureOriginal->failure=WasapiStreamFailure{-17,4};}
+    if(kind==3){r.status=WasapiMonitorRenderStatus::OwnerLost;r.original.reset();}
+    if(kind==4){o.captureStatus=MonitorCaptureEndStatus::OwnerLost;o.captureOriginal.reset();}
+    if(kind==5){r.status=WasapiMonitorRenderStatus::Cancelled;r.cancelRequested=true;r.original->queueDrainObserved=false;}
+    if(kind==6){r.status=WasapiMonitorRenderStatus::Interrupted;r.original->queueDrainObserved=false;}
+    if(kind==7){r.status=WasapiMonitorRenderStatus::Fault;r.firstFault=WasapiMonitorRenderFault{WasapiMonitorRenderCause::Underflow,WasapiMonitorRenderAttempt{8,{16,pos+32,96000,0,3,16,0}}};r.original->lastContentLease->releaseFrames=0;r.original->lastContentLease->action=WasapiRenderAction::Abort;r.original->contentCommittedFrames=8;r.original->queueDrainObserved=false;}
+    if(kind==8){r.status=WasapiMonitorRenderStatus::InvalidReceipt;r.original->prepared.clockFrequency=UINT64_MAX;r.original->invalidReceipt=true;r.original->lastSilenceLease=WasapiSilenceLeaseResult{WasapiSilenceKind::EndGuard,3,INT32_MIN};r.original->lastPadding=UINT32_MAX;r.original->counterOverflow=true;r.original->ownerException=true;}
+    return o;
+}
+void roundtrip(){for(unsigned channels:{1u,2u,8u,256u})for(unsigned kind=0;kind<9;++kind){Temp t;auto s=spec(channels);PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);auto job=w.jobDirectory();refuses([&]{inspectNativeOriginalRecording(job);});packets(w,f,s);auto o=outcome(s,kind);auto saved=w.finalize(f,o);auto verified=inspectNativeOriginalRecording(job,s);
+    auto status=kind==0?NativeOriginalRecordingStatus::Complete:kind==3 || kind==4 || kind==6?NativeOriginalRecordingStatus::Interrupted:kind==5?NativeOriginalRecordingStatus::Cancelled:NativeOriginalRecordingStatus::Failed;
+    check(saved.status==status && verified.status==status && verified.declared==s && verified.raw.committedFrames==16 && verified.raw.finalized && verified.raw.sampleSha256==saved.raw.sampleSha256 && verified.raw.stampSha256==saved.raw.stampSha256,"Native outcome/raw roundtrip status/binding");
+    check(verified.outcome && verified.outcome->captureStatus==o.captureStatus && verified.outcome->captureOriginal.has_value()==o.captureOriginal.has_value() && verified.outcome->render.status==o.render.status && verified.outcome->render.original.has_value()==o.render.original.has_value(),"Missing original SDK end invented/lost");
+    if(o.captureOriginal)check(verified.outcome->captureOriginal->lastDelivered==o.captureOriginal->lastDelivered && verified.outcome->captureOriginal->stopHresult==o.captureOriginal->stopHresult && verified.outcome->captureOriginal->failure==o.captureOriginal->failure,"Original capture wide metadata/HRESULT changed");
+    if(o.render.original){const auto &a=*verified.outcome->render.original;const auto &b=*o.render.original;check(a.prepared==b.prepared && a.stopHresult==b.stopHresult && a.contentCommittedFrames==b.contentCommittedFrames && a.queueDrainObserved==b.queueDrainObserved && a.lastContentLease->original==b.lastContentLease->original && a.lastContentLease->releaseHresult==b.lastContentLease->releaseHresult,"Original SDK render normalized");}
+    if(kind==7)check(verified.outcome->render.firstFault->attempted->original.qpc100ns==0 && verified.outcome->render.consumedMonitorFrames==16 && verified.outcome->render.original->contentCommittedFrames==8,"Fault/consumption/native commitment collapsed");
+    if(kind==8)check(verified.outcome->render.original->lastSilenceLease->releaseHresult==INT32_MIN && verified.outcome->render.original->lastPadding==UINT32_MAX,"Invalid original diagnostic fields erased");
+    const auto original=read(job/"native-run.json");refuses([&]{w.finalize(f,o);});check(read(job/"native-run.json")==original,"Reported outcome overwritten");
+}}
+void interrupted(){for(unsigned stage=0;stage<4;++stage){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));std::filesystem::path job;
+    NativeOriginalRecordingOptions options;options.raw.checkpointFrames=8;options.boundary=[&](auto b){if((stage==1 && b==NativeOriginalRecordingBoundary::RawFinalized)||(stage==2 && b==NativeOriginalRecordingBoundary::BeforeOutcomePublish)||(stage==3 && b==NativeOriginalRecordingBoundary::OutcomePublished))throw ProjectError(ErrorCode::Canceled,"Injected native publication interruption");};
+    {NativeOriginalCaptureWriter w(t.root,s,options);job=w.jobDirectory();packets(w,f,s);if(stage)refuses([&]{w.finalize(f,outcome(s));});}
+    const auto p=inspectNativeOriginalRecording(job,s);check(p.raw.committedFrames==16 && p.status==(stage==3?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Pending) && p.raw.finalized==(stage!=0),"Interrupted raw/native publication became successful monitoring or lost durable outcome");
+    if(stage==0)check(!p.outcome && !p.raw.finalized,"Capturing prefix fabricated native result");
+}}
+void refusals(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);packets(w,f,s);auto valid=outcome(s);
+    for(unsigned kind=0;kind<7;++kind){auto o=valid;if(kind==0)o.captureGeneration++;if(kind==1)o.captureOriginal->stopHresult=-1;if(kind==2)o.render.original->stopHresult=-1;if(kind==3)o.render.original->contentCommittedFrames++;if(kind==4)o.render.monitorEnd->value++;if(kind==5)o.render.original->prepared.channelMask++;if(kind==6)o.captureRequest->runGeneration++;refuses([&]{w.finalize(f,o);});}
+    const auto saved=w.finalize(f,valid);check(saved.status==NativeOriginalRecordingStatus::Complete,"Refused finalization mutated valid writer");auto job=w.jobDirectory();const auto original=read(job/"native-run.json");
+    for(unsigned kind=0;kind<15;++kind){auto j=J::parse(original);if(kind==0)j["schemaMinor"]=1;if(kind==1)j["declared"]["raw"]["asset"]=Id::generate().str();if(kind==2)j["declared"]["capture"]["identity"]["endpoint"]=999;if(kind==3)j["boundRaw"]["samples"]=std::string(64,'0');if(kind==4)j["outcome"]["render"]["original"]["callbackFrames"]=16.0;if(kind==5)j["outcome"]["captureOriginal"]["stop"]=std::uint64_t(UINT64_MAX);if(kind==6)j["outcome"]["render"]["original"]["started"]=1;if(kind==7)j["outcome"]["render"]["status"]="future-state";if(kind==8)j["unknown"]=true;if(kind==9)j["phase"]="complete";if(kind==10)j["outcome"]["render"]["original"]["guardCommitted"]=1;if(kind==11)j["outcome"]["captureOriginal"]["last"]["position"]=pos+9;if(kind==12)j["outcome"]["captureRequest"]["generatedEnd"]=base+17;if(kind==13)j["outcome"]["render"]["original"]["lastContent"]["clock"]["frequency"]=48000;if(kind==14)j["outcome"]["render"]["original"]["contentCommitted"]=15;write(job/"native-run.json",j.dump());refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);}
+    auto duplicate=original;duplicate.insert(duplicate.find('{')+1,"\"phase\":\"reported\",");write(job/"native-run.json",duplicate);refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",std::string(16385,'x'));refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);
+    auto foreign=s;foreign.run=Id::generate();refuses([&]{inspectNativeOriginalRecording(job,foreign);});ResourceLedger tiny(1);refuses([&]{inspectNativeOriginalRecording(job,{}, {},tiny);});check(tiny.usage().reservedBytes==0,"Native read resource refusal leaked");
+    check(inspectNativeOriginalRecording(job,s).status==NativeOriginalRecordingStatus::Complete,"Mutation refusal changed actual evidence");
+    Temp invalid;auto bad=s;bad.capture.maximumPacketFrames++;refuses([&]{NativeOriginalCaptureWriter x(invalid.root,bad);});check(!std::filesystem::exists(invalid.root/"media"),"Invalid native admission created recording job");
+}
+void crashChild(const std::filesystem::path &root,unsigned selected){auto s=spec();PreparedCaptureFanout f(config(s));NativeOriginalRecordingOptions options;options.raw.checkpointFrames=8;options.boundary=[&](auto b){if(unsigned(b)==selected)std::_Exit(77);};NativeOriginalCaptureWriter w(root,s,options);packets(w,f,s);w.finalize(f,outcome(s));std::_Exit(78);}
+void hardCrash(unsigned selected){Temp t;
+#ifdef _WIN32
+    std::array<wchar_t,32768> executable{};auto count=GetModuleFileNameW(nullptr,executable.data(),DWORD(executable.size()));check(count && count<executable.size(),"Native crash executable path");
+    auto command=std::wstring(L"\"")+executable.data()+L"\" --crash \""+t.root.native()+L"\" "+std::to_wstring(selected);
+    STARTUPINFOW startup{};startup.cb=DWORD(sizeof(startup));PROCESS_INFORMATION process{};
+    check(CreateProcessW(nullptr,command.data(),nullptr,nullptr,FALSE,0,nullptr,nullptr,&startup,&process),"Native crash child start");CloseHandle(process.hThread);
+    const auto waited=WaitForSingleObject(process.hProcess,10000);if(waited!=WAIT_OBJECT_0)TerminateProcess(process.hProcess,99);
+    DWORD code=0;GetExitCodeProcess(process.hProcess,&code);CloseHandle(process.hProcess);check(waited==WAIT_OBJECT_0 && code==77,"Native crash child did not reach publication boundary");
+#else
+    const auto child=fork();check(child>=0,"Native crash child fork");if(!child){try{crashChild(t.root,selected);}catch(const std::exception &e){std::cerr<<"Native crash child: "<<e.what()<<'\n';std::_Exit(79);}}
+    int status=0;const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+    for(;;){auto result=waitpid(child,&status,WNOHANG);if(result==child)break;check(result==0,"Native crash wait");if(std::chrono::steady_clock::now()>=deadline){kill(child,SIGKILL);waitpid(child,&status,0);check(false,"Native crash child timeout");}std::this_thread::sleep_for(std::chrono::milliseconds(5));}
+    check(WIFEXITED(status) && WEXITSTATUS(status)==77,"Native crash publication boundary absent");
+#endif
+    std::filesystem::path job;for(const auto &e:std::filesystem::directory_iterator(t.root/"media"))if(e.is_directory())job=e.path();
+    const auto p=inspectNativeOriginalRecording(job);check(p.raw.committedFrames==(selected==0?0u:16u) && p.raw.finalized==(selected!=0) && p.status==(selected==3?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Pending) && bool(p.outcome)==(selected==3),"Abrupt native writer death lost durable prefix or fabricated outcome");
+}
+void partialFailureReport(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));std::filesystem::path job;
+    {NativeOriginalRecordingOptions options;options.raw.checkpointFrames=8;NativeOriginalCaptureWriter w(t.root,s,options);job=w.jobDirectory();packets(w,f,s);refuses([&]{reportNativeOriginalRecording(job,s,outcome(s,2));});}
+    auto before=inspectNativeOriginalRecording(job,s);check(!before.raw.finalized && before.status==NativeOriginalRecordingStatus::Pending,"Partial raw declaration lost");
+    auto o=outcome(s,2);o.captureOriginal->deliveredFrames=32; // Original SDK delivery may exceed saved common prefix.
+    const auto p=reportNativeOriginalRecording(job,s,o);const auto recovered=inspectNativeOriginalRecording(job,s);
+    check(!p.raw.finalized && p.status==NativeOriginalRecordingStatus::Failed && recovered.status==NativeOriginalRecordingStatus::Failed && recovered.raw.committedFrames==16 && recovered.outcome->captureOriginal->deliveredFrames==32 && recovered.outcome->captureOriginal->stopHresult==-17,"Partial raw recovery lost actual native failure/delivery domain");
+    const auto original=read(job/"journal.json");auto raw=J::parse(original);raw["context"]["declaredInputLatencyFrames"]=1;write(job/"journal.json",raw.dump());refuses([&]{inspectNativeOriginalRecording(job);});write(job/"journal.json",original);
+    refuses([&]{reportNativeOriginalRecording(job,s,o);});
+}
+void legacy(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));OriginalCaptureWriter w(t.root,s.raw);packets(w,f,s);w.finalize(f);auto p=inspectNativeOriginalRecording(w.jobDirectory());check(p.raw.finalized && !p.declared && !p.outcome && p.status==NativeOriginalRecordingStatus::NoNativeEvidence,"Legacy saved raw PCM implied completed native monitoring");refuses([&]{inspectNativeOriginalRecording(w.jobDirectory(),s);});}
+}
+#ifdef _WIN32
+int wmain(int argc,wchar_t **argv){
+#else
+int main(int argc,char **argv){
+#endif
+try{if(argc==4){crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));return 80;}rt_audit::reset();roundtrip();interrupted();refusals();partialFailureReport();legacy();for(unsigned n=0;n<4;++n)hardCrash(n);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
