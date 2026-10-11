@@ -1,0 +1,21 @@
+{
+  "format": "sc-native-take-diagnostics-protected-main-v1",
+  "sourceHead": "0d50cbccd1a93a881324889b9af7f5eafdd6ce70",
+  "protectedCommit": "7d800f210258d77c82b3f43fa904c6e1a29d9a6c",
+  "testedMerge": "597b418bb993883c57b344ba48625d640bc16810",
+  "base": "31db463ba36b568ce83e52a37476f228d9ca3afd",
+  "testedTree": "f3c30e27321a583c3b315495e263e41a2932d2fa",
+  "reviewedBlobs": 53,
+  "runId": 38161752733,
+  "requiredJobs": 4,
+  "nativeSuites": 70,
+  "nativeSeconds": 166.67,
+  "originalDiagnosticCompletions": 3,
+  "originalFailureRootsResolved": false,
+  "nativeHardwareQualified": false,
+  "policyChanged": false,
+  "adminBypass": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

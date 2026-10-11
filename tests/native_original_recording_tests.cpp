@@ -64,7 +64,7 @@ void interrupted(){for(unsigned stage=0;stage<4;++stage){Temp t;auto s=spec();Pr
 void refusals(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);packets(w,f,s);auto valid=outcome(s);
     for(unsigned kind=0;kind<7;++kind){auto o=valid;if(kind==0)o.captureGeneration++;if(kind==1)o.captureOriginal->stopHresult=-1;if(kind==2)o.render.original->stopHresult=-1;if(kind==3)o.render.original->contentCommittedFrames++;if(kind==4)o.render.monitorEnd->value++;if(kind==5)o.render.original->prepared.channelMask++;if(kind==6)o.captureRequest->runGeneration++;refuses([&]{w.finalize(f,o);});}
     const auto pendingNative=read(w.jobDirectory()/"native-run.json");
-    for(unsigned kind=0;kind<10;++kind) {
+    for(unsigned kind=0;kind<15;++kind) {
         auto o=valid;auto &e=*o.render.original;
         if(kind==0)e.warmupLimits=WasapiWarmupLimits{1,1};
         if(kind==1)e.preLeaseCalls=1;
@@ -76,6 +76,11 @@ void refusals(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));NativeOr
         if(kind==7)e.lastWarmupLease=WasapiWarmupLeaseResult{};
         if(kind==8)e.contentBegan=true;
         if(kind==9)e.preLeaseStop=WasapiPreLeaseStop::Abort;
+        if(kind==10)o.render.warmupLimits=WasapiWarmupLimits{1,1};
+        if(kind==11)o.render.preLeaseCalls=1;
+        if(kind==12)o.render.readyAcquiredQpc100ns=1;
+        if(kind==13)o.render.startupReady=MonitorStartupReady{};
+        if(kind==14)o.render.startupPhaseAtEnd=MonitorStartupHandoffPhase::Pending;
         refuses([&]{w.finalize(f,o);});
         check(read(w.jobDirectory()/"native-run.json")==pendingNative,"Schema1.0 refusal changed original pending transaction");
     }

@@ -1,0 +1,69 @@
+{
+  "members": {
+    "reviewed-blobs.json": {
+      "bytes": 12214,
+      "sha256": "e43f9ab512deadf3623a9f4c7dc6eddcc9be91b6953e9b74db1f2e533bbc7558",
+      "originalBytes": 12214,
+      "originalSha256": "e43f9ab512deadf3623a9f4c7dc6eddcc9be91b6953e9b74db1f2e533bbc7558"
+    },
+    "qualified-ci-log-binding.json": {
+      "bytes": 1153,
+      "sha256": "b545a3a0abaa35f01f89844ef488a344873d5b757a9c3ce3b23aaae010570f2d",
+      "originalBytes": 1153,
+      "originalSha256": "b545a3a0abaa35f01f89844ef488a344873d5b757a9c3ce3b23aaae010570f2d"
+    },
+    "pr140-admission-audit.json": {
+      "bytes": 13024,
+      "sha256": "a10d6868e051ac315c5ba351b6d1cd3a8b43edfcd633a8aadc33a75325ed8112",
+      "originalBytes": 13024,
+      "originalSha256": "a10d6868e051ac315c5ba351b6d1cd3a8b43edfcd633a8aadc33a75325ed8112"
+    },
+    "postmerge-receipt.json": {
+      "bytes": 453,
+      "sha256": "6939c67955f93c062dd702af0a8b9f23a0e0a39a3baa7ae986a4a99ef717ba08",
+      "originalBytes": 453,
+      "originalSha256": "6939c67955f93c062dd702af0a8b9f23a0e0a39a3baa7ae986a4a99ef717ba08"
+    },
+    "qualify-current-ci.py": {
+      "bytes": 2651,
+      "sha256": "eb0c0de5a258f5844fcfa1b688a3c9ba2e99cff7a41534f72596da5371888eeb",
+      "originalBytes": 2651,
+      "originalSha256": "eb0c0de5a258f5844fcfa1b688a3c9ba2e99cff7a41534f72596da5371888eeb"
+    },
+    "audit-pr140.py": {
+      "bytes": 3265,
+      "sha256": "f99c138ab9a396e77f3d081a7deec8827db46b4884bb3446c4afdf4e7d6f1939",
+      "originalBytes": 3265,
+      "originalSha256": "f99c138ab9a396e77f3d081a7deec8827db46b4884bb3446c4afdf4e7d6f1939"
+    },
+    "114535948455.txt.gz": {
+      "bytes": 41879,
+      "sha256": "eb8d1c0853b1b3210b42794600a7f4ed1d98c2d8c5a377a2dcb097c657775f68",
+      "originalBytes": 235427,
+      "originalSha256": "d74f5bc236af64cbee00b9ee6412619fed92516a7dc0c6159dc231f7f09cac37"
+    },
+    "114535948577.txt.gz": {
+      "bytes": 48067,
+      "sha256": "fdfeee3bed923bf09ab1a1e8b5e610d188e40f9dbed9b64232ec5381e479e9af",
+      "originalBytes": 695961,
+      "originalSha256": "f4280c7d2b5adb5d24ecc99e0fa017a100fdb328cb5580ece6ef98acf72da2ae"
+    },
+    "114535948580.txt.gz": {
+      "bytes": 15138,
+      "sha256": "daebece8b47682901f883b1da68efa99b59883a9fd0ca6de7d77868e70cf9d0f",
+      "originalBytes": 89718,
+      "originalSha256": "ef6f5bfb36af82989640d426f943e85b57754a574cfb088e40c8f0e02b82edf2"
+    },
+    "114535948668.txt.gz": {
+      "bytes": 46548,
+      "sha256": "30143f47967a0c6ec6048a41b715d0fedfe82669ce95034743be3249a977a588",
+      "originalBytes": 678583,
+      "originalSha256": "11610b273cf7358558f283f7b93f7b71e4a2c6c3e1c36fc36084b208b75a1b61"
+    },
+    "summary.json": {
+      "bytes": 732,
+      "sha256": "fc8bebcf2003c671aae96cfb268eb2ee50add38191908c659e432049f4914a46"
+    }
+  },
+  "purpose": "Original completed PR140 exact-source protected admission and postmerge; prior failed attempt remains separate and causal root unresolved"
+}

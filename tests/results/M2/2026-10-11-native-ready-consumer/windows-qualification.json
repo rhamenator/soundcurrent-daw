@@ -1,0 +1,189 @@
+{
+  "source": "e5c7a468b790b7440bfb998ef48d7d3e6bd21d31",
+  "tree": "21243860405661e513b20cc3597daa629f9bd950",
+  "targets": [
+    "sc-wasapi-monitor-render",
+    "sc-native-monitor-startup-tests",
+    "sc-wasapi-render-lifecycle-tests",
+    "sc-wasapi-monitor-render-tests",
+    "sc-monitor-startup-tests"
+  ],
+  "commands": [
+    [
+      "configure",
+      [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        ".cache/native-ready-consumer/build-windows",
+        "-G",
+        "Ninja",
+        "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-mingw.cmake",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DSC_BUILD_MEDIA=OFF",
+        "-DSC_BUILD_DESKTOP=OFF"
+      ]
+    ],
+    [
+      "build",
+      [
+        "cmake",
+        "--build",
+        ".cache/native-ready-consumer/build-windows",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-wasapi-monitor-render",
+        "sc-native-monitor-startup-tests",
+        "sc-wasapi-render-lifecycle-tests",
+        "sc-wasapi-monitor-render-tests",
+        "sc-monitor-startup-tests"
+      ]
+    ]
+  ],
+  "objects": {
+    "context": {
+      "source": "src/wasapi_monitor_render.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "src/wasapi_monitor_render.cpp",
+        "-o",
+        ".cache/native-ready-consumer/windows-context.obj"
+      ],
+      "sha256": "93d42749b564d614fd6dc5f242e6b68d4dbb03ae3a8268ef1028c0f4bb5d2f67"
+    },
+    "stream": {
+      "source": "src/wasapi_monitor_render_stream.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "src/wasapi_monitor_render_stream.cpp",
+        "-o",
+        ".cache/native-ready-consumer/windows-stream.obj"
+      ],
+      "sha256": "d97141853b7762027340b62b28dca386dd0948dded25a3a1ccb1375239604a54"
+    },
+    "native": {
+      "source": "src/native_original_recording.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "src/native_original_recording.cpp",
+        "-o",
+        ".cache/native-ready-consumer/windows-native.obj"
+      ],
+      "sha256": "f3c01ca914dae35d60663166473c7b6bfa8cdb46542dcca81a2e318b66135b17"
+    },
+    "startup-fixture": {
+      "source": "tests/native_monitor_startup_tests.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "tests/native_monitor_startup_tests.cpp",
+        "-o",
+        ".cache/native-ready-consumer/windows-startup-fixture.obj"
+      ],
+      "sha256": "39c98c88a1c5db6fb735f81383e9e568afc7855b5faa4edadcda3ce93b7b6339"
+    },
+    "native-fixture": {
+      "source": "tests/native_original_recording_tests.cpp",
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "ionice",
+        "-c",
+        "2",
+        "-n",
+        "7",
+        "x86_64-w64-mingw32-g++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Iinclude",
+        "-Isrc",
+        "-Ithird_party",
+        "-Ithird_party/libsndfile",
+        "-c",
+        "tests/native_original_recording_tests.cpp",
+        "-o",
+        ".cache/native-ready-consumer/windows-native-fixture.obj"
+      ],
+      "sha256": "8eb0c5b8fb99cd1ee93ecea536502bb61ece7a1257dbdc9a4f61d7074ee1de4a"
+    }
+  },
+  "nativeSdkCompiled": true,
+  "nativeSdkRuntimeExecuted": false
+}
