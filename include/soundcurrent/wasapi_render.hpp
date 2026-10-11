@@ -31,6 +31,7 @@ struct WasapiRenderClock {
     std::uint32_t paddingFrames = 0;
     std::uint64_t contentSubmittedFrames = 0;
     std::uint32_t startupFrames = 0;
+    bool operator==(const WasapiRenderClock &) const = default;
 };
 enum class WasapiRenderAction { Continue, Finish, Abort };
 struct WasapiRenderLeaseResult {
@@ -76,6 +77,7 @@ class WasapiRenderStream {
     WasapiRenderStream(const WasapiRenderStream &) = delete;
     WasapiRenderStream &operator=(const WasapiRenderStream &) = delete;
     void activate();
+    void requestStop() noexcept; // Serialized control event notification; no join.
     void stop() noexcept; // Join before retiring callback state/banks.
     bool drained() const noexcept; // SDK queue drained and client stopped normally.
     std::uint64_t submittedFrames() const noexcept;

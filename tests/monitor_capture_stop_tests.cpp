@@ -3,6 +3,8 @@
 #include <soundcurrent/original_recording.hpp>
 #include <soundcurrent/wasapi_packet_copy.hpp>
 #include <soundcurrent/wasapi_monitor_capture.hpp>
+#include <soundcurrent/wasapi_monitor_render.hpp>
+#include <soundcurrent/wasapi_render_lifecycle.hpp>
 #include "rt_audit.hpp"
 #include "../src/media_io.hpp"
 #include <barrier>
@@ -113,7 +115,7 @@ struct Temp {
     Temp(){std::filesystem::create_directory(path);}
     ~Temp(){if(!std::uncaught_exceptions()){std::error_code e;std::filesystem::remove_all(path,e);}else std::cerr<<"Retained stop fixture: "<<path<<'\n';}
 };
-void pipeline(unsigned length,unsigned kind,bool nativeContext=false) {
+void pipeline(unsigned length,unsigned kind,bool nativeContext=false,bool nativeRender=false) {
     Config c(nativeContext);PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
     PreparedMonitorCaptureStop stop(c.stop);MonitorControlConfig qc;PreparedMonitorControl control(qc);
     MonitorClockHandoffConfig hc;hc.captureIdentity=c.capture.capture.identity;
@@ -122,6 +124,11 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false) {
     WasapiPreparedCaptureFormat format{c.capture.capture.sampleRate,1,64,4,false,c.capture.capture.identity};
     PreparedWasapiMonitorCapture context(format,f,clocks,stop);PreparedWasapiCaptureBinding binding;
     check(!nativeContext || binding.bind(context,format),"Production context binding");
+    WasapiPreparedRenderFormat renderFormat{c.output.sampleRate,1,128,64,4,hc.renderFrequency,{10000,30000,0,0},hc.renderIdentity};
+    PreparedWasapiMonitorRender renderContext(renderFormat,o,clocks);PreparedWasapiRenderBinding renderBinding;
+    check(!nativeRender || (nativeContext && renderBinding.bind(renderContext,renderFormat)),"Composed render context binding");
+    const auto renderCallbacks=renderBinding.callbacks();
+    PreparedWasapiRenderLifecycle renderLife({renderCallbacks.context,renderCallbacks.finished,renderCallbacks.shouldStop});renderLife.prepared(renderFormat);
     PreparedMonitorProcessing p(f,o,c.processing,nativeContext?&clocks:nullptr,&control,&stop);seed(p,c);
     const MonitorControlRequest intent{1,1,MonitorControlKind::Stop,{base+length}};
     check(control.submit(intent)==MonitorControlCode::Accepted,"Pipeline intent");
@@ -201,6 +208,7 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false) {
         audits[2]=rt_audit::counts;
     });
     rt_audit::reset();std::array<float,17> scratch{};
+    std::array<float,66> nativeOut{};std::uint64_t nativeFrames=0;bool renderEnded=false,renderStarted=false;
     for(unsigned r=0;r<rounds;++r) {
         phase.arrive_and_wait();phase.arrive_and_wait();
         if(kind>=4 && !cancelSubmitted && cancelPoint.load(std::memory_order_acquire)) {
@@ -208,7 +216,25 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false) {
             if(rt([&]{return control.submit(cancel);})!=MonitorControlCode::Accepted)failed.store(true);
             cancelSubmitted=true;
         }
-        for(unsigned n=0;n<4;++n)if(o.acceptedFrames()-o.deliveredFrames()>=17 || o.producerDone()) {
+        // Fake SDK pacing deliberately waits for a complete bank block. This
+        // exercises composed owners; it is NOT a native startup/deadline policy.
+        if(nativeRender && !renderEnded && (o.acceptedFrames()-o.deliveredFrames()>=64 || o.producerDone())) {
+            if(!renderStarted){rt([&]{renderLife.started();});renderStarted=true;}
+            nativeOut.fill(-999.f);const auto before=o.deliveredFrames();
+            const WasapiRenderClock clock{nativeFrames,origin+std::uint64_t(r)*64,hc.renderFrequency,now+std::uint64_t(r)*10000,0,nativeFrames,0};
+            const auto action=rt([&]{return renderCallbacks.fill(renderCallbacks.context,nativeOut.data()+1,64,clock);});
+            const auto consumed=o.deliveredFrames()-before;
+            check(nativeOut.front()==-999.f && nativeOut.back()==-999.f,"Composed native fill crossed SDK lease");
+            if(consumed)rendered.insert(rendered.end(),nativeOut.begin()+1,nativeOut.begin()+1+consumed);
+            rt([&]{renderLife.contentReleased({clock,64,action==WasapiRenderAction::Abort?0u:64u,action,0,true});});
+            if(action!=WasapiRenderAction::Abort)nativeFrames+=64;
+            if(action==WasapiRenderAction::Finish) {
+                for(unsigned n=unsigned(consumed);n<64;++n)check(nativeOut[n+1]==0,"Composed finite slack not zero");
+                check(!renderContext.result() && !clocks.renderDone(),"Composed content Finish hid SDK drain/Stop");
+                rt([&]{renderLife.padding(0);renderLife.queueDrained();renderLife.stopped(0);renderLife.finish({});});renderEnded=true;
+            }else if(action==WasapiRenderAction::Abort){failed.store(true);rt([&]{renderLife.stopped(0);renderLife.finish({});});renderEnded=true;}
+        }
+        for(unsigned n=0;!nativeRender && n<4;++n)if(o.acceptedFrames()-o.deliveredFrames()>=17 || o.producerDone()) {
             const auto result=rt([&]{return o.pull(scratch);});
             if(result.frames)rendered.insert(rendered.end(),scratch.begin(),scratch.begin()+result.frames);
         }
@@ -216,7 +242,12 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false) {
     }
     audits[3]=rt_audit::counts;capture.join();disk.join();processing.join();
     if(nativeContext) {
-        context.settleAfterJoin();clocks.finishRender();clocks.settleAfterJoin();
+        context.settleAfterJoin();
+        if(nativeRender){
+            renderContext.settleAfterJoin();const auto result=renderContext.result();
+            check(renderEnded && result && result->status==WasapiMonitorRenderStatus::Complete && result->original && result->original->queueDrainObserved && result->original->stopHresult==0 && result->consumedMonitorFrames==length && result->requestedNativeFrames==nativeFrames && result->finalSlackFrames==nativeFrames-length && result->monitorEnd->value==base+length && renderBinding.originalEnd(),"Composed original native render receipt/extent lost");
+        }else clocks.finishRender();
+        clocks.settleAfterJoin();
         check(binding.originalEnd() && binding.originalEnd()->stopHresult==life.afterJoin()->stopHresult &&
             clocks.captureCounts().accepted==native.callbacks,"Original bound SDK end/clock count lost");
     }
@@ -249,7 +280,7 @@ void pipeline(unsigned length,unsigned kind,bool nativeContext=false) {
         check(cancelSubmitted && p.statistics().cancelled && stop.originalRequest()->kind==MonitorCaptureStopKind::Cancel && rendered.size()<length,"Cancel did not reach capture owner");
         check(end->status==(kind==5?MonitorCaptureEndStatus::NativeFailure:MonitorCaptureEndStatus::Healthy),"Cancellation lost actual native end result");
     }
-    std::cout<<(nativeContext?"production capture context; fake 64k source, synthetic prior clock fit; ":"source-stop fake SDK; ")<<"owners=4 phased; kind="<<kind<<" requested="<<length<<" raw="<<rawFrames<<" monitor="<<rendered.size()<<" actual postroll="<<(rawFrames>=length?rawFrames-length:0)<<"\n";
+    std::cout<<(nativeRender?"production capture+render contexts; fake 64k SDK/pacing, synthetic prior clock fit; ":nativeContext?"production capture context; fake 64k source, synthetic prior clock fit; ":"source-stop fake SDK; ")<<"owners=4 phased; kind="<<kind<<" requested="<<length<<" raw="<<rawFrames<<" monitor="<<rendered.size()<<" actual postroll="<<(rawFrames>=length?rawFrames-length:0)<<"\n";
 }
 } // namespace
 int main() {
@@ -257,6 +288,7 @@ int main() {
         pipeline(512,1);pipeline(512,2);pipeline(512,3);pipeline(3072,4);pipeline(3072,5);
         for(unsigned n:{0u,7u,512u,3072u})pipeline(n,0,true);
         for(unsigned kind=1;kind<=5;++kind)pipeline(kind>=4?3072:512,kind,true);
+        for(unsigned n:{0u,7u,512u,3072u})pipeline(n,0,true,true);
         audit(rt_audit::counts);
         std::cout<<checks<<" capture Stop lifecycle checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;
     }catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}

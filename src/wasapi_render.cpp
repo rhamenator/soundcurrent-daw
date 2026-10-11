@@ -241,6 +241,7 @@ void WasapiRenderStream::activate() {
     state_->activated = true;
 }
 void WasapiRenderStream::stop() noexcept { state_->join(); }
+void WasapiRenderStream::requestStop() noexcept { SetEvent(state_->stop.value); }
 bool WasapiRenderStream::drained() const noexcept { return state_->drained.load(std::memory_order_acquire); }
 std::uint64_t WasapiRenderStream::submittedFrames() const noexcept { return state_->submitted.load(std::memory_order_acquire); }
 std::uint32_t WasapiRenderStream::endGuardSubmittedFrames() const noexcept { return state_->guardSubmitted.load(std::memory_order_acquire); }
