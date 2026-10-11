@@ -1,5 +1,48 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native early punch-out failure (2026-10-11)
+
+[Checkpoint205](205-native-punch-out-diagnostics.md) preserves PR140's original
+four CI logs and exact a0/base31/tested merge/tree/16 blobs. Three required jobs
+passed; Windows native failed one of70 suites118.22s. The first Out/revision2 was
+refused after CaptureFailed at position8192, before the group-wait diagnostic.
+Three later original20-take completions do not resolve that failure. PR140 is
+unadmitted; no deadline/assertion/protection change or retry-until-green is used.
+
+The fixture now reports every take-stage failure, original callback fault/lane/
+clocks and retained first control/disk error. Deterministic existing pool exhaustion
+and active writer-failure workflows qualify the observations and error preservation.
+Six selected suites at6b6d683 pass Release1.65s/ASanUBSan8.61s/TSan7.55s;
+output difference0/headroom2.14813/RT violations0,632 inputs/18 Linux executable
+hashes/four fixture-object hashes/full logs retained. The Windows fixture compiles
+without warnings; new native Windows execution remains required. Production
+behavior is unchanged and original Windows causes remain unresolved. Full goal
+remains ACTIVE/incomplete.
+
+## Finite SDK warmup hook (2026-10-11)
+
+[Checkpoint204](204-native-warmup-sdk.md) records ordinary protected PR139 at
+MAIN31db463, exact tested tree/base/14blobs and all four original byte-exact logs.
+MSVC70suites179.80s/newstartup and three original20-take diagnostics passed;
+original Windows failure roots remain unresolved.
+
+The optional native pre-lease hook now admits finite frame/QPC budgets, actual SDK
+SILENT leases and ordinary Start, preserving original clocks/HRESULTs and separate
+warmup/startup/guard/content counters. Content latches Live. Schema1.0 explicitly
+refuses new observations until migration; ten refusals leave pending state intact.
+Four suites/profile pass Debug3.86s/Release1.14s/ASanUBSan11.78s/TSan18.24s with77
+lifecycle/19,698 startup checks and guarded allocate/free/lock0.595 inputs/19 executable
+hashes/five Windows objects/full logs retained; Windows SDK and three targets link.
+A subsequent QPC conversion removes the initial1GHz implementation restriction;
+80 independent integer literal oracles/four suites pass Release1.14s/ASan11.58s/
+TSan17.69s with157 lifecycle checks and RT audit0.595 inputs/15 follow-up hashes/
+five Windows objects/full logs remain separately bound; no new Debug/native runtime
+claim. Protected-MAIN inheritance preserved the initial qualified source tree.
+Native execution/installed audio remains pending. Next: monitor readiness consumption,
+original-clock handoff without duplicate publication, explicit1.1 migration and
+native/installed/latency/EQmix/alignment gates. Factory disabled; full goal
+M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.
+
 ## Immutable startup receipt and protected integration (2026-10-11)
 
 [Checkpoint203](203-monitor-startup-ready.md) records ordinary protected PR136 at

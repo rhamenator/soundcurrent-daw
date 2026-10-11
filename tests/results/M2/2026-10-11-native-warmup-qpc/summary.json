@@ -1,0 +1,51 @@
+{
+  "format": "sc-native-warmup-qpc-v1",
+  "sourceCommit": "b5f2a29cbf4694c1e6e9dead39f8496c60b0a5d6",
+  "sourceTree": "874ba2fd4c6749fd629720027e8f398787ad222f",
+  "captureBytes": 88173,
+  "captureSha256": "1a93f3d8a50d7dc9a57af15bce21d41471052da2240a3c79ff5348aa65e4e297",
+  "members": 30,
+  "selectedInputs": 595,
+  "executableHashes": 15,
+  "windowsObjects": 5,
+  "profiles": {
+    "release": {
+      "suites": 4,
+      "seconds": 1.14,
+      "lifecycleChecks": 157,
+      "independentIntegerOracleCases": 80,
+      "startupChecks": 19698,
+      "guardedAllocationFreeLock": 0,
+      "directReferenceMaxError": 0
+    },
+    "sanitizer": {
+      "suites": 4,
+      "seconds": 11.58,
+      "lifecycleChecks": 157,
+      "independentIntegerOracleCases": 80,
+      "startupChecks": 19698,
+      "guardedAllocationFreeLock": 0,
+      "directReferenceMaxError": 0
+    },
+    "tsan": {
+      "suites": 4,
+      "seconds": 17.69,
+      "lifecycleChecks": 157,
+      "independentIntegerOracleCases": 80,
+      "startupChecks": 19698,
+      "guardedAllocationFreeLock": 0,
+      "directReferenceMaxError": 0
+    }
+  },
+  "nativeSdkCompiled": true,
+  "nativeSdkRuntimeExecuted": false,
+  "fullFrequencyDomainAccepted": true,
+  "integerConversionBoundaryAndRepresentativeCasesQualified": true,
+  "monitorReadyConsumptionImplemented": false,
+  "schema11Implemented": false,
+  "factoryEnabled": false,
+  "originalWindowsFailureRootsResolved": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

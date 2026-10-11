@@ -1,0 +1,52 @@
+{
+  "run": 38159835904,
+  "head": "a0e09cb1c63e15eac22b72dae94968f1dbaff55a",
+  "base": "31db463ba36b568ce83e52a37476f228d9ca3afd",
+  "testedMerge": "863c7775855b7fe3f535b1adfad0d8e94a2f7ba3",
+  "tree": "6df09d80560c8367ae8ccd4defe93219ff53c16d",
+  "jobs": {
+    "114530250507": {
+      "name": "Linux desktop and synthetic tests",
+      "conclusion": "success",
+      "bytes": 233569,
+      "sha256": "19594b8e0fd078440bbd495f2854422aef0372eb5352b44c765321fc6921e244"
+    },
+    "114530250673": {
+      "name": "Windows native packet ownership tests",
+      "conclusion": "failure",
+      "bytes": 696990,
+      "sha256": "5f312715153003dd5c25207839e033d2fb57132d734b233a0c7fb48f55d17701"
+    },
+    "114530250677": {
+      "name": "Windows core cross-build (no native runtime claim)",
+      "conclusion": "success",
+      "bytes": 90462,
+      "sha256": "5e992e59e9c7bf36dc5816a705146a4af8e6ec26bf865638a700bf15ff504767"
+    },
+    "114530250712": {
+      "name": "Windows desktop import and localization tests",
+      "conclusion": "success",
+      "bytes": 678386,
+      "sha256": "66b1ae57e42ba5d0d617d61251e58e13af0fc853121ffb3300d8c56b44118761"
+    }
+  },
+  "nativeSuites": 70,
+  "nativeFailedSuites": 1,
+  "nativeSeconds": 118.22,
+  "failure": {
+    "workflow": 3,
+    "callerLine": 926,
+    "takeIndex": 0,
+    "revision": 2,
+    "action": "Out",
+    "admission": "Stopped",
+    "transport": "CaptureFailed",
+    "position": 8192,
+    "occupiedSlots": 1
+  },
+  "subsequentOriginalConcurrentCompletions": 3,
+  "rootCauseEstablished": false,
+  "requiredChecksPassed": false,
+  "mergeAdmitted": false,
+  "nativeHardwareQualified": false
+}

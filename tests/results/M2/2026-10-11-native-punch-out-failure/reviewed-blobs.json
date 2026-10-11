@@ -1,0 +1,74 @@
+{
+  "head": "a0e09cb1c63e15eac22b72dae94968f1dbaff55a",
+  "base": "31db463ba36b568ce83e52a37476f228d9ca3afd",
+  "mergeRef": "863c7775855b7fe3f535b1adfad0d8e94a2f7ba3",
+  "tree": "6df09d80560c8367ae8ccd4defe93219ff53c16d",
+  "files": {
+    "docs/12-goal-progress.md": {
+      "gitBlob": "4f7cacb0c9af6e96030a85b421a1b386ccb72fef",
+      "sha256": "01130420c0500e8876f2263f98d204c84564688093edd072529db44abb5385c7"
+    },
+    "docs/204-native-warmup-sdk.md": {
+      "gitBlob": "dbe42b9db8f832f15e176eefdcaa7e29b0b5da5b",
+      "sha256": "5d7b7b46d900987c2ef0e0ca49dfd2604a51430957d0c89dd076e89f3d9cd383"
+    },
+    "docs/decisions/135-native-warmup-sdk.md": {
+      "gitBlob": "c3009292f4b5fd84b00869d591409824106e3c9f",
+      "sha256": "17d22159dce8215c203fd1869a7289d993d41b687c063ce1d0775b9b993bc78c"
+    },
+    "include/soundcurrent/wasapi_render.hpp": {
+      "gitBlob": "d46bfec52e60cf2444a6a0c2c8f11209b0ee25b8",
+      "sha256": "6a9a2f69e5d4b92647fbedd056eeb43592fe805e136d133c0d024d8cb156058e"
+    },
+    "include/soundcurrent/wasapi_render_lifecycle.hpp": {
+      "gitBlob": "b455557a46714170fffba41655fb2e853936bdb2",
+      "sha256": "caa812ec935f77640980a23a00d74f307970b698072e0c0815c19cb689b25d29"
+    },
+    "src/native_original_recording.cpp": {
+      "gitBlob": "fe1a9ad08134fc5904cf926035b189822e239f2b",
+      "sha256": "6d638347431d4d1cf910452caf64dd5d6ebb76ff5083ebdfdea4991ed4143336"
+    },
+    "src/wasapi_render.cpp": {
+      "gitBlob": "14e27075c31c61cbdf58897e0dafd473daea46b9",
+      "sha256": "2da8c794396f8a2e6eb8c7a5ce8400a205d6b937c8e8646630644b73b686b527"
+    },
+    "src/wasapi_render_lifecycle.cpp": {
+      "gitBlob": "4eda8e9a2d9caa819e089fd0df37a09333392b68",
+      "sha256": "1ec9b83b4a2587c20c939b395dc0d2ceabc2bdac3dd185f879928976f6a9b5bc"
+    },
+    "tests/native_original_recording_tests.cpp": {
+      "gitBlob": "e0ad450763614fafa28d363e7e52f8ada83e8d55",
+      "sha256": "522857704a4af820d202dea85728d648f691f81213d87d0f772ab2c1eebd2be0"
+    },
+    "tests/results/M2/2026-10-11-monitor-ready-protected-main/capture.json.gz": {
+      "gitBlob": "2f69b6f62968af4c3bc13edae16abb20050d4d05",
+      "sha256": "366a22c823278daea5e75a8e7820a50c8da86c38686b2104b692cb7163bd55eb"
+    },
+    "tests/results/M2/2026-10-11-monitor-ready-protected-main/summary.json": {
+      "gitBlob": "21006189891d7dadabaac816dabcd2713e444917",
+      "sha256": "f358571295f311cbd3814b04dc517f1ae268b59bb4a06843138a617431abd197"
+    },
+    "tests/results/M2/2026-10-11-native-warmup-qpc/capture.json.gz": {
+      "gitBlob": "6813992812806f5896b5e99e884e070833e05fa2",
+      "sha256": "1a93f3d8a50d7dc9a57af15bce21d41471052da2240a3c79ff5348aa65e4e297"
+    },
+    "tests/results/M2/2026-10-11-native-warmup-qpc/summary.json": {
+      "gitBlob": "2909b9d27226a645e06659f53dee5f769b9373ab",
+      "sha256": "cc1586d51000b23b98c99b2d229903a672ab4890e94dad78c968c41c0d379e77"
+    },
+    "tests/results/M2/2026-10-11-native-warmup-sdk/capture.json.gz": {
+      "gitBlob": "aa54799bb5e797dad8763214f80ee0a6c3d3bc0c",
+      "sha256": "9c3bdabc0ab5ab4afe8d65836caf22e4b895bc18ddbb54707b74863703530f86"
+    },
+    "tests/results/M2/2026-10-11-native-warmup-sdk/summary.json": {
+      "gitBlob": "12b2fb7807c6cf816253db28c396416640f13e07",
+      "sha256": "1999905a7521c636f584979e3c8c746eeb25d2a0e41a0e289da9d5b6684fd931"
+    },
+    "tests/wasapi_render_lifecycle_tests.cpp": {
+      "gitBlob": "8666d555dfb190139c31196d55dd7ae43279ade9",
+      "sha256": "8942dde01ad703620b60f0c7b5c9dd25b75b0bafaa2dbd6bb300aa0368b82505"
+    }
+  },
+  "runId": 38159835904,
+  "pullRequest": 140
+}

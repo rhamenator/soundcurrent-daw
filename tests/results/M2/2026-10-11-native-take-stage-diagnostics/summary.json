@@ -1,0 +1,95 @@
+{
+  "source": "6b6d6838de7dd04196d62a3c3a6ced1fd97ba25b",
+  "tree": "1254a8dc7e91b25844b389f030477b64e685447e",
+  "preceding": "a0e09cb1c63e15eac22b72dae94968f1dbaff55a",
+  "changedSourceFiles": [
+    "tests/manual_recording_tests.cpp"
+  ],
+  "selectedInputs": 632,
+  "observations": {
+    "release": {
+      "sixSuitesPassed": true,
+      "seconds": 1.65,
+      "manualOwnerChecks": 67262,
+      "maximumOutputDifference": 0,
+      "outputPeak": 2.14813,
+      "rtViolations": 0
+    },
+    "sanitizer": {
+      "sixSuitesPassed": true,
+      "seconds": 8.61,
+      "manualOwnerChecks": 67353,
+      "maximumOutputDifference": 0,
+      "outputPeak": 2.14813,
+      "rtViolations": 0
+    },
+    "tsan": {
+      "sixSuitesPassed": true,
+      "seconds": 7.55,
+      "manualOwnerChecks": 67261,
+      "maximumOutputDifference": 0,
+      "outputPeak": 2.14813,
+      "rtViolations": 0
+    }
+  },
+  "linuxExecutableHashes": {
+    "release": {
+      "sc-manual-recording-tests": "d8da984f14cec958cfe98595e13c0f3589a3d7ad4fd39f1fd946d7d7529830c1",
+      "sc-manual-punch-tests": "34ec49c3ba7f36f13573aa24cd397121f879afe9c57191b5c3a2479c10022ccb",
+      "sc-capture-tests": "79bc3deef219b5581653f588b40368bf895f9e58e18d40b3a18d574a21cd9a64",
+      "sc-recording-tests": "e20b82481f3acb3014b5a219dff9d8b4f83fe212b26b677862314942c590acd9",
+      "sc-writer-timing-tests": "1e50900fd86870de5bac6eb4c8a7a237e9ed8765cc5f4087564beba860d394db",
+      "sc-monitor-recording-tests": "502b34489e7e8a2819190a48ac3fe9bfd2c304c283cf7b56fa7a4043494281ac"
+    },
+    "sanitizer": {
+      "sc-manual-recording-tests": "7f81b95bdac387b3c38b2ba2fd47f809f22164749357c3c2c536b83c7f0e4812",
+      "sc-manual-punch-tests": "b9c464c4812f041a0bb230c5ec2391513c96735de530a930e13b60c9d174bdc4",
+      "sc-capture-tests": "8dafda0fa0264d7e96dcebbf8f485a4a7538bd3866b4dafd4122970bce53dad4",
+      "sc-recording-tests": "a49321eea2c79b2c2a91544de36ab522fa02120c4b2ea9f482ad6caf1694e7df",
+      "sc-writer-timing-tests": "ccdce084d405056806163f45de2d330405c5054c765818f61d503c8f8ac8d444",
+      "sc-monitor-recording-tests": "79561eb263b191b34525c8249254537386e45d9a3f959b4bab5a599adf641a28"
+    },
+    "tsan": {
+      "sc-manual-recording-tests": "97b8500df31b696a098a9575cbf891c569c9af565641ca8b7ece99f1ce2248d9",
+      "sc-manual-punch-tests": "79ef6c5621aaecb563b8b5bf38a2d77985c02a314a962f2412d7eda862700473",
+      "sc-capture-tests": "42a4bf4905fa23398f2b93a3b938eb487e30cb3fcc73debf68c9f58f1ab12693",
+      "sc-recording-tests": "75ea2d5a1e2628195f347fcb3f188dff153c17733a589d4eede17e01153bad5a",
+      "sc-writer-timing-tests": "af3f96e26c8e7f27e5fa96c1cc50e3c8230c2033e61bc4761b77be6e6d9b9811",
+      "sc-monitor-recording-tests": "65a337206ec84aaeca5cf366999b1a32b52c3e201be2d8ab3f363bfd28a89158"
+    }
+  },
+  "objectHashes": {
+    "release/CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.o": "0c56c243e8269b1616b492960944c6ce54acfa8af5a8d28a62d7618cb4c48fff",
+    "sanitizer/CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.o": "a8851fc242e71eaa5614f87a554e944e6b5d6be74c1ac2e3a0459e6be40f3395",
+    "tsan/CMakeFiles/sc-manual-recording-tests.dir/tests/manual_recording_tests.cpp.o": "bce61ab555df5d9b5fb5e9bb4768f8d40362e47db3ba1498983653256d34e502",
+    "windows-fixture.obj": "f895d84d4cdd4450bee8e305de5687bd211a94a878c183c1df9829c2a9037c7f"
+  },
+  "nativeWindowsRuntimeExecuted": false,
+  "nativeHardwareQualified": false,
+  "originalWindowsRootCauseEstablished": false,
+  "productionSourcesChanged": false,
+  "originalFailurePacket": "../2026-10-11-native-punch-out-failure/summary.json",
+  "knownExistingWarnings": {
+    "protectedMain": "31db463ba36b568ce83e52a37476f228d9ca3afd",
+    "files": [
+      {
+        "path": "src/mix_playback.cpp",
+        "sourceBlob": "97d4f7aa032b77b645c6dfc2759639dee022b2df",
+        "protectedMainBlob": "97d4f7aa032b77b645c6dfc2759639dee022b2df",
+        "identical": true
+      },
+      {
+        "path": "src/mix_reader.cpp",
+        "sourceBlob": "aa09b651b13d1ffa8df5eacc23de9acf3df3b8af",
+        "protectedMainBlob": "aa09b651b13d1ffa8df5eacc23de9acf3df3b8af",
+        "identical": true
+      }
+    ],
+    "existingWarnings": [
+      "Two GCC15 optional ResourceLedger copy warnings in unchanged mix_playback.cpp",
+      "One unused assertion variable in unchanged mix_reader.cpp"
+    ],
+    "flagsSuppressed": false,
+    "modifiedFixtureWarnings": 0
+  }
+}
