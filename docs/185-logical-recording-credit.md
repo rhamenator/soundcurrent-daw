@@ -47,3 +47,24 @@ Fresh current-MAIN Windows execution and all required checks are needed before
 PR119 admission. Earlier unknown manual wait cause remains distinct; the latest
 manual workflow passed, and caller/early-owner diagnostics remain in place.
 Native/installed/physical/load/quality and the full DAW goal remain open.
+
+## Fresh Windows pass and Linux inventory binding
+
+Run38118823925/head55adabe passed native Windows job114409143859, Windows desktop
+114409143877 and cross-build114409143740. Linux job114409143864 passed123/125
+tests227.51s; both failures were localization inventory checks. The observer source
+changed in4b0721d, while its whole-source digest in the catalog inventory still
+bound older bytes. No translation key or translation was changed by that fix.
+
+Frozen d254183bc0b7b021ca9752f5fbaede09eade4b5b ran the actual Qt Linguist
+update/compilation workflow. The sole resulting diff is the inventory digest for
+`ui/stretch_controller.cpp`. All917 keys,34 catalogs,3,135 draft translations and
+75 other localization files remain byte-identical. Native review/full UI
+qualification remains zero. The actual13 isolated corruption refusals and scalar/
+plural/translator-comment preservation workflow passed after this update.
+
+A71,095-byte/five-member source/log packet retains the full failed Linux job,
+original run status, actual update/refusal logs, inventories and unchanged-file
+hashes. No executable is included. New current-head Windows/Linux checks still
+need fresh qualification; the successful older Windows jobs are independent
+observations and cannot admit the changed head.
