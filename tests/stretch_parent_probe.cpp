@@ -47,7 +47,7 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
     }
     require(args[1]=="--render" && args.size()==6,"Unexpected render arguments");const auto stage=args[3];const auto ticket=utf8Path(args[4].toUtf8().toStdString());auto release=ticket;release+=".release";
     StretchController *owner=nullptr;
-    auto hold=[&](const char *point){const auto s=owner->snapshot();receipt(ticket,{{"pid",QCoreApplication::applicationPid()},{"helperPid",s->childPid},{"operation",s->selection->operation.str()},{"point",point},{"attached",false}});while(!std::filesystem::exists(release))QThread::msleep(1);};
+    auto hold=[&](const char *point){const auto s=owner->snapshot();receipt(ticket,{{"pid",QCoreApplication::applicationPid()},{"helperPid",s->childPid},{"operation",s->selection->operation.str()},{"point",point},{"attached",false},{"childExit",s->childExit ? Json(*s->childExit) : Json(nullptr)},{"timedOut",s->timedOut},{"abnormalExit",s->abnormalExit},{"error",s->error ? Json(unsigned(*s->error)) : Json(nullptr)},{"deadlineMilliseconds",o.policy.deadlineMilliseconds}});while(!std::filesystem::exists(release))QThread::msleep(1);};
     if(stage!="after-complete")o.afterReady=[&]{hold("before-start-acknowledgement");};
     if(stage=="after-complete")o.afterChild=[&]{hold("after-child-before-verification");};
     StretchController c(o);owner=&c;require(c.render(source,source->session->tracks[0].id,source->session->tracks[0].clips[0].id,{1,1,0,false})==Admission::Accepted,"Render refused");

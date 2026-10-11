@@ -1,0 +1,14 @@
+{
+  "job.txt": {
+    "bytes": 461504,
+    "sha256": "8f505ce051c72413255b766f57942e9f8e048809732152224670e2a49eedde9c"
+  },
+  "status.json": {
+    "bytes": 729,
+    "sha256": "0201bac0d73a3d45a23b3ec91863e768b0f36d1d5a06969043c84cc699fbe76d"
+  },
+  "reviewed-blobs.json": {
+    "bytes": 3222,
+    "sha256": "93e1e48f952a9f6c41990034d3ef5f47aad6ec8845a5127112afbc3e1680d504"
+  }
+}

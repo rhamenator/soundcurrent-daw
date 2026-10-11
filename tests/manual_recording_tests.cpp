@@ -13,14 +13,32 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include <sstream>
 using namespace soundcurrent::daw;
 namespace {
 unsigned checks = 0, workflows = 0;
 double maximumDifference = 0, outputPeak = 0;
-void check(bool ok, const char *message) {
+void check(bool ok, const char *message,
+           std::source_location caller = std::source_location::current()) {
     ++checks;
-    if (!ok)
+    if (!ok) {
+        std::cerr << "manual_check_failure workflow=" << workflows
+                  << " file=" << caller.file_name() << " line=" << caller.line()
+                  << " message=" << message << '\n';
         throw std::runtime_error(message);
+    }
+}
+void preservedFailureDiagnostic(std::ostream &out, const std::filesystem::path &root) noexcept {
+    // Native path insertion narrows through the locale on Windows and can throw
+    // for this Unicode fixture while already unwinding, masking the first error.
+    try {
+        const auto utf8 = root.u8string();
+        out << "preserved_failure_project=";
+        out.write(reinterpret_cast<const char *>(utf8.data()), std::streamsize(utf8.size()));
+        out << '\n';
+    } catch (...) {
+        // Failure diagnostics must not replace the original test exception.
+    }
 }
 template <class F> void rejects(F f) {
     bool caught = false;
@@ -39,13 +57,28 @@ struct Directory {
     }
     ~Directory() {
         if (std::uncaught_exceptions()) {
-            std::cerr << "preserved_failure_project=" << root << '\n';
+            preservedFailureDiagnostic(std::cerr, root);
             return;
         }
         std::error_code e;
         std::filesystem::remove_all(root, e);
     }
 };
+void unicodeFailureDiagnostic() {
+    const auto root = std::filesystem::temp_directory_path() / utf8Path("sc-manual-Ελληνικά-Україна");
+    std::ostringstream out;
+    out.imbue(std::locale::classic());
+    preservedFailureDiagnostic(out, root);
+    const auto bytes = root.u8string();
+    check(out.str() == "preserved_failure_project=" +
+                          std::string(reinterpret_cast<const char *>(bytes.data()), bytes.size()) + "\n",
+          "Failure diagnostic lost original Unicode path in the C locale");
+    std::ostringstream unavailable;
+    unavailable.exceptions(std::ios::badbit | std::ios::failbit);
+    try { unavailable.setstate(std::ios::badbit); } catch (const std::ios_base::failure &) {}
+    preservedFailureDiagnostic(unavailable, root); // Must not throw on a failed sink.
+    check(unavailable.bad(), "Failure diagnostic fabricated a recovered output sink");
+}
 float raw(Frame f, unsigned lane) {
     return float(double((f + lane * 37) % 97 - 48) * .0625);
 }
@@ -369,10 +402,11 @@ struct Fixture {
         return status;
     }
 };
-template <class F> void eventually(F test) {
+template <class F> void eventually(F test,
+    std::source_location caller = std::source_location::current()) {
     const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(5);
     while (!test()) {
-        check(std::chrono::steady_clock::now() < until, "Control worker condition timed out");
+        check(std::chrono::steady_clock::now() < until, "Control worker condition timed out", caller);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
@@ -704,6 +738,7 @@ void concurrentOwner() {
     double difference = 0;
     std::jthread audioOwner([&](std::stop_token stop) {
         rt_audit::reset();
+        unicodeFailureDiagnostic();
         std::array<float, 256> expected{};
         float *expectedOut = expected.data();
         const MixInput oracleInput{f.in.data(), 1};
@@ -742,6 +777,13 @@ void concurrentOwner() {
         audioCounts = rt_audit::counts;
     });
     std::uint64_t prior = 0;
+    const auto checkAudioOwner = [&](std::source_location caller = std::source_location::current()) {
+        if (!failed.load()) return;
+        std::cerr << "concurrent first_callback_status=" << firstCallbackStatus.load()
+                  << " first_oracle_status=" << firstOracleStatus.load()
+                  << " first_failure_frame=" << firstFailureAt.load() << '\n';
+        check(false, "Concurrent audio owner failed before control condition", caller);
+    };
     for (unsigned take = 0; take < 20; ++take) {
         const auto id = f.run->prepareTake();
         check(id > prior, "Concurrent production owner reused reclaimed identity");
@@ -749,18 +791,21 @@ void concurrentOwner() {
         submit(*f.run, ManualPunchAction::In, -1, take * 2 + 1, id);
         ManualPunchReceipt receipt;
         eventually([&] {
+            checkAudioOwner();
             f.run->service();
             return f.run->acknowledgement(receipt);
         });
         check(receipt.result == ManualPunchResult::Applied, "Concurrent production start failed");
         submit(*f.run, ManualPunchAction::Out, -1, take * 2 + 2);
         eventually([&] {
+            checkAudioOwner();
             f.run->service();
             return f.run->acknowledgement(receipt);
         });
         check(receipt.result == ManualPunchResult::Applied, "Concurrent production stop failed");
         ManualRecordedGroup group;
         eventually([&] {
+            checkAudioOwner();
             f.run->service();
             return f.run->takeGroup(group);
         });

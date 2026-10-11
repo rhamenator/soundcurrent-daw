@@ -143,6 +143,9 @@ struct StretchController::State : QThread {
         check(view.childPid,"Stretch helper did not start",ErrorCode::Io);
         view.childExit=child.exitCode();view.abnormalExit=child.exitStatus()!=QProcess::NormalExit || *view.childExit!=0 || overflow || !ready || !sent || errorUsed || bool(view.error);
         view.canceled=view.canceled || token.stop_requested();childGrant.resize(0);
+        // Publish the owned child's terminal outcome before observers run.
+        // Verification/result attachment still follows this boundary.
+        publish();
         try {if(options.afterChild)options.afterChild();}
         catch(const ProjectError &e){view.error=e.code();view.abnormalExit=true;}
         catch(...){view.error=ErrorCode::Io;view.abnormalExit=true;}

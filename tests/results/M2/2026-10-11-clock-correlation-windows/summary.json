@@ -1,0 +1,22 @@
+{
+  "format": "sc-windows-clock-core-ci-log-v1",
+  "head": "13feb9f3c4b160897e241a4e0fe0287b0ad84f4a",
+  "base": "eb863b9004db1c4be777da03e00b16afdea40176",
+  "testedMerge": "da3f4adcab7ce0d7d532050951a55ab364a4357c",
+  "tree": "7e4f15e0123d5b4207033204620dc04a6d7df032",
+  "captureBytes": 38166,
+  "captureSha256": "d25c1240eb6607787467569fe2e7821f3a796eddaa989ab2e3bbddfbde371de6",
+  "reviewedBlobs": 17,
+  "nativeWindowsCoreQualified": true,
+  "nativeDuplexQualified": false,
+  "physicalAudioQualified": false,
+  "installedPreviewQualified": false,
+  "clockModelQualityQualified": false,
+  "fullLanguageQualified": false,
+  "M2Complete": false,
+  "fullGoalComplete": false,
+  "productArtifactUploaded": false,
+  "executableHashAvailable": false,
+  "executablesIncluded": false,
+  "countsObserved": false
+}

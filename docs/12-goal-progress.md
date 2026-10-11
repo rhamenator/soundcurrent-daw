@@ -4372,3 +4372,99 @@ matched the resulting MAIN. Existing branch protection remained enabled, with
 no administrative bypass. Native delayed-input checkpoint178 remains separately
 qualified on its frozen source; this integration adds no Windows native duplex
 or physical-device evidence.
+
+## 179 — independent native clock correlation core (2026-10-11)
+
+Original GPL C++20 typed capture/render/QPC/project correlation is implemented,
+with checked wide arithmetic, bounded fits/extrapolation, original metadata,
+startup/reliability policies and sticky reset/drift/overflow faults. Frozen
+`6d45a86ad87c7d91fb7b56ea723a069a5289e316` passed four Linux Release suites
+(0.05s) and its sanitizer suite (0.12s): 4,728 checks, 768 independent Fraction
+vectors and 20,000 rolling RT observations/projections. C++ and Linux interposed
+libc/pthread allocation/free/blocking-lock counts were zero; this is not every
+library/syscall path. The 29,497-byte/seven-member packet binds 535 selected
+inputs and five executable hashes; standalone/source-byte validation passed.
+[Checkpoint179](179-native-clock-correlation.md) and ADR115 record limits.
+Explicit Windows MSVC CI inclusion is added, but actual native audio integration
+and its independent qualification are still required. No audible UI, raw-media
+schema, dependency or certificate change. P005/M2/full F/Q/C/N/localization remain
+open. Next: stamped capture bank/SPSC handoff, causal monitor delay/drift correction,
+durable original mappings, SDK composition and Windows desktop duplex factory.
+
+## Protected delayed-loop integration and Windows clock observation (2026-10-11)
+
+PR118 ordinarily merged as `ed39ff81cce6cd9e8ea59bcab16f6a9791349c3e`.
+Head `eb863b9004db1c4be777da03e00b16afdea40176` against MAIN
+`9b751205eddd99f3d0bedef77933d21cce33b002` used tested merge
+`f0af56d294d82cd714bf813d09a4af03c4a99516`. Run38112860450 had all four
+required jobs terminal SUCCESS;17 exact blobs and the whole tree matched the
+resulting MAIN. Protection was unchanged and no administrator bypass was used.
+
+Clock-core checkpoint179 independently passed actual Windows MSVC job114392841598
+(run38113199221):53 synthetic suites/202.16s, new clock suite0.04s. Exact tested
+merge `da3f4adcab7ce0d7d532050951a55ab364a4357c` binds head13feb9f/baseeb863b9
+and reviewed tree. A38,166-byte/three-member packet binds full job log/status and
+17 changed-file hashes. Native duplex/installed/physical/full-language evidence
+is still required. Source check counts/executable hashes were not exposed by CI.
+PR119 admission must use its refreshed current-MAIN cohort, not this stacked run.
+
+## Interrupted-loop fixture disk readiness (2026-10-11)
+
+The current-MAIN Windows cohort38114113389 failed its interrupted-loop test;
+the clock suite passed. Frozen repair492673d makes interruption wait for each
+disk owner's completed first checkpoint and adds an explicitly gated delayed
+writer case. Linux Debug passed5,034 checks with callback audit zero. Original
+prefix/recovery/hash/context assertions remain; production cancellation is
+unchanged. [Checkpoint181](181-durable-prefix-regression.md) preserves the full
+failed Windows job/status and local regression logs in a41,237-byte/five-member
+packet. Fresh Windows/current-MAIN checks are required before PR119 admission.
+This does not establish native duplex or full product parity.
+
+## Windows manual-owner failure diagnostics (2026-10-11)
+
+Refreshed run38115064831 passed the repaired interrupted-loop suite4.96s but
+failed manual-recording-control with0xc0000409; all other52 suites passed.
+Truncated Unicode path output during unwinding may mask its initiating assertion.
+Frozen a9d7271 adds UTF-8/noexcept failure reporting, classic-locale/failed-sink
+tests and source-location diagnostics. Linux Debug manual control passed1.63s,
+65,181 observed scheduling-dependent checks and callback audit zero. A38,556-byte/
+five-member packet retains the full failed job/status and local diagnostic logs.
+[Checkpoint181](181-durable-prefix-regression.md) records this separate unresolved
+failure. No production behavior is changed. PR119 stays draft/unadmitted pending
+fresh Windows/current-MAIN checks; do not rerun an old successful stacked cohort
+or suppress the manual workflow to obtain green status.
+
+## More precise manual/child-terminal observations (2026-10-11)
+
+Current-MAIN native job114400815807 exposed the original manual wait timeout with
+an intact Unicode path. The exact caller was hidden by the shared wait helper;
+e442fc89 forwards caller location and early callback-failure status/frame. A
+separate Windows desktop parent-interruption case lacked completion markers.
+Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit0/
+busy/unverified regression, and records timeout/exit/error/deadline/job inventory
+at the interruption boundary. Deadlines/assertions remain unchanged. Linux Debug
+controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-byte/
+10-member packet retains both failed jobs/status and local logs/hashes; original
+Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
+records scope; no stale downstream success is admitted as a current-MAIN gate.
+
+## Logical recording credit after an observed Windows disk stall (2026-10-11)
+
+MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
+QueueFull during a3.31s observed write gap (audio flush2.46s, journal0.85s).
+Frozen cf0b9ed changes only the logical producer fixture: conservative returned
+disk credit, an intentionally gated first write, bounded waits outside callbacks,
+and exact whole-packet logical-time advancement. Original480,000 sample/recovery/
+callback and separate overflow assertions remain; production behavior/deadlines
+unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
+retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
+
+## Catalog inventory after the Windows observer change (2026-10-11)
+
+Run38118823925 passed all three Windows checks; Linux passed123/125 and refused
+the stale whole-source digest for stretch_controller.cpp. Actual Linguist update
+on d254183 refreshed only that digest:917keys/34catalogs/3,135drafts and75 other
+localization files byte-identical. Actual13 isolated refusals and translator-work
+preservation passed. Native review/full UI remains zero. The71,095-byte packet and
+[Checkpoint185](185-logical-recording-credit.md) retain original failure/new binding.
+Fresh current-head checks remain required; no stale Windows cohort is admitted.

@@ -1,0 +1,21 @@
+{
+  "format": "sc-durable-prefix-regression-v1",
+  "sourceCommit": "492673dd78e2211d7128e19bac166b6102e5d360",
+  "captureBytes": 41237,
+  "captureSha256": "0045e23589b62c04642f590ea21323f023a33aa74f0c2fee77eef002421ca8c0",
+  "members": 5,
+  "selectedInputs": 9,
+  "localLinuxDebugSuites": 1,
+  "linuxChecks": 5034,
+  "deliberatelyDelayedDiskOwners": 2,
+  "callbackAuditTotal": 0,
+  "failedWindowsRun": 38114113389,
+  "failedWindowsJob": 114395475698,
+  "failureReason": "Canceled before first durable prefix; callback progress was not disk readiness",
+  "newWindowsCohortRequired": true,
+  "productionCodeChanged": false,
+  "nativeAudioQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "productArtifactUploaded": false
+}

@@ -401,3 +401,13 @@ source pin. It adds no shipping dependency or algorithm-quality equivalence.
 nonunity sustained-group phase failures. [ADR107](decisions/107-protected-warp-integration-scope.md)
 selects a separately versioned experimental worker/state/editor slice next;
 general/group/listening/native-install and remaining F/Q/C/N gates stay open.
+
+## Native clock core (2026-10-11)
+
+Checkpoint179/ADR115 use original GPL-3.0-only C++20 arithmetic and the existing
+session types. No runtime library, SDK redistribution, driver or certificate is
+added. Python standard-library Fraction is an independent development oracle;
+production builds consume its committed golden table and do not call Python in
+audio processing. Dynamic arbitrary precision and floating absolute-position
+conversion were rejected for bounded RT ownership and exact large offsets.
+Native SDK integration and drift-resampler qualification remain separate gates.
