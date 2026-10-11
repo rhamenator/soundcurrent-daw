@@ -1,0 +1,19 @@
+{
+  "format": "sc-windows-owner-diagnostics-v1",
+  "sourceCommit": "aa62e910053e676ea17d94f0b28a945a140d97bb",
+  "captureBytes": 109965,
+  "captureSha256": "136685fd58af118ec6b3ffb1c85fcec58f0ee8fb625755434771424eec82587a",
+  "members": 9,
+  "selectedInputs": 416,
+  "failedRun": 38127318120,
+  "failedHead": "a527c38cbf92ccc93a931c03912b9cb506587afb",
+  "failedBase": "05b7c6b4696331695d0111f01d85d29e6b218ef9",
+  "failedTestedMerge": "903ece7482629b8cc32192439a681fd42b4c65d1",
+  "failedReviewedFiles": 16,
+  "linuxChecks": 65182,
+  "linuxSeconds": 1.57,
+  "windowsFailureCausesResolved": false,
+  "windowsDiagnosticsExecuted": false,
+  "originalDeadlinesAndAssertionsPreserved": true,
+  "productArtifactUploaded": false
+}

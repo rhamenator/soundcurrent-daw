@@ -292,6 +292,16 @@ def run_case(probe, helper, directory, stage):
         report.update({"savedProjectAndRawUnchanged": True, "installedGuiQualified": False,
                        "audioEndpointActivated": False, "powerLossQualified": False})
         return report
+    except Exception as error:
+        # Preserve the original bounded assertions. Owned process terminal state
+        # and the recovery response explain a failure; neither is guessed.
+        diagnostic = {**report, "failureType": type(error).__name__, "failure": str(error)}
+        diagnostic["ownedTerminalAtFailure"] = {
+            name: process.terminal() for name, process in (("parent", parent), ("helper", child)) if process}
+        diagnostic["jobFilesAtFailure"] = sorted(p.name for p in job.iterdir()) if "job" in locals() else []
+        print("parent_interruption_failure " + json.dumps(diagnostic, sort_keys=True), flush=True)
+        (directory / "failure-report.json").write_text(json.dumps(diagnostic, indent=2) + "\n", encoding="utf-8")
+        raise
     finally:
         if frozen:
             frozen.resume()
