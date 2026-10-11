@@ -1,0 +1,51 @@
+{
+  "format": "sc-manual-group-owner-diagnostics-v1",
+  "sourceCommit": "a143154f5d22371ba3f50e6a90d43299595d61bd",
+  "sourceTree": "f3aef770c26453cf396437668df6c7ebbc8cc767",
+  "captureBytes": 66163,
+  "captureSha256": "809248dde9d4a7e3350c24b98c5cecfd6d7fde0a2707beb847ca0bb44ce4959e",
+  "members": 23,
+  "selectedInputs": 588,
+  "executableHashes": 19,
+  "windowsObjectHashes": 2,
+  "profiles": {
+    "release": {
+      "suites": 6,
+      "seconds": 1.67,
+      "observedOwnerChecks": 67252,
+      "maximumOutputDifference": 0,
+      "guardedAllocateFreeLock": 0
+    },
+    "sanitizer": {
+      "suites": 6,
+      "seconds": 8.22,
+      "observedOwnerChecks": 67348,
+      "maximumOutputDifference": 0,
+      "guardedAllocateFreeLock": 0
+    },
+    "tsan": {
+      "suites": 6,
+      "seconds": 7.49,
+      "observedOwnerChecks": 67259,
+      "maximumOutputDifference": 0,
+      "guardedAllocateFreeLock": 0
+    }
+  },
+  "debugSuites": 1,
+  "debugSeconds": 1.59,
+  "heldFinalizationQueriesPerProfile": 1000,
+  "originalMediaFrames": 69,
+  "originalCounterRaceRetained": true,
+  "counterRaceFixedByLockFreeAtomic": true,
+  "originalIncorrectSelectorRetained": true,
+  "fixtureFiveSecondDeadlineChanged": false,
+  "productionRecordingBehaviorChanged": false,
+  "windowsOwnerObjectsCompiled": true,
+  "windowsDiagnosticExecutionQualified": false,
+  "originalWindowsGroupTimeoutCauseResolved": false,
+  "nativeAudioQualified": false,
+  "protectedMergeAdmitted": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
