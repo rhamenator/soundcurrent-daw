@@ -1,0 +1,14 @@
+{
+  "format": "sc-stretch-rate-quality-contract-v1",
+  "sourceBase": "d85c97eb7316dd7c1deda394ccfba0f0fbd2baf2",
+  "rates": [44100, 48000, 96000],
+  "ratios": [[1, 2], [1, 1], [3, 2], [2, 1]],
+  "pitchMilliCents": [-1200000, 0, 1200000],
+  "source": "Original stereo float32: channel 0, 1.8*sin(1000 Hz); channel 1, -1.35*sin(1500 Hz); 2*rate+1 frames. No extra context; integer origin; formant preservation off.",
+  "duration": "Exact ceil(sourceFrames*numerator/denominator), independently computed as integers; rate/channels unchanged; all finite PCM and raw bytes preserved.",
+  "frequency": "Central largest power-of-two window no longer than half the output; Hann FFT; three-bin log-magnitude interpolation; search +/-12% of independently calculated shifted frequency. Calibrate identical estimator on the original source and exact unity output. Target <=5 cents; retain signed errors and original calibration, do not count unresolved observations as passes.",
+  "headroom": "Record full-output peak and central fitted amplitude. Peak >1 verifies float headroom only; it is not clipping, transient or perceptual qualification.",
+  "parentWorkflows": "Actual existing parent artifact verifier for each rate at 3/2,+12 semitones, plus 48k at 1/2,-12: independently verified completion, Apply/Undo/Redo, save/reopen, split/crop/seek, callback partition and shared live/export equality.",
+  "limits": {"bankSeconds": 240, "childSeconds": 15, "workerDeadlineMilliseconds": 10000, "workerMemoryMiB": 256, "maximumInputFrames": 200000, "maximumOutputBytes": 4194304, "maximumOwnedBytes": 134217728, "parallelChildren": 1},
+  "scope": {"nativeAudio": false, "vmUsed": false, "QStretchQualified": false, "QPitchQualified": false, "formantsQualified": false, "transientsQualified": false, "groupPhaseQualified": false, "listeningQualified": false, "nativeWindowsQualified": false, "installedQualified": false, "fullGoalComplete": false, "productUploaded": false}
+}
