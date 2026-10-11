@@ -1,0 +1,22 @@
+{
+  "format": "sc-logical-recording-credit-v1",
+  "sourceCommit": "cf0b9ed7dc952b41036cf7a89d1c4d1a7a948d38",
+  "captureBytes": 39363,
+  "captureSha256": "3751ddda6acdca6acc7c592d32b79802e24133cdde4e6ae6733b3686ba0f3e15",
+  "members": 5,
+  "linuxDebugPassed": true,
+  "linuxSeconds": 0.19,
+  "observedChecks": 292,
+  "intendedFrames": 480000,
+  "logicalCreditFrames": 30720,
+  "forcedFirstWriteGate": true,
+  "failedWindowsRun": 38117923095,
+  "failedWindowsJob": 114406484458,
+  "failedWindowsMaximumWriteGapNs": 3310209100,
+  "failedWindowsAudioFlushMaximumNs": 2462015200,
+  "failedWindowsCaptureQueueFull": true,
+  "windowsExecutionRequired": true,
+  "nativeThroughputQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false
+}
