@@ -134,3 +134,12 @@ inactive exclusive leases. Old1.0 reads must not invent observations. Qualify
 composed original-clock/full-FIFO PCM, SDK failures, Stop/EOF/owner loss and recovery.
 Independent native/installed Linux and Windows, professional latency, full EQ/mix,
 alignment and punch/loop gates remain required before enabling the native factory.
+
+## Subsequent native review failure
+
+PR140's original a0 head reached independent Windows native suite execution,
+but its required native job failed on an early manual punch-out after CaptureFailed.
+Three other required jobs passed; three later original take workflows did not
+resolve the failure. The head remains unadmitted. [Checkpoint205](205-native-punch-out-diagnostics.md)
+retains all four exact original logs/tested source and adds complete take-stage
+observations without changing production behavior, budgets, deadlines or gates.

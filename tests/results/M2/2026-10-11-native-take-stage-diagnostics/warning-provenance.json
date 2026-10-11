@@ -1,0 +1,23 @@
+{
+  "protectedMain": "31db463ba36b568ce83e52a37476f228d9ca3afd",
+  "files": [
+    {
+      "path": "src/mix_playback.cpp",
+      "sourceBlob": "97d4f7aa032b77b645c6dfc2759639dee022b2df",
+      "protectedMainBlob": "97d4f7aa032b77b645c6dfc2759639dee022b2df",
+      "identical": true
+    },
+    {
+      "path": "src/mix_reader.cpp",
+      "sourceBlob": "aa09b651b13d1ffa8df5eacc23de9acf3df3b8af",
+      "protectedMainBlob": "aa09b651b13d1ffa8df5eacc23de9acf3df3b8af",
+      "identical": true
+    }
+  ],
+  "existingWarnings": [
+    "Two GCC15 optional ResourceLedger copy warnings in unchanged mix_playback.cpp",
+    "One unused assertion variable in unchanged mix_reader.cpp"
+  ],
+  "flagsSuppressed": false,
+  "modifiedFixtureWarnings": 0
+}

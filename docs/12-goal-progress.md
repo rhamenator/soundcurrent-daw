@@ -1,5 +1,24 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native early punch-out failure (2026-10-11)
+
+[Checkpoint205](205-native-punch-out-diagnostics.md) preserves PR140's original
+four CI logs and exact a0/base31/tested merge/tree/16 blobs. Three required jobs
+passed; Windows native failed one of70 suites118.22s. The first Out/revision2 was
+refused after CaptureFailed at position8192, before the group-wait diagnostic.
+Three later original20-take completions do not resolve that failure. PR140 is
+unadmitted; no deadline/assertion/protection change or retry-until-green is used.
+
+The fixture now reports every take-stage failure, original callback fault/lane/
+clocks and retained first control/disk error. Deterministic existing pool exhaustion
+and active writer-failure workflows qualify the observations and error preservation.
+Six selected suites at6b6d683 pass Release1.65s/ASanUBSan8.61s/TSan7.55s;
+output difference0/headroom2.14813/RT violations0,632 inputs/18 Linux executable
+hashes/four fixture-object hashes/full logs retained. The Windows fixture compiles
+without warnings; new native Windows execution remains required. Production
+behavior is unchanged and original Windows causes remain unresolved. Full goal
+remains ACTIVE/incomplete.
+
 ## Finite SDK warmup hook (2026-10-11)
 
 [Checkpoint204](204-native-warmup-sdk.md) records ordinary protected PR139 at
