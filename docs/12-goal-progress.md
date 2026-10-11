@@ -4310,3 +4310,10 @@ base3a232fa, actualtested6a6bb52261962b69bf9dd8fabddcef93ae44d482. Run3810879135
 had all four terminal successful required checks,12 exact reviewed blobs plus
 whole-tree comparison. The merge preserves checkpoint174 owned Linux scope; it
 does not qualify native loop recording or Windows duplex.
+
+PR115 merged under existing protection as aab9ca5b15f422ea112e72f7fdadc9068d29e644,
+head e41a63c9/base9748d1e, actual tested merge b555150f0624d9b25fbb99741a3b070cb14e0c22.
+Run38109587287 had all four terminal successful required checks;17 exact reviewed
+blobs and the whole tree matched. Windows MSVC ran52 synthetic suites including
+continuous-loop-recording (3.32s). This qualifies core execution on Windows,
+not native endpoints or the newer checkpoint176 desktop workflow.
