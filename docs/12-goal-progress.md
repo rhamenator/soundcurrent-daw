@@ -4241,3 +4241,15 @@ Save/reopen, until-Stop preparation, pass/project status and restored linear
 playback have controller/UI evidence. Native endpoints, automatic recorded-pass
 scheduling and installed preview qualification remain open; no Windows parity,
 full language, processing-quality or M2 completion claim follows from these gates.
+
+[Checkpoint174](174-native-loop-playback-preview.md) qualifies the real Linux
+desktop PipeWire endpoint against private owned routes at frozen source2b571181ca2166ccfac481a8eb1d71e14639ff1c.
+Loop and linear workflows each captured480000 frames and compared every sample;
+both had zero difference/missing frames and callback allocation/free/blocking
+locks. The loop crossed27 nonaligned wraps, continued beyond the original96000-frame
+clip, applied EQ/Undo, stopped, disabled looping and prepared linear playback again.
+Saved project/raw media remained unchanged; private daemons and owned links were
+retired. The36,442-byte packet retains499 source hashes and log/configuration/media
+hash evidence. Native Windows/physical/installed/automatic loop recording remain
+open. This adds native Linux integration evidence without completing P005/M2 or
+promoting general quality/performance/content/native-project/language parity.
