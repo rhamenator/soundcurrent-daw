@@ -68,3 +68,10 @@ Linux publication-fault evidence stays frozen at its original a84e09b source.
 Installed Windows publication, writer process interruption, full filesystem,
 flush failure, power loss and processing quality remain separate requirements.
 Full M2–M11/X004/X005, Europe-wide language qualification and F/Q/C/N remain open.
+
+Current integrated source 4cccc97 passes native publication tests, but the desktop
+job fails a separate interruption-supervisor partial-hash assertion. See
+[the baseline correction](161-windows-parent-interruption.md#2026-10-11-current-ci-partial-baseline-correction).
+The test now distinguishes a pretermination snapshot from the immutable baseline
+after the exact helper process becomes terminal. Updated native CI remains
+required; no production DSP or I/O code changes for this fixture correction.

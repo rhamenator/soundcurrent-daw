@@ -4122,3 +4122,17 @@ This receipt predates the later reviewed root-validation correction; updated
 head requires fresh checks. Linux root integration passes 1675 controller,
 285 UI and 351 publication assertions. No VM/audio endpoint or product upload.
 Protected main integration remains pending; full parity requirements remain open.
+
+## 2026-10-11: Windows interruption terminal-baseline correction
+
+PR107 source 4cccc97 passes native publication tests but fails a separate desktop
+interruption supervisor assertion comparing a pretermination partial snapshot
+with the later terminal file. The complete failed job is source/merge-bound
+locally; its original log lacks both hashes, so pending-I/O causation remains
+unproved. The supervisor now records both snapshots and establishes its exact
+read-only recovery baseline after waiting for the owned helper's terminal handle.
+Active checks defer only the still-owned writer's partial/lock hashes; immutable
+project/raw/intent files and all terminal files remain checked. Seven owned
+filesystem/actual-function boundary checks and Python compilation pass locally;
+these are not native Windows execution. Fresh native CI remains required.
+No product DSP/I/O/API or deadline change; old qualified captures remain frozen.
