@@ -402,10 +402,11 @@ struct Fixture {
         return status;
     }
 };
-template <class F> void eventually(F test) {
+template <class F> void eventually(F test,
+    std::source_location caller = std::source_location::current()) {
     const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(5);
     while (!test()) {
-        check(std::chrono::steady_clock::now() < until, "Control worker condition timed out");
+        check(std::chrono::steady_clock::now() < until, "Control worker condition timed out", caller);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
@@ -776,6 +777,13 @@ void concurrentOwner() {
         audioCounts = rt_audit::counts;
     });
     std::uint64_t prior = 0;
+    const auto checkAudioOwner = [&](std::source_location caller = std::source_location::current()) {
+        if (!failed.load()) return;
+        std::cerr << "concurrent first_callback_status=" << firstCallbackStatus.load()
+                  << " first_oracle_status=" << firstOracleStatus.load()
+                  << " first_failure_frame=" << firstFailureAt.load() << '\n';
+        check(false, "Concurrent audio owner failed before control condition", caller);
+    };
     for (unsigned take = 0; take < 20; ++take) {
         const auto id = f.run->prepareTake();
         check(id > prior, "Concurrent production owner reused reclaimed identity");
@@ -783,18 +791,21 @@ void concurrentOwner() {
         submit(*f.run, ManualPunchAction::In, -1, take * 2 + 1, id);
         ManualPunchReceipt receipt;
         eventually([&] {
+            checkAudioOwner();
             f.run->service();
             return f.run->acknowledgement(receipt);
         });
         check(receipt.result == ManualPunchResult::Applied, "Concurrent production start failed");
         submit(*f.run, ManualPunchAction::Out, -1, take * 2 + 2);
         eventually([&] {
+            checkAudioOwner();
             f.run->service();
             return f.run->acknowledgement(receipt);
         });
         check(receipt.result == ManualPunchResult::Applied, "Concurrent production stop failed");
         ManualRecordedGroup group;
         eventually([&] {
+            checkAudioOwner();
             f.run->service();
             return f.run->takeGroup(group);
         });
