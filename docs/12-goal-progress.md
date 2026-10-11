@@ -4658,3 +4658,18 @@ and is not current-MAIN admission or native duplex qualification. Next combine
 disk/clock/processing with advancing original time, output priming and real
 postroll. Native activation, recording mappings, quality/localization and full
 product remain open.
+
+## Combined disk/clock/monitor recording fixture (2026-10-11)
+
+Frozen618d5ef composes four actual owners with advancing original clocks, disk
+checkpoints, output priming/pressure and explicit real postroll. Release0.05s,
+ASan/UBSan0.32s and TSan0.38s each passed10,832 checks; guarded allocation/free/
+blocking-lock counts zero. The phased fixture schedule is not uncontrolled native
+pacing. Healthy run:4,004 original frames/256 packets,3,600 monitor frames,518
+clock observations. Nonfinite input and clock loss each preserve1,999 raw frames/
+129 packets with independently verified original sample/metadata evidence.
+A60,948-byte/18-member packet binds569 inputs and three executable hashes.
+[Checkpoint192](192-combined-monitor-recording.md)/ADR124 retain the earlier late
+end refusal: explicit3,072 was behind3,596 already generated. Native advance end
+planning, SDK activation, Windows execution, finite playable admission/alignment,
+EQ/mix integration, quality/localization and full product remain open.
