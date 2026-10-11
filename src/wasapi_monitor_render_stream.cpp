@@ -2,9 +2,11 @@
 #include <soundcurrent/wasapi_monitor_render.hpp>
 namespace soundcurrent::daw {
 namespace {
-WasapiRenderOptions admitted(WasapiRenderOptions o){
+WasapiRenderOptions admitted(WasapiRenderOptions o,const WasapiMonitorRenderOptions &c){
     if(!o.identity.endpoint || !o.identity.stream || !o.identity.generation)
         throw ProjectError(ErrorCode::InvalidParameter,"Declare an immutable native render route identity");
+    if(o.warmup!=c.warmup)
+        throw ProjectError(ErrorCode::InvalidParameter,"Declare the same native warmup limits before SDK preparation");
     return o;
 }
 }
@@ -12,7 +14,7 @@ struct WasapiMonitorRenderStream::State {
     PreparedWasapiRenderBinding binding;
     WasapiRenderStream stream; // Joins BEFORE binding retirement.
     bool stopped=false;
-    State(WasapiRenderOptions o,WasapiMonitorRenderOptions c):binding(std::move(c)),stream(admitted(std::move(o)),binding.callbacks()){}
+    State(WasapiRenderOptions o,WasapiMonitorRenderOptions c):binding(c),stream(admitted(std::move(o),c),binding.callbacks()){}
     void stop() noexcept {if(!stopped){binding.requestCancel();stream.stop();stopped=true;}}
 };
 WasapiMonitorRenderStream::WasapiMonitorRenderStream(WasapiRenderOptions o,WasapiMonitorRenderOptions c):state_(std::make_unique<State>(std::move(o),std::move(c))){}

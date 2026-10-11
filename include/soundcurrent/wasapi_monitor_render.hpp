@@ -3,12 +3,14 @@
 #include "wasapi_render.hpp"
 #include "monitor_output_bank.hpp"
 #include "monitor_clock_handoff.hpp"
+#include "monitor_startup_handoff.hpp"
 namespace soundcurrent::daw {
 struct WasapiMonitorRenderOptions {
     std::size_t memoryBudgetBytes = 65536;
     std::optional<ResourceLedger> resources;
+    std::optional<WasapiWarmupLimits> warmup = {}; // Declared before SDK/binding preparation.
 };
-enum class WasapiMonitorRenderCause { InvalidLease, Clock, Output, Underflow, FillAfterFinish, CounterOverflow };
+enum class WasapiMonitorRenderCause { InvalidLease, Clock, Output, Underflow, FillAfterFinish, CounterOverflow, Startup };
 struct WasapiMonitorRenderAttempt { std::uint32_t frames = 0; WasapiRenderClock original; };
 struct WasapiMonitorRenderFault {
     WasapiMonitorRenderCause cause;
@@ -24,6 +26,10 @@ struct WasapiMonitorRenderResult {
     std::uint64_t callbackCalls = 0, requestedNativeFrames = 0, consumedMonitorFrames = 0;
     std::uint32_t finalSlackFrames = 0;
     std::optional<MonitorOutputOrdinal> monitorEnd; // Exclusive bank ordinal, NOT SDK/project/capture position.
+    std::optional<WasapiWarmupLimits> warmupLimits = {};
+    std::uint64_t preLeaseCalls = 0, readyAcquiredQpc100ns = 0;
+    std::optional<MonitorStartupReady> startupReady = {}; // Original immutable evidence, even after terminal state.
+    std::optional<MonitorStartupHandoffPhase> startupPhaseAtEnd = {};
 };
 // Prepare after actual SDK descriptor admission, before binding/activation.
 // ONE render owner consumes the bank and produces original clock/end facts.
@@ -31,10 +37,11 @@ struct WasapiMonitorRenderResult {
 class PreparedWasapiMonitorRender {
   public:
     PreparedWasapiMonitorRender(WasapiPreparedRenderFormat, PreparedMonitorOutputBank &,
-        PreparedMonitorClockHandoff &, WasapiMonitorRenderOptions = {});
+        PreparedMonitorClockHandoff &, WasapiMonitorRenderOptions = {}, PreparedMonitorStartupHandoff * = nullptr);
     PreparedWasapiMonitorRender(const PreparedWasapiMonitorRender &) = delete;
     PreparedWasapiMonitorRender &operator=(const PreparedWasapiMonitorRender &) = delete;
     WasapiRenderAction fill(float *,std::uint32_t,const WasapiRenderClock &) noexcept;
+    WasapiPreLeaseAction beforeLease(std::uint32_t,const WasapiRenderClock &,Qpc100ns) noexcept;
     void unavailable(std::int32_t) noexcept;
     void finished(const WasapiRenderEnd &) noexcept;
     bool shouldStop() const noexcept; // Render owner; content Finish does NOT request SDK Stop.
@@ -45,12 +52,15 @@ class PreparedWasapiMonitorRender {
     std::optional<WasapiMonitorRenderFault> firstFault() const noexcept;
     std::optional<std::int32_t> firstUnavailable() const noexcept;
     const WasapiPreparedRenderFormat &format() const noexcept { return format_; }
+    const std::optional<WasapiWarmupLimits> &warmupLimits() const noexcept { return warmup_; }
     std::size_t chargedBytes() const noexcept { return sizeof(*this); }
   private:
     ResourceLease lease_;
     const WasapiPreparedRenderFormat format_;
     PreparedMonitorOutputBank &bank_;
     PreparedMonitorClockHandoff &clocks_;
+    PreparedMonitorStartupHandoff *const startup_;
+    const std::optional<WasapiWarmupLimits> warmup_;
     WasapiMonitorRenderResult result_;
     WasapiMonitorRenderFault fault_{};
     std::int32_t unavailable_ = 0;
@@ -59,7 +69,14 @@ class PreparedWasapiMonitorRender {
     std::uint32_t slack_ = 0;
     bool finalReturned_ = false;
     std::optional<WasapiMonitorRenderAttempt> last_;
+    std::optional<WasapiMonitorRenderAttempt> authorizedContent_;
+    std::optional<MonitorStartupReady> acquiredReady_;
+    std::uint64_t preLeaseCalls_ = 0, firstPreLeaseTime_ = 0, lastPreLeaseTime_ = 0,
+        readyTime_ = 0, warmupRequests_ = 0, warmupRequestedFrames_ = 0;
+    std::optional<WasapiWarmupLeaseResult> firstWarmupRequest_, lastWarmupRequest_;
     WasapiRenderAction fail(WasapiMonitorRenderCause,std::optional<WasapiMonitorRenderAttempt>) noexcept;
+    WasapiRenderAction publishClock(const WasapiMonitorRenderAttempt &) noexcept;
+    bool startupTerminal() const noexcept;
     void publish(std::optional<WasapiRenderEnd>,WasapiMonitorRenderStatus) noexcept;
 };
 enum class WasapiRenderBindingPhase : std::uint32_t { Unbound, Bound, Ending, Ended };
@@ -84,6 +101,7 @@ class PreparedWasapiRenderBinding {
     std::size_t chargedBytes() const noexcept { return sizeof(*this); }
   private:
     ResourceLease lease_;
+    const std::optional<WasapiWarmupLimits> warmup_;
     PreparedWasapiMonitorRender *context_ = nullptr;
     WasapiRenderEnd end_;
     WasapiRenderBindingFault fault_{};
@@ -93,6 +111,7 @@ class PreparedWasapiRenderBinding {
     static void unavailable(void *,std::int32_t) noexcept;
     static void finished(void *,const WasapiRenderEnd &) noexcept;
     static bool shouldStop(void *) noexcept;
+    static WasapiPreLeaseAction beforeLease(void *,std::uint32_t,const WasapiRenderClock &,Qpc100ns) noexcept;
 };
 class WasapiMonitorRenderStream {
   public:
