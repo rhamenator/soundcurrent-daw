@@ -4053,3 +4053,31 @@ catalogs are preserved; new non-English entries remain unfinished and catalog
 review/status is unchanged. Four focused catalog/localization/stretch UI tests
 now pass locally (UI283 checks). Fresh current-head protected gates remain
 required; no language completeness claim is added.
+
+## 2026-10-10: render publication independent of retained history
+
+[Checkpoint165](165-bounded-selection-publication.md) replaces the whole-directory
+publication inventory with one bounded immutable-manifest write under the
+existing writer lease. Recovery page budgets and all per-job render/resource
+admission remain. The flat-v1 format/parent binding remain unchanged; no index or
+migration is introduced. Acceptance now exercises129 actual sequential completed
+helper jobs,10MiB of owned remnants, one additional Incomplete selection, paged
+verification and explicit Review/Apply/Undo. Native Windows/installed workflows,
+concurrent/storage-fault interruption, processing quality and full parity remain
+open. Source/evidence backup and ordinary protected reviews remain separate from
+product release publication.
+
+Dependent Windows desktop CI exposed immediate reopening of a recovery dialog
+awaiting Qt DeferredDelete. A deterministic local regression confirms the old
+reference blocks a fresh request. Finish now stops the timer and clears that
+dialog's identity/reference immediately, preserving scoped cancellation and Qt
+object ownership. The amended UI285 checks and both catalog gates pass locally;
+catalog content/856 keys are unchanged. Native current-head qualification remains
+required; the original Windows failure is preserved.
+
+PR105 root-admission review is addressed with equivalent absolute/bounded/no-NUL
+validation before any publication encoding/credits/I/O. Owned direct API cases
+confirm InvalidParameter and no directory/credit mutation. Controller1675/UI285
+assertions pass, preserving the129-render corpus and independent history bounds.
+Fresh platform gates remain required; original source qualifications are not
+relabeled.

@@ -5,6 +5,8 @@
 #include <vector>
 namespace soundcurrent::daw {
 struct StretchRecoveryLimits {
+    // Entry/total byte bounds belong to inventory pages (or the explicit strict
+    // all-at-once API). Publication admits one maximumManifestBytes manifest.
     std::size_t maximumEntries=128, maximumManifestBytes=512*1024;
     std::size_t maximumTotalBytes=8*1024*1024;
     StretchRenderPolicy render;

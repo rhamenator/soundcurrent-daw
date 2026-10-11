@@ -1,0 +1,26 @@
+{
+  "initial-build.txt": {
+    "bytes": 3365,
+    "sha256": "fb49bf27e723d6747b0e0d2c7b93498f121e3694b5b0ff91b39ede454840cafd"
+  },
+  "intermediate-tests-before-save-assertion.txt": {
+    "bytes": 3089,
+    "sha256": "0c0dfe293f3f525baef27747b452a891fd772fdb403863a4fb71ab285e0cadde"
+  },
+  "final-controller-build.txt": {
+    "bytes": 1080,
+    "sha256": "137ebd1280bf18523c6b96739ff80344be26cb17c0523dda33a34dd9a55186aa"
+  },
+  "final-controller-tests.txt": {
+    "bytes": 1226,
+    "sha256": "81d19cac92f75f85f142827ccdcbc389e88ab225a9c391ff57ea7fa9a589007c"
+  },
+  "final-ui-tests.txt": {
+    "bytes": 2467,
+    "sha256": "45563e6afc2c2f1c98d19206b09602546deef7c62effeb16150b833265df1add"
+  },
+  "build-inputs.json": {
+    "bytes": 58927,
+    "sha256": "703361decd4d6fbb973d73ce5d9330e9a8bebb91336e865878bf1306d08334a4"
+  }
+}

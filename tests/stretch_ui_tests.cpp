@@ -16,6 +16,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QListWidget>
+#include <QPointer>
 #include <QTemporaryDir>
 #include <QTest>
 #include <QElapsedTimer>
@@ -131,9 +132,16 @@ int main(int argc,char **argv){QApplication app(argc,argv);try{
         check(!review->isEnabled() && window.stretchSnapshot()->inventoryPage==1,"Invalid first-page job reviewable");
         next->click();wait([&]{return list->count()==1 && window.stretchSnapshot()->inventoryPage==2 && !next->isEnabled();});
         check(!review->isEnabled() && *window.snapshot()->session==saved && !window.snapshot()->dirty,"UI continuation edited project or admitted invalid result");
-        window.findChild<QDialog *>("stretchRecoveryDialog")->close();wait([&]{return window.stretchSnapshot()->canceled;});
+        QPointer<QDialog> closing=window.findChild<QDialog *>("stretchRecoveryDialog");const auto oldRequest=window.stretchSnapshot()->recoveryId;
+        closing->close();QElapsedTimer retirement;retirement.start();
+        // Leave Qt's DeferredDelete pending while the worker retires its cursor.
+        // Reopening must admit a new request before the old QObject is destroyed.
+        while(!window.stretchSnapshot()->canceled){if(retirement.elapsed()>20000)throw std::runtime_error("Recovery retirement deadline");QThread::msleep(1);}
+        check(closing && !closing->isVisible(),"Expected closed recovery QObject awaiting deferred deletion");
         check(!window.stretchSnapshot()->recoveryPage,"Closing recovery retained page cursor state");
-        check(window.scanStretchRenders(),"Closed inventory could not be reopened");wait([&]{return window.stretchSnapshot()->inventoryPage==1 && !window.stretchSnapshot()->busy;});
+        check(window.scanStretchRenders(),"Closed inventory could not be reopened");
+        check(window.stretchSnapshot()->recoveryId>oldRequest && window.findChild<QDialog *>("stretchRecoveryDialog")!=closing.data(),"Closed recovery dialog blocked new request before deferred deletion");
+        wait([&]{return window.stretchSnapshot()->inventoryPage==1 && !window.stretchSnapshot()->busy;});
         window.findChild<QDialog *>("stretchRecoveryDialog")->close();window.close();wait([&]{return !window.isVisible();});
     }
     {
