@@ -77,3 +77,33 @@ retains five members: complete failed native job/API status, local diagnostic
 build/CTest logs, six selected input hashes and the local executable hash.
 Standalone compressed-byte/member validation passed; inputs are not a full
 dependency/toolchain closure and executables/media are not included.
+
+## Initiating wait diagnostic and terminal-child publication
+
+Native job114400815807/run38115971593 now reports the original error normally:
+`Control worker condition timed out`. The UTF-8 preserved-project path is intact;
+the reporter no longer masks it with0xc0000409. The reported line408 is the shared
+wait helper, so the specific caller is still unknown. Frozen e442fc89 now forwards
+the caller's source location through that helper and reports an early concurrent
+audio-owner failure/status/frame before waiting for an impossible reply. The
+five-second wait and all functional assertions remain unchanged.
+
+A separate stacked-bank Windows desktop job114401100336/run38116071491 failed
+the stretch parent's after-complete case: the hook ran but expected complete/audio
+markers were absent. The hook previously saw a snapshot predating the owned child's
+exit fields. Frozen `4b0721d8b57573c4be6345f70a71071ac789c2f8` publishes the
+terminal child outcome before observers, while verification/result attachment
+still follows. A controller regression requires actual exit0, busy state and no
+premature verified result at that boundary. Probe receipts now retain exit,
+timeout, abnormal/error and the existing deadline; Windows missing-marker failures
+include that receipt and job inventory. The fixture's5s policy is unchanged;
+the initiating child outcome remains unresolved pending Windows execution.
+
+Local Linux Debug passed the controller suite in19.01s (1,676 observed checks)
+and parent-interruption/manual suites in9.97s. The [85,200-byte packet](../tests/results/M2/2026-10-11-control-observer-diagnostics/summary.json)
+retains10 members: both complete failed Windows jobs/API status, local build/CTest
+logs, six selected hashes and four executable hashes. Standalone member validation
+passed. No executables/media are included; selected inputs are not a full closure.
+These diagnostic/state-publication changes do not prove that either Windows
+workflow is repaired. Fresh protected checks and independent cause analysis remain
+required; successful downstream cohorts cannot substitute for current-MAIN gates.

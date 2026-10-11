@@ -231,7 +231,8 @@ def run_case(probe, helper, directory, stage):
         job = root / "media" / "derived" / observed["operation"]
         if stage == "after-complete":
             assert observed["point"] == "after-child-before-verification"
-            assert (job / "complete.json").exists() and (job / "audio.wav").exists()
+            assert (job / "complete.json").exists() and (job / "audio.wav").exists(), {
+                "boundary": observed, "jobFiles": sorted(p.name for p in job.iterdir())}
             report["helperPidReportedByReapingParent"] = observed["helperPid"]
             report["parentTerminal"] = parent.kill(PARENT_EXIT)
             report["terminalRecovery"] = scan("Ready")

@@ -66,8 +66,15 @@ int main(int argc,char **argv){QCoreApplication app(argc,argv);try{
     {
         std::atomic<bool> entered=false,release=false;auto o=options(memory,helper);
         o.beforeSpawn=[&]{entered=true;while(!release)QThread::msleep(1);};
-        bool childReleased=false;o.afterChild=[&]{childReleased=memory.usage().reservedBytes<256*1024*1024;};
-        StretchController c(o);Release unlock{release};
+        StretchController *owner=nullptr;
+        bool childReleased=false;o.afterChild=[&]{
+            childReleased=memory.usage().reservedBytes<256*1024*1024;
+            const auto terminal=owner->snapshot();
+            check(terminal->childPid && terminal->childExit==0 && !terminal->abnormalExit &&
+                  terminal->busy && !terminal->result,
+                  "Post-child observer saw stale exit state or premature verified result");
+        };
+        StretchController c(o);owner=&c;Release unlock{release};
         check(c.render(source,track,clip,{3,2,700000,true})==Admission::Accepted,"Render refused");
         const auto queued=c.snapshot();wait([&]{return entered.load();});
         check(!queued->selection->plan,"Published queued selection was mutated");
