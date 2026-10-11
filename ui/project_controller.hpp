@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include <soundcurrent/recording.hpp>
+#include <soundcurrent/manual_recording.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <soundcurrent/resource_ledger.hpp>
 #include <memory>
@@ -39,6 +40,8 @@ struct ProjectCommand {
     std::shared_ptr<const RecordingResult> recording; // Finalized/recovered owned take; immutable.
     std::shared_ptr<const std::vector<RecordingResult>>
         recordings; // Alternative atomic group, admitted against trusted receipt/state resources.
+    // Alternative complete group: retained inactive until an explicit comp edit.
+    std::shared_ptr<const ManualRecordedGroup> retainedTake;
     std::vector<SessionEdit> edits; // One atomic group, at most 64 operations.
     std::shared_ptr<const VerifiedClipStretch> stretchResult; // Retains admitted result credit through queue/adoption.
     std::optional<StructuralGuard> structuralGuard;

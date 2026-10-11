@@ -18,7 +18,7 @@ struct TrackDecoration {
 class SessionListModel : public QAbstractListModel {
     Q_DECLARE_TR_FUNCTIONS(SessionListModel)
   public:
-    enum class Kind { Tracks, Assets, Clips };
+    enum class Kind { Tracks, Assets, Clips, TakeLanes };
     SessionListModel(Kind, QObject *parent, bool checkable = false,
                      ResourceLedger = ResourceLedger{});
     struct Prepared;

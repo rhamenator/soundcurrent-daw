@@ -114,11 +114,14 @@ ManualRecordingPanel::ManualRecordingPanel(ProjectController &p, std::uint64_t &
     auto *actions = new QHBoxLayout;
     add_ = new QPushButton(tr("Add complete take"), this);
     addPartial_ = new QPushButton(tr("Add verified complete lanes"), this);
+    retain_ = new QPushButton(tr("Retain as take lanes"), this);
+    retain_->setObjectName("manualRetain");
+    retain_->setToolTip(tr("Keep a complete group silent. Choose a take region in the timeline to make it audible."));
     keep_ = new QPushButton(tr("Keep files for recovery"), this);
     add_->setObjectName("manualAdd");
     addPartial_->setObjectName("manualAddPartial");
     keep_->setObjectName("manualKeep");
-    for (auto *b : {add_, addPartial_, keep_})
+    for (auto *b : {add_, addPartial_, retain_, keep_})
         actions->addWidget(b);
     layout->addLayout(actions);
     connect(prepare_, &QPushButton::clicked, this, [this] { prepare(); });
@@ -137,6 +140,7 @@ ManualRecordingPanel::ManualRecordingPanel(ProjectController &p, std::uint64_t &
     connect(cancel_, &QPushButton::clicked, this, [this] { stop(true); });
     connect(add_, &QPushButton::clicked, this, [this] { adopt(false); });
     connect(addPartial_, &QPushButton::clicked, this, [this] { adopt(true); });
+    connect(retain_, &QPushButton::clicked, this, [this] { adopt(false, true); });
     connect(keep_, &QPushButton::clicked, this, [this] { keep(); });
 }
 std::shared_ptr<const ManualControlSnapshot> ManualRecordingPanel::snapshot() const {
@@ -451,11 +455,12 @@ void ManualRecordingPanel::refreshGroups(const ManualControlSnapshot &s) {
                        (!prepared_ || p->session->id == prepared_->session->id);
     const bool available = scope && !attaching_ && p->io == IoOperation::None && !closingIntent_;
     add_->setEnabled(available && !g->group->canceled && g->group->complete());
+    retain_->setEnabled(available && !g->group->canceled && g->group->complete());
     addPartial_->setEnabled(available && !g->group->canceled && !g->group->complete() &&
                             hasVerified);
     keep_->setEnabled(bool(g) && !attaching_ && !closingIntent_);
 }
-void ManualRecordingPanel::adopt(bool partial) {
+void ManualRecordingPanel::adopt(bool partial, bool retained) {
     const auto g = selectedGroup();
     const auto p = project_.snapshot();
     if (!g || attaching_ || closingIntent_ || g->root != p->root || !p->session ||
@@ -470,12 +475,18 @@ void ManualRecordingPanel::adopt(bool partial) {
         return;
     ProjectCommand c{CommandKind::AttachRecording};
     c.path = p->root;
-    c.recordings = records;
+    if (retained) {
+        c.retainedTake = g->group;
+        c.name = tr("Take %1").arg(QLocale().toString(qulonglong(g->group->take))).toUtf8().toStdString();
+        c.structuralGuard = StructuralGuard{p->projectEpoch, p->session->id, p->root};
+    } else c.recordings = records;
     c.attachmentRequest = barrierSequence_++;
     const auto request = c.attachmentRequest;
     if (project_.submit(std::move(c)) != Admission::Accepted)
         return;
     attaching_ = g;
+    retaining_ = retained;
+    retain_->setEnabled(false);
     add_->setEnabled(false);
     addPartial_->setEnabled(false);
     keep_->setEnabled(false);
@@ -656,7 +667,8 @@ void ManualRecordingPanel::poll() {
             if (worker_.acknowledgeGroup(attaching_->generation, attaching_->group->take))
                 consumed_.insert({attaching_->generation, attaching_->group->take});
             attaching_.reset();
-            receipt_->setText(tr("Take added. Save to persist the project changes. Reprepare "
+            if (retaining_) receipt_->setText(tr("Take lanes retained silently. Choose a comp region in the timeline; Save persists the lanes."));
+            else receipt_->setText(tr("Take added. Save to persist the project changes. Reprepare "
                                  "playback to hear new clips."));
         } else if ((p->attachmentCompleted.request == attachmentRequest_ &&
                     p->attachmentCompleted.error) ||

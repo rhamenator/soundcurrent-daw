@@ -86,10 +86,9 @@ are required independently.
 
 ## Next useful preview
 
-Connect completed recording groups to an explicit “retain as take” action and
-provide desktop lane selection, rename/reorder, region comping and grouped
-selection. Localize controls and errors through the existing catalog system.
-Then implement real loop timing: monotonically advancing device/capture clocks,
+The explicit retention and desktop lane/region/group controls are now described
+in [checkpoint171](171-desktop-retained-takes.md); native and installed
+qualification remain separate. Next implement real loop timing: monotonically advancing device/capture clocks,
 separate looped project positions, boundaries inside callbacks, delayed postroll,
 bounded upcoming slots and safe joined-worker retirement. Existing continuous
 manual punch scheduling is not loop playback. Take audition, comp crossfades,

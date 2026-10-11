@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "studio_window.hpp"
 #include "fake_manual_endpoint.hpp"
+#include "session_list_model.hpp"
 #include <sndfile.h>
+#include <soundcurrent/mix_reader.hpp>
+#include <soundcurrent/export.hpp>
+#include <soundcurrent/wave_validation.hpp>
+#include <QLineEdit>
+#include <QCheckBox>
 #include <QApplication>
 #include <QAction>
 #include <QComboBox>
@@ -22,7 +28,9 @@ using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 namespace {
 bool attachmentReviewReplay = false;
+unsigned retainedChecks = 0;
 void check(bool ok, const char *message) {
+    ++retainedChecks;
     if (!ok)
         throw std::runtime_error(message);
 }
@@ -81,7 +89,7 @@ struct Fixture {
     }
     void click(const char *name) {
         auto *b = child<QPushButton>(name);
-        check(b->isEnabled(), "Manual panel button disabled");
+        if (!b->isEnabled()) throw std::runtime_error(std::string("Manual panel button disabled: ") + name + "; project=" + window->snapshot()->diagnostic);
         b->click();
     }
     void prepare() {
@@ -323,6 +331,199 @@ void workflow() {
            "takes, exact raw, explicit adoption, Undo/Redo, EQ audio acknowledgement, Save/reopen, "
            "async close\n";
 }
+std::vector<float> compPlayback(const std::filesystem::path &root, const Session &s,
+                                 const MixPlan &plan, Frame end, unsigned partition) {
+    MixPlaybackConfig config; config.endFrame = end; config.slabFrames = 256;
+    config.graph.maximumFrames = partition;
+    MixPlayback playback(s, plan, config); MixReader reader(playback, root, s);
+    std::vector<float> buffer(partition * 2), out(std::size_t(end) * 2);
+    std::array<float *, 2> pointers{buffer.data(), buffer.data() + partition};
+    for (Frame at = 0; at < end;) {
+        while (reader.fillRound()) {}
+        const auto count = unsigned(std::min<Frame>(partition, end - at));
+        MixPlaybackReport report;
+        { rt_audit::Guard guard; report = playback.process(pointers, count); }
+        check(report.timelineFrames == count && !report.missingTrackFrames &&
+              !report.staleTrackFrames && report.mix.status == ProcessStatus::Ok,
+              "Desktop comp playback lost frames");
+        for (unsigned f = 0; f < count; ++f) for (unsigned c = 0; c < 2; ++c)
+            out[std::size_t(at + f) * 2 + c] = pointers[c][f];
+        at += count;
+    }
+    const auto &audit = rt_audit::counts;
+    check(audit.cppAllocate + audit.cppFree + audit.cAllocate + audit.cFree + audit.blockingLock == 0, "Desktop comp callback audit violation");
+    return out;
+}
+std::vector<float> compExport(const std::filesystem::path &root, const Session &s,
+                               const MixPlan &plan, Frame end) {
+    std::filesystem::create_directories(root / "exports");
+    MixExportSpec spec(plan); spec.endFrame = end; spec.blockFrames = 37;
+    const auto result = exportMixWav(root, s, root / "exports" / (Id::generate().str() + ".wav"), spec);
+    ApprovedMediaRoot approved(root, ResourceLedger(8 * 1024 * 1024, "Desktop comp export oracle"));
+    auto file = approved.open("exports/" + result.destination.filename().string(), 1024 * 1024);
+    std::vector<float> samples;
+    validateApprovedWave(file, {}, {}, [&](std::uint64_t, std::span<const double> block) {
+        for (auto v : block) samples.push_back(float(v));
+    });
+    check(result.frames == end, "Desktop comp export length differs");
+    return samples;
+}
+void retainedWorkflow() {
+    const auto beforeChecks = retainedChecks;
+    Fixture f; f.prepare(); f.routes(); f.start(); f.take();
+    const auto group = f.window->manualRecordingSnapshot()->groups.front().group;
+    const auto before = f.window->snapshot();
+    // Same finalized identity, but an obsolete epoch and incomplete group must refuse
+    // before I/O/publication and must leave the original preview available.
+    for (unsigned mode = 0; mode < 2; ++mode) {
+        ProjectCommand bad{CommandKind::AttachRecording}; bad.path = f.root;
+        auto copy = std::make_shared<ManualRecordedGroup>(*group);
+        if (mode) copy->canceled = true;
+        bad.retainedTake = copy; bad.name = "Refused";
+        const auto current = f.window->snapshot();
+        bad.structuralGuard = StructuralGuard{current->projectEpoch + (mode == 0), current->session->id, current->root};
+        check(f.window->submitEdit(std::move(bad)), "Retain refusal command admission failed");
+        await([&] { return f.window->snapshot()->errorSerial > current->errorSerial; });
+        check(*f.window->snapshot()->session == *before->session &&
+              f.window->manualRecordingSnapshot()->groups.size() == 1,
+              "Obsolete/incomplete retained group changed model or preview");
+    }
+    auto source = group->lanes.front().checkpoint->source, held = source;
+    held += ".held"; std::filesystem::rename(source, held);
+    const auto errors = f.window->snapshot()->errorSerial;
+    f.click("manualRetain");
+    await([&] { return f.window->snapshot()->errorSerial > errors && f.child<QPushButton>("manualRetain")->isEnabled(); });
+    check(f.window->snapshot()->session->assets.empty() && f.window->manualRecordingSnapshot()->groups.size() == 1,
+          "Retain journal failure partially adopted or discarded preview");
+    std::filesystem::rename(held, source);
+    f.holdProjectIo = true; f.projectIoEntered = false;
+    f.click("manualRetain");
+    await([&] { return f.projectIoEntered.load(); });
+    check(!f.child<QPushButton>("manualRetain")->isEnabled() && !f.child<QPushButton>("manualAdd")->isEnabled(),
+          "Retain verification allowed duplicate preview adoption");
+    auto current = f.window->snapshot(); const auto &track = current->session->tracks.front();
+    ProjectCommand edit{CommandKind::Parameter};
+    edit.address = {track.id, track.eq.id, track.eq.bands.front().id, BandParameter::GainDb};
+    edit.value = 3; edit.gesture = 912;
+    check(f.window->submitEdit(edit), "Scalar edit during retained verification refused");
+    await([&] { return f.window->snapshot()->session->tracks.front().eq.bands.front().gainDb == 3; });
+    f.holdProjectIo = false;
+    await([&] { return f.window->snapshot()->attachedRecordings == 2 && f.window->manualRecordingSnapshot()->groups.empty(); });
+    check(f.window->snapshot()->session->tracks.front().eq.bands.front().gainDb == 3,
+          "Retained publication erased intervening scalar edit");
+    // Return to a unity processor, independently of the take/comp undo entries.
+    edit.value = 0; edit.gesture = 913; check(f.window->submitEdit(edit), "Restore unity EQ refused");
+    await([&] { return f.window->snapshot()->session->tracks.front().eq.bands.front().gainDb == 0; });
+    f.take();
+    f.click("manualRetain");
+    await([&] { return f.window->snapshot()->attachedRecordings == 4 && f.window->manualRecordingSnapshot()->groups.empty(); });
+    f.stop();
+    const auto inactive = *f.window->snapshot()->session;
+    check(inactive.assets.size() == 4 && inactive.tracks[0].clips.empty() && inactive.tracks[1].clips.empty() &&
+          inactive.tracks[0].takeLanes.size() == 2 && inactive.tracks[1].takeLanes.size() == 2 &&
+          inactive.tracks[0].takeLanes.front().groupId == inactive.tracks[1].takeLanes.front().groupId,
+          "Retained desktop group lost shared identity or became audible");
+    // The dropdown borrows immutable state and charges its indices. Exercise
+    // more lanes than the old small UI inventories, including refusal before
+    // commit and unchanged projection/credit when admission fails.
+    auto many = inactive;
+    for (unsigned n = 0; n < 129; ++n) {
+        auto lane = inactive.tracks[0].takeLanes.front();
+        lane.id = Id::generate(); lane.groupId = Id::generate();
+        lane.clips.front().id = Id::generate(); many.tracks[0].takeLanes.push_back(std::move(lane));
+    }
+    validate(many);
+    ResourceLedger listMemory(1024 * 1024, "Retained list acceptance");
+    SessionListModel list(SessionListModel::Kind::TakeLanes, nullptr, false, listMemory);
+    list.update(std::make_shared<const Session>(many), {}, many.tracks[0].id);
+    check(list.rowCount() == 132 && list.idAt(131) == many.tracks[0].takeLanes.back().id,
+          "Virtual take list imposed a small inventory ceiling");
+    const auto usage = listMemory.usage(); const auto reads = list.dataReads();
+    check(list.data(list.index(131), Qt::DisplayRole).isValid() && list.dataReads() == reads + 1,
+          "Take list did not format its selected row on demand");
+    listMemory.configure(usage.reservedBytes);
+    auto replaced = many;
+    replaced.tracks[0].takeLanes.back().id = Id::generate();
+    try { list.prepare(std::make_shared<const Session>(replaced), {}, replaced.tracks[0].id);
+          throw std::runtime_error("Take list accepted an exhausted projection budget"); }
+    catch (const ResourceLimitError &) {}
+    check(list.idAt(131) == many.tracks[0].takeLanes.back().id && listMemory.usage().reservedBytes == usage.reservedBytes,
+          "Failed take-list prepare replaced rows or leaked resource credit");
+    MixPlan plan{{LayoutKind::Stereo, 2}, {{inactive.tracks[0].id, {{0, 0, 1}}}, {inactive.tracks[1].id, {{0, 1, 1}}}}};
+    const auto end = group->endFrame;
+    const auto silence = compPlayback(f.root, inactive, plan, end, 13);
+    check(std::all_of(silence.begin(), silence.end(), [](float v) { return v == 0; }) &&
+          compExport(f.root, inactive, plan, end) == silence, "Silent take lanes entered live/export graph");
+    std::vector<std::string> hashes;
+    for (const auto &a : inactive.assets) hashes.push_back(hashMediaFile(f.root / utf8Path(a.relativePath)));
+    await([&] { return f.child<QComboBox>("timelineTakes")->count() == 3; });
+    f.child<QComboBox>("timelineTakes")->setCurrentIndex(1);
+    await([&] { return f.child<QPushButton>("selectTakeRegion")->isEnabled(); });
+    const auto begin = group->beginFrame + 17, finish = group->endFrame - 23;
+    f.child<QLineEdit>("compStartFrame")->setText(QString::number(begin));
+    f.child<QLineEdit>("compEndFrame")->setText(QString::number(finish));
+    f.child<QCheckBox>("compGroup")->setChecked(true);
+    f.click("selectTakeRegion");
+    await([&] { return f.window->snapshot()->session->tracks[0].clips.size() == 1 && f.window->snapshot()->session->tracks[1].clips.size() == 1; });
+    const auto selected = *f.window->snapshot()->session;
+    const auto audio = compPlayback(f.root, selected, plan, end, 13);
+    check(audio == compPlayback(f.root, selected, plan, end, 256) && audio == compExport(f.root, selected, plan, end),
+          "Desktop comp changed with partition or live/offline path");
+    for (Frame at = 0; at < end; ++at) for (unsigned channel = 0; channel < 2; ++channel)
+        check(audio[std::size_t(at) * 2 + channel] == (at >= begin && at < finish ? manual_fixture::sample(at) : 0),
+              "Independent captured frame oracle differs after desktop comp");
+    for (unsigned n = 0; n < 2; ++n)
+        check(selected.tracks[n].clips.front().takeOrigin == std::optional<ClipTakeOrigin>({selected.tracks[n].id, selected.tracks[n].takeLanes.front().id, selected.tracks[n].takeLanes.front().clips.front().id}),
+              "Desktop comp lost track/lane/source provenance");
+    f.window->findChild<QAction *>("undoAction")->trigger();
+    await([&] { return *f.window->snapshot()->session == inactive; });
+    f.window->findChild<QAction *>("redoAction")->trigger();
+    await([&] { return *f.window->snapshot()->session == selected; });
+    const auto revision = f.window->snapshot()->modelRevision;
+    const auto resource = f.window->snapshot()->historyResources;
+    f.child<QLineEdit>("compStartFrame")->setText(QString::number(begin));
+    f.child<QLineEdit>("compEndFrame")->setText(QString::number(finish));
+    f.click("selectTakeRegion"); QTest::qWait(60);
+    check(f.window->snapshot()->modelRevision == revision && f.window->snapshot()->historyResources == resource,
+          "Identical desktop comp selection created new IDs or undo");
+    f.child<QComboBox>("timelineClips")->setCurrentIndex(1);
+    await([&] { return f.child<QLabel>("compSource")->text().contains("Selected clip uses"); });
+    f.child<QLineEdit>("takeLaneName")->setText(QString::fromUtf8("Voix — Українська"));
+    f.click("renameTakeLane");
+    await([&] { return f.window->snapshot()->session->tracks[0].takeLanes[0].name == "Voix — Українська"; });
+    f.click("moveTakeLaneDown");
+    await([&] { return f.window->snapshot()->session->tracks[0].takeLanes[1].id == inactive.tracks[0].takeLanes[0].id && f.child<QComboBox>("timelineTakes")->currentIndex() == 2; });
+    check(f.child<QComboBox>("timelineTakes")->currentData().toString().toStdString() == inactive.tracks[0].takeLanes[0].id.str(),
+          "Lane reorder changed selected identity");
+    f.click("moveTakeLaneUp");
+    await([&] { return f.window->snapshot()->session->tracks[0].takeLanes[0].id == inactive.tracks[0].takeLanes[0].id && f.child<QComboBox>("timelineTakes")->currentIndex() == 1; });
+    const auto renamed = *f.window->snapshot()->session;
+    const auto rejectedBefore = f.window->snapshot()->errorSerial;
+    f.click("removeTakeLane");
+    await([&] { return f.window->snapshot()->errorSerial > rejectedBefore; });
+    check(*f.window->snapshot()->session == renamed, "Removing used take broke comp source");
+    f.child<QComboBox>("timelineTakes")->setCurrentIndex(2);
+    f.click("removeTakeLane");
+    await([&] { return f.window->snapshot()->session->tracks[0].takeLanes.size() == 1; });
+    f.window->findChild<QAction *>("undoAction")->trigger();
+    await([&] { return *f.window->snapshot()->session == renamed; });
+    f.save(); check(ProjectStore(f.root).load() == renamed, "Desktop take/comp save lost name/provenance");
+    f.window->openProject(f.root);
+    await([&] { return f.window->snapshot()->projectEpoch > current->projectEpoch; });
+    check(*f.window->snapshot()->session == renamed, "Desktop reopen lost lanes/comp");
+    for (unsigned n = 0; n < hashes.size(); ++n)
+        check(hashMediaFile(f.root / utf8Path(renamed.assets[n].relativePath)) == hashes[n], "Desktop take/comp mutated raw file");
+    await([&] { return f.child<QComboBox>("timelineTakes")->currentIndex() == 0; });
+    f.child<QComboBox>("timelineTakes")->setCurrentIndex(1);
+    f.child<QComboBox>("timelineClips")->setCurrentIndex(1);
+    await([&] { return f.child<QLabel>("compSource")->text().contains("Selected clip uses"); });
+    auto *scroll = qobject_cast<QScrollArea *>(f.window->centralWidget());
+    scroll->ensureWidgetVisible(f.child<QComboBox>("timelineTakes"));
+    QTest::qWait(10); f.window->grab().save(QStringLiteral(".cache/take-desktop/preview.png"));
+    f.close(); f.success = true;
+    std::cout << "Retained desktop workflow: " << retainedChecks - beforeChecks
+              << " assertions; actual two-lane capture, silent retain, verified retry, concurrent scalar, group comp, partition/live/export, Undo/Redo, Unicode save/reopen; callback audit zero\n";
+}
 void unrelatedAttachmentError() {
     Fixture f;
     f.prepare();
@@ -460,11 +661,13 @@ void closePreview(bool keep) {
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
     try {
+        if (argc > 1 && std::string_view(argv[1]) == "--retained-takes-only") { retainedWorkflow(); return 0; }
         if (argc > 1 && std::string_view(argv[1]) == "--attachment-review-only") {
             attachmentReviewReplay = true;
             unrelatedAttachmentError();
             return 0;
         }
+        retainedWorkflow();
         workflow();
         closePreview(false);
         closePreview(true);

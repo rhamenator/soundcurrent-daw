@@ -154,6 +154,67 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
                                            : std::optional<Id>((it + 2)->id)}});
     });
     body->addLayout(trackRow);
+    auto *takeFields = new QFormLayout;
+    takes_ = new FocusCombo;
+    takes_->setObjectName("timelineTakes");
+    takes_->setAccessibleName(tr("Retained take lanes in selected track"));
+    takes_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    takes_->setMinimumContentsLength(16);
+    takeList_ = new SessionListModel(SessionListModel::Kind::TakeLanes, this, false, memory);
+    takes_->setModel(takeList_);
+    takeFields->addRow(tr("Retained take"), takes_);
+    auto takeField = [&](const char *name, const QString &label) {
+        auto *f = new QLineEdit;
+        f->setObjectName(name); f->setAccessibleName(label); takeFields->addRow(label, f); return f;
+    };
+    takeName_ = takeField("takeLaneName", tr("Take lane name"));
+    compStart_ = takeField("compStartFrame", tr("Comp start frame (inclusive)"));
+    compEnd_ = takeField("compEndFrame", tr("Comp end frame (exclusive)"));
+    compGroup_ = new QCheckBox(tr("Select matching recorded group across tracks"));
+    compGroup_->setObjectName("compGroup"); takeFields->addRow(compGroup_);
+    compSource_ = new QLabel;
+    compSource_->setObjectName("compSource"); compSource_->setWordWrap(true);
+    compSource_->setTextFormat(Qt::PlainText);
+    takeFields->addRow(tr("Comp source"), compSource_);
+    body->addLayout(takeFields);
+    connect(takes_, &QComboBox::currentIndexChanged, this, [this] {
+        if (refreshing_) return;
+        take_ = takeList_->idAt(takes_->currentIndex());
+        refreshTake(true); refresh(false, false);
+    });
+    auto *takeActions = new QHBoxLayout;
+    button(takeActions, QT_TRANSLATE_NOOP("TimelineEditor", "Use take region"), "selectTakeRegion", [this] {
+        const auto *lane = takeLane(); if (!lane || !track_) return;
+        const auto begin = frame(compStart_), end = frame(compEnd_);
+        std::vector<SessionEdit> edits;
+        if (compGroup_->isChecked()) {
+            for (const auto &t : model_->tracks) for (const auto &candidate : t.takeLanes)
+                if (candidate.groupId == lane->groupId) {
+                    if (edits.size() == 64) throw ProjectError(ErrorCode::InvalidState, "Comp group exceeds the current desktop transaction capacity");
+                    edits.push_back(SelectTakeRegion{t.id, candidate.id, begin, end});
+                }
+        } else edits.push_back(SelectTakeRegion{*track_, lane->id, begin, end});
+        mutate(std::move(edits));
+    });
+    button(takeActions, QT_TRANSLATE_NOOP("TimelineEditor", "Rename take"), "renameTakeLane", [this] {
+        if (takeLane()) mutate({RenameTakeLane{*track_, *take_, takeName_->text().toUtf8().toStdString()}});
+    });
+    button(takeActions, QT_TRANSLATE_NOOP("TimelineEditor", "Take up"), "moveTakeLaneUp", [this] {
+        if (!takeLane()) return;
+        const auto &lanes = track()->takeLanes;
+        const auto it = std::find_if(lanes.begin(), lanes.end(), [this](const auto &l) { return l.id == *take_; });
+        if (it != lanes.begin()) mutate({MoveTakeLane{*track_, *take_, (it - 1)->id}});
+    });
+    button(takeActions, QT_TRANSLATE_NOOP("TimelineEditor", "Take down"), "moveTakeLaneDown", [this] {
+        if (!takeLane()) return;
+        const auto &lanes = track()->takeLanes;
+        const auto it = std::find_if(lanes.begin(), lanes.end(), [this](const auto &l) { return l.id == *take_; });
+        if (it + 1 != lanes.end()) mutate({MoveTakeLane{*track_, *take_, it + 2 == lanes.end() ? std::optional<Id>{} : std::optional<Id>((it + 2)->id)}});
+    });
+    button(takeActions, QT_TRANSLATE_NOOP("TimelineEditor", "Remove unused take"), "removeTakeLane", [this] {
+        if (takeLane()) mutate({RemoveTakeLane{*track_, *take_}});
+    });
+    body->addLayout(takeActions);
     auto *ranges = new QFormLayout;
     clips_ = new FocusCombo;
     clipList_ = new SessionListModel(SessionListModel::Kind::Clips, this, false, memory);
@@ -422,7 +483,7 @@ struct TimelineEditor::Prepared {
     std::uint64_t epoch = 0;
     bool editable = false, force = false;
     std::optional<Id> track, clip, pending;
-    std::shared_ptr<SessionListModel::Prepared> tracks, clips, destinations, assets;
+    std::shared_ptr<SessionListModel::Prepared> tracks, clips, destinations, assets, takes;
     std::shared_ptr<TimelineView::Prepared> view;
 };
 std::shared_ptr<TimelineEditor::Prepared>
@@ -466,6 +527,7 @@ TimelineEditor::prepare(std::shared_ptr<const Session> s, std::uint64_t epoch, b
         p->clip.reset();
     p->tracks = trackList_->prepare(p->model);
     p->clips = clipList_->prepare(p->model, {}, p->track);
+    p->takes = takeList_->prepare(p->model, {}, p->track);
     p->destinations = destinations_->prepare(
         t ? p->model : nullptr, t ? std::optional<ChannelLayout>(t->layout) : std::nullopt);
     p->assets = assets_->prepare(t ? p->model : nullptr,
@@ -485,6 +547,7 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
     if (!p)
         return;
     const auto previous = track_;
+    const bool replacement = epoch_ != p->epoch;
     const auto *previousClip = clip();
     const auto previousProcessing = previousClip ? previousClip->processing : ClipProcessing{};
     const auto previousRate = previousClip ? previousClip->playbackRate : ClipPlaybackRate{};
@@ -494,9 +557,10 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
                          clip_ != p->clip || editable_ != p->editable;
     {
         QScopedValueRollback<bool> guard(refreshing_, true);
-        QSignalBlocker a(tracks_), b(clips_), c(destination_), d(asset_);
+        QSignalBlocker a(tracks_), b(clips_), c(destination_), d(asset_), e(takes_);
         trackList_->commit(std::move(p->tracks));
         clipList_->commit(std::move(p->clips));
+        takeList_->commit(std::move(p->takes));
         destinations_->commit(std::move(p->destinations));
         assets_->commit(std::move(p->assets));
         view_->commit(std::move(p->view));
@@ -506,6 +570,8 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
         track_ = std::move(p->track);
         clip_ = std::move(p->clip);
         pendingTrack_ = std::move(p->pending);
+        if (previous != track_ || replacement) take_.reset();
+        if (take_ && (!track() || std::none_of(track()->takeLanes.begin(), track()->takeLanes.end(), [this](const auto &l) { return l.id == *take_; }))) take_.reset();
     }
     if (changed) {
         const auto *currentClip = clip();
@@ -531,7 +597,7 @@ void TimelineEditor::editing(bool editable) {
 }
 std::size_t TimelineEditor::resourceBytes() const {
     return trackList_->resourceBytes() + destinations_->resourceBytes() + assets_->resourceBytes() +
-           clipList_->resourceBytes() + view_->resourceBytes();
+           clipList_->resourceBytes() + takeList_->resourceBytes() + view_->resourceBytes();
 }
 bool TimelineEditor::select(std::optional<Id> id, std::optional<Id> clip) {
     if (!model_ || !id ||
@@ -565,6 +631,7 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
                              std::optional<QString> asset, bool forceProcessing, bool forceRate) {
     QScopedValueRollback<bool> guard(refreshing_, true);
     QSignalBlocker block(tracks_);
+    refreshTake(force);
     const auto previousDestination = destination.value_or(destination_->currentData().toString());
     const auto previousAsset = asset.value_or(asset_->currentData().toString());
     const auto *t = track();
@@ -643,6 +710,8 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
             usable = bool(model_);
         else if (n == "insertMediaClip")
             usable = t && asset_->count();
+        else if (n == "selectTakeRegion" || n.contains("TakeLane"))
+            usable = bool(takeLane());
         else if (n.contains("Clip") || n == "applyClipRange")
             usable = bool(c);
         b->setEnabled(editable_ && usable);
@@ -652,6 +721,32 @@ void TimelineEditor::refresh(bool force, bool redraw, std::optional<QString> des
                   : tr("Stop audio preparation or recording to edit tracks and clips."));
     if (redraw)
         draw();
+}
+const TakeLane *TimelineEditor::takeLane() const {
+    const auto *t = track();
+    if (!t || !take_) return nullptr;
+    const auto it = std::find_if(t->takeLanes.begin(), t->takeLanes.end(), [this](const auto &lane) { return lane.id == *take_; });
+    return it == t->takeLanes.end() ? nullptr : &*it;
+}
+void TimelineEditor::refreshTake(bool force) {
+    QSignalBlocker blocked(takes_);
+    takes_->setCurrentIndex(take_ ? takeList_->rowForId(*take_) : 0);
+    const auto *lane = takeLane();
+    if (force || !takeName_->hasFocus()) takeName_->setText(lane ? text(lane->name) : QString());
+    if (lane && !lane->clips.empty()) {
+        field(compStart_, lane->clips.front().startFrame, force);
+        const auto &last = lane->clips.back();
+        field(compEnd_, last.startFrame + last.lengthFrames, force);
+    } else for (auto *w : {compStart_, compEnd_}) if (force || !w->hasFocus()) w->clear();
+    for (auto *w : {takeName_, compStart_, compEnd_}) w->setEnabled(editable_ && lane);
+    takes_->setEnabled(bool(track())); compGroup_->setEnabled(editable_ && lane);
+    const auto *c = clip();
+    if (c && c->takeOrigin) {
+        const TakeLane *origin = nullptr;
+        for (const auto &t : model_->tracks) for (const auto &l : t.takeLanes)
+            if (l.id == c->takeOrigin->laneId) origin = &l;
+        compSource_->setText(tr("Selected clip uses %1. Other retained lanes are silent.").arg(origin ? text(origin->name) : tr("Missing take lane")));
+    } else compSource_->setText(tr("Retained lanes are silent. Use a fully covered project frame range to replace the active arrangement; Undo restores it. Stop and reprepare playback to hear the comp."));
 }
 void TimelineEditor::draw() {
     view_->setSnapshot(model_, epoch_);

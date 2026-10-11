@@ -1,0 +1,32 @@
+{
+  "format": "sc-desktop-retained-takes-evidence-v1",
+  "sourceCommit": "e092d7ea42d7ff949416d0174277f8320e94fa9e",
+  "sourceTree": "85fafa0fb800f5ff6efd054c52ed11da9368bb0a",
+  "sourceInputs": 398,
+  "captureBytes": 22531,
+  "captureSha256": "858619e39c64d850a715cb30775d931c897c5211fd4a246d7a1724d5fbfe0b3d",
+  "qualifiedLocalSuites": 8,
+  "retainedWorkflowChecks": [
+    1777,
+    1765
+  ],
+  "callbackAudit": 0,
+  "capturedGroups": 2,
+  "tracksPerGroup": 2,
+  "declaredProjectionLanes": 131,
+  "virtualTakeRows": 132,
+  "sourceKeys": 877,
+  "catalogs": 34,
+  "rawTakesUnchanged": true,
+  "liveExportEqual": true,
+  "saveReopen": true,
+  "undoRedo": true,
+  "nativeWindowsQualified": false,
+  "physicalAudioQualified": false,
+  "installedPreviewQualified": false,
+  "loopRecordingQualified": false,
+  "compCrossfadesQualified": false,
+  "M2Complete": false,
+  "fullGoalComplete": false,
+  "productArtifactUploaded": false
+}

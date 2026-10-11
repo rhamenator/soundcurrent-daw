@@ -28,6 +28,8 @@ struct IoJob {
     std::shared_ptr<const std::vector<RecordingResult>> recordings = nullptr;
     std::uint64_t attachmentRequest = 0;
     std::shared_ptr<ResourceLease> loadReservation = nullptr;
+    std::shared_ptr<const ManualRecordedGroup> retainedTake = nullptr;
+    std::string takeName = {};
 };
 struct IoResult {
     IoJob job;
@@ -498,19 +500,39 @@ struct ProjectController::State : QThread {
         case CommandKind::AttachRecording: {
             requireModel();
             if (view.io != IoOperation::None ||
-                bool(command.recording) == bool(command.recordings) || command.path != view.root)
+                int(bool(command.recording)) + int(bool(command.recordings)) + int(bool(command.retainedTake)) != 1 || command.path != view.root)
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Take attachment needs the current project and idle I/O owner");
             // Shape/identity validation is transactional; disk/journal verification belongs
             // to the I/O worker. No speculative asset is published to the canonical model.
-            OperationWork work(*this, stagingBytes());
+            if (command.retainedTake && (!command.structuralGuard ||
+                command.structuralGuard->projectEpoch != view.projectEpoch ||
+                command.structuralGuard->project != model->id ||
+                command.structuralGuard->root != view.root || !command.retainedTake->complete()))
+                throw ProjectError(ErrorCode::InvalidState, "Retained take belongs to a replaced project or is incomplete");
+            PayloadCharge staging("Retained take candidate staging", SIZE_MAX);
+            staging.add(stagingBytes());
+            if (command.retainedTake) {
+                staging.add(command.retainedTake->lanes.size(), sizeof(ManualRecordedLane) + sizeof(RecordingResult) + 8192);
+                staging.add(command.name.size() + 1, command.retainedTake->lanes.size());
+            }
+            OperationWork work(*this, staging.bytes());
             auto proposed = *model;
-            const auto recordings = command.recordings
+            std::shared_ptr<const std::vector<RecordingResult>> retainedRecords;
+            if (command.retainedTake) {
+                auto records = std::make_shared<std::vector<RecordingResult>>();
+                records->reserve(command.retainedTake->lanes.size());
+                for (const auto &lane : command.retainedTake->lanes) records->push_back(*lane.result);
+                retainedRecords = std::move(records);
+            }
+            const auto recordings = command.retainedTake ? retainedRecords : command.recordings
                                         ? command.recordings
                                         : std::make_shared<const std::vector<RecordingResult>>(
                                               std::vector<RecordingResult>{*command.recording});
             admitReceipts(recordings, admission.state);
-            for (const auto &r : *recordings)
+            if (command.retainedTake)
+                proposed = withManualTakeLanes(*model, *command.retainedTake, command.name);
+            else for (const auto &r : *recordings)
                 attachRecording(proposed, r);
             const auto preflightPeak = history->checkAdopt(proposed);
             work.admit(preflightPeak);
@@ -519,6 +541,8 @@ struct ProjectController::State : QThread {
             IoJob job{IoOperation::AttachRecording, view.root, std::move(publication),
                       view.modelRevision, recordings};
             job.attachmentRequest = command.attachmentRequest;
+            job.retainedTake = command.retainedTake;
+            job.takeName = command.name;
             io.startJob(std::move(job));
             view.io = IoOperation::AttachRecording;
             history->acceptPreflight(preflightPeak);
@@ -568,10 +592,12 @@ struct ProjectController::State : QThread {
                 OperationWork work(*this, stagingBytes());
                 std::optional<Session> admitted;
                 if (result.job.revision != view.modelRevision)
-                    admitted = *model;
+                    admitted = result.job.retainedTake
+                        ? withManualTakeLanes(*model, *result.job.retainedTake, result.job.takeName)
+                        : *model;
                 std::vector<Id> assets;
                 for (const auto &r : *result.job.recordings) {
-                    if (admitted)
+                    if (admitted && !result.job.retainedTake)
                         attachRecording(*admitted, r);
                     assets.push_back(r.asset.id);
                 }

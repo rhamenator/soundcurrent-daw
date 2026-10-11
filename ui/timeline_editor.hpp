@@ -55,7 +55,14 @@ class TimelineEditor : public QGroupBox {
     std::optional<Id> track_, clip_, pendingTrack_;
     QListView *tracks_;
     TimelineView *view_;
-    SessionListModel *trackList_, *destinations_, *assets_, *clipList_;
+    SessionListModel *trackList_, *destinations_, *assets_, *clipList_, *takeList_;
+    QComboBox *takes_;
+    QLineEdit *takeName_, *compStart_, *compEnd_;
+    QCheckBox *compGroup_;
+    QLabel *compSource_;
+    std::optional<Id> take_;
+    const TakeLane *takeLane() const;
+    void refreshTake(bool force);
     QLineEdit *name_, *start_, *source_, *length_, *split_, *consumed_;
     QLabel *sourceTiming_;
     QComboBox *layout_, *destination_, *asset_, *clips_;
