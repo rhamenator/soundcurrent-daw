@@ -2,6 +2,7 @@
 #include <soundcurrent/monitor_processing.hpp>
 #include <soundcurrent/original_recording.hpp>
 #include <soundcurrent/wasapi_packet_copy.hpp>
+#include <soundcurrent/wasapi_monitor_capture.hpp>
 #include "rt_audit.hpp"
 #include "../src/media_io.hpp"
 #include <barrier>
@@ -21,7 +22,7 @@ struct Config {
     MonitorOutputBankConfig output;
     MonitorProcessingConfig processing;
     MonitorCaptureStopConfig stop;
-    Config() {
+    Config(bool context=false) {
         capture.capture.identity={11,31,7};capture.capture.maximumPacketFrames=64;
         capture.capture.slots=8;capture.monitorSlots=8;
         output.channels=1;output.first.value=base;output.maximumPullFrames=64;output.slots=2;
@@ -31,14 +32,21 @@ struct Config {
         d.inputCapacityFrames=b.inputCapacityFrames;d.targetQueuedSourceFrames=1024;d.occupancyGainPpmPerFrame=0;
         stop.monitorSlots=8;stop.inputCapacityFrames=b.inputCapacityFrames;
         stop.warmupInputFrames=monitorBufferWarmupInputFrames(b);
+        // 64k is a synthetic fixture rate: 64 frames = exactly 10,000 QPC
+        // units, avoiding timestamp-rounding drift in the independent PCM oracle.
+        if(context) {
+            capture.capture.sampleRate=output.sampleRate=b.sourceRate=b.outputRate=
+                d.sourceRate=d.outputRate=stop.sourceRate=64000;
+            d.renderFrequency=64000;
+        }
     }
 };
 void seed(PreparedMonitorProcessing &p,const Config &c) {
     for(unsigned n=0;n<3;++n) {
         const auto q=now-40000000+std::uint64_t(n)*20000000;
-        const auto pos=origin-192000+std::uint64_t(n)*96000;
+        const auto pos=origin-4*c.processing.drift.sourceRate+std::uint64_t(n)*2*c.processing.drift.sourceRate;
         p.observe(CaptureClockReading{c.processing.drift.captureIdentity,{pos},{q}});
-        p.observe(RenderClockReading{c.processing.drift.renderIdentity,{pos},{q},48000});
+        p.observe(RenderClockReading{c.processing.drift.renderIdentity,{pos},{q},c.processing.drift.renderFrequency});
     }
 }
 void lifecycle() {
@@ -105,21 +113,28 @@ struct Temp {
     Temp(){std::filesystem::create_directory(path);}
     ~Temp(){if(!std::uncaught_exceptions()){std::error_code e;std::filesystem::remove_all(path,e);}else std::cerr<<"Retained stop fixture: "<<path<<'\n';}
 };
-void pipeline(unsigned length,unsigned kind) {
-    Config c;PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
+void pipeline(unsigned length,unsigned kind,bool nativeContext=false) {
+    Config c(nativeContext);PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
     PreparedMonitorCaptureStop stop(c.stop);MonitorControlConfig qc;PreparedMonitorControl control(qc);
-    PreparedMonitorProcessing p(f,o,c.processing,nullptr,&control,&stop);seed(p,c);
+    MonitorClockHandoffConfig hc;hc.captureIdentity=c.capture.capture.identity;
+    hc.renderIdentity=c.processing.drift.renderIdentity;hc.renderFrequency=c.processing.drift.renderFrequency;
+    PreparedMonitorClockHandoff clocks(hc);
+    WasapiPreparedCaptureFormat format{c.capture.capture.sampleRate,1,64,4,false,c.capture.capture.identity};
+    PreparedWasapiMonitorCapture context(format,f,clocks,stop);PreparedWasapiCaptureBinding binding;
+    check(!nativeContext || binding.bind(context,format),"Production context binding");
+    PreparedMonitorProcessing p(f,o,c.processing,nativeContext?&clocks:nullptr,&control,&stop);seed(p,c);
     const MonitorControlRequest intent{1,1,MonitorControlKind::Stop,{base+length}};
     check(control.submit(intent)==MonitorControlCode::Accepted,"Pipeline intent");
-    Temp temp;OriginalRecordingSpec spec;spec.identity=c.capture.capture.identity;spec.maximumPacketFrames=64;
+    Temp temp;OriginalRecordingSpec spec;spec.identity=c.capture.capture.identity;spec.maximumPacketFrames=64;spec.sampleRate=c.capture.capture.sampleRate;
     OriginalCaptureWriter writer(temp.path,spec);std::exception_ptr diskError;
     struct Native {
-        PreparedCaptureFanout &f;PreparedMonitorCaptureStop &stop;
+        PreparedCaptureFanout &f;PreparedMonitorCaptureStop &stop;WasapiCaptureCallbacks bound;bool useContext;
         std::array<float,64> sdk{};unsigned releases=0,callbacks=0;bool bad=false;
-        static bool poll(void *ctx) noexcept { auto &s=*static_cast<Native *>(ctx);return s.stop.requested() || s.f.status()!=CaptureFanoutStatus::Running; }
+        static bool poll(void *ctx) noexcept { auto &s=*static_cast<Native *>(ctx);return s.useContext?s.bound.shouldStop(s.bound.context):s.stop.requested() || s.f.status()!=CaptureFanoutStatus::Running; }
         static std::int32_t release(void *ctx,std::uint32_t frames) noexcept { auto &s=*static_cast<Native *>(ctx);++s.releases;if(frames!=64)s.bad=true;s.sdk.fill(-999.f);return 0; }
         static void packet(void *ctx,const WasapiPacket &r) noexcept {
             auto &s=*static_cast<Native *>(ctx);++s.callbacks;if(s.callbacks!=s.releases)s.bad=true;
+            if(s.useContext){s.bound.packet(s.bound.context,r);return;}
             const CaptureBankStamp stamp{s.f.captureConfig().identity,{r.devicePosition},{r.qpc100ns},r.frames,r.flags};
             const auto result=s.f.publish({stamp,r.data,r.bytes});if(result.rawAcceptedFrames!=r.frames || result.monitorAcceptedFrames!=r.frames)s.bad=true;
         }
@@ -127,10 +142,11 @@ void pipeline(unsigned length,unsigned kind) {
             auto &s=*static_cast<Native *>(ctx);
             // Publish the ACTUAL SDK result before EOF, so processing cannot
             // complete a healthy run using an EOF that hides failed native Stop.
+            if(s.useContext){s.bound.finished(s.bound.context,r);return;}
             if(!s.stop.complete(r))s.bad=true;
             s.f.finish();
         }
-    } native{f,stop};
+    } native{f,stop,binding.callbacks(),nativeContext};
     PreparedWasapiPacketCopy copy(1,64);PreparedWasapiCaptureLifecycle life({&native,Native::poll,Native::finish});
     constexpr unsigned rounds=400;std::barrier phase(4);std::atomic<bool> failed{false};
     std::array<rt_audit::Counts,4> audits{};std::vector<float> rendered;rendered.reserve(length);
@@ -142,10 +158,10 @@ void pipeline(unsigned length,unsigned kind) {
             if(!ended) {
                 if(rt([&]{return life.shouldStop();})) {
                     const bool sdkFailure=kind==2 || kind==3 || kind==5;
-                    rt([&]{life.stopped(sdkFailure?-17:0);life.finish(sdkFailure?std::optional(WasapiStreamFailure{-17,4}):std::nullopt);});ended=true;
+                    rt([&]{if(sdkFailure && nativeContext)native.bound.unavailable(native.bound.context,-17);life.stopped(sdkFailure?-17:0);life.finish(sdkFailure?std::optional(WasapiStreamFailure{-17,4}):std::nullopt);});ended=true;
                 }else {
                     for(unsigned n=0;n<64;++n)native.sdk[n]=(kind==1 || kind==3) && offset==512 && n==3?std::bit_cast<float>(std::uint32_t{0x7fc01234}):sample(offset+n);
-                    const WasapiPacket packet{reinterpret_cast<const std::byte *>(native.sdk.data()),sizeof(native.sdk),64,offset?0u:wasapiDiscontinuity,origin+offset,now+offset*211};
+                    const WasapiPacket packet{reinterpret_cast<const std::byte *>(native.sdk.data()),sizeof(native.sdk),64,(offset || nativeContext)?0u:wasapiDiscontinuity,origin+offset,now+(nativeContext?offset*10000000/64000:offset*211)};
                     const auto d=rt([&]{return copy.deliver(packet,{&native,Native::release,Native::packet});});
                     if(!d.callbackInvoked || d.releaseHresult<0)failed.store(true);else rt([&]{life.delivered(packet);});
                     offset+=64;
@@ -173,8 +189,12 @@ void pipeline(unsigned length,unsigned kind) {
         rt_audit::reset();
         for(unsigned r=0;r<rounds;++r) {
             phase.arrive_and_wait();
-            for(unsigned n=0;n<16 && !p.statistics().done && !p.firstFault();++n)
-                rt([&]{return p.step({now+std::uint64_t(r)*64*211});});
+            for(unsigned n=0;n<16 && !p.statistics().done && !p.firstFault();++n) {
+                rt([&]{return p.step({now+(nativeContext?std::uint64_t(r)*10000:std::uint64_t(r)*64*211)});});
+                // Validate the original SDK end before pumping the separate
+                // clock failure, so CaptureEnd remains the first actual cause.
+                if(nativeContext && !p.firstFault())rt([&]{return p.pumpClocks();});
+            }
             if(p.statistics().buffer.generatedOutputFrames>=64)cancelPoint.store(true,std::memory_order_release);
             phase.arrive_and_wait();phase.arrive_and_wait();
         }
@@ -195,6 +215,11 @@ void pipeline(unsigned length,unsigned kind) {
         phase.arrive_and_wait();
     }
     audits[3]=rt_audit::counts;capture.join();disk.join();processing.join();
+    if(nativeContext) {
+        context.settleAfterJoin();clocks.finishRender();clocks.settleAfterJoin();
+        check(binding.originalEnd() && binding.originalEnd()->stopHresult==life.afterJoin()->stopHresult &&
+            clocks.captureCounts().accepted==native.callbacks,"Original bound SDK end/clock count lost");
+    }
     control.finish();p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();stop.settleAfterJoin();control.settleAfterJoin();
     if(diskError)std::rethrow_exception(diskError);
     check(!failed.load() && !native.bad && ended && f.rawDrained() && rawFrames==f.rawAcceptedFrames(),"Source Stop composed owners failed");
@@ -224,12 +249,15 @@ void pipeline(unsigned length,unsigned kind) {
         check(cancelSubmitted && p.statistics().cancelled && stop.originalRequest()->kind==MonitorCaptureStopKind::Cancel && rendered.size()<length,"Cancel did not reach capture owner");
         check(end->status==(kind==5?MonitorCaptureEndStatus::NativeFailure:MonitorCaptureEndStatus::Healthy),"Cancellation lost actual native end result");
     }
-    std::cout<<"source-stop fake SDK; owners=4 phased; kind="<<kind<<" requested="<<length<<" raw="<<rawFrames<<" monitor="<<rendered.size()<<" actual postroll="<<(rawFrames>=length?rawFrames-length:0)<<"\n";
+    std::cout<<(nativeContext?"production capture context; fake 64k source, synthetic prior clock fit; ":"source-stop fake SDK; ")<<"owners=4 phased; kind="<<kind<<" requested="<<length<<" raw="<<rawFrames<<" monitor="<<rendered.size()<<" actual postroll="<<(rawFrames>=length?rawFrames-length:0)<<"\n";
 }
 } // namespace
 int main() {
     try { rt_audit::reset();lifecycle();admissionAndReceipts();pipeline(0,0);pipeline(7,0);pipeline(512,0);pipeline(3072,0);
-        pipeline(512,1);pipeline(512,2);pipeline(512,3);pipeline(3072,4);pipeline(3072,5);audit(rt_audit::counts);
+        pipeline(512,1);pipeline(512,2);pipeline(512,3);pipeline(3072,4);pipeline(3072,5);
+        for(unsigned n:{0u,7u,512u,3072u})pipeline(n,0,true);
+        for(unsigned kind=1;kind<=5;++kind)pipeline(kind>=4?3072:512,kind,true);
+        audit(rt_audit::counts);
         std::cout<<checks<<" capture Stop lifecycle checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;
     }catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}
 }

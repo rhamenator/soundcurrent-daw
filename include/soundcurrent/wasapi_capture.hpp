@@ -3,6 +3,7 @@
 #include "wasapi_input.hpp"
 #include "wasapi_capture_trace.hpp"
 #include "wasapi_capture_lifecycle.hpp"
+#include "clock_correlation.hpp"
 #include <memory>
 #include <string>
 namespace soundcurrent::daw {
@@ -20,6 +21,15 @@ struct WasapiCaptureOptions {
     bool loopback = false; // Explicit render endpoint; no cable/driver required.
     WasapiCaptureTrace *trace = nullptr; // Opt-in control-owned diagnostic; outlives stop/join.
     std::optional<ResourceLedger> resources; // Prepared packet storage; never reserved in callbacks.
+    ClockStreamIdentity identity; // Controller's immutable route token; legacy unbound callers may use zero.
+};
+// Immutable successful SDK admission, published before construction returns.
+// The copy capacity is the actual GetBufferSize result, not the options ceiling.
+struct WasapiPreparedCaptureFormat {
+    std::uint32_t sampleRate = 0, channels = 0, maximumPacketFrames = 0, channelMask = 0;
+    bool loopback = false;
+    ClockStreamIdentity identity; // Declared route token, not a clock reading or hardware-generated ID.
+    bool operator==(const WasapiPreparedCaptureFormat &) const = default;
 };
 struct WasapiCaptureCallbacks {
     void *context = nullptr;
@@ -45,6 +55,7 @@ class WasapiCaptureStream {
     void requestStop() noexcept; // Control only, event notification; does not join.
     void stop() noexcept;
     std::uint32_t bufferFrames() const noexcept;
+    WasapiPreparedCaptureFormat preparedFormat() const noexcept; // Serialized control; immutable.
     std::optional<WasapiStreamFailure> failure() const noexcept;
     std::optional<WasapiCaptureEnd> endAfterJoin() const noexcept; // Serialized joined control only.
   private:
