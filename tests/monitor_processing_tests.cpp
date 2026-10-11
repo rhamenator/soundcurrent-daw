@@ -115,6 +115,16 @@ void parityAndPressure(unsigned channels) {
     std::cout<<"processing channels="<<channels<<" rawFrames=1024 outputFrames=512 comparedOutputBits="<<actual.size()<<" retained-pressure exact retry\n";
 }
 void faultsAndAdmission() {
+    {
+        Config c;PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
+        ResourceLedger tiny(1);c.processing.resources=tiny;
+        refuses([&]{PreparedMonitorProcessing p(f,o,c.processing);});
+        check(!tiny.usage().reservedBytes && !tiny.usage().owners,"Refused processing credit leaked");
+        ResourceLedger admitted(256*1024*1024);c.processing.resources=admitted;
+        c.processing.drift.maximumConfidencePpm=0;
+        refuses([&]{PreparedMonitorProcessing p(f,o,c.processing);});
+        check(!admitted.usage().reservedBytes && !admitted.usage().owners,"Partial preparation credit leaked");
+    }
     for(unsigned kind=0;kind<8;++kind) {
         Config c;PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
         auto bad=c.processing;
