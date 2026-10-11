@@ -133,6 +133,11 @@ std::optional<ClockFitSnapshot> PreparedClockCorrelation::snapshot() const noexc
     if (!ready_ || fault_) return {};
     return ClockFitSnapshot{config_.identity,config_.unit,config_.frequency,config_.runGeneration,fitBegin_,fitEnd_};
 }
+void PreparedClockCorrelation::restartWindow() noexcept {
+    if (fault_) return;
+    candidate_ = last_;
+    ready_ = false;
+}
 std::optional<NativeClockPoint> PreparedClockCorrelation::firstReading() const noexcept {
     return seen_ ? std::optional(first_) : std::nullopt;
 }

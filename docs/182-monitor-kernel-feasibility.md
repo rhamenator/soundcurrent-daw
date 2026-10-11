@@ -88,3 +88,15 @@ No audible UI or raw/project schema changes. Full drift stability, spectral/phas
 transient quality, extreme rates, scheduling/load, native/installed/physical/
 Windows/localization and full P005/M2/F/Q/C/N remain open. Earlier quality failures
 are not closed by these kernel observations.
+
+## Independent Windows kernel execution
+
+MSVC job114401243742/run38116107337 passed55 synthetic suites173.64s, including
+the kernel probe0.65s. Its original checkout3d04aa86382b9c343a3c040ab6403f4867bea855
+has parentsa40d23d/769dcec and the exact reviewed head tree. A
+[54,839-byte/three-member packet](../tests/results/M2/2026-10-11-monitor-kernel-windows/summary.json)
+retains the full raw job, original API status/commit binding and nine reviewed
+changed-file hashes. The source hashes were checked against the frozen Git blobs.
+The successful log exposes no per-probe check count or executable hash, so none is
+claimed. This is independent Windows kernel feasibility execution, not native
+duplex, installed audio, new controller qualification or current-MAIN admission.
