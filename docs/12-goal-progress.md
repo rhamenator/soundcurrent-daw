@@ -4440,3 +4440,17 @@ unchanged. [Checkpoint181](181-durable-prefix-regression.md) preserves the full
 failed Windows job/status and local regression logs in a41,237-byte/five-member
 packet. Fresh Windows/current-MAIN checks are required before PR119 admission.
 This does not establish native duplex or full product parity.
+
+## Windows manual-owner failure diagnostics (2026-10-11)
+
+Refreshed run38115064831 passed the repaired interrupted-loop suite4.96s but
+failed manual-recording-control with0xc0000409; all other52 suites passed.
+Truncated Unicode path output during unwinding may mask its initiating assertion.
+Frozen a9d7271 adds UTF-8/noexcept failure reporting, classic-locale/failed-sink
+tests and source-location diagnostics. Linux Debug manual control passed1.63s,
+65,181 observed scheduling-dependent checks and callback audit zero. A38,556-byte/
+five-member packet retains the full failed job/status and local diagnostic logs.
+[Checkpoint181](181-durable-prefix-regression.md) records this separate unresolved
+failure. No production behavior is changed. PR119 stays draft/unadmitted pending
+fresh Windows/current-MAIN checks; do not rerun an old successful stacked cohort
+or suppress the manual workflow to obtain green status.
