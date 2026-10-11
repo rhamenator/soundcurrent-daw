@@ -88,7 +88,8 @@ No audible UI or raw/project schema changes. Full drift stability, spectral/phas
 transient quality, extreme rates, scheduling/load, native/installed/physical/
 Windows/localization and full P005/M2/F/Q/C/N remain open. Earlier quality failures
 are not closed by these kernel observations.
-# Independent Windows kernel execution
+
+## Independent Windows kernel execution
 
 MSVC job114401243742/run38116107337 passed55 synthetic suites173.64s, including
 the kernel probe0.65s. Its original checkout3d04aa86382b9c343a3c040ab6403f4867bea855
