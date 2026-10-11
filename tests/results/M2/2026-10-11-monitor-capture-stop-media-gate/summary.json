@@ -1,0 +1,22 @@
+{
+  "format": "sc-monitor-capture-stop-media-build-gate-v1",
+  "sourceCommit": "679a644a493e4f2ab40ce3715315459c45e741ef",
+  "sourceTree": "25b606842ef0b25990ac14243a2bbb96ab148ce9",
+  "captureBytes": 27042,
+  "captureSha256": "b62d707f6aa8ecbb41bc955098127227c594530cca5a363f9d05378159745be5",
+  "members": 16,
+  "originalFailedRun": 38133989863,
+  "originalFailedJob": 114453966338,
+  "originalFailure": "Composed disk fixture linked unavailable sc-media in SC_BUILD_MEDIA=OFF configuration",
+  "fix": "Create composed fixture only when its sc-media target exists; media-enabled native CI still executes it",
+  "coreOnlyAllTargetsCrossBuildPassed": true,
+  "mediaEnabledReleaseSuites": 5,
+  "releaseSeconds": 0.37,
+  "productionCppUnchanged": true,
+  "newNativeCohortQualified": false,
+  "nativeSdkRuntimeQualified": false,
+  "installedPreviewQualified": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

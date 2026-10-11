@@ -125,6 +125,26 @@ one-to-one boundary. It is not an admitted raw/project alignment or a hardware
 latency measurement. Failed runs' delivered monitor prefixes are diagnostic,
 not playable project transactions.
 
+## Core-only build correction
+
+The first stacked132 cohort38133989863 exposed a real configuration failure:
+cross job114453966338 could not link `-lsc-media` because the new composed disk
+fixture was defined even with `SC_BUILD_MEDIA=OFF`. Its original full job/API,
+head138f11d and tested mergece9bd056 remain retained. This cohort cannot qualify
+the PR. The SDK-source-only cross-build above did not cover this all-target link.
+
+Revision `679a644a493e4f2ab40ce3715315459c45e741ef` creates that fixture only when
+its `sc-media` dependency exists. Media-enabled Linux and native Windows jobs
+retain the same complete fixture; the portable processing/control code and
+tests are unchanged. The complete core-only Windows cross-build passed, and
+all five media-enabled Release suites passed again in0.37s with the same3,880
+capture Stop checks. The [27,042-byte/16-member correction packet](../tests/results/M2/2026-10-11-monitor-capture-stop-media-gate/summary.json)
+binds this frozen CMake revision, full local build/CTest/configuration records,
+executable hashes and the original byte-exact failed job/API/review. The earlier
+sanitizer evidence remains evidence for the unchanged production C++/fixture;
+no new sanitizer execution or SDK runtime is claimed for the CMake-only fix.
+A fresh PR cohort remains required before admission.
+
 ## Next gate
 
 Assemble the actual prepared capture/fanout/clock/stop context after SDK format

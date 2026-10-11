@@ -4764,3 +4764,28 @@ retains four byte-exact complete jobs including their UTF-8 BOM, review/admissio
 and post-merge receipts. No protection/admin bypass occurred. Earlier Windows
 owner failures still have unresolved causes; fresh success does not explain them.
 PR128 inherits this MAIN and awaits its own fresh cohort before admission.
+
+## Qualified clock MAIN and capture fixture build correction (2026-10-11)
+
+PR128 passed current-MAIN run38132987584: headabbedee8/basecb8fa2d/tested
+f268a2d3ffe60eaefbf9081cd69114551e534681/treeae308729806966728bc9ccb67161567885107049.
+Ordinary protected squash MAIN0b7a8d25ebc7045f5336595dbd97ca310b0872d4 matches the
+whole tested tree, base parent and all17 reviewed blobs. Its
+[140,004-byte/eight-member packet](../tests/results/M2/2026-10-11-monitor-clock-current-main/summary.json)
+retains four byte-exact jobs including UTF-8 BOM, admission and post-merge
+receipts. No protection/admin bypass occurred. PR129 now inherits this MAIN;
+its previous stacked checks are not admission evidence.
+
+The first capture-stop draft132 cross job114453966338/run38133989863 failed because
+the composed disk fixture linked unavailable `sc-media` in a media-disabled
+build. Original full failure evidence is retained, and the SDK-only compile
+proof is not substituted for this all-target configuration. Frozen679a644 gates
+the fixture on its actual media dependency, preserving complete coverage in
+media-enabled Linux/native Windows jobs. Production C++ and fixture checks are
+unchanged. The full core-only Windows cross-build and all five media-enabled
+Release suites subsequently passed (0.37s); a27,042-byte/16-member correction
+packet binds the frozen CMake revision/full build/test/configuration records/
+executable hashes and original byte-exact failed job/API/review. Earlier
+sanitizers qualify unchanged C++/fixture code, not a new execution of this fix.
+Fresh current-head qualification remains required; the native factory/full DAW
+goal stay gated/incomplete.

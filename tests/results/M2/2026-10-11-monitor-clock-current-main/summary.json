@@ -1,0 +1,22 @@
+{
+  "format": "sc-qualified-monitor-clock-main-v1",
+  "pr": 128,
+  "run": 38132987584,
+  "main": "0b7a8d25ebc7045f5336595dbd97ca310b0872d4",
+  "head": "abbedee8165aba117b6d53a39275cb24177f6f9a",
+  "base": "cb8fa2d10bc3fbb2dea88663e805e4e0c382b65c",
+  "testedMerge": "f268a2d3ffe60eaefbf9081cd69114551e534681",
+  "tree": "ae308729806966728bc9ccb67161567885107049",
+  "blobs": 17,
+  "captureBytes": 140004,
+  "captureSha256": "446a4d0ba9a84ee36fed0c67331aa08a060474333f9eb1882f964c19cb320f6e",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "jobTextEncoding": "UTF-8; original BOM retained for byte-exact job hashes",
+  "adminBypass": false,
+  "policyChanged": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}
