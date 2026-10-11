@@ -16,7 +16,9 @@
 #include <sstream>
 using namespace soundcurrent::daw;
 namespace {
-unsigned checks = 0, workflows = 0;
+std::atomic<unsigned> checks{0}; // Unicode diagnostics also run on the simulated audio owner.
+static_assert(std::atomic<unsigned>::is_always_lock_free);
+unsigned workflows = 0;
 double maximumDifference = 0, outputPeak = 0;
 void check(bool ok, const char *message,
            std::source_location caller = std::source_location::current()) {
