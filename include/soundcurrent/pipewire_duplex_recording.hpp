@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "duplex_recording.hpp"
+#include "loop_recording.hpp"
 #include "pipewire_recording.hpp"
 
 namespace soundcurrent::daw {
@@ -11,6 +12,7 @@ struct PipeWireDuplexRecordingOptions {
     // Optional fixture instrumentation inside the existing callback audit scope.
     // Receives the actual current native clock; must be bounded/noexcept/RT-safe.
     void (*auditClock)(void *, const DeviceBlockClock &) noexcept = nullptr;
+    std::optional<LoopRecordingContext> loopContext; // Control-owned activation barrier.
 };
 // One inactive native filter, explicit packed input and master output routes.
 // Control owner: preparation, activation and stop/join run outside GUI/audio.

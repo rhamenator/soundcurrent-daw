@@ -30,10 +30,10 @@
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
-    "ui/project_controller.cpp": "be7b8de435c86ede8fe590862e4297046a50895199dd03bbcf7c395bf03aa2f2",
-    "ui/project_controller.hpp": "42fdac994335e2011950ac6c345268ad9bd35897486abddf0210b80d0b17024d",
-    "ui/recording_controller.cpp": "1b352cf625fd226040e8e9ad7da661bbd28127350af2a26f851dcaff546dff6e",
-    "ui/recording_controller.hpp": "59c6024d7f8caaf83a2070ce634f529013ab6a71c845c1a162e5c935ce23a147",
+    "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
+    "ui/project_controller.hpp": "d03789727bcecb431e7e0f3773ab9b0c84bb466e912eafae35ef72e75080f4e7",
+    "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
+    "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
     "ui/session_list_model.cpp": "3936c865976dccc7a93dccb16d74d67ee9399d6c0579cf736404986a69c15011",
@@ -42,8 +42,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "f374b03aa18093da14c74a09f68da0dacf0c7926b9c82bb86f89d825d6fe18b1",
-    "ui/studio_window.hpp": "f445ef1c569817cb32e0fd4a71e07911eacf926685d950468c755f158b4fbe65",
+    "ui/studio_window.cpp": "768c42ecc7b929b16d1af78eefa728cd2710de0ab8678b53036dbe2a0f4c4ea0",
+    "ui/studio_window.hpp": "320ead50e0ed8c60a1a4e7a9b1126853479819c43d4a38db283b66fca041b794",
     "ui/timeline_editor.cpp": "8c594fe27a88b6c69dd2555cafcc7bca1e82185a5e81a55d46aec625550a6944",
     "ui/timeline_editor.hpp": "5e0065240440cd13e317de4bd207bea262f966eec92c18ba15bd7ccbaf5ee26e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -3332,6 +3332,36 @@
     ],
     [
       "StudioWindow",
+      "Recording mode",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Timed recording",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop: chosen number of passes",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop: until Stop",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Passes",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Recording range (seconds)",
       "",
       false
@@ -3453,6 +3483,42 @@
     [
       "StudioWindow",
       "Take kept for recovery in %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "First pass",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Passes on this page",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Take name prefix",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Include the partial final pass",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Retain this page as takes",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Retain inactive takes for comping. Existing playback stays as it is; Save remains explicit.",
       "",
       false
     ],
@@ -4124,6 +4190,66 @@
     ],
     [
       "StudioWindow",
+      "These loop takes belong to an earlier project. Keep the raw takes for recovery.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose a positive first pass and a take name prefix.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Take retention queue is full. Please retry.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop takes could not be retained: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop take ",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "%1 complete passes · %2 samples in the partial final pass",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · Verifying this page…",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · Retention failed; raw takes are preserved. Retry this page or finish.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose a positive whole number of loop passes.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Loop recording needs an enabled loop, armed project tracks and punch recording off.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Select at least one track to arm.",
       "",
       false
@@ -4346,6 +4472,12 @@
     ],
     [
       "StudioWindow",
+      "Keep raw takes and finish",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Windows recording monitoring is not available in this preview. Use monitoring off.",
       "",
       false
@@ -4472,6 +4604,12 @@
     ],
     [
       "StudioWindow",
+      "Loop recording captured. Review the takes below.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       " · %1 s · %2 rejected frames",
       "",
       false
@@ -4491,6 +4629,12 @@
     [
       "StudioWindow",
       " · %1 missing playback frames",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      " · pass %1 · loop position %2 samples",
       "",
       false
     ],

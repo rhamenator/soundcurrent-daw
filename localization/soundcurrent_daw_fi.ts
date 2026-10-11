@@ -2243,6 +2243,26 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Recording mode</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Timed recording</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop: chosen number of passes</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop: until Stop</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Passes</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recording range (seconds)</source>
       <translation type="unfinished" />
     </message>
@@ -2324,6 +2344,30 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Take kept for recovery in %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>First pass</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Passes on this page</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take name prefix</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Include the partial final pass</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retain this page as takes</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Retain inactive takes for comping. Existing playback stays as it is; Save remains explicit.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2778,6 +2822,46 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>These loop takes belong to an earlier project. Keep the raw takes for recovery.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose a positive first pass and a take name prefix.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Take retention queue is full. Please retry.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop takes could not be retained: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop take </source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>%1 complete passes · %2 samples in the partial final pass</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · Verifying this page…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · Retention failed; raw takes are preserved. Retry this page or finish.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose a positive whole number of loop passes.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Loop recording needs an enabled loop, armed project tracks and punch recording off.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Select at least one track to arm.</source>
       <translation type="unfinished" />
     </message>
@@ -2926,6 +3010,10 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Keep raw takes and finish</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Windows recording monitoring is not available in this preview. Use monitoring off.</source>
       <translation type="unfinished" />
     </message>
@@ -3010,6 +3098,10 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Loop recording captured. Review the takes below.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source> · %1 s · %2 rejected frames</source>
       <translation type="unfinished" />
     </message>
@@ -3024,6 +3116,10 @@ Stored recording: %1</source>
     </message>
     <message>
       <source> · %1 missing playback frames</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · pass %1 · loop position %2 samples</source>
       <translation type="unfinished" />
     </message>
     <message>

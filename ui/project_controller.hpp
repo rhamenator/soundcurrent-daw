@@ -2,6 +2,7 @@
 #pragma once
 #include <soundcurrent/recording.hpp>
 #include <soundcurrent/manual_recording.hpp>
+#include <soundcurrent/loop_recording.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <soundcurrent/resource_ledger.hpp>
 #include <memory>
@@ -31,6 +32,16 @@ struct StructuralGuard {
     Id project;
     std::filesystem::path root;
 };
+struct LoopRecordedTake {
+    LoopRecordingContext context;
+    std::vector<LoopRecordedSource> sources;
+    std::uint64_t projectEpoch = 0;
+};
+struct LoopTakeRetention {
+    std::shared_ptr<const LoopRecordedTake> take;
+    std::uint64_t first = 0, count = 0;
+    bool allowPartial = false;
+};
 struct ProjectCommand {
     ProjectCommand(CommandKind type = CommandKind::Save) : kind(type) {}
     CommandKind kind = CommandKind::Save;
@@ -42,6 +53,7 @@ struct ProjectCommand {
         recordings; // Alternative atomic group, admitted against trusted receipt/state resources.
     // Alternative complete group: retained inactive until an explicit comp edit.
     std::shared_ptr<const ManualRecordedGroup> retainedTake;
+    std::shared_ptr<const LoopTakeRetention> retainedLoop;
     std::vector<SessionEdit> edits; // One atomic group, at most 64 operations.
     std::shared_ptr<const VerifiedClipStretch> stretchResult; // Retains admitted result credit through queue/adoption.
     std::optional<StructuralGuard> structuralGuard;

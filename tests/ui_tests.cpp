@@ -4,6 +4,7 @@
 #include "fake_recording_endpoint.hpp"
 #include "fake_duplex_endpoint.hpp"
 #include <soundcurrent/recording.hpp>
+#include <fstream>
 #include <QApplication>
 #include <QLineEdit>
 #include <QDialogButtonBox>
@@ -1643,6 +1644,103 @@ void duplexRecordingWorkflow(const std::filesystem::path &root, unsigned mode) {
     check(ProjectStore(root).load() == model, "GUI duplex save/reopen differs");
 }
 
+void loopRecordingWorkflow(const std::filesystem::path &root,bool untilStop) {
+    auto initial=duplex_fixture::project(root,2);
+    initial.loop={true,103,156};
+    initial.tracks[0].inputLatencyFrames=7;initial.tracks[1].inputLatencyFrames=29;
+    for(auto &t:initial.tracks)t.monitoring=RecordingMonitor::Off;
+    ProjectStore(root).save(initial);
+    auto counters=std::make_shared<duplex_fixture::Counters>();
+    if(untilStop)counters->maximumCallbacks=3;
+    std::atomic<bool> holdIo{false},enteredIo{false};
+    struct Release {std::atomic<bool>&v;~Release(){v=false;}} release{holdIo};
+    ControllerOptions projectOptions;projectOptions.beforeIo=[&] {
+        if(holdIo){enteredIo=true;while(holdIo)QThread::msleep(1);}
+    };
+    StudioWindow window(nullptr,{},duplex_fixture::options(counters),{},{},projectOptions);
+    window.resize(900,700);window.show();window.openProject(root);
+    await([&]{return window.snapshot()->session&&window.snapshot()->io==IoOperation::None;});
+    std::vector<Id> arms;for(const auto &t:initial.tracks)arms.push_back(t.id);
+    check(window.configureArmedRecording(arms),"Loop UI arms unavailable");
+    auto *mode=window.findChild<QComboBox *>("loopRecordingMode");
+    auto *passes=window.findChild<QLineEdit *>("loopRecordingPasses");
+    check(mode&&passes&&mode->currentData().toInt()==int(RecordingMode::Timed),"Loop recording controls/default absent");
+    mode->setCurrentIndex(mode->findData(int(untilStop?RecordingMode::LoopUntilStop:RecordingMode::LoopPasses)));
+    passes->setText(QStringLiteral("1.5"));
+    if(!untilStop)check(!window.prepareRecording()&&!counters->constructed,"Fractional pass count prepared audio");
+    passes->setText(QLocale().toString(qulonglong(13)));
+    check(window.prepareRecording(),"Loop prepare refused");
+    await([&]{return window.recordingSnapshot()->phase==RecordingPhase::Ready &&
+        window.findChild<QComboBox *>("inputChannel1") && window.findChild<QComboBox *>("monitorChannel1");});
+    const auto ready=window.recordingSnapshot();
+    check(ready->loop&&ready->loop->projectLoop==PlaybackLoopRegion{103,156}&&!ready->job&&!counters->activated,
+          "Loop preparation activated audio, created jobs or lost saved locators");
+    check(!window.configureLoop({true,104,157}),"Prepared loop accepted a structural locator edit");
+    for(int n=0;n<2;++n) {
+        auto *in=window.findChild<QComboBox *>(QStringLiteral("inputChannel%1").arg(n));
+        auto *out=window.findChild<QComboBox *>(QStringLiteral("monitorChannel%1").arg(n));
+        check(in&&out&&in->currentIndex()==0&&out->currentIndex()==0,"Loop audio routes auto-selected");
+        in->setCurrentIndex(n+1);out->setCurrentIndex(n+1);
+    }
+    auto *record=window.findChild<QPushButton *>("recordButton");await([&]{return record->isEnabled();});record->click();
+    if(untilStop)await([&]{return counters->callbacks==3&&window.recordingSnapshot()->telemetry.capturedFrames>0;});
+    else await([&]{return window.recordingSnapshot()->phase==RecordingPhase::Complete;});
+    window.findChild<QPushButton *>("recordStopButton")->click();
+    await([&]{return window.recordingSnapshot()->take&&window.recordingSnapshot()->take->loop;});
+    const auto take=*window.recordingSnapshot()->take;const auto extent=loopRecordingExtent(take.loop->context.intent,take.loop->sources);
+    check(!counters->wrongThread&&window.snapshot()->session->assets.empty()&&ProjectStore(root).load()==initial,
+          "Loop capture auto-attached/saved raw media or crossed recording owner threads");
+    check(untilStop?(extent.completePasses==6&&extent.partialFrames==37):(extent.completePasses==13&&!extent.partialFrames),
+          "Desktop loop complete/partial prefix differs from independently bounded callbacks");
+    std::vector<std::string> hashes;for(const auto &raw:take.loop->sources)hashes.push_back(hashMediaFile(root/utf8Path(raw.recording.asset.relativePath)));
+    auto *retain=window.findChild<QPushButton *>("loopTakeRetain");auto *first=window.findChild<QLineEdit *>("loopTakeFirst");
+    auto *count=window.findChild<QSpinBox *>("loopTakeCount");auto *name=window.findChild<QLineEdit *>("loopTakeName");
+    auto *partial=window.findChild<QCheckBox *>("loopTakePartial");await([&]{return retain&&retain->isVisible()&&retain->isEnabled()&&!first->text().isEmpty();});
+    name->setText(QString::fromUtf8("Прохід "));
+    ProjectCommand stale{CommandKind::AttachRecording};stale.path=root;stale.name="Stale ";stale.attachmentRequest=90001;
+    stale.retainedLoop=std::make_shared<const LoopTakeRetention>(LoopTakeRetention{take.loop,0,1,false});
+    stale.structuralGuard=StructuralGuard{window.snapshot()->projectEpoch+1,initial.id,root};
+    window.submitEdit(stale);await([&]{return window.snapshot()->attachmentRejected.request==90001;});
+    check(window.snapshot()->session->assets.empty()&&window.recordingSnapshot()->take->loop==take.loop,"Obsolete epoch retained or discarded loop preview");
+    if(untilStop) {
+        count->setValue(7);retain->click();QTest::qWait(20);
+        check(window.snapshot()->session->assets.empty(),"Partial pass was retained without explicit acceptance");
+        partial->setChecked(true);retain->click();
+        await([&]{return window.snapshot()->session->tracks[0].takeLanes.size()==7&&retain->isEnabled();});
+        check(window.snapshot()->session->tracks[1].takeLanes.back().clips[0].lengthFrames==37,"Explicit partial view became a full pass");
+    } else {
+        const auto job=root/"media"/("capture-"+take.loop->sources[1].recording.asset.id.str());
+        const auto original=encodeLoopRecordingContext(take.loop->context);
+        {std::ofstream file(job/"loop-context.json");file<<"{broken";}
+        const auto errors=window.snapshot()->errorSerial;retain->click();
+        await([&]{return window.snapshot()->errorSerial>errors&&retain->isEnabled();});
+        check(window.snapshot()->session->assets.empty()&&window.recordingSnapshot()->take,"Bad context partly retained or discarded preview");
+        {std::ofstream file(job/"loop-context.json");file<<original;}
+        holdIo=true;retain->click();await([&]{return enteredIo.load();});
+        check(!retain->isEnabled(),"Loop verification allowed duplicate adoption");
+        ProjectCommand scalar{CommandKind::Parameter};const auto &track=window.snapshot()->session->tracks[0];scalar.address=ParameterAddress{track.id,track.eq.id,track.eq.bands[0].id,BandParameter::GainDb};scalar.value=3;scalar.gesture=90002;
+        check(window.submitEdit(scalar),"Scalar edit during loop verification refused");
+        await([&]{return window.snapshot()->session->tracks[0].eq.bands[0].gainDb==3;});holdIo=false;
+        await([&]{return window.snapshot()->session->tracks[0].takeLanes.size()==5&&retain->isEnabled();});
+        check(window.snapshot()->session->tracks[0].eq.bands[0].gainDb==3&&window.recordingSnapshot()->take,
+              "Loop retention erased scalar edit or prematurely acknowledged raw capture");
+        first->setText(QLocale().toString(qulonglong(6)));count->setValue(8);retain->click();
+        await([&]{return window.snapshot()->session->tracks[0].takeLanes.size()==13&&retain->isEnabled();});
+    }
+    auto retained=*window.snapshot()->session;
+    check(retained.assets.size()==2&&retained.tracks[0].clips.empty()&&retained.tracks[1].clips.empty(),"Loop pages duplicated raw assets or became audible");
+    ProjectCommand undo{CommandKind::Undo};window.submitEdit(undo);await([&]{return window.snapshot()->session->tracks[0].takeLanes.size()<(untilStop?7u:13u);});
+    window.submitEdit(ProjectCommand{CommandKind::Redo});await([&]{return *window.snapshot()->session==retained;});
+    for(unsigned n=0;n<2;++n)check(hashMediaFile(root/utf8Path(take.loop->sources[n].recording.asset.relativePath))==hashes[n],"Loop UI rewrote original raw file");
+    if(const auto *preview=std::getenv("SC_LOOP_RECORDING_PREVIEW");preview&&!untilStop) {
+        for(auto *scroll:window.findChildren<QScrollArea *>())scroll->ensureWidgetVisible(retain);
+        QTest::qWait(20);check(window.grab().save(QString::fromUtf8(preview)),"Loop recording preview could not be saved");
+    }
+    auto *finish=window.findChild<QPushButton *>("keepTakeButton");await([&]{return finish->isEnabled();});
+    finish->click();await([&]{return !window.recordingSnapshot()->take;});
+    ProjectCommand save{CommandKind::Save};window.submitEdit(save);await([&]{return !window.snapshot()->dirty&&window.snapshot()->io==IoOperation::None;});
+    check(ProjectStore(root).load()==retained,"Loop desktop Save/reopen lost inactive windows or Unicode names");
+}
 } // namespace
 int main(int argc, char **argv) {
     QTemporaryDir configuration;
@@ -1654,6 +1752,11 @@ int main(int argc, char **argv) {
     try {
         check(temp.isValid(), "Cannot create UI fixture directory");
         const auto closeRoot = utf8Path(temp.path().toUtf8().toStdString());
+        if(argc==2&&std::string_view(argv[1])=="--loop-recording-only") {
+            loopRecordingWorkflow(closeRoot/utf8Path("loop-recording-Україна"),false);
+            loopRecordingWorkflow(closeRoot/"loop-until-stop",true);
+            std::cout<<"desktop_loop_recording_checks="<<checks<<" actual_passes=13 partial_explicit=true original_context_verified=true scalar_rebase=true raw_unchanged=true save_reopen=true native_audio=false\n";return 0;
+        }
         if(argc==2&&std::string_view(argv[1])=="--loop-only") {
             loopWorkflow(closeRoot/utf8Path("loop-Україна"));
             std::cout<<"desktop_loop_checks="<<checks<<" saved_undo_reopen=true raw_unchanged=true prepared_loop_until_stop=true source_fallback=true native_audio=false\n";

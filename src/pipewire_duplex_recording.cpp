@@ -4,6 +4,8 @@
 
 namespace soundcurrent::daw {
 struct PipeWireDuplexRecording::State {
+    std::filesystem::path root;
+    std::optional<LoopRecordingContext> loopContext;
     DuplexRecordingRun run;
     RecordingCallbackInstrumentation audit;
     void (*auditClock)(void *, const DeviceBlockClock &) noexcept;
@@ -12,8 +14,22 @@ struct PipeWireDuplexRecording::State {
     bool inputRouted = false, outputRouted = false, attempted = false, stopped = false;
     State(std::filesystem::path root, const Session &s, MixPlan plan,
           std::vector<DuplexRecordingLane> lanes, const PipeWireDuplexRecordingOptions &o)
-        : run(std::move(root), s, std::move(plan), std::move(lanes), native(o.run)), audit(o.audit),
+        : root(root),loopContext(o.loopContext),
+          run(std::move(root), s, std::move(plan), std::move(lanes), native(o.run)), audit(o.audit),
           auditClock(o.auditClock) {}
+    static std::unique_ptr<State> create(std::filesystem::path root,const Session &s,MixPlan plan,
+            std::vector<DuplexRecordingLane> lanes,const PipeWireDuplexRecordingOptions &o) {
+        if (o.loopContext) {
+            auto opts=o.run;opts.musicalPunch.reset();
+            const auto expected=prepareLoopRecording(s,lanes,std::move(opts),o.loopContext->intent.passes);
+            if (loopRecordingContext(expected)!=*o.loopContext ||
+                o.run.playback.loop!=expected.options.playback.loop ||
+                o.run.musicalPunch!=expected.options.musicalPunch ||
+                o.run.playback.endFrame!=expected.options.playback.endFrame)
+                throw ProjectError(ErrorCode::InvalidState,"Native loop context differs from prepared recording intent");
+        }
+        return std::make_unique<State>(std::move(root),s,std::move(plan),std::move(lanes),o);
+    }
     static DuplexRecordingOptions native(DuplexRecordingOptions o) {
         o.backend = CaptureBackend::PipeWire;
         return o;
@@ -65,7 +81,7 @@ PipeWireDuplexRecording::PipeWireDuplexRecording(std::filesystem::path root, con
                                                  std::vector<DuplexRecordingLane> lanes,
                                                  PipeWireDuplexRecordingOptions options)
     : state_(
-          std::make_unique<State>(std::move(root), s, std::move(plan), std::move(lanes), options)) {
+          State::create(std::move(root), s, std::move(plan), std::move(lanes), options)) {
     auto &st = *state_;
     st.filter = std::make_unique<PipeWireFilter>(
         PipeWireFilterOptions{"sc-daw-recording-duplex-" + Id::generate().str(),
@@ -103,6 +119,7 @@ void PipeWireDuplexRecording::activate() {
     try {
         s.run.startWriters();
         writersStarted = true;
+        if (s.loopContext) persistLoopRecordingContext(s.root,*s.loopContext);
         s.filter->activate();
     } catch (...) {
         s.activationError = std::current_exception();

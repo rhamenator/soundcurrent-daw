@@ -13,6 +13,7 @@ using namespace soundcurrent::daw::ui;
 struct Counters {
     std::atomic<bool> holdStop{false}, waitingStop{false}, wrongThread{false}, holdProcess{false};
     std::atomic<unsigned> constructed{0}, activated{0}, stopped{0}, destroyed{0}, submitted{0};
+    std::atomic<unsigned> callbacks{0}, maximumCallbacks{UINT_MAX};
     std::atomic<unsigned> acceptLimit{UINT_MAX}, heldReceiptLane{UINT_MAX};
     std::atomic<unsigned> failedWriter{UINT_MAX}, failedActivation{UINT_MAX};
     std::atomic<bool> badHash{false};
@@ -49,7 +50,7 @@ class Endpoint final : public RecordingEndpoint {
                                      lanes.front().spec.capture.slabFrames;
         for (std::size_t n = 0; n < lanes.size(); ++n) {
             lanes[n].spec.capture.slabFrames = 256;
-            if (!c_->useDeclaredLatency)
+            if (!c_->useDeclaredLatency && !p.duplexOptions.loopContext)
                 lanes[n].spec.inputLatencyFrames = n == 0 ? 41 : 200;
             lanes[n].writer.checkpointFrames = 256;
             lanes[n].writer.boundary = [c = c_, n](RecordingBoundary b, Frame f) {
@@ -110,6 +111,8 @@ class Endpoint final : public RecordingEndpoint {
         if (!routed_ || !output_)
             throw ProjectError(ErrorCode::InvalidState, "Duplex routes missing");
         run_->startWriters();
+        if (p_.duplexOptions.loopContext)
+            persistLoopRecordingContext(p_.root,*p_.duplexOptions.loopContext);
         active_ = true;
         ++c_->activated;
     }
@@ -176,13 +179,14 @@ class Endpoint final : public RecordingEndpoint {
     }
     RecordingTelemetry read() override {
         threadCheck();
-        if (active_ && !c_->holdProcess) {
+        if (active_ && !c_->holdProcess && c_->callbacks<c_->maximumCallbacks) {
             const auto position = run_->position() - p_.session->playheadFrame;
             for (std::size_t n = 0; n < data_.size(); ++n)
                 for (std::size_t f = 0; f < 128; ++f)
                     data_[n][f] =
                         float((int((std::uint64_t(position) + f + n * 17) % 101) - 50) * .0625);
             run_->process(clock_, inputs_, outputs_, 128);
+            ++c_->callbacks;
             clock_.position += 128;
             ++clock_.cycle;
         }
