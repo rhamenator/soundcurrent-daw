@@ -65,6 +65,7 @@ class StudioWindow : public QMainWindow {
     bool prepareRecording();
     bool configureArmedRecording(const std::vector<Id> &, Frame frames = 0);
     bool configurePunch(PunchSettings);
+    bool configureLoop(LoopSettings);
     bool configureInputLatency(const Id &, Frame);
     bool inspectTake(const std::filesystem::path &);
     std::shared_ptr<const RecordingSnapshot> recordingSnapshot() const;
@@ -148,6 +149,13 @@ class StudioWindow : public QMainWindow {
     QComboBox *recordReserve_;
     std::uint32_t recordPreparationReserveMilliseconds_ = 10000;
     QLabel *recordRangeLabel_;
+    QCheckBox *loopEnabled_ = nullptr;
+    QPushButton *loopRangeButton_ = nullptr;
+    QLabel *loopSummary_ = nullptr;
+    std::optional<LoopSettings> loopShown_;
+    QPointer<QDialog> loopDialog_;
+    void editLoopRange();
+    void refreshLoop();
     QCheckBox *punchEnabled_ = nullptr;
     QPushButton *punchRangeButton_ = nullptr;
     QLabel *punchSummary_ = nullptr;

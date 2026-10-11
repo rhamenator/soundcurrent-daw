@@ -5,6 +5,8 @@
 #include "fake_duplex_endpoint.hpp"
 #include <soundcurrent/recording.hpp>
 #include <QApplication>
+#include <QLineEdit>
+#include <QDialogButtonBox>
 #include <QDialog>
 #include <QAbstractButton>
 #include <QAction>
@@ -307,6 +309,92 @@ void workflows(const std::filesystem::path &root) {
           "Discard-close unexpectedly changed the saved project");
 }
 
+void loopWorkflow(const std::filesystem::path &root) {
+    std::filesystem::create_directories(root);
+    auto session=makeOneTrackSession("Loop — Україна","Audio");
+    CapturePipe pipe({});RecordingSpec spec;spec.projectId=session.id;
+    spec.trackId=session.tracks[0].id;spec.capture=pipe.config();CaptureWriter writer(root,spec);
+    std::array<float,256> samples{};const float *input=samples.data();
+    for(Frame at=0;at<1024;at+=256) {
+        for(unsigned f=0;f<256;++f)samples[f]=float(((at+f)%31-15)*.125);
+        check(pipe.push({&input,1},256,at).acceptedFrames==256,"GUI loop source capture failed");
+        while(writer.drainOne(pipe)){}
+    }
+    pipe.finish();while(writer.drainOne(pipe)){}attachRecording(session,writer.finalize(pipe));
+    ProjectStore(root).save(session);const auto raw=hashMediaFile(root/utf8Path(session.assets[0].relativePath));
+    const auto previous=QLocale();QLocale::setDefault(QLocale(QLocale::German,QLocale::Germany));
+    struct Restore {QLocale locale;~Restore(){QLocale::setDefault(locale);}} restore{previous};
+    auto counters=std::make_shared<playback_fixture::Counters>();
+    StudioWindow window(nullptr,playback_fixture::options(counters));window.resize(900,700);window.show();window.openProject(root);
+    await([&]{return window.snapshot()->session&&window.snapshot()->io==IoOperation::None&&
+                     window.findChild<QPushButton *>("editLoopRange")->isEnabled();});
+    auto *range=window.findChild<QPushButton *>("editLoopRange");
+    auto *enabled=window.findChild<QCheckBox *>("loopPlaybackEnabled");
+    check(enabled&&!enabled->isChecked()&&!counters->activated,"Reopen activated saved loop/audio");
+    QTest::mouseClick(range,Qt::LeftButton);
+    await([&]{return window.findChild<QDialog *>("loopRangeDialog");});
+    auto *dialog=window.findChild<QDialog *>("loopRangeDialog");
+    auto *start=dialog->findChild<QLineEdit *>("loopStartFrame");
+    auto *end=dialog->findChild<QLineEdit *>("loopEndFrame");
+    auto *buttons=dialog->findChild<QDialogButtonBox *>();
+    dialog->findChild<QCheckBox *>("loopRangeEnabled")->setChecked(true);
+    start->setText("103,5");end->setText("157");QTest::mouseClick(buttons->button(QDialogButtonBox::Ok),Qt::LeftButton);
+    check(dialog->isVisible()&&!dialog->findChild<QLabel *>("loopRangeError")->text().isEmpty()&&
+          window.snapshot()->session->loop==LoopSettings{},"Invalid localized loop text was adopted");
+    start->setText("104");QTest::mouseClick(buttons->button(QDialogButtonBox::Ok),Qt::LeftButton);
+    const LoopSettings loop{true,104,157};
+    await([&]{return window.snapshot()->session->loop==loop&&enabled->isChecked();});
+    auto *undo=window.findChild<QAction *>("undoAction");
+    auto *redo=window.findChild<QAction *>("redoAction");
+    await([&]{return !QApplication::activeModalWidget()&&undo->isEnabled();});
+    QApplication::setActiveWindow(&window);window.setFocus();
+    const auto undoKey=undo->shortcut()[0];
+    QTest::keyClick(&window,undoKey.key(),undoKey.keyboardModifiers());
+    await([&]{return window.snapshot()->session->loop==LoopSettings{}&&redo->isEnabled();});
+    const auto redoKey=redo->shortcut()[0];
+    QTest::keyClick(&window,redoKey.key(),redoKey.keyboardModifiers());
+    await([&]{return window.snapshot()->session->loop==loop;});
+    auto *save=window.findChild<QAction *>("saveAction");await([&]{return save->isEnabled();});save->trigger();
+    await([&]{return !window.snapshot()->dirty&&window.snapshot()->io==IoOperation::None;});
+    check(ProjectStore(root).load().loop==loop,"Loop Save did not persist enabled locators");
+    check(window.preparePlayback(),"GUI loop preparation refused");
+    await([&]{return window.playbackSnapshot()->phase==PlaybackPhase::Ready&&counters->constructed==1;});
+    check(counters->preparedLoop==std::optional(PlaybackLoopRegion{104,157})&&
+          counters->preparedEndFrame==std::numeric_limits<Frame>::max(),"Prepared loop gained a fixed pass ceiling");
+    await([&]{return window.findChild<QComboBox *>("outputChannel0");});
+    auto *output=window.findChild<QComboBox *>("outputChannel0");output->setCurrentIndex(1);
+    auto *play=window.findChild<QPushButton *>("playButton");await([&]{return play->isEnabled();});QTest::mouseClick(play,Qt::LeftButton);
+    await([&]{return window.playbackSnapshot()->phase==PlaybackPhase::Playing&&window.playbackSnapshot()->position>2048;});
+    const auto running=window.playbackSnapshot();
+    check(running->loopPass==std::uint64_t(running->position/53)&&
+          running->projectPosition==104+running->position%53&&
+          !window.configureLoop({false,104,157})&&!enabled->isEnabled()&&!range->isEnabled(),
+          "GUI loop status or immutable active-generation guard differs");
+    check(window.findChild<QLabel *>("playbackStatus")->text().contains("Loop pass"),"Visible loop pass status missing");
+    if(const auto screenshot=qgetenv("SC_LOOP_PREVIEW");!screenshot.isEmpty()) {
+        window.findChild<QScrollArea *>()->ensureWidgetVisible(window.findChild<QLabel *>("playbackStatus"),0,80);
+        check(window.grab().save(QString::fromUtf8(screenshot)),"Loop GUI screenshot failed");
+    }
+    QTest::mouseClick(window.findChild<QPushButton *>("stopButton"),Qt::LeftButton);
+    await([&]{return window.playbackSnapshot()->phase==PlaybackPhase::Idle&&enabled->isEnabled();});
+    enabled->setFocus();QTest::keyClick(enabled,Qt::Key_Space);
+    await([&]{return window.snapshot()->session->loop==LoopSettings{false,104,157};});
+    check(window.preparePlayback(),"Restored linear playback preparation refused");
+    await([&]{return window.playbackSnapshot()->phase==PlaybackPhase::Ready&&counters->constructed==2;});
+    check(!counters->preparedLoop&&counters->preparedEndFrame==1024&&!window.playbackSnapshot()->loop,
+          "Disabling loop left stale repeated playback");
+    await([&]{return window.findChild<QPushButton *>("stopButton")->isEnabled();});
+    QTest::mouseClick(window.findChild<QPushButton *>("stopButton"),Qt::LeftButton);
+    await([&]{return window.playbackSnapshot()->phase==PlaybackPhase::Idle;});
+    await([&]{return save->isEnabled();});save->trigger();
+    await([&]{return !window.snapshot()->dirty&&window.snapshot()->io==IoOperation::None;});
+    const auto epoch=window.snapshot()->projectEpoch;
+    window.openProject(root);await([&]{return window.snapshot()->projectEpoch>epoch&&window.snapshot()->io==IoOperation::None&&window.snapshot()->session&&
+                     window.snapshot()->session->loop==LoopSettings{false,104,157};});
+    check(counters->constructed==2&&hashMediaFile(root/utf8Path(session.assets[0].relativePath))==raw,
+          "Loop reopen prepared audio or changed raw media");
+    window.close();await([&]{return window.snapshot()->closed&&window.playbackSnapshot()->closed;});
+}
 void playbackWorkflow(const std::filesystem::path &root) {
     std::filesystem::create_directory(root);
     auto session = makeOneTrackSession("Lecture – Δοκιμή", "Audio");
@@ -1566,6 +1654,12 @@ int main(int argc, char **argv) {
     try {
         check(temp.isValid(), "Cannot create UI fixture directory");
         const auto closeRoot = utf8Path(temp.path().toUtf8().toStdString());
+        if(argc==2&&std::string_view(argv[1])=="--loop-only") {
+            loopWorkflow(closeRoot/utf8Path("loop-Україна"));
+            std::cout<<"desktop_loop_checks="<<checks<<" saved_undo_reopen=true raw_unchanged=true prepared_loop_until_stop=true source_fallback=true native_audio=false\n";
+            return 0;
+        }
+
         closeErrorWorkflow(closeRoot / "close-clean-error", false, false);
         closeErrorWorkflow(closeRoot / "close-dirty-error", true, false);
         closeErrorWorkflow(closeRoot / "close-new-save-error", true, true);

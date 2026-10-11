@@ -69,7 +69,10 @@ struct PlaybackSnapshot {
     std::uint64_t errorSerial = 0, completedCommands = 0;
     std::optional<ErrorCode> errorCode;
     std::string diagnostic;
-    Frame position = 0, appliedFrame = 0;
+    Frame position = 0, appliedFrame = 0; // Monotonic stream clock.
+    Frame projectPosition = 0;
+    std::uint64_t loopPass = 0;
+    std::optional<PlaybackLoopRegion> loop;
     std::uint64_t appliedEventRevision = 0, missingFrames = 0, droppedMeters = 0,
                   droppedReceipts = 0;
     double peak = 0;

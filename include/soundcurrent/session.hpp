@@ -297,6 +297,11 @@ struct PunchSettings {
     Frame startFrame = 0, endFrame = 0; // Desired project frames, before input latency.
     bool operator==(const PunchSettings &) const = default;
 };
+struct LoopSettings {
+    bool enabled = false;
+    Frame startFrame = 0, endFrame = 0; // Half-open saved project range.
+    bool operator==(const LoopSettings &) const = default;
+};
 // Portable evidence only. These paths never grant access to original sources.
 struct ProjectEvidenceFile {
     std::string relativePath, sha256;
@@ -328,6 +333,7 @@ struct Session {
     std::vector<Asset> assets;
     std::optional<MasterBus> master;
     PunchSettings punch;
+    LoopSettings loop;
     std::vector<ImportedProjectSource> imports;
     bool operator==(const Session &) const = default;
 };
@@ -418,6 +424,9 @@ struct SetMaster {
 struct SetPunch {
     PunchSettings value;
 };
+struct SetLoop {
+    LoopSettings value;
+};
 struct SetInputLatency {
     Id track;
     Frame frames;
@@ -436,7 +445,7 @@ struct SelectTakeRegion {
 };
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency,
+                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
                  InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
@@ -545,6 +554,7 @@ class EditHistory {
         std::optional<std::pair<Frame, Frame>> exportEnd;
         std::optional<std::pair<std::optional<MasterBus>, std::optional<MasterBus>>> master;
         std::optional<std::pair<PunchSettings, PunchSettings>> punch;
+        std::optional<std::pair<LoopSettings, LoopSettings>> loop;
     };
     using Change = std::variant<ParameterChange, RouteChange, MonitoringChange, StructureChange>;
     struct Entry {

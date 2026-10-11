@@ -28,7 +28,7 @@ class NativeEndpoint : public PlaybackEndpoint {
                  {{p.config.maximumCallbackFrames, p.config.startFrame, p.config.generation,
                    p.config.memoryBudgetBytes},
                   p.config.endFrame,
-                  p.config.slabFrames},
+                  p.config.slabFrames, p.config.loop},
                  p.reader, std::chrono::seconds(3), audit) {}
     std::vector<PipeWirePort> ports() override {
         auto ports = owner_.ports();
@@ -92,7 +92,7 @@ class NativeWindowsEndpoint : public PlaybackEndpoint {
                  {{p.config.maximumCallbackFrames, p.config.startFrame, p.config.generation,
                    p.config.memoryBudgetBytes},
                   p.config.endFrame,
-                  p.config.slabFrames},
+                  p.config.slabFrames, p.config.loop},
                  p.reader, audit) {}
     std::vector<PipeWirePort> ports() override {
         auto ports = owner_.ports();
@@ -163,7 +163,7 @@ const Track *findTrack(const Session &s, const Id &id) {
 bool compatible(const PlaybackPreparation &p, const Session &updated) {
     const auto &prepared = *p.session;
     if (prepared.id != updated.id || prepared.sampleRate != updated.sampleRate ||
-        prepared.playheadFrame != updated.playheadFrame ||
+        prepared.playheadFrame != updated.playheadFrame || prepared.loop != updated.loop ||
         (p.projectMix && prepared.tracks.size() != updated.tracks.size()))
         return false;
     if (p.projectMix && bool(prepared.master) != bool(updated.master))
@@ -280,6 +280,13 @@ struct PlaybackController::State : QThread {
     void update(const PlaybackTelemetry &t) {
         view.nativeStatus = t.status;
         view.position = t.position;
+        view.projectPosition = t.position;
+        view.loopPass = 0;
+        if (prepared) {
+            const PlaybackTimeline timeline(prepared->config.startFrame, prepared->config.endFrame,
+                                            prepared->config.loop);
+            (void)timeline.position(t.position, view.projectPosition, view.loopPass);
+        }
         view.peak = t.peak;
         view.missingFrames = t.missingFrames;
         view.droppedMeters = t.droppedMeters;
@@ -444,6 +451,11 @@ struct PlaybackController::State : QThread {
             for (const auto &clip : findTrack(*c.session, lane.track)->clips)
                 next.config.endFrame =
                     std::max(next.config.endFrame, clip.startFrame + clip.lengthFrames);
+        if (c.session->loop.enabled && !auditionEnd) {
+            next.config.loop = PlaybackLoopRegion{c.session->loop.startFrame, c.session->loop.endFrame};
+            // A prepared reader/graph keeps bounded storage; repeat until Stop.
+            next.config.endFrame = std::numeric_limits<Frame>::max();
+        }
         if(auditionEnd)next.config.endFrame=*auditionEnd;
         if (next.config.endFrame <= next.config.startFrame)
             throw ProjectError(ErrorCode::InvalidState,
@@ -481,6 +493,9 @@ struct PlaybackController::State : QThread {
         view.missingFrames = view.droppedMeters = view.droppedReceipts = 0;
         view.peak = 0;
         view.position = prepared->config.startFrame;
+        view.projectPosition = prepared->config.loop ? prepared->config.loop->beginFrame : view.position;
+        view.loopPass = 0;
+        view.loop = prepared->config.loop;
         view.ports = std::make_shared<const std::vector<PipeWirePort>>(endpoint->ports());
         nextInventory = std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
         view.nativeStatus = PlaybackBridgeStatus::Ready;

@@ -363,12 +363,14 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 16},
+        {"schemaMinor", 17},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
         {"playheadFrame", s.playheadFrame},
         {"exportRange", {{"startFrame", s.exportStartFrame}, {"endFrame", s.exportEndFrame}}},
+        {"loopPlayback", {{"enabled", s.loop.enabled},
+                          {"startFrame", s.loop.startFrame}, {"endFrame", s.loop.endFrame}}},
         {"punchRecording",
          {{"enabled", s.punch.enabled},
           {"startFrame", s.punch.startFrame},
@@ -505,7 +507,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 16),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 17),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -517,10 +519,14 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording"});
-        else
+        else if (minor < 17)
             keys(j,
                  {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
                   "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports"});
+        else
+            keys(j,
+                 {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
+                  "playheadFrame", "exportRange", "tracks", "assets", "master", "punchRecording", "imports", "loopPlayback"});
         require(string(j.at("format")) == "soundcurrent-daw", "Unrecognized project format");
         PayloadCharge canonical("Project canonical staging", budget.state.memoryBudgetBytes);
         canonicalPreflight(j, canonical); // Before constructing canonical vectors/strings.
@@ -533,6 +539,12 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         keys(range, {"startFrame", "endFrame"});
         s.exportStartFrame = integer(range.at("startFrame"));
         s.exportEndFrame = integer(range.at("endFrame"));
+        if (minor >= 17) {
+            const auto &loop = j.at("loopPlayback");
+            keys(loop, {"enabled", "startFrame", "endFrame"});
+            s.loop = {boolean(loop.at("enabled")), integer(loop.at("startFrame")),
+                      integer(loop.at("endFrame"))};
+        }
         if (minor >= 4) {
             const auto &punch = j.at("punchRecording");
             keys(punch, {"enabled", "startFrame", "endFrame"});

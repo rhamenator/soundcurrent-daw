@@ -4208,3 +4208,14 @@ stop/cancel checkpoints are tested. Callback allocation/free/lock counters stay
 zero. Desktop loop controls, persistent intent, native Linux/Windows/installed,
 indefinite slot replenishment, audition/crossfades and full workflow/quality gates
 remain open. No endpoint/VM/equalizer changes or product release upload.
+
+## 2026-10-11: saved desktop loop playback and pass status
+
+[Checkpoint173](173-desktop-loop-playback.md) adds schema1.17 loop intent, strict
+migration, semantic Undo/Redo, localized range/enable controls and pass/project
+status. Desktop PipeWire/WASAPI preparation carries the shared mapping and repeats
+until Stop using bounded read-ahead storage. Manual playback/monitor uses the
+mapping within its finite range. The GUI workflow uses a simulated endpoint;
+native/physical/installed qualification and automatic recorded-pass scheduling
+remain required. Ordinary exports keep explicit range semantics. Full F/Q/C/N,
+M2–M11/X004/X005/Europe and existing stretch-quality gaps remain open.

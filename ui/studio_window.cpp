@@ -353,6 +353,39 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         playback_.requestStop();
         recording_.requestStop();
     });
+    auto *loopRow = new QHBoxLayout;
+    loopEnabled_ = new QCheckBox(tr("Loop playback"), transport);
+    loopEnabled_->setObjectName("loopPlaybackEnabled");
+    loopEnabled_->setToolTip(tr("Repeat the saved loop range until Stop. Stop playback before changing the range."));
+    loopRangeButton_ = new QPushButton(tr("Set loop range…"), transport);
+    loopRangeButton_->setObjectName("editLoopRange");
+    loopRow->addWidget(loopEnabled_);
+    loopRow->addWidget(loopRangeButton_);
+    transportLayout->addLayout(loopRow);
+    loopSummary_ = new QLabel(transport);
+    loopSummary_->setObjectName("loopPlaybackSummary");
+    loopSummary_->setWordWrap(true);
+    loopSummary_->setTextFormat(Qt::PlainText);
+    transportLayout->addWidget(loopSummary_);
+    connect(loopRangeButton_, &QPushButton::clicked, this, [this] { editLoopRange(); });
+    connect(loopEnabled_, &QCheckBox::toggled, this, [this](bool enabled) {
+        const auto model = controller_.snapshot();
+        if (!model->session) return;
+        auto loop = model->session->loop;loop.enabled = enabled;
+        if (enabled && loop.endFrame == loop.startFrame) {
+            const auto duration = Frame(model->session->sampleRate) * 10;
+            if (model->session->playheadFrame > std::numeric_limits<Frame>::max() - duration) {
+                notice_->setText(tr("There is no room for a loop range at this position."));
+                loopShown_.reset();return;
+            }
+            loop.startFrame = model->session->playheadFrame;
+            loop.endFrame = loop.startFrame + duration;
+        }
+        if (!configureLoop(loop)) {
+            loopShown_.reset();
+            notice_->setText(tr("Loop settings could not be changed. Stop transport setup and retry."));
+        }
+    });
     auto *routes = new QWidget(transport);
     outputsLayout_ = new QGridLayout(routes);
     transportLayout->addWidget(routes);
@@ -1598,6 +1631,10 @@ void StudioWindow::pollPlayback() {
             status += tr(" · Shared output routes: %1").arg(text(anchor->name));
     } else if (playbackTrack_ && selectedTrack() != playbackTrack_ && p->ports)
         status += tr(" · Another track is prepared. Stop or prepare the selected track.");
+    if (p->loop)
+        status += tr(" · Loop pass %1 · project frame %2")
+            .arg(QLocale().toString(static_cast<qulonglong>(p->loopPass + 1)),
+                 QLocale().toString(static_cast<qlonglong>(p->projectPosition)));
     if(p->audition)status=tr("Audition — project unchanged. ")+status;
     playbackState_->setText(status);
     const auto peak = std::isfinite(p->peak) ? std::max(0.0, p->peak) : 0.0;
@@ -1720,6 +1757,42 @@ bool StudioWindow::configurePunch(PunchSettings value) {
     c.edits = {SetPunch{value}};
     return submitEdit(std::move(c));
 }
+bool StudioWindow::configureLoop(LoopSettings value) {
+    const auto model = controller_.snapshot();
+    const auto phase = playback_.snapshot()->phase;
+    const bool inactive = phase == PlaybackPhase::Idle || phase == PlaybackPhase::Fault ||
+                          phase == PlaybackPhase::Unsupported;
+    if (guiBlocked_ || !model->session || model->io != IoOperation::None || !inactive ||
+        playbackPrepareBarrier_ || recordingBusy() || (manual_ && manual_->busy()) ||
+        recordPrepareBarrier_ || recordCommandPending_ || attachingTake_ || closing_ ||
+        closeRequested_ || closeAfterSave_ || exportWorkflowBusy() || value.startFrame < 0 ||
+        value.endFrame < value.startFrame || (value.enabled && value.endFrame == value.startFrame))
+        return false;
+    ProjectCommand command{CommandKind::Structural};
+    command.edits = {SetLoop{value}};
+    return submitEdit(std::move(command));
+}
+void StudioWindow::refreshLoop() {
+    const auto model = controller_.snapshot();
+    const auto phase = playback_.snapshot()->phase;
+    const bool inactive = phase == PlaybackPhase::Idle || phase == PlaybackPhase::Fault ||
+                          phase == PlaybackPhase::Unsupported;
+    const bool editable = !guiBlocked_ && model->session && model->io == IoOperation::None &&
+        inactive && !playbackPrepareBarrier_ && !recordingBusy() && !(manual_ && manual_->busy()) &&
+        !recordPrepareBarrier_ && !recordCommandPending_ && !attachingTake_ && !closing_ &&
+        !closeRequested_ && !closeAfterSave_ && !exportWorkflowBusy();
+    loopEnabled_->setEnabled(editable);loopRangeButton_->setEnabled(editable);
+    if (!model->session) {loopSummary_->clear();loopShown_.reset();return;}
+    const auto &loop = model->session->loop;
+    if (loopShown_ != std::optional(loop)) {
+        QSignalBlocker blocker(loopEnabled_);loopEnabled_->setChecked(loop.enabled);loopShown_ = loop;
+    }
+    loopSummary_->setText(loop.enabled
+        ? tr("Loop %1 to %2 samples. Playback repeats until Stop.")
+              .arg(QLocale().toString(loop.startFrame),QLocale().toString(loop.endFrame))
+        : tr("Loop is off. Saved range: %1 to %2 samples.")
+              .arg(QLocale().toString(loop.startFrame),QLocale().toString(loop.endFrame)));
+}
 bool StudioWindow::configureInputLatency(const Id &track, Frame frames) {
     const auto m = controller_.snapshot();
     const auto r = recording_.snapshot();
@@ -1803,6 +1876,81 @@ void StudioWindow::editPunchRange() {
             if (!configurePunch({enabled->isChecked(), first, last})) {
                 error->setText(
                     tr("Punch settings could not be changed. Stop recording setup and retry."));
+                return;
+            }
+            d->accept();
+        });
+    d->open();
+}
+void StudioWindow::editLoopRange() {
+    const auto m = controller_.snapshot();
+    if (!m->session || loopDialog_ || !loopRangeButton_->isEnabled())
+        return;
+    auto *d = new QDialog(this);
+    loopDialog_ = d;
+    d->setObjectName("loopRangeDialog");
+    d->setAttribute(Qt::WA_DeleteOnClose);
+    d->setWindowTitle(tr("Playback loop range"));
+    d->setModal(true);
+    auto *layout = new QVBoxLayout(d);
+    auto *info = new QLabel(tr("Positions are sample frames at %1 Hz. The loop end is excluded; "
+                               "Stop ends repeated playback.")
+                                .arg(QLocale().toString(m->session->sampleRate)),
+                            d);
+    info->setWordWrap(true);
+    layout->addWidget(info);
+    auto *enabled = new QCheckBox(tr("Enable loop playback"), d);
+    enabled->setObjectName("loopRangeEnabled");
+    enabled->setChecked(m->session->loop.enabled);
+    layout->addWidget(enabled);
+    auto *start = new QLineEdit(QLocale().toString(m->session->loop.startFrame), d);
+    auto *end = new QLineEdit(QLocale().toString(m->session->loop.endFrame), d);
+    start->setObjectName("loopStartFrame");
+    end->setObjectName("loopEndFrame");
+    for (auto pair :
+         {std::pair{tr("Loop start (samples)"), start}, std::pair{tr("Loop end (samples)"), end}}) {
+        auto *row = new QHBoxLayout;
+        auto *label = new QLabel(pair.first, d);
+        label->setBuddy(pair.second);
+        pair.second->setAccessibleName(pair.first);
+        row->addWidget(label);
+        row->addWidget(pair.second);
+        layout->addLayout(row);
+    }
+    auto *error = new QLabel(d);
+    error->setObjectName("loopRangeError");
+    error->setWordWrap(true);
+    error->setMinimumHeight(error->fontMetrics().height() * 3);
+    layout->addWidget(error);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, d);
+    layout->addWidget(buttons);
+    connect(buttons, &QDialogButtonBox::rejected, d, &QDialog::reject);
+    connect(
+        buttons, &QDialogButtonBox::accepted, d,
+        [this, d, start, end, enabled, error, epoch = m->projectEpoch, project = m->session->id] {
+            const auto showError = [d, error](const QString &message) {
+                error->setText(message);
+                d->layout()->activate();
+                d->adjustSize();
+            };
+            const auto current = controller_.snapshot();
+            if (!current->session || current->projectEpoch != epoch ||
+                current->session->id != project) {
+                error->setText(
+                    tr("The project changed. Close this dialog and reopen its loop settings."));
+                return;
+            }
+            bool a = false, b = false;
+            const auto first = QLocale().toLongLong(start->text(), &a),
+                       last = QLocale().toLongLong(end->text(), &b);
+            if (!a || !b || first < 0 || last < first || (enabled->isChecked() && first == last)) {
+                showError(tr("Enter nonnegative whole sample positions, with loop end after "
+                             "loop start when enabled."));
+                return;
+            }
+            if (!configureLoop({enabled->isChecked(), first, last})) {
+                error->setText(
+                    tr("Loop settings could not be changed. Stop transport setup and retry."));
                 return;
             }
             d->accept();
@@ -2834,6 +2982,7 @@ void StudioWindow::poll() {
     pollRecording();
     pollRecovery();
     pollPlayback();
+    refreshLoop();
     pollExport();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed &&

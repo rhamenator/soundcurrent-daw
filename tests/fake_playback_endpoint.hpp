@@ -11,6 +11,8 @@ namespace playback_fixture {
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 struct Counters {
+    std::optional<PlaybackLoopRegion> preparedLoop;
+    Frame preparedEndFrame = 0;
     std::optional<NativeRenderTiming> nativeTiming; // Configure before preparation.
     std::atomic<bool> full{false}, holdReceipts{false}, readerFailure{false};
     std::atomic<bool> holdStop{false}, waitingStop{false};
@@ -67,6 +69,8 @@ class Endpoint : public PlaybackEndpoint {
         for (auto &plane : output_)
             outputs_.push_back(plane.data());
         telemetry_.position = p.config.startFrame;
+        counters_->preparedLoop=p.config.loop;
+        counters_->preparedEndFrame=p.config.endFrame;
         ++counters_->constructed;
     }
     ~Endpoint() override {
