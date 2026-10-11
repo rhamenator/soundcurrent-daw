@@ -94,12 +94,21 @@ test media are excluded.
 
 The native duplex factory remains disabled. This handoff does not stop an SDK
 capture owner, deliver a render drain command or admit a source postroll budget.
-No Windows execution of this new handoff or installed/native UI workflow is
-claimed. Earlier Windows qualification of the
+Actual MSVC job114446184652/run38131360155 subsequently passed64 suites in147.82s,
+including this Stop handoff in0.02s. All four stacked131 jobs passed. The
+[44,798-byte/three-member packet](../tests/results/M2/2026-10-11-monitor-stop-handoff-windows/summary.json)
+binds17 reviewed blobs, the full native job/API and tested merge
+`0c09c8b5fc2735e28e87425e19b40d72826596a1`, tree
+`539dfc1896eabd3ec0926a388f34f5a178696c7d`, with actual head/base parents.
+This qualifies the portable original Stop handoff on Windows, not the new
+[capture Stop hooks](195-native-capture-stop.md), current-MAIN admission or
+installed/native UI workflow. No per-check counts or executable hashes are
+invented from the native log. Earlier Windows qualification of the
 [finite boundary](193-finite-monitor-end.md) is separate.
 
-Next implement generation-bound capture-stop and render-drain coordination with
-an explicit admitted postroll/pressure policy. Preserve actual SDK receipts,
+Capture-stop hooks and a prepared ring-bound policy are now implemented in
+[Checkpoint195](195-native-capture-stop.md); actual native context assembly and
+render-drain coordination remain next. Preserve actual SDK receipts,
 short/long Stop, cancellation, loss, joining and retirement evidence before
 enabling the native factory. Original-to-project timing, playable finite-prefix
 admission, repeated punch/loop, EQ/mix execution, processing quality and reviewed

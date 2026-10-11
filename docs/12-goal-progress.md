@@ -4731,3 +4731,36 @@ receipts. Earlier Windows output failures remain retained with unresolved causes
 this passing run does not establish their root-cause resolution. PR127 now
 inherits this qualified MAIN and has a fresh cohort; old stacked greens are not
 admission evidence. Full frozen-reference DAW goal remains active/incomplete.
+
+## Original native capture Stop and qualified processing MAIN (2026-10-11)
+
+[Checkpoint195](195-native-capture-stop.md)/ADR127 add a generation-bound fixed
+capture Stop/end handoff, conservative source-ring admission and actual WASAPI
+per-lease stop polling/original end hooks. Horizon signals before render pressure;
+first failure and actual Stop HRESULT/native packet facts remain separate.
+Missing end is OwnerLost; joined capture reads never invent successful receipts.
+Frozen4e6cba4 passed five suites per profile: Release0.40s/ASan-UBSan1.97s/TSan3.53s,
+each3,880 captureStop/6,158 control/489,463 processing/9,251 combined checks with
+zero guarded/interposed allocation/free/blocking-lock audits. Four fake-SDK
+owners preserve exact raw data and exact finite monitor output for0/7/512/3,072;
+Cancel/fault/failedStop combinations preserve original causes. The61,922-byte/
+16-member packet binds577 selected inputs/15 executable hashes/four compiled SDK
+object-library hashes/full logs. SDK cross-build passed; actual context/render
+drain/durable SDK-end transaction binding/native/installed qualification remain
+open and the native factory is disabled. Synthetic counts do not map raw/project
+positions. Processing quality, localization and the full DAW scope remain open.
+
+Independently stacked131 run38131360155 passed all four jobs; actual MSVC
+job114446184652 passed64 suites147.82s/control0.02s. Its44,798-byte/three-member
+packet binds17 reviewed blobs and full original job/API; [Checkpoint194](194-monitor-stop-handoff.md)
+separates this original control execution from new capture hooks/current-MAIN.
+
+PR127 passed current-MAIN run38130947054, exact head76ac401/basef1c81a3/tested
+40514f65577b7615fb78526518a5067d6760b684/tree0caa3c0309436790506e86323e8beda7e8659fd8.
+Ordinary protected squash MAINcb8fa2d10bc3fbb2dea88663e805e4e0c382b65c was checked
+against the whole tested tree/base parent/all14 reviewed blobs. The
+[139,297-byte/eight-member packet](../tests/results/M2/2026-10-11-monitor-processing-current-main/summary.json)
+retains four byte-exact complete jobs including their UTF-8 BOM, review/admission
+and post-merge receipts. No protection/admin bypass occurred. Earlier Windows
+owner failures still have unresolved causes; fresh success does not explain them.
+PR128 inherits this MAIN and awaits its own fresh cohort before admission.

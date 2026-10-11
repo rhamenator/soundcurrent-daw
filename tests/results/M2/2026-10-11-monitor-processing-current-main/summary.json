@@ -1,0 +1,22 @@
+{
+  "format": "sc-qualified-monitor-processing-main-v1",
+  "pr": 127,
+  "run": 38130947054,
+  "main": "cb8fa2d10bc3fbb2dea88663e805e4e0c382b65c",
+  "head": "76ac401b3c93330630c21f089a5e6cfe4a2cb4ed",
+  "base": "f1c81a321a75a54d535909d34e623757e094b0e2",
+  "testedMerge": "40514f65577b7615fb78526518a5067d6760b684",
+  "tree": "0caa3c0309436790506e86323e8beda7e8659fd8",
+  "blobs": 14,
+  "captureBytes": 139297,
+  "captureSha256": "cc1cf59c02f04001f95178c6d935d842cd838f85345f1b94728aa58168cd6d11",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "adminBypass": false,
+  "policyChanged": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false,
+  "jobTextEncoding": "UTF-8; original BOM retained for byte-exact job hashes"
+}
