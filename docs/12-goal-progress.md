@@ -17,7 +17,11 @@ and two migration process boundaries pass. Six suites/profile pass
 Release0.67s/ASanUBSan6.88s/TSan6.72s,2,475,990 composed checks/PCM error0/RT audit0;
 634 input bindings/18 executable/14 object hashes/full logs are retained. Windows
 SDK/four tests compile/link and five persistence-enabled objects are warning-free;
-new native execution remains required. Protected-MAIN inheritance leaves the
+PR142 then passed four fresh required jobs: native71 suites185.83s, new state and
+migration execution, and three original20-take/five-second completions. Ordinary
+protected MAIN143c76a exactly matches the tested tree/base/72blobs; full logs and
+admission/postmerge evidence are retained. These remain simulated SDK workflows.
+Protected-MAIN inheritance leaves the
 whole qualified source tree unchanged. Next compose owned native routes and
 explicit mono-input/stereo-monitor mapping. Factory remains disabled; full goal
 M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.
