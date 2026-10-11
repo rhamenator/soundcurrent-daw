@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/monitor_processing.hpp>
 #include "rt_audit.hpp"
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cmath>
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <limits>
 using namespace soundcurrent::daw;
 namespace {
 unsigned checks = 0;
@@ -48,7 +50,7 @@ void publish(PreparedCaptureFanout &f,const Config &c,std::span<const float> pcm
     for(unsigned n=0;n<frames;n+=64) {
         const auto count=std::min(64u,frames-n);
         const CaptureBankStamp stamp{c.capture.capture.identity,{(std::uint64_t(1)<<63)+n},{now+n*211},count,0};
-        const auto bytes=pcm.subspan(std::size_t(n)*c.output.channels,std::size_t(count)*c.output.channels);
+        const auto bytes=pcm.subspan(std::size_t(n)*c.capture.capture.channels,std::size_t(count)*c.capture.capture.channels);
         const auto r=rt([&]{return f.publish({stamp,reinterpret_cast<const std::byte *>(bytes.data()),bytes.size_bytes()});});
         check(r.rawAcceptedFrames==count && r.monitorAcceptedFrames==count,"Synthetic capture publication");
     }
@@ -65,14 +67,18 @@ void drainRaw(PreparedCaptureFanout &f,std::span<const float> expected,unsigned 
     }
     check(at==expected.size() && at/channels==f.rawAcceptedFrames(),"Raw extent differs");
 }
-void parityAndPressure(unsigned channels) {
+void parityAndPressure(unsigned channels,unsigned mapping=0) {
     Config c(channels);ResourceLedger ledger(256*1024*1024);c.processing.resources=ledger;
+    if(mapping==1){c.output.channels=2;c.processing.channelMap=monoToStereoMonitor();}
+    if(mapping==2){c.output.channels=1;c.processing.channelMap=MonitorChannelMap{2,1,{{0,0,.5},{1,0,.5}}};}
+    if(mapping==3){c.output.channels=3;c.processing.channelMap=MonitorChannelMap{1,3,{{0,0,1},{0,2,-.5}}};}
+    const auto outputChannels=c.output.channels;
     const auto pcm=signal(channels);PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
-    std::vector<float> actual;actual.reserve(std::size_t(512)*channels);
+    std::vector<float> actual;actual.reserve(std::size_t(512)*outputChannels);
     {
         PreparedMonitorProcessing p(f,o,c.processing);seed(p,c);publish(f,c,pcm);
         check(!rt([&]{return p.finishAt({c.output.first.value+512});}),"Finished before consuming original monitor route");
-        bool end=false,pressure=false;std::vector<float> scratch(std::size_t(64)*channels,999.f);
+        bool end=false,pressure=false;std::vector<float> scratch(std::size_t(64)*outputChannels,999.f);
         for(unsigned i=0;i<20000 && !p.statistics().done;++i) {
             const auto code=rt([&]{return p.step({now});});
             check(code!=MonitorProcessingCode::Fault && code!=MonitorProcessingCode::Cancelled,"Processing failed");
@@ -90,12 +96,12 @@ void parityAndPressure(unsigned channels) {
             // Deliberately leave the single output slab occupied until pressure.
             if(code==MonitorProcessingCode::OutputFull || code==MonitorProcessingCode::Done) {
                 const auto r=rt([&]{return o.pull(scratch);});
-                if(r.frames)actual.insert(actual.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(std::size_t(r.frames)*channels));
+                if(r.frames)actual.insert(actual.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(std::size_t(r.frames)*outputChannels));
             }
         }
         // Producer can finish with its last accepted block still queued.
-        while(!o.drained()) {const auto r=rt([&]{return o.pull(scratch);});check(r.frames>0,"Output cannot drain");actual.insert(actual.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(std::size_t(r.frames)*channels));}
-        check(end && pressure && p.statistics().done && p.statistics().publishedFrames==512 && actual.size()==std::size_t(512)*channels,"Processing end/pressure/extent");
+        while(!o.drained()) {const auto r=rt([&]{return o.pull(scratch);});check(r.frames>0,"Output cannot drain");actual.insert(actual.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(std::size_t(r.frames)*outputChannels));}
+        check(end && pressure && p.statistics().done && p.statistics().publishedFrames==512 && actual.size()==std::size_t(512)*outputChannels,"Processing end/pressure/extent");
         drainRaw(f,pcm,channels);p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();
         check(ledger.usage().reservedBytes==p.chargedBytes(),"Processing group not charged exactly");
     }
@@ -106,13 +112,129 @@ void parityAndPressure(unsigned channels) {
     for(unsigned n=0;n<1024;n+=64)check(reference.push(std::span<const float>(pcm).subspan(std::size_t(n)*channels,std::size_t(64)*channels))==MonitorBufferCode::Accepted,"Reference input");
     check(reference.finishAt(c.output.first.value+512)==MonitorBufferCode::Accepted,"Reference end");
     std::vector<float> expected,scratch(std::size_t(64)*channels);expected.reserve(actual.size());
-    for(unsigned i=0;i<20000 && expected.size()<actual.size();++i) {
+    for(unsigned i=0;i<20000 && expected.size()<std::size_t(512)*channels;++i) {
         check(reference.service()!=MonitorBufferCode::Fault,"Reference postroll");
         const auto r=reference.pull(scratch);expected.insert(expected.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(std::size_t(r.frames)*channels));
     }
-    check(expected.size()==actual.size(),"Reference output extent");
+    check(expected.size()==std::size_t(512)*channels,"Reference output extent");
+    if(mapping) {
+        std::vector<float> mapped; mapped.reserve(actual.size());
+        for(unsigned n=0;n<512;++n) {
+            if(mapping==1){mapped.push_back(expected[n]);mapped.push_back(expected[n]);}
+            if(mapping==2)mapped.push_back(float((double(expected[n*2])+expected[n*2+1])*.5));
+            if(mapping==3){mapped.push_back(expected[n]);mapped.push_back(0);mapped.push_back(expected[n]*-.5f);}
+        }
+        expected=std::move(mapped);
+    }
+    check(expected.size()==actual.size(),"Mapped reference output extent");
     for(std::size_t n=0;n<actual.size();++n)check(std::bit_cast<std::uint32_t>(actual[n])==std::bit_cast<std::uint32_t>(expected[n]),"Partitioned composed PCM differs");
-    std::cout<<"processing channels="<<channels<<" rawFrames=1024 outputFrames=512 comparedOutputBits="<<actual.size()<<" retained-pressure exact retry\n";
+    std::cout<<"processing inputChannels="<<channels<<" outputChannels="<<outputChannels<<" rawFrames=1024 outputFrames=512 comparedOutputBits="<<actual.size()<<" retained-pressure exact retry\n";
+}
+void channelMaps() {
+    ResourceLedger ledger(65536);
+    {
+        PreparedMonitorChannelMap map(monoToStereoMonitor(),4,65536,ledger);
+        check(ledger.usage().reservedBytes==map.chargedBytes(),"Standalone matrix credit");
+        std::array<float,10> pcm{2.5f,-3.f,.25f,4.f,99,99,99,99,99,99};
+        // Output overlaps the entire input: successful publication waits for all sums.
+        check(rt([&]{return map.process({pcm.data(),4},{pcm.data()+1,8},4);})==MonitorChannelMapCode::Mapped,"Aliased matrix refused");
+        check(pcm==std::array<float,10>{2.5f,2.5f,2.5f,-3,-3,.25f,.25f,4,4,99},"Mono unity output/headroom/canary");
+        std::array<float,4> in{1,2,3,4};std::array<float,8> out;out.fill(99);
+        check(rt([&]{return map.process(in,out,0);})==MonitorChannelMapCode::InvalidGeometry,"Zero-frame map accepted");
+        check(rt([&]{return map.process(in,out,5);})==MonitorChannelMapCode::InvalidGeometry,"Oversized map accepted");
+        check(rt([&]{return map.process(in,{out.data(),7},4);})==MonitorChannelMapCode::InvalidGeometry,"Partial map output accepted");
+        in.back()=std::numeric_limits<float>::infinity();
+        check(rt([&]{return map.process(in,out,4);})==MonitorChannelMapCode::NonfiniteInput,"Nonfinite map input accepted");
+        check(std::all_of(out.begin(),out.end(),[](auto x){return x==99;}),"Refused matrix wrote a prefix");
+    }
+    check(!ledger.usage().owners && !ledger.usage().reservedBytes,"Standalone matrix credit leaked");
+    {
+        MonitorChannelMap plan{3,4,{{0,2,2},{1,0,-1},{2,0,.5}}};
+        PreparedMonitorChannelMap map(plan,2);
+        const std::array<float,6> in{2.5f,4,2,-3,6,8};std::array<float,8> out{};
+        check(rt([&]{return map.process(in,out,2);})==MonitorChannelMapCode::Mapped,"Sparse matrix refused");
+        check(out==std::array<float,8>{-3,0,5,0,-2,0,-6,0},"Independent sparse matrix oracle");
+        // Overflow on the LAST sample cannot publish even the valid first frame.
+        PreparedMonitorChannelMap overflow({1,1,{{0,0,64}}},2);
+        const std::array<float,2> huge{1,std::numeric_limits<float>::max()};std::array<float,2> unchanged{91,92};
+        check(rt([&]{return overflow.process(huge,unchanged,2);})==MonitorChannelMapCode::NumericOverflow &&
+            unchanged==std::array<float,2>{91,92},"Numeric overflow clipped or partially published");
+    }
+    {
+        MonitorChannelMap plan{256,256,{}};
+        for(unsigned ch=0;ch<256;++ch)plan.routes.push_back({ch,255-ch,1});
+        PreparedMonitorChannelMap map(plan,1);
+        std::array<float,256> in{},out{};
+        for(unsigned ch=0;ch<256;++ch)in[ch]=float(ch)/8;
+        check(rt([&]{return map.process(in,out,1);})==MonitorChannelMapCode::Mapped,"256-slot permutation refused");
+        for(unsigned ch=0;ch<256;++ch)check(out[ch]==float(255-ch)/8,"256-slot independent permutation oracle");
+        plan.routes.clear();
+        for(unsigned dest=0;dest<256;++dest)for(unsigned src=0;src<256;++src)
+            plan.routes.push_back({src,dest,1.0/256});
+        PreparedMonitorChannelMap dense(plan,1);
+        in.fill(2.5f);
+        check(rt([&]{return dense.process(in,out,1);})==MonitorChannelMapCode::Mapped,"Maximum route matrix refused");
+        check(std::all_of(out.begin(),out.end(),[](auto x){return x==2.5f;}),"Maximum route sum/headroom");
+        plan.routes.push_back({0,0,1});
+        refuses([&]{PreparedMonitorChannelMap excessive(plan,1);});
+    }
+    for(unsigned kind=0;kind<10;++kind) {
+        auto plan=monoToStereoMonitor();unsigned frames=64;std::size_t budget=65536;
+        if(kind==0)plan.inputChannels=0;
+        if(kind==1)plan.outputChannels=257;
+        if(kind==2)plan.routes.clear();
+        if(kind==3)plan.routes.push_back(plan.routes.front());
+        if(kind==4)plan.routes[0].source=1;
+        if(kind==5)plan.routes[0].destination=2;
+        if(kind==6)plan.routes[0].gain=std::numeric_limits<double>::quiet_NaN();
+        if(kind==7)plan.routes[0].gain=65;
+        if(kind==8)frames=UINT32_MAX;
+        if(kind==9)budget=1;
+        refuses([&]{PreparedMonitorChannelMap map(plan,frames,budget,ledger);});
+        check(!ledger.usage().owners && !ledger.usage().reservedBytes,"Refused matrix leaked credit");
+    }
+    // Existing native state1.1 has no matrix declaration. Refuse startup mapping
+    // before claiming a handoff or accepting any raw/native frames.
+    Config c(1);c.output.channels=2;c.processing.channelMap=monoToStereoMonitor();
+    c.processing.startup=MonitorStartupConfig{64,64,50000000};
+    PreparedCaptureFanout capture(c.capture);PreparedMonitorOutputBank output(c.output);
+    refuses([&]{PreparedMonitorProcessing p(capture,output,c.processing);});
+    check(!capture.rawAcceptedFrames() && !output.acceptedFrames(),"Unversioned map changed capture/output");
+}
+void mappedFaults() {
+    for(unsigned kind=0;kind<4;++kind) {
+        Config c(1);c.output.channels=2;c.processing.channelMap=monoToStereoMonitor();
+        if(kind==0)c.processing.channelMap->inputChannels=2;
+        if(kind==1)c.processing.channelMap->outputChannels=1;
+        if(kind==2)c.processing.channelMap->routes[0].gain=65;
+        ResourceLedger ledger(kind==3?1:256*1024*1024);c.processing.resources=ledger;
+        PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
+        refuses([&]{PreparedMonitorProcessing p(f,o,c.processing);});
+        check(!ledger.usage().owners && !ledger.usage().reservedBytes && !f.rawAcceptedFrames() &&
+              !o.acceptedFrames(),"Failed composed matrix admission changed ownership/PCM");
+    }
+    Config c(1);c.output.channels=2;c.processing.channelMap=MonitorChannelMap{1,2,{{0,0,64},{0,1,64}}};
+    PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);
+    PreparedMonitorProcessing p(f,o,c.processing);seed(p,c);
+    std::vector<float> pcm(1024,std::numeric_limits<float>::max()/8);publish(f,c,pcm);
+    bool failed=false,ended=false;std::array<float,128> output{};
+    for(unsigned i=0;i<20000;++i) {
+        const auto code=rt([&]{return p.step({now});});
+        if(code==MonitorProcessingCode::Fault){failed=true;break;}
+        if(code==MonitorProcessingCode::NeedEnd && !ended) {
+            ended=rt([&]{return p.finishAt({c.output.first.value+512});});check(ended,"Overflow fixture finite end refused");
+        }
+        const auto read=rt([&]{return o.pull(output);});
+        for(unsigned n=0;n<read.frames;++n)
+            check(std::isfinite(output[n*2]) && output[n*2]==output[n*2+1],"Overflow published nonfinite/partial channel data");
+    }
+    check(failed && p.firstFault()->cause==MonitorProcessingCause::ChannelMap &&
+          o.acceptedFrames()==p.statistics().publishedFrames &&
+          p.statistics().buffer.deliveredOutputFrames==o.acceptedFrames()+PreparedMonitorBuffer::gridFrames,
+          "Composed numeric overflow failed to stop monitor-only publication");
+    const auto first=p.firstFault();rt([&]{p.step({now});});check(first==p.firstFault(),"Matrix fault changed on retry");
+    drainRaw(f,pcm,1);p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();
+    check(f.rawAcceptedFrames()==1024,"Matrix failure shortened raw recording");
 }
 void faultsAndAdmission() {
     {
@@ -390,7 +512,7 @@ void originalClockIntegration() {
 } // namespace
 int main() {
     try {
-        rt_audit::reset();parityAndPressure(3);parityAndPressure(256);faultsAndAdmission();clockStartupAndPostroll();concurrentOwners();originalClockIntegration();finitePlanning();
+        rt_audit::reset();channelMaps();mappedFaults();parityAndPressure(1,1);parityAndPressure(2,2);parityAndPressure(1,3);parityAndPressure(3);parityAndPressure(256);faultsAndAdmission();clockStartupAndPostroll();concurrentOwners();originalClockIntegration();finitePlanning();
         check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate &&
               !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared processing RT audit");
         std::cout<<checks<<" bounded monitor processing checks passed; guarded allocate/free/lock=0; synthetic clock observations only\n";return 0;

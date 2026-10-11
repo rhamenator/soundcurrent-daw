@@ -1,0 +1,12 @@
+{
+  "sourceBeforeMerge": "de25141c06cb92890630d28873e6ac45febfca99",
+  "main": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "sourceAfterMerge": "aecc0b79934a89a428e914e61ee20eb294538f85",
+  "tree": "dabb2958bae1dab828a3264396165a4e117a8156",
+  "wholeTreeEqual": true,
+  "conflicts": [
+    "docs/12-goal-progress.md",
+    "docs/207-native-state11.md"
+  ],
+  "resolution": "Preserve complete candidate documentation including exact PR142 postmerge receipt; no implementation change"
+}

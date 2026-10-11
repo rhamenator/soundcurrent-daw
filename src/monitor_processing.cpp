@@ -70,7 +70,7 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     require(!b.resources && !d.resources, "Use the processing group's resource ledger");
     require(f.capture.channels == b.channels && f.capture.sampleRate == b.sourceRate &&
         f.capture.maximumPacketFrames == b.maximumInputFrames && f.capture.identity == d.captureIdentity &&
-        o.channels == b.channels && o.sampleRate == b.outputRate && o.generation == b.runGeneration &&
+        (c.channelMap || o.channels == b.channels) && o.sampleRate == b.outputRate && o.generation == b.runGeneration &&
         o.first.value == b.outputFrameBase && o.maximumBlockFrames >= PreparedMonitorBuffer::gridFrames &&
         b.sourceRate == d.sourceRate && b.outputRate == d.outputRate &&
         b.runGeneration == d.runGeneration && b.outputFrameBase == d.outputFrameBase &&
@@ -82,6 +82,14 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     PayloadCharge charge("Monitor processing group", c.memoryBudgetBytes);
     charge.add(monitorBufferPayloadBytes(b)); charge.add(PreparedMonitorDrift::payloadBytes);
     charge.add(8192); charge.add(std::size_t(PreparedMonitorBuffer::gridFrames) * b.channels, sizeof(float));
+    if (c.channelMap) {
+        require(!c.startup && c.channelMap->inputChannels==b.channels && c.channelMap->outputChannels==o.channels,
+            "Monitor channel map mismatch or unversioned startup mapping");
+        charge.add(monitorChannelMapPayloadBytes(*c.channelMap,PreparedMonitorBuffer::gridFrames,c.memoryBudgetBytes));
+        // Both the retained declaration and the prepared immutable matrix own routes.
+        charge.add(c.channelMap->routes.size(),sizeof(ChannelMix));
+        charge.add(std::size_t(PreparedMonitorBuffer::gridFrames)*o.channels,sizeof(float));
+    }
     if (c.startup) {
         const auto frames = monitorStartupRetainedFrames(b,d,*c.startup);
         require(o.maximumPullFrames >= c.startup->maximumNativeFillFrames &&
@@ -103,6 +111,10 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
     bytes_ = monitorProcessingPayloadBytes(geometry(f),o.config(),config_);
+    if (config_.channelMap) {
+        channelMap_.emplace(*config_.channelMap,PreparedMonitorBuffer::gridFrames,config_.memoryBudgetBytes);
+        mappedPending_.resize(std::size_t(PreparedMonitorBuffer::gridFrames)*o.config().channels);
+    }
     if (config_.startup) {
         static_assert(sizeof(StartupPacket) <= sizeof(CaptureBankStamp) + 16);
         startup_.capacityFrames = monitorStartupRetainedFrames(config_.buffer,config_.drift,*config_.startup);
@@ -322,8 +334,9 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
     // Retain a pulled block across arbitrary output pressure. Neither input nor
     // converter/controller advances until these exact bytes have been accepted.
     if (pendingStamp_.frames) {
-        const auto code = output_.publish(pendingStamp_, std::span<const float>(pending_.data(),
-            std::size_t(pendingStamp_.frames) * config_.buffer.channels));
+        const auto code = output_.publish(pendingStamp_, std::span<const float>(
+            channelMap_?mappedPending_.data():pending_.data(),
+            std::size_t(pendingStamp_.frames) * output_.config().channels));
         if (code == MonitorOutputCode::Backpressure) return MonitorProcessingCode::OutputFull;
         if (code != MonitorOutputCode::Accepted) return fail(MonitorProcessingCause::Output);
         published_ += pendingStamp_.frames; pendingStamp_ = {};
@@ -340,6 +353,10 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         const auto read = buffer_.pull(pending_);
         if (read.code != MonitorBufferCode::OutputReady || !read.frames)
             return fail(MonitorProcessingCause::Buffer);
+        if (channelMap_ && channelMap_->process(
+            {pending_.data(),std::size_t(read.frames)*config_.buffer.channels},
+            {mappedPending_.data(),std::size_t(read.frames)*output_.config().channels},read.frames)!=MonitorChannelMapCode::Mapped)
+            return fail(MonitorProcessingCause::ChannelMap);
         pendingStamp_ = {config_.buffer.runGeneration,{ordinal},read.frames};
         return MonitorProcessingCode::Progress;
     }
