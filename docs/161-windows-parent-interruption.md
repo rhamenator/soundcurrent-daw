@@ -103,3 +103,26 @@ then bounded resumable larger recovery inventories. Preserve the distinctions
 between parent death, separate helper death, normal quit and power loss. Broad
 M2 quality, power-loss/scalability, M2–M11, X004/X005, all-Europe translation/review/UI,
 content and native compatibility remain open. Full goal stays active/incomplete.
+
+## 2026-10-11: current CI partial-baseline correction
+
+Current PR107 desktop job 114349970301 failed the supervisor's comparison of a
+partial-file hash taken before helper termination with one taken afterward.
+Its source 4cccc97 and complete job log remain separately bound locally. The log
+does not contain the two hashes/byte counts, so the cause of that particular
+change remains an inference; it is not established as data corruption.
+
+Suspending user threads is not a kernel I/O completion barrier. Microsoft
+documents that a terminated process cannot exit until pending I/O completes or
+is canceled. The supervisor already waits for its exact process handle; it now
+establishes the immutable partial baseline after that terminal barrier.
+[TerminateProcess contract](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess).
+
+The new driver records pretermination and terminal byte counts/hashes separately,
+including any difference. Active inventory defers the still-owned writer's
+partial hash alongside its exclusive lock; project/raw/intent and other immutable
+files remain checked. Once terminal, fresh Incomplete scanning must preserve
+every file, including the exact terminal partial digest, and publish no audio or
+completion marker. Deadlines, exact-process identity/exit checks and cleanup
+remain unchanged. Fresh native CI is required; the original source 8fc9db6
+qualified receipt above is unchanged and is not retrospectively expanded.
