@@ -167,3 +167,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Retained render review after restarting](154-render-restart-review.md)
 
 - [Native monitor matrix state and composed startup](209-native-channel-state.md) · [ADR139](decisions/139-native-channel-matrix-state.md)
+
+- [Original writer backlog and measured write spans](210-writer-backlog-timing.md)

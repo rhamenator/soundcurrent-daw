@@ -1,5 +1,28 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original writer backlog and measured spans (2026-10-11)
+
+[Checkpoint210](210-writer-backlog-timing.md) adds test-only retention of original
+disk-writer backlog, local observation age, in-flight write and completed spans.
+Snapshots have eight bounded attempts and no allocation/clock/logging work;
+control never reads a mutable pipe. An actual deliberately held first write
+reaches QueueFull, retains phase/acquisition/time evidence, then joins and
+recovers every sample of its 8,192-frame prefix. Original production capacities,
+deadlines, 20-take/five-second/cohort and callback cadence remain unchanged.
+
+Full manual workflows pass Release 1.14s, ASan/UBSan 4.07s and TSan 2.85s with
+RT violations/PCM difference 0; separate original standalone protocol passes.
+The Windows fixture object is warning-free but awaits native execution. Read-only
+qualified production archives reduce sanitizer rebuild disk work, with all other
+635 inputs and their hashes preserved. Source/log/command evidence and the
+archive-count helper correction are retained. Preceding PR144 passed all four
+required jobs on38174473151: native71 suites183.10s and three actual original
+standalone runs; its original
+artifact confirms mapped state/startup/migration execution. It predates these
+new diagnostics. The earlier Windows writer delay remains unexplained; factory,
+physical audio and full M2–M11/F/Q/C/N/X004/X005/platform/localization goals remain
+open. Next inspect fresh native timing/backlog evidence and qualify a correction.
+
 ## Native monitor matrix state and composed startup (2026-10-11)
 
 [Checkpoint209](209-native-channel-state.md) adds auxiliary native state 1.2,

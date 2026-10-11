@@ -126,3 +126,26 @@ write times to investigate that failure without changing capacities, deadlines
 or the original three 20-take acceptance runs. Then qualify a concrete correction
 on native Windows before enabling the owned recording factory. Successful
 simulation or cross compilation does not establish native runtime parity.
+
+## Subsequent native CI qualification
+
+Run38174473151 for draft [PR144](https://github.com/rhamenator/soundcurrent-daw/pull/144)
+subsequently passed all four required jobs at source
+`f8c6b8bdb598748e852c3af2dfc6ef0f3bf46c3e`, tested merge
+`f7914b2975ee521c9d7b05a068339e3b8c1a3c24`, tree
+`d8fcdf2831579396aa14c808d99e14a970e68d5b`. All 162 reviewed blobs and the 636
+qualified inputs match that tested tree. The native job executed 71 CTests in
+183.10s and three actual original 20-take/five-second standalone runs. Its
+artifact records 12 composed runs, four mapped cases with error0, real legacy
+startup migration and the original four native, two migration and two matrix
+publication process interruption boundaries. Guarded allocation/free/lock is0.
+
+The [CI/runtime evidence](../tests/results/M2/2026-10-11-native-channel-state-windows-runtime/summary.json)
+retains all four complete original job logs, exact head/base/merge/tree binding
+and selected native artifact logs; no executable or media is uploaded. This
+qualifies the simulated SDK/state workflow on native Windows. It does not qualify
+physical devices, enable the ordinary factory or resolve PR143's intermittent
+writer delay. The candidate remains draft and no ordinary merge is admitted here.
+[Checkpoint210](210-writer-backlog-timing.md) adds original backlog/timing evidence
+for the next native investigation; that newer diagnostic code is not tested by
+this preceding run.
