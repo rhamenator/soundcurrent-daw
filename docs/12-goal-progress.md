@@ -4905,3 +4905,37 @@ PR134 inherits this MAIN and awaits fresh38143651032 qualification. Original Win
 owner failures stay open. Next: explicit startup/warmup/prefill/capacity/clock quality,
 then actual native/installed Stop/cancel/loss/recovery/retirement. Full frozen
 M2–M11/F/Q/C/N/import/localization target remains ACTIVE/incomplete.
+
+## Bounded monitor startup with original unseeded clocks (2026-10-11)
+
+[Checkpoint200](200-monitor-startup-preroll.md) adds opt-in actual-FIFO geometry
+admission and prepared rolling monitor preroll. Raw capture keeps its complete
+prefix; trim/transfer/abandon counts and original packet/partial offset remain
+explicit. The first real clock proposal is committed before converter input;
+whole-FIFO output publication precedes content readiness. Clock confidence is
+unchanged. Statistics are not yet a cross-thread authorization or durable state.
+
+Frozen1dbcea2 passes eleven suites each: Release1.69s, ASan/UBSan14.14s and
+TSan20.00s. New19,652 startup checks/profile cover unseeded two-second observations,
+1/2/8/256 channels,44.1/48/96k source,4,097-frame FIFO, zero error versus independent
+conversion, one-frame descriptors, original raw bits/stamps, failure/budget cases
+and guarded allocation/free/lock0. The68,378-byte/15-member packet binds593inputs,
+33binary hashes and15Windowsobject/library hashes/full logs. New objects and native
+wrappers/full core targets cross-compile; new Windows execution is not claimed.
+
+Preceding199 MSVC114485524060/run38144707175 passed69suites164.08s, native-outcomes
+3.22s, with allfour original jobs terminal success. Its51,584-byte/three-member
+packet binds18reviewedfiles and original checkout. Protected134 MAIN387df58 matches
+its whole tested tree/base/17blobs;147,898-byte/eight-member packet publishes original
+four byte-exact jobs/admission/merge receipts. No bypass. Original caller807 and
+parentInterrupted Windows failures remain unresolved. PR135 inherits MAIN134
+through an ordinary reviewed merge. Fresh38145862264 passed three required jobs
+but native114488944113 failed manual takeGroup waiting again (caller808, take12,
+identity13, occupied1, callback_failed0). Assertions/deadlines remain unchanged.
+The full original failed cohort and checkout are retained in Checkpoint200; no
+protected merge is admitted. Ownership/finalization diagnosis is the next gate.
+
+Next: actual native-only warmup leases/clock motion, explicit generation-ready
+handoff, warmup/disposition state migration, SDK/installed Linux+Windows deadlines,
+short take/Stop/cancel/loss, professional latency, EQ/mix and alignment. Factory
+remains disabled. Full M2–M11/F/Q/C/N/X004/X005/all-Europe goal remains incomplete.

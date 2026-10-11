@@ -174,3 +174,11 @@ before enabling the native factory. Raw/project alignment, playable-prefix admis
 EQ/mix, repeated punch/loop, processing quality, native project interchange,
 European localization and full M2–M11/F/Q/C/N frozen scope remain open. See
 [ADR131](decisions/131-durable-native-outcomes.md).
+
+Independent preceding Windows execution is now retained by
+[Checkpoint200](200-monitor-startup-preroll.md): MSVC114485524060/run38144707175
+passed69suites164.08s, including original native outcomes3.22s. The51,584-byte/
+three-member packet binds18original reviewed files/full native job and tested
+merge. This does not qualify a subsequent parent refresh or new startup code.
+Actual SDK activation, installed checks, warmup dispositions and full goal remain
+open.

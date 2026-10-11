@@ -1,0 +1,59 @@
+{
+  "format": "sc-monitor-startup-preroll-v1",
+  "sourceCommit": "1dbcea2b56d796f8c3df20141e2edcc05292e0be",
+  "sourceTree": "c4447ad99958c51e601d0c8a1c2a5baf3d5cff9e",
+  "captureBytes": 68378,
+  "captureSha256": "a9f6ea25c7c6124f37d70a025bde36aec77e5ef272a9e17b1d8e930734fa984a",
+  "members": 15,
+  "selectedInputs": 593,
+  "executableHashes": 33,
+  "windowsCrossObjectHashes": 15,
+  "profiles": {
+    "release": {
+      "suites": 11,
+      "startupChecks": 19652,
+      "seconds": 1.69,
+      "guardedAllocateFreeLock": 0
+    },
+    "sanitizer": {
+      "suites": 11,
+      "startupChecks": 19652,
+      "seconds": 14.14,
+      "guardedAllocateFreeLock": 0
+    },
+    "tsan": {
+      "suites": 11,
+      "startupChecks": 19652,
+      "seconds": 20.0,
+      "guardedAllocateFreeLock": 0
+    }
+  },
+  "rates": [
+    44100,
+    48000,
+    96000
+  ],
+  "channels": [
+    1,
+    2,
+    8,
+    256
+  ],
+  "fullNativeFifoFrames": 4097,
+  "minimumUnseededClockSpan100ns": 20000000,
+  "oneFramePacketDescriptorsQualified": true,
+  "prerollMonitorDiscardExplicit": true,
+  "rawPrefixUnchanged": true,
+  "maximumIndependentConverterError": 0,
+  "startupWindowsObjectsCompiled": true,
+  "startupWindowsTestsExecuted": false,
+  "nativeStartupRuntimeQualified": false,
+  "nativeWarmupSdkLeaseImplemented": false,
+  "crossThreadContentReadyImplemented": false,
+  "startupDispositionPersisted": false,
+  "installedPreviewQualified": false,
+  "nativeFactoryEnabled": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
