@@ -4482,6 +4482,22 @@ executable hash is invented. [Checkpoint180](180-stamped-capture-bank.md) record
 this independent platform observation. Native endpoints/installed/physical/full
 product qualification and refreshed current-MAIN protection gates remain open.
 
+## 183 — prepared causal monitor buffer (2026-10-11)
+
+Original GPL single-owner buffer now has charged/touched rings and best-sinc state,
+causal warmup/retained source, bounded explicit64-frame ratio events, one-call
+service, backpressure and exact real-input-only Stop/partial drain. Cancel and
+first faults preserve counts; no raw timestamps/alignment are synthesized.
+Frozen cc725947 passed3 Linux Release suites2.51s, ASan/UBSan22.80s and single-owner
+full C/C++ TSan45.35s. Each buffer run:13 streams,366,972 bounded service calls,
+3,845,658 checks, bit-exact partitioned PCM, reused scratch, FIFO/ring wraps,
+256 channels and original output ordinals above2^53; guarded C++/interposed libc
+allocation/free/pthread locks zero. A33,942-byte/15-member packet binds542 selected
+inputs/five executable hashes; fresh Release compilation reproduced the tested
+binary hash. [Checkpoint183](183-causal-monitor-buffer.md) records actual scope.
+Clock/buffer controller, raw/output SPSC/native composition, durable mappings and
+Windows duplex UI/native/installed/physical/load/quality/localization remain open.
+
 ## More precise manual/child-terminal observations (2026-10-11)
 
 Current-MAIN native job114400815807 exposed the original manual wait timeout with
@@ -4496,8 +4512,6 @@ controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-b
 Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
 records scope; no stale downstream success is admitted as a current-MAIN gate.
 
-
-
 ## Logical recording credit after an observed Windows disk stall (2026-10-11)
 
 MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
@@ -4508,8 +4522,6 @@ and exact whole-packet logical-time advancement. Original480,000 sample/recovery
 callback and separate overflow assertions remain; production behavior/deadlines
 unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
 retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
-
-
 
 ## Catalog inventory after the Windows observer change (2026-10-11)
 
