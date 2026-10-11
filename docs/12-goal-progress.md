@@ -4334,3 +4334,9 @@ callback allocation/free/lock0, contexts/window groups/UndoRedo/save/reopen chec
 The60,284-byte/25-member packet binds504 source inputs/four executable hashes.
 Packet validation and optional source comparison passed. Original PCM stays local;
 installed/physical/native latency/postroll/Windows duplex/full goal stay open.
+
+PR116 merged under existing protection as0e9f69f52987723bc2cdc1882d375a637f4e1622,
+head01b0dc8d/baseaab9ca5b, actual tested merge473db99da4a0d1bf0f220e3e0af3aab4533d3c2a.
+Run38110705676 had all four terminal successful required checks;59 exact reviewed
+blobs and the whole tree matched. The native loop branch inherits current main
+regularly, retaining its frozen original endpoint scope and evidence.
