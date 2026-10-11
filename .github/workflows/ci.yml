@@ -183,6 +183,22 @@ jobs:
           set "SC_PROTECTED_WARP_QUALIFICATION=%CD%\build-native\protected-warp-integration-qualification.json"
           ctest --test-dir build-native -R "^(wasapi-monitor-render-binding|wasapi-monitor-capture-binding|monitor-capture-stop|monitor-stop-handoff|combined-monitor-recording|original-monitor-clock-handoffs|bounded-monitor-processing|original-raw-recording|monitor-output-bank|capture-raw-monitor-fanout|monitor-drift-control|causal-monitor-buffer|monitor-kernel-feasibility|stamped-capture-bank|clock-correlation|continuous-loop-recording|loop-stream-playback-recording|retained-take-comp|manual-recording-control|stretch-selection-publication|experimental-protected-warp-geometry|experimental-protected-warp-rendering|experimental-warp-map-geometry|editable-stretch-state|stretch-timing-oracle|stretch-region-geometry|stretch-source-integrity|stretch-worker-workflows|worker-observation-failures|protected-warp-worker-workflows|protected-warp-package-inputs|clip-playback-rate|playback-rate-timing-oracle|positioned-resampling-kernel|positioned-resampling-workflow|fractional-timing-oracle|prepared-resampling|prepared-timing-oracle|resampler-source-integrity|clip-processing|multitrack-edits|project-import-state|session-state|project-routing|project-monitoring|media-provenance-transaction|verified-media-staging|verified-media-stage-worker|approved-wave-content|approved-wave-probe|approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(render-end|packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
           if errorlevel 1 exit /b 1
+      - name: Bounded original concurrent-owner diagnostic
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $ownerProbePath = Join-Path $PWD "build-native/sc-manual-recording-tests.exe"
+          if (-not (Test-Path $ownerProbePath)) {
+            Write-Output "Owner diagnostic unavailable: native test executable was not built."
+            exit 0
+          }
+          $env:PATH = "$PWD/native-dependencies/sndfile-build;$env:PATH"
+          for ($ownerAttempt = 1; $ownerAttempt -le 3; ++$ownerAttempt) {
+            Write-Output "Original concurrent-owner diagnostic attempt=$ownerAttempt of=3; unchanged20takes/5sdeadline"
+            & $ownerProbePath --concurrent-owner-diagnostics 2>&1 | Tee-Object -FilePath build-native/manual-owner-diagnostic.log -Append
+            if ($LASTEXITCODE -ne 0) { throw "Original concurrent owner diagnostic failed; retain original take/worker state." }
+          }
       - name: Retain native unit log
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -191,6 +207,7 @@ jobs:
           name: windows-native-packet-unit-log
           path: |
             build-native/Testing/Temporary/*.log
+            build-native/manual-owner-diagnostic.log
             build-native/warp-map-geometry-evidence/**
             build-native/protected-warp-geometry-evidence/**
             build-native/protected-warp-render-evidence/**

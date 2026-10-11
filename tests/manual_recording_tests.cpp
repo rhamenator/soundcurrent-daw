@@ -79,6 +79,61 @@ void unicodeFailureDiagnostic() {
     preservedFailureDiagnostic(unavailable, root); // Must not throw on a failed sink.
     check(unavailable.bad(), "Failure diagnostic fabricated a recovered output sink");
 }
+struct WriterDiagnostic {
+    struct Snapshot {
+        unsigned phase = UINT32_MAX;
+        Frame written = 0, committed = 0;
+        std::uint64_t sequence = 0;
+        bool coherent = false;
+    };
+    std::atomic<std::uint64_t> sequence{0};
+    std::atomic<unsigned> phase{UINT32_MAX};
+    std::atomic<Frame> written{0}, committed{0};
+    // Existing disk/construction instrumentation only. The fixture permits one
+    // writer at a time; a completed group has joined it before another take.
+    static void observe(void *context,const RecordingWriterObservation &o) noexcept {
+        auto &d=*static_cast<WriterDiagnostic*>(context);
+        d.sequence.fetch_add(1,std::memory_order_acq_rel);
+        d.phase.store(unsigned(o.phase),std::memory_order_release);
+        d.written.store(o.writtenFrames,std::memory_order_release);
+        d.committed.store(o.committedFrames,std::memory_order_release);
+        d.sequence.fetch_add(1,std::memory_order_release);
+    }
+    Snapshot snapshot() const noexcept {
+        Snapshot s;
+        for(unsigned n=0;n<8;++n) {
+            const auto before=sequence.load(std::memory_order_acquire);
+            s.phase=phase.load(std::memory_order_acquire);
+            s.written=written.load(std::memory_order_acquire);
+            s.committed=committed.load(std::memory_order_acquire);
+            s.sequence=sequence.load(std::memory_order_acquire);
+            if(before==s.sequence && !(before&1)) {s.coherent=true;break;}
+        }
+        return s; // A busy observation is explicitly marked, never spun forever.
+    }
+};
+void ownerDiagnostic(std::ostream &out,const ManualRecordingRun &run,std::uint64_t id,
+                     const WriterDiagnostic &writer) noexcept {
+    try {
+        const auto d=run.diagnoseLane(id,0);
+        out<<"concurrent_group_owner identity="<<id<<" found="<<bool(d);
+        if(d) {
+            out<<" lane="<<d->lane<<" asset="<<std::string(d->assetId.data(),d->assetId.size())
+               <<" phase="<<(d->phase?int(*d->phase):-1)<<" pending_starts="<<d->pendingStarts
+               <<" ready="<<d->ready<<" attempted="<<d->attempted<<" joined="<<d->joined
+               <<" construction_failed="<<d->constructionFailed<<" worker="<<d->workerPresent
+               <<" worker_complete="<<d->workerComplete<<" written="<<d->writtenFrames
+               <<" producer_done="<<(d->producerDone?int(*d->producerDone):-1)<<" capture_status="<<int(d->captureStatus)
+               <<" start="<<(d->start?*d->start:-1)<<" end="<<(d->end?*d->end:-1)
+               <<" retired="<<(d->retiredFrames?*d->retiredFrames:-1);
+        }
+        const auto s=writer.snapshot();
+        out<<" writer_phase="<<s.phase<<" writer_written="<<s.written
+           <<" writer_committed="<<s.committed<<" observation_sequence="<<s.sequence
+           <<" observation_coherent="<<s.coherent<<'\n';
+    } catch(...) { // Retain the original failure even if a diagnostic sink fails.
+    }
+}
 float raw(Frame f, unsigned lane) {
     return float(double((f + lane * 37) % 97 - 48) * .0625);
 }
@@ -722,12 +777,82 @@ void readyGroupPressure() {
     check(groups == 8 && replies == 16 && !f.run->occupiedSlots(),
           "Completed group/reply pressure was lossy");
 }
+void heldFinalizationDiagnostic() {
+    WriterDiagnostic writer;
+    std::atomic<bool> entered{false}, released{false};
+    Fixture f(1);
+    struct ReleaseOnExit {
+        std::atomic<bool> &released;
+        ~ReleaseOnExit() { released.store(true,std::memory_order_release); }
+    } release{released}; // Releases a deliberately held disk callback BEFORE fixture teardown.
+    auto a=arms(f.s,false);
+    a[0].writer.instrumentation={&writer,WriterDiagnostic::observe};
+    a[0].writer.boundary=[&](RecordingBoundary b,Frame) {
+        if(b!=RecordingBoundary::BeforeAssetHashRead) return;
+        entered.store(true,std::memory_order_release);
+        while(!released.load(std::memory_order_acquire))
+            std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Disk only.
+    };
+    f.prepare(std::move(a));
+    const auto id=f.run->prepareTake();
+    auto d=f.run->diagnoseLane(id,0);
+    check(d && d->phase==ManualTakePhase::Prepared && !d->start && !d->end &&
+        !d->retiredFrames && !d->attempted && !d->workerPresent && d->producerDone==false,
+        "Prepared diagnostic fabricated capture or worker state");
+    check(!f.run->diagnoseLane(0,0) && !f.run->diagnoseLane(id,1),"Foreign/missing lane diagnostic admitted");
+    submit(*f.run,ManualPunchAction::In,31,1,id);
+    submit(*f.run,ManualPunchAction::Out,100,2);
+    check(f.block()==DuplexStatus::Running,"Held-finalization fixture callback failed");
+    d=f.run->diagnoseLane(id,0);
+    check(d && d->pendingStarts==1 && d->phase==ManualTakePhase::Retired &&
+        d->start==31 && d->end==100 && d->retiredFrames==69 && d->producerDone==true && !d->attempted,
+        "Retirement/pending-start diagnostic crossed unpublished audio state");
+    eventually([&]{f.run->service();return entered.load(std::memory_order_acquire);});
+    ManualRecordedGroup group;
+    for(unsigned n=0;n<1000;++n) {
+        // Valid queries need no heap copy/lock and read only control/atomic or
+        // audio-retired immutable facts. This is not native control concurrency.
+        {rt_audit::Guard guard;d=f.run->diagnoseLane(id,0);}
+        check(d && d->phase==ManualTakePhase::Retired && !d->pendingStarts && !d->ready &&
+            d->attempted && !d->joined && !d->constructionFailed && d->workerPresent &&
+            !d->workerComplete && d->writtenFrames==69 && d->producerDone==true &&
+            d->captureStatus==CaptureStatus::Stopped,"Held writer was confused with active capture or delivered group");
+        f.run->service();check(!f.run->takeGroup(group),"Diagnostic prematurely joined/reclaimed held writer");
+    }
+    const auto observation=writer.snapshot();
+    check(observation.coherent && observation.phase==unsigned(RecordingWriterPhase::JournalPublishEnd) &&
+        observation.written==69 && observation.committed==69,"Original finalization observation missing or altered");
+    std::ostringstream out;out.imbue(std::locale::classic());ownerDiagnostic(out,*f.run,id,writer);
+    check(out.str().find("worker_complete=0")!=std::string::npos &&
+        out.str().find("producer_done=1")!=std::string::npos &&
+        out.str().find("retired=69")!=std::string::npos,"Owner failure formatter lost blocked-finalization facts");
+    std::ostringstream failed;failed.exceptions(std::ios::badbit|std::ios::failbit);
+    try {failed.setstate(std::ios::badbit);}catch(const std::ios_base::failure&){}
+    ownerDiagnostic(failed,*f.run,id,writer);check(failed.bad(),"Failed diagnostic sink fabricated success");
+    released.store(true,std::memory_order_release);
+    eventually([&]{f.run->service();const auto ready=f.run->diagnoseLane(id,0);return ready && ready->ready;});
+    d=f.run->diagnoseLane(id,0);
+    check(d && d->ready && d->joined && !d->workerPresent && !d->phase && !d->producerDone &&
+        d->start==31 && d->end==100 && d->retiredFrames==69 && d->writtenFrames==69,
+        "Ready receipt invented a reclaimed producer/phase or lost original extent");
+    check(f.run->takeGroup(group),"Ready diagnostic changed group delivery");
+    check(group.complete() && group.take==id && group.lanes[0].capturedFrames==69 &&
+        group.lanes[0].writtenFrames==69 && !f.run->diagnoseLane(id,0),
+        "Held-finalization join/delivery changed media or retained stale diagnostic identity");
+    ManualPunchReceipt r;unsigned replies=0;while(f.run->acknowledgement(r))++replies;
+    check(replies==2,"Held diagnostic changed reliable command receipts");
+    std::cout<<"held_finalization_diagnostic original_retired=69 producer_eof=1 worker_complete=0"
+        <<" pending_starts=0 original_writer_phase="<<observation.phase<<" joined_delivery=69\n";
+    f.run->stop();
+}
 void concurrentOwner() {
+    WriterDiagnostic writerDiagnostic; // Outlives fixture destruction/worker joins.
     Fixture f(1);
     f.s.tracks[0].eq.bands[0].gainDb = 5;
     ProjectStore(f.directory.root).save(f.s);
     auto a = arms(f.s, false);
     a[0].binding.monitoring = RecordingMonitor::PostEq;
+    a[0].writer.instrumentation={&writerDiagnostic,WriterDiagnostic::observe};
     f.prepare(std::move(a), 2000000);
     auto cfg = config(0, 2000000);
     PreparedMixGraph oracle(f.s, plan(f.s), cfg.graph);
@@ -815,12 +940,13 @@ void concurrentOwner() {
             std::cerr << "concurrent_group_wait take=" << take << " identity=" << id
                       << " occupied=" << f.run->occupiedSlots() << " status=" << int(f.run->status())
                       << " callback_failed=" << failed.load() << '\n';
+            ownerDiagnostic(std::cerr,*f.run,id,writerDiagnostic);
             std::error_code ec;
             for (std::filesystem::recursive_directory_iterator it(f.directory.root, ec), end;
                  !ec && it != end; it.increment(ec)) {
                 if (!it->is_regular_file(ec)) continue;
                 const auto bytes = it->file_size(ec);
-                const auto u8 = it->path().filename().generic_u8string();
+                const auto u8 = it->path().lexically_relative(f.directory.root).generic_u8string();
                 std::cerr << "concurrent_group_file name="
                           << std::string(reinterpret_cast<const char *>(u8.data()), u8.size())
                           << " bytes=" << bytes << " error=" << ec.value() << '\n';
@@ -851,8 +977,14 @@ void concurrentOwner() {
           "Concurrent control owner changed continuous EQ or violated callback constraints");
 }
 } // namespace
-int main() {
+int main(int argc,char **argv) {
     try {
+        if(argc==2 && std::string_view(argv[1])=="--concurrent-owner-diagnostics") {
+            concurrentOwner();
+            std::cout<<"original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false\n";
+            return 0;
+        }
+        check(argc==1,"Unknown manual owner diagnostic argument");
         rt_audit::reset();
         repeated(256, false, false);
         repeated(127, true, true);
@@ -872,6 +1004,7 @@ int main() {
         lateCancellation(true);
         backpressure();
         readyGroupPressure();
+        heldFinalizationDiagnostic();
         concurrentOwner();
         const auto c = rt_audit::counts;
         check(c.cppAllocate + c.cppFree + c.cAllocate + c.cFree + c.blockingLock == 0,
