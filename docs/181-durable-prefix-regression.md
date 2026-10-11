@@ -107,3 +107,31 @@ passed. No executables/media are included; selected inputs are not a full closur
 These diagnostic/state-publication changes do not prove that either Windows
 workflow is repaired. Fresh protected checks and independent cause analysis remain
 required; successful downstream cohorts cannot substitute for current-MAIN gates.
+
+## Refreshed current-MAIN output gate: unresolved Windows owners (2026-10-11)
+
+Run38127318120/head a527c38/base05b7c6b failed two independent Windows jobs.
+Native job114434272067 passed58/59 suites but manual-recording-control timed out
+at the concurrent takeGroup wait (caller line807), after26.01s total. Desktop
+job114434272201 passed18/19 suites; the during-processing parent-interruption case
+returned Incomplete where Ready was required. Existing logs did not expose the
+exact take/disk state or owned helper exit at that failed boundary. These original
+causes remain unresolved; the separate successful clock-handoff stack is not a
+replacement current-MAIN gate.
+
+Frozen aa62e910 adds diagnostics around that original take-group wait: take/
+identity/occupied-slot/status/file-size evidence and early existing worker-error
+reporting. The Windows interruption fixture now emits its accumulated case report,
+owned process terminal state and job inventory when its original assertion fails.
+Five-second/manual and Windows worker/fixture deadlines and recovery assertions
+are unchanged. No production callback, source queue or recovery classification is
+modified. Windows diagnostics have syntax verification but no new execution yet.
+
+Linux Debug manual control passed1.57s/65,182 observed scheduling-dependent checks
+with callback audit zero. A
+[109,965-byte/nine-member packet](../tests/results/M2/2026-10-11-windows-owner-diagnostics/summary.json)
+binds416 selected inputs, the test executable, complete local build/CTest/LastTest
+logs and both original failed native jobs/API states/16 reviewed blobs. Their
+tested merge903ece7482629b8cc32192439a681fd42b4c65d1 and exact tree/parents are
+verified. Original source/failure evidence is retained without executable/media
+upload. Fresh Windows/current-MAIN qualification remains required.
