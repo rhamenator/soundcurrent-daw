@@ -3,6 +3,7 @@
 #include "manual_punch.hpp"
 #include "recording.hpp"
 #include <exception>
+#include <array>
 
 namespace soundcurrent::daw {
 // One generation, monotonic priority signal. Any thread may request; no reset or
@@ -61,6 +62,21 @@ struct ManualRecordedGroup {
     // Only complete, full-length, range-complete lanes count as a complete group.
     bool complete() const noexcept;
 };
+// Serialized control owner only. Individual acquire observations, not an atomic
+// transaction snapshot; never use this diagnostic to authorize reclamation.
+// Audio-only cursors, disk-owned queues and mutable writer objects do not escape.
+struct ManualRecordingLaneDiagnostic {
+    std::uint64_t take = 0;
+    std::size_t lane = 0, pendingStarts = 0;
+    std::array<char, 36> assetId{}; // Canonical immutable asset UUID, no heap copy.
+    std::optional<ManualTakePhase> phase;
+    std::optional<Frame> start, end, retiredFrames;
+    Frame writtenFrames = 0;
+    CaptureStatus captureStatus = CaptureStatus::Running;
+    bool ready = false, attempted = false, joined = false, constructionFailed = false;
+    bool workerPresent = false, workerComplete = false;
+    std::optional<bool> producerDone; // Unavailable after the take/pipe is reclaimed.
+};
 // Transactional model copy, no saving/reset of the running immutable graph.
 // Refuses canceled/incomplete groups unless explicit partial adoption is chosen;
 // empty/failed lanes remain visible in the receipt and are never fabricated.
@@ -107,6 +123,10 @@ class ManualRecordingRun {
     Frame position() const noexcept;
     std::uint64_t missingTrackFrames() const noexcept;
     std::size_t occupiedSlots() const noexcept; // Serialized control owner only.
+    // Bounded identity/lane lookup, no I/O. Unknown or delivered/reclaimed take,
+    // or out-of-range lane returns nullopt. No new control/retirement behavior.
+    std::optional<ManualRecordingLaneDiagnostic> diagnoseLane(std::uint64_t take,
+                                                              std::size_t lane) const;
 
   private:
     struct State;
