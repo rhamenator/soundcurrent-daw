@@ -804,11 +804,29 @@ void concurrentOwner() {
         });
         check(receipt.result == ManualPunchResult::Applied, "Concurrent production stop failed");
         ManualRecordedGroup group;
-        eventually([&] {
-            checkAudioOwner();
-            f.run->service();
-            return f.run->takeGroup(group);
-        });
+        try {
+            eventually([&] {
+                checkAudioOwner();
+                f.run->service();
+                f.run->checkError();
+                return f.run->takeGroup(group);
+            });
+        } catch (...) {
+            std::cerr << "concurrent_group_wait take=" << take << " identity=" << id
+                      << " occupied=" << f.run->occupiedSlots() << " status=" << int(f.run->status())
+                      << " callback_failed=" << failed.load() << '\n';
+            std::error_code ec;
+            for (std::filesystem::recursive_directory_iterator it(f.directory.root, ec), end;
+                 !ec && it != end; it.increment(ec)) {
+                if (!it->is_regular_file(ec)) continue;
+                const auto bytes = it->file_size(ec);
+                const auto u8 = it->path().filename().generic_u8string();
+                std::cerr << "concurrent_group_file name="
+                          << std::string(reinterpret_cast<const char *>(u8.data()), u8.size())
+                          << " bytes=" << bytes << " error=" << ec.value() << '\n';
+            }
+            throw;
+        }
         check(group.complete() && !f.run->occupiedSlots(),
               "Concurrent disk join/retirement/replenishment leaked consumer slot");
         const auto data = audio(f.directory.root, group.lanes[0].result->asset);
