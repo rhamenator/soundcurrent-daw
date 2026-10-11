@@ -2251,6 +2251,26 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Tracks to arm for simultaneous recording</translation>
     </message>
     <message>
+      <source>Recording mode</source>
+      <translation>Recording mode</translation>
+    </message>
+    <message>
+      <source>Timed recording</source>
+      <translation>Timed recording</translation>
+    </message>
+    <message>
+      <source>Loop: chosen number of passes</source>
+      <translation>Loop: chosen number of passes</translation>
+    </message>
+    <message>
+      <source>Loop: until Stop</source>
+      <translation>Loop: until Stop</translation>
+    </message>
+    <message>
+      <source>Passes</source>
+      <translation>Passes</translation>
+    </message>
+    <message>
       <source>Recording range (seconds)</source>
       <translation>Recording range (seconds)</translation>
     </message>
@@ -2333,6 +2353,30 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Take kept for recovery in %1</source>
       <translation>Take kept for recovery in %1</translation>
+    </message>
+    <message>
+      <source>First pass</source>
+      <translation>First pass</translation>
+    </message>
+    <message>
+      <source>Passes on this page</source>
+      <translation>Passes on this page</translation>
+    </message>
+    <message>
+      <source>Take name prefix</source>
+      <translation>Take name prefix</translation>
+    </message>
+    <message>
+      <source>Include the partial final pass</source>
+      <translation>Include the partial final pass</translation>
+    </message>
+    <message>
+      <source>Retain this page as takes</source>
+      <translation>Retain this page as takes</translation>
+    </message>
+    <message>
+      <source>Retain inactive takes for comping. Existing playback stays as it is; Save remains explicit.</source>
+      <translation>Retain inactive takes for comping. Existing playback stays as it is; Save remains explicit.</translation>
     </message>
     <message>
       <source>Recording workflows</source>
@@ -2793,6 +2837,46 @@ The complete file was published with a warning: %1</translation>
       <translation>Playback could not be completed: %1</translation>
     </message>
     <message>
+      <source>These loop takes belong to an earlier project. Keep the raw takes for recovery.</source>
+      <translation>These loop takes belong to an earlier project. Keep the raw takes for recovery.</translation>
+    </message>
+    <message>
+      <source>Choose a positive first pass and a take name prefix.</source>
+      <translation>Choose a positive first pass and a take name prefix.</translation>
+    </message>
+    <message>
+      <source>Take retention queue is full. Please retry.</source>
+      <translation>Take retention queue is full. Please retry.</translation>
+    </message>
+    <message>
+      <source>Loop takes could not be retained: %1</source>
+      <translation>Loop takes could not be retained: %1</translation>
+    </message>
+    <message>
+      <source>Loop take </source>
+      <translation>Loop take </translation>
+    </message>
+    <message>
+      <source>%1 complete passes · %2 samples in the partial final pass</source>
+      <translation>%1 complete passes · %2 samples in the partial final pass</translation>
+    </message>
+    <message>
+      <source> · Verifying this page…</source>
+      <translation> · Verifying this page…</translation>
+    </message>
+    <message>
+      <source> · Retention failed; raw takes are preserved. Retry this page or finish.</source>
+      <translation> · Retention failed; raw takes are preserved. Retry this page or finish.</translation>
+    </message>
+    <message>
+      <source>Choose a positive whole number of loop passes.</source>
+      <translation>Choose a positive whole number of loop passes.</translation>
+    </message>
+    <message>
+      <source>Loop recording needs an enabled loop, armed project tracks and punch recording off.</source>
+      <translation>Loop recording needs an enabled loop, armed project tracks and punch recording off.</translation>
+    </message>
+    <message>
       <source>Select at least one track to arm.</source>
       <translation>Select at least one track to arm.</translation>
     </message>
@@ -2941,6 +3025,10 @@ The complete file was published with a warning: %1</translation>
       <translation>%1 ms</translation>
     </message>
     <message>
+      <source>Keep raw takes and finish</source>
+      <translation>Keep raw takes and finish</translation>
+    </message>
+    <message>
       <source>Windows recording monitoring is not available in this preview. Use monitoring off.</source>
       <translation>Windows recording monitoring is not available in this preview. Use monitoring off.</translation>
     </message>
@@ -3025,6 +3113,10 @@ The complete file was published with a warning: %1</translation>
       <translation>Adding verified take to the project…</translation>
     </message>
     <message>
+      <source>Loop recording captured. Review the takes below.</source>
+      <translation>Loop recording captured. Review the takes below.</translation>
+    </message>
+    <message>
       <source> · %1 s · %2 rejected frames</source>
       <translation> · %1 s · %2 rejected frames</translation>
     </message>
@@ -3041,6 +3133,10 @@ Stored recording: %1</translation>
     <message>
       <source> · %1 missing playback frames</source>
       <translation> · %1 missing playback frames</translation>
+    </message>
+    <message>
+      <source> · pass %1 · loop position %2 samples</source>
+      <translation> · pass %1 · loop position %2 samples</translation>
     </message>
     <message>
       <source>%1: %2</source>

@@ -29,6 +29,7 @@ class QMessageBox;
 class QListWidget;
 class QListView;
 class QSpinBox;
+class QLineEdit;
 namespace soundcurrent::daw::ui {
 class SessionListModel;
 class ImportInspectionDialog;
@@ -146,6 +147,20 @@ class StudioWindow : public QMainWindow {
     QListView *armedTracksList_;
     SessionListModel *armedTrackModel_;
     QSpinBox *recordSeconds_;
+    QComboBox *recordMode_;
+    QLineEdit *recordPasses_;
+    QLabel *recordPassesLabel_;
+    RecordingMode recordPreparationMode_ = RecordingMode::Timed;
+    std::uint64_t recordPreparationPasses_ = 5;
+    QWidget *loopTakePanel_;
+    QLabel *loopTakeSummary_;
+    QLineEdit *loopTakeFirst_, *loopTakeName_;
+    QSpinBox *loopTakeCount_;
+    QCheckBox *loopTakePartial_;
+    QPushButton *loopTakeRetain_;
+    std::uint64_t loopPreviewSequence_ = 0, loopRetainNext_ = 0;
+    void retainLoopTakes();
+    void pollLoopTakes();
     QComboBox *recordReserve_;
     std::uint32_t recordPreparationReserveMilliseconds_ = 10000;
     QLabel *recordRangeLabel_;

@@ -1,0 +1,18 @@
+{
+  "build-inputs.json": {
+    "bytes": 55563,
+    "sha256": "ae2e25f7e5fb9000f0839d8c488128ca368d15f082cce0011256adee035bec44"
+  },
+  "build.txt": {
+    "bytes": 137,
+    "sha256": "d3fd679758943bb120bad77fa640d47839413ca735ab70621ec50c7bc8bc5a3b"
+  },
+  "ctest.txt": {
+    "bytes": 11239,
+    "sha256": "3d83aea20ecb8cf81610a7a2a7b64aa7a086219939901f5dac7d332a32e7d245"
+  },
+  "lasttest.txt": {
+    "bytes": 12702,
+    "sha256": "b0134e70a609dfedac111fb0fa974f50aaa3a6e73dc8bd7af2a49887b6f46f8d"
+  }
+}

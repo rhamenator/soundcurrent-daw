@@ -305,7 +305,7 @@ bool compatible(const RecordingPreparation &p, const Session &b) {
         return compatible(*p.session, b);
     const auto &a = *p.session;
     if (a.id != b.id || a.sampleRate != b.sampleRate || a.playheadFrame != b.playheadFrame ||
-        a.punch != b.punch || a.tracks.size() != b.tracks.size() ||
+        a.punch != b.punch || (p.duplexOptions.loopContext && a.loop!=b.loop) || a.tracks.size() != b.tracks.size() ||
         bool(a.master) != bool(b.master) ||
         (a.master && (a.master->id != b.master->id || a.master->plan != b.master->plan)))
         return false;
@@ -455,7 +455,7 @@ struct RecordingController::State : QThread {
         auto receipts = std::make_shared<const std::vector<RecordingResult>>(std::move(r));
         view.take =
             PendingTake{std::move(root), std::make_shared<const RecordingResult>(receipts->front()),
-                        ++takeSequence, std::move(receipts)};
+                        ++takeSequence, std::move(receipts), {}};
     }
     void stopEndpoint(bool preserveDiagnostic = false) {
         if (!endpoint)
@@ -502,7 +502,24 @@ struct RecordingController::State : QThread {
         }
         if (!takes.empty()) {
             try {
+                std::shared_ptr<const LoopRecordedTake> loop;
+                if (prepared->duplexOptions.loopContext) {
+                    std::vector<LoopRecordedSource> sources;
+                    if (takes.size()==view.lanes.size() && view.telemetry.lanes.size()==view.lanes.size()) {
+                        for (std::size_t n=0;n<takes.size();++n) {
+                            const auto &captured=view.telemetry.lanes[n];
+                            if (!captured.origin) break;
+                            sources.push_back({takes[n],captured.endReason,*captured.origin});
+                        }
+                    }
+                    if (sources.size()!=view.lanes.size())
+                        throw ProjectError(ErrorCode::InvalidState,"Loop capture has incomplete original input receipts; raw jobs remain recoverable");
+                    (void)loopRecordingExtent(prepared->duplexOptions.loopContext->intent,sources);
+                    loop=std::make_shared<const LoopRecordedTake>(LoopRecordedTake{
+                        *prepared->duplexOptions.loopContext,std::move(sources),prepared->projectEpoch});
+                }
                 retain(prepared->root, std::move(takes));
+                view.take->loop=std::move(loop);
             } catch (const ProjectError &e) {
                 report(e.code(), e.what());
             } catch (const std::exception &e) {
@@ -593,6 +610,10 @@ struct RecordingController::State : QThread {
                                "Attach or keep the pending take before another job");
         if (c.kind == RecordingCommandKind::Prepare) {
             const bool mix = !c.armedTracks.empty();
+            const bool looping=c.mode!=RecordingMode::Timed;
+            if (std::uint32_t(c.mode)>std::uint32_t(RecordingMode::LoopUntilStop) ||
+                (looping && (!mix || !c.projectEpoch)))
+                throw ProjectError(ErrorCode::InvalidState,"Loop recording needs shared playback and an original project epoch");
             if (!(mix ? options.duplexFactory : options.factory) || !c.session ||
                 !c.modelRevision || c.session->tracks.empty())
                 throw ProjectError(ErrorCode::InvalidState,
@@ -619,6 +640,7 @@ struct RecordingController::State : QThread {
             p.root = c.root;
             p.session = c.session;
             p.modelRevision = c.modelRevision;
+            p.projectEpoch = c.projectEpoch;
             p.spec.projectId = c.session->id;
             p.spec.trackId = c.session->tracks.front().id;
             p.spec.capture.sampleRate = c.session->sampleRate;
@@ -634,9 +656,9 @@ struct RecordingController::State : QThread {
             p.spec.capture.maximumCallbackFrames = p.options.bridge.maximumFrames;
             p.projectMix = mix;
             if (mix) {
-                if (c.armedTracks.size() > 256 || c.recordFrames <= 0 ||
+                if (c.armedTracks.size() > 256 || (!looping && (c.recordFrames <= 0 ||
                     c.recordFrames > Frame(c.session->sampleRate) * 86400 ||
-                    c.session->playheadFrame > std::numeric_limits<Frame>::max() - c.recordFrames)
+                    c.session->playheadFrame > std::numeric_limits<Frame>::max() - c.recordFrames)))
                     throw ProjectError(
                         ErrorCode::InvalidState,
                         "Choose a recording range of up to 24 hours and 1..256 armed tracks");
@@ -659,7 +681,7 @@ struct RecordingController::State : QThread {
                 cfg.playback.graph.startFrame = c.session->playheadFrame;
                 cfg.playback.graph.maximumFrames = p.options.bridge.maximumFrames;
                 cfg.playback.graph.generation = p.options.bridge.generation;
-                cfg.playback.endFrame = c.session->playheadFrame + c.recordFrames;
+                cfg.playback.endFrame = looping ? c.session->playheadFrame : c.session->playheadFrame + c.recordFrames;
                 if (c.session->punch.enabled) {
                     cfg.musicalPunch =
                         PunchRange{c.session->punch.startFrame, c.session->punch.endFrame};
@@ -694,6 +716,13 @@ struct RecordingController::State : QThread {
                         lane.inputChannels.push_back(cfg.nativeInputs++);
                     p.lanes.push_back(std::move(lane));
                 }
+                if (looping) {
+                    const auto passes=c.mode==RecordingMode::LoopPasses
+                        ? std::optional<std::uint64_t>(c.loopPasses):std::nullopt;
+                    auto loop=prepareLoopRecording(*c.session,std::move(p.lanes),cfg,passes);
+                    p.duplexOptions.loopContext=loopRecordingContext(loop);
+                    p.lanes=std::move(loop.lanes);cfg=std::move(loop.options);
+                }
                 p.spec = p.lanes.front().spec;
             } else {
                 p.spec.capture = withCaptureReserve(p.spec.capture, c.storageReserveMilliseconds);
@@ -710,6 +739,7 @@ struct RecordingController::State : QThread {
             view.job.reset();
             view.generation = p.options.bridge.generation;
             view.projectMix = mix;
+            view.loop=p.duplexOptions.loopContext ? std::optional(p.duplexOptions.loopContext->intent):std::nullopt;
             view.channels = mix ? p.duplexOptions.run.nativeInputs : p.spec.capture.layout.channels;
             view.outputChannels = mix ? p.plan.output.channels
                                       : (c.monitoring != RecordingMonitor::Off ? view.channels : 0);
@@ -779,6 +809,7 @@ struct RecordingController::State : QThread {
             validate(*c.session);
             view.phase = c.kind == RecordingCommandKind::Inspect ? RecordingPhase::Inspecting
                                                                  : RecordingPhase::Recovering;
+            view.loop.reset();
             publish();
             const auto cancellation = [&] {
                 if (interrupted(q.epoch))

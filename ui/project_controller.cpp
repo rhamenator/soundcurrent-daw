@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <atomic>
+#include <algorithm>
 #include <deque>
 #include <limits>
 
@@ -19,6 +20,30 @@ void admitReceipts(const std::shared_ptr<const std::vector<RecordingResult>> &re
     PayloadCharge charge("Take receipt group", budget.memoryBudgetBytes);
     charge.add(recordings->size(), sizeof(RecordingResult) + 8192);
 }
+void checkLoopTake(const LoopTakeRetention &r,StateBudget budget) {
+    if (!r.take || !r.take->projectEpoch)
+        throw ProjectError(ErrorCode::InvalidState,"Loop take has no original project epoch");
+    const auto &take=*r.take;
+    PayloadCharge charge("Loop receipt group",budget.memoryBudgetBytes);
+    charge.add(take.sources.size(),sizeof(LoopRecordedSource)+sizeof(LoopRecordingBinding)+8192);
+    charge.add(128*1024);
+    (void)encodeLoopRecordingContext(take.context);
+    const auto &i=take.context.intent;
+    (void)loopRecordingExtent(i,take.sources);
+    for (const auto &raw:take.sources) {
+        const auto &s=raw.recording.spec;
+        const auto binding=std::find_if(take.context.sources.begin(),take.context.sources.end(),
+            [&](const auto &b){return b.asset==s.assetId;});
+        if (binding==take.context.sources.end() || binding->track!=s.trackId ||
+            binding->layout!=s.capture.layout || binding->captureBegin!=s.capture.startFrame ||
+            binding->inputLatencyFrames!=s.inputLatencyFrames)
+            throw ProjectError(ErrorCode::InvalidState,"Loop receipt differs from its prepared source context");
+    }
+}
+Session retainLoop(const Session &s,const LoopTakeRetention &r,const std::string &name,StateBudget budget) {
+    checkLoopTake(r,budget);
+    return withLoopTakeLanes(s,r.take->context.intent,r.take->sources,r.first,r.count,name,r.allowPartial,budget);
+}
 
 struct IoJob {
     IoOperation operation = IoOperation::None;
@@ -30,6 +55,7 @@ struct IoJob {
     std::shared_ptr<ResourceLease> loadReservation = nullptr;
     std::shared_ptr<const ManualRecordedGroup> retainedTake = nullptr;
     std::string takeName = {};
+    std::shared_ptr<const LoopTakeRetention> retainedLoop = nullptr;
 };
 struct IoResult {
     IoJob job;
@@ -127,6 +153,18 @@ class IoWorker : public QThread {
                             throw ProjectError(
                                 ErrorCode::MediaMismatch,
                                 "Recorded take does not match its finalized journal");
+                        if (next.retainedLoop) {
+                            const auto &take=*next.retainedLoop->take;
+                            const auto context=inspectLoopRecordingContext(job);
+                            const auto raw=std::find_if(take.sources.begin(),take.sources.end(),
+                                [&](const auto &s){return s.recording.spec.assetId==r.spec.assetId;});
+                            if (!context || *context!=take.context || raw==take.sources.end() ||
+                                verified.timingOrigin!=std::optional(raw->origin) ||
+                                verified.endReason!=raw->endReason)
+                                throw ProjectError(ErrorCode::MediaMismatch,
+                                    "Loop take differs from original context or capture origin");
+                            validateLoopRecordingCheckpoint(*context,verified);
+                        }
                     }
                     store.verifyMedia(*next.session, canceled);
                     if (closing.load(std::memory_order_acquire))
@@ -500,7 +538,7 @@ struct ProjectController::State : QThread {
         case CommandKind::AttachRecording: {
             requireModel();
             if (view.io != IoOperation::None ||
-                int(bool(command.recording)) + int(bool(command.recordings)) + int(bool(command.retainedTake)) != 1 || command.path != view.root)
+                int(bool(command.recording)) + int(bool(command.recordings)) + int(bool(command.retainedTake)) + int(bool(command.retainedLoop)) != 1 || command.path != view.root)
                 throw ProjectError(ErrorCode::InvalidState,
                                    "Take attachment needs the current project and idle I/O owner");
             // Shape/identity validation is transactional; disk/journal verification belongs
@@ -510,11 +548,21 @@ struct ProjectController::State : QThread {
                 command.structuralGuard->project != model->id ||
                 command.structuralGuard->root != view.root || !command.retainedTake->complete()))
                 throw ProjectError(ErrorCode::InvalidState, "Retained take belongs to a replaced project or is incomplete");
+            if (command.retainedLoop && (!command.structuralGuard || !command.retainedLoop->take ||
+                command.structuralGuard->projectEpoch!=view.projectEpoch ||
+                command.structuralGuard->project!=model->id || command.structuralGuard->root!=view.root ||
+                command.retainedLoop->take->projectEpoch!=view.projectEpoch))
+                throw ProjectError(ErrorCode::InvalidState,"Loop take belongs to a replaced project");
             PayloadCharge staging("Retained take candidate staging", SIZE_MAX);
             staging.add(stagingBytes());
             if (command.retainedTake) {
                 staging.add(command.retainedTake->lanes.size(), sizeof(ManualRecordedLane) + sizeof(RecordingResult) + 8192);
                 staging.add(command.name.size() + 1, command.retainedTake->lanes.size());
+            }
+            if (command.retainedLoop) {
+                checkLoopTake(*command.retainedLoop,admission.state);
+                staging.add(command.retainedLoop->take->sources.size(),sizeof(LoopRecordedSource)+sizeof(LoopRecordingBinding)+8192);
+                staging.add(128*1024);
             }
             OperationWork work(*this, staging.bytes());
             auto proposed = *model;
@@ -525,13 +573,21 @@ struct ProjectController::State : QThread {
                 for (const auto &lane : command.retainedTake->lanes) records->push_back(*lane.result);
                 retainedRecords = std::move(records);
             }
-            const auto recordings = command.retainedTake ? retainedRecords : command.recordings
+            if (command.retainedLoop) {
+                auto records=std::make_shared<std::vector<RecordingResult>>();
+                records->reserve(command.retainedLoop->take->sources.size());
+                for (const auto &raw:command.retainedLoop->take->sources) records->push_back(raw.recording);
+                retainedRecords=std::move(records);
+            }
+            const auto recordings = (command.retainedTake || command.retainedLoop) ? retainedRecords : command.recordings
                                         ? command.recordings
                                         : std::make_shared<const std::vector<RecordingResult>>(
                                               std::vector<RecordingResult>{*command.recording});
             admitReceipts(recordings, admission.state);
             if (command.retainedTake)
                 proposed = withManualTakeLanes(*model, *command.retainedTake, command.name);
+            else if (command.retainedLoop)
+                proposed = retainLoop(*model,*command.retainedLoop,command.name,admission.state);
             else for (const auto &r : *recordings)
                 attachRecording(proposed, r);
             const auto preflightPeak = history->checkAdopt(proposed);
@@ -542,6 +598,7 @@ struct ProjectController::State : QThread {
                       view.modelRevision, recordings};
             job.attachmentRequest = command.attachmentRequest;
             job.retainedTake = command.retainedTake;
+            job.retainedLoop = command.retainedLoop;
             job.takeName = command.name;
             io.startJob(std::move(job));
             view.io = IoOperation::AttachRecording;
@@ -586,18 +643,22 @@ struct ProjectController::State : QThread {
                     model->id != result.job.recordings->front().spec.projectId)
                     throw ProjectError(ErrorCode::InvalidState,
                                        "Recording project changed before attachment");
+                if (result.job.retainedLoop && result.job.retainedLoop->take->projectEpoch!=view.projectEpoch)
+                    throw ProjectError(ErrorCode::InvalidState,"Loop recording project was replaced before retention");
                 if (view.modelRevision == std::numeric_limits<std::uint64_t>::max())
                     throw ProjectError(ErrorCode::InvalidState, "Project revision exhausted");
                 // Preserve scalar edits accepted while files were verified.
                 OperationWork work(*this, stagingBytes());
                 std::optional<Session> admitted;
                 if (result.job.revision != view.modelRevision)
-                    admitted = result.job.retainedTake
+                    admitted = result.job.retainedLoop
+                        ? retainLoop(*model,*result.job.retainedLoop,result.job.takeName,admission.state)
+                        : result.job.retainedTake
                         ? withManualTakeLanes(*model, *result.job.retainedTake, result.job.takeName)
                         : *model;
                 std::vector<Id> assets;
                 for (const auto &r : *result.job.recordings) {
-                    if (admitted && !result.job.retainedTake)
+                    if (admitted && !result.job.retainedTake && !result.job.retainedLoop)
                         attachRecording(*admitted, r);
                     assets.push_back(r.asset.id);
                 }

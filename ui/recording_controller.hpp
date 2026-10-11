@@ -15,6 +15,7 @@ struct RecordingPreparation {
     MixPlan plan;
     std::vector<DuplexRecordingLane> lanes;
     PipeWireDuplexRecordingOptions duplexOptions;
+    std::uint64_t projectEpoch = 0;
 };
 struct RecordingTelemetry {
     AudioBridgeStatus status = AudioBridgeStatus::Ready;
@@ -96,6 +97,7 @@ struct PendingTake {
     std::shared_ptr<const RecordingResult> receipt;
     std::uint64_t sequence = 0;
     std::shared_ptr<const std::vector<RecordingResult>> receipts;
+    std::shared_ptr<const LoopRecordedTake> loop;
 };
 struct RecordingLaneState {
     Id track;
@@ -126,6 +128,7 @@ struct RecordingSnapshot {
     bool monitoringSupported = true;
     std::uint32_t outputChannels = 0;
     Frame endFrame = 0;
+    std::optional<LoopRecordingIntent> loop;
     std::vector<RecordingLaneState> lanes;
 };
 struct RecordingControllerOptions {
@@ -139,6 +142,7 @@ struct RecordingControllerOptions {
     ResourceLedger projectMemory{}; // Off-audio project projection and execution ownership.
 };
 enum class RecordingCommandKind { Prepare, Start, Inspect, Recover };
+enum class RecordingMode { Timed, LoopPasses, LoopUntilStop };
 struct RecordingCommand {
     RecordingCommandKind kind = RecordingCommandKind::Prepare;
     std::filesystem::path root, job;
@@ -152,6 +156,8 @@ struct RecordingCommand {
     Frame recordFrames = 0; // Explicit finite shared recording range, 1..24h at session rate.
     std::uint32_t storageReserveMilliseconds =
         10000; // Immutable Prepare intent, not monitor delay.
+    RecordingMode mode = RecordingMode::Timed;
+    std::uint64_t loopPasses = 5, projectEpoch = 0;
 };
 // 16-entry non-RT FIFO; full-model changes coalesce in one latest slot. Stop
 // invalidates queued transport by epoch and acknowledges only after worker joins.

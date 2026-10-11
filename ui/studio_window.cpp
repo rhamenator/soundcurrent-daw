@@ -507,6 +507,19 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     armedTracksList_->setMaximumHeight(150);
     armedTracksList_->setMinimumHeight(80);
     recordLayout->addWidget(armedTracksList_);
+    auto *modeRow=new QHBoxLayout;
+    auto *recordModeLabel=new QLabel(tr("Recording mode"),recording);
+    recordMode_=new QComboBox(recording);recordMode_->setObjectName("loopRecordingMode");
+    recordMode_->addItem(tr("Timed recording"),int(RecordingMode::Timed));
+    recordMode_->addItem(tr("Loop: chosen number of passes"),int(RecordingMode::LoopPasses));
+    recordMode_->addItem(tr("Loop: until Stop"),int(RecordingMode::LoopUntilStop));
+    recordModeLabel->setBuddy(recordMode_);modeRow->addWidget(recordModeLabel);modeRow->addWidget(recordMode_);
+    recordPassesLabel_=new QLabel(tr("Passes"),recording);
+    recordPasses_=new QLineEdit(QLocale().toString(qulonglong(5)),recording);
+    recordPasses_->setObjectName("loopRecordingPasses");recordPasses_->setMaxLength(64);
+    recordPassesLabel_->setBuddy(recordPasses_);modeRow->addWidget(recordPassesLabel_);modeRow->addWidget(recordPasses_);
+    recordLayout->addLayout(modeRow);
+    connect(recordMode_,&QComboBox::currentIndexChanged,this,[this]{refreshArms();});
     auto *rangeRow = new QHBoxLayout;
     auto *rangeLabel = new QLabel(tr("Recording range (seconds)"), recording);
     recordRangeLabel_ = rangeLabel;
@@ -662,6 +675,25 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                         pathUtf8(r->take->root / utf8Path(r->take->receipt->asset.relativePath)))));
         }
     });
+    loopTakePanel_=new QWidget(recording);auto *loopTakeLayout=new QGridLayout(loopTakePanel_);
+    loopTakeSummary_=new QLabel(loopTakePanel_);loopTakeSummary_->setObjectName("loopTakeSummary");
+    loopTakeSummary_->setWordWrap(true);loopTakeSummary_->setTextFormat(Qt::PlainText);
+    loopTakeLayout->addWidget(loopTakeSummary_,0,0,1,4);
+    auto *firstLabel=new QLabel(tr("First pass"),loopTakePanel_);
+    loopTakeFirst_=new QLineEdit(loopTakePanel_);loopTakeFirst_->setObjectName("loopTakeFirst");loopTakeFirst_->setMaxLength(64);
+    firstLabel->setBuddy(loopTakeFirst_);loopTakeLayout->addWidget(firstLabel,1,0);loopTakeLayout->addWidget(loopTakeFirst_,1,1);
+    auto *countLabel=new QLabel(tr("Passes on this page"),loopTakePanel_);
+    loopTakeCount_=new QSpinBox(loopTakePanel_);loopTakeCount_->setObjectName("loopTakeCount");loopTakeCount_->setRange(1,128);loopTakeCount_->setValue(5);
+    countLabel->setBuddy(loopTakeCount_);loopTakeLayout->addWidget(countLabel,1,2);loopTakeLayout->addWidget(loopTakeCount_,1,3);
+    auto *nameLabel=new QLabel(tr("Take name prefix"),loopTakePanel_);
+    loopTakeName_=new QLineEdit(loopTakePanel_);loopTakeName_->setObjectName("loopTakeName");loopTakeName_->setMaxLength(1024);
+    nameLabel->setBuddy(loopTakeName_);loopTakeLayout->addWidget(nameLabel,2,0);loopTakeLayout->addWidget(loopTakeName_,2,1,1,3);
+    loopTakePartial_=new QCheckBox(tr("Include the partial final pass"),loopTakePanel_);loopTakePartial_->setObjectName("loopTakePartial");
+    loopTakeLayout->addWidget(loopTakePartial_,3,0,1,3);
+    loopTakeRetain_=new QPushButton(tr("Retain this page as takes"),loopTakePanel_);loopTakeRetain_->setObjectName("loopTakeRetain");
+    loopTakeRetain_->setToolTip(tr("Retain inactive takes for comping. Existing playback stays as it is; Save remains explicit."));
+    loopTakeLayout->addWidget(loopTakeRetain_,3,3);loopTakePanel_->hide();recordLayout->addWidget(loopTakePanel_);
+    connect(loopTakeRetain_,&QPushButton::clicked,this,&StudioWindow::retainLoopTakes);
     auto *recordModesTabs = new QTabWidget(body);
     recordModesTabs->setObjectName("recordingModes");
     recordModesTabs->setAccessibleName(tr("Recording workflows"));
@@ -1678,6 +1710,70 @@ bool StudioWindow::submitRecording(RecordingCommand c) {
     recordCommandStop_ = r->stopAcknowledged;
     return true;
 }
+void StudioWindow::retainLoopTakes() {
+    const auto r=recording_.snapshot();const auto m=controller_.snapshot();
+    if (!r->take || !r->take->loop || !m->session || attachingTake_ ||
+        m->io!=IoOperation::None || closing_ || closeRequested_) return;
+    const auto &take=*r->take;
+    if (m->projectEpoch!=take.loop->projectEpoch || m->root!=take.root ||
+        m->session->id!=take.loop->context.intent.project) {
+        notice_->setText(tr("These loop takes belong to an earlier project. Keep the raw takes for recovery."));return;
+    }
+    bool ok=false;const auto first=QLocale().toULongLong(loopTakeFirst_->text(),&ok);
+    if (!ok || !first || loopTakeName_->text().isEmpty()) {
+        notice_->setText(tr("Choose a positive first pass and a take name prefix."));return;
+    }
+    const auto count=std::uint64_t(loopTakeCount_->value());
+    try {
+        const auto extent=loopRecordingExtent(take.loop->context.intent,take.loop->sources);
+        const auto available=loopTakePartial_->isChecked()?extent.windows():extent.completePasses;
+        if (first-1>=available || count>available-(first-1))
+            throw ProjectError(ErrorCode::InvalidState,"Requested page exceeds selected complete/partial captured passes");
+        ProjectCommand c{CommandKind::AttachRecording};c.path=take.root;
+        c.structuralGuard=StructuralGuard{take.loop->projectEpoch,m->session->id,m->root};
+        c.retainedLoop=std::make_shared<const LoopTakeRetention>(LoopTakeRetention{
+            take.loop,first-1,count,loopTakePartial_->isChecked()});
+        c.name=loopTakeName_->text().toUtf8().toStdString();c.attachmentRequest=nextGesture_++;
+        const auto request=c.attachmentRequest;
+        if (controller_.submit(std::move(c))!=Admission::Accepted) {
+            notice_->setText(tr("Take retention queue is full. Please retry."));return;
+        }
+        attachingTake_=take.sequence;attachmentRequest_=request;loopRetainNext_=first+count;
+        attachmentFailed_=false;pollLoopTakes();
+    } catch(const std::exception &e) {
+        notice_->setText(tr("Loop takes could not be retained: %1").arg(text(e.what())));
+    }
+}
+void StudioWindow::pollLoopTakes() {
+    const auto r=recording_.snapshot();const auto m=controller_.snapshot();
+    const bool show=r->take && bool(r->take->loop);loopTakePanel_->setVisible(show);
+    if (!show) {loopPreviewSequence_=0;return;}
+    if (loopPreviewSequence_!=r->take->sequence) {
+        loopPreviewSequence_=r->take->sequence;attachingTake_=0;attachmentFailed_=false;
+        loopTakeFirst_->setText(QLocale().toString(qulonglong(1)));
+        loopTakeName_->setText(tr("Loop take "));loopTakePartial_->setChecked(false);
+        const auto extent=loopRecordingExtent(r->take->loop->context.intent,r->take->loop->sources);
+        loopTakeCount_->setValue(int(std::min<std::uint64_t>(5,std::max<std::uint64_t>(1,extent.completePasses))));
+    }
+    if (attachingTake_ && m->attachmentCompleted.request==attachmentRequest_) {
+        attachingTake_=0;attachmentFailed_=bool(m->attachmentCompleted.error);
+        if (!attachmentFailed_) loopTakeFirst_->setText(QLocale().toString(qulonglong(loopRetainNext_)));
+    } else if (attachingTake_ && m->attachmentRejected.request==attachmentRequest_) {
+        attachingTake_=0;attachmentFailed_=true;
+    }
+    const auto extent=loopRecordingExtent(r->take->loop->context.intent,r->take->loop->sources);
+    QString status=tr("%1 complete passes · %2 samples in the partial final pass")
+        .arg(QLocale().toString(qulonglong(extent.completePasses)),QLocale().toString(extent.partialFrames));
+    if (attachingTake_) status+=tr(" · Verifying this page…");
+    else if (attachmentFailed_) status+=tr(" · Retention failed; raw takes are preserved. Retry this page or finish.");
+    loopTakeSummary_->setText(status);
+    const bool same=m->session && m->projectEpoch==r->take->loop->projectEpoch &&
+        m->root==r->take->root && m->session->id==r->take->loop->context.intent.project;
+    const bool edit=same && !attachingTake_ && m->io==IoOperation::None && !closing_ && !closeRequested_;
+    for(auto *w:{static_cast<QWidget *>(loopTakeFirst_),static_cast<QWidget *>(loopTakeName_),
+        static_cast<QWidget *>(loopTakeCount_),static_cast<QWidget *>(loopTakePartial_),static_cast<QWidget *>(loopTakeRetain_)}) w->setEnabled(edit);
+    loopTakePartial_->setEnabled(edit && extent.partialFrames!=0);
+}
 bool StudioWindow::prepareRecording() {
     poll();
     const auto m = inspectorSnapshot();
@@ -1700,7 +1796,18 @@ bool StudioWindow::prepareRecording() {
     recordPrepareBarrier_ = token;
     recordPreparationTrack_ = selectedTrack();
     recordPreparationReserveMilliseconds_ = recordReserve_->currentData().toUInt();
+    recordPreparationMode_=RecordingMode(recordMode_->currentData().toInt());
+    if (recordPreparationMode_==RecordingMode::LoopPasses) {
+        bool ok=false;const auto passes=QLocale().toULongLong(recordPasses_->text(),&ok);
+        if (!ok || !passes) {
+            recordPrepareBarrier_=0;notice_->setText(tr("Choose a positive whole number of loop passes."));return false;
+        }
+        recordPreparationPasses_=passes;
+    }
     recordPrepareMix_ = multiRecord_->isChecked();
+    if (recordPreparationMode_!=RecordingMode::Timed && (!recordPrepareMix_ || !m->session->loop.enabled || m->session->punch.enabled)) {
+        recordPrepareBarrier_=0;notice_->setText(tr("Loop recording needs an enabled loop, armed project tracks and punch recording off."));return false;
+    }
     recordPreparationArms_.clear();
     if (recordPrepareMix_) {
         const auto canonical = controller_.snapshot();
@@ -1984,9 +2091,12 @@ void StudioWindow::refreshArms() {
                 selectedTrack().value_or(m->session->tracks.front().id));
     }
     const bool mix = multiRecord_->isChecked();
+    const auto recordMode=RecordingMode(recordMode_->currentData().toInt());
     armedTracksList_->setVisible(mix);
-    recordSeconds_->setVisible(mix);
-    recordRangeLabel_->setVisible(mix);
+    recordSeconds_->setVisible(mix && recordMode==RecordingMode::Timed);
+    recordRangeLabel_->setVisible(mix && recordMode==RecordingMode::Timed);
+    recordPasses_->setVisible(mix && recordMode==RecordingMode::LoopPasses);
+    recordPassesLabel_->setVisible(mix && recordMode==RecordingMode::LoopPasses);
     armed_->setVisible(!mix);
     if (!m->session) {
         armedTrackModel_->decorate({});
@@ -2033,6 +2143,8 @@ void StudioWindow::refreshArms() {
     armedTracksList_->setEnabled(edit);
     armedTrackModel_->checkEditing(edit);
     recordSeconds_->setEnabled(edit);
+    recordMode_->setEnabled(edit && mix && r->duplexSupported);
+    recordPasses_->setEnabled(edit && mix);
     punchEnabled_->setEnabled(edit && r->duplexSupported);
     punchRangeButton_->setEnabled(edit && r->duplexSupported);
     punchSummary_->setText(
@@ -2327,6 +2439,8 @@ void StudioWindow::pollRecording() {
                 return;
             }
             c.modelRevision = m->barrierRevision;
+            c.projectEpoch=m->projectEpoch;
+            c.mode=recordPreparationMode_;c.loopPasses=recordPreparationPasses_;
             c.storageReserveMilliseconds = recordPreparationReserveMilliseconds_;
             c.monitoring = c.session->tracks.front().monitoring;
             if (recordPrepareMix_) {
@@ -2376,7 +2490,7 @@ void StudioWindow::pollRecording() {
         if (target && recording_.follow(canonical->root, target, canonical->modelRevision))
             recordingFollowed_ = m->modelRevision;
     }
-    if (r->take) {
+    if (r->take && !r->take->loop) {
         if (takeShown_ != r->take->sequence) {
             takeShown_ = r->take->sequence;
             attachingTake_ = 0;
@@ -2419,8 +2533,10 @@ void StudioWindow::pollRecording() {
             }
         }
     }
-    retryTakeButton_->setVisible(bool(r->take) && attachmentFailed_);
-    keepTakeButton_->setVisible(bool(r->take) && attachmentFailed_);
+    pollLoopTakes();
+    retryTakeButton_->setVisible(bool(r->take) && attachmentFailed_ && !r->take->loop);
+    keepTakeButton_->setVisible(bool(r->take) && (attachmentFailed_ || bool(r->take->loop)));
+    keepTakeButton_->setText(r->take && r->take->loop ? tr("Keep raw takes and finish") : tr("Keep take for recovery"));
     retryTakeButton_->setEnabled(m->io == IoOperation::None && !attachingTake_);
     keepTakeButton_->setEnabled(m->io == IoOperation::None && !attachingTake_);
     const bool allow = !closing_ && !closeRequested_ && !closeAfterSave_;
@@ -2516,9 +2632,11 @@ void StudioWindow::pollRecording() {
                            : r->monitoring == RecordingMonitor::AutoRecording
                                ? tr("Auto during recording")
                                : tr("Through track EQ"));
-    if (r->take)
+    if (r->take && !r->take->loop)
         status = attachmentFailed_ ? tr("Take could not be added. Retry, or keep it for recovery.")
                                    : tr("Adding verified take to the project…");
+    if (r->take && r->take->loop)
+        status=tr("Loop recording captured. Review the takes below.");
     if (r->sampleRate)
         status += tr(" · %1 s · %2 rejected frames")
                       .arg(QLocale().toString(double(r->telemetry.capturedFrames) / r->sampleRate,
@@ -2532,6 +2650,13 @@ void StudioWindow::pollRecording() {
         status += tr(" · %n armed track(s)", nullptr, int(r->lanes.size())) +
                   tr(" · %1 missing playback frames")
                       .arg(QLocale().toString(r->telemetry.missingTrackFrames));
+    if (r->loop && !r->take) {
+        const auto length=r->loop->projectLoop.endFrame-r->loop->projectLoop.beginFrame;
+        const auto captured=std::max<Frame>(0,r->telemetry.capturedFrames);
+        status+=tr(" · pass %1 · loop position %2 samples")
+            .arg(QLocale().toString(qulonglong(captured/length+1)),
+                 QLocale().toString(r->loop->projectLoop.beginFrame+captured%length));
+    }
     recordingState_->setText(status);
     recordingState_->setToolTip(r->job ? text(pathUtf8(*r->job)) : QString());
     // Independent text measurement lets a shorter diagnostic shrink again.

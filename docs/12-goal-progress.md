@@ -4286,3 +4286,34 @@ The current-main cohort tested merge6ea8f3253e952c95e5b0e7c1766c03660f1ff915
 at head92b467611601eec1880d837897d332ef0f1eec0b/baseb927e717, with all four
 required checks successful and73 exact reviewed blobs plus whole-tree comparison.
 This protects integration of checkpoint173; it does not expand its endpoint scope.
+
+[Checkpoint176](176-desktop-loop-recording.md) adds explicit desktop finite/until-Stop
+loop capture and paged complete/partial retention, original-context activation and
+verified structural/history publication. Actual Qt/controller/writer workflows
+exercise thirteen passes, invalid/stale/context failures, scalar EQ during paused
+verification, Undo/Redo/save/reopen and unchanged raw media. Ten development Linux
+suites passed; a committed-source gate follows separately.917source keys/34partial
+catalogs/3135drafts retain0native-reviewed/full-UI-qualified languages. Native Linux
+loop recording, Windows duplex, installed workflows and full P005/M2/F/Q/C/N remain
+open. Earlier processing-quality failures are unchanged.
+
+Checkpoint176 committed-source gate at f792f74273c38f333726452bea58ac3d5da8ae62
+passed ten Linux suites in11.79s, with36 workflow checks plus one optional image
+check. The28,479-byte packet binds504 source inputs/nine executable hashes; its
+standalone validation and optional source-byte comparison passed. The incremental
+build compiled/linked the localization test after the other executables had been
+built from identical frozen bytes. This is simulated desktop recording evidence,
+not native loop capture, Windows duplex, installed or full-language qualification.
+
+PR114 merged normally as9748d1e88a567554494190b2aa64cc719e23d901, headc3d9048/
+base3a232fa, actualtested6a6bb52261962b69bf9dd8fabddcef93ae44d482. Run38108791350
+had all four terminal successful required checks,12 exact reviewed blobs plus
+whole-tree comparison. The merge preserves checkpoint174 owned Linux scope; it
+does not qualify native loop recording or Windows duplex.
+
+PR115 merged under existing protection as aab9ca5b15f422ea112e72f7fdadc9068d29e644,
+head e41a63c9/base9748d1e, actual tested merge b555150f0624d9b25fbb99741a3b070cb14e0c22.
+Run38109587287 had all four terminal successful required checks;17 exact reviewed
+blobs and the whole tree matched. Windows MSVC ran52 synthetic suites including
+continuous-loop-recording (3.32s). This qualifies core execution on Windows,
+not native endpoints or the newer checkpoint176 desktop workflow.
