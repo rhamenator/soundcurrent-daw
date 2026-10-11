@@ -4441,6 +4441,23 @@ failed Windows job/status and local regression logs in a41,237-byte/five-member
 packet. Fresh Windows/current-MAIN checks are required before PR119 admission.
 This does not establish native duplex or full product parity.
 
+## 182 — bounded monitor-kernel feasibility (2026-10-11)
+
+Persistent pinned best-sinc is characterized before native monitor integration.
+An explicit64-output-frame ratio grid produced identical samples across tested
+input/output partitions; automatic transition differed by0.105524, supporting an
+explicit control policy. Frozen2b96daa passed four Linux Release suites4.03s,
+four ASan/UBSan suites34.29s and the single-owner full C/C++ TSan kernel suite22.13s.
+Each kernel run made228,836 audited calls/3,045,133 checks with C++/interposed libc
+allocation/free/pthread lock counts zero. The build forwards the parent's actual
+sanitizer profile to C rather than adding incompatible upstream ASan to TSan.
+Unmodified upstream source integrity passed. A43,992-byte/15-member packet binds
+539 selected inputs, complete96-file pin and five executable/three library hashes.
+[Checkpoint182](182-monitor-kernel-feasibility.md) and ADR117 distinguish experiment
+from control stability/quality/deadline/native workflow qualification. No production
+monitor, audible UI or raw/project schema change. Next: charged causal buffer/
+converter, clock/buffer controller, durable raw mappings and native composition.
+
 ## Windows manual-owner failure diagnostics (2026-10-11)
 
 Refreshed run38115064831 passed the repaired interrupted-loop suite4.96s but
@@ -4480,6 +4497,7 @@ Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.
 records scope; no stale downstream success is admitted as a current-MAIN gate.
 
 
+
 ## Logical recording credit after an observed Windows disk stall (2026-10-11)
 
 MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
@@ -4490,6 +4508,7 @@ and exact whole-packet logical-time advancement. Original480,000 sample/recovery
 callback and separate overflow assertions remain; production behavior/deadlines
 unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
 retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
+
 
 
 ## Catalog inventory after the Windows observer change (2026-10-11)
