@@ -4447,3 +4447,14 @@ controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-b
 10-member packet retains both failed jobs/status and local logs/hashes; original
 Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
 records scope; no stale downstream success is admitted as a current-MAIN gate.
+
+## Logical recording credit after an observed Windows disk stall (2026-10-11)
+
+MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
+QueueFull during a3.31s observed write gap (audio flush2.46s, journal0.85s).
+Frozen cf0b9ed changes only the logical producer fixture: conservative returned
+disk credit, an intentionally gated first write, bounded waits outside callbacks,
+and exact whole-packet logical-time advancement. Original480,000 sample/recovery/
+callback and separate overflow assertions remain; production behavior/deadlines
+unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
+retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
