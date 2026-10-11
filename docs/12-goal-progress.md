@@ -4433,3 +4433,17 @@ five-member packet retains the full failed job/status and local diagnostic logs.
 failure. No production behavior is changed. PR119 stays draft/unadmitted pending
 fresh Windows/current-MAIN checks; do not rerun an old successful stacked cohort
 or suppress the manual workflow to obtain green status.
+
+## More precise manual/child-terminal observations (2026-10-11)
+
+Current-MAIN native job114400815807 exposed the original manual wait timeout with
+an intact Unicode path. The exact caller was hidden by the shared wait helper;
+e442fc89 forwards caller location and early callback-failure status/frame. A
+separate Windows desktop parent-interruption case lacked completion markers.
+Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit0/
+busy/unverified regression, and records timeout/exit/error/deadline/job inventory
+at the interruption boundary. Deadlines/assertions remain unchanged. Linux Debug
+controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-byte/
+10-member packet retains both failed jobs/status and local logs/hashes; original
+Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
+records scope; no stale downstream success is admitted as a current-MAIN gate.
