@@ -4253,3 +4253,13 @@ retired. The36,442-byte packet retains499 source hashes and log/configuration/me
 hash evidence. Native Windows/physical/installed/automatic loop recording remain
 open. This adds native Linux integration evidence without completing P005/M2 or
 promoting general quality/performance/content/native-project/language parity.
+
+Checkpoint173 has independent Windows OS/controller evidence at head61c6918 and
+actual testedmergebf0a22236c7399f6d5b47c7a5cd2a29750092e86/base92b7355:
+18Windows desktop suites passed61.56s, with15 loop GUI checks and simulated audio.
+The optional screenshot adds the16th Linux check. The bounded48193-byte job archive
+records70 exact changed/tested blobs. No native WASAPI/installed/physical or full
+parity claim. PR112 merged ordinarily asb927e7177468bee3199d823f67c7cee13cdecd75
+from head92b7355/base0bb383a, testedc9eaea51c02609446174b1b4bc763958671e6ed2,
+run38106541229all4success,23exactblobs+whole tree. The desktop branch inherited
+main ordinarily; its fresh current-base cohort is still required for merge.
