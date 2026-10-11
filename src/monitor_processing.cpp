@@ -14,6 +14,7 @@ CaptureFanoutConfig geometry(const PreparedCaptureFanout &f) {
 ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutputBank &o,
                       const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks,
                       const PreparedMonitorControl *control, const PreparedMonitorCaptureStop *stop, const PreparedMonitorStartupHandoff *startup) {
+    require(!c.channelMap || !c.startup || startup,"Mapped startup requires immutable receipt handoff");
     if (stop) {
         const auto &s=stop->config();const auto &b=c.buffer;
         require(s.runGeneration==b.runGeneration && s.sourceRate==b.sourceRate && s.channels==b.channels &&
@@ -38,7 +39,8 @@ ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutpu
         const auto &a=startup->admission();const auto &b=c.buffer;const auto &d=c.drift;
         require(c.startup && !startup->claimed() && startup->phase()==MonitorStartupHandoffPhase::Pending && !startup->ready() &&
             a.runGeneration==b.runGeneration && a.captureIdentity==d.captureIdentity && a.renderIdentity==d.renderIdentity &&
-            a.sourceRate==b.sourceRate && a.outputRate==b.outputRate && a.channels==b.channels &&
+            a.sourceRate==b.sourceRate && a.outputRate==b.outputRate && a.channels==o.config().channels &&
+            a.channelMap==(c.channelMap?std::optional(monitorChannelMapReceipt(*c.channelMap)):std::nullopt) &&
             a.renderFrequency==d.renderFrequency && a.nativeCapacityFrames==c.startup->nativeCapacityFrames &&
             a.maximumNativeFillFrames==c.startup->maximumNativeFillFrames && a.maximumWait100ns==c.startup->maximumWait100ns,
             "Monitor startup handoff configuration mismatch or reused");
@@ -83,8 +85,8 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
     charge.add(monitorBufferPayloadBytes(b)); charge.add(PreparedMonitorDrift::payloadBytes);
     charge.add(8192); charge.add(std::size_t(PreparedMonitorBuffer::gridFrames) * b.channels, sizeof(float));
     if (c.channelMap) {
-        require(!c.startup && c.channelMap->inputChannels==b.channels && c.channelMap->outputChannels==o.channels,
-            "Monitor channel map mismatch or unversioned startup mapping");
+        require(c.channelMap->inputChannels==b.channels && c.channelMap->outputChannels==o.channels,
+            "Monitor channel map configuration mismatch");
         charge.add(monitorChannelMapPayloadBytes(*c.channelMap,PreparedMonitorBuffer::gridFrames,c.memoryBudgetBytes));
         // Both the retained declaration and the prepared immutable matrix own routes.
         charge.add(c.channelMap->routes.size(),sizeof(ChannelMix));

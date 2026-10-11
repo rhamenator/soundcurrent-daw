@@ -27,8 +27,7 @@ struct MonitorProcessingConfig {
     std::optional<ResourceLedger> resources;
     std::optional<MonitorStartupConfig> startup;
     // Monitor-only, after conversion. Absence means exact same-width identity.
-    // Startup mapping requires a future versioned native declaration; currently
-    // refused before activation rather than dropping matrix provenance.
+    // Startup handoffs must admit its canonical immutable fingerprint.
     std::optional<MonitorChannelMap> channelMap;
 };
 enum class MonitorProcessingCode {

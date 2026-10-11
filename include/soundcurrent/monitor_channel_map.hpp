@@ -2,6 +2,7 @@
 #pragma once
 #include "resource_ledger.hpp"
 #include <span>
+#include <array>
 
 namespace soundcurrent::daw {
 // Ordered sparse matrix, using the same zero-based slots and gains as MixPlan.
@@ -12,6 +13,16 @@ struct MonitorChannelMap {
     bool operator==(const MonitorChannelMap &) const = default;
 };
 MonitorChannelMap monoToStereoMonitor(); // Explicit unity copy to each output.
+struct MonitorChannelMapReceipt {
+    std::uint32_t inputChannels = 0, outputChannels = 0;
+    std::array<char,64> sha256{};
+    bool operator==(const MonitorChannelMapReceipt &) const = default;
+};
+// Versioned canonical little-endian artifact. Disk/control only; bounded at
+// 28 + 16*65,536 bytes. Uses the repository's existing SHA256 provider.
+std::string encodeMonitorChannelMap(const MonitorChannelMap &);
+MonitorChannelMap decodeMonitorChannelMap(std::string_view);
+MonitorChannelMapReceipt monitorChannelMapReceipt(const MonitorChannelMap &);
 std::size_t monitorChannelMapPayloadBytes(const MonitorChannelMap &, std::uint32_t maximumFrames,
                                         std::size_t memoryBudgetBytes);
 enum class MonitorChannelMapCode { Mapped, InvalidGeometry, NonfiniteInput, NumericOverflow };

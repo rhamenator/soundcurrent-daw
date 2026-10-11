@@ -85,13 +85,13 @@ void refusals(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));NativeOr
         check(read(w.jobDirectory()/"native-run.json")==pendingNative,"Schema1.0 refusal changed original pending transaction");
     }
     const auto saved=w.finalize(f,valid);check(saved.status==NativeOriginalRecordingStatus::Complete,"Refused finalization mutated valid writer");auto job=w.jobDirectory();const auto original=read(job/"native-run.json");
-    for(unsigned kind=0;kind<15;++kind){auto j=J::parse(original);if(kind==0)j["schemaMinor"]=2;if(kind==1)j["declared"]["raw"]["asset"]=Id::generate().str();if(kind==2)j["declared"]["capture"]["identity"]["endpoint"]=999;if(kind==3)j["boundRaw"]["samples"]=std::string(64,'0');if(kind==4)j["outcome"]["render"]["original"]["callbackFrames"]=16.0;if(kind==5)j["outcome"]["captureOriginal"]["stop"]=std::uint64_t(UINT64_MAX);if(kind==6)j["outcome"]["render"]["original"]["started"]=1;if(kind==7)j["outcome"]["render"]["status"]="future-state";if(kind==8)j["unknown"]=true;if(kind==9)j["phase"]="complete";if(kind==10)j["outcome"]["render"]["original"]["guardCommitted"]=1;if(kind==11)j["outcome"]["captureOriginal"]["last"]["position"]=pos+9;if(kind==12)j["outcome"]["captureRequest"]["generatedEnd"]=base+17;if(kind==13)j["outcome"]["render"]["original"]["lastContent"]["clock"]["frequency"]=48000;if(kind==14)j["outcome"]["render"]["original"]["contentCommitted"]=15;write(job/"native-run.json",j.dump());refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);}
+    for(unsigned kind=0;kind<15;++kind){auto j=J::parse(original);if(kind==0)j["schemaMinor"]=3;if(kind==1)j["declared"]["raw"]["asset"]=Id::generate().str();if(kind==2)j["declared"]["capture"]["identity"]["endpoint"]=999;if(kind==3)j["boundRaw"]["samples"]=std::string(64,'0');if(kind==4)j["outcome"]["render"]["original"]["callbackFrames"]=16.0;if(kind==5)j["outcome"]["captureOriginal"]["stop"]=std::uint64_t(UINT64_MAX);if(kind==6)j["outcome"]["render"]["original"]["started"]=1;if(kind==7)j["outcome"]["render"]["status"]="future-state";if(kind==8)j["unknown"]=true;if(kind==9)j["phase"]="complete";if(kind==10)j["outcome"]["render"]["original"]["guardCommitted"]=1;if(kind==11)j["outcome"]["captureOriginal"]["last"]["position"]=pos+9;if(kind==12)j["outcome"]["captureRequest"]["generatedEnd"]=base+17;if(kind==13)j["outcome"]["render"]["original"]["lastContent"]["clock"]["frequency"]=48000;if(kind==14)j["outcome"]["render"]["original"]["contentCommitted"]=15;write(job/"native-run.json",j.dump());refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);}
     auto duplicate=original;duplicate.insert(duplicate.find('{')+1,"\"phase\":\"reported\",");write(job/"native-run.json",duplicate);refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",std::string(16385,'x'));refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);
     auto foreign=s;foreign.run=Id::generate();refuses([&]{inspectNativeOriginalRecording(job,foreign);});ResourceLedger tiny(1);refuses([&]{inspectNativeOriginalRecording(job,{}, {},tiny);});check(tiny.usage().reservedBytes==0,"Native read resource refusal leaked");
     check(inspectNativeOriginalRecording(job,s).status==NativeOriginalRecordingStatus::Complete,"Mutation refusal changed actual evidence");
     Temp invalid;auto bad=s;bad.capture.maximumPacketFrames++;refuses([&]{NativeOriginalCaptureWriter x(invalid.root,bad);});check(!std::filesystem::exists(invalid.root/"media"),"Invalid native admission created recording job");
 }
-void crashChild(const std::filesystem::path &root,unsigned selected){auto s=spec();PreparedCaptureFanout f(config(s));NativeOriginalRecordingOptions options;options.raw.checkpointFrames=8;options.boundary=[&](auto b){if(unsigned(b)==selected)std::_Exit(77);};NativeOriginalCaptureWriter w(root,s,options);packets(w,f,s);w.finalize(f,outcome(s));std::_Exit(78);}
+void crashChild(const std::filesystem::path &root,unsigned selected,bool mapped=false){auto s=spec();if(mapped){s.render.channels=2;s.channelMap=monoToStereoMonitor();}PreparedCaptureFanout f(config(s));NativeOriginalRecordingOptions options;options.raw.checkpointFrames=8;options.boundary=[&](auto b){if(unsigned(b)==selected)std::_Exit(77);};NativeOriginalCaptureWriter w(root,s,options);packets(w,f,s);w.finalize(f,outcome(s));std::_Exit(78);}
 void migrations(){
     for(unsigned kind=0;kind<10;++kind){Temp t;auto s=spec(2);PreparedCaptureFanout f(config(s));NativeOriginalRecordingOptions old;old.schemaMinor=0;old.raw.checkpointFrames=8;std::filesystem::path job;
         {NativeOriginalCaptureWriter w(t.root,s,old);job=w.jobDirectory();packets(w,f,s);refuses([&]{migrateNativeOriginalRecording(job,s);});if(kind<9)w.finalize(f,outcome(s,kind));}
@@ -102,7 +102,7 @@ void migrations(){
         refuses([&]{migrateNativeOriginalRecording(job,s,{},[](auto b){if(b==NativeOriginalRecordingBoundary::BeforeMigrationPublish)throw ProjectError(ErrorCode::Canceled,"Migration boundary interruption");});});
         check(read(job/"native-run.json")==native && read(job/"journal.json")==raw,"Refused migration changed original evidence");
         const auto migrated=migrateNativeOriginalRecording(job,s);const auto after=inspectNativeOriginalRecording(job,s);
-        check(migrated.schemaMinor==1 && after.schemaMinor==1 && before.status==after.status && before.raw.committedFrames==after.raw.committedFrames &&
+        check(migrated.schemaMinor==2 && after.schemaMinor==2 && before.status==after.status && before.raw.committedFrames==after.raw.committedFrames &&
             before.raw.sampleSha256==after.raw.sampleSha256 && before.raw.stampSha256==after.raw.stampSha256 && before.raw.finalized==after.raw.finalized &&
             read(job/"journal.json")==raw && bool(before.outcome)==bool(after.outcome),"Migration changed raw bytes/binding/original disposition");
         if(after.outcome){const auto &v=after.outcome->render;check(!v.warmupLimits && !v.preLeaseCalls && !v.readyAcquiredQpc100ns && !v.startupReady && !v.startupPhaseAtEnd,
@@ -114,15 +114,15 @@ void migrations(){
         }
         const auto encoded=read(job/"native-run.json");migrateNativeOriginalRecording(job,s,{},[](auto){throw ProjectError(ErrorCode::Canceled,"Idempotent migration must not publish");});
         check(read(job/"native-run.json")==encoded,"Idempotent migration rewrote immutable state");
-        for(unsigned bad=0;bad<4;++bad){auto j=J::parse(encoded);if(bad==0)j["schemaMinor"]=2;if(bad==1)j["schemaMinor"]=-1;if(bad==2)j["schemaMinor"]=1.0;if(bad==3)j["schemaMajor"]=2;
+        for(unsigned bad=0;bad<4;++bad){auto j=J::parse(encoded);if(bad==0)j["schemaMinor"]=3;if(bad==1)j["schemaMinor"]=-1;if(bad==2)j["schemaMinor"]=1.0;if(bad==3)j["schemaMajor"]=2;
             write(job/"native-run.json",j.dump());refuses([&]{migrateNativeOriginalRecording(job,s);});write(job/"native-run.json",encoded);}
         if(kind==9){ // A migrated, interrupted pending transaction may receive actual joined ends later.
             auto o=outcome(s,2);o.captureOriginal->deliveredFrames=32;
-            const auto completed=reportNativeOriginalRecording(job,s,o);check(completed.schemaMinor==1 && completed.status==NativeOriginalRecordingStatus::Failed &&
+            const auto completed=reportNativeOriginalRecording(job,s,o);check(completed.schemaMinor==2 && completed.status==NativeOriginalRecordingStatus::Failed &&
                 !completed.raw.finalized && completed.raw.committedFrames==16,"Migrated pending recovery invented finalized capture");
         }
     }
-    Temp t;auto s=spec();NativeOriginalRecordingOptions bad;bad.schemaMinor=2;refuses([&]{NativeOriginalCaptureWriter w(t.root,s,bad);});
+    Temp t;auto s=spec();NativeOriginalRecordingOptions bad;bad.schemaMinor=3;refuses([&]{NativeOriginalCaptureWriter w(t.root,s,bad);});
     check(!std::filesystem::exists(t.root/"media"),"Unsupported writer schema created raw job");
 }
 void migrationCrashChild(const std::filesystem::path &root,unsigned selected){
@@ -130,22 +130,77 @@ void migrationCrashChild(const std::filesystem::path &root,unsigned selected){
     {NativeOriginalCaptureWriter w(root,s,old);job=w.jobDirectory();packets(w,f,s);w.finalize(f,outcome(s));}
     migrateNativeOriginalRecording(job,s,{},[&](auto b){if(unsigned(b)==selected+4)std::_Exit(77);});std::_Exit(78);
 }
-void hardCrash(unsigned selected,bool migration=false){Temp t;
+void matrixState(){
+    const auto literal="ba3947bcb3cd0e3c5448a33f60393d4ff2cd1d31c43bc565f7c00b91c529bf09";
+    const auto receipt=monitorChannelMapReceipt(monoToStereoMonitor());
+    check(std::string(receipt.sha256.begin(),receipt.sha256.end())==literal,"Independent canonical mono matrix hash");
+    for(unsigned kind=0;kind<3;++kind){
+        Temp t;auto s=spec(kind==1?2u:kind==2?256u:1u);
+        s.render.channels=kind==1?1u:kind==2?256u:2u;
+        s.channelMap=kind==1?MonitorChannelMap{2,1,{{0,0,.5},{1,0,.5}}}:monoToStereoMonitor();
+        if(kind==2){s.channelMap=MonitorChannelMap{256,256,{}};for(unsigned dst=0;dst<256;++dst)for(unsigned src=0;src<256;++src)s.channelMap->routes.push_back({src,dst,1.0/256});}
+        for(unsigned minor:{0u,1u}){NativeOriginalRecordingOptions old;old.schemaMinor=minor;refuses([&]{NativeOriginalCaptureWriter bad(t.root,s,old);});}
+        check(!std::filesystem::exists(t.root/"media"),"Legacy matrix declaration created raw job");
+        PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter writer(t.root,s);packets(writer,f,s);
+        const auto job=writer.jobDirectory();const auto saved=writer.finalize(f,outcome(s));const auto verified=inspectNativeOriginalRecording(job,s);
+        const auto artifact=read(job/"monitor-map.bin"),journal=read(job/"native-run.json"),raw=read(job/"journal.json");
+        check(saved.schemaMinor==2 && verified.declared==s && verified.status==NativeOriginalRecordingStatus::Complete &&
+            artifact==encodeMonitorChannelMap(*s.channelMap) && decodeMonitorChannelMap(artifact)==*s.channelMap && journal.size()<=16384,
+            "Matrix persistence changed declared/raw state or exceeded journal bound");
+        refuses([&]{migrateNativeOriginalRecording(job,s,{}, {},1);});
+        for(unsigned mutation=0;mutation<9;++mutation){auto j=J::parse(journal);auto &r=j["declared"]["channelMap"];
+            if(mutation==0)r["file"]="../monitor-map.bin";
+            if(mutation==1)r["sha256"]=std::string(64,'0');
+            if(mutation==2)r["bytes"]=0;
+            if(mutation==3)r["bytes"]=double(artifact.size());
+            if(mutation==4)r["major"]=2;
+            if(mutation==5)r["minor"]=1;
+            if(mutation==6)r["inputChannels"]=257;
+            if(mutation==7)r["outputChannels"]=0;
+            if(mutation==8)r["extra"]=0;
+            write(job/"native-run.json",j.dump());refuses([&]{inspectNativeOriginalRecording(job,s);});write(job/"native-run.json",journal);
+        }
+        if(kind==0)for(unsigned mutation=0;mutation<10;++mutation){auto bytes=artifact;
+            if(mutation==0)bytes[0]='?';
+            if(mutation==1)bytes[8]=2;
+            if(mutation==2)bytes[12]=1;
+            if(mutation==3)bytes[16]=0;
+            if(mutation==4)bytes[20]=0;
+            if(mutation==5)bytes[24]=0;
+            if(mutation==6)bytes[28]=1;
+            if(mutation==7)bytes[48]=0;
+            if(mutation==8)bytes.pop_back();
+            if(mutation==9)bytes.push_back('x');
+            write(job/"monitor-map.bin",bytes);refuses([&]{inspectNativeOriginalRecording(job,s);});write(job/"monitor-map.bin",artifact);
+        }
+        check(read(job/"journal.json")==raw && inspectNativeOriginalRecording(job,s).raw.sampleSha256==saved.raw.sampleSha256,
+            "Matrix refusal changed original raw evidence");
+    }
+    // Legacy1.1 outcomes and startup absence survive2 migration without inventing a route.
+    Temp t;const auto s=spec(2);PreparedCaptureFanout f(config(s));NativeOriginalRecordingOptions old;old.schemaMinor=1;std::filesystem::path job;
+    {NativeOriginalCaptureWriter writer(t.root,s,old);job=writer.jobDirectory();packets(writer,f,s);writer.finalize(f,outcome(s));}
+    const auto before=read(job/"native-run.json"),raw=read(job/"journal.json");
+    const auto migrated=migrateNativeOriginalRecording(job,s);const auto after=J::parse(read(job/"native-run.json"));
+    check(migrated.schemaMinor==2 && !migrated.declared->channelMap && !migrated.outcome->render.startupReady &&
+          after["outcome"]==J::parse(before)["outcome"] && read(job/"journal.json")==raw,"Legacy1.1 migration invented mapping or changed original outcomes");
+}
+void hardCrash(unsigned selected,bool migration=false,bool mapped=false){Temp t;
 #ifdef _WIN32
     std::array<wchar_t,32768> executable{};auto count=GetModuleFileNameW(nullptr,executable.data(),DWORD(executable.size()));check(count && count<executable.size(),"Native crash executable path");
-    auto command=std::wstring(L"\"")+executable.data()+L"\" "+(migration?L"--migration-crash":L"--crash")+L" \""+t.root.native()+L"\" "+std::to_wstring(selected);
+    auto command=std::wstring(L"\"")+executable.data()+L"\" "+(migration?L"--migration-crash":mapped?L"--map-crash":L"--crash")+L" \""+t.root.native()+L"\" "+std::to_wstring(selected);
     STARTUPINFOW startup{};startup.cb=DWORD(sizeof(startup));PROCESS_INFORMATION process{};
     check(CreateProcessW(nullptr,command.data(),nullptr,nullptr,FALSE,0,nullptr,nullptr,&startup,&process),"Native crash child start");CloseHandle(process.hThread);
     const auto waited=WaitForSingleObject(process.hProcess,10000);if(waited!=WAIT_OBJECT_0)TerminateProcess(process.hProcess,99);
     DWORD code=0;GetExitCodeProcess(process.hProcess,&code);CloseHandle(process.hProcess);check(waited==WAIT_OBJECT_0 && code==77,"Native crash child did not reach publication boundary");
 #else
-    const auto child=fork();check(child>=0,"Native crash child fork");if(!child){try{if(migration)migrationCrashChild(t.root,selected);else crashChild(t.root,selected);}catch(const std::exception &e){std::cerr<<"Native crash child: "<<e.what()<<'\n';std::_Exit(79);}}
+    const auto child=fork();check(child>=0,"Native crash child fork");if(!child){try{if(migration)migrationCrashChild(t.root,selected);else crashChild(t.root,selected,mapped);}catch(const std::exception &e){std::cerr<<"Native crash child: "<<e.what()<<'\n';std::_Exit(79);}}
     int status=0;const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
     for(;;){auto result=waitpid(child,&status,WNOHANG);if(result==child)break;check(result==0,"Native crash wait");if(std::chrono::steady_clock::now()>=deadline){kill(child,SIGKILL);waitpid(child,&status,0);check(false,"Native crash child timeout");}std::this_thread::sleep_for(std::chrono::milliseconds(5));}
     check(WIFEXITED(status) && WEXITSTATUS(status)==77,"Native crash publication boundary absent");
 #endif
     std::filesystem::path job;for(const auto &e:std::filesystem::directory_iterator(t.root/"media"))if(e.is_directory())job=e.path();
-    const auto p=inspectNativeOriginalRecording(job);if(migration){check(p.raw.committedFrames==16 && p.raw.finalized && p.status==NativeOriginalRecordingStatus::Complete && p.schemaMinor==(selected?1u:0u) && !p.outcome->render.startupReady,"Abrupt migration changed verified raw/original status");return;}check(p.raw.committedFrames==(selected==0?0u:16u) && p.raw.finalized==(selected!=0) && p.status==(selected==3?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Pending) && bool(p.outcome)==(selected==3),"Abrupt native writer death lost durable prefix or fabricated outcome");
+    const auto p=inspectNativeOriginalRecording(job);if(mapped){check(!p.raw.committedFrames && !p.raw.finalized && !p.outcome && std::filesystem::exists(job/"monitor-map.bin") &&
+        (selected==6 ? (!p.declared && p.status==NativeOriginalRecordingStatus::NoNativeEvidence) : (p.schemaMinor==2 && p.declared->channelMap==monoToStereoMonitor() && p.status==NativeOriginalRecordingStatus::Pending)),"Matrix publication crash fabricated native readiness or lost declaration");return;}if(migration){check(p.raw.committedFrames==16 && p.raw.finalized && p.status==NativeOriginalRecordingStatus::Complete && p.schemaMinor==(selected?2u:0u) && !p.outcome->render.startupReady,"Abrupt migration changed verified raw/original status");return;}check(p.raw.committedFrames==(selected==0?0u:16u) && p.raw.finalized==(selected!=0) && p.status==(selected==3?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Pending) && bool(p.outcome)==(selected==3),"Abrupt native writer death lost durable prefix or fabricated outcome");
 }
 void partialFailureReport(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));std::filesystem::path job;
     {NativeOriginalRecordingOptions options;options.raw.checkpointFrames=8;NativeOriginalCaptureWriter w(t.root,s,options);job=w.jobDirectory();packets(w,f,s);refuses([&]{reportNativeOriginalRecording(job,s,outcome(s,2));});}
@@ -163,4 +218,4 @@ int wmain(int argc,wchar_t **argv){
 #else
 int main(int argc,char **argv){
 #endif
-try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));return 80;}rt_audit::reset();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
+try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])),std::filesystem::path(argv[1])=="--map-crash");return 80;}rt_audit::reset();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();matrixState();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);hardCrash(6,false,true);hardCrash(0,false,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; 2 actual matrix publication process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
