@@ -44,7 +44,7 @@ std::vector<float> signal(unsigned channels, unsigned frames = 1024) {
         pcm[std::size_t(n)*channels+ch] = float(2.5*std::sin(double(n)*.027+ch*.1));
     return pcm;
 }
-void publish(PreparedCaptureFanout &f,const Config &c,std::span<const float> pcm,unsigned frames=1024) {
+void publish(PreparedCaptureFanout &f,const Config &c,std::span<const float> pcm,unsigned frames=1024,bool finish=true) {
     for(unsigned n=0;n<frames;n+=64) {
         const auto count=std::min(64u,frames-n);
         const CaptureBankStamp stamp{c.capture.capture.identity,{(std::uint64_t(1)<<63)+n},{now+n*211},count,0};
@@ -52,7 +52,7 @@ void publish(PreparedCaptureFanout &f,const Config &c,std::span<const float> pcm
         const auto r=rt([&]{return f.publish({stamp,reinterpret_cast<const std::byte *>(bytes.data()),bytes.size_bytes()});});
         check(r.rawAcceptedFrames==count && r.monitorAcceptedFrames==count,"Synthetic capture publication");
     }
-    rt([&]{f.finish();});
+    if(finish)rt([&]{f.finish();});
 }
 void drainRaw(PreparedCaptureFanout &f,std::span<const float> expected,unsigned channels) {
     std::size_t at=0;
@@ -270,6 +270,66 @@ void concurrentOwners() {
     check(compared==rendered.size(),"Concurrent reference output extent");
     std::cout<<"concurrent owners=4 packets=256 rawFrames="<<inputFrames<<" outputFrames=3072; source credit waits and synthetic time outside prepared methods\n";
 }
+void finitePlanning() {
+    // Exact partial/zero/short ends, dynamic reservation, refusal, real EOF and
+    // capacity/postroll/clock/cancel failures. Raw routing is always independent.
+    for(unsigned kind=0;kind<8;++kind) {
+        Config c;c.capture.capture.slots=64;c.capture.monitorSlots=64;
+        PreparedCaptureFanout f(c.capture);PreparedMonitorOutputBank o(c.output);PreparedMonitorProcessing p(f,o,c.processing);
+        const unsigned frames=kind==4?4096:1024;
+        const auto pcm=signal(3,frames);seed(p,c);
+        const auto length=kind==0?512u:kind==1?7u:kind==2 || kind==4 || kind==5?0u:kind==3?4096u:512u;
+        const auto end=c.output.first.value+length;
+        if(kind!=6) {
+            check(rt([&]{return p.planEnd({end});}),"Early finite end refused");
+            const auto reserved=p.statistics();
+            check(rt([&]{return p.planEnd({end});}) && reserved.buffer==p.statistics().buffer,"Same end retry mutated buffer");
+            check(!rt([&]{return p.planEnd({end+1});}) && reserved.buffer==p.statistics().buffer,"Changed fixed end accepted");
+        }
+        publish(f,c,pcm,frames,kind!=6 && kind!=5);
+        if(kind==5) {
+            for(unsigned n=0;n<32 && p.statistics().buffer.acceptedInputFrames<1024;++n)
+                check(rt([&]{return p.step({now});})==MonitorProcessingCode::Progress,"Planned zero horizon failed actual input collection");
+            const auto paused=p.statistics();
+            check(rt([&]{return p.step({now});})==MonitorProcessingCode::NeedInput && p.statistics().buffer==paused.buffer,"Open planned horizon progressed without input");
+            rt([&]{p.cancel();f.finish();});
+        }
+        std::vector<float> actual;actual.reserve(std::size_t(length)*3);std::array<float,192> scratch{};
+        bool fault=false,planned=kind!=6;std::uint64_t peakGenerated=0;
+        for(unsigned i=0;i<20000;++i) {
+            if(kind==6 && !planned && p.statistics().buffer.generatedOutputFrames>=64) {
+                const auto before=p.statistics();
+                check(!rt([&]{return p.planEnd({c.output.first.value+63});}) && p.statistics().buffer==before.buffer,"Late end refusal changed progress");
+                check(rt([&]{return p.planEnd({end});}),"Dynamic future end refused");planned=true;rt([&]{f.finish();});
+            }
+            const auto code=rt([&]{return p.step({kind==7?now+c.processing.drift.maximumAge100ns+1:now});});
+            peakGenerated=std::max(peakGenerated,p.statistics().buffer.generatedOutputFrames);
+            if(planned && kind!=3)check(peakGenerated<=length,"Finite horizon overshot");
+            const auto r=rt([&]{return o.pull(scratch);});
+            actual.insert(actual.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(r.frames*3));
+            if(code==MonitorProcessingCode::Done || code==MonitorProcessingCode::Cancelled)break;
+            if(code==MonitorProcessingCode::Fault){fault=true;break;}
+            check(code!=MonitorProcessingCode::NeedEnd,"Planned EOF needed a late caller end");
+        }
+        if(kind==3)check(fault && p.bufferFault()->code==MonitorBufferFaultCode::InsufficientInput,"Planned end fabricated future postroll");
+        else if(kind==4)check(fault && p.firstFault()->cause==MonitorProcessingCause::PostrollCapacity && p.bufferFault()->code==MonitorBufferFaultCode::InputOverrun,"Planned postroll capacity did not fault");
+        else if(kind==5)check(p.statistics().cancelled && !p.statistics().buffer.generatedOutputFrames,"Planned cancellation generated PCM");
+        else if(kind==7)check(fault && p.firstFault()->cause==MonitorProcessingCause::Clock,"Planned end bypassed clock age");
+        else {
+            while(!o.drained()){const auto r=rt([&]{return o.pull(scratch);});check(r.frames>0,"Planned output drain");actual.insert(actual.end(),scratch.begin(),scratch.begin()+std::ptrdiff_t(r.frames*3));}
+            check(p.statistics().done && actual.size()==std::size_t(length)*3 && p.statistics().buffer.acceptedInputFrames==1024,"Planned exact end/raw postroll extent");
+            PreparedMonitorBuffer reference(c.processing.buffer);
+            for(unsigned n=0;n<1024;n+=64)check(reference.push(std::span<const float>(pcm).subspan(n*3,192))==MonitorBufferCode::Accepted,"Planned reference input");
+            check(reference.finishAt(end)==MonitorBufferCode::Accepted,"Planned reference end");
+            std::size_t compared=0;
+            for(unsigned n=0;n<20000 && compared<actual.size();++n){check(reference.service()!=MonitorBufferCode::Fault,"Planned reference service");const auto r=reference.pull(scratch);
+                for(unsigned j=0;j<r.frames*3;++j){check(compared<actual.size() && std::bit_cast<std::uint32_t>(scratch[j])==std::bit_cast<std::uint32_t>(actual[compared]),"Planned output differs from direct buffer");++compared;}}
+            check(compared==actual.size(),"Planned reference extent");
+        }
+        drainRaw(f,pcm,3);p.settleAfterJoin();f.settleAfterJoin();o.settleAfterJoin();
+        check(!rt([&]{return p.planEnd({end});}),"Terminal planned end accepted");
+    }
+}
 void originalClockIntegration() {
     for(unsigned kind=0;kind<6;++kind) {
         Config c;MonitorClockHandoffConfig qconfig;
@@ -330,7 +390,7 @@ void originalClockIntegration() {
 } // namespace
 int main() {
     try {
-        rt_audit::reset();parityAndPressure(3);parityAndPressure(256);faultsAndAdmission();clockStartupAndPostroll();concurrentOwners();originalClockIntegration();
+        rt_audit::reset();parityAndPressure(3);parityAndPressure(256);faultsAndAdmission();clockStartupAndPostroll();concurrentOwners();originalClockIntegration();finitePlanning();
         check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate &&
               !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared processing RT audit");
         std::cout<<checks<<" bounded monitor processing checks passed; guarded allocate/free/lock=0; synthetic clock observations only\n";return 0;

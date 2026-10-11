@@ -75,7 +75,7 @@ logs and profile configuration. It retains the first warning/failure and the
 explicit-end refusal source/log. Standalone gzip/member and frozen Git/checkout
 hashes passed. Executables and test media are excluded.
 
-This fixture does not test actual Windows execution, native SDK startup/stop,
+This fixture does not test native SDK startup/stop,
 physical routes, independent clock drift/occupancy feedback, uncontrolled disk
 stalls, installed UI, EQ/mix graph execution, punch/loop, recording alignment,
 finite-prefix playable admission, DSP quality or full product parity. Those gates
@@ -92,3 +92,16 @@ Windows synthetic execution separately, then compose actual SDK clock acquisitio
 and owned endpoint startup. Keep the native duplex factory disabled until those
 SDK and desktop workflow gates pass. Portable finite-prefix admission and
 original-to-project timing transactions remain separate recording work.
+
+## Independent Windows observation
+
+MSVC job114435986700/run38127902259 passed63 synthetic suites154.46s,
+including combined monitor recording0.60s. Tested merge
+`5e232827ac732c74ccf1459dd958521efc33319c` binds head43bd15c/basedd46d91 and
+tree4a7c74cc4905e477be3fa6db5f8da8493349e56e. The
+[54,455-byte/three-member packet](../tests/results/M2/2026-10-11-monitor-recording-windows/summary.json)
+retains full native job/API evidence and eight reviewed blobs. No per-check count
+or executable hash was exposed or inferred. All four stacked129 checks passed.
+This tests the earlier3,600-frame explicit-end fixture, without checkpoint193's
+new early end reservation. It is not current-MAIN admission, native SDK/duplex or
+installed workflow qualification.

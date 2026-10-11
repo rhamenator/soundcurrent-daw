@@ -16,7 +16,7 @@ enum class MonitorProcessingCode {
     Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault
 };
 enum class MonitorProcessingCause {
-    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned
+    Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -60,6 +60,10 @@ class PreparedMonitorProcessing {
     // Processing owner only, after original capture EOF and monitor queue drain.
     // Caller supplies an explicit monitor end, with actual captured postroll.
     // Refusal is nonmutating; no duration is inferred from raw/project clocks.
+    // Processing owner, before the end has already been generated. Input stays
+    // open for actual bounded postroll; EOF closes automatically. No raw/project
+    // mapping is inferred. Capacity loss is explicit, never hidden by dropping.
+    bool planEnd(MonitorOutputOrdinal exclusiveEnd) noexcept;
     bool finishAt(MonitorOutputOrdinal exclusiveEnd) noexcept;
     void cancel() noexcept; // Stops future capture; preserves accepted raw route.
     void settleAfterJoin() noexcept; // Control only AFTER processing owner joins.
@@ -86,5 +90,6 @@ class PreparedMonitorProcessing {
     bool holding_ = false, done_ = false, cancelled_ = false, clockEstablished_ = false;
     MonitorProcessingCode fail(MonitorProcessingCause) noexcept;
     bool release() noexcept;
+    MonitorProcessingCode schedule(Qpc100ns) noexcept;
 };
 } // namespace soundcurrent::daw

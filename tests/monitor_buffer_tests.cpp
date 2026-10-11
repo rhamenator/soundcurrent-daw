@@ -266,10 +266,40 @@ void terminalFailures() {
               prepared([&] { return loud.pull(output); }).code == MonitorBufferCode::Fault,
           "Converted headroom overflow silently clipped or escaped");
 }
+void plannedPartialGrid() {
+    MonitorBufferConfig c;c.channels=3;c.maximumInputFrames=31;c.inputCapacityFrames=2048;c.outputCapacityFrames=64;c.outputFrameBase=1ULL<<54;
+    PreparedMonitorBuffer b(c);std::vector<float> input(1024*3),output(64*3,999.f);
+    for(std::size_t n=0;n<input.size();++n)input[n]=float(2.5*std::sin(double(n)*.027));
+    for(unsigned n=0;n<1024;n+=31){const auto count=std::min(31u,1024-n);check(prepared([&]{return b.push(std::span<const float>(input).subspan(n*3,count*3));})==MonitorBufferCode::Accepted,"Partial plan input");}
+    bool partial=false;
+    for(unsigned n=0;n<2000;++n){check(prepared([&]{return b.service();})!=MonitorBufferCode::Fault,"Partial plan startup");const auto s=b.statistics();
+        if(s.pendingGridFrames && s.pendingGridFrames<64){partial=true;break;}
+        prepared([&]{return b.pull(output);});}
+    check(partial,"No already-generated partial grid fixture");
+    const auto before=b.statistics();const auto end=before.nextOutputFrame+5;
+    check(prepared([&]{return b.planEnd(before.nextOutputFrame-1);})==MonitorBufferCode::InvalidEnd && before==b.statistics(),"Late partial reservation mutated state");
+    check(prepared([&]{return b.planEnd(end);})==MonitorBufferCode::Accepted,"Partial future horizon refused");
+    const auto planned=b.statistics();
+    check(prepared([&]{return b.planEnd(end+1);})==MonitorBufferCode::InvalidEnd && planned==b.statistics(),"Reserved horizon replaced");
+    check(prepared([&]{return b.finishAt(end+1);})==MonitorBufferCode::InvalidEnd && planned==b.statistics(),"Explicit closure changed reserved end");
+    bool waiting=false;unsigned delivered=0;
+    for(unsigned n=0;n<2000;++n){const auto code=prepared([&]{return b.service();});check(b.statistics().nextOutputFrame<=end,"Partial reserved horizon overshot");
+        const auto r=prepared([&]{return b.pull(output);});delivered+=r.frames;
+        if(code==MonitorBufferCode::WaitingEndInput){waiting=true;break;}check(code!=MonitorBufferCode::Fault,"Partial horizon fault");}
+    check(waiting && b.statistics().nextOutputFrame==end && !b.statistics().closing,"Open input prematurely finalized");
+    const auto paused=b.statistics();std::fill(output.begin(),output.end(),999.f);
+    check(prepared([&]{return b.service();})==MonitorBufferCode::WaitingEndInput && b.statistics()==paused,"Waiting horizon advanced kernel");
+    check(prepared([&]{return b.pull(output);}).frames==0 && std::all_of(output.begin(),output.end(),[](float x){return x==999.f;}),"Waiting horizon emitted invented PCM");
+    check(prepared([&]{return b.finishAt(end);})==MonitorBufferCode::Accepted,"Matching real input closure refused");
+    for(unsigned n=0;n<20 && !b.statistics().ended;++n)prepared([&]{return b.service();});
+    check(b.statistics().ended && b.statistics().generatedOutputFrames==end-c.outputFrameBase,"Partial horizon final extent");
+    // The callback audit covers the new reservation and waiting paths as well.
+    std::cout<<"planned_partial_grid_end="<<end<<" generated="<<b.statistics().generatedOutputFrames<<" delivered="<<delivered<<" open_input_wait_verified=true\n";
+}
 } // namespace
 int main() {
     try {
-        admission(); refusalsAndWarmup(); events(); terminalFailures();
+        admission(); refusalsAndWarmup(); events(); terminalFailures(); plannedPartialGrid();
         for (auto rates : {std::pair{48000u, 48000u}, {44100u, 48000u}, {48000u, 44100u}, {96000u, 48000u}})
             for (auto partitions : {std::pair{1u, 17u}, {17u, 7u}, {257u, 1u}})
                 stream(partitions.first, partitions.second, 3, rates.first, rates.second, 1ULL << 54);

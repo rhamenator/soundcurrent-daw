@@ -17,7 +17,7 @@ struct MonitorBufferConfig {
 };
 enum class MonitorBufferCode {
     Accepted, Priming, NeedInput, NeedOutput, NoOutput, OutputReady, Done, Cancelled,
-    InvalidInput, InputFull, InvalidOutput, InvalidEvent, EventFull, InvalidEnd, Fault
+    InvalidInput, InputFull, InvalidOutput, InvalidEvent, EventFull, InvalidEnd, Fault, WaitingEndInput
 };
 enum class MonitorBufferFaultCode {
     NonfiniteInput, NonfiniteOutput, KernelFailure, KernelInvariant,
@@ -39,6 +39,7 @@ struct MonitorBufferStatistics {
     std::uint32_t queuedInputFrames = 0, queuedOutputFrames = 0, pendingGridFrames = 0;
     std::uint32_t pendingEvents = 0, warmupInputFrames = 0;
     double ratio = 1;
+    std::optional<std::uint64_t> plannedOutputEnd;
     bool primed = false, closing = false, ended = false, cancelled = false;
     bool operator==(const MonitorBufferStatistics &) const = default;
 };
@@ -75,6 +76,10 @@ class PreparedMonitorBuffer {
     // Terminal explicit output-stream boundary. Uses remaining ACTUAL input,
     // releases the retained delay reservoir, and never adds future zero padding.
     // Insufficient postroll fails; this is not an exact raw/project alignment map.
+    // Processing-owner reservation; immutable once accepted (same-end retry is
+    // idempotent). Refuse ends behind generated PCM. Input remains open; service
+    // never generates beyond this end and waits for explicit final input closure.
+    MonitorBufferCode planEnd(std::uint64_t exclusiveOutputFrame) noexcept;
     MonitorBufferCode finishAt(std::uint64_t exclusiveOutputFrame) noexcept;
     void cancel() noexcept; // Discard monitor-only backlog; preserve first fault/counts.
     void signalFault(MonitorBufferFaultCode) noexcept;

@@ -90,8 +90,8 @@ Git/checkout byte checks passed. No executable or test media is included.
 The processor clock integration is serial. Its earlier four-owner PCM test uses
 a raw reader, not the disk writer. The clock concurrency test is separate from
 that PCM fixture. This does not qualify a combined disk/clock/processor run,
-advancing native time, SDK activation, native Windows execution of this handoff,
-installed preview, physical hardware, load deadlines or full DAW parity. The
+advancing native time, SDK activation, installed preview, physical hardware, load
+deadlines or full DAW parity. Independent Windows execution is recorded below. The
 earlier [Windows processing observation](190-bounded-monitor-processing.md)
 tested a revision without this handoff. DSP quality failures and European
 translation/UI qualification remain open. See [ADR123](decisions/123-original-clock-handoff.md).
@@ -105,3 +105,15 @@ exercise bounded pressure/finite-data/clock-loss cases and join every owner
 before settlement and retirement. Keep Windows native duplex activation disabled
 until actual SDK and desktop acceptance. Portable finite-prefix recovery and
 original-to-project timing transactions remain separate recording work.
+
+## Independent Windows observation
+
+MSVC job114434358685/run38127347962 passed62 synthetic suites145.62s,
+including original clock handoff0.02s and monitor processing0.09s. Tested merge
+`32e4dc2ccbb5677f09e5c686dae8ab40ea2af5b9` binds headdd46d91/basea7f8d898
+and tree26a2460c5e00ecfba096f7d8148efb611ad02e1e. The
+[63,227-byte/three-member packet](../tests/results/M2/2026-10-11-monitor-clock-windows/summary.json)
+retains complete native job/API evidence and17 reviewed blobs. No per-check count
+or executable hash was exposed or inferred. All four stacked CI jobs succeeded;
+this is not current-MAIN admission, native SDK/duplex, installed preview or
+Windows execution of the later combined disk fixture.
