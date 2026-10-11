@@ -4464,3 +4464,40 @@ retains full job/status and15 changed-file hashes; no per-bank check count or
 executable hash is invented. [Checkpoint180](180-stamped-capture-bank.md) records
 this independent platform observation. Native endpoints/installed/physical/full
 product qualification and refreshed current-MAIN protection gates remain open.
+
+## More precise manual/child-terminal observations (2026-10-11)
+
+Current-MAIN native job114400815807 exposed the original manual wait timeout with
+an intact Unicode path. The exact caller was hidden by the shared wait helper;
+e442fc89 forwards caller location and early callback-failure status/frame. A
+separate Windows desktop parent-interruption case lacked completion markers.
+Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit0/
+busy/unverified regression, and records timeout/exit/error/deadline/job inventory
+at the interruption boundary. Deadlines/assertions remain unchanged. Linux Debug
+controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-byte/
+10-member packet retains both failed jobs/status and local logs/hashes; original
+Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
+records scope; no stale downstream success is admitted as a current-MAIN gate.
+
+
+## Logical recording credit after an observed Windows disk stall (2026-10-11)
+
+MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
+QueueFull during a3.31s observed write gap (audio flush2.46s, journal0.85s).
+Frozen cf0b9ed changes only the logical producer fixture: conservative returned
+disk credit, an intentionally gated first write, bounded waits outside callbacks,
+and exact whole-packet logical-time advancement. Original480,000 sample/recovery/
+callback and separate overflow assertions remain; production behavior/deadlines
+unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
+retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
+
+
+## Catalog inventory after the Windows observer change (2026-10-11)
+
+Run38118823925 passed all three Windows checks; Linux passed123/125 and refused
+the stale whole-source digest for stretch_controller.cpp. Actual Linguist update
+on d254183 refreshed only that digest:917keys/34catalogs/3,135drafts and75 other
+localization files byte-identical. Actual13 isolated refusals and translator-work
+preservation passed. Native review/full UI remains zero. The71,095-byte packet and
+[Checkpoint185](185-logical-recording-credit.md) retain original failure/new binding.
+Fresh current-head checks remain required; no stale Windows cohort is admitted.

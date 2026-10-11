@@ -259,12 +259,27 @@ void concurrentTake() {
     struct DiskTiming {
         native_fixture::WriterTiming timing;
         bool onAudio = false;
+        std::atomic<bool> gateEntered{false}, releaseGate{false}, gateTimedOut{false};
         static void observe(void *context, const RecordingWriterObservation &observation) noexcept {
             auto &self = *static_cast<DiskTiming *>(context);
             self.onAudio |= rt_audit::active;
             const auto now = std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
                 std::chrono::steady_clock::now().time_since_epoch()).count());
             self.timing.record(observation, now);
+            // Test-owned stall: the first disk write stays gated until the
+            // logical source exhausts its conservative credit window. This is
+            // outside callbacks and proves the producer waits before losing PCM.
+            if (observation.phase == RecordingWriterPhase::WriteHashBegin &&
+                !self.gateEntered.exchange(true, std::memory_order_acq_rel)) {
+                const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+                while (!self.releaseGate.load(std::memory_order_acquire)) {
+                    if (std::chrono::steady_clock::now() >= deadline) {
+                        self.gateTimedOut.store(true, std::memory_order_release);
+                        break;
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+            }
         }
     } disk;
     RecordingOptions options;
@@ -275,9 +290,27 @@ void concurrentTake() {
     bool correct = true;
     CaptureReport last;
     Frame attemptedFrame = 0;
+    // Two slabs of conservative slack cover acquired/unfinished slab ownership.
+    // writtenFrames() is published AFTER drain/release/checkpoint. It is a lower
+    // bound on returned credit, not a native producer backpressure mechanism.
+    const auto creditFrames = Frame(spec.capture.poolSlabs - 2) * spec.capture.slabFrames;
+    std::uint64_t creditWaits = 0;
+    std::chrono::nanoseconds creditWaitTime{};
     const auto producerStart = std::chrono::steady_clock::now();
     for (Frame f = 0; f < total;) {
         const auto n = static_cast<std::uint32_t>(std::min<Frame>(source.quantum, total - f));
+        const auto waitStart = std::chrono::steady_clock::now();
+        const auto deadline = waitStart + std::chrono::seconds(5);
+        bool waited = false;
+        while (f - worker.writtenFrames() + n > creditFrames) {
+            if (!waited) { ++creditWaits; waited = true; }
+            if (disk.gateEntered.load(std::memory_order_acquire))
+                disk.releaseGate.store(true, std::memory_order_release);
+            check(pipe.status() == CaptureStatus::Running, "Synthetic credit wait saw terminal capture");
+            check(std::chrono::steady_clock::now() < deadline, "Synthetic disk-credit deadline exceeded");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        if (waited) creditWaitTime += std::chrono::steady_clock::now() - waitStart;
         const auto r = source.push(pipe, f, n);
         last = r;
         attemptedFrame = f;
@@ -286,11 +319,8 @@ void concurrentTake() {
             break;
         }
         f += n;
-        // Nominal sample-rate pacing outside the marked callback. Scheduling
-        // may be slower; this functional fixture does not qualify native timing.
-        // The old 100us/127-frame producer requested about26x nominal throughput.
-        std::this_thread::sleep_for(
-            std::chrono::nanoseconds(std::uint64_t(n) * 1000000000ULL / spec.capture.sampleRate));
+        // Logical time advances only after exact acceptance. Wall-clock pacing
+        // is deliberately not a timing/throughput claim on an arbitrary CI disk.
     }
     const auto producerEnd = std::chrono::steady_clock::now();
     {
@@ -308,10 +338,18 @@ void concurrentTake() {
               << " sample_rate=" << spec.capture.sampleRate
               << " pool_slabs=" << spec.capture.poolSlabs
               << " slab_frames=" << spec.capture.slabFrames
+              << " logical_credit_frames=" << creditFrames
+              << " credit_waits=" << creditWaits
+              << " credit_wait_ns=" << creditWaitTime.count()
+              << " forced_first_write_gate=true"
               << " writer_timing=";
     disk.timing.write(std::cout);
     std::cout << '\n';
     check(!disk.onAudio, "Concurrent writer diagnostics ran on audio");
+    check(disk.gateEntered.load(std::memory_order_acquire) &&
+              disk.releaseGate.load(std::memory_order_acquire) &&
+              !disk.gateTimedOut.load(std::memory_order_acquire) && creditWaits,
+          "Synthetic logical source did not exercise the gated disk-credit wait");
     if (!correct || !worker.complete() || result.asset.frames != total ||
         worker.writtenFrames() != total)
         std::cerr << "Concurrent capture correct=" << correct << " complete=" << worker.complete()
