@@ -1,0 +1,22 @@
+{
+  "format": "sc-qualified-monitor-control-main-v1",
+  "pr": 131,
+  "run": 38137484653,
+  "main": "4342ec6ca465c03316115c4d20762962f287da79",
+  "head": "e3b8f6d9ec5d5f307929ea6ccb4ff25586703897",
+  "base": "26700297151cb1b8284596c9bcf9fa0ce27406a4",
+  "testedMerge": "efb2c9edfc4f94c07b56860fc112ca021fb1ff69",
+  "tree": "e9ade785d0b18578ff59231a958b801d631c164c",
+  "blobs": 17,
+  "captureBytes": 142848,
+  "captureSha256": "2a7dbf59d9a5eb63c6cbcbdb2dc8323059a00167673cf15c9259fb1f7e65d283",
+  "members": 8,
+  "allFourJobsPassed": true,
+  "wholeTreeVerified": true,
+  "jobTextEncoding": "UTF-8; original BOM retained",
+  "adminBypass": false,
+  "policyChanged": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

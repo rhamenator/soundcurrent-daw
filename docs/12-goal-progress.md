@@ -4819,3 +4819,33 @@ run38135204341;142,315-byte/eight-member packet preserves its four jobs/receipts
 No protection/admin bypass occurred. PR131 now inherits current MAIN and awaits
 its own fresh cohort. Original Windows owner-failure root causes, processing
 quality, alignment, punch/loop, EQ/mix, localization and full goal remain open.
+
+## Original render SDK end and qualified control MAIN (2026-10-11)
+
+[Checkpoint197](197-original-native-render-end.md)/ADR129 extend the existing
+SDK renderer with actual prepared geometry/clock frequency and original bounded
+lease/end receipts. Callback request, successful SDK commit, native startup/guard,
+actual empty queue and Stop result stay separate; failed Stop is preserved and
+unstarted exits contain no invented SDK operation. Optional hooks retain old
+callers. Prepared callbacks stay bounded; native context/factory activation is
+gated pending output-bank fill, render clocks and durable recording-end state.
+
+Frozen4d77622 passes seven suites in Release0.43s, ASan/UBSan2.37s and TSan3.94s,
+including36 render lifecycle checks and20,001 synthetic lease bookkeeping inputs
+on an actual source thread. Zero guarded allocation/free/blocking locks. The
+62,949-byte/17-member packet binds584 selected inputs/21 executable hashes/nine
+Windows object-library hashes/full logs/configuration/script. Actual SDK renderer
+and complete core-only Windows targets compile; no new Windows lifecycle runtime,
+SDK device, installed preview, hardware deadline/latency or PCM playback claim.
+
+Earlier196 MSVC job114465301918/run38137846669 passed66 suites147.13s, binding0.07s.
+The48,090-byte/three-member packet binds21 reviewed blobs/full original job/API/
+tested merge-tree-parents, with all seven changed C++ files matching frozen67b7004.
+All four original stacked jobs passed; their full checkout-bound logs are retained
+locally. Current-MAIN/native/installed admission and new render hooks stay separate.
+PR131's protected MAIN4342ec6 matches whole tested tree/base/17 blobs from
+run38137484653;142,848-byte/eight-member packet retains all four byte-exact jobs
+and admission/post-merge receipts. No protection/admin bypass. PR132 inherits
+this MAIN and awaits a fresh cohort. Previous Windows owner-failure causes,
+startup clock/capacity, alignment, punch/loop, EQ/mix, quality, localization and
+the full DAW goal remain open.

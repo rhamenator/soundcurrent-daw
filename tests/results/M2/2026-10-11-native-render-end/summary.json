@@ -1,0 +1,60 @@
+{
+  "format": "sc-native-render-end-v1",
+  "sourceCommit": "4d776225fb07509749c561c97fa130cdb458b665",
+  "sourceTree": "4ba24651f5b2c6d1695e9a827fdb466c78e2018c",
+  "captureBytes": 62949,
+  "captureSha256": "d587e89177af8d2eee881b8e4047abbe3cf483355a7a6340c81c1ded7d50e718",
+  "members": 17,
+  "selectedInputs": 584,
+  "executableHashes": 21,
+  "windowsCrossObjectHashes": 9,
+  "profiles": {
+    "release": {
+      "renderLifecycleChecks": 36,
+      "observedContextChecks": 2803,
+      "suites": 7,
+      "captureStopChecks": 7747,
+      "controlChecks": 6158,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 0.43
+    },
+    "sanitizer": {
+      "renderLifecycleChecks": 36,
+      "observedContextChecks": 2818,
+      "suites": 7,
+      "captureStopChecks": 7747,
+      "controlChecks": 6158,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 2.37
+    },
+    "tsan": {
+      "renderLifecycleChecks": 36,
+      "observedContextChecks": 3058,
+      "suites": 7,
+      "captureStopChecks": 7747,
+      "controlChecks": 6158,
+      "processingChecks": 489463,
+      "combinedChecks": 9251,
+      "seconds": 3.94
+    }
+  },
+  "renderLifecycleChecksPerProfile": 36,
+  "fakeSdkOwnerContentLeases": 20001,
+  "fakeSdkOwnerContentFrames": 1280007,
+  "guardedAllocateFreeLock": 0,
+  "nativeRenderEndHooksCompiled": true,
+  "nativeReportedRenderFormatCompiled": true,
+  "fullCoreOnlyWindowsBuildPassed": true,
+  "windowsRenderEndExecuted": false,
+  "nativeRenderRuntimeQualified": false,
+  "nativeFactoryEnabled": false,
+  "originalSdkEndPersistedInRecordingTransaction": false,
+  "monitorRenderContextImplemented": false,
+  "liveClockStartupQualified": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
