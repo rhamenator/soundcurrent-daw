@@ -1,0 +1,52 @@
+{
+  "format": "sc-stretch-transient-quality-results-v1",
+  "sourceCommit": "d54dd878644b1075fb88b2f0eaa5609c4e39c775",
+  "completedRenders": 36,
+  "attemptedRenders": 36,
+  "channelEventObservations": 216,
+  "resolvedTimingObservations": 56,
+  "timingPasses": 52,
+  "timingFailures": 4,
+  "unresolvedObservations": 160,
+  "maximumResolvedDriftMilliseconds": 1.564625850340136,
+  "unityExactCases": 9,
+  "byFamily": {
+    "impulse": {
+      "observations": 72,
+      "resolved": 25,
+      "timingPassed": 22
+    },
+    "attack": {
+      "observations": 72,
+      "resolved": 31,
+      "timingPassed": 30
+    },
+    "attack-bed": {
+      "observations": 72,
+      "resolved": 0,
+      "timingPassed": 0
+    }
+  },
+  "seconds": 58.427763940999284,
+  "nativeAudio": false,
+  "vmUsed": false,
+  "QStretchQualified": false,
+  "QPitchQualified": false,
+  "formantsQualified": false,
+  "groupPhaseQualified": false,
+  "listeningQualified": false,
+  "nativeWindowsQualified": false,
+  "installedQualified": false,
+  "fullGoalComplete": false,
+  "productUploaded": false,
+  "captureBytes": 16510292,
+  "captureSha256": "7882423824140cd8b2c45b35083e190175c8ed613fd4f987e1eebe9e9ebc3a5a",
+  "captureMembers": 127,
+  "uncompressedBytes": 54892297,
+  "sourceInputs": 309,
+  "silentFamilyPreechoPasses": 36,
+  "silentFamilyPreechoFailures": 108,
+  "publicPcmIncluded": true,
+  "onsetEnergyRecomputationIncluded": true,
+  "workerRerenderedByVerifier": false
+}

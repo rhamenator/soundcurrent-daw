@@ -4099,3 +4099,16 @@ public reports bind 309 source inputs and audit provenance/protocol arithmetic,
 not spectral recomputation. No production DSP, VM/audio endpoint or product
 upload. Transient/group phase, listening, native Windows/installed quality,
 M2–M11/X004/X005 and all-European F/Q/C/N qualification remain open.
+
+## 2026-10-11: transient quality failures retained with PCM
+
+[Checkpoint169](169-stretch-transient-quality.md) records a preregistered actual
+36-render constant-mode bank at 44.1/48/96 kHz, ratios 0.5–2, zero pitch. Exact
+length, finite PCM and nine unity identities pass. Of 216 channel/event timing
+measurements, 56 resolve: 52 pass and four fail the strict <1 ms gate; 160 remain
+unresolved. Silent-family pre-echo has 36 passes and 108 failures at −40 dB.
+Complete synthetic PCM and original outcomes are retained; a separate standard-
+library verifier recomputes onsets/energy and reproduces the failures. No DSP
+change, VM, audio endpoint or product artifact upload. Q-STRETCH, listening,
+native Windows quality and complete F/Q/C/N parity remain open. Next useful
+implementation is versioned loop/take-lane state followed by comp selection.
