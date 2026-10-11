@@ -19,9 +19,10 @@ Logical workspace allowances do not measure actual library/allocator overhead.
 
 The processing owner alone calls `observe`, `step`, `finishAt` and `cancel`.
 Native capture/render owners must deliver original observations through bounded
-handoffs; they must not call this object concurrently. Those SDK handoffs and
-native activation are the next integration task. External banks outlive the
-processing object, and every owner joins before retirement or control settlement.
+handoffs; they must not call this object concurrently. The
+[original clock handoff](191-original-clock-handoff.md) now supplies bounded
+processing-owner delivery; native SDK publication and activation remain open.
+External banks outlive the processing object, and every owner joins before retirement or control settlement.
 
 ## Bounded service and pressure
 
@@ -33,7 +34,9 @@ read, modified or trimmed by processing.
 
 Output is pulled into the charged pending slab and stamped with its actual opaque
 monitor ordinal. A full output bank retains exactly these bytes, frames and
-ordinal; no more DSP/input/controller progress occurs until publication succeeds.
+ordinal; no more DSP/input/scheduled ratio-grid progress occurs until publication
+succeeds.
+Original clock observations may still refresh while that pending PCM is retained.
 There is no replay, invented silence, resampler reset or drop to hide pressure.
 The native owner remains responsible for activation, deadlines and genuine loss.
 
@@ -90,19 +93,31 @@ or test media is included; incremental builds and compiler warnings remain visib
 
 Separate [raw writer evidence](189-original-raw-recording.md) includes actual disk
 ownership and interrupted processes. A combined disk/processor/native workflow
-still needs independent qualification. Actual Windows processing execution,
-installed/physical/load tests and processing-quality gates remain open. This
-component composes resampling; EQ/mix graph execution and parameter timing need
+still needs independent qualification. Actual Windows processing execution is
+recorded below; installed/physical/load tests and processing-quality gates remain
+open. This component composes resampling; EQ/mix graph execution and parameter timing need
 their own processing integration. Earlier DSP quality failures are unchanged.
 No complete DAW parity, European language coverage or release readiness follows.
 See [ADR122](decisions/122-bounded-monitor-processing.md).
 
 ## Next task
 
-Add bounded original capture/render clock handoffs with overflow/identity/terminal
-receipts, then compose the disk writer and processing owners in a synthetic run.
+The bounded original clock handoff is recorded in checkpoint191. Next compose
+the disk writer, original clock producers and processing owners in a synthetic run.
 Drive actual advancing control time and startup observations, establish output
 priming before native activation, and qualify stop/postroll/punch/loop and joined
 retirement. Keep the native Windows duplex factory disabled until SDK and desktop
 acceptance exists. Portable finite-prefix recovery and original-to-project timing
 mapping remain separate recording tasks.
+
+## Independent Windows observation
+
+MSVC job114429387569/run38125660721 passed61 synthetic suites in166.54s,
+including monitor processing0.09s. Tested merge `d59c8475` binds heada7f8d898,
+base9097b7a7 and tree792e2b5e. The
+[60,636-byte/three-member packet](../tests/results/M2/2026-10-11-monitor-processing-windows/summary.json)
+retains the complete native job/API observation and14 exact reviewed blobs.
+Per-check counts and executable hashes were not exposed and are not inferred.
+This earlier processing revision does not include checkpoint191's new clock
+handoff; it is neither current-MAIN admission nor Windows native duplex,
+installed preview, deadline or full product qualification.
