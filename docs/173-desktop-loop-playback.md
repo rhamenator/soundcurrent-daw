@@ -104,3 +104,20 @@ source bytes. Both modes have no Git-history dependency, code/audio replay or
 signature claim. The frozen source comparison passed locally before evidence was
 committed. Earlier failed development runs and an empty test selection are not
 admitted. No executable, installer or release was uploaded.
+
+## Windows controller/UI observation
+
+The Windows desktop CI job for head `61c6918aa561998f18d81a89e1e4d58b55935219`
+actually checked out merge `bf0a22236c7399f6d5b47c7a5cd2a29750092e86` against
+base `92b7355e049fcd87018d34980b156356cbd883d7`. All18 selected suites passed in61.56s;
+`desktop-loop-controls` reported15 checks for the same saved loop workflow. The
+Linux run's16th check saves its requested screenshot; that optional image check
+was absent from Windows. This verifies Windows Qt/controller behavior using the
+simulated endpoint. It does not qualify WASAPI loop audio or an installed preview.
+
+[Retained Windows observations](../tests/results/M2/2026-10-11-desktop-loop-windows/summary.json)
+include the bounded48,193-byte CI log archive and70 exact tested changed-blob IDs.
+The plain verifier checks retained log consistency without Git, source/executable
+or audio replay. This older stacked-base cohort is workflow evidence; it cannot
+admit a later head against main. The [CI job](https://github.com/rhamenator/soundcurrent-daw/actions/runs/38106724888/job/114373711318)
+remains the authoritative observed run. No VM or physical audio endpoint was used.
