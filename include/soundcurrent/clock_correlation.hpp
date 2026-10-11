@@ -95,6 +95,10 @@ class PreparedClockCorrelation {
     std::optional<ClockFitSnapshot> snapshot() const noexcept;
     std::optional<NativeClockPoint> firstReading() const noexcept;
     std::optional<ClockCorrelationFault> firstFault() const noexcept { return fault_; }
+    // Start a new observation window at the LAST original trustworthy reading.
+    // Keeps the initial reading, admitted identity/config and sticky first fault.
+    // No extrapolated point or fit is fabricated. Used by overlapping fit owners.
+    void restartWindow() noexcept;
   private:
     ClockCorrelationConfig config_;
     NativeClockPoint first_{}, candidate_{}, last_{}, fitBegin_{}, fitEnd_{};
