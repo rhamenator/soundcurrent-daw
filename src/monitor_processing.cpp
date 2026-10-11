@@ -13,7 +13,7 @@ CaptureFanoutConfig geometry(const PreparedCaptureFanout &f) {
 }
 ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutputBank &o,
                       const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks,
-                      const PreparedMonitorControl *control, const PreparedMonitorCaptureStop *stop) {
+                      const PreparedMonitorControl *control, const PreparedMonitorCaptureStop *stop, const PreparedMonitorStartupHandoff *startup) {
     if (stop) {
         const auto &s=stop->config();const auto &b=c.buffer;
         require(s.runGeneration==b.runGeneration && s.sourceRate==b.sourceRate && s.channels==b.channels &&
@@ -34,6 +34,15 @@ ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutpu
         !f.rawAcceptedFrames() && !f.monitorAcceptedFrames() && !o.producerDone() &&
         o.phase() == MonitorOutputPhase::Running && !o.acceptedFrames() && !o.deliveredFrames(),
         "Prepare monitor processing before either route starts");
+    if(startup) {
+        const auto &a=startup->admission();const auto &b=c.buffer;const auto &d=c.drift;
+        require(c.startup && !startup->claimed() && startup->phase()==MonitorStartupHandoffPhase::Pending && !startup->ready() &&
+            a.runGeneration==b.runGeneration && a.captureIdentity==d.captureIdentity && a.renderIdentity==d.renderIdentity &&
+            a.sourceRate==b.sourceRate && a.outputRate==b.outputRate && a.channels==b.channels &&
+            a.renderFrequency==d.renderFrequency && a.nativeCapacityFrames==c.startup->nativeCapacityFrames &&
+            a.maximumNativeFillFrames==c.startup->maximumNativeFillFrames && a.maximumWait100ns==c.startup->maximumWait100ns,
+            "Monitor startup handoff configuration mismatch or reused");
+    }
     const auto bytes = monitorProcessingPayloadBytes(geometry(f), o.config(), c);
     return c.resources ? c.resources->reserve(bytes) : ResourceLease{};
 }
@@ -88,8 +97,8 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
 }
 PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
     PreparedMonitorOutputBank &o, MonitorProcessingConfig c, PreparedMonitorClockHandoff *clocks,
-    PreparedMonitorControl *control, PreparedMonitorCaptureStop *stop)
-    : lease_(reserve(f,o,c,clocks,control,stop)), capture_(f), output_(o), clocks_(clocks), control_(control), captureStop_(stop), config_(std::move(c)),
+    PreparedMonitorControl *control, PreparedMonitorCaptureStop *stop, PreparedMonitorStartupHandoff *startup)
+    : lease_(reserve(f,o,c,clocks,control,stop,startup)), capture_(f), output_(o), clocks_(clocks), control_(control), captureStop_(stop), startupHandoff_(startup), config_(std::move(c)),
       drift_(config_.drift), buffer_(config_.buffer),
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
     static_assert(sizeof(PreparedMonitorProcessing) <= 8192);
@@ -101,6 +110,8 @@ PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
         startupPackets_.resize(startup_.capacityFrames);
         startup_.phase = MonitorStartupPhase::Observing;
     }
+    // Claim last: failed admission/storage preparation cannot consume ownership.
+    if(startupHandoff_)require(startupHandoff_->claimProcessingOwner(),"Monitor startup publisher already claimed");
 }
 PreparedMonitorProcessing::~PreparedMonitorProcessing() { settleAfterJoin(); }
 bool PreparedMonitorProcessing::release() noexcept {
@@ -113,6 +124,7 @@ MonitorProcessingCode PreparedMonitorProcessing::fail(MonitorProcessingCause cau
     if (!fault_) fault_ = MonitorProcessingFault{cause,
         holding_ ? std::optional<CaptureBankStamp>(held_.token.original) : std::nullopt,
         buffer_.statistics().nextOutputFrame};
+    if(startupHandoff_)startupHandoff_->fail(cause==MonitorProcessingCause::StartupInputEnd);
     stopCapture(MonitorCaptureStopKind::Fault);
     startup_.abandonedFrames += startup_.retainedFrames; startup_.retainedFrames = 0; startupPacketCount_ = 0;
     release(); capture_.monitorConsumerFailed(); output_.processingFailed();
@@ -195,6 +207,9 @@ MonitorProcessingCode PreparedMonitorProcessing::validate(Qpc100ns now) noexcept
     if (output_.phase() == MonitorOutputPhase::Stopped) return fail(MonitorProcessingCause::Output);
     if (capture_.status() == CaptureFanoutStatus::RawFault || capture_.status() == CaptureFanoutStatus::MonitorFault)
         return fail(MonitorProcessingCause::CaptureRoute);
+    if(startupHandoff_ && startupHandoff_->phase()==MonitorStartupHandoffPhase::Cancelled) {
+        cancel(); return MonitorProcessingCode::Cancelled;
+    }
     if (capture_.status() == CaptureFanoutStatus::Cancelled) { cancel(); return MonitorProcessingCode::Cancelled; }
     if (!now.value || now.value < lastTime_ || now.value < captureQpc_ || now.value < renderQpc_)
         return fail(MonitorProcessingCause::ControlTime);
@@ -312,8 +327,11 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         if (code == MonitorOutputCode::Backpressure) return MonitorProcessingCode::OutputFull;
         if (code != MonitorOutputCode::Accepted) return fail(MonitorProcessingCause::Output);
         published_ += pendingStamp_.frames; pendingStamp_ = {};
-        if (config_.startup && !startup_.contentReady && published_ >= config_.startup->nativeCapacityFrames)
+        if (config_.startup && !startup_.contentReady && published_ >= config_.startup->nativeCapacityFrames) {
             startup_.contentReady = true;
+            if(startupHandoff_ && !startupHandoff_->publish({startupHandoff_->admission(),startup_,published_,now.value}))
+                return fail(MonitorProcessingCause::StartupHandoff);
+        }
         return MonitorProcessingCode::Progress;
     }
     auto s = buffer_.statistics();
@@ -396,6 +414,7 @@ bool PreparedMonitorProcessing::finishAt(MonitorOutputOrdinal end) noexcept {
 }
 void PreparedMonitorProcessing::cancel() noexcept {
     if (done_ || cancelled_) return;
+    if(startupHandoff_)startupHandoff_->cancel();
     cancelled_ = true; discarded_ += pendingStamp_.frames; pendingStamp_ = {};
     startup_.abandonedFrames += startup_.retainedFrames; startup_.retainedFrames = 0; startupPacketCount_ = 0;
     stopCapture(MonitorCaptureStopKind::Cancel);
