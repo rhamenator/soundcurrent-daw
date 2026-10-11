@@ -432,6 +432,35 @@ bool ManualRecordingRun::takeGroup(ManualRecordedGroup &group) {
         }
     return false;
 }
+std::optional<ManualRecordingLaneDiagnostic> ManualRecordingRun::diagnoseLane(
+    std::uint64_t take, std::size_t n) const {
+    const auto *slot = state_->find(take);
+    if (!slot || n >= slot->consumers.size()) return {};
+    const auto &consumer = slot->consumers[n];
+    const auto &lane = slot->group.lanes[n];
+    ManualRecordingLaneDiagnostic result;
+    result.take = take; result.lane = n;
+    std::copy_n(lane.spec.assetId.str().data(),result.assetId.size(),result.assetId.data());
+    result.pendingStarts = slot->pendingStarts; result.ready = slot->ready;
+    result.attempted = consumer.attempted; result.joined = consumer.joined;
+    result.constructionFailed = consumer.constructionFailed;
+    result.workerPresent = bool(consumer.worker);
+    result.workerComplete = consumer.worker && consumer.worker->complete();
+    result.writtenFrames = consumer.worker ? consumer.worker->writtenFrames() : lane.writtenFrames;
+    if (slot->take) {
+        result.phase = slot->take->phase();
+        result.start = slot->take->startFrame(); result.end = slot->take->endFrame();
+        result.retiredFrames = slot->take->retiredFrames(n);
+        const auto &pipe = slot->take->pipe(n);
+        result.producerDone = pipe.producerDone(); result.captureStatus = pipe.status();
+    } else {
+        // Joined/verified immutable receipt after actual bridge reclamation.
+        result.start = slot->group.beginFrame; result.end = slot->group.endFrame;
+        result.retiredFrames = lane.capturedFrames;
+        result.captureStatus = lane.captureStatus;
+    }
+    return result;
+}
 DuplexStatus ManualRecordingRun::process(const DeviceBlockClock &clock,
                                          std::span<const float *const> input,
                                          std::span<float *const> output,
