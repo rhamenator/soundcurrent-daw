@@ -1,0 +1,41 @@
+{
+  "format": "sc-original-monitor-clock-handoff-v1",
+  "sourceCommit": "d0d4c6cddd1f8ba8e3565a4f51b75fc24ad1c686",
+  "sourceTree": "bc2baa84d5ddf43e7487209448b6c80cfc2482d3",
+  "captureBytes": 60597,
+  "captureSha256": "c097c05b033e1e8ebb516a80d122545d23cac9deda5cd7e6913ee2205f5319e7",
+  "members": 16,
+  "selectedInputs": 568,
+  "executableHashes": 6,
+  "profiles": {
+    "release": {
+      "clockChecks": 653,
+      "processingChecks": 451522,
+      "seconds": 0.29
+    },
+    "asanUbsan": {
+      "clockChecks": 653,
+      "processingChecks": 451522,
+      "seconds": 1.35
+    },
+    "tsan": {
+      "clockChecks": 653,
+      "processingChecks": 451522,
+      "seconds": 2.71
+    }
+  },
+  "clockConcurrentOwners": 3,
+  "originalReadingsPerSource": 20000,
+  "fixedPumpLimitPerSource": 4,
+  "processingIntegrationChecks": 451522,
+  "largeNativePositionsAndQpcPreserved": true,
+  "guardedAllocateFreeLock": 0,
+  "clockTimeDomain": "original QPC100ns; native capture frames/render ticks preserved",
+  "diskWriterComposed": false,
+  "nativeSdkQualified": false,
+  "windowsClockHandoffExecuted": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}

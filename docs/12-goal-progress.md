@@ -4637,3 +4637,24 @@ Independent actual MSVC raw writer1.11s passed within60 suites141.76s. A65,713-b
 packet binds its full job/API and17 original Git blobs; [Checkpoint189](189-original-raw-recording.md)
 records process-interruption/platform scope. Current-MAIN admission remains a
 separate protected gate. Full DAW goal is active and incomplete.
+
+## Original monitor clock handoff and independent Windows processing (2026-10-11)
+
+Frozen d0d4c6c adds separate admitted capture/render original-clock SPSC routes,
+immutable terminal receipts and a bounded processing-owner4+4 pump. Stop/cancel/
+overflow/late consumer loss are explicit; diagnostic fault prefixes are never
+fitted as healthy. Missing/delayed readings do not refresh accurate clock age.
+Release0.29s, ASan/UBSan1.35s and TSan2.71s each passed653 clock checks plus
+451,522 processing checks with guarded allocation/free/lock counts zero. Three
+actual clock owners transfer20,000 original readings per source; processor clock
+integration is separately serial. A60,597-byte/16-member packet binds568 inputs/
+six executables; fresh Release compilation reproduced both tested hashes.
+[Checkpoint191](191-original-clock-handoff.md) and ADR123 retain full scope.
+
+Separately MSVC job114429387569/run38125660721 passed61 synthetic suites166.54s,
+including earlier monitor processing0.09s. A60,636-byte/three-member packet binds
+14 reviewed blobs/full job/API evidence. That revision has no new clock handoff,
+and is not current-MAIN admission or native duplex qualification. Next combine
+disk/clock/processing with advancing original time, output priming and real
+postroll. Native activation, recording mappings, quality/localization and full
+product remain open.
