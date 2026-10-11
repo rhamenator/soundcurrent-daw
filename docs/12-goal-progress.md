@@ -4850,6 +4850,33 @@ this MAIN and awaits a fresh cohort. Previous Windows owner-failure causes,
 startup clock/capacity, alignment, punch/loop, EQ/mix, quality, localization and
 the full DAW goal remain open.
 
+## Prepared monitor render context and composed native-end evidence (2026-10-11)
+
+[Checkpoint198](198-native-monitor-render-context.md) binds the inactive actual
+WASAPI descriptor to the monitor bank and original render-clock handoff. Underflow
+aborts without filling missing live audio; only healthy finite end certifies final
+slack. Original SDK drain/Stop precedes result/clock EOF. Bank consumption, native
+commitment and monitor end retain distinct domains. Stable binding, first failures,
+missing owner and retirement are covered; the factory remains disabled.
+
+Frozen0a36c81 passes eight suites in Release0.47s, ASan/UBSan2.67s and TSan4.09s.
+Each profile includes1,000 actual render bind/end races,1,000 phased output leases
+and four composed capture/processing/disk/render cases. Guarded allocation/free/
+blocking locks are zero. The64,059-byte/17-member packet binds588 inputs/24 binary
+hashes/12 Windows object-library hashes/full logs. Actual SDK wrapper and full
+core-only Windows targets compile. Synthetic64k source/prior fits/pacing do not
+qualify live startup, deadlines, hardware latency or full EQ/mix execution.
+
+Preceding197 MSVC114469974987/run38139406261 passed67 suites144.24s, including
+render lifecycle0.01s; its48,150-byte/three-member packet retains17 reviewed blobs
+and original native job/API. It does not execute this new context. Protected132
+MAINc828bd4 matches its whole tested tree/base/28blobs from38138835329;145,457-byte/
+eight-member packet retains all four byte-exact jobs/admission/merge receipts.
+No bypass occurred. PR133 now inherits current MAIN and awaits fresh qualification.
+Original Windows owner failures remain unresolved. Next: durable original SDK-end
+transaction state, explicit native startup capacity/confidence, then SDK/installed
+Stop/cancel/loss/retirement. Full M2–M11/F/Q/C/N/localization goal remains incomplete.
+
 ## Current-MAIN Windows owner failures retained (2026-10-11)
 
 Output gate38127318120 separately failed manual takeGroup waiting (caller807) and
@@ -4861,3 +4888,43 @@ callback audit zero; Windows syntax checked but execution pending. A109,965-byte
 nine-member packet binds416 inputs/local binary/logs and both original failed
 Windows jobs/API/16 reviewed blobs. [Checkpoint181](181-durable-prefix-regression.md)
 records original unresolved causes. Fresh current-MAIN checks are still required.
+
+## Original take-owner diagnostics and bounded Windows reproduction (2026-10-11)
+
+[Checkpoint201](201-manual-group-owner-diagnostics.md) exposes a bounded control-
+owner take/lane/asset diagnostic: pending-start/attempt/join/worker state, original
+published phase/start/end/retired extent and atomic producer EOF/status. Reclaimed
+phase/EOF is explicitly unavailable; queries never read audio-only cursors or join
+workers. Existing disk observations retain phase/written/committed with a bounded
+coherent snapshot; diagnostics outlive owner joins and preserve original failures.
+
+A real69-frame writer held before asset hashing validates1,000 queries, exact
+producer retirement/worker-not-complete distinction, pending credit, failed sink,
+ready/delivered identity retirement and unchanged media/receipts. Initial TSan
+found the fixture's shared check-counter race; an always-lock-free atomic fixes
+that specific accounting cause. Original reports and initially incomplete selector
+are retained; five-second deadlines/assertions/recording behavior are unchanged.
+
+Frozena143154 passes six suites/profile: Release1.67s, ASan/UBSan8.22s, TSan7.49s;
+independent Debug control1.59s. Guarded allocate/free/lock0 and output difference0.
+The66,163-byte/23-member packet binds588inputs/19exehashes/twoWindowsobjects/full
+logs/config/scripts/originalfailure. New Windows objects compile without warnings,
+execution pending. CI adds at mostthree original20-take diagnostic workflows,
+stops on failure and preserves stdout/stderr; outer60s experiment limit does not
+change original5s acceptance. PR135's actual native group-wait failure remains a
+recorded gate, not resolved by the counter fix or a later green.
+
+Preceding200 MSVC114493056820/run38147238385 passed70suites150.54s/newstartup.59s;
+allfour original jobs passed. Its52,171-byte/three-member packet binds17blobs/full
+original native job/API/checkout, not this new diagnosis/currentMAIN/actualSDK.
+Next: inspect actual bounded Windows diagnosis, correct an established cause, or
+record limited non-reproduction and continue actual native warmup/handoff/state
+migration. Factory/native/installed/professional latency/EQmix/alignment and full
+M2–M11/F/Q/C/N/X004/X005/all-Europe work remain incomplete.
+
+Subsequent201 MSVC114500534997/run38149747511 passed68suites148.01s and allthree
+additional original20-take diagnostics; allfour original jobs passed. A51,006-byte/
+four-member packet binds13blobs/full native job/API/original merge and actual
+completion markers. This is limited non-reproduction, not a causal resolution of
+the original group wait. Current-MAIN refresh remains independently qualified;
+full native warmup/installed and parity scope remains open.
