@@ -91,6 +91,7 @@ void PreparedCaptureFanout::settleAfterJoin() noexcept {
     if ((s == CaptureFanoutStatus::RawFault || s == CaptureFanoutStatus::MonitorFault) && !firstFault())
         fail(s == CaptureFanoutStatus::RawFault ? CaptureFanoutSide::Raw : CaptureFanoutSide::Monitor,
              CaptureBankStatus::ConsumerFailed, {}, false, false);
+    settled_ = true;
 }
 CaptureBankRead PreparedCaptureFanout::acquireRaw(CaptureBankView &v) noexcept { return raw_.acquire(v); }
 CaptureBankRead PreparedCaptureFanout::acquireMonitor(CaptureBankView &v) noexcept { return monitor_.acquire(v); }

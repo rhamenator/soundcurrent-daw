@@ -25,6 +25,7 @@ class File {
     void close();
     void write(std::string_view);
     std::string readBounded(std::size_t maximumBytes); // Read-only control/disk owner.
+    void readExact(std::span<std::byte>); // Sequential bounded disk/control record, <=64KiB.
     std::string digest(const std::function<void()> &beforeRead = {}); // Same owned descriptor.
 
   private:

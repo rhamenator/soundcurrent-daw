@@ -49,6 +49,8 @@ class PreparedCaptureFanout {
     // without inventing an attempted native packet. Idempotent; transfer producer
     // ownership to control first. Does not consume/discard either queued prefix.
     void settleAfterJoin() noexcept;
+    bool settledAfterJoin() const noexcept { return settled_; } // Joined control owner only.
+    const CaptureBankConfig &captureConfig() const noexcept { return raw_.config(); }
     CaptureBankRead acquireRaw(CaptureBankView &) noexcept;
     CaptureBankRead acquireMonitor(CaptureBankView &) noexcept;
     bool releaseRaw(const CaptureBankView &) noexcept;
@@ -66,6 +68,7 @@ class PreparedCaptureFanout {
     PreparedCaptureBank raw_, monitor_;
     CaptureFanoutFault fault_{};
     std::size_t bytes_ = 0;
+    bool settled_ = false;
     std::atomic<std::uint32_t> requested_{0}, done_{0}, faultReady_{0};
     std::atomic<std::uint32_t> status_{std::uint32_t(CaptureFanoutStatus::Running)};
     void fail(CaptureFanoutSide, CaptureBankStatus, std::optional<CaptureBankStamp>, bool, bool) noexcept;
