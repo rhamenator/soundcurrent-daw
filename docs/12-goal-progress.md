@@ -1,5 +1,30 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native monitoring EQ and initial state (2026-10-11)
+
+[Checkpoint213](213-native-monitor-eq.md) integrates the existing prepared shared EQ
+into converted/mapped native monitoring, with stable bounded immediate/scheduled
+control ingress and acknowledgements. Original raw RF64 bits remain identical.
+Native state 1.3 binds a canonical initial declaration; bounded reopen, tamper
+refusal, legacy admission, migration and publication interruptions pass. It does
+not record interactive history or print monitoring correction into raw/export.
+
+Two expanded existing suites pass Release 15.38 s, ASan/UBSan 40.35 s and TSan
+29.31 s; guarded allocate/free/lock=0. Thirteen current Windows objects compile
+warning-free, including genuine SDK/timer code; current Windows native runtime,
+physical audio and desktop activation remain open. Exact source/command/log/hash
+and read-only equalizer provenance evidence is retained.
+
+Previous PR147 native job failed: 70/71 CTests passed, new owner startup timed out;
+third original standalone recording stalled at AudioFlushBegin after two passes.
+All original job/artifact logs and source bindings are preserved. Private Windows
+high-resolution waits now address a plausible owner-cadence issue; runtime evidence
+is pending and the separate manual flush-stall cause remains unresolved. Neither
+original deadlines/cohort nor protection are relaxed. Next qualify current native
+Windows execution and connect the finite desktop/controller workflow. Full-suite
+M2–M11/F/Q/C/N/X004/X005/platform/all-Europe goals remain active and incomplete.
+
+
 ## Owned native monitored recording workers (2026-10-11)
 
 [Checkpoint212](212-native-monitored-recording-owner.md) codes the genuine WASAPI
