@@ -1,0 +1,22 @@
+{
+  "format": "sc-desktop-loop-windows-ci-log-v1",
+  "head": "01b0dc8d711617d5264e7323034c332d0662b5aa",
+  "base": "aab9ca5b15f422ea112e72f7fdadc9068d29e644",
+  "testedMerge": "473db99da4a0d1bf0f220e3e0af3aab4533d3c2a",
+  "testedTree": "54eb6638c895f2078d8ee9877cb6f603c9848123",
+  "runId": 38110705676,
+  "jobId": 114385491597,
+  "reviewedChangedFiles": 59,
+  "captureBytes": 50548,
+  "captureSha256": "eb8c6e04aae2f61f8185a4ff8312ed4c24d92d294d0f44883cdb22e8b03c579f",
+  "windowsDesktopSuites": 19,
+  "desktopLoopWorkflowChecks": 36,
+  "wallSeconds": 66.24,
+  "syntheticWindowsDesktopQualified": true,
+  "nativeWindowsDuplexQualified": false,
+  "installedPreviewQualified": false,
+  "fullLanguageQualified": false,
+  "M2Complete": false,
+  "fullGoalComplete": false,
+  "productArtifactUploaded": false
+}

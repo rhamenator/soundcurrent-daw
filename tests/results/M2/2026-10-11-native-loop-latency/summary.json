@@ -1,0 +1,146 @@
+{
+  "format": "sc-native-loop-latency-log-v1",
+  "sourceCommit": "c104d06b51fbca182e6fda4de9656a022334f7a6",
+  "sourceTree": "2438b43927fdaa1712ff19577179fabd6d28ed7c",
+  "sourceInputs": 504,
+  "captureBytes": 60724,
+  "captureSha256": "9e4457dbd6eb7253a1b8f7810b9dba446b4b744862ab0e435a6e61803b37dd29",
+  "nativeLinuxWorkflows": 3,
+  "qualifiedLocalSuites": 3,
+  "observations": {
+    "loop": {
+      "mode": "3",
+      "armed_tracks": 3,
+      "common_raw_frames": 231049,
+      "native_loop_recording": true,
+      "until_stop": false,
+      "complete_passes": 13,
+      "partial_frames": 0,
+      "loop_context_verified": true,
+      "production_gui_duplex": true,
+      "raw_samples_exact": true,
+      "missing_track_frames": 0,
+      "output_max_difference": 0,
+      "group_undo_redo": true,
+      "save_reopen": true,
+      "owned_nodes_only": true,
+      "callback_allocations": 0,
+      "callback_frees": 0,
+      "callback_locks": 0,
+      "owner_elapsed_timing": {
+        "samples": 228,
+        "calls": 228,
+        "dropped_samples": 0,
+        "clock_failures": 0,
+        "p50_ns": 1932166,
+        "p95_ns": 2221875,
+        "p99_ns": 2489863,
+        "maximum_ns": 5703534
+      },
+      "input_latencies": [
+        7,
+        29,
+        2053
+      ],
+      "raw_frames": [
+        231049,
+        231049,
+        231049
+      ],
+      "monitor_frames": 231049
+    },
+    "until-stop": {
+      "mode": "3",
+      "armed_tracks": 3,
+      "common_raw_frames": 243707,
+      "native_loop_recording": true,
+      "until_stop": true,
+      "complete_passes": 13,
+      "partial_frames": 12658,
+      "loop_context_verified": true,
+      "production_gui_duplex": true,
+      "raw_samples_exact": true,
+      "missing_track_frames": 0,
+      "output_max_difference": 0,
+      "group_undo_redo": true,
+      "save_reopen": true,
+      "owned_nodes_only": true,
+      "callback_allocations": 0,
+      "callback_frees": 0,
+      "callback_locks": 0,
+      "owner_elapsed_timing": {
+        "samples": 240,
+        "calls": 240,
+        "dropped_samples": 0,
+        "clock_failures": 0,
+        "p50_ns": 2136375,
+        "p95_ns": 2256018,
+        "p99_ns": 2271556,
+        "maximum_ns": 6411007
+      },
+      "input_latencies": [
+        7,
+        29,
+        2053
+      ],
+      "raw_frames": [
+        245753,
+        245731,
+        243707
+      ],
+      "monitor_frames": 240000
+    },
+    "normal": {
+      "mode": "3",
+      "armed_tracks": 3,
+      "common_raw_frames": 240000,
+      "native_loop_recording": false,
+      "until_stop": false,
+      "complete_passes": 0,
+      "partial_frames": 0,
+      "loop_context_verified": false,
+      "production_gui_duplex": true,
+      "raw_samples_exact": true,
+      "missing_track_frames": 0,
+      "output_max_difference": 0,
+      "group_undo_redo": true,
+      "save_reopen": true,
+      "owned_nodes_only": true,
+      "callback_allocations": 0,
+      "callback_frees": 0,
+      "callback_locks": 0,
+      "owner_elapsed_timing": {
+        "samples": 235,
+        "calls": 235,
+        "dropped_samples": 0,
+        "clock_failures": 0,
+        "p50_ns": 956618,
+        "p95_ns": 2269379,
+        "p99_ns": 2656652,
+        "maximum_ns": 3469711
+      },
+      "input_latencies": [
+        0,
+        0,
+        0
+      ],
+      "raw_frames": [
+        240000,
+        240000,
+        240000
+      ],
+      "monitor_frames": 240000
+    }
+  },
+  "privateNativeLinuxLoopRecordingQualified": true,
+  "linearNativeRegressionQualified": true,
+  "nativeDelayedInputQualified": true,
+  "nativeWindowsDuplexQualified": false,
+  "physicalAudioQualified": false,
+  "installedPreviewQualified": false,
+  "fullLanguageQualified": false,
+  "M2Complete": false,
+  "fullGoalComplete": false,
+  "productArtifactUploaded": false,
+  "pcmIncluded": false
+}

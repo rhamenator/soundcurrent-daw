@@ -84,3 +84,15 @@ Next: qualify loop recording through actual owned Linux native routes and add th
 missing native Windows duplex owner. Recovered-copy reconciliation, portable job
 context copying, take audition/crossfades and all broader F/Q/C/N requirements
 remain open. No dependency/license change or product release upload.
+
+## Independent Windows desktop CI observation
+
+Windows job114385491597/run38110705676 tested merge473db99da4a0d1bf0f220e3e0af3aab4533d3c2a
+(head01b0dc8d/baseaab9ca5b). Nineteen suites passed66.24s, including36 loop GUI
+workflow checks with simulated endpoints. The50,548-byte
+[packet](../tests/results/M2/2026-10-11-desktop-loop-recording-windows/summary.json)
+binds59 exact reviewed changed files and the terminal successful job log.
+Packet validation and optional changed-file comparison passed. This establishes
+independent Windows OS/Qt execution; native WASAPI duplex, installed workflows
+and full-language delivery remain open. No native audio/UI replay or signature
+claim follows from the packet validator.

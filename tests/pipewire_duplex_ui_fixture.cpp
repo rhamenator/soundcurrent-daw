@@ -71,14 +71,17 @@ struct Audit {
 };
 struct Source {
     Audit audit;
-    static void process(void *, const DeviceBlockClock &clock, std::span<const float *const>,
+    std::array<Frame,256> latencies{}; // Immutable generated-device declaration before activation.
+    static void process(void *p, const DeviceBlockClock &clock, std::span<const float *const>,
                         std::span<float *const> out, std::uint32_t capacity) noexcept {
-        if (clock.duration > capacity)
+        auto &source = *static_cast<Source *>(p);
+        if (clock.duration > capacity || out.size() > source.latencies.size())
             return;
         for (unsigned c = 0; c < out.size(); ++c)
             if (out[c])
                 for (unsigned f = 0; f < clock.duration; ++f)
-                    out[c][f] = inputSignal(clock.position + f, c);
+                    out[c][f] = clock.position + f >= std::uint64_t(source.latencies[c])
+                                    ? inputSignal(clock.position + f - std::uint64_t(source.latencies[c]), c) : 0.f;
     }
     static void begin(void *p) noexcept {
         Audit::begin(&static_cast<Source *>(p)->audit);
@@ -214,14 +217,19 @@ int main(int argc, char **argv) {
     qputenv("XDG_CONFIG_HOME", config.path().toUtf8());
     QApplication app(argc, argv);
     try {
-        require(argc == 3 || argc == 4, "Supply owned project folder, track count and optional loop/until-stop mode");
-        const bool looping = argc == 4;
+        require(argc >= 3 && argc <= 5, "Supply owned project folder, track count, optional loop/until-stop and delayed inputs");
+        const bool looping = argc >= 4;
+        const bool delayed = argc == 5;
+        require(!delayed || std::string_view(argv[4]) == "delayed", "Unknown latency mode");
         const bool untilStop = looping && std::string_view(argv[3]) == "until-stop";
         require(!looping || untilStop || std::string_view(argv[3]) == "loop", "Unknown recording mode");
         constexpr Frame loopPeriod = 17773;
         const Frame monitorFrames = looping && !untilStop ? 13 * loopPeriod : target;
         const auto count = unsigned(std::stoul(argv[2]));
         require(count == 3 || count == 32, "Unknown native UI scale");
+        require(!delayed || count == 3, "Delayed fixture requires three inputs");
+        constexpr std::array<Frame, 3> delays{7, 29, 2053};
+        const Frame maximumLatency = delayed ? delays.back() : 0;
         const auto root = utf8Path(argv[1]);
         require(std::filesystem::create_directory(root), "Owned project already exists");
         auto initial = makeOneTrackSession("Native duplex UI — Ελληνικά", "Existing file");
@@ -235,6 +243,7 @@ int main(int argc, char **argv) {
             auto track = makeAudioTrack("Armed " + std::to_string(n + 1), {}, initial.sampleRate);
             track.eq.bands.resize(2);
             track.monitoring = n % 2 ? RecordingMonitor::Off : RecordingMonitor::PostEq;
+            track.inputLatencyFrames = delayed ? delays[n] : 0;
             arms.push_back(track.id);
             plan.tracks.push_back({track.id, {{0, n % 2, n % 3 ? .125 : -.25}}});
             initial.tracks.push_back(std::move(track));
@@ -244,6 +253,7 @@ int main(int argc, char **argv) {
         initial.master = MasterBus{Id::generate(), plan, {}};
         ProjectStore(root).save(initial);
         Source source;
+        for (unsigned n=0;n<count;++n) source.latencies[n]=initial.tracks[n+1].inputLatencyFrames;
         Audit ownerAudit;
         const auto prefix = "sc-daw-fixture-duplex-ui-" + Id::generate().str();
         PipeWireFilter sourceNode({prefix + "-source", 0, count, 65536, true},
@@ -399,7 +409,9 @@ int main(int argc, char **argv) {
             window.recordingSnapshot()->appliedFrame));
         await([&] {
             healthy();
-            return sink.complete && (untilStop || window.recordingSnapshot()->phase == RecordingPhase::Complete);
+            return sink.complete && (untilStop
+                ? window.recordingSnapshot()->telemetry.capturedFrames >= monitorFrames + maximumLatency + (delayed ? 1024 : 0)
+                : window.recordingSnapshot()->phase == RecordingPhase::Complete);
         });
         window.findChild<QPushButton *>("recordStopButton")->click();
         std::shared_ptr<const LoopRecordedTake> loopTake;
@@ -452,31 +464,40 @@ int main(int argc, char **argv) {
                     window.snapshot()->attachedRecordings == (looping ? 2 * count : count),
                 "Native GUI grouped receipt differs");
         std::vector<std::vector<float>> raw(count), processed(count);
-        std::uint64_t origin = 0;
+        const std::uint64_t origin = sink.origin;
+        std::vector<Frame> rawFrames;
         for (unsigned n = 0; n < count; ++n) {
             const auto &asset = model.assets[n + 1];
             const auto journal =
                 inspectRecording(root / "media" / ("capture-" + asset.id.str()), {}, true);
-            require(journal.finalized && journal.timingOrigin && asset.frames == (looping ? loopExtent.commonFrames : target) &&
-                        journal.spec.trackId == arms[n] && journal.spec.capture.startFrame == start,
+            require(journal.finalized && journal.timingOrigin &&
+                        asset.frames == (looping ? loopTake->sources[n].recording.asset.frames : target) &&
+                        (!looping || asset.frames >= loopExtent.commonFrames) &&
+                        (!looping || untilStop || asset.frames == monitorFrames) &&
+                        journal.spec.trackId == arms[n] &&
+                        journal.spec.inputLatencyFrames == initial.tracks[n + 1].inputLatencyFrames &&
+                        journal.spec.capture.startFrame == start + (looping ? initial.tracks[n + 1].inputLatencyFrames : 0),
                     "Native GUI raw take journal/extent/identity differs");
-            if (n == 0)
-                origin = journal.timingOrigin->devicePosition;
-            require(journal.timingOrigin->devicePosition == origin && sink.origin == origin,
-                    "Native GUI source/raw/sink clock origins differ");
+            const auto latency = looping ? initial.tracks[n + 1].inputLatencyFrames : 0;
+            const auto rawOrigin = journal.timingOrigin->devicePosition;
+            require(rawOrigin >= std::uint64_t(latency) && rawOrigin - std::uint64_t(latency) == origin,
+                    "Native GUI normalized raw/sink clock origins differ");
+            rawFrames.push_back(asset.frames);
             raw[n] = samples(root, asset);
             for (std::size_t f = 0; f < raw[n].size(); ++f)
-                require(raw[n][f] == inputSignal(origin + f, n),
+                require(raw[n][f] == inputSignal(rawOrigin - std::uint64_t(latency) + f, n),
                         "Native GUI live EQ changed raw input");
-            processed[n].resize(std::size_t(asset.frames));
+            processed[n].resize(std::size_t(monitorFrames));
             PreparedEq oracle(initial, arms[n], 127, generation);
             std::size_t event = 0;
-            for (Frame at = 0; at < asset.frames;) {
-                const auto frames = unsigned(std::min<Frame>(127, asset.frames - at));
+            std::array<float,127> independent{};
+            for (Frame at = 0; at < monitorFrames;) {
+                const auto frames = unsigned(std::min<Frame>(127, monitorFrames - at));
+                for (unsigned f = 0; f < frames; ++f) independent[f] = inputSignal(origin + at + f - std::uint64_t(latency), n);
                 auto end = event;
                 while (end < events[n].size() && events[n][end].frame < start + at + frames)
                     ++end;
-                const float *in = raw[n].data() + at;
+                const float *in = independent.data();
                 float *out = processed[n].data() + at;
                 require(
                     oracle.process({&in, 1}, {&out, 1}, frames, start + at,
@@ -488,6 +509,15 @@ int main(int argc, char **argv) {
             }
         }
         if (looping) {
+            require(*std::min_element(rawFrames.begin(),rawFrames.end()) == loopExtent.commonFrames,
+                    "Native common prefix was not the shortest full raw receipt");
+            if (delayed && untilStop)
+                require(rawFrames[0] - rawFrames[2] == delays[2] - delays[0] &&
+                            rawFrames[1] - rawFrames[2] == delays[2] - delays[1],
+                        "Native Stop trimmed original unequal raw prefixes");
+            if (delayed && !untilStop)
+                require(ownerAudit.calls * 1024 >= std::uint64_t(monitorFrames + maximumLatency),
+                        "Native finite run did not cover delayed postroll");
             std::size_t contextJobs = 0;
             for (const auto &entry : std::filesystem::directory_iterator(root / "media"))
                 if (entry.is_directory() && std::filesystem::exists(entry.path() / "loop-context.json"))
@@ -559,7 +589,7 @@ int main(int argc, char **argv) {
         });
         require(ProjectStore(root).load() == model, "Native GUI group did not save/reopen");
         std::cout << "{\"mode\":\"" << count << "\",\"armed_tracks\":" << count
-                  << ",\"frames_per_raw_take\":" << (looping ? loopExtent.commonFrames : target)
+                  << ",\"common_raw_frames\":" << (looping ? loopExtent.commonFrames : target)
                   << ",\"native_loop_recording\":" << (looping ? "true" : "false")
                   << ",\"until_stop\":" << (untilStop ? "true" : "false")
                   << ",\"complete_passes\":" << loopExtent.completePasses
@@ -572,7 +602,11 @@ int main(int argc, char **argv) {
                      "\"callback_allocations\":0,\"callback_frees\":0,\"callback_locks\":0,\"owner_"
                      "elapsed_timing\":";
         ownerAudit.timing.write(std::cout);
-        std::cout << "}\n";
+        std::cout << ",\"input_latencies\":[";
+        for (unsigned n=0;n<count;++n) {if(n)std::cout<<',';std::cout<<initial.tracks[n+1].inputLatencyFrames;}
+        std::cout << "],\"raw_frames\":[";
+        for (unsigned n=0;n<count;++n) {if(n)std::cout<<',';std::cout<<rawFrames[n];}
+        std::cout << "],\"monitor_frames\":" << monitorFrames << "}\n";
         return 0;
     } catch (const std::exception &e) {
         std::cerr << "FAIL: " << e.what() << '\n';

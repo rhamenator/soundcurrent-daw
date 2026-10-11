@@ -4335,8 +4335,40 @@ The60,284-byte/25-member packet binds504 source inputs/four executable hashes.
 Packet validation and optional source comparison passed. Original PCM stays local;
 installed/physical/native latency/postroll/Windows duplex/full goal stay open.
 
+[Checkpoint178](178-native-loop-recording-latency.md) exercises actual owned native
+Linux generated input delays7/29/2053 with finite postroll and unequal until-Stop
+prefixes. Every raw/output sample, original native origin normalization, retained
+source window/group and raw hash/history/save/reload passed in development; the
+source-frozen gate follows separately. Windows checkpoint176 independently passed
+19 desktop suites/66.24s and36 GUI checks with simulated endpoints. Its50,548-byte
+job-log packet binds59 reviewed changed files; optional source-byte comparison
+passed. Native Windows duplex/installed/language/full-goal qualification stays open.
+
 PR116 merged under existing protection as0e9f69f52987723bc2cdc1882d375a637f4e1622,
 head01b0dc8d/baseaab9ca5b, actual tested merge473db99da4a0d1bf0f220e3e0af3aab4533d3c2a.
-Run38110705676 had all four terminal successful required checks;59 exact reviewed
-blobs and the whole tree matched. The native loop branch inherits current main
-regularly, retaining its frozen original endpoint scope and evidence.
+Run38110705676 had all four terminal successful required checks. All59 reviewed
+blobs and the whole tree matched. Desktop checkpoint176 is integrated; this does
+not qualify native Windows duplex or expand its simulated endpoint scope.
+
+Checkpoint178 committed-source c104d06b51fbca182e6fda4de9656a022334f7a6 passed
+three owned native workflows and three synthetic suites/1.20s. Native finite
+postroll228calls captured231,049 frames/input; until-Stop240calls preserved unequal
+245,753/245,731/243,707 raw lengths and13complete+12,658partial common frames.
+Every raw/output sample matched; callbacks allocate/free/lock0. The60,724-byte
+25-member packet binds504 selected inputs/four executable hashes, with packet
+and optional source-byte checks passing. Native shared-clock latency/postroll now
+has short generated-device evidence; hardware/load/fault/recovery/Windows/native
+installed/full F/Q/C/N remain open. ADR114 pins Windows independent clock handling
+and the next typed correlation primitive; no native Windows duplex claim follows.
+
+## Protected integration: native loop recording (2026-10-11)
+
+PR117 was ordinarily squash-merged as `9b751205eddd99f3d0bedef77933d21cce33b002`.
+Qualified head `084c56e1135f1665ca003f76a6df07e3ee2c27a9` against MAIN
+`0e9f69f52987723bc2cdc1882d375a637f4e1622` used tested merge
+`88dd2fea8f9056ffe8a687d87dc7c8c1909a50b3`. CI run38111695853 had all four
+required jobs terminal SUCCESS. Eleven reviewed blobs and the complete tree
+matched the resulting MAIN. Existing branch protection remained enabled, with
+no administrative bypass. Native delayed-input checkpoint178 remains separately
+qualified on its frozen source; this integration adds no Windows native duplex
+or physical-device evidence.

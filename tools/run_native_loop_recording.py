@@ -20,7 +20,10 @@ args = argparse.ArgumentParser(description=__doc__)
 args.add_argument('--build-dir', type=Path, default=REPO / '.cache/build-desktop')
 args.add_argument('--output-dir', type=Path, default=REPO / '.cache/native-loop-recording')
 args.add_argument('--mode', choices=('loop', 'until-stop', 'normal'), default='loop')
+args.add_argument('--delayed-inputs', action='store_true', help='Use declared latencies 7/29/2053 frames')
 args = args.parse_args()
+if args.delayed_inputs and args.mode == 'normal':
+    raise RuntimeError('Delayed inputs require a loop recording mode')
 args.output_dir.mkdir(parents=True, exist_ok=True)
 root = Path(tempfile.mkdtemp(prefix='lr-', dir=args.output_dir.resolve()))
 print(json.dumps({'ownedFolder': str(root)}), flush=True)
@@ -49,7 +52,8 @@ invocation = {'mode': args.mode, 'ownedRuntime': str(runtime), 'privateDaemon': 
               'fixtureSha256': hashlib.sha256(exe.read_bytes()).hexdigest(),
               'installedConfigSha256': hashlib.sha256(installed).hexdigest(),
               'configSha256': hashlib.sha256(conf.read_bytes()).hexdigest(),
-              'vmUsed': False, 'physicalOutputSelected': False}
+              'vmUsed': False, 'physicalOutputSelected': False,
+              'inputLatencyFrames': [7,29,2053] if args.delayed_inputs else [0,0,0]}
 log = open(root / 'daemon.txt', 'wb')
 server = subprocess.Popen(['pipewire', '-c', str(conf)], env=env, stdout=log, stderr=subprocess.STDOUT)
 try:
@@ -70,6 +74,8 @@ try:
     command = [str(exe), str(root / 'project'), '3']
     if args.mode != 'normal':
         command.append(args.mode)
+    if args.delayed_inputs:
+        command.append('delayed')
     invocation['command'] = command
     with open(root / 'stdout.json', 'wb') as stdout, open(root / 'stderr.txt', 'wb') as stderr:
         run = subprocess.run(command, env=env,
