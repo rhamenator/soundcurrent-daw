@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+#include "project_schema_fixture.hpp"
 #include <soundcurrent/routing.hpp>
 #include <soundcurrent/project_store.hpp>
 #include <nlohmann/json.hpp>
@@ -93,7 +94,7 @@ void migrationsAndValidation() {
     auto legacy = nlohmann::json::parse(encodeProject(s));
     legacy.erase("master");
     legacy.erase("punchRecording");
-    legacy["schemaMinor"] = 0;
+    legacy["schemaMinor"] = 0;sc_test::eraseSchema16FixtureKeys(legacy);
     legacy.erase("imports");
     for (auto &t : legacy["tracks"]) {
         for (auto &c : t["clips"]) {c.erase("processing");c.erase("sourceTiming");c.erase("playbackRate");c.erase("stretch");}
@@ -104,7 +105,7 @@ void migrationsAndValidation() {
         t["outputIntent"].erase("ports");
     }
     check(decodeProject(legacy.dump()) == s, "v1.0 migration changed identities/EQ/legacy routes");
-    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 15,
+    check(nlohmann::json::parse(encodeProject(decodeProject(legacy.dump())))["schemaMinor"] == 16,
           "Migrated state did not write v1.11");
     auto bad = legacy;
     bad["tracks"][0]["monitorIntent"] = nlohmann::json::object();
@@ -224,7 +225,7 @@ void legacyMediaMigration() {
     auto j = nlohmann::json::parse(encodeProject(original));
     j.erase("master");
     j.erase("punchRecording");
-    j["schemaMinor"] = 0;
+    j["schemaMinor"] = 0;sc_test::eraseSchema16FixtureKeys(j);
     j.erase("imports");
     for (auto &t : j["tracks"]) {
         for (auto &c : t["clips"]) {c.erase("processing");c.erase("sourceTiming");c.erase("playbackRate");c.erase("stretch");}
@@ -328,9 +329,9 @@ void masterState() {
     check(h.structural({SetMaster{m}}), "Master not admitted");
     check(decodeProject(encodeProject(s)) == s, "Master exact schema roundtrip differs");
     auto j = nlohmann::json::parse(encodeProject(s));
-    check(j["schemaMinor"] == 15, "Master schema not 1.15");
+    check(j["schemaMinor"] == 16, "Master schema not 1.16");
     auto old = j;
-    old["schemaMinor"] = 2;
+    old["schemaMinor"] = 2;sc_test::eraseSchema16FixtureKeys(old);
     old.erase("imports");
     old.erase("master");
     old.erase("punchRecording");

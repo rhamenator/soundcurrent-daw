@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+#include "project_schema_fixture.hpp"
 #include <soundcurrent/project_import_state.hpp>
 #include <soundcurrent/media_staging.hpp>
 #include <soundcurrent/media_recovery.hpp>
@@ -182,7 +183,7 @@ int test(const std::filesystem::path &input) {
         ProjectStore(root).save(session);check(ProjectStore(root).load().imports==session.imports && history.undo() && history.redo(),"Edit/save/history dropped import evidence");
         check(ProjectStore(root).loadPrevious().imports==session.imports,"Backup dropped original loss state");
         auto j=nlohmann::json::parse(encodeProject(session));
-        check(j["schemaMinor"]==15 && j["imports"][0]["media"][0]["sourceProperty"]==ordinal,"Stable import identifiers differ");
+        check(j["schemaMinor"]==16 && j["imports"][0]["media"][0]["sourceProperty"]==ordinal,"Stable import identifiers differ");
         for (unsigned mode=0;mode<20;++mode) {
             auto bad=j;auto &i=bad["imports"][0];auto &m=i["media"][0];
             switch(mode) {
@@ -212,7 +213,7 @@ int test(const std::filesystem::path &input) {
         auto duplicate=j.dump();duplicate.insert(1,"\"imports\":[],");refuses([&]{decodeProject(duplicate);});
         for (unsigned minor=0;minor<8;++minor) {
             auto plain=makeOneTrackSession("Legacy", "Raw");auto old=nlohmann::json::parse(encodeProject(plain));
-            old["schemaMinor"]=minor;old.erase("imports");
+            old["schemaMinor"]=minor;sc_test::eraseSchema16FixtureKeys(old);old.erase("imports");
             if (minor<4) old.erase("punchRecording");
             if (minor<3) old.erase("master");
             for (auto &t:old["tracks"]) {

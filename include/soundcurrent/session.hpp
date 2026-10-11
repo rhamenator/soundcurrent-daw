@@ -237,6 +237,10 @@ struct ClipStretchAnchor {
     // Split/crop/duplicate retain it and move only the derived source position.
     bool operator==(const ClipStretchAnchor &) const = default;
 };
+struct ClipTakeOrigin {
+    Id trackId, laneId, clipId; // Retained source; survives moves between tracks.
+    bool operator==(const ClipTakeOrigin &) const = default;
+};
 struct Clip {
     Id id = Id::generate();
     Id assetId = Id::generate();
@@ -247,7 +251,18 @@ struct Clip {
     ClipSourceTiming sourceTiming;
     ClipPlaybackRate playbackRate;
     std::optional<ClipStretchAnchor> stretch = {};
+    std::optional<ClipTakeOrigin> takeOrigin = {};
     bool operator==(const Clip &) const = default;
+};
+struct TakeLane {
+    Id id = Id::generate(), groupId = Id::generate();
+    std::string name;
+    // Original recording transport range in project-rate frames, before each
+    // track's input delay. Device-clock origins remain in the raw media journal.
+    // This range is independent of the lane clips' later project positions.
+    Frame captureStartFrame = 0, captureEndFrame = 0;
+    std::vector<Clip> clips; // Inactive. Only explicit comp copies are audible.
+    bool operator==(const TakeLane &) const = default;
 };
 enum class RecordingMonitor { Off, PostEq, AutoRecording };
 constexpr bool validRecordingMonitor(RecordingMonitor mode) noexcept {
@@ -265,6 +280,7 @@ struct Track {
     Frame inputLatencyFrames = 0; // Declared capture delay, 0..60 seconds at project rate.
     EqSettings eq;
     std::vector<Clip> clips;
+    std::vector<TakeLane> takeLanes;
     bool operator==(const Track &) const = default;
 };
 struct Asset {
@@ -406,9 +422,22 @@ struct SetInputLatency {
     Id track;
     Frame frames;
 };
+struct InsertTakeLane {
+    Id track;
+    TakeLane lane;
+    std::optional<Id> before;
+};
+struct RemoveTakeLane { Id track, lane; };
+struct RenameTakeLane { Id track, lane; std::string name; };
+struct MoveTakeLane { Id track, lane; std::optional<Id> before; };
+struct SelectTakeRegion {
+    Id track, lane;
+    Frame startFrame = 0, endFrame = 0; // Fully covered project region [start,end).
+};
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency>;
+                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetInputLatency,
+                 InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };
 struct RouteAddress {

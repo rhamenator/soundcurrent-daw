@@ -312,8 +312,7 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
         bytes.add(t.eq.bands.capacity(), sizeof(EqBand));
         for (const auto &b : t.eq.bands)
             id(b.id);
-        bytes.add(t.clips.capacity(), sizeof(Clip));
-        for (const auto &c : t.clips) {
+        const auto clipPayload = [&](const Clip &c) {
             validateClipProcessing(c.processing);
             id(c.id);
             string(c.assetId.str());
@@ -322,6 +321,20 @@ std::size_t sessionPayloadBytes(const Session &s, StateBudget budget) {
                 string(c.stretch->sourceSha256);string(c.stretch->renderKey);string(c.stretch->processor);
                 if(c.stretch->warp)bytes.add(warpPayloadBytes(*c.stretch->warp));
             }
+            if (c.takeOrigin) {
+                string(c.takeOrigin->trackId.str());
+                string(c.takeOrigin->laneId.str());
+                string(c.takeOrigin->clipId.str());
+            }
+        };
+        bytes.add(t.clips.capacity(), sizeof(Clip));
+        for (const auto &c : t.clips) clipPayload(c);
+        bytes.add(t.takeLanes.capacity(), sizeof(TakeLane));
+        for (const auto &lane : t.takeLanes) {
+            id(lane.id); id(lane.groupId); string(lane.name);
+            bytes.add(lane.clips.capacity(), sizeof(Clip));
+            bytes.add(lane.clips.size(), 128); // Retained clip index and interval staging.
+            for (const auto &c : lane.clips) clipPayload(c);
         }
     }
     if (s.master) {
@@ -345,6 +358,9 @@ void validate(const Session &s, StateBudget budget) {
               (!s.punch.enabled || s.punch.endFrame > s.punch.startFrame),
           "Invalid punch recording locators");
     std::unordered_set<std::string_view> ids;
+    std::unordered_map<std::string_view, std::pair<Frame, Frame>> takeGroups;
+    struct RetainedClip { const Track *track; const TakeLane *lane; const Clip *clip; };
+    std::unordered_map<std::string_view, RetainedClip> retained;
     auto unique = [&](const Id &id) {
         check(ids.insert(id.str()).second, "Duplicate object UUID");
     };
@@ -435,7 +451,7 @@ void validate(const Session &s, StateBudget budget) {
             }
             check(b.frequencyHz < double(s.sampleRate) / 2, "EQ frequency exceeds Nyquist");
         }
-        for (const auto &c : t.clips) {
+        const auto validateClip = [&](const Clip &c) {
             unique(c.id);
             auto it = assets.find(c.assetId.str());
             check(it != assets.end(), "Clip refers to unknown asset");
@@ -454,7 +470,49 @@ void validate(const Session &s, StateBudget budget) {
                 validateClipStretch(*c.stretch,*raw->second,a);
                 validateStretchClipWindow(c,*raw->second,a,s.sampleRate);
             }
+        };
+        std::unordered_set<std::string_view> trackGroups;
+        for (const auto &lane : t.takeLanes) {
+            unique(lane.id); text(lane.name);
+            check(lane.captureStartFrame >= 0 && lane.captureEndFrame > lane.captureStartFrame,
+                  "Invalid retained take capture extent");
+            check(!lane.clips.empty(), "Retained take lane has no clips");
+            check(trackGroups.insert(lane.groupId.str()).second,
+                  "Track has duplicate retained take group");
+            const auto extent = std::pair(lane.captureStartFrame, lane.captureEndFrame);
+            auto [group, inserted] = takeGroups.emplace(lane.groupId.str(), extent);
+            check(inserted || group->second == extent, "Grouped take capture extents differ");
+            std::vector<std::pair<Frame, Frame>> ranges;
+            ranges.reserve(lane.clips.size());
+            for (const auto &c : lane.clips) {
+                check(!c.takeOrigin, "Retained take clip cannot reference another take");
+                validateClip(c);
+                retained.emplace(c.id.str(), RetainedClip{&t, &lane, &c});
+                ranges.emplace_back(c.startFrame, c.startFrame+c.lengthFrames);
+            }
+            std::sort(ranges.begin(), ranges.end());
+            for (std::size_t n = 1; n < ranges.size(); ++n)
+                check(ranges[n-1].second <= ranges[n].first, "Retained take clips overlap");
         }
+        for (const auto &c : t.clips) validateClip(c);
+    }
+    for (const auto &t : s.tracks)
+        for (const auto &c : t.clips)
+            if (c.takeOrigin) {
+                const auto origin = retained.find(c.takeOrigin->clipId.str());
+                check(origin != retained.end() && origin->second.track->id == c.takeOrigin->trackId &&
+                          origin->second.lane->id == c.takeOrigin->laneId,
+                      "Comp refers to a missing retained take clip");
+                const auto &source = *origin->second.clip;
+                check(source.assetId == c.assetId ||
+                          (c.stretch && (c.stretch->sourceAssetId == source.assetId ||
+                              (source.stretch && c.stretch->sourceAssetId == source.stretch->sourceAssetId &&
+                               c.stretch->sourceSha256 == source.stretch->sourceSha256))),
+                      "Comp source asset differs from retained take");
+            }
+    for (const auto &[group, extent] : takeGroups) {
+        (void)extent;
+        check(ids.insert(group).second, "Take group UUID conflicts with an object");
     }
 }
 ValidatedSession::ValidatedSession(const Session &s, StateBudget budget) : session_(s) {
