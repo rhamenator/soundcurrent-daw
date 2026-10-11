@@ -1,0 +1,105 @@
+{
+  "format": "sc-writer-backlog-timing-v1",
+  "source": "3ed02b44b206250a2726cefb59d2190c1e33cc9e",
+  "tree": "5db204da4694be29d1cd708af2fab7e52c3da6c2",
+  "precedingSource": "f8c6b8bdb598748e852c3af2dfc6ef0f3bf46c3e",
+  "changedSourceFiles": [
+    "tests/manual_recording_tests.cpp"
+  ],
+  "selectedInputs": 636,
+  "observed": {
+    "release": {
+      "seconds": 1.14,
+      "workflow": {
+        "checks": 75531,
+        "repeated_workflows": 3,
+        "maximum_output_difference": 0,
+        "output_peak": 2.14813,
+        "rt_violations": 0,
+        "native_audio": false,
+        "windows_runtime": false
+      },
+      "controlledHoldAgeNs": 21803005,
+      "controlledMaximumWriteSpanNs": 22383900,
+      "rawRecoveredPrefixFrames": 8192,
+      "rawExact": true,
+      "concurrentTiming": "concurrent_writer_timing completed_begin_local_ns=212726392 completed_end_local_ns=212763783 fixture_write_span_max_ns=57383 observation_sequence=1004 backlog_observed=1 observed_capacity_frames=8192",
+      "exeSha256": "771d2df92afe39f5b6d1818d5ab6a619fef85b920bfd527c40b523697a9ceb15"
+    },
+    "sanitizer": {
+      "seconds": 4.07,
+      "workflow": {
+        "checks": 75618,
+        "repeated_workflows": 3,
+        "maximum_output_difference": 0,
+        "output_peak": 2.14813,
+        "rt_violations": 0,
+        "native_audio": false,
+        "windows_runtime": false
+      },
+      "controlledHoldAgeNs": 30661382,
+      "controlledMaximumWriteSpanNs": 31099345,
+      "rawRecoveredPrefixFrames": 8192,
+      "rawExact": true,
+      "concurrentTiming": "concurrent_writer_timing completed_begin_local_ns=381331327 completed_end_local_ns=381388005 fixture_write_span_max_ns=76064 observation_sequence=716 backlog_observed=1 observed_capacity_frames=8192",
+      "exeSha256": "99315fed0ec61a0939fec6e63ceebc5cbf9aa1d8a7ec097ef00c0a17fc67d951"
+    },
+    "tsan": {
+      "seconds": 2.85,
+      "workflow": {
+        "checks": 75529,
+        "repeated_workflows": 3,
+        "maximum_output_difference": 0,
+        "output_peak": 2.14813,
+        "rt_violations": 0,
+        "native_audio": false,
+        "windows_runtime": false
+      },
+      "controlledHoldAgeNs": 26425955,
+      "controlledMaximumWriteSpanNs": 26838419,
+      "rawRecoveredPrefixFrames": 8192,
+      "rawExact": true,
+      "concurrentTiming": "concurrent_writer_timing completed_begin_local_ns=274510624 completed_end_local_ns=274582390 fixture_write_span_max_ns=91489 observation_sequence=920 backlog_observed=1 observed_capacity_frames=8192",
+      "exeSha256": "c2338f986d7603da9e6c2194b6d522079e72c6afe1b8d22a77157c005e3c1a2f"
+    }
+  },
+  "windows": {
+    "source": "3ed02b44b206250a2726cefb59d2190c1e33cc9e",
+    "compiledSource": "tests/manual_recording_tests.cpp",
+    "command": [
+      "nice",
+      "-n",
+      "15",
+      "ionice",
+      "-c",
+      "2",
+      "-n",
+      "7",
+      "x86_64-w64-mingw32-g++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wconversion",
+      "-Iinclude",
+      "-Itests",
+      "-Ithird_party/libsndfile",
+      "-c",
+      "tests/manual_recording_tests.cpp",
+      "-o",
+      ".cache/writer-backlog-timing/windows-manual-fixture.obj"
+    ],
+    "objectBytes": 257003,
+    "objectSha256": "9fbe8a3734d40961a0282e59e69da1f07935f2d6e4ff39f80aadaca7b8daacbc",
+    "warningFree": true,
+    "runtimeExecuted": false
+  },
+  "originalTwentyTakesFiveSecondProtocolPreserved": true,
+  "productionCapacityOrDeadlinesChanged": false,
+  "nativeWindowsRootResolved": false,
+  "realTimeLoggingAdded": false,
+  "productBinariesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}
