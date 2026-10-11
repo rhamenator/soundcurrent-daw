@@ -1,0 +1,46 @@
+{
+  "build-inputs.json": {
+    "bytes": 61900,
+    "sha256": "9af931f7248a0de801f5cc3d11943570d39f398a537573fb7260f80d9f437145"
+  },
+  "release-build.log": {
+    "bytes": 279,
+    "sha256": "3748fc43155fca088db25da1f1bc932764cb9f1f5b8ff4ef9ee237ed51ca7543"
+  },
+  "release-ctest.log": {
+    "bytes": 2180,
+    "sha256": "a96f2d42f0733b87d88bd9b806ee8fb54b6d5eba2996c4184c7047007f3cc1f3"
+  },
+  "release-lasttest.log": {
+    "bytes": 2457,
+    "sha256": "365c1688c544e93a302a286755bb26c5d57ccb98bfdd46c2fda124544604fb82"
+  },
+  "sanitizer-build.log": {
+    "bytes": 279,
+    "sha256": "3748fc43155fca088db25da1f1bc932764cb9f1f5b8ff4ef9ee237ed51ca7543"
+  },
+  "sanitizer-ctest.log": {
+    "bytes": 1124,
+    "sha256": "9fd9afe3783b284c9d0b609f7977bff063581b8ad1267afa3391123839db0d5a"
+  },
+  "sanitizer-lasttest.log": {
+    "bytes": 912,
+    "sha256": "b866b35a685ceee04ff5b864bc424e1fcab4eafdcfff12464eed35f5b5032e83"
+  },
+  "tsan-build.log": {
+    "bytes": 279,
+    "sha256": "3748fc43155fca088db25da1f1bc932764cb9f1f5b8ff4ef9ee237ed51ca7543"
+  },
+  "tsan-ctest.log": {
+    "bytes": 1124,
+    "sha256": "773d6254919ee5ae3fb2b06afa7a34b5496f44104ab83abecea84ad09e65ab47"
+  },
+  "tsan-lasttest.log": {
+    "bytes": 912,
+    "sha256": "ce5bdac7b2bef29bf1d394411a3846595c327dbb12d60fbd6054a1a9a0c0220b"
+  },
+  "tsan-configure.log": {
+    "bytes": 1937,
+    "sha256": "5248d62209b764fe44e7a396e0ed31c08a3efc23ca60464b5df98015d343c1fb"
+  }
+}

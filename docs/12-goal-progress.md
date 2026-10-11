@@ -4407,3 +4407,24 @@ and reviewed tree. A38,166-byte/three-member packet binds full job log/status an
 17 changed-file hashes. Native duplex/installed/physical/full-language evidence
 is still required. Source check counts/executable hashes were not exposed by CI.
 PR119 admission must use its refreshed current-MAIN cohort, not this stacked run.
+
+## 180 — original stamped capture-bank handoff (2026-10-11)
+
+Prepared GPL C++20 bank reuses charged storage and bounded SPSC queues. Complete
+original packets retain identity/frame/QPC/flags, float bits and channel order;
+SDK/scratch reuse cannot corrupt queued copies. One consumer lease, exact release,
+explicit Empty, sticky loss/error prefixes, cancellation/Done publication and
+joined-owner retirement are tested. No native origin or project mapping is made.
+Frozen `2da7a3e2f664963f9230161031fa04290969527c` passed three Linux Release
+suites (0.07s), ASan/UBSan (0.13s) and ThreadSanitizer (0.26s):3,179 bank checks,
+20,000 concurrent packets/319,935 frames, unchanged admitted credit and zero
+C++/interposed libc allocation/free/pthread blocking-lock calls on audited paths.
+The 31,729-byte/11-member packet binds538 selected inputs/five executable hashes;
+standalone/source-byte validation passed. [Checkpoint180](180-stamped-capture-bank.md)
+and ADR116 record scope. Windows MSVC target/allowlist and compile-time SDK flag
+checks are included; actual bank execution remains independently required.
+No new dependency, driver/certificate, raw/project schema or audible UI change.
+Native duplex, drift/causal monitoring, durable raw mappings, installed/physical/
+load/localization/full P005/M2/F/Q/C/N remain open; earlier quality failures stay.
+Next: causal monitor buffering and bounded drift correction, original raw writers/
+versioned mappings, SDK composition and Windows desktop duplex factory.
