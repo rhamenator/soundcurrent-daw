@@ -1,0 +1,41 @@
+{
+  "format": "sc-desktop-loop-recording-log-v1",
+  "sourceCommit": "f792f74273c38f333726452bea58ac3d5da8ae62",
+  "sourceTree": "71e446f0d3f9888495328724f501feb914b1ad0a",
+  "sourceInputs": 504,
+  "captureBytes": 28479,
+  "captureSha256": "bd55d5d41f4456e4d51c2ca70e5461a830ce8d3b212406422c7b20ba40e87c99",
+  "qualifiedLocalSuites": 10,
+  "desktopLoopChecks": 37,
+  "optionalScreenshotChecks": 1,
+  "actualFinitePasses": 13,
+  "completePageSizes": [
+    5,
+    8
+  ],
+  "untilStopCompletePasses": 6,
+  "untilStopPartialFrames": 37,
+  "snapshot": {
+    "file": "preview.png",
+    "bytes": 60878,
+    "sha256": "d35cbf536715a38da4cd05ec47d0a1ee1d8ccfbf3cd43d4c9c3deab5e08d81a5",
+    "width": 900,
+    "height": 700
+  },
+  "syntheticDesktopQualified": true,
+  "originalContextVerified": true,
+  "scalarRebase": true,
+  "rawUnchanged": true,
+  "saveReopen": true,
+  "undoRedo": true,
+  "nativeLinuxLoopRecordingQualified": false,
+  "nativeWindowsLoopRecordingQualified": false,
+  "nativeWindowsDesktopLoopQualified": false,
+  "contextProjectCopyQualified": false,
+  "recoveredCopyLoopReconciled": false,
+  "installedPreviewQualified": false,
+  "fullLanguageQualified": false,
+  "M2Complete": false,
+  "fullGoalComplete": false,
+  "productArtifactUploaded": false
+}

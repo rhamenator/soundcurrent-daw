@@ -58,8 +58,19 @@ verification failure/retry, a scalar EQ edit during paused disk verification,
 raw media and Save/reopen. Tests wait for visible/enabled refreshed controls before
 clicking; control-worker snapshots alone are not proof that widgets refreshed.
 
-Ten Linux desktop/core suites passed in the development gate. Committed-source
-evidence is recorded separately after source freeze. The Windows desktop CI
+The committed-source gate at `f792f74273c38f333726452bea58ac3d5da8ae62`
+passed ten Linux desktop/core suites in 11.79 seconds, with 37 loop GUI checks
+including one optional screenshot check (36 workflow checks). Its 28,479-byte
+[evidence packet](../tests/results/M2/2026-10-11-desktop-loop-recording/summary.json)
+binds 504 selected source inputs and nine executable hashes. The incremental
+build compiled and linked the localization test; the other executables had
+already been built from the identical frozen input bytes. Both packet validation
+and optional source-byte comparison passed. These checks validate retained
+evidence; they do not replay audio/UI or authenticate a signature.
+
+![Actual retained-take preview at 900 by 700 pixels](../tests/results/M2/2026-10-11-desktop-loop-recording/preview.png)
+
+The Windows desktop CI
 allowlist includes the same new synthetic GUI workflow. Native Windows duplex
 recording is still missing; its normal UI disables shared recording accordingly.
 Neither simulated endpoints nor compilation qualify native recording.
