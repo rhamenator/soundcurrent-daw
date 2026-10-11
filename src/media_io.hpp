@@ -24,6 +24,7 @@ class File {
     void flush();
     void close();
     void write(std::string_view);
+    std::string readBounded(std::size_t maximumBytes); // Read-only control/disk owner.
     std::string digest(const std::function<void()> &beforeRead = {}); // Same owned descriptor.
 
   private:
