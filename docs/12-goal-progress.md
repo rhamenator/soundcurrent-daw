@@ -4617,6 +4617,26 @@ Independent actual MSVC output-bank0.03s passed within59 suites126.86s; the
 42,258-byte packet binds full job/API evidence and16 original blobs. See
 [Checkpoint187](187-monitor-output-transport.md). No native SDK, installed,
 physical/load, complete-product, processing-quality or localization claim follows.
+
+## Bounded monitor processing composition (2026-10-11)
+
+Frozen8d36d4ce composes the single processing owner with original fanout, causal
+reservoir/controller and output transport. Whole group credit precedes storage;
+actual pending PCM survives output pressure without input/DSP/controller progress.
+Original observations and explicit current control time gate live grids; real
+postroll/monitor-only cancellation and immutable first faults preserve raw data.
+Each Release0.23s/ASanUBSan1.14s/TSan2.34s passed435,830 checks, including3/256-channel
+bit-exact reference/pressure and actual four-owner256-packet/4,004-raw-frame/
+3,072-output-frame composition. Guarded allocation/free/locks zero. The57,822-byte
+packet binds565 inputs/three executable hashes. [Checkpoint190](190-bounded-monitor-processing.md)
+and ADR122 distinguish synthetic fixed time/raw reader from native clock/disk/EQ
+composition, installed/physical/load/quality and complete DAW/localization work.
+Next: bounded original clock handoffs and combined disk/processing startup/end.
+
+Independent actual MSVC raw writer1.11s passed within60 suites141.76s. A65,713-byte
+packet binds its full job/API and17 original Git blobs; [Checkpoint189](189-original-raw-recording.md)
+records process-interruption/platform scope. Current-MAIN admission remains a
+separate protected gate. Full DAW goal is active and incomplete.
 ## Current-MAIN Windows owner failures retained (2026-10-11)
 
 Output gate38127318120 separately failed manual takeGroup waiting (caller807) and

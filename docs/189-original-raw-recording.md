@@ -103,8 +103,15 @@ The 62,213-byte/19-member [retained packet](../tests/results/M2/2026-10-11-origi
 binds the source/tree, 562 selected Git and checkout inputs, six executable hashes,
 actual compilation/test logs and profile configuration. No executable or test
 media is uploaded. Existing unrelated compiler warnings remain visible in logs.
-Windows implementation paths are present; actual MSVC writer execution is still
-required. See [ADR121](decisions/121-original-raw-recording.md).
+Windows implementation paths are present. See [ADR121](decisions/121-original-raw-recording.md).
+
+Independent actual MSVC job114426318508/run38124626721 passed60 synthetic suites
+in141.76s, including original raw recording1.11s. The
+[65,713-byte/three-member packet](../tests/results/M2/2026-10-11-original-raw-windows/summary.json)
+retains its full job/API evidence, exact tested merge/tree/parents and17 reviewed
+Git file hashes. Per-check counts and executable hashes are not exposed or claimed.
+This includes the Windows process-interruption paths, not current-MAIN admission,
+native SDK, installed/physical/load or complete-product qualification.
 
 ## Next implementation
 
