@@ -1,0 +1,42 @@
+{
+  "format": "sc-monitor-startup-combination-v1",
+  "sourceCommit": "dd096bdb2edae60256038c66c613f913ce49521b",
+  "sourceTree": "2f0082a100e33a93f95859e05a661a16fd583f79",
+  "captureBytes": 72211,
+  "captureSha256": "0e03b998b42fbfde404c032bfc9f9fdc9281e292ed551060403242e4a25bd64e",
+  "members": 16,
+  "selectedInputs": 593,
+  "executableHashes": 48,
+  "profiles": {
+    "release": {
+      "suites": 16,
+      "seconds": 3.34,
+      "startupChecks": 19652,
+      "heldFinalizationQueries": 1000,
+      "guardedAllocateFreeLock": 0
+    },
+    "sanitizer": {
+      "suites": 16,
+      "seconds": 22.45,
+      "startupChecks": 19652,
+      "heldFinalizationQueries": 1000,
+      "guardedAllocateFreeLock": 0
+    },
+    "tsan": {
+      "suites": 16,
+      "seconds": 26.87,
+      "startupChecks": 19652,
+      "heldFinalizationQueries": 1000,
+      "guardedAllocateFreeLock": 0
+    }
+  },
+  "originalStartupAndNativeTransactionCppPreserved": true,
+  "originalOwnerDiagnosticsCppPreserved": true,
+  "nativeAudioQualified": false,
+  "refreshedWindowsExecutionQualified": false,
+  "originalGroupTimeoutCauseResolved": false,
+  "factoryEnabled": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

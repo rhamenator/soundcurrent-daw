@@ -4991,3 +4991,22 @@ four-member packet binds13blobs/full native job/API/original merge and actual
 completion markers. This is limited non-reproduction, not a causal resolution of
 the original group wait. Current-MAIN refresh remains independently qualified;
 full native warmup/installed and parity scope remains open.
+
+
+## Combined monitoring startup and native recovery review (2026-10-11)
+
+[Checkpoint202](202-monitor-startup-integration.md) records ordinary protected PR135
+admission at MAINe92736e, exact whole tree/base/32blobs, all four required full logs
+and unchanged protection. MSVC passed68suites170.97s plus three original20-take
+attempts; the original timeout and interrupted-parent roots remain unresolved.
+
+Queued199/200 source and201 diagnostics now compose in one reviewed source tree.
+All16 selected suites pass Release3.34s/ASanUBSan22.45s/TSan26.87s, each with19,652
+startup checks,1,000 held writer queries and zero guarded allocation/free/locks.
+593 inputs/48 executable hashes/full logs are retained. Both initial progress
+sections and all five MAIN conflict stages/diffs are preserved; whole resolved
+tree matches the qualified combined source and MAIN diagnostics remain exact.
+Fresh final-head/current-MAIN Windows and Linux CI is still required. Factory stays
+disabled. Next: actual SDK warmup, generation readiness, native schema1.1 migration,
+short-take/Stop/native/installed/latency gates. Full M2–M11/F/Q/C/N/X004/X005 and
+all-Europe goal remains ACTIVE/incomplete.
