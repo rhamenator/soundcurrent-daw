@@ -4089,3 +4089,15 @@ success digest or attaches an edit. No VM/audio route/host disk filling was used
 Native Windows faults, actual filesystem exhaustion, installed publication,
 power loss, processing quality and full parity remain open. Next: protected
 paging/publication gates, then owned Windows failure fixtures and M2 quality.
+
+## 2026-10-10: Windows publication refusal fixtures
+
+[Checkpoint167](167-windows-publication-refusals.md) adds real parent access-denied
+and native primitive sharing-refusal workflows using only owned Windows files
+and the fixture directory's restorable DACL. Original project/raw/manifest bytes,
+resource/handle baselines and lease availability remain explicit oracles. The
+Windows translation unit compiles without diagnostics; Linux351 assertions
+still pass. Native MSVC execution is pending current-head CI, with no inference
+from cross-build success. No VM, audio endpoint, privilege enablement, production
+hook or bundled dependency was introduced. Installed/interrupted/full-disk/
+power-loss/quality/full-parity requirements remain open.
