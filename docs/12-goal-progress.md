@@ -4390,3 +4390,20 @@ and its independent qualification are still required. No audible UI, raw-media
 schema, dependency or certificate change. P005/M2/full F/Q/C/N/localization remain
 open. Next: stamped capture bank/SPSC handoff, causal monitor delay/drift correction,
 durable original mappings, SDK composition and Windows desktop duplex factory.
+
+## Protected delayed-loop integration and Windows clock observation (2026-10-11)
+
+PR118 ordinarily merged as `ed39ff81cce6cd9e8ea59bcab16f6a9791349c3e`.
+Head `eb863b9004db1c4be777da03e00b16afdea40176` against MAIN
+`9b751205eddd99f3d0bedef77933d21cce33b002` used tested merge
+`f0af56d294d82cd714bf813d09a4af03c4a99516`. Run38112860450 had all four
+required jobs terminal SUCCESS;17 exact blobs and the whole tree matched the
+resulting MAIN. Protection was unchanged and no administrator bypass was used.
+
+Clock-core checkpoint179 independently passed actual Windows MSVC job114392841598
+(run38113199221):53 synthetic suites/202.16s, new clock suite0.04s. Exact tested
+merge `da3f4adcab7ce0d7d532050951a55ab364a4357c` binds head13feb9f/baseeb863b9
+and reviewed tree. A38,166-byte/three-member packet binds full job log/status and
+17 changed-file hashes. Native duplex/installed/physical/full-language evidence
+is still required. Source check counts/executable hashes were not exposed by CI.
+PR119 admission must use its refreshed current-MAIN cohort, not this stacked run.

@@ -1,7 +1,7 @@
 # ADR115: bounded native clock correlation core
 
-Status: implemented core; independent Windows execution and native integration
-are separate qualification gates. Parent direction: [ADR114](114-windows-duplex-clock-boundary.md).
+Status: implemented core; Linux and independent Windows MSVC synthetic execution
+have evidence in checkpoint179. Native integration remains a separate gate. Parent direction: [ADR114](114-windows-duplex-clock-boundary.md).
 
 ## Decision
 

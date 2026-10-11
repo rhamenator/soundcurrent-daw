@@ -86,3 +86,18 @@ overflow/underflow, wrap, cancellation and retirement without blocking owners.
 Then add causal monitor delay, prepared drift correction and versioned durable
 raw-to-project mappings before composing native SDK owners and enabling the
 Windows desktop duplex factory.
+
+## Independent Windows MSVC observation
+
+Actual Windows native-unit job114392841598 in run38113199221 passed 53
+synthetic suites in202.16s, including clock-correlation in0.04s. Checkout
+`da3f4adcab7ce0d7d532050951a55ab364a4357c` was the exact merge of
+head `13feb9f3c4b160897e241a4e0fe0287b0ad84f4a` and stacked base
+`eb863b9004db1c4be777da03e00b16afdea40176`; its tree matched the reviewed head.
+The [38,166-byte packet](../tests/results/M2/2026-10-11-clock-correlation-windows/summary.json)
+retains the completed raw job log, status and17 reviewed changed-file hashes.
+Standalone and matching-source byte validation passed. The CI log exposes no
+executable hash or individual clock-check count; neither is invented. This
+qualifies core execution on Windows/MSVC with synthetic endpoints, not native
+duplex, physical latency, installation or full-language workflows. Its stacked
+cohort does not substitute for refreshed current-MAIN admission checks.
