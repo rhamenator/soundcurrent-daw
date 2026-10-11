@@ -1,0 +1,21 @@
+{
+  "format": "sc-manual-failure-diagnostic-v1",
+  "sourceCommit": "a9d727152d2799ba96511c79814329bdb128443b",
+  "captureBytes": 38556,
+  "captureSha256": "15b309724c0859a1430752764ab7b57b48153afb151c8f01357d1ea197b51537",
+  "members": 5,
+  "selectedInputs": 6,
+  "localLinuxDebugSuites": 1,
+  "linuxChecksObserved": 65181,
+  "callbackAuditTotal": 0,
+  "failedWindowsRun": 38115064831,
+  "failedWindowsJob": 114398212849,
+  "manualOriginalFailureKnown": false,
+  "diagnosticMaskedFailurePossible": true,
+  "repairedLoopWindowsSecondsObserved": 4.96,
+  "freshWindowsCohortRequired": true,
+  "productionCodeChanged": false,
+  "nativeAudioQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false
+}
