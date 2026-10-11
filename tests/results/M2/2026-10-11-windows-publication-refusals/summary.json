@@ -1,0 +1,21 @@
+{
+  "format": "sc-windows-publication-refusals-v1",
+  "sourceCommit": "0b68766bdf0259f9ec2bce812dd4d7eb406a5930",
+  "sourceTree": "578c9198cee9a97a0eb419ef1c653c768359bd83",
+  "testedMerge": "e9afdf6bbc5ae44124ac429131215a9d07c63b57",
+  "testedBase": "7216066b45255e9ed6ae6890b4d9225da95647d8",
+  "testedTree": "578c9198cee9a97a0eb419ef1c653c768359bd83",
+  "runId": 38097129636,
+  "sourceInputs": 310,
+  "nativeAssertions": 90,
+  "captureBytes": 180911,
+  "captureSha256": "8b58594c10ddc91ded213201f24822e17a6887efe338b14f6ee22d13c764eede",
+  "fullGoalComplete": false,
+  "currentUpdatedHeadQualified": false,
+  "installedPublicationQualified": false,
+  "windowsWriterInterruptionQualified": false,
+  "fullDiskPowerLossQualified": false,
+  "nativeAudioActivated": false,
+  "vmStarted": false,
+  "productUploaded": false
+}

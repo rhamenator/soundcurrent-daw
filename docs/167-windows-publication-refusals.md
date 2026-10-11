@@ -44,10 +44,23 @@ raw-audio, manifest, resource and lease checks remain enabled throughout.
 
 Initial source `8527f2e` compiles the Windows test translation unit with MinGW
 C++20, warnings enabled and no diagnostics. The unchanged Linux fault branch
-passes351 assertions in the same source. This is compile/Linux evidence only;
-native MSVC execution and the two actual Windows refusal workflows remain
-pending current-head CI. No Windows runtime qualification is inferred from
+passes351 assertions in the same source. This initial observation is
+compile/Linux evidence only. No Windows runtime qualification is inferred from
 cross-compilation. No VM or audio endpoint is used.
+
+Original source `0b68766bdf0259f9ec2bce812dd4d7eb406a5930` now has native MSVC
+execution in successful run 38097129636. The native unit log reports 90 actual
+assertions: parent ERROR_ACCESS_DENIED, original ACL byte restoration/retry and
+primitive sharing refusal/release/retry all pass. Security API warm-up changes
+the process handle count from 85 to 93; the stable final baseline remains 93.
+[Retained evidence](../tests/results/M2/2026-10-11-windows-publication-refusals/README.md)
+binds all four complete job logs, native log and 310 exact Git inputs to the
+original tested merge and parents. Only text/JSON is retained publicly.
+
+That source predates the reviewed absolute/bounded/NUL-free publication-root
+correction. The inherited correction has Linux controller 1675/UI 285 and
+publication 351 evidence; updated-head native qualification requires fresh CI.
+The original 90 assertion receipt is not relabeled to a later source revision.
 
 The inherited recovery-dialog lifecycle correction has separate deterministic
 red/green UI evidence; original dependent Windows failure remains preserved.

@@ -1,0 +1,34 @@
+{
+  "LastTest.log": {
+    "bytes": 174459,
+    "sha256": "f8f0adf4cf584ec2e97360106766605c676f61a08b0a65152d437a53edc9f40f"
+  },
+  "artifact-receipt.json": {
+    "bytes": 368,
+    "sha256": "20d56a5dd3b0ed93af1b8e9c0ebf7a065c5b41e514c9f8e8dc917ecaa7e3cd4c"
+  },
+  "build-inputs.json": {
+    "bytes": 59123,
+    "sha256": "6967ce1c874f220bb0d6c939a87f3c21f68c58618584be66720b5648c6035274"
+  },
+  "job-114345233539.txt": {
+    "bytes": 348938,
+    "sha256": "9a1902ce3c8633a307cf514c690a108764f560050cdd03f75fd9721c475003f8"
+  },
+  "job-114345233632.txt": {
+    "bytes": 904668,
+    "sha256": "511bb68ecf3c70f6be39e4a625ac19ccfef9a3baa569089a9b3f4788608adab0"
+  },
+  "job-114345233646.txt": {
+    "bytes": 134385,
+    "sha256": "53582a5fc86f3f4586739dfbae326d80f3e4bb4df15184c03168e9ccc6bc512f"
+  },
+  "job-114345233693.txt": {
+    "bytes": 716519,
+    "sha256": "5bd81712d312a92c9bf3e32dd98feeeaa675c74ec8a67793122b4baaa1d9b94a"
+  },
+  "qualification.json": {
+    "bytes": 1684,
+    "sha256": "bccfa69ef356597c743e65dfcdee2f813ba631fd826e0162861245e5b353cab0"
+  }
+}
