@@ -78,8 +78,10 @@ def wait_for(predicate, seconds=12):
 def inventory(root, active=False):
     # Windows writer.lock is intentionally opened with no sharing. Its complete
     # file hash is captured after actual termination, never guessed while active.
+    # A suspended user thread is not a kernel I/O completion barrier. The owned
+    # writer's audio.partial can still change until its process handle signals.
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in root.rglob("*") if p.is_file() and not (active and p.name == "writer.lock")}
+            for p in root.rglob("*") if p.is_file() and not (active and p.name in ("writer.lock", "audio.partial"))}
 
 
 def parent_pid(pid):
@@ -205,6 +207,7 @@ def run_case(probe, helper, directory, stage):
         assert response["projectSha256"] == baseline["project.json"] and inventory(root, active=expected == "Active") == before
         if expected == "Active":
             response["exclusiveLockHashDeferredUntilTerminal"] = True
+            response["writerPartialHashDeferredUntilTerminal"] = True
         return response
 
     try:
@@ -260,10 +263,19 @@ def run_case(probe, helper, directory, stage):
                 report["parentTerminal"] = parent.kill(PARENT_EXIT)
                 report["liveRecovery"] = scan("Active")
                 if stage == "during-processing-helper-death":
-                    digest = hashlib.sha256((job / "audio.partial").read_bytes()).hexdigest()
+                    before_terminal = (job / "audio.partial").read_bytes()
+                    report["partialSnapshotBeforeTermination"] = {"bytes": len(before_terminal),
+                        "sha256": hashlib.sha256(before_terminal).hexdigest(), "stableWriterBaseline": False}
                     report["helperTerminal"] = child.kill(HELPER_EXIT)
                     frozen.resume()
                     frozen = None
+                    # Process.kill waits for the exact owned process handle.
+                    # Pending writes may finish/cancel before that terminal
+                    # barrier, so establish the read-only recovery baseline now.
+                    terminal_partial = (job / "audio.partial").read_bytes()
+                    digest = hashlib.sha256(terminal_partial).hexdigest()
+                    report["terminalPartialBaseline"] = {"bytes": len(terminal_partial), "sha256": digest}
+                    report["partialChangedBeforeTerminalBarrier"] = digest != report["partialSnapshotBeforeTermination"]["sha256"]
                     report["terminalRecovery"] = scan("Incomplete")
                     assert hashlib.sha256((job / "audio.partial").read_bytes()).hexdigest() == digest
                     report["partialPreservedSha256"] = digest
