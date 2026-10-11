@@ -5,8 +5,7 @@
 
 namespace soundcurrent::daw {
 static_assert(std::atomic<std::uint64_t>::is_always_lock_free);
-namespace {
-std::size_t payload(CaptureBankConfig c) {
+std::size_t captureBankPayloadBytes(CaptureBankConfig c) {
     if (!c.identity.endpoint || !c.identity.stream || !c.identity.generation ||
         !c.channels || c.channels>256 || c.sampleRate<8000 || c.sampleRate>384000 ||
         !c.maximumPacketFrames || c.maximumPacketFrames>65536 || !c.slots || c.slots>256 ||
@@ -19,12 +18,11 @@ std::size_t payload(CaptureBankConfig c) {
     charge.add(sizeof(PreparedCaptureBank)); charge.add(std::size_t(count),sizeof(float));
     return sizeof(PreparedCaptureBank)+std::size_t(count)*sizeof(float);
 }
-}
 PreparedCaptureBank::PreparedCaptureBank(CaptureBankConfig c, std::optional<ResourceLedger> ledger)
-    : lease_(ledger ? ledger->reserve(payload(c)) : ResourceLease{}),
+    : lease_(ledger ? ledger->reserve(captureBankPayloadBytes(c)) : ResourceLease{}),
       config_(c), free_(c.initialQueueSequence), ready_(c.initialQueueSequence),
       sequence_(c.initialPacketSequence) {
-    payload(c); // Admission is required even without a shared ledger.
+    captureBankPayloadBytes(c); // Admission is required even without a shared ledger.
     samples_.resize(std::size_t(c.slots)*c.maximumPacketFrames*c.channels);
     for (std::uint32_t n=0;n<c.slots;++n) free_.tryPush(n);
 }

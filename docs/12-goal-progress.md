@@ -4523,6 +4523,25 @@ callback and separate overflow assertions remain; production behavior/deadlines
 unchanged. Linux Debug0.19s/292 observed checks passed. [Checkpoint185](185-logical-recording-credit.md)
 retains original failure/local proof. Fresh Windows/current-MAIN gates still required.
 
+## Original capture fanout and independent Windows control (2026-10-11)
+
+Frozen ead72b37 adds two independently owned original capture banks under one
+whole-group admission lease. Raw publication precedes monitoring; partial delivery,
+consumer loss and joined late-fault settlement retain explicit evidence/prefixes.
+Linux Release/ASan-UBSan/TSan each passed two suites with97,086 fanout checks and
+3,179 bank checks. Three actual concurrent owners preserve original bits/stamps
+at3 and256 channels, including queue wrap, scratch reuse, partial-route refusal
+and Stop/cancel. Guarded intercepted allocations/frees/locks were zero.
+A55,352-byte/12-member packet binds556 selected inputs/six binary hashes and fresh
+Release executable identity. [Checkpoint186](186-capture-raw-monitor-fanout.md)
+and ADR119 record limits and the next typed monitor output transport task.
+
+Separately actual MSVC job114409897466 passed57 suites173.48s, buffer1.66s and
+controller0.21s. A66,251-byte packet binds full job/API evidence and17 reviewed
+blobs; [Checkpoint184](184-monitor-drift-control.md) distinguishes this platform
+observation from current-MAIN admission. No native duplex/installed/physical/load/
+complete DAW or localization claim follows. Full goal remains incomplete.
+
 ## Catalog inventory after the Windows observer change (2026-10-11)
 
 Run38118823925 passed all three Windows checks; Linux passed123/125 and refused

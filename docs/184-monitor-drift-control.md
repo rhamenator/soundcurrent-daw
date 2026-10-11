@@ -74,6 +74,20 @@ compilation evidence remains in checkpoints182/183. This is not a fresh complete
 toolchain/system/dependency build. Standalone decompression and selected byte checks
 passed before later prerequisite inheritance. No executable/media is included.
 
+## Independent Windows buffer and controller execution
+
+Actual MSVC job114409897466/run38119082393 passed57 synthetic suites in173.48s,
+including causal buffer1.66s and controller0.21s. Its tested merge
+`0998ce4c28c0e62fdbec46724c7223eb36d71671` binds headdac5a591/basea8e13c77
+and exact tree3598427d. The [66,251-byte packet](../tests/results/M2/2026-10-11-monitor-controller-windows/summary.json)
+retains the complete native job, API run/job/commit state and17 reviewed file
+hashes. Standalone integrity and frozen Git blob checks passed. The log exposes
+neither component check counts nor executable hashes; none are inferred.
+This independently qualifies synthetic MSVC execution, not native endpoints,
+installed workflows or a current-MAIN protected merge. The overall stacked run
+failed its separate Linux localization inventory gate; this Windows success does
+not override that failure. No executable is included.
+
 ## Next implementation
 
 Compose the original stamped bank/raw-writer route with processing and prepared
