@@ -48,6 +48,7 @@ void lifecycle() {
         static void finish(void *p,const WasapiCaptureEnd &r) noexcept { auto &s=*static_cast<Context *>(p);++s.ended;s.receipt=r; }
     } c;
     PreparedWasapiCaptureLifecycle l({&c,Context::poll,Context::finish});
+    check(!l.afterJoin(),"Missing lifecycle receipt fabricated before finish");
     check(!rt([&]{return l.shouldStop();}),"Unrequested native Stop");
     rt([&]{l.started();l.delivered({nullptr,0,31,wasapiDiscontinuity|wasapiSilent,origin,now});
         l.delivered({nullptr,0,17,0,origin+31,now+100});l.stopped(1);l.stopped(-9);
@@ -56,7 +57,7 @@ void lifecycle() {
         c.receipt.deliveredFrames==48 && c.receipt.deliveredPackets==2 && c.receipt.lastDelivered->devicePosition==origin+31 &&
         c.receipt.lastDelivered->qpc100ns==now+100,"Actual lifecycle metadata/first result lost");
     check(rt([&]{return l.shouldStop();}),"Ended owner still acquiring");
-    rt([&]{l.delivered({nullptr,0,64,0,0,0});});check(l.afterJoin().deliveredFrames==48,"Ended owner mutated receipt");
+    rt([&]{l.delivered({nullptr,0,64,0,0,0});});check(l.afterJoin()->deliveredFrames==48,"Ended owner mutated receipt");
     for(unsigned kind=0;kind<4;++kind) {
         Context s;PreparedWasapiCaptureLifecycle q({&s,Context::poll,Context::finish});
         if(kind==0) { s.stop=true;check(rt([&]{return q.shouldStop();}),"Before-start Stop ignored"); }

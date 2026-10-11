@@ -332,4 +332,7 @@ std::optional<WasapiStreamFailure> WasapiCaptureStream::failure() const noexcept
     return state_->failureReady.load(std::memory_order_acquire) ?
            std::optional{state_->firstFailure} : std::nullopt;
 }
+std::optional<WasapiCaptureEnd> WasapiCaptureStream::endAfterJoin() const noexcept {
+    return state_->joined ? state_->lifecycle.afterJoin() : std::nullopt;
+}
 } // namespace soundcurrent::daw

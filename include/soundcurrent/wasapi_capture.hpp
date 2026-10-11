@@ -46,6 +46,7 @@ class WasapiCaptureStream {
     void stop() noexcept;
     std::uint32_t bufferFrames() const noexcept;
     std::optional<WasapiStreamFailure> failure() const noexcept;
+    std::optional<WasapiCaptureEnd> endAfterJoin() const noexcept; // Serialized joined control only.
   private:
     struct State;
     std::unique_ptr<State> state_;

@@ -39,7 +39,9 @@ class PreparedWasapiCaptureLifecycle {
     void delivered(const WasapiPacket &) noexcept;
     void stopped(std::int32_t actualHresult) noexcept;
     void finish(std::optional<WasapiStreamFailure>, bool ownerException = false) noexcept;
-    WasapiCaptureEnd afterJoin() const noexcept { return end_; } // Joined control only.
+    std::optional<WasapiCaptureEnd> afterJoin() const noexcept {
+        return ended_ ? std::optional(end_) : std::nullopt;
+    } // Joined control only; an unreported exit is never a synthetic empty end.
   private:
     WasapiCaptureLifecycleCallbacks callbacks_;
     WasapiCaptureEnd end_;
