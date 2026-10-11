@@ -693,6 +693,7 @@ void activeDiskFailure() {
     check(observed.str().find("concurrent_retained_error present=1 code=") != std::string::npos &&
               observed.str().find("message=active audio write failure") != std::string::npos,
           "Failure diagnostic lost original active writer error");
+    std::cout << observed.str(); // Retain actual first-error evidence in the test log.
     std::ostringstream broken;
     broken.exceptions(std::ios::badbit | std::ios::failbit);
     try { broken.setstate(std::ios::badbit); } catch (const std::ios_base::failure &) {}
@@ -745,6 +746,7 @@ void poolExhaustion() {
               observed.str().find("failed_capture=0") != std::string::npos &&
               observed.str().find("concurrent_retained_error present=0") != std::string::npos,
           "Refused punch-out diagnostic lost actual exhausted-pool cause or invented a disk error");
+    std::cout << observed.str(); // Actual exhausted-pool observations, not Windows-root inference.
     f.run->stop();
     f.run->checkError();
     ManualRecordedGroup group;
