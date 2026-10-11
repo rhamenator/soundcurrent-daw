@@ -5,6 +5,7 @@
 #include "rt_audit.hpp"
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <fstream>
@@ -170,11 +171,40 @@ void contextFailures() {
     refuse([&]{inspectLoopRecordingContext(job1);});
 #endif
 }
-void interruptedContext() {
-    Directory d;auto s=source(d.root);const auto p=prepared(s,{});
+template<class F>void waitForDisk(F ready,const char *why) {
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(5);
+    while(!ready()&&std::chrono::steady_clock::now()<deadline)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    check(ready(),why);
+}
+void interruptedContext(bool delayedWriter) {
+    Directory d;auto s=source(d.root);auto p=prepared(s,{});
+    std::array<std::atomic<bool>,2> entered{};
+    std::atomic<bool> permitWrite{false};
+    if(delayedWriter)for(unsigned lane=0;lane<2;++lane)
+        p.lanes[lane].writer.boundary=[&,lane](RecordingBoundary boundary,Frame written) {
+            if(boundary!=RecordingBoundary::BeforeAudioWrite||written!=0)return;
+            entered[lane].store(true,std::memory_order_release);
+            const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(5);
+            while(!permitWrite.load(std::memory_order_acquire)) {
+                if(std::chrono::steady_clock::now()>=deadline)
+                    throw std::runtime_error("Delayed disk fixture was not released");
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+        };
     const auto context=loopRecordingContext(p);DuplexRecordingRun run(d.root,s,plan(s),p.lanes,p.options);
     run.startWriters();persistLoopRecordingContext(d.root,context);run.checkActivation();
-    pump(run,s,200+6*53+29);run.cancel();
+    pump(run,s,200+6*53+29);
+    if(delayedWriter) {
+        waitForDisk([&]{return entered[0].load(std::memory_order_acquire)&&entered[1].load(std::memory_order_acquire);},"Delayed disk owners did not reach the write gate");
+        check(run.capture(0).written==0&&run.capture(1).written==0,"Delayed fixture wrote before release");
+        permitWrite.store(true,std::memory_order_release);
+    }
+    // written is release-published by each disk owner after drainOne returns,
+    // including its completed journal checkpoint. Callback progress alone does
+    // not prove that an interrupted job has a durable recoverable prefix.
+    waitForDisk([&]{return run.capture(0).written>=256&&run.capture(1).written>=256;},"Disk owners did not publish the first checkpoint before interruption");
+    run.cancel();
     s.loop={false,0,0};s.playheadFrame=0;ProjectStore(d.root).save(s);
     for(unsigned lane=0;lane<2;++lane) {
         const auto job=*run.jobDirectory(lane);const auto original=inspectRecording(job,{},true);
@@ -196,4 +226,4 @@ void lateContext() {
     for(unsigned lane=0;lane<2;++lane)check(!inspectLoopRecordingContext(*run.jobDirectory(lane)),"Late context publication fabricated original intent");
 }
 }
-int main(){try{admission();contextFailures();for(Frame n:{1,2,7,53})actual(n,false);actual(53,true);interruptedContext();lateContext();const auto &a=rt_audit::counts;check(a.cppAllocate+a.cppFree+a.cAllocate+a.cFree+a.blockingLock==0,"Continuous callback allocation/free/lock");std::cout<<"continuous_loop_checks="<<checks<<" callback_audit=0 actual_passes=13 raw_files_per_run=2 short_periods=1,2,7,53 delayed_inputs=7,29 partial_explicit=true comp_export=true save_reopen=true original_context_durable=true interrupted_prefix=true bounded_context_inputs=256\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(){try{admission();contextFailures();for(Frame n:{1,2,7,53})actual(n,false);actual(53,true);interruptedContext(false);interruptedContext(true);lateContext();const auto &a=rt_audit::counts;check(a.cppAllocate+a.cppFree+a.cAllocate+a.cFree+a.blockingLock==0,"Continuous callback allocation/free/lock");std::cout<<"continuous_loop_checks="<<checks<<" callback_audit=0 actual_passes=13 raw_files_per_run=2 short_periods=1,2,7,53 delayed_inputs=7,29 partial_explicit=true comp_export=true save_reopen=true original_context_durable=true interrupted_prefix=true delayed_disk_prefix=true bounded_context_inputs=256\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
