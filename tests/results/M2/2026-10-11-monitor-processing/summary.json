@@ -1,0 +1,46 @@
+{
+  "format": "sc-bounded-monitor-processing-v1",
+  "sourceCommit": "8d36d4ce0d8be26303afb6734ccf461409442f3f",
+  "sourceTree": "fa001e83c96578a26967921e3b9ed10f6018df64",
+  "captureBytes": 57822,
+  "captureSha256": "c30fdbf91e90570c2033e3d4fd8ae6ba5243375fa3da7a538087729335bae585",
+  "members": 15,
+  "selectedInputs": 565,
+  "executableHashes": 3,
+  "profiles": {
+    "release": {
+      "checks": 435830,
+      "seconds": 0.23
+    },
+    "asanUbsan": {
+      "checks": 435830,
+      "seconds": 1.14
+    },
+    "tsan": {
+      "checks": 435830,
+      "seconds": 2.34
+    }
+  },
+  "serialChannelCounts": [
+    3,
+    256
+  ],
+  "serialRawFrames": 1024,
+  "serialOutputFrames": 512,
+  "concurrentOwners": 4,
+  "concurrentPackets": 256,
+  "concurrentRawFrames": 4004,
+  "concurrentOutputFrames": 3072,
+  "bitExactDirectBufferReferences": true,
+  "guardedAllocateFreeLock": 0,
+  "timeDomain": "synthetic original QPC observations and fixed logical asOf",
+  "diskWriterComposed": false,
+  "eqMixGraphComposed": false,
+  "nativeClockHandoffsImplemented": false,
+  "windowsProcessingExecuted": false,
+  "nativeDuplexQualified": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false
+}
