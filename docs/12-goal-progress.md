@@ -4481,3 +4481,19 @@ retains full job/status and15 changed-file hashes; no per-bank check count or
 executable hash is invented. [Checkpoint180](180-stamped-capture-bank.md) records
 this independent platform observation. Native endpoints/installed/physical/full
 product qualification and refreshed current-MAIN protection gates remain open.
+
+## 183 — prepared causal monitor buffer (2026-10-11)
+
+Original GPL single-owner buffer now has charged/touched rings and best-sinc state,
+causal warmup/retained source, bounded explicit64-frame ratio events, one-call
+service, backpressure and exact real-input-only Stop/partial drain. Cancel and
+first faults preserve counts; no raw timestamps/alignment are synthesized.
+Frozen cc725947 passed3 Linux Release suites2.51s, ASan/UBSan22.80s and single-owner
+full C/C++ TSan45.35s. Each buffer run:13 streams,366,972 bounded service calls,
+3,845,658 checks, bit-exact partitioned PCM, reused scratch, FIFO/ring wraps,
+256 channels and original output ordinals above2^53; guarded C++/interposed libc
+allocation/free/pthread locks zero. A33,942-byte/15-member packet binds542 selected
+inputs/five executable hashes; fresh Release compilation reproduced the tested
+binary hash. [Checkpoint183](183-causal-monitor-buffer.md) records actual scope.
+Clock/buffer controller, raw/output SPSC/native composition, durable mappings and
+Windows duplex UI/native/installed/physical/load/quality/localization remain open.

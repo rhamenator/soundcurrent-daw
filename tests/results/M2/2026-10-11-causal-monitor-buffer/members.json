@@ -1,0 +1,62 @@
+{
+  "release-lasttest.log": {
+    "bytes": 2576,
+    "sha256": "da67fa66a9b5faa54a8005e39dfb7b46dfdaa08b84fbb0fc6583af50c4c726d5"
+  },
+  "release-kernel-compile-commands.log": {
+    "bytes": 2621,
+    "sha256": "78e2bdf1d531f0c538d6d4ebab62a48524a023f2c591e578198f1ba2f1b87f72"
+  },
+  "asan-ubsan-lasttest.log": {
+    "bytes": 935,
+    "sha256": "8f746a46d514c97070ef2f7599a1bb07ec5cb7b9b8a120817a7f1cc6bd617316"
+  },
+  "asan-ubsan-kernel-compile-commands.log": {
+    "bytes": 2873,
+    "sha256": "b23d156121adf786fec9025eda394351086419ab7491c6dc989fc64b0f2d5d33"
+  },
+  "tsan-lasttest.log": {
+    "bytes": 935,
+    "sha256": "6bf797b3378af941f55bc736e1be573ac2707cde7e34ff99bd9479db54b75c12"
+  },
+  "tsan-kernel-compile-commands.log": {
+    "bytes": 2829,
+    "sha256": "8f76f9a40ccbe39c75b6b5b7d8f1b2ae789c89fc5af9f64707ee26ff6c62dbb3"
+  },
+  "release-build.log": {
+    "bytes": 151,
+    "sha256": "57dbd5dc1d8744d6cf4a9b846ec0f160098ff12b91af307484a06b2429f0ad8a"
+  },
+  "release-ctest.log": {
+    "bytes": 2288,
+    "sha256": "2e187a8f9f005c546207699b1af22e75ddb1aec0e8b643752a8ce42a4107a51e"
+  },
+  "asan-ubsan-build.log": {
+    "bytes": 1043,
+    "sha256": "702c068adfae028ac84c483a851f0d38d1a7772a57fc11c49fbdd5f7e738c203"
+  },
+  "asan-ubsan-ctest.log": {
+    "bytes": 1136,
+    "sha256": "096a9ecd7610f6af009aec562f52bab4f29d9918a50ba47a14d30860c91038d4"
+  },
+  "tsan-build.log": {
+    "bytes": 1043,
+    "sha256": "47a1f6fc70e190a91a3f3b5fd025fc3a5c6a31245766d40778439782ec4ce7aa"
+  },
+  "tsan-ctest.log": {
+    "bytes": 1136,
+    "sha256": "6c44c154cd3098285c8f68829f7ea8d6547121760883b237974431b96e548dd7"
+  },
+  "release-frozen-compile.log": {
+    "bytes": 1765,
+    "sha256": "473ad964a1bfa57ce60d5edcc907b0def0cfca8916af741080f7b4ab6da0134d"
+  },
+  "release-executable-binding.json": {
+    "bytes": 290,
+    "sha256": "128e5af4b6c0186955904e0c3d48b15625b2d1e5f4f15b205f85557566aaabe8"
+  },
+  "build-inputs.json": {
+    "bytes": 59770,
+    "sha256": "f26b69e0603133b34530f24c065433f4730d58ae81ae15aaf45215eb8ac15c33"
+  }
+}
