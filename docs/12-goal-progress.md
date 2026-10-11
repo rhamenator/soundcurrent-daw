@@ -1,5 +1,55 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native monitor matrix state and composed startup (2026-10-11)
+
+[Checkpoint209](209-native-channel-state.md) adds auxiliary native state 1.2,
+a canonical bounded matrix artifact and a fixed startup fingerprint. Raw capture
+and retained source PCM keep their original width; startup and saved state bind
+the explicit output width and matrix. Legacy 1.0/1.1 writing refuses matrices;
+explicit migration preserves original outcomes and absent mapping. Full-size
+65,536-route state, malformed references/artifacts and two actual matrix
+publication interruptions pass alongside existing native/migration boundaries.
+
+Four suites pass Release 2.34s, ASan/UBSan 34.82s and TSan 31.66s: 3,589,544
+composed checks, 498,462 processing checks and guarded allocation/free/lock 0 per
+profile. Twelve composed persistence runs include four mono-to-stereo runs at
+44.1/48/96kHz and failed Stop, plus actual legacy startup migration; fourteen
+diagnostic outcomes retain original evidence. Mapped reference PCM error is 0.
+The packet binds 636 inputs, Linux/Windows hashes, commands and complete logs.
+Windows SDK/three fixtures compile/link; seven changed objects are warning-free.
+New Windows runtime and the ordinary factory remain unqualified/disabled.
+
+PR143 remains draft after required native Windows run38171414742 failed: all 71
+CTest suites and two standalone 20-take/five-second runs passed; the third
+exhausted capture at take16/identity17 while WriteHashBegin remained pending with
+written0/committed0. Full original job logs and selected artifact logs are
+retained. The writer delay's cause remains open; passing simulated tests or an
+unchanged CI retry does not resolve it. Next retain backlog and disk write timing,
+then qualify a concrete correction before factory activation. The complete
+M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe goal remains ACTIVE/incomplete.
+
+## Explicit monitor channel matrix (2026-10-11)
+
+[Checkpoint208](208-explicit-monitor-channel-map.md) adds an immutable prepared
+matrix after causal conversion, with original raw/input width preserved. Explicit
+mono-to-stereo, stereo downmix, sparse polarity/gain and silent slots are bounded,
+charged before activation and checked for whole-block finite float-range output.
+Mapped bytes survive output pressure; overflow preserves the raw route and first
+monitor fault. Absent-map identity retains its preceding path.
+
+Four selected suites pass Release1.69s/ASanUBSan17.15s/TSan26.35s, with498,462
+processing checks/profile and guarded allocation/free/lock0.636 input bindings,
+12 Linux executables/nine objects and three Windows objects/executables plus SDK
+archive hashes/full logs are retained. Windows compile/link passed; new Windows
+runtime remains unqualified. Protected PR142 merged at MAIN143c76a after four
+fresh green jobs/native71 suites185.83s; exact protected evidence is retained.
+
+Native1.1 has no channel-matrix declaration. Explicit map+startup admission is
+refused before ownership/PCM; next version that state and its migration, then
+compose mono-input/stereo-output full-FIFO/native SDK/save/recovery workflows.
+Factory/UI activation and physical/native deadline/alignment gates remain open.
+The complete M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe goal is ACTIVE.
+
 ## Versioned native state and migration (2026-10-11)
 
 [Checkpoint207](207-native-state11.md) records protected PR141 integration at
@@ -17,7 +67,11 @@ and two migration process boundaries pass. Six suites/profile pass
 Release0.67s/ASanUBSan6.88s/TSan6.72s,2,475,990 composed checks/PCM error0/RT audit0;
 634 input bindings/18 executable/14 object hashes/full logs are retained. Windows
 SDK/four tests compile/link and five persistence-enabled objects are warning-free;
-new native execution remains required. Protected-MAIN inheritance leaves the
+PR142 then passed four fresh required jobs: native71 suites185.83s, new state and
+migration execution, and three original20-take/five-second completions. Ordinary
+protected MAIN143c76a exactly matches the tested tree/base/72blobs; full logs and
+admission/postmerge evidence are retained. These remain simulated SDK workflows.
+Protected-MAIN inheritance leaves the
 whole qualified source tree unchanged. Next compose owned native routes and
 explicit mono-input/stereo-monitor mapping. Factory remains disabled; full goal
 M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.

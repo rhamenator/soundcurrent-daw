@@ -7,6 +7,7 @@
 #include "monitor_control.hpp"
 #include "monitor_capture_stop.hpp"
 #include "monitor_startup_handoff.hpp"
+#include "monitor_channel_map.hpp"
 
 namespace soundcurrent::daw {
 // Opt-in prepared startup admission. The caller supplies ACTUAL native geometry,
@@ -25,13 +26,16 @@ struct MonitorProcessingConfig {
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     std::optional<ResourceLedger> resources;
     std::optional<MonitorStartupConfig> startup;
+    // Monitor-only, after conversion. Absence means exact same-width identity.
+    // Startup handoffs must admit its canonical immutable fingerprint.
+    std::optional<MonitorChannelMap> channelMap;
 };
 enum class MonitorProcessingCode {
     Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault, ControlFull
 };
 enum class MonitorProcessingCause {
     Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd,
-    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff
+    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff, ChannelMap
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -106,6 +110,8 @@ class PreparedMonitorProcessing {
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;
     std::vector<float> pending_;
+    std::optional<PreparedMonitorChannelMap> channelMap_;
+    std::vector<float> mappedPending_;
     struct StartupPacket { CaptureBankStamp original; std::uint32_t offset = 0; };
     std::vector<float> startupSamples_;
     std::vector<StartupPacket> startupPackets_;

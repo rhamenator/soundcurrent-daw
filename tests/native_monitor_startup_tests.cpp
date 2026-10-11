@@ -30,7 +30,7 @@ struct Geometry {
     CaptureFanoutConfig capture;
     MonitorOutputBankConfig output;
     MonitorProcessingConfig processing;
-    Geometry(unsigned channels,unsigned rate){
+    Geometry(unsigned channels,unsigned rate,bool mapped=false){
         capture.capture.identity={11,31,7};capture.capture.channels=channels;
         capture.capture.sampleRate=rate;capture.capture.maximumPacketFrames=rate/100;
         capture.capture.slots=8;capture.monitorSlots=8;
@@ -40,11 +40,13 @@ struct Geometry {
         auto &d=processing.drift;d.captureIdentity=capture.capture.identity;d.sourceRate=rate;
         d.inputCapacityFrames=b.inputCapacityFrames;d.outputFrameBase=qpc;d.occupancyGainPpmPerFrame=0;
         processing.startup=MonitorStartupConfig{4097,4097,50000000};
+        if(mapped){check(channels==1,"Mono mapping fixture source width");output.channels=2;processing.channelMap=monoToStereoMonitor();}
     }
     MonitorStartupAdmission admission()const{
         const auto &b=processing.buffer;const auto &d=processing.drift;const auto &s=*processing.startup;
-        return {b.runGeneration,d.captureIdentity,d.renderIdentity,b.sourceRate,b.outputRate,b.channels,
-            d.renderFrequency,s.nativeCapacityFrames,s.maximumNativeFillFrames,s.maximumWait100ns};
+        return {b.runGeneration,d.captureIdentity,d.renderIdentity,b.sourceRate,b.outputRate,output.channels,
+            d.renderFrequency,s.nativeCapacityFrames,s.maximumNativeFillFrames,s.maximumWait100ns,
+            processing.channelMap?std::optional(monitorChannelMapReceipt(*processing.channelMap)):std::nullopt};
     }
     MonitorClockHandoffConfig clocks(unsigned slots)const{
         MonitorClockHandoffConfig c;c.captureIdentity=capture.capture.identity;
@@ -80,12 +82,12 @@ struct Model {
     bool started=false;
     std::uint64_t submitted=64,contentSubmitted=0;
     unsigned tick=0;
-    explicit Model(unsigned channels=1,unsigned rate=48000,unsigned slots=64,std::uint64_t budget=288000)
-        :g(channels,rate),capture(g.capture),output(g.output),clocks(g.clocks(slots)),
+    explicit Model(unsigned channels=1,unsigned rate=48000,unsigned slots=64,std::uint64_t budget=288000,bool mapped=false)
+        :g(channels,rate,mapped),capture(g.capture),output(g.output),clocks(g.clocks(slots)),
         startup(g.admission(),65536,ledger),processing(capture,output,g.processing,&clocks,nullptr,nullptr,&startup),
         context(g.format(),output,clocks,options(ledger,budget),&startup),binding(options(ledger,budget)),
         cb(binding.callbacks()),life({cb.context,cb.finished,cb.shouldStop},options(ledger,budget).warmup),
-        pcm(std::size_t(rate/100)*channels),backing(std::size_t(4097)*channels+2,-999.f){
+        pcm(std::size_t(rate/100)*channels),backing(std::size_t(4097)*g.output.channels+2,-999.f){
         check(binding.bind(context,g.format()) && cb.beforeLease,"Warmup callback not declared/bound");
         rt([&]{life.prepared(g.format());life.silenceReleased({WasapiSilenceKind::Startup,64,1});});
     }
@@ -109,8 +111,8 @@ struct Model {
     void raw(){
         const auto frames=g.capture.capture.maximumPacketFrames;
         const auto first=std::uint64_t(tick)*frames;
-        for(unsigned n=0;n<frames;++n)for(unsigned ch=0;ch<g.output.channels;++ch)
-            pcm[std::size_t(n)*g.output.channels+ch]=sample(first+n,ch);
+        for(unsigned n=0;n<frames;++n)for(unsigned ch=0;ch<g.capture.capture.channels;++ch)
+            pcm[std::size_t(n)*g.capture.capture.channels+ch]=sample(first+n,ch);
         const CaptureBankStamp s{g.capture.capture.identity,{origin+first},now(),frames,0};
         const auto p=rt([&]{return capture.publish({s,reinterpret_cast<const std::byte*>(pcm.data()),pcm.size()*sizeof(float)});});
         check(p.rawAcceptedFrames==frames && p.monitorAcceptedFrames==frames,"Original raw/monitor publication lost frames");
@@ -172,19 +174,21 @@ std::vector<float> reference(Model &m,std::uint64_t extent){
     const auto start=first.original.position.value-origin+first.packetOffsetFrames;
     check(start==s.discardedFrames && s.acceptedFrames==s.discardedFrames+s.transferredFrames+s.abandonedFrames,"Original source dispositions changed");
     PreparedMonitorBuffer independent(m.g.processing.buffer);
-    std::vector<float> retained(std::size_t(s.capacityFrames)*m.g.output.channels);
-    for(unsigned n=0;n<s.capacityFrames;++n)for(unsigned ch=0;ch<m.g.output.channels;++ch)
-        retained[std::size_t(n)*m.g.output.channels+ch]=sample(start+n,ch);
+    std::vector<float> retained(std::size_t(s.capacityFrames)*m.g.capture.capture.channels);
+    for(unsigned n=0;n<s.capacityFrames;++n)for(unsigned ch=0;ch<m.g.capture.capture.channels;++ch)
+        retained[std::size_t(n)*m.g.capture.capture.channels+ch]=sample(start+n,ch);
     for(unsigned n=0;n<s.capacityFrames;n+=m.g.processing.buffer.maximumInputFrames){
         const auto count=std::min(m.g.processing.buffer.maximumInputFrames,s.capacityFrames-n);
-        check(independent.push(std::span<const float>(retained).subspan(std::size_t(n)*m.g.output.channels,std::size_t(count)*m.g.output.channels))==MonitorBufferCode::Accepted,"Independent retained source rejected");
+        check(independent.push(std::span<const float>(retained).subspan(std::size_t(n)*m.g.capture.capture.channels,std::size_t(count)*m.g.capture.capture.channels))==MonitorBufferCode::Accepted,"Independent retained source rejected");
     }
-    std::vector<float> expected,block(64*m.g.output.channels);
-    for(unsigned n=0;n<20000 && expected.size()<extent*m.g.output.channels;++n){
+    std::vector<float> expected,block(64*m.g.capture.capture.channels);
+    for(unsigned n=0;n<20000 && expected.size()<extent*m.g.capture.capture.channels;++n){
         check(independent.service()!=MonitorBufferCode::Fault,"Independent converter failed");
-        const auto r=independent.pull(block);expected.insert(expected.end(),block.begin(),block.begin()+std::ptrdiff_t(std::size_t(r.frames)*m.g.output.channels));
+        const auto r=independent.pull(block);expected.insert(expected.end(),block.begin(),block.begin()+std::ptrdiff_t(std::size_t(r.frames)*m.g.capture.capture.channels));
     }
-    check(expected.size()>=extent*m.g.output.channels,"Independent converter prefix missing");return expected;
+    check(expected.size()>=extent*m.g.capture.capture.channels,"Independent converter prefix missing");
+    if(m.g.processing.channelMap){std::vector<float> stereo;stereo.reserve(expected.size()*2);for(const auto x:expected){stereo.push_back(x);stereo.push_back(x);}return stereo;}
+    return expected;
 }
 #ifdef SC_NATIVE_STARTUP_STATE
 struct StateTemp {
@@ -194,10 +198,10 @@ struct StateTemp {
 };
 NativeOriginalRecordingSpec stateSpec(const Model &m){
     NativeOriginalRecordingSpec s;s.runGeneration=m.g.processing.buffer.runGeneration;
-    s.raw.identity=m.g.capture.capture.identity;s.raw.layout={LayoutKind::Discrete,m.g.output.channels};
+    s.raw.identity=m.g.capture.capture.identity;s.raw.layout={LayoutKind::Discrete,m.g.capture.capture.channels};
     s.raw.sampleRate=m.g.capture.capture.sampleRate;s.raw.maximumPacketFrames=m.g.capture.capture.maximumPacketFrames;
-    s.capture={s.raw.sampleRate,m.g.output.channels,s.raw.maximumPacketFrames,0,false,s.raw.identity};
-    s.render=m.g.format();s.monitorFirst=m.g.output.first;return s;
+    s.capture={s.raw.sampleRate,m.g.capture.capture.channels,s.raw.maximumPacketFrames,0,false,s.raw.identity};
+    s.render=m.g.format();s.monitorFirst=m.g.output.first;s.channelMap=m.g.processing.channelMap;return s;
 }
 std::string readState(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);return {std::istreambuf_iterator<char>(f),{}};}
 void persistState(Model &m,NativeOriginalCaptureWriter &writer,const NativeOriginalRecordingSpec &spec,const WasapiMonitorRenderResult &result){
@@ -207,7 +211,7 @@ void persistState(Model &m,NativeOriginalCaptureWriter &writer,const NativeOrigi
     o.captureRequest=MonitorCaptureStopRequest{spec.runGeneration,MonitorCaptureStopKind::Horizon,result.monitorEnd->value,result.monitorEnd->value,m.rawFrames};o.render=result;
     const auto saved=writer.finalize(m.capture,o);const auto verified=inspectNativeOriginalRecording(writer.jobDirectory(),spec);
     const auto &v=verified.outcome->render;const auto &a=*v.original;const auto &b=*result.original;
-    check(saved.schemaMinor==1 && verified.schemaMinor==1 && saved.status==verified.status &&
+    check((saved.schemaMinor==1 || saved.schemaMinor==2) && verified.schemaMinor==saved.schemaMinor && saved.status==verified.status &&
         saved.status==(result.status==WasapiMonitorRenderStatus::Complete?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Failed) &&
         verified.raw.committedFrames==m.rawFrames && verified.raw.committedPackets==m.rawPackets && verified.raw.finalized &&
         verified.raw.sampleSha256==saved.raw.sampleSha256 && verified.raw.stampSha256==saved.raw.stampSha256 &&
@@ -251,10 +255,34 @@ void persistState(Model &m,NativeOriginalCaptureWriter &writer,const NativeOrigi
         }
         check(inspectNativeOriginalRecording(writer.jobDirectory(),spec).status==NativeOriginalRecordingStatus::Complete,"Mutation refusal altered original run");
     }
-    std::cout<<"composed state1.1 rawFrames="<<m.rawFrames<<" retainedRawHash=true fullReadyRoundtrip=true fakeSDK=true\n";
+    if(spec.channelMap && result.status==WasapiMonitorRenderStatus::Complete){
+        const auto path=writer.jobDirectory()/"native-run.json";const auto original=readState(path);
+        for(unsigned bad=0;bad<6;++bad){auto j=nlohmann::json::parse(original);auto &a=j["outcome"]["render"]["startupReady"]["admitted"];
+            if(bad==0)a["channelMap"]["sha256"]=std::string(64,'0');
+            if(bad==1)a["channelMap"]["inputChannels"]=2;
+            if(bad==2)a["channelMap"]["outputChannels"]=1;
+            if(bad==3)j["declared"].erase("channelMap");
+            if(bad==4)a["channelMap"]=nullptr;
+            if(bad==5)j["schemaMinor"]=1;
+            {std::ofstream f(path,std::ios::binary|std::ios::trunc);f<<j.dump();check(bool(f),"Matrix mutation write failed");}
+            refuses([&]{inspectNativeOriginalRecording(writer.jobDirectory(),spec);});
+            {std::ofstream f(path,std::ios::binary|std::ios::trunc);f<<original;check(bool(f),"Matrix state restore failed");}
+        }
+    }
+    if(saved.schemaMinor==1){
+        const auto before=readState(writer.jobDirectory()/"native-run.json"),raw=readState(writer.jobDirectory()/"journal.json");
+        const auto migrated=migrateNativeOriginalRecording(writer.jobDirectory(),spec);
+        check(migrated.schemaMinor==2 && !migrated.declared->channelMap && migrated.outcome->render.startupReady==result.startupReady &&
+            migrated.outcome->render.original->firstWarmupLease==result.original->firstWarmupLease && migrated.status==saved.status &&
+            migrated.raw.sampleSha256==saved.raw.sampleSha256 && migrated.raw.stampSha256==saved.raw.stampSha256 &&
+            readState(writer.jobDirectory()/"journal.json")==raw,"Legacy1.1 full ready migration changed original/raw facts");
+        auto old=nlohmann::json::parse(before)["outcome"],now=nlohmann::json::parse(readState(writer.jobDirectory()/"native-run.json"))["outcome"];
+        now["render"]["startupReady"]["admitted"].erase("channelMap");check(old==now,"Legacy1.1 migration normalized original startup outcome");
+    }
+    std::cout<<"composed state schemaMinor="<<*saved.schemaMinor<<" rawFrames="<<m.rawFrames<<" retainedRawHash=true fullReadyRoundtrip=true fakeSDK=true\n";
 }
-void diagnosticState(){
-    for(unsigned kind=0;kind<7;++kind){StateTemp temp;Model m;const auto spec=stateSpec(m);NativeOriginalRecordingOptions opts;opts.raw.resources=m.ledger;
+void diagnosticState(bool mapped=false){
+    for(unsigned kind=0;kind<7;++kind){StateTemp temp;Model m(1,48000,64,288000,mapped);const auto spec=stateSpec(m);NativeOriginalRecordingOptions opts;opts.raw.resources=m.ledger;
         auto writer=std::make_unique<NativeOriginalCaptureWriter>(temp.root,spec,opts);m.writer=writer.get();
         if((kind>=1 && kind<=4) || kind==6)m.ready();
         if(kind==0 || kind==1 || kind==6){if(kind==1)m.content();m.binding.requestCancel();}
@@ -268,7 +296,7 @@ void diagnosticState(){
         if(kind==6 || !m.rawFrames){if(m.rawFrames)writer->checkpoint();writer.reset();m.writer=nullptr;saved=reportNativeOriginalRecording(job,spec,o);}
         else saved=writer->finalize(m.capture,o);
         const auto verified=inspectNativeOriginalRecording(job,spec);const auto &v=verified.outcome->render;
-        check(verified.schemaMinor==1 && verified.raw.committedFrames==m.rawFrames && verified.raw.finalized==(kind!=6 && m.rawFrames!=0) &&
+        check(verified.schemaMinor==2 && verified.raw.committedFrames==m.rawFrames && verified.raw.finalized==(kind!=6 && m.rawFrames!=0) &&
             verified.outcome->captureStatus==MonitorCaptureEndStatus::OwnerLost && !verified.outcome->captureOriginal &&
             v.status==original.status && v.warmupLimits==original.warmupLimits && v.preLeaseCalls==original.preLeaseCalls &&
             v.readyAcquiredQpc100ns==original.readyAcquiredQpc100ns && v.startupReady==original.startupReady &&
@@ -281,17 +309,21 @@ void diagnosticState(){
             check(a.preLeaseCalls==b.preLeaseCalls && a.firstWarmupLease==b.firstWarmupLease && a.lastWarmupLease==b.lastWarmupLease &&
                 a.warmupCommittedFrames==b.warmupCommittedFrames && a.preLeaseStop==b.preLeaseStop && a.contentBegan==b.contentBegan &&
                 a.contentCommittedFrames==b.contentCommittedFrames,"Failed/partial SDK commitment replaced by consumed PCM");}
-        std::cout<<"diagnostic state1.1 kind="<<kind<<" rawFrames="<<m.rawFrames<<" status="<<unsigned(v.status)<<" partial="<<(!verified.raw.finalized)<<" fakeSDK=true\n";
+        std::cout<<"diagnostic state1.2 kind="<<kind<<" rawFrames="<<m.rawFrames<<" status="<<unsigned(v.status)<<" partial="<<(!verified.raw.finalized)<<" fakeSDK=true\n";
     }
 }
 
 #endif
-void success(unsigned channels,unsigned rate,bool failedStop=false){
+void success(unsigned channels,unsigned rate,bool failedStop=false,bool mapped=false,bool legacy=false){
+#ifndef SC_NATIVE_STARTUP_STATE
+    (void)legacy; // Persistence qualification is compiled only with the media owner.
+#endif
     ResourceLedger credit(256*1024*1024);
     {
-        Model m(channels,rate);credit=m.ledger;
+        Model m(channels,rate,64,288000,mapped);credit=m.ledger;
 #ifdef SC_NATIVE_STARTUP_STATE
         StateTemp temp;const auto spec=stateSpec(m);NativeOriginalRecordingOptions opts;opts.raw.resources=m.ledger;
+        opts.schemaMinor=legacy?1:2;
         NativeOriginalCaptureWriter writer(temp.root,spec,opts);m.writer=&writer;
         refuses([&]{migrateNativeOriginalRecording(writer.jobDirectory(),spec);});
 #endif
@@ -329,8 +361,8 @@ void success(unsigned channels,unsigned rate,bool failedStop=false){
             const auto count=std::min<std::uint64_t>(4097,extent-consumed);
             check(a==(count==extent-consumed?WasapiRenderAction::Finish:WasapiRenderAction::Continue),"Finite Content/Finish extent wrong");
             check(m.backing.front()==-999.f && m.backing.back()==-999.f,"Native content crossed canaries");
-            for(std::size_t j=0;j<count*channels;++j)error=std::max(error,std::abs(double(m.backing[j+1])-expected[std::size_t(consumed)*channels+j]));
-            for(std::size_t j=count*channels;j<std::size_t(4097)*channels;++j)check(m.backing[j+1]==0,"Uncertified/nonzero end slack");
+            for(std::size_t j=0;j<count*m.g.output.channels;++j)error=std::max(error,std::abs(double(m.backing[j+1])-expected[std::size_t(consumed)*m.g.output.channels+j]));
+            for(std::size_t j=count*m.g.output.channels;j<std::size_t(4097)*m.g.output.channels;++j)check(m.backing[j+1]==0,"Uncertified/nonzero end slack");
             consumed+=static_cast<unsigned>(count);finish=a==WasapiRenderAction::Finish;++m.tick;
         }
         check(finish && consumed==extent && error==0 && !m.context.result() && !m.clocks.renderDone(),"Original finite PCM or native-end boundary lost");
@@ -347,7 +379,7 @@ void success(unsigned channels,unsigned rate,bool failedStop=false){
 #ifdef SC_NATIVE_STARTUP_STATE
         persistState(m,writer,spec,result);m.writer=nullptr;
 #endif
-        std::cout<<"composed startup channels="<<channels<<" sourceRate="<<rate<<" nativeCapacity=4097 firstReadyTick="<<m.tick-3
+        std::cout<<"composed startup inputChannels="<<m.g.capture.capture.channels<<" outputChannels="<<m.g.output.channels<<" sourceRate="<<rate<<" nativeCapacity=4097 firstReadyTick="<<m.tick-3
             <<" fullFifo="<<extent<<" warmup="<<result.original->warmupCommittedFrames<<" content="<<result.requestedNativeFrames
             <<" consumed="<<result.consumedMonitorFrames<<" slack="<<result.finalSlackFrames<<" maxError="<<error
             <<" failedStop="<<failedStop<<" fakeSDK=true\n";
@@ -480,6 +512,17 @@ void concurrentOwners(){
     std::cout<<"concurrent native startup captureOwners=1 processingOwners=1 renderOwners=1 fullFIFO=4097 maxError=0 guarded=0 fakeSDK=true\n";
 }
 void admissions(){
+    for(unsigned kind=0;kind<4;++kind){
+        Geometry g(1,48000,true);PreparedCaptureFanout f(g.capture);PreparedMonitorOutputBank o(g.output);
+        auto a=g.admission();
+        if(kind==0)a.channelMap.reset();
+        if(kind==1)a.channelMap->inputChannels=2;
+        if(kind==2)a.channelMap->sha256.fill('0');
+        if(kind==3)g.processing.channelMap->routes[0].gain=2;
+        PreparedMonitorStartupHandoff h(a);
+        refuses([&]{PreparedMonitorProcessing p(f,o,g.processing,nullptr,nullptr,nullptr,&h);});
+        check(!h.claimed() && !f.rawAcceptedFrames() && !o.acceptedFrames(),"Matrix mismatch consumed startup ownership/PCM");
+    }
     for(unsigned kind=0;kind<12;++kind){
         Geometry g(1,48000);PreparedCaptureFanout f(g.capture);PreparedMonitorOutputBank o(g.output);PreparedMonitorClockHandoff clocks(g.clocks(64));
         auto a=g.admission();
@@ -508,10 +551,10 @@ void admissions(){
 }
 int main(){try{rt_audit::reset();
 #ifdef SC_NATIVE_STARTUP_STATE
-    diagnosticState();
+    diagnosticState();diagnosticState(true);
 #endif
     for(unsigned ch:{1u,2u}){for(unsigned rate:{44100u,48000u,96000u})success(ch,rate);}
-    success(1,48000,true);
+    success(1,48000,true);for(unsigned rate:{44100u,48000u,96000u})success(1,rate,false,true);success(1,48000,true,true);success(1,48000,false,false,true);
     terminalAndProtocol();nativeFailures();concurrentOwners();admissions();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared native readiness allocated/freed/locked");
     std::cout<<checks<<" composed native monitor startup checks passed; guarded allocate/free/lock=0; simulated SDK only\n";return 0;
