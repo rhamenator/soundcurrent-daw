@@ -1,5 +1,26 @@
 # Active full-suite goal: progress and completion evidence
 
+## Immutable startup receipt and protected integration (2026-10-11)
+
+[Checkpoint203](203-monitor-startup-ready.md) records ordinary protected PR136 at
+MAINe926e275, whole tested tree/base/34blobs and all four original byte-exact job
+logs. MSVC passed70suites212.15s and three original20-take diagnostic completions;
+the original Windows failure roots remain unresolved.
+
+New prepared processing publishes one immutable generation/identity/geometry-bound
+full-FIFO receipt for acquire readers. Concurrent-reader fixtures cover six actual
+processing cases, original provenance/raw bits, terminal states, resource credit
+and malformed/stale/duplicate publication.16 suites/profile pass
+Release3.33s/ASanUBSan23.02s/TSan28.15s,19,698 startup checks and zero direct PCM
+error or guarded allocation/free/lock. A subsequent fixture-only value-init change
+passes its affected suite/profile without compiler warnings; production and the
+other45 executable hashes are unchanged. Original warnings/conflict stages remain.
+595 inputs/48 final hashes/full logs are retained. Windows compilation passes;
+new native execution and fresh current-MAIN CI remain required. Factory disabled.
+Next: actual native warmup leases and original clocks, consume readiness, explicit
+schema1.1 migration and native/installed/latency/EQmix/alignment gates. Full goal
+M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.
+
 The owner activated the complete [goal](../GOAL.md) on 2026-10-05 and added X004 other-suite project import. The reference baseline is unchanged. This goal remains **active and incomplete**; no milestone or compile result substitutes for the full completion audit.
 
 Delivery priority, 2026-10-07: [useful installable workflow previews](89-workflow-previews.md),
