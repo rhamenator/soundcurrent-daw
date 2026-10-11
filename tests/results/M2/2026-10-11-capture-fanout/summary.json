@@ -1,0 +1,33 @@
+{
+  "format": "sc-capture-raw-monitor-fanout-v1",
+  "sourceCommit": "ead72b376d25a3cf0e0b13864e22ae7acba388d1",
+  "sourceTree": "ebe07d418da21b00e95bafc0bf5b6e35c3677daf",
+  "captureBytes": 55352,
+  "captureSha256": "d7923716b292f3a9f3fe76dfc5fd10b8480ac7c7a22f53607ffc7cd6ea083387",
+  "members": 12,
+  "selectedInputs": 556,
+  "checkoutTransformations": {
+    ".github/scripts/prepare-windows-desktop.ps1": "CRLF checkout / LF Git blob"
+  },
+  "executableHashes": 6,
+  "suitesPerProfile": 2,
+  "fanoutChecksPerRun": 97086,
+  "bankChecksPerRun": 3179,
+  "concurrentOwners": 3,
+  "threeChannelPackets": 20000,
+  "threeChannelFramesPerRoute": 319935,
+  "threeChannelFloatBitComparisons": 1919610,
+  "maxChannelPackets": 1024,
+  "maxChannelFramesPerRoute": 16369,
+  "maxChannelFloatBitComparisons": 8380928,
+  "cppAllocateFree": 0,
+  "interposedCAllocateFreeLock": 0,
+  "freshReleaseExecutablesIdentical": true,
+  "diskWriterComposed": false,
+  "monitorDspComposed": false,
+  "windowsFanoutExecuted": false,
+  "nativeDuplexQualified": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false
+}
