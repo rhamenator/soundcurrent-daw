@@ -4081,3 +4081,21 @@ confirm InvalidParameter and no directory/credit mutation. Controller1675/UI285
 assertions pass, preserving the129-render corpus and independent history bounds.
 Fresh platform gates remain required; original source qualifications are not
 relabeled.
+
+## 2026-10-11: bounded sample-rate stretch/pitch observations
+
+PR105 has merged through ordinary protection at `d85c97e`, with 13 reviewed
+blobs and the whole tree identical to the four-job tested merge. Dependent
+Linux/Windows publication-refusal PRs retain their own current-head gates.
+
+[Checkpoint168](168-stretch-rate-quality.md) records 36 actual isolated renders
+at 44.1/48/96 kHz, ratios 0.5–2 and shifts −12/0/+12 semitones. All exact lengths,
+finite float headroom and three unity PCM identities pass. All 72 selected
+steady-tone measurements meet five cents, maximum 2.663972 cents. The original
+parent verifier passes three workflows and refuses a reused project identity;
+a distinct-root retry passes 7,919 assertions without rerendering audio or
+rewriting the original failure. Full generated PCM remains local; compact
+public reports bind 309 source inputs and audit provenance/protocol arithmetic,
+not spectral recomputation. No production DSP, VM/audio endpoint or product
+upload. Transient/group phase, listening, native Windows/installed quality,
+M2–M11/X004/X005 and all-European F/Q/C/N qualification remain open.
