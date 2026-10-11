@@ -4454,3 +4454,13 @@ five-member packet retains the full failed job/status and local diagnostic logs.
 failure. No production behavior is changed. PR119 stays draft/unadmitted pending
 fresh Windows/current-MAIN checks; do not rerun an old successful stacked cohort
 or suppress the manual workflow to obtain green status.
+
+## Independent Windows capture-bank execution (2026-10-11)
+
+Actual MSVC job114396486497/run38114463559 passed54 synthetic suites197.10s,
+including the bank suite0.03s. API-verified tested mergeab122504 binds
+headd55b666/base9c8f8cf and exact reviewed tree. A38,461-byte/three-member packet
+retains full job/status and15 changed-file hashes; no per-bank check count or
+executable hash is invented. [Checkpoint180](180-stamped-capture-bank.md) records
+this independent platform observation. Native endpoints/installed/physical/full
+product qualification and refreshed current-MAIN protection gates remain open.

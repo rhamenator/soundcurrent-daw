@@ -1,0 +1,22 @@
+{
+  "format": "sc-stamped-bank-windows-observation-v1",
+  "captureBytes": 38461,
+  "captureSha256": "7faf5411ab98c67f3b47fb9e4f2c6a0c054ef3d662db4c421928489ee54ee8d2",
+  "members": 3,
+  "reviewedFiles": 15,
+  "head": "d55b6661f19db96a4ae10f9b49006d1af672e166",
+  "base": "9c8f8cfa9f29631850bd80df1085f76977024903",
+  "testedMerge": "ab12250419fb1329e33964a48d3a7bd535cd44a0",
+  "run": 38114463559,
+  "job": 114396486497,
+  "suites": 54,
+  "bankSuiteSeconds": 0.03,
+  "totalSeconds": 197.1,
+  "windowsMsvcBankExecuted": true,
+  "simulatedPackets": true,
+  "nativeDuplexQualified": false,
+  "currentMainAdmission": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false
+}
