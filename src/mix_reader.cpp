@@ -16,6 +16,7 @@ ReaderDeclaration declareReaders(const ValidatedSession &validated, const MixPla
     if (!maximumReferences || !options.maximumOpenAssets)
         throw ProjectError(ErrorCode::InvalidState, "Invalid shared media handle policy");
     const auto &s = validated.session();
+    const PlaybackTimeline timeline(config.graph.startFrame, config.endFrame, config.loop);
     std::unordered_set<std::string_view> seen;
     ReaderDeclaration d;
     if (!options.resources)
@@ -28,8 +29,8 @@ ReaderDeclaration declareReaders(const ValidatedSession &validated, const MixPla
         readerCharge.add(trackReaderPayloadBytes(
             validated, route.track, mixPlaybackLaneConfig(validated, route.track, config)));
         for (const auto &clip : track.clips)
-            if (clip.startFrame < config.endFrame &&
-                clip.startFrame + clip.lengthFrames > config.graph.startFrame &&
+            if (clip.startFrame < timeline.sourceEnd() &&
+                clip.startFrame + clip.lengthFrames > timeline.sourceBegin() &&
                 seen.insert(clip.assetId.str()).second)
                 d.assets.push_back(validated.asset(clip.assetId));
     }

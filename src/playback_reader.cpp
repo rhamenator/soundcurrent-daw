@@ -14,9 +14,10 @@ void require(bool ok, const char *message, ErrorCode code = ErrorCode::MediaMism
 }
 struct ReaderGeometry { std::size_t sourceFrames=0;bool positioned=false; };
 ReaderGeometry geometry(const ValidatedSession &s,const Track &track,const PlaybackConfig &config) {
+    const PlaybackTimeline timeline(config.startFrame,config.endFrame,config.loop);
     ReaderGeometry g{config.slabFrames,false};
-    for(const auto &clip:track.clips) if(clip.startFrame<config.endFrame &&
-            clip.startFrame+clip.lengthFrames>config.startFrame) {
+    for(const auto &clip:track.clips) if(clip.startFrame<timeline.sourceEnd() &&
+            clip.startFrame+clip.lengthFrames>timeline.sourceBegin()) {
         const auto &asset=s.asset(clip.assetId);
         PreparedPositionedResampling kernel(clipSourceMap(clip,asset.sampleRate,config.sampleRate),config.layout.channels);
         if(!kernel.exactCopy(clipSourceMap(clip,asset.sampleRate,config.sampleRate))) {
@@ -29,13 +30,14 @@ ReaderGeometry geometry(const ValidatedSession &s,const Track &track,const Playb
 std::size_t trackReaderPayloadBytes(const ValidatedSession &s, const Id &id,
                                     const PlaybackConfig &raw) {
     const auto c = preparePlaybackConfig(raw);
+    const PlaybackTimeline timeline(c.startFrame,c.endFrame,c.loop);
     const auto &t = s.track(id);
     require(t.layout == c.layout && s.session().sampleRate == c.sampleRate,
             "Playback reader/session admission mismatch", ErrorCode::InvalidState);
     PayloadCharge charge("Track reader payload", c.memoryBudgetBytes);
     charge.add(4096);
     for (const auto &clip : t.clips)
-        if (clip.startFrame < c.endFrame && clip.startFrame + clip.lengthFrames > c.startFrame) {
+        if (clip.startFrame < timeline.sourceEnd() && clip.startFrame + clip.lengthFrames > timeline.sourceBegin()) {
             charge.add(sizeof(Clip) + sizeof(PreparedClipProcessing) + sizeof(SourceFrameMap) +
                        sizeof(PreparedPositionedResampling) + sizeof(std::size_t) + 256);
             if(clip.stretch)charge.add(clip.stretch->processor.capacity()+1);
@@ -75,10 +77,11 @@ struct TrackReader::State {
     std::vector<float> positionedBuffer;
     std::vector<double> sumBuffer;
     Frame next;
+    PlaybackTimeline timeline;
     std::atomic<std::uint64_t> sanitized{0};
     State(ResourceLease lease, PlaybackPipe &p, ReadAheadOptions o)
         : resourceLease(std::move(lease)), pipe(p), options(std::move(o)),
-          next(p.config().startFrame) {}
+          next(p.config().startFrame), timeline(p.config().startFrame,p.config().endFrame,p.config().loop) {}
 };
 TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const Session &session,
                          const Id &trackId, ReadAheadOptions options) {
@@ -89,14 +92,15 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
         options.cache.resources = options.resources;
     state_ = std::make_unique<State>(std::move(lease), pipe, std::move(options));
     const auto &config = pipe.config();
+    const auto &timeline = state_->timeline;
     const auto &track = validated.track(trackId);
     require(track.layout == config.layout && session.sampleRate == config.sampleRate,
             "Playback reader/session admission mismatch", ErrorCode::InvalidState);
     std::vector<Asset> assets;
     std::unordered_set<std::string_view> seen;
     for (const auto &clip : track.clips)
-        if (clip.startFrame < config.endFrame &&
-            clip.startFrame + clip.lengthFrames > config.startFrame &&
+        if (clip.startFrame < timeline.sourceEnd() &&
+            clip.startFrame + clip.lengthFrames > timeline.sourceBegin() &&
             seen.insert(clip.assetId.str()).second)
             assets.push_back(validated.asset(clip.assetId));
     auto cache = state_->options.cache;
@@ -107,14 +111,14 @@ TrackReader::TrackReader(PlaybackPipe &pipe, std::filesystem::path root, const S
     total.add(bytes);
     state_->bindings.reserve(
         std::count_if(track.clips.begin(), track.clips.end(), [&](const auto &clip) {
-            return clip.startFrame < config.endFrame &&
-                   clip.startFrame + clip.lengthFrames > config.startFrame;
+            return clip.startFrame < timeline.sourceEnd() &&
+                   clip.startFrame + clip.lengthFrames > timeline.sourceBegin();
         }));
     state_->media = std::make_shared<MediaReadCache>(root, assets, session.sampleRate, cache,
                                                      state_->options.beforeAdmissionRead);
     for (const auto &clip : track.clips)
-        if (clip.startFrame < config.endFrame &&
-            clip.startFrame + clip.lengthFrames > config.startFrame)
+        if (clip.startFrame < timeline.sourceEnd() &&
+            clip.startFrame + clip.lengthFrames > timeline.sourceBegin())
             state_->bindings.push_back({clip, state_->media->assetIndex(clip.assetId), PreparedClipProcessing(clip.processing),
                 clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),
                 PreparedPositionedResampling(clipSourceMap(clip,validated.asset(clip.assetId).sampleRate,config.sampleRate),config.layout.channels)});
@@ -132,17 +136,18 @@ TrackReader::TrackReader(PlaybackPipe &pipe, const ValidatedSession &validated, 
     require(bool(media), "Shared playback media cache missing", ErrorCode::InvalidState);
     const auto &track = validated.track(trackId);
     const auto &config = pipe.config();
+    const auto &timeline = state_->timeline;
     require(track.layout == config.layout && validated.session().sampleRate == config.sampleRate,
             "Playback reader/session admission mismatch", ErrorCode::InvalidState);
     state_->media = std::move(media);
     state_->bindings.reserve(
         std::count_if(track.clips.begin(), track.clips.end(), [&](const auto &clip) {
-            return clip.startFrame < config.endFrame &&
-                   clip.startFrame + clip.lengthFrames > config.startFrame;
+            return clip.startFrame < timeline.sourceEnd() &&
+                   clip.startFrame + clip.lengthFrames > timeline.sourceBegin();
         }));
     for (const auto &clip : track.clips)
-        if (clip.startFrame < config.endFrame &&
-            clip.startFrame + clip.lengthFrames > config.startFrame) {
+        if (clip.startFrame < timeline.sourceEnd() &&
+            clip.startFrame + clip.lengthFrames > timeline.sourceBegin()) {
             const auto asset = state_->media->assetIndex(clip.assetId);
             require(state_->media->assetDescription(asset) == validated.asset(clip.assetId),
                     "Shared cache asset differs from prepared session", ErrorCode::MediaMismatch);
@@ -176,39 +181,45 @@ bool TrackReader::fillOne() {
         const auto samples = std::size_t(frames) * channels;
         std::fill_n(s.sumBuffer.data(), samples, 0.);
         std::uint64_t invalid = 0;
-        for (const auto &b : s.bindings) {
-            const auto begin = std::max(s.next, b.clip.startFrame);
-            const auto end = std::min(s.next + frames, b.clip.startFrame + b.clip.lengthFrames);
-            if (end <= begin)
-                continue;
-            const auto count = end - begin;
-            const auto clipOffset=begin-b.clip.startFrame;
-            const float *rendered=s.readBuffer.data();
-            if(b.resampling.exactCopy(b.map)) {
-                s.media->read(b.source,b.map.at(clipOffset).frame,
-                             {s.readBuffer.data(),std::size_t(count)*channels});
-            } else {
-                const auto total=s.media->assetDescription(b.source).frames;
-                const auto range=b.resampling.sourceRange(b.map,clipOffset,std::uint32_t(count),total);
-                require(range.frames*channels<=s.readBuffer.size(),"Positioned source window exceeds admitted buffer");
-                const std::span<float> input{s.readBuffer.data(),range.frames*channels};
-                s.media->read(b.source,range.first,input);
-                b.resampling.process(b.map,clipOffset,total,range.first,input,
-                                     {s.positionedBuffer.data(),std::size_t(count)*channels});
-                rendered=s.positionedBuffer.data();
-            }
-            const auto offset = std::size_t(begin - s.next) * channels;
-            for (Frame frame = 0; frame < count; ++frame) {
-                const auto gain = b.processing.unity() ? 1. :
-                    b.processing.gainAt(begin - b.clip.startFrame + frame);
-                for (std::uint32_t channel = 0; channel < channels; ++channel) {
-                    const auto n = std::size_t(frame) * channels + channel;
-                    if (std::isfinite(rendered[n]))
-                        s.sumBuffer[offset + n] += gain == 1 ? rendered[n] :
-                            double(rendered[n]) * gain;
-                    else ++invalid;
+        for (Frame streamOffset = 0; streamOffset < frames;) {
+            PlaybackTimelineSegment segment;
+            require(s.timeline.segment(s.next + streamOffset, std::uint32_t(frames - streamOffset), segment),
+                    "Playback timeline segment refused", ErrorCode::InvalidState);
+            for (const auto &b : s.bindings) {
+                const auto begin = std::max(segment.projectFrame, b.clip.startFrame);
+                const auto end = std::min(segment.projectFrame + segment.frames, b.clip.startFrame + b.clip.lengthFrames);
+                if (end <= begin)
+                    continue;
+                const auto count = end - begin;
+                const auto clipOffset=begin-b.clip.startFrame;
+                const float *rendered=s.readBuffer.data();
+                if(b.resampling.exactCopy(b.map)) {
+                    s.media->read(b.source,b.map.at(clipOffset).frame,
+                                 {s.readBuffer.data(),std::size_t(count)*channels});
+                } else {
+                    const auto total=s.media->assetDescription(b.source).frames;
+                    const auto range=b.resampling.sourceRange(b.map,clipOffset,std::uint32_t(count),total);
+                    require(range.frames*channels<=s.readBuffer.size(),"Positioned source window exceeds admitted buffer");
+                    const std::span<float> input{s.readBuffer.data(),range.frames*channels};
+                    s.media->read(b.source,range.first,input);
+                    b.resampling.process(b.map,clipOffset,total,range.first,input,
+                                         {s.positionedBuffer.data(),std::size_t(count)*channels});
+                    rendered=s.positionedBuffer.data();
+                }
+                const auto offset = std::size_t(streamOffset + begin - segment.projectFrame) * channels;
+                for (Frame frame = 0; frame < count; ++frame) {
+                    const auto gain = b.processing.unity() ? 1. :
+                        b.processing.gainAt(begin - b.clip.startFrame + frame);
+                    for (std::uint32_t channel = 0; channel < channels; ++channel) {
+                        const auto n = std::size_t(frame) * channels + channel;
+                        if (std::isfinite(rendered[n]))
+                            s.sumBuffer[offset + n] += gain == 1 ? rendered[n] :
+                                double(rendered[n]) * gain;
+                        else ++invalid;
+                    }
                 }
             }
+            streamOffset += segment.frames;
         }
         for (std::size_t n = 0; n < samples; ++n) {
             const auto value = static_cast<float>(s.sumBuffer[n]);

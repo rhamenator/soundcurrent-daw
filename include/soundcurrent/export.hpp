@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "project_store.hpp"
+#include "playback_timeline.hpp"
 #include "mix.hpp"
 #include "media_cache.hpp"
 #include <optional>
@@ -32,6 +33,7 @@ struct ExportSettings {
     // Explicit resource admission, includes preroll and maximum tail. Caller may raise it.
     Frame maximumProcessFrames = 48000LL * 60 * 60 * 24;
     bool forceRf64 = false;
+    std::optional<PlaybackLoopRegion> loop; // Explicit finite repeated-project export.
     // No token means exclusive no-overwrite. A token approves replacement of these bytes.
     // Hash/recheck is for the owned-filesystem contract, not hostile-writer atomic CAS.
     std::optional<std::string> replaceSha256;

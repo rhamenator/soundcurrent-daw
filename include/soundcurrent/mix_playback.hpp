@@ -9,6 +9,7 @@ struct MixPlaybackConfig {
     MixConfig graph;
     Frame endFrame = 0;
     std::uint32_t slabFrames = 0;
+    std::optional<PlaybackLoopRegion> loop;
 };
 // Prepared ordinals only; one input replacement per lane. Unlisted lanes play files.
 struct LiveMixInput {
@@ -20,7 +21,9 @@ struct LiveMixInput {
 };
 struct MixPlaybackReport {
     PlaybackStatus status = PlaybackStatus::Running;
-    Frame startFrame = 0;
+    Frame startFrame = 0; // Monotonic stream clock, including loop playback.
+    Frame projectStartFrame = 0;
+    std::uint64_t loopPass = 0;
     std::uint32_t timelineFrames = 0, underflowTracks = 0;
     std::uint64_t missingTrackFrames = 0, staleTrackFrames = 0;
     MixReport mix;

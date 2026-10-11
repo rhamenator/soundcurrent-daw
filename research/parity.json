@@ -156,7 +156,7 @@
       "reference_b_url": "https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/track_handling/track_handling_lanes_working_with_c.html?contentId=qbKWfjGb~C451jXw1Dsk2w",
       "reference_a_evidence": "P",
       "reference_b_evidence": "D",
-      "implementation": "Partial: schema1.16 inactive retained audio lanes and verified complete-group admission, with desktop retention, Unicode names, reorder, source labels and a charged virtual chooser. Actual two-track manual groups are retained silently and saved/reopened. Real loop/wrap playback, take audition, MIDI rules, five-pass and native/installed qualification remain open; checkpoints170/171.",
+      "implementation": "Partial: schema1.16 inactive retained audio lanes and verified complete-group admission, with desktop retention, Unicode names, reorder, source labels and a charged virtual chooser. Finite shared-reader looping with monotonic stream/device clocks, wrapped project reads and five actual two-input delayed synthetic passes has acceptance, including fractional/fade playback, export and stop/cancel checkpoints. Desktop/native/indefinite loop transport, take audition, MIDI rules and installed qualification remain open; checkpoints170/171/172.",
       "F": "unverified",
       "Q": "unverified",
       "C": "not applicable",

@@ -192,12 +192,14 @@ static ExportResult exportGraphWav(const std::filesystem::path &projectRoot, con
     };
     verifyDestination();
     Frame begin = spec.startFrame;
-    for (const auto &route : plan.tracks) {
-        const auto track = std::find_if(session.tracks.begin(), session.tracks.end(),
-                                        [&](const Track &t) { return t.id == route.track; });
-        for (const auto &clip : track->clips)
-            if (clip.startFrame < spec.endFrame)
-                begin = std::min(begin, clip.startFrame);
+    if (!spec.loop) {
+        for (const auto &route : plan.tracks) {
+            const auto track = std::find_if(session.tracks.begin(), session.tracks.end(),
+                                            [&](const Track &t) { return t.id == route.track; });
+            for (const auto &clip : track->clips)
+                if (clip.startFrame < spec.endFrame)
+                    begin = std::min(begin, clip.startFrame);
+        }
     }
     require(spec.endFrame - begin <= spec.maximumProcessFrames &&
                 tailBudget <= spec.maximumProcessFrames - (spec.endFrame - begin),
@@ -224,7 +226,7 @@ static ExportResult exportGraphWav(const std::filesystem::path &projectRoot, con
     auto outputLease = options.resources ? options.resources->reserve(samples * 2 * sizeof(float))
                                          : ResourceLease{};
     graphConfig.memoryBudgetBytes -= samples * 2 * sizeof(float);
-    MixPlaybackConfig config{graphConfig, spec.endFrame, std::max(256u, spec.blockFrames)};
+    MixPlaybackConfig config{graphConfig, spec.endFrame, std::max(256u, spec.blockFrames), spec.loop};
     MixPlayback mix(session, plan, config);
     ReadAheadOptions readerOptions;
     readerOptions.beforeAdmissionRead = checkCanceled;

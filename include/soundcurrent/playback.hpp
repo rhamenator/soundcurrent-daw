@@ -2,6 +2,7 @@
 #pragma once
 #include "capture.hpp"
 #include "eq.hpp"
+#include "playback_timeline.hpp"
 
 namespace soundcurrent::daw {
 struct PlaybackConfig {
@@ -11,6 +12,7 @@ struct PlaybackConfig {
     std::size_t memoryBudgetBytes = 128 * 1024 * 1024;
     Frame startFrame = 0, endFrame = 0;
     std::uint64_t generation = 1;
+    std::optional<PlaybackLoopRegion> loop; // Project mapping; start/end remain stream frames.
     bool operator==(const PlaybackConfig &) const = default;
 };
 PlaybackConfig preparePlaybackConfig(PlaybackConfig);

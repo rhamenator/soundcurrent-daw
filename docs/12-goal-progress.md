@@ -4195,3 +4195,16 @@ recording counts. Native Windows CI adds this exact workflow. Catalogs have877
 source keys and no native-review/full-UI language promotion. Real loop transport,
 crossfades/audition and full frozen-reference parity remain open. No endpoint, VM,
 product installer/binary/release upload or equalizer-tree change.
+
+## 2026-10-11: finite looped arrangement playback and recorded passes
+
+[Checkpoint172](172-loop-playback-recording.md) separates monotonic stream/device/
+capture clocks from wrapped project reads. Existing queues/cache/DSP state remain
+continuous; live playback and explicit finite WAV export share the reader. An
+actual five-pass, two-input synthetic recording checks delayed postroll, raw
+sample values, device origins, retained groups and grouped comp/save/reopen.
+Fractional physical-rate clips, overlapping fades, inside-block/short wraps and
+stop/cancel checkpoints are tested. Callback allocation/free/lock counters stay
+zero. Desktop loop controls, persistent intent, native Linux/Windows/installed,
+indefinite slot replenishment, audition/crossfades and full workflow/quality gates
+remain open. No endpoint/VM/equalizer changes or product release upload.
