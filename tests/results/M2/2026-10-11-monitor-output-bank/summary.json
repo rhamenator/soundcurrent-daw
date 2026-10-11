@@ -1,0 +1,29 @@
+{
+  "format": "sc-monitor-output-bank-v1",
+  "sourceCommit": "65924c6774f8d0b3e8849c28f6395654c1805eff",
+  "sourceTree": "6947f88fd8788fef9d84a7ef0f1c372a34af6aa5",
+  "captureBytes": 55006,
+  "captureSha256": "7d18dac08965fef75b9e38a7102bbfbaeb0a22ed1aec094817d905aa0da3bdfe",
+  "members": 10,
+  "selectedInputs": 559,
+  "checkoutTransformations": {
+    ".github/scripts/prepare-windows-desktop.ps1": "CRLF checkout / LF Git blob"
+  },
+  "executableHashes": 3,
+  "checksPerRun": 788,
+  "concurrentOwners": 2,
+  "threeChannelPackets": 20000,
+  "threeChannelFrames": 319935,
+  "threeChannelFloatBitComparisons": 959805,
+  "maxChannelPackets": 1024,
+  "maxChannelFrames": 16369,
+  "maxChannelFloatBitComparisons": 4190464,
+  "cppAllocateFree": 0,
+  "interposedCAllocateFreeLock": 0,
+  "windowsExecutionQualified": false,
+  "dspNativeCompositionImplemented": false,
+  "nativeDuplexQualified": false,
+  "installedPreviewQualified": false,
+  "fullGoalComplete": false,
+  "executablesIncluded": false
+}

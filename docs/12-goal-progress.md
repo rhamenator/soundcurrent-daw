@@ -4512,6 +4512,23 @@ controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-b
 Windows causes remain unresolved. [Checkpoint181](181-durable-prefix-regression.md)
 records scope; no stale downstream success is admitted as a current-MAIN gate.
 
+## Prepared clock/occupancy monitor control and independent Windows kernel (2026-10-11)
+
+Frozen5935e92 adds original single-owner control: overlapping original clock fits,
+independent age/uncertainty, native tick frequency, bounded proportional/filter/
+ratio/slew policy and propose/enqueue/commit without progress on queue refusal.
+Linux Release0.20s, ASan/UBSan two suites2.54s and TSan0.92s passed. Each controller
+run made4,088,610 checks/225 Fraction vectors/one million analytic reservoir grids
+and an8,192-frame actual stereo buffer composition. Guarded intercepted operations
+zero. A29,681-byte/15-member packet binds553 selected inputs/four test binaries;
+fresh Release recompilation matched tested bytes. [Checkpoint184](184-monitor-drift-control.md)
+and ADR118 record startup/native/plant/quality limitations and the next SPSC/SDK gate.
+
+Separately MSVC job114401243742/run38116107337 passed the kernel probe0.65s/55
+suites173.64s. Its original merge/tree/parents and nine changed blobs are bound by
+a54,839-byte packet. This stacked run is not current-MAIN admission. No executable/
+installer/release uploaded, audible UI or raw schema changed. Full goal incomplete.
+
 ## Logical recording credit after an observed Windows disk stall (2026-10-11)
 
 MSVC job114406484458 passed manual controls19.67s but recording-recovery reached
@@ -4552,19 +4569,45 @@ preservation passed. Native review/full UI remains zero. The71,095-byte packet a
 [Checkpoint185](185-logical-recording-credit.md) retain original failure/new binding.
 Fresh current-head checks remain required; no stale Windows cohort is admitted.
 
-## Prepared clock/occupancy monitor control and independent Windows kernel (2026-10-11)
+## Typed monitor output transport (2026-10-11)
 
-Frozen5935e92 adds original single-owner control: overlapping original clock fits,
-independent age/uncertainty, native tick frequency, bounded proportional/filter/
-ratio/slew policy and propose/enqueue/commit without progress on queue refusal.
-Linux Release0.20s, ASan/UBSan two suites2.54s and TSan0.92s passed. Each controller
-run made4,088,610 checks/225 Fraction vectors/one million analytic reservoir grids
-and an8,192-frame actual stereo buffer composition. Guarded intercepted operations
-zero. A29,681-byte/15-member packet binds553 selected inputs/four test binaries;
-fresh Release recompilation matched tested bytes. [Checkpoint184](184-monitor-drift-control.md)
-and ADR118 record startup/native/plant/quality limitations and the next SPSC/SDK gate.
+Frozen65924c67 adds an original charged two-owner output slab/SPSC bank with
+generation-bound integer monitor ordinals, finite/headroom-preserving whole
+blocks, nonmutating retryable backpressure and bounded partial render pulls.
+Empty never synthesizes silence or underflow. Distinct immutable producer/render
+faults survive late dual-owner loss; Stop drains, monitor cancel/consumer loss
+discard only after join, and abandoned producer is faulted explicitly.
+Linux Release0.04s, ASan/UBSan0.69s and TSan0.59s passed788 checks plus actual
+two-owner3/256-channel bit comparisons. Guarded intercepted operations zero.
+A55,006-byte/10-member packet binds559 source inputs/three executable hashes.
+[Checkpoint187](187-monitor-output-transport.md) and ADR120 record remaining native,
+Windows, processing composition/quality and complete-product/localization gates.
+Next: durable original raw metadata and the composed bounded processing owner.
 
-Separately MSVC job114401243742/run38116107337 passed the kernel probe0.65s/55
-suites173.64s. Its original merge/tree/parents and nine changed blobs are bound by
-a54,839-byte packet. This stacked run is not current-MAIN admission. No executable/
-installer/release uploaded, audible UI or raw schema changed. Full goal incomplete.
+## Windows capture handoff and raw storage boundary (2026-10-11)
+
+Actual MSVC job114416549160 passed58 suites151.32s, including fanout0.08s.
+A42,140-byte packet binds the original tested merge/tree/parents and19 reviewed
+blobs; [Checkpoint186](186-capture-raw-monitor-fanout.md) records independent scope.
+Current-MAIN admission and native/installed/physical qualification remain separate.
+
+The old capture pipe sanitizes nonfinite values and journals engine-frame starts;
+it cannot substitute for original stamped raw recording. A bounded Linux RF64
+experiment retained16/16 float bit patterns in eight stereo frames. A1,780-byte
+source/log packet retains compiler/runtime/hash binding, with no media/executable.
+[Checkpoint188](188-original-raw-storage-boundary.md) specifies the next direct
+writer, durable common audio/metadata prefix, original integer timing records,
+finite playable admission and exact mapping/recovery gates. No production writer,
+Windows storage or native/full-product claim is made from this observation.
+
+## Current-MAIN Windows owner failures retained (2026-10-11)
+
+Output gate38127318120 separately failed manual takeGroup waiting (caller807) and
+Windows parent-interruption recovery (Incomplete instead of Ready). No stale
+stacked success is admitted. Frozenaa62e910 adds take/status/file-size and exact
+owned-child terminal/case-report diagnostics; assertions/deadlines/production
+behavior unchanged. Linux Debug manual control passed1.57s/65,182 observed checks,
+callback audit zero; Windows syntax checked but execution pending. A109,965-byte/
+nine-member packet binds416 inputs/local binary/logs and both original failed
+Windows jobs/API/16 reviewed blobs. [Checkpoint181](181-durable-prefix-regression.md)
+records original unresolved causes. Fresh current-MAIN checks are still required.
