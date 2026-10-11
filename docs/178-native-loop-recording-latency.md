@@ -70,3 +70,9 @@ The Windows implementation boundary is recorded in [ADR114](decisions/114-window
 Its first concrete task is a bounded, framework-free typed clock correlation
 primitive; native owners/monitor buffers/drift handling and desktop integration
 remain required afterward. This does not enable Windows duplex yet.
+
+The zero-delay native loop prerequisite was subsequently admitted to protected
+MAIN through PR117 (`9b751205eddd99f3d0bedef77933d21cce33b002`), after all four
+required jobs passed on the exact current head/base merge and eleven blobs plus
+the full tree matched. The delayed-input changes still require their own
+current-MAIN CI cohort before admission; stacked-branch results are not substituted.
