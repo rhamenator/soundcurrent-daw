@@ -242,8 +242,8 @@ struct JobLease::State {
 JobLease::JobLease(const std::filesystem::path &job, bool writer, bool exclusiveExisting,JobLeaseKind kind)
     : state_(std::make_unique<State>()) {
     plainDirectory(job);
-    require(kind==JobLeaseKind::Raw || kind==JobLeaseKind::PipeWireReceipts,"Unknown native job lease kind");
-    const auto path = job / (kind==JobLeaseKind::Raw?"writer.lock":"pipewire-writer.lock");
+    require(kind==JobLeaseKind::Raw || kind==JobLeaseKind::PipeWireReceipts || kind==JobLeaseKind::PipeWireState,"Unknown native job lease kind");
+    const auto path = job / (kind==JobLeaseKind::Raw?"writer.lock":kind==JobLeaseKind::PipeWireReceipts?"pipewire-writer.lock":"pipewire-state.lock");
     if (!writer && !std::filesystem::exists(std::filesystem::symlink_status(path)))
         return;
     if (!writer)

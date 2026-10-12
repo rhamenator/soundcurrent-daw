@@ -8,6 +8,8 @@
 #include <cmath>
 #include <iostream>
 #include <thread>
+#include <fstream>
+#include <cstdlib>
 using namespace soundcurrent::daw;
 namespace {
 unsigned checks=0;
@@ -16,7 +18,10 @@ template<class F>auto rt(F f){rt_audit::Guard guard;return f();}
 float sample(std::uint64_t n){return float(3*std::sin(double(n%48)*2*3.141592653589793/48));}
 struct Temp {std::filesystem::path root=std::filesystem::temp_directory_path()/std::filesystem::path(u8"sc-pw-owner-é-")/Id::generate().str();
     Temp(){std::filesystem::create_directories(root);ProjectStore(root).save(makeOneTrackSession("Owned native","Raw"));}
-    ~Temp(){if(std::uncaught_exceptions()){std::cerr<<"Retained owner fixture "<<root.generic_string()<<'\n';return;}std::error_code e;std::filesystem::remove_all(root,e);}
+    ~Temp(){if(std::uncaught_exceptions()){std::cerr<<"Retained owner fixture "<<root.generic_string()<<'\n';
+        if(const auto *target=std::getenv("SC_NATIVE_OWNER_FAILURE_EVIDENCE"))try{const std::filesystem::path folder(target);std::filesystem::create_directories(folder);const auto name="pw-owner-"+Id::generate().str()+"-failure.log";
+            std::ofstream f(folder/name,std::ios::binary);const auto path=root.generic_u8string();f<<"preserved_failure_project=";f.write(reinterpret_cast<const char *>(path.data()),std::streamsize(path.size()));f<<'\n';}catch(...){}
+        return;}std::error_code e;std::filesystem::remove_all(root,e);}
 };
 struct Shared {std::atomic<unsigned> joins{0},retired{0};std::atomic<bool> auditBad{false};std::vector<float> output;};
 class Simulated final : public PipeWireMonitorStreams {
@@ -82,11 +87,21 @@ void workflow(){Temp t;auto o=options(t);auto shared=std::make_shared<Shared>();
         check(owner.requestStopAt({2400})==MonitorControlCode::Accepted,"Owner horizon admission failed");
         const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(8);bool ready=false;
         while(!(ready=owner.service()) && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        const auto observed=owner.progress();
+        if(!ready || observed.rawFrames<48000)std::cerr<<"owner_observation ready="<<ready<<" raw="<<observed.rawFrames<<" monitor="<<observed.monitorInputFrames<<" copied="<<observed.copiedSourceFrames<<" published="<<observed.publishedMonitorFrames<<" delivered="<<observed.deliveredMonitorFrames<<" processing_done="<<observed.processingDone<<" disk_done="<<observed.diskDone<<'\n';
         const auto result=ready?owner.wait():owner.cancelAndWait();
         if(result.processingFault)std::cerr<<"processing_fault="<<int(result.processingFault->cause)<<'\n';
         if(result.capture && result.capture->fault)std::cerr<<"capture_fault="<<int(result.capture->fault->cause)<<'\n';
+        if(result.fanoutFault)std::cerr<<"fanout_fault side="<<int(result.fanoutFault->side)<<" cause="<<int(result.fanoutFault->cause)<<" raw_accepted="<<result.fanoutFault->rawPacketAccepted<<" monitor_accepted="<<result.fanoutFault->monitorPacketAccepted<<'\n';
         if(result.render && result.render->fault)std::cerr<<"render_fault="<<int(result.render->fault->cause)<<'\n';
+        if(result.terminalFailure)try{std::rethrow_exception(result.terminalFailure);}catch(const std::exception &e){std::cerr<<"terminal_failure="<<e.what()<<'\n';}
         check(ready && result.disposition==PipeWireRecordingDisposition::Recorded && result.prefix && result.prefix->finalized,"Owned recording did not complete stored prefix");
+        check(result.terminalStored && !result.terminalFailure,"Joined outcome not durably stored");
+        const auto stored=inspectPipeWireRecordingState(owner.jobDirectory(),o.declared);
+        check(stored.terminal && stored.outcome && stored.outcome->disposition==PipeWireStoredDisposition::Recorded &&
+              encodeMonitorEq(*stored.intent.processing.equalizer,48000,2)==encodeMonitorEq(*o.route.equalizer,48000,2) &&
+              stored.outcome->startup==result.startup && stored.outcome->capture->acceptedRawFrames==result.capture->acceptedRawFrames,
+              "Reopened route/EQ/startup/native outcome changed");
         check(result.prefix->monitorQueuedFrames==2400 && shared->output.size()==4800 && result.capture->callbacksJoined && result.render->callbacksJoined,"Native finite extents/joins wrong");
         original(*result.prefix);double energy=0;for(unsigned n=960;n<2400;++n){const auto l=shared->output[n*2],r=shared->output[n*2+1];energy+=double(l)*l;check(std::abs(r+.5*l)<.001,"Native monitor matrix mismatch");}
         check(std::abs(std::sqrt(energy/1440)-3*std::pow(10.,-6./20.)/std::sqrt(2.))<.01,"Native monitor EQ response mismatch");
@@ -98,17 +113,21 @@ void failures(){
     for(unsigned fail=0;fail<4;++fail){Temp t;auto o=options(t);auto s=std::make_shared<Shared>();
         {PipeWireMonitorRecording owner(t.root,factory(s,fail),o);
             if(fail==1 || fail==2){bool caught=false;try{owner.activate();}catch(const ProjectError &){caught=true;}check(caught,"Injected activation did not fail");
-                const auto r=owner.cancelAndWait();check(r.disposition==PipeWireRecordingDisposition::Failed && r.activationFailure && r.prefix,"Activation rollback lost checkpoint");}
-            else if(fail==0){const auto r=owner.cancelAndWait();check(r.disposition==PipeWireRecordingDisposition::Cancelled && r.prefix && !r.prefix->raw.committedFrames,"Prepared cancellation wrong");}
+                const auto r=owner.cancelAndWait();check(r.disposition==PipeWireRecordingDisposition::Failed && r.activationFailure && r.prefix,"Activation rollback lost checkpoint");
+                check(r.terminalStored && inspectPipeWireRecordingState(owner.jobDirectory()).outcome->activationFailure,"Activation failure was not stored");}
+            else if(fail==0){const auto r=owner.cancelAndWait();check(r.disposition==PipeWireRecordingDisposition::Cancelled && r.prefix && !r.prefix->raw.committedFrames,"Prepared cancellation wrong");
+                check(r.terminalStored && inspectPipeWireRecordingState(owner.jobDirectory()).outcome->disposition==PipeWireStoredDisposition::Cancelled,"Empty cancellation not stored");}
             else {owner.activate();const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(3);
                 while(!owner.service() && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                const auto r=owner.cancelAndWait();check(r.disposition==PipeWireRecordingDisposition::Failed && r.capture && r.capture->fault && r.capture->fault->cause==PipeWireCaptureCause::RateChanged && r.prefix,"Native rate fault lost raw prefix/original result");}}
+                const auto r=owner.cancelAndWait();check(r.disposition==PipeWireRecordingDisposition::Failed && r.capture && r.capture->fault && r.capture->fault->cause==PipeWireCaptureCause::RateChanged && r.prefix,"Native rate fault lost raw prefix/original result");
+                check(r.terminalStored && inspectPipeWireRecordingState(owner.jobDirectory()).outcome->capture->fault->cause==PipeWireCaptureCause::RateChanged,"Native rate fault not stored");}}
         check(s->joins==2 && s->retired==1 && !s->auditBad,"Failure rollback abandoned native callbacks");
     }
     Temp t;auto o=options(t);auto s=std::make_shared<Shared>();o.journal.boundary=[](auto b){if(b==PipeWireJournalBoundary::RawAppended)throw ProjectError(ErrorCode::Io,"Injected disk failure");};
     PipeWireMonitorRecording owner(t.root,factory(s),o);owner.activate();const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(3);
     while(!owner.service() && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
     const auto r=owner.cancelAndWait();check(r.disposition==PipeWireRecordingDisposition::Failed && r.diskFailure && r.prefix && !r.prefix->raw.committedFrames,"Interrupted paired append invented committed audio");
+    check(r.terminalStored && inspectPipeWireRecordingState(owner.jobDirectory()).outcome->diskFailure,"Disk failure not stored with original common prefix");
 }
 }
 int main(){try{workflow();failures();std::cout<<checks<<" owned PipeWire recording checks passed;actual native-role/processing/disk threads, finite EQ/map/raw checkpoint, cancel/fault/rollback;SDK=false, physical=false, durable terminal state incomplete\n";return 0;

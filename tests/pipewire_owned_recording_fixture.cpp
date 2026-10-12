@@ -72,6 +72,9 @@ int main(){std::filesystem::path root;
         if(result.capture && result.capture->fault)std::cerr<<"capture_fault="<<int(result.capture->fault->cause)<<" accepted="<<result.capture->acceptedRawFrames<<'\n';
         if(result.render && result.render->fault)std::cerr<<"render_fault="<<int(result.render->fault->cause)<<" queued="<<result.render->monitorQueuedFrames<<'\n';
         require(ready && result.disposition==PipeWireRecordingDisposition::Recorded && result.prefix && result.prefix->finalized,"Genuine owned native run incomplete/failed");
+        require(result.terminalStored && !result.terminalFailure,"Genuine native terminal state not stored");
+        const auto reopened=inspectPipeWireRecordingState(owner.jobDirectory(),o.declared);
+        require(reopened.terminal && reopened.intent.inputs.size()==1 && reopened.intent.outputs.size()==2 && reopened.outcome->capture->completedCycles==result.capture->completedCycles && reopened.outcome->render->nativeQueuedFrames==result.render->nativeQueuedFrames && reopened.outcome->startup==result.startup,"Genuine reopened intent/end provenance changed");
         require(result.prefix->monitorQueuedFrames==frames && sink.received==frames && !sink.bad,"Native queued/sink finite extent mismatch");
         raw(*result.prefix);double mean=0;for(unsigned n=frames-4800;n<frames;++n)mean+=sink.samples[n*2];mean/=4800;
         double energy=0;for(unsigned n=frames-4800;n<frames;++n){const auto l=sink.samples[n*2],r=sink.samples[n*2+1];require(std::abs(r+.5*l)<.002,"Actual native matrix changed");energy+=(l-mean)*(l-mean);}
@@ -80,6 +83,6 @@ int main(){std::filesystem::path root;
         std::cout<<"owned_recording raw_frames="<<result.prefix->raw.committedFrames<<" monitor_frames="<<frames<<" sink_frames="<<sink.received
                  <<" capture_receipts="<<result.prefix->captureRecords<<" render_receipts="<<result.prefix->renderRecords<<" raw_bit_checks="<<result.prefix->raw.committedFrames
                  <<" capture_callbacks="<<captureAudit.callbacks<<" render_callbacks="<<renderAudit.callbacks<<" monitor_mean="<<mean<<" monitor_ac_rms="<<std::sqrt(energy/4800)
-                 <<" callback_allocate_free_lock=0 actual_sdk=true private_dummy_route=true physical_audio=false durable_terminal_state=false\n";
+                 <<" callback_allocate_free_lock=0 actual_sdk=true private_dummy_route=true physical_audio=false durable_terminal_state=true\n";
         std::filesystem::remove_all(root);return 0;
     }catch(const std::exception &e){std::cerr<<e.what()<<" retained_fixture="<<root.generic_string()<<'\n';return 1;}}

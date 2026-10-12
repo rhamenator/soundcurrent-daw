@@ -2,6 +2,7 @@
 #pragma once
 #include "pipewire_monitor_route.hpp"
 #include "audio_port.hpp"
+#include "pipewire_recording_state.hpp"
 namespace soundcurrent::daw {
 // Construct inactive with route references; select explicit native ports before
 // activation. Separate native owners join before returning their actual ends.
@@ -31,6 +32,7 @@ struct PipeWireMonitorRecordingOptions {
     PipeWireRecordingSpec declared;
     PipeWireMonitorRouteOptions route;
     PipeWireJournalOptions journal;
+    PipeWireStateOptions durable;
     std::function<void(PipeWireOwnerBoundary)> boundary; // Serialized control, never native/processing callback.
 };
 enum class PipeWireRecordingDisposition { Recorded,Cancelled,Failed };
@@ -43,12 +45,15 @@ struct PipeWireMonitorRecordingResult {
     std::optional<MonitorCaptureStopRequest> stop;
     std::optional<MonitorStartupReady> startup;
     std::optional<MonitorProcessingFault> processingFault;
+    std::optional<CaptureFanoutFault> fanoutFault;
     std::optional<MonitorDriftFault> clockFault;
     std::optional<MonitorBufferFault> bufferFault;
     std::optional<EqReport> equalizerFault;
     std::optional<PipeWireReceiptFault<PipeWireCaptureCycle>> captureReceiptFault;
     std::optional<PipeWireReceiptFault<PipeWireRenderCycle>> renderReceiptFault;
     std::exception_ptr activationFailure,diskFailure,storageFailure,recoveryFailure;
+    std::exception_ptr terminalFailure;
+    bool terminalStored=false;
     std::uint64_t waitFailure=0,processingWaitCalls=0,diskWaitCalls=0;
 };
 struct PipeWireMonitorProgress {
@@ -59,7 +64,8 @@ struct PipeWireMonitorProgress {
 // callbacks do not perform disk/GUI/waits; worker polling is outside bounded DSP.
 // service/wait join actual native callbacks before EOF and retire only after all
 // owners join. Recorded means verified stored prefix+joined facts, not alignment,
-// audible completion, durable terminal metadata or automatically attached asset.
+// audible completion or automatically attached asset. terminalStored confirms
+// separate joined-outcome publication bound to the verified paired checkpoint.
 class PipeWireMonitorRecording {
   public:
     PipeWireMonitorRecording(std::filesystem::path,PipeWireMonitorStreamFactory,PipeWireMonitorRecordingOptions);

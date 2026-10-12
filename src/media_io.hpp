@@ -37,7 +37,7 @@ void publishMedia(const std::filesystem::path &, const std::filesystem::path &);
 Durability publishJournal(const std::filesystem::path &, std::string_view);
 std::string readJournal(const std::filesystem::path &);
 enum class LeaseStatus { Held, Busy, Absent };
-enum class JobLeaseKind { Raw, PipeWireReceipts };
+enum class JobLeaseKind { Raw, PipeWireReceipts, PipeWireState };
 // Worker-side cooperative lifetime lock. Readers never create or modify a job.
 class JobLease {
   public:

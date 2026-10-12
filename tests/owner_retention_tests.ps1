@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 $collector = Join-Path $PWD '.github/scripts/retain-owner-failure-projects.ps1'
 $prefix = Join-Path ([IO.Path]::GetTempPath()) ('sc-manual-control-Ελληνικά-' + [guid]::NewGuid())
 $fixtureBuild = Join-Path ([IO.Path]::GetTempPath()) ('sc-retention-test-' + [guid]::NewGuid())
+$nativePrefix = Join-Path ([IO.Path]::GetTempPath()) ('sc-pw-owner-é-/' + [guid]::NewGuid())
 try {
   New-Item -ItemType Directory -Path (Join-Path $prefix 'media/empty') -Force | Out-Null
   New-Item -ItemType Directory -Path $fixtureBuild | Out-Null
@@ -26,8 +27,17 @@ try {
     $refused = $false; try { & $collector -BuildDirectory $fixtureBuild } catch { $refused = $true }
     if (-not $refused) { throw 'Reparse project entry accepted' }
   }
+  Remove-Item -LiteralPath (Join-Path $fixtureBuild 'manual-owner-3-stderr.log')
+  New-Item -ItemType Directory -Path $nativePrefix -Force | Out-Null
+  New-Item -ItemType Directory -Path (Join-Path $fixtureBuild 'native-owner-failure-evidence') | Out-Null
+  [IO.File]::WriteAllBytes((Join-Path $nativePrefix 'project.json'),[byte[]](17,0,255))
+  [IO.File]::WriteAllText((Join-Path $fixtureBuild 'native-owner-failure-evidence/pw-owner-unit-failure.log'),"preserved_failure_project=$nativePrefix`n")
+  & $collector -BuildDirectory $fixtureBuild
+  $nativeSnapshot = Join-Path $fixtureBuild ('manual-owner-failure-projects/' + [IO.Path]::GetFileName($nativePrefix))
+  if ((Get-FileHash -LiteralPath (Join-Path $nativePrefix 'project.json')).Hash -ne (Get-FileHash -LiteralPath (Join-Path $nativeSnapshot 'project.json')).Hash) { throw 'Native owner marker snapshot changed bytes' }
   Write-Output ("Retention helper checks passed: exact Unicode/audio bytes, manifest, foreign-path refusal. Windows={0}; reparseFixture={1}" -f $IsWindows,$linked)
 } finally {
   Remove-Item -LiteralPath $prefix -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath $fixtureBuild -Recurse -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath $nativePrefix -Recurse -Force -ErrorAction SilentlyContinue
 }

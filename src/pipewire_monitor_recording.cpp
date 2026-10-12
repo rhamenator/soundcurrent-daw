@@ -5,6 +5,7 @@ namespace soundcurrent::daw {
 struct PipeWireMonitorRecording::State {
     PipeWireMonitorRecordingOptions options;std::unique_ptr<PreparedPipeWireMonitorRoute> route;
     std::unique_ptr<PipeWireMonitorStreams> streams;std::unique_ptr<PipeWireRecordingJournal> writer;
+    std::unique_ptr<PipeWireRecordingState> durable;
     std::filesystem::path job;detail::NativePollWait processingWait,diskWait;
     std::thread processingThread,diskThread;
     std::atomic<std::uint32_t> cancel{0},processingDone{0},diskDone{0},captureJoined{0},renderJoined{0};
@@ -16,7 +17,9 @@ struct PipeWireMonitorRecording::State {
             streams=factory(*route);if(!streams)throw ProjectError(ErrorCode::InvalidState,"Missing prepared PipeWire owners");
             if(!options.journal.raw.resources)options.journal.raw.resources=options.route.resources;
             writer=std::make_unique<PipeWireRecordingJournal>(std::move(root),options.declared,options.journal);
-            job=writer->jobDirectory();at(PipeWireOwnerBoundary::PendingPublished);
+            job=writer->jobDirectory();if(!options.durable.resources)options.durable.resources=options.route.resources;
+            durable=std::make_unique<PipeWireRecordingState>(job,PipeWireRecordingIntent{options.declared,options.route,{},{}},options.durable);
+            at(PipeWireOwnerBoundary::PendingPublished);
         }catch(...){shutdown();throw;}
     }
     void at(PipeWireOwnerBoundary b){if(options.boundary)options.boundary(b);}
@@ -90,25 +93,31 @@ struct PipeWireMonitorRecording::State {
         r.waitFailure=waitFailure.load(std::memory_order_acquire);r.processingWaitCalls=processingWait.callsAfterJoin();r.diskWaitCalls=diskWait.callsAfterJoin();
         r.capture=streams->captureEndAfterJoin();r.render=streams->renderEndAfterJoin();r.stop=route->stop().originalRequest();r.startup=route->startup().ready();
         r.processingFault=route->processing().firstFault();r.clockFault=route->processing().clockFault();r.bufferFault=route->processing().bufferFault();r.equalizerFault=route->processing().equalizerFault();
+        r.fanoutFault=route->capture().firstFault();
         r.captureReceiptFault=route->receipts().captureFault();r.renderReceiptFault=route->receipts().renderFault();
         if(writer && !r.diskFailure && !r.waitFailure && route->capture().rawAcceptedFrames())try{writer->finalize(route->capture(),route->receipts());}catch(...){r.storageFailure=std::current_exception();}
         writer.reset();if(!job.empty())try{r.prefix=inspectPipeWireRecording(job,options.declared,options.journal.raw.resources);}catch(...){r.recoveryFailure=std::current_exception();}
-        const bool healthy=!r.activationFailure && !r.diskFailure && !r.waitFailure && !r.storageFailure && !r.recoveryFailure && !r.processingFault &&
+        const bool healthy=!r.activationFailure && !r.diskFailure && !r.waitFailure && !r.storageFailure && !r.recoveryFailure && !r.processingFault && !r.fanoutFault &&
             !r.clockFault && !r.bufferFault && !r.equalizerFault && !r.captureReceiptFault && !r.renderReceiptFault && r.prefix && r.capture && r.render &&
             r.capture->callbacksJoined && !r.capture->fault && !r.capture->unavailable && r.render->callbacksJoined && !r.render->fault && !r.render->unavailable;
         if(healthy && cancel.load(std::memory_order_acquire))r.disposition=PipeWireRecordingDisposition::Cancelled;
         else if(healthy && r.prefix->finalized && r.render->contentComplete && route->processing().statistics().done &&
                 r.prefix->monitorQueuedFrames==route->output().acceptedFrames() && r.prefix->monitorQueuedFrames==route->output().deliveredFrames())r.disposition=PipeWireRecordingDisposition::Recorded;
-        result=r;return r;
+        if(durable && r.prefix){PipeWireJoinedOutcome o;o.disposition=PipeWireStoredDisposition(unsigned(r.disposition));o.capture=r.capture;o.render=r.render;o.stop=r.stop;o.startup=r.startup;
+            o.processingFault=r.processingFault;o.fanoutFault=r.fanoutFault;o.clockFault=r.clockFault;o.bufferFault=r.bufferFault;o.equalizerFault=r.equalizerFault;o.captureReceiptFault=r.captureReceiptFault;o.renderReceiptFault=r.renderReceiptFault;
+            o.activationFailure=bool(r.activationFailure);o.diskFailure=bool(r.diskFailure);o.storageFailure=bool(r.storageFailure);o.recoveryFailure=bool(r.recoveryFailure);o.waitFailure=r.waitFailure;o.processingWaitCalls=r.processingWaitCalls;o.diskWaitCalls=r.diskWaitCalls;
+            try{durable->finalize(*r.prefix,o);r.terminalStored=true;}catch(...){r.terminalFailure=std::current_exception();r.disposition=PipeWireRecordingDisposition::Failed;}}
+        durable.reset();result=r;return r;
     }
-    ~State(){shutdown();} // Streams retire before route, after explicit joins.
+    ~State(){if(!result){try{finish(true);}catch(...){shutdown();}}else shutdown();} // Streams retire before route, after joins.
 };
 PipeWireMonitorRecording::PipeWireMonitorRecording(std::filesystem::path root,PipeWireMonitorStreamFactory f,PipeWireMonitorRecordingOptions o)
     :state_(std::make_unique<State>(std::move(root),std::move(f),std::move(o))){}
 PipeWireMonitorRecording::~PipeWireMonitorRecording()=default;
 std::vector<AudioPort> PipeWireMonitorRecording::ports() const{return state_->streams->ports();}
 void PipeWireMonitorRecording::connect(const std::vector<AudioPort> &i,const std::vector<AudioPort> &o){if(state_->activated || state_->closed)throw ProjectError(ErrorCode::InvalidState,"Select PipeWire routes before activation");
-    try{state_->streams->connect(i,o);}catch(...){state_->shutdown();throw;}}
+    try{std::vector<ChannelPortIntent> inputs,outputs;for(const auto &p:i)inputs.push_back(audioPortIntent(p));for(const auto &p:o)outputs.push_back(audioPortIntent(p));
+        state_->streams->connect(i,o);state_->durable->select(std::move(inputs),std::move(outputs));}catch(...){state_->shutdown();throw;}}
 void PipeWireMonitorRecording::activate(){state_->activate();}
 MonitorControlCode PipeWireMonitorRecording::requestStopAt(MonitorOutputOrdinal end) noexcept {auto &s=*state_;
     if(!s.activated || s.closed || s.processingDone.load(std::memory_order_acquire))return MonitorControlCode::Stopped;

@@ -8,17 +8,25 @@ if ((Test-Path -LiteralPath $destination) -and ([IO.File]::GetAttributes($destin
 }
 $sources = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 if (-not (Test-Path -LiteralPath $build)) { exit 0 }
-foreach ($log in Get-ChildItem -LiteralPath $build -Filter "manual-owner-*-stderr.log" -File) {
+$logs = @(Get-ChildItem -LiteralPath $build -Filter "manual-owner-*-stderr.log" -File)
+$nativeEvidence = Join-Path $build "native-owner-failure-evidence"
+if (Test-Path -LiteralPath $nativeEvidence) { $logs += @(Get-ChildItem -LiteralPath $nativeEvidence -Filter "pw-owner-*-failure.log" -File) }
+foreach ($log in $logs) {
     if ($log.Length -gt 1048576) { throw "Owner diagnostic log exceeds retention bound" }
-    foreach ($line in [IO.File]::ReadLines($log.FullName)) {
+    # Eager bounded read closes the handle before any path-policy refusal.
+    # A lazy IEnumerable can retain a Windows file handle when foreach throws.
+    foreach ($line in [IO.File]::ReadAllLines($log.FullName)) {
         if ($line -notmatch '^preserved_failure_project=(.+)$') { continue }
         $source = [IO.Path]::GetFullPath($Matches[1])
         $parent = [IO.Path]::GetDirectoryName($source).TrimEnd([IO.Path]::DirectorySeparatorChar)
         $name = [IO.Path]::GetFileName($source)
-        if (-not [StringComparer]::OrdinalIgnoreCase.Equals($parent,$tempRoot) -or
-            $name -notmatch '^sc-manual-control-.+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$') {
+        $manual = [StringComparer]::OrdinalIgnoreCase.Equals($parent,$tempRoot) -and $name -match '^sc-manual-control-.+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        $nativeParent = Join-Path $tempRoot 'sc-pw-owner-é-'
+        $native = [StringComparer]::OrdinalIgnoreCase.Equals($parent,$nativeParent) -and $name -match '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        if (-not ($manual -or $native)) {
             throw "Owner failure path is outside the generated temp-project policy"
         }
+        if ([IO.File]::GetAttributes($parent) -band [IO.FileAttributes]::ReparsePoint) { throw "Reparse owner project parent refused" }
         [void]$sources.Add($source)
         if ($sources.Count -gt 3) { throw "Too many owner failure projects" }
     }
