@@ -4,6 +4,7 @@
 #include <spa/node/io.h>
 #include <atomic>
 #include <cstdint>
+#include <optional>
 namespace soundcurrent::daw::native {
 // Prepared port metadata lives until both native loops are joined. PipeWire's
 // synchronous per-port IO area is valid until its serialized replacement/removal.
@@ -19,6 +20,7 @@ struct Buffer {
     pw_buffer *owned = nullptr;
     float *samples = nullptr;
     Acquisition status = Acquisition::Unavailable;
+    std::optional<std::int32_t> queueResult = {}; // Actual result after native return.
 };
 void ioChanged(Port &, std::uint32_t id, void *area, std::uint32_t bytes) noexcept;
 } // namespace soundcurrent::daw::native

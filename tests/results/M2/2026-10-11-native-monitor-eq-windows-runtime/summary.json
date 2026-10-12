@@ -1,0 +1,48 @@
+{
+  "pr": 148,
+  "run": 38186095168,
+  "head": "29fcec9383173590216f0ec6f8811a2963484aab",
+  "base": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "testedMerge": "174da22ce6b882147b764419687aa07ab37709f1",
+  "tree": "9c22bbc4ed1944af744df9704ceb5a08acb5bd98",
+  "changedBlobBindings": 618,
+  "qualifiedInputCount": 647,
+  "terminalJobBindings": {
+    "114608611360": {
+      "bytes": 817526,
+      "sha256": "698d2a4a482971f7ff9453b773a10462043a83c03b88277bcdd4b4d68d965998",
+      "conclusion": "success"
+    },
+    "114608611522": {
+      "bytes": 686270,
+      "sha256": "717868e639bd72811bcb25fff7e2adcd153abe7e563e63be088bc1d61646a157",
+      "conclusion": "failure"
+    },
+    "114608611537": {
+      "bytes": 92179,
+      "sha256": "e9684311dd00b55b93b33e20d03a366306a18170a381b70f625ef37fbbda66fa",
+      "conclusion": "success"
+    },
+    "114608611576": {
+      "bytes": 236701,
+      "sha256": "3acfb7e21678e6338f12ce17d5910fdbbe662b08e28d075ce0c27840d86f5789",
+      "conclusion": "success"
+    }
+  },
+  "linuxJobStatusAtCollection": "completed_success",
+  "allFourJobsPassed": false,
+  "native71CTestPassed": true,
+  "nativeSixOwnedRecordingsAndSharedEq": true,
+  "nativeTwoActualEqPublicationBoundaries": true,
+  "nativeThreeOriginalStandaloneCompletions": true,
+  "desktop18PassedOneFailed": true,
+  "desktopFailedSuite": "desktop-stretch-parent-interruption",
+  "desktopFailureStage": "during-processing",
+  "helperExitCode": 2,
+  "recoveryActual": "Incomplete",
+  "recoveryExpected": "Ready",
+  "previousManualFlushStallCauseResolved": false,
+  "currentControllerQualifiedByThisRun": false,
+  "physicalAudioQualified": false,
+  "binariesOrMediaIncluded": false
+}

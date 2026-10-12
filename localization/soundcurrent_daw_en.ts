@@ -1692,6 +1692,265 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     </message>
   </context>
   <context>
+    <name>NativeMonitorPanel</name>
+    <message>
+      <source>Recording</source>
+      <translation>Recording</translation>
+    </message>
+    <message>
+      <source>Choose a device</source>
+      <translation>Choose a device</translation>
+    </message>
+    <message>
+      <source>Capture source</source>
+      <translation>Capture source</translation>
+    </message>
+    <message>
+      <source>Monitoring output</source>
+      <translation>Monitoring output</translation>
+    </message>
+    <message>
+      <source>Same native channel order</source>
+      <translation>Same native channel order</translation>
+    </message>
+    <message>
+      <source>Duplicate mono to stereo</source>
+      <translation>Duplicate mono to stereo</translation>
+    </message>
+    <message>
+      <source>Channel mapping</source>
+      <translation>Channel mapping</translation>
+    </message>
+    <message>
+      <source>Refresh devices</source>
+      <translation>Refresh devices</translation>
+    </message>
+    <message>
+      <source>Monitoring length (seconds)</source>
+      <translation>Monitoring length (seconds)</translation>
+    </message>
+    <message>
+      <source>Monitor EQ</source>
+      <translation>Monitor EQ</translation>
+    </message>
+    <message>
+      <source>Prepare</source>
+      <translation>Prepare</translation>
+    </message>
+    <message>
+      <source>Record</source>
+      <translation>Record</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancel</translation>
+    </message>
+    <message>
+      <source>Inspect saved take</source>
+      <translation>Inspect saved take</translation>
+    </message>
+    <message>
+      <source>Keep take and reset</source>
+      <translation>Keep take and reset</translation>
+    </message>
+    <message>
+      <source>Export original WAV…</source>
+      <translation>Export original WAV…</translation>
+    </message>
+    <message>
+      <source>Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.</source>
+      <translation>Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.</translation>
+    </message>
+    <message>
+      <source>Open saved native take…</source>
+      <translation>Open saved native take…</translation>
+    </message>
+    <message>
+      <source>Choose an original take directory in this project's media folder. Inspection does not activate audio devices.</source>
+      <translation>Choose an original take directory in this project's media folder. Inspection does not activate audio devices.</translation>
+    </message>
+    <message>
+      <source>Start frame (project rate)</source>
+      <translation>Start frame (project rate)</translation>
+    </message>
+    <message>
+      <source>Add to selected track</source>
+      <translation>Add to selected track</translation>
+    </message>
+    <message>
+      <source>Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.</source>
+      <translation>Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.</translation>
+    </message>
+    <message>
+      <source>Enter a nonnegative project frame.</source>
+      <translation>Enter a nonnegative project frame.</translation>
+    </message>
+    <message>
+      <source>Open saved native take</source>
+      <translation>Open saved native take</translation>
+    </message>
+    <message>
+      <source>Export original native take</source>
+      <translation>Export original native take</translation>
+    </message>
+    <message>
+      <source>WAV audio (*.wav)</source>
+      <translation>WAV audio (*.wav)</translation>
+    </message>
+    <message>
+      <source>Recording settings exceed the panel memory limit.</source>
+      <translation>Recording settings exceed the panel memory limit.</translation>
+    </message>
+    <message>
+      <source>Monitoring range is too large.</source>
+      <translation>Monitoring range is too large.</translation>
+    </message>
+    <message>
+      <source>Recording controls are busy. Try again.</source>
+      <translation>Recording controls are busy. Try again.</translation>
+    </message>
+    <message>
+      <source>Recording is closing.</source>
+      <translation>Recording is closing.</translation>
+    </message>
+    <message>
+      <source>Recording settings are invalid.</source>
+      <translation>Recording settings are invalid.</translation>
+    </message>
+    <message>
+      <source>Recording settings exceed the control memory limit.</source>
+      <translation>Recording settings exceed the control memory limit.</translation>
+    </message>
+    <message>
+      <source>Input: %1 · Output: %2</source>
+      <translation>Input: %1 · Output: %2</translation>
+    </message>
+    <message numerus="yes">
+      <source>%1 · %n channel(s) · %2 Hz</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Device choices exceed the panel memory limit.</source>
+      <translation>Device choices exceed the panel memory limit.</translation>
+    </message>
+    <message>
+      <source>The capture device width must match the selected track.</source>
+      <translation>The capture device width must match the selected track.</translation>
+    </message>
+    <message>
+      <source>Choose a matching output width or explicit mono-to-stereo mapping.</source>
+      <translation>Choose a matching output width or explicit mono-to-stereo mapping.</translation>
+    </message>
+    <message>
+      <source>Selected devices exceed the panel memory limit.</source>
+      <translation>Selected devices exceed the panel memory limit.</translation>
+    </message>
+    <message>
+      <source>Recording is unavailable.</source>
+      <translation>Recording is unavailable.</translation>
+    </message>
+    <message>
+      <source>Choose recording settings, then prepare.</source>
+      <translation>Choose recording settings, then prepare.</translation>
+    </message>
+    <message>
+      <source>Preparing recording…</source>
+      <translation>Preparing recording…</translation>
+    </message>
+    <message>
+      <source>Opening and verifying saved native take…</source>
+      <translation>Opening and verifying saved native take…</translation>
+    </message>
+    <message>
+      <source>Ready to record.</source>
+      <translation>Ready to record.</translation>
+    </message>
+    <message>
+      <source>Recording and monitoring…</source>
+      <translation>Recording and monitoring…</translation>
+    </message>
+    <message>
+      <source>Finishing and saving the original take…</source>
+      <translation>Finishing and saving the original take…</translation>
+    </message>
+    <message>
+      <source>Original take saved.</source>
+      <translation>Original take saved.</translation>
+    </message>
+    <message>
+      <source>Recording cancelled. The retained take is available for inspection.</source>
+      <translation>Recording cancelled. The retained take is available for inspection.</translation>
+    </message>
+    <message>
+      <source>Recording stopped with an error. Inspect the retained take.</source>
+      <translation>Recording stopped with an error. Inspect the retained take.</translation>
+    </message>
+    <message>
+      <source>Recording closed.</source>
+      <translation>Recording closed.</translation>
+    </message>
+    <message>
+      <source>Complete</source>
+      <translation>Complete</translation>
+    </message>
+    <message>
+      <source>Cancelled</source>
+      <translation>Cancelled</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>Failed</translation>
+    </message>
+    <message>
+      <source>Interrupted</source>
+      <translation>Interrupted</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>Pending</translation>
+    </message>
+    <message>
+      <source>No native outcome</source>
+      <translation>No native outcome</translation>
+    </message>
+    <message>
+      <source>Saved native take opened. Original outcome: %1.</source>
+      <translation>Saved native take opened. Original outcome: %1.</translation>
+    </message>
+    <message>
+      <source>Verifying original take for the timeline…</source>
+      <translation>Verifying original take for the timeline…</translation>
+    </message>
+    <message>
+      <source>Exporting original WAV…</source>
+      <translation>Exporting original WAV…</translation>
+    </message>
+    <message>
+      <source>Recording error (%1).</source>
+      <translation>Recording error (%1).</translation>
+    </message>
+    <message>
+      <source>Original frames: %1 · Monitored frames: %2</source>
+      <translation>Original frames: %1 · Monitored frames: %2</translation>
+    </message>
+    <message>
+      <source>EQ accepted: %1 · Applied: %2</source>
+      <translation>EQ accepted: %1 · Applied: %2</translation>
+    </message>
+    <message>
+      <source> · Saved frames verified: %1</source>
+      <translation> · Saved frames verified: %1</translation>
+    </message>
+    <message>
+      <source> · Original WAV exported: %1 frames</source>
+      <translation> · Original WAV exported: %1 frames</translation>
+    </message>
+    <message>
+      <source> · Export published with a durability warning.</source>
+      <translation> · Export published with a durability warning.</translation>
+    </message>
+  </context>
+  <context>
     <name>SessionListModel</name>
     <message>
       <source>Select a take lane</source>
@@ -2391,6 +2650,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Manual / repeated takes</translation>
     </message>
     <message>
+      <source>Native input monitoring</source>
+      <translation>Native input monitoring</translation>
+    </message>
+    <message>
       <source>Track equalizer</source>
       <translation>Track equalizer</translation>
     </message>
@@ -2645,8 +2908,8 @@ The complete file was published with a warning: %1</translation>
       <translation>Canceling export; waiting for the current file operation…</translation>
     </message>
     <message>
-      <source>Stop manual recording and resolve its previews before changing the project structure.</source>
-      <translation>Stop manual recording and resolve its previews before changing the project structure.</translation>
+      <source>Stop recording and resolve its retained takes before changing the project structure.</source>
+      <translation>Stop recording and resolve its retained takes before changing the project structure.</translation>
     </message>
     <message>
       <source>Too many pending changes. Please retry.</source>
@@ -2835,6 +3098,14 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source>Playback could not be completed: %1</source>
       <translation>Playback could not be completed: %1</translation>
+    </message>
+    <message>
+      <source>Choose a track with the original take's channel layout.</source>
+      <translation>Choose a track with the original take's channel layout.</translation>
+    </message>
+    <message>
+      <source>The native take could not be added. Its original files are retained.</source>
+      <translation>The native take could not be added. Its original files are retained.</translation>
     </message>
     <message>
       <source>These loop takes belong to an earlier project. Keep the raw takes for recovery.</source>
