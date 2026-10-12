@@ -38,7 +38,8 @@ std::optional<PipeWireCaptureEndReceipt> PreparedPipeWireCaptureStop::endReceipt
 std::optional<MonitorCaptureEndStatus> PreparedPipeWireCaptureStop::endStatus() const noexcept {
     return ended_.load(std::memory_order_acquire)?std::optional(end_.status):std::nullopt;
 }
-void PreparedPipeWireCaptureStop::settleAfterJoin() noexcept {
+void PreparedPipeWireCaptureStop::captureOwnerLostAfterJoin() noexcept {
     if(!ended_.load(std::memory_order_relaxed)){end_={config_.runGeneration,{},MonitorCaptureEndStatus::OwnerLost};ended_.store(1,std::memory_order_release);}
 }
+void PreparedPipeWireCaptureStop::settleAfterJoin() noexcept {captureOwnerLostAfterJoin();}
 } // namespace soundcurrent::daw

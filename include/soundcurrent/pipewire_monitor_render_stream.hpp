@@ -28,6 +28,7 @@ class PipeWireMonitorRenderStream {
     void stop() noexcept;
     bool contentComplete() const noexcept;
     std::optional<PipeWireRenderFault> firstFault() const noexcept;
+    std::optional<AudioBridgeStatus> firstUnavailable() const noexcept;
     std::optional<PipeWireRenderEnd> endAfterJoin() const noexcept;
     std::uint32_t nodeId() const noexcept;
   private:

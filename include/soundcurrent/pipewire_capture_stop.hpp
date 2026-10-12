@@ -21,6 +21,7 @@ class PreparedPipeWireCaptureStop final : public MonitorCaptureStopHandoff {
     std::optional<MonitorCaptureStopRequest> originalRequest() const noexcept;
     bool complete(const PipeWireCaptureEnd &) noexcept; // AFTER native callbacks joined.
     std::optional<PipeWireCaptureEndReceipt> endReceipt() const noexcept;
+    void captureOwnerLostAfterJoin() noexcept; // Native end producer only, after capture joins; request producer may still run.
     void settleAfterJoin() noexcept; // AFTER both owners joined; no fake original end.
   private:
     ResourceLease lease_;

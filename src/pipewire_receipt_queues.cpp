@@ -5,13 +5,15 @@ namespace {
 bool valid(const PipeWireCaptureCycle &c){return c.channels && c.channels<=256 && c.returnedChannels<=256 && c.returnClock.has_value();}
 bool valid(const PipeWireRenderCycle &c){return c.channels && c.channels<=256 && c.returnedChannels<=256 && c.returnClock.has_value();}
 }
-PreparedPipeWireReceiptQueues::PreparedPipeWireReceiptQueues(PipeWireReceiptQueueOptions o)
-    :lease_([&]{
+std::size_t pipeWireReceiptPayloadBytes(const PipeWireReceiptQueueOptions &o) {
         if(!o.generation || !o.slots || o.slots>64 || o.firstSequence==UINT64_MAX)
             throw ProjectError(ErrorCode::InvalidParameter,"PipeWire receipt queue admission mismatch");
         PayloadCharge charge("Native PipeWire receipt lanes",o.memoryBudgetBytes);
-        charge.add(sizeof(PreparedPipeWireReceiptQueues));charge.add(sizeof(Lane<PipeWireCaptureCycle>));charge.add(sizeof(Lane<PipeWireRenderCycle>));
-        return o.resources?o.resources->reserve(charge.bytes()):ResourceLease{};
+        charge.add(sizeof(PreparedPipeWireReceiptQueues));charge.add(sizeof(PreparedPipeWireReceiptQueues::Lane<PipeWireCaptureCycle>));charge.add(sizeof(PreparedPipeWireReceiptQueues::Lane<PipeWireRenderCycle>));
+        return charge.bytes();
+}
+PreparedPipeWireReceiptQueues::PreparedPipeWireReceiptQueues(PipeWireReceiptQueueOptions o)
+    :lease_([&]{const auto bytes=pipeWireReceiptPayloadBytes(o);return o.resources?o.resources->reserve(bytes):ResourceLease{};
     }()),options_(std::move(o)),capture_(std::make_unique<Lane<PipeWireCaptureCycle>>(options_.firstSequence)),
     render_(std::make_unique<Lane<PipeWireRenderCycle>>(options_.firstSequence)) {}
 template<class Cycle> PipeWireReceiptCode PreparedPipeWireReceiptQueues::publish(Lane<Cycle> &lane,const Cycle &cycle) noexcept {

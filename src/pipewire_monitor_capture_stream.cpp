@@ -62,6 +62,8 @@ void PipeWireMonitorCaptureStream::activate() {
 }
 void PipeWireMonitorCaptureStream::requestStop() noexcept { state_->capture.requestStop(); }
 void PipeWireMonitorCaptureStream::stop() noexcept { state_->stop(); }
+std::optional<PipeWireCaptureFault> PipeWireMonitorCaptureStream::firstFault() const noexcept{return state_->capture.firstFault();}
+std::optional<AudioBridgeStatus> PipeWireMonitorCaptureStream::firstUnavailable() const noexcept{return state_->capture.firstUnavailable();}
 std::optional<PipeWireCaptureEnd> PipeWireMonitorCaptureStream::endAfterJoin() const noexcept {
     return state_->capture.endAfterJoin();
 }

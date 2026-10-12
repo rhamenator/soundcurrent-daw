@@ -62,6 +62,7 @@ void PipeWireMonitorRenderStream::requestStop() noexcept {state_->render.request
 void PipeWireMonitorRenderStream::stop() noexcept {state_->stop();}
 bool PipeWireMonitorRenderStream::contentComplete() const noexcept {return state_->render.contentComplete();}
 std::optional<PipeWireRenderFault> PipeWireMonitorRenderStream::firstFault() const noexcept {return state_->render.firstFault();}
+std::optional<AudioBridgeStatus> PipeWireMonitorRenderStream::firstUnavailable() const noexcept {return state_->render.firstUnavailable();}
 std::optional<PipeWireRenderEnd> PipeWireMonitorRenderStream::endAfterJoin() const noexcept {return state_->render.endAfterJoin();}
 std::uint32_t PipeWireMonitorRenderStream::nodeId() const noexcept {return state_->filter->nodeId();}
 } // namespace soundcurrent::daw

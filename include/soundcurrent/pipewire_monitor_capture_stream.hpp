@@ -30,6 +30,8 @@ class PipeWireMonitorCaptureStream {
     void activate();
     void requestStop() noexcept;
     void stop() noexcept;
+    std::optional<PipeWireCaptureFault> firstFault() const noexcept;
+    std::optional<AudioBridgeStatus> firstUnavailable() const noexcept;
     std::optional<PipeWireCaptureEnd> endAfterJoin() const noexcept;
     std::uint32_t nodeId() const noexcept;
   private:

@@ -20,6 +20,7 @@ struct PipeWireReceiptQueueOptions {
     std::size_t memoryBudgetBytes = 2*1024*1024;
     std::optional<ResourceLedger> resources = {};
 };
+std::size_t pipeWireReceiptPayloadBytes(const PipeWireReceiptQueueOptions &);
 // Two independent native producers, ONE serialized journal consumer. Copies
 // complete scalar facts after native returns into fixed 64-cell SPSC lanes.
 // No clock fitting, joining, disk, allocation or waiting inside publication/read.
@@ -43,6 +44,7 @@ class PreparedPipeWireReceiptQueues {
     static bool captureSink(void *,const PipeWireCaptureCycle &) noexcept;
     static bool renderSink(void *,const PipeWireRenderCycle &) noexcept;
   private:
+    friend std::size_t pipeWireReceiptPayloadBytes(const PipeWireReceiptQueueOptions &);
     template<class Cycle> struct Lane {
         SpscQueue<PipeWireReceiptRecord<Cycle>,64> queue;
         PipeWireReceiptFault<Cycle> fault{};
