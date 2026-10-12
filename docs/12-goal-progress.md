@@ -1,5 +1,23 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native fixture progress/Stop and Qt macro correction (2026-10-11)
+
+[Checkpoint219](219-native-render-tail-stop.md) reproduces a serialized simulated-SDK
+completion cycle with a planned Stop and 32-frame final tail. The fixture now
+services ready rendering under source-copy pressure and original capture end during
+render waits. Production DSP/owners, cadence and five-second limit remain unchanged.
+Bounded future-failure metadata and original pre-cancel observations are retained.
+Native Release/ASanUBSan/TSan pass 19.59/27.04/30.74 s. GUI keyword policy/localization/
+panel/loop/desktop Release passes 13.69 s. Current Windows and GUI sanitizer gates
+remain open; full suite scope remains active.
+
+PR153 original native71/cross pass but desktop/Linux fail localization compilation
+from Qt macros. Original terminal logs and source/artifact bindings are retained.
+Qt GUI libraries now use QT_NO_KEYWORDS/Q_EMIT, independent of header order. Earlier
+PR152's exact stalled owner remains unproven; passing runs are not causal proof.
+Next qualify current Windows source and complete explicit worker device selection.
+
+
 ## Native recording main-window integration (2026-10-11)
 
 [Checkpoint218](218-native-window-integration.md) embeds the coded panel, validates

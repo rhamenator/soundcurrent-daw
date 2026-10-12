@@ -183,3 +183,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Visible native recording panel](217-visible-native-recording-panel.md)
 
 - [Native recording main-window integration and original Windows owner failure](218-native-window-integration.md)
+
+- [Native fixture Stop delivery and Qt macro boundary](219-native-render-tail-stop.md)
