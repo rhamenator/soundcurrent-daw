@@ -1,0 +1,62 @@
+{
+  "reviewed-blobs.json": {
+    "bytes": 16924,
+    "sha256": "3c54cdbcf93bf621b0496ff84c791845324f6e1896e28bfec3de9bf3faec7233"
+  },
+  "qualified-ci-log-binding.json": {
+    "bytes": 1153,
+    "sha256": "fb9cac61f96c3de85dc58522ad04e9483e7719706ce444df2a04cd3ba4e562a9"
+  },
+  "qualified-native-workflows.json": {
+    "bytes": 881,
+    "sha256": "66466e395ad4e4f9d836763acf43fa5d2be677d2af99e5eb713079828334c424"
+  },
+  "pr142-admission-audit.json": {
+    "bytes": 17734,
+    "sha256": "72c261b1f8785f9e7aea83ef46913ecd0e943ca90f5ce3535adbd374816b99e0"
+  },
+  "postmerge-receipt.json": {
+    "bytes": 425,
+    "sha256": "c25d35dcc98faafab75f8143434ce1e7e3720253cbc6675a6632f56060829128"
+  },
+  "qualify-current-ci.py": {
+    "bytes": 2645,
+    "sha256": "5df1694e1317523c7c31f12e01eaadbb67a50e1eb16febda98274066f1b3ca58"
+  },
+  "audit-pr142.py": {
+    "bytes": 3321,
+    "sha256": "3782736478ed07c5c52c413b251553075b150489b472129c8abaae953d4dc8d7"
+  },
+  "114556713691.txt.gz": {
+    "bytes": 41449,
+    "sha256": "7e188e975c40b55a83b2fa8d3bd2218ca0ccd4619022ab14b3c5c1ebb15fc068",
+    "originalBytes": 234117,
+    "originalSha256": "abea72e22dd3585c4c8e257d23ad2a9a561b5880c0aca6baec2aaf49679755aa",
+    "lossless": true
+  },
+  "114556713890.txt.gz": {
+    "bytes": 15159,
+    "sha256": "e248e51c2933f7d3e6220118ae53598525e5ef68981aff933400c1c0b4d1d55e",
+    "originalBytes": 89970,
+    "originalSha256": "3839199dd969cf0203e8d12dc61029a5efa00f13166b8dfdc6673df5a974baa9",
+    "lossless": true
+  },
+  "114556713949.txt.gz": {
+    "bytes": 48757,
+    "sha256": "063c7cfce2d98f63f2b162a057cbab7d82aabbcc19cef630909892ed20c8e08f",
+    "originalBytes": 711972,
+    "originalSha256": "9013e8deb708ed9d3aa27f553dc9af2e720e7e088d22eec298586e69cb6a1f07",
+    "lossless": true
+  },
+  "114556713985.txt.gz": {
+    "bytes": 46311,
+    "sha256": "36410cf965a05721948b3a197f99f774c2fb6f785ea7b42ef4175a233cb47034",
+    "originalBytes": 678638,
+    "originalSha256": "6c3820a14f75d4675d92e4a514e3cf5e9036fc9b66bed739c226c26c276730ba",
+    "lossless": true
+  },
+  "summary.json": {
+    "bytes": 555,
+    "sha256": "6251f52ddaebbd2be02c1fdeed7568691ad88a2f890315aa3595d83f98d5c069"
+  }
+}

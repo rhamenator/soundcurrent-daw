@@ -13,7 +13,8 @@ ResourceLease reserve(std::size_t bytes,const WasapiMonitorRenderOptions &o){
 ResourceLease admit(WasapiPreparedRenderFormat f,const PreparedMonitorOutputBank &b,
         const PreparedMonitorClockHandoff &clocks,const WasapiMonitorRenderOptions &o,const PreparedMonitorStartupHandoff *startup){
     const auto &c=b.config();const auto &q=clocks.config();
-    require(f.sampleRate==c.sampleRate && f.channels==c.channels && f.capacityFrames &&
+    require(q.timestampDomain==MonitorClockDomain::WindowsQpc100ns &&
+        f.sampleRate==c.sampleRate && f.channels==c.channels && f.capacityFrames &&
         f.capacityFrames<=65536 && f.maximumFillFrames && f.maximumFillFrames<=f.capacityFrames &&
         f.maximumFillFrames<=c.maximumPullFrames && f.clockFrequency &&
         f.timing.startupFrames<=f.capacityFrames && f.timing.endGuardFrames<=f.capacityFrames &&
