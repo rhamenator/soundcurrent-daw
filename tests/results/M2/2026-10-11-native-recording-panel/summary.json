@@ -1,0 +1,28 @@
+{
+  "source": "3c91f2a17c4b8b08ffc29a862a9c394d65f44558",
+  "tree": "9212a4ca0287693e80409125ad3e44673060027b",
+  "sourceInputs": 784,
+  "linuxTwoSuiteTimesSeconds": {
+    "release": 20.59,
+    "sanitizer": 28.96
+  },
+  "visiblePanelFunctional": true,
+  "realControlProcessingDiskWorkers": true,
+  "sdkOperationsSimulated": true,
+  "asyncCloseRetainsResultsAndJoins": true,
+  "panelContextAndFixedControlsAdmitted": true,
+  "sameSharedFixtureExceptJoinedLastOutputDiagnostic": true,
+  "nativeStartupTsanPassed": true,
+  "guiTsanQualified": false,
+  "guiTsanReportsRetained": 22,
+  "blanketSuppressionOrUnchangedRetryUsed": false,
+  "fourCurrentCoreWindowsObjectsCompiled": true,
+  "currentGuiWindowsRuntimeExecuted": false,
+  "deviceContextFromCallerWorkerInventory": true,
+  "studioWindowDefaultFactoryEnabled": false,
+  "fullGuiSnapshotResultOwnershipQualified": false,
+  "physicalEndpointsTested": false,
+  "binaryOrAudioPayloadIncluded": false,
+  "screenshotIncluded": true,
+  "fullGoalComplete": false
+}
