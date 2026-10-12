@@ -1,5 +1,25 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native command payload admission (2026-10-11)
+
+[Checkpoint216](216-native-command-payload-admission.md) reserves queued/in-flight
+command credit before owned copying, shares parent/child GUI ledgers, validates
+bounded text/arrays and keeps urgent Cancel independent at quota. A real copy
+witness and factory/state checks verify atomic refusal and retirement. Release
+17.32 s, ASan/UBSan 24.92 s and TSan 28.40 s pass; guarded violations zero. First
+TSan snapshot-identity assertion failure is retained and corrected to semantic
+state/copy evidence. Four current Windows objects compile; current native runtime
+and broader GUI snapshot/result/panel admission remain open.
+
+Preceding PR150 passes all four jobs: native 71 suites/22 original manual cases/
+three original standalone completions, desktop 19 suites/four interruption cases,
+Linux 143 suites. Exact original timings and full source/log/artifact bindings are
+retained. Passing intervals do not explain prior watchdog/manual timeouts or flush
+stall causes. Next build the visible recording panel using the coded controller,
+localize/admit its state and qualify installed/native/hardware workflows. Full
+scope remains active and incomplete.
+
+
 ## Original interruption and manual case timing (2026-10-11)
 
 [Checkpoint215](215-owned-interruption-observation-timing.md) preserves bounded

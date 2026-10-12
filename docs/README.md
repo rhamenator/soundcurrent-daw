@@ -177,3 +177,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native monitoring desktop worker controller](214-native-monitor-controller.md) · [ADR143](decisions/143-native-desktop-control-worker.md)
 
 - [Owned interruption observations and original manual case timing](215-owned-interruption-observation-timing.md)
+
+- [Native command payload admission](216-native-command-payload-admission.md)
