@@ -203,3 +203,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Durable PipeWire recording receipts and common checkpoints](227-pipewire-recording-journal.md)
 
 - [PipeWire shared processing startup and stop handoffs](228-pipewire-processing-handoffs.md)
+
+- [Owned PipeWire native, processing and disk workers](229-pipewire-owned-recording.md)

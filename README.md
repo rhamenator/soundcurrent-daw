@@ -214,7 +214,9 @@ input/output return facts through bounded queues and a portable codec. A
 shared raw/receipt checkpoints after interruption and preserves uncommitted tails.
 [Shared startup/stop handoffs](docs/228-pipewire-processing-handoffs.md) now
 connect the planar boundaries to in-process EQ/resampling and journal composition.
-The native thread owner, controller/UI integration and verified alignment remain required.
+An [owned native/processing/disk route](docs/229-pipewire-owned-recording.md) now
+qualifies combined EQ/capture/render/journal processing in a private dummy server.
+Durable route/terminal state, controller/UI integration and verified alignment remain required.
 
 ## Desktop recording workflow
 

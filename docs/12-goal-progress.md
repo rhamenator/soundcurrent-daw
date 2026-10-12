@@ -1,5 +1,27 @@
 # Active full-suite goal: progress and completion evidence
 
+## Owned PipeWire native/processing/disk workers (2026-10-12)
+
+[Checkpoint229](229-pipewire-owned-recording.md) adds admitted expected graph
+geometry, a genuine inactive endpoint factory and separate processing/disk workers.
+Finite Stop, cancel, partial activation/route failure and retirement join actual
+native callbacks before EOF and all workers before settlement. Disk consumes paired
+raw/capture receipts and independent render receipts; no callback performs disk I/O.
+
+Four Release suites pass2.47s, ASan/UBSan3.49s and the complete simulated four-role
+owner passes TSan2.62s without suppressions. Five Windows objects compile warning-free.
+Private PipeWire1.6.2 Release/sanitizer runs each process8,192 monitor frames into an
+owned sink, preserve99,072/100,352 raw samples exactly and have zero audited callback
+allocation/free/lock hits. Stored-prefix verification is not audible drain/alignment
+or durable terminal metadata. Next version route/EQ/map/terminal state, then native
+controller/Qt integration; full goal remains active.
+
+Original PR163 Linux151/desktop20/cross pass; native78 units pass but the extra
+third concurrent diagnostic fails take6/full8,192-frame pool while a write is in
+flight. Underlying cause remains unknown; original limits/evidence remain intact.
+CI retention now copies bounded generated failed projects to preserve their take
+bytes, with local path/reparse/Unicode byte checks and pending Windows qualification.
+
 ## PipeWire shared startup/stop processing handoffs (2026-10-12)
 
 [Checkpoint228](228-pipewire-processing-handoffs.md) gives shared processing a
