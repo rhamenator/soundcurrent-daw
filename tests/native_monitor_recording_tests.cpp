@@ -329,8 +329,17 @@ void controllerPayloadAdmission() {
     const auto token=c.requestCancel();release=true;controlAwait([&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result) && !credit.usage().reservedBytes;});joined(*spy);
     check(!spy->captureActive.load() && !credit.usage().owners && !parent.usage().reservedBytes,"Urgent Cancel failed at quota or leaked current/queued command credit");
     c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
-    ResourceLedger tiny(256,"Too small native command fixture");NativeMonitorController refused({[&](const auto &){entered=true;return std::make_unique<FakeStreams>(std::make_shared<Spy>());},tiny});
-    const auto idle=refused.snapshot();check(refused.submit(prepare)==NativeMonitorAdmission::ResourceLimit && !tiny.usage().reservedBytes && refused.snapshot()==idle,"Native payload copied or pending state published without credit");refused.requestShutdown();
+    struct CopyWitness {
+        std::shared_ptr<std::atomic<unsigned>> copies;
+        explicit CopyWitness(std::shared_ptr<std::atomic<unsigned>> c):copies(std::move(c)){}
+        CopyWitness(const CopyWitness &c):copies(c.copies){copies->fetch_add(1);}
+        void operator()(OriginalRecordingBoundary) const {}
+    };
+    auto copies=std::make_shared<std::atomic<unsigned>>(0);p->options.recording.raw.boundary=CopyWitness(copies);copies->store(0);
+    ResourceLedger tiny(256,"Too small native command fixture");std::atomic<unsigned> refusedFactoryCalls{0};
+    NativeMonitorController refused({[&](const auto &){++refusedFactoryCalls;return std::make_unique<FakeStreams>(std::make_shared<Spy>());},tiny});
+    check(refused.submit(prepare)==NativeMonitorAdmission::ResourceLimit && !tiny.usage().reservedBytes && !copies->load(),"Native payload copied before byte admission");
+    const auto idle=refused.snapshot();check(!refusedFactoryCalls.load() && idle->phase==NativeMonitorPhase::Idle && !idle->generation && !idle->completedCommands && idle->job.empty(),"Native refused payload reached factory/commands/pending state");refused.requestShutdown();
     controlAwait([&]{return refused.snapshot()->phase==NativeMonitorPhase::Closed;});
     std::cout<<"native_command_payload aggregate_credit=true shape_bounds=true unchanged_refusal=true cancel_at_quota=true release_after_processing=true simulated_sdk=true\n";
 }
