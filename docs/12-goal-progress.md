@@ -1,5 +1,22 @@
 # Active full-suite goal: progress and completion evidence
 
+## Durable PipeWire receipt/raw common checkpoints (2026-10-12)
+
+[Checkpoint227](227-pipewire-recording-journal.md) adds a serialized disk journal
+binding exact original PCM/stamp prefixes to versioned capture/render receipts.
+An embedded raw checkpoint lets interrupted inspection verify the older shared
+prefix when raw publication is ahead. Independent leases refuse active native
+writers; newer uncommitted tails remain intact. No inferred recording alignment.
+
+Four Release suites pass0.21s, ASan/UBSan1.49s and four Windows objects compile
+warning-free. Eight actual interruption boundaries, moved Unicode projects,
+corruption/context/quota/cancellation and failed native facts are covered.
+Three fixture errors were caught/corrected with originals retained. PR161 passes
+all four jobs (Linux148/native75/desktop20/cross); earlier failure causes remain
+unresolved. Next connect the journal to the live shared processing owner and
+persist route/processing/terminal state, then controller/Qt integration. No full
+native route or broader workflow parity qualification is claimed.
+
 ## Input returns and bounded versioned receipt transport (2026-10-12)
 
 [Checkpoint226](226-pipewire-capture-returns.md) adds genuine input post-return facts,

@@ -206,12 +206,13 @@ opt-in and must run serially after builds and tests finish.
 Development also includes a [PipeWire native capture boundary](docs/224-pipewire-monitor-capture.md)
 with explicit clock domains and private-daemon acceptance. A
 [render boundary](docs/225-pipewire-monitor-render.md) now records actual per-port
-queue results and verifies finite output in private test sinks. Shared-owner/receipt
-persistence and connection to the native recording UI remain unfinished; retained
+queue results and verifies finite output in private test sinks. Shared-owner integration and connection to the native recording UI remain unfinished; retained
 native startup and contention failures remain open.
 [Versioned native receipt handoffs](docs/226-pipewire-capture-returns.md) now preserve
-input/output return facts through bounded queues and a portable codec. Project
-journal durability/recovery remains unfinished.
+input/output return facts through bounded queues and a portable codec. A
+[durable project journal](docs/227-pipewire-recording-journal.md) now verifies
+shared raw/receipt checkpoints after interruption and preserves uncommitted tails.
+Live route/controller integration and verified alignment remain required.
 
 ## Desktop recording workflow
 
