@@ -13,7 +13,7 @@ CaptureFanoutConfig geometry(const PreparedCaptureFanout &f) {
 }
 ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutputBank &o,
                       const MonitorProcessingConfig &c, const PreparedMonitorClockHandoff *clocks,
-                      const PreparedMonitorControl *control, const PreparedMonitorCaptureStop *stop, const PreparedMonitorStartupHandoff *startup) {
+                      const PreparedMonitorControl *control, const MonitorCaptureStopHandoff *stop, const PreparedMonitorStartupHandoff *startup) {
     require(!c.channelMap || !c.startup || startup,"Mapped startup requires immutable receipt handoff");
     require(!c.equalizer || !c.startup || startup,"EQ startup requires immutable receipt handoff");
     if (stop) {
@@ -21,7 +21,7 @@ ResourceLease reserve(const PreparedCaptureFanout &f, const PreparedMonitorOutpu
         require(s.runGeneration==b.runGeneration && s.sourceRate==b.sourceRate && s.channels==b.channels &&
             s.maximumPacketFrames==b.maximumInputFrames && s.monitorSlots==f.monitorSlots() &&
             s.inputCapacityFrames==b.inputCapacityFrames && s.targetQueuedSourceFrames==c.drift.targetQueuedSourceFrames &&
-            s.warmupInputFrames==monitorBufferWarmupInputFrames(b) && !stop->requested() && !stop->endReceipt(),
+            s.warmupInputFrames==monitorBufferWarmupInputFrames(b) && !stop->requested() && !stop->endStatus(),
             "Native capture stop handoff configuration mismatch or already started");
     }
     if (control) require(control->config().runGeneration == c.buffer.runGeneration && !control->failed() && !control->producerDone() &&
@@ -113,7 +113,7 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &f,
 }
 PreparedMonitorProcessing::PreparedMonitorProcessing(PreparedCaptureFanout &f,
     PreparedMonitorOutputBank &o, MonitorProcessingConfig c, PreparedMonitorClockHandoff *clocks,
-    PreparedMonitorControl *control, PreparedMonitorCaptureStop *stop, PreparedMonitorStartupHandoff *startup)
+    PreparedMonitorControl *control, MonitorCaptureStopHandoff *stop, PreparedMonitorStartupHandoff *startup)
     : lease_(reserve(f,o,c,clocks,control,stop,startup)), capture_(f), output_(o), clocks_(clocks), control_(control), captureStop_(stop), startupHandoff_(startup), config_(std::move(c)),
       drift_(config_.drift), buffer_(config_.buffer),
       pending_(std::size_t(PreparedMonitorBuffer::gridFrames) * config_.buffer.channels) {
@@ -223,8 +223,8 @@ MonitorProcessingCode PreparedMonitorProcessing::schedule(Qpc100ns now) noexcept
 }
 MonitorProcessingCode PreparedMonitorProcessing::validate(Qpc100ns now) noexcept {
     if (captureStop_) {
-        const auto end=captureStop_->endReceipt();
-        if (end && end->status!=MonitorCaptureEndStatus::Healthy) return fail(MonitorProcessingCause::CaptureEnd);
+        const auto end=captureStop_->endStatus();
+        if (end && *end!=MonitorCaptureEndStatus::Healthy) return fail(MonitorProcessingCause::CaptureEnd);
     }
     if (clocks_ && clocks_->phase() == MonitorClockPhase::Fault) return fail(MonitorProcessingCause::Clock);
     if (clocks_ && clocks_->phase() == MonitorClockPhase::Cancelled) { cancel(); return MonitorProcessingCode::Cancelled; }

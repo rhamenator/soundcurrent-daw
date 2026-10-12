@@ -3,13 +3,14 @@
 #include "pipewire_cycle.hpp"
 #include "monitor_clock_handoff.hpp"
 #include "monitor_output_bank.hpp"
+#include "monitor_startup_handoff.hpp"
 #include <array>
 namespace soundcurrent::daw {
 enum class PipeWireRenderCause {
     InvalidBuffers, InvalidQuantum, RateChanged, MissingTimestamp, ClockChanged,
     CycleDiscontinuity, PositionJump, TimestampReset, PositionOverflow, ClockRejected,
     Underflow, ProducerFault, WarmupLimit, NativeUnavailable, MissingReturn,
-    InvalidReturn, QueueFailure, CounterOverflow, ReceiptPressure
+    InvalidReturn, QueueFailure, CounterOverflow, ReceiptPressure, Startup
 };
 struct PipeWireRenderFault {
     PipeWireRenderCause cause;
@@ -40,6 +41,7 @@ struct PipeWireMonitorRenderOptions {
     std::optional<ResourceLedger> resources;
     void *receiptContext = nullptr;
     bool (*receipt)(void *,const PipeWireRenderCycle &) noexcept = nullptr; // Bounded RT-safe handoff.
+    PreparedMonitorStartupHandoff *startup = nullptr; // Outlives joined processing/render owners.
 };
 enum class PipeWireRenderCode { Content, Warmup, Complete, Stopped, Fault };
 // One native process/return owner. Interleaved bank -> planar native buffers;
@@ -55,6 +57,7 @@ class PreparedPipeWireMonitorRender {
     void requestStop() noexcept;
     void unavailable(AudioBridgeStatus) noexcept;
     bool contentComplete() const noexcept;
+    std::optional<MonitorStartupReady> startupReadyAfterJoin() const noexcept; // Joined native owner only.
     std::optional<PipeWireRenderFault> firstFault() const noexcept;
     std::optional<AudioBridgeStatus> firstUnavailable() const noexcept;
     void finishAfterJoin() noexcept;
@@ -73,6 +76,7 @@ class PreparedPipeWireMonitorRender {
     std::atomic<std::uint32_t> stopped_{0}, faultReady_{0}, unavailable_{0}, complete_{0};
     std::uint64_t warmupFrames_ = 0, warmupStartNs_ = 0;
     bool pendingReturn_ = false, live_ = false, joined_ = false;
+    std::optional<MonitorStartupReady> acquiredReady_;
     PipeWireRenderCode fail(PipeWireRenderCause, std::optional<DeviceBlockClock>,
         std::optional<std::uint32_t> = {}, std::optional<PipeWirePortLeaseResult> = {}) noexcept;
     void silence(std::span<float *const>,std::uint32_t) noexcept;

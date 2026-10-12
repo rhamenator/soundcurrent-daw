@@ -62,12 +62,14 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &,
 // outlives this object and all readers. This is monitor resampling
 // composition, not an SDK adapter, native activation or recording alignment.
 // observe receives original readings via a caller-owned bounded handoff, never
-// concurrent native-owner calls. step's asOf must be the actual current QPC time.
+// concurrent native-owner calls. step's asOf is actual current time in the
+// handoff's declared 100 ns domain: Windows QPC or floor(POSIX monotonic ns/100).
+// Legacy type spelling does not convert or mix the two domains.
 class PreparedMonitorProcessing {
   public:
     PreparedMonitorProcessing(PreparedCaptureFanout &, PreparedMonitorOutputBank &,
                               MonitorProcessingConfig, PreparedMonitorClockHandoff * = nullptr,
-                              PreparedMonitorControl * = nullptr, PreparedMonitorCaptureStop * = nullptr,
+                              PreparedMonitorControl * = nullptr, MonitorCaptureStopHandoff * = nullptr,
                               PreparedMonitorStartupHandoff * = nullptr);
     ~PreparedMonitorProcessing();
     PreparedMonitorProcessing(const PreparedMonitorProcessing &) = delete;
@@ -111,7 +113,7 @@ class PreparedMonitorProcessing {
     PreparedMonitorOutputBank &output_;
     PreparedMonitorClockHandoff *clocks_ = nullptr;
     PreparedMonitorControl *control_ = nullptr;
-    PreparedMonitorCaptureStop *captureStop_ = nullptr;
+    MonitorCaptureStopHandoff *captureStop_ = nullptr;
     PreparedMonitorStartupHandoff *startupHandoff_ = nullptr;
     MonitorProcessingConfig config_;
     PreparedMonitorDrift drift_;

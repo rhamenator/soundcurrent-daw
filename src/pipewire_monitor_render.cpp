@@ -8,6 +8,13 @@ namespace {
 ResourceLease admit(const PreparedMonitorOutputBank &b,const PreparedMonitorClockHandoff &h,
                     const PipeWireMonitorRenderOptions &o) {
     const auto &c=b.config();
+    if(o.startup){const auto &a=o.startup->admission();
+        if(o.startup->phase()!=MonitorStartupHandoffPhase::Pending || o.startup->ready() || b.producerDone() ||
+           a.runGeneration!=c.generation || a.captureIdentity!=h.config().captureIdentity || a.renderIdentity!=h.config().renderIdentity ||
+           a.outputRate!=c.sampleRate || a.channels!=c.channels || a.renderFrequency!=c.sampleRate ||
+           !a.nativeCapacityFrames || a.nativeCapacityFrames>65536 || a.maximumNativeFillFrames!=c.maximumPullFrames ||
+           a.nativeCapacityFrames<a.maximumNativeFillFrames || o.maximumWarmupNs%100 || a.maximumWait100ns!=o.maximumWarmupNs/100)
+            throw ProjectError(ErrorCode::InvalidParameter,"PipeWire render startup binding mismatch");}
     if(h.config().timestampDomain!=MonitorClockDomain::PosixMonotonic100ns ||
        h.config().renderFrequency!=c.sampleRate || h.config().runGeneration!=c.generation ||
        h.phase()!=MonitorClockPhase::Running || h.renderDone() || h.renderCounts().accepted ||
@@ -79,7 +86,25 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock
         {clock.monotonicNs/100},cfg.sampleRate,ClockReliability::Accurate,false})!=MonitorClockCode::Accepted)
         return fail(PipeWireRenderCause::ClockRejected,clock);
     const auto accepted=bank_.acceptedFrames(),consumed=bank_.deliveredFrames();
-    if(!live_ && !bank_.producerDone() && (accepted<consumed || accepted-consumed<clock.duration)) {
+    bool startupPending=false;
+    if(options_.startup){
+        const auto phase=options_.startup->phase();
+        if(phase==MonitorStartupHandoffPhase::Cancelled)return PipeWireRenderCode::Stopped;
+        if(phase!=MonitorStartupHandoffPhase::Pending && phase!=MonitorStartupHandoffPhase::Ready)
+            return fail(PipeWireRenderCause::Startup,clock);
+        if(!acquiredReady_){const auto ready=options_.startup->ready();
+            if(ready){
+                if(ready->admitted!=options_.startup->admission() || !options_.startup->claimed() ||
+                   ready->asOfQpc100ns>clock.monotonicNs/100 || ready->publishedFrames<ready->admitted.nativeCapacityFrames ||
+                   accepted<ready->publishedFrames || consumed || bank_.discardedFrames())return fail(PipeWireRenderCause::Startup,clock);
+                const auto current=options_.startup->phase();
+                if(current==MonitorStartupHandoffPhase::Cancelled)return PipeWireRenderCode::Stopped;
+                if(current!=MonitorStartupHandoffPhase::Ready)return fail(PipeWireRenderCause::Startup,clock);
+                acquiredReady_=ready;
+            }else startupPending=true;
+        }
+    }
+    if(startupPending || (!live_ && !bank_.producerDone() && (accepted<consumed || accepted-consumed<clock.duration))) {
         pending_.warmup=true;
         if(!warmupStartNs_)warmupStartNs_=clock.monotonicNs;
         if(clock.duration>maximumWarmupFrames_-std::min(warmupFrames_,maximumWarmupFrames_) ||
@@ -149,6 +174,7 @@ void PreparedPipeWireMonitorRender::unavailable(AudioBridgeStatus reason) noexce
     std::uint32_t absent=0;unavailable_.compare_exchange_strong(absent,std::uint32_t(reason)+1,std::memory_order_release);
 }
 bool PreparedPipeWireMonitorRender::contentComplete() const noexcept {return complete_.load(std::memory_order_acquire)!=0;}
+std::optional<MonitorStartupReady> PreparedPipeWireMonitorRender::startupReadyAfterJoin() const noexcept {return joined_?acquiredReady_:std::nullopt;}
 std::optional<PipeWireRenderFault> PreparedPipeWireMonitorRender::firstFault() const noexcept {
     return faultReady_.load(std::memory_order_acquire)?std::optional(fault_):std::nullopt;
 }

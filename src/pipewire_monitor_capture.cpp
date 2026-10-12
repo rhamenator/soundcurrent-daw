@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_monitor_capture.hpp>
+#include <soundcurrent/pipewire_capture_stop.hpp>
 #include <cstring>
 #include <limits>
 #include <algorithm>
@@ -9,6 +10,10 @@ namespace {
 ResourceLease admit(const PreparedCaptureFanout &f, const PreparedMonitorClockHandoff &h,
                     const PipeWireMonitorCaptureOptions &o) {
     const auto &c = f.captureConfig();
+    if(o.stop){const auto &s=o.stop->config();
+        if(!o.requireNativeReturns || s.runGeneration!=h.config().runGeneration || s.sourceRate!=c.sampleRate || s.channels!=c.channels ||
+           s.maximumPacketFrames!=c.maximumPacketFrames || s.monitorSlots!=f.monitorSlots() || o.stop->requested() || o.stop->endStatus())
+            throw ProjectError(ErrorCode::InvalidParameter,"PipeWire capture stop binding mismatch");}
     if ((o.receipt && !o.requireNativeReturns) || h.config().timestampDomain != MonitorClockDomain::PosixMonotonic100ns ||
         c.identity != h.config().captureIdentity || !c.channels || c.channels > 256 ||
         !c.maximumPacketFrames || c.maximumPacketFrames > 65536 || c.sampleRate < 8000 ||
@@ -44,7 +49,7 @@ PipeWireCaptureCode PreparedPipeWireMonitorCapture::process(const DeviceBlockClo
     pending_.requestedFrames=clock.duration<=fanout_.captureConfig().maximumPacketFrames && clock.duration<=capacity?
         std::uint32_t(clock.duration):0;pendingReturn_=true;
     if (faultReady_.load(std::memory_order_relaxed)) return PipeWireCaptureCode::Fault;
-    if (stopped_.load(std::memory_order_acquire)) return PipeWireCaptureCode::Stopped;
+    if (stopped_.load(std::memory_order_acquire) || (options_.stop && options_.stop->requested())) return PipeWireCaptureCode::Stopped;
     if (firstUnavailable()) return fail(PipeWireCaptureCause::NativeUnavailable, clock);
     const auto &config = fanout_.captureConfig();
     if (!clock.duration || clock.duration > config.maximumPacketFrames || clock.duration > capacity)
@@ -137,6 +142,7 @@ void PreparedPipeWireMonitorCapture::finishAfterJoin() noexcept {
     requestStop();
     if (firstUnavailable() && !firstFault()) fail(PipeWireCaptureCause::NativeUnavailable, {});
     end_.fault = firstFault(); end_.unavailable = firstUnavailable(); end_.callbacksJoined = true;
+    if(options_.stop)options_.stop->complete(end_); // Original joined native result BEFORE EOF.
     clocks_.finishCapture(); fanout_.finish(); joined_ = true;
 }
 std::optional<PipeWireCaptureEnd> PreparedPipeWireMonitorCapture::endAfterJoin() const noexcept {

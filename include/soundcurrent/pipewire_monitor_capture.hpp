@@ -7,6 +7,7 @@
 #include <array>
 
 namespace soundcurrent::daw {
+class PreparedPipeWireCaptureStop;
 enum class PipeWireCaptureCause : std::uint32_t {
     InvalidBuffers, InvalidQuantum, RateChanged, MissingTimestamp, ClockChanged,
     CycleDiscontinuity, Discontinuity, PositionJump, TimestampReset, PositionOverflow,
@@ -39,6 +40,7 @@ struct PipeWireMonitorCaptureOptions {
     bool requireNativeReturns = false; // True for genuine streams; raw-only portable seam may opt out.
     void *receiptContext = nullptr;
     bool (*receipt)(void *,const PipeWireCaptureCycle &) noexcept = nullptr; // Bounded RT-safe handoff only.
+    PreparedPipeWireCaptureStop *stop = nullptr; // Outlives capture/processing owners; joined before retirement.
 };
 enum class PipeWireCaptureCode { Accepted, Stopped, Fault };
 // One PipeWire process owner. Prepared planar->interleaved copy preserves float
