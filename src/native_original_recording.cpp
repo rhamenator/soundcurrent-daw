@@ -253,7 +253,8 @@ NativeOriginalRecordingPrefix inspectProjectNativeOriginalRecording(
     auto prefix=inspectNativeOriginalRecording(job,{},boundary,resources);
     require(prefix.declared && prefix.raw.spec.project==expectedProject && prefix.raw.spec.asset==asset,
         "Native take belongs to another project or asset directory");
-    if(boundary)boundary();return prefix;
+    if(boundary)boundary();
+    return prefix;
 }
 NativeOriginalRecordingPrefix reportNativeOriginalRecording(const std::filesystem::path &job,const NativeOriginalRecordingSpec &spec,const NativeOriginalRunOutcome &outcome,std::optional<ResourceLedger> resources,const std::function<void(NativeOriginalRecordingBoundary)> &boundary){
     validateSpec(spec);auto reservation=reserve(job,resources);
