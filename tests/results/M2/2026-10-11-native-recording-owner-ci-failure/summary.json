@@ -1,0 +1,35 @@
+{
+  "pr": 147,
+  "run": 38182908717,
+  "head": "fe71f241fa715f7823e86e921e7fa7f812adcb0f",
+  "base": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "testedMerge": "4a16a551c57ca12c7393194e508f2ebd6408c750",
+  "tree": "a75234e9a8f387373fb4a4d946f0365e123e7a8f",
+  "nativeJobFailed": true,
+  "ctestPassed": 70,
+  "ctestFailed": 1,
+  "failedSuite": "native-monitor-startup",
+  "firstOwnedRecordingTimeout": {
+    "sourceRate": 48000,
+    "channels": 1,
+    "rawFrames": 65280,
+    "deadlineSeconds": 5,
+    "requiredMovingClockSpanSeconds": 2
+  },
+  "manualStandaloneSuccesses": 2,
+  "manualStandaloneThirdFailed": {
+    "take": 2,
+    "identity": 3,
+    "stage": "group-wait",
+    "writerPhase": 2,
+    "writerPhaseName": "AudioFlushBegin",
+    "writerWritten": 2304,
+    "writerCommitted": 2048
+  },
+  "manualFlushStallCauseResolved": false,
+  "nativeOwnerCadenceCauseProven": false,
+  "allFourOriginalJobLogsRetained": true,
+  "selectedArtifactLogMembers": 8,
+  "binariesOrMediaIncluded": false,
+  "unchangedOriginalDeadlinesAndCohort": true
+}
