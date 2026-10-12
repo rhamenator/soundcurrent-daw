@@ -1,0 +1,521 @@
+{
+  "pr": 151,
+  "run": 38193276855,
+  "head": "a849697ebfdbe202f6fa56d05bbd69ddae902c85",
+  "base": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "testedMerge": "37dcfc2262f34486a784e51ad0dbef5fc6f794be",
+  "tree": "f2b41177f1e12438297d46f6cf697eb0254f2c32",
+  "changedBlobBindings": 946,
+  "qualifiedInputCount": 780,
+  "terminalJobBindings": {
+    "114630404434": {
+      "bytes": 92428,
+      "sha256": "7250a258459440fafe3072070ddf19bc9323d8edac4874cdbef95bb25e5050a9",
+      "conclusion": "success"
+    },
+    "114630404527": {
+      "bytes": 845644,
+      "sha256": "115fe5afb94991025f302ae1af999437451a3677b2259ab575583eeafd96c337",
+      "conclusion": "success"
+    },
+    "114630404563": {
+      "bytes": 237187,
+      "sha256": "a7d485ced48fa5a6f337ec057a4a96828b1ee83ee66b5c8ba37c65ac40318326",
+      "conclusion": "success"
+    },
+    "114630404673": {
+      "bytes": 855084,
+      "sha256": "7ac903fda8c1d2568eeb67b17429b727661957b25c19fd0b0afad0c39c46b8ea",
+      "conclusion": "success"
+    }
+  },
+  "native71SuitesPassed": true,
+  "nativeOriginal22ManualCasesCompleted": true,
+  "nativeThreeOriginalStandaloneCompletions": true,
+  "desktop19SuitesPassed": true,
+  "originalFourInterruptionCasesPassed": true,
+  "originalTimingSpans": {
+    "build-desktop-native/parent-observation-timing/after-complete-observation-timing.json": {
+      "eventCount": 20,
+      "spans": [
+        {
+          "event": "fixture-init",
+          "beginSequence": 0,
+          "endSequence": 1,
+          "elapsedNs": 282142300
+        },
+        {
+          "event": "baseline-hash",
+          "beginSequence": 2,
+          "endSequence": 3,
+          "elapsedNs": 7397200
+        },
+        {
+          "event": "parent-launch",
+          "beginSequence": 4,
+          "endSequence": 5,
+          "elapsedNs": 1435200
+        },
+        {
+          "event": "parent-identity",
+          "beginSequence": 6,
+          "endSequence": 7,
+          "elapsedNs": 1099400
+        },
+        {
+          "event": "parent-boundary-wait",
+          "beginSequence": 8,
+          "endSequence": 9,
+          "elapsedNs": 673058600
+        },
+        {
+          "event": "parent-termination",
+          "beginSequence": 10,
+          "endSequence": 11,
+          "elapsedNs": 1745100
+        },
+        {
+          "event": "scan-Ready-inventory-before",
+          "beginSequence": 13,
+          "endSequence": 14,
+          "elapsedNs": 15753000
+        },
+        {
+          "event": "scan-Ready-probe",
+          "beginSequence": 15,
+          "endSequence": 16,
+          "elapsedNs": 131286500
+        },
+        {
+          "event": "scan-Ready-inventory-after",
+          "beginSequence": 17,
+          "endSequence": 18,
+          "elapsedNs": 15694800
+        },
+        {
+          "event": "scan-Ready",
+          "beginSequence": 12,
+          "endSequence": 19,
+          "elapsedNs": 162788100
+        }
+      ]
+    },
+    "build-desktop-native/parent-observation-timing/before-ack-observation-timing.json": {
+      "eventCount": 32,
+      "spans": [
+        {
+          "event": "fixture-init",
+          "beginSequence": 0,
+          "endSequence": 1,
+          "elapsedNs": 255893100
+        },
+        {
+          "event": "baseline-hash",
+          "beginSequence": 2,
+          "endSequence": 3,
+          "elapsedNs": 12134500
+        },
+        {
+          "event": "parent-launch",
+          "beginSequence": 4,
+          "endSequence": 5,
+          "elapsedNs": 1387500
+        },
+        {
+          "event": "parent-identity",
+          "beginSequence": 6,
+          "endSequence": 7,
+          "elapsedNs": 1208000
+        },
+        {
+          "event": "parent-boundary-wait",
+          "beginSequence": 8,
+          "endSequence": 9,
+          "elapsedNs": 170744600
+        },
+        {
+          "event": "helper-identity",
+          "beginSequence": 10,
+          "endSequence": 11,
+          "elapsedNs": 4737400
+        },
+        {
+          "event": "parent-termination",
+          "beginSequence": 12,
+          "endSequence": 13,
+          "elapsedNs": 2755400
+        },
+        {
+          "event": "scan-Active-inventory-before",
+          "beginSequence": 15,
+          "endSequence": 16,
+          "elapsedNs": 8267700
+        },
+        {
+          "event": "scan-Active-probe",
+          "beginSequence": 17,
+          "endSequence": 18,
+          "elapsedNs": 36401600
+        },
+        {
+          "event": "scan-Active-inventory-after",
+          "beginSequence": 19,
+          "endSequence": 20,
+          "elapsedNs": 8153400
+        },
+        {
+          "event": "scan-Active",
+          "beginSequence": 14,
+          "endSequence": 21,
+          "elapsedNs": 52875100
+        },
+        {
+          "event": "helper-terminal-wait",
+          "beginSequence": 22,
+          "endSequence": 23,
+          "elapsedNs": 4924377100
+        },
+        {
+          "event": "scan-Incomplete-inventory-before",
+          "beginSequence": 25,
+          "endSequence": 26,
+          "elapsedNs": 8569300
+        },
+        {
+          "event": "scan-Incomplete-probe",
+          "beginSequence": 27,
+          "endSequence": 28,
+          "elapsedNs": 38126400
+        },
+        {
+          "event": "scan-Incomplete-inventory-after",
+          "beginSequence": 29,
+          "endSequence": 30,
+          "elapsedNs": 8079800
+        },
+        {
+          "event": "scan-Incomplete",
+          "beginSequence": 24,
+          "endSequence": 31,
+          "elapsedNs": 54827600
+        }
+      ]
+    },
+    "build-desktop-native/parent-observation-timing/during-processing-helper-death-observation-timing.json": {
+      "eventCount": 50,
+      "spans": [
+        {
+          "event": "fixture-init",
+          "beginSequence": 0,
+          "endSequence": 1,
+          "elapsedNs": 478286000
+        },
+        {
+          "event": "baseline-hash",
+          "beginSequence": 2,
+          "endSequence": 3,
+          "elapsedNs": 7586200
+        },
+        {
+          "event": "parent-launch",
+          "beginSequence": 4,
+          "endSequence": 5,
+          "elapsedNs": 1457200
+        },
+        {
+          "event": "parent-identity",
+          "beginSequence": 6,
+          "endSequence": 7,
+          "elapsedNs": 945100
+        },
+        {
+          "event": "parent-boundary-wait",
+          "beginSequence": 8,
+          "endSequence": 9,
+          "elapsedNs": 74955300
+        },
+        {
+          "event": "helper-identity",
+          "beginSequence": 10,
+          "endSequence": 11,
+          "elapsedNs": 4578400
+        },
+        {
+          "event": "ack-suspension",
+          "beginSequence": 12,
+          "endSequence": 13,
+          "elapsedNs": 8413500
+        },
+        {
+          "event": "start-release",
+          "beginSequence": 15,
+          "endSequence": 16,
+          "elapsedNs": 373400
+        },
+        {
+          "event": "start-ack-wait",
+          "beginSequence": 17,
+          "endSequence": 18,
+          "elapsedNs": 34154200
+        },
+        {
+          "event": "ack-held",
+          "beginSequence": 14,
+          "endSequence": 19,
+          "elapsedNs": 34540800
+        },
+        {
+          "event": "resume",
+          "beginSequence": 20,
+          "endSequence": 21,
+          "elapsedNs": 58500
+        },
+        {
+          "event": "partial-boundary-wait",
+          "beginSequence": 22,
+          "endSequence": 23,
+          "elapsedNs": 15484600
+        },
+        {
+          "event": "partial-suspension",
+          "beginSequence": 24,
+          "endSequence": 25,
+          "elapsedNs": 9433300
+        },
+        {
+          "event": "parent-termination",
+          "beginSequence": 27,
+          "endSequence": 28,
+          "elapsedNs": 2777400
+        },
+        {
+          "event": "scan-Active-inventory-before",
+          "beginSequence": 30,
+          "endSequence": 31,
+          "elapsedNs": 8292900
+        },
+        {
+          "event": "scan-Active-probe",
+          "beginSequence": 32,
+          "endSequence": 33,
+          "elapsedNs": 34504900
+        },
+        {
+          "event": "scan-Active-inventory-after",
+          "beginSequence": 34,
+          "endSequence": 35,
+          "elapsedNs": 8349000
+        },
+        {
+          "event": "scan-Active",
+          "beginSequence": 29,
+          "endSequence": 36,
+          "elapsedNs": 51191700
+        },
+        {
+          "event": "helper-termination",
+          "beginSequence": 37,
+          "endSequence": 38,
+          "elapsedNs": 1245900
+        },
+        {
+          "event": "partial-held",
+          "beginSequence": 26,
+          "endSequence": 39,
+          "elapsedNs": 56291300
+        },
+        {
+          "event": "resume",
+          "beginSequence": 40,
+          "endSequence": 41,
+          "elapsedNs": 48400
+        },
+        {
+          "event": "scan-Incomplete-inventory-before",
+          "beginSequence": 43,
+          "endSequence": 44,
+          "elapsedNs": 9224400
+        },
+        {
+          "event": "scan-Incomplete-probe",
+          "beginSequence": 45,
+          "endSequence": 46,
+          "elapsedNs": 33404900
+        },
+        {
+          "event": "scan-Incomplete-inventory-after",
+          "beginSequence": 47,
+          "endSequence": 48,
+          "elapsedNs": 9313400
+        },
+        {
+          "event": "scan-Incomplete",
+          "beginSequence": 42,
+          "endSequence": 49,
+          "elapsedNs": 51989000
+        }
+      ]
+    },
+    "build-desktop-native/parent-observation-timing/during-processing-observation-timing.json": {
+      "eventCount": 50,
+      "spans": [
+        {
+          "event": "fixture-init",
+          "beginSequence": 0,
+          "endSequence": 1,
+          "elapsedNs": 262392200
+        },
+        {
+          "event": "baseline-hash",
+          "beginSequence": 2,
+          "endSequence": 3,
+          "elapsedNs": 7799000
+        },
+        {
+          "event": "parent-launch",
+          "beginSequence": 4,
+          "endSequence": 5,
+          "elapsedNs": 1475100
+        },
+        {
+          "event": "parent-identity",
+          "beginSequence": 6,
+          "endSequence": 7,
+          "elapsedNs": 1184300
+        },
+        {
+          "event": "parent-boundary-wait",
+          "beginSequence": 8,
+          "endSequence": 9,
+          "elapsedNs": 77174100
+        },
+        {
+          "event": "helper-identity",
+          "beginSequence": 10,
+          "endSequence": 11,
+          "elapsedNs": 4766300
+        },
+        {
+          "event": "ack-suspension",
+          "beginSequence": 12,
+          "endSequence": 13,
+          "elapsedNs": 8499300
+        },
+        {
+          "event": "start-release",
+          "beginSequence": 15,
+          "endSequence": 16,
+          "elapsedNs": 356500
+        },
+        {
+          "event": "start-ack-wait",
+          "beginSequence": 17,
+          "endSequence": 18,
+          "elapsedNs": 32252300
+        },
+        {
+          "event": "ack-held",
+          "beginSequence": 14,
+          "endSequence": 19,
+          "elapsedNs": 32623600
+        },
+        {
+          "event": "resume",
+          "beginSequence": 20,
+          "endSequence": 21,
+          "elapsedNs": 83700
+        },
+        {
+          "event": "partial-boundary-wait",
+          "beginSequence": 22,
+          "endSequence": 23,
+          "elapsedNs": 8513500
+        },
+        {
+          "event": "partial-suspension",
+          "beginSequence": 24,
+          "endSequence": 25,
+          "elapsedNs": 9550000
+        },
+        {
+          "event": "parent-termination",
+          "beginSequence": 27,
+          "endSequence": 28,
+          "elapsedNs": 2808900
+        },
+        {
+          "event": "scan-Active-inventory-before",
+          "beginSequence": 30,
+          "endSequence": 31,
+          "elapsedNs": 8650200
+        },
+        {
+          "event": "scan-Active-probe",
+          "beginSequence": 32,
+          "endSequence": 33,
+          "elapsedNs": 47662600
+        },
+        {
+          "event": "scan-Active-inventory-after",
+          "beginSequence": 34,
+          "endSequence": 35,
+          "elapsedNs": 8306000
+        },
+        {
+          "event": "scan-Active",
+          "beginSequence": 29,
+          "endSequence": 36,
+          "elapsedNs": 64666400
+        },
+        {
+          "event": "partial-held",
+          "beginSequence": 26,
+          "endSequence": 37,
+          "elapsedNs": 67597200
+        },
+        {
+          "event": "resume",
+          "beginSequence": 38,
+          "endSequence": 39,
+          "elapsedNs": 82800
+        },
+        {
+          "event": "helper-terminal-wait",
+          "beginSequence": 40,
+          "endSequence": 41,
+          "elapsedNs": 239819600
+        },
+        {
+          "event": "scan-Ready-inventory-before",
+          "beginSequence": 43,
+          "endSequence": 44,
+          "elapsedNs": 15784500
+        },
+        {
+          "event": "scan-Ready-probe",
+          "beginSequence": 45,
+          "endSequence": 46,
+          "elapsedNs": 132014800
+        },
+        {
+          "event": "scan-Ready-inventory-after",
+          "beginSequence": 47,
+          "endSequence": 48,
+          "elapsedNs": 15847700
+        },
+        {
+          "event": "scan-Ready",
+          "beginSequence": 42,
+          "endSequence": 49,
+          "elapsedNs": 163697200
+        }
+      ]
+    }
+  },
+  "linux143SuitesPassed": true,
+  "priorWatchdogTimeoutCauseResolved": false,
+  "priorManualTimeoutOrFlushStallCauseResolved": false,
+  "newCommandAdmissionExecutedByThisRun": true,
+  "physicalEndpointsTested": false,
+  "binariesOrMediaIncluded": false
+}

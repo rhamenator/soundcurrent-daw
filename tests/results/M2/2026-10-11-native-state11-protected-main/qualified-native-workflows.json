@@ -1,0 +1,25 @@
+{
+  "job": 114556713949,
+  "head": "c6eac6bddfc591b3c501a8e363dd7344f4caf563",
+  "testedMerge": "7fd6b918aadeac8be0d3d48f3b4e16be10968242",
+  "nativeSuites": 71,
+  "seconds": 185.83,
+  "startupAndMigrationSuitesPassed": [
+    [
+      "original-native-outcomes",
+      "6.67"
+    ],
+    [
+      "native-monitor-startup",
+      "2.27"
+    ]
+  ],
+  "originalDiagnosticCompletions": [
+    "2026-10-11T19:48:31.2760957Z original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false",
+    "2026-10-11T19:48:34.0952379Z original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false",
+    "2026-10-11T19:48:36.9935313Z original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false"
+  ],
+  "simulatedSdkOnly": true,
+  "nativeHardwareQualified": false,
+  "originalWindowsRootsResolved": false
+}
