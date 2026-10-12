@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Verified completion returns and clock diagnostics (2026-10-12)
+
+[Checkpoint231](231-pipewire-completion-receipts.md) preserves the actual first final
+native return separately from last callback/audio. Recorded state compares it with
+the verified hashed journal, including silent completion and extra callbacks.
+Schema1.1 retains original clock handoff faults/counts and strictly reads1.0.
+Four current Release suites pass2.49s; nine Windows objects compile warning-free;
+private PipeWire preserves99,072 raw frames and delivers8,192 processed frames
+with durable reopen and zero audited callback allocation/free/lock hits.
+Current sanitizer/native Windows qualification remains pending. Earlier clock,
+Windows owner and pool-pressure failures remain unresolved. Full goal is active.
+
 ## Durable PipeWire route and terminal state (2026-10-12)
 
 [Checkpoint230](230-pipewire-durable-outcomes.md) stores strict versioned intent,
