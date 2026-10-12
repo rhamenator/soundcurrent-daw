@@ -2,6 +2,7 @@
 #pragma once
 #include <soundcurrent/native_monitor_recording.hpp>
 #include <soundcurrent/audio_port.hpp>
+#include <soundcurrent/native_original_export.hpp>
 #include <functional>
 #include <span>
 
@@ -21,12 +22,13 @@ struct NativeMonitorControllerOptions {
 };
 enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed };
 enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };
-enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices };
+enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices, ExportOriginal };
 struct NativeMonitorCommand {
     NativeMonitorCommandKind kind = NativeMonitorCommandKind::Prepare;
     std::uint64_t generation = 0, revision = 0, resultSequence = 0;
     std::shared_ptr<const NativeMonitorPreparation> preparation;
     MonitorOutputOrdinal end{}; // Explicit finite monitor end; never project time.
+    std::filesystem::path destination; // Explicit no-overwrite native original WAV export.
     std::optional<EqSettings> equalizer;
     std::optional<ParameterAddress> parameter;
     std::optional<bool> enabled;
@@ -48,6 +50,8 @@ struct NativeMonitorSnapshot {
     std::shared_ptr<const NativeOriginalRecordingSpec> declared;
     std::shared_ptr<const NativeMonitorRecordingResult> result;
     std::shared_ptr<const NativeOriginalRecordingPrefix> reopened;
+    std::shared_ptr<const NativeOriginalExportResult> exported;
+    bool exporting = false;
     std::optional<ErrorCode> error;
     std::string diagnostic; // UI translates stable error code; original detail retained.
 };

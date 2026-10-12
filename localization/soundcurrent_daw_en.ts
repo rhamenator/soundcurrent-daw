@@ -1754,6 +1754,22 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Keep take and reset</translation>
     </message>
     <message>
+      <source>Export original WAV…</source>
+      <translation>Export original WAV…</translation>
+    </message>
+    <message>
+      <source>Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.</source>
+      <translation>Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.</translation>
+    </message>
+    <message>
+      <source>Export original native take</source>
+      <translation>Export original native take</translation>
+    </message>
+    <message>
+      <source>WAV audio (*.wav)</source>
+      <translation>WAV audio (*.wav)</translation>
+    </message>
+    <message>
       <source>Recording settings exceed the panel memory limit.</source>
       <translation>Recording settings exceed the panel memory limit.</translation>
     </message>
@@ -1842,6 +1858,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Recording closed.</translation>
     </message>
     <message>
+      <source>Exporting original WAV…</source>
+      <translation>Exporting original WAV…</translation>
+    </message>
+    <message>
       <source>Recording error (%1).</source>
       <translation>Recording error (%1).</translation>
     </message>
@@ -1856,6 +1876,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source> · Saved frames verified: %1</source>
       <translation> · Saved frames verified: %1</translation>
+    </message>
+    <message>
+      <source> · Original WAV exported: %1 frames</source>
+      <translation> · Original WAV exported: %1 frames</translation>
+    </message>
+    <message>
+      <source> · Export published with a durability warning.</source>
+      <translation> · Export published with a durability warning.</translation>
     </message>
   </context>
   <context>

@@ -25,6 +25,8 @@ void eqCharge(PayloadCharge &charge,const EqSettings &eq) {
 std::size_t commandPayload(const NativeMonitorCommand &c,std::size_t budget) {
     PayloadCharge charge("Native control command",budget);
     charge.add(sizeof(NativeMonitorCommand)+512);
+    controlBound(c.destination.native().size()<=4096 && c.destination.native().find(std::filesystem::path::value_type{})==std::filesystem::path::string_type::npos);
+    charge.add(c.destination.native().size()+1,sizeof(std::filesystem::path::value_type));
     if(c.equalizer)eqCharge(charge,*c.equalizer);
     if(c.preparation) {
         const auto &p=*c.preparation;charge.add(sizeof(NativeMonitorPreparation)+4096);
@@ -117,7 +119,18 @@ struct NativeMonitorController::State {
         if(c.kind==NativeMonitorCommandKind::ReleaseResult) {
             if(owner || !view.result || c.resultSequence!=view.resultSequence)
                 throw ProjectError(ErrorCode::InvalidState,"Native result release requires its exact retained sequence");
-            view.result.reset();view.reopened.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=NativeMonitorPhase::Idle;return;
+            view.result.reset();view.reopened.reset();view.exported.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=NativeMonitorPhase::Idle;return;
+        }
+        if(c.kind==NativeMonitorCommandKind::ExportOriginal) {
+            if(owner || !view.result || !view.declared || c.resultSequence!=view.resultSequence || c.destination.empty())
+                throw ProjectError(ErrorCode::InvalidState,"Export original requires its exact retained inactive take sequence and destination");
+            NativeOriginalExportOptions exportOptions;exportOptions.resources=options.commandMemory;
+            const auto epoch=seenCancel;
+            exportOptions.canceled=[&]{return closing.load(std::memory_order_acquire) || cancelEpoch.load(std::memory_order_acquire)!=epoch;};
+            view.exporting=true;publish();
+            try {view.exported=std::make_shared<const NativeOriginalExportResult>(exportNativeOriginalWav(view.root,view.job,*view.declared,c.destination,exportOptions));}
+            catch(...) {view.exporting=false;throw;}
+            view.exporting=false;view.error.reset();view.diagnostic.clear();return;
         }
         if(c.kind==NativeMonitorCommandKind::Inspect) {
             if(owner || !view.result || !view.declared)

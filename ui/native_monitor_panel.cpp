@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QStandardItemModel>
 #include <QLocale>
+#include <QFileDialog>
 #include <limits>
 #include <algorithm>
 
@@ -57,6 +58,18 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
     status_=new QLabel(this);status_->setObjectName("nativeStatus");status_->setTextFormat(Qt::PlainText);status_->setWordWrap(true);
     progress_=new QLabel(this);progress_->setObjectName("nativeProgress");receipt_=new QLabel(this);receipt_->setObjectName("nativeReceipt");receipt_->setTextFormat(Qt::PlainText);receipt_->setWordWrap(true);
     layout->addWidget(status_,3,0,1,5);layout->addWidget(progress_,4,0,1,5);layout->addWidget(receipt_,5,0,1,5);
+    export_=new QPushButton(tr("Export original WAV…"),this);export_->setObjectName("nativeExportOriginal");
+    export_->setToolTip(tr("Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed."));
+    layout->addWidget(export_,7,0,1,5);
+    connect(export_,&QPushButton::clicked,this,[this]{
+        const auto name=QFileDialog::getSaveFileName(this,tr("Export original native take"),{},tr("WAV audio (*.wav)"));
+        if(name.isEmpty())return;
+#ifdef _WIN32
+        exportOriginal(std::filesystem::path(name.toStdWString()));
+#else
+        exportOriginal(utf8Path(name.toUtf8().toStdString()));
+#endif
+    });
     connect(prepare_,&QPushButton::clicked,this,[this]{
         if(!preparation_ || nextGeneration_==UINT64_MAX || (interactive_ && !chooseDevices()))return;
         try {
@@ -106,6 +119,10 @@ bool NativeMonitorPanel::setPreparation(const NativeMonitorPreparation &p) {
         {QSignalBlocker block(eq_);eq_->setChecked(p.options.route.equalizer && p.options.route.equalizer->settings.enabled);}
         devices_->setText(tr("Input: %1 · Output: %2").arg(deviceName(p.inputs),deviceName(p.outputs)));admission_.clear();poll();return true;
     }catch(const ProjectError &e){admission_=e.code()==ErrorCode::ResourceLimit?tr("Recording settings exceed the panel memory limit."):tr("Recording settings are invalid.");poll();return false;}
+}
+bool NativeMonitorPanel::exportOriginal(const std::filesystem::path &path) {
+    const auto s=snapshot();if(closing_ || !s->result)return false;
+    auto c=command(NativeMonitorCommandKind::ExportOriginal);c.destination=path;c.resultSequence=s->resultSequence;return send(c);
 }
 bool NativeMonitorPanel::interactiveDevices() const{return interactive_;}
 void NativeMonitorPanel::preparationGuard(std::function<bool(const NativeMonitorPreparation &)> guard){preparationGuard_=std::move(guard);}
@@ -196,8 +213,9 @@ void NativeMonitorPanel::poll() {
     const bool idle=s->phase==NativeMonitorPhase::Idle || (s->phase==NativeMonitorPhase::Fault && !s->result);
     prepare_->setEnabled(editable && preparation_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
     seconds_->setEnabled(editable && (idle || s->phase==NativeMonitorPhase::Ready));
-    cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing));
-    inspect_->setEnabled(editable && bool(s->result));keep_->setEnabled(editable && bool(s->result));
+    cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->exporting));
+    inspect_->setEnabled(editable && bool(s->result) && !s->exporting);keep_->setEnabled(editable && bool(s->result) && !s->exporting);
+    export_->setEnabled(editable && bool(s->result) && !s->exporting);
     eq_->setEnabled(editable && s->declared && s->declared->equalizer && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording));
     QString phase;
     switch(s->phase){
@@ -211,11 +229,18 @@ void NativeMonitorPanel::poll() {
     case NativeMonitorPhase::Fault:phase=tr("Recording stopped with an error. Inspect the retained take.");break;
     case NativeMonitorPhase::Closed:phase=tr("Recording closed.");break;
     }
+    if(s->exporting)phase=tr("Exporting original WAV…");
     if(s->errorSerial!=errorSeen_){errorSeen_=s->errorSerial;if(s->error)admission_=tr("Recording error (%1).").arg(int(*s->error));}
     status_->setText(admission_.isEmpty()?phase:admission_);status_->setToolTip(QStringLiteral("<pre>")+QString::fromUtf8(s->diagnostic.data(),qsizetype(std::min<std::size_t>(s->diagnostic.size(),4096))).toHtmlEscaped()+QStringLiteral("</pre>"));
     progress_->setText(tr("Original frames: %1 · Monitored frames: %2").arg(qulonglong(s->progress.rawAcceptedFrames)).arg(qulonglong(s->progress.deliveredMonitorFrames)));
     QString details=tr("EQ accepted: %1 · Applied: %2").arg(qulonglong(s->acceptedEqRevision)).arg(qulonglong(s->appliedEqRevision));
     if(s->reopened)details+=tr(" · Saved frames verified: %1").arg(qulonglong(s->reopened->raw.committedFrames));
+    if(s->exported)details+=tr(" · Original WAV exported: %1 frames").arg(QLocale().toString(qulonglong(s->exported->frames)));
+    if(s->exported) {
+        const auto name=s->exported->destination.u8string();
+        details+=QStringLiteral(" · ")+QString::fromUtf8(reinterpret_cast<const char *>(name.data()),qsizetype(name.size()));
+        if(!s->exported->publicationWarning.empty())details+=tr(" · Export published with a durability warning.");
+    }
     receipt_->setText(details);
     if(windowClose_ && closeReady())close();
 }

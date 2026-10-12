@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/native_original_recording.hpp>
+#include <soundcurrent/native_original_export.hpp>
+#include <limits>
 #include <soundcurrent/wasapi_render_lifecycle.hpp>
 #include "rt_audit.hpp"
 #include <nlohmann/json.hpp>
@@ -44,6 +46,56 @@ NativeOriginalRunOutcome outcome(const NativeOriginalRecordingSpec &s,unsigned k
     if(kind==7){r.status=WasapiMonitorRenderStatus::Fault;r.firstFault=WasapiMonitorRenderFault{WasapiMonitorRenderCause::Underflow,WasapiMonitorRenderAttempt{8,{16,pos+32,96000,0,3,16,0}}};r.original->lastContentLease->releaseFrames=0;r.original->lastContentLease->action=WasapiRenderAction::Abort;r.original->contentCommittedFrames=8;r.original->queueDrainObserved=false;}
     if(kind==8){r.status=WasapiMonitorRenderStatus::InvalidReceipt;r.original->prepared.clockFrequency=UINT64_MAX;r.original->invalidReceipt=true;r.original->lastSilenceLease=WasapiSilenceLeaseResult{WasapiSilenceKind::EndGuard,3,INT32_MIN};r.original->lastPadding=UINT32_MAX;r.original->counterOverflow=true;r.original->ownerException=true;}
     return o;
+}
+void originalExport() {
+    for(unsigned channels:{1u,2u,8u})for(unsigned kind:{0u,1u,5u}) {
+        Temp t;auto declared=spec(channels);PreparedCaptureFanout fanout(config(declared));
+        NativeOriginalCaptureWriter writer(t.root,declared);const auto job=writer.jobDirectory();
+        std::vector<float> data(8*channels,2.5f);data[0]=-0.0f;
+        for(unsigned packet=0;packet<2;++packet) {
+            CaptureBankStamp stamp{declared.raw.identity,{pos+packet*8},{qpc+packet*1680},8,0};
+            fanout.publish({stamp,reinterpret_cast<const std::byte *>(data.data()),data.size()*4});
+            CaptureBankView v;check(fanout.acquireRaw(v)==CaptureBankRead::Ready,"Export fixture raw acquire");writer.append(v);fanout.releaseRaw(v);
+            check(fanout.acquireMonitor(v)==CaptureBankRead::Ready,"Export fixture monitor acquire");fanout.releaseMonitor(v);
+        }
+        fanout.finish();fanout.settleAfterJoin();const auto saved=writer.finalize(fanout,outcome(declared,kind));
+        const auto bytes=read(job/"take.wav"),journal=read(job/"journal.json"),native=read(job/"native-run.json");
+        const auto directory=t.root/"exports";std::filesystem::create_directory(directory);
+        const auto target=directory/std::filesystem::path(u8"Original – été.wav");
+        NativeOriginalExportOptions options;options.resources=ResourceLedger(1024*1024,"Export test");
+        unsigned copied=0;options.progress=[&](auto n,auto total){check(n<=total && total==bytes.size(),"Export progress extent");++copied;};
+        const auto result=exportNativeOriginalWav(t.root,job,declared,target,options);
+        check(copied && result.frames==16 && result.sampleRate==48000 && result.layout==declared.raw.layout && result.bytes==bytes.size() &&
+            result.fileSha256==hashMediaFile(target) && result.sampleSha256==saved.raw.sampleSha256 && result.originalStatus==saved.status &&
+            read(target)==bytes && result.publicationWarning.empty(),"Original WAV changed samples/rate/layout/status/headroom or byte identity");
+        check(options.resources.usage().reservedBytes==0,"Original export resource credit leaked");
+        refuses([&]{exportNativeOriginalWav(t.root,job,declared,target,options);});check(read(target)==bytes,"Existing original export overwritten");
+        auto foreign=declared;foreign.run=Id::generate();refuses([&]{exportNativeOriginalWav(t.root,job,foreign,directory/"foreign.wav");});
+        refuses([&]{exportNativeOriginalWav(t.root,job,declared,t.root/"project.wav");});
+        auto tiny=options;tiny.resources=ResourceLedger(1);refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"tiny.wav",tiny);});
+        check(tiny.resources.usage().reservedBytes==0,"Refused native export leaked credit");
+        auto small=options;small.maximumBytes=1;refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"small.wav",small);});
+        bool cancel=false;auto canceled=options;canceled.canceled=[&]{return cancel;};canceled.progress=[&](auto,auto){cancel=true;};
+        refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"cancel.wav",canceled);});
+        check(!std::filesystem::exists(directory/"cancel.wav"),"Canceled copy published a destination");
+        auto race=options;race.progress=[&](auto,auto){write(directory/"race.wav","existing destination");};
+        refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"race.wav",race);});
+        check(read(directory/"race.wav")=="existing destination","Racing destination overwritten");
+        check(read(job/"take.wav")==bytes && read(job/"journal.json")==journal && read(job/"native-run.json")==native,"Export/refusal changed original evidence");
+        for(const auto &entry:std::filesystem::directory_iterator(directory))check(entry.path().extension()!=".partial","Refused export left a partial file");
+    }
+    Temp t;auto declared=spec();PreparedCaptureFanout f(config(declared));NativeOriginalCaptureWriter writer(t.root,declared);
+    const auto job=writer.jobDirectory();std::filesystem::create_directory(t.root/"exports");
+    refuses([&]{exportNativeOriginalWav(t.root,job,declared,t.root/"exports"/"active.wav");});
+    std::vector<float> data(8,2.5f);data[3]=std::numeric_limits<float>::quiet_NaN();
+    for(unsigned packet=0;packet<2;++packet) {
+        CaptureBankStamp stamp{declared.raw.identity,{pos+packet*8},{qpc+packet*1680},8,0};f.publish({stamp,reinterpret_cast<const std::byte *>(data.data()),data.size()*4});
+        CaptureBankView v;check(f.acquireRaw(v)==CaptureBankRead::Ready,"Nonfinite fixture");writer.append(v);f.releaseRaw(v);f.acquireMonitor(v);f.releaseMonitor(v);
+    }
+    f.finish();f.settleAfterJoin();writer.finalize(f,outcome(declared));
+    refuses([&]{exportNativeOriginalWav(t.root,job,declared,t.root/"exports"/"nonfinite.wav");});
+    check(std::filesystem::is_empty(t.root/"exports"),"Nonfinite original exported");
+    std::cout<<"native_original_export bitwise_rf64=true headroom_signed_zero=true native_rate=true retained_failed_cancelled_status=true no_overwrite=true mid_copy_cancel=true protected_project=true finite_gate=true no_alignment_inferred=true\n";
 }
 void roundtrip(){for(unsigned channels:{1u,2u,8u,256u})for(unsigned kind=0;kind<9;++kind){Temp t;auto s=spec(channels);PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);auto job=w.jobDirectory();refuses([&]{inspectNativeOriginalRecording(job);});packets(w,f,s);auto o=outcome(s,kind);auto saved=w.finalize(f,o);auto verified=inspectNativeOriginalRecording(job,s);
     auto status=kind==0?NativeOriginalRecordingStatus::Complete:kind==3 || kind==4 || kind==6?NativeOriginalRecordingStatus::Interrupted:kind==5?NativeOriginalRecordingStatus::Cancelled:NativeOriginalRecordingStatus::Failed;
@@ -253,4 +305,4 @@ int wmain(int argc,wchar_t **argv){
 #else
 int main(int argc,char **argv){
 #endif
-try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])),std::filesystem::path(argv[1])=="--map-crash",std::filesystem::path(argv[1])=="--eq-crash");return 80;}rt_audit::reset();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();matrixState();eqState();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);hardCrash(6,false,true);hardCrash(0,false,true);hardCrash(7,false,false,true);hardCrash(0,false,false,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; 2 actual matrix publication process boundaries; 2 actual EQ publication process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
+try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])),std::filesystem::path(argv[1])=="--map-crash",std::filesystem::path(argv[1])=="--eq-crash");return 80;}rt_audit::reset();originalExport();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();matrixState();eqState();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);hardCrash(6,false,true);hardCrash(0,false,true);hardCrash(7,false,false,true);hardCrash(0,false,false,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; 2 actual matrix publication process boundaries; 2 actual EQ publication process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

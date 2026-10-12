@@ -1746,6 +1746,22 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Export original WAV…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Export original native take</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>WAV audio (*.wav)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recording settings exceed the panel memory limit.</source>
       <translation type="unfinished" />
     </message>
@@ -1834,6 +1850,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Exporting original WAV…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recording error (%1).</source>
       <translation type="unfinished" />
     </message>
@@ -1847,6 +1867,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source> · Saved frames verified: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · Original WAV exported: %1 frames</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · Export published with a durability warning.</source>
       <translation type="unfinished" />
     </message>
   </context>

@@ -23,6 +23,7 @@ class NativeMonitorPanel final : public QGroupBox {
     bool interactiveDevices() const;
     void preparationGuard(std::function<bool(const NativeMonitorPreparation &)>);
     void clearPreparation(); // Inactive context only; releases its payload credit.
+    bool exportOriginal(const std::filesystem::path &);
     bool enabled(bool);
     bool setPreparation(const NativeMonitorPreparation &); // Admitted immutable copy.
     void poll();
@@ -49,7 +50,7 @@ class NativeMonitorPanel final : public QGroupBox {
     void updateDevices(const NativeMonitorSnapshot &);
     bool chooseDevices();
     std::shared_ptr<const NativeMonitorPreparation> preparation_;
-    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_;
+    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_;
     QLabel *devices_,*status_,*progress_,*receipt_;
     QSpinBox *seconds_;
     QCheckBox *eq_;

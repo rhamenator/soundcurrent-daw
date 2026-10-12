@@ -28,10 +28,10 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/native_monitor_controller.cpp": "81d9ac093a99d54da506684e7e952a94c4f703b423c6b45d5a0194e98b9388a6",
-    "ui/native_monitor_controller.hpp": "33c21733fb4775b1a133301b949f70d77ede7696f6cb307107c731711fad47e7",
-    "ui/native_monitor_panel.cpp": "1d27bf61154c8d1acd442b37a286d6333241b652d6b1ea8c237bcad54a72711f",
-    "ui/native_monitor_panel.hpp": "284ef78eb07c8d73e2ceb2cfc5310c0b0c74405cb6896c31f3376a54141e74ed",
+    "ui/native_monitor_controller.cpp": "90b4cecad49ab6293b0251f6c1d8166b42dec91855130491b16d1646a0a45183",
+    "ui/native_monitor_controller.hpp": "5c68a94a62d379ea0d2e8c2dbbb9a13d87dcdd4d5c639c3c74ff44c4b1079f37",
+    "ui/native_monitor_panel.cpp": "e049a54486d0607847485de50bd2f5c01f5d881a080e5a08e81698de7500ffee",
+    "ui/native_monitor_panel.hpp": "bac0113b38eebec80a14cf9585e04f1bc4e9ae4a91f8f97621c46dacebbd660c",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
     "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
@@ -2617,6 +2617,30 @@
     ],
     [
       "NativeMonitorPanel",
+      "Export original WAV…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Export original native take",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "WAV audio (*.wav)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Recording settings exceed the panel memory limit.",
       "",
       false
@@ -2749,6 +2773,12 @@
     ],
     [
       "NativeMonitorPanel",
+      "Exporting original WAV…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Recording error (%1).",
       "",
       false
@@ -2768,6 +2798,18 @@
     [
       "NativeMonitorPanel",
       " · Saved frames verified: %1",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Original WAV exported: %1 frames",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Export published with a durability warning.",
       "",
       false
     ],

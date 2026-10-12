@@ -52,9 +52,16 @@ void finitePanel(const std::filesystem::path &root){
     check(spy->captureJoined.load() && spy->renderJoined.load() && ProjectStore(root).load()==original,"Panel retained active callback or attached unaligned raw data");
     QTest::mouseClick(control<QPushButton>(panel,"nativeInspect"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->reopened);});panel.poll();
     check(panel.snapshot()->reopened->raw.sampleSha256==result->result->prefix->raw.sampleSha256 && control<QLabel>(panel,"nativeReceipt")->text().contains("verified"),"Visible inspect failed original raw binding");
+    check(control<QPushButton>(panel,"nativeExportOriginal")->isEnabled(),"Retained native result cannot export original WAV");
+    std::filesystem::create_directory(root/"exports");const auto exported=root/"exports"/std::filesystem::path(u8"Original – été.wav");
+    check(panel.exportOriginal(exported),"Native panel export command refused");await([&]{return bool(panel.snapshot()->exported);});panel.poll();
+    check(panel.snapshot()->exported->frames==result->result->prefix->raw.committedFrames && hashMediaFile(exported)==hashMediaFile(result->job/"take.wav") &&
+        control<QLabel>(panel,"nativeReceipt")->text().contains("Original WAV exported") && ProjectStore(root).load()==original,"Native panel export changed capture/project or lost receipt");
+    const auto serial=panel.snapshot()->errorSerial;check(panel.exportOriginal(exported),"Existing-target export not queued for worker refusal");
+    await([&]{return panel.snapshot()->errorSerial>serial;});check(hashMediaFile(exported)==panel.snapshot()->exported->fileSha256,"Panel overwrite refusal damaged export");
     QTest::mouseClick(control<QPushButton>(panel,"nativeKeep"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Idle;});panel.poll();
-    check(!panel.snapshot()->result && std::filesystem::exists(result->job/"native-run.json"),"Panel reset deleted retained take on disk");panel.close();await([&]{return panel.closeReady() && !panel.isVisible();});
-    std::cout<<"native_panel finite=true visible_eq_effect=true inspect=true keep=true close=true gui_sdk_io=false simulated_sdk=true\n";
+    check(!panel.snapshot()->result && !panel.snapshot()->exported && std::filesystem::exists(result->job/"native-run.json"),"Panel reset deleted retained take on disk");panel.close();await([&]{return panel.closeReady() && !panel.isVisible();});
+    std::cout<<"native_panel finite=true visible_eq_effect=true inspect=true original_wav_export=true no_overwrite=true keep=true close=true gui_sdk_io=false simulated_sdk=true\n";
 }
 void deviceSelection(const std::filesystem::path &root){
     auto spy=std::make_shared<Spy>();spy->independentDisk=true;preparation(root,spy);
