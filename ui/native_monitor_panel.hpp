@@ -18,8 +18,12 @@ class NativeMonitorPanel final : public QGroupBox {
     explicit NativeMonitorPanel(NativeMonitorControllerOptions = {},QWidget * = nullptr,
         ResourceLedger panelMemory = ResourceLedger{16*1024*1024,"Native recording panel"});
     ~NativeMonitorPanel();
+    void clearPreparation(); // Inactive context only; releases its payload credit.
+    bool enabled(bool);
     bool setPreparation(const NativeMonitorPreparation &); // Admitted immutable copy.
     void poll();
+    void cancel(); // Urgent intent, independent of command quota.
+    bool busy() const; // Includes prepared route and retained result.
     void beginClose(); // Asynchronous: caller waits for closeReady before destruction.
     bool closeReady() const;
     std::shared_ptr<const NativeMonitorSnapshot> snapshot() const;

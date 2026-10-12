@@ -84,6 +84,13 @@ bool NativeMonitorPanel::setPreparation(const NativeMonitorPreparation &p) {
         devices_->setText(tr("Input: %1 · Output: %2").arg(deviceName(p.inputs),deviceName(p.outputs)));admission_.clear();poll();return true;
     }catch(const ProjectError &e){admission_=e.code()==ErrorCode::ResourceLimit?tr("Recording settings exceed the panel memory limit."):tr("Recording settings are invalid.");poll();return false;}
 }
+void NativeMonitorPanel::clearPreparation(){if(busy())return;preparation_.reset();devices_->clear();poll();}
+bool NativeMonitorPanel::enabled(bool value) {
+    if(closing_ || nextRevision_==UINT64_MAX)return false;
+    auto c=command(NativeMonitorCommandKind::Equalizer);c.enabled=value;c.revision=nextRevision_+1;
+    if(!send(c))return false;
+    ++nextRevision_;QSignalBlocker blocked(eq_);eq_->setChecked(value);return true;
+}
 bool NativeMonitorPanel::parameter(const EqSettings &settings,const ParameterAddress &address) {
     if(closing_ || nextRevision_==UINT64_MAX)return false;
     auto c=command(NativeMonitorCommandKind::Equalizer);c.equalizer=settings;c.parameter=address;c.revision=nextRevision_+1;
@@ -117,6 +124,10 @@ void NativeMonitorPanel::poll() {
     if(s->reopened)details+=tr(" · Saved frames verified: %1").arg(qulonglong(s->reopened->raw.committedFrames));
     receipt_->setText(details);
     if(windowClose_ && closeReady())close();
+}
+void NativeMonitorPanel::cancel(){controller_.requestCancel();admission_.clear();}
+bool NativeMonitorPanel::busy() const {
+    const auto s=snapshot();return bool(s->result) || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Finishing;
 }
 void NativeMonitorPanel::beginClose(){if(closing_)return;closing_=true;controller_.requestShutdown();poll();}
 bool NativeMonitorPanel::closeReady() const{return snapshot()->phase==NativeMonitorPhase::Closed;}

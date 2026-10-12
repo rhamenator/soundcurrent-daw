@@ -2510,6 +2510,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Manual / repeated takes</translation>
     </message>
     <message>
+      <source>Native input monitoring</source>
+      <translation>Native input monitoring</translation>
+    </message>
+    <message>
       <source>Track equalizer</source>
       <translation>Track equalizer</translation>
     </message>
@@ -2764,8 +2768,8 @@ The complete file was published with a warning: %1</translation>
       <translation>Canceling export; waiting for the current file operation…</translation>
     </message>
     <message>
-      <source>Stop manual recording and resolve its previews before changing the project structure.</source>
-      <translation>Stop manual recording and resolve its previews before changing the project structure.</translation>
+      <source>Stop recording and resolve its retained takes before changing the project structure.</source>
+      <translation>Stop recording and resolve its retained takes before changing the project structure.</translation>
     </message>
     <message>
       <source>Too many pending changes. Please retry.</source>

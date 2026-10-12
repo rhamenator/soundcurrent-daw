@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "native_monitor_panel.hpp"
+#include "studio_window.hpp"
 #include "fake_native_monitor_streams.hpp"
 #include <QApplication>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QCheckBox>
 #include <QLabel>
+#include <QTabWidget>
+#include <QSlider>
 #include <QTest>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -51,6 +54,49 @@ void finitePanel(const std::filesystem::path &root){
     check(!panel.snapshot()->result && std::filesystem::exists(result->job/"native-run.json"),"Panel reset deleted retained take on disk");panel.close();await([&]{return panel.closeReady() && !panel.isVisible();});
     std::cout<<"native_panel finite=true visible_eq_effect=true inspect=true keep=true close=true gui_sdk_io=false simulated_sdk=true\n";
 }
+void studioWindowFlow(const std::filesystem::path &root){
+    auto spy=std::make_shared<Spy>();auto p=preparation(root,spy);
+    auto saved=ProjectStore(root).load();p.options.route.equalizer->settings=saved.tracks.front().eq;
+    const auto gui=std::this_thread::get_id();std::atomic<bool> offGui{false};
+    NativeMonitorControllerOptions native;native.streams=[&](const auto &){offGui=std::this_thread::get_id()!=gui;return std::make_unique<FakeStreams>(spy,48000,1,true);};
+    StudioWindow window(nullptr,{},{},{},{},{},{},{},{},std::move(native));
+    window.show();window.openProject(root);await([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+    auto *panel=dynamic_cast<NativeMonitorPanel *>(window.findChild<QGroupBox *>("nativeRecordingPanel"));check(panel!=nullptr,"StudioWindow has no actual native recording panel");
+    auto *tabs=window.findChild<QTabWidget *>("recordingModes");check(tabs && tabs->indexOf(panel)>=0,"Native recording widget is not in the recording tabs");tabs->setCurrentWidget(panel);
+    check(window.configureNativeRecording(p),"StudioWindow rejected selected native context");
+    auto wrong=p;wrong.options.raw.track=Id::generate();check(!window.configureNativeRecording(wrong),"StudioWindow accepted another track's native context");
+    control<QSpinBox>(*panel,"nativeMonitorSeconds")->setValue(1);
+    QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->phase==NativeMonitorPhase::Ready;});
+    ProjectCommand structural{CommandKind::Structural};structural.edits={SetInputLatency{saved.tracks.front().id,1}};
+    check(!window.submitEdit(std::move(structural)) && !window.preparePlayback() && !window.prepareRecording(),"Native prepared route admitted conflicting project/transport operation");
+    const auto &band=saved.tracks.front().eq.bands.front();ProjectCommand gain{CommandKind::Parameter};gain.address={saved.tracks.front().id,saved.tracks.front().eq.id,band.id,BandParameter::GainDb};gain.value=12;gain.gesture=88001;gain.final=true;
+    check(window.submitEdit(std::move(gain)),"Main inspector parameter edit was rejected");await([&]{return panel->snapshot()->acceptedEqRevision>0;});
+    auto save=ProjectCommand{CommandKind::Save};check(window.submitEdit(std::move(save)),"Changed inspector settings could not be saved");await([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
+    panel->poll();QTest::mouseClick(control<QPushButton>(*panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel->snapshot()->result);});
+    check(offGui && panel->snapshot()->appliedEqRevision>0 && panel->snapshot()->result->disposition==NativeMonitorRecordingDisposition::Complete && spy->outputPeak>2.6,"Main-window native run lost actual worker/EQ/completion");
+    check(ProjectStore(root).load().tracks.front().clips.empty(),"Main-window native route attached an unaligned raw take");
+    // A retained result prevents switching projects; closing retains the take
+    // and asynchronously waits for every native/GUI controller to retire.
+    window.openProject(root/"other");check(window.snapshot()->root==root,"Retained original result allowed project replacement");
+    window.close();await([&]{return !window.isVisible();});
+    check(window.nativeRecordingSnapshot()->phase==NativeMonitorPhase::Closed && window.nativeRecordingSnapshot()->result && spy->captureJoined && spy->renderJoined,"Main window closed before native owners joined or discarded result");
+    std::cout<<"native_panel main_window_tab=true canonical_eq=true conflicting_transport_refused=true project_guard=true all_owners_closed=true simulated_sdk=true\n";
+}
+void studioActiveClose(const std::filesystem::path &root){
+    auto spy=std::make_shared<Spy>();auto p=preparation(root,spy);p.options.route.equalizer->settings=ProjectStore(root).load().tracks.front().eq;
+    NativeMonitorControllerOptions native;native.streams=[spy](const auto &){return std::make_unique<FakeStreams>(spy,48000,1,true);};
+    StudioWindow window(nullptr,{},{},{},{},{},{},{},{},std::move(native));window.show();window.openProject(root);
+    await([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+    auto *panel=dynamic_cast<NativeMonitorPanel *>(window.findChild<QGroupBox *>("nativeRecordingPanel"));
+    check(panel && window.configureNativeRecording(p),"Active main-window native route was unavailable");
+    QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->phase==NativeMonitorPhase::Ready;});panel->poll();
+    QTest::mouseClick(control<QPushButton>(*panel,"nativeRecord"),Qt::LeftButton);await([&]{return panel->snapshot()->progress.rawAcceptedFrames>0;});
+    window.close();await([&]{return !window.isVisible();});
+    check(window.nativeRecordingSnapshot()->phase==NativeMonitorPhase::Closed && window.nativeRecordingSnapshot()->result &&
+          window.nativeRecordingSnapshot()->result->disposition==NativeMonitorRecordingDisposition::Cancelled && spy->captureJoined && spy->renderJoined,
+          "Active main-window close skipped cancellation/result/native joins");
+    std::cout<<"native_panel main_window_active_close=true original_cancelled_take_retained=true all_owners_closed=true simulated_sdk=true\n";
+}
 void activeClose(const std::filesystem::path &root){
     auto spy=std::make_shared<Spy>();auto p=preparation(root,spy);NativeMonitorPanel panel({[&](const auto &){return std::make_unique<FakeStreams>(spy,48000,1,true);}});CloseOnExit close{panel};panel.show();check(panel.setPreparation(p),"Active close context refused");
     QTest::mouseClick(control<QPushButton>(panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Ready;});panel.poll();
@@ -60,4 +106,4 @@ void activeClose(const std::filesystem::path &root){
     std::cout<<"native_panel active_close_async=true result_retained=true sdk_joined=true guarded=0 simulated_sdk=true\n";
 }
 }
-int main(int argc,char **argv){QApplication app(argc,argv);try{QTemporaryDir dir;check(dir.isValid(),"Native panel temp root unavailable");const auto root=utf8Path(dir.path().toUtf8().toStdString());finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+int main(int argc,char **argv){QApplication app(argc,argv);try{QTemporaryDir dir;check(dir.isValid(),"Native panel temp root unavailable");const auto root=utf8Path(dir.path().toUtf8().toStdString());finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

@@ -30,8 +30,8 @@
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
     "ui/native_monitor_controller.cpp": "a4740f7c2f9d979bd99940c159d294834221429c0180727a00764f526cfbb4e9",
     "ui/native_monitor_controller.hpp": "b3b2f2ffe2d8774b569cc34c647c5982f0c14f61eadffb84981d66a0c0418f26",
-    "ui/native_monitor_panel.cpp": "ec341784576a470aa785267f8bf2d519725f3aac778f6a884072059c50bd8e9a",
-    "ui/native_monitor_panel.hpp": "ad1bc6241789b0d0d602cb9615e3acf549c86b76d05b57a39f9455f5b6e45ef2",
+    "ui/native_monitor_panel.cpp": "7aa5ac4dd226c0aa97641599107830658bce3cd1134661dbbce337d3d510ca6d",
+    "ui/native_monitor_panel.hpp": "54a0714e69897fcd9d1acbc68a422ebafb90215074783122cfa02ff896518c69",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
     "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
@@ -46,8 +46,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "768c42ecc7b929b16d1af78eefa728cd2710de0ab8678b53036dbe2a0f4c4ea0",
-    "ui/studio_window.hpp": "320ead50e0ed8c60a1a4e7a9b1126853479819c43d4a38db283b66fca041b794",
+    "ui/studio_window.cpp": "919dbb3210196c3addf9ffd1d1357167dac47eeeac1bd7f0e7dd71a52de4b6ad",
+    "ui/studio_window.hpp": "50b4f30351050890f42e3913960c82896ff5a7ca69738ea255671207eae15846",
     "ui/timeline_editor.cpp": "8c594fe27a88b6c69dd2555cafcc7bca1e82185a5e81a55d46aec625550a6944",
     "ui/timeline_editor.hpp": "5e0065240440cd13e317de4bd207bea262f966eec92c18ba15bd7ccbaf5ee26e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -3721,6 +3721,12 @@
     ],
     [
       "StudioWindow",
+      "Native input monitoring",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Track equalizer",
       "",
       false
@@ -4081,7 +4087,7 @@
     ],
     [
       "StudioWindow",
-      "Stop manual recording and resolve its previews before changing the project structure.",
+      "Stop recording and resolve its retained takes before changing the project structure.",
       "",
       false
     ],

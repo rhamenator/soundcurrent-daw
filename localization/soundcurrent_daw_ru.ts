@@ -2502,6 +2502,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Native input monitoring</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Track equalizer</source>
       <translation type="unfinished" />
     </message>
@@ -2749,7 +2753,7 @@ The complete file was published with a warning: %1</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Stop manual recording and resolve its previews before changing the project structure.</source>
+      <source>Stop recording and resolve its retained takes before changing the project structure.</source>
       <translation type="unfinished" />
     </message>
     <message>
