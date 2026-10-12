@@ -9,7 +9,7 @@
 namespace soundcurrent::daw {
 struct DeviceBlockClock {
     std::uint64_t position = 0, duration = 0, monotonicNs = 0;
-    // PipeWire cycle advances each graph cycle; it is not a device generation.
+    // PipeWire cycle counts processing graph starts; it is not a device generation.
     std::uint32_t id = 0, cycle = 0, rateNumerator = 1, rateDenominator = 48000;
     std::int64_t delay = 0;
     bool xrun = false, discontinuity = false;
