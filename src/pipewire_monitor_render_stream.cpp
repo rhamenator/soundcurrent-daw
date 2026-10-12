@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_monitor_render_stream.hpp>
+#include <time.h>
 namespace soundcurrent::daw {
 struct PipeWireMonitorRenderStream::State {
     PreparedPipeWireMonitorRender render;
@@ -10,7 +11,12 @@ struct PipeWireMonitorRenderStream::State {
         :render(b,h,o.render),options(std::move(o)) {}
     static void process(void *ctx,const DeviceBlockClock &clock,std::span<const float *const>,
                         std::span<float *const> out,std::uint32_t capacity) noexcept {
-        static_cast<State *>(ctx)->render.process(clock,out,capacity);
+        auto &s=*static_cast<State *>(ctx);std::optional<Qpc100ns> now;
+        if(s.options.render.startup){timespec t{};
+            if(clock_gettime(CLOCK_MONOTONIC,&t)==0 && t.tv_sec>=0 && t.tv_nsec>=0 && t.tv_nsec<1000000000 &&
+               std::uint64_t(t.tv_sec)<=(UINT64_MAX-std::uint64_t(t.tv_nsec)/100)/10000000)
+                now=Qpc100ns{std::uint64_t(t.tv_sec)*10000000+std::uint64_t(t.tv_nsec)/100};}
+        s.render.process(clock,out,capacity,now);
     }
     static void completed(void *ctx,const PipeWireCycleReceipt &r) noexcept {
         static_cast<State *>(ctx)->render.completeCycle(r);

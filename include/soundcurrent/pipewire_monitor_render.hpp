@@ -52,7 +52,9 @@ class PreparedPipeWireMonitorRender {
     PreparedPipeWireMonitorRender(PreparedMonitorOutputBank &, PreparedMonitorClockHandoff &,
                                  PipeWireMonitorRenderOptions = {});
     PipeWireRenderCode process(const DeviceBlockClock &, std::span<float *const>,
-                              std::uint32_t bufferFrames) noexcept;
+                              std::uint32_t bufferFrames, std::optional<Qpc100ns> monotonicNow = {}) noexcept;
+    // Startup requires independent current CLOCK_MONOTONIC floor(ns/100),
+    // despite legacy type spelling. Graph timestamp is preserved separately.
     void completeCycle(const PipeWireCycleReceipt &) noexcept;
     void requestStop() noexcept;
     void unavailable(AudioBridgeStatus) noexcept;

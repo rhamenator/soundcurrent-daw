@@ -49,7 +49,7 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::fail(PipeWireRenderCause cause
     bank_.renderFailed();clocks_.renderFailed();return PipeWireRenderCode::Fault;
 }
 PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock &clock,
-        std::span<float *const> out,std::uint32_t capacity) noexcept {
+        std::span<float *const> out,std::uint32_t capacity,std::optional<Qpc100ns> monotonicNow) noexcept {
     const auto &cfg=bank_.config();
     const auto n=std::uint32_t(std::min<std::uint64_t>(clock.duration,capacity));
     silence(out,n);
@@ -88,6 +88,7 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock
     const auto accepted=bank_.acceptedFrames(),consumed=bank_.deliveredFrames();
     bool startupPending=false;
     if(options_.startup){
+        if(!monotonicNow || !monotonicNow->value)return fail(PipeWireRenderCause::Startup,clock);
         const auto phase=options_.startup->phase();
         if(phase==MonitorStartupHandoffPhase::Cancelled)return PipeWireRenderCode::Stopped;
         if(phase!=MonitorStartupHandoffPhase::Pending && phase!=MonitorStartupHandoffPhase::Ready)
@@ -95,7 +96,7 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock
         if(!acquiredReady_){const auto ready=options_.startup->ready();
             if(ready){
                 if(ready->admitted!=options_.startup->admission() || !options_.startup->claimed() ||
-                   ready->asOfQpc100ns>clock.monotonicNs/100 || ready->publishedFrames<ready->admitted.nativeCapacityFrames ||
+                   ready->asOfQpc100ns>monotonicNow->value || ready->publishedFrames<ready->admitted.nativeCapacityFrames ||
                    accepted<ready->publishedFrames || consumed || bank_.discardedFrames())return fail(PipeWireRenderCause::Startup,clock);
                 const auto current=options_.startup->phase();
                 if(current==MonitorStartupHandoffPhase::Cancelled)return PipeWireRenderCode::Stopped;

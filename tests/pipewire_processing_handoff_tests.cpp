@@ -79,25 +79,25 @@ struct Geometry {
     }
 };
 void readinessGates(){
-    for(unsigned mode=0;mode<5;++mode){Geometry g;PreparedMonitorOutputBank bank(g.output);PreparedMonitorClockHandoff clocks(g.clocks);
+    for(unsigned mode=0;mode<7;++mode){Geometry g;PreparedMonitorOutputBank bank(g.output);PreparedMonitorClockHandoff clocks(g.clocks);
         PreparedMonitorStartupHandoff startup(g.startup);PipeWireMonitorRenderOptions o;o.startup=&startup;
         PreparedPipeWireMonitorRender render(bank,clocks,o);std::array<float,480> left{},right{};const std::array<float *,2> out{left.data(),right.data()};
         std::array<float,128> block;block.fill(2.F);
         for(unsigned n=0;n<16;++n)check(rt([&]{return bank.publish({1,{std::uint64_t(n)*64},64},block);})==MonitorOutputCode::Accepted,"Gate fixture publication failed");
-        check(rt([&]{return render.process(clock(0),out,480);})==PipeWireRenderCode::Warmup && !bank.deliveredFrames(),"Filled bank bypassed immutable startup admission");
+        check(rt([&]{return render.process(clock(0),out,480,Qpc100ns{clock(0).monotonicNs/100});})==PipeWireRenderCode::Warmup && !bank.deliveredFrames(),"Filled bank bypassed immutable startup admission");
         const std::array<PipeWirePortLeaseResult,2> returned{{{PipeWireBufferStatus::Ready,true,0},{PipeWireBufferStatus::Ready,true,0}}};
         rt([&]{render.completeCycle({clock(0),true,{},returned});});
-        if(mode==0 || mode==4){check(rt([&]{return startup.claimProcessingOwner();}),"Readiness publisher refused");
+        if(mode==0 || mode==4 || mode==5 || mode==6){check(rt([&]{return startup.claimProcessingOwner();}),"Readiness publisher refused");
             MonitorStartupStatistics s;s.phase=MonitorStartupPhase::Live;s.contentReady=true;s.capacityFrames=256;s.transferredFrames=s.acceptedFrames=256;
             const CaptureBankStamp stamp{g.capture.capture.identity,{100000},{clock(0).monotonicNs/100},480,0};s.firstTransferred=MonitorStartupSource{stamp,0};s.lastAccepted=stamp;
-            check(rt([&]{return startup.publish({g.startup,s,1024,mode==4?clock(2).monotonicNs/100:clock(0).monotonicNs/100});}),"Validated readiness fixture refused");
+            check(rt([&]{return startup.publish({g.startup,s,1024,(mode==4 || mode==5)?clock(2).monotonicNs/100:clock(0).monotonicNs/100});}),"Validated readiness fixture refused");
         }else if(mode==1)rt([&]{startup.requestCancel();});
         else if(mode==2)rt([&]{startup.fail();});
         else rt([&]{startup.settleAfterProducerJoin();});
-        const auto code=rt([&]{return render.process(clock(1),out,480);});
-        if(mode==0){check(code==PipeWireRenderCode::Content && bank.deliveredFrames()==480,"Ready content not released");
+        const auto code=rt([&]{return render.process(clock(1),out,480,mode==6?std::nullopt:std::optional(Qpc100ns{(mode==5?clock(2):clock(1)).monotonicNs/100}));});
+        if(mode==0 || mode==5){check(code==PipeWireRenderCode::Content && bank.deliveredFrames()==480,"Ready content not released");
             rt([&]{render.completeCycle({clock(1),true,{},returned});startup.requestCancel();});
-            check(rt([&]{return render.process(clock(2),out,480);})==PipeWireRenderCode::Stopped && bank.deliveredFrames()==480,"Cancellation after Ready consumed more PCM");
+            check(rt([&]{return render.process(clock(2),out,480,Qpc100ns{clock(2).monotonicNs/100});})==PipeWireRenderCode::Stopped && bank.deliveredFrames()==480,"Cancellation after Ready consumed more PCM");
         }else check(code==(mode==1?PipeWireRenderCode::Stopped:PipeWireRenderCode::Fault) && !bank.deliveredFrames(),"Terminal/future readiness permitted content");
         render.finishAfterJoin();
     }
@@ -135,7 +135,7 @@ void combined(){
                 CaptureBankView v;check(rt([&]{return f.acquireRaw(v);})==CaptureBankRead::Ready,"Original raw missing");
                 for(unsigned k=0;k<v.interleaved.size();++k)check(std::bit_cast<unsigned>(v.interleaved[k])==std::bit_cast<unsigned>(input[k]),"Monitor processing changed raw headroom");
                 writer.appendCapture(receipt,v);seen+=v.token.original.frames;check(rt([&]{return f.releaseRaw(v);}),"Raw release failed");}
-            const auto rendered=rt([&]{return r.process(clk,sink,480);});
+            const auto rendered=rt([&]{return r.process(clk,sink,480,Qpc100ns{clk.monotonicNs/100});});
             check(rendered!=PipeWireRenderCode::Fault && rendered!=PipeWireRenderCode::Stopped,"Combined native render fault");
             rt([&]{r.completeCycle({clk,true,{},outReturns});});
             PipeWireReceiptRecord<PipeWireRenderCycle> receipt;check(rt([&]{return q.read(receipt);})==PipeWireReceiptCode::Ready,"Render receipt missing");writer.appendRender(receipt);
