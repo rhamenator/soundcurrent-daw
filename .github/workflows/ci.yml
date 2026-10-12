@@ -210,6 +210,10 @@ jobs:
             if (-not $ownerExited) { throw "Owned concurrent diagnostic exceeded outer60s budget; original5s acceptance deadline unchanged." }
             if ($ownerProcess.ExitCode -ne 0) { throw "Original concurrent owner diagnostic failed; retain original take/worker state." }
           }
+      - name: Preserve generated owner failure projects
+        if: always()
+        shell: pwsh
+        run: ./.github/scripts/retain-owner-failure-projects.ps1 -BuildDirectory ./build-native
       - name: Retain native unit log
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -221,6 +225,7 @@ jobs:
             build-native/manual-owner-*-stdout.log
             build-native/manual-owner-*-stderr.log
             build-native/native-owner-failure-evidence/**
+            build-native/manual-owner-failure-projects/**
             build-native/warp-map-geometry-evidence/**
             build-native/protected-warp-geometry-evidence/**
             build-native/protected-warp-render-evidence/**
