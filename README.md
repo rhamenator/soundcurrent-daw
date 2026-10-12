@@ -209,6 +209,9 @@ with explicit clock domains and private-daemon acceptance. A
 queue results and verifies finite output in private test sinks. Shared-owner/receipt
 persistence and connection to the native recording UI remain unfinished; retained
 native startup and contention failures remain open.
+[Versioned native receipt handoffs](docs/226-pipewire-capture-returns.md) now preserve
+input/output return facts through bounded queues and a portable codec. Project
+journal durability/recovery remains unfinished.
 
 ## Desktop recording workflow
 

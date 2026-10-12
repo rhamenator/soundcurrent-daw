@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Input returns and bounded versioned receipt transport (2026-10-12)
+
+[Checkpoint226](226-pipewire-capture-returns.md) adds genuine input post-return facts,
+two bounded receipt producer lanes/one consumer and an explicit POSIX schema1.0
+codec. Raw acceptance, native return and joined callbacks remain distinct; metadata
+pressure retains raw/first-fault evidence. A capacity bug was caught and corrected,
+and terminal acquire/recheck protects final publication before EOF.
+
+Four Release suites0.07s, ASan/UBSan0.62s and portable TSan0.35s pass. Release and
+sanitizer private routes each capture96,000 and render96,123 frames with every cycle
+codec-checked outside RT. Six Windows objects compile warning-free. PR160 passes
+all four jobs (Linux146/native73/desktop20/cross), preserving earlier unresolved
+failure evidence. Next bind the codec to project journal durability/recovery and
+complete shared-owner/controller/Qt integration; full goal remains active.
+
 ## PipeWire render boundary and genuine native returns (2026-10-12)
 
 [Checkpoint225](225-pipewire-monitor-render.md) adds planar rendering and a genuine
