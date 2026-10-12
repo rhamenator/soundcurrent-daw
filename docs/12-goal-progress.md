@@ -1,5 +1,22 @@
 # Active full-suite goal: progress and completion evidence
 
+## Verified native original WAV export (2026-10-12)
+
+[Checkpoint221](221-native-original-export.md) adds worker-owned original WAV export
+from inactive retained native takes. It verifies the complete RF64 extent against
+the committed prefix, preserves exact bytes/native rate/headroom, refuses overwrite
+and cleans canceled partial files. The Qt panel shows the receipt and allows
+cancellation. Original monitoring status stays separate from captured audio; no
+project-time anchor or automatic timeline attachment is inferred.
+
+Release three-suite 11.07 s and ASan/UBSan 31.22 s pass, with 73 panel and 1,608
+durable outcome checks. Five Windows core objects cross-compile warning-free;
+current Windows export runtime/physical/installed and GUI TSan remain open.
+PR155's preceding device selectors pass all four CI jobs with original logs and
+source bindings retained. Both export fixture failures remain in the evidence.
+Next qualify Windows export and add project-owned native take reopen/export across
+application restarts. The full suite goal and later milestones remain active.
+
 ## Explicit native recording device selection (2026-10-12)
 
 [Checkpoint220](220-native-device-selection.md) adds worker-owned inventories,
