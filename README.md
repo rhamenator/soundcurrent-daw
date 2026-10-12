@@ -221,6 +221,12 @@ The native tab's **Open saved native take…** reopens an owned take in the curr
 project's media folder, including after an app restart and on systems without a
 native recording adapter. See [saved native takes](docs/222-native-original-reopen.md).
 
+Set **Start frame (project rate)** and use **Add to selected track** to place a
+verified original on the timeline. The native-rate WAV and receipt hashes remain
+intact; Undo/Redo and Save/reopen preserve the placement. See
+[native timeline admission](docs/223-native-take-admission.md). Automatic recording
+alignment remains unfinished.
+
 The native recording tab also provides **Export original WAV…** for an inactive,
 verified finalized take. It copies the native-rate floating-point WAV without
 monitoring EQ and refuses existing destinations. See [original take export](docs/221-native-original-export.md)

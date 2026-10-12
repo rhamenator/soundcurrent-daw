@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Explicit native take placement (2026-10-12)
+
+[Checkpoint223](223-native-take-admission.md) adds worker-verified native assets and
+explicit project-frame timeline placement, atomic Undo/Redo and schema 1.18
+provenance. The real Qt workflow enters frame 12345, adds the take, undoes/redoes,
+saves/reopens and verifies original files. Native clock alignment is not inferred.
+
+All 144 Release tests pass in 175.35 seconds. Four core/state sanitizer suites
+pass; the GUI passes offscreen in 11.42 seconds after a retained GTK/test allocation
+interposer initialization failure. Eleven current Windows objects compile without
+warnings; current Windows runtime remains pending. Catalog audits pass with 984
+keys, no languages promoted. PR157 has three successful jobs and Linux cancellation
+at its job envelope, with original logs retained. Next connect the Linux native
+monitor stream adapter; full suite/platform/quality/localization gates remain open.
+
 ## Saved native takes across application restarts (2026-10-12)
 
 [Checkpoint222](222-native-original-reopen.md) adds project-owned saved take selection,

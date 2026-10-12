@@ -191,3 +191,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Verified native original WAV export](221-native-original-export.md)
 
 - [Saved native takes across application restarts](222-native-original-reopen.md)
+
+- [Native originals on the project timeline](223-native-take-admission.md)
