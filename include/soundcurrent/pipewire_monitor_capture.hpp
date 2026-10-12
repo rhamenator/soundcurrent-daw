@@ -3,16 +3,26 @@
 #include "audio_bridge.hpp"
 #include "capture_fanout.hpp"
 #include "monitor_clock_handoff.hpp"
+#include "pipewire_cycle.hpp"
+#include <array>
 
 namespace soundcurrent::daw {
 enum class PipeWireCaptureCause : std::uint32_t {
     InvalidBuffers, InvalidQuantum, RateChanged, MissingTimestamp, ClockChanged,
     CycleDiscontinuity, Discontinuity, PositionJump, TimestampReset, PositionOverflow,
-    RawOrMonitorRejected, ClockRejected, NativeUnavailable
+    RawOrMonitorRejected, ClockRejected, NativeUnavailable, MissingReturn, InvalidReturn, QueueFailure, ReceiptPressure, CounterOverflow
 };
 struct PipeWireCaptureFault {
     PipeWireCaptureCause cause;
     std::optional<DeviceBlockClock> original;
+};
+struct PipeWireCaptureCycle {
+    DeviceBlockClock original;
+    std::optional<DeviceBlockClock> returnClock;
+    std::uint32_t requestedFrames = 0, rawFrames = 0, monitorFrames = 0, channels = 0;
+    std::uint64_t returnedChannels = 0;
+    bool allReturned = false;
+    std::array<PipeWirePortLeaseResult,256> returns{};
 };
 struct PipeWireCaptureEnd {
     std::optional<DeviceBlockClock> firstAccepted, lastAccepted;
@@ -20,10 +30,15 @@ struct PipeWireCaptureEnd {
     std::optional<AudioBridgeStatus> unavailable;
     std::uint64_t acceptedPackets = 0, acceptedRawFrames = 0, acceptedMonitorFrames = 0;
     bool callbacksJoined = false;
+    std::optional<PipeWireCaptureCycle> firstCycle,lastCycle,faultCycle;
+    std::uint64_t completedCycles = 0, nativeReturnedFrames = 0;
 };
 struct PipeWireMonitorCaptureOptions {
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     std::optional<ResourceLedger> resources;
+    bool requireNativeReturns = false; // True for genuine streams; raw-only portable seam may opt out.
+    void *receiptContext = nullptr;
+    bool (*receipt)(void *,const PipeWireCaptureCycle &) noexcept = nullptr; // Bounded RT-safe handoff only.
 };
 enum class PipeWireCaptureCode { Accepted, Stopped, Fault };
 // One PipeWire process owner. Prepared planar->interleaved copy preserves float
@@ -40,6 +55,7 @@ class PreparedPipeWireMonitorCapture {
                                   PipeWireMonitorCaptureOptions = {});
     PipeWireCaptureCode process(const DeviceBlockClock &, std::span<const float *const>,
                                std::uint32_t bufferFrames) noexcept;
+    void completeCycle(const PipeWireCycleReceipt &) noexcept;
     void requestStop() noexcept;
     void unavailable(AudioBridgeStatus) noexcept; // Separate control-loop notification.
     std::optional<PipeWireCaptureFault> firstFault() const noexcept;
@@ -53,8 +69,10 @@ class PreparedPipeWireMonitorCapture {
     std::vector<float> interleaved_;
     PipeWireCaptureEnd end_;
     PipeWireCaptureFault fault_{};
+    const PipeWireMonitorCaptureOptions options_;
+    PipeWireCaptureCycle pending_{};
     std::atomic<std::uint32_t> stopped_{0}, faultReady_{0}, unavailable_{0};
-    bool joined_ = false;
+    bool joined_ = false,pendingReturn_ = false;
     PipeWireCaptureCode fail(PipeWireCaptureCause, std::optional<DeviceBlockClock>) noexcept;
 };
 } // namespace soundcurrent::daw

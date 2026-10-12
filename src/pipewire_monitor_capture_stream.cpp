@@ -6,14 +6,18 @@ struct PipeWireMonitorCaptureStream::State {
     const PipeWireMonitorCaptureStreamOptions options;
     std::unique_ptr<PipeWireFilter> filter;
     bool routed = false, attempted = false, stopped = false;
+    static PipeWireMonitorCaptureOptions required(PipeWireMonitorCaptureOptions o){o.requireNativeReturns=true;return o;}
     State(PreparedCaptureFanout &f, PreparedMonitorClockHandoff &h,
-          PipeWireMonitorCaptureStreamOptions o) : capture(f, h, o.capture), options(std::move(o)) {}
+          PipeWireMonitorCaptureStreamOptions o) : capture(f, h, required(o.capture)), options(std::move(o)) {}
     static void process(void *ctx, const DeviceBlockClock &clock, std::span<const float *const> input,
                         std::span<float *const>, std::uint32_t frames) noexcept {
         static_cast<State *>(ctx)->capture.process(clock, input, frames);
     }
     static void unavailable(void *ctx, AudioBridgeStatus reason) noexcept {
         static_cast<State *>(ctx)->capture.unavailable(reason);
+    }
+    static void completed(void *ctx,const PipeWireCycleReceipt &r) noexcept {
+        static_cast<State *>(ctx)->capture.completeCycle(r);
     }
     static void begin(void *ctx) noexcept {
         const auto &o = static_cast<State *>(ctx)->options;
@@ -37,7 +41,7 @@ PipeWireMonitorCaptureStream::PipeWireMonitorCaptureStream(PreparedCaptureFanout
     auto &s = *state_;
     s.filter = std::make_unique<PipeWireFilter>(PipeWireFilterOptions{s.options.nodeName,
         f.captureConfig().channels, 0, f.captureConfig().maximumPacketFrames},
-        PipeWireCallbacks{&s, State::process, State::unavailable, State::begin, State::end});
+        PipeWireCallbacks{&s, State::process, State::unavailable, State::begin, State::end,nullptr,State::completed});
     if (!s.filter->waitReady(s.options.readyTimeout))
         throw ProjectError(ErrorCode::Io, "PipeWire monitor capture ports are not ready");
 }

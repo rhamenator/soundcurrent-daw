@@ -139,6 +139,10 @@ void PreparedPipeWireMonitorRender::completeCycle(const PipeWireCycleReceipt &r)
         if(cycle.warmup)end_.warmupQueuedFrames+=cycle.requestedFrames;
         if(cycle.finalContent && !firstFault())complete_.store(1,std::memory_order_release);
     }
+    if(options_.receipt && !options_.receipt(options_.receiptContext,cycle)) {
+        fail(PipeWireRenderCause::ReceiptPressure,cycle.original);
+        if(!end_.faultCycle)end_.faultCycle=cycle;
+    }
 }
 void PreparedPipeWireMonitorRender::requestStop() noexcept {stopped_.store(1,std::memory_order_release);}
 void PreparedPipeWireMonitorRender::unavailable(AudioBridgeStatus reason) noexcept {

@@ -9,7 +9,7 @@ enum class PipeWireRenderCause {
     InvalidBuffers, InvalidQuantum, RateChanged, MissingTimestamp, ClockChanged,
     CycleDiscontinuity, PositionJump, TimestampReset, PositionOverflow, ClockRejected,
     Underflow, ProducerFault, WarmupLimit, NativeUnavailable, MissingReturn,
-    InvalidReturn, QueueFailure, CounterOverflow
+    InvalidReturn, QueueFailure, CounterOverflow, ReceiptPressure
 };
 struct PipeWireRenderFault {
     PipeWireRenderCause cause;
@@ -38,6 +38,8 @@ struct PipeWireMonitorRenderOptions {
     std::uint64_t maximumWarmupNs = 5000000000ULL;
     std::size_t memoryBudgetBytes = 256*1024*1024;
     std::optional<ResourceLedger> resources;
+    void *receiptContext = nullptr;
+    bool (*receipt)(void *,const PipeWireRenderCycle &) noexcept = nullptr; // Bounded RT-safe handoff.
 };
 enum class PipeWireRenderCode { Content, Warmup, Complete, Stopped, Fault };
 // One native process/return owner. Interleaved bank -> planar native buffers;

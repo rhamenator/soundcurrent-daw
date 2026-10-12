@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_monitor_render_stream.hpp>
+#include <soundcurrent/pipewire_receipt_queues.hpp>
+#include <soundcurrent/pipewire_receipt_codec.hpp>
 #include "rt_audit.hpp"
 #include <algorithm>
 #include <bit>
@@ -54,7 +56,9 @@ int main(){try{
         for(unsigned f=0;f<count;++f)for(unsigned c=0;c<3;++c)block[std::size_t(f)*3+c]=sample(first+offset+f,c);
         require(bank.publish({1,{first+offset},count},std::span<const float>(block).first(std::size_t(count)*3))==MonitorOutputCode::Accepted,"Owned finite producer refused");offset+=count;
     }
+    PreparedPipeWireReceiptQueues receipts;
     bank.finish();PipeWireMonitorRenderStreamOptions options;options.auditContext=&renderAudit;options.beginCallback=begin;options.endCallback=end;
+    options.render.receiptContext=&receipts;options.render.receipt=PreparedPipeWireReceiptQueues::renderSink;
     PipeWireMonitorRenderStream render(bank,clocks,std::move(options));
     const auto all=render.ports();std::vector<AudioPort> selected;
     for(unsigned channel=0;channel<3;++channel) {
@@ -63,21 +67,30 @@ int main(){try{
         require(it!=all.end(),"Owned destination channel missing");selected.push_back(*it);
     }
     render.connectOutputs(selected);receiver.activate();render.activate();
-    std::uint64_t readings=0;const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(8);
+    std::uint64_t readings=0,cycles=0,queued=0;const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(8);
+    const auto drainReceipts=[&]{PipeWireReceiptRecord<PipeWireRenderCycle> event;
+        while(receipts.read(event)==PipeWireReceiptCode::Ready){require(event.sequence==cycles && event.original.allQueued &&
+            event.original.returnClock==event.original.original,"Output receipt sequence/facts differ");
+            const auto bytes=encodePipeWireReceipt(event);const auto decoded=std::get<PipeWireReceiptRecord<PipeWireRenderCycle>>(decodePipeWireReceipt(bytes));
+            require(decoded.original.original==event.original.original && decoded.original.returns[2]==event.original.returns[2],"Per-packet versioned render provenance changed");
+            ++cycles;queued+=event.original.monitorFrames;}};
     while((!render.contentComplete() || sink.received.load()<frames || !sink.padding.load()) && std::chrono::steady_clock::now()<until) {
         MonitorClockRecord<RenderClockReading> reading;while(clocks.read(reading).code==MonitorClockCode::Ready)++readings;
+        drainReceipts();
         if(render.firstFault())break;
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    render.stop();receiver.stop();const auto receipt=render.endAfterJoin();
+    render.stop();receipts.finishRender();drainReceipts();receiver.stop();const auto receipt=render.endAfterJoin();
     if(receipt && receipt->fault)std::cerr<<"native_render_fault cause="<<int(receipt->fault->cause)<<" consumed="<<receipt->monitorConsumedFrames<<" queued="<<receipt->monitorQueuedFrames<<'\n';
     require(receipt && receipt->contentComplete && receipt->callbacksJoined && !receipt->fault && !receipt->unavailable,"Genuine render ended with fault/incomplete content");
     require(receipt->monitorConsumedFrames==frames && receipt->monitorQueuedFrames==frames && sink.received.load()==frames && !sink.bad.load(),"Native queued/sink PCM extent or bits differ");
+    require(cycles==receipt->cycles && queued==frames,"Per-cycle native return receipts lost");
     require(sink.padding.load()>=133 && receipt->lastContent->requestedFrames==256 && receipt->lastContent->monitorFrames==123,"Final native padding not observed");
     require(!renderAudit.bad.load(),"Actual render callbacks allocated/freed/locked");
     std::cout<<"owned_pipewire_render monitor_consumed="<<receipt->monitorConsumedFrames<<" monitor_queued="<<receipt->monitorQueuedFrames
              <<" native_queued="<<receipt->nativeQueuedFrames<<" sink_received="<<sink.received<<" sink_padding="<<sink.padding<<" clock_readings="<<readings
              <<" exact_queue_result="<<*receipt->lastContent->returns[0].queueResult<<" content_complete_after_return=true"
-             <<" final_monitor_frames=123 final_padding_frames=133 float_bit_checks="<<frames*3<<" callback_allocate_free_lock=0 physical_audio=false private_owned_daemon=true\n";
+             <<" final_monitor_frames=123 final_padding_frames=133 float_bit_checks="<<frames*3<<" receipt_cycles="<<cycles
+             <<" receipt_monitor_queued="<<queued<<" callback_allocate_free_lock=0 physical_audio=false private_owned_daemon=true\n";
     return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

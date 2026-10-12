@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_monitor_capture_stream.hpp>
+#include <soundcurrent/pipewire_receipt_queues.hpp>
+#include <soundcurrent/pipewire_receipt_codec.hpp>
 #include "rt_audit.hpp"
 #include <array>
 #include <algorithm>
@@ -38,7 +40,9 @@ int main() {
         fc.capture.maximumPacketFrames=2048;fc.capture.slots=64;fc.monitorSlots=64;
         PreparedCaptureFanout f(fc);MonitorClockHandoffConfig hc;hc.captureIdentity=fc.capture.identity;
         hc.timestampDomain=MonitorClockDomain::PosixMonotonic100ns;PreparedMonitorClockHandoff h(hc);
+        PreparedPipeWireReceiptQueues receipts;
         PipeWireMonitorCaptureStreamOptions options;options.auditContext=&captureAudit;
+        options.capture.receiptContext=&receipts;options.capture.receipt=PreparedPipeWireReceiptQueues::captureSink;
         options.beginCallback=begin;options.endCallback=end;
         PipeWireMonitorCaptureStream capture(f,h,std::move(options));
         std::array<AudioPort,3> selected;
@@ -50,7 +54,7 @@ int main() {
         }
         capture.connectInputs({selected.begin(),selected.end()});
         source.activate();capture.activate();
-        std::uint64_t raw=0,monitor=0,readings=0,samples=0;
+        std::uint64_t raw=0,monitor=0,readings=0,samples=0,cycles=0,returned=0,receiptRaw=0;
         const auto drain=[&] {
             for(unsigned side=0;side<2;++side)for(;;){
                 CaptureBankView v;const auto code=side?f.acquireMonitor(v):f.acquireRaw(v);
@@ -63,10 +67,19 @@ int main() {
             }
             MonitorClockRecord<CaptureClockReading> clock;
             while(h.read(clock).code==MonitorClockCode::Ready){require(clock.original.identity==fc.capture.identity && clock.original.qpc.value,"Real capture clock missing");++readings;}
+            PipeWireReceiptRecord<PipeWireCaptureCycle> event;
+            while(receipts.read(event)==PipeWireReceiptCode::Ready){
+                require(event.sequence==cycles && event.original.returnClock==event.original.original &&
+                    event.original.allReturned && event.original.returns[0].queueResult==0,"Actual native input return facts differ");
+                const auto bytes=encodePipeWireReceipt(event);
+                const auto decoded=std::get<PipeWireReceiptRecord<PipeWireCaptureCycle>>(decodePipeWireReceipt(bytes));
+                require(decoded.original.original==event.original.original && decoded.original.returns[2]==event.original.returns[2],"Per-packet versioned capture provenance changed");
+                ++cycles;returned+=event.original.requestedFrames;receiptRaw+=event.original.rawFrames;
+            }
         };
         const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(8);
         while(raw<96000 && std::chrono::steady_clock::now()<until){drain();std::this_thread::sleep_for(std::chrono::milliseconds(1));}
-        capture.stop();drain();source.stop();const auto receipt=capture.endAfterJoin();
+        capture.stop();receipts.finishCapture();drain();source.stop();const auto receipt=capture.endAfterJoin();
         if(receipt && (receipt->fault || receipt->unavailable)) {
             std::cerr<<"native_fault cause="<<(receipt->fault ? int(receipt->fault->cause) : -1)
                      <<" unavailable="<<(receipt->unavailable ? int(*receipt->unavailable) : -1)
@@ -80,12 +93,14 @@ int main() {
         }
         require(receipt && receipt->callbacksJoined && !receipt->fault && !receipt->unavailable,"Native capture ended with fault");
         require(raw>=96000 && raw==monitor && raw==receipt->acceptedRawFrames && readings==receipt->acceptedPackets,"Owned native counts differ");
+        require(cycles==receipt->completedCycles && receiptRaw==raw && returned>=raw && returned==receipt->nativeReturnedFrames,"Original returned/captured cycles lost");
         require(!sourceAudit.bad.load() && !captureAudit.bad.load(),"Actual PipeWire callbacks allocated/freed/locked");
         require(f.producerDone() && h.captureDone(),"Native join did not publish EOF");
         std::cout<<"owned_pipewire_capture raw_frames="<<raw<<" monitor_frames="<<monitor<<" packets="<<readings<<" bit_checks="<<samples
                  <<" original_nsec_first="<<receipt->firstAccepted->monotonicNs<<" original_nsec_last="<<receipt->lastAccepted->monotonicNs
                  <<" graph_clock="<<receipt->firstAccepted->id<<" graph_cycle="<<receipt->firstAccepted->cycle
                  <<" source_callbacks="<<sourceAudit.callbacks<<" capture_callbacks="<<captureAudit.callbacks
+                 <<" returned_frames="<<returned<<" receipt_cycles="<<cycles<<" exact_input_queue_result=0"
                  <<" callback_allocate_free_lock=0 native_daemon=true private_owned_route=true physical_audio=false monitor_render=false\n";
         return 0;
     } catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}
