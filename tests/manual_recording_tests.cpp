@@ -30,6 +30,15 @@ void check(bool ok, const char *message,
         throw std::runtime_error(message);
     }
 }
+// Test control owner only. Flush each original case boundary so an outer CTest
+// timeout retains the last entered case even when no exception can unwind.
+template<class F> void caseTrace(const char *name,F &&run,bool early=false,bool mixed=false) {
+    const auto begin=std::chrono::steady_clock::now();
+    std::cerr<<"manual_case begin="<<name<<" early="<<early<<" mixed="<<mixed<<" workflow="<<workflows<<'\n';
+    run();
+    const auto elapsed=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-begin).count();
+    std::cerr<<"manual_case end="<<name<<" early="<<early<<" mixed="<<mixed<<" elapsed_ns="<<elapsed<<" workflow="<<workflows<<'\n';
+}
 void preservedFailureDiagnostic(std::ostream &out, const std::filesystem::path &root) noexcept {
     // Native path insertion narrows through the locale on Windows and can throw
     // for this Unicode fixture while already unwinding, masking the first error.
@@ -1223,33 +1232,33 @@ void concurrentOwner() {
 int main(int argc,char **argv) {
     try {
         if(argc==2 && std::string_view(argv[1])=="--concurrent-owner-diagnostics") {
-            concurrentOwner();
+            caseTrace("concurrent-owner",[]{concurrentOwner();});
             std::cout<<"original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false\n";
             return 0;
         }
         check(argc==1,"Unknown manual owner diagnostic argument");
         rt_audit::reset();
-        repeated(256, false, false);
-        repeated(127, true, true);
-        repeated(31, true, false);
+        caseTrace("repeated-256",[]{repeated(256, false, false);});
+        caseTrace("repeated-127",[]{repeated(127, true, true);});
+        caseTrace("repeated-31",[]{repeated(31, true, false);});
         for (bool early : {false, true})
             for (bool mixed : {false, true})
-                emptyAndMixed(early, mixed);
-        writerFailure(0, false);
-        writerFailure(1, false);
-        writerFailure(1, true);
-        interruption(false, DuplexStatus::Stopped);
-        interruption(false, DuplexStatus::DeviceLost);
-        interruption(true, DuplexStatus::Stopped);
-        activeDiskFailure();
-        poolExhaustion();
-        lateCancellation(false);
-        lateCancellation(true);
-        backpressure();
-        readyGroupPressure();
-        heldFinalizationDiagnostic();
-        heldFirstWriteDiagnostic();
-        concurrentOwner();
+                caseTrace("empty-and-mixed",[&]{emptyAndMixed(early, mixed);},early,mixed);
+        caseTrace("writerFailure",[]{writerFailure(0, false);});
+        caseTrace("writerFailure",[]{writerFailure(1, false);});
+        caseTrace("writerFailure",[]{writerFailure(1, true);});
+        caseTrace("interruption",[]{interruption(false, DuplexStatus::Stopped);});
+        caseTrace("interruption",[]{interruption(false, DuplexStatus::DeviceLost);});
+        caseTrace("interruption",[]{interruption(true, DuplexStatus::Stopped);});
+        caseTrace("activeDiskFailure",[]{activeDiskFailure();});
+        caseTrace("poolExhaustion",[]{poolExhaustion();});
+        caseTrace("lateCancellation",[]{lateCancellation(false);});
+        caseTrace("lateCancellation",[]{lateCancellation(true);});
+        caseTrace("backpressure",[]{backpressure();});
+        caseTrace("readyGroupPressure",[]{readyGroupPressure();});
+        caseTrace("heldFinalizationDiagnostic",[]{heldFinalizationDiagnostic();});
+        caseTrace("heldFirstWriteDiagnostic",[]{heldFirstWriteDiagnostic();});
+        caseTrace("concurrent-owner",[]{concurrentOwner();});
         const auto c = rt_audit::counts;
         check(c.cppAllocate + c.cppFree + c.cAllocate + c.cFree + c.blockingLock == 0,
               "Control callback allocated/freed/locked");
