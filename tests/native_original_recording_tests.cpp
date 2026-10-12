@@ -84,7 +84,7 @@ void originalExport() {
         refuses([&]{exportNativeOriginalWav(t.root,job,declared,t.root/"project.wav");});
         auto tiny=options;tiny.resources=ResourceLedger(1);refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"tiny.wav",tiny);});
         check(tiny.resources.usage().reservedBytes==0,"Refused native export leaked credit");
-        auto small=options;small.maximumBytes=1;refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"small.wav",small);});
+        auto byteLimited=options;byteLimited.maximumBytes=1;refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"small.wav",byteLimited);});
         bool cancel=false;auto canceled=options;canceled.canceled=[&]{return cancel;};canceled.progress=[&](auto,auto){cancel=true;};
         refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"cancel.wav",canceled);});
         check(!std::filesystem::exists(directory/"cancel.wav"),"Canceled copy published a destination");
