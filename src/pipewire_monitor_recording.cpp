@@ -107,6 +107,7 @@ struct PipeWireMonitorRecording::State {
                 r.prefix->monitorQueuedFrames==route->output().acceptedFrames() && r.prefix->monitorQueuedFrames==route->output().deliveredFrames())r.disposition=PipeWireRecordingDisposition::Recorded;
         if(durable && r.prefix){PipeWireJoinedOutcome o;o.disposition=PipeWireStoredDisposition(unsigned(r.disposition));o.capture=r.capture;o.render=r.render;o.stop=r.stop;o.startup=r.startup;
             o.processingFault=r.processingFault;o.fanoutFault=r.fanoutFault;o.clockFault=r.clockFault;o.bufferFault=r.bufferFault;o.equalizerFault=r.equalizerFault;o.captureReceiptFault=r.captureReceiptFault;o.renderReceiptFault=r.renderReceiptFault;
+            o.captureClockFault=r.captureClockFault;o.renderClockFault=r.renderClockFault;o.captureClockCounts=r.captureClockCounts;o.renderClockCounts=r.renderClockCounts;
             o.activationFailure=bool(r.activationFailure);o.diskFailure=bool(r.diskFailure);o.storageFailure=bool(r.storageFailure);o.recoveryFailure=bool(r.recoveryFailure);o.waitFailure=r.waitFailure;o.processingWaitCalls=r.processingWaitCalls;o.diskWaitCalls=r.diskWaitCalls;
             try{durable->finalize(*r.prefix,o);r.terminalStored=true;}catch(...){r.terminalFailure=std::current_exception();r.disposition=PipeWireRecordingDisposition::Failed;}}
         durable.reset();result=r;return r;

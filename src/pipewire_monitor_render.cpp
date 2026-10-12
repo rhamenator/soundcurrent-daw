@@ -163,7 +163,10 @@ void PreparedPipeWireMonitorRender::completeCycle(const PipeWireCycleReceipt &r)
         end_.monitorQueuedFrames+=cycle.monitorFrames;
         end_.silentQueuedFrames+=cycle.requestedFrames-cycle.monitorFrames;
         if(cycle.warmup)end_.warmupQueuedFrames+=cycle.requestedFrames;
-        if(cycle.finalContent && !firstFault())complete_.store(1,std::memory_order_release);
+        if(cycle.finalContent && !firstFault()) {
+            if(!end_.completion)end_.completion=cycle;
+            complete_.store(1,std::memory_order_release);
+        }
     }
     if(options_.receipt && !options_.receipt(options_.receiptContext,cycle)) {
         fail(PipeWireRenderCause::ReceiptPressure,cycle.original);

@@ -38,18 +38,27 @@ void normal(){Temp t;auto i=intent(t.root);const auto job=prepare(t.root,i);
     auto outcome=failed();PipeWireCaptureCycle rejected;rejected.channels=0;rejected.returnedChannels=UINT64_MAX;rejected.returns[255].status=PipeWireBufferStatus(99);rejected.returns[255].queueResult=INT32_MIN;
     outcome.captureReceiptFault=PipeWireReceiptFault<PipeWireCaptureCycle>{PipeWireReceiptCause::InvalidCycle,PipeWireReceiptRecord<PipeWireCaptureCycle>{1,UINT64_MAX,rejected}};
     outcome.equalizerFault=EqReport{ProcessStatus::InvalidBuffer,17,UINT64_MAX,23,std::bit_cast<double>(std::uint64_t(0x7ff8000000000013ULL))};
+    outcome.captureClockFault=MonitorClockFault<CaptureClockReading>{MonitorClockCause::QueueFull,CaptureClockReading{{11,31,7},{UINT64_MAX},{UINT64_MAX},ClockReliability::Delayed,true}};
+    outcome.captureClockCounts={9,5,4};outcome.renderClockCounts={UINT64_MAX,UINT64_MAX,0};
     {PipeWireRecordingState state(job,i);refuses([&]{inspectPipeWireRecordingState(job);});
         state.select(i.inputs,i.outputs);const auto prefix=inspectPipeWireRecording(job,i.expected);state.finalize(prefix,outcome);}
     const auto s=inspectPipeWireRecordingState(job,i.expected);check(s.terminal && s.outcome && s.outcome->activationFailure && s.outcome->waitFailure==((std::uint64_t(2)<<32)|31) && s.intent.inputs==i.inputs && s.intent.outputs==i.outputs,"Original routes/failure widths changed");
     check(s.outcome->captureReceiptFault->attempted->sequence==UINT64_MAX && s.outcome->captureReceiptFault->attempted->original.returnedChannels==UINT64_MAX &&
           unsigned(s.outcome->captureReceiptFault->attempted->original.returns[255].status)==99 && s.outcome->captureReceiptFault->attempted->original.returns[255].queueResult==INT32_MIN &&
           std::bit_cast<std::uint64_t>(s.outcome->equalizerFault->peak)==0x7ff8000000000013ULL,"Rejected originals/nonfinite peak bits lost");
-    const auto raw=read(s.prefix.raw.source),manifest=read(job/"pipewire-owner.json");auto j=J::parse(manifest);j["minor"]=1;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
+    check(s.outcome->captureClockFault && s.outcome->captureClockFault->cause==MonitorClockCause::QueueFull &&
+          s.outcome->captureClockFault->attempted->qpc.value==UINT64_MAX && s.outcome->captureClockFault->attempted->discontinuity &&
+          s.outcome->captureClockCounts.discarded==4 && s.outcome->renderClockCounts.delivered==UINT64_MAX,"Original handoff clock facts lost");
+    const auto raw=read(s.prefix.raw.source),manifest=read(job/"pipewire-owner.json");auto j=J::parse(manifest);j["minor"]=2;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     j=J::parse(manifest);j["prefix"]["rawFrames"]=17;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     j=J::parse(manifest);const auto file=job/j["outcome"]["file"].get<std::string>();const auto bytes=read(file);auto corrupt=bytes;corrupt.back()^=1;write(file,corrupt);refuses([&]{inspectPipeWireRecordingState(job);});write(file,bytes);
     const auto replaceOutcome=[&](J edited){const auto b=edited.dump();write(file,b);auto m=J::parse(manifest);m["outcome"]["bytes"]=b.size();media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(b.data()),b.size()});m["outcome"]["sha256"]=h.digest();write(job/"pipewire-owner.json",m.dump());};
     auto edited=J::parse(bytes);edited["disposition"]=0;replaceOutcome(edited);refuses([&]{inspectPipeWireRecordingState(job);});
     edited=J::parse(bytes);edited["capture"]["fault"]["cause"]=999;replaceOutcome(edited);refuses([&]{inspectPipeWireRecordingState(job);});
+    edited=J::parse(bytes);edited["captureClock"]["discarded"]=5;replaceOutcome(edited);refuses([&]{inspectPipeWireRecordingState(job);});
+    edited=J::parse(bytes);edited.erase("captureClock");edited.erase("renderClock");edited["render"].erase("completion");replaceOutcome(edited);
+    auto legacy=J::parse(read(job/"pipewire-owner.json"));legacy["minor"]=0;write(job/"pipewire-owner.json",legacy.dump());
+    check(inspectPipeWireRecordingState(job).terminal && !inspectPipeWireRecordingState(job).outcome->captureClockFault,"Legacy1.0 outcome migration invented clock evidence");
     write(file,bytes);write(job/"pipewire-owner.json",manifest);
     auto duplicate=manifest;duplicate.insert(duplicate.find('{')+1,"\"major\":1,");write(job/"pipewire-owner.json",duplicate);refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     auto foreign=i.expected;foreign.raw.project=Id::generate();refuses([&]{inspectPipeWireRecordingState(job,foreign);});ResourceLedger tiny(16);refuses([&]{inspectPipeWireRecordingState(job,{},tiny);});

@@ -17,6 +17,9 @@ struct PipeWireJoinedOutcome {
     std::optional<MonitorProcessingFault> processingFault;
     std::optional<CaptureFanoutFault> fanoutFault;
     std::optional<MonitorDriftFault> clockFault;
+    std::optional<MonitorClockFault<CaptureClockReading>> captureClockFault;
+    std::optional<MonitorClockFault<RenderClockReading>> renderClockFault;
+    MonitorClockCounts captureClockCounts{},renderClockCounts{};
     std::optional<MonitorBufferFault> bufferFault;
     std::optional<EqReport> equalizerFault;
     std::optional<PipeWireReceiptFault<PipeWireCaptureCycle>> captureReceiptFault;

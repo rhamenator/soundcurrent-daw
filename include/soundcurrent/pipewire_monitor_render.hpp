@@ -28,6 +28,7 @@ struct PipeWireRenderCycle {
 };
 struct PipeWireRenderEnd {
     std::optional<PipeWireRenderCycle> first, last, lastContent, faultCycle;
+    std::optional<PipeWireRenderCycle> completion; // First valid final return, survives later silent callbacks.
     std::optional<PipeWireRenderFault> fault;
     std::optional<AudioBridgeStatus> unavailable;
     std::uint64_t cycles = 0, monitorConsumedFrames = 0, monitorQueuedFrames = 0,

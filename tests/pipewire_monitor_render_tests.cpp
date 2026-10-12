@@ -65,7 +65,8 @@ void exactAndFinal(){
         complete(r,later,3);
         r.finishAfterJoin();r.finishAfterJoin();const auto e=r.endAfterJoin();
         check(e && e->contentComplete && e->callbacksJoined && !e->fault && e->monitorConsumedFrames==22 && e->monitorQueuedFrames==22 &&
-            e->nativeQueuedFrames==51 && e->silentQueuedFrames==29 && e->lastContent->returns[1].queueResult==7 && e->lastContent->finalContent,"Native finite receipt counters/results incorrect");
+            e->nativeQueuedFrames==51 && e->silentQueuedFrames==29 && e->lastContent->returns[1].queueResult==7 && e->lastContent->finalContent &&
+            e->completion && e->completion->original==clock(1) && e->completion->returns[1].queueResult==7 && !e->last->finalContent,"Native finite receipt counters/results incorrect");
     }
     check(!ledger.usage().reservedBytes,"Render payload did not retire");
 }
@@ -95,9 +96,12 @@ void finishAfterLastContent(){
     b.finish();const auto final=clock(1);
     check(rt([&]{return r.process(final,p.views,17);})==PipeWireRenderCode::Complete,"Silent final receipt refused");
     for(auto *plane:p.views)for(unsigned n=0;n<17;++n)check(plane[n]==0,"Final silent receipt repeated audio");
-    complete(r,final,3);drainClock(h,final);r.finishAfterJoin();const auto e=r.endAfterJoin();
+    complete(r,final,3);drainClock(h,final);
+    const auto later=clock(2);check(rt([&]{return r.process(later,p.views,17);})==PipeWireRenderCode::Complete,"Later completed callback refused");
+    complete(r,later,3);r.finishAfterJoin();const auto e=r.endAfterJoin();
     check(e && e->contentComplete && !e->fault && e->lastContent && !e->lastContent->finalContent &&
-          e->last && e->last->finalContent && e->last->monitorFrames==0 && e->monitorQueuedFrames==17 && e->nativeQueuedFrames==34,
+          e->last && !e->last->finalContent && e->completion && e->completion->original==final && e->completion->monitorFrames==0 &&
+          e->completion->finalContent && e->completion->allQueued && e->monitorQueuedFrames==17 && e->nativeQueuedFrames==51,
           "Last content and actual completion receipt were conflated");
 }
 void returnFacts(){

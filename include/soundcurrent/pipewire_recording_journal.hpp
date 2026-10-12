@@ -25,6 +25,7 @@ struct PipeWireRecordingPrefix {
                   rawReceiptFrames = 0,monitorQueuedFrames = 0,nativeQueuedFrames = 0;
     std::string captureSha256,renderSha256;
     bool finalized = false; // Stored paired-prefix declaration, not audible/native lifecycle completion.
+    std::optional<PipeWireReceiptRecord<PipeWireRenderCycle>> completion; // Verified original first valid final return.
 };
 // ONE serialized disk owner. Holds raw and independent native-sidecar leases.
 // Paired raw/capture receipt writes, bounded records and durable prefix manifests.

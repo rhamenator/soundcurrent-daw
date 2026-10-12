@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_monitor_recording.hpp>
 #include "media_io.hpp"
+#include "pipewire_state_codec.hpp"
 #include "rt_audit.hpp"
 #include <sndfile.h>
 #include <array>
@@ -105,7 +106,23 @@ void workflow(){Temp t;auto o=options(t);auto shared=std::make_shared<Shared>();
               encodeMonitorEq(*stored.intent.processing.equalizer,48000,2)==encodeMonitorEq(*o.route.equalizer,48000,2) &&
               stored.outcome->startup==result.startup && stored.outcome->capture->acceptedRawFrames==result.capture->acceptedRawFrames,
               "Reopened route/EQ/startup/native outcome changed");
+        check(stored.outcome->render->completion && stored.prefix.completion &&
+              encodePipeWireReceipt(PipeWireReceiptRecord<PipeWireRenderCycle>{1,stored.prefix.completion->sequence,*stored.outcome->render->completion})==encodePipeWireReceipt(*stored.prefix.completion) &&
+              stored.outcome->captureClockCounts.accepted==result.captureClockCounts.accepted && stored.outcome->renderClockCounts.delivered==result.renderClockCounts.delivered,
+              "Reopened completion/clock handoff evidence differs from verified native facts");
         check(result.prefix->monitorQueuedFrames==2400 && shared->output.size()==4800 && result.capture->callbacksJoined && result.render->callbacksJoined,"Native finite extents/joins wrong");
+        // Validate the terminal receipt independently of later silent callbacks.
+        auto terminal=*stored.outcome;auto verified=stored.prefix;
+        auto final=*terminal.render->completion;final.monitorFrames=0;
+        terminal.render->completion=final;verified.completion->original=final;
+        auto later=final;later.finalContent=false;++later.original.cycle;later.original.position+=later.requestedFrames;
+        later.original.monotonicNs+=10000000;later.returnClock=later.original;
+        terminal.render->last=later;
+        terminal.render->lastContent->finalContent=false;
+        pw_state::validateOutcome(stored.intent,verified,terminal);check(true,"Silent final return with later callback refused");
+        terminal.render->completion->returns[0].queueResult=7;bool refused=false;
+        try{pw_state::validateOutcome(stored.intent,verified,terminal);}catch(const ProjectError &){refused=true;}
+        check(refused,"Rehashed foreign completion return accepted");
         original(*result.prefix);double energy=0;for(unsigned n=960;n<2400;++n){const auto l=shared->output[n*2],r=shared->output[n*2+1];energy+=double(l)*l;check(std::abs(r+.5*l)<.001,"Native monitor matrix mismatch");}
         check(std::abs(std::sqrt(energy/1440)-3*std::pow(10.,-6./20.)/std::sqrt(2.))<.01,"Native monitor EQ response mismatch");
         MonitorControlReceipt receipt;check(owner.receiveStopReceipt(receipt)==MonitorControlCode::Ready && receipt.result==MonitorControlResult::Planned,"Applied Stop receipt missing");

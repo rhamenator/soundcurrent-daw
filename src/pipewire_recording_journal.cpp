@@ -119,7 +119,9 @@ PipeWireRecordingPrefix inspectPipeWireRecording(const std::filesystem::path &jo
             add(cb,bytes.size());ch.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});}
         for(std::uint64_t n=0;n<p.renderRecords;++n){at();const auto bytes=readRecord(renders,p.renderBytes-rb);const auto decoded=decodePipeWireReceipt(std::string_view(bytes).substr(4));
             const auto *record=std::get_if<PipeWireReceiptRecord<PipeWireRenderCycle>>(&decoded);require(record && record->generation==s.generation && record->sequence==n,"Native render role/sequence mismatch");renderGeometry(record->original,s);
-            if(record->original.allQueued){add(monitorFrames,record->original.monitorFrames);add(nativeFrames,record->original.requestedFrames);}add(rb,bytes.size());rh.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});}
+            if(record->original.allQueued){add(monitorFrames,record->original.monitorFrames);add(nativeFrames,record->original.requestedFrames);
+                if(record->original.finalContent && !p.completion)p.completion=*record;
+            }add(rb,bytes.size());rh.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});}
         require(cb==p.captureBytes && rb==p.renderBytes && ch.digest()==p.captureSha256 && rh.digest()==p.renderSha256 && rawFrames==p.raw.committedFrames && rawPackets==p.raw.committedPackets &&
             monitorFrames==p.monitorQueuedFrames && nativeFrames==p.nativeQueuedFrames,"Native/raw common prefix digest/count mismatch");
         if(p.finalized)require(captures.readBounded(1).empty() && renders.readBounded(1).empty(),"Finalized native receipt file has extra data");

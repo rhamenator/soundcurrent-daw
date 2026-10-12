@@ -53,7 +53,8 @@ void normal(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     {PreparedCaptureFanout f(config(s));PipeWireJournalOptions o;o.raw.checkpointFrames=17;o.checkpointRecords=64;PipeWireRecordingJournal w(t.root,s,o);job=w.jobDirectory();
         refuses([&]{inspectPipeWireRecording(job,s);});append(w,f,s,0);w.checkpoint();append(w,f,s,1);finish(w,f);}
     const auto p=inspectPipeWireRecording(job,s);check(p.finalized && p.raw.finalized && p.raw.committedFrames==34 && p.raw.committedPackets==2 &&
-        p.captureRecords==2 && p.renderRecords==2 && p.monitorQueuedFrames==34 && p.nativeQueuedFrames==34,"Final paired native/raw prefix incorrect");
+        p.captureRecords==2 && p.renderRecords==2 && p.monitorQueuedFrames==34 && p.nativeQueuedFrames==34 &&
+        p.completion && p.completion->sequence==1 && p.completion->original.original==clock(1),"Final paired native/raw prefix incorrect");
     const auto original=read(job/"take.wav");const auto captureBytes=read(job/"capture-cycles.bin");auto corrupt=captureBytes;corrupt.back()^=char(1);write(job/"capture-cycles.bin",corrupt);
     refuses([&]{inspectPipeWireRecording(job,s);});write(job/"capture-cycles.bin",captureBytes);
     write(job/"capture-cycles.bin",captureBytes+"x");refuses([&]{inspectPipeWireRecording(job,s);});write(job/"capture-cycles.bin",captureBytes);
@@ -69,7 +70,7 @@ void normal(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
 void checkpointTail(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     {PreparedCaptureFanout f(config(s));PipeWireRecordingJournal w(t.root,s);job=w.jobDirectory();append(w,f,s,0);w.checkpoint();append(w,f,s,1);}
     const auto native=inspectPipeWireRecording(job,s);const auto raw=inspectOriginalRecording(job,s.raw);
-    check(!native.finalized && native.raw.committedFrames==17 && raw.committedFrames<=34 && native.captureRecords==1,"Uncommitted native tail became checkpointed data");
+    check(!native.finalized && native.raw.committedFrames==17 && raw.committedFrames<=34 && native.captureRecords==1 && !native.completion,"Uncommitted native tail became checkpointed data");
     const auto before=read(job/"capture-cycles.bin");check(inspectPipeWireRecording(job,s).captureBytes<before.size() && read(job/"capture-cycles.bin")==before,"Recovery truncated receipt tails");
 }
 void failedNativeFacts(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
