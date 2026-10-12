@@ -1,0 +1,32 @@
+{
+  "source": "dd4aedc2c3fc50cddf1d3affeee4aee616d87772",
+  "tree": "aa66ce046278a2d88dcbc0fbad44fe686fdb7edf",
+  "sourceInputs": 780,
+  "probeOriginalSource": "8625d5fc78d4ea721bbe09e471a0ad7ce655033a",
+  "probeInputsUnchangedAtFinalExceptUnrelatedManualFixture": true,
+  "probeCurrentGeneratedObjects": 9,
+  "linuxOriginalFourInterruptionCasesSeconds": 7.43,
+  "cppProbeTimestampDomainRuntimeVerified": true,
+  "pythonObservationChecks": 16,
+  "manualOriginalCases": 22,
+  "manualTestTimesSeconds": {
+    "release": 1.14,
+    "sanitizer": 4.18,
+    "tsan": 2.91
+  },
+  "manualThreeOriginalStandaloneCompletions": true,
+  "guardedViolations": 0,
+  "windowsManualCurrentObjectCompiled": true,
+  "windowsTimingDriverExecuted": false,
+  "originalWatchdogSeconds": 5,
+  "originalManualOuterCtestSeconds": 60,
+  "originalManualConcurrentTakes": 20,
+  "uiInventoryAddedSourceFiles": 3,
+  "catalogs": 34,
+  "catalogSourceKeys": 917,
+  "catalogRefusalWorkflows": 13,
+  "nativeLanguageReviewOrUiQualificationPromoted": false,
+  "productionWorkerControllerOrDeadlinesChanged": false,
+  "binariesOrMediaIncluded": false,
+  "fullGoalComplete": false
+}

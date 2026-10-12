@@ -1,0 +1,37 @@
+{
+  "source": "93348d4c19fc0905a591bd012d4b327fc068b42e",
+  "tree": "4f277108b345e899019ef7aa695676283f755ed5",
+  "sourceInputs": 786,
+  "release": {
+    "coreSeconds": 0.57,
+    "localizationSeconds": 0.63,
+    "panelSeconds": 9.87,
+    "totalSeconds": 11.07,
+    "panelChecks": 73,
+    "nativeOutcomeChecks": 1608,
+    "allPassed": true
+  },
+  "asanUbsan": {
+    "coreSeconds": 18.41,
+    "localizationSeconds": 1.62,
+    "panelSeconds": 11.19,
+    "totalSeconds": 31.22,
+    "freshObjects": 14,
+    "allPassed": true
+  },
+  "windowsCurrentCoreObjects": 5,
+  "windowsWarningFree": true,
+  "windowsRuntimeQualified": false,
+  "physicalEndpointsQualified": false,
+  "installedPreviewQualified": false,
+  "guiTsanQualified": false,
+  "sourceByteIdentityQualified": true,
+  "exactRf64ExtentQualified": true,
+  "originalFailuresRetained": true,
+  "catalogs": 34,
+  "sourceKeys": 966,
+  "draftTranslations": 3168,
+  "nativeLanguageReviews": 0,
+  "fullyQualifiedLanguages": 0,
+  "noBinaryOrAudioPayload": true
+}
