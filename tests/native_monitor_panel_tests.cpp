@@ -54,7 +54,7 @@ void finitePanel(const std::filesystem::path &root){
     check(panel.snapshot()->reopened->raw.sampleSha256==result->result->prefix->raw.sampleSha256 && control<QLabel>(panel,"nativeReceipt")->text().contains("verified"),"Visible inspect failed original raw binding");
     check(control<QPushButton>(panel,"nativeExportOriginal")->isEnabled(),"Retained native result cannot export original WAV");
     std::filesystem::create_directory(root/"exports");const auto exported=root/"exports"/std::filesystem::path(u8"Original – été.wav");
-    check(panel.exportOriginal(exported),"Native panel export command refused");await([&]{return bool(panel.snapshot()->exported);});panel.poll();
+    check(panel.exportOriginal(exported),"Native panel export command refused");await([&]{const auto current=panel.snapshot();if(current->error)throw std::runtime_error("Native export worker refusal: "+current->diagnostic);return bool(current->exported);});panel.poll();
     check(panel.snapshot()->exported->frames==result->result->prefix->raw.committedFrames && hashMediaFile(exported)==hashMediaFile(result->job/"take.wav") &&
         control<QLabel>(panel,"nativeReceipt")->text().contains("Original WAV exported") && ProjectStore(root).load()==original,"Native panel export changed capture/project or lost receipt");
     const auto serial=panel.snapshot()->errorSerial;check(panel.exportOriginal(exported),"Existing-target export not queued for worker refusal");
