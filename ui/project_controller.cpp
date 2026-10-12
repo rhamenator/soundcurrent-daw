@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "project_controller.hpp"
+#include <soundcurrent/native_take_admission.hpp>
 #include <soundcurrent/warp.hpp>
 #include <soundcurrent/stretch_render_protocol.hpp>
 #include <QMutex>
@@ -479,6 +480,11 @@ struct ProjectController::State : QThread {
             }
             if(command.stretchResult && (!command.structuralGuard || !command.edits.empty() || !command.stretchResult->ownedBy(memory)))
                 throw ProjectError(ErrorCode::InvalidState,"Unbound or unadmitted stretch result");
+            if(command.nativeTake && (!command.structuralGuard || command.stretchResult || !command.edits.empty() ||
+                !command.nativeTake->ownedBy(memory) || command.nativeTake->project()!=model->id || command.nativeTake->root()!=view.root))
+                throw ProjectError(ErrorCode::InvalidState,"Native take adoption requires verified current project evidence");
+            if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<InsertNativeTake>(e);}))
+                throw ProjectError(ErrorCode::InvalidState,"Desktop native take adoption requires a verified result");
             if(std::any_of(command.edits.begin(),command.edits.end(),[](const auto &e){return std::holds_alternative<ApplyClipStretch>(e);}))
                 throw ProjectError(ErrorCode::InvalidState,"Desktop stretch adoption requires a verified result");
             PayloadCharge stretchStaging("Verified stretch candidate staging",SIZE_MAX);
@@ -491,7 +497,8 @@ struct ProjectController::State : QThread {
             auto proposed = *model;
             std::vector<SessionEdit> verified;
             if(command.stretchResult)verified.push_back(command.stretchResult->edit());
-            applySessionEdits(proposed, command.stretchResult?verified:command.edits,
+            if(command.nativeTake)verified.push_back(command.nativeTake->edit());
+            applySessionEdits(proposed, (command.stretchResult || command.nativeTake)?verified:command.edits,
                               admission.state); // Reject before committing a gesture.
             if (proposed != *model &&
                 view.modelRevision == std::numeric_limits<std::uint64_t>::max())

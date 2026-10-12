@@ -1,0 +1,23 @@
+{
+  "head": "dab68358c865e73a0762259b9f3865c512a27598",
+  "base": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "testedMerge": "6c19076904dcbe736f402541a2410d400f1f3504",
+  "tree": "14b7734f436fa62f531323ae675fab73f305d198",
+  "run": 38171414742,
+  "nativeJob": 114564632661,
+  "nativeCtestSuites": 71,
+  "nativeCtestSeconds": 163.06,
+  "standaloneOwnerCompletions": 2,
+  "thirdStandaloneOwnerFailed": true,
+  "failureTakeIndex": 16,
+  "identity": 17,
+  "captureStatus": "QueueFull",
+  "duplexStatus": "CaptureFailed",
+  "retiredFrames": 8192,
+  "writerObservation": "WriteHashBegin",
+  "writtenFrames": 0,
+  "committedFrames": 0,
+  "rootCauseEstablished": false,
+  "ordinaryMergeAdmitted": false,
+  "productBinariesOrMediaIncluded": false
+}

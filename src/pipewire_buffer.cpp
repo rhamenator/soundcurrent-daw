@@ -68,8 +68,10 @@ extern "C" bool sc_pw_release_buffer(soundcurrent::daw::native::Port *port,
     using namespace soundcurrent::daw::native;
     if (!port || !lease)
         return false;
-    if (!lease->owned)
+    if (!lease->owned) {
+        lease->queueResult.reset();
         return true;
+    }
     auto *buffer = lease->owned;
     if (!port->input && lease->status == Acquisition::Invalid && buffer->buffer &&
         buffer->buffer->n_datas > 0 && buffer->buffer->datas && buffer->buffer->datas[0].chunk) {
@@ -81,5 +83,7 @@ extern "C" bool sc_pw_release_buffer(soundcurrent::daw::native::Port *port,
         chunk.flags = SPA_CHUNK_FLAG_EMPTY;
     }
     *lease = {};
-    return pw_filter_queue_buffer(port->key, buffer) >= 0;
+    const auto result = pw_filter_queue_buffer(port->key, buffer);
+    lease->queueResult = result;
+    return result >= 0;
 }

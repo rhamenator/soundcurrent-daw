@@ -70,6 +70,8 @@ void pressureAndFailures(){
     Model missing;check(missing.binding.bind(missing.context,missing.format),"Missing-owner bind");missing.context.settleAfterJoin();check(missing.stop.endReceipt()->status==MonitorCaptureEndStatus::OwnerLost && !missing.stop.endReceipt()->original.stopHresult && missing.f.producerDone() && missing.clocks.captureFault()->cause==MonitorClockCause::ProducerFailed,"Missing owner represented as successful Stop");
 }
 void admission(){Model m;auto fmt=m.format;fmt.identity.stream++;refuses([&]{PreparedWasapiMonitorCapture bad(fmt,m.f,m.clocks,m.stop);});refuses([&]{m.binding.bind(m.context,fmt);});
+    auto posix=m.cc;posix.timestampDomain=MonitorClockDomain::PosixMonotonic100ns;PreparedMonitorClockHandoff foreign(posix);
+    refuses([&]{PreparedWasapiMonitorCapture bad(m.format,m.f,foreign,m.stop);});
     for(unsigned kind=0;kind<3;++kind){auto f=m.format;if(kind==0)f.sampleRate++;if(kind==1)f.channels++;if(kind==2)f.maximumPacketFrames++;refuses([&]{PreparedWasapiMonitorCapture bad(f,m.f,m.clocks,m.stop);});}
     ResourceLedger ledger(65536,"Capture context test");WasapiMonitorCaptureOptions o;o.resources=ledger;o.memoryBudgetBytes=1;auto before=ledger.usage();refuses([&]{PreparedWasapiCaptureBinding bad(o);});check(ledger.usage()==before,"Failed admission changed ledger");
     o.memoryBudgetBytes=65536;{PreparedWasapiCaptureBinding b(o);PreparedWasapiMonitorCapture c(m.format,m.f,m.clocks,m.stop,o);check(ledger.usage().reservedBytes==b.chargedBytes()+c.chargedBytes(),"Whole context/binding charge missing");}check(!ledger.usage().reservedBytes,"Joined context/binding credit leaked");

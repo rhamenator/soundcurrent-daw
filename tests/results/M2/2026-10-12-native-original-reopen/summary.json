@@ -1,0 +1,52 @@
+{
+  "source": "95bc07330cfabe7d3aa1803fcd0f3b9f3a429375",
+  "tree": "acd94eb1f782fc693c7056adbdd6e6cac4eeea45",
+  "sourceInputs": 786,
+  "release": {
+    "tests": 4,
+    "seconds": 30.77,
+    "coreSeconds": 0.58,
+    "localizationSeconds": 0.65,
+    "panelSeconds": 9.99,
+    "nativeStartupSeconds": 19.54,
+    "panelChecks": 85,
+    "durableOutcomeChecks": 1662,
+    "allPassed": true
+  },
+  "asanUbsan": {
+    "tests": 4,
+    "seconds": 60.76,
+    "coreSeconds": 20.33,
+    "localizationSeconds": 1.93,
+    "panelSeconds": 11.49,
+    "nativeStartupSeconds": 27.01,
+    "allPassed": true
+  },
+  "desktopRegression": {
+    "tests": 2,
+    "seconds": 6.4,
+    "source": "eaa4e3728d5b8e31d03315e1816f3d30fc22ca92",
+    "onlyLaterSourceChange": "Separate callback and return statements in native_original_recording.cpp",
+    "allPassed": true
+  },
+  "windowsCurrentWarningFreeObjects": 6,
+  "windowsNativeRuntimeQualified": false,
+  "installedWorkflowQualified": false,
+  "physicalDevicesQualified": false,
+  "guiTsanQualified": false,
+  "restartedProjectTakeExportQualified": true,
+  "retainedPrefixCreditQualified": true,
+  "catalogs": 34,
+  "sourceKeys": 977,
+  "draftTranslations": 3168,
+  "nativeLanguageReviews": 0,
+  "fullyQualifiedLanguages": 0,
+  "originalFailuresRetained": true,
+  "precedingCiRun": 38208986550,
+  "precedingNativeCompilationFailed": true,
+  "precedingWindowsDesktopTests": 20,
+  "precedingWindowsDesktopSeconds": 51.17,
+  "precedingLinuxTests": 144,
+  "precedingLinuxSeconds": 431.16,
+  "noAudioOrBinaryPayload": true
+}

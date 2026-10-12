@@ -1,0 +1,15 @@
+{
+  "pullRequest": "https://github.com/rhamenator/soundcurrent-daw/pull/142",
+  "main": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "sourceHead": "c6eac6bddfc591b3c501a8e363dd7344f4caf563",
+  "testedMerge": "7fd6b918aadeac8be0d3d48f3b4e16be10968242",
+  "tree": "898cfa7f61acd4fae2367e91cb00e429f9a28481",
+  "jobs": 4,
+  "nativeSuites": 71,
+  "nativeSeconds": 185.83,
+  "nativeProcessRecoveryTestsExecuted": true,
+  "nativeHardwareQualified": false,
+  "originalWindowsFailureRootEstablished": false,
+  "policyChanged": false,
+  "binaryUploaded": false
+}
