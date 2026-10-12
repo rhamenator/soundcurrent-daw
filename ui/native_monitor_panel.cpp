@@ -8,6 +8,9 @@
 #include <QTimer>
 #include <QCloseEvent>
 #include <QSignalBlocker>
+#include <QComboBox>
+#include <QStandardItemModel>
+#include <QLocale>
 #include <limits>
 #include <algorithm>
 
@@ -20,9 +23,29 @@ QString deviceName(const std::vector<AudioPort> &ports) {
 }
 }
 NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget *parent,ResourceLedger memory)
-    :QGroupBox(parent),memory_(std::move(memory)),widgetCredit_(memory_.reserve(32768)),controller_(std::move(o)) {
+    :QGroupBox(parent),memory_(std::move(memory)),widgetCredit_(memory_.reserve(32768)),controller_([&]{interactive_=bool(o.inventory);return std::move(o);}()) {
     setTitle(tr("Recording"));setObjectName("nativeRecordingPanel");
     auto *layout=new QGridLayout(this);
+    if(interactive_) {
+        auto *row=new QWidget(this);auto *choices=new QGridLayout(row);
+        inputDevice_=new QComboBox(row);outputDevice_=new QComboBox(row);mapping_=new QComboBox(row);
+        for(auto *combo:{inputDevice_,outputDevice_}){combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);combo->setMinimumContentsLength(16);}
+        inputDevice_->setObjectName("nativeInputDevice");outputDevice_->setObjectName("nativeOutputDevice");mapping_->setObjectName("nativeChannelMapping");
+        inputDevice_->addItem(tr("Choose a device"));outputDevice_->addItem(tr("Choose a device"));
+        inputDevice_->setAccessibleName(tr("Capture source"));outputDevice_->setAccessibleName(tr("Monitoring output"));
+        mapping_->addItem(tr("Same native channel order"));mapping_->addItem(tr("Duplicate mono to stereo"));mapping_->setAccessibleName(tr("Channel mapping"));
+        auto *inputLabel=new QLabel(tr("Capture source"),row);inputLabel->setBuddy(inputDevice_);
+        auto *outputLabel=new QLabel(tr("Monitoring output"),row);outputLabel->setBuddy(outputDevice_);
+        choices->addWidget(inputLabel,0,0);choices->addWidget(inputDevice_,0,1);
+        choices->addWidget(outputLabel,1,0);choices->addWidget(outputDevice_,1,1);
+        refresh_=new QPushButton(tr("Refresh devices"),row);refresh_->setObjectName("nativeRefreshDevices");
+        choices->addWidget(refresh_,0,2);choices->addWidget(mapping_,1,2);layout->addWidget(row,6,0,1,5);
+        connect(refresh_,&QPushButton::clicked,this,[this]{
+            const auto state=snapshot();auto c=command(NativeMonitorCommandKind::RefreshDevices);
+            if(send(c)){refreshing_=true;refreshCompleted_=state->completedCommands;refreshCancel_=state->cancelAcknowledged;poll();}
+        });
+        for(auto *choice:{inputDevice_,outputDevice_,mapping_})connect(choice,qOverload<int>(&QComboBox::currentIndexChanged),this,[this]{poll();});
+    }
     devices_=new QLabel(this);devices_->setTextFormat(Qt::PlainText);devices_->setWordWrap(true);
     layout->addWidget(devices_,0,0,1,5);
     seconds_=new QSpinBox(this);seconds_->setRange(1,3600);seconds_->setValue(10);seconds_->setObjectName("nativeMonitorSeconds");
@@ -35,7 +58,7 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
     progress_=new QLabel(this);progress_->setObjectName("nativeProgress");receipt_=new QLabel(this);receipt_->setObjectName("nativeReceipt");receipt_->setTextFormat(Qt::PlainText);receipt_->setWordWrap(true);
     layout->addWidget(status_,3,0,1,5);layout->addWidget(progress_,4,0,1,5);layout->addWidget(receipt_,5,0,1,5);
     connect(prepare_,&QPushButton::clicked,this,[this]{
-        if(!preparation_ || nextGeneration_==UINT64_MAX)return;
+        if(!preparation_ || nextGeneration_==UINT64_MAX || (interactive_ && !chooseDevices()))return;
         try {
             NativeMonitorCommand shape;shape.preparation=preparation_;
             auto lease=memory_.reserve(nativeMonitorCommandPayloadBytes(shape,memory_.usage().limitBytes));
@@ -84,6 +107,70 @@ bool NativeMonitorPanel::setPreparation(const NativeMonitorPreparation &p) {
         devices_->setText(tr("Input: %1 · Output: %2").arg(deviceName(p.inputs),deviceName(p.outputs)));admission_.clear();poll();return true;
     }catch(const ProjectError &e){admission_=e.code()==ErrorCode::ResourceLimit?tr("Recording settings exceed the panel memory limit."):tr("Recording settings are invalid.");poll();return false;}
 }
+bool NativeMonitorPanel::interactiveDevices() const{return interactive_;}
+void NativeMonitorPanel::preparationGuard(std::function<bool(const NativeMonitorPreparation &)> guard){preparationGuard_=std::move(guard);}
+void NativeMonitorPanel::updateDevices(const NativeMonitorSnapshot &s) {
+    if(!s.ports || s.inventoryRevision==shownInventoryRevision_)return;
+    const auto key=[&](QComboBox *combo)->const AudioPort * {
+        if(!shownPorts_ || combo->currentIndex()<=0)return nullptr;
+        const auto i=combo->currentData().toULongLong();if(i>=shownPorts_->size())return nullptr;return &(*shownPorts_)[std::size_t(i)];
+    };
+    const auto input=key(inputDevice_),output=key(outputDevice_);
+    try {
+        PayloadCharge charge("Native device choices",memory_.usage().limitBytes);
+        charge.add(nativeMonitorPortsPayloadBytes(*s.ports,memory_.usage().limitBytes),2);
+        auto credit=memory_.reserve(charge.bytes());
+        // Declare old credit before old models, so model destruction retires first.
+        auto oldCredit=std::move(modelCredit_);
+        auto inputs=std::make_unique<QStandardItemModel>(),outputs=std::make_unique<QStandardItemModel>();
+        inputs->appendRow(new QStandardItem(tr("Choose a device")));outputs->appendRow(new QStandardItem(tr("Choose a device")));
+        int inputIndex=0,outputIndex=0;
+        for(std::size_t i=0;i<s.ports->size();) {
+            const auto &first=(*s.ports)[i];const auto count=first.nativeChannels;
+            bool complete=first.backendId=="wasapi" && !first.loopback && first.portId==0 && count && count<=256 && count<=s.ports->size()-i;
+            for(std::size_t j=0;complete && j<count;++j) {
+                const auto &port=(*s.ports)[i+j];complete=port.deviceIdentity==first.deviceIdentity && port.backendId==first.backendId && port.input==first.input && !port.loopback && port.nativeChannels==count && port.sampleRate==first.sampleRate && port.portId==j;
+            }
+            if(!complete){++i;continue;}
+            auto *model=first.input?outputs.get():inputs.get();
+            auto *item=new QStandardItem(tr("%1 · %n channel(s) · %2 Hz",nullptr,int(count)).arg(QString::fromUtf8(first.nodeName.data(),qsizetype(first.nodeName.size())),QLocale().toString(first.sampleRate)));
+            item->setData(QVariant::fromValue(qulonglong(i)),Qt::UserRole);model->appendRow(item);
+            const auto &prior=first.input?output:input;
+            if(prior && prior->backendId==first.backendId && prior->deviceIdentity==first.deviceIdentity && prior->nativeChannels==count && prior->sampleRate==first.sampleRate)
+                (first.input?outputIndex:inputIndex)=model->rowCount()-1;
+            i+=count;
+        }
+        QSignalBlocker blockInput(inputDevice_),blockOutput(outputDevice_);
+        inputDevice_->setModel(inputs.get());outputDevice_->setModel(outputs.get());
+        inputModel_.swap(inputs);outputModel_.swap(outputs);modelCredit_=std::move(credit);
+        shownPorts_=s.ports;shownInventoryRevision_=s.inventoryRevision;
+        inputDevice_->setCurrentIndex(inputIndex);outputDevice_->setCurrentIndex(outputIndex);
+    }catch(const ProjectError &){admission_=tr("Device choices exceed the panel memory limit.");}
+}
+bool NativeMonitorPanel::chooseDevices() {
+    if(!preparation_ || !shownPorts_ || inputDevice_->currentIndex()<=0 || outputDevice_->currentIndex()<=0)return false;
+    try {
+        const auto inputs=std::size_t(inputDevice_->currentData().toULongLong()),outputs=std::size_t(outputDevice_->currentData().toULongLong());
+        if(inputs>=shownPorts_->size() || outputs>=shownPorts_->size())return false;
+        const auto inCount=(*shownPorts_)[inputs].nativeChannels,outCount=(*shownPorts_)[outputs].nativeChannels;
+        if(inCount>shownPorts_->size()-inputs || outCount>shownPorts_->size()-outputs || inCount!=preparation_->options.raw.layout.channels) {
+            admission_=tr("The capture device width must match the selected track.");return false;
+        }
+        const bool duplicate=mapping_->currentIndex()==1;
+        if((duplicate && (inCount!=1 || outCount!=2)) || (!duplicate && inCount!=outCount)) {
+            admission_=tr("Choose a matching output width or explicit mono-to-stereo mapping.");return false;
+        }
+        const auto in=std::span(*shownPorts_).subspan(inputs,inCount),out=std::span(*shownPorts_).subspan(outputs,outCount);
+        NativeMonitorCommand shape;shape.preparation=preparation_;
+        PayloadCharge charge("Selected native context",memory_.usage().limitBytes);
+        charge.add(nativeMonitorCommandPayloadBytes(shape,memory_.usage().limitBytes));charge.add(nativeMonitorPortsPayloadBytes(in,memory_.usage().limitBytes));charge.add(nativeMonitorPortsPayloadBytes(out,memory_.usage().limitBytes));
+        auto lease=memory_.reserve(charge.bytes());auto owned=std::make_shared<OwnedPreparation>(std::move(lease),*preparation_);
+        owned->value.inputs.assign(in.begin(),in.end());owned->value.outputs.assign(out.begin(),out.end());
+        owned->value.options.route.channelMap=duplicate?std::optional(monoToStereoMonitor()):std::nullopt;
+        if(preparationGuard_)return preparationGuard_(owned->value);
+        return setPreparation(owned->value);
+    }catch(const ProjectError &){admission_=tr("Selected devices exceed the panel memory limit.");return false;}
+}
 void NativeMonitorPanel::clearPreparation(){if(busy())return;preparation_.reset();devices_->clear();poll();}
 bool NativeMonitorPanel::enabled(bool value) {
     if(closing_ || nextRevision_==UINT64_MAX)return false;
@@ -99,8 +186,15 @@ bool NativeMonitorPanel::parameter(const EqSettings &settings,const ParameterAdd
 }
 void NativeMonitorPanel::poll() {
     const auto s=snapshot();const bool editable=!closing_;
+    if(interactive_) {
+        if(refreshing_ && (s->completedCommands>refreshCompleted_ || s->cancelAcknowledged!=refreshCancel_ || s->phase==NativeMonitorPhase::Closed))refreshing_=false;
+        updateDevices(*s);
+        const bool choices=editable && !busy();
+        refresh_->setEnabled(choices && !refreshing_);
+        for(auto *combo:{inputDevice_,outputDevice_,mapping_})combo->setEnabled(choices && !refreshing_);
+    }
     const bool idle=s->phase==NativeMonitorPhase::Idle || (s->phase==NativeMonitorPhase::Fault && !s->result);
-    prepare_->setEnabled(editable && preparation_ && idle);start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
+    prepare_->setEnabled(editable && preparation_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
     seconds_->setEnabled(editable && (idle || s->phase==NativeMonitorPhase::Ready));
     cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing));
     inspect_->setEnabled(editable && bool(s->result));keep_->setEnabled(editable && bool(s->result));
@@ -118,7 +212,7 @@ void NativeMonitorPanel::poll() {
     case NativeMonitorPhase::Closed:phase=tr("Recording closed.");break;
     }
     if(s->errorSerial!=errorSeen_){errorSeen_=s->errorSerial;if(s->error)admission_=tr("Recording error (%1).").arg(int(*s->error));}
-    status_->setText(admission_.isEmpty()?phase:admission_);status_->setToolTip(QString::fromUtf8(s->diagnostic.data(),qsizetype(std::min<std::size_t>(s->diagnostic.size(),4096))));
+    status_->setText(admission_.isEmpty()?phase:admission_);status_->setToolTip(QStringLiteral("<pre>")+QString::fromUtf8(s->diagnostic.data(),qsizetype(std::min<std::size_t>(s->diagnostic.size(),4096))).toHtmlEscaped()+QStringLiteral("</pre>"));
     progress_->setText(tr("Original frames: %1 · Monitored frames: %2").arg(qulonglong(s->progress.rawAcceptedFrames)).arg(qulonglong(s->progress.deliveredMonitorFrames)));
     QString details=tr("EQ accepted: %1 · Applied: %2").arg(qulonglong(s->acceptedEqRevision)).arg(qulonglong(s->appliedEqRevision));
     if(s->reopened)details+=tr(" · Saved frames verified: %1").arg(qulonglong(s->reopened->raw.committedFrames));

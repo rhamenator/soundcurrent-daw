@@ -20,7 +20,7 @@ struct Spy {
     rt_audit::Counts callbackAudit;
     double outputPeak = 0, lastOutputPeak = 0;
     bool failBind = false, failRenderActivation = false, failCaptureActivation = false,
-        missingCaptureEnd = false, missingRenderEnd = false, missingNow = false, independentCapture = false;
+        missingCaptureEnd = false, missingRenderEnd = false, missingNow = false, independentCapture = false, independentDisk = false;
     bool deferCaptureEndUntilTailWait = false; // Force SDK Stop arrival during a short render tail.
     std::int32_t captureStopResult = 1, renderStopResult = 1;
 };
@@ -82,7 +82,7 @@ class FakeStreams final : public NativeMonitorStreams {
                     rawFrames_ += p.frames; ++rawPackets_; spy_->callbackCalls.fetch_add(1,std::memory_order_release);
                     // Disk-side acknowledgement is an explicit fake-device pace,
                     // not concurrent access to raw consumer-owned mutable state.
-                    while (spy_->writtenPackets.load(std::memory_order_acquire) < rawPackets_ &&
+                    while (!spy_->independentDisk && spy_->writtenPackets.load(std::memory_order_acquire) < rawPackets_ &&
                         !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) idle();
                     // Controlled virtual-device scheduling, not a physical
                     // deadline claim under sanitizers. Receipt is atomic, never

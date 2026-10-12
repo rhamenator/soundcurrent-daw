@@ -15,6 +15,10 @@ void controlBound(bool valid) {
 void textCharge(PayloadCharge &charge,const std::string &s) {
     controlBound(s.size()<=4096 && s.find('\0')==std::string::npos && validUtf8(s));charge.add(s.size()+1);
 }
+void portsCharge(PayloadCharge &charge,std::span<const AudioPort> ports) {
+    controlBound(ports.size()<=65536);charge.add(ports.size(),sizeof(AudioPort)+256);
+    for(const auto &port:ports)for(const auto *s:{&port.nodeName,&port.portName,&port.mediaClass,&port.backendId,&port.deviceIdentity,&port.channelIdentity})textCharge(charge,*s);
+}
 void eqCharge(PayloadCharge &charge,const EqSettings &eq) {
     controlBound(eq.bands.size()<=64);charge.add(eq.bands.size(),sizeof(EqBand)+128);
 }
@@ -25,10 +29,7 @@ std::size_t commandPayload(const NativeMonitorCommand &c,std::size_t budget) {
     if(c.preparation) {
         const auto &p=*c.preparation;charge.add(sizeof(NativeMonitorPreparation)+4096);
         controlBound(p.root.native().size()<=4096 && p.root.native().find(std::filesystem::path::value_type{})==std::filesystem::path::string_type::npos);charge.add(p.root.native().size()+1,sizeof(std::filesystem::path::value_type));
-        for(const auto *ports:{&p.inputs,&p.outputs}) {
-            controlBound(ports->size()<=65536);charge.add(ports->size(),sizeof(AudioPort)+256);
-            for(const auto &port:*ports)for(const auto *s:{&port.nodeName,&port.portName,&port.mediaClass,&port.backendId,&port.deviceIdentity,&port.channelIdentity})textCharge(charge,*s);
-        }
+        portsCharge(charge,p.inputs);portsCharge(charge,p.outputs);
         if(p.options.route.channelMap){const auto &map=*p.options.route.channelMap;controlBound(map.routes.size()<=65536);charge.add(map.routes.size(),sizeof(ChannelMix)+32);}
         if(p.options.route.equalizer)eqCharge(charge,p.options.route.equalizer->settings);
     }
@@ -36,7 +37,11 @@ std::size_t commandPayload(const NativeMonitorCommand &c,std::size_t budget) {
 }
 } // namespace
 std::size_t nativeMonitorCommandPayloadBytes(const NativeMonitorCommand &c,std::size_t budget) {return commandPayload(c,budget);}
+std::size_t nativeMonitorPortsPayloadBytes(std::span<const AudioPort> ports,std::size_t budget) {
+    PayloadCharge charge("Native inventory",budget);charge.add(1024);portsCharge(charge,ports);return charge.bytes();
+}
 struct NativeMonitorController::State {
+    struct Inventory {ResourceLease lease;std::vector<AudioPort> ports;};
     struct Queued { ResourceLease lease; NativeMonitorCommand command; std::uint64_t epoch; };
     NativeMonitorControllerOptions options;
     mutable std::mutex mutex;
@@ -80,6 +85,14 @@ struct NativeMonitorController::State {
             throw ProjectError(ErrorCode::InvalidState,"Native recording command belongs to another generation");
     }
     void handle(const NativeMonitorCommand &c) {
+        if(c.kind==NativeMonitorCommandKind::RefreshDevices) {
+            if(owner || view.result || !options.inventory || view.inventoryRevision==UINT64_MAX)
+                throw ProjectError(ErrorCode::InvalidState,"Refresh native devices only while recording is inactive");
+            auto ports=options.inventory();
+            auto credit=options.inventoryMemory.reserve(nativeMonitorPortsPayloadBytes(ports,options.inventoryMemory.usage().limitBytes));
+            auto owned=std::make_shared<Inventory>(std::move(credit),std::move(ports));
+            view.ports=std::shared_ptr<const std::vector<AudioPort>>(owned,&owned->ports);++view.inventoryRevision;view.error.reset();view.diagnostic.clear();view.phase=options.streams?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
+        }
         if(c.kind==NativeMonitorCommandKind::Prepare) {
             if(!options.streams || owner || view.result || !c.preparation || !c.generation || c.generation<=lastGeneration)
                 throw ProjectError(ErrorCode::InvalidState,"Native recording preparation is unavailable or a result is unresolved");
@@ -96,6 +109,7 @@ struct NativeMonitorController::State {
             auto prepared=std::make_unique<NativeMonitorRecording>(p.root,std::move(io),p.options);
             NativeMonitorSnapshot next;next.phase=NativeMonitorPhase::Ready;next.generation=c.generation;
             next.completedCommands=view.completedCommands;next.errorSerial=view.errorSerial;next.cancelAcknowledged=view.cancelAcknowledged;
+            next.ports=view.ports;next.inventoryRevision=view.inventoryRevision;
             next.root=p.root;next.job=prepared->jobDirectory();next.declared=std::make_shared<const NativeOriginalRecordingSpec>(prepared->declared());
             owner=std::move(prepared);view=std::move(next);lastGeneration=c.generation;return;
         }

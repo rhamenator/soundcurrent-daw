@@ -247,7 +247,7 @@ class StudioWindow : public QMainWindow {
     // Destroy the pane before the project worker and its referenced gesture sequence.
     std::unique_ptr<ManualRecordingPanel> manual_;
     std::unique_ptr<NativeMonitorPanel> nativeRecording_;
-    std::uint64_t nativeProjectEpoch_ = 0;
+    std::uint64_t nativeProjectEpoch_ = 0,nativePreparationGeneration_ = 0;
     std::optional<Id> nativeTrack_;
     std::optional<EqSettings> nativeEqSent_;
     ResourceLease nativeEqCredit_;

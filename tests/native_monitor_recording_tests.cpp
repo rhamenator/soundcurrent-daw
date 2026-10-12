@@ -150,6 +150,20 @@ void controllerQueueAndIdentity() {
     std::cout<<"native_desktop_controller command_capacity=16 urgent_cancel=true stale_transport_refused=true project_identity=true simulated_sdk=true\n";
 }
 
+void controllerInventoryAdmission() {
+    ResourceLedger memory(64*1024,"Inventory fixture");std::atomic<unsigned> queries{0};
+    NativeMonitorControllerOptions options;options.inventoryMemory=memory;
+    options.inventory=[&]{++queries;AudioPort port;port.nodeName="Microphone – é";port.deviceIdentity="microphone-id";port.backendId="wasapi";port.nativeChannels=1;port.sampleRate=48000;return std::vector<AudioPort>{port};};
+    NativeMonitorController c(std::move(options));NativeMonitorCommand refresh;refresh.kind=NativeMonitorCommandKind::RefreshDevices;
+    check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Worker inventory command refused");controlAwait([&]{return c.snapshot()->inventoryRevision==1;});
+    auto first=c.snapshot();const auto usage=memory.usage();check(first->ports && first->ports->size()==1 && usage.reservedBytes && usage.owners==1,"Retained worker inventory has no payload ownership credit");
+    memory.configure(usage.reservedBytes);check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Inventory quota probe command refused");controlAwait([&]{return c.snapshot()->errorSerial>0;});
+    check(c.snapshot()->inventoryRevision==1 && c.snapshot()->ports==first->ports && memory.usage().reservedBytes==usage.reservedBytes,"Inventory quota failure replaced old projection or leaked credit");
+    memory.configure(64*1024);check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Inventory refresh retry refused");controlAwait([&]{return c.snapshot()->inventoryRevision==2;});
+    check(memory.usage().owners==2 && queries==3,"Inventory replacement released a still-held immutable projection");first.reset();controlAwait([&]{return memory.usage().owners==1;});
+    c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
+    std::cout<<"native_inventory worker_projection=true quota_preserves_previous=true held_projection_credit=true simulated_sdk=true\n";
+}
 void controllerPayloadAdmission() {
     Temp temp;auto spy=std::make_shared<Spy>();auto p=controlPreparation(temp,spy,false);
     ResourceLedger parent(256*1024,"Native GUI parent fixture");auto credit=parent.child(128*1024,"Native command child fixture");
@@ -405,6 +419,7 @@ void controlPressure() {
 }
 }
 unsigned ownedNativeMonitorRecordingTests() {
+    controllerInventoryAdmission();
     success(48000,1,false,false,0,true,true);
     success(48000,1,false); success(44100,1,true); success(96000,2,false); success(48000,1,false,true);
     success(48000,2,false,false,2048);

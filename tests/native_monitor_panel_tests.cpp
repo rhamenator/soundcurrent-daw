@@ -9,6 +9,8 @@
 #include <QLabel>
 #include <QTabWidget>
 #include <QSlider>
+#include <QComboBox>
+#include <soundcurrent/wasapi_ports.hpp>
 #include <QTest>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -19,7 +21,7 @@ using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 using namespace native_monitor_fixture;
 namespace {
-unsigned checks=0;
+std::atomic<unsigned> checks{0};
 void check(bool value,const char *why){++checks;if(!value)throw std::runtime_error(why);}
 template<class F>void await(F f,std::source_location at=std::source_location::current()){const auto end=std::chrono::steady_clock::now()+std::chrono::seconds(10);while(!f()){if(std::chrono::steady_clock::now()>=end)throw std::runtime_error("Native panel observation deadline exceeded at line "+std::to_string(at.line()));QTest::qWait(2);}}
 template<class T>T *control(NativeMonitorPanel &p,const char *name){auto *v=p.findChild<T *>(name);check(v!=nullptr,"Native panel control missing");return v;}
@@ -53,6 +55,51 @@ void finitePanel(const std::filesystem::path &root){
     QTest::mouseClick(control<QPushButton>(panel,"nativeKeep"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Idle;});panel.poll();
     check(!panel.snapshot()->result && std::filesystem::exists(result->job/"native-run.json"),"Panel reset deleted retained take on disk");panel.close();await([&]{return panel.closeReady() && !panel.isVisible();});
     std::cout<<"native_panel finite=true visible_eq_effect=true inspect=true keep=true close=true gui_sdk_io=false simulated_sdk=true\n";
+}
+void deviceSelection(const std::filesystem::path &root){
+    auto spy=std::make_shared<Spy>();spy->independentDisk=true;preparation(root,spy);
+    const auto gui=std::this_thread::get_id();std::atomic<bool> offGui{false},removed{false};std::atomic<unsigned> queries{0},factories{0},preparedStreams{0};
+    NativeMonitorControllerOptions native;
+    native.inventory=[&]{offGui=std::this_thread::get_id()!=gui;++queries;
+        std::vector<WasapiEndpoint> endpoints;
+        if(!removed.load())endpoints.push_back({"microphone-id","Microphone – é",true,1,48000});
+        endpoints.push_back({"speaker-id","Speakers – Ελληνικά",false,2,48000});
+        return describeWasapiPorts(endpoints,true,true,false);};
+    native.streams=[&](const NativeMonitorPreparation &p){++factories;
+        std::vector<WasapiEndpoint> endpoints;
+        if(!removed.load())endpoints.push_back({"microphone-id","Microphone – é",true,1,48000});
+        endpoints.push_back({"speaker-id","Speakers – Ελληνικά",false,2,48000});
+        const auto current=describeWasapiPorts(endpoints,true,true,false);
+        selectWasapiPorts(p.inputs,current,1,48000,false);selectWasapiPorts(p.outputs,current,2,48000,true);
+        check(p.inputs.size()==1 && p.outputs.size()==2 && p.inputs.front().deviceIdentity=="microphone-id" &&
+              p.outputs.front().deviceIdentity=="speaker-id" && p.options.route.channelMap && p.options.route.resources,
+              "Visible selectors lost explicit devices/mapping/aggregate ledger");
+        ++preparedStreams;return std::make_unique<FakeStreams>(spy,48000,1,true);};
+    StudioWindow window(nullptr,{},{},{},{},{},{},{},{},std::move(native));window.show();window.openProject(root);
+    await([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+    auto *panel=dynamic_cast<NativeMonitorPanel *>(window.findChild<QGroupBox *>("nativeRecordingPanel"));check(panel && panel->interactiveDevices(),"Interactive native selectors unavailable");
+    auto *input=control<QComboBox>(*panel,"nativeInputDevice"),*output=control<QComboBox>(*panel,"nativeOutputDevice"),*mapping=control<QComboBox>(*panel,"nativeChannelMapping");
+    check(input->currentIndex()==0 && output->currentIndex()==0 && !control<QPushButton>(*panel,"nativePrepare")->isEnabled(),"Native selectors implicitly chose a device");
+    QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==2 && output->count()==2;});
+    check(offGui && !factories && !spy->captureActive,"Device refresh queried SDK/prepared streams on GUI or activated recording");
+    input->setCurrentIndex(1);output->setCurrentIndex(1);panel->poll();
+    QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);QTest::qWait(30);
+    check(!factories && panel->snapshot()->phase==NativeMonitorPhase::Idle,"Mismatched native widths silently inferred a mapping");
+    mapping->setCurrentIndex(1);removed=true;
+    QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->errorSerial>0;});
+    check(factories==1 && !preparedStreams && !spy->captureActive,"Stale selected input reached prepared/active streams without fresh validation");panel->poll();
+    QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==1;});
+    check(input->currentIndex()==0 && output->currentIndex()==1 && !control<QPushButton>(*panel,"nativePrepare")->isEnabled(),"Removed input silently rerouted or lost unaffected output selection");
+    removed=false;QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==2;});
+    check(input->currentIndex()==0,"Reconnected input was implicitly selected");input->setCurrentIndex(1);mapping->setCurrentIndex(1);
+    control<QSpinBox>(*panel,"nativeMonitorSeconds")->setValue(1);panel->poll();
+    QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->phase==NativeMonitorPhase::Ready;});panel->poll();
+    const auto before=queries.load();check(!control<QPushButton>(*panel,"nativeRefreshDevices")->isEnabled(),"Prepared route allowed inventory refresh");
+    QTest::mouseClick(control<QPushButton>(*panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel->snapshot()->result);});
+    check(factories==2 && preparedStreams==1 && queries==before && panel->snapshot()->result->disposition==NativeMonitorRecordingDisposition::Complete,"Selected native run lost finite completion or refreshed live device state");
+    window.close();await([&]{return !window.isVisible();});
+    check(window.nativeRecordingSnapshot()->phase==NativeMonitorPhase::Closed && spy->captureJoined && spy->renderJoined,"Selector workflow did not retire all owners");
+    std::cout<<"native_devices worker_inventory=true explicit_choices=true stale_input_refused_before_streams=true removed_input_unavailable=true no_default_switch=true explicit_map=true finite_run=true all_owners_closed=true simulated_sdk=true\n";
 }
 void studioWindowFlow(const std::filesystem::path &root){
     auto spy=std::make_shared<Spy>();auto p=preparation(root,spy);
@@ -106,4 +153,4 @@ void activeClose(const std::filesystem::path &root){
     std::cout<<"native_panel active_close_async=true result_retained=true sdk_joined=true guarded=0 simulated_sdk=true\n";
 }
 }
-int main(int argc,char **argv){QApplication app(argc,argv);try{QTemporaryDir dir;check(dir.isValid(),"Native panel temp root unavailable");const auto root=utf8Path(dir.path().toUtf8().toStdString());finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+int main(int argc,char **argv){QApplication app(argc,argv);try{QTemporaryDir dir;check(dir.isValid(),"Native panel temp root unavailable");const auto root=utf8Path(dir.path().toUtf8().toStdString());finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

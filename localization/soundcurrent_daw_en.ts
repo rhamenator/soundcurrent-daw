@@ -1698,6 +1698,34 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Recording</translation>
     </message>
     <message>
+      <source>Choose a device</source>
+      <translation>Choose a device</translation>
+    </message>
+    <message>
+      <source>Capture source</source>
+      <translation>Capture source</translation>
+    </message>
+    <message>
+      <source>Monitoring output</source>
+      <translation>Monitoring output</translation>
+    </message>
+    <message>
+      <source>Same native channel order</source>
+      <translation>Same native channel order</translation>
+    </message>
+    <message>
+      <source>Duplicate mono to stereo</source>
+      <translation>Duplicate mono to stereo</translation>
+    </message>
+    <message>
+      <source>Channel mapping</source>
+      <translation>Channel mapping</translation>
+    </message>
+    <message>
+      <source>Refresh devices</source>
+      <translation>Refresh devices</translation>
+    </message>
+    <message>
       <source>Monitoring length (seconds)</source>
       <translation>Monitoring length (seconds)</translation>
     </message>
@@ -1752,6 +1780,26 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Input: %1 · Output: %2</source>
       <translation>Input: %1 · Output: %2</translation>
+    </message>
+    <message numerus="yes">
+      <source>%1 · %n channel(s) · %2 Hz</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Device choices exceed the panel memory limit.</source>
+      <translation>Device choices exceed the panel memory limit.</translation>
+    </message>
+    <message>
+      <source>The capture device width must match the selected track.</source>
+      <translation>The capture device width must match the selected track.</translation>
+    </message>
+    <message>
+      <source>Choose a matching output width or explicit mono-to-stereo mapping.</source>
+      <translation>Choose a matching output width or explicit mono-to-stereo mapping.</translation>
+    </message>
+    <message>
+      <source>Selected devices exceed the panel memory limit.</source>
+      <translation>Selected devices exceed the panel memory limit.</translation>
     </message>
     <message>
       <source>Recording is unavailable.</source>

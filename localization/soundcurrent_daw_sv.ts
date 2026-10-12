@@ -1690,6 +1690,34 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Choose a device</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Capture source</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Monitoring output</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Same native channel order</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Duplicate mono to stereo</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Channel mapping</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Refresh devices</source>
+      <translation>Uppdatera enheter</translation>
+    </message>
+    <message>
       <source>Monitoring length (seconds)</source>
       <translation type="unfinished" />
     </message>
@@ -1743,6 +1771,26 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Input: %1 · Output: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message numerus="yes">
+      <source>%1 · %n channel(s) · %2 Hz</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Device choices exceed the panel memory limit.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The capture device width must match the selected track.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose a matching output width or explicit mono-to-stereo mapping.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Selected devices exceed the panel memory limit.</source>
       <translation type="unfinished" />
     </message>
     <message>

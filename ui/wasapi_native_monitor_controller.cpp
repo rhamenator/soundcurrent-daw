@@ -4,6 +4,16 @@
 namespace soundcurrent::daw::ui {
 NativeMonitorControllerOptions wasapiNativeMonitorControllerOptions() {
     NativeMonitorControllerOptions o;
+    o.inventory=[] {
+        const auto endpoints=wasapiEndpoints();std::size_t ports=0;
+        for(const auto &e:endpoints) {
+            if(e.id.size()>4096 || e.name.size()>4096 || !validUtf8(e.id) || !validUtf8(e.name) ||
+               e.id.find('\0')!=std::string::npos || e.name.find('\0')!=std::string::npos || e.channels>65536-ports)
+                throw ProjectError(ErrorCode::InvalidState,"Native inventory exceeds its bounded text/channel geometry");
+            ports+=e.channels;
+        }
+        return describeWasapiPorts(endpoints,true,true,false);
+    };
     o.streams=[](const NativeMonitorPreparation &p) {
         const auto inventory=describeWasapiPorts(wasapiEndpoints(),true,true,false);
         if(p.inputs.empty() || p.outputs.empty())

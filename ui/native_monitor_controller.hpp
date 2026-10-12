@@ -3,6 +3,7 @@
 #include <soundcurrent/native_monitor_recording.hpp>
 #include <soundcurrent/audio_port.hpp>
 #include <functional>
+#include <span>
 
 namespace soundcurrent::daw::ui {
 struct NativeMonitorPreparation {
@@ -15,10 +16,12 @@ struct NativeMonitorControllerOptions {
     // Factory returns genuine prepared streams; callbacks never call this seam.
     std::function<std::unique_ptr<NativeMonitorStreams>(const NativeMonitorPreparation &)> streams;
     ResourceLedger commandMemory{16 * 1024 * 1024, "Native control command payloads"}; // Off RT; may share a parent GUI ledger.
+    std::function<std::vector<AudioPort>()> inventory = {}; // Worker only, bounded backend projection.
+    ResourceLedger inventoryMemory{16 * 1024 * 1024, "Native device inventory"};
 };
 enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed };
 enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };
-enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult };
+enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices };
 struct NativeMonitorCommand {
     NativeMonitorCommandKind kind = NativeMonitorCommandKind::Prepare;
     std::uint64_t generation = 0, revision = 0, resultSequence = 0;
@@ -30,11 +33,14 @@ struct NativeMonitorCommand {
 };
 // Off RT payload preflight shared with bounded GUI preparation ownership.
 std::size_t nativeMonitorCommandPayloadBytes(const NativeMonitorCommand &,std::size_t budget);
+std::size_t nativeMonitorPortsPayloadBytes(std::span<const AudioPort>,std::size_t budget);
 struct NativeMonitorSnapshot {
     NativeMonitorPhase phase = NativeMonitorPhase::Unsupported;
     std::uint64_t generation = 0, completedCommands = 0, errorSerial = 0,
         acceptedEqRevision = 0, appliedEqRevision = 0, cancelAcknowledged = 0,
         resultSequence = 0;
+    std::shared_ptr<const std::vector<AudioPort>> ports;
+    std::uint64_t inventoryRevision = 0;
     std::optional<ImmediateAcknowledgement> applied;
     std::optional<MonitorControlReceipt> stop;
     NativeMonitorRecordingProgress progress;

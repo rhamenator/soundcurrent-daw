@@ -721,8 +721,10 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     recordModesTabs->addTab(manual_.get(), tr("Manual / repeated takes"));
     if (nativeOptions.streams) {
         nativeOptions.commandMemory = controller_.resourceLedger();
+        nativeOptions.inventoryMemory = controller_.resourceLedger().child(16*1024*1024,"Native device inventory");
         nativeRecording_ = std::make_unique<NativeMonitorPanel>(
             std::move(nativeOptions), body, controller_.resourceLedger());
+        nativeRecording_->preparationGuard([this](const auto &p){return configureNativeRecording(p);});
         recordModesTabs->addTab(nativeRecording_.get(), tr("Native input monitoring"));
     }
     eq_ = new QGroupBox(tr("Track equalizer"), body);
@@ -1712,7 +1714,7 @@ bool StudioWindow::configureNativeRecording(const NativeMonitorPreparation &p) {
         auto credit=controller_.resourceLedger().reserve(charge.bytes());
         auto eq=track->eq;
         if(!nativeRecording_->setPreparation(p))return false;
-        nativeProjectEpoch_=model->projectEpoch;nativeTrack_=track->id;
+        nativeProjectEpoch_=model->projectEpoch;nativePreparationGeneration_=nativeRecording_->snapshot()->generation;nativeTrack_=track->id;
         nativeEqSent_=std::move(eq);nativeEqCredit_=std::move(credit);return true;
     }catch(const ProjectError &){return false;}
 }
@@ -1732,8 +1734,25 @@ void StudioWindow::pollNativeRecording(const std::shared_ptr<const ControllerSna
         const auto selected=selectedTrack();
         const auto found=model->session?std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*nativeTrack_;}):std::vector<Track>::const_iterator{};
         if(!model->session || model->projectEpoch!=nativeProjectEpoch_ || selected!=nativeTrack_ ||
-           found==model->session->tracks.end() || !nativeEqSent_ || found->eq!=*nativeEqSent_ || state->generation!=0) {
+           found==model->session->tracks.end() || !nativeEqSent_ || found->eq!=*nativeEqSent_ || state->generation!=nativePreparationGeneration_) {
             nativeRecording_->clearPreparation();nativeTrack_.reset();nativeEqSent_.reset();nativeEqCredit_={};return;
+        }
+    }
+    if(nativeRecording_->interactiveDevices() && !nativeRecording_->busy() && !nativeTrack_ && model->session) {
+        const auto selected=selectedTrack();
+        const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return selected && t.id==*selected;});
+        if(track!=model->session->tracks.end()) {
+            try {
+                PayloadCharge charge("Native project preparation",controller_.resourceLedger().usage().limitBytes);
+                charge.add(sizeof(NativeMonitorPreparation)+32768);charge.add(track->eq.bands.size(),sizeof(EqBand)+128);
+                charge.add(model->root.native().size()+1,sizeof(std::filesystem::path::value_type));
+                auto lease=controller_.resourceLedger().reserve(charge.bytes());
+                NativeMonitorPreparation p;p.root=model->root;p.options.raw.project=model->session->id;p.options.raw.track=track->id;
+                p.options.raw.layout=track->layout;p.options.raw.declaredInputLatencyFrames=track->inputLatencyFrames;
+                MonitorEqSpec eq;eq.track=track->id;eq.settings=track->eq;p.options.route.equalizer=std::move(eq);
+                p.options.route.resources=controller_.resourceLedger();p.options.recording.raw.resources=controller_.resourceLedger();
+                configureNativeRecording(p);
+            }catch(const ProjectError &){/* Context remains unavailable; no SDK/preparation activation. */}
         }
     }
     if(!model->session || model->projectEpoch!=nativeProjectEpoch_ || !nativeTrack_ || !nativeEqSent_ ||
