@@ -12,6 +12,7 @@
 #include <atomic>
 #include <bit>
 #include <chrono>
+#include <cstdlib>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -187,9 +188,36 @@ void controllerPayloadAdmission() {
     std::cout<<"native_command_payload aggregate_credit=true shape_bounds=true unchanged_refusal=true cancel_at_quota=true release_after_processing=true simulated_sdk=true\n";
 }
 
-void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureStop = false, unsigned declaredPacketBound = 0, bool equalized = false) {
-    Temp temp; auto spy = std::make_shared<Spy>(); if (failedCaptureStop) spy->captureStopResult = -31;
+void retainOwnerEvidence(const NativeMonitorRecording &run,const Spy &spy,
+    const NativeMonitorRecordingProgress &observed,bool planned,bool beforeCancel) {
+    const char *destination=std::getenv("SC_NATIVE_OWNER_FAILURE_EVIDENCE");if(!destination)return;
+    const auto out=utf8Path(destination)/utf8Path(run.declared().run.str());
+    std::filesystem::create_directories(out);
+    // Independent atomic observations, never a fabricated coherent device time.
+    const nlohmann::json j={{"schema",1},{"observedBeforeCancellation",beforeCancel},
+        {"processingDone",observed.processingDone},{"diskDone",observed.diskDone},
+        {"captureEnded",observed.captureEnded},{"renderEnded",observed.renderEnded},
+        {"rawAccepted",observed.rawAcceptedFrames},{"monitorAccepted",observed.monitorAcceptedFrames},
+        {"publishedMonitor",observed.publishedMonitorFrames},{"deliveredMonitor",observed.deliveredMonitorFrames},
+        {"sourceCopied",observed.copiedMonitorSourceFrames},{"stopPlanned",planned},
+        {"sdkTailStopPending",spy.tailCaptureStopPending.load(std::memory_order_acquire)},
+        {"sdkTailStopServiced",spy.tailCaptureStopServiced.load(std::memory_order_acquire)},
+        {"sdkTailAvailable",spy.tailAvailableFrames.load(std::memory_order_relaxed)}};
+    std::ofstream observation(out/"observed.json",std::ios::binary);observation<<j.dump(2)<<'\n';observation.close();
+    if(!observation)throw std::runtime_error("Native owner observation could not be retained");
+    // Called after joins; retain exact bounded metadata bytes, exclude PCM/stamps.
+    std::uintmax_t bytes=0;
+    for(const char *name:{"native-run.json","journal.json"}) {
+        const auto source=run.jobDirectory()/name;
+        const auto length=std::filesystem::file_size(source);
+        if(length>4*1024*1024 || bytes>8*1024*1024-length)throw std::runtime_error("Native owner metadata exceeds evidence bound");
+        bytes+=length;std::filesystem::copy_file(source,out/name,std::filesystem::copy_options::none);
+    }
+}
+void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureStop = false, unsigned declaredPacketBound = 0, bool equalized = false, bool tailStop = false) {
+    Temp temp; auto spy = std::make_shared<Spy>();spy->deferCaptureEndUntilTailWait=tailStop; if (failedCaptureStop) spy->captureStopResult = -31;
     auto o = options(spy,channels,mapped);
+    if(tailStop)o.route.outputSlots=66; // Native4097 frames plus one64-frame grid fits; Stop follows the drained short tail within clock age.
     if(equalized){MonitorEqSpec e;e.settings.bands.push_back({Id::generate(),double(rate)*.017/(2*3.14159265358979323846),6,1});o.route.equalizer=e;}
     NativeMonitorRecording run(temp.root,std::make_unique<FakeStreams>(spy,rate,channels,mapped,declaredPacketBound),o);
     { std::ifstream f(run.jobDirectory()/"native-run.json"); auto j = nlohmann::json::parse(f);
@@ -207,13 +235,25 @@ void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureSt
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     if (!run.readyToJoin()) {
+        const auto before=run.progress();
+        std::cerr<<"owner_timeout_before_cancel processing_done="<<before.processingDone<<" disk_done="<<before.diskDone
+            <<" capture_ended="<<before.captureEnded<<" render_ended="<<before.renderEnded<<" raw_accepted="<<before.rawAcceptedFrames
+            <<" monitor_accepted="<<before.monitorAcceptedFrames<<" output_published="<<before.publishedMonitorFrames
+            <<" output_delivered="<<before.deliveredMonitorFrames<<" source_copied="<<before.copiedMonitorSourceFrames
+            <<" stop_planned="<<planned<<" sdk_tail_stop_pending="<<spy->tailCaptureStopPending.load(std::memory_order_acquire)
+            <<" sdk_tail_frames="<<spy->tailAvailableFrames.load(std::memory_order_relaxed)<<'\n';
         const auto r = run.cancelAndWait(); std::cerr << "Owner timeout capture=" << int(r.native.captureStatus)
             << " render=" << int(r.native.render.status) << " processing=" << (r.processingFault ? int(r.processingFault->cause) : -1)
             << " raw=" << (r.prefix ? r.prefix->raw.committedFrames : 0) << '\n';
+        try{retainOwnerEvidence(run,*spy,before,planned,true);}catch(const std::exception &e){std::cerr<<"Owner evidence retention failed: "<<e.what()<<'\n';}
         throw std::runtime_error("Owned finite native recording did not complete within original five-second test wait");
     }
     if (!planned && run.receiveStopReceipt(receipt) == MonitorControlCode::Ready) planned = receipt.result == MonitorControlResult::Planned;
     const auto r = run.wait(); joined(*spy);
+    if(tailStop)retainOwnerEvidence(run,*spy,run.progress(),planned,false);
+    if(tailStop)check(spy->tailCaptureStopPending.load() && spy->tailCaptureStopServiced.load() &&
+        spy->tailAvailableFrames.load()>0 && spy->tailAvailableFrames.load()<480,
+        "Forced short render tail did not service actual capture Stop/end");
     check(!r.firstWaitFailure,"Owned worker lost original native wait error");
     if(equalized){ImmediateAcknowledgement a;check(run.equalizerAcknowledgement(a) && a.revision==1 && a.frame==0,
         "Owned monitor EQ edit did not apply at first processed monitor sample");
@@ -365,6 +405,7 @@ void controlPressure() {
 }
 }
 unsigned ownedNativeMonitorRecordingTests() {
+    success(48000,1,false,false,0,true,true);
     success(48000,1,false); success(44100,1,true); success(96000,2,false); success(48000,1,false,true);
     success(48000,2,false,false,2048);
     success(48000,1,true,false,0,true);
@@ -372,4 +413,10 @@ unsigned ownedNativeMonitorRecordingTests() {
     preparationAndActivationFailures(); cancelAndLostOwners(); diskAndClockFailures(); controlPressure(); metadataAndReservation();
     std::cout << checks << " owned native recording checks passed; actual processing/disk threads; simulated SDK\n";
     return checks;
+}
+
+unsigned nativeRenderTailStopTests() {
+    const auto before=checks;success(48000,1,false,false,0,true,true);
+    std::cout<<"native_render_tail capture_stop_while_render_waiting=true partial_tail=true original_stop_end=true raw_bits_exact=true five_second_limit_unchanged=true simulated_sdk=true\n";
+    return checks-before;
 }

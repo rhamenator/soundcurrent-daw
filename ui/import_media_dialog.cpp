@@ -111,17 +111,17 @@ void ImportMediaModel::setResult(int row,std::shared_ptr<const WaveCheckSnapshot
     if (!property(row)) return;
     auto &entry=rows_[static_cast<std::size_t>(row)];auto &saved=entry.result;if (saved==result) return;
     if(saved && result && saved->job!=result->job) entry.copied.reset();
-    saved=std::move(result);emit dataChanged(index(row,0),index(row,5));
+    saved=std::move(result);Q_EMIT dataChanged(index(row,0),index(row,5));
 }
 void ImportMediaModel::setCopyResult(int row,std::shared_ptr<const MediaCopySnapshot> result) {
     if(!property(row)) return;
     auto &saved=rows_[static_cast<std::size_t>(row)].copied;if(saved==result) return;
-    saved=std::move(result);emit dataChanged(index(row,5),index(row,5));
+    saved=std::move(result);Q_EMIT dataChanged(index(row,5),index(row,5));
 }
 std::optional<std::size_t> ImportMediaModel::propertyOrdinal(int row) const {return property(row) ? std::optional(rows_[static_cast<std::size_t>(row)].property) : std::nullopt;}
 std::shared_ptr<const WaveCheckSnapshot> ImportMediaModel::checked(int row) const {return property(row) ? rows_[static_cast<std::size_t>(row)].result : nullptr;}
 void ImportMediaModel::clearChecks() {for (auto &r:rows_) {r.result.reset();r.copied.reset();}retranslate();}
-void ImportMediaModel::retranslate() {if (!rows_.empty()) emit dataChanged(index(0,0),index(rowCount()-1,5));emit headerDataChanged(Qt::Horizontal,0,5);}
+void ImportMediaModel::retranslate() {if (!rows_.empty()) Q_EMIT dataChanged(index(0,0),index(rowCount()-1,5));Q_EMIT headerDataChanged(Qt::Horizontal,0,5);}
 ImportMediaDialog::ImportMediaDialog(QWidget *parent,std::shared_ptr<const ImportInspectionReport> report,WaveCheckOptions options,MediaCopyOptions copyOptions)
     :QDialog(parent),controller_(options),copier_([&]{copyOptions.memory=options.memory;return copyOptions;}()),model_(std::move(report),options.memory,this) {
     setObjectName(QStringLiteral("importMediaDialog"));setWindowModality(Qt::WindowModal);

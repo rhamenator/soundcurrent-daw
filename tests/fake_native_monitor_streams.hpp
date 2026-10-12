@@ -15,10 +15,13 @@ inline float sample(std::uint64_t frame, unsigned channel) { return float(2.5 * 
 struct Spy {
     std::atomic<std::uint64_t> writtenPackets{0}, qpc{100000000}, callbackCalls{0};
     std::atomic<std::uint32_t> captureActive{0}, captureStop{0}, renderStop{0}, captureJoined{0}, renderJoined{0};
+    std::atomic<std::uint32_t> tailCaptureStopPending{0}, tailCaptureStopServiced{0};
+    std::atomic<std::uint64_t> tailAvailableFrames{0};
     rt_audit::Counts callbackAudit;
     double outputPeak = 0, lastOutputPeak = 0;
     bool failBind = false, failRenderActivation = false, failCaptureActivation = false,
         missingCaptureEnd = false, missingRenderEnd = false, missingNow = false, independentCapture = false;
+    bool deferCaptureEndUntilTailWait = false; // Force SDK Stop arrival during a short render tail.
     std::int32_t captureStopResult = 1, renderStopResult = 1;
 };
 // One simulated SDK service thread serializes its capture/render producer roles;
@@ -65,7 +68,10 @@ class FakeStreams final : public NativeMonitorStreams {
         while (!captureEnded_ || !renderEnded_) {
             const Qpc100ns now{100000000 + tick_ * 100000}; spy_->qpc.store(now.value, std::memory_order_release);
             if (!captureEnded_) {
-                if (spy_->captureStop.load(std::memory_order_acquire) || rt([&] { return cb_.shouldStop(cb_.context); })) endCapture();
+                if (spy_->captureStop.load(std::memory_order_acquire)) endCapture();
+                else if (rt([&] { return cb_.shouldStop(cb_.context); })) {
+                    if(!spy_->deferCaptureEndUntilTailWait)endCapture();
+                }
                 else if (spy_->captureActive.load(std::memory_order_acquire)) {
                     if (!captureStarted_) { rt([&] { captureLife_.started(); }); captureStarted_ = true; }
                     for (unsigned f = 0; f < actualPacketFrames_; ++f)
@@ -83,7 +89,13 @@ class FakeStreams final : public NativeMonitorStreams {
                     // a cross-owner mutable statistics read. Pressure tests
                     // explicitly keep capture independent of this receipt.
                     while (!spy_->independentCapture && route_->processing().copiedSourceFrames() < rawFrames_ &&
-                        !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) idle();
+                        !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) {
+                        // This one SDK service thread also owns rendering. A
+                        // ready full lease must run to release output pressure;
+                        // waiting for further source copies would strand it.
+                        if(route_->startup().ready() && route_->output().acceptedFrames()-route_->output().deliveredFrames()>=480)break;
+                        idle();
+                    }
                 }
             }
             if (!renderEnded_) {
@@ -94,7 +106,17 @@ class FakeStreams final : public NativeMonitorStreams {
                     const bool ready = bool(route_->startup().ready());
                     while (ready && !route_->output().producerDone() &&
                         route_->output().acceptedFrames() - route_->output().deliveredFrames() < 480 &&
-                        !spy_->renderStop.load(std::memory_order_acquire) && !rb_.shouldStop(rb_.context)) idle();
+                        !spy_->renderStop.load(std::memory_order_acquire) && !rb_.shouldStop(rb_.context)) {
+                        if(!captureEnded_ && cb_.shouldStop(cb_.context)) {
+                            spy_->tailAvailableFrames.store(route_->output().acceptedFrames()-route_->output().deliveredFrames(),std::memory_order_relaxed);
+                            spy_->tailCaptureStopPending.store(1,std::memory_order_release);
+                            // Actual SDK capture and render owners are independent.
+                            // This serialized fixture must dispatch the capture
+                            // end even while its renderer waits for the final PCM.
+                            endCapture();spy_->tailCaptureStopServiced.store(1,std::memory_order_release);
+                        }
+                        idle();
+                    }
                     const WasapiRenderClock clock{submitted_,renderStarted_ ? 1000000 + tick_ * 480 : 0,48000,
                         renderStarted_ ? now.value : 0,0,content_,64};
                     const auto action = rt([&] { return rb_.beforeLease(rb_.context,480,clock,now); });

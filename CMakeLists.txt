@@ -528,6 +528,13 @@ if(SC_BUILD_DESKTOP)
   add_library(sc-ui-history ui/history_resources_dialog.cpp)
   target_include_directories(sc-ui-history PUBLIC ui)
   target_link_libraries(sc-ui-history PUBLIC sc-ui-controller Qt6::Widgets)
+  # Framework-independent engine fields may legitimately use names such as slots.
+  # Qt GUI sources use Q_EMIT/Q_SIGNALS/Q_SLOTS; do not export ordinary-word macros.
+  foreach(sc_qt_target sc-ui-localization sc-ui-equipment sc-ui-timeline sc-ui-controller
+      sc-ui-stretch sc-ui-media-copy sc-ui-wave sc-ui-import sc-ui-playback
+      sc-ui-native-recording sc-ui-recording sc-ui-export sc-ui-history)
+    target_compile_definitions(${sc_qt_target} PUBLIC QT_NO_KEYWORDS)
+  endforeach()
   add_executable(soundcurrent-daw ui/main.cpp ui/studio_window.cpp)
   add_dependencies(soundcurrent-daw sc-import-inspect-worker sc-approved-wave-probe sc-media-import-worker)
   if(TARGET sc-stretch-render-worker)

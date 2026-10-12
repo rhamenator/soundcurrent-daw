@@ -181,6 +181,7 @@ jobs:
           set "PATH=%CD%\native-dependencies\sndfile-build;%PATH%"
           set "SC_STRETCH_WORKER_QUALIFICATION=%CD%\build-native\stretch-worker-qualification.json"
           set "SC_PROTECTED_WARP_QUALIFICATION=%CD%\build-native\protected-warp-integration-qualification.json"
+          set "SC_NATIVE_OWNER_FAILURE_EVIDENCE=%CD%\build-native\native-owner-failure-evidence"
           ctest --test-dir build-native -R "^(native-monitor-startup|bounded-monitor-startup|original-native-outcomes|wasapi-monitor-render-binding|wasapi-monitor-capture-binding|monitor-capture-stop|monitor-stop-handoff|combined-monitor-recording|original-monitor-clock-handoffs|bounded-monitor-processing|original-raw-recording|monitor-output-bank|capture-raw-monitor-fanout|monitor-drift-control|causal-monitor-buffer|monitor-kernel-feasibility|stamped-capture-bank|clock-correlation|continuous-loop-recording|loop-stream-playback-recording|retained-take-comp|manual-recording-control|stretch-selection-publication|experimental-protected-warp-geometry|experimental-protected-warp-rendering|experimental-warp-map-geometry|editable-stretch-state|stretch-timing-oracle|stretch-region-geometry|stretch-source-integrity|stretch-worker-workflows|worker-observation-failures|protected-warp-worker-workflows|protected-warp-package-inputs|clip-playback-rate|playback-rate-timing-oracle|positioned-resampling-kernel|positioned-resampling-workflow|fractional-timing-oracle|prepared-resampling|prepared-timing-oracle|resampler-source-integrity|clip-processing|multitrack-edits|project-import-state|session-state|project-routing|project-monitoring|media-provenance-transaction|verified-media-staging|verified-media-stage-worker|approved-wave-content|approved-wave-probe|approved-media-root|approved-media-probe|inspection-bundle|import-inspection-worker|reaper-structure|reaper-native-corpus|reaper-import-properties|import-property-protocol|writer-phase-timing|wasapi-(render-end|packet-copy|packet-admission|capture-trace|render-trace|playback-owner-rollback)|recording-recovery|offline-export|resource-ledger)$" --output-on-failure --no-tests=error
           if errorlevel 1 exit /b 1
       - name: Bounded original concurrent-owner diagnostic
@@ -219,6 +220,7 @@ jobs:
             build-native/Testing/Temporary/*.log
             build-native/manual-owner-*-stdout.log
             build-native/manual-owner-*-stderr.log
+            build-native/native-owner-failure-evidence/**
             build-native/warp-map-geometry-evidence/**
             build-native/protected-warp-geometry-evidence/**
             build-native/protected-warp-render-evidence/**

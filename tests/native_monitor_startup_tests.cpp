@@ -12,6 +12,7 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <string_view>
 #ifdef SC_NATIVE_STARTUP_STATE
 #include <soundcurrent/native_original_recording.hpp>
 #include <nlohmann/json.hpp>
@@ -22,6 +23,7 @@ unsigned ownedNativeMonitorRouteTests();
 unsigned monitorEqTests();
 #ifdef SC_NATIVE_STARTUP_STATE
 unsigned ownedNativeMonitorRecordingTests();
+unsigned nativeRenderTailStopTests();
 #endif
 namespace {
 std::atomic<unsigned> checks{0};
@@ -554,7 +556,14 @@ void admissions(){
     m.end();m.settle();
 }
 }
-int main(){try{rt_audit::reset();
+int main(int argc,char **argv){try{rt_audit::reset();
+#ifdef SC_NATIVE_STARTUP_STATE
+    if(argc==2 && std::string_view(argv[1])=="--render-tail-stop-only") {
+        const auto count=nativeRenderTailStopTests();std::cout<<count<<" forced native render-tail checks passed\n";return 0;
+    }
+#else
+    (void)argc;(void)argv;
+#endif
     checks += ownedNativeMonitorRouteTests();
     checks += monitorEqTests();
 #ifdef SC_NATIVE_STARTUP_STATE
