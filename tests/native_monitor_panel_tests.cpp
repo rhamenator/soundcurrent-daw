@@ -58,7 +58,7 @@ void finitePanel(const std::filesystem::path &root){
     check(panel.snapshot()->exported->frames==result->result->prefix->raw.committedFrames && hashMediaFile(exported)==hashMediaFile(result->job/"take.wav") &&
         control<QLabel>(panel,"nativeReceipt")->text().contains("Original WAV exported") && ProjectStore(root).load()==original,"Native panel export changed capture/project or lost receipt");
     const auto serial=panel.snapshot()->errorSerial;check(panel.exportOriginal(exported),"Existing-target export not queued for worker refusal");
-    await([&]{return panel.snapshot()->errorSerial>serial;});check(hashMediaFile(exported)==panel.snapshot()->exported->fileSha256,"Panel overwrite refusal damaged export");
+    await([&]{return panel.snapshot()->errorSerial>serial;});panel.poll();check(hashMediaFile(exported)==panel.snapshot()->exported->fileSha256,"Panel overwrite refusal damaged export");
     QTest::mouseClick(control<QPushButton>(panel,"nativeKeep"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Idle;});panel.poll();
     check(!panel.snapshot()->result && !panel.snapshot()->exported && std::filesystem::exists(result->job/"native-run.json"),"Panel reset deleted retained take on disk");panel.close();await([&]{return panel.closeReady() && !panel.isVisible();});
     std::cout<<"native_panel finite=true visible_eq_effect=true inspect=true original_wav_export=true no_overwrite=true keep=true close=true gui_sdk_io=false simulated_sdk=true\n";
