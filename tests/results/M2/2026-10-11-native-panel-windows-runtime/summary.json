@@ -1,0 +1,45 @@
+{
+  "head": "c6dc639ebe6c2e710ba9780e2aad36998b9aa166",
+  "run": 38195499335,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 114637105582,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114637105727,
+      "name": "Windows desktop import and localization tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114637105748,
+      "name": "Linux desktop and synthetic tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114637105758,
+      "name": "Windows native packet ownership tests",
+      "status": "completed",
+      "conclusion": "failure"
+    }
+  ],
+  "windowsDesktopTestsPassed": 20,
+  "windowsPanelChecksPassed": 23,
+  "linuxTestsPassed": 144,
+  "windowsNativeTestsPassed": 70,
+  "windowsNativeTestsTotal": 71,
+  "failedSuite": "native-monitor-startup",
+  "failure": "Finite owned native recording exceeded original five-second completion wait, then was cancelled and retained. Capture status0/render status1/no processing fault/raw prefix96480 reported after cancel. Underlying stalled owner not established.",
+  "originalTimeoutRaised": false,
+  "unchangedRetryToGreen": false,
+  "newControllerChecksAfterFailedCaseExecuted": false,
+  "guiTsanQualified": false,
+  "binaryAudioPayloadIncluded": false,
+  "implementationUnderTest": "c6dc639ebe6c2e710ba9780e2aad36998b9aa166",
+  "currentWindowIntegrationExecuted": false
+}

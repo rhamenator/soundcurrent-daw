@@ -1,0 +1,625 @@
+{
+  "implementation": "01d76a109625e0027fbc779bc0db42b837196e3f",
+  "tree": "117c540efa01f9fecee7888c70f078e13dd37037",
+  "sourceInputs": 788,
+  "release": {
+    "tests": 144,
+    "passed": 144,
+    "seconds": 175.35
+  },
+  "sanitizers": {
+    "initialTests": 5,
+    "passed": 4,
+    "guiFailedBeforeWorkflow": "GTK theme nothrow-new vs test-only delete/free; report retained",
+    "offscreenGuiPassed": true,
+    "offscreenSeconds": 11.42,
+    "allocDeallocMismatchEnabled": true,
+    "leakDetection": false
+  },
+  "localization": {
+    "catalogs": 34,
+    "keys": 984,
+    "drafts": 3168,
+    "nativeReview": 0,
+    "uiQualified": 0
+  },
+  "windows": {
+    "source": "01d76a109625e0027fbc779bc0db42b837196e3f",
+    "tree": "117c540efa01f9fecee7888c70f078e13dd37037",
+    "objects": {
+      "src/native_take_admission.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "src/native_take_admission.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-0.obj"
+        ],
+        "bytes": 87495,
+        "sha256": "cea7c3397406f6dcd1baaba6f261a3ea05fc2dc31b4856c0063f98ddd114b9c7"
+      },
+      "src/session.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "src/session.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-1.obj"
+        ],
+        "bytes": 225608,
+        "sha256": "6964872c9675967fa7caf669ff1507c0babc63af39d4b4bfd3f4a7cc50ddca09"
+      },
+      "src/session_edits.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "src/session_edits.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-2.obj"
+        ],
+        "bytes": 310002,
+        "sha256": "2fa1d48606826021799bacab12c8d2b19311c1fa3d8cfc2e8ee76e15425fa6d0"
+      },
+      "src/project_store.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "src/project_store.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-3.obj"
+        ],
+        "bytes": 733789,
+        "sha256": "6fda8acfeaf1b363d875f70eb8d94ca9be9916be294360c9db675623b09def45"
+      },
+      "src/stretch_render_protocol.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "src/stretch_render_protocol.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-4.obj"
+        ],
+        "bytes": 477471,
+        "sha256": "5dcbbd84919788cfff9a48dc76e5d7c0098df2ae3f2034d23d120ab27588a028"
+      },
+      "src/native_original_recording.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "src/native_original_recording.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-5.obj"
+        ],
+        "bytes": 658183,
+        "sha256": "33dd6f506c706ed179e56f15b084f5d959e58cd8eec80a15f0201de31bed974b"
+      },
+      "src/native_original_export.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "src/native_original_export.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-6.obj"
+        ],
+        "bytes": 76832,
+        "sha256": "657bf5a8df053c53abc18d20e84096c953099fc5722d23e52e4aad1d20f912ba"
+      },
+      "ui/native_monitor_controller.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "ui/native_monitor_controller.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-7.obj"
+        ],
+        "bytes": 244869,
+        "sha256": "ddefde397361052fbd2558e88d3a463cf9aca3d968b62f9e2a1b9fb89ee83d18"
+      },
+      "ui/wasapi_native_monitor_controller.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "ui/wasapi_native_monitor_controller.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-8.obj"
+        ],
+        "bytes": 25010,
+        "sha256": "f5b37e19147632dbbf577a157e45dd9a34d83b192fe6bc8301fadee1f95d9e45"
+      },
+      "tests/native_original_recording_tests.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "tests/native_original_recording_tests.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-9.obj"
+        ],
+        "bytes": 903745,
+        "sha256": "4e1e99fbb0ffe70fb8b3a548dcbbade8a739c86d2742abe6a881d323df262ab0"
+      },
+      "tests/native_monitor_recording_tests.cpp": {
+        "argv": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-Wconversion",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Iui",
+          "-isystem",
+          "third_party",
+          "-isystem",
+          "third_party/libsndfile",
+          "-c",
+          "tests/native_monitor_recording_tests.cpp",
+          "-o",
+          ".cache/native-take-admission/windows-current-10.obj"
+        ],
+        "bytes": 581230,
+        "sha256": "2e2173bf832bacfd8b4505e4c18b804f5d96f6df7a11cfac6c4a16c3fc640c91"
+      }
+    },
+    "sdkAdapterCompiled": true,
+    "nativeWindowsLinkExecuted": false,
+    "nativeWindowsRuntimeExecuted": false,
+    "physicalEndpointsTested": false
+  },
+  "precedingCi": "PR157 has 3 successful jobs / Linux canceled at job envelope; predates this implementation",
+  "payloadPolicy": "No executable/library/object/audio/ZIP payloads",
+  "members": {
+    "frozen-inputs.json.gz": {
+      "bytes": 83677,
+      "sha256": "73991f091ad14d665c3528aaa43054e1366d17ba6fb60643753839661449a485",
+      "originalBytes": 515711,
+      "originalSha256": "f986d81a76dc83da6890e99c675cf9f0834750dff9908cd70ba4485ac651ebbc"
+    },
+    "source-delta.diff.gz": {
+      "bytes": 572835,
+      "sha256": "130fa839de4a937e113a431adf363dce19c44ea1a5a2b49a0885e7b4f64d0390",
+      "originalBytes": 3450407,
+      "originalSha256": "66adef2a65f0a2570cb89792f178b031b72ae861fe576e44afcd36efb3552c16"
+    },
+    "configure.log.gz": {
+      "bytes": 930,
+      "sha256": "cf283abdba501a0d7541c32ec4872a64147cb4afde8b97ed4a46fb888e31c56f",
+      "originalBytes": 2272,
+      "originalSha256": "8008f35d520f2def55f58e893eac7a0f5c38406f1747f209edbf44a282aba8e1"
+    },
+    "development-build.log.gz": {
+      "bytes": 4067,
+      "sha256": "33238bd0fcc84a89c6f2a679129917baf234a74699dfa6bc43480660b05b9592",
+      "originalBytes": 27744,
+      "originalSha256": "767f3b97227b7b3d09dca2a4cedbe651ef5f7cc50a91e8e85c9fb658c68684a5"
+    },
+    "development-tests.log.gz": {
+      "bytes": 266,
+      "sha256": "84368e9066bc6f75c71869ffcc9fea59b5aa2f265c34c3800ba2895a1527d176",
+      "originalBytes": 489,
+      "originalSha256": "61379d7ffc44a83d0044543381a17798f357d4d3c1808d2945425a475aa3ad13"
+    },
+    "full-release-build.log.gz": {
+      "bytes": 7749,
+      "sha256": "a8c6c00ee763a491730de31dd32588d2d855256fb1d2da0d95dd17e37e606b7a",
+      "originalBytes": 67705,
+      "originalSha256": "99df911ef8e7e9f69feb7413c9999feff9dfe20ed69eb4cccd76ef60a4842e63"
+    },
+    "full-release-tests.log.gz": {
+      "bytes": 3269,
+      "sha256": "8078dde250c7e74a549bc37b1ea085b652c0c16a7abb7bbd66f7b21f77f5dad3",
+      "originalBytes": 17829,
+      "originalSha256": "3f45fa523bf6266ecf3c4b6b9f04af0bfe813e012befecd5d19e430ee338e8ad"
+    },
+    "sanitizer-configure.log.gz": {
+      "bytes": 932,
+      "sha256": "b08e66ae9f9c03823d5b455eabdc2043b1d5b3f4aa9a3db3462a8db934505ffb",
+      "originalBytes": 2270,
+      "originalSha256": "9ffd1f550c9ab2507e23ed3b776f28a9662aad67d372ed9b842a7d473cbe64cb"
+    },
+    "sanitizer-build.log.gz": {
+      "bytes": 2798,
+      "sha256": "b833d64f06df1e6a7dbd00d12858eeab36a4c1e2c971e6a8058d6d6dec4da130",
+      "originalBytes": 16975,
+      "originalSha256": "ebe154a32268df99b853907b6e24ffc9bcd3f342fa33ef1b84dbc49753278da2"
+    },
+    "sanitizer-tests.log.gz": {
+      "bytes": 1453,
+      "sha256": "78dcf4202b384dd80f6871818cf0fc59366b8c04ef6255d3cc372b8e9d5ac872",
+      "originalBytes": 5754,
+      "originalSha256": "d78a3bf24d1e917ef8e3af4e84720608dc4e436c0172bafd7e57660fa0f1c8ed"
+    },
+    "sanitizer-panel-offscreen-tests.log.gz": {
+      "bytes": 205,
+      "sha256": "b2c65334d68e5010d7b212a4897ce9660aeda7ac4e41290d5968dbf85ee3d3d4",
+      "originalBytes": 280,
+      "originalSha256": "08fc369d378d3d3d0fd15dcb6f2b3e0cf9345de641b79e10454f3c31f13be671"
+    },
+    "localization-check.log.gz": {
+      "bytes": 115,
+      "sha256": "98f9d99e2b44544079f7197f0c324ed70c70eb8ace1974c13c6e31b52a38f262",
+      "originalBytes": 112,
+      "originalSha256": "e0270c7bcdb238713953cd6284f00c49d5a28262daed3fef00937a41f0fdab7d"
+    },
+    "localization-refusals.log.gz": {
+      "bytes": 423,
+      "sha256": "f7a5a916347c75a377cabe4613d31bfbe86823133185f1d086c27c25b45cd357",
+      "originalBytes": 830,
+      "originalSha256": "a8ac40fd59e3149704a96a44cca8d408a016f0135d231657ebdc167f4ff6b557"
+    },
+    "windows-qualification.json.gz": {
+      "bytes": 1230,
+      "sha256": "495c73ecaf0ad87693495586684089ed067c78b7f4d983a7180725fd6d3dc679",
+      "originalBytes": 8705,
+      "originalSha256": "406d6ece7e22f293a60c25f6a9aa3fcd3132dcd33ac52b0a66fc66dd1c8fb7c5"
+    },
+    "windows-qualification.log.gz": {
+      "bytes": 107,
+      "sha256": "3809ff7c63863f591c92ec51a11e85550ae66c5eaa9b310769441202bf829dad",
+      "originalBytes": 98,
+      "originalSha256": "f44b977d7d1346b2b27a00fd30889338fb7fd5dc98255c979123d4c7d6644289"
+    },
+    "qualify-windows.py.gz": {
+      "bytes": 996,
+      "sha256": "c078c554a0124b32e98e0c284fe038a14a2a6682e626e9c92cac0236211d9db0",
+      "originalBytes": 1963,
+      "originalSha256": "59ac38d14744fa3825a5c4f9b8b02b80f2a7926ca8b4f77db5ece29e69dfd88f"
+    },
+    "freeze-inputs.py.gz": {
+      "bytes": 832,
+      "sha256": "4964b80ce3cfb3616d7dfad519d21332b0ced3632e0db589efac467a84c821fc",
+      "originalBytes": 1723,
+      "originalSha256": "b30c357b722c209ab2d7670267142a3c10c6587cb1a8fce6b89bc0430b56128e"
+    },
+    "windows-compile-0.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-1.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-10.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-2.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-3.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-4.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-5.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-6.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-7.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-8.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "windows-compile-9.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "development-CMakeCache.txt.gz": {
+      "bytes": 11002,
+      "sha256": "ca093ba3249054aecc2181db522584e9168cab5a7db13e4be9f8f9ca10718727",
+      "originalBytes": 71402,
+      "originalSha256": "d546324e9ae105ea34ebcc67ceefec8131b9bc1946ee04d0ed09e8dbd4241b95"
+    },
+    "development-LastTest.log.gz": {
+      "bytes": 29605,
+      "sha256": "b3ea1161cdc3998c55763e00922726408654575376dd53e94f5f9a67470466e1",
+      "originalBytes": 260723,
+      "originalSha256": "b8d060b4ae5bf0fbe9a8444c46ec949700d3643a078a16d851ea1a65151a9a0d"
+    },
+    "development-generated-commands.log.gz": {
+      "bytes": 16969,
+      "sha256": "32ad5d62ed7461459c1fbfecbcb13c4f927e5a52ecd1ac80530099b9c63524be",
+      "originalBytes": 375460,
+      "originalSha256": "69a93007f276a3dabb606d05f10a2b7361185b0c10d101271799e5542f15a622"
+    },
+    "sanitizer-CMakeCache.txt.gz": {
+      "bytes": 11045,
+      "sha256": "75f7af47ef15053c23e7008c9c45d5a4431368a4cfe494daaa538dddebbfc6ca",
+      "originalBytes": 71494,
+      "originalSha256": "866f95815832af80be0e3b4613b0fe4084f79af2134751d825eb3e9465e85f3c"
+    },
+    "sanitizer-LastTest.log.gz": {
+      "bytes": 711,
+      "sha256": "10de6a40e67ab4a9efc5b6b15990ffe5a84c535c2d95381633d437da5463cb20",
+      "originalBytes": 2169,
+      "originalSha256": "2023246e4bffbdf49d433952caafc1fc60415af4809b4c23844e5f4004e2b972"
+    },
+    "sanitizer-generated-commands.log.gz": {
+      "bytes": 17335,
+      "sha256": "80ffca46a48ef52ae8e5a4e460b752d4be0cd3018b010458b80937e0dbf2ca2a",
+      "originalBytes": 404452,
+      "originalSha256": "927c2463a86f0a8909cd7c82abe4737629d332da10f1e8bef4fbdbfae928097f"
+    },
+    "build-output-hashes.json.gz": {
+      "bytes": 6549,
+      "sha256": "8f414bc15bf4e161a78d3f0b6a43fd4a2a8f63e5d6e73a94705a3c87361d3b77",
+      "originalBytes": 18480,
+      "originalSha256": "f5518aac11146fa30dd3e6ba3ff4e706e7c41841b741facc22d5a1c7b7b21527"
+    },
+    "qualification-commands.json.gz": {
+      "bytes": 537,
+      "sha256": "4a6f25844776f0dd5b229955d1658198490182a22046440935d64b9227d73b16",
+      "originalBytes": 1237,
+      "originalSha256": "af4edaaa176d5339ebebb1651308d8e5ee28857f7567f3761bde3824706f1714"
+    },
+    "package-evidence.py.gz": {
+      "bytes": 1534,
+      "sha256": "43a559ee94c685c6a203de5a3510e5bb0ced0d602d1276d371a279eb8e484eeb",
+      "originalBytes": 3207,
+      "originalSha256": "64384f38c59eb87b57a2c006f53dcaafe189e02003051078d5e59c70aaa9f332"
+    }
+  }
+}
