@@ -11,6 +11,8 @@ struct NativeOriginalRecordingSpec {
     WasapiPreparedCaptureFormat capture;
     WasapiPreparedRenderFormat render;
     MonitorOutputOrdinal monitorFirst;
+    std::optional<MonitorChannelMap> channelMap = {};
+    std::optional<MonitorEqSpec> equalizer = {};
     bool operator==(const NativeOriginalRecordingSpec &) const = default;
 };
 struct NativeOriginalRunOutcome {
@@ -30,11 +32,11 @@ struct NativeOriginalRecordingPrefix {
     std::optional<std::uint32_t> schemaMinor; // Absent for raw-only jobs; no invented native state.
 };
 enum class NativeOriginalRecordingBoundary { PendingPublished, RawFinalized, BeforeOutcomePublish, OutcomePublished,
-    BeforeMigrationPublish, MigrationPublished };
+    BeforeMigrationPublish, MigrationPublished, ChannelMapPublished, EqualizerPublished };
 struct NativeOriginalRecordingOptions {
     OriginalRecordingOptions raw;
     std::function<void(NativeOriginalRecordingBoundary)> boundary; // Disk/control ONLY.
-    std::uint32_t schemaMinor = 1; // Declare before pending publication. Legacy0 is explicit.
+    std::uint32_t schemaMinor = 3; // Declare before pending publication. Legacy0/1/2 are explicit.
 };
 // Disk owner only. Begins a pending native transaction BEFORE audio activation.
 // Delegates original raw capture, retaining legacy raw-journal meaning/schema.
@@ -66,11 +68,12 @@ NativeOriginalRecordingPrefix reportNativeOriginalRecording(const std::filesyste
     const NativeOriginalRecordingSpec &,const NativeOriginalRunOutcome &,
     std::optional<ResourceLedger> resources = {},
     const std::function<void(NativeOriginalRecordingBoundary)> &boundary = {});
-// Explicit, idempotent1.0 ->1.1 migration under the SAME exclusive inactive lease
+// Explicit, idempotent legacy -> selected supported minor under the SAME inactive lease
 // and verified raw binding. Preserves original outcomes; never invents startup,
 // changes raw media/journals, resumes capture or downgrades newer state.
 NativeOriginalRecordingPrefix migrateNativeOriginalRecording(const std::filesystem::path &,
     const std::optional<NativeOriginalRecordingSpec> &expected = {},
     std::optional<ResourceLedger> resources = {},
-    const std::function<void(NativeOriginalRecordingBoundary)> &boundary = {});
+    const std::function<void(NativeOriginalRecordingBoundary)> &boundary = {},
+    std::uint32_t targetMinor = 3);
 }

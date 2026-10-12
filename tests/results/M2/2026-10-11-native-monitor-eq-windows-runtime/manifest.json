@@ -1,0 +1,156 @@
+{
+  "members": {
+    "retain.py.gz": {
+      "bytes": 1762,
+      "sha256": "1e6f01050f50e123003da7b9d29005452f79c1816f8f37ee95304e964dcfe74d",
+      "originalBytes": 4063,
+      "originalSha256": "9a00d67a69d313c8ebf6ecb210f4cdb4e076ce84d4cc102092a50cea71824846",
+      "lossless": true
+    },
+    "first-retain-member-path-failure.py.gz": {
+      "bytes": 1731,
+      "sha256": "55811a4cea59d5c9ac0f328708983ac5839c635aadc108c574d454b743c5d130",
+      "originalBytes": 3982,
+      "originalSha256": "321d55d521e20d127891f8633720930de0526c26ba44059a39c758bd1c04328a",
+      "lossless": true
+    },
+    "run.json.gz": {
+      "bytes": 1756,
+      "sha256": "840f0d85070b8603dd9f87efd880f2cbd991ad2114991ee4714490fa8b37263e",
+      "originalBytes": 13729,
+      "originalSha256": "2fb0649520c6d49f7e1ac86665698f9b1667fc91bfdbc9f37455cded6d4d4635",
+      "lossless": true
+    },
+    "jobs.json.gz": {
+      "bytes": 1734,
+      "sha256": "22dd7af86841715904818ce3b2c81b207ee3fe82f4f26506ae3b10010a8435c4",
+      "originalBytes": 12862,
+      "originalSha256": "ac8936fb6cf0f96693c3b1943a4cca9d1688f6bd5f1c6223d26297a950f91f48",
+      "lossless": true
+    },
+    "artifacts.json.gz": {
+      "bytes": 568,
+      "sha256": "5aa8da725e696aafbfb496b258606ebdfd839185149820a05adf16c9f72d5066",
+      "originalBytes": 1496,
+      "originalSha256": "9b45ee417cf7ebb2a8865fcd98197a7c87fc6103fc8122607d3b9a44c6c34780",
+      "lossless": true
+    },
+    "pr148-tested-merge.json.gz": {
+      "bytes": 89900,
+      "sha256": "43f48b57a891ab526b8560def52953e6dc3eccf1cf6d701d724bf1f08f3cbedb",
+      "originalBytes": 411604,
+      "originalSha256": "93e32dd8061210229e8056df50502e3beb1e240ddc66fbe6fa604dcaab2737aa",
+      "lossless": true
+    },
+    "job-114608611360.log.gz": {
+      "bytes": 52197,
+      "sha256": "5cced8d08293068faaec79b71840dd01e2e82ba3f52008fe9e5a8110bc2d1d65",
+      "originalBytes": 817526,
+      "originalSha256": "698d2a4a482971f7ff9453b773a10462043a83c03b88277bcdd4b4d68d965998",
+      "lossless": true
+    },
+    "job-114608611522.log.gz": {
+      "bytes": 47846,
+      "sha256": "1dbb34510a8d63fb5fc29f8adb6b64d6781e9f36ce907e281ec53cc89c49bddd",
+      "originalBytes": 686270,
+      "originalSha256": "717868e639bd72811bcb25fff7e2adcd153abe7e563e63be088bc1d61646a157",
+      "lossless": true
+    },
+    "job-114608611537.log.gz": {
+      "bytes": 15642,
+      "sha256": "ce87bbbbea245ba6fca431a666b03c657c927cc62cfb3c037ac2c7836bc419d3",
+      "originalBytes": 92179,
+      "originalSha256": "e9684311dd00b55b93b33e20d03a366306a18170a381b70f625ef37fbbda66fa",
+      "lossless": true
+    },
+    "job-114608611576.log.gz": {
+      "bytes": 42146,
+      "sha256": "688afb005aeb16a7356c7fc4250cfbca7aa1dbcdb4f34fe395020c46e0357264",
+      "originalBytes": 236701,
+      "originalSha256": "3acfb7e21678e6338f12ce17d5910fdbbe662b08e28d075ce0c27840d86f5789",
+      "lossless": true
+    },
+    "native-artifact-selected.json.gz": {
+      "bytes": 493,
+      "sha256": "25192e4498d3a72fedf59d3715f73306088554699025a7acf221e4c3b8797e68",
+      "originalBytes": 1705,
+      "originalSha256": "6a02ac42561ac7bdcad04e415d9b67540f41610df069228b06d868a56d9dd151",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-1-stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-1-stdout.log.gz": {
+      "bytes": 211,
+      "sha256": "bff343ca073d5e6997667d95a3304056d0c086dd2981b0e21d52eef3969b6ce0",
+      "originalBytes": 299,
+      "originalSha256": "08cf944e5a48a668e7a2ce6356595355f8aff22b6c34ae1bd6cc03084a3232b6",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-2-stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-2-stdout.log.gz": {
+      "bytes": 213,
+      "sha256": "eb0e37cd3e2c7d8ec9dd04a5be32bb7a3d2cf644c39ee35cda01adedd7cd3834",
+      "originalBytes": 299,
+      "originalSha256": "461f967770188ecfddb032eca14a66a3702a7717d4d44f89b9a6823c42d37277",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-3-stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-3-stdout.log.gz": {
+      "bytes": 212,
+      "sha256": "3280e423bc78f10d71810e5677d5e6fad377ece1187f8dd798ab04c61e4e58a6",
+      "originalBytes": 299,
+      "originalSha256": "29434f4d1c7911dcfa230f4d34ad80beacbc068b3e09fc0c129b72b7194c56a5",
+      "lossless": true
+    },
+    "native-artifact--Testing_Temporary_LastTest.log.gz": {
+      "bytes": 20955,
+      "sha256": "97e053a418a9ac6206a0db254368807fa92c73288e3ba74c15d2f8e3f017134a",
+      "originalBytes": 215310,
+      "originalSha256": "70d156c3143c3759e271dabfb9815afa00b0ba384d212d8972c45ea2f5b8fa24",
+      "lossless": true
+    },
+    "desktop-artifact-selected.json.gz": {
+      "bytes": 329,
+      "sha256": "5cfa16ef77fec92e6f9c31f56b8502b996c781097c20ebd94f91fe261e9f445a",
+      "originalBytes": 695,
+      "originalSha256": "f31c8d613e881be27bb4840d4645f0f57cdc05655dd48ca164ab860d968b2dd4",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_Testing_Temporary_LastTest.log.gz": {
+      "bytes": 3898,
+      "sha256": "33fe15db0c866525b1ef380834ac91cfa074617fa8a79193c12b38769703242d",
+      "originalBytes": 21160,
+      "originalSha256": "f42f4e3e6696b1848f09bb32ebe7ea68e845ac8ecf65a575ae4bf290adbf1569",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_Testing_Temporary_LastTestsFailed.log.gz": {
+      "bytes": 60,
+      "sha256": "631cc568554bd29a498ad0a23948416d289051a17028c53cfd580d64c2406614",
+      "originalBytes": 40,
+      "originalSha256": "ce856f8db48fee932f21f8d5c640dc700c27e6b310c5898e99e7e508e91411fa",
+      "lossless": true
+    },
+    "summary.json": {
+      "bytes": 1680,
+      "sha256": "2dbab9c469e95f75c2bfb8e32338cc6cddfca375df636cbec1b2602dca2acf36"
+    }
+  },
+  "scope": "PR148 actual native Windows EQ execution plus original desktop failure; all four original terminal job logs; native/Linux/cross pass and desktop fails; original artifact logs and exact tested source bindings; no ZIP/binary/audio"
+}
