@@ -1,5 +1,26 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original interruption and manual case timing (2026-10-11)
+
+[Checkpoint215](215-owned-interruption-observation-timing.md) preserves bounded
+same-domain observations around Windows acknowledgement/suspension/recovery and
+original manual case boundaries. Production code, original cases/arguments,
+expected outcomes and deadlines remain unchanged. Original Linux interruption
+cases pass 7.43 s; actual C++ probe clocks and 16 observation checks pass. The
+22-case manual suite passes Release 1.14 s, ASan/UBSan 4.18 s, TSan 2.91 s; guarded
+violations zero and all three original standalone diagnostics complete. Current
+Windows manual object compiles; new Windows timing execution remains pending.
+
+A concrete catalog-inventory repair adds the three new controller source hashes;
+34 catalogs/917 keys/draft and review statuses remain unchanged, both catalog gates
+and 13 refusal cases pass. Preceding PR149 executes the new controller successfully
+on Windows, but its native job times out in the older full manual suite at 60.11 s;
+Linux's two inventory failures are repaired here. Desktop/cross pass. Full original
+logs/artifact/source evidence is retained; earlier watchdog and manual stall causes
+remain unresolved. Next obtain current native timings, qualify causal corrections
+and connect the visible recording panel. Full scope stays active and incomplete.
+
+
 ## Native desktop recording control worker (2026-10-11)
 
 [Checkpoint214](214-native-monitor-controller.md) codes worker-owned finite native
