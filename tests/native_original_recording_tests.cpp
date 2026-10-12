@@ -123,8 +123,9 @@ void projectOwnedReopen() {
         refuses([&]{inspectProjectNativeOriginalRecording(foreign.root,job,other.id);});
         const auto moved=t.root/"media"/("original-"+Id::generate().str());std::filesystem::copy(job,moved,std::filesystem::copy_options::recursive);
         refuses([&]{inspectProjectNativeOriginalRecording(t.root,moved,session.id);});
-        auto copied=session;copied.id=Id::generate();ProjectStore(t.root).save(copied);
-        refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,copied.id);});ProjectStore(t.root).save(session);
+        std::filesystem::create_directory(foreign.root/"media");const auto copied=foreign.root/"media"/job.filename();
+        std::filesystem::copy(job,copied,std::filesystem::copy_options::recursive);
+        refuses([&]{inspectProjectNativeOriginalRecording(foreign.root,copied,other.id);});
         ResourceLedger tiny(1);refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,session.id,tiny);});check(!tiny.usage().reservedBytes,"Refused reopen credit leaked");
         refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,session.id,{},[]{throw ProjectError(ErrorCode::Canceled,"Canceled reopen");});});
         check(read(job/"native-run.json")==native && read(job/"journal.json")==raw && read(job/"take.wav")==wav && ProjectStore(t.root).load()==session,

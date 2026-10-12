@@ -102,6 +102,18 @@ void controllerFinite() {
     release.resultSequence=final->resultSequence;controller.submit(release);controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Idle;});
     controller.requestShutdown();controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Closed;});
     check(controller.submit(prepare)==NativeMonitorAdmission::Closing,"Closed native controller admitted transport");
+    ResourceLedger originalMemory(16*1024*1024,"Retained saved native original");NativeMonitorControllerOptions inactive;inactive.commandMemory=originalMemory;
+    NativeMonitorController fresh(std::move(inactive));auto open=controlCommand(NativeMonitorCommandKind::ReopenOriginal);
+    open.generation=1;open.root=temp.root;open.job=final->job;open.project=original.id;
+    check(fresh.submit(open)==NativeMonitorAdmission::Accepted,"Fresh saved take queue refused");
+    controlAwait([&]{if(fresh.snapshot()->error)throw std::runtime_error(fresh.snapshot()->diagnostic);return bool(fresh.snapshot()->reopened);});
+    auto held=fresh.snapshot();check(!held->result && held->reopened->raw.sampleSha256==final->result->prefix->raw.sampleSha256 && originalMemory.usage().reservedBytes,
+        "Saved take invented a live result or lost original/credit");
+    auto keep=controlCommand(NativeMonitorCommandKind::ReleaseResult);keep.generation=1;keep.resultSequence=held->resultSequence;
+    fresh.submit(keep);controlAwait([&]{return fresh.snapshot()->phase==NativeMonitorPhase::Unsupported;});
+    check(originalMemory.usage().reservedBytes>0,"Held saved take snapshot released credit early");held.reset();controlAwait([&]{return !originalMemory.usage().reservedBytes;});
+    fresh.requestShutdown();controlAwait([&]{return fresh.snapshot()->phase==NativeMonitorPhase::Closed;});
+    std::cout<<"native_saved_prefix no_sdk=true exact_original=true retained_credit=true last_consumer_release=true\n";
     std::cout<<"native_desktop_controller finite=true monitor_eq=true raw_bits_exact=true reopen=true result_retention=true off_gui=true simulated_sdk=true\n";
 }
 void controllerCancelAndFailure() {

@@ -719,7 +719,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         },
         std::move(manualOptions), body);
     recordModesTabs->addTab(manual_.get(), tr("Manual / repeated takes"));
-    if (nativeOptions.streams) {
+    { // Saved native take inspection is available without a native stream adapter.
         nativeOptions.commandMemory = controller_.resourceLedger();
         nativeOptions.inventoryMemory = controller_.resourceLedger().child(16*1024*1024,"Native device inventory");
         nativeRecording_ = std::make_unique<NativeMonitorPanel>(
