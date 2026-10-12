@@ -1,5 +1,23 @@
 # Active full-suite goal: progress and completion evidence
 
+## PipeWire shared startup/stop processing handoffs (2026-10-12)
+
+[Checkpoint228](228-pipewire-processing-handoffs.md) gives shared processing a
+backend-neutral stop/end-status contract, original PipeWire joined-end receipts,
+and gated rendering from immutable startup/EQ/map readiness. Independent current
+monotonic time stays separate from graph timestamp facts; missing/future current
+permission refuses. No WASAPI results or project alignment are inferred.
+
+Seven Release suites pass20.18s, six ASan/UBSan3.76s, isolated ThreadSanitizer0.06s
+(16 actual thread pairs), seven Windows objects and the genuine PipeWire1.6.2
+render adapter compile warning-free. A combined fixture verifies2,400 processed
+monitor frames, -6dB peaking EQ, channel mapping, horizon Stop, exact raw PCM and
+paired journal inspection. This uses synthetic native clocks/returns; the complete
+native thread owner and Qt route remain required. PR162 all four jobs pass with
+Linux149/native76/desktop20/cross, preserving earlier unresolved failure evidence.
+Next: owned live route/thread factory, versioned intent/terminal persistence and
+genuine combined private acceptance, then controller/Qt integration.
+
 ## Durable PipeWire receipt/raw common checkpoints (2026-10-12)
 
 [Checkpoint227](227-pipewire-recording-journal.md) adds a serialized disk journal

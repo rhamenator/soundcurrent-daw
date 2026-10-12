@@ -212,7 +212,9 @@ native startup and contention failures remain open.
 input/output return facts through bounded queues and a portable codec. A
 [durable project journal](docs/227-pipewire-recording-journal.md) now verifies
 shared raw/receipt checkpoints after interruption and preserves uncommitted tails.
-Live route/controller integration and verified alignment remain required.
+[Shared startup/stop handoffs](docs/228-pipewire-processing-handoffs.md) now
+connect the planar boundaries to in-process EQ/resampling and journal composition.
+The native thread owner, controller/UI integration and verified alignment remain required.
 
 ## Desktop recording workflow
 
