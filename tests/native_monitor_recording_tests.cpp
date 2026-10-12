@@ -214,8 +214,16 @@ void controllerPayloadAdmission() {
     std::cout<<"native_command_payload aggregate_credit=true shape_bounds=true unchanged_refusal=true cancel_at_quota=true release_after_processing=true simulated_sdk=true\n";
 }
 
+struct FixtureSdkObservation {
+    std::uint32_t stage;
+    std::uint64_t rawPackets,writtenPackets,nowCoordinate;
+};
+FixtureSdkObservation observeFixtureSdk(const Spy &spy) {
+    return {spy.sdkStage.load(std::memory_order_acquire),spy.sdkRawPackets.load(std::memory_order_acquire),
+            spy.writtenPackets.load(std::memory_order_acquire),spy.qpc.load(std::memory_order_acquire)};
+}
 void retainOwnerEvidence(const NativeMonitorRecording &run,const Spy &spy,
-    const NativeMonitorRecordingProgress &observed,bool planned,bool beforeCancel) {
+    const NativeMonitorRecordingProgress &observed,bool planned,bool beforeCancel,FixtureSdkObservation sdk) {
     const char *destination=std::getenv("SC_NATIVE_OWNER_FAILURE_EVIDENCE");if(!destination)return;
     const auto out=utf8Path(destination)/utf8Path(run.declared().run.str());
     std::filesystem::create_directories(out);
@@ -226,6 +234,8 @@ void retainOwnerEvidence(const NativeMonitorRecording &run,const Spy &spy,
         {"rawAccepted",observed.rawAcceptedFrames},{"monitorAccepted",observed.monitorAcceptedFrames},
         {"publishedMonitor",observed.publishedMonitorFrames},{"deliveredMonitor",observed.deliveredMonitorFrames},
         {"sourceCopied",observed.copiedMonitorSourceFrames},{"stopPlanned",planned},
+        {"sdkStage",sdk.stage},{"sdkRawPackets",sdk.rawPackets},{"sdkWrittenPackets",sdk.writtenPackets},
+        {"sdkNowCoordinate100ns",sdk.nowCoordinate},{"sdkObservationsCoherent",false},
         {"sdkTailStopPending",spy.tailCaptureStopPending.load(std::memory_order_acquire)},
         {"sdkTailStopServiced",spy.tailCaptureStopServiced.load(std::memory_order_acquire)},
         {"sdkTailAvailable",spy.tailAvailableFrames.load(std::memory_order_relaxed)}};
@@ -262,21 +272,24 @@ void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureSt
     }
     if (!run.readyToJoin()) {
         const auto before=run.progress();
+        const auto sdk=observeFixtureSdk(*spy);
         std::cerr<<"owner_timeout_before_cancel processing_done="<<before.processingDone<<" disk_done="<<before.diskDone
             <<" capture_ended="<<before.captureEnded<<" render_ended="<<before.renderEnded<<" raw_accepted="<<before.rawAcceptedFrames
             <<" monitor_accepted="<<before.monitorAcceptedFrames<<" output_published="<<before.publishedMonitorFrames
             <<" output_delivered="<<before.deliveredMonitorFrames<<" source_copied="<<before.copiedMonitorSourceFrames
             <<" stop_planned="<<planned<<" sdk_tail_stop_pending="<<spy->tailCaptureStopPending.load(std::memory_order_acquire)
-            <<" sdk_tail_frames="<<spy->tailAvailableFrames.load(std::memory_order_relaxed)<<'\n';
+            <<" sdk_tail_frames="<<spy->tailAvailableFrames.load(std::memory_order_relaxed)
+            <<" sdk_stage="<<sdk.stage<<" sdk_raw_packets="<<sdk.rawPackets
+            <<" sdk_written_packets="<<sdk.writtenPackets<<" sdk_now_coordinate="<<sdk.nowCoordinate<<'\n';
         const auto r = run.cancelAndWait(); std::cerr << "Owner timeout capture=" << int(r.native.captureStatus)
             << " render=" << int(r.native.render.status) << " processing=" << (r.processingFault ? int(r.processingFault->cause) : -1)
             << " raw=" << (r.prefix ? r.prefix->raw.committedFrames : 0) << '\n';
-        try{retainOwnerEvidence(run,*spy,before,planned,true);}catch(const std::exception &e){std::cerr<<"Owner evidence retention failed: "<<e.what()<<'\n';}
+        try{retainOwnerEvidence(run,*spy,before,planned,true,sdk);}catch(const std::exception &e){std::cerr<<"Owner evidence retention failed: "<<e.what()<<'\n';}
         throw std::runtime_error("Owned finite native recording did not complete within original five-second test wait");
     }
     if (!planned && run.receiveStopReceipt(receipt) == MonitorControlCode::Ready) planned = receipt.result == MonitorControlResult::Planned;
     const auto r = run.wait(); joined(*spy);
-    if(tailStop)retainOwnerEvidence(run,*spy,run.progress(),planned,false);
+    if(tailStop)retainOwnerEvidence(run,*spy,run.progress(),planned,false,observeFixtureSdk(*spy));
     if(tailStop)check(spy->tailCaptureStopPending.load() && spy->tailCaptureStopServiced.load() &&
         spy->tailAvailableFrames.load()>0 && spy->tailAvailableFrames.load()<480,
         "Forced short render tail did not service actual capture Stop/end");
