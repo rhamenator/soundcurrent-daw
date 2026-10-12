@@ -1,0 +1,45 @@
+{
+  "pr": 149,
+  "run": 38187386783,
+  "head": "3536e396813d43e5746fe7b44c8e7bc751e8f6f3",
+  "base": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "testedMerge": "4096d20daf0394209961cca94007bdd1b2c6cba3",
+  "tree": "aca67995b25df9198612c992c071de6bb3cbfd3f",
+  "changedBlobBindings": 702,
+  "qualifiedInputCount": 702,
+  "terminalJobBindings": {
+    "114612558818": {
+      "bytes": 854715,
+      "sha256": "9768fe60dd05bcc3d72d215228b7e6a3adde1f177986bdc44c7e7f09a082a552",
+      "conclusion": "success"
+    },
+    "114612558870": {
+      "bytes": 92985,
+      "sha256": "07cd116a7d0d05a854ab3f74ae9896d45c981dcd34da1922af945d218f67b330",
+      "conclusion": "success"
+    },
+    "114612558889": {
+      "bytes": 845030,
+      "sha256": "ebd4b81e137ea9ed0e57489a1c79d97163e3ca596eebbc1eee348ee7e171052f",
+      "conclusion": "failure"
+    },
+    "114612558915": {
+      "bytes": 204196,
+      "sha256": "5816f6752404e2ccc25cf40efe4358fd03698852793b7eafc5617a4bbe7f7333",
+      "conclusion": "failure"
+    }
+  },
+  "nativeControllerCasesPassed": true,
+  "native70CTestPassedOneTimeout": true,
+  "nativeFailedSuite": "manual-recording-control",
+  "outerOriginalTimeoutSeconds": 60,
+  "observedTimeoutSeconds": 60.11,
+  "nativeThreeOriginalStandaloneCompletions": true,
+  "desktop19SuitesPassed": true,
+  "linux141PassedTwoCatalogFailures": true,
+  "linuxFailureCause": "UI source inventory did not include three new native controller source files",
+  "previousDesktopWatchdogCauseResolved": false,
+  "nativeManualTimeoutCauseResolved": false,
+  "binariesOrMediaIncluded": false,
+  "physicalAudioQualified": false
+}

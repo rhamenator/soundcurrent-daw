@@ -1,0 +1,58 @@
+{
+  "source": "aecc0b79934a89a428e914e61ee20eb294538f85",
+  "tree": "dabb2958bae1dab828a3264396165a4e117a8156",
+  "main": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "codeBeforeMainInheritance": "de25141c06cb92890630d28873e6ac45febfca99",
+  "qualifiedInputs": 636,
+  "profiles": {
+    "release": {
+      "suites": 4,
+      "seconds": 1.69,
+      "processingChecks": 498462,
+      "rtGuardAllocateFreeLock": 0,
+      "mappedRoutes": [
+        "1->2",
+        "2->1",
+        "1->3"
+      ],
+      "nativeSdkSimulation": true
+    },
+    "sanitizer": {
+      "suites": 4,
+      "seconds": 17.15,
+      "processingChecks": 498462,
+      "rtGuardAllocateFreeLock": 0,
+      "mappedRoutes": [
+        "1->2",
+        "2->1",
+        "1->3"
+      ],
+      "nativeSdkSimulation": true
+    },
+    "tsan": {
+      "suites": 4,
+      "seconds": 26.35,
+      "processingChecks": 498462,
+      "rtGuardAllocateFreeLock": 0,
+      "mappedRoutes": [
+        "1->2",
+        "2->1",
+        "1->3"
+      ],
+      "nativeSdkSimulation": true
+    }
+  },
+  "linuxExecutablesHashed": 12,
+  "linuxObjectsHashed": 9,
+  "windowsObjectsHashed": 3,
+  "windowsExecutablesHashed": 3,
+  "windowsSdkCompiled": true,
+  "newWindowsRuntimeExecuted": false,
+  "nativeStartupMappingImplemented": false,
+  "nativeAuxiliarySchemaChanged": false,
+  "nativeFactoryEnabled": false,
+  "nativeHardwareQualified": false,
+  "productBinaryUploaded": false,
+  "newDependencies": false,
+  "equalizerRepositoriesChanged": false
+}

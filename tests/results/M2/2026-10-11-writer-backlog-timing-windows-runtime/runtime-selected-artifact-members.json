@@ -1,0 +1,49 @@
+{
+  "artifactId": 11716480105,
+  "zipBytes": 34310465,
+  "zipSha256": "d60725b69bdcc7c9d876d8f1a5ea414f36740eeaffed77e461ab00d9c6d237cc",
+  "selected": [
+    {
+      "zipMember": "manual-owner-1-stderr.log",
+      "file": "runtime-artifact-manual-owner-1-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "zipMember": "manual-owner-1-stdout.log",
+      "file": "runtime-artifact-manual-owner-1-stdout.log",
+      "bytes": 300,
+      "sha256": "4ccdeede4bfc92c2f4ac3cf22486cf8c68e154a56cba5b8be4754b28b233eef0"
+    },
+    {
+      "zipMember": "manual-owner-2-stderr.log",
+      "file": "runtime-artifact-manual-owner-2-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "zipMember": "manual-owner-2-stdout.log",
+      "file": "runtime-artifact-manual-owner-2-stdout.log",
+      "bytes": 301,
+      "sha256": "09533ccd8f26254cda40e3b99b6780bf66fd8e16d07562955ffc3250fe874123"
+    },
+    {
+      "zipMember": "manual-owner-3-stderr.log",
+      "file": "runtime-artifact-manual-owner-3-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "zipMember": "manual-owner-3-stdout.log",
+      "file": "runtime-artifact-manual-owner-3-stdout.log",
+      "bytes": 300,
+      "sha256": "4842a784c939091a7711870ccd87a28f7f04da85e944dbbbca7fed21fd36b78f"
+    },
+    {
+      "zipMember": "Testing/Temporary/LastTest.log",
+      "file": "runtime-artifact-Testing_Temporary_LastTest.log",
+      "bytes": 212143,
+      "sha256": "9b76b666bfadce960ad6da27940a8dee5749017a56f2ed86d1756bc4b9f95ec3"
+    }
+  ]
+}
