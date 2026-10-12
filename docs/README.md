@@ -181,3 +181,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native command payload admission](216-native-command-payload-admission.md)
 
 - [Visible native recording panel](217-visible-native-recording-panel.md)
+
+- [Native recording main-window integration and original Windows owner failure](218-native-window-integration.md)

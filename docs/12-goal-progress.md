@@ -1,5 +1,22 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native recording main-window integration (2026-10-11)
+
+[Checkpoint218](218-native-window-integration.md) embeds the coded panel, validates
+explicit selected context, forwards canonical EQ parameters, guards conflicting
+project/transport operations and joins native ownership through the existing async
+close coordinator. Release panel/loop-controls/desktop UI pass 13.13 s, 41 panel
+checks, real workers/simulated SDK. Current sanitizer/Windows/device/default
+qualification remains open. Translation audits pass; delivered language review
+remains incomplete.
+
+Preceding PR152 Windows desktop20/new panel23 and Linux144 pass; the native job is
+70/71 with a finite owned-recording five-second completion failure. Original full
+logs/artifacts/source bindings are retained, without timeout changes or unchanged
+retry. Next retain original pre-cancel owner state and correct the stalled path,
+then qualify device selection/default integration. Full suite goal remains active.
+
+
 ## Visible native recording panel (2026-10-11)
 
 [Checkpoint217](217-visible-native-recording-panel.md) implements a real Qt transport
