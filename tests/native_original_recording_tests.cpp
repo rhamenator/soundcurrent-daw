@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/native_original_recording.hpp>
 #include <soundcurrent/native_original_export.hpp>
+#include <soundcurrent/native_take_admission.hpp>
 #include <limits>
 #include <soundcurrent/wasapi_render_lifecycle.hpp>
 #include "rt_audit.hpp"
@@ -132,6 +133,33 @@ void projectOwnedReopen() {
             "Reopen or refusal modified original files/project");
     }
     std::cout<<"project_native_reopen identity=true owned_path=true foreign_project_refused=true moved_asset_refused=true active_writer_refused=true no_project_mutation=true original_outcomes=true\n";
+}
+void nativeAdmission() {
+    for(unsigned projectRate:{44100u,48000u,96000u}) {
+        Temp t;auto session=makeOneTrackSession("Admission – é","Native",projectRate);auto declared=spec();
+        session.tracks.front().layout=declared.raw.layout;declared.raw.project=session.id;declared.raw.track=session.tracks.front().id;
+        ProjectStore(t.root).save(session);PreparedCaptureFanout fanout(config(declared));NativeOriginalCaptureWriter writer(t.root,declared);
+        const auto job=writer.jobDirectory();packets(writer,fanout,declared);writer.finalize(fanout,outcome(declared));
+        const auto original=read(job/"take.wav"),journal=read(job/"journal.json"),native=read(job/"native-run.json");
+        NativeTakeAdmissionOptions options;options.resources=ResourceLedger(16*1024*1024,"Admission fixture");
+        const auto verified=verifyNativeTakeForAdmission(t.root,job,declared,session.tracks.front().id,12345,projectRate,Id::generate(),options);
+        check(verified.ownedBy(options.resources) && verified.edit().clip.startFrame==12345 && verified.edit().clip.sourceFrame==0 &&
+            verified.edit().asset.nativeEvidence.size()==3 && verified.edit().asset.sha256==hashMediaFile(job/"take.wav"),"Native admission lost explicit placement or evidence");
+        auto admitted=session;EditHistory history(admitted);check(history.structural({verified.edit()}),"Native asset/clip edit refused");
+        check(admitted.assets.size()==1 && admitted.tracks.front().clips.size()==1 && admitted.assets.front().sampleRate==48000 &&
+            admitted.tracks.front().clips.front().lengthFrames==SourceFrameMap(48000,projectRate).projectFramesForSource(16),"Native source rate or project duration changed");
+        const auto placed=admitted;check(history.undo() && admitted==session,"Native admission undo was not atomic");
+        check(history.redo() && admitted==placed,"Native admission redo changed placement/evidence");
+        ProjectStore(t.root).save(admitted);check(ProjectStore(t.root).load()==admitted,"Native evidence/project format roundtrip differs");ProjectStore(t.root).verifyMedia(admitted);
+        auto second=verified.edit();second.clip.id=Id::generate();second.clip.startFrame=54321;applySessionEdits(admitted,{second});
+        check(admitted.assets.size()==1 && admitted.tracks.front().clips.size()==2,"Repeated placement duplicated the original asset");
+        auto conflict=second;conflict.asset.sha256=std::string(64,'0');refuses([&]{applySessionEdits(admitted,{conflict});});
+        auto changed=journal;changed.push_back(' ');write(job/"journal.json",changed);refuses([&]{ProjectStore(t.root).verifyMedia(admitted);});write(job/"journal.json",journal);
+        refuses([&]{verifyNativeTakeForAdmission(t.root,job,declared,session.tracks.front().id,-1,projectRate,Id::generate());});
+        auto tiny=options;tiny.resources=ResourceLedger(1);refuses([&]{verifyNativeTakeForAdmission(t.root,job,declared,session.tracks.front().id,0,projectRate,Id::generate(),tiny);});
+        check(read(job/"take.wav")==original && read(job/"journal.json")==journal && read(job/"native-run.json")==native,"Admission modified original capture/journals");
+    }
+    std::cout<<"native_admission explicit_project_position=true mixed_source_rate=true native_evidence_saved=true undo_redo=true original_unchanged=true journal_corruption_refused=true asset_reused=true\n";
 }
 void roundtrip(){for(unsigned channels:{1u,2u,8u,256u})for(unsigned kind=0;kind<9;++kind){Temp t;auto s=spec(channels);PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);auto job=w.jobDirectory();refuses([&]{inspectNativeOriginalRecording(job);});packets(w,f,s);auto o=outcome(s,kind);auto saved=w.finalize(f,o);auto verified=inspectNativeOriginalRecording(job,s);
     auto status=kind==0?NativeOriginalRecordingStatus::Complete:kind==3 || kind==4 || kind==6?NativeOriginalRecordingStatus::Interrupted:kind==5?NativeOriginalRecordingStatus::Cancelled:NativeOriginalRecordingStatus::Failed;
@@ -341,4 +369,4 @@ int wmain(int argc,wchar_t **argv){
 #else
 int main(int argc,char **argv){
 #endif
-try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])),std::filesystem::path(argv[1])=="--map-crash",std::filesystem::path(argv[1])=="--eq-crash");return 80;}rt_audit::reset();originalExport();projectOwnedReopen();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();matrixState();eqState();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);hardCrash(6,false,true);hardCrash(0,false,true);hardCrash(7,false,false,true);hardCrash(0,false,false,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; 2 actual matrix publication process boundaries; 2 actual EQ publication process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
+try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])),std::filesystem::path(argv[1])=="--map-crash",std::filesystem::path(argv[1])=="--eq-crash");return 80;}rt_audit::reset();originalExport();projectOwnedReopen();nativeAdmission();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();matrixState();eqState();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);hardCrash(6,false,true);hardCrash(0,false,true);hardCrash(7,false,false,true);hardCrash(0,false,false,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; 2 actual matrix publication process boundaries; 2 actual EQ publication process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

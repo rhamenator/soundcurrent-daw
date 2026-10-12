@@ -153,7 +153,18 @@ struct NativeMonitorController::State {
         if(c.kind==NativeMonitorCommandKind::ReleaseResult) {
             if(owner || !hasOriginal() || c.resultSequence!=view.resultSequence)
                 throw ProjectError(ErrorCode::InvalidState,"Native result release requires its exact retained sequence");
-            view.result.reset();view.reopened.reset();view.exported.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=options.streams?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
+            view.result.reset();view.reopened.reset();view.exported.reset();view.admission.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=options.streams?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
+        }
+        if(c.kind==NativeMonitorCommandKind::AdmitTake) {
+            if(owner || !hasOriginal() || !view.declared || c.resultSequence!=view.resultSequence || !c.targetTrack || !c.clipId || !c.revision || c.revision<=view.admissionRevision)
+                throw ProjectError(ErrorCode::InvalidState,"Native admission requires its retained take and explicit target placement");
+            const auto epoch=seenCancel;NativeTakeAdmissionOptions admissionOptions;admissionOptions.resources=options.commandMemory;
+            admissionOptions.beforeRead=[&]{if(closing.load(std::memory_order_acquire) || cancelEpoch.load(std::memory_order_acquire)!=epoch)
+                throw ProjectError(ErrorCode::Canceled,"Native take admission canceled");};
+            view.admitting=true;publish();
+            try {view.admission=std::make_shared<const VerifiedNativeTake>(verifyNativeTakeForAdmission(view.root,view.job,*view.declared,*c.targetTrack,c.placement,c.projectRate,*c.clipId,admissionOptions));}
+            catch(...){view.admitting=false;throw;}
+            view.admitting=false;view.admissionRevision=c.revision;view.error.reset();view.diagnostic.clear();return;
         }
         if(c.kind==NativeMonitorCommandKind::ExportOriginal) {
             if(owner || !hasOriginal() || !view.declared || c.resultSequence!=view.resultSequence || c.destination.empty())

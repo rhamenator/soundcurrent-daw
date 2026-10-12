@@ -12,6 +12,7 @@
 #include <QStandardItemModel>
 #include <QLocale>
 #include <QFileDialog>
+#include <QLineEdit>
 #include <limits>
 #include <algorithm>
 
@@ -64,6 +65,15 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
     open_=new QPushButton(tr("Open saved native take…"),this);open_->setObjectName("nativeOpenOriginal");
     open_->setToolTip(tr("Choose an original take directory in this project's media folder. Inspection does not activate audio devices."));
     layout->addWidget(open_,8,0,1,5);
+    auto *admissionRow=new QWidget(this);auto *admissionLayout=new QGridLayout(admissionRow);
+    auto *placementLabel=new QLabel(tr("Start frame (project rate)"),admissionRow);
+    placement_=new QLineEdit(QLocale().toString(qlonglong(0)),admissionRow);placement_->setObjectName("nativePlacement");placement_->setMaxLength(32);placementLabel->setBuddy(placement_);
+    add_=new QPushButton(tr("Add to selected track"),admissionRow);add_->setObjectName("nativeAddTake");
+    add_->setToolTip(tr("Use this explicit timeline position. Captured audio and native timing evidence stay unchanged."));
+    admissionLayout->addWidget(placementLabel,0,0);admissionLayout->addWidget(placement_,0,1);admissionLayout->addWidget(add_,0,2);layout->addWidget(admissionRow,9,0,1,5);
+    connect(add_,&QPushButton::clicked,this,[this]{bool valid=false;const auto start=QLocale().toLongLong(placement_->text(),&valid);
+        if(!valid || start<0){admission_=tr("Enter a nonnegative project frame.");poll();return;}
+        if(addRequested)addRequested(Frame(start));});
     connect(open_,&QPushButton::clicked,this,[this]{
         if(!project_ || (reopenGuard_ && !reopenGuard_()))return;
         const auto folder=(projectRoot_/"media").u8string();
@@ -155,6 +165,13 @@ bool NativeMonitorPanel::reopenOriginal(const std::filesystem::path &path) {
     if(!send(std::move(c)))return false;
     ++nextGeneration_;reopeningPending_=true;reopenCompleted_=s->completedCommands;reopenCancel_=s->cancelAcknowledged;poll();return true;
 }
+bool NativeMonitorPanel::prepareAdmission(const Id &track,Frame placement,std::uint32_t rate,std::uint64_t revision) {
+    const auto s=snapshot();if(closing_ || (!s->result && !s->reopened) || s->admitting || s->exporting)return false;
+    auto c=command(NativeMonitorCommandKind::AdmitTake);c.targetTrack=track;c.clipId=Id::generate();c.placement=placement;c.projectRate=rate;c.revision=revision;c.resultSequence=s->resultSequence;
+    if(!send(std::move(c)))return false;
+    admissionPending_=true;admissionCompleted_=s->completedCommands;admissionCancel_=s->cancelAcknowledged;poll();return true;
+}
+void NativeMonitorPanel::releaseOriginal(){auto c=command(NativeMonitorCommandKind::ReleaseResult);c.resultSequence=snapshot()->resultSequence;send(std::move(c));}
 bool NativeMonitorPanel::exportOriginal(const std::filesystem::path &path) {
     const auto s=snapshot();if(closing_ || (!s->result && !s->reopened))return false;
     auto c=command(NativeMonitorCommandKind::ExportOriginal);c.destination=path;c.resultSequence=s->resultSequence;return send(c);
@@ -239,6 +256,7 @@ bool NativeMonitorPanel::parameter(const EqSettings &settings,const ParameterAdd
 void NativeMonitorPanel::poll() {
     const auto s=snapshot();const bool editable=!closing_;
     if(reopeningPending_ && (s->completedCommands>reopenCompleted_ || s->cancelAcknowledged!=reopenCancel_ || s->phase==NativeMonitorPhase::Closed))reopeningPending_=false;
+    if(admissionPending_ && (s->completedCommands>admissionCompleted_ || s->cancelAcknowledged!=admissionCancel_ || s->phase==NativeMonitorPhase::Closed))admissionPending_=false;
     const bool saved=bool(s->result) || bool(s->reopened);
     const auto *prefix=s->reopened?s->reopened.get():(s->result && s->result->prefix?&*s->result->prefix:nullptr);
     if(interactive_) {
@@ -251,10 +269,12 @@ void NativeMonitorPanel::poll() {
     const bool idle=s->phase==NativeMonitorPhase::Idle || (s->phase==NativeMonitorPhase::Fault && !s->result);
     prepare_->setEnabled(editable && preparation_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
     seconds_->setEnabled(editable && (idle || s->phase==NativeMonitorPhase::Ready));
-    cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->exporting || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
-    inspect_->setEnabled(editable && saved && !s->exporting);keep_->setEnabled(editable && saved && !s->exporting);
-    export_->setEnabled(editable && saved && !s->exporting && prefix && prefix->raw.finalized && prefix->raw.committedFrames && prefix->raw.finitePrefixFrames==prefix->raw.committedFrames);
+    cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->exporting || s->admitting || admissionPending_ || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
+    inspect_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);keep_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);
+    export_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_ && prefix && prefix->raw.finalized && prefix->raw.committedFrames && prefix->raw.finitePrefixFrames==prefix->raw.committedFrames);
     open_->setEnabled(editable && project_ && !busy());
+    const bool attachable=editable && saved && !s->exporting && !s->admitting && !admissionPending_ && bool(addRequested) && prefix && prefix->raw.finalized && prefix->raw.committedFrames && prefix->raw.finitePrefixFrames==prefix->raw.committedFrames;
+    add_->setEnabled(attachable);placement_->setEnabled(attachable);
     eq_->setEnabled(editable && s->declared && s->declared->equalizer && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording));
     QString phase;
     switch(s->phase){
@@ -281,6 +301,7 @@ void NativeMonitorPanel::poll() {
         }
         phase=tr("Saved native take opened. Original outcome: %1.").arg(outcome);
     }
+    if(s->admitting)phase=tr("Verifying original take for the timeline…");
     if(s->exporting)phase=tr("Exporting original WAV…");
     if(s->errorSerial!=errorSeen_){errorSeen_=s->errorSerial;if(s->error)admission_=tr("Recording error (%1).").arg(int(*s->error));}
     status_->setText(admission_.isEmpty()?phase:admission_);status_->setToolTip(QStringLiteral("<pre>")+QString::fromUtf8(s->diagnostic.data(),qsizetype(std::min<std::size_t>(s->diagnostic.size(),4096))).toHtmlEscaped()+QStringLiteral("</pre>"));

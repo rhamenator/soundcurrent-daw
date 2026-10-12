@@ -28,14 +28,14 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/native_monitor_controller.cpp": "ff0fc0205a8fec8194b9479d171ac2a65902967a05e38ff38f968b0b095ff66d",
-    "ui/native_monitor_controller.hpp": "2a224c00586fc6f8423f36f0cd52021c7391d13bbb25223ba10da6e9eef46621",
-    "ui/native_monitor_panel.cpp": "bf8efe814958a6f810c0577ae3de39f9e8bda9edfaa6ca383ec713c830b12bba",
-    "ui/native_monitor_panel.hpp": "336586097287fde0943e6aef96df51ca6501d6b12ddfd342a256f04946b2976c",
+    "ui/native_monitor_controller.cpp": "6f4c5965c77a49deb24cac1bed024c57a64705b721df9844bc98e026b3122a78",
+    "ui/native_monitor_controller.hpp": "33c47266d2f0d50e83b798db372c87500e96ce9662c80d7631208b0294779eef",
+    "ui/native_monitor_panel.cpp": "c0aedd2d766ad61cb26f55701de8dceacaecf851aed39e98dd88c324f397669b",
+    "ui/native_monitor_panel.hpp": "c26f13a0bc02de0d9d816b8f8e2f3716bce43cc9bb445bc685089af62069aa39",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
-    "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
-    "ui/project_controller.hpp": "d03789727bcecb431e7e0f3773ab9b0c84bb466e912eafae35ef72e75080f4e7",
+    "ui/project_controller.cpp": "3b9f6fa0a8f42e0110c65382712525b121c97a7d3ce2d7f709bd00470a5479d3",
+    "ui/project_controller.hpp": "767fc6e34debf4b147f62b40b5e7c4447f40945a8c03dd076252535ad8057306",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
@@ -46,8 +46,8 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "bbad82b3958bc7417c1d33e78e5c548bc3337096e52e58ca5ad040ce4814d2ee",
-    "ui/studio_window.hpp": "2677b5719be773aaded3c3868473a9024a99a14b529ff7a71fa844848fa1c899",
+    "ui/studio_window.cpp": "eb9453663389fbf2a92fa086825f30da1d91312f8d372226b2a424dbbf979c1b",
+    "ui/studio_window.hpp": "eea12bffb15f5a4c6cfae760632faf6133f893025cf0ec7d8f0a44ac275ee16d",
     "ui/timeline_editor.cpp": "8c594fe27a88b6c69dd2555cafcc7bca1e82185a5e81a55d46aec625550a6944",
     "ui/timeline_editor.hpp": "5e0065240440cd13e317de4bd207bea262f966eec92c18ba15bd7ccbaf5ee26e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
@@ -2641,6 +2641,30 @@
     ],
     [
       "NativeMonitorPanel",
+      "Start frame (project rate)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Add to selected track",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Enter a nonnegative project frame.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Open saved native take",
       "",
       false
@@ -2834,6 +2858,12 @@
     [
       "NativeMonitorPanel",
       "Saved native take opened. Original outcome: %1.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Verifying original take for the timeline…",
       "",
       false
     ],
@@ -4550,6 +4580,18 @@
     [
       "StudioWindow",
       "Playback could not be completed: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose a track with the original take's channel layout.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The native take could not be added. Its original files are retained.",
       "",
       false
     ],

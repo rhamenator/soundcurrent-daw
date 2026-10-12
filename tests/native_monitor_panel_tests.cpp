@@ -10,6 +10,8 @@
 #include <QTabWidget>
 #include <QSlider>
 #include <QComboBox>
+#include <QLineEdit>
+#include <QLocale>
 #include <soundcurrent/wasapi_ports.hpp>
 #include <QTest>
 #include <QTemporaryDir>
@@ -77,10 +79,22 @@ void finitePanel(const std::filesystem::path &root){
     const auto second=root/"exports"/std::filesystem::path(u8"Restarted – Ελληνικά.wav");check(openedPanel->exportOriginal(second),"Reopened original cannot export");
     await([&]{return bool(openedPanel->snapshot()->exported);});openedPanel->poll();check(hashMediaFile(second)==hashMediaFile(result->job/"take.wav"),"Restarted export changed original samples");
     restarted.openProject(root/"other");check(restarted.snapshot()->root==root,"Reopened original allowed conflicting project replacement");
-    QTest::mouseClick(control<QPushButton>(*openedPanel,"nativeKeep"),Qt::LeftButton);await([&]{return !openedPanel->busy();});
+    control<QLineEdit>(*openedPanel,"nativePlacement")->setText(QLocale().toString(qlonglong(12345)));
+    QTest::mouseClick(control<QPushButton>(*openedPanel,"nativeAddTake"),Qt::LeftButton);
+    await([&]{const auto model=restarted.snapshot();return model->session && model->session->assets.size()==1;});
+    await([&]{return !openedPanel->busy();});
+    const auto placed=*restarted.snapshot()->session;check(placed.tracks.front().clips.size()==1 && placed.tracks.front().clips.front().startFrame==12345 &&
+        placed.tracks.front().clips.front().sourceFrame==0 && placed.assets.front().nativeEvidence.size()==5 && hashMediaFile(root/utf8Path(placed.assets.front().relativePath))==hashMediaFile(result->job/"take.wav"),
+        "Native UI admission inferred alignment, changed original or lost provenance");
+    check(restarted.submitEdit(ProjectCommand{CommandKind::Undo}),"Native placement undo refused");await([&]{return restarted.snapshot()->session->assets.empty();});
+    check(*restarted.snapshot()->session==original,"Native placement undo changed preceding project");
+    check(restarted.submitEdit(ProjectCommand{CommandKind::Redo}),"Native placement redo refused");await([&]{return restarted.snapshot()->session->assets.size()==1;});
+    check(*restarted.snapshot()->session==placed,"Native placement redo changed provenance/placement");
+    check(restarted.submitEdit(ProjectCommand{CommandKind::Save}),"Native placement save refused");await([&]{return !restarted.snapshot()->dirty && restarted.snapshot()->io==IoOperation::None;});
+    check(ProjectStore(root).load()==placed,"Native placed project did not reopen exactly");ProjectStore(root).verifyMedia(placed);
     retained.reset();restarted.close();await([&]{return !restarted.isVisible();});
-    check(ProjectStore(root).load()==original && std::filesystem::exists(result->job/"native-run.json"),"Restart workflow changed project or deleted source");
-    std::cout<<"native_saved_take fresh_window=true no_sdk=true project_owned=true original_outcome=true exact_export=true project_guard=true retirement=true\n";
+    check(std::filesystem::exists(result->job/"native-run.json"),"Native admission deleted original files");
+    std::cout<<"native_saved_take fresh_window=true no_sdk=true project_owned=true original_outcome=true exact_export=true project_guard=true native_timeline_admission=true explicit_frame=true evidence_saved=true undo_redo=true retirement=true\n";
     std::cout<<"native_panel finite=true visible_eq_effect=true inspect=true original_wav_export=true no_overwrite=true keep=true close=true gui_sdk_io=false simulated_sdk=true\n";
 }
 void deviceSelection(const std::filesystem::path &root){

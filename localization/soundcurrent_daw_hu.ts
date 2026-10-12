@@ -1762,6 +1762,22 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Start frame (project rate)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Add to selected track</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Enter a nonnegative project frame.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Open saved native take</source>
       <translation type="unfinished" />
     </message>
@@ -1891,6 +1907,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Saved native take opened. Original outcome: %1.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Verifying original take for the timeline…</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -3062,6 +3082,14 @@ The complete file was published with a warning: %1</source>
     </message>
     <message>
       <source>Playback could not be completed: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose a track with the original take's channel layout.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The native take could not be added. Its original files are retained.</source>
       <translation type="unfinished" />
     </message>
     <message>

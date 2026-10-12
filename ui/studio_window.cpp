@@ -724,6 +724,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         nativeOptions.inventoryMemory = controller_.resourceLedger().child(16*1024*1024,"Native device inventory");
         nativeRecording_ = std::make_unique<NativeMonitorPanel>(
             std::move(nativeOptions), body, controller_.resourceLedger());
+        nativeRecording_->addRequested=[this](Frame start){admitNativeTake(start);};
         nativeRecording_->preparationGuard([this](const auto &p){return configureNativeRecording(p);});
         nativeRecording_->reopenGuard([this]{
             const auto model=controller_.snapshot();const auto play=playback_.snapshot()->phase;
@@ -1702,6 +1703,16 @@ void StudioWindow::pollPlayback() {
         notice_->setText(tr("Playback could not be completed: %1").arg(text(p->diagnostic)));
     }
 }
+bool StudioWindow::admitNativeTake(Frame start) {
+    const auto model=controller_.snapshot();const auto native=nativeRecording_?nativeRecording_->snapshot():nullptr;const auto selected=selectedTrack();
+    if(!native || !native->declared || (!native->result && !native->reopened) || nativeAdmissionRequest_ || !model->session || !selected || model->io!=IoOperation::None || closing_ || closeRequested_ || start<0 ||
+        native->root!=model->root || native->declared->raw.project!=model->session->id)return false;
+    const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*selected;});
+    if(track==model->session->tracks.end() || track->layout!=native->declared->raw.layout){state_->setText(tr("Choose a track with the original take's channel layout."));return false;}
+    const auto request=nextGesture_++;
+    if(!nativeRecording_->prepareAdmission(*selected,start,model->session->sampleRate,request))return false;
+    nativeAdmissionRequest_=request;nativeAdmissionErrorBefore_=native->errorSerial;nativeAdmissionGuard_=StructuralGuard{model->projectEpoch,model->session->id,model->root};nativeAdmissionSubmitted_=false;return true;
+}
 bool StudioWindow::configureNativeRecording(const NativeMonitorPreparation &p) {
     poll(); // Synchronize a just-published Open and stable track selection.
     const auto model=controller_.snapshot();const auto selected=selectedTrack();
@@ -1736,6 +1747,20 @@ void StudioWindow::pollNativeRecording(const std::shared_ptr<const ControllerSna
     if(!nativeRecording_)return;
     if(model->session)nativeRecording_->setProject(model->root,model->session->id);else nativeRecording_->clearProject();
     nativeRecording_->poll();const auto state=nativeRecording_->snapshot();
+    if(nativeAdmissionRequest_) {
+        if(!nativeAdmissionSubmitted_ && state->admission && state->admissionRevision==nativeAdmissionRequest_) {
+            ProjectCommand add{CommandKind::Structural};add.nativeTake=state->admission;add.structuralGuard=nativeAdmissionGuard_;add.structuralRequest=nativeAdmissionRequest_;
+            if(controller_.submit(std::move(add))==Admission::Accepted)nativeAdmissionSubmitted_=true;
+        } else if(nativeAdmissionSubmitted_ && (model->structuralCompleted.request==nativeAdmissionRequest_ || model->structuralRejected.request==nativeAdmissionRequest_)) {
+            const bool success=model->structuralCompleted.request==nativeAdmissionRequest_ && !model->structuralCompleted.error;
+            if(success)nativeRecording_->releaseOriginal();
+            else state_->setText(tr("The native take could not be added. Its original files are retained."));
+            nativeAdmissionRequest_=0;nativeAdmissionGuard_.reset();nativeAdmissionSubmitted_=false;
+        } else if(!nativeAdmissionSubmitted_ && state->error && state->errorSerial>nativeAdmissionErrorBefore_ && !state->admitting) {
+            nativeAdmissionRequest_=0;nativeAdmissionGuard_.reset();
+        }
+    }
+
     if(!nativeRecording_->busy() && nativeTrack_) {
         const auto selected=selectedTrack();
         const auto found=model->session?std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*nativeTrack_;}):std::vector<Track>::const_iterator{};

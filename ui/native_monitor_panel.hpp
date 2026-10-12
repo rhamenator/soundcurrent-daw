@@ -10,6 +10,7 @@ class QCheckBox;
 class QTimer;
 class QCloseEvent;
 class QComboBox;
+class QLineEdit;
 class QStandardItemModel;
 namespace soundcurrent::daw::ui {
 // Reusable visible transport for the owned route. Caller supplies selected device
@@ -27,6 +28,9 @@ class NativeMonitorPanel final : public QGroupBox {
     void clearProject();
     void reopenGuard(std::function<bool()>);
     bool reopenOriginal(const std::filesystem::path &);
+    std::function<void(Frame)> addRequested;
+    bool prepareAdmission(const Id &,Frame,std::uint32_t,std::uint64_t revision);
+    void releaseOriginal();
     bool exportOriginal(const std::filesystem::path &);
     bool enabled(bool);
     bool setPreparation(const NativeMonitorPreparation &); // Admitted immutable copy.
@@ -45,7 +49,8 @@ class NativeMonitorPanel final : public QGroupBox {
     std::filesystem::path projectRoot_;
     std::optional<Id> project_;
     std::function<bool()> reopenGuard_;
-    bool reopeningPending_=false;
+    bool reopeningPending_=false,admissionPending_=false;
+    std::uint64_t admissionCompleted_=0,admissionCancel_=0;
     std::uint64_t reopenCompleted_=0,reopenCancel_=0;
     bool interactive_ = false, refreshing_ = false;
     NativeMonitorController controller_;
@@ -59,7 +64,8 @@ class NativeMonitorPanel final : public QGroupBox {
     void updateDevices(const NativeMonitorSnapshot &);
     bool chooseDevices();
     std::shared_ptr<const NativeMonitorPreparation> preparation_;
-    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_,*open_;
+    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_,*open_,*add_;
+    QLineEdit *placement_;
     QLabel *devices_,*status_,*progress_,*receipt_;
     QSpinBox *seconds_;
     QCheckBox *eq_;

@@ -68,6 +68,7 @@ class StudioWindow : public QMainWindow {
     }
     // GUI entry supplied by a worker-owned device selection; validates current
     // project/selected track, reserves context before copying, no SDK/disk I/O.
+    bool admitNativeTake(Frame);
     bool configureNativeRecording(const NativeMonitorPreparation &);
     std::shared_ptr<const NativeMonitorSnapshot> nativeRecordingSnapshot() const;
     bool prepareRecording();
@@ -239,6 +240,9 @@ class StudioWindow : public QMainWindow {
         std::uint64_t frequencyGesture = 0, gainGesture = 0, qGesture = 0, sliderGesture = 0;
     };
     std::vector<BandEditors> bands_;
+    std::uint64_t nativeAdmissionRequest_=0,nativeAdmissionErrorBefore_=0;
+    std::optional<StructuralGuard> nativeAdmissionGuard_;
+    bool nativeAdmissionSubmitted_=false;
     std::uint64_t nextGesture_ = 1, lastError_ = 0;
     bool closing_ = false, closeAfterSave_ = false, closeRequested_ = false;
     bool closeSaveSubmitted_ = false, closePromptActive_ = false;

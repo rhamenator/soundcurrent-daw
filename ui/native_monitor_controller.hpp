@@ -3,6 +3,7 @@
 #include <soundcurrent/native_monitor_recording.hpp>
 #include <soundcurrent/audio_port.hpp>
 #include <soundcurrent/native_original_export.hpp>
+#include <soundcurrent/native_take_admission.hpp>
 #include <functional>
 #include <span>
 
@@ -22,7 +23,7 @@ struct NativeMonitorControllerOptions {
 };
 enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed, Reopening };
 enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };
-enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices, ExportOriginal, ReopenOriginal };
+enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices, ExportOriginal, ReopenOriginal, AdmitTake };
 struct NativeMonitorCommand {
     NativeMonitorCommandKind kind = NativeMonitorCommandKind::Prepare;
     std::uint64_t generation = 0, revision = 0, resultSequence = 0;
@@ -31,6 +32,8 @@ struct NativeMonitorCommand {
     std::filesystem::path root, job; // Explicit project-owned saved take selection.
     std::optional<Id> project;
     std::filesystem::path destination; // Explicit no-overwrite native original WAV export.
+    std::optional<Id> targetTrack,clipId;
+    Frame placement=0;std::uint32_t projectRate=0;
     std::optional<EqSettings> equalizer;
     std::optional<ParameterAddress> parameter;
     std::optional<bool> enabled;
@@ -53,7 +56,9 @@ struct NativeMonitorSnapshot {
     std::shared_ptr<const NativeMonitorRecordingResult> result;
     std::shared_ptr<const NativeOriginalRecordingPrefix> reopened;
     std::shared_ptr<const NativeOriginalExportResult> exported;
-    bool exporting = false;
+    std::shared_ptr<const VerifiedNativeTake> admission;
+    std::uint64_t admissionRevision=0;
+    bool exporting = false,admitting=false;
     std::optional<ErrorCode> error;
     std::string diagnostic; // UI translates stable error code; original detail retained.
 };

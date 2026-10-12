@@ -1770,6 +1770,22 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Choose an original take directory in this project's media folder. Inspection does not activate audio devices.</translation>
     </message>
     <message>
+      <source>Start frame (project rate)</source>
+      <translation>Start frame (project rate)</translation>
+    </message>
+    <message>
+      <source>Add to selected track</source>
+      <translation>Add to selected track</translation>
+    </message>
+    <message>
+      <source>Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.</source>
+      <translation>Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.</translation>
+    </message>
+    <message>
+      <source>Enter a nonnegative project frame.</source>
+      <translation>Enter a nonnegative project frame.</translation>
+    </message>
+    <message>
       <source>Open saved native take</source>
       <translation>Open saved native take</translation>
     </message>
@@ -1900,6 +1916,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Saved native take opened. Original outcome: %1.</source>
       <translation>Saved native take opened. Original outcome: %1.</translation>
+    </message>
+    <message>
+      <source>Verifying original take for the timeline…</source>
+      <translation>Verifying original take for the timeline…</translation>
     </message>
     <message>
       <source>Exporting original WAV…</source>
@@ -3078,6 +3098,14 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source>Playback could not be completed: %1</source>
       <translation>Playback could not be completed: %1</translation>
+    </message>
+    <message>
+      <source>Choose a track with the original take's channel layout.</source>
+      <translation>Choose a track with the original take's channel layout.</translation>
+    </message>
+    <message>
+      <source>The native take could not be added. Its original files are retained.</source>
+      <translation>The native take could not be added. Its original files are retained.</translation>
     </message>
     <message>
       <source>These loop takes belong to an earlier project. Keep the raw takes for recovery.</source>
