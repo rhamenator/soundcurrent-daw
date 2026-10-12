@@ -1,0 +1,32 @@
+{
+  "source": "3ed02b44b206250a2726cefb59d2190c1e33cc9e",
+  "compiledSource": "tests/manual_recording_tests.cpp",
+  "command": [
+    "nice",
+    "-n",
+    "15",
+    "ionice",
+    "-c",
+    "2",
+    "-n",
+    "7",
+    "x86_64-w64-mingw32-g++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Wconversion",
+    "-Iinclude",
+    "-Itests",
+    "-Ithird_party/libsndfile",
+    "-c",
+    "tests/manual_recording_tests.cpp",
+    "-o",
+    ".cache/writer-backlog-timing/windows-manual-fixture.obj"
+  ],
+  "objectBytes": 257003,
+  "objectSha256": "9fbe8a3734d40961a0282e59e69da1f07935f2d6e4ff39f80aadaca7b8daacbc",
+  "warningFree": true,
+  "runtimeExecuted": false
+}

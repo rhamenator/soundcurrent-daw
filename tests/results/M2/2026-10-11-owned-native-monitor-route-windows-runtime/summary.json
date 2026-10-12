@@ -1,0 +1,20 @@
+{
+  "source": "a587b37bcf5e4aaf7495488e07477d1f18331745",
+  "testedMerge": "b06b6bc669e26aaa16e95547c5a871a49be00954",
+  "tree": "f26f5815d074a11f144865195922beeb96a7f3e8",
+  "run": 38177748593,
+  "jobsPassed": 4,
+  "nativeCtestSuites": 71,
+  "ownedRoutesExecuted": 7,
+  "newOwnedChecks": 1016991,
+  "composedChecks": 4606535,
+  "standaloneOriginal20Take5sCompletions": 3,
+  "nativeWindowsRuntimeExecuted": true,
+  "simulatedSdkOnly": true,
+  "physicalEndpointsQualified": false,
+  "oldWriterRootResolved": false,
+  "ordinaryMergeAdmitted": false,
+  "newRecordingOwnerExecuted": false,
+  "fullGoalComplete": false,
+  "binariesOrMediaIncluded": false
+}

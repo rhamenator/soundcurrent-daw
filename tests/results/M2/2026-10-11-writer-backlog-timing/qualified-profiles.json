@@ -1,0 +1,215 @@
+{
+  "source": "3ed02b44b206250a2726cefb59d2190c1e33cc9e",
+  "tree": "5db204da4694be29d1cd708af2fab7e52c3da6c2",
+  "productionArchiveSource": "9d5da1c5889dc57af20fe70408a43932fcee6f61",
+  "profiles": {
+    "release": {
+      "exeSha256": "771d2df92afe39f5b6d1818d5ab6a619fef85b920bfd527c40b523697a9ceb15",
+      "productionArchivesReadOnly": {},
+      "allOther635InputsUnchanged": true
+    },
+    "sanitizer": {
+      "exeSha256": "99315fed0ec61a0939fec6e63ceebc5cbf9aa1d8a7ec097ef00c0a17fc67d951",
+      "productionArchivesReadOnly": {
+        "libsc-media.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-media.a",
+          "bytes": 100364566,
+          "sha256": "3b31b8e9bf15bb8715589d06efb2c1cbf1f5fbb50dee9ce0262557ee0c1060e5"
+        },
+        "libsc-capture-fanout.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-capture-fanout.a",
+          "bytes": 841782,
+          "sha256": "cae31ce0104e713948547a641ed7ee18521413d2ce1d30ea030f41eba6323c52"
+        },
+        "libsc-capture-bank.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-capture-bank.a",
+          "bytes": 1034812,
+          "sha256": "e7bbde8cade6b668d4dffcae641001c21d730d5ef80f07a3c4b54520eefcd8c0"
+        },
+        "libsc-project-store.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-project-store.a",
+          "bytes": 23868070,
+          "sha256": "a1a2ee009fc2ae36f86b780caa8d4202a59c3070bfb484eda206ceea4e3bd6ad"
+        },
+        "libsc-project-import-state.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-project-import-state.a",
+          "bytes": 3081588,
+          "sha256": "5fee4da3bc3ddb394cd7bbd48db90a5fe45cdcf945e08932282a629c99bed709"
+        },
+        "libsc-inspection-bundle.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-inspection-bundle.a",
+          "bytes": 1585540,
+          "sha256": "424f0e161d3fe8977fc1469d39d23e893f5e313c2e0871c7c2548056ee739e9e"
+        },
+        "libsc-media-provenance.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-media-provenance.a",
+          "bytes": 12566694,
+          "sha256": "fb4aa85917e88dad8f748ab8e6aef7099630847010e1e84ae155eeddcfec61ac"
+        },
+        "libsc-wave-report.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-wave-report.a",
+          "bytes": 7380986,
+          "sha256": "1831e1f062bdbc5277b39a1be8bc5855df714e56acd77d603e3c5b384a6d7f68"
+        },
+        "libsc-import-report.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-import-report.a",
+          "bytes": 8721404,
+          "sha256": "52701e4ea68bafde37e0cc811ce6b797d4a53012209e7bbb1219e7b4d5b84777"
+        },
+        "libsc-foreign-snapshot.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-foreign-snapshot.a",
+          "bytes": 955832,
+          "sha256": "7dacb2ed96e2d751eba8258612f01e89724b1810d026e2e97cdaf86041747fb0"
+        },
+        "libsc-reaper-structure.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-reaper-structure.a",
+          "bytes": 1008568,
+          "sha256": "fe58819bb38c75f092b44dd4e98c64be4c75b091178e565e8fbb7bf7db3845d2"
+        },
+        "libsc-wave-validation.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-wave-validation.a",
+          "bytes": 1265146,
+          "sha256": "46f8a1d8c5a39e76c2dec786225fbc2c1dc44f427fcb869938d2ed3912e1ad10"
+        },
+        "libsc-approved-media.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-approved-media.a",
+          "bytes": 1804570,
+          "sha256": "9b4beb3ae13968ffd21b26460e0a257525e847b4dfa0c86aea279dc70498d57c"
+        },
+        "libsc-playback.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-playback.a",
+          "bytes": 4875622,
+          "sha256": "27b6516b894964e4f9d92008f5294eb2843415b2fd029b6463eee499cd5123e5"
+        },
+        "libsc-audio-bridge.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-audio-bridge.a",
+          "bytes": 2174276,
+          "sha256": "91b62cca96cf210bfe817a77e6a6421fbd568a890e07fc480a6972816b64c4fa"
+        },
+        "libsc-capture.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-capture.a",
+          "bytes": 1129652,
+          "sha256": "0340e3b7578b023825a34fa3c1b2153bf13d738d137c9be42f60b28e28c2afae"
+        },
+        "libsc-engine.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-engine.a",
+          "bytes": 6590300,
+          "sha256": "c869e9aa217cf381d6a0f90044595e212be2a735cbd9f7a061c953e04ce99c39"
+        },
+        "libsc-positioned-resampling.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-positioned-resampling.a",
+          "bytes": 3116246,
+          "sha256": "1d9c2234fe8ab2fb5f507aee5ed9f91b6554f06b7e6d234c1efc09c5053eb795"
+        },
+        "libsc-session.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-sanitizer/libsc-session.a",
+          "bytes": 37349930,
+          "sha256": "174caad9cc5646ffd2e273febabae1afeef51fa1e380f76411497d93c48b0792"
+        }
+      },
+      "allOther635InputsUnchanged": true
+    },
+    "tsan": {
+      "exeSha256": "c2338f986d7603da9e6c2194b6d522079e72c6afe1b8d22a77157c005e3c1a2f",
+      "productionArchivesReadOnly": {
+        "libsc-media.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-media.a",
+          "bytes": 66910826,
+          "sha256": "385aa6eca462be41d7d867e19cc15355ded0bb1b8c80465fc2ddf8c1043a4d2a"
+        },
+        "libsc-capture-fanout.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-capture-fanout.a",
+          "bytes": 574854,
+          "sha256": "7eac4bc33f4ed03de1add7be26e1cb416733e7d4cfde92d74ed03d702226d75f"
+        },
+        "libsc-capture-bank.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-capture-bank.a",
+          "bytes": 604466,
+          "sha256": "e1ce78ce0ef1059568634201ea9530c43616d38e204f28b78f1ade596b9f72f7"
+        },
+        "libsc-project-store.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-project-store.a",
+          "bytes": 15218664,
+          "sha256": "0e9881e9028376ad03bfb6414af42bb500701990227a7d911d031b011bf1f051"
+        },
+        "libsc-project-import-state.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-project-import-state.a",
+          "bytes": 3248930,
+          "sha256": "513ef828c71a67cf1921e9075361910227e21a5cda64d61221bd5f3653d0addd"
+        },
+        "libsc-inspection-bundle.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-inspection-bundle.a",
+          "bytes": 1447154,
+          "sha256": "8545272121d45db42320153ba1efbb22761ee4c24392ec9f2ebb84a9fe211460"
+        },
+        "libsc-media-provenance.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-media-provenance.a",
+          "bytes": 7091716,
+          "sha256": "bfe5ab374347ec4bff238ada7a7e241242c3bfcff05d6cba00dbdc568e1a57f5"
+        },
+        "libsc-wave-report.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-wave-report.a",
+          "bytes": 4328054,
+          "sha256": "3b090b2b47db1231e0f4ca787fe85187201f66313507c7623aa73125231a7ffc"
+        },
+        "libsc-import-report.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-import-report.a",
+          "bytes": 5268226,
+          "sha256": "8da43306e7656c99ad04a188e5b104c90885bbb7f0154dc71c7cf2a1a00c59ac"
+        },
+        "libsc-foreign-snapshot.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-foreign-snapshot.a",
+          "bytes": 816208,
+          "sha256": "e23c2753f7223b4fe4591a6ab28b0f538fcc30404a33fa4f056f8378988350ce"
+        },
+        "libsc-reaper-structure.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-reaper-structure.a",
+          "bytes": 666734,
+          "sha256": "f73d55f0707713d624a6d3e92148a9852d7b3b344d9b06b3323c5bdf23726bcf"
+        },
+        "libsc-wave-validation.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-wave-validation.a",
+          "bytes": 701634,
+          "sha256": "c5e962f61b2ef515b963b185bc5c053c0f98e988c8316e3af18ae605d6f5edca"
+        },
+        "libsc-approved-media.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-approved-media.a",
+          "bytes": 1202476,
+          "sha256": "307ecf0a6a492ba17e80c0b82756b1213b070f3c6f51c7055ec997f4f1d44a70"
+        },
+        "libsc-playback.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-playback.a",
+          "bytes": 3113258,
+          "sha256": "5cebfb29f3ad60f0f426933ec9a16712aa9867d7046db22e08c44963b7654851"
+        },
+        "libsc-audio-bridge.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-audio-bridge.a",
+          "bytes": 1467146,
+          "sha256": "2bbe21a3ce384d0dee4fcc9c9de7165a6a05461f5a33017512f3a83ba7819eae"
+        },
+        "libsc-capture.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-capture.a",
+          "bytes": 621104,
+          "sha256": "37a8d94a038fe0dc44653298ca9bf5881d6d677de6b632f24ebf0e7b229e6235"
+        },
+        "libsc-engine.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-engine.a",
+          "bytes": 3917246,
+          "sha256": "7ae1bd0be995fc4c4e2aeccb48dbeea3a0bb3569dd4b85d99722efceca2f3347"
+        },
+        "libsc-positioned-resampling.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-positioned-resampling.a",
+          "bytes": 2908026,
+          "sha256": "60918d45f9c03ff7327e354d2b853c3d203d211214061d9140388a08fb2f76cd"
+        },
+        "libsc-session.a": {
+          "path": "/home/rich/dev/soundcurrent-daw/.cache/native-channel-state/build-tsan/libsc-session.a",
+          "bytes": 22603690,
+          "sha256": "64ae4913110f8f3d29b0650133ce3100eb21b943c988d3251b20249648a2f610"
+        }
+      },
+      "allOther635InputsUnchanged": true
+    }
+  },
+  "nativeWindowsRuntimeExecuted": false
+}

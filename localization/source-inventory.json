@@ -28,6 +28,8 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
+    "ui/native_monitor_controller.cpp": "ba655d908287ffc2e7aedb07b1d31b2ec1323885475ecf357fa62127a94b60e5",
+    "ui/native_monitor_controller.hpp": "a641937e90ede863c13f3abe05fa01be6e21a2affd3e526f9bb12410823a311c",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
     "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
@@ -49,6 +51,7 @@
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
+    "ui/wasapi_native_monitor_controller.cpp": "222282f7ab4877098afec54b6051f1e9473a53f627b8ba30ba4296dd4a39cb4b",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
     "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9"
   },

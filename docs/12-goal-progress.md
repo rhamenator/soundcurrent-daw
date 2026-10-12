@@ -1,5 +1,202 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native command payload admission (2026-10-11)
+
+[Checkpoint216](216-native-command-payload-admission.md) reserves queued/in-flight
+command credit before owned copying, shares parent/child GUI ledgers, validates
+bounded text/arrays and keeps urgent Cancel independent at quota. A real copy
+witness and factory/state checks verify atomic refusal and retirement. Release
+17.32 s, ASan/UBSan 24.92 s and TSan 28.40 s pass; guarded violations zero. First
+TSan snapshot-identity assertion failure is retained and corrected to semantic
+state/copy evidence. Four current Windows objects compile; current native runtime
+and broader GUI snapshot/result/panel admission remain open.
+
+Preceding PR150 passes all four jobs: native 71 suites/22 original manual cases/
+three original standalone completions, desktop 19 suites/four interruption cases,
+Linux 143 suites. Exact original timings and full source/log/artifact bindings are
+retained. Passing intervals do not explain prior watchdog/manual timeouts or flush
+stall causes. Next build the visible recording panel using the coded controller,
+localize/admit its state and qualify installed/native/hardware workflows. Full
+scope remains active and incomplete.
+
+
+## Original interruption and manual case timing (2026-10-11)
+
+[Checkpoint215](215-owned-interruption-observation-timing.md) preserves bounded
+same-domain observations around Windows acknowledgement/suspension/recovery and
+original manual case boundaries. Production code, original cases/arguments,
+expected outcomes and deadlines remain unchanged. Original Linux interruption
+cases pass 7.43 s; actual C++ probe clocks and 16 observation checks pass. The
+22-case manual suite passes Release 1.14 s, ASan/UBSan 4.18 s, TSan 2.91 s; guarded
+violations zero and all three original standalone diagnostics complete. Current
+Windows manual object compiles; new Windows timing execution remains pending.
+
+A concrete catalog-inventory repair adds the three new controller source hashes;
+34 catalogs/917 keys/draft and review statuses remain unchanged, both catalog gates
+and 13 refusal cases pass. Preceding PR149 executes the new controller successfully
+on Windows, but its native job times out in the older full manual suite at 60.11 s;
+Linux's two inventory failures are repaired here. Desktop/cross pass. Full original
+logs/artifact/source evidence is retained; earlier watchdog and manual stall causes
+remain unresolved. Next obtain current native timings, qualify causal corrections
+and connect the visible recording panel. Full scope stays active and incomplete.
+
+
+## Native desktop recording control worker (2026-10-11)
+
+[Checkpoint214](214-native-monitor-controller.md) codes worker-owned finite native
+recording controls, explicit Windows selection, bounded command/urgent Cancel,
+stable EQ revision receipts, retained terminal outcomes and inactive reopen.
+Actual control/processing/disk workers pass expanded existing tests with simulated
+SDK: Release 17.31 s, ASan/UBSan 24.67 s, TSan 28.02 s; callback guard violations 0.
+Four current Windows objects compile warning-free. Current controller native
+runtime, panel activation, GUI payload admission, localization and hardware remain
+open; full scope is unchanged.
+
+Preceding PR148 native job passes all 71 suites, six EQ recordings/two publication
+interruptions and three original standalone diagnostics. Its desktop job fails
+parent-interruption recovery (Incomplete vs Ready; actual helper exit 2). Original
+logs/process/artifact/source bindings are preserved; Linux and cross jobs pass.
+Next qualify the watchdog timing/causal correction and connect the
+visible recording panel. Failed required gates prevent ordinary admission.
+
+
+## Native monitoring EQ and initial state (2026-10-11)
+
+[Checkpoint213](213-native-monitor-eq.md) integrates the existing prepared shared EQ
+into converted/mapped native monitoring, with stable bounded immediate/scheduled
+control ingress and acknowledgements. Original raw RF64 bits remain identical.
+Native state 1.3 binds a canonical initial declaration; bounded reopen, tamper
+refusal, legacy admission, migration and publication interruptions pass. It does
+not record interactive history or print monitoring correction into raw/export.
+
+Two expanded existing suites pass Release 15.38 s, ASan/UBSan 40.35 s and TSan
+29.31 s; guarded allocate/free/lock=0. Thirteen current Windows objects compile
+warning-free, including genuine SDK/timer code; current Windows native runtime,
+physical audio and desktop activation remain open. Exact source/command/log/hash
+and read-only equalizer provenance evidence is retained.
+
+Previous PR147 native job failed: 70/71 CTests passed, new owner startup timed out;
+third original standalone recording stalled at AudioFlushBegin after two passes.
+All original job/artifact logs and source bindings are preserved. Private Windows
+high-resolution waits now address a plausible owner-cadence issue; runtime evidence
+is pending and the separate manual flush-stall cause remains unresolved. Neither
+original deadlines/cohort nor protection are relaxed. Next qualify current native
+Windows execution and connect the finite desktop/controller workflow. Full-suite
+M2–M11/F/Q/C/N/X004/X005/platform/all-Europe goals remain active and incomplete.
+
+
+## Owned native monitored recording workers (2026-10-11)
+
+[Checkpoint212](212-native-monitored-recording-owner.md) codes the genuine WASAPI
+prepared-stream adapter and an owner for route, original writer and processing/disk
+workers. Pending state precedes activation; partial-start rollback and finalization
+join callbacks before storage retirement. Stop/cancel, missing native ends, failed
+writes/clocks, empty cancellation, original raw bits/reopen, metadata and reservation
+release are qualified. Bounded copied/released receipts avoid mutable statistics
+reads. Independent control pressure still requires actual monitor QueueFull and
+retains the full raw prefix; original capacities/deadlines/cohort remain unchanged.
+
+Expanded suite passes Release 12.57 s, ASan/UBSan 19.25 s and TSan 22.78 s. Seven
+current Windows objects compile warning-free, including the real SDK adapter;
+native link/runtime and physical endpoints remain unqualified. Preceding PR146
+passed all four required jobs/71 native suites/seven owned routes/three actual
+standalone runs; its original logs/artifact bindings are retained. Older manual
+writer-delay cause remains unresolved. Next is prepared monitoring EQ plus Windows
+desktop/controller integration, followed by hardware/scheduling/alignment gates.
+Full-suite M2–M11/F/Q/C/N/imports/profiles/platform/localization remains active.
+
+## Owned prepared native monitoring route (2026-10-11)
+
+[Checkpoint211](211-owned-native-monitor-route.md) derives immutable matching
+queues/callbacks from actual native descriptors and owns them in stable storage,
+with one aggregate lease before bank allocation. Seven owned startup routes pass
+at 44.1/48/96 kHz, including explicit mono-to-stereo. Raw bits/stamps/headroom,
+full-FIFO admission, memory refusal and missing-owner/raw-prefix settlement are
+qualified. The expanded existing suite passes Release 0.64 s, ASan/UBSan 6.10 s and
+TSan 8.39 s; guarded allocate/free/lock=0. Windows compile/link passes warning-free;
+new native runtime still needs its own CI qualification.
+
+Preceding PR145 passed all four required jobs, 71 native suites and three actual
+original standalone runs. Original held-write timing/backlog and full-prefix
+recovery executed on Windows; full logs/source bindings are retained. That pass
+does not establish the earlier intermittent delay's cause. The owned SDK/thread/
+disk factory, monitoring EQ integration, larger FIFO geometry, physical tests and
+desktop activation remain next. Full-suite M2–M11/F/Q/C/N/imports/profiles/platform/
+European localization goals remain active and incomplete.
+
+## Original writer backlog and measured spans (2026-10-11)
+
+[Checkpoint210](210-writer-backlog-timing.md) adds test-only retention of original
+disk-writer backlog, local observation age, in-flight write and completed spans.
+Snapshots have eight bounded attempts and no allocation/clock/logging work;
+control never reads a mutable pipe. An actual deliberately held first write
+reaches QueueFull, retains phase/acquisition/time evidence, then joins and
+recovers every sample of its 8,192-frame prefix. Original production capacities,
+deadlines, 20-take/five-second/cohort and callback cadence remain unchanged.
+
+Full manual workflows pass Release 1.14s, ASan/UBSan 4.07s and TSan 2.85s with
+RT violations/PCM difference 0; separate original standalone protocol passes.
+The Windows fixture object is warning-free but awaits native execution. Read-only
+qualified production archives reduce sanitizer rebuild disk work, with all other
+635 inputs and their hashes preserved. Source/log/command evidence and the
+archive-count helper correction are retained. Preceding PR144 passed all four
+required jobs on38174473151: native71 suites183.10s and three actual original
+standalone runs; its original
+artifact confirms mapped state/startup/migration execution. It predates these
+new diagnostics. The earlier Windows writer delay remains unexplained; factory,
+physical audio and full M2–M11/F/Q/C/N/X004/X005/platform/localization goals remain
+open. Next inspect fresh native timing/backlog evidence and qualify a correction.
+
+## Native monitor matrix state and composed startup (2026-10-11)
+
+[Checkpoint209](209-native-channel-state.md) adds auxiliary native state 1.2,
+a canonical bounded matrix artifact and a fixed startup fingerprint. Raw capture
+and retained source PCM keep their original width; startup and saved state bind
+the explicit output width and matrix. Legacy 1.0/1.1 writing refuses matrices;
+explicit migration preserves original outcomes and absent mapping. Full-size
+65,536-route state, malformed references/artifacts and two actual matrix
+publication interruptions pass alongside existing native/migration boundaries.
+
+Four suites pass Release 2.34s, ASan/UBSan 34.82s and TSan 31.66s: 3,589,544
+composed checks, 498,462 processing checks and guarded allocation/free/lock 0 per
+profile. Twelve composed persistence runs include four mono-to-stereo runs at
+44.1/48/96kHz and failed Stop, plus actual legacy startup migration; fourteen
+diagnostic outcomes retain original evidence. Mapped reference PCM error is 0.
+The packet binds 636 inputs, Linux/Windows hashes, commands and complete logs.
+Windows SDK/three fixtures compile/link; seven changed objects are warning-free.
+New Windows runtime and the ordinary factory remain unqualified/disabled.
+
+PR143 remains draft after required native Windows run38171414742 failed: all 71
+CTest suites and two standalone 20-take/five-second runs passed; the third
+exhausted capture at take16/identity17 while WriteHashBegin remained pending with
+written0/committed0. Full original job logs and selected artifact logs are
+retained. The writer delay's cause remains open; passing simulated tests or an
+unchanged CI retry does not resolve it. Next retain backlog and disk write timing,
+then qualify a concrete correction before factory activation. The complete
+M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe goal remains ACTIVE/incomplete.
+
+## Explicit monitor channel matrix (2026-10-11)
+
+[Checkpoint208](208-explicit-monitor-channel-map.md) adds an immutable prepared
+matrix after causal conversion, with original raw/input width preserved. Explicit
+mono-to-stereo, stereo downmix, sparse polarity/gain and silent slots are bounded,
+charged before activation and checked for whole-block finite float-range output.
+Mapped bytes survive output pressure; overflow preserves the raw route and first
+monitor fault. Absent-map identity retains its preceding path.
+
+Four selected suites pass Release1.69s/ASanUBSan17.15s/TSan26.35s, with498,462
+processing checks/profile and guarded allocation/free/lock0.636 input bindings,
+12 Linux executables/nine objects and three Windows objects/executables plus SDK
+archive hashes/full logs are retained. Windows compile/link passed; new Windows
+runtime remains unqualified. Protected PR142 merged at MAIN143c76a after four
+fresh green jobs/native71 suites185.83s; exact protected evidence is retained.
+
+Native1.1 has no channel-matrix declaration. Explicit map+startup admission is
+refused before ownership/PCM; next version that state and its migration, then
+compose mono-input/stereo-output full-FIFO/native SDK/save/recovery workflows.
+Factory/UI activation and physical/native deadline/alignment gates remain open.
+The complete M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe goal is ACTIVE.
+
 ## Versioned native state and migration (2026-10-11)
 
 [Checkpoint207](207-native-state11.md) records protected PR141 integration at
@@ -17,7 +214,11 @@ and two migration process boundaries pass. Six suites/profile pass
 Release0.67s/ASanUBSan6.88s/TSan6.72s,2,475,990 composed checks/PCM error0/RT audit0;
 634 input bindings/18 executable/14 object hashes/full logs are retained. Windows
 SDK/four tests compile/link and five persistence-enabled objects are warning-free;
-new native execution remains required. Protected-MAIN inheritance leaves the
+PR142 then passed four fresh required jobs: native71 suites185.83s, new state and
+migration execution, and three original20-take/five-second completions. Ordinary
+protected MAIN143c76a exactly matches the tested tree/base/72blobs; full logs and
+admission/postmerge evidence are retained. These remain simulated SDK workflows.
+Protected-MAIN inheritance leaves the
 whole qualified source tree unchanged. Next compose owned native routes and
 explicit mono-input/stereo-monitor mapping. Factory remains disabled; full goal
 M2–M11/F/Q/C/N/X004/X005/Linux+Windows/all-Europe remains ACTIVE/incomplete.
