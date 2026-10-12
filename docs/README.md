@@ -195,3 +195,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native originals on the project timeline](223-native-take-admission.md)
 
 - [PipeWire planar capture and explicit clock domains](224-pipewire-monitor-capture.md)
+
+- [PipeWire planar rendering and actual buffer-return receipts](225-pipewire-monitor-render.md)

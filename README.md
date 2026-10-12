@@ -204,8 +204,11 @@ CTest does not connect physical audio devices. Native integration fixtures are
 opt-in and must run serially after builds and tests finish.
 
 Development also includes a [PipeWire native capture boundary](docs/224-pipewire-monitor-capture.md)
-with explicit clock domains and private-daemon acceptance. Rendering, native receipt
-persistence and connection to the native recording UI remain unfinished.
+with explicit clock domains and private-daemon acceptance. A
+[render boundary](docs/225-pipewire-monitor-render.md) now records actual per-port
+queue results and verifies finite output in private test sinks. Shared-owner/receipt
+persistence and connection to the native recording UI remain unfinished; retained
+native startup and contention failures remain open.
 
 ## Desktop recording workflow
 

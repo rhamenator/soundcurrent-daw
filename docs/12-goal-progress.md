@@ -1,5 +1,24 @@
 # Active full-suite goal: progress and completion evidence
 
+## PipeWire render boundary and genuine native returns (2026-10-12)
+
+[Checkpoint225](225-pipewire-monitor-render.md) adds planar rendering and a genuine
+output-only stream with per-port native acquisition/queue facts. Monitor consumption,
+native queue acceptance, finite padding, startup silence and callback join remain
+separate. Six Release suites pass19.62s; final render suite30,443 checks and three
+ASan/UBSan suites0.08s pass. Release/sanitizer private sinks each receive96,123
+frames unchanged plus133 final zero frames, with audited render allocation/free/lock=0.
+Five Windows objects compile warning-free; runtime remains pending.
+
+A capture regression refuses a real cycle194→196 gap after49,408 matching raw/monitor
+frames; original failure retained and contention throughput unqualified. PR159's
+Linux145/433.28s, Windows desktop20/83.21s and cross-build pass; native71/72 passes
+with a finite startup5s-wait failure. All three follow-up owner diagnostics pass;
+that does not erase earlier failures. New test-SDK observations sample wait stage
+and counts before cancellation without changing behavior/deadlines. Next complete
+shared-owner/typed PipeWire receipts/controller integration and resolve native
+startup/throughput failures. Full goal remains active.
+
 ## PipeWire native capture boundary (2026-10-12)
 
 [Checkpoint224](224-pipewire-monitor-capture.md) implements a genuine input-only
