@@ -1,0 +1,31 @@
+{
+  "source": "665f8cdb923f74503af58db7deea9a3357a5615d",
+  "tree": "c884e4ae4f929c7d19b2ed40f2f27a32b55174cd",
+  "qualifiedInputs": 784,
+  "workerInventoryAndGuiModelsAdmitted": true,
+  "sourceCallbackStillRequiresBoundedProjection": true,
+  "noAutomaticDeviceSelection": true,
+  "freshStaleDeviceValidationBeforeStreams": true,
+  "removedInputUnavailableAndNoSilentFallback": true,
+  "explicitMonoToStereoMapping": true,
+  "sameNativeOrderSupported": true,
+  "customNativeMatrixEditorQualified": false,
+  "nativeFullSuiteSeconds": {
+    "release": 19.63,
+    "asanUbsan": 26.84,
+    "tsan": 29.85
+  },
+  "guiReleaseFourSuiteSeconds": 16.91,
+  "guiPanelChecks": 66,
+  "guiAsanUbsanSeconds": 11.15,
+  "guiTsanQualified": false,
+  "fourCurrentWindowsObjectsCompiled": true,
+  "currentWindowsGuiLinkRuntimeQualified": false,
+  "windowsMainSuppliesNativeAdapter": true,
+  "linuxUsesExistingPipewireRecorder": true,
+  "newNativeLinuxAdapterQualified": false,
+  "rawTakeAutomaticallyAlignedOrAttached": false,
+  "physicalEndpointsOrInstalledPreviewQualified": false,
+  "fullSnapshotResultOwnershipQualified": false,
+  "noBinaryOrAudioPayload": true
+}

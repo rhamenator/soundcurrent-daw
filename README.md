@@ -217,6 +217,11 @@ recording… previews/copies an owned checkpoint; File → Export WAV… renders
 immutable project snapshot with range, cancellation and overwrite confirmation.
 Closing waits for recording/export finalization before Save/Discard/Cancel.
 
+The native recording tab also provides **Export original WAV…** for an inactive,
+verified finalized take. It copies the native-rate floating-point WAV without
+monitoring EQ and refuses existing destinations. See [original take export](docs/221-native-original-export.md)
+for bounds, platform evidence and remaining native take integration work.
+
 See [desktop recording](docs/22-desktop-recording.md),
 [multi-arm workflow](docs/37-desktop-duplex-recording.md),
 [punch controls](docs/54-project-punch-controls.md), and
