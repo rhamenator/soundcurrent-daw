@@ -1,0 +1,25 @@
+{
+  "source": "d9ffc04e45f280301ff3d42cd999077138311b4c",
+  "tree": "d805fe14bbce55e9b8c4bfa87c43b511f530843a",
+  "sourceInputs": 643,
+  "ownedChecks": {
+    "release": 955963,
+    "sanitizer": 959810,
+    "tsan": 964028
+  },
+  "totalComposedChecks": {
+    "release": 5562498,
+    "sanitizer": 5566345,
+    "tsan": 5570563
+  },
+  "originalSourceInputsUnchangedExceptProcessingReceiptAndNativeTestMain": true,
+  "realProcessingDiskWorkersExecuted": true,
+  "sdkOperationsSimulated": true,
+  "sevenCurrentWindowsObjectsCompiled": true,
+  "currentWindowsNativeLinkOrRuntimeExecuted": false,
+  "monitoringEqIntegrated": false,
+  "physicalAudioQualified": false,
+  "desktopFactoryEnabled": false,
+  "fullGoalComplete": false,
+  "binariesOrMediaIncluded": false
+}

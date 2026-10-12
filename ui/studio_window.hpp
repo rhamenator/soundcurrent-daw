@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include "native_monitor_controller.hpp" // Engine declarations precede Qt keyword macros.
 #include "project_controller.hpp"
 #include "timeline_editor.hpp"
 #include "playback_controller.hpp"
 #include "recording_controller.hpp"
 #include "manual_recording_panel.hpp"
+#include "native_monitor_panel.hpp"
 #include "recovery_controller.hpp"
 #include "export_controller.hpp"
 #include "export_dialog.hpp"
@@ -43,7 +45,8 @@ class StudioWindow : public QMainWindow {
                           ManualControlOptions = {}, ControllerOptions = {},
                           std::function<void(HistoryBudget)> historyAccepted = {},
                           std::function<void(MemoryPreferences)> memoryAccepted = {},
-                          StretchOptions stretchOptions = {});
+                          StretchOptions stretchOptions = {},
+                          NativeMonitorControllerOptions nativeOptions = {});
     bool requestClipStretch(const Id &, const Id &, StretchSettings,std::optional<StretchContext> = {},const std::optional<WarpSettings> & = {});
     bool applyClipStretch();
     bool auditionClipStretch();
@@ -63,6 +66,10 @@ class StudioWindow : public QMainWindow {
     std::uint64_t displayedRevision() const {
         return guiRevision_;
     }
+    // GUI entry supplied by a worker-owned device selection; validates current
+    // project/selected track, reserves context before copying, no SDK/disk I/O.
+    bool configureNativeRecording(const NativeMonitorPreparation &);
+    std::shared_ptr<const NativeMonitorSnapshot> nativeRecordingSnapshot() const;
     bool prepareRecording();
     bool configureArmedRecording(const std::vector<Id> &, Frame frames = 0);
     bool configurePunch(PunchSettings);
@@ -239,6 +246,14 @@ class StudioWindow : public QMainWindow {
     std::uint64_t closeErrorSerial_ = 0;
     // Destroy the pane before the project worker and its referenced gesture sequence.
     std::unique_ptr<ManualRecordingPanel> manual_;
+    std::unique_ptr<NativeMonitorPanel> nativeRecording_;
+    std::uint64_t nativeProjectEpoch_ = 0,nativePreparationGeneration_ = 0;
+    std::optional<Id> nativeTrack_;
+    std::optional<EqSettings> nativeEqSent_;
+    ResourceLease nativeEqCredit_;
+    void pollNativeRecording(const std::shared_ptr<const ControllerSnapshot> &);
+    bool nativeInactive() const;
+    bool nativeClosed() const;
     void poll();
     void pollPlayback();
     void playSelected();
