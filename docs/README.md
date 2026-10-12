@@ -189,3 +189,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Explicit native recording device selection](220-native-device-selection.md)
 
 - [Verified native original WAV export](221-native-original-export.md)
+
+- [Saved native takes across application restarts](222-native-original-reopen.md)

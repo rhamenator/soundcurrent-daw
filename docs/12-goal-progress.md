@@ -1,5 +1,23 @@
 # Active full-suite goal: progress and completion evidence
 
+## Saved native takes across application restarts (2026-10-12)
+
+[Checkpoint222](222-native-original-reopen.md) adds project-owned saved take selection,
+inspection and exact WAV export through a fresh controller/window, including Linux
+without a native stream adapter. Project/job/asset identity and inactive ownership
+are verified on the worker. Stored outcomes remain separate from current transport
+and no timeline anchor is inferred. Retained prefix/declaration credits survive
+until the last consumer retires; other ownership gates remain open.
+
+Four Release suites30.77 s, four ASan/UBSan suites60.76 s and existing desktop
+regressions6.40 s pass (85 panel checks/1,662 durable outcomes). Six Windows core
+objects compile warning-free; current native Windows runtime/installed/physical
+qualification remains open. PR156's desktop20/Linux144/cross pass; its native
+fixture fails an SDK macro collision. Original logs/source are retained and the
+fixture variable is corrected. Next qualify current Windows source and admit
+native takes at an explicit timeline position; transport alignment/Linux native
+adapter and all later full-suite/European language requirements remain active.
+
 ## Verified native original WAV export (2026-10-12)
 
 [Checkpoint221](221-native-original-export.md) adds worker-owned original WAV export

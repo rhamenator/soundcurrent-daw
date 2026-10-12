@@ -217,6 +217,10 @@ recording… previews/copies an owned checkpoint; File → Export WAV… renders
 immutable project snapshot with range, cancellation and overwrite confirmation.
 Closing waits for recording/export finalization before Save/Discard/Cancel.
 
+The native tab's **Open saved native take…** reopens an owned take in the current
+project's media folder, including after an app restart and on systems without a
+native recording adapter. See [saved native takes](docs/222-native-original-reopen.md).
+
 The native recording tab also provides **Export original WAV…** for an inactive,
 verified finalized take. It copies the native-rate floating-point WAV without
 monitoring EQ and refuses existing destinations. See [original take export](docs/221-native-original-export.md)
