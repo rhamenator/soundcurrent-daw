@@ -1,0 +1,387 @@
+{
+  "members": {
+    "freeze-inputs.py.gz": {
+      "bytes": 825,
+      "sha256": "01caed895e102eb5a374c5fcfa00ec25382c51a5477c1bf7ded3e1c816a15c24",
+      "originalBytes": 1711,
+      "originalSha256": "0cf7cb0f133c224dc7ba34855f770507d297603088f37d7fdbd5e07161ac26b4",
+      "lossless": true
+    },
+    "qualify.py.gz": {
+      "bytes": 2011,
+      "sha256": "fee02b9c0d39aaff31ee2753c88a62c7b2b5e77d4ca877ed8d9fd8921d91461d",
+      "originalBytes": 4874,
+      "originalSha256": "8b902df7e22eb4ff617efb5d3bf0bf68f3bc056fd231660c50c4344526a66c25",
+      "lossless": true
+    },
+    "qualify-windows.py.gz": {
+      "bytes": 931,
+      "sha256": "21a11dfbb627238420a72ec7c935c8ecca7ff1ee4556382189fb53e143008f41",
+      "originalBytes": 1755,
+      "originalSha256": "423491443c5a543b4de7c6c3c82a90f3fb5c2b279c2a1762f22911dfd023176e",
+      "lossless": true
+    },
+    "retain.py.gz": {
+      "bytes": 1552,
+      "sha256": "afae9c7d3b7ec9bc32b3fbf236dca65c801866f0a585817e2ebd3e01ec94a41e",
+      "originalBytes": 3470,
+      "originalSha256": "bb31c7955e8750cd43b57a93234abfc93b22966b5096549770247665688eff9d",
+      "lossless": true
+    },
+    "frozen-inputs.json.gz": {
+      "bytes": 67179,
+      "sha256": "e0087772b9043536da776c3636ab54e8a50c8c5200b940d2354775e0941f275c",
+      "originalBytes": 324900,
+      "originalSha256": "4b603957c71cdd05456d75f60da28cff7fdcb93fabf92123af0d52d0f2d92cda",
+      "lossless": true
+    },
+    "qualified-profiles.json.gz": {
+      "bytes": 6744,
+      "sha256": "4fdbf922bd54e37cce9c851b35cc535907acfb096916c7905820bf258ee77420",
+      "originalBytes": 31655,
+      "originalSha256": "63eaae6702bb6cea77c7afc3a441ec3068c965d8b170b974531e006de5e44180",
+      "lossless": true
+    },
+    "windows-qualification.json.gz": {
+      "bytes": 737,
+      "sha256": "3d1b9bef339ad6c371354c34b66ba24037972dfbdc41268f25f4adefd44a30d6",
+      "originalBytes": 3402,
+      "originalSha256": "bdc461af82018be7764ac4a093691a22b821077f6092e7a1cf664b5efff3593e",
+      "lossless": true
+    },
+    "qualification-commands.json.gz": {
+      "bytes": 1855,
+      "sha256": "535d7a96ae41a36932f5ac365b72ffafde9168b6cb4f85da14a1692d8c0d0234",
+      "originalBytes": 31788,
+      "originalSha256": "351f592bc74121c3fd0112d28dcf51bbf0b2af1e0d13c26e2f54eae89467314c",
+      "lossless": true
+    },
+    "qualification.log.gz": {
+      "bytes": 91,
+      "sha256": "099c143329e54c343133566e970fcbe576785fe6137af00b7ecd97ef0cea62ca",
+      "originalBytes": 120,
+      "originalSha256": "90c354e1072b37c8d28d88149302746013cea101db4abc0a809dc180e0abffdb",
+      "lossless": true
+    },
+    "windows-qualification.log.gz": {
+      "bytes": 107,
+      "sha256": "0ea07be9ca3fe162fd033ec37110d077c6d74f6bc8bcef536e1ff183e4921d5b",
+      "originalBytes": 96,
+      "originalSha256": "21993bffaa3d4bc4b48f054a9e724a446ddc6ec20d1f170000516f2496a30425",
+      "lossless": true
+    },
+    "source-delta.diff.gz": {
+      "bytes": 340856,
+      "sha256": "13f1b5a7ab22c9d8504f2084538c0e5df3ba0c7281027008d37b0e83184f34db",
+      "originalBytes": 1673072,
+      "originalSha256": "e2f528fabebc843ead4fcb8c25feaa6f98e7ea72a39a52cb720ae1dc5ee709c8",
+      "lossless": true
+    },
+    "release-configure.log.gz": {
+      "bytes": 879,
+      "sha256": "1ad55c9a65a44a3ae32bcf15218324dc33ab0a1346627fe3d5656bff18deec06",
+      "originalBytes": 2055,
+      "originalSha256": "2ec9b24a15c355c14974e25fa92a0e576002493a38553677656357b9757f18cc",
+      "lossless": true
+    },
+    "release-tests.log.gz": {
+      "bytes": 200,
+      "sha256": "75984c899ef5c9c5427b44a379f1aa62fac07ca4860614bab1f54cd437ce98d6",
+      "originalBytes": 284,
+      "originalSha256": "b5a53d0ac2dbd26d4ff960e7ce579db7868d21c264e75793bdc6509a7806ffe4",
+      "lossless": true
+    },
+    "release-LastTest.log.gz": {
+      "bytes": 1457,
+      "sha256": "403aaef8dd4d7116854f0573c8de346c35329bc3096ab0bb0acb565034f57702",
+      "originalBytes": 9400,
+      "originalSha256": "6513685aa18c2e063c06d04df0b6096ddc5001c855ea333022cbb1f52aa9c0fd",
+      "lossless": true
+    },
+    "release-compile-0.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "release-compile-1.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "release-compile-2.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "release-sc-native-monitor-recording-archive.log.gz": {
+      "bytes": 63,
+      "sha256": "dc7f52590f5cc3940a48e2be7a480ac3223565d36c140f8bc14ba4251072c843",
+      "originalBytes": 46,
+      "originalSha256": "707fa419745412ab0f6bf529cd01a6dc671937177d563350fb8181e2900660b9",
+      "lossless": true
+    },
+    "release-sc-native-monitor-recording-index.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "release-sc-native-monitor-controller-archive.log.gz": {
+      "bytes": 65,
+      "sha256": "3e203f3d9e13f6de0f121ff9533a3d38ec8456ff5dc6749fe849fd535c222f1b",
+      "originalBytes": 47,
+      "originalSha256": "298cb522f9c61a73844ae6fe2aa5b5439651ac108ef056bfa04a448f216aa197",
+      "lossless": true
+    },
+    "release-sc-native-monitor-controller-index.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "release-link.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "release-generated-commands.txt.gz": {
+      "bytes": 3210,
+      "sha256": "3baaf8b3d38bb7ec257367cb1262f3422883087e169ddd7e4571e7c686a99b90",
+      "originalBytes": 42620,
+      "originalSha256": "2e85de467d8054f212bfd38ee332ffd88d8918be691ec14bf489f7394bda06bb",
+      "lossless": true
+    },
+    "release-CMakeCache.txt.gz": {
+      "bytes": 5766,
+      "sha256": "339203e87ef9cde1442b1ca140404e76110f231c06d3da37da0783c7f54a2d86",
+      "originalBytes": 30321,
+      "originalSha256": "5f769d9db4c65736a3d272a7bfe2b70c74d939be363ab648ff95f29fd1719c48",
+      "lossless": true
+    },
+    "sanitizer-configure.log.gz": {
+      "bytes": 880,
+      "sha256": "17d196be74a554bbf78cc1d3a5aaf81ceb7387dcc31ba8af50d5c9e93594bdfd",
+      "originalBytes": 2057,
+      "originalSha256": "ac329badd97f3d7dd3e80dd567e3b9437a0c7a57e09e6d9d71e63c5b8d91b97f",
+      "lossless": true
+    },
+    "sanitizer-tests.log.gz": {
+      "bytes": 204,
+      "sha256": "4edc383d9fc88109c7ba0a0c6fab7536bb262da92cc731c69d1997eb14c597d7",
+      "originalBytes": 286,
+      "originalSha256": "dd3e17de3770fe3e06e4e55328402bec6df0bc2c816a371f4974abd0001d18d7",
+      "lossless": true
+    },
+    "sanitizer-LastTest.log.gz": {
+      "bytes": 1461,
+      "sha256": "2f3e4fa4599894f0abcc3bb7e4e00e87a296e24c57dabfbf1e5ef85be9790bbd",
+      "originalBytes": 9401,
+      "originalSha256": "2742f6c45ec6340d1567ce3f10dcad5102ebd41388176249cb86be9a8e8f5f95",
+      "lossless": true
+    },
+    "sanitizer-compile-0.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "sanitizer-compile-1.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "sanitizer-compile-2.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "sanitizer-sc-native-monitor-recording-archive.log.gz": {
+      "bytes": 63,
+      "sha256": "dc7f52590f5cc3940a48e2be7a480ac3223565d36c140f8bc14ba4251072c843",
+      "originalBytes": 46,
+      "originalSha256": "707fa419745412ab0f6bf529cd01a6dc671937177d563350fb8181e2900660b9",
+      "lossless": true
+    },
+    "sanitizer-sc-native-monitor-recording-index.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "sanitizer-sc-native-monitor-controller-archive.log.gz": {
+      "bytes": 65,
+      "sha256": "3e203f3d9e13f6de0f121ff9533a3d38ec8456ff5dc6749fe849fd535c222f1b",
+      "originalBytes": 47,
+      "originalSha256": "298cb522f9c61a73844ae6fe2aa5b5439651ac108ef056bfa04a448f216aa197",
+      "lossless": true
+    },
+    "sanitizer-sc-native-monitor-controller-index.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "sanitizer-link.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "sanitizer-generated-commands.txt.gz": {
+      "bytes": 3271,
+      "sha256": "8dae583ff92deb1bd04dac211e94c4a30eac3ab1a6dba0f6b71f85b3e3e89527",
+      "originalBytes": 46139,
+      "originalSha256": "d8a3462d0b9b60424506cc38ec498d3e05fee0c4170eb50d408739dc49c9082c",
+      "lossless": true
+    },
+    "sanitizer-CMakeCache.txt.gz": {
+      "bytes": 5809,
+      "sha256": "a823fce7323b91d893bcd8d03ffbff4eeb5ff861740bd3f8fc4ed443eb924e91",
+      "originalBytes": 30433,
+      "originalSha256": "8b0e2e17675757db66af037147abc5a518d1e4b4e11560aa00bf986d8bc15307",
+      "lossless": true
+    },
+    "tsan-configure.log.gz": {
+      "bytes": 876,
+      "sha256": "86df3ce7a7b690a578762175ce6a9e61c79ac8be4a3ff80e78493210d06190eb",
+      "originalBytes": 2052,
+      "originalSha256": "a709890bf5ecd1a2afb5d8257862c400acfaa92d5adfec92ceeb671907ed5bc1",
+      "lossless": true
+    },
+    "tsan-tests.log.gz": {
+      "bytes": 201,
+      "sha256": "1a6eb3038a1f49e6f937117b1f60bb968dcc30c4f2a67557c382485a14e203cd",
+      "originalBytes": 281,
+      "originalSha256": "281ba2dddcacaeba1088863fccdc09120d989a5264915bec5a236560b82563d5",
+      "lossless": true
+    },
+    "tsan-LastTest.log.gz": {
+      "bytes": 1458,
+      "sha256": "93d84c05f3a68fb200ed3bf1cbc5b6dd736093b7f9b79aafb9bb162b2481ca8c",
+      "originalBytes": 9395,
+      "originalSha256": "1aea69cfd0d77c9853152a76a51c92535f1e723150a42d5fd8106ed2a84d9776",
+      "lossless": true
+    },
+    "tsan-compile-0.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "tsan-compile-1.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "tsan-compile-2.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "tsan-sc-native-monitor-recording-archive.log.gz": {
+      "bytes": 63,
+      "sha256": "dc7f52590f5cc3940a48e2be7a480ac3223565d36c140f8bc14ba4251072c843",
+      "originalBytes": 46,
+      "originalSha256": "707fa419745412ab0f6bf529cd01a6dc671937177d563350fb8181e2900660b9",
+      "lossless": true
+    },
+    "tsan-sc-native-monitor-recording-index.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "tsan-sc-native-monitor-controller-archive.log.gz": {
+      "bytes": 65,
+      "sha256": "3e203f3d9e13f6de0f121ff9533a3d38ec8456ff5dc6749fe849fd535c222f1b",
+      "originalBytes": 47,
+      "originalSha256": "298cb522f9c61a73844ae6fe2aa5b5439651ac108ef056bfa04a448f216aa197",
+      "lossless": true
+    },
+    "tsan-sc-native-monitor-controller-index.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "tsan-link.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "tsan-generated-commands.txt.gz": {
+      "bytes": 3258,
+      "sha256": "e7440efbdd040cb7c77637da4a6043dd7b69ae4b591f705ab315464ab7eccb30",
+      "originalBytes": 45550,
+      "originalSha256": "c793656feac4867eb7bc64e1f615493088572a08222dd796b591438fe5cc736d",
+      "lossless": true
+    },
+    "tsan-CMakeCache.txt.gz": {
+      "bytes": 5799,
+      "sha256": "30c58e3dade19f679bd5fa0579f3cf11e6039dbf855d1ec1ef889883c85336a5",
+      "originalBytes": 30394,
+      "originalSha256": "8c5f289e8f318dcb12eda023ded325a457c604792a1cdff2fbc53b97cab88d0d",
+      "lossless": true
+    },
+    "windows-compile-0.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "windows-compile-1.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "windows-compile-2.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "windows-compile-3.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lossless": true
+    },
+    "summary.json": {
+      "bytes": 726,
+      "sha256": "d7d1610a3411cfbd92f1d36139d2b56b31ae39177acf53dfd593c84e68c23fe2"
+    }
+  },
+  "scope": "Expanded existing native startup suite with real desktop control worker and simulated SDK; Linux Release/ASanUBSan/TSan and four current Windows objects; source/commands/config/logs/hashes only"
+}

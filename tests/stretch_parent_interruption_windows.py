@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+from parent_observation_timing import ObservationTimeline
 
 K = ctypes.WinDLL("kernel32", use_last_error=True)
 HANDLE = W.HANDLE
@@ -186,32 +187,51 @@ class FrozenThreads:
 
 def run_case(probe, helper, directory, stage):
     directory.mkdir()
+    timing = ObservationTimeline()
+    timing.mark("fixture-init.begin")
     root = (directory / "project-été-Κиїв").resolve()
     subprocess.run([str(probe), "--init", str(root)], check=True, timeout=10, creationflags=0x08004000)
+    timing.mark("fixture-init.end")
+    timing.mark("baseline-hash.begin")
     baseline = inventory(root)
+    timing.mark("baseline-hash.end")
     ticket = (directory / "parent-ready.json").resolve()
     release = Path(str(ticket) + ".release")
     parent_log = (directory / "parent.log").open("wb")
+    timing.mark("parent-launch.begin")
     launcher = subprocess.Popen([str(probe), "--render", str(root), stage, str(ticket), str(helper)],
                                 stdout=parent_log, stderr=parent_log, creationflags=0x08004000)
+    timing.mark("parent-launch.end")
     parent, child, frozen = None, None, None
+    frozen_scope = None
     report = {"stage": stage, "fixtureBefore": baseline}
 
     def scan(expected):
+        timing.mark("scan-" + expected + ".begin")
+        timing.mark("scan-" + expected + "-inventory-before.begin")
         before = inventory(root, active=expected == "Active")
+        timing.mark("scan-" + expected + "-inventory-before.end")
+        timing.mark("scan-" + expected + "-probe.begin")
         run = subprocess.run([str(probe), "--scan", str(root)], capture_output=True, text=True,
                              encoding="utf-8", timeout=10, check=True, creationflags=0x08004000)
+        timing.mark("scan-" + expected + "-probe.end")
         response = json.loads(run.stdout)
+        report.setdefault("scanObservations", []).append(response)
         assert response["status"] == expected, response
         assert response["reviewed"] == (expected == "Ready") and not response["attached"]
+        timing.mark("scan-" + expected + "-inventory-after.begin")
         assert response["projectSha256"] == baseline["project.json"] and inventory(root, active=expected == "Active") == before
+        timing.mark("scan-" + expected + "-inventory-after.end")
         if expected == "Active":
             response["exclusiveLockHashDeferredUntilTerminal"] = True
             response["writerPartialHashDeferredUntilTerminal"] = True
+        timing.mark("scan-" + expected + ".end")
         return response
 
     try:
+        timing.mark("parent-identity.begin")
         parent = Process(launcher.pid, probe)
+        timing.mark("parent-identity.end")
         report["parentIdentity"] = parent.identity
         report["boundaryReadRefusals"] = 0
         def boundary():
@@ -225,7 +245,10 @@ def run_case(probe, helper, directory, stage):
             if not parent.running():
                 raise RuntimeError(f"Parent exited before boundary: {parent.terminal()}")
             return None
+        timing.mark("parent-boundary-wait.begin")
         observed = wait_for(boundary)
+        timing.mark("parent-boundary-wait.end")
+        report["parentBoundary"] = observed
         assert observed["pid"] == parent.pid and not observed["attached"]
         report["operation"] = observed["operation"]
         job = root / "media" / "derived" / observed["operation"]
@@ -234,41 +257,73 @@ def run_case(probe, helper, directory, stage):
             assert (job / "complete.json").exists() and (job / "audio.wav").exists(), {
                 "boundary": observed, "jobFiles": sorted(p.name for p in job.iterdir())}
             report["helperPidReportedByReapingParent"] = observed["helperPid"]
+            timing.mark("parent-termination.begin")
             report["parentTerminal"] = parent.kill(PARENT_EXIT)
+            timing.mark("parent-termination.end")
             report["terminalRecovery"] = scan("Ready")
         else:
             assert observed["point"] == "before-start-acknowledgement"
+            timing.mark("helper-identity.begin")
             child = Process(observed["helperPid"], helper)
             report["helperIdentity"] = {**child.identity, "parentPid": parent_pid(child.pid)}
             assert report["helperIdentity"]["parentPid"] == parent.pid
+            timing.mark("helper-identity.end")
             if stage == "before-ack":
                 assert not (job / "start.request").exists() and not (job / "complete.json").exists()
+                timing.mark("parent-termination.begin")
                 report["parentTerminal"] = parent.kill(PARENT_EXIT)
+                timing.mark("parent-termination.end")
                 report["liveRecovery"] = scan("Active")
+                timing.mark("helper-terminal-wait.begin")
                 report["helperTerminal"] = wait_for(child.terminal)
+                timing.mark("helper-terminal-wait.end")
                 assert report["helperTerminal"]["exitCode"] == 2
                 report["terminalRecovery"] = scan("Incomplete")
                 assert not (job / "audio.wav").exists() and not (job / "complete.json").exists()
             else:
+                frozen_scope = "ack-held"
+                timing.mark("ack-suspension.begin")
                 frozen = FrozenThreads(child)
+                timing.mark("ack-suspension.end")
+                timing.mark(frozen_scope + ".begin")
                 report["ackFrozenThreadIds"] = [tid for _, _, tid in frozen.handles]
+                timing.mark("start-release.begin")
                 release.write_text("release\n")
+                timing.mark("start-release.end")
+                timing.mark("start-ack-wait.begin")
                 wait_for(lambda: (job / "start.request").exists())
+                timing.mark("start-ack-wait.end")
+                timing.mark(frozen_scope + ".end")
+                timing.mark("resume.begin")
                 frozen.resume()
+                timing.mark("resume.end")
                 frozen = None
+                timing.mark("partial-boundary-wait.begin")
                 wait_for(lambda: (job / "audio.partial").exists() and (job / "audio.partial").stat().st_size > 4096)
+                timing.mark("partial-boundary-wait.end")
+                frozen_scope = "partial-held"
+                timing.mark("partial-suspension.begin")
                 frozen = FrozenThreads(child)
+                timing.mark("partial-suspension.end")
+                timing.mark(frozen_scope + ".begin")
                 report["partialFrozenThreadIds"] = [tid for _, _, tid in frozen.handles]
                 assert not (job / "complete.json").exists(), "Missed partial boundary"
                 report["partialBytesAtParentDeath"] = (job / "audio.partial").stat().st_size
+                timing.mark("parent-termination.begin")
                 report["parentTerminal"] = parent.kill(PARENT_EXIT)
+                timing.mark("parent-termination.end")
                 report["liveRecovery"] = scan("Active")
                 if stage == "during-processing-helper-death":
                     before_terminal = (job / "audio.partial").read_bytes()
                     report["partialSnapshotBeforeTermination"] = {"bytes": len(before_terminal),
                         "sha256": hashlib.sha256(before_terminal).hexdigest(), "stableWriterBaseline": False}
+                    timing.mark("helper-termination.begin")
                     report["helperTerminal"] = child.kill(HELPER_EXIT)
+                    timing.mark("helper-termination.end")
+                    timing.mark(frozen_scope + ".end")
+                    timing.mark("resume.begin")
                     frozen.resume()
+                    timing.mark("resume.end")
                     frozen = None
                     # Process.kill waits for the exact owned process handle.
                     # Pending writes may finish/cancel before that terminal
@@ -282,20 +337,26 @@ def run_case(probe, helper, directory, stage):
                     report["partialPreservedSha256"] = digest
                     assert not (job / "complete.json").exists() and not (job / "audio.wav").exists()
                 else:
+                    timing.mark(frozen_scope + ".end")
+                    timing.mark("resume.begin")
                     frozen.resume()
+                    timing.mark("resume.end")
                     frozen = None
+                    timing.mark("helper-terminal-wait.begin")
                     report["helperTerminal"] = wait_for(child.terminal)
+                    timing.mark("helper-terminal-wait.end")
                     report["terminalRecovery"] = scan("Ready")
         assert launcher.wait(timeout=5) == PARENT_EXIT
         report["fixtureAfter"] = inventory(root)
         assert all(report["fixtureAfter"].get(n) == h for n, h in baseline.items())
         report.update({"savedProjectAndRawUnchanged": True, "installedGuiQualified": False,
                        "audioEndpointActivated": False, "powerLossQualified": False})
+        report["timing"] = timing.snapshot()
         return report
     except Exception as error:
         # Preserve the original bounded assertions. Owned process terminal state
         # and the recovery response explain a failure; neither is guessed.
-        diagnostic = {**report, "failureType": type(error).__name__, "failure": str(error)}
+        diagnostic = {**report, "timing": timing.snapshot(), "failureType": type(error).__name__, "failure": str(error)}
         diagnostic["ownedTerminalAtFailure"] = {
             name: process.terminal() for name, process in (("parent", parent), ("helper", child)) if process}
         diagnostic["jobFilesAtFailure"] = sorted(p.name for p in job.iterdir()) if "job" in locals() else []
@@ -304,7 +365,10 @@ def run_case(probe, helper, directory, stage):
         raise
     finally:
         if frozen:
+            timing.mark(frozen_scope + ".end")
+            timing.mark("resume.begin")
             frozen.resume()
+            timing.mark("resume.end")
         cleanup = []
         for process, code in [(parent, PARENT_EXIT), (child, HELPER_EXIT)]:
             if process:
@@ -319,6 +383,7 @@ def run_case(probe, helper, directory, stage):
         launcher.wait(timeout=5)
         (directory / "cleanup-terminal.json").write_text(json.dumps(cleanup, indent=2) + "\n", encoding="utf-8")
         parent_log.close()
+        (directory / "observation-timing.json").write_text(json.dumps(timing.snapshot(), indent=2) + "\n", encoding="utf-8")
 
 
 def main():
@@ -327,6 +392,10 @@ def main():
     parser.add_argument("helper", type=Path)
     parser.add_argument("--retain", type=Path)
     args = parser.parse_args()
+    observation_root = os.environ.get("SC_PARENT_TIMING_EVIDENCE")
+    observation_root = Path(observation_root).resolve() if observation_root else None
+    if observation_root:
+        observation_root.mkdir(parents=True, exist_ok=False)
     checked(SetPriority(CurrentProcess(), 0x4000))
     root = args.retain or Path(tempfile.mkdtemp(prefix="sc-parent-interruption-"))
     if args.retain:
@@ -340,13 +409,26 @@ def main():
             case = run_case(args.probe.resolve(), args.helper.resolve(), root / stage, stage)
             (root / stage / "case-report.json").write_text(json.dumps(case, indent=2) + "\n", encoding="utf-8")
             report["cases"].append(case)
+            if observation_root:
+                for name in ("case-report.json", "observation-timing.json", "cleanup-terminal.json", "parent-ready.json"):
+                    original = root / stage / name
+                    if original.is_file():
+                        shutil.copyfile(original, observation_root / (stage + "-" + name))
         (root / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"passed": True, "cases": [{"stage": c["stage"], "status": c["terminalRecovery"]["status"],
                          "helperExit": c.get("helperTerminal", {}).get("exitCode")} for c in report["cases"]]}))
     except Exception:
+        if observation_root:
+            for stage in ("before-ack", "during-processing", "during-processing-helper-death", "after-complete"):
+                for name in ("case-report.json", "failure-report.json", "observation-timing.json", "cleanup-terminal.json", "parent-ready.json"):
+                    original = root / stage / name
+                    if original.is_file():
+                        shutil.copyfile(original, observation_root / (stage + "-" + name))
         print(f"Failed fixtures retained at {root}")
         raise
     else:
+        if observation_root:
+            shutil.copyfile(root / "report.json", observation_root / "report.json")
         if not args.retain:
             shutil.rmtree(root)
 

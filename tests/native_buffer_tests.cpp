@@ -312,5 +312,6 @@ int main() {
     }
     p.failQueue = true;
     auto lease = sc_pw_acquire_buffer(&p.port, 8);
-    check(!sc_pw_release_buffer(&p.port, &lease) && !lease.owned && !p.protocolErrors);
+    check(!sc_pw_release_buffer(&p.port, &lease) && !lease.owned && !p.protocolErrors && lease.queueResult==-EIO);
+    check(sc_pw_release_buffer(&p.port,&lease) && !lease.queueResult); // No second native return.
 }

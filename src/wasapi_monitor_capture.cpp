@@ -15,7 +15,8 @@ ResourceLease admit(WasapiPreparedCaptureFormat format, const PreparedCaptureFan
         const PreparedMonitorClockHandoff &clocks, const PreparedMonitorCaptureStop &stop,
         const WasapiMonitorCaptureOptions &o) {
     const auto &c=f.captureConfig();const auto &q=clocks.config();const auto &s=stop.config();
-    require(format.sampleRate==c.sampleRate && format.channels==c.channels &&
+    require(q.timestampDomain==MonitorClockDomain::WindowsQpc100ns &&
+        format.sampleRate==c.sampleRate && format.channels==c.channels &&
         format.maximumPacketFrames==c.maximumPacketFrames && format.maximumPacketFrames!=0 &&
         format.identity==c.identity &&
         q.captureIdentity==c.identity && q.runGeneration==s.runGeneration &&

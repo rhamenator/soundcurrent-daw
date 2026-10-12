@@ -203,6 +203,13 @@ core build requires no Qt. `SC_BUILD_MEDIA=OFF` selects state/engine/transport o
 CTest does not connect physical audio devices. Native integration fixtures are
 opt-in and must run serially after builds and tests finish.
 
+Development also includes a [PipeWire native capture boundary](docs/224-pipewire-monitor-capture.md)
+with explicit clock domains and private-daemon acceptance. A
+[render boundary](docs/225-pipewire-monitor-render.md) now records actual per-port
+queue results and verifies finite output in private test sinks. Shared-owner/receipt
+persistence and connection to the native recording UI remain unfinished; retained
+native startup and contention failures remain open.
+
 ## Desktop recording workflow
 
 Create/open a project, select or create a track, prepare recording and explicitly
@@ -216,6 +223,21 @@ Live scalar EQ edits and Undo use applied-frame receipts. File → Recover
 recording… previews/copies an owned checkpoint; File → Export WAV… renders an
 immutable project snapshot with range, cancellation and overwrite confirmation.
 Closing waits for recording/export finalization before Save/Discard/Cancel.
+
+The native tab's **Open saved native take…** reopens an owned take in the current
+project's media folder, including after an app restart and on systems without a
+native recording adapter. See [saved native takes](docs/222-native-original-reopen.md).
+
+Set **Start frame (project rate)** and use **Add to selected track** to place a
+verified original on the timeline. The native-rate WAV and receipt hashes remain
+intact; Undo/Redo and Save/reopen preserve the placement. See
+[native timeline admission](docs/223-native-take-admission.md). Automatic recording
+alignment remains unfinished.
+
+The native recording tab also provides **Export original WAV…** for an inactive,
+verified finalized take. It copies the native-rate floating-point WAV without
+monitoring EQ and refuses existing destinations. See [original take export](docs/221-native-original-export.md)
+for bounds, platform evidence and remaining native take integration work.
 
 See [desktop recording](docs/22-desktop-recording.md),
 [multi-arm workflow](docs/37-desktop-duplex-recording.md),
