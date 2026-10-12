@@ -213,7 +213,9 @@ jobs:
       - name: Preserve generated owner failure projects
         if: always()
         shell: pwsh
-        run: ./.github/scripts/retain-owner-failure-projects.ps1 -BuildDirectory ./build-native
+        run: |
+          ./tests/owner_retention_tests.ps1
+          ./.github/scripts/retain-owner-failure-projects.ps1 -BuildDirectory ./build-native
       - name: Retain native unit log
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
