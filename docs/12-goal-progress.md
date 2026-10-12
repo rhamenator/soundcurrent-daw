@@ -1,5 +1,24 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native desktop recording control worker (2026-10-11)
+
+[Checkpoint214](214-native-monitor-controller.md) codes worker-owned finite native
+recording controls, explicit Windows selection, bounded command/urgent Cancel,
+stable EQ revision receipts, retained terminal outcomes and inactive reopen.
+Actual control/processing/disk workers pass expanded existing tests with simulated
+SDK: Release 17.31 s, ASan/UBSan 24.67 s, TSan 28.02 s; callback guard violations 0.
+Four current Windows objects compile warning-free. Current controller native
+runtime, panel activation, GUI payload admission, localization and hardware remain
+open; full scope is unchanged.
+
+Preceding PR148 native job passes all 71 suites, six EQ recordings/two publication
+interruptions and three original standalone diagnostics. Its desktop job fails
+parent-interruption recovery (Incomplete vs Ready; actual helper exit 2). Original
+logs/process/artifact/source bindings are preserved; Linux and cross jobs pass.
+Next qualify the watchdog timing/causal correction and connect the
+visible recording panel. Failed required gates prevent ordinary admission.
+
+
 ## Native monitoring EQ and initial state (2026-10-11)
 
 [Checkpoint213](213-native-monitor-eq.md) integrates the existing prepared shared EQ

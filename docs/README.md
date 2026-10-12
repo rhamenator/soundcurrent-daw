@@ -173,3 +173,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Native monitored recording owner](212-native-monitored-recording-owner.md) · [ADR141](decisions/141-native-recording-worker-ownership.md)
 
 - [Prepared EQ in native monitoring](213-native-monitor-eq.md) · [ADR142](decisions/142-native-monitoring-eq-state.md)
+
+- [Native monitoring desktop worker controller](214-native-monitor-controller.md) · [ADR143](decisions/143-native-desktop-control-worker.md)
