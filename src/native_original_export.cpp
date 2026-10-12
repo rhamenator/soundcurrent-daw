@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/native_original_export.hpp>
 #include <soundcurrent/approved_media.hpp>
+#include <soundcurrent/wave_validation.hpp>
 #include "media_io.hpp"
 #include <algorithm>
 #include <vector>
@@ -28,6 +29,16 @@ NativeOriginalExportResult exportNativeOriginalWav(const std::filesystem::path &
     const auto verified=inspectNativeOriginalRecording(job,expected,check,options.resources);
     if(!verified.raw.finalized || !verified.raw.committedFrames || verified.raw.finitePrefixFrames!=verified.raw.committedFrames)
         throw ProjectError(ErrorCode::MediaMismatch,"Native WAV export requires a finalized wholly finite original take");
+    // Native recovery verifies a common prefix. Export must also prove that
+    // the entire finalized container contains exactly that prefix, with no tail.
+    WaveValidationLimits limits;limits.maximumFrames=verified.raw.committedFrames;
+    limits.maximumBytesRead=size*4+65536;limits.maximumIoOperations=size+65536;
+    limits.maximumChannels=verified.raw.spec.layout.channels;limits.blockFrames=1024;
+    const auto wave=validateApprovedWave(source,limits,{}, {},check);
+    if(wave.frames!=verified.raw.committedFrames || wave.decodedFrames!=wave.frames ||
+        wave.rate!=verified.raw.spec.sampleRate || wave.channels!=verified.raw.spec.layout.channels ||
+        wave.encoding!=WaveEncoding::Float32 || wave.sourceSha256!=before)
+        throw ProjectError(ErrorCode::MediaMismatch,"Finalized native WAV extent or format differs from its verified prefix");
     source.verifyUnchanged();
     if(source.digest({},check)!=before)throw ProjectError(ErrorCode::MediaMismatch,"Native WAV source changed during original verification");
     const auto approved=inspectExportDestination(projectRoot,destination,check);

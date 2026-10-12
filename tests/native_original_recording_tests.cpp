@@ -68,6 +68,16 @@ void originalExport() {
         check(copied && result.frames==16 && result.sampleRate==48000 && result.layout==declared.raw.layout && result.bytes==bytes.size() &&
             result.fileSha256==hashMediaFile(target) && result.sampleSha256==saved.raw.sampleSha256 && result.originalStatus==saved.status &&
             read(target)==bytes && result.publicationWarning.empty(),"Original WAV changed samples/rate/layout/status/headroom or byte identity");
+        if(channels==1 && kind==0) {
+            auto expanded=bytes;const auto ds=expanded.find("ds64");check(ds!=std::string::npos,"Owned RF64 fixture lacks ds64");
+            const auto read64=[&](std::size_t at){std::uint64_t n=0;for(unsigned i=0;i<8;++i)n|=std::uint64_t(static_cast<unsigned char>(expanded[at+i]))<<(i*8);return n;};
+            const auto put64=[&](std::size_t at,std::uint64_t n){for(unsigned i=0;i<8;++i)expanded[at+i]=char((n>>(i*8))&255);};
+            const auto dataBytes=read64(ds+16);expanded.append(32,'\0');put64(ds+8,expanded.size()-8);put64(ds+16,dataBytes+32);put64(ds+24,24);
+            write(job/"take.wav",expanded);
+            check(inspectNativeOriginalRecording(job,declared).raw.committedFrames==16,"Expanded fixture did not retain the common original prefix");
+            refuses([&]{exportNativeOriginalWav(t.root,job,declared,directory/"unverified-tail.wav");});
+            check(!std::filesystem::exists(directory/"unverified-tail.wav"),"Unverified RF64 tail exported");write(job/"take.wav",bytes);
+        }
         check(options.resources.usage().reservedBytes==0,"Original export resource credit leaked");
         refuses([&]{exportNativeOriginalWav(t.root,job,declared,target,options);});check(read(target)==bytes,"Existing original export overwritten");
         auto foreign=declared;foreign.run=Id::generate();refuses([&]{exportNativeOriginalWav(t.root,job,foreign,directory/"foreign.wav");});
@@ -95,7 +105,7 @@ void originalExport() {
     f.finish();f.settleAfterJoin();writer.finalize(f,outcome(declared));
     refuses([&]{exportNativeOriginalWav(t.root,job,declared,t.root/"exports"/"nonfinite.wav");});
     check(std::filesystem::is_empty(t.root/"exports"),"Nonfinite original exported");
-    std::cout<<"native_original_export bitwise_rf64=true headroom_signed_zero=true native_rate=true retained_failed_cancelled_status=true no_overwrite=true mid_copy_cancel=true protected_project=true finite_gate=true no_alignment_inferred=true\n";
+    std::cout<<"native_original_export bitwise_rf64=true headroom_signed_zero=true native_rate=true retained_failed_cancelled_status=true no_overwrite=true mid_copy_cancel=true protected_project=true finite_gate=true exact_extent=true no_alignment_inferred=true\n";
 }
 void roundtrip(){for(unsigned channels:{1u,2u,8u,256u})for(unsigned kind=0;kind<9;++kind){Temp t;auto s=spec(channels);PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);auto job=w.jobDirectory();refuses([&]{inspectNativeOriginalRecording(job);});packets(w,f,s);auto o=outcome(s,kind);auto saved=w.finalize(f,o);auto verified=inspectNativeOriginalRecording(job,s);
     auto status=kind==0?NativeOriginalRecordingStatus::Complete:kind==3 || kind==4 || kind==6?NativeOriginalRecordingStatus::Interrupted:kind==5?NativeOriginalRecordingStatus::Cancelled:NativeOriginalRecordingStatus::Failed;
