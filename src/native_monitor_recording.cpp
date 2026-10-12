@@ -142,6 +142,11 @@ struct NativeMonitorRecording::State {
             route->capture().rawAcceptedFrames(), route->capture().monitorAcceptedFrames(),
             route->output().acceptedFrames(), route->output().deliveredFrames(), route->processing().copiedSourceFrames()};
     }
+    bool failedOwner() const noexcept {
+        if(firstWaitFailure.load(std::memory_order_acquire))return true;
+        if(diskDone.load(std::memory_order_acquire) && diskFailure)return true;
+        return processingDone.load(std::memory_order_acquire) && bool(route->processing().firstFault());
+    }
     bool ready() const noexcept {
         const auto p = progress(); return p.processingDone && p.diskDone && p.captureEnded && p.renderEnded;
     }
@@ -206,6 +211,7 @@ MonitorControlCode NativeMonitorRecording::receiveStopReceipt(MonitorControlRece
 void NativeMonitorRecording::requestCancel() noexcept { state_->requestCancel(); }
 NativeMonitorRecordingProgress NativeMonitorRecording::progress() const noexcept { return state_->progress(); }
 bool NativeMonitorRecording::readyToJoin() const noexcept { return state_->closed || state_->ready(); }
+bool NativeMonitorRecording::failedOwnerReadyToCancel() const noexcept { return state_->failedOwner(); }
 NativeMonitorRecordingResult NativeMonitorRecording::wait() {
     if (!state_->activated && !state_->closed) throw ProjectError(ErrorCode::InvalidState, "Activate or explicitly cancel the prepared recording first");
     return state_->finish(false);

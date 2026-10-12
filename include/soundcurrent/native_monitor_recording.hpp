@@ -76,6 +76,7 @@ class NativeMonitorRecording {
     void requestCancel() noexcept; // Atomic intent and SDK notification, no join.
     NativeMonitorRecordingProgress progress() const noexcept;
     bool readyToJoin() const noexcept;
+    bool failedOwnerReadyToCancel() const noexcept; // Reads terminal worker faults only AFTER acquire of done.
     NativeMonitorRecordingResult wait(); // After explicit Stop; waits for natural end, then joins.
     NativeMonitorRecordingResult cancelAndWait(); // Immediate cancel, joins before settlement.
     const NativeOriginalRecordingSpec &declared() const noexcept;

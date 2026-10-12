@@ -4,6 +4,7 @@
 #include "../src/media_io.hpp"
 #include "../src/native_poll_wait.hpp"
 #include "rt_audit.hpp"
+#include "native_monitor_controller.hpp"
 #include <sndfile.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -216,6 +217,95 @@ void rawBits(const NativeOriginalRecordingPrefix &prefix) {
         first += count;
     }
 }
+using namespace soundcurrent::daw::ui;
+template<class F> void controlAwait(F f) {
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(5);
+    while(!f()) {if(std::chrono::steady_clock::now()>=deadline)throw std::runtime_error("Native desktop control wait exceeded original five seconds");std::this_thread::sleep_for(std::chrono::milliseconds(1));}
+}
+std::shared_ptr<NativeMonitorPreparation> controlPreparation(Temp &temp,const std::shared_ptr<Spy> &spy,bool eq=true) {
+    auto session=makeOneTrackSession("Studio – Ελληνικά","Prise – é");
+    session.tracks.front().layout={LayoutKind::Mono,1};ProjectStore(temp.root).save(session);
+    auto p=std::make_shared<NativeMonitorPreparation>();p->root=temp.root;p->options=options(spy,1,eq);
+    p->options.raw.project=session.id;p->options.raw.track=session.tracks.front().id;
+    if(eq){MonitorEqSpec e;e.track=session.tracks.front().id;e.settings.bands.push_back({Id::generate(),48000*.017/(2*3.14159265358979323846),6,1});p->options.route.equalizer=e;}
+    return p;
+}
+NativeMonitorCommand controlCommand(NativeMonitorCommandKind kind) {NativeMonitorCommand c;c.kind=kind;c.generation=99;return c;}
+void controllerFinite() {
+    Temp temp;auto spy=std::make_shared<Spy>();auto p=controlPreparation(temp,spy);
+    const auto original=ProjectStore(temp.root).load();const auto gui=std::this_thread::get_id();std::atomic<bool> correctThread{false};
+    NativeMonitorController controller({[&](const auto &){correctThread.store(std::this_thread::get_id()!=gui);return std::make_unique<FakeStreams>(spy,48000,1,true);}});
+    auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;
+    check(controller.submit(prepare)==NativeMonitorAdmission::Accepted,"Controller preparation queue rejected");
+    controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Ready;});
+    auto ready=controller.snapshot();check(correctThread.load() && ready->declared && !ready->progress.rawAcceptedFrames && std::filesystem::exists(ready->job/"native-run.json"),"Controller preparation touched GUI or skipped pending state");
+    auto stale=controlCommand(NativeMonitorCommandKind::Activate);stale.generation=98;stale.end={9216};
+    controller.submit(stale);controlAwait([&]{return controller.snapshot()->completedCommands==2;});
+    check(controller.snapshot()->phase==NativeMonitorPhase::Ready && !spy->captureActive.load(),"Stale native generation activated a device");
+    auto edit=controlCommand(NativeMonitorCommandKind::Equalizer);edit.revision=1;edit.equalizer=p->options.route.equalizer->settings;edit.equalizer->bands[0].gainDb=12;
+    edit.parameter=ParameterAddress{p->options.route.equalizer->track,edit.equalizer->id,edit.equalizer->bands[0].id,BandParameter::GainDb};
+    controller.submit(edit);controlAwait([&]{return controller.snapshot()->acceptedEqRevision==1;});
+    auto activate=controlCommand(NativeMonitorCommandKind::Activate);activate.end={9216};controller.submit(activate);
+    controlAwait([&]{return bool(controller.snapshot()->result);});auto final=controller.snapshot();joined(*spy);
+    check(final->phase==NativeMonitorPhase::Result && final->result->disposition==NativeMonitorRecordingDisposition::Complete && final->appliedEqRevision==1 && final->applied && final->applied->frame==0 && final->stop && final->stop->result==MonitorControlResult::Planned,"Controller lost completed native end or applied parameter receipt");
+    check(final->result->prefix && spy->outputPeak>7 && spy->outputPeak<12,"Controller EQ edit did not affect monitor output");rawBits(*final->result->prefix);
+    controller.submit(prepare);controlAwait([&]{return controller.snapshot()->errorSerial>final->errorSerial;});
+    check(controller.snapshot()->result==final->result && controller.snapshot()->resultSequence==final->resultSequence,"Pending native result overwritten by new preparation");
+    controller.submit(controlCommand(NativeMonitorCommandKind::Inspect));controlAwait([&]{return bool(controller.snapshot()->reopened);});
+    check(controller.snapshot()->reopened->raw.sampleSha256==final->result->prefix->raw.sampleSha256 && ProjectStore(temp.root).load()==original,"Controller reopen changed raw/project state or attached an unaligned Asset");
+    auto release=controlCommand(NativeMonitorCommandKind::ReleaseResult);release.resultSequence=final->resultSequence+1;
+    const auto errors=controller.snapshot()->errorSerial;controller.submit(release);controlAwait([&]{return controller.snapshot()->errorSerial>errors;});check(controller.snapshot()->result==final->result,"Future result sequence released retained take");
+    release.resultSequence=final->resultSequence;controller.submit(release);controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Idle;});
+    controller.requestShutdown();controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Closed;});
+    check(controller.submit(prepare)==NativeMonitorAdmission::Closing,"Closed native controller admitted transport");
+    std::cout<<"native_desktop_controller finite=true monitor_eq=true raw_bits_exact=true reopen=true result_retention=true off_gui=true simulated_sdk=true\n";
+}
+void controllerCancelAndFailure() {
+    for(unsigned kind=0;kind<8;++kind) {
+        Temp temp;auto spy=std::make_shared<Spy>();auto p=controlPreparation(temp,spy,false);
+        if(kind==2)spy->failCaptureActivation=true;
+        if(kind==4)spy->missingNow=true;
+        if(kind==5)spy->missingCaptureEnd=true;
+        if(kind==6)spy->missingRenderEnd=true;
+        if(kind==3)p->options.recording.raw.boundary=[](OriginalRecordingBoundary b){if(b==OriginalRecordingBoundary::BeforeAudioWrite)throw ProjectError(ErrorCode::InvalidState,"controller disk failure");};
+        NativeMonitorController c({[spy](const auto &){return std::make_unique<FakeStreams>(spy);}});
+        auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;c.submit(prepare);
+        controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Ready;});
+        if(kind){auto start=controlCommand(NativeMonitorCommandKind::Activate);start.end={9216};c.submit(start);if(kind==1 || kind>=5)controlAwait([&]{return c.snapshot()->progress.rawAcceptedFrames>0;});}
+        if(kind<2 || kind==5 || kind==6){const auto token=c.requestCancel();controlAwait([&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result);});}
+        else if(kind==7){c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});}
+        else controlAwait([&]{return bool(c.snapshot()->result);});
+        const auto s=c.snapshot();joined(*spy);
+        check(s->result->disposition==(kind<2 || kind==7?NativeMonitorRecordingDisposition::Cancelled:NativeMonitorRecordingDisposition::Failed) && s->result->prefix,"Controller cancelled/failed outcome lost durable native prefix");
+        if(kind==2)check(bool(s->result->activationFailure),"Controller partial activation lost original cause");
+        if(kind==3)check(bool(s->result->diskFailure),"Controller automatic disk failure settlement lost cause");
+        if(kind==4)check(bool(s->result->processingFault),"Controller automatic processing failure lost its terminal cause");
+        if(kind==5)check(!s->result->native.captureOriginal,"Controller invented missing capture-end evidence");
+        if(kind==6)check(!s->result->native.render.original,"Controller invented missing render-end evidence");
+        c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});check(c.snapshot()->result==s->result,"Controller shutdown discarded retained native outcome");
+    }
+    std::cout<<"native_desktop_controller cancel_prepared=true cancel_active=true partial_activation=true disk_failure=true clock_failure=true missing_native_ends=true active_shutdown=true results_survive_close=true simulated_sdk=true\n";
+}
+void controllerQueueAndIdentity() {
+    Temp temp;auto spy=std::make_shared<Spy>();auto p=controlPreparation(temp,spy,false);
+    std::atomic<bool> entered{false},release{false};
+    NativeMonitorController c({[&](const auto &){entered=true;while(!release.load())std::this_thread::sleep_for(std::chrono::milliseconds(1));return std::make_unique<FakeStreams>(spy);}});
+    struct Unblock {std::atomic<bool> &r;~Unblock(){r=true;}} unblock{release};
+    auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;c.submit(prepare);controlAwait([&]{return entered.load();});
+    for(unsigned n=0;n<16;++n)check(c.submit(controlCommand(NativeMonitorCommandKind::Activate))==NativeMonitorAdmission::Accepted,"Native desktop queue capacity shrank");
+    check(c.submit(prepare)==NativeMonitorAdmission::Full,"Native desktop queue overwrote queued command");
+    const auto token=c.requestCancel();release=true;
+    controlAwait([&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result);});
+    check(!spy->captureActive.load() && c.snapshot()->result->disposition==NativeMonitorRecordingDisposition::Cancelled,"Urgent Cancel did not invalidate queued activation");joined(*spy);
+    c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
+    NativeMonitorController unsupported;check(unsupported.snapshot()->phase==NativeMonitorPhase::Unsupported,"Unavailable platform gained a native factory");unsupported.requestShutdown();
+    std::atomic<unsigned> calls{0};NativeMonitorController wrong({[&](const auto &){++calls;return std::make_unique<FakeStreams>(std::make_shared<Spy>());}});
+    auto foreign=std::make_shared<NativeMonitorPreparation>(*p);foreign->options.raw.project=Id::generate();prepare.preparation=foreign;wrong.submit(prepare);
+    controlAwait([&]{return wrong.snapshot()->errorSerial>0;});check(!calls.load() && wrong.snapshot()->job.empty(),"Foreign project reached SDK preparation or pending publication");
+    wrong.requestShutdown();controlAwait([&]{return wrong.snapshot()->phase==NativeMonitorPhase::Closed;});
+    std::cout<<"native_desktop_controller command_capacity=16 urgent_cancel=true stale_transport_refused=true project_identity=true simulated_sdk=true\n";
+}
+
 void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureStop = false, unsigned declaredPacketBound = 0, bool equalized = false) {
     Temp temp; auto spy = std::make_shared<Spy>(); if (failedCaptureStop) spy->captureStopResult = -31;
     auto o = options(spy,channels,mapped);
@@ -397,6 +487,7 @@ unsigned ownedNativeMonitorRecordingTests() {
     success(48000,1,false); success(44100,1,true); success(96000,2,false); success(48000,1,false,true);
     success(48000,2,false,false,2048);
     success(48000,1,true,false,0,true);
+    controllerFinite();controllerCancelAndFailure();controllerQueueAndIdentity();
     preparationAndActivationFailures(); cancelAndLostOwners(); diskAndClockFailures(); controlPressure(); metadataAndReservation();
     std::cout << checks << " owned native recording checks passed; actual processing/disk threads; simulated SDK\n";
     return checks;
