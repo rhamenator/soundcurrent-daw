@@ -1,0 +1,29 @@
+{
+  "source": "d0c13402c5a2a018461cf4bed14fdb8a649fb70b",
+  "tree": "5fa2dce1bda8add5addc77d043b48d3f0f66c4eb",
+  "qualifiedInputs": 784,
+  "productionDspAndNativeOwnersChanged": false,
+  "serializedSdkCaptureRenderWaitCyclesReproduced": true,
+  "captureStopWhileShortTailServiced": true,
+  "forcedTailFrames": 32,
+  "forcedAdmittedOutputSlots": 66,
+  "virtualPacketCadenceAndFiveSecondLimitUnchanged": true,
+  "nativeFullSuiteSeconds": {
+    "release": 19.59,
+    "asanUbsan": 27.04,
+    "tsan": 30.74
+  },
+  "nativeTsanPassed": true,
+  "guiReleaseFourSuitesPassed": true,
+  "guiReleaseSeconds": 13.69,
+  "qtMacroPolicyIncludeOrderQualifiedLocally": true,
+  "guiTsanQualified": false,
+  "physicalDevicesQualified": false,
+  "currentWindowsRuntimeQualified": false,
+  "originalPr152ExactStalledOwnerProven": false,
+  "failureProgressCapturedBeforeCancel": true,
+  "sdkTailCountersCopiedAfterJoinsInJson": true,
+  "boundedMetadataOnlyCiRetention": true,
+  "noBinaryOrAudioPayload": true,
+  "fullGoalComplete": false
+}

@@ -1,0 +1,23 @@
+{
+  "source": "7455b13afc33fbd740c7e4857daca07a3eae84c5",
+  "tree": "5b4f3b3f17c5ec50b754aea2b1094131ae12d89b",
+  "sourceInputs": 702,
+  "linuxTestTimesSeconds": {
+    "release": 17.31,
+    "sanitizer": 24.67,
+    "tsan": 28.02
+  },
+  "currentObjectsPerLinuxProfile": 3,
+  "windowsCurrentObjects": 4,
+  "realControlProcessingDiskWorkers": true,
+  "sdkOperationsSimulated": true,
+  "queueCapacity": 16,
+  "urgentCancelAndResultRetention": true,
+  "monitorEqAndRawBitExactReopen": true,
+  "terminalWorkerFaultPublicationAcquiredBeforeRead": true,
+  "nativeWindowsLinkOrRuntimeExecuted": false,
+  "physicalEndpointsTested": false,
+  "desktopPanelEnabled": false,
+  "binariesOrMediaIncluded": false,
+  "fullGoalComplete": false
+}
