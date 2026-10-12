@@ -1,5 +1,23 @@
 # Active full-suite goal: progress and completion evidence
 
+## Explicit native recording device selection (2026-10-12)
+
+[Checkpoint220](220-native-device-selection.md) adds worker-owned inventories,
+explicit capture/output selectors and mono-to-stereo mapping, fresh stale-device
+rejection, removal/reconnection handling and Windows main entry binding. Retained
+inventory/model credits and project-shared native route/writer resources are
+admitted. No default device or volume change. Linux retains its PipeWire workflow.
+Native Release/ASanUBSan/TSan pass 19.63/26.84/29.85 s; GUI four-suite Release passes
+16.91 s (66 panel checks), GUI ASan/UBSan passes 11.15 s. Four Windows core objects
+compile; current Windows GUI/runtime/physical/installed qualification remains open.
+
+Preceding PR154 passes all four jobs (native71/desktop20/Linux144/core cross), with
+original logs/forced Stop JSON/source bindings retained. It predates selectors.
+Full suite scope, raw alignment/attachment, custom matrix, framework retirement,
+remaining ownership and all-European delivery remain incomplete. Next qualify
+Windows selection, then complete native recording workflow and later milestones.
+
+
 ## Native fixture progress/Stop and Qt macro correction (2026-10-11)
 
 [Checkpoint219](219-native-render-tail-stop.md) reproduces a serialized simulated-SDK
