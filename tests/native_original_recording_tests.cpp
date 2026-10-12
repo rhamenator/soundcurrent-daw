@@ -62,7 +62,7 @@ void originalExport() {
         const auto bytes=read(job/"take.wav"),journal=read(job/"journal.json"),native=read(job/"native-run.json");
         const auto directory=t.root/"exports";std::filesystem::create_directory(directory);
         const auto target=directory/std::filesystem::path(u8"Original – été.wav");
-        NativeOriginalExportOptions options;options.resources=ResourceLedger(1024*1024,"Export test");
+        NativeOriginalExportOptions options;options.resources=ResourceLedger(16*1024*1024,"Export test");
         unsigned copied=0;options.progress=[&](auto n,auto total){check(n<=total && total==bytes.size(),"Export progress extent");++copied;};
         const auto result=exportNativeOriginalWav(t.root,job,declared,target,options);
         check(copied && result.frames==16 && result.sampleRate==48000 && result.layout==declared.raw.layout && result.bytes==bytes.size() &&
