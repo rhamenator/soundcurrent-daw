@@ -1,0 +1,50 @@
+{
+  "artifactId": 11715606994,
+  "zipBytes": 34309869,
+  "zipSha256": "9870e858f79742f47b75f9987371064c848ed53187e7219f485f73196b3022ec",
+  "selected": [
+    {
+      "zipMember": "manual-owner-1-stderr.log",
+      "file": "runtime-artifact-manual-owner-1-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "zipMember": "manual-owner-1-stdout.log",
+      "file": "runtime-artifact-manual-owner-1-stdout.log",
+      "bytes": 95,
+      "sha256": "b651b36ff5e56b9f88f5563de335aa3f7618a5608f7d63b0c6364cc7d15c135d"
+    },
+    {
+      "zipMember": "manual-owner-2-stderr.log",
+      "file": "runtime-artifact-manual-owner-2-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "zipMember": "manual-owner-2-stdout.log",
+      "file": "runtime-artifact-manual-owner-2-stdout.log",
+      "bytes": 95,
+      "sha256": "b651b36ff5e56b9f88f5563de335aa3f7618a5608f7d63b0c6364cc7d15c135d"
+    },
+    {
+      "zipMember": "manual-owner-3-stderr.log",
+      "file": "runtime-artifact-manual-owner-3-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "zipMember": "manual-owner-3-stdout.log",
+      "file": "runtime-artifact-manual-owner-3-stdout.log",
+      "bytes": 95,
+      "sha256": "b651b36ff5e56b9f88f5563de335aa3f7618a5608f7d63b0c6364cc7d15c135d"
+    },
+    {
+      "zipMember": "Testing/Temporary/LastTest.log",
+      "file": "runtime-artifact-Testing_Temporary_LastTest.log",
+      "bytes": 210054,
+      "sha256": "7677a1ede336e6c8c0423210cf8f8f6cc6942eddfc1557331ee3b0091a630a23"
+    }
+  ],
+  "productBinariesExtracted": false
+}
