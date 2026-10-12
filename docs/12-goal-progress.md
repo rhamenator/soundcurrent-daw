@@ -1,5 +1,25 @@
 # Active full-suite goal: progress and completion evidence
 
+## Visible native recording panel (2026-10-11)
+
+[Checkpoint217](217-visible-native-recording-panel.md) implements a real Qt transport
+panel using the coded native controller: Prepare/Record/Cancel, monitor duration,
+EQ enable/parameter seam, progress/receipts, saved take inspection/reset and async
+close with results retained. Owned context/copy credit and translated controls are
+included; default StudioWindow/device-inventory/retained snapshot ownership still
+need integration. A real local screenshot is retained.
+
+Release two-suite 20.59 s and ASan/UBSan 28.96 s pass, real workers/simulated SDK.
+Native-startup TSan passes 28.58 s; GUI assertions complete but Qt/D-Bus race/thread
+reports leave GUI TSan unqualified. Original failures/reports/source bindings are
+retained without suppression. Four Windows core objects compile; new Windows GUI
+runtime remains pending. Preceding PR151 all four jobs pass (native71/manual22/
+three standalone, desktop19/four interruptions, Linux143) with original evidence.
+Next connect the visible panel to StudioWindow inventory/inspector/lifecycle and
+qualify framework retirement, ownership and installed/native/hardware workflows.
+Full scope remains active and incomplete.
+
+
 ## Native command payload admission (2026-10-11)
 
 [Checkpoint216](216-native-command-payload-admission.md) reserves queued/in-flight

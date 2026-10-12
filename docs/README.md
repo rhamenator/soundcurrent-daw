@@ -179,3 +179,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Owned interruption observations and original manual case timing](215-owned-interruption-observation-timing.md)
 
 - [Native command payload admission](216-native-command-payload-admission.md)
+
+- [Visible native recording panel](217-visible-native-recording-panel.md)
