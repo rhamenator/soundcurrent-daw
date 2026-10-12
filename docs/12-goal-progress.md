@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Shared prepared recording endpoints (2026-10-12)
+
+[Checkpoint233](233-monitor-control-endpoints.md) adds typed WASAPI/PipeWire
+worker endpoints and routes the existing WASAPI controller through the seam.
+PipeWire facade ownership/failure tests and unchanged native controller workflows
+pass2/21.95s. Genuine private PipeWire via the shared endpoint preserves99,072 raw
+frames and delivers8,192 processed frames, durable reopen and callback audit0.
+Four Windows objects compile without warnings; current sanitizer/native Windows
+runtime gates remain pending. Original PR166 alljobs pass and are retained for
+prior completion code. Next typed PipeWire controller snapshots and Qt flow,
+verified raw admission/explicit placement/export. Full goal active.
+
 ## Completion and clock-state sanitizer qualification (2026-10-12)
 
 [Checkpoint232](232-completion-sanitizer-qualification.md) qualifies unchanged

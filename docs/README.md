@@ -211,3 +211,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Verified completion receipts and durable clock handoff diagnostics](231-pipewire-completion-receipts.md)
 
 - [Completion and clock-state sanitizer qualification](232-completion-sanitizer-qualification.md)
+
+- [Shared prepared recording control endpoints](233-monitor-control-endpoints.md)
