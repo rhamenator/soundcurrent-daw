@@ -30,6 +30,15 @@ void check(bool ok, const char *message,
         throw std::runtime_error(message);
     }
 }
+// Test control owner only. Flush each original case boundary so an outer CTest
+// timeout retains the last entered case even when no exception can unwind.
+template<class F> void caseTrace(const char *name,F &&run,bool early=false,bool mixed=false) {
+    const auto begin=std::chrono::steady_clock::now();
+    std::cerr<<"manual_case begin="<<name<<" early="<<early<<" mixed="<<mixed<<" workflow="<<workflows<<'\n';
+    run();
+    const auto elapsed=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-begin).count();
+    std::cerr<<"manual_case end="<<name<<" early="<<early<<" mixed="<<mixed<<" elapsed_ns="<<elapsed<<" workflow="<<workflows<<'\n';
+}
 void preservedFailureDiagnostic(std::ostream &out, const std::filesystem::path &root) noexcept {
     // Native path insertion narrows through the locale on Windows and can throw
     // for this Unicode fixture while already unwinding, masking the first error.
@@ -85,20 +94,56 @@ struct WriterDiagnostic {
     struct Snapshot {
         unsigned phase = UINT32_MAX;
         Frame written = 0, committed = 0;
-        std::uint64_t sequence = 0;
+        CaptureBacklog backlog{};
+        bool hasBacklog = false, writeInFlight = false;
+        std::uint64_t sequence = 0, observedNs = 0, writeBeginNs = 0,
+                      completedBeginNs = 0, completedEndNs = 0, maximumWriteSpanNs = 0;
         bool coherent = false;
     };
-    std::atomic<std::uint64_t> sequence{0};
+    const std::chrono::steady_clock::time_point origin = std::chrono::steady_clock::now();
+    std::atomic<std::uint64_t> sequence{0}, observedNs{0}, writeBeginNs{0},
+        completedBeginNs{0}, completedEndNs{0}, maximumWriteSpanNs{0};
     std::atomic<unsigned> phase{UINT32_MAX};
     std::atomic<Frame> written{0}, committed{0};
-    // Existing disk/construction instrumentation only. The fixture permits one
-    // writer at a time; a completed group has joined it before another take.
+    std::atomic<std::uint32_t> readySlabs{0}, acquiredFrames{0};
+    std::atomic<std::uint64_t> queuedFrameUpperBound{0}, capacityFrames{0};
+    std::atomic<bool> hasBacklog{false}, writeInFlight{false};
+    std::uint64_t nowNs() const noexcept {
+        // Construction/disk/control only. This local steady-clock interval is
+        // neither the device sample clock nor a project/native-QPC alignment.
+        const auto n=std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now()-origin).count();
+        return std::uint64_t(std::max<std::int64_t>(1,n));
+    }
+    // Existing disk/construction instrumentation only. One writer at a time;
+    // a completed group joins it before another take. No mutable pipe reads
+    // occur on control. Backlog is the ORIGINAL observation, not a live poll.
     static void observe(void *context,const RecordingWriterObservation &o) noexcept {
         auto &d=*static_cast<WriterDiagnostic*>(context);
+        const auto at=d.nowNs();
         d.sequence.fetch_add(1,std::memory_order_acq_rel);
         d.phase.store(unsigned(o.phase),std::memory_order_release);
         d.written.store(o.writtenFrames,std::memory_order_release);
         d.committed.store(o.committedFrames,std::memory_order_release);
+        d.hasBacklog.store(o.hasBacklog,std::memory_order_release);
+        d.readySlabs.store(o.backlog.readySlabs,std::memory_order_release);
+        d.acquiredFrames.store(o.backlog.acquiredFrames,std::memory_order_release);
+        d.queuedFrameUpperBound.store(o.backlog.queuedFrameUpperBound,std::memory_order_release);
+        d.capacityFrames.store(o.backlog.capacityFrames,std::memory_order_release);
+        d.observedNs.store(at,std::memory_order_release);
+        if(o.phase==RecordingWriterPhase::WriteHashBegin) {
+            d.writeBeginNs.store(at,std::memory_order_release);
+            d.writeInFlight.store(true,std::memory_order_release);
+        } else {
+            if(o.phase==RecordingWriterPhase::WriteHashEnd && d.writeInFlight.load()) {
+                const auto begin=d.writeBeginNs.load();
+                d.completedBeginNs.store(begin,std::memory_order_release);
+                d.completedEndNs.store(at,std::memory_order_release);
+                d.maximumWriteSpanNs.store(std::max(d.maximumWriteSpanNs.load(),at-begin),
+                                           std::memory_order_release);
+            }
+            d.writeInFlight.store(false,std::memory_order_release);
+        }
         d.sequence.fetch_add(1,std::memory_order_release);
     }
     Snapshot snapshot() const noexcept {
@@ -108,6 +153,15 @@ struct WriterDiagnostic {
             s.phase=phase.load(std::memory_order_acquire);
             s.written=written.load(std::memory_order_acquire);
             s.committed=committed.load(std::memory_order_acquire);
+            s.hasBacklog=hasBacklog.load(std::memory_order_acquire);
+            s.backlog={readySlabs.load(std::memory_order_acquire),acquiredFrames.load(std::memory_order_acquire),
+                       queuedFrameUpperBound.load(std::memory_order_acquire),capacityFrames.load(std::memory_order_acquire)};
+            s.observedNs=observedNs.load(std::memory_order_acquire);
+            s.writeInFlight=writeInFlight.load(std::memory_order_acquire);
+            s.writeBeginNs=writeBeginNs.load(std::memory_order_acquire);
+            s.completedBeginNs=completedBeginNs.load(std::memory_order_acquire);
+            s.completedEndNs=completedEndNs.load(std::memory_order_acquire);
+            s.maximumWriteSpanNs=maximumWriteSpanNs.load(std::memory_order_acquire);
             s.sequence=sequence.load(std::memory_order_acquire);
             if(before==s.sequence && !(before&1)) {s.coherent=true;break;}
         }
@@ -132,7 +186,17 @@ void ownerDiagnostic(std::ostream &out,const ManualRecordingRun &run,std::uint64
         const auto s=writer.snapshot();
         out<<" writer_phase="<<s.phase<<" writer_written="<<s.written
            <<" writer_committed="<<s.committed<<" observation_sequence="<<s.sequence
-           <<" observation_coherent="<<s.coherent<<'\n';
+           <<" observation_coherent="<<s.coherent
+           <<" backlog_observed="<<s.hasBacklog<<" observed_ready_slabs="<<s.backlog.readySlabs
+           <<" observed_acquired_frames="<<s.backlog.acquiredFrames
+           <<" observed_queued_frame_upper_bound="<<s.backlog.queuedFrameUpperBound
+           <<" observed_capacity_frames="<<s.backlog.capacityFrames
+           <<" observation_local_ns="<<s.observedNs
+           <<" observation_age_ns="<<(s.coherent && s.sequence ? writer.nowNs()-s.observedNs : 0)
+           <<" write_in_flight="<<s.writeInFlight<<" write_begin_local_ns="<<s.writeBeginNs
+           <<" completed_write_begin_local_ns="<<s.completedBeginNs
+           <<" completed_write_end_local_ns="<<s.completedEndNs
+           <<" fixture_write_span_max_ns="<<s.maximumWriteSpanNs<<'\n';
     } catch(...) { // Retain the original failure even if a diagnostic sink fails.
     }
 }
@@ -930,6 +994,93 @@ void heldFinalizationDiagnostic() {
         <<" pending_starts=0 original_writer_phase="<<observation.phase<<" joined_delivery=69\n";
     f.run->stop();
 }
+void heldFirstWriteDiagnostic() {
+    WriterDiagnostic writer;
+    std::atomic<bool> entered{false}, released{false};
+    Fixture f(1);
+    struct ReleaseOnExit {
+        std::atomic<bool> &released;
+        ~ReleaseOnExit() { released.store(true,std::memory_order_release); }
+    } release{released}; // Release the deliberately held writer before fixture teardown.
+    auto a=arms(f.s,false);
+    a[0].writer.instrumentation={&writer,WriterDiagnostic::observe};
+    a[0].writer.boundary=[&](RecordingBoundary b,Frame frame) {
+        if(b!=RecordingBoundary::BeforeAudioWrite || frame) return;
+        entered.store(true,std::memory_order_release);
+        while(!released.load(std::memory_order_acquire))
+            std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Disk only.
+    };
+    f.prepare(std::move(a));
+    const auto id=f.run->prepareTake();
+    submit(*f.run,ManualPunchAction::In,31,1,id);
+    check(f.block()==DuplexStatus::Running,"Held-write preroll failed");
+    f.run->service();
+    check(f.block()==DuplexStatus::Running,"Held-write initial slab failed");
+    eventually([&]{f.run->service();return entered.load(std::memory_order_acquire);});
+    const auto before=writer.snapshot();
+    check(before.coherent && before.sequence && before.observedNs && before.writeInFlight &&
+          before.phase==unsigned(RecordingWriterPhase::WriteHashBegin) &&
+          !before.written && !before.committed && before.hasBacklog &&
+          before.backlog.acquiredFrames==256 && before.backlog.capacityFrames==8192 &&
+          !before.completedBeginNs && !before.completedEndNs && !before.maximumWriteSpanNs,
+          "Held first write lost original acquisition/backlog/timing or invented completion");
+    // Hold an actual writer for a measured interval, without sleeping on audio.
+    // The span includes boundary-hook/scheduling/write/hash time, not a syscall attribution.
+    const auto until=std::chrono::steady_clock::now()+std::chrono::milliseconds(20);
+    do {
+        WriterDiagnostic::Snapshot current;
+        {rt_audit::Guard guard;current=writer.snapshot();}
+        check(current.coherent && current.sequence==before.sequence && current.observedNs==before.observedNs &&
+              current.writeInFlight && !current.written && !current.completedEndNs &&
+              current.backlog.readySlabs==before.backlog.readySlabs &&
+              current.backlog.acquiredFrames==before.backlog.acquiredFrames &&
+              current.backlog.queuedFrameUpperBound==before.backlog.queuedFrameUpperBound &&
+              current.backlog.capacityFrames==before.backlog.capacityFrames,
+              "Held first write fabricated a live backlog or changed the original observation");
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    } while(std::chrono::steady_clock::now()<until);
+    DuplexStatus status=DuplexStatus::Running;
+    for(unsigned n=0;n<40 && status==DuplexStatus::Running;++n)status=f.block();
+    const auto d=f.run->diagnoseLane(id,0);
+    check(status==DuplexStatus::CaptureFailed && d && d->workerPresent && !d->workerComplete &&
+          d->captureStatus==CaptureStatus::QueueFull && d->retiredFrames==8192,
+          "Deliberately held first write failed to retain exhausted-pool evidence");
+    std::ostringstream observed;observed.imbue(std::locale::classic());
+    concurrentFailureDiagnostic(observed,*f.run,id,writer,0,"held-first-write");
+    check(observed.str().find("writer_phase=0 writer_written=0 writer_committed=0")!=std::string::npos &&
+          observed.str().find("backlog_observed=1")!=std::string::npos &&
+          observed.str().find("observed_acquired_frames=256")!=std::string::npos &&
+          observed.str().find("observed_capacity_frames=8192")!=std::string::npos &&
+          observed.str().find("write_in_flight=1")!=std::string::npos,
+          "Held-write formatter omitted original backlog or measured in-flight state");
+    const auto heldAge=writer.nowNs()-before.writeBeginNs;
+    check(heldAge>=20000000,"Held-write diagnostic lost measured elapsed time");
+    std::cout<<observed.str(); // Actual fixture failure facts; no Windows-root inference.
+    released.store(true,std::memory_order_release);
+    f.run->stop();
+    f.run->checkError();
+    ManualRecordedGroup group;
+    check(f.run->takeGroup(group) && !group.complete() && group.lanes[0].result &&
+          group.lanes[0].capturedFrames==8192 && group.lanes[0].writtenFrames==8192 &&
+          !f.run->occupiedSlots(),"Held-write release lost the joined raw prefix");
+    const auto data=audio(f.directory.root,group.lanes[0].result->asset);
+    for(Frame n=0;n<8192;++n)check(data[std::size_t(n)]==raw(group.beginFrame+n,0),
+                                 "Held-write recovery altered an original raw sample");
+    const auto completed=writer.snapshot();
+    check(completed.coherent && completed.hasBacklog && !completed.writeInFlight &&
+          completed.written==8192 && completed.committed==8192 && completed.completedBeginNs &&
+          completed.completedEndNs>=completed.completedBeginNs && completed.maximumWriteSpanNs>=heldAge,
+          "Held-write completion lost measured span or original durability");
+    WriterDiagnostic busy;busy.sequence.store(1); // Deliberately unpublished observation.
+    WriterDiagnostic::Snapshot busySnapshot;
+    {rt_audit::Guard guard;busySnapshot=busy.snapshot();}
+    check(!busySnapshot.coherent && busySnapshot.sequence==1 && !busySnapshot.hasBacklog &&
+          !busySnapshot.observedNs,"Busy bounded diagnostic invented a coherent observation");
+    std::cout<<"held_first_write_diagnostic acquired_frames="<<before.backlog.acquiredFrames
+             <<" capacity_frames="<<before.backlog.capacityFrames<<" held_age_ns="<<heldAge
+             <<" completed_fixture_span_max_ns="<<completed.maximumWriteSpanNs
+             <<" queue_full_prefix=8192 raw_exact=true windows_root_inferred=false\n";
+}
 void concurrentOwner() {
     WriterDiagnostic writerDiagnostic; // Outlives fixture destruction/worker joins.
     Fixture f(1);
@@ -1061,6 +1212,16 @@ void concurrentOwner() {
     audioOwner.join(); // Exact native callback ownership analogue, before stop/destruction.
     f.run->stop();
     f.run->checkReader();
+    const auto timing=writerDiagnostic.snapshot();
+    check(timing.coherent && timing.hasBacklog && timing.sequence && !timing.writeInFlight &&
+          timing.completedBeginNs && timing.completedEndNs>=timing.completedBeginNs &&
+          timing.maximumWriteSpanNs>=timing.completedEndNs-timing.completedBeginNs,
+          "Original concurrent writer lost completed write/backlog timing");
+    std::cout<<"concurrent_writer_timing completed_begin_local_ns="<<timing.completedBeginNs
+             <<" completed_end_local_ns="<<timing.completedEndNs
+             <<" fixture_write_span_max_ns="<<timing.maximumWriteSpanNs
+             <<" observation_sequence="<<timing.sequence<<" backlog_observed="<<timing.hasBacklog
+             <<" observed_capacity_frames="<<timing.backlog.capacityFrames<<'\n';
     check(!failed.load() && difference <= 1e-6 &&
               audioCounts.cppAllocate + audioCounts.cppFree + audioCounts.cAllocate +
                       audioCounts.cFree + audioCounts.blockingLock ==
@@ -1071,32 +1232,33 @@ void concurrentOwner() {
 int main(int argc,char **argv) {
     try {
         if(argc==2 && std::string_view(argv[1])=="--concurrent-owner-diagnostics") {
-            concurrentOwner();
+            caseTrace("concurrent-owner",[]{concurrentOwner();});
             std::cout<<"original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false\n";
             return 0;
         }
         check(argc==1,"Unknown manual owner diagnostic argument");
         rt_audit::reset();
-        repeated(256, false, false);
-        repeated(127, true, true);
-        repeated(31, true, false);
+        caseTrace("repeated-256",[]{repeated(256, false, false);});
+        caseTrace("repeated-127",[]{repeated(127, true, true);});
+        caseTrace("repeated-31",[]{repeated(31, true, false);});
         for (bool early : {false, true})
             for (bool mixed : {false, true})
-                emptyAndMixed(early, mixed);
-        writerFailure(0, false);
-        writerFailure(1, false);
-        writerFailure(1, true);
-        interruption(false, DuplexStatus::Stopped);
-        interruption(false, DuplexStatus::DeviceLost);
-        interruption(true, DuplexStatus::Stopped);
-        activeDiskFailure();
-        poolExhaustion();
-        lateCancellation(false);
-        lateCancellation(true);
-        backpressure();
-        readyGroupPressure();
-        heldFinalizationDiagnostic();
-        concurrentOwner();
+                caseTrace("empty-and-mixed",[&]{emptyAndMixed(early, mixed);},early,mixed);
+        caseTrace("writerFailure",[]{writerFailure(0, false);});
+        caseTrace("writerFailure",[]{writerFailure(1, false);});
+        caseTrace("writerFailure",[]{writerFailure(1, true);});
+        caseTrace("interruption",[]{interruption(false, DuplexStatus::Stopped);});
+        caseTrace("interruption",[]{interruption(false, DuplexStatus::DeviceLost);});
+        caseTrace("interruption",[]{interruption(true, DuplexStatus::Stopped);});
+        caseTrace("activeDiskFailure",[]{activeDiskFailure();});
+        caseTrace("poolExhaustion",[]{poolExhaustion();});
+        caseTrace("lateCancellation",[]{lateCancellation(false);});
+        caseTrace("lateCancellation",[]{lateCancellation(true);});
+        caseTrace("backpressure",[]{backpressure();});
+        caseTrace("readyGroupPressure",[]{readyGroupPressure();});
+        caseTrace("heldFinalizationDiagnostic",[]{heldFinalizationDiagnostic();});
+        caseTrace("heldFirstWriteDiagnostic",[]{heldFirstWriteDiagnostic();});
+        caseTrace("concurrent-owner",[]{concurrentOwner();});
         const auto c = rt_audit::counts;
         check(c.cppAllocate + c.cppFree + c.cAllocate + c.cFree + c.blockingLock == 0,
               "Control callback allocated/freed/locked");

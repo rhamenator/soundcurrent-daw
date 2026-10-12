@@ -7,6 +7,7 @@
 #include "monitor_control.hpp"
 #include "monitor_capture_stop.hpp"
 #include "monitor_startup_handoff.hpp"
+#include "monitor_channel_map.hpp"
 
 namespace soundcurrent::daw {
 // Opt-in prepared startup admission. The caller supplies ACTUAL native geometry,
@@ -25,13 +26,17 @@ struct MonitorProcessingConfig {
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
     std::optional<ResourceLedger> resources;
     std::optional<MonitorStartupConfig> startup;
+    // Monitor-only, after conversion. Absence means exact same-width identity.
+    // Startup handoffs must admit its canonical immutable fingerprint.
+    std::optional<MonitorChannelMap> channelMap;
+    std::optional<MonitorEqSpec> equalizer;
 };
 enum class MonitorProcessingCode {
     Progress, NeedInput, WaitingClock, OutputFull, NeedEnd, Done, Cancelled, Fault, ControlFull
 };
 enum class MonitorProcessingCause {
     Clock, ControlTime, CaptureRoute, CaptureLease, Buffer, Output, Abandoned, PostrollCapacity, Control, CaptureEnd,
-    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff
+    StartupTimeout, StartupInputEnd, StartupInput, StartupPrematurePull, StartupHandoff, ChannelMap, Equalizer
 };
 struct MonitorProcessingFault {
     MonitorProcessingCause cause;
@@ -57,12 +62,14 @@ std::size_t monitorProcessingPayloadBytes(const CaptureFanoutConfig &,
 // outlives this object and all readers. This is monitor resampling
 // composition, not an SDK adapter, native activation or recording alignment.
 // observe receives original readings via a caller-owned bounded handoff, never
-// concurrent native-owner calls. step's asOf must be the actual current QPC time.
+// concurrent native-owner calls. step's asOf is actual current time in the
+// handoff's declared 100 ns domain: Windows QPC or floor(POSIX monotonic ns/100).
+// Legacy type spelling does not convert or mix the two domains.
 class PreparedMonitorProcessing {
   public:
     PreparedMonitorProcessing(PreparedCaptureFanout &, PreparedMonitorOutputBank &,
                               MonitorProcessingConfig, PreparedMonitorClockHandoff * = nullptr,
-                              PreparedMonitorControl * = nullptr, PreparedMonitorCaptureStop * = nullptr,
+                              PreparedMonitorControl * = nullptr, MonitorCaptureStopHandoff * = nullptr,
                               PreparedMonitorStartupHandoff * = nullptr);
     ~PreparedMonitorProcessing();
     PreparedMonitorProcessing(const PreparedMonitorProcessing &) = delete;
@@ -90,9 +97,15 @@ class PreparedMonitorProcessing {
     void cancel() noexcept; // Stops future capture; preserves accepted raw route.
     void settleAfterJoin() noexcept; // Control only AFTER processing owner joins.
     MonitorProcessingStatistics statistics() const noexcept;
+    // Fixed atomic receipt: original source frames copied into the startup ring
+    // or converter AND released back to the capture bank. Includes subsequently
+    // discarded startup history; NOT audible/DSP/output/project frame mapping.
+    std::uint64_t copiedSourceFrames() const noexcept { return copiedSourceFrames_.load(std::memory_order_acquire); }
     std::optional<MonitorProcessingFault> firstFault() const noexcept { return fault_; }
     std::optional<MonitorDriftFault> clockFault() const noexcept { return drift_.firstFault(); }
     std::optional<MonitorBufferFault> bufferFault() const noexcept { return buffer_.firstFault(); }
+    PreparedMonitorEq *equalizer() noexcept { return equalizer_.get(); } // Role-specific driver access, not mutable DSP state.
+    std::optional<EqReport> equalizerFault() const noexcept { return equalizerFault_; } // Joined/processing owner only.
     std::size_t chargedBytes() const noexcept { return bytes_; }
   private:
     ResourceLease lease_;
@@ -100,12 +113,14 @@ class PreparedMonitorProcessing {
     PreparedMonitorOutputBank &output_;
     PreparedMonitorClockHandoff *clocks_ = nullptr;
     PreparedMonitorControl *control_ = nullptr;
-    PreparedMonitorCaptureStop *captureStop_ = nullptr;
+    MonitorCaptureStopHandoff *captureStop_ = nullptr;
     PreparedMonitorStartupHandoff *startupHandoff_ = nullptr;
     MonitorProcessingConfig config_;
     PreparedMonitorDrift drift_;
     PreparedMonitorBuffer buffer_;
     std::vector<float> pending_;
+    std::optional<PreparedMonitorChannelMap> channelMap_;
+    std::vector<float> mappedPending_;
     struct StartupPacket { CaptureBankStamp original; std::uint32_t offset = 0; };
     std::vector<float> startupSamples_;
     std::vector<StartupPacket> startupPackets_;
@@ -119,8 +134,11 @@ class PreparedMonitorProcessing {
     std::uint64_t published_ = 0, discarded_ = 0, calls_ = 0;
     std::size_t bytes_ = 0;
     bool holding_ = false, done_ = false, cancelled_ = false, clockEstablished_ = false;
+    std::atomic<std::uint64_t> copiedSourceFrames_{0};
+    std::unique_ptr<PreparedMonitorEq> equalizer_;
+    std::optional<EqReport> equalizerFault_;
     MonitorProcessingCode fail(MonitorProcessingCause) noexcept;
-    bool release() noexcept;
+    bool release(bool copied = false) noexcept;
     MonitorProcessingCode schedule(Qpc100ns) noexcept;
     MonitorProcessingCode validate(Qpc100ns) noexcept;
     MonitorProcessingCode startupStep(Qpc100ns) noexcept;

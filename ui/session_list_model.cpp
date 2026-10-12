@@ -133,7 +133,7 @@ void SessionListModel::checkEditing(bool v) {
         return;
     editable_ = v;
     if (rowCount())
-        emit dataChanged(index(0), index(rowCount() - 1), {Qt::CheckStateRole});
+        Q_EMIT dataChanged(index(0), index(rowCount() - 1), {Qt::CheckStateRole});
 }
 struct SessionListModel::Prepared {
     ResourceLease reservation;
@@ -302,7 +302,7 @@ void SessionListModel::commit(std::shared_ptr<Prepared> p) {
         increment(resets_);
         endResetModel();
     } else if (rowCount())
-        emit dataChanged(index(0), index(rowCount() - 1));
+        Q_EMIT dataChanged(index(0), index(rowCount() - 1));
 }
 void SessionListModel::update(std::shared_ptr<const Session> s, std::optional<ChannelLayout> f,
                               std::optional<Id> clipTrack) {
@@ -341,6 +341,6 @@ void SessionListModel::decorate(std::unordered_map<std::string, TrackDecoration>
     std::sort(changed.begin(), changed.end());
     changed.erase(std::unique(changed.begin(), changed.end()), changed.end());
     for (const auto row : changed)
-        emit dataChanged(index(row), index(row));
+        Q_EMIT dataChanged(index(row), index(row));
 }
 } // namespace soundcurrent::daw::ui

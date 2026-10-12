@@ -1,0 +1,32 @@
+{
+  "source": "aecc0b79934a89a428e914e61ee20eb294538f85",
+  "tree": "dabb2958bae1dab828a3264396165a4e117a8156",
+  "targets": [
+    "sc-monitor-processing-tests",
+    "sc-monitor-startup-tests",
+    "sc-native-monitor-startup-tests",
+    "sc-native-original-recording-tests"
+  ],
+  "selector": "^(bounded-monitor-processing|bounded-monitor-startup|native-monitor-startup|original-native-outcomes)$",
+  "executableHashes": {
+    "release": {
+      "sc-monitor-processing-tests": "1dd234ebe09ad8550aca27446a79feef6a5fa7952af9b5379b442e1a484cb993",
+      "sc-monitor-startup-tests": "66e576a4594a636a8279ca5feec49bc00e1c9eff6ce55d3a75f941db83d88b91",
+      "sc-native-monitor-startup-tests": "0b28fbf53a04886a02029c8ee4c2aa770d5394c5f5382e8a6550f57e456a4045",
+      "sc-native-original-recording-tests": "0e982b5cb33fef99f30ea356756fd5bb61787596a471b04b92ba92708beb143d"
+    },
+    "sanitizer": {
+      "sc-monitor-processing-tests": "b08f30393cd2ff5921ce7aa84c864905b02998be62495d4a94ee434e962aaeda",
+      "sc-monitor-startup-tests": "1651d83a502386ac0dbee19425b3ff033ba0ce9582d0c50fb535d70bf78f23a3",
+      "sc-native-monitor-startup-tests": "57dd45d05b4f75958c4fa9e896f826f01a37b92486d7d90f9288873fb633f49a",
+      "sc-native-original-recording-tests": "437f2e505d778c31699c6635506cd69157089bb0ef30cdf76fb6778d84c58b0f"
+    },
+    "tsan": {
+      "sc-monitor-processing-tests": "7dd8cb4376331c3bbaf8c6a5c5cdcea1c7301bd05a9a34953c9699dfde5b017e",
+      "sc-monitor-startup-tests": "91df2761271c597c1ac91aa8fbc2537803f3551982038cf16f6c82a1f9780690",
+      "sc-native-monitor-startup-tests": "9872ea8e2bfe1058f19495b48d230771c568e6f99a072ebb2a00e6e68f5cc117",
+      "sc-native-original-recording-tests": "a9d2b70042bc003d9ba82373bc984afa7dc79d7286483195608ac53c9ba7d841"
+    }
+  },
+  "nativeAudioQualified": false
+}

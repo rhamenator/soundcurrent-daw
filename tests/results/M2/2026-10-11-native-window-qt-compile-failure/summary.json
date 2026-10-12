@@ -1,0 +1,40 @@
+{
+  "head": "a32416f3f9ec87190d79b435f75bd7843bcb5ca9",
+  "run": 38197361681,
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 114642911071,
+      "name": "Windows desktop import and localization tests",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 114642911219,
+      "name": "Linux desktop and synthetic tests",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 114642911223,
+      "name": "Windows native packet ownership tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114642911236,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "nativeWindowsSuitesPassed": 71,
+  "nativeWindowsSeconds": 207.94,
+  "nativeOriginalManualAndThreeStandaloneDiagnosticsCompleted": true,
+  "desktopAndLinuxFailedAtLocalizationCompile": true,
+  "qtSlotsMacroCollisionFromQtFirstInclude": true,
+  "desktopUiExecutionQualified": false,
+  "currentFixExecuted": false,
+  "unchangedRetryToGreen": false,
+  "noBinaryOrAudioPayload": true
+}

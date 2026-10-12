@@ -7,5 +7,6 @@ namespace soundcurrent::daw::detail {
 // verification and any paired native-state read. No nested lease acquisition.
 OriginalRecordingPrefix inspectOriginalRecordingHeld(const std::filesystem::path &,
     const media_io::JobLease &,const std::optional<OriginalRecordingSpec> &,
-    const std::function<void()> &,std::optional<ResourceLedger>);
+    const std::function<void()> &,std::optional<ResourceLedger>,std::optional<std::string_view> committedJournal = {});
+CaptureBankToken decodeOriginalPacketRecord(std::span<const std::byte,80>,std::uint64_t offset);
 }
