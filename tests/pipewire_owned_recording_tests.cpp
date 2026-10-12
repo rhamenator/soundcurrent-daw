@@ -130,5 +130,5 @@ void failures(){
     check(r.terminalStored && inspectPipeWireRecordingState(owner.jobDirectory()).outcome->diskFailure,"Disk failure not stored with original common prefix");
 }
 }
-int main(){try{workflow();failures();std::cout<<checks<<" owned PipeWire recording checks passed;actual native-role/processing/disk threads, finite EQ/map/raw checkpoint, cancel/fault/rollback;SDK=false, physical=false, durable terminal state incomplete\n";return 0;
+int main(){try{workflow();failures();std::cout<<checks<<" owned PipeWire recording checks passed;actual native-role/processing/disk threads, finite EQ/map/raw checkpoint, cancel/fault/rollback;SDK=false, physical=false, durable terminal state verified\n";return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

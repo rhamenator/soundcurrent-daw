@@ -63,7 +63,8 @@ void crash(unsigned boundary){Temp t;
     std::array<wchar_t,32768> executable{};const auto n=GetModuleFileNameW(nullptr,executable.data(),DWORD(executable.size()));check(n && n<executable.size(),"State executable path failed");
     auto command=std::wstring(L"\"")+executable.data()+L"\" --crash \""+t.root.native()+L"\" "+std::to_wstring(boundary);STARTUPINFOW startup{};startup.cb=DWORD(sizeof(startup));PROCESS_INFORMATION process{};
     check(CreateProcessW(nullptr,command.data(),nullptr,nullptr,FALSE,0,nullptr,nullptr,&startup,&process),"State crash child failed");CloseHandle(process.hThread);const auto result=WaitForSingleObject(process.hProcess,10000);
-    if(result!=WAIT_OBJECT_0)TerminateProcess(process.hProcess,99);DWORD code=0;GetExitCodeProcess(process.hProcess,&code);CloseHandle(process.hProcess);check(result==WAIT_OBJECT_0 && code==77,"State child boundary missed");
+    if(result!=WAIT_OBJECT_0)TerminateProcess(process.hProcess,99);
+    DWORD code=0;GetExitCodeProcess(process.hProcess,&code);CloseHandle(process.hProcess);check(result==WAIT_OBJECT_0 && code==77,"State child boundary missed");
 #else
     const auto pid=fork();check(pid>=0,"State fork failed");if(!pid){try{child(t.root,boundary);}catch(const std::exception &e){std::cerr<<e.what()<<'\n';std::_Exit(79);}}
     int status=0;const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(10);
