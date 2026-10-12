@@ -1,5 +1,25 @@
 # Active full-suite goal: progress and completion evidence
 
+## Durable PipeWire route and terminal state (2026-10-12)
+
+[Checkpoint230](230-pipewire-durable-outcomes.md) stores strict versioned intent,
+initial EQ/map, selected stable ports and joined native/worker outcomes bound to
+verified paired checkpoints. Four actual process publication interruptions,
+corruption/context/quota and moved-project recovery are covered.
+Current three Release suites pass2.44s; three ASan/UBSan suites pass4.93s;
+corrected owner/render TSan suites pass4.33s. Six Windows objects compile without
+warnings, without current native runtime qualification. Private PipeWire Release/
+sanitizer runs preserve99,072/100,352 raw frames and deliver8,192 processed frames
+with zero audited callback allocation/free/lock hits and exact reopened state.
+
+Original local TSan clock rejection remains unexplained and retained. A later
+terminal validator failure exposed a distinct silent-final-receipt ordering bug;
+the corrected predicate and deterministic render regression preserve original facts.
+Original PR164 native owner rejection and PR163 pool pressure remain unresolved.
+Current CI retention closes the eager-read handle and separately collects failed
+projects; independent Windows execution is pending. Next native controller/Qt
+integration and verified placement/export; full goal remains active.
+
 ## Owned PipeWire native/processing/disk workers (2026-10-12)
 
 [Checkpoint229](229-pipewire-owned-recording.md) adds admitted expected graph

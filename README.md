@@ -216,7 +216,9 @@ shared raw/receipt checkpoints after interruption and preserves uncommitted tail
 connect the planar boundaries to in-process EQ/resampling and journal composition.
 An [owned native/processing/disk route](docs/229-pipewire-owned-recording.md) now
 qualifies combined EQ/capture/render/journal processing in a private dummy server.
-Durable route/terminal state, controller/UI integration and verified alignment remain required.
+[Durable route intent and joined terminal outcomes](docs/230-pipewire-durable-outcomes.md)
+now bind saved EQ/map/ports and native facts to verified raw/receipt checkpoints.
+Controller/UI integration and verified alignment remain required.
 
 ## Desktop recording workflow
 

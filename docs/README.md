@@ -205,3 +205,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [PipeWire shared processing startup and stop handoffs](228-pipewire-processing-handoffs.md)
 
 - [Owned PipeWire native, processing and disk workers](229-pipewire-owned-recording.md)
+
+- [Durable PipeWire route intent and joined terminal outcomes](230-pipewire-durable-outcomes.md)
