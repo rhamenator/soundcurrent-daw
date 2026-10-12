@@ -120,7 +120,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
                            ManualControlOptions manualOptions, ControllerOptions projectOptions,
                            std::function<void(HistoryBudget)> historyAccepted,
                            std::function<void(MemoryPreferences)> memoryAccepted,
-                           StretchOptions stretchOptions)
+                           StretchOptions stretchOptions, NativeMonitorControllerOptions nativeOptions)
     : QMainWindow(parent), controller_(std::move(projectOptions)), stretch_([&]{
           stretchOptions.memory=controller_.resourceLedger();return std::move(stretchOptions);
       }()), playback_([&] {
@@ -348,6 +348,8 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
     connect(stopButton_, &QPushButton::clicked, this, [this] {
         if (manual_)
             manual_->stop();
+        if (nativeRecording_)
+            nativeRecording_->cancel();
         recordPrepareBarrier_ = 0;
         playbackPrepareBarrier_ = 0;
         playback_.requestStop();
@@ -711,12 +713,25 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
             const bool playIdle = p->phase == PlaybackPhase::Idle ||
                                   p->phase == PlaybackPhase::Unsupported ||
                                   p->phase == PlaybackPhase::Fault;
-            return !closing_ && !closeRequested_ && !recordPrepareBarrier_ &&
+            return !closing_ && !closeRequested_ && !(nativeRecording_ && nativeRecording_->busy()) && !recordPrepareBarrier_ &&
                    !recordCommandPending_ && !r->take && !attachingTake_ &&
                    !playbackPrepareBarrier_ && recordIdle && playIdle && !exportWorkflowBusy();
         },
         std::move(manualOptions), body);
     recordModesTabs->addTab(manual_.get(), tr("Manual / repeated takes"));
+    { // Saved native take inspection is available without a native stream adapter.
+        nativeOptions.commandMemory = controller_.resourceLedger();
+        nativeOptions.inventoryMemory = controller_.resourceLedger().child(16*1024*1024,"Native device inventory");
+        nativeRecording_ = std::make_unique<NativeMonitorPanel>(
+            std::move(nativeOptions), body, controller_.resourceLedger());
+        nativeRecording_->preparationGuard([this](const auto &p){return configureNativeRecording(p);});
+        nativeRecording_->reopenGuard([this]{
+            const auto model=controller_.snapshot();const auto play=playback_.snapshot()->phase;
+            return model->session && model->io==IoOperation::None && !closing_ && !closeRequested_ && !recordingBusy() && !attachingTake_ && !exportWorkflowBusy() && !playbackPrepareBarrier_ &&
+                (play==PlaybackPhase::Idle || play==PlaybackPhase::Fault || play==PlaybackPhase::Unsupported);
+        });
+        recordModesTabs->addTab(nativeRecording_.get(), tr("Native input monitoring"));
+    }
     eq_ = new QGroupBox(tr("Track equalizer"), body);
     eq_->setObjectName(QStringLiteral("equalizerGroup"));
     eq_->setLayout(new QGridLayout);
@@ -1163,10 +1178,12 @@ void StudioWindow::pollExport() {
 }
 bool StudioWindow::submitEdit(ProjectCommand command) {
     if(stretchAdopting_ && (command.kind==CommandKind::Open || command.kind==CommandKind::Create))return false;
-    if (manual_ && manual_->busy() &&
-        (command.kind == CommandKind::Structural || command.kind == CommandKind::Monitoring ||
-         command.kind == CommandKind::Open || command.kind == CommandKind::Create)) {
-        state_->setText(tr("Stop manual recording and resolve its previews before changing the "
+    const bool structural = command.kind==CommandKind::Structural || command.kind==CommandKind::Monitoring ||
+                            command.kind==CommandKind::Open || command.kind==CommandKind::Create;
+    if (((manual_ && manual_->busy()) && structural) ||
+        ((nativeRecording_ && nativeRecording_->busy()) &&
+         (structural || command.kind==CommandKind::Routing || command.kind==CommandKind::Undo || command.kind==CommandKind::Redo))) {
+        state_->setText(tr("Stop recording and resolve its retained takes before changing the "
                            "project structure."));
         return false;
     }
@@ -1685,9 +1702,89 @@ void StudioWindow::pollPlayback() {
         notice_->setText(tr("Playback could not be completed: %1").arg(text(p->diagnostic)));
     }
 }
+bool StudioWindow::configureNativeRecording(const NativeMonitorPreparation &p) {
+    poll(); // Synchronize a just-published Open and stable track selection.
+    const auto model=controller_.snapshot();const auto selected=selectedTrack();
+    const auto play=playback_.snapshot()->phase;
+    if(!nativeRecording_ || !model->session || !selected || closing_ || closeRequested_ ||
+       model->io!=IoOperation::None || recordingBusy() || attachingTake_ || exportWorkflowBusy() ||
+       playbackPrepareBarrier_ || (play!=PlaybackPhase::Idle && play!=PlaybackPhase::Fault && play!=PlaybackPhase::Unsupported) ||
+       model->root!=p.root || model->session->id!=p.options.raw.project || *selected!=p.options.raw.track)return false;
+    const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*selected;});
+    if(track==model->session->tracks.end() || track->layout!=p.options.raw.layout || track->inputLatencyFrames!=p.options.raw.declaredInputLatencyFrames ||
+       (p.options.route.equalizer && (p.options.route.equalizer->track!=track->id || p.options.route.equalizer->settings!=track->eq)))return false;
+    try {
+        PayloadCharge charge("Native inspector EQ",controller_.resourceLedger().usage().limitBytes);
+        charge.add(sizeof(EqSettings)+512);charge.add(track->eq.bands.size(),sizeof(EqBand)+128);
+        auto credit=controller_.resourceLedger().reserve(charge.bytes());
+        auto eq=track->eq;
+        if(!nativeRecording_->setPreparation(p))return false;
+        nativeProjectEpoch_=model->projectEpoch;nativePreparationGeneration_=nativeRecording_->snapshot()->generation;nativeTrack_=track->id;
+        nativeEqSent_=std::move(eq);nativeEqCredit_=std::move(credit);return true;
+    }catch(const ProjectError &){return false;}
+}
+std::shared_ptr<const NativeMonitorSnapshot> StudioWindow::nativeRecordingSnapshot() const {
+    return nativeRecording_?nativeRecording_->snapshot():std::shared_ptr<const NativeMonitorSnapshot>{};
+}
+bool StudioWindow::nativeClosed() const {return !nativeRecording_ || nativeRecording_->closeReady();}
+bool StudioWindow::nativeInactive() const {
+    if(!nativeRecording_)return true;
+    const auto phase=nativeRecording_->snapshot()->phase;
+    return phase!=NativeMonitorPhase::Reopening && phase!=NativeMonitorPhase::Preparing && phase!=NativeMonitorPhase::Ready && phase!=NativeMonitorPhase::Recording && phase!=NativeMonitorPhase::Finishing;
+}
+void StudioWindow::pollNativeRecording(const std::shared_ptr<const ControllerSnapshot> &model) {
+    if(!nativeRecording_)return;
+    if(model->session)nativeRecording_->setProject(model->root,model->session->id);else nativeRecording_->clearProject();
+    nativeRecording_->poll();const auto state=nativeRecording_->snapshot();
+    if(!nativeRecording_->busy() && nativeTrack_) {
+        const auto selected=selectedTrack();
+        const auto found=model->session?std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*nativeTrack_;}):std::vector<Track>::const_iterator{};
+        if(!model->session || model->projectEpoch!=nativeProjectEpoch_ || selected!=nativeTrack_ ||
+           found==model->session->tracks.end() || !nativeEqSent_ || found->eq!=*nativeEqSent_ || state->generation!=nativePreparationGeneration_) {
+            nativeRecording_->clearPreparation();nativeTrack_.reset();nativeEqSent_.reset();nativeEqCredit_={};return;
+        }
+    }
+    if(nativeRecording_->interactiveDevices() && !nativeRecording_->busy() && !nativeTrack_ && model->session) {
+        const auto selected=selectedTrack();
+        const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return selected && t.id==*selected;});
+        if(track!=model->session->tracks.end()) {
+            try {
+                PayloadCharge charge("Native project preparation",controller_.resourceLedger().usage().limitBytes);
+                charge.add(sizeof(NativeMonitorPreparation)+32768);charge.add(track->eq.bands.size(),sizeof(EqBand)+128);
+                charge.add(model->root.native().size()+1,sizeof(std::filesystem::path::value_type));
+                auto lease=controller_.resourceLedger().reserve(charge.bytes());
+                NativeMonitorPreparation p;p.root=model->root;p.options.raw.project=model->session->id;p.options.raw.track=track->id;
+                p.options.raw.layout=track->layout;p.options.raw.declaredInputLatencyFrames=track->inputLatencyFrames;
+                MonitorEqSpec eq;eq.track=track->id;eq.settings=track->eq;p.options.route.equalizer=std::move(eq);
+                p.options.route.resources=controller_.resourceLedger();p.options.recording.raw.resources=controller_.resourceLedger();
+                configureNativeRecording(p);
+            }catch(const ProjectError &){/* Context remains unavailable; no SDK/preparation activation. */}
+        }
+    }
+    if(!model->session || model->projectEpoch!=nativeProjectEpoch_ || !nativeTrack_ || !nativeEqSent_ ||
+       !state->declared || !state->declared->equalizer ||
+       (state->phase!=NativeMonitorPhase::Ready && state->phase!=NativeMonitorPhase::Recording))return;
+    const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*nativeTrack_;});
+    if(track==model->session->tracks.end() || track->eq.id!=nativeEqSent_->id || track->eq.bands.size()!=nativeEqSent_->bands.size())return;
+    if(track->eq.enabled!=nativeEqSent_->enabled) {
+        if(!nativeRecording_->enabled(track->eq.enabled))return;
+        nativeEqSent_->enabled=track->eq.enabled;
+    }
+    // Forward published canonical values and advance only
+    // individual accepted intents. A full FIFO retries the remaining values.
+    for(std::size_t n=0;n<track->eq.bands.size();++n) {
+        const auto &desired=track->eq.bands[n];auto &sent=nativeEqSent_->bands[n];if(desired.id!=sent.id)return;
+        const struct {BandParameter parameter;double EqBand::*field;} fields[]={
+            {BandParameter::FrequencyHz,&EqBand::frequencyHz},{BandParameter::GainDb,&EqBand::gainDb},{BandParameter::Q,&EqBand::q}};
+        for(const auto &field:fields)if(desired.*field.field!=sent.*field.field) {
+            if(!nativeRecording_->parameter(track->eq,{track->id,track->eq.id,desired.id,field.parameter}))return;
+            sent.*field.field=desired.*field.field;
+        }
+    }
+}
 bool StudioWindow::recordingBusy() const {
     const auto r = recording_.snapshot();
-    return (manual_ && manual_->busy()) || recordPrepareBarrier_ || recordCommandPending_ ||
+    return (nativeRecording_ && nativeRecording_->busy()) || (manual_ && manual_->busy()) || recordPrepareBarrier_ || recordCommandPending_ ||
            r->take ||
            (r->phase != RecordingPhase::Idle && r->phase != RecordingPhase::Unsupported &&
             r->phase != RecordingPhase::Fault && r->phase != RecordingPhase::Closed);
@@ -1776,6 +1873,7 @@ void StudioWindow::pollLoopTakes() {
 }
 bool StudioWindow::prepareRecording() {
     poll();
+    if(nativeRecording_ && nativeRecording_->busy())return false;
     const auto m = inspectorSnapshot();
     const auto p = playback_.snapshot();
     const auto r = recording_.snapshot();
@@ -2939,6 +3037,7 @@ void StudioWindow::shutdownWorkers() {
     stretch_.requestShutdown();
     if (importDialog_) importDialog_->requestShutdown();
     manual_->requestShutdown();
+    if(nativeRecording_)nativeRecording_->beginClose();
     recoveryScanner_.requestShutdown();
     exporter_.requestShutdown();
     playback_.requestShutdown();
@@ -3072,6 +3171,7 @@ void StudioWindow::poll() {
     if (!closeRequested_)
         manual_->cancelClose();
     manual_->poll();
+    pollNativeRecording(canonical);
     const auto native = playback_.snapshot();
     const bool inactive = native->phase == PlaybackPhase::Idle ||
                           native->phase == PlaybackPhase::Fault ||
@@ -3111,7 +3211,7 @@ void StudioWindow::poll() {
     pollExport();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed &&
-        manual_->snapshot()->closed && (!importDialog_ || importDialog_->retired()) && closing_) {
+        manual_->snapshot()->closed && nativeClosed() && (!importDialog_ || importDialog_->retired()) && closing_) {
         close();
         return;
     }
@@ -3228,7 +3328,7 @@ void StudioWindow::poll() {
         recording_.snapshot()->stopAcknowledged >= closeDrainToken_ &&
         !recording_.snapshot()->take && !attachingTake_ && !exporter_.snapshot()->busy &&
         !stretch_.snapshot()->busy && !stretchAdopting_ &&
-        view->io == IoOperation::None && manualCloseReady == 1) {
+        view->io == IoOperation::None && manualCloseReady == 1 && nativeInactive()) {
         ProjectCommand barrier{CommandKind::Barrier};
         barrier.barrier = nextGesture_++;
         const auto token = barrier.barrier;
@@ -3253,7 +3353,7 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     const auto view = inspectorSnapshot();
     if (view->closed && playback_.snapshot()->closed && recording_.snapshot()->closed &&
         exporter_.snapshot()->closed && recoveryScanner_.snapshot()->closed && stretch_.snapshot()->closed &&
-        manual_->snapshot()->closed && (!importDialog_ || importDialog_->retired())) {
+        manual_->snapshot()->closed && nativeClosed() && (!importDialog_ || importDialog_->retired())) {
         event->accept();
         return;
     }
@@ -3267,6 +3367,7 @@ void StudioWindow::closeEvent(QCloseEvent *event) {
     stretch_.requestCancel();
     if(stretchDialog_)stretchDialog_->close();
     manual_->beginClose();
+    if(nativeRecording_)nativeRecording_->cancel();
     recoveryScanner_.cancel();
     if (recoveryDialog_)
         recoveryDialog_->reject();

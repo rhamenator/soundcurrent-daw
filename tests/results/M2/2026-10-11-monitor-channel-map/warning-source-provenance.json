@@ -1,0 +1,34 @@
+{
+  "files": {
+    "src/mix_reader.cpp": {
+      "baseBlob": "aa09b651b13d1ffa8df5eacc23de9acf3df3b8af",
+      "sourceBlob": "aa09b651b13d1ffa8df5eacc23de9acf3df3b8af",
+      "sha256": "da8d0ae67e41eb71d42d09cf8de92f55263c0ba0201fcf8cdf3ae59fd206013e",
+      "unchanged": true
+    },
+    "src/mix_playback.cpp": {
+      "baseBlob": "97d4f7aa032b77b645c6dfc2759639dee022b2df",
+      "sourceBlob": "97d4f7aa032b77b645c6dfc2759639dee022b2df",
+      "sha256": "d3140e92b66d9cf544ad0969526c85b0f386e0c02cac67f8ae36f9cf6bea599d",
+      "unchanged": true
+    },
+    "include/soundcurrent/mix.hpp": {
+      "baseBlob": "b0c0db0ac0e6afeddf22ab27b5658f2afee374d0",
+      "sourceBlob": "b0c0db0ac0e6afeddf22ab27b5658f2afee374d0",
+      "sha256": "b2749045f9042e7e0a6dac79e16fc60a77f3f8b0fcf77496880655877c906db3",
+      "unchanged": true
+    },
+    "/usr/include/c++/15/bits/shared_ptr_base.h": {
+      "bytes": 67381,
+      "sha256": "a78944127d78c48425125f4bc16f1e3fb5b66d3adf381d4168f0298425172e96",
+      "systemHeader": true
+    },
+    "/usr/include/c++/15/optional": {
+      "bytes": 54279,
+      "sha256": "92ef82c491c1349505c4867683106c648e1e315c25d05fa50782f26ed1f75db1",
+      "systemHeader": true
+    }
+  },
+  "warningSuppressionAdded": false,
+  "diagnosis": "Original warnings retained from unchanged mixing paths; no false-positive conclusion or root-cause claim"
+}

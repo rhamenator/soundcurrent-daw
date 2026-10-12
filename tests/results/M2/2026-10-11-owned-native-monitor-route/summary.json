@@ -1,0 +1,61 @@
+{
+  "source": "2c38699e04900176b43e7da249756b8c65af5b16",
+  "tree": "ccb1e0353ea5f8b9e71e45f99b1ac903f3cca5e6",
+  "sourceInputs": 639,
+  "observations": {
+    "release": {
+      "ownedRuns": [
+        "owned_native_route source_rate=44100 source_channels=1 render_channels=1 explicit_map=0 raw_frames=88641 full_fifo=4160",
+        "owned_native_route source_rate=44100 source_channels=1 render_channels=2 explicit_map=1 raw_frames=88641 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=1 render_channels=1 explicit_map=0 raw_frames=96480 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=1 render_channels=2 explicit_map=1 raw_frames=96480 full_fifo=4160",
+        "owned_native_route source_rate=96000 source_channels=1 render_channels=1 explicit_map=0 raw_frames=192960 full_fifo=4160",
+        "owned_native_route source_rate=96000 source_channels=1 render_channels=2 explicit_map=1 raw_frames=192960 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=2 render_channels=2 explicit_map=0 raw_frames=96480 full_fifo=4160"
+      ],
+      "ownedChecks": 1016991,
+      "totalComposedChecks": 4606535,
+      "guardedAllocationFreeLock": 0,
+      "scope": "One expanded native-monitor-startup suite, including all preceding cases"
+    },
+    "sanitizer": {
+      "ownedRuns": [
+        "owned_native_route source_rate=44100 source_channels=1 render_channels=1 explicit_map=0 raw_frames=88641 full_fifo=4160",
+        "owned_native_route source_rate=44100 source_channels=1 render_channels=2 explicit_map=1 raw_frames=88641 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=1 render_channels=1 explicit_map=0 raw_frames=96480 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=1 render_channels=2 explicit_map=1 raw_frames=96480 full_fifo=4160",
+        "owned_native_route source_rate=96000 source_channels=1 render_channels=1 explicit_map=0 raw_frames=192960 full_fifo=4160",
+        "owned_native_route source_rate=96000 source_channels=1 render_channels=2 explicit_map=1 raw_frames=192960 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=2 render_channels=2 explicit_map=0 raw_frames=96480 full_fifo=4160"
+      ],
+      "ownedChecks": 1016991,
+      "totalComposedChecks": 4606535,
+      "guardedAllocationFreeLock": 0,
+      "scope": "One expanded native-monitor-startup suite, including all preceding cases"
+    },
+    "tsan": {
+      "ownedRuns": [
+        "owned_native_route source_rate=44100 source_channels=1 render_channels=1 explicit_map=0 raw_frames=88641 full_fifo=4160",
+        "owned_native_route source_rate=44100 source_channels=1 render_channels=2 explicit_map=1 raw_frames=88641 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=1 render_channels=1 explicit_map=0 raw_frames=96480 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=1 render_channels=2 explicit_map=1 raw_frames=96480 full_fifo=4160",
+        "owned_native_route source_rate=96000 source_channels=1 render_channels=1 explicit_map=0 raw_frames=192960 full_fifo=4160",
+        "owned_native_route source_rate=96000 source_channels=1 render_channels=2 explicit_map=1 raw_frames=192960 full_fifo=4160",
+        "owned_native_route source_rate=48000 source_channels=2 render_channels=2 explicit_map=0 raw_frames=96480 full_fifo=4160"
+      ],
+      "ownedChecks": 1016991,
+      "totalComposedChecks": 4606535,
+      "guardedAllocationFreeLock": 0,
+      "scope": "One expanded native-monitor-startup suite, including all preceding cases"
+    }
+  },
+  "reusedArchiveSource": "9d5da1c5889dc57af20fe70408a43932fcee6f61",
+  "windowsCompileLink": true,
+  "nativeWindowsRuntimeExecuted": false,
+  "sdkActivationOrThreadsOwned": false,
+  "monitoringEqIntegrated": false,
+  "physicalAudioQualified": false,
+  "factoryEnabled": false,
+  "fullGoalComplete": false,
+  "binaryOrMediaIncluded": false
+}

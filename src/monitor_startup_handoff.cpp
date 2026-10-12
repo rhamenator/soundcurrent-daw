@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/monitor_startup_handoff.hpp>
+#include <algorithm>
 namespace soundcurrent::daw {
 namespace {
 ResourceLease admit(MonitorStartupAdmission a,std::size_t budget,const std::optional<ResourceLedger> &r) {
@@ -10,6 +11,16 @@ ResourceLease admit(MonitorStartupAdmission a,std::size_t budget,const std::opti
        a.nativeCapacityFrames>262144 || !a.maximumNativeFillFrames ||
        a.maximumNativeFillFrames>a.nativeCapacityFrames || !a.maximumWait100ns || a.maximumWait100ns>600000000)
         throw ProjectError(ErrorCode::InvalidParameter,"Invalid native startup handoff admission");
+    if(a.channelMap){const auto &m=*a.channelMap;
+        if(!m.inputChannels || m.inputChannels>256 || m.outputChannels!=a.channels ||
+           !std::all_of(m.sha256.begin(),m.sha256.end(),[](char c){return (c>='0' && c<='9') || (c>='a' && c<='f');}))
+            throw ProjectError(ErrorCode::InvalidParameter,"Invalid native startup matrix receipt");
+    }
+    if(a.equalizer){const auto &e=*a.equalizer;
+        if(e.sampleRate!=a.outputRate || e.channels!=a.channels ||
+           !std::all_of(e.sha256.begin(),e.sha256.end(),[](char c){return (c>='0' && c<='9') || (c>='a' && c<='f');}))
+            throw ProjectError(ErrorCode::InvalidParameter,"Invalid native startup EQ receipt");
+    }
     PayloadCharge charge("Monitor startup handoff",budget);charge.add(sizeof(PreparedMonitorStartupHandoff));
     return r?r->reserve(charge.bytes()):ResourceLease{};
 }
