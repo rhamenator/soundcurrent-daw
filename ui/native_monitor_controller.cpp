@@ -8,8 +8,35 @@
 #include <thread>
 
 namespace soundcurrent::daw::ui {
+namespace {
+void controlBound(bool valid) {
+    if(!valid)throw ProjectError(ErrorCode::InvalidParameter,"Native control payload exceeds its structural bound");
+}
+void textCharge(PayloadCharge &charge,const std::string &s) {
+    controlBound(s.size()<=4096 && s.find('\0')==std::string::npos && validUtf8(s));charge.add(s.size()+1);
+}
+void eqCharge(PayloadCharge &charge,const EqSettings &eq) {
+    controlBound(eq.bands.size()<=64);charge.add(eq.bands.size(),sizeof(EqBand)+128);
+}
+std::size_t commandPayload(const NativeMonitorCommand &c,std::size_t budget) {
+    PayloadCharge charge("Native control command",budget);
+    charge.add(sizeof(NativeMonitorCommand)+512);
+    if(c.equalizer)eqCharge(charge,*c.equalizer);
+    if(c.preparation) {
+        const auto &p=*c.preparation;charge.add(sizeof(NativeMonitorPreparation)+4096);
+        controlBound(p.root.native().size()<=4096 && p.root.native().find(std::filesystem::path::value_type{})==std::filesystem::path::string_type::npos);charge.add(p.root.native().size()+1,sizeof(std::filesystem::path::value_type));
+        for(const auto *ports:{&p.inputs,&p.outputs}) {
+            controlBound(ports->size()<=65536);charge.add(ports->size(),sizeof(AudioPort)+256);
+            for(const auto &port:*ports)for(const auto *s:{&port.nodeName,&port.portName,&port.mediaClass,&port.backendId,&port.deviceIdentity,&port.channelIdentity})textCharge(charge,*s);
+        }
+        if(p.options.route.channelMap){const auto &map=*p.options.route.channelMap;controlBound(map.routes.size()<=65536);charge.add(map.routes.size(),sizeof(ChannelMix)+32);}
+        if(p.options.route.equalizer)eqCharge(charge,p.options.route.equalizer->settings);
+    }
+    return charge.bytes();
+}
+} // namespace
 struct NativeMonitorController::State {
-    struct Queued { NativeMonitorCommand command; std::uint64_t epoch; };
+    struct Queued { ResourceLease lease; NativeMonitorCommand command; std::uint64_t epoch; };
     NativeMonitorControllerOptions options;
     mutable std::mutex mutex;
     std::condition_variable wake;
@@ -149,12 +176,21 @@ struct NativeMonitorController::State {
 };
 NativeMonitorController::NativeMonitorController(NativeMonitorControllerOptions o):state_(std::make_unique<State>(std::move(o))){}
 NativeMonitorController::~NativeMonitorController()=default;
-NativeMonitorAdmission NativeMonitorController::submit(NativeMonitorCommand c) {
+NativeMonitorAdmission NativeMonitorController::submit(const NativeMonitorCommand &source) {
     auto &s=*state_;std::lock_guard lock(s.mutex);
     if(s.closing.load(std::memory_order_acquire))return NativeMonitorAdmission::Closing;
     if(s.queue.size()==16)return NativeMonitorAdmission::Full;
+    std::size_t bytes;
+    try {bytes=commandPayload(source,s.options.commandMemory.usage().limitBytes);}
+    catch(const ProjectError &e){return e.code()==ErrorCode::ResourceLimit?NativeMonitorAdmission::ResourceLimit:NativeMonitorAdmission::Invalid;}
+    ResourceLease lease;
+    try {lease=s.options.commandMemory.reserve(bytes);}
+    catch(const ResourceLimitError &){return NativeMonitorAdmission::ResourceLimit;}
+    // Allocation/copy failures release the admitted lease before propagating;
+    // no partial command, epoch or receipt is published.
+    auto c=source;
     if(c.preparation)c.preparation=std::make_shared<const NativeMonitorPreparation>(*c.preparation);
-    s.queue.push_back({std::move(c),s.cancelEpoch.load(std::memory_order_acquire)});s.wake.notify_one();return NativeMonitorAdmission::Accepted;
+    s.queue.push_back({std::move(lease),std::move(c),s.cancelEpoch.load(std::memory_order_acquire)});s.wake.notify_one();return NativeMonitorAdmission::Accepted;
 }
 std::uint64_t NativeMonitorController::requestCancel() noexcept {
     auto &s=*state_;auto n=s.cancelEpoch.load(std::memory_order_relaxed);

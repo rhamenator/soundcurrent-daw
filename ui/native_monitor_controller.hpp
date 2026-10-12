@@ -14,9 +14,10 @@ struct NativeMonitorControllerOptions {
     // ONE worker: inventory/device preparation, files, native controls and joins.
     // Factory returns genuine prepared streams; callbacks never call this seam.
     std::function<std::unique_ptr<NativeMonitorStreams>(const NativeMonitorPreparation &)> streams;
+    ResourceLedger commandMemory{16 * 1024 * 1024, "Native control command payloads"}; // Off RT; may share a parent GUI ledger.
 };
 enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed };
-enum class NativeMonitorAdmission { Accepted, Full, Closing };
+enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };
 enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult };
 struct NativeMonitorCommand {
     NativeMonitorCommandKind kind = NativeMonitorCommandKind::Prepare;
@@ -51,7 +52,7 @@ class NativeMonitorController {
     ~NativeMonitorController(); // Requests shutdown, joins control after native owners.
     NativeMonitorController(const NativeMonitorController &) = delete;
     NativeMonitorController &operator=(const NativeMonitorController &) = delete;
-    NativeMonitorAdmission submit(NativeMonitorCommand);
+    NativeMonitorAdmission submit(const NativeMonitorCommand &); // Reserve before owned copying.
     std::uint64_t requestCancel() noexcept;
     void requestShutdown() noexcept;
     std::shared_ptr<const NativeMonitorSnapshot> snapshot() const;

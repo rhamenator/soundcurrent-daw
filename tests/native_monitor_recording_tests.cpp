@@ -306,6 +306,35 @@ void controllerQueueAndIdentity() {
     std::cout<<"native_desktop_controller command_capacity=16 urgent_cancel=true stale_transport_refused=true project_identity=true simulated_sdk=true\n";
 }
 
+void controllerPayloadAdmission() {
+    Temp temp;auto spy=std::make_shared<Spy>();auto p=controlPreparation(temp,spy,false);
+    ResourceLedger parent(256*1024,"Native GUI parent fixture");auto credit=parent.child(128*1024,"Native command child fixture");
+    std::atomic<bool> entered{false},release{false};
+    NativeMonitorController c({[&](const auto &){entered=true;while(!release.load())std::this_thread::sleep_for(std::chrono::milliseconds(1));return std::make_unique<FakeStreams>(spy);},credit});
+    struct Unblock {std::atomic<bool> &r;~Unblock(){r=true;}} unblock{release};
+    auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;
+    check(c.submit(prepare)==NativeMonitorAdmission::Accepted,"Native payload credit refused valid preparation");
+    controlAwait([&]{return entered.load();});const auto held=credit.usage();check(held.owners==1 && held.reservedBytes>sizeof(NativeMonitorPreparation) && parent.usage().reservedBytes==held.reservedBytes,"Native accepted command has no live aggregate payload credit");
+    credit.configure(held.reservedBytes);const auto full=credit.usage();const auto before=c.snapshot();
+    check(c.submit(controlCommand(NativeMonitorCommandKind::Activate))==NativeMonitorAdmission::ResourceLimit && credit.usage()==full && c.snapshot()==before,"Quota refusal mutated commands/snapshot or resource usage");
+    auto bad=controlCommand(NativeMonitorCommandKind::Equalizer);bad.equalizer=EqSettings{};bad.equalizer->bands.resize(65);
+    credit.configure(128*1024);const auto validLimit=credit.usage();
+    check(c.submit(bad)==NativeMonitorAdmission::Invalid && credit.usage()==validLimit,"Oversized native EQ payload copied/admitted before its structural bound");
+    auto ports=std::make_shared<NativeMonitorPreparation>(*p);ports->inputs.emplace_back();ports->inputs.front().portName=std::string(4097,'x');bad=prepare;bad.preparation=ports;
+    check(c.submit(bad)==NativeMonitorAdmission::Invalid && credit.usage()==validLimit,"Oversized native port text copied before admission");
+    auto invalidUtf=std::make_shared<NativeMonitorPreparation>(*p);invalidUtf->outputs.emplace_back();invalidUtf->outputs.front().deviceIdentity=std::string(1,char(0xff));bad.preparation=invalidUtf;
+    check(c.submit(bad)==NativeMonitorAdmission::Invalid && credit.usage()==validLimit,"Malformed native port identity bypassed payload admission");
+    auto embedded=std::make_shared<NativeMonitorPreparation>(*p);embedded->outputs.emplace_back();embedded->outputs.front().deviceIdentity=std::string("x\0y",3);bad.preparation=embedded;
+    check(c.submit(bad)==NativeMonitorAdmission::Invalid && credit.usage()==validLimit,"Embedded native identity terminator bypassed admission");
+    const auto token=c.requestCancel();release=true;controlAwait([&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result) && !credit.usage().reservedBytes;});joined(*spy);
+    check(!spy->captureActive.load() && !credit.usage().owners && !parent.usage().reservedBytes,"Urgent Cancel failed at quota or leaked current/queued command credit");
+    c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
+    ResourceLedger tiny(256,"Too small native command fixture");NativeMonitorController refused({[&](const auto &){entered=true;return std::make_unique<FakeStreams>(std::make_shared<Spy>());},tiny});
+    const auto idle=refused.snapshot();check(refused.submit(prepare)==NativeMonitorAdmission::ResourceLimit && !tiny.usage().reservedBytes && refused.snapshot()==idle,"Native payload copied or pending state published without credit");refused.requestShutdown();
+    controlAwait([&]{return refused.snapshot()->phase==NativeMonitorPhase::Closed;});
+    std::cout<<"native_command_payload aggregate_credit=true shape_bounds=true unchanged_refusal=true cancel_at_quota=true release_after_processing=true simulated_sdk=true\n";
+}
+
 void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureStop = false, unsigned declaredPacketBound = 0, bool equalized = false) {
     Temp temp; auto spy = std::make_shared<Spy>(); if (failedCaptureStop) spy->captureStopResult = -31;
     auto o = options(spy,channels,mapped);
@@ -487,7 +516,7 @@ unsigned ownedNativeMonitorRecordingTests() {
     success(48000,1,false); success(44100,1,true); success(96000,2,false); success(48000,1,false,true);
     success(48000,2,false,false,2048);
     success(48000,1,true,false,0,true);
-    controllerFinite();controllerCancelAndFailure();controllerQueueAndIdentity();
+    controllerFinite();controllerCancelAndFailure();controllerQueueAndIdentity();controllerPayloadAdmission();
     preparationAndActivationFailures(); cancelAndLostOwners(); diskAndClockFailures(); controlPressure(); metadataAndReservation();
     std::cout << checks << " owned native recording checks passed; actual processing/disk threads; simulated SDK\n";
     return checks;
