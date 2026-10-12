@@ -1,5 +1,21 @@
 # Active full-suite goal: progress and completion evidence
 
+## PipeWire native capture boundary (2026-10-12)
+
+[Checkpoint224](224-pipewire-monitor-capture.md) implements a genuine input-only
+PipeWire stream and preallocated planar capture boundary, with explicit POSIX/Windows
+clock-domain admission. Five Release suites pass19.66s and two ASan/UBSan suites
+pass0.11s. Release and sanitizer private-daemon runs each verify96,000 three-channel
+frames/576,000 float-bit comparisons with audited callback allocation/free/lock=0.
+Seven Windows objects compile warning-free. This is the capture side; render,
+versioned PipeWire receipts and application integration remain required.
+
+PR158's Linux144/367.91s, Windows desktop20/79.15s and cross-build pass. Its native
+job passes70/71 tests then is canceled near its15minute envelope; always-run owner
+diagnostics pass twice and fail on take16 with an exhausted capture pool. Original
+logs/receipts are retained, the underlying cause is unresolved and no test deadline
+is weakened. The current native job envelope is30minutes. Full goal remains active.
+
 ## Explicit native take placement (2026-10-12)
 
 [Checkpoint223](223-native-take-admission.md) adds worker-verified native assets and

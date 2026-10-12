@@ -203,6 +203,10 @@ core build requires no Qt. `SC_BUILD_MEDIA=OFF` selects state/engine/transport o
 CTest does not connect physical audio devices. Native integration fixtures are
 opt-in and must run serially after builds and tests finish.
 
+Development also includes a [PipeWire native capture boundary](docs/224-pipewire-monitor-capture.md)
+with explicit clock domains and private-daemon acceptance. Rendering, native receipt
+persistence and connection to the native recording UI remain unfinished.
+
 ## Desktop recording workflow
 
 Create/open a project, select or create a track, prepare recording and explicitly
