@@ -35,6 +35,7 @@ std::size_t commandPayload(const NativeMonitorCommand &c,std::size_t budget) {
     return charge.bytes();
 }
 } // namespace
+std::size_t nativeMonitorCommandPayloadBytes(const NativeMonitorCommand &c,std::size_t budget) {return commandPayload(c,budget);}
 struct NativeMonitorController::State {
     struct Queued { ResourceLease lease; NativeMonitorCommand command; std::uint64_t epoch; };
     NativeMonitorControllerOptions options;

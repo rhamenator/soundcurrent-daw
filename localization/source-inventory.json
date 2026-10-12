@@ -28,8 +28,10 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/native_monitor_controller.cpp": "ba655d908287ffc2e7aedb07b1d31b2ec1323885475ecf357fa62127a94b60e5",
-    "ui/native_monitor_controller.hpp": "a641937e90ede863c13f3abe05fa01be6e21a2affd3e526f9bb12410823a311c",
+    "ui/native_monitor_controller.cpp": "a4740f7c2f9d979bd99940c159d294834221429c0180727a00764f526cfbb4e9",
+    "ui/native_monitor_controller.hpp": "b3b2f2ffe2d8774b569cc34c647c5982f0c14f61eadffb84981d66a0c0418f26",
+    "ui/native_monitor_panel.cpp": "ec341784576a470aa785267f8bf2d519725f3aac778f6a884072059c50bd8e9a",
+    "ui/native_monitor_panel.hpp": "ad1bc6241789b0d0d602cb9615e3acf549c86b76d05b57a39f9455f5b6e45ef2",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
     "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
@@ -2520,6 +2522,180 @@
     [
       "MasterDialog",
       "Remove selected routes",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitoring length (seconds)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitor EQ",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Prepare",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Record",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Cancel",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Inspect saved take",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Keep take and reset",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings exceed the panel memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitoring range is too large.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording controls are busy. Try again.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording is closing.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings are invalid.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings exceed the control memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Input: %1 · Output: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording is unavailable.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose recording settings, then prepare.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Preparing recording…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Ready to record.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording and monitoring…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Finishing and saving the original take…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Original take saved.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording cancelled. The retained take is available for inspection.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording stopped with an error. Inspect the retained take.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording closed.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording error (%1).",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Original frames: %1 · Monitored frames: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "EQ accepted: %1 · Applied: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Saved frames verified: %1",
       "",
       false
     ],

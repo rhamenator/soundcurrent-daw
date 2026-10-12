@@ -28,6 +28,8 @@ struct NativeMonitorCommand {
     std::optional<ParameterAddress> parameter;
     std::optional<bool> enabled;
 };
+// Off RT payload preflight shared with bounded GUI preparation ownership.
+std::size_t nativeMonitorCommandPayloadBytes(const NativeMonitorCommand &,std::size_t budget);
 struct NativeMonitorSnapshot {
     NativeMonitorPhase phase = NativeMonitorPhase::Unsupported;
     std::uint64_t generation = 0, completedCommands = 0, errorSerial = 0,

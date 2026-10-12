@@ -1684,6 +1684,125 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
   </context>
   <context>
+    <name>NativeMonitorPanel</name>
+    <message>
+      <source>Recording</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Monitoring length (seconds)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Monitor EQ</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Prepare</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Record</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Inspect saved take</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Keep take and reset</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording settings exceed the panel memory limit.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Monitoring range is too large.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording controls are busy. Try again.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording is closing.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording settings are invalid.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording settings exceed the control memory limit.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Input: %1 · Output: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording is unavailable.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose recording settings, then prepare.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Preparing recording…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Ready to record.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording and monitoring…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Finishing and saving the original take…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original take saved.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording cancelled. The retained take is available for inspection.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording stopped with an error. Inspect the retained take.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording closed.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Recording error (%1).</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Original frames: %1 · Monitored frames: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>EQ accepted: %1 · Applied: %2</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · Saved frames verified: %1</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
+  <context>
     <name>SessionListModel</name>
     <message>
       <source>Select a take lane</source>

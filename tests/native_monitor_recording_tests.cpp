@@ -5,6 +5,7 @@
 #include "../src/native_poll_wait.hpp"
 #include "rt_audit.hpp"
 #include "native_monitor_controller.hpp"
+#include "fake_native_monitor_streams.hpp"
 #include <sndfile.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -16,11 +17,10 @@
 #include <iostream>
 #include <thread>
 using namespace soundcurrent::daw;
+using namespace native_monitor_fixture;
 namespace {
 unsigned checks = 0;
 void check(bool value, const char *why) { ++checks; if (!value) throw std::runtime_error(why); }
-template<class F> auto rt(F &&f) { rt_audit::Guard guard; return f(); }
-float sample(std::uint64_t frame, unsigned channel) { return float(2.5 * std::sin(double(frame) * .017 + channel * .31)); }
 struct Temp {
     std::filesystem::path root = std::filesystem::temp_directory_path() /
         (std::filesystem::path(u8"sc-native-owner-é-日本-").native() + std::filesystem::path(Id::generate().str()).native());
@@ -29,163 +29,6 @@ struct Temp {
         if (std::uncaught_exceptions()) { const auto s = root.generic_u8string();
             std::cerr << "Retained native owner fixture: " << std::string(reinterpret_cast<const char *>(s.data()), s.size()) << '\n'; return; }
         std::error_code e; std::filesystem::remove_all(root, e);
-    }
-};
-struct Spy {
-    std::atomic<std::uint64_t> writtenPackets{0}, qpc{100000000}, callbackCalls{0};
-    std::atomic<std::uint32_t> captureActive{0}, captureStop{0}, renderStop{0}, captureJoined{0}, renderJoined{0};
-    rt_audit::Counts callbackAudit;
-    double outputPeak = 0;
-    bool failBind = false, failRenderActivation = false, failCaptureActivation = false,
-        missingCaptureEnd = false, missingRenderEnd = false, missingNow = false, independentCapture = false;
-    std::int32_t captureStopResult = 1, renderStopResult = 1;
-};
-// One simulated SDK service thread serializes its capture/render producer roles;
-// production WASAPI owns two actual SDK threads. Processing and disk workers here
-// are the genuine production owner implementation. No physical endpoints used.
-class FakeStreams final : public NativeMonitorStreams {
-    std::shared_ptr<Spy> spy_;
-    WasapiPreparedCaptureFormat capture_;
-    WasapiPreparedRenderFormat render_;
-    PreparedWasapiCaptureBinding captureBinding_;
-    PreparedWasapiRenderBinding renderBinding_;
-    WasapiCaptureCallbacks cb_;
-    WasapiRenderCallbacks rb_;
-    PreparedWasapiCaptureLifecycle captureLife_;
-    PreparedWasapiRenderLifecycle renderLife_;
-    PreparedNativeMonitorRoute *route_ = nullptr;
-    std::thread native_;
-    std::vector<float> input_, output_;
-    const unsigned actualPacketFrames_;
-    bool captureEnded_ = false, renderEnded_ = false, captureStarted_ = false, renderStarted_ = false;
-    std::uint64_t rawFrames_ = 0, rawPackets_ = 0, submitted_ = 0, content_ = 0, tick_ = 0;
-    detail::NativePollWait idleWait_, packetWait_{10000};
-    static WasapiMonitorRenderOptions renderOptions() { WasapiMonitorRenderOptions o; o.warmup = WasapiWarmupLimits{288000,50000000}; return o; }
-    void idle() { if(idleWait_.wait())std::terminate(); }
-    void endCapture() {
-        if (captureEnded_) return;
-        captureEnded_ = true;
-        if (!spy_->missingCaptureEnd) {
-            if (captureStarted_) rt([&] { captureLife_.stopped(spy_->captureStopResult); });
-            rt([&] { captureLife_.finish({}); });
-        }
-    }
-    void endRender() {
-        if (renderEnded_) return;
-        renderEnded_ = true;
-        if (!spy_->missingRenderEnd) {
-            if (renderStarted_) rt([&] { renderLife_.stopped(spy_->renderStopResult); });
-            rt([&] { renderLife_.finish({}); });
-        }
-    }
-    void serve() {
-        rt_audit::reset();
-        rt([&] { renderLife_.silenceReleased({WasapiSilenceKind::Startup,64,1}); }); submitted_ = 64;
-        while (!captureEnded_ || !renderEnded_) {
-            const Qpc100ns now{100000000 + tick_ * 100000}; spy_->qpc.store(now.value, std::memory_order_release);
-            if (!captureEnded_) {
-                if (spy_->captureStop.load(std::memory_order_acquire) || rt([&] { return cb_.shouldStop(cb_.context); })) endCapture();
-                else if (spy_->captureActive.load(std::memory_order_acquire)) {
-                    if (!captureStarted_) { rt([&] { captureLife_.started(); }); captureStarted_ = true; }
-                    for (unsigned f = 0; f < actualPacketFrames_; ++f)
-                        for (unsigned c = 0; c < capture_.channels; ++c) input_[std::size_t(f) * capture_.channels + c] = sample(rawFrames_ + f, c);
-                    const WasapiPacket p{reinterpret_cast<const std::byte *>(input_.data()), input_.size() * sizeof(float),
-                        actualPacketFrames_,0,2000000 + rawFrames_,now.value};
-                    rt([&] { cb_.packet(cb_.context,p); captureLife_.delivered(p); });
-                    rawFrames_ += p.frames; ++rawPackets_; spy_->callbackCalls.fetch_add(1,std::memory_order_release);
-                    // Disk-side acknowledgement is an explicit fake-device pace,
-                    // not concurrent access to raw consumer-owned mutable state.
-                    while (spy_->writtenPackets.load(std::memory_order_acquire) < rawPackets_ &&
-                        !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) idle();
-                    // Controlled virtual-device scheduling, not a physical
-                    // deadline claim under sanitizers. Receipt is atomic, never
-                    // a cross-owner mutable statistics read. Pressure tests
-                    // explicitly keep capture independent of this receipt.
-                    while (!spy_->independentCapture && route_->processing().copiedSourceFrames() < rawFrames_ &&
-                        !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) idle();
-                }
-            }
-            if (!renderEnded_) {
-                if (spy_->renderStop.load(std::memory_order_acquire) || rt([&] { return rb_.shouldStop(rb_.context); })) endRender();
-                else {
-                    // Ready immutable evidence and atomic bank counts authorize
-                    // this simulated device cadence, never a synthesized receipt.
-                    const bool ready = bool(route_->startup().ready());
-                    while (ready && !route_->output().producerDone() &&
-                        route_->output().acceptedFrames() - route_->output().deliveredFrames() < 480 &&
-                        !spy_->renderStop.load(std::memory_order_acquire) && !rb_.shouldStop(rb_.context)) idle();
-                    const WasapiRenderClock clock{submitted_,renderStarted_ ? 1000000 + tick_ * 480 : 0,48000,
-                        renderStarted_ ? now.value : 0,0,content_,64};
-                    const auto action = rt([&] { return rb_.beforeLease(rb_.context,480,clock,now); });
-                    const bool admitted = rt([&] { return renderLife_.beforeLease(action,480,clock,now); });
-                    if (!admitted) endRender();
-                    else if (action == WasapiPreLeaseAction::NativeWarmup) {
-                        rt([&] { renderLife_.warmupReleased({clock,now,480,1,2}); }); submitted_ += 480;
-                        if (!renderStarted_) { rt([&] { renderLife_.started(); }); renderStarted_ = true; }
-                    } else {
-                        const auto fill = rt([&] { return rb_.fill(rb_.context,output_.data() + 1,480,clock); });
-                        rt([&] { renderLife_.contentReleased({clock,480,fill == WasapiRenderAction::Abort ? 0u : 480u,fill,2,true}); });
-                        if (fill != WasapiRenderAction::Abort) { submitted_ += 480; content_ += 480; }
-                        if(fill!=WasapiRenderAction::Abort)for(std::size_t n=1;n+1<output_.size();++n)
-                            spy_->outputPeak=std::max(spy_->outputPeak,std::abs(double(output_[n])));
-                        if (fill == WasapiRenderAction::Abort) endRender();
-                        else if (fill == WasapiRenderAction::Finish) {
-                            rt([&] { renderLife_.silenceReleased({WasapiSilenceKind::EndGuard,32,2});
-                                renderLife_.padding(0); renderLife_.queueDrained(); }); endRender();
-                        }
-                    }
-                }
-            }
-            // Each declared packet/lease is ten milliseconds of native audio.
-            // Pace this fake device accordingly instead of overfeeding it 100x.
-            ++tick_;if(packetWait_.wait())std::terminate();
-        }
-        spy_->callbackAudit = rt_audit::counts;
-    }
-  public:
-    explicit FakeStreams(std::shared_ptr<Spy> spy, unsigned rate = 48000, unsigned channels = 1, bool mapped = false, unsigned declaredPacketBound = 0)
-        : spy_(std::move(spy)), capture_{rate,channels,declaredPacketBound ? declaredPacketBound : rate / 100,channels == 1 ? 4u : 3u,false,{31,32,33}},
-          render_{48000,mapped ? 2u : channels,4097,4097,mapped || channels == 2 ? 3u : 4u,48000,{10000,30000,64,32},{41,42,43}},
-          renderBinding_(renderOptions()), cb_(captureBinding_.callbacks()), rb_(renderBinding_.callbacks()),
-          captureLife_({cb_.context,cb_.shouldStop,cb_.finished}),
-          renderLife_({rb_.context,rb_.finished,rb_.shouldStop},renderOptions().warmup),
-          input_(std::size_t(rate / 100) * channels), output_(std::size_t(480) * render_.channels + 2,-999.f), actualPacketFrames_(rate / 100) {
-        renderLife_.prepared(render_);
-    }
-    ~FakeStreams() override { requestCaptureStop(); requestRenderStop(); joinCapture(); joinRender(); }
-    WasapiPreparedCaptureFormat captureFormat() const noexcept override { return capture_; }
-    WasapiPreparedRenderFormat renderFormat() const noexcept override { return render_; }
-    void bind(PreparedNativeMonitorRoute &route) override {
-        if (spy_->failBind) throw ProjectError(ErrorCode::InvalidState,"fake bind failure");
-        if (!captureBinding_.bind(route.captureContext(),capture_) || !renderBinding_.bind(route.renderContext(),render_))
-            throw ProjectError(ErrorCode::InvalidState,"fake actual descriptor bind failure");
-        route_ = &route;
-    }
-    void activateCapture() override {
-        if (spy_->failCaptureActivation) throw ProjectError(ErrorCode::InvalidState,"fake capture activation failure");
-        spy_->captureActive.store(1,std::memory_order_release);
-    }
-    void activateRender() override {
-        if (spy_->failRenderActivation) throw ProjectError(ErrorCode::InvalidState,"fake render activation failure");
-        native_ = std::thread([this] { serve(); });
-    }
-    std::optional<Qpc100ns> now() noexcept override { return spy_->missingNow ? std::nullopt : std::optional(Qpc100ns{spy_->qpc.load(std::memory_order_acquire)}); }
-    void requestCaptureStop() noexcept override { spy_->captureStop.store(1,std::memory_order_release); }
-    void requestRenderStop() noexcept override {
-        spy_->renderStop.store(1,std::memory_order_release);
-        // Joined endpoints guarantee no future callback/context access, including
-        // destruction after the route has retired and an SDK end was missing.
-        if (!spy_->renderJoined.load(std::memory_order_acquire)) renderBinding_.requestCancel();
-    }
-    void joinCapture() noexcept override {
-        if (spy_->captureJoined.load(std::memory_order_acquire)) return;
-        requestCaptureStop(); if (native_.joinable()) native_.join(); else endCapture();
-        spy_->captureJoined.store(1,std::memory_order_release);
-    }
-    void joinRender() noexcept override {
-        if (spy_->renderJoined.load(std::memory_order_acquire)) return;
-        requestRenderStop(); if (native_.joinable()) native_.join(); else endRender();
-        spy_->renderJoined.store(1,std::memory_order_release);
     }
 };
 NativeMonitorRecordingOptions options(const std::shared_ptr<Spy> &spy, unsigned channels = 1, bool mapped = false) {
