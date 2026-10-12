@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_owned_streams.hpp>
+#include <soundcurrent/monitor_control_endpoint.hpp>
 #include "media_io.hpp"
 #include "rt_audit.hpp"
 #include <sndfile.h>
@@ -55,16 +56,17 @@ int main(){std::filesystem::path root;
         o.route.channelMap=MonitorChannelMap{1,2,{{0,0,1},{0,1,-.5}}};MonitorEqSpec eq;eq.track=project.tracks.front().id;eq.settings.bands.push_back({Id::generate(),1000,-6,1});o.route.equalizer=eq;
         PipeWireOwnedStreamOptions native;native.capture.auditContext=&captureAudit;native.capture.beginCallback=begin;native.capture.endCallback=end;
         native.render.auditContext=&renderAudit;native.render.beginCallback=begin;native.render.endCallback=end;
-        PipeWireMonitorRecording owner(root,[&](auto &r){return preparePipeWireOwnedStreams(r,native);},o);
-        const auto all=owner.ports();std::vector<AudioPort> selectedSource,selectedSink;
+        const auto all=receiver.ports();std::vector<AudioPort> selectedSource,selectedSink;
         for(const auto &p:all)if(p.nodeId==source.nodeId() && !p.input && p.portName=="output_1")selectedSource.push_back(p);
         for(unsigned n=1;n<=2;++n){const auto name="input_"+std::to_string(n);const auto it=std::find_if(all.begin(),all.end(),[&](const auto &p){return p.nodeId==receiver.nodeId() && p.input && p.portName==name;});
             require(it!=all.end(),"Owned sink channel missing");selectedSink.push_back(*it);}
-        require(selectedSource.size()==1,"Owned source missing");owner.connect(selectedSource,selectedSink);
-        source.activate();receiver.activate();owner.activate();require(owner.requestStopAt({frames})==MonitorControlCode::Accepted,"Native horizon not admitted");
+        require(selectedSource.size()==1,"Owned source missing");
+        auto owner=preparePipeWireMonitorControlEndpoint(root,[&](auto &r){return preparePipeWireOwnedStreams(r,native);},o,selectedSource,selectedSink);
+        require(std::holds_alternative<PipeWireRecordingSpec>(owner->declared()),"Native declaration lost its PipeWire type");
+        source.activate();receiver.activate();owner->activate();require(owner->requestStopAt({frames})==MonitorControlCode::Accepted,"Native horizon not admitted");
         const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(8);bool ready=false;
-        while(!(ready=owner.service()) && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        const auto result=ready?owner.wait():owner.cancelAndWait();
+        while(!(ready=owner->readyToJoin()) && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        const auto result=std::get<PipeWireMonitorRecordingResult>(ready?owner->wait():owner->cancelAndWait());
         const auto settle=std::chrono::steady_clock::now()+std::chrono::milliseconds(100);
         while(sink.received.load()<frames && std::chrono::steady_clock::now()<settle)std::this_thread::sleep_for(std::chrono::milliseconds(1));
         receiver.stop();source.stop();
@@ -73,7 +75,7 @@ int main(){std::filesystem::path root;
         if(result.render && result.render->fault)std::cerr<<"render_fault="<<int(result.render->fault->cause)<<" queued="<<result.render->monitorQueuedFrames<<'\n';
         require(ready && result.disposition==PipeWireRecordingDisposition::Recorded && result.prefix && result.prefix->finalized,"Genuine owned native run incomplete/failed");
         require(result.terminalStored && !result.terminalFailure,"Genuine native terminal state not stored");
-        const auto reopened=inspectPipeWireRecordingState(owner.jobDirectory(),o.declared);
+        const auto reopened=inspectPipeWireRecordingState(owner->jobDirectory(),o.declared);
         require(reopened.terminal && reopened.intent.inputs.size()==1 && reopened.intent.outputs.size()==2 && reopened.outcome->capture->completedCycles==result.capture->completedCycles && reopened.outcome->render->nativeQueuedFrames==result.render->nativeQueuedFrames && reopened.outcome->startup==result.startup,"Genuine reopened intent/end provenance changed");
         require(result.prefix->monitorQueuedFrames==frames && sink.received==frames && !sink.bad,"Native queued/sink finite extent mismatch");
         raw(*result.prefix);double mean=0;for(unsigned n=frames-4800;n<frames;++n)mean+=sink.samples[n*2];mean/=4800;

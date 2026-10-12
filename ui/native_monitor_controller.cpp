@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "native_monitor_controller.hpp"
+#include <soundcurrent/monitor_control_endpoint.hpp>
 #include <algorithm>
 #include <atomic>
 #include <condition_variable>
@@ -59,7 +60,7 @@ struct NativeMonitorController::State {
     std::atomic<bool> closing{false};
     NativeMonitorSnapshot view;
     std::shared_ptr<const NativeMonitorSnapshot> latest;
-    std::unique_ptr<NativeMonitorRecording> owner;
+    std::unique_ptr<PreparedMonitorControlEndpoint> owner;
     std::thread worker;
     std::uint64_t seenCancel = 0, lastGeneration = 0, nextResult = 0;
     explicit State(NativeMonitorControllerOptions o) : options(std::move(o)) {
@@ -78,8 +79,10 @@ struct NativeMonitorController::State {
         if(!owner)return;
         view.phase=NativeMonitorPhase::Finishing;publish();
         // Called only after readiness, or explicit cancellation/shutdown.
-        auto result=cancel?owner->cancelAndWait():owner->wait();
-        view.progress=owner->progress();
+        auto original=cancel?owner->cancelAndWait():owner->wait();
+        auto result=std::get<NativeMonitorRecordingResult>(std::move(original));
+        const auto progress=owner->progress();
+        view.progress={progress.processingDone,progress.diskDone,progress.captureEnded,progress.renderEnded,progress.rawAcceptedFrames,progress.monitorAcceptedFrames,progress.publishedMonitorFrames,progress.deliveredMonitorFrames,progress.copiedMonitorSourceFrames};
         ImmediateAcknowledgement ack;
         for(unsigned n=0;n<128 && owner->equalizerAcknowledgement(ack);++n){view.applied=ack;view.appliedEqRevision=ack.revision;}
         MonitorControlReceipt stop;
@@ -126,11 +129,11 @@ struct NativeMonitorController::State {
                 throw ProjectError(ErrorCode::InvalidState,"Native recording preparation belongs to another project, track or asset");
             view.phase=NativeMonitorPhase::Preparing;publish();
             auto io=options.streams(p);
-            auto prepared=std::make_unique<NativeMonitorRecording>(p.root,std::move(io),p.options);
+            auto prepared=prepareNativeMonitorControlEndpoint(p.root,std::move(io),p.options);
             NativeMonitorSnapshot next;next.phase=NativeMonitorPhase::Ready;next.generation=c.generation;
             next.completedCommands=view.completedCommands;next.errorSerial=view.errorSerial;next.cancelAcknowledged=view.cancelAcknowledged;
             next.ports=view.ports;next.inventoryRevision=view.inventoryRevision;
-            next.root=p.root;next.job=prepared->jobDirectory();next.declared=std::make_shared<const NativeOriginalRecordingSpec>(prepared->declared());
+            next.root=p.root;next.job=prepared->jobDirectory();next.declared=std::make_shared<const NativeOriginalRecordingSpec>(std::get<NativeOriginalRecordingSpec>(prepared->declared()));
             owner=std::move(prepared);view=std::move(next);lastGeneration=c.generation;return;
         }
         if(c.kind==NativeMonitorCommandKind::ReopenOriginal) {
@@ -184,7 +187,7 @@ struct NativeMonitorController::State {
         }
         if(!owner)throw ProjectError(ErrorCode::InvalidState,"Native recording has no prepared owner");
         if(c.kind==NativeMonitorCommandKind::Activate) {
-            if(view.phase!=NativeMonitorPhase::Ready || c.end.value<=owner->declared().monitorFirst.value)
+            if(view.phase!=NativeMonitorPhase::Ready || c.end.value<=owner->first().value)
                 throw ProjectError(ErrorCode::InvalidState,"Native activation requires a prepared route and explicit positive finite end");
             view.phase=NativeMonitorPhase::Finishing;owner->activate();view.phase=NativeMonitorPhase::Recording;
             if(owner->requestStopAt(c.end)!=MonitorControlCode::Accepted)
@@ -196,8 +199,8 @@ struct NativeMonitorController::State {
             if(!c.revision || c.revision<=view.acceptedEqRevision ||
                 (bool(c.enabled)==bool(c.equalizer)) || (c.equalizer && !c.parameter) || (c.enabled && c.parameter))
                 throw ProjectError(ErrorCode::InvalidParameter,"Native EQ revision or parameter intent was refused");
-            const auto event=c.enabled?owner->equalizerEnableEvent(*c.enabled,owner->declared().monitorFirst):
-                owner->equalizerEvent(*c.equalizer,*c.parameter,owner->declared().monitorFirst);
+            const auto event=c.enabled?owner->equalizerEnableEvent(*c.enabled,owner->first()):
+                owner->equalizerEvent(*c.equalizer,*c.parameter,owner->first());
             if(owner->submitEqualizer(event,c.revision)!=SubmitStatus::Accepted)
                 throw ProjectError(ErrorCode::InvalidParameter,"Native EQ parameter queue refused the event");
             view.acceptedEqRevision=c.revision;
@@ -205,7 +208,8 @@ struct NativeMonitorController::State {
     }
     void service() {
         if(!owner)return;
-        view.progress=owner->progress();
+        const auto progress=owner->progress();
+        view.progress={progress.processingDone,progress.diskDone,progress.captureEnded,progress.renderEnded,progress.rawAcceptedFrames,progress.monitorAcceptedFrames,progress.publishedMonitorFrames,progress.deliveredMonitorFrames,progress.copiedMonitorSourceFrames};
         ImmediateAcknowledgement ack;
         for(unsigned n=0;n<128 && owner->equalizerAcknowledgement(ack);++n){view.applied=ack;view.appliedEqRevision=ack.revision;}
         MonitorControlReceipt stop;
