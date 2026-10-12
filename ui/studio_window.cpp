@@ -725,6 +725,11 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
         nativeRecording_ = std::make_unique<NativeMonitorPanel>(
             std::move(nativeOptions), body, controller_.resourceLedger());
         nativeRecording_->preparationGuard([this](const auto &p){return configureNativeRecording(p);});
+        nativeRecording_->reopenGuard([this]{
+            const auto model=controller_.snapshot();const auto play=playback_.snapshot()->phase;
+            return model->session && model->io==IoOperation::None && !closing_ && !closeRequested_ && !recordingBusy() && !attachingTake_ && !exportWorkflowBusy() && !playbackPrepareBarrier_ &&
+                (play==PlaybackPhase::Idle || play==PlaybackPhase::Fault || play==PlaybackPhase::Unsupported);
+        });
         recordModesTabs->addTab(nativeRecording_.get(), tr("Native input monitoring"));
     }
     eq_ = new QGroupBox(tr("Track equalizer"), body);
@@ -1725,10 +1730,11 @@ bool StudioWindow::nativeClosed() const {return !nativeRecording_ || nativeRecor
 bool StudioWindow::nativeInactive() const {
     if(!nativeRecording_)return true;
     const auto phase=nativeRecording_->snapshot()->phase;
-    return phase!=NativeMonitorPhase::Preparing && phase!=NativeMonitorPhase::Ready && phase!=NativeMonitorPhase::Recording && phase!=NativeMonitorPhase::Finishing;
+    return phase!=NativeMonitorPhase::Reopening && phase!=NativeMonitorPhase::Preparing && phase!=NativeMonitorPhase::Ready && phase!=NativeMonitorPhase::Recording && phase!=NativeMonitorPhase::Finishing;
 }
 void StudioWindow::pollNativeRecording(const std::shared_ptr<const ControllerSnapshot> &model) {
     if(!nativeRecording_)return;
+    if(model->session)nativeRecording_->setProject(model->root,model->session->id);else nativeRecording_->clearProject();
     nativeRecording_->poll();const auto state=nativeRecording_->snapshot();
     if(!nativeRecording_->busy() && nativeTrack_) {
         const auto selected=selectedTrack();

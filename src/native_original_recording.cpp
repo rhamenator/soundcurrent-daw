@@ -236,6 +236,25 @@ NativeOriginalRecordingPrefix NativeOriginalCaptureWriter::finalize(const Prepar
     require(p.raw.committedFrames==s.saved->committedFrames && p.raw.committedPackets==s.saved->committedPackets && p.raw.sampleSha256==s.saved->sampleSha256 && p.raw.stampSha256==s.saved->stampSha256,"Native raw differs from saved original prefix");return p;
 }
 NativeOriginalRecordingPrefix inspectNativeOriginalRecording(const std::filesystem::path &job,const std::optional<NativeOriginalRecordingSpec> &expected,const std::function<void()> &boundary,std::optional<ResourceLedger> resources){auto reservation=reserve(job,resources);media_io::plainDirectory(job);media_io::JobLease lease(job,false,true);require(lease.status()!=media_io::LeaseStatus::Busy,"Native original writer active");NativeOriginalRecordingPrefix p;p.raw=detail::inspectOriginalRecordingHeld(job,lease,expected?std::optional(expected->raw):std::nullopt,boundary,resources);if(boundary)boundary();auto path=job/"native-run.json";if(!std::filesystem::exists(std::filesystem::symlink_status(path))){require(!expected,"Declared native outcome missing");return p;}require(lease.status()==media_io::LeaseStatus::Held,"Native transaction lease missing");admitJournal(p,parse(media_io::readJournal(path)),expected,rawDigest(job),job);return p;}
+NativeOriginalRecordingPrefix inspectProjectNativeOriginalRecording(
+    const std::filesystem::path &projectRoot,const std::filesystem::path &selectedJob,
+    const Id &expectedProject,std::optional<ResourceLedger> resources,const std::function<void()> &boundary) {
+    if(boundary)boundary();
+    const auto root=std::filesystem::absolute(projectRoot).lexically_normal();
+    const auto job=std::filesystem::absolute(selectedJob).lexically_normal();
+    require(job.parent_path()==root/"media","Selected native take is outside the project's media directory");
+    const auto token=job.filename().u8string();const std::string name(reinterpret_cast<const char *>(token.data()),token.size());
+    require(name.starts_with("original-") && name.size()==45,"Selected directory is not an owned original recording job");
+    const Id asset(name.substr(9));
+    media_io::plainDirectory(root);media_io::plainDirectory(root/"media");
+    const auto session=ProjectStore(root).load();
+    require(session.id==expectedProject,"Selected project identity changed before native take inspection");
+    if(boundary)boundary();
+    auto prefix=inspectNativeOriginalRecording(job,{},boundary,resources);
+    require(prefix.declared && prefix.raw.spec.project==expectedProject && prefix.raw.spec.asset==asset,
+        "Native take belongs to another project or asset directory");
+    if(boundary)boundary();return prefix;
+}
 NativeOriginalRecordingPrefix reportNativeOriginalRecording(const std::filesystem::path &job,const NativeOriginalRecordingSpec &spec,const NativeOriginalRunOutcome &outcome,std::optional<ResourceLedger> resources,const std::function<void(NativeOriginalRecordingBoundary)> &boundary){
     validateSpec(spec);auto reservation=reserve(job,resources);
     media_io::plainDirectory(job);media_io::JobLease lease(job,false,true);require(lease.status()==media_io::LeaseStatus::Held,"Native reporting requires exclusive inactive raw job");

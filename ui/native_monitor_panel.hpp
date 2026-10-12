@@ -23,6 +23,10 @@ class NativeMonitorPanel final : public QGroupBox {
     bool interactiveDevices() const;
     void preparationGuard(std::function<bool(const NativeMonitorPreparation &)>);
     void clearPreparation(); // Inactive context only; releases its payload credit.
+    bool setProject(const std::filesystem::path &,const Id &);
+    void clearProject();
+    void reopenGuard(std::function<bool()>);
+    bool reopenOriginal(const std::filesystem::path &);
     bool exportOriginal(const std::filesystem::path &);
     bool enabled(bool);
     bool setPreparation(const NativeMonitorPreparation &); // Admitted immutable copy.
@@ -37,7 +41,12 @@ class NativeMonitorPanel final : public QGroupBox {
     void closeEvent(QCloseEvent *) override;
   private:
     ResourceLedger memory_;
-    ResourceLease widgetCredit_;
+    ResourceLease widgetCredit_,projectCredit_;
+    std::filesystem::path projectRoot_;
+    std::optional<Id> project_;
+    std::function<bool()> reopenGuard_;
+    bool reopeningPending_=false;
+    std::uint64_t reopenCompleted_=0,reopenCancel_=0;
     bool interactive_ = false, refreshing_ = false;
     NativeMonitorController controller_;
     std::uint64_t refreshCompleted_ = 0, refreshCancel_ = 0, shownInventoryRevision_ = 0;
@@ -50,7 +59,7 @@ class NativeMonitorPanel final : public QGroupBox {
     void updateDevices(const NativeMonitorSnapshot &);
     bool chooseDevices();
     std::shared_ptr<const NativeMonitorPreparation> preparation_;
-    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_;
+    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_,*open_;
     QLabel *devices_,*status_,*progress_,*receipt_;
     QSpinBox *seconds_;
     QCheckBox *eq_;

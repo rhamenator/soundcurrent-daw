@@ -20,14 +20,16 @@ struct NativeMonitorControllerOptions {
     std::function<std::vector<AudioPort>()> inventory = {}; // Worker only, bounded backend projection.
     ResourceLedger inventoryMemory{16 * 1024 * 1024, "Native device inventory"};
 };
-enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed };
+enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed, Reopening };
 enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };
-enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices, ExportOriginal };
+enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices, ExportOriginal, ReopenOriginal };
 struct NativeMonitorCommand {
     NativeMonitorCommandKind kind = NativeMonitorCommandKind::Prepare;
     std::uint64_t generation = 0, revision = 0, resultSequence = 0;
     std::shared_ptr<const NativeMonitorPreparation> preparation;
     MonitorOutputOrdinal end{}; // Explicit finite monitor end; never project time.
+    std::filesystem::path root, job; // Explicit project-owned saved take selection.
+    std::optional<Id> project;
     std::filesystem::path destination; // Explicit no-overwrite native original WAV export.
     std::optional<EqSettings> equalizer;
     std::optional<ParameterAddress> parameter;

@@ -1754,6 +1754,18 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Open saved native take…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose an original take directory in this project's media folder. Inspection does not activate audio devices.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Open saved native take</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Export original native take</source>
       <translation type="unfinished" />
     </message>
@@ -1822,6 +1834,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Opening and verifying saved native take…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Ready to record.</source>
       <translation type="unfinished" />
     </message>
@@ -1847,6 +1863,34 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Recording closed.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Complete</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancelled</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Interrupted</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No native outcome</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Saved native take opened. Original outcome: %1.</source>
       <translation type="unfinished" />
     </message>
     <message>

@@ -61,6 +61,27 @@ void finitePanel(const std::filesystem::path &root){
     await([&]{return panel.snapshot()->errorSerial>serial;});panel.poll();check(hashMediaFile(exported)==panel.snapshot()->exported->fileSha256,"Panel overwrite refusal damaged export");
     QTest::mouseClick(control<QPushButton>(panel,"nativeKeep"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Idle;});panel.poll();
     check(!panel.snapshot()->result && !panel.snapshot()->exported && std::filesystem::exists(result->job/"native-run.json"),"Panel reset deleted retained take on disk");panel.close();await([&]{return panel.closeReady() && !panel.isVisible();});
+    // Fresh application/controller state reads the persisted take; no prepared
+    // stream factory is available in this window, even on Windows.
+    ResourceLedger reopenedCredit(16*1024*1024,"Restarted native take");NativeMonitorControllerOptions inactive;inactive.commandMemory=reopenedCredit;
+    StudioWindow restarted(nullptr,{},{},{},{},{},{},{},{},std::move(inactive));restarted.show();restarted.openProject(root);
+    await([&]{return restarted.snapshot()->session && restarted.snapshot()->io==IoOperation::None;});
+    auto *openedPanel=dynamic_cast<NativeMonitorPanel *>(restarted.findChild<QGroupBox *>("nativeRecordingPanel"));check(openedPanel!=nullptr,"Restarted app has no native take controls");
+    await([&]{return control<QPushButton>(*openedPanel,"nativeOpenOriginal")->isEnabled();});
+    check(openedPanel->snapshot()->phase==NativeMonitorPhase::Unsupported && !openedPanel->snapshot()->result,"Fresh controller invented an audio route or live result");
+    check(openedPanel->reopenOriginal(result->job) && openedPanel->busy(),"Saved take selection not immediately guarded");
+    await([&]{const auto state=openedPanel->snapshot();if(state->error)throw std::runtime_error(state->diagnostic);return bool(state->reopened);});openedPanel->poll();
+    auto retained=openedPanel->snapshot();check(!retained->result && retained->declared && retained->reopened->status==NativeOriginalRecordingStatus::Complete &&
+        retained->reopened->raw.sampleSha256==result->result->prefix->raw.sampleSha256 && control<QLabel>(*openedPanel,"nativeStatus")->text().contains("Complete") && reopenedCredit.usage().reservedBytes,
+        "Restarted take lost stored outcome, sample binding, visible status or ownership credit");
+    const auto second=root/"exports"/std::filesystem::path(u8"Restarted – Ελληνικά.wav");check(openedPanel->exportOriginal(second),"Reopened original cannot export");
+    await([&]{return bool(openedPanel->snapshot()->exported);});openedPanel->poll();check(hashMediaFile(second)==hashMediaFile(result->job/"take.wav"),"Restarted export changed original samples");
+    restarted.openProject(root/"other");check(restarted.snapshot()->root==root,"Reopened original allowed conflicting project replacement");
+    QTest::mouseClick(control<QPushButton>(*openedPanel,"nativeKeep"),Qt::LeftButton);await([&]{return !openedPanel->busy();});
+    check(reopenedCredit.usage().reservedBytes>0,"Held original snapshot released its credit early");retained.reset();
+    await([&]{return !reopenedCredit.usage().reservedBytes;});restarted.close();await([&]{return !restarted.isVisible();});
+    check(ProjectStore(root).load()==original && std::filesystem::exists(result->job/"native-run.json"),"Restart workflow changed project or deleted source");
+    std::cout<<"native_saved_take fresh_window=true no_sdk=true project_owned=true original_outcome=true exact_export=true project_guard=true held_prefix_credit=true retirement=true\n";
     std::cout<<"native_panel finite=true visible_eq_effect=true inspect=true original_wav_export=true no_overwrite=true keep=true close=true gui_sdk_io=false simulated_sdk=true\n";
 }
 void deviceSelection(const std::filesystem::path &root){

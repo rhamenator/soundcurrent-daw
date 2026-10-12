@@ -1762,6 +1762,18 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.</translation>
     </message>
     <message>
+      <source>Open saved native take…</source>
+      <translation>Open saved native take…</translation>
+    </message>
+    <message>
+      <source>Choose an original take directory in this project's media folder. Inspection does not activate audio devices.</source>
+      <translation>Choose an original take directory in this project's media folder. Inspection does not activate audio devices.</translation>
+    </message>
+    <message>
+      <source>Open saved native take</source>
+      <translation>Open saved native take</translation>
+    </message>
+    <message>
       <source>Export original native take</source>
       <translation>Export original native take</translation>
     </message>
@@ -1830,6 +1842,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Preparing recording…</translation>
     </message>
     <message>
+      <source>Opening and verifying saved native take…</source>
+      <translation>Opening and verifying saved native take…</translation>
+    </message>
+    <message>
       <source>Ready to record.</source>
       <translation>Ready to record.</translation>
     </message>
@@ -1856,6 +1872,34 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Recording closed.</source>
       <translation>Recording closed.</translation>
+    </message>
+    <message>
+      <source>Complete</source>
+      <translation>Complete</translation>
+    </message>
+    <message>
+      <source>Cancelled</source>
+      <translation>Cancelled</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>Failed</translation>
+    </message>
+    <message>
+      <source>Interrupted</source>
+      <translation>Interrupted</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>Pending</translation>
+    </message>
+    <message>
+      <source>No native outcome</source>
+      <translation>No native outcome</translation>
+    </message>
+    <message>
+      <source>Saved native take opened. Original outcome: %1.</source>
+      <translation>Saved native take opened. Original outcome: %1.</translation>
     </message>
     <message>
       <source>Exporting original WAV…</source>

@@ -107,6 +107,31 @@ void originalExport() {
     check(std::filesystem::is_empty(t.root/"exports"),"Nonfinite original exported");
     std::cout<<"native_original_export bitwise_rf64=true headroom_signed_zero=true native_rate=true retained_failed_cancelled_status=true no_overwrite=true mid_copy_cancel=true protected_project=true finite_gate=true exact_extent=true no_alignment_inferred=true\n";
 }
+void projectOwnedReopen() {
+    for(unsigned kind:{0u,1u,5u}) {
+        Temp t;auto session=makeOneTrackSession("Saved – été","Original");ProjectStore(t.root).save(session);
+        auto declared=spec();declared.raw.project=session.id;declared.raw.track=session.tracks.front().id;
+        PreparedCaptureFanout fanout(config(declared));NativeOriginalCaptureWriter writer(t.root,declared);const auto job=writer.jobDirectory();
+        refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,session.id);});
+        packets(writer,fanout,declared);const auto saved=writer.finalize(fanout,outcome(declared,kind));
+        const auto native=read(job/"native-run.json"),raw=read(job/"journal.json"),wav=read(job/"take.wav");
+        const auto opened=inspectProjectNativeOriginalRecording(t.root,job,session.id);
+        check(opened.status==saved.status && opened.declared==declared && opened.raw.sampleSha256==saved.raw.sampleSha256 && opened.raw.committedFrames==16,
+            "Project-owned reopen changed original disposition or sample binding");
+        refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,Id::generate());});
+        Temp foreign;auto other=makeOneTrackSession("Other","Other");ProjectStore(foreign.root).save(other);
+        refuses([&]{inspectProjectNativeOriginalRecording(foreign.root,job,other.id);});
+        const auto moved=t.root/"media"/("original-"+Id::generate().str());std::filesystem::copy(job,moved,std::filesystem::copy_options::recursive);
+        refuses([&]{inspectProjectNativeOriginalRecording(t.root,moved,session.id);});
+        auto copied=session;copied.id=Id::generate();ProjectStore(t.root).save(copied);
+        refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,copied.id);});ProjectStore(t.root).save(session);
+        ResourceLedger tiny(1);refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,session.id,tiny);});check(!tiny.usage().reservedBytes,"Refused reopen credit leaked");
+        refuses([&]{inspectProjectNativeOriginalRecording(t.root,job,session.id,{},[]{throw ProjectError(ErrorCode::Canceled,"Canceled reopen");});});
+        check(read(job/"native-run.json")==native && read(job/"journal.json")==raw && read(job/"take.wav")==wav && ProjectStore(t.root).load()==session,
+            "Reopen or refusal modified original files/project");
+    }
+    std::cout<<"project_native_reopen identity=true owned_path=true foreign_project_refused=true moved_asset_refused=true active_writer_refused=true no_project_mutation=true original_outcomes=true\n";
+}
 void roundtrip(){for(unsigned channels:{1u,2u,8u,256u})for(unsigned kind=0;kind<9;++kind){Temp t;auto s=spec(channels);PreparedCaptureFanout f(config(s));NativeOriginalCaptureWriter w(t.root,s);auto job=w.jobDirectory();refuses([&]{inspectNativeOriginalRecording(job);});packets(w,f,s);auto o=outcome(s,kind);auto saved=w.finalize(f,o);auto verified=inspectNativeOriginalRecording(job,s);
     auto status=kind==0?NativeOriginalRecordingStatus::Complete:kind==3 || kind==4 || kind==6?NativeOriginalRecordingStatus::Interrupted:kind==5?NativeOriginalRecordingStatus::Cancelled:NativeOriginalRecordingStatus::Failed;
     check(saved.status==status && verified.status==status && verified.declared==s && verified.raw.committedFrames==16 && verified.raw.finalized && verified.raw.sampleSha256==saved.raw.sampleSha256 && verified.raw.stampSha256==saved.raw.stampSha256,"Native outcome/raw roundtrip status/binding");
@@ -315,4 +340,4 @@ int wmain(int argc,wchar_t **argv){
 #else
 int main(int argc,char **argv){
 #endif
-try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])),std::filesystem::path(argv[1])=="--map-crash",std::filesystem::path(argv[1])=="--eq-crash");return 80;}rt_audit::reset();originalExport();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();matrixState();eqState();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);hardCrash(6,false,true);hardCrash(0,false,true);hardCrash(7,false,false,true);hardCrash(0,false,false,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; 2 actual matrix publication process boundaries; 2 actual EQ publication process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
+try{if(argc==4){if(std::filesystem::path(argv[1])=="--migration-crash")migrationCrashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));else crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])),std::filesystem::path(argv[1])=="--map-crash",std::filesystem::path(argv[1])=="--eq-crash");return 80;}rt_audit::reset();originalExport();projectOwnedReopen();roundtrip();interrupted();refusals();partialFailureReport();legacy();migrations();matrixState();eqState();for(unsigned n=0;n<4;++n)hardCrash(n);for(unsigned n=0;n<2;++n)hardCrash(n,true);hardCrash(6,false,true);hardCrash(0,false,true);hardCrash(7,false,false,true);hardCrash(0,false,false,true);check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate && !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared capture audit changed");std::cout<<checks<<" durable native outcome checks passed; guarded allocate/free/lock=0; 4 actual process interruption boundaries; 2 actual migration process boundaries; 2 actual matrix publication process boundaries; 2 actual EQ publication process boundaries; fake SDK outcomes only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

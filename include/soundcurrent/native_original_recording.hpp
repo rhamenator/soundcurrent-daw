@@ -61,6 +61,13 @@ class NativeOriginalCaptureWriter {
 NativeOriginalRecordingPrefix inspectNativeOriginalRecording(const std::filesystem::path &,
     const std::optional<NativeOriginalRecordingSpec> &expected = {},
     const std::function<void()> &boundary = {},std::optional<ResourceLedger> resources = {});
+// Explicit project-owned native job inspection, including inactive pending jobs.
+// Verifies the current saved project identity and owned media/original-<asset> path.
+// No SDK activation, project modification or timeline placement is performed.
+NativeOriginalRecordingPrefix inspectProjectNativeOriginalRecording(
+    const std::filesystem::path &projectRoot,const std::filesystem::path &job,
+    const Id &expectedProject,std::optional<ResourceLedger> resources = {},
+    const std::function<void()> &boundary = {});
 // Persist copied joined native ends against a VERIFIED inactive common raw prefix,
 // including one whose raw writer failed/interrupted before media finalization.
 // Requires an existing matching pending declaration; never resumes/replaces PCM.
