@@ -251,6 +251,7 @@ void OriginalCaptureWriter::append(const CaptureBankView &v) {
 void OriginalCaptureWriter::checkpoint() {
     auto &s=*state_;try{require(!s.failed && !s.finalized,"Original writer inactive");s.commit();}catch(...){s.fail();throw;}
 }
+std::string OriginalCaptureWriter::committedJournal() const {return journal(state_->prefix).dump(2)+"\n";}
 OriginalRecordingPrefix OriginalCaptureWriter::finalize(const PreparedCaptureFanout &f) {
     auto &s=*state_;
     // Precondition refusal is nonmutating: callers can join/drain correctly then retry.
@@ -269,13 +270,15 @@ OriginalRecordingPrefix OriginalCaptureWriter::finalize(const PreparedCaptureFan
     }catch(...){s.fail();throw;}
 }
 OriginalRecordingPrefix detail::inspectOriginalRecordingHeld(const std::filesystem::path &job,const media_io::JobLease &lease,
-    const std::optional<OriginalRecordingSpec> &expected,const std::function<void()> &boundary,std::optional<ResourceLedger> resources) {
+    const std::optional<OriginalRecordingSpec> &expected,const std::function<void()> &boundary,std::optional<ResourceLedger> resources,
+    std::optional<std::string_view> committedJournal) {
     PayloadCharge charge("Original prefix inspection workspace",SIZE_MAX);charge.add(128*1024);
     charge.add(job.native().size(),8*sizeof(std::filesystem::path::value_type));
     auto reservation=resources ? resources->reserve(charge.bytes()) : ResourceLease{};
     auto at=[&]{if(boundary)boundary();};at();media_io::plainDirectory(job);
     require(lease.status() != media_io::LeaseStatus::Busy,"Original writer active");
-    auto p=decode(media_io::readJournal(job/"journal.json"));
+    require(!committedJournal || committedJournal->size()<=16384,"Original bound journal too large");
+    auto p=committedJournal?decode(*committedJournal):decode(media_io::readJournal(job/"journal.json"));
     require(job.filename() == "original-"+p.spec.asset.str() && (!expected || *expected == p.spec),"Original recording context mismatch");
     charge.add(1024*std::size_t(p.spec.layout.channels),sizeof(float));
     if(resources)reservation.resize(charge.bytes()); // Before allocating sample pages/opening audio.
@@ -307,6 +310,9 @@ OriginalRecordingPrefix detail::inspectOriginalRecordingHeld(const std::filesyst
     require(!p.endFault || !p.endFault->rawPacketAccepted || p.endFault->attempted == p.last,"Original fault accepted stamp mismatch");
     require(frames == p.committedFrames && finite == p.finitePrefixFrames && samples.digest() == p.sampleSha256 && stamps.digest() == p.stampSha256,
             "Original common prefix checksum/extent mismatch");at();return p;
+}
+CaptureBankToken detail::decodeOriginalPacketRecord(std::span<const std::byte,80> bytes,std::uint64_t offset) {
+    Record r{};std::copy(bytes.begin(),bytes.end(),r.begin());return token(r,offset);
 }
 OriginalRecordingPrefix inspectOriginalRecording(const std::filesystem::path &job,const std::optional<OriginalRecordingSpec> &expected,
     const std::function<void()> &boundary,std::optional<ResourceLedger> resources) {

@@ -44,6 +44,8 @@ void PreparedPipeWireReceiptQueues::finishCapture() noexcept{capture_->ended.sto
 void PreparedPipeWireReceiptQueues::finishRender() noexcept{render_->ended.store(1,std::memory_order_release);}
 void PreparedPipeWireReceiptQueues::consumerFailed() noexcept{lost_.store(1,std::memory_order_release);}
 bool PreparedPipeWireReceiptQueues::consumerLost() const noexcept{return lost_.load(std::memory_order_acquire)!=0;}
+bool PreparedPipeWireReceiptQueues::captureFinishedAndEmpty() const noexcept{return capture_->ended.load(std::memory_order_acquire) && !capture_->queue.consumerAvailable();}
+bool PreparedPipeWireReceiptQueues::renderFinishedAndEmpty() const noexcept{return render_->ended.load(std::memory_order_acquire) && !render_->queue.consumerAvailable();}
 std::optional<PipeWireReceiptFault<PipeWireCaptureCycle>> PreparedPipeWireReceiptQueues::captureFault() const noexcept {
     return capture_->faultReady.load(std::memory_order_acquire)?std::optional(capture_->fault):std::nullopt;
 }

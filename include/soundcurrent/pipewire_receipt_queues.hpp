@@ -36,6 +36,8 @@ class PreparedPipeWireReceiptQueues {
     void finishRender() noexcept;
     void consumerFailed() noexcept;
     bool consumerLost() const noexcept;
+    bool captureFinishedAndEmpty() const noexcept; // Consumer, or control after consumer join.
+    bool renderFinishedAndEmpty() const noexcept;
     std::optional<PipeWireReceiptFault<PipeWireCaptureCycle>> captureFault() const noexcept;
     std::optional<PipeWireReceiptFault<PipeWireRenderCycle>> renderFault() const noexcept;
     static bool captureSink(void *,const PipeWireCaptureCycle &) noexcept;
