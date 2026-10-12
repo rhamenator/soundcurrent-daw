@@ -94,7 +94,10 @@ void workflow(){Temp t;auto o=options(t);auto shared=std::make_shared<Shared>();
         if(result.capture && result.capture->fault)std::cerr<<"capture_fault="<<int(result.capture->fault->cause)<<'\n';
         if(result.fanoutFault)std::cerr<<"fanout_fault side="<<int(result.fanoutFault->side)<<" cause="<<int(result.fanoutFault->cause)<<" raw_accepted="<<result.fanoutFault->rawPacketAccepted<<" monitor_accepted="<<result.fanoutFault->monitorPacketAccepted<<'\n';
         if(result.render && result.render->fault)std::cerr<<"render_fault="<<int(result.render->fault->cause)<<'\n';
-        if(result.terminalFailure)try{std::rethrow_exception(result.terminalFailure);}catch(const std::exception &e){std::cerr<<"terminal_failure="<<e.what()<<'\n';}
+        if(result.captureClockFault)std::cerr<<"capture_clock_fault="<<int(result.captureClockFault->cause)<<" accepted="<<result.captureClockCounts.accepted<<" delivered="<<result.captureClockCounts.delivered<<" discarded="<<result.captureClockCounts.discarded<<'\n';
+        if(result.renderClockFault)std::cerr<<"render_clock_fault="<<int(result.renderClockFault->cause)<<" accepted="<<result.renderClockCounts.accepted<<" delivered="<<result.renderClockCounts.delivered<<" discarded="<<result.renderClockCounts.discarded<<'\n';
+        if(result.terminalFailure)try{std::rethrow_exception(result.terminalFailure);}catch(const std::exception &e){std::cerr<<"terminal_failure="<<e.what()<<'\n';
+            if(result.render)std::cerr<<"terminal_render consumed="<<result.render->monitorConsumedFrames<<" queued="<<result.render->monitorQueuedFrames<<" cycles="<<result.render->cycles<<" final_last="<<(result.render->last && result.render->last->finalContent)<<" final_last_content="<<(result.render->lastContent && result.render->lastContent->finalContent)<<'\n';}
         check(ready && result.disposition==PipeWireRecordingDisposition::Recorded && result.prefix && result.prefix->finalized,"Owned recording did not complete stored prefix");
         check(result.terminalStored && !result.terminalFailure,"Joined outcome not durably stored");
         const auto stored=inspectPipeWireRecordingState(owner.jobDirectory(),o.declared);

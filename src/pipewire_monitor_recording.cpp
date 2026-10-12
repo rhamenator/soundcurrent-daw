@@ -94,6 +94,8 @@ struct PipeWireMonitorRecording::State {
         r.capture=streams->captureEndAfterJoin();r.render=streams->renderEndAfterJoin();r.stop=route->stop().originalRequest();r.startup=route->startup().ready();
         r.processingFault=route->processing().firstFault();r.clockFault=route->processing().clockFault();r.bufferFault=route->processing().bufferFault();r.equalizerFault=route->processing().equalizerFault();
         r.fanoutFault=route->capture().firstFault();
+        r.captureClockFault=route->clocks().captureFault();r.renderClockFault=route->clocks().renderFault();
+        r.captureClockCounts=route->clocks().captureCounts();r.renderClockCounts=route->clocks().renderCounts();
         r.captureReceiptFault=route->receipts().captureFault();r.renderReceiptFault=route->receipts().renderFault();
         if(writer && !r.diskFailure && !r.waitFailure && route->capture().rawAcceptedFrames())try{writer->finalize(route->capture(),route->receipts());}catch(...){r.storageFailure=std::current_exception();}
         writer.reset();if(!job.empty())try{r.prefix=inspectPipeWireRecording(job,options.declared,options.journal.raw.resources);}catch(...){r.recoveryFailure=std::current_exception();}

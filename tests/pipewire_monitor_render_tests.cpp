@@ -87,6 +87,19 @@ void warmupAndUnderflow(){
         complete(render,clock(1),3);render.finishAfterJoin();
     }
 }
+void finishAfterLastContent(){
+    PreparedMonitorOutputBank b(bankConfig());PreparedMonitorClockHandoff h(clocksConfig());
+    PreparedPipeWireMonitorRender r(b,h);Planes p;push(b,17);
+    const auto audio=clock();check(rt([&]{return r.process(audio,p.views,17);})==PipeWireRenderCode::Content,"Unfinished producer changed content state");
+    complete(r,audio,3);drainClock(h,audio);check(!r.contentComplete(),"Content return guessed producer completion");
+    b.finish();const auto final=clock(1);
+    check(rt([&]{return r.process(final,p.views,17);})==PipeWireRenderCode::Complete,"Silent final receipt refused");
+    for(auto *plane:p.views)for(unsigned n=0;n<17;++n)check(plane[n]==0,"Final silent receipt repeated audio");
+    complete(r,final,3);drainClock(h,final);r.finishAfterJoin();const auto e=r.endAfterJoin();
+    check(e && e->contentComplete && !e->fault && e->lastContent && !e->lastContent->finalContent &&
+          e->last && e->last->finalContent && e->last->monitorFrames==0 && e->monitorQueuedFrames==17 && e->nativeQueuedFrames==34,
+          "Last content and actual completion receipt were conflated");
+}
 void returnFacts(){
     for(unsigned mode=0;mode<5;++mode){
         PreparedMonitorOutputBank b(bankConfig());PreparedMonitorClockHandoff h(clocksConfig());PreparedPipeWireMonitorRender r(b,h);Planes p;push(b,17);b.finish();
@@ -157,7 +170,7 @@ void stopAndPressure(){
     check(rt([&]{return mr.process(clock(1),p.views,17);})==PipeWireRenderCode::Fault && mr.firstFault()->cause==PipeWireRenderCause::MissingReturn && mr.firstFault()->original==clock(),"A new process silently replaced the unreturned cycle");complete(mr,clock(1),3);mr.finishAfterJoin();
 }
 }
-int main(){try{rt_audit::reset();exactAndFinal();warmupAndUnderflow();returnFacts();refusals();formats();stopAndPressure();const auto a=rt_audit::counts;
+int main(){try{rt_audit::reset();exactAndFinal();warmupAndUnderflow();finishAfterLastContent();returnFacts();refusals();formats();stopAndPressure();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared render allocated/freed/locked");
     std::cout<<checks<<" PipeWire planar render checks passed; float bits/headroom, exact native queue results, final padding, bounded startup, underflow/refusal; audited allocate/free/lock=0; actual daemon=false\n";return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
