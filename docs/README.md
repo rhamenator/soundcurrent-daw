@@ -209,3 +209,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Durable PipeWire route intent and joined terminal outcomes](230-pipewire-durable-outcomes.md)
 
 - [Verified completion receipts and durable clock handoff diagnostics](231-pipewire-completion-receipts.md)
+
+- [Completion and clock-state sanitizer qualification](232-completion-sanitizer-qualification.md)

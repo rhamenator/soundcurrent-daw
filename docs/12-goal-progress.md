@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Completion and clock-state sanitizer qualification (2026-10-12)
+
+[Checkpoint232](232-completion-sanitizer-qualification.md) qualifies unchanged
+implementationa52c2f0: four ASan/UBSan suites5.87s; two TSan suites4.48s without
+suppressions; private PipeWire sanitizer raw100,096/monitor8,192/durable reopen/
+audit0. OriginalPR165 allfourjobs pass, including independent Windows retention
+checks;829testedmerge inputs bound. Earlier clock/Windowsowner/pool failures are
+not causally resolved. PR166 originalLinux/native pending; controller/Qt remains
+next. Full goal active.
+
 ## Verified completion returns and clock diagnostics (2026-10-12)
 
 [Checkpoint231](231-pipewire-completion-receipts.md) preserves the actual first final
