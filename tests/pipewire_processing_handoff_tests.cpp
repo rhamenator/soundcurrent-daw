@@ -16,7 +16,9 @@ unsigned checks=0;
 void check(bool b,const char *why){++checks;if(!b)throw std::runtime_error(why);}
 template<class F>auto rt(F f){rt_audit::Guard guard;return f();}
 template<class F>void refuses(F f){try{f();}catch(const ProjectError &){++checks;return;}throw std::runtime_error("Invalid handoff binding accepted");}
+#ifndef SC_HANDOFFS_ONLY
 DeviceBlockClock clock(unsigned n){return {100000+std::uint64_t(n)*480,480,4000000000ULL+std::uint64_t(n)*10000000,19,n+4,1,48000,-37,false,false};}
+#endif
 void stopFacts(){
     MonitorCaptureStopConfig cfg;cfg.maximumPacketFrames=480;cfg.channels=1;cfg.monitorSlots=8;cfg.inputCapacityFrames=16384;
     PreparedPipeWireCaptureStop missing(cfg);rt([&]{missing.settleAfterJoin();});
@@ -53,6 +55,7 @@ void concurrentStop(){
     processing.join();native.join();check(okay,"Concurrent stop/end immutable publication failed");
     for(const auto &a:audits)check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Concurrent handoff allocated/freed/locked under guard");
 }
+#ifndef SC_HANDOFFS_ONLY
 struct Geometry {
     CaptureFanoutConfig capture;
     MonitorOutputBankConfig output;
@@ -156,11 +159,23 @@ void combined(){
     }catch(...){std::cerr<<"Retained combined fixture "<<root.generic_string()<<'\n';throw;}
     std::filesystem::remove_all(root);
 }
+#endif
 }
-int main(){try{rt_audit::reset();stopFacts();concurrentStop();readinessGates();combined();const auto a=rt_audit::counts;
+int main(){try{rt_audit::reset();stopFacts();
+#ifdef SC_HANDOFFS_ONLY
+    for(unsigned n=0;n<16;++n)concurrentStop();
+#else
+    concurrentStop();readinessGates();combined();
+#endif
+    const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree,"Bounded handoff C++ allocation/free");
 #ifdef SC_WRAP_LIBC
     check(!a.cAllocate && !a.cFree && !a.blockingLock,"Bounded handoff C allocation/free/lock");
 #endif
-    std::cout<<checks<<" PipeWire processing handoff checks passed;actual planar boundary/shared EQ+map/startup/stop/raw journal composition; SDK=false, physical=false, native thread owner incomplete\n";return 0;
+#ifdef SC_HANDOFFS_ONLY
+    std::cout<<checks<<" PipeWire stop publication checks passed;16 actual processing/native thread pairs;SDK=false, physical=false\n";
+#else
+    std::cout<<checks<<" PipeWire processing handoff checks passed;actual planar boundary/shared EQ+map/startup/stop/raw journal composition;SDK=false, physical=false, native thread owner incomplete\n";
+#endif
+    return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
