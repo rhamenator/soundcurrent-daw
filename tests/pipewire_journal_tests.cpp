@@ -7,7 +7,9 @@
 #include <iostream>
 #include <thread>
 #ifdef _WIN32
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>
 #else
 #include <sys/wait.h>
@@ -94,9 +96,9 @@ void crashedChild(const std::filesystem::path &root,unsigned selected){const aut
 void crash(unsigned selected){Temp t;
 #ifdef _WIN32
     std::array<wchar_t,32768> executable{};const auto n=GetModuleFileNameW(nullptr,executable.data(),DWORD(executable.size()));check(n && n<executable.size(),"Crash executable path failed");
-    auto command=std::wstring(L"\"")+executable.data()+L"\" --crash \""+t.root.native()+L"\" "+std::to_wstring(selected);STARTUPINFOW startup{};startup.cb=DWORD(sizeof(startup));PROCESS_INFORMATION p{};
-    check(CreateProcessW(nullptr,command.data(),nullptr,nullptr,FALSE,0,nullptr,nullptr,&startup,&p),"Native journal child creation failed");CloseHandle(p.hThread);
-    const auto result=WaitForSingleObject(p.hProcess,10000);if(result!=WAIT_OBJECT_0)TerminateProcess(p.hProcess,99);DWORD code=0;GetExitCodeProcess(p.hProcess,&code);CloseHandle(p.hProcess);check(result==WAIT_OBJECT_0 && code==77,"Native child boundary missed");
+    auto command=std::wstring(L"\"")+executable.data()+L"\" --crash \""+t.root.native()+L"\" "+std::to_wstring(selected);STARTUPINFOW startup{};startup.cb=DWORD(sizeof(startup));PROCESS_INFORMATION process{};
+    check(CreateProcessW(nullptr,command.data(),nullptr,nullptr,FALSE,0,nullptr,nullptr,&startup,&process),"Native journal child creation failed");CloseHandle(process.hThread);
+    const auto result=WaitForSingleObject(process.hProcess,10000);if(result!=WAIT_OBJECT_0)TerminateProcess(process.hProcess,99);DWORD code=0;GetExitCodeProcess(process.hProcess,&code);CloseHandle(process.hProcess);check(result==WAIT_OBJECT_0 && code==77,"Native child boundary missed");
 #else
     const auto child=fork();check(child>=0,"Native journal fork failed");if(!child){try{crashedChild(t.root,selected);}catch(const std::exception &e){std::cerr<<e.what()<<'\n';std::_Exit(79);}}
     int status=0;const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
