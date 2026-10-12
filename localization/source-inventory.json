@@ -28,6 +28,10 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
+    "ui/native_monitor_controller.cpp": "a4740f7c2f9d979bd99940c159d294834221429c0180727a00764f526cfbb4e9",
+    "ui/native_monitor_controller.hpp": "b3b2f2ffe2d8774b569cc34c647c5982f0c14f61eadffb84981d66a0c0418f26",
+    "ui/native_monitor_panel.cpp": "7aa5ac4dd226c0aa97641599107830658bce3cd1134661dbbce337d3d510ca6d",
+    "ui/native_monitor_panel.hpp": "54a0714e69897fcd9d1acbc68a422ebafb90215074783122cfa02ff896518c69",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
     "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
@@ -42,13 +46,14 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "768c42ecc7b929b16d1af78eefa728cd2710de0ab8678b53036dbe2a0f4c4ea0",
-    "ui/studio_window.hpp": "320ead50e0ed8c60a1a4e7a9b1126853479819c43d4a38db283b66fca041b794",
+    "ui/studio_window.cpp": "919dbb3210196c3addf9ffd1d1357167dac47eeeac1bd7f0e7dd71a52de4b6ad",
+    "ui/studio_window.hpp": "50b4f30351050890f42e3913960c82896ff5a7ca69738ea255671207eae15846",
     "ui/timeline_editor.cpp": "8c594fe27a88b6c69dd2555cafcc7bca1e82185a5e81a55d46aec625550a6944",
     "ui/timeline_editor.hpp": "5e0065240440cd13e317de4bd207bea262f966eec92c18ba15bd7ccbaf5ee26e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
+    "ui/wasapi_native_monitor_controller.cpp": "222282f7ab4877098afec54b6051f1e9473a53f627b8ba30ba4296dd4a39cb4b",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
     "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9"
   },
@@ -2521,6 +2526,180 @@
       false
     ],
     [
+      "NativeMonitorPanel",
+      "Recording",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitoring length (seconds)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitor EQ",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Prepare",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Record",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Cancel",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Inspect saved take",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Keep take and reset",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings exceed the panel memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitoring range is too large.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording controls are busy. Try again.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording is closing.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings are invalid.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings exceed the control memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Input: %1 · Output: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording is unavailable.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose recording settings, then prepare.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Preparing recording…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Ready to record.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording and monitoring…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Finishing and saving the original take…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Original take saved.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording cancelled. The retained take is available for inspection.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording stopped with an error. Inspect the retained take.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording closed.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording error (%1).",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Original frames: %1 · Monitored frames: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "EQ accepted: %1 · Applied: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Saved frames verified: %1",
+      "",
+      false
+    ],
+    [
       "SessionListModel",
       "Select a take lane",
       "",
@@ -3542,6 +3721,12 @@
     ],
     [
       "StudioWindow",
+      "Native input monitoring",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Track equalizer",
       "",
       false
@@ -3902,7 +4087,7 @@
     ],
     [
       "StudioWindow",
-      "Stop manual recording and resolve its previews before changing the project structure.",
+      "Stop recording and resolve its retained takes before changing the project structure.",
       "",
       false
     ],

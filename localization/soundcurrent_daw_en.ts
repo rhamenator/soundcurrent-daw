@@ -1692,6 +1692,125 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     </message>
   </context>
   <context>
+    <name>NativeMonitorPanel</name>
+    <message>
+      <source>Recording</source>
+      <translation>Recording</translation>
+    </message>
+    <message>
+      <source>Monitoring length (seconds)</source>
+      <translation>Monitoring length (seconds)</translation>
+    </message>
+    <message>
+      <source>Monitor EQ</source>
+      <translation>Monitor EQ</translation>
+    </message>
+    <message>
+      <source>Prepare</source>
+      <translation>Prepare</translation>
+    </message>
+    <message>
+      <source>Record</source>
+      <translation>Record</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancel</translation>
+    </message>
+    <message>
+      <source>Inspect saved take</source>
+      <translation>Inspect saved take</translation>
+    </message>
+    <message>
+      <source>Keep take and reset</source>
+      <translation>Keep take and reset</translation>
+    </message>
+    <message>
+      <source>Recording settings exceed the panel memory limit.</source>
+      <translation>Recording settings exceed the panel memory limit.</translation>
+    </message>
+    <message>
+      <source>Monitoring range is too large.</source>
+      <translation>Monitoring range is too large.</translation>
+    </message>
+    <message>
+      <source>Recording controls are busy. Try again.</source>
+      <translation>Recording controls are busy. Try again.</translation>
+    </message>
+    <message>
+      <source>Recording is closing.</source>
+      <translation>Recording is closing.</translation>
+    </message>
+    <message>
+      <source>Recording settings are invalid.</source>
+      <translation>Recording settings are invalid.</translation>
+    </message>
+    <message>
+      <source>Recording settings exceed the control memory limit.</source>
+      <translation>Recording settings exceed the control memory limit.</translation>
+    </message>
+    <message>
+      <source>Input: %1 · Output: %2</source>
+      <translation>Input: %1 · Output: %2</translation>
+    </message>
+    <message>
+      <source>Recording is unavailable.</source>
+      <translation>Recording is unavailable.</translation>
+    </message>
+    <message>
+      <source>Choose recording settings, then prepare.</source>
+      <translation>Choose recording settings, then prepare.</translation>
+    </message>
+    <message>
+      <source>Preparing recording…</source>
+      <translation>Preparing recording…</translation>
+    </message>
+    <message>
+      <source>Ready to record.</source>
+      <translation>Ready to record.</translation>
+    </message>
+    <message>
+      <source>Recording and monitoring…</source>
+      <translation>Recording and monitoring…</translation>
+    </message>
+    <message>
+      <source>Finishing and saving the original take…</source>
+      <translation>Finishing and saving the original take…</translation>
+    </message>
+    <message>
+      <source>Original take saved.</source>
+      <translation>Original take saved.</translation>
+    </message>
+    <message>
+      <source>Recording cancelled. The retained take is available for inspection.</source>
+      <translation>Recording cancelled. The retained take is available for inspection.</translation>
+    </message>
+    <message>
+      <source>Recording stopped with an error. Inspect the retained take.</source>
+      <translation>Recording stopped with an error. Inspect the retained take.</translation>
+    </message>
+    <message>
+      <source>Recording closed.</source>
+      <translation>Recording closed.</translation>
+    </message>
+    <message>
+      <source>Recording error (%1).</source>
+      <translation>Recording error (%1).</translation>
+    </message>
+    <message>
+      <source>Original frames: %1 · Monitored frames: %2</source>
+      <translation>Original frames: %1 · Monitored frames: %2</translation>
+    </message>
+    <message>
+      <source>EQ accepted: %1 · Applied: %2</source>
+      <translation>EQ accepted: %1 · Applied: %2</translation>
+    </message>
+    <message>
+      <source> · Saved frames verified: %1</source>
+      <translation> · Saved frames verified: %1</translation>
+    </message>
+  </context>
+  <context>
     <name>SessionListModel</name>
     <message>
       <source>Select a take lane</source>
@@ -2391,6 +2510,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Manual / repeated takes</translation>
     </message>
     <message>
+      <source>Native input monitoring</source>
+      <translation>Native input monitoring</translation>
+    </message>
+    <message>
       <source>Track equalizer</source>
       <translation>Track equalizer</translation>
     </message>
@@ -2645,8 +2768,8 @@ The complete file was published with a warning: %1</translation>
       <translation>Canceling export; waiting for the current file operation…</translation>
     </message>
     <message>
-      <source>Stop manual recording and resolve its previews before changing the project structure.</source>
-      <translation>Stop manual recording and resolve its previews before changing the project structure.</translation>
+      <source>Stop recording and resolve its retained takes before changing the project structure.</source>
+      <translation>Stop recording and resolve its retained takes before changing the project structure.</translation>
     </message>
     <message>
       <source>Too many pending changes. Please retry.</source>

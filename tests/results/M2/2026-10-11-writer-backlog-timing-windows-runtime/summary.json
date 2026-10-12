@@ -1,0 +1,17 @@
+{
+  "source": "067d5d1b828dc90f92d6984fd17921beff4b789b",
+  "testedMerge": "4310eb5ef2ffe98b0434d8f48ac8484838aca549",
+  "tree": "6945b3ed618ea51cbab2840caf2b874090551cd7",
+  "run": 38175973115,
+  "jobsPassed": 4,
+  "nativeCtestSuites": 71,
+  "nativeStandaloneOriginal20Take5sCompletions": 3,
+  "heldFirstWrite": "held_first_write_diagnostic acquired_frames=256 capacity_frames=8192 held_age_ns=33028000 completed_fixture_span_max_ns=50484100 queue_full_prefix=8192 raw_exact=true windows_root_inferred=false",
+  "nativeWindowsRuntimeExecuted": true,
+  "simulatedSdkOnly": true,
+  "physicalAudioQualified": false,
+  "oldWriterRootResolved": false,
+  "ordinaryMergeAdmitted": false,
+  "fullGoalComplete": false,
+  "binaryOrMediaIncluded": false
+}
