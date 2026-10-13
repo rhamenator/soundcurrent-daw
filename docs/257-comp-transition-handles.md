@@ -43,6 +43,14 @@ render/admission workflow is remaining work, not excluded product scope.
 
 ## Acceptance
 
+[Indexed committed-source acceptance](../tests/results/M2/2026-10-13-comp-transition-handles/index.json)
+records implementation commit `1b741d15ebcedaa5105f7a3e3738deec753ff461`, unchanged
+source inputs, actual executable identities and four selected workflow suites.
+Native Windows execution of the final source remains separate.
+
+Core transition tests pass 4,715 checks; the paired-edit regression passes 2,365.
+
+
 Core tests cover source preservation at 44.1/48/96 kHz with rational speeds,
 fractional origins, opposite-fade timing, state/Undo/Redo, repeated no-op,
 large-fraction ordering, invalid/self/missing-source/range rollback, eight-track

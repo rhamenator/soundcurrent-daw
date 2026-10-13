@@ -1,0 +1,117 @@
+{
+  "sourceCommit": "1b741d15ebcedaa5105f7a3e3738deec753ff461",
+  "sourceTree": "db15daa0e62ed3bc6421470f247005b53d82252a",
+  "sourceFiles": 1508,
+  "nativePlatform": "linux",
+  "commands": [
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        ".cache/comp-transitions/core",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-comp-transition-tests",
+        "sc-crossfade-edit-tests"
+      ],
+      "pid": 2853318,
+      "exitCode": 0,
+      "log": "frozen-command-0.log"
+    },
+    {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        ".cache/comp-transitions/core",
+        "-R",
+        "^(comp-transition-handles|paired-crossfade-edits)$",
+        "--output-on-failure",
+        "--no-tests=error",
+        "-V"
+      ],
+      "pid": 2853320,
+      "exitCode": 0,
+      "log": "frozen-command-1.log"
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        ".cache/comp-transitions/media",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-crossfade-ui-tests",
+        "sc-take-lane-tests"
+      ],
+      "pid": 2853323,
+      "exitCode": 0,
+      "log": "frozen-command-2.log"
+    },
+    {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        ".cache/comp-transitions/media",
+        "-R",
+        "^(desktop-paired-crossfade|retained-take-comp)$",
+        "--output-on-failure",
+        "--no-tests=error",
+        "-V"
+      ],
+      "pid": 2853325,
+      "exitCode": 0,
+      "log": "frozen-command-3.log"
+    }
+  ],
+  "executables": {
+    ".cache/comp-transitions/core/sc-comp-transition-tests": "d0db4d0b47822ae90cb405fd386f9d344d5a0a38896fd391c4318163ecf0f4aa",
+    ".cache/comp-transitions/core/sc-crossfade-edit-tests": "d1f74eb1d8522ea33c27ea0c3188c433fe8d48621c42970897ede214d4705de0",
+    ".cache/comp-transitions/media/sc-crossfade-ui-tests": "77ceab46f83ca513d8fdb62b80da05bd7b9e99471294b7e1a4f3c72204224a50",
+    ".cache/comp-transitions/media/sc-take-lane-tests": "521deb9cfc71ea7d86a6bb8ce91357402fdd17633cdbc3db26040987f5f78a69"
+  },
+  "sourceUnchanged": true,
+  "nativeAudio": false,
+  "installedPreviewUpdated": false,
+  "packet": "acceptance.zip",
+  "packetBytes": 75794,
+  "packetSha256": "dd13dccc624495fdb4a6b40a50d88b0b0f3c081bc96bb139d3c9a8ffa4ff2412",
+  "members": {
+    "frozen-inputs.json": {
+      "bytes": 176746,
+      "sha256": "9a0c6cc87832f7132937da86fa1c8fcb1c510f74f09055de11dac53601f66e2b"
+    },
+    "frozen-qualification.json": {
+      "bytes": 2130,
+      "sha256": "147748f6828f5ef984abacc83060dbbbdff647faefddf6d91a5972e1c6a40f6c"
+    },
+    "frozen-command-0.log": {
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    "frozen-command-1.log": {
+      "bytes": 1466,
+      "sha256": "9d53b09fe6e317cceca5c4858d31eec4fd1250bbe0e418ed1bf441809a2fcebe"
+    },
+    "frozen-command-2.log": {
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    "frozen-command-3.log": {
+      "bytes": 2012,
+      "sha256": "dabca22438f8f47294f845049ad6d622f5926fa86a767d1e9805694e22c2e8cc"
+    },
+    "localization.log": {
+      "bytes": 246,
+      "sha256": "366fe33775e53dd32c3f1e31e8a3ea955e82021d51064b479909a7f50b1691d3"
+    },
+    "localization-validation.log": {
+      "bytes": 113,
+      "sha256": "385417721abf38c189cebf3842411a169ef476be2b28641626f931d975a1efc7"
+    }
+  },
+  "windowsFeatureQualified": false,
+  "fullReferenceParityQualified": false,
+  "languagesFullyUiQualified": 0
+}
