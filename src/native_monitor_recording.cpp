@@ -37,6 +37,7 @@ struct NativeMonitorRecording::State {
             spec.capture = plan.captureFormat(); spec.render = plan.renderFormat(); spec.monitorFirst = options.route.firstOutput;
             spec.raw = options.raw; spec.raw.identity = spec.capture.identity;
             spec.raw.sampleRate = spec.capture.sampleRate; spec.raw.maximumPacketFrames = spec.capture.maximumPacketFrames;
+            if(options.route.storagePolicy){const auto &policy=*options.route.storagePolicy;spec.storage=RawRecordingStorageDeclaration{policy.stallMilliseconds,policy.minimumPacketFrames,plan.storageCapacity()->rawSlots};options.recording.schemaMinor=4;}
             spec.channelMap = options.route.channelMap;
             spec.equalizer = options.route.equalizer;
             route = std::make_unique<PreparedNativeMonitorRoute>(plan);
@@ -217,6 +218,8 @@ NativeMonitorRecordingResult NativeMonitorRecording::wait() {
     return state_->finish(false);
 }
 NativeMonitorRecordingResult NativeMonitorRecording::cancelAndWait() { return state_->finish(true); }
+std::optional<RecordingStorageCapacity> NativeMonitorRecording::storageCapacity() const{return state_->route->plan().storageCapacity();}
+std::size_t NativeMonitorRecording::routeChargedBytes() const noexcept{return state_->route->plan().chargedBytes();}
 const NativeOriginalRecordingSpec &NativeMonitorRecording::declared() const noexcept { return state_->spec; }
 const std::filesystem::path &NativeMonitorRecording::jobDirectory() const noexcept { return state_->job; }
 EqEvent NativeMonitorRecording::equalizerEvent(const EqSettings &s,const ParameterAddress &a,MonitorOutputOrdinal at) const {

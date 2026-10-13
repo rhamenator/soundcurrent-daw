@@ -117,7 +117,7 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
             auto lease=memory_.reserve(nativeMonitorCommandPayloadBytes(shape,memory_.usage().limitBytes));
             auto copy=std::make_shared<OwnedPreparation>(std::move(lease),*preparation_);
             if(copy->value.pipewire){auto &o=*copy->value.pipewire;if(!applyStorageBudget(o)){poll();return;}o.declared.generation=++nextGeneration_;o.declared.run=Id::generate();o.declared.raw.asset=Id::generate();}
-            else{copy->value.options.route.runGeneration=++nextGeneration_;copy->value.options.run=Id::generate();copy->value.options.raw.asset=Id::generate();}
+            else{if(!applyNativeStorageBudget(copy->value.options)){poll();return;}copy->value.options.route.runGeneration=++nextGeneration_;copy->value.options.run=Id::generate();copy->value.options.raw.asset=Id::generate();}
             auto c=command(NativeMonitorCommandKind::Prepare);c.generation=nextGeneration_;c.preparation=std::shared_ptr<const NativeMonitorPreparation>(copy,&copy->value);if(send(c))nextRevision_=0;
         } catch(const ProjectError &){admission_=tr("Recording settings exceed the panel memory limit.");poll();}
     });
@@ -161,6 +161,9 @@ bool NativeMonitorPanel::setPreparation(const NativeMonitorPreparation &p) {
         if(p.pipewire && p.pipewire->storageBudget){const auto &budget=*p.pipewire->storageBudget;
             QSignalBlocker enabled(storageEnabled_),duration(storageMilliseconds_),input(minimumCapture_),output(minimumRender_);
             storageEnabled_->setChecked(true);storageMilliseconds_->setValue(int(budget.stallMilliseconds));minimumCapture_->setValue(int(budget.minimumCaptureFrames));minimumRender_->setValue(int(budget.minimumRenderFrames));}
+        if(!p.pipewire && p.options.route.storagePolicy){const auto &budget=*p.options.route.storagePolicy;
+            QSignalBlocker enabled(storageEnabled_),duration(storageMilliseconds_),input(minimumCapture_);
+            storageEnabled_->setChecked(true);storageMilliseconds_->setValue(int(budget.stallMilliseconds));minimumCapture_->setValue(int(budget.minimumPacketFrames));}
         {QSignalBlocker block(eq_);const auto &eq=p.pipewire?p.pipewire->route.equalizer:p.options.route.equalizer;eq_->setChecked(eq && eq->settings.enabled);}
         devices_->setText(tr("Input: %1 · Output: %2").arg(deviceName(p.inputs),deviceName(p.outputs)));admission_.clear();poll();return true;
     }catch(const ProjectError &e){admission_=e.code()==ErrorCode::ResourceLimit?tr("Recording settings exceed the panel memory limit."):tr("Recording settings are invalid.");poll();return false;}
@@ -288,18 +291,37 @@ bool NativeMonitorPanel::applyStorageBudget(PipeWireMonitorRecordingOptions &o) 
     o.route.minimumCaptureFrames=budget.minimumCaptureFrames;o.route.minimumRenderFrames=budget.minimumRenderFrames;o.route.storageStallMilliseconds=budget.stallMilliseconds;
     return true;
 }
+bool NativeMonitorPanel::applyNativeStorageBudget(NativeMonitorRecordingOptions &o) const {
+    if(!storageEnabled_->isChecked()){o.route.storagePolicy.reset();return true;}
+    if(!minimumCapture_->value())return false;
+    RawRecordingStoragePolicy policy;policy.stallMilliseconds=std::uint32_t(storageMilliseconds_->value());policy.minimumPacketFrames=std::uint32_t(minimumCapture_->value());
+    if(o.route.storagePolicy){policy.maximumSlots=o.route.storagePolicy->maximumSlots;policy.memoryBudgetBytes=o.route.storagePolicy->memoryBudgetBytes;}
+    o.route.storagePolicy=policy;return true;
+}
 void NativeMonitorPanel::updateStoragePreview(bool inactive){
-    const auto s=snapshot();const bool supported=preparation_ && preparation_->pipewire;
-    storageEnabled_->setEnabled(inactive && supported);for(auto *spin:{storageMilliseconds_,minimumCapture_,minimumRender_})spin->setEnabled(inactive && supported && storageEnabled_->isChecked());
+    const auto s=snapshot();const bool supported=bool(preparation_);const bool pipewire=supported && bool(preparation_->pipewire);
+    storageEnabled_->setEnabled(inactive && supported);for(auto *spin:{storageMilliseconds_,minimumCapture_})spin->setEnabled(inactive && supported && storageEnabled_->isChecked());
+    minimumRender_->setEnabled(inactive && pipewire && storageEnabled_->isChecked());
     if(storageDirty_)storageValid_=true;
     if(!inactive && s->storageCapacity){const auto &c=*s->storageCapacity;
+        if(!s->pipewire){
+            if(s->routePayloadBytes)storagePreview_->setText(tr("Prepared: %1 ms · %2 audio slots · %3 bytes of prepared route payload. Output fills are variable.").arg(QLocale().toString(c.declaredStallMilliseconds),QLocale().toString(c.rawSlots),QLocale().toString(qulonglong(s->routePayloadBytes))));
+            else storagePreview_->setText(tr("Saved declaration: %1 ms · %2 audio slots. No audio route is allocated.").arg(QLocale().toString(c.declaredStallMilliseconds),QLocale().toString(c.rawSlots)));
+            return;
+        }
         if(!s->routePayloadBytes)storagePreview_->setText(tr("Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.").arg(QLocale().toString(c.declaredStallMilliseconds),QLocale().toString(c.rawSlots),QLocale().toString(c.captureReceiptSlots)));
         else storagePreview_->setText(tr("Prepared: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of prepared route payload.").arg(QLocale().toString(c.declaredStallMilliseconds),QLocale().toString(c.rawSlots),QLocale().toString(c.captureReceiptSlots),QLocale().toString(qulonglong(s->routePayloadBytes))));
         return;
     }
-    if(!inactive && (s->pipewireDeclared || s->hasOriginal())){storagePreview_->setText(tr("No disk-pause duration was declared for this take."));return;}
+    if(!inactive && (s->pipewireDeclared || s->declared || s->hasOriginal())){storagePreview_->setText(tr("No disk-pause duration was declared for this take."));return;}
     if(!supported){storageValid_=true;storagePreview_->setText(tr("Disk-pause budgeting is not available for this audio route yet."));return;}
     if(!storageEnabled_->isChecked()){storageValid_=true;storagePreview_->setText(tr("Using existing buffers. No disk-pause duration is declared."));return;}
+    if(!pipewire){
+        storageValid_=minimumCapture_->value()>0;
+        if(storageValid_)storagePreview_->setText(tr("The input device's actual format and memory cost will be checked during Prepare. Output fills do not set the disk-buffer budget."));
+        else storagePreview_->setText(tr("Choose the minimum input packet size before preparing."));
+        return;
+    }
     if(!minimumCapture_->value() || !minimumRender_->value()){storageValid_=false;storageDirty_=true;storagePreview_->setText(tr("Choose minimum input and output block sizes before preparing."));return;}
     if(!storageDirty_){storagePreview_->setText(storagePlan_);return;}
     storageDirty_=false;
@@ -368,7 +390,10 @@ void NativeMonitorPanel::poll() {
     }
     if(s->admitting)phase=tr("Verifying original take for the timeline…");
     if(s->exporting)phase=tr("Exporting original WAV…");
-    if(s->errorSerial!=errorSeen_){errorSeen_=s->errorSerial;if(s->error)admission_=tr("Recording error (%1).").arg(int(*s->error));}
+    if(s->errorSerial!=errorSeen_){errorSeen_=s->errorSerial;if(s->error){
+        if(*s->error==ErrorCode::ResourceLimit)admission_=tr("The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.");
+        else if(*s->error==ErrorCode::InvalidParameter)admission_=tr("The recording settings do not match the prepared device format. Check the minimum input packet size.");
+        else admission_=tr("Recording error (%1).").arg(int(*s->error));}}
     status_->setText(admission_.isEmpty()?phase:admission_);status_->setToolTip(QStringLiteral("<pre>")+QString::fromUtf8(s->diagnostic.data(),qsizetype(std::min<std::size_t>(s->diagnostic.size(),4096))).toHtmlEscaped()+QStringLiteral("</pre>"));
     progress_->setText(tr("Original frames: %1 · Monitored frames: %2").arg(qulonglong(s->progress.rawAcceptedFrames)).arg(qulonglong(s->progress.deliveredMonitorFrames)));
     QString details=tr("EQ accepted: %1 · Applied: %2").arg(qulonglong(s->acceptedEqRevision)).arg(qulonglong(s->appliedEqRevision));

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "monitor_processing.hpp"
+#include "recording_storage_budget.hpp"
 #include "wasapi_monitor_capture.hpp"
 #include "wasapi_monitor_render.hpp"
 
@@ -13,6 +14,7 @@ struct NativeMonitorRouteOptions {
     std::uint32_t inputCapacityFrames = 65536, targetQueuedSourceFrames = 1024;
     std::uint64_t maximumWait100ns = 50000000;
     std::uint64_t maximumWarmupFrames = 0; // Zero selects six seconds at actual render rate.
+    std::optional<RawRecordingStoragePolicy> storagePolicy;
     std::optional<MonitorChannelMap> channelMap;
     std::optional<MonitorEqSpec> equalizer;
     std::size_t memoryBudgetBytes = 256 * 1024 * 1024;
@@ -39,6 +41,7 @@ class NativeMonitorRoutePlan {
     const MonitorStartupAdmission &startup() const noexcept { return startup_; }
     const WasapiMonitorRenderOptions &renderOptions() const noexcept { return renderOptions_; }
     std::size_t chargedBytes() const noexcept { return bytes_; }
+    const std::optional<RecordingStorageCapacity> &storageCapacity() const noexcept {return storageCapacity_;}
   private:
     NativeMonitorRoutePlan() = default;
     friend NativeMonitorRoutePlan prepareNativeMonitorRoute(WasapiPreparedCaptureFormat,
@@ -54,6 +57,7 @@ class NativeMonitorRoutePlan {
     MonitorCaptureStopConfig stop_;
     MonitorStartupAdmission startup_;
     WasapiMonitorRenderOptions renderOptions_;
+    std::optional<RecordingStorageCapacity> storageCapacity_;
     std::optional<ResourceLedger> resources_;
     std::size_t budget_ = 0, bytes_ = 0;
 };

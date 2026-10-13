@@ -28,10 +28,10 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/native_monitor_controller.cpp": "3f3db13bea983bb7643ef3c44a9085b6e16e954544a7d4d112aeb5c31cb1f5aa",
+    "ui/native_monitor_controller.cpp": "0806421fbc1e4c53a4aa0883e31fb14637da20bec599c6f2decdb62446dfe86a",
     "ui/native_monitor_controller.hpp": "945bc83bb8c759ce021ed9f38e826080588354b7b9711d88cab9859b3c763dab",
-    "ui/native_monitor_panel.cpp": "35edb18807cc7196559d3dcee6ff8a276c40381f8ff7ff1742d5bf752478bac4",
-    "ui/native_monitor_panel.hpp": "1ed7e19f30650f8a56689a3acb0f90fa198db164557fb285a2598e7e0d10b1f4",
+    "ui/native_monitor_panel.cpp": "dc353938bc2018763b9b45f535185d308ac39b431699fcde3c2a093195fc46e3",
+    "ui/native_monitor_panel.hpp": "6785652b6553fa79ff5a9478dfffbcfd6d5d27578d38cf3c0078ff1ce4b75fb2",
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
@@ -2810,6 +2810,18 @@
     ],
     [
       "NativeMonitorPanel",
+      "Prepared: %1 ms · %2 audio slots · %3 bytes of prepared route payload. Output fills are variable.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Saved declaration: %1 ms · %2 audio slots. No audio route is allocated.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.",
       "",
       false
@@ -2835,6 +2847,18 @@
     [
       "NativeMonitorPanel",
       "Using existing buffers. No disk-pause duration is declared.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "The input device's actual format and memory cost will be checked during Prepare. Output fills do not set the disk-buffer budget.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose the minimum input packet size before preparing.",
       "",
       false
     ],
@@ -2979,6 +3003,18 @@
     [
       "NativeMonitorPanel",
       "Exporting original WAV…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "The recording settings do not match the prepared device format. Check the minimum input packet size.",
       "",
       false
     ],
