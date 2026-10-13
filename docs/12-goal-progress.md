@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows desktop font and recording wait evidence (2026-10-13)
+
+[Checkpoint 262](262-windows-offscreen-fonts.md) retains the original Windows
+crossfade and finite-recording failures. Offscreen tests now use Windows' installed
+fonts and require printable English glyphs. Test-only disk boundary observations
+are captured before cancellation without extending the five-second wait. A fresh
+Linux build passes 165 dialog checks, 5,932,791 simulated native-owner checks and
+both catalog checks. The ignored handle planner passes 136 metadata/resource checks;
+missing-span rendering remains open. Hosted Windows results are pending. Installed
+previews, full-suite parity and European language qualification are unchanged.
+
+
 ## Prepared rendered comp handles (2026-10-13)
 
 [Checkpoint 260](260-rendered-comp-handles.md) corrects admission of existing
