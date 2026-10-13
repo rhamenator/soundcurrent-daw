@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Ubuntu comp/audition preview delivery (2026-10-13)
+
+[Checkpoint 259](259-comp-audition-preview.md) installs a per-user preview with
+previous-version rollback, current retained-take preparation and handle crossfades.
+Actual packaged Undo/Redo/save/reopen/identical exports, independent whole PCM and
+private native recording/playback pass. The stale post-retirement Linguist fingerprint
+was found by Linux CI and corrected with real extraction. Corrected source `1a3b202`
+passes all four hosted jobs; original failures remain indexed. Current Windows
+installer, physical/quality, responsive dialog help and all-Europe remain open.
+Full frozen-reference workflows remain the target.
+
+
 ## Retained take audition (2026-10-13)
 
 [Checkpoint 258](258-retained-take-audition.md) adds finite transient take playback
@@ -2111,7 +2123,7 @@ assign a host/instructioncause froman interval alone.
 ## 2026-10-06 continuation: retained individual-call miss and signing budget
 
 Exact11110 terminates exit1 before actualcafc539 diagnostic binary freeze; reader
-35316 terminates exit0 before source/build edits. All62launch source pins and
+35316 terminates exit 0 before source/build edits. All62launch source pins and
 binary/library hashes match. At56.92audio seconds sink skips1024frames. Same-cycle
 owner21.854538mswall/21.851922msCPU ends23.490041ms aftercycle; original maximum
 gate fails. Matching rawmax ordinal3 wall4.177203ms/CPU4.175100ms; EQ wallmax ordinal4
@@ -2243,7 +2255,7 @@ professional/import/profile/all-Europe gates stay required. Full goal incomplete
 
 ## 2026-10-06 continuation: default native recording and committed signing policy
 
-Exact28857 is terminal exit0 before subsequent edits. At1fd9e9e, the serial plain
+Exact28857 is terminal exit 0 before subsequent edits. At1fd9e9e, the serial plain
 owned PipeWire20-second normal fixture verifies30,720,000raw/1,920,000output samples
 with zero difference, no missing frames and intact float headroom. Joined raw
 journals/origins/hashes/alignment and Save/reopen pass. All three callback roles
@@ -3622,7 +3634,7 @@ The next local Ubuntu 26.04 amd64 package/source pair is
 `0.1.0~preview.20261008034000.743392ece10a`; all **719** corresponding-source files are
 independently verified. Normal owned-rootfs upgrade and the actual installed GUI
 fault/verified raw prefix/Save/Quit/reopen/historical review pass. Both app exits
-and launcher exit0; original raw take, journal, sidecar and project bytes are
+and launcher exit 0; original raw take, journal, sidecar and project bytes are
 unchanged on reopen/review. No recording endpoint or audio preview is started by
 the historical error row. Host default/link fingerprints match.
 
@@ -4488,7 +4500,7 @@ normal exit, new-process reopen and two byte-identical WAV exports. Independent
 48 kHz stereo PCM equals the derived 12,288-frame clip; finite peak2.22680855
 preserves float headroom. Actual installed helper identity/hash was captured by
 polling; non-admin process-start tracing was denied and remains explicitly limited.
-Normal uninstall and same-build reinstall exit0, payload/shortcuts/registration
+Normal uninstall and same-build reinstall exit 0, payload/shortcuts/registration
 checks pass, project/media/export and sentinel settings/user files survive unchanged.
 Post-reinstallation startup and normal exit pass. Windows reused a terminated PID;
 the three sequential reports retain their distinct timestamps. All VMs are off,
@@ -4639,7 +4651,7 @@ checks, with its tested/merged tree verified. [Checkpoint152](152-bounded-worker
 now corrects acceptance pipe observation and retains exact exits/protocol output
 instead of an empty-stderr message. Six real failure cases and both real Linux
 render banks pass. In a brief single-clone rebooted session the historical8b46
-native v4 bank passed and the default-style desktop opened/closed with exit0;
+native v4 bank passed and the default-style desktop opened/closed with exit 0;
 v5 still timed out without a completed report or known cause. The observations
 retain8b46 source identity and do not qualify this new head's native bank or installer.
 All VMs are shut off. Next: reproduce one protected native request with the new
@@ -4874,7 +4886,7 @@ unchanged. Source3012/helper8304 have exact native handle/creation/image binding
 parent death leaves a live writer unavailable for review in fresh GUI6448.
 Separate helper death changes the recovery row to Incomplete and keeps Review
 IsEnabled=false. Partial4120 bytes/hash, project/raw and prior proven fixture
-stay unchanged. Fresh GUI normal exit0; all owned handles terminal/thread joined.
+stay unchanged. Fresh GUI normal exit 0; all owned handles terminal/thread joined.
 List focus/Home actions are recorded; separate IsSelected properties are not.
 
 Three operator failures remain in original archives with actual cleanup. The
@@ -5370,7 +5382,7 @@ Current-MAIN native job114400815807 exposed the original manual wait timeout wit
 an intact Unicode path. The exact caller was hidden by the shared wait helper;
 e442fc89 forwards caller location and early callback-failure status/frame. A
 separate Windows desktop parent-interruption case lacked completion markers.
-Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit0/
+Frozen4b0721d8 publishes owned child-exit state before observers, adds an exit 0/
 busy/unverified regression, and records timeout/exit/error/deadline/job inventory
 at the interruption boundary. Deadlines/assertions remain unchanged. Linux Debug
 controller19.01s/1,676 observed checks and parent/manual9.97s passed. An85,200-byte/
