@@ -135,8 +135,18 @@ binaries.
 
 ## Next implementation task
 
-Fresh native Windows CI must independently execute the new1.1, composed persistence
-and migration process workflows. Compilation alone is not execution evidence.
+PR142 subsequently passed all four required jobs on38168757526. Native MSVC
+executed71 suites in185.83s, including the composed startup/persistence suite
+(2.27s) and native outcomes/migration suite (6.67s), plus three original
+20-take/five-second diagnostic completions. Exact headc6eac6b, tested merge
+7fd6b91, basec5e15a1, whole tree898cfa7 and72 reviewed blobs match all four full
+original logs. An ordinary matching-head protected squash produced
+MAIN143c76af5e1fedc301ec6c9c5208f23f3738bf63 with the identical tested tree and
+base parent. Strict checks/app identities/admin enforcement remained unchanged.
+The [protected packet](../tests/results/M2/2026-10-11-native-state11-protected-main/summary.json)
+retains logs, exact admission and postmerge evidence. These are simulated SDK
+workflows on Windows; physical audio remains unqualified.
+
 The factory remains disabled; no installed/native physical audio, latency, room
 correction printing, EQmix or recording alignment gate is claimed.
 

@@ -5,6 +5,11 @@ namespace sc_test {
 // Construct legacy fixtures from a neutral current writer. Production loading
 // remains strict: old schemas reject these keys. Never discard an actual take.
 template<class Json> void eraseSchema16FixtureKeys(Json &value) {
+    if(value.at("schemaMinor")<18)for(auto &asset:value.at("assets")) {
+        if(asset.contains("nativeEvidence") && !asset.at("nativeEvidence").empty())
+            throw std::runtime_error("Legacy fixture cannot discard native source evidence");
+        asset.erase("nativeEvidence");
+    }
     if (value.at("schemaMinor") < 17 && value.contains("loopPlayback")) {
         const auto &loop = value.at("loopPlayback");
         if (loop.at("enabled") != false || loop.at("startFrame") != 0 || loop.at("endFrame") != 0)

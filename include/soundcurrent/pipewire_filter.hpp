@@ -2,6 +2,7 @@
 #pragma once
 #include "audio_bridge.hpp"
 #include "audio_port.hpp"
+#include "pipewire_cycle.hpp"
 #include <chrono>
 #include <memory>
 #include <string>
@@ -28,6 +29,7 @@ struct PipeWireCallbacks {
     // Optional fixture clock observation, including route-negotiation callbacks.
     // Receives no mutable buffers; bounded/noexcept/RT-safe only.
     void (*observeClock)(void *, const DeviceBlockClock &) noexcept = nullptr;
+    void (*completedCycle)(void *, const PipeWireCycleReceipt &) noexcept = nullptr;
 };
 // Linux-specific implementation behind a framework-free public descriptor.
 // No autoconnection, default-device mutation or driver/rate/quantum forcing.

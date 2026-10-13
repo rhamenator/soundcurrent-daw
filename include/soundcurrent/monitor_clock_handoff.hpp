@@ -5,12 +5,14 @@
 #include "spsc_queue.hpp"
 
 namespace soundcurrent::daw {
+enum class MonitorClockDomain { WindowsQpc100ns, PosixMonotonic100ns };
 struct MonitorClockHandoffConfig {
     ClockStreamIdentity captureIdentity{1,1,1}, renderIdentity{2,1,1};
     std::uint64_t renderFrequency = 48000, runGeneration = 1, initialRecordSequence = 0;
     std::uint32_t slots = 64, initialQueueSequence = 0;
     std::size_t memoryBudgetBytes = 65536;
     std::optional<ResourceLedger> resources;
+    MonitorClockDomain timestampDomain = MonitorClockDomain::WindowsQpc100ns;
 };
 enum class MonitorClockPhase { Running, Stopped, Cancelled, Fault };
 enum class MonitorClockCode { Accepted, Ready, Empty, Drained, Stopped, Cancelled, Fault };
@@ -39,6 +41,10 @@ class PreparedMonitorClockHandoff {
     PreparedMonitorClockHandoff &operator=(const PreparedMonitorClockHandoff &) = delete;
     MonitorClockCode publish(const CaptureClockReading &) noexcept; // Capture owner.
     MonitorClockCode publish(const RenderClockReading &) noexcept;  // Render owner.
+    // Distinct backend boundary: floor(CLOCK_MONOTONIC nanoseconds / 100).
+    // Both lanes must use the declared POSIX domain. No cross-domain inference.
+    MonitorClockCode publishMonotonic(const CaptureClockReading &) noexcept;
+    MonitorClockCode publishMonotonic(const RenderClockReading &) noexcept;
     MonitorClockRead read(MonitorClockRecord<CaptureClockReading> &) noexcept; // Processing owner.
     MonitorClockRead read(MonitorClockRecord<RenderClockReading> &) noexcept;
     void finishCapture() noexcept;
