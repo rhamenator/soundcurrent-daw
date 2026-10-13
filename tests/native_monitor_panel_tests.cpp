@@ -149,7 +149,10 @@ void deviceSelection(const std::filesystem::path &root){
         for(auto *out:{&std::cerr,static_cast<std::ostream *>(&retained)}){
             *out<<"selection factories="<<factories.load()<<" prepared="<<preparedStreams.load()<<" queries="<<queries.load()<<" before="<<before
                 <<" disposition="<<int(result.disposition)<<" raw="<<(result.prefix?result.prefix->raw.committedFrames:0)<<" captureStatus="<<int(result.native.captureStatus)
-                <<" renderStatus="<<int(result.native.render.status)<<" consumed="<<result.native.render.consumedMonitorFrames<<" startup="<<bool(result.native.render.startupReady)
+                <<" renderStatus="<<int(result.native.render.status)<<" renderFault="<<(result.native.render.firstFault?int(result.native.render.firstFault->cause):-1)
+                <<" renderUnavailable="<<bool(result.native.render.firstUnavailable)<<" renderOriginal="<<bool(result.native.render.original)
+                <<" captureOriginal="<<bool(result.native.captureOriginal)<<" captureDelivered="<<(result.native.captureOriginal?result.native.captureOriginal->deliveredFrames:0)
+                <<" consumed="<<result.native.render.consumedMonitorFrames<<" startup="<<bool(result.native.render.startupReady)
                 <<" processing="<<(result.processingFault?int(result.processingFault->cause):-1)<<" drift="<<bool(result.processingClockFault)
                 <<" buffer="<<(result.processingBufferFault?int(result.processingBufferFault->code):-1)<<" fanout="<<(result.captureFault?int(result.captureFault->cause):-1)
                 <<" fanoutSide="<<(result.captureFault?int(result.captureFault->side):-1)<<" activation="<<bool(result.activationFailure)<<" disk="<<bool(result.diskFailure)
