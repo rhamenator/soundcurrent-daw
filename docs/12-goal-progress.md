@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows media reproducibility experiment (2026-10-13)
+
+[Checkpoint 254](254-windows-media-reproducibility.md) prepares two fresh native
+libsndfile builds with stable linker metadata and complete byte comparison.
+Both binaries and build rules are retained even on a mismatch. Local syntax and
+package input/refusal checks pass; native reproducibility remains pending.
+Product dependency pins remain unchanged. Original CI187 passed all four jobs
+and its original artifacts were retained. Windows deployment/install acceptance
+and the full DAW/localization goal remain active.
+
 ## Independently reviewed Windows runtime (2026-10-13)
 
 [Checkpoint253](253-reviewed-windows-runtime.md) retains actual native CRT14.51.36244

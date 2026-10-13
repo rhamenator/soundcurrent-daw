@@ -28,6 +28,7 @@ try {
     New-Item -ItemType Directory -Path (Join-Path $verify 'platforms') | Out-Null
     Copy-Item -LiteralPath (Join-Path $sdk 'plugins/platforms/qoffscreen.dll') -Destination (Join-Path $verify 'platforms')
     Copy-Item -LiteralPath (Join-Path $sdk 'sbom/qtbase-6.12.0.spdx.json') -Destination $out
+    Copy-Item -LiteralPath (Join-Path $root '.cache/windows-media-build-review') -Destination (Join-Path $out 'media-build-review') -Recurse
     Copy-Item -LiteralPath (Join-Path $build 'CMakeCache.txt') -Destination $out
     Copy-Item -LiteralPath (Join-Path $build 'Testing/Temporary/LastTest.log') -Destination $out
     Copy-Item -LiteralPath (Join-Path $root 'native-ui-dependencies/verified-runtime.json') -Destination $out
