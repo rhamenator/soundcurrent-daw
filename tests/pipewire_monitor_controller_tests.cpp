@@ -25,6 +25,7 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
     pw.declared.raw.project=project.id;pw.declared.raw.track=project.tracks.front().id;pw.declared.raw.identity={11,31,7};pw.declared.raw.layout={LayoutKind::Mono,1};pw.declared.raw.maximumPacketFrames=480;
     pw.declared.maximumRenderFrames=480;pw.route.inputCapacityFrames=32768;pw.route.rawSlots=8;pw.route.monitorSlots=8;pw.route.channelMap=monoToStereoMonitor();
     MonitorEqSpec eq;eq.track=pw.declared.raw.track;eq.settings.bands.push_back({Id::generate(),1000,-6,1});pw.route.equalizer=eq;
+    pw.journal.boundary=[shared](auto b){shared->journal(b);};pw.journal.raw.boundary=[shared](auto b){shared->rawBoundary(b);};
     auto prep=command(NativeMonitorCommandKind::Prepare);prep.preparation=p;check(control.submit(prep)==NativeMonitorAdmission::Accepted,"PipeWire prepare refused");
     await([&]{return control.snapshot()->phase==NativeMonitorPhase::Ready || bool(control.snapshot()->error);});
     auto ready=control.snapshot();check(ready->pipewireDeclared && !ready->declared && ready->hasEqualizer(),"Controller fabricated Native/QPC declaration");
@@ -35,7 +36,8 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
                  <<" processing="<<bool(r.processingFault)<<" fanout="<<bool(r.fanoutFault)<<" drift="<<bool(r.clockFault)
                  <<" captureClock="<<bool(r.captureClockFault)<<" renderClock="<<bool(r.renderClockFault)<<" buffer="<<bool(r.bufferFault)
                  <<" captureReceipt="<<bool(r.captureReceiptFault)<<" renderReceipt="<<bool(r.renderReceiptFault)
-                 <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)<<'\n';
+                 <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)
+                 <<" captureLateNs="<<shared->captureLateNs.load()<<" renderLateNs="<<shared->renderLateNs.load()<<" afterRawCheckpointToPairPublishNs="<<shared->checkpointNs.load()<<" rawAudioStampWriteNs="<<shared->rawWriteNs.load()<<'\n';
         if(r.terminalFailure)try{std::rethrow_exception(r.terminalFailure);}catch(const std::exception &e){std::cerr<<"terminal="<<e.what()<<'\n';}}
     check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && !final->result && final->rawPrefix()->committedFrames>0 && shared->joins==2 && !shared->auditBad,"Typed recording result/join/raw evidence wrong");
     control.submit(command(NativeMonitorCommandKind::Inspect));await([&]{return bool(control.snapshot()->pipewireReopened);});
