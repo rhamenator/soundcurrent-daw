@@ -225,6 +225,7 @@ void pipewirePanel(const std::filesystem::path &root){
     StudioWindow window(nullptr,{},{},{},{},{},{},{},{},std::move(options));window.show();window.openProject(root);
     await([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
     auto *nativePanel=dynamic_cast<NativeMonitorPanel *>(window.findChild<QGroupBox *>("nativeRecordingPanel"));check(nativePanel!=nullptr,"Main window has no PipeWire recording panel");
+    auto *recordingTabs=window.findChild<QTabWidget *>("recordingModes");check(recordingTabs!=nullptr,"PipeWire recording tabs missing");recordingTabs->setCurrentWidget(nativePanel);
     auto &panel=*nativePanel;CloseOnExit close{panel};NativeMonitorPreparation p;p.root=root;p.pipewire.emplace();auto &o=*p.pipewire;
     o.declared.raw.project=project.id;o.declared.raw.track=project.tracks.front().id;o.declared.raw.identity={11,31,7};o.declared.raw.layout={LayoutKind::Mono,1};
     o.declared.raw.maximumPacketFrames=480;o.declared.maximumRenderFrames=480;o.route.inputCapacityFrames=32768;o.route.rawSlots=8;o.route.monitorSlots=8;o.route.channelMap=monoToStereoMonitor();
@@ -232,7 +233,24 @@ void pipewirePanel(const std::filesystem::path &root){
     o.journal.boundary=[shared](auto b){shared->journal(b);};
     o.journal.raw.boundary=[shared](auto b){shared->rawBoundary(b);};
     check(window.configureNativeRecording(p),"PipeWire main-window context refused");control<QSpinBox>(panel,"nativeMonitorSeconds")->setValue(1);
+    auto *budget=control<QCheckBox>(panel,"nativeStorageEnabled");auto *ms=control<QSpinBox>(panel,"nativeStorageMilliseconds");
+    auto *minimumInput=control<QSpinBox>(panel,"nativeStorageCaptureMinimum"),*minimumOutput=control<QSpinBox>(panel,"nativeStorageRenderMinimum");
+    auto *storage=control<QLabel>(panel,"nativeStoragePreview");auto *prepare=control<QPushButton>(panel,"nativePrepare");
+    check(!budget->isChecked() && prepare->isEnabled(),"Legacy buffer configuration changed silently");budget->setChecked(true);panel.poll();
+    check(!prepare->isEnabled() && storage->text().contains("Choose"),"Unknown minimum block sizes allowed Prepare");
+    minimumInput->setValue(480);minimumOutput->setValue(480);ms->setValue(60000);panel.poll();
+    check(!prepare->isEnabled() && storage->text().contains("limit"),"Unsupported disk duration allowed Prepare");
+    panel.poll();check(!prepare->isEnabled(),"Timer forgot cached capacity refusal");
+    minimumOutput->setValue(481);ms->setValue(3000);panel.poll();check(!prepare->isEnabled(),"Output minimum above declared maximum allowed Prepare");
+    minimumOutput->setValue(480);
+    ms->setValue(3000);panel.poll();check(prepare->isEnabled() && storage->text().contains("302"),"Admitted disk budget/capacity preview missing");
+    auto estimatedOptions=o.route;estimatedOptions.rawSlots=estimatedOptions.receiptSlots=302;estimatedOptions.minimumCaptureFrames=estimatedOptions.minimumRenderFrames=480;estimatedOptions.storageStallMilliseconds=3000;
+    ResourceLedger previewCredit(64*1024*1024);estimatedOptions.resources=previewCredit;
+    const auto estimatedBytes=pipeWireRoutePayloadBytes(o.declared,estimatedOptions);check(!previewCredit.usage().reservedBytes,"Preview consumed prepared route credit");
     QTest::mouseClick(control<QPushButton>(panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Ready;});panel.poll();
+    check(panel.snapshot()->storageCapacity && panel.snapshot()->storageCapacity->rawSlots==302 && panel.snapshot()->routePayloadBytes==estimatedBytes &&
+          !budget->isEnabled() && !ms->isEnabled() && storage->text().contains("Prepared"),"Prepared route capacity/locking missing");
+    if(const char *capture=std::getenv("SC_STORAGE_PANEL_IMAGE")){QTest::qWait(20);check(panel.grab().save(QString::fromUtf8(capture)),"Storage panel screenshot failed");}
     check(panel.snapshot()->pipewireDeclared && !panel.snapshot()->declared && control<QCheckBox>(panel,"nativeMonitorEq")->isEnabled(),"PipeWire panel fabricated Native declaration or disabled monitor EQ");
     QTest::mouseClick(control<QPushButton>(panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireResult);});panel.poll();
     const auto final=panel.snapshot();
@@ -250,6 +268,7 @@ void pipewirePanel(const std::filesystem::path &root){
     check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && panel.busy() && control<QPushButton>(panel,"nativeExportOriginal")->isEnabled(),"PipeWire visible finite result/export unavailable");
     QTest::mouseClick(control<QPushButton>(panel,"nativeInspect"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireReopened);});panel.poll();
     check(control<QLabel>(panel,"nativeReceipt")->text().contains("verified"),"PipeWire saved inspection not displayed");
+    check(!panel.snapshot()->routePayloadBytes && storage->text().contains("Saved declaration"),"Reopened capacity implied an allocated audio route");
     std::filesystem::create_directory(root/"exports");check(panel.exportOriginal(root/"exports"/"raw.wav"),"PipeWire visible export refused");await([&]{return bool(panel.snapshot()->pipewireExported);});panel.poll();
     check(hashMediaFile(root/"exports"/"raw.wav")==hashMediaFile(final->job/"take.wav"),"Visible PipeWire export changed raw bytes");
     check(control<QPushButton>(panel,"nativeAddTake")->isEnabled(),"Verified PipeWire timeline admission control disabled");

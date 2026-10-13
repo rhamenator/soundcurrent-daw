@@ -67,6 +67,7 @@ Admission admit(PipeWireRecordingSpec s,PipeWireMonitorRouteOptions o){Admission
     a.bytes=charge.bytes();return a;
 }
 }
+std::size_t pipeWireRoutePayloadBytes(const PipeWireRecordingSpec &s,const PipeWireMonitorRouteOptions &o){return admit(s,o).bytes;}
 struct PreparedPipeWireMonitorRoute::State {
     ResourceLease lease;const Admission admitted;
     PreparedCaptureFanout capture;PreparedMonitorOutputBank output;PreparedMonitorClockHandoff clocks;PreparedMonitorControl control;

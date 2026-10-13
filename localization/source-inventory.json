@@ -28,10 +28,10 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/native_monitor_controller.cpp": "f8d76a14e5e2c1b0688c2bc48315875634807c4b34f063276c707a418ffef309",
-    "ui/native_monitor_controller.hpp": "24131223b23c2ea8a1661bc34a8a4ba83a9c4d128e3e23148b993711731dc508",
-    "ui/native_monitor_panel.cpp": "7cba49d6cf19bef5b63f701adade3257abbfaa80a6abaf111dac29114afc8868",
-    "ui/native_monitor_panel.hpp": "c26f13a0bc02de0d9d816b8f8e2f3716bce43cc9bb445bc685089af62069aa39",
+    "ui/native_monitor_controller.cpp": "3f3db13bea983bb7643ef3c44a9085b6e16e954544a7d4d112aeb5c31cb1f5aa",
+    "ui/native_monitor_controller.hpp": "945bc83bb8c759ce021ed9f38e826080588354b7b9711d88cab9859b3c763dab",
+    "ui/native_monitor_panel.cpp": "35edb18807cc7196559d3dcee6ff8a276c40381f8ff7ff1742d5bf752478bac4",
+    "ui/native_monitor_panel.hpp": "1ed7e19f30650f8a56689a3acb0f90fa198db164557fb285a2598e7e0d10b1f4",
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
@@ -2660,6 +2660,54 @@
     ],
     [
       "NativeMonitorPanel",
+      "Buffer for disk pauses",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Prepare a finite buffer before recording. Repeated pauses or a slow disk can still stop recording.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " ms",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Minimum input block (frames)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Minimum output block (frames)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Enter the smallest block allowed by your audio setup. Recording stops if an actual block is smaller. This is not the maximum block size.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Disk pause budget",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Enter a nonnegative project frame.",
       "",
       false
@@ -2757,6 +2805,60 @@
     [
       "NativeMonitorPanel",
       "Selected devices exceed the panel memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Prepared: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of prepared route payload.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "No disk-pause duration was declared for this take.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Disk-pause budgeting is not available for this audio route yet.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Using existing buffers. No disk-pause duration is declared.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose minimum input and output block sizes before preparing.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Plan: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of route payload. Block sizes will be checked while recording.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "This disk-pause budget exceeds the buffer or memory limit. Reduce the duration or change the audio setup.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "The minimum block sizes do not match the recording setup.",
       "",
       false
     ],

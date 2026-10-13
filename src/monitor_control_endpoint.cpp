@@ -34,6 +34,8 @@ class PipeWire final:public PreparedMonitorControlEndpoint {
     MonitorControlDeclaration declared() const override{return declared_;}
     MonitorOutputOrdinal first() const noexcept override{return first_;}
     const std::filesystem::path &jobDirectory() const noexcept override{return owner_.jobDirectory();}
+    std::optional<RecordingStorageCapacity> storageCapacity() const override{return owner_.storageCapacity();}
+    std::size_t routeChargedBytes() const noexcept override{return owner_.routeChargedBytes();}
     void activate() override{owner_.activate();}
     MonitorControlCode requestStopAt(MonitorOutputOrdinal n) noexcept override{return owner_.requestStopAt(n);}
     MonitorControlCode receiveStopReceipt(MonitorControlReceipt &r) noexcept override{return owner_.receiveStopReceipt(r);}

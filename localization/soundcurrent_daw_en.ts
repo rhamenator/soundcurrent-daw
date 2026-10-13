@@ -1782,6 +1782,38 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.</translation>
     </message>
     <message>
+      <source>Buffer for disk pauses</source>
+      <translation>Buffer for disk pauses</translation>
+    </message>
+    <message>
+      <source>Prepare a finite buffer before recording. Repeated pauses or a slow disk can still stop recording.</source>
+      <translation>Prepare a finite buffer before recording. Repeated pauses or a slow disk can still stop recording.</translation>
+    </message>
+    <message>
+      <source> ms</source>
+      <translation> ms</translation>
+    </message>
+    <message>
+      <source>Choose</source>
+      <translation>Choose</translation>
+    </message>
+    <message>
+      <source>Minimum input block (frames)</source>
+      <translation>Minimum input block (frames)</translation>
+    </message>
+    <message>
+      <source>Minimum output block (frames)</source>
+      <translation>Minimum output block (frames)</translation>
+    </message>
+    <message>
+      <source>Enter the smallest block allowed by your audio setup. Recording stops if an actual block is smaller. This is not the maximum block size.</source>
+      <translation>Enter the smallest block allowed by your audio setup. Recording stops if an actual block is smaller. This is not the maximum block size.</translation>
+    </message>
+    <message>
+      <source>Disk pause budget</source>
+      <translation>Disk pause budget</translation>
+    </message>
+    <message>
       <source>Enter a nonnegative project frame.</source>
       <translation>Enter a nonnegative project frame.</translation>
     </message>
@@ -1848,6 +1880,42 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Selected devices exceed the panel memory limit.</source>
       <translation>Selected devices exceed the panel memory limit.</translation>
+    </message>
+    <message>
+      <source>Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.</source>
+      <translation>Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.</translation>
+    </message>
+    <message>
+      <source>Prepared: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of prepared route payload.</source>
+      <translation>Prepared: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of prepared route payload.</translation>
+    </message>
+    <message>
+      <source>No disk-pause duration was declared for this take.</source>
+      <translation>No disk-pause duration was declared for this take.</translation>
+    </message>
+    <message>
+      <source>Disk-pause budgeting is not available for this audio route yet.</source>
+      <translation>Disk-pause budgeting is not available for this audio route yet.</translation>
+    </message>
+    <message>
+      <source>Using existing buffers. No disk-pause duration is declared.</source>
+      <translation>Using existing buffers. No disk-pause duration is declared.</translation>
+    </message>
+    <message>
+      <source>Choose minimum input and output block sizes before preparing.</source>
+      <translation>Choose minimum input and output block sizes before preparing.</translation>
+    </message>
+    <message>
+      <source>Plan: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of route payload. Block sizes will be checked while recording.</source>
+      <translation>Plan: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of route payload. Block sizes will be checked while recording.</translation>
+    </message>
+    <message>
+      <source>This disk-pause budget exceeds the buffer or memory limit. Reduce the duration or change the audio setup.</source>
+      <translation>This disk-pause budget exceeds the buffer or memory limit. Reduce the duration or change the audio setup.</translation>
+    </message>
+    <message>
+      <source>The minimum block sizes do not match the recording setup.</source>
+      <translation>The minimum block sizes do not match the recording setup.</translation>
     </message>
     <message>
       <source>Recording is unavailable.</source>
