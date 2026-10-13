@@ -39,7 +39,7 @@ preparation discards the audition source and restores the arrangement/loop inten
 
 ## Acceptance scope
 
-The controller corpus passes 93 checks, including transient source/provenance,
+The controller corpus passes 92 checks, including transient source/provenance,
 no activation during preparation, finite audition despite a project loop, live EQ
 acknowledgement, changed-take/project refusal, Stop/shutdown, and return to ordinary
 arrangement preparation. Its endpoint fixture qualifies controller ownership and
