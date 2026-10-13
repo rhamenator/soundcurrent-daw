@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+#include "native_controller_wait_evidence.hpp"
 #include <soundcurrent/native_monitor_recording.hpp>
 #include <soundcurrent/wasapi_render_lifecycle.hpp>
 #include "../src/media_io.hpp"
@@ -28,7 +29,8 @@ struct Temp {
     Temp() { std::filesystem::create_directory(root); }
     ~Temp() {
         if (std::uncaught_exceptions()) { const auto s = root.generic_u8string();
-            std::cerr << "Retained native owner fixture: " << std::string(reinterpret_cast<const char *>(s.data()), s.size()) << '\n'; return; }
+            std::cerr << "Retained native owner fixture: " << std::string(reinterpret_cast<const char *>(s.data()), s.size()) << '\n';
+            std::cerr << "preserved_failure_project=" << std::string(reinterpret_cast<const char *>(s.data()), s.size()) << '\n'; return; }
         std::error_code e; std::filesystem::remove_all(root, e);
     }
 };
@@ -62,10 +64,6 @@ void rawBits(const NativeOriginalRecordingPrefix &prefix) {
     }
 }
 using namespace soundcurrent::daw::ui;
-template<class F> void controlAwait(F f) {
-    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(5);
-    while(!f()) {if(std::chrono::steady_clock::now()>=deadline)throw std::runtime_error("Native desktop control wait exceeded original five seconds");std::this_thread::sleep_for(std::chrono::milliseconds(1));}
-}
 std::shared_ptr<NativeMonitorPreparation> controlPreparation(Temp &temp,const std::shared_ptr<Spy> &spy,bool eq=true) {
     auto session=makeOneTrackSession("Studio – Ελληνικά","Prise – é");
     session.tracks.front().layout={LayoutKind::Mono,1};ProjectStore(temp.root).save(session);
@@ -81,38 +79,38 @@ void controllerFinite() {
     NativeMonitorController controller({[&](const auto &){correctThread.store(std::this_thread::get_id()!=gui);return std::make_unique<FakeStreams>(spy,48000,1,true);}});
     auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;
     check(controller.submit(prepare)==NativeMonitorAdmission::Accepted,"Controller preparation queue rejected");
-    controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Ready;});
+    controlAwait({controller,spy.get(),"finite/prepared-ready"},[&]{return controller.snapshot()->phase==NativeMonitorPhase::Ready;});
     auto ready=controller.snapshot();check(correctThread.load() && ready->declared && !ready->progress.rawAcceptedFrames && std::filesystem::exists(ready->job/"native-run.json"),"Controller preparation touched GUI or skipped pending state");
     auto stale=controlCommand(NativeMonitorCommandKind::Activate);stale.generation=98;stale.end={9216};
-    controller.submit(stale);controlAwait([&]{return controller.snapshot()->completedCommands==2;});
+    controller.submit(stale);controlAwait({controller,spy.get(),"finite/command-completed"},[&]{return controller.snapshot()->completedCommands==2;});
     check(controller.snapshot()->phase==NativeMonitorPhase::Ready && !spy->captureActive.load(),"Stale native generation activated a device");
     auto edit=controlCommand(NativeMonitorCommandKind::Equalizer);edit.revision=1;edit.equalizer=p->options.route.equalizer->settings;edit.equalizer->bands[0].gainDb=12;
     edit.parameter=ParameterAddress{p->options.route.equalizer->track,edit.equalizer->id,edit.equalizer->bands[0].id,BandParameter::GainDb};
-    controller.submit(edit);controlAwait([&]{return controller.snapshot()->acceptedEqRevision==1;});
+    controller.submit(edit);controlAwait({controller,spy.get(),"finite/eq-accepted"},[&]{return controller.snapshot()->acceptedEqRevision==1;});
     auto activate=controlCommand(NativeMonitorCommandKind::Activate);activate.end={9216};controller.submit(activate);
-    controlAwait([&]{return bool(controller.snapshot()->result);});auto final=controller.snapshot();joined(*spy);
+    controlAwait({controller,spy.get(),"finite/recording-result"},[&]{return bool(controller.snapshot()->result);});auto final=controller.snapshot();joined(*spy);
     check(final->phase==NativeMonitorPhase::Result && final->result->disposition==NativeMonitorRecordingDisposition::Complete && final->appliedEqRevision==1 && final->applied && final->applied->frame==0 && final->stop && final->stop->result==MonitorControlResult::Planned,"Controller lost completed native end or applied parameter receipt");
     check(final->result->prefix && spy->outputPeak>7 && spy->outputPeak<12,"Controller EQ edit did not affect monitor output");rawBits(*final->result->prefix);
-    controller.submit(prepare);controlAwait([&]{return controller.snapshot()->errorSerial>final->errorSerial;});
+    controller.submit(prepare);controlAwait({controller,spy.get(),"finite/command-error"},[&]{return controller.snapshot()->errorSerial>final->errorSerial;});
     check(controller.snapshot()->result==final->result && controller.snapshot()->resultSequence==final->resultSequence,"Pending native result overwritten by new preparation");
-    controller.submit(controlCommand(NativeMonitorCommandKind::Inspect));controlAwait([&]{return bool(controller.snapshot()->reopened);});
+    controller.submit(controlCommand(NativeMonitorCommandKind::Inspect));controlAwait({controller,spy.get(),"finite/reopened-original"},[&]{return bool(controller.snapshot()->reopened);});
     check(controller.snapshot()->reopened->raw.sampleSha256==final->result->prefix->raw.sampleSha256 && ProjectStore(temp.root).load()==original,"Controller reopen changed raw/project state or attached an unaligned Asset");
     auto release=controlCommand(NativeMonitorCommandKind::ReleaseResult);release.resultSequence=final->resultSequence+1;
-    const auto errors=controller.snapshot()->errorSerial;controller.submit(release);controlAwait([&]{return controller.snapshot()->errorSerial>errors;});check(controller.snapshot()->result==final->result,"Future result sequence released retained take");
-    release.resultSequence=final->resultSequence;controller.submit(release);controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Idle;});
-    controller.requestShutdown();controlAwait([&]{return controller.snapshot()->phase==NativeMonitorPhase::Closed;});
+    const auto errors=controller.snapshot()->errorSerial;controller.submit(release);controlAwait({controller,spy.get(),"finite/command-error"},[&]{return controller.snapshot()->errorSerial>errors;});check(controller.snapshot()->result==final->result,"Future result sequence released retained take");
+    release.resultSequence=final->resultSequence;controller.submit(release);controlAwait({controller,spy.get(),"finite/release-original"},[&]{return controller.snapshot()->phase==NativeMonitorPhase::Idle;});
+    controller.requestShutdown();controlAwait({controller,spy.get(),"finite/shutdown-closed"},[&]{return controller.snapshot()->phase==NativeMonitorPhase::Closed;});
     check(controller.submit(prepare)==NativeMonitorAdmission::Closing,"Closed native controller admitted transport");
     ResourceLedger originalMemory(16*1024*1024,"Retained saved native original");NativeMonitorControllerOptions inactive;inactive.commandMemory=originalMemory;
     NativeMonitorController fresh(std::move(inactive));auto open=controlCommand(NativeMonitorCommandKind::ReopenOriginal);
     open.generation=1;open.root=temp.root;open.job=final->job;open.project=original.id;
     check(fresh.submit(open)==NativeMonitorAdmission::Accepted,"Fresh saved take queue refused");
-    controlAwait([&]{if(fresh.snapshot()->error)throw std::runtime_error(fresh.snapshot()->diagnostic);return bool(fresh.snapshot()->reopened);});
+    controlAwait({fresh,nullptr,"finite/reopened-original"},[&]{if(fresh.snapshot()->error)throw std::runtime_error(fresh.snapshot()->diagnostic);return bool(fresh.snapshot()->reopened);});
     auto held=fresh.snapshot();check(!held->result && held->reopened->raw.sampleSha256==final->result->prefix->raw.sampleSha256 && originalMemory.usage().reservedBytes,
         "Saved take invented a live result or lost original/credit");
     auto keep=controlCommand(NativeMonitorCommandKind::ReleaseResult);keep.generation=1;keep.resultSequence=held->resultSequence;
-    fresh.submit(keep);controlAwait([&]{return fresh.snapshot()->phase==NativeMonitorPhase::Unsupported;});
-    check(originalMemory.usage().reservedBytes>0,"Held saved take snapshot released credit early");held.reset();controlAwait([&]{return !originalMemory.usage().reservedBytes;});
-    fresh.requestShutdown();controlAwait([&]{return fresh.snapshot()->phase==NativeMonitorPhase::Closed;});
+    fresh.submit(keep);controlAwait({fresh,nullptr,"finite/release-original"},[&]{return fresh.snapshot()->phase==NativeMonitorPhase::Unsupported;});
+    check(originalMemory.usage().reservedBytes>0,"Held saved take snapshot released credit early");held.reset();controlAwait({fresh,nullptr,"finite/credit-retired"},[&]{return !originalMemory.usage().reservedBytes;});
+    fresh.requestShutdown();controlAwait({fresh,nullptr,"finite/shutdown-closed"},[&]{return fresh.snapshot()->phase==NativeMonitorPhase::Closed;});
     std::cout<<"native_saved_prefix no_sdk=true exact_original=true retained_credit=true last_consumer_release=true\n";
     std::cout<<"native_desktop_controller finite=true monitor_eq=true raw_bits_exact=true reopen=true result_retention=true off_gui=true simulated_sdk=true\n";
 }
@@ -126,11 +124,11 @@ void controllerCancelAndFailure() {
         if(kind==3)p->options.recording.raw.boundary=[](OriginalRecordingBoundary b){if(b==OriginalRecordingBoundary::BeforeAudioWrite)throw ProjectError(ErrorCode::InvalidState,"controller disk failure");};
         NativeMonitorController c({[spy](const auto &){return std::make_unique<FakeStreams>(spy);}});
         auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;c.submit(prepare);
-        controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Ready;});
-        if(kind){auto start=controlCommand(NativeMonitorCommandKind::Activate);start.end={9216};c.submit(start);if(kind==1 || kind>=5)controlAwait([&]{return c.snapshot()->progress.rawAcceptedFrames>0;});}
-        if(kind<2 || kind==5 || kind==6){const auto token=c.requestCancel();controlAwait([&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result);});}
-        else if(kind==7){c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});}
-        else controlAwait([&]{return bool(c.snapshot()->result);});
+        controlAwait({c,spy.get(),"cancel-and-failure/prepared-ready",kind},[&]{return c.snapshot()->phase==NativeMonitorPhase::Ready;});
+        if(kind){auto start=controlCommand(NativeMonitorCommandKind::Activate);start.end={9216};c.submit(start);if(kind==1 || kind>=5)controlAwait({c,spy.get(),"cancel-and-failure/capture-progress",kind},[&]{return c.snapshot()->progress.rawAcceptedFrames>0;});}
+        if(kind<2 || kind==5 || kind==6){const auto token=c.requestCancel();controlAwait({c,spy.get(),"cancel-and-failure/cancel-result",kind},[&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result);});}
+        else if(kind==7){c.requestShutdown();controlAwait({c,spy.get(),"cancel-and-failure/shutdown-closed",kind},[&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});}
+        else controlAwait({c,spy.get(),"cancel-and-failure/recording-result",kind},[&]{return bool(c.snapshot()->result);});
         const auto s=c.snapshot();joined(*spy);
         check(s->result->disposition==(kind<2 || kind==7?NativeMonitorRecordingDisposition::Cancelled:NativeMonitorRecordingDisposition::Failed) && s->result->prefix,"Controller cancelled/failed outcome lost durable native prefix");
         if(kind==2)check(bool(s->result->activationFailure),"Controller partial activation lost original cause");
@@ -138,7 +136,7 @@ void controllerCancelAndFailure() {
         if(kind==4)check(bool(s->result->processingFault),"Controller automatic processing failure lost its terminal cause");
         if(kind==5)check(!s->result->native.captureOriginal,"Controller invented missing capture-end evidence");
         if(kind==6)check(!s->result->native.render.original,"Controller invented missing render-end evidence");
-        c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});check(c.snapshot()->result==s->result,"Controller shutdown discarded retained native outcome");
+        c.requestShutdown();controlAwait({c,spy.get(),"cancel-and-failure/shutdown-closed",kind},[&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});check(c.snapshot()->result==s->result,"Controller shutdown discarded retained native outcome");
     }
     std::cout<<"native_desktop_controller cancel_prepared=true cancel_active=true partial_activation=true disk_failure=true clock_failure=true missing_native_ends=true active_shutdown=true results_survive_close=true simulated_sdk=true\n";
 }
@@ -147,18 +145,18 @@ void controllerQueueAndIdentity() {
     std::atomic<bool> entered{false},release{false};
     NativeMonitorController c({[&](const auto &){entered=true;while(!release.load())std::this_thread::sleep_for(std::chrono::milliseconds(1));return std::make_unique<FakeStreams>(spy);}});
     struct Unblock {std::atomic<bool> &r;~Unblock(){r=true;}} unblock{release};
-    auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;c.submit(prepare);controlAwait([&]{return entered.load();});
+    auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;c.submit(prepare);controlAwait({c,spy.get(),"queue/factory-entered"},[&]{return entered.load();});
     for(unsigned n=0;n<16;++n)check(c.submit(controlCommand(NativeMonitorCommandKind::Activate))==NativeMonitorAdmission::Accepted,"Native desktop queue capacity shrank");
     check(c.submit(prepare)==NativeMonitorAdmission::Full,"Native desktop queue overwrote queued command");
     const auto token=c.requestCancel();release=true;
-    controlAwait([&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result);});
+    controlAwait({c,spy.get(),"queue/cancel-result"},[&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result);});
     check(!spy->captureActive.load() && c.snapshot()->result->disposition==NativeMonitorRecordingDisposition::Cancelled,"Urgent Cancel did not invalidate queued activation");joined(*spy);
-    c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
+    c.requestShutdown();controlAwait({c,spy.get(),"queue/shutdown-closed"},[&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
     NativeMonitorController unsupported;check(unsupported.snapshot()->phase==NativeMonitorPhase::Unsupported,"Unavailable platform gained a native factory");unsupported.requestShutdown();
     std::atomic<unsigned> calls{0};NativeMonitorController wrong({[&](const auto &){++calls;return std::make_unique<FakeStreams>(std::make_shared<Spy>());}});
     auto foreign=std::make_shared<NativeMonitorPreparation>(*p);foreign->options.raw.project=Id::generate();prepare.preparation=foreign;wrong.submit(prepare);
-    controlAwait([&]{return wrong.snapshot()->errorSerial>0;});check(!calls.load() && wrong.snapshot()->job.empty(),"Foreign project reached SDK preparation or pending publication");
-    wrong.requestShutdown();controlAwait([&]{return wrong.snapshot()->phase==NativeMonitorPhase::Closed;});
+    controlAwait({wrong,nullptr,"queue/command-error"},[&]{return wrong.snapshot()->errorSerial>0;});check(!calls.load() && wrong.snapshot()->job.empty(),"Foreign project reached SDK preparation or pending publication");
+    wrong.requestShutdown();controlAwait({wrong,nullptr,"queue/shutdown-closed"},[&]{return wrong.snapshot()->phase==NativeMonitorPhase::Closed;});
     std::cout<<"native_desktop_controller command_capacity=16 urgent_cancel=true stale_transport_refused=true project_identity=true simulated_sdk=true\n";
 }
 
@@ -167,13 +165,13 @@ void controllerInventoryAdmission() {
     NativeMonitorControllerOptions options;options.inventoryMemory=memory;
     options.inventory=[&]{++queries;AudioPort port;port.nodeName="Microphone – é";port.deviceIdentity="microphone-id";port.backendId="wasapi";port.nativeChannels=1;port.sampleRate=48000;return std::vector<AudioPort>{port};};
     NativeMonitorController c(std::move(options));NativeMonitorCommand refresh;refresh.kind=NativeMonitorCommandKind::RefreshDevices;
-    check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Worker inventory command refused");controlAwait([&]{return c.snapshot()->inventoryRevision==1;});
+    check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Worker inventory command refused");controlAwait({c,nullptr,"inventory/inventory-publication"},[&]{return c.snapshot()->inventoryRevision==1;});
     auto first=c.snapshot();const auto usage=memory.usage();check(first->ports && first->ports->size()==1 && usage.reservedBytes && usage.owners==1,"Retained worker inventory has no payload ownership credit");
-    memory.configure(usage.reservedBytes);check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Inventory quota probe command refused");controlAwait([&]{return c.snapshot()->errorSerial>0;});
+    memory.configure(usage.reservedBytes);check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Inventory quota probe command refused");controlAwait({c,nullptr,"inventory/command-error"},[&]{return c.snapshot()->errorSerial>0;});
     check(c.snapshot()->inventoryRevision==1 && c.snapshot()->ports==first->ports && memory.usage().reservedBytes==usage.reservedBytes,"Inventory quota failure replaced old projection or leaked credit");
-    memory.configure(64*1024);check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Inventory refresh retry refused");controlAwait([&]{return c.snapshot()->inventoryRevision==2;});
-    check(memory.usage().owners==2 && queries==3,"Inventory replacement released a still-held immutable projection");first.reset();controlAwait([&]{return memory.usage().owners==1;});
-    c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
+    memory.configure(64*1024);check(c.submit(refresh)==NativeMonitorAdmission::Accepted,"Inventory refresh retry refused");controlAwait({c,nullptr,"inventory/inventory-publication"},[&]{return c.snapshot()->inventoryRevision==2;});
+    check(memory.usage().owners==2 && queries==3,"Inventory replacement released a still-held immutable projection");first.reset();controlAwait({c,nullptr,"inventory/credit-retired"},[&]{return memory.usage().owners==1;});
+    c.requestShutdown();controlAwait({c,nullptr,"inventory/shutdown-closed"},[&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
     std::cout<<"native_inventory worker_projection=true quota_preserves_previous=true held_projection_credit=true simulated_sdk=true\n";
 }
 void controllerPayloadAdmission() {
@@ -184,7 +182,7 @@ void controllerPayloadAdmission() {
     struct Unblock {std::atomic<bool> &r;~Unblock(){r=true;}} unblock{release};
     auto prepare=controlCommand(NativeMonitorCommandKind::Prepare);prepare.preparation=p;
     check(c.submit(prepare)==NativeMonitorAdmission::Accepted,"Native payload credit refused valid preparation");
-    controlAwait([&]{return entered.load();});const auto held=credit.usage();check(held.owners==1 && held.reservedBytes>sizeof(NativeMonitorPreparation) && parent.usage().reservedBytes==held.reservedBytes,"Native accepted command has no live aggregate payload credit");
+    controlAwait({c,spy.get(),"payload/factory-entered"},[&]{return entered.load();});const auto held=credit.usage();check(held.owners==1 && held.reservedBytes>sizeof(NativeMonitorPreparation) && parent.usage().reservedBytes==held.reservedBytes,"Native accepted command has no live aggregate payload credit");
     credit.configure(held.reservedBytes);const auto full=credit.usage();const auto before=c.snapshot();
     check(c.submit(controlCommand(NativeMonitorCommandKind::Activate))==NativeMonitorAdmission::ResourceLimit && credit.usage()==full && c.snapshot()==before,"Quota refusal mutated commands/snapshot or resource usage");
     auto bad=controlCommand(NativeMonitorCommandKind::Equalizer);bad.equalizer=EqSettings{};bad.equalizer->bands.resize(65);
@@ -196,9 +194,9 @@ void controllerPayloadAdmission() {
     check(c.submit(bad)==NativeMonitorAdmission::Invalid && credit.usage()==validLimit,"Malformed native port identity bypassed payload admission");
     auto embedded=std::make_shared<NativeMonitorPreparation>(*p);embedded->outputs.emplace_back();embedded->outputs.front().deviceIdentity=std::string("x\0y",3);bad.preparation=embedded;
     check(c.submit(bad)==NativeMonitorAdmission::Invalid && credit.usage()==validLimit,"Embedded native identity terminator bypassed admission");
-    const auto token=c.requestCancel();release=true;controlAwait([&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result) && !credit.usage().reservedBytes;});joined(*spy);
+    const auto token=c.requestCancel();release=true;controlAwait({c,spy.get(),"payload/cancel-result"},[&]{return c.snapshot()->cancelAcknowledged==token && bool(c.snapshot()->result) && !credit.usage().reservedBytes;});joined(*spy);
     check(!spy->captureActive.load() && !credit.usage().owners && !parent.usage().reservedBytes,"Urgent Cancel failed at quota or leaked current/queued command credit");
-    c.requestShutdown();controlAwait([&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
+    c.requestShutdown();controlAwait({c,spy.get(),"payload/shutdown-closed"},[&]{return c.snapshot()->phase==NativeMonitorPhase::Closed;});
     struct CopyWitness {
         std::shared_ptr<std::atomic<unsigned>> copies;
         explicit CopyWitness(std::shared_ptr<std::atomic<unsigned>> c):copies(std::move(c)){}
@@ -210,7 +208,7 @@ void controllerPayloadAdmission() {
     NativeMonitorController refused({[&](const auto &){++refusedFactoryCalls;return std::make_unique<FakeStreams>(std::make_shared<Spy>());},tiny});
     check(refused.submit(prepare)==NativeMonitorAdmission::ResourceLimit && !tiny.usage().reservedBytes && !copies->load(),"Native payload copied before byte admission");
     const auto idle=refused.snapshot();check(!refusedFactoryCalls.load() && idle->phase==NativeMonitorPhase::Idle && !idle->generation && !idle->completedCommands && idle->job.empty(),"Native refused payload reached factory/commands/pending state");refused.requestShutdown();
-    controlAwait([&]{return refused.snapshot()->phase==NativeMonitorPhase::Closed;});
+    controlAwait({refused,nullptr,"payload/shutdown-closed"},[&]{return refused.snapshot()->phase==NativeMonitorPhase::Closed;});
     std::cout<<"native_command_payload aggregate_credit=true shape_bounds=true unchanged_refusal=true cancel_at_quota=true release_after_processing=true simulated_sdk=true\n";
 }
 
