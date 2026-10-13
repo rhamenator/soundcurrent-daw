@@ -233,7 +233,17 @@ void pipewirePanel(const std::filesystem::path &root){
     QTest::mouseClick(control<QPushButton>(panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Ready;});panel.poll();
     check(panel.snapshot()->pipewireDeclared && !panel.snapshot()->declared && control<QCheckBox>(panel,"nativeMonitorEq")->isEnabled(),"PipeWire panel fabricated Native declaration or disabled monitor EQ");
     QTest::mouseClick(control<QPushButton>(panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireResult);});panel.poll();
-    const auto final=panel.snapshot();check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && panel.busy() && control<QPushButton>(panel,"nativeExportOriginal")->isEnabled(),"PipeWire visible finite result/export unavailable");
+    const auto final=panel.snapshot();
+    if(final->pipewireResult->disposition!=PipeWireRecordingDisposition::Recorded){const auto &r=*final->pipewireResult;std::ofstream saved(root/"pipewire-panel-diagnostic.log",std::ios::binary);
+        for(auto *out:{&std::cerr,static_cast<std::ostream *>(&saved)}){
+            *out<<"pipewire_panel disposition="<<int(r.disposition)<<" raw="<<(r.prefix?r.prefix->raw.committedFrames:0)<<" terminalStored="<<r.terminalStored
+                <<" processing="<<(r.processingFault?int(r.processingFault->cause):-1)<<" fanout="<<(r.fanoutFault?int(r.fanoutFault->cause):-1)
+                <<" captureClock="<<bool(r.captureClockFault)<<" renderClock="<<bool(r.renderClockFault)<<" drift="<<bool(r.clockFault)
+                <<" captureReceipt="<<bool(r.captureReceiptFault)<<" renderReceipt="<<bool(r.renderReceiptFault)<<" startup="<<bool(r.startup)
+                <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)<<" waitFailure="<<r.waitFailure<<'\n';
+            for(const auto &failure:{r.activationFailure,r.diskFailure,r.storageFailure,r.recoveryFailure,r.terminalFailure})if(failure)try{std::rethrow_exception(failure);}catch(const std::exception &e){*out<<"exception="<<e.what()<<'\n';}
+        }}
+    check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && panel.busy() && control<QPushButton>(panel,"nativeExportOriginal")->isEnabled(),"PipeWire visible finite result/export unavailable");
     QTest::mouseClick(control<QPushButton>(panel,"nativeInspect"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireReopened);});panel.poll();
     check(control<QLabel>(panel,"nativeReceipt")->text().contains("verified"),"PipeWire saved inspection not displayed");
     std::filesystem::create_directory(root/"exports");check(panel.exportOriginal(root/"exports"/"raw.wav"),"PipeWire visible export refused");await([&]{return bool(panel.snapshot()->pipewireExported);});panel.poll();
