@@ -1,0 +1,84 @@
+{
+  "sourceCommit": "7b67b539a149789e888896fe2fc1b248b672c69c",
+  "sourceTree": "9146fdd4c05f8a5e726e5b6f52447dd83f4bfd51",
+  "originalRun": 38448279083,
+  "fullRunSuccess": true,
+  "archiveBytes": 250949,
+  "archiveSha256": "3973f52b73dc6e7457758e7be346b0adbb384e8d8cd11ad5c9edbd5f5ae0ca4f",
+  "files": {
+    "native-review.json": {
+      "bytes": 979,
+      "sha256": "0193e7a1b65647782bcf0730c2c414f7c1dcddc3333a548738fdbe85299ed393"
+    },
+    "media-qualification.json": {
+      "bytes": 1304,
+      "sha256": "2a11ecb0cced25eed61b0a975638e3224f9d920bf056fffe35a702a7b62c67dc"
+    },
+    "helper-records.json": {
+      "bytes": 18459,
+      "sha256": "f80e196da5c1e0deb28dde894ac3186be1775a37c95a841683d734eb43abbfde"
+    },
+    "qualify-media.py": {
+      "bytes": 3536,
+      "sha256": "a100e6f83d832e2034786ca0de9d57d70f2d16b3a486a3c0c7790a7e3fbdb988"
+    },
+    "qualify-helpers.py": {
+      "bytes": 7744,
+      "sha256": "33642df42dadb1266d0ff6d81ffd311686c79f873d2f667707f0aca0999b221b"
+    },
+    "run-guest-checks.ps1": {
+      "bytes": 1305,
+      "sha256": "abd52ad7ad6e59713b99d269f783a1adff7f3177384923cf08eac828641a8b0b"
+    },
+    "guest-checks.log": {
+      "bytes": 454,
+      "sha256": "871c124c81d031ce0b3b253a86d038ad9e7c070adf26d164d5781a0b0c61201a"
+    },
+    "run.json": {
+      "bytes": 13771,
+      "sha256": "5346a56ba726435865af08f53ed6eac62930ac18b3860048010f44ad9dc61a77"
+    },
+    "jobs.json": {
+      "bytes": 14599,
+      "sha256": "130628f0bde768c8200900b378b630fca2e8c75f14b496063231bcf0bb3f60da"
+    },
+    "job-115472297363.log": {
+      "bytes": 1349603,
+      "sha256": "b1e3104f6f2768cb0e25f5dc24747f0acfb6a8a0d18583f6b50a6480bd13e8aa"
+    },
+    "job-115472297842.log": {
+      "bytes": 257152,
+      "sha256": "0e09feed743e5073d10e0831ba75026f0fa7bce4aaebefd404799941eebf75a9"
+    },
+    "job-115472297843.log": {
+      "bytes": 98559,
+      "sha256": "80c6d8f66a19cdbb2c45a0ece1b10df636c65e926b22837281b717079a58a912"
+    },
+    "job-115472297781.log": {
+      "bytes": 1277634,
+      "sha256": "e68509cb1f90b4840ff9c172b78b52315d7980c20ffde27c5fa93ca67848ad7c"
+    },
+    "sndfile-build-CMakeCache.txt": {
+      "bytes": 34857,
+      "sha256": "ff4ecb13cf5a71e20ee400a61d307514830bd4b0dd749ea05e5818873f0f511d"
+    },
+    "sndfile-build-build.ninja": {
+      "bytes": 113971,
+      "sha256": "6d65dd9a6cbca597cb120d578ba9b69ba81464a8e2a9a84211f3eaf7f45d2207"
+    },
+    "sndfile-repeat-CMakeCache.txt": {
+      "bytes": 34861,
+      "sha256": "1d9190be5243afe4c76bb5b4ed4eb57c3d41c4138f6180bf1f2a3d296abc75c2"
+    },
+    "sndfile-repeat-build.ninja": {
+      "bytes": 114173,
+      "sha256": "970fdfbe77b46b8fb045d43a87e6668747600d58547e5ffb28543560592612e9"
+    }
+  },
+  "nativeAudio": false,
+  "mainWindowQualified": false,
+  "installerQualified": false,
+  "sameEnvironmentByteIdentical": true,
+  "crossMachineReproducible": false,
+  "binaryArtifactsPublished": false
+}
