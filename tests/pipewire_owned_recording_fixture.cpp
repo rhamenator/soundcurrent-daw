@@ -135,6 +135,9 @@ int main(){std::filesystem::path root;
         require(history.structural({owner.snapshot()->admission->edit()}) && placed.assets.front().nativeEvidence.size()==8 && placed.tracks.front().clips.front().startFrame==257,"Genuine take lost placement/evidence");
         ProjectStore(root).save(placed);ProjectStore(root).verifyMedia(placed);require(ProjectStore(root).load()==placed,"Genuine admitted take did not reopen");
         admittedPlayback(root,placed);
+        owner.requestShutdown();const auto closedUntil=std::chrono::steady_clock::now()+std::chrono::seconds(3);
+        while(owner.snapshot()->phase!=ui::NativeMonitorPhase::Closed && std::chrono::steady_clock::now()<closedUntil)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        require(owner.snapshot()->phase==ui::NativeMonitorPhase::Closed,"Recording controller did not retire before playback fixture cleanup");
         std::cout<<"owned_recording raw_frames="<<result.prefix->raw.committedFrames<<" monitor_frames="<<frames<<" sink_frames="<<sink.received
                  <<" capture_receipts="<<result.prefix->captureRecords<<" render_receipts="<<result.prefix->renderRecords<<" raw_bit_checks="<<result.prefix->raw.committedFrames
                  <<" capture_callbacks="<<captureAudit.callbacks<<" render_callbacks="<<renderAudit.callbacks<<" monitor_mean="<<mean<<" monitor_ac_rms="<<std::sqrt(energy/4800)
