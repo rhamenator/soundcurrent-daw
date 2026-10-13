@@ -11,6 +11,7 @@
 #include <QScrollBar>
 #include <QDir>
 #include <QPixmap>
+#include <QRawFont>
 #include <QCheckBox>
 #include <QPushButton>
 #include <QTimer>
@@ -28,6 +29,13 @@ template<class T> T *widget(QObject &parent,const char *name) {
 int main(int argc,char **argv) {
     QApplication app(argc,argv);
     try {
+        // Geometry with missing-glyph boxes is not usable UI evidence. Check the
+        // real resolved application font before opening or capturing the dialog.
+        const auto font=QRawFont::fromFont(app.font());
+        check(font.isValid(),"Crossfade test has no resolved application font");
+        for(char c='!';c<='~';++c)
+            check(font.supportsCharacter(uint(c)),"Crossfade test font cannot render English controls");
+        std::cout<<"crossfade_font_family="<<font.familyName().toStdString()<<'\n';
         auto session=makeOneTrackSession("Crossfade UI", "Track");
         Asset asset;asset.relativePath="media/owned.wav";asset.sha256=std::string(64,'a');asset.frames=4096;
         Clip out,in;out.assetId=in.assetId=asset.id;
