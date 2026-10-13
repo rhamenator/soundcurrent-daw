@@ -1,0 +1,161 @@
+{
+  "source": "da478ceadec935367bc81fecb49e40ed919e9d71",
+  "inputs": 839,
+  "results": {
+    "nativeLinux": {
+      "sdk": "PipeWire1.6.2",
+      "private": true,
+      "physical": false,
+      "recordRaw": 99072,
+      "monitorSink": 8192,
+      "captureReceipts": 387,
+      "renderReceipts": 408,
+      "playbackFrames": 8192,
+      "leadingSilence": 257,
+      "maxLiveOfflineError": 0,
+      "missingFrames": 0,
+      "callbackAudit": 0,
+      "canonicalReopen": true,
+      "readerAndOwnersJoined": true
+    },
+    "windowsNativePlayback": "pending",
+    "sanitizersCurrentPlaybackFixture": "pending",
+    "fullParity": "active incomplete"
+  },
+  "payload": "text/log/config/metadata/hash only; original archives remain local",
+  "members": {
+    "e-906be301a25b186e911b.gz": {
+      "label": "build.log",
+      "bytes": 3122,
+      "sha256": "3e02bb98e0c056f21839a96e046650afeb3561f1508bd9038d2596a25decfa2a",
+      "originalBytes": 23650,
+      "originalSha256": "0364e1db5b5c967e18e66cf005d79c614535d1ea2ac15a37640329a99f31b942"
+    },
+    "e-a141eb8d2cc496eaf0ae.gz": {
+      "label": "configure.log",
+      "bytes": 870,
+      "sha256": "7c59e5f9f19830e2197d4e1bfc57945217ba04696669069cd99393d64a3e3517",
+      "originalBytes": 2042,
+      "originalSha256": "8e9cbfb7af1fecf8c3bee24f8f47b73005298361ddfeca92b5f07911e74e709d"
+    },
+    "e-e689c4490751e8adf1a6.gz": {
+      "label": "final-build.log",
+      "bytes": 42,
+      "sha256": "7a7f8c5219ab0a956821ca08fe2658041fa26a876fdc042bb835565b5992ca02",
+      "originalBytes": 22,
+      "originalSha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    "e-cfe19f95a6a66c1f4d9a.gz": {
+      "label": "freeze-inputs.py",
+      "bytes": 833,
+      "sha256": "c05b1e77ce1c3e5f5a4c77a619a70b155ae030a9529360ba1a2aea1c47e4442d",
+      "originalBytes": 1724,
+      "originalSha256": "d98dc433be6d9dcaf9ed2202b06a7ca55535126109fec7f7223f9a7d0425dc26"
+    },
+    "e-5a289cd55a7bfaa39b83.gz": {
+      "label": "frozen-inputs.json",
+      "bytes": 99398,
+      "sha256": "06492010adb5654142aeabc7964c83db375d52c4188e6274fcd62992f1bc148d",
+      "originalBytes": 692010,
+      "originalSha256": "334d0ff83b69e3c96e711c0b51254d30063219863803dc54a47083cb810ae223"
+    },
+    "e-4d731d8eadcf8cdca7a8.gz": {
+      "label": "geometry-check.json",
+      "bytes": 161,
+      "sha256": "88cdbe718b37e7a692becbf504d6e102aada00c1df78968845385caa2288dfe1",
+      "originalBytes": 206,
+      "originalSha256": "faee38e5120ed64e67977c425bc66c71c38d2732eeae79200596ebfb40ae4bd2"
+    },
+    "e-45d534465fe3a828bd3c.gz": {
+      "label": "package-evidence.py",
+      "bytes": 904,
+      "sha256": "bf1458948107554645db433923a67d90c80a0b591b7a63f2a7a0bca2a36c426a",
+      "originalBytes": 1729,
+      "originalSha256": "499b60ea9aaf6b715760bc598fd7e2c8b67b56026e4e3e734400a8805ab772ab"
+    },
+    "e-d44898648faa52b4c326.gz": {
+      "label": "private-pipewire.conf",
+      "bytes": 325,
+      "sha256": "f0f7c30578bb3c6a49979c9805a746c42a3c3a3cb5033f89792cef9bf8bdb6fc",
+      "originalBytes": 757,
+      "originalSha256": "076a0c8de0e2dec4f317e933ca3af755b08d07370450b9b7a223e1781ac555b9"
+    },
+    "e-9afe69ed9abbf344cbe1.gz": {
+      "label": "recording-owned-daemon.log",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "originalBytes": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e-909433859e2802ecd027.gz": {
+      "label": "recording-owned-runtime.json",
+      "bytes": 381,
+      "sha256": "79b11da9d298eefbccb5a8574e75f47ae695b5493e884247660cc67d93b92265",
+      "originalBytes": 572,
+      "originalSha256": "39c27be6ae53d22e98c99f0e1af4f718f5d23f757a91b2fbf99f3cc164936698"
+    },
+    "e-8ad93a5d688c1c148e68.gz": {
+      "label": "recording-owned-runtime.log",
+      "bytes": 343,
+      "sha256": "c83cd883bf06dd7483c3536b995da0ac468e9707f3de87562d0efec5dbedc227",
+      "originalBytes": 620,
+      "originalSha256": "ab6571b09d606c154bee16fcd8fa22fe8377a03f1f7aead5596c8ada9c8ecbfa"
+    },
+    "e-7c39d6b011c502a43da7.gz": {
+      "label": "results.json",
+      "bytes": 312,
+      "sha256": "eb95827d3fc1f36f2acc98564f34a124a81df13214d8a4ac6852b76d0aa778f1",
+      "originalBytes": 523,
+      "originalSha256": "fefed25f50226dabb32d9a22b9f57a2742511039aa1caed9007fb4a73614e20a"
+    },
+    "e-58ac7d070cb81a6ada6e.gz": {
+      "label": "run-owned-recording.py",
+      "bytes": 944,
+      "sha256": "5bc5e7e240202e95cbbf979ea190fe95a92f4790e31bc07c43a4b559099d97f3",
+      "originalBytes": 1840,
+      "originalSha256": "64adde0bf5b875bb00553b9010da366a8338aeb1c321b905592cb7f9df72388d"
+    },
+    "e-db891793a4675cd7982c.gz": {
+      "label": "runtime-wrapper.log",
+      "bytes": 93,
+      "sha256": "c42c8f643f6f49e536fcbd605b07f91f6a424760916bd0b41670f8cc5ec23f04",
+      "originalBytes": 85,
+      "originalSha256": "9fc6616bc7a1a9f7639b194563214488cfb189b3753d8a6c87984feee73c59c6"
+    },
+    "e-221c68155d0f3f8d4bc1.gz": {
+      "label": "scope.md",
+      "bytes": 594,
+      "sha256": "fa1ad9e42b419a692c2c7a413e7c347e70f6cdecd52ce20d4551f8230df9689c",
+      "originalBytes": 868,
+      "originalSha256": "b281f86b59f1e8b7b5dae332ee60eb6c626838866e63928361a9f4c5cc325a7f"
+    },
+    "e-7642b2450cae37203e4c.gz": {
+      "label": "source-delta.diff",
+      "bytes": 894923,
+      "sha256": "ae065a682e4465ec41628e8cf2127900b61c2122a1769c5de7ec977b4ec60afb",
+      "originalBytes": 5119831,
+      "originalSha256": "4251cde18f1d2fae926a1a106803f8aa8d235e8dd672c6ac4ba2616e5e1c5c98"
+    },
+    "e-7cf7f181cdc47e68ed8d.gz": {
+      "label": "release/CMakeCache.txt",
+      "bytes": 5754,
+      "sha256": "caf1c1ee750db8d83cb331cc40e904ec11481e12f14d82305fd759d6527e695c",
+      "originalBytes": 30256,
+      "originalSha256": "a2a4b70f675638eaac124b256dd45cd457a4cb6f77ad47f627664d3ef90a9208"
+    },
+    "e-586c4f25c05d09899798.gz": {
+      "label": "release/generated-commands.log",
+      "bytes": 14475,
+      "sha256": "e6c439434792699bcf1a1a4c6ab39ac8089c02c2bc4b534e61c8a9fa48865824",
+      "originalBytes": 284094,
+      "originalSha256": "87573a48b0cc4b037dbd6c8d49d71d3ec081118a0f1be1349e96b7fac85dd45f"
+    },
+    "e-5ec122788282aa14ad5e.gz": {
+      "label": "release/output-hash.json",
+      "bytes": 100,
+      "sha256": "9dd0c468076948ab338b5be3e7b9ad4fad4653944140863315d9bf265db546e0",
+      "originalBytes": 96,
+      "originalSha256": "445166f52a14c35ae6ec41023ce1865c78cd5d86631bf98a7648270f0bbf4055"
+    }
+  }
+}

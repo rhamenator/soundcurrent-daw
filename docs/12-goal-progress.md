@@ -1,5 +1,14 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native playback of canonical admitted takes (2026-10-12)
+
+[Checkpoint 239](239-admitted-take-native-playback.md) verifies genuine private
+Linux record/admit/Save/Reopen/playback through the existing read-ahead/shared engine.
+All 8,192 live frames exactly match offline EQ export, including 257 leading zeros;
+missing frames and callback audit hits are zero, owners/readers join. Windows native
+playback, installed/hardware and remaining M2 gates remain open. Original queue
+failures are still under measured investigation; full scope remains active.
+
 ## Original recording failure timing measurements (2026-10-12)
 
 [Checkpoint 238](238-recording-fixture-timing.md) records actual callback dispatch,
