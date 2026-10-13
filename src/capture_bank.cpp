@@ -8,26 +8,26 @@ static_assert(std::atomic<std::uint64_t>::is_always_lock_free);
 std::size_t captureBankPayloadBytes(CaptureBankConfig c) {
     if (!c.identity.endpoint || !c.identity.stream || !c.identity.generation ||
         !c.channels || c.channels>256 || c.sampleRate<8000 || c.sampleRate>384000 ||
-        !c.maximumPacketFrames || c.maximumPacketFrames>65536 || !c.slots || c.slots>256 ||
+        !c.maximumPacketFrames || c.maximumPacketFrames>65536 || !c.slots || c.slots>4096 ||
         c.initialPacketSequence==UINT64_MAX)
         throw ProjectError(ErrorCode::InvalidState,"Invalid capture bank admission");
     const auto count=std::uint64_t(c.slots)*c.maximumPacketFrames*c.channels;
     if (count>(SIZE_MAX-sizeof(PreparedCaptureBank))/sizeof(float))
         throw ResourceLimitError("Stamped capture bank",SIZE_MAX,c.memoryBudgetBytes,true);
     PayloadCharge charge("Stamped capture bank",c.memoryBudgetBytes);
-    charge.add(sizeof(PreparedCaptureBank)); charge.add(std::size_t(count),sizeof(float));
-    return sizeof(PreparedCaptureBank)+std::size_t(count)*sizeof(float);
+    charge.add(sizeof(PreparedCaptureBank));charge.add(PreparedSpscQueue<CaptureBankToken>::storageCapacity(c.slots),sizeof(CaptureBankToken)+sizeof(std::uint32_t)); charge.add(std::size_t(count),sizeof(float));
+    return charge.bytes();
 }
 PreparedCaptureBank::PreparedCaptureBank(CaptureBankConfig c, std::optional<ResourceLedger> ledger)
     : lease_(ledger ? ledger->reserve(captureBankPayloadBytes(c)) : ResourceLease{}),
-      config_(c), free_(c.initialQueueSequence), ready_(c.initialQueueSequence),
+      config_(c), free_(c.slots,c.initialQueueSequence), ready_(c.slots,c.initialQueueSequence),
       sequence_(c.initialPacketSequence) {
     captureBankPayloadBytes(c); // Admission is required even without a shared ledger.
     samples_.resize(std::size_t(c.slots)*c.maximumPacketFrames*c.channels);
     for (std::uint32_t n=0;n<c.slots;++n) free_.tryPush(n);
 }
 std::size_t PreparedCaptureBank::chargedBytes() const noexcept {
-    return sizeof(*this)+samples_.size()*sizeof(float);
+    return captureBankPayloadBytes(config_);
 }
 CaptureBankStatus PreparedCaptureBank::status() const noexcept {
     const auto s=CaptureBankStatus(status_.load(std::memory_order_acquire));
@@ -84,7 +84,7 @@ CaptureBankPublish PreparedCaptureBank::publish(const CaptureBankInput &input) n
     auto *target=samples_.data()+std::size_t(slot)*config_.maximumPacketFrames*config_.channels;
     if (p.flags & bankSilent) std::fill_n(target,count,0.f);
     else std::memcpy(target,input.interleaved,bytes);
-    // Tokens account for at most config.slots <=256 owners in a512-entry queue.
+    // Tokens account for at most config.slots <=4096 owners in prepared bounded queues.
     // An impossible queue refusal is terminal; the orphan is retired after join.
     if (!ready_.tryPush({p,sequence_,slot})) return reject(CaptureBankStatus::InternalQueueError,p,true);
     ++sequence_; nextPosition_=p.position.value+p.frames; lastQpc_=p.qpc.value;
