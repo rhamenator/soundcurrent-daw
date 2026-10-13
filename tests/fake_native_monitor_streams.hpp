@@ -13,7 +13,9 @@ using namespace soundcurrent::daw;
 template<class F> auto rt(F &&f) { rt_audit::Guard guard; return f(); }
 inline float sample(std::uint64_t frame, unsigned channel) { return float(2.5 * std::sin(double(frame) * .017 + channel * .31)); }
 struct Spy {
-    // Independent test-SDK observations; not a coherent native time snapshot.
+    // Single SDK writer publishes stage/raw-packet/virtual-clock tuple under
+    // this sequence. Disk acknowledgement and timing maxima are independent.
+    std::atomic<std::uint64_t> sdkObservationSequence{0};
     // 0 initial,1 capture,2 disk wait,3 monitor wait,4 render wait,5 lease,6 pace,7 exit.
     std::atomic<std::uint32_t> sdkStage{0};
     std::atomic<std::uint64_t> sdkRawPackets{0};
@@ -50,6 +52,14 @@ class FakeStreams final : public NativeMonitorStreams {
     std::uint64_t rawFrames_ = 0, rawPackets_ = 0, submitted_ = 0, content_ = 0, tick_ = 0;
     detail::NativePollWait idleWait_, packetWait_{10000};
     static WasapiMonitorRenderOptions renderOptions() { WasapiMonitorRenderOptions o; o.warmup = WasapiWarmupLimits{288000,50000000}; return o; }
+    std::uint64_t observationQpc_=100000000;
+    void publishStage(std::uint32_t stage) {
+        spy_->sdkObservationSequence.fetch_add(1,std::memory_order_acq_rel);
+        spy_->sdkRawPackets.store(rawPackets_,std::memory_order_release);
+        spy_->qpc.store(observationQpc_,std::memory_order_release);
+        spy_->sdkStage.store(stage,std::memory_order_release);
+        spy_->sdkObservationSequence.fetch_add(1,std::memory_order_release);
+    }
     void idle() { if(idleWait_.wait())std::terminate(); }
     void endCapture() {
         if (captureEnded_) return;
@@ -72,8 +82,7 @@ class FakeStreams final : public NativeMonitorStreams {
         rt([&] { renderLife_.silenceReleased({WasapiSilenceKind::Startup,64,1}); }); submitted_ = 64;
         while (!captureEnded_ || !renderEnded_) {
             const auto cycleBegin=std::chrono::steady_clock::now();
-            spy_->sdkStage.store(1,std::memory_order_release);
-            const Qpc100ns now{100000000 + tick_ * 100000}; spy_->qpc.store(now.value, std::memory_order_release);
+            const Qpc100ns now{100000000 + tick_ * 100000};observationQpc_=now.value;publishStage(1);
             if (!captureEnded_) {
                 if (spy_->captureStop.load(std::memory_order_acquire)) endCapture();
                 else if (rt([&] { return cb_.shouldStop(cb_.context); })) {
@@ -87,17 +96,16 @@ class FakeStreams final : public NativeMonitorStreams {
                         actualPacketFrames_,0,2000000 + rawFrames_,now.value};
                     rt([&] { cb_.packet(cb_.context,p); captureLife_.delivered(p); });
                     rawFrames_ += p.frames; ++rawPackets_; spy_->callbackCalls.fetch_add(1,std::memory_order_release);
-                    spy_->sdkRawPackets.store(rawPackets_,std::memory_order_release);
                     // Disk-side acknowledgement is an explicit fake-device pace,
                     // not concurrent access to raw consumer-owned mutable state.
-                    spy_->sdkStage.store(2,std::memory_order_release);
+                    publishStage(2);
                     while (!spy_->independentDisk && spy_->writtenPackets.load(std::memory_order_acquire) < rawPackets_ &&
                         !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) idle();
                     // Controlled virtual-device scheduling, not a physical
                     // deadline claim under sanitizers. Receipt is atomic, never
                     // a cross-owner mutable statistics read. Pressure tests
                     // explicitly keep capture independent of this receipt.
-                    spy_->sdkStage.store(3,std::memory_order_release);
+                    publishStage(3);
                     while (!spy_->independentCapture && route_->processing().copiedSourceFrames() < rawFrames_ &&
                         !spy_->captureStop.load(std::memory_order_acquire) && !cb_.shouldStop(cb_.context)) {
                         // This one SDK service thread also owns rendering. A
@@ -114,7 +122,7 @@ class FakeStreams final : public NativeMonitorStreams {
                     // Ready immutable evidence and atomic bank counts authorize
                     // this simulated device cadence, never a synthesized receipt.
                     const bool ready = bool(route_->startup().ready());
-                    spy_->sdkStage.store(4,std::memory_order_release);
+                    publishStage(4);
                     while (ready && !route_->output().producerDone() &&
                         route_->output().acceptedFrames() - route_->output().deliveredFrames() < 480 &&
                         !spy_->renderStop.load(std::memory_order_acquire) && !rb_.shouldStop(rb_.context)) {
@@ -128,7 +136,7 @@ class FakeStreams final : public NativeMonitorStreams {
                         }
                         idle();
                     }
-                    spy_->sdkStage.store(5,std::memory_order_release);
+                    publishStage(5);
                     const WasapiRenderClock clock{submitted_,renderStarted_ ? 1000000 + tick_ * 480 : 0,48000,
                         renderStarted_ ? now.value : 0,0,content_,64};
                     const auto action = rt([&] { return rb_.beforeLease(rb_.context,480,clock,now); });
@@ -155,7 +163,7 @@ class FakeStreams final : public NativeMonitorStreams {
             }
             // Each declared packet/lease is ten milliseconds of native audio.
             // Pace this fake device accordingly instead of overfeeding it 100x.
-            spy_->sdkStage.store(6,std::memory_order_release);
+            publishStage(6);
             const auto workEnd=std::chrono::steady_clock::now();
             const auto workNs=std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(workEnd-cycleBegin).count());
             spy_->maximumCycleWorkNs.store(std::max(spy_->maximumCycleWorkNs.load(std::memory_order_relaxed),workNs),std::memory_order_release);
@@ -164,7 +172,7 @@ class FakeStreams final : public NativeMonitorStreams {
             spy_->maximumCycleNs.store(std::max(spy_->maximumCycleNs.load(std::memory_order_relaxed),elapsed),std::memory_order_release);
             spy_->maximumPaceWaitNs.store(packetWait_.maximumNsAfterJoin(),std::memory_order_release);
         }
-        spy_->sdkStage.store(7,std::memory_order_release);
+        publishStage(7);
         spy_->callbackAudit = rt_audit::counts;
     }
   public:

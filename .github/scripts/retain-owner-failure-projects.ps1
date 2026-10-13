@@ -6,29 +6,71 @@ $destination = Join-Path $build "manual-owner-failure-projects"
 if ((Test-Path -LiteralPath $destination) -and ([IO.File]::GetAttributes($destination) -band [IO.FileAttributes]::ReparsePoint)) {
     throw "Reparse owner retention destination refused"
 }
+# The C++ Windows filesystem may spell the same temp parent with an 8.3 alias.
+# Expand existing parent names only; do not approve another directory/junction.
+if ($IsWindows -and -not ('SoundCurrentRetentionPaths' -as [type])) {
+    Add-Type -TypeDefinition @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
+public static class SoundCurrentRetentionPaths {
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+    private static extern uint GetLongPathNameW(string path, StringBuilder result, uint capacity);
+    public static string ExistingLongPath(string path) {
+        var result = new StringBuilder(32768);
+        var count = GetLongPathNameW(path, result, 32768);
+        if (count == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        if (count >= 32768) throw new ArgumentException("Retention parent path exceeds bound");
+        return result.ToString();
+    }
+}
+'@
+}
+function Get-RetentionParent([string]$path) {
+    $absolute = [IO.Path]::GetFullPath($path).TrimEnd([IO.Path]::DirectorySeparatorChar)
+    if ($IsWindows) { return [SoundCurrentRetentionPaths]::ExistingLongPath($absolute) }
+    return $absolute
+}
+$tempParent = Get-RetentionParent $tempRoot
 $sources = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 if (-not (Test-Path -LiteralPath $build)) { exit 0 }
 $logs = @(Get-ChildItem -LiteralPath $build -Filter "manual-owner-*-stderr.log" -File)
+$lastTest = Join-Path $build "Testing/Temporary/LastTest.log"
+if (Test-Path -LiteralPath $lastTest) { $logs += Get-Item -LiteralPath $lastTest }
 $nativeEvidence = Join-Path $build "native-owner-failure-evidence"
 if (Test-Path -LiteralPath $nativeEvidence) { $logs += @(Get-ChildItem -LiteralPath $nativeEvidence -Filter "pw-owner-*-failure.log" -File) }
+$manualSources = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+$pipewireSources = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+$controllerSources = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach ($log in $logs) {
-    if ($log.Length -gt 1048576) { throw "Owner diagnostic log exceeds retention bound" }
+    $logBound = if ($log.FullName -eq $lastTest) { 16777216 } else { 1048576 }
+    if ($log.Length -gt $logBound) { throw "Owner diagnostic log exceeds retention bound" }
     # Eager bounded read closes the handle before any path-policy refusal.
     # A lazy IEnumerable can retain a Windows file handle when foreach throws.
     foreach ($line in [IO.File]::ReadAllLines($log.FullName)) {
         if ($line -notmatch '^preserved_failure_project=(.+)$') { continue }
         $source = [IO.Path]::GetFullPath($Matches[1])
         $parent = [IO.Path]::GetDirectoryName($source).TrimEnd([IO.Path]::DirectorySeparatorChar)
+        $normalizedParent = Get-RetentionParent $parent
         $name = [IO.Path]::GetFileName($source)
-        $manual = [StringComparer]::OrdinalIgnoreCase.Equals($parent,$tempRoot) -and $name -match '^sc-manual-control-.+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-        $nativeParent = Join-Path $tempRoot 'sc-pw-owner-é-'
-        $native = [StringComparer]::OrdinalIgnoreCase.Equals($parent,$nativeParent) -and $name -match '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-        if (-not ($manual -or $native)) {
+        $manual = [StringComparer]::OrdinalIgnoreCase.Equals($normalizedParent,$tempParent) -and $name -match '^sc-manual-control-.+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        $nativeParent = Join-Path $tempParent 'sc-pw-owner-é-'
+        $native = [StringComparer]::OrdinalIgnoreCase.Equals($normalizedParent,$nativeParent) -and $name -match '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        $controller = [StringComparer]::OrdinalIgnoreCase.Equals($normalizedParent,$tempParent) -and $name -match '^sc-native-owner-é-日本-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        if (-not ($manual -or $native -or $controller)) {
             throw "Owner failure path is outside the generated temp-project policy"
         }
         if ([IO.File]::GetAttributes($parent) -band [IO.FileAttributes]::ReparsePoint) { throw "Reparse owner project parent refused" }
         [void]$sources.Add($source)
-        if ($sources.Count -gt 3) { throw "Too many owner failure projects" }
+        if ($manual) { [void]$manualSources.Add($source) }
+        if ($native) { [void]$pipewireSources.Add($source) }
+        if ($controller) { [void]$controllerSources.Add($source) }
+        # One original manual suite plus three diagnostic attempts, one PW
+        # suite, and two native controller/evidence suites. Duplicates count once.
+        if ($manualSources.Count -gt 4 -or $pipewireSources.Count -gt 1 -or $controllerSources.Count -gt 2 -or $sources.Count -gt 7) {
+            throw "Too many owner failure projects"
+        }
     }
 }
 foreach ($source in $sources) {

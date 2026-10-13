@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Controller wait evidence and actual failure retention (2026-10-13)
+
+[Checkpoint 248](248-native-controller-wait-evidence.md) labels controller wait
+operations and captures immutable state before unwind under the original5-second
+gate. Fake-SDK stage/packet/coordinate tuples use bounded sequence observation;
+other timing/worker facts remain independent. CTest native Temp markers now enter
+bounded exact-byte retention, with Windows parent aliases awaiting new-source CI.
+The added reserve cases have their own gate; original manual60-second and control
+5-second gates remain. Release4/28.54 s and Linux PowerShell retention pass.
+Original181 allfour jobs pass, independently qualifying Windows prefix-copy bits/
+pinned-write denial and paired17-versus34 frames. Original180 timing/failing-byte
+gaps remain explicit. Desktop copy/review and full M2–M11/all-Europe remain required.
+
 ## Verified interrupted-recording prefix copies (2026-10-13)
 
 [Checkpoint 247](247-interrupted-prefix-copy.md) implements shared bounded prefix

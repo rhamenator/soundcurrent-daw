@@ -1309,6 +1309,16 @@ int main(int argc,char **argv) {
             std::cout<<"original_concurrent_owner_diagnostic completed20takes; original5sdeadline; native_audio=false\n";
             return 0;
         }
+        if(argc==2 && std::string_view(argv[1])=="--declared-reserve") {
+            rt_audit::reset();
+            caseTrace("reserve-within",[]{declaredReserveStall(false);});
+            caseTrace("reserve-beyond",[]{declaredReserveStall(true);});
+            const auto c=rt_audit::counts;
+            check(c.cppAllocate+c.cppFree+c.cAllocate+c.cFree+c.blockingLock==0,
+                "Reserved callbacks allocated/freed/locked");
+            std::cout<<"declared_manual_reserve exact_prefix=true callback_audit=0 native_audio=false\n";
+            return 0;
+        }
         check(argc==1,"Unknown manual owner diagnostic argument");
         rt_audit::reset();
         caseTrace("repeated-256",[]{repeated(256, false, false);});
@@ -1331,8 +1341,6 @@ int main(int argc,char **argv) {
         caseTrace("readyGroupPressure",[]{readyGroupPressure();});
         caseTrace("heldFinalizationDiagnostic",[]{heldFinalizationDiagnostic();});
         caseTrace("heldFirstWriteDiagnostic",[]{heldFirstWriteDiagnostic();});
-        caseTrace("reserve-within",[]{declaredReserveStall(false);});
-        caseTrace("reserve-beyond",[]{declaredReserveStall(true);});
         caseTrace("concurrent-owner",[]{concurrentOwner();});
         const auto c = rt_audit::counts;
         check(c.cppAllocate + c.cppFree + c.cAllocate + c.cFree + c.blockingLock == 0,
