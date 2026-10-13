@@ -39,6 +39,12 @@ preparation discards the audition source and restores the arrangement/loop inten
 
 ## Acceptance scope
 
+[Indexed committed-source acceptance](../tests/results/M2/2026-10-13-retained-take-audition/index.json)
+binds implementation `29905f267d5c517452538010e779ead82134e725`, unchanged input files,
+actual executable identities and three selected suites. Original failed GUI
+observations and the retirement failure are retained alongside corrected results.
+
+
 The controller corpus passes 92 checks, including transient source/provenance,
 no activation during preparation, finite audition despite a project loop, live EQ
 acknowledgement, changed-take/project refusal, Stop/shutdown, and return to ordinary
