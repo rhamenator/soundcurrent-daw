@@ -259,10 +259,12 @@ jobs:
     timeout-minutes: 20
     env:
       QT_QPA_PLATFORM: offscreen
+      SC_PREVIEW_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Prepare the reviewed QtBase test SDK
         shell: pwsh
         run: ./.github/scripts/prepare-windows-desktop.ps1
@@ -282,19 +284,37 @@ jobs:
           if not defined SC_DESKTOP_VS_PATH exit /b 1
           call "%SC_DESKTOP_VS_PATH%\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
           if errorlevel 1 exit /b 1
+          python tools/windows_preview_bundle.py --snapshot-inputs .cache/windows-preview-build-inputs.json --expected-source "%SC_PREVIEW_SOURCE%"
+          if errorlevel 1 exit /b 1
           cmake -S native-dependencies/libsndfile-1.2.2 -B native-dependencies/sndfile-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DBUILD_SHARED_LIBS=ON -DENABLE_EXTERNAL_LIBS=OFF -DENABLE_MPEG=OFF -DBUILD_PROGRAMS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DBUILD_REGTEST=OFF -DENABLE_EXPERIMENTAL=OFF -DINSTALL_PKGCONFIG_MODULE=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           if errorlevel 1 exit /b 1
           cmake --build native-dependencies/sndfile-build --parallel 2 --target sndfile
           if errorlevel 1 exit /b 1
-          cmake -S . -B build-desktop-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=ON -DSC_BUILD_DESKTOP=ON "-DCMAKE_PREFIX_PATH=%CD%/native-ui-dependencies/qt" "-DSNDFILE_LIBRARY=%CD%/native-dependencies/sndfile-build/sndfile.lib"
+          cmake -S . -B build-desktop-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DSC_BUILD_MEDIA=ON -DSC_BUILD_DESKTOP=ON -DSC_BUILD_WARP_MAP_PROBE=ON -DSC_BUILD_PROTECTED_WARP_PROBE=ON "-DCMAKE_PREFIX_PATH=%CD%/native-ui-dependencies/qt" "-DSNDFILE_LIBRARY=%CD%/native-dependencies/sndfile-build/sndfile.lib"
           if errorlevel 1 exit /b 1
-          cmake --build build-desktop-native --parallel 2 --target sc-native-panel-tests sc-ui-tests sc-playback-controller-tests soundcurrent-daw sc-manual-panel-tests sc-stretch-parent-probe sc-stretch-controller-tests sc-stretch-ui-tests sc-protected-warp-ui-tests sc-timeline-ui-tests sc-media-copy-controller-tests sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-import-media-ui-tests sc-localization-tests
+          cmake --build build-desktop-native --parallel 2 --target sc-native-panel-tests sc-ui-tests sc-playback-controller-tests soundcurrent-daw sc-manual-panel-tests sc-stretch-parent-probe sc-stretch-controller-tests sc-stretch-ui-tests sc-protected-warp-ui-tests sc-timeline-ui-tests sc-media-copy-controller-tests sc-import-ui-tests sc-import-controller-tests sc-wave-controller-tests sc-import-media-ui-tests sc-localization-tests sc-stretch-artifact-tests sc-protected-warp-probe
           if errorlevel 1 exit /b 1
           set "PATH=%CD%\native-ui-dependencies\qt\bin;%CD%\native-dependencies\sndfile-build;%PATH%"
           set "QT_PLUGIN_PATH=%CD%\native-ui-dependencies\qt\plugins"
           set "SC_PARENT_TIMING_EVIDENCE=%CD%\build-desktop-native\parent-observation-timing"
           ctest --test-dir build-desktop-native -R "^(desktop-native-recording-panel|desktop-loop-recording|desktop-loop-controls|desktop-playback-controller|desktop-retained-takes|desktop-stretch-parent-interruption|desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$" --output-on-failure --no-tests=error -V
           if errorlevel 1 exit /b 1
+      - name: Collect native preview deployment inputs (not an installer)
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'codex/windows-preview')
+        shell: pwsh
+        env:
+          SC_PREVIEW_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: ./.github/scripts/collect-windows-preview.ps1 -ExpectedSourceCommit $env:SC_PREVIEW_SOURCE
+      - name: Retain native preview deployment inputs and corresponding source
+        if: always() && (github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'codex/windows-preview'))
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          archive: true
+          name: windows-preview-build-inputs
+          path: .cache/windows-preview-export/**
+          retention-days: 3
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Verify and preserve desktop controller failure projects
         if: always()
         shell: pwsh

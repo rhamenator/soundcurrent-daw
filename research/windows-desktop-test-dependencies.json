@@ -31,5 +31,5 @@
       "bytes": 111928
     }
   },
-  "scope": "Native hosted MSVC offscreen desktop import/localization testing, no audio endpoint or installer. Core/Gui/Widgets match the separately pinned product SDK. QtTest and offscreen plugin are test-only. No product dependency version change, SDK binaries or test executables are committed/uploaded."
+  "scope": "Native hosted MSVC offscreen desktop testing, with no audio endpoint or installer execution. Core/Gui/Widgets match the separately pinned product SDK. QtTest and offscreen plugin are test-only. The optional preview collection separately retains runtime DLLs, application/verifier executables and corresponding sources; it does not publish a toolchain or qualify a product dependency mismatch, runtime compatibility or installer. No product dependency version or binary pin is changed."
 }
