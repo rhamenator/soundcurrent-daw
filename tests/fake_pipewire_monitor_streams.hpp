@@ -14,14 +14,14 @@ struct Shared {std::atomic<unsigned> joins{0},retired{0};std::atomic<bool> audit
     std::atomic<std::uint64_t> captureLateNs{0},renderLateNs{0},checkpointNs{0},rawWriteNs{0},rawCheckpointNs{0},rawAppends{0},checkpoints{0};
     std::array<std::uint64_t,1000> captureTimes{},renderTimes{}; // Owner-only slots; inspect after joins.
     std::atomic<unsigned> captureTimeCount{0},renderTimeCount{0};
-    std::chrono::steady_clock::time_point checkpointBegin,rawWriteBegin,rawCheckpointBegin; // One journal/control owner, read only after joins.
+    std::chrono::steady_clock::time_point checkpointBegin,rawWriteBegin,rawCheckpointBegin;bool rawCheckpointActive=false; // One journal/control owner, read only after joins.
     static void maximum(std::atomic<std::uint64_t> &value,std::uint64_t next){auto old=value.load();while(old<next && !value.compare_exchange_weak(old,next)){} }
     void journal(PipeWireJournalBoundary b){if(b==PipeWireJournalBoundary::RawAppended)++rawAppends;
         if(b==PipeWireJournalBoundary::RawCheckpoint)checkpointBegin=std::chrono::steady_clock::now();
         if(b==PipeWireJournalBoundary::CheckpointPublished){++checkpoints;maximum(checkpointNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-checkpointBegin).count()));}}
     void rawBoundary(OriginalRecordingBoundary b){if(b==OriginalRecordingBoundary::BeforeAudioWrite)rawWriteBegin=std::chrono::steady_clock::now();
-        if(b==OriginalRecordingBoundary::BeforeCheckpoint)rawCheckpointBegin=std::chrono::steady_clock::now();
-        if(b==OriginalRecordingBoundary::AfterJournal)maximum(rawCheckpointNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-rawCheckpointBegin).count()));
+        if(b==OriginalRecordingBoundary::BeforeCheckpoint){rawCheckpointBegin=std::chrono::steady_clock::now();rawCheckpointActive=true;}
+        if(b==OriginalRecordingBoundary::AfterJournal && rawCheckpointActive){maximum(rawCheckpointNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-rawCheckpointBegin).count()));rawCheckpointActive=false;}
         if(b==OriginalRecordingBoundary::AfterStampWrite)maximum(rawWriteNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-rawWriteBegin).count()));}
     void saveTiming(const std::filesystem::path &root) const {std::ofstream out(root/"fixture-dispatch-timing.csv",std::ios::binary);out<<"role,ordinal,elapsed_ns\n";
         for(unsigned n=0;n<captureTimeCount;++n)out<<"capture,"<<n<<','<<captureTimes[n]<<'\n';

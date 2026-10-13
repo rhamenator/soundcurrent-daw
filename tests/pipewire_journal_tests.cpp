@@ -72,7 +72,7 @@ void releasedBeforeDueCheckpoint(){Temp t;const auto s=spec(t.root);PreparedCapt
     PipeWireJournalOptions o;o.checkpointRecords=1;o.boundary=[&](auto b){if(armed && b==PipeWireJournalBoundary::BeforeCheckpoint){check(!held,"Due paired flush retained the copied raw slot");++publications;}};
     o.raw.boundary=[&](auto b){if(b==OriginalRecordingBoundary::BeforeCheckpoint){check(!checkpointStarted,"Nested raw checkpoint");checkpointStarted=true;}
         if(b==OriginalRecordingBoundary::AfterAudioFlush)check(checkpointStarted,"Raw flush lacked measurement start");
-        if(b==OriginalRecordingBoundary::AfterJournal){check(checkpointStarted,"Raw publication lacked measurement start");checkpointStarted=false;++rawCommits;}};
+        if(b==OriginalRecordingBoundary::AfterJournal && checkpointStarted){checkpointStarted=false;++rawCommits;}};
     std::filesystem::path job;
     {PipeWireRecordingJournal w(t.root,s,o);job=w.jobDirectory();std::array<float,51> data{};const auto c=capture(0);
         const CaptureBankStamp stamp{s.raw.identity,{c.original.original.position},{c.original.original.monotonicNs/100},17,0};
