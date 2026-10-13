@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Desktop reviewed-prefix recovery (2026-10-13)
+
+[Checkpoint249](249-recovery-copy-desktop.md) connects both native prefix-copy adapters
+to explicit desktop controls and a reviewed-checkpoint guard. Actual Qt save dialog,
+Pending3-of7 preview, exact copy/source preservation, valid changed-checkpoint refusal,
+in-flight cancel/close and last-consumer credit pass on this Ubuntu xcb desktop.
+Initial4/16.68 s, final layout/localization2/14.15 s and final both-adapter panel13.49 s
+pass. A clipped initial receipt screenshot is retained and corrected. Application
+links; installed preview is not yet replaced. Real Linguist inventory1,021 keys/34
+catalogs is extracted, not native language review. Original182 allfour jobs pass,
+including actual Windows parent alias. New-source Windows desktop/installer/native
+hardware and full M2–M11/all-Europe remain required; the goal stays active.
+
 ## Controller wait evidence and actual failure retention (2026-10-13)
 
 [Checkpoint 248](248-native-controller-wait-evidence.md) labels controller wait
