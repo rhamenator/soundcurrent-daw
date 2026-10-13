@@ -58,6 +58,7 @@ class StudioWindow : public QMainWindow {
     std::shared_ptr<const ControllerSnapshot> snapshot() const;
     std::shared_ptr<const PlaybackSnapshot> playbackSnapshot() const;
     bool preparePlayback();
+    bool prepareTakeAudition(const Id &,const Id &,std::uint64_t epoch);
     bool selectTrack(const Id &);
     std::optional<Id> selectedTrack() const;
     ResourceUsage memoryResources() const;
@@ -120,6 +121,8 @@ class StudioWindow : public QMainWindow {
     std::uint64_t playbackPrepareBarrier_ = 0;
     std::optional<Id> playbackPreparationTrack_;
     bool playbackPrepareMix_ = false;
+    std::optional<TakeAudition> playbackPreparationTake_;
+    std::optional<StructuralGuard> playbackTakeGuard_;
     QCheckBox *mixTracks_ = nullptr;
     QPushButton *masterButton_ = nullptr;
     PlaybackController playback_;

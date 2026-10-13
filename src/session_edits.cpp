@@ -348,6 +348,22 @@ Track makeAudioTrack(std::string name, ChannelLayout channels, std::uint32_t rat
     validate(s);
     return std::move(s.tracks.front());
 }
+Session makeTakeAudition(const Session &source,const TakeAudition &selection,StateBudget budget) {
+    validate(source,budget);
+    auto result=source;
+    auto &target=track(result,selection.track);
+    const auto &lane=*find(target.takeLanes,selection.lane);
+    PayloadCharge staging("Take audition clips",budget.memoryBudgetBytes);
+    staging.add(lane.clips.size(),sizeof(Clip));for(const auto &c:lane.clips)dynamicWeight(staging,c);
+    auto clips=lane.clips;
+    for(auto &c:clips) {
+        const auto retainedId=c.id;c.id=Id::generate();
+        c.takeOrigin=ClipTakeOrigin{target.id,lane.id,retainedId};
+    }
+    result.playheadFrame=std::min_element(clips.begin(),clips.end(),[](const auto &a,const auto &b){return a.startFrame<b.startFrame;})->startFrame;
+    target.clips=std::move(clips);
+    validate(result,budget);return result;
+}
 void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateBudget budget) {
     require(!edits.empty() && edits.size() <= 64, "Edit batch must contain 1 to 64 operations");
     validate(s, budget);

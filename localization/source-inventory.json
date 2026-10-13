@@ -33,8 +33,8 @@
     "ui/native_monitor_panel.cpp": "da8d23efa5ff1c1238812b3e7ee658d61755468a9a81f8b0e9ec6ec950a15e06",
     "ui/native_monitor_panel.hpp": "7a06f1953e4dc523b2449c4bd23d1c3cdbd4adc6490e88405bb24452515efc5d",
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
-    "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
-    "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
+    "ui/playback_controller.cpp": "73c4eae7e07aa3e5f29f08c62323a3ac6edd5d79b8de7db027fcf6914d3fb887",
+    "ui/playback_controller.hpp": "bb8151d221ade7a6655a6993fdcf12191b3ebaa91a505973117c166ad6e2dfbf",
     "ui/project_controller.cpp": "3b9f6fa0a8f42e0110c65382712525b121c97a7d3ce2d7f709bd00470a5479d3",
     "ui/project_controller.hpp": "767fc6e34debf4b147f62b40b5e7c4447f40945a8c03dd076252535ad8057306",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
@@ -47,10 +47,10 @@
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "cea8efd2e49afa117c6fe8e756348cfe0d70b383b735db1c7a9d2a2a4e635577",
-    "ui/studio_window.hpp": "eea12bffb15f5a4c6cfae760632faf6133f893025cf0ec7d8f0a44ac275ee16d",
-    "ui/timeline_editor.cpp": "98854fda0827493e7d005686139fdea9f8a3bfc0c039f6356ca5c4edb3894e3f",
-    "ui/timeline_editor.hpp": "092bcb6d8e651e1c46bc7a1c8b468aae1e9a9ae746988a5ce47687ba2ad6a28f",
+    "ui/studio_window.cpp": "ac6a8fa2dd460e37371ed08d6188267782eeee3f174637dffdc9d261692d58f9",
+    "ui/studio_window.hpp": "df967731134563089204bc98dcf70573ae7327a64bf6b42523a56e123489394e",
+    "ui/timeline_editor.cpp": "f0810747676a0cfed93426ca716d74f38e42759fd8f1e6129a1fffc062f2bf44",
+    "ui/timeline_editor.hpp": "545189c9208872db402001567e6a4a7fc537e6810a96d4b32aa46c9e9aa4bb89",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
@@ -4676,6 +4676,12 @@
     ],
     [
       "StudioWindow",
+      "The project changed before take audition was prepared.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Playback could not be prepared. Please retry.",
       "",
       false
@@ -4785,6 +4791,12 @@
     [
       "StudioWindow",
       " · Loop pass %1 · project frame %2",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Take audition — arrangement unchanged. ",
       "",
       false
     ],
@@ -5811,6 +5823,18 @@
     [
       "TimelineEditor",
       "Use take region",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Prepare take audition",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Take audition could not be prepared. Stop other transport and retry.",
       "",
       false
     ],

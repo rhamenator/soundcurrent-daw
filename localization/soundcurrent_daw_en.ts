@@ -3160,6 +3160,10 @@ The complete file was published with a warning: %1</translation>
       <translation>Output %1</translation>
     </message>
     <message>
+      <source>The project changed before take audition was prepared.</source>
+      <translation>The project changed before take audition was prepared.</translation>
+    </message>
+    <message>
       <source>Playback could not be prepared. Please retry.</source>
       <translation>Playback could not be prepared. Please retry.</translation>
     </message>
@@ -3234,6 +3238,10 @@ The complete file was published with a warning: %1</translation>
     <message>
       <source> · Loop pass %1 · project frame %2</source>
       <translation> · Loop pass %1 · project frame %2</translation>
+    </message>
+    <message>
+      <source>Take audition — arrangement unchanged. </source>
+      <translation>Take audition — arrangement unchanged. </translation>
     </message>
     <message>
       <source>Audition — project unchanged. </source>
@@ -3926,6 +3934,14 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Use take region</source>
       <translation>Use take region</translation>
+    </message>
+    <message>
+      <source>Prepare take audition</source>
+      <translation>Prepare take audition</translation>
+    </message>
+    <message>
+      <source>Take audition could not be prepared. Stop other transport and retry.</source>
+      <translation>Take audition could not be prepared. Stop other transport and retry.</translation>
     </message>
     <message>
       <source>Rename take</source>
