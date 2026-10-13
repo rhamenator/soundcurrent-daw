@@ -32,6 +32,8 @@ int main(int argc, char **argv) {
     soundcurrent::daw::ui::NativeMonitorControllerOptions native;
 #ifdef _WIN32
     native=soundcurrent::daw::ui::wasapiNativeMonitorControllerOptions();
+#elif defined(SC_MONITOR_PIPEWIRE)
+    native=soundcurrent::daw::ui::pipewireNativeMonitorControllerOptions();
 #endif
     soundcurrent::daw::ui::StudioWindow window(nullptr, {}, {}, {}, {}, options,
                                                soundcurrent::daw::ui::saveHistoryPreferences,

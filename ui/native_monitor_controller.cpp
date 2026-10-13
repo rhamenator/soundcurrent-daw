@@ -38,8 +38,14 @@ std::size_t commandPayload(const NativeMonitorCommand &c,std::size_t budget) {
         const auto &p=*c.preparation;charge.add(sizeof(NativeMonitorPreparation)+4096);
         controlBound(p.root.native().size()<=4096 && p.root.native().find(std::filesystem::path::value_type{})==std::filesystem::path::string_type::npos);charge.add(p.root.native().size()+1,sizeof(std::filesystem::path::value_type));
         portsCharge(charge,p.inputs);portsCharge(charge,p.outputs);
-        if(p.options.route.channelMap){const auto &map=*p.options.route.channelMap;controlBound(map.routes.size()<=65536);charge.add(map.routes.size(),sizeof(ChannelMix)+32);}
-        if(p.options.route.equalizer)eqCharge(charge,p.options.route.equalizer->settings);
+        const auto &map=p.pipewire?p.pipewire->route.channelMap:p.options.route.channelMap;
+        const auto &eq=p.pipewire?p.pipewire->route.equalizer:p.options.route.equalizer;
+        if(map){const auto &value=*map;controlBound(value.routes.size()<=65536);charge.add(value.routes.size(),sizeof(ChannelMix)+32);}
+        if(eq)eqCharge(charge,eq->settings);
+        if(p.pipewire){
+            if(p.options.route.channelMap){const auto &legacy=*p.options.route.channelMap;controlBound(legacy.routes.size()<=65536);charge.add(legacy.routes.size(),sizeof(ChannelMix)+32);}
+            if(p.options.route.equalizer)eqCharge(charge,p.options.route.equalizer->settings);
+        }
     }
     return charge.bytes();
 }
@@ -50,6 +56,8 @@ std::size_t nativeMonitorPortsPayloadBytes(std::span<const AudioPort> ports,std:
 }
 struct NativeMonitorController::State {
     struct Original {ResourceLease lease;NativeOriginalRecordingPrefix prefix;};
+    struct PipeWireResult {ResourceLease lease;PipeWireMonitorRecordingResult value;};
+    struct PipeWireSaved {ResourceLease lease;PipeWireStoredRecording value;};
     struct Inventory {ResourceLease lease;std::vector<AudioPort> ports;};
     struct Queued { ResourceLease lease; NativeMonitorCommand command; std::uint64_t epoch; };
     NativeMonitorControllerOptions options;
@@ -64,10 +72,12 @@ struct NativeMonitorController::State {
     std::thread worker;
     std::uint64_t seenCancel = 0, lastGeneration = 0, nextResult = 0;
     explicit State(NativeMonitorControllerOptions o) : options(std::move(o)) {
-        if (options.streams) view.phase=NativeMonitorPhase::Idle;
+        if (supported()) view.phase=NativeMonitorPhase::Idle;
+        view.pipewire=bool(options.pipewireStreams) && !options.streams;
         latest=std::make_shared<const NativeMonitorSnapshot>(view);
         worker=std::thread([this]{ run(); });
     }
+    bool supported() const {return bool(options.streams) || bool(options.pipewireStreams);}
     void publish() {
         auto s=std::make_shared<const NativeMonitorSnapshot>(view);
         std::lock_guard lock(mutex);latest=std::move(s);
@@ -80,22 +90,32 @@ struct NativeMonitorController::State {
         view.phase=NativeMonitorPhase::Finishing;publish();
         // Called only after readiness, or explicit cancellation/shutdown.
         auto original=cancel?owner->cancelAndWait():owner->wait();
-        auto result=std::get<NativeMonitorRecordingResult>(std::move(original));
+
         const auto progress=owner->progress();
         view.progress={progress.processingDone,progress.diskDone,progress.captureEnded,progress.renderEnded,progress.rawAcceptedFrames,progress.monitorAcceptedFrames,progress.publishedMonitorFrames,progress.deliveredMonitorFrames,progress.copiedMonitorSourceFrames};
         ImmediateAcknowledgement ack;
         for(unsigned n=0;n<128 && owner->equalizerAcknowledgement(ack);++n){view.applied=ack;view.appliedEqRevision=ack.revision;}
         MonitorControlReceipt stop;
         for(unsigned n=0;n<64 && owner->receiveStopReceipt(stop)==MonitorControlCode::Ready;++n)view.stop=stop;
-        view.result=std::make_shared<const NativeMonitorRecordingResult>(std::move(result));
+        bool failed=false;
+        if(auto *native=std::get_if<NativeMonitorRecordingResult>(&original)){
+            failed=native->disposition==NativeMonitorRecordingDisposition::Failed;
+            view.result=std::make_shared<const NativeMonitorRecordingResult>(std::move(*native));
+        }else {
+            auto value=std::get<PipeWireMonitorRecordingResult>(std::move(original));
+            failed=value.disposition==PipeWireRecordingDisposition::Failed;
+            auto credit=options.commandMemory.reserve(sizeof(PipeWireResult)+16384);
+            auto held=std::make_shared<PipeWireResult>(std::move(credit),std::move(value));
+            view.pipewireResult=std::shared_ptr<const PipeWireMonitorRecordingResult>(held,&held->value);
+        }
         view.resultSequence=++nextResult;owner.reset();
-        view.phase=view.result->disposition==NativeMonitorRecordingDisposition::Failed?NativeMonitorPhase::Fault:NativeMonitorPhase::Result;
+        view.phase=failed?NativeMonitorPhase::Fault:NativeMonitorPhase::Result;
     }
     void current(const NativeMonitorCommand &c) {
         if(!view.generation || c.generation!=view.generation)
             throw ProjectError(ErrorCode::InvalidState,"Native recording command belongs to another generation");
     }
-    bool hasOriginal() const {return bool(view.result) || bool(view.reopened);}
+    bool hasOriginal() const {return bool(view.result) || bool(view.reopened) || bool(view.pipewireResult) || bool(view.pipewireReopened);}
     std::shared_ptr<const NativeOriginalRecordingPrefix> ownPrefix(NativeOriginalRecordingPrefix prefix) {
         PayloadCharge charge("Retained native original",options.commandMemory.usage().limitBytes);
         charge.add(sizeof(Original)+4096);charge.add(prefix.raw.source.native().size()+1,sizeof(std::filesystem::path::value_type));
@@ -107,6 +127,18 @@ struct NativeMonitorController::State {
         auto owned=std::make_shared<Original>(std::move(lease),std::move(prefix));
         return std::shared_ptr<const NativeOriginalRecordingPrefix>(owned,&owned->prefix);
     }
+    std::shared_ptr<const PipeWireStoredRecording> ownPipeWire(PipeWireStoredRecording value) {
+        PayloadCharge charge("Retained PipeWire original",options.commandMemory.usage().limitBytes);
+        charge.add(sizeof(PipeWireSaved)+16384);const auto &p=value.intent.processing;
+        if(p.channelMap)charge.add(p.channelMap->routes.size(),sizeof(ChannelMix)+64);
+        if(p.equalizer)eqCharge(charge,p.equalizer->settings);
+        for(const auto *ports:{&value.intent.inputs,&value.intent.outputs}){
+            charge.add(ports->size(),sizeof(ChannelPortIntent)+256);
+            for(const auto &v:*ports)for(const auto *str:{&v.deviceIdentity,&v.portIdentity,&v.mediaClass})textCharge(charge,*str);
+        }
+        auto credit=options.commandMemory.reserve(charge.bytes());auto owned=std::make_shared<PipeWireSaved>(std::move(credit),std::move(value));
+        return std::shared_ptr<const PipeWireStoredRecording>(owned,&owned->value);
+    }
     void handle(const NativeMonitorCommand &c) {
         if(c.kind==NativeMonitorCommandKind::RefreshDevices) {
             if(owner || hasOriginal() || !options.inventory || view.inventoryRevision==UINT64_MAX)
@@ -114,26 +146,35 @@ struct NativeMonitorController::State {
             auto ports=options.inventory();
             auto credit=options.inventoryMemory.reserve(nativeMonitorPortsPayloadBytes(ports,options.inventoryMemory.usage().limitBytes));
             auto owned=std::make_shared<Inventory>(std::move(credit),std::move(ports));
-            view.ports=std::shared_ptr<const std::vector<AudioPort>>(owned,&owned->ports);++view.inventoryRevision;view.error.reset();view.diagnostic.clear();view.phase=options.streams?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
+            view.ports=std::shared_ptr<const std::vector<AudioPort>>(owned,&owned->ports);++view.inventoryRevision;view.error.reset();view.diagnostic.clear();view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
         }
         if(c.kind==NativeMonitorCommandKind::Prepare) {
-            if(!options.streams || owner || hasOriginal() || !c.preparation || !c.generation || c.generation<=lastGeneration)
+            if(!supported() || owner || hasOriginal() || !c.preparation || !c.generation || c.generation<=lastGeneration)
                 throw ProjectError(ErrorCode::InvalidState,"Native recording preparation is unavailable or a result is unresolved");
             const auto &p=*c.preparation;
-            if(p.options.route.runGeneration!=c.generation)
+            const auto &raw=p.pipewire?p.pipewire->declared.raw:p.options.raw;
+            if((p.pipewire?p.pipewire->declared.generation:p.options.route.runGeneration)!=c.generation)
                 throw ProjectError(ErrorCode::InvalidState,"Native recording generation differs from its immutable preparation");
             const auto session=ProjectStore(p.root).load();
-            const auto t=std::find_if(session.tracks.begin(),session.tracks.end(),[&](const auto &x){return x.id==p.options.raw.track;});
-            if(session.id!=p.options.raw.project || t==session.tracks.end() || t->layout!=p.options.raw.layout ||
-                std::any_of(session.assets.begin(),session.assets.end(),[&](const auto &x){return x.id==p.options.raw.asset;}))
+            const auto t=std::find_if(session.tracks.begin(),session.tracks.end(),[&](const auto &x){return x.id==raw.track;});
+            if(session.id!=raw.project || t==session.tracks.end() || t->layout!=raw.layout ||
+                std::any_of(session.assets.begin(),session.assets.end(),[&](const auto &x){return x.id==raw.asset;}))
                 throw ProjectError(ErrorCode::InvalidState,"Native recording preparation belongs to another project, track or asset");
             view.phase=NativeMonitorPhase::Preparing;publish();
-            auto io=options.streams(p);
-            auto prepared=prepareNativeMonitorControlEndpoint(p.root,std::move(io),p.options);
+            std::unique_ptr<PreparedMonitorControlEndpoint> prepared;
+            if(p.pipewire){
+                if(!options.pipewireStreams)throw ProjectError(ErrorCode::InvalidState,"PipeWire preparation has no matching backend");
+                prepared=preparePipeWireMonitorControlEndpoint(p.root,options.pipewireStreams,*p.pipewire,p.inputs,p.outputs);
+            }else{
+                if(!options.streams)throw ProjectError(ErrorCode::InvalidState,"Native preparation has no matching backend");
+                prepared=prepareNativeMonitorControlEndpoint(p.root,options.streams(p),p.options);
+            }
             NativeMonitorSnapshot next;next.phase=NativeMonitorPhase::Ready;next.generation=c.generation;
             next.completedCommands=view.completedCommands;next.errorSerial=view.errorSerial;next.cancelAcknowledged=view.cancelAcknowledged;
             next.ports=view.ports;next.inventoryRevision=view.inventoryRevision;
-            next.root=p.root;next.job=prepared->jobDirectory();next.declared=std::make_shared<const NativeOriginalRecordingSpec>(std::get<NativeOriginalRecordingSpec>(prepared->declared()));
+            next.root=p.root;next.job=prepared->jobDirectory();next.pipewire=bool(p.pipewire);next.monitorFirst=prepared->first();next.pipewireHasEq=p.pipewire && bool(p.pipewire->route.equalizer);const auto declared=prepared->declared();
+            if(const auto *native=std::get_if<NativeOriginalRecordingSpec>(&declared))next.declared=std::make_shared<const NativeOriginalRecordingSpec>(*native);
+            else next.pipewireDeclared=std::make_shared<const PipeWireRecordingSpec>(std::get<PipeWireRecordingSpec>(declared));
             owner=std::move(prepared);view=std::move(next);lastGeneration=c.generation;return;
         }
         if(c.kind==NativeMonitorCommandKind::ReopenOriginal) {
@@ -142,6 +183,17 @@ struct NativeMonitorController::State {
             view.phase=NativeMonitorPhase::Reopening;publish();const auto epoch=seenCancel;
             const auto check=[&]{if(closing.load(std::memory_order_acquire) || cancelEpoch.load(std::memory_order_acquire)!=epoch)
                 throw ProjectError(ErrorCode::Canceled,"Native take reopening canceled");};
+            if(c.pipewire){
+                auto saved=ownPipeWire(inspectProjectPipeWireRecording(c.root,c.job,*c.project,options.commandMemory,check));check();
+                NativeMonitorSnapshot next;next.phase=NativeMonitorPhase::Result;next.generation=c.generation;
+                next.completedCommands=view.completedCommands;next.errorSerial=view.errorSerial;next.cancelAcknowledged=view.cancelAcknowledged;
+                next.ports=view.ports;next.inventoryRevision=view.inventoryRevision;next.root=c.root;next.job=std::filesystem::absolute(c.job).lexically_normal();
+                next.pipewire=true;next.monitorFirst=saved->intent.processing.first;next.pipewireHasEq=bool(saved->intent.processing.equalizer);
+                next.pipewireReopened=std::move(saved);next.pipewireDeclared=std::shared_ptr<const PipeWireRecordingSpec>(next.pipewireReopened,&next.pipewireReopened->intent.expected);
+                next.resultSequence=++nextResult;next.progress.rawAcceptedFrames=next.pipewireReopened->prefix.raw.committedFrames;
+                next.progress.deliveredMonitorFrames=next.pipewireReopened->prefix.monitorQueuedFrames;
+                view=std::move(next);lastGeneration=c.generation;return;
+            }
             auto prefix=ownPrefix(inspectProjectNativeOriginalRecording(c.root,c.job,*c.project,options.commandMemory,check));check();
             NativeMonitorSnapshot next;next.phase=NativeMonitorPhase::Result;next.generation=c.generation;
             next.completedCommands=view.completedCommands;next.errorSerial=view.errorSerial;next.cancelAcknowledged=view.cancelAcknowledged;
@@ -156,7 +208,7 @@ struct NativeMonitorController::State {
         if(c.kind==NativeMonitorCommandKind::ReleaseResult) {
             if(owner || !hasOriginal() || c.resultSequence!=view.resultSequence)
                 throw ProjectError(ErrorCode::InvalidState,"Native result release requires its exact retained sequence");
-            view.result.reset();view.reopened.reset();view.exported.reset();view.admission.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=options.streams?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
+            view.result.reset();view.reopened.reset();view.exported.reset();view.pipewireDeclared.reset();view.pipewireResult.reset();view.pipewireReopened.reset();view.pipewireExported.reset();view.admission.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
         }
         if(c.kind==NativeMonitorCommandKind::AdmitTake) {
             if(owner || !hasOriginal() || !view.declared || c.resultSequence!=view.resultSequence || !c.targetTrack || !c.clipId || !c.revision || c.revision<=view.admissionRevision)
@@ -170,20 +222,23 @@ struct NativeMonitorController::State {
             view.admitting=false;view.admissionRevision=c.revision;view.error.reset();view.diagnostic.clear();return;
         }
         if(c.kind==NativeMonitorCommandKind::ExportOriginal) {
-            if(owner || !hasOriginal() || !view.declared || c.resultSequence!=view.resultSequence || c.destination.empty())
+            if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared) || c.resultSequence!=view.resultSequence || c.destination.empty())
                 throw ProjectError(ErrorCode::InvalidState,"Export original requires its exact retained inactive take sequence and destination");
             NativeOriginalExportOptions exportOptions;exportOptions.resources=options.commandMemory;
             const auto epoch=seenCancel;
             exportOptions.canceled=[&]{return closing.load(std::memory_order_acquire) || cancelEpoch.load(std::memory_order_acquire)!=epoch;};
             view.exporting=true;publish();
-            try {view.exported=std::make_shared<const NativeOriginalExportResult>(exportNativeOriginalWav(view.root,view.job,*view.declared,c.destination,exportOptions));}
+            try {if(view.pipewireDeclared)view.pipewireExported=std::make_shared<const PipeWireOriginalExportResult>(exportPipeWireOriginalWav(view.root,view.job,*view.pipewireDeclared,c.destination,exportOptions));
+                else view.exported=std::make_shared<const NativeOriginalExportResult>(exportNativeOriginalWav(view.root,view.job,*view.declared,c.destination,exportOptions));}
             catch(...) {view.exporting=false;throw;}
             view.exporting=false;view.error.reset();view.diagnostic.clear();return;
         }
         if(c.kind==NativeMonitorCommandKind::Inspect) {
-            if(owner || !hasOriginal() || !view.declared)
+            if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared))
                 throw ProjectError(ErrorCode::InvalidState,"Native state inspection requires an inactive retained result");
-            view.reopened=ownPrefix(inspectNativeOriginalRecording(view.job,*view.declared,{},options.commandMemory));return;
+            if(view.pipewireDeclared)view.pipewireReopened=ownPipeWire(inspectProjectPipeWireRecording(view.root,view.job,view.pipewireDeclared->raw.project,options.commandMemory));
+            else view.reopened=ownPrefix(inspectNativeOriginalRecording(view.job,*view.declared,{},options.commandMemory));
+            return;
         }
         if(!owner)throw ProjectError(ErrorCode::InvalidState,"Native recording has no prepared owner");
         if(c.kind==NativeMonitorCommandKind::Activate) {
@@ -228,7 +283,7 @@ struct NativeMonitorController::State {
                     retain(true);seenCancel=epoch;view.cancelAcknowledged=epoch;
                     {std::lock_guard lock(mutex);queue.clear();}
                     if(closing.load(std::memory_order_acquire)){view.phase=NativeMonitorPhase::Closed;publish();return;}
-                    if(!hasOriginal())view.phase=options.streams?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;
+                    if(!hasOriginal())view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;
                 }
                 std::optional<Queued> command;
                 {std::lock_guard lock(mutex);if(!queue.empty()){command=std::move(queue.front());queue.pop_front();}}

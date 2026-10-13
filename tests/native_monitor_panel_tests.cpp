@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+#include "fake_pipewire_monitor_streams.hpp"
 #include "native_monitor_panel.hpp"
 #include "studio_window.hpp"
 #include "fake_native_monitor_streams.hpp"
@@ -193,5 +194,28 @@ void activeClose(const std::filesystem::path &root){
     const auto a=spy->callbackAudit;check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Visible panel introduced callback allocations/locks");
     std::cout<<"native_panel active_close_async=true result_retained=true sdk_joined=true guarded=0 simulated_sdk=true\n";
 }
+void pipewirePanel(const std::filesystem::path &root){
+    std::filesystem::create_directories(root);const auto project=makeOneTrackSession("PipeWire panel","Raw");ProjectStore(root).save(project);
+    auto shared=std::make_shared<pipewire_monitor_fixture::Shared>();NativeMonitorControllerOptions options;options.commandMemory=ResourceLedger{64*1024*1024};
+    options.pipewireStreams=[shared](auto &route){return std::make_unique<pipewire_monitor_fixture::Simulated>(route,shared,0);};
+    NativeMonitorPanel panel(std::move(options));CloseOnExit close{panel};panel.show();NativeMonitorPreparation p;p.root=root;p.pipewire.emplace();auto &o=*p.pipewire;
+    o.declared.raw.project=project.id;o.declared.raw.track=project.tracks.front().id;o.declared.raw.identity={11,31,7};o.declared.raw.layout={LayoutKind::Mono,1};
+    o.declared.raw.maximumPacketFrames=480;o.declared.maximumRenderFrames=480;o.route.inputCapacityFrames=32768;o.route.rawSlots=8;o.route.monitorSlots=8;o.route.channelMap=monoToStereoMonitor();
+    MonitorEqSpec eq;eq.track=o.declared.raw.track;eq.settings=project.tracks.front().eq;o.route.equalizer=eq;
+    check(panel.setPreparation(p),"PipeWire panel context refused");control<QSpinBox>(panel,"nativeMonitorSeconds")->setValue(1);
+    QTest::mouseClick(control<QPushButton>(panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Ready;});panel.poll();
+    check(panel.snapshot()->pipewireDeclared && !panel.snapshot()->declared && control<QCheckBox>(panel,"nativeMonitorEq")->isEnabled(),"PipeWire panel fabricated Native declaration or disabled monitor EQ");
+    QTest::mouseClick(control<QPushButton>(panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireResult);});panel.poll();
+    const auto final=panel.snapshot();check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && panel.busy() && control<QPushButton>(panel,"nativeExportOriginal")->isEnabled(),"PipeWire visible finite result/export unavailable");
+    QTest::mouseClick(control<QPushButton>(panel,"nativeInspect"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireReopened);});panel.poll();
+    check(control<QLabel>(panel,"nativeReceipt")->text().contains("verified"),"PipeWire saved inspection not displayed");
+    std::filesystem::create_directory(root/"exports");check(panel.exportOriginal(root/"exports"/"raw.wav"),"PipeWire visible export refused");await([&]{return bool(panel.snapshot()->pipewireExported);});panel.poll();
+    check(hashMediaFile(root/"exports"/"raw.wav")==hashMediaFile(final->job/"take.wav"),"Visible PipeWire export changed raw bytes");
+    panel.releaseOriginal();await([&]{return !panel.snapshot()->hasOriginal();});panel.poll();check(panel.reopenOriginal(final->job),"PipeWire visible saved take reopening refused");
+    await([&]{return bool(panel.snapshot()->pipewireReopened);});panel.poll();check(!panel.snapshot()->reopened && !panel.snapshot()->pipewireResult,"Saved PipeWire take became a live/Native result");
+    panel.beginClose();await([&]{return panel.closeReady();});check(shared->joins==2 && !shared->auditBad && ProjectStore(root).load()==project,"PipeWire panel altered canonical project or failed native joins");
+    std::cout<<"pipewire_panel typed_prepare_record_inspect_export_reopen_close=true raw_original=true simulated_sdk=true timeline_admission_pending=true\n";
 }
-int main(int argc,char **argv){QApplication app(argc,argv);try{QTemporaryDir dir;check(dir.isValid(),"Native panel temp root unavailable");const auto root=utf8Path(dir.path().toUtf8().toStdString());finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+
+}
+int main(int argc,char **argv){QApplication app(argc,argv);try{QTemporaryDir dir;check(dir.isValid(),"Native panel temp root unavailable");const auto root=utf8Path(dir.path().toUtf8().toStdString());pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

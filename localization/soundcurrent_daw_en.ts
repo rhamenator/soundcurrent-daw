@@ -1829,6 +1829,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <source>%1 · %n channel(s) · %2 Hz</source>
       <translation type="unfinished" />
     </message>
+    <message numerus="yes">
+      <source>%1 · %n channel(s)</source>
+      <translation type="unfinished" />
+    </message>
     <message>
       <source>Device choices exceed the panel memory limit.</source>
       <translation>Device choices exceed the panel memory limit.</translation>

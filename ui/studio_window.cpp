@@ -1715,15 +1715,17 @@ bool StudioWindow::admitNativeTake(Frame start) {
 }
 bool StudioWindow::configureNativeRecording(const NativeMonitorPreparation &p) {
     poll(); // Synchronize a just-published Open and stable track selection.
+    const auto &raw=p.pipewire?p.pipewire->declared.raw:p.options.raw;
+    const auto &eqSpec=p.pipewire?p.pipewire->route.equalizer:p.options.route.equalizer;
     const auto model=controller_.snapshot();const auto selected=selectedTrack();
     const auto play=playback_.snapshot()->phase;
     if(!nativeRecording_ || !model->session || !selected || closing_ || closeRequested_ ||
        model->io!=IoOperation::None || recordingBusy() || attachingTake_ || exportWorkflowBusy() ||
        playbackPrepareBarrier_ || (play!=PlaybackPhase::Idle && play!=PlaybackPhase::Fault && play!=PlaybackPhase::Unsupported) ||
-       model->root!=p.root || model->session->id!=p.options.raw.project || *selected!=p.options.raw.track)return false;
+       model->root!=p.root || model->session->id!=raw.project || *selected!=raw.track)return false;
     const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*selected;});
-    if(track==model->session->tracks.end() || track->layout!=p.options.raw.layout || track->inputLatencyFrames!=p.options.raw.declaredInputLatencyFrames ||
-       (p.options.route.equalizer && (p.options.route.equalizer->track!=track->id || p.options.route.equalizer->settings!=track->eq)))return false;
+    if(track==model->session->tracks.end() || track->layout!=raw.layout || track->inputLatencyFrames!=raw.declaredInputLatencyFrames ||
+       (eqSpec && (eqSpec->track!=track->id || eqSpec->settings!=track->eq)))return false;
     try {
         PayloadCharge charge("Native inspector EQ",controller_.resourceLedger().usage().limitBytes);
         charge.add(sizeof(EqSettings)+512);charge.add(track->eq.bands.size(),sizeof(EqBand)+128);
@@ -1782,12 +1784,15 @@ void StudioWindow::pollNativeRecording(const std::shared_ptr<const ControllerSna
                 p.options.raw.layout=track->layout;p.options.raw.declaredInputLatencyFrames=track->inputLatencyFrames;
                 MonitorEqSpec eq;eq.track=track->id;eq.settings=track->eq;p.options.route.equalizer=std::move(eq);
                 p.options.route.resources=controller_.resourceLedger();p.options.recording.raw.resources=controller_.resourceLedger();
+                if(state->pipewire){p.pipewire.emplace();auto &o=*p.pipewire;o.declared.raw=p.options.raw;o.declared.raw.sampleRate=model->session->sampleRate;
+                    o.declared.renderRate=model->session->sampleRate;o.route.equalizer=p.options.route.equalizer;o.route.resources=controller_.resourceLedger();
+                    o.journal.raw.resources=controller_.resourceLedger();o.durable.resources=controller_.resourceLedger();}
                 configureNativeRecording(p);
             }catch(const ProjectError &){/* Context remains unavailable; no SDK/preparation activation. */}
         }
     }
     if(!model->session || model->projectEpoch!=nativeProjectEpoch_ || !nativeTrack_ || !nativeEqSent_ ||
-       !state->declared || !state->declared->equalizer ||
+       !state->hasEqualizer() ||
        (state->phase!=NativeMonitorPhase::Ready && state->phase!=NativeMonitorPhase::Recording))return;
     const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*nativeTrack_;});
     if(track==model->session->tracks.end() || track->eq.id!=nativeEqSent_->id || track->eq.bands.size()!=nativeEqSent_->bands.size())return;

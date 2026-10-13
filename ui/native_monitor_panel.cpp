@@ -101,15 +101,16 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
             NativeMonitorCommand shape;shape.preparation=preparation_;
             auto lease=memory_.reserve(nativeMonitorCommandPayloadBytes(shape,memory_.usage().limitBytes));
             auto copy=std::make_shared<OwnedPreparation>(std::move(lease),*preparation_);
-            copy->value.options.route.runGeneration=++nextGeneration_;copy->value.options.run=Id::generate();copy->value.options.raw.asset=Id::generate();
+            if(copy->value.pipewire){auto &o=*copy->value.pipewire;o.declared.generation=++nextGeneration_;o.declared.run=Id::generate();o.declared.raw.asset=Id::generate();}
+            else{copy->value.options.route.runGeneration=++nextGeneration_;copy->value.options.run=Id::generate();copy->value.options.raw.asset=Id::generate();}
             auto c=command(NativeMonitorCommandKind::Prepare);c.generation=nextGeneration_;c.preparation=std::shared_ptr<const NativeMonitorPreparation>(copy,&copy->value);if(send(c))nextRevision_=0;
         } catch(const ProjectError &){admission_=tr("Recording settings exceed the panel memory limit.");poll();}
     });
     connect(start_,&QPushButton::clicked,this,[this]{
-        const auto s=snapshot();if(!s->declared)return;auto c=command(NativeMonitorCommandKind::Activate);
-        const auto frames=std::uint64_t(seconds_->value())*s->declared->render.sampleRate;
-        if(frames>UINT64_MAX-s->declared->monitorFirst.value){admission_=tr("Monitoring range is too large.");poll();return;}
-        c.end={s->declared->monitorFirst.value+frames};send(c);
+        const auto s=snapshot();if(!s->declared && !s->pipewireDeclared)return;auto c=command(NativeMonitorCommandKind::Activate);
+        const auto frames=std::uint64_t(seconds_->value())*s->monitorRate();
+        if(frames>UINT64_MAX-(s->pipewireDeclared?s->monitorFirst.value:s->declared->monitorFirst.value)){admission_=tr("Monitoring range is too large.");poll();return;}
+        c.end={(s->pipewireDeclared?s->monitorFirst.value:s->declared->monitorFirst.value)+frames};send(c);
     });
     connect(cancel_,&QPushButton::clicked,this,[this]{controller_.requestCancel();admission_.clear();});
     connect(inspect_,&QPushButton::clicked,this,[this]{send(command(NativeMonitorCommandKind::Inspect));});
@@ -135,14 +136,14 @@ bool NativeMonitorPanel::send(NativeMonitorCommand c) {
     }poll();return false;
 }
 bool NativeMonitorPanel::setPreparation(const NativeMonitorPreparation &p) {
-    if(!setProject(p.root,p.options.raw.project))return false;
-    const auto s=snapshot();if(closing_ || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Finishing || s->result)return false;
+    if(!setProject(p.root,(p.pipewire?p.pipewire->declared.raw.project:p.options.raw.project)))return false;
+    const auto s=snapshot();if(closing_ || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Finishing || s->hasOriginal())return false;
     try{
         NativeMonitorCommand c;c.preparation=std::shared_ptr<const NativeMonitorPreparation>(std::shared_ptr<void>{},&p);
         const auto bytes=nativeMonitorCommandPayloadBytes(c,memory_.usage().limitBytes);
         auto lease=memory_.reserve(bytes);auto owned=std::make_shared<OwnedPreparation>(std::move(lease),p);
         preparation_=std::shared_ptr<const NativeMonitorPreparation>(owned,&owned->value);
-        {QSignalBlocker block(eq_);eq_->setChecked(p.options.route.equalizer && p.options.route.equalizer->settings.enabled);}
+        {QSignalBlocker block(eq_);const auto &eq=p.pipewire?p.pipewire->route.equalizer:p.options.route.equalizer;eq_->setChecked(eq && eq->settings.enabled);}
         devices_->setText(tr("Input: %1 · Output: %2").arg(deviceName(p.inputs),deviceName(p.outputs)));admission_.clear();poll();return true;
     }catch(const ProjectError &e){admission_=e.code()==ErrorCode::ResourceLimit?tr("Recording settings exceed the panel memory limit."):tr("Recording settings are invalid.");poll();return false;}
 }
@@ -161,19 +162,19 @@ void NativeMonitorPanel::reopenGuard(std::function<bool()> guard){reopenGuard_=s
 bool NativeMonitorPanel::reopenOriginal(const std::filesystem::path &path) {
     if(closing_ || busy() || !project_ || nextGeneration_==UINT64_MAX || (reopenGuard_ && !reopenGuard_()))return false;
     const auto s=snapshot();auto c=command(NativeMonitorCommandKind::ReopenOriginal);
-    c.root=projectRoot_;c.job=path;c.project=project_;c.generation=nextGeneration_+1;
+    c.root=projectRoot_;c.job=path;c.project=project_;c.generation=nextGeneration_+1;c.pipewire=s->pipewire;
     if(!send(std::move(c)))return false;
     ++nextGeneration_;reopeningPending_=true;reopenCompleted_=s->completedCommands;reopenCancel_=s->cancelAcknowledged;poll();return true;
 }
 bool NativeMonitorPanel::prepareAdmission(const Id &track,Frame placement,std::uint32_t rate,std::uint64_t revision) {
-    const auto s=snapshot();if(closing_ || (!s->result && !s->reopened) || s->admitting || s->exporting)return false;
+    const auto s=snapshot();if(closing_ || !s->hasOriginal() || s->admitting || s->exporting)return false;
     auto c=command(NativeMonitorCommandKind::AdmitTake);c.targetTrack=track;c.clipId=Id::generate();c.placement=placement;c.projectRate=rate;c.revision=revision;c.resultSequence=s->resultSequence;
     if(!send(std::move(c)))return false;
     admissionPending_=true;admissionCompleted_=s->completedCommands;admissionCancel_=s->cancelAcknowledged;poll();return true;
 }
 void NativeMonitorPanel::releaseOriginal(){auto c=command(NativeMonitorCommandKind::ReleaseResult);c.resultSequence=snapshot()->resultSequence;send(std::move(c));}
 bool NativeMonitorPanel::exportOriginal(const std::filesystem::path &path) {
-    const auto s=snapshot();if(closing_ || (!s->result && !s->reopened))return false;
+    const auto s=snapshot();if(closing_ || !s->hasOriginal())return false;
     auto c=command(NativeMonitorCommandKind::ExportOriginal);c.destination=path;c.resultSequence=s->resultSequence;return send(c);
 }
 bool NativeMonitorPanel::interactiveDevices() const{return interactive_;}
@@ -196,13 +197,15 @@ void NativeMonitorPanel::updateDevices(const NativeMonitorSnapshot &s) {
         int inputIndex=0,outputIndex=0;
         for(std::size_t i=0;i<s.ports->size();) {
             const auto &first=(*s.ports)[i];const auto count=first.nativeChannels;
-            bool complete=first.backendId=="wasapi" && !first.loopback && first.portId==0 && count && count<=256 && count<=s.ports->size()-i;
+            bool complete=(first.backendId=="wasapi" || first.backendId=="pipewire") && !first.loopback && (first.backendId=="pipewire" || first.portId==0) && count && count<=256 && count<=s.ports->size()-i;
             for(std::size_t j=0;complete && j<count;++j) {
-                const auto &port=(*s.ports)[i+j];complete=port.deviceIdentity==first.deviceIdentity && port.backendId==first.backendId && port.input==first.input && !port.loopback && port.nativeChannels==count && port.sampleRate==first.sampleRate && port.portId==j;
+                const auto &port=(*s.ports)[i+j];complete=port.deviceIdentity==first.deviceIdentity && port.backendId==first.backendId && port.input==first.input && !port.loopback && port.nativeChannels==count && port.sampleRate==first.sampleRate && (first.backendId=="pipewire" || port.portId==j);
             }
             if(!complete){++i;continue;}
             auto *model=first.input?outputs.get():inputs.get();
-            auto *item=new QStandardItem(tr("%1 · %n channel(s) · %2 Hz",nullptr,int(count)).arg(QString::fromUtf8(first.nodeName.data(),qsizetype(first.nodeName.size())),QLocale().toString(first.sampleRate)));
+            auto label=tr("%1 · %n channel(s) · %2 Hz",nullptr,int(count)).arg(QString::fromUtf8(first.nodeName.data(),qsizetype(first.nodeName.size())),QLocale().toString(first.sampleRate));
+            if(first.backendId=="pipewire")label=tr("%1 · %n channel(s)",nullptr,int(count)).arg(QString::fromUtf8(first.nodeName.data(),qsizetype(first.nodeName.size())));
+            auto *item=new QStandardItem(label);
             item->setData(QVariant::fromValue(qulonglong(i)),Qt::UserRole);model->appendRow(item);
             const auto &prior=first.input?output:input;
             if(prior && prior->backendId==first.backendId && prior->deviceIdentity==first.deviceIdentity && prior->nativeChannels==count && prior->sampleRate==first.sampleRate)
@@ -222,7 +225,7 @@ bool NativeMonitorPanel::chooseDevices() {
         const auto inputs=std::size_t(inputDevice_->currentData().toULongLong()),outputs=std::size_t(outputDevice_->currentData().toULongLong());
         if(inputs>=shownPorts_->size() || outputs>=shownPorts_->size())return false;
         const auto inCount=(*shownPorts_)[inputs].nativeChannels,outCount=(*shownPorts_)[outputs].nativeChannels;
-        if(inCount>shownPorts_->size()-inputs || outCount>shownPorts_->size()-outputs || inCount!=preparation_->options.raw.layout.channels) {
+        if(inCount>shownPorts_->size()-inputs || outCount>shownPorts_->size()-outputs || inCount!=(preparation_->pipewire?preparation_->pipewire->declared.raw.layout.channels:preparation_->options.raw.layout.channels)) {
             admission_=tr("The capture device width must match the selected track.");return false;
         }
         const bool duplicate=mapping_->currentIndex()==1;
@@ -235,7 +238,8 @@ bool NativeMonitorPanel::chooseDevices() {
         charge.add(nativeMonitorCommandPayloadBytes(shape,memory_.usage().limitBytes));charge.add(nativeMonitorPortsPayloadBytes(in,memory_.usage().limitBytes));charge.add(nativeMonitorPortsPayloadBytes(out,memory_.usage().limitBytes));
         auto lease=memory_.reserve(charge.bytes());auto owned=std::make_shared<OwnedPreparation>(std::move(lease),*preparation_);
         owned->value.inputs.assign(in.begin(),in.end());owned->value.outputs.assign(out.begin(),out.end());
-        owned->value.options.route.channelMap=duplicate?std::optional(monoToStereoMonitor()):std::nullopt;
+        if(owned->value.pipewire){auto &o=*owned->value.pipewire;o.route.channelMap=duplicate?std::optional(monoToStereoMonitor()):std::nullopt;o.declared.renderChannels=outCount;}
+        else owned->value.options.route.channelMap=duplicate?std::optional(monoToStereoMonitor()):std::nullopt;
         if(preparationGuard_)return preparationGuard_(owned->value);
         return setPreparation(owned->value);
     }catch(const ProjectError &){admission_=tr("Selected devices exceed the panel memory limit.");return false;}
@@ -257,8 +261,8 @@ void NativeMonitorPanel::poll() {
     const auto s=snapshot();const bool editable=!closing_;
     if(reopeningPending_ && (s->completedCommands>reopenCompleted_ || s->cancelAcknowledged!=reopenCancel_ || s->phase==NativeMonitorPhase::Closed))reopeningPending_=false;
     if(admissionPending_ && (s->completedCommands>admissionCompleted_ || s->cancelAcknowledged!=admissionCancel_ || s->phase==NativeMonitorPhase::Closed))admissionPending_=false;
-    const bool saved=bool(s->result) || bool(s->reopened);
-    const auto *prefix=s->reopened?s->reopened.get():(s->result && s->result->prefix?&*s->result->prefix:nullptr);
+    const bool saved=s->hasOriginal();
+    const auto *prefix=s->rawPrefix();
     if(interactive_) {
         if(refreshing_ && (s->completedCommands>refreshCompleted_ || s->cancelAcknowledged!=refreshCancel_ || s->phase==NativeMonitorPhase::Closed))refreshing_=false;
         updateDevices(*s);
@@ -266,16 +270,16 @@ void NativeMonitorPanel::poll() {
         refresh_->setEnabled(choices && !refreshing_);
         for(auto *combo:{inputDevice_,outputDevice_,mapping_})combo->setEnabled(choices && !refreshing_);
     }
-    const bool idle=s->phase==NativeMonitorPhase::Idle || (s->phase==NativeMonitorPhase::Fault && !s->result);
+    const bool idle=s->phase==NativeMonitorPhase::Idle || (s->phase==NativeMonitorPhase::Fault && !saved);
     prepare_->setEnabled(editable && preparation_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
     seconds_->setEnabled(editable && (idle || s->phase==NativeMonitorPhase::Ready));
     cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->exporting || s->admitting || admissionPending_ || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
     inspect_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);keep_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);
-    export_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_ && prefix && prefix->raw.finalized && prefix->raw.committedFrames && prefix->raw.finitePrefixFrames==prefix->raw.committedFrames);
+    export_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_ && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames);
     open_->setEnabled(editable && project_ && !busy());
-    const bool attachable=editable && saved && !s->exporting && !s->admitting && !admissionPending_ && bool(addRequested) && prefix && prefix->raw.finalized && prefix->raw.committedFrames && prefix->raw.finitePrefixFrames==prefix->raw.committedFrames;
+    const bool attachable=editable && !s->pipewire && saved && !s->exporting && !s->admitting && !admissionPending_ && bool(addRequested) && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames;
     add_->setEnabled(attachable);placement_->setEnabled(attachable);
-    eq_->setEnabled(editable && s->declared && s->declared->equalizer && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording));
+    eq_->setEnabled(editable && s->hasEqualizer() && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording));
     QString phase;
     switch(s->phase){
     case NativeMonitorPhase::Unsupported:phase=tr("Recording is unavailable.");break;
@@ -285,7 +289,7 @@ void NativeMonitorPanel::poll() {
     case NativeMonitorPhase::Ready:phase=tr("Ready to record.");break;
     case NativeMonitorPhase::Recording:phase=tr("Recording and monitoring…");break;
     case NativeMonitorPhase::Finishing:phase=tr("Finishing and saving the original take…");break;
-    case NativeMonitorPhase::Result:phase=s->result && s->result->disposition==NativeMonitorRecordingDisposition::Complete?tr("Original take saved."):tr("Recording cancelled. The retained take is available for inspection.");break;
+    case NativeMonitorPhase::Result:phase=((s->result && s->result->disposition==NativeMonitorRecordingDisposition::Complete) || (s->pipewireResult && s->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded))?tr("Original take saved."):tr("Recording cancelled. The retained take is available for inspection.");break;
     case NativeMonitorPhase::Fault:phase=tr("Recording stopped with an error. Inspect the retained take.");break;
     case NativeMonitorPhase::Closed:phase=tr("Recording closed.");break;
     }
@@ -301,13 +305,24 @@ void NativeMonitorPanel::poll() {
         }
         phase=tr("Saved native take opened. Original outcome: %1.").arg(outcome);
     }
+    if(!s->pipewireResult && s->pipewireReopened){
+        QString outcome=tr("Pending");
+        if(s->pipewireReopened->outcome)switch(s->pipewireReopened->outcome->disposition){
+        case PipeWireStoredDisposition::Recorded:outcome=tr("Complete");break;
+        case PipeWireStoredDisposition::Cancelled:outcome=tr("Cancelled");break;
+        case PipeWireStoredDisposition::Failed:outcome=tr("Failed");break;
+        }
+        phase=tr("Saved native take opened. Original outcome: %1.").arg(outcome);
+    }
     if(s->admitting)phase=tr("Verifying original take for the timeline…");
     if(s->exporting)phase=tr("Exporting original WAV…");
     if(s->errorSerial!=errorSeen_){errorSeen_=s->errorSerial;if(s->error)admission_=tr("Recording error (%1).").arg(int(*s->error));}
     status_->setText(admission_.isEmpty()?phase:admission_);status_->setToolTip(QStringLiteral("<pre>")+QString::fromUtf8(s->diagnostic.data(),qsizetype(std::min<std::size_t>(s->diagnostic.size(),4096))).toHtmlEscaped()+QStringLiteral("</pre>"));
     progress_->setText(tr("Original frames: %1 · Monitored frames: %2").arg(qulonglong(s->progress.rawAcceptedFrames)).arg(qulonglong(s->progress.deliveredMonitorFrames)));
     QString details=tr("EQ accepted: %1 · Applied: %2").arg(qulonglong(s->acceptedEqRevision)).arg(qulonglong(s->appliedEqRevision));
+    if(s->pipewireReopened)details+=tr(" · Saved frames verified: %1").arg(qulonglong(s->pipewireReopened->prefix.raw.committedFrames));
     if(s->reopened)details+=tr(" · Saved frames verified: %1").arg(qulonglong(s->reopened->raw.committedFrames));
+    if(s->pipewireExported)details+=tr(" · Original WAV exported: %1 frames").arg(QLocale().toString(qulonglong(s->pipewireExported->frames)));
     if(s->exported)details+=tr(" · Original WAV exported: %1 frames").arg(QLocale().toString(qulonglong(s->exported->frames)));
     if(s->exported) {
         const auto name=s->exported->destination.u8string();
@@ -319,7 +334,7 @@ void NativeMonitorPanel::poll() {
 }
 void NativeMonitorPanel::cancel(){controller_.requestCancel();admission_.clear();}
 bool NativeMonitorPanel::busy() const {
-    const auto s=snapshot();return reopeningPending_ || bool(s->result) || bool(s->reopened) || s->phase==NativeMonitorPhase::Reopening || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Finishing;
+    const auto s=snapshot();return reopeningPending_ || s->hasOriginal() || s->phase==NativeMonitorPhase::Reopening || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Finishing;
 }
 void NativeMonitorPanel::beginClose(){if(closing_)return;closing_=true;controller_.requestShutdown();poll();}
 bool NativeMonitorPanel::closeReady() const{return snapshot()->phase==NativeMonitorPhase::Closed;}

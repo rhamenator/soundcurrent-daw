@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-#include <soundcurrent/native_monitor_recording.hpp>
+#include <soundcurrent/monitor_control_endpoint.hpp>
 #include <soundcurrent/audio_port.hpp>
 #include <soundcurrent/native_original_export.hpp>
 #include <soundcurrent/native_take_admission.hpp>
+#include <soundcurrent/pipewire_take_workflow.hpp>
 #include <functional>
 #include <span>
 
@@ -12,6 +13,7 @@ struct NativeMonitorPreparation {
     std::filesystem::path root;
     NativeMonitorRecordingOptions options;
     std::vector<AudioPort> inputs, outputs;
+    std::optional<PipeWireMonitorRecordingOptions> pipewire; // Explicit expected graph declaration.
 };
 struct NativeMonitorControllerOptions {
     // ONE worker: inventory/device preparation, files, native controls and joins.
@@ -20,6 +22,7 @@ struct NativeMonitorControllerOptions {
     ResourceLedger commandMemory{16 * 1024 * 1024, "Native control command payloads"}; // Off RT; may share a parent GUI ledger.
     std::function<std::vector<AudioPort>()> inventory = {}; // Worker only, bounded backend projection.
     ResourceLedger inventoryMemory{16 * 1024 * 1024, "Native device inventory"};
+    PipeWireMonitorStreamFactory pipewireStreams;
 };
 enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed, Reopening };
 enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };
@@ -37,6 +40,7 @@ struct NativeMonitorCommand {
     std::optional<EqSettings> equalizer;
     std::optional<ParameterAddress> parameter;
     std::optional<bool> enabled;
+    bool pipewire=false; // Explicit saved-state inspector selection.
 };
 // Off RT payload preflight shared with bounded GUI preparation ownership.
 std::size_t nativeMonitorCommandPayloadBytes(const NativeMonitorCommand &,std::size_t budget);
@@ -56,9 +60,24 @@ struct NativeMonitorSnapshot {
     std::shared_ptr<const NativeMonitorRecordingResult> result;
     std::shared_ptr<const NativeOriginalRecordingPrefix> reopened;
     std::shared_ptr<const NativeOriginalExportResult> exported;
+    std::shared_ptr<const PipeWireRecordingSpec> pipewireDeclared;
+    std::shared_ptr<const PipeWireMonitorRecordingResult> pipewireResult;
+    std::shared_ptr<const PipeWireStoredRecording> pipewireReopened;
+    std::shared_ptr<const PipeWireOriginalExportResult> pipewireExported;
     std::shared_ptr<const VerifiedNativeTake> admission;
     std::uint64_t admissionRevision=0;
-    bool exporting = false,admitting=false;
+    bool exporting = false,admitting=false,pipewire=false,pipewireHasEq=false;
+    MonitorOutputOrdinal monitorFirst{};
+    bool hasOriginal() const {return bool(result)||bool(reopened)||bool(pipewireResult)||bool(pipewireReopened);}
+    const OriginalRecordingPrefix *rawPrefix() const {
+        if(pipewireReopened)return &pipewireReopened->prefix.raw;
+        if(pipewireResult && pipewireResult->prefix)return &pipewireResult->prefix->raw;
+        if(reopened)return &reopened->raw;
+        return result && result->prefix?&result->prefix->raw:nullptr;
+    }
+    bool hasEqualizer() const {return pipewireDeclared?pipewireHasEq:(declared && bool(declared->equalizer));}
+    std::uint32_t monitorRate() const {return pipewireDeclared?pipewireDeclared->renderRate:(declared?declared->render.sampleRate:0);}
+
     std::optional<ErrorCode> error;
     std::string diagnostic; // UI translates stable error code; original detail retained.
 };
@@ -79,6 +98,8 @@ class NativeMonitorController {
     struct State;
     std::unique_ptr<State> state_;
 };
+// Genuine Linux factory is available only when built with PipeWire.
+NativeMonitorControllerOptions pipewireNativeMonitorControllerOptions();
 #ifdef _WIN32
 // Opt-in genuine adapter; never changes default devices/volume. Inventory and
 // selected complete native channels are revalidated on the controller worker.
