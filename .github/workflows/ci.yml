@@ -124,13 +124,21 @@ jobs:
           python3 tests/results/M2/2026-10-10-windows-bounded-observation/verify.py
           python3 tests/results/M2/2026-10-10-windows-protected-preview/verify.py
           python3 tests/results/M2/2026-10-10-windows-protected-preview/refusals.py
+      - name: Verify controller failure retention
+        if: always()
+        run: python3 tests/controller_retention_tests.py
+      - name: Preserve controller failure projects
+        if: always()
+        run: python3 .github/scripts/retain-controller-failure-projects.py build
       - name: Retain test log
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           archive: true
           name: linux-synthetic-test-log
-          path: build/Testing/Temporary/*.log
+          path: |
+            build/Testing/Temporary/*.log
+            build/controller-failure-projects/**
           if-no-files-found: ignore
   windows-core-cross-build:
     name: Windows core cross-build (no native runtime claim)
@@ -218,6 +226,14 @@ jobs:
         if: always()
         shell: pwsh
         run: ./.github/scripts/retain-owner-failure-projects.ps1 -BuildDirectory ./build-native
+      - name: Verify and preserve controller failure projects
+        if: always()
+        shell: pwsh
+        run: |
+          python tests/controller_retention_tests.py
+          if ($LASTEXITCODE -ne 0) { throw "Controller retention self-test failed" }
+          python .github/scripts/retain-controller-failure-projects.py build-native
+          if ($LASTEXITCODE -ne 0) { throw "Controller failure retention failed" }
       - name: Retain native unit log
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -230,6 +246,7 @@ jobs:
             build-native/manual-owner-*-stderr.log
             build-native/native-owner-failure-evidence/**
             build-native/manual-owner-failure-projects/**
+            build-native/controller-failure-projects/**
             build-native/warp-map-geometry-evidence/**
             build-native/protected-warp-geometry-evidence/**
             build-native/protected-warp-render-evidence/**
@@ -278,6 +295,14 @@ jobs:
           set "SC_PARENT_TIMING_EVIDENCE=%CD%\build-desktop-native\parent-observation-timing"
           ctest --test-dir build-desktop-native -R "^(desktop-native-recording-panel|desktop-loop-recording|desktop-loop-controls|desktop-playback-controller|desktop-retained-takes|desktop-stretch-parent-interruption|desktop-stretch-controller|desktop-stretch-ui|desktop-protected-warp-ui|desktop-playback-rate|desktop-positioned-clips|desktop-clip-processing|desktop-media-copy-controller|desktop-import-controller|desktop-import-ui|desktop-media-controller|desktop-import-media-ui|desktop-localization|windows-package-inputs|protected-warp-package-inputs)$" --output-on-failure --no-tests=error -V
           if errorlevel 1 exit /b 1
+      - name: Verify and preserve desktop controller failure projects
+        if: always()
+        shell: pwsh
+        run: |
+          python tests/controller_retention_tests.py
+          if ($LASTEXITCODE -ne 0) { throw "Controller retention self-test failed" }
+          python .github/scripts/retain-controller-failure-projects.py build-desktop-native
+          if ($LASTEXITCODE -ne 0) { throw "Controller failure retention failed" }
       - name: Retain native desktop evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -286,6 +311,7 @@ jobs:
           name: windows-desktop-import-test-log
           path: |
             build-desktop-native/Testing/Temporary/*.log
+            build-desktop-native/controller-failure-projects/**
             build-desktop-native/parent-observation-timing/*.json
             native-ui-dependencies/verified-runtime.json
           if-no-files-found: ignore
