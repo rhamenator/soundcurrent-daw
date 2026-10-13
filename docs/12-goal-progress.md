@@ -1,5 +1,14 @@
 # Active full-suite goal: progress and completion evidence
 
+## Recording checkpoint service ordering (2026-10-12)
+
+[Checkpoint 240](240-recording-checkpoint-service.md) releases copied raw views
+before due paired durability publication, preserving intervals/flushes/recovery.
+Three focused suites pass in 7.38 s; private canonical native playback still matches
+all8,192 offline samples exactly. Full raw checkpoint timing is now bracketed.
+Long storage stalls and original QueueFull causes remain open; independent Windows
+and current sanitizer qualification remain required. Full suite scope is active.
+
 ## Native playback of canonical admitted takes (2026-10-12)
 
 [Checkpoint 239](239-admitted-take-native-playback.md) verifies genuine private
