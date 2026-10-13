@@ -278,6 +278,8 @@ jobs:
           tar -xzf native-dependencies/libsndfile-1.2.2.tar.gz -C native-dependencies
           if ($LASTEXITCODE -ne 0) { throw "libsndfile extraction failed" }
       - name: Build and test native desktop workflows without audio endpoints
+        env:
+          SC_CROSSFADE_CAPTURE: ${{ github.workspace }}/build-desktop-native/Testing/crossfade-ui
         shell: cmd
         run: |
           for /f "usebackq tokens=*" %%i in (`"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "SC_DESKTOP_VS_PATH=%%i"
@@ -338,6 +340,7 @@ jobs:
           name: windows-desktop-import-test-log
           path: |
             build-desktop-native/Testing/Temporary/*.log
+            build-desktop-native/Testing/crossfade-ui/*.png
             build-desktop-native/controller-failure-projects/**
             build-desktop-native/parent-observation-timing/*.json
             native-ui-dependencies/verified-runtime.json

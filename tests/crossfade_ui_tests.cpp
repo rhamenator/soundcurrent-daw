@@ -146,9 +146,13 @@ int main(int argc,char **argv) {
                 check(help->height()>=help->heightForWidth(help->width()) && scroll->widgetResizable(),
                       "Small crossfade dialog clips explanation rather than scrolling");
                 check(scroll->verticalScrollBar()->maximum()>0,"Small crossfade dialog has no vertical scroll range");
-                check(scroll->horizontalScrollBar()->maximum()==0,"Small crossfade dialog requires horizontal reading of help");
                 scroll->ensureWidgetVisible(help);QApplication::processEvents();
                 if(!capture.isEmpty())check(dialog->grab().save(capture+"/small.png"),"Small dialog capture failed");
+                if(scroll->horizontalScrollBar()->maximum()!=0)
+                    std::cerr<<"dialog="<<dialog->width()<<" viewport="<<scroll->viewport()->width()
+                             <<" body="<<scroll->widget()->width()<<" bodyMinimum="<<scroll->widget()->minimumSizeHint().width()
+                             <<" help="<<help->width()<<" horizontal="<<scroll->horizontalScrollBar()->maximum()<<'\n';
+                check(scroll->horizontalScrollBar()->maximum()==0,"Small crossfade dialog requires horizontal reading of help");
                 widget<QLineEdit>(*dialog,"crossfadeStart")->setText("486");
                 widget<QLineEdit>(*dialog,"crossfadeEnd")->setText("538");
                 buttons->button(QDialogButtonBox::Ok)->click();

@@ -651,6 +651,16 @@ void TimelineEditor::editCrossfade() {
     form->addRow(handles);
     auto *help = new WrappedHelpLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
     help->setObjectName("crossfadeHelp");help->setWordWrap(true);form->addRow(help);
+    // Native fonts and translated captions must not force the scroll body wider
+    // than the viewport. Wrap form labels as well as the full-width explanation.
+    for(int row=0;row<form->rowCount();++row) {
+        const auto *item=form->itemAt(row,QFormLayout::LabelRole);
+        if(auto *label=item?qobject_cast<QLabel *>(item->widget()):nullptr) {
+            label->setWordWrap(true);
+            label->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);
+        }
+    }
+    help->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     outer->addWidget(buttons);
     const auto updateRange = [&] {
