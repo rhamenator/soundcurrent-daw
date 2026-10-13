@@ -37,7 +37,7 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
                  <<" captureClock="<<bool(r.captureClockFault)<<" renderClock="<<bool(r.renderClockFault)<<" buffer="<<bool(r.bufferFault)
                  <<" captureReceipt="<<bool(r.captureReceiptFault)<<" renderReceipt="<<bool(r.renderReceiptFault)
                  <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)
-                 <<" captureLateNs="<<shared->captureLateNs.load()<<" renderLateNs="<<shared->renderLateNs.load()<<" afterRawCheckpointToPairPublishNs="<<shared->checkpointNs.load()<<" rawAudioStampWriteNs="<<shared->rawWriteNs.load()<<'\n';
+                 <<" captureLateNs="<<shared->captureLateNs.load()<<" renderLateNs="<<shared->renderLateNs.load()<<" afterRawCheckpointToPairPublishNs="<<shared->checkpointNs.load()<<" rawAudioStampWriteNs="<<shared->rawWriteNs.load()<<" rawCheckpointNs="<<shared->rawCheckpointNs.load()<<'\n';
         if(r.terminalFailure)try{std::rethrow_exception(r.terminalFailure);}catch(const std::exception &e){std::cerr<<"terminal="<<e.what()<<'\n';}}
     check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && !final->result && final->rawPrefix()->committedFrames>0 && shared->joins==2 && !shared->auditBad,"Typed recording result/join/raw evidence wrong");
     control.submit(command(NativeMonitorCommandKind::Inspect));await([&]{return bool(control.snapshot()->pipewireReopened);});

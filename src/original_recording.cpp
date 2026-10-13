@@ -201,6 +201,7 @@ struct OriginalCaptureWriter::State {
     void at(OriginalRecordingBoundary b){if(options.boundary)options.boundary(b);}
     void fail() noexcept {failed=true;audio.reset();stamps.reset();lease.reset();}
     void commit() {
+        at(OriginalRecordingBoundary::BeforeCheckpoint);
         audio->flush();at(OriginalRecordingBoundary::AfterAudioFlush);
         stamps->flush();at(OriginalRecordingBoundary::AfterStampFlush);
         prefix.committedFrames=written;prefix.committedPackets=packets;prefix.finitePrefixFrames=finite;

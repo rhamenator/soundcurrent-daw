@@ -243,7 +243,7 @@ void pipewirePanel(const std::filesystem::path &root){
                 <<" captureClock="<<bool(r.captureClockFault)<<" renderClock="<<bool(r.renderClockFault)<<" drift="<<bool(r.clockFault)
                 <<" captureReceipt="<<bool(r.captureReceiptFault)<<" renderReceipt="<<bool(r.renderReceiptFault)<<" startup="<<bool(r.startup)
                 <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)<<" waitFailure="<<r.waitFailure
-                <<" captureLateNs="<<shared->captureLateNs.load()<<" renderLateNs="<<shared->renderLateNs.load()<<" afterRawCheckpointToPairPublishNs="<<shared->checkpointNs.load()<<" rawAudioStampWriteNs="<<shared->rawWriteNs.load()
+                <<" captureLateNs="<<shared->captureLateNs.load()<<" renderLateNs="<<shared->renderLateNs.load()<<" afterRawCheckpointToPairPublishNs="<<shared->checkpointNs.load()<<" rawAudioStampWriteNs="<<shared->rawWriteNs.load()<<" rawCheckpointNs="<<shared->rawCheckpointNs.load()
                 <<" rawAppends="<<shared->rawAppends.load()<<" pairedCheckpoints="<<shared->checkpoints.load()<<'\n';
             for(const auto &failure:{r.activationFailure,r.diskFailure,r.storageFailure,r.recoveryFailure,r.terminalFailure})if(failure)try{std::rethrow_exception(failure);}catch(const std::exception &e){*out<<"exception="<<e.what()<<'\n';}
         }}

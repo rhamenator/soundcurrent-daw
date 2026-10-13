@@ -17,7 +17,8 @@ struct OriginalRecordingSpec {
 };
 enum class OriginalRecordingBoundary {
     BeforeAudioWrite, AfterAudioWrite, AfterStampWrite, AfterAudioFlush,
-    AfterStampFlush, BeforeJournal, AfterJournal, BeforeMediaPublish, AfterMediaPublish
+    AfterStampFlush, BeforeJournal, AfterJournal, BeforeMediaPublish, AfterMediaPublish,
+    BeforeCheckpoint // Appended: preserves existing boundary IDs; disk/control only.
 };
 struct OriginalRecordingOptions {
     std::uint64_t checkpointFrames = 0; // Zero chooses one nominal second.
