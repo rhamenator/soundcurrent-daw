@@ -29,7 +29,15 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
     await([&]{return control.snapshot()->phase==NativeMonitorPhase::Ready || bool(control.snapshot()->error);});
     auto ready=control.snapshot();check(ready->pipewireDeclared && !ready->declared && ready->hasEqualizer(),"Controller fabricated Native/QPC declaration");
     auto start=command(NativeMonitorCommandKind::Activate);start.end={2400};control.submit(start);await([&]{return bool(control.snapshot()->pipewireResult);});
-    auto final=control.snapshot();check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && !final->result && final->rawPrefix()->committedFrames>0 && shared->joins==2 && !shared->auditBad,"Typed recording result/join/raw evidence wrong");
+    auto final=control.snapshot();
+    if(final->pipewireResult->disposition!=PipeWireRecordingDisposition::Recorded){const auto &r=*final->pipewireResult;
+        std::cerr<<"PW finalization disposition="<<int(r.disposition)<<" raw="<<(r.prefix?r.prefix->raw.committedFrames:0)<<" terminalStored="<<r.terminalStored
+                 <<" processing="<<bool(r.processingFault)<<" fanout="<<bool(r.fanoutFault)<<" drift="<<bool(r.clockFault)
+                 <<" captureClock="<<bool(r.captureClockFault)<<" renderClock="<<bool(r.renderClockFault)<<" buffer="<<bool(r.bufferFault)
+                 <<" captureReceipt="<<bool(r.captureReceiptFault)<<" renderReceipt="<<bool(r.renderReceiptFault)
+                 <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)<<'\n';
+        if(r.terminalFailure)try{std::rethrow_exception(r.terminalFailure);}catch(const std::exception &e){std::cerr<<"terminal="<<e.what()<<'\n';}}
+    check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && !final->result && final->rawPrefix()->committedFrames>0 && shared->joins==2 && !shared->auditBad,"Typed recording result/join/raw evidence wrong");
     control.submit(command(NativeMonitorCommandKind::Inspect));await([&]{return bool(control.snapshot()->pipewireReopened);});
     check(control.snapshot()->pipewireReopened->prefix.raw.sampleSha256==final->rawPrefix()->sampleSha256,"Saved inspection changed original");
     std::filesystem::create_directory(t.root/"exports");auto exportCommand=command(NativeMonitorCommandKind::ExportOriginal);exportCommand.resultSequence=final->resultSequence;exportCommand.destination=t.root/"exports"/"raw.wav";
@@ -41,6 +49,15 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
     auto edited=project;EditHistory history(edited);check(history.structural({verified->edit()}),"PipeWire admission produced no structural edit");const auto placed=edited;
     check(placed.tracks.front().clips.front().startFrame==123 && nlohmann::json::parse(encodeProject(placed))["schemaMinor"]==19,"PipeWire placement/schema wrong");
     ProjectStore(t.root).save(placed);ProjectStore(t.root).verifyMedia(placed);check(ProjectStore(t.root).load()==placed,"PipeWire project did not reopen exactly");
+    {Temp moved;std::filesystem::remove_all(moved.root);std::filesystem::copy(t.root,moved.root,std::filesystem::copy_options::recursive);
+        check(ProjectStore(moved.root).load()==placed,"Moved project changed canonical state");ProjectStore(moved.root).verifyMedia(placed);
+        const auto movedJob=moved.root/"media"/final->job.filename();
+        const auto admitted=verifyPipeWireTakeForAdmission(moved.root,movedJob,*final->pipewireDeclared,project.tracks.front().id,123,project.sampleRate,Id::generate());
+        check(admitted.edit().asset==placed.assets.front(),"Moved PipeWire take changed hashes/evidence");
+        const auto copied=exportPipeWireOriginalWav(moved.root,movedJob,*final->pipewireDeclared,moved.root/"exports"/"moved.wav");
+        check(copied.fileSha256==placed.assets.front().sha256,"Moved PipeWire raw export changed bytes");
+        bool refused=false;try{verifyPipeWireTakeForAdmission(moved.root,final->job,*final->pipewireDeclared,project.tracks.front().id,123,project.sampleRate,Id::generate());}catch(const ProjectError &){refused=true;}
+        check(refused,"Moved project admitted an original outside its owned root");}
     check(history.undo() && edited==project && history.redo() && edited==placed,"PipeWire admission did not undo/redo atomically");
     auto processed=placed;processed.tracks.front().eq.bands[1].gainDb=-6;
     ExportSpec spec(processed.tracks.front().id);spec.endFrame=123+4096;spec.blockFrames=113;
