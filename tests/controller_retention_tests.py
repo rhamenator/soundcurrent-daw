@@ -43,6 +43,8 @@ with tempfile.TemporaryDirectory() as work:
         (panel/'devices-é').mkdir();(panel/'devices-é/result.json').write_text('{"complete":false}',encoding='utf-8')
         log.write_text(c.PANEL_MARKER+str(panel)+'\n',encoding='utf-8');assert len(c.retain(build))==1
         assert (build/'controller-failure-projects'/('panel-'+panel.name)/'devices-é/result.json').read_bytes()==(panel/'devices-é/result.json').read_bytes()
+        for n in range(16):(logs/('extra-'+str(n)+'.log')).write_text('',encoding='utf-8')
+        refuses()
         print('Controller retention: exact Unicode/audio bytes, foreign path/no-overwrite, link refusal='+str(linked))
     finally:
         shutil.rmtree(source)
