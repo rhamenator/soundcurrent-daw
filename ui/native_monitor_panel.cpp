@@ -61,16 +61,21 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
     layout->addWidget(status_,3,0,1,5);layout->addWidget(progress_,4,0,1,5);layout->addWidget(receipt_,5,0,1,5);
     export_=new QPushButton(tr("Export original WAV…"),this);export_->setObjectName("nativeExportOriginal");
     export_->setToolTip(tr("Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed."));
-    layout->addWidget(export_,7,0,1,5);
+    layout->addWidget(export_,7,0,1,2);
+    copy_=new QPushButton(tr("Copy verified audio…"),this);copy_->setObjectName("nativeCopyPrefix");
+    copy_->setToolTip(tr("Copy the verified playable audio to a new WAV. The original take and its outcome stay unchanged."));
+    layout->addWidget(copy_,7,2,1,3);
+    copyPreview_=new QLabel(this);copyPreview_->setObjectName("nativeCopyPreview");copyPreview_->setTextFormat(Qt::PlainText);copyPreview_->setWordWrap(true);
+    layout->addWidget(copyPreview_,8,0,1,5);
     open_=new QPushButton(tr("Open saved native take…"),this);open_->setObjectName("nativeOpenOriginal");
     open_->setToolTip(tr("Choose an original take directory in this project's media folder. Inspection does not activate audio devices."));
-    layout->addWidget(open_,8,0,1,5);
+    layout->addWidget(open_,9,0,1,5);
     auto *admissionRow=new QWidget(this);auto *admissionLayout=new QGridLayout(admissionRow);
     auto *placementLabel=new QLabel(tr("Start frame (project rate)"),admissionRow);
     placement_=new QLineEdit(QLocale().toString(qlonglong(0)),admissionRow);placement_->setObjectName("nativePlacement");placement_->setMaxLength(32);placementLabel->setBuddy(placement_);
     add_=new QPushButton(tr("Add to selected track"),admissionRow);add_->setObjectName("nativeAddTake");
     add_->setToolTip(tr("Use this explicit timeline position. Captured audio and native timing evidence stay unchanged."));
-    admissionLayout->addWidget(placementLabel,0,0);admissionLayout->addWidget(placement_,0,1);admissionLayout->addWidget(add_,0,2);layout->addWidget(admissionRow,9,0,1,5);
+    admissionLayout->addWidget(placementLabel,0,0);admissionLayout->addWidget(placement_,0,1);admissionLayout->addWidget(add_,0,2);layout->addWidget(admissionRow,10,0,1,5);
     auto *storageRow=new QWidget(this);auto *storageLayout=new QGridLayout(storageRow);
     storageEnabled_=new QCheckBox(tr("Buffer for disk pauses"),storageRow);storageEnabled_->setObjectName("nativeStorageEnabled");
     storageEnabled_->setToolTip(tr("Prepare a finite buffer before recording. Repeated pauses or a slow disk can still stop recording."));
@@ -83,7 +88,7 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
         minimums[n].first->setToolTip(tr("Enter the smallest block allowed by your audio setup. Recording stops if an actual block is smaller. This is not the maximum block size."));
         storageLayout->addWidget(label,n+1,0);storageLayout->addWidget(minimums[n].first,n+1,1);}
     storageMilliseconds_->setAccessibleName(tr("Disk pause budget"));storagePreview_=new QLabel(storageRow);storagePreview_->setObjectName("nativeStoragePreview");storagePreview_->setTextFormat(Qt::PlainText);storagePreview_->setWordWrap(true);
-    storageLayout->addWidget(storagePreview_,3,0,1,2);layout->addWidget(storageRow,10,0,1,5);
+    storageLayout->addWidget(storagePreview_,3,0,1,2);layout->addWidget(storageRow,11,0,1,5);
     connect(storageEnabled_,&QCheckBox::toggled,this,[this]{storageDirty_=true;admission_.clear();poll();});
     for(auto *spin:{storageMilliseconds_,minimumCapture_,minimumRender_})connect(spin,qOverload<int>(&QSpinBox::valueChanged),this,[this]{storageDirty_=true;admission_.clear();poll();});
     connect(add_,&QPushButton::clicked,this,[this]{bool valid=false;const auto start=QLocale().toLongLong(placement_->text(),&valid);
@@ -108,6 +113,15 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
         exportOriginal(std::filesystem::path(name.toStdWString()));
 #else
         exportOriginal(utf8Path(name.toUtf8().toStdString()));
+#endif
+    });
+    connect(copy_,&QPushButton::clicked,this,[this]{
+        const auto name=QFileDialog::getSaveFileName(this,tr("Copy verified audio"),{},tr("WAV audio (*.wav)"));
+        if(name.isEmpty())return;
+#ifdef _WIN32
+        copyPrefix(std::filesystem::path(name.toStdWString()));
+#else
+        copyPrefix(utf8Path(name.toUtf8().toStdString()));
 #endif
     });
     connect(prepare_,&QPushButton::clicked,this,[this]{
@@ -188,15 +202,23 @@ bool NativeMonitorPanel::reopenOriginal(const std::filesystem::path &path) {
     ++nextGeneration_;reopeningPending_=true;reopenCompleted_=s->completedCommands;reopenCancel_=s->cancelAcknowledged;poll();return true;
 }
 bool NativeMonitorPanel::prepareAdmission(const Id &track,Frame placement,std::uint32_t rate,std::uint64_t revision) {
-    const auto s=snapshot();if(closing_ || !s->hasOriginal() || s->admitting || s->exporting)return false;
+    const auto s=snapshot();if(closing_ || !s->hasOriginal() || s->admitting || s->exporting || s->copying || copyPending_)return false;
     auto c=command(NativeMonitorCommandKind::AdmitTake);c.targetTrack=track;c.clipId=Id::generate();c.placement=placement;c.projectRate=rate;c.revision=revision;c.resultSequence=s->resultSequence;
     if(!send(std::move(c)))return false;
     admissionPending_=true;admissionCompleted_=s->completedCommands;admissionCancel_=s->cancelAcknowledged;poll();return true;
 }
 void NativeMonitorPanel::releaseOriginal(){auto c=command(NativeMonitorCommandKind::ReleaseResult);c.resultSequence=snapshot()->resultSequence;send(std::move(c));}
 bool NativeMonitorPanel::exportOriginal(const std::filesystem::path &path) {
-    const auto s=snapshot();if(closing_ || !s->hasOriginal())return false;
+    const auto s=snapshot();if(closing_ || !s->hasOriginal() || s->copying || copyPending_)return false;
     auto c=command(NativeMonitorCommandKind::ExportOriginal);c.destination=path;c.resultSequence=s->resultSequence;return send(c);
+}
+bool NativeMonitorPanel::copyPrefix(const std::filesystem::path &path) {
+    const auto s=snapshot();const auto *prefix=s->rawPrefix();
+    if(closing_ || copyPending_ || s->copying || s->exporting || s->admitting || !prefix || !prefix->finitePrefixFrames ||
+        (s->phase!=NativeMonitorPhase::Result && s->phase!=NativeMonitorPhase::Fault))return false;
+    auto c=command(NativeMonitorCommandKind::CopyPrefix);c.destination=path;c.resultSequence=s->resultSequence;
+    if(!send(std::move(c)))return false;
+    copyPending_=true;copyCompleted_=s->completedCommands;copyCancel_=s->cancelAcknowledged;poll();return true;
 }
 bool NativeMonitorPanel::interactiveDevices() const{return interactive_;}
 void NativeMonitorPanel::preparationGuard(std::function<bool(const NativeMonitorPreparation &)> guard){preparationGuard_=std::move(guard);}
@@ -334,6 +356,7 @@ void NativeMonitorPanel::poll() {
     const auto s=snapshot();const bool editable=!closing_;
     if(reopeningPending_ && (s->completedCommands>reopenCompleted_ || s->cancelAcknowledged!=reopenCancel_ || s->phase==NativeMonitorPhase::Closed))reopeningPending_=false;
     if(admissionPending_ && (s->completedCommands>admissionCompleted_ || s->cancelAcknowledged!=admissionCancel_ || s->phase==NativeMonitorPhase::Closed))admissionPending_=false;
+    if(copyPending_ && (s->completedCommands>copyCompleted_ || s->cancelAcknowledged!=copyCancel_ || s->phase==NativeMonitorPhase::Closed))copyPending_=false;
     const bool saved=s->hasOriginal();
     const auto *prefix=s->rawPrefix();
     if(interactive_) {
@@ -347,11 +370,47 @@ void NativeMonitorPanel::poll() {
     updateStoragePreview(editable && idle && !saved);
     prepare_->setEnabled(editable && preparation_ && storageValid_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
     seconds_->setEnabled(editable && (idle || s->phase==NativeMonitorPhase::Ready));
-    cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->exporting || s->admitting || admissionPending_ || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
-    inspect_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);keep_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);
-    export_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_ && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames);
+    cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->copying || copyPending_ || s->exporting || s->admitting || admissionPending_ || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
+    inspect_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting && !admissionPending_);keep_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting && !admissionPending_);
+    export_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting && !admissionPending_ && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames);
+    copy_->setEnabled(editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting &&
+        !admissionPending_ && prefix && prefix->finitePrefixFrames &&
+        (s->phase==NativeMonitorPhase::Result || s->phase==NativeMonitorPhase::Fault));
+    if(prefix) {
+        QString text=tr("Available to copy: %1 of %2 verified frames · %3 Hz · %4 channels.").arg(
+            QLocale().toString(qulonglong(prefix->finitePrefixFrames)),QLocale().toString(qulonglong(prefix->committedFrames)),
+            QLocale().toString(prefix->spec.sampleRate),QLocale().toString(prefix->spec.layout.channels));
+        text+=tr(" Unverified audio stays in the original take.");
+        if(!prefix->finalized)text+=tr(" This take was not finalized.");
+        if(prefix->finitePrefixFrames<prefix->committedFrames)text+=tr(" Audio from the first invalid sample onward will not be copied.");
+        QString outcome=tr("Pending");
+        const NativeOriginalRecordingPrefix *native=s->reopened.get();
+        if(!native && s->result && s->result->prefix)native=&*s->result->prefix;
+        if(native)switch(native->status) {
+        case NativeOriginalRecordingStatus::Complete:outcome=tr("Complete");break;
+        case NativeOriginalRecordingStatus::Cancelled:outcome=tr("Cancelled");break;
+        case NativeOriginalRecordingStatus::Failed:outcome=tr("Failed");break;
+        case NativeOriginalRecordingStatus::Interrupted:outcome=tr("Interrupted");break;
+        case NativeOriginalRecordingStatus::Pending:break;
+        case NativeOriginalRecordingStatus::NoNativeEvidence:outcome=tr("No native outcome");break;
+        }
+        std::optional<PipeWireStoredDisposition> disposition;
+        if(s->pipewireReopened && s->pipewireReopened->outcome)disposition=s->pipewireReopened->outcome->disposition;
+        else if(s->pipewireResult && s->pipewireResult->terminalStored)switch(s->pipewireResult->disposition){
+        case PipeWireRecordingDisposition::Recorded:disposition=PipeWireStoredDisposition::Recorded;break;
+        case PipeWireRecordingDisposition::Cancelled:disposition=PipeWireStoredDisposition::Cancelled;break;
+        case PipeWireRecordingDisposition::Failed:disposition=PipeWireStoredDisposition::Failed;break;
+        }
+        if(disposition)switch(*disposition){
+        case PipeWireStoredDisposition::Recorded:outcome=tr("Complete");break;
+        case PipeWireStoredDisposition::Cancelled:outcome=tr("Cancelled");break;
+        case PipeWireStoredDisposition::Failed:outcome=tr("Failed");break;
+        }
+        text+=tr(" Original outcome: %1.").arg(outcome);
+        copyPreview_->setText(text);
+    } else copyPreview_->clear();
     open_->setEnabled(editable && project_ && !busy());
-    const bool attachable=editable && saved && !s->exporting && !s->admitting && !admissionPending_ && bool(addRequested) && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames;
+    const bool attachable=editable && saved && !s->copying && !copyPending_ && !s->exporting && !s->admitting && !admissionPending_ && bool(addRequested) && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames;
     add_->setEnabled(attachable);placement_->setEnabled(attachable);
     eq_->setEnabled(editable && s->hasEqualizer() && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording));
     QString phase;
@@ -390,8 +449,11 @@ void NativeMonitorPanel::poll() {
     }
     if(s->admitting)phase=tr("Verifying original take for the timeline…");
     if(s->exporting)phase=tr("Exporting original WAV…");
+    if(s->copying || copyPending_)phase=tr("Copying verified audio…");
     if(s->errorSerial!=errorSeen_){errorSeen_=s->errorSerial;if(s->error){
-        if(*s->error==ErrorCode::ResourceLimit)admission_=tr("The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.");
+        if(*s->error==ErrorCode::Canceled && saved)admission_=tr("Audio copy cancelled. The retained take is unchanged.");
+        else if(*s->error==ErrorCode::MediaMismatch)admission_=tr("The saved audio changed or no longer matches the reviewed take. Open and verify it again.");
+        else if(*s->error==ErrorCode::ResourceLimit)admission_=tr("The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.");
         else if(*s->error==ErrorCode::InvalidParameter)admission_=tr("The recording settings do not match the prepared device format. Check the minimum input packet size.");
         else admission_=tr("Recording error (%1).").arg(int(*s->error));}}
     status_->setText(admission_.isEmpty()?phase:admission_);status_->setToolTip(QStringLiteral("<pre>")+QString::fromUtf8(s->diagnostic.data(),qsizetype(std::min<std::size_t>(s->diagnostic.size(),4096))).toHtmlEscaped()+QStringLiteral("</pre>"));
@@ -406,7 +468,15 @@ void NativeMonitorPanel::poll() {
         details+=QStringLiteral(" · ")+QString::fromUtf8(reinterpret_cast<const char *>(name.data()),qsizetype(name.size()));
         if(!s->exported->publicationWarning.empty())details+=tr(" · Export published with a durability warning.");
     }
+    if(s->copiedPrefix) {
+        const auto &copy=s->copiedPrefix->audio;const auto name=copy.destination.u8string();
+        details+=tr(" · Verified audio copied: %1 frames to %2.").arg(QLocale().toString(qulonglong(copy.frames)),
+            QString::fromUtf8(reinterpret_cast<const char *>(name.data()),qsizetype(name.size())));
+        if(!copy.publicationWarning.empty())details+=tr(" · Copy published with a durability warning.");
+    }
     receipt_->setText(details);
+    // Keep wrapped paths/receipts readable in a constrained recording tab.
+    receipt_->setMinimumHeight(std::max(0,receipt_->heightForWidth(std::max(1,receipt_->width()))));
     if(windowClose_ && closeReady())close();
 }
 void NativeMonitorPanel::cancel(){controller_.requestCancel();admission_.clear();}

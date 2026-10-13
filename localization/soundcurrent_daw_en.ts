@@ -1762,6 +1762,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.</translation>
     </message>
     <message>
+      <source>Copy verified audio…</source>
+      <translation>Copy verified audio…</translation>
+    </message>
+    <message>
+      <source>Copy the verified playable audio to a new WAV. The original take and its outcome stay unchanged.</source>
+      <translation>Copy the verified playable audio to a new WAV. The original take and its outcome stay unchanged.</translation>
+    </message>
+    <message>
       <source>Open saved native take…</source>
       <translation>Open saved native take…</translation>
     </message>
@@ -1828,6 +1836,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>WAV audio (*.wav)</source>
       <translation>WAV audio (*.wav)</translation>
+    </message>
+    <message>
+      <source>Copy verified audio</source>
+      <translation>Copy verified audio</translation>
     </message>
     <message>
       <source>Recording settings exceed the panel memory limit.</source>
@@ -1934,6 +1946,50 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>The minimum block sizes do not match the recording setup.</translation>
     </message>
     <message>
+      <source>Available to copy: %1 of %2 verified frames · %3 Hz · %4 channels.</source>
+      <translation>Available to copy: %1 of %2 verified frames · %3 Hz · %4 channels.</translation>
+    </message>
+    <message>
+      <source> Unverified audio stays in the original take.</source>
+      <translation> Unverified audio stays in the original take.</translation>
+    </message>
+    <message>
+      <source> This take was not finalized.</source>
+      <translation> This take was not finalized.</translation>
+    </message>
+    <message>
+      <source> Audio from the first invalid sample onward will not be copied.</source>
+      <translation> Audio from the first invalid sample onward will not be copied.</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>Pending</translation>
+    </message>
+    <message>
+      <source>Complete</source>
+      <translation>Complete</translation>
+    </message>
+    <message>
+      <source>Cancelled</source>
+      <translation>Cancelled</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>Failed</translation>
+    </message>
+    <message>
+      <source>Interrupted</source>
+      <translation>Interrupted</translation>
+    </message>
+    <message>
+      <source>No native outcome</source>
+      <translation>No native outcome</translation>
+    </message>
+    <message>
+      <source> Original outcome: %1.</source>
+      <translation> Original outcome: %1.</translation>
+    </message>
+    <message>
       <source>Recording is unavailable.</source>
       <translation>Recording is unavailable.</translation>
     </message>
@@ -1978,30 +2034,6 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Recording closed.</translation>
     </message>
     <message>
-      <source>Complete</source>
-      <translation>Complete</translation>
-    </message>
-    <message>
-      <source>Cancelled</source>
-      <translation>Cancelled</translation>
-    </message>
-    <message>
-      <source>Failed</source>
-      <translation>Failed</translation>
-    </message>
-    <message>
-      <source>Interrupted</source>
-      <translation>Interrupted</translation>
-    </message>
-    <message>
-      <source>Pending</source>
-      <translation>Pending</translation>
-    </message>
-    <message>
-      <source>No native outcome</source>
-      <translation>No native outcome</translation>
-    </message>
-    <message>
       <source>Saved native take opened. Original outcome: %1.</source>
       <translation>Saved native take opened. Original outcome: %1.</translation>
     </message>
@@ -2012,6 +2044,18 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Exporting original WAV…</source>
       <translation>Exporting original WAV…</translation>
+    </message>
+    <message>
+      <source>Copying verified audio…</source>
+      <translation>Copying verified audio…</translation>
+    </message>
+    <message>
+      <source>Audio copy cancelled. The retained take is unchanged.</source>
+      <translation>Audio copy cancelled. The retained take is unchanged.</translation>
+    </message>
+    <message>
+      <source>The saved audio changed or no longer matches the reviewed take. Open and verify it again.</source>
+      <translation>The saved audio changed or no longer matches the reviewed take. Open and verify it again.</translation>
     </message>
     <message>
       <source>The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.</source>
@@ -2044,6 +2088,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source> · Export published with a durability warning.</source>
       <translation> · Export published with a durability warning.</translation>
+    </message>
+    <message>
+      <source> · Verified audio copied: %1 frames to %2.</source>
+      <translation> · Verified audio copied: %1 frames to %2.</translation>
+    </message>
+    <message>
+      <source> · Copy published with a durability warning.</source>
+      <translation> · Copy published with a durability warning.</translation>
     </message>
   </context>
   <context>

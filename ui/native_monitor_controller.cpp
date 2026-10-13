@@ -60,6 +60,7 @@ struct NativeMonitorController::State {
     struct PipeWireResult {ResourceLease lease;PipeWireMonitorRecordingResult value;};
     struct PipeWireSaved {ResourceLease lease;PipeWireStoredRecording value;};
     struct Inventory {ResourceLease lease;std::vector<AudioPort> ports;};
+    struct PrefixCopy {ResourceLease lease;NativeMonitorPrefixCopy value;};
     struct Queued { ResourceLease lease; NativeMonitorCommand command; std::uint64_t epoch; };
     NativeMonitorControllerOptions options;
     mutable std::mutex mutex;
@@ -226,7 +227,7 @@ struct NativeMonitorController::State {
         if(c.kind==NativeMonitorCommandKind::ReleaseResult) {
             if(owner || !hasOriginal() || c.resultSequence!=view.resultSequence)
                 throw ProjectError(ErrorCode::InvalidState,"Native result release requires its exact retained sequence");
-            view.result.reset();view.reopened.reset();view.exported.reset();view.pipewireDeclared.reset();view.pipewireResult.reset();view.pipewireReopened.reset();view.pipewireExported.reset();view.admission.reset();view.declared.reset();view.storageCapacity.reset();view.routePayloadBytes=0;view.job.clear();view.root.clear();view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
+            view.copiedPrefix.reset();view.result.reset();view.reopened.reset();view.exported.reset();view.pipewireDeclared.reset();view.pipewireResult.reset();view.pipewireReopened.reset();view.pipewireExported.reset();view.admission.reset();view.declared.reset();view.storageCapacity.reset();view.routePayloadBytes=0;view.job.clear();view.root.clear();view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
         }
         if(c.kind==NativeMonitorCommandKind::AdmitTake) {
             if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared) || c.resultSequence!=view.resultSequence || !c.targetTrack || !c.clipId || !c.revision || c.revision<=view.admissionRevision)
@@ -239,6 +240,38 @@ struct NativeMonitorController::State {
                 else view.admission=std::make_shared<const VerifiedNativeTake>(verifyNativeTakeForAdmission(view.root,view.job,*view.declared,*c.targetTrack,c.placement,c.projectRate,*c.clipId,admissionOptions));}
             catch(...){view.admitting=false;throw;}
             view.admitting=false;view.admissionRevision=c.revision;view.error.reset();view.diagnostic.clear();return;
+        }
+        if(c.kind==NativeMonitorCommandKind::CopyPrefix) {
+            const auto *prefix=view.rawPrefix();
+            if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared) ||
+                c.resultSequence!=view.resultSequence || c.destination.empty() || !prefix || !prefix->finitePrefixFrames)
+                throw ProjectError(ErrorCode::InvalidState,"Prefix copy requires its exact inactive reviewed take and destination");
+            PayloadCharge charge("Retained recovered audio",options.commandMemory.usage().limitBytes);
+            charge.add(sizeof(PrefixCopy)+8192);
+            charge.add(prefix->source.native().size()+1,sizeof(std::filesystem::path::value_type));
+            const auto destination=std::filesystem::absolute(c.destination).lexically_normal();
+            charge.add(destination.native().size()+1,sizeof(std::filesystem::path::value_type));
+            auto held=std::make_shared<PrefixCopy>(options.commandMemory.reserve(charge.bytes()),NativeMonitorPrefixCopy{});
+            OriginalPrefixCopyOptions copyOptions;copyOptions.resources=options.commandMemory;
+            copyOptions.expectedPrefix=prefixCopyExpectation(*prefix);
+            copyOptions.progress=options.prefixCopyProgress;
+            const auto epoch=seenCancel;
+            copyOptions.canceled=[&]{return closing.load(std::memory_order_acquire) || cancelEpoch.load(std::memory_order_acquire)!=epoch;};
+            view.copying=true;publish();
+            try {
+                if(view.pipewireDeclared) {
+                    auto result=copyPipeWireOriginalPrefixWav(view.root,view.job,*view.pipewireDeclared,destination,copyOptions);
+                    held->value.audio=std::move(result.copy);held->value.pipewire=true;
+                    held->value.pipewireTerminal=result.original.terminal;
+                    if(result.original.outcome)held->value.pipewireDisposition=result.original.outcome->disposition;
+                } else {
+                    auto result=copyNativeOriginalPrefixWav(view.root,view.job,*view.declared,destination,copyOptions);
+                    held->value.audio=std::move(result.copy);held->value.nativeStatus=result.original.status;
+                }
+                held->value.resultSequence=view.resultSequence;
+                view.copiedPrefix=std::shared_ptr<const NativeMonitorPrefixCopy>(held,&held->value);
+            } catch(...) {view.copying=false;throw;}
+            view.copying=false;view.error.reset();view.diagnostic.clear();return;
         }
         if(c.kind==NativeMonitorCommandKind::ExportOriginal) {
             if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared) || c.resultSequence!=view.resultSequence || c.destination.empty())

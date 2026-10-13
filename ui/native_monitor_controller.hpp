@@ -23,10 +23,11 @@ struct NativeMonitorControllerOptions {
     std::function<std::vector<AudioPort>()> inventory = {}; // Worker only, bounded backend projection.
     ResourceLedger inventoryMemory{16 * 1024 * 1024, "Native device inventory"};
     PipeWireMonitorStreamFactory pipewireStreams={};
+    std::function<void(std::uint64_t,std::uint64_t)> prefixCopyProgress={}; // Serialized I/O-owner observer, never GUI/audio.
 };
 enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed, Reopening };
 enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };
-enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices, ExportOriginal, ReopenOriginal, AdmitTake };
+enum class NativeMonitorCommandKind { Prepare, Activate, StopAt, Equalizer, Inspect, ReleaseResult, RefreshDevices, ExportOriginal, ReopenOriginal, AdmitTake, CopyPrefix };
 struct NativeMonitorCommand {
     NativeMonitorCommandKind kind = NativeMonitorCommandKind::Prepare;
     std::uint64_t generation = 0, revision = 0, resultSequence = 0;
@@ -45,6 +46,13 @@ struct NativeMonitorCommand {
 // Off RT payload preflight shared with bounded GUI preparation ownership.
 std::size_t nativeMonitorCommandPayloadBytes(const NativeMonitorCommand &,std::size_t budget);
 std::size_t nativeMonitorPortsPayloadBytes(std::span<const AudioPort>,std::size_t budget);
+struct NativeMonitorPrefixCopy {
+    OriginalPrefixCopyResult audio;
+    std::uint64_t resultSequence=0;
+    std::optional<NativeOriginalRecordingStatus> nativeStatus;
+    std::optional<PipeWireStoredDisposition> pipewireDisposition;
+    bool pipewire=false,pipewireTerminal=false;
+};
 struct NativeMonitorSnapshot {
     NativeMonitorPhase phase = NativeMonitorPhase::Unsupported;
     std::uint64_t generation = 0, completedCommands = 0, errorSerial = 0,
@@ -65,8 +73,9 @@ struct NativeMonitorSnapshot {
     std::shared_ptr<const PipeWireStoredRecording> pipewireReopened;
     std::shared_ptr<const PipeWireOriginalExportResult> pipewireExported;
     std::shared_ptr<const VerifiedNativeTake> admission;
+    std::shared_ptr<const NativeMonitorPrefixCopy> copiedPrefix;
     std::uint64_t admissionRevision=0;
-    bool exporting = false,admitting=false,pipewire=false,pipewireHasEq=false;
+    bool exporting = false,admitting=false,copying=false,pipewire=false,pipewireHasEq=false;
     MonitorOutputOrdinal monitorFirst{};
     std::optional<RecordingStorageCapacity> storageCapacity;
     std::size_t routePayloadBytes=0;

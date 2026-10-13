@@ -89,6 +89,10 @@ void prefixCopy() {
             if(!observed++)refuses([&]{inspectOriginalRecording(job,declared);}); // Lease remains held.
         };
         const auto target=t.root/"exports"/std::filesystem::path(u8"récupéré-Українська.wav");
+        options.expectedPrefix=prefixCopyExpectation(original);
+        auto stale=options;stale.expectedPrefix->frames++;
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"stale.wav",stale);});
+        check(!std::filesystem::exists(t.root/"exports"/"stale.wav"),"Changed reviewed prefix created output");
         const auto copied=copyOriginalPrefixWav(t.root,job,declared,target,options);
         check(copied.frames==expected && copied.original.committedFrames==7 &&
             !copied.original.finalized && copied.original.first==original.first && copied.original.last==original.last &&
