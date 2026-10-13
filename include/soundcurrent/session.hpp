@@ -405,6 +405,13 @@ struct SetClipProcessing {
     Id track, clip;
     ClipProcessing value;
 };
+// Atomic outgoing/incoming fade edit in one shared project-frame window.
+// Existing clip geometry/media and the opposite fades remain unchanged.
+struct SetClipCrossfade {
+    Id track, outgoing, incoming;
+    Frame startFrame = 0, endFrame = 0;
+    ClipFadeCurve curve = ClipFadeCurve::Linear;
+};
 struct SetClipPlaybackRate {
     Id track, clip;
     ClipPlaybackRate value;
@@ -451,7 +458,7 @@ struct SelectTakeRegion {
 };
 using SessionEdit =
     std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
-                 SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
+                 SetClipRange, CropClip, SetClipProcessing, SetClipCrossfade, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
                  InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});
 enum class RouteTarget { Input, Output, Monitor, Master };

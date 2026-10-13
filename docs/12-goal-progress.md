@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Paired clip crossfade editor (2026-10-13)
+
+[Checkpoint 256](256-paired-crossfade.md) adds one atomic paired-fade edit and a
+Qt range/curve/peer dialog. Core laws/rollback/history, actual dialog interactions
+and original recorded live/export/reopen PCM pass. Raw media is unchanged, and
+prepared evaluation has zero guarded allocation/free/locks. Linguist extraction
+is regenerated; native Windows and installed acceptance remain pending. Adjacent
+comp source-handle preparation, audition, persistent/interactive links and full
+reference quality remain required. Original CI189 passes all four jobs and its
+fresh dependency pin audit has no mismatches. Full DAW/localization stays active.
+
 ## Independently reviewed Windows media DLL (2026-10-13)
 
 [Checkpoint 255](255-reviewed-windows-media.md) adopts the exact libsndfile DLL

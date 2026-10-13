@@ -235,9 +235,49 @@ void renderWorkflow() {
               "Clip processing modified raw media/saved input");
     }
 }
+void pairedCrossfadeRender() {
+    for(const auto curve:{ClipFadeCurve::Linear,ClipFadeCurve::EqualPower,ClipFadeCurve::Smoothstep}) {
+        Temp temp;auto s=recorded(temp.root,2);const auto original=s;
+        const auto rawHash=hashMediaFile(temp.root/utf8Path(s.assets[0].relativePath));
+        const auto track=s.tracks[0].id;
+        const auto outgoing=s.tracks[0].clips[0].id,incoming=s.tracks[0].clips[1].id;
+        EditHistory history(s);
+        check(history.structural({SetClipCrossfade{track,outgoing,incoming,131,257,curve}}),"Actual paired render edit missing");
+        const auto selected=s;
+        ResourceLedger memory;
+        const auto output=live(temp.root,s,13,memory);
+        check(output==live(temp.root,s,127,memory),"Paired crossfade depends on callback partition");
+        for(Frame frame=0;frame<600;++frame) for(std::uint32_t channel=0;channel<2;++channel) {
+            const auto phase=std::clamp(double(frame-131)/125.,0.,1.);
+            const auto incomingGain=curve==ClipFadeCurve::Linear ? phase :
+                curve==ClipFadeCurve::Smoothstep ? phase*phase*(3-2*phase) : std::sin(phase*std::numbers::pi/2);
+            const auto outgoingGain=curve==ClipFadeCurve::EqualPower ? std::cos(phase*std::numbers::pi/2) : 1-incomingGain;
+            double expected=0;
+            if(frame<512) expected+=sample(frame+11,channel)*2*std::min(double(frame)/64.,1.)*outgoingGain;
+            if(frame>=97 && frame<497) expected+=sample(frame-97+13,channel)*(-.5)*incomingGain;
+            check(std::abs(double(output[std::size_t(frame)*2+channel])-expected)<5e-7,
+                  "Independent paired PCM differs");
+        }
+        std::filesystem::create_directory(temp.root/"exports");
+        ExportSpec spec(track);spec.endFrame=600;spec.blockFrames=37;
+        ExportOptions options;options.resources=memory;
+        const auto rendered=exportTrackWav(temp.root,s,temp.root/"exports"/"owned.wav",spec,options);
+        ApprovedMediaRoot approved(temp.root,memory);auto file=approved.open("exports/owned.wav",1024*1024);
+        std::vector<float> exported;
+        validateApprovedWave(file,{}, {},[&](std::uint64_t,std::span<const double> values) {
+            for(const auto value:values) exported.push_back(float(value));
+        });
+        check(exported==output && rendered.frames==600 && rendered.peak>1,"Paired live/export PCM or headroom differs");
+        ProjectStore(temp.root).save(s);
+        check(ProjectStore(temp.root).load()==s && live(temp.root,ProjectStore(temp.root).load(),113,memory)==output,
+              "Paired crossfade save/reopen changes playback");
+        check(history.undo() && s==original && history.redo() && s==selected,"Paired render Undo/Redo differs");
+        check(hashMediaFile(temp.root/utf8Path(s.assets[0].relativePath))==rawHash,"Paired crossfade modified raw recording");
+    }
+}
 }
 int main(){try {
-    rt_audit::reset();mathAndAnchors();stateAndEdits();renderWorkflow();
+    rt_audit::reset();mathAndAnchors();stateAndEdits();renderWorkflow();pairedCrossfadeRender();
     const auto counts=rt_audit::counts;
     check(!counts.cppAllocate && !counts.cppFree && !counts.cAllocate && !counts.cFree && !counts.blockingLock,
           "Prepared evaluation/live callback allocated, freed or blocked");
