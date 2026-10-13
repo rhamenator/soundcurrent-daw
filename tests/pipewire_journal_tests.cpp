@@ -82,7 +82,7 @@ void releasedBeforeDueCheckpoint(){Temp t;const auto s=spec(t.root);PreparedCapt
         check(f.releaseRaw(raw) && f.releaseMonitor(monitor),"Deferred raw release failed");held=false;w.checkpointIfDue();check(publications==1,"Due publication lost");
         w.checkpointIfDue();check(publications==1,"No-due publication repeated");w.appendRender(render(0));check(publications==2,"Immediate render publication changed");finish(w,f);}
     const auto p=inspectPipeWireRecording(job,s);check(p.raw.committedFrames==17 && p.captureRecords==1 && p.renderRecords==1 && p.finalized,"Deferred checkpoint changed durable prefix");
-    check(rawCommits>0 && !checkpointStarted && unsigned(OriginalRecordingBoundary::AfterMediaPublish)==8,"Checkpoint measurement changed legacy boundary identity/order");
+    check(rawCommits>0 && !checkpointStarted && unsigned(OriginalRecordingBoundary::AfterMediaPublish)==8 && unsigned(OriginalRecordingBoundary::BeforeCheckpoint)==9,"Checkpoint measurement changed legacy boundary identity/order");
 }
 void checkpointTail(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     {PreparedCaptureFanout f(config(s));PipeWireRecordingJournal w(t.root,s);job=w.jobDirectory();append(w,f,s,0);w.checkpoint();append(w,f,s,1);}
