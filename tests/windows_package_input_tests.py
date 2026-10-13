@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker, qualify_copy_worker, qualify_stretch_worker
+from package_windows_preview import deploy_payload, qualified_dependencies, qualify_worker, qualify_media_worker, qualify_copy_worker, qualify_stretch_worker, qualify_compiler, scripts
 from stretch_worker_qualification import qualify_stretch_worker as qualify_native_stretch
 import json
 
@@ -200,6 +200,49 @@ def run():
         pass
     else:
         raise AssertionError('Self-consistent wrong dependency identity accepted')
+    compiler = {'path': 'C:/VS/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe',
+                'bytes': 1234, 'sha256': 'a' * 64,
+                'productVersion': '14.51.36231.0', 'fileVersion': '19.51.36231.0',
+                'crtVersion': '14.51.36231.0', 'crtHeaderSha256': 'c'*64}
+    compiler_hash = 'b' * 64
+    collection = {'format': 'sc-windows-preview-build-bundle-v1',
+                  'sourceCommit': head, 'sourceTree': tree, 'nativePlatform': 'win32',
+                  'sourceInputsUnchanged': True, 'compiler': compiler,
+                  'artifacts': {'compiler.json': {'sha256': compiler_hash}}}
+    assert qualify_compiler(compiler, collection, head, tree, compiler_hash,
+                            '14.51.36231.0') == '14.51.36231.0'
+    patched = {**compiler, 'productVersion': '14.51.36260.0', 'fileVersion': '19.51.36260.0',
+               'crtVersion': '14.51.36247.0'}
+    patched_collection = {**collection, 'compiler': patched}
+    assert qualify_compiler(patched, patched_collection, head, tree, compiler_hash,
+                            '14.51.36247.0') == '14.51.36247.0'
+    try: qualify_compiler(patched, patched_collection, head, tree, compiler_hash, '14.51.36231.0')
+    except ValueError: pass
+    else: raise AssertionError('Stable toolset directory hid newer CRT header requirement')
+    for version in ['14.44.35211.0', '14.51.36230.0', '14.51.0', '14.51.99999.0',
+                    '14.51.36231.0$bad', 'v14.51.36231.0']:
+        try: qualify_compiler(compiler, collection, head, tree, compiler_hash, version)
+        except ValueError: pass
+        else: raise AssertionError('Old/invalid runtime admitted: ' + version)
+    for field, value in [('sourceCommit', 'c'*40), ('sourceTree', 'd'*40),
+                         ('nativePlatform', 'linux'), ('sourceInputsUnchanged', False)]:
+        bad = {**collection, field: value}
+        try: qualify_compiler(compiler, bad, head, tree, compiler_hash, '14.51.36231.0')
+        except ValueError: pass
+        else: raise AssertionError('Wrong native compiler collection admitted')
+    bad = {**collection, 'artifacts': {'compiler.json': {'sha256': '0'*64}}}
+    try: qualify_compiler(compiler, bad, head, tree, compiler_hash, '14.51.36231.0')
+    except ValueError: pass
+    else: raise AssertionError('Changed compiler receipt admitted')
+    with tempfile.TemporaryDirectory(prefix='sc-runtime-template-') as directory:
+        output = Path(directory);stage = output/'stage';stage.mkdir()
+        (stage/'fixture.txt').write_text('owned fixture')
+        script, _ = scripts(stage, output, '20261013170000', head,
+                            output/'owned-runtime.exe', '14.51.36231.0')
+        text = script.read_text()
+        assert '${VersionCompare} $0 "14.51.36231.0" $1' in text and '@RUNTIME_VERSION@' not in text
+        assert '${VersionCompare} $0 "14.44.35211.0" $1' not in text
+    print('Compiler/runtime policy: refused older or unbound inputs; generated NSIS uses reviewed minimum')
     print('Pinned native dependencies: accepted qualified identities; refused replacement DLL')
     print('Windows deployment inputs: accepted native separators; refused 14 mutations')
 
