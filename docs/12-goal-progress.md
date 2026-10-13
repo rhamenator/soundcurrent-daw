@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Admission sanitizer qualification and failure retention (2026-10-12)
+
+[Checkpoint 236](236-pipewire-admission-qualification.md) records current
+ASan/UBSan controller admission acceptance (5.78 s) and genuine private PipeWire
+raw 100,096 / processed+sink 8,192, explicit placement, eight evidence files,
+Save/Reopen and callback audit zero. Leak detection is disabled; TSan controller acceptance passes in 5.88 s without
+suppressions. Original Windows desktop CI passes 19/20 and fails the existing Native
+device-selection completion assertion; its cause remains unproven. Bounded CI snapshots address the missing failed
+controller-take evidence. Full scope and reviewed European localization remain open.
+
 ## PipeWire timeline admission and portable evidence (2026-10-12)
 
 [Checkpoint 235](235-pipewire-take-admission.md) enables explicit main-window Add,
