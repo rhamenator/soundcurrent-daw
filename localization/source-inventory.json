@@ -33,7 +33,7 @@
     "ui/native_monitor_panel.cpp": "da8d23efa5ff1c1238812b3e7ee658d61755468a9a81f8b0e9ec6ec950a15e06",
     "ui/native_monitor_panel.hpp": "7a06f1953e4dc523b2449c4bd23d1c3cdbd4adc6490e88405bb24452515efc5d",
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
-    "ui/playback_controller.cpp": "73c4eae7e07aa3e5f29f08c62323a3ac6edd5d79b8de7db027fcf6914d3fb887",
+    "ui/playback_controller.cpp": "a20591cf2fc9b83995f8432644fb32f35090372cf8fc66be1815d0082df3a7a6",
     "ui/playback_controller.hpp": "bb8151d221ade7a6655a6993fdcf12191b3ebaa91a505973117c166ad6e2dfbf",
     "ui/project_controller.cpp": "3b9f6fa0a8f42e0110c65382712525b121c97a7d3ce2d7f709bd00470a5479d3",
     "ui/project_controller.hpp": "767fc6e34debf4b147f62b40b5e7c4447f40945a8c03dd076252535ad8057306",
