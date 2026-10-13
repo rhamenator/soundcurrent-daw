@@ -28,22 +28,34 @@ struct MonitorCaptureEndReceipt {
 };
 std::uint64_t monitorCaptureStopRequiredInputFrames(const MonitorCaptureStopConfig &);
 std::size_t monitorCaptureStopPayloadBytes(const MonitorCaptureStopConfig &);
+// Backend-neutral processing-side contract. Native adapters retain their own
+// original end receipts; processing reads only an acquired completion status.
+// Methods perform bounded fixed-cell work and never activate/stop an SDK.
+class MonitorCaptureStopHandoff {
+  public:
+    virtual ~MonitorCaptureStopHandoff() = default;
+    virtual bool request(const MonitorCaptureStopRequest &) noexcept = 0;
+    virtual bool requested() const noexcept = 0;
+    virtual std::optional<MonitorCaptureEndStatus> endStatus() const noexcept = 0;
+    virtual const MonitorCaptureStopConfig &config() const noexcept = 0;
+};
 // TWO owners: processing publishes ONE immutable stop request; SDK capture
 // checks before EACH lease (at most one in-flight packet) and publishes ONE end.
 // Fixed cells retain original requests/results. No native APIs or source/project
 // mapping here. Construction/retirement off RT, after both owners join.
-class PreparedMonitorCaptureStop {
+class PreparedMonitorCaptureStop : public MonitorCaptureStopHandoff {
   public:
     explicit PreparedMonitorCaptureStop(MonitorCaptureStopConfig);
     PreparedMonitorCaptureStop(const PreparedMonitorCaptureStop &) = delete;
     PreparedMonitorCaptureStop &operator=(const PreparedMonitorCaptureStop &) = delete;
-    bool request(const MonitorCaptureStopRequest &) noexcept; // Processing owner.
-    bool requested() const noexcept; // SDK capture owner; check before EACH lease.
+    bool request(const MonitorCaptureStopRequest &) noexcept override; // Processing owner.
+    bool requested() const noexcept override; // SDK capture owner; check before EACH lease.
+    std::optional<MonitorCaptureEndStatus> endStatus() const noexcept override;
     std::optional<MonitorCaptureStopRequest> originalRequest() const noexcept;
     bool complete(const WasapiCaptureEnd &) noexcept; // Capture owner after SDK Stop/exit.
     std::optional<MonitorCaptureEndReceipt> endReceipt() const noexcept;
     void settleAfterJoin() noexcept; // Joined control; missing end = OwnerLost, not fake HRESULT.
-    const MonitorCaptureStopConfig &config() const noexcept { return config_; }
+    const MonitorCaptureStopConfig &config() const noexcept override { return config_; }
     std::size_t chargedBytes() const noexcept { return bytes_; }
   private:
     ResourceLease lease_;

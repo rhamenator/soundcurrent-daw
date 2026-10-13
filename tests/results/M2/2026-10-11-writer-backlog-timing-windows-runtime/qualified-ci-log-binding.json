@@ -1,0 +1,32 @@
+{
+  "head": "067d5d1b828dc90f92d6984fd17921beff4b789b",
+  "base": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "testedMerge": "4310eb5ef2ffe98b0434d8f48ac8484838aca549",
+  "tree": "6945b3ed618ea51cbab2840caf2b874090551cd7",
+  "jobs": {
+    "114578323894": {
+      "bytes": 678646,
+      "sha256": "77ebd3392dc1c69a5ea8a2060f7e54dfa6e1e3805f0e189d51f0d159923d50a8",
+      "checkout": "4310eb5ef2ffe98b0434d8f48ac8484838aca549",
+      "conclusion": "success"
+    },
+    "114578323998": {
+      "bytes": 233997,
+      "sha256": "3dbd46effcdb69d5634a715dc8ad4c8de58e84e86d86019ca86f960d235f9fc4",
+      "checkout": "4310eb5ef2ffe98b0434d8f48ac8484838aca549",
+      "conclusion": "success"
+    },
+    "114578324000": {
+      "bytes": 713270,
+      "sha256": "214b45a90c7bc8d457d4b63d69711ae759415e56c76a96e9c57b070a55b952a8",
+      "checkout": "4310eb5ef2ffe98b0434d8f48ac8484838aca549",
+      "conclusion": "success"
+    },
+    "114578324064": {
+      "bytes": 91276,
+      "sha256": "d2828a617056c2b3dbdf2fa7d4d0507cd6963a253c1234f25cd6c2e476a9f382",
+      "checkout": "4310eb5ef2ffe98b0434d8f48ac8484838aca549",
+      "conclusion": "success"
+    }
+  }
+}

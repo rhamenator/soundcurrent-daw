@@ -1,0 +1,32 @@
+{
+  "head": "f8c6b8bdb598748e852c3af2dfc6ef0f3bf46c3e",
+  "base": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "testedMerge": "f7914b2975ee521c9d7b05a068339e3b8c1a3c24",
+  "tree": "d8fcdf2831579396aa14c808d99e14a970e68d5b",
+  "jobs": {
+    "114573793357": {
+      "bytes": 89914,
+      "sha256": "e089573adc1f05cc679ea2f04536b9f2ca5528208bd11676fddfbedf79e921fe",
+      "checkout": "f7914b2975ee521c9d7b05a068339e3b8c1a3c24",
+      "conclusion": "success"
+    },
+    "114573793516": {
+      "bytes": 712488,
+      "sha256": "5a5fc42da7b171081e3f566e988ec369042bc6348408e4c056f443169cd95108",
+      "checkout": "f7914b2975ee521c9d7b05a068339e3b8c1a3c24",
+      "conclusion": "success"
+    },
+    "114573793522": {
+      "bytes": 678576,
+      "sha256": "8d10fc4e2d13c6a2c52abb3142a85f513103e8390b0f2e53bdf06779c99385e1",
+      "checkout": "f7914b2975ee521c9d7b05a068339e3b8c1a3c24",
+      "conclusion": "success"
+    },
+    "114573793523": {
+      "bytes": 235482,
+      "sha256": "fec79c4a8867b554482ae5f51084b89067905a87b5f3d1624f80395b41a63e8d",
+      "checkout": "f7914b2975ee521c9d7b05a068339e3b8c1a3c24",
+      "conclusion": "success"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "run": 38200717967,
+  "head": "401017a67c8a34a9e8e1c5e0c30a9f187efdcd78",
+  "jobs": [
+    {
+      "id": 114653297378,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114653297478,
+      "name": "Linux desktop and synthetic tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114653297588,
+      "name": "Windows native packet ownership tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114653298110,
+      "name": "Windows desktop import and localization tests",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "allFourJobsPassed": true,
+  "nativeWindowsTests": 71,
+  "nativeWindowsSeconds": 157.66,
+  "desktopWindowsTests": 20,
+  "desktopSeconds": 87.34,
+  "linuxTests": 144,
+  "linuxSeconds": 387.02,
+  "normalForcedTailMetadataRetained": true,
+  "newDeviceSelectorsExecuted": false,
+  "oldHistoricalFailureCausesAllResolved": false,
+  "noBinaryOrAudioPayload": true
+}
