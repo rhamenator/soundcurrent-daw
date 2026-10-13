@@ -29,7 +29,7 @@
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
     "ui/native_monitor_controller.cpp": "929ace800d97298ffd168e9115eb2406f794c888b13178f3eebbfa69233e3a09",
-    "ui/native_monitor_controller.hpp": "c86098da21c384184f2a473cf1c5bca87e6e734ad5e9f36d8d2d3969cd37d584",
+    "ui/native_monitor_controller.hpp": "24131223b23c2ea8a1661bc34a8a4ba83a9c4d128e3e23148b993711731dc508",
     "ui/native_monitor_panel.cpp": "054874a16f31dd3cbc1b5f595f2590d9ff706b308aafac52ed6e67e50b3dcf1a",
     "ui/native_monitor_panel.hpp": "c26f13a0bc02de0d9d816b8f8e2f3716bce43cc9bb445bc685089af62069aa39",
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",

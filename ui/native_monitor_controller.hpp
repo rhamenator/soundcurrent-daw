@@ -22,7 +22,7 @@ struct NativeMonitorControllerOptions {
     ResourceLedger commandMemory{16 * 1024 * 1024, "Native control command payloads"}; // Off RT; may share a parent GUI ledger.
     std::function<std::vector<AudioPort>()> inventory = {}; // Worker only, bounded backend projection.
     ResourceLedger inventoryMemory{16 * 1024 * 1024, "Native device inventory"};
-    PipeWireMonitorStreamFactory pipewireStreams;
+    PipeWireMonitorStreamFactory pipewireStreams={};
 };
 enum class NativeMonitorPhase { Unsupported, Idle, Preparing, Ready, Recording, Finishing, Result, Fault, Closed, Reopening };
 enum class NativeMonitorAdmission { Accepted, Full, Closing, Invalid, ResourceLimit };

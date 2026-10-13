@@ -37,7 +37,8 @@ void original(const PipeWireRecordingPrefix &p){media_io::File file(p.raw.source
         for(unsigned n=0;n<count;++n)check(std::bit_cast<unsigned>(block[n])==std::bit_cast<unsigned>(sample(at+n)),"Raw recording changed by EQ/map/native owners");
         at+=count;}
 }
-void workflow(){Temp t;auto o=options(t);auto shared=std::make_shared<Shared>();ResourceLedger ledger(64*1024*1024);o.route.resources=ledger;
+void workflow(bool delayed=false){Temp t;auto o=options(t);
+    if(delayed)o.boundary=[](auto b){if(b==PipeWireOwnerBoundary::BeforeRender)std::this_thread::sleep_for(std::chrono::milliseconds(600));};auto shared=std::make_shared<Shared>();ResourceLedger ledger(64*1024*1024);o.route.resources=ledger;
     {auto owner=preparePipeWireMonitorControlEndpoint(t.root,factory(shared),o,{},{});
      check(std::holds_alternative<PipeWireRecordingSpec>(owner->declared()),"PipeWire declaration converted to another backend");check(ledger.usage().reservedBytes>0,"Aggregate route not charged");owner->activate();
         check(owner->requestStopAt({2400})==MonitorControlCode::Accepted,"Owner horizon admission failed");
@@ -56,6 +57,7 @@ void workflow(){Temp t;auto o=options(t);auto shared=std::make_shared<Shared>();
             if(result.render)std::cerr<<"terminal_render consumed="<<result.render->monitorConsumedFrames<<" queued="<<result.render->monitorQueuedFrames<<" cycles="<<result.render->cycles<<" final_last="<<(result.render->last && result.render->last->finalContent)<<" final_last_content="<<(result.render->lastContent && result.render->lastContent->finalContent)<<'\n';}
         check(ready && result.disposition==PipeWireRecordingDisposition::Recorded && result.prefix && result.prefix->finalized,"Owned recording did not complete stored prefix");
         check(result.terminalStored && !result.terminalFailure,"Joined outcome not durably stored");
+        if(delayed)check(result.capture && result.capture->firstAccepted && result.capture->firstAccepted->monotonicNs>=4600000000ULL,"Inactive preparation replayed overdue capture clocks");
         const auto stored=inspectPipeWireRecordingState(owner->jobDirectory(),o.declared);
         check(stored.terminal && stored.outcome && stored.outcome->disposition==PipeWireStoredDisposition::Recorded &&
               encodeMonitorEq(*stored.intent.processing.equalizer,48000,2)==encodeMonitorEq(*o.route.equalizer,48000,2) &&
@@ -105,5 +107,5 @@ void failures(){
     check(r.terminalStored && inspectPipeWireRecordingState(owner->jobDirectory()).outcome->diskFailure,"Disk failure not stored with original common prefix");
 }
 }
-int main(){try{workflow();failures();std::cout<<checks<<" owned PipeWire recording checks passed;actual native-role/processing/disk threads, finite EQ/map/raw checkpoint, cancel/fault/rollback;SDK=false, physical=false, durable terminal state verified\n";return 0;
+int main(){try{workflow();workflow(true);failures();std::cout<<checks<<" owned PipeWire recording checks passed;actual native-role/processing/disk threads, finite EQ/map/raw checkpoint, cancel/fault/rollback;SDK=false, physical=false, durable terminal state verified\n";return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

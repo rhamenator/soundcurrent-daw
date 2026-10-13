@@ -15,12 +15,12 @@ class Simulated final : public PipeWireMonitorStreams {
     PreparedPipeWireMonitorCapture capture_;PreparedPipeWireMonitorRender render_;
     std::thread captureThread_,renderThread_;std::atomic<bool> cs_{false},rs_{false};
     const std::chrono::steady_clock::time_point epoch_=std::chrono::steady_clock::now();
-    const unsigned fail_;bool cj_=false,rj_=false;
-    DeviceBlockClock clock(unsigned n) const {return {100000+std::uint64_t(n)*480,480,4000000000ULL+std::uint64_t(n)*10000000,19,n+4,1,48000,-37,false,false};}
+    const unsigned fail_;bool cj_=false,rj_=false;std::uint64_t startTick_=0;
+    DeviceBlockClock clock(unsigned n) const {const auto tick=startTick_+n;return {100000+tick*480,480,4000000000ULL+tick*10000000,19,std::uint32_t(tick+4),1,48000,-37,false,false};}
     void audit(){const auto a=rt_audit::counts;if(a.cppAllocate || a.cppFree || a.cAllocate || a.cFree || a.blockingLock)shared_->auditBad=true;}
     void captureLoop(){rt_audit::reset();std::array<float,480> samples;std::array<const float *,1> planes{samples.data()};
         const std::array<PipeWirePortLeaseResult,1> returned{{{PipeWireBufferStatus::Ready,true,0}}};
-        for(unsigned n=0;!cs_.load() && n<1000;++n){std::this_thread::sleep_until(epoch_+std::chrono::milliseconds(n*10));if(cs_.load())break;
+        for(unsigned n=0;!cs_.load() && n<1000;++n){std::this_thread::sleep_until(epoch_+std::chrono::milliseconds((startTick_+n)*10));if(cs_.load())break;
             auto c=clock(n);for(unsigned k=0;k<480;++k)samples[k]=sample(std::uint64_t(n)*480+k);
             if(fail_==3 && n==25)c.rateDenominator=44100;
             const auto code=rt([&]{return capture_.process(c,planes,480);});rt([&]{capture_.completeCycle({c,true,returned,{}});});
@@ -28,7 +28,7 @@ class Simulated final : public PipeWireMonitorStreams {
         }audit();}
     void renderLoop(){rt_audit::reset();std::array<float,480> left{},right{};std::array<float *,2> planes{left.data(),right.data()};
         const std::array<PipeWirePortLeaseResult,2> returned{{{PipeWireBufferStatus::Ready,true,0},{PipeWireBufferStatus::Ready,true,0}}};
-        for(unsigned n=0;!rs_.load() && n<1000;++n){std::this_thread::sleep_until(epoch_+std::chrono::milliseconds(n*10));if(rs_.load())break;
+        for(unsigned n=0;!rs_.load() && n<1000;++n){std::this_thread::sleep_until(epoch_+std::chrono::milliseconds((startTick_+n)*10));if(rs_.load())break;
             const auto c=clock(n);const auto before=route_.output().deliveredFrames();
             const auto code=rt([&]{return render_.process(c,planes,480,now());});rt([&]{render_.completeCycle({c,true,{},returned});});
             const auto frames=route_.output().deliveredFrames()-before;
@@ -42,7 +42,9 @@ class Simulated final : public PipeWireMonitorStreams {
     std::vector<AudioPort> ports() const override{return {};}
     void connect(const std::vector<AudioPort> &,const std::vector<AudioPort> &) override{}
     void activateCapture() override{if(fail_==2)throw ProjectError(ErrorCode::Io,"Injected capture activation");captureThread_=std::thread([this]{captureLoop();});}
-    void activateRender() override{if(fail_==1)throw ProjectError(ErrorCode::Io,"Injected render activation");renderThread_=std::thread([this]{renderLoop();});}
+    void activateRender() override{if(fail_==1)throw ProjectError(ErrorCode::Io,"Injected render activation");const auto elapsed=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-epoch_).count();
+        startTick_=(std::uint64_t(elapsed)+9999999)/10000000;
+        renderThread_=std::thread([this]{renderLoop();});}
     std::optional<Qpc100ns> now() noexcept override{const auto ns=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-epoch_).count();return Qpc100ns{40000000+std::uint64_t(ns)/100};}
     void requestCaptureStop() noexcept override{cs_=true;capture_.requestStop();}
     void requestRenderStop() noexcept override{rs_=true;render_.requestStop();}
