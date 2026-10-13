@@ -17,6 +17,7 @@ struct Spy {
     // 0 initial,1 capture,2 disk wait,3 monitor wait,4 render wait,5 lease,6 pace,7 exit.
     std::atomic<std::uint32_t> sdkStage{0};
     std::atomic<std::uint64_t> sdkRawPackets{0};
+    std::atomic<std::uint64_t> maximumCycleWorkNs{0},maximumCycleNs{0},maximumPaceWaitNs{0};
     std::atomic<std::uint64_t> writtenPackets{0}, qpc{100000000}, callbackCalls{0};
     std::atomic<std::uint32_t> captureActive{0}, captureStop{0}, renderStop{0}, captureJoined{0}, renderJoined{0};
     std::atomic<std::uint32_t> tailCaptureStopPending{0}, tailCaptureStopServiced{0};
@@ -70,6 +71,7 @@ class FakeStreams final : public NativeMonitorStreams {
         rt_audit::reset();
         rt([&] { renderLife_.silenceReleased({WasapiSilenceKind::Startup,64,1}); }); submitted_ = 64;
         while (!captureEnded_ || !renderEnded_) {
+            const auto cycleBegin=std::chrono::steady_clock::now();
             spy_->sdkStage.store(1,std::memory_order_release);
             const Qpc100ns now{100000000 + tick_ * 100000}; spy_->qpc.store(now.value, std::memory_order_release);
             if (!captureEnded_) {
@@ -154,7 +156,13 @@ class FakeStreams final : public NativeMonitorStreams {
             // Each declared packet/lease is ten milliseconds of native audio.
             // Pace this fake device accordingly instead of overfeeding it 100x.
             spy_->sdkStage.store(6,std::memory_order_release);
-            ++tick_;if(packetWait_.wait())std::terminate();
+            const auto workEnd=std::chrono::steady_clock::now();
+            const auto workNs=std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(workEnd-cycleBegin).count());
+            spy_->maximumCycleWorkNs.store(std::max(spy_->maximumCycleWorkNs.load(std::memory_order_relaxed),workNs),std::memory_order_release);
+            ++tick_;if(packetWait_.waitUntil(cycleBegin+std::chrono::milliseconds(10)))std::terminate();
+            const auto elapsed=std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-cycleBegin).count());
+            spy_->maximumCycleNs.store(std::max(spy_->maximumCycleNs.load(std::memory_order_relaxed),elapsed),std::memory_order_release);
+            spy_->maximumPaceWaitNs.store(packetWait_.maximumNsAfterJoin(),std::memory_order_release);
         }
         spy_->sdkStage.store(7,std::memory_order_release);
         spy_->callbackAudit = rt_audit::counts;

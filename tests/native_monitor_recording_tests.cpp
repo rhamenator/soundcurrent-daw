@@ -280,7 +280,7 @@ void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureSt
             <<" stop_planned="<<planned<<" sdk_tail_stop_pending="<<spy->tailCaptureStopPending.load(std::memory_order_acquire)
             <<" sdk_tail_frames="<<spy->tailAvailableFrames.load(std::memory_order_relaxed)
             <<" sdk_stage="<<sdk.stage<<" sdk_raw_packets="<<sdk.rawPackets
-            <<" sdk_written_packets="<<sdk.writtenPackets<<" sdk_now_coordinate="<<sdk.nowCoordinate<<'\n';
+            <<" sdk_written_packets="<<sdk.writtenPackets<<" sdk_cycle_work_max_ns="<<spy->maximumCycleWorkNs.load()<<" sdk_cycle_max_ns="<<spy->maximumCycleNs.load()<<" sdk_pace_wait_max_ns="<<spy->maximumPaceWaitNs.load()<<" sdk_now_coordinate="<<sdk.nowCoordinate<<'\n';
         const auto r = run.cancelAndWait(); std::cerr << "Owner timeout capture=" << int(r.native.captureStatus)
             << " render=" << int(r.native.render.status) << " processing=" << (r.processingFault ? int(r.processingFault->cause) : -1)
             << " raw=" << (r.prefix ? r.prefix->raw.committedFrames : 0) << '\n';
@@ -327,6 +327,7 @@ void success(unsigned rate, unsigned channels, bool mapped, bool failedCaptureSt
         << " equalized=" << equalized << " packet_bound=" << run.declared().capture.maximumPacketFrames
         << " raw_frames=" << r.prefix->raw.committedFrames << " monitor_frames=" << r.native.render.consumedMonitorFrames << " failed_stop=" << failedCaptureStop
         << " processing_wait_calls="<<r.processingWaitCalls<<" processing_wait_max_ns="<<r.processingWaitMaximumNs
+        << " sdk_cycle_work_max_ns="<<spy->maximumCycleWorkNs.load()<<" sdk_cycle_max_ns="<<spy->maximumCycleNs.load()<<" sdk_pace_wait_max_ns="<<spy->maximumPaceWaitNs.load()
         << " disk_wait_calls="<<r.diskWaitCalls<<" disk_wait_max_ns="<<r.diskWaitMaximumNs
         << " raw_bits_exact=true joined=true simulated_sdk=true\n";
 }

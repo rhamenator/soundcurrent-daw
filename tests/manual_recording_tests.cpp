@@ -555,9 +555,9 @@ struct Fixture {
         for (unsigned n = 0; n < count; ++n)
             in[n] = input[n].data();
     }
-    void prepare(std::vector<ManualRecordingArm> a, Frame end = 10000) {
-        run = std::make_unique<ManualRecordingRun>(directory.root, s, plan(s), std::move(a),
-                                                   options(0, end, unsigned(s.tracks.size())));
+    void prepare(std::vector<ManualRecordingArm> a, Frame end = 10000,std::optional<CaptureConfig> declaredCapture={}) {
+        auto o=options(0,end,unsigned(s.tracks.size()));if(declaredCapture)o.capture=*declaredCapture;
+        run = std::make_unique<ManualRecordingRun>(directory.root, s, plan(s), std::move(a),o);
     }
     DuplexStatus block() {
         const auto at = run->position();
@@ -1081,6 +1081,76 @@ void heldFirstWriteDiagnostic() {
              <<" completed_fixture_span_max_ns="<<completed.maximumWriteSpanNs
              <<" queue_full_prefix=8192 raw_exact=true windows_root_inferred=false\n";
 }
+void declaredReserveStall(bool beyond) {
+    WriterDiagnostic writer;
+    std::atomic<bool> entered{false}, released{false};
+    Fixture f(1);
+    struct Release {
+        std::atomic<bool> &released;
+        ~Release() { released.store(true, std::memory_order_release); }
+    } release{released}; // The disk must be released before fixture teardown.
+    auto a = arms(f.s, false);
+    a[0].writer.instrumentation = {&writer, WriterDiagnostic::observe};
+    a[0].writer.boundary = [&](RecordingBoundary b, Frame at) {
+        if (b != RecordingBoundary::BeforeAudioWrite || at) return;
+        entered.store(true, std::memory_order_release);
+        while (!released.load(std::memory_order_acquire))
+            std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Disk only.
+    };
+    auto reserve = capture();
+    reserve.slabFrames = 0;
+    reserve = withCaptureReserve(reserve, 2000);
+    f.prepare(std::move(a), 2000000, reserve);
+    const auto id = f.run->prepareTake();
+    submit(*f.run, ManualPunchAction::In, 0, 1, id);
+    const auto pacedBlock = [&] {
+        const auto status = f.block();
+        // The playback reader also serves this duplex stream. Use its declared
+        // sample-clock cadence rather than an accelerated disk-throughput loop.
+        std::this_thread::sleep_for(std::chrono::microseconds(256000000ULL / 48000));
+        return status;
+    };
+    for (unsigned n = 0; n < 12; ++n)
+        check(pacedBlock() == DuplexStatus::Running, "Reserved take didn't start");
+    eventually([&] { f.run->service(); return entered.load(std::memory_order_acquire); });
+    const auto held = writer.snapshot();
+    check(held.coherent && held.writeInFlight && held.hasBacklog &&
+              held.backlog.acquiredFrames == 3000 && held.backlog.capacityFrames == 96000,
+          "Declared reserve didn't reach held disk acquisition");
+    DuplexStatus status = DuplexStatus::Running;
+    const auto blocks = beyond ? 376u : 188u;
+    for (unsigned n = 12; n < blocks && status == DuplexStatus::Running; ++n)
+        status = pacedBlock();
+    if (status != DuplexStatus::Running)
+        ownerDiagnostic(std::cerr, *f.run, id, writer);
+    if (beyond) {
+        const auto d = f.run->diagnoseLane(id, 0);
+        check(status == DuplexStatus::CaptureFailed && d &&
+                  d->captureStatus == CaptureStatus::QueueFull && d->retiredFrames == 96000,
+              "Reserved overrun didn't preserve declared capacity fault");
+    } else {
+        check(status == DuplexStatus::Running, "Within-reserve publication lost audio");
+        submit(*f.run, ManualPunchAction::Out, f.run->position(), 2);
+        check(pacedBlock() == DuplexStatus::Running, "Reserved punch-out refused");
+    }
+    const auto heldAge = writer.nowNs() - held.writeBeginNs;
+    released.store(true, std::memory_order_release);
+    f.run->stop();
+    f.run->checkError();
+    f.run->checkReader();
+    ManualRecordedGroup group;
+    check(f.run->takeGroup(group) && group.lanes[0].result && group.complete() == !beyond &&
+              group.lanes[0].capturedFrames == group.lanes[0].writtenFrames &&
+              group.lanes[0].capturedFrames == (beyond ? 96000 : 48128),
+          "Reserved take lost joined accepted prefix");
+    const auto data = audio(f.directory.root, group.lanes[0].result->asset);
+    for (std::size_t n = 0; n < data.size(); ++n)
+        check(data[n] == raw(group.beginFrame + Frame(n), 0), "Reserved raw prefix changed");
+    std::cout << "manual_reserve budget_ms=2000 simulated_stall_frames="
+              << (beyond ? 96000 : 48128) << " captured=" << group.lanes[0].capturedFrames
+              << " held_age_ns=" << heldAge << " beyond=" << beyond << " raw_exact=true\n";
+}
+
 void concurrentOwner() {
     WriterDiagnostic writerDiagnostic; // Outlives fixture destruction/worker joins.
     Fixture f(1);
@@ -1089,7 +1159,10 @@ void concurrentOwner() {
     auto a = arms(f.s, false);
     a[0].binding.monitoring = RecordingMonitor::PostEq;
     a[0].writer.instrumentation={&writerDiagnostic,WriterDiagnostic::observe};
-    f.prepare(std::move(a), 2000000);
+    auto reserve=capture();reserve.slabFrames=0;reserve=withCaptureReserve(reserve,2000);
+    check(std::uint64_t(reserve.poolSlabs)*reserve.slabFrames>=96000 && reserve.maximumCallbackFrames==256,"Manual reserve admission changed callback geometry");
+    std::cout<<"concurrent_profile reserve_ms=2000 slab_frames="<<reserve.slabFrames<<" pool_slabs="<<reserve.poolSlabs<<" capacity_frames="<<std::uint64_t(reserve.poolSlabs)*reserve.slabFrames<<'\n';
+    f.prepare(std::move(a),2000000,reserve);
     auto cfg = config(0, 2000000);
     PreparedMixGraph oracle(f.s, plan(f.s), cfg.graph);
     std::atomic<bool> failed{false};
@@ -1258,6 +1331,8 @@ int main(int argc,char **argv) {
         caseTrace("readyGroupPressure",[]{readyGroupPressure();});
         caseTrace("heldFinalizationDiagnostic",[]{heldFinalizationDiagnostic();});
         caseTrace("heldFirstWriteDiagnostic",[]{heldFirstWriteDiagnostic();});
+        caseTrace("reserve-within",[]{declaredReserveStall(false);});
+        caseTrace("reserve-beyond",[]{declaredReserveStall(true);});
         caseTrace("concurrent-owner",[]{concurrentOwner();});
         const auto c = rt_audit::counts;
         check(c.cppAllocate + c.cppFree + c.cAllocate + c.cFree + c.blockingLock == 0,
