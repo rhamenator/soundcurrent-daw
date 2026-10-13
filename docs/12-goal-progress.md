@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows runtime policy and actual collected bundle (2026-10-13)
+
+[Checkpoint 252](252-windows-runtime-version-policy.md) independently audits the
+actual native CI185 deployment/source bundle:14 payload files/1,493 source files,
+all recorded bytes checked, exact source head/tree, Qt identities preserved and
+fresh libsndfile mismatch explicit. All four original jobs pass and are retained.
+The installer now derives its checked runtime threshold from reviewed policy;
+current pins remain unchanged. Compiler binaries and CRT/runtime packages have
+different patch versions, so new native header/signature capture must determine
+eligibility. No VM, runtime install or updated setup qualification yet. Full DAW
+and all-Europe scope remains active.
+
 ## Windows deployment input collection (2026-10-13)
 
 [Checkpoint 251](251-windows-preview-build-bundle.md) adds an optional hosted native

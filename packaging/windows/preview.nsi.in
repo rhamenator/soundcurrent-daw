@@ -61,7 +61,7 @@ Function CheckRuntime
     ${If} $1 == "v"
       StrCpy $0 $0 "" 1
     ${EndIf}
-    ${VersionCompare} $0 "14.44.35211.0" $1
+    ${VersionCompare} $0 "@RUNTIME_VERSION@" $1
     ${If} $1 != 2
       StrCpy $RuntimeReady 1
     ${EndIf}

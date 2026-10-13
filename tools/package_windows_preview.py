@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 QT_SOURCE = 'a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307'
 SNDFILE_SOURCE = 'ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121'
 REDIST = 'cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b'
+RUNTIME_VERSION = '14.44.35211.0'
 
 def require(value, message):
     if not value:
@@ -148,7 +149,51 @@ def qualify_protected_worker(manifest, qualification, head, source_tree):
     require(len(rows)==1, 'Exactly one qualified protected stretch helper required')
     return qualify_protected_warp(qualification,head,source_tree,rows[0].get('sha256'),'win32')
 
-def scripts(stage, output, sequence, head, runtime):
+def version_tuple(text):
+    require(type(text) is str and re.fullmatch(r'[0-9]+(?:\.[0-9]+){2,3}', text),
+            'Invalid runtime/toolset version')
+    values = tuple(int(v) for v in text.split('.'))
+    require(all(v <= 65535 for v in values), 'Version component outside bounds')
+    return values + (0,) * (4 - len(values))
+
+
+def qualify_compiler(compiler, collection, head, tree, compiler_receipt_sha256,
+                     runtime_version=RUNTIME_VERSION):
+    require(collection.get('format') == 'sc-windows-preview-build-bundle-v1' and
+            collection.get('sourceCommit') == head and collection.get('sourceTree') == tree and
+            collection.get('nativePlatform') == 'win32' and
+            collection.get('sourceInputsUnchanged') is True,
+            'Current native build collection required')
+    require(collection.get('compiler') == compiler and
+            collection.get('artifacts', {}).get('compiler.json', {}).get('sha256') == compiler_receipt_sha256,
+            'Compiler receipt differs from native build collection')
+    path = compiler.get('path', '').replace('\\', '/')
+    match = re.search(r'/Tools/MSVC/(14\.[0-9]+\.[0-9]+)/bin/Hostx64/x64/cl\.exe$',
+                      path, re.IGNORECASE)
+    require(match is not None and type(compiler.get('bytes')) is int and compiler['bytes'] > 0 and
+            re.fullmatch(r'[0-9a-f]{64}', compiler.get('sha256', '')),
+            'Native x64 MSVC toolset identity required')
+    directory_version = version_tuple(match.group(1))
+    product_version = version_tuple(compiler.get('productVersion'))
+    file_version = version_tuple(compiler.get('fileVersion'))
+    require(product_version[0] == 14 and product_version[:2] == directory_version[:2] and
+            product_version >= directory_version and file_version[0] == product_version[0] + 5 and
+            file_version[1:] == product_version[1:], 'Compiler version resources are inconsistent')
+    # Compiler executable patches and redistributable patches are not interchangeable.
+    # Use the actual CRT headers selected by this native toolset, conservatively
+    # retaining the toolset's directory version as another lower bound.
+    crt_version = version_tuple(compiler.get('crtVersion'))
+    require(crt_version[:2] == directory_version[:2] and
+            re.fullmatch(r'[0-9a-f]{64}', compiler.get('crtHeaderSha256', '')),
+            'Actual native CRT header/version identity required')
+    toolset = max(crt_version, directory_version)
+    require(version_tuple(runtime_version) >= toolset,
+            'Pinned Microsoft runtime is older than the actual MSVC build tools')
+    return '.'.join(map(str, toolset))
+
+
+def scripts(stage, output, sequence, head, runtime, runtime_version=RUNTIME_VERSION):
+    runtime_version = '.'.join(map(str, version_tuple(runtime_version)))
     entries = sorted(p for p in stage.rglob('*') if p.is_file())
     put, remove, preflight = [], [], []
     for index,p in enumerate(entries):
@@ -175,6 +220,7 @@ def scripts(stage, output, sequence, head, runtime):
     text=(ROOT/'packaging/windows/preview.nsi.in').read_text()
     values={'BUILD_ID':sequence+'-'+head[:12],'SEQUENCE':sequence,'INSTALLER':nsis_path(installer),
             'LICENSE':nsis_path(ROOT/'LICENSE'),'REDIST':nsis_path(runtime),
+            'RUNTIME_VERSION':runtime_version,
             'PAYLOAD_INCLUDE':nsis_path(output/'payload.nsh'),
             'REMOVE_INCLUDE':nsis_path(output/'remove.nsh'),
             'PREFLIGHT_INCLUDE':nsis_path(output/'preflight.nsh')}
@@ -192,6 +238,11 @@ def package(args):
     qualification=read_json(args.main_qualification)
     require(qualification['exitCode']==0 and qualification['sessionId']>0,
             'Actual native main launch/close not qualified')
+    compiler = read_json(args.compiler_qualification)
+    collection = read_json(args.build_collection)
+    required_runtime = qualify_compiler(compiler, collection, head,
+        subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip(),
+        digest(args.compiler_qualification))
     build=read_json(args.build_inputs)
     for row in build['files']:
         require(digest(ROOT.joinpath(*relative(row['name']).parts))==row['sha256'],
@@ -247,7 +298,7 @@ def package(args):
         'Matching application/QtBase/libsndfile source archives are supplied beside setup.\n'
         'Shared Qt 6.12.0 and libsndfile 1.2.2 DLLs can be replaced/relinked.\n'
         'Qt deployment uses windeployqt without compiler runtimes. MSVC runtime is\n'
-        'the independent signed Microsoft 14.44.35211.0 installer; no SDK is required.\n')
+        f'the independent signed Microsoft {RUNTIME_VERSION} installer; no SDK is required.\n')
     script,installer=scripts(stage,output,args.sequence,head,args.runtime)
     r=subprocess.run(['makensis','-V3',script],capture_output=True,text=True)
     (output/'makensis.log').write_text(r.stdout+r.stderr)
@@ -267,6 +318,9 @@ def package(args):
              'protectedWarpQualificationSha256':digest(args.protected_warp_qualification) if needs_protected_warp else None,
              'protectedWarpQualification':protected_summary,
              'deploymentManifestSha256':digest(args.deploy_manifest),'officialRuntimeSha256':REDIST,
+             'officialRuntimeVersion':RUNTIME_VERSION,'minimumCompilerRuntimeVersion':required_runtime,
+             'compilerQualificationSha256':digest(args.compiler_qualification),
+             'buildCollectionSha256':digest(args.build_collection),
              'installerSourceSha256':digest(ROOT/'packaging/windows/preview.nsi.in'),
              'payload':{p.relative_to(stage).as_posix():{'bytes':p.stat().st_size,'sha256':digest(p)} for p in sorted(stage.rglob('*')) if p.is_file()},
              'artifacts':{p.relative_to(output).as_posix():{'bytes':p.stat().st_size,'sha256':digest(p)} for p in artifacts},
@@ -278,7 +332,7 @@ def package(args):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    for name in ['deploy-zip','deploy-manifest','build-inputs','main-qualification','qt-source','sndfile-source','runtime','qt-sdk','output']:
+    for name in ['deploy-zip','deploy-manifest','build-inputs','main-qualification','qt-source','sndfile-source','runtime','qt-sdk','output','compiler-qualification','build-collection']:
         parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--worker-qualification',type=Path,
                         help='Actual matching-source native worker PID/exit/executable receipt')

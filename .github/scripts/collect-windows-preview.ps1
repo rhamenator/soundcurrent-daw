@@ -35,7 +35,25 @@ try {
     if ($compilerLine.Count -ne 1) { throw 'Ambiguous compiler identity' }
     $compiler = $compilerLine[0].Split('=',2)[1]
     $tool = Get-Item -LiteralPath $compiler
-    [ordered]@{path=$tool.FullName;bytes=$tool.Length;sha256=(Get-FileHash -LiteralPath $compiler -Algorithm SHA256).Hash.ToLowerInvariant();fileVersion=$tool.VersionInfo.FileVersion;productVersion=$tool.VersionInfo.ProductVersion;previousProductRuntime='14.44.35211.0';runtimeCompatibilityQualified=$false} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $out 'compiler.json')
+    $toolset = $tool.Directory.Parent.Parent.Parent.FullName
+    $crtVersion = $null; $crtHeader = $null; $crtHash = $null
+    foreach ($name in @('vcruntime.h','vcruntime_version.h','crtversion.h')) {
+        $path = Join-Path $toolset ('include/' + $name)
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        $body = Get-Content -LiteralPath $path -Raw
+        $parts = @()
+        foreach ($macro in @('MAJOR','MINOR','BUILD','RBUILD')) {
+            $pattern = '(?m)^\s*#\s*define\s+_VC_CRT_' + $macro + '_VERSION\s+([0-9]+)\b'
+            $found = [regex]::Matches($body,$pattern)
+            if ($found.Count -ne 1) { break }
+            $parts += $found[0].Groups[1].Value
+        }
+        if ($parts.Count -eq 4) {
+            $crtVersion = $parts -join '.'; $crtHeader = $path
+            $crtHash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant(); break
+        }
+    }
+    [ordered]@{path=$tool.FullName;bytes=$tool.Length;sha256=(Get-FileHash -LiteralPath $compiler -Algorithm SHA256).Hash.ToLowerInvariant();fileVersion=$tool.VersionInfo.FileVersion;productVersion=$tool.VersionInfo.ProductVersion;crtVersion=$crtVersion;crtHeaderPath=$crtHeader;crtHeaderSha256=$crtHash;previousProductRuntime='14.44.35211.0';runtimeCompatibilityQualified=$false} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $out 'compiler.json')
     $dumpbin = Join-Path $tool.Directory.FullName 'dumpbin.exe'
     foreach ($exe in Get-ChildItem -LiteralPath $stage -Filter '*.exe') {
         & $dumpbin /dependents $exe.FullName *>&1 | Set-Content -Encoding utf8 (Join-Path $out ($exe.Name + '.imports.txt'))
@@ -49,6 +67,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $root 'native-dependencies/libsndfile-1.2.2.tar.gz') -Destination $sources
     & python tools/windows_preview_bundle.py --build $build --stage $stage --output $out --inputs (Join-Path $root '.cache/windows-preview-build-inputs.json') --expected-source $ExpectedSourceCommit
     if ($LASTEXITCODE -ne 0) { throw 'Native input collection failed' }
+    & (Join-Path $root '.github/scripts/review-windows-runtime.ps1') -CollectionDirectory $out
     [ordered]@{exitCode=0;installerPrepared=$false;nativeAudioActivated=$false} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $out 'terminal.json')
 } catch {
     [ordered]@{exitCode=1;error=$_.Exception.Message;installerPrepared=$false;nativeAudioActivated=$false} | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $out 'terminal.json')
