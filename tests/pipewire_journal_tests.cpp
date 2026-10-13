@@ -84,6 +84,13 @@ void releasedBeforeDueCheckpoint(){Temp t;const auto s=spec(t.root);PreparedCapt
     const auto p=inspectPipeWireRecording(job,s);check(p.raw.committedFrames==17 && p.captureRecords==1 && p.renderRecords==1 && p.finalized,"Deferred checkpoint changed durable prefix");
     check(rawCommits>0 && !checkpointStarted && unsigned(OriginalRecordingBoundary::AfterMediaPublish)==8 && unsigned(OriginalRecordingBoundary::BeforeCheckpoint)==9,"Checkpoint measurement changed legacy boundary identity/order");
 }
+void deferredCheckpointFailure(){Temp t;const auto s=spec(t.root);PreparedCaptureFanout f(config(s));bool armed=false;std::filesystem::path job;
+    PipeWireJournalOptions o;o.checkpointRecords=1;o.boundary=[&](auto b){if(armed && b==PipeWireJournalBoundary::BeforeCheckpoint)throw ProjectError(ErrorCode::Io,"Injected deferred publication failure");};
+    {PipeWireRecordingJournal w(t.root,s,o);job=w.jobDirectory();std::array<float,51> data{};const auto c=capture(0);const CaptureBankStamp stamp{s.raw.identity,{c.original.original.position},{c.original.original.monotonicNs/100},17,0};
+        check(f.publish({stamp,reinterpret_cast<const std::byte *>(data.data()),sizeof(data)}).rawAcceptedFrames==17,"Deferred failure publication failed");CaptureBankView raw,monitor;f.acquireRaw(raw);f.acquireMonitor(monitor);
+        w.appendCapture(c,raw,true);check(f.releaseRaw(raw) && f.releaseMonitor(monitor),"Deferred failure kept raw view");armed=true;refuses([&]{w.checkpointIfDue();});refuses([&]{w.checkpointIfDue();});}
+    const auto p=inspectPipeWireRecording(job,s);check(!p.finalized && p.raw.committedFrames==0 && p.captureRecords==0,"Failed deferred publication invented paired checkpoint");
+}
 void checkpointTail(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     {PreparedCaptureFanout f(config(s));PipeWireRecordingJournal w(t.root,s);job=w.jobDirectory();append(w,f,s,0);w.checkpoint();append(w,f,s,1);}
     const auto native=inspectPipeWireRecording(job,s);const auto raw=inspectOriginalRecording(job,s.raw);
@@ -135,6 +142,6 @@ int wmain(int argc,wchar_t **argv){
 int main(int argc,char **argv){
 #endif
     try{if(argc==4){crashedChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));return 80;}
-        normal();releasedBeforeDueCheckpoint();checkpointTail();failedNativeFacts();for(unsigned b=unsigned(PipeWireJournalBoundary::RawAppended);b<=unsigned(PipeWireJournalBoundary::FinalPublished);++b)crash(b);
+        normal();releasedBeforeDueCheckpoint();deferredCheckpointFailure();checkpointTail();failedNativeFacts();for(unsigned b=unsigned(PipeWireJournalBoundary::RawAppended);b<=unsigned(PipeWireJournalBoundary::FinalPublished);++b)crash(b);
         std::cout<<checks<<" durable PipeWire journal checks passed;8 actual process interruption boundaries, exact paired raw/receipt prefixes, moved projects/corruption/refusal; no SDK/physical/automatic alignment\n";return 0;
     }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
