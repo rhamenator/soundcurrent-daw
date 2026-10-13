@@ -213,3 +213,5 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Completion and clock-state sanitizer qualification](232-completion-sanitizer-qualification.md)
 
 - [Shared prepared recording control endpoints](233-monitor-control-endpoints.md)
+
+- [Typed PipeWire recording controller and panel](234-pipewire-monitor-controller.md)

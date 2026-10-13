@@ -1,5 +1,21 @@
 # Active full-suite goal: progress and completion evidence
 
+## Typed PipeWire controller and recording panel (2026-10-12)
+
+[Checkpoint234](234-pipewire-monitor-controller.md) wires expected PipeWire
+preparation, typed outcomes, project-owned inspection and original WAV export into
+the worker and Qt panel. Five Release/controller/catalog suites pass30.61s; the
+panel suite13.16s includes simulated PipeWire Record/Inspect/Export/Reopen/Close and
+unchanged WASAPI workflows. Genuine private PipeWire through the controller
+preserves99,072 raw frames and delivers8,192 processed frames, durable reopen and
+callback audit0. Five Windows objects compile without warnings; current sanitizer/
+native Windows/installed gates remain open. Timeline admission and portable project
+evidence for PipeWire are REQUIRED next, with Add disabled pending that implementation.
+Original PR167 catalog and simulated raw-queue failures are retained. Catalogs are
+refreshed; fixture activation scheduling hazard is corrected with a600ms regression,
+without proving original runner timing or resolving earlier failure causes.
+Full suite/all-Europe parity remains active.
+
 ## Shared prepared recording endpoints (2026-10-12)
 
 [Checkpoint233](233-monitor-control-endpoints.md) adds typed WASAPI/PipeWire
