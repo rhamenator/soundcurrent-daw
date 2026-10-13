@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Independently reviewed Windows runtime (2026-10-13)
+
+[Checkpoint253](253-reviewed-windows-runtime.md) retains actual native CRT14.51.36244
+and Microsoft Authenticode/version proof for runtime14.51.36247.0. The independent
+Linux download matches its exact hash. The runtime pin/notice now use these reviewed
+bytes and generated NSIS threshold; it was not executed or installed. Fresh main,
+helper, loaded-dependency and setup acceptance remain next. The libsndfile pin is
+unchanged and mismatch remains explicit. No VM, UI/catalog, equalizer or installed
+Ubuntu preview change. Full DAW and all-Europe scope remain active.
+
 ## Windows runtime policy and actual collected bundle (2026-10-13)
 
 [Checkpoint 252](252-windows-runtime-version-policy.md) independently audits the

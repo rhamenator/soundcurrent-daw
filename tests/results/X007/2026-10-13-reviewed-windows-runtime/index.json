@@ -1,0 +1,136 @@
+{
+  "checkpoint": 253,
+  "source_head": "dc90fd6cbd64ea8e377748599bd3cddbfa0d961f",
+  "run": 38439030585,
+  "scope": "Native CRT/signature/version review passed; runtime not executed/installed and setup still unqualified",
+  "members": {
+    "artifacts-live.json.gz": {
+      "bytes": 582,
+      "sha256": "cb459e972717ca8a954c6bfd949aa8677a9bbbc77ba2f97340ce8e18c8eee09b",
+      "original_bytes": 1506,
+      "original_sha256": "92fb2f84681aa73b84ba2f9a77811c63435990a7dd5c5b6d21f7bda9a834a167"
+    },
+    "collection.json.gz": {
+      "bytes": 2936,
+      "sha256": "85b0839a24ecb3dcc6fafaef292bb6a7d0469188e4630abde525e4f306b64937",
+      "original_bytes": 9028,
+      "original_sha256": "93174b43a24b72a9f57c3637329b55b87d297cec91257721ab4f91112a1d9a20"
+    },
+    "compiler.json.gz": {
+      "bytes": 370,
+      "sha256": "6d020362bc519772564560bb33fb2e968dde6a52022582cc98df4127c0eed823",
+      "original_bytes": 657,
+      "original_sha256": "3693d9a3874a3c7d02170dfe800e979851572e16ecc6d6487afa50cea527e934"
+    },
+    "native-review.json.gz": {
+      "bytes": 469,
+      "sha256": "e48f62d033f17a48a2d2a0e169cf46ee5c3ad0dab17ecd0cbe6ed40183c99dc1",
+      "original_bytes": 869,
+      "original_sha256": "8e8b1296997fecbb9ebc15b7b48236c23c17d02c2f57a422d430fcddd7eabc8c"
+    },
+    "terminal.json.gz": {
+      "bytes": 90,
+      "sha256": "1398819630008eb079af6baac2d4b4ac06613dc33902a38bf02778ac09a9601d",
+      "original_bytes": 88,
+      "original_sha256": "1285f3e99a336c74f3f784240062d9162cb4c16e1828773bf75de0032bb50cb6"
+    },
+    "preview-retention.json.gz": {
+      "bytes": 796,
+      "sha256": "1b4bb2c9d22d135881c533933c81c907580cbcb7f3c84fbb4a64eac969dae7d9",
+      "original_bytes": 1707,
+      "original_sha256": "0e6efca172025aaeee137dd6b35c2f9af6ac261421098b8a76233b37c252ca75"
+    },
+    "job-115440479716.log.gz": {
+      "bytes": 71883,
+      "sha256": "3704f8f6fbbfe03901533d29f3e1a52a5bc7d5e3113be1b67042cd3ef96faa4a",
+      "original_bytes": 1277637,
+      "original_sha256": "d7bf20553ff481a84a54a7994fdd301266bee1a1c218c3a8a3304a037202618d"
+    },
+    "job-115440480384.log.gz": {
+      "bytes": 45837,
+      "sha256": "b1d661be5f0a0d5765e671d3bbf444cba6b90d7069606609e96f3d43a31e9dba",
+      "original_bytes": 256841,
+      "original_sha256": "099c060b4e39b6527cd576071586429d9242be0942e5ef5abad66c135a8f1ea4"
+    },
+    "job-115440481539.log.gz": {
+      "bytes": 72018,
+      "sha256": "6886c4aacae3678c5f738dda1220ff5eed265368f8087021ac81ac97813cfc2f",
+      "original_bytes": 1273222,
+      "original_sha256": "d9d0f86c5c84de7f2e785b450dcfc9f01d2ba15194b6fc69d796f8b45d40515d"
+    },
+    "job-115440480009.log.gz": {
+      "bytes": 16700,
+      "sha256": "7816199e9f1e37d781e92f7d61de199577144bf245882a57b0dcc08cc11900af",
+      "original_bytes": 98249,
+      "original_sha256": "2b1f80f9945ec613c5382d37ad62102ea1a39c0ecf8728766f5097b981e24777"
+    },
+    "run.json.gz": {
+      "bytes": 1758,
+      "sha256": "f6227bf211a2427dd630764f7679a97dfbd95032d5578dcc636c465f567d35f3",
+      "original_bytes": 13753,
+      "original_sha256": "72438c06e539dd73a83d8f0f9f19a3e23ee613bc369359f6816cbc5e68ff89fb"
+    },
+    "jobs.json.gz": {
+      "bytes": 1927,
+      "sha256": "372e598f62c3e6c99442a28d4d6fa2e8d15f66c1ffee845507dd2bb78b0ce50f",
+      "original_bytes": 14381,
+      "original_sha256": "ced118812809ae1070eb9eef2935f848967be1d2d921815c312c5cbe2de86451"
+    },
+    "artifacts.json.gz": {
+      "bytes": 786,
+      "sha256": "ad430e1f592273c82bd67a5ba1db4979b65a92add3dca05115d70d21798b3b46",
+      "original_bytes": 2975,
+      "original_sha256": "fccecb4e8f99a36274a8bad167b6cd0ad73a065e2da56d7562738b3962eb0894"
+    }
+  },
+  "original_archive": {
+    "artifact": {
+      "id": 11834428043,
+      "node_id": "MDg6QXJ0aWZhY3QxMTgzNDQyODA0Mw==",
+      "name": "windows-preview-build-inputs",
+      "size_in_bytes": 123088035,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11834428043",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11834428043/zip",
+      "expired": false,
+      "digest": "sha256:9571f35a20be92baea22cbeb19dc3c361e24d0c5b4a61bb42a55ab3ada34e334",
+      "created_at": "2026-10-13T17:41:29Z",
+      "updated_at": "2026-10-13T17:41:29Z",
+      "expires_at": "2026-10-16T17:41:24Z",
+      "workflow_run": {
+        "id": 38439030585,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-runtime-policy",
+        "head_sha": "dc90fd6cbd64ea8e377748599bd3cddbfa0d961f"
+      }
+    },
+    "archiveBytes": 123088035,
+    "archiveSha256": "9571f35a20be92baea22cbeb19dc3c361e24d0c5b4a61bb42a55ab3ada34e334",
+    "selected": {
+      "collection.json": {
+        "bytes": 9028,
+        "sha256": "93174b43a24b72a9f57c3637329b55b87d297cec91257721ab4f91112a1d9a20"
+      },
+      "compiler.json": {
+        "bytes": 657,
+        "sha256": "3693d9a3874a3c7d02170dfe800e979851572e16ecc6d6487afa50cea527e934"
+      },
+      "deploy-manifest.json": {
+        "bytes": 2307,
+        "sha256": "71fc89abcea6eb4fa1a9edbbd8470e76ad6a62360e90717593266e285139bd0e"
+      },
+      "runtime-review/native-review.json": {
+        "bytes": 869,
+        "sha256": "8e8b1296997fecbb9ebc15b7b48236c23c17d02c2f57a422d430fcddd7eabc8c"
+      },
+      "terminal.json": {
+        "bytes": 88,
+        "sha256": "1285f3e99a336c74f3f784240062d9162cb4c16e1828773bf75de0032bb50cb6"
+      }
+    }
+  },
+  "runtime_pin_updated": true,
+  "sndfile_pin_updated": false,
+  "vm_started": false,
+  "original_run_conclusion": "success"
+}

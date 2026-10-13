@@ -21,8 +21,8 @@ from protected_warp_qualification import qualify_protected_warp
 ROOT = Path(__file__).resolve().parents[1]
 QT_SOURCE = 'a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307'
 SNDFILE_SOURCE = 'ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121'
-REDIST = 'cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b'
-RUNTIME_VERSION = '14.44.35211.0'
+REDIST = '843068991daaa1f73ad9f6239bce4d0f6a07a51f18c37ea2a867e9beca71295c'
+RUNTIME_VERSION = '14.51.36247.0'
 
 def require(value, message):
     if not value:
