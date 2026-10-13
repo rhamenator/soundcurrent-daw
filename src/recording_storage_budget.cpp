@@ -16,4 +16,12 @@ RecordingStorageCapacity prepareRecordingStorageCapacity(const RecordingStorageB
     if(bytes>SIZE_MAX || bytes>b.memoryBudgetBytes)throw ResourceLimitError("Recording storage PCM",std::size_t(std::min<std::uint64_t>(bytes,SIZE_MAX)),b.memoryBudgetBytes,bytes>SIZE_MAX);
     return {std::uint32_t(capture),std::uint32_t(capture),std::uint32_t(render),frames,std::size_t(bytes),b.stallMilliseconds};
 }
+RecordingStorageCapacity prepareRawRecordingStorageCapacity(std::uint32_t rate,std::uint32_t channels,
+        std::uint32_t maximumPacket,const RawRecordingStoragePolicy &p){
+    RecordingStorageBudget b;b.captureRate=b.renderRate=rate;b.captureChannels=channels;
+    b.maximumCaptureFrames=maximumPacket;b.minimumCaptureFrames=b.minimumRenderFrames=p.minimumPacketFrames;
+    b.stallMilliseconds=p.stallMilliseconds;b.maximumRawSlots=b.maximumReceiptSlots=p.maximumSlots;b.memoryBudgetBytes=p.memoryBudgetBytes;
+    auto capacity=prepareRecordingStorageCapacity(b);capacity.captureReceiptSlots=capacity.renderReceiptSlots=0;return capacity;
+}
+
 }

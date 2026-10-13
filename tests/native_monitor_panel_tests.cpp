@@ -130,6 +130,8 @@ void deviceSelection(const std::filesystem::path &root){
     QTest::mouseClick(control<QPushButton>(*panel,"nativeRefreshDevices"),Qt::LeftButton);await([&]{return input->count()==2 && output->count()==2;});
     check(offGui && !factories && !spy->captureActive,"Device refresh queried SDK/prepared streams on GUI or activated recording");
     input->setCurrentIndex(1);output->setCurrentIndex(1);panel->poll();
+    control<QCheckBox>(*panel,"nativeStorageEnabled")->setChecked(true);control<QSpinBox>(*panel,"nativeStorageCaptureMinimum")->setValue(480);control<QSpinBox>(*panel,"nativeStorageMilliseconds")->setValue(3000);panel->poll();
+    check(!control<QSpinBox>(*panel,"nativeStorageRenderMinimum")->isEnabled(),"Native output fill incorrectly used a fixed minimum");
     QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);QTest::qWait(30);
     check(!factories && panel->snapshot()->phase==NativeMonitorPhase::Idle,"Mismatched native widths silently inferred a mapping");
     mapping->setCurrentIndex(1);removed=true;
@@ -141,9 +143,13 @@ void deviceSelection(const std::filesystem::path &root){
     check(input->currentIndex()==0,"Reconnected input was implicitly selected");input->setCurrentIndex(1);mapping->setCurrentIndex(1);
     control<QSpinBox>(*panel,"nativeMonitorSeconds")->setValue(1);panel->poll();
     QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->phase==NativeMonitorPhase::Ready;});panel->poll();
+    check(panel->snapshot()->storageCapacity && panel->snapshot()->storageCapacity->rawSlots==302 && panel->snapshot()->routePayloadBytes>0 &&
+        !control<QCheckBox>(*panel,"nativeStorageEnabled")->isEnabled(),"Native prepared budget didn't reach immutable panel state");
     const auto before=queries.load();check(!control<QPushButton>(*panel,"nativeRefreshDevices")->isEnabled(),"Prepared route allowed inventory refresh");
     QTest::mouseClick(control<QPushButton>(*panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel->snapshot()->result);});
     const auto selected=panel->snapshot();const auto &result=*selected->result;
+    check(selected->declared->storage && selected->storageCapacity && selected->storageCapacity->rawSlots==302 && !selected->routePayloadBytes,
+          "Native panel lost stored budget or retained retired payload charge");
     if(factories!=2 || preparedStreams!=1 || queries!=before || result.disposition!=NativeMonitorRecordingDisposition::Complete){
         std::ofstream retained(root/"device-selection-diagnostic.log",std::ios::binary);
         for(auto *out:{&std::cerr,static_cast<std::ostream *>(&retained)}){

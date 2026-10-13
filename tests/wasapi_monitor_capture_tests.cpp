@@ -23,10 +23,10 @@ struct Model {
     PreparedMonitorCaptureStop stop;
     PreparedWasapiMonitorCapture context;
     PreparedWasapiCaptureBinding binding;
-    static CaptureFanoutConfig capture(unsigned monitor){CaptureFanoutConfig c;c.capture.identity={11,31,7};c.capture.maximumPacketFrames=8;c.capture.slots=4;c.monitorSlots=monitor;return c;}
+    static CaptureFanoutConfig capture(unsigned monitor,unsigned minimum=1){CaptureFanoutConfig c;c.capture.identity={11,31,7};c.capture.maximumPacketFrames=8;c.capture.slots=4;c.capture.minimumPacketFrames=minimum;c.monitorSlots=monitor;return c;}
     static MonitorClockHandoffConfig clock(unsigned slots){MonitorClockHandoffConfig c;c.captureIdentity={11,31,7};c.slots=slots;return c;}
     static MonitorCaptureStopConfig stopConfig(unsigned monitor){MonitorCaptureStopConfig c;c.maximumPacketFrames=8;c.monitorSlots=monitor;return c;}
-    Model(unsigned monitor=4,unsigned clockSlots=8):fc(capture(monitor)),cc(clock(clockSlots)),sc(stopConfig(monitor)),
+    Model(unsigned monitor=4,unsigned clockSlots=8,unsigned minimum=1):fc(capture(monitor,minimum)),cc(clock(clockSlots)),sc(stopConfig(monitor)),
         format{48000,1,8,4,false,fc.capture.identity},f(fc),clocks(cc),stop(sc),context(format,f,clocks,stop) {}
 };
 WasapiCaptureEnd ending(unsigned packets=0,bool started=false,std::int32_t hr=0){WasapiCaptureEnd e;e.started=started;
@@ -84,5 +84,12 @@ void bindingRace(){constexpr unsigned rounds=1000;std::barrier phase(3);Model *c
     for(unsigned n=0;n<rounds;++n){Model m;current=&m;phase.arrive_and_wait();phase.arrive_and_wait();check(m.binding.phase()==WasapiCaptureBindingPhase::Ended && m.binding.originalEnd() && !m.binding.originalEnd()->started,"Race lost original native end");check(m.f.producerDone()==accepted && bool(m.stop.endReceipt())==accepted,"Bind/end race lost or duplicated EOF handoff");if(!accepted){m.context.settleAfterJoin();check(m.stop.endReceipt()->status==MonitorCaptureEndStatus::OwnerLost,"Unbound context fabricated an SDK result");}}
     control.join();source.join();for(auto a:audits)audit(a);std::cout<<"1000 actual control/SDK-owner bind/end races; original end always retained\n";
 }
+void minimumPacket(){Model m(4,8,7);check(m.binding.bind(m.context,m.format),"Minimum packet binding failed");auto cb=m.binding.callbacks();std::array<float,8> data{};
+    WasapiPacket p{reinterpret_cast<const std::byte *>(data.data()),sizeof(data),6,0,pos,qpc};rt([&]{cb.packet(cb.context,p);});
+    check(!m.f.rawAcceptedFrames() && !m.f.monitorAcceptedFrames() && m.f.firstFault() && m.f.firstFault()->cause==CaptureBankStatus::InvalidFrames &&
+        m.f.firstFault()->attempted->frames==6 && m.f.firstFault()->attempted->position.value==pos && !m.clocks.captureCounts().accepted && m.context.shouldStop(),"Minimum packet violation published audio/clock or lost original fault");
+    rt([&]{cb.finished(cb.context,ending());});
 }
-int main(){try{rt_audit::reset();metadata();pressureAndFailures();admission();bindingRace();audit(rt_audit::counts);std::cout<<checks<<" native capture context checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
+
+}
+int main(){try{rt_audit::reset();minimumPacket();metadata();pressureAndFailures();admission();bindingRace();audit(rt_audit::counts);std::cout<<checks<<" native capture context checks passed; guarded allocate/free/lock=0; fake SDK only\n";return 0;}catch(const std::exception &e){rt_audit::active=false;std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

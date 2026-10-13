@@ -17,6 +17,17 @@ struct RecordingStorageCapacity {
     std::size_t rawSampleBytes=0;
     std::uint32_t declaredStallMilliseconds=0;
 };
+// Native disk consumer retains raw capture only; output callback size is irrelevant.
+struct RawRecordingStoragePolicy {
+    std::uint32_t stallMilliseconds=3000,minimumPacketFrames=0,maximumSlots=4096;
+    std::size_t memoryBudgetBytes=64*1024*1024;
+};
+struct RawRecordingStorageDeclaration {
+    std::uint32_t stallMilliseconds=0,minimumPacketFrames=1,slots=0;
+    bool operator==(const RawRecordingStorageDeclaration &) const = default;
+};
+RecordingStorageCapacity prepareRawRecordingStorageCapacity(std::uint32_t rate,std::uint32_t channels,
+    std::uint32_t maximumPacketFrames,const RawRecordingStoragePolicy &);
 // No allocation/driver access. Refuses a requested duration which existing queue
 // bounds or PCM budget cannot cover; finite capacity is never an unlimited guarantee.
 RecordingStorageCapacity prepareRecordingStorageCapacity(const RecordingStorageBudget &);

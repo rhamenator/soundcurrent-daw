@@ -1,0 +1,486 @@
+{
+  "source": "c871ea598639bf940abf15e0a29dd892486cb1f0",
+  "scope": "native prepared capture policy Release UI/state/stall and focused ASan/UBSan capture; simulated SDK, no physical/native Windows hardware",
+  "sanitizers": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  "members": {
+    "/tmp/sc-native-storage-17ca4112-063d-4501-a631-3cdc65d1128e/media/original-62f0a221-e5d8-4771-afe6-2c3d5cadee19/journal.json": {
+      "file": "e-6e45059a1b2ba978f780.gz",
+      "bytes": 904,
+      "sha256": "bdb6b2e1574bc267611e43e4760d3530a408157f4c1c3bbfbb956d223cc11045",
+      "compressedSha256": "826194b7265a93d3a5b9f4f04d6a7462f6844a203b44cdf14953ac4d7b8b94b3"
+    },
+    "/tmp/sc-native-storage-17ca4112-063d-4501-a631-3cdc65d1128e/media/original-62f0a221-e5d8-4771-afe6-2c3d5cadee19/native-run.json": {
+      "file": "e-d7b30e08390f0a270a0b.gz",
+      "bytes": 5413,
+      "sha256": "eea503b4828de6c9a198cc7ae0b672c49208e1d9cb3a8bf58a397ef4a91c945e",
+      "compressedSha256": "80eb016565e6359468ae8a30cded40de8792e4ce31c280df22d4948276fad96d"
+    },
+    "/tmp/sc-native-storage-db547635-5c16-4068-b850-3c641dae4291/media/original-6c71164e-d66a-41cf-b4b0-841c0b4de159/journal.json": {
+      "file": "e-c02210e21872de01bcfb.gz",
+      "bytes": 904,
+      "sha256": "094c7abf96e4a740ef19ddda781bc9770423fafbea989223ca734af1490035ae",
+      "compressedSha256": "59e14cdcf3339c9106691ebded2363bfb0e32ac9f7ce961895f873eca8ee96e8"
+    },
+    "/tmp/sc-native-storage-db547635-5c16-4068-b850-3c641dae4291/media/original-6c71164e-d66a-41cf-b4b0-841c0b4de159/native-run.json": {
+      "file": "e-f794e775c94a33af77f3.gz",
+      "bytes": 5413,
+      "sha256": "926dbd4e63731b0acc7c323dcd0404f1d3c7dcfcbb91dc4722b522c18314f4ef",
+      "compressedSha256": "0296ac8d6fc23e9a08a5439c8a15211e95d4f3e51f86afa766a69885c0c87cb7"
+    },
+    ".cache/native-recording-storage-budget/asan-core/CMakeCache.txt": {
+      "file": "e-dbe800f9a004775c7779.gz",
+      "bytes": 28043,
+      "sha256": "8bbee6961b51941e4db11af79f3d6bab45210dda4a762a604b94039d5c36442e",
+      "compressedSha256": "02d913cb660c7b2d1a34837e335dc5f14e9bea87cbe6a3abb0cc1dc3ef79d9b3"
+    },
+    ".cache/native-recording-storage-budget/asan-core/Testing/Temporary/LastTest.log": {
+      "file": "e-7ef453253072e25669f2.gz",
+      "bytes": 2702,
+      "sha256": "74f0a33c81ea8e547c4ec44bfbce2f1799f1424527408015d0bb83cdcb38399d",
+      "compressedSha256": "15c732f220f01f7db6023725e92d4c70629cd0c11f6962b7fda2eb2148e0c037"
+    },
+    ".cache/native-recording-storage-budget/asan-core/build.ninja": {
+      "file": "e-d2e1da48d5c6c2de5986.gz",
+      "bytes": 330455,
+      "sha256": "826814ba10bdd6a9f1c36784a56f1e799f97a02745c0a5c5865c0bd62a7eec6b",
+      "compressedSha256": "043a05cfb49f3928a2e439246b128c7b2f90707db2146b750289337528ba9710"
+    },
+    ".cache/native-recording-storage-budget/build-asan-monitor.log": {
+      "file": "e-59b74dc34038aea55a42.gz",
+      "bytes": 5107,
+      "sha256": "fb97cff52f01dc67767be2de6537362449d6cbfa40367356e6f17582bf2e1ef6",
+      "compressedSha256": "0fce2f1e35a74d587b4fd705480d59f0139c5a2492d9142cfb38648c0098d99f"
+    },
+    ".cache/native-recording-storage-budget/build-asan.log": {
+      "file": "e-c47c7eb88015e347ad83.gz",
+      "bytes": 63,
+      "sha256": "650ce121a24872136f154a1616cab66e7eba970d938bd5cfa96441d3f4b6095c",
+      "compressedSha256": "33f59c71693ec8ed965c9de3785d37630e97a823d387643430278445df845458"
+    },
+    ".cache/native-recording-storage-budget/build-desktop-final.log": {
+      "file": "e-e0c3bf341e4fa4c0c470.gz",
+      "bytes": 335,
+      "sha256": "bfb0d18ad402dc33cef6f55692a043c4cc235ba4c1487ea7ad000fbd2e7c663a",
+      "compressedSha256": "e4ed3317a5ed36a45a296b767749e1d513abe7633b4bff88c6cc8a3e5be61f22"
+    },
+    ".cache/native-recording-storage-budget/build-desktop.log": {
+      "file": "e-067a0084e7efdd666e5c.gz",
+      "bytes": 28517,
+      "sha256": "2f3a09417c0baf72486321668ce408fe2a5df257b5ef140e75df17d3f6770f47",
+      "compressedSha256": "22de8fbaf90552c7b34f4d2ac3a945990ee45cf4b877bcbdaaca6f0495320782"
+    },
+    ".cache/native-recording-storage-budget/build-final.log": {
+      "file": "e-f70a7b59dd2f019dc296.gz",
+      "bytes": 1594,
+      "sha256": "57a90f27b9a49414c42ded3fb79968fc07b9ba3191ef262862b1d22918f537be",
+      "compressedSha256": "bc0d248e3f889c5499642e2e2f7213a7600b0993b6a6d481d928d523c99419b8"
+    },
+    ".cache/native-recording-storage-budget/build-fixed.log": {
+      "file": "e-aa93df4d8a20ae4c4b65.gz",
+      "bytes": 5725,
+      "sha256": "994735b4680567315b7cb9a2b321fb83887eb8d5e3a6e7cad776c1670a28f8cf",
+      "compressedSha256": "20a1a2d0c6c7f9adc30735cd5989d28ccd9e5cdb1bd2f6530afffbcc018a8994"
+    },
+    ".cache/native-recording-storage-budget/build-horizon.log": {
+      "file": "e-ccdea51660dab3218b57.gz",
+      "bytes": 172,
+      "sha256": "36b4cb801cfebffbfa08e9fb83de8677236eacb4bd2f465952a8c344b3e092e8",
+      "compressedSha256": "af5e6bd280652ad8bd228f7ed4f2adad531724c592b934941f543ceacdd992fc"
+    },
+    ".cache/native-recording-storage-budget/build-stall-fixture.log": {
+      "file": "e-ee9a1726beaa2c3bf53f.gz",
+      "bytes": 172,
+      "sha256": "36b4cb801cfebffbfa08e9fb83de8677236eacb4bd2f465952a8c344b3e092e8",
+      "compressedSha256": "af5e6bd280652ad8bd228f7ed4f2adad531724c592b934941f543ceacdd992fc"
+    },
+    ".cache/native-recording-storage-budget/build-state-final.log": {
+      "file": "e-d36b7904af6307b5f121.gz",
+      "bytes": 593,
+      "sha256": "bff1e97caec4127e8ddb7a7ddae5ba8688ff4115a34e69491ed3b3ed245d3144",
+      "compressedSha256": "7fd5c0cbe48a422de2941cd21e3632a20a312a4d8bbec12b619c480c97cf328b"
+    },
+    ".cache/native-recording-storage-budget/build.log": {
+      "file": "e-6656c6673133a8343230.gz",
+      "bytes": 21944,
+      "sha256": "c1f3163e54839a403af951243d05a12139425cf1a1edbee6bd09c49e8079eeaa",
+      "compressedSha256": "d6125123fa087cf785e2274d4fda68f0efc18ebd80f788ee635dfa6b590e345d"
+    },
+    ".cache/native-recording-storage-budget/configure-asan-monitor.log": {
+      "file": "e-7e877df95dcec68f0da7.gz",
+      "bytes": 1340,
+      "sha256": "d408d8561ae89347c6c990b8628f1aa9f7dd11792055209d3b892cf746d29102",
+      "compressedSha256": "0328f9027e73bc6306f275b04c095f7e475770b3521a687df95accbbfdf30238"
+    },
+    ".cache/native-recording-storage-budget/configure-asan.log": {
+      "file": "e-cdba4095038069601aa9.gz",
+      "bytes": 794,
+      "sha256": "61330e4a0be86321a8007a524e8496fbcafe0177041206b541d6137d07ae031c",
+      "compressedSha256": "ec546d1d3015786b47262300da5dbb18863b6e1ec2121a789390b987332cf416"
+    },
+    ".cache/native-recording-storage-budget/configure-desktop.log": {
+      "file": "e-4d4bf0338260d39cb771.gz",
+      "bytes": 2188,
+      "sha256": "8b1b3fc860d4bef9add8d78d87c8ef0f44c9615ddb652a4979a810322d0c9659",
+      "compressedSha256": "446a6122804aa2004ef4177217219af87b3f1bd07a2c0b0b3d772aae554e5631"
+    },
+    ".cache/native-recording-storage-budget/configure.log": {
+      "file": "e-5f6ccbe45b11f9bf6492.gz",
+      "bytes": 1959,
+      "sha256": "ff15756256156ea4cf129a762de3f81ff007636c9307100ba3c9e2420e0272a7",
+      "compressedSha256": "fff8bfa3f2a2e4a8b7c8dfaa622559099152c39a6f87ea5db61f0c5e3422d6f5"
+    },
+    ".cache/native-recording-storage-budget/desktop/CMakeCache.txt": {
+      "file": "e-767dc062c13d9a7c5e9d.gz",
+      "bytes": 69291,
+      "sha256": "a8c49f390f7c041abfd892d33417a0f6bb30137c0189c0496fa2579c6ac401e6",
+      "compressedSha256": "d88e7b0b6c6597531e07bc1a52e246ccc399378e1f7aba8a91e314c3fd0fdbca"
+    },
+    ".cache/native-recording-storage-budget/desktop/Testing/Temporary/LastTest.log": {
+      "file": "e-62b17c304668c599757f.gz",
+      "bytes": 4920,
+      "sha256": "54ce409f338677f72a770581634a62a1041a9db604dd6c0144f58451f2c8e580",
+      "compressedSha256": "73b2cec24b5e8ee4add7fafd2d6e1a6d1fb4cac49fa737f875f3f1c9fc04a6a5"
+    },
+    ".cache/native-recording-storage-budget/desktop/build.ninja": {
+      "file": "e-a6322abaa94f130dbc14.gz",
+      "bytes": 1036562,
+      "sha256": "39f20063c05e415ca429518a5a07c0cbdafc04919e4b2b04cf524ac8cb0e1fd8",
+      "compressedSha256": "16f7ae231318bed98a72b592f7e493da1d0b114ed6b38303c8053cd55b601887"
+    },
+    ".cache/native-recording-storage-budget/localization-check.json": {
+      "file": "e-8ad0a8891f98a4ebb9b1.gz",
+      "bytes": 113,
+      "sha256": "7b9558a0874583e1b8896c034393dd638802eb3c353a75bc3c9fcac93e9ee53b",
+      "compressedSha256": "096b2d40618194bd1f0a1982f5a6f4b88862e80feb2841b14bd0fa537148448d"
+    },
+    ".cache/native-recording-storage-budget/localization-update.log": {
+      "file": "e-254f20f38a36bf3fb973.gz",
+      "bytes": 246,
+      "sha256": "c6b603ac7a2dddcefc95b92b9d7566a91255a04df54b9ffc903ba1276ceee00e",
+      "compressedSha256": "fedbedfa0cecb4f7066d1fe42a4f376e0adbd5cf299f0f3431645d9f44e1a671"
+    },
+    ".cache/native-recording-storage-budget/manual-original-next.md": {
+      "file": "e-2e833d0dd53a42d3e24c.gz",
+      "bytes": 1303,
+      "sha256": "7a5507e1daaf4a6454bd91507e5df3132f9d24cfccf1b8fbe9ff6de8bacbc4e0",
+      "compressedSha256": "66a3b71e9e95ce1f6d93c222960cd1d68383ad40e17006646d32a37e00006e6a"
+    },
+    ".cache/native-recording-storage-budget/media/CMakeCache.txt": {
+      "file": "e-bf3ca0624f8e0734ef73.gz",
+      "bytes": 28150,
+      "sha256": "7dd72f68e241708fcf97161a154e0385008df9170eb313b7beefcd67371196ac",
+      "compressedSha256": "29b8ebb13cd68098df62a1115acb2a0f281259a7470a083d386053305f859f96"
+    },
+    ".cache/native-recording-storage-budget/media/Testing/Temporary/LastTest.log": {
+      "file": "e-ac07a1c8b996f1128c59.gz",
+      "bytes": 3418,
+      "sha256": "c618a7a3ff0b100e2fc8ae912b81c72ab9c53ff7faa4e938dcba085080a6019a",
+      "compressedSha256": "cec07ff64d6e5d320b685007a1e285d959729d9b9ea332dd0a69cea802f6c3e6"
+    },
+    ".cache/native-recording-storage-budget/media/build.ninja": {
+      "file": "e-52e238598ce196596032.gz",
+      "bytes": 657268,
+      "sha256": "aa53cb0c05d5feba1396234602e09ca3c602dd837a92934e67c649ec3acba0bd",
+      "compressedSha256": "0ebcf3e2e5422fa3fbeeeebe639bad665351701ab8d3169a23d299bb58056229"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/artifacts.json": {
+      "file": "e-45620c1d32bc58bda9b8.gz",
+      "bytes": 2240,
+      "sha256": "c8225fb630d8ea9193da90be1a9bbba1693999e28f368c6b809b60685ec3242c",
+      "compressedSha256": "31a70bbea646da4348e2d4a2d181ec23b47389d68ea45501ceb7fe2265a86863"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--0635def8dfc4ffc4c6ec.json": {
+      "file": "e-b609328559a42a5df880.gz",
+      "bytes": 1744,
+      "sha256": "c197f4c1791eed7fdc124565e5c7232164521ff876c34842a60561d6f4bf3ca8",
+      "compressedSha256": "de4081521477397e73b4849b04c43bd6bffd550a4366571d351b7bc1740ea708"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--346bde42faef2bc4a9bf.json": {
+      "file": "e-e3133e605a8cd2bfbcdf.gz",
+      "bytes": 200,
+      "sha256": "65e8411c5169fa9224e89739b68a4ea02e3419bfe82c6eb9d1d871580354018f",
+      "compressedSha256": "b17bf655fd923594143372e8ce58b3512f61059dc7a42067805315dc88b60ad8"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--38f3f9dd4ac580278199.json": {
+      "file": "e-c8ff0b8e0f939d40b618.gz",
+      "bytes": 556,
+      "sha256": "20e5b114ac2c473b65462d0113659861996279d75379ada3465801ca7114067b",
+      "compressedSha256": "d53d93568e7852f40d94240a9971eea667802f185011266f72f17da0afe37dcf"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--628fec1012f98c29fce2.json": {
+      "file": "e-708a4a8c7f18f4930724.gz",
+      "bytes": 11165,
+      "sha256": "80b1524cc27a935e5b16d776d3f83727f7fa4d186cae2d181466ae8efa748b3f",
+      "compressedSha256": "2a7579bf70c1aaf4ee6e717fdabec1f6b8b094bd1eb06e29d6b000d407ebd5db"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--6afd0b8db4fc89587c12.json": {
+      "file": "e-6bc043849d0433eb5a83.gz",
+      "bytes": 556,
+      "sha256": "24ee446a44134b40312c1e42ea7ceb57f64f655f01ccd52887badbcd76577593",
+      "compressedSha256": "56abd0a1e7580d8f0fd9c22e38e1260e8b624ca6c80937bf5eadf8ec8c934bc7"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--7c91a97b6549547e5e67.json": {
+      "file": "e-98ebd2eb6a2214652b01.gz",
+      "bytes": 209,
+      "sha256": "5563413c3d864dc91c96ce6e83c2fe2f995fb7ba850ea8eb924252f1899b1d53",
+      "compressedSha256": "733e671cc246bec92bd9c14285db75b08b2339bdadbd82ac219fa624c58f078d"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--8286daa23fb8c8f68bff.json": {
+      "file": "e-8b52b8a0d11e324b2502.gz",
+      "bytes": 107,
+      "sha256": "47d156c10fd6f8dcb4dd36cfddbc472e65de68b585b62633eb7d7c0ea68daf13",
+      "compressedSha256": "eff0977cff435a64b83f9e11f0237c249b0ee64d8f64e3ae8b3859946f9174f7"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--830f7bd6544f782e21b8.json": {
+      "file": "e-8b73713b25f4252637ec.gz",
+      "bytes": 556,
+      "sha256": "e9fd033bf201823b1d490116e86909bf1211a131186921398a95398fa69816e5",
+      "compressedSha256": "11096ccf2bdd086d86f20e04dd6745fe917fd89d4cbebe5b36c2ae09e6e9409a"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--8940b2edab29777cdfcc.json": {
+      "file": "e-00ddc314a1ffd8df134d.gz",
+      "bytes": 7384,
+      "sha256": "4489f35a10b1a540e242b85791f313422a9e979f68d35529e009d1a7936cd51f",
+      "compressedSha256": "cc3212eb89c21b4d3186d4bff12b10ebff250a0910ab507a70a72d2f5b35330d"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--999faafa363a419aff33.json": {
+      "file": "e-b29607bee10bfef83eaf.gz",
+      "bytes": 11258,
+      "sha256": "5cd6af127cbf564b842fe4dbf8386773064fd98cbd211c21a5e87ebb88d7c339",
+      "compressedSha256": "305d9aedac0282f3cadf12bbd9f851a8229d1de93217011200a3fdbc11a059d9"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--a18a68f795404bd44ba8.json": {
+      "file": "e-73132e18187a4ff57b0f.gz",
+      "bytes": 200,
+      "sha256": "93d88e6419bc0d46f0fd561768c7afe21dcbc026a7b1cf12c44918515df91d28",
+      "compressedSha256": "f6e56e9edb8aa5fa226a1c4c994c5509088060d07ba6b6d60d001aa884f10a07"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--a60d2a6075231267947b.json": {
+      "file": "e-79ca888cb57b462523db.gz",
+      "bytes": 22124,
+      "sha256": "ca07e316c7d5b2002088d13f986281567b576dfe43654e642bbfa87b347b8080",
+      "compressedSha256": "1c5c64671bef1e18d528fe7cfdd8dfb3064e5697c216b1cd202916c92567b974"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--a8dce31d41cdd23bdef6.json": {
+      "file": "e-a7b6d9b32950ec2a68ed.gz",
+      "bytes": 11214,
+      "sha256": "10c46a9c0280c5fec8ede3b79a538345496709dd5ec4172e3c04c18a88316894",
+      "compressedSha256": "a0735ff019cd1e457fa75f11959681dbf0dab8e403c0b8a7abb73928a2ecc693"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--a8f8ca2d61c5439ef259.log": {
+      "file": "e-48060c8e73fd7be364e0.gz",
+      "bytes": 20163,
+      "sha256": "e0214d9febf0a73aace6ec0e8996da94dbcb98cf568427888b645afdc4e5a86f",
+      "compressedSha256": "69d85dbb3c58621df5fb370f7225c3b2ccead78399187fc28cab1ad22effb5f8"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--adb71f783565abba91db.json": {
+      "file": "e-e465c06e8be290b1e3ea.gz",
+      "bytes": 22547,
+      "sha256": "88417c43d40128b89b0ccf498f9c23d338cadea59a905c79e06ae89cf1b86297",
+      "compressedSha256": "e9c8276c9368c7756a966bd6b393399c3ab65e094b76b6d94d655de229ef8a29"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--cb9a55f6cc75ca38490e.json": {
+      "file": "e-111ee2a8744731a88335.gz",
+      "bytes": 17242,
+      "sha256": "7fd97d3ff2dc1d1d8d428e1407047b42d7510b45d8265a16f7182fd70cdca181",
+      "compressedSha256": "492067e6d0d23ee52d9e57cafe3ea959159efba3031d3eef7c55364048c4af46"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--d36f27b8bde7e2a634bd.json": {
+      "file": "e-6811b36cdb85df5ca025.gz",
+      "bytes": 83208,
+      "sha256": "46241c33e4c46e51d5fc57cfe497e45320cf13b8ba4133e6885872b3606f66f3",
+      "compressedSha256": "2ec7bab82d784ab68cfe5b48029a27a1ecc3ad8dd65d0325420b1c9753f85eed"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--edc19aeca6d353a13b0f.json": {
+      "file": "e-08bb467525edd3e02088.gz",
+      "bytes": 4632,
+      "sha256": "e53cd44399589775bb5b41c33e6da4b2951a56239b8c899c20de67efc18c4fab",
+      "compressedSha256": "5257a83cb6f979e4fa83afb58f57dcea63f1b84f2d8ee03e10d31bf5eeba9005"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact--fec10c56e737df4559c9.json": {
+      "file": "e-417a1745991982221c15.gz",
+      "bytes": 556,
+      "sha256": "b293f0cf08f1ffcd79c94f4efd6075472cb4c163fee556d5c66d533360b1005b",
+      "compressedSha256": "abe1dfe220385b49768bc5182c9052c0703e66eeafce8c9c61fe06882c762e8a"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/desktop-artifact-selected.json": {
+      "file": "e-f21e60a283015822494a.gz",
+      "bytes": 5272,
+      "sha256": "ab7cbe392e9095a435b63fe792e7fcc7c9f571443f3e0edca8e969a02dbfd93e",
+      "compressedSha256": "b1f9dcd320ad60b0ab943fd3e048dff1a7f365bc32b9ee9c30d183a5fa023fbf"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/job-115107147432.log": {
+      "file": "e-f7ab29d5f843d907ee83.gz",
+      "bytes": 93400,
+      "sha256": "f5c27f3b3cce16cd8864c8e2dd35a5877b165c815199992ba76351e0909f4e03",
+      "compressedSha256": "29140bb4ad475fb64e6b5c85d8cc41752e51bd5edd63e2813607dd29ddb56d3a"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/job-115107147596.log": {
+      "file": "e-acdeed62fd0e93183440.gz",
+      "bytes": 253832,
+      "sha256": "c2e2cbcabe763d4477a7888493b8ebc4cc4c47c5e0da69cdba3295a82aaa1ec9",
+      "compressedSha256": "210155b05cc6382478ea5869a4660cecb6b2ccecf886d03e9dc717833625c812"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/job-115107147720.log": {
+      "file": "e-7f3cfcf64089c73130fc.gz",
+      "bytes": 1251415,
+      "sha256": "a90f626ab92794455021fd5d54cdb9a763d05ab34ff9ebe45726bb01dcd353a1",
+      "compressedSha256": "d858c9fc99ce3234af4cf9842dc405139d843d236d34dbe5c806c32a99ce0ec9"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/job-115107147739.log": {
+      "file": "e-5c0aafe70122f55a830f.gz",
+      "bytes": 1237838,
+      "sha256": "905397f584048306f1eefb33c32ce0312d83d2029e33daa67c751a9daebed6ef",
+      "compressedSha256": "65cd5d07fc50a80382ae9f4883cc4301ed68f614391fd26759ea86c7aa745165"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/jobs.json": {
+      "file": "e-7ad7989452481b4f520c.gz",
+      "bytes": 13980,
+      "sha256": "53ce86a12a9d4b4985ac4031ac8e8efa5d4c1feddc9edc57ce9bbec869a4d5ef",
+      "compressedSha256": "215f8765506295e7b7e270b552a6e467dd015a12ab2df09704bb32dad6a76699"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--1852e0a2637268f88dcd.log": {
+      "file": "e-d681bf43fb5768bd0040.gz",
+      "bytes": 301,
+      "sha256": "eb0ed7f23fe8c0de3250add9bcb26e90a5d151468a9521a7a838e560b86382ed",
+      "compressedSha256": "0dbd45f60b6577aa2cbd45527761cda9da981223c0d1191a557f4ff3cf3a1bcc"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--247a64aad0cb055eb363.log": {
+      "file": "e-a4bcb0f3cbb07ff97f72.gz",
+      "bytes": 301,
+      "sha256": "8306862a42d6e84f6a3dbc12d4dfbe0f4a9e2ef1ca49b0a5abdc555fc59c0c5c",
+      "compressedSha256": "5c85edb193b04c96d79ce9e9793b086c32bda034d7bb14a11e95dd70c6925ff9"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--3aef0b42405116898c12.log": {
+      "file": "e-79458197d2b301983167.gz",
+      "bytes": 146,
+      "sha256": "9ac5b457cf17acbbc4322c4f619ac6059592ba32181b7fc6529ec8700b22096c",
+      "compressedSha256": "23f3d13cfd000abf907548d36bf61f583db296a330700b367ced2a23853d06b1"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--52e974d2d6edf6aa954c.log": {
+      "file": "e-5d23a7dab8527ab48b48.gz",
+      "bytes": 146,
+      "sha256": "7b4f94484f4142af368e1b7757bcace3f11a4260bc4babc70b3322b06a3ed3b3",
+      "compressedSha256": "536eba6e30ce490c3253e397a2c8c78b14a52289f6e0d594e11c4e0ab5a3fee5"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--5adfdc9433f9d9fd6af7.json": {
+      "file": "e-3d7247ead4fb9ca96f4a.gz",
+      "bytes": 7338,
+      "sha256": "24994d7d68449f993b53f8c04beb11cec9af916a852f1b8db1368ed6948040a1",
+      "compressedSha256": "3dfe4db35bd1763efe58f6c03c9178d5473485d560d9a9cb32ce5fa7a082bfd7"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--8fd58e999ba5d9de4f67.json": {
+      "file": "e-3788fdf6b9b509090887.gz",
+      "bytes": 906,
+      "sha256": "006eb8e9a1d1749c0937240149ffb2732e7c7f7c887562948633903580ad0f7c",
+      "compressedSha256": "a306505bc40777731afbba0cb524afe9bc61b0a4877e2303031aebb7d8cf9dd1"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--aea494829743c3d14ff6.log": {
+      "file": "e-8cf16ffb4b0ec4e7923a.gz",
+      "bytes": 232331,
+      "sha256": "2995ce977263c3110cdd9deab417db16171505c04b054c0a22075ce5106f2fb5",
+      "compressedSha256": "2114cdba9831a448e62199adab9d75089a6672482a2ac5aa1ea8de4a36731a79"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--bed729e1b7f8f584742c.json": {
+      "file": "e-62430f852e1c80ef688d.gz",
+      "bytes": 533,
+      "sha256": "8810fb49edf6704c138ffe1475d21fa548a9e860abfd80ce6716cce720f2d035",
+      "compressedSha256": "878b328d483acc9e3e06b830882aeb1701cb925477f03497a78a3aa45929ff2b"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--d180c195095d1e2a848a.log": {
+      "file": "e-a374f930d0fc0e51efdd.gz",
+      "bytes": 301,
+      "sha256": "cb9a35facd41ccae519772a1b425b11bc405f4177d77fad4beb2bc40c7c93ffb",
+      "compressedSha256": "b8bffd852b52fc79f374d4fe527f63a3efbc6c026ca963c06bd8e04d868a5c6d"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact--e6f149938287aad30ed8.log": {
+      "file": "e-0f56fcfaace378d19d92.gz",
+      "bytes": 146,
+      "sha256": "2888a13ec790fc477871d8642a45d365e7f29a4e8b28345e016a2850047f2f96",
+      "compressedSha256": "d626f9e627d2de06e50d62c22a0a3c5f98d1ab7ff3876ec340aac3a4d93fa61e"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/native-artifact-selected.json": {
+      "file": "e-570d57eb38f595cc787c.gz",
+      "bytes": 2460,
+      "sha256": "73e21bad6d17690c1cb71fd5751bc7b07382f45360c7fdf96c69c22ee75af310",
+      "compressedSha256": "507595fcd5ee3ce3ab27103000e79d52a7c7e011c9d4ea5aa0b6d17e3f5ad093"
+    },
+    ".cache/native-recording-storage-budget/pr177-review/run.json": {
+      "file": "e-bf80f69feff01ab92e9c.gz",
+      "bytes": 13772,
+      "sha256": "a2e9b35554695bd92ed680ea80bf0c2fc3aebf1bb196f564b679b0f6c8b031fd",
+      "compressedSha256": "ab1cd66b68e52cdd970b4c103c39d1e32e19888b8ce71c503b2d68d6eb9175f3"
+    },
+    ".cache/native-recording-storage-budget/retain177.log": {
+      "file": "e-d997466244dd54789a55.gz",
+      "bytes": 78,
+      "sha256": "776192413c5961449e90925f004bd92d2c61f301c77afdcef0c081fa39f1e8e5",
+      "compressedSha256": "fa9ba18c02132dcab779ae7ebc13982bed723fcc444d5f064e642174625246f2"
+    },
+    ".cache/native-recording-storage-budget/short-take-next.md": {
+      "file": "e-6a5f09b8b039edf7ad74.gz",
+      "bytes": 788,
+      "sha256": "cdb8fdef285e2f3330835dfd6f051ec568f629165278891757cd2a3383de4a1d",
+      "compressedSha256": "9125cbd90f077a070bc4f25aaf6f039c1135ba69adbe918095e995e39535f35d"
+    },
+    ".cache/native-recording-storage-budget/source-binding.json": {
+      "file": "e-045a49ec1d3d4b6cc2f8.gz",
+      "bytes": 57388,
+      "sha256": "879ca2abe03e483ef71e6cd136b35aa44113236e2d86cb202985521ddb90b66e",
+      "compressedSha256": "9aa8ee16db67a440a70ba103db16b4d13490ebbf44f13ba8d21686a322f3f13f"
+    },
+    ".cache/native-recording-storage-budget/tests-asan.log": {
+      "file": "e-676465826fe744c34415.gz",
+      "bytes": 506,
+      "sha256": "d03c113bb618e49debb56601cbada7bb511e4df902eb9bd6abe63b24281bdc61",
+      "compressedSha256": "76d1e2831a016e34ffd7c45dfd570fe925b8d15db8f93d91c6fc8a8566746af3"
+    },
+    ".cache/native-recording-storage-budget/tests-desktop.log": {
+      "file": "e-daca0bab9a2385893a05.gz",
+      "bytes": 512,
+      "sha256": "041954d67566c04dbc18f8dc45efc57248beca2580cab0e69e944e0b71f60d2f",
+      "compressedSha256": "6f2bf5bb09424a7a5a07a9aba92ba3b996f12b3a48c085fab5c8609c1cfdce48"
+    },
+    ".cache/native-recording-storage-budget/tests-horizon.log": {
+      "file": "e-8b7ce96132b3a5975060.gz",
+      "bytes": 288,
+      "sha256": "08aba103b1d31b2e4b01abdf6204ee791a1c9339e66aaf77ba666483e13a493a",
+      "compressedSha256": "067e09cb50287c896b3405e41cf6eb5fb4825ef8e036f0f1cadcd59d90f6136d"
+    },
+    ".cache/native-recording-storage-budget/tests-stall-fixture.log": {
+      "file": "e-56663a907d0784b29b5b.gz",
+      "bytes": 529,
+      "sha256": "a9dfabdddab6962b60bfc456d8653f4c00678eb5c33e298b2283fbe5c0820f57",
+      "compressedSha256": "183b7ea5012edc98ae702823d2458a12b9d75beccb6eab86a90738aa4ca25b0d"
+    },
+    ".cache/native-recording-storage-budget/tests-state-final.log": {
+      "file": "e-0831fdceae165d7c51fd.gz",
+      "bytes": 506,
+      "sha256": "132e383dfe46d1372e67b52b98aead8eec5f6c1f1f13323495d6440e6574d3f1",
+      "compressedSha256": "22029e82b404cecb6a026e5c64c4374a8449c8ca9a8c6c816df95adf14c81c5a"
+    },
+    ".cache/native-recording-storage-budget/tests.log": {
+      "file": "e-352dceedcdb3defd41a0.gz",
+      "bytes": 1089,
+      "sha256": "8b9f6acbefab397f97226013c56504b486115c2cc9f34b5eabd4744cd509300e",
+      "compressedSha256": "f77d9b61159f40fcb3810f2925886fe7a9b0dc9733976b1112e163dcedcfb63c"
+    }
+  },
+  "executables": {
+    ".cache/native-recording-storage-budget/media/sc-native-original-recording-tests": "612fad6e761b12fe0200c199507a7b67ee93354e987193bbe2458ed697ebfe3a",
+    ".cache/native-recording-storage-budget/media/sc-capture-bank-tests": "c85b08b87496379cdcc8936c11b5a7f7b5ad0a005caaf5e69f8ca04aca8536e3",
+    ".cache/native-recording-storage-budget/media/sc-wasapi-monitor-capture-tests": "8a86ea5f9ea2d70d4ef9a1a743aaee85f9daea9eb53845655d3b4812ad3e8354",
+    ".cache/native-recording-storage-budget/media/sc-native-storage-budget-tests": "372d32604fe3f810b1a88cedd584deae9690befb8b0b470779517c9017027e69",
+    ".cache/native-recording-storage-budget/media/sc-wasapi-monitor-render-tests": "091172eb97bd4e8e4296b5014f25d44d8b9167941aa2bef2ab548f67c28ece3c",
+    ".cache/native-recording-storage-budget/media/sc-recording-storage-budget-tests": "8c85702bf0cbe33aa5d1b8aef9ebb92a208e2add6688f847b300ba9ebba8db7d",
+    ".cache/native-recording-storage-budget/desktop/sc-localization-tests": "7e219f00ca44a53c049599256fbb707e5ef2c40ada0a6da009a6eed431cfc6cc",
+    ".cache/native-recording-storage-budget/desktop/sc-native-panel-tests": "6d8d45ec0157183b1c873c9c751d7a4e30294feba7b80736dccbb0805f60dc75",
+    ".cache/native-recording-storage-budget/desktop/sc-native-storage-budget-tests": "38313e452df21666f881852088e0511dac00362e5877e8e6eb5a2728c4164267",
+    ".cache/native-recording-storage-budget/asan-core/sc-capture-bank-tests": "fc7038bea315cf972b9817888a1119e19b2d12d78361e885bf40a1258601097e",
+    ".cache/native-recording-storage-budget/asan-core/sc-wasapi-monitor-capture-tests": "09af176355d203e0e1d9368ccab9f6998b39dd85be0ec7cc1f58a2b994cb1962",
+    ".cache/native-recording-storage-budget/asan-core/sc-recording-storage-budget-tests": "d5940e5a339fa216c11cc241cc264ee0b40d590361e2cd4adf8df720155eab02"
+  }
+}

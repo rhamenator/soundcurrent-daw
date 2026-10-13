@@ -33,6 +33,7 @@ struct CaptureBankConfig {
     // either sequence while owners are active. UINT64_MAX is a reserved sentinel.
     std::uint32_t initialQueueSequence=0;
     std::uint64_t initialPacketSequence=0;
+    std::uint32_t minimumPacketFrames=1; // Explicit prepared policy, enforced before copying.
 };
 std::size_t captureBankPayloadBytes(CaptureBankConfig); // Admission only, off RT.
 enum class CaptureBankStatus : std::uint32_t {

@@ -1,5 +1,19 @@
 # Active full-suite goal: progress and completion evidence
 
+## Native recording disk-pause admission (2026-10-12)
+
+[Checkpoint 244](244-native-recording-storage-budget.md) admits raw storage from
+actual prepared WASAPI capture descriptors and explicit packet minima, enforces
+before fanout publication, and persists schema1.4 policy/counts with old-state
+reading and explicit migration. Shared panel native controls/worker capacity and
+retirement are connected. Final native storage/UI/localization3/3 passes16.44 s;
+changed state/planner/capture3/3 passes0.63 s. Fresh focused ASan/UBSan3/0.30 s
+passes with leak detection enabled. Short2400-frame startup failed and
+remains required work; storage qualification uses existing8192-frame monitor range.
+Original PR177 allfour jobs succeeded, retained separately; native hardware and
+new-source Windows CI remain pending. Manual pool exhaustion/reserve and full
+M2–M11/F/Q/C/N/X004/X005/allEurope remain active.
+
 ## Recording storage controls in the desktop (2026-10-12)
 
 [Checkpoint 243](243-recording-storage-panel.md) exposes explicit disk-pause duration,

@@ -64,6 +64,7 @@ class NativeMonitorPanel final : public QGroupBox {
     void updateDevices(const NativeMonitorSnapshot &);
     bool chooseDevices();
     bool applyStorageBudget(PipeWireMonitorRecordingOptions &) const;
+    bool applyNativeStorageBudget(NativeMonitorRecordingOptions &) const;
     void updateStoragePreview(bool inactive);
     std::shared_ptr<const NativeMonitorPreparation> preparation_;
     QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_,*open_,*add_;

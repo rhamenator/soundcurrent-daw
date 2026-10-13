@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "original_recording.hpp"
+#include "recording_storage_budget.hpp"
 #include "wasapi_monitor_render.hpp"
 #include "monitor_capture_stop.hpp"
 namespace soundcurrent::daw {
@@ -13,6 +14,7 @@ struct NativeOriginalRecordingSpec {
     MonitorOutputOrdinal monitorFirst;
     std::optional<MonitorChannelMap> channelMap = {};
     std::optional<MonitorEqSpec> equalizer = {};
+    std::optional<RawRecordingStorageDeclaration> storage = {};
     bool operator==(const NativeOriginalRecordingSpec &) const = default;
 };
 struct NativeOriginalRunOutcome {

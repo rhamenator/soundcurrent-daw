@@ -116,6 +116,11 @@ struct NativeMonitorController::State {
         if(!view.generation || c.generation!=view.generation)
             throw ProjectError(ErrorCode::InvalidState,"Native recording command belongs to another generation");
     }
+    void nativeStorage(const NativeOriginalRecordingSpec &spec){
+        view.storageCapacity.reset();if(!spec.storage)return;RawRecordingStoragePolicy policy;
+        policy.stallMilliseconds=spec.storage->stallMilliseconds;policy.minimumPacketFrames=spec.storage->minimumPacketFrames;policy.maximumSlots=spec.storage->slots;policy.memoryBudgetBytes=SIZE_MAX;
+        view.storageCapacity=prepareRawRecordingStorageCapacity(spec.capture.sampleRate,spec.capture.channels,spec.capture.maximumPacketFrames,policy);
+    }
     bool hasOriginal() const {return bool(view.result) || bool(view.reopened) || bool(view.pipewireResult) || bool(view.pipewireReopened);}
     std::shared_ptr<const NativeOriginalRecordingPrefix> ownPrefix(NativeOriginalRecordingPrefix prefix) {
         PayloadCharge charge("Retained native original",options.commandMemory.usage().limitBytes);
@@ -215,7 +220,7 @@ struct NativeMonitorController::State {
             next.declared=std::shared_ptr<const NativeOriginalRecordingSpec>(next.reopened,&*next.reopened->declared);
             next.resultSequence=++nextResult;next.progress.rawAcceptedFrames=next.reopened->raw.committedFrames;
             if(next.reopened->outcome)next.progress.deliveredMonitorFrames=next.reopened->outcome->render.consumedMonitorFrames;
-            view=std::move(next);lastGeneration=c.generation;return;
+            view=std::move(next);if(view.declared)nativeStorage(*view.declared);lastGeneration=c.generation;return;
         }
         current(c);
         if(c.kind==NativeMonitorCommandKind::ReleaseResult) {
@@ -252,7 +257,7 @@ struct NativeMonitorController::State {
                 throw ProjectError(ErrorCode::InvalidState,"Native state inspection requires an inactive retained result");
             if(view.pipewireDeclared){view.pipewireReopened=ownPipeWire(inspectProjectPipeWireRecording(view.root,view.job,view.pipewireDeclared->raw.project,options.commandMemory));
                 view.storageCapacity=pipeWireStorageCapacity(view.pipewireReopened->intent.expected,view.pipewireReopened->intent.processing);view.routePayloadBytes=0;}
-            else view.reopened=ownPrefix(inspectNativeOriginalRecording(view.job,*view.declared,{},options.commandMemory));
+            else{view.reopened=ownPrefix(inspectNativeOriginalRecording(view.job,*view.declared,{},options.commandMemory));nativeStorage(*view.reopened->declared);view.routePayloadBytes=0;}
             return;
         }
         if(!owner)throw ProjectError(ErrorCode::InvalidState,"Native recording has no prepared owner");

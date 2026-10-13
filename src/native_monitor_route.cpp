@@ -22,10 +22,12 @@ NativeMonitorRoutePlan prepareNativeMonitorRoute(WasapiPreparedCaptureFormat cap
     require(o.runGeneration && (o.channelMap || capture.channels == render.channels));
     NativeMonitorRoutePlan p;
     p.captureFormat_ = capture; p.renderFormat_ = render;
+    if(o.storagePolicy){p.storageCapacity_=prepareRawRecordingStorageCapacity(capture.sampleRate,capture.channels,capture.maximumPacketFrames,*o.storagePolicy);o.rawSlots=p.storageCapacity_->rawSlots;}
     p.resources_ = std::move(o.resources); p.budget_ = o.memoryBudgetBytes;
     auto &f = p.capture_;
     f.capture.sampleRate = capture.sampleRate; f.capture.channels = capture.channels;
     f.capture.maximumPacketFrames = capture.maximumPacketFrames; f.capture.identity = capture.identity;
+    if(o.storagePolicy)f.capture.minimumPacketFrames=o.storagePolicy->minimumPacketFrames;
     f.capture.slots = o.rawSlots; f.monitorSlots = o.monitorSlots;
     f.memoryBudgetBytes = f.capture.memoryBudgetBytes = p.budget_;
     auto &out = p.output_;

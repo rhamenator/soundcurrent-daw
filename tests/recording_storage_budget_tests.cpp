@@ -16,6 +16,9 @@ int main(){try{
     b={};b.maximumReceiptSlots=64;b.stallMilliseconds=620;c=prepareRecordingStorageCapacity(b);require(c.rawSlots==64,"Exact receipt limit wrong");b.stallMilliseconds=621;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::ResourceLimit);
     b={};b.maximumRawSlots=4097;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::InvalidParameter);
     b={};b.captureRate=44100;b.maximumCaptureFrames=441;b.minimumCaptureFrames=441;c=prepareRecordingStorageCapacity(b);require(c.rawSlots==52 && c.retainedRawFrames==22932,"44.1k geometry incorrect");
+    RawRecordingStoragePolicy native{1000,64,4096,64*1024*1024};auto raw=prepareRawRecordingStorageCapacity(44100,2,1024,native);
+    require(raw.rawSlots==692 && !raw.captureReceiptSlots && !raw.renderReceiptSlots && raw.rawSampleBytes==5668864,"Native variable-packet budget inferred render cadence or used maximum as minimum");
+    native.minimumPacketFrames=0;refuses([&]{prepareRawRecordingStorageCapacity(48000,1,480,native);},ErrorCode::InvalidParameter);
     std::cout<<"Storage capacity: explicit minimum-cycle/duration admission, exact PCM charge, channel/quota/unsupported-stall refusal; no native or durability guarantee\n";
     return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

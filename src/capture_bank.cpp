@@ -11,6 +11,7 @@ std::size_t captureBankPayloadBytes(CaptureBankConfig c) {
         !c.maximumPacketFrames || c.maximumPacketFrames>65536 || !c.slots || c.slots>4096 ||
         c.initialPacketSequence==UINT64_MAX)
         throw ProjectError(ErrorCode::InvalidState,"Invalid capture bank admission");
+    if(!c.minimumPacketFrames || c.minimumPacketFrames>c.maximumPacketFrames)throw ProjectError(ErrorCode::InvalidParameter,"Invalid capture minimum packet admission");
     const auto count=std::uint64_t(c.slots)*c.maximumPacketFrames*c.channels;
     if (count>(SIZE_MAX-sizeof(PreparedCaptureBank))/sizeof(float))
         throw ResourceLimitError("Stamped capture bank",SIZE_MAX,c.memoryBudgetBytes,true);
@@ -68,7 +69,7 @@ CaptureBankPublish PreparedCaptureBank::publish(const CaptureBankInput &input) n
     const auto request=requested_.load(std::memory_order_acquire);
     if (request) return reject(request==2 ? CaptureBankStatus::Cancelled : CaptureBankStatus::Stopped,p,false);
     if (p.identity!=config_.identity) return reject(CaptureBankStatus::IdentityChanged,p,true);
-    if (!p.frames || p.frames>config_.maximumPacketFrames) return reject(CaptureBankStatus::InvalidFrames,p,true);
+    if (p.frames<config_.minimumPacketFrames || p.frames>config_.maximumPacketFrames) return reject(CaptureBankStatus::InvalidFrames,p,true);
     if (p.flags & ~(bankDiscontinuity|bankSilent|bankTimestampError)) return reject(CaptureBankStatus::InvalidFlags,p,true);
     if (p.flags & bankTimestampError || !p.qpc.value) return reject(CaptureBankStatus::TimestampUnavailable,p,true);
     if (p.position.value>UINT64_MAX-p.frames) return reject(CaptureBankStatus::PositionOverflow,p,true);

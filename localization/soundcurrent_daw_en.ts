@@ -1882,6 +1882,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
       <translation>Selected devices exceed the panel memory limit.</translation>
     </message>
     <message>
+      <source>Prepared: %1 ms · %2 audio slots · %3 bytes of prepared route payload. Output fills are variable.</source>
+      <translation>Prepared: %1 ms · %2 audio slots · %3 bytes of prepared route payload. Output fills are variable.</translation>
+    </message>
+    <message>
+      <source>Saved declaration: %1 ms · %2 audio slots. No audio route is allocated.</source>
+      <translation>Saved declaration: %1 ms · %2 audio slots. No audio route is allocated.</translation>
+    </message>
+    <message>
       <source>Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.</source>
       <translation>Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.</translation>
     </message>
@@ -1900,6 +1908,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Using existing buffers. No disk-pause duration is declared.</source>
       <translation>Using existing buffers. No disk-pause duration is declared.</translation>
+    </message>
+    <message>
+      <source>The input device's actual format and memory cost will be checked during Prepare. Output fills do not set the disk-buffer budget.</source>
+      <translation>The input device's actual format and memory cost will be checked during Prepare. Output fills do not set the disk-buffer budget.</translation>
+    </message>
+    <message>
+      <source>Choose the minimum input packet size before preparing.</source>
+      <translation>Choose the minimum input packet size before preparing.</translation>
     </message>
     <message>
       <source>Choose minimum input and output block sizes before preparing.</source>
@@ -1996,6 +2012,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</translation>
     <message>
       <source>Exporting original WAV…</source>
       <translation>Exporting original WAV…</translation>
+    </message>
+    <message>
+      <source>The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.</source>
+      <translation>The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.</translation>
+    </message>
+    <message>
+      <source>The recording settings do not match the prepared device format. Check the minimum input packet size.</source>
+      <translation>The recording settings do not match the prepared device format. Check the minimum input packet size.</translation>
     </message>
     <message>
       <source>Recording error (%1).</source>

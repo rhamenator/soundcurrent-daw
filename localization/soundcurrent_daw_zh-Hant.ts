@@ -1874,6 +1874,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Prepared: %1 ms · %2 audio slots · %3 bytes of prepared route payload. Output fills are variable.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Saved declaration: %1 ms · %2 audio slots. No audio route is allocated.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.</source>
       <translation type="unfinished" />
     </message>
@@ -1891,6 +1899,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Using existing buffers. No disk-pause duration is declared.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The input device's actual format and memory cost will be checked during Prepare. Output fills do not set the disk-buffer budget.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose the minimum input packet size before preparing.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1987,6 +2003,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Exporting original WAV…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The recording buffer exceeds the available capacity or memory. Reduce the disk-pause budget.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The recording settings do not match the prepared device format. Check the minimum input packet size.</source>
       <translation type="unfinished" />
     </message>
     <message>

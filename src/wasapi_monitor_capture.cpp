@@ -40,6 +40,7 @@ void PreparedWasapiMonitorCapture::packet(const WasapiPacket &p) noexcept {
     // Raw publication is first. Clock pressure cannot erase the raw packet that
     // arrived on this callback; either route's actual fault remains separate.
     fanout_.publish({{identity,{p.devicePosition},{p.qpc100ns},p.frames,p.flags},p.data,p.bytes});
+    if(p.frames<fanout_.captureConfig().minimumPacketFrames){clocks_.captureFailed();return;}
     clocks_.publish(CaptureClockReading{identity,{p.devicePosition},{p.qpc100ns},
         (p.flags & wasapiTimestampError) || !p.qpc100ns ? ClockReliability::Missing : ClockReliability::Accurate,
         bool(p.flags & wasapiDiscontinuity)});

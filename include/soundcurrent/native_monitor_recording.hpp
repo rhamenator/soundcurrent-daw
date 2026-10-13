@@ -81,6 +81,8 @@ class NativeMonitorRecording {
     NativeMonitorRecordingResult cancelAndWait(); // Immediate cancel, joins before settlement.
     const NativeOriginalRecordingSpec &declared() const noexcept;
     const std::filesystem::path &jobDirectory() const noexcept;
+    std::optional<RecordingStorageCapacity> storageCapacity() const;
+    std::size_t routeChargedBytes() const noexcept;
     EqEvent equalizerEvent(const EqSettings &,const ParameterAddress &,MonitorOutputOrdinal) const; // Control, off RT.
     EqEvent equalizerEnableEvent(bool,MonitorOutputOrdinal) const;
     SubmitStatus submitEqualizer(const EqEvent &,std::uint64_t revision) noexcept; // Immediate controls.
