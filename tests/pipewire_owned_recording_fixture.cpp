@@ -41,8 +41,10 @@ struct PlaybackSink {
     std::atomic<unsigned> count{0};std::atomic<bool> bad{false};
     static void process(void *ctx,const DeviceBlockClock &clock,std::span<const float *const> in,std::span<float *const>,std::uint32_t capacity) noexcept {
         auto &s=*static_cast<PlaybackSink *>(ctx);const auto at=s.count.load();
+        if(in.size()==1 && !in[0] && !at)return; // Inactive link priming; required playback frames still checked below.
         if(clock.duration!=quantum || capacity<quantum || in.size()!=1 || !in[0]){s.bad=true;return;}
-        if(at>=slots)return;s.positions[at]=clock.position;std::copy_n(in[0],quantum,s.samples.data()+at*quantum);s.count.store(at+1,std::memory_order_release);
+        if(at>=slots)return;
+        s.positions[at]=clock.position;std::copy_n(in[0],quantum,s.samples.data()+at*quantum);s.count.store(at+1,std::memory_order_release);
     }
 };
 void admittedPlayback(const std::filesystem::path &root,const Session &placed) {
