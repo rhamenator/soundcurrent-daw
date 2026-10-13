@@ -353,17 +353,15 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
              {"processors", Json::array({processor})},
              {"clips", clips}, {"takeLanes",takeLanes}});
     }
-    for (const auto &a : s.assets)
-        assets.push_back({{"id", a.id.str()},
-                          {"path", a.relativePath},
-                          {"sha256", a.sha256},
-                          {"sampleRate", a.sampleRate},
-                          {"layout", layout(a.layout)},
-                          {"frames", a.frames}});
+    for (const auto &a : s.assets) {
+        Json native=Json::array();for(const auto &f:a.nativeEvidence)native.push_back({{"path",f.relativePath},{"sha256",f.sha256},{"bytes",f.bytes}});
+        assets.push_back({{"id",a.id.str()},{"path",a.relativePath},{"sha256",a.sha256},
+            {"sampleRate",a.sampleRate},{"layout",layout(a.layout)},{"frames",a.frames},{"nativeEvidence",native}});
+    }
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 17},
+        {"schemaMinor", std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -507,7 +505,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 17),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 19),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -554,7 +552,8 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         array(j.at("assets"), budget.state.memoryBudgetBytes / sizeof(Asset));
         s.assets.reserve(j.at("assets").size());
         for (const auto &a : j.at("assets")) {
-            keys(a, {"id", "path", "sha256", "sampleRate", "layout", "frames"});
+            if(minor<18)keys(a,{"id","path","sha256","sampleRate","layout","frames"});
+            else keys(a,{"id","path","sha256","sampleRate","layout","frames","nativeEvidence"});
             Asset asset;
             asset.id = Id(string(a.at("id")));
             asset.relativePath = string(a.at("path"));
@@ -562,6 +561,9 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             asset.sampleRate = u32(a.at("sampleRate"));
             asset.layout = readLayout(a.at("layout"));
             asset.frames = integer(a.at("frames"));
+            if(minor>=18){array(a.at("nativeEvidence"),minor>=19?8:5);for(const auto &f:a.at("nativeEvidence")) {
+                keys(f,{"path","sha256","bytes"});asset.nativeEvidence.push_back({string(f.at("path")),string(f.at("sha256")),u64(f.at("bytes"))});
+            }}
             s.assets.push_back(std::move(asset));
         }
         array(j.at("tracks"), budget.state.memoryBudgetBytes / sizeof(Track));
@@ -896,6 +898,7 @@ void ProjectStore::verifyMedia(const Session &s, const std::function<void()> &be
         require(digest == f.sha256 && std::filesystem::file_size(path) == f.bytes,
                 "Imported evidence checksum differs", ErrorCode::MediaMismatch);
     };
+    for(const auto &asset:s.assets)for(const auto &f:asset.nativeEvidence)evidence(f);
     for (const auto &source : s.imports) {
         evidence(source.inspection);
         for (const auto &origin : source.media) evidence(origin.receipt);

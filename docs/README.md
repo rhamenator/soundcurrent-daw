@@ -165,3 +165,53 @@ These documents contain the frozen scope, implementation contracts, dated eviden
 - [Bounded render-worker acceptance observation](152-bounded-worker-observation.md)
 - [Native and installed protected Windows preview](153-native-installed-protected-preview.md)
 - [Retained render review after restarting](154-render-restart-review.md)
+
+- [Native monitor matrix state and composed startup](209-native-channel-state.md) · [ADR139](decisions/139-native-channel-matrix-state.md)
+
+- [Original writer backlog and measured write spans](210-writer-backlog-timing.md)
+- [Owned prepared native monitoring route](211-owned-native-monitor-route.md) · [ADR140](decisions/140-owned-native-monitor-route.md)
+- [Native monitored recording owner](212-native-monitored-recording-owner.md) · [ADR141](decisions/141-native-recording-worker-ownership.md)
+
+- [Prepared EQ in native monitoring](213-native-monitor-eq.md) · [ADR142](decisions/142-native-monitoring-eq-state.md)
+
+- [Native monitoring desktop worker controller](214-native-monitor-controller.md) · [ADR143](decisions/143-native-desktop-control-worker.md)
+
+- [Owned interruption observations and original manual case timing](215-owned-interruption-observation-timing.md)
+
+- [Native command payload admission](216-native-command-payload-admission.md)
+
+- [Visible native recording panel](217-visible-native-recording-panel.md)
+
+- [Native recording main-window integration and original Windows owner failure](218-native-window-integration.md)
+
+- [Native fixture Stop delivery and Qt macro boundary](219-native-render-tail-stop.md)
+
+- [Explicit native recording device selection](220-native-device-selection.md)
+
+- [Verified native original WAV export](221-native-original-export.md)
+
+- [Saved native takes across application restarts](222-native-original-reopen.md)
+
+- [Native originals on the project timeline](223-native-take-admission.md)
+
+- [PipeWire planar capture and explicit clock domains](224-pipewire-monitor-capture.md)
+
+- [PipeWire planar rendering and actual buffer-return receipts](225-pipewire-monitor-render.md)
+
+- [Native input returns and versioned PipeWire receipt handoffs](226-pipewire-capture-returns.md)
+
+- [Durable PipeWire recording receipts and common checkpoints](227-pipewire-recording-journal.md)
+
+- [PipeWire shared processing startup and stop handoffs](228-pipewire-processing-handoffs.md)
+
+- [Owned PipeWire native, processing and disk workers](229-pipewire-owned-recording.md)
+
+- [Durable PipeWire route intent and joined terminal outcomes](230-pipewire-durable-outcomes.md)
+
+- [Verified completion receipts and durable clock handoff diagnostics](231-pipewire-completion-receipts.md)
+
+- [Completion and clock-state sanitizer qualification](232-completion-sanitizer-qualification.md)
+
+- [Shared prepared recording control endpoints](233-monitor-control-endpoints.md)
+
+- [Typed PipeWire recording controller and panel](234-pipewire-monitor-controller.md)

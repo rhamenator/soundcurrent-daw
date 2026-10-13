@@ -1,0 +1,23 @@
+{
+  "source": "b99164d9746d9e60cc00e3c30986a5a02d72dc6f",
+  "tree": "cfbc77a544ce085fce171e21e47409f59a7a3f95",
+  "sourceInputs": 647,
+  "currentObjectsPerLinuxProfile": 18,
+  "currentWindowsObjects": 13,
+  "linuxTestTimesSeconds": {
+    "release": 15.38,
+    "sanitizer": 40.35,
+    "tsan": 29.31
+  },
+  "sameSharedEnginePCM": true,
+  "realProcessingDiskWorkersExecuted": true,
+  "sdkOperationsSimulated": true,
+  "rawPCMBitExact": true,
+  "nativeStateVersion": "1.3",
+  "initialEqDeclarationOnly": true,
+  "currentWindowsNativeLinkOrRuntimeExecuted": false,
+  "physicalAudioQualified": false,
+  "desktopFactoryEnabled": false,
+  "fullGoalComplete": false,
+  "binariesOrMediaIncluded": false
+}

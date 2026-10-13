@@ -29,9 +29,15 @@ int main(int argc, char **argv) {
     const auto memory = soundcurrent::daw::ui::loadMemoryPreferences();
     options.memoryBytes = memory.totalBytes;
     options.snapshotBytes = memory.snapshotBytes;
+    soundcurrent::daw::ui::NativeMonitorControllerOptions native;
+#ifdef _WIN32
+    native=soundcurrent::daw::ui::wasapiNativeMonitorControllerOptions();
+#elif defined(SC_MONITOR_PIPEWIRE)
+    native=soundcurrent::daw::ui::pipewireNativeMonitorControllerOptions();
+#endif
     soundcurrent::daw::ui::StudioWindow window(nullptr, {}, {}, {}, {}, options,
                                                soundcurrent::daw::ui::saveHistoryPreferences,
-                                               soundcurrent::daw::ui::saveMemoryPreferences);
+                                               soundcurrent::daw::ui::saveMemoryPreferences,{},std::move(native));
     const auto paths = parser.positionalArguments();
     if (!paths.isEmpty()) {
 #ifdef _WIN32
