@@ -39,8 +39,9 @@ struct PipeWireMonitorRecording::State {
                 if(c.original.rawFrames){CaptureBankView v;if(route->capture().acquireRaw(v)!=CaptureBankRead::Ready)
                         throw ProjectError(ErrorCode::InvalidState,"Native receipt lacks its original raw packet");
                     raw=v;}
-                try{writer->appendCapture(c,raw);}catch(...){if(raw)route->capture().releaseRaw(*raw);throw;}
+                try{writer->appendCapture(c,raw,true);}catch(...){if(raw)route->capture().releaseRaw(*raw);throw;}
                 if(raw && !route->capture().releaseRaw(*raw))throw ProjectError(ErrorCode::InvalidState,"Original raw view failed to retire");
+                writer->checkpointIfDue();
                 progress=true;
             }else if(cc==PipeWireReceiptCode::Fault)throw ProjectError(ErrorCode::InvalidState,"Native capture receipt lane failed");
             PipeWireReceiptRecord<PipeWireRenderCycle> r;const auto rc=route->receipts().read(r);

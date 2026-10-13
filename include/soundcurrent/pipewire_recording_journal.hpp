@@ -37,7 +37,10 @@ class PipeWireRecordingJournal {
                              PipeWireJournalOptions = {});
     ~PipeWireRecordingJournal();
     void appendCapture(const PipeWireReceiptRecord<PipeWireCaptureCycle> &,
-                       const std::optional<CaptureBankView> &);
+                       const std::optional<CaptureBankView> &,bool deferCheckpoint = false);
+    // Disk owner: call after releasing the copied raw bank view. No durability
+    // policy changes; the same due paired prefix is flushed/published here.
+    void checkpointIfDue();
     void appendRender(const PipeWireReceiptRecord<PipeWireRenderCycle> &);
     void checkpoint();
     void finalize(const PreparedCaptureFanout &,const PreparedPipeWireReceiptQueues &);

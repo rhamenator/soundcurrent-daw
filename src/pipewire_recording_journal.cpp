@@ -73,14 +73,14 @@ struct PipeWireRecordingJournal::State {
 PipeWireRecordingJournal::PipeWireRecordingJournal(std::filesystem::path root,PipeWireRecordingSpec s,PipeWireJournalOptions o):state_(std::make_unique<State>(std::move(root),std::move(s),std::move(o))){}
 PipeWireRecordingJournal::~PipeWireRecordingJournal()=default;
 const std::filesystem::path &PipeWireRecordingJournal::jobDirectory() const noexcept{return state_->raw.jobDirectory();}
-void PipeWireRecordingJournal::appendCapture(const PipeWireReceiptRecord<PipeWireCaptureCycle> &r,const std::optional<CaptureBankView> &view){auto &s=*state_;s.active();captureGeometry(r.original,s.spec);
+void PipeWireRecordingJournal::appendCapture(const PipeWireReceiptRecord<PipeWireCaptureCycle> &r,const std::optional<CaptureBankView> &view,bool deferCheckpoint){auto &s=*state_;s.active();captureGeometry(r.original,s.spec);
     require(r.generation==s.spec.generation && r.sequence==s.prefix.captureRecords && bool(view)==bool(r.original.rawFrames),"Native capture receipt/view sequence mismatch");
     if(view){const auto &t=view->token.original;require(t.identity==s.spec.raw.identity && t.frames==r.original.rawFrames && t.position.value==r.original.original.position &&
         t.qpc.value==r.original.original.monotonicNs/100 && !t.flags,"Native receipt differs from raw packet stamp");}
     const auto bytes=framed(r);require(bytes.size()<=maximumReceiptBytes-s.prefix.captureBytes,"Native receipt file byte limit");
     try{if(view){s.raw.append(*view);s.at(PipeWireJournalBoundary::RawAppended);}s.capture->write(bytes);s.at(PipeWireJournalBoundary::ReceiptWritten);
         s.captureHash.updateBytes({reinterpret_cast<const std::byte *>(bytes.data()),bytes.size()});add(s.prefix.captureBytes,bytes.size());add(s.prefix.captureRecords,1);add(s.prefix.rawReceiptFrames,r.original.rawFrames);
-        if(++s.sinceCheckpoint>=s.options.checkpointRecords)s.commit(false);
+        ++s.sinceCheckpoint;if(!deferCheckpoint && s.sinceCheckpoint>=s.options.checkpointRecords)s.commit(false);
     }catch(...){s.fail();throw;}}
 void PipeWireRecordingJournal::appendRender(const PipeWireReceiptRecord<PipeWireRenderCycle> &r){auto &s=*state_;s.active();renderGeometry(r.original,s.spec);
     require(r.generation==s.spec.generation && r.sequence==s.prefix.renderRecords,"Native render sequence mismatch");const auto bytes=framed(r);require(bytes.size()<=maximumReceiptBytes-s.prefix.renderBytes,"Native receipt file byte limit");
@@ -89,6 +89,7 @@ void PipeWireRecordingJournal::appendRender(const PipeWireReceiptRecord<PipeWire
         if(++s.sinceCheckpoint>=s.options.checkpointRecords)s.commit(false);
     }catch(...){s.fail();throw;}}
 void PipeWireRecordingJournal::checkpoint(){auto &s=*state_;s.active();try{s.commit(false);}catch(...){s.fail();throw;}}
+void PipeWireRecordingJournal::checkpointIfDue(){auto &s=*state_;s.active();try{if(s.sinceCheckpoint>=s.options.checkpointRecords)s.commit(false);}catch(...){s.fail();throw;}}
 void PipeWireRecordingJournal::finalize(const PreparedCaptureFanout &f,const PreparedPipeWireReceiptQueues &q){auto &s=*state_;s.active();require(q.captureFinishedAndEmpty() && q.renderFinishedAndEmpty() && !q.consumerLost(),"Native receipt owners not finished/drained");
     try{s.commit(false);s.prefix.raw=s.raw.finalize(f);s.at(PipeWireJournalBoundary::RawFinalized);require(s.prefix.raw.committedFrames==s.prefix.rawReceiptFrames,"Raw/native final prefix differs");
         s.capture->flush();s.render->flush();s.publish(true,s.raw.committedJournal());s.capture->close();s.render->close();s.finalized=true;s.lease.reset();
