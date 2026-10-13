@@ -384,17 +384,26 @@ void validate(const Session &s, StateBudget budget) {
               "Invalid asset extent/rate");
         if(!a.nativeEvidence.empty()) {
             const auto directory="media/original-"+a.id.str()+"/";
-            check(a.relativePath==directory+"take.wav" && a.nativeEvidence.size()>=3 && a.nativeEvidence.size()<=5,"Invalid native asset evidence shape");
+            const bool pipewire=a.nativeEvidence.front().relativePath==directory+"pipewire-owner.json";
+            check(a.relativePath==directory+"take.wav" && (pipewire?(a.nativeEvidence.size()==7 || a.nativeEvidence.size()==8):(a.nativeEvidence.size()>=3 && a.nativeEvidence.size()<=5)),"Invalid original asset evidence shape");
             const std::array<std::string_view,3> required{"native-run.json","journal.json","packets.bin"};
+            const std::array<std::string_view,6> pwRequired{"pipewire-owner.json","pipewire-run.json","journal.json","packets.bin","capture-cycles.bin","render-cycles.bin"};
             std::unordered_set<std::string_view> paths;
             for(std::size_t i=0;i<a.nativeEvidence.size();++i) {
                 const auto &f=a.nativeEvidence[i];validateRelativeMediaPath(f.relativePath);
-                check(f.relativePath.starts_with(directory),"Native evidence is outside its original job");
-                const auto name=f.relativePath.substr(directory.size());
-                check(f.relativePath.starts_with(directory) && paths.insert(f.relativePath).second &&
-                    (i<3?name==required[i]:(name=="monitor-map.bin" || name=="monitor-eq.bin")),"Native evidence path is not its owned artifact");
-                check(f.bytes>0 && f.bytes<=64ULL*1024*1024*1024 && f.sha256.size()==64 && std::all_of(f.sha256.begin(),f.sha256.end(),lowerHex),"Invalid native evidence extent/hash");
-                if(i<2)check(f.bytes<=16384,"Native journal exceeds its bound");
+                check(f.relativePath.starts_with(directory),"Original evidence is outside its job");
+                const auto name=f.relativePath.substr(directory.size());bool owned=false;
+                if(pipewire){
+                    if(i<6)owned=name==pwRequired[i];
+                    else {const std::string prefix=i==6?"pw-intent-":"pw-outcome-";
+                        owned=name.starts_with(prefix) && name.ends_with(".json") && name.size()==prefix.size()+36+5;
+                        if(owned){const Id token(name.substr(prefix.size(),36));(void)token;}
+                    }
+                }else owned=i<3?name==required[i]:(name=="monitor-map.bin" || name=="monitor-eq.bin");
+                check(owned && paths.insert(f.relativePath).second,"Original evidence path is not its owned artifact");
+                check(f.bytes>0 && f.bytes<=64ULL*1024*1024*1024 && f.sha256.size()==64 && std::all_of(f.sha256.begin(),f.sha256.end(),lowerHex),"Invalid original evidence extent/hash");
+                if(pipewire){if(i<3)check(f.bytes<=16384,"Original manifest exceeds its bound");if(i>=6)check(f.bytes<=4*1024*1024,"Original artifact exceeds its bound");}
+                else if(i<2)check(f.bytes<=16384,"Native journal exceeds its bound");
             }
         }
         assets.emplace(a.id.str(), &a);

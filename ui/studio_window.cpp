@@ -1705,10 +1705,10 @@ void StudioWindow::pollPlayback() {
 }
 bool StudioWindow::admitNativeTake(Frame start) {
     const auto model=controller_.snapshot();const auto native=nativeRecording_?nativeRecording_->snapshot():nullptr;const auto selected=selectedTrack();
-    if(!native || !native->declared || (!native->result && !native->reopened) || nativeAdmissionRequest_ || !model->session || !selected || model->io!=IoOperation::None || closing_ || closeRequested_ || start<0 ||
-        native->root!=model->root || native->declared->raw.project!=model->session->id)return false;
+    if(!native || (!native->declared && !native->pipewireDeclared) || !native->hasOriginal() || nativeAdmissionRequest_ || !model->session || !selected || model->io!=IoOperation::None || closing_ || closeRequested_ || start<0 ||
+        native->root!=model->root || (native->pipewireDeclared?native->pipewireDeclared->raw.project:native->declared->raw.project)!=model->session->id)return false;
     const auto track=std::find_if(model->session->tracks.begin(),model->session->tracks.end(),[&](const auto &t){return t.id==*selected;});
-    if(track==model->session->tracks.end() || track->layout!=native->declared->raw.layout){state_->setText(tr("Choose a track with the original take's channel layout."));return false;}
+    if(track==model->session->tracks.end() || track->layout!=(native->pipewireDeclared?native->pipewireDeclared->raw.layout:native->declared->raw.layout)){state_->setText(tr("Choose a track with the original take's channel layout."));return false;}
     const auto request=nextGesture_++;
     if(!nativeRecording_->prepareAdmission(*selected,start,model->session->sampleRate,request))return false;
     nativeAdmissionRequest_=request;nativeAdmissionErrorBefore_=native->errorSerial;nativeAdmissionGuard_=StructuralGuard{model->projectEpoch,model->session->id,model->root};nativeAdmissionSubmitted_=false;return true;

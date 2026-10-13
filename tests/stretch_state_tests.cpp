@@ -107,7 +107,7 @@ void persistence() {
         if(mode==16) v["unknown"]=0;
         if(mode==17) v.erase("settings");
         if(mode==18) bad["tracks"][0]["clips"][0].erase("stretch");
-        if(mode==19) { bad["schemaMinor"]=19;sc_test::eraseSchema16FixtureKeys(bad); }
+        if(mode==19) { bad["schemaMinor"]=20;sc_test::eraseSchema16FixtureKeys(bad); }
         if(mode==20) p["timeNumerator"]=6; // Noncanonical 6/4.
         if(mode==20) p["timeDenominator"]=4;
         if(mode==21) v["sourceOrigin"]["fraction"]=2;

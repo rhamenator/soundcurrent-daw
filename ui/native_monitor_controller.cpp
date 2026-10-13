@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "native_monitor_controller.hpp"
 #include <soundcurrent/monitor_control_endpoint.hpp>
+#include "../src/media_io.hpp"
 #include <algorithm>
 #include <atomic>
 #include <condition_variable>
@@ -183,7 +184,17 @@ struct NativeMonitorController::State {
             view.phase=NativeMonitorPhase::Reopening;publish();const auto epoch=seenCancel;
             const auto check=[&]{if(closing.load(std::memory_order_acquire) || cancelEpoch.load(std::memory_order_acquire)!=epoch)
                 throw ProjectError(ErrorCode::Canceled,"Native take reopening canceled");};
-            if(c.pipewire){
+            const auto selectedRoot=std::filesystem::absolute(c.root).lexically_normal(),selectedJob=std::filesystem::absolute(c.job).lexically_normal();
+            controlBound(selectedJob.parent_path()==selectedRoot/"media");
+            media_io::plainDirectory(selectedRoot);media_io::plainDirectory(selectedRoot/"media");media_io::plainDirectory(selectedJob);
+            const auto hasState=[&](const char *name){std::error_code ec;const auto status=std::filesystem::symlink_status(selectedJob/name,ec);
+                if(ec && status.type()!=std::filesystem::file_type::not_found)throw ProjectError(ErrorCode::Io,"Saved recording state cannot be inspected");
+                if(status.type()==std::filesystem::file_type::not_found)return false;
+                if(status.type()!=std::filesystem::file_type::regular)throw ProjectError(ErrorCode::InvalidState,"Saved recording state is not a plain file");
+                return true;};
+            const bool pwState=hasState("pipewire-owner.json"),nativeState=hasState("native-run.json");
+            if(pwState && nativeState)throw ProjectError(ErrorCode::InvalidState,"Saved recording has ambiguous backend evidence");
+            if(c.pipewire || pwState){
                 auto saved=ownPipeWire(inspectProjectPipeWireRecording(c.root,c.job,*c.project,options.commandMemory,check));check();
                 NativeMonitorSnapshot next;next.phase=NativeMonitorPhase::Result;next.generation=c.generation;
                 next.completedCommands=view.completedCommands;next.errorSerial=view.errorSerial;next.cancelAcknowledged=view.cancelAcknowledged;
@@ -211,13 +222,14 @@ struct NativeMonitorController::State {
             view.result.reset();view.reopened.reset();view.exported.reset();view.pipewireDeclared.reset();view.pipewireResult.reset();view.pipewireReopened.reset();view.pipewireExported.reset();view.admission.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
         }
         if(c.kind==NativeMonitorCommandKind::AdmitTake) {
-            if(owner || !hasOriginal() || !view.declared || c.resultSequence!=view.resultSequence || !c.targetTrack || !c.clipId || !c.revision || c.revision<=view.admissionRevision)
+            if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared) || c.resultSequence!=view.resultSequence || !c.targetTrack || !c.clipId || !c.revision || c.revision<=view.admissionRevision)
                 throw ProjectError(ErrorCode::InvalidState,"Native admission requires its retained take and explicit target placement");
             const auto epoch=seenCancel;NativeTakeAdmissionOptions admissionOptions;admissionOptions.resources=options.commandMemory;
             admissionOptions.beforeRead=[&]{if(closing.load(std::memory_order_acquire) || cancelEpoch.load(std::memory_order_acquire)!=epoch)
                 throw ProjectError(ErrorCode::Canceled,"Native take admission canceled");};
             view.admitting=true;publish();
-            try {view.admission=std::make_shared<const VerifiedNativeTake>(verifyNativeTakeForAdmission(view.root,view.job,*view.declared,*c.targetTrack,c.placement,c.projectRate,*c.clipId,admissionOptions));}
+            try {if(view.pipewireDeclared)view.admission=std::make_shared<const VerifiedNativeTake>(verifyPipeWireTakeForAdmission(view.root,view.job,*view.pipewireDeclared,*c.targetTrack,c.placement,c.projectRate,*c.clipId,admissionOptions));
+                else view.admission=std::make_shared<const VerifiedNativeTake>(verifyNativeTakeForAdmission(view.root,view.job,*view.declared,*c.targetTrack,c.placement,c.projectRate,*c.clipId,admissionOptions));}
             catch(...){view.admitting=false;throw;}
             view.admitting=false;view.admissionRevision=c.revision;view.error.reset();view.diagnostic.clear();return;
         }

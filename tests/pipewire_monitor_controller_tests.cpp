@@ -2,7 +2,11 @@
 #include "native_monitor_controller.hpp"
 #include "fake_pipewire_monitor_streams.hpp"
 #include <iostream>
+#include <nlohmann/json.hpp>
+#include <soundcurrent/pipewire_take_workflow.hpp>
 #include <fstream>
+#include <sndfile.h>
+#include "../src/media_io.hpp"
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 using namespace pipewire_monitor_fixture;
@@ -31,9 +35,43 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
     std::filesystem::create_directory(t.root/"exports");auto exportCommand=command(NativeMonitorCommandKind::ExportOriginal);exportCommand.resultSequence=final->resultSequence;exportCommand.destination=t.root/"exports"/"raw.wav";
     control.submit(exportCommand);await([&]{return bool(control.snapshot()->pipewireExported) || bool(control.snapshot()->error);});
     check(control.snapshot()->pipewireExported && hashMediaFile(exportCommand.destination)==hashMediaFile(final->job/"take.wav"),"Original export changed raw bytes");
+    auto admit=command(NativeMonitorCommandKind::AdmitTake);admit.resultSequence=final->resultSequence;admit.targetTrack=project.tracks.front().id;admit.clipId=Id::generate();admit.projectRate=project.sampleRate;admit.placement=123;admit.revision=1;
+    control.submit(admit);await([&]{return bool(control.snapshot()->admission) || bool(control.snapshot()->error);});
+    auto verified=control.snapshot()->admission;check(verified && verified->edit().asset.nativeEvidence.size()==8,"PipeWire admission lost immutable/paired evidence");
+    EditHistory history(project);history.apply(verified->edit());const auto placed=history.session();
+    check(placed.tracks.front().clips.front().startFrame==123 && nlohmann::json::parse(encodeProject(placed))["schemaMinor"]==19,"PipeWire placement/schema wrong");
+    ProjectStore(t.root).save(placed);ProjectStore(t.root).verifyMedia(placed);check(ProjectStore(t.root).load()==placed,"PipeWire project did not reopen exactly");
+    check(history.undo() && history.session()==project && history.redo() && history.session()==placed,"PipeWire admission did not undo/redo atomically");
+    auto processed=placed;processed.tracks.front().eq.bands[1].gainDb=-6;
+    ExportSpec spec(processed.tracks.front().id);spec.endFrame=123+4096;spec.blockFrames=113;
+    const auto rendered=exportTrackWav(t.root,processed,t.root/"exports"/"processed.wav",spec);
+    check(rendered.frames==4219 && rendered.overFullScaleSamples>0,"Processed export lost headroom/range");
+    {media_io::File file(rendered.destination,false);SF_INFO info{};auto *audio=sf_open_fd(file.descriptor(),SFM_READ,&info,SF_FALSE);check(audio!=nullptr,"Processed WAV cannot be read");
+        std::vector<float> samples(std::size_t(info.frames)*unsigned(info.channels));check(sf_readf_float(audio,samples.data(),info.frames)==info.frames,"Processed WAV incomplete");sf_close(audio);
+        double energy=0;for(unsigned n=1024;n<4096;++n)energy+=double(samples[n])*samples[n];
+        check(std::abs(std::sqrt(energy/3072)-3*std::pow(10.,-6./20.)/std::sqrt(2.))<.01,"Admitted source EQ was not rendered by shared engine");}
+    for(unsigned failure=0;failure<5;++failure){auto bad=placed;
+        if(failure==0)bad.assets.front().nativeEvidence.erase(bad.assets.front().nativeEvidence.begin()+4);
+        if(failure==1)bad.assets.front().nativeEvidence.back().relativePath="media/original-"+bad.assets.front().id.str()+"/pw-outcome-not-a-uuid.json";
+        if(failure==2)bad.assets.front().nativeEvidence.front().bytes=16385;
+        if(failure==3)bad.assets.front().nativeEvidence.back().bytes=4*1024*1024+1;
+        if(failure==4)bad.assets.front().nativeEvidence[1].relativePath=bad.assets.front().nativeEvidence[0].relativePath;
+        bool rejected=false;try{validate(bad);}catch(const ProjectError &){rejected=true;}check(rejected,"Invalid PipeWire project evidence accepted");}
+    {auto legacy=nlohmann::json::parse(encodeProject(placed));legacy["schemaMinor"]=18;bool rejected=false;try{decodeProject(legacy.dump());}catch(const ProjectError &){rejected=true;}check(rejected,"PipeWire evidence smuggled through legacy schema18");}
+    auto refusesAdmission=[&](const NativeTakeAdmissionOptions &options,const PipeWireRecordingSpec &expected){bool refused=false;
+        try{verifyPipeWireTakeForAdmission(t.root,final->job,expected,project.tracks.front().id,123,project.sampleRate,Id::generate(),options);}catch(const ProjectError &){refused=true;}
+        check(refused,"Invalid/cancelled/unbudgeted admission accepted");};
+    {auto foreign=*final->pipewireDeclared;foreign.raw.project=Id::generate();refusesAdmission(pipewireTakeAdmissionDefaults(),foreign);}
+    {auto tiny=pipewireTakeAdmissionDefaults();tiny.resources=ResourceLedger{16};refusesAdmission(tiny,*final->pipewireDeclared);}
+    {auto cancelled=pipewireTakeAdmissionDefaults();cancelled.beforeRead=[] {throw ProjectError(ErrorCode::Canceled,"test cancel");};refusesAdmission(cancelled,*final->pipewireDeclared);}
+    {const auto file=t.root/utf8Path(placed.assets.front().nativeEvidence.back().relativePath);std::ifstream input(file,std::ios::binary);const std::string original{std::istreambuf_iterator<char>(input),{}};input.close();
+        {std::ofstream output(file,std::ios::binary);output<<original<<"x";}refusesAdmission(pipewireTakeAdmissionDefaults(),*final->pipewireDeclared);
+        {std::ofstream output(file,std::ios::binary);output<<original;}ProjectStore(t.root).verifyMedia(placed);}
+    ProjectStore(t.root).save(project);
     const auto before=control.snapshot()->completedCommands;control.submit(exportCommand);await([&]{return control.snapshot()->completedCommands>before;});check(control.snapshot()->error==ErrorCode::InvalidState,"Export overwrote existing destination");
     auto release=command(NativeMonitorCommandKind::ReleaseResult);release.resultSequence=final->resultSequence;control.submit(release);await([&]{return !control.snapshot()->hasOriginal();});
-    auto reopen=command(NativeMonitorCommandKind::ReopenOriginal,2);reopen.pipewire=true;reopen.project=project.id;reopen.root=t.root;reopen.job=final->job;control.submit(reopen);
+    auto reopen=command(NativeMonitorCommandKind::ReopenOriginal,2);reopen.pipewire=false; // Backend identified by plain typed state without SDK activation.
+    reopen.project=project.id;reopen.root=t.root;reopen.job=final->job;control.submit(reopen);
     await([&]{return control.snapshot()->generation==2 && bool(control.snapshot()->pipewireReopened);});check(!control.snapshot()->pipewireResult && !control.snapshot()->reopened,"Restarted take invented a live/Native result");
     control.requestShutdown();await([&]{return control.snapshot()->phase==NativeMonitorPhase::Closed;});
     check(ProjectStore(t.root).load()==project,"Controller attached raw media without explicit placement");

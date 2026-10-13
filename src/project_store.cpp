@@ -361,7 +361,7 @@ std::string encodeProject(const Session &s, ProjectBudget budget) {
     Json root = {
         {"format", "soundcurrent-daw"},
         {"schemaMajor", 1},
-        {"schemaMinor", 18},
+        {"schemaMinor", std::any_of(s.assets.begin(),s.assets.end(),[](const auto &a){return !a.nativeEvidence.empty() && a.nativeEvidence.front().relativePath.ends_with("/pipewire-owner.json");})?19:18},
         {"projectId", s.id.str()},
         {"name", s.name},
         {"sampleRate", s.sampleRate},
@@ -505,7 +505,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
         require(j.is_object() && j.contains("schemaMajor") && j.contains("schemaMinor"),
                 "Missing project schema");
         const auto minor = integer(j.at("schemaMinor"));
-        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 18),
+        require(integer(j.at("schemaMajor")) == 1 && (minor >= 0 && minor <= 19),
                 "Unsupported project schema", ErrorCode::UnsupportedSchema);
         if (minor < 3)
             keys(j, {"format", "schemaMajor", "schemaMinor", "projectId", "name", "sampleRate",
@@ -561,7 +561,7 @@ Session decodeProject(std::string_view bytes, ProjectBudget budget) {
             asset.sampleRate = u32(a.at("sampleRate"));
             asset.layout = readLayout(a.at("layout"));
             asset.frames = integer(a.at("frames"));
-            if(minor>=18){array(a.at("nativeEvidence"),5);for(const auto &f:a.at("nativeEvidence")) {
+            if(minor>=18){array(a.at("nativeEvidence"),minor>=19?8:5);for(const auto &f:a.at("nativeEvidence")) {
                 keys(f,{"path","sha256","bytes"});asset.nativeEvidence.push_back({string(f.at("path")),string(f.at("sha256")),u64(f.at("bytes"))});
             }}
             s.assets.push_back(std::move(asset));

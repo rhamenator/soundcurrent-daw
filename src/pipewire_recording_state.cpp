@@ -44,9 +44,11 @@ PipeWireStoredRecording inspectPipeWireRecordingState(const std::filesystem::pat
     try{const auto j=parse(media_io::readJournal(job/"pipewire-owner.json"));fields(j,{"format","major","minor","domain","run","generation","intent","outcome","prefix"});
         require(text(j.at("format"))=="soundcurrent-pipewire-owner" && u(j.at("major"))==1 && u(j.at("minor"))<=1 && text(j.at("domain"))=="posix-monotonic-ns","Unsupported native durable state schema");
         PipeWireStoredRecording r;r.prefix=inspectPipeWireRecording(job,expected,resources,beforeRead);require(Id(text(j.at("run")))==r.prefix.declared.run && u(j.at("generation"))==r.prefix.declared.generation,"Native state run identity mismatch");
+        r.evidenceFiles={"pipewire-owner.json","pipewire-run.json","journal.json","packets.bin","capture-cycles.bin","render-cycles.bin"};
         r.intent=decodeIntent(readArtifact(job,j.at("intent"),"intent",beforeRead),r.prefix.declared);
+        r.evidenceFiles.push_back(text(j.at("intent").at("file"),128));
         require(j.at("outcome").is_null()==j.at("prefix").is_null(),"Native outcome/checkpoint publication mismatch");
-        if(!j.at("outcome").is_null()){require(j.at("prefix")==prefixBinding(r.prefix),"Native terminal bound prefix differs from paired checkpoint");r.outcome=decodeOutcome(readArtifact(job,j.at("outcome"),"outcome",beforeRead),small(j.at("minor")));validateOutcome(r.intent,r.prefix,*r.outcome,small(j.at("minor")));r.terminal=true;}
+        if(!j.at("outcome").is_null()){require(j.at("prefix")==prefixBinding(r.prefix),"Native terminal bound prefix differs from paired checkpoint");r.outcome=decodeOutcome(readArtifact(job,j.at("outcome"),"outcome",beforeRead),small(j.at("minor")));validateOutcome(r.intent,r.prefix,*r.outcome,small(j.at("minor")));r.terminal=true;r.evidenceFiles.push_back(text(j.at("outcome").at("file"),128));}
         if(beforeRead)beforeRead();
         return r;
     }catch(const J::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed native durable state");}

@@ -277,7 +277,7 @@ void NativeMonitorPanel::poll() {
     inspect_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);keep_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);
     export_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_ && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames);
     open_->setEnabled(editable && project_ && !busy());
-    const bool attachable=editable && !s->pipewire && saved && !s->exporting && !s->admitting && !admissionPending_ && bool(addRequested) && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames;
+    const bool attachable=editable && saved && !s->exporting && !s->admitting && !admissionPending_ && bool(addRequested) && prefix && prefix->finalized && prefix->committedFrames && prefix->finitePrefixFrames==prefix->committedFrames;
     add_->setEnabled(attachable);placement_->setEnabled(attachable);
     eq_->setEnabled(editable && s->hasEqualizer() && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording));
     QString phase;

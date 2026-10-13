@@ -36,6 +36,7 @@ struct PipeWireStoredRecording {
     PipeWireRecordingIntent intent;
     PipeWireRecordingPrefix prefix;
     std::optional<PipeWireJoinedOutcome> outcome;
+    std::vector<std::string> evidenceFiles; // Validated owned basenames, including immutable references.
     bool terminal=false; // Published joined outcome, not audible completion/alignment.
 };
 // Serialized off-RT owner. Immutable named artifacts then atomic schema manifest;

@@ -2,6 +2,7 @@
 #pragma once
 #include "native_original_recording.hpp"
 #include "clip_timing.hpp"
+#include "pipewire_recording_state.hpp"
 namespace soundcurrent::daw {
 struct NativeTakeAdmissionOptions {
     ResourceLedger resources{16*1024*1024,"Native take admission"};
@@ -19,6 +20,8 @@ class VerifiedNativeTake {
   private:
     friend VerifiedNativeTake verifyNativeTakeForAdmission(const std::filesystem::path &,const std::filesystem::path &,
         const NativeOriginalRecordingSpec &,const Id &,Frame,std::uint32_t,const Id &,const NativeTakeAdmissionOptions &);
+    friend VerifiedNativeTake verifyPipeWireTakeForAdmission(const std::filesystem::path &,const std::filesystem::path &,
+        const PipeWireRecordingSpec &,const Id &,Frame,std::uint32_t,const Id &,const NativeTakeAdmissionOptions &);
     VerifiedNativeTake(ResourceLease lease,std::filesystem::path root,Id project,InsertNativeTake edit)
         :lease_(std::move(lease)),root_(std::move(root)),project_(std::move(project)),edit_(std::move(edit)){}
     ResourceLease lease_;std::filesystem::path root_;Id project_;InsertNativeTake edit_;
