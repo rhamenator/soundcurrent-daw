@@ -20,6 +20,7 @@
 #include <iostream>
 #include <source_location>
 #include <cstdlib>
+#include <fstream>
 using namespace soundcurrent::daw;
 using namespace soundcurrent::daw::ui;
 using namespace native_monitor_fixture;
@@ -37,6 +38,11 @@ NativeMonitorPreparation preparation(const std::filesystem::path &root,const std
     AudioPort output;output.nodeName="Speakers – Ελληνικά";output.portName="Stereo";output.backendId="wasapi";output.sampleRate=48000;output.nativeChannels=2;p.outputs={output};return p;
 }
 struct CloseOnExit{NativeMonitorPanel &p;~CloseOnExit(){p.beginClose();try{await([&]{return p.closeReady();});}catch(...){}}};
+struct PanelFixtureRoot {
+    std::filesystem::path root=std::filesystem::temp_directory_path()/utf8Path("sc-native-panel-é-")/Id::generate().str();
+    PanelFixtureRoot(){std::filesystem::create_directories(root);}
+    ~PanelFixtureRoot(){if(std::uncaught_exceptions()){const auto path=root.generic_u8string();std::cerr<<"Retained native panel fixture ";std::cerr.write(reinterpret_cast<const char *>(path.data()),std::streamsize(path.size()));std::cerr<<'\n';return;}std::error_code ec;std::filesystem::remove_all(root,ec);}
+};
 void finitePanel(const std::filesystem::path &root){
     auto spy=std::make_shared<Spy>();auto p=preparation(root,spy);const auto original=ProjectStore(root).load();const auto gui=std::this_thread::get_id();std::atomic<bool> offGui{false};ResourceLedger credit(256*1024,"Native panel fixture");
     NativeMonitorPanel panel({[&](const auto &){offGui=std::this_thread::get_id()!=gui;return std::make_unique<FakeStreams>(spy,48000,1,true);}},nullptr,credit);CloseOnExit close{panel};panel.resize(760,260);panel.show();
@@ -138,7 +144,23 @@ void deviceSelection(const std::filesystem::path &root){
     QTest::mouseClick(control<QPushButton>(*panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel->snapshot()->phase==NativeMonitorPhase::Ready;});panel->poll();
     const auto before=queries.load();check(!control<QPushButton>(*panel,"nativeRefreshDevices")->isEnabled(),"Prepared route allowed inventory refresh");
     QTest::mouseClick(control<QPushButton>(*panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel->snapshot()->result);});
-    check(factories==2 && preparedStreams==1 && queries==before && panel->snapshot()->result->disposition==NativeMonitorRecordingDisposition::Complete,"Selected native run lost finite completion or refreshed live device state");
+    const auto selected=panel->snapshot();const auto &result=*selected->result;
+    if(factories!=2 || preparedStreams!=1 || queries!=before || result.disposition!=NativeMonitorRecordingDisposition::Complete){
+        std::ofstream retained(root/"device-selection-diagnostic.log",std::ios::binary);
+        for(auto *out:{&std::cerr,static_cast<std::ostream *>(&retained)}){
+            *out<<"selection factories="<<factories.load()<<" prepared="<<preparedStreams.load()<<" queries="<<queries.load()<<" before="<<before
+                <<" disposition="<<int(result.disposition)<<" raw="<<(result.prefix?result.prefix->raw.committedFrames:0)<<" captureStatus="<<int(result.native.captureStatus)
+                <<" renderStatus="<<int(result.native.render.status)<<" consumed="<<result.native.render.consumedMonitorFrames<<" startup="<<bool(result.native.render.startupReady)
+                <<" processing="<<(result.processingFault?int(result.processingFault->cause):-1)<<" drift="<<bool(result.processingClockFault)
+                <<" buffer="<<(result.processingBufferFault?int(result.processingBufferFault->code):-1)<<" fanout="<<(result.captureFault?int(result.captureFault->cause):-1)
+                <<" fanoutSide="<<(result.captureFault?int(result.captureFault->side):-1)<<" activation="<<bool(result.activationFailure)<<" disk="<<bool(result.diskFailure)
+                <<" storage="<<bool(result.storageFailure)<<" recovery="<<bool(result.recoveryFailure)<<" waitFailure="<<result.firstWaitFailure
+                <<" sdkStage="<<spy->sdkStage.load()<<" packets="<<spy->sdkRawPackets.load()<<" written="<<spy->writtenPackets.load()
+                <<" captureJoined="<<spy->captureJoined.load()<<" renderJoined="<<spy->renderJoined.load()<<'\n';
+            for(const auto &failure:{result.activationFailure,result.diskFailure,result.storageFailure,result.recoveryFailure})if(failure)try{std::rethrow_exception(failure);}catch(const std::exception &e){*out<<"exception="<<e.what()<<'\n';}
+        }
+    }
+    check(factories==2 && preparedStreams==1 && queries==before && result.disposition==NativeMonitorRecordingDisposition::Complete,"Selected native run lost finite completion or refreshed live device state");
     window.close();await([&]{return !window.isVisible();});
     check(window.nativeRecordingSnapshot()->phase==NativeMonitorPhase::Closed && spy->captureJoined && spy->renderJoined,"Selector workflow did not retire all owners");
     std::cout<<"native_devices worker_inventory=true explicit_choices=true stale_input_refused_before_streams=true removed_input_unavailable=true no_default_switch=true explicit_map=true finite_run=true all_owners_closed=true simulated_sdk=true\n";
@@ -230,4 +252,4 @@ void pipewirePanel(const std::filesystem::path &root){
 }
 
 }
-int main(int argc,char **argv){QApplication app(argc,argv);try{QTemporaryDir dir;check(dir.isValid(),"Native panel temp root unavailable");const auto root=utf8Path(dir.path().toUtf8().toStdString());pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+int main(int argc,char **argv){QApplication app(argc,argv);try{PanelFixtureRoot dir;const auto &root=dir.root;pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

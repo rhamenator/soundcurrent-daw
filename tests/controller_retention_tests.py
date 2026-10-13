@@ -10,7 +10,7 @@ with tempfile.TemporaryDirectory() as work:
     try:
         (source/'media').mkdir();(source/'media/take.wav').write_bytes(bytes([0,255,17,0]));(source/'project.json').write_text('{"title":"Ελληνικά 日本語"}',encoding='utf-8')
         log.write_text(c.MARKER+str(source)+'\n',encoding='utf-8');receipt=c.retain(build);assert len(receipt)==1 and len(receipt[0]['originalFiles'])==2
-        target=build/'controller-failure-projects'/source.name
+        target=build/'controller-failure-projects'/('controller-'+source.name)
         assert (target/'media/take.wav').read_bytes()==(source/'media/take.wav').read_bytes()
         assert json.loads((target/'retention.json').read_text(encoding='utf-8'))['atomicProjectSnapshot'] is False
         def refuses():
@@ -38,6 +38,11 @@ with tempfile.TemporaryDirectory() as work:
         with oversized.open('wb') as out:out.truncate(512*1024*1024+1)
         refuses();oversized.unlink()
         log.write_text('No failure markers\n',encoding='utf-8');assert c.retain(build)==[]
+        panelParent=Path(tempfile.gettempdir())/c.POLICIES[c.PANEL_MARKER];panelParent.mkdir(exist_ok=True)
+        panel=panelParent/str(uuid.uuid4());panel.mkdir();extras.append(panel)
+        (panel/'devices-é').mkdir();(panel/'devices-é/result.json').write_text('{"complete":false}',encoding='utf-8')
+        log.write_text(c.PANEL_MARKER+str(panel)+'\n',encoding='utf-8');assert len(c.retain(build))==1
+        assert (build/'controller-failure-projects'/('panel-'+panel.name)/'devices-é/result.json').read_bytes()==(panel/'devices-é/result.json').read_bytes()
         print('Controller retention: exact Unicode/audio bytes, foreign path/no-overwrite, link refusal='+str(linked))
     finally:
         shutil.rmtree(source)

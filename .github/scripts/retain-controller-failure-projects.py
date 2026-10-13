@@ -3,6 +3,8 @@
 import argparse, hashlib, json, os, re, stat, tempfile
 from pathlib import Path
 MARKER = 'Retained PipeWire controller fixture '
+PANEL_MARKER = 'Retained native panel fixture '
+POLICIES = {MARKER:'sc-pw-controller-é-',PANEL_MARKER:'sc-native-panel-é-'}
 UUID = re.compile(r'^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$')
 def plain(path, directory=False):
     s=path.lstat()
@@ -19,9 +21,10 @@ def retain(build):
     for p in sorted(logs.glob('*.log')):
         if plain(p).st_size>16*1024*1024:raise ValueError('Retention log bound exceeded')
         for line in p.read_text(encoding='utf-8',errors='strict').splitlines():
-            if not line.startswith(MARKER):continue
-            raw=line[len(MARKER):];source=Path(os.path.abspath(raw))
-            parent=Path(tempfile.gettempdir())/'sc-pw-controller-é-'
+            marker=next((m for m in POLICIES if line.startswith(m)),None)
+            if marker is None:continue
+            raw=line[len(marker):];source=Path(os.path.abspath(raw))
+            parent=Path(tempfile.gettempdir())/POLICIES[marker]
             if source.parent!=parent or not UUID.fullmatch(source.name):raise ValueError('Foreign controller failure path refused')
             plain(parent,True);plain(source,True);sources.add(source)
             if len(sources)>3:raise ValueError('Controller failure count bound exceeded')
@@ -41,7 +44,7 @@ def retain(build):
                     plain(item);size+=info.st_size
                     if size>512*1024*1024:raise ValueError('Controller byte bound exceeded')
                     files.append((item,item.relative_to(source),info.st_size))
-        target=destination/source.name
+        target=destination/(('panel-' if source.parent.name=='sc-native-panel-é-' else 'controller-')+source.name)
         if target.exists():raise ValueError('Existing controller snapshot refused')
         target.mkdir(parents=True);manifest=[]
         for item,relative,length in files:
