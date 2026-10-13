@@ -128,6 +128,18 @@ bool sourcePositionLess(SourcePosition a,SourcePosition b) {
     const auto left=multiply(a.fraction,b.denominator),right=multiply(b.fraction,a.denominator);
     return left.high!=right.high?left.high<right.high:left.low<right.low;
 }
+SourcePosition addSourcePosition(SourcePosition a,SourcePosition b) {
+    a=canonical(a);b=canonical(b);
+    const auto reduced=a.denominator/std::gcd(a.denominator,b.denominator);
+    require(reduced<=UINT64_MAX/b.denominator,"Source-position sum denominator overflow");
+    const auto denominator=reduced*b.denominator;
+    const auto left=a.fraction*(denominator/a.denominator),right=b.fraction*(denominator/b.denominator);
+    const bool carry=left>=denominator-right;
+    const auto remainder=carry?left-(denominator-right):left+right;
+    require(b.frame<=INT64_MAX-a.frame && (!carry || a.frame+b.frame<INT64_MAX),
+            "Source-position sum frame overflow");
+    return canonical({a.frame+b.frame+Frame(carry),remainder,denominator});
+}
 SourcePosition subtractSourcePosition(SourcePosition a,SourcePosition b) {
     a=canonical(a);b=canonical(b);require(!sourcePositionLess(a,b),"Negative source-position interval");
     const auto reduced=a.denominator/std::gcd(a.denominator,b.denominator);
@@ -169,6 +181,9 @@ SourcePosition stretchOutputToSource(const ClipStretchAnchor &p,SourcePosition o
                                    p.context?p.settings.timeNumerator:std::uint64_t(stretchOutputFrames(input,p.settings)));
     require(before>=0 && source.frame>=before,"Position precedes retained nominal raw span");source.frame-=before;
     require(!sourcePositionLess({p.sourceFrames,0,1},source),"Position exceeds retained nominal raw span");return source;
+}
+SourcePosition stretchOutputToRaw(const ClipStretchAnchor &p,SourcePosition output) {
+    return addSourcePosition(p.sourceOrigin,stretchOutputToSource(p,output));
 }
 StretchGeometry stretchGeometry(const ClipStretchAnchor &p,Frame available) {
     validateStretchProcessor(p.processor,p.settings,p.context,p.warp);

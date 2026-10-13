@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Prepared rendered comp handles (2026-10-13)
+
+[Checkpoint 260](260-rendered-comp-handles.md) corrects admission of existing
+verified derivative handles using exact raw-coordinate coverage, including context,
+warp and retained processed takes. Real v4/v5 file/PCM, curves, export, persistence
+and callback checks pass alongside rollback/model tests. Crossfade explanation now
+reflows in a small vertically scrollable dialog; screenshot review also corrected
+horizontal clipping. Linguist is regenerated. Missing-span asynchronous rendering,
+current Windows/installed/quality and full Europe/frozen-reference goals remain open.
+
+
 ## Ubuntu comp/audition preview delivery (2026-10-13)
 
 [Checkpoint 259](259-comp-audition-preview.md) installs a per-user preview with

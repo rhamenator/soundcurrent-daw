@@ -16,6 +16,9 @@
 #include <QSignalBlocker>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QScrollArea>
+#include <QScreen>
+#include <QResizeEvent>
 #include <QSlider>
 #include <QSpinBox>
 #include <QSplitter>
@@ -29,6 +32,18 @@
 #include <limits>
 namespace soundcurrent::daw::ui {
 namespace {
+class WrappedHelpLabel : public QLabel {
+ public:
+    using QLabel::QLabel;
+    void reflow() {
+        const auto h=heightForWidth(width());
+        if(h>=0 && h!=minimumHeight())setMinimumHeight(h);
+    }
+ protected:
+    void resizeEvent(QResizeEvent *event) override {
+        QLabel::resizeEvent(event);reflow();
+    }
+};
 class FocusCombo : public QComboBox {
     void wheelEvent(QWheelEvent *e) override {
         if (hasFocus())
@@ -607,7 +622,12 @@ void TimelineEditor::editCrossfade() {
     QDialog dialog(this);
     dialog.setObjectName("crossfadeDialog");
     dialog.setWindowTitle(tr("Crossfade"));
-    auto *form = new QFormLayout(&dialog);
+    auto *outer = new QVBoxLayout(&dialog);
+    auto *scroll = new QScrollArea(&dialog);scroll->setWidgetResizable(true);
+    scroll->setObjectName("crossfadeScroll");
+    auto *body = new QWidget;auto *form = new QFormLayout(body);
+    form->setRowWrapPolicy(QFormLayout::WrapLongRows);
+    scroll->setWidget(body);outer->addWidget(scroll);
     auto *peer = new FocusCombo;
     peer->setObjectName("crossfadeIncoming");
     peer->setAccessibleName(tr("Incoming clip"));
@@ -629,10 +649,10 @@ void TimelineEditor::editCrossfade() {
     handles->setObjectName("crossfadeUseTakeHandles");
     handles->setToolTip(tr("Create overlap from the retained takes without changing source audio."));
     form->addRow(handles);
-    auto *help = new QLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
-    help->setWordWrap(true);form->addRow(help);
+    auto *help = new WrappedHelpLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
+    help->setObjectName("crossfadeHelp");help->setWordWrap(true);form->addRow(help);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    form->addRow(buttons);
+    outer->addWidget(buttons);
     const auto updateRange = [&] {
         const auto *out = clip();
         const auto id = clipList_->idAt(peer->currentIndex());
@@ -657,6 +677,7 @@ void TimelineEditor::editCrossfade() {
         help->setText(handles->isChecked()
             ? tr("This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.")
             : tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
+        help->reflow();
         buttons->button(QDialogButtonBox::Ok)->setEnabled(selected && last > first);
         if (!selected || last <= first) { start->clear();end->clear();return; }
         Frame begin = first, finish = last;
@@ -677,6 +698,8 @@ void TimelineEditor::editCrossfade() {
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     peer->setCurrentIndex(0);updateRange();
+    const auto area=dialog.screen()->availableGeometry();
+    dialog.resize(std::min(560,std::max(1,area.width()-32)),std::min(420,std::max(1,area.height()-32)));
     if (dialog.exec() != QDialog::Accepted) return;
     if (!editable_ || epoch_ != epoch || track_ != std::optional<Id>(selectedTrack) ||
         clip_ != std::optional<Id>(outgoing))

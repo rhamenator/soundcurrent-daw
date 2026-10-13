@@ -32,8 +32,11 @@ struct StretchGeometry {
 StretchGeometry stretchGeometry(const ClipStretchAnchor &,Frame availableSourceFrames);
 bool sourcePositionLess(SourcePosition,SourcePosition);
 SourcePosition subtractSourcePosition(SourcePosition,SourcePosition);
+SourcePosition addSourcePosition(SourcePosition,SourcePosition);
 SourcePosition stretchSourceToOutput(const ClipStretchAnchor &,SourcePosition);
 SourcePosition stretchOutputToSource(const ClipStretchAnchor &,SourcePosition);
+// Absolute physical source coordinate, including the retained fractional origin.
+SourcePosition stretchOutputToRaw(const ClipStretchAnchor &,SourcePosition);
 void validateClipStretch(const ClipStretchAnchor &, const Asset &source, const Asset &rendered);
 void validateStretchClipWindow(const Clip &,const Asset &source,const Asset &rendered,std::uint32_t projectRate);
 struct ClipStretchPlan {

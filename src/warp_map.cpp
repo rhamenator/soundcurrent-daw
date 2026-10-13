@@ -23,17 +23,6 @@ std::uint64_t commonDenominator(SourcePosition a, SourcePosition b) {
             "Warp denominator exceeds exact representation");
     return reduced * b.denominator;
 }
-SourcePosition add(SourcePosition a, SourcePosition b) {
-    a = canonical(a); b = canonical(b);
-    const auto denominator = commonDenominator(a, b);
-    const auto left = a.fraction * (denominator / a.denominator);
-    const auto right = b.fraction * (denominator / b.denominator);
-    const bool carry = left >= denominator - right;
-    const auto remainder = carry ? left - (denominator - right) : left + right;
-    require(b.frame <= INT64_MAX - a.frame && (!carry || a.frame + b.frame < INT64_MAX),
-            "Warp coordinate sum exceeds exact representation");
-    return canonical({a.frame + b.frame + Frame(carry), remainder, denominator});
-}
 SourcePosition subtract(SourcePosition a, SourcePosition b) {
     a = canonical(a); b = canonical(b);
     require(!sourcePositionLess(a, b), "Warp coordinate difference is negative");
@@ -75,7 +64,7 @@ SourcePosition evaluate(std::span<const ClipWarpPoint> points, SourcePosition po
     if (position == from(a)) return to(a);
     if (a.source == a.output && b.source == b.output) return position;
     const auto r = ratio(subtract(to(b), to(a)), subtract(from(b), from(a)));
-    return add(to(a), scaleSourcePosition(subtract(position, from(a)), r.n, r.d));
+    return addSourcePosition(to(a), scaleSourcePosition(subtract(position, from(a)), r.n, r.d));
 }
 }
 ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> markers,
@@ -95,7 +84,7 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
             "Invalid warp region/rate/duration");
     // Count is a prepared source grid. A fractional final sample may precede
     // the asset endpoint although the exclusive grid extent passes it.
-    require(sourcePositionLess(add(region_.rawOrigin, {region_.inputFrames-1,0,1}),
+    require(sourcePositionLess(addSourcePosition(region_.rawOrigin, {region_.inputFrames-1,0,1}),
                                {region_.availableSourceFrames,0,1}), "Warp processing grid exceeds source asset");
     require(sourcePositionLess(region_.visibleSourceBegin, region_.visibleSourceEnd) &&
             !sourcePositionLess({region_.inputFrames,0,1}, region_.visibleSourceEnd),
@@ -107,7 +96,7 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
         require(sourcePositionLess({0,0,1}, source) && sourcePositionLess(source, {region_.inputFrames,0,1}) &&
                 sourcePositionLess({0,0,1}, output) && sourcePositionLess(output, {region_.outputFrames,0,1}),
                 "Warp markers must be strictly inside both domains");
-        require(sourcePositionLess(add(region_.rawOrigin, source), {region_.availableSourceFrames,0,1}),
+        require(sourcePositionLess(addSourcePosition(region_.rawOrigin, source), {region_.availableSourceFrames,0,1}),
                 "Warp marker has no physical source position");
         points_.push_back({marker.id, source, output});
     }
@@ -135,7 +124,7 @@ SourcePosition ClipWarpMap::outputToSource(SourcePosition p) const { return eval
 SourcePosition ClipWarpMap::rawAt(SourcePosition p) const {
     p = canonical(p);
     require(!sourcePositionLess({region_.inputFrames,0,1}, p), "Raw warp lookup exceeds processing region");
-    return add(region_.rawOrigin, p);
+    return addSourcePosition(region_.rawOrigin, p);
 }
 SourcePosition ClipWarpMap::visibleOutputBegin() const { return sourceToOutput(region_.visibleSourceBegin); }
 SourcePosition ClipWarpMap::visibleOutputEnd() const { return sourceToOutput(region_.visibleSourceEnd); }

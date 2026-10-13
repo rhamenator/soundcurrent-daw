@@ -262,14 +262,38 @@ const Clip &retainedSource(Session &s, const Clip &clip) {
 }
 Clip extendedCompCopy(Session &s, const Clip &clip, Frame first, Frame end) {
     const auto &retained=retainedSource(s,clip);
-    require(clip.assetId == retained.assetId,
-            "Comp transition requires matching rendered source handles; prepare the derivative first");
     const auto &asset=*find(s.assets,clip.assetId);
     const auto source=clipSourceMap(clip,asset.sampleRate,s.sampleRate).translated(first-clip.startFrame);
-    const auto allowed=clipSourceMap(retained,asset.sampleRate,s.sampleRate);
-    require(!sourcePositionLess(source.at(0),allowed.at(0)) &&
-            !sourcePositionLess(allowed.at(retained.lengthFrames-1),source.at(end-first-1)),
-            "Retained take does not cover the requested transition handles");
+    if(clip.assetId==retained.assetId) {
+        const auto allowed=clipSourceMap(retained,asset.sampleRate,s.sampleRate);
+        require(!sourcePositionLess(source.at(0),allowed.at(0)) &&
+                !sourcePositionLess(allowed.at(retained.lengthFrames-1),source.at(end-first-1)),
+                "Retained take does not cover the requested transition handles");
+    } else {
+        require(clip.stretch && (clip.stretch->sourceAssetId==retained.assetId ||
+                    (retained.stretch && clip.stretch->sourceAssetId==retained.stretch->sourceAssetId &&
+                     clip.stretch->sourceSha256==retained.stretch->sourceSha256)),
+                "Comp transition requires matching rendered source handles; prepare the derivative first");
+        const auto &raw=*find(s.assets,clip.stretch->sourceAssetId);
+        require(clip.stretch->sourceSha256==raw.sha256,
+                "Comp derivative does not match retained source bytes");
+        const auto &retainedAsset=*find(s.assets,retained.assetId);
+        const auto allowed=clipSourceMap(retained,retainedAsset.sampleRate,s.sampleRate);
+        auto allowedFirst=allowed.at(0),allowedEnd=allowed.at(retained.lengthFrames);
+        if(retained.assetId!=raw.id) {
+            require(retained.stretch.has_value(),"Retained derivative has no raw anchor");
+            const auto geometry=stretchGeometry(*retained.stretch,raw.frames);
+            if(sourcePositionLess(geometry.visibleEnd,allowedEnd))allowedEnd=geometry.visibleEnd;
+            allowedFirst=stretchOutputToRaw(*retained.stretch,allowedFirst);
+            allowedEnd=stretchOutputToRaw(*retained.stretch,allowedEnd);
+        }
+        const auto rawFirst=stretchOutputToRaw(*clip.stretch,source.at(0));
+        const auto rawLast=stretchOutputToRaw(*clip.stretch,source.at(end-first-1));
+        // A rendered sample can map between the final retained physical sample
+        // and the exclusive raw interval end. It must remain inside that interval.
+        require(!sourcePositionLess(rawFirst,allowedFirst) && sourcePositionLess(rawLast,allowedEnd),
+                "Retained take does not cover the requested rendered handles");
+    }
     auto result=clip;
     const auto position=source.at(0);
     const auto divisor=std::gcd(position.fraction,position.denominator);

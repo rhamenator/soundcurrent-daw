@@ -7,6 +7,10 @@
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QLabel>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QDir>
+#include <QPixmap>
 #include <QCheckBox>
 #include <QPushButton>
 #include <QTimer>
@@ -132,6 +136,19 @@ int main(int argc,char **argv) {
                 check(buttons->button(QDialogButtonBox::Ok)->isEnabled() &&
                       widget<QLineEdit>(*dialog,"crossfadeStart")->text()=="392" &&
                       widget<QLineEdit>(*dialog,"crossfadeEnd")->text()=="632","Quiet default handle window differs");
+                QApplication::processEvents();
+                auto *help=widget<QLabel>(*dialog,"crossfadeHelp");
+                check(help->height()>=help->heightForWidth(help->width()),"Retained-handle explanation is clipped");
+                auto *scroll=widget<QScrollArea>(*dialog,"crossfadeScroll");
+                const auto capture=qEnvironmentVariable("SC_CROSSFADE_CAPTURE");
+                if(!capture.isEmpty()) {QDir().mkpath(capture);check(dialog->grab().save(capture+"/default.png"),"Default dialog capture failed");}
+                dialog->resize(350,240);QApplication::processEvents();
+                check(help->height()>=help->heightForWidth(help->width()) && scroll->widgetResizable(),
+                      "Small crossfade dialog clips explanation rather than scrolling");
+                check(scroll->verticalScrollBar()->maximum()>0,"Small crossfade dialog has no vertical scroll range");
+                check(scroll->horizontalScrollBar()->maximum()==0,"Small crossfade dialog requires horizontal reading of help");
+                scroll->ensureWidgetVisible(help);QApplication::processEvents();
+                if(!capture.isEmpty())check(dialog->grab().save(capture+"/small.png"),"Small dialog capture failed");
                 widget<QLineEdit>(*dialog,"crossfadeStart")->setText("486");
                 widget<QLineEdit>(*dialog,"crossfadeEnd")->setText("538");
                 buttons->button(QDialogButtonBox::Ok)->click();
