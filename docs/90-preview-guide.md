@@ -1,11 +1,23 @@
-# First Linux preview candidate
+# Linux preview candidates
+
+## Current local Ubuntu preview (2026-10-13)
+
+**SoundCurrent DAW Preview** is installed in this workstation's Applications menu.
+Version `0.1.0~preview.20261013064632.5a2046905c77` is a Release build with the
+[recording recovery controls and current-source workflow evidence](250-recovery-preview-delivery.md).
+It has a dedicated per-user version directory; no system-wide package was installed.
+Its 4,262,266-byte DEB and exact GPL source archive are local under
+`.cache/p250-package-20261013064632/`. Windows installer refresh remains separate.
+This is a usable preview, with full DAW parity and hardware qualification unfinished.
+
+## Earlier candidates and original qualification scopes
 
 This is an early **Ubuntu 26.04 amd64** candidate. It is a Debug build with Linux
 PipeWire enabled, prepared locally with its corresponding GPL source. Windows,
 Fedora/RHEL and other Ubuntu versions are not qualified by this package.
 No GitHub binary release has been uploaded.
 
-The latest local candidate is **0.1.0~preview.20261008034000.743392ece10a**, in
+The earlier local candidate is **0.1.0~preview.20261008034000.743392ece10a**, in
 `.cache/preview-portable-faults-ubuntu-26.04/`. It adds saved single-track error
 details after reopen and passes an actual installed fault/Save/Quit/reopen/review
 workflow. See [its package hashes, installation and evidence](93-installed-portable-fault-preview.md).

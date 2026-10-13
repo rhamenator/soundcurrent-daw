@@ -1,5 +1,19 @@
 # Active full-suite goal: progress and completion evidence
 
+## Updated Ubuntu recovery preview (2026-10-13)
+
+[Checkpoint 250](250-recovery-preview-delivery.md) delivers a Release Ubuntu 26.04
+DEB/exact GPL source pair and installs its extracted payload under the normal user,
+with **SoundCurrent DAW Preview** in Applications. The current source passes 16
+selected local gates, private native recording/admitted playback and actual packaged
+Save/Quit/reopen/export. Two menu-launched processes exit 0; 480,000-frame repeat
+exports are identical and match an independent EQ calculation within 1.19e-7.
+Original CI183 passes Linux161/161, Windows native88/88, desktop20/20 and cross-build.
+Failures in private socket setup, desktop quoting and verification assumptions are
+retained. No VM, physical audio, system install, equalizer edit or release upload.
+Current Windows deployment/installer and sustained hardware qualification remain next.
+Full frozen-reference scope and all-Europe localization stay active and incomplete.
+
 ## Desktop reviewed-prefix recovery (2026-10-13)
 
 [Checkpoint249](249-recovery-copy-desktop.md) connects both native prefix-copy adapters
