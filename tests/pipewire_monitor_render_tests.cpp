@@ -178,7 +178,8 @@ void minimumQuantum(){
     PipeWireMonitorRenderOptions o;o.minimumQuantumFrames=17;PreparedPipeWireMonitorRender r(b,h,o);const auto small=clock(0,16);
     check(rt([&]{return r.process(small,p.views,17);})==PipeWireRenderCode::Fault && r.firstFault()->cause==PipeWireRenderCause::InvalidQuantum &&
         r.firstFault()->original==small && !b.deliveredFrames(),"Storage minimum violated without original fault/no-consumption");
-    for(auto *v:p.views)for(unsigned n=0;n<16;++n)check(v[n]==0,"Minimum-quantum rejection did not silence native output");r.finishAfterJoin();
+    for(auto *v:p.views)for(unsigned n=0;n<16;++n)check(v[n]==0,"Minimum-quantum rejection did not silence native output");
+    r.finishAfterJoin();
     PreparedMonitorOutputBank b2(bankConfig());PreparedMonitorClockHandoff h2(clocksConfig());o.minimumQuantumFrames=18;
     refuses([&]{PreparedPipeWireMonitorRender bad(b2,h2,o);});
 }
