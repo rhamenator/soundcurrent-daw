@@ -18,6 +18,7 @@ def retain(build):
     build=Path(os.path.abspath(build));plain(build,True)
     logs=build/'Testing'/'Temporary';sources=set()
     if not logs.exists():return []
+    plain(build/'Testing',True);plain(logs,True)
     inputs=list(logs.glob('*.log'))
     if len(inputs)>16:raise ValueError('Retention log count bound exceeded')
     for p in sorted(inputs):
