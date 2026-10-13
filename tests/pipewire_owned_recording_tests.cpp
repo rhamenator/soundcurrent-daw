@@ -26,7 +26,7 @@ struct Temp {std::filesystem::path root=std::filesystem::temp_directory_path()/s
 };
 PipeWireMonitorRecordingOptions options(const Temp &t){const auto p=ProjectStore(t.root).load();PipeWireMonitorRecordingOptions o;
     o.declared.raw.project=p.id;o.declared.raw.track=p.tracks.front().id;o.declared.raw.identity={11,31,7};o.declared.raw.layout={LayoutKind::Mono,1};o.declared.raw.maximumPacketFrames=480;
-    o.declared.renderChannels=2;o.declared.maximumRenderFrames=480;o.route.inputCapacityFrames=32768;o.route.monitorSlots=8;o.route.rawSlots=8;
+    o.declared.renderChannels=2;o.declared.maximumRenderFrames=480;o.route.inputCapacityFrames=32768;o.route.monitorSlots=8;o.route.rawSlots=8;RecordingStorageBudget budget;budget.stallMilliseconds=3000;o.storageBudget=budget;
     o.route.channelMap=MonitorChannelMap{1,2,{{0,0,1},{0,1,-.5}}};MonitorEqSpec eq;eq.track=o.declared.raw.track;eq.settings.bands.push_back({Id::generate(),1000,-6,1});o.route.equalizer=eq;return o;
 }
 PipeWireMonitorStreamFactory factory(std::shared_ptr<Shared> s,unsigned fail=0){return [s,fail](auto &route){return std::make_unique<Simulated>(route,s,fail);};}

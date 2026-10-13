@@ -15,7 +15,7 @@ ResourceLease admit(const PreparedMonitorOutputBank &b,const PreparedMonitorCloc
            !a.nativeCapacityFrames || a.nativeCapacityFrames>65536 || a.maximumNativeFillFrames!=c.maximumPullFrames ||
            a.nativeCapacityFrames<a.maximumNativeFillFrames || o.maximumWarmupNs%100 || a.maximumWait100ns!=o.maximumWarmupNs/100)
             throw ProjectError(ErrorCode::InvalidParameter,"PipeWire render startup binding mismatch");}
-    if(h.config().timestampDomain!=MonitorClockDomain::PosixMonotonic100ns ||
+    if(!o.minimumQuantumFrames || o.minimumQuantumFrames>c.maximumPullFrames || h.config().timestampDomain!=MonitorClockDomain::PosixMonotonic100ns ||
        h.config().renderFrequency!=c.sampleRate || h.config().runGeneration!=c.generation ||
        h.phase()!=MonitorClockPhase::Running || h.renderDone() || h.renderCounts().accepted ||
        b.deliveredFrames() || b.discardedFrames() || b.producerFault() || b.consumerFault() ||
@@ -61,7 +61,7 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock
     if(firstFault())return PipeWireRenderCode::Fault;
     if(stopped_.load(std::memory_order_acquire))return PipeWireRenderCode::Stopped;
     if(firstUnavailable())return fail(PipeWireRenderCause::NativeUnavailable,clock);
-    if(!clock.duration || clock.duration>cfg.maximumPullFrames || clock.duration>capacity)
+    if(clock.duration<options_.minimumQuantumFrames || clock.duration>cfg.maximumPullFrames || clock.duration>capacity)
         return fail(PipeWireRenderCause::InvalidQuantum,clock);
     if(clock.rateNumerator!=1 || clock.rateDenominator!=cfg.sampleRate)
         return fail(PipeWireRenderCause::RateChanged,clock);

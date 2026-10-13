@@ -20,14 +20,14 @@ std::size_t captureBankPayloadBytes(CaptureBankConfig c) {
 }
 PreparedCaptureBank::PreparedCaptureBank(CaptureBankConfig c, std::optional<ResourceLedger> ledger)
     : lease_(ledger ? ledger->reserve(captureBankPayloadBytes(c)) : ResourceLease{}),
-      config_(c), free_(c.slots,c.initialQueueSequence), ready_(c.slots,c.initialQueueSequence),
+      config_(c), payloadBytes_(captureBankPayloadBytes(c)),free_(c.slots,c.initialQueueSequence), ready_(c.slots,c.initialQueueSequence),
       sequence_(c.initialPacketSequence) {
     captureBankPayloadBytes(c); // Admission is required even without a shared ledger.
     samples_.resize(std::size_t(c.slots)*c.maximumPacketFrames*c.channels);
     for (std::uint32_t n=0;n<c.slots;++n) free_.tryPush(n);
 }
 std::size_t PreparedCaptureBank::chargedBytes() const noexcept {
-    return captureBankPayloadBytes(config_);
+    return payloadBytes_;
 }
 CaptureBankStatus PreparedCaptureBank::status() const noexcept {
     const auto s=CaptureBankStatus(status_.load(std::memory_order_acquire));

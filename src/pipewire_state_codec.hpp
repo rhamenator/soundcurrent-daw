@@ -57,7 +57,7 @@ inline std::vector<ChannelPortIntent> ports(const J &j){require(j.is_array() && 
 J encodeOutcome(const PipeWireJoinedOutcome &);
 PipeWireJoinedOutcome decodeOutcome(const J &,unsigned minor=1);
 J encodeIntent(const PipeWireRecordingIntent &);
-PipeWireRecordingIntent decodeIntent(const J &,const PipeWireRecordingSpec &);
+PipeWireRecordingIntent decodeIntent(const J &,const PipeWireRecordingSpec &,unsigned minor=2);
 J prefixBinding(const PipeWireRecordingPrefix &);
 void validateOutcome(const PipeWireRecordingIntent &,const PipeWireRecordingPrefix &,const PipeWireJoinedOutcome &,unsigned minor=1);
 } // namespace soundcurrent::daw::pw_state

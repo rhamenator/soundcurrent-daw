@@ -8,7 +8,7 @@ struct RecordingStorageBudget {
     std::uint32_t captureRate=48000,renderRate=48000,captureChannels=1;
     std::uint32_t minimumCaptureFrames=480,maximumCaptureFrames=480,minimumRenderFrames=480;
     std::uint32_t stallMilliseconds=500,headroomPackets=2;
-    std::uint32_t maximumRawSlots=256,maximumReceiptSlots=64;
+    std::uint32_t maximumRawSlots=4096,maximumReceiptSlots=4096;
     std::size_t memoryBudgetBytes=64*1024*1024;
 };
 struct RecordingStorageCapacity {

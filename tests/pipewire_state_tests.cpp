@@ -49,17 +49,27 @@ void normal(){Temp t;auto i=intent(t.root);const auto job=prepare(t.root,i);
     check(s.outcome->captureClockFault && s.outcome->captureClockFault->cause==MonitorClockCause::QueueFull &&
           s.outcome->captureClockFault->attempted->qpc.value==UINT64_MAX && s.outcome->captureClockFault->attempted->discontinuity &&
           s.outcome->captureClockCounts.discarded==4 && s.outcome->renderClockCounts.delivered==UINT64_MAX,"Original handoff clock facts lost");
-    const auto raw=read(s.prefix.raw.source),manifest=read(job/"pipewire-owner.json");auto j=J::parse(manifest);j["minor"]=2;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
+    const auto raw=read(s.prefix.raw.source),manifest=read(job/"pipewire-owner.json");auto j=J::parse(manifest);j["minor"]=3;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     j=J::parse(manifest);j["prefix"]["rawFrames"]=17;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     j=J::parse(manifest);const auto file=job/j["outcome"]["file"].get<std::string>();const auto bytes=read(file);auto corrupt=bytes;corrupt.back()^=1;write(file,corrupt);refuses([&]{inspectPipeWireRecordingState(job);});write(file,bytes);
     const auto replaceOutcome=[&](J edited){const auto b=edited.dump();write(file,b);auto m=J::parse(manifest);m["outcome"]["bytes"]=b.size();media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(b.data()),b.size()});m["outcome"]["sha256"]=h.digest();write(job/"pipewire-owner.json",m.dump());};
     auto edited=J::parse(bytes);edited["disposition"]=0;replaceOutcome(edited);refuses([&]{inspectPipeWireRecordingState(job);});
     edited=J::parse(bytes);edited["capture"]["fault"]["cause"]=999;replaceOutcome(edited);refuses([&]{inspectPipeWireRecordingState(job);});
     edited=J::parse(bytes);edited["captureClock"]["discarded"]=5;replaceOutcome(edited);refuses([&]{inspectPipeWireRecordingState(job);});
-    edited=J::parse(bytes);edited.erase("captureClock");edited.erase("renderClock");edited["render"].erase("completion");replaceOutcome(edited);
-    auto legacy=J::parse(read(job/"pipewire-owner.json"));legacy["minor"]=0;write(job/"pipewire-owner.json",legacy.dump());
-    check(inspectPipeWireRecordingState(job).terminal && !inspectPipeWireRecordingState(job).outcome->captureClockFault,"Legacy1.0 outcome migration invented clock evidence");
     write(file,bytes);write(job/"pipewire-owner.json",manifest);
+    // Version 1.1 retains outcomes but predates storage declarations; original artifact bytes are restored after each migration probe.
+    const auto intentFile=job/J::parse(manifest)["intent"]["file"].get<std::string>();const auto intentBytes=read(intentFile);
+    auto oldIntent=J::parse(intentBytes);for(const auto *key:{"minimumCapture","minimumRender","storageStallMs"})oldIntent["processing"].erase(key);
+    const auto oldBytes=oldIntent.dump();write(intentFile,oldBytes);
+    auto oldManifest=J::parse(manifest);oldManifest["minor"]=1;oldManifest["intent"]["bytes"]=oldBytes.size();
+    media_io::SampleHash oldHash;oldHash.updateBytes({reinterpret_cast<const std::byte *>(oldBytes.data()),oldBytes.size()});oldManifest["intent"]["sha256"]=oldHash.digest();
+    write(job/"pipewire-owner.json",oldManifest.dump());const auto v11=inspectPipeWireRecordingState(job);
+    check(v11.terminal && v11.outcome->captureClockFault && !v11.intent.processing.storageStallMilliseconds && v11.intent.processing.minimumCaptureFrames==1,"Legacy1.1 invented duration or lost clock evidence");
+    write(intentFile,intentBytes);write(job/"pipewire-owner.json",manifest);
+    edited=J::parse(bytes);edited.erase("captureClock");edited.erase("renderClock");edited["render"].erase("completion");replaceOutcome(edited);
+    auto legacy=J::parse(read(job/"pipewire-owner.json"));legacy["minor"]=0;legacy["intent"]=oldManifest["intent"];write(intentFile,oldBytes);write(job/"pipewire-owner.json",legacy.dump());
+    check(inspectPipeWireRecordingState(job).terminal && !inspectPipeWireRecordingState(job).outcome->captureClockFault,"Legacy1.0 outcome migration invented clock evidence");
+    write(file,bytes);write(intentFile,intentBytes);write(job/"pipewire-owner.json",manifest);
     auto duplicate=manifest;duplicate.insert(duplicate.find('{')+1,"\"major\":1,");write(job/"pipewire-owner.json",duplicate);refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     auto foreign=i.expected;foreign.raw.project=Id::generate();refuses([&]{inspectPipeWireRecordingState(job,foreign);});ResourceLedger tiny(16);refuses([&]{inspectPipeWireRecordingState(job,{},tiny);});
     refuses([&]{inspectPipeWireRecordingState(job,{}, {},[]{throw ProjectError(ErrorCode::Canceled,"cancel");});});check(read(s.prefix.raw.source)==raw,"Inspection/refusal altered original PCM");

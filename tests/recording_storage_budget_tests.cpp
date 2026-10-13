@@ -9,10 +9,12 @@ int main(){try{
     b.captureChannels=32;c=prepareRecordingStorageCapacity(b);require(c.rawSampleBytes==3194880,"Multitrack PCM charge incorrect");
     b.memoryBudgetBytes=c.rawSampleBytes-1;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::ResourceLimit);
     b.memoryBudgetBytes=c.rawSampleBytes;prepareRecordingStorageCapacity(b);
-    b.stallMilliseconds=3000;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::ResourceLimit); // Honest: current receipt lane cannot cover measured long stall.
+    b.memoryBudgetBytes=64*1024*1024;b.stallMilliseconds=3000;c=prepareRecordingStorageCapacity(b);require(c.rawSlots==302,"Three-second budget incorrect");
+    b.maximumReceiptSlots=64;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::ResourceLimit);
     b={};b.minimumCaptureFrames=1;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::ResourceLimit);
     b={};b.minimumCaptureFrames=481;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::InvalidParameter);
-    b={};b.stallMilliseconds=620;c=prepareRecordingStorageCapacity(b);require(c.rawSlots==64,"Exact receipt limit wrong");b.stallMilliseconds=621;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::ResourceLimit);
+    b={};b.maximumReceiptSlots=64;b.stallMilliseconds=620;c=prepareRecordingStorageCapacity(b);require(c.rawSlots==64,"Exact receipt limit wrong");b.stallMilliseconds=621;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::ResourceLimit);
+    b={};b.maximumRawSlots=4097;refuses([&]{prepareRecordingStorageCapacity(b);},ErrorCode::InvalidParameter);
     b={};b.captureRate=44100;b.maximumCaptureFrames=441;b.minimumCaptureFrames=441;c=prepareRecordingStorageCapacity(b);require(c.rawSlots==52 && c.retainedRawFrames==22932,"44.1k geometry incorrect");
     std::cout<<"Storage capacity: explicit minimum-cycle/duration admission, exact PCM charge, channel/quota/unsupported-stall refusal; no native or durability guarantee\n";
     return 0;

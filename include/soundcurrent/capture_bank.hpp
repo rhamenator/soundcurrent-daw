@@ -94,6 +94,7 @@ class PreparedCaptureBank {
   private:
     ResourceLease lease_; // Last destroyed; ledger mutex never taken on RT owners.
     const CaptureBankConfig config_;
+    const std::size_t payloadBytes_;
     std::vector<float> samples_;
     PreparedSpscQueue<std::uint32_t> free_;
     PreparedSpscQueue<CaptureBankToken> ready_;

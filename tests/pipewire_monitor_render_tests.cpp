@@ -173,8 +173,17 @@ void stopAndPressure(){
     check(rt([&]{return mr.process(clock(),p.views,17);})==PipeWireRenderCode::Warmup,"Missing-return setup failed");
     check(rt([&]{return mr.process(clock(1),p.views,17);})==PipeWireRenderCode::Fault && mr.firstFault()->cause==PipeWireRenderCause::MissingReturn && mr.firstFault()->original==clock(),"A new process silently replaced the unreturned cycle");complete(mr,clock(1),3);mr.finishAfterJoin();
 }
+void minimumQuantum(){
+    PreparedMonitorOutputBank b(bankConfig());PreparedMonitorClockHandoff h(clocksConfig());Planes p;push(b,17);
+    PipeWireMonitorRenderOptions o;o.minimumQuantumFrames=17;PreparedPipeWireMonitorRender r(b,h,o);const auto small=clock(0,16);
+    check(rt([&]{return r.process(small,p.views,17);})==PipeWireRenderCode::Fault && r.firstFault()->cause==PipeWireRenderCause::InvalidQuantum &&
+        r.firstFault()->original==small && !b.deliveredFrames(),"Storage minimum violated without original fault/no-consumption");
+    for(auto *v:p.views)for(unsigned n=0;n<16;++n)check(v[n]==0,"Minimum-quantum rejection did not silence native output");r.finishAfterJoin();
+    PreparedMonitorOutputBank b2(bankConfig());PreparedMonitorClockHandoff h2(clocksConfig());o.minimumQuantumFrames=18;
+    refuses([&]{PreparedPipeWireMonitorRender bad(b2,h2,o);});
 }
-int main(){try{rt_audit::reset();exactAndFinal();warmupAndUnderflow();finishAfterLastContent();returnFacts();refusals();formats();stopAndPressure();const auto a=rt_audit::counts;
+}
+int main(){try{rt_audit::reset();minimumQuantum();exactAndFinal();warmupAndUnderflow();finishAfterLastContent();returnFacts();refusals();formats();stopAndPressure();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared render allocated/freed/locked");
     std::cout<<checks<<" PipeWire planar render checks passed; float bits/headroom, exact native queue results, final padding, bounded startup, underflow/refusal; audited allocate/free/lock=0; actual daemon=false\n";return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

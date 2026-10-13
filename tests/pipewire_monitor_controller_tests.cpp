@@ -23,7 +23,7 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
     NativeMonitorControllerOptions o;o.commandMemory=ResourceLedger{64*1024*1024};o.pipewireStreams=[shared](auto &r){return std::make_unique<Simulated>(r,shared,0);};
     NativeMonitorController control(o);auto p=std::make_shared<NativeMonitorPreparation>();p->root=t.root;p->pipewire.emplace();auto &pw=*p->pipewire;
     pw.declared.raw.project=project.id;pw.declared.raw.track=project.tracks.front().id;pw.declared.raw.identity={11,31,7};pw.declared.raw.layout={LayoutKind::Mono,1};pw.declared.raw.maximumPacketFrames=480;
-    pw.declared.maximumRenderFrames=480;pw.route.inputCapacityFrames=32768;pw.route.rawSlots=8;pw.route.monitorSlots=8;pw.route.channelMap=monoToStereoMonitor();
+    pw.declared.maximumRenderFrames=480;pw.route.inputCapacityFrames=32768;pw.route.rawSlots=8;RecordingStorageBudget storage;storage.stallMilliseconds=3000;pw.storageBudget=storage;pw.route.monitorSlots=8;pw.route.channelMap=monoToStereoMonitor();
     MonitorEqSpec eq;eq.track=pw.declared.raw.track;eq.settings.bands.push_back({Id::generate(),1000,-6,1});pw.route.equalizer=eq;
     pw.journal.boundary=[shared](auto b){shared->journal(b);};pw.journal.raw.boundary=[shared](auto b){shared->rawBoundary(b);};
     auto prep=command(NativeMonitorCommandKind::Prepare);prep.preparation=p;check(control.submit(prep)==NativeMonitorAdmission::Accepted,"PipeWire prepare refused");

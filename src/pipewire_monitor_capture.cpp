@@ -16,7 +16,7 @@ ResourceLease admit(const PreparedCaptureFanout &f, const PreparedMonitorClockHa
             throw ProjectError(ErrorCode::InvalidParameter,"PipeWire capture stop binding mismatch");}
     if ((o.receipt && !o.requireNativeReturns) || h.config().timestampDomain != MonitorClockDomain::PosixMonotonic100ns ||
         c.identity != h.config().captureIdentity || !c.channels || c.channels > 256 ||
-        !c.maximumPacketFrames || c.maximumPacketFrames > 65536 || c.sampleRate < 8000 ||
+        !o.minimumQuantumFrames || o.minimumQuantumFrames>c.maximumPacketFrames || !c.maximumPacketFrames || c.maximumPacketFrames > 65536 || c.sampleRate < 8000 ||
         c.sampleRate > 384000 || f.producerDone() || f.rawAcceptedFrames() ||
         f.monitorAcceptedFrames() || f.status() != CaptureFanoutStatus::Running ||
         h.captureDone() || h.captureCounts().accepted || h.phase() != MonitorClockPhase::Running)
@@ -52,7 +52,7 @@ PipeWireCaptureCode PreparedPipeWireMonitorCapture::process(const DeviceBlockClo
     if (stopped_.load(std::memory_order_acquire) || (options_.stop && options_.stop->requested())) return PipeWireCaptureCode::Stopped;
     if (firstUnavailable()) return fail(PipeWireCaptureCause::NativeUnavailable, clock);
     const auto &config = fanout_.captureConfig();
-    if (!clock.duration || clock.duration > config.maximumPacketFrames || clock.duration > capacity)
+    if (clock.duration < options_.minimumQuantumFrames || clock.duration > config.maximumPacketFrames || clock.duration > capacity)
         return fail(PipeWireCaptureCause::InvalidQuantum, clock);
     if (clock.rateNumerator != 1 || clock.rateDenominator != config.sampleRate)
         return fail(PipeWireCaptureCause::RateChanged, clock);
