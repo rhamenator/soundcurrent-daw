@@ -68,7 +68,11 @@ void normal(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     check(inspectPipeWireRecording(moved/"media"/job.filename(),s).raw.committedFrames==34,"Portable paired native project did not reopen");
 }
 void releasedBeforeDueCheckpoint(){Temp t;const auto s=spec(t.root);PreparedCaptureFanout f(config(s));bool held=false,armed=false;unsigned publications=0;
+    bool checkpointStarted=false;unsigned rawCommits=0;
     PipeWireJournalOptions o;o.checkpointRecords=1;o.boundary=[&](auto b){if(armed && b==PipeWireJournalBoundary::BeforeCheckpoint){check(!held,"Due paired flush retained the copied raw slot");++publications;}};
+    o.raw.boundary=[&](auto b){if(b==OriginalRecordingBoundary::BeforeCheckpoint){check(!checkpointStarted,"Nested raw checkpoint");checkpointStarted=true;}
+        if(b==OriginalRecordingBoundary::AfterAudioFlush)check(checkpointStarted,"Raw flush lacked measurement start");
+        if(b==OriginalRecordingBoundary::AfterJournal){check(checkpointStarted,"Raw publication lacked measurement start");checkpointStarted=false;++rawCommits;}};
     std::filesystem::path job;
     {PipeWireRecordingJournal w(t.root,s,o);job=w.jobDirectory();std::array<float,51> data{};const auto c=capture(0);
         const CaptureBankStamp stamp{s.raw.identity,{c.original.original.position},{c.original.original.monotonicNs/100},17,0};
@@ -78,6 +82,7 @@ void releasedBeforeDueCheckpoint(){Temp t;const auto s=spec(t.root);PreparedCapt
         check(f.releaseRaw(raw) && f.releaseMonitor(monitor),"Deferred raw release failed");held=false;w.checkpointIfDue();check(publications==1,"Due publication lost");
         w.checkpointIfDue();check(publications==1,"No-due publication repeated");w.appendRender(render(0));check(publications==2,"Immediate render publication changed");finish(w,f);}
     const auto p=inspectPipeWireRecording(job,s);check(p.raw.committedFrames==17 && p.captureRecords==1 && p.renderRecords==1 && p.finalized,"Deferred checkpoint changed durable prefix");
+    check(rawCommits>0 && !checkpointStarted && unsigned(OriginalRecordingBoundary::AfterMediaPublish)==8,"Checkpoint measurement changed legacy boundary identity/order");
 }
 void checkpointTail(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     {PreparedCaptureFanout f(config(s));PipeWireRecordingJournal w(t.root,s);job=w.jobDirectory();append(w,f,s,0);w.checkpoint();append(w,f,s,1);}
