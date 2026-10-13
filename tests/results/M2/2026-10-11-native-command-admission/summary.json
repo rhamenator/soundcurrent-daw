@@ -1,0 +1,26 @@
+{
+  "source": "11648c4c4bf0f4fcf62487a448db4dae609be0d5",
+  "tree": "2f8830b1333ba089f398958d60a6260de13fa47d",
+  "initialImplementationSource": "7cc56df5c409a1689fcccff7c0666d52679bb5be",
+  "sourceInputs": 780,
+  "linuxTestTimesSeconds": {
+    "release": 17.32,
+    "sanitizer": 24.92,
+    "tsan": 28.4
+  },
+  "correctedFixtureObjectsPerProfile": 1,
+  "unchangedCurrentProductionArchivesReused": true,
+  "queuedAndInFlightCommandPayloadCredit": true,
+  "reserveBeforeOwnedCopyWitnessVerified": true,
+  "aggregateParentChildRefusal": true,
+  "structuralBoundsAndUtf8NulValidation": true,
+  "urgentCancelAtQuota": true,
+  "firstTsanFailureRetained": true,
+  "snapshotIdentityAssertionCorrectedToSemanticState": true,
+  "guardedViolations": 0,
+  "fourCurrentWindowsObjectsCompiled": true,
+  "windowsRuntimeExecuted": false,
+  "fullGuiSnapshotMemoryQualified": false,
+  "binariesOrMediaIncluded": false,
+  "fullGoalComplete": false
+}

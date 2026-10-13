@@ -1,0 +1,472 @@
+{
+  "format": "sc-native-channel-state-v1",
+  "source": "9d5da1c5889dc57af20fe70408a43932fcee6f61",
+  "tree": "ee45d03e4ef5d97b11096c62a05082c5c5815ca0",
+  "precedingSource": "143c76af5e1fedc301ec6c9c5208f23f3738bf63",
+  "selectedInputs": 636,
+  "observations": {
+    "release": {
+      "fourSuitesPassed": true,
+      "seconds": 2.34,
+      "nativeOutcomeChecks": 1214,
+      "composedChecks": 3589544,
+      "processingChecks": 498462,
+      "composedPersistenceRuns": 12,
+      "mappedComposedPersistenceRuns": 4,
+      "legacy11ComposedMigrationRuns": 1,
+      "diagnosticPersistenceRuns": 14,
+      "nativeProcessBoundaries": 4,
+      "migrationProcessBoundaries": 2,
+      "matrixPublicationProcessBoundaries": 2,
+      "composedRows": [
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=1 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=1 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true"
+      ],
+      "maximumPcmError": 0,
+      "guardedAllocateFreeLock": 0,
+      "simulatedSdkOnly": true
+    },
+    "sanitizer": {
+      "fourSuitesPassed": true,
+      "seconds": 34.82,
+      "nativeOutcomeChecks": 1262,
+      "composedChecks": 3589544,
+      "processingChecks": 498462,
+      "composedPersistenceRuns": 12,
+      "mappedComposedPersistenceRuns": 4,
+      "legacy11ComposedMigrationRuns": 1,
+      "diagnosticPersistenceRuns": 14,
+      "nativeProcessBoundaries": 4,
+      "migrationProcessBoundaries": 2,
+      "matrixPublicationProcessBoundaries": 2,
+      "composedRows": [
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=1 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=1 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true"
+      ],
+      "maximumPcmError": 0,
+      "guardedAllocateFreeLock": 0,
+      "simulatedSdkOnly": true
+    },
+    "tsan": {
+      "fourSuitesPassed": true,
+      "seconds": 31.66,
+      "nativeOutcomeChecks": 1233,
+      "composedChecks": 3589544,
+      "processingChecks": 498462,
+      "composedPersistenceRuns": 12,
+      "mappedComposedPersistenceRuns": 4,
+      "legacy11ComposedMigrationRuns": 1,
+      "diagnosticPersistenceRuns": 14,
+      "nativeProcessBoundaries": 4,
+      "migrationProcessBoundaries": 2,
+      "matrixPublicationProcessBoundaries": 2,
+      "composedRows": [
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=2 outputChannels=2 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=1 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=44100 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=96000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=2 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=1 fakeSDK=true",
+        "composed startup inputChannels=1 outputChannels=1 sourceRate=48000 nativeCapacity=4097 firstReadyTick=201 fullFifo=4672 warmup=96960 content=8194 consumed=4672 slack=3522 maxError=0 failedStop=0 fakeSDK=true"
+      ],
+      "maximumPcmError": 0,
+      "guardedAllocateFreeLock": 0,
+      "simulatedSdkOnly": true
+    }
+  },
+  "linuxExecutableHashes": {
+    "release": {
+      "sc-monitor-processing-tests": "55fd7474d4ff31f00fcb578b0457afd47d285c036a104f101ab3fd39bbfe6b3a",
+      "sc-monitor-startup-tests": "e88fb15e705f9a29befd6e5a73e1ccfbf4f578db63384df36d5c7e52c7a906b8",
+      "sc-native-monitor-startup-tests": "1aa8ae0c8a8b688c82f3aa512f29ab0b530e51ff0fa47e29736c0aaeb00453ae",
+      "sc-native-original-recording-tests": "7c398c8d18e5d3626415d3c69c82d26b86dd9e5aa989fe8d9a8492ef3d5cf9af"
+    },
+    "sanitizer": {
+      "sc-monitor-processing-tests": "28962260a82f1adda0e22fb151991213b5509e1016fdec6d14b46260ea33d206",
+      "sc-monitor-startup-tests": "12a7b70c8a040161de67019803428bad827171cbfa08a7846a9ebbe7c97106b5",
+      "sc-native-monitor-startup-tests": "419eea595b4b8235354ebfae17dc580e8ecdf15f621eb9e5bfee7ac74bc6e8bd",
+      "sc-native-original-recording-tests": "1eed93b4b0256e061fb7e5a82278292d0012f2f9872a5287f023b4cfde5d82c7"
+    },
+    "tsan": {
+      "sc-monitor-processing-tests": "a37f04d3c310f8862d8983d673a1a1971114cb50b50dce4e8b4c9ce8bb17be09",
+      "sc-monitor-startup-tests": "61cd899e6666207654b8fa14ea673d84079abef23037e6a9823aec1e520af4f6",
+      "sc-native-monitor-startup-tests": "24f08b457d437219173588102b2fbe8883ecc77a8af9e29abee612e7a2af2080",
+      "sc-native-original-recording-tests": "dbe65f1ee3a66bc70fa3e582578855cb359ecb052f06eb1889a24c7034bff2df"
+    }
+  },
+  "linuxObjectHashes": {
+    "release/CMakeFiles/sc-monitor-processing.dir/src/monitor_channel_map.cpp.o": {
+      "bytes": 52392,
+      "sha256": "19f8aa01f8d65dfafba4c52ef55e3c19a7819363c5786d71779a376298574dcb"
+    },
+    "release/CMakeFiles/sc-monitor-processing.dir/src/monitor_processing.cpp.o": {
+      "bytes": 78128,
+      "sha256": "24f182813c2bed609123babc3e208626363b5f223f05a6544d9cecf1a0f01884"
+    },
+    "release/CMakeFiles/sc-monitor-processing.dir/src/monitor_startup_handoff.cpp.o": {
+      "bytes": 30424,
+      "sha256": "7ac62dc53f9302233e1b721f960284e646c7eae29cf7184c9ce3fc791d702621"
+    },
+    "release/CMakeFiles/sc-native-monitor-startup-tests.dir/tests/native_monitor_startup_tests.cpp.o": {
+      "bytes": 456168,
+      "sha256": "181ad2d7ae9f712b17d2a8443f15565c6350bd4294db224793b2b954a992ce23"
+    },
+    "release/CMakeFiles/sc-native-original-recording.dir/src/native_original_recording.cpp.o": {
+      "bytes": 672584,
+      "sha256": "4855c7a4395aba1cd2f0c47d11bdad404c87b31b8ba6e7ae8abe0dcbd5e4c628"
+    },
+    "release/CMakeFiles/sc-native-original-recording-tests.dir/tests/native_original_recording_tests.cpp.o": {
+      "bytes": 463312,
+      "sha256": "d21585bb6126ed3263d81a2b056e285c006a6ce49839af7b5ce8db95e9648b9c"
+    },
+    "sanitizer/CMakeFiles/sc-monitor-processing.dir/src/monitor_channel_map.cpp.o": {
+      "bytes": 1331728,
+      "sha256": "34dceef0248a36a7868f4d6ed8af65fd2a506e83da84695ed1d38ec036e532a8"
+    },
+    "sanitizer/CMakeFiles/sc-monitor-processing.dir/src/monitor_processing.cpp.o": {
+      "bytes": 2886928,
+      "sha256": "043ef62e6c0d068f476a7b5c881cc54549577614992d07d3fc6c744849223a65"
+    },
+    "sanitizer/CMakeFiles/sc-monitor-processing.dir/src/monitor_startup_handoff.cpp.o": {
+      "bytes": 832504,
+      "sha256": "b5aa2f756243503acd6b278089f2db01d0dcb1dbdd730e51d2ffb2f732633f0c"
+    },
+    "sanitizer/CMakeFiles/sc-native-monitor-startup-tests.dir/tests/native_monitor_startup_tests.cpp.o": {
+      "bytes": 13690376,
+      "sha256": "f0d00a0a43cac164614323f790116a031795f0017a46394806aa4c03ca318ddf"
+    },
+    "sanitizer/CMakeFiles/sc-native-original-recording.dir/src/native_original_recording.cpp.o": {
+      "bytes": 18461000,
+      "sha256": "e95bba638156ab53b37bdccd95fde288bc8a1f863174f64114309cb17711fbfe"
+    },
+    "sanitizer/CMakeFiles/sc-native-original-recording-tests.dir/tests/native_original_recording_tests.cpp.o": {
+      "bytes": 11966912,
+      "sha256": "d61a48dc035351ad26f6bb0b9cc4f1840739f927221d5660ddfb1a0910c73af2"
+    },
+    "tsan/CMakeFiles/sc-monitor-processing.dir/src/monitor_channel_map.cpp.o": {
+      "bytes": 846928,
+      "sha256": "6a62bcebff6f4b31c9a6f531eafb7dc3ad221b3f22cbd32ddffb4d72b972c96e"
+    },
+    "tsan/CMakeFiles/sc-monitor-processing.dir/src/monitor_processing.cpp.o": {
+      "bytes": 1428392,
+      "sha256": "d6fd5f932664b2e984474f9a0aa61ba2fe22059916d8a8423baaabf9a479dc8f"
+    },
+    "tsan/CMakeFiles/sc-monitor-processing.dir/src/monitor_startup_handoff.cpp.o": {
+      "bytes": 511056,
+      "sha256": "de8b4b2ea5f93bdd0fc564c4a6675162aed73e3154c1df457c8ffa2c716b7022"
+    },
+    "tsan/CMakeFiles/sc-native-monitor-startup-tests.dir/tests/native_monitor_startup_tests.cpp.o": {
+      "bytes": 8861344,
+      "sha256": "3f7a73a38c1a8e5c244384f4112b016b7490a381d45d627d29f5c9125dd86712"
+    },
+    "tsan/CMakeFiles/sc-native-original-recording.dir/src/native_original_recording.cpp.o": {
+      "bytes": 11431296,
+      "sha256": "948b4e7f3b895225699aa321704473056b14b7c94a2248aa0c39946a64469dbb"
+    },
+    "tsan/CMakeFiles/sc-native-original-recording-tests.dir/tests/native_original_recording_tests.cpp.o": {
+      "bytes": 8650840,
+      "sha256": "1cad1350dd6ebab39ba450ef1310998b3d17510df7ffebd74901e26eabc03c01"
+    }
+  },
+  "windows": {
+    "source": "9d5da1c5889dc57af20fe70408a43932fcee6f61",
+    "tree": "ee45d03e4ef5d97b11096c62a05082c5c5815ca0",
+    "targets": [
+      "sc-monitor-processing-tests",
+      "sc-monitor-startup-tests",
+      "sc-native-monitor-startup-tests",
+      "sc-wasapi-monitor-render"
+    ],
+    "commands": [
+      [
+        "configure",
+        [
+          "cmake",
+          "-S",
+          ".",
+          "-B",
+          ".cache/native-channel-state/build-windows",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-mingw.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DSC_BUILD_MEDIA=OFF",
+          "-DSC_BUILD_DESKTOP=OFF"
+        ]
+      ],
+      [
+        "build",
+        [
+          "cmake",
+          "--build",
+          ".cache/native-channel-state/build-windows",
+          "--parallel",
+          "1",
+          "--target",
+          "sc-monitor-processing-tests",
+          "sc-monitor-startup-tests",
+          "sc-native-monitor-startup-tests",
+          "sc-wasapi-monitor-render"
+        ]
+      ]
+    ],
+    "objects": {
+      "map": {
+        "source": "src/monitor_channel_map.cpp",
+        "command": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Ithird_party",
+          "-Ithird_party/libsndfile",
+          "-c",
+          "src/monitor_channel_map.cpp",
+          "-o",
+          ".cache/native-channel-state/windows-map.obj"
+        ],
+        "sha256": "f9f9ab0b66d3d1c36b1ee164a7d57f3d931be3b0125965fba9085fb27018895e"
+      },
+      "processing": {
+        "source": "src/monitor_processing.cpp",
+        "command": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Ithird_party",
+          "-Ithird_party/libsndfile",
+          "-c",
+          "src/monitor_processing.cpp",
+          "-o",
+          ".cache/native-channel-state/windows-processing.obj"
+        ],
+        "sha256": "adaf160f51b6480d4ce294c1744607f53a13edf715f5a55426c78e436dde82b1"
+      },
+      "handoff": {
+        "source": "src/monitor_startup_handoff.cpp",
+        "command": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Ithird_party",
+          "-Ithird_party/libsndfile",
+          "-c",
+          "src/monitor_startup_handoff.cpp",
+          "-o",
+          ".cache/native-channel-state/windows-handoff.obj"
+        ],
+        "sha256": "30aef319ba7596df5e724349ecaab6c24e55d4b75218dc9f053a72dbf1f040e3"
+      },
+      "native-state": {
+        "source": "src/native_original_recording.cpp",
+        "command": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Ithird_party",
+          "-Ithird_party/libsndfile",
+          "-c",
+          "src/native_original_recording.cpp",
+          "-o",
+          ".cache/native-channel-state/windows-native-state.obj"
+        ],
+        "sha256": "92f30bed968c0383d08a27c1e433031398e9c4d697d467a5529eed59274b999e"
+      },
+      "native-state-fixture": {
+        "source": "tests/native_original_recording_tests.cpp",
+        "command": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Ithird_party",
+          "-Ithird_party/libsndfile",
+          "-c",
+          "tests/native_original_recording_tests.cpp",
+          "-o",
+          ".cache/native-channel-state/windows-native-state-fixture.obj"
+        ],
+        "sha256": "10c9c836ee7e77621980571111d9a41386ba966242e40a5bbf1e496d866131de"
+      },
+      "native-startup-fixture": {
+        "source": "tests/native_monitor_startup_tests.cpp",
+        "command": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Ithird_party",
+          "-Ithird_party/libsndfile",
+          "-c",
+          "tests/native_monitor_startup_tests.cpp",
+          "-o",
+          ".cache/native-channel-state/windows-native-startup-fixture.obj"
+        ],
+        "sha256": "13ce556d3fed592894f106ef8387755c74886fe5155596873ee6e533027b302e"
+      },
+      "processing-fixture": {
+        "source": "tests/monitor_processing_tests.cpp",
+        "command": [
+          "nice",
+          "-n",
+          "15",
+          "ionice",
+          "-c",
+          "2",
+          "-n",
+          "7",
+          "x86_64-w64-mingw32-g++",
+          "-std=c++20",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Wpedantic",
+          "-DSC_NATIVE_STARTUP_STATE",
+          "-Iinclude",
+          "-Isrc",
+          "-Ithird_party",
+          "-Ithird_party/libsndfile",
+          "-c",
+          "tests/monitor_processing_tests.cpp",
+          "-o",
+          ".cache/native-channel-state/windows-processing-fixture.obj"
+        ],
+        "sha256": "ce0909df4e22dab6fa791b7dc8bd422254d16207d5a3240e7d45e89091c8a15d"
+      }
+    },
+    "nativeSdkCompiled": true,
+    "nativeSdkRuntimeExecuted": false
+  },
+  "windowsBinaryHashes": {
+    "sc-monitor-processing-tests.exe": {
+      "bytes": 2276164,
+      "sha256": "04f85d45c002feefc4dab216194fcb414c3459d07d3157e381e181bfdde6f725"
+    },
+    "sc-monitor-startup-tests.exe": {
+      "bytes": 2271473,
+      "sha256": "99cc66eee533dc9b75c8584a7f4f4e43879359ee066163d2b02fa92cc39cdca9"
+    },
+    "sc-native-monitor-startup-tests.exe": {
+      "bytes": 2304657,
+      "sha256": "2fdfa7f1beb1bac7dc12ce24bb7bea9d9f2e58ae08f1ec66b784cde2be7c6380"
+    },
+    "libsc-wasapi-monitor-render.a": {
+      "bytes": 19994,
+      "sha256": "5a094b0eead7026af79b9d6498efcb974483d0db1b441392237c9666c8bbd47e"
+    }
+  },
+  "state12MatrixAndMigrationImplemented": true,
+  "originalWindowsRootsResolved": false,
+  "nativeHardwareQualified": false,
+  "nativeWindowsRuntimeExecuted": false,
+  "factoryEnabled": false,
+  "executablesIncluded": false,
+  "mediaIncluded": false,
+  "fullGoalComplete": false
+}

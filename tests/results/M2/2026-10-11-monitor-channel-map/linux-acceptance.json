@@ -1,0 +1,111 @@
+{
+  "source": "aecc0b79934a89a428e914e61ee20eb294538f85",
+  "tree": "dabb2958bae1dab828a3264396165a4e117a8156",
+  "inputs": 636,
+  "profiles": {
+    "release": {
+      "suites": 4,
+      "seconds": 1.69,
+      "processingChecks": 498462,
+      "rtGuardAllocateFreeLock": 0,
+      "mappedRoutes": [
+        "1->2",
+        "2->1",
+        "1->3"
+      ],
+      "nativeSdkSimulation": true
+    },
+    "sanitizer": {
+      "suites": 4,
+      "seconds": 17.15,
+      "processingChecks": 498462,
+      "rtGuardAllocateFreeLock": 0,
+      "mappedRoutes": [
+        "1->2",
+        "2->1",
+        "1->3"
+      ],
+      "nativeSdkSimulation": true
+    },
+    "tsan": {
+      "suites": 4,
+      "seconds": 26.35,
+      "processingChecks": 498462,
+      "rtGuardAllocateFreeLock": 0,
+      "mappedRoutes": [
+        "1->2",
+        "2->1",
+        "1->3"
+      ],
+      "nativeSdkSimulation": true
+    }
+  },
+  "objectHashes": {
+    "release/map": {
+      "object": "CMakeFiles/sc-monitor-processing.dir/src/monitor_channel_map.cpp.o",
+      "bytes": 33024,
+      "sha256": "3bda9f53729348e06b70a5f8717af49c367f0b16d24ea197b2f5dda6ed12b9fb"
+    },
+    "release/processing": {
+      "object": "CMakeFiles/sc-monitor-processing.dir/src/monitor_processing.cpp.o",
+      "bytes": 77544,
+      "sha256": "a7203ed026f96beddea33f4d197febad903b2c51d1f159bd49274e67b269cd49"
+    },
+    "release/fixture": {
+      "object": "CMakeFiles/sc-monitor-processing-tests.dir/tests/monitor_processing_tests.cpp.o",
+      "bytes": 186992,
+      "sha256": "d88536fcb7b92647ab03227dcf59ecacd6c8d5c4d63bc267a54c62d1f37d3c2e"
+    },
+    "sanitizer/map": {
+      "object": "CMakeFiles/sc-monitor-processing.dir/src/monitor_channel_map.cpp.o",
+      "bytes": 1097432,
+      "sha256": "dc826caa9d77d4cde6587c1d4b87675167f2acef705968bd8c8ae2fb37082bf2"
+    },
+    "sanitizer/processing": {
+      "object": "CMakeFiles/sc-monitor-processing.dir/src/monitor_processing.cpp.o",
+      "bytes": 2801512,
+      "sha256": "2e60152ab4f7fb8ca6bb56d99088435f8283b26b20643d2a3394483d55309736"
+    },
+    "sanitizer/fixture": {
+      "object": "CMakeFiles/sc-monitor-processing-tests.dir/tests/monitor_processing_tests.cpp.o",
+      "bytes": 3535512,
+      "sha256": "b83e77acb1bd645f85329b2d0907314bb9d4ada2a830a338286eed4a5d411786"
+    },
+    "tsan/map": {
+      "object": "CMakeFiles/sc-monitor-processing.dir/src/monitor_channel_map.cpp.o",
+      "bytes": 626592,
+      "sha256": "f8d5ccb2c5ace254f936356d03c84a8c3bd71b331c08bc2a4b5f54d6a9152f8d"
+    },
+    "tsan/processing": {
+      "object": "CMakeFiles/sc-monitor-processing.dir/src/monitor_processing.cpp.o",
+      "bytes": 1400184,
+      "sha256": "ffd2535e4a08c34b82bec56dbc0635e233ffb71174ae120e5e31c2e5720291d0"
+    },
+    "tsan/fixture": {
+      "object": "CMakeFiles/sc-monitor-processing-tests.dir/tests/monitor_processing_tests.cpp.o",
+      "bytes": 2697568,
+      "sha256": "4816699ee75606261c0d8711d6b42091522dec54f505976939e51c13690f4617"
+    }
+  },
+  "executableHashes": {
+    "release": {
+      "sc-monitor-processing-tests": "1dd234ebe09ad8550aca27446a79feef6a5fa7952af9b5379b442e1a484cb993",
+      "sc-monitor-startup-tests": "66e576a4594a636a8279ca5feec49bc00e1c9eff6ce55d3a75f941db83d88b91",
+      "sc-native-monitor-startup-tests": "0b28fbf53a04886a02029c8ee4c2aa770d5394c5f5382e8a6550f57e456a4045",
+      "sc-native-original-recording-tests": "0e982b5cb33fef99f30ea356756fd5bb61787596a471b04b92ba92708beb143d"
+    },
+    "sanitizer": {
+      "sc-monitor-processing-tests": "b08f30393cd2ff5921ce7aa84c864905b02998be62495d4a94ee434e962aaeda",
+      "sc-monitor-startup-tests": "1651d83a502386ac0dbee19425b3ff033ba0ce9582d0c50fb535d70bf78f23a3",
+      "sc-native-monitor-startup-tests": "57dd45d05b4f75958c4fa9e896f826f01a37b92486d7d90f9288873fb633f49a",
+      "sc-native-original-recording-tests": "437f2e505d778c31699c6635506cd69157089bb0ef30cdf76fb6778d84c58b0f"
+    },
+    "tsan": {
+      "sc-monitor-processing-tests": "7dd8cb4376331c3bbaf8c6a5c5cdcea1c7301bd05a9a34953c9699dfde5b017e",
+      "sc-monitor-startup-tests": "91df2761271c597c1ac91aa8fbc2537803f3551982038cf16f6c82a1f9780690",
+      "sc-native-monitor-startup-tests": "9872ea8e2bfe1058f19495b48d230771c568e6f99a072ebb2a00e6e68f5cc117",
+      "sc-native-original-recording-tests": "a9d2b70042bc003d9ba82373bc984afa7dc79d7286483195608ac53c9ba7d841"
+    }
+  },
+  "nativeHardwareQualified": false
+}
