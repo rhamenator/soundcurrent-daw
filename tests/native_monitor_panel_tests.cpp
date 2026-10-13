@@ -16,6 +16,10 @@
 #include <soundcurrent/wasapi_ports.hpp>
 #include <QTest>
 #include <QTimer>
+#include <QFileDialog>
+#include <nlohmann/json.hpp>
+#include <bit>
+#include <soundcurrent/wave_validation.hpp>
 #include <iostream>
 #include <source_location>
 #include <cstdlib>
@@ -42,6 +46,96 @@ struct PanelFixtureRoot {
     PanelFixtureRoot(){std::filesystem::create_directories(root);}
     ~PanelFixtureRoot(){if(std::uncaught_exceptions()){const auto path=root.generic_u8string();std::cerr<<"Retained native panel fixture ";std::cerr.write(reinterpret_cast<const char *>(path.data()),std::streamsize(path.size()));std::cerr<<'\n';return;}std::error_code ec;std::filesystem::remove_all(root,ec);}
 };
+void recoveredPanel(const std::filesystem::path &root) {
+    auto session=makeOneTrackSession("Recovery – Ελληνικά","Raw");session.tracks.front().layout={LayoutKind::Mono,1};ProjectStore(root).save(session);
+    NativeOriginalRecordingSpec declared;declared.raw.project=session.id;declared.raw.track=session.tracks.front().id;
+    declared.raw.identity={31,32,33};declared.raw.layout={LayoutKind::Mono,1};declared.raw.maximumPacketFrames=8;
+    declared.capture={48000,1,8,4,false,declared.raw.identity};declared.render={48000,1,32,8,4,48000,{10000,30000,0,0},{41,42,43}};
+    declared.monitorFirst={1024};std::filesystem::path job;
+    {
+        NativeOriginalCaptureWriter writer(root,declared);job=writer.jobDirectory();
+        std::array<float,7> data{2.5f,-0.0f,-4.25f,std::bit_cast<float>(0x7fc12345u),1,1,1};
+        CaptureBankView view{{{declared.raw.identity,{2000000},{100000000},7,0},0,0},data};
+        writer.append(view);writer.checkpoint();
+    }
+    std::filesystem::create_directory(root/"exports");
+    const auto originalRaw=hashMediaFile(job/"audio.partial.rf64"),originalJournal=hashMediaFile(job/"journal.json"),originalNative=hashMediaFile(job/"native-run.json");
+    ResourceLedger memory(16*1024*1024,"Recovered panel owner");NativeMonitorControllerOptions options;options.commandMemory=memory;
+    std::atomic<bool> pauseNext{false},entered{false},release{true},progressOffGui{false};const auto gui=std::this_thread::get_id();
+    options.prefixCopyProgress=[&](auto,auto){progressOffGui=std::this_thread::get_id()!=gui;
+        if(pauseNext.exchange(false)){entered=true;while(!release.load())std::this_thread::sleep_for(std::chrono::milliseconds(1));}};
+    NativeMonitorPanel panel(options);CloseOnExit close{panel};
+    struct ReleaseCopy{std::atomic<bool> &release;~ReleaseCopy(){release=true;}} releaseCopy{release};
+    panel.resize(760,500);panel.show();
+    check(panel.setProject(root,session.id) && panel.reopenOriginal(job),"Interrupted take reopen refused");
+    await([&]{const auto s=panel.snapshot();if(s->error)throw std::runtime_error(s->diagnostic);return bool(s->reopened);});panel.poll();
+    check(panel.snapshot()->reopened->status==NativeOriginalRecordingStatus::Pending &&
+        !control<QPushButton>(panel,"nativeExportOriginal")->isEnabled() && control<QPushButton>(panel,"nativeCopyPrefix")->isEnabled() &&
+        control<QLabel>(panel,"nativeStatus")->text().contains("Pending") && control<QLabel>(panel,"nativeCopyPreview")->text().contains("not finalized") &&
+        control<QLabel>(panel,"nativeCopyPreview")->text().contains("invalid sample"),"Recovery controls hid pending/nonfinal finite cut or enabled full export");
+    const auto destination=root/"exports"/std::filesystem::path(u8"Recovered – Українська.wav");
+    bool dialogSeen=false;
+    QTimer::singleShot(0,&panel,[&]{for(auto *w:QApplication::topLevelWidgets())if(auto *dialog=qobject_cast<QFileDialog *>(w)) {
+        dialogSeen=true;const auto path=destination.u8string();dialog->selectFile(QString::fromUtf8(reinterpret_cast<const char *>(path.data()),qsizetype(path.size())));
+        QMetaObject::invokeMethod(dialog,"accept",Qt::QueuedConnection);return;}});
+    QTest::mouseClick(control<QPushButton>(panel,"nativeCopyPrefix"),Qt::LeftButton);
+    await([&]{const auto s=panel.snapshot();if(s->error)throw std::runtime_error(s->diagnostic);return bool(s->copiedPrefix);});panel.poll();
+    auto retained=panel.snapshot();
+    check(dialogSeen && retained->copiedPrefix->audio.frames==3 && retained->copiedPrefix->audio.original.committedFrames==7 &&
+        retained->copiedPrefix->nativeStatus==NativeOriginalRecordingStatus::Pending && retained->reopened->status==NativeOriginalRecordingStatus::Pending &&
+        control<QLabel>(panel,"nativeReceipt")->text().contains("Verified audio copied") && ProjectStore(root).load()==session,
+        "Visible recovery copy changed pending outcome, copied wrong prefix or modified project");
+    QTest::qWait(20);
+    check(control<QLabel>(panel,"nativeReceipt")->height()>=control<QLabel>(panel,"nativeReceipt")->heightForWidth(control<QLabel>(panel,"nativeReceipt")->width()),"Recovery receipt clipped at visible width");
+    if(const char *image=std::getenv("SC_RECOVERY_PANEL_IMAGE"))check(panel.grab().save(QString::fromUtf8(image)),"Recovery panel screenshot unavailable");
+    auto copied=retained->copiedPrefix;
+    const auto serial=panel.snapshot()->errorSerial;check(panel.copyPrefix(destination),"Existing recovery target was not queued for refusal");
+    await([&]{return panel.snapshot()->errorSerial>serial;});panel.poll();
+    check(panel.snapshot()->copiedPrefix==copied && hashMediaFile(destination)==copied->audio.fileSha256,"Recovery overwrite damaged prior receipt/audio");
+    release=false;entered=false;pauseNext=true;const auto canceled=root/"exports"/"canceled.wav";
+    check(panel.copyPrefix(canceled),"In-flight recovery copy refused");await([&]{return entered.load();});panel.poll();
+    check(progressOffGui && panel.snapshot()->copying && !control<QPushButton>(panel,"nativeCopyPrefix")->isEnabled() &&
+        !control<QPushButton>(panel,"nativeKeep")->isEnabled() && control<QPushButton>(panel,"nativeCancel")->isEnabled(),
+        "Copy I/O ran on GUI or left competing controls enabled");
+    QTest::mouseClick(control<QPushButton>(panel,"nativeCancel"),Qt::LeftButton);release=true;
+    await([&]{return !panel.snapshot()->copying && panel.snapshot()->cancelAcknowledged>0;});panel.poll();
+    check(!std::filesystem::exists(canceled) && panel.snapshot()->copiedPrefix==copied &&
+        panel.snapshot()->reopened->status==NativeOriginalRecordingStatus::Pending,"Cancel published audio or altered original/prior copy");
+    // A self-consistent external checkpoint change must still require review.
+    std::ifstream audioInput(job/"audio.partial.rf64",std::ios::binary);const std::string originalAudio{std::istreambuf_iterator<char>(audioInput),{}};audioInput.close();
+    std::uint64_t offset=0;
+    {ApprovedMediaRoot approved(std::filesystem::absolute(job),ResourceLedger{16*1024*1024});auto file=approved.open("audio.partial.rf64",1024*1024);
+        offset=inspectApprovedWaveData(file).offset;}
+    auto modifiedAudio=originalAudio;const std::uint32_t invalid=0x7fc11223u;
+    for(unsigned n=0;n<4;++n)modifiedAudio[std::size_t(offset)+8+n]=char((invalid>>(n*8))&255);
+    {std::ofstream output(job/"audio.partial.rf64",std::ios::binary|std::ios::trunc);output.write(modifiedAudio.data(),std::streamsize(modifiedAudio.size()));}
+    {std::ofstream output(root/"modified-samples.bin",std::ios::binary|std::ios::trunc);output.write(modifiedAudio.data()+std::size_t(offset),28);}
+    std::ifstream input(job/"journal.json",std::ios::binary);const std::string oldJournal{std::istreambuf_iterator<char>(input),{}};input.close();
+    auto changed=nlohmann::json::parse(oldJournal);changed["finitePrefixFrames"]=2;changed["sampleSha256"]=hashMediaFile(root/"modified-samples.bin");
+    {std::ofstream output(job/"journal.json",std::ios::binary|std::ios::trunc);output<<changed.dump();}
+    check(inspectNativeOriginalRecording(job,declared).raw.finitePrefixFrames==2,"Changed checkpoint fixture was not independently valid");
+    const auto errors=panel.snapshot()->errorSerial;check(panel.copyPrefix(root/"exports"/"changed.wav"),"Changed checkpoint command was not queued");
+    await([&]{return panel.snapshot()->errorSerial>errors;});panel.poll();
+    check(panel.snapshot()->copiedPrefix==copied && !std::filesystem::exists(root/"exports"/"changed.wav"),"Changed reviewed take was copied");
+    {std::ofstream output(job/"journal.json",std::ios::binary|std::ios::trunc);output<<oldJournal;}
+    {std::ofstream output(job/"audio.partial.rf64",std::ios::binary|std::ios::trunc);output.write(originalAudio.data(),std::streamsize(originalAudio.size()));}
+    check(hashMediaFile(job/"audio.partial.rf64")==originalRaw && hashMediaFile(job/"journal.json")==originalJournal &&
+        hashMediaFile(job/"native-run.json")==originalNative,"Recovery changed original media/journals");
+    const auto held=memory.usage().reservedBytes;panel.releaseOriginal();await([&]{return !panel.snapshot()->hasOriginal();});panel.poll();
+    retained.reset();check(memory.usage().reservedBytes>0 && memory.usage().reservedBytes<held,
+        "Last copied receipt didn't retain exactly its own payload");
+    copied.reset();await([&]{return !memory.usage().reservedBytes;});
+    check(panel.reopenOriginal(job),"Recovery reopen after result release refused");
+    await([&]{return bool(panel.snapshot()->reopened);});panel.poll();
+    release=false;entered=false;pauseNext=true;const auto closingCopy=root/"exports"/"closing.wav";
+    check(panel.copyPrefix(closingCopy),"Close-during-copy command refused");await([&]{return entered.load();});panel.beginClose();
+    check(!panel.closeReady(),"Closing discarded a live copy owner");release=true;await([&]{return panel.closeReady();});
+    check(!std::filesystem::exists(closingCopy) && !panel.snapshot()->copiedPrefix &&
+        panel.snapshot()->reopened->status==NativeOriginalRecordingStatus::Pending &&
+        hashMediaFile(job/"audio.partial.rf64")==originalRaw,"Close published unfinished copy or modified source");
+    std::cout<<"recovery_copy cancel_inflight=true close_inflight=true off_gui=true no_partial_publication=true\n";
+    std::cout<<"recovery_panel visible_copy_dialog=true pending_preserved=true finite3_of7=true no_full_export=true source_unchanged=true no_overwrite=true changed_review_refused=true last_copy_credit=true no_sdk=true\n";
+}
 void finitePanel(const std::filesystem::path &root){
     auto spy=std::make_shared<Spy>();auto p=preparation(root,spy);const auto original=ProjectStore(root).load();const auto gui=std::this_thread::get_id();std::atomic<bool> offGui{false};ResourceLedger credit(256*1024,"Native panel fixture");
     NativeMonitorPanel panel({[&](const auto &){offGui=std::this_thread::get_id()!=gui;return std::make_unique<FakeStreams>(spy,48000,1,true);}},nullptr,credit);CloseOnExit close{panel};panel.resize(760,260);panel.show();
@@ -288,9 +382,18 @@ void pipewirePanel(const std::filesystem::path &root){
     check(window.submitEdit(ProjectCommand{CommandKind::Redo}),"PipeWire main-window Redo refused");await([&]{return window.snapshot()->session->tracks.front().clips.size()==1;});
     await([&]{return !panel.snapshot()->hasOriginal();});panel.poll();check(panel.reopenOriginal(final->job),"PipeWire visible saved take reopening refused");
     await([&]{return bool(panel.snapshot()->pipewireReopened);});panel.poll();check(!panel.snapshot()->reopened && !panel.snapshot()->pipewireResult,"Saved PipeWire take became a live/Native result");
+    check(control<QPushButton>(panel,"nativeCopyPrefix")->isEnabled(),"Reopened PipeWire recovery control disabled");
+    const auto recovered=root/"exports"/std::filesystem::path(u8"Recovered PW – Ελληνικά.wav");
+    check(panel.copyPrefix(recovered),"PipeWire panel copy command refused");
+    await([&]{const auto s=panel.snapshot();if(s->error)throw std::runtime_error(s->diagnostic);return bool(s->copiedPrefix);});panel.poll();
+    check(panel.snapshot()->copiedPrefix->pipewire && panel.snapshot()->copiedPrefix->pipewireDisposition==PipeWireStoredDisposition::Recorded &&
+        panel.snapshot()->copiedPrefix->audio.sampleSha256==panel.snapshot()->rawPrefix()->sampleSha256 &&
+        control<QLabel>(panel,"nativeCopyPreview")->text().contains("Complete") && control<QLabel>(panel,"nativeReceipt")->text().contains("Verified audio copied"),
+        "Reopened PipeWire copy lost original disposition, exact samples or visible receipt");
     panel.beginClose();await([&]{return panel.closeReady();});check(shared->joins==2 && !shared->auditBad && ProjectStore(root).load()==placed,"PipeWire panel altered canonical project or failed native joins");
     std::cout<<"pipewire_panel typed_prepare_record_inspect_export_reopen_close=true raw_original=true simulated_sdk=true timeline_admission_verified=true\n";
 }
 
 }
-int main(int argc,char **argv){QApplication app(argc,argv);try{PanelFixtureRoot dir;const auto &root=dir.root;pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}
+int main(int argc,char **argv){QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);QApplication app(argc,argv);try{{PanelFixtureRoot recovered;recoveredPanel(recovered.root);}
+PanelFixtureRoot dir;const auto &root=dir.root;pipewirePanel(root/"pipewire-é");finitePanel(root/"finite-é");activeClose(root/"close-Ελληνικά");studioWindowFlow(root/"window-été");studioActiveClose(root/"active-window-Ελληνικά");deviceSelection(root/"devices-é");std::cout<<checks<<" native recording panel checks passed; no physical endpoints\n";}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}return 0;}

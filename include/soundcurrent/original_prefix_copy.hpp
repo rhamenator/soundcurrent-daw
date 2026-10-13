@@ -3,10 +3,19 @@
 #include "original_recording.hpp"
 #include "export.hpp"
 namespace soundcurrent::daw {
+struct OriginalPrefixCopyExpectation {
+    std::uint64_t frames=0,packets=0,finiteFrames=0;
+    std::string sampleSha256,stampSha256;
+    bool finalized=false;
+};
+inline OriginalPrefixCopyExpectation prefixCopyExpectation(const OriginalRecordingPrefix &p) {
+    return {p.committedFrames,p.committedPackets,p.finitePrefixFrames,p.sampleSha256,p.stampSha256,p.finalized};
+}
 struct OriginalPrefixCopyOptions {
     std::uint64_t maximumBytes = 1024ULL*1024*1024;
     ResourceLedger resources{16*1024*1024,"Original prefix copy"};
     std::function<bool()> canceled;
+    std::optional<OriginalPrefixCopyExpectation> expectedPrefix; // Explicit reviewed checkpoint, checked before output creation.
     // Verified committed source bytes consumed, not native/project time.
     std::function<void(std::uint64_t,std::uint64_t)> progress;
 };

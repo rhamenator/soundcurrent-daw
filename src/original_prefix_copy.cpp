@@ -53,6 +53,13 @@ OriginalPrefixCopyResult detail::copyOriginalPrefixWavHeld(const std::filesystem
     const std::filesystem::path &job,const OriginalRecordingPrefix &verified,const media_io::JobLease &lease,
     const std::filesystem::path &destination,const OriginalPrefixCopyOptions &options) {
     checkBounds(options);poll(options);
+    if(options.expectedPrefix) {
+        const auto &e=*options.expectedPrefix;
+        if(e.frames!=verified.committedFrames || e.packets!=verified.committedPackets ||
+            e.finiteFrames!=verified.finitePrefixFrames || e.sampleSha256!=verified.sampleSha256 ||
+            e.stampSha256!=verified.stampSha256 || e.finalized!=verified.finalized)
+            throw ProjectError(ErrorCode::MediaMismatch,"Reviewed original checkpoint changed before copying");
+    }
     media_io::require(lease.status()==media_io::LeaseStatus::Held,"Prefix copy requires an exclusive inactive raw job");
     const auto root=std::filesystem::absolute(projectRoot).lexically_normal();
     const auto ownedJob=std::filesystem::absolute(job).lexically_normal();

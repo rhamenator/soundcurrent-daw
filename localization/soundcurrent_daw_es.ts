@@ -1754,6 +1754,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Copy verified audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Copy the verified playable audio to a new WAV. The original take and its outcome stay unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Open saved native take…</source>
       <translation type="unfinished" />
     </message>
@@ -1819,6 +1827,10 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>WAV audio (*.wav)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Copy verified audio</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -1926,6 +1938,50 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Available to copy: %1 of %2 verified frames · %3 Hz · %4 channels.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> Unverified audio stays in the original take.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> This take was not finalized.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> Audio from the first invalid sample onward will not be copied.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Complete</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Cancelled</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Interrupted</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No native outcome</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> Original outcome: %1.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recording is unavailable.</source>
       <translation type="unfinished" />
     </message>
@@ -1970,30 +2026,6 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
-      <source>Complete</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Cancelled</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Failed</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Interrupted</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>Pending</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
-      <source>No native outcome</source>
-      <translation type="unfinished" />
-    </message>
-    <message>
       <source>Saved native take opened. Original outcome: %1.</source>
       <translation type="unfinished" />
     </message>
@@ -2003,6 +2035,18 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Exporting original WAV…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Copying verified audio…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Audio copy cancelled. The retained take is unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The saved audio changed or no longer matches the reviewed take. Open and verify it again.</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -2035,6 +2079,14 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source> · Export published with a durability warning.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · Verified audio copied: %1 frames to %2.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> · Copy published with a durability warning.</source>
       <translation type="unfinished" />
     </message>
   </context>

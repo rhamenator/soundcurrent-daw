@@ -87,6 +87,16 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
         {std::ofstream output(file,std::ios::binary);output<<original<<"x";}refusesAdmission(pipewireTakeAdmissionDefaults(),*final->pipewireDeclared);
         {std::ofstream output(file,std::ios::binary);output<<original;}ProjectStore(t.root).verifyMedia(placed);}
     ProjectStore(t.root).save(project);
+    auto copyCommand=command(NativeMonitorCommandKind::CopyPrefix);copyCommand.resultSequence=final->resultSequence;
+    copyCommand.destination=t.root/"exports"/"recovered.wav";
+    control.submit(copyCommand);await([&]{return bool(control.snapshot()->copiedPrefix);});
+    const auto copied=control.snapshot()->copiedPrefix;
+    check(copied->pipewire && copied->pipewireTerminal && copied->pipewireDisposition==PipeWireStoredDisposition::Recorded &&
+        copied->audio.frames==final->rawPrefix()->finitePrefixFrames && copied->audio.sampleSha256==final->rawPrefix()->sampleSha256,
+        "PipeWire recovery receipt changed native disposition/prefix");
+    const auto errors=control.snapshot()->errorSerial;auto staleCopy=copyCommand;staleCopy.resultSequence++;
+    staleCopy.destination=t.root/"exports"/"stale.wav";control.submit(staleCopy);await([&]{return control.snapshot()->errorSerial>errors;});
+    check(control.snapshot()->copiedPrefix==copied && !std::filesystem::exists(staleCopy.destination),"Stale copy changed prior receipt or published audio");
     const auto before=control.snapshot()->completedCommands;control.submit(exportCommand);await([&]{return control.snapshot()->completedCommands>before;});check(control.snapshot()->error==ErrorCode::InvalidState,"Export overwrote existing destination");
     auto release=command(NativeMonitorCommandKind::ReleaseResult);release.resultSequence=final->resultSequence;control.submit(release);await([&]{return !control.snapshot()->hasOriginal();});
     auto reopen=command(NativeMonitorCommandKind::ReopenOriginal,2);reopen.pipewire=false; // Backend identified by plain typed state without SDK activation.

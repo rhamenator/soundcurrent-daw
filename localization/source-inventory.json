@@ -28,10 +28,10 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
-    "ui/native_monitor_controller.cpp": "0806421fbc1e4c53a4aa0883e31fb14637da20bec599c6f2decdb62446dfe86a",
-    "ui/native_monitor_controller.hpp": "945bc83bb8c759ce021ed9f38e826080588354b7b9711d88cab9859b3c763dab",
-    "ui/native_monitor_panel.cpp": "dc353938bc2018763b9b45f535185d308ac39b431699fcde3c2a093195fc46e3",
-    "ui/native_monitor_panel.hpp": "6785652b6553fa79ff5a9478dfffbcfd6d5d27578d38cf3c0078ff1ce4b75fb2",
+    "ui/native_monitor_controller.cpp": "6b119b5e7936695432459569ebb5fd0c59c16547a0b42f162c926cc5559cc297",
+    "ui/native_monitor_controller.hpp": "6776e80438d2d8044bc2743dfc2f3ab1997811817990044402e8c84a73a1a06c",
+    "ui/native_monitor_panel.cpp": "da8d23efa5ff1c1238812b3e7ee658d61755468a9a81f8b0e9ec6ec950a15e06",
+    "ui/native_monitor_panel.hpp": "7a06f1953e4dc523b2449c4bd23d1c3cdbd4adc6490e88405bb24452515efc5d",
     "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
@@ -2630,6 +2630,18 @@
     ],
     [
       "NativeMonitorPanel",
+      "Copy verified audio…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Copy the verified playable audio to a new WAV. The original take and its outcome stay unchanged.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Open saved native take…",
       "",
       false
@@ -2727,6 +2739,12 @@
     [
       "NativeMonitorPanel",
       "WAV audio (*.wav)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Copy verified audio",
       "",
       false
     ],
@@ -2888,6 +2906,72 @@
     ],
     [
       "NativeMonitorPanel",
+      "Available to copy: %1 of %2 verified frames · %3 Hz · %4 channels.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " Unverified audio stays in the original take.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " This take was not finalized.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " Audio from the first invalid sample onward will not be copied.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Pending",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Complete",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Cancelled",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Failed",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Interrupted",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "No native outcome",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " Original outcome: %1.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
       "Recording is unavailable.",
       "",
       false
@@ -2954,42 +3038,6 @@
     ],
     [
       "NativeMonitorPanel",
-      "Complete",
-      "",
-      false
-    ],
-    [
-      "NativeMonitorPanel",
-      "Cancelled",
-      "",
-      false
-    ],
-    [
-      "NativeMonitorPanel",
-      "Failed",
-      "",
-      false
-    ],
-    [
-      "NativeMonitorPanel",
-      "Interrupted",
-      "",
-      false
-    ],
-    [
-      "NativeMonitorPanel",
-      "Pending",
-      "",
-      false
-    ],
-    [
-      "NativeMonitorPanel",
-      "No native outcome",
-      "",
-      false
-    ],
-    [
-      "NativeMonitorPanel",
       "Saved native take opened. Original outcome: %1.",
       "",
       false
@@ -3003,6 +3051,24 @@
     [
       "NativeMonitorPanel",
       "Exporting original WAV…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Copying verified audio…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Audio copy cancelled. The retained take is unchanged.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "The saved audio changed or no longer matches the reviewed take. Open and verify it again.",
       "",
       false
     ],
@@ -3051,6 +3117,18 @@
     [
       "NativeMonitorPanel",
       " · Export published with a durability warning.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Verified audio copied: %1 frames to %2.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Copy published with a durability warning.",
       "",
       false
     ],

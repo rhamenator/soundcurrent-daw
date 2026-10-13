@@ -32,6 +32,7 @@ class NativeMonitorPanel final : public QGroupBox {
     bool prepareAdmission(const Id &,Frame,std::uint32_t,std::uint64_t revision);
     void releaseOriginal();
     bool exportOriginal(const std::filesystem::path &);
+    bool copyPrefix(const std::filesystem::path &);
     bool enabled(bool);
     bool setPreparation(const NativeMonitorPreparation &); // Admitted immutable copy.
     void poll();
@@ -49,7 +50,8 @@ class NativeMonitorPanel final : public QGroupBox {
     std::filesystem::path projectRoot_;
     std::optional<Id> project_;
     std::function<bool()> reopenGuard_;
-    bool reopeningPending_=false,admissionPending_=false;
+    bool reopeningPending_=false,admissionPending_=false,copyPending_=false;
+    std::uint64_t copyCompleted_=0,copyCancel_=0;
     std::uint64_t admissionCompleted_=0,admissionCancel_=0;
     std::uint64_t reopenCompleted_=0,reopenCancel_=0;
     bool interactive_ = false, refreshing_ = false;
@@ -67,9 +69,9 @@ class NativeMonitorPanel final : public QGroupBox {
     bool applyNativeStorageBudget(NativeMonitorRecordingOptions &) const;
     void updateStoragePreview(bool inactive);
     std::shared_ptr<const NativeMonitorPreparation> preparation_;
-    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_,*open_,*add_;
+    QPushButton *prepare_,*start_,*cancel_,*inspect_,*keep_,*export_,*copy_,*open_,*add_;
     QLineEdit *placement_;
-    QLabel *devices_,*status_,*progress_,*receipt_;
+    QLabel *devices_,*status_,*progress_,*receipt_,*copyPreview_;
     QSpinBox *seconds_;
     QCheckBox *storageEnabled_;
     QSpinBox *storageMilliseconds_,*minimumCapture_,*minimumRender_;
