@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_owned_streams.hpp>
+#include <soundcurrent/pipewire_playback.hpp>
 #include "../ui/native_monitor_controller.hpp"
 #include "media_io.hpp"
 #include "rt_audit.hpp"
@@ -34,6 +35,40 @@ struct Sink {std::array<float,frames*2> samples{};std::atomic<std::uint64_t> rec
         s.received.store(at,std::memory_order_release);
     }
 };
+struct PlaybackSink {
+    static constexpr unsigned slots=256,quantum=256;
+    std::array<std::uint64_t,slots> positions{};std::array<float,slots*quantum> samples{};
+    std::atomic<unsigned> count{0};std::atomic<bool> bad{false};
+    static void process(void *ctx,const DeviceBlockClock &clock,std::span<const float *const> in,std::span<float *const>,std::uint32_t capacity) noexcept {
+        auto &s=*static_cast<PlaybackSink *>(ctx);const auto at=s.count.load();
+        if(clock.duration!=quantum || capacity<quantum || in.size()!=1 || !in[0]){s.bad=true;return;}
+        if(at>=slots)return;s.positions[at]=clock.position;std::copy_n(in[0],quantum,s.samples.data()+at*quantum);s.count.store(at+1,std::memory_order_release);
+    }
+};
+void admittedPlayback(const std::filesystem::path &root,const Session &placed) {
+    auto reopened=ProjectStore(root).load();require(reopened==placed,"Playback did not use canonical reopened project");ProjectStore(root).verifyMedia(reopened);
+    reopened.tracks.front().eq.bands[1].gainDb=-6;constexpr Frame endFrame=8192;
+    std::filesystem::create_directory(root/"exports");ExportSpec spec(reopened.tracks.front().id);spec.endFrame=endFrame;spec.blockFrames=113;
+    const auto exported=exportTrackWav(root,reopened,root/"exports"/"playback-reference.wav",spec);
+    std::array<float,endFrame> expected{};{media_io::File file(exported.destination,false);SF_INFO info{};std::unique_ptr<SNDFILE,decltype(&sf_close)> wav(sf_open_fd(file.descriptor(),SFM_READ,&info,SF_FALSE),sf_close);
+        require(bool(wav) && info.channels==1 && info.frames==endFrame && sf_readf_float(wav.get(),expected.data(),endFrame)==endFrame,"Playback offline reference geometry/read failed");}
+    PlaybackSink sink;Audit playerAudit;
+    PipeWireFilter receiver({"sc-owned-playback-sink-"+Id::generate().str(),1,0,PlaybackSink::quantum,true},{&sink,PlaybackSink::process});
+    require(receiver.waitReady(std::chrono::seconds(3)),"Playback sink not ready");PlaybackConfig config;config.layout={LayoutKind::Mono,1};config.endFrame=endFrame;config.maximumCallbackFrames=PlaybackSink::quantum;
+    PipeWirePlayback player(root,reopened,reopened.tracks.front().id,config,{},std::chrono::seconds(3),{&playerAudit,begin,end});
+    std::vector<PipeWirePort> ports;for(const auto &p:player.ports())if(p.nodeId==receiver.nodeId() && p.input)ports.push_back(p);
+    require(ports.size()==1,"Playback explicit sink selection failed");player.connectOutputs(ports);receiver.activate();player.activate();
+    const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(5);
+    while(player.status()!=PlaybackBridgeStatus::Complete && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(player.status()==PlaybackBridgeStatus::Complete && player.missingFrames()==0 && !playerAudit.bad,"Admitted native playback incomplete/underflow/callback audit");
+    const auto origin=player.timingOrigin();require(bool(origin),"Playback origin absent");std::this_thread::sleep_for(std::chrono::milliseconds(20));player.stop();receiver.stop();player.checkReader();
+    std::array<float,endFrame> actual{};std::array<bool,endFrame> seen{};
+    for(unsigned n=0;n<sink.count.load();++n)for(unsigned k=0;k<PlaybackSink::quantum;++k){const auto position=sink.positions[n]+k;if(position<origin->devicePosition)continue;const auto frame=position-origin->devicePosition;
+        if(frame<std::uint64_t(endFrame)){require(!seen[frame],"Playback sink duplicate graph frame");actual[frame]=sink.samples[n*PlaybackSink::quantum+k];seen[frame]=true;}}
+    double maximum=0;for(unsigned n=0;n<endFrame;++n){require(seen[n],"Playback sink missing graph frame");maximum=std::max(maximum,std::abs(double(actual[n])-expected[n]));if(n<257)require(actual[n]==0,"Explicit admitted clip placement lost leading silence");}
+    require(!sink.bad && maximum<.00001 && exported.overFullScaleSamples>0,"Native admitted playback differs from shared offline EQ/headroom");
+    std::cout<<"admitted_native_playback frames="<<endFrame<<" leading_silence=257 max_live_offline_error="<<maximum<<" missing=0 callback_allocate_free_lock=0 canonical_reopen=true reader_joined=true physical=false\n";
+}
 void raw(const PipeWireRecordingPrefix &p){media_io::File descriptor(p.raw.source,false);SF_INFO info{};
     std::unique_ptr<SNDFILE,decltype(&sf_close)> audio(sf_open_fd(descriptor.descriptor(),SFM_READ,&info,SF_FALSE),sf_close);
     require(bool(audio) && p.raw.first,"Native raw prefix missing");std::array<float,1024> buffer;std::uint64_t at=0;
@@ -99,6 +134,7 @@ int main(){std::filesystem::path root;
         require(bool(owner.snapshot()->admission),"Genuine take verification failed");auto placed=project;EditHistory history(placed);
         require(history.structural({owner.snapshot()->admission->edit()}) && placed.assets.front().nativeEvidence.size()==8 && placed.tracks.front().clips.front().startFrame==257,"Genuine take lost placement/evidence");
         ProjectStore(root).save(placed);ProjectStore(root).verifyMedia(placed);require(ProjectStore(root).load()==placed,"Genuine admitted take did not reopen");
+        admittedPlayback(root,placed);
         std::cout<<"owned_recording raw_frames="<<result.prefix->raw.committedFrames<<" monitor_frames="<<frames<<" sink_frames="<<sink.received
                  <<" capture_receipts="<<result.prefix->captureRecords<<" render_receipts="<<result.prefix->renderRecords<<" raw_bit_checks="<<result.prefix->raw.committedFrames
                  <<" capture_callbacks="<<captureAudit.callbacks<<" render_callbacks="<<renderAudit.callbacks<<" monitor_mean="<<mean<<" monitor_ac_rms="<<std::sqrt(energy/4800)
