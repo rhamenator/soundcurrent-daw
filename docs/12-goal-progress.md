@@ -1,5 +1,14 @@
 # Active full-suite goal: progress and completion evidence
 
+## Original recording failure timing measurements (2026-10-12)
+
+[Checkpoint 238](238-recording-fixture-timing.md) records actual callback dispatch,
+raw write and paired publication spans without changing cadence or production gates.
+Three local ownership/controller/Qt suites pass in 20.57 s. Original PR171 failed
+Linux/Windows projects are retained with raw QueueFull evidence and no startup;
+underlying timing/I/O cause remains unmeasured. Independent measured CI is live.
+Full goal remains active; native admitted-take playback is the next implementation.
+
 ## Recording panel failure evidence (2026-10-12)
 
 [Checkpoint 237](237-native-panel-failure-diagnostics.md) adds exact joined-result
