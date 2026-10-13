@@ -4172,8 +4172,20 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Paired curve</translation>
     </message>
     <message>
+      <source>Use retained-take handles</source>
+      <translation>Use retained-take handles</translation>
+    </message>
+    <message>
+      <source>Create overlap from the retained takes without changing source audio.</source>
+      <translation>Create overlap from the retained takes without changing source audio.</translation>
+    </message>
+    <message>
       <source>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</source>
       <translation>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</translation>
+    </message>
+    <message>
+      <source>This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.</source>
+      <translation>This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.</translation>
     </message>
     <message>
       <source>Crossfade selection changed; reopen the editor.</source>

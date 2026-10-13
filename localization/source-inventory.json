@@ -49,7 +49,7 @@
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
     "ui/studio_window.cpp": "cea8efd2e49afa117c6fe8e756348cfe0d70b383b735db1c7a9d2a2a4e635577",
     "ui/studio_window.hpp": "eea12bffb15f5a4c6cfae760632faf6133f893025cf0ec7d8f0a44ac275ee16d",
-    "ui/timeline_editor.cpp": "8a45f52ee37f722c5350022c7e365a7db74e0644bfc32a4f1d740a86eb45fbf2",
+    "ui/timeline_editor.cpp": "98854fda0827493e7d005686139fdea9f8a3bfc0c039f6356ca5c4edb3894e3f",
     "ui/timeline_editor.hpp": "092bcb6d8e651e1c46bc7a1c8b468aae1e9a9ae746988a5ce47687ba2ad6a28f",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
@@ -6182,7 +6182,25 @@
     ],
     [
       "TimelineEditor",
+      "Use retained-take handles",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Create overlap from the retained takes without changing source audio.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.",
       "",
       false
     ],

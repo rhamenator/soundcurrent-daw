@@ -11,6 +11,8 @@
 #include <array>
 #include <iostream>
 #include <limits>
+#include <cmath>
+#include <numbers>
 using namespace soundcurrent::daw;
 using Json = nlohmann::json;
 namespace {
@@ -26,7 +28,9 @@ struct Directory {
     ~Directory() { std::error_code e; std::filesystem::remove_all(root,e); }
 };
 float source(Frame f, unsigned take) {
-    return take == 0 ? float(double(f%23-11)*.125) : float(double(f%17-8)*-.0625+.375);
+    if(take==0)return float(double(f%23-11)*.125);
+    if(take==1)return float(double(f%17-8)*-.0625+.375);
+    return float(double(f%Frame(13+2*take)-Frame(6+take))*.125+double(take)*.25);
 }
 TakeLane record(Session &s, const std::filesystem::path &root, unsigned take) {
     CaptureConfig config; config.slabFrames=256; config.maximumCallbackFrames=256;
@@ -156,6 +160,73 @@ void workflow() {
     refuses([&]{tiny.structural({SelectTakeRegion{track,a.id,17,111}});});
     check(s==before && !tiny.resources().undoCommands,"Bounded comp refusal changed state/history");
 }
+void fiveTakeTransitions() {
+    for(const auto curve:{ClipFadeCurve::Linear,ClipFadeCurve::EqualPower,ClipFadeCurve::Smoothstep}) {
+        Directory d;auto s=makeOneTrackSession("Five takes","Voice");s.tracks[0].eq.enabled=false;
+        ProjectStore(d.root).save(s);const auto track=s.tracks[0].id;
+        std::vector<TakeLane> takes;std::vector<SessionEdit> retain;
+        for(unsigned n=0;n<5;++n) {auto lane=record(s,d.root,n);lane.name="Take "+std::to_string(n+1);takes.push_back(lane);retain.push_back(InsertTakeLane{track,lane,{}});}
+        applySessionEdits(s,retain);const auto retained=s.tracks[0].takeLanes;
+        std::vector<std::string> raw;for(const auto &asset:s.assets)raw.push_back(hashMediaFile(d.root/utf8Path(asset.relativePath)));
+        std::vector<SessionEdit> select;
+        for(unsigned n=0;n<5;++n)select.push_back(SelectTakeRegion{track,takes[n].id,Frame(n)*100,n==4?512:Frame(n+1)*100});
+        EditHistory history(s);check(history.structural(select),"Five-take comp selection missing");
+        const auto hardCuts=s;std::vector<SessionEdit> transitions;
+        for(unsigned n=0;n<4;++n) {
+            const auto cut=Frame(n+1)*100;
+            transitions.push_back(PrepareCompTransition{track,s.tracks[0].clips[n].id,s.tracks[0].clips[n+1].id,cut-16,cut+16,curve});
+        }
+        check(history.structural(transitions),"Five-take transition batch missing");const auto selected=s;
+        const MixPlan plan{{LayoutKind::Mono,1},{{track,{{0,0,1}}}}};
+        const auto output=live(d.root,s,plan,13);
+        check(output==live(d.root,s,plan,127) && output==exported(d.root,s,plan),"Five-take live/export partitions differ");
+        for(Frame f=0;f<512;++f) {
+            double expected=source(f,std::min(4u,unsigned(f/100)));
+            for(unsigned n=0;n<4;++n) {
+                const auto cut=Frame(n+1)*100;
+                if(f>=cut-16 && f<cut+16) {
+                    const auto phase=double(f-(cut-16))/31.;
+                    const auto in=curve==ClipFadeCurve::Linear?phase:curve==ClipFadeCurve::Smoothstep?phase*phase*(3-2*phase):std::sin(phase*std::numbers::pi/2);
+                    const auto out=curve==ClipFadeCurve::EqualPower?std::cos(phase*std::numbers::pi/2):1-in;
+                    expected=source(f,n)*out+source(f,n+1)*in;
+                }
+            }
+            check(std::abs(double(output[std::size_t(f)])-expected)<3e-7,"Independent five-take transition PCM differs");
+        }
+        check(std::any_of(output.begin(),output.end(),[](float x){return std::abs(x)>1;}),"Five-take headroom was normalized");
+        check(s.tracks[0].takeLanes==retained,"Transitions changed retained source lanes");
+        ProjectStore(d.root).save(s);check(ProjectStore(d.root).load()==s && live(d.root,ProjectStore(d.root).load(),plan,37)==output,"Five-take reopen changes audio/state");
+        check(history.undo() && s==hardCuts && history.redo() && s==selected,"Whole transition batch Undo/Redo differs");
+        check(history.undo() && history.undo() && s.tracks[0].clips.empty(),"Whole comp cannot be undone to inactive takes");
+        for(std::size_t n=0;n<raw.size();++n)check(hashMediaFile(d.root/utf8Path(s.assets[n].relativePath))==raw[n],"Transition changed original recording bytes");
+    }
+}
+void groupedTransitionOffsets() {
+    Directory d;auto s=makeOneTrackSession("Group transitions","Mic");s.tracks[0].eq.enabled=false;
+    ProjectStore(d.root).save(s);auto a=record(s,d.root,0),b=record(s,d.root,1);s.tracks.clear();
+    MixPlan plan{{LayoutKind::Discrete,8},{}};std::vector<SessionEdit> selection;
+    for(unsigned n=0;n<8;++n) {
+        auto t=makeAudioTrack("Linked",{},s.sampleRate);t.eq.enabled=false;
+        auto x=a,y=b;x.id=Id::generate();y.id=Id::generate();
+        for(auto *lane:{&x,&y}){lane->clips[0].id=Id::generate();lane->clips[0].startFrame=n;lane->clips[0].lengthFrames=512-n;}
+        t.takeLanes={x,y};selection.push_back(SelectTakeRegion{t.id,x.id,17,256});selection.push_back(SelectTakeRegion{t.id,y.id,256,500});
+        plan.tracks.push_back({t.id,{{0,n,1}}});s.tracks.push_back(t);
+    }
+    applySessionEdits(s,selection);const auto original=s;EditHistory h(s);std::vector<SessionEdit> edits;
+    for(const auto &t:s.tracks)edits.push_back(PrepareCompTransition{t.id,t.clips[0].id,t.clips[1].id,230,282,ClipFadeCurve::Linear});
+    check(h.structural(edits),"Linked transition batch missing");const auto selected=s;
+    const auto output=live(d.root,s,plan,113);check(output==exported(d.root,s,plan),"Linked transition export differs");
+    for(Frame f=0;f<512;++f)for(unsigned n=0;n<8;++n) {
+        double expected=0;
+        if(f>=17 && f<500) {
+            if(f<230)expected=source(f-n,0);
+            else if(f>=282)expected=source(f-n,1);
+            else {const auto phase=double(f-230)/51.;expected=source(f-n,0)*(1-phase)+source(f-n,1)*phase;}
+        }
+        check(std::abs(double(output[std::size_t(f)*8+n])-expected)<2e-7,"Transition changed linked raw offsets");
+    }
+    check(h.undo() && s==original && h.redo() && s==selected,"Linked transition Undo not atomic");
+}
 void groupsAndTiming() {
     Directory d; auto s=makeOneTrackSession("Linked comp","Mic"); s.tracks[0].eq.enabled=false;
     ProjectStore(d.root).save(s); auto a=record(s,d.root,0), b=record(s,d.root,1);
@@ -206,7 +277,7 @@ void groupsAndTiming() {
 }
 }
 int main() {
-    try { workflow(); groupsAndTiming(); check((rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)==0,"Comp callback allocated/freed/locked");
+    try { workflow(); groupsAndTiming(); fiveTakeTransitions(); groupedTransitionOffsets(); check((rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)==0,"Comp callback allocated/freed/locked");
         std::cout<<"retained_take_comp_checks="<<checks<<" callback_audit="<<(rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)<<" raw_unchanged=true save_reopen=true grouped_offsets=true\n";
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }
 }

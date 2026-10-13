@@ -4155,7 +4155,19 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Use retained-take handles</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Create overlap from the retained takes without changing source audio.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.</source>
       <translation type="unfinished" />
     </message>
     <message>

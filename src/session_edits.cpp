@@ -255,6 +255,48 @@ void selectTake(Session &s, const SelectTakeRegion &e, StateBudget budget) {
     // Kept fragments retain their original summation order outside the comp region.
     t.clips = std::move(result);
 }
+const Clip &retainedSource(Session &s, const Clip &clip) {
+    require(clip.takeOrigin.has_value(), "Comp transition needs retained take provenance");
+    const auto &origin=*clip.takeOrigin;
+    return *find(find(track(s,origin.trackId).takeLanes,origin.laneId)->clips,origin.clipId);
+}
+Clip extendedCompCopy(Session &s, const Clip &clip, Frame first, Frame end) {
+    const auto &retained=retainedSource(s,clip);
+    require(clip.assetId == retained.assetId,
+            "Comp transition requires matching rendered source handles; prepare the derivative first");
+    const auto &asset=*find(s.assets,clip.assetId);
+    const auto source=clipSourceMap(clip,asset.sampleRate,s.sampleRate).translated(first-clip.startFrame);
+    const auto allowed=clipSourceMap(retained,asset.sampleRate,s.sampleRate);
+    require(!sourcePositionLess(source.at(0),allowed.at(0)) &&
+            !sourcePositionLess(allowed.at(retained.lengthFrames-1),source.at(end-first-1)),
+            "Retained take does not cover the requested transition handles");
+    auto result=clip;
+    const auto position=source.at(0);
+    const auto divisor=std::gcd(position.fraction,position.denominator);
+    result.startFrame=first;result.lengthFrames=end-first;result.sourceFrame=position.frame;
+    result.sourceTiming={position.fraction/divisor,position.denominator/divisor};
+    shiftClipProcessing(result.processing,first-clip.startFrame);
+    return result;
+}
+void prepareCompTransition(Session &s,const PrepareCompTransition &e,StateBudget budget) {
+    require(e.outgoing != e.incoming,"Comp transition needs two distinct fragments");
+    auto &clips=track(s,e.track).clips;
+    auto &out=*find(clips,e.outgoing), &in=*find(clips,e.incoming);
+    const auto outEnd=out.startFrame+out.lengthFrames, inEnd=in.startFrame+in.lengthFrames;
+    require(out.startFrame <= in.startFrame && outEnd <= inEnd && in.startFrame <= outEnd,
+            "Comp transition needs ordered adjacent or overlapping fragments");
+    require(e.startFrame >= out.startFrame && e.startFrame < outEnd &&
+            e.endFrame > in.startFrame && e.endFrame <= inEnd && e.endFrame > e.startFrame,
+            "Comp transition window is outside the fragment pair");
+    PayloadCharge staging("Comp transition staging",budget.memoryBudgetBytes);
+    staging.add(2,sizeof(Clip));dynamicWeight(staging,out);dynamicWeight(staging,in);
+    auto outgoing=extendedCompCopy(s,out,out.startFrame,std::max(outEnd,e.endFrame));
+    auto incoming=extendedCompCopy(s,in,std::min(in.startFrame,e.startFrame),inEnd);
+    outgoing.processing.fadeOut={e.startFrame-outgoing.startFrame,e.endFrame-outgoing.startFrame,e.curve,1};
+    incoming.processing.fadeIn={e.startFrame-incoming.startFrame,e.endFrame-incoming.startFrame,e.curve,1};
+    validateClipProcessing(outgoing.processing);validateClipProcessing(incoming.processing);
+    out=std::move(outgoing);in=std::move(incoming);
+}
 } // namespace
 void validateClipProcessing(const ClipProcessing &p) {
     require(std::isfinite(p.gainDb) && p.gainDb >= -120 && p.gainDb <= 60,
@@ -399,6 +441,8 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                 } else if constexpr (std::is_same_v<E, SetClipProcessing>) {
                     validateClipProcessing(e.value);
                     find(track(proposed, e.track).clips,e.clip)->processing = e.value;
+                } else if constexpr (std::is_same_v<E, PrepareCompTransition>) {
+                    prepareCompTransition(proposed,e,budget);
                 } else if constexpr (std::is_same_v<E, SetClipCrossfade>) {
                     require(e.outgoing != e.incoming, "Crossfade needs two distinct clips",
                             ErrorCode::InvalidParameter);

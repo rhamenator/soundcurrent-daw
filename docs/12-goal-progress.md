@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Comp transitions from retained source handles (2026-10-13)
+
+[Checkpoint 257](257-comp-transition-handles.md) adds explicit, atomic overlap
+preparation from retained source windows, preserving exact fractional/rate timing
+and opposite fade phase. Five recorded takes/four transitions, independent whole
+PCM, live/export/reopen/Undo/raw hashes and linked offset tests pass. The actual
+GUI requires opting into handles. Missing handles and separate unprepared stretch
+derivatives are refused. Native/installed/listening and full comp/reference work
+remain open. Original CI190 passes all four jobs; the full goal stays active.
+
 ## Paired clip crossfade editor (2026-10-13)
 
 [Checkpoint 256](256-paired-crossfade.md) adds one atomic paired-fade edit and a
