@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Checkpoint service sanitizer evidence and crash-test correction (2026-10-12)
+
+[Checkpoint 241](241-checkpoint-service-qualification.md) qualifies unchanged
+service source with ASan/UBSan journal/controller6.34 s, private exact native playback,
+and TSan controller5.57 s without suppressions. A proven raw crash-test sentinel
+collision is corrected and passes0.42 s. Original PR174 Windows timing proves writes/
+checkpoints exceed the fixture queue budget; one-slot release is insufficient.
+Original PR173 alljobs passed; earlier failure causes remain separately tracked.
+Full suite and reviewed localization remain active/incomplete.
+
 ## Recording checkpoint service ordering (2026-10-12)
 
 [Checkpoint 240](240-recording-checkpoint-service.md) releases copied raw views
