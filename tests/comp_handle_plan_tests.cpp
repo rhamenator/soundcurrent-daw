@@ -126,6 +126,13 @@ int main(){try{
   invalid={};invalid.maximumOutputBytes=UINT64_MAX;
   refuses([&]{prepareCompHandleEnvelope(s,t.id,clip,74,510,context,ledger,invalid);});
   check(ledger.usage().reservedBytes==0,"Invalid admission retained credit");
+  auto invalidPair=s;
+  auto incoming=invalidPair.tracks[0].clips[0];incoming.id=Id::generate();incoming.startFrame=484;
+  invalidPair.tracks[0].clips.push_back(incoming);
+  invalidPair.tracks[0].clips[0].lengthFrames=INT64_MAX;
+  const PrepareCompTransition edit{t.id,clip,incoming.id,458,510,ClipFadeCurve::Linear};
+  refuses([&]{prepareCompTransitionHandles(invalidPair,edit,context,ledger);});
+  check(ledger.usage().reservedBytes==0,"Malformed pair leaked validation credit");
  }
  {
   const auto ratio=sourceIntervalRatio({3,1,2},{2,1,3});
