@@ -4120,6 +4120,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation>Apply clip processing</translation>
     </message>
     <message>
+      <source>Crossfade clips…</source>
+      <translation>Crossfade clips…</translation>
+    </message>
+    <message>
       <source>Recorded media asset</source>
       <translation>Recorded media asset</translation>
     </message>
@@ -4138,6 +4142,42 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     <message>
       <source>Edit failed: %1</source>
       <translation>Edit failed: %1</translation>
+    </message>
+    <message>
+      <source>Crossfade</source>
+      <translation>Crossfade</translation>
+    </message>
+    <message>
+      <source>Incoming clip</source>
+      <translation>Incoming clip</translation>
+    </message>
+    <message>
+      <source>Equal gain · linear</source>
+      <translation>Equal gain · linear</translation>
+    </message>
+    <message>
+      <source>Equal gain · smooth</source>
+      <translation>Equal gain · smooth</translation>
+    </message>
+    <message>
+      <source>Start (project frames)</source>
+      <translation>Start (project frames)</translation>
+    </message>
+    <message>
+      <source>End (project frames, exclusive)</source>
+      <translation>End (project frames, exclusive)</translation>
+    </message>
+    <message>
+      <source>Paired curve</source>
+      <translation>Paired curve</translation>
+    </message>
+    <message>
+      <source>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</source>
+      <translation>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</translation>
+    </message>
+    <message>
+      <source>Crossfade selection changed; reopen the editor.</source>
+      <translation>Crossfade selection changed; reopen the editor.</translation>
     </message>
     <message>
       <source>View could not be updated: %1</source>

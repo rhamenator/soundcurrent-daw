@@ -14,6 +14,8 @@
 #include <QLocale>
 #include <QPushButton>
 #include <QSignalBlocker>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QSlider>
 #include <QSpinBox>
 #include <QSplitter>
@@ -379,6 +381,11 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
         mutate({SetClipProcessing{*track_,*clip_,p}});
     });
     processingForm->addRow(applyProcessing);
+    auto *crossfadeRow = new QHBoxLayout;
+    button(crossfadeRow, QT_TRANSLATE_NOOP("TimelineEditor", "Crossfade clips…"), "crossfadeClips", [this] {
+        editCrossfade();
+    });
+    processingForm->addRow(crossfadeRow);
     body->addWidget(processingBody);processingBody->hide();
     connect(processingToggle,&QPushButton::toggled,processingBody,&QWidget::setVisible);
     auto *assetRow = new QHBoxLayout;
@@ -588,6 +595,73 @@ void TimelineEditor::commitModel(std::shared_ptr<Prepared> p) {
 void TimelineEditor::updateModel(std::shared_ptr<const Session> s, std::uint64_t epoch,
                                  bool editable) {
     commitModel(prepareModel(std::move(s), epoch, editable));
+}
+void TimelineEditor::editCrossfade() {
+    if (!editable_ || !track_ || !clip_) return;
+    const auto selectedTrack = *track_, outgoing = *clip_;
+    const auto epoch = epoch_;
+    QDialog dialog(this);
+    dialog.setObjectName("crossfadeDialog");
+    dialog.setWindowTitle(tr("Crossfade"));
+    auto *form = new QFormLayout(&dialog);
+    auto *peer = new FocusCombo;
+    peer->setObjectName("crossfadeIncoming");
+    peer->setAccessibleName(tr("Incoming clip"));
+    peer->setModel(clipList_); // Borrow the already admitted virtual projection.
+    peer->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    peer->setMinimumContentsLength(16);
+    auto *start = new QLineEdit, *end = new QLineEdit;
+    start->setObjectName("crossfadeStart");end->setObjectName("crossfadeEnd");
+    auto *curve = new FocusCombo;
+    curve->setObjectName("crossfadeCurve");
+    curve->addItem(tr("Equal gain · linear"), int(ClipFadeCurve::Linear));
+    curve->addItem(tr("Equal gain · smooth"), int(ClipFadeCurve::Smoothstep));
+    curve->addItem(tr("Equal power"), int(ClipFadeCurve::EqualPower));
+    form->addRow(tr("Incoming clip"), peer);
+    form->addRow(tr("Start (project frames)"), start);
+    form->addRow(tr("End (project frames, exclusive)"), end);
+    form->addRow(tr("Paired curve"), curve);
+    auto *help = new QLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
+    help->setWordWrap(true);form->addRow(help);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    form->addRow(buttons);
+    const auto updateRange = [&] {
+        const auto *out = clip();
+        const auto id = clipList_->idAt(peer->currentIndex());
+        const Clip *in = nullptr;
+        if (const auto *t = track(); t && id)
+            for (const auto &candidate : t->clips) if (candidate.id == *id) in = &candidate;
+        const bool selected = out && out->id == outgoing && in && in->id != outgoing;
+        const auto first = selected ? std::max(out->startFrame, in->startFrame) : Frame(0);
+        const auto last = selected ? std::min(out->startFrame + out->lengthFrames,
+                                              in->startFrame + in->lengthFrames) : Frame(0);
+        buttons->button(QDialogButtonBox::Ok)->setEnabled(selected && last > first);
+        if (!selected || last <= first) { start->clear();end->clear();return; }
+        Frame begin = first, finish = last;
+        const auto &a = out->processing.fadeOut, &b = in->processing.fadeIn;
+        // Infer a saved pair only from visible, representable common anchors.
+        if (a.startFrame >= 0 && a.endFrame > a.startFrame && a.endFrame <= out->lengthFrames &&
+            b.startFrame >= 0 && b.endFrame > b.startFrame && b.endFrame <= in->lengthFrames &&
+            a.shape == 1 && b.shape == 1 && a.curve == b.curve &&
+            out->startFrame + a.startFrame == in->startFrame + b.startFrame &&
+            out->startFrame + a.endFrame == in->startFrame + b.endFrame) {
+            begin = out->startFrame + a.startFrame;finish = out->startFrame + a.endFrame;
+            curve->setCurrentIndex(curve->findData(int(a.curve)));
+        }
+        field(start, begin, true);field(end, finish, true);
+    };
+    connect(peer, &QComboBox::currentIndexChanged, &dialog, updateRange);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    peer->setCurrentIndex(0);updateRange();
+    if (dialog.exec() != QDialog::Accepted) return;
+    if (!editable_ || epoch_ != epoch || track_ != std::optional<Id>(selectedTrack) ||
+        clip_ != std::optional<Id>(outgoing))
+        throw ProjectError(ErrorCode::InvalidState, tr("Crossfade selection changed; reopen the editor.").toUtf8().toStdString());
+    const auto incoming = clipList_->idAt(peer->currentIndex());
+    if (!incoming) return;
+    mutate({SetClipCrossfade{selectedTrack, outgoing, *incoming, frame(start), frame(end),
+                            ClipFadeCurve(curve->currentData().toInt())}});
 }
 void TimelineEditor::editing(bool editable) {
     if (editable_ != editable) {

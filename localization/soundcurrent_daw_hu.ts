@@ -4103,6 +4103,10 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Crossfade clips…</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Recorded media asset</source>
       <translation type="unfinished" />
     </message>
@@ -4120,6 +4124,42 @@ This older job has no writer lock; writer activity cannot be confirmed. Only the
     </message>
     <message>
       <source>Edit failed: %1</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Crossfade</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Incoming clip</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Equal gain · linear</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Equal gain · smooth</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Start (project frames)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>End (project frames, exclusive)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Paired curve</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Crossfade selection changed; reopen the editor.</source>
       <translation type="unfinished" />
     </message>
     <message>

@@ -399,6 +399,31 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                 } else if constexpr (std::is_same_v<E, SetClipProcessing>) {
                     validateClipProcessing(e.value);
                     find(track(proposed, e.track).clips,e.clip)->processing = e.value;
+                } else if constexpr (std::is_same_v<E, SetClipCrossfade>) {
+                    require(e.outgoing != e.incoming, "Crossfade needs two distinct clips",
+                            ErrorCode::InvalidParameter);
+                    auto &clips = track(proposed, e.track).clips;
+                    auto &out = *find(clips, e.outgoing);
+                    auto &in = *find(clips, e.incoming);
+                    const auto covers = [&](const Clip &clip) {
+                        return clip.lengthFrames > 0 &&
+                               clip.startFrame <= INT64_MAX - clip.lengthFrames &&
+                               e.startFrame >= clip.startFrame &&
+                               e.endFrame <= clip.startFrame + clip.lengthFrames;
+                    };
+                    require(e.endFrame > e.startFrame && covers(out) && covers(in),
+                            "Crossfade window must be covered by both clips",
+                            ErrorCode::InvalidParameter);
+                    auto outgoing = out.processing;
+                    auto incoming = in.processing;
+                    outgoing.fadeOut = {e.startFrame - out.startFrame,
+                                        e.endFrame - out.startFrame, e.curve, 1};
+                    incoming.fadeIn = {e.startFrame - in.startFrame,
+                                       e.endFrame - in.startFrame, e.curve, 1};
+                    validateClipProcessing(outgoing);
+                    validateClipProcessing(incoming);
+                    out.processing = outgoing;
+                    in.processing = incoming;
                 } else if constexpr (std::is_same_v<E, SetClipPlaybackRate>) {
                     validateClipPlaybackRate(e.value);
                     auto &c=*find(track(proposed,e.track).clips,e.clip);

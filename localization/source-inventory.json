@@ -49,8 +49,8 @@
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
     "ui/studio_window.cpp": "cea8efd2e49afa117c6fe8e756348cfe0d70b383b735db1c7a9d2a2a4e635577",
     "ui/studio_window.hpp": "eea12bffb15f5a4c6cfae760632faf6133f893025cf0ec7d8f0a44ac275ee16d",
-    "ui/timeline_editor.cpp": "8c594fe27a88b6c69dd2555cafcc7bca1e82185a5e81a55d46aec625550a6944",
-    "ui/timeline_editor.hpp": "5e0065240440cd13e317de4bd207bea262f966eec92c18ba15bd7ccbaf5ee26e",
+    "ui/timeline_editor.cpp": "8a45f52ee37f722c5350022c7e365a7db74e0644bfc32a4f1d740a86eb45fbf2",
+    "ui/timeline_editor.hpp": "092bcb6d8e651e1c46bc7a1c8b468aae1e9a9ae746988a5ce47687ba2ad6a28f",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
@@ -6104,6 +6104,12 @@
     ],
     [
       "TimelineEditor",
+      "Crossfade clips…",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
       "Recorded media asset",
       "",
       false
@@ -6129,6 +6135,60 @@
     [
       "TimelineEditor",
       "Edit failed: %1",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Crossfade",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Incoming clip",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Equal gain · linear",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Equal gain · smooth",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Start (project frames)",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "End (project frames, exclusive)",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Paired curve",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "The clips must overlap. Both fades change in one Undo step; source audio stays unchanged.",
+      "",
+      false
+    ],
+    [
+      "TimelineEditor",
+      "Crossfade selection changed; reopen the editor.",
       "",
       false
     ],
