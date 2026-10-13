@@ -1,5 +1,18 @@
 # Active full-suite goal: progress and completion evidence
 
+## Immutable comp handle planning (2026-10-13)
+
+[Checkpoint 263](263-immutable-comp-handle-plans.md) promotes bounded handle geometry
+into the engine with immutable ownership, revision/workspace and expected-source
+checks, shared exact warp arithmetic and paired reservation cleanup. Fresh Linux
+acceptance passes eight gates and 156 planner checks; no missing audio is generated
+yet. The preceding Windows font correction passes all four original hosted jobs,
+with readable Arial captures and verified deployment/source bytes. The planner's
+own hosted checks are pending. Versioned handle state, worker generation/admission
+and PCM edge quality are next. Installed previews and full-suite/Europe delivery
+remain unchanged.
+
+
 ## Windows desktop font and recording wait evidence (2026-10-13)
 
 [Checkpoint 262](262-windows-offscreen-fonts.md) retains the original Windows
