@@ -621,6 +621,10 @@ void TimelineEditor::editCrossfade() {
     form->addRow(tr("Start (project frames)"), start);
     form->addRow(tr("End (project frames, exclusive)"), end);
     form->addRow(tr("Paired curve"), curve);
+    auto *handles = new QCheckBox(tr("Use retained-take handles"));
+    handles->setObjectName("crossfadeUseTakeHandles");
+    handles->setToolTip(tr("Create overlap from the retained takes without changing source audio."));
+    form->addRow(handles);
     auto *help = new QLabel(tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
     help->setWordWrap(true);form->addRow(help);
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -632,9 +636,23 @@ void TimelineEditor::editCrossfade() {
         if (const auto *t = track(); t && id)
             for (const auto &candidate : t->clips) if (candidate.id == *id) in = &candidate;
         const bool selected = out && out->id == outgoing && in && in->id != outgoing;
-        const auto first = selected ? std::max(out->startFrame, in->startFrame) : Frame(0);
-        const auto last = selected ? std::min(out->startFrame + out->lengthFrames,
-                                              in->startFrame + in->lengthFrames) : Frame(0);
+        auto first = selected ? std::max(out->startFrame, in->startFrame) : Frame(0);
+        auto last = selected ? std::min(out->startFrame + out->lengthFrames,
+                                       in->startFrame + in->lengthFrames) : Frame(0);
+        const bool retainedPair = selected && out->takeOrigin && in->takeOrigin &&
+            out->startFrame <= in->startFrame && out->startFrame+out->lengthFrames <= in->startFrame+in->lengthFrames &&
+            in->startFrame <= out->startFrame+out->lengthFrames;
+        handles->setEnabled(retainedPair);
+        if (!retainedPair) {QSignalBlocker blocker(handles);handles->setChecked(false);}
+        if (retainedPair && handles->isChecked() && last <= first) {
+            const auto cut=in->startFrame;
+            const auto half=std::max<Frame>(1,Frame(model_->sampleRate)/400);
+            first=cut-std::min(half,cut-out->startFrame);
+            last=cut+std::min(half,in->startFrame+in->lengthFrames-cut);
+        }
+        help->setText(handles->isChecked()
+            ? tr("This creates a transition from retained source handles. Both fades change in one Undo step; source audio stays unchanged.")
+            : tr("The clips must overlap. Both fades change in one Undo step; source audio stays unchanged."));
         buttons->button(QDialogButtonBox::Ok)->setEnabled(selected && last > first);
         if (!selected || last <= first) { start->clear();end->clear();return; }
         Frame begin = first, finish = last;
@@ -651,6 +669,7 @@ void TimelineEditor::editCrossfade() {
         field(start, begin, true);field(end, finish, true);
     };
     connect(peer, &QComboBox::currentIndexChanged, &dialog, updateRange);
+    connect(handles, &QCheckBox::toggled, &dialog, updateRange);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     peer->setCurrentIndex(0);updateRange();
@@ -660,8 +679,12 @@ void TimelineEditor::editCrossfade() {
         throw ProjectError(ErrorCode::InvalidState, tr("Crossfade selection changed; reopen the editor.").toUtf8().toStdString());
     const auto incoming = clipList_->idAt(peer->currentIndex());
     if (!incoming) return;
-    mutate({SetClipCrossfade{selectedTrack, outgoing, *incoming, frame(start), frame(end),
-                            ClipFadeCurve(curve->currentData().toInt())}});
+    if (handles->isChecked())
+        mutate({PrepareCompTransition{selectedTrack,outgoing,*incoming,frame(start),frame(end),
+                                      ClipFadeCurve(curve->currentData().toInt())}});
+    else
+        mutate({SetClipCrossfade{selectedTrack, outgoing, *incoming, frame(start), frame(end),
+                                ClipFadeCurve(curve->currentData().toInt())}});
 }
 void TimelineEditor::editing(bool editable) {
     if (editable_ != editable) {

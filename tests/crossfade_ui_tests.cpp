@@ -7,6 +7,7 @@
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QLabel>
+#include <QCheckBox>
 #include <QPushButton>
 #include <QTimer>
 #include <exception>
@@ -100,6 +101,47 @@ int main(int argc,char **argv) {
             clips->setCurrentIndex(clips->findData(QString::fromStdString(out.id.str())));
         }
         timeline.editing(false);check(!action->isEnabled(),"Crossfade edit enabled while transport is busy");
+        // An adjacent comp pair must explicitly opt into retained handles.
+        timeline.editing(true);
+        const auto track=session.tracks[0].id;
+        session.tracks[0].clips.clear();
+        TakeLane left,right;left.captureEndFrame=right.captureEndFrame=1024;
+        Clip retainedOut=out,retainedIn=in;
+        retainedOut.id=Id::generate();retainedIn.id=Id::generate();
+        retainedOut.startFrame=retainedIn.startFrame=0;
+        retainedOut.lengthFrames=retainedIn.lengthFrames=1024;
+        left.clips={retainedOut};right.clips={retainedIn};
+        session.tracks[0].takeLanes={left,right};
+        applySessionEdits(session,{SelectTakeRegion{track,left.id,0,512},SelectTakeRegion{track,right.id,512,1024}});
+        const auto hardCuts=session;
+        EditHistory compHistory(session);++epoch;publish();
+        const auto first=session.tracks[0].clips[0].id,second=session.tracks[0].clips[1].id;
+        clips->setCurrentIndex(clips->findData(QString::fromStdString(first.str())));
+        timeline.submit=[&](std::vector<SessionEdit> edits) {
+            check(edits.size()==1 && std::holds_alternative<PrepareCompTransition>(edits[0]),"Handle option did not submit one preparation edit");
+            const bool changed=compHistory.structural(edits);publish();return changed;
+        };
+        QTimer::singleShot(0,[&] {
+            try {
+                auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget());check(dialog,"Comp handle dialog missing");
+                auto *peer=widget<QComboBox>(*dialog,"crossfadeIncoming");peer->setCurrentIndex(peer->findData(QString::fromStdString(second.str())));
+                auto *buttons=dialog->findChild<QDialogButtonBox *>();check(buttons,"Comp dialog buttons missing");
+                auto *handles=widget<QCheckBox>(*dialog,"crossfadeUseTakeHandles");
+                check(handles->isEnabled() && !handles->isChecked() && !buttons->button(QDialogButtonBox::Ok)->isEnabled(),"Adjacent comp silently extended without consent");
+                handles->setChecked(true);
+                check(buttons->button(QDialogButtonBox::Ok)->isEnabled() &&
+                      widget<QLineEdit>(*dialog,"crossfadeStart")->text()=="392" &&
+                      widget<QLineEdit>(*dialog,"crossfadeEnd")->text()=="632","Quiet default handle window differs");
+                widget<QLineEdit>(*dialog,"crossfadeStart")->setText("486");
+                widget<QLineEdit>(*dialog,"crossfadeEnd")->setText("538");
+                buttons->button(QDialogButtonBox::Ok)->click();
+            } catch(...) {fault=std::current_exception();if(auto *dialog=qobject_cast<QDialog *>(QApplication::activeModalWidget()))dialog->reject();}
+        });
+        action->click();if(fault)std::rethrow_exception(fault);
+        check(session.tracks[0].clips[0].lengthFrames==538 && session.tracks[0].clips[1].startFrame==486,
+              "UI comp handles did not create requested overlap");
+        check(compHistory.undo() && session==hardCuts,"UI comp preparation did not undo atomically");
+
         std::cout<<"crossfade_ui_checks="<<checks<<" actual_dialog_cancel_apply_reopen_undo=passed\n";
         return 0;
     } catch(const std::exception &e) {std::cerr<<e.what()<<'\n';return 1;}
