@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_owned_streams.hpp>
-#include <soundcurrent/monitor_control_endpoint.hpp>
+#include "../ui/native_monitor_controller.hpp"
 #include "media_io.hpp"
 #include "rt_audit.hpp"
 #include <sndfile.h>
@@ -61,12 +61,21 @@ int main(){std::filesystem::path root;
         for(unsigned n=1;n<=2;++n){const auto name="input_"+std::to_string(n);const auto it=std::find_if(all.begin(),all.end(),[&](const auto &p){return p.nodeId==receiver.nodeId() && p.input && p.portName==name;});
             require(it!=all.end(),"Owned sink channel missing");selectedSink.push_back(*it);}
         require(selectedSource.size()==1,"Owned source missing");
-        auto owner=preparePipeWireMonitorControlEndpoint(root,[&](auto &r){return preparePipeWireOwnedStreams(r,native);},o,selectedSource,selectedSink);
-        require(std::holds_alternative<PipeWireRecordingSpec>(owner->declared()),"Native declaration lost its PipeWire type");
-        source.activate();receiver.activate();owner->activate();require(owner->requestStopAt({frames})==MonitorControlCode::Accepted,"Native horizon not admitted");
+        ui::NativeMonitorControllerOptions controlOptions;controlOptions.commandMemory=ResourceLedger{64*1024*1024};
+        controlOptions.pipewireStreams=[&](auto &r){return preparePipeWireOwnedStreams(r,native);};
+        ui::NativeMonitorController owner(std::move(controlOptions));auto p=std::make_shared<ui::NativeMonitorPreparation>();p->root=root;p->pipewire=o;p->inputs=selectedSource;p->outputs=selectedSink;
+        ui::NativeMonitorCommand prepare;prepare.kind=ui::NativeMonitorCommandKind::Prepare;prepare.generation=1;prepare.preparation=p;
+        require(owner.submit(prepare)==ui::NativeMonitorAdmission::Accepted,"Native controller prepare refused");
+        const auto preparedUntil=std::chrono::steady_clock::now()+std::chrono::seconds(8);
+        while(owner.snapshot()->phase!=ui::NativeMonitorPhase::Ready && !owner.snapshot()->error && std::chrono::steady_clock::now()<preparedUntil)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        require(owner.snapshot()->pipewireDeclared && !owner.snapshot()->declared,"Native controller lost typed PipeWire preparation");
+        source.activate();receiver.activate();ui::NativeMonitorCommand activate;activate.kind=ui::NativeMonitorCommandKind::Activate;activate.generation=1;activate.end={frames};
+        require(owner.submit(activate)==ui::NativeMonitorAdmission::Accepted,"Native controller activate refused");
         const auto until=std::chrono::steady_clock::now()+std::chrono::seconds(8);bool ready=false;
-        while(!(ready=owner->readyToJoin()) && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        const auto result=std::get<PipeWireMonitorRecordingResult>(ready?owner->wait():owner->cancelAndWait());
+        while(!(ready=bool(owner.snapshot()->pipewireResult)) && std::chrono::steady_clock::now()<until)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if(!ready){owner.requestCancel();const auto cancelledUntil=std::chrono::steady_clock::now()+std::chrono::seconds(3);while(!owner.snapshot()->pipewireResult && std::chrono::steady_clock::now()<cancelledUntil)std::this_thread::sleep_for(std::chrono::milliseconds(1));}
+        require(bool(owner.snapshot()->pipewireResult),"Native controller has no joined result");
+        const auto final=owner.snapshot();const auto result=*final->pipewireResult;
         const auto settle=std::chrono::steady_clock::now()+std::chrono::milliseconds(100);
         while(sink.received.load()<frames && std::chrono::steady_clock::now()<settle)std::this_thread::sleep_for(std::chrono::milliseconds(1));
         receiver.stop();source.stop();
@@ -75,7 +84,7 @@ int main(){std::filesystem::path root;
         if(result.render && result.render->fault)std::cerr<<"render_fault="<<int(result.render->fault->cause)<<" queued="<<result.render->monitorQueuedFrames<<'\n';
         require(ready && result.disposition==PipeWireRecordingDisposition::Recorded && result.prefix && result.prefix->finalized,"Genuine owned native run incomplete/failed");
         require(result.terminalStored && !result.terminalFailure,"Genuine native terminal state not stored");
-        const auto reopened=inspectPipeWireRecordingState(owner->jobDirectory(),o.declared);
+        const auto reopened=inspectPipeWireRecordingState(final->job,o.declared);
         require(reopened.terminal && reopened.intent.inputs.size()==1 && reopened.intent.outputs.size()==2 && reopened.outcome->capture->completedCycles==result.capture->completedCycles && reopened.outcome->render->nativeQueuedFrames==result.render->nativeQueuedFrames && reopened.outcome->startup==result.startup,"Genuine reopened intent/end provenance changed");
         require(result.prefix->monitorQueuedFrames==frames && sink.received==frames && !sink.bad,"Native queued/sink finite extent mismatch");
         raw(*result.prefix);double mean=0;for(unsigned n=frames-4800;n<frames;++n)mean+=sink.samples[n*2];mean/=4800;
@@ -85,6 +94,6 @@ int main(){std::filesystem::path root;
         std::cout<<"owned_recording raw_frames="<<result.prefix->raw.committedFrames<<" monitor_frames="<<frames<<" sink_frames="<<sink.received
                  <<" capture_receipts="<<result.prefix->captureRecords<<" render_receipts="<<result.prefix->renderRecords<<" raw_bit_checks="<<result.prefix->raw.committedFrames
                  <<" capture_callbacks="<<captureAudit.callbacks<<" render_callbacks="<<renderAudit.callbacks<<" monitor_mean="<<mean<<" monitor_ac_rms="<<std::sqrt(energy/4800)
-                 <<" callback_allocate_free_lock=0 actual_sdk=true private_dummy_route=true physical_audio=false durable_terminal_state=true\n";
+                 <<" callback_allocate_free_lock=0 actual_sdk=true private_dummy_route=true physical_audio=false durable_terminal_state=true controller_worker=true\n";
         std::filesystem::remove_all(root);return 0;
     }catch(const std::exception &e){std::cerr<<e.what()<<" retained_fixture="<<root.generic_string()<<'\n';return 1;}}
