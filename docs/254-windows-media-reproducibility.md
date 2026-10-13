@@ -48,3 +48,10 @@ SHA-256 hashes checked against the artifact API. The preview archive is
 123,088,897 bytes, SHA-256
 `f67b1c6c8e419d24c98346d1c5ec8900db2bdb19402f316f0330af395818c7f4`.
 No native installer, local VM, UI/catalog or equalizer changes were made here.
+
+## Subsequent result
+
+[Checkpoint 255](255-reviewed-windows-media.md) records the successful original
+run, independent byte/configuration audit and native media/worker review. The
+original experiment retained its unchanged pin; the subsequent reviewed-pin
+decision is separate and preserves the previous identity.

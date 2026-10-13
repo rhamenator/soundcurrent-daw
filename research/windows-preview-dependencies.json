@@ -4,11 +4,12 @@
   "qtSourceSha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
   "sndfileVersion": "1.2.2",
   "sndfileSourceSha256": "ffe12ef8add3eaca876f04087734e6e8e029350082f3251f565fa9da55b52121",
-  "scope": "Exact independently retained native MSVC SDK/deployment identities. Qt binary hashes checked against the retained open-source SDK; libsndfile identity retained in native SDK/deployment evidence. No arbitrary self-consistent replacement manifest is admitted. Updating this record requires a new native dependency review.",
+  "scope": "Exact independently reviewed dependency identities. Qt binaries remain the retained open-source SDK. The libsndfile pin uses two fresh byte-identical MSVC builds, audited source/configuration and actual native DLL/media/worker observations. A self-consistent replacement manifest alone is not admitted. Future updates require a new review.",
   "evidence": [
     "docs/98-windows-desktop-foundation.md",
     "tests/results/X007/2026-10-08-windows-desktop-foundation.json",
-    "docs/101-windows-installer-preparation.md"
+    "docs/101-windows-installer-preparation.md",
+    "docs/255-reviewed-windows-media.md"
   ],
   "files": {
     "Qt6Core.dll": {
@@ -28,8 +29,8 @@
     },
     "sndfile.dll": {
       "path": "sndfile.dll",
-      "sha256": "cf55f672111a88e7b67bd0b769d3f40a99f41238949767ff1d0532ae0662057e",
-      "bytes": 482816
+      "sha256": "2f50a0b47e46407bf9d3d34f95dd58289356020331ebd989a0c0a924a57fb6e7",
+      "bytes": 480256
     },
     "imageformats/qgif.dll": {
       "path": "imageformats/qgif.dll",
@@ -56,5 +57,25 @@
       "sha256": "db5ef23d50d53fa66920baea1240a17dd47c6a6037dc72ee0288b07a3396b2c9",
       "bytes": 241464
     }
+  },
+  "previousSndfile": {
+    "path": "sndfile.dll",
+    "sha256": "cf55f672111a88e7b67bd0b769d3f40a99f41238949767ff1d0532ae0662057e",
+    "bytes": 482816
+  },
+  "sndfileReview": {
+    "date": "2026-10-13",
+    "sourceCommit": "7b67b539a149789e888896fe2fc1b248b672c69c",
+    "sourceTree": "9146fdd4c05f8a5e726e5b6f52447dd83f4bfd51",
+    "originalRun": 38448279083,
+    "linkFlags": "/Brepro /PDBALTPATH:sndfile.pdb",
+    "sameEnvironmentByteIdentical": true,
+    "nativeWaveRf64FloatExact": true,
+    "nativeHeadroomPeak": 1.7999999523162842,
+    "nativeUnicodeAndSeek": true,
+    "observedLoadedWorkerDll": true,
+    "mainWindowQualified": false,
+    "installerQualified": false,
+    "evidence": "tests/results/X007/2026-10-13-reviewed-windows-media/index.json"
   }
 }

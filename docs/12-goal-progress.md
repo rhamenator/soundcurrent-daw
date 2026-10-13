@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Independently reviewed Windows media DLL (2026-10-13)
+
+[Checkpoint 255](255-reviewed-windows-media.md) adopts the exact libsndfile DLL
+after two byte-identical native builds, independent source/configuration audit,
+actual WAV/RF64 headroom/Unicode/seek checks and observed helper/module identities.
+Original CI188 passed all four jobs; binaries remain local. The prior dependency
+identity is retained and refused by packaging. One independent clone ran briefly
+and is shut down; no runtime install or audio endpoint was used. Console sign-in
+is needed for the pending app-window test. Fresh reviewed-pin deployment/installer
+acceptance and full DAW/European localization remain required.
+
 ## Windows media reproducibility experiment (2026-10-13)
 
 [Checkpoint 254](254-windows-media-reproducibility.md) prepares two fresh native

@@ -105,6 +105,12 @@ archive accompanies setup. Shared libraries remain replaceable. Qt's bundled
 third-party license texts are retained; final content/data-rights and complete
 platform release auditing remain separate gates.
 
+The current Windows preview dependency pin is independently reviewed in
+[checkpoint 255](docs/255-reviewed-windows-media.md): two fresh native builds,
+original source/configuration and actual media/worker observations. The previous
+binary identity remains in the dependency record. This updates the binary pin,
+without changing upstream source or its license obligations.
+
 **libsndfile 1.2.2**, LGPL-2.1-or-later, is built as a shared x64 MSVC/UCRT DLL
 with external/MPEG codecs, programs, examples, tests and experimental features
 disabled. Its LGPL text, embedded ALAC/GSM notices and exact unmodified complete
