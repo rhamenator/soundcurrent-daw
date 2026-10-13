@@ -18,6 +18,8 @@ with tempfile.TemporaryDirectory() as work:
             except ValueError:return
             raise AssertionError('Invalid retention accepted')
         refuses() # Existing snapshot is never overwritten.
+        import shutil
+        shutil.rmtree(build/'controller-failure-projects')
         log.write_text(c.MARKER+str(build)+'\n',encoding='utf-8');refuses()
         log.write_text(c.MARKER+str(source)+'\n',encoding='utf-8')
         linked=False
@@ -32,12 +34,11 @@ with tempfile.TemporaryDirectory() as work:
             item=parent/str(uuid.uuid4());item.mkdir();extras.append(item)
         log.write_text(''.join(c.MARKER+str(item)+'\n' for item in [source,*extras]),encoding='utf-8');refuses()
         log.write_text(c.MARKER+str(source)+'\n',encoding='utf-8')
-        oversized=source/'oversized';
+        oversized=source/'oversized'
         with oversized.open('wb') as out:out.truncate(512*1024*1024+1)
         refuses();oversized.unlink()
         log.write_text('No failure markers\n',encoding='utf-8');assert c.retain(build)==[]
         print('Controller retention: exact Unicode/audio bytes, foreign path/no-overwrite, link refusal='+str(linked))
     finally:
-        import shutil
         shutil.rmtree(source)
         for item in extras:shutil.rmtree(item)
