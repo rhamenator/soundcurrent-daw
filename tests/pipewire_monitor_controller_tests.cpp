@@ -31,7 +31,7 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
     auto ready=control.snapshot();check(ready->pipewireDeclared && !ready->declared && ready->hasEqualizer(),"Controller fabricated Native/QPC declaration");
     auto start=command(NativeMonitorCommandKind::Activate);start.end={2400};control.submit(start);await([&]{return bool(control.snapshot()->pipewireResult);});
     auto final=control.snapshot();
-    if(final->pipewireResult->disposition!=PipeWireRecordingDisposition::Recorded){const auto &r=*final->pipewireResult;
+    if(final->pipewireResult->disposition!=PipeWireRecordingDisposition::Recorded){shared->saveTiming(t.root);const auto &r=*final->pipewireResult;
         std::cerr<<"PW finalization disposition="<<int(r.disposition)<<" raw="<<(r.prefix?r.prefix->raw.committedFrames:0)<<" terminalStored="<<r.terminalStored
                  <<" processing="<<bool(r.processingFault)<<" fanout="<<bool(r.fanoutFault)<<" drift="<<bool(r.clockFault)
                  <<" captureClock="<<bool(r.captureClockFault)<<" renderClock="<<bool(r.renderClockFault)<<" buffer="<<bool(r.bufferFault)

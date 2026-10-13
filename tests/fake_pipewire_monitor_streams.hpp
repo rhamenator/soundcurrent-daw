@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <thread>
+#include <fstream>
 namespace pipewire_monitor_fixture {
 using namespace soundcurrent::daw;
 template<class F>auto rt(F f){rt_audit::Guard guard;return f();}
@@ -20,6 +21,9 @@ struct Shared {std::atomic<unsigned> joins{0},retired{0};std::atomic<bool> audit
         if(b==PipeWireJournalBoundary::CheckpointPublished){++checkpoints;maximum(checkpointNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-checkpointBegin).count()));}}
     void rawBoundary(OriginalRecordingBoundary b){if(b==OriginalRecordingBoundary::BeforeAudioWrite)rawWriteBegin=std::chrono::steady_clock::now();
         if(b==OriginalRecordingBoundary::AfterStampWrite)maximum(rawWriteNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-rawWriteBegin).count()));}
+    void saveTiming(const std::filesystem::path &root) const {std::ofstream out(root/"fixture-dispatch-timing.csv",std::ios::binary);out<<"role,ordinal,elapsed_ns\n";
+        for(unsigned n=0;n<captureTimeCount;++n)out<<"capture,"<<n<<','<<captureTimes[n]<<'\n';
+        for(unsigned n=0;n<renderTimeCount;++n)out<<"render,"<<n<<','<<renderTimes[n]<<'\n';}
 };
 class Simulated final : public PipeWireMonitorStreams {
     PreparedPipeWireMonitorRoute &route_;std::shared_ptr<Shared> shared_;

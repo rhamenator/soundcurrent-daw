@@ -48,6 +48,7 @@ void workflow(bool delayed=false){Temp t;auto o=options(t);
         const auto observed=owner->progress();
         if(!ready || observed.rawAcceptedFrames<48000)std::cerr<<"owner_observation ready="<<ready<<" raw="<<observed.rawAcceptedFrames<<" monitor="<<observed.monitorAcceptedFrames<<" copied="<<observed.copiedMonitorSourceFrames<<" published="<<observed.publishedMonitorFrames<<" delivered="<<observed.deliveredMonitorFrames<<" processing_done="<<observed.processingDone<<" disk_done="<<observed.diskDone<<'\n';
         const auto result=std::get<PipeWireMonitorRecordingResult>(ready?owner->wait():owner->cancelAndWait());
+        if(result.disposition!=PipeWireRecordingDisposition::Recorded)shared->saveTiming(t.root);
         if(result.processingFault)std::cerr<<"processing_fault="<<int(result.processingFault->cause)<<'\n';
         if(result.disposition!=PipeWireRecordingDisposition::Recorded)std::cerr<<"fixture_capture_late_ns="<<shared->captureLateNs.load()<<" fixture_render_late_ns="<<shared->renderLateNs.load()<<" after_raw_checkpoint_to_pair_publish_ns="<<shared->checkpointNs.load()<<" raw_audio_stamp_write_ns="<<shared->rawWriteNs.load()<<" raw_appends="<<shared->rawAppends.load()<<" paired_checkpoints="<<shared->checkpoints.load()<<'\n';
         if(result.capture && result.capture->fault)std::cerr<<"capture_fault="<<int(result.capture->fault->cause)<<'\n';

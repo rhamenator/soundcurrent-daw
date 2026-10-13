@@ -236,7 +236,7 @@ void pipewirePanel(const std::filesystem::path &root){
     check(panel.snapshot()->pipewireDeclared && !panel.snapshot()->declared && control<QCheckBox>(panel,"nativeMonitorEq")->isEnabled(),"PipeWire panel fabricated Native declaration or disabled monitor EQ");
     QTest::mouseClick(control<QPushButton>(panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireResult);});panel.poll();
     const auto final=panel.snapshot();
-    if(final->pipewireResult->disposition!=PipeWireRecordingDisposition::Recorded){const auto &r=*final->pipewireResult;std::ofstream saved(root/"pipewire-panel-diagnostic.log",std::ios::binary);
+    if(final->pipewireResult->disposition!=PipeWireRecordingDisposition::Recorded){shared->saveTiming(root);const auto &r=*final->pipewireResult;std::ofstream saved(root/"pipewire-panel-diagnostic.log",std::ios::binary);
         for(auto *out:{&std::cerr,static_cast<std::ostream *>(&saved)}){
             *out<<"pipewire_panel disposition="<<int(r.disposition)<<" raw="<<(r.prefix?r.prefix->raw.committedFrames:0)<<" terminalStored="<<r.terminalStored
                 <<" processing="<<(r.processingFault?int(r.processingFault->cause):-1)<<" fanout="<<(r.fanoutFault?int(r.fanoutFault->cause):-1)
