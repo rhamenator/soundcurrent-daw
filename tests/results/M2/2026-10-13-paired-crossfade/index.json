@@ -1,0 +1,134 @@
+{
+  "sourceCommit": "291db2098240e6ffc1997fb32c575be936684275",
+  "sourceTree": "42c7fc903644b3b95cf9701bdc79e23b0da883ff",
+  "sourceFiles": 1505,
+  "nativePlatform": "linux",
+  "commands": [
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        ".cache/paired-crossfade/build",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-crossfade-edit-tests",
+        "sc-editing-tests"
+      ],
+      "pid": 2814950,
+      "exitCode": 0,
+      "log": "frozen-command-0.log"
+    },
+    {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        ".cache/paired-crossfade/build",
+        "-R",
+        "^(paired-crossfade-edits|multitrack-edits)$",
+        "--output-on-failure",
+        "--no-tests=error",
+        "-V"
+      ],
+      "pid": 2814952,
+      "exitCode": 0,
+      "log": "frozen-command-1.log"
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        ".cache/paired-crossfade/gui",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-crossfade-ui-tests",
+        "sc-clip-processing-tests"
+      ],
+      "pid": 2814955,
+      "exitCode": 0,
+      "log": "frozen-command-2.log"
+    },
+    {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        ".cache/paired-crossfade/gui",
+        "-R",
+        "^(desktop-paired-crossfade|clip-processing)$",
+        "--output-on-failure",
+        "--no-tests=error",
+        "-V"
+      ],
+      "pid": 2814957,
+      "exitCode": 0,
+      "log": "frozen-command-3.log"
+    }
+  ],
+  "executables": {
+    ".cache/paired-crossfade/build/sc-crossfade-edit-tests": "0ce71ddf26e98839421b9028335442a79c59d43a0a01f5277e2a55be4e629baf",
+    ".cache/paired-crossfade/build/sc-editing-tests": "87550f0d54cc51b9c386cf640caccbeffce3691241f2dcb23c07c90406362c23",
+    ".cache/paired-crossfade/gui/sc-crossfade-ui-tests": "d0cc9ac1ecfd12d2709e8c2234ef65b341bed321eda6db31f1df0e007bbdfad0",
+    ".cache/paired-crossfade/gui/sc-clip-processing-tests": "60ddaa10d527c1b5b8ae8c363b070b5b445697ad3e4f2b7c91af248272e21eea"
+  },
+  "sourceUnchanged": true,
+  "nativeAudio": false,
+  "installedPreviewUpdated": false,
+  "packet": "acceptance.zip",
+  "packetBytes": 97683,
+  "packetSha256": "0eed7d9d02318c7069e1607c7dedc46c441ed74635744bd86fcb14907a3d1770",
+  "members": {
+    "frozen-inputs.json": {
+      "bytes": 176409,
+      "sha256": "b21e21ac16f9e06d6fb845679b7b9be6dcdb686ce11ba40704176e264beda330"
+    },
+    "frozen-qualification.json": {
+      "bytes": 2112,
+      "sha256": "78d646dd6f4001b6f188cd7035c93230b13ee7557f802fd6b95cd34e37d5d352"
+    },
+    "frozen-command-0.log": {
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    "frozen-command-1.log": {
+      "bytes": 1418,
+      "sha256": "47cc14870a2662f86c4afb99850610db591d89e1d34daff3ccb8cc6c4d6b594a"
+    },
+    "frozen-command-2.log": {
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    "frozen-command-3.log": {
+      "bytes": 2080,
+      "sha256": "7b6494be6c1104d5651002c71f68a68e49c66366c4b2e8fd5dfc58c3ba414dbd"
+    },
+    "core-regression.log": {
+      "bytes": 1418,
+      "sha256": "b5d3acf13acbd608774fe86b45a5a9815d13656eb69816b892123e60584a9fb4"
+    },
+    "gui-build-initial-failure.log": {
+      "bytes": 6595,
+      "sha256": "e83bd6bf3bebcd93ce09b9fb7f52e0824651178e5add4275bb009bff8d57c5ef"
+    },
+    "recorded-render-initial-path-failure.log": {
+      "bytes": 58,
+      "sha256": "f8fe1e71910d27b48b9397ac4f1ff44942cd500f6e6d8a43f89a9c9a14c9840f"
+    },
+    "gui-screenshot-test.log": {
+      "bytes": 319,
+      "sha256": "c1716b09ba3561bc9e29b012b7cf6316f453879cfe3102e50234fd1255c3b2a9"
+    },
+    "localization-corrected.log": {
+      "bytes": 246,
+      "sha256": "73b613578ae497181668504069394c127a6f0d8a611d9c6dae8960e173e5ad45"
+    },
+    "crossfade-dialog.png": {
+      "bytes": 20012,
+      "sha256": "912075dabef0ef8ba01c513af068633c1cb7bb0a2ac7c2dca69b301694b4bf50"
+    }
+  },
+  "windowsFeatureQualified": false,
+  "fullReferenceParityQualified": false,
+  "languagesNativeReviewed": 0,
+  "languagesFullyUiQualified": 0
+}

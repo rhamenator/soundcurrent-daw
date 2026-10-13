@@ -43,6 +43,13 @@ retain the existing per-clip semantics.
 
 ## Acceptance evidence
 
+[Indexed original acceptance](../tests/results/M2/2026-10-13-paired-crossfade/index.json)
+binds frozen implementation commit `291db2098240e6ffc1997fb32c575be936684275`,
+its 1,505 unchanged input files, actual executable identities and four selected
+workflow suites. Subsequent documentation/evidence changes do not substitute for
+new-source Windows acceptance.
+
+
 - Core: 2,365 checks cover common anchors, independent per-sample curve laws,
   frame-limit conversion, preservation, save/reopen, repeated-edit no-op,
   atomic Undo/Redo, invalid-range/curve/ID rollback and eight-track transactions.
