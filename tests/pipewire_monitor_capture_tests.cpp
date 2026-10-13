@@ -187,10 +187,19 @@ void pressures() {
     check(!c.firstFault() && c.firstUnavailable()==AudioBridgeStatus::DeviceLost,"Control notification overwrote original error");
     c.finishAfterJoin();check(c.endAfterJoin()->fault && c.endAfterJoin()->fault->cause==PipeWireCaptureCause::NativeUnavailable && !c.endAfterJoin()->fault->original,"Unavailable without callback invented a native clock");
 }
+void minimumQuantum(){
+    PreparedCaptureFanout f(fanConfig());PreparedMonitorClockHandoff h(clockConfig());Planar p;
+    PipeWireMonitorCaptureOptions o;o.minimumQuantumFrames=17;PreparedPipeWireMonitorCapture c(f,h,o);
+    const auto small=clock(0,16);check(rt([&]{return c.process(small,p.views,17);})==PipeWireCaptureCode::Fault &&
+        c.firstFault()->cause==PipeWireCaptureCause::InvalidQuantum && c.firstFault()->original==small && !f.rawAcceptedFrames(),"Storage minimum violated without original fault/no-publication");
+    c.finishAfterJoin();
+    PreparedCaptureFanout f2(fanConfig());PreparedMonitorClockHandoff h2(clockConfig());o.minimumQuantumFrames=18;
+    refuses([&]{PreparedPipeWireMonitorCapture bad(f2,h2,o);});
+}
 }
 int main() {
     try {
-        rt_audit::reset();exactPackets();refusals();pressures();domainsAndWrap();formats();
+        rt_audit::reset();minimumQuantum();exactPackets();refusals();pressures();domainsAndWrap();formats();
         const auto a=rt_audit::counts;check(!a.cppAllocate && !a.cppFree,"RT C++ allocation/free");
 #ifdef SC_WRAP_LIBC
         check(!a.cAllocate && !a.cFree && !a.blockingLock,"RT C allocation/free/lock");

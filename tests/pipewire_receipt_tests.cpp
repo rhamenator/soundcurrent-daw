@@ -115,8 +115,20 @@ void finalPublication(){
         producer.join();check(count==1,"EOF overtook final native publication");
     }
 }
+void extendedCapacity(){
+    for(unsigned slots:{300u,4096u}){
+        PipeWireReceiptQueueOptions o;o.slots=slots;o.memoryBudgetBytes=64*1024*1024;
+        const auto bytes=pipeWireReceiptPayloadBytes(o);ResourceLedger ledger(bytes);o.resources=ledger;
+        {PreparedPipeWireReceiptQueues q(o);check(ledger.usage().reservedBytes==bytes,"Rounded queue arrays not fully charged");
+            for(unsigned n=0;n<slots;++n)check(rt([&]{return q.publish(capture(n));})==PipeWireReceiptCode::Accepted,"Admitted large lane rejected prefix");
+            check(rt([&]{return q.publish(capture(slots));})==PipeWireReceiptCode::Fault && q.captureFault()->cause==PipeWireReceiptCause::QueueFull && q.captureFault()->attempted->sequence==slots,"Rounded queue cells exceeded requested capacity");
+            for(unsigned n=0;n<slots;++n){PipeWireReceiptRecord<PipeWireCaptureCycle> c;check(rt([&]{return q.read(c);})==PipeWireReceiptCode::Ready && c.sequence==n && c.original.original==clock(n),"Large faulted prefix lost/order changed");}}
+        check(!ledger.usage().reservedBytes,"Large queue credit leaked");o.resources.reset();o.memoryBudgetBytes=bytes-1;refuses([&]{PreparedPipeWireReceiptQueues q(o);});
+    }
+    refuses([]{PipeWireReceiptQueueOptions o;o.slots=4097;PreparedPipeWireReceiptQueues q(o);});
 }
-int main(){try{rt_audit::reset();transport();pressure();captureReturns();owners();finalPublication();const auto a=rt_audit::counts;
+}
+int main(){try{rt_audit::reset();extendedCapacity();transport();pressure();captureReturns();owners();finalPublication();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared capture/receipt operations allocated/freed/locked");
     std::cout<<checks<<" native PipeWire receipt checks passed; exact returns, prefix retention, bounded pressure, sequence, distinct native producers/one consumer; callback allocate/free/lock=0; persistence=false\n";return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

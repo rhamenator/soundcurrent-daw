@@ -2,7 +2,7 @@
 #pragma once
 #include "clock_correlation.hpp"
 #include "resource_ledger.hpp"
-#include "spsc_queue.hpp"
+#include "prepared_spsc_queue.hpp"
 #include <span>
 #include <vector>
 
@@ -94,9 +94,10 @@ class PreparedCaptureBank {
   private:
     ResourceLease lease_; // Last destroyed; ledger mutex never taken on RT owners.
     const CaptureBankConfig config_;
+    const std::size_t payloadBytes_;
     std::vector<float> samples_;
-    SpscQueue<std::uint32_t,512> free_;
-    SpscQueue<CaptureBankToken,512> ready_;
+    PreparedSpscQueue<std::uint32_t> free_;
+    PreparedSpscQueue<CaptureBankToken> ready_;
     std::uint64_t nextPosition_=0, lastQpc_=0, sequence_=0;
     CaptureBankStamp first_{};
     CaptureBankFault fault_{};

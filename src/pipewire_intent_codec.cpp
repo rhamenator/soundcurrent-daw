@@ -9,11 +9,16 @@ J declaration(const PipeWireRecordingSpec &s){return {{"run",s.run.str()},{"gene
 J encodeIntent(const PipeWireRecordingIntent &i){const auto &o=i.processing;
     return {{"expected",declaration(i.expected)},{"processing",{{"first",o.first.value},{"rawSlots",o.rawSlots},{"monitorSlots",o.monitorSlots},{"outputSlots",o.outputSlots},{"clockSlots",o.clockSlots},{"controlSlots",o.controlSlots},{"receiptSlots",o.receiptSlots},
         {"capacity",o.inputCapacityFrames},{"target",o.targetQueuedSourceFrames},{"wait",o.maximumWait100ns},{"warmup",o.maximumWarmupFrames},
+        {"minimumCapture",o.minimumCaptureFrames},{"minimumRender",o.minimumRenderFrames},{"storageStallMs",o.storageStallMilliseconds},
         {"map",opt(o.channelMap,[](const auto &m){return J(hex(encodeMonitorChannelMap(m)));})},
         {"eq",opt(o.equalizer,[&](const auto &e){return J(hex(encodeMonitorEq(e,i.expected.renderRate,i.expected.renderChannels)));})}}},{"inputs",ports(i.inputs)},{"outputs",ports(i.outputs)}};}
-PipeWireRecordingIntent decodeIntent(const J &j,const PipeWireRecordingSpec &s){fields(j,{"expected","processing","inputs","outputs"});require(j.at("expected")==declaration(s),"Stored expected PipeWire context mismatch");PipeWireRecordingIntent i;i.expected=s;
-    const auto &p=j.at("processing");fields(p,{"first","rawSlots","monitorSlots","outputSlots","clockSlots","controlSlots","receiptSlots","capacity","target","wait","warmup","map","eq"});auto &o=i.processing;
+PipeWireRecordingIntent decodeIntent(const J &j,const PipeWireRecordingSpec &s,unsigned minor){require(minor<=2,"Unsupported native intent schema");fields(j,{"expected","processing","inputs","outputs"});require(j.at("expected")==declaration(s),"Stored expected PipeWire context mismatch");PipeWireRecordingIntent i;i.expected=s;
+    const auto &p=j.at("processing");if(minor<2)fields(p,{"first","rawSlots","monitorSlots","outputSlots","clockSlots","controlSlots","receiptSlots","capacity","target","wait","warmup","map","eq"});
+    else fields(p,{"first","rawSlots","monitorSlots","outputSlots","clockSlots","controlSlots","receiptSlots","capacity","target","wait","warmup","map","eq","minimumCapture","minimumRender","storageStallMs"});auto &o=i.processing;
     o.first={u(p.at("first"))};o.rawSlots=small(p.at("rawSlots"));o.monitorSlots=small(p.at("monitorSlots"));o.outputSlots=small(p.at("outputSlots"));o.clockSlots=small(p.at("clockSlots"));o.controlSlots=small(p.at("controlSlots"));o.receiptSlots=small(p.at("receiptSlots"));o.inputCapacityFrames=small(p.at("capacity"));o.targetQueuedSourceFrames=small(p.at("target"));o.maximumWait100ns=u(p.at("wait"));o.maximumWarmupFrames=u(p.at("warmup"));
+    if(minor>=2){o.minimumCaptureFrames=small(p.at("minimumCapture"));o.minimumRenderFrames=small(p.at("minimumRender"));o.storageStallMilliseconds=small(p.at("storageStallMs"));}
+    require(o.minimumCaptureFrames && o.minimumCaptureFrames<=s.raw.maximumPacketFrames && o.minimumRenderFrames && o.minimumRenderFrames<=s.maximumRenderFrames && o.storageStallMilliseconds<=60000,"Invalid stored minimum cycle/storage budget");
+    if(minor<2)require(o.rawSlots<=256 && o.receiptSlots<=64,"Legacy stored queue extent exceeded");
     o.channelMap=optional<MonitorChannelMap>(p.at("map"),[](const auto &v){return decodeMonitorChannelMap(unhex(v,2*(28+16*65536)));});
     o.equalizer=optional<MonitorEqSpec>(p.at("eq"),[&](const auto &v){return decodeMonitorEq(unhex(v),s.renderRate,s.renderChannels);});
     i.inputs=ports(j.at("inputs"));i.outputs=ports(j.at("outputs"));
@@ -27,7 +32,8 @@ PipeWireRecordingIntent decodeIntent(const J &j,const PipeWireRecordingSpec &s){
     c.startup=MonitorStartupConfig{s.maximumRenderFrames,s.maximumRenderFrames,o.maximumWait100ns};c.channelMap=o.channelMap;c.equalizer=o.equalizer;
     captureFanoutPayloadBytes(f);monitorOutputBankPayloadBytes(out);monitorProcessingPayloadBytes(f,out,c);
     MonitorCaptureStopConfig stop;stop.runGeneration=s.generation;stop.sourceRate=s.raw.sampleRate;stop.channels=s.raw.layout.channels;stop.maximumPacketFrames=s.raw.maximumPacketFrames;stop.monitorSlots=o.monitorSlots;stop.inputCapacityFrames=o.inputCapacityFrames;stop.targetQueuedSourceFrames=o.targetQueuedSourceFrames;stop.warmupInputFrames=monitorBufferWarmupInputFrames(b);monitorCaptureStopPayloadBytes(stop);
-    require(o.maximumWait100ns && o.maximumWait100ns<=600000000 && o.maximumWarmupFrames<=std::uint64_t(s.renderRate)*60 && o.clockSlots && o.clockSlots<=64 && o.controlSlots && o.controlSlots<=64 && o.receiptSlots && o.receiptSlots<=64,"Invalid stored PipeWire scheduling/queue declaration");
+    require(o.maximumWait100ns && o.maximumWait100ns<=600000000 && o.maximumWarmupFrames<=std::uint64_t(s.renderRate)*60 && o.clockSlots && o.clockSlots<=64 && o.controlSlots && o.controlSlots<=64 && o.receiptSlots && o.receiptSlots<=4096,"Invalid stored PipeWire scheduling/queue declaration");
+    pipeWireStorageCapacity(s,o);
     require(o.channelMap || s.raw.layout.channels==s.renderChannels,"Stored width change lacks explicit map");return i;
 }
 J prefixBinding(const PipeWireRecordingPrefix &p){return {{"captureRecords",p.captureRecords},{"renderRecords",p.renderRecords},{"captureBytes",p.captureBytes},{"renderBytes",p.renderBytes},{"captureSha256",p.captureSha256},{"renderSha256",p.renderSha256},

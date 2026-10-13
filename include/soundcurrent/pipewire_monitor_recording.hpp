@@ -2,6 +2,7 @@
 #pragma once
 #include "pipewire_monitor_route.hpp"
 #include "audio_port.hpp"
+#include "recording_storage_budget.hpp"
 #include "pipewire_recording_state.hpp"
 namespace soundcurrent::daw {
 // Construct inactive with route references; select explicit native ports before
@@ -33,6 +34,7 @@ struct PipeWireMonitorRecordingOptions {
     PipeWireMonitorRouteOptions route;
     PipeWireJournalOptions journal;
     PipeWireStateOptions durable;
+    std::optional<RecordingStorageBudget> storageBudget; // Explicit off-RT capacity policy; absent retains legacy slots.
     std::function<void(PipeWireOwnerBoundary)> boundary; // Serialized control, never native/processing callback.
 };
 enum class PipeWireRecordingDisposition { Recorded,Cancelled,Failed };
@@ -86,6 +88,8 @@ class PipeWireMonitorRecording {
     PipeWireMonitorRecordingResult wait(); // Explicit horizon Stop/cancel required for open run.
     PipeWireMonitorRecordingResult cancelAndWait();
     const std::filesystem::path &jobDirectory() const noexcept;
+    std::optional<RecordingStorageCapacity> storageCapacity() const; // Off-RT immutable prepared capacity.
+    std::size_t routeChargedBytes() const noexcept;
     EqEvent equalizerEvent(const EqSettings &,const ParameterAddress &,MonitorOutputOrdinal) const;
     EqEvent equalizerEnableEvent(bool,MonitorOutputOrdinal) const;
     SubmitStatus submitEqualizer(const EqEvent &,std::uint64_t revision) noexcept;

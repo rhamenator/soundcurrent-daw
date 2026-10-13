@@ -2,7 +2,7 @@
 #pragma once
 #include "pipewire_monitor_capture.hpp"
 #include "pipewire_monitor_render.hpp"
-#include "spsc_queue.hpp"
+#include "prepared_spsc_queue.hpp"
 namespace soundcurrent::daw {
 enum class PipeWireReceiptCode { Accepted, Ready, Empty, Drained, Stopped, Fault };
 enum class PipeWireReceiptCause { QueueFull, SequenceOverflow, ConsumerLost, InvalidCycle };
@@ -22,7 +22,7 @@ struct PipeWireReceiptQueueOptions {
 };
 std::size_t pipeWireReceiptPayloadBytes(const PipeWireReceiptQueueOptions &);
 // Two independent native producers, ONE serialized journal consumer. Copies
-// complete scalar facts after native returns into fixed 64-cell SPSC lanes.
+// complete scalar facts after native returns into prepared bounded SPSC lanes.
 // No clock fitting, joining, disk, allocation or waiting inside publication/read.
 // Raw PCM banks remain independent; receipt refusal cannot erase captured audio.
 // Join native producers before finish/retire; join consumer before destruction.
@@ -46,13 +46,13 @@ class PreparedPipeWireReceiptQueues {
   private:
     friend std::size_t pipeWireReceiptPayloadBytes(const PipeWireReceiptQueueOptions &);
     template<class Cycle> struct Lane {
-        SpscQueue<PipeWireReceiptRecord<Cycle>,64> queue;
+        PreparedSpscQueue<PipeWireReceiptRecord<Cycle>> queue;
         PipeWireReceiptFault<Cycle> fault{};
         std::uint64_t next;
         std::uint32_t published = 0;
         std::atomic<std::uint32_t> consumed{0};
         std::atomic<std::uint32_t> ended{0},faultReady{0};
-        explicit Lane(std::uint64_t first):next(first){}
+        explicit Lane(std::uint64_t first,std::uint32_t slots):queue(slots),next(first){}
     };
     ResourceLease lease_;
     const PipeWireReceiptQueueOptions options_;

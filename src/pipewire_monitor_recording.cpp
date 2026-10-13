@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_monitor_recording.hpp>
 #include "native_poll_wait.hpp"
+#include <algorithm>
 namespace soundcurrent::daw {
 struct PipeWireMonitorRecording::State {
     PipeWireMonitorRecordingOptions options;std::unique_ptr<PreparedPipeWireMonitorRoute> route;
@@ -13,6 +14,14 @@ struct PipeWireMonitorRecording::State {
     std::optional<PipeWireMonitorRecordingResult> result;std::uint64_t requestId=0;bool activated=false,closed=false;
     State(std::filesystem::path root,PipeWireMonitorStreamFactory factory,PipeWireMonitorRecordingOptions o):options(std::move(o)){
         if(!factory)throw ProjectError(ErrorCode::InvalidParameter,"Prepare an owned PipeWire stream factory");
+        if(options.storageBudget){const auto &b=*options.storageBudget;const auto &s=options.declared;
+            if(b.headroomPackets!=2 || b.captureRate!=s.raw.sampleRate || b.renderRate!=s.renderRate || b.captureChannels!=s.raw.layout.channels || b.maximumCaptureFrames!=s.raw.maximumPacketFrames || b.minimumRenderFrames>s.maximumRenderFrames)
+                throw ProjectError(ErrorCode::InvalidParameter,"Storage budget differs from declared recording geometry");
+            const auto capacity=prepareRecordingStorageCapacity(b);options.route.rawSlots=capacity.rawSlots;
+            options.route.receiptSlots=std::max({options.route.receiptSlots,capacity.captureReceiptSlots,capacity.renderReceiptSlots});
+            options.route.minimumCaptureFrames=b.minimumCaptureFrames;options.route.minimumRenderFrames=b.minimumRenderFrames;
+            options.route.storageStallMilliseconds=b.stallMilliseconds;
+        }
         try{route=std::make_unique<PreparedPipeWireMonitorRoute>(options.declared,options.route);
             streams=factory(*route);if(!streams)throw ProjectError(ErrorCode::InvalidState,"Missing prepared PipeWire owners");
             if(!options.journal.raw.resources)options.journal.raw.resources=options.route.resources;
@@ -135,6 +144,8 @@ PipeWireMonitorProgress PipeWireMonitorRecording::progress() const noexcept {con
     s.route->capture().rawAcceptedFrames(),s.route->capture().monitorAcceptedFrames(),s.route->output().acceptedFrames(),s.route->output().deliveredFrames(),s.route->processing().copiedSourceFrames()};}
 PipeWireMonitorRecordingResult PipeWireMonitorRecording::wait(){if(!state_->activated && !state_->closed)throw ProjectError(ErrorCode::InvalidState,"Activate or cancel prepared PipeWire run");return state_->finish(false);}
 PipeWireMonitorRecordingResult PipeWireMonitorRecording::cancelAndWait(){return state_->finish(true);}
+std::optional<RecordingStorageCapacity> PipeWireMonitorRecording::storageCapacity() const{return pipeWireStorageCapacity(state_->options.declared,state_->options.route);}
+std::size_t PipeWireMonitorRecording::routeChargedBytes() const noexcept{return state_->route->chargedBytes();}
 const std::filesystem::path &PipeWireMonitorRecording::jobDirectory() const noexcept{return state_->job;}
 EqEvent PipeWireMonitorRecording::equalizerEvent(const EqSettings &s,const ParameterAddress &a,MonitorOutputOrdinal at) const {
     const auto *eq=state_->route->processing().equalizer();if(!eq || state_->closed)throw ProjectError(ErrorCode::InvalidState,"No active PipeWire monitor EQ");return eq->parameterEvent(s,a,at);}

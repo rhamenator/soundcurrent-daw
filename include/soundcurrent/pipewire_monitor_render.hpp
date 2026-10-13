@@ -43,6 +43,7 @@ struct PipeWireMonitorRenderOptions {
     void *receiptContext = nullptr;
     bool (*receipt)(void *,const PipeWireRenderCycle &) noexcept = nullptr; // Bounded RT-safe handoff.
     PreparedMonitorStartupHandoff *startup = nullptr; // Outlives joined processing/render owners.
+    std::uint32_t minimumQuantumFrames = 1; // Prepared storage assumption; smaller callbacks fault before publication.
 };
 enum class PipeWireRenderCode { Content, Warmup, Complete, Stopped, Fault };
 // One native process/return owner. Interleaved bank -> planar native buffers;

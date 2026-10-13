@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Explicit recording storage budget (2026-10-12)
+
+[Checkpoint 242](242-recording-storage-budget.md) implements prepared bounded queues,
+rate/minimum-cycle-based raw/receipt admission, enforced native minimums, payload
+quotas and saved owner state 1.2. Final owner/controller/state/stall gates pass 4/4
+in 9.79 s; exact within-budget recording and beyond-budget raw failure/prefix are
+verified. Older state remains readable. Fresh ASan/UBSan core gates pass 6/6 in 0.51 s
+with leak detection enabled. Original PR175 failed controller results
+are retained separately. Desktop budget controls and independent Windows CI/native
+qualification remain pending. The full goal remains active and incomplete.
+
 ## Checkpoint service sanitizer evidence and crash-test correction (2026-10-12)
 
 [Checkpoint 241](241-checkpoint-service-qualification.md) qualifies unchanged

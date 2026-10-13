@@ -1,6 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_monitor_route.hpp>
 namespace soundcurrent::daw {
+std::optional<RecordingStorageCapacity> pipeWireStorageCapacity(const PipeWireRecordingSpec &s,const PipeWireMonitorRouteOptions &o){
+    if(!o.storageStallMilliseconds)return {};
+    RecordingStorageBudget b;b.captureRate=s.raw.sampleRate;b.renderRate=s.renderRate;b.captureChannels=s.raw.layout.channels;
+    b.minimumCaptureFrames=o.minimumCaptureFrames;b.maximumCaptureFrames=s.raw.maximumPacketFrames;b.minimumRenderFrames=o.minimumRenderFrames;
+    b.stallMilliseconds=o.storageStallMilliseconds;b.maximumRawSlots=o.rawSlots;b.maximumReceiptSlots=o.receiptSlots;b.memoryBudgetBytes=SIZE_MAX;
+    auto capacity=prepareRecordingStorageCapacity(b);
+    capacity.rawSlots=o.rawSlots;capacity.captureReceiptSlots=capacity.renderReceiptSlots=o.receiptSlots;
+    capacity.retainedRawFrames=std::uint64_t(o.rawSlots)*s.raw.maximumPacketFrames;
+    const auto bytes=capacity.retainedRawFrames*s.raw.layout.channels*sizeof(float);
+    if(bytes>SIZE_MAX)throw ProjectError(ErrorCode::ResourceLimit,"Stored raw PCM extent exceeds addressable memory");
+    capacity.rawSampleBytes=std::size_t(bytes);return capacity;
+}
 namespace {
 struct Admission {
     PipeWireRecordingSpec spec;PipeWireMonitorRouteOptions options;
@@ -12,9 +24,11 @@ Admission admit(PipeWireRecordingSpec s,PipeWireMonitorRouteOptions o){Admission
     const auto &spec=a.spec;const auto &opts=a.options;auto &f=a.capture;auto &out=a.output;
     if(!spec.generation || !spec.renderIdentity.endpoint || !spec.renderIdentity.stream || !spec.renderIdentity.generation ||
        spec.renderRate<8000 || spec.renderRate>384000 || !spec.renderChannels || spec.renderChannels>256 ||
+       !opts.minimumCaptureFrames || opts.minimumCaptureFrames>spec.raw.maximumPacketFrames || !opts.minimumRenderFrames || opts.minimumRenderFrames>spec.maximumRenderFrames || opts.storageStallMilliseconds>60000 ||
        !spec.maximumRenderFrames || spec.maximumRenderFrames>65536 || !opts.maximumWait100ns || opts.maximumWait100ns>600000000 ||
        (!opts.channelMap && spec.raw.layout.channels!=spec.renderChannels) || opts.maximumWarmupFrames>std::uint64_t(spec.renderRate)*60)
         throw ProjectError(ErrorCode::InvalidParameter,"Invalid expected PipeWire route geometry");
+    pipeWireStorageCapacity(spec,opts); // A saved duration cannot exceed the actual queues.
     const auto budget=opts.memoryBudgetBytes;
     f.capture.identity=spec.raw.identity;f.capture.sampleRate=spec.raw.sampleRate;f.capture.channels=spec.raw.layout.channels;
     f.capture.maximumPacketFrames=spec.raw.maximumPacketFrames;f.capture.initialPacketSequence=spec.raw.initialPacketSequence;
@@ -76,11 +90,13 @@ PreparedPipeWireReceiptQueues &PreparedPipeWireMonitorRoute::receipts() noexcept
 PreparedMonitorProcessing &PreparedPipeWireMonitorRoute::processing() noexcept{return state_->processing;}
 PipeWireMonitorCaptureOptions PreparedPipeWireMonitorRoute::captureOptions() noexcept {
     PipeWireMonitorCaptureOptions o;o.memoryBudgetBytes=state_->admitted.options.memoryBudgetBytes;o.requireNativeReturns=true;
+    o.minimumQuantumFrames=state_->admitted.options.minimumCaptureFrames;
     o.receiptContext=&state_->receipts;o.receipt=PreparedPipeWireReceiptQueues::captureSink;o.stop=&state_->stop;return o;
 }
 PipeWireMonitorRenderOptions PreparedPipeWireMonitorRoute::renderOptions() noexcept {
     PipeWireMonitorRenderOptions o;o.memoryBudgetBytes=state_->admitted.options.memoryBudgetBytes;
     o.maximumWarmupFrames=state_->admitted.options.maximumWarmupFrames;o.maximumWarmupNs=state_->admitted.options.maximumWait100ns*100;
+    o.minimumQuantumFrames=state_->admitted.options.minimumRenderFrames;
     o.receiptContext=&state_->receipts;o.receipt=PreparedPipeWireReceiptQueues::renderSink;o.startup=&state_->startup;return o;
 }
 const PipeWireRecordingSpec &PreparedPipeWireMonitorRoute::declared() const noexcept{return state_->admitted.spec;}

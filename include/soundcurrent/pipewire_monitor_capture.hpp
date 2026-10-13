@@ -41,6 +41,7 @@ struct PipeWireMonitorCaptureOptions {
     void *receiptContext = nullptr;
     bool (*receipt)(void *,const PipeWireCaptureCycle &) noexcept = nullptr; // Bounded RT-safe handoff only.
     PreparedPipeWireCaptureStop *stop = nullptr; // Outlives capture/processing owners; joined before retirement.
+    std::uint32_t minimumQuantumFrames = 1; // Prepared storage assumption; smaller callbacks fault before publication.
 };
 enum class PipeWireCaptureCode { Accepted, Stopped, Fault };
 // One PipeWire process owner. Prepared planar->interleaved copy preserves float

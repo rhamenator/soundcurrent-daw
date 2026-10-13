@@ -3,17 +3,21 @@
 #include "pipewire_recording_journal.hpp"
 #include "pipewire_capture_stop.hpp"
 #include "monitor_processing.hpp"
+#include "recording_storage_budget.hpp"
 namespace soundcurrent::daw {
 struct PipeWireMonitorRouteOptions {
     MonitorOutputOrdinal first;
     std::uint32_t rawSlots=64,monitorSlots=32,outputSlots=256,clockSlots=64,controlSlots=64,receiptSlots=64;
     std::uint32_t inputCapacityFrames=262144,targetQueuedSourceFrames=1024;
     std::uint64_t maximumWait100ns=50000000,maximumWarmupFrames=0;
+    std::uint32_t minimumCaptureFrames=1,minimumRenderFrames=1,storageStallMilliseconds=0; // Zero duration: legacy capacity, no duration claim.
     std::optional<MonitorChannelMap> channelMap;
     std::optional<MonitorEqSpec> equalizer;
     std::size_t memoryBudgetBytes=256*1024*1024;
     std::optional<ResourceLedger> resources;
 };
+// Revalidates effective saved capacity without allocating banks. Legacy routes return no duration claim.
+std::optional<RecordingStorageCapacity> pipeWireStorageCapacity(const PipeWireRecordingSpec &,const PipeWireMonitorRouteOptions &);
 // Expected graph geometry, not an already negotiated native-device format.
 // Native callbacks validate the actual rate/quantum. No rate/driver forcing,
 // project anchor or inferred speaker mapping. One aggregate lease precedes banks.

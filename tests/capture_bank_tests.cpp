@@ -164,7 +164,7 @@ void silentStopAndAdmission() {
         auto c=config();
         if (n==0) c.identity.stream=0;
         if (n==1) c.channels=257;
-        if (n==2) c.slots=257;
+        if (n==2) c.slots=4097;
         if (n==3) c.maximumPacketFrames=0;
         if (n==4) c.sampleRate=7999;
         if (n==5) c.memoryBudgetBytes=1;
