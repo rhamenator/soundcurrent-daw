@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## PipeWire timeline admission and portable evidence (2026-10-12)
+
+[Checkpoint 235](235-pipewire-take-admission.md) enables explicit main-window Add,
+Save, Undo/Redo and reopening for verified PipeWire originals, with all eight
+hashed provenance files and schema 1.19; strict Native-only schema 1.18 remains.
+Six targeted Release gates pass in 38.70 seconds; copied-project admission/raw
+export passes in 2.22 seconds. Processed export checks shared EQ response and float
+headroom. Current sanitizers/native Windows/installed/hardware qualification remain
+open. Original PR168 checkout and Linux finalization failures are retained; the
+latter cause remains unproven. Full suite and all-Europe parity remain active.
+
 ## Typed PipeWire controller and recording panel (2026-10-12)
 
 [Checkpoint234](234-pipewire-monitor-controller.md) wires expected PipeWire
