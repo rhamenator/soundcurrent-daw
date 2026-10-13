@@ -15,7 +15,6 @@
 #include <QLocale>
 #include <soundcurrent/wasapi_ports.hpp>
 #include <QTest>
-#include <QTemporaryDir>
 #include <QTimer>
 #include <iostream>
 #include <source_location>
