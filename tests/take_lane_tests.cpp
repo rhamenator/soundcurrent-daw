@@ -160,6 +160,23 @@ void workflow() {
     refuses([&]{tiny.structural({SelectTakeRegion{track,a.id,17,111}});});
     check(s==before && !tiny.resources().undoCommands,"Bounded comp refusal changed state/history");
 }
+void recordedTakeAudition() {
+    Directory d;auto s=makeOneTrackSession("Audition takes","Voice");s.tracks[0].eq.enabled=false;
+    ProjectStore(d.root).save(s);const auto track=s.tracks[0].id;
+    std::vector<TakeLane> takes;std::vector<SessionEdit> edits;
+    for(unsigned n=0;n<5;++n){auto lane=record(s,d.root,n);takes.push_back(lane);edits.push_back(InsertTakeLane{track,lane,{}});}
+    applySessionEdits(s,edits);applySessionEdits(s,{SelectTakeRegion{track,takes[0].id,100,200},SelectTakeRegion{track,takes[1].id,200,300}});
+    s.playheadFrame=123;s.loop={true,100,200};ProjectStore(d.root).save(s);const auto canonical=s;
+    const MixPlan plan{{LayoutKind::Mono,1},{{track,{{0,0,1}}}}};const auto arrangement=exported(d.root,s,plan);
+    std::vector<std::string> raw;for(const auto &asset:s.assets)raw.push_back(hashMediaFile(d.root/utf8Path(asset.relativePath)));
+    for(unsigned n=0;n<5;++n) {
+        const auto preview=makeTakeAudition(s,{track,takes[n].id});const auto output=live(d.root,preview,plan,37);
+        for(Frame f=0;f<512;++f)check(output[std::size_t(f)]==source(f,n),"Audition heard arrangement or wrong take");
+        check(preview.tracks[0].takeLanes==s.tracks[0].takeLanes && s==canonical && ProjectStore(d.root).load()==s,"Audition mutated canonical state/save");
+    }
+    check(exported(d.root,s,plan)==arrangement,"Audition entered canonical export");
+    for(std::size_t n=0;n<raw.size();++n)check(hashMediaFile(d.root/utf8Path(s.assets[n].relativePath))==raw[n],"Audition changed raw takes");
+}
 void fiveTakeTransitions() {
     for(const auto curve:{ClipFadeCurve::Linear,ClipFadeCurve::EqualPower,ClipFadeCurve::Smoothstep}) {
         Directory d;auto s=makeOneTrackSession("Five takes","Voice");s.tracks[0].eq.enabled=false;
@@ -277,7 +294,7 @@ void groupsAndTiming() {
 }
 }
 int main() {
-    try { workflow(); groupsAndTiming(); fiveTakeTransitions(); groupedTransitionOffsets(); check((rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)==0,"Comp callback allocated/freed/locked");
+    try { workflow(); groupsAndTiming(); fiveTakeTransitions(); groupedTransitionOffsets(); recordedTakeAudition(); check((rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)==0,"Comp callback allocated/freed/locked");
         std::cout<<"retained_take_comp_checks="<<checks<<" callback_audit="<<(rt_audit::counts.cppAllocate+rt_audit::counts.cppFree+rt_audit::counts.cAllocate+rt_audit::counts.cFree+rt_audit::counts.blockingLock)<<" raw_unchanged=true save_reopen=true grouped_offsets=true\n";
     } catch(const std::exception &e) { std::cerr<<e.what()<<'\n'; return 1; }
 }

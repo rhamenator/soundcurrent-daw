@@ -1,0 +1,86 @@
+{
+  "sourceCommit": "29905f267d5c517452538010e779ead82134e725",
+  "sourceTree": "b7844f69c968ce5d14c0a01c46b0a81466c334e3",
+  "sourceFiles": 1509,
+  "nativePlatform": "linux",
+  "commands": [
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        ".cache/take-audition/build",
+        "--parallel",
+        "1",
+        "--target",
+        "sc-playback-controller-tests",
+        "sc-take-lane-tests",
+        "sc-timeline-ui-tests"
+      ],
+      "pid": 2867118,
+      "exitCode": 0,
+      "log": "frozen-command-0.log"
+    },
+    {
+      "argv": [
+        "ctest",
+        "--test-dir",
+        ".cache/take-audition/build",
+        "-R",
+        "^(desktop-playback-controller|desktop-take-audition|retained-take-comp)$",
+        "--output-on-failure",
+        "--no-tests=error",
+        "-V"
+      ],
+      "pid": 2867120,
+      "exitCode": 0,
+      "log": "frozen-command-1.log"
+    }
+  ],
+  "executables": {
+    ".cache/take-audition/build/sc-playback-controller-tests": "1573a752b7c42aa3050425e39e21df6415e4ffcc78e31790fd3cc4e0c9b4acb4",
+    ".cache/take-audition/build/sc-timeline-ui-tests": "bdd22d3eb55f66f6c6289b69daf6962a9f3b2615ff8d703586f1a2a7573123dc",
+    ".cache/take-audition/build/sc-take-lane-tests": "7a583869e359fb70c139e2d879abef12547c78d48d850bc8febfaf106082109a"
+  },
+  "sourceUnchanged": true,
+  "nativeAudio": false,
+  "installedPreviewUpdated": false,
+  "packet": "acceptance.zip",
+  "packetBytes": 77299,
+  "packetSha256": "c314b327b0d8a0322f37b88fa7e70ee76648f622abacabf2155da7de065b825f",
+  "members": {
+    "frozen-inputs.json": {
+      "bytes": 176856,
+      "sha256": "c92c82cfa0a9b900b41b436c1d26adb067a0179f5a55017d4ab2ffe88c672981"
+    },
+    "frozen-qualification.json": {
+      "bytes": 1393,
+      "sha256": "ad24abf5b88c8e06d03bfdfac3a26321c33e4e0dc0cf6b2f5cc666ac52620300"
+    },
+    "frozen-command-0.log": {
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    "frozen-command-1.log": {
+      "bytes": 2194,
+      "sha256": "5da9d87c202c2c278d1fdbe0ee293e0e6bc4bc273a8c4ab416aec92191309e71"
+    },
+    "ui-status-observation-failure.log": {
+      "bytes": 1386,
+      "sha256": "012ebb1553fd7b7147438416536e19a942b4f46f501f7c505d88a0e6f5bfd208"
+    },
+    "ui-return-arrangement-failure.log": {
+      "bytes": 1362,
+      "sha256": "205f8a466cd4bcbd489f00aab76d8b8f9051a93b32525ddaa512d01b24b6c624"
+    },
+    "ui-stop-observation-failure.log": {
+      "bytes": 2417,
+      "sha256": "e24e12b82f78280781f28257d94a254c6f6a9f7de05f869e351d6b800861e3b2"
+    },
+    "localization-current.log": {
+      "bytes": 246,
+      "sha256": "39fead5c6588b29b1c583385e1d68ebad43c3401b685d8b9795845783d8d7cc6"
+    }
+  },
+  "windowsFeatureQualified": false,
+  "fullReferenceParityQualified": false
+}

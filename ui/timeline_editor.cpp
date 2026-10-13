@@ -198,6 +198,10 @@ TimelineEditor::TimelineEditor(QWidget *parent, ResourceLedger memory)
         } else edits.push_back(SelectTakeRegion{*track_, lane->id, begin, end});
         mutate(std::move(edits));
     });
+    button(takeActions, QT_TRANSLATE_NOOP("TimelineEditor", "Prepare take audition"), "auditionTakeLane", [this] {
+        if (!takeLane() || !takeAuditionRequested || !takeAuditionRequested(*track_,*take_,epoch_))
+            throw ProjectError(ErrorCode::InvalidState,tr("Take audition could not be prepared. Stop other transport and retry.").toUtf8().toStdString());
+    });
     button(takeActions, QT_TRANSLATE_NOOP("TimelineEditor", "Rename take"), "renameTakeLane", [this] {
         if (takeLane()) mutate({RenameTakeLane{*track_, *take_, takeName_->text().toUtf8().toStdString()}});
     });

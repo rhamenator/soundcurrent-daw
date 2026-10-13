@@ -297,6 +297,7 @@ StudioWindow::StudioWindow(QWidget *parent, PlaybackControllerOptions options,
             return false;
         }
     };
+    timeline_->takeAuditionRequested = [this](Id track,Id lane,std::uint64_t epoch) { return prepareTakeAudition(track,lane,epoch); };
     timeline_->selectionChanged = [this] {
         shown_.reset();
         outputIntentShown_.reset();
@@ -924,6 +925,7 @@ bool StudioWindow::requestClipStretch(const Id &track,const Id &clip,StretchSett
 }
 bool StudioWindow::auditionClipStretch() {
     const auto p=playback_.snapshot();
+    if(p->takeAudition)return false;
     if(p->audition){
         if(p->phase==PlaybackPhase::Ready){playSelected();return true;}
         playback_.requestStop();return true;
@@ -995,9 +997,9 @@ void StudioWindow::showClipStretch(const Id &track,const Id &clip) {
         view.canRender=sameProject && stretchCanRender();
         view.canApply=sameSelection && stretchCanApply();view.message=stretchMessage_;
         const auto playback=playback_.snapshot();
-        view.audition=playback->audition;
-        view.auditionReady=playback->audition && playback->phase==PlaybackPhase::Ready;
-        view.canAudition=sameSelection && playback->supported && (view.canApply || playback->audition);
+        view.audition=playback->audition && !playback->takeAudition;
+        view.auditionReady=view.audition && playback->phase==PlaybackPhase::Ready;
+        view.canAudition=sameSelection && playback->supported && !playback->takeAudition && (view.canApply || view.audition);
         if(!sameProject)view.message=tr("This dialog belongs to a previous project opening. Close it and select a clip in the current project.");
         else if(view.render->selection && !sameSelection)view.message=view.render->busy?
             tr("The current render belongs to a different clip. Finish or cancel that render before starting this one."):
@@ -1374,8 +1376,22 @@ bool StudioWindow::preparePlayback() {
     if (!submitEdit(std::move(capture)))
         return false;
     playbackPrepareBarrier_ = token;
+    playbackPreparationTake_.reset();playbackTakeGuard_.reset();
     playbackPreparationTrack_ = selectedTrack();
     playbackPrepareMix_ = mixTracks_->isChecked();
+    return true;
+}
+
+bool StudioWindow::prepareTakeAudition(const Id &track,const Id &lane,std::uint64_t epoch) {
+    const auto source=controller_.snapshot();
+    if(!source->session || source->projectEpoch != epoch || selectedTrack()!=std::optional<Id>(track))return false;
+    if(!preparePlayback())return false;
+    const auto current=controller_.snapshot();
+    if(!current->session || current->projectEpoch!=epoch || current->root!=source->root || current->session->id!=source->session->id) {
+        playbackPrepareBarrier_=0;return false;
+    }
+    playbackPreparationTake_=TakeAudition{track,lane};playbackPrepareMix_=false;
+    playbackTakeGuard_=StructuralGuard{epoch,source->session->id,source->root};
     return true;
 }
 
@@ -1586,6 +1602,13 @@ void StudioWindow::pollPlayback() {
         c.session = projectTrack(prefix->barrierSession, playbackPreparationTrack_);
         c.modelRevision = prefix->barrierRevision;
         try {
+            if(playbackPreparationTake_) {
+                if(!playbackTakeGuard_ || prefix->projectEpoch!=playbackTakeGuard_->projectEpoch ||
+                   c.root!=playbackTakeGuard_->root || !c.session || c.session->id!=playbackTakeGuard_->project)
+                    throw ProjectError(ErrorCode::InvalidState,tr("The project changed before take audition was prepared.").toUtf8().toStdString());
+                c.takeAudition=playbackPreparationTake_;
+            }
+            playbackPreparationTake_.reset();playbackTakeGuard_.reset();
             if (c.session && playbackPrepareMix_) {
                 std::vector<Id> ids;
                 for (const auto &t : c.session->tracks)
@@ -1685,7 +1708,8 @@ void StudioWindow::pollPlayback() {
         status += tr(" · Loop pass %1 · project frame %2")
             .arg(QLocale().toString(static_cast<qulonglong>(p->loopPass + 1)),
                  QLocale().toString(static_cast<qlonglong>(p->projectPosition)));
-    if(p->audition)status=tr("Audition — project unchanged. ")+status;
+    if(p->takeAudition)status=tr("Take audition — arrangement unchanged. ")+status;
+    else if(p->audition)status=tr("Audition — project unchanged. ")+status;
     playbackState_->setText(status);
     const auto peak = std::isfinite(p->peak) ? std::max(0.0, p->peak) : 0.0;
     meter_->setValue(int(std::lround(std::min(1.2, peak) * 1000)));

@@ -203,6 +203,8 @@ struct PlaybackController::State : QThread {
     QWaitCondition wake;
     std::deque<Queued> commands;
     std::optional<Following> following;
+    std::shared_ptr<const Session> takeSource, takeProjection;
+    std::optional<Following> takeCanonical;
     std::uint64_t lastFollowed = 0;
     std::atomic<std::uint64_t> stopEpoch{0};
     std::atomic<bool> closing{false};
@@ -272,7 +274,9 @@ struct PlaybackController::State : QThread {
         std::vector<std::uint64_t>().swap(appliedByLane);
         receiptsLease = {};
         prepared.reset();
-        view.audition = false;
+        if(takeCanonical && desired && desired->session==takeProjection)desired=std::move(takeCanonical);
+        takeCanonical.reset();takeProjection.reset();
+        view.audition = false;view.takeAudition.reset();takeSource.reset();
         acceptedModel.reset();
         view.ports.reset();
         view.peak = 0;
@@ -317,7 +321,36 @@ struct PlaybackController::State : QThread {
     void reconcile(bool admitReady = false) {
         if (!prepared || !desired || !endpoint)
             return;
-        if(view.audition){
+        if(view.takeAudition && (desired->root!=prepared->root || desired->session->id!=takeSource->id))
+            throw ProjectError(ErrorCode::InvalidState,"Audition project changed; prepare again");
+        if(view.takeAudition && desired->revision < prepared->modelRevision &&
+           desired->root == prepared->root && desired->session->id == prepared->session->id)return;
+        if(view.takeAudition && desired->revision != checkedRevision) {
+            validate(*desired->session);
+            const auto selection=*view.takeAudition;
+            const auto *old=trackForId(takeSource.get(),selection.track), *updated=trackForId(desired->session.get(),selection.track);
+            const auto lane=[&](const Track *t)->const TakeLane * {
+                if(!t)return nullptr;
+                const auto found=std::find_if(t->takeLanes.begin(),t->takeLanes.end(),[&](const auto &v){return v.id==selection.lane;});
+                return found==t->takeLanes.end()?nullptr:&*found;
+            };
+            const auto *a=lane(old), *b=lane(updated);
+            if(desired->root != prepared->root || desired->session->id != takeSource->id ||
+               desired->session->sampleRate != takeSource->sampleRate || !a || !b || *a != *b ||
+               old->layout != updated->layout || desired->session->assets != takeSource->assets)
+                throw ProjectError(ErrorCode::InvalidState,"Audition take or project changed; prepare again");
+            takeCanonical=*desired;
+            PayloadCharge charge("Take audition EQ projection",SIZE_MAX);
+            charge.add(sessionPayloadBytes(*prepared->session),2);charge.add(128*1024);
+            auto reservation=options.projectMemory.reserve(charge.bytes());
+            Session ephemeral=*prepared->session;
+            auto target=std::find_if(ephemeral.tracks.begin(),ephemeral.tracks.end(),[&](const auto &t){return t.id==selection.track;});
+            target->eq=updated->eq;
+            SessionSnapshots snapshots(options.projectMemory,StateBudget{options.projectMemory.usage().limitBytes});
+            desired->session=snapshots.adopt(std::move(ephemeral),std::move(reservation));
+            takeProjection=desired->session;
+        }
+        if(view.audition && !view.takeAudition){
             if(desired->revision>prepared->modelRevision)
                 throw ProjectError(ErrorCode::InvalidState,"Project changed; prepare audition again");
             return; // Canonical models cannot replace an uncommitted audible derivative.
@@ -414,6 +447,20 @@ struct PlaybackController::State : QThread {
         if (view.generation == UINT64_MAX)
             throw ProjectError(ErrorCode::InvalidState, "Playback generation exhausted");
         std::optional<Frame> auditionEnd;
+        if(c.takeAudition && c.audition)throw ProjectError(ErrorCode::InvalidState,"Choose one audition source");
+        if(c.takeAudition) {
+            PayloadCharge charge("Ephemeral take audition",SIZE_MAX);
+            charge.add(sessionPayloadBytes(*c.session),3);charge.add(128*1024);
+            auto reservation=options.projectMemory.reserve(charge.bytes());
+            takeSource=c.session;
+            auto ephemeral=makeTakeAudition(*c.session,*c.takeAudition,StateBudget{options.projectMemory.usage().limitBytes});
+            const auto *track=trackForId(&ephemeral,c.takeAudition->track);
+            auditionEnd=0;
+            for(const auto &clip:track->clips)*auditionEnd=std::max(*auditionEnd,clip.startFrame+clip.lengthFrames);
+            SessionSnapshots snapshots(options.projectMemory,StateBudget{options.projectMemory.usage().limitBytes});
+            c.session=snapshots.adopt(std::move(ephemeral),std::move(reservation));
+            c.session=sessionForTrack(c.session,c.takeAudition->track,options.projectMemory);c.plan.reset();
+        }
         if(c.audition){
             if(!c.audition->ownedBy(options.projectMemory))throw ProjectError(ErrorCode::InvalidState,"Audition result belongs to another resource owner");
             const auto &edit=c.audition->edit();
@@ -474,7 +521,7 @@ struct PlaybackController::State : QThread {
             return;
         }
         prepared = std::move(next);
-        view.audition = bool(c.audition);
+        view.audition = bool(c.audition)||bool(c.takeAudition);view.takeAudition=c.takeAudition;
         acceptedModel = prepared->session;
         bundle.reset();
         eventRevision = 0;

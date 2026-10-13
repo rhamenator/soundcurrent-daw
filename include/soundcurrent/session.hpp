@@ -361,6 +361,9 @@ class ValidatedSession {
     std::unordered_map<std::string_view, const Asset *> assets_;
     std::unordered_map<std::string_view, const ImportedProjectSource *> imports_;
 };
+struct TakeAudition { Id track, lane; bool operator==(const TakeAudition &) const = default; };
+// Transient control-side playback model. Never publish through project/history.
+Session makeTakeAudition(const Session &, const TakeAudition &, StateBudget = {});
 Session makeOneTrackSession(std::string name, std::string trackName,
                            std::uint32_t sampleRate = 48000);
 Track makeAudioTrack(std::string name, ChannelLayout layout, std::uint32_t sampleRate);

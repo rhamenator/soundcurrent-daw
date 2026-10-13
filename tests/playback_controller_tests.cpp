@@ -382,10 +382,59 @@ void loopCompatibility() {
     controller.requestShutdown();await([&]{return controller.snapshot()->closed;});
 }
 
+void takeAuditionWorkflow() {
+    auto counters=std::make_shared<Counters>();auto config=options(counters);
+    std::shared_ptr<const Session> observed;
+    config.factory=[&](const PlaybackPreparation &p) {
+        observed=p.session;return std::make_unique<Endpoint>(p,counters);
+    };
+    PlaybackController controller(config);auto s=session();const auto track=s.tracks[0].id;
+    TakeLane lane;lane.name="Retained";lane.captureEndFrame=1000000;
+    auto retained=s.tracks[0].clips[0];retained.id=Id::generate();lane.clips={retained};
+    s.tracks[0].takeLanes={lane};s.tracks[0].clips[0].processing.muted=true;
+    s.playheadFrame=100;s.loop={true,0,512};validate(s);const auto original=s;
+    auto command=prepare(s);command.takeAudition=TakeAudition{track,lane.id};
+    check(controller.submit(command)==Admission::Accepted,"Take audition not admitted");
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Ready;});
+    const auto ready=controller.snapshot();
+    check(ready->audition && ready->takeAudition==command.takeAudition && !ready->loop &&
+          counters->preparedEndFrame==1000000 && !counters->activated,"Take preparation played or inherited project loop");
+    check(observed && observed->tracks[0].clips[0].id!=retained.id &&
+          observed->tracks[0].clips[0].takeOrigin->clipId==retained.id &&
+          !observed->tracks[0].clips[0].processing.muted && observed->tracks[0].takeLanes==s.tracks[0].takeLanes && s==original,
+          "Transient take model changed source/arrangement/provenance");
+    observed.reset();play(controller,counters);
+    s.tracks[0].eq.bands[0].gainDb=6;
+    check(controller.follow(command.root,std::make_shared<const Session>(s),2),"Take EQ follow refused");
+    await([&]{return controller.snapshot()->appliedRevision==2;});
+    check(controller.snapshot()->takeAudition==command.takeAudition && counters->submitted>0,"Take EQ was not acknowledged live");
+    controller.requestStop();await([&]{return controller.snapshot()->phase==PlaybackPhase::Idle;});
+    controller.submit(prepare(s,3));await([&]{return controller.snapshot()->phase==PlaybackPhase::Ready;});
+    check(!controller.snapshot()->audition && observed->tracks[0].clips==s.tracks[0].clips,
+          "Live-EQ audition projection survived ordinary Stop/return");
+    observed.reset();controller.requestStop();await([&]{return controller.snapshot()->phase==PlaybackPhase::Idle;});
+    command.session=std::make_shared<const Session>(s);command.modelRevision=4;controller.submit(command);
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Ready;});observed.reset();play(controller,counters);
+    ++s.tracks[0].takeLanes[0].clips[0].sourceFrame;s.tracks[0].takeLanes[0].clips[0].lengthFrames-=1;
+    controller.follow(command.root,std::make_shared<const Session>(s),5);
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Fault;});
+    check(!controller.snapshot()->takeAudition && counters->destroyed==3,"Changed take left stale audition owner");
+    auto normal=prepare(original,6);controller.submit(normal);
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Ready;});
+    check(!controller.snapshot()->audition && observed->tracks[0].clips==original.tracks[0].clips && counters->preparedLoop.has_value(),"Return to arrangement retained preview clips");
+    observed.reset();controller.requestStop();await([&]{return controller.snapshot()->phase==PlaybackPhase::Idle;});
+    command.modelRevision=7;controller.submit(command);
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Ready;});observed.reset();
+    controller.follow(utf8Path("replaced-project"),std::make_shared<const Session>(original),7);
+    await([&]{return controller.snapshot()->phase==PlaybackPhase::Fault;});
+    check(!counters->wrongThread && !controller.snapshot()->takeAudition,"Project replacement retained stale take audition");
+    controller.requestShutdown();await([&]{return controller.snapshot()->closed;});
+}
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
     try {
+        takeAuditionWorkflow();
         loopCompatibility();
         editsAndFailure();
         priorityCloseAndCancellation();

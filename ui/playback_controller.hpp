@@ -79,6 +79,7 @@ struct PlaybackSnapshot {
     bool supported = false, pending = false, closed = false, audition = false;
     std::optional<PlaybackCallbackFault> callbackFault;
     std::optional<NativeRenderTiming> nativeTiming;
+    std::optional<TakeAudition> takeAudition;
 };
 struct PlaybackControllerOptions {
     std::function<std::unique_ptr<PlaybackEndpoint>(const PlaybackPreparation &)> factory;
@@ -97,6 +98,7 @@ struct PlaybackCommand {
     std::optional<MixPlan> plan;
     // Verified owned derivative, applied only to an ephemeral off-GUI model.
     std::shared_ptr<const VerifiedClipStretch> audition;
+    std::optional<TakeAudition> takeAudition;
 };
 // Qt desktop worker. Prepare/Play use a16-command FIFO. Canonical full models
 // have one explicitly coalescing latest slot; gestures/history stay in ProjectController.

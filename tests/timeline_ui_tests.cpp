@@ -519,6 +519,44 @@ void selectionBeforePoll(const std::filesystem::path &root) {
     close(w);
     check(ProjectStore(root).load() == original, "Pre-poll selection changed canonical project");
 }
+void takeAuditionTransport(const std::filesystem::path &root) {
+    auto original=fixture(root);const auto track=original.tracks[0].id;
+    TakeLane take;take.name="Listening take";take.captureEndFrame=1024;
+    auto clip=original.tracks[0].clips[0];clip.id=Id::generate();take.clips={clip};
+    original.tracks[0].takeLanes={take};original.tracks[0].clips[0].processing.muted=true;
+    original.playheadFrame=100;ProjectStore(root).save(original);
+    const auto rawHash=hashMediaFile(root/utf8Path(original.assets[0].relativePath));
+    auto counters=std::make_shared<playback_fixture::Counters>();auto options=playback_fixture::options(counters);
+    bool sawTake=false;const auto factory=options.factory;
+    options.factory=[&](const PlaybackPreparation &p) {
+        sawTake=p.session->tracks[0].clips[0].takeOrigin && p.session->tracks[0].clips[0].takeOrigin->clipId==clip.id;
+        return factory(p);
+    };
+    StudioWindow w(nullptr,options);w.show();w.openProject(root);
+    await([&]{return w.snapshot()->session && widget<QComboBox>(w,"timelineTakes")->count()==2;});
+    const auto revision=w.snapshot()->modelRevision;
+    widget<QComboBox>(w,"timelineTakes")->setCurrentIndex(1);
+    click(w,"auditionTakeLane");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Ready;});
+    check(sawTake && w.playbackSnapshot()->takeAudition==std::optional<TakeAudition>({track,take.id}) &&
+          !counters->activated && w.snapshot()->modelRevision==revision && !w.snapshot()->dirty && *w.snapshot()->session==original,
+          "Take audition preparation mutated/played canonical arrangement");
+    await([&]{return widget<QLabel>(w,"playbackStatus")->text().contains("Take audition");});
+    auto *output=widget<QComboBox>(w,"outputChannel0");output->setCurrentIndex(1);
+    await([&]{return widget<QPushButton>(w,"playButton")->isEnabled();});
+    click(w,"playButton");await([&]{return counters->activated.load()==1;});
+    check(w.snapshot()->modelRevision==revision && !w.snapshot()->dirty && *w.snapshot()->session==original,
+          "Playing/routing a take audition changed canonical arrangement");
+    await([&]{return widget<QPushButton>(w,"stopButton")->isEnabled();});
+    click(w,"stopButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Idle;});
+    check(w.preparePlayback(),"Return to arrangement preparation refused");
+    await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Ready;});
+    check(!sawTake && !w.playbackSnapshot()->audition && *w.snapshot()->session==original,"Normal preparation retained take preview");
+    await([&]{return widget<QPushButton>(w,"stopButton")->isEnabled();});
+    click(w,"stopButton");await([&]{return w.playbackSnapshot()->phase==PlaybackPhase::Idle;});
+    check(!w.prepareTakeAudition(track,take.id,w.snapshot()->projectEpoch+1),"Stale epoch audition was admitted");
+    check(ProjectStore(root).load()==original && hashMediaFile(root/utf8Path(original.assets[0].relativePath))==rawHash,"Audition changed saved project/raw audio");
+    close(w);
+}
 void selectedTransport(const std::filesystem::path &root) {
     const auto original = fixture(root);
     const auto first = original.tracks[0].id, second = original.tracks[1].id;
@@ -1169,6 +1207,9 @@ int main(int argc, char **argv) {
         std::cerr << "Owned timeline fixture root: " << temp.path().toStdString() << '\n';
         check(temp.isValid(), "Temporary directory failed");
         const auto root = utf8Path(temp.path().toUtf8().toStdString());
+        if(argc==2 && std::string_view(argv[1])=="--take-audition-only") {
+            takeAuditionTransport(root/"take-audition");std::cout<<checks<<" take audition UI checks passed\n";return 0;
+        }
         if(argc==2 && std::string_view(argv[1])=="--playback-rate-only") {
             playbackRateWorkflow(root/"playback-rate");
             std::cout<<"PASS: "<<checks<<" desktop linked playback-rate checks\n";return 0;

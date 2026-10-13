@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Retained take audition (2026-10-13)
+
+[Checkpoint 258](258-retained-take-audition.md) adds finite transient take playback
+through the existing owner/output controls and live EQ receipt path. Five recorded
+takes remain separate from canonical save/history/export/raw data. Actual Studio
+prepare/Play/Stop/return and stale-opening tests pass; a retained temporary-model
+bug on return was found and fixed. Linguist is regenerated; native/installed and
+full reference quality remain required. Original CI191 passes all four jobs with
+current comp transition tests; the full DAW/localization goal stays active.
+
 ## Comp transitions from retained source handles (2026-10-13)
 
 [Checkpoint 257](257-comp-transition-handles.md) adds explicit, atomic overlap
