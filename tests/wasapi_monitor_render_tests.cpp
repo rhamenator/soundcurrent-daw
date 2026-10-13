@@ -80,6 +80,8 @@ void failures(){
     Model lost;check(lost.binding.bind(lost.context,lost.fmt),"Lost-owner bind");lost.context.settleAfterJoin();check(lost.context.result()->status==WasapiMonitorRenderStatus::OwnerLost && !lost.context.result()->original && lost.clocks.renderDone(),"Missing owner fabricated SDK success");
 }
 void admission(){Model m;auto f=m.fmt;
+    auto posix=m.clocks.config();posix.timestampDomain=MonitorClockDomain::PosixMonotonic100ns;PreparedMonitorClockHandoff foreign(posix);
+    refuses([&]{PreparedWasapiMonitorRender bad(f,m.bank,foreign);});
     for(unsigned k=0;k<7;++k){f=m.fmt;if(k==0)f.sampleRate++;if(k==1)f.channels++;if(k==2)f.maximumFillFrames=9;if(k==3)f.clockFrequency++;if(k==4)f.identity.generation++;if(k==5)f.capacityFrames=0;if(k==6)f.timing.endGuardFrames=33;refuses([&]{PreparedWasapiMonitorRender bad(f,m.bank,m.clocks);});}
     f=m.fmt;f.channelMask++;refuses([&]{m.binding.bind(m.context,f);});
     ResourceLedger ledger(65536);WasapiMonitorRenderOptions o;o.resources=ledger;o.memoryBudgetBytes=1;auto before=ledger.usage();refuses([&]{PreparedWasapiRenderBinding bad(o);});check(ledger.usage()==before,"Rejected binding charged resources");

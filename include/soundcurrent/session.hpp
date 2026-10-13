@@ -283,6 +283,12 @@ struct Track {
     std::vector<TakeLane> takeLanes;
     bool operator==(const Track &) const = default;
 };
+// Portable evidence only. These paths never grant access to original sources.
+struct ProjectEvidenceFile {
+    std::string relativePath, sha256;
+    std::uint64_t bytes = 0;
+    bool operator==(const ProjectEvidenceFile &) const = default;
+};
 struct Asset {
     Id id = Id::generate();
     std::string relativePath; // Canonical UTF-8 with '/' separators on every OS.
@@ -290,6 +296,7 @@ struct Asset {
     std::uint32_t sampleRate = 48000;
     ChannelLayout layout;
     Frame frames = 0;
+    std::vector<ProjectEvidenceFile> nativeEvidence = {}; // Bound original capture/native journals and artifacts; empty for non-native assets.
     bool operator==(const Asset &) const = default;
 };
 struct PunchSettings {
@@ -301,12 +308,6 @@ struct LoopSettings {
     bool enabled = false;
     Frame startFrame = 0, endFrame = 0; // Half-open saved project range.
     bool operator==(const LoopSettings &) const = default;
-};
-// Portable evidence only. These paths never grant access to original sources.
-struct ProjectEvidenceFile {
-    std::string relativePath, sha256;
-    std::uint64_t bytes = 0;
-    bool operator==(const ProjectEvidenceFile &) const = default;
 };
 struct ImportedMediaOrigin {
     Id assetId = Id::generate(), operation = Id::generate();
@@ -384,6 +385,11 @@ struct InsertClip {
     Clip clip;
     std::optional<Id> before;
 };
+struct InsertNativeTake {
+    Id track;
+    Asset asset;
+    Clip clip; // Explicit project placement, never inferred recording alignment.
+};
 struct RemoveClip {
     Id track, clip;
 };
@@ -444,7 +450,7 @@ struct SelectTakeRegion {
     Frame startFrame = 0, endFrame = 0; // Fully covered project region [start,end).
 };
 using SessionEdit =
-    std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, RemoveClip,
+    std::variant<InsertTrack, RemoveTrack, RenameTrack, MoveTrack, InsertClip, InsertNativeTake, RemoveClip,
                  SetClipRange, CropClip, SetClipProcessing, SetClipPlaybackRate, ApplyClipStretch, MoveClip, SplitClip, SetMaster, SetPunch, SetLoop, SetInputLatency,
                  InsertTakeLane, RemoveTakeLane, RenameTakeLane, MoveTakeLane, SelectTakeRegion>;
 void applySessionEdits(Session &, const std::vector<SessionEdit> &, StateBudget = {});

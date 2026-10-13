@@ -13,6 +13,10 @@
 #include <unordered_set>
 
 namespace soundcurrent::daw {
+static_assert(std::uint32_t(native::Acquisition::Unavailable)==std::uint32_t(PipeWireBufferStatus::Unavailable));
+static_assert(std::uint32_t(native::Acquisition::Ready)==std::uint32_t(PipeWireBufferStatus::Ready));
+static_assert(std::uint32_t(native::Acquisition::Invalid)==std::uint32_t(PipeWireBufferStatus::Invalid));
+static_assert(std::uint32_t(native::Acquisition::Silence)==std::uint32_t(PipeWireBufferStatus::Silence));
 namespace {
 void require(bool ok, const char *message) {
     if (!ok)
@@ -57,6 +61,7 @@ struct PipeWireFilter::State {
     spa_hook filterListener{}, registryListener{}, coreListener{};
     std::array<native::Port, 256> inputs{}, outputs{};
     std::array<native::Buffer, 256> inputBuffers{}, outputBuffers{};
+    std::array<PipeWirePortLeaseResult, 256> inputReturns{}, outputReturns{};
     std::atomic<bool> bufferFault{false};
     std::array<const float *, 256> inputViews{};
     std::array<float *, 256> outputViews{};
@@ -220,6 +225,8 @@ struct PipeWireFilter::State {
             // No capacity-certified views exist for this unsupported native
             // quantum. Signal outside the callback through the user's bridge.
             s.callbacks.process(s.callbacks.context, timing, {}, {}, 0);
+            if (s.callbacks.completedCycle)
+                s.callbacks.completedCycle(s.callbacks.context, {timing, true, {}, {}});
             end();
             return;
         }
@@ -231,20 +238,36 @@ struct PipeWireFilter::State {
                                   ? s.silence.data()
                                   : s.inputBuffers[c].samples;
             invalid |= s.inputBuffers[c].status == native::Acquisition::Invalid;
+            if (s.callbacks.completedCycle)
+                s.inputReturns[c] = {PipeWireBufferStatus(s.inputBuffers[c].status),
+                                     s.inputBuffers[c].owned != nullptr, {}};
         }
         for (std::uint32_t c = 0; c < s.options.outputs; ++c) {
             s.outputBuffers[c] = sc_pw_acquire_buffer(&s.outputs[c], n);
             s.outputViews[c] = s.outputBuffers[c].samples;
             invalid |= s.outputBuffers[c].status == native::Acquisition::Invalid;
+            if (s.callbacks.completedCycle)
+                s.outputReturns[c] = {PipeWireBufferStatus(s.outputBuffers[c].status),
+                                      s.outputBuffers[c].owned != nullptr, {}};
         }
         const auto release = [&] {
             bool success = true;
-            for (std::uint32_t c = 0; c < s.options.inputs; ++c)
+            for (std::uint32_t c = 0; c < s.options.inputs; ++c) {
                 success &= sc_pw_release_buffer(&s.inputs[c], &s.inputBuffers[c]);
-            for (std::uint32_t c = 0; c < s.options.outputs; ++c)
+                if (s.callbacks.completedCycle) s.inputReturns[c].queueResult = s.inputBuffers[c].queueResult;
+            }
+            for (std::uint32_t c = 0; c < s.options.outputs; ++c) {
                 success &= sc_pw_release_buffer(&s.outputs[c], &s.outputBuffers[c]);
+                if (s.callbacks.completedCycle) s.outputReturns[c].queueResult = s.outputBuffers[c].queueResult;
+            }
             if (!success)
                 s.bufferFault.store(true, std::memory_order_release);
+        };
+        const auto completed = [&](bool invoked) {
+            if (s.callbacks.completedCycle)
+                s.callbacks.completedCycle(s.callbacks.context,
+                    {timing, invoked, {s.inputReturns.data(), s.options.inputs},
+                                      {s.outputReturns.data(), s.options.outputs}});
         };
         if (invalid) {
             s.bufferFault.store(true, std::memory_order_release);
@@ -253,6 +276,7 @@ struct PipeWireFilter::State {
                     std::fill_n(s.outputViews[c], n, 0.f);
             s.callbacks.process(s.callbacks.context, timing, {}, {}, 0);
             release();
+            completed(true);
             end();
             return;
         }
@@ -263,12 +287,14 @@ struct PipeWireFilter::State {
                 if (s.outputViews[c])
                     std::fill_n(s.outputViews[c], n, 0.f);
             release();
+            completed(false);
             end();
             return;
         }
         s.callbacks.process(s.callbacks.context, timing, {s.inputViews.data(), s.options.inputs},
                             {s.outputViews.data(), s.options.outputs}, n);
         release();
+        completed(true);
         end();
     }
     std::vector<PipeWirePort> ports() const {

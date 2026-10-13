@@ -212,7 +212,7 @@ void crashChild(const std::filesystem::path &root,unsigned at) {
     auto s=spec();bool armed=false,published=false;OriginalRecordingOptions options;options.checkpointFrames=1;
     options.boundary=[&](OriginalRecordingBoundary b){
         if(b==OriginalRecordingBoundary::AfterMediaPublish)published=true;
-        if(armed && (unsigned(b)==at || (at==9 && published && b==OriginalRecordingBoundary::AfterJournal)))std::_Exit(77);
+        if(armed && ((at<9 && unsigned(b)==at) || (at==9 && published && b==OriginalRecordingBoundary::AfterJournal)))std::_Exit(77);
     };
     PreparedCaptureFanout f(config(s));OriginalCaptureWriter w(root,s,options);std::array<float,21> data{};data.fill(3.25f);
     for(unsigned n=0;n<2;++n) {

@@ -50,6 +50,9 @@ bool PreparedMonitorCaptureStop::complete(const WasapiCaptureEnd &r) noexcept {
 std::optional<MonitorCaptureEndReceipt> PreparedMonitorCaptureStop::endReceipt() const noexcept {
     return ended_.load(std::memory_order_acquire) ? std::optional(end_) : std::nullopt;
 }
+std::optional<MonitorCaptureEndStatus> PreparedMonitorCaptureStop::endStatus() const noexcept {
+    return ended_.load(std::memory_order_acquire) ? std::optional(end_.status) : std::nullopt;
+}
 void PreparedMonitorCaptureStop::settleAfterJoin() noexcept {
     if (!ended_.load(std::memory_order_relaxed)) {
         end_={config_.runGeneration,{},MonitorCaptureEndStatus::OwnerLost};

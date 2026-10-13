@@ -143,7 +143,7 @@ VerifiedClipStretch verifyOwnedClipStretch(const std::filesystem::path &root,con
     },poll);
     check(wave.frames==target && wave.decodedFrames==target && wave.rate==p.source.sampleRate && wave.channels==p.source.layout.channels && wave.encoding==WaveEncoding::Float32 &&
           std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==audioHash && samples.digest()==sampleDigest && wave.peak==j.at("peakLinear").get<double>(),"Stretch media differs from completion",ErrorCode::MediaMismatch);poll();file.verifyUnchanged();marker.verifyUnchanged();
-    Asset rendered=p.source;rendered.id=op;rendered.relativePath=relative;rendered.sha256=audioHash;rendered.frames=Frame(target);
+    Asset rendered=p.source;rendered.nativeEvidence.clear();rendered.id=op;rendered.relativePath=relative;rendered.sha256=audioHash;rendered.frames=Frame(target);
     auto anchor=p.anchor;anchor.renderKey=renderKey;validateClipStretch(anchor,p.source,rendered);
     ApplyClipStretch edit{p.trackId,p.expectedClip.id,p.expectedClip,p.source,rendered,std::move(anchor)};
     return {std::move(grant),std::move(edit),wave.peak};
