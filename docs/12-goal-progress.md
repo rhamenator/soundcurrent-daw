@@ -1,5 +1,19 @@
 # Active full-suite goal: progress and completion evidence
 
+## Recording fixture cadence and declared manual reserve (2026-10-13)
+
+[Checkpoint 246](246-recording-cadence-reserve.md) accounts for actual fake-SDK
+service work before waiting and records work/wait/cycle spans. The existing
+manual reserve is explicitly selected for concurrency; held-disk tests prove
+exact within-capacity 48,128 frames and beyond-capacity 96,000-frame QueueFull
+prefix. Release cadence/storage/startup pass 0.01/8.83/19.28 s; final manual suite
+passes 4.27 s. Original five-second gates, product defaults and small-pool pressure
+remain. Two new-fixture failures and original179 terminal logs are retained.
+Previous-source CI179 passed Linux158/158, Windows native85/85, desktop20/20 and
+cross-build; new-source CI and physical audio remain separate. Interrupted-original
+copy/review, remaining M2–M11 and all-Europe qualification remain required.
+The full goal stays active.
+
 ## Finite short native startup (2026-10-12)
 
 [Checkpoint245](245-finite-native-startup.md) publishes explicit finite ready evidence
