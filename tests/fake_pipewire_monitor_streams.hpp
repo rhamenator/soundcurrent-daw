@@ -9,7 +9,14 @@ namespace pipewire_monitor_fixture {
 using namespace soundcurrent::daw;
 template<class F>auto rt(F f){rt_audit::Guard guard;return f();}
 inline float sample(std::uint64_t n){return float(3*std::sin(double(n%48)*2*3.141592653589793/48));}
-struct Shared {std::atomic<unsigned> joins{0},retired{0};std::atomic<bool> auditBad{false};std::vector<float> output;};
+struct Shared {std::atomic<unsigned> joins{0},retired{0};std::atomic<bool> auditBad{false};std::vector<float> output;
+    std::atomic<std::uint64_t> captureLateNs{0},renderLateNs{0},checkpointNs{0},rawAppends{0},checkpoints{0};
+    std::chrono::steady_clock::time_point checkpointBegin; // One journal/control owner, read only after joins.
+    static void maximum(std::atomic<std::uint64_t> &value,std::uint64_t next){auto old=value.load();while(old<next && !value.compare_exchange_weak(old,next)){} }
+    void journal(PipeWireJournalBoundary b){if(b==PipeWireJournalBoundary::RawAppended)++rawAppends;
+        if(b==PipeWireJournalBoundary::RawAppended)checkpointBegin=std::chrono::steady_clock::now();
+        if(b==PipeWireJournalBoundary::CheckpointPublished){++checkpoints;maximum(checkpointNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-checkpointBegin).count()));}}
+};
 class Simulated final : public PipeWireMonitorStreams {
     PreparedPipeWireMonitorRoute &route_;std::shared_ptr<Shared> shared_;
     PreparedPipeWireMonitorCapture capture_;PreparedPipeWireMonitorRender render_;
@@ -20,7 +27,8 @@ class Simulated final : public PipeWireMonitorStreams {
     void audit(){const auto a=rt_audit::counts;if(a.cppAllocate || a.cppFree || a.cAllocate || a.cFree || a.blockingLock)shared_->auditBad=true;}
     void captureLoop(){rt_audit::reset();std::array<float,480> samples;std::array<const float *,1> planes{samples.data()};
         const std::array<PipeWirePortLeaseResult,1> returned{{{PipeWireBufferStatus::Ready,true,0}}};
-        for(unsigned n=0;!cs_.load() && n<1000;++n){std::this_thread::sleep_until(epoch_+std::chrono::milliseconds((startTick_+n)*10));if(cs_.load())break;
+        for(unsigned n=0;!cs_.load() && n<1000;++n){const auto due=epoch_+std::chrono::milliseconds((startTick_+n)*10);std::this_thread::sleep_until(due);if(cs_.load())break;
+            const auto late=std::chrono::steady_clock::now()-due;Shared::maximum(shared_->captureLateNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(late).count()));
             auto c=clock(n);for(unsigned k=0;k<480;++k)samples[k]=sample(std::uint64_t(n)*480+k);
             if(fail_==3 && n==25)c.rateDenominator=44100;
             const auto code=rt([&]{return capture_.process(c,planes,480);});rt([&]{capture_.completeCycle({c,true,returned,{}});});
@@ -28,7 +36,8 @@ class Simulated final : public PipeWireMonitorStreams {
         }audit();}
     void renderLoop(){rt_audit::reset();std::array<float,480> left{},right{};std::array<float *,2> planes{left.data(),right.data()};
         const std::array<PipeWirePortLeaseResult,2> returned{{{PipeWireBufferStatus::Ready,true,0},{PipeWireBufferStatus::Ready,true,0}}};
-        for(unsigned n=0;!rs_.load() && n<1000;++n){std::this_thread::sleep_until(epoch_+std::chrono::milliseconds((startTick_+n)*10));if(rs_.load())break;
+        for(unsigned n=0;!rs_.load() && n<1000;++n){const auto due=epoch_+std::chrono::milliseconds((startTick_+n)*10);std::this_thread::sleep_until(due);if(rs_.load())break;
+            const auto late=std::chrono::steady_clock::now()-due;Shared::maximum(shared_->renderLateNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(late).count()));
             const auto c=clock(n);const auto before=route_.output().deliveredFrames();
             const auto code=rt([&]{return render_.process(c,planes,480,now());});rt([&]{render_.completeCycle({c,true,{},returned});});
             const auto frames=route_.output().deliveredFrames()-before;

@@ -229,6 +229,7 @@ void pipewirePanel(const std::filesystem::path &root){
     o.declared.raw.project=project.id;o.declared.raw.track=project.tracks.front().id;o.declared.raw.identity={11,31,7};o.declared.raw.layout={LayoutKind::Mono,1};
     o.declared.raw.maximumPacketFrames=480;o.declared.maximumRenderFrames=480;o.route.inputCapacityFrames=32768;o.route.rawSlots=8;o.route.monitorSlots=8;o.route.channelMap=monoToStereoMonitor();
     MonitorEqSpec eq;eq.track=o.declared.raw.track;eq.settings=project.tracks.front().eq;o.route.equalizer=eq;
+    o.journal.boundary=[shared](auto b){shared->journal(b);};
     check(window.configureNativeRecording(p),"PipeWire main-window context refused");control<QSpinBox>(panel,"nativeMonitorSeconds")->setValue(1);
     QTest::mouseClick(control<QPushButton>(panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Ready;});panel.poll();
     check(panel.snapshot()->pipewireDeclared && !panel.snapshot()->declared && control<QCheckBox>(panel,"nativeMonitorEq")->isEnabled(),"PipeWire panel fabricated Native declaration or disabled monitor EQ");
@@ -240,7 +241,9 @@ void pipewirePanel(const std::filesystem::path &root){
                 <<" processing="<<(r.processingFault?int(r.processingFault->cause):-1)<<" fanout="<<(r.fanoutFault?int(r.fanoutFault->cause):-1)
                 <<" captureClock="<<bool(r.captureClockFault)<<" renderClock="<<bool(r.renderClockFault)<<" drift="<<bool(r.clockFault)
                 <<" captureReceipt="<<bool(r.captureReceiptFault)<<" renderReceipt="<<bool(r.renderReceiptFault)<<" startup="<<bool(r.startup)
-                <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)<<" waitFailure="<<r.waitFailure<<'\n';
+                <<" activation="<<bool(r.activationFailure)<<" disk="<<bool(r.diskFailure)<<" storage="<<bool(r.storageFailure)<<" recovery="<<bool(r.recoveryFailure)<<" waitFailure="<<r.waitFailure
+                <<" captureLateNs="<<shared->captureLateNs.load()<<" renderLateNs="<<shared->renderLateNs.load()<<" pairedPublishSpanNs="<<shared->checkpointNs.load()
+                <<" rawAppends="<<shared->rawAppends.load()<<" pairedCheckpoints="<<shared->checkpoints.load()<<'\n';
             for(const auto &failure:{r.activationFailure,r.diskFailure,r.storageFailure,r.recoveryFailure,r.terminalFailure})if(failure)try{std::rethrow_exception(failure);}catch(const std::exception &e){*out<<"exception="<<e.what()<<'\n';}
         }}
     check(final->pipewireResult->disposition==PipeWireRecordingDisposition::Recorded && panel.busy() && control<QPushButton>(panel,"nativeExportOriginal")->isEnabled(),"PipeWire visible finite result/export unavailable");
