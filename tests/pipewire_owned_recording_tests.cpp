@@ -38,7 +38,8 @@ void original(const PipeWireRecordingPrefix &p){media_io::File file(p.raw.source
         at+=count;}
 }
 void workflow(bool delayed=false){Temp t;auto o=options(t);
-    if(delayed)o.boundary=[](auto b){if(b==PipeWireOwnerBoundary::BeforeRender)std::this_thread::sleep_for(std::chrono::milliseconds(600));};auto shared=std::make_shared<Shared>();ResourceLedger ledger(64*1024*1024);o.route.resources=ledger;
+    if(delayed)o.boundary=[](auto b){if(b==PipeWireOwnerBoundary::BeforeRender)std::this_thread::sleep_for(std::chrono::milliseconds(600));};
+    auto shared=std::make_shared<Shared>();ResourceLedger ledger(64*1024*1024);o.route.resources=ledger;
     {auto owner=preparePipeWireMonitorControlEndpoint(t.root,factory(shared),o,{},{});
      check(std::holds_alternative<PipeWireRecordingSpec>(owner->declared()),"PipeWire declaration converted to another backend");check(ledger.usage().reservedBytes>0,"Aggregate route not charged");owner->activate();
         check(owner->requestStopAt({2400})==MonitorControlCode::Accepted,"Owner horizon admission failed");
