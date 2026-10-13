@@ -111,9 +111,10 @@ disabled. Its LGPL text, embedded ALAC/GSM notices and exact unmodified complete
 source archive accompany this preview. This describes the native MSVC preview,
 not the older MinGW DLL or the Linux distribution's codec set.
 
-The official **Microsoft Visual C++ x64 Redistributable 14.44.35211.0** comes
-unchanged from the licensed Build Tools installation. Its Microsoft signature
-was Valid. The independent Microsoft installer controls its license, installation
+The official **Microsoft Visual C++ x64 Redistributable 14.51.36247.0** comes
+unchanged from Microsoft's official x64 download. Native Windows validated its
+Microsoft Authenticode signature and actual CRT-version requirement; see
+[the current independent review](docs/253-reviewed-windows-runtime.md). The independent Microsoft installer controls its license, installation
 and elevation; no developer CRT DLLs or SDK are copied into the app payload.
 Windows system libraries remain OS components.
 

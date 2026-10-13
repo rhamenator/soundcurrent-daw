@@ -1,0 +1,93 @@
+{
+  "checkpoint": 253,
+  "source_head": "dc90fd6cbd64ea8e377748599bd3cddbfa0d961f",
+  "run": 38439030585,
+  "scope": "Native CRT/signature/version review passed; runtime not executed/installed and setup still unqualified",
+  "members": {
+    "artifacts-live.json.gz": {
+      "bytes": 582,
+      "sha256": "cb459e972717ca8a954c6bfd949aa8677a9bbbc77ba2f97340ce8e18c8eee09b",
+      "original_bytes": 1506,
+      "original_sha256": "92fb2f84681aa73b84ba2f9a77811c63435990a7dd5c5b6d21f7bda9a834a167"
+    },
+    "collection.json.gz": {
+      "bytes": 2936,
+      "sha256": "85b0839a24ecb3dcc6fafaef292bb6a7d0469188e4630abde525e4f306b64937",
+      "original_bytes": 9028,
+      "original_sha256": "93174b43a24b72a9f57c3637329b55b87d297cec91257721ab4f91112a1d9a20"
+    },
+    "compiler.json.gz": {
+      "bytes": 370,
+      "sha256": "6d020362bc519772564560bb33fb2e968dde6a52022582cc98df4127c0eed823",
+      "original_bytes": 657,
+      "original_sha256": "3693d9a3874a3c7d02170dfe800e979851572e16ecc6d6487afa50cea527e934"
+    },
+    "native-review.json.gz": {
+      "bytes": 469,
+      "sha256": "e48f62d033f17a48a2d2a0e169cf46ee5c3ad0dab17ecd0cbe6ed40183c99dc1",
+      "original_bytes": 869,
+      "original_sha256": "8e8b1296997fecbb9ebc15b7b48236c23c17d02c2f57a422d430fcddd7eabc8c"
+    },
+    "terminal.json.gz": {
+      "bytes": 90,
+      "sha256": "1398819630008eb079af6baac2d4b4ac06613dc33902a38bf02778ac09a9601d",
+      "original_bytes": 88,
+      "original_sha256": "1285f3e99a336c74f3f784240062d9162cb4c16e1828773bf75de0032bb50cb6"
+    },
+    "preview-retention.json.gz": {
+      "bytes": 796,
+      "sha256": "1b4bb2c9d22d135881c533933c81c907580cbcb7f3c84fbb4a64eac969dae7d9",
+      "original_bytes": 1707,
+      "original_sha256": "0e6efca172025aaeee137dd6b35c2f9af6ac261421098b8a76233b37c252ca75"
+    }
+  },
+  "original_archive": {
+    "artifact": {
+      "id": 11834428043,
+      "node_id": "MDg6QXJ0aWZhY3QxMTgzNDQyODA0Mw==",
+      "name": "windows-preview-build-inputs",
+      "size_in_bytes": 123088035,
+      "url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11834428043",
+      "archive_download_url": "https://api.github.com/repos/rhamenator/soundcurrent-daw/actions/artifacts/11834428043/zip",
+      "expired": false,
+      "digest": "sha256:9571f35a20be92baea22cbeb19dc3c361e24d0c5b4a61bb42a55ab3ada34e334",
+      "created_at": "2026-10-13T17:41:29Z",
+      "updated_at": "2026-10-13T17:41:29Z",
+      "expires_at": "2026-10-16T17:41:24Z",
+      "workflow_run": {
+        "id": 38439030585,
+        "repository_id": 1407894149,
+        "head_repository_id": 1407894149,
+        "head_branch": "codex/windows-runtime-policy",
+        "head_sha": "dc90fd6cbd64ea8e377748599bd3cddbfa0d961f"
+      }
+    },
+    "archiveBytes": 123088035,
+    "archiveSha256": "9571f35a20be92baea22cbeb19dc3c361e24d0c5b4a61bb42a55ab3ada34e334",
+    "selected": {
+      "collection.json": {
+        "bytes": 9028,
+        "sha256": "93174b43a24b72a9f57c3637329b55b87d297cec91257721ab4f91112a1d9a20"
+      },
+      "compiler.json": {
+        "bytes": 657,
+        "sha256": "3693d9a3874a3c7d02170dfe800e979851572e16ecc6d6487afa50cea527e934"
+      },
+      "deploy-manifest.json": {
+        "bytes": 2307,
+        "sha256": "71fc89abcea6eb4fa1a9edbbd8470e76ad6a62360e90717593266e285139bd0e"
+      },
+      "runtime-review/native-review.json": {
+        "bytes": 869,
+        "sha256": "8e8b1296997fecbb9ebc15b7b48236c23c17d02c2f57a422d430fcddd7eabc8c"
+      },
+      "terminal.json": {
+        "bytes": 88,
+        "sha256": "1285f3e99a336c74f3f784240062d9162cb4c16e1828773bf75de0032bb50cb6"
+      }
+    }
+  },
+  "runtime_pin_updated": true,
+  "sndfile_pin_updated": false,
+  "vm_started": false
+}

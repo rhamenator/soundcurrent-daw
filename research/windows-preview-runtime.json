@@ -1,0 +1,22 @@
+{
+  "format": "sc-reviewed-windows-runtime-v1",
+  "version": "14.51.36247.0",
+  "bytes": 18731856,
+  "sha256": "843068991daaa1f73ad9f6239bce4d0f6a07a51f18c37ea2a867e9beca71295c",
+  "source_url": "https://aka.ms/vc14/vc_redist.x64.exe",
+  "native_signature_status": "Valid",
+  "signer_subject": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US",
+  "signer_issuer": "CN=Microsoft Code Signing PCA 2024, O=Microsoft Corporation, C=US",
+  "signer_thumbprint": "1D77A9B9E8FE2075D9AD15123257FB90DB0DA4A1",
+  "source_head": "dc90fd6cbd64ea8e377748599bd3cddbfa0d961f",
+  "original_run": 38439030585,
+  "toolset_directory_version": "14.51.36231",
+  "compiler_product_version": "14.51.36260.0",
+  "crt_version": "14.51.36244.0",
+  "crt_header_sha256": "7901617723f002c2d29c558002c11fa3290c14d8967841efbc316514fa405802",
+  "runtime_executed": false,
+  "installed_workflow_qualified": false,
+  "previous_version": "14.44.35211.0",
+  "previous_sha256": "cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b",
+  "evidence": "docs/253-reviewed-windows-runtime.md"
+}
