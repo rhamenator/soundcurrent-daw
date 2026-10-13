@@ -67,6 +67,18 @@ void normal(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     const auto moved=t.root.parent_path()/Id::generate().str();std::filesystem::rename(t.root,moved);t.root=moved;
     check(inspectPipeWireRecording(moved/"media"/job.filename(),s).raw.committedFrames==34,"Portable paired native project did not reopen");
 }
+void releasedBeforeDueCheckpoint(){Temp t;const auto s=spec(t.root);PreparedCaptureFanout f(config(s));bool held=false,armed=false;unsigned publications=0;
+    PipeWireJournalOptions o;o.checkpointRecords=1;o.boundary=[&](auto b){if(armed && b==PipeWireJournalBoundary::BeforeCheckpoint){check(!held,"Due paired flush retained the copied raw slot");++publications;}};
+    std::filesystem::path job;
+    {PipeWireRecordingJournal w(t.root,s,o);job=w.jobDirectory();std::array<float,51> data{};const auto c=capture(0);
+        const CaptureBankStamp stamp{s.raw.identity,{c.original.original.position},{c.original.original.monotonicNs/100},17,0};
+        check(f.publish({stamp,reinterpret_cast<const std::byte *>(data.data()),sizeof(data)}).rawAcceptedFrames==17,"Deferred fixture raw publication failed");
+        CaptureBankView raw,monitor;check(f.acquireRaw(raw)==CaptureBankRead::Ready && f.acquireMonitor(monitor)==CaptureBankRead::Ready,"Deferred views absent");held=true;armed=true;
+        w.appendCapture(c,raw,true);check(publications==0,"Deferred append published while raw slot held");
+        check(f.releaseRaw(raw) && f.releaseMonitor(monitor),"Deferred raw release failed");held=false;w.checkpointIfDue();check(publications==1,"Due publication lost");
+        w.checkpointIfDue();check(publications==1,"No-due publication repeated");w.appendRender(render(0));check(publications==2,"Immediate render publication changed");finish(w,f);}
+    const auto p=inspectPipeWireRecording(job,s);check(p.raw.committedFrames==17 && p.captureRecords==1 && p.renderRecords==1 && p.finalized,"Deferred checkpoint changed durable prefix");
+}
 void checkpointTail(){Temp t;const auto s=spec(t.root);std::filesystem::path job;
     {PreparedCaptureFanout f(config(s));PipeWireRecordingJournal w(t.root,s);job=w.jobDirectory();append(w,f,s,0);w.checkpoint();append(w,f,s,1);}
     const auto native=inspectPipeWireRecording(job,s);const auto raw=inspectOriginalRecording(job,s.raw);
@@ -118,6 +130,6 @@ int wmain(int argc,wchar_t **argv){
 int main(int argc,char **argv){
 #endif
     try{if(argc==4){crashedChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));return 80;}
-        normal();checkpointTail();failedNativeFacts();for(unsigned b=unsigned(PipeWireJournalBoundary::RawAppended);b<=unsigned(PipeWireJournalBoundary::FinalPublished);++b)crash(b);
+        normal();releasedBeforeDueCheckpoint();checkpointTail();failedNativeFacts();for(unsigned b=unsigned(PipeWireJournalBoundary::RawAppended);b<=unsigned(PipeWireJournalBoundary::FinalPublished);++b)crash(b);
         std::cout<<checks<<" durable PipeWire journal checks passed;8 actual process interruption boundaries, exact paired raw/receipt prefixes, moved projects/corruption/refusal; no SDK/physical/automatic alignment\n";return 0;
     }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}
