@@ -55,9 +55,9 @@ template<class C> C cycle(const J &j){
 inline J ports(const std::vector<ChannelPortIntent> &v){require(v.size()<=256,"Too many native intent channels");J a=J::array();for(const auto &p:v){require(p.deviceIdentity.size()<=1024 && p.portIdentity.size()<=1024 && p.mediaClass.size()<=1024,"Native port intent text bound");a.push_back({{"device",p.deviceIdentity},{"port",p.portIdentity},{"class",p.mediaClass},{"input",p.input}});}return a;}
 inline std::vector<ChannelPortIntent> ports(const J &j){require(j.is_array() && j.size()<=256,"Native port intent channel bound");std::vector<ChannelPortIntent> v;v.reserve(j.size());for(const auto &p:j){fields(p,{"device","port","class","input"});v.push_back({text(p.at("device")),text(p.at("port")),text(p.at("class")),boolean(p.at("input"))});}return v;}
 J encodeOutcome(const PipeWireJoinedOutcome &);
-PipeWireJoinedOutcome decodeOutcome(const J &,unsigned minor=1);
+PipeWireJoinedOutcome decodeOutcome(const J &,unsigned minor=2);
 J encodeIntent(const PipeWireRecordingIntent &);
 PipeWireRecordingIntent decodeIntent(const J &,const PipeWireRecordingSpec &,unsigned minor=2);
 J prefixBinding(const PipeWireRecordingPrefix &);
-void validateOutcome(const PipeWireRecordingIntent &,const PipeWireRecordingPrefix &,const PipeWireJoinedOutcome &,unsigned minor=1);
+void validateOutcome(const PipeWireRecordingIntent &,const PipeWireRecordingPrefix &,const PipeWireJoinedOutcome &,unsigned minor=2);
 } // namespace soundcurrent::daw::pw_state

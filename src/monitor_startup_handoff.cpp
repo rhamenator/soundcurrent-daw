@@ -46,7 +46,7 @@ std::optional<MonitorStartupReady> PreparedMonitorStartupHandoff::ready() const 
 }
 bool PreparedMonitorStartupHandoff::publish(const MonitorStartupReady &r) noexcept {
     if(!claimed() || phase()!=MonitorStartupHandoffPhase::Pending || r.admitted!=admission_ || !r.asOfQpc100ns ||
-       r.publishedFrames<admission_.nativeCapacityFrames)return false;
+       (r.finiteFrames?(!*r.finiteFrames || *r.finiteFrames!=r.publishedFrames || r.publishedFrames>=admission_.nativeCapacityFrames):r.publishedFrames<admission_.nativeCapacityFrames))return false;
     const auto &s=r.original;
     if(s.phase!=MonitorStartupPhase::Live || !s.contentReady || !s.capacityFrames || s.retainedFrames ||
        s.transferredFrames!=s.capacityFrames || !s.firstTransferred || !s.lastAccepted ||

@@ -21,17 +21,18 @@ void rawExact(const NativeOriginalRecordingPrefix &p){media_io::File fd(p.raw.so
         first+=count;}}
 NativeMonitorRecordingOptions options(unsigned ms){NativeMonitorRecordingOptions o;o.route.runGeneration=99;o.route.firstOutput={1024};o.raw.layout={LayoutKind::Mono,1};
     o.route.storagePolicy=RawRecordingStoragePolicy{ms,480,4096,64*1024*1024};return o;}
-void stall(bool beyond){Temp t;auto spy=std::make_shared<Spy>();spy->independentDisk=true;auto o=options(beyond?50:3000);bool paused=false;
+void stall(bool beyond,unsigned monitorFrames=8192,unsigned captureRate=48000){Temp t;auto spy=std::make_shared<Spy>();spy->independentDisk=true;auto o=options(beyond?50:3000);o.route.storagePolicy->minimumPacketFrames=captureRate/100;bool paused=false;
     o.recording.raw.boundary=[&](auto b){if(b==OriginalRecordingBoundary::AfterStampWrite){spy->writtenPackets.fetch_add(1,std::memory_order_release);if(!paused){paused=true;std::this_thread::sleep_for(std::chrono::milliseconds(beyond?250:350));}}};
     ResourceLedger ledger(64*1024*1024);o.route.resources=ledger;
-    {NativeMonitorRecording owner(t.root,std::make_unique<FakeStreams>(spy),o);const auto capacity=owner.storageCapacity();
+    {NativeMonitorRecording owner(t.root,std::make_unique<FakeStreams>(spy,captureRate),o);const auto capacity=owner.storageCapacity();
         check(capacity && capacity->rawSlots==(beyond?7u:302u) && !capacity->renderReceiptSlots,"Native policy inferred output callback packets");
-        check(owner.declared().capture.sampleRate==48000 && owner.declared().storage && owner.routeChargedBytes()>capacity->rawSampleBytes,"Native prepared format/charge missing");
-        owner.activate();check(owner.requestStopAt({9216})==MonitorControlCode::Accepted,"Native horizon refused");
+        check(owner.declared().capture.sampleRate==captureRate && owner.declared().storage && owner.routeChargedBytes()>capacity->rawSampleBytes,"Native prepared format/charge missing");
+        owner.activate();check(owner.requestStopAt({1024+monitorFrames})==MonitorControlCode::Accepted,"Native horizon refused");
         const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(8);
         while(!owner.readyToJoin() && !owner.failedOwnerReadyToCancel() && std::chrono::steady_clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
         const auto r=owner.readyToJoin()?owner.wait():owner.cancelAndWait();check(paused && r.prefix && r.native.captureOriginal && spy->captureJoined && spy->renderJoined,"Native stall didn't retain joined prefix");
-        const auto saved=inspectNativeOriginalRecording(owner.jobDirectory(),owner.declared());check(saved.schemaMinor==4 && saved.declared->storage==owner.declared().storage,"Native policy didn't survive reopening");rawExact(saved);
+        if(!beyond)check(r.native.render.startupReady && (monitorFrames<4097 ? r.native.render.startupReady->finiteFrames==std::optional<std::uint64_t>(monitorFrames) : !r.native.render.startupReady->finiteFrames),"Short recording lacks explicit finite startup evidence");
+        const auto saved=inspectNativeOriginalRecording(owner.jobDirectory(),owner.declared());check(saved.schemaMinor==5 && saved.declared->storage==owner.declared().storage && saved.outcome->render.startupReady==r.native.render.startupReady,"Native policy/finite startup didn't survive reopening");rawExact(saved);
         const auto journal=owner.jobDirectory()/"native-run.json";std::ifstream originalFile(journal,std::ios::binary);const std::string original{std::istreambuf_iterator<char>(originalFile),{}};
         auto corrupted=nlohmann::json::parse(original);corrupted["declared"]["storage"]["slots"]=1;
         {std::ofstream f(journal,std::ios::binary);f<<corrupted.dump();}bool refused=false;try{inspectNativeOriginalRecording(owner.jobDirectory());}catch(const ProjectError &){refused=true;}
@@ -41,7 +42,10 @@ void stall(bool beyond){Temp t;auto spy=std::make_shared<Spy>();spy->independent
         corrupted["declared"]["storage"]["slots"]=prepareRawRecordingStorageCapacity(48000,1,481,forged).rawSlots;
         {std::ofstream f(journal,std::ios::binary);f<<corrupted.dump();}refused=false;try{inspectNativeOriginalRecording(owner.jobDirectory());}catch(const ProjectError &){refused=true;}
         {std::ofstream f(journal,std::ios::binary);f<<original;}check(refused,"Forged native minimum/geometry accepted");
-        const auto migrated=migrateNativeOriginalRecording(owner.jobDirectory(),owner.declared(),{}, {},4);check(migrated.declared==saved.declared && migrated.raw.sampleSha256==saved.raw.sampleSha256,"Idempotent native1.4 migration changed raw/policy");
+        if(!beyond && monitorFrames<4097){corrupted=nlohmann::json::parse(original);corrupted["outcome"]["render"]["startupReady"]["finiteFrames"]=monitorFrames+1;
+            {std::ofstream f(journal,std::ios::binary);f<<corrupted.dump();}refused=false;try{inspectNativeOriginalRecording(owner.jobDirectory());}catch(const ProjectError &){refused=true;}
+            {std::ofstream f(journal,std::ios::binary);f<<original;}check(refused,"Forged finite startup accepted as completed native audio");}
+        const auto migrated=migrateNativeOriginalRecording(owner.jobDirectory(),owner.declared(),{}, {},5);check(migrated.declared==saved.declared && migrated.raw.sampleSha256==saved.raw.sampleSha256,"Idempotent native1.4 migration changed raw/policy");
         if(!beyond)check(r.disposition==NativeMonitorRecordingDisposition::Complete && r.prefix->raw.finalized && !r.captureFault && r.prefix->raw.committedFrames==r.native.captureOriginal->deliveredFrames,"Within-budget native recording lost accepted frames");
         else check(r.disposition==NativeMonitorRecordingDisposition::Failed && r.captureFault && r.captureFault->side==CaptureFanoutSide::Raw && r.captureFault->cause==CaptureBankStatus::QueueFull && r.prefix->raw.committedFrames>0,"Beyond-budget native overflow not reported");
         const auto a=spy->callbackAudit;check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Native callbacks allocated/locked");
@@ -51,4 +55,4 @@ void refusal(){Temp t;auto spy=std::make_shared<Spy>();auto o=options(3000);o.ro
     try{NativeMonitorRecording owner(t.root,std::make_unique<FakeStreams>(spy),o);}catch(const ProjectError &e){rejected=e.code()==ErrorCode::ResourceLimit;}
     check(rejected && !spy->captureActive,"Native quota failure activated callbacks");}
 }
-int main(){try{refusal();stall(false);stall(true);std::cout<<"Native prepared storage, exact raw prefix/reopening/finite output/quota/overrun/audit0; simulated SDK, physical=false\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(){try{refusal();stall(false,2400);stall(false,1);stall(false,2400,44100);stall(false);stall(true);std::cout<<"Native prepared storage, exact raw prefix/reopening/finite output/quota/overrun/audit0; simulated SDK, physical=false\n";return 0;}catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}

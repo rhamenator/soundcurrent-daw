@@ -221,7 +221,7 @@ void handoffFailures() {
     }
     PreparedMonitorStartupHandoff malformed(readyAdmission(c));
     check(malformed.claimProcessingOwner(),"Malformed receipt fixture did not claim its single owner");
-    for(unsigned kind=0;kind<8;++kind) {
+    for(unsigned kind=0;kind<11;++kind) {
         MonitorStartupReady r;r.admitted=readyAdmission(c);r.publishedFrames=c.processing.startup->nativeCapacityFrames;r.asOfQpc100ns=qpc;
         r.original.phase=MonitorStartupPhase::Live;r.original.contentReady=true;r.original.capacityFrames=100;
         r.original.acceptedFrames=200;r.original.discardedFrames=100;r.original.transferredFrames=100;
@@ -235,6 +235,9 @@ void handoffFailures() {
         if(kind==5)r.original.firstTransferred->packetOffsetFrames=480;
         if(kind==6)r.original.discardedFrames=UINT64_MAX;
         if(kind==7)r.original.lastAccepted->identity.endpoint++;
+        if(kind==8){--r.publishedFrames;r.finiteFrames=0;}
+        if(kind==9){--r.publishedFrames;r.finiteFrames=r.publishedFrames+1;}
+        if(kind==10)r.finiteFrames=r.publishedFrames;
         check(!rt([&]{return malformed.publish(r);}) && !malformed.ready() &&
             malformed.phase()==MonitorStartupHandoffPhase::Pending,"Malformed receipt changed pending handoff or became ready");
     }

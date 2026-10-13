@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Finite short native startup (2026-10-12)
+
+[Checkpoint245](245-finite-native-startup.md) publishes explicit finite ready evidence
+after verified planned output EOF, admitting shorter native startup safely and
+preserving exact final slack. Native1.5/PipeWire owner1.3 version the receipt.
+Release initial6/33.24 s and expanded platform2/16.20 s pass; one-frame/2400-frame,
+44.1k-to48k, open/zero/forged refusal and native fills1/17/4097 qualify. Focused
+ASan/UBSan2/12.59 s passes with leak detection. Original178 Windows96k fixture
+clock-confidence/wall-cadence failure remains retained and unresolved; Linux158/158
+and Windows desktop20/20 passed. Manual reserve, interrupted-original workflows,
+remainingM2–M11 and all-Europe review remain required. Full goal stays active.
+
 ## Native recording disk-pause admission (2026-10-12)
 
 [Checkpoint 244](244-native-recording-storage-budget.md) admits raw storage from

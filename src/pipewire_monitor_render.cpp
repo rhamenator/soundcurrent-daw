@@ -96,7 +96,7 @@ PipeWireRenderCode PreparedPipeWireMonitorRender::process(const DeviceBlockClock
         if(!acquiredReady_){const auto ready=options_.startup->ready();
             if(ready){
                 if(ready->admitted!=options_.startup->admission() || !options_.startup->claimed() ||
-                   ready->asOfQpc100ns>monotonicNow->value || ready->publishedFrames<ready->admitted.nativeCapacityFrames ||
+                   ready->asOfQpc100ns>monotonicNow->value || (ready->finiteFrames?(!bank_.producerDone() || *ready->finiteFrames!=ready->publishedFrames || accepted!=ready->publishedFrames):ready->publishedFrames<ready->admitted.nativeCapacityFrames) ||
                    accepted<ready->publishedFrames || consumed || bank_.discardedFrames())return fail(PipeWireRenderCause::Startup,clock);
                 const auto current=options_.startup->phase();
                 if(current==MonitorStartupHandoffPhase::Cancelled)return PipeWireRenderCode::Stopped;

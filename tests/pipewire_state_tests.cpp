@@ -49,7 +49,7 @@ void normal(){Temp t;auto i=intent(t.root);const auto job=prepare(t.root,i);
     check(s.outcome->captureClockFault && s.outcome->captureClockFault->cause==MonitorClockCause::QueueFull &&
           s.outcome->captureClockFault->attempted->qpc.value==UINT64_MAX && s.outcome->captureClockFault->attempted->discontinuity &&
           s.outcome->captureClockCounts.discarded==4 && s.outcome->renderClockCounts.delivered==UINT64_MAX,"Original handoff clock facts lost");
-    const auto raw=read(s.prefix.raw.source),manifest=read(job/"pipewire-owner.json");auto j=J::parse(manifest);j["minor"]=3;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
+    const auto raw=read(s.prefix.raw.source),manifest=read(job/"pipewire-owner.json");auto j=J::parse(manifest);j["minor"]=4;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     j=J::parse(manifest);j["prefix"]["rawFrames"]=17;write(job/"pipewire-owner.json",j.dump());refuses([&]{inspectPipeWireRecordingState(job);});write(job/"pipewire-owner.json",manifest);
     j=J::parse(manifest);const auto file=job/j["outcome"]["file"].get<std::string>();const auto bytes=read(file);auto corrupt=bytes;corrupt.back()^=1;write(file,corrupt);refuses([&]{inspectPipeWireRecordingState(job);});write(file,bytes);
     const auto replaceOutcome=[&](J edited){const auto b=edited.dump();write(file,b);auto m=J::parse(manifest);m["outcome"]["bytes"]=b.size();media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(b.data()),b.size()});m["outcome"]["sha256"]=h.digest();write(job/"pipewire-owner.json",m.dump());};

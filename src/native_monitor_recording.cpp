@@ -40,6 +40,7 @@ struct NativeMonitorRecording::State {
             if(options.route.storagePolicy){const auto &policy=*options.route.storagePolicy;spec.storage=RawRecordingStorageDeclaration{policy.stallMilliseconds,policy.minimumPacketFrames,plan.storageCapacity()->rawSlots};options.recording.schemaMinor=4;}
             spec.channelMap = options.route.channelMap;
             spec.equalizer = options.route.equalizer;
+            options.recording.schemaMinor=5; // Finite startup receipt semantics.
             route = std::make_unique<PreparedNativeMonitorRoute>(plan);
             streams->bind(*route);
             if (!options.recording.raw.resources) options.recording.raw.resources = options.route.resources;

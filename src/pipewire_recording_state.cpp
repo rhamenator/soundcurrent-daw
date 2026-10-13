@@ -18,7 +18,7 @@ J readArtifact(const std::filesystem::path &job,const J &ref,std::string_view ty
     require(file.readBounded(1).empty(),"Native state artifact trailing bytes");
     require(raw.size()==bytes && hash(raw)==text(ref.at("sha256"),64),"Native state artifact checksum/extent mismatch");return parse(raw);
 }
-J manifest(const PipeWireRecordingSpec &s,const J &intent,const J &outcome,const J &prefix){return {{"format","soundcurrent-pipewire-owner"},{"major",1},{"minor",2},{"domain","posix-monotonic-ns"},{"run",s.run.str()},{"generation",s.generation},{"intent",intent},{"outcome",outcome},{"prefix",prefix}};}
+J manifest(const PipeWireRecordingSpec &s,const J &intent,const J &outcome,const J &prefix){return {{"format","soundcurrent-pipewire-owner"},{"major",1},{"minor",3},{"domain","posix-monotonic-ns"},{"run",s.run.str()},{"generation",s.generation},{"intent",intent},{"outcome",outcome},{"prefix",prefix}};}
 ResourceLease reserve(const std::optional<ResourceLedger> &r){PayloadCharge c("Native durable state workspace",SIZE_MAX);c.add(24*1024*1024);return r?r->reserve(c.bytes()):ResourceLease{};}
 }
 struct PipeWireRecordingState::State {
@@ -42,13 +42,13 @@ void PipeWireRecordingState::finalize(const PipeWireRecordingPrefix &prefix,cons
 PipeWireStoredRecording inspectPipeWireRecordingState(const std::filesystem::path &job,const std::optional<PipeWireRecordingSpec> &expected,std::optional<ResourceLedger> resources,const std::function<void()> &beforeRead){
     using namespace pw_state;if(beforeRead)beforeRead();media_io::plainDirectory(job);media_io::JobLease lease(job,false,true,media_io::JobLeaseKind::PipeWireState);require(lease.status()==media_io::LeaseStatus::Held,"Native state writer active or missing");auto credit=reserve(resources);
     try{const auto j=parse(media_io::readJournal(job/"pipewire-owner.json"));fields(j,{"format","major","minor","domain","run","generation","intent","outcome","prefix"});
-        require(text(j.at("format"))=="soundcurrent-pipewire-owner" && u(j.at("major"))==1 && u(j.at("minor"))<=2 && text(j.at("domain"))=="posix-monotonic-ns","Unsupported native durable state schema");
+        require(text(j.at("format"))=="soundcurrent-pipewire-owner" && u(j.at("major"))==1 && u(j.at("minor"))<=3 && text(j.at("domain"))=="posix-monotonic-ns","Unsupported native durable state schema");
         PipeWireStoredRecording r;r.prefix=inspectPipeWireRecording(job,expected,resources,beforeRead);require(Id(text(j.at("run")))==r.prefix.declared.run && u(j.at("generation"))==r.prefix.declared.generation,"Native state run identity mismatch");
         r.evidenceFiles={"pipewire-owner.json","pipewire-run.json","journal.json","packets.bin","capture-cycles.bin","render-cycles.bin"};
         r.intent=decodeIntent(readArtifact(job,j.at("intent"),"intent",beforeRead),r.prefix.declared,small(j.at("minor")));
         r.evidenceFiles.push_back(text(j.at("intent").at("file"),128));
         require(j.at("outcome").is_null()==j.at("prefix").is_null(),"Native outcome/checkpoint publication mismatch");
-        if(!j.at("outcome").is_null()){require(j.at("prefix")==prefixBinding(r.prefix),"Native terminal bound prefix differs from paired checkpoint");r.outcome=decodeOutcome(readArtifact(job,j.at("outcome"),"outcome",beforeRead),(u(j.at("minor"))==0?0:1));validateOutcome(r.intent,r.prefix,*r.outcome,(u(j.at("minor"))==0?0:1));r.terminal=true;r.evidenceFiles.push_back(text(j.at("outcome").at("file"),128));}
+        if(!j.at("outcome").is_null()){require(j.at("prefix")==prefixBinding(r.prefix),"Native terminal bound prefix differs from paired checkpoint");r.outcome=decodeOutcome(readArtifact(job,j.at("outcome"),"outcome",beforeRead),(u(j.at("minor"))>=3?2:(u(j.at("minor"))==0?0:1)));validateOutcome(r.intent,r.prefix,*r.outcome,(u(j.at("minor"))>=3?2:(u(j.at("minor"))==0?0:1)));r.terminal=true;r.evidenceFiles.push_back(text(j.at("outcome").at("file"),128));}
         if(beforeRead)beforeRead();
         return r;
     }catch(const J::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed native durable state");}
