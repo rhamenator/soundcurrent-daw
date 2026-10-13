@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Windows deployment input collection (2026-10-13)
+
+[Checkpoint 251](251-windows-preview-build-bundle.md) adds an optional hosted native
+preview bundle collector: exact-head checkout, pre-build input capture, current
+application/helper bytes, reviewed Qt DLL checks, x64 PE audit, source archives,
+verifiers and compiler/import records. New native execution is still required.
+The compiled libsndfile/product DLL identity and current MSVC14.51/retained runtime14.44
+eligibility remain explicitly unqualified; product pins are not loosened. Original
+CI184 passes all four jobs and its terminal evidence is retained. No local VM,
+installer or Linux preview/equalizer change. Full DAW goal remains active.
+
 ## Updated Ubuntu recovery preview (2026-10-13)
 
 [Checkpoint 250](250-recovery-preview-delivery.md) delivers a Release Ubuntu 26.04
