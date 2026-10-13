@@ -175,6 +175,13 @@ void interrupted(){for(unsigned stage=0;stage<4;++stage){Temp t;auto s=spec();Pr
     NativeOriginalRecordingOptions options;options.raw.checkpointFrames=8;options.boundary=[&](auto b){if((stage==1 && b==NativeOriginalRecordingBoundary::RawFinalized)||(stage==2 && b==NativeOriginalRecordingBoundary::BeforeOutcomePublish)||(stage==3 && b==NativeOriginalRecordingBoundary::OutcomePublished))throw ProjectError(ErrorCode::Canceled,"Injected native publication interruption");};
     {NativeOriginalCaptureWriter w(t.root,s,options);job=w.jobDirectory();packets(w,f,s);if(stage)refuses([&]{w.finalize(f,outcome(s));});}
     const auto p=inspectNativeOriginalRecording(job,s);check(p.raw.committedFrames==16 && p.status==(stage==3?NativeOriginalRecordingStatus::Complete:NativeOriginalRecordingStatus::Pending) && p.raw.finalized==(stage!=0),"Interrupted raw/native publication became successful monitoring or lost durable outcome");
+    const auto before=read(job/"native-run.json"),raw=read(job/"journal.json");
+    std::filesystem::create_directory(t.root/"exports");
+    const auto copied=copyNativeOriginalPrefixWav(t.root,job,s,t.root/"exports"/"recovered.wav");
+    check(copied.original.status==p.status && copied.original.outcome.has_value()==p.outcome.has_value() &&
+        copied.copy.frames==16 && copied.copy.sampleSha256==p.raw.sampleSha256 &&
+        copied.copy.original.finalized==p.raw.finalized && read(job/"native-run.json")==before && read(job/"journal.json")==raw,
+        "Recovered native prefix invented completion or changed source state");
     if(stage==0)check(!p.outcome && !p.raw.finalized,"Capturing prefix fabricated native result");
 }}
 void refusals(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));NativeOriginalRecordingOptions legacyOptions;legacyOptions.schemaMinor=0;NativeOriginalCaptureWriter w(t.root,s,legacyOptions);packets(w,f,s);auto valid=outcome(s);

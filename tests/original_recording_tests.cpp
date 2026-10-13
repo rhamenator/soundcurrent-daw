@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/original_recording.hpp>
+#include <soundcurrent/original_prefix_copy.hpp>
+#include <soundcurrent/wave_validation.hpp>
 #include <soundcurrent/recording.hpp>
 #include "rt_audit.hpp"
 #include <nlohmann/json.hpp>
@@ -57,6 +59,101 @@ CaptureBankView view(const OriginalRecordingSpec &s,std::span<const float> data,
 }
 std::string read(const std::filesystem::path &p){std::ifstream f(p,std::ios::binary);return {std::istreambuf_iterator<char>(f),{}};}
 void write(const std::filesystem::path &p,std::string_view bytes){std::ofstream f(p,std::ios::binary|std::ios::trunc);f.write(bytes.data(),std::streamsize(bytes.size()));check(bool(f),"Fixture write failed");}
+void prefixCopy() {
+    for (unsigned channels : {1u,2u,256u}) for (bool nonfinite : {false,true}) {
+        Temp t;auto declared=spec(channels);std::filesystem::path job;
+        std::vector<float> data(7*std::size_t(channels));
+        for(std::size_t n=0;n<data.size();++n)data[n]=n%3==0?-0.0f:n%3==1?2.5f:-4.25f;
+        if(nonfinite)data[3*std::size_t(channels)]=std::bit_cast<float>(0x7fc12345u);
+        {
+            OriginalCaptureWriter writer(t.root,declared);job=writer.jobDirectory();
+            std::filesystem::create_directory(t.root/"exports");
+            refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"active.wav");});
+            writer.append(view(declared,data,0,7,declared.initialPacketSequence));writer.checkpoint();
+            std::fill(data.begin(),data.end(),999.0f);
+            writer.append(view(declared,data,7,7,declared.initialPacketSequence+1));
+            // No second journal publication. The closed container has a real
+            // uncommitted audio/packet tail beyond the verified seven frames.
+        }
+        const auto journal=read(job/"journal.json"),packets=read(job/"packets.bin");
+        const auto raw=read(job/"audio.partial.rf64");
+        write(job/"audio.partial.rf64",raw+"uncommitted trailing bytes");
+        const auto original=inspectOriginalRecording(job,declared);
+        const auto expected=nonfinite?3u:7u;
+        check(!original.finalized && original.committedFrames==7 && original.finitePrefixFrames==expected,
+            "Interrupted copy fixture lost its common/finite prefix");
+        const auto source=read(job/"audio.partial.rf64");
+        OriginalPrefixCopyOptions options;unsigned observed=0;
+        options.progress=[&](std::uint64_t at,std::uint64_t total){
+            check(at<=total && total==7*std::uint64_t(channels)*4,"Prefix progress invented audio coordinates");
+            if(!observed++)refuses([&]{inspectOriginalRecording(job,declared);}); // Lease remains held.
+        };
+        const auto target=t.root/"exports"/std::filesystem::path(u8"récupéré-Українська.wav");
+        const auto copied=copyOriginalPrefixWav(t.root,job,declared,target,options);
+        check(copied.frames==expected && copied.original.committedFrames==7 &&
+            !copied.original.finalized && copied.original.first==original.first && copied.original.last==original.last &&
+            copied.original.sampleSha256==original.sampleSha256 && copied.original.stampSha256==original.stampSha256 &&
+            copied.bytes==92+expected*std::uint64_t(channels)*4 && observed,"Prefix receipt changed source evidence");
+        const auto bytes=read(target);check(bytes.size()==copied.bytes && bytes.substr(0,4)=="RF64","Recovered WAV container/extent differs");
+        for(std::size_t n=0;n<std::size_t(expected)*channels;++n) {
+            const auto value=n%3==0?-0.0f:n%3==1?2.5f:-4.25f;
+            const auto bits=std::bit_cast<std::uint32_t>(value);
+            for(unsigned k=0;k<4;++k)check(static_cast<unsigned char>(bytes[92+4*n+k])==((bits>>(8*k))&255),"Prefix copy changed sample bits");
+        }
+        ApprovedMediaRoot approved(std::filesystem::absolute(t.root/"exports"),options.resources);
+        auto opened=approved.openSelectedFilename(target.filename(),options.maximumBytes);
+        const auto wave=validateApprovedWave(opened);
+        check(wave.frames==expected && wave.rate==48000 && wave.channels==channels && wave.encoding==WaveEncoding::Float32 &&
+            std::string(wave.sourceSha256.data(),wave.sourceSha256.size())==copied.fileSha256,"Copied WAV independent validation differs");
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,target);});
+        auto wrong=declared;wrong.asset=Id::generate();refuses([&]{copyOriginalPrefixWav(t.root,job,wrong,t.root/"exports"/"wrong.wav");});
+        auto tiny=options;tiny.resources=ResourceLedger(1);tiny.progress={};
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"tiny.wav",tiny);});
+        check(tiny.resources.usage().reservedBytes==0,"Refused prefix copy leaked memory credit");
+        auto limited=options;limited.maximumBytes=1;refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"limited.wav",limited);});
+        bool stop=false;auto canceled=options;canceled.canceled=[&]{return stop;};canceled.progress=[&](auto,auto){stop=true;};
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"canceled.wav",canceled);});
+        check(!std::filesystem::exists(t.root/"exports"/"canceled.wav"),"Canceled prefix copy published media");
+        auto race=options;race.progress=[&](auto,auto){write(t.root/"exports"/"race.wav","user data");};
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"race.wav",race);});
+        check(read(t.root/"exports"/"race.wav")=="user data","Prefix copy overwrote a raced destination");
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,job/"replace.wav");});
+        for(const auto &entry:std::filesystem::directory_iterator(t.root/"exports"))
+            check(entry.path().extension()!=".partial","Refused prefix copy left temporary media");
+        check(read(job/"journal.json")==journal && read(job/"packets.bin")==packets && read(job/"audio.partial.rf64")==source &&
+            read(target)==bytes,"Recovery mutated original files or copied target");
+        bool mutationDenied=false,mutationObserved=false,changeRefused=false;
+        auto changed=options;changed.progress=[&](auto,auto){
+            if(mutationObserved)return;
+            mutationObserved=true;
+            std::ofstream mutate(job/"audio.partial.rf64",std::ios::binary|std::ios::app);
+            if(!mutate){mutationDenied=true;return;}mutate<<"changed bytes";
+        };
+        try{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"changed.wav",changed);}
+        catch(const ProjectError &){changeRefused=true;}
+        check(mutationObserved && ((mutationDenied && !changeRefused) || (!mutationDenied && changeRefused)),
+            "Changed original media escaped verification or pinned write denial");
+        if(!mutationDenied)check(!std::filesystem::exists(t.root/"exports"/"changed.wav"),"Changed source was published");
+        write(job/"audio.partial.rf64",source);
+        std::filesystem::rename(job/"audio.partial.rf64",job/"missing.rf64");
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"missing.wav");});
+        std::filesystem::rename(job/"missing.rf64",job/"audio.partial.rf64");
+        std::cout<<"prefix_copy_mutation channels="<<channels<<" finite_cut="<<nonfinite
+            <<" mutation_denied="<<mutationDenied<<" changed_source_refused="<<changeRefused<<'\n';
+    }
+    for(bool nonfinite:{false,true}) {
+        Temp t;auto declared=spec(1);std::filesystem::path job;
+        {OriginalCaptureWriter writer(t.root,declared);job=writer.jobDirectory();
+            if(nonfinite){std::array<float,7> data{};data[0]=std::bit_cast<float>(0x7fc12345u);
+                writer.append(view(declared,data,0,7,declared.initialPacketSequence));writer.checkpoint();}}
+        std::filesystem::create_directory(t.root/"exports");
+        const auto bytes=read(job/"audio.partial.rf64"),journal=read(job/"journal.json");
+        refuses([&]{copyOriginalPrefixWav(t.root,job,declared,t.root/"exports"/"empty.wav");});
+        check(std::filesystem::is_empty(t.root/"exports") && read(job/"audio.partial.rf64")==bytes &&
+            read(job/"journal.json")==journal,"Zero playable prefix changed media or fabricated a copy");
+    }
+    std::cout<<"original_prefix_copy channels=1,2,256 interrupted=true finite_cut=true uncommitted_tail_excluded=true trailing_bytes_excluded=true signed_zero_headroom_bits=true inactive_lease_held=true no_overwrite=true cancel=true quota=true source_unchanged=true\n";
+}
 void basic(unsigned channels,unsigned packets) {
     Temp t;auto s=spec(channels);PreparedCaptureFanout f(config(s));OriginalCaptureWriter w(t.root,s);
     refuses([&]{inspectOriginalRecording(w.jobDirectory());});
@@ -247,6 +344,10 @@ void hardCrash(unsigned selected) {
     const auto p=inspectOriginalRecording(job);const auto secondCommitted=selected>=unsigned(OriginalRecordingBoundary::AfterJournal);
     check(p.committedFrames==(secondCommitted?14u:7u) && p.committedPackets==(secondCommitted?2u:1u) &&
           p.finitePrefixFrames==p.committedFrames && p.finalized==(selected==9),"Killed writer exposed uncommitted/incorrect common prefix");
+    std::filesystem::create_directory(t.root/"exports");
+    const auto copied=copyOriginalPrefixWav(t.root,job,p.spec,t.root/"exports"/"recovered.wav");
+    check(copied.frames==p.committedFrames && copied.sampleSha256==p.sampleSha256 &&
+        copied.original.finalized==p.finalized,"Actual interrupted prefix copy changed original extent/bits");
 }
 } // namespace
 #ifdef _WIN32
@@ -256,7 +357,7 @@ int main(int argc,char **argv) {
 #endif
     try {
         if(argc==4){crashChild(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));return 80;}
-        rt_audit::reset();basic(3,100);basic(256,3);nonfiniteAndPartialRoute();failures();samplePagesAndCredit();concurrentDisk();
+        rt_audit::reset();prefixCopy();basic(3,100);basic(256,3);nonfiniteAndPartialRoute();failures();samplePagesAndCredit();concurrentDisk();
         for(unsigned b=0;b<=9;++b)hardCrash(b);
         check(!rt_audit::counts.cppAllocate && !rt_audit::counts.cppFree && !rt_audit::counts.cAllocate &&
               !rt_audit::counts.cFree && !rt_audit::counts.blockingLock,"Prepared fanout RT audit");

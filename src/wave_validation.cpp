@@ -101,7 +101,7 @@ struct Header {
     int subtype=0;
     bool rf64=false;
 };
-Header inspect(Io &io) {
+Header inspect(Io &io, bool prefixContainer = false) {
     Header h;h.result.sourceBytes=io.file.size();
     require(h.result.sourceBytes>=12,"Wave container header is truncated");
     std::array<char,12> header{};io.read(0,header);
@@ -111,14 +111,15 @@ Header inspect(Io &io) {
     h.result.bigEndian=magic=="RIFX";
     const auto declared=integer(std::span(header).subspan(4,4),h.result.bigEndian);
     h.rf64=magic=="RF64";
-    require((h.rf64 && declared==UINT32_MAX) || declared==h.result.sourceBytes-8,"Wave container extent does not match approved file");
+    require((h.rf64 && declared==UINT32_MAX) || (prefixContainer ? declared<=h.result.sourceBytes-8 : declared==h.result.sourceBytes-8),"Wave container extent does not match approved file");
+    std::uint64_t containerEnd = h.rf64 ? h.result.sourceBytes : declared + 8;
     struct SizeEntry {std::array<char,4> tag;std::uint64_t bytes;bool used=false;};
     std::vector<SizeEntry> sizes;ResourceLease tableGrant;bool haveSizes=false;
     std::uint64_t dataSize64=0,samples64=0;
     bool haveFormat=false,haveData=false;std::uint32_t chunkCount=0;std::uint16_t blockAlign=0;
-    for (std::uint64_t offset=12;offset<h.result.sourceBytes;) {
+    for (std::uint64_t offset=12;offset<containerEnd;) {
         require(chunkCount++<io.limits.maximumChunks,"Wave chunk limit exceeded",ErrorCode::ResourceLimit);
-        require(h.result.sourceBytes-offset>=8,"Wave chunk header is truncated");
+        require(containerEnd-offset>=8,"Wave chunk header is truncated");
         std::array<char,8> chunk{};io.read(offset,chunk);offset+=8;
         auto length=integer(std::span(chunk).subspan(4,4),h.result.bigEndian);
         const std::string_view tag(chunk.data(),4);
@@ -133,13 +134,15 @@ Header inspect(Io &io) {
         }
         require(length<=UINT64_MAX-(length&1),"Wave padded chunk length overflow");
         const auto padded=length+(length&1);
-        require(padded<=h.result.sourceBytes-offset,"Wave chunk exceeds approved container");
+        require(padded<=containerEnd-offset,"Wave chunk exceeds approved container");
         if(tag=="ds64" && h.rf64) {
             require(!haveSizes && chunkCount==1 && length>=28,"Invalid/duplicate RF64 size chunk");
             std::array<char,28> sizeHeader{};io.read(offset,sizeHeader);
             const auto value=[&](std::size_t from,std::size_t n){return integer(std::span(sizeHeader).subspan(from,n),false);};
             const auto riff=value(0,8);dataSize64=value(8,8);samples64=value(16,8);const auto count=value(24,4);
-            require(declared!=UINT32_MAX || riff==h.result.sourceBytes-8,"RF64 container extent differs from approved file");
+            require(prefixContainer ? riff<=h.result.sourceBytes-8 : riff==h.result.sourceBytes-8,"RF64 container extent differs from approved file");
+            containerEnd=riff+8;
+            require(containerEnd>=offset && padded<=containerEnd-offset,"RF64 size chunk exceeds declared container");
             require(count<=io.limits.maximumChunks && count<=SIZE_MAX/sizeof(SizeEntry),"RF64 table exceeds chunk admission",ErrorCode::ResourceLimit);
             require(28+count*12<=length,"Truncated RF64 size table");
             tableGrant=io.file.resourceLedger().reserve(std::size_t(count)*sizeof(SizeEntry));sizes.reserve(std::size_t(count));
@@ -202,6 +205,19 @@ struct Decoder {
     ~Decoder() { if (handle) sf_close(handle); }
 };
 } // namespace
+WaveDataExtent inspectApprovedWaveData(ApprovedMediaFile &file, WaveValidationLimits limits,
+    WaveExtentPolicy policy, const std::function<void()> &beforeRead) {
+    require(limits.maximumFrames && limits.maximumBytesRead && limits.maximumIoOperations &&
+                limits.maximumChunks && limits.maximumChannels && limits.maximumChannels<=1024,
+            "Invalid wave extent policy");
+    if (beforeRead) beforeRead();
+    file.verifyUnchanged();
+    Io io{file,limits,{},beforeRead};
+    const auto h=inspect(io,policy==WaveExtentPolicy::PrefixContainer);
+    file.verifyUnchanged();io.poll();
+    auto format=h.result;format.bytesRead=io.bytes;format.ioOperations=io.operations;
+    return {format,h.dataOffset,h.dataBytes,h.rf64};
+}
 WaveValidation validateApprovedWave(ApprovedMediaFile &file,WaveValidationLimits limits,
     std::stop_token stop,const std::function<void(std::uint64_t,std::span<const double>)> &observer,
     const std::function<void()> &beforeRead) {

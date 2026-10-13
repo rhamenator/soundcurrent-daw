@@ -15,6 +15,8 @@ struct PipeWireOriginalExportResult {
 };
 inline NativeTakeAdmissionOptions pipewireTakeAdmissionDefaults(){NativeTakeAdmissionOptions o;o.resources=ResourceLedger{64*1024*1024,"PipeWire take admission"};return o;}
 inline NativeOriginalExportOptions pipewireOriginalExportDefaults(){NativeOriginalExportOptions o;o.resources=ResourceLedger{64*1024*1024,"PipeWire original export"};return o;}
+// Existing state inspection alone admits 24MiB; use the same 64MiB route scope.
+inline OriginalPrefixCopyOptions pipewirePrefixCopyDefaults(){OriginalPrefixCopyOptions o;o.resources=ResourceLedger{64*1024*1024,"PipeWire prefix copy"};return o;}
 VerifiedNativeTake verifyPipeWireTakeForAdmission(const std::filesystem::path &root,const std::filesystem::path &job,
     const PipeWireRecordingSpec &expected,const Id &target,Frame start,std::uint32_t rate,const Id &clip,
     const NativeTakeAdmissionOptions &options=pipewireTakeAdmissionDefaults());
@@ -24,4 +26,14 @@ PipeWireStoredRecording inspectProjectPipeWireRecording(const std::filesystem::p
 PipeWireOriginalExportResult exportPipeWireOriginalWav(const std::filesystem::path &root,
     const std::filesystem::path &job,const PipeWireRecordingSpec &expected,
     const std::filesystem::path &destination,const NativeOriginalExportOptions &options=pipewireOriginalExportDefaults());
+struct PipeWireOriginalPrefixCopyResult {
+    PipeWireStoredRecording original;
+    OriginalPrefixCopyResult copy;
+};
+// Copy only the paired committed finite prefix. Hold state/receipt/raw leases
+// throughout; a newer standalone raw journal does not enlarge this checkpoint.
+PipeWireOriginalPrefixCopyResult copyPipeWireOriginalPrefixWav(const std::filesystem::path &root,
+    const std::filesystem::path &job,const PipeWireRecordingSpec &expected,
+    const std::filesystem::path &destination,const OriginalPrefixCopyOptions & = pipewirePrefixCopyDefaults());
+
 }

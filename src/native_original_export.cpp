@@ -3,6 +3,8 @@
 #include <soundcurrent/approved_media.hpp>
 #include <soundcurrent/wave_validation.hpp>
 #include "media_io.hpp"
+#include "native_original_recording_internal.hpp"
+#include "original_prefix_copy_internal.hpp"
 #include <algorithm>
 #include <vector>
 #ifdef _WIN32
@@ -14,6 +16,18 @@
 #include <unistd.h>
 #endif
 namespace soundcurrent::daw {
+NativeOriginalPrefixCopyResult copyNativeOriginalPrefixWav(const std::filesystem::path &root,
+    const std::filesystem::path &job,const NativeOriginalRecordingSpec &expected,
+    const std::filesystem::path &destination,const OriginalPrefixCopyOptions &options) {
+    const auto check=[&]{if(options.canceled && options.canceled())
+        throw ProjectError(ErrorCode::Canceled,"Native original prefix copy canceled");};
+    check();media_io::plainDirectory(job);media_io::JobLease lease(job,false,true);
+    media_io::require(lease.status()==media_io::LeaseStatus::Held,"Native prefix copy requires an inactive owned job");
+    detail::admitOriginalPrefixCopySource(job,options);
+    auto original=detail::inspectNativeOriginalRecordingHeld(job,lease,expected,check,options.resources);
+    auto copied=detail::copyOriginalPrefixWavHeld(root,job,original.raw,lease,destination,options);
+    return {std::move(original),std::move(copied)};
+}
 NativeOriginalExportResult exportNativeOriginalWav(const std::filesystem::path &projectRoot,
     const std::filesystem::path &job,const NativeOriginalRecordingSpec &expected,
     const std::filesystem::path &destination,const NativeOriginalExportOptions &options) {

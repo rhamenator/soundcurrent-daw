@@ -1,5 +1,21 @@
 # Active full-suite goal: progress and completion evidence
 
+## Verified interrupted-recording prefix copies (2026-10-13)
+
+[Checkpoint 247](247-interrupted-prefix-copy.md) implements shared bounded prefix
+copying and both native adapters. Exact sample bits/rate/channel ordinals, original
+checkpoint/status and held inactive leases are preserved; uncommitted/nonfinite
+and trailing bytes are excluded from the new RF64 file. Mono/stereo/256-channel,
+changed source/cancel/quota/no-overwrite and ten actual raw process interruptions
+qualify. PipeWire copies17 paired frames despite a34-frame standalone raw journal.
+Release five gates pass independently; fresh ASan/UBSan5/21.69 s passes with leak
+detection. UI integration/review remains next. Original180 terminal Windows native
+84/86 has a generic controller5-second wait and manual aggregate60-second timeout;
+Linux159/159, desktop20/20, cross-build and three isolated20-take diagnostics pass.
+Original artifacts are retained, but the failed controller Temp directory is absent
+from its ZIP; that evidence gap remains explicit. No deadline/status/confidence
+inflation. Full M2–M11 and reviewed localization remain active and incomplete.
+
 ## Recording fixture cadence and declared manual reserve (2026-10-13)
 
 [Checkpoint 246](246-recording-cadence-reserve.md) accounts for actual fake-SDK

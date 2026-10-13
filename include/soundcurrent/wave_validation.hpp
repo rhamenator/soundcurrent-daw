@@ -22,6 +22,18 @@ struct WaveValidation {
     double peak=0;
     std::array<char,64> sourceSha256{};
 };
+// Header/chunk geometry only: does not verify samples, finiteness or a digest.
+// PrefixContainer permits bytes after the declared container, for an explicitly
+// verified recording checkpoint; those bytes are neither decoded nor trusted.
+enum class WaveExtentPolicy { ExactContainer, PrefixContainer };
+struct WaveDataExtent {
+    WaveValidation format;
+    std::uint64_t offset = 0, bytes = 0;
+    bool rf64 = false;
+};
+WaveDataExtent inspectApprovedWaveData(ApprovedMediaFile &, WaveValidationLimits = {},
+    WaveExtentPolicy = WaveExtentPolicy::ExactContainer,
+    const std::function<void()> &beforeRead = {});
 // Serialized control/I/O only. RIFF/RIFX/RF64 uncompressed PCM/IEEE float WAVE;
 // RF64 ds64 extents/tables are bounded and checked against pinned file bytes.
 // WAVEX with the same PCM/float subtype and full container precision.
