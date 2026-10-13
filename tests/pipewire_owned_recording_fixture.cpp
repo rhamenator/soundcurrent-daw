@@ -91,9 +91,18 @@ int main(){std::filesystem::path root;
         double energy=0;for(unsigned n=frames-4800;n<frames;++n){const auto l=sink.samples[n*2],r=sink.samples[n*2+1];require(std::abs(r+.5*l)<.002,"Actual native matrix changed");energy+=(l-mean)*(l-mean);}
         require(std::abs(mean-4)<.02 && std::abs(std::sqrt(energy/4800)-3*std::pow(10.,-6./20.)/std::sqrt(2.))<.02,"Actual native EQ response/DC/headroom changed");
         require(!sourceAudit.bad && !captureAudit.bad && !renderAudit.bad,"Actual native callbacks allocated/freed/locked");
+        ui::NativeMonitorCommand admit;admit.kind=ui::NativeMonitorCommandKind::AdmitTake;admit.generation=1;admit.resultSequence=final->resultSequence;
+        admit.targetTrack=project.tracks.front().id;admit.clipId=Id::generate();admit.placement=257;admit.projectRate=project.sampleRate;admit.revision=1;
+        require(owner.submit(admit)==ui::NativeMonitorAdmission::Accepted,"Genuine take admission command refused");
+        const auto admissionUntil=std::chrono::steady_clock::now()+std::chrono::seconds(8);
+        while(!owner.snapshot()->admission && !owner.snapshot()->error && std::chrono::steady_clock::now()<admissionUntil)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        require(bool(owner.snapshot()->admission),"Genuine take verification failed");auto placed=project;EditHistory history(placed);
+        require(history.structural({owner.snapshot()->admission->edit()}) && placed.assets.front().nativeEvidence.size()==8 && placed.tracks.front().clips.front().startFrame==257,"Genuine take lost placement/evidence");
+        ProjectStore(root).save(placed);ProjectStore(root).verifyMedia(placed);require(ProjectStore(root).load()==placed,"Genuine admitted take did not reopen");
         std::cout<<"owned_recording raw_frames="<<result.prefix->raw.committedFrames<<" monitor_frames="<<frames<<" sink_frames="<<sink.received
                  <<" capture_receipts="<<result.prefix->captureRecords<<" render_receipts="<<result.prefix->renderRecords<<" raw_bit_checks="<<result.prefix->raw.committedFrames
                  <<" capture_callbacks="<<captureAudit.callbacks<<" render_callbacks="<<renderAudit.callbacks<<" monitor_mean="<<mean<<" monitor_ac_rms="<<std::sqrt(energy/4800)
+                 <<" timeline_admitted=true placement=257 evidence_files=8 save_reopen_verified=true"
                  <<" callback_allocate_free_lock=0 actual_sdk=true private_dummy_route=true physical_audio=false durable_terminal_state=true controller_worker=true\n";
         std::filesystem::remove_all(root);return 0;
     }catch(const std::exception &e){std::cerr<<e.what()<<" retained_fixture="<<root.generic_string()<<'\n';return 1;}}
