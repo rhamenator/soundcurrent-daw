@@ -68,6 +68,8 @@ struct NativeMonitorSnapshot {
     std::uint64_t admissionRevision=0;
     bool exporting = false,admitting=false,pipewire=false,pipewireHasEq=false;
     MonitorOutputOrdinal monitorFirst{};
+    std::optional<RecordingStorageCapacity> storageCapacity;
+    std::size_t routePayloadBytes=0;
     bool hasOriginal() const {return bool(result)||bool(reopened)||bool(pipewireResult)||bool(pipewireReopened);}
     const OriginalRecordingPrefix *rawPrefix() const {
         if(pipewireReopened)return &pipewireReopened->prefix.raw;

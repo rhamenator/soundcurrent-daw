@@ -71,6 +71,21 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
     add_=new QPushButton(tr("Add to selected track"),admissionRow);add_->setObjectName("nativeAddTake");
     add_->setToolTip(tr("Use this explicit timeline position. Captured audio and native timing evidence stay unchanged."));
     admissionLayout->addWidget(placementLabel,0,0);admissionLayout->addWidget(placement_,0,1);admissionLayout->addWidget(add_,0,2);layout->addWidget(admissionRow,9,0,1,5);
+    auto *storageRow=new QWidget(this);auto *storageLayout=new QGridLayout(storageRow);
+    storageEnabled_=new QCheckBox(tr("Buffer for disk pauses"),storageRow);storageEnabled_->setObjectName("nativeStorageEnabled");
+    storageEnabled_->setToolTip(tr("Prepare a finite buffer before recording. Repeated pauses or a slow disk can still stop recording."));
+    storageMilliseconds_=new QSpinBox(storageRow);storageMilliseconds_->setObjectName("nativeStorageMilliseconds");storageMilliseconds_->setRange(1,60000);storageMilliseconds_->setValue(3000);storageMilliseconds_->setSuffix(tr(" ms"));
+    minimumCapture_=new QSpinBox(storageRow);minimumCapture_->setObjectName("nativeStorageCaptureMinimum");minimumCapture_->setRange(0,65536);minimumCapture_->setSpecialValueText(tr("Choose"));
+    minimumRender_=new QSpinBox(storageRow);minimumRender_->setObjectName("nativeStorageRenderMinimum");minimumRender_->setRange(0,65536);minimumRender_->setSpecialValueText(tr("Choose"));
+    storageLayout->addWidget(storageEnabled_,0,0);storageLayout->addWidget(storageMilliseconds_,0,1);
+    const std::pair<QSpinBox *,QString> minimums[]={{minimumCapture_,tr("Minimum input block (frames)")},{minimumRender_,tr("Minimum output block (frames)")}};
+    for(int n=0;n<2;++n){auto *label=new QLabel(minimums[n].second,storageRow);label->setBuddy(minimums[n].first);minimums[n].first->setAccessibleName(minimums[n].second);
+        minimums[n].first->setToolTip(tr("Enter the smallest block allowed by your audio setup. Recording stops if an actual block is smaller. This is not the maximum block size."));
+        storageLayout->addWidget(label,n+1,0);storageLayout->addWidget(minimums[n].first,n+1,1);}
+    storageMilliseconds_->setAccessibleName(tr("Disk pause budget"));storagePreview_=new QLabel(storageRow);storagePreview_->setObjectName("nativeStoragePreview");storagePreview_->setTextFormat(Qt::PlainText);storagePreview_->setWordWrap(true);
+    storageLayout->addWidget(storagePreview_,3,0,1,2);layout->addWidget(storageRow,10,0,1,5);
+    connect(storageEnabled_,&QCheckBox::toggled,this,[this]{storageDirty_=true;admission_.clear();poll();});
+    for(auto *spin:{storageMilliseconds_,minimumCapture_,minimumRender_})connect(spin,qOverload<int>(&QSpinBox::valueChanged),this,[this]{storageDirty_=true;admission_.clear();poll();});
     connect(add_,&QPushButton::clicked,this,[this]{bool valid=false;const auto start=QLocale().toLongLong(placement_->text(),&valid);
         if(!valid || start<0){admission_=tr("Enter a nonnegative project frame.");poll();return;}
         if(addRequested)addRequested(Frame(start));});
@@ -101,7 +116,7 @@ NativeMonitorPanel::NativeMonitorPanel(NativeMonitorControllerOptions o,QWidget 
             NativeMonitorCommand shape;shape.preparation=preparation_;
             auto lease=memory_.reserve(nativeMonitorCommandPayloadBytes(shape,memory_.usage().limitBytes));
             auto copy=std::make_shared<OwnedPreparation>(std::move(lease),*preparation_);
-            if(copy->value.pipewire){auto &o=*copy->value.pipewire;o.declared.generation=++nextGeneration_;o.declared.run=Id::generate();o.declared.raw.asset=Id::generate();}
+            if(copy->value.pipewire){auto &o=*copy->value.pipewire;if(!applyStorageBudget(o)){poll();return;}o.declared.generation=++nextGeneration_;o.declared.run=Id::generate();o.declared.raw.asset=Id::generate();}
             else{copy->value.options.route.runGeneration=++nextGeneration_;copy->value.options.run=Id::generate();copy->value.options.raw.asset=Id::generate();}
             auto c=command(NativeMonitorCommandKind::Prepare);c.generation=nextGeneration_;c.preparation=std::shared_ptr<const NativeMonitorPreparation>(copy,&copy->value);if(send(c))nextRevision_=0;
         } catch(const ProjectError &){admission_=tr("Recording settings exceed the panel memory limit.");poll();}
@@ -142,7 +157,10 @@ bool NativeMonitorPanel::setPreparation(const NativeMonitorPreparation &p) {
         NativeMonitorCommand c;c.preparation=std::shared_ptr<const NativeMonitorPreparation>(std::shared_ptr<void>{},&p);
         const auto bytes=nativeMonitorCommandPayloadBytes(c,memory_.usage().limitBytes);
         auto lease=memory_.reserve(bytes);auto owned=std::make_shared<OwnedPreparation>(std::move(lease),p);
-        preparation_=std::shared_ptr<const NativeMonitorPreparation>(owned,&owned->value);
+        preparation_=std::shared_ptr<const NativeMonitorPreparation>(owned,&owned->value);storageDirty_=true;
+        if(p.pipewire && p.pipewire->storageBudget){const auto &budget=*p.pipewire->storageBudget;
+            QSignalBlocker enabled(storageEnabled_),duration(storageMilliseconds_),input(minimumCapture_),output(minimumRender_);
+            storageEnabled_->setChecked(true);storageMilliseconds_->setValue(int(budget.stallMilliseconds));minimumCapture_->setValue(int(budget.minimumCaptureFrames));minimumRender_->setValue(int(budget.minimumRenderFrames));}
         {QSignalBlocker block(eq_);const auto &eq=p.pipewire?p.pipewire->route.equalizer:p.options.route.equalizer;eq_->setChecked(eq && eq->settings.enabled);}
         devices_->setText(tr("Input: %1 · Output: %2").arg(deviceName(p.inputs),deviceName(p.outputs)));admission_.clear();poll();return true;
     }catch(const ProjectError &e){admission_=e.code()==ErrorCode::ResourceLimit?tr("Recording settings exceed the panel memory limit."):tr("Recording settings are invalid.");poll();return false;}
@@ -244,7 +262,7 @@ bool NativeMonitorPanel::chooseDevices() {
         return setPreparation(owned->value);
     }catch(const ProjectError &){admission_=tr("Selected devices exceed the panel memory limit.");return false;}
 }
-void NativeMonitorPanel::clearPreparation(){if(busy())return;preparation_.reset();devices_->clear();poll();}
+void NativeMonitorPanel::clearPreparation(){if(busy())return;storageDirty_=true;preparation_.reset();devices_->clear();poll();}
 bool NativeMonitorPanel::enabled(bool value) {
     if(closing_ || nextRevision_==UINT64_MAX)return false;
     auto c=command(NativeMonitorCommandKind::Equalizer);c.enabled=value;c.revision=nextRevision_+1;
@@ -256,6 +274,39 @@ bool NativeMonitorPanel::parameter(const EqSettings &settings,const ParameterAdd
     auto c=command(NativeMonitorCommandKind::Equalizer);c.equalizer=settings;c.parameter=address;c.revision=nextRevision_+1;
     if(!send(c))return false;
     ++nextRevision_;return true;
+}
+bool NativeMonitorPanel::applyStorageBudget(PipeWireMonitorRecordingOptions &o) const {
+    if(!storageEnabled_->isChecked()){o.storageBudget.reset();o.route.minimumCaptureFrames=o.route.minimumRenderFrames=1;o.route.storageStallMilliseconds=0;return true;}
+    if(!minimumCapture_->value() || !minimumRender_->value())return false;
+    if(std::uint32_t(minimumRender_->value())>o.declared.maximumRenderFrames)throw ProjectError(ErrorCode::InvalidParameter,"Minimum output block exceeds declared maximum");
+    RecordingStorageBudget budget;budget.captureRate=o.declared.raw.sampleRate;budget.renderRate=o.declared.renderRate;
+    budget.captureChannels=o.declared.raw.layout.channels;budget.maximumCaptureFrames=o.declared.raw.maximumPacketFrames;
+    budget.minimumCaptureFrames=std::uint32_t(minimumCapture_->value());budget.minimumRenderFrames=std::uint32_t(minimumRender_->value());budget.stallMilliseconds=std::uint32_t(storageMilliseconds_->value());
+    if(o.storageBudget){if(o.storageBudget->headroomPackets!=2)throw ProjectError(ErrorCode::InvalidParameter,"Unsupported owner storage headroom");budget.memoryBudgetBytes=o.storageBudget->memoryBudgetBytes;}
+    const auto capacity=prepareRecordingStorageCapacity(budget);o.storageBudget=budget;o.route.rawSlots=capacity.rawSlots;
+    o.route.receiptSlots=std::max({o.route.receiptSlots,capacity.captureReceiptSlots,capacity.renderReceiptSlots});
+    o.route.minimumCaptureFrames=budget.minimumCaptureFrames;o.route.minimumRenderFrames=budget.minimumRenderFrames;o.route.storageStallMilliseconds=budget.stallMilliseconds;
+    return true;
+}
+void NativeMonitorPanel::updateStoragePreview(bool inactive){
+    const auto s=snapshot();const bool supported=preparation_ && preparation_->pipewire;
+    storageEnabled_->setEnabled(inactive && supported);for(auto *spin:{storageMilliseconds_,minimumCapture_,minimumRender_})spin->setEnabled(inactive && supported && storageEnabled_->isChecked());
+    if(storageDirty_)storageValid_=true;
+    if(!inactive && s->storageCapacity){const auto &c=*s->storageCapacity;
+        if(!s->routePayloadBytes)storagePreview_->setText(tr("Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.").arg(QLocale().toString(c.declaredStallMilliseconds),QLocale().toString(c.rawSlots),QLocale().toString(c.captureReceiptSlots)));
+        else storagePreview_->setText(tr("Prepared: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of prepared route payload.").arg(QLocale().toString(c.declaredStallMilliseconds),QLocale().toString(c.rawSlots),QLocale().toString(c.captureReceiptSlots),QLocale().toString(qulonglong(s->routePayloadBytes))));
+        return;
+    }
+    if(!inactive && (s->pipewireDeclared || s->hasOriginal())){storagePreview_->setText(tr("No disk-pause duration was declared for this take."));return;}
+    if(!supported){storageValid_=true;storagePreview_->setText(tr("Disk-pause budgeting is not available for this audio route yet."));return;}
+    if(!storageEnabled_->isChecked()){storageValid_=true;storagePreview_->setText(tr("Using existing buffers. No disk-pause duration is declared."));return;}
+    if(!minimumCapture_->value() || !minimumRender_->value()){storageValid_=false;storageDirty_=true;storagePreview_->setText(tr("Choose minimum input and output block sizes before preparing."));return;}
+    if(!storageDirty_){storagePreview_->setText(storagePlan_);return;}
+    storageDirty_=false;
+    try{auto options=*preparation_->pipewire;applyStorageBudget(options);const auto capacity=pipeWireStorageCapacity(options.declared,options.route);const auto bytes=pipeWireRoutePayloadBytes(options.declared,options.route);
+        storagePreview_->setText(tr("Plan: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of route payload. Block sizes will be checked while recording.").arg(QLocale().toString(capacity->declaredStallMilliseconds),QLocale().toString(capacity->rawSlots),QLocale().toString(capacity->captureReceiptSlots),QLocale().toString(qulonglong(bytes))));
+    }catch(const ProjectError &e){storageValid_=false;storagePreview_->setText(e.code()==ErrorCode::ResourceLimit?tr("This disk-pause budget exceeds the buffer or memory limit. Reduce the duration or change the audio setup."):tr("The minimum block sizes do not match the recording setup."));}
+    storagePlan_=storagePreview_->text();
 }
 void NativeMonitorPanel::poll() {
     const auto s=snapshot();const bool editable=!closing_;
@@ -271,7 +322,8 @@ void NativeMonitorPanel::poll() {
         for(auto *combo:{inputDevice_,outputDevice_,mapping_})combo->setEnabled(choices && !refreshing_);
     }
     const bool idle=s->phase==NativeMonitorPhase::Idle || (s->phase==NativeMonitorPhase::Fault && !saved);
-    prepare_->setEnabled(editable && preparation_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
+    updateStoragePreview(editable && idle && !saved);
+    prepare_->setEnabled(editable && preparation_ && storageValid_ && idle && (!interactive_ || (!refreshing_ && inputDevice_->currentIndex()>0 && outputDevice_->currentIndex()>0)));start_->setEnabled(editable && s->phase==NativeMonitorPhase::Ready);
     seconds_->setEnabled(editable && (idle || s->phase==NativeMonitorPhase::Ready));
     cancel_->setEnabled(editable && (s->phase==NativeMonitorPhase::Ready || s->phase==NativeMonitorPhase::Recording || s->phase==NativeMonitorPhase::Preparing || s->phase==NativeMonitorPhase::Finishing || s->exporting || s->admitting || admissionPending_ || reopeningPending_ || s->phase==NativeMonitorPhase::Reopening));
     inspect_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);keep_->setEnabled(editable && saved && !s->exporting && !s->admitting && !admissionPending_);

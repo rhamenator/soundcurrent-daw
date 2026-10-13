@@ -1,0 +1,480 @@
+{
+  "source": "bf932b7c51f19f200a4131cf8f0cbf581249e95b",
+  "scope": "Linux offscreen Qt panel and portable owned storage workflows; no physical/VM/native Windows qualification",
+  "members": {
+    "/tmp/sc-native-panel-\u00e9-/b52528ae-7a48-45b9-ace4-c60a4c22997b/pipewire-\u00e9/media/original-aedaeeab-0403-4f18-a205-4bf007f1da03/journal.json": {
+      "file": "e-5278d175d56c13cc18bc.gz",
+      "bytes": 896,
+      "sha256": "95bcba6ee3b5331db73c2f6f748931ba3af17057032ff4680ed9372896407a13",
+      "compressedSha256": "f2d199f54ce7791ea903a82296192d311a2e25fc9566294a795a2954d9def412"
+    },
+    "/tmp/sc-native-panel-\u00e9-/b52528ae-7a48-45b9-ace4-c60a4c22997b/pipewire-\u00e9/media/original-aedaeeab-0403-4f18-a205-4bf007f1da03/pipewire-owner.json": {
+      "file": "e-4079ae0156b9e5ea8410.gz",
+      "bytes": 1122,
+      "sha256": "ae1d5d02b8322820897d6c5a7e87655b687616e4723a46ef3a916d0393e82302",
+      "compressedSha256": "0ff9c35ce6f1b57aea4ec3f469de125eab0f39d57268d41841cb91727d5c8cbd"
+    },
+    "/tmp/sc-native-panel-\u00e9-/b52528ae-7a48-45b9-ace4-c60a4c22997b/pipewire-\u00e9/media/original-aedaeeab-0403-4f18-a205-4bf007f1da03/pipewire-run.json": {
+      "file": "e-3dd0a0cf2f217ebf8f24.gz",
+      "bytes": 1748,
+      "sha256": "1b1edaf8a590d0efde727c717683586c5259b3a0fe126a3a3eca5c66462f0ede",
+      "compressedSha256": "6e5f1a98dc38713b6aa83a0ca2d54bba1083b96edb40778eb98eaea0a7f79dfa"
+    },
+    "/tmp/sc-native-panel-\u00e9-/b52528ae-7a48-45b9-ace4-c60a4c22997b/pipewire-\u00e9/media/original-aedaeeab-0403-4f18-a205-4bf007f1da03/pw-intent-e241e7e0-5de2-4446-bbc4-cab868edbcab.json": {
+      "file": "e-f5ab58934f2686c166d2.gz",
+      "bytes": 1491,
+      "sha256": "22c003f6054993217f78d1dbb0af068bb13c6e6b8ea8e4e016e6743763945469",
+      "compressedSha256": "b55381185314f7116a34bbd9c7b6590ff13d204082e3cb24e65c7913472e201a"
+    },
+    "/tmp/sc-native-panel-\u00e9-/b52528ae-7a48-45b9-ace4-c60a4c22997b/pipewire-\u00e9/media/original-aedaeeab-0403-4f18-a205-4bf007f1da03/pw-intent-f57773b3-bf52-41ce-a20b-3aecfb807982.json": {
+      "file": "e-c9bfba8553d3dca5dc02.gz",
+      "bytes": 1491,
+      "sha256": "22c003f6054993217f78d1dbb0af068bb13c6e6b8ea8e4e016e6743763945469",
+      "compressedSha256": "b55381185314f7116a34bbd9c7b6590ff13d204082e3cb24e65c7913472e201a"
+    },
+    "/tmp/sc-native-panel-\u00e9-/b52528ae-7a48-45b9-ace4-c60a4c22997b/pipewire-\u00e9/media/original-aedaeeab-0403-4f18-a205-4bf007f1da03/pw-outcome-42a0f613-e9af-4775-8453-d05930610918.json": {
+      "file": "e-be3cf7b7a16889814e11.gz",
+      "bytes": 893,
+      "sha256": "f9a6cb4a435b235372f9daae753042b3c2a380b8df8974efeb35b1db66eb22f6",
+      "compressedSha256": "5380f706cbc63d882538c2e5e6f81a2fd58b4f7ff0110440c08e618c51405453"
+    },
+    "/tmp/sc-native-panel-\u00e9-/b52528ae-7a48-45b9-ace4-c60a4c22997b/pipewire-\u00e9/project.json": {
+      "file": "e-3e2831aa425db44dfd7f.gz",
+      "bytes": 1841,
+      "sha256": "e05d7bc590bc38c938f30a2ce2d3ef222b0840c0382959d09656e7f172b24644",
+      "compressedSha256": "58f1327def0169d2a25fc6033a8c4ca715a19af479d4a0955c8e49c51da1f4be"
+    },
+    ".cache/recording-storage-panel/build-final.log": {
+      "file": "e-18a4a84e67d4767eee94.gz",
+      "bytes": 1360,
+      "sha256": "692b5c49e297d569f681127dad831816248f03014582f47175e71c3f1bcc37e4",
+      "compressedSha256": "8a6cef030c622d00c96ed1af0b814e7303a746a2232845f0d44feeaa353748d1"
+    },
+    ".cache/recording-storage-panel/build-visible-tab.log": {
+      "file": "e-d24be326ecde2c164308.gz",
+      "bytes": 153,
+      "sha256": "a50ebffce19020d4001a62bd98499d99b4667b849bc80966b8ad1d48b2b060f0",
+      "compressedSha256": "228c32a793759de7265e91c695c4ebffcb83e31dae16c37cbefb71e29dceeaf4"
+    },
+    ".cache/recording-storage-panel/build.log": {
+      "file": "e-7ad84a1dadee50579cc3.gz",
+      "bytes": 29091,
+      "sha256": "54eba9178c8d1b2a5ac36a002c713c969af3b41df33a6602f4888c8c49a8014c",
+      "compressedSha256": "47c596308455a4e3abc82b387edf4be0ba731e1eaa88f1ac6467f3d712326f08"
+    },
+    ".cache/recording-storage-panel/configure.log": {
+      "file": "e-5449d719e35ea0d92fea.gz",
+      "bytes": 2180,
+      "sha256": "c2477316d019e07407b06381475d041d7362d7456a89a05a05d4381faa713f3d",
+      "compressedSha256": "77e548a18891ea5a5f198e3c3a42fcb29ca22752d869d6b5754778d101e9b9a8"
+    },
+    ".cache/recording-storage-panel/desktop/CMakeCache.txt": {
+      "file": "e-e02d4003522a9c0a50e6.gz",
+      "bytes": 69251,
+      "sha256": "29e9ad128d1a33c71247f77cb82b163add564bf1a8d4f1e2d0a04bb2adc3ad9c",
+      "compressedSha256": "60046cf15e382b57249e7719c8bd9ae384408482de99dc840de6ee48c7608550"
+    },
+    ".cache/recording-storage-panel/desktop/Testing/Temporary/LastTest.log": {
+      "file": "e-34d9039e791488f5810a.gz",
+      "bytes": 2359,
+      "sha256": "ebab0527f3595953b88af262d5b73cb0415da8f0da5a4bd8e2b22735dcfe1376",
+      "compressedSha256": "05e523d5903a522c17a2ad5ccfb4fc8b8d6632a34c6a0937caaf8012f50cc9d4"
+    },
+    ".cache/recording-storage-panel/desktop/build.ninja": {
+      "file": "e-62cf50cb603cf476f710.gz",
+      "bytes": 961669,
+      "sha256": "d9eb7e3f3003a63f2e5355c24817b724d344cc8cd6bd2e8721eafcd711dee668",
+      "compressedSha256": "ef99ee2292b4262ba4e8b071f62cfecaf3a68fb448467369b435b75860053bea"
+    },
+    ".cache/recording-storage-panel/localization-check.json": {
+      "file": "e-a4db91a6b969629f8bd2.gz",
+      "bytes": 113,
+      "sha256": "cb1a188dd302a16ef30a8891ac95ea62e145bf91f87fccbd30135d3834d94e04",
+      "compressedSha256": "4dc5805d155801923165d6869aadacc08ecb07ee5e2619a996b23027f09362ef"
+    },
+    ".cache/recording-storage-panel/localization-final-update.log": {
+      "file": "e-8aa9c11c9d3a28845220.gz",
+      "bytes": 246,
+      "sha256": "4cf1f6f6c0acdb46281d2bca96a5fc00038a3441f731c1f525ddefdbaeb01cd1",
+      "compressedSha256": "11210e062ea13bf9fa32b4985789ae3ccceab03e22321d1b0e59d4ffaa8108a4"
+    },
+    ".cache/recording-storage-panel/localization-qualified-update.log": {
+      "file": "e-411aba692699261fe58f.gz",
+      "bytes": 246,
+      "sha256": "576c50362eca8be4da6b8012f66db4f92e30018345570811828053a5c46ffc60",
+      "compressedSha256": "d2f8bc7160ab78e37bfa8cde4e3c94dbc421e44558d971f25810409c36c7939d"
+    },
+    ".cache/recording-storage-panel/localization-update-final.log": {
+      "file": "e-336b08d4dcee716ff476.gz",
+      "bytes": 246,
+      "sha256": "136687488e2c62612cde3202a3990978a4311dc8b1ec74532842587031ba37d3",
+      "compressedSha256": "4eeca09029f848e030404de7da7f6ef8dc4c395b14075a69c4bbcdd0efd4afab"
+    },
+    ".cache/recording-storage-panel/localization-update.log": {
+      "file": "e-b447ad0238e134230870.gz",
+      "bytes": 246,
+      "sha256": "7698ebf8de1877443075e246851c899ddb3922f8f87a31c3ecee44fa0bb07d84",
+      "compressedSha256": "da922e6249522fcb9aebadfb0745500a08d394402d0383892f094dfbac33c2f0"
+    },
+    ".cache/recording-storage-panel/next-native-budget.md": {
+      "file": "e-aaed83bea08e42f1e9d8.gz",
+      "bytes": 1403,
+      "sha256": "80398fdf5007af26503660bf31994d2d3ff166b4fee3853f1b240096985bc16f",
+      "compressedSha256": "74b65cbc9f4338f675214fef97edaeff8b8404691897954a5fb4991e2bffff51"
+    },
+    ".cache/recording-storage-panel/pr176-review/artifacts.json": {
+      "file": "e-05374db045437dd064d7.gz",
+      "bytes": 2245,
+      "sha256": "9719ea40dd5089df4d003dd69a7677fe4a97368013eef77b774c8bf834d6d763",
+      "compressedSha256": "8b39f7248e9604b326a00d154194827eb253748750ae5c5ff748fab3c40aef5f"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--0635def8dfc4ffc4c6ec.json": {
+      "file": "e-c0b1b613bba3542d20f9.gz",
+      "bytes": 1744,
+      "sha256": "c197f4c1791eed7fdc124565e5c7232164521ff876c34842a60561d6f4bf3ca8",
+      "compressedSha256": "de4081521477397e73b4849b04c43bd6bffd550a4366571d351b7bc1740ea708"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--346bde42faef2bc4a9bf.json": {
+      "file": "e-ae8ae8d8929c97ea9769.gz",
+      "bytes": 200,
+      "sha256": "7fb9e1093515ff317bfc7a47a8bbfdc10333d6b19945b31cb4beb17249ce1385",
+      "compressedSha256": "bd14216294a34788d3091db85ae0cf7c96b2f9d87f536edad4061afa6b2d5c55"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--38f3f9dd4ac580278199.json": {
+      "file": "e-bf31887b9492a79c77ea.gz",
+      "bytes": 553,
+      "sha256": "d101ec277c4e93369b4800719f79d1f78c702d311af4e4f238617c9300af0ff9",
+      "compressedSha256": "3e8cfdb1969e028a3ab9a5e737a28c29df340820babf8957efb88b01d2508722"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--628fec1012f98c29fce2.json": {
+      "file": "e-38ea134c75802b9e9fae.gz",
+      "bytes": 11111,
+      "sha256": "61d206025f6ccadc67eadd6d718df0b006a3b3382b5f55dc01fb41a407a2fd52",
+      "compressedSha256": "4c91d6996f8edfe3cc0aa28f8ffb9b3f73c50b799a14dccd06d35b75f7986d49"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--6afd0b8db4fc89587c12.json": {
+      "file": "e-ec8ead44e194cd094017.gz",
+      "bytes": 553,
+      "sha256": "f851d198c4dcece3e613c2553b490a230af9de2631561c89b049e8391e0fe3ad",
+      "compressedSha256": "53cb231820943dce7af98c6013c70bd2f6a357f0f741f084f5f6c0821fb057eb"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--7c91a97b6549547e5e67.json": {
+      "file": "e-68c365c841b6e42cc9f3.gz",
+      "bytes": 209,
+      "sha256": "aad46a7e114011f6413b7b3ac52d18358649c8288cd22463004d37c6b68c1abc",
+      "compressedSha256": "0abdafa342a971e16624fc02a942e15158bfea9aafd78e8decf828b847a12921"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--8286daa23fb8c8f68bff.json": {
+      "file": "e-b237bb789f708f90856a.gz",
+      "bytes": 107,
+      "sha256": "f68a505044382766da9230390babc598e464826bc362182dbfa5f4437446c8b5",
+      "compressedSha256": "7ed0d7f0d6f9d9390f10854cd19a89619984ff68787cd9573e979386659f2ea3"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--830f7bd6544f782e21b8.json": {
+      "file": "e-5f4ee6656dd8ade0d547.gz",
+      "bytes": 554,
+      "sha256": "0e36a70c884a30c324f7b4b4b3008651d8f10b62f2ca17eadb810c988ef21b8f",
+      "compressedSha256": "00715f1a8283fa5f244f95191fc657ca4f9cff873bae80548ab2503be29bac80"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--8940b2edab29777cdfcc.json": {
+      "file": "e-6e0abec1bf059d4cb438.gz",
+      "bytes": 7351,
+      "sha256": "56259ce1df484fc114d29c013b96be290b1f87c5f34c1b54c278887dc16d8f46",
+      "compressedSha256": "4c4b731f30a8388281431c3eaca6e84ae2e6bb913326e8664c1e74a67dfe0930"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--999faafa363a419aff33.json": {
+      "file": "e-80e53aea5e4d14c75b77.gz",
+      "bytes": 11217,
+      "sha256": "cb94bd44fd65334bf0b7035fef158acf7d16845f8c87139cf2b30710ffea2837",
+      "compressedSha256": "bd5cf42218be3c9200fdd1d7d45e2bf99a0dd328eec81fdc8dda37f2e8d5ce51"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--a18a68f795404bd44ba8.json": {
+      "file": "e-a1f83fd1a1e95fe099b6.gz",
+      "bytes": 201,
+      "sha256": "b3f0514e1405bec48bc2e0d0a53c115b6a87009f324bde0984620b66b831a76c",
+      "compressedSha256": "4c2ca4d07fd185f0b27adee875bef332e3497e4fddd6795bf0ec822e5312ddeb"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--a60d2a6075231267947b.json": {
+      "file": "e-d3ce2eb0487ae0756fd2.gz",
+      "bytes": 22031,
+      "sha256": "e1f56013573ca805be4f5af59a142989e8046428f2316399f48bb58b50cc95ed",
+      "compressedSha256": "a5b2f70bb32037805265c7ca6a715aa0d420fe520937e6cc22e338fc0fdb5328"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--a8dce31d41cdd23bdef6.json": {
+      "file": "e-c849fc3ca6eaac5f19ef.gz",
+      "bytes": 11159,
+      "sha256": "6fb6b8bd1a794d1742b1f9f23d01061b481d6731d86942ab6fb893a8590ecff0",
+      "compressedSha256": "11100cb763af6e8fe7685f9466a92936b1ba0c46acbed08a7c843658dc6e846c"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--a8f8ca2d61c5439ef259.log": {
+      "file": "e-fd9128cf9e2b78cba146.gz",
+      "bytes": 20469,
+      "sha256": "b3963956a863765112ee5c493ca9ae5fa37837d65ed3844934c1c7bea8142307",
+      "compressedSha256": "23033225278e08f7c0322b4d092fe26fb837adb5536a98bb245b2f092f22d1df"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--adb71f783565abba91db.json": {
+      "file": "e-bd3c210759d1f696cbf5.gz",
+      "bytes": 22452,
+      "sha256": "6ce8e161b3c0112328d40364e73b5221aed719557052772ec3e7f9d4624af07f",
+      "compressedSha256": "7b29014292dec0c4a4e94f5ac4a7928d1305be971be25742dc1bb8bf05990e7f"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--cb9a55f6cc75ca38490e.json": {
+      "file": "e-450238f02df91c6ac68c.gz",
+      "bytes": 17174,
+      "sha256": "8208b0cecc8db87c45ba28b0e7da23e1d230391c25b3c9d84bce3333b02a9b66",
+      "compressedSha256": "fe2e357cf101bdf74a926620f4627b4c9997da335a26a15671bbb24c33c926b9"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--d36f27b8bde7e2a634bd.json": {
+      "file": "e-00743c6952dd056b1c3d.gz",
+      "bytes": 82911,
+      "sha256": "cb28c4e6236bc4ff4c27a2c46d804bc508b4551d7cd8a9604083d1b230abb1e7",
+      "compressedSha256": "d8c1f5380d7f5792a9b07e78a213c7c8114b72a07936b1708d10fb7fd382d912"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--edc19aeca6d353a13b0f.json": {
+      "file": "e-bd05f2befa1e8f66e36c.gz",
+      "bytes": 4612,
+      "sha256": "a1906c03267f8dbdec6ee867713cec5d187241634d3a415c5e533298d8496279",
+      "compressedSha256": "ce5ff5a1dfff87ec37c9a4ac3112a6a462ee7ebb26f7123e46eff855454e2c0a"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact--fec10c56e737df4559c9.json": {
+      "file": "e-ae0dbb8c29d681caf97a.gz",
+      "bytes": 553,
+      "sha256": "91addb80bbc71cb3d3ce613b7f815535cafafdad417d8f0eb7ef3a61b2de67c1",
+      "compressedSha256": "2f0878eae5e4cde1f22ac9c411dca9699fcafc3cb81a581920643638354a3295"
+    },
+    ".cache/recording-storage-panel/pr176-review/desktop-artifact-selected.json": {
+      "file": "e-23fd92b04a65f93fc0ab.gz",
+      "bytes": 5274,
+      "sha256": "84d1c737f6f06ada6a168552eb0de3b495c7ad88674c5b76f60c1f819baa5d63",
+      "compressedSha256": "3f899778c68b9268d59a3d0a3df60f14e4e1f719b1e0c2f9be2ff4507bf009c0"
+    },
+    ".cache/recording-storage-panel/pr176-review/job-115102501519.log": {
+      "file": "e-2f4ea152ceb3dabb8f5f.gz",
+      "bytes": 97372,
+      "sha256": "3d2b7f766b69abd705315f9273a937b8aeb6409d6bf149d651c8e48c5c435f65",
+      "compressedSha256": "49fed693e1aa2092a0ff3416202b68c5a636958b9523e78fb36e082ef718bacf"
+    },
+    ".cache/recording-storage-panel/pr176-review/job-115102501715.log": {
+      "file": "e-8c250f629b46b7c5c623.gz",
+      "bytes": 1255195,
+      "sha256": "c012a3531a1200eff01140aa6872263cf57c2472dc7f56b08ea93355350203ed",
+      "compressedSha256": "514b2c62711c87181a21efaa344786ad24719765dc822e89d6e19e4147e2ad76"
+    },
+    ".cache/recording-storage-panel/pr176-review/job-115102501742.log": {
+      "file": "e-b20a872b2ab85efa6eb6.gz",
+      "bytes": 234352,
+      "sha256": "51849b61e4bec652f4259bb1a7dd2d62707b4ca3cc9c793ec9cddc64886fc7f6",
+      "compressedSha256": "c128569d7e6635977672ae016a7af4272e461184bd2e4918bbec3b6ce181cced"
+    },
+    ".cache/recording-storage-panel/pr176-review/job-115102501818.log": {
+      "file": "e-0e6886a39be0d684239b.gz",
+      "bytes": 1245715,
+      "sha256": "b3f54dea1725e2012a28aee1ee6dd40196cef24d8a5f17fdf79ede4e49fc3ec3",
+      "compressedSha256": "92f156c874614c9925a8642c5bb35d06f94abfd3cebceeb4f9a25a795f2df019"
+    },
+    ".cache/recording-storage-panel/pr176-review/jobs.json": {
+      "file": "e-2582aeae425a739ea613.gz",
+      "bytes": 13984,
+      "sha256": "ef9851fe1b8112a0f8d1976ac31791de41ff3d324fa1a051faf15392a40071c6",
+      "compressedSha256": "291bddda6996508fdda68a2e99baf844d24e87d0b1504c3892a715907b2760a5"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--016a2f40c98e43f3ca6d.json": {
+      "file": "e-9ea56999cfb3b2145953.gz",
+      "bytes": 908,
+      "sha256": "78f8089a8371ff72dd13f07c813f0262793d9cabccbc9be58a29ecf1215b6231",
+      "compressedSha256": "68942d177b9af32712ac053444d486584251c84464725f1169ec26842d4bcf79"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--13808ce57b3ef2e6f216.json": {
+      "file": "e-947e4264cf9f34dd664a.gz",
+      "bytes": 2939,
+      "sha256": "6e47853e82964046cea0c983081bff02ee598681467dc65943b16a98b312921c",
+      "compressedSha256": "eb38a56c8050806d6f6f4fcf7b06e68054e8f0a82c89f531295eb30fbe407c56"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--1852e0a2637268f88dcd.log": {
+      "file": "e-8894899a393f6ecce013.gz",
+      "bytes": 301,
+      "sha256": "a012616b612b3f7e1077335f2b514931f7f2c538ac3afa47e549a5a1195db382",
+      "compressedSha256": "a12091c860c572308cc748396ba563efbdfef511b1a4d88d4b5adf34c48f05fb"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--247a64aad0cb055eb363.log": {
+      "file": "e-07266a9713336dca389e.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressedSha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--2c03cd43665a36e082bd.json": {
+      "file": "e-cc17d3c518f7f7e7e652.gz",
+      "bytes": 908,
+      "sha256": "3bab7e8f8564bb3fef8fc0f721b7450e6cf96161f4f333859cf72d02b1180374",
+      "compressedSha256": "856ef59522031f098863e3e3d9af94b6bdca1b03570488fe42e5146510f59d87"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--2c371efc52ffd136fbfc.json": {
+      "file": "e-11c8caace22e640e3194.gz",
+      "bytes": 7338,
+      "sha256": "0bbac05080f6a366043899e38bfa3a8783ab06885a36d27b190c9ecf362a1950",
+      "compressedSha256": "c141a5f822d1c4e25ace83c25ca7b041c98820befe109a9111a2d8c004381040"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--3aef0b42405116898c12.log": {
+      "file": "e-ebecdcb1d8754a6d9180.gz",
+      "bytes": 146,
+      "sha256": "94f8327f2cc64973ef340f4859323e21f2be014ec5562043d36e4a13266e5833",
+      "compressedSha256": "ea60fd1220f5dc065a77d66308295c1b213e7f3a3f01e6e6047a2282767deaf6"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--419cc6abaa3d3d065ddb.json": {
+      "file": "e-86a48c66a4bbbe8cc28c.gz",
+      "bytes": 2939,
+      "sha256": "153b8367bff0c60c67556a3f071089a456f58e90eaf3482fbc5273199ac18285",
+      "compressedSha256": "cbf5bc737b3f07c3e19d99520147200675b391ad6738052f30479fed4c3644ac"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--4e277aecf173ca1df5a3.json": {
+      "file": "e-4cee866483f21c618e25.gz",
+      "bytes": 533,
+      "sha256": "8810fb49edf6704c138ffe1475d21fa548a9e860abfd80ce6716cce720f2d035",
+      "compressedSha256": "878b328d483acc9e3e06b830882aeb1701cb925477f03497a78a3aa45929ff2b"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--52e974d2d6edf6aa954c.log": {
+      "file": "e-9b756717ee1331597535.gz",
+      "bytes": 146,
+      "sha256": "9887225bda8c0b3aa6648b6b9fc92737ab81d8e6e26d44ba2bae0c38ee32ec85",
+      "compressedSha256": "69f7c5d79f12f06a25111302ec6196e79159e3c0248d0185c99df4d574f1221d"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--56fb1616844625a7818d.json": {
+      "file": "e-848ce1bd701df58b295e.gz",
+      "bytes": 906,
+      "sha256": "73ef95dbca595edb7aeb48ca107aa609a27b17b88a0ea1c099a55233298547f9",
+      "compressedSha256": "48f07a15f6aca3dedd2d92278ffa52e8dd6359882a46a658b9a95cda3251cb52"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--694386847d33b7587c4c.json": {
+      "file": "e-cd0904caf0fa09513c3b.gz",
+      "bytes": 909,
+      "sha256": "ebfa1b17301076b275350aebccffde60e852129c038c680bbf9c59f8a23b43fb",
+      "compressedSha256": "38c993468f5745edb1aed7eefdabdea1452fd8410c5cf11613664df0311b9681"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--6e43b929f8b402db99e0.json": {
+      "file": "e-4a14210e43bb2328b775.gz",
+      "bytes": 907,
+      "sha256": "b8bcd45f161a2c320de8aa92e7fdca8c0f5c84a11f26ed2d7f5bca60726ee7f4",
+      "compressedSha256": "27bb99ee8f644583df8014e58986485af21319b1bb97eb785b8b340e2ddf200d"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--70c3857b62f681579a16.json": {
+      "file": "e-4e9c29992631fc63444c.gz",
+      "bytes": 899,
+      "sha256": "2884b07ab4f0daf7446986d66fde8cb42f7ccefeec926130c9ba3d3207354159",
+      "compressedSha256": "93bff76533f1d0e15f33f75ea7869453e819bff25cbff13dc3818b234f0f7243"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--7496643a4a76995274b4.json": {
+      "file": "e-24e69d433640328825c3.gz",
+      "bytes": 908,
+      "sha256": "c1f115cf465e162769846b56bb41928941df77d32aa5ce67fcd0ece288d30538",
+      "compressedSha256": "842c812ac64815408c1b2f3ca71687338802181833e645a50b8bd71a33270e33"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--782e16fc43620130ad67.json": {
+      "file": "e-1d3a6504eceef70ffc16.gz",
+      "bytes": 909,
+      "sha256": "d3e0e2de0b41a961dd2c63a5cb394d07ebbb3dff7e52638f3eafb6a4bb7f7139",
+      "compressedSha256": "f13e50e819305d381033d526910930710fc42bc8db7a93cb12e64bf3283c791f"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--ae7ca3878ccd55209f12.json": {
+      "file": "e-1f0ee20411c5e6f2034b.gz",
+      "bytes": 913,
+      "sha256": "6b849c461d273868ffc4b0c2f6909554e7b19ede677030babbd2f4576cae0adf",
+      "compressedSha256": "607e69d8d8fac3af73eb53d03510551b41e1263c72ec363cbb33771d4caa49ad"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--aea494829743c3d14ff6.log": {
+      "file": "e-e61e3bccff8b271a237a.gz",
+      "bytes": 232320,
+      "sha256": "00986c856da60a2adace51a7daa7325e8fa8850b873228fca9123a1928658d81",
+      "compressedSha256": "80ed8396a3f900e9d1fe30baecd4bfff67c8c086f7affed78324aac84f9defa7"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--bbf5c1d02ede869506c5.json": {
+      "file": "e-86abd042dbf09a8c324a.gz",
+      "bytes": 906,
+      "sha256": "05b771127c2a50735498858f3e42b8e8ba35c6890499b688d02f165f4106e229",
+      "compressedSha256": "97e6a2020657dfb1cce707816e3d5ea51c5901bb62f36f0948af531dfe948662"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--caf16c7d0a7f227176cf.json": {
+      "file": "e-398c217500c1e0bd2768.gz",
+      "bytes": 7976,
+      "sha256": "3c186ca25a7ea4fb50f3137881365b2d4bb14479d2c8dbb57d58caf5d66718d8",
+      "compressedSha256": "df97e54b595c5561f8c7307f0b474fb3030b33221b2e88914b10eac5063dc66a"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--cf60d8a14de40c5606ab.json": {
+      "file": "e-e12d4056abec2fdae732.gz",
+      "bytes": 695,
+      "sha256": "222f18105cfff43f8247a3a90c68dfaffcd754b98388fed90e7073b1d1d263bd",
+      "compressedSha256": "8d807e6bc1d476efe0f12875519bb19808a13e00fe490be63040a6e745442cd5"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--d180c195095d1e2a848a.log": {
+      "file": "e-f12814ecd1c8bad0f2a3.gz",
+      "bytes": 301,
+      "sha256": "ac3ef01620b45099b11c3ab6176d023055a789091719c167b33d6bbd203f2738",
+      "compressedSha256": "9898974c0910328b67b395304849dd9ca9cbec8b8085c7cf6e5ab7b385cca208"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--e6f149938287aad30ed8.log": {
+      "file": "e-0b068037ff3744f76b9f.gz",
+      "bytes": 5881,
+      "sha256": "7bc5b40094add212ea9de0a4915023f5a15038db6c3017d10bb12c86964bfe41",
+      "compressedSha256": "ffbbf523931312779e09309e14ef143b84f60eb93134c2dfb2e1bbc0e60639b7"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--e8dc642c13d4626c9798.json": {
+      "file": "e-c61bd4a758c9d01d161a.gz",
+      "bytes": 908,
+      "sha256": "68622e5a86c201a1cd7139521b14afaa5ba82b05d01f6bd8d74ea645bba3f172",
+      "compressedSha256": "41913dbc84d8ee9dbf3b3b0b457f82ca1862cae485ae9a7d92814a0e2418bcd7"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact--eb44542f61efeecddc0f.json": {
+      "file": "e-4bf6d24b9e02ffe65eaa.gz",
+      "bytes": 910,
+      "sha256": "85b2e3848a94747ab112df0f036b65872f9e5283b9de67bec3d70aa22dc98ca6",
+      "compressedSha256": "2627109eabaf81b0e64ecc2e46761f8c22937c294b78698f277de7e792bb8cdc"
+    },
+    ".cache/recording-storage-panel/pr176-review/native-artifact-selected.json": {
+      "file": "e-71ea8a87b87cbba32e9e.gz",
+      "bytes": 17214,
+      "sha256": "422cc2a3e47a6f23239c675d43f337b124c082c293857a642b69465248f856e8",
+      "compressedSha256": "78652e0539dbc36fe3ef191930e9c6cb2fd1842ba234f65497b3545d826389b9"
+    },
+    ".cache/recording-storage-panel/pr176-review/run.json": {
+      "file": "e-a47653a07aba9133f9d7.gz",
+      "bytes": 13799,
+      "sha256": "b0fade13853bb14271332f8ef936e80551a2556620d27dc9ceaddf63cf62721a",
+      "compressedSha256": "4a024cf82debc846ef1f1538bd496f02fb18e041c4ddbf4a718c45859e7c64e1"
+    },
+    ".cache/recording-storage-panel/retain176.log": {
+      "file": "e-5dd255c428793de1b8a5.gz",
+      "bytes": 78,
+      "sha256": "1b25e26e2148838b92347ac39972c6136d47e22b1aecea789ef7a25188fa599c",
+      "compressedSha256": "c8cf61c3b4f2851a851046624028e151661ac19ccbecdd31f9a36bc4960b5d7c"
+    },
+    ".cache/recording-storage-panel/source-binding.json": {
+      "file": "e-defe52bda69fd882bf21.gz",
+      "bytes": 57275,
+      "sha256": "2a827f57b86920e0e01c28a851c9b3418c055ed632aa583961786f255c10eca7",
+      "compressedSha256": "1f75284ec0ced6494769c0a29675141e6121c4ef4ef978b4774aff22a482003c"
+    },
+    ".cache/recording-storage-panel/tests-visible-tab.log": {
+      "file": "e-cd86efea4d7f9c7e9b82.gz",
+      "bytes": 280,
+      "sha256": "598993e2adcbc86a360e8eeb05c8092b24c77e6058684d1895e5e081cc512a00",
+      "compressedSha256": "8f916ada423d2ae43212dbf81e8a503db4dae7ef0b8fef13a59b4996a002eeee"
+    },
+    ".cache/recording-storage-panel/tests.log": {
+      "file": "e-d41f918e9184455a2e5e.gz",
+      "bytes": 812,
+      "sha256": "ecea23d038bb6d230b5e3dcf47b69b158981ef1f01c9131dc081941414b0c2fe",
+      "compressedSha256": "e6927208f9cae2a8481085637e1227f6dcfd9c19142acb4a25544362ad0c0aa3"
+    }
+  },
+  "executables": {
+    ".cache/recording-storage-panel/desktop/sc-native-panel-tests": "af2f84a6c6621e87659c39e1db989e48599629f1c9b94be04f3b6c2ac7c45b7e",
+    ".cache/recording-storage-panel/desktop/sc-localization-tests": "caa837bfd14551bc40d10b11eb52775dbb0514da7848b4ea16a629071cb824de",
+    ".cache/recording-storage-panel/desktop/sc-pipewire-storage-budget-tests": "bdda29cd97d94a9aaa43b04db21ddd3638584f212eca1bab16b699b3027828db"
+  },
+  "screenshot": {
+    "local": ".cache/recording-storage-panel/storage-panel.png",
+    "sha256": "868fbb6bbe6958740959594c9ce635853d43f966ea9de9577107a492e16c2df3",
+    "width": 762,
+    "height": 455,
+    "visuallyInspected": true
+  }
+}

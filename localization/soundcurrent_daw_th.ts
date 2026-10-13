@@ -1774,6 +1774,38 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
       <translation type="unfinished" />
     </message>
     <message>
+      <source>Buffer for disk pauses</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Prepare a finite buffer before recording. Repeated pauses or a slow disk can still stop recording.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source> ms</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Minimum input block (frames)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Minimum output block (frames)</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Enter the smallest block allowed by your audio setup. Recording stops if an actual block is smaller. This is not the maximum block size.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Disk pause budget</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
       <source>Enter a nonnegative project frame.</source>
       <translation type="unfinished" />
     </message>
@@ -1839,6 +1871,42 @@ Accepted operation peak: %5 bytes · Retired commands: %6</source>
     </message>
     <message>
       <source>Selected devices exceed the panel memory limit.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Saved declaration: %1 ms · %2 audio slots · %3 receipt slots. No audio route is allocated.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Prepared: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of prepared route payload.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>No disk-pause duration was declared for this take.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Disk-pause budgeting is not available for this audio route yet.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Using existing buffers. No disk-pause duration is declared.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose minimum input and output block sizes before preparing.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Plan: %1 ms · %2 audio slots · %3 receipt slots · %4 bytes of route payload. Block sizes will be checked while recording.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>This disk-pause budget exceeds the buffer or memory limit. Reduce the duration or change the audio setup.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>The minimum block sizes do not match the recording setup.</source>
       <translation type="unfinished" />
     </message>
     <message>

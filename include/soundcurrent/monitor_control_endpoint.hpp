@@ -21,6 +21,8 @@ class PreparedMonitorControlEndpoint {
     virtual MonitorControlDeclaration declared() const=0;
     virtual MonitorOutputOrdinal first() const noexcept=0;
     virtual const std::filesystem::path &jobDirectory() const noexcept=0;
+    virtual std::optional<RecordingStorageCapacity> storageCapacity() const {return {};}
+    virtual std::size_t routeChargedBytes() const noexcept {return 0;}
     virtual void activate()=0;
     virtual MonitorControlCode requestStopAt(MonitorOutputOrdinal) noexcept=0;
     virtual MonitorControlCode receiveStopReceipt(MonitorControlReceipt &) noexcept=0;

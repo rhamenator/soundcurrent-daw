@@ -109,7 +109,7 @@ struct NativeMonitorController::State {
             auto held=std::make_shared<PipeWireResult>(std::move(credit),std::move(value));
             view.pipewireResult=std::shared_ptr<const PipeWireMonitorRecordingResult>(held,&held->value);
         }
-        view.resultSequence=++nextResult;owner.reset();
+        view.resultSequence=++nextResult;owner.reset();view.routePayloadBytes=0;
         view.phase=failed?NativeMonitorPhase::Fault:NativeMonitorPhase::Result;
     }
     void current(const NativeMonitorCommand &c) {
@@ -176,6 +176,7 @@ struct NativeMonitorController::State {
             next.root=p.root;next.job=prepared->jobDirectory();next.pipewire=bool(p.pipewire);next.monitorFirst=prepared->first();next.pipewireHasEq=p.pipewire && bool(p.pipewire->route.equalizer);const auto declared=prepared->declared();
             if(const auto *native=std::get_if<NativeOriginalRecordingSpec>(&declared))next.declared=std::make_shared<const NativeOriginalRecordingSpec>(*native);
             else next.pipewireDeclared=std::make_shared<const PipeWireRecordingSpec>(std::get<PipeWireRecordingSpec>(declared));
+            next.storageCapacity=prepared->storageCapacity();next.routePayloadBytes=prepared->routeChargedBytes();
             owner=std::move(prepared);view=std::move(next);lastGeneration=c.generation;return;
         }
         if(c.kind==NativeMonitorCommandKind::ReopenOriginal) {
@@ -200,6 +201,7 @@ struct NativeMonitorController::State {
                 next.completedCommands=view.completedCommands;next.errorSerial=view.errorSerial;next.cancelAcknowledged=view.cancelAcknowledged;
                 next.ports=view.ports;next.inventoryRevision=view.inventoryRevision;next.root=c.root;next.job=std::filesystem::absolute(c.job).lexically_normal();
                 next.pipewire=true;next.monitorFirst=saved->intent.processing.first;next.pipewireHasEq=bool(saved->intent.processing.equalizer);
+                next.storageCapacity=pipeWireStorageCapacity(saved->intent.expected,saved->intent.processing);
                 next.pipewireReopened=std::move(saved);next.pipewireDeclared=std::shared_ptr<const PipeWireRecordingSpec>(next.pipewireReopened,&next.pipewireReopened->intent.expected);
                 next.resultSequence=++nextResult;next.progress.rawAcceptedFrames=next.pipewireReopened->prefix.raw.committedFrames;
                 next.progress.deliveredMonitorFrames=next.pipewireReopened->prefix.monitorQueuedFrames;
@@ -219,7 +221,7 @@ struct NativeMonitorController::State {
         if(c.kind==NativeMonitorCommandKind::ReleaseResult) {
             if(owner || !hasOriginal() || c.resultSequence!=view.resultSequence)
                 throw ProjectError(ErrorCode::InvalidState,"Native result release requires its exact retained sequence");
-            view.result.reset();view.reopened.reset();view.exported.reset();view.pipewireDeclared.reset();view.pipewireResult.reset();view.pipewireReopened.reset();view.pipewireExported.reset();view.admission.reset();view.declared.reset();view.job.clear();view.root.clear();view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
+            view.result.reset();view.reopened.reset();view.exported.reset();view.pipewireDeclared.reset();view.pipewireResult.reset();view.pipewireReopened.reset();view.pipewireExported.reset();view.admission.reset();view.declared.reset();view.storageCapacity.reset();view.routePayloadBytes=0;view.job.clear();view.root.clear();view.phase=supported()?NativeMonitorPhase::Idle:NativeMonitorPhase::Unsupported;return;
         }
         if(c.kind==NativeMonitorCommandKind::AdmitTake) {
             if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared) || c.resultSequence!=view.resultSequence || !c.targetTrack || !c.clipId || !c.revision || c.revision<=view.admissionRevision)
@@ -248,7 +250,8 @@ struct NativeMonitorController::State {
         if(c.kind==NativeMonitorCommandKind::Inspect) {
             if(owner || !hasOriginal() || (!view.declared && !view.pipewireDeclared))
                 throw ProjectError(ErrorCode::InvalidState,"Native state inspection requires an inactive retained result");
-            if(view.pipewireDeclared)view.pipewireReopened=ownPipeWire(inspectProjectPipeWireRecording(view.root,view.job,view.pipewireDeclared->raw.project,options.commandMemory));
+            if(view.pipewireDeclared){view.pipewireReopened=ownPipeWire(inspectProjectPipeWireRecording(view.root,view.job,view.pipewireDeclared->raw.project,options.commandMemory));
+                view.storageCapacity=pipeWireStorageCapacity(view.pipewireReopened->intent.expected,view.pipewireReopened->intent.processing);view.routePayloadBytes=0;}
             else view.reopened=ownPrefix(inspectNativeOriginalRecording(view.job,*view.declared,{},options.commandMemory));
             return;
         }

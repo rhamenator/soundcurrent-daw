@@ -18,6 +18,9 @@ struct PipeWireMonitorRouteOptions {
 };
 // Revalidates effective saved capacity without allocating banks. Legacy routes return no duration claim.
 std::optional<RecordingStorageCapacity> pipeWireStorageCapacity(const PipeWireRecordingSpec &,const PipeWireMonitorRouteOptions &);
+// Off-RT validation/payload estimate only; copies declarations and uses validation objects.
+// No PCM/receipt bank, SDK, stream, disk I/O or ledger reservation.
+std::size_t pipeWireRoutePayloadBytes(const PipeWireRecordingSpec &,const PipeWireMonitorRouteOptions &);
 // Expected graph geometry, not an already negotiated native-device format.
 // Native callbacks validate the actual rate/quantum. No rate/driver forcing,
 // project anchor or inferred speaker mapping. One aggregate lease precedes banks.

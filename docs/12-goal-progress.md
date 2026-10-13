@@ -1,5 +1,17 @@
 # Active full-suite goal: progress and completion evidence
 
+## Recording storage controls in the desktop (2026-10-12)
+
+[Checkpoint 243](243-recording-storage-panel.md) exposes explicit disk-pause duration,
+minimum input/output blocks, cached quota-refusal preview and immutable admitted
+capacity/payload. Settings lock after Prepare; terminal/reopened take displays do
+not imply allocated audio. Visible Linux panel workflow passes13.28 s, localization
+0.70 s, storage stall2.38 s. A hidden-tab test timeout is retained and corrected.
+Original PR176 Windows84/84 native unit pass followed by separate diagnostic failure,
+desktop19/20 failure, Linux155/157 failures are retained. Native WASAPI budgeting and
+independent Windows UI qualification remain required, along with full M2–M11 and
+all-European language review; the full goal stays active.
+
 ## Explicit recording storage budget (2026-10-12)
 
 [Checkpoint 242](242-recording-storage-budget.md) implements prepared bounded queues,
