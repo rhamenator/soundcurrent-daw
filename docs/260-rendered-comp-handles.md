@@ -54,7 +54,11 @@ qualified checkpoint259 source; this increment is not installed yet.
 
 [Source-bound acceptance](../tests/results/M2/2026-10-13-prepared-rendered-handles/index.json)
 records the baseline rejection, original observation/fixture failures and final
-frozen execution. Core model tests include legacy stretch, explicit context,
+frozen execution for `e79b7c7ee2f5d4f78ca2e48a1a9894b86b3b7067`: 10/10 selected
+gates pass in 38.04 seconds. Core coverage has 6,807 checks; actual v4 comp/file
+verification has 109,597 checks; the v5 bank has 33 workers, 21 completed renders,
+18 full PCM comparisons and 517 checks. The actual GUI corpus has 68 checks without
+capture and 70 with screenshots. Core model tests include legacy stretch, explicit context,
 protected warp, a retained processed take, independent Fraction expectations,
 original visible-coordinate preservation, exact state/Undo/Redo, uncovered-window
 and missing-file-span rollback, and overflow refusals. Wrong-source setup is rejected
