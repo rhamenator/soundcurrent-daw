@@ -38,6 +38,7 @@ struct MonitorStartupReady {
     MonitorStartupAdmission admitted;
     MonitorStartupStatistics original;
     std::uint64_t publishedFrames = 0, asOfQpc100ns = 0;
+    std::optional<std::uint64_t> finiteFrames = {}; // Completed output below native capacity; original audio count, not padding.
     bool operator==(const MonitorStartupReady &) const = default;
 };
 enum class MonitorStartupHandoffPhase { Pending, Ready, Fault, InputEnd, Cancelled, OwnerLost };

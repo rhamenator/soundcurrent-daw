@@ -201,7 +201,7 @@ void refusals(){Temp t;auto s=spec();PreparedCaptureFanout f(config(s));NativeOr
         check(read(w.jobDirectory()/"native-run.json")==pendingNative,"Schema1.0 refusal changed original pending transaction");
     }
     const auto saved=w.finalize(f,valid);check(saved.status==NativeOriginalRecordingStatus::Complete,"Refused finalization mutated valid writer");auto job=w.jobDirectory();const auto original=read(job/"native-run.json");
-    for(unsigned kind=0;kind<15;++kind){auto j=J::parse(original);if(kind==0)j["schemaMinor"]=5;if(kind==1)j["declared"]["raw"]["asset"]=Id::generate().str();if(kind==2)j["declared"]["capture"]["identity"]["endpoint"]=999;if(kind==3)j["boundRaw"]["samples"]=std::string(64,'0');if(kind==4)j["outcome"]["render"]["original"]["callbackFrames"]=16.0;if(kind==5)j["outcome"]["captureOriginal"]["stop"]=std::uint64_t(UINT64_MAX);if(kind==6)j["outcome"]["render"]["original"]["started"]=1;if(kind==7)j["outcome"]["render"]["status"]="future-state";if(kind==8)j["unknown"]=true;if(kind==9)j["phase"]="complete";if(kind==10)j["outcome"]["render"]["original"]["guardCommitted"]=1;if(kind==11)j["outcome"]["captureOriginal"]["last"]["position"]=pos+9;if(kind==12)j["outcome"]["captureRequest"]["generatedEnd"]=base+17;if(kind==13)j["outcome"]["render"]["original"]["lastContent"]["clock"]["frequency"]=48000;if(kind==14)j["outcome"]["render"]["original"]["contentCommitted"]=15;write(job/"native-run.json",j.dump());refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);}
+    for(unsigned kind=0;kind<15;++kind){auto j=J::parse(original);if(kind==0)j["schemaMinor"]=6;if(kind==1)j["declared"]["raw"]["asset"]=Id::generate().str();if(kind==2)j["declared"]["capture"]["identity"]["endpoint"]=999;if(kind==3)j["boundRaw"]["samples"]=std::string(64,'0');if(kind==4)j["outcome"]["render"]["original"]["callbackFrames"]=16.0;if(kind==5)j["outcome"]["captureOriginal"]["stop"]=std::uint64_t(UINT64_MAX);if(kind==6)j["outcome"]["render"]["original"]["started"]=1;if(kind==7)j["outcome"]["render"]["status"]="future-state";if(kind==8)j["unknown"]=true;if(kind==9)j["phase"]="complete";if(kind==10)j["outcome"]["render"]["original"]["guardCommitted"]=1;if(kind==11)j["outcome"]["captureOriginal"]["last"]["position"]=pos+9;if(kind==12)j["outcome"]["captureRequest"]["generatedEnd"]=base+17;if(kind==13)j["outcome"]["render"]["original"]["lastContent"]["clock"]["frequency"]=48000;if(kind==14)j["outcome"]["render"]["original"]["contentCommitted"]=15;write(job/"native-run.json",j.dump());refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);}
     auto duplicate=original;duplicate.insert(duplicate.find('{')+1,"\"phase\":\"reported\",");write(job/"native-run.json",duplicate);refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",std::string(16385,'x'));refuses([&]{inspectNativeOriginalRecording(job);});write(job/"native-run.json",original);
     auto foreign=s;foreign.run=Id::generate();refuses([&]{inspectNativeOriginalRecording(job,foreign);});ResourceLedger tiny(1);refuses([&]{inspectNativeOriginalRecording(job,{}, {},tiny);});check(tiny.usage().reservedBytes==0,"Native read resource refusal leaked");
     check(inspectNativeOriginalRecording(job,s).status==NativeOriginalRecordingStatus::Complete,"Mutation refusal changed actual evidence");
@@ -230,7 +230,7 @@ void migrations(){
         }
         const auto encoded=read(job/"native-run.json");migrateNativeOriginalRecording(job,s,{},[](auto){throw ProjectError(ErrorCode::Canceled,"Idempotent migration must not publish");},2);
         check(read(job/"native-run.json")==encoded,"Idempotent migration rewrote immutable state");
-        for(unsigned bad=0;bad<4;++bad){auto j=J::parse(encoded);if(bad==0)j["schemaMinor"]=5;if(bad==1)j["schemaMinor"]=-1;if(bad==2)j["schemaMinor"]=1.0;if(bad==3)j["schemaMajor"]=2;
+        for(unsigned bad=0;bad<4;++bad){auto j=J::parse(encoded);if(bad==0)j["schemaMinor"]=6;if(bad==1)j["schemaMinor"]=-1;if(bad==2)j["schemaMinor"]=1.0;if(bad==3)j["schemaMajor"]=2;
             write(job/"native-run.json",j.dump());refuses([&]{migrateNativeOriginalRecording(job,s,{}, {},2);});write(job/"native-run.json",encoded);}
         if(kind==9){ // A migrated, interrupted pending transaction may receive actual joined ends later.
             auto o=outcome(s,2);o.captureOriginal->deliveredFrames=32;
@@ -238,7 +238,7 @@ void migrations(){
                 !completed.raw.finalized && completed.raw.committedFrames==16,"Migrated pending recovery invented finalized capture");
         }
     }
-    Temp t;auto s=spec();NativeOriginalRecordingOptions bad;bad.schemaMinor=5;refuses([&]{NativeOriginalCaptureWriter w(t.root,s,bad);});
+    Temp t;auto s=spec();NativeOriginalRecordingOptions bad;bad.schemaMinor=6;refuses([&]{NativeOriginalCaptureWriter w(t.root,s,bad);});
     check(!std::filesystem::exists(t.root/"media"),"Unsupported writer schema created raw job");
 }
 void migrationCrashChild(const std::filesystem::path &root,unsigned selected){

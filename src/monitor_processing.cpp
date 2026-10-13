@@ -381,7 +381,18 @@ MonitorProcessingCode PreparedMonitorProcessing::step(Qpc100ns now) noexcept {
         pendingStamp_ = {config_.buffer.runGeneration,{ordinal},read.frames};
         return MonitorProcessingCode::Progress;
     }
-    if (s.ended) { output_.finish(); done_ = true; return MonitorProcessingCode::Done; }
+    if (s.ended) {
+        output_.finish(); // EOF acquire must precede the finite ready publication.
+        if(config_.startup && !startup_.contentReady && published_){
+            if(!s.plannedOutputEnd || *s.plannedOutputEnd<config_.buffer.outputFrameBase ||
+               published_!=*s.plannedOutputEnd-config_.buffer.outputFrameBase || published_>=config_.startup->nativeCapacityFrames)
+                return fail(MonitorProcessingCause::StartupHandoff);
+            startup_.contentReady=true;
+            if(startupHandoff_ && !startupHandoff_->publish({startupHandoff_->admission(),startup_,published_,now.value,published_}))
+                return fail(MonitorProcessingCause::StartupHandoff);
+        }
+        done_ = true; return MonitorProcessingCode::Done;
+    }
     const bool atPlannedEnd = s.plannedOutputEnd && s.nextOutputFrame == *s.plannedOutputEnd;
     if (!s.closing && (holding_ || atPlannedEnd || s.queuedInputFrames < std::max(s.warmupInputFrames,
                                                config_.drift.targetQueuedSourceFrames))) {

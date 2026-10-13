@@ -106,7 +106,7 @@ WasapiPreLeaseAction PreparedWasapiMonitorRender::beforeLease(std::uint32_t fram
         const auto ready=startup_->ready();
         if(ready){
             if(ready->admitted!=startup_->admission() || !startup_->claimed() ||
-               ready->asOfQpc100ns>now.value || ready->publishedFrames<format_.capacityFrames ||
+               ready->asOfQpc100ns>now.value || (ready->finiteFrames?(!bank_.producerDone() || *ready->finiteFrames!=ready->publishedFrames || bank_.acceptedFrames()!=ready->publishedFrames):ready->publishedFrames<format_.capacityFrames) ||
                bank_.acceptedFrames()<ready->publishedFrames || bank_.deliveredFrames() || bank_.discardedFrames())
                 return refuse(WasapiMonitorRenderCause::Startup);
             // A terminal state may race receipt acquisition. It is diagnostic,

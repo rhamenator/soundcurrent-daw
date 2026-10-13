@@ -109,6 +109,16 @@ void failures(){
     const auto r=std::get<PipeWireMonitorRecordingResult>(owner->cancelAndWait());check(r.disposition==PipeWireRecordingDisposition::Failed && r.diskFailure && r.prefix && !r.prefix->raw.committedFrames,"Interrupted paired append invented committed audio");
     check(r.terminalStored && inspectPipeWireRecordingState(owner->jobDirectory()).outcome->diskFailure,"Disk failure not stored with original common prefix");
 }
+void shortWorkflow(){Temp t;auto o=options(t);auto shared=std::make_shared<Shared>();
+    PipeWireMonitorRecording owner(t.root,factory(shared),o);owner.activate();check(owner.requestStopAt({1})==MonitorControlCode::Accepted,"Short PipeWire horizon refused");
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(8);bool done=false;
+    while(!(done=owner.service()) && std::chrono::steady_clock::now()<deadline)std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    const auto r=done?owner.wait():owner.cancelAndWait();check(done && r.disposition==PipeWireRecordingDisposition::Recorded && r.prefix && r.prefix->monitorQueuedFrames==1 &&
+        r.startup && r.startup->finiteFrames==1 && shared->output.size()==2 && r.terminalStored,"Short PipeWire output failed finite completion");
+    const auto saved=inspectPipeWireRecordingState(owner.jobDirectory());check(saved.outcome->startup==r.startup && saved.prefix.monitorQueuedFrames==1,"Saved finite PipeWire receipt changed");
+    original(*r.prefix);check(shared->joins==2 && !shared->auditBad,"Short PipeWire callback/retirement audit failed");
 }
-int main(){try{workflow();workflow(true);failures();std::cout<<checks<<" owned PipeWire recording checks passed;actual native-role/processing/disk threads, finite EQ/map/raw checkpoint, cancel/fault/rollback;SDK=false, physical=false, durable terminal state verified\n";return 0;
+
+}
+int main(){try{shortWorkflow();workflow();workflow(true);failures();std::cout<<checks<<" owned PipeWire recording checks passed;actual native-role/processing/disk threads, finite EQ/map/raw checkpoint, cancel/fault/rollback;SDK=false, physical=false, durable terminal state verified\n";return 0;
 }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

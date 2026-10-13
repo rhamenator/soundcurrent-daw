@@ -393,6 +393,24 @@ void success(unsigned channels,unsigned rate,bool failedStop=false,bool mapped=f
     }
     check(!credit.usage().owners && !credit.usage().reservedBytes,"Joined readiness/binding/context credit leaked");
 }
+void finiteProtocol(){
+    for(unsigned mode=0;mode<5;++mode){Model m;m.warm(17);++m.tick;
+        const std::array<float,1> pcm{2.5F};check(m.output.publish({m.g.processing.buffer.runGeneration,m.g.output.first,1},pcm)==MonitorOutputCode::Accepted,"Finite protocol source not published");
+        if(mode!=0)m.output.finish();
+        MonitorStartupReady ready;ready.admitted=m.g.admission();ready.publishedFrames=1;ready.asOfQpc100ns=m.now().value;ready.finiteFrames=1;
+        auto &stats=ready.original;stats.phase=MonitorStartupPhase::Live;stats.contentReady=true;stats.capacityFrames=stats.transferredFrames=100;stats.acceptedFrames=100;
+        const CaptureBankStamp stamp{m.g.capture.capture.identity,{origin},{qpc},480,0};stats.firstTransferred=MonitorStartupSource{stamp,0};stats.lastAccepted=stamp;
+        check(rt([&]{return m.startup.publish(ready);}),"Explicit finite receipt refused");
+        const unsigned frames=mode==1?0:mode==2?1:mode==3?17:4097;const auto reading=m.reading();const auto action=m.pre(frames);
+        if(mode<2)check(action==WasapiPreLeaseAction::Abort && !m.output.deliveredFrames(),"Open producer/zero lease consumed finite audio");
+        else {check(action==WasapiPreLeaseAction::Content,"Finished finite output remained in warmup");
+            check(rt([&]{return m.life.beforeLease(action,frames,reading,m.now());}),"Finite native lifecycle refused");
+            check(m.fill(frames,reading)==WasapiRenderAction::Finish,"Finite output didn't finish its actual native lease");
+            check(m.backing[1]==2.5F,"Finite source headroom changed");for(unsigned n=1;n<frames;++n)check(m.backing[n+1]==0.F,"Final native slack replayed stale audio");
+            rt([&]{m.life.silenceReleased({WasapiSilenceKind::EndGuard,32,2});m.life.padding(0);m.life.queueDrained();});m.end();
+            const auto result=m.context.result();check(result && result->status==WasapiMonitorRenderStatus::Complete && result->consumedMonitorFrames==1 && result->finalSlackFrames==frames-1 && result->startupReady->finiteFrames==1,"Finite completion/actual slack receipt wrong");}
+    }
+}
 void terminalAndProtocol(){
     for(unsigned kind=0;kind<9;++kind){
         Model m;const bool live=kind>=4;
@@ -572,7 +590,7 @@ int main(int argc,char **argv){try{rt_audit::reset();
 #endif
     for(unsigned ch:{1u,2u}){for(unsigned rate:{44100u,48000u,96000u})success(ch,rate);}
     success(1,48000,true);for(unsigned rate:{44100u,48000u,96000u})success(1,rate,false,true);success(1,48000,true,true);success(1,48000,false,false,true);
-    terminalAndProtocol();nativeFailures();concurrentOwners();admissions();const auto a=rt_audit::counts;
+    finiteProtocol();terminalAndProtocol();nativeFailures();concurrentOwners();admissions();const auto a=rt_audit::counts;
     check(!a.cppAllocate && !a.cppFree && !a.cAllocate && !a.cFree && !a.blockingLock,"Prepared native readiness allocated/freed/locked");
     std::cout<<checks<<" composed native monitor startup checks passed; guarded allocate/free/lock=0; simulated SDK only\n";return 0;
 }catch(const std::exception &e){std::cerr<<e.what()<<'\n';return 1;}}
