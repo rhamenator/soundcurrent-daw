@@ -38,10 +38,10 @@ void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto share
     auto admit=command(NativeMonitorCommandKind::AdmitTake);admit.resultSequence=final->resultSequence;admit.targetTrack=project.tracks.front().id;admit.clipId=Id::generate();admit.projectRate=project.sampleRate;admit.placement=123;admit.revision=1;
     control.submit(admit);await([&]{return bool(control.snapshot()->admission) || bool(control.snapshot()->error);});
     auto verified=control.snapshot()->admission;check(verified && verified->edit().asset.nativeEvidence.size()==8,"PipeWire admission lost immutable/paired evidence");
-    EditHistory history(project);history.apply(verified->edit());const auto placed=history.session();
+    auto edited=project;EditHistory history(edited);check(history.structural({verified->edit()}),"PipeWire admission produced no structural edit");const auto placed=edited;
     check(placed.tracks.front().clips.front().startFrame==123 && nlohmann::json::parse(encodeProject(placed))["schemaMinor"]==19,"PipeWire placement/schema wrong");
     ProjectStore(t.root).save(placed);ProjectStore(t.root).verifyMedia(placed);check(ProjectStore(t.root).load()==placed,"PipeWire project did not reopen exactly");
-    check(history.undo() && history.session()==project && history.redo() && history.session()==placed,"PipeWire admission did not undo/redo atomically");
+    check(history.undo() && edited==project && history.redo() && edited==placed,"PipeWire admission did not undo/redo atomically");
     auto processed=placed;processed.tracks.front().eq.bands[1].gainDb=-6;
     ExportSpec spec(processed.tracks.front().id);spec.endFrame=123+4096;spec.blockFrames=113;
     const auto rendered=exportTrackWav(t.root,processed,t.root/"exports"/"processed.wav",spec);
