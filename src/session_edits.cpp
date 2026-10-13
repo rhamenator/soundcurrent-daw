@@ -114,6 +114,8 @@ void dynamicWeight(PayloadCharge &charge, const Asset &a) {
     stringWeight(charge, a.id.str());
     stringWeight(charge, a.relativePath);
     stringWeight(charge, a.sha256);
+    charge.add(a.nativeEvidence.capacity(),sizeof(ProjectEvidenceFile));
+    for(const auto &f:a.nativeEvidence){stringWeight(charge,f.relativePath);stringWeight(charge,f.sha256);}
 }
 void dynamicWeight(PayloadCharge &charge, const RouteIntent &r) {
     stringWeight(charge, r.backendId);
@@ -362,6 +364,12 @@ void applySessionEdits(Session &s, const std::vector<SessionEdit> &edits, StateB
                 } else if constexpr (std::is_same_v<E, InsertClip>) {
                     auto &clips = track(proposed, e.track).clips;
                     clips.insert(position(clips, e.before), e.clip);
+                } else if constexpr (std::is_same_v<E, InsertNativeTake>) {
+                    require(!e.asset.nativeEvidence.empty() && e.clip.assetId==e.asset.id,"Native take edit has no bound original");
+                    const auto existing=std::find_if(proposed.assets.begin(),proposed.assets.end(),[&](const auto &a){return a.id==e.asset.id;});
+                    if(existing==proposed.assets.end())proposed.assets.push_back(e.asset);
+                    else require(*existing==e.asset,"Native asset ID conflicts with existing media");
+                    track(proposed,e.track).clips.push_back(e.clip);
                 } else if constexpr (std::is_same_v<E, RemoveClip>) {
                     auto &clips = track(proposed, e.track).clips;
                     clips.erase(find(clips, e.clip));
