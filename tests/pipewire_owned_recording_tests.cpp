@@ -39,7 +39,7 @@ void original(const PipeWireRecordingPrefix &p){media_io::File file(p.raw.source
 }
 void workflow(bool delayed=false){Temp t;auto o=options(t);
     if(delayed)o.boundary=[](auto b){if(b==PipeWireOwnerBoundary::BeforeRender)std::this_thread::sleep_for(std::chrono::milliseconds(600));};
-    auto shared=std::make_shared<Shared>();o.journal.boundary=[shared](auto b){shared->journal(b);};ResourceLedger ledger(64*1024*1024);o.route.resources=ledger;
+    auto shared=std::make_shared<Shared>();o.journal.boundary=[shared](auto b){shared->journal(b);};o.journal.raw.boundary=[shared](auto b){shared->rawBoundary(b);};ResourceLedger ledger(64*1024*1024);o.route.resources=ledger;
     {auto owner=preparePipeWireMonitorControlEndpoint(t.root,factory(shared),o,{},{});
      check(std::holds_alternative<PipeWireRecordingSpec>(owner->declared()),"PipeWire declaration converted to another backend");check(ledger.usage().reservedBytes>0,"Aggregate route not charged");owner->activate();
         check(owner->requestStopAt({2400})==MonitorControlCode::Accepted,"Owner horizon admission failed");
@@ -49,7 +49,7 @@ void workflow(bool delayed=false){Temp t;auto o=options(t);
         if(!ready || observed.rawAcceptedFrames<48000)std::cerr<<"owner_observation ready="<<ready<<" raw="<<observed.rawAcceptedFrames<<" monitor="<<observed.monitorAcceptedFrames<<" copied="<<observed.copiedMonitorSourceFrames<<" published="<<observed.publishedMonitorFrames<<" delivered="<<observed.deliveredMonitorFrames<<" processing_done="<<observed.processingDone<<" disk_done="<<observed.diskDone<<'\n';
         const auto result=std::get<PipeWireMonitorRecordingResult>(ready?owner->wait():owner->cancelAndWait());
         if(result.processingFault)std::cerr<<"processing_fault="<<int(result.processingFault->cause)<<'\n';
-        if(result.disposition!=PipeWireRecordingDisposition::Recorded)std::cerr<<"fixture_capture_late_ns="<<shared->captureLateNs.load()<<" fixture_render_late_ns="<<shared->renderLateNs.load()<<" paired_publish_span_ns="<<shared->checkpointNs.load()<<" raw_appends="<<shared->rawAppends.load()<<" paired_checkpoints="<<shared->checkpoints.load()<<'\n';
+        if(result.disposition!=PipeWireRecordingDisposition::Recorded)std::cerr<<"fixture_capture_late_ns="<<shared->captureLateNs.load()<<" fixture_render_late_ns="<<shared->renderLateNs.load()<<" after_raw_checkpoint_to_pair_publish_ns="<<shared->checkpointNs.load()<<" raw_audio_stamp_write_ns="<<shared->rawWriteNs.load()<<" raw_appends="<<shared->rawAppends.load()<<" paired_checkpoints="<<shared->checkpoints.load()<<'\n';
         if(result.capture && result.capture->fault)std::cerr<<"capture_fault="<<int(result.capture->fault->cause)<<'\n';
         if(result.fanoutFault)std::cerr<<"fanout_fault side="<<int(result.fanoutFault->side)<<" cause="<<int(result.fanoutFault->cause)<<" raw_accepted="<<result.fanoutFault->rawPacketAccepted<<" monitor_accepted="<<result.fanoutFault->monitorPacketAccepted<<'\n';
         if(result.render && result.render->fault)std::cerr<<"render_fault="<<int(result.render->fault->cause)<<'\n';

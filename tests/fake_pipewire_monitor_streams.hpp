@@ -10,12 +10,14 @@ using namespace soundcurrent::daw;
 template<class F>auto rt(F f){rt_audit::Guard guard;return f();}
 inline float sample(std::uint64_t n){return float(3*std::sin(double(n%48)*2*3.141592653589793/48));}
 struct Shared {std::atomic<unsigned> joins{0},retired{0};std::atomic<bool> auditBad{false};std::vector<float> output;
-    std::atomic<std::uint64_t> captureLateNs{0},renderLateNs{0},checkpointNs{0},rawAppends{0},checkpoints{0};
-    std::chrono::steady_clock::time_point checkpointBegin; // One journal/control owner, read only after joins.
+    std::atomic<std::uint64_t> captureLateNs{0},renderLateNs{0},checkpointNs{0},rawWriteNs{0},rawAppends{0},checkpoints{0};
+    std::chrono::steady_clock::time_point checkpointBegin,rawWriteBegin; // One journal/control owner, read only after joins.
     static void maximum(std::atomic<std::uint64_t> &value,std::uint64_t next){auto old=value.load();while(old<next && !value.compare_exchange_weak(old,next)){} }
     void journal(PipeWireJournalBoundary b){if(b==PipeWireJournalBoundary::RawAppended)++rawAppends;
-        if(b==PipeWireJournalBoundary::RawAppended)checkpointBegin=std::chrono::steady_clock::now();
+        if(b==PipeWireJournalBoundary::RawCheckpoint)checkpointBegin=std::chrono::steady_clock::now();
         if(b==PipeWireJournalBoundary::CheckpointPublished){++checkpoints;maximum(checkpointNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-checkpointBegin).count()));}}
+    void rawBoundary(OriginalRecordingBoundary b){if(b==OriginalRecordingBoundary::BeforeAudioWrite)rawWriteBegin=std::chrono::steady_clock::now();
+        if(b==OriginalRecordingBoundary::AfterStampWrite)maximum(rawWriteNs,std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-rawWriteBegin).count()));}
 };
 class Simulated final : public PipeWireMonitorStreams {
     PreparedPipeWireMonitorRoute &route_;std::shared_ptr<Shared> shared_;
