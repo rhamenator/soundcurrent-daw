@@ -3,6 +3,8 @@
 #include <soundcurrent/approved_media.hpp>
 #include <soundcurrent/wave_validation.hpp>
 #include "media_io.hpp"
+#include "pipewire_recording_internal.hpp"
+#include "original_prefix_copy_internal.hpp"
 #include <algorithm>
 #include <vector>
 #ifdef _WIN32
@@ -26,6 +28,25 @@ PipeWireStoredRecording inspectProjectPipeWireRecording(const std::filesystem::p
     media_io::require(state.prefix.raw.spec.project==project && state.prefix.raw.spec.asset==asset,"PipeWire take belongs to another project/asset");
     if(check)check();
     return state;
+}
+PipeWireOriginalPrefixCopyResult copyPipeWireOriginalPrefixWav(const std::filesystem::path &projectRoot,
+    const std::filesystem::path &selectedJob,const PipeWireRecordingSpec &expected,
+    const std::filesystem::path &destination,const OriginalPrefixCopyOptions &options) {
+    const auto check=[&]{if(options.canceled && options.canceled())throw ProjectError(ErrorCode::Canceled,"PipeWire prefix copy canceled");};
+    check();const auto root=std::filesystem::absolute(projectRoot).lexically_normal();
+    const auto job=std::filesystem::absolute(selectedJob).lexically_normal();
+    media_io::require(job.parent_path()==root/"media" && job.filename()=="original-"+expected.raw.asset.str(),"PipeWire copy is outside its project/asset");
+    media_io::plainDirectory(root);media_io::plainDirectory(root/"media");media_io::plainDirectory(job);
+    const auto session=ProjectStore(root).load();media_io::require(session.id==expected.raw.project,"PipeWire copy project identity differs");
+    media_io::JobLease state(job,false,true,media_io::JobLeaseKind::PipeWireState);
+    media_io::JobLease receipts(job,false,true,media_io::JobLeaseKind::PipeWireReceipts);
+    media_io::JobLease raw(job,false,true);
+    media_io::require(state.status()==media_io::LeaseStatus::Held && receipts.status()==media_io::LeaseStatus::Held &&
+        raw.status()==media_io::LeaseStatus::Held,"PipeWire prefix copy requires inactive owned roles");
+    detail::admitOriginalPrefixCopySource(job,options);
+    auto original=detail::inspectPipeWireRecordingStateHeld(job,state,receipts,raw,expected,options.resources,check);
+    auto copied=detail::copyOriginalPrefixWavHeld(root,job,original.prefix.raw,raw,destination,options);
+    return {std::move(original),std::move(copied)};
 }
 PipeWireOriginalExportResult exportPipeWireOriginalWav(const std::filesystem::path &projectRoot,
     const std::filesystem::path &job,const PipeWireRecordingSpec &expected,

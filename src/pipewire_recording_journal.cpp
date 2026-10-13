@@ -2,6 +2,7 @@
 #include <soundcurrent/pipewire_recording_journal.hpp>
 #include "media_io.hpp"
 #include "original_recording_internal.hpp"
+#include "pipewire_recording_internal.hpp"
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <array>
@@ -94,10 +95,13 @@ void PipeWireRecordingJournal::finalize(const PreparedCaptureFanout &f,const Pre
     try{s.commit(false);s.prefix.raw=s.raw.finalize(f);s.at(PipeWireJournalBoundary::RawFinalized);require(s.prefix.raw.committedFrames==s.prefix.rawReceiptFrames,"Raw/native final prefix differs");
         s.capture->flush();s.render->flush();s.publish(true,s.raw.committedJournal());s.capture->close();s.render->close();s.finalized=true;s.lease.reset();
     }catch(...){s.fail();throw;}}
-PipeWireRecordingPrefix inspectPipeWireRecording(const std::filesystem::path &job,const std::optional<PipeWireRecordingSpec> &expected,std::optional<ResourceLedger> resources,const std::function<void()> &beforeRead){
+PipeWireRecordingPrefix detail::inspectPipeWireRecordingHeld(const std::filesystem::path &job,
+    const media_io::JobLease &native,const media_io::JobLease &raw,
+    const std::optional<PipeWireRecordingSpec> &expected,std::optional<ResourceLedger> resources,
+    const std::function<void()> &beforeRead) {
     const auto at=[&]{if(beforeRead)beforeRead();};at();media_io::plainDirectory(job);
-    media_io::JobLease native(job,false,true,media_io::JobLeaseKind::PipeWireReceipts);require(native.status()==media_io::LeaseStatus::Held,"Native writer active or lease missing");
-    media_io::JobLease raw(job,false,true);require(raw.status()==media_io::LeaseStatus::Held,"Raw writer active or lease missing");
+    require(native.status()==media_io::LeaseStatus::Held,"Native writer active or lease missing");
+    require(raw.status()==media_io::LeaseStatus::Held,"Raw writer active or lease missing");
     PayloadCharge charge("Native receipt inspection",SIZE_MAX);charge.add(192*1024);auto reservation=resources?resources->reserve(charge.bytes()):ResourceLease{};
     try{const auto j=parse(media_io::readJournal(job/"pipewire-run.json"));PipeWireRecordingPrefix p;auto &s=p.declared;
         s.run=Id(text(j.at("run")));s.generation=integer(j.at("generation"));const auto &render=j.at("render");fields(render,{"identity","rate","channels","maximumFrames"});
@@ -129,4 +133,14 @@ PipeWireRecordingPrefix inspectPipeWireRecording(const std::filesystem::path &jo
         at();return p;
     }catch(const J::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed native receipt checkpoint");}
 }
+PipeWireRecordingPrefix inspectPipeWireRecording(const std::filesystem::path &job,
+    const std::optional<PipeWireRecordingSpec> &expected,std::optional<ResourceLedger> resources,
+    const std::function<void()> &beforeRead) {
+    if(beforeRead)beforeRead();
+    media_io::plainDirectory(job);
+    media_io::JobLease native(job,false,true,media_io::JobLeaseKind::PipeWireReceipts);
+    media_io::JobLease raw(job,false,true);
+    return detail::inspectPipeWireRecordingHeld(job,native,raw,expected,std::move(resources),beforeRead);
+}
+
 } // namespace soundcurrent::daw

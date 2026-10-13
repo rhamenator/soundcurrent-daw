@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "pipewire_state_codec.hpp"
+#include "pipewire_recording_internal.hpp"
 namespace soundcurrent::daw {
 namespace {
 using namespace pw_state;
@@ -39,11 +40,16 @@ void PipeWireRecordingState::select(std::vector<ChannelPortIntent> inputs,std::v
 void PipeWireRecordingState::finalize(const PipeWireRecordingPrefix &prefix,const PipeWireJoinedOutcome &outcome){auto &s=*state_;pw_state::require(!s.terminal && !s.failed,"Native terminal state already published/failed");
     const auto encoded=pw_state::encodeOutcome(outcome);const auto decoded=pw_state::decodeOutcome(pw_state::parse(encoded.dump()));pw_state::validateOutcome(s.intent,prefix,decoded);
     try{const auto ref=artifact(s.job,"outcome",encoded.dump(),s.options);s.publish(ref,pw_state::prefixBinding(prefix));s.terminal=true;}catch(...){s.failed=true;throw;}}
-PipeWireStoredRecording inspectPipeWireRecordingState(const std::filesystem::path &job,const std::optional<PipeWireRecordingSpec> &expected,std::optional<ResourceLedger> resources,const std::function<void()> &beforeRead){
-    using namespace pw_state;if(beforeRead)beforeRead();media_io::plainDirectory(job);media_io::JobLease lease(job,false,true,media_io::JobLeaseKind::PipeWireState);require(lease.status()==media_io::LeaseStatus::Held,"Native state writer active or missing");auto credit=reserve(resources);
+PipeWireStoredRecording detail::inspectPipeWireRecordingStateHeld(const std::filesystem::path &job,
+    const media_io::JobLease &lease,const media_io::JobLease &receipts,const media_io::JobLease &raw,
+    const std::optional<PipeWireRecordingSpec> &expected,std::optional<ResourceLedger> resources,
+    const std::function<void()> &beforeRead) {
+    using namespace pw_state;if(beforeRead)beforeRead();media_io::plainDirectory(job);
+    require(lease.status()==media_io::LeaseStatus::Held,"Native state writer active or missing");auto credit=reserve(resources);
+
     try{const auto j=parse(media_io::readJournal(job/"pipewire-owner.json"));fields(j,{"format","major","minor","domain","run","generation","intent","outcome","prefix"});
         require(text(j.at("format"))=="soundcurrent-pipewire-owner" && u(j.at("major"))==1 && u(j.at("minor"))<=3 && text(j.at("domain"))=="posix-monotonic-ns","Unsupported native durable state schema");
-        PipeWireStoredRecording r;r.prefix=inspectPipeWireRecording(job,expected,resources,beforeRead);require(Id(text(j.at("run")))==r.prefix.declared.run && u(j.at("generation"))==r.prefix.declared.generation,"Native state run identity mismatch");
+        PipeWireStoredRecording r;r.prefix=detail::inspectPipeWireRecordingHeld(job,receipts,raw,expected,resources,beforeRead);require(Id(text(j.at("run")))==r.prefix.declared.run && u(j.at("generation"))==r.prefix.declared.generation,"Native state run identity mismatch");
         r.evidenceFiles={"pipewire-owner.json","pipewire-run.json","journal.json","packets.bin","capture-cycles.bin","render-cycles.bin"};
         r.intent=decodeIntent(readArtifact(job,j.at("intent"),"intent",beforeRead),r.prefix.declared,small(j.at("minor")));
         r.evidenceFiles.push_back(text(j.at("intent").at("file"),128));
@@ -53,4 +59,15 @@ PipeWireStoredRecording inspectPipeWireRecordingState(const std::filesystem::pat
         return r;
     }catch(const J::exception &){throw ProjectError(ErrorCode::InvalidState,"Malformed native durable state");}
 }
+PipeWireStoredRecording inspectPipeWireRecordingState(const std::filesystem::path &job,
+    const std::optional<PipeWireRecordingSpec> &expected,std::optional<ResourceLedger> resources,
+    const std::function<void()> &beforeRead) {
+    if(beforeRead)beforeRead();
+    media_io::plainDirectory(job);
+    media_io::JobLease state(job,false,true,media_io::JobLeaseKind::PipeWireState);
+    media_io::JobLease receipts(job,false,true,media_io::JobLeaseKind::PipeWireReceipts);
+    media_io::JobLease raw(job,false,true);
+    return detail::inspectPipeWireRecordingStateHeld(job,state,receipts,raw,expected,std::move(resources),beforeRead);
+}
+
 } // namespace soundcurrent::daw

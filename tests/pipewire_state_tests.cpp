@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/pipewire_recording_state.hpp>
+#include <soundcurrent/pipewire_take_workflow.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
@@ -34,6 +35,53 @@ PipeWireJoinedOutcome failed(){PipeWireJoinedOutcome o;o.disposition=PipeWireSto
     PipeWireRenderEnd r;r.callbacksJoined=true;r.stopRequested=true;o.render=r;
     o.processingFault=MonitorProcessingFault{MonitorProcessingCause::CaptureEnd,{},(std::uint64_t(1)<<54)+13};o.waitFailure=(std::uint64_t(2)<<32)|31;return o;}
 std::filesystem::path prepare(const std::filesystem::path &root,PipeWireRecordingIntent i){PipeWireRecordingJournal journal(root,i.expected);return journal.jobDirectory();}
+void interruptedPrefixCopy() {
+    Temp t;auto i=intent(t.root);std::filesystem::path job;
+    {
+        PipeWireJournalOptions options;options.raw.checkpointFrames=17;options.checkpointRecords=64;
+        PipeWireRecordingJournal journal(t.root,i.expected,options);job=journal.jobDirectory();
+        PipeWireRecordingState owner(job,i);
+        std::filesystem::create_directory(t.root/"exports");
+        refuses([&]{copyPipeWireOriginalPrefixWav(t.root,job,i.expected,t.root/"exports"/"active.wav");});
+        CaptureFanoutConfig c;c.capture.identity=i.expected.raw.identity;c.capture.channels=1;
+        c.capture.maximumPacketFrames=480;c.capture.sampleRate=48000;
+        PreparedCaptureFanout fanout(c);
+        for(unsigned n=0;n<2;++n) {
+            std::array<float,17> data{};for(unsigned k=0;k<17;++k)data[k]=k%2?-0.0f:2.5f;
+            PipeWireReceiptRecord<PipeWireCaptureCycle> receipt;receipt.generation=i.expected.generation;receipt.sequence=n;
+            auto &cycle=receipt.original;cycle.original={1000+n*17,17,1000000000+std::uint64_t(n)*354200,19,n+1,1,48000,0,false,false};
+            cycle.returnClock=cycle.original;cycle.channels=1;cycle.returnedChannels=1;
+            cycle.requestedFrames=cycle.rawFrames=cycle.monitorFrames=17;cycle.allReturned=true;
+            cycle.returns[0]={PipeWireBufferStatus::Ready,true,0};
+            const CaptureBankStamp stamp{i.expected.raw.identity,{cycle.original.position},{cycle.original.monotonicNs/100},17,0};
+            check(fanout.publish({stamp,reinterpret_cast<const std::byte *>(data.data()),sizeof(data)}).rawAcceptedFrames==17,"Recovery source packet refused");
+            CaptureBankView raw,monitor;check(fanout.acquireRaw(raw)==CaptureBankRead::Ready && fanout.acquireMonitor(monitor)==CaptureBankRead::Ready,"Recovery bank lease missing");
+            journal.appendCapture(receipt,raw);fanout.releaseRaw(raw);fanout.releaseMonitor(monitor);
+            if(!n)journal.checkpoint();
+        }
+        // Raw journal advances to34, but paired receipt checkpoint remains17.
+        // Neither raw finalization nor an owner outcome is published.
+    }
+    const auto before=inspectProjectPipeWireRecording(t.root,job,i.expected.raw.project);
+    check(!before.terminal && !before.outcome && !before.prefix.raw.finalized && before.prefix.raw.committedFrames==17 &&
+        inspectOriginalRecording(job,i.expected.raw).committedFrames==34,"Paired recovery fixture didn't retain different checkpoints");
+    const auto owner=read(job/"pipewire-owner.json"),paired=read(job/"pipewire-run.json"),rawJournal=read(job/"journal.json");
+    auto options=pipewirePrefixCopyDefaults();bool held=false;
+    options.progress=[&](auto,auto){if(held)return;held=true;
+        refuses([&]{inspectPipeWireRecordingState(job,i.expected);});
+        refuses([&]{inspectPipeWireRecording(job,i.expected);});
+        refuses([&]{inspectOriginalRecording(job,i.expected.raw);});
+    };
+    const auto recovered=copyPipeWireOriginalPrefixWav(t.root,job,i.expected,t.root/"exports"/"recovered.wav",options);
+    check(held && recovered.copy.frames==17 && recovered.copy.sampleSha256==before.prefix.raw.sampleSha256 &&
+        !recovered.original.terminal && !recovered.original.outcome && recovered.original.prefix.raw.committedFrames==17 &&
+        !recovered.copy.original.finalized && read(job/"pipewire-owner.json")==owner && read(job/"pipewire-run.json")==paired &&
+        read(job/"journal.json")==rawJournal,"PipeWire recovery enlarged paired checkpoint or invented native completion");
+    const auto wav=read(t.root/"exports"/"recovered.wav");check(wav.size()==92+17*4,"Paired copied audio extent differs");
+    for(unsigned n=0;n<17;++n){const auto bits=std::bit_cast<std::uint32_t>(n%2?-0.0f:2.5f);
+        for(unsigned k=0;k<4;++k)check(static_cast<unsigned char>(wav[92+n*4+k])==((bits>>(8*k))&255),"Paired prefix sample bits differ");}
+    std::cout<<"pipewire_prefix_copy paired_frames=17 standalone_raw_frames=34 paired_prefix_exact=true state_receipt_raw_leases_held=true pending_remains_pending=true source_journals_unchanged=true\n";
+}
 void normal(){Temp t;auto i=intent(t.root);const auto job=prepare(t.root,i);
     auto outcome=failed();PipeWireCaptureCycle rejected;rejected.channels=0;rejected.returnedChannels=UINT64_MAX;rejected.returns[255].status=PipeWireBufferStatus(99);rejected.returns[255].queueResult=INT32_MIN;
     outcome.captureReceiptFault=PipeWireReceiptFault<PipeWireCaptureCycle>{PipeWireReceiptCause::InvalidCycle,PipeWireReceiptRecord<PipeWireCaptureCycle>{1,UINT64_MAX,rejected}};
@@ -99,6 +147,6 @@ int wmain(int argc,wchar_t **argv){
 #else
 int main(int argc,char **argv){
 #endif
-    try{if(argc==4){child(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));return 80;}normal();for(unsigned b=0;b<4;++b)crash(b);
+    try{if(argc==4){child(std::filesystem::path(argv[2]),unsigned(std::stoi(argv[3])));return 80;}interruptedPrefixCopy();normal();for(unsigned b=0;b<4;++b)crash(b);
         std::cout<<checks<<" durable PipeWire state checks passed;4 actual process publication interruptions, exact intent/outcomes/common-prefix binding, corruption/context/quota/moved projects;SDK=false\n";return 0;
     }catch(const std::exception &e){std::cerr<<"Check "<<checks<<": "<<e.what()<<'\n';return 1;}}

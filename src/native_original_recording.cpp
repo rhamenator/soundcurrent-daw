@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include <soundcurrent/native_original_recording.hpp>
 #include "original_recording_internal.hpp"
+#include "native_original_recording_internal.hpp"
 #include <nlohmann/json.hpp>
 #include <array>
 #include <unordered_set>
@@ -253,7 +254,27 @@ NativeOriginalRecordingPrefix NativeOriginalCaptureWriter::finalize(const Prepar
     auto p=reportNativeOriginalRecording(jobDirectory(),s.spec,o,s.options.raw.resources,[&](auto b){if(b==NativeOriginalRecordingBoundary::OutcomePublished)s.reported=true;s.at(b);});
     require(p.raw.committedFrames==s.saved->committedFrames && p.raw.committedPackets==s.saved->committedPackets && p.raw.sampleSha256==s.saved->sampleSha256 && p.raw.stampSha256==s.saved->stampSha256,"Native raw differs from saved original prefix");return p;
 }
-NativeOriginalRecordingPrefix inspectNativeOriginalRecording(const std::filesystem::path &job,const std::optional<NativeOriginalRecordingSpec> &expected,const std::function<void()> &boundary,std::optional<ResourceLedger> resources){auto reservation=reserve(job,resources);media_io::plainDirectory(job);media_io::JobLease lease(job,false,true);require(lease.status()!=media_io::LeaseStatus::Busy,"Native original writer active");NativeOriginalRecordingPrefix p;p.raw=detail::inspectOriginalRecordingHeld(job,lease,expected?std::optional(expected->raw):std::nullopt,boundary,resources);if(boundary)boundary();auto path=job/"native-run.json";if(!std::filesystem::exists(std::filesystem::symlink_status(path))){require(!expected,"Declared native outcome missing");return p;}require(lease.status()==media_io::LeaseStatus::Held,"Native transaction lease missing");admitJournal(p,parse(media_io::readJournal(path)),expected,rawDigest(job),job);validateStoredPackets(p,job,boundary);return p;}
+NativeOriginalRecordingPrefix detail::inspectNativeOriginalRecordingHeld(const std::filesystem::path &job,
+    const media_io::JobLease &lease,const std::optional<NativeOriginalRecordingSpec> &expected,
+    const std::function<void()> &boundary,std::optional<ResourceLedger> resources) {
+    auto reservation=reserve(job,resources);media_io::plainDirectory(job);
+    require(lease.status()!=media_io::LeaseStatus::Busy,"Native original writer active");
+    NativeOriginalRecordingPrefix p;
+    p.raw=detail::inspectOriginalRecordingHeld(job,lease,expected?std::optional(expected->raw):std::nullopt,boundary,resources);
+    if(boundary)boundary();
+    const auto path=job/"native-run.json";
+    if(!std::filesystem::exists(std::filesystem::symlink_status(path))){require(!expected,"Declared native outcome missing");return p;}
+    require(lease.status()==media_io::LeaseStatus::Held,"Native transaction lease missing");
+    admitJournal(p,parse(media_io::readJournal(path)),expected,rawDigest(job),job);
+    validateStoredPackets(p,job,boundary);return p;
+}
+NativeOriginalRecordingPrefix inspectNativeOriginalRecording(const std::filesystem::path &job,
+    const std::optional<NativeOriginalRecordingSpec> &expected,const std::function<void()> &boundary,
+    std::optional<ResourceLedger> resources) {
+    media_io::plainDirectory(job);media_io::JobLease lease(job,false,true);
+    return detail::inspectNativeOriginalRecordingHeld(job,lease,expected,boundary,std::move(resources));
+}
+
 NativeOriginalRecordingPrefix inspectProjectNativeOriginalRecording(
     const std::filesystem::path &projectRoot,const std::filesystem::path &selectedJob,
     const Id &expectedProject,std::optional<ResourceLedger> resources,const std::function<void()> &boundary) {
