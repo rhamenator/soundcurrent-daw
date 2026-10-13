@@ -36,20 +36,31 @@ class NativePollWait {
     }
     NativePollWait(const NativePollWait &) = delete;
     NativePollWait &operator=(const NativePollWait &) = delete;
-    std::optional<std::uint32_t> wait() noexcept {
+    std::optional<std::uint32_t> wait() noexcept {return waitFor(microseconds_);}
+    // Off-RT cadence: account for work already spent in this service period.
+    // Past deadlines return immediately; no catch-up replay or global timer change.
+    std::optional<std::uint32_t> waitUntil(std::chrono::steady_clock::time_point deadline) noexcept {
+        const auto now=std::chrono::steady_clock::now();if(deadline<=now)return {};
+        const auto remaining=std::chrono::ceil<std::chrono::microseconds>(deadline-now).count();
+        if(remaining>1000000)return 87; // Bounded parameter refusal, no wait.
+        return waitFor(std::uint32_t(remaining));
+    }
+  private:
+    std::optional<std::uint32_t> waitFor(std::uint32_t interval) noexcept {
         const auto begin=std::chrono::steady_clock::now();std::optional<std::uint32_t> error;
 #ifdef _WIN32
-        LARGE_INTEGER due{};due.QuadPart=-LONGLONG(microseconds_)*10;
+        LARGE_INTEGER due{};due.QuadPart=-LONGLONG(interval)*10;
         if(!SetWaitableTimerEx(timer_,&due,0,nullptr,nullptr,nullptr,0))error=GetLastError();
         else {const auto result=WaitForSingleObject(timer_,1000);if(result!=WAIT_OBJECT_0)error=result==WAIT_FAILED?GetLastError():result;}
 #else
-        std::this_thread::sleep_for(std::chrono::microseconds(microseconds_));
+        std::this_thread::sleep_for(std::chrono::microseconds(interval));
 #endif
         const auto span=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-begin).count();
         if(calls_!=UINT64_MAX)++calls_;
         if(span>0 && std::uint64_t(span)>maximumNs_)maximumNs_=std::uint64_t(span);
         return error;
     }
+  public:
     std::uint64_t callsAfterJoin() const noexcept { return calls_; }
     std::uint64_t maximumNsAfterJoin() const noexcept { return maximumNs_; }
 };
