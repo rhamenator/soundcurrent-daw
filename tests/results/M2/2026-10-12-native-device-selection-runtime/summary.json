@@ -1,0 +1,44 @@
+{
+  "run": 38205159475,
+  "head": "26d7045e14d3afb67366b0e116d84ec980a0d5e4",
+  "jobs": [
+    {
+      "id": 114666908062,
+      "name": "Windows desktop import and localization tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114666908177,
+      "name": "Linux desktop and synthetic tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114666908181,
+      "name": "Windows core cross-build (no native runtime claim)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 114666908253,
+      "name": "Windows native packet ownership tests",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "allFourJobsPassed": true,
+  "nativeWindowsTests": 71,
+  "nativeWindowsSeconds": 290.15,
+  "desktopWindowsTests": 20,
+  "desktopSeconds": 57.34,
+  "linuxTests": 144,
+  "linuxSeconds": 322.69,
+  "newDeviceSelectorsExecuted": true,
+  "selectorPanelChecks": 66,
+  "normalForcedTailMetadataRetained": true,
+  "physicalEndpointsQualified": false,
+  "installedWorkflowQualified": false,
+  "originalWavExportIncluded": false,
+  "noBinaryOrAudioPayload": true
+}

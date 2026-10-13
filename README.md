@@ -203,6 +203,23 @@ core build requires no Qt. `SC_BUILD_MEDIA=OFF` selects state/engine/transport o
 CTest does not connect physical audio devices. Native integration fixtures are
 opt-in and must run serially after builds and tests finish.
 
+Development also includes a [PipeWire native capture boundary](docs/224-pipewire-monitor-capture.md)
+with explicit clock domains and private-daemon acceptance. A
+[render boundary](docs/225-pipewire-monitor-render.md) now records actual per-port
+queue results and verifies finite output in private test sinks. Shared-owner integration and connection to the native recording UI remain unfinished; retained
+native startup and contention failures remain open.
+[Versioned native receipt handoffs](docs/226-pipewire-capture-returns.md) now preserve
+input/output return facts through bounded queues and a portable codec. A
+[durable project journal](docs/227-pipewire-recording-journal.md) now verifies
+shared raw/receipt checkpoints after interruption and preserves uncommitted tails.
+[Shared startup/stop handoffs](docs/228-pipewire-processing-handoffs.md) now
+connect the planar boundaries to in-process EQ/resampling and journal composition.
+An [owned native/processing/disk route](docs/229-pipewire-owned-recording.md) now
+qualifies combined EQ/capture/render/journal processing in a private dummy server.
+[Durable route intent and joined terminal outcomes](docs/230-pipewire-durable-outcomes.md)
+now bind saved EQ/map/ports and native facts to verified raw/receipt checkpoints.
+Controller/UI integration and verified alignment remain required.
+
 ## Desktop recording workflow
 
 Create/open a project, select or create a track, prepare recording and explicitly
@@ -216,6 +233,21 @@ Live scalar EQ edits and Undo use applied-frame receipts. File → Recover
 recording… previews/copies an owned checkpoint; File → Export WAV… renders an
 immutable project snapshot with range, cancellation and overwrite confirmation.
 Closing waits for recording/export finalization before Save/Discard/Cancel.
+
+The native tab's **Open saved native take…** reopens an owned take in the current
+project's media folder, including after an app restart and on systems without a
+native recording adapter. See [saved native takes](docs/222-native-original-reopen.md).
+
+Set **Start frame (project rate)** and use **Add to selected track** to place a
+verified original on the timeline. The native-rate WAV and receipt hashes remain
+intact; Undo/Redo and Save/reopen preserve the placement. See
+[native timeline admission](docs/223-native-take-admission.md). Automatic recording
+alignment remains unfinished.
+
+The native recording tab also provides **Export original WAV…** for an inactive,
+verified finalized take. It copies the native-rate floating-point WAV without
+monitoring EQ and refuses existing destinations. See [original take export](docs/221-native-original-export.md)
+for bounds, platform evidence and remaining native take integration work.
 
 See [desktop recording](docs/22-desktop-recording.md),
 [multi-arm workflow](docs/37-desktop-duplex-recording.md),

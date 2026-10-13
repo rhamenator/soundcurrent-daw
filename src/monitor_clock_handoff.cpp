@@ -11,7 +11,9 @@ bool reliability(ClockReliability r) {
 std::size_t monitorClockHandoffPayloadBytes(const MonitorClockHandoffConfig &c) {
     static_assert(std::atomic<std::uint64_t>::is_always_lock_free);
     if (!identity(c.captureIdentity) || !identity(c.renderIdentity) || !c.renderFrequency || !c.runGeneration ||
-        !c.slots || c.slots > PreparedMonitorClockHandoff::capacity || c.initialRecordSequence == UINT64_MAX)
+        !c.slots || c.slots > PreparedMonitorClockHandoff::capacity || c.initialRecordSequence == UINT64_MAX ||
+        (c.timestampDomain != MonitorClockDomain::WindowsQpc100ns &&
+         c.timestampDomain != MonitorClockDomain::PosixMonotonic100ns))
         throw ProjectError(ErrorCode::InvalidParameter,"Invalid original clock handoff admission");
     PayloadCharge charge("Original clock handoffs",c.memoryBudgetBytes);
     charge.add(sizeof(PreparedMonitorClockHandoff)); return charge.bytes();
@@ -67,8 +69,26 @@ template<class R> MonitorClockRead PreparedMonitorClockHandoff::read(Lane<R> &s,
     if (state == MonitorClockPhase::Fault) return {MonitorClockCode::Fault,state};
     return {s.done.load(std::memory_order_acquire) ? MonitorClockCode::Drained : MonitorClockCode::Empty,phase()};
 }
-MonitorClockCode PreparedMonitorClockHandoff::publish(const CaptureClockReading &r) noexcept { return publish(capture_,r); }
-MonitorClockCode PreparedMonitorClockHandoff::publish(const RenderClockReading &r) noexcept { return publish(render_,r); }
+MonitorClockCode PreparedMonitorClockHandoff::publish(const CaptureClockReading &r) noexcept {
+    if(config_.timestampDomain != MonitorClockDomain::WindowsQpc100ns)
+        return fail<CaptureClockReading>(capture_,MonitorClockCause::Reliability,r);
+    return publish(capture_,r);
+}
+MonitorClockCode PreparedMonitorClockHandoff::publish(const RenderClockReading &r) noexcept {
+    if(config_.timestampDomain != MonitorClockDomain::WindowsQpc100ns)
+        return fail<RenderClockReading>(render_,MonitorClockCause::Reliability,r);
+    return publish(render_,r);
+}
+MonitorClockCode PreparedMonitorClockHandoff::publishMonotonic(const CaptureClockReading &r) noexcept {
+    if(config_.timestampDomain != MonitorClockDomain::PosixMonotonic100ns)
+        return fail<CaptureClockReading>(capture_,MonitorClockCause::Reliability,r);
+    return publish(capture_,r);
+}
+MonitorClockCode PreparedMonitorClockHandoff::publishMonotonic(const RenderClockReading &r) noexcept {
+    if(config_.timestampDomain != MonitorClockDomain::PosixMonotonic100ns)
+        return fail<RenderClockReading>(render_,MonitorClockCause::Reliability,r);
+    return publish(render_,r);
+}
 MonitorClockRead PreparedMonitorClockHandoff::read(MonitorClockRecord<CaptureClockReading> &r) noexcept { return read(capture_,r); }
 MonitorClockRead PreparedMonitorClockHandoff::read(MonitorClockRecord<RenderClockReading> &r) noexcept { return read(render_,r); }
 template<class R> void PreparedMonitorClockHandoff::finish(Lane<R> &s) noexcept {

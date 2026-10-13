@@ -1,0 +1,268 @@
+{
+  "members": {
+    "retain.py.gz": {
+      "bytes": 1737,
+      "sha256": "cf4b83aacab77667b9b7d7c33e3df7585a4283ff60f2b89466088cdeb80a480b",
+      "originalBytes": 4317,
+      "originalSha256": "41a8753518eb4335e03d2a05bf0f736b1c33b97f6e57cce12d41105c351b03c4",
+      "lossless": true
+    },
+    "run.json.gz": {
+      "bytes": 1756,
+      "sha256": "b99c9383cd5bfd03bc54a8a57e61225a4476b51c974a1458f10cfb6cb3cb2f37",
+      "originalBytes": 13742,
+      "originalSha256": "70412934cebd2688f6b78f47adfad64a418e64aa29891874d757c7f20d42d42e",
+      "lossless": true
+    },
+    "jobs.json.gz": {
+      "bytes": 1750,
+      "sha256": "3adc5c6e7bca69138ddb1591bd6e7c7444eb0705ead3c77b30e6742fd770b210",
+      "originalBytes": 12890,
+      "originalSha256": "642208332fe8aaf2dbfb711759000a640ef3c13473e99545ad61733318f46f60",
+      "lossless": true
+    },
+    "artifacts.json.gz": {
+      "bytes": 676,
+      "sha256": "7e1855fd8c84fadb66c148d00046aac3a85bbb0d85e7ab05d5abe07000de91b2",
+      "originalBytes": 2243,
+      "originalSha256": "2be63447fc2a6ed9183a26fa05cda2139f4aaf82f9796f2bd273f9c61723295d",
+      "lossless": true
+    },
+    "desktop-artifact-selected.json.gz": {
+      "bytes": 1352,
+      "sha256": "e1c5ecde1a87a580d196f149aa843df7ab9cd7a626ce49689524721bb2dc1d7b",
+      "originalBytes": 6440,
+      "originalSha256": "589e808cbc008748859d6e0a18a2a570462807040618d3647c6ecc0e323ca83a",
+      "lossless": true
+    },
+    "native-artifact-selected.json.gz": {
+      "bytes": 566,
+      "sha256": "b680723fc1049356a62d30b93174f6e5b3ecaa901217432b3089a77a387f427a",
+      "originalBytes": 1690,
+      "originalSha256": "a7a5cb64b3f8b043f52a5a1ed14ed6753ecd580fbf8bcdefda6e6304b16b99e9",
+      "lossless": true
+    },
+    "pr151-tested-merge.json.gz": {
+      "bytes": 119898,
+      "sha256": "ee2b07cbb872008de91ee4e34c3043a14f845058b3d8658b586a8122181650c5",
+      "originalBytes": 551104,
+      "originalSha256": "031c5d57c33a482eecd2c36fbcb5babd0d811aa4e4fae5512e75bece75d46af7",
+      "lossless": true
+    },
+    "job-114630404434.log.gz": {
+      "bytes": 15699,
+      "sha256": "bfe52bc9e809f88f4324e409e26631395dac4108779a0ba6229e10f2d780ae7b",
+      "originalBytes": 92428,
+      "originalSha256": "7250a258459440fafe3072070ddf19bc9323d8edac4874cdbef95bb25e5050a9",
+      "lossless": true
+    },
+    "job-114630404527.log.gz": {
+      "bytes": 53372,
+      "sha256": "30a32830c1f8f0233c54e199b2ea3fb3670308c267e447526dc95a69cda23b74",
+      "originalBytes": 845644,
+      "originalSha256": "115fe5afb94991025f302ae1af999437451a3677b2259ab575583eeafd96c337",
+      "lossless": true
+    },
+    "job-114630404563.log.gz": {
+      "bytes": 42199,
+      "sha256": "d95953790fe01ba944cbb5af8918830c825ec323d9fe9c73a0510a5e28280f4c",
+      "originalBytes": 237187,
+      "originalSha256": "a7d485ced48fa5a6f337ec057a4a96828b1ee83ee66b5c8ba37c65ac40318326",
+      "lossless": true
+    },
+    "job-114630404673.log.gz": {
+      "bytes": 53127,
+      "sha256": "6160d8f4ff425ce76df385721e600aaf5b0a31180f3c16754eea97f7fd3e3790",
+      "originalBytes": 855084,
+      "originalSha256": "7ac903fda8c1d2568eeb67b17429b727661957b25c19fd0b0afad0c39c46b8ea",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_after-complete-case-report.json.gz": {
+      "bytes": 2259,
+      "sha256": "50a1d00f697b49fb86501e8733e0c0414f23a95c0d05ded45a065333ff946a46",
+      "originalBytes": 11217,
+      "originalSha256": "b1a337915bca271f977d7ce6bfaaeb109bcd011d64d2a387aa31e66f018594e5",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_Testing_Temporary_LastTest.log.gz": {
+      "bytes": 2969,
+      "sha256": "41aa3888e08fff2b6d865901b3f7a8ed1d7b8cd6eecbb0c6bae70c43ec442420",
+      "originalBytes": 18224,
+      "originalSha256": "bd7543e8d25ef11e91bc0b7e8bd83c9bc3d1c343f1b5ce840b1d0bf7e6460dfb",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_after-complete-cleanup-terminal.json.gz": {
+      "bytes": 106,
+      "sha256": "6e48c5cc4a6e45a9e4514322443b1f7af82988417d76b16f55884d1764db31b6",
+      "originalBytes": 107,
+      "originalSha256": "7e7f007bf1b05ab357aff84aa85e8035e5588fb39d27882fa9f6dab828144cf7",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_after-complete-observation-timing.json.gz": {
+      "bytes": 774,
+      "sha256": "0d199f59af8f49ac45b0d70a9b387e13bb857f2665e4cf64e6aaf30299dde364",
+      "originalBytes": 4612,
+      "originalSha256": "c59d5aabd2a488872f7807e899b1e74a977fd7b6967be2ec58a968f85f98d989",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_after-complete-parent-ready.json.gz": {
+      "bytes": 326,
+      "sha256": "ba2e0145dacf8f529c4b8f45a3b763933c9f84c4e10d431fb2afcc51b687bf15",
+      "originalBytes": 553,
+      "originalSha256": "5938c6d0a36c423c979711a78a91ec99f4ddf607401b9769aa0fe340547e16d5",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_before-ack-case-report.json.gz": {
+      "bytes": 2722,
+      "sha256": "4f65c51bf05b70e39e526ca3c048912a552fe9ff5f686ca8249254907113f4d8",
+      "originalBytes": 17169,
+      "originalSha256": "b46806b2079225746f0a5f2d267e0fae252084725718512e65ace7b7de539b57",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_before-ack-cleanup-terminal.json.gz": {
+      "bytes": 128,
+      "sha256": "dc2bd685d17e1c2e3b076bd2b7fd193ca6aacd95165521d05c4d8355db0733c6",
+      "originalBytes": 200,
+      "originalSha256": "bf2fbc6d315fdf0b370d4b412984fed613b582d23dcfabb01b901037e3f62d05",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_before-ack-observation-timing.json.gz": {
+      "bytes": 1077,
+      "sha256": "32af99300cab82725e5a886d70967a1b93ff0089afb0d2bf6d6fb09b8c6d64aa",
+      "originalBytes": 7350,
+      "originalSha256": "97a854500786dff7f1f8a5bdb071b03430933137399070b59a44fe8274d1ddec",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_before-ack-parent-ready.json.gz": {
+      "bytes": 327,
+      "sha256": "374e4ac312a83138bff23deff1a397cf318b0cfd23ec9802df65cf050c77a7f1",
+      "originalBytes": 553,
+      "originalSha256": "19a06c49d1709be3c022e41f9274abdc8a31de05b87f1298c66cc141d75476cc",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-case-report.json.gz": {
+      "bytes": 3417,
+      "sha256": "a98961ace04e8213989572b71d2d263a1b5a86734ddf7ade5131529c33726d56",
+      "originalBytes": 22028,
+      "originalSha256": "255c35728d4f92381b15c6493dc2260e5b8592339de3bc31eb4e0454bc790b01",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-cleanup-terminal.json.gz": {
+      "bytes": 127,
+      "sha256": "f9358f817d5f5b5e0f022d8b02cf306a3d330252e9202c108fce432f43a93842",
+      "originalBytes": 200,
+      "originalSha256": "2827a7d2f950ebf93246c63e8f104d168bea2da1ac1f439e16f9c2d7b4d76246",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-helper-death-case-report.json.gz": {
+      "bytes": 3450,
+      "sha256": "9b0cae16b560d5e89c6242b43d7f6f815560701b1d1214fd3c0e535425201fc5",
+      "originalBytes": 22450,
+      "originalSha256": "5fcbc4d554b13a33e13cf7d3bc58024d78107fa548be806e7cc6202ab0c84d83",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-helper-death-cleanup-terminal.json.gz": {
+      "bytes": 126,
+      "sha256": "be346131ce86dc297475c95063f02eacf5c66cfa840dbf3253ec5ec634d6f2a1",
+      "originalBytes": 209,
+      "originalSha256": "9d950dbba1bbe333a4b8a0ad1fd4825624676b337b7ef4aa968bace69c209198",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-helper-death-observation-timing.json.gz": {
+      "bytes": 1473,
+      "sha256": "9771e8e853debb9dde8b84a30cbe7c1658a41848fd5f6851556c3530101e5679",
+      "originalBytes": 11156,
+      "originalSha256": "8b5154b6f42dfb40aa5a957d06e0d0566552a3aff88b6488dc2ec83e45a190ee",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-helper-death-parent-ready.json.gz": {
+      "bytes": 328,
+      "sha256": "eed9832d4ab07ac6f1996c55502583ed875aeaa1b9ce231a9e63fa5ccc526b97",
+      "originalBytes": 553,
+      "originalSha256": "9887bbd734538c2e575d5b2d8a22bbc6f44c106d6f521f1d14dc41dc359278df",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-parent-ready.json.gz": {
+      "bytes": 323,
+      "sha256": "fae19a73b389ab18f9f872be0804e8a64d7592b0338e6ba3f7ea4f71f73214e3",
+      "originalBytes": 553,
+      "originalSha256": "21b49a2492023fc67ada687883ead91babce57675921570e5154b1b77676d2f6",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_during-processing-observation-timing.json.gz": {
+      "bytes": 1483,
+      "sha256": "db20db1f533b8a4ce3d1240e80b59ca23243fe5c82a827942fd0b389716dda69",
+      "originalBytes": 11108,
+      "originalSha256": "3513de75e75e404288941089b50ee67136cb26d3c3c5ea6983db65688360de93",
+      "lossless": true
+    },
+    "desktop-artifact--build-desktop-native_parent-observation-timing_report.json.gz": {
+      "bytes": 8041,
+      "sha256": "a0c2736987f949e3bda372dd3aa95d65288ba8165f2c59e7cbb50195f40da447",
+      "originalBytes": 82901,
+      "originalSha256": "463bd4f26b21c580740fb462616620c6481cde7c066c305bf42f2a62bc983cf8",
+      "lossless": true
+    },
+    "desktop-artifact--native-ui-dependencies_verified-runtime.json.gz": {
+      "bytes": 931,
+      "sha256": "85f7c4e80beb5a91c6fb4d12cfbc0b54c88cdd6014b09085d96c08d2b4e4a4d3",
+      "originalBytes": 1744,
+      "originalSha256": "c197f4c1791eed7fdc124565e5c7232164521ff876c34842a60561d6f4bf3ca8",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-1-stderr.log.gz": {
+      "bytes": 112,
+      "sha256": "7bf27ba3bc88151f95dc7249e740439b9ae5c42d5c8b9f191f867dbe48bf5177",
+      "originalBytes": 146,
+      "originalSha256": "afe6b5d9899879d67c11f107c68b1cc58178fcf5580a90b20497f4dbd4636ef0",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-1-stdout.log.gz": {
+      "bytes": 214,
+      "sha256": "e3c62e5f5b923c54bae0f45ffb5335db6393fb171f9a11816b914551d76b0bd7",
+      "originalBytes": 301,
+      "originalSha256": "c3af2e5810fb98ab3cc3d2d7e10059d250e834c3c8e02e2c5c4fe2d2708b4dfb",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-2-stderr.log.gz": {
+      "bytes": 112,
+      "sha256": "ce33bb32a8f586f70309ee907cdf8ac57c7e66d264fca382dcf9d398522b0946",
+      "originalBytes": 146,
+      "originalSha256": "136d0e08acd7abeda4fc3214038906e32cda95bc04f29ed0e39f7f88fcf21fde",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-2-stdout.log.gz": {
+      "bytes": 215,
+      "sha256": "843947b4f4d3f0011117a5a645cfa1ffc3d7141410bdcb5c41f91184cfac10b0",
+      "originalBytes": 301,
+      "originalSha256": "e54df9e048daa54054ca1d8cd838cb0d2ee5257fcd4549a1da9bcc7abe53b2ad",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-3-stderr.log.gz": {
+      "bytes": 112,
+      "sha256": "9d4d5ee699f6a58169f31d288bb9ecc7c271a6ba5b01fc31859976d1ad394835",
+      "originalBytes": 146,
+      "originalSha256": "97a616b908f632fb7ea39869e26c8526544be1b6315fe108ebca39130814fc8b",
+      "lossless": true
+    },
+    "native-artifact--manual-owner-3-stdout.log.gz": {
+      "bytes": 215,
+      "sha256": "8002a3fd06214000f32293c2063ae99a3b08ce158a8f7f99a82fe524f8bb3c82",
+      "originalBytes": 301,
+      "originalSha256": "473162d3921d400ebe49ed193b4295db2246ca9c7f0ff13b2aaf475277afa2a3",
+      "lossless": true
+    },
+    "native-artifact--Testing_Temporary_LastTest.log.gz": {
+      "bytes": 21558,
+      "sha256": "4a59a61c8826161c76a81f4694f47abed55e060b722b459ed9ecc31e7894c9e6",
+      "originalBytes": 218930,
+      "originalSha256": "ef9562af9af86171f876993342421494610b160bb2f933469465524421cfe594",
+      "lossless": true
+    },
+    "summary.json": {
+      "bytes": 13681,
+      "sha256": "45a26040894d2aeb18a9a0623bc6cdc9c735b7af8a76547a71460ce27c505422"
+    }
+  },
+  "scope": "PR151 original all-four-green logs and tested source bindings; original native/manual completion and Windows interruption timings; original artifact logs/JSON only; no ZIP/binaries/audio"
+}
