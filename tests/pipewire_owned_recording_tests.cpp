@@ -19,7 +19,7 @@ void check(bool b,const char *why){++checks;if(!b)throw std::runtime_error(why);
 using namespace pipewire_monitor_fixture;
 struct Temp {std::filesystem::path root=std::filesystem::temp_directory_path()/std::filesystem::path(u8"sc-pw-owner-é-")/Id::generate().str();
     Temp(){std::filesystem::create_directories(root);ProjectStore(root).save(makeOneTrackSession("Owned native","Raw"));}
-    ~Temp(){if(std::uncaught_exceptions()){std::cerr<<"Retained owner fixture "<<root.generic_string()<<'\n';
+    ~Temp(){if(std::uncaught_exceptions()){const auto marker=root.generic_u8string();std::cerr<<"Retained owner fixture ";std::cerr.write(reinterpret_cast<const char *>(marker.data()),std::streamsize(marker.size()));std::cerr<<'\n';
         if(const auto *target=std::getenv("SC_NATIVE_OWNER_FAILURE_EVIDENCE"))try{const std::filesystem::path folder(target);std::filesystem::create_directories(folder);const auto name="pw-owner-"+Id::generate().str()+"-failure.log";
             std::ofstream f(folder/name,std::ios::binary);const auto path=root.generic_u8string();f<<"preserved_failure_project=";f.write(reinterpret_cast<const char *>(path.data()),std::streamsize(path.size()));f<<'\n';}catch(...){}
         return;}std::error_code e;std::filesystem::remove_all(root,e);}
