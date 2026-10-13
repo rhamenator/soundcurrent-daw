@@ -198,11 +198,14 @@ void pipewirePanel(const std::filesystem::path &root){
     std::filesystem::create_directories(root);const auto project=makeOneTrackSession("PipeWire panel","Raw");ProjectStore(root).save(project);
     auto shared=std::make_shared<pipewire_monitor_fixture::Shared>();NativeMonitorControllerOptions options;options.commandMemory=ResourceLedger{64*1024*1024};
     options.pipewireStreams=[shared](auto &route){return std::make_unique<pipewire_monitor_fixture::Simulated>(route,shared,0);};
-    NativeMonitorPanel panel(std::move(options));panel.addRequested=[](Frame){};CloseOnExit close{panel};panel.show();NativeMonitorPreparation p;p.root=root;p.pipewire.emplace();auto &o=*p.pipewire;
+    StudioWindow window(nullptr,{},{},{},{},{},{},{},{},std::move(options));window.show();window.openProject(root);
+    await([&]{return window.snapshot()->session && window.snapshot()->io==IoOperation::None;});
+    auto *nativePanel=dynamic_cast<NativeMonitorPanel *>(window.findChild<QGroupBox *>("nativeRecordingPanel"));check(nativePanel!=nullptr,"Main window has no PipeWire recording panel");
+    auto &panel=*nativePanel;CloseOnExit close{panel};NativeMonitorPreparation p;p.root=root;p.pipewire.emplace();auto &o=*p.pipewire;
     o.declared.raw.project=project.id;o.declared.raw.track=project.tracks.front().id;o.declared.raw.identity={11,31,7};o.declared.raw.layout={LayoutKind::Mono,1};
     o.declared.raw.maximumPacketFrames=480;o.declared.maximumRenderFrames=480;o.route.inputCapacityFrames=32768;o.route.rawSlots=8;o.route.monitorSlots=8;o.route.channelMap=monoToStereoMonitor();
     MonitorEqSpec eq;eq.track=o.declared.raw.track;eq.settings=project.tracks.front().eq;o.route.equalizer=eq;
-    check(panel.setPreparation(p),"PipeWire panel context refused");control<QSpinBox>(panel,"nativeMonitorSeconds")->setValue(1);
+    check(window.configureNativeRecording(p),"PipeWire main-window context refused");control<QSpinBox>(panel,"nativeMonitorSeconds")->setValue(1);
     QTest::mouseClick(control<QPushButton>(panel,"nativePrepare"),Qt::LeftButton);await([&]{return panel.snapshot()->phase==NativeMonitorPhase::Ready;});panel.poll();
     check(panel.snapshot()->pipewireDeclared && !panel.snapshot()->declared && control<QCheckBox>(panel,"nativeMonitorEq")->isEnabled(),"PipeWire panel fabricated Native declaration or disabled monitor EQ");
     QTest::mouseClick(control<QPushButton>(panel,"nativeRecord"),Qt::LeftButton);await([&]{return bool(panel.snapshot()->pipewireResult);});panel.poll();
@@ -212,14 +215,17 @@ void pipewirePanel(const std::filesystem::path &root){
     std::filesystem::create_directory(root/"exports");check(panel.exportOriginal(root/"exports"/"raw.wav"),"PipeWire visible export refused");await([&]{return bool(panel.snapshot()->pipewireExported);});panel.poll();
     check(hashMediaFile(root/"exports"/"raw.wav")==hashMediaFile(final->job/"take.wav"),"Visible PipeWire export changed raw bytes");
     check(control<QPushButton>(panel,"nativeAddTake")->isEnabled(),"Verified PipeWire timeline admission control disabled");
-    check(panel.prepareAdmission(project.tracks.front().id,211,project.sampleRate,1),"Visible PipeWire admission refused");
-    await([&]{return bool(panel.snapshot()->admission);});panel.poll();EditHistory history(project);history.apply(panel.snapshot()->admission->edit());
-    const auto placed=history.session();check(placed.assets.front().nativeEvidence.size()==8 && placed.tracks.front().clips.front().startFrame==211,"Panel admission lost evidence/explicit position");
-    ProjectStore(root).save(placed);ProjectStore(root).verifyMedia(placed);check(ProjectStore(root).load()==placed && history.undo() && history.session()==project && history.redo(),"Panel admitted take did not Save/reopen/Undo/Redo");
-    ProjectStore(root).save(project);
-    panel.releaseOriginal();await([&]{return !panel.snapshot()->hasOriginal();});panel.poll();check(panel.reopenOriginal(final->job),"PipeWire visible saved take reopening refused");
+    control<QLineEdit>(panel,"nativePlacement")->setText(QLocale().toString(qlonglong(211)));
+    QTest::mouseClick(control<QPushButton>(panel,"nativeAddTake"),Qt::LeftButton);
+    await([&]{return window.snapshot()->session->assets.size()==1 && !panel.snapshot()->hasOriginal();});
+    const auto placed=*window.snapshot()->session;check(placed.assets.front().nativeEvidence.size()==8 && placed.tracks.front().clips.front().startFrame==211,"Main-window Add lost evidence/explicit position");
+    check(window.submitEdit(ProjectCommand{CommandKind::Save}),"PipeWire main-window Save refused");await([&]{return !window.snapshot()->dirty && window.snapshot()->io==IoOperation::None;});
+    ProjectStore(root).verifyMedia(placed);check(ProjectStore(root).load()==placed,"Main-window PipeWire project did not reopen");
+    check(window.submitEdit(ProjectCommand{CommandKind::Undo}),"PipeWire main-window Undo refused");await([&]{return window.snapshot()->session->tracks.front().clips.empty();});
+    check(window.submitEdit(ProjectCommand{CommandKind::Redo}),"PipeWire main-window Redo refused");await([&]{return window.snapshot()->session->tracks.front().clips.size()==1;});
+    await([&]{return !panel.snapshot()->hasOriginal();});panel.poll();check(panel.reopenOriginal(final->job),"PipeWire visible saved take reopening refused");
     await([&]{return bool(panel.snapshot()->pipewireReopened);});panel.poll();check(!panel.snapshot()->reopened && !panel.snapshot()->pipewireResult,"Saved PipeWire take became a live/Native result");
-    panel.beginClose();await([&]{return panel.closeReady();});check(shared->joins==2 && !shared->auditBad && ProjectStore(root).load()==project,"PipeWire panel altered canonical project or failed native joins");
+    panel.beginClose();await([&]{return panel.closeReady();});check(shared->joins==2 && !shared->auditBad && ProjectStore(root).load()==placed,"PipeWire panel altered canonical project or failed native joins");
     std::cout<<"pipewire_panel typed_prepare_record_inspect_export_reopen_close=true raw_original=true simulated_sdk=true timeline_admission_verified=true\n";
 }
 
