@@ -16,7 +16,7 @@ void check(bool value,const char *why){++checks;if(!value)throw std::runtime_err
 template<class F>void await(F f){const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);while(!f()){check(std::chrono::steady_clock::now()<deadline,"Controller deadline exceeded");std::this_thread::sleep_for(std::chrono::milliseconds(1));}}
 struct Temp {std::filesystem::path root=std::filesystem::temp_directory_path()/std::filesystem::path(u8"sc-pw-controller-é-")/Id::generate().str();
     Temp(){std::filesystem::create_directories(root);ProjectStore(root).save(makeOneTrackSession("Controller","Raw"));}
-    ~Temp(){if(std::uncaught_exceptions()){std::cerr<<"Retained PipeWire controller fixture "<<root.generic_string()<<'\n';return;}std::error_code ec;std::filesystem::remove_all(root,ec);}
+    ~Temp(){if(std::uncaught_exceptions()){const auto path=root.generic_u8string();std::cerr<<"Retained PipeWire controller fixture ";std::cerr.write(reinterpret_cast<const char *>(path.data()),std::streamsize(path.size()));std::cerr<<'\n';return;}std::error_code ec;std::filesystem::remove_all(root,ec);}
 };
 NativeMonitorCommand command(NativeMonitorCommandKind kind,std::uint64_t generation=1){NativeMonitorCommand c;c.kind=kind;c.generation=generation;return c;}
 void workflow(){Temp t;const auto project=ProjectStore(t.root).load();auto shared=std::make_shared<Shared>();
