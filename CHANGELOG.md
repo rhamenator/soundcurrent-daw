@@ -8,6 +8,13 @@
 
 ## Unreleased — development preview
 
+- Refreshed the Ubuntu recovery preview with current recording/recovery controls,
+  exact GPL source, a per-user Applications entry and actual packaged
+  Save/Quit/reopen/WAV-export evidence. The matching source passes current Linux
+  and native Windows hosted checks; updated Windows deployment/installer and
+  sustained physical recording remain required. See [checkpoint 250](docs/250-recovery-preview-delivery.md).
+
+
 - Independent stretch now has schema 1.12 raw anchors, exact retiming and checked
   rendered-audio adoption with Undo/Redo. The parent verifies raw/output bytes and
   all RF64 samples before creating an edit. Desktop supervision and controls remain

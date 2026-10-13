@@ -2,13 +2,18 @@
 
 Owner requirement **X007**, 2026-10-07. Linux and Windows are required platforms;
 the frozen reference versions and all other acceptance requirements remain unchanged.
-Status: product contract and staged work; no qualified binary installer exists yet.
+Status: scoped Linux/Windows previews have evidence; full INSTALL-001 qualification remains incomplete.
 
 A local Ubuntu 26.04 amd64 DEB candidate now has scoped fresh Ubuntu Base runtime
 dependency installation, normal-user GUI project/export and upgrade/remove/reinstall
 evidence. Complete desktop/menu, installed-app capture/playback and failure/recovery
 gates remain open. See [the preview checkpoint](89-workflow-previews.md) and
 [candidate guide](90-preview-guide.md); this is not full INSTALL-001 qualification.
+
+The [current Ubuntu recovery preview](250-recovery-preview-delivery.md) is installed
+per user on this workstation and launches from Applications. Actual packaged
+Save/Quit/reopen/export passes on private Xvfb; this does not qualify all desktop
+input systems, clean system-DEB lifecycle or a refreshed Windows installer.
 
 ## User experience
 
@@ -21,8 +26,9 @@ The README's current CMake instructions remain developer instructions.
 Setup handles application runtime dependencies or explains an unsupported system
 before installation. Opening a project, choosing existing audio devices, and making
 the first recording are discoverable GUI workflows. Application setup must not
-require VB-CABLE or a new SoundCurrent audio driver. Native Windows audio is still
-an implementation and qualification gap; this contract does not claim it works.
+require VB-CABLE or a new SoundCurrent audio driver. Native Windows audio and
+installers have scoped implementation and evidence; current full hardware/installer
+qualification remains incomplete.
 The equalizers are stable reuse references at the owner's request; their own
 Windows drivers await a signing certificate. They remain separate products.
 

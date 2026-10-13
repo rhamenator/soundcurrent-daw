@@ -17,13 +17,19 @@ required parts of the goal. Native Windows audio/desktop/installers and reviewed
 translations remain unfinished. See [the active goal](GOAL.md) and
 [the acceptance matrix](docs/01-parity-matrix.md).
 
+The [current Ubuntu recovery preview](docs/250-recovery-preview-delivery.md) is
+available locally as **SoundCurrent DAW Preview** in Applications. Its Release
+DEB and matching GPL source are prepared; current recording, project/recovery and
+packaged save/reopen/export workflows have scoped evidence. Updated Windows
+installer and sustained hardware qualification remain required.
+
 Project-import development now includes [approved media folder/file handles](docs/122-approved-media-roots.md)
 and [pinned WAVE metadata/content checking](docs/123-pinned-wave-validation.md).
 The desktop inspector now has an [explicit media checklist](docs/124-desktop-media-checklist.md)
 with folder/replacement selection, format/sample-peak results and cancellable child
 checks. Original source bytes and floating headroom are preserved. Broader audio
-formats and destination project conversion remain required; installed previews
-need a refresh and separate qualification.
+formats and destination project conversion remain required; current Windows
+installer refresh and broader installed qualification remain separate.
 
 Development also includes [exact positioned clip playback/export](docs/131-positioned-clip-playback.md)
 for owned assets at different physical sample rates. The desktop shows exact
