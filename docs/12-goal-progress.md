@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Recording panel failure evidence (2026-10-12)
+
+[Checkpoint 237](237-native-panel-failure-diagnostics.md) adds exact joined-result
+and condition diagnostics plus bounded project retention for Native/PipeWire panel
+failures. Current Qt panel passes 118 checks in 13.25 s; production behavior and
+acceptance gates are unchanged. Original PR169 Linux/native/cross pass; desktop
+19/20 fails Native selection completion. PR170 desktop has a distinct PipeWire
+finite-result failure. Original logs/artifacts are retained; causes remain unproven.
+Independent diagnostic CI is live. Full suite and localization remain incomplete.
+
 ## Admission sanitizer qualification and failure retention (2026-10-12)
 
 [Checkpoint 236](236-pipewire-admission-qualification.md) records current
