@@ -94,6 +94,24 @@ Frame scaleStretchFrame(Frame frame,std::uint64_t n,std::uint64_t d,bool ceiling
     if (negative && value==std::uint64_t(INT64_MAX)+1) return INT64_MIN;
     return negative ? -Frame(value) : Frame(value);
 }
+SourceIntervalRatio sourceIntervalRatio(SourcePosition output, SourcePosition input) {
+    output=canonical(output); input=canonical(input);
+    require(output.frame || output.fraction, "Output interval has zero duration");
+    require(input.frame || input.fraction, "Input interval has zero duration");
+    if(output==input)return {1,1};
+    const auto improper=[](SourcePosition p) {
+        require(std::uint64_t(p.frame)<=(UINT64_MAX-p.fraction)/p.denominator,
+                "Source interval ratio exceeds exact representation");
+        return std::uint64_t(p.frame)*p.denominator+p.fraction;
+    };
+    auto on=improper(output), in=improper(input);
+    auto od=output.denominator, id=input.denominator;
+    const auto a=std::gcd(on,in); on/=a; in/=a;
+    const auto b=std::gcd(id,od); id/=b; od/=b;
+    require(on<=UINT64_MAX/id && in<=UINT64_MAX/od,
+            "Source interval scale exceeds exact representation");
+    return {on*id,in*od};
+}
 SourcePosition scaleSourcePosition(SourcePosition p,std::uint64_t n,std::uint64_t d) {
     p=canonical(p);require(n && d,"Invalid stretch coordinate scale");
     const auto ratioGcd=std::gcd(n,d);n/=ratioGcd;d/=ratioGcd;

@@ -19,6 +19,12 @@ Frame stretchOutputFrames(Frame inputFrames, const StretchSettings &);
 // Never use floating timing or silently round a fractional source anchor.
 SourcePosition scaleSourcePosition(SourcePosition, std::uint64_t numerator,
                                    std::uint64_t denominator);
+struct SourceIntervalRatio {
+    std::uint64_t numerator, denominator;
+};
+// Exact positive interval ratio shared by warp maps and comp handle plans.
+// Canonical equal intervals avoid overflowing an unnecessary improper fraction.
+SourceIntervalRatio sourceIntervalRatio(SourcePosition output, SourcePosition input);
 Frame scaleStretchFrame(Frame, std::uint64_t numerator, std::uint64_t denominator,
                         bool ceiling);
 struct StretchGeometry {

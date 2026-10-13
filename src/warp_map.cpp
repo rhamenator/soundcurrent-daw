@@ -34,23 +34,6 @@ SourcePosition subtract(SourcePosition a, SourcePosition b) {
     return canonical({a.frame - b.frame - Frame(borrow),
                       borrow ? denominator - (right - left) : left - right, denominator});
 }
-std::uint64_t improper(SourcePosition p) {
-    require(std::uint64_t(p.frame) <= (UINT64_MAX - p.fraction) / p.denominator,
-            "Warp segment ratio exceeds exact representation");
-    return std::uint64_t(p.frame) * p.denominator + p.fraction;
-}
-struct Ratio { std::uint64_t n, d; };
-Ratio ratio(SourcePosition output, SourcePosition input) {
-    if (output == input) return {1,1};
-    auto on = improper(output), in = improper(input);
-    require(on && in, "Warp segment has zero duration");
-    auto od = output.denominator, id = input.denominator;
-    const auto a = std::gcd(on, in); on /= a; in /= a;
-    const auto b = std::gcd(id, od); id /= b; od /= b;
-    require(on <= UINT64_MAX / id && in <= UINT64_MAX / od,
-            "Warp segment scale exceeds exact representation");
-    return {on * id, in * od};
-}
 SourcePosition evaluate(std::span<const ClipWarpPoint> points, SourcePosition position, bool inverse) {
     position = canonical(position);
     auto from = [inverse](const ClipWarpPoint &p) { return inverse ? p.output : p.source; };
@@ -63,8 +46,8 @@ SourcePosition evaluate(std::span<const ClipWarpPoint> points, SourcePosition po
     const auto &a = *(right - 1), &b = *right;
     if (position == from(a)) return to(a);
     if (a.source == a.output && b.source == b.output) return position;
-    const auto r = ratio(subtract(to(b), to(a)), subtract(from(b), from(a)));
-    return addSourcePosition(to(a), scaleSourcePosition(subtract(position, from(a)), r.n, r.d));
+    const auto r = sourceIntervalRatio(subtract(to(b), to(a)), subtract(from(b), from(a)));
+    return addSourcePosition(to(a), scaleSourcePosition(subtract(position, from(a)), r.numerator, r.denominator));
 }
 }
 ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> markers,
@@ -115,7 +98,7 @@ ClipWarpMap::ClipWarpMap(ClipWarpRegion region, std::span<const WarpAnchor> mark
                 sourcePositionLess(points_[i-1].output, points_[i].output),
                 "Warp map has duplicate or reversed coordinates");
         if (points_[i].source != points_[i].output || points_[i-1].source != points_[i-1].output)
-            (void)ratio(subtract(points_[i].output, points_[i-1].output),
+            (void)sourceIntervalRatio(subtract(points_[i].output, points_[i-1].output),
                         subtract(points_[i].source, points_[i-1].source));
     }
 }
