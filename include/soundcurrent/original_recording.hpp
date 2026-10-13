@@ -48,6 +48,7 @@ class OriginalCaptureWriter {
     OriginalCaptureWriter &operator=(const OriginalCaptureWriter &) = delete;
     void append(const CaptureBankView &);
     void checkpoint();
+    std::string committedJournal() const; // Serialized disk/control owner; exact committed-prefix declaration.
     // AFTER all fanout owners join and settleAfterJoin; verifies raw queue fully
     // drained/configuration/exact accepted extent. Does not manufacture timing.
     OriginalRecordingPrefix finalize(const PreparedCaptureFanout &);

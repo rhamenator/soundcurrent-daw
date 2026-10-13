@@ -16,11 +16,11 @@
     "ui/import_inspection_controller.hpp": "1eceb3b2a5384da610e86cb91e48e78aa4eeba714b1a6074555168149fc162f2",
     "ui/import_inspection_dialog.cpp": "74cc23a808888b86d4e49b25e35845329ce221319a03d40b544a77dc6202e243",
     "ui/import_inspection_dialog.hpp": "c16e071ade61c6c4c8390d199aa830c7ea7b0c7cd61a7e4754ac8bb58d5beb59",
-    "ui/import_media_dialog.cpp": "0eb6e39467a8227fd780f1f75b27e11193c7b1fd3f123119db6c5a1e7c8e25d0",
+    "ui/import_media_dialog.cpp": "49d8d6bf12f2dc77fe9b1ed1f2a08d9b3d23b9bc41ea3fdea6997f0b80c326af",
     "ui/import_media_dialog.hpp": "c7f05dc4db564b305b54ba3b532445592451b0bc4883cd11ea750a94309431f9",
     "ui/localization.cpp": "be5c1e4ce406ac5bdd58ba007d87f9043c2e4f13fa773286c7c6bce2c4d45693",
     "ui/localization.hpp": "60c9513cf542d243492c8f330090c05b4f114d5764101042fb984beffdf35bdf",
-    "ui/main.cpp": "d94e2fe374f2e7ab50693d2add6387b5e869caaa45cf5260de2cb40b20807088",
+    "ui/main.cpp": "c4bd95db587640148db3d69c2aa386777b0eb875878d7d3def3690d282d4551a",
     "ui/manual_recording_controller.cpp": "e44ff8293af64cf5cd6ffa5d29ef6519a421c4a909352145aa0e12ea573bc587",
     "ui/manual_recording_controller.hpp": "8d3341df14f4cd0f1772e01c8a499df95f550ac20da43ab7073ea0013a4b54c2",
     "ui/manual_recording_panel.cpp": "5f066fb8fd3c8744319ad1e2a2b19a73925faaf3a0d4bc1afe6022ab6d92fe1c",
@@ -28,27 +28,33 @@
     "ui/master_dialog.hpp": "a0c35a59c5745d2f3ceedc8abb06878ac27967d011ec6881fff3d60e5404c254",
     "ui/media_copy_controller.cpp": "3c8481c82b89c4fed56d2cd4b80934694c340e2e9db51490229ddf710822bc19",
     "ui/media_copy_controller.hpp": "5acff12f2d4d53d46f43fad74ca2e9519b02f54f474c5165d285ba87d1e39bcc",
+    "ui/native_monitor_controller.cpp": "f8d76a14e5e2c1b0688c2bc48315875634807c4b34f063276c707a418ffef309",
+    "ui/native_monitor_controller.hpp": "24131223b23c2ea8a1661bc34a8a4ba83a9c4d128e3e23148b993711731dc508",
+    "ui/native_monitor_panel.cpp": "7cba49d6cf19bef5b63f701adade3257abbfaa80a6abaf111dac29114afc8868",
+    "ui/native_monitor_panel.hpp": "c26f13a0bc02de0d9d816b8f8e2f3716bce43cc9bb445bc685089af62069aa39",
+    "ui/pipewire_native_monitor_controller.cpp": "89db74d2dfe7c8c7617c9068596f6eddb1e4a97c51d701b062d8d1848f4c9a24",
     "ui/playback_controller.cpp": "4f78c7db7ded3da7dda4fd0fd4112c52593752af7164db149f241424a7ce1d87",
     "ui/playback_controller.hpp": "02260592dfaf361bdfc062ce91990575ed6905edaa6c7d1462688ebd54ccd0ec",
-    "ui/project_controller.cpp": "12aec3b85b78b3bfb6ee0f54ccd9ac684d57e67b8b7b2682f1f0b981fed2d419",
-    "ui/project_controller.hpp": "d03789727bcecb431e7e0f3773ab9b0c84bb466e912eafae35ef72e75080f4e7",
+    "ui/project_controller.cpp": "3b9f6fa0a8f42e0110c65382712525b121c97a7d3ce2d7f709bd00470a5479d3",
+    "ui/project_controller.hpp": "767fc6e34debf4b147f62b40b5e7c4447f40945a8c03dd076252535ad8057306",
     "ui/recording_controller.cpp": "26c00b34dbe16fd3f859508a3a235cfb29a9b94dff31190b0e12da14a961ff70",
     "ui/recording_controller.hpp": "6f70b827360517b1d19e88cc5f98e60411bb826b899463b216758808524c9ba9",
     "ui/recovery_controller.cpp": "4ea40d7384d52bf4d2d30a7a53b399e5876d9c1eb5da6a8155b01d15eca868ac",
     "ui/recovery_controller.hpp": "a1a7e4a5147ad363e6bded7f9d6da1f2b5c2848f4bc89e32af378405db653b3c",
-    "ui/session_list_model.cpp": "3936c865976dccc7a93dccb16d74d67ee9399d6c0579cf736404986a69c15011",
+    "ui/session_list_model.cpp": "2120539a576d7ff163734defe706fea59394665ba38e96fa73753bc1ac7a526d",
     "ui/session_list_model.hpp": "04f9482daabcbbe5cf17361acb5b76f8724abb25b1520a61194258d8eb6f743a",
     "ui/stretch_controller.cpp": "49aae397fd04d106bda82520bb9ad3103073305f84471448daea3bc86cfd4b3b",
     "ui/stretch_controller.hpp": "282344154f5eecd15eb2b6c327f7265b22e8c9a4741d8fc671cf951dbdf64267",
     "ui/stretch_dialog.cpp": "60493b1afc77294599e9d29a9be92b8ac8499f9a30a460aff480b6b85b32d1cb",
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
-    "ui/studio_window.cpp": "768c42ecc7b929b16d1af78eefa728cd2710de0ab8678b53036dbe2a0f4c4ea0",
-    "ui/studio_window.hpp": "320ead50e0ed8c60a1a4e7a9b1126853479819c43d4a38db283b66fca041b794",
+    "ui/studio_window.cpp": "cea8efd2e49afa117c6fe8e756348cfe0d70b383b735db1c7a9d2a2a4e635577",
+    "ui/studio_window.hpp": "eea12bffb15f5a4c6cfae760632faf6133f893025cf0ec7d8f0a44ac275ee16d",
     "ui/timeline_editor.cpp": "8c594fe27a88b6c69dd2555cafcc7bca1e82185a5e81a55d46aec625550a6944",
     "ui/timeline_editor.hpp": "5e0065240440cd13e317de4bd207bea262f966eec92c18ba15bd7ccbaf5ee26e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",
     "ui/track_view.hpp": "afe9c08951c081984e206950b72318c7c55cecdfc071a46815d1c72aea378e47",
+    "ui/wasapi_native_monitor_controller.cpp": "6955ff487a7dfe6f88af3855e749f16042740a647a2d174aaba4279fd81f50d3",
     "ui/wave_check_controller.cpp": "ec035d37f9ba4762d3e124a3e69a590635a7008f873c7cbe696ea64e9e1fb7b2",
     "ui/wave_check_controller.hpp": "1b5bb7cb6927b3b8cabc398295dde4ce85bf79ed1aadbcc0d49ad67ab943afb9"
   },
@@ -2521,6 +2527,396 @@
       false
     ],
     [
+      "NativeMonitorPanel",
+      "Recording",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose a device",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Capture source",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitoring output",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Same native channel order",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Duplicate mono to stereo",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Channel mapping",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Refresh devices",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitoring length (seconds)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitor EQ",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Prepare",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Record",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Cancel",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Inspect saved take",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Keep take and reset",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Export original WAV…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Export the verified captured WAV at its native rate. EQ and timeline alignment are not printed.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Open saved native take…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose an original take directory in this project's media folder. Inspection does not activate audio devices.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Start frame (project rate)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Add to selected track",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Use this explicit timeline position. Captured audio and native timing evidence stay unchanged.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Enter a nonnegative project frame.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Open saved native take",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Export original native take",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "WAV audio (*.wav)",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings exceed the panel memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Monitoring range is too large.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording controls are busy. Try again.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording is closing.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings are invalid.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording settings exceed the control memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Input: %1 · Output: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "%1 · %n channel(s) · %2 Hz",
+      "",
+      true
+    ],
+    [
+      "NativeMonitorPanel",
+      "%1 · %n channel(s)",
+      "",
+      true
+    ],
+    [
+      "NativeMonitorPanel",
+      "Device choices exceed the panel memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "The capture device width must match the selected track.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose a matching output width or explicit mono-to-stereo mapping.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Selected devices exceed the panel memory limit.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording is unavailable.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Choose recording settings, then prepare.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Preparing recording…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Opening and verifying saved native take…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Ready to record.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording and monitoring…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Finishing and saving the original take…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Original take saved.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording cancelled. The retained take is available for inspection.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording stopped with an error. Inspect the retained take.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording closed.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Complete",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Cancelled",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Failed",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Interrupted",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Pending",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "No native outcome",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Saved native take opened. Original outcome: %1.",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Verifying original take for the timeline…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Exporting original WAV…",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Recording error (%1).",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "Original frames: %1 · Monitored frames: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      "EQ accepted: %1 · Applied: %2",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Saved frames verified: %1",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Original WAV exported: %1 frames",
+      "",
+      false
+    ],
+    [
+      "NativeMonitorPanel",
+      " · Export published with a durability warning.",
+      "",
+      false
+    ],
+    [
       "SessionListModel",
       "Select a take lane",
       "",
@@ -3542,6 +3938,12 @@
     ],
     [
       "StudioWindow",
+      "Native input monitoring",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
       "Track equalizer",
       "",
       false
@@ -3902,7 +4304,7 @@
     ],
     [
       "StudioWindow",
-      "Stop manual recording and resolve its previews before changing the project structure.",
+      "Stop recording and resolve its retained takes before changing the project structure.",
       "",
       false
     ],
@@ -4185,6 +4587,18 @@
     [
       "StudioWindow",
       "Playback could not be completed: %1",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "Choose a track with the original take's channel layout.",
+      "",
+      false
+    ],
+    [
+      "StudioWindow",
+      "The native take could not be added. Its original files are retained.",
       "",
       false
     ],

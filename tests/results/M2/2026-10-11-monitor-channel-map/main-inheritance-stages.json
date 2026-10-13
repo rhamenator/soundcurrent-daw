@@ -1,0 +1,42 @@
+[
+  {
+    "path": "docs/12-goal-progress.md",
+    "stage": 1,
+    "blob": "2efcf14e37095343d2c53c54f88124704eb69821",
+    "bytes": 346455,
+    "sha256": "5460185101d359afc4fcf291213db9face5c35cb491c944fee86ea8ebd5cb9ad",
+    "file": "docs_12-goal-progress.md.stage1"
+  },
+  {
+    "path": "docs/12-goal-progress.md",
+    "stage": 2,
+    "blob": "16aab1be64a24e26caa61e2445836d3af6f5302f",
+    "bytes": 348151,
+    "sha256": "bee9299e51a818f9fa1a8a55625a79563cb463781ff27d6e51348132058aea26",
+    "file": "docs_12-goal-progress.md.stage2"
+  },
+  {
+    "path": "docs/12-goal-progress.md",
+    "stage": 3,
+    "blob": "17fb423f03ce373a74cf8e5403be24140e82b740",
+    "bytes": 347864,
+    "sha256": "6d99c9a3224c59da18b749519779d91b9d78b9a92ec03fd3174b0b4ecb0ad278",
+    "file": "docs_12-goal-progress.md.stage3"
+  },
+  {
+    "path": "docs/207-native-state11.md",
+    "stage": 2,
+    "blob": "6d2b8847745c8d029584cb70081b1976a3ac6c7a",
+    "bytes": 9668,
+    "sha256": "edb6ec92aa658f3d890a6f504f6e1c0e1fab27870e6008b2fd22efabd97573ae",
+    "file": "docs_207-native-state11.md.stage2"
+  },
+  {
+    "path": "docs/207-native-state11.md",
+    "stage": 3,
+    "blob": "cd5d173db23de28edb06f14f431df24473fbaaaa",
+    "bytes": 8984,
+    "sha256": "5babd0909fcd027c96b0429d1c8fcd1573d7d7635bfa1f4d11904fa5eb1e2511",
+    "file": "docs_207-native-state11.md.stage3"
+  }
+]
