@@ -86,7 +86,7 @@ CompProcessingRecipe decodeCompProcessingRecipe(std::string_view bytes,const Id 
     check(expectedDigest.size()==64 && std::all_of(expectedDigest.begin(),expectedDigest.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}),"Invalid trusted comp recipe digest");
     auto work=ledger.reserve(l.codecBytes);auto retained=ledger.reserve(bytes.size()*2+65536);
     try{
-        const auto j=parse(bytes,l.codecBytes/8);check(j.is_object() && j.size()==10 && j.at("format")==compProcessingRecipeFormat && j.at("operation")==op.str(),"Unknown comp recipe identity/schema");
+        const auto j=parse(bytes,l.codecBytes/8);check(j.is_object() && j.size()==10 && j.at("format").is_string() && j.at("format").get_ref<const std::string &>()==compProcessingRecipeFormat && j.at("operation")==op.str(),"Unknown comp recipe identity/schema");
         check(warp_codec::exact(j.at("executor"),Json{{"id",expected.id},{"buildSha256",expected.buildSha256}}),"Comp executor differs from trusted identity");
         check(j.at("selection").is_string(),"Missing comp source snapshot");auto s=decodeProject(j.at("selection").get_ref<const std::string &>(),budget(l));
         const auto &t=j.at("transition");check(t.is_object() && t.size()==6 && t.at("track").is_string() && t.at("outgoing").is_string() && t.at("incoming").is_string(),"Invalid comp transition fields");
