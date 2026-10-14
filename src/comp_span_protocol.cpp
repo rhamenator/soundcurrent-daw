@@ -1,0 +1,117 @@
+// SPDX-License-Identifier: GPL-3.0-only
+#include <soundcurrent/comp_span_protocol.hpp>
+#include <soundcurrent/approved_media.hpp>
+#include <soundcurrent/wave_validation.hpp>
+#include <soundcurrent/positioned_resampling.hpp>
+#include "media_io.hpp"
+#include "warp_codec.hpp"
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <cmath>
+#include <set>
+namespace soundcurrent::daw {
+namespace {
+using Json=nlohmann::json;
+void check(bool v,const char *m,ErrorCode code=ErrorCode::InvalidState){if(!v)throw ProjectError(code,m);}
+bool sha(std::string_view s){return s.size()==64 && std::all_of(s.begin(),s.end(),[](char c){return(c>='0'&&c<='9')||(c>='a'&&c<='f');});}
+std::string hash(std::string_view s){media_io::SampleHash h;h.updateBytes({reinterpret_cast<const std::byte *>(s.data()),s.size()});return h.digest();}
+void policy(const CompSpanWorkerPolicy &p){check(p.memoryBytes>=128ULL*1024*1024 && p.memoryBytes<=4096ULL*1024*1024 && p.memoryBytes%(1024*1024)==0 &&
+    p.maximumSourceBytes>0 && p.maximumSourceBytes<=8ULL*1024*1024*1024 && p.maximumOutputBytes>=4096 && p.maximumOutputBytes<=8ULL*1024*1024*1024 &&
+    p.deadlineMilliseconds>=100 && p.deadlineMilliseconds<=3600000,"Invalid comp span worker policy");}
+// Admission precedes DOM allocation. Protocol objects are deliberately small;
+// the large recipe is a bounded string parsed by its separate admitted codec.
+struct Preflight : nlohmann::json_sax<Json> {
+    std::vector<std::size_t> counts;std::size_t scalars=0;PayloadCharge charge;
+    explicit Preflight(std::size_t maximum):charge("Comp span parser staging",maximum){}
+    bool scalar(){check(++scalars<=256,"Comp span scalar count exceeds bound");charge.add(128);if(!counts.empty())check(++counts.back()<=64,"Comp span container exceeds bound");return true;}
+    bool null() override {return scalar();}bool boolean(bool) override {return scalar();}
+    bool number_integer(number_integer_t) override {return scalar();}bool number_unsigned(number_unsigned_t) override {return scalar();}
+    bool number_float(number_float_t,const string_t &) override {return scalar();}
+    bool string(string_t &v) override {charge.add(v.size());return scalar();}
+    bool binary(binary_t &) override {check(false,"Binary span protocol refused");return false;}
+    bool start(){check(counts.size()<4,"Comp span nesting exceeds bound");charge.add(512);counts.push_back(0);return true;}
+    bool start_object(std::size_t) override {return start();}bool start_array(std::size_t) override {return start();}
+    bool key(string_t &v) override {charge.add(v.size()+128);return true;}
+    bool end_object() override {counts.pop_back();return true;}bool end_array() override {counts.pop_back();return true;}
+    bool parse_error(std::size_t,const std::string &,const nlohmann::detail::exception &) override {check(false,"Invalid comp span JSON");return false;}
+};
+Json parse(std::string_view bytes,std::size_t maximum,unsigned depthLimit=4){
+    check(!bytes.empty() && bytes.size()<=maximum,"Comp span protocol exceeds bank",ErrorCode::ResourceLimit);std::array<std::set<std::string>,6> keys;
+    auto callback=[&](int depth,Json::parse_event_t event,Json &value){check(depth>=0 && unsigned(depth)<depthLimit,"Comp span protocol nesting exceeds bound");
+        if(event==Json::parse_event_t::object_start)keys[std::size_t(depth+1)].clear();
+        if(event==Json::parse_event_t::key)check(keys[std::size_t(depth)].insert(value.get<std::string>()).second,"Duplicate comp span field");
+        return true;};
+    Preflight preflight(maximum*3+65536);preflight.charge.add(bytes.size());check(Json::sax_parse(bytes.begin(),bytes.end(),&preflight),"Malformed span protocol");
+    try{return Json::parse(bytes.begin(),bytes.end(),callback);}catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid comp span JSON");}
+}
+Json intent(const CompSpanRequest &r,const CompSpanWorkerPolicy &p){policy(p);const auto &s=r.span();const auto &a=s.source();
+    check(std::uint64_t(s.outputFrames())<=(p.maximumOutputBytes-std::min<std::uint64_t>(1048576,p.maximumOutputBytes))/(a.layout.channels*4ULL),"Comp span exceeds output grant",ErrorCode::ResourceLimit);
+    return {{"protocol",compSpanProtocol},{"processor",compSpanProcessorId},{"sourceAlgorithm",positionedResamplingAlgorithmId},{"operation",r.operation().str()},
+        {"recipeDigest",r.recipe().digest()},{"requestDigest",r.digest()},{"fragment",r.fragment()},{"executorSha256",r.executorSha256()},
+        {"sourceSha256",a.sha256},{"rawOrigin",warp_codec::position(scaleSourcePosition(s.grid().at(0),1,1))},{"rawSpan",warp_codec::position(s.rawSpan())},
+        {"processingFrames",s.processingFrames()},{"outputFrames",s.outputFrames()},{"processingStep",Json::array({s.grid().numerator(),s.grid().denominator()})},
+        {"rate",a.sampleRate},{"channels",a.layout.channels},{"pitchMilliCents",s.settings().pitchMilliCents},{"formantPreserved",s.settings().formantPreserved},
+        {"memoryCeilingBytes",p.memoryBytes},{"deadlineMilliseconds",p.deadlineMilliseconds},{"maximumSourceBytes",p.maximumSourceBytes},{"maximumOutputBytes",p.maximumOutputBytes}};
+}
+WaveValidationLimits waveLimits(const Asset &a,std::uint64_t cap){WaveValidationLimits l;l.maximumFrames=std::uint64_t(a.frames);l.maximumChannels=a.layout.channels;l.blockFrames=512;l.maximumBytesRead=cap*4+65536;l.maximumIoOperations=16000000;return l;}
+}
+CompSpanRequest decodeCompSpanRequest(std::string_view bytes,std::string_view expectedDigest,const CompHandlePlanContext &context,std::string_view executable,ResourceLedger ledger){
+    check(sha(expectedDigest) && sha(executable),"Invalid trusted span identities");check(bytes.size()<=compSpanRequestMaximum,"Span request too large",ErrorCode::ResourceLimit);
+    auto work=ledger.reserve(16*1024*1024);auto retained=ledger.reserve(bytes.size()*2+65536);check(hash(bytes)==expectedDigest,"Span request changed from trusted parent",ErrorCode::MediaMismatch);
+    try{const auto j=parse(bytes,compSpanRequestMaximum);check(j.is_object() && j.size()==8 && j.at("protocol").is_string() && j.at("protocol").get_ref<const std::string &>()==compSpanProtocol,"Unknown comp span schema");
+        check(warp_codec::exact(j.at("executor"),Json{{"id",compSpanProcessorId},{"buildSha256",executable}}),"Span executable differs from trusted request");
+        check(j.at("recipeExecutor").is_object() && j.at("recipeExecutor").size()==2,"Invalid recipe executor");
+        const CompRecipeExecutor parent{j.at("recipeExecutor").at("id").get<std::string>(),j.at("recipeExecutor").at("buildSha256").get<std::string>()};
+        const auto operation=Id(j.at("operation").get<std::string>()),recipeOperation=Id(j.at("recipeOperation").get<std::string>());check(operation!=recipeOperation,"Span reused parent operation");
+        const auto fragment=unsigned(warp_codec::unsignedInteger(j.at("fragment"),1));
+        auto recipe=decodeCompProcessingRecipe(j.at("recipe").get_ref<const std::string &>(),recipeOperation,context,parent,j.at("recipeDigest").get<std::string>(),ledger);
+        const auto &handles=recipe.plan().handles();auto span=prepareCompSpan(fragment?handles.incoming():handles.outgoing(),ledger);
+        for(const auto *envelope:{&handles.outgoing(),&handles.incoming()}){const auto &e=envelope->data();check(operation!=e.raw.id && operation!=e.base.id && operation!=e.retainedAsset.id && (!e.nominalAsset || operation!=e.nominalAsset->id),"Span reused an input identity");}
+        return {std::move(retained),std::move(recipe),std::move(span),operation,fragment,std::string(expectedDigest),std::string(executable),std::string(bytes)};
+    }catch(const Json::exception &){throw ProjectError(ErrorCode::InvalidState,"Invalid comp span request fields");}
+}
+CompSpanRequest encodeCompSpanRequest(const CompProcessingRecipe &r,const CompRecipeExecutor &parent,unsigned fragment,const Id &op,std::string_view executable,ResourceLedger ledger){
+    auto work=ledger.reserve(16*1024*1024);auto encoded=ledger.reserve(compSpanRequestMaximum*2);check(fragment<=1 && sha(executable),"Invalid span selection/executor");
+    const auto bytes=Json{{"protocol",compSpanProtocol},{"operation",op.str()},{"recipeOperation",r.operation().str()},{"recipeDigest",r.digest()},{"recipe",r.bytes()},
+        {"recipeExecutor",{{"id",parent.id},{"buildSha256",parent.buildSha256}}},{"executor",{{"id",compSpanProcessorId},{"buildSha256",executable}}},{"fragment",fragment}}.dump();
+    const auto context=r.plan().handles().outgoing().data().context;work.resize(0);return decodeCompSpanRequest(bytes,hash(bytes),context,executable,ledger);
+}
+std::string compSpanIntent(const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger){auto work=ledger.reserve(65536);auto bytes=intent(r,p).dump();check(bytes.size()<=16384,"Span intent exceeds marker bank");return bytes;}
+void verifyCompSpanReady(std::string_view bytes,const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger){auto work=ledger.reserve(256*1024);auto j=parse(bytes,16384);auto expected=intent(r,p);expected["event"]="ready";check(warp_codec::exact(j,expected),"Span readiness differs from owned request");}
+void admitCompSpanSources(const std::filesystem::path &root,const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger,const std::function<void()> &poll){
+    policy(p);check(bool(poll),"Missing source admission poll");ApprovedMediaRoot approved(root,ledger,{2});
+    const auto verify=[&](const Asset &a){poll();auto file=approved.open(a.relativePath,p.maximumSourceBytes);const auto wave=validateApprovedWave(file,waveLimits(a,p.maximumSourceBytes),{}, {},poll);
+        check(wave.frames==std::uint64_t(a.frames) && wave.rate==a.sampleRate && wave.channels==a.layout.channels && std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==a.sha256,"Comp span input changed",ErrorCode::MediaMismatch);file.verifyUnchanged();
+        for(const auto &e:a.nativeEvidence){poll();auto f=approved.open(e.relativePath,std::min(p.maximumSourceBytes,e.bytes));check(f.size()==e.bytes,"Span input evidence extent changed");const auto h=f.digest({},poll);check(std::string(h.begin(),h.end())==e.sha256,"Span input evidence changed",ErrorCode::MediaMismatch);f.verifyUnchanged();}
+    };
+    const auto &h=r.recipe().plan().handles();for(const auto *envelope:{&h.outgoing(),&h.incoming()}){const auto &e=envelope->data();verify(e.raw);verify(e.base);verify(e.retainedAsset);if(e.nominalAsset)verify(*e.nominalAsset);}
+}
+VerifiedCompSpan verifyOwnedCompSpan(const std::filesystem::path &root,const CompSpanRequest &r,const CompSpanWorkerPolicy &p,ResourceLedger ledger,std::stop_token stop){
+    policy(p);const auto deadline=std::chrono::steady_clock::now()+std::chrono::milliseconds(p.deadlineMilliseconds);
+    const auto poll=[&]{check(!stop.stop_requested(),"Span verification canceled",ErrorCode::Canceled);check(std::chrono::steady_clock::now()<deadline,"Span verification deadline exceeded",ErrorCode::ResourceLimit);};poll();
+    auto retained=ledger.reserve(128*1024);auto work=ledger.reserve(256*1024);const auto folder=root/"media"/"comp-spans"/r.operation().str();media_io::JobLease lock(folder,false);
+    check(lock.status()==media_io::LeaseStatus::Held,"Comp span job active or ownership marker absent");ApprovedMediaRoot approved(root,ledger,{2});
+    const auto readMarker=[&](const char *name){auto file=approved.open("media/comp-spans/"+r.operation().str()+"/"+name,16384,stop);std::string bytes(std::size_t(file.size()),'\0');file.readAt(0,bytes,stop);file.verifyUnchanged();return parse(bytes,16384);};
+    auto expected=intent(r,p);check(warp_codec::exact(readMarker("intent.json"),expected),"Span intent differs from original request");
+    auto marker=readMarker("complete.json");auto shape=marker;
+    for(const char *field:{"complete","writtenFrames","audioSha256","sampleSha256","peakLinear","payloadPeakBytes","durabilityMinimum","memoryMetric"}){check(shape.contains(field),"Span completion field missing");shape.erase(field);}
+    check(warp_codec::exact(shape,expected) && marker.at("complete")==true && marker.at("complete").is_boolean(),"Span completion differs from owned request");
+    check(warp_codec::unsignedInteger(marker.at("writtenFrames"),1000000000)==std::uint64_t(r.span().outputFrames()) && marker.at("durabilityMinimum")=="file-flushed" &&
+        warp_codec::unsignedInteger(marker.at("payloadPeakBytes"),p.memoryBytes)>0,"Span completion/grant differs");
+#ifdef _WIN32
+    check(marker.at("memoryMetric")=="process-commit","Wrong native span memory metric");
+#else
+    check(marker.at("memoryMetric")=="address-space","Wrong native span memory metric");
+#endif
+    const auto audioSha=marker.at("audioSha256").get<std::string>(),sampleSha=marker.at("sampleSha256").get<std::string>();check(sha(audioSha) && sha(sampleSha),"Invalid span completion hashes");
+    check(marker.at("peakLinear").is_number() && std::isfinite(marker.at("peakLinear").get<double>()),"Invalid span completion peak");
+    admitCompSpanSources(root,r,p,ledger,poll);Asset output=r.span().source();output.id=r.operation();output.nativeEvidence.clear();output.frames=r.span().outputFrames();output.relativePath="media/comp-spans/"+r.operation().str()+"/audio.wav";output.sha256=audioSha;
+    auto file=approved.open(output.relativePath,p.maximumOutputBytes,stop);std::array<char,4> magic{};file.readAt(0,magic,stop);check(std::string_view(magic.data(),4)=="RF64","Span result must be RF64");
+    auto slabLease=ledger.reserve(512*output.layout.channels*sizeof(float));std::vector<float> slab(512*output.layout.channels);media_io::SampleHash samples;
+    const auto wave=validateApprovedWave(file,waveLimits(output,p.maximumOutputBytes),stop,[&](std::uint64_t,std::span<const double> values){poll();check(values.size()<=slab.size(),"Span PCM observer exceeds slab");for(std::size_t i=0;i<values.size();++i)slab[i]=float(values[i]);samples.update({slab.data(),values.size()});},poll);
+    check(wave.frames==std::uint64_t(output.frames) && wave.rate==output.sampleRate && wave.channels==output.layout.channels && wave.encoding==WaveEncoding::Float32 &&
+        std::string(wave.sourceSha256.begin(),wave.sourceSha256.end())==audioSha && samples.digest()==sampleSha && wave.peak==marker.at("peakLinear").get<double>(),"Span audio differs from completion",ErrorCode::MediaMismatch);
+    file.verifyUnchanged();admitCompSpanSources(root,r,p,ledger,poll);check(warp_codec::exact(readMarker("intent.json"),expected),"Span intent changed during verification");check(warp_codec::exact(readMarker("complete.json"),marker),"Span marker changed during verification");poll();return {std::move(retained),std::move(output),r.digest()};
+}
+} // namespace soundcurrent::daw
