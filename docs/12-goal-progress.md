@@ -1,5 +1,15 @@
 # Active full-suite goal: progress and completion evidence
 
+## Durable paired comp recovery (2026-10-14)
+
+[Checkpoint 275](275-paired-comp-recovery.md) persists immutable selection/recipe/
+requests with a trusted owner digest, rederives them on reopen, and inspects paired
+active/interrupted/canceled/completed/stale states. Four actual Linux workers cover
+completed, canceled and watchdog retirement paths; stale/no-render and synthetic
+interrupted-start checks pass. Previous owned-worker CI passes all four jobs.
+Actual project references, desktop process supervision, final assembly/adoption,
+quality, new native pair execution, installation and Europe coverage remain open.
+
 ## Owned comp span processes (2026-10-14)
 
 [Checkpoint 274](274-owned-comp-span-worker.md) renders actual candidates in an
