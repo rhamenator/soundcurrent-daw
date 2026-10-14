@@ -1,5 +1,20 @@
 # Active full-suite goal: progress and completion evidence
 
+## Timeline creation of rendered transitions (2026-10-14)
+
+[Checkpoint 287](287-timeline-transition-creation.md) adds explicit Save and render
+from the crossfade dialog, bounded background preparation, atomic reference
+registration, durable save, supervised source workers, assembly and separate
+review/Apply. Eight new main-window cases (174 assertions), six Apply cases and
+fifteen controller cases pass with crossfade/package regressions. New renders
+leave audio unchanged until Apply; reopened exports match prior Linux evidence.
+Original preceding CI passes all four jobs; its full artifacts are retained and
+audited. Small cross-platform sample differences are documented without a new
+quality admission. Native Windows execution/installation of this new UI,
+repeated source-aware regeneration and full processing-quality gates remain due.
+Localization now has 1,090 source keys, with native review/full UI coverage still
+open. The complete frozen DAW goal remains active.
+
 ## Main-window comp review and Apply (2026-10-14)
 
 [Checkpoint 286](286-main-window-comp-adoption.md) connects saved assembly jobs
