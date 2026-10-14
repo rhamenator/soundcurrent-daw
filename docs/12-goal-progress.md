@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Verified comp candidate assembly (2026-10-14)
+
+[Checkpoint 278](278-verified-comp-assembly.md) streams verified paired span outputs
+on physical or project-after-SRC grids with trusted reference checks, bounded
+buffers, byte grants and final paired reinspection. Six real workers pass the
+source-bound Linux corpus; 202,620 unblended samples and 96 independently computed
+curve samples match. Separate outside-scope media checks pass. Original nominal
+producer provenance, sound quality, owned final publication, post-SRC live/offline
+state, paired adoption, main-window integration and new Windows execution remain
+open. The full frozen target is unchanged.
+
 ## Paired comp process supervision (2026-10-14)
 
 [Checkpoint 277](277-paired-comp-supervision.md) controls actual span children with

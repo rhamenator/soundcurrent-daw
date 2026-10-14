@@ -42,6 +42,11 @@ adoption](docs/135-editable-stretch-state.md) retain raw media and derived asset
 through split/crop, re-render and Undo/Redo. Full processing-quality and current
 native qualification remain open.
 
+Comp rendering now includes [verified candidate assembly](docs/278-verified-comp-assembly.md)
+with explicit physical and project-rate timing, bounded memory, cancellation and
+independent checks of unchanged audio. Final publication, sound-quality approval,
+undoable adoption and main-window controls for this path remain in development.
+
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.
 The [clip pitch/stretch dialog](docs/136-stretch-supervision.md) now provides
