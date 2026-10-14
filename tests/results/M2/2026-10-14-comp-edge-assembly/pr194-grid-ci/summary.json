@@ -1,0 +1,27 @@
+{
+  "sourceHead": "be91b084c03ac6af333d1bb776f8f94dbac9719e",
+  "run": 38564240790,
+  "conclusion": "success",
+  "jobsPassed": 4,
+  "linuxTests": 170,
+  "nativeWindowsTests": 93,
+  "nativeWindowsExplicitGridTests": 2,
+  "desktopWindowsTests": 22,
+  "originalArtifactArchivesRetainedLocally": true,
+  "artifactSha256": {
+    "11896590470": "471a327e21a385d7fe714a0dfdc3167942a04dc8b1da8353b19875efb58eec34",
+    "11896485056": "01f9f887941a62b703ade13ed96833dd64285209a3f07219f88e06e15178b351",
+    "11896140186": "11a791c7eb9cc715fc79a827e6a0f6f9cd1ff0a04d30bc3cc9783b2c63228ab7",
+    "11896110211": "675617526423c4d9dbba9ad942b2de22cba03f3035c4b6ce50e98be88407f31e",
+    "11895960331": "a5a4db21e9abff04f6710d59d28279bef33a040e2bfc5a346dc71e2bab75fdfa"
+  },
+  "independentBuildInputAudit": {
+    "payloadFiles": 14,
+    "windowsFilteredSourceFiles": 1536,
+    "collectionAndSourceHashesVerified": true,
+    "bothMediaBuildsMatchPin": true,
+    "mainWindowQualified": false,
+    "nativeAudioQualified": false,
+    "installerPrepared": false
+  }
+}

@@ -16,7 +16,8 @@ including component sizes above the clip's 4,000-component playback limit. Owned
 sine cases check phase/amplitude and partition independence. Seven selected Linux
 tests pass in 10.84 seconds, including existing positioned kernels, fractional and
 linked-rate timing oracles, and comp planning. The new core tests are also wired
-into native Windows CI; their new Windows execution is pending.
+into native Windows CI. Original run 38564240790 against be91b084 passed both
+explicit grid gates and all four jobs; see the retained review in checkpoint 268.
 
 ## Processing observations
 

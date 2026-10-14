@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Separate comp edges and bounded assembly (2026-10-14)
+
+[Checkpoint 268](268-comp-edge-assembly.md) adds bounded PCM assembly with original
+inner samples, resource/failure checks and measured joins. Three focused Linux
+gates pass; 36 actual R3 renders across 12 nonunity/pitched cases retain full PCM
+and independent exact-recipe/boundary analysis. Large join steps prevent quality
+admission despite center preservation. Original preceding hosted grid checks pass
+all four jobs and build inputs pass independent byte/source review. Current
+assembly Windows execution, production jobs, join quality and UI remain open;
+full-suite and all-Europe requirements stay active.
+
 ## Fractional comp processing grids (2026-10-14)
 
 [Checkpoint 267](267-comp-processing-grid.md) supplies exact raw intervals to an
