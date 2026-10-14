@@ -27,13 +27,38 @@ separate transactions; unreferenced orphan sidecars never become trusted jobs.
 
 ## Acceptance
 
-Qualification results are recorded alongside the source-bound archive after the
-current build and tests complete. The corpus covers strict schema round trips,
-global identity collisions, atomic Undo/Redo, missing or changed sidecars, original
-project generations, canceled saves, and copied-project recovery with fresh owner
-context. The final publication corpus retains actual nominal/span workers and
-complete output recomputation. These are controlled fixtures, not power-loss or
-physical audio tests.
+Source-bound commit `a41d260352947cf81bc1910b4a3c650c2dc921ae` passes five
+Linux suites in 31.17 seconds: new assembly project state, existing paired state,
+owned assembly publication, session state and history resources. All selected
+source/library/executable hashes remain unchanged before and after execution.
+[Acceptance index](../tests/results/M2/2026-10-14-comp-assembly-state/index.json)
+binds the 15,694,400-byte, 608-entry archive to the original process receipts,
+project generations, request sidecars, complete/partial files and logs.
+
+The state corpus tests 13 occupied identities in operation and both output slots,
+strict field/type/count/digest checks, old schema preservation, 128 saved jobs,
+quota refusal, Undo/Redo/conflicts, parent/child atomic removal, canceled saves,
+previous generations and Unicode-path relocation. Missing sidecars leave the
+project readable while refusing recovery. Three actual publication fixtures
+persist/register/save/reopen requests, refuse changed digests/reservations/files,
+then copy each project and recover the complete pair under fresh context.
+
+Twelve real nominal/span workers, three publication fixtures and one Linux image
+replacement probe retire successfully. Three original jobs complete, six retain
+injected interruptions and three retain cancellation. All 202,716 complete output
+samples match recomputation; deliberately repaired hashes do not hide the changed
+within-blend sample. These are controlled exception/cancellation fixtures, not
+power-loss or physical audio tests. No canonical audio adoption occurs.
+
+The initial build failure (missing `<array>`) and initial state fixture failure
+(missing referenced audio) are retained in
+[development logs](../tests/results/M2/2026-10-14-comp-assembly-state/development-logs.zip).
+The failed test run still passed the other four suites. The corrected fixture
+writes a real silent PCM16 WAV with its actual hash; media validation was preserved.
+The source tree and corrected test were rebuilt before the final run. Rebuilding
+unchanged mixer units also emitted existing-code diagnostics for optional resource
+initialization and an unused local; this checkpoint does not claim a warning-free
+whole-project build. Final fixture compilation emits no warning.
 
 ## Original prior CI
 

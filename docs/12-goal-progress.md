@@ -1,5 +1,16 @@
 # Active full-suite goal: progress and completion evidence
 
+## Project-owned assembly requests (2026-10-14)
+
+[Checkpoint 281](281-project-assembly-recovery.md) adds conditional schema 1.22,
+trusted immutable request sidecars, globally reserved operation/output identities
+and atomic registration/removal Undo/Redo. Five source-bound Linux suites pass in
+31.17 seconds, including real publication and recovery after project relocation.
+Original preceding CI passes all four jobs and its full artifacts are retained.
+Desktop assembly ownership, explicit post-SRC playback state, paired audio
+adoption, new native execution and processing quality remain open. Full frozen
+professional DAW and European localization requirements remain active.
+
 ## Owned comp assembly publication and recovery (2026-10-14)
 
 [Checkpoint 280](280-owned-comp-assembly-jobs.md) publishes immutable final candidate

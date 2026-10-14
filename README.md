@@ -46,8 +46,10 @@ Comp rendering now includes [verified candidate assembly](docs/278-verified-comp
 with explicit physical and project-rate timing, bounded memory, cancellation and
 [original-render receipt review](docs/279-original-comp-nominal-review.md). Independent
 checks preserve unchanged audio. [Owned candidate publication and recovery](docs/280-owned-comp-assembly-jobs.md)
-now reject partial or altered results. Project integration, sound-quality qualification,
-undoable adoption and main-window controls for this path remain in development.
+now reject partial or altered results. [Project-owned request references](docs/281-project-assembly-recovery.md)
+preserve recovery across save/reopen and relocation, with Undo/Redo and reserved
+output identities. Desktop integration, sound-quality qualification and undoable
+audio adoption for this path remain in development.
 
 The [clip playback-speed control](docs/132-clip-playback-rate.md) retimes duration
 and fades with exact rational state and Undo/Redo; pitch follows speed.
