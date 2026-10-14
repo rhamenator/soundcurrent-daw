@@ -53,7 +53,7 @@
     "ui/stretch_dialog.hpp": "6beec17ecbf35510b009227f3dce412f41c097995d49408e3d89087a0ddf1d38",
     "ui/studio_window.cpp": "91e232979323c735dd9520e360a9454bced55ee5f16e748ee267786a2e0e073f",
     "ui/studio_window.hpp": "143d477a7a39bb4ac1cca610ab1eed215c96447f20789123c854d0b465245404",
-    "ui/timeline_editor.cpp": "a0b9947628d6682ef54ccae5b10d735fdf94358c42e1d0b7086de674afdc3eda",
+    "ui/timeline_editor.cpp": "676bf20e5a509cef254da5f4b14d6865a203db6e28d8bf51ba9c6937729691fe",
     "ui/timeline_editor.hpp": "7e7c58783f6298dec40c02619484985d0177a4d64c0c8675388deee996d3a48e",
     "ui/timeline_view.cpp": "722063a5f19641ad4aad69db57a32b1f2fa781b942a8e434957a65f3ce6fe743",
     "ui/timeline_view.hpp": "c76912f1456c38c13f2b950dff32cbea1965a2f10f4a4396b4b513344026c3d3",

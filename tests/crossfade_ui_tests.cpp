@@ -29,6 +29,13 @@ template<class T> T *widget(QObject &parent,const char *name) {
 int main(int argc,char **argv) {
     QApplication app(argc,argv);
     try {
+        const auto family=qEnvironmentVariable("SC_CROSSFADE_FONT");
+        if(!family.isEmpty()){
+            auto selected=app.font();selected.setFamily(family);
+            bool valid=false;const auto points=qEnvironmentVariable("SC_CROSSFADE_FONT_POINTS").toInt(&valid);
+            if(valid && points>0)selected.setPointSize(points);
+            app.setFont(selected);
+        }
         // Geometry with missing-glyph boxes is not usable UI evidence. Check the
         // real resolved application font before opening or capturing the dialog.
         const auto font=QRawFont::fromFont(app.font());
