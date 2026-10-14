@@ -87,4 +87,7 @@ struct CompAssemblyRecovery {
 };
 CompAssemblyRecovery inspectCompAssembly(const std::filesystem::path &,const Session &,const CompHandlePlanContext &,
     const CompPairSelection &,const CompAssemblyRequest &,ResourceLedger,std::stop_token={});
+// Off GUI/audio: mark an existing owned job canceled, never create/resume a job.
+// A valid paired completion remains committed if cancellation arrives afterward.
+void cancelCompAssembly(const std::filesystem::path &,const CompAssemblyRequest &,ResourceLedger);
 } // namespace soundcurrent::daw

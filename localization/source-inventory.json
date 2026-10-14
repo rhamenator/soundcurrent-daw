@@ -1,6 +1,8 @@
 {
   "source_sha256": {
     "ui/accelerating_spinbox.hpp": "cea53fc8be41c2adee53101c6492e22b34d1dbba8fa8dff6aee9cb651bd9265c",
+    "ui/comp_assembly_controller.cpp": "740b3998af9120bd7e02c39702cb6cf9553f2f1f022c407c157337e2b97e336c",
+    "ui/comp_assembly_controller.hpp": "33f2bbcbe8826b04c5985ccaf4820562305e5acceddd3a679662c5b9d1ac5c09",
     "ui/comp_pair_controller.cpp": "7dd934c9d5bcaea813fff27cb5ece45c06c0214b7497c0dac169764d57dce783",
     "ui/comp_pair_controller.hpp": "25f9cf7dd394a3f6ca58f5d41e61e9125f163f69edd24cf5f12a86d7f082ba4f",
     "ui/equipment_curve.cpp": "4e3f2b588486865eb99b3a9d0810cb232cb8fe91ea3bf568b1708c1d6affd035",

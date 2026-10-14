@@ -152,4 +152,12 @@ CompAssemblyRecovery inspectCompAssembly(const std::filesystem::path &root,const
         else result.state=result.cancellationRequested?CompAssemblyRecoveryState::Canceled:CompAssemblyRecoveryState::Interrupted;
     }catch(const ProjectError &e){if(e.code()==ErrorCode::Canceled)throw;result.state=CompAssemblyRecoveryState::Invalid;result.error=e.code();}return result;
 }
+void cancelCompAssembly(const std::filesystem::path &root,const CompAssemblyRequest &r,ResourceLedger ledger){
+    rootPath(root);const auto folder=root/utf8Path(jobPath(r));if(!present(folder))return;
+    media_io::plainDirectory(folder);auto credit=ledger.reserve(65536);ApprovedMediaRoot approved(root,ledger,{1});
+    const auto poll=[]{};check(read(approved,jobPath(r)+"/intent.json",{},poll)==r.bytes(),"Cannot cancel a different assembly intent");
+    const auto expected=r.digest()+"\n";const auto relative=jobPath(r)+"/cancel.request";
+    if(present(root/utf8Path(relative)))check(read(approved,relative,{},poll)==expected,"Assembly cancellation marker changed");
+    else immutable(root/utf8Path(relative),expected);
+}
 } // namespace soundcurrent::daw
