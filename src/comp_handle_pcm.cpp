@@ -7,15 +7,18 @@
 namespace soundcurrent::daw {
 namespace {
 void require(bool v,const char *why){if(!v)throw ProjectError(ErrorCode::InvalidParameter,why);}
-}
-CompHandlePcmReport assembleCompHandlePcm(const CompHandlePcmSpec &s,
-    const CompHandlePcmRead &current,const CompHandlePcmRead &candidate,
-    const CompHandlePcmWrite &write,ResourceLedger ledger,const std::function<void()> &poll){
+void validateSpec(const CompHandlePcmSpec &s){
     require(s.channels && s.channels<=256 && s.blockFrames && s.blockFrames<=65536,
         "Invalid comp assembly channel/block grant");
     require(s.currentFrames>0 && s.currentFrames<=1000000000 && s.prefixFrames>=0 &&
         s.prefixFrames<=1000000000-s.currentFrames && s.suffixFrames>=0 &&
         s.suffixFrames<=1000000000-s.currentFrames-s.prefixFrames,"Invalid comp assembly extent");
+}
+}
+CompHandlePcmReport assembleCompHandlePcm(const CompHandlePcmSpec &s,
+    const CompHandlePcmRead &current,const CompHandlePcmRead &candidate,
+    const CompHandlePcmWrite &write,ResourceLedger ledger,const std::function<void()> &poll){
+    validateSpec(s);
     require(bool(current) && bool(candidate) && bool(write) && bool(poll),"Missing comp assembly I/O or cancellation poll");
     poll();const auto slabFrames=std::max<std::uint32_t>(s.blockFrames,2);
     const auto samples=std::size_t(slabFrames)*s.channels;
@@ -60,5 +63,54 @@ CompHandlePcmReport assembleCompHandlePcm(const CompHandlePcmSpec &s,
     emit(candidate,s.prefixFrames+s.currentFrames,s.suffixFrames);
     require(report.writtenFrames==s.prefixFrames+s.currentFrames+s.suffixFrames,"Comp assembly incomplete");
     return report;
+}
+CompHandlePcmReport blendCompHandlePcm(const CompHandlePcmSpec &s,
+    const CompHandlePcmBlends &blends,const CompHandlePcmRead &current,
+    const CompHandlePcmRead &candidate,const CompHandlePcmWrite &write,
+    ResourceLedger ledger,const std::function<void()> &poll){
+    validateSpec(s);
+    require(bool(current) && bool(candidate) && bool(write) && bool(poll),"Missing comp blend I/O or cancellation poll");
+    const auto validateBlend=[&](const std::optional<CompHandleInnerBlend> &b,bool prefix){
+        if(!b)return;
+        require((prefix?s.prefixFrames:s.suffixFrames)>0 && b->frames>=2 && b->frames<=s.currentFrames,
+            "Comp blend needs a generated edge and valid inner width");
+        require(b->permittedFirst>=0 && b->permittedEnd>b->permittedFirst && b->permittedEnd<=s.currentFrames,
+            "Invalid permitted comp processing region");
+        const auto first=prefix?0:s.currentFrames-b->frames,end=prefix?b->frames:s.currentFrames;
+        require(first>=b->permittedFirst && end<=b->permittedEnd,"Comp blend exceeds permitted processing region");
+    };
+    validateBlend(blends.prefix,true);validateBlend(blends.suffix,false);
+    const auto prefix=blends.prefix?blends.prefix->frames:0,suffix=blends.suffix?blends.suffix->frames:0;
+    require(prefix<=s.currentFrames-suffix,"Comp blend inner regions overlap");
+    if(!prefix && !suffix)return assembleCompHandlePcm(s,current,candidate,write,ledger,poll);
+    poll();const auto scratchFrames=std::max<std::uint32_t>(2,s.blockFrames);
+    const auto samples=std::size_t(scratchFrames)*s.channels;
+    require(samples<=SIZE_MAX/sizeof(float),"Comp blend scratch overflow");
+    auto lease=ledger.reserve(samples*sizeof(float));std::vector<float> scratch(samples);
+    const CompHandlePcmRead blended=[&](Frame first,std::span<float> values){
+        poll();current(first,values);poll();
+        for(const auto x:values)require(std::isfinite(x),"Incomplete or nonfinite current blend input");
+        const auto last=first+Frame(values.size()/s.channels);
+        const auto apply=[&](Frame begin,Frame end,bool head){
+            const auto low=std::max(first,begin),high=std::min(last,end);if(low>=high)return;
+            const auto count=std::size_t(high-low)*s.channels;auto generated=std::span(scratch).first(count);
+            std::fill(generated.begin(),generated.end(),std::numeric_limits<float>::quiet_NaN());
+            poll();candidate(s.prefixFrames+low,generated);poll();
+            for(const auto x:generated)require(std::isfinite(x),"Incomplete or nonfinite candidate blend input");
+            for(Frame f=low;f<high;++f){
+                const auto t=double(f-begin+1)/double(end-begin+1);
+                const auto curve=std::clamp(t*t*t*(10+t*(-15+6*t)),0.,1.);
+                const auto oldWeight=head?curve:1-curve;
+                for(std::uint32_t ch=0;ch<s.channels;++ch){
+                    auto &old=values[std::size_t(f-first)*s.channels+ch];const auto next=generated[std::size_t(f-low)*s.channels+ch];
+                    if(old!=next)old=float(oldWeight*double(old)+(1-oldWeight)*double(next));
+                    require(std::isfinite(old),"Nonfinite comp blend output");
+                }
+            }
+        };
+        if(prefix)apply(0,prefix,true);
+        if(suffix)apply(s.currentFrames-suffix,s.currentFrames,false);
+    };
+    return assembleCompHandlePcm(s,blended,candidate,write,ledger,poll);
 }
 } // namespace soundcurrent::daw
