@@ -27,7 +27,7 @@ uniform=json.loads((actual[2]/'pcm/report.json').read_text());uniformProcess=jso
 assert uniformProcess['exitCode']==0 and uniform['actualR3Renders']==36 and uniform['maxRelativeFrequencyError']<.01
 clockRows=[row for r in plans['reports'] for row in r['clockRenders']]
 assert len(clockRows)==15 and {r['rawRate'] for r in clockRows}=={44100,48000,96000} and all(r['outputRate']==48000 and not r['ownedRegeneration'] for r in clockRows)
-assert all(abs(c['measuredHz']/c['wantedHz']-1)<.01 for r in clockRows for c in r['channels'])
+assert all(abs(c['measuredHz']/c['wantedHz']-1)<.01 and abs(c['globalPeakHz']/c['wantedHz']-1)<.01 for r in clockRows for c in r['channels'])
 assert len(history['reports'])==len(plans['reports'])==3
 assert all(len(r['reviews'])==2 and r['projectBytesUnchanged'] and r['joinedMemoryReleased'] and not r['newRendering'] and not r['qualityAdmission'] for r in history['reports'])
 assert all(c['assemblies']==1 and c['comparedSamples']>0 for r in history['reports'] for c in r['reviews'])

@@ -69,11 +69,11 @@ void renderedClock(Session s,const std::filesystem::path &root,double baked){
         MediaReadCache cache(root,std::span<const Asset>(&span.source(),1),s.sampleRate,config);
         std::vector<float> output;const auto result=renderCompSpan(span,[&](Frame first,std::span<float> v){cache.read(0,first,v);},[&](auto v){output.insert(output.end(),v.begin(),v.end());},ledger,[]{});
         const auto scale=std::exp2(double(r.originalNominalClip.stretch->settings.pitchMilliCents)/1200000.)*baked;
-        check(result.writtenFrames==span.outputFrames() && output.size()==std::size_t(span.outputFrames())*2,"Regenerated DSP duration changed");
+        check(result.floatPeak>1 && result.writtenFrames==span.outputFrames() && output.size()==std::size_t(span.outputFrames())*2,"Regenerated DSP duration changed");
         const auto expectedFactor=scale*double(span.source().sampleRate)/span.outputSampleRate()*double(span.grid().denominator())/span.grid().numerator();
         check(std::abs(result.backendPitchFactor/expectedFactor-1)<1e-12,"Clock-aware backend pitch factor differs");
         Json channels=Json::array();for(unsigned channel=0;channel<2;++channel){const auto wanted=(channel?1703.:997.)*scale;
-            const auto observed=frequency(output,channel,span.outputSampleRate(),wanted);check(std::abs(observed.fundamental/wanted-1)<.01,"Regenerated spectral pitch differs by more than one percent");
+            const auto observed=frequency(output,channel,span.outputSampleRate(),wanted);check(std::abs(observed.fundamental/wanted-1)<.01 && std::abs(observed.globalPeak/wanted-1)<.01,"Regenerated dominant pitch differs by more than one percent");
             channels.push_back({{"wantedHz",wanted},{"measuredHz",observed.fundamental},{"globalPeakHz",observed.globalPeak},{"relativeFundamental",observed.fundamentalRelativeAmplitude}});
         }
         const auto name="clock-span-"+std::to_string(clockRenders.size())+".pcm";std::ofstream f(root/name,std::ios::binary);f.write(reinterpret_cast<const char *>(output.data()),std::streamsize(output.size()*sizeof(float)));check(bool(f),"Cannot retain clock DSP samples");
@@ -169,8 +169,9 @@ int main(){try{
         auto legacySpan=decodeCompSpanRequest(saved,hashMediaFile(requestPath),context,request.at("executor").at("buildSha256").get<std::string>(),ResourceLedger(192*1024*1024,"Legacy span request"));
         check(legacySpan.bytes()==saved && legacySpan.span().outputSampleRate()==legacySpan.span().source().sampleRate && legacySpan.span().backendClockScale()==SourcePosition{1,0,1},"Retained legacy span request or clock changed");++legacyRecipes;
     }
-    renderedClock(s,root,1.5);
-    auto currentSpeed=s;currentSpeed.tracks[0].clips[0].lengthFrames/=2;currentSpeed.tracks[0].clips[0].playbackRate={5,4};renderedClock(currentSpeed,root,1.5);
+    const double initialBaked=s.compPlaybackSources.at(0).source.domain==CompProcessingDomain::ProjectAfterSrc?1.5:1.;
+    renderedClock(s,root,initialBaked);
+    auto currentSpeed=s;currentSpeed.tracks[0].clips[0].lengthFrames/=2;currentSpeed.tracks[0].clips[0].playbackRate={5,4};renderedClock(currentSpeed,root,initialBaked);
     plannedRoundtrip(s);
     mixedAdmission(s);
     check(s.compPlaybackSources.size()==2,"Expected actual paired adoption fixture");
@@ -217,7 +218,7 @@ int main(){try{
         check(r.history.size()==3+pass,"Nested source closure omitted ancestor/sibling");
         const auto &leaf=*findCompPlaybackSource(nested,nested.tracks[0].clips[0].assetId);
         for(Frame f=0;f<r.current.frames;f+=17)check(compRegenerationRawPosition(r,{f,2,5})==compPlaybackRawPosition(leaf.source,{f,2,5}),"Nested crop map differs");
-        check(decodeProject(encodeProject(nested))==nested,"Regeneration lineage changed across codec");plannedRoundtrip(nested);renderedClock(nested,root,pass==0?2.25:(pass==1?2.25:3.375));++depth;
+        check(decodeProject(encodeProject(nested))==nested,"Regeneration lineage changed across codec");plannedRoundtrip(nested);renderedClock(nested,root,initialBaked*(pass==2?2.25:1.5));++depth;
     }
     check(ledger.usage().reservedBytes==0,"Nested resolution retained resources");
     const auto &c=s.tracks[0].clips[0];ResourceLedger tiny(1,"Tiny regeneration");
